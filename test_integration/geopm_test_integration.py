@@ -413,7 +413,7 @@ class TestIntegration(unittest.TestCase):
             tt = tt.groupby(level=['region_id'])
             for region_name in regions:
                 region_data = self._output.get_report_data(node_name=nn, region=region_name)
-                if region_name != 'unmarked-region' and region_data['runtime'].item() != 0:
+                if region_name not in ['unmarked-region', 'model-init'] and not region_name.startswith('MPI_') and region_data['runtime'].item() != 0:
                     trace_data = tt.get_group((region_data['id'].item()))
                     trace_elapsed_time = trace_data.iloc[-1]['seconds'] - trace_data.iloc[0]['seconds']
                     if region_name == 'epoch':
@@ -456,7 +456,7 @@ class TestIntegration(unittest.TestCase):
             tt = tt.groupby(level=['region_id'])
             for region_name in regions:
                 region_data = self._output.get_report_data(node_name=nn, region=region_name)
-                if region_name not in ['unmarked-region', 'model-init', 'epoch'] and region_data['runtime'].item() != 0:
+                if region_name not in ['unmarked-region', 'model-init', 'epoch'] and not region_name.startswith('MPI_') and region_data['runtime'].item() != 0:
                     trace_data = tt.get_group(region_data['id'].item())
                     filtered_df = self.create_progress_df(trace_data)
                     first_time = False
@@ -942,9 +942,9 @@ class TestIntegration(unittest.TestCase):
             # MPI time and all2all time.
             mpi_epsilon = max(unmarked_data['runtime'].item() / all2all_data['mpi_runtime'].item(), 0.05)
             self.assertNear(all2all_data['mpi_runtime'].item(), all2all_data['runtime'].item(), mpi_epsilon)
-            self.assertEqual(all2all_data['mpi_runtime'].item(), epoch_data['mpi_runtime'].item())
+            self.assertNear(all2all_data['mpi_runtime'].item(), epoch_data['mpi_runtime'].item())
             # TODO: inconsistent; can we just use _ everywhere?
-            self.assertEqual(all2all_data['mpi_runtime'].item(), app_total['mpi-runtime'].item())
+            self.assertNear(all2all_data['mpi_runtime'].item(), app_total['mpi-runtime'].item())
             self.assertEqual(0, unmarked_data['mpi_runtime'].item())
             self.assertEqual(0, sleep_data['mpi_runtime'].item())
             self.assertEqual(0, dgemm_data['mpi_runtime'].item())
