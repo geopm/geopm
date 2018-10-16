@@ -191,9 +191,6 @@ namespace geopm
         for (const auto &region : region_ordered) {
             uint64_t mpi_region_id = geopm_region_id_set_mpi(region.id);
             uint64_t printed_id = region.id;
-            if (region.name.find("MPI_") == 0) {
-                printed_id = geopm_region_id_set_mpi(region.id);
-            }
             report << "Region " << region.name << " (0x" << std::hex
                    << std::setfill('0') << std::setw(16)
                    << printed_id << std::dec << "):"
