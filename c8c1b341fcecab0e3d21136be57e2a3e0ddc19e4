@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff78c455_9fadad6a",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-10-17T22:58:01Z",
+      "side": 1,
+      "message": "Should be g_ppn1_comm",
+      "range": {
+        "startLine": 225,
+        "startChar": 33,
+        "endLine": 225,
+        "endChar": 56
+      },
+      "revId": "c8c1b341fcecab0e3d21136be57e2a3e0ddc19e4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a2f01d8c_141c32ff",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-10-17T22:58:01Z",
+      "side": 1,
+      "message": "Put barrier inside of geopm_ctl_create() using input comm.",
+      "range": {
+        "startLine": 226,
+        "startChar": 26,
+        "endLine": 226,
+        "endChar": 42
+      },
+      "revId": "c8c1b341fcecab0e3d21136be57e2a3e0ddc19e4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
