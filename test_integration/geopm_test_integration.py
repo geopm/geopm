@@ -655,6 +655,10 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('dgemm', 8.0)
         app_conf.set_loop_count(loop_count)
+
+        if os.getenv("GEOPM_AGENT", None) is not None:
+            old_agent = os.getenv("GEOPM_AGENT", None)
+
         fam, mod = get_platform()
         if fam == 6 and mod in (45, 47, 79):
             # set budget for BDX server
@@ -664,9 +668,11 @@ class TestIntegration(unittest.TestCase):
             self._options['power_budget'] = 200
         else:
             self._options['power_budget'] = 200
-        ctl_conf = geopmpy.io.CtlConf(name + '_ctl.config', self._mode, self._options)
-        self._tmp_files.append(ctl_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, ctl_conf, report_path,
+        gov_agent_conf_path = name + '_gov_ctl.config'
+        self._tmp_files.append(gov_agent_conf_path)
+        gov_agent_conf = geopmpy.io.AgentConf(gov_agent_conf_path, self._options)
+        os.environ['GEOPM_AGENT'] = 'power_governor'
+        launcher = geopm_test_launcher.TestLauncher(app_conf, gov_agent_conf, report_path,
                                                     trace_path, time_limit=900)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
@@ -713,6 +719,11 @@ class TestIntegration(unittest.TestCase):
 
             # TODO Checks on the maximum power computed during the run?
             # TODO Checks to see how much power was left on the table?
+
+        try:
+            os.environ['GEOPM_AGENT'] = old_agent
+        except NameError:
+            pass
 
     @skip_unless_run_long_tests()
     @skip_unless_slurm_batch()
