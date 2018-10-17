@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "580836f4_37267f0b",
+        "filename": "src/RegionAggregator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-10-17T23:29:52Z",
+      "side": 1,
+      "message": "Move this into geopm.h and use\n#include \u003ctypes.h\u003e\nthere to support C",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 18
+      },
+      "revId": "73eaf4b000e918839a0c4e4fa27c60a51ab864d5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
