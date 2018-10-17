@@ -183,6 +183,7 @@ static int geopm_pmpi_init(const char *exec_name)
                     }
                 }
                 if (!err) {
+                    PMPI_Barrier(g_geopm_comm_world_swap);
                     err = geopm_ctl_create(policy, g_geopm_comm_world_swap, &g_ctl);
                 }
                 if (!err) {
@@ -221,6 +222,7 @@ static int geopm_pmpi_init(const char *exec_name)
                     err = geopm_policy_create(geopm_env_policy(), NULL, &policy);
                 }
                 if (!err) {
+                    PMPI_Barrier(g_geopm_comm_world_swap);
                     err = geopm_ctl_create(policy, g_ppn1_comm, &g_ctl);
                 }
 #ifndef __APPLE__

@@ -111,6 +111,7 @@ extern "C"
         try {
             auto tmp_comm = geopm::comm_factory().make_plugin(geopm_env_comm());
             if (geopm_env_do_kontroller()) {
+                tmp_comm->barrier();
                 geopm::Kontroller ctl(std::move(tmp_comm), geopm_env_policy());
                 err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
             }
