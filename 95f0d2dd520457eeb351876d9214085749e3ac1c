@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6bf77eaf_f2c97b8b",
+        "filename": "src/ProfileTable.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-10-17T23:19:45Z",
+      "side": 1,
+      "message": "Don\u0027t need this pair.",
+      "range": {
+        "startLine": 186,
+        "startChar": 49,
+        "endLine": 186,
+        "endChar": 57
+      },
+      "revId": "95f0d2dd520457eeb351876d9214085749e3ac1c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25826c7e_285c8dbb",
+        "filename": "src/ProfileTable.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-10-17T23:19:45Z",
+      "side": 1,
+      "message": "Not used.",
+      "range": {
+        "startLine": 202,
+        "startChar": 45,
+        "endLine": 202,
+        "endChar": 50
+      },
+      "revId": "95f0d2dd520457eeb351876d9214085749e3ac1c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
