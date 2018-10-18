@@ -244,8 +244,9 @@ class TestFreqSweepAnalysis(unittest.TestCase):
         single_run_report = make_mock_report_df(prof_name, 'energy_pkg', optimal_metric_perf)
         parse_out = sweep_reports.append(single_run_report)
         parse_out.sort_index(ascending=True, inplace=True)
+        parse_out = sweep_reports, parse_out
 
-        energy_result = self._offline_analysis.summary_process(parse_out)
+        _, _, energy_result = self._offline_analysis.summary_process(parse_out)
         expected_energy_df = get_expected_baseline_output_df([prof_name], 'energy_pkg',
                                                              baseline_metric_perf,
                                                              {prof_name: optimal_metric_perf})
