@@ -115,7 +115,7 @@ class Analysis(object):
         produced by launch.
         """
         report_glob = self._name + search_pattern
-        self.set_data_paths(report_glob)
+        self.set_data_paths(glob.glob(report_glob))
 
     def set_data_paths(self, report_paths, trace_paths=None):
         """
@@ -1106,7 +1106,7 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         # Run frequency sweep
         self._sweep_analysis.launch(config)
         self._min_freq = self._sweep_analysis._min_freq
-        self._max_freq = self._sweep_analysis._min_freq
+        self._max_freq = self._sweep_analysis._max_freq
         self._sweep_analysis.find_files()
         parse_output = self._sweep_analysis.parse()
         process_output = self._sweep_analysis.summary_process(parse_output)
@@ -1124,8 +1124,6 @@ class OfflineBaselineComparisonAnalysis(Analysis):
             trace_path = os.path.join(self._output_dir, profile_name + '_{}.trace'.format(iteration))
 
             if config.app_argv and not os.path.exists(report_path):
-                os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(self._min_freq)
-                os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(self._max_freq)
                 argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
                                  '--geopm-agent', agent_conf.get_agent(),
                                  '--geopm-policy', agent_conf.get_path(),
@@ -1156,40 +1154,36 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         # each keeps track of only their own report paths, so need to combine parses
         sweep_output = self._sweep_analysis.parse()
         app_output = super(OfflineBaselineComparisonAnalysis, self).parse()
-        self._sweep_parse_output = sweep_output
-
-        # Print the region frequency map
-        sweep_summary_process = self._sweep_analysis.summary_process(sweep_output)
-        region_freq_str = self._sweep_analysis._region_freq_str(sweep_summary_process['region_freq_map'])
-        sys.stdout.write(self._sweep_analysis._region_freq_str_pretty(sweep_summary_process['region_freq_map']))
-
-        self._freq_pnames = FreqSweepAnalysis.get_freq_profiles(self._sweep_parse_output, self._sweep_analysis._name)
-
-        parse_output = self._sweep_parse_output.append(app_output)
+        parse_output = sweep_output
+        self._freq_pnames = FreqSweepAnalysis.get_freq_profiles(parse_output, self._sweep_analysis._name)
+        parse_output = parse_output.append(app_output)
         parse_output.sort_index(ascending=True, inplace=True)
-
-        return parse_output
+        return sweep_output, parse_output
 
     def summary_process(self, parse_output):
+        sweep_output, offline_output = parse_output
         comp_name = self._name + '_offline'
-        baseline_comp_df = baseline_comparison(parse_output, comp_name)
-        return baseline_comp_df
+        baseline_comp_df = baseline_comparison(offline_output, comp_name)
+        sweep_summary_process = self._sweep_analysis.summary_process(sweep_output)
+        sweep_means_df = self._sweep_analysis._region_means_df(sweep_output)
+        return sweep_summary_process, sweep_means_df, baseline_comp_df
 
     def summary(self, process_output):
+        sweep_summary_process, sweep_means_df, comp_df = process_output
         name = self._name + '_offline'
         ref_freq_idx = 0 if self._enable_turbo else 1
         ref_freq = int(self._freq_pnames[ref_freq_idx][0] * 1e-6)
 
         rs = 'Summary for {}\n\n'.format(name)
-        rs += 'Energy Decrease compared to {} MHz: {:.2f}%\n'.format(ref_freq, process_output.loc[pandas.IndexSlice['epoch', ref_freq], 'energy_savings'])
-        rs += 'Runtime Decrease compared to {} MHz: {:.2f}%\n\n'.format(ref_freq, process_output.loc[pandas.IndexSlice['epoch', ref_freq], 'runtime_savings'])
+        rs += self._sweep_analysis._region_freq_str_pretty(sweep_summary_process['region_freq_map']) + '\n'
+        rs += 'Energy Decrease compared to {} MHz: {:.2f}%\n'.format(ref_freq, comp_df.loc[pandas.IndexSlice['epoch', ref_freq], 'energy_savings'])
+        rs += 'Runtime Decrease compared to {} MHz: {:.2f}%\n\n'.format(ref_freq, comp_df.loc[pandas.IndexSlice['epoch', ref_freq], 'runtime_savings'])
         rs += 'Epoch data:\n'
-        rs += str(process_output.loc[pandas.IndexSlice['epoch', :], ].sort_index(ascending=False)) + '\n'
+        rs += str(comp_df.loc[pandas.IndexSlice['epoch', :], ].sort_index(ascending=False)) + '\n'
         rs += '-' * 120 + '\n'
         sys.stdout.write(rs + '\n')
 
         if self._verbose:
-            sweep_means_df = self._sweep_analysis._region_means_df(self._sweep_parse_output)
             rs = '=' * 120 + '\n'
             rs += 'Frequency Sweep Data\n'
             rs += '=' * 120 + '\n'
@@ -1197,7 +1191,7 @@ class OfflineBaselineComparisonAnalysis(Analysis):
             rs += '=' * 120 + '\n'
             rs += 'Offline Analysis Data\n'
             rs += '=' * 120 + '\n'
-            rs += all_region_data_pretty(process_output)
+            rs += all_region_data_pretty(comp_df)
             sys.stdout.write(rs + '\n')
 
     def plot_process(self, parse_output):
