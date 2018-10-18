@@ -1099,6 +1099,7 @@ class TestIntegration(unittest.TestCase):
         parse_output = analysis.parse()
         process_output = analysis.summary_process(parse_output)
         analysis.summary(process_output)
+        _, _, process_output = process_output
         sticker_freq_idx = process_output.loc['epoch'].index[-2]
         energy_savings_epoch = process_output.loc['epoch']['energy_savings'][sticker_freq_idx]
         runtime_savings_epoch = process_output.loc['epoch']['runtime_savings'][sticker_freq_idx]
