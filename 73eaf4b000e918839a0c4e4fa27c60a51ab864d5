@@ -22,6 +22,30 @@
       "revId": "73eaf4b000e918839a0c4e4fa27c60a51ab864d5",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fde4f2ca_c739bde3",
+        "filename": "src/RegionAggregator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-10-18T00:17:38Z",
+      "side": 1,
+      "message": "Addressed.  Moved to geopm.h and using #include \u003cstddef.h\u003e.  \u003ctypes.h\u003e resulted in header not found.",
+      "parentUuid": "580836f4_37267f0b",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 18
+      },
+      "revId": "73eaf4b000e918839a0c4e4fa27c60a51ab864d5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
