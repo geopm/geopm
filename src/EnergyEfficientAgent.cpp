@@ -255,8 +255,7 @@ namespace geopm
                             std::unique_ptr<EnergyEfficientRegion>(
                                 new EnergyEfficientRegion(m_platform_io, m_freq_min,
                                     m_freq_max, M_FREQ_STEP,
-                                    m_signal_idx[M_SIGNAL_RUNTIME],
-                                    m_signal_idx[M_SIGNAL_PKG_ENERGY])));
+                                    m_signal_idx[M_SIGNAL_RUNTIME])));
                         region_it = tmp.first;
                     }
                     region_it->second->update_entry();
@@ -272,8 +271,7 @@ namespace geopm
                             std::unique_ptr<EnergyEfficientRegion>(
                                 new EnergyEfficientRegion(m_platform_io, m_freq_min,
                                     m_freq_max, M_FREQ_STEP,
-                                    m_signal_idx[M_SIGNAL_RUNTIME],
-                                    m_signal_idx[M_SIGNAL_PKG_ENERGY])));
+                                    m_signal_idx[M_SIGNAL_RUNTIME])));
                         region_it = tmp.first;
                     }
                     region_it->second->update_exit();

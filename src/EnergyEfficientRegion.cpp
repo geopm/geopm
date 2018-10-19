@@ -42,11 +42,9 @@ namespace geopm
     EnergyEfficientRegion::EnergyEfficientRegion(IPlatformIO &platform_io,
                                                  double freq_min, double freq_max,
                                                  double freq_step,
-                                                 int runtime_idx,
-                                                 int pkg_energy_idx)
+                                                 int runtime_idx)
         : m_platform_io(platform_io)
         , m_runtime_idx(runtime_idx)
-        , m_pkg_energy_idx(pkg_energy_idx)
     {
         update_freq_range(freq_min, freq_max, freq_step);
     }
@@ -57,7 +55,6 @@ namespace geopm
         ///       or make m_freq_step const
         const struct m_freq_ctx_s freq_ctx_stub = {.num_increase = 0,
                                                    .perf_max = 0.0,
-                                                   .energy_min = 0.0,
                                                    .num_sample = 0,};
         // set up allowed frequency range
         m_freq_step = freq_step;
@@ -95,11 +92,6 @@ namespace geopm
         return -1.0 * runtime;
     }
 
-    double EnergyEfficientRegion::energy_metric()
-    {
-        return m_platform_io.sample(m_pkg_energy_idx);
-    }
-
     double EnergyEfficientRegion::freq(void) const
     {
         return m_curr_freq;
@@ -107,27 +99,20 @@ namespace geopm
 
     void EnergyEfficientRegion::update_entry()
     {
-        m_start_energy = energy_metric();
+
     }
 
     void EnergyEfficientRegion::update_exit()
     {
         auto &curr_freq_ctx = m_freq_ctx_map[m_curr_freq / m_freq_step];
-        auto step_up_freq_ctx_it = m_freq_ctx_map.find((m_curr_freq + m_freq_step) / m_freq_step);
         if (m_is_learning) {
             double perf = perf_metric();
-            double energy = energy_metric() - m_start_energy;
-            if (!std::isnan(perf) && !std::isnan(energy) &&
-                perf != 0.0 && energy != 0.0) {
+            if (!std::isnan(perf) && perf != 0.0) {
                 // find the max perf and min energy for this frequency
                 // TODO: would be nicer to keep a circular buffer of values for perf
                 if (curr_freq_ctx.num_sample == 0 ||
                     curr_freq_ctx.perf_max < perf) {
                     curr_freq_ctx.perf_max = perf;
-                }
-                if (curr_freq_ctx.num_sample == 0 ||
-                    curr_freq_ctx.energy_min > energy) {
-                    curr_freq_ctx.energy_min = energy;
                 }
                 ++curr_freq_ctx.num_sample;
             }
@@ -148,12 +133,7 @@ namespace geopm
                 bool do_increase = false;
                 // assume best min energy is at highest freq if energy follows cpu-bound
                 // pattern; otherwise, energy should decrease with frequency.
-                auto step_up_freq_ctx = step_up_freq_ctx_it->second;
-                if (m_curr_freq != m_curr_freq_max &&
-                    step_up_freq_ctx.energy_min < (1.0 - M_ENERGY_MARGIN) * curr_freq_ctx.energy_min) {
-                    do_increase = true;
-                }
-                else if (m_target != 0.0) {
+                if (m_target != 0.0) {
                     if (curr_freq_ctx.perf_max > m_target) {
                         double next_freq = m_curr_freq - m_freq_step;
                         if (m_allowed_freq.find(next_freq) != m_allowed_freq.end()) {
