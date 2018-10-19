@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27524fc9_ae123bda",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1176,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-10-19T00:04:22Z",
+      "side": 0,
+      "message": "please avoid these changes as they will make merging with killing a legacy patch more painful than need be.",
+      "range": {
+        "startLine": 1172,
+        "startChar": 0,
+        "endLine": 1176,
+        "endChar": 28
+      },
+      "revId": "7eeb3c428cc3b8a6db3e89484609159f1c9aedb9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
