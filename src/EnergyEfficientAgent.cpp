@@ -206,7 +206,7 @@ namespace geopm
                 //case GEOPM_REGION_HINT_UNKNOWN:
                 //case GEOPM_REGION_HINT_IGNORE:
                 default:
-                    freq = m_freq_min;
+                    freq = m_freq_max;
                     break;
             }
             m_rid_freq_map[geopm_region_id_hash(m_last_region_id)] = freq;
