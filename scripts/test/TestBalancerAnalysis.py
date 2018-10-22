@@ -48,6 +48,7 @@ class TestBalancerAnalysis(unittest.TestCase):
                         'output_dir': '.',
                         'verbose': True,
                         'iterations': 1,
+                        'overhead_output': '',
                         'min_power': self._min_power, 'max_power': self._max_power,
                         'step_power': self._step_power}
         self._tmp_files = []
@@ -130,18 +131,20 @@ class TestBalancerAnalysis(unittest.TestCase):
     def test_balancer_plot_process_runtime(self):
         metric = 'runtime'
         report_df = self.make_mock_report_df()
+        parse_output = {'report_df' : report_df}
         analysis = geopmpy.analysis.BalancerAnalysis(metric=metric, normalize=False, speedup=False,
                                                      **self._config)
-        result = analysis.plot_process(report_df)
+        result = analysis.plot_process(parse_output)
         expected_df = self.make_expected_summary_df(metric)
 
         compare_dataframe(self, expected_df, result)
 
     def test_balancer_plot_process_energy(self):
         report_df = self.make_mock_report_df()
+        parse_output = {'report_df' : report_df}
         analysis = geopmpy.analysis.BalancerAnalysis(metric='energy', normalize=False, speedup=False,
                                                      **self._config)
-        result = analysis.plot_process(report_df)
+        result = analysis.plot_process(parse_output)
         expected_df = self.make_expected_summary_df('energy_pkg')
 
         compare_dataframe(self, expected_df, result)
@@ -149,9 +152,11 @@ class TestBalancerAnalysis(unittest.TestCase):
     def test_balancer_plot_process_power(self):
         metric = 'power'
         report_df = self.make_mock_report_df()
+        parse_output = {'report_df' : report_df}
+        parsed_files_tuple = (report_df, '', '')
         analysis = geopmpy.analysis.BalancerAnalysis(metric=metric, normalize=False, speedup=False,
                                                      **self._config)
-        result = analysis.plot_process(report_df)
+        result = analysis.plot_process(parse_output)
         expected_df = self.make_expected_summary_df(metric)
 
         compare_dataframe(self, expected_df, result)

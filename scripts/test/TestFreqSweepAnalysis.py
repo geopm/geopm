@@ -195,7 +195,7 @@ class TestFreqSweepAnalysis(unittest.TestCase):
         self._step_freq = 100e6
         self._mid_freq = self._max_freq - self._step_freq*2
         config = {'profile_prefix': self._name_prefix, 'output_dir': '.',
-                  'verbose': True, 'iterations': 1,
+                  'verbose': True, 'iterations': 1, 'overhead_output': '',
                   'min_freq': self._min_freq, 'max_freq': self._max_freq,
                   'enable_turbo': True}
         self._sweep_analysis = geopmpy.analysis.FreqSweepAnalysis(**config)
@@ -244,8 +244,9 @@ class TestFreqSweepAnalysis(unittest.TestCase):
         single_run_report = make_mock_report_df(prof_name, 'energy_pkg', optimal_metric_perf)
         parse_out = sweep_reports.append(single_run_report)
         parse_out.sort_index(ascending=True, inplace=True)
+        parse_output = {'report_df' : parse_out}
 
-        energy_result = self._offline_analysis.summary_process(parse_out)
+        energy_result = self._offline_analysis.summary_process(parse_output)
         expected_energy_df = get_expected_baseline_output_df([prof_name], 'energy_pkg',
                                                              baseline_metric_perf,
                                                              {prof_name: optimal_metric_perf})
@@ -274,8 +275,9 @@ class TestFreqSweepAnalysis(unittest.TestCase):
         single_run_report = make_mock_report_df(prof_name, 'energy_pkg', optimal_metric_perf)
         parse_out = sweep_reports.append(single_run_report)
         parse_out.sort_index(ascending=True, inplace=True)
+        parse_output = {'report_df' : parse_out}
 
-        energy_result = self._online_analysis.summary_process(parse_out)
+        energy_result = self._online_analysis.summary_process(parse_output)
 
         expected_energy_df = get_expected_baseline_output_df([prof_name], 'energy_pkg',
                                                              baseline_metric_perf,
@@ -327,8 +329,9 @@ class TestFreqSweepAnalysis(unittest.TestCase):
                                                    metric_perfs)
             expected_energy_df = expected_energy_df.append(energy_df, ignore_index=True)
 
-        parse_output = all_reports
-        parse_output.sort_index(ascending=True, inplace=True)
+        parse_out = all_reports
+        parse_out.sort_index(ascending=True, inplace=True)
+        parse_output = {'report_df' : parse_out}
         energy_result, runtime_result, app_freq_df = self._mix_analysis.summary_process(parse_output)
 
         expected_columns = expected_energy_df.columns

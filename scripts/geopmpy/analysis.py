@@ -37,7 +37,8 @@ import argparse
 import sys
 import os
 import glob
-from collections import defaultdict
+import re
+from collections import OrderedDict
 import socket
 import json
 import math
@@ -94,11 +95,12 @@ class Analysis(object):
         """
         raise NotImplementedError('Analysis base class does not implement the help_text() method')
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations):
+    def __init__(self, profile_prefix, output_dir, verbose, iterations, overhead_output):
         self._name = profile_prefix
         self._output_dir = output_dir
         self._verbose = verbose
         self._iterations = iterations
+        self._overhead_output = overhead_output
         self._report_paths = []
         self._trace_paths = []
         if not os.path.exists(self._output_dir):
@@ -135,7 +137,15 @@ class Analysis(object):
         Load any necessary data from the application result files into memory for analysis.
         """
         output = geopmpy.io.AppOutput(self._report_paths, None, dir_name=self._output_dir, verbose=True)
-        return output.get_report_df()
+
+        parse_output = {}
+        parse_output['report_df'] = output.get_report_df()
+        parse_output['app_totals_df'] = output.get_app_total_data()
+
+        if self._overhead_output != '':
+            parse_output['overhead_df'] = self._parse_overhead_output()
+
+        return parse_output
 
     def plot_process(self, parse_output):
         """
@@ -160,6 +170,94 @@ class Analysis(object):
         Generate graphical plots of the results.
         """
         raise NotImplementedError('Analysis base class does not implement the plot() method')
+
+    def _parse_overhead_output(self):
+        power_budget = []
+        agent = []
+        iteration = []
+        startup_time = []
+        runtime = []
+        shutdown_time = []
+
+        job_name = os.path.basename(self._overhead_output)
+
+        float_regex = r'([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)'
+
+        overhead_enabled = False
+        with open(self._overhead_output, 'r') as fid:
+            for line in fid:
+                # TODO This is currently broken for any agent that is not named <WORD 1>_<WORD 2>
+                #      GEOPM_AGENT can be used for the AGENT.
+                #      The other fields should be based on the regexi for the GEOPM_POLICY:
+                #        <AGENT NAME>_<POWER_BUDGET>_<ITERATION>_policy.json
+                #  match = re.search(r'^GEOPM_AGENT=(\S+) GEOPM_PROFILE=(\S+)', line)
+                match = re.search(r'.*GEOPM_POLICY=(\S+) .*', line)
+                if match is not None:
+                    overhead_enabled = True
+                    policy_list = match.group(1).split('_')
+                    agent.append('_'.join(policy_list[:2]))
+                    power_budget.append(int(policy_list[2]))
+                    iteration.append(int(policy_list[3]))
+
+                    #  agent.append(match.group(1))
+                    #  power_budget.append(int(match.group(2).split('_')[1]))
+                    #  iteration.append(1)
+
+                    #  import code
+                    #  code.interact(local=dict(globals(), **locals()))
+
+                match = re.search(r'^GEOPM startup \(seconds\):\s+' + float_regex, line)
+                if match is not None:
+                    startup_time.append(float(match.group(1)))
+
+                match = re.search(r'^GEOPM runtime \(seconds\):\s+' + float_regex, line)
+                if match is not None:
+                    runtime.append(float(match.group(1)))
+
+                match = re.search(r'^GEOPM shutdown \(seconds\):\s+' + float_regex, line)
+                if match is not None:
+                    shutdown_time.append(float(match.group(1)))
+
+        if not overhead_enabled:
+            return None
+
+        # Determine the minimum length of the lists populated above.  This handles the case when the job was cancelled
+        # for some reason and did not run to completion.  The above lists will have different lengths which Pandas cannot handle.
+        min_length = min(len(power_budget), len(agent), len(iteration), len(startup_time), len(runtime), len(shutdown_time))
+
+        od = OrderedDict((('power_budget', power_budget),
+                     ('agent', agent),
+                     ('iteration', iteration),
+                     ('startup_time', startup_time),
+                     ('runtime', runtime),
+                     ('shutdown_time', shutdown_time)))
+        df = pandas.DataFrame({k:pandas.Series(v[:min_length]) for k,v in od.items()})
+        df = df.set_index(['power_budget', 'iteration', 'agent'])
+        df['total_time'] = df['startup_time'] + df['runtime'] + df['shutdown_time']
+
+        output_file = job_name + '.overhead.log'
+
+        if self._verbose:
+            sys.stdout.write('Writing {}... '.format(output_file))
+            sys.stdout.flush()
+        with open(output_file, 'w') as fid:
+            #  out_file.write('=' * 80 + '\n')
+            fid.write('Overhead {} :\n{}\nStartup Time :\n{}\n\n{}\nRuntime :\n{}\n\n{}\nShutdown Time :\n{}\n\n{}\nTotal Time :\n{}\n'.format(
+                      output_file,
+                      '=' * 80,
+                      df['startup_time'].groupby(level=['agent', 'power_budget']).describe(),
+                      '-' * 80,
+                      df['runtime'].groupby(level=['agent', 'power_budget']).describe(),
+                      '-' * 80,
+                      df['shutdown_time'].groupby(level=['agent', 'power_budget']).describe(),
+                      '-' * 80,
+                      df['total_time'].groupby(level=['agent', 'power_budget']).describe(),
+                     ))
+        if self._verbose:
+            sys.stdout.write('Done.\n')
+            sys.stdout.flush()
+
+        return df
 
 
 class PowerSweepAnalysis(Analysis):
@@ -216,9 +314,9 @@ class PowerSweepAnalysis(Analysis):
   --agent-type          Specify which agent to use.  Default is power_governor.
 """.format(PowerSweepAnalysis.__doc__)
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations,
+    def __init__(self, profile_prefix, output_dir, verbose, iterations, overhead_output,
                  min_power, max_power, step_power, agent_type='power_governor'):
-        super(PowerSweepAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
+        super(PowerSweepAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations, overhead_output)
         self._min_power = min_power
         self._max_power = max_power
         self._step_power = step_power
@@ -301,7 +399,8 @@ class PowerSweepAnalysis(Analysis):
         return df
 
     def summary_process(self, parse_output):
-        df = PowerSweepAnalysis.extract_index_from_profile(parse_output)
+        df = parse_output['report_df']
+        df = PowerSweepAnalysis.extract_index_from_profile(df)
         idx = pandas.IndexSlice
         # profile name has been changed to power cap
         df = df.loc[idx[:, self._min_power:self._max_power, :, :, :,
@@ -352,12 +451,12 @@ class BalancerAnalysis(Analysis):
 
 {}""".format(BalancerAnalysis.__doc__, PowerSweepAnalysis.help_text())
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations,
+    def __init__(self, profile_prefix, output_dir, verbose, iterations, overhead_output,
                  min_power, max_power, step_power, metric, normalize, speedup):
-        super(BalancerAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
-        self._governor_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations,
+        super(BalancerAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations, overhead_output)
+        self._governor_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations, overhead_output,
                                                         min_power, max_power, step_power, 'power_governor')
-        self._balancer_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations,
+        self._balancer_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations, overhead_output,
                                                         min_power, max_power, step_power, 'power_balancer')
         self._metric = metric
         if self._metric == 'energy':
@@ -384,7 +483,8 @@ class BalancerAnalysis(Analysis):
         self._balancer_power_sweep.launch(config)
 
     def summary_process(self, parse_output):
-        report_df = PowerSweepAnalysis.extract_index_from_profile(parse_output)
+        report_df = parse_output['report_df']
+        report_df = PowerSweepAnalysis.extract_index_from_profile(report_df)
         report_df['power'] = report_df['energy_pkg'] / report_df['runtime']
         report_df.reset_index(['power_budget', 'tree_decider', 'leaf_decider'], drop=True, inplace=True)
         report_df.index = report_df.index.set_names('power_budget', level='name')
@@ -395,10 +495,23 @@ class BalancerAnalysis(Analysis):
 
         summary_df = mean_report_df.groupby(['power_budget', 'agent', 'region']).mean() # node_name not in group
 
-        return report_df, mean_report_df, summary_df
+        app_totals_df = PowerSweepAnalysis.extract_index_from_profile(parse_output['app_totals_df'])
+        app_totals_df.reset_index(['power_budget', 'tree_decider', 'leaf_decider'], drop=True, inplace=True)
+        app_totals_df.index = app_totals_df.index.set_names('power_budget', level='name')
+
+        summary_data = {'report_df' : report_df, 'mean_report_df' : mean_report_df, 'summary_df' : summary_df,
+                        'app_totals_df' : app_totals_df}
+
+        if self._overhead_output != '':
+            summary_data['overhead_df'] = parse_output['overhead_df']
+
+        return summary_data
 
     def summary(self, process_output):
-        report_df, mean_report_df, summary_df = process_output
+        report_df = process_output['report_df']
+        mean_report_df = process_output['mean_report_df']
+        summary_df = process_output['summary_df']
+
         idx = pandas.IndexSlice
         pandas.set_option('display.max_rows', None)
 
@@ -460,8 +573,35 @@ class BalancerAnalysis(Analysis):
             sys.stdout.write('Done.\n')
             sys.stdout.flush()
 
+        if self._overhead_output != '':
+            overhead_df = process_output['overhead_df']
+            app_totals_df = process_output['app_totals_df']
+
+            a = overhead_df['total_time'].groupby(['agent', 'power_budget']).describe()
+            b = app_totals_df['runtime'].groupby(['agent', 'power_budget']).describe()
+
+            if self._verbose:
+                sys.stdout.write('Writing combined_overhead.log... ')
+                sys.stdout.flush()
+            with open('combined_overhead.log', 'w') as out_file:
+                out_file.write('=' * 80 + '\n')
+                out_file.write('Application Overhead\n')
+                out_file.write('=' * 80 + '\n\n')
+                out_file.write('GEOPM Overhead Total Time :\n{}\n\n'.format(
+                               overhead_df['total_time'].groupby(['agent', 'power_budget']).describe()))
+                out_file.write('-' * 80 + '\n\n')
+                out_file.write('App Total Runtime :\n{}\n\n'.format(
+                               app_totals_df['runtime'].groupby(['agent', 'power_budget']).describe()))
+                out_file.write('-' * 80 + '\n\n')
+                out_file.write('Overhead % (Overhead total time / app total runtime) :\n{}\n\n'.format(a / b))
+            if self._verbose:
+                sys.stdout.write('Done.\n')
+                sys.stdout.flush()
+
+
     def plot_process(self, parse_output):
-        report_df = PowerSweepAnalysis.extract_index_from_profile(parse_output)
+        report_df = parse_output['report_df']
+        report_df = PowerSweepAnalysis.extract_index_from_profile(report_df)
         idx = pandas.IndexSlice
         df = pandas.DataFrame()
 
@@ -589,14 +729,14 @@ class NodeEfficiencyAnalysis(Analysis):
 {}""".format(NodeEfficiencyAnalysis.__doc__, PowerSweepAnalysis.help_text())
 
     # TODO: use configured agent type
-    def __init__(self, profile_prefix, output_dir, verbose, iterations,
+    def __init__(self, profile_prefix, output_dir, verbose, iterations, overhead_output,
                  min_power, max_power, step_power,
                  min_freq, max_freq, step_freq, sticker_freq, nodelist):
-        super(NodeEfficiencyAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
-        self._governor_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations,
+        super(NodeEfficiencyAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations, overhead_output)
+        self._governor_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations, overhead_output,
                                                         min_power=min_power, max_power=max_power,
                                                         step_power=step_power, agent_type='power_governor')
-        self._balancer_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations,
+        self._balancer_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations, overhead_output,
                                                         min_power=min_power, max_power=max_power,
                                                         step_power=step_power, agent_type='power_balancer')
 
@@ -620,7 +760,7 @@ class NodeEfficiencyAnalysis(Analysis):
         self._balancer_power_sweep.launch(config)
 
     def summary_process(self, parse_output):
-        report_df = parse_output
+        report_df = parse_output['report_df']
         profiles = [int(pc.split('_')[-1]) for pc in report_df.index.get_level_values('name')]
         if not self._min_power:
             self._min_power = min(profiles)
@@ -741,8 +881,8 @@ class NodePowerAnalysis(Analysis):
   --step-power          Size of power bins to use for plotting.  Default is 10W.
 """.format(NodePowerAnalysis.__doc__)
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_power, max_power, step_power):
-        super(NodePowerAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
+    def __init__(self, profile_prefix, output_dir, verbose, iterations, overhead_output, min_power, max_power, step_power):
+        super(NodePowerAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations, overhead_output)
 
         # min and max are only used for plot xaxis, not for launch
         self._min_power = min_power
@@ -797,7 +937,7 @@ class NodePowerAnalysis(Analysis):
         pass
 
     def plot_process(self, parse_output):
-        report_df = parse_output
+        report_df = parse_output['report_df']
 
         profile = self._profile_name
 
@@ -859,8 +999,8 @@ class FreqSweepAnalysis(Analysis):
   --enable-turbo        Allows turbo to be tested when determining best per-region frequencies. (default disables turbo)
 """.format(FreqSweepAnalysis.__doc__)
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
-        super(FreqSweepAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
+    def __init__(self, profile_prefix, output_dir, verbose, iterations, overhead_output, min_freq, max_freq, enable_turbo):
+        super(FreqSweepAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations, overhead_output)
         self._perf_margin = 0.1
         self._enable_turbo = enable_turbo
         self._min_freq = min_freq
@@ -927,7 +1067,7 @@ class FreqSweepAnalysis(Analysis):
 
     def summary_process(self, parse_output):
         output = {}
-        report_df = parse_output
+        report_df = parse_output['report_df']
         output['region_freq_map'] = self._region_freq_map(report_df)
         output['means_df'] = self._region_means_df(report_df)
         return output
@@ -940,8 +1080,9 @@ class FreqSweepAnalysis(Analysis):
         sys.stdout.write(self._region_freq_str_pretty(process_output['region_freq_map']))
 
     def plot_process(self, parse_output):
-        regions = parse_output.index.get_level_values('region').unique().tolist()
-        return {region: self._runtime_energy_sweep(parse_output, region)
+        report_df = parse_output['report_df']
+        regions = report_df.index.get_level_values('region').unique().tolist()
+        return {region: self._runtime_energy_sweep(report_df, region)
                 for region in regions}
 
     def plot(self, process_output):
@@ -1140,15 +1281,17 @@ class OfflineBaselineComparisonAnalysis(Analysis):
     def help_text():
         return "  Offline analysis: {}\n{}".format(OfflineBaselineComparisonAnalysis.__doc__, FreqSweepAnalysis.help_text())
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
+    def __init__(self, profile_prefix, output_dir, verbose, iterations, overhead_output, min_freq, max_freq, enable_turbo):
         super(OfflineBaselineComparisonAnalysis, self).__init__(profile_prefix=profile_prefix,
                                                                 output_dir=output_dir,
                                                                 verbose=verbose,
-                                                                iterations=iterations)
+                                                                iterations=iterations,
+                                                                overhead_output=overhead_output)
         self._sweep_analysis = FreqSweepAnalysis(profile_prefix=self._name,
                                                  output_dir=output_dir,
                                                  verbose=verbose,
                                                  iterations=iterations,
+                                                 overhead_output=overhead_output,
                                                  min_freq=min_freq,
                                                  max_freq=max_freq,
                                                  enable_turbo=enable_turbo)
@@ -1244,8 +1387,9 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         return parse_output
 
     def summary_process(self, parse_output):
+        report_df = parse_output['report_df']
         comp_name = self._name + '_offline'
-        baseline_comp_df = baseline_comparison(parse_output, comp_name)
+        baseline_comp_df = baseline_comparison(report_df, comp_name)
         return baseline_comp_df
 
     def summary(self, process_output):
@@ -1295,15 +1439,17 @@ class OnlineBaselineComparisonAnalysis(Analysis):
     def help_text():
         return "  Online analysis: {}\n{}".format(OnlineBaselineComparisonAnalysis.__doc__, FreqSweepAnalysis.help_text())
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
+    def __init__(self, profile_prefix, output_dir, verbose, iterations, overhead_output, min_freq, max_freq, enable_turbo):
         super(OnlineBaselineComparisonAnalysis, self).__init__(profile_prefix=profile_prefix,
                                                                output_dir=output_dir,
                                                                verbose=verbose,
-                                                               iterations=iterations)
+                                                               iterations=iterations,
+                                                               overhead_output=overhead_output)
         self._sweep_analysis = FreqSweepAnalysis(profile_prefix=self._name,
                                                  output_dir=output_dir,
                                                  verbose=verbose,
                                                  iterations=iterations,
+                                                 overhead_output=overhead_output,
                                                  min_freq=min_freq,
                                                  max_freq=max_freq,
                                                  enable_turbo=enable_turbo)
@@ -1390,8 +1536,9 @@ class OnlineBaselineComparisonAnalysis(Analysis):
         return parse_output
 
     def summary_process(self, parse_output):
+        report_df = parse_output['report_df']
         comp_name = self._name + '_online'
-        baseline_comp_df = baseline_comparison(parse_output, comp_name)
+        baseline_comp_df = baseline_comparison(report_df, comp_name)
         return baseline_comp_df
 
     def summary(self, process_output):
@@ -1437,11 +1584,12 @@ class StreamDgemmMixAnalysis(Analysis):
     def help_text():
         return "  Stream-DGEMM mix analysis: {}\n{}".format(StreamDgemmMixAnalysis.__doc__, FreqSweepAnalysis.help_text())
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
+    def __init__(self, profile_prefix, output_dir, verbose, iterations, overhead_output, min_freq, max_freq, enable_turbo):
         super(StreamDgemmMixAnalysis, self).__init__(profile_prefix=profile_prefix,
                                                      output_dir=output_dir,
                                                      verbose=verbose,
-                                                     iterations=iterations)
+                                                     iterations=iterations,
+                                                     overhead_output=overhead_output)
 
         self._enable_turbo = enable_turbo
         self._sweep_analysis = {}
@@ -1487,6 +1635,7 @@ class StreamDgemmMixAnalysis(Analysis):
                                                                 output_dir=self._output_dir,
                                                                 verbose=self._verbose,
                                                                 iterations=self._iterations,
+                                                                overhead_output=overhead_output,
                                                                 min_freq=self._min_freq,
                                                                 max_freq=self._max_freq,
                                                                 enable_turbo=self._enable_turbo)
@@ -1495,6 +1644,7 @@ class StreamDgemmMixAnalysis(Analysis):
                                                                                   output_dir=self._output_dir,
                                                                                   verbose=self._verbose,
                                                                                   iterations=self._iterations,
+                                                                                  overhead_output=overhead_output,
                                                                                   min_freq=self._min_freq,
                                                                                   max_freq=self._max_freq,
                                                                                   enable_turbo=self._enable_turbo)
@@ -1503,6 +1653,7 @@ class StreamDgemmMixAnalysis(Analysis):
                                                                                 output_dir=self._output_dir,
                                                                                 verbose=self._verbose,
                                                                                 iterations=self._iterations,
+                                                                                overhead_output=overhead_output,
                                                                                 min_freq=self._min_freq,
                                                                                 max_freq=self._max_freq,
                                                                                 enable_turbo=self._enable_turbo)
@@ -1521,7 +1672,7 @@ class StreamDgemmMixAnalysis(Analysis):
         return parse_output
 
     def summary_process(self, parse_output):
-        df = parse_output
+        df = parse_output['report_df']
         name_prefix = self._name
 
         runtime_data = []
@@ -1542,7 +1693,7 @@ class StreamDgemmMixAnalysis(Analysis):
                          for region in sorted(regions)]
             app_freq_data.append(freq_temp)
 
-            freq_pname = FreqSweepAnalysis.get_freq_profiles(parse_output, name)
+            freq_pname = FreqSweepAnalysis.get_freq_profiles(df, name)
 
             baseline_freq, baseline_name = freq_pname[0]
             best_fit_freq = optimal_freq['epoch']
@@ -1626,6 +1777,7 @@ geopmanalysis - Used to run applications and analyze results for specific
   -p, --profile-prefix  prefix to prepend to profile name when launching
   --summary             create a text summary of the results
   --plot                generate plots of the results
+  --overhead-output     Full path to file to be parsed for GEOPM overhead data
   -a, --use-agent       temporary option that enables the new agent code path
   -s, --skip-launch     do not launch jobs, only analyze existing data
   -v, --verbose         print verbose debugging information
@@ -1700,6 +1852,8 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
                         action='store_true', default=False)
     parser.add_argument('--plot',
                         action='store_true', default=False)
+    parser.add_argument('--overhead-output', dest='overhead_output',
+                        action='store', default='')
 
     # special options for the analysis type
     enforce_required = False
