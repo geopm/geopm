@@ -49,6 +49,7 @@ class TestNodeEfficiencyAnalysis(unittest.TestCase):
                         'output_dir': '.',
                         'verbose': True,
                         'iterations': 1,
+                        'overhead_output': '',
                         'min_power': self._min_power, 'max_power': self._max_power,
                         'step_power': self._step_power,
                         'min_freq': 0.5e9, 'max_freq': 2.0e9,
@@ -124,7 +125,8 @@ class TestNodeEfficiencyAnalysis(unittest.TestCase):
     def test_node_efficiency_process(self):
         analysis = geopmpy.analysis.NodeEfficiencyAnalysis(**self._config)
         report_df = self.make_mock_report_df()
-        gov_result, bal_result = analysis.plot_process(report_df)
+        parse_output = {'report_df' : report_df}
+        gov_result, bal_result = analysis.plot_process(parse_output)
         for pow in self._powers:
             self.assertEqual(self._num_nodes, len(gov_result[pow]))
             self.assertEqual(self._num_nodes, len(bal_result[pow]))

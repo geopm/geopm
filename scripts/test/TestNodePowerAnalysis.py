@@ -48,6 +48,7 @@ class TestNodePowerAnalysis(unittest.TestCase):
                         'output_dir': '.',
                         'verbose': True,
                         'iterations': 1,
+                        'overhead_output': '',
                         'min_power': self._min_power, 'max_power': self._max_power,
                         'step_power': self._step_power,
                         }
@@ -120,7 +121,8 @@ class TestNodePowerAnalysis(unittest.TestCase):
     def test_node_power_process(self):
         analysis = geopmpy.analysis.NodePowerAnalysis(**self._config)
         report_df = self.make_mock_report_df()
-        result = analysis.plot_process(report_df)
+        parse_output = {'report_df' : report_df}
+        result = analysis.plot_process(parse_output)
         expected_df = self.make_expected_summary_df()
 
         self.assertEqual(self._num_nodes, len(result))
