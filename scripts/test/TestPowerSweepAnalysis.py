@@ -52,6 +52,7 @@ class TestPowerSweepAnalysis(unittest.TestCase):
                         'output_dir': '.',
                         'verbose': True,
                         'iterations': 1,
+                        'overhead_output': '',
                         'min_power': self._min_power, 'max_power': self._max_power,
                         'step_power': self._step_power}
         self._tmp_files = []
@@ -123,7 +124,8 @@ class TestPowerSweepAnalysis(unittest.TestCase):
 
     def test_power_sweep_summary(self):
         sweep_analysis = geopmpy.analysis.PowerSweepAnalysis(**self._config)
-        parse_output = self.make_mock_report_df(self._powers)
+        report_df = self.make_mock_report_df(self._powers)
+        parse_output = {'report_df' : report_df}
         result = sweep_analysis.summary_process(parse_output)
         expected_df = self.make_expected_summary_df(self._powers)
 
