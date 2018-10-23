@@ -1294,7 +1294,23 @@ class AgentConf(object):
     def get_path(self):
         return self._path
 
+    def get_agent(self):
+        agent = 'monitor'
+        if self._options['agent'] is not None:
+            agent = self._options['agent']
+        return agent
+
     def write(self):
         """Write the current config to a file."""
-        with open(self._path, 'w') as fid:
-            json.dump(self._options, fid)
+        with open(self._path, "w") as outfile:
+            if self._options['agent'] == 'power_governor':
+                    outfile.write("{{\"POWER\" : {}}}\n".format(str(self._options['power_budget'])))
+            elif self._options['agent'] == 'power_balancer':
+                    outfile.write("{{\"POWER_CAP\" : {}, \"STEP_COUNT\" : {}, \"MAX_EPOCH_RUNTIME\" : {}"\
+                                  ", \"POWER_SLACK\" : {}}}\n"\
+                                  .format(str(self._options['power_budget']), str(0.0, str(0.0)), str(0.0)))
+            elif self._options['agent'] == 'energy_efficient':
+                    outfile.write("{{\"FREQ_MIN\" : {}, \"FREQ_MAX\" : {}}}\n"\
+                                  .format(str(self._options['frequency_min']), str(self._options['frequency_max'])))
+            elif (self._options['agent'] is None) or (self._options['agent'] is 'monitor'):
+                    outfile.write("{}\n")

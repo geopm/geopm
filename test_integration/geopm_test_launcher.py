@@ -45,10 +45,10 @@ from geopmpy.launcher import resource_manager
 
 
 class TestLauncher(object):
-    def __init__(self, app_conf, ctl_conf, report_path=None,
+    def __init__(self, app_conf, agent_conf, report_path=None,
                  trace_path=None, host_file=None, time_limit=600, region_barrier=False, performance=False):
         self._app_conf = app_conf
-        self._ctl_conf = ctl_conf
+        self._agent_conf = agent_conf
         self._report_path = report_path
         self._trace_path = trace_path
         self._host_file = host_file
@@ -88,19 +88,7 @@ class TestLauncher(object):
 
     def run(self, test_name):
         self._app_conf.write()
-        # todo: hack to run tests with new controller
-        if os.getenv("GEOPM_AGENT", None) == 'power_governor':
-            with open(self._ctl_conf.get_path(), "w") as outfile:
-                outfile.write("{\"POWER\": " + str(self._ctl_conf._options['power_budget']) + "}\n")
-        elif os.getenv("GEOPM_AGENT", None) == 'power_balancer':
-            with open(self._ctl_conf.get_path(), "w") as outfile:
-                outfile.write("{\"POWER_CAP\": " + str(self._ctl_conf._options['power_budget']) +
-                              ", \"STEP_COUNT\": 0.0, \"MAX_EPOCH_RUNTIME\": 0.0, \"POWER_SLACK\": 0.0}\n")
-        elif os.getenv("GEOPM_AGENT", None) == 'monitor':
-            with open(self._ctl_conf.get_path(), "w") as outfile:
-                outfile.write("{}\n")
-        else:
-            self._ctl_conf.write()
+        self._agent_conf.write()
         with open(test_name + '.log', 'a') as outfile:
             outfile.write(str(datetime.datetime.now()) + '\n')
             outfile.flush()
@@ -108,7 +96,8 @@ class TestLauncher(object):
             # Using libtool causes sporadic issues with the Intel toolchain.
             exec_path = os.path.join(source_dir, '.libs', 'geopmbench')
             argv = ['dummy', '--geopm-ctl', self._pmpi_ctl,
-                             '--geopm-policy', self._ctl_conf.get_path(),
+                             '--geopm-agent', self._agent_conf.get_agent(),
+                             '--geopm-policy', self._agent_conf.get_path(),
                              '--geopm-profile', test_name]
             if self._report_path is not None:
                 argv.extend(['--geopm-report', self._report_path])
