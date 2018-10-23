@@ -63,11 +63,10 @@ def all_region_data_pretty(combined_df):
 
 
 class LaunchConfig(object):
-    def __init__(self, num_rank, num_node, app_argv, use_agent=False,
+    def __init__(self, num_rank, num_node, app_argv,
                  geopm_ctl='process', do_geopm_barrier=False):
         self.num_rank = num_rank
         self.num_node = num_node
-        self.agent = use_agent
         self.app_argv = app_argv
         self.geopm_ctl = geopm_ctl
         self.do_geopm_barrier = do_geopm_barrier
@@ -224,7 +223,7 @@ class PowerSweepAnalysis(Analysis):
         self._step_power = step_power
         self._agent_type = agent_type
 
-    def try_launch(self, profile_name, tag, iteration, ctl_conf, config, agent=None):
+    def try_launch(self, profile_name, tag, iteration, agent_conf, config):
         # tag is used to differentiate output files for governor and balancer.  profile name will be the same.
         report_path = os.path.join(self._output_dir, profile_name + '_{}_{}.report'.format(tag, iteration))
         trace_path = os.path.join(self._output_dir, profile_name + '_{}_{}.trace'.format(tag, iteration))
@@ -233,14 +232,13 @@ class PowerSweepAnalysis(Analysis):
 
         if config.app_argv and not os.path.exists(report_path):
             argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
-                             '--geopm-policy', ctl_conf.get_path(),
+                             '--geopm-agent', agent_conf.get_agent(),
+                             '--geopm-policy', agent_conf.get_path(),
                              '--geopm-report', report_path,
                              '--geopm-trace', trace_path,
                              '--geopm-profile', profile_name]
             if config.do_geopm_barrier:
                 argv.append('--geopm-barrier')
-            if agent:
-                argv.append('--geopm-agent=' + agent)
             argv.append('--')
             argv.extend(config.app_argv)
             launcher = geopmpy.launcher.factory(argv, config.num_rank, config.num_node)
@@ -263,31 +261,15 @@ class PowerSweepAnalysis(Analysis):
 
         power_caps = range(self._min_power, self._max_power+1, self._step_power)
         for power_cap in power_caps:
-            agent = None
             # governor runs
-            ctl_conf = geopmpy.io.CtlConf(os.path.join(self._output_dir, self._name + '_ctl.config'),
-                                          'dynamic',
-                                          {'tree_decider': 'static_policy',
-                                           'leaf_decider': 'power_governing',
-                                           'platform': 'rapl',
-                                           'power_budget': power_cap})
-            if not config.agent:
-                ctl_conf.write()
-            else:
-                # todo: clean up
-                with open(ctl_conf.get_path(), "w") as outfile:
-                    if self._agent_type == 'power_governor':
-                        outfile.write("{\"POWER\": " + str(ctl_conf._options['power_budget']) + "}\n")
-                    elif self._agent_type == 'power_balancer':
-                        outfile.write("{\"POWER_CAP\": " + str(ctl_conf._options['power_budget']) + ", " +
-                                      "\"STEP_COUNT\":0, \"MAX_EPOCH_RUNTIME\":0, \"POWER_SLACK\":0}\n")
-                    else:
-                        raise RuntimeError('<geopmpy>: Unsupported agent type for power sweep: {}'.format(self._agent_type))
-                agent = self._agent_type
+            options = {'agent': self._agent_type,
+                       'power_budget': power_cap},
+            agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', options)
+            agent_conf.write()
 
             for iteration in range(self._iterations):
                 profile_name = self._name + '_' + str(power_cap)
-                self.try_launch(profile_name, self._agent_type, iteration, ctl_conf, config, agent)
+                self.try_launch(profile_name, self._agent_type, iteration, agent_conf, config)
 
     @staticmethod
     def extract_index_from_profile(df):
@@ -367,8 +349,6 @@ class BalancerAnalysis(Analysis):
 
         self._min_power = min_power
         self._max_power = max_power
-        # TODO:
-        self._use_agent = True
 
     # todo: why does each analysis need to define this?
     # a: in case of special naming convention like freq sweep
@@ -377,7 +357,6 @@ class BalancerAnalysis(Analysis):
         # todo: fix search pattern parameter
         trace_glob = os.path.join(self._output_dir, self._name + '*trace*')
         self.set_data_paths(glob.glob(report_glob), glob.glob(trace_glob))
-        self._use_agent = True  # TODO: detect
 
     def launch(self, config):
         self._governor_power_sweep.launch(config)
@@ -467,49 +446,27 @@ class BalancerAnalysis(Analysis):
 
         reference = 'static_policy'
         target = 'power_balancing'
-        if self._use_agent:
-            reference = 'power_governor'
-            target = 'power_balancer'
-            # TODO: have a separate power analysis?
-            if self._metric == 'power':
-                rge = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, reference, :, :, 'epoch'], 'energy_pkg']
-                rgr = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, reference, :, :, 'epoch'], 'runtime']
-                reference_g = (rge / rgr).groupby(level='name')
-            else:
-                reference_g = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, reference, :, :, 'epoch'],
-                                            self._metric].groupby(level='name')
+        reference = 'power_governor'
+        target = 'power_balancer'
+        # TODO: have a separate power analysis?
+        if self._metric == 'power':
+            rge = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, reference, :, :, 'epoch'], 'energy_pkg']
+            rgr = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, reference, :, :, 'epoch'], 'runtime']
+            reference_g = (rge / rgr).groupby(level='name')
         else:
-            if self._metric == 'power':
-                rge = report_df.loc[idx[:, :, self._min_power:self._max_power, reference, :, :, :, :, 'epoch'],
-                                    'energy_pkg'].groupby(level='power_budget')
-                rgr = report_df.loc[idx[:, :, self._min_power:self._max_power, reference, :, :, :, :, 'epoch'],
-                                    'runtime'].groupby(level='power_budget')
-                reference_g = rge / rgr
-            else:
-                reference_g = report_df.loc[idx[:, :, self._min_power:self._max_power, reference, :, :, :, :, 'epoch'],
-                                            self._metric].groupby(level='power_budget')
+            reference_g = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, reference, :, :, 'epoch'],
+                                        self._metric].groupby(level='name')
 
         df['reference_mean'] = reference_g.mean()
         df['reference_max'] = reference_g.max()
         df['reference_min'] = reference_g.min()
-        if self._use_agent:
-            if self._metric == 'power':
-                tge = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, target, :, :, 'epoch'], 'energy_pkg']
-                tgr = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, target, :, :, 'epoch'], 'runtime']
-                target_g = (tge / tgr).groupby(level='name')
-            else:
-                target_g = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, target, :, :, 'epoch'],
-                                         self._metric].groupby(level='name')
+        if self._metric == 'power':
+            tge = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, target, :, :, 'epoch'], 'energy_pkg']
+            tgr = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, target, :, :, 'epoch'], 'runtime']
+            target_g = (tge / tgr).groupby(level='name')
         else:
-            if self._metric == 'power':
-                tge = report_df.loc[idx[:, :, self._min_power:self._max_power, target, :, :, :, :, 'epoch'],
-                                    'energy_pkg']
-                tgr = report_df.loc[idx[:, :, self._min_power:self._max_power, target, :, :, :, :, 'epoch'],
-                                    'runtime']
-                target_g = (tge / tgr).groupby(level='power_budget')
-            else:
-                target_g = report_df.loc[idx[:, :, self._min_power:self._max_power, target, :, :, :, :, 'epoch'],
-                                         self._metric].groupby(level='power_budget')
+            target_g = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, target, :, :, 'epoch'],
+                                     self._metric].groupby(level='name')
 
         df['target_mean'] = target_g.mean()
         df['target_max'] = target_g.max()
@@ -540,10 +497,8 @@ class BalancerAnalysis(Analysis):
         config.speedup = self._speedup
         config.normalize = self._normalize
         config.profile_name = self._name
-        if self._use_agent:
-            config.tgt_plugin = 'power_balancer'
-            config.ref_plugin = 'power_governor'
-            config.use_agent = True
+        config.tgt_plugin = 'power_balancer'
+        config.ref_plugin = 'power_governor'
         geopmpy.plotter.generate_bar_plot_comparison(process_output, config)
 
 
@@ -751,19 +706,9 @@ class NodePowerAnalysis(Analysis):
         self._profile_name = self._name + '_' + str(self._max_power)  # '_nocap'  # TODO
 
     def launch(self, config):
-        agent = 'monitor'
-        ctl_conf = geopmpy.io.CtlConf(os.path.join(self._output_dir, self._name + '_ctl.config'),
-                                      'dynamic',
-                                      {'tree_decider': 'static_policy',
-                                       'leaf_decider': 'static_policy',
-                                       'platform': 'rapl',
-                                       'power_budget': self._max_power})
-        if not config.agent:
-            ctl_conf.write()
-        else:
-            # todo: clean up
-            with open(ctl_conf.get_path(), "w") as outfile:
-                    outfile.write("{}\n")
+        options = {'agent': 'monitor'}
+        agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', options)
+        agent_conf.write()
 
         for iteration in range(self._iterations):
             report_path = os.path.join(self._output_dir, self._profile_name + '_{}.report'.format(iteration))
@@ -773,14 +718,13 @@ class NodePowerAnalysis(Analysis):
 
             if config.app_argv and not os.path.exists(report_path):
                 argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
-                                 '--geopm-policy', ctl_conf.get_path(),
+                                 '--geopm-agent', agent_conf.get_agent(),
+                                 '--geopm-policy', agent_conf.get_path(),
                                  '--geopm-report', report_path,
                                  '--geopm-trace', trace_path,
                                  '--geopm-profile', profile_name]
                 if config.do_geopm_barrier:
                     argv.append('--geopm-barrier')
-                if agent:
-                    argv.append('--geopm-agent=' + agent)
                 argv.append('--')
                 argv.extend(config.app_argv)
                 launcher = geopmpy.launcher.factory(argv, config.num_rank, config.num_node)
@@ -867,16 +811,6 @@ class FreqSweepAnalysis(Analysis):
         self._max_freq = max_freq
 
     def launch(self, config):
-        ctl_conf = geopmpy.io.CtlConf(self._name + '_ctl.config',
-                                      'dynamic',
-                                      {'power_budget': 400,
-                                       'tree_decider': 'static_policy',
-                                       'leaf_decider': 'efficient_freq',
-                                       'platform': 'rapl'})
-
-        if not config.agent:
-            ctl_conf.write()
-
         if 'GEOPM_EFFICIENT_FREQ_RID_MAP' in os.environ:
             del os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP']
         if 'GEOPM_EFFICIENT_FREQ_ONLINE' in os.environ:
@@ -898,21 +832,22 @@ class FreqSweepAnalysis(Analysis):
                 profile_name = FreqSweepAnalysis.fixed_freq_name(self._name, freq)
                 report_path = os.path.join(self._output_dir, profile_name + '_{}.report'.format(iteration))
                 trace_path = os.path.join(self._output_dir, profile_name + '_{}.trace'.format(iteration))
-                if config.agent:
-                    with open(ctl_conf.get_path(), "w") as outfile:
-                        outfile.write("{{\"FREQ_MIN\" : {}, \"FREQ_MAX\" : {}}}\n".format(freq, freq))
+                options = {'agent': 'energy_efficient',
+                           'frequency_min': freq,
+                           'frequency_max': freq}
+                agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', options)
+                agent_conf.write()
                 if config.app_argv and not os.path.exists(report_path):
                     os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(freq)
                     os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(freq)
                     argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
-                                     '--geopm-policy', ctl_conf.get_path(),
+                                     '--geopm-agent', agent_conf.get_agent(),
+                                     '--geopm-policy', agent_conf.get_path(),
                                      '--geopm-report', report_path,
                                      '--geopm-trace', trace_path,
                                      '--geopm-profile', profile_name]
                     if config.do_geopm_barrier:
                         argv.append('--geopm-barrier')
-                    if config.agent:
-                        argv.append('--geopm-agent=energy_efficient')
                     argv.append('--')
                     argv.extend(config.app_argv)
                     launcher = geopmpy.launcher.factory(argv, config.num_rank, config.num_node)
@@ -1162,18 +1097,11 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         """
         Run the frequency sweep, then run the desired comparison configuration.
         """
-        ctl_conf = geopmpy.io.CtlConf(self._name + '_ctl.config',
-                                      'dynamic',
-                                      {'power_budget': 400,
-                                       'tree_decider': 'static_policy',
-                                       'leaf_decider': 'efficient_freq',
-                                       'platform': 'rapl'})
-
-        if config.agent:
-            with open(ctl_conf.get_path(), "w") as outfile:
-                outfile.write("{{\"FREQ_MIN\" : {}, \"FREQ_MAX\" : {}}}\n".format(self._min_freq, self._max_freq))
-        else:
-            ctl_conf.write()
+        options = {'agent': 'energy_efficient',
+                   'frequency_min': self._min_freq,
+                   'frequency_max': self._max_freq}
+        agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', options)
+        agent_conf.write()
 
         # Run frequency sweep
         self._sweep_analysis.launch(config)
@@ -1186,7 +1114,7 @@ class OfflineBaselineComparisonAnalysis(Analysis):
         if self._verbose:
             sys.stdout.write(self._sweep_analysis._region_freq_str_pretty(process_output['region_freq_map']))
 
-        # Run offline frequency decider
+        # Run offline frequency agent
         for iteration in range(self._iterations):
             os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP'] = region_freq_str
             if 'GEOPM_EFFICIENT_FREQ_ONLINE' in os.environ:
@@ -1199,14 +1127,13 @@ class OfflineBaselineComparisonAnalysis(Analysis):
                 os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(self._min_freq)
                 os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(self._max_freq)
                 argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
-                                 '--geopm-policy', ctl_conf.get_path(),
+                                 '--geopm-agent', agent_conf.get_agent(),
+                                 '--geopm-policy', agent_conf.get_path(),
                                  '--geopm-report', report_path,
                                  '--geopm-trace', trace_path,
                                  '--geopm-profile', profile_name]
                 if config.do_geopm_barrier:
                     argv.append('--geopm-barrier')
-                if config.agent:
-                    argv.append('--geopm-agent=energy_efficient')
                 argv.append('--')
                 argv.extend(config.app_argv)
                 launcher = geopmpy.launcher.factory(argv, config.num_rank, config.num_node)
@@ -1316,21 +1243,12 @@ class OnlineBaselineComparisonAnalysis(Analysis):
         """
         Run the frequency sweep, then run the desired comparison configuration.
         """
-        ctl_conf = geopmpy.io.CtlConf(self._name + '_ctl.config',
-                                      'dynamic',
-                                      {'power_budget': 400,
-                                       'tree_decider': 'static_policy',
-                                       'leaf_decider': 'efficient_freq',
-                                       'platform': 'rapl'})
-        if not config.agent:
-            ctl_conf.write()
-
         # Run frequency sweep
         self._sweep_analysis.launch(config)
         self._min_freq = self._sweep_analysis._min_freq
         self._max_freq = self._sweep_analysis._min_freq
 
-        # Run online frequency decider
+        # Run online frequency agent
         for iteration in range(self._iterations):
             os.environ['GEOPM_EFFICIENT_FREQ_ONLINE'] = 'yes'
             if 'GEOPM_EFFICIENT_FREQ_RID_MAP' in os.environ:
@@ -1340,21 +1258,22 @@ class OnlineBaselineComparisonAnalysis(Analysis):
             report_path = os.path.join(self._output_dir, profile_name + '_{}.report'.format(iteration))
             trace_path = os.path.join(self._output_dir, profile_name + '_{}.trace'.format(iteration))
 
-            if config.agent:
-                with open(ctl_conf.get_path(), "w") as outfile:
-                    outfile.write("{{\"FREQ_MIN\" : {}, \"FREQ_MAX\" : {}}}\n".format(self._min_freq, self._max_freq))
+            options = {'agent': 'energy_efficient',
+                       'frequency_min': self._min_freq,
+                       'frequency_max': self._max_freq}
+            agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', options)
+            agent_conf.write()
             if config.app_argv and not os.path.exists(report_path):
                 os.environ['GEOPM_EFFICIENT_FREQ_MIN'] = str(self._min_freq)
                 os.environ['GEOPM_EFFICIENT_FREQ_MAX'] = str(self._max_freq)
                 argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
-                                 '--geopm-policy', ctl_conf.get_path(),
+                                 '--geopm-agent', agent_conf.get_agent(),
+                                 '--geopm-policy', agent_conf.get_path(),
                                  '--geopm-report', report_path,
                                  '--geopm-trace', trace_path,
                                  '--geopm-profile', profile_name]
                 if config.do_geopm_barrier:
                     argv.append('--geopm-barrier')
-                if config.agent:
-                    argv.append('--geopm-agent=energy_efficient')
                 argv.append('--')
                 argv.extend(config.app_argv)
                 launcher = geopmpy.launcher.factory(argv, config.num_rank, config.num_node)
@@ -1684,8 +1603,6 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
                         action='store', default='.')
     parser.add_argument('-p', '--profile-prefix', dest='profile_prefix',
                         action='store', default='')
-    parser.add_argument('-a', '--use-agent', dest='use_agent',
-                        action='store_true', default=False)
     parser.add_argument('app_argv', metavar='APP_ARGV',
                         action='store', nargs='*', default=None)
     parser.add_argument('-s', '--skip-launch', dest='skip_launch',
@@ -1716,7 +1633,7 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
     # TODO: I think iterations can be a launch option too
     launch_options = {}
-    for opt in ['num_rank', 'num_node', 'use_agent', 'geopm_ctl', 'app_argv']:
+    for opt in ['num_rank', 'num_node', 'geopm_ctl', 'app_argv']:
         launch_options[opt] = options.pop(opt)
 
     analysis = analysis_type_map[analysis_type](**options)
