@@ -1276,5 +1276,12 @@ class AgentConf(object):
 
     def write(self):
         """Write the current config to a file."""
-        with open(self._path, 'w') as fid:
-            json.dump(self._options, fid)
+        with open(self._path, "w") as outfile:
+            if os.getenv("GEOPM_AGENT") == 'power_governor':
+                    outfile.write("{\"POWER\": " + str(self._options['power_budget']) + "}\n")
+            elif os.getenv("GEOPM_AGENT") == 'power_balancer':
+                    outfile.write("{\"POWER_CAP\": " + str(self._options['power_budget']) +
+                                  ", \"STEP_COUNT\": 0.0, \"MAX_EPOCH_RUNTIME\": 0.0, \"POWER_SLACK\": 0.0}\n")
+            #todo ee agent
+            elif os.getenv("GEOPM_AGENT") is None:
+                    outfile.write("{}\n")
