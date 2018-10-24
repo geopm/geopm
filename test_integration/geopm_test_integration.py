@@ -147,12 +147,12 @@ class TestIntegration(unittest.TestCase):
         last_index = 0
         filtered_df = pandas.DataFrame()
         row_list = []
-        progress_1s = df['progress-0'].loc[df['progress-0'] == 1]
+        progress_1s = df['region_progress'].loc[df['region_progress'] == 1]
         for index, _ in progress_1s.iteritems():
             row = df.loc[last_index:index].head(1)
-            row_list += [row[['seconds', 'progress-0', 'runtime-0']]]
+            row_list += [row[['time', 'region_progress', 'region_runtime']]]
             row = df.loc[last_index:index].tail(1)
-            row_list += [row[['seconds', 'progress-0', 'runtime-0']]]
+            row_list += [row[['time', 'region_progress', 'region_runtime']]]
             last_index = index + 1  # Set the next starting index to be one past where we are
         filtered_df = pandas.concat(row_list)
         return filtered_df
@@ -404,7 +404,7 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             trace = self._output.get_trace_data(node_name=nn)
             app_totals = self._output.get_app_total_data(node_name=nn)
-            self.assertNear(trace.iloc[-1]['seconds'], app_totals['runtime'].item())
+            self.assertNear(trace.iloc[-1]['time'], app_totals['runtime'].item())
             # Calculate runtime totals for each region in each trace, compare to report
             tt = trace.set_index(['region_id'], append=True)
             tt = tt.groupby(level=['region_id'])
@@ -412,7 +412,7 @@ class TestIntegration(unittest.TestCase):
                 region_data = self._output.get_report_data(node_name=nn, region=region_name)
                 if region_name not in ['unmarked-region', 'model-init'] and not region_name.startswith('MPI_') and region_data['runtime'].item() != 0:
                     trace_data = tt.get_group((region_data['id'].item()))
-                    trace_elapsed_time = trace_data.iloc[-1]['seconds'] - trace_data.iloc[0]['seconds']
+                    trace_elapsed_time = trace_data.iloc[-1]['time'] - trace_data.iloc[0]['time']
                     if region_name == 'epoch':
                         self.assertNear(trace_elapsed_time, region_data['runtime'].item())
                     else:
@@ -448,7 +448,7 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             app_totals = self._output.get_app_total_data(node_name=nn)
             trace = self._output.get_trace_data(node_name=nn)
-            self.assertNear(trace.iloc[-1]['seconds'], app_totals['runtime'].item())
+            self.assertNear(trace.iloc[-1]['time'], app_totals['runtime'].item())
             tt = trace.set_index(['region_id'], append=True)
             tt = tt.groupby(level=['region_id'])
             for region_name in regions:
@@ -458,11 +458,11 @@ class TestIntegration(unittest.TestCase):
                     filtered_df = self.create_progress_df(trace_data)
                     first_time = False
                     for index, df in filtered_df.iterrows():
-                        if df['progress-0'] == 1:
-                            self.assertNear(df['runtime-0'], expected_region_runtime[region_name], epsilon=0.001)
+                        if df['region_progress'] == 1:
+                            self.assertNear(df['region_runtime'], expected_region_runtime[region_name], epsilon=0.001)
                             first_time = True
-                        if first_time is True and df['progress-0'] == 0:
-                            self.assertNear(df['runtime-0'], expected_region_runtime[region_name], epsilon=0.001)
+                        if first_time is True and df['region_progress'] == 0:
+                            self.assertNear(df['region_runtime'], expected_region_runtime[region_name], epsilon=0.001)
 
     @skip_unless_run_long_tests()
     def test_region_runtimes(self):
@@ -497,12 +497,12 @@ class TestIntegration(unittest.TestCase):
                 filtered_df = filtered_df.diff()
                 # Since I'm not separating out the progress 0's from 1's, when I do the diff I only care about the
                 # case where 1 - 0 = 1 for the progress column.
-                filtered_df = filtered_df.loc[filtered_df['progress-0'] == 1]
+                filtered_df = filtered_df.loc[filtered_df['region_progress'] == 1]
 
                 if len(filtered_df) > 1:
                     launcher.write_log(name, 'Region elapsed time stats from {} - {} :\n{}'\
-                                       .format(nn, region_id, filtered_df['seconds'].describe()))
-                    filtered_df['seconds'].describe()
+                                       .format(nn, region_id, filtered_df['time'].describe()))
+                    filtered_df['time'].describe()
                     region_times[nn][region_id] = filtered_df
 
             launcher.write_log(name, '{}'.format('-' * 80))
@@ -520,7 +520,7 @@ class TestIntegration(unittest.TestCase):
                     if region_name == 'epoch':
                         runtime = rr['runtime'].item()
                     self.assertNear(runtime,
-                                    region_times[nn][rr['id'].item()]['seconds'].sum())
+                                    region_times[nn][rr['id'].item()]['time'].sum())
             write_regions = False
 
         # Test to ensure every region detected in the trace is captured in the report.
@@ -686,13 +686,13 @@ class TestIntegration(unittest.TestCase):
             epoch_dropped_data = tt[first_epoch_index:]  # Drop all startup data
 
             power_data = epoch_dropped_data.filter(regex='energy')
-            power_data['seconds'] = epoch_dropped_data['seconds']
+            power_data['time'] = epoch_dropped_data['time']
             power_data = power_data.diff().dropna()
-            power_data.rename(columns={'seconds': 'elapsed_time'}, inplace=True)
+            power_data.rename(columns={'time': 'elapsed_time'}, inplace=True)
             power_data = power_data.loc[(power_data != 0).all(axis=1)]  # Will drop any row that is all 0's
 
-            pkg_energy_cols = [s for s in power_data.keys() if 'pkg_energy' in s]
-            dram_energy_cols = [s for s in power_data.keys() if 'dram_energy' in s]
+            pkg_energy_cols = [s for s in power_data.keys() if 'energy_package' in s]
+            dram_energy_cols = [s for s in power_data.keys() if 'energy_dram' in s]
             power_data['socket_power'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['elapsed_time']
             power_data['dram_power'] = power_data[dram_energy_cols].sum(axis=1) / power_data['elapsed_time']
             power_data['combined_power'] = power_data['socket_power'] + power_data['dram_power']
@@ -767,13 +767,13 @@ class TestIntegration(unittest.TestCase):
                 epoch_dropped_data = tt[first_epoch_index:]  # Drop all startup data
 
                 power_data = epoch_dropped_data.filter(regex='energy')
-                power_data['seconds'] = epoch_dropped_data['seconds']
+                power_data['time'] = epoch_dropped_data['time']
                 power_data = power_data.diff().dropna()
-                power_data.rename(columns={'seconds': 'elapsed_time'}, inplace=True)
+                power_data.rename(columns={'time': 'elapsed_time'}, inplace=True)
                 power_data = power_data.loc[(power_data != 0).all(axis=1)]  # Will drop any row that is all 0's
 
-                pkg_energy_cols = [s for s in power_data.keys() if 'pkg_energy' in s]
-                dram_energy_cols = [s for s in power_data.keys() if 'dram_energy' in s]
+                pkg_energy_cols = [s for s in power_data.keys() if 'energy_package' in s]
+                dram_energy_cols = [s for s in power_data.keys() if 'energy_dram' in s]
                 power_data['socket_power'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['elapsed_time']
                 power_data['dram_power'] = power_data[dram_energy_cols].sum(axis=1) / power_data['elapsed_time']
                 power_data['combined_power'] = power_data['socket_power'] + power_data['dram_power']
@@ -842,7 +842,7 @@ class TestIntegration(unittest.TestCase):
             tt = tt.set_index(['region_id'], append=True)
             tt = tt.groupby(level=['region_id'])
             for region_id, data in tt:
-                tmp = data['progress-0'].diff()
+                tmp = data['region_progress'].diff()
                 # Look for changes in progress that are more negative
                 # than can be expected due to extrapolation error.
                 if region_id == 8300189175:
@@ -882,7 +882,7 @@ class TestIntegration(unittest.TestCase):
 
         for nn in node_names:
             tt = self._output.get_trace_data(node_name=nn)
-            delta_t = tt['seconds'].diff()
+            delta_t = tt['time'].diff()
             delta_t = delta_t.loc[delta_t != 0]
             self.assertGreater(max_mean, delta_t.mean())
             # WARNING : The following line may mask issues in the sampling rate. To do a fine grained analysis, comment
