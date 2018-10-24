@@ -69,7 +69,6 @@ include_HEADERS = src/geopm.h \
                   src/geopm_error.h \
                   src/geopm_message.h \
                   src/geopm_version.h \
-                  src/geopm_plugin.h \
                   # end
 
 if ENABLE_MPI
@@ -323,10 +322,8 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/geopm_error.h \
                             src/geopm_hash.c \
                             src/geopm_hash.h \
-                            src/geopm_message.c \
                             src/geopm_message.h \
                             src/geopm_plugin.c \
-                            src/geopm_plugin.h \
                             src/geopm_sched.c \
                             src/geopm_sched.h \
                             src/geopm_signal_handler.h \
