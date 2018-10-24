@@ -262,6 +262,8 @@ namespace geopm
                     region_it->second->update_entry();
 
                     m_curr_adapt_freq = region_it->second->freq();
+                    m_curr_med_perf = region_it->second->current_median_runtime();
+                    m_curr_target = region_it->second->target_max_runtime();
                 }
                 if (m_last_region_id != 0 && is_region_boundary) {
                     // update previous region (exit)
@@ -359,13 +361,14 @@ namespace geopm
 
     std::vector<std::string> EnergyEfficientAgent::trace_names(void) const
     {
-        return {};
+        return {"online_frequency", "median_runtime", "target_runtime"};
     }
 
     void EnergyEfficientAgent::trace_values(std::vector<double> &values)
     {
-        /// @todo: for debugging, might make sense to put target runtime
-        ///        in the trace.
+        values[M_TRACE_SAMPLE_ONLINE_FREQ] = m_curr_adapt_freq;
+        values[M_TRACE_SAMPLE_MEDIAN_RUNTIME] = m_curr_med_perf;
+        values[M_TRACE_SAMPLE_TARGET_RUNTIME] = m_curr_target;
     }
 
     double EnergyEfficientAgent::get_limit(const std::string &sig_name) const

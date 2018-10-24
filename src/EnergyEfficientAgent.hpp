@@ -94,6 +94,12 @@ namespace geopm
                 M_NUM_SIGNAL,
             };
 
+            enum m_trace_sample_e {
+                M_TRACE_SAMPLE_ONLINE_FREQ,
+                M_TRACE_SAMPLE_MEDIAN_RUNTIME,
+                M_TRACE_SAMPLE_TARGET_RUNTIME
+            };
+
             IPlatformIO &m_platform_io;
             IPlatformTopo &m_platform_topo;
             double m_freq_min;
@@ -103,6 +109,8 @@ namespace geopm
             std::vector<int> m_control_idx;
             double m_last_freq;
             double m_curr_adapt_freq;
+            double m_curr_med_perf;
+            double m_curr_target;
             std::map<uint64_t, double> m_rid_freq_map;
             // for online adaptive mode
             bool m_is_online = false;

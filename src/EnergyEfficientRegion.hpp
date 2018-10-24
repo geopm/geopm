@@ -54,6 +54,8 @@ namespace geopm
                                   int pkg_energy_idx);
             virtual ~EnergyEfficientRegion() = default;
             double freq(void) const;
+            double current_median_runtime(void) const;
+            double target_max_runtime(void) const;
             void update_freq_range(const double freq_min, const double freq_max, const double freq_step);
             void update_entry(void);
             void update_exit(void);
@@ -65,7 +67,8 @@ namespace geopm
 
             IPlatformIO &m_platform_io;
             double m_curr_freq;
-            double m_target;
+            double m_curr_med_perf;
+            double m_curr_target;
             const double M_PERF_MARGIN;
             const double M_ENERGY_MARGIN;
             const size_t M_MIN_BASE_SAMPLE;

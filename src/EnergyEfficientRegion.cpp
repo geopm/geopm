@@ -46,7 +46,8 @@ namespace geopm
                                                  int pkg_energy_idx)
         : m_platform_io(platform_io)
         , m_curr_freq(NAN)
-        , m_target(0.0)
+        , m_curr_med_perf(NAN)
+        , m_curr_target(0.0)
         , M_PERF_MARGIN(0.10)  // up to 10% degradation allowed
         , M_ENERGY_MARGIN(0.10)
         , M_MIN_BASE_SAMPLE(4)
@@ -130,18 +131,18 @@ namespace geopm
                 curr_freq_ctx.perf.insert(perf);
                 curr_freq_ctx.energy.insert(energy);
             }
-            double med_perf = IPlatformIO::agg_median(curr_freq_ctx.perf.make_vector());
+            m_curr_med_perf = IPlatformIO::agg_median(curr_freq_ctx.perf.make_vector());
             double med_energy = IPlatformIO::agg_median(curr_freq_ctx.energy.make_vector());
             if (curr_freq_ctx.perf.size() > 0) {
                 if (curr_freq_ctx.perf.size() >= M_MIN_BASE_SAMPLE &&
-                    m_target == 0.0 &&
+                    m_curr_target == 0.0 &&
                     m_curr_freq == m_curr_freq_max) {
 
-                    if (med_perf > 0.0) {
-                        m_target = (1.0 - M_PERF_MARGIN) * med_perf;
+                    if (m_curr_med_perf > 0.0) {
+                        m_curr_target = (1.0 - M_PERF_MARGIN) * m_curr_med_perf;
                     }
                     else {
-                        m_target = (1.0 + M_PERF_MARGIN) * med_perf;
+                        m_curr_target = (1.0 + M_PERF_MARGIN) * m_curr_med_perf;
                     }
                 }
 
@@ -154,8 +155,8 @@ namespace geopm
                     (1.0 - M_ENERGY_MARGIN) * med_energy) {
                     do_increase = true;
                 }
-                else if (m_target != 0.0) {
-                    if (med_perf > m_target) {
+                else if (m_curr_target != 0.0) {
+                    if (m_curr_med_perf > m_curr_target) {
                         double next_freq = m_curr_freq - m_freq_step;
                         if (m_allowed_freq.find(next_freq) != m_allowed_freq.end()) {
                             // Performance is in range; lower frequency
@@ -182,5 +183,15 @@ namespace geopm
                 }
             }
         }
+    }
+
+    double EnergyEfficientRegion::current_median_runtime(void) const
+    {
+        return m_curr_med_perf;
+    }
+
+    double EnergyEfficientRegion::target_max_runtime(void) const
+    {
+        return m_curr_target;
     }
 }
