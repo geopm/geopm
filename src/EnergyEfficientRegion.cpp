@@ -48,7 +48,7 @@ namespace geopm
         , m_curr_freq(NAN)
         , m_target(0.0)
         , M_PERF_MARGIN(0.10)  // up to 10% degradation allowed
-        , M_ENERGY_MARGIN(0.025)
+        , M_ENERGY_MARGIN(0.10)
         , M_MIN_BASE_SAMPLE(4)
         , m_is_learning(true)
         , M_MAX_INCREASE(4)
