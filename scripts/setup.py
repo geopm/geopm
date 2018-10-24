@@ -68,7 +68,7 @@ scripts = ['geopmanalysis',
            'geopmplotter',
            'geopmsrun']
 
-classifiers = ['Development Status :: 3 - Alpha',
+classifiers = ['Development Status :: 4 - Beta',
                'License :: OSI Approved :: BSD License',
                'Operating System :: POSIX :: Linux',
                'Natural Language :: English',
