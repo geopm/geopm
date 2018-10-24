@@ -113,53 +113,13 @@ static inline uint64_t geopm_region_id_unset_hint(uint64_t hint_type, uint64_t r
     return (rid & (~hint_type));
 }
 
-enum geopm_control_e {
-    GEOPM_CONTROL_DOMAIN_POWER = 0,
-    GEOPM_CONTROL_DOMAIN_FREQUENCY = 1,
-};
-
-enum geopm_sample_type_e {
-    GEOPM_SAMPLE_TYPE_RUNTIME,
-    GEOPM_SAMPLE_TYPE_ENERGY,
-    GEOPM_SAMPLE_TYPE_FREQUENCY_NUMER,
-    GEOPM_SAMPLE_TYPE_FREQUENCY_DENOM,
-    GEOPM_NUM_SAMPLE_TYPE // Sample counter, must be last
-};
-
-/// @brief Enum encompassing msr data types.
-enum geopm_telemetry_type_e {
-    GEOPM_TELEMETRY_TYPE_PKG_ENERGY,
-    GEOPM_TELEMETRY_TYPE_DRAM_ENERGY,
-    GEOPM_TELEMETRY_TYPE_FREQUENCY,
-    GEOPM_TELEMETRY_TYPE_INST_RETIRED,
-    GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_CORE,
-    GEOPM_TELEMETRY_TYPE_CLK_UNHALTED_REF,
-    GEOPM_TELEMETRY_TYPE_READ_BANDWIDTH,
-    GEOPM_TELEMETRY_TYPE_PROGRESS,
-    GEOPM_TELEMETRY_TYPE_RUNTIME,
-    GEOPM_NUM_TELEMETRY_TYPE // Signal counter, must be last
-};
-
-/// @brief MPI message structure for sending
-/// power policies down the tree.
-struct geopm_policy_message_s {
-    /// @brief Enum power management mode.
-    int mode;
-    /// @brief Power policy attribute bitmask
-    unsigned long flags;
-    /// @brief Number of samples to collect before sending
-    /// a sample up the tree.
-    int num_sample;
-    /// @brief Power budget in Watts.
-    double power_budget;
-};
-
-/// @brief MPI message structure for sending
-/// sample telemetry data up the tree.
-struct geopm_sample_message_s {
-    /// @brief 64-bit unique application region identifier.
+/// @brief Used to pass information about regions entered and exited
+/// from the application to the tracer.
+struct geopm_region_info_s
+{
     uint64_t region_id;
-    double signal[GEOPM_NUM_SAMPLE_TYPE];
+    double progress;
+    double runtime;
 };
 
 /// @brief Structure used to hold single profiling
@@ -174,52 +134,6 @@ struct geopm_prof_message_s {
     /// @brief Progress of the rank within the current region.
     double progress;
 };
-
-/// @brief Used to pass information about regions entered and exited
-/// from the application to the tracer.
-struct geopm_region_info_s
-{
-    uint64_t region_id;
-    double progress;
-    double runtime;
-};
-
-/// @brief Structure used to hold MSR telemetry data
-/// collected by the platform.
-struct geopm_msr_message_s {
-    /// @brief geopm_domain_type_e.
-    int domain_type;
-    /// @brief Index within this domain type.
-    int domain_index;
-    /// @brief Timestamp of when the sample was taken.
-    struct geopm_time_s timestamp;
-    /// @brief geopm_telemetry_type_e.
-    int signal_type;
-    /// @brief Value read from the MSR.
-    double signal;
-};
-
-/// @brief Structure used to hold aligned telemetry data from
-/// application profiling and msr data.
-struct geopm_telemetry_message_s {
-    uint64_t region_id;
-    struct geopm_time_s timestamp;
-    double signal[GEOPM_NUM_TELEMETRY_TYPE]; // see geopm_telemetry_type_e for ordering.
-};
-
-extern const struct geopm_policy_message_s GEOPM_POLICY_UNKNOWN;
-extern const struct geopm_sample_message_s GEOPM_SAMPLE_INVALID;
-
-/// @brief Check if two policy messages are equal.
-/// @param [in] a Pointer to a policy message.
-/// @param [in] b Pointer to a policy message.
-/// @return 1 if policies are equal, else 0
-int geopm_is_policy_equal(const struct geopm_policy_message_s *a, const struct geopm_policy_message_s *b) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0")));
-/// @brief Check if two sample messages are equal.
-/// @param [in] a Pointer to a sample message.
-/// @param [in] b Pointer to a sample message.
-/// @return 1 if samples are equal, else 0
-int geopm_is_sample_equal(const struct geopm_sample_message_s *a, const struct geopm_sample_message_s *b) __attribute__ ((deprecated("Will be unsupported after geopm version 0.5.0")));
 
 #ifdef __cplusplus
 }

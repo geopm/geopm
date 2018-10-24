@@ -40,10 +40,6 @@
 class MockTracer : public geopm::ITracer
 {
     public:
-        MOCK_METHOD1(update,
-                     void(const std::vector <struct geopm_telemetry_message_s> &telemetry));
-        MOCK_METHOD1(update,
-                     void(const struct geopm_policy_message_s &policy));
         MOCK_METHOD1(columns,
                      void(const std::vector<std::string> &agent_cols));
         MOCK_METHOD2(update,

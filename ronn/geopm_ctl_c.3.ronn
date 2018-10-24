@@ -38,7 +38,6 @@ geopm_ctl_c(3) -- geopm runtime control thread
 `Link with -lgeopm`
 
   * `int geopm_ctl_create(`:
-    `struct geopm_policy_c *`_policy_, <br>
     `MPI_Comm` _comm_, <br>
     `struct geopm_ctl_c **`_ctl_`);`
 
@@ -53,12 +52,6 @@ geopm_ctl_c(3) -- geopm runtime control thread
     `const pthread_attr_t *`_attr_, <br>
     `pthread_t *`_thread_`);`
 
-## DEPRECATED INTERFACES
-   After geopm version 0.5.0 the following APIs will be deprecated
-   with no feature replacement.
-
-  * `int geopm_ctl_step(`:
-    `struct geopm_ctl_c *`_ctl_`);`
 
 ## DESCRIPTION
 The geopm_ctl_c structure is used to launch or step the global

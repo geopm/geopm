@@ -52,11 +52,6 @@ namespace geopm
         public:
             ITracer() = default;
             virtual ~ITracer() = default;
-            /// @todo remove old API once new control path is completely integrated
-            virtual void update(const std::vector <struct geopm_telemetry_message_s> &telemetry) = 0;
-            virtual void update(const struct geopm_policy_message_s &policy) = 0;
-
-            // new API
             /// @brief Set up default columns and add columns to be
             //         provided by the Agent.
             virtual void columns(const std::vector<std::string> &agent_cols) = 0;
@@ -94,7 +89,6 @@ namespace geopm
     {
         public:
             /// @brief Tracer constructor.
-            Tracer(std::string header);
             Tracer();
             Tracer(const std::string &file_path,
                    const std::string &hostname,
@@ -106,9 +100,6 @@ namespace geopm
                    int precision);
             /// @brief Tracer destructor, virtual.
             virtual ~Tracer();
-            void update(const std::vector <struct geopm_telemetry_message_s> &telemetry) override;
-            void update(const struct geopm_policy_message_s &policy) override;
-
             void columns(const std::vector<std::string> &agent_cols) override;
             void update(const std::vector<double> &agent_signals,
                         std::list<geopm_region_info_s> region_entry_exit) override;
@@ -126,7 +117,6 @@ namespace geopm
             std::ostringstream m_buffer;
             off_t m_buffer_limit;
             struct geopm_time_s m_time_zero;
-            struct geopm_policy_message_s m_policy;
 
             IPlatformIO &m_platform_io;
             std::vector<std::string> m_env_column; // extra columns from environment
