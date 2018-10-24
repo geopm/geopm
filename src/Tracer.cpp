@@ -139,12 +139,8 @@ namespace geopm
             }
 
             // Header
-            // @todo remove legacy lines and update Python scripts
             m_buffer << "# \"geopm_version\" : \"" << geopm_version() << "\",\n"
                      << "# \"profile_name\" : \"" << profile_name << "\",\n"
-                     << "# \"power_budget\" : -1,\n"
-                     << "# \"tree_decider\" : \"static_policy\",\n"
-                     << "# \"leaf_decider\" : \"power_governing\",\n"
                      << "# \"node_name\" : \"" << m_hostname << "\",\n"
                      << "# \"agent\" : \"" << agent << "\"\n";
         }
@@ -162,13 +158,12 @@ namespace geopm
     {
         if (m_is_trace_enabled && telemetry.size()) {
             if (m_do_header) {
-                // Write the GlobalPolicy information first
                 m_buffer << m_header;
                 m_buffer << "# \"node_name\" : \"" << m_hostname << "\"" << "\n";
-                m_buffer << "region_id | seconds | ";
+                m_buffer << "region_id | time | ";
                 for (size_t i = 0; i < telemetry.size(); ++i) {
-                    m_buffer << "pkg_energy-" << i << " | "
-                             << "dram_energy-" << i << " | "
+                    m_buffer << "energy_package-" << i << " | "
+                             << "energyy_dram-" << i << " | "
                              << "frequency-" << i << " | "
                              << "inst_retired-" << i << " | "
                              << "clk_unhalted_core-" << i << " | "
@@ -361,25 +356,7 @@ namespace geopm
     std::string ITracer::pretty_name(const IPlatformIO::m_request_s &col) {
         std::ostringstream result;
         std::string name = col.name;
-        /// @todo These custom names can be removed when integration
-        /// tests are updated to the new code path
-        if (name == "TIME") {
-            name = "seconds";
-        }
-        else if (name == "REGION_PROGRESS") {
-            name = "progress-0";
-        }
-        else if (name == "REGION_RUNTIME") {
-            name = "runtime-0";
-        }
-        else if (name == "ENERGY_PACKAGE") {
-            name = "pkg_energy-0";
-        }
-        else if (name == "ENERGY_DRAM") {
-            name = "dram_energy-0";
-        }
-
-        else if (name.find("#") == name.length() - 1) {
+        if (name.find("#") == name.length() - 1) {
             name = name.substr(0, name.length() - 1);
         }
         std::transform(name.begin(), name.end(), name.begin(),
