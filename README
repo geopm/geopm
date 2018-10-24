@@ -355,7 +355,7 @@ From within the source code directory, unit tests can be executed with the
 
 STATUS
 ------
-This software is alpha versioned and is provided for early adopters
+This software is beta versioned and is provided for early adopters
 and collaborative development.  We are very interested in feedback
 from the community.  The runtime implements the infrastructure and
 basic features targeted for GEOPM version 1.0.  We do not anticipate
