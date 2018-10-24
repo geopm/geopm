@@ -53,47 +53,6 @@ using geopm::IPlatformTopo;
 
 namespace geopm
 {
-    Tracer::Tracer(std::string header)
-        : m_header(header)
-        , m_is_trace_enabled(false)
-        , m_do_header(true)
-        , m_buffer_limit(134217728) // 128 MiB
-        , m_time_zero({{0, 0}})
-        , m_policy({0, 0, 0, 0.0})
-        , m_platform_io(platform_io())
-    {
-        geopm_time(&m_time_zero);
-        if (geopm_env_do_trace()) {
-            char hostname[NAME_MAX];
-            int err = gethostname(hostname, NAME_MAX);
-            if (err) {
-                throw Exception("Tracer::Tracer() gethostname() failed", err, __FILE__, __LINE__);
-            }
-            m_hostname = hostname;
-            std::ostringstream output_path;
-            output_path << geopm_env_trace() << "-" << m_hostname;
-            m_stream.open(output_path.str());
-            m_buffer << std::setprecision(16);
-            m_is_trace_enabled = true;
-
-            if (!m_stream.good()) {
-                std::cerr << "Warning: unable to open trace file '" << output_path.str()
-                          << "': " << strerror(errno) << std::endl;
-                m_is_trace_enabled = false;
-            }
-        }
-    }
-
-    std::string Tracer::hostname(void)
-    {
-        char hostname[NAME_MAX];
-        int err = gethostname(hostname, NAME_MAX);
-        if (err) {
-            throw Exception("Tracer::hostname() gethostname() failed", err, __FILE__, __LINE__);
-        }
-        return hostname;
-    }
-
     Tracer::Tracer()
         : Tracer(geopm_env_trace(), hostname(), geopm_env_agent(),
                  geopm_env_profile(), geopm_env_do_trace(), platform_io(),
@@ -116,7 +75,6 @@ namespace geopm
         , m_do_header(true)
         , m_buffer_limit(134217728) // 128 MiB
         , m_time_zero({{0, 0}})
-        , m_policy({0, 0, 0, 0.0})
         , m_platform_io(platform_io)
         , m_env_column(env_column)
         , m_precision(precision)
@@ -139,12 +97,8 @@ namespace geopm
             }
 
             // Header
-            // @todo remove legacy lines and update Python scripts
             m_buffer << "# \"geopm_version\" : \"" << geopm_version() << "\",\n"
                      << "# \"profile_name\" : \"" << profile_name << "\",\n"
-                     << "# \"power_budget\" : -1,\n"
-                     << "# \"tree_decider\" : \"static_policy\",\n"
-                     << "# \"leaf_decider\" : \"power_governing\",\n"
                      << "# \"node_name\" : \"" << m_hostname << "\",\n"
                      << "# \"agent\" : \"" << agent << "\"\n";
         }
@@ -158,52 +112,14 @@ namespace geopm
         }
     }
 
-    void Tracer::update(const std::vector <struct geopm_telemetry_message_s> &telemetry)
+    std::string Tracer::hostname(void)
     {
-        if (m_is_trace_enabled && telemetry.size()) {
-            if (m_do_header) {
-                // Write the GlobalPolicy information first
-                m_buffer << m_header;
-                m_buffer << "# \"node_name\" : \"" << m_hostname << "\"" << "\n";
-                m_buffer << "region_id | seconds | ";
-                for (size_t i = 0; i < telemetry.size(); ++i) {
-                    m_buffer << "pkg_energy-" << i << " | "
-                             << "dram_energy-" << i << " | "
-                             << "frequency-" << i << " | "
-                             << "inst_retired-" << i << " | "
-                             << "clk_unhalted_core-" << i << " | "
-                             << "clk_unhalted_ref-" << i << " | "
-                             << "read_bandwidth-" << i << " | "
-                             << "progress-" << i << " | "
-                             << "runtime-" << i << " | ";
-                }
-                m_buffer << "policy_mode | policy_flags | policy_num_sample | policy_power_budget\n";
-                m_do_header = false;
-            }
-            m_buffer << telemetry[0].region_id << " | "
-                     << geopm_time_diff(&m_time_zero, &(telemetry[0].timestamp)) << " | ";
-            for (auto it = telemetry.begin(); it != telemetry.end(); ++it) {
-                for (int i = 0; i != GEOPM_NUM_TELEMETRY_TYPE; ++i) {
-                    m_buffer << it->signal[i] << " | ";
-                }
-            }
-            m_buffer << m_policy.mode << " | "
-                     << m_policy.flags << " | "
-                     << m_policy.num_sample << " | "
-                     << m_policy.power_budget << "\n";
-
+        char hostname[NAME_MAX];
+        int err = gethostname(hostname, NAME_MAX);
+        if (err) {
+            throw Exception("Tracer::hostname() gethostname() failed", err, __FILE__, __LINE__);
         }
-        if (m_buffer.tellp() > m_buffer_limit) {
-            m_stream << m_buffer.str();
-            m_buffer.str("");
-        }
-    }
-
-    void Tracer::update(const struct geopm_policy_message_s &policy)
-    {
-        if (m_is_trace_enabled) {
-            m_policy = policy;
-        }
+        return hostname;
     }
 
     void Tracer::columns(const std::vector<std::string> &agent_cols)
@@ -361,25 +277,7 @@ namespace geopm
     std::string ITracer::pretty_name(const IPlatformIO::m_request_s &col) {
         std::ostringstream result;
         std::string name = col.name;
-        /// @todo These custom names can be removed when integration
-        /// tests are updated to the new code path
-        if (name == "TIME") {
-            name = "seconds";
-        }
-        else if (name == "REGION_PROGRESS") {
-            name = "progress-0";
-        }
-        else if (name == "REGION_RUNTIME") {
-            name = "runtime-0";
-        }
-        else if (name == "ENERGY_PACKAGE") {
-            name = "pkg_energy-0";
-        }
-        else if (name == "ENERGY_DRAM") {
-            name = "dram_energy-0";
-        }
-
-        else if (name.find("#") == name.length() - 1) {
+        if (name.find("#") == name.length() - 1) {
             name = name.substr(0, name.length() - 1);
         }
         std::transform(name.begin(), name.end(), name.begin(),

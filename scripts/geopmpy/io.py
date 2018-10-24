@@ -68,8 +68,7 @@ class AppOutput(object):
     Additionally a Pandas DataFrame is constructed containing all of
     the report data and a separate DataFrame containing all of the
     trace data.  These DataFrames are indexed based on the version of
-    GEOPM found in the files, the profile name, global power budget
-    set for the run, the tree and leaf deciders used, and the number
+    GEOPM found in the files, the profile name, agent name, and the number
     of times that particular configuration has been seen by the parser
     (i.e. experiment iteration).
 
@@ -381,9 +380,9 @@ class AppOutput(object):
         idx = pandas.IndexSlice
         df = self._reports_df
         if node_name is not None:
-            df = df.loc[idx[:, :, :, :, :, :, node_name, :, :], ]
+            df = df.loc[idx[:, :, :, node_name, :, :], ]
         if region is not None:
-            df = df.loc[idx[:, :, :, :, :, :, :, :, region], ]
+            df = df.loc[idx[:, :, :, :, :, region], ]
         return df
 
     # TODO Call this from outside code to get totals
@@ -391,14 +390,14 @@ class AppOutput(object):
         idx = pandas.IndexSlice
         df = self._app_reports_df
         if node_name is not None:
-            df = df.loc[idx[:, :, :, :, :, :, node_name, :], ]
+            df = df.loc[idx[:, :, :, node_name, :], ]
         return df
 
     def get_trace_data(self, node_name=None):
         idx = pandas.IndexSlice
         df = self._traces_df
         if node_name is not None:
-            df = df.loc[idx[:, :, :, :, :, :, node_name, :, :], ]
+            df = df.loc[idx[:, :, :, node_name, :, :], ]
         return df
 
     def get_report_df(self):
@@ -444,7 +443,7 @@ class IndexTracker(object):
 
     The parsed data is used to extract the following fields to build
     the tracking index tuple:
-        (<GEOPM_VERSION>, <PROFILE_NAME>, <POWER_BUDGET> , <TREE_DECIDER>, <LEAF_DECIDER>, <NODE_NAME>)
+        (<GEOPM_VERSION>, <PROFILE_NAME>, <NODE_NAME>)
 
     If the tuple not contained in the _run_outputs dict, it is
     inserted with a value of 1.  The value is incremented if the tuple
@@ -466,8 +465,6 @@ class IndexTracker(object):
             run_output: The Report or Trace object to be tracked.
         """
         index = (run_output.get_version(), os.path.basename(run_output.get_profile_name()),
-                 run_output.get_power_budget(),
-                 run_output.get_tree_decider(), run_output.get_leaf_decider(),
                  run_output.get_agent(), run_output.get_node_name())
         if index not in self._run_outputs.keys():
             self._run_outputs[index] = 1
@@ -496,8 +493,6 @@ class IndexTracker(object):
 
         """
         key = (run_output.get_version(), os.path.basename(run_output.get_profile_name()),
-               run_output.get_power_budget(),
-               run_output.get_tree_decider(), run_output.get_leaf_decider(),
                run_output.get_agent(), run_output.get_node_name())
 
         return key + (self._run_outputs[key], )
@@ -524,7 +519,7 @@ class IndexTracker(object):
         self._check_increment(run_output)
 
         itl = []
-        index_names = ['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider', 'agent', 'node_name', 'iteration']
+        index_names = ['version', 'name', 'agent', 'node_name', 'iteration']
 
         if type(run_output) is Report:
             index_names.append('region')
@@ -573,11 +568,7 @@ class Report(dict):
     # value to be shared among all Report files created.
     _version = None
     _name = None
-    _mode = None
-    _tree_decider = None
-    _leaf_decider = None
     _agent = None
-    _power_budget = None
 
     @staticmethod
     def reset_vars():
@@ -586,8 +577,8 @@ class Report(dict):
         these fields may change.
 
         """
-        (Report._version, Report._name, Report._mode, Report._tree_decider, Report._leaf_decider, Report._agent, Report._power_budget) = \
-            None, None, None, None, None, None, None
+        (Report._version, Report._name, Report._agent) = \
+            None, None, None
 
     def __init__(self, report_path, offset=0):
         super(Report, self).__init__()
@@ -596,10 +587,6 @@ class Report(dict):
         self._version = None
         self._profile_name = None
         self._agent = None
-        self._mode = None
-        self._tree_decider = None
-        self._leaf_decider = None
-        self._power_budget = None
         self._total_runtime = None
         self._total_energy_pkg = None
         self._total_energy_dram = None
@@ -629,22 +616,6 @@ class Report(dict):
                     match = re.search(r'^Agent: (\S+)$', line)
                     if match is not None:
                         self._agent = match.group(1)
-                if self._mode is None:
-                    match = re.search(r'^Policy Mode: (\S+)$', line)
-                    if match is not None:
-                        self._mode = match.group(1)
-                if self._tree_decider is None:
-                    match = re.search(r'^Tree Decider: (\S+)$', line)
-                    if match is not None:
-                        self._tree_decider = match.group(1)
-                if self._leaf_decider is None:
-                    match = re.search(r'^Leaf Decider: (\S+)$', line)
-                    if match is not None:
-                        self._leaf_decider = match.group(1)
-                if self._power_budget is None:
-                    match = re.search(r'^Power Budget: (\S+)$', line)
-                    if match is not None:
-                        self._power_budget = int(match.group(1))
                 if self._node_name is None:
                     match = re.search(r'^Host: (\S+)$', line)
                     if match is not None:
@@ -739,37 +710,12 @@ class Report(dict):
             Report._profile_name = self._profile_name
         else:
             raise SyntaxError('Unable to parse name information from report!')
-        if self._mode is None and Report._mode:
-            self._mode = Report._mode
-        elif self._mode:
-            Report._mode = self._mode
-        else:
-            raise SyntaxError('Unable to parse mode information from report!')
-        if self._tree_decider is None and Report._tree_decider:
-            self._tree_decider = Report._tree_decider
-        elif self._tree_decider:
-            Report._tree_decider = self._tree_decider
-        else:
-            raise SyntaxError('Unable to parse tree_decider information from report!')
-        if self._leaf_decider is None and Report._leaf_decider:
-            self._leaf_decider = Report._leaf_decider
-        elif self._leaf_decider:
-            Report._leaf_decider = self._leaf_decider
-        else:
-            raise SyntaxError('Unable to parse leaf_decider information from report!')
         if self._agent is None and Report._agent:
             self._agent = Report._agent
         elif self._agent:
             Report._agent = self._agent
         else:
-            # todo: add exception here
-            pass  # Old code path will not have agent information
-        if self._power_budget is None and Report._power_budget:
-            self._power_budget = Report._power_budget
-        elif self._power_budget:
-            Report._power_budget = self._power_budget
-        else:
-            raise SyntaxError('Unable to parse power_budget information from report!')
+            raise SyntaxError('Unable to parse agent information from report!')
 
         # TODO: temporary hack to use old data
         if self._total_energy_dram is None:
@@ -785,17 +731,8 @@ class Report(dict):
     def get_version(self):
         return self._version
 
-    def get_tree_decider(self):
-        return self._tree_decider
-
-    def get_leaf_decider(self):
-        return self._leaf_decider
-
     def get_agent(self):
         return self._agent
-
-    def get_power_budget(self):
-        return self._power_budget
 
     def get_node_name(self):
         return self._node_name
@@ -931,9 +868,6 @@ class Trace(object):
         self._df['region_id'] = self._df['region_id'].astype(str).map(str.strip)  # Strip whitespace from region ID's
         self._version = None
         self._profile_name = None
-        self._power_budget = None
-        self._tree_decider = None
-        self._leaf_decider = None
         self._agent = None
         self._node_name = None
         self._use_agent = use_agent
@@ -963,13 +897,13 @@ class Trace(object):
 
         This allows standard DataFrame slicing operations to take place.
 
-        >>> tt[['region_id', 'seconds', 'pkg_energy-0', 'dram_energy-0']][:5]
-                     region_id   seconds   pkg_energy-0  dram_energy-0
-        0  2305843009213693952  0.662906  106012.363770   25631.015519
-        1  2305843009213693952  0.667854  106012.873718   25631.045777
-        2  2305843009213693952  0.672882  106013.411621   25631.075807
-        3  2305843009213693952  0.677869  106013.998108   25631.105882
-        4  2305843009213693952  0.682849  106014.621704   25631.136186
+        >>> tt[['region_id', 'time', 'energy_package', 'energy_dram']][:5]
+                     region_id      time  energy_package-0  energy_dram-0
+        0  2305843009213693952  0.662906     106012.363770   25631.015519
+        1  2305843009213693952  0.667854     106012.873718   25631.045777
+        2  2305843009213693952  0.672882     106013.411621   25631.075807
+        3  2305843009213693952  0.677869     106013.998108   25631.105882
+        4  2305843009213693952  0.682849     106014.621704   25631.136186
         """
         return self._df.__getitem__(key)
 
@@ -995,9 +929,6 @@ class Trace(object):
         try:
             self._version = dd['geopm_version']
             self._profile_name = dd['profile_name']
-            self._power_budget = dd['power_budget']
-            self._tree_decider = dd['tree_decider']
-            self._leaf_decider = dd['leaf_decider']
             if self._use_agent:
                 self._agent = dd['agent']
             self._node_name = dd['node_name']
@@ -1012,15 +943,6 @@ class Trace(object):
 
     def get_profile_name(self):
         return self._profile_name
-
-    def get_tree_decider(self):
-        return self._tree_decider
-
-    def get_leaf_decider(self):
-        return self._leaf_decider
-
-    def get_power_budget(self):
-        return self._power_budget
 
     def get_agent(self):
         return self._agent
@@ -1070,9 +992,8 @@ class Trace(object):
 
         # Reset 'index' to be 0 to the length of the unique trace files
         traces_list = []
-        for (version, name, power_budget, tree_decider, leaf_decider, agent, node_name, iteration), df in \
-            filtered_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider',
-                                       'agent', 'node_name', 'iteration']):
+        for (version, name, agent, node_name, iteration), df in \
+            filtered_df.groupby(level=['version', 'name', 'agent', 'node_name', 'iteration']):
             df = df.reset_index(level='index')
             df['index'] = pandas.Series(numpy.arange(len(df)), index=df.index)
             df = df.set_index('index', append=True)
@@ -1111,9 +1032,6 @@ class Trace(object):
             median_df_index = []
             median_df_index.append(median_df.index.get_level_values('version').unique()[0])
             median_df_index.append(median_df.index.get_level_values('name').unique()[0])
-            median_df_index.append(median_df.index.get_level_values('power_budget').unique()[0])
-            median_df_index.append(median_df.index.get_level_values('tree_decider').unique()[0])
-            median_df_index.append(median_df.index.get_level_values('leaf_decider').unique()[0])
             median_df_index.append(median_df.index.get_level_values('agent').unique()[0])
             median_df_index.append(median_df.index.get_level_values('iteration').unique()[0])
             sys.stdout.write('Median DF index = ({})...\n'.format(' '.join(str(s) for s in median_df_index)))
