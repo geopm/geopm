@@ -43,7 +43,6 @@
 #endif
 #include <fts.h>
 
-#include "geopm_plugin.h"
 #include "geopm_env.h"
 #include "config.h"
 
@@ -69,7 +68,7 @@ static int geopm_name_ends_with(char *str, char *key)
     return result;
 }
 
-static void __attribute__((constructor)) geopmpolicy_load(void)
+static void __attribute__((constructor)) libgeopm_load(void)
 {
     int err = 0;
     int fts_options = FTS_COMFOLLOW | FTS_NOCHDIR;
