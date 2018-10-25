@@ -40,9 +40,13 @@ const char *program_invocation_name = "geopm_profile";
 #include <limits.h>
 #include <errno.h>
 #include <unistd.h>
+#include <stdio.h>
 
 #include <string>
 #include <vector>
+#include <iostream>
+#include <algorithm>
+#include <fstream>
 
 #include "geopm_env.h"
 #include "Exception.hpp"
@@ -59,6 +63,7 @@ namespace geopm
             Environment();
             virtual ~Environment() = default;
             void load(void);
+            void check(void) const;
             const char *report(void) const;
             const char *comm(void) const;
             const char *policy(void) const;
@@ -79,6 +84,7 @@ namespace geopm
         private:
             bool get_env(const char *name, std::string &env_string) const;
             bool get_env(const char *name, int &value) const;
+            std::string read_file(std::string path) const;
             std::string m_report;
             std::string m_comm;
             std::string m_policy;
@@ -111,6 +117,7 @@ namespace geopm
     Environment::Environment()
     {
         load();
+        check();
     }
 
     void Environment::load()
@@ -182,6 +189,52 @@ namespace geopm
             while (end != std::string::npos);
         }
 
+    }
+
+    std::string Environment::read_file(std::string path) const
+    {
+        std::string contents;
+        std::ifstream input_file(path, std::ifstream::in);
+        if (!input_file.is_open()) {
+            throw Exception("Environment::" + std::string(__func__) + "(): File \"" + path +
+                            "\" could not be opened", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        input_file.seekg(0, std::ios::end);
+        size_t file_size = input_file.tellg();
+        if (file_size <= 0) {
+            throw Exception("Environment::" + std::string(__func__) + "(): input file invalid",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        contents.resize(file_size);
+        input_file.seekg(0, std::ios::beg);
+        input_file.read(&contents[0], file_size);
+        input_file.close();
+        contents.erase(std::remove(contents.begin(), contents.end(), '\n'), contents.end());
+        contents.erase(std::remove(contents.begin(), contents.end(), '\0'), contents.end());
+
+        return contents;
+    }
+
+    void Environment::check() const
+    {
+        // Exceptions cannot be thrown here as they will not propagate through the C function wrappers.  The interface
+        // to this class will have to be re-written to pass return codes back if failure needs to be detected here.
+        if (m_agent != "monitor") {
+            // Check the CPU frequency driver
+            std::string scaling_driver = read_file("/sys/devices/system/cpu/cpu0/cpufreq/scaling_driver");
+            if (scaling_driver != "acpi-cpufreq") {
+                std::cerr << "Environment::" << std::string(__func__) << "(): Incompatible CPU driver detected ("
+                          << scaling_driver << "). The \"acpi-cpufreq\" driver is required." << std::endl;
+            }
+
+            // Check the CPU frequency governor
+            std::string scaling_governor = read_file("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor");
+            if (scaling_governor != "performance") {
+                std::cerr << "Environment::" << std::string(__func__) << "(): Incompatible CPU governor detected ("
+                          << scaling_governor << "). The \"performance\" governor is required." << std::endl;
+            }
+        }
     }
 
     bool Environment::get_env(const char *name, std::string &env_string) const
