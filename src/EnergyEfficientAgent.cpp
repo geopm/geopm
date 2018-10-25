@@ -59,8 +59,8 @@ namespace geopm
     EnergyEfficientAgent::EnergyEfficientAgent(IPlatformIO &plat_io, IPlatformTopo &topo)
         : m_platform_io(plat_io)
         , m_platform_topo(topo)
-        , m_freq_min(cpu_freq_min())
-        , m_freq_max(cpu_freq_max())
+        , m_freq_min(NAN)
+        , m_freq_max(NAN)
         , M_FREQ_STEP(get_limit("CPUINFO::FREQ_STEP"))
         , M_SEND_PERIOD(10)
         , m_last_freq(NAN)
@@ -252,8 +252,7 @@ namespace geopm
                         auto tmp = m_region_map.emplace(
                             current_region_id,
                             std::unique_ptr<EnergyEfficientRegion>(
-                                new EnergyEfficientRegion(m_platform_io, m_freq_min,
-                                    m_freq_max, M_FREQ_STEP,
+                                new EnergyEfficientRegion(m_platform_io,
                                     m_signal_idx[M_SIGNAL_RUNTIME],
                                     m_signal_idx[M_SIGNAL_PKG_ENERGY])));
                         region_it = tmp.first;
@@ -269,8 +268,7 @@ namespace geopm
                         auto tmp = m_region_map.emplace(
                             m_last_region_id,
                             std::unique_ptr<EnergyEfficientRegion>(
-                                new EnergyEfficientRegion(m_platform_io, m_freq_min,
-                                    m_freq_max, M_FREQ_STEP,
+                                new EnergyEfficientRegion(m_platform_io,
                                     m_signal_idx[M_SIGNAL_RUNTIME],
                                     m_signal_idx[M_SIGNAL_PKG_ENERGY])));
                         region_it = tmp.first;
