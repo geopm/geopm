@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c14fafe6_007a7544",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 21
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-10-25T22:01:42Z",
+      "side": 1,
+      "message": "The integration tests previously with the Power Governor at a 150 W budget.  These changes make it so the default is chosen, which AFAICT means the monitor will run.\n\nWe should keep this functionality for now.  If we want these tests to run with the monitor, that should land separately.  There was a good reason for running everything with the Governor that escapes me at the moment...",
+      "range": {
+        "startLine": 130,
+        "startChar": 12,
+        "endLine": 130,
+        "endChar": 41
+      },
+      "revId": "111c54a79d997bd1eb24c7d87a14aeabd2fb87d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
