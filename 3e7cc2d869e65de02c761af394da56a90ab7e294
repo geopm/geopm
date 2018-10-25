@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a8a43c29_a6ca10ed",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-10-25T00:28:48Z",
+      "side": 1,
+      "message": "I\u0027d rather have this as an exception, and bring down the Controller if this would fire.  I think this message is probably going to get lost in the output that\u0027s flying by unless someone is really looking at stderr.  Thoughts?",
+      "range": {
+        "startLine": 212,
+        "startChar": 24,
+        "endLine": 213,
+        "endChar": 100
+      },
+      "revId": "3e7cc2d869e65de02c761af394da56a90ab7e294",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
