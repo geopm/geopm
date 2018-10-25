@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef7cc3ab_4e370bc7",
+        "filename": "tutorial/ModelRegion.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-10-25T18:25:12Z",
+      "side": 1,
+      "message": "remainder \u003d m_array_len\nelse: %",
+      "range": {
+        "startLine": 469,
+        "startChar": 15,
+        "endLine": 469,
+        "endChar": 31
+      },
+      "revId": "63afe5a5324a9f04433d7c81b4342535a1202c9c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
