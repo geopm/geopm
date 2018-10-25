@@ -41,15 +41,13 @@ namespace geopm
 {
 
     EnergyEfficientRegion::EnergyEfficientRegion(IPlatformIO &platform_io,
-                                                 double freq_min, double freq_max,
-                                                 double freq_step,
                                                  int runtime_idx,
                                                  int pkg_energy_idx)
         : m_platform_io(platform_io)
         , m_runtime_idx(runtime_idx)
         , m_pkg_energy_idx(pkg_energy_idx)
     {
-        update_freq_range(freq_min, freq_max, freq_step);
+
     }
 
     void EnergyEfficientRegion::update_freq_range(const double freq_min, const double freq_max, const double freq_step)

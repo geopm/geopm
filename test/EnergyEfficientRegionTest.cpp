@@ -104,7 +104,7 @@ class EnergyEfficientRegionTest : public ::testing::Test
 };
 
 EnergyEfficientRegionTest::EnergyEfficientRegionTest()
-    : m_freq_region(m_platform_io, m_freq_min, m_freq_max, m_freq_step,
+    : m_freq_region(m_platform_io,
                     StubPlatformIO::RUNTIME,
                     StubPlatformIO::ENERGY_PKG)
 {
@@ -115,6 +115,7 @@ void EnergyEfficientRegionTest::SetUp()
 {
     ASSERT_NE(m_freq_min, m_freq_max);
     ASSERT_NE(0, m_freq_step);
+    m_freq_region.update_freq_range(m_freq_min, m_freq_max, m_freq_step);
 }
 
 void EnergyEfficientRegionTest::TearDown()

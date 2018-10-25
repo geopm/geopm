@@ -46,8 +46,7 @@ namespace geopm
     class EnergyEfficientRegion
     {
         public:
-            EnergyEfficientRegion(IPlatformIO &platform_io, double freq_min,
-                                  double freq_max, double freq_step,
+            EnergyEfficientRegion(IPlatformIO &platform_io,
                                   int runtime_idx,
                                   int pkg_energy_idx);
             virtual ~EnergyEfficientRegion() = default;

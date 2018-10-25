@@ -238,6 +238,7 @@ TEST_F(EnergyEfficientAgentTest, online_mode)
     setenv("GEOPM_EFFICIENT_FREQ_MIN", std::to_string(freq_min).c_str(), 1);
     double freq_max = 2e9;
     setenv("GEOPM_EFFICIENT_FREQ_MAX", std::to_string(freq_max).c_str(), 1);
+    m_default_policy = {freq_min, freq_max};
 
     for (int x = 0; x < 4; ++x) {
         // calls in constructor form SetUp and this test
@@ -257,9 +258,7 @@ TEST_F(EnergyEfficientAgentTest, online_mode)
             EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX))
                 .WillOnce(Return(geopm_region_id_set_hint(m_hints[x], m_region_hash[x])));
             EXPECT_CALL(*m_platform_io, sample(ENERGY_PKG_IDX)).Times(2);
-
             EXPECT_CALL(*m_platform_io, adjust(FREQ_IDX, _)).Times(M_NUM_CPU);
-
             m_agent->sample_platform(m_sample);
             m_agent->adjust_platform(m_default_policy);
         }
