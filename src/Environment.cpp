@@ -40,11 +40,15 @@ const char *program_invocation_name = "geopm_profile";
 #include <limits.h>
 #include <errno.h>
 #include <unistd.h>
+#include <stdio.h>
 
 #include <string>
 #include <vector>
+#include <iostream>
+#include <algorithm>
 
 #include "geopm_env.h"
+#include "geopm_sched.h"
 #include "Exception.hpp"
 
 #include "config.h"
@@ -59,6 +63,7 @@ namespace geopm
             Environment();
             virtual ~Environment() = default;
             void load(void);
+            void check(void);
             const char *report(void) const;
             const char *comm(void) const;
             const char *policy(void) const;
@@ -111,6 +116,7 @@ namespace geopm
     Environment::Environment()
     {
         load();
+        check();
     }
 
     void Environment::load()
@@ -182,6 +188,52 @@ namespace geopm
             while (end != std::string::npos);
         }
 
+    }
+
+    void Environment::check()
+    {
+        // Exceptions cannot be thrown here as they will not propagate through the C function wrappers.  The interface
+        // to this class will have to be re-written to pass return codes back if failure needs to be detected here.
+        if (m_agent != "monitor") {
+            // Check the CPU frequency driver
+            FILE *result = nullptr;
+            int err = geopm_sched_popen("cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_driver | uniq", &result);
+            if (err) {
+                std::cerr << "Environment::" << std::string(__func__) << "(): Could not popen sysfs scaling driver.";
+            }
+
+            std::string line;
+            while (!feof(result)) {
+                char cline[1024] = {};
+                if (fgets(cline, 1024, result)) {
+                    line = cline;
+                    line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
+                    if (line != "acpi-cpufreq") {
+                        std::cerr << "Environment::" << std::string(__func__) << "(): Incompatible CPU driver detected ("
+                                  << line << "). The acpi_cpufreq driver is required." << std::endl;
+                    }
+                }
+            }
+
+            // Check the CPU frequency governor
+            result = nullptr;
+            err = geopm_sched_popen("cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor | uniq", &result);
+            if (err) {
+                std::cerr << "Environment::" << std::string(__func__) << "(): Could not popen sysfs scaling_governor.";
+            }
+
+            while (!feof(result)) {
+                char cline[1024] = {};
+                if (fgets(cline, 1024, result)) {
+                    line = cline;
+                    line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
+                    if (line != "performance") {
+                        std::cerr << "Environment::" << std::string(__func__) << "(): Incompatible CPU governor detected ("
+                                  << line << "). The performance governor is required." << std::endl;
+                    }
+                }
+            }
+        }
     }
 
     bool Environment::get_env(const char *name, std::string &env_string) const
