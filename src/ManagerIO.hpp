@@ -164,7 +164,6 @@ namespace geopm
         private:
             bool is_valid_signal(const std::string &signal_name) const;
             std::map<std::string, double> parse_json(void);
-            const std::string read_file(void);
             void read_shmem(void);
 
             std::string m_path;

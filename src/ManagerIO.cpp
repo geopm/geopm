@@ -211,7 +211,7 @@ namespace geopm
         std::map<std::string, double> signal_value_map;
         std::string json_str;
 
-        json_str = read_file();
+        json_str = read_file(m_path);
 
         // Begin JSON parse
         std::string err;
@@ -242,30 +242,6 @@ namespace geopm
         }
 
         return signal_value_map;
-    }
-
-    const std::string ManagerIOSampler::read_file(void)
-    {
-        std::string json_str;
-        std::ifstream json_file_in(m_path, std::ifstream::in);
-
-        if (!json_file_in.is_open()) {
-            throw Exception("ManagerIOSampler::" + std::string(__func__) + "(): input configuration file \"" + m_path +
-                            "\" could not be opened", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        json_file_in.seekg(0, std::ios::end);
-        size_t file_size = json_file_in.tellg();
-        if (file_size <= 0) {
-            throw Exception("ManagerIOSampler::" + std::string(__func__) + "(): input configuration file invalid",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        json_str.resize(file_size); // DO NOT modify json_str beyond this point.
-        json_file_in.seekg(0, std::ios::beg);
-        json_file_in.read(&json_str[0], file_size);
-        json_file_in.close();
-
-        return json_str;
     }
 
     void ManagerIOSampler::read_shmem(void)
