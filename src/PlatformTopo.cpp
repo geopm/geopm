@@ -391,12 +391,15 @@ namespace geopm
             // Check how many CPUs are actually online
             std::string online_cpu_mask = values[5];
 
-            if (online_cpu_mask.size() < 2 ||
-                online_cpu_mask.substr(0,2) != "0x") {
-                throw Exception("PlatformTopo: parsing lscpu output, online CPU mask does not begin with 0x",
+            if (online_cpu_mask.empty()) {
+                throw Exception("PlatformTopo: parsing lscpu output, online CPU mask missing",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-            online_cpu_mask = online_cpu_mask.substr(2);
+
+            // Consume leading "0x" if present
+            if (online_cpu_mask.substr(0,2) == "0x") {
+                online_cpu_mask = online_cpu_mask.substr(2);
+            }
             int online_cpus = 0;
             for (auto hmc = online_cpu_mask.rbegin(); hmc != online_cpu_mask.rend(); ++hmc) {
                 uint32_t hmb = std::stoul(std::string(1, *hmc), 0, 16);
@@ -429,12 +432,17 @@ namespace geopm
             else {
                 numa_map.push_back({});
                 auto cpu_set_it = numa_map.end() - 1;
-                if (lscpu_it->second.size() < 2 ||
-                    lscpu_it->second.substr(0,2) != "0x") {
-                    throw Exception("PlatformTopo: parsing lscpu output, numa mask does not begin with 0x",
+
+                if (lscpu_it->second.empty()) {
+                    throw Exception("PlatformTopo: parsing lscpu output, numa mask missing",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
-                std::string hex_mask = lscpu_it->second.substr(2);
+                std::string hex_mask = lscpu_it->second;
+
+                // Consume leading "0x" if present
+                if (hex_mask.substr(0,2) == "0x") {
+                    hex_mask = hex_mask.substr(2);
+                }
                 int cpu_idx = 0;
                 for (auto hmc = hex_mask.rbegin(); hmc != hex_mask.rend(); ++hmc) {
                     uint32_t hmb = std::stoul(std::string(1, *hmc), 0, 16);
