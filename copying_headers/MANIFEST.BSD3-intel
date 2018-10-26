@@ -124,6 +124,7 @@ src/geopmwrite_main.cpp
 src/GlobalPolicy.cpp
 src/GlobalPolicy.hpp
 src/Helper.hpp
+src/Helper.cpp
 src/IOGroup.cpp
 src/IOGroup.hpp
 src/KNLPlatformImp.cpp

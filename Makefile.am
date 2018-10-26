@@ -349,6 +349,7 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/geopm_version.h \
                             src/geopm_policy.h \
                             src/Helper.hpp \
+                            src/Helper.cpp \
                             src/ManagerIO.cpp \
                             src/ManagerIO.hpp \
                             src/KNLPlatformImp.cpp \
