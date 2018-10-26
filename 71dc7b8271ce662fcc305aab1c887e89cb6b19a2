@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a71903e_c457f69a",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-10-26T18:17:44Z",
+      "side": 1,
+      "message": "-\u003e",
+      "range": {
+        "startLine": 331,
+        "startChar": 98,
+        "endLine": 331,
+        "endChar": 99
+      },
+      "revId": "71dc7b8271ce662fcc305aab1c887e89cb6b19a2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90914a81_d1ed3b4f",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-10-26T18:17:44Z",
+      "side": 1,
+      "message": "-\u003e",
+      "range": {
+        "startLine": 335,
+        "startChar": 94,
+        "endLine": 335,
+        "endChar": 95
+      },
+      "revId": "71dc7b8271ce662fcc305aab1c887e89cb6b19a2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "255cbf65_93a4c620",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-10-26T18:17:44Z",
+      "side": 1,
+      "message": "Nope.",
+      "range": {
+        "startLine": 1039,
+        "startChar": 21,
+        "endLine": 1039,
+        "endChar": 24
+      },
+      "revId": "71dc7b8271ce662fcc305aab1c887e89cb6b19a2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
