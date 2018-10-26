@@ -347,10 +347,10 @@ TEST_F(ManagerIOSamplerTest, negative_bad_files)
     empty_file.close();
     const std::vector<std::string> signal_names = {"FAKE_SIGNAL"};
     GEOPM_EXPECT_THROW_MESSAGE(new ManagerIOSampler(path, nullptr, signal_names),
-                               GEOPM_ERROR_INVALID, "input configuration file invalid");
+                               GEOPM_ERROR_INVALID, "input file invalid");
     chmod(path.c_str(), 0);
     GEOPM_EXPECT_THROW_MESSAGE(new ManagerIOSampler(path, nullptr, signal_names),
-                               GEOPM_ERROR_INVALID, "input configuration file \"" + path + "\" could not be opened");
+                               GEOPM_ERROR_INVALID, "file \"" + path + "\" could not be opened");
     std::remove(path.c_str());
 }
 
