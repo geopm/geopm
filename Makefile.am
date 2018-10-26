@@ -331,6 +331,7 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/geopm_version.c \
                             src/geopm_version.h \
                             src/Helper.hpp \
+                            src/Helper.cpp \
                             src/ManagerIO.cpp \
                             src/ManagerIO.hpp \
                             src/Controller.cpp \

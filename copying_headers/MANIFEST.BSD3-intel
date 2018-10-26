@@ -102,6 +102,7 @@ src/geopm_version.c
 src/geopm_version.h
 src/geopmwrite_main.cpp
 src/Helper.hpp
+src/Helper.cpp
 src/IOGroup.cpp
 src/IOGroup.hpp
 src/Controller.cpp
