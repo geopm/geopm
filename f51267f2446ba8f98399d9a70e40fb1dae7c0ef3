@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e5b2ca9_a7a46052",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 1284,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-10-26T18:47:30Z",
+      "side": 1,
+      "message": "Consider a refactor that uses inheritance.",
+      "range": {
+        "startLine": 1284,
+        "startChar": 0,
+        "endLine": 1284,
+        "endChar": 70
+      },
+      "revId": "f51267f2446ba8f98399d9a70e40fb1dae7c0ef3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
