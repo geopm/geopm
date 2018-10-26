@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "94f0d9d2_550c46bb",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-10-26T18:00:36Z",
+      "side": 1,
+      "message": "Remove this restriction.",
+      "range": {
+        "startLine": 223,
+        "startChar": 8,
+        "endLine": 223,
+        "endChar": 35
+      },
+      "revId": "0c2e9c4186e8aed963390d8dfbe4bb32812f0248",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b95619ca_26c17c33",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-10-26T18:00:36Z",
+      "side": 1,
+      "message": "Prepend with \"\u003cgeopm\u003e Warning:\"",
+      "range": {
+        "startLine": 227,
+        "startChar": 30,
+        "endLine": 227,
+        "endChar": 41
+      },
+      "revId": "0c2e9c4186e8aed963390d8dfbe4bb32812f0248",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ea2020d_522acce7",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-10-26T18:00:36Z",
+      "side": 1,
+      "message": "Add text explaining what the symptoms of not fixing this would be.",
+      "range": {
+        "startLine": 228,
+        "startChar": 51,
+        "endLine": 228,
+        "endChar": 91
+      },
+      "revId": "0c2e9c4186e8aed963390d8dfbe4bb32812f0248",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
