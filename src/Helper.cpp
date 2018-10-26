@@ -30,27 +30,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HELPER_HPP_INCLUDE
-#define HELPER_HPP_INCLUDE
-
-#include <memory>
-#include <utility>
+#include <string>
+#include <fstream>
+#include "Exception.hpp"
 
 namespace geopm
 {
-    /// @brief Implementation of std::make_unique (C++14) for C++11.
-    ///        Note that this version will only work for non-array
-    ///        types.
-    template <class Type, class ...Args>
-    std::unique_ptr<Type> make_unique(Args &&...args)
+    std::string read_file(std::string path)
     {
-        return std::unique_ptr<Type>(new Type(std::forward<Args>(args)...));
-    }
+        std::string contents;
+        std::ifstream input_file(path, std::ifstream::in);
+        if (!input_file.is_open()) {
+            throw Exception("Helper::" + std::string(__func__) + "(): file \"" + path +
+                            "\" could not be opened", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
 
-    /// @brief Reads the specified file and returns the contents in a string.
-    /// @param [in] path The path of the file to read.
-    /// @return The contents of the file at path.
-    std::string read_file(std::string path);
+        input_file.seekg(0, std::ios::end);
+        size_t file_size = input_file.tellg();
+        if (file_size <= 0) {
+            throw Exception("Helper::" + std::string(__func__) + "(): input file invalid",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        contents.resize(file_size);
+        input_file.seekg(0, std::ios::beg);
+        input_file.read(&contents[0], file_size);
+        input_file.close();
+
+        return contents;
+    }
 }
 
-#endif
