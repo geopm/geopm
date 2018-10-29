@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a3d1acdb_d30ab44a",
+        "filename": "src/MSRIOGroup.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-10-29T23:11:07Z",
+      "side": 1,
+      "message": "do_skip?",
+      "range": {
+        "startLine": 471,
+        "startChar": 17,
+        "endLine": 471,
+        "endChar": 21
+      },
+      "revId": "a5a14812b452503df70bf22586af4b0737d8adf2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d3e0e76c_17079b4e",
+        "filename": "src/MSRIOGroup.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-10-29T23:11:07Z",
+      "side": 1,
+      "message": "Why not just skip the error message, no the rest of the restore attempt?",
+      "revId": "a5a14812b452503df70bf22586af4b0737d8adf2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
