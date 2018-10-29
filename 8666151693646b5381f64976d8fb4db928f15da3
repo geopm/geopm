@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "37f81fd9_afa0c245",
+        "filename": "geopm.spec.in",
+        "patchSetId": 27
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-10-29T18:47:20Z",
+      "side": 0,
+      "message": "restore this directory",
+      "range": {
+        "startLine": 168,
+        "startChar": 0,
+        "endLine": 168,
+        "endChar": 21
+      },
+      "revId": "8666151693646b5381f64976d8fb4db928f15da3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}

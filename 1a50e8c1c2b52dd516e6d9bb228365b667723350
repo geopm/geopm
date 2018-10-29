@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c94ce81d_01443928",
+        "filename": "src/Kontroller.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-10-29T18:47:20Z",
+      "side": 1,
+      "message": "Always print.",
+      "range": {
+        "startLine": 54,
+        "startChar": 4,
+        "endLine": 54,
+        "endChar": 69
+      },
+      "revId": "1a50e8c1c2b52dd516e6d9bb228365b667723350",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "290a98b8_34008c56",
+        "filename": "src/MPICommSplit.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-10-29T18:47:20Z",
+      "side": 1,
+      "message": "This is (one of) the testing, maybe construct without specifying policy.",
+      "range": {
+        "startLine": 64,
+        "startChar": 12,
+        "endLine": 64,
+        "endChar": 106
+      },
+      "revId": "1a50e8c1c2b52dd516e6d9bb228365b667723350",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2aa80b1a_51c4882c",
+        "filename": "src/geopm_ctl.h",
+        "patchSetId": 27
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-10-29T18:47:20Z",
+      "side": 1,
+      "message": "Remove this api from the runtime.",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 141
+      },
+      "revId": "1a50e8c1c2b52dd516e6d9bb228365b667723350",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
