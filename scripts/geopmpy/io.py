@@ -1134,62 +1134,6 @@ imbalance : {imbalance}
             json.dump(obj, fid)
 
 
-class CtlConf(object):
-    """The GEOPM Controller configuration parameters.
-
-    This class contains all the parameters necessary to run the GEOPM
-    controller with a workload.
-
-    Attributes:
-        path: The output path for this configuration file.
-        mode: The type of mode for the current policy.  Set this to
-              'dynamic' in order to utilize arbitrary tree and leaf
-              deciders.
-
-        options: A dict of the options for this policy mode.  When
-                 using the 'dynamic' mode, this allows you to specify
-                 the tree and leaf deciders in addition to the power
-                 budget.
-
-    """
-    def __init__(self, path, mode, options):
-        self._path = path
-        self._options = options
-
-    def __repr__(self):
-        template = """\
-path    : {path}
-mode    : {mode}
-options : {options}
-"""
-        return template.format(path=self._path,
-                               options=self._options)
-
-    def __str__(self):
-        return self.__repr__()
-
-    def set_tree_decider(self, decider):
-        self._options['tree_decider'] = decider
-
-    def set_leaf_decider(self, decider):
-        self._options['leaf_decider'] = decider
-
-    def set_platform(self, platform):
-        self._options['platform'] = platform
-
-    def set_power_budget(self, budget):
-        self._options['power_budget'] = budget
-
-    def get_path(self):
-        return self._path
-
-    def write(self):
-        """Write the current config to a file."""
-        obj = {'options' : self._options}
-        with open(self._path, 'w') as fid:
-            json.dump(obj, fid)
-
-
 class AgentConf(object):
     """The GEOPM agent configuration parameters.
 
