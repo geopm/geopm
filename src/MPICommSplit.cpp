@@ -37,7 +37,7 @@
 #include "SharedMemory.hpp"
 #include "geopm_mpi_comm_split.h"
 #include "Exception.hpp"
-#include "Kontroller.hpp"
+#include "Controller.hpp"
 #include "Comm.hpp"
 #include "MPIComm.hpp"
 
@@ -61,7 +61,7 @@ extern "C"
         int err = 0;
         try {
             auto tmp_comm = std::unique_ptr<geopm::Comm>(new geopm::MPIComm(comm));
-            *ctl = (struct geopm_ctl_c *)(new geopm::Kontroller(std::move(tmp_comm), geopm_env_policy()));
+            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(std::move(tmp_comm), geopm_env_policy()));
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception(), true);

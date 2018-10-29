@@ -30,8 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KPROFILEIOGROUP_HPP_INCLUDE
-#define KPROFILEIOGROUP_HPP_INCLUDE
+#ifndef PROFILEIOGROUP_HPP_INCLUDE
+#define PROFILEIOGROUP_HPP_INCLUDE
 
 #include <set>
 #include <string>
@@ -41,19 +41,19 @@
 namespace geopm
 {
     class IEpochRuntimeRegulator;
-    class IKprofileIOSample;
+    class IProfileIOSample;
     class IPlatformTopo;
 
     /// @brief IOGroup that provides signals from the application.
-    class KprofileIOGroup : public IOGroup
+    class ProfileIOGroup : public IOGroup
     {
         public:
-            KprofileIOGroup(std::shared_ptr<IKprofileIOSample> profile_sample,
+            ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
                             IEpochRuntimeRegulator &epoch_regulator);
-            KprofileIOGroup(std::shared_ptr<IKprofileIOSample> profile_sample,
+            ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
                             IEpochRuntimeRegulator &epoch_regulator,
                             geopm::IPlatformTopo &topo);
-            virtual ~KprofileIOGroup();
+            virtual ~ProfileIOGroup();
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
             bool is_valid_signal(const std::string &signal_name) const override;
@@ -89,7 +89,7 @@ namespace geopm
 
             int check_signal(const std::string &signal_name, int domain_type, int domain_idx) const;
 
-            std::shared_ptr<IKprofileIOSample> m_profile_sample;
+            std::shared_ptr<IProfileIOSample> m_profile_sample;
             IEpochRuntimeRegulator &m_epoch_regulator;
             std::map<std::string, int> m_signal_idx_map;
             IPlatformTopo &m_platform_topo;

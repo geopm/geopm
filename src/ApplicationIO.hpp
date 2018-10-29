@@ -123,7 +123,7 @@ namespace geopm
 
     class IProfileSampler;
     class IEpochRuntimeRegulator;
-    class IKprofileIOSample;
+    class IProfileIOSample;
     class IPlatformIO;
     class IPlatformTopo;
 
@@ -133,7 +133,7 @@ namespace geopm
             ApplicationIO(const std::string &shm_key);
             ApplicationIO(const std::string &shm_key,
                           std::unique_ptr<IProfileSampler> sampler,
-                          std::shared_ptr<IKprofileIOSample> pio_sample,
+                          std::shared_ptr<IProfileIOSample> pio_sample,
                           std::unique_ptr<IEpochRuntimeRegulator>,
                           IPlatformIO &platform_io,
                           IPlatformTopo &platform_topo);
@@ -167,7 +167,7 @@ namespace geopm
             double current_energy_dram(void) const;
 
             std::unique_ptr<IProfileSampler> m_sampler;
-            std::shared_ptr<IKprofileIOSample> m_profile_io_sample;
+            std::shared_ptr<IProfileIOSample> m_profile_io_sample;
             std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > m_prof_sample;
             IPlatformIO &m_platform_io;
             IPlatformTopo &m_platform_topo;
