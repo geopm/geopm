@@ -188,10 +188,10 @@ GTEST_TESTS = test/gtest_links/CircularBufferTest.buffer_size \
               test/gtest_links/MonitorAgentTest.descend_nothing \
               test/gtest_links/MonitorAgentTest.ascend_aggregates_signals \
               test/gtest_links/ReporterTest.generate \
-              test/gtest_links/KontrollerTest.single_node \
-              test/gtest_links/KontrollerTest.two_level_controller_2 \
-              test/gtest_links/KontrollerTest.two_level_controller_1 \
-              test/gtest_links/KontrollerTest.two_level_controller_0 \
+              test/gtest_links/ControllerTest.single_node \
+              test/gtest_links/ControllerTest.two_level_controller_2 \
+              test/gtest_links/ControllerTest.two_level_controller_1 \
+              test/gtest_links/ControllerTest.two_level_controller_0 \
               test/gtest_links/ManagerIOTest.write_json_file \
               test/gtest_links/ManagerIOTest.write_shm \
               test/gtest_links/ManagerIOTest.negative_write_json_file \
@@ -208,11 +208,11 @@ GTEST_TESTS = test/gtest_links/CircularBufferTest.buffer_size \
               test/gtest_links/TracerTest.region_entry_exit \
               test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/ApplicationIOTest.passthrough \
-              test/gtest_links/KruntimeRegulatorTest.exceptions \
-              test/gtest_links/KruntimeRegulatorTest.all_in_and_out \
-              test/gtest_links/KruntimeRegulatorTest.all_reenter \
-              test/gtest_links/KruntimeRegulatorTest.one_rank_reenter_and_exit \
-              test/gtest_links/KruntimeRegulatorTest.config_rank_then_workers \
+              test/gtest_links/RuntimeRegulatorTest.exceptions \
+              test/gtest_links/RuntimeRegulatorTest.all_in_and_out \
+              test/gtest_links/RuntimeRegulatorTest.all_reenter \
+              test/gtest_links/RuntimeRegulatorTest.one_rank_reenter_and_exit \
+              test/gtest_links/RuntimeRegulatorTest.config_rank_then_workers \
               test/gtest_links/EpochRuntimeRegulatorTest.invalid_ranks \
               test/gtest_links/EpochRuntimeRegulatorTest.unknown_region \
               test/gtest_links/EpochRuntimeRegulatorTest.rank_enter_exit_trace \
@@ -313,7 +313,7 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/MonitorAgentTest.cpp \
                           test/AgentFactoryTest.cpp \
                           test/ReporterTest.cpp \
-                          test/KontrollerTest.cpp \
+                          test/ControllerTest.cpp \
                           test/MockApplicationIO.hpp \
                           test/MockAgent.hpp \
                           test/MockReporter.hpp \
@@ -322,8 +322,8 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/MockManagerIOSampler.hpp \
                           test/TracerTest.cpp \
                           test/ApplicationIOTest.cpp \
-                          test/MockKprofileIOSample.hpp \
-                          test/KruntimeRegulatorTest.cpp \
+                          test/MockProfileIOSample.hpp \
+                          test/RuntimeRegulatorTest.cpp \
                           test/EpochRuntimeRegulatorTest.cpp \
                           test/PowerBalancerAgentTest.cpp \
                           test/PowerBalancerTest.cpp \

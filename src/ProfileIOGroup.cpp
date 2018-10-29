@@ -31,29 +31,29 @@
  */
 
 
-#include "KprofileIOGroup.hpp"
+#include "ProfileIOGroup.hpp"
 #include "PlatformTopo.hpp"
 #include "EpochRuntimeRegulator.hpp"
-#include "KruntimeRegulator.hpp"
-#include "KprofileIOSample.hpp"
+#include "RuntimeRegulator.hpp"
+#include "ProfileIOSample.hpp"
 #include "Exception.hpp"
 #include "Agg.hpp"
 #include "geopm_hash.h"
 #include "geopm_time.h"
 #include "config.h"
 
-#define GEOPM_PROFILE_IO_GROUP_PLUGIN_NAME "KPROFILE"
+#define GEOPM_PROFILE_IO_GROUP_PLUGIN_NAME "PROFILE"
 
 namespace geopm
 {
-    KprofileIOGroup::KprofileIOGroup(std::shared_ptr<IKprofileIOSample> profile_sample,
+    ProfileIOGroup::ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
                                      IEpochRuntimeRegulator &epoch_regulator)
-        : KprofileIOGroup(profile_sample, epoch_regulator, platform_topo())
+        : ProfileIOGroup(profile_sample, epoch_regulator, platform_topo())
     {
 
     }
 
-    KprofileIOGroup::KprofileIOGroup(std::shared_ptr<IKprofileIOSample> profile_sample,
+    ProfileIOGroup::ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
                                      IEpochRuntimeRegulator &epoch_regulator,
                                      IPlatformTopo &topo)
         : m_profile_sample(profile_sample)
@@ -78,12 +78,12 @@ namespace geopm
 
     }
 
-    KprofileIOGroup::~KprofileIOGroup()
+    ProfileIOGroup::~ProfileIOGroup()
     {
 
     }
 
-    std::set<std::string> KprofileIOGroup::signal_names(void) const
+    std::set<std::string> ProfileIOGroup::signal_names(void) const
     {
         std::set<std::string> result;
         for (const auto &sv : m_signal_idx_map) {
@@ -92,22 +92,22 @@ namespace geopm
         return result;
     }
 
-    std::set<std::string> KprofileIOGroup::control_names(void) const
+    std::set<std::string> ProfileIOGroup::control_names(void) const
     {
         return {};
     }
 
-    bool KprofileIOGroup::is_valid_signal(const std::string &signal_name) const
+    bool ProfileIOGroup::is_valid_signal(const std::string &signal_name) const
     {
         return m_signal_idx_map.find(signal_name) != m_signal_idx_map.end();
     }
 
-    bool KprofileIOGroup::is_valid_control(const std::string &control_name) const
+    bool ProfileIOGroup::is_valid_control(const std::string &control_name) const
     {
         return false;
     }
 
-    int KprofileIOGroup::signal_domain_type(const std::string &signal_name) const
+    int ProfileIOGroup::signal_domain_type(const std::string &signal_name) const
     {
         int result = IPlatformTopo::M_DOMAIN_INVALID;
         if (is_valid_signal(signal_name)) {
@@ -116,16 +116,16 @@ namespace geopm
         return result;
     }
 
-    int KprofileIOGroup::control_domain_type(const std::string &control_name) const
+    int ProfileIOGroup::control_domain_type(const std::string &control_name) const
     {
         return PlatformTopo::M_DOMAIN_INVALID;
     }
 
-    int KprofileIOGroup::push_signal(const std::string &signal_name, int domain_type, int domain_idx)
+    int ProfileIOGroup::push_signal(const std::string &signal_name, int domain_type, int domain_idx)
     {
         int result = -1;
         if (m_is_batch_read) {
-            throw Exception("KprofileIOGroup::push_signal: cannot push signal after call to read_batch().",
+            throw Exception("ProfileIOGroup::push_signal: cannot push signal after call to read_batch().",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         int signal_type = check_signal(signal_name, domain_type, domain_idx);
@@ -151,13 +151,13 @@ namespace geopm
         return result;
     }
 
-    int KprofileIOGroup::push_control(const std::string &control_name, int domain_type, int domain_idx)
+    int ProfileIOGroup::push_control(const std::string &control_name, int domain_type, int domain_idx)
     {
-        throw Exception("KprofileIOGroup::push_control() there are no controls supported by the KprofileIOGroup",
+        throw Exception("ProfileIOGroup::push_control() there are no controls supported by the ProfileIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
-    void KprofileIOGroup::read_batch(void)
+    void ProfileIOGroup::read_batch(void)
     {
         if (m_do_read[M_SIGNAL_REGION_ID]) {
             m_per_cpu_region_id = m_profile_sample->per_cpu_region_id();
@@ -200,16 +200,16 @@ namespace geopm
         m_is_batch_read = true;
     }
 
-    void KprofileIOGroup::write_batch(void)
+    void ProfileIOGroup::write_batch(void)
     {
 
     }
 
-    double KprofileIOGroup::sample(int signal_idx)
+    double ProfileIOGroup::sample(int signal_idx)
     {
         double result = NAN;
         if (signal_idx < 0 || signal_idx >= (int)m_active_signal.size()) {
-            throw Exception("KprofileIOGroup::sample(): signal_idx out of range",
+            throw Exception("ProfileIOGroup::sample(): signal_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (!m_is_batch_read) {
@@ -237,7 +237,7 @@ namespace geopm
                 break;
             default:
 #ifdef GEOPM_DEBUG
-                throw Exception("KprofileIOGroup:sample(): Signal was pushed with an invalid signal type",
+                throw Exception("ProfileIOGroup:sample(): Signal was pushed with an invalid signal type",
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
 #endif
                 break;
@@ -246,13 +246,13 @@ namespace geopm
         return result;
     }
 
-    void KprofileIOGroup::adjust(int control_idx, double setting)
+    void ProfileIOGroup::adjust(int control_idx, double setting)
     {
-        throw Exception("KprofileIOGroup::adjust() there are no controls supported by the KprofileIOGroup",
+        throw Exception("ProfileIOGroup::adjust() there are no controls supported by the ProfileIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
-    double KprofileIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
+    double ProfileIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
     {
         int signal_type = check_signal(signal_name, domain_type, domain_idx);
         /// @todo Add support for non-cpu domains.
@@ -280,7 +280,7 @@ namespace geopm
                 break;
             default:
 #ifdef GEOPM_DEBUG
-                throw Exception("KprofileIOGroup:read_signal(): Invalid signal type bug check_signal did not throw",
+                throw Exception("ProfileIOGroup:read_signal(): Invalid signal type bug check_signal did not throw",
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
 #endif
                 break;
@@ -288,61 +288,61 @@ namespace geopm
         return result;
     }
 
-    void KprofileIOGroup::write_control(const std::string &control_name, int domain_type, int domain_idx, double setting)
+    void ProfileIOGroup::write_control(const std::string &control_name, int domain_type, int domain_idx, double setting)
     {
-        throw Exception("KprofileIOGroup::write_control() there are no controls supported by the KprofileIOGroup",
+        throw Exception("ProfileIOGroup::write_control() there are no controls supported by the ProfileIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
-    void KprofileIOGroup::save_control(void)
+    void ProfileIOGroup::save_control(void)
     {
 
     }
 
-    void KprofileIOGroup::restore_control(void)
+    void ProfileIOGroup::restore_control(void)
     {
 
     }
 
-    std::function<double(const std::vector<double> &)> KprofileIOGroup::agg_function(const std::string &signal_name) const
+    std::function<double(const std::vector<double> &)> ProfileIOGroup::agg_function(const std::string &signal_name) const
     {
         static const std::map<std::string, std::function<double(const std::vector<double> &)> > fn_map {
             {"REGION_RUNTIME", Agg::max},
-            {"KPROFILE::REGION_RUNTIME", Agg::max},
+            {"PROFILE::REGION_RUNTIME", Agg::max},
             {"REGION_PROGRESS", Agg::min},
-            {"KPROFILE::REGION_PROGRESS", Agg::min},
+            {"PROFILE::REGION_PROGRESS", Agg::min},
             {"REGION_ID#", Agg::region_id},
-            {"KPROFILE::REGION_ID#", Agg::region_id},
+            {"PROFILE::REGION_ID#", Agg::region_id},
             {"EPOCH_RUNTIME", Agg::max},
-            {"KPROFILE::EPOCH_RUNTIME", Agg::max},
+            {"PROFILE::EPOCH_RUNTIME", Agg::max},
             {"EPOCH_ENERGY", Agg::sum},
-            {"KPROFILE::EPOCH_ENERGY", Agg::sum},
+            {"PROFILE::EPOCH_ENERGY", Agg::sum},
             {"EPOCH_COUNT", Agg::min},
-            {"KPROFILE::EPOCH_COUNT", Agg::min}
+            {"PROFILE::EPOCH_COUNT", Agg::min}
         };
         auto it = fn_map.find(signal_name);
         if (it == fn_map.end()) {
-            throw Exception("KprofileIOGroup::agg_function(): unknown how to aggregate \"" + signal_name + "\"",
+            throw Exception("ProfileIOGroup::agg_function(): unknown how to aggregate \"" + signal_name + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return it->second;
     }
 
-    int KprofileIOGroup::check_signal(const std::string &signal_name, int domain_type, int domain_idx) const
+    int ProfileIOGroup::check_signal(const std::string &signal_name, int domain_type, int domain_idx) const
     {
         if (!is_valid_signal(signal_name)) {
-            throw Exception("KprofileIOGroup::check_signal(): signal_name " + signal_name +
-                            " not valid for KprofileIOGroup",
+            throw Exception("ProfileIOGroup::check_signal(): signal_name " + signal_name +
+                            " not valid for ProfileIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (domain_type != PlatformTopo::M_DOMAIN_CPU) {
             /// @todo Add support for non-cpu domains.
-            throw Exception("KprofileIOGroup::check_signal(): non-CPU domains are not supported",
+            throw Exception("ProfileIOGroup::check_signal(): non-CPU domains are not supported",
                             GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         }
         int cpu_idx = domain_idx;
         if (cpu_idx < 0 || cpu_idx >= m_platform_topo.num_domain(PlatformTopo::M_DOMAIN_CPU)) {
-            throw Exception("KprofileIOGroup::check_signal(): domain index out of range",
+            throw Exception("ProfileIOGroup::check_signal(): domain index out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         int signal_type = -1;
@@ -352,14 +352,14 @@ namespace geopm
         }
 #ifdef GEOPM_DEBUG
         else {
-            throw Exception("KprofileIOGroup::check_signal: is_valid_signal() returned true, but signal name is unknown",
+            throw Exception("ProfileIOGroup::check_signal: is_valid_signal() returned true, but signal name is unknown",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
         return signal_type;
     }
 
-    std::string KprofileIOGroup::plugin_name(void)
+    std::string ProfileIOGroup::plugin_name(void)
     {
         return GEOPM_PROFILE_IO_GROUP_PLUGIN_NAME;
     }

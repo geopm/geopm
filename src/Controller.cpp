@@ -36,7 +36,7 @@
 #include "geopm_env.h"
 #include "geopm_signal_handler.h"
 #include "geopm_message.h"
-#include "Kontroller.hpp"
+#include "Controller.hpp"
 #include "ApplicationIO.hpp"
 #include "Reporter.hpp"
 #include "Tracer.hpp"
@@ -60,7 +60,7 @@ extern "C"
                           pthread_t *thread)
     {
         long err = 0;
-        geopm::Kontroller *ctl_obj = (geopm::Kontroller *)ctl;
+        geopm::Controller *ctl_obj = (geopm::Controller *)ctl;
         try {
             ctl_obj->pthread(attr, thread);
         }
@@ -81,7 +81,7 @@ extern "C"
         int err = 0;
         try {
             auto tmp_comm = geopm::comm_factory().make_plugin(geopm_env_comm());
-            geopm::Kontroller ctl(std::move(tmp_comm), geopm_env_policy());
+            geopm::Controller ctl(std::move(tmp_comm), geopm_env_policy());
             err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
         }
         catch (...) {
@@ -93,7 +93,7 @@ extern "C"
     int geopm_ctl_destroy(struct geopm_ctl_c *ctl)
     {
         int err = 0;
-        geopm::Kontroller *ctl_obj = (geopm::Kontroller *)ctl;
+        geopm::Controller *ctl_obj = (geopm::Controller *)ctl;
         try {
             delete ctl_obj;
         }
@@ -106,7 +106,7 @@ extern "C"
     static int geopm_run_imp(struct geopm_ctl_c *ctl, bool do_print)
     {
         int err = 0;
-        geopm::Kontroller *ctl_obj = (geopm::Kontroller *)ctl;
+        geopm::Controller *ctl_obj = (geopm::Controller *)ctl;
         try {
             ctl_obj->run();
         }
@@ -124,9 +124,9 @@ extern "C"
 
 namespace geopm
 {
-    Kontroller::Kontroller(std::shared_ptr<Comm> ppn1_comm,
+    Controller::Controller(std::shared_ptr<Comm> ppn1_comm,
                            const std::string &global_policy_path)
-        : Kontroller(ppn1_comm,
+        : Controller(ppn1_comm,
                      platform_io(),
                      geopm_env_agent(),
                      Agent::num_policy(agent_factory().dictionary(geopm_env_agent())),
@@ -143,7 +143,7 @@ namespace geopm
 
     }
 
-    Kontroller::Kontroller(std::shared_ptr<Comm> comm,
+    Controller::Controller(std::shared_ptr<Comm> comm,
                            IPlatformIO &plat_io,
                            const std::string &agent_name,
                            int num_send_down,
@@ -186,14 +186,14 @@ namespace geopm
         }
     }
 
-    Kontroller::~Kontroller()
+    Controller::~Controller()
     {
         geopm_signal_handler_check();
         geopm_signal_handler_revert();
         m_platform_io.restore_control();
     }
 
-    void Kontroller::init_agents(void)
+    void Controller::init_agents(void)
     {
         std::vector<int> fan_in(m_tree_comm->root_level());
         int level = 0;
@@ -211,16 +211,16 @@ namespace geopm
         /// @todo move somewhere else: need to happen after Agents are constructed
         // sanity checks
         if (m_agent.size() == 0) {
-            throw Exception("Kontroller requires at least one Agent",
+            throw Exception("Controller requires at least one Agent",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (m_max_level != (int)m_agent.size()) {
-            throw Exception("Kontroller number of agents is incorrect",
+            throw Exception("Controller number of agents is incorrect",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
 
-    void Kontroller::run(void)
+    void Controller::run(void)
     {
         m_application_io->connect();
         geopm_signal_handler_check();
@@ -257,7 +257,7 @@ namespace geopm
         m_platform_io.restore_control();
     }
 
-    void Kontroller::generate(void)
+    void Controller::generate(void)
     {
         std::vector<std::pair<std::string, std::string> > agent_report_header;
         if (m_is_root) {
@@ -276,7 +276,7 @@ namespace geopm
         m_tracer->flush();
     }
 
-    void Kontroller::step(void)
+    void Controller::step(void)
     {
         walk_down();
         geopm_signal_handler_check();
@@ -287,7 +287,7 @@ namespace geopm
         geopm_signal_handler_check();
     }
 
-    void Kontroller::walk_down(void)
+    void Controller::walk_down(void)
     {
         bool do_send = false;
         if (m_is_root) {
@@ -314,7 +314,7 @@ namespace geopm
         }
     }
 
-    void Kontroller::walk_up(void)
+    void Controller::walk_up(void)
     {
         m_application_io->update(m_comm);
         m_platform_io.read_batch();
@@ -344,7 +344,7 @@ namespace geopm
         }
     }
 
-    void Kontroller::pthread(const pthread_attr_t *attr, pthread_t *thread)
+    void Controller::pthread(const pthread_attr_t *attr, pthread_t *thread)
     {
         int err = pthread_create(thread, attr, geopm_threaded_run, (void *)this);
         if (err) {
@@ -353,14 +353,14 @@ namespace geopm
         }
     }
 
-    void Kontroller::setup_trace(void)
+    void Controller::setup_trace(void)
     {
         auto agent_cols = m_agent[0]->trace_names();
         m_tracer->columns(agent_cols);
         m_trace_sample.resize(agent_cols.size());
     }
 
-    void Kontroller::abort(void)
+    void Controller::abort(void)
     {
         m_application_io->abort();
         m_platform_io.restore_control();

@@ -38,7 +38,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "Kontroller.hpp"
+#include "Controller.hpp"
 
 #include "MockPlatformTopo.hpp"
 #include "MockPlatformIO.hpp"
@@ -52,7 +52,7 @@
 #include "Helper.hpp"
 #include "Agg.hpp"
 
-using geopm::Kontroller;
+using geopm::Controller;
 using geopm::IPlatformIO;
 using geopm::IPlatformTopo;
 using geopm::ApplicationIO;
@@ -94,7 +94,7 @@ class KontrollerTestMockPlatformIO : public MockPlatformIO
 
 
 
-class KontrollerTest : public ::testing::Test
+class ControllerTest : public ::testing::Test
 {
     protected:
         void SetUp();
@@ -118,7 +118,7 @@ class KontrollerTest : public ::testing::Test
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > m_region_names;
 };
 
-void KontrollerTest::SetUp()
+void ControllerTest::SetUp()
 {
     m_platform_io.add_supported_signal({"TIME", IPlatformTopo::M_DOMAIN_BOARD, 0}, 99);
     m_platform_io.add_supported_signal({"POWER_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0}, 4545);
@@ -136,7 +136,7 @@ void KontrollerTest::SetUp()
     EXPECT_CALL(m_platform_io, restore_control());
 }
 
-TEST_F(KontrollerTest, single_node)
+TEST_F(ControllerTest, single_node)
 {
     int num_level_ctl = 0;
     int root_level = 0;
@@ -148,7 +148,7 @@ TEST_F(KontrollerTest, single_node)
         .WillOnce(Return(num_level_ctl));
     EXPECT_CALL(*m_tree_comm, root_level())
         .WillOnce(Return(root_level));
-    Kontroller kontroller(m_comm, m_platform_io,
+    Controller controller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
                           m_application_io,
@@ -161,7 +161,7 @@ TEST_F(KontrollerTest, single_node)
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     EXPECT_CALL(*agent, trace_names()).WillOnce(Return(trace_names));
     EXPECT_CALL(*m_tracer, columns(_));
-    kontroller.setup_trace();
+    controller.setup_trace();
 
     // step
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
@@ -186,7 +186,7 @@ TEST_F(KontrollerTest, single_node)
     EXPECT_CALL(*agent, descend(_, _)).Times(0);
 
     for (int step = 0; step < m_num_step; ++step) {
-        kontroller.step();
+        controller.step();
     }
 
     // generate report and trace
@@ -195,15 +195,15 @@ TEST_F(KontrollerTest, single_node)
     EXPECT_CALL(*agent, report_region()).WillOnce(Return(m_region_names));
     EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
     EXPECT_CALL(*m_tracer, flush());
-    kontroller.generate();
+    controller.generate();
 
-    // single node Kontroller should not send anything via TreeComm
+    // single node Controller should not send anything via TreeComm
     EXPECT_EQ(0, m_tree_comm->num_send());
     EXPECT_EQ(0, m_tree_comm->num_recv());
 }
 
 // controller with only leaf responsibilities
-TEST_F(KontrollerTest, two_level_controller_1)
+TEST_F(ControllerTest, two_level_controller_1)
 {
     int num_level_ctl = 0;
     int root_level = 2;
@@ -215,7 +215,7 @@ TEST_F(KontrollerTest, two_level_controller_1)
     auto agent = new MockAgent();
     m_agents.emplace_back(agent);
 
-    Kontroller kontroller(m_comm, m_platform_io,
+    Controller controller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
                           m_application_io,
@@ -227,7 +227,7 @@ TEST_F(KontrollerTest, two_level_controller_1)
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     EXPECT_CALL(*agent, trace_names()).WillOnce(Return(trace_names));
     EXPECT_CALL(*m_tracer, columns(_));
-    kontroller.setup_trace();
+    controller.setup_trace();
 
     // mock parent sending to this child
     std::vector<std::vector<double> > policy = {{1, 2}, {3, 4}};
@@ -255,7 +255,7 @@ TEST_F(KontrollerTest, two_level_controller_1)
     EXPECT_CALL(*agent, descend(_, _)).Times(0);
 
     for (int step = 0; step < m_num_step; ++step) {
-        kontroller.step();
+        controller.step();
     }
 
     // only root should add header
@@ -265,7 +265,7 @@ TEST_F(KontrollerTest, two_level_controller_1)
     EXPECT_CALL(*agent, report_region()).WillOnce(Return(m_region_names));
     EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
     EXPECT_CALL(*m_tracer, flush());
-    kontroller.generate();
+    controller.generate();
 
     std::set<int> send_down_levels {};
     std::set<int> recv_down_levels {0};
@@ -278,7 +278,7 @@ TEST_F(KontrollerTest, two_level_controller_1)
 }
 
 // controller with leaf and tree responsibilities, but not at the root
-TEST_F(KontrollerTest, two_level_controller_2)
+TEST_F(ControllerTest, two_level_controller_2)
 {
     int num_level_ctl = 1;
     int root_level = 2;
@@ -302,7 +302,7 @@ TEST_F(KontrollerTest, two_level_controller_2)
     }
     ASSERT_EQ(2u, m_level_agent.size());
 
-    Kontroller kontroller(m_comm, m_platform_io,
+    Controller controller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
                           m_application_io,
@@ -314,7 +314,7 @@ TEST_F(KontrollerTest, two_level_controller_2)
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     EXPECT_CALL(*m_level_agent[0], trace_names()).WillOnce(Return(trace_names));
     EXPECT_CALL(*m_tracer, columns(_));
-    kontroller.setup_trace();
+    controller.setup_trace();
 
     // mock parent sending to this child
     std::vector<std::vector<double> > policy = {{1, 2}, {3, 4}};
@@ -345,7 +345,7 @@ TEST_F(KontrollerTest, two_level_controller_2)
         .WillRepeatedly(Return(true));
 
     for (int step = 0; step < m_num_step; ++step) {
-        kontroller.step();
+        controller.step();
     }
 
     for (const auto &agent : m_level_agent) {
@@ -356,7 +356,7 @@ TEST_F(KontrollerTest, two_level_controller_2)
     EXPECT_CALL(*m_level_agent[0], report_region()).WillOnce(Return(m_region_names));
     EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
     EXPECT_CALL(*m_tracer, flush());
-    kontroller.generate();
+    controller.generate();
 
     std::set<int> send_down_levels {0};
     std::set<int> recv_down_levels {1, 0};
@@ -369,7 +369,7 @@ TEST_F(KontrollerTest, two_level_controller_2)
 }
 
 // controller with responsibilities at all levels of the tree
-TEST_F(KontrollerTest, two_level_controller_0)
+TEST_F(ControllerTest, two_level_controller_0)
 {
     int num_level_ctl = 2;
     int root_level = 2;
@@ -393,7 +393,7 @@ TEST_F(KontrollerTest, two_level_controller_0)
     }
     ASSERT_EQ(3u, m_level_agent.size());
 
-    Kontroller kontroller(m_comm, m_platform_io,
+    Controller controller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
                           m_application_io,
@@ -405,7 +405,7 @@ TEST_F(KontrollerTest, two_level_controller_0)
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     EXPECT_CALL(*m_level_agent[0], trace_names()).WillOnce(Return(trace_names));
     EXPECT_CALL(*m_tracer, columns(_));
-    kontroller.setup_trace();
+    controller.setup_trace();
 
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
@@ -436,7 +436,7 @@ TEST_F(KontrollerTest, two_level_controller_0)
         .WillRepeatedly(Return(true));
 
     for (int step = 0; step < m_num_step; ++step) {
-        kontroller.step();
+        controller.step();
     }
 
     EXPECT_CALL(*m_level_agent[root_level], report_header()).WillOnce(Return(m_agent_report));
@@ -444,7 +444,7 @@ TEST_F(KontrollerTest, two_level_controller_0)
     EXPECT_CALL(*m_level_agent[0], report_region()).WillOnce(Return(m_region_names));
     EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
     EXPECT_CALL(*m_tracer, flush());
-    kontroller.generate();
+    controller.generate();
 
     std::set<int> send_down_levels {1, 0};
     std::set<int> recv_down_levels {1, 0};
