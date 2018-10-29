@@ -36,7 +36,7 @@
 #include "geopm_message.h"
 #include "Exception.hpp"
 #include "Helper.hpp"
-#include "KruntimeRegulator.hpp"
+#include "RuntimeRegulator.hpp"
 #include "EpochRuntimeRegulator.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
@@ -72,11 +72,11 @@ namespace geopm
         }
         m_rid_regulator_map.emplace(std::piecewise_construct,
                                     std::make_tuple(GEOPM_REGION_ID_EPOCH),
-                                    std::make_tuple(geopm::make_unique<KruntimeRegulator>
+                                    std::make_tuple(geopm::make_unique<RuntimeRegulator>
                                                     (m_rank_per_node)));
         m_rid_regulator_map.emplace(std::piecewise_construct,
                                     std::make_tuple(GEOPM_REGION_ID_UNMARKED),
-                                    std::make_tuple(geopm::make_unique<KruntimeRegulator>
+                                    std::make_tuple(geopm::make_unique<RuntimeRegulator>
                                                     (m_rank_per_node)));
     }
 
@@ -142,7 +142,7 @@ namespace geopm
         }
         auto reg_it = m_rid_regulator_map.emplace(std::piecewise_construct,
                                                   std::forward_as_tuple(region_id),
-                                                  std::forward_as_tuple(geopm::make_unique<KruntimeRegulator>
+                                                  std::forward_as_tuple(geopm::make_unique<RuntimeRegulator>
                                                                         (m_rank_per_node)));
         reg_it.first->second->record_entry(rank, entry_time);
 
@@ -217,7 +217,7 @@ namespace geopm
         }
     }
 
-    const IKruntimeRegulator &EpochRuntimeRegulator::region_regulator(uint64_t region_id) const
+    const IRuntimeRegulator &EpochRuntimeRegulator::region_regulator(uint64_t region_id) const
     {
         region_id = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id);
         auto reg_it = m_rid_regulator_map.find(region_id);
