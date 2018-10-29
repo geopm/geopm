@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "278e66f8_c7bf4b7c",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 1299,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-10-29T18:12:56Z",
+      "side": 1,
+      "message": "Not needed.\n\nAlso don\u0027t have agent type in dictionary, promote to full fledged param to ctor",
+      "range": {
+        "startLine": 1299,
+        "startChar": 8,
+        "endLine": 1299,
+        "endChar": 45
+      },
+      "revId": "8666151693646b5381f64976d8fb4db928f15da3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
