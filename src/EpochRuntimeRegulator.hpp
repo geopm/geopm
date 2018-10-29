@@ -45,7 +45,7 @@
 
 namespace geopm
 {
-    class IKruntimeRegulator;
+    class IRuntimeRegulator;
 
     class IEpochRuntimeRegulator
     {
@@ -75,7 +75,7 @@ namespace geopm
             ///        a given region.  This method is intended for
             ///        internal use by the ApplicationIO.
             /// @param [in] region_id The ID of the region.
-            virtual const IKruntimeRegulator &region_regulator(uint64_t region_id) const = 0;
+            virtual const IRuntimeRegulator &region_regulator(uint64_t region_id) const = 0;
             /// @brief Returns whether or not the region is being
             ///        tracked by the EpochRuntimeRegulator.
             /// @param [in] region_id The ID of the region.
@@ -143,7 +143,7 @@ namespace geopm
             void epoch(int rank, struct geopm_time_s epoch_time) override;
             void record_entry(uint64_t region_id, int rank, struct geopm_time_s entry_time) override;
             void record_exit(uint64_t region_id, int rank, struct geopm_time_s exit_time) override;
-            const IKruntimeRegulator &region_regulator(uint64_t region_id) const override;
+            const IRuntimeRegulator &region_regulator(uint64_t region_id) const override;
             bool is_regulated(uint64_t region_id) const override;
             std::vector<double> last_epoch_time() const override;
             std::vector<double> epoch_count() const override;
@@ -165,7 +165,7 @@ namespace geopm
             int m_rank_per_node;
             IPlatformIO &m_platform_io;
             IPlatformTopo &m_platform_topo;
-            std::map<uint64_t, std::unique_ptr<IKruntimeRegulator> > m_rid_regulator_map;
+            std::map<uint64_t, std::unique_ptr<IRuntimeRegulator> > m_rid_regulator_map;
             std::vector<bool> m_seen_first_epoch;
             std::vector<double> m_curr_ignore_runtime;
             std::vector<double> m_agg_epoch_ignore_runtime;
