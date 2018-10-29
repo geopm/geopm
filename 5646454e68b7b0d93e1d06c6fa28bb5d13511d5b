@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d271f3ec_cf863d74",
+        "filename": "src/Helper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-10-29T21:11:52Z",
+      "side": 1,
+      "message": "Change to Helper.hpp.",
+      "range": {
+        "startLine": 33,
+        "startChar": 10,
+        "endLine": 33,
+        "endChar": 16
+      },
+      "revId": "5646454e68b7b0d93e1d06c6fa28bb5d13511d5b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45708dc6_6bf40e62",
+        "filename": "src/Helper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-10-29T21:11:52Z",
+      "side": 1,
+      "message": "include config.h",
+      "revId": "5646454e68b7b0d93e1d06c6fa28bb5d13511d5b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a49ae0b_322beda8",
+        "filename": "src/Helper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-10-29T21:11:52Z",
+      "side": 1,
+      "message": "const std::string\u0026",
+      "range": {
+        "startLine": 39,
+        "startChar": 26,
+        "endLine": 39,
+        "endChar": 37
+      },
+      "revId": "5646454e68b7b0d93e1d06c6fa28bb5d13511d5b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36b8db0c_1d837d85",
+        "filename": "src/Helper.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-10-29T21:11:52Z",
+      "side": 1,
+      "message": "const std::string\u0026",
+      "range": {
+        "startLine": 53,
+        "startChar": 26,
+        "endLine": 53,
+        "endChar": 37
+      },
+      "revId": "5646454e68b7b0d93e1d06c6fa28bb5d13511d5b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
