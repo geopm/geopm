@@ -469,15 +469,20 @@ namespace geopm
     {
         for (const auto &pair_it : m_name_cpu_control_map) {
             for (MSRControl *ctl_ptr : pair_it.second) {
-                auto it = m_per_cpu_restore[ctl_ptr->cpu_idx()].find(ctl_ptr->offset());
-                if (it == m_per_cpu_restore[ctl_ptr->cpu_idx()].end()) {
-                    struct m_restore_s restore {.value = m_msrio->read_msr(ctl_ptr->cpu_idx(),
-                                                                           ctl_ptr->offset()),
-                                                .mask = ctl_ptr->mask()};
-                    m_per_cpu_restore[ctl_ptr->cpu_idx()].emplace(ctl_ptr->offset(), restore);
+                try {
+                    auto it = m_per_cpu_restore[ctl_ptr->cpu_idx()].find(ctl_ptr->offset());
+                    if (it == m_per_cpu_restore[ctl_ptr->cpu_idx()].end()) {
+                        struct m_restore_s restore {.value = m_msrio->read_msr(ctl_ptr->cpu_idx(),
+                                                                               ctl_ptr->offset()),
+                                .mask = ctl_ptr->mask()};
+                        m_per_cpu_restore[ctl_ptr->cpu_idx()].emplace(ctl_ptr->offset(), restore);
+                    }
+                    else {
+                        it->second.mask |= ctl_ptr->mask();
+                    }
                 }
-                else {
-                    it->second.mask |= ctl_ptr->mask();
+                catch (const Exception &e) {
+                    std::cerr << e.what() << std::endl;
                 }
             }
         }
