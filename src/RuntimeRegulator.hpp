@@ -30,8 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KRUNTIMEREGULATOR_HPP_INCLUDE
-#define KRUNTIMEREGULATOR_HPP_INCLUDE
+#ifndef RUNTIMEREGULATOR_HPP_INCLUDE
+#define RUNTIMEREGULATOR_HPP_INCLUDE
 
 #include <vector>
 #include <string>
@@ -41,11 +41,11 @@
 
 namespace geopm
 {
-    class IKruntimeRegulator
+    class IRuntimeRegulator
     {
         public:
-            IKruntimeRegulator() = default;
-            virtual ~IKruntimeRegulator() = default;
+            IRuntimeRegulator() = default;
+            virtual ~IRuntimeRegulator() = default;
             /// @brief Called when the region is entered on a
             ///        particular rank.
             /// @param [in] rank The rank that entered the region.
@@ -77,13 +77,13 @@ namespace geopm
             static const struct geopm_time_s M_TIME_ZERO;
     };
 
-    class KruntimeRegulator : public IKruntimeRegulator
+    class RuntimeRegulator : public IRuntimeRegulator
     {
         public:
-            KruntimeRegulator() = delete;
-            KruntimeRegulator(const KruntimeRegulator &other) = default;
-            KruntimeRegulator(int num_rank);
-            virtual ~KruntimeRegulator() = default;
+            RuntimeRegulator() = delete;
+            RuntimeRegulator(const RuntimeRegulator &other) = default;
+            RuntimeRegulator(int num_rank);
+            virtual ~RuntimeRegulator() = default;
             void record_entry(int rank, struct geopm_time_s entry_time) override;
             void record_exit(int rank, struct geopm_time_s exit_time) override;
             std::vector<double> per_rank_last_runtime(void) const override;

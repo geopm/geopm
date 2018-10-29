@@ -46,15 +46,15 @@
 #include "PluginFactory.hpp"
 #include "IOGroup.hpp"
 #include "PlatformTopo.hpp"
-#include "KprofileIOGroup.hpp"
+#include "ProfileIOGroup.hpp"
 #include "Helper.hpp"
 #include "MockEpochRuntimeRegulator.hpp"
-#include "MockKprofileIOSample.hpp"
+#include "MockProfileIOSample.hpp"
 
 using geopm::PluginFactory;
 using geopm::IOGroup;
 using geopm::IPlatformTopo;
-using geopm::KprofileIOGroup;
+using geopm::ProfileIOGroup;
 using testing::Return;
 
 class IOGroupTest : public ::testing::Test
@@ -66,9 +66,9 @@ class IOGroupTest : public ::testing::Test
         std::vector<std::string> m_plugin_names;
         std::vector<std::unique_ptr<IOGroup> > m_plugins;
 
-        // Used by KprofileIOGroup
+        // Used by ProfileIOGroup
         MockEpochRuntimeRegulator m_epoch_reg;
-        std::shared_ptr<MockKprofileIOSample> m_profile_sample;
+        std::shared_ptr<MockProfileIOSample> m_profile_sample;
 };
 
 IOGroupTest::IOGroupTest()
@@ -92,12 +92,12 @@ void IOGroupTest::SetUp()
     }
 
     // Add IOGroups that are not registered by default
-    m_profile_sample = std::make_shared<MockKprofileIOSample>();
+    m_profile_sample = std::make_shared<MockProfileIOSample>();
     std::vector<int> rank;
     EXPECT_CALL(*m_profile_sample, cpu_rank())
         .WillOnce(Return(rank));
 
-    m_plugins.emplace_back(geopm::make_unique<KprofileIOGroup>(m_profile_sample, m_epoch_reg));
+    m_plugins.emplace_back(geopm::make_unique<ProfileIOGroup>(m_profile_sample, m_epoch_reg));
 }
 
 TEST_F(IOGroupTest, signal_names_are_valid)
