@@ -34,12 +34,12 @@
 #include "geopm_time.h"
 #include "geopm_message.h"
 #include "Exception.hpp"
-#include "KruntimeRegulator.hpp"
+#include "RuntimeRegulator.hpp"
 
 using geopm::Exception;
-using geopm::KruntimeRegulator;
+using geopm::RuntimeRegulator;
 
-class KruntimeRegulatorTest : public :: testing :: Test
+class RuntimeRegulatorTest : public :: testing :: Test
 {
     public:
         static const int M_NUM_RANKS = 4;
@@ -60,9 +60,9 @@ class KruntimeRegulatorTest : public :: testing :: Test
         std::vector<double> m_total_runtime;
 };
 
-constexpr int KruntimeRegulatorTest::M_RANK_TIMES[KruntimeRegulatorTest::M_NUM_RANKS][KruntimeRegulatorTest::M_NUM_ITERATIONS];
+constexpr int RuntimeRegulatorTest::M_RANK_TIMES[RuntimeRegulatorTest::M_NUM_RANKS][RuntimeRegulatorTest::M_NUM_ITERATIONS];
 
-void KruntimeRegulatorTest::SetUp()
+void RuntimeRegulatorTest::SetUp()
 {
     m_total_runtime.resize(M_NUM_RANKS);
     for (int it = 0; it < M_NUM_ITERATIONS; ++it) {
@@ -74,21 +74,21 @@ void KruntimeRegulatorTest::SetUp()
     }
 }
 
-void KruntimeRegulatorTest::TearDown()
+void RuntimeRegulatorTest::TearDown()
 {
 }
 
-TEST_F(KruntimeRegulatorTest, exceptions)
+TEST_F(RuntimeRegulatorTest, exceptions)
 {
-    EXPECT_THROW(new KruntimeRegulator(0), Exception);
-    KruntimeRegulator rtr(M_NUM_RANKS);
+    EXPECT_THROW(new RuntimeRegulator(0), Exception);
+    RuntimeRegulator rtr(M_NUM_RANKS);
     EXPECT_THROW(rtr.record_entry(-1, m_entry[0][0]), Exception);
     EXPECT_THROW(rtr.record_exit(-1, m_exit[0][0]), Exception);
 }
 
-TEST_F(KruntimeRegulatorTest, all_in_and_out)
+TEST_F(RuntimeRegulatorTest, all_in_and_out)
 {
-    KruntimeRegulator rtr(M_NUM_RANKS);
+    RuntimeRegulator rtr(M_NUM_RANKS);
     std::vector<double> expected(M_NUM_RANKS);
     for (int it = 0; it < M_NUM_ITERATIONS; it++) {
         for (int rank = 0; rank < M_NUM_RANKS; rank++) {
@@ -107,9 +107,9 @@ TEST_F(KruntimeRegulatorTest, all_in_and_out)
     EXPECT_EQ(exp_count, rtr.per_rank_count());
 }
 
-TEST_F(KruntimeRegulatorTest, all_reenter)
+TEST_F(RuntimeRegulatorTest, all_reenter)
 {
-    KruntimeRegulator rtr(M_NUM_RANKS);
+    RuntimeRegulator rtr(M_NUM_RANKS);
     std::vector<double> expected(M_NUM_RANKS);
     int it = 1;
     for (int rank = 0; rank < M_NUM_RANKS; ++rank) {
@@ -129,9 +129,9 @@ TEST_F(KruntimeRegulatorTest, all_reenter)
     EXPECT_EQ(exp_count, rtr.per_rank_count());
 }
 
-TEST_F(KruntimeRegulatorTest, one_rank_reenter_and_exit)
+TEST_F(RuntimeRegulatorTest, one_rank_reenter_and_exit)
 {
-    KruntimeRegulator rtr(M_NUM_RANKS);
+    RuntimeRegulator rtr(M_NUM_RANKS);
     int it = 1;
     for (int rank = 0; rank < M_NUM_RANKS; rank++) {
         rtr.record_entry(rank, m_entry[it][rank]);
@@ -154,9 +154,9 @@ TEST_F(KruntimeRegulatorTest, one_rank_reenter_and_exit)
     EXPECT_EQ(1, rtr.per_rank_count()[rank]);
 }
 
-TEST_F(KruntimeRegulatorTest, config_rank_then_workers)
+TEST_F(RuntimeRegulatorTest, config_rank_then_workers)
 {
-    KruntimeRegulator rtr(M_NUM_RANKS);
+    RuntimeRegulator rtr(M_NUM_RANKS);
     std::vector<double> expected(M_NUM_RANKS);
     int it = 1;
     for (int rr = 0; rr < M_NUM_RANKS; ++rr) {

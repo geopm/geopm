@@ -37,8 +37,8 @@
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "ProfileSampler.hpp"
-#include "KprofileIOSample.hpp"
-#include "KprofileIOGroup.hpp"
+#include "ProfileIOSample.hpp"
+#include "ProfileIOGroup.hpp"
 #include "Helper.hpp"
 #include "config.h"
 
@@ -61,7 +61,7 @@ namespace geopm
 
     ApplicationIO::ApplicationIO(const std::string &shm_key,
                                  std::unique_ptr<IProfileSampler> sampler,
-                                 std::shared_ptr<IKprofileIOSample> pio_sample,
+                                 std::shared_ptr<IProfileIOSample> pio_sample,
                                  std::unique_ptr<IEpochRuntimeRegulator> epoch_regulator,
                                  IPlatformIO &platform_io,
                                  IPlatformTopo &platform_topo)
@@ -92,8 +92,8 @@ namespace geopm
             if (m_profile_io_sample == nullptr) {
                 m_epoch_regulator = geopm::make_unique<EpochRuntimeRegulator>(m_rank_per_node, m_platform_io, m_platform_topo);
                 m_epoch_regulator->init_unmarked_region();
-                m_profile_io_sample = std::make_shared<KprofileIOSample>(cpu_rank, *m_epoch_regulator);
-                platform_io().register_iogroup(geopm::make_unique<KprofileIOGroup>(m_profile_io_sample, *m_epoch_regulator));
+                m_profile_io_sample = std::make_shared<ProfileIOSample>(cpu_rank, *m_epoch_regulator);
+                platform_io().register_iogroup(geopm::make_unique<ProfileIOGroup>(m_profile_io_sample, *m_epoch_regulator));
             }
             m_is_connected = true;
 
