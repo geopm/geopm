@@ -30,8 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KONTROLLER_HPP_INCLUDE
-#define KONTROLLER_HPP_INCLUDE
+#ifndef CONTROLLER_HPP_INCLUDE
+#define CONTROLLER_HPP_INCLUDE
 
 #include <pthread.h>
 
@@ -54,20 +54,20 @@ namespace geopm
     class ITreeComm;
     class Agent;
 
-    class Kontroller
+    class Controller
     {
         public:
-            /// @brief Standard contstructor for the Kontroller.
+            /// @brief Standard contstructor for the Controller.
             ///
             /// @param [in] ppn1_comm The MPI communicator that supports
             ///        the control messages.
             /// @param [in] global_policy_path Path to the policy in a
             ///        file or shared memory.
-            Kontroller(std::shared_ptr<Comm> ppn1_comm,
+            Controller(std::shared_ptr<Comm> ppn1_comm,
                        const std::string &global_policy_path);
             /// @brief Constructor for testing that allows injecting mocked
             ///        versions of internal objects.
-            Kontroller(std::shared_ptr<Comm> comm,
+            Controller(std::shared_ptr<Comm> comm,
                        IPlatformIO &plat_io,
                        const std::string &agent_name,
                        int num_send_up,
@@ -78,7 +78,7 @@ namespace geopm
                        std::unique_ptr<ITracer> tracer,
                        std::vector<std::unique_ptr<Agent> > level_agent,
                        std::unique_ptr<IManagerIOSampler> manager_io_sampler);
-            virtual ~Kontroller();
+            virtual ~Controller();
             /// @brief Run control algorithm.
             ///
             /// Steps the control algorithm continuously until the
@@ -129,7 +129,7 @@ namespace geopm
             ///        the Agent.
             void setup_trace(void);
             /// @brief Called upon failure to facilitate graceful destruction
-            ///        of the Kontroller and notify application.
+            ///        of the Controller and notify application.
             void abort(void);
         private:
             void init_agents(void);
