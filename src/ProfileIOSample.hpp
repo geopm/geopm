@@ -30,8 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KPROFILEIOSAMPLE_HPP_INCLUDE
-#define KPROFILEIOSAMPLE_HPP_INCLUDE
+#ifndef PROFILEIOSAMPLE_HPP_INCLUDE
+#define PROFILEIOSAMPLE_HPP_INCLUDE
 
 #include <vector>
 #include <map>
@@ -46,11 +46,11 @@ namespace geopm
     template <typename T> class CircularBuffer;
     class IEpochRuntimeRegulator;
 
-    class IKprofileIOSample
+    class IProfileIOSample
     {
         public:
-            IKprofileIOSample() {}
-            virtual ~IKprofileIOSample() {}
+            IProfileIOSample() {}
+            virtual ~IProfileIOSample() {}
             virtual void finalize_unmarked_region() = 0;
             /// @brief Update internal state with a batch of samples from the
             ///        application.
@@ -77,11 +77,11 @@ namespace geopm
             virtual std::vector<int> cpu_rank(void) const = 0;
     };
 
-    class KprofileIOSample : public IKprofileIOSample
+    class ProfileIOSample : public IProfileIOSample
     {
         public:
-            KprofileIOSample(const std::vector<int> &cpu_rank, IEpochRuntimeRegulator &epoch_regulator);
-            virtual ~KprofileIOSample();
+            ProfileIOSample(const std::vector<int> &cpu_rank, IEpochRuntimeRegulator &epoch_regulator);
+            virtual ~ProfileIOSample();
             void finalize_unmarked_region() override;
             void update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                         std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end) override;

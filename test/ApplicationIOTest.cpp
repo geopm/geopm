@@ -42,7 +42,7 @@
 #include "Helper.hpp"
 #include "MockEpochRuntimeRegulator.hpp"
 #include "MockProfileSampler.hpp"
-#include "MockKprofileIOSample.hpp"
+#include "MockProfileIOSample.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
 
@@ -59,7 +59,7 @@ class ApplicationIOTest : public ::testing::Test
         std::string m_shm_key = "test_shm";
         MockEpochRuntimeRegulator *m_epoch_regulator;
         MockProfileSampler *m_sampler;
-        MockKprofileIOSample *m_pio_sample;
+        MockProfileIOSample *m_pio_sample;
         MockPlatformIO m_platform_io;
         MockPlatformTopo m_platform_topo;
         std::unique_ptr<ApplicationIO> m_app_io;
@@ -69,8 +69,8 @@ void ApplicationIOTest::SetUp()
 {
     m_sampler = new MockProfileSampler;
     auto tmp_s = std::unique_ptr<MockProfileSampler>(m_sampler);
-    m_pio_sample = new MockKprofileIOSample;
-    auto tmp_pio = std::shared_ptr<MockKprofileIOSample>(m_pio_sample);
+    m_pio_sample = new MockProfileIOSample;
+    auto tmp_pio = std::shared_ptr<MockProfileIOSample>(m_pio_sample);
     m_epoch_regulator = new MockEpochRuntimeRegulator;
     auto tmp_reg = std::unique_ptr<MockEpochRuntimeRegulator>(m_epoch_regulator);
 
