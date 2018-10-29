@@ -30,13 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKKPROFILEIOSAMPLE_HPP_INCLUDE
-#define MOCKKPROFILEIOSAMPLE_HPP_INCLUDE
+#ifndef MOCKPROFILEIOSAMPLE_HPP_INCLUDE
+#define MOCKPROFILEIOSAMPLE_HPP_INCLUDE
 
-#include "KprofileIOSample.hpp"
+#include "ProfileIOSample.hpp"
 #include "geopm_message.h"
 
-class MockKprofileIOSample : public geopm::IKprofileIOSample {
+class MockProfileIOSample : public geopm::IProfileIOSample {
     public:
         MOCK_METHOD0(finalize_unmarked_region,
                            void(void));

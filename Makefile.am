@@ -336,8 +336,8 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/Helper.hpp \
                             src/ManagerIO.cpp \
                             src/ManagerIO.hpp \
-                            src/Kontroller.cpp \
-                            src/Kontroller.hpp \
+                            src/Controller.cpp \
+                            src/Controller.hpp \
                             src/MonitorAgent.cpp \
                             src/MonitorAgent.hpp \
                             src/MSR.cpp \
@@ -397,12 +397,12 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/TreeCommLevel.hpp \
                             contrib/json11/json11.cpp \
                             contrib/json11/json11.hpp \
-                            src/KprofileIOGroup.cpp \
-                            src/KprofileIOGroup.hpp \
-                            src/KprofileIOSample.cpp \
-                            src/KprofileIOSample.hpp \
-                            src/KruntimeRegulator.cpp \
-                            src/KruntimeRegulator.hpp \
+                            src/ProfileIOGroup.cpp \
+                            src/ProfileIOGroup.hpp \
+                            src/ProfileIOSample.cpp \
+                            src/ProfileIOSample.hpp \
+                            src/RuntimeRegulator.cpp \
+                            src/RuntimeRegulator.hpp \
                             # end
 
 geopmread_SOURCES = src/geopmread_main.cpp \
