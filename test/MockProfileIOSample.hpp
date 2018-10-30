@@ -42,10 +42,14 @@ class MockProfileIOSample : public geopm::IProfileIOSample {
                            void(void));
         MOCK_METHOD2(update,
                      void(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin, std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end));
+        MOCK_METHOD1(update_thread,
+                     void(const std::vector<double> &));
         MOCK_CONST_METHOD0(per_cpu_region_id,
                            std::vector<uint64_t>(void));
         MOCK_CONST_METHOD1(per_cpu_progress,
                            std::vector<double>(const struct geopm_time_s &extrapolation_time));
+        MOCK_CONST_METHOD0(per_cpu_thread_progress,
+                           std::vector<double>(void));
         MOCK_CONST_METHOD1(per_cpu_runtime,
                            std::vector<double>(uint64_t region_id));
         MOCK_CONST_METHOD1(per_rank_runtime,

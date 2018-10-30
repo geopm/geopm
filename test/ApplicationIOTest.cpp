@@ -54,6 +54,7 @@ class ApplicationIOTest : public ::testing::Test
 {
     protected:
         void SetUp();
+        size_t m_num_cpu_domain;
         size_t m_num_package_domain;
         size_t m_num_memory_domain;
         std::string m_shm_key = "test_shm";
@@ -77,10 +78,13 @@ void ApplicationIOTest::SetUp()
     EXPECT_CALL(*m_sampler, initialize());
     EXPECT_CALL(*m_sampler, rank_per_node());
     EXPECT_CALL(*m_sampler, capacity());
+    m_num_cpu_domain = 4;
     m_num_package_domain = 1;
+    m_num_memory_domain = 1;
+    EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU))
+        .WillOnce(Return(m_num_cpu_domain));
     EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE))
         .WillOnce(Return(m_num_package_domain));
-    m_num_memory_domain = 1;
     EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_BOARD_MEMORY))
         .WillOnce(Return(m_num_memory_domain));
     EXPECT_CALL(m_platform_io, read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, m_num_package_domain - 1))
