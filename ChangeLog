@@ -1,3 +1,10 @@
+* Mon Oct 29 2018 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.6.1
+- Hotfix for v0.6.0 release.
+- Fix MPI functions called during startup getting assigned region 0.
+- Fix missing profiling of some MPI functions when called from fortran.
+- Fix performance regression due to attempt to profile non-blocking MPI calls.
+- Fix to remove unsupported MSR from skylake platform definition (TURBO_RATIO_LIMIT2).
+- Fix to prevent throw when trying to save/restore MSRs that are not supported on the system.
 * Tue Oct 02 2018 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.6.0
 - Stabilized Agent code path.
 - Last release with Decider/Platform/PlatformImp support.
