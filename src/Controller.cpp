@@ -51,7 +51,7 @@
 
 extern "C"
 {
-    static int geopm_run_imp(struct geopm_ctl_c *ctl, bool do_print);
+    static int geopm_run_imp(struct geopm_ctl_c *ctl);
     /// forward declaration instead of include geopm_ctl.h to avoid mpi.h inclusion
     int geopm_ctl_run(struct geopm_ctl_c *ctl);
 
@@ -73,7 +73,7 @@ extern "C"
 
     static void *geopm_threaded_run(void *args)
     {
-        return (void *) (long) geopm_run_imp((struct geopm_ctl_c *)args, false);
+        return (void *) (long) geopm_run_imp((struct geopm_ctl_c *)args);
     }
 
     int geopmctl_main(const char *policy_config)
@@ -81,7 +81,7 @@ extern "C"
         int err = 0;
         try {
             auto tmp_comm = geopm::comm_factory().make_plugin(geopm_env_comm());
-            geopm::Controller ctl(std::move(tmp_comm), geopm_env_policy());
+            geopm::Controller ctl(std::move(tmp_comm));
             err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
         }
         catch (...) {
@@ -103,7 +103,7 @@ extern "C"
         return err;
     }
 
-    static int geopm_run_imp(struct geopm_ctl_c *ctl, bool do_print)
+    static int geopm_run_imp(struct geopm_ctl_c *ctl)
     {
         int err = 0;
         geopm::Controller *ctl_obj = (geopm::Controller *)ctl;
@@ -111,21 +111,20 @@ extern "C"
             ctl_obj->run();
         }
         catch (...) {
-            err = geopm::exception_handler(std::current_exception(), do_print);
+            err = geopm::exception_handler(std::current_exception(), true);
         }
         return err;
     }
 
     int geopm_ctl_run(struct geopm_ctl_c *ctl)
     {
-        return geopm_run_imp(ctl, true);
+        return geopm_run_imp(ctl);
     }
 }
 
 namespace geopm
 {
-    Controller::Controller(std::shared_ptr<Comm> ppn1_comm,
-                           const std::string &global_policy_path)
+    Controller::Controller(std::shared_ptr<Comm> ppn1_comm)
         : Controller(ppn1_comm,
                      platform_io(),
                      geopm_env_agent(),
@@ -138,7 +137,7 @@ namespace geopm
                      std::unique_ptr<IReporter>(new Reporter(geopm_env_report(), platform_io(), ppn1_comm->rank())),
                      std::unique_ptr<ITracer>(new Tracer()),
                      std::vector<std::unique_ptr<Agent> >{},
-                     std::unique_ptr<IManagerIOSampler>(new ManagerIOSampler(global_policy_path, true)))
+                     std::unique_ptr<IManagerIOSampler>(new ManagerIOSampler(geopm_env_policy(), true)))
     {
 
     }

@@ -61,10 +61,7 @@ namespace geopm
             ///
             /// @param [in] ppn1_comm The MPI communicator that supports
             ///        the control messages.
-            /// @param [in] global_policy_path Path to the policy in a
-            ///        file or shared memory.
-            Controller(std::shared_ptr<Comm> ppn1_comm,
-                       const std::string &global_policy_path);
+            Controller(std::shared_ptr<Comm> ppn1_comm);
             /// @brief Constructor for testing that allows injecting mocked
             ///        versions of internal objects.
             Controller(std::shared_ptr<Comm> comm,

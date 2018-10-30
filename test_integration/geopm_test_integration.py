@@ -121,8 +121,8 @@ def skip_unless_slurm_batch():
 class TestIntegration(unittest.TestCase):
     def setUp(self):
         self.longMessage = True
-        self._options = {'agent': 'power_governor',
-                         'power_budget': 150}
+        self._agent = 'power_governor'
+        self._options = {'power_budget': 150}
         self._tmp_files = []
         self._output = None
 
@@ -166,7 +166,7 @@ class TestIntegration(unittest.TestCase):
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
@@ -189,7 +189,7 @@ class TestIntegration(unittest.TestCase):
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf)
         launcher.set_num_node(num_node)
@@ -206,7 +206,7 @@ class TestIntegration(unittest.TestCase):
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
@@ -235,7 +235,7 @@ class TestIntegration(unittest.TestCase):
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', 1.0)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
@@ -263,7 +263,7 @@ class TestIntegration(unittest.TestCase):
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', delay)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_num_node(num_node)
@@ -306,7 +306,7 @@ class TestIntegration(unittest.TestCase):
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', delay)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_num_node(num_node)
@@ -331,7 +331,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep', delay)
         app_conf.append_region('spin', delay)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_num_node(num_node)
@@ -358,7 +358,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
         app_conf.append_region('nested-progress', delay)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_num_node(num_node)
@@ -389,7 +389,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('sleep', 1.0)
         app_conf.append_region('dgemm', 1.0)
         app_conf.append_region('all2all', 1.0)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path,
                                                     trace_path, region_barrier=True)
@@ -434,7 +434,7 @@ class TestIntegration(unittest.TestCase):
         expected_region_runtime = {'spin': spin_big_o, 'sleep': sleep_big_o}
         app_conf.append_region('sleep', sleep_big_o)
         app_conf.append_region('spin', spin_big_o)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path, region_barrier=True)
         launcher.set_num_node(num_node)
@@ -476,7 +476,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('dgemm', 8.0)
         app_conf.set_loop_count(loop_count)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path, time_limit=900)
         launcher.set_num_node(num_node)
@@ -541,7 +541,7 @@ class TestIntegration(unittest.TestCase):
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('sleep-progress', delay)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_num_node(num_node)
@@ -569,7 +569,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
         app_conf.append_region('spin', delay)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
@@ -608,7 +608,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('dgemm', 1.0)
         app_conf.append_region('all2all', 1.0)
         app_conf.set_loop_count(loop_count)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, time_limit=900)
 
@@ -664,7 +664,7 @@ class TestIntegration(unittest.TestCase):
             self._options['power_budget'] = 200
         gov_agent_conf_path = name + '_gov_agent.config'
         self._tmp_files.append(gov_agent_conf_path)
-        gov_agent_conf = geopmpy.io.AgentConf(gov_agent_conf_path, self._options)
+        gov_agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         launcher = geopm_test_launcher.TestLauncher(app_conf, gov_agent_conf, report_path,
                                                     trace_path, time_limit=900)
         launcher.set_num_node(num_node)
@@ -741,8 +741,7 @@ class TestIntegration(unittest.TestCase):
         path_dict = {'power_governor': gov_agent_conf_path, 'power_balancer': bal_agent_conf_path}
         agent_runtime = dict()
         for agent in agent_list:
-            self._options['agent'] = agent
-            agent_conf = geopmpy.io.AgentConf(path_dict[agent], self._options)
+            agent_conf = geopmpy.io.AgentConf(path_dict[agent], agent, self._options)
             run_name = '{}_{}'.format(name, agent)
             report_path = '{}.report'.format(run_name)
             trace_path = '{}.trace'.format(run_name)
@@ -826,7 +825,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.set_loop_count(loop_count)
         app_conf.append_region('dgemm-progress', big_o)
         app_conf.append_region('spin-progress', big_o)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path, region_barrier=True)
         launcher.set_num_node(num_node)
@@ -870,7 +869,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
         app_conf.append_region(region, big_o)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
@@ -903,7 +902,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('sleep', 1.0)
         app_conf.append_region('dgemm', 1.0)
         app_conf.append_region('all2all', 1.0)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
@@ -946,7 +945,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('ignore', 1.0)
         app_conf.append_region('dgemm', 1.0)
         app_conf.append_region('all2all', 1.0)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
@@ -972,7 +971,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('stream-unmarked', 1.0)
         app_conf.append_region('dgemm-unmarked', 1.0)
         app_conf.append_region('all2all-unmarked', 1.0)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_num_node(num_node)
@@ -1148,7 +1147,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('sleep', 30.0)
         app_conf.write()
 
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._options)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
 
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
