@@ -49,6 +49,7 @@ namespace geopm
 {
     ProfileIOSample::ProfileIOSample(const std::vector<int> &cpu_rank, IEpochRuntimeRegulator &epoch_regulator)
         : m_epoch_regulator(epoch_regulator)
+        , m_thread_progress(cpu_rank.size(), NAN)
     {
         // This object is created when app connects
         geopm_time(&m_app_start_time);
@@ -133,6 +134,11 @@ namespace geopm
         }
     }
 
+    void ProfileIOSample::update_thread(const std::vector<double> &thread_progress)
+    {
+        m_thread_progress = thread_progress;
+    }
+
     std::vector<double> ProfileIOSample::per_cpu_progress(const struct geopm_time_s &extrapolation_time) const
     {
         std::vector<double> result(m_cpu_rank.size(), 0.0);
@@ -143,6 +149,11 @@ namespace geopm
             ++cpu_idx;
         }
         return result;
+    }
+
+    std::vector<double> ProfileIOSample::per_cpu_thread_progress(void) const
+    {
+        return m_thread_progress;
     }
 
     std::vector<double> ProfileIOSample::per_rank_progress(const struct geopm_time_s &extrapolation_time) const

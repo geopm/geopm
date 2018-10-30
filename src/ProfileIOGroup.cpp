@@ -60,8 +60,10 @@ namespace geopm
         , m_epoch_regulator(epoch_regulator)
         , m_signal_idx_map{{plugin_name() + "::REGION_ID#", M_SIGNAL_REGION_ID},
                            {plugin_name() + "::REGION_PROGRESS", M_SIGNAL_PROGRESS},
+                           {plugin_name() + "::REGION_THREAD_PROGRESS", M_SIGNAL_THREAD_PROGRESS},
                            {"REGION_ID#", M_SIGNAL_REGION_ID},
                            {"REGION_PROGRESS", M_SIGNAL_PROGRESS},
+                           {"REGION_THREAD_PROGRESS", M_SIGNAL_THREAD_PROGRESS},
                            {plugin_name() + "::EPOCH_RUNTIME", M_SIGNAL_EPOCH_RUNTIME},
                            {"EPOCH_RUNTIME", M_SIGNAL_EPOCH_RUNTIME},
                            {plugin_name() + "::EPOCH_COUNT", M_SIGNAL_EPOCH_COUNT},
@@ -70,7 +72,9 @@ namespace geopm
                            {"REGION_RUNTIME", M_SIGNAL_RUNTIME}}
         , m_platform_topo(topo)
         , m_do_read(M_SIGNAL_MAX, false)
+        , m_per_cpu_progress(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), NAN)
         , m_per_cpu_runtime(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), NAN)
+        , m_thread_progress(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), NAN)
         , m_epoch_runtime(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), 0.0)
         , m_epoch_count(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), 0.0)
         , m_cpu_rank(m_profile_sample->cpu_rank())
@@ -167,6 +171,9 @@ namespace geopm
             geopm_time(&read_time);
             m_per_cpu_progress = m_profile_sample->per_cpu_progress(read_time);
         }
+        if (m_do_read[M_SIGNAL_THREAD_PROGRESS]) {
+            m_thread_progress = m_profile_sample->per_cpu_thread_progress();
+        }
         if (m_do_read[M_SIGNAL_EPOCH_RUNTIME]) {
             std::vector<double> per_rank_epoch_runtime = m_epoch_regulator.last_epoch_time();
             for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
@@ -226,6 +233,9 @@ namespace geopm
             case M_SIGNAL_PROGRESS:
                 result = m_per_cpu_progress[cpu_idx];
                 break;
+            case M_SIGNAL_THREAD_PROGRESS:
+                result = m_thread_progress[cpu_idx];
+                break;
             case M_SIGNAL_EPOCH_RUNTIME:
                 result = m_epoch_runtime[cpu_idx];
                 break;
@@ -267,6 +277,9 @@ namespace geopm
             case M_SIGNAL_PROGRESS:
                 geopm_time(&read_time);
                 result = m_profile_sample->per_cpu_progress(read_time)[cpu_idx];
+                break;
+            case M_SIGNAL_THREAD_PROGRESS:
+                result = m_profile_sample->per_cpu_thread_progress()[cpu_idx];
                 break;
             case M_SIGNAL_EPOCH_RUNTIME:
                 result = m_epoch_regulator.last_epoch_time()[cpu_idx];
