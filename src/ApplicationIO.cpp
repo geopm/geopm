@@ -37,6 +37,7 @@
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "ProfileSampler.hpp"
+#include "ProfileThread.hpp"
 #include "ProfileIOSample.hpp"
 #include "ProfileIOGroup.hpp"
 #include "Helper.hpp"
@@ -69,6 +70,7 @@ namespace geopm
         , m_profile_io_sample(pio_sample)
         , m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
+        , m_thread_progress(m_platform_topo.num_domain(PlatformTopo::M_DOMAIN_CPU))
         , m_is_connected(false)
         , m_rank_per_node(-1)
         , m_epoch_regulator(std::move(epoch_regulator))
@@ -353,6 +355,8 @@ namespace geopm
         size_t length = 0;
         m_sampler->sample(m_prof_sample, length, comm);
         m_profile_io_sample->update(m_prof_sample.cbegin(), m_prof_sample.cbegin() + length);
+        m_sampler->tprof_table()->dump(m_thread_progress);
+        m_profile_io_sample->update_thread(m_thread_progress);
     }
 
     std::list<geopm_region_info_s> ApplicationIO::region_info(void) const
