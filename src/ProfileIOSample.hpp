@@ -56,6 +56,7 @@ namespace geopm
             ///        application.
             virtual void update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                                 std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end) = 0;
+            virtual void update_thread(const std::vector<double> &thread_progress) = 0;
             /// @brief Return the region ID that each CPU is running,
             ///        which is the region of the rank running on that
             ///        CPU.
@@ -66,6 +67,7 @@ namespace geopm
             ///        estimate the current progress through the
             ///        region based on the previous two samples.
             virtual std::vector<double> per_cpu_progress(const struct geopm_time_s &extrapolation_time) const = 0;
+            virtual std::vector<double> per_cpu_thread_progress(void) const = 0;
             /// @brief Return the last runtime of the given region
             ///        for the rank running on each CPU.
             /// @param [in] region_id Region ID for the region of interest.
@@ -85,8 +87,10 @@ namespace geopm
             void finalize_unmarked_region() override;
             void update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                         std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end) override;
+            void update_thread(const std::vector<double> &thread_progress) override;
             std::vector<uint64_t> per_cpu_region_id(void) const override;
             std::vector<double> per_cpu_progress(const struct geopm_time_s &extrapolation_time) const override;
+            std::vector<double> per_cpu_thread_progress(void) const override;
             std::vector<double> per_cpu_runtime(uint64_t region_id) const override;
             double total_app_runtime(void) const override;
             std::vector<int> cpu_rank(void) const override;
@@ -115,6 +119,7 @@ namespace geopm
             /// @brief Per rank record of last profile samples in
             ///        m_region_id_prev
             std::vector<CircularBuffer<struct m_rank_sample_s> > m_rank_sample_buffer;
+            std::vector<double> m_thread_progress;
             /// @brief The region_id of each rank derived from the
             ///        stored ProfileSampler data used for
             ///        extrapolation.
