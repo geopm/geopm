@@ -171,6 +171,7 @@ namespace geopm
             std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > m_prof_sample;
             IPlatformIO &m_platform_io;
             IPlatformTopo &m_platform_topo;
+            std::vector<double> m_thread_progress;
             std::vector<uint64_t> m_region_id;
             // Per rank vector counting number of entries into MPI.
             std::vector<uint64_t> m_num_mpi_enter;

@@ -79,6 +79,7 @@ namespace geopm
                 M_SIGNAL_EPOCH_RUNTIME,
                 M_SIGNAL_EPOCH_COUNT,
                 M_SIGNAL_RUNTIME,
+                M_SIGNAL_THREAD_PROGRESS,
                 M_SIGNAL_MAX,
             };
             struct m_signal_config {
@@ -99,6 +100,7 @@ namespace geopm
             std::vector<uint64_t> m_per_cpu_region_id;
             std::vector<double> m_per_cpu_progress;
             std::vector<double> m_per_cpu_runtime;
+            std::vector<double> m_thread_progress;
             std::vector<double> m_epoch_runtime;
             std::vector<double> m_epoch_count;
             std::map<int, int> m_rid_idx; // map from runtime signal index to the region id signal it uses
