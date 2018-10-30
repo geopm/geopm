@@ -232,11 +232,12 @@ class PowerSweepAnalysis(Analysis):
 
         if config.app_argv and not os.path.exists(report_path):
             argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
-                             '--geopm-agent', agent_conf.get_agent(),
-                             '--geopm-policy', agent_conf.get_path(),
                              '--geopm-report', report_path,
                              '--geopm-trace', trace_path,
                              '--geopm-profile', profile_name]
+            if agent_conf.get_agent() != 'monitor':
+                argv.append('--geopm-agent=' + agent_conf.get_agent())
+                argv.append('--geopm-policy=' + agent_conf.get_path())
             if config.do_geopm_barrier:
                 argv.append('--geopm-barrier')
             argv.append('--')
@@ -262,9 +263,8 @@ class PowerSweepAnalysis(Analysis):
         power_caps = range(self._min_power, self._max_power+1, self._step_power)
         for power_cap in power_caps:
             # governor runs
-            options = {'agent': self._agent_type,
-                       'power_budget': power_cap},
-            agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', options)
+            options = {'power_budget': power_cap},
+            agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', self._agent_type, options)
             agent_conf.write()
 
             for iteration in range(self._iterations):
@@ -700,8 +700,7 @@ class NodePowerAnalysis(Analysis):
         self._profile_name = self._name + '_' + str(self._max_power)  # '_nocap'  # TODO
 
     def launch(self, config):
-        options = {'agent': 'monitor'}
-        agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', options)
+        agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config')
         agent_conf.write()
 
         for iteration in range(self._iterations):
@@ -712,11 +711,12 @@ class NodePowerAnalysis(Analysis):
 
             if config.app_argv and not os.path.exists(report_path):
                 argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
-                                 '--geopm-agent', agent_conf.get_agent(),
-                                 '--geopm-policy', agent_conf.get_path(),
                                  '--geopm-report', report_path,
                                  '--geopm-trace', trace_path,
                                  '--geopm-profile', profile_name]
+                if agent_conf.get_agent() != 'monitor':
+                    argv.append('--geopm-agent=' + agent_conf.get_agent())
+                    argv.append('--geopm-policy=' + agent_conf.get_path())
                 if config.do_geopm_barrier:
                     argv.append('--geopm-barrier')
                 argv.append('--')
@@ -821,23 +821,24 @@ class FreqSweepAnalysis(Analysis):
             self._max_freq = sys_max
         num_step = 1 + int((self._max_freq - self._min_freq) / FreqSweepAnalysis.step_freq)
         freqs = [FreqSweepAnalysis.step_freq * ss + self._min_freq for ss in range(num_step)]
+        agent = 'energy_efficient'
         for iteration in range(self._iterations):
             for freq in freqs:
                 profile_name = FreqSweepAnalysis.fixed_freq_name(self._name, freq)
                 report_path = os.path.join(self._output_dir, profile_name + '_{}.report'.format(iteration))
                 trace_path = os.path.join(self._output_dir, profile_name + '_{}.trace'.format(iteration))
-                options = {'agent': 'energy_efficient',
-                           'frequency_min': freq,
+                options = {'frequency_min': freq,
                            'frequency_max': freq}
-                agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', options)
+                agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', agent, options)
                 agent_conf.write()
                 if config.app_argv and not os.path.exists(report_path):
                     argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
-                                     '--geopm-agent', agent_conf.get_agent(),
-                                     '--geopm-policy', agent_conf.get_path(),
                                      '--geopm-report', report_path,
                                      '--geopm-trace', trace_path,
                                      '--geopm-profile', profile_name]
+                    if agent_conf.get_agent() != 'monitor':
+                        argv.append('--geopm-agent=' + agent_conf.get_agent())
+                        argv.append('--geopm-policy=' + agent_conf.get_path())
                     if config.do_geopm_barrier:
                         argv.append('--geopm-barrier')
                     argv.append('--')
@@ -1078,10 +1079,10 @@ class EnergyEfficientAgentAnalysis(Analysis):
         """
         Run the frequency sweep, then run the desired comparison configuration.
         """
-        options = {'agent': 'energy_efficient',
-                   'frequency_min': self._min_freq,
+        agent = 'energy_efficient'
+        options = {'frequency_min': self._min_freq,
                    'frequency_max': self._max_freq}
-        agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', options)
+        agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', agent, options)
         agent_conf.write()
 
         # Run frequency sweep
@@ -1101,11 +1102,12 @@ class EnergyEfficientAgentAnalysis(Analysis):
 
             if config.app_argv and not os.path.exists(report_path):
                 argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
-                                 '--geopm-agent', agent_conf.get_agent(),
-                                 '--geopm-policy', agent_conf.get_path(),
                                  '--geopm-report', report_path,
                                  '--geopm-trace', trace_path,
                                  '--geopm-profile', profile_name]
+                if agent_conf.get_agent() != 'monitor':
+                    argv.append('--geopm-agent=' + agent_conf.get_agent())
+                    argv.append('--geopm-policy=' + agent_conf.get_path())
                 if config.do_geopm_barrier:
                     argv.append('--geopm-barrier')
                 argv.append('--')

@@ -164,6 +164,7 @@ rm -f %{buildroot}/%{_mandir}/man1/geopmpy_launcher.1*
 %{_libdir}/libgeopm.so.0.0.0
 %{_libdir}/libgeopm.so.0
 %{_libdir}/libgeopm.so
+%dir %{_libdir}/geopm
 %{_bindir}/geopmbench
 %{_bindir}/geopmctl
 %{_bindir}/geopmread
