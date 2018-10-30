@@ -58,7 +58,7 @@ install-fortran:
 endif
 
 
-install-exec-hook: install-python install-fortran install-openmp
+install-exec-hook: install-python install-fortran install-openmp install-plugin-dir
 dist: dist-googletest dist-openmp
 
 
@@ -82,6 +82,9 @@ install-fortran:
 
 endif
 endif
+
+install-plugin-dir:
+	$(INSTALL) -d $(DESTDIR)/$(pkglibdir)
 
 ronn_man = man/geopm.7 \
            man/geopmagent.1 \
