@@ -69,6 +69,7 @@ namespace geopm
             bool m_is_signal_pushed;
             bool m_is_batch_read;
             geopm_time_s m_time_zero;
+            double m_time_zero_signal;
             double m_time_curr;
             const std::set<std::string> m_valid_signal_name;
     };

@@ -45,9 +45,14 @@ namespace geopm
         : m_is_signal_pushed(false)
         , m_is_batch_read(false)
         , m_valid_signal_name{plugin_name() + "::ELAPSED",
-                              "TIME"}
+                              "TIME",
+                              plugin_name() + "::TIME_ZERO",
+                              "TIME_ZERO"}
     {
         geopm_time(&m_time_zero);
+        struct geopm_time_s real_time;
+        clock_gettime(CLOCK_REALTIME, &real_time.t);
+        m_time_zero_signal = geopm_time_diff(&GEOPM_TIME_1970, &real_time);
     }
 
     std::set<std::string> TimeIOGroup::signal_names(void) const
@@ -96,7 +101,11 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         m_is_signal_pushed = true;
-        return 0;
+        int ret_val = 0;
+        if (signal_name == "TIME_ZERO" || signal_name == plugin_name() + "::TIME_ZERO") {
+            ret_val = 1;
+        }
+        return ret_val;
     }
 
     int TimeIOGroup::push_control(const std::string &control_name, int domain_type, int domain_idx)
@@ -128,11 +137,19 @@ namespace geopm
             throw Exception("TimeIOGroup::sample(): signal has not been read",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (batch_idx != 0) {
-            throw Exception("TimeIOGroup::sample(): batch_idx out of range",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        double ret_val = NAN;
+        switch (batch_idx) {
+            case 0:
+                ret_val = m_time_curr;
+                break;
+            case 1:
+                ret_val = m_time_zero_signal;
+                break;
+            default:
+                throw Exception("TimeIOGroup::sample(): batch_idx out of range",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return m_time_curr;
+        return ret_val;
     }
 
     void TimeIOGroup::adjust(int batch_idx, double setting)
@@ -148,7 +165,13 @@ namespace geopm
                             "not valid for TimeIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return geopm_time_since(&m_time_zero);
+        double ret_val = NAN;
+        if (signal_name == "TIME" || signal_name == plugin_name() + "::ELAPSED") {
+            ret_val = geopm_time_since(&m_time_zero);
+        } else if (signal_name == "TIME_ZERO" || signal_name == plugin_name() + "::TIME_ZERO") {
+            ret_val = m_time_zero_signal;
+        }
+        return ret_val;
     }
 
     void TimeIOGroup::write_control(const std::string &control_name, int domain_type, int domain_idx, double setting)
