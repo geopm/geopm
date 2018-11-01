@@ -1196,14 +1196,11 @@ class TestIntegrationGeopmio(unittest.TestCase):
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for exp in expected:
                 line = proc.stdout.readline()
-                # todo: ignore warnings about multiple plugin load
-                # should be fixed when plugins are no longer installed
-                while 'previously registered' in line:
+                while 'Incompatible CPU' in line:
                     line = proc.stdout.readline()
                 self.assertIn(exp, line)
             for line in proc.stdout:
-                # todo: ignore warnings about multiple plugin load
-                if 'previously registered' not in line:
+                if 'Incompatible CPU' not in line:
                     self.assertNotIn('Error', line)
         except subprocess.CalledProcessError as ex:
             print ex.output
@@ -1213,8 +1210,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
             proc = subprocess.Popen([self.exec_name] + args,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for line in proc.stdout:
-                # todo: ignore warnings about multiple plugin load
-                if 'previously registered' not in line:
+                if 'Incompatible CPU' not in line:
                     self.assertNotIn('Error', line)
         except subprocess.CalledProcessError as ex:
             print ex.output
@@ -1273,9 +1269,8 @@ class TestIntegrationGeopmio(unittest.TestCase):
     @skip_unless_slurm_batch()
     def test_geopmwrite_set_freq(self):
         def read_stdout_line(stdout):
-            # todo: ignore warnings about multiple plugin load
             line = stdout.readline()
-            while 'previously registered' in line:
+            while 'Incompatible CPU' in line:
                 line = stdout.readline()
             return line.strip()
 
