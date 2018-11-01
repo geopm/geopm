@@ -41,7 +41,7 @@ try:
     g_skip_analysis_ex = None
 except ImportError as ex:
     g_skip_analysis_test = True
-    g_skip_analysis_ex = "Warning, analysis and plotting requires the pandas and matplotlib modules to be installed: {}".format(ex)
+    g_skip_analysis_ex = "Warning, analysis and plotting requires several modules to be installed: {}".format(ex)
 
 
 def compare_dataframe(test, expected_df, result):

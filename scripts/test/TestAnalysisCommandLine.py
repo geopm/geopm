@@ -38,36 +38,38 @@ from collections import defaultdict
 from StringIO import StringIO
 from analysis_helper import *
 
+try:
+    class MockAnalysis(geopmpy.analysis.Analysis):
+        @staticmethod
+        def help_text():
+            return 'HELP_TEXT TEST\n'
 
-class MockAnalysis(geopmpy.analysis.Analysis):
-    @staticmethod
-    def help_text():
-        return 'HELP_TEXT TEST'
+        @staticmethod
+        def add_options(parser, enforce_required):
+            pass
 
-    @staticmethod
-    def add_options(parser, enforce_required):
-        pass
+        def launch(self, launch_config):
+            sys.stdout.write('LAUNCH\n')
 
-    def launch(self, launch_config):
-        print 'LAUNCH'
+        def find_files(self):
+            sys.stdout.write('FIND_FILES\n')
 
-    def find_files(self):
-        print 'FIND_FILES'
+        def parse(self):
+            sys.stdout.write('PARSE\n')
 
-    def parse(self):
-        print 'PARSE'
+        def summary_process(self, parse_output):
+            sys.stdout.write('SUMMARY_PROCESS\n')
 
-    def summary_process(self, parse_output):
-        print 'SUMMARY_PROCESS'
+        def summary(self, process_output):
+            sys.stdout.write('SUMMARY\n')
 
-    def summary(self, process_output):
-        print 'SUMMARY'
+        def plot_process(self, parse_output):
+            sys.stdout.write('PLOT_PROCESS\n')
 
-    def plot_process(self, parse_output):
-        print 'PLOT_PROCESS'
-
-    def plot(self, process_output):
-        print 'PLOT'
+        def plot(self, process_output):
+            sys.stdout.write('PLOT\n')
+except NameError:
+    sys.stderr.write(g_skip_analysis_ex + '\n\n')
 
 
 @unittest.skipIf(g_skip_analysis_test, g_skip_analysis_ex)
