@@ -72,7 +72,7 @@ static bool geopm_prof_compare(const std::pair<uint64_t, struct geopm_prof_messa
 
 namespace geopm
 {
-    const struct geopm_prof_message_s GEOPM_INVALID_PROF_MSG = {-1, 0, {{0, 0}}, -1.0};
+    const struct geopm_prof_message_s GEOPM_INVALID_PROF_MSG = {-1, 0, GEOPM_TIME_1970, -1.0};
 
     ProfileSampler::ProfileSampler(size_t table_size)
         : ProfileSampler(platform_topo(), table_size)

@@ -57,6 +57,8 @@ struct geopm_time_s {
     struct timespec t;
 };
 
+const struct geopm_time_s GEOPM_TIME_1970 = {{0, 0}};
+
 static inline int geopm_time(struct geopm_time_s *time)
 {
     return clock_gettime(CLOCK_MONOTONIC_RAW, &(time->t));

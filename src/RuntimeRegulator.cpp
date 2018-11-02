@@ -37,12 +37,9 @@
 
 namespace geopm
 {
-
-    const geopm_time_s IRuntimeRegulator::M_TIME_ZERO = {{0,0}};
-
     RuntimeRegulator::RuntimeRegulator(int num_rank)
         : m_num_rank(num_rank)
-        , m_rank_log(m_num_rank, m_log_s {M_TIME_ZERO, 0.0, 0.0, -1})
+        , m_rank_log(m_num_rank, m_log_s {GEOPM_TIME_1970, 0.0, 0.0, -1})
     {
         if (m_num_rank <= 0) {
             throw Exception("RuntimeRegulator::RuntimeRegulator(): invalid max rank count",
@@ -56,7 +53,7 @@ namespace geopm
             throw Exception("RuntimeRegulator::record_entry(): invalid rank value",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        if (geopm_time_diff(&m_rank_log[rank].enter_time, &M_TIME_ZERO) != 0.0) {
+        if (geopm_time_diff(&m_rank_log[rank].enter_time, &GEOPM_TIME_1970) != 0.0) {
             throw Exception("RuntimeRegulator::record_entry(): rank re-entry before exit detected",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
@@ -72,14 +69,14 @@ namespace geopm
             throw Exception("RuntimeRegulator::record_exit(): invalid rank value",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        if (geopm_time_diff(&m_rank_log[rank].enter_time, &M_TIME_ZERO) == 0.0) {
+        if (geopm_time_diff(&m_rank_log[rank].enter_time, &GEOPM_TIME_1970) == 0.0) {
             throw Exception("RuntimeRegulator::record_exit(): exit before entry",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
         double delta = geopm_time_diff(&m_rank_log[rank].enter_time, &exit_time);
         m_rank_log[rank].last_runtime = delta;
-        m_rank_log[rank].enter_time = M_TIME_ZERO; // record exit
+        m_rank_log[rank].enter_time = GEOPM_TIME_1970; // record exit
         m_rank_log[rank].total_runtime += delta;
         ++m_rank_log[rank].count;
     }

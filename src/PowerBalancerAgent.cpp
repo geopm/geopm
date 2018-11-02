@@ -518,7 +518,7 @@ namespace geopm
         , m_role(nullptr)
         , m_power_governor(std::move(power_governor))
         , m_power_balancer(std::move(power_balancer))
-        , m_last_wait{{0,0}}
+        , m_last_wait(GEOPM_TIME_1970)
         , M_WAIT_SEC(0.005)
     {
         geopm_time(&m_last_wait);
