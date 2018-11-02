@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aba753fe_e86aa99e",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-02T18:17:18Z",
+      "side": 1,
+      "message": "\"energy_efficent - Online MPI frequency (Hz)\"",
+      "range": {
+        "startLine": 330,
+        "startChar": 37,
+        "endLine": 330,
+        "endChar": 67
+      },
+      "revId": "046f519897d42524e622143e60b810f7fe7aeaaa",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "46beab48_ec72127f",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 1092,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-02T18:17:18Z",
+      "side": 1,
+      "message": "get rid of mcfly specific stuff.",
+      "revId": "046f519897d42524e622143e60b810f7fe7aeaaa",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7dddf09a_b827b05a",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 1117,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-02T18:17:18Z",
+      "side": 1,
+      "message": "get rid of mcfly specific stuff.",
+      "range": {
+        "startLine": 1117,
+        "startChar": 8,
+        "endLine": 1117,
+        "endChar": 20
+      },
+      "revId": "046f519897d42524e622143e60b810f7fe7aeaaa",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
