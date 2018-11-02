@@ -43,11 +43,9 @@ const char *program_invocation_name = "geopm_profile";
 
 #include <string>
 #include <vector>
-#include <iostream>
 
 #include "geopm_env.h"
 #include "Exception.hpp"
-#include "Helper.hpp"
 
 #include "config.h"
 
@@ -61,7 +59,6 @@ namespace geopm
             Environment();
             virtual ~Environment() = default;
             void load(void);
-            void check(void) const;
             const char *report(void) const;
             const char *comm(void) const;
             const char *policy(void) const;
@@ -113,7 +110,6 @@ namespace geopm
     Environment::Environment()
     {
         load();
-        check();
     }
 
     void Environment::load()
@@ -184,46 +180,6 @@ namespace geopm
             while (end != std::string::npos);
         }
 
-    }
-
-    void Environment::check() const
-    {
-        // Exceptions cannot be thrown here as they will not propagate through the C function wrappers.  The interface
-        // to this class will have to be re-written to pass return codes back if failure needs to be detected here.
-
-        // Check the CPU frequency driver
-        try {
-            std::string scaling_driver = geopm::read_file("/sys/devices/system/cpu/cpu0/cpufreq/scaling_driver");
-            size_t cr_pos = scaling_driver.find('\n');
-            scaling_driver = scaling_driver.substr(0, cr_pos);
-            if (scaling_driver != "acpi-cpufreq") {
-                std::cerr << "Warning: <geopm> Environment::" << std::string(__func__)
-                          << "(): Incompatible CPU frequency driver detected ("
-                          << scaling_driver << "). The \"acpi-cpufreq\" driver is required.  If this driver is not "
-                          << "used performance may be impacted by the incompatible driver setting low frequencies "
-                          << "when system load is low." << std::endl;
-            }
-        }
-        catch (...) {
-            geopm::exception_handler(std::current_exception(), true);
-        }
-
-        // Check the CPU frequency governor
-        try {
-            std::string scaling_governor = geopm::read_file("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor");
-            size_t cr_pos = scaling_governor.find('\n');
-            scaling_governor = scaling_governor.substr(0, cr_pos);
-            if (scaling_governor != "performance") {
-                std::cerr << "Warning: <geopm> Environment::" << std::string(__func__)
-                          << "(): Incompatible CPU governor detected ("
-                          << scaling_governor << "). The \"performance\" governor is required.  If this driver is not "
-                          << "used performance may be impacted by the incompatible driver setting low frequencies "
-                          << "when system load is low." << std::endl;
-            }
-        }
-        catch (...) {
-            geopm::exception_handler(std::current_exception(), true);
-        }
     }
 
     bool Environment::get_env(const char *name, std::string &env_string) const
