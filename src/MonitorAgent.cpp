@@ -48,7 +48,7 @@ namespace geopm
     MonitorAgent::MonitorAgent(IPlatformIO &plat_io, IPlatformTopo &topo)
         : m_platform_io(plat_io)
         , m_platform_topo(topo)
-        , m_last_wait{{0, 0}}
+        , m_last_wait(GEOPM_TIME_REF)
         , m_num_ascend(0)
         , M_SEND_PERIOD(10)
         , M_WAIT_SEC(0.005)

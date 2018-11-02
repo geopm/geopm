@@ -76,7 +76,7 @@ namespace geopm
         , m_num_converged(0)
         , m_num_pkg(m_platform_topo.num_domain(m_platform_io.control_domain_type("POWER_PACKAGE")))
         , m_adjusted_power(0.0)
-        , m_last_wait{{0, 0}}
+        , m_last_wait(GEOPM_TIME_REF)
         , M_WAIT_SEC(0.005)
 
     {

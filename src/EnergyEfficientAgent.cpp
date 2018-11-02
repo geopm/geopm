@@ -65,7 +65,7 @@ namespace geopm
         , M_SEND_PERIOD(10)
         , m_last_freq(NAN)
         , m_curr_adapt_freq(NAN)
-        , m_last_wait{{0, 0}}
+        , m_last_wait(GEOPM_TIME_REF)
     {
         parse_env_map();
         const char* env_freq_online_str = getenv("GEOPM_EFFICIENT_FREQ_ONLINE");
