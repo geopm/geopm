@@ -130,6 +130,7 @@ namespace geopm
             void register_msr_control(const std::string &control_name, const std::string &msr_field_name);
             void register_raw_msr_signal(const std::string &msr_name, const IMSR &msr_ptr);
             void enable_fixed_counters(void);
+            void check_governor(const std::string &control_name);
 
             /// @brief Configure memory for all pushed signals and controls.
             void activate(void);
@@ -160,6 +161,7 @@ namespace geopm
             std::vector<std::map<uint64_t, m_restore_s> > m_per_cpu_restore;
             bool m_is_fixed_enabled;
             std::map<std::string, std::function<double(const std::vector<double> &)> > m_func_map;
+            bool m_do_check_governor;
     };
 }
 
