@@ -73,8 +73,6 @@ namespace geopm
             ///        entered and exited the region.
             /// @return Count of entries and exits for each rank.
             virtual std::vector<double> per_rank_count(void) const = 0;
-        protected:
-            static const struct geopm_time_s M_TIME_ZERO;
     };
 
     class RuntimeRegulator : public IRuntimeRegulator

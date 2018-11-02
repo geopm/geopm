@@ -127,6 +127,8 @@ static inline void geopm_time_add(const struct geopm_time_s *begin, double elaps
 
 #endif
 
+const struct geopm_time_s GEOPM_TIME_REF = {{0, 0}};
+
 static inline double geopm_time_since(const struct geopm_time_s *begin)
 {
     struct geopm_time_s curr_time;
