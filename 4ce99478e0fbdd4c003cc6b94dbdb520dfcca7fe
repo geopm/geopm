@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "884d4ee4_7b254ba7",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-11-02T16:44:48Z",
+      "side": 1,
+      "message": "Remove this include.  Was added to support the feature being moved.",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 21
+      },
+      "revId": "4ce99478e0fbdd4c003cc6b94dbdb520dfcca7fe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
