@@ -161,7 +161,13 @@ int main(int argc, char **argv)
                 try {
                     int domain_type = IPlatformTopo::domain_name_to_type(pos_args[1]);
                     int idx = platform_io.push_signal(signal_name, domain_type, domain_idx);
-                    platform_io.read_batch();
+                    // read_batch multiple times for derivative-based signals;
+                    // should not affect other signals
+                    for (int ii = 0; ii < 16; ++ii) {
+                        platform_io.read_batch();
+                        platform_io.sample(idx);
+                        usleep(2000);
+                    }
                     double result = platform_io.sample(idx);
                     if (signal_name.find("#") == std::string::npos) {
                         std::cout << result << std::endl;
