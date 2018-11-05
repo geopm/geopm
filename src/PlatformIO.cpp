@@ -233,12 +233,11 @@ namespace geopm
             }
 
             int time_idx = push_signal("TIME", PlatformTopo::M_DOMAIN_BOARD, 0);
-            int region_id_idx = push_signal("REGION_ID#", domain_type, domain_idx);
             result = m_active_signal.size();
 
             register_combined_signal(result,
-                                     {region_id_idx, time_idx, energy_idx},
-                                     std::unique_ptr<CombinedSignal>(new PerRegionDerivativeCombinedSignal));
+                                     {time_idx, energy_idx},
+                                     std::unique_ptr<CombinedSignal>(new DerivativeCombinedSignal));
 
             m_active_signal.emplace_back(nullptr, result);
         }

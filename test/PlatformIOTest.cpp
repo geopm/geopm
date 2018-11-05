@@ -270,9 +270,6 @@ TEST_F(PlatformIOTest, push_signal)
 
 TEST_F(PlatformIOTest, signal_power)
 {
-    EXPECT_CALL(m_topo, is_domain_within(_, _)).Times(2);
-    EXPECT_CALL(m_topo, domain_cpus(_, _, _)).Times(2);
-    EXPECT_CALL(m_topo, domain_idx(_, _)).Times(2 * M_NUM_CPU);
     for (auto &it : m_iogroup_ptr) {
         if (it->is_valid_signal("TIME")) {
             EXPECT_CALL(*it, push_signal("TIME", _, _))
@@ -291,13 +288,6 @@ TEST_F(PlatformIOTest, signal_power)
                 .Times(1);
             EXPECT_CALL(*it, signal_domain_type("ENERGY_DRAM"))
                 .Times(1);
-        }
-        if (it->is_valid_signal("REGION_ID#")) {
-            EXPECT_CALL(*it, push_signal("REGION_ID#", _, _))
-                .Times(1 *  M_NUM_CPU);
-            EXPECT_CALL(*it, signal_domain_type("REGION_ID#"))
-                .Times(2 *  M_NUM_CPU);
-            EXPECT_CALL(*it, agg_function("REGION_ID#")).Times(2);
         }
     }
 
@@ -327,10 +317,6 @@ TEST_F(PlatformIOTest, signal_power)
                 .WillOnce(Return(333.33))
                 .WillOnce(Return(555.55))
                 .WillOnce(Return(777.77));
-        }
-        if (it->is_valid_signal("REGION_ID#")) {
-            EXPECT_CALL(*it, sample(0)).Times(6 * M_NUM_CPU)
-                .WillRepeatedly(Return(42));
         }
     }
 

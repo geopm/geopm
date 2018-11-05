@@ -58,22 +58,21 @@ namespace geopm
 
     /// @brief Used by PlatformIO for CombinedSignals based on a
     ///        derivative of another signal over time.
-    class PerRegionDerivativeCombinedSignal : public CombinedSignal
+    class DerivativeCombinedSignal : public CombinedSignal
     {
         public:
-            PerRegionDerivativeCombinedSignal() = default;
-            virtual ~PerRegionDerivativeCombinedSignal() = default;
+            DerivativeCombinedSignal();
+            virtual ~DerivativeCombinedSignal() = default;
             double sample(const std::vector<double> &values) override;
         private:
             struct m_sample_s {
                 double time;
                 double sample;
             };
-            // map from region ID to time+energy history for that region
-            std::map<double, CircularBuffer<m_sample_s> > m_history;
-            std::map<double, double> m_derivative_last;
-            std::map<double, int> m_derivative_num_fit;
-            const int M_NUM_SAMPLE_HISTORY = 8;
+            const int M_NUM_SAMPLE_HISTORY;
+            // time + energy history
+            CircularBuffer<m_sample_s> m_history;
+            int m_derivative_num_fit;
     };
 }
 
