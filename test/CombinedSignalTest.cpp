@@ -38,7 +38,7 @@
 #include "Agg.hpp"
 
 using geopm::CombinedSignal;
-using geopm::PerRegionDerivativeCombinedSignal;
+using geopm::DerivativeCombinedSignal;
 using geopm::Exception;
 
 TEST(CombinedSignalTest, sample_sum)
@@ -67,7 +67,7 @@ TEST(CombinedSignalTest, sample_max)
 
 TEST(CombinedSignalTest, sample_flat_derivative)
 {
-    PerRegionDerivativeCombinedSignal comb_signal;
+    DerivativeCombinedSignal comb_signal;
     std::vector<double> values = {0};
 #ifdef GEOPM_DEBUG
     ASSERT_EQ(1u, values.size());
@@ -77,23 +77,23 @@ TEST(CombinedSignalTest, sample_flat_derivative)
     EXPECT_THROW(comb_signal.sample(values), Exception);
 #endif
 
-    // values expected: region_id, time, value
-    values = {1234, 0, 5};
+    // values expected: time, value
+    values = {0, 5};
     double result = comb_signal.sample(values);
     EXPECT_TRUE(std::isnan(result));
 
-    values = {1234, 1, 5};
+    values = {1, 5};
     result = comb_signal.sample(values);
     EXPECT_DOUBLE_EQ(0.0, result);
 
-    values = {1234, 2, 5};
+    values = {2, 5};
     result = comb_signal.sample(values);
     EXPECT_DOUBLE_EQ(0.0, result);
 }
 
 TEST(CombinedSignalTest, sample_slope_derivative)
 {
-    PerRegionDerivativeCombinedSignal comb_signal;
+    DerivativeCombinedSignal comb_signal;
     // should have slope of 1.0
     std::vector<double> sample_values = {0.000001, .999999, 2.000001,
                                          2.999999, 4.000001, 4.999999,
@@ -102,15 +102,14 @@ TEST(CombinedSignalTest, sample_slope_derivative)
 
     double result = NAN;
     for (size_t ii = 0; ii < sample_values.size(); ++ii) {
-        result = comb_signal.sample({12345, (double)ii, sample_values[ii]});
+        result = comb_signal.sample({(double)ii, sample_values[ii]});
     }
     EXPECT_NEAR(1.0, result, 0.0001);
 
-    // different region
     // should have slope of .238 with least squares fit
     sample_values = {0, 1, 2, 3, 0, 1, 2, 3};
     for (size_t ii = 0; ii < sample_values.size(); ++ii) {
-        result = comb_signal.sample({8080, (double)ii, sample_values[ii]});
+        result = comb_signal.sample({(double)ii, sample_values[ii]});
     }
     EXPECT_NEAR(0.238, result, 0.001);
 }
