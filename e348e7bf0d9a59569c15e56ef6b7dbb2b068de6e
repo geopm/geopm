@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0bb43d6_4ce1321c",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1199,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-11-05T23:19:32Z",
+      "side": 1,
+      "message": "This could also look for \u0027Warning\u0027 as long as we are consistent about capitalization for warnings",
+      "revId": "e348e7bf0d9a59569c15e56ef6b7dbb2b068de6e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
