@@ -60,6 +60,7 @@ class TracerTest : public ::testing::Test
         std::string m_hostname = "myhost";
         std::string m_agent = "myagent";
         std::string m_profile = "myprofile";
+        std::string m_start_time = "Tue Nov  6 08:16:28 2018";
         std::vector<IPlatformIO::m_request_s> m_default_cols;
         std::vector<std::string> m_extra_cols;
 };
@@ -94,6 +95,8 @@ void TracerTest::SetUp(void)
             .WillOnce(Return(idx));
         ++idx;
     }
+
+    EXPECT_CALL(m_platform_io, read_signal("TIME_ZERO", geopm::IPlatformTopo::M_DOMAIN_BOARD, 0)).WillOnce(Return(1541520988.2022698));
 }
 
 void TracerTest::TearDown(void)
@@ -114,6 +117,7 @@ TEST_F(TracerTest, columns)
     tracer.flush();
 
     std::string expected_header = "# \"geopm_version\"\n"
+                                  "# \"start_time\" : \"" + m_start_time + "\"\n" +
                                   "# \"profile_name\" : \"" + m_profile + "\"\n" +
                                   "# \"node_name\" : \"" + m_hostname + "\"\n" +
                                   "# \"agent\" : \"" + m_agent + "\"\n";
@@ -149,7 +153,7 @@ TEST_F(TracerTest, update_samples)
     tracer.flush();
     tracer.update(agent_vals, {}); // no additional samples after flush
 
-    std::string expected_str = "\n\n\n\n\n"
+    std::string expected_str = "\n\n\n\n\n\n"
         "5.0e-01|0x3ff8000000000000|2.5|3.5e+00|4.5e+00|5.5e+00|6.5e+00|7.5e+00|8.5e+00|9.5e+00|1.0e+01|1.2e+01|8.9e+01|7.8e+01\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
@@ -181,7 +185,7 @@ TEST_F(TracerTest, region_entry_exit)
     tracer.update(agent_vals, short_regions);
     tracer.flush();
     tracer.update(agent_vals, short_regions); // no additional samples after flush
-    std::string expected_str ="\n\n\n\n"
+    std::string expected_str ="\n\n\n\n\n"
         "\n" // header
         "2.2e+00|0x0000000000000123|0.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
         "2.2e+00|0x0000000000000123|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"

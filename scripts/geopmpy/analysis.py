@@ -895,7 +895,7 @@ class FreqSweepAnalysis(Analysis):
             if not self._enable_turbo and (freq, profile_name) == freq_pname[0]:
                 continue
 
-            region_mean_runtime = report_df.loc[pandas.IndexSlice[:, profile_name, :, :, :, :, :, :, :], ].groupby(level='region')
+            region_mean_runtime = report_df.loc[pandas.IndexSlice[:, :, profile_name, :, :, :, :, :, :, :], ].groupby(level='region')
             for region, region_df in region_mean_runtime:
                 runtime = region_df['runtime'].mean()
                 if is_once:
@@ -1025,7 +1025,7 @@ def baseline_comparison(parse_output, comp_name):
     """
     Used to compare a set of runs for a profile of interest to a baseline profile including verbose data.
     """
-    comp_df = parse_output.loc[pandas.IndexSlice[:, comp_name, :, :, :, :, :, :, :], ]
+    comp_df = parse_output.loc[pandas.IndexSlice[:, :, comp_name, :, :, :, :, :, :, :], ]
     baseline_df = parse_output.loc[parse_output.index.get_level_values('name') != comp_name]
     baseline_df = FreqSweepAnalysis.profile_to_freq_mhz(baseline_df)
 
@@ -1388,21 +1388,21 @@ class StreamDgemmMixAnalysis(Analysis):
             best_fit_freq = optimal_freq['epoch']
             best_fit_name = FreqSweepAnalysis.fixed_freq_name(name, best_fit_freq)
 
-            baseline_df = df.loc[pandas.IndexSlice[:, baseline_name, :, :, :, :, :, :, :], ]
+            baseline_df = df.loc[pandas.IndexSlice[:, :, baseline_name, :, :, :, :, :, :, :], ]
 
-            best_fit_df = df.loc[pandas.IndexSlice[:, best_fit_name, :, :, :, :, :, :, :], ]
+            best_fit_df = df.loc[pandas.IndexSlice[:, :, best_fit_name, :, :, :, :, :, :, :], ]
             combo_df = baseline_df.append(best_fit_df)
             comp_df = baseline_comparison(combo_df, best_fit_name)
             offline_app_energy = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'energy_savings']
             offline_app_runtime = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'runtime_savings']
 
-            offline_df = df.loc[pandas.IndexSlice[:, name + '_offline', :, :, :, :, :, :, :], ]
+            offline_df = df.loc[pandas.IndexSlice[:, :, name + '_offline', :, :, :, :, :, :, :], ]
             combo_df = baseline_df.append(offline_df)
             comp_df = baseline_comparison(combo_df, name + '_offline')
             offline_phase_energy = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'energy_savings']
             offline_phase_runtime = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'runtime_savings']
 
-            online_df = df.loc[pandas.IndexSlice[:, name + '_online', :, :, :, :, :, :, :], ]
+            online_df = df.loc[pandas.IndexSlice[:, :, name + '_online', :, :, :, :, :, :, :], ]
             combo_df = baseline_df.append(online_df)
             comp_df = baseline_comparison(combo_df, name + '_online')
             online_phase_energy = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'energy_savings']

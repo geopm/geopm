@@ -38,6 +38,7 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
+#include <time.h>
 
 #include "Tracer.hpp"
 #include "PlatformIO.hpp"
@@ -74,7 +75,6 @@ namespace geopm
         , m_is_trace_enabled(do_trace)
         , m_do_header(true)
         , m_buffer_limit(134217728) // 128 MiB
-        , m_time_zero({{0, 0}})
         , m_platform_io(platform_io)
         , m_env_column(env_column)
         , m_precision(precision)
@@ -96,8 +96,18 @@ namespace geopm
                 m_is_trace_enabled = false;
             }
 
+            struct geopm_time_s time_zero;
+            struct tm tm;
+            double time_zero_signal = m_platform_io.read_signal("TIME_ZERO", IPlatformTopo::M_DOMAIN_BOARD, 0);
+            char time_buff[64];
+            geopm_time_add(&GEOPM_TIME_1970, time_zero_signal, &time_zero);
+            localtime_r(&time_zero.t.tv_sec, &tm);
+            asctime_r(&tm, time_buff);
+            std::string time_str(time_buff);
+            time_str.erase(std::remove(time_str.begin(), time_str.end(), '\n'), time_str.end());
             // Header
             m_buffer << "# \"geopm_version\" : \"" << geopm_version() << "\",\n"
+                     << "# \"start_time\" : \"" << time_str << "\",\n"
                      << "# \"profile_name\" : \"" << profile_name << "\",\n"
                      << "# \"node_name\" : \"" << m_hostname << "\",\n"
                      << "# \"agent\" : \"" << agent << "\"\n";
