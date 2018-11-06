@@ -98,6 +98,7 @@ namespace geopm
         m_func_map["MSR::PERF_STATUS:FREQ"] = Agg::average;
         m_func_map["MSR::PKG_ENERGY_STATUS:ENERGY"] = Agg::sum;
         m_func_map["MSR::DRAM_ENERGY_STATUS:ENERGY"] = Agg::sum;
+        m_func_map["MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY"] = Agg::sum;
         m_func_map["MSR::PERF_FIXED_CTR1:CPU_CLK_UNHALTED_THREAD"] = Agg::sum;
         m_func_map["MSR::PERF_FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC"] = Agg::sum;
         m_func_map["MSR::PKG_POWER_INFO:MIN_POWER"] = Agg::expect_same;
@@ -107,6 +108,7 @@ namespace geopm
         register_msr_signal("FREQUENCY",         "MSR::PERF_STATUS:FREQ");
         register_msr_signal("ENERGY_PACKAGE",    "MSR::PKG_ENERGY_STATUS:ENERGY");
         register_msr_signal("ENERGY_DRAM",       "MSR::DRAM_ENERGY_STATUS:ENERGY");
+        register_msr_signal("INSTRUCTIONS_RETIRED", "MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY");
         register_msr_signal("CYCLES_THREAD",     "MSR::PERF_FIXED_CTR1:CPU_CLK_UNHALTED_THREAD");
         register_msr_signal("CYCLES_REFERENCE",  "MSR::PERF_FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC");
         register_msr_signal("POWER_PACKAGE_MIN", "MSR::PKG_POWER_INFO:MIN_POWER");
