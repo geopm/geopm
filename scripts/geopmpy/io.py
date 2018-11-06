@@ -380,9 +380,9 @@ class AppOutput(object):
         idx = pandas.IndexSlice
         df = self._reports_df
         if node_name is not None:
-            df = df.loc[idx[:, :, :, node_name, :, :], ]
+            df = df.loc[idx[:, :, :, :, node_name, :, :], ]
         if region is not None:
-            df = df.loc[idx[:, :, :, :, :, region], ]
+            df = df.loc[idx[:, :, :, :, :, :, region], ]
         return df
 
     # TODO Call this from outside code to get totals
@@ -390,14 +390,14 @@ class AppOutput(object):
         idx = pandas.IndexSlice
         df = self._app_reports_df
         if node_name is not None:
-            df = df.loc[idx[:, :, :, node_name, :], ]
+            df = df.loc[idx[:, :, :, :, node_name, :], ]
         return df
 
     def get_trace_data(self, node_name=None):
         idx = pandas.IndexSlice
         df = self._traces_df
         if node_name is not None:
-            df = df.loc[idx[:, :, :, node_name, :, :], ]
+            df = df.loc[idx[:, :, :, :, node_name, :, :], ]
         return df
 
     def get_report_df(self):
@@ -464,7 +464,8 @@ class IndexTracker(object):
         Args:
             run_output: The Report or Trace object to be tracked.
         """
-        index = (run_output.get_version(), os.path.basename(run_output.get_profile_name()),
+        index = (run_output.get_version(), run_output.get_start_time(),
+                 os.path.basename(run_output.get_profile_name()),
                  run_output.get_agent(), run_output.get_node_name())
         if index not in self._run_outputs.keys():
             self._run_outputs[index] = 1
@@ -492,7 +493,8 @@ class IndexTracker(object):
                 count of how many times this experiment has been seen.
 
         """
-        key = (run_output.get_version(), os.path.basename(run_output.get_profile_name()),
+        key = (run_output.get_version(), run_output.get_start_time(),
+               os.path.basename(run_output.get_profile_name()),
                run_output.get_agent(), run_output.get_node_name())
 
         return key + (self._run_outputs[key], )
@@ -519,7 +521,7 @@ class IndexTracker(object):
         self._check_increment(run_output)
 
         itl = []
-        index_names = ['version', 'name', 'agent', 'node_name', 'iteration']
+        index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration']
 
         if type(run_output) is Report:
             index_names.append('region')
@@ -564,7 +566,7 @@ class Report(dict):
 
     """
     # These variables are intentionally defined outside __init__().  They occur once at the top of a combined report
-    # file and are needed for all report contained in the combined file.  Defining them this way allows the iinitial
+    # file and are needed for all report contained in the combined file.  Defining them this way allows the initial
     # value to be shared among all Report files created.
     _version = None
     _name = None
@@ -585,6 +587,7 @@ class Report(dict):
         self._path = report_path
         self._offset = offset
         self._version = None
+        self._start_time = None
         self._profile_name = None
         self._agent = None
         self._total_runtime = None
@@ -608,6 +611,10 @@ class Report(dict):
                     match = re.search(r'^##### geopm (\S+) #####$', line)
                     if match is not None:
                         self._version = match.group(1)
+                if self._start_time is None:
+                    match = re.search(r'^Start Time: (\S+)$', line)
+                    if match is not None:
+                        self._start_time = match.group(1)
                 if self._profile_name is None:
                     match = re.search(r'^Profile: (\S+)$', line)
                     if match is not None:
@@ -727,6 +734,9 @@ class Report(dict):
     # Fields used for dataframe construction only
     def get_profile_name(self):
         return self._profile_name
+
+    def get_start_time(self):
+        return self._start_time
 
     def get_version(self):
         return self._version
@@ -867,6 +877,7 @@ class Trace(object):
         self._df.columns = list(map(str.strip, self._df[:0]))  # Strip whitespace from column names
         self._df['region_id'] = self._df['region_id'].astype(str).map(str.strip)  # Strip whitespace from region ID's
         self._version = None
+        self._start_time = None
         self._profile_name = None
         self._agent = None
         self._node_name = None
@@ -911,7 +922,7 @@ class Trace(object):
         """Parses the configuration header out of the top of the trace file.
 
         Args:
-            trace_path: The path to the trace file to parse.t
+            trace_path: The path to the trace file to parse.
         """
         done = False
         out = []
@@ -928,6 +939,7 @@ class Trace(object):
         dd = json.loads(json_str)
         try:
             self._version = dd['geopm_version']
+            self._start_time = dd['start_time']
             self._profile_name = dd['profile_name']
             if self._use_agent:
                 self._agent = dd['agent']
@@ -940,6 +952,9 @@ class Trace(object):
 
     def get_version(self):
         return self._version
+
+    def get_start_time(self):
+        return self._start_time
 
     def get_profile_name(self):
         return self._profile_name
@@ -992,8 +1007,8 @@ class Trace(object):
 
         # Reset 'index' to be 0 to the length of the unique trace files
         traces_list = []
-        for (version, name, agent, node_name, iteration), df in \
-            filtered_df.groupby(level=['version', 'name', 'agent', 'node_name', 'iteration']):
+        for (version, start_time, name, agent, node_name, iteration), df in \
+            filtered_df.groupby(level=['version', 'start_time', 'name', 'agent', 'node_name', 'iteration']):
             df = df.reset_index(level='index')
             df['index'] = pandas.Series(numpy.arange(len(df)), index=df.index)
             df = df.set_index('index', append=True)
@@ -1031,6 +1046,7 @@ class Trace(object):
         if config.verbose:
             median_df_index = []
             median_df_index.append(median_df.index.get_level_values('version').unique()[0])
+            median_df_index.append(median_df.index.get_level_values('start_time').unique()[0])
             median_df_index.append(median_df.index.get_level_values('name').unique()[0])
             median_df_index.append(median_df.index.get_level_values('agent').unique()[0])
             median_df_index.append(median_df.index.get_level_values('iteration').unique()[0])

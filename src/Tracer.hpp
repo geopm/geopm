@@ -42,7 +42,6 @@
 
 #include "PlatformIO.hpp"
 #include "geopm_message.h"
-#include "geopm_time.h"
 
 namespace geopm
 {
@@ -89,8 +88,9 @@ namespace geopm
     {
         public:
             /// @brief Tracer constructor.
-            Tracer();
-            Tracer(const std::string &file_path,
+            Tracer(const std::string &start_time);
+            Tracer(const std::string &start_time,
+                   const std::string &file_path,
                    const std::string &hostname,
                    const std::string &agent,
                    const std::string &profile_name,
@@ -116,7 +116,6 @@ namespace geopm
             std::ofstream m_stream;
             std::ostringstream m_buffer;
             off_t m_buffer_limit;
-            struct geopm_time_s m_time_zero;
 
             IPlatformIO &m_platform_io;
             std::vector<std::string> m_env_column; // extra columns from environment
