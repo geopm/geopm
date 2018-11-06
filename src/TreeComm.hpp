@@ -77,10 +77,6 @@ namespace geopm
             virtual size_t overhead_send(void) const = 0;
             /// @brief Returns the number of children at each level.
             static std::vector<int> fan_out(const std::shared_ptr<Comm> &comm);
-        private:
-            enum m_tree_comm_const_e {
-                M_MAX_FAN_OUT = 16,
-            };
     };
 
     class TreeComm : public ITreeComm

@@ -68,6 +68,7 @@ namespace geopm
             const char *profile(void) const;
             const char *agent(void) const;
             const char *trace_signal(int index) const;
+            int max_fan_out(void) const;
             int num_trace_signal(void) const;
             int pmpi_ctl(void) const;
             int do_region_barrier(void) const;
@@ -87,6 +88,7 @@ namespace geopm
             std::string m_trace;
             std::string m_plugin_path;
             std::string m_profile;
+            int m_max_fan_out;
             int m_pmpi_ctl;
             bool m_do_region_barrier;
             bool m_do_trace;
@@ -122,6 +124,7 @@ namespace geopm
         m_trace = "";
         m_plugin_path = "";
         m_profile = "";
+        m_max_fan_out = 16;
         m_pmpi_ctl = GEOPM_PMPI_CTL_NONE;
         m_do_region_barrier = false;
         m_do_trace = false;
@@ -154,6 +157,7 @@ namespace geopm
         }
         get_env("GEOPM_DEBUG_ATTACH", m_debug_attach);
         m_do_profile = get_env("GEOPM_PROFILE", m_profile);
+        (void)get_env("GEOPM_MAX_FAN_OUT", m_max_fan_out);
         if (m_report.length() ||
             m_do_trace ||
             m_pmpi_ctl != GEOPM_PMPI_CTL_NONE) {
@@ -264,6 +268,11 @@ namespace geopm
         return result;
     }
 
+    int Environment::max_fan_out(void) const
+    {
+        return m_max_fan_out;
+    }
+
     int Environment::num_trace_signal(void) const
     {
         return m_trace_signal.size();
@@ -349,6 +358,11 @@ extern "C"
     const char *geopm_env_trace_signal(int index)
     {
         return geopm::environment().trace_signal(index);
+    }
+
+    int geopm_env_max_fan_out(void)
+    {
+        return geopm::environment().max_fan_out();
     }
 
     int geopm_env_num_trace_signal(void)
