@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0e396d0_91990946",
+        "filename": "src/CombinedSignal.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-11-06T19:27:13Z",
+      "side": 1,
+      "message": "2",
+      "range": {
+        "startLine": 75,
+        "startChar": 83,
+        "endLine": 75,
+        "endChar": 84
+      },
+      "revId": "d410bedb281593f617a10f094cfcab00c67b9512",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0ac881be_ee963934",
+        "filename": "src/CombinedSignal.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-11-06T19:27:13Z",
+      "side": 1,
+      "message": "m_derivative last can be removed",
+      "revId": "d410bedb281593f617a10f094cfcab00c67b9512",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
