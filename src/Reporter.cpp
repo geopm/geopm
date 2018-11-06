@@ -124,8 +124,18 @@ namespace geopm
             if (!master_report.good()) {
                 throw Exception("Failed to open report file", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
+            struct geopm_time_s time_zero;
+            struct tm tm;
+            double time_zero_signal = m_platform_io.read_signal("TIME_ZERO", IPlatformTopo::M_DOMAIN_BOARD, 0);
+            char time_buff[64];
+            geopm_time_add(&GEOPM_TIME_1970, time_zero_signal, &time_zero);
+            localtime_r(&time_zero.t.tv_sec, &tm);
+            asctime_r(&tm, time_buff);
+            std::string time_str(time_buff);
+            time_str.erase(std::remove(time_str.begin(), time_str.end(), '\n'), time_str.end());
             // make header
             master_report << "##### geopm " << geopm_version() << " #####" << std::endl;
+            master_report << "Start Time: " << time_str << std::endl;
             master_report << "Profile: " << application_io.profile_name() << std::endl;
             master_report << "Agent: " << agent_name << std::endl;
             for (const auto &kv : agent_report_header) {

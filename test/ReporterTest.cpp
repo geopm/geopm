@@ -189,6 +189,7 @@ TEST_F(ReporterTest, generate)
     EXPECT_CALL(m_platform_io, read_signal("CPUINFO::FREQ_STICKER", geopm::IPlatformTopo::M_DOMAIN_BOARD, 0))
         .Times(4)
         .WillRepeatedly(Return(1.0));
+    EXPECT_CALL(m_platform_io, read_signal("TIME_ZERO", geopm::IPlatformTopo::M_DOMAIN_BOARD, 0)).WillOnce(Return(1541520988.2022698));
     EXPECT_CALL(m_tree_comm, overhead_send()).WillOnce(Return(678 * 56));
     for (auto rid : m_region_runtime) {
         EXPECT_CALL(m_application_io, total_region_runtime(rid.first))
@@ -243,6 +244,7 @@ TEST_F(ReporterTest, generate)
     // Check for labels at start of line but ignore numbers
     // Note that region lines start with tab
     std::string expected = "#####\n"
+        "Start Time: Tue Nov  6 08:16:28 2018\n"
         "Profile: " + m_profile_name + "\n"
         "Agent: my_agent\n"
         "one: 1\n"

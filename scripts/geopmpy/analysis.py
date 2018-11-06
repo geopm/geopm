@@ -895,7 +895,7 @@ class FreqSweepAnalysis(Analysis):
             if not self._enable_turbo and (freq, profile_name) == freq_pname[0]:
                 continue
 
-            region_mean_runtime = report_df.loc[pandas.IndexSlice[:, profile_name, :, :, :, :, :, :, :], ].groupby(level='region')
+            region_mean_runtime = report_df.loc[pandas.IndexSlice[:, :, profile_name, :, :, :, :, :, :, :], ].groupby(level='region')
             for region, region_df in region_mean_runtime:
                 runtime = region_df['runtime'].mean()
                 if is_once:
@@ -1025,7 +1025,7 @@ def baseline_comparison(parse_output, comp_name):
     """
     Used to compare a set of runs for a profile of interest to a baseline profile including verbose data.
     """
-    comp_df = parse_output.loc[pandas.IndexSlice[:, comp_name, :, :, :, :, :, :, :], ]
+    comp_df = parse_output.loc[pandas.IndexSlice[:, :, comp_name, :, :, :, :, :, :, :], ]
     baseline_df = parse_output.loc[parse_output.index.get_level_values('name') != comp_name]
     baseline_df = FreqSweepAnalysis.profile_to_freq_mhz(baseline_df)
 
