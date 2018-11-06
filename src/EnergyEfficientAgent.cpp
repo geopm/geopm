@@ -105,9 +105,10 @@ namespace geopm
         }
 #endif
         bool result = false;
-        double target_freq_min = std::isnan(in_policy[M_POLICY_FREQ_MIN]) ? cpu_freq_min() : in_policy[M_POLICY_FREQ_MIN];
-        double target_freq_max = std::isnan(in_policy[M_POLICY_FREQ_MAX]) ? cpu_freq_max() : in_policy[M_POLICY_FREQ_MAX];
-        if (target_freq_min > target_freq_max) {
+        double target_freq_min = std::isnan(in_policy[M_POLICY_FREQ_MIN]) ? get_limit("CPUINFO::FREQ_MIN") : in_policy[M_POLICY_FREQ_MIN];
+        double target_freq_max = std::isnan(in_policy[M_POLICY_FREQ_MAX]) ? get_limit("CPUINFO::FREQ_MAX") : in_policy[M_POLICY_FREQ_MAX];
+        if (std::isnan(target_freq_min) || std::isnan(target_freq_max) ||
+            target_freq_min > target_freq_max) {
             throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): invalid frequency bounds.",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
@@ -460,43 +461,5 @@ namespace geopm
                 m_rid_freq_map[rid] = obj.second.number_value();
             }
         }
-    }
-
-    double EnergyEfficientAgent::cpu_freq_min(void) const
-    {
-        double result = NAN;
-        const char* env_efficient_freq_min = getenv("GEOPM_EFFICIENT_FREQ_MIN");
-        if (env_efficient_freq_min) {
-            try {
-                result = std::stod(env_efficient_freq_min);
-            }
-            catch (const std::invalid_argument &) {
-
-            }
-        }
-        if (std::isnan(result)) {
-            result = get_limit("CPUINFO::FREQ_MIN");
-        }
-
-        return result;
-    }
-
-    double EnergyEfficientAgent::cpu_freq_max(void) const
-    {
-        double result = NAN;
-        const char* env_efficient_freq_max = getenv("GEOPM_EFFICIENT_FREQ_MAX");
-        if (env_efficient_freq_max) {
-            try {
-                result = std::stod(env_efficient_freq_max);
-            }
-            catch (const std::invalid_argument &) {
-
-            }
-        }
-        if (std::isnan(result)) {
-            result = get_limit("CPUINFO::FREQ_MAX");
-        }
-
-        return result;
     }
 }
