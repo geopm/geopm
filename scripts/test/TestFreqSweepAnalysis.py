@@ -45,7 +45,6 @@ region_id = {
 }
 version = '0.3.0'
 start_time = 'Tue Nov  6 08:00:00 2018'
-power_budget = 400
 agent = 'energy_efficient'
 node_name = 'mynode'
 

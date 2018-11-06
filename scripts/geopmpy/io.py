@@ -505,8 +505,8 @@ class IndexTracker(object):
         the returned tuple.  E.g.:
 
         >>> self._index_tracker.get_base_index(rr)
-        ('0.1.1+dev365gfcda929', 'geopm_test_integration', 170,
-        'static_policy', 'power_balancing', 'mr-fusion2', 1)
+        ('0.1.1+dev365gfcda929', 'Tue Nov  6 08:16:28 2018',
+         'geopm_test_integration', 'power_balancer', 'mr-fusion2', 1)
 
         Args:
             run_output: The Report or Trace object to produce an index tuple for.
@@ -747,9 +747,7 @@ class Report(dict):
         else:
             raise SyntaxError('Unable to parse agent information from report!')
 
-        # TODO: temporary hack to use old data
-        if self._total_energy_dram is None:
-            self._total_energy_dram = 0
+        self._total_energy_dram = 0
         if (len(line) != 0 and (region_name is not None or not found_totals or
             None in (self._total_runtime, self._total_energy_pkg, self._total_energy_dram, self._total_ignore_runtime, self._total_mpi_runtime))):
             raise SyntaxError('Unable to parse report {} before offset {}: '.format(self._path, self._offset))
@@ -894,7 +892,7 @@ class Trace(object):
     Attributes:
         trace_path: The path to the trace file to parse.
     """
-    def __init__(self, trace_path, use_agent=True):
+    def __init__(self, trace_path):
         self._path = trace_path
         self._df = pandas.read_csv(trace_path, sep='|', comment='#', dtype={'region_id': str})  # region_id must be a string because pandas can't handle 64-bit integers
         self._df.columns = list(map(str.strip, self._df[:0]))  # Strip whitespace from column names
@@ -904,7 +902,6 @@ class Trace(object):
         self._profile_name = None
         self._agent = None
         self._node_name = None
-        self._use_agent = use_agent
         self._parse_header(trace_path)
 
     def __repr__(self):
@@ -964,8 +961,7 @@ class Trace(object):
             self._version = dd['geopm_version']
             self._start_time = dd['start_time']
             self._profile_name = dd['profile_name']
-            if self._use_agent:
-                self._agent = dd['agent']
+            self._agent = dd['agent']
             self._node_name = dd['node_name']
         except KeyError:
             raise SyntaxError('Trace file header could not be parsed!')
