@@ -38,6 +38,7 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
+#include <time.h>
 
 #include "Tracer.hpp"
 #include "PlatformIO.hpp"
@@ -53,15 +54,16 @@ using geopm::IPlatformTopo;
 
 namespace geopm
 {
-    Tracer::Tracer()
-        : Tracer(geopm_env_trace(), hostname(), geopm_env_agent(),
+    Tracer::Tracer(const std::string &start_time)
+        : Tracer(start_time, geopm_env_trace(), hostname(), geopm_env_agent(),
                  geopm_env_profile(), geopm_env_do_trace(), platform_io(),
                  {}, 16)
     {
 
     }
 
-    Tracer::Tracer(const std::string &file_path,
+    Tracer::Tracer(const std::string &start_time,
+                   const std::string &file_path,
                    const std::string &hostname,
                    const std::string &agent,
                    const std::string &profile_name,
@@ -74,7 +76,6 @@ namespace geopm
         , m_is_trace_enabled(do_trace)
         , m_do_header(true)
         , m_buffer_limit(134217728) // 128 MiB
-        , m_time_zero({{0, 0}})
         , m_platform_io(platform_io)
         , m_env_column(env_column)
         , m_precision(precision)
@@ -98,6 +99,7 @@ namespace geopm
 
             // Header
             m_buffer << "# \"geopm_version\" : \"" << geopm_version() << "\",\n"
+                     << "# \"start_time\" : \"" << start_time << "\",\n"
                      << "# \"profile_name\" : \"" << profile_name << "\",\n"
                      << "# \"node_name\" : \"" << m_hostname << "\",\n"
                      << "# \"agent\" : \"" << agent << "\"\n";

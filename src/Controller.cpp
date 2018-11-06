@@ -124,6 +124,23 @@ extern "C"
 
 namespace geopm
 {
+    static std::string get_start_time()
+    {
+        static bool once = true;
+        static std::string ret;
+
+        if (once) {
+            const int buf_size = 64;
+            char time_buff[buf_size];
+            geopm_time_string(buf_size, time_buff);
+            std::string tmp(time_buff);
+            tmp.erase(std::remove(tmp.begin(), tmp.end(), '\n'), tmp.end());
+            ret = tmp;
+            once = false;
+        }
+        return ret;
+    }
+
     Controller::Controller(std::shared_ptr<Comm> ppn1_comm)
         : Controller(ppn1_comm,
                      platform_io(),
@@ -134,8 +151,8 @@ namespace geopm
                          Agent::num_policy(agent_factory().dictionary(geopm_env_agent())),
                          Agent::num_sample(agent_factory().dictionary(geopm_env_agent())))),
                      std::shared_ptr<IApplicationIO>(new ApplicationIO(geopm_env_shmkey())),
-                     std::unique_ptr<IReporter>(new Reporter(geopm_env_report(), platform_io(), ppn1_comm->rank())),
-                     std::unique_ptr<ITracer>(new Tracer()),
+                     std::unique_ptr<IReporter>(new Reporter(get_start_time(), geopm_env_report(), platform_io(), ppn1_comm->rank())),
+                     std::unique_ptr<ITracer>(new Tracer(get_start_time())),
                      std::vector<std::unique_ptr<Agent> >{},
                      std::unique_ptr<IManagerIOSampler>(new ManagerIOSampler(geopm_env_policy(), true)))
     {

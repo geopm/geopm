@@ -44,6 +44,7 @@ region_id = {
     'stream': '20779751936'
 }
 version = '0.3.0'
+start_time = 'Tue Nov  6 08:00:00 2018'
 power_budget = 400
 tree_decider = 'static'
 leaf_decider = 'simple'
@@ -51,7 +52,7 @@ agent = 'energy_efficient'
 node_name = 'mynode'
 
 # for input data frame
-index_names = ['version', 'name', 'power_budget', 'tree_decider',
+index_names = ['version', 'start_time', 'name', 'power_budget', 'tree_decider',
                'leaf_decider', 'agent', 'node_name', 'iteration', 'region']
 numeric_cols = ['count', 'energy_pkg', 'frequency', 'mpi_runtime', 'runtime', 'id']
 gen_val = {
@@ -81,7 +82,7 @@ def make_mock_sweep_report_df(name_prefix, freqs, best_fit_freq, best_fit_perf,
             for it in iterations:
                 for region in regions:
                     gen_val['id'] = region_id[region]  # return unique region id
-                    index = (version, prof_name, power_budget, tree_decider,
+                    index = (version, start_time, prof_name, power_budget, tree_decider,
                              leaf_decider, agent, node_name, it, region)
                     value = gen_val[col]
                     # force best performance for requested best fit freq
@@ -111,7 +112,7 @@ def make_mock_report_df(name_prefix, metric, metric_perf):
         for it in iterations:
             for region in regions:
                 gen_val['id'] = region_id[region]  # return unique region id
-                index = (version, name_prefix, power_budget, tree_decider,
+                index = (version, start_time, name_prefix, power_budget, tree_decider,
                          leaf_decider, agent, node_name, it, region)
                 value = gen_val[col]
                 if col == metric:

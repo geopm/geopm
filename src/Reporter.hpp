@@ -101,8 +101,8 @@ namespace geopm
     class Reporter : public IReporter
     {
         public:
-            Reporter(const std::string &report_name, IPlatformIO &platform_io, int rank);
-            Reporter(const std::string &report_name, IPlatformIO &platform_io, int rank,
+            Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, int rank);
+            Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, int rank,
                      std::unique_ptr<IRegionAggregator> agg);
             virtual ~Reporter() = default;
             void init(void) override;
@@ -117,6 +117,7 @@ namespace geopm
         private:
             std::string get_max_memory(void);
 
+            std::string m_start_time;
             std::string m_report_name;
             IPlatformIO &m_platform_io;
             std::unique_ptr<IRegionAggregator> m_region_agg;
