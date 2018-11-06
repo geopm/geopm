@@ -33,6 +33,7 @@
 #define GEOPM_TIME_H_INCLUDE
 
 #include <math.h>
+#include <errno.h>
 
 #ifndef __cplusplus
 #include <stdbool.h>
@@ -43,6 +44,7 @@ extern "C"
 
 struct geopm_time_s;
 
+static inline int geopm_time_to_string(int buf_size, char *buf);
 static inline int geopm_time(struct geopm_time_s *time);
 static inline double geopm_time_diff(const struct geopm_time_s *begin, const struct geopm_time_s *end);
 static inline bool geopm_time_comp(const struct geopm_time_s *aa, const struct geopm_time_s *bb);
@@ -56,6 +58,22 @@ static inline double geopm_time_since(const struct geopm_time_s *begin);
 struct geopm_time_s {
     struct timespec t;
 };
+
+static inline int geopm_time_to_string(int buf_size, char *buf)
+{
+    struct tm tm;
+    struct timespec time;
+    int ret = clock_gettime(CLOCK_REALTIME, &time);
+    if (!ret) {
+        if (buf_size >= 26) {
+            localtime_r(&time.tv_sec, &tm);
+            asctime_r(&tm, buf);
+        } else {
+            ret = EINVAL;
+        }
+    }
+    return ret;
+}
 
 static inline int geopm_time(struct geopm_time_s *time)
 {
@@ -96,6 +114,22 @@ static inline void geopm_time_add(const struct geopm_time_s *begin, double elaps
 struct geopm_time_s {
     struct timeval t;
 };
+
+static inline int geopm_time_to_string(int buf_size, char *buf)
+{
+    struct tm tm;
+    struct timeval time;
+    int ret = gettimeofday(&time, NULL);
+    if (!ret) {
+        if (buf_size >= 26) {
+            localtime_r(&time.tv_sec, &tm);
+            asctime_r(&tm, buf);
+        } else {
+            ret = EINVAL;
+        }
+    }
+    return ret;
+}
 
 static inline int geopm_time(struct geopm_time_s *time)
 {

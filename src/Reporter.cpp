@@ -60,16 +60,17 @@
 
 namespace geopm
 {
-    Reporter::Reporter(const std::string &report_name, IPlatformIO &platform_io, int rank)
-        : Reporter(report_name, platform_io, rank,
+    Reporter::Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, int rank)
+        : Reporter(start_time, report_name, platform_io, rank,
                    std::unique_ptr<IRegionAggregator>(new RegionAggregator))
     {
 
     }
 
-    Reporter::Reporter(const std::string &report_name, IPlatformIO &platform_io, int rank,
+    Reporter::Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, int rank,
                        std::unique_ptr<IRegionAggregator> agg)
-        : m_report_name(report_name)
+        : m_start_time(start_time)
+        , m_report_name(report_name)
         , m_platform_io(platform_io)
         , m_region_agg(std::move(agg))
         , m_rank(rank)
@@ -126,6 +127,7 @@ namespace geopm
             }
             // make header
             master_report << "##### geopm " << geopm_version() << " #####" << std::endl;
+            master_report << "Start Time: " << m_start_time << std::endl;
             master_report << "Profile: " << application_io.profile_name() << std::endl;
             master_report << "Agent: " << agent_name << std::endl;
             for (const auto &kv : agent_report_header) {

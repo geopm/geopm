@@ -91,6 +91,7 @@ class ReporterTest : public testing::Test
         std::shared_ptr<ReporterTestMockComm> m_comm;
         MockTreeComm m_tree_comm;
         std::unique_ptr<Reporter> m_reporter;
+        std::string m_start_time = "Tue Nov  6 08:00:00 2018";
         std::string m_profile_name = "my profile";
         std::set<std::string> m_region_set = {"all2all", "model-init"};
         std::map<uint64_t, double> m_region_runtime = {
@@ -162,7 +163,7 @@ ReporterTest::ReporterTest()
     EXPECT_CALL(*m_agg, push_signal_total("CYCLES_THREAD", _, _))
         .WillOnce(Return(M_CLK_CORE_IDX));
     m_comm = std::make_shared<ReporterTestMockComm>();
-    m_reporter = geopm::make_unique<Reporter>(m_report_name, m_platform_io, 0,
+    m_reporter = geopm::make_unique<Reporter>(m_start_time, m_report_name, m_platform_io, 0,
                                               std::unique_ptr<MockRegionAggregator>(m_agg));
     m_reporter->init();
 }
@@ -243,6 +244,7 @@ TEST_F(ReporterTest, generate)
     // Check for labels at start of line but ignore numbers
     // Note that region lines start with tab
     std::string expected = "#####\n"
+        "Start Time: " + m_start_time + "\n"
         "Profile: " + m_profile_name + "\n"
         "Agent: my_agent\n"
         "one: 1\n"
