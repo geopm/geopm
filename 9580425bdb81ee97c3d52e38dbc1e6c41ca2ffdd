@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef96886b_e54025bb",
+        "filename": "src/geopmread_main.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-11-06T19:32:47Z",
+      "side": 1,
+      "message": "might be recording same value if less than 5ms.",
+      "revId": "9580425bdb81ee97c3d52e38dbc1e6c41ca2ffdd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
