@@ -53,6 +53,7 @@ const char *geopm_env_comm(void);
 const char *geopm_env_profile(void);
 const char *geopm_env_trace_signal(int);
 int geopm_env_num_trace_signal(void);
+int geopm_env_max_fan_out(void);
 int geopm_env_pmpi_ctl(void);
 int geopm_env_do_region_barrier(void);
 int geopm_env_do_trace(void);
