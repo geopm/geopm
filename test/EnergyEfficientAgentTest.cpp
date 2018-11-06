@@ -157,8 +157,6 @@ void EnergyEfficientAgentTest::SetUp()
     }
     ss << "}";
 
-    setenv("GEOPM_EFFICIENT_FREQ_MIN", std::to_string(m_freq_min).c_str(), 1);
-    setenv("GEOPM_EFFICIENT_FREQ_MAX", std::to_string(m_freq_max).c_str(), 1);
     setenv("GEOPM_EFFICIENT_FREQ_RID_MAP", ss.str().c_str(), 1);
 
     m_agent = geopm::make_unique<EnergyEfficientAgent>(*m_platform_io, *m_platform_topo);
@@ -167,8 +165,6 @@ void EnergyEfficientAgentTest::SetUp()
 void EnergyEfficientAgentTest::TearDown()
 {
     unsetenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
-    unsetenv("GEOPM_EFFICIENT_FREQ_MIN");
-    unsetenv("GEOPM_EFFICIENT_FREQ_MAX");
 }
 
 TEST_F(EnergyEfficientAgentTest, map)
@@ -236,9 +232,7 @@ TEST_F(EnergyEfficientAgentTest, online_mode)
     EXPECT_EQ(NULL, getenv("GEOPM_EFFICIENT_FREQ_RID_MAP"));
     setenv("GEOPM_EFFICIENT_FREQ_ONLINE", "yes", 1);
     double freq_min = 1e9;
-    setenv("GEOPM_EFFICIENT_FREQ_MIN", std::to_string(freq_min).c_str(), 1);
     double freq_max = 2e9;
-    setenv("GEOPM_EFFICIENT_FREQ_MAX", std::to_string(freq_max).c_str(), 1);
     m_default_policy = {freq_min, freq_max};
 
     for (int x = 0; x < 4; ++x) {

@@ -75,8 +75,6 @@ namespace geopm
             static std::vector<std::string> sample_names(void);
         private:
             bool update_freq_range(const std::vector<double> &in_policy);
-            double cpu_freq_min(void) const;
-            double cpu_freq_max(void) const;
             double get_limit(const std::string &sig_name) const;
             void init_platform_io(void);
             void parse_env_map(void);
