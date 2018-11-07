@@ -50,7 +50,7 @@ if [ "$GEOPM_RM" == "SLURM" ]; then
                --geopm-ctl=process \
                --geopm-report=tutorial_6_report \
                --geopm-trace=tutorial_6_trace \
-               -- ./tutorial_6 tutorial_6_config.json
+               -- geopmbench tutorial_6_config.json
     err=$?
 elif [ "$GEOPM_RM" == "ALPS" ]; then
     # Use GEOPM launcher wrapper script with ALPS's aprun
@@ -59,7 +59,7 @@ elif [ "$GEOPM_RM" == "ALPS" ]; then
                --geopm-ctl=process \
                --geopm-report=tutorial_6_report \
                --geopm-trace=tutorial_6_trace \
-               -- ./tutorial_6 tutorial_6_config.json
+               -- geopmbench tutorial_6_config.json
     err=$?
 elif [ $MPIEXEC ]; then
     # Use MPIEXEC and set GEOPM environment variables to launch the job
@@ -68,7 +68,7 @@ elif [ $MPIEXEC ]; then
     GEOPM_REPORT=tutorial_6_report \
     GEOPM_TRACE=tutorial_6_trace \
     $MPIEXEC \
-    ./tutorial_6 tutorial_6_config.json
+    geopmbench tutorial_6_config.json
     err=$?
 else
     echo "Error: tutorial_2.sh: set GEOPM_RM to 'SLURM' or 'ALPS'." 2>&1

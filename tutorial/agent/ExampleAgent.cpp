@@ -35,10 +35,10 @@
 #include <assert.h>
 
 #include "ExampleAgent.hpp"
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
-#include "Helper.hpp"
-#include "Agg.hpp"
+#include "geopm/PlatformIO.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Helper.hpp"
+#include "geopm/Agg.hpp"
 
 using geopm::Agent;
 using geopm::IPlatformIO;
