@@ -36,15 +36,12 @@
 #include <stdint.h>
 #include <string.h>
 #include <mpi.h>
+#include <limits.h>
 
 #include "geopm.h"
 #include "geopm_error.h"
 #include "ModelApplication.hpp"
 #include "ModelParse.hpp"
-
-#ifndef NAME_MAX
-#define NAME_MAX 512
-#endif
 
 int main(int argc, char **argv)
 {

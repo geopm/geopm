@@ -33,16 +33,14 @@
 #include <cmath>
 #include <unistd.h>
 #include <fstream>
+#include <limits.h>
 
 #include "contrib/json11/json11.hpp"
 
 #include "Exception.hpp"
 #include "ModelParse.hpp"
-#include "imbalancer.h"
-
-#ifndef NAME_MAX
-#define NAME_MAX 512
-#endif
+#include "geopm_imbalancer.h"
+#include "config.h"
 
 using json11::Json;
 
@@ -182,7 +180,7 @@ namespace geopm
             auto hostname_it = hostname.begin();
             for (auto imbalance_it = imbalance.begin(); imbalance_it != imbalance.end(); ++imbalance_it, ++hostname_it) {
                 if (this_hostname == *hostname_it) {
-                    int err = imbalancer_frac(*imbalance_it);
+                    int err = geopm_imbalancer_frac(*imbalance_it);
                     if (err) {
                         throw geopm::Exception("model_parse_confg(): imbalance fraction is negative",
                                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
