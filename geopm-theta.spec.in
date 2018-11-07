@@ -102,6 +102,8 @@ module-whatis "URL: %{url}"
 module-whatis "ALCF Theta tutorial: https://github.com/geopm/theta-tutorial"
 module-whatis "ALCF Theta guide: https://github.com/geopm/theta-tutorial/blob/master/QUICKSTART.md"
 
+conflict "darshan"
+
 set     version             %{version}
 
 prepend-path    PATH                %{install_prefix}/bin
