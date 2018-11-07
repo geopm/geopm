@@ -30,16 +30,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef IMBALANCER_H_INCLUDE
-#define IMBALANCER_H_INCLUDE
+#ifndef GEOPM_IMBALANCER_H_INCLUDE
+#define GEOPM_IMBALANCER_H_INCLUDE
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-    int imbalancer_frac(double frac);
-    int imbalancer_enter(void);
-    int imbalancer_exit(void);
+    int geopm_imbalancer_frac(double frac);
+    int geopm_imbalancer_enter(void);
+    int geopm_imbalancer_exit(void);
 
 #ifdef __cplusplus
 }
