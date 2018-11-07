@@ -37,10 +37,10 @@
 #include <string>
 
 #include "ExampleIOGroup.hpp"
-#include "IOGroup.hpp"
-#include "PlatformTopo.hpp"
-#include "Exception.hpp"
-#include "Agg.hpp"
+#include "geopm/IOGroup.hpp"
+#include "geopm/PlatformTopo.hpp"
+#include "geopm/Exception.hpp"
+#include "geopm/Agg.hpp"
 
 using geopm::Exception;
 using geopm::IPlatformTopo;

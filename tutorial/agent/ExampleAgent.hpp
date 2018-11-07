@@ -35,7 +35,7 @@
 
 #include <vector>
 
-#include "Agent.hpp"
+#include "geopm/Agent.hpp"
 #include "geopm_time.h"
 
 namespace geopm

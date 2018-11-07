@@ -38,7 +38,7 @@
 
 #include "Exception.hpp"
 #include "geopm_time.h"
-#include "imbalancer.h"
+#include "geopm_imbalancer.h"
 
 #ifndef HOST_NAME_MAX
 #define HOST_NAME_MAX 255
@@ -132,7 +132,7 @@ static Imbalancer &imbalancer(void)
     return instance;
 }
 
-int imbalancer_frac(double delay_frac)
+int geopm_imbalancer_frac(double delay_frac)
 {
     int err = 0;
     try {
@@ -144,7 +144,7 @@ int imbalancer_frac(double delay_frac)
     return err;
 }
 
-int imbalancer_enter(void)
+int geopm_imbalancer_enter(void)
 {
     int err = 0;
     try {
@@ -156,7 +156,7 @@ int imbalancer_enter(void)
     return err;
 }
 
-int imbalancer_exit(void)
+int geopm_imbalancer_exit(void)
 {
     int err = 0;
     try {

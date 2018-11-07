@@ -67,9 +67,44 @@ include_HEADERS = src/geopm.h \
                   src/geopm_ctl.h \
                   src/geopm_endpoint.h \
                   src/geopm_error.h \
+                  src/geopm_imbalancer.h \
                   src/geopm_message.h \
+                  src/geopm_sched.h \
+                  src/geopm_time.h \
                   src/geopm_version.h \
                   # end
+
+pkginclude_HEADERS = contrib/json11/json11.hpp \
+                     src/Agent.hpp \
+                     src/Agg.hpp \
+                     src/CircularBuffer.hpp \
+                     src/CombinedSignal.hpp \
+                     src/Comm.hpp \
+                     src/CpuinfoIOGroup.hpp \
+                     src/EnergyEfficientAgent.hpp \
+                     src/EnergyEfficientRegion.hpp \
+                     src/Exception.hpp \
+                     src/Helper.hpp \
+                     src/IOGroup.hpp \
+                     src/MPIComm.hpp \
+                     src/MSR.hpp \
+                     src/MSRIO.hpp \
+                     src/MSRIOGroup.hpp \
+                     src/MonitorAgent.hpp \
+                     src/PlatformIO.hpp \
+                     src/PlatformTopo.hpp \
+                     src/PluginFactory.hpp \
+                     src/PowerBalancer.hpp \
+                     src/PowerBalancerAgent.hpp \
+                     src/PowerGovernor.hpp \
+                     src/PowerGovernorAgent.hpp \
+                     src/RegionAggregator.hpp \
+                     src/ProfileIO.hpp \
+                     src/ProfileIOGroup.hpp \
+                     src/ProfileIOSample.hpp \
+                     src/SharedMemory.hpp \
+                     src/TimeIOGroup.hpp \
+                     # end
 
 if ENABLE_MPI
 if ENABLE_FORTRAN
@@ -200,14 +235,6 @@ TUTORIAL_DIST = tutorial/agent/agent_tutorial.sh \
                 tutorial/agent/README.md \
                 tutorial/agent/tutorial_build_gnu.sh \
                 tutorial/agent/tutorial_build_intel.sh \
-                tutorial/contrib/json11/json11.cpp \
-                tutorial/contrib/json11/json11.hpp \
-                tutorial/contrib/json11/LICENSE.txt \
-                tutorial/contrib/json11/README.md \
-                tutorial/Exception.hpp \
-                tutorial/geopm_time.h \
-                tutorial/Imbalancer.cpp \
-                tutorial/imbalancer.h \
                 tutorial/iogroup/ExampleIOGroup.cpp \
                 tutorial/iogroup/ExampleIOGroup.hpp \
                 tutorial/iogroup/Makefile \
@@ -215,12 +242,6 @@ TUTORIAL_DIST = tutorial/agent/agent_tutorial.sh \
                 tutorial/iogroup/tutorial_build_gnu.sh \
                 tutorial/iogroup/tutorial_build_intel.sh \
                 tutorial/Makefile \
-                tutorial/ModelApplication.cpp \
-                tutorial/ModelApplication.hpp \
-                tutorial/ModelParse.cpp \
-                tutorial/ModelParse.hpp \
-                tutorial/ModelRegion.cpp \
-                tutorial/ModelRegion.hpp \
                 tutorial/README.md \
                 tutorial/tutorial_0.c \
                 tutorial/tutorial_0.sh \
@@ -235,7 +256,6 @@ TUTORIAL_DIST = tutorial/agent/agent_tutorial.sh \
                 tutorial/tutorial_5.c \
                 tutorial/tutorial_5.sh \
                 tutorial/tutorial_6_config.json \
-                tutorial/tutorial_6.cpp \
                 tutorial/tutorial_6.sh \
                 tutorial/tutorial_balanced_policy.json \
                 tutorial/tutorial_build_gnu.sh \
@@ -258,8 +278,8 @@ if ENABLE_MPI
 
 if HAVE_ICPC
     geopmbench_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -lm -mkl -xAVX
-    geopmbench_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -DTUTORIAL_ENABLE_MKL -D_GNU_SOURCE -std=c99 -xAVX
-    geopmbench_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -DTUTORIAL_ENABLE_MKL -D_GNU_SOURCE -std=c++11
+    geopmbench_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c99 -xAVX
+    geopmbench_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11
 else
     geopmbench_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -lm -mavx
     geopmbench_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -std=gnu11 -mavx
@@ -316,6 +336,7 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/EpochRuntimeRegulator.hpp \
                             src/Exception.cpp \
                             src/Exception.hpp \
+                            src/Imbalancer.cpp \
                             src/IOGroup.cpp \
                             src/IOGroup.hpp \
                             src/geopm.h \
@@ -325,6 +346,7 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/geopm_error.h \
                             src/geopm_hash.c \
                             src/geopm_hash.h \
+                            src/geopm_imbalancer.h \
                             src/geopm_message.h \
                             src/geopm_plugin.c \
                             src/geopm_sched.c \
@@ -443,15 +465,13 @@ endif
 endif
 
 if ENABLE_MPI
-    geopmbench_SOURCES = tutorial/imbalancer.h \
-                         tutorial/Imbalancer.cpp \
-                         tutorial/ModelApplication.cpp \
-                         tutorial/ModelApplication.hpp \
-                         tutorial/ModelParse.cpp \
-                         tutorial/ModelParse.hpp \
-                         tutorial/ModelRegion.cpp \
-                         tutorial/ModelRegion.hpp \
-                         tutorial/tutorial_6.cpp \
+    geopmbench_SOURCES = src/ModelApplication.cpp \
+                         src/ModelApplication.hpp \
+                         src/ModelParse.cpp \
+                         src/ModelParse.hpp \
+                         src/ModelRegion.cpp \
+                         src/ModelRegion.hpp \
+                         src/geopmbench_main.cpp \
                          # end
 endif
 

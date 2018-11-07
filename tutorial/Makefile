@@ -30,7 +30,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-TUTORIAL_BIN = tutorial_0 tutorial_1 tutorial_2 tutorial_3 tutorial_4 tutorial_5 tutorial_6
+TUTORIAL_BIN = tutorial_0 tutorial_1 tutorial_2 tutorial_3 tutorial_4 tutorial_5
 
 CC ?= gcc
 CXX ?= g++
@@ -66,7 +66,7 @@ tutorial_3: tutorial_3.o tutorial_region.o
 tutorial_4.o: tutorial_4.c
 	$(MPICC) -c $^ $(CFLAGS) -o $@
 
-tutorial_4: tutorial_4.o imbalancer.o tutorial_region.o
+tutorial_4: tutorial_4.o tutorial_region.o
 	$(MPICC) $^ $(LDFLAGS) -lgeopm -lstdc++ -o $@
 
 tutorial_5.o: tutorial_5.c
@@ -75,17 +75,8 @@ tutorial_5.o: tutorial_5.c
 tutorial_5: tutorial_5.o tutorial_region.o
 	$(MPICC) $^ $(LDFLAGS) -lgeopm -lstdc++ -o $@
 
-tutorial_6.o: tutorial_6.cpp
-	$(MPICXX) -c $^ $(CXXFLAGS) -I../src -o $@
-
-tutorial_6: tutorial_6.o ModelApplication.o ModelRegion.o ModelParse.o imbalancer.o json11.o
-	$(MPICXX) $^ $(LDFLAGS) -lgeopm -o $@
-
 tutorial_region.o: tutorial_region.c tutorial_region.h
 	$(MPICC) -c tutorial_region.c $(CFLAGS) -o $@
-
-imbalancer.o: Imbalancer.cpp imbalancer.h
-	$(CXX) -c Imbalancer.cpp $(CXXFLAGS) -I../src -o $@
 
 ModelApplication.o: ModelApplication.cpp ModelApplication.hpp
 	$(MPICXX) -c ModelApplication.cpp $(CXXFLAGS) -I../src -o $@
