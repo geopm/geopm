@@ -297,9 +297,6 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           src/EnergyEfficientRegion.cpp \
                           test/EnergyEfficientRegionTest.cpp \
                           test/ModelApplicationTest.cpp \
-                          tutorial/ModelParse.hpp \
-                          tutorial/ModelParse.cpp \
-                          tutorial/Imbalancer.cpp \
                           test/PlatformTopoTest.cpp \
                           test/TimeIOGroupTest.cpp \
                           test/MSRIOGroupTest.cpp \
@@ -335,6 +332,8 @@ test_geopm_test_SOURCES = test/geopm_test.cpp \
                           test/MockRegionAggregator.hpp \
                           test/AggTest.cpp \
                           test/IOGroupTest.cpp \
+                          src/ModelParse.cpp \
+                          src/ModelParse.hpp \
                           # end
 
 test_geopm_test_LDADD = libgtest.a \

@@ -37,9 +37,9 @@
 #include <unistd.h>
 
 #include "geopm.h"
-#include "imbalancer.h"
 #include "Exception.hpp"
 #include "ModelApplication.hpp"
+#include "config.h"
 
 #ifndef NAME_MAX
 #define NAME_MAX 512
