@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b04815b_07eb6df8",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 727,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-11-07T19:27:06Z",
+      "side": 1,
+      "message": "remove because we check for None in following line",
+      "revId": "360728bc649fbf766f177ded4c3f53c08a60f344",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
