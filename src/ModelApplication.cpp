@@ -35,15 +35,12 @@
 #include <streambuf>
 #include <string>
 #include <unistd.h>
+#include <limits.h>
 
 #include "geopm.h"
-#include "imbalancer.h"
 #include "Exception.hpp"
 #include "ModelApplication.hpp"
-
-#ifndef NAME_MAX
-#define NAME_MAX 512
-#endif
+#include "config.h"
 
 namespace geopm
 {

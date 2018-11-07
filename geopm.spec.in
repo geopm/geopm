@@ -196,6 +196,7 @@ rm -f %{buildroot}/%{_mandir}/man1/geopmpy_launcher.1*
 
 %files devel
 %defattr(-,root,root,-)
+%dir %{_includedir}/geopm
 %{_includedir}/geopm.h
 %{_includedir}/geopm_agent.h
 %{_includedir}/geopm_ctl.h
@@ -203,6 +204,39 @@ rm -f %{buildroot}/%{_mandir}/man1/geopmpy_launcher.1*
 %{_includedir}/geopm_error.h
 %{_includedir}/geopm_message.h
 %{_includedir}/geopm_version.h
+%{_includedir}/geopm/Agent.hpp
+%{_includedir}/geopm/Agg.hpp
+%{_includedir}/geopm/CircularBuffer.hpp
+%{_includedir}/geopm/CombinedSignal.hpp
+%{_includedir}/geopm/Comm.hpp
+%{_includedir}/geopm/CpuinfoIOGroup.hpp
+%{_includedir}/geopm/EnergyEfficientAgent.hpp
+%{_includedir}/geopm/EnergyEfficientRegion.hpp
+%{_includedir}/geopm/Exception.hpp
+%{_includedir}/geopm/Helper.hpp
+%{_includedir}/geopm/IOGroup.hpp
+%{_includedir}/geopm/MPIComm.hpp
+%{_includedir}/geopm/MSR.hpp
+%{_includedir}/geopm/MSRIO.hpp
+%{_includedir}/geopm/MSRIOGroup.hpp
+%{_includedir}/geopm/MonitorAgent.hpp
+%{_includedir}/geopm/PlatformIO.hpp
+%{_includedir}/geopm/PlatformTopo.hpp
+%{_includedir}/geopm/PluginFactory.hpp
+%{_includedir}/geopm/PowerBalancer.hpp
+%{_includedir}/geopm/PowerBalancerAgent.hpp
+%{_includedir}/geopm/PowerGovernor.hpp
+%{_includedir}/geopm/PowerGovernorAgent.hpp
+%{_includedir}/geopm/ProfileIO.hpp
+%{_includedir}/geopm/ProfileIOGroup.hpp
+%{_includedir}/geopm/ProfileIOSample.hpp
+%{_includedir}/geopm/RegionAggregator.hpp
+%{_includedir}/geopm/SharedMemory.hpp
+%{_includedir}/geopm/TimeIOGroup.hpp
+%{_includedir}/geopm/json11.hpp
+%{_includedir}/geopm_imbalancer.h
+%{_includedir}/geopm_sched.h
+%{_includedir}/geopm_time.h
 
 %files -n python-geopmpy
 %{python_sitelib}/*

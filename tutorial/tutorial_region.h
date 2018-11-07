@@ -40,24 +40,4 @@ int tutorial_all2all(double big_o, int do_report);
 int tutorial_dgemm_static(double big_o, int do_report);
 int tutorial_stream_profiled(double big_o, int do_report);
 
-#ifndef TUTORIAL_ENABLE_MKL
-// Terrible DGEMM implementation if there is no BLAS
-static inline
-void dgemm(const char *transa, const char *transb, const int *M,
-           const int *N, const int *K, const double *alpha,
-           const double *A, const int *LDA, const double *B,
-           const int *LDB, const double *beta, double *C, const int *LDC)
-{
-#pragma omp parallel for
-    for (int i = 0; i < *M; ++i) {
-        for (int j = 0; j < *N; ++j) {
-            C[i * *LDC + j] = 0;
-            for (int k = 0; k < *K; ++k) {
-                C[i * *LDC + j] += A[i * *LDA + j] * B[j * *LDB + k];
-            }
-        }
-    }
-}
-#endif
-
 #endif
