@@ -37,7 +37,7 @@
 #include <vector>
 #include <string>
 
-#include "IOGroup.hpp"
+#include "geopm/IOGroup.hpp"
 
 namespace geopm
 {
