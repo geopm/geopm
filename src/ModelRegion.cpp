@@ -45,11 +45,32 @@
 #include "geopm_time.h"
 #include "ModelRegion.hpp"
 #include "Exception.hpp"
-#include "tutorial_region.h"
-#include "imbalancer.h"
-#ifdef TUTORIAL_ENABLE_MKL
+#include "geopm_imbalancer.h"
+#include "config.h"
+
+#ifdef GEOPM_ENABLE_MKL
 #include <mkl.h>
+#else
+// Terrible DGEMM implementation should only be used if there is no
+// BLAS support.
+static inline
+void dgemm(const char *transa, const char *transb, const int *M,
+           const int *N, const int *K, const double *alpha,
+           const double *A, const int *LDA, const double *B,
+           const int *LDB, const double *beta, double *C, const int *LDC)
+{
+#pragma omp parallel for
+    for (int i = 0; i < *M; ++i) {
+        for (int j = 0; j < *N; ++j) {
+            C[i * *LDC + j] = 0;
+            for (int k = 0; k < *K; ++k) {
+                C[i * *LDC + j] += A[i * *LDA + j] * B[j * *LDB + k];
+            }
+        }
+    }
+}
 #endif
+
 
 namespace geopm
 {
@@ -181,14 +202,14 @@ namespace geopm
             (void)geopm_prof_progress(m_region_id, iteration * m_norm);
         }
         if (m_do_imbalance) {
-            (void)imbalancer_enter();
+            (void)geopm_imbalancer_enter();
         }
     }
 
     void ModelRegionBase::loop_exit(void)
     {
         if (m_do_imbalance) {
-            (void)imbalancer_exit();
+            (void)geopm_imbalancer_exit();
         }
     }
 
@@ -619,7 +640,7 @@ namespace geopm
             (void)geopm_prof_enter(m_spin_region.m_region_id);
             for (uint64_t i = 0 ; i < m_spin_region.m_num_progress_updates; ++i) {
                 if (m_spin_region.m_do_imbalance) {
-                    (void)imbalancer_enter();
+                    (void)geopm_imbalancer_enter();
                 }
 
                 double timeout = 0.0;
@@ -632,7 +653,7 @@ namespace geopm
                 }
 
                 if (m_spin_region.m_do_imbalance) {
-                    (void)imbalancer_exit();
+                    (void)geopm_imbalancer_exit();
                 }
             }
         }
@@ -645,7 +666,7 @@ namespace geopm
             }
             for (uint64_t i = 0; i < m_all2all_region.m_num_progress_updates; ++i) {
                 if (m_all2all_region.m_do_imbalance) {
-                    (void)imbalancer_enter();
+                    (void)geopm_imbalancer_enter();
                 }
 
                 int err = MPI_Alltoall(m_all2all_region.m_send_buffer, m_all2all_region.m_num_send,
@@ -661,7 +682,7 @@ namespace geopm
             }
 
             if (m_all2all_region.m_do_imbalance) {
-                (void)imbalancer_exit();
+                (void)geopm_imbalancer_exit();
             }
         }
 
@@ -672,7 +693,7 @@ namespace geopm
             }
             for (uint64_t i = 0 ; i < m_spin_region.m_num_progress_updates; ++i) {
                 if (m_spin_region.m_do_imbalance) {
-                    (void)imbalancer_enter();
+                    (void)geopm_imbalancer_enter();
                 }
 
                 double timeout = 0.0;
@@ -685,7 +706,7 @@ namespace geopm
                 }
 
                 if (m_spin_region.m_do_imbalance) {
-                    (void)imbalancer_exit();
+                    (void)geopm_imbalancer_exit();
                 }
             }
             (void)geopm_prof_exit(m_spin_region.m_region_id);

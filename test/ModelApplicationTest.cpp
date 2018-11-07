@@ -38,7 +38,7 @@
 
 #include "gtest/gtest.h"
 
-#include "tutorial/ModelParse.hpp"
+#include "ModelParse.hpp"
 #include "Exception.hpp"
 
 using geopm::model_parse_config;

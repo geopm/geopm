@@ -38,7 +38,8 @@
 
 #include "Exception.hpp"
 #include "ModelParse.hpp"
-#include "imbalancer.h"
+#include "geopm_imbalancer.h"
+#include "config.h"
 
 #ifndef NAME_MAX
 #define NAME_MAX 512
@@ -182,7 +183,7 @@ namespace geopm
             auto hostname_it = hostname.begin();
             for (auto imbalance_it = imbalance.begin(); imbalance_it != imbalance.end(); ++imbalance_it, ++hostname_it) {
                 if (this_hostname == *hostname_it) {
-                    int err = imbalancer_frac(*imbalance_it);
+                    int err = geopm_imbalancer_frac(*imbalance_it);
                     if (err) {
                         throw geopm::Exception("model_parse_confg(): imbalance fraction is negative",
                                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);

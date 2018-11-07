@@ -55,12 +55,5 @@ if [ ! -f MANIFEST ]; then
     find . -type f | sed 's|^\./||' | sort > MANIFEST
 fi
 
-mkdir -p tutorial/contrib/json11
-cp -p contrib/json11/json11.[ch]pp tutorial/contrib/json11/
-cp -p contrib/json11/README.md tutorial/contrib/json11/
-cp -p contrib/json11/LICENSE.txt tutorial/contrib/json11/
-cp -p src/Exception.hpp tutorial/
-cp -p src/geopm_time.h tutorial/
-
 mkdir -p m4
 autoreconf -i -f
