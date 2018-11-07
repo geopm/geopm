@@ -1192,30 +1192,33 @@ class TestIntegration(unittest.TestCase):
 
 class TestIntegrationGeopmio(unittest.TestCase):
     ''' Tests of geopmread and geopmwrite.'''
+    def setUp(self):
+        self.skip_warning_string = 'Incompatible CPU'
+
     def check_output(self, args, expected):
         try:
             proc = subprocess.Popen([self.exec_name] + args,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for exp in expected:
                 line = proc.stdout.readline()
-                while 'Incompatible CPU' in line:
+                while self.skip_warning_string in line:
                     line = proc.stdout.readline()
                 self.assertIn(exp, line)
             for line in proc.stdout:
-                if 'Incompatible CPU' not in line:
+                if self.skip_warning_string not in line:
                     self.assertNotIn('Error', line)
         except subprocess.CalledProcessError as ex:
-            print ex.output
+            sys.stderr.write('{}\n'.format(ex.output))
 
     def check_no_error(self, args):
         try:
             proc = subprocess.Popen([self.exec_name] + args,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for line in proc.stdout:
-                if 'Incompatible CPU' not in line:
+                if self.skip_warning_string not in line:
                     self.assertNotIn('Error', line)
         except subprocess.CalledProcessError as ex:
-            print ex.output
+            sys.stderr.write('{}\n'.format(ex.output))
 
     def test_geopmread_command_line(self):
         self.exec_name = "geopmread"
@@ -1242,6 +1245,21 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_output(['TIME', 'package', '0'], ['cannot read signal'])
         self.check_output(['INVALID', 'board', '0'], ['cannot read signal'])
         self.check_output(['-d', 'INVALID'], ['unable to determine signal type'])
+
+    def test_geopmread_all_signal_agg(self):
+        self.exec_name = "geopmread"
+        all_signals = []
+        try:
+            proc = subprocess.Popen([self.exec_name],
+                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            for line in proc.stdout:
+                if self.skip_warning_string not in line:
+                    all_signals.append(line.strip())
+        except subprocess.CalledProcessError as ex:
+            sys.stderr.write('{}\n'.format(ex.output))
+        # test that all reported signals can be read for board, aggregating if necessary
+        for sig in all_signals:
+            self.check_no_error([sig, 'board', '0'])
 
     def test_geopmwrite_command_line(self):
         self.exec_name = "geopmwrite"
@@ -1272,7 +1290,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
     def test_geopmwrite_set_freq(self):
         def read_stdout_line(stdout):
             line = stdout.readline()
-            while 'Incompatible CPU' in line:
+            while self.skip_warning_string in line:
                 line = stdout.readline()
             return line.strip()
 
