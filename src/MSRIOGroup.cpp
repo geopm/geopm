@@ -661,7 +661,8 @@ namespace geopm
         }
 
         // Set up aggregation for the alias
-        m_func_map[signal_name] = agg_function(msr_name_field);
+        auto func = agg_function(msr_name_field);
+        m_func_map[signal_name] = func;
     }
 
     void MSRIOGroup::register_msr_control(const std::string &control_name)
