@@ -62,6 +62,11 @@ namespace geopm
 
 #include <ompt.h>
 
+extern "C"
+{
+    int geopm_is_pmpi_prof_enabled(void);
+}
+
 namespace geopm
 {
     class OMPT
@@ -240,7 +245,8 @@ extern "C"
                                              void *parallel_function,
                                              ompt_invoker_t invoker)
     {
-        if (g_curr_parallel_function != parallel_function) {
+        if (geopm_is_pmpi_prof_enabled() &&
+            g_curr_parallel_function != parallel_function) {
             g_curr_parallel_function = parallel_function;
             g_curr_parallel_id = parallel_id;
             g_curr_region_id = geopm::ompt().region_id(parallel_function);
@@ -254,7 +260,8 @@ extern "C"
                                            ompt_task_id_t task_id,
                                            ompt_invoker_t invoker)
     {
-        if (g_curr_region_id != GEOPM_REGION_ID_UNDEFINED &&
+        if (geopm_is_pmpi_prof_enabled() &&
+            g_curr_region_id != GEOPM_REGION_ID_UNDEFINED &&
             g_curr_parallel_id == parallel_id) {
             geopm_prof_exit(g_curr_region_id);
         }
