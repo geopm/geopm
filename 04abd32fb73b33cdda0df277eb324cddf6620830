@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb657846_a6b7fcd4",
+        "filename": "src/geopm_time.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-11-08T19:12:56Z",
+      "side": 1,
+      "message": "geopm_time_string",
+      "range": {
+        "startLine": 47,
+        "startChar": 18,
+        "endLine": 47,
+        "endChar": 38
+      },
+      "revId": "04abd32fb73b33cdda0df277eb324cddf6620830",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e84f47e_382e0790",
+        "filename": "src/geopm_time.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-11-08T19:12:56Z",
+      "side": 1,
+      "message": "maybe doc that this size came from asctime_r doc requirement",
+      "range": {
+        "startLine": 68,
+        "startChar": 24,
+        "endLine": 68,
+        "endChar": 26
+      },
+      "revId": "04abd32fb73b33cdda0df277eb324cddf6620830",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
