@@ -67,8 +67,6 @@ int geopm_is_comm_enabled(void)
     return !g_is_mpi_finalized;
 }
 
-int geopm_is_pmpi_prof_enabled(void);
-
 #ifndef GEOPM_PORTABLE_MPI_COMM_COMPARE_ENABLE
 /*
  * Since MPI_COMM_WORLD should not be accessed or modified in this use

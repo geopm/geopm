@@ -65,6 +65,7 @@ enum geopm_region_hint_e {
 /*************************/
 /* APPLICATION PROFILING */
 /*************************/
+int geopm_is_pmpi_prof_enabled(void);
 int geopm_prof_init(void);
 
 int geopm_prof_region(const char *region_name,
