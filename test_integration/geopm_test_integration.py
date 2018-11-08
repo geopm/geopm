@@ -1210,6 +1210,22 @@ class TestIntegrationGeopmio(unittest.TestCase):
         except subprocess.CalledProcessError as ex:
             sys.stderr.write('{}\n'.format(ex.output))
 
+    def check_output_range(self, args, min_exp, max_exp):
+        try:
+            proc = subprocess.Popen([self.exec_name] + args,
+                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            for line in proc.stdout:
+                if self.skip_warning_string in line:
+                    continue
+                if line.startswith('0x'):
+                    value = int(line)
+                else:
+                    value = float(line)
+                self.assertLessEqual(min_exp, value, msg="Value read for {} smaller than {}: {}.".format(args, min_exp, value))
+                self.assertGreaterEqual(max_exp, value, msg="Value read for {} larger than {}: {}.".format(args, max_exp, value))
+        except subprocess.CalledProcessError as ex:
+            sys.stderr.write('{}\n'.format(ex.output))
+
     def check_no_error(self, args):
         try:
             proc = subprocess.Popen([self.exec_name] + args,
@@ -1221,6 +1237,9 @@ class TestIntegrationGeopmio(unittest.TestCase):
             sys.stderr.write('{}\n'.format(ex.output))
 
     def test_geopmread_command_line(self):
+        '''
+        Check that geopmread commandline arguments work.
+        '''
         self.exec_name = "geopmread"
 
         # no args
@@ -1252,6 +1271,9 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_output(['--domain', '--info'], ['info about domain not implemented'])
 
     def test_geopmread_all_signal_agg(self):
+        '''
+        Check that all reported signals can be read for board, aggregating if necessary.
+        '''
         self.exec_name = "geopmread"
         all_signals = []
         try:
@@ -1262,11 +1284,34 @@ class TestIntegrationGeopmio(unittest.TestCase):
                     all_signals.append(line.strip())
         except subprocess.CalledProcessError as ex:
             sys.stderr.write('{}\n'.format(ex.output))
-        # test that all reported signals can be read for board, aggregating if necessary
         for sig in all_signals:
             self.check_no_error([sig, 'board', '0'])
 
+    def test_geopmread_signal_value(self):
+        '''
+        Check that some specific signals give a sane value.
+        '''
+        self.exec_name = "geopmread"
+        signal_range = {
+            "POWER_PACKAGE": (20, 400),
+            "FREQUENCY": (1.0e8, 5.0e9),
+            "TIME": (0, 10),  # time in sec to start geopmread
+            "TEMPERATURE_CORE": (0, 100)
+        }
+
+        for signal, val_range in signal_range.iteritems():
+            try:
+                self.check_no_error([signal, "board", "0"])
+            except:
+                raise
+                pass  # skip missing signals
+            else:
+                self.check_output_range([signal, "board", "0"], *val_range)
+
     def test_geopmwrite_command_line(self):
+        '''
+        Check that geopmwrite commandline arguments work.
+        '''
         self.exec_name = "geopmwrite"
 
         # no args
@@ -1298,6 +1343,10 @@ class TestIntegrationGeopmio(unittest.TestCase):
 
     @skip_unless_slurm_batch()
     def test_geopmwrite_set_freq(self):
+        '''
+        Check that geopmwrite can be used to set frequency.
+        '''
+
         def read_stdout_line(stdout):
             line = stdout.readline()
             while self.skip_warning_string in line:
