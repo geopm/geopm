@@ -145,6 +145,10 @@ namespace geopm
             result = signal_domain_type("ENERGY_DRAM");
             is_found = true;
         }
+        if (signal_name == "TEMPERATURE_CORE") {
+            result = signal_domain_type("TEMPERATURE_CORE_UNDER");
+            is_found = true;
+        }
         if (!is_found) {
             throw Exception("PlatformIO::signal_domain_type(): signal name \"" +
                             signal_name + "\" not found",
@@ -204,6 +208,10 @@ namespace geopm
             result = push_signal_power(signal_name, domain_type, domain_idx);
             m_existing_signal[sig_tup] = result;
         }
+        if (result == -1 && signal_name.find("TEMPERATURE") != std::string::npos) {
+            result = push_signal_temperature(signal_name, domain_type, domain_idx);
+            m_existing_signal[sig_tup] = result;
+        }
         if (result == -1) {
             result = push_signal_convert_domain(signal_name, domain_type, domain_idx);
             m_existing_signal[sig_tup] = result;
@@ -237,6 +245,30 @@ namespace geopm
             register_combined_signal(result,
                                      {time_idx, energy_idx},
                                      std::unique_ptr<CombinedSignal>(new DerivativeCombinedSignal));
+
+            m_active_signal.emplace_back(nullptr, result);
+        }
+        return result;
+    }
+
+    int PlatformIO::push_signal_temperature(const std::string &signal_name,
+                                            int domain_type,
+                                            int domain_idx)
+    {
+        int result = -1;
+        if (signal_name == "TEMPERATURE_CORE") {
+            int max_idx = push_signal("TEMPERATURE_CORE_MAX", domain_type, domain_idx);
+            int under_idx = push_signal("TEMPERATURE_CORE_UNDER", domain_type, domain_idx);
+            result = m_active_signal.size();
+
+            register_combined_signal(result,
+                                     {max_idx, under_idx},
+                                     std::unique_ptr<CombinedSignal>(
+                                         new CombinedSignal(
+                                             [] (const std::vector<double> &val) -> double {
+                                                 // @todo: logic error if val is not size 2
+                                                 return val[0] - val[1];
+                                             } )));
 
             m_active_signal.emplace_back(nullptr, result);
         }
