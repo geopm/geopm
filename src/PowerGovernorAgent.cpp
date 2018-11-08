@@ -60,6 +60,7 @@ namespace geopm
         , m_is_sample_stable(false)
         , m_min_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MIN", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
         , m_max_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+        , m_tdp_power_setting(m_platform_io.read_signal("POWER_PACKAGE_TDP", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
         , m_power_gov(std::move(power_gov))
         , m_pio_idx(M_PLAT_NUM_SIGNAL)
         , m_agg_func(M_NUM_SAMPLE)
@@ -146,6 +147,11 @@ namespace geopm
 
         bool result = false;
         double power_budget_in = policy_in[M_POLICY_POWER];
+        // If NAN, use default
+        if (std::isnan(power_budget_in)) {
+            power_budget_in = m_tdp_power_setting;
+        }
+
         double per_package_budget_in = power_budget_in / m_num_pkg;
 
         if (per_package_budget_in > m_max_power_setting ||
@@ -219,14 +225,15 @@ namespace geopm
             throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): one control was expected.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
-        if (std::isnan(in_policy[M_POLICY_POWER])) {
-            throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): policy is NAN.",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
 #endif
+        // If NAN, use default
+        double power_budget_in = in_policy[M_POLICY_POWER];
+        if (std::isnan(power_budget_in)) {
+            power_budget_in = m_tdp_power_setting;
+        }
 
-        bool result = m_power_gov->adjust_platform(in_policy[M_POLICY_POWER], m_adjusted_power);
-        m_last_power_budget = in_policy[M_POLICY_POWER];
+        bool result = m_power_gov->adjust_platform(power_budget_in, m_adjusted_power);
+        m_last_power_budget = power_budget_in;
         return result;
     }
 
