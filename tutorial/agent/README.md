@@ -68,7 +68,9 @@ Agents at each level in between distribute their policies to children
 at each level. Finally, the policies are used to decide how to adjust
 platform controls at the leaf level.  The policies for the
 ExampleAgent are the high and low thresholds for utilization that will
-trigger messages to be printed to the screen.
+trigger messages to be printed to the screen.  Note that NAN is a valid
+setting for a policy and indicates that the Agent should use a
+reasonable default value for that policy.
 
 descend():
 

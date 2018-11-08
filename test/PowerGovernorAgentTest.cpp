@@ -69,6 +69,7 @@ class PowerGovernorAgentTest : public ::testing::Test
         double m_energy_package = 0.0;
         double m_power_min = 50;
         double m_power_max = 300;
+        double m_power_tdp = 250;
         std::vector<int> m_fan_in;
         int m_num_package = 2;
         int m_min_num_converged = 15;  // this is hard coded in the agent; determines how many times we need to sample
@@ -96,6 +97,8 @@ void PowerGovernorAgentTest::SetUp(void)
     EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MIN", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
         .WillOnce(Return(m_power_min));
     EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+        .WillOnce(Return(m_power_max));
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_TDP", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
         .WillOnce(Return(m_power_max));
 
     m_fan_in = {2, 2};
@@ -198,6 +201,12 @@ TEST_F(PowerGovernorAgentTest, adjust_platform)
             policy = {power_budget};
             m_agent->adjust_platform(policy);
         }
+    }
+    // adjust will use default for NAN
+    {
+        EXPECT_NE(m_power_max, m_val_cache);
+        m_agent->adjust_platform({NAN});
+        EXPECT_EQ(m_power_max, m_val_cache);
     }
 }
 

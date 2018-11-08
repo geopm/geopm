@@ -100,6 +100,7 @@ namespace geopm
             bool m_is_sample_stable;
             double m_min_power_setting;
             double m_max_power_setting;
+            double m_tdp_power_setting;
             std::unique_ptr<IPowerGovernor> m_power_gov;
             std::vector<int> m_pio_idx;
             std::vector<std::function<double(const std::vector<double>&)> > m_agg_func;

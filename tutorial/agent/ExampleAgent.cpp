@@ -114,15 +114,24 @@ bool ExampleAgent::ascend(const std::vector<std::vector<double> > &in_sample,
 bool ExampleAgent::adjust_platform(const std::vector<double> &in_policy)
 {
     assert(in_policy.size() == M_NUM_POLICY);
+    // Check for NAN to set default values for policy
+    double low_thresh = in_policy[M_POLICY_LOW_THRESH];
+    double high_thresh = in_policy[M_POLICY_HIGH_THRESH];
+    if (std::isnan(low_thresh)) {
+        low_thresh = 0.30;
+    }
+    if (std::isnan(high_thresh)) {
+        high_thresh = 0.70;
+    }
+
     double idle_percent = m_last_sample[M_SAMPLE_IDLE_PCT];
-    if (std::isnan(idle_percent) ||
-        std::any_of(in_policy.begin(), in_policy.end(), [](double val) { return std::isnan(val); })) {
+    if (std::isnan(idle_percent)) {
         return false;
     }
-    if (idle_percent < in_policy[M_POLICY_LOW_THRESH]) {
+    if (idle_percent < low_thresh) {
         m_platform_io.adjust(m_control_idx[M_PLAT_CONTROL_STDERR], idle_percent);
     }
-    else if (idle_percent > in_policy[M_POLICY_HIGH_THRESH]) {
+    else if (idle_percent > high_thresh) {
         m_platform_io.adjust(m_control_idx[M_PLAT_CONTROL_STDERR], idle_percent);
     }
     else {

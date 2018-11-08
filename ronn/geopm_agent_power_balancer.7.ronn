@@ -66,7 +66,7 @@ iterative application.
 
 * `Agent Name`:
   Set the `GEOPM_AGENT` environment variable to "power_balancer" and
-  the Kontroller instances will select the PowerBalancerAgent for
+  the Controller instances will select the PowerBalancerAgent for
   its control handler.  See **geopm(7)** for more information about
   environment variables.
 
@@ -77,6 +77,8 @@ iterative application.
                may be higher or lower than this parameter, but the
                average power cap in aggregate across all compute nodes
                controlled by the policy will be equal to this value.
+               If NAN is passed for the power cap, the value will
+               default to the thermal design power (TDP).
 
   `STEP_COUNT`: Used as an inter-agent message passed through the
                 policy.  This parameter is not used if the `POWER_CAP`
@@ -84,6 +86,7 @@ iterative application.
                 file or when setting a policy with the
                 geopm_endpoint_agent_policy() API the `POWER_CAP`
                 should be non-zero, and this value can be set to zero.
+                If set to NAN, it will default to 0.
 
   `MAX_EPOCH_RUNTIME`: Used as an inter-agent message passed through
                        the policy.  This parameter is not used if the
@@ -91,7 +94,8 @@ iterative application.
                        a static policy file or when setting a policy
                        with the geopm_endpoint_agent_policy() API the
                        `POWER_CAP` should be non-zero, and this value
-                       can be set to zero.
+                       can be set to zero.  If set to NAN, it will
+                       default to 0.
 
   `POWER_SLACK`: Used as an inter-agent message passed through the
                  policy.  This parameter is not used if the
@@ -99,7 +103,7 @@ iterative application.
                  static policy file or when setting a policy with the
                  geopm_endpoint_agent_policy() API the `POWER_CAP`
                  should be non-zero, and this value can be set to
-                 zero.
+                 zero.  If set to NAN, it will default to 0.
 
 * `Ordered Samples Ascending`:
 
@@ -138,7 +142,7 @@ iterative application.
   N/A
 
 * `Control Loop Gate`:
-  The agent gates the Kontroller's control loop to a cadence of 5
+  The agent gates the Controller's control loop to a cadence of 5
   milliseconds.
 
 ## COPYRIGHT
