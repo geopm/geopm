@@ -152,7 +152,8 @@ zero upon success; see [ERRORS][] section below for details.
     sets the policy values for the agent within _endpoint_ to follow.  These
     values provided in _policy_array_ will be consumed by the GEOPM runtime at
     the next iteration of the control loop.  Returns zero on success, otherwise
-    an error code is returned.
+    an error code is returned.  Setting NAN for a policy value can be used to
+    to indicate that the Agent should use an appropriate default value.
 
   * `geopm_endpoint_agent_sample`():
     provides the sample telemetry from the _endpoint_'s agent in _sample_array_ and the

@@ -42,6 +42,8 @@ export LD_LIBRARY_PATH=$GEOPM_LIBDIR:$LD_LIBRARY_PATH
 export GEOPM_TUTORIAL=..
 export GEOPM_PLUGIN_PATH=$GEOPM_TUTORIAL/iogroup:$GEOPM_TUTORIAL/agent
 
+echo "Redirecting output to example.stdout and example.stderr."
+
 # Run on 2 nodes
 # with 8 MPI ranks
 # launch geopm controller as an MPI process

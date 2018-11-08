@@ -290,7 +290,7 @@ namespace geopm
     PowerBalancerAgent::TreeRole::~TreeRole() = default;
 
     bool PowerBalancerAgent::TreeRole::descend(const std::vector<double> &in_policy,
-            std::vector<std::vector<double> >&out_policy)
+                                               std::vector<std::vector<double> >&out_policy)
     {
 #ifdef GEOPM_DEBUG
         if (in_policy.size() != M_NUM_POLICY ||
@@ -309,7 +309,7 @@ namespace geopm
                 ++m_step_count;
             }
             else {
-                throw Exception("PowerBalancerAgent::descend(): polilcy is out of sync with agent step.",
+                throw Exception("PowerBalancerAgent::descend(): policy is out of sync with agent step.",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             m_is_step_complete = false;
@@ -520,6 +520,7 @@ namespace geopm
         , m_power_balancer(std::move(power_balancer))
         , m_last_wait(GEOPM_TIME_REF)
         , M_WAIT_SEC(0.005)
+        , m_power_max(NAN)
     {
         geopm_time(&m_last_wait);
     }
@@ -537,8 +538,8 @@ namespace geopm
         if (is_tree_root) {
             int num_pkg = m_platform_topo.num_domain(m_platform_io.control_domain_type("POWER_PACKAGE"));
             double min_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MIN", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
-            double max_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
-            m_role = std::make_shared<RootRole>(level, fan_in, min_power, max_power);
+            m_power_max = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
+            m_role = std::make_shared<RootRole>(level, fan_in, min_power, m_power_max);
         }
         else if (level == 0) {
             m_role = std::make_shared<LeafRole>(m_platform_io, m_platform_topo, std::move(m_power_governor), std::move(m_power_balancer));
@@ -548,9 +549,16 @@ namespace geopm
         }
     }
 
-    bool PowerBalancerAgent::descend(const std::vector<double> &policy_in, std::vector<std::vector<double> > &policy_out)
+    bool PowerBalancerAgent::descend(const std::vector<double> &in_policy, std::vector<std::vector<double> > &out_policy)
     {
-        return m_role->descend(policy_in, policy_out);
+#ifdef GEOPM_DEBUG
+        if (in_policy.size() != M_NUM_POLICY) {
+            throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): policy vectors are not correctly sized.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        auto policy = set_policy_defaults(in_policy);
+        return m_role->descend(policy, out_policy);
     }
 
     bool PowerBalancerAgent::ascend(const std::vector<std::vector<double> > &sample_in, std::vector<double> &sample_out)
@@ -560,7 +568,14 @@ namespace geopm
 
     bool PowerBalancerAgent::adjust_platform(const std::vector<double> &in_policy)
     {
-        return m_role->adjust_platform(in_policy);
+#ifdef GEOPM_DEBUG
+        if (in_policy.size() != M_NUM_POLICY) {
+            throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): policy vectors are not correctly sized.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        auto policy = set_policy_defaults(in_policy);
+        return m_role->adjust_platform(policy);
     }
 
     bool PowerBalancerAgent::sample_platform(std::vector<double> &out_sample)
@@ -624,5 +639,23 @@ namespace geopm
                 "MAX_EPOCH_RUNTIME",
                 "SUM_POWER_SLACK",
                 "MIN_POWER_HEADROOM"};
+    }
+
+    std::vector<double> PowerBalancerAgent::set_policy_defaults(const std::vector<double> &in_policy) {
+        // If NAN, use default
+        std::vector<double> updated_policy = in_policy;
+        if (std::isnan(in_policy[M_POLICY_POWER_CAP])) {
+            updated_policy[M_POLICY_POWER_CAP] = m_power_max;
+        }
+        if (std::isnan(in_policy[M_POLICY_STEP_COUNT])) {
+            updated_policy[M_POLICY_STEP_COUNT] = 0.0;
+        }
+        if (std::isnan(in_policy[M_POLICY_MAX_EPOCH_RUNTIME])) {
+            updated_policy[M_POLICY_MAX_EPOCH_RUNTIME] = 0.0;
+        }
+        if (std::isnan(in_policy[M_POLICY_POWER_SLACK])) {
+            updated_policy[M_POLICY_POWER_SLACK] = 0.0;
+        }
+        return updated_policy;
     }
 }

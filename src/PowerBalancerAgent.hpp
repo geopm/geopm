@@ -154,6 +154,7 @@ namespace geopm
             static std::vector<std::string> sample_names(void);
 
         protected:
+            std::vector<double> set_policy_defaults(const std::vector<double> &in_policy);
             class IStep;
             class Role {
                 public:
@@ -208,6 +209,7 @@ namespace geopm
             std::unique_ptr<IPowerBalancer> m_power_balancer;   /// temporary ownership, std::move'd to Role on init
             struct geopm_time_s m_last_wait;
             const double M_WAIT_SEC;
+            double m_power_max;
 
             class RootRole;
             class LeafRole;
@@ -297,7 +299,6 @@ namespace geopm
                     void trace_values(std::vector<double> &values) override;
                 private:
                     void init_platform_io(void);
-
                     IPlatformIO &m_platform_io;
                     IPlatformTopo &m_platform_topo;
                     double m_power_max;

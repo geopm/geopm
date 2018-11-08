@@ -39,7 +39,7 @@ is intended for application tracing and profiling only.
 
 * `Agent Name`:
   Set the `GEOPM_AGENT` environment variable to "monitor" and the
-  Kontroller will select the Monitor Agent for its control handler.
+  Controller will select the Monitor Agent for its control handler.
   See **geopm(7)** for more information about environment variables.
 
 * `Ordered Policies Descending`:
@@ -59,7 +59,7 @@ is intended for application tracing and profiling only.
   N/A
 
 * `Control Loop Gate`:
-  The Monitor agent gates the Kontroller's control loop to a cadence
+  The Monitor agent gates the Controller's control loop to a cadence
   of 5ms.  This agent propagates its ascending signals up the tree
   every 50ms.
 
