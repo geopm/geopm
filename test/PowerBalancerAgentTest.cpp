@@ -119,7 +119,7 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
                                                      std::move(m_power_gov), std::move(m_power_bal));
     m_agent->init(level, M_FAN_IN, IS_ROOT);
 
-    std::vector<double> in_policy;
+    std::vector<double> in_policy {NAN, NAN, NAN, NAN};
     std::vector<std::vector<double> > exp_out_policy;
 
     std::vector<std::vector<double> > in_sample;
@@ -239,7 +239,7 @@ TEST_F(PowerBalancerAgentTest, tree_agent)
                                                      std::move(m_power_gov), std::move(m_power_bal));
     m_agent->init(level, M_FAN_IN, IS_ROOT);
 
-    std::vector<double> in_policy;
+    std::vector<double> in_policy {NAN, NAN, NAN, NAN};
     std::vector<std::vector<double> > exp_out_policy;
 
     std::vector<std::vector<double> > in_sample;
@@ -417,7 +417,7 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
     m_agent->init(level, M_FAN_IN, IS_ROOT);
 
     EXPECT_EQ(trace_cols, m_agent->trace_names());
-    std::vector<double> in_policy;
+    std::vector<double> in_policy {NAN, NAN, NAN, NAN};
 
     std::vector<double> exp_out_sample;
 
@@ -427,9 +427,9 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
 #ifdef GEOPM_DEBUG
     std::vector<double> err_trace_vals, err_out_sample;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->trace_values(err_trace_vals), GEOPM_ERROR_LOGIC, "values vector not correctly sized.");
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->adjust_platform({}), GEOPM_ERROR_LOGIC, "policy vector incorrectly sized.");
+    GEOPM_EXPECT_THROW_MESSAGE(m_agent->adjust_platform({}), GEOPM_ERROR_LOGIC, "policy vectors are not correctly sized.");
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->sample_platform(err_out_sample), GEOPM_ERROR_LOGIC, "out_sample vector not correctly sized.");
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->descend({} ,out_policy), GEOPM_ERROR_LOGIC, "was called on non-tree agent");
+    GEOPM_EXPECT_THROW_MESSAGE(m_agent->descend(in_policy, out_policy), GEOPM_ERROR_LOGIC, "was called on non-tree agent");
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->ascend({}, out_sample), GEOPM_ERROR_LOGIC, "was called on non-tree agent");
 #endif
 

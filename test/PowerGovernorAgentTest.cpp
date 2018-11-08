@@ -199,6 +199,12 @@ TEST_F(PowerGovernorAgentTest, adjust_platform)
             m_agent->adjust_platform(policy);
         }
     }
+    // adjust will use default for NAN
+    {
+        EXPECT_NE(m_power_max, m_val_cache);
+        m_agent->adjust_platform({NAN});
+        EXPECT_EQ(m_power_max, m_val_cache);
+    }
 }
 
 TEST_F(PowerGovernorAgentTest, ascend)

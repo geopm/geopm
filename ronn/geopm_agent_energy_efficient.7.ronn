@@ -66,7 +66,7 @@ to 10% performance loss is allowed.  Enable the online mode by setting
 
 * `Agent Name`:
   Set the `GEOPM_AGENT` environment variable to "energy_efficient" and
-  the Kontroller will select the EnergyEfficientAgent for its control
+  the Controller will select the EnergyEfficientAgent for its control
   handler.  See **geopm(7)** for more information about environment
   variables.
 
@@ -76,10 +76,12 @@ to 10% performance loss is allowed.  Enable the online mode by setting
   application to run at one frequency.
 
   `FREQ_MIN`: The minimum frequency that the algorithm is allowed to
-              choose for any region.
+              choose for any region.  If NAN is passed, it will use
+              the minimum available frequency by default.
 
   `FREQ_MAX`: The maximum frequency that the algorithm is allowed to
-              choose for any region.
+              choose for any region.  If NAN is passed, it will use
+              the maximum available frequency by default.
 
 * `Ordered Samples Ascending`:
 
@@ -98,7 +100,7 @@ to 10% performance loss is allowed.  Enable the online mode by setting
   the learned best frequency determined by the online mode.
 
 * `Control Loop Gate`:
-  The agent gates the Kontroller's control loop to a cadence of 5ms.
+  The agent gates the Controller's control loop to a cadence of 5ms.
   This agent propagates its ascending signals up the tree every 50ms
   (10 control cycles).
 
