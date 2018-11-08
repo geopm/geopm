@@ -104,6 +104,8 @@ namespace geopm
         m_func_map["MSR::PKG_POWER_INFO:MIN_POWER"] = Agg::expect_same;
         m_func_map["MSR::PKG_POWER_INFO:MAX_POWER"] = Agg::expect_same;
         m_func_map["MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER"] = Agg::expect_same;
+        m_func_map["MSR::IA32_THERM_STATUS:DIGITAL_READOUT"] = Agg::average;
+        m_func_map["MSR::TEMPERATURE_TARGET:PROCHOT_MIN"] = Agg::expect_same;
 
         m_signal_desc_map["MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER"] = "Maximum power to stay within thermal limits (TDP)";
 
@@ -120,6 +122,10 @@ namespace geopm
         register_msr_signal("POWER_PACKAGE_MIN", "MSR::PKG_POWER_INFO:MIN_POWER");
         register_msr_signal("POWER_PACKAGE_MAX", "MSR::PKG_POWER_INFO:MAX_POWER");
         register_msr_signal("POWER_PACKAGE_TDP", "MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER");
+        // @todo: have MSRIOGroup handle this combined signal instead of platformIO
+        register_msr_signal("TEMPERATURE_CORE_UNDER", "MSR::IA32_THERM_STATUS:DIGITAL_READOUT");
+        register_msr_signal("TEMPERATURE_PKG_UNDER", "MSR::IA32_PACKAGE_THERM_STATUS:DIGITAL_READOUT");
+        register_msr_signal("TEMPERATURE_MAX", "MSR::TEMPERATURE_TARGET:PROCHOT_MIN");
 
         register_msr_control("POWER_PACKAGE",    "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
         register_msr_control("FREQUENCY",        "MSR::PERF_CTL:FREQ");
