@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22b6eb89_6adaab47",
+        "filename": "src/RegionAggregator.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-11-09T19:28:56Z",
+      "side": 1,
+      "message": "questionable usefulness",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 66
+      },
+      "revId": "c817d54d2193a70a4d5c995ebc17baf6576d93fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
