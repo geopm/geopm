@@ -239,6 +239,8 @@ GTEST_TESTS = test/gtest_links/CircularBufferTest.buffer_size \
               test/gtest_links/IOGroupTest.signal_names_are_valid \
               test/gtest_links/IOGroupTest.control_names_are_valid \
               test/gtest_links/IOGroupTest.signals_have_agg_functions \
+              test/gtest_links/IOGroupTest.signals_have_descriptions \
+              test/gtest_links/IOGroupTest.controls_have_descriptions \
               # end
 
 if ENABLE_MPI

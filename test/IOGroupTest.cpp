@@ -132,3 +132,23 @@ TEST_F(IOGroupTest, signals_have_agg_functions)
         }
     }
 }
+
+TEST_F(IOGroupTest, signals_have_descriptions)
+{
+    for (const auto &group : m_plugins) {
+        auto signal_names = group->signal_names();
+        for (auto name : signal_names) {
+            EXPECT_NO_THROW(group->signal_description(name)) << name;
+        }
+    }
+}
+
+TEST_F(IOGroupTest, controls_have_descriptions)
+{
+    for (const auto &group : m_plugins) {
+        auto control_names = group->control_names();
+        for (auto name : control_names) {
+            EXPECT_NO_THROW(group->control_description(name)) << name;
+        }
+    }
+}

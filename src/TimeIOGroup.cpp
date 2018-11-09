@@ -186,4 +186,14 @@ namespace geopm
         }
         return Agg::average;
     }
+
+    std::string TimeIOGroup::signal_description(const std::string &signal_name) const
+    {
+        return "";
+    }
+
+    std::string TimeIOGroup::control_description(const std::string &control_name) const
+    {
+        return "";
+    }
 }

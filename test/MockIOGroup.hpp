@@ -72,6 +72,10 @@ class MockIOGroup : public geopm::IOGroup
                      void(void));
         MOCK_CONST_METHOD1(agg_function,
                            std::function<double(const std::vector<double> &)> (const std::string &signal_name));
+        MOCK_CONST_METHOD1(signal_description,
+                           std::string(const std::string &signal_name));
+        MOCK_CONST_METHOD1(control_description,
+                           std::string(const std::string &control_name));
 };
 
 #endif

@@ -382,6 +382,58 @@ std::function<double(const std::vector<double> &)> ExampleIOGroup::agg_function(
     return geopm::Agg::average;
 }
 
+// A user-friendly description of each signal
+std::string ExampleIOGroup::signal_description(const std::string &signal_name) const
+{
+    if (!is_valid_signal(signal_name)) {
+        throw Exception("ExampleIOGroup::signal_description(): signal_name " + signal_name +
+                        " not valid for ExampleIOGroup.",
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+    }
+    int signal_idx = m_signal_idx_map.at(signal_name);
+    std::string result = "";
+    switch (signal_idx) {
+        case M_SIGNAL_USER_TIME:
+            result = "CPU time spent in user mode";
+            break;
+        case M_SIGNAL_NICE_TIME:
+            result = "CPU time spend in user mode with low priority";
+            break;
+        case M_SIGNAL_SYSTEM_TIME:
+            result = "CPU time spent in system mode";
+        case M_SIGNAL_IDLE_TIME:
+            result = "CPU idle time";
+            break;
+        default:
+            break;
+    }
+    return result;
+}
+
+// A user-friendly description of each control
+std::string ExampleIOGroup::control_description(const std::string &control_name) const
+{
+    if (!is_valid_control(control_name)) {
+        throw Exception("ExampleIOGroup::control_description(): " + control_name +
+                        "not valid for ExampleIOGroup",
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+    }
+
+    std::string result = "";
+    int control_idx = m_control_idx_map.at(control_name);
+    switch (control_idx) {
+        case M_CONTROL_STDOUT:
+            result = "Writes a floating point value to standard output";
+            break;
+        case M_CONTROL_STDERR:
+            result = "Writes a floating point value to standard error";
+            break;
+        default:
+            break;
+    }
+    return result;
+}
+
 // Name used for registration with the IOGroup factory
 std::string ExampleIOGroup::plugin_name(void)
 {

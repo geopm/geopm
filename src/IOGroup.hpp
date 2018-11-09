@@ -164,6 +164,14 @@ namespace geopm
             ///        the given signal.
             /// @param [in] signal_name Name of the signal.
             virtual std::function<double(const std::vector<double> &)> agg_function(const std::string &signal_name) const = 0;
+            /// @brief Returns a description of the signal.  This
+            ///        string can be used by tools to generate help
+            ///        text for users of the IOGroup.
+            virtual std::string signal_description(const std::string &signal_name) const = 0;
+            /// @brief Returns a description of the control.  This
+            ///        string can be used by tools to generate help
+            ///        text for users of the IOGroup.
+            virtual std::string control_description(const std::string &control_name) const = 0;
     };
 
     PluginFactory<IOGroup> &iogroup_factory(void);

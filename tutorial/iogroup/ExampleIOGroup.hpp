@@ -68,6 +68,8 @@ class ExampleIOGroup : public geopm::IOGroup
         void save_control(void) override;
         void restore_control(void) override;
         std::function<double(const std::vector<double> &)> agg_function(const std::string &signal_name) const override;
+        std::string signal_description(const std::string &signal_name) const;
+        std::string control_description(const std::string &control_name) const;
         static std::string plugin_name(void);
         static std::unique_ptr<geopm::IOGroup> make_plugin(void);
     private:

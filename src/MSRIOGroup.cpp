@@ -765,6 +765,16 @@ namespace geopm
         return result;
     }
 
+    std::string MSRIOGroup::signal_description(const std::string &signal_name) const
+    {
+        return "";
+    }
+
+    std::string MSRIOGroup::control_description(const std::string &control_name) const
+    {
+        return "";
+    }
+
     const MSR *init_msr_arr(int cpu_id, size_t &arr_size)
     {
         const MSR *msr_arr = NULL;

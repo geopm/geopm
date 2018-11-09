@@ -291,6 +291,15 @@ namespace geopm
         return it->second;
     }
 
+    std::string CpuinfoIOGroup::signal_description(const std::string &signal_name) const
+    {
+        return "";
+    }
+
+    std::string CpuinfoIOGroup::control_description(const std::string &control_name) const
+    {
+        return "";
+    }
 
     std::string CpuinfoIOGroup::plugin_name(void)
     {
