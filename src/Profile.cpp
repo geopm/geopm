@@ -307,6 +307,16 @@ namespace geopm
         geopm_time(&overhead_entry);
 #endif
 
+        int hint_count = 0;
+        long tmp_hint = hint;
+        while(tmp_hint) {
+            hint_count += tmp_hint & 1;
+            tmp_hint >>= 1;
+        }
+        if (hint_count > 1) {
+            throw Exception("Profile:region() multiple region hints set and only 1 at a time is supported.",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
         uint64_t result = m_table->key(region_name);
         /// Record hint when registering a region.
         result = geopm_region_id_set_hint(hint, result);
