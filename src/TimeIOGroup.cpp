@@ -180,7 +180,7 @@ namespace geopm
     std::function<double(const std::vector<double> &)> TimeIOGroup::agg_function(const std::string &signal_name) const
     {
         if (!is_valid_signal(signal_name)) {
-            throw Exception("TimeIOGroup:agg_function(): " + signal_name +
+            throw Exception("TimeIOGroup::agg_function(): " + signal_name +
                             "not valid for TimeIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -189,11 +189,17 @@ namespace geopm
 
     std::string TimeIOGroup::signal_description(const std::string &signal_name) const
     {
-        return "";
+        if (!is_valid_signal(signal_name)) {
+            throw Exception("TimeIOGroup::signal_description(): " + signal_name +
+                            "not valid for TimeIOGroup",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return "Time in seconds since the IOGroup load.";
     }
 
     std::string TimeIOGroup::control_description(const std::string &control_name) const
     {
-        return "";
+        throw Exception("TimeIOGroup::control_description(): there are no controls supported by the TimeIOGroup",
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 }

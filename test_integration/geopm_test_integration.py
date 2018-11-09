@@ -1227,14 +1227,18 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_no_error([])
 
         # domain flag
-        self.check_output(['-d'], ['board', 'package', 'core', 'cpu',
-                                   'board_memory', 'package_memory',
-                                   'board_nic', 'package_nic',
-                                   'board_accelerator', 'package_accelerator'])
-        self.check_output(['-d', 'TIME'], ['board'])
+        self.check_output(['--domain'], ['board', 'package', 'core', 'cpu',
+                                         'board_memory', 'package_memory',
+                                         'board_nic', 'package_nic',
+                                         'board_accelerator', 'package_accelerator'])
+        self.check_output(['--domain', 'TIME'], ['board'])
 
         # read signal
         self.check_no_error(['TIME', 'board', '0'])
+
+        # info
+        self.check_no_error(['--info'])
+        self.check_output(['--info', 'TIME'], ['Time in seconds'])
 
         # errors
         read_err = 'domain type and domain index are required'
@@ -1244,7 +1248,8 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_output(['FREQUENCY', 'package', '111'], ['cannot read signal'])
         self.check_output(['TIME', 'package', '0'], ['cannot read signal'])
         self.check_output(['INVALID', 'board', '0'], ['cannot read signal'])
-        self.check_output(['-d', 'INVALID'], ['unable to determine signal type'])
+        self.check_output(['--domain', 'INVALID'], ['unable to determine signal type'])
+        self.check_output(['--domain', '--info'], ['info about domain not implemented'])
 
     def test_geopmread_all_signal_agg(self):
         self.exec_name = "geopmread"
@@ -1268,11 +1273,15 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_no_error([])
 
         # domain flag
-        self.check_output(['-d'], ['board', 'package', 'core', 'cpu',
-                                   'board_memory', 'package_memory',
-                                   'board_nic', 'package_nic',
-                                   'board_accelerator', 'package_accelerator'])
-        self.check_no_error(['-d', 'FREQUENCY'])
+        self.check_output(['--domain'], ['board', 'package', 'core', 'cpu',
+                                         'board_memory', 'package_memory',
+                                         'board_nic', 'package_nic',
+                                         'board_accelerator', 'package_accelerator'])
+        self.check_no_error(['--domain', 'FREQUENCY'])
+
+        # info
+        self.check_no_error(['--info'])
+        self.check_output(['--info', 'FREQUENCY'], ['processor frequency'])
 
         # errors
         write_err = 'domain type, domain index, and value are required'
@@ -1284,7 +1293,8 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_output(['FREQUENCY', 'package', '111', '0'], ['cannot write control'])
         self.check_output(['FREQUENCY', 'board_nic', '0', '0'], ['cannot write control'])
         self.check_output(['INVALID', 'board', '0', '0'], ['cannot write control'])
-        self.check_output(['-d', 'INVALID'], ['unable to determine control type'])
+        self.check_output(['--domain', 'INVALID'], ['unable to determine control type'])
+        self.check_output(['--domain', '--info'], ['info about domain not implemented'])
 
     @skip_unless_slurm_batch()
     def test_geopmwrite_set_freq(self):
@@ -1314,10 +1324,10 @@ class TestIntegrationGeopmio(unittest.TestCase):
 
         self.exec_name = "geopmwrite"
 
-        read_proc = subprocess.Popen(['geopmread', '-d', 'FREQUENCY'],
+        read_proc = subprocess.Popen(['geopmread', '--domain', 'FREQUENCY'],
                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         read_domain = read_stdout_line(read_proc.stdout)
-        write_proc = subprocess.Popen([self.exec_name, '-d', 'FREQUENCY'],
+        write_proc = subprocess.Popen([self.exec_name, '--domain', 'FREQUENCY'],
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         write_domain = read_stdout_line(write_proc.stdout)
         min_freq, max_freq = read_min_max_freq()
