@@ -134,4 +134,13 @@ namespace geopm
             }
         }
     }
+
+    std::set<uint64_t> RegionAggregator::tracked_region_ids(void) const
+    {
+        std::set<uint64_t> result;
+        for (const auto &rid : m_is_ignore) {
+            result.insert(rid.first);
+        }
+        return result;
+    }
 }

@@ -253,7 +253,7 @@ TEST_F(RegionAggregatorTest, sample_total)
             .WillRepeatedly(Return(-1));
         m_agg->read_batch();
     }
-    std::vector<uint64_t> regions = {regionA, regionB, GEOPM_REGION_ID_UNMARKED};
+    std::set<uint64_t> regions = {regionA, regionB, GEOPM_REGION_ID_UNMARKED};
 
     for (auto region : regions) {
         EXPECT_EQ(exp_time[0][region], m_agg->sample_total(M_SIGNAL_TIME, region));
@@ -264,6 +264,8 @@ TEST_F(RegionAggregatorTest, sample_total)
         EXPECT_EQ(exp_cycles[2][region], m_agg->sample_total(M_SIGNAL_CYCLES_2, region));
         EXPECT_EQ(exp_cycles[3][region], m_agg->sample_total(M_SIGNAL_CYCLES_3, region));
     }
+    std::set<uint64_t> result_regions = m_agg->tracked_region_ids();
+    EXPECT_EQ(regions, result_regions);
 
     // Invalid index
     GEOPM_EXPECT_THROW_MESSAGE(m_agg->sample_total(-1, regionA), GEOPM_ERROR_INVALID,

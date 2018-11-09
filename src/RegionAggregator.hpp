@@ -38,6 +38,7 @@
 
 #include <map>
 #include <string>
+#include <set>
 
 namespace geopm
 {
@@ -92,6 +93,9 @@ namespace geopm
             ///        because sample_total() maybe not be called
             ///        until the end of execution.
             virtual void read_batch(void) = 0;
+            /// @brief Returns the set of region IDs tracked by this
+            ///        object.
+            virtual std::set<uint64_t> tracked_region_ids(void) const = 0;
     };
 
     class IPlatformIO;
@@ -107,6 +111,7 @@ namespace geopm
                                   int domain_idx) override;
             double sample_total(int signal_idx, uint64_t region_id) override;
             void read_batch(void) override;
+            std::set<uint64_t> tracked_region_ids(void) const override;
         private:
             IPlatformIO &m_platform_io;
             std::map<int, int> m_region_id_idx;
