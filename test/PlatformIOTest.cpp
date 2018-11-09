@@ -198,6 +198,31 @@ TEST_F(PlatformIOTest, signal_control_names)
     EXPECT_EQ(expected_controls, m_platio->control_names());
 }
 
+
+TEST_F(PlatformIOTest, signal_control_description)
+{
+    std::string time_description = "time signal";
+    std::string freq_signal_desc = "freq signal";
+    std::string freq_control_desc = "freq control";
+    for (auto &it : m_iogroup_ptr) {
+        if (it->is_valid_signal("TIME")) {
+            EXPECT_CALL(*it, signal_description("TIME"))
+                .WillOnce(Return(time_description));
+        }
+        if (it->is_valid_signal("FREQ")) {
+            EXPECT_CALL(*it, signal_description("FREQ"))
+                .WillOnce(Return(freq_signal_desc));
+        }
+        if (it->is_valid_control("FREQ")) {
+            EXPECT_CALL(*it, control_description("FREQ"))
+                .WillOnce(Return(freq_control_desc));
+        }
+    }
+    EXPECT_EQ(time_description, m_platio->signal_description("TIME"));
+    EXPECT_EQ(freq_signal_desc, m_platio->signal_description("FREQ"));
+    EXPECT_EQ(freq_control_desc, m_platio->control_description("FREQ"));
+}
+
 TEST_F(PlatformIOTest, domain_type)
 {
     for (auto &it : m_iogroup_ptr) {

@@ -205,6 +205,14 @@ namespace geopm
             /// @param [in] signal_name Name of the signal.
             /// @return A function from vector<double> to double.
             virtual std::function<double(const std::vector<double> &)> agg_function(const std::string &signal_name) const = 0;
+            /// @brief Returns a description of the signal.  This
+            ///        string can be used by tools to generate help
+            ///        text for users of PlatformIO.
+            virtual std::string signal_description(const std::string &signal_name) const = 0;
+            /// @brief Returns a description of the control.  This
+            ///        string can be used by tools to generate help
+            ///        text for users of PlatformIO.
+            virtual std::string control_description(const std::string &control_name) const = 0;
             /// @brief Structure describing the values required to
             ///        push a signal or control.
             struct m_request_s {

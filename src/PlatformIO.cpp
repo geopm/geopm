@@ -481,4 +481,43 @@ namespace geopm
         }
         return (*it)->agg_function(signal_name);
     }
+
+    std::string PlatformIO::signal_description(const std::string &signal_name) const
+    {
+        /// @todo: find a better way to track signals produced by PlatformIO itself
+        if (signal_name == "POWER_PACKAGE") {
+            return "Average package power in watts over the last 8 samples (usually 40 ms).";
+        }
+        else if (signal_name == "POWER_DRAM") {
+            return "Average DRAM power in watts over the last 8 samples (usually 40 ms).";
+        }
+        // Find the most recently loaded IOGroup that provides the signal
+        auto it = m_iogroup_list.rbegin();
+        for (; it != m_iogroup_list.rend(); ++it) {
+            if ((*it)->is_valid_signal(signal_name)) {
+                break;
+            }
+        }
+        if (it == m_iogroup_list.rend()) {
+            throw Exception("PlatformIO::signal_description(): unknown signal \"" + signal_name + "\"",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return (*it)->signal_description(signal_name);
+    }
+
+    std::string PlatformIO::control_description(const std::string &control_name) const
+    {
+        // Find the most recently loaded IOGroup that provides the control
+        auto it = m_iogroup_list.rbegin();
+        for (; it != m_iogroup_list.rend(); ++it) {
+            if ((*it)->is_valid_control(control_name)) {
+                break;
+            }
+        }
+        if (it == m_iogroup_list.rend()) {
+            throw Exception("PlatformIO::control_description(): unknown control \"" + control_name + "\"",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return (*it)->control_description(control_name);
+    }
 }
