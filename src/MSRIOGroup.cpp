@@ -105,6 +105,11 @@ namespace geopm
         m_func_map["MSR::PKG_POWER_INFO:MAX_POWER"] = Agg::expect_same;
         m_func_map["MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER"] = Agg::expect_same;
 
+        m_signal_desc_map["MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER"] = "Maximum power to stay within thermal limits (TDP)";
+
+        m_control_desc_map["MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT"] = "Set RAPL power limit";
+        m_control_desc_map["MSR::PERF_CTL:FREQ"] = "Set processor frequency";
+
         register_msr_signal("FREQUENCY",         "MSR::PERF_STATUS:FREQ");
         register_msr_signal("ENERGY_PACKAGE",    "MSR::PKG_ENERGY_STATUS:ENERGY");
         register_msr_signal("ENERGY_DRAM",       "MSR::DRAM_ENERGY_STATUS:ENERGY");
@@ -663,6 +668,8 @@ namespace geopm
         // Set up aggregation for the alias
         auto func = agg_function(msr_name_field);
         m_func_map[signal_name] = func;
+        // Copy description for the alias
+        m_signal_desc_map[signal_name] = signal_description(msr_name_field);
     }
 
     void MSRIOGroup::register_msr_control(const std::string &control_name)
@@ -713,6 +720,8 @@ namespace geopm
         for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
             cpu_control[cpu_idx] = new MSRControl(msr_obj, msr_obj.domain_type(), cpu_idx, control_idx);
         }
+        // Copy description for the alias
+        m_control_desc_map[control_name] = control_description(msr_name_field);
     }
 
     std::string MSRIOGroup::plugin_name(void)
@@ -767,12 +776,32 @@ namespace geopm
 
     std::string MSRIOGroup::signal_description(const std::string &signal_name) const
     {
-        return "";
+        if (!is_valid_signal(signal_name)) {
+            throw Exception("MSRIOIOGroup::signal_description(): signal_name " + signal_name +
+                            " not valid for MSRIOGroup",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::string result = "";
+        auto it = m_signal_desc_map.find(signal_name);
+        if (it != m_signal_desc_map.end()) {
+            result = it->second;
+        }
+        return result;
     }
 
     std::string MSRIOGroup::control_description(const std::string &control_name) const
     {
-        return "";
+        if (!is_valid_control(control_name)) {
+            throw Exception("MSRIOIOGroup::control_description(): control_name " + control_name +
+                            " not valid for MSRIOGroup",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::string result = "";
+        auto it = m_control_desc_map.find(control_name);
+        if (it != m_control_desc_map.end()) {
+            result = it->second;
+        }
+        return result;
     }
 
     const MSR *init_msr_arr(int cpu_id, size_t &arr_size)
