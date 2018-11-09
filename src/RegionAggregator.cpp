@@ -134,4 +134,22 @@ namespace geopm
             }
         }
     }
+
+    std::set<uint64_t> RegionAggregator::tracked_region_ids(void) const
+    {
+        std::set<uint64_t> result;
+        for (const auto &rid : m_is_ignore) {
+            result.insert(rid.first);
+        }
+        return result;
+    }
+
+    std::set<int> RegionAggregator::tracked_signals(void) const
+    {
+        std::set<int> result;
+        for (const auto &sig : m_last_region_id) {
+            result.insert(sig.first);
+        }
+        return result;
+    }
 }

@@ -253,7 +253,7 @@ TEST_F(RegionAggregatorTest, sample_total)
             .WillRepeatedly(Return(-1));
         m_agg->read_batch();
     }
-    std::vector<uint64_t> regions = {regionA, regionB, GEOPM_REGION_ID_UNMARKED};
+    std::set<uint64_t> regions = {regionA, regionB, GEOPM_REGION_ID_UNMARKED};
 
     for (auto region : regions) {
         EXPECT_EQ(exp_time[0][region], m_agg->sample_total(M_SIGNAL_TIME, region));
@@ -264,7 +264,13 @@ TEST_F(RegionAggregatorTest, sample_total)
         EXPECT_EQ(exp_cycles[2][region], m_agg->sample_total(M_SIGNAL_CYCLES_2, region));
         EXPECT_EQ(exp_cycles[3][region], m_agg->sample_total(M_SIGNAL_CYCLES_3, region));
     }
+    std::set<uint64_t> result_regions = m_agg->tracked_region_ids();
+    EXPECT_EQ(regions, result_regions);
 
+    std::set<int> expected_signals {M_SIGNAL_TIME, M_SIGNAL_ENERGY_0, M_SIGNAL_ENERGY_1,
+                                    M_SIGNAL_CYCLES_0, M_SIGNAL_CYCLES_1, M_SIGNAL_CYCLES_2, M_SIGNAL_CYCLES_3};
+    std::set<int> result_signals = m_agg->tracked_signals();
+    EXPECT_EQ(expected_signals, result_signals);
     // Invalid index
     GEOPM_EXPECT_THROW_MESSAGE(m_agg->sample_total(-1, regionA), GEOPM_ERROR_INVALID,
                                "Invalid signal index");
