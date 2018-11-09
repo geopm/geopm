@@ -238,6 +238,9 @@ TEST_F(ProfileTest, region)
         EXPECT_EQ(expected_rid, rid);
         idx++;
     }
+
+    GEOPM_EXPECT_THROW_MESSAGE(m_profile->region("multi_hint", (1ULL << 33) | (1ULL << 34)),
+                               GEOPM_ERROR_RUNTIME, "multiple region hints set and only 1 at a time is supported.");
 }
 
 TEST_F(ProfileTest, enter_exit)
