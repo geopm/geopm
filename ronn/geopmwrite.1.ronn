@@ -37,7 +37,7 @@ PRINT ALL CONTROL NAMES <br>
 `geopmwrite`
 
 PRINT DOMAIN NAME AND SIZE <br>
-`geopmwrite` -d [CONTROL_NAME]
+`geopmwrite` --domain [CONTROL_NAME]
 
 WRITE CONTROL <br>
 `geopmwrite` CONTROL_NAME DOMAIN_TYPE DOMAIN_INDEX VALUE
@@ -83,7 +83,7 @@ native domain.
 
 List domains and size:
 
-    $ geopmwrite -d
+    $ geopmwrite --domain
     board                1
     package              2
     core                 64
@@ -101,9 +101,14 @@ List all available controls on the system with domain type and number:
     FREQUENCY
     POWER_PACKAGE
 
+Show the description for a control:
+
+    $ geopmwrite --info FREQUENCY
+    FREQUENCY: Set processor frequency
+
 Show domain type for POWER_PACKAGE control:
 
-    $ geopmwrite -d POWER_PACKAGE
+    $ geopmwrite --domain POWER_PACKAGE
     package
 
 Set the frequency of CPU 2 to 1.9 GHz:

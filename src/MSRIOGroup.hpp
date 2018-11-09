@@ -163,6 +163,8 @@ namespace geopm
             std::vector<std::map<uint64_t, m_restore_s> > m_per_cpu_restore;
             bool m_is_fixed_enabled;
             std::map<std::string, std::function<double(const std::vector<double> &)> > m_func_map;
+            std::map<std::string, std::string> m_signal_desc_map;
+            std::map<std::string, std::string> m_control_desc_map;
     };
 }
 

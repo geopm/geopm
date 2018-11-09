@@ -62,7 +62,8 @@ int main(int argc, char **argv)
 {
     const char *usage = "\nUsage:\n"
                         "       geopmwrite CONTROL_NAME DOMAIN_TYPE DOMAIN_INDEX VALUE\n"
-                        "       geopmwrite [-d [CONTROL_NAME]]\n"
+                        "       geopmwrite [--domain [CONTROL_NAME]]\n"
+                        "       geopmwrite [--info [CONTROL_NAME]]\n"
                         "       geopmwrite [--help] [--version]\n"
                         "\n"
                         "  CONTROL_NAME:  name of the control\n"
@@ -70,7 +71,8 @@ int main(int argc, char **argv)
                         "  DOMAIN_INDEX: index of the domain, starting from 0\n"
                         "  VALUE:        setting to adjust control to\n"
                         "\n"
-                        "  -d, --domain                     print domain of a signal\n"
+                        "  -d, --domain                     print domain of a control\n"
+                        "  -i, --info                       print longer description of a control\n"
                         "  -h, --help                       print brief summary of the command line\n"
                         "                                   usage information, then exit\n"
                         "  -v, --version                    print version of GEOPM to standard output,\n"
@@ -81,6 +83,7 @@ int main(int argc, char **argv)
 
     static struct option long_options[] = {
         {"domain", no_argument, NULL, 'd'},
+        {"info", no_argument, NULL, 'i'},
         {"help", no_argument, NULL, 'h'},
         {"version", no_argument, NULL, 'v'},
         {NULL, 0, NULL, 0}
@@ -89,10 +92,14 @@ int main(int argc, char **argv)
     int opt;
     int err = 0;
     bool is_domain = false;
-    while (!err && (opt = getopt_long(argc, argv, "dhv", long_options, NULL)) != -1) {
+    bool is_info = false;
+    while (!err && (opt = getopt_long(argc, argv, "dihv", long_options, NULL)) != -1) {
         switch (opt) {
             case 'd':
                 is_domain = true;
+                break;
+            case 'i':
+                is_info = true;
                 break;
             case 'h':
                 printf("%s", usage);
@@ -110,6 +117,11 @@ int main(int argc, char **argv)
                 err = EINVAL;
                 break;
         }
+    }
+
+
+    if (is_domain && is_info) {
+        std::cerr << "Error: info about domain not implemented." << std::endl;
     }
 
     std::vector<std::string> pos_args;
@@ -138,6 +150,26 @@ int main(int argc, char **argv)
                 std::cerr << "Error: unable to determine control type: " << ex.what() << std::endl;
                 err = EINVAL;
             }
+        }
+    }
+    else if (is_info) {
+        try {
+            if (pos_args.size() == 0) {
+                // print all controls with description
+                auto controls = platform_io.control_names();
+                for (const auto &con : controls) {
+                    /// @todo nicer formatting
+                    std::cout << con << ": " << platform_io.control_description(con) << std::endl;
+                }
+            }
+            else {
+                // print description for one control
+                std::cout << pos_args[0] << ": " << platform_io.control_description(pos_args[0]) << std::endl;
+            }
+        }
+        catch (const geopm::Exception &ex) {
+            std::cerr << "Error: " << ex.what() << std::endl;
+            err = EINVAL;
         }
     }
     else {
