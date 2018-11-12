@@ -53,13 +53,11 @@ namespace geopm
         , m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
         , m_seen_first_epoch(m_rank_per_node, false)
-        , m_curr_ignore_runtime(m_rank_per_node, 0.0)
-        , m_agg_epoch_ignore_runtime(m_rank_per_node, 0.0)
-        , m_curr_mpi_runtime(m_rank_per_node, 0.0)
-        , m_agg_epoch_mpi_runtime(m_rank_per_node, 0.0)
-        , m_agg_mpi_runtime(m_rank_per_node, 0.0)
-        , m_last_epoch_runtime(m_rank_per_node, 0.0)
         , m_agg_epoch_runtime(m_rank_per_node, 0.0)
+        , m_curr_mpi_runtime(m_rank_per_node, 0.0)
+        , m_agg_mpi_runtime(m_rank_per_node, 0.0)
+        , m_rank_stats_epoch(m_rank_per_node, {std::vector<double>(M_RANK_STAT_TYPE_MAX, 0.0),
+                                               std::vector<double>(M_RANK_STAT_TYPE_MAX, 0.0)})
         , m_pre_epoch_region(m_rank_per_node)
         , m_epoch_start_energy_pkg(NAN)
         , m_epoch_start_energy_dram(NAN)
@@ -121,8 +119,10 @@ namespace geopm
             m_epoch_total_energy_dram = current_energy_dram() - m_epoch_start_energy_dram;
         }
         else {
+            for(auto &rank_stat : m_rank_stats_epoch) {
+                std::fill(rank_stat.curr_runtime.begin(), rank_stat.curr_runtime.end(), 0.0);
+            }
             std::fill(m_curr_mpi_runtime.begin(), m_curr_mpi_runtime.end(), 0.0);
-            std::fill(m_curr_ignore_runtime.begin(), m_curr_ignore_runtime.end(), 0.0);
             m_seen_first_epoch[rank] = true;
             m_epoch_start_energy_pkg = current_energy_pkg();
             m_epoch_start_energy_dram = current_energy_dram();
@@ -166,7 +166,11 @@ namespace geopm
             throw Exception("EpochRuntimeRegulator::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
-        bool is_ignore = geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, region_id);
+        std::vector<bool> is_hint_set;
+        for (size_t hint = GEOPM_REGION_HINT_UNKNOWN; hint <= GEOPM_REGION_HINT_IGNORE; ++hint) {
+            is_hint_set.push_back(geopm_region_id_hint_is_equal(hint, region_id));
+        }
+        /// todo assert vector size
         bool is_mpi = geopm_region_id_is_mpi(region_id);
         region_id = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id);
         auto pre_epoch_it = m_pre_epoch_region[rank].find(region_id);
@@ -177,16 +181,14 @@ namespace geopm
         reg_it->second->record_exit(rank, exit_time);
         if (geopm_region_id_is_epoch(region_id)) {
             if (m_seen_first_epoch[rank]) {
-                m_last_epoch_runtime[rank] = reg_it->second->per_rank_last_runtime()[rank] -
-                                             (m_curr_mpi_runtime[rank] + m_curr_ignore_runtime[rank]);
-                m_agg_epoch_runtime[rank] += m_last_epoch_runtime[rank];
-                m_agg_epoch_mpi_runtime[rank] += m_curr_mpi_runtime[rank];
-                m_agg_epoch_ignore_runtime[rank] += m_curr_ignore_runtime[rank];
-                m_curr_mpi_runtime[rank] = 0.0;
-                m_curr_ignore_runtime[rank] = 0.0;
+                m_agg_epoch_runtime[rank] += reg_it->second->per_rank_last_runtime()[rank];
+                for (int x = 0; x < M_RANK_STAT_TYPE_MAX; ++x) {
+                    m_rank_stats_epoch[rank].agg_runtime[x] += m_rank_stats_epoch[rank].curr_runtime[x];
+                    m_rank_stats_epoch[rank].curr_runtime[x] = 0.0;
+                }
             }
         }
-        else if (is_mpi) {
+        if (is_mpi && !is_hint_set[M_RANK_STAT_TYPE_IGNORE]) {
             if (pre_epoch_it == m_pre_epoch_region[rank].end()) {
                 m_curr_mpi_runtime[rank] += reg_it->second->per_rank_last_runtime()[rank];
             }
@@ -195,12 +197,15 @@ namespace geopm
             }
             m_agg_mpi_runtime[rank] += reg_it->second->per_rank_last_runtime()[rank];
         }
-        else if (is_ignore) {
-            if (pre_epoch_it == m_pre_epoch_region[rank].end()) {
-                m_curr_ignore_runtime[rank] += reg_it->second->per_rank_last_runtime()[rank];
-            }
-            else {
-                m_pre_epoch_region[rank].erase(pre_epoch_it);
+        for(int x = 0; x < M_RANK_STAT_TYPE_MAX; ++x) {
+            if (is_hint_set[x]) {
+                if (pre_epoch_it == m_pre_epoch_region[rank].end()) {
+                    m_rank_stats_epoch[rank].curr_runtime[x] += reg_it->second->per_rank_last_runtime()[rank];
+                }
+                else {
+                    m_pre_epoch_region[rank].erase(pre_epoch_it);
+                }
+                break;// only 1 hint can be set
             }
         }
 
@@ -234,7 +239,7 @@ namespace geopm
 
     std::vector<double> EpochRuntimeRegulator::last_epoch_time() const
     {
-        return m_last_epoch_runtime;
+        return m_rid_regulator_map.at(GEOPM_REGION_ID_EPOCH)->per_rank_last_runtime();
     }
 
     std::vector<double> EpochRuntimeRegulator::epoch_count() const
@@ -268,7 +273,7 @@ namespace geopm
     {
         double result = 0.0;
         if (region_id == GEOPM_REGION_ID_EPOCH) {
-            result = Agg::average(m_agg_epoch_mpi_runtime);
+            result = Agg::average(m_agg_mpi_runtime);
         }
         else {
             try {
@@ -292,9 +297,20 @@ namespace geopm
         return total_region_mpi_time(GEOPM_REGION_ID_EPOCH);
     }
 
+    double EpochRuntimeRegulator::total_epoch_runtime(enum m_rank_stat_type_e stat_type) const
+    {
+        /// complaint here is that I need this tmp
+        /// but either way you cut it I can avoid?
+        std::vector<double> tmp;
+        for(int x = 0; x < m_rank_per_node; ++x) {
+            tmp.push_back(m_rank_stats_epoch[x].agg_runtime[stat_type]);
+        }
+        return Agg::average(tmp);
+    }
+
     double EpochRuntimeRegulator::total_epoch_ignore_time(void) const
     {
-        return Agg::average(m_agg_epoch_ignore_runtime);
+        return total_epoch_runtime(M_RANK_STAT_TYPE_IGNORE);
     }
 
     double EpochRuntimeRegulator::total_epoch_energy_pkg(void) const
