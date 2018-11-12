@@ -167,13 +167,23 @@ namespace geopm
             IPlatformTopo &m_platform_topo;
             std::map<uint64_t, std::unique_ptr<IRuntimeRegulator> > m_rid_regulator_map;
             std::vector<bool> m_seen_first_epoch;
-            std::vector<double> m_curr_ignore_runtime;
-            std::vector<double> m_agg_epoch_ignore_runtime;
-            std::vector<double> m_curr_mpi_runtime;
-            std::vector<double> m_agg_epoch_mpi_runtime;
-            std::vector<double> m_agg_mpi_runtime;
-            std::vector<double> m_last_epoch_runtime;
-            std::vector<double> m_agg_epoch_runtime;
+            enum m_rank_stat_type_e {
+                M_RANK_STAT_TYPE_UNMARKED,    // GEOPM_REGION_HINT_UNKNOWN
+                M_RANK_STAT_TYPE_COMPUTE,     // GEOPM_REGION_HINT_COMPUTE
+                M_RANK_STAT_TYPE_MEMORY,      // GEOPM_REGION_HINT_MEMORY
+                M_RANK_STAT_TYPE_NETWORK,     // GEOPM_REGION_HINT_NETWORK
+                M_RANK_STAT_TYPE_IO,          // GEOPM_REGION_HINT_IO
+                M_RANK_STAT_TYPE_SERIAL,      // GEOPM_REGION_HINT_SERIAL
+                M_RANK_STAT_TYPE_PARALLEL,    // GEOPM_REGION_HINT_PARALLEL
+                M_RANK_STAT_TYPE_IGNORE,      // GEOPM_REGION_HINT_IGNORE
+                M_RANK_STAT_TYPE_MAX          // GEOPM_MASK_REGION_HINT
+            };
+            struct rank_stat_s {
+                std::vector<double> curr_val;
+                std::vector<double> agg_val;
+            };
+            std::vector<struct rank_stat_s> m_rank_stats_pre_epoch;
+            std::vector<struct rank_stat_s> m_rank_stats_epoch;
             std::vector<std::set<uint64_t> > m_pre_epoch_region;
             std::list<geopm_region_info_s> m_region_info;
             double m_epoch_start_energy_pkg;
