@@ -394,6 +394,7 @@ TEST_F(PlatformIOTest, push_control)
     for (auto &it : m_iogroup_ptr) {
         if (it->is_valid_control("FREQ")) {
             EXPECT_CALL(*it, push_control("FREQ", IPlatformTopo::M_DOMAIN_CPU, 0));
+            EXPECT_CALL(*it, control_domain_type("FREQ"));
         }
     }
 
@@ -406,6 +407,32 @@ TEST_F(PlatformIOTest, push_control)
                                GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
 
     EXPECT_EQ(1, m_platio->num_control());
+}
+
+TEST_F(PlatformIOTest, push_control_agg)
+{
+    EXPECT_CALL(m_topo, is_domain_within(IPlatformTopo::M_DOMAIN_CPU,
+                                         IPlatformTopo::M_DOMAIN_PACKAGE));
+    std::set<int> package_cpus {0, 1, 2, 3};
+    ASSERT_EQ(M_NUM_CPU, package_cpus.size());
+    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, 0, _))
+        .WillOnce(::testing::SetArgReferee<2>(package_cpus));
+    EXPECT_CALL(m_topo, domain_idx(IPlatformTopo::M_DOMAIN_CPU, _))
+        .Times(M_NUM_CPU);
+
+    for (auto &it : m_iogroup_ptr) {
+        if (it->is_valid_control("FREQ")) {
+            EXPECT_CALL(*it, push_control("FREQ", IPlatformTopo::M_DOMAIN_CPU, _))
+                .Times(M_NUM_CPU);
+            // called once for initial push, once for converting domain, once for each cpu,
+            EXPECT_CALL(*it, control_domain_type("FREQ")).Times(2 + M_NUM_CPU);
+        }
+    }
+
+    EXPECT_EQ(0, m_platio->num_control());
+
+    m_platio->push_control("FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
+    EXPECT_EQ(1 + M_NUM_CPU, m_platio->num_control());
 }
 
 TEST_F(PlatformIOTest, sample)
@@ -477,6 +504,7 @@ TEST_F(PlatformIOTest, adjust)
         if (it->is_valid_control("FREQ")) {
             EXPECT_CALL(*it, push_control("FREQ", _, _));
             EXPECT_CALL(*it, adjust(0, 3e9));
+            EXPECT_CALL(*it, control_domain_type("FREQ"));
         }
         EXPECT_CALL(*it, write_batch());
     }
@@ -486,6 +514,36 @@ TEST_F(PlatformIOTest, adjust)
     m_platio->write_batch();
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->adjust(-1, 0.0), GEOPM_ERROR_INVALID, "control_idx out of range");
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->adjust(10, 0.0), GEOPM_ERROR_INVALID, "control_idx out of range");
+}
+
+TEST_F(PlatformIOTest, adjust_agg)
+{
+    EXPECT_CALL(m_topo, is_domain_within(IPlatformTopo::M_DOMAIN_CPU,
+                                         IPlatformTopo::M_DOMAIN_PACKAGE));
+    std::set<int> package_cpus {0, 1, 2, 3};
+    ASSERT_EQ(M_NUM_CPU, package_cpus.size());
+    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, 0, _))
+        .WillOnce(::testing::SetArgReferee<2>(package_cpus));
+    EXPECT_CALL(m_topo, domain_idx(IPlatformTopo::M_DOMAIN_CPU, _))
+        .Times(M_NUM_CPU);
+
+    double value = 1.23e9;
+    for (auto &it : m_iogroup_ptr) {
+        if (it->is_valid_control("FREQ")) {
+            // called once for initial push, once for converting domain, once for each cpu,
+            EXPECT_CALL(*it, control_domain_type("FREQ")).Times(2 + M_NUM_CPU);
+            // adjusting package will adjust every cpu on the package
+            for (int ii = 0; ii < M_NUM_CPU; ++ii) {
+                EXPECT_CALL(*it, push_control("FREQ", IPlatformTopo::M_DOMAIN_CPU, ii))
+                    .WillOnce(Return(ii));
+                EXPECT_CALL(*it, adjust(ii, value));
+            }
+        }
+        EXPECT_CALL(*it, write_batch());
+    }
+    int freq_idx = m_platio->push_control("FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
+    m_platio->adjust(freq_idx, value);
+    m_platio->write_batch();
 }
 
 TEST_F(PlatformIOTest, read_signal)

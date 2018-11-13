@@ -109,6 +109,9 @@ namespace geopm
             int push_signal_convert_domain(const std::string &signal_name,
                                            int domain_type,
                                            int domain_idx);
+            int push_control_convert_domain(const std::string &control_name,
+                                            int domain_type,
+                                            int domain_idx);
             /// @brief Sample a combined signal using the saved function and operands.
             double sample_combined(int signal_idx);
             bool m_is_active;
@@ -120,6 +123,7 @@ namespace geopm
             std::map<std::tuple<std::string, int, int>, int> m_existing_control;
             std::map<int, std::pair<std::vector<int>,
                                     std::unique_ptr<CombinedSignal> > > m_combined_signal;
+            std::map<int, std::vector<int> > m_combined_control;
             bool m_do_restore;
     };
 }

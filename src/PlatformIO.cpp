@@ -306,7 +306,8 @@ namespace geopm
             for (auto it = m_iogroup_list.rbegin();
                  !is_found && it != m_iogroup_list.rend();
                  ++it) {
-                if ((*it)->is_valid_control(control_name)) {
+                if ((*it)->is_valid_control(control_name) &&
+                    (*it)->control_domain_type(control_name) == domain_type) {
                     int group_control_idx = (*it)->push_control(control_name, domain_type, domain_idx);
                     result = m_active_control.size();
                     m_existing_control[ctl_tup] = result;
@@ -315,10 +316,39 @@ namespace geopm
                 }
             }
         }
+        // Handle aggregated controls
+        if (result == -1) {
+            result = push_control_convert_domain(control_name, domain_type, domain_idx);
+            m_existing_control[ctl_tup] = result;
+        }
         if (result == -1) {
             throw Exception("PlatformIO::push_control(): control name \"" +
                             control_name + "\" not found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return result;
+    }
+
+    int PlatformIO::push_control_convert_domain(const std::string &control_name,
+                                               int domain_type,
+                                               int domain_idx)
+    {
+        int result = -1;
+        int base_domain_type = control_domain_type(control_name);
+        if (m_platform_topo.is_domain_within(base_domain_type, domain_type)) {
+            std::set<int> cpus;
+            m_platform_topo.domain_cpus(domain_type, domain_idx, cpus);
+            std::set<int> base_domain_idx;
+            for (auto it : cpus) {
+                base_domain_idx.insert(m_platform_topo.domain_idx(base_domain_type, it));
+            }
+            std::vector<int> control_idx;
+            for (auto it : base_domain_idx) {
+                control_idx.push_back(push_control(control_name, base_domain_type, it));
+            }
+            result = m_active_control.size();
+            m_combined_control.emplace(std::make_pair(result, control_idx));
+            m_active_control.emplace_back(nullptr, result);
         }
         return result;
     }
@@ -380,7 +410,15 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         auto &group_idx_pair = m_active_control[control_idx];
-        group_idx_pair.first->adjust(group_idx_pair.second, setting);
+        if (nullptr == group_idx_pair.first) {
+            auto &sub_controls = m_combined_control.at(control_idx);
+            for (auto idx : sub_controls) {
+                adjust(idx, setting);
+            }
+        }
+        else {
+            group_idx_pair.first->adjust(group_idx_pair.second, setting);
+        }
         m_is_active = true;
     }
 
