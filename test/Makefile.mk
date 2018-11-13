@@ -154,9 +154,11 @@ GTEST_TESTS = test/gtest_links/CircularBufferTest.buffer_size \
               test/gtest_links/PlatformIOTest.push_signal_agg \
               test/gtest_links/PlatformIOTest.signal_power \
               test/gtest_links/PlatformIOTest.push_control \
+              test/gtest_links/PlatformIOTest.push_control_agg \
               test/gtest_links/PlatformIOTest.sample \
               test/gtest_links/PlatformIOTest.sample_agg \
               test/gtest_links/PlatformIOTest.adjust \
+              test/gtest_links/PlatformIOTest.adjust_agg \
               test/gtest_links/PlatformIOTest.read_signal \
               test/gtest_links/PlatformIOTest.write_control \
               test/gtest_links/PlatformIOTest.read_signal_override \
