@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d121813f_c51d4f20",
+        "filename": "src/EpochRuntimeRegulator.hpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-11-13T19:09:20Z",
+      "side": 1,
+      "message": "move up or down",
+      "range": {
+        "startLine": 182,
+        "startChar": 12,
+        "endLine": 185,
+        "endChar": 14
+      },
+      "revId": "75994dc7f89a692da8b423be42dd36e07ea3567c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
