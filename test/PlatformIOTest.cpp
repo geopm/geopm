@@ -286,11 +286,36 @@ TEST_F(PlatformIOTest, push_signal)
 
     EXPECT_EQ(2, m_platio->num_signal());
 
-    // TODO: test of push_combined_signal
-
     m_platio->read_batch();
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->push_signal("TIME", IPlatformTopo::M_DOMAIN_BOARD, 0),
                                GEOPM_ERROR_INVALID, "pushing signals after");
+}
+
+TEST_F(PlatformIOTest, push_signal_agg)
+{
+    EXPECT_CALL(m_topo, is_domain_within(IPlatformTopo::M_DOMAIN_CPU,
+                                         IPlatformTopo::M_DOMAIN_PACKAGE));
+    std::set<int> package_cpus {0, 1, 2, 3};
+    ASSERT_EQ(M_NUM_CPU, package_cpus.size());
+    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, 0, _))
+        .WillOnce(::testing::SetArgReferee<2>(package_cpus));
+    EXPECT_CALL(m_topo, domain_idx(IPlatformTopo::M_DOMAIN_CPU, _))
+        .Times(M_NUM_CPU);
+
+    for (auto &it : m_iogroup_ptr) {
+        if (it->is_valid_signal("FREQ")) {
+            EXPECT_CALL(*it, push_signal("FREQ", _, _)).Times(M_NUM_CPU);
+            // called once for initial push, once for converting domain, once for each cpu,
+            EXPECT_CALL(*it, signal_domain_type("FREQ")).Times(2 + M_NUM_CPU);
+            EXPECT_CALL(*it, agg_function("FREQ"))
+                .WillOnce(Return(geopm::Agg::average));
+        }
+    }
+
+    EXPECT_EQ(0, m_platio->num_signal());
+    // Domain of FREQ is CPU
+    m_platio->push_signal("FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
+    EXPECT_EQ(1 + M_NUM_CPU, m_platio->num_signal());
 }
 
 TEST_F(PlatformIOTest, signal_power)
@@ -409,6 +434,41 @@ TEST_F(PlatformIOTest, sample)
     EXPECT_DOUBLE_EQ(1.0, time);
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->sample(-1), GEOPM_ERROR_INVALID, "signal_idx out of range");
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->sample(10), GEOPM_ERROR_INVALID, "signal_idx out of range");
+}
+
+TEST_F(PlatformIOTest, sample_agg)
+{
+    EXPECT_CALL(m_topo, is_domain_within(IPlatformTopo::M_DOMAIN_CPU,
+                                         IPlatformTopo::M_DOMAIN_PACKAGE));
+    std::set<int> package_cpus {0, 1, 2, 3};
+    ASSERT_EQ(M_NUM_CPU, package_cpus.size());
+    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, 0, _))
+        .WillOnce(::testing::SetArgReferee<2>(package_cpus));
+    EXPECT_CALL(m_topo, domain_idx(IPlatformTopo::M_DOMAIN_CPU, _))
+        .Times(M_NUM_CPU);
+
+    for (auto &it : m_iogroup_ptr) {
+        if (it->is_valid_signal("FREQ")) {
+            // called once for initial push, once for converting domain, once for each cpu,
+            EXPECT_CALL(*it, signal_domain_type("FREQ")).Times(2 + M_NUM_CPU);
+            EXPECT_CALL(*it, agg_function("FREQ"))
+                .WillOnce(Return(geopm::Agg::average));
+            for (int ii = 0; ii < M_NUM_CPU; ++ii) {
+                EXPECT_CALL(*it, push_signal("FREQ", IPlatformTopo::M_DOMAIN_CPU, ii))
+                    .WillOnce(Return(ii));
+                EXPECT_CALL(*it, sample(ii)).WillOnce(Return(ii));
+            }
+        }
+        EXPECT_CALL(*it, read_batch());
+    }
+    double sum = 0;
+    for (int ii = 0; ii < M_NUM_CPU; ++ii) {
+        sum += ii;
+    }
+    int freq_idx = m_platio->push_signal("FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
+    m_platio->read_batch();
+    double freq = m_platio->sample(freq_idx);
+    EXPECT_DOUBLE_EQ(sum / M_NUM_CPU, freq);
 }
 
 TEST_F(PlatformIOTest, adjust)
