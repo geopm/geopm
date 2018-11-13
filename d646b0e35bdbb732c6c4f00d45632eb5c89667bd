@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "281edfd2_e2b9520c",
+        "filename": "Makefile.am",
+        "patchSetId": 3
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-13T19:25:28Z",
+      "side": 1,
+      "message": "not needed.",
+      "range": {
+        "startLine": 281,
+        "startChar": 51,
+        "endLine": 281,
+        "endChar": 72
+      },
+      "revId": "d646b0e35bdbb732c6c4f00d45632eb5c89667bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "14457cef_476c3ac6",
+        "filename": "Makefile.am",
+        "patchSetId": 3
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-13T19:25:28Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 282,
+        "startChar": 56,
+        "endLine": 282,
+        "endChar": 76
+      },
+      "revId": "d646b0e35bdbb732c6c4f00d45632eb5c89667bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b4f09037_bce7738a",
+        "filename": "Makefile.am",
+        "patchSetId": 3
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-13T19:25:28Z",
+      "side": 1,
+      "message": "dependency is inferred by linking to libgeopm and geopm_imbalancer.h should be in the list of SOURCES for libgeopmpolicy.",
+      "range": {
+        "startLine": 467,
+        "startChar": 25,
+        "endLine": 467,
+        "endChar": 47
+      },
+      "revId": "d646b0e35bdbb732c6c4f00d45632eb5c89667bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "317afdac_42476558",
+        "filename": "src/ModelParse.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-13T19:25:28Z",
+      "side": 1,
+      "message": "Use limits.h",
+      "range": {
+        "startLine": 44,
+        "startChar": 7,
+        "endLine": 44,
+        "endChar": 16
+      },
+      "revId": "d646b0e35bdbb732c6c4f00d45632eb5c89667bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "057e0ac7_3dc4f8db",
+        "filename": "tutorial/tutorial_region.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-13T19:25:28Z",
+      "side": 1,
+      "message": "Call out that this is really MKL that is missing.",
+      "range": {
+        "startLine": 49,
+        "startChar": 3,
+        "endLine": 49,
+        "endChar": 7
+      },
+      "revId": "d646b0e35bdbb732c6c4f00d45632eb5c89667bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
