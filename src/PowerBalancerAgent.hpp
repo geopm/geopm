@@ -115,6 +115,8 @@ namespace geopm
             };
 
             enum m_plat_signal_e {
+                M_PLAT_SIGNAL_EPOCH_MPI_RUNTIME,
+                M_PLAT_SIGNAL_EPOCH_IGNORE_RUNTIME,
                 M_PLAT_SIGNAL_EPOCH_RUNTIME,
                 M_PLAT_SIGNAL_EPOCH_COUNT,
                 M_PLAT_NUM_SIGNAL,
