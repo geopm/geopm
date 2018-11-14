@@ -42,7 +42,7 @@ page for details about the command line interface.
 
 import sys
 import os
-import optparse
+import argparse
 import subprocess
 import socket
 import math
@@ -133,64 +133,28 @@ class PassThroughError(Exception):
     """
 
 
-class SubsetOptionParser(optparse.OptionParser):
+class SubsetOptionParser(argparse.ArgumentParser):
     """
     OptionParser derived object that will parse a subset of command
     line arguments and prepend unrecognized arguments to positional
-    arguments.  Disable help and version message features of the
-    OptionParser, these will be handled by the underlying job
-    launcher.  GEOPM command line option help is appended to the job
+    arguments.  GEOPM command line option help is appended to the job
     launcher's help message.
     """
     def parse_args(self, argv):
-        argv_filt, unfiltered = self._filter_argv(argv)
-        opts, unparsed = optparse.OptionParser.parse_args(self, argv_filt)
-        unfiltered.extend(unparsed)
-        return opts, unfiltered
-
-    def _filter_argv(self, argv):
-        argv_filt = []
         unfiltered = []
+        unparsed = []
+        opts, unparsed = argparse.ArgumentParser.parse_known_args(self, argv)
+        unfiltered.extend(unparsed)
         idx = 0
-        while idx < len(argv):
-            if argv[idx] == '--':
+        while idx < len(unfiltered):
+            if unfiltered[idx] == '--':
                 unfiltered.extend(argv[idx:])
-                exec_wrapper = os.getenv('GEOPM_EXEC_WRAPPER','')
+                exec_wrapper = os.getenv('GEOPM_EXEC_WRAPPER', '')
                 if exec_wrapper and exec_wrapper not in unfiltered:
                     unfiltered.insert(1, exec_wrapper)
                 break
-            is_found = False
-            for option in self._get_all_options():
-                for opt in option._long_opts:
-                    if not is_found and argv[idx] == opt:
-                        argv_filt.append(argv[idx])
-                        if idx < len(argv) - 1 and not argv[idx + 1].startswith('-'):
-                            argv_filt.append(argv[idx + 1])
-                            idx += 1
-                        is_found = True
-                    elif not is_found and re.match(r'{opt}=\w*'.format(opt=opt), argv[idx]):
-                        argv_filt.append(argv[idx])
-                        is_found = True
-                for opt in option._short_opts:
-                    if not is_found and argv[idx] == opt:
-                        argv_filt.append(argv[idx])
-                        if idx < len(argv) - 1 and not argv[idx + 1].startswith('-'):
-                            argv_filt.append(argv[idx + 1])
-                            idx += 1
-                        is_found = True
-                    elif not is_found and re.match(r'{opt}\w*'.format(opt=opt), argv[idx]):
-                        argv_filt.append(argv[idx])
-                        is_found = True
-            if not is_found:
-                unfiltered.append(argv[idx])
             idx += 1
-        return argv_filt, unfiltered
-
-    def _add_help_option(self):
-        pass
-
-    def _add_version_option(self):
-        pass
+        return opts, unfiltered
 
 
 def int_ceil_div(aa, bb):
@@ -248,24 +212,24 @@ class Config(object):
             raise PassThroughError('The --geopm-ctl flag is not specified.')
         # Parse the subset of arguments used by geopm
         parser = SubsetOptionParser()
-        parser.add_option('--geopm-rm', dest='rm', nargs=1, type='string')
-        parser.add_option('--geopm-ctl', dest='ctl', nargs=1, type='string')
-        parser.add_option('--geopm-policy', dest='policy', nargs=1, type='string')
-        parser.add_option('--geopm-endpoint', dest='endpoint', nargs=1, type='string')
-        parser.add_option('--geopm-report', dest='report', nargs=1, type='string')
-        parser.add_option('--geopm-trace', dest='trace', nargs=1, type='string')
-        parser.add_option('--geopm-trace-signals', dest='trace_signals', nargs=1, type='string')
-        parser.add_option('--geopm-agent', dest='agent', nargs=1, type='string')
-        parser.add_option('--geopm-profile', dest='profile', nargs=1, type='string')
-        parser.add_option('--geopm-shmkey', dest='shmkey', nargs=1, type='string')
-        parser.add_option('--geopm-timeout', dest='timeout', nargs=1, type='string')
-        parser.add_option('--geopm-plugin', dest='plugin', nargs=1, type='string')
-        parser.add_option('--geopm-debug-attach', dest='debug_attach', nargs=1, type='string')
-        parser.add_option('--geopm-barrier', dest='barrier', action='store_true', default=False)
-        parser.add_option('--geopm-preload', dest='preload', action='store_true', default=False)
-        parser.add_option('--geopm-disable-hyperthreads', dest='allow_ht_pinning', action='store_false', default=True)
+        parser.add_argument('--geopm-rm', dest='rm', type=str)
+        parser.add_argument('--geopm-ctl', dest='ctl', type=str)
+        parser.add_argument('--geopm-policy', dest='policy', type=str)
+        parser.add_argument('--geopm-endpoint', dest='endpoint', type=str)
+        parser.add_argument('--geopm-report', dest='report', type=str)
+        parser.add_argument('--geopm-trace', dest='trace', type=str)
+        parser.add_argument('--geopm-trace-signals', dest='trace_signals', type=str)
+        parser.add_argument('--geopm-agent', dest='agent', type=str)
+        parser.add_argument('--geopm-profile', dest='profile', type=str)
+        parser.add_argument('--geopm-shmkey', dest='shmkey', type=str)
+        parser.add_argument('--geopm-timeout', dest='timeout', type=str)
+        parser.add_argument('--geopm-plugin', dest='plugin', type=str)
+        parser.add_argument('--geopm-debug-attach', dest='debug_attach', type=str)
+        parser.add_argument('--geopm-barrier', dest='barrier', action='store_true', default=False)
+        parser.add_argument('--geopm-preload', dest='preload', action='store_true', default=False)
+        parser.add_argument('--geopm-disable-hyperthreads', dest='allow_ht_pinning', action='store_false', default=True)
 
-        opts, self.argv_unparsed = parser.parse_args(argv)
+        opts, self.argv_unparsed = parser.parse_known_args(argv)
         # Error check inputs
         if opts.ctl not in ('process', 'pthread', 'application'):
             raise SyntaxError('--geopm-ctl must be one of: "process", "pthread", or "application"')
@@ -896,17 +860,17 @@ class SrunLauncher(Launcher):
         manipulated by GEOPM.
         """
         parser = SubsetOptionParser()
-        parser.add_option('-n', '--ntasks', dest='num_rank', nargs=1, type='int')
-        parser.add_option('-N', '--nodes', dest='num_node', nargs=1, type='int')
-        parser.add_option('-c', '--cpus-per-task', dest='cpu_per_rank', nargs=1, type='int')
-        parser.add_option('-I', '--immediate', dest='timeout', nargs=1, type='int')
-        parser.add_option('-t', '--time', dest='time_limit', nargs=1, type='int')
-        parser.add_option('-J', '--job-name', dest='job_name', nargs=1, type='string')
-        parser.add_option('-w', '--nodelist', dest='node_list', nargs=1, type='string')
-        parser.add_option('--ntasks-per-node', dest='rank_per_node', nargs=1, type='int')
-        parser.add_option('-p', '--partition', dest='partition', nargs=1, type='string')
+        parser.add_argument('-n', '--ntasks', dest='num_rank', type=int)
+        parser.add_argument('-N', '--nodes', dest='num_node', type=int)
+        parser.add_argument('-c', '--cpus-per-task', dest='cpu_per_rank', type=int)
+        parser.add_argument('-I', '--immediate', dest='timeout', type=int)
+        parser.add_argument('-t', '--time', dest='time_limit', type=int)
+        parser.add_argument('-J', '--job-name', dest='job_name', type=str)
+        parser.add_argument('-w', '--nodelist', dest='node_list', type=str)
+        parser.add_argument('--ntasks-per-node', dest='rank_per_node', type=int)
+        parser.add_argument('-p', '--partition', dest='partition', type=str)
 
-        opts, self.argv_unparsed = parser.parse_args(self.argv_unparsed)
+        opts, self.argv_unparsed = parser.parse_known_args(self.argv_unparsed)
 
         self.num_rank = opts.num_rank
         self.num_node = opts.num_node
@@ -963,13 +927,12 @@ class SrunLauncher(Launcher):
             if help_msg.find('--mpibind') != -1:
                 result.append('--mpibind=off')
             if help_msg.find('--cpu_bind') != -1:
-                bind_cmd='--cpu_bind'
+                bind_cmd = '--cpu_bind'
             elif help_msg.find('--cpu-bind') != -1:
-                bind_cmd='--cpu-bind'
+                bind_cmd = '--cpu-bind'
             else:
                 raise RuntimeError('SLURM\'s cpubind plugin was not detected.  Unable to affinitize ranks.')
 
-            num_mask = len(aff_list)
             mask_zero = ['0' for ii in range(self.num_linux_cpu)]
             mask_list = []
             for cpu_set in aff_list:
@@ -1127,12 +1090,12 @@ class IMPIExecLauncher(Launcher):
         manipulated by GEOPM.
         """
         parser = SubsetOptionParser()
-        parser.add_option('-n', dest='num_rank', nargs=1, type='int')
-        parser.add_option('--hosts', dest='node_list', nargs=1, type='string')
-        parser.add_option('-f', '--hostfile', dest='host_file', nargs=1, type='string')
-        parser.add_option('--ppn', dest='rank_per_node', nargs=1, type='int')
+        parser.add_argument('-n', dest='num_rank', type=int)
+        parser.add_argument('--hosts', dest='node_list', type=str)
+        parser.add_argument('-f', '--hostfile', dest='host_file', type=str)
+        parser.add_argument('--ppn', dest='rank_per_node', type=int)
 
-        opts, self.argv_unparsed = parser.parse_args(self.argv_unparsed)
+        opts, self.argv_unparsed = parser.parse_known_args(self.argv_unparsed)
         try:
             self.argv_unparsed.remove('--')
         except ValueError:
@@ -1243,14 +1206,14 @@ class AprunLauncher(Launcher):
         manipulated by GEOPM.
         """
         parser = SubsetOptionParser()
-        parser.add_option('-n', '--pes', dest='num_rank', nargs=1, type='int')
-        parser.add_option('-N', '--pes-per-node', dest='rank_per_node', nargs=1, type='int')
-        parser.add_option('-d', '--cpus-per-pe', dest='cpu_per_rank', nargs=1, type='int')
-        parser.add_option('-t', '--cpu-time-limit', dest='time_limit', nargs=1, type='int')
-        parser.add_option('-L', '--node-list', dest='node_list', nargs=1, type='string')
-        parser.add_option('-l', '--node-list-file', dest='host_file', nargs=1, type='string')
+        parser.add_argument('-n', '--pes', dest='num_rank', type=int)
+        parser.add_argument('-N', '--pes-per-node', dest='rank_per_node', type=int)
+        parser.add_argument('-d', '--cpus-per-pe', dest='cpu_per_rank', type=int)
+        parser.add_argument('-t', '--cpu-time-limit', dest='time_limit', type=int)
+        parser.add_argument('-L', '--node-list', dest='node_list', type=str)
+        parser.add_argument('-l', '--node-list-file', dest='host_file', type=str)
 
-        opts, self.argv_unparsed = parser.parse_args(self.argv_unparsed)
+        opts, self.argv_unparsed = parser.parse_known_args(self.argv_unparsed)
 
         self.num_rank = opts.num_rank
         self.rank_per_node = opts.rank_per_node
