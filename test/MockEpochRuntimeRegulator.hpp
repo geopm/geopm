@@ -54,6 +54,10 @@ class MockEpochRuntimeRegulator : public geopm::IEpochRuntimeRegulator {
                            const geopm::IRuntimeRegulator&(uint64_t region_id));
         MOCK_CONST_METHOD1(is_regulated,
                            bool(uint64_t region_id));
+        MOCK_CONST_METHOD0(last_epoch_mpi_time,
+                           std::vector<double>());
+        MOCK_CONST_METHOD0(last_epoch_ignore_time,
+                           std::vector<double>());
         MOCK_CONST_METHOD0(last_epoch_time,
                            std::vector<double>());
         MOCK_CONST_METHOD0(epoch_count,

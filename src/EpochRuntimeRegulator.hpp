@@ -80,6 +80,12 @@ namespace geopm
             ///        tracked by the EpochRuntimeRegulator.
             /// @param [in] region_id The ID of the region.
             virtual bool is_regulated(uint64_t region_id) const = 0;
+            /// @brief Returns the total mpi runtime of the last iteration
+            ///        of the epoch for each rank.
+            virtual std::vector<double> last_epoch_mpi_time() const = 0;
+            /// @brief Returns the total ignore runtime of the last iteration
+            ///        of the epoch for each rank.
+            virtual std::vector<double> last_epoch_ignore_time() const = 0;
             /// @brief Returns the total runtime of the last iteration
             ///        of the epoch for each rank.
             virtual std::vector<double> last_epoch_time() const = 0;
@@ -145,6 +151,8 @@ namespace geopm
             void record_exit(uint64_t region_id, int rank, struct geopm_time_s exit_time) override;
             const IRuntimeRegulator &region_regulator(uint64_t region_id) const override;
             bool is_regulated(uint64_t region_id) const override;
+            std::vector<double> last_epoch_mpi_time() const override;
+            std::vector<double> last_epoch_ignore_time() const override;
             std::vector<double> last_epoch_time() const override;
             std::vector<double> epoch_count() const override;
             double total_region_runtime(uint64_t region_id) const override;

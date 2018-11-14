@@ -61,6 +61,8 @@ class PowerBalancerAgentTest : public ::testing::Test
     protected:
         enum {
             M_SIGNAL_EPOCH_COUNT,
+            M_SIGNAL_EPOCH_MPI_RUNTIME,
+            M_SIGNAL_EPOCH_IGNORE_RUNTIME,
             M_SIGNAL_EPOCH_RUNTIME,
         };
 
@@ -367,6 +369,8 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
                                                  "policy_max_epoch_runtime",
                                                  "policy_power_slack",
                                                  "policy_power_limit"};
+    std::vector<double> epoch_mpi_rt = {2.0, 2.19};
+    std::vector<double> epoch_ignore_rt = {2.0, 2.19};
     std::vector<double> epoch_rt = {2.0, 2.19};
 
     EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE))
@@ -375,6 +379,10 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
         .WillOnce(Return(M_POWER_PACKAGE_MAX));
     EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", IPlatformTopo::M_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_SIGNAL_EPOCH_COUNT));
+    EXPECT_CALL(m_platform_io, push_signal("EPOCH_MPI_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0))
+        .WillOnce(Return(M_SIGNAL_EPOCH_MPI_RUNTIME));
+    EXPECT_CALL(m_platform_io, push_signal("EPOCH_IGNORE_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0))
+        .WillOnce(Return(M_SIGNAL_EPOCH_IGNORE_RUNTIME));
     EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_SIGNAL_EPOCH_RUNTIME));
     EXPECT_CALL(m_platform_io, sample(M_SIGNAL_EPOCH_COUNT))
