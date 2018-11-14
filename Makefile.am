@@ -528,6 +528,7 @@ if ENABLE_DOC
 # DOXYGEN TARGET
 doxygen:
 	doxygen dox/Doxyfile
+	doxygen dox-public/Doxyfile
 
 # MAN TARGET
 BUILT_SOURCES = ruby/bin/ronn
