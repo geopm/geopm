@@ -21,6 +21,8 @@
 /depcomp
 /dox/html/
 /dox/latex/
+/dox-public/html/
+/dox-public/latex/
 .deps/
 .dirstamp
 /examples/geopm_print_error
