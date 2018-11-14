@@ -61,6 +61,8 @@ class PowerBalancerAgentTest : public ::testing::Test
     protected:
         enum {
             M_SIGNAL_EPOCH_COUNT,
+            M_SIGNAL_EPOCH_MPI_RUNTIME,
+            M_SIGNAL_EPOCH_IGNORE_RUNTIME,
             M_SIGNAL_EPOCH_RUNTIME,
         };
 
@@ -367,7 +369,9 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
                                                  "policy_max_epoch_runtime",
                                                  "policy_power_slack",
                                                  "policy_power_limit"};
-    std::vector<double> epoch_rt = {2.0, 2.19};
+    std::vector<double> epoch_rt_mpi = {0.50, 0.75};
+    std::vector<double> epoch_rt_ignore = {0.25, 0.27};
+    std::vector<double> epoch_rt = {1.0, 1.01};
 
     EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE))
         .WillOnce(Return(M_NUM_PKGS));
@@ -375,6 +379,10 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
         .WillOnce(Return(M_POWER_PACKAGE_MAX));
     EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", IPlatformTopo::M_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_SIGNAL_EPOCH_COUNT));
+    EXPECT_CALL(m_platform_io, push_signal("EPOCH_MPI_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0))
+        .WillOnce(Return(M_SIGNAL_EPOCH_MPI_RUNTIME));
+    EXPECT_CALL(m_platform_io, push_signal("EPOCH_IGNORE_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0))
+        .WillOnce(Return(M_SIGNAL_EPOCH_IGNORE_RUNTIME));
     EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_SIGNAL_EPOCH_RUNTIME));
     EXPECT_CALL(m_platform_io, sample(M_SIGNAL_EPOCH_COUNT))
@@ -382,10 +390,22 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
                 {
                     return (double) ++counter;
                 }));
-    Sequence pio_seq;
+    Sequence mpi_rt_pio_seq;
+    for (size_t x = 0; x < epoch_rt_mpi.size(); ++x) {
+        EXPECT_CALL(m_platform_io, sample(M_SIGNAL_EPOCH_MPI_RUNTIME))
+            .InSequence(mpi_rt_pio_seq)
+            .WillOnce(Return(epoch_rt_mpi[x]));
+    }
+    Sequence i_rt_pio_seq;
+    for (size_t x = 0; x < epoch_rt_ignore.size(); ++x) {
+        EXPECT_CALL(m_platform_io, sample(M_SIGNAL_EPOCH_IGNORE_RUNTIME))
+            .InSequence(i_rt_pio_seq)
+            .WillOnce(Return(epoch_rt_ignore[x]));
+    }
+    Sequence e_rt_pio_seq;
     for (size_t x = 0; x < epoch_rt.size(); ++x) {
         EXPECT_CALL(m_platform_io, sample(M_SIGNAL_EPOCH_RUNTIME))
-            .InSequence(pio_seq)
+            .InSequence(e_rt_pio_seq)
             .WillOnce(Return(epoch_rt[x]));
     }
     m_power_gov = geopm::make_unique<MockPowerGovernor>();
@@ -404,9 +424,11 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
     EXPECT_CALL(*m_power_bal, calculate_runtime_sample()).Times(2);
     EXPECT_CALL(*m_power_bal, runtime_sample())
         .WillRepeatedly(Return(epoch_rt[0]));
-    EXPECT_CALL(*m_power_bal, is_runtime_stable(epoch_rt[0]))
+    double exp_in = epoch_rt[0] - epoch_rt_mpi[0] - epoch_rt_ignore[0];
+    EXPECT_CALL(*m_power_bal, is_runtime_stable(exp_in))
         .WillOnce(Return(true));
-    EXPECT_CALL(*m_power_bal, is_target_met(epoch_rt[1]))
+    exp_in = epoch_rt[1] - epoch_rt_mpi[1] - epoch_rt_ignore[1];
+    EXPECT_CALL(*m_power_bal, is_target_met(exp_in))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_power_bal, power_cap(300.0))
         .Times(2);
