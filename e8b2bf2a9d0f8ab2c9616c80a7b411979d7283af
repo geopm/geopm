@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a85984eb_50c69140",
+        "filename": "tutorial/Makefile",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-11-14T03:10:01Z",
+      "side": 1,
+      "message": "\\ and carriage return?",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 106
+      },
+      "revId": "e8b2bf2a9d0f8ab2c9616c80a7b411979d7283af",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
