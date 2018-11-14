@@ -64,6 +64,10 @@ namespace geopm
                            {"REGION_ID#", M_SIGNAL_REGION_ID},
                            {"REGION_PROGRESS", M_SIGNAL_PROGRESS},
                            {"REGION_THREAD_PROGRESS", M_SIGNAL_THREAD_PROGRESS},
+                           {plugin_name() + "::EPOCH_MPI_RUNTIME", M_SIGNAL_EPOCH_MPI_RUNTIME},
+                           {"EPOCH_MPI_RUNTIME", M_SIGNAL_EPOCH_MPI_RUNTIME},
+                           {plugin_name() + "::EPOCH_IGNORE_RUNTIME", M_SIGNAL_EPOCH_IGNORE_RUNTIME},
+                           {"EPOCH_IGNORE_RUNTIME", M_SIGNAL_EPOCH_IGNORE_RUNTIME},
                            {plugin_name() + "::EPOCH_RUNTIME", M_SIGNAL_EPOCH_RUNTIME},
                            {"EPOCH_RUNTIME", M_SIGNAL_EPOCH_RUNTIME},
                            {plugin_name() + "::EPOCH_COUNT", M_SIGNAL_EPOCH_COUNT},
@@ -75,6 +79,8 @@ namespace geopm
         , m_per_cpu_progress(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), NAN)
         , m_per_cpu_runtime(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), NAN)
         , m_thread_progress(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), NAN)
+        , m_epoch_mpi_runtime(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), 0.0)
+        , m_epoch_ignore_runtime(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), 0.0)
         , m_epoch_runtime(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), 0.0)
         , m_epoch_count(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), 0.0)
         , m_cpu_rank(m_profile_sample->cpu_rank())
@@ -174,6 +180,18 @@ namespace geopm
         if (m_do_read[M_SIGNAL_THREAD_PROGRESS]) {
             m_thread_progress = m_profile_sample->per_cpu_thread_progress();
         }
+        if (m_do_read[M_SIGNAL_EPOCH_MPI_RUNTIME]) {
+            std::vector<double> per_rank_epoch_mpi_runtime = m_epoch_regulator.last_epoch_mpi_time();
+            for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
+                m_epoch_mpi_runtime[cpu_idx] = per_rank_epoch_mpi_runtime[m_cpu_rank[cpu_idx]];
+            }
+        }
+        if (m_do_read[M_SIGNAL_EPOCH_IGNORE_RUNTIME]) {
+            std::vector<double> per_rank_epoch_ignore_runtime = m_epoch_regulator.last_epoch_ignore_time();
+            for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
+                m_epoch_ignore_runtime[cpu_idx] = per_rank_epoch_ignore_runtime[m_cpu_rank[cpu_idx]];
+            }
+        }
         if (m_do_read[M_SIGNAL_EPOCH_RUNTIME]) {
             std::vector<double> per_rank_epoch_runtime = m_epoch_regulator.last_epoch_time();
             for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
@@ -236,6 +254,12 @@ namespace geopm
             case M_SIGNAL_THREAD_PROGRESS:
                 result = m_thread_progress[cpu_idx];
                 break;
+            case M_SIGNAL_EPOCH_MPI_RUNTIME:
+                result = m_epoch_mpi_runtime[cpu_idx];
+                break;
+            case M_SIGNAL_EPOCH_IGNORE_RUNTIME:
+                result = m_epoch_ignore_runtime[cpu_idx];
+                break;
             case M_SIGNAL_EPOCH_RUNTIME:
                 result = m_epoch_runtime[cpu_idx];
                 break;
@@ -280,6 +304,12 @@ namespace geopm
                 break;
             case M_SIGNAL_THREAD_PROGRESS:
                 result = m_profile_sample->per_cpu_thread_progress()[cpu_idx];
+                break;
+            case M_SIGNAL_EPOCH_MPI_RUNTIME:
+                result = m_epoch_regulator.last_epoch_mpi_time()[cpu_idx];
+                break;
+            case M_SIGNAL_EPOCH_IGNORE_RUNTIME:
+                result = m_epoch_regulator.last_epoch_ignore_time()[cpu_idx];
                 break;
             case M_SIGNAL_EPOCH_RUNTIME:
                 result = m_epoch_regulator.last_epoch_time()[cpu_idx];
@@ -328,6 +358,10 @@ namespace geopm
             {"PROFILE::REGION_THREAD_PROGRESS", Agg::min},
             {"REGION_ID#", Agg::region_id},
             {"PROFILE::REGION_ID#", Agg::region_id},
+            {"EPOCH_MPI_RUNTIME", Agg::max},
+            {"PROFILE::EPOCH_MPI_RUNTIME", Agg::max},
+            {"EPOCH_IGNORE_RUNTIME", Agg::max},
+            {"PROFILE::EPOCH_IGNORE_RUNTIME", Agg::max},
             {"EPOCH_RUNTIME", Agg::max},
             {"PROFILE::EPOCH_RUNTIME", Agg::max},
             {"EPOCH_ENERGY", Agg::sum},

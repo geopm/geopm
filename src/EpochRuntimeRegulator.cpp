@@ -177,8 +177,7 @@ namespace geopm
         reg_it->second->record_exit(rank, exit_time);
         if (geopm_region_id_is_epoch(region_id)) {
             if (m_seen_first_epoch[rank]) {
-                m_last_epoch_runtime[rank] = reg_it->second->per_rank_last_runtime()[rank] -
-                                             (m_curr_mpi_runtime[rank] + m_curr_ignore_runtime[rank]);
+                m_last_epoch_runtime[rank] = reg_it->second->per_rank_last_runtime()[rank];
                 m_agg_epoch_runtime[rank] += m_last_epoch_runtime[rank];
                 m_agg_epoch_mpi_runtime[rank] += m_curr_mpi_runtime[rank];
                 m_agg_epoch_ignore_runtime[rank] += m_curr_ignore_runtime[rank];
@@ -230,6 +229,16 @@ namespace geopm
     bool EpochRuntimeRegulator::is_regulated(uint64_t region_id) const
     {
         return m_rid_regulator_map.find(region_id) != m_rid_regulator_map.end();
+    }
+
+    std::vector<double> EpochRuntimeRegulator::last_epoch_mpi_time() const
+    {
+        return m_curr_mpi_runtime;
+    }
+
+    std::vector<double> EpochRuntimeRegulator::last_epoch_ignore_time() const
+    {
+        return m_curr_ignore_runtime;
     }
 
     std::vector<double> EpochRuntimeRegulator::last_epoch_time() const

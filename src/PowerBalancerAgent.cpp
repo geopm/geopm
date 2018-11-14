@@ -172,6 +172,8 @@ namespace geopm
     {
         m_power_governor->init_platform_io();
         // Setup signals
+        m_pio_idx[M_PLAT_SIGNAL_EPOCH_MPI_RUNTIME] = m_platform_io.push_signal("EPOCH_MPI_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_pio_idx[M_PLAT_SIGNAL_EPOCH_IGNORE_RUNTIME] = m_platform_io.push_signal("EPOCH_IGNORE_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_pio_idx[M_PLAT_SIGNAL_EPOCH_RUNTIME] = m_platform_io.push_signal("EPOCH_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_pio_idx[M_PLAT_SIGNAL_EPOCH_COUNT] = m_platform_io.push_signal("EPOCH_COUNT", IPlatformTopo::M_DOMAIN_BOARD, 0);
     }
@@ -464,8 +466,10 @@ namespace geopm
         if (epoch_count != role.m_last_epoch_count &&
             !role.m_is_step_complete) {
 
-            double epoch_runtime = role.m_platform_io.sample(role.m_pio_idx[PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_RUNTIME]);
-            role.m_is_step_complete = role.m_power_balancer->is_runtime_stable(epoch_runtime);
+            double balanced_epoch_runtime = role.m_platform_io.sample(role.m_pio_idx[PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_RUNTIME]) -
+                                            role.m_platform_io.sample(role.m_pio_idx[PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_MPI_RUNTIME]) -
+                                            role.m_platform_io.sample(role.m_pio_idx[PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_IGNORE_RUNTIME]);
+            role.m_is_step_complete = role.m_power_balancer->is_runtime_stable(balanced_epoch_runtime);
             role.m_power_balancer->calculate_runtime_sample();
             role.m_runtime = role.m_power_balancer->runtime_sample();
             role.m_last_epoch_count = epoch_count;
@@ -492,10 +496,12 @@ namespace geopm
         if (epoch_count != role.m_last_epoch_count &&
             !role.m_is_step_complete) {
 
-            double epoch_runtime = role.m_platform_io.sample(role.m_pio_idx[PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_RUNTIME]);
+            double balanced_epoch_runtime = role.m_platform_io.sample(role.m_pio_idx[PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_RUNTIME]) -
+                                            role.m_platform_io.sample(role.m_pio_idx[PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_MPI_RUNTIME]) -
+                                            role.m_platform_io.sample(role.m_pio_idx[PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_IGNORE_RUNTIME]);
             role.m_power_balancer->calculate_runtime_sample();
             role.m_is_step_complete = role.m_is_out_of_bounds ||
-                                      role.m_power_balancer->is_target_met(epoch_runtime);
+                                      role.m_power_balancer->is_target_met(balanced_epoch_runtime);
             role.m_power_slack = role.m_power_balancer->power_slack();
             role.m_is_out_of_bounds = false;
             role.m_power_headroom = role.m_power_max - role.m_power_balancer->power_limit();
