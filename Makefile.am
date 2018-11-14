@@ -526,8 +526,14 @@ rpm-theta: dist
 if ENABLE_DOC
 
 # DOXYGEN TARGET
-doxygen:
+
+dox-public/Doxyfile: dox-public/Doxyfile.in
+	sed -e "s|@INSTALL_HEADER_FILES@|$(include_HEADERS) $(pkginclude_HEADERS)|g" \
+            dox-public/Doxyfile.in > dox-public/Doxyfile
+
+doxygen: dox-public/Doxyfile
 	doxygen dox/Doxyfile
+	doxygen dox-public/Doxyfile
 
 # MAN TARGET
 BUILT_SOURCES = ruby/bin/ronn
