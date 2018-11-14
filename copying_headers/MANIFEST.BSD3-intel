@@ -274,14 +274,8 @@ tracker/track
 tutorial/agent/agent_tutorial.sh
 tutorial/agent/ExampleAgent.cpp
 tutorial/agent/ExampleAgent.hpp
-tutorial/agent/Makefile
-tutorial/agent/tutorial_build_gnu.sh
-tutorial/agent/tutorial_build_intel.sh
 tutorial/iogroup/ExampleIOGroup.cpp
 tutorial/iogroup/ExampleIOGroup.hpp
-tutorial/iogroup/Makefile
-tutorial/iogroup/tutorial_build_gnu.sh
-tutorial/iogroup/tutorial_build_intel.sh
 tutorial/Makefile
 tutorial/tutorial_0.c
 tutorial/tutorial_0.sh

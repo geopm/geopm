@@ -231,16 +231,10 @@ TUTORIAL_DIST = tutorial/agent/agent_tutorial.sh \
                 tutorial/agent/ExampleAgent.cpp \
                 tutorial/agent/ExampleAgent.hpp \
                 tutorial/agent/example_policy.json \
-                tutorial/agent/Makefile \
                 tutorial/agent/README.md \
-                tutorial/agent/tutorial_build_gnu.sh \
-                tutorial/agent/tutorial_build_intel.sh \
                 tutorial/iogroup/ExampleIOGroup.cpp \
                 tutorial/iogroup/ExampleIOGroup.hpp \
-                tutorial/iogroup/Makefile \
                 tutorial/iogroup/README.md \
-                tutorial/iogroup/tutorial_build_gnu.sh \
-                tutorial/iogroup/tutorial_build_intel.sh \
                 tutorial/Makefile \
                 tutorial/README.md \
                 tutorial/tutorial_0.c \

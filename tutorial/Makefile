@@ -30,14 +30,26 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-TUTORIAL_BIN = tutorial_0 tutorial_1 tutorial_2 tutorial_3 tutorial_4 tutorial_5
+TUTORIAL_BIN = tutorial_0 \
+               tutorial_1 \
+               tutorial_2 \
+               tutorial_3 \
+               tutorial_4 \
+               tutorial_5 \
+               # end
+
+TUTORIAL_LIB = agent/libgeopmagent_example_agent.so.0.0.0 \
+               iogroup/libgeopmiogroup_example_iogroup.so.0.0.0 \
+               # end
+
+GEOPM_PLUGIN_FLAGS=-fPIC -shared
 
 CC ?= gcc
 CXX ?= g++
 MPICC ?= mpicc
 MPICXX ?= mpicxx
 
-all: $(TUTORIAL_BIN)
+all: $(TUTORIAL_BIN) $(TUTORIAL_LIB)
 
 tutorial_0.o: tutorial_0.c
 	$(MPICC) -c $^ $(CFLAGS) -o $@
@@ -78,20 +90,16 @@ tutorial_5: tutorial_5.o tutorial_region.o
 tutorial_region.o: tutorial_region.c tutorial_region.h
 	$(MPICC) -c tutorial_region.c $(CFLAGS) -o $@
 
-ModelApplication.o: ModelApplication.cpp ModelApplication.hpp
-	$(MPICXX) -c ModelApplication.cpp $(CXXFLAGS) -I../src -o $@
+agent/libgeopmagent_example_agent.so.0.0.0: agent/ExampleAgent.cpp agent/ExampleAgent.hpp
+	$(CXX) agent/ExampleAgent.cpp $(CXXFLAGS) -I ./agent $(LDFLAGS) $(GEOPM_PLUGIN_FLAGS) -o $@
 
-ModelRegion.o: ModelRegion.cpp ModelRegion.hpp
-	$(MPICXX) -c ModelRegion.cpp $(CXXFLAGS) -I../src -o $@
 
-ModelParse.o: ModelParse.cpp ModelParse.hpp
-	$(MPICXX) -c ModelParse.cpp $(CXXFLAGS) -I../src -o $@
+iogroup/libgeopmiogroup_example_iogroup.so.0.0.0: iogroup/ExampleIOGroup.cpp iogroup/ExampleIOGroup.hpp
+	$(CXX) iogroup/ExampleIOGroup.cpp $(CXXFLAGS) -I ./iogroup $(LDFLAGS) $(GEOPM_PLUGIN_FLAGS) -o $@
 
-json11.o: contrib/json11/json11.cpp contrib/json11/json11.hpp
-	$(CXX) -c contrib/json11/json11.cpp $(CXXFLAGS) -o $@
 
 clean:
-	rm -f $(TUTORIAL_BIN) *.o
+	rm -f $(TUTORIAL_BIN) $(TUTORIAL_LIB) *.o
 
 check: all
 	./tutorial_0.sh
@@ -103,3 +111,4 @@ check: all
 	./tutorial_6.sh
 
 .PHONY: all clean check
+
