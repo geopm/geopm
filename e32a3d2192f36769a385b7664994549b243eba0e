@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "395654b8_20b2dbd5",
+        "filename": "src/PowerBalancerAgent.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-14T20:13:22Z",
+      "side": 1,
+      "message": "M_PLAT_SIGNAL_EPOCH_RUNTIME_IGNORE",
+      "range": {
+        "startLine": 119,
+        "startChar": 16,
+        "endLine": 119,
+        "endChar": 50
+      },
+      "revId": "e32a3d2192f36769a385b7664994549b243eba0e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
