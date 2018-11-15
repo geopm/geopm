@@ -39,7 +39,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "geopm_message.h"
+#include "geopm_internal.h"
 #include "geopm_hash.h"
 #include "IOGroup.hpp"
 #include "MockIOGroup.hpp"
@@ -604,8 +604,6 @@ TEST_F(PlatformIOTest, agg_function)
     auto region_id_func = m_platio->agg_function("REGION_ID#");
     EXPECT_EQ(geopm_field_to_signal(GEOPM_REGION_ID_UNMARKED),
               region_id_func({5, 6, 7}));
-    EXPECT_EQ(77,
-              region_id_func({77, 77, geopm_field_to_signal(GEOPM_REGION_ID_UNDEFINED), 77}));
 
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->agg_function("INVALID"),
                                GEOPM_ERROR_INVALID, "unknown how to aggregate");

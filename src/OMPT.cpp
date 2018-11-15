@@ -40,7 +40,6 @@
 #include <sys/wait.h>
 
 #include "geopm.h"
-#include "geopm_message.h"
 #include "geopm_sched.h"
 #include "geopm_error.h"
 #include "Exception.hpp"
@@ -139,7 +138,7 @@ namespace geopm
 
     uint64_t OMPT::region_id(void *parallel_function)
     {
-        uint64_t result = GEOPM_REGION_ID_UNDEFINED;
+        uint64_t result = GEOPM_REGION_ID_UNMARKED;
         auto it = m_function_region_id_map.find((size_t)parallel_function);
         if (m_function_region_id_map.end() != it) {
             result = it->second;
@@ -149,7 +148,7 @@ namespace geopm
             region_name(parallel_function, rn);
             int err = geopm_prof_region(rn.c_str(), GEOPM_REGION_HINT_UNKNOWN, &result);
             if (err) {
-                result = GEOPM_REGION_ID_UNDEFINED;
+                result = GEOPM_REGION_ID_UNMARKED;
             }
             else {
                 m_function_region_id_map.insert(std::pair<size_t, uint64_t>((size_t)parallel_function, result));
@@ -236,7 +235,7 @@ extern "C"
 {
     static void *g_curr_parallel_function = NULL;
     static ompt_parallel_id_t g_curr_parallel_id;
-    static uint64_t g_curr_region_id = GEOPM_REGION_ID_UNDEFINED;
+    static uint64_t g_curr_region_id = GEOPM_REGION_ID_UNMARKED;
 
     static void on_ompt_event_parallel_begin(ompt_task_id_t parent_task_id,
                                              ompt_frame_t *parent_task_frame,
@@ -251,7 +250,7 @@ extern "C"
             g_curr_parallel_id = parallel_id;
             g_curr_region_id = geopm::ompt().region_id(parallel_function);
         }
-        if (g_curr_region_id != GEOPM_REGION_ID_UNDEFINED) {
+        if (g_curr_region_id != GEOPM_REGION_ID_UNMARKED) {
             geopm_prof_enter(g_curr_region_id);
         }
     }
@@ -261,7 +260,7 @@ extern "C"
                                            ompt_invoker_t invoker)
     {
         if (geopm_is_pmpi_prof_enabled() &&
-            g_curr_region_id != GEOPM_REGION_ID_UNDEFINED &&
+            g_curr_region_id != GEOPM_REGION_ID_UNMARKED &&
             g_curr_parallel_id == parallel_id) {
             geopm_prof_exit(g_curr_region_id);
         }

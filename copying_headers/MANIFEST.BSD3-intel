@@ -91,12 +91,13 @@ src/geopm.h
 src/geopm_hash.c
 src/geopm_hash.h
 src/geopm_imbalancer.h
-src/geopm_message.h
+src/geopm_internal.h
 src/geopm_mpi_comm_split.h
 src/geopm_plugin.c
 src/geopm_pmpi.c
 src/geopm_pmpi_fortran.c
 src/geopm_pmpi.h
+src/geopm_region_id.h
 src/geopmread_main.cpp
 src/geopm_sched.c
 src/geopm_sched.h

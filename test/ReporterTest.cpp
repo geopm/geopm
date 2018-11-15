@@ -44,6 +44,7 @@
 #include "MockComm.hpp"
 #include "MockTreeComm.hpp"
 #include "Helper.hpp"
+#include "geopm.h"
 #include "geopm_hash.h"
 #include "config.h"
 

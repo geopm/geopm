@@ -31,7 +31,8 @@
  */
 
 #include "geopm.h"
-#include "geopm_message.h"
+#include "geopm_internal.h"
+#include "geopm_region_id.h"
 #include "geopm_hash.h"
 #include "RegionAggregator.hpp"
 #include "PlatformIO.hpp"

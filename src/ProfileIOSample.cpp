@@ -33,7 +33,7 @@
 #include <set>
 #include <algorithm>
 
-#include "geopm.h"
+#include "geopm_region_id.h"
 
 #include "EpochRuntimeRegulator.hpp"
 #include "ProfileIOSample.hpp"

@@ -39,6 +39,7 @@
 #include <algorithm>
 #include <string>
 
+#include "geopm_internal.h"
 #include "geopm_hash.h"
 #include "Exception.hpp"
 #include "ProfileTable.hpp"
