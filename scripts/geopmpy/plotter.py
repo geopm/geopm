@@ -745,7 +745,10 @@ def generate_app_best_freq_plot_sc17(data, name, output_dir):
            label='offline auto application best-fit',
            zorder=3)
 
-    line_data = data['tutorial_dgemm']
+    try:
+        line_data = data['dgemm']
+    except KeyError:
+        line_data = data['tutorial_dgemm']
     ax.plot(index,
             line_data,
             color='orange',
@@ -753,7 +756,10 @@ def generate_app_best_freq_plot_sc17(data, name, output_dir):
             linestyle='--',
             zorder=3)
 
-    line_data = data['tutorial_stream']
+    try:
+        line_data = data['stream']
+    except KeyError:
+        line_data = data['tutorial_stream']
     ax.plot(index,
             line_data,
             color='blue',

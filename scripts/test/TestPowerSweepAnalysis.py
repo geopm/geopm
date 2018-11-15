@@ -75,9 +75,6 @@ class TestPowerSweepAnalysis(unittest.TestCase):
 
     def make_mock_report_df(self, powers):
         version = '0.3.0'
-        power_budget = 400
-        tree_decider = 'static'
-        leaf_decider = 'simple'
         agent = 'power_governor'
         node_name = 'mynode'
         region_id = {
@@ -85,10 +82,10 @@ class TestPowerSweepAnalysis(unittest.TestCase):
             'dgemm':  '11396693813',
             'stream': '20779751936'
         }
+        start_time = 'Tue Nov  6 08:00:00 2018'
 
         # for input data frame
-        index_names = ['version', 'name', 'power_budget', 'tree_decider',
-                       'leaf_decider', 'agent', 'node_name', 'iteration', 'region']
+        index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
         numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'mpi_runtime', 'runtime', 'id']
 
         regions = ['epoch', 'dgemm', 'stream']
@@ -102,8 +99,7 @@ class TestPowerSweepAnalysis(unittest.TestCase):
                 for it in iterations:
                     for region in regions:
                         self._gen_val['id'] = lambda pow: region_id[region]
-                        index = (version, prof_name, power_budget, tree_decider,
-                                 leaf_decider, agent, node_name, it, region)
+                        index = (version, start_time, prof_name, agent, node_name, it, region)
                         value = self._gen_val[col](pp)
                         input_data[col][index] = value
 
@@ -123,7 +119,8 @@ class TestPowerSweepAnalysis(unittest.TestCase):
 
     def test_power_sweep_summary(self):
         sweep_analysis = geopmpy.analysis.PowerSweepAnalysis(**self._config)
-        parse_output = self.make_mock_report_df(self._powers)
+        report_df = self.make_mock_report_df(self._powers)
+        parse_output = MockAppOutput(report_df)
         result = sweep_analysis.summary_process(parse_output)
         expected_df = self.make_expected_summary_df(self._powers)
 

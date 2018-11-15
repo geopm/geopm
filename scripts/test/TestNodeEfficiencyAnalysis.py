@@ -78,16 +78,13 @@ class TestNodeEfficiencyAnalysis(unittest.TestCase):
     def make_mock_report_df(self):
         # for input data frame
         version = '0.3.0'
-        power_budget = 400
-        tree_decider = 'static'
-        leaf_decider = 'simple'
         region_id = {
             'epoch':  '9223372036854775808',
             'dgemm':  '11396693813',
             'stream': '20779751936'
         }
-        index_names = ['version', 'name', 'power_budget', 'tree_decider',
-                       'leaf_decider', 'agent', 'node_name', 'iteration', 'region']
+        start_time = 'Tue Nov  6 08:00:00 2018'
+        index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
         numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'mpi_runtime', 'runtime', 'id']
         iterations = range(1, 4)
         input_data = {}
@@ -101,8 +98,7 @@ class TestNodeEfficiencyAnalysis(unittest.TestCase):
                         for it in iterations:
                             for region in region_id.keys():
                                 self._gen_val['id'] = lambda node, power_cap: region_id[region]
-                                index = (version, prof_name, power_budget, tree_decider,
-                                         leaf_decider, agent, node_name, it, region)
+                                index = (version, start_time, prof_name, agent, node_name, it, region)
                                 value = self._gen_val[col](node, power_cap)
                                 input_data[col][index] = value
 
@@ -124,7 +120,8 @@ class TestNodeEfficiencyAnalysis(unittest.TestCase):
     def test_node_efficiency_process(self):
         analysis = geopmpy.analysis.NodeEfficiencyAnalysis(**self._config)
         report_df = self.make_mock_report_df()
-        gov_result, bal_result = analysis.plot_process(report_df)
+        mock_parse_data = MockAppOutput(report_df)
+        gov_result, bal_result = analysis.plot_process(mock_parse_data)
         for pow in self._powers:
             self.assertEqual(self._num_nodes, len(gov_result[pow]))
             self.assertEqual(self._num_nodes, len(bal_result[pow]))
