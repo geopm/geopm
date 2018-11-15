@@ -32,6 +32,7 @@
 #include <iostream>
 #include <string.h>
 
+#include "geopm.h"
 #include "Helper.hpp"
 #include "SampleRegulator.hpp"
 #include "CircularBuffer.hpp"

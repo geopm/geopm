@@ -38,7 +38,6 @@
 #include <iostream>
 
 #include "geopm_sched.h"
-#include "geopm_message.h"
 #include "geopm_hash.h"
 #include "geopm.h"
 #include "PlatformIO.hpp"

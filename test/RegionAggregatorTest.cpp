@@ -42,7 +42,7 @@
 #include "MockPlatformIO.hpp"
 #include "geopm.h"
 #include "geopm_hash.h"
-#include "geopm_message.h"
+#include "geopm_internal.h"
 #include "geopm_hash.h"
 #include "geopm_test.hpp"
 

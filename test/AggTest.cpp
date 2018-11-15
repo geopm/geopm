@@ -33,7 +33,7 @@
 #include "geopm_test.hpp"
 
 #include "Agg.hpp"
-#include "geopm_message.h"
+#include "geopm_internal.h"
 #include "geopm_hash.h"
 
 using geopm::Agg;

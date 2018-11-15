@@ -91,6 +91,28 @@ int geopm_tprof_init_loop(int num_thread,
 
 int geopm_tprof_post(void);
 
+/*********************************/
+/* APPLICATION PROFILING INSIGHT */
+/*********************************/
+int geopm_region_id_is_epoch(uint64_t rid);
+
+int geopm_region_id_is_mpi(uint64_t rid);
+
+int geopm_region_id_is_unmarked(uint64_t rid);
+
+int geopm_region_id_is_undefined(uint64_t rid);
+
+uint64_t geopm_region_id_hash(uint64_t rid);
+
+int geopm_region_id_is_nested(uint64_t rid);
+
+int geopm_region_id_hint_is_equal(uint64_t hint_type, uint64_t rid);
+
+uint64_t geopm_region_id_set_hint(uint64_t hint_type, uint64_t rid);
+
+uint64_t geopm_region_id_unset_hint(uint64_t hint_type, uint64_t rid);
+
+uint64_t geopm_region_id_hint(uint64_t rid);
 
 #ifdef __cplusplus
 }
