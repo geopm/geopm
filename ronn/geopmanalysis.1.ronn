@@ -33,19 +33,22 @@ geopmanalysis(1) -- run application and visualize results
 
 ## SYNOPSIS
 
-`geopmanalysis` _ANALYSIS_TYPE_ [_OPTIONS_] -- _EXEC_ [_EXEC_ARGS_]
+`geopmanalysis` _ANALYSIS_TYPE_ [_ANALYSIS_OPTIONS_] [_LAUNCH_OPTIONS_] -- _EXEC_ [_EXEC_ARGS_]
 
 ## DESCRIPTION
+
 Used to run applications and analyze results for specific GEOPM use
 cases.  An application must be launched at least once to generate
-report files. When using geopmanalysis to launch applications, it must
-be run within an allocation to ensure that all runs use the same set
-of nodes. Once all the required reports have been generated, the
-analysis can be rerun without needing an allocation using the
-`--skip-launch` option.  Using the `--output-dir` option to specify
-a unique directory for each analysis is highly recommended so that
-reports and traces from different experiments are not combined by
-mistake.
+report files. When using geopmanalysis to launch applications, it
+should be run within an allocation to ensure that all runs use the
+same set of nodes. Once all the required reports have been generated,
+the analysis can be rerun without needing an allocation using the
+`--geopm-analysis-skip-launch` option.  Using the
+`--geopm-analysis-output-dir` option to specify a unique directory for
+each analysis is highly recommended so that reports and traces from
+different experiments are not combined by mistake.  Note that any
+arguments to the launcher are also accepted by geopmanalysis; see
+**geopmsrun(1)** or **geopmaprun(1)** for more details.
 
 ## ANALYSIS TYPES
 The available analysis types are:
@@ -63,11 +66,34 @@ The available analysis types are:
   Compares the energy efficiency plugin in online mode to the
   baseline at sticker frequency.
 
+* _hint_:
+  Compares the energy efficiency plugin using per-region hints to the
+  baseline at sticker frequency.
+
 * _stream_mix_:
   Runs a full frequency sweep, then offline and online modes of the
-  energy efficieny plugin. The energy and runtime of the
+  energy efficiency plugin. The energy and runtime of the
   application best-fit, per-phase offline mode, and per-phase
-  online mode are compared to the run a sticker frequency.
+  online mode are compared to the run at sticker frequency.
+  Note: unlike other analysis types, this analysis uses the
+  geopmbench application, and application arguments should *not* be
+  passed to it.
+
+* _power_sweep_:
+  Runs the application under a range of socket power limits.
+
+* _balancer_:
+  Runs the application under a given range of power caps using the
+  power governor and power balancer agents.  Compares the performance
+  of the two agents at each power cap.
+
+* _node_efficiency_:
+  Runs a power sweep, then calculates the achieved frequency of each
+  node at each power cap.
+
+* _node_power_:
+  Runs the application without any policy settings and plots the
+  average power achieved by each node.
 
 ## COMMON OPTIONS FOR ALL ANALYSIS TYPES
 
@@ -75,69 +101,121 @@ The available analysis types are:
   Show help message and exit.  When used with an analysis type, it
   shows additional options for that analysis.
 
-* `-o`, `--output-dir` _OUTPUT_DIR_:
+* `--version`:
+  Show the GEOPM version number and exit.
+
+* `--geopm-analysis-output-dir` _OUTPUT_DIR_:
   The output directory for reports, traces, and plots (default: '.').
 
-* `-p`, `--profile-prefix` _PREFIX_:
+* `--geopm-analysis-profile-prefix` _PREFIX_:
   Prefix to prepend to profile name when launching. Depending on the
   type of analysis, several profiles will be generated. For example,
   the freq_sweep analysis appends the frequency for each run to this
   prefix.
 
-* `--summary`:
+* `--geopm-analysis-summary`:
   Print a summary of the data depending on the analysis type.
 
-* `--plot`:
+* `--geopm-analysis-plot`:
   Generate plots of the data.
 
-* `-n`, `--num-rank` _NUM_RANKS_:
-  Total number of application ranks to launch with. Because
-  geopmanalysis uses the GEOPM launch method "process" there will be
-  one extra rank launched per node in addition to the number of
-  application ranks specified by this option.
-
-* `-N`, `--num-node` _NUM_NODES_:
-  Number of compute nodes to launch onto.  Note that this option is
-  `not` propagated to the underlying launch application; for instance
-  if ALPS is the application launch backend, this option does not
-  specify the number of ranks per node.
-
-* `-s`, `--skip-launch`:
+* `--geopm-analysis-skip-launch`:
   Do not launch jobs, only analyze existing data.
 
-* `--version`:
-  Show the GEOPM version number and exit.
-
-* `-v`, `--verbose`:
+* `--geopm-analysis-verbose`:
   Print verbose debugging information.
 
-* `--geopm-ctl` _GEOPM_CTL_:
-  Launch type for the GEOPM controller.  Available GEOPM_CTL values:
-  process, pthread, or application (default 'process').
-
-* `--iterations` _NUM_ITERATIONS_:
+* `--geopm-analysis-iterations` _NUM_ITERATIONS_:
   Number of iterations to perform for every type of analysis.
   E.g. for the OfflineFrequencyAnalysis, _NUM_ITERATIONS_ runs will be
   performed at every available frequency.  The data is averaged
   together prior to evaluating what the best per-region frequency
   is. (default: _1_)
 
-## OPTIONS FOR FREQUENCY SWEEP-BASED ANALYSIS
+## OPTIONS FOR FREQ_SWEEP ANALYSIS
 
-* `--min-freq`:
+The same options are also used for _offline_, _online_, and _hint_.
+
+* `--geopm-analysis-min-freq`:
   The minimum frequency to use for the sweep and analysis.  If out of
   range, the minimum available frequency on the platform will be used.
 
-* `--max-freq`:
+* `--geopm-analysis-max-freq`:
   The maximum frequency to use for the sweep and analysis.  If out of
   range, the maximum available frequency on the platform will be used.
 
-* `--enable-turbo`:
+* `--geopm-analysis-enable-turbo`:
   When calculating the best per region frequencies, this flag
   stipulates that frequencies in the turbo range should be considered.
   By default, this flag is not set meaning frequencies in the turbo
   range are not considered.
 
+## OPTIONS FOR POWER_SWEEP ANALYSIS
+
+* `--geopm-analysis-min-power`:
+  The minimum package power to use for the sweep and analysis.  If out
+  of range, the minimum power for the platform will be used.
+
+* `--geopm-analysis-max-power`:
+  The maximum package power to use for the sweep and analysis.  If out
+  of range, the maximum power for the platform will be used.
+
+* `--geopm-analysis-step-power`:
+  Step size in watts between power settings for the sweep.  The
+  default step size is 10W.
+
+* `--geopm-analysis-agent-type`:
+
+  Which agent to use.  This should be an agent that requires a power
+  cap as part of the policy, i.e. power_governor or power_balancer.
+
+## OPTIONS FOR BALANCER ANALYSIS
+
+This analysis type accepts the options for _power_sweep_ analysis, plus
+the following additional options:
+
+* `--geopm-analysis-metric`:
+  Metric to plot for comparison (_runtime_, _power_, or _energy_).
+
+* `--geopm-analysis-normalize`:
+  Whether to normalize results to governor at highest power budget.
+
+* `--geopm-analysis-speedup`:
+  Plot the inverse of the target data to show speedup as a positive change.
+
+## OPTIONS FOR NODE_EFFICIENCY ANALYSIS
+
+This analysis type accepts the options for _power_sweep_ analysis, plus
+the following additional options:
+
+* `--geopm-analysis-min-freq`:
+  Minimum frequency to display for plotting.  Default is 0.5 GHz.
+
+* `--geopm-analysis-max-freq`:
+  Maximum frequency to display for plotting.  Default is 3.0 GHz.
+
+* `--geopm-analysis-step-freq`:
+  Size of frequency bins to use for plotting.  Default is 100 MHz.
+
+* `--geopm-analysis-sticker-freq`:
+  Sticker frequency of the system where data was collected.  If not
+  provided, the current system sticker frequency will be used.
+
+* `--geopm-analysis-nodelist`:
+  Range of nodes separated by '-' to use for analysis. This option is
+  not used for launch and should contain a range of nodes for which
+  previously collected data is available.
+
+## OPTIONS FOR NODE_POWER ANALYSIS
+
+* `--geopm-analysis-min-power`:
+  Minimum power to display for plotting.  Default is 120W.
+
+* `--geopm-analysis-max-power`:
+  Maximum power to display for plotting.  Default is 200W.
+
+* `--geopm-analysis-step-power`:
+  Size of power bins to use for plotting.  Default is 10W.
 
 ## EXAMPLES
   Once the geopmpy modules are installed, you can invoke this utility
@@ -151,9 +229,17 @@ The available analysis types are:
   the frequency sweep is a mapping of the best-fit frequency for each
   region that saves energy while not letting the runtime increase more
   than 10%.  It can also generate plots of the runtime and energy of
-  each region at each frequency setting.
+  each region at each frequency setting.  In this example, options
+  beginning with --geopm-analysis- control the output from analysis,
+  --geopm-ctl is passed though to the geopm launcher
+  (**geopmpy_launcher(1)**), and -N1 and -n1 are passed through to the
+  underlying resource manager.
 
-    geopmanalysis freq_sweep -p myprof -o myprof -N1 -n1 --summary -- ./build/bin/geopmbench config.json
+    geopmanalysis freq_sweep --geopm-analysis-profile-prefix myprof \
+                             --geopm-analysis-output-dir mydir \
+                             --geopm-analysis-summary \
+                             --geopm-ctl process \
+                             -N1 -n1 -- ./build/bin/geopmbench config.json
 
   The _offline_ analysis type runs a frequency sweep (if reports are
   not already present) to determine the best-fit frequency for each
@@ -163,7 +249,26 @@ The available analysis types are:
   similar except that it determines the best-fit frequency through
   online training.
 
-    geopmanalysis offline -p myprof -o myprof -N1 -n1 -- ./build/bin/geopmbench config.json
+    geopmanalysis offline --geopm-analysis-profile-prefix myprof \
+                          --geopm-analysis-output-dir mydir \
+                          --geopm-ctl process \
+                          -N1 -n1 -- ./build/bin/geopmbench config.json
+
+  If an analysis launch has been run once, the same data can be reused
+  using the --geopm-analysis-skip-launch option without supplying
+  launcher options (number of nodes, --geopm-ctl, etc.) or application
+  arguments.  This option can also be used to analyze reports and
+  traces generated through another launch method, provided that the
+  profile names and file names are consistent with what the analysis
+  expects.  For example, the following command generates plots for the
+  previous analysis:
+
+    geopmanalysis offline --geopm-analysis-profile-prefix myprof \
+                          --geopm-analysis-output-dir myprof \
+                          --geopm-analysis-plot \
+                          --geopm-analysis-skip-launch \
+                          --geopm-analysis-min-freq 1.0e9 \
+                          --geopm-analysis-max-freq 2.0e9
 
   The _stream_mix_ analysis type uses the geopmbench application and
   varies the ratio between the runtimes of the stream and dgemm
@@ -171,19 +276,15 @@ The available analysis types are:
   it launches a frequency sweep and the offline and online analysis
   modes described above. The resulting analysis produces plots
   comparing the runtime and energy savings of the different plugin
-  modes at each stream mix ratio.
+  modes at each stream mix ratio.  Note that no application arguments
+  are passed to the command below, although other launch arguments are
+  required.
 
-    geopmanalysis stream_mix -p myprof -o myprof --summary -N1 -n1 -- ./build/bin/geopmbench config.json
-
-  If an analysis launch has been run once, the same data can be reused
-  using the --skip-launch options without supplying launch options
-  (number of nodes, application arguments, etc.).  This option can
-  also be used to analyze reports and traces generated through another
-  launch method, provided that the profile names and file names are
-  consistent with what the analysis expects.  For example, the
-  following command generates plots for the previous analysis:
-
-    geopmanalysis stream_mix -p myprof -o myprof --plot -s --min-freq 1.0e9 --max-freq 2.0e9
+    geopmanalysis stream_mix --geopm-analysis-profile-prefix myprof \
+                             --geopm-analysis-output-dir myprof \
+                             --geopm-analysis-plot \
+                             --geopm-ctl=process
+                             -N1 -n1
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.

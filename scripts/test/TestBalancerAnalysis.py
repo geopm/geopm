@@ -31,6 +31,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+import os
 import unittest
 from analysis_helper import *
 
@@ -77,20 +78,17 @@ class TestBalancerAnalysis(unittest.TestCase):
     def make_mock_report_df(self):
         # for input data frame
         version = '0.3.0'
-        power_budget = 400
-        tree_decider = 'static'
-        leaf_decider = 'simple'
         node_name = 'mynode'
         region_id = {
             'epoch':  '9223372036854775808',
             'dgemm':  '11396693813',
             'stream': '20779751936'
         }
-        index_names = ['version', 'name', 'power_budget', 'tree_decider',
-                       'leaf_decider', 'agent', 'node_name', 'iteration', 'region']
+        index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
         numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'mpi_runtime', 'runtime', 'id']
         regions = ['epoch', 'dgemm', 'stream']
         iterations = range(1, 4)
+        start_time = 'Tue Nov  6 08:00:00 2018'
 
         input_data = {}
         for col in numeric_cols:
@@ -101,8 +99,7 @@ class TestBalancerAnalysis(unittest.TestCase):
                     for agent in ['power_governor', 'power_balancer']:
                         for region in regions:
                             self._gen_val['id'] = lambda pow, agent: region_id[region]
-                            index = (version, prof_name, power_budget, tree_decider,
-                                     leaf_decider, agent, node_name, it, region)
+                            index = (version, start_time, prof_name, agent, node_name, it, region)
                             value = self._gen_val[col](pp, agent)
                             input_data[col][index] = value
 
@@ -130,18 +127,20 @@ class TestBalancerAnalysis(unittest.TestCase):
     def test_balancer_plot_process_runtime(self):
         metric = 'runtime'
         report_df = self.make_mock_report_df()
+        mock_parse_data = MockAppOutput(report_df)
         analysis = geopmpy.analysis.BalancerAnalysis(metric=metric, normalize=False, speedup=False,
                                                      **self._config)
-        result = analysis.plot_process(report_df)
+        result = analysis.plot_process(mock_parse_data)
         expected_df = self.make_expected_summary_df(metric)
 
         compare_dataframe(self, expected_df, result)
 
     def test_balancer_plot_process_energy(self):
         report_df = self.make_mock_report_df()
+        mock_parse_data = MockAppOutput(report_df)
         analysis = geopmpy.analysis.BalancerAnalysis(metric='energy', normalize=False, speedup=False,
                                                      **self._config)
-        result = analysis.plot_process(report_df)
+        result = analysis.plot_process(mock_parse_data)
         expected_df = self.make_expected_summary_df('energy_pkg')
 
         compare_dataframe(self, expected_df, result)
@@ -149,9 +148,10 @@ class TestBalancerAnalysis(unittest.TestCase):
     def test_balancer_plot_process_power(self):
         metric = 'power'
         report_df = self.make_mock_report_df()
+        mock_parse_data = MockAppOutput(report_df)
         analysis = geopmpy.analysis.BalancerAnalysis(metric=metric, normalize=False, speedup=False,
                                                      **self._config)
-        result = analysis.plot_process(report_df)
+        result = analysis.plot_process(mock_parse_data)
         expected_df = self.make_expected_summary_df(metric)
 
         compare_dataframe(self, expected_df, result)

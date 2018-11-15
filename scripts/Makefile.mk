@@ -78,8 +78,6 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_bad_type \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_help \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_help_custom \
-               scripts/test/pytest_links/TestAnalysisCommandLine.test_launch_missing_param \
-               scripts/test/pytest_links/TestAnalysisCommandLine.test_launch_no_alloc \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_launch_only \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_launch_plot_summary \
                scripts/test/pytest_links/TestBalancerAnalysis.test_balancer_plot_process_runtime \

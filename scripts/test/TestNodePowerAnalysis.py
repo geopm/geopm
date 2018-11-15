@@ -75,21 +75,17 @@ class TestNodePowerAnalysis(unittest.TestCase):
     def make_mock_report_df(self):
         # for input data frame
         version = '0.3.0'
-        power_budget = 400
-        tree_decider = 'static'
-        leaf_decider = 'simple'
         region_id = {
             'epoch':  '9223372036854775808',
             'dgemm':  '11396693813',
             'stream': '20779751936'
         }
-        index_names = ['version', 'name', 'power_budget', 'tree_decider',
-                       'leaf_decider', 'agent', 'node_name', 'iteration', 'region']
+        start_time = 'Tue Nov  6 08:00:00 2018'
+        index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
         numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'mpi_runtime', 'runtime', 'id']
         iterations = range(1, 4)
         input_data = {}
-        power_cap = self._max_power  # todo: change to _no_cap
-        prof_name = '{}_{}'.format(self._name_prefix, power_cap)
+        prof_name = '{}_nocap'.format(self._name_prefix)
         agent = 'monitor'
         for col in numeric_cols:
             input_data[col] = {}
@@ -98,8 +94,7 @@ class TestNodePowerAnalysis(unittest.TestCase):
                 for it in iterations:
                     for region in region_id.keys():
                         self._gen_val['id'] = lambda node: region_id[region]
-                        index = (version, prof_name, power_budget, tree_decider,
-                                 leaf_decider, agent, node_name, it, region)
+                        index = (version, start_time, prof_name, agent, node_name, it, region)
                         value = self._gen_val[col](node)
                         input_data[col][index] = value
 
@@ -120,7 +115,8 @@ class TestNodePowerAnalysis(unittest.TestCase):
     def test_node_power_process(self):
         analysis = geopmpy.analysis.NodePowerAnalysis(**self._config)
         report_df = self.make_mock_report_df()
-        result = analysis.plot_process(report_df)
+        mock_parse_data = MockAppOutput(report_df)
+        result = analysis.plot_process(mock_parse_data)
         expected_df = self.make_expected_summary_df()
 
         self.assertEqual(self._num_nodes, len(result))
