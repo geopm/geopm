@@ -33,7 +33,7 @@
 #include "geopm_test.hpp"
 
 #include "Agg.hpp"
-#include "geopm_message.h"
+#include "geopm_internal.h"
 #include "geopm_hash.h"
 
 using geopm::Agg;
@@ -68,6 +68,4 @@ TEST(AggTest, agg_function)
 
     EXPECT_EQ(geopm_field_to_signal(GEOPM_REGION_ID_UNMARKED),
               Agg::region_id({5, 6, 7}));
-    EXPECT_EQ(77,
-              Agg::region_id({77, 77, geopm_field_to_signal(GEOPM_REGION_ID_UNDEFINED), 77}));
 }

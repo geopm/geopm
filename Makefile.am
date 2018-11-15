@@ -68,9 +68,9 @@ include_HEADERS = src/geopm.h \
                   src/geopm_endpoint.h \
                   src/geopm_error.h \
                   src/geopm_imbalancer.h \
-                  src/geopm_message.h \
                   src/geopm_sched.h \
                   src/geopm_time.h \
+                  src/geopm_region_id.h \
                   src/geopm_version.h \
                   # end
 
@@ -138,6 +138,7 @@ ronn_man = man/geopm.7 \
            man/geopm_fortran.3 \
            man/geopmplotter.1 \
            man/geopm_prof_c.3 \
+           man/geopm_region_id_c.3 \
            man/geopmpy.7 \
            man/geopmpy_launcher.1 \
            man/geopmread.1 \
@@ -207,6 +208,7 @@ EXTRA_DIST = .gitignore \
              ronn/geopm_fortran.3.ronn \
              ronn/geopmplotter.1.ronn \
              ronn/geopm_prof_c.3.ronn \
+             ronn/geopm_region_id_c.3.ronn \
              ronn/geopmpy.7.ronn \
              ronn/geopmpy_launcher.1.ronn \
              ronn/geopmread.1.ronn \
@@ -342,8 +344,9 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/geopm_hash.c \
                             src/geopm_hash.h \
                             src/geopm_imbalancer.h \
-                            src/geopm_message.h \
+                            src/geopm_internal.h \
                             src/geopm_plugin.c \
+                            src/geopm_region_id.h \
                             src/geopm_sched.c \
                             src/geopm_sched.h \
                             src/geopm_signal_handler.h \
