@@ -1023,6 +1023,15 @@ class TestIntegration(unittest.TestCase):
         Test of the EnergyEfficientAgent offline auto mode.
         """
         name = 'test_plugin_efficient_freq_offline'
+
+        num_node = 1
+        num_rank = 4
+        temp_launcher = geopmpy.launcher.factory(["dummy"])
+        launcher_argv = [
+            '--geopm-ctl', 'process',
+            temp_launcher.num_rank_option(False), num_rank,
+            temp_launcher.num_node_option(), num_node,
+        ]
         loop_count = 10
         dgemm_bigo = 20.25
         stream_bigo = 1.449
@@ -1054,9 +1063,6 @@ class TestIntegration(unittest.TestCase):
             app_path = "geopmbench"
         app_argv = [app_path, app_conf_name]
 
-        # Setup the static policy run
-        num_node = 1
-        num_rank = 4
         # Runs frequency sweep, generates best-fit frequency mapping, and
         # runs with the plugin in offline mode.
         analysis = geopmpy.analysis.OfflineBaselineComparisonAnalysis(profile_prefix=name,
@@ -1066,8 +1072,7 @@ class TestIntegration(unittest.TestCase):
                                                                       min_freq=None,
                                                                       max_freq=None,
                                                                       enable_turbo=False)
-        config = geopmpy.analysis.LaunchConfig(num_rank=num_rank, num_node=num_node, app_argv=app_argv,
-                                               geopm_ctl='process', do_geopm_barrier=False)
+        config = launcher_argv + app_argv
         analysis.launch(config)
 
         analysis.find_files()
@@ -1090,6 +1095,16 @@ class TestIntegration(unittest.TestCase):
         Test of the EnergyEfficientAgent online auto mode.
         """
         name = 'test_agent_energy_efficient_online'
+
+        num_node = 1
+        num_rank = 4
+        temp_launcher = geopmpy.launcher.factory(["dummy"])
+        launcher_argv = [
+            '--geopm-ctl', 'process',
+            temp_launcher.num_rank_option(False), num_rank,
+            temp_launcher.num_node_option(), num_node,
+        ]
+
         loop_count = 10
         dgemm_bigo = 20.25
         stream_bigo = 1.449
@@ -1121,9 +1136,6 @@ class TestIntegration(unittest.TestCase):
             app_path = "geopmbench"
         app_argv = [app_path, app_conf_name]
 
-        # Setup the adaptive policy run
-        num_node = 1
-        num_rank = 4
         # Runs frequency sweep and runs with the plugin in online mode.
         analysis = geopmpy.analysis.OnlineBaselineComparisonAnalysis(profile_prefix=name,
                                                                      output_dir='.',
@@ -1132,8 +1144,7 @@ class TestIntegration(unittest.TestCase):
                                                                      min_freq=None,
                                                                      max_freq=None,
                                                                      enable_turbo=False)
-        config = geopmpy.analysis.LaunchConfig(num_rank=num_rank, num_node=num_node, app_argv=app_argv,
-                                               geopm_ctl='process', do_geopm_barrier=False)
+        config = launcher_argv + app_argv
         analysis.launch(config)
 
         analysis.find_files()

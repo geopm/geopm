@@ -37,6 +37,7 @@ try:
     import pandas
     import geopm_context
     import geopmpy.analysis
+    import geopmpy.io
     g_skip_analysis_test = False
     g_skip_analysis_ex = None
 except ImportError as ex:
@@ -61,3 +62,8 @@ def compare_dataframe(test, expected_df, result):
         sys.stderr.write('\nExpected:\n')
         sys.stderr.write(expected_df.to_string())
         pandas.testing.assert_frame_equal(expected_df, result)
+
+
+class MockAppOutput(geopmpy.io.AppOutput):
+    def __init__(self, report_df):
+        self._reports_df = report_df

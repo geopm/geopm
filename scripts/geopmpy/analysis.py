@@ -37,11 +37,9 @@ import argparse
 import sys
 import os
 import glob
-from collections import defaultdict
 import socket
 import json
 import math
-import numpy
 import pandas
 import subprocess
 
@@ -60,16 +58,6 @@ def all_region_data_pretty(combined_df):
         rs += '{}\n'.format(df)
     rs += '-' * 120 + '\n'
     return rs
-
-
-class LaunchConfig(object):
-    def __init__(self, num_rank, num_node, app_argv,
-                 geopm_ctl='process', do_geopm_barrier=False):
-        self.num_rank = num_rank
-        self.num_node = num_node
-        self.app_argv = app_argv
-        self.geopm_ctl = geopm_ctl
-        self.do_geopm_barrier = do_geopm_barrier
 
 
 class Analysis(object):
@@ -109,13 +97,35 @@ class Analysis(object):
         """
         raise NotImplementedError('Analysis base class does not implement the launch() method')
 
+    @staticmethod
+    def try_launch(app_argv, report_path, trace_path, profile_name, agent_conf):
+        """
+        Checks if reports already exist for this run, and if not, launches
+        the run to generate the report.
+        """
+        if app_argv and not os.path.exists(report_path):
+            argv = ['dummy', '--geopm-report', report_path,
+                             '--geopm-trace', trace_path,
+                             '--geopm-profile', profile_name]
+            if agent_conf.get_agent() != 'monitor':
+                argv.append('--geopm-agent=' + agent_conf.get_agent())
+                argv.append('--geopm-policy=' + agent_conf.get_path())
+            argv.extend(app_argv)
+            launcher = geopmpy.launcher.factory(argv)
+            launcher.run()
+        elif os.path.exists(report_path):
+            sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))
+        else:
+            raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
+
     def find_files(self, search_pattern='*report'):
         """
         Uses the output dir and any custom naming convention to load the report and trace data
         produced by launch.
         """
-        report_glob = self._name + search_pattern
-        self.set_data_paths(glob.glob(report_glob))
+        report_glob = os.path.join(self._output_dir, self._name + search_pattern)
+        report_files = [os.path.basename(ff) for ff in glob.glob(report_glob)]
+        self.set_data_paths(report_files)
 
     def set_data_paths(self, report_paths, trace_paths=None):
         """
@@ -134,7 +144,7 @@ class Analysis(object):
         Load any necessary data from the application result files into memory for analysis.
         """
         output = geopmpy.io.AppOutput(self._report_paths, None, dir_name=self._output_dir, verbose=True)
-        return output.get_report_df()
+        return output
 
     def plot_process(self, parse_output):
         """
@@ -176,13 +186,13 @@ class PowerSweepAnalysis(Analysis):
         req_default = {'default': None}
         if enforce_required:
             req_default = {'required': True}
-        parser.add_argument('--min-power', dest='min_power',
+        parser.add_argument('--geopm-analysis-min-power', dest='min_power',
                             type=int, **req_default)
-        parser.add_argument('--max-power', dest='max_power',
+        parser.add_argument('--geopm-analysis-max-power', dest='max_power',
                             type=int, **req_default)
-        parser.add_argument('--step-power', dest='step_power',
+        parser.add_argument('--geopm-analysis-step-power', dest='step_power',
                             type=int, default=10)
-        parser.add_argument('--agent-type', dest='agent_type',
+        parser.add_argument('--geopm-analysis-agent-type', dest='agent_type',
                             type=str, required=False)
 
     @staticmethod
@@ -209,10 +219,10 @@ class PowerSweepAnalysis(Analysis):
         return """  Power sweep analysis: {}
   Options for PowerSweepAnalysis:
 
-  --min-power           Minimum power limit to use for sweep. Default uses system minimum.
-  --max-power           Maximum power limit to use for sweep. Default uses system maximum.
-  --step-power          Step size of power limits used in sweep.  Default is 10W.
-  --agent-type          Specify which agent to use.  Default is power_governor.
+  --geopm-analysis-min-power        Minimum power limit to use for sweep. Default uses system minimum.
+  --geopm-analysis-max-power        Maximum power limit to use for sweep. Default uses system maximum.
+  --geopm-analysis-step-power       Step size of power limits used in sweep.  Default is 10W.
+  --geopm-analysis-agent-type       Specify which agent to use.  Default is power_governor.
 """.format(PowerSweepAnalysis.__doc__)
 
     def __init__(self, profile_prefix, output_dir, verbose, iterations,
@@ -223,33 +233,7 @@ class PowerSweepAnalysis(Analysis):
         self._step_power = step_power
         self._agent_type = agent_type
 
-    def try_launch(self, profile_name, tag, iteration, agent_conf, config):
-        # tag is used to differentiate output files for governor and balancer.  profile name will be the same.
-        report_path = os.path.join(self._output_dir, profile_name + '_{}_{}.report'.format(tag, iteration))
-        trace_path = os.path.join(self._output_dir, profile_name + '_{}_{}.trace'.format(tag, iteration))
-        self._report_paths.append(report_path)
-        self._trace_paths.append(trace_path+'*')
-
-        if config.app_argv and not os.path.exists(report_path):
-            argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
-                             '--geopm-report', report_path,
-                             '--geopm-trace', trace_path,
-                             '--geopm-profile', profile_name]
-            if agent_conf.get_agent() != 'monitor':
-                argv.append('--geopm-agent=' + agent_conf.get_agent())
-                argv.append('--geopm-policy=' + agent_conf.get_path())
-            if config.do_geopm_barrier:
-                argv.append('--geopm-barrier')
-            argv.append('--')
-            argv.extend(config.app_argv)
-            launcher = geopmpy.launcher.factory(argv, config.num_rank, config.num_node)
-            launcher.run()
-        elif os.path.exists(report_path):
-            sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))
-        else:
-            raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
-
-    def launch(self, config):
+    def launch(self, args):
         sys_min, sys_tdp, sys_max = PowerSweepAnalysis.sys_power_avail()
         if self._min_power is None or self._min_power < sys_min:
             # system minimum is actually too low; use 50% of TDP or min rounded up to nearest step, whichever is larger
@@ -263,31 +247,41 @@ class PowerSweepAnalysis(Analysis):
         power_caps = range(self._min_power, self._max_power+1, self._step_power)
         for power_cap in power_caps:
             # governor runs
-            options = {'power_budget': power_cap},
-            agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', self._agent_type, options)
+            options = {'power_budget': power_cap}
+            agent_conf = geopmpy.io.AgentConf(path=self._name + '_agent.config',
+                                              agent=self._agent_type,
+                                              options=options)
             agent_conf.write()
 
             for iteration in range(self._iterations):
                 profile_name = self._name + '_' + str(power_cap)
-                self.try_launch(profile_name, self._agent_type, iteration, agent_conf, config)
+                report_path = os.path.join(self._output_dir, profile_name + '_{}_{}.report'.format(self._agent_type, iteration))
+                trace_path = os.path.join(self._output_dir, profile_name + '_{}_{}.trace'.format(self._agent_type, iteration))
+                Analysis.try_launch(app_argv=args, report_path=report_path, trace_path=trace_path,
+                                    profile_name=profile_name, agent_conf=agent_conf)
 
-    @staticmethod
-    def extract_index_from_profile(df):
-        # Pull the power budget out of the profile name ('name' index field)
-        profile_name_map = {}
-        names_list = df.index.get_level_values('name').unique().tolist()
-        for name in names_list:
-            # The profile name is currently set to: ${NAME}_${POWER_BUDGET}
-            profile_name_map.update({name: int(name.split('_')[-1])})
-        df = df.rename(profile_name_map)
-        return df
+    def find_files(self, search_pattern='*report'):
+        """
+        Uses the output dir and any custom naming convention to load the report and trace data
+        produced by launch.
+        """
+        report_glob = os.path.join(self._output_dir, self._name + search_pattern)
+        report_files = [os.path.basename(ff) for ff in glob.glob(report_glob)]
+        reports = []
+        for report in report_files:
+            try:
+                power = int(report.split('_')[1])
+                reports.append(report)
+            except:
+                pass
+        self.set_data_paths(report_paths=reports)
 
     def summary_process(self, parse_output):
-        df = PowerSweepAnalysis.extract_index_from_profile(parse_output)
-        idx = pandas.IndexSlice
+        parse_output.extract_index_from_profile(inplace=True)
         # profile name has been changed to power cap
-        df = df.loc[idx[:, self._min_power:self._max_power, :, :, :,
-                        self._agent_type, :, :, 'epoch'], ]
+        df = parse_output.get_report_data(profile=(self._min_power, self._max_power),
+                                          agent=self._agent_type,
+                                          region='epoch')
         summary = pandas.DataFrame()
         for col in ['count', 'runtime', 'mpi_runtime', 'energy_pkg', 'energy_dram', 'frequency']:
             summary[col] = df[col].groupby(level='name').mean()
@@ -318,9 +312,11 @@ class BalancerAnalysis(Analysis):
         Set up options supported by the analysis type.
         """
         PowerSweepAnalysis.add_options(parser, enforce_required)
-        parser.add_argument('--metric', default='runtime')
-        parser.add_argument('--normalize', action='store_true', default=False)
-        parser.add_argument('--speedup', action='store_true', default=False)
+        parser.add_argument('--geopm-analysis-metric', default='runtime', dest='metric')
+        parser.add_argument('--geopm-analysis-normalize', action='store_true',
+                            dest='normalize', default=False)
+        parser.add_argument('--geopm-analysis-speedup', action='store_true',
+                            dest='speedup', default=False)
 
     # TODO : have this return left and right columns to be formatted by caller
     @staticmethod
@@ -328,9 +324,9 @@ class BalancerAnalysis(Analysis):
         return """  Balancer analysis: {}
   Options for BalancerAnalysis:
 
-  --metric              Metric to use for comparison (runtime, power, or energy).
-  --normalize           Whether to normalize results to governor at highest power budget.
-  --speedup             Plot the inverse of the target data to show speedup as a positive change.
+  --geopm-analysis-metric           Metric to use for comparison (runtime, power, or energy).
+  --geopm-analysis-normalize        Whether to normalize results to governor at highest power budget.
+  --geopm-analysis-speedup          Plot the inverse of the target data to show speedup as a positive change.
 
 {}""".format(BalancerAnalysis.__doc__, PowerSweepAnalysis.help_text())
 
@@ -350,29 +346,28 @@ class BalancerAnalysis(Analysis):
         self._min_power = min_power
         self._max_power = max_power
 
-    # todo: why does each analysis need to define this?
-    # a: in case of special naming convention like freq sweep
-    def find_files(self, search_pattern='*report'):
-        report_glob = os.path.join(self._output_dir, self._name + search_pattern)
-        # todo: fix search pattern parameter
-        trace_glob = os.path.join(self._output_dir, self._name + '*trace*')
-        self.set_data_paths(glob.glob(report_glob), glob.glob(trace_glob))
-
     def launch(self, config):
         self._governor_power_sweep.launch(config)
         self._balancer_power_sweep.launch(config)
 
+    def find_files(self, search_pattern='*report'):
+        self._governor_power_sweep.find_files()
+        self._balancer_power_sweep.find_files()
+        self._report_paths = self._governor_power_sweep._report_paths
+        self._report_paths.extend(self._balancer_power_sweep._report_paths)
+        trace_glob = os.path.join(self._output_dir, self._name + '*trace*')
+        self._trace_paths = glob.glob(trace_glob)
+
     def summary_process(self, parse_output):
-        report_df = PowerSweepAnalysis.extract_index_from_profile(parse_output)
+        report_df = parse_output.extract_index_from_profile()
         report_df['power'] = report_df['energy_pkg'] / report_df['runtime']
-        report_df.reset_index(['power_budget', 'tree_decider', 'leaf_decider'], drop=True, inplace=True)
         report_df.index = report_df.index.set_names('power_budget', level='name')
 
         # Data reduction - mean (if running more than 1 iteration, noop otherwise)
         mean_report_df = report_df.groupby(['power_budget', 'agent', 'node_name', 'region']).mean()
         mean_report_df = mean_report_df[['frequency', 'power', 'runtime', 'mpi_runtime', 'energy_pkg', 'count']]
 
-        summary_df = mean_report_df.groupby(['power_budget', 'agent', 'region']).mean() # node_name not in group
+        summary_df = mean_report_df.groupby(['power_budget', 'agent', 'region']).mean()  # node_name not in group
 
         return report_df, mean_report_df, summary_df
 
@@ -400,7 +395,7 @@ class BalancerAnalysis(Analysis):
             # Calculate percentage improvements
             a = epoch_report.loc[idx[:, 'power_governor', :], ['runtime', 'energy_pkg']].reset_index(level='agent', drop=True)
             b = epoch_report.loc[idx[:, 'power_balancer', :], ['runtime', 'energy_pkg']].reset_index(level='agent', drop=True)
-            improvement = (a - b) / a # Result * 100 is percentage
+            improvement = (a - b) / a  # Result * 100 is percentage
 
             out_file.write('Balancer vs. Governor Improvement:\n\n{}\n\n'.format(improvement))
         if self._verbose:
@@ -440,33 +435,34 @@ class BalancerAnalysis(Analysis):
             sys.stdout.flush()
 
     def plot_process(self, parse_output):
-        report_df = PowerSweepAnalysis.extract_index_from_profile(parse_output)
-        idx = pandas.IndexSlice
+        parse_output.extract_index_from_profile(inplace=True)
         df = pandas.DataFrame()
-
-        reference = 'static_policy'
-        target = 'power_balancing'
         reference = 'power_governor'
         target = 'power_balancer'
         # TODO: have a separate power analysis?
+        ref_epoch_data = parse_output.get_report_data(profile=(self._min_power, self._max_power),
+                                                      agent=reference,
+                                                      region='epoch')
         if self._metric == 'power':
-            rge = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, reference, :, :, 'epoch'], 'energy_pkg']
-            rgr = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, reference, :, :, 'epoch'], 'runtime']
+            rge = ref_epoch_data['energy_pkg']
+            rgr = ref_epoch_data['runtime']
             reference_g = (rge / rgr).groupby(level='name')
         else:
-            reference_g = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, reference, :, :, 'epoch'],
-                                        self._metric].groupby(level='name')
+            reference_g = ref_epoch_data[self._metric].groupby(level='name')
 
         df['reference_mean'] = reference_g.mean()
         df['reference_max'] = reference_g.max()
         df['reference_min'] = reference_g.min()
+
+        tar_epoch_data = parse_output.get_report_data(profile=(self._min_power, self._max_power),
+                                                      agent=target,
+                                                      region='epoch')
         if self._metric == 'power':
-            tge = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, target, :, :, 'epoch'], 'energy_pkg']
-            tgr = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, target, :, :, 'epoch'], 'runtime']
+            tge = tar_epoch_data['energy_pkg']
+            tgr = tar_epoch_data['runtime']
             target_g = (tge / tgr).groupby(level='name')
         else:
-            target_g = report_df.loc[idx[:, self._min_power:self._max_power, :, :, :, target, :, :, 'epoch'],
-                                     self._metric].groupby(level='name')
+            target_g = tar_epoch_data[self._metric].groupby(level='name')
 
         df['target_mean'] = target_g.mean()
         df['target_max'] = target_g.max()
@@ -517,15 +513,15 @@ class NodeEfficiencyAnalysis(Analysis):
         req_default = {'default': None}
         if enforce_required:
             req_default = {'required': True}
-        parser.add_argument('--min-freq', dest='min_freq',
+        parser.add_argument('--geopm-analysis-min-freq', dest='min_freq',
                             type=float, default=0.5e9)
-        parser.add_argument('--max-freq', dest='max_freq',
+        parser.add_argument('--geopm-analysis-max-freq', dest='max_freq',
                             type=float, default=3.0e9)
-        parser.add_argument('--step-freq', dest='step_freq',
+        parser.add_argument('--geopm-analysis-step-freq', dest='step_freq',
                             type=float, default=0.1e9)
-        parser.add_argument('--sticker-freq', dest='sticker_freq',
+        parser.add_argument('--geopm-analysis-sticker-freq', dest='sticker_freq',
                             type=float, **req_default)
-        parser.add_argument('--nodelist',
+        parser.add_argument('--geopm-analysis-nodelist', dest='nodelist',
                             type=str, default=None)
 
     # TODO : have this return left and right columns to be formatted by caller
@@ -533,14 +529,14 @@ class NodeEfficiencyAnalysis(Analysis):
     def help_text():
         return """  Node efficiency analysis: {}
   Options for NodeEfficiencyAnalysis:
-  --min-freq            Minimum frequency to display for plotting.  Default is 0.5 GHz.
-  --max-freq            Maximum frequency to display for plotting.  Default is 3.0 GHz.
-  --step-freq           Size of frequency bins to use for plotting.  Default is 100 MHz.
-  --sticker-freq        Sticker frequency of the system where data was collected.
-                        If not provided, the current system sticker frequency will be used.
-  --nodelist            Range of nodes separated by '-' to use for analysis. This option
-                        is not used for launch and should contain a range of nodes
-                        for which previously collected data is available.
+  --geopm-analysis-min-freq         Minimum frequency to display for plotting.  Default is 0.5 GHz.
+  --geopm-analysis-max-freq         Maximum frequency to display for plotting.  Default is 3.0 GHz.
+  --geopm-analysis-step-freq        Size of frequency bins to use for plotting.  Default is 100 MHz.
+  --geopm-analysis-sticker-freq     Sticker frequency of the system where data was collected.
+                                    If not provided, the current system sticker frequency will be used.
+  --geopm-analysis-nodelist         Range of nodes separated by '-' to use for analysis. This option
+                                    is not used for launch and should contain a range of nodes
+                                    for which previously collected data is available.
 {}""".format(NodeEfficiencyAnalysis.__doc__, PowerSweepAnalysis.help_text())
 
     # TODO: use configured agent type
@@ -574,8 +570,14 @@ class NodeEfficiencyAnalysis(Analysis):
         self._governor_power_sweep.launch(config)
         self._balancer_power_sweep.launch(config)
 
+    def find_files(self, search_pattern='*report'):
+        self._governor_power_sweep.find_files()
+        self._balancer_power_sweep.find_files()
+        self._report_paths = self._governor_power_sweep._report_paths
+        self._report_paths.extend(self._balancer_power_sweep._report_paths)
+
     def summary_process(self, parse_output):
-        report_df = parse_output
+        report_df = parse_output.get_report_df()
         profiles = [int(pc.split('_')[-1]) for pc in report_df.index.get_level_values('name')]
         if not self._min_power:
             self._min_power = min(profiles)
@@ -592,12 +594,10 @@ class NodeEfficiencyAnalysis(Analysis):
             begin_node, end_node = self._nodelist
         for target_power in self._power_caps:
             profile = self._name + "_" + str(target_power)
-            region_of_interest = 'epoch'
-            # version name power_budget tree_decider leaf_decider agent node_name iteration region
-            gov_freq_data[target_power] = report_df.loc[pandas.IndexSlice[:, profile, :, :, :, "power_governor", begin_node:end_node, :, region_of_interest], ]\
-                                                   .groupby('node_name').mean()['frequency'].sort_values()
-            bal_freq_data[target_power] = report_df.loc[pandas.IndexSlice[:, profile, :, :, :, "power_balancer", begin_node:end_node, :, region_of_interest], ]\
-                                                   .groupby('node_name').mean()['frequency'].sort_values()
+            governor_data = parse_output.get_report_data(profile=profile, agent="power_governor", region='epoch')
+            gov_freq_data[target_power] = governor_data.groupby('node_name').mean()['frequency'].sort_values()
+            balancer_data = parse_output.get_report_data(profile=profile, agent="power_balancer", region='epoch')
+            bal_freq_data[target_power] = balancer_data.groupby('node_name').mean()['frequency'].sort_values()
             # convert percent to GHz frequency based on sticker
             gov_freq_data[target_power] *= 0.01 * self._sticker_freq / 1e9
             bal_freq_data[target_power] *= 0.01 * self._sticker_freq / 1e9
@@ -673,11 +673,11 @@ class NodePowerAnalysis(Analysis):
         Set up options supported by the analysis type.
         """
         # TODO: these have the same name as PowerSweepAnalysis, but different purpose.
-        parser.add_argument('--min-power', dest='min_power',
+        parser.add_argument('--geopm-analysis-min-power', dest='min_power',
                             type=int, default=120)
-        parser.add_argument('--max-power', dest='max_power',
+        parser.add_argument('--geopm-analysis-max-power', dest='max_power',
                             type=int, default=200)
-        parser.add_argument('--step-power', dest='step_power',
+        parser.add_argument('--geopm-analysis-step-power', dest='step_power',
                             type=int, default=10)
 
     # TODO : have this return left and right columns to be formatted by caller
@@ -685,9 +685,9 @@ class NodePowerAnalysis(Analysis):
     def help_text():
         return """  Node power analysis: {}
   Options for NodePowerAnalysis:
-  --min-power           Minimum power to display for plotting.  Default is 120W.
-  --max-power           Maximum power to display for plotting.  Default is 200W.
-  --step-power          Size of power bins to use for plotting.  Default is 10W.
+  --geopm-analysis-min-power        Minimum power to display for plotting.  Default is 120W.
+  --geopm-analysis-max-power        Maximum power to display for plotting.  Default is 200W.
+  --geopm-analysis-step-power       Size of power bins to use for plotting.  Default is 10W.
 """.format(NodePowerAnalysis.__doc__)
 
     def __init__(self, profile_prefix, output_dir, verbose, iterations, min_power, max_power, step_power):
@@ -697,36 +697,24 @@ class NodePowerAnalysis(Analysis):
         self._min_power = min_power
         self._max_power = max_power
         self._step_power = step_power
-        self._profile_name = self._name + '_' + str(self._max_power)  # '_nocap'  # TODO
+        self._profile_name = self._name + '_nocap'
 
-    def launch(self, config):
+    def launch(self, args):
         agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config')
         agent_conf.write()
 
         for iteration in range(self._iterations):
             report_path = os.path.join(self._output_dir, self._profile_name + '_{}.report'.format(iteration))
             trace_path = os.path.join(self._output_dir, self._profile_name + '_{}.trace'.format(iteration))
-            self._report_paths.append(report_path)
-            self._trace_paths.append(trace_path+'*')
+            Analysis.try_launch(app_argv=args, report_path=report_path, trace_path=trace_path,
+                                profile_name=self._profile_name, agent_conf=agent_conf)
 
-            if config.app_argv and not os.path.exists(report_path):
-                argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
-                                 '--geopm-report', report_path,
-                                 '--geopm-trace', trace_path,
-                                 '--geopm-profile', profile_name]
-                if agent_conf.get_agent() != 'monitor':
-                    argv.append('--geopm-agent=' + agent_conf.get_agent())
-                    argv.append('--geopm-policy=' + agent_conf.get_path())
-                if config.do_geopm_barrier:
-                    argv.append('--geopm-barrier')
-                argv.append('--')
-                argv.extend(config.app_argv)
-                launcher = geopmpy.launcher.factory(argv, config.num_rank, config.num_node)
-                launcher.run()
-            elif os.path.exists(report_path):
-                sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))
-            else:
-                raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
+    def find_files(self, search_pattern='*nocap*report'):
+        """
+        Uses the output dir and any custom naming convention to load the report and trace data
+        produced by launch.
+        """
+        super(NodePowerAnalysis, self).find_files('*nocap*report')
 
     def summary_process(self, parse_output):
         sys.stdout.write("<geopmpy>: Warning: No summary implemented for this analysis type.\n")
@@ -735,13 +723,10 @@ class NodePowerAnalysis(Analysis):
         pass
 
     def plot_process(self, parse_output):
-        report_df = parse_output
-
         profile = self._profile_name
-
-        region_of_interest = 'epoch'
-        energy_data = report_df.loc[pandas.IndexSlice[:, profile, :, :, :, :, :, :, region_of_interest], ].groupby('node_name').mean()['energy_pkg'].sort_values()
-        runtime_data = report_df.loc[pandas.IndexSlice[:, profile, :, :, :, :, :, :, region_of_interest], ].groupby('node_name').mean()['runtime'].sort_values()
+        region_data = parse_output.get_report_data(profile=profile, region='epoch')
+        energy_data = region_data.groupby('node_name').mean()['energy_pkg'].sort_values()
+        runtime_data = region_data.groupby('node_name').mean()['runtime'].sort_values()
         power_data = energy_data / runtime_data
         power_data = power_data.sort_values()
         power_data = pandas.DataFrame(power_data, columns=['power'])
@@ -779,11 +764,11 @@ class FreqSweepAnalysis(Analysis):
         req_default = {'default': None}
         if enforce_required:
             req_default = {'required': True}
-        parser.add_argument('--min-freq', dest='min_freq',
+        parser.add_argument('--geopm-analysis-min-freq', dest='min_freq',
                             type=float, **req_default)
-        parser.add_argument('--max-freq', dest='max_freq',
+        parser.add_argument('--geopm-analysis-max-freq', dest='max_freq',
                             type=float, **req_default)
-        parser.add_argument('--enable-turbo', dest='enable_turbo',
+        parser.add_argument('--geopm-analysis-enable-turbo', dest='enable_turbo',
                             action='store_true', default=False)
 
     # TODO : have this return left and right columns to be formatted by caller
@@ -792,9 +777,9 @@ class FreqSweepAnalysis(Analysis):
         return """  Frequency sweep analysis: {}
   Options for FreqSweepAnalysis:
 
-  --min-freq            Minimum frequency to use for sweep. Default uses system minimum or minimum found in parsed data.
-  --max-freq            Maximum frequency to use for sweep. Default uses system maximum or maximum found in parsed data.
-  --enable-turbo        Allows turbo to be tested when determining best per-region frequencies. (default disables turbo)
+  --geopm-analysis-min-freq         Minimum frequency to use for sweep. Default uses system minimum or minimum found in parsed data.
+  --geopm-analysis-max-freq         Maximum frequency to use for sweep. Default uses system maximum or maximum found in parsed data.
+  --geopm-analysis-enable-turbo     Allows turbo to be tested when determining best per-region frequencies. (default disables turbo)
 """.format(FreqSweepAnalysis.__doc__)
 
     def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
@@ -804,7 +789,7 @@ class FreqSweepAnalysis(Analysis):
         self._min_freq = min_freq
         self._max_freq = max_freq
 
-    def launch(self, config):
+    def launch(self, args):
         if 'GEOPM_EFFICIENT_FREQ_RID_MAP' in os.environ:
             del os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP']
         if 'GEOPM_EFFICIENT_FREQ_ONLINE' in os.environ:
@@ -831,44 +816,27 @@ class FreqSweepAnalysis(Analysis):
                            'frequency_max': freq}
                 agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', agent, options)
                 agent_conf.write()
-                if config.app_argv and not os.path.exists(report_path):
-                    argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
-                                     '--geopm-report', report_path,
-                                     '--geopm-trace', trace_path,
-                                     '--geopm-profile', profile_name]
-                    if agent_conf.get_agent() != 'monitor':
-                        argv.append('--geopm-agent=' + agent_conf.get_agent())
-                        argv.append('--geopm-policy=' + agent_conf.get_path())
-                    if config.do_geopm_barrier:
-                        argv.append('--geopm-barrier')
-                    argv.append('--')
-                    argv.extend(config.app_argv)
-                    launcher = geopmpy.launcher.factory(argv, config.num_rank, config.num_node)
-                    launcher.run()
-                elif os.path.exists(report_path):
-                    sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))
-                else:
-                    raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
+                Analysis.try_launch(app_argv=args, report_path=report_path, trace_path=trace_path,
+                                    profile_name=profile_name, agent_conf=agent_conf)
 
     def find_files(self):
         super(FreqSweepAnalysis, self).find_files('*_freq_*.report')
 
     def summary_process(self, parse_output):
         output = {}
-        report_df = parse_output
-        output['region_freq_map'] = self._region_freq_map(report_df)
+        report_df = parse_output.get_report_df()
+        output['region_freq_map'] = self._region_freq_map(parse_output)
         output['means_df'] = self._region_means_df(report_df)
         return output
 
     def summary(self, process_output):
         if self._verbose:
             sys.stdout.write(all_region_data_pretty(process_output['means_df']))
-
-        region_freq_str = self._region_freq_str(process_output['region_freq_map'])
         sys.stdout.write(self._region_freq_str_pretty(process_output['region_freq_map']))
 
     def plot_process(self, parse_output):
-        regions = parse_output.index.get_level_values('region').unique().tolist()
+        report_df = parse_output.get_report_df()
+        regions = report_df.index.get_level_values('region').unique().tolist()
         return {region: self._runtime_energy_sweep(parse_output, region)
                 for region in regions}
 
@@ -876,7 +844,7 @@ class FreqSweepAnalysis(Analysis):
         for region, df in process_output.iteritems():
             geopmpy.plotter.generate_runtime_energy_plot(df, region, self._output_dir)
 
-    def _region_freq_map(self, report_df):
+    def _region_freq_map(self, parse_output):
         """
         Calculates the best-fit frequencies for each region for a single
         mix ratio.
@@ -884,18 +852,19 @@ class FreqSweepAnalysis(Analysis):
         optimal_freq = dict()
         min_runtime = dict()
 
+        report_df = parse_output.get_report_df()
         freq_pname = FreqSweepAnalysis.get_freq_profiles(report_df, self._name)
 
         is_once = True
         for freq, profile_name in freq_pname:
-
             # Since we are still attempting to perform a run in the turbo range, we need to skip this run when
             # determining the best per region frequencies below.  The profile_name that corresponds to the
             # turbo run is always the first in the list.
             if not self._enable_turbo and (freq, profile_name) == freq_pname[0]:
                 continue
 
-            region_mean_runtime = report_df.loc[pandas.IndexSlice[:, :, profile_name, :, :, :, :, :, :, :], ].groupby(level='region')
+            prof_df = parse_output.get_report_data(profile=profile_name)
+            region_mean_runtime = prof_df.groupby(level='region')
             for region, region_df in region_mean_runtime:
                 runtime = region_df['runtime'].mean()
                 if is_once:
@@ -921,17 +890,16 @@ class FreqSweepAnalysis(Analysis):
             s += '    {}: {}\n'.format(k, v)
         return s
 
-    def _runtime_energy_sweep(self, df, region):
+    def _runtime_energy_sweep(self, parse_output, region):
+        df = parse_output.get_report_df()
         freq_pname = FreqSweepAnalysis.get_freq_profiles(df, self._name)
         data = []
         freqs = []
         for freq, profile_name in freq_pname:
             freqs.append(freq)
-            freq_df = df.loc[pandas.IndexSlice[:, profile_name, :, :, :, :, :, :, :], ]
-
+            freq_df = parse_output.get_report_data(profile=profile_name)
             region_mean_runtime = freq_df.groupby(level='region')['runtime'].mean()
             region_mean_energy = freq_df.groupby(level='region')['energy_pkg'].mean()
-
             data.append([region_mean_runtime[region],
                          region_mean_energy[region]])
 
@@ -1021,12 +989,15 @@ class FreqSweepAnalysis(Analysis):
         return df
 
 
-def baseline_comparison(parse_output, comp_name):
+def baseline_comparison(parse_output, comp_name, sweep_output):
     """
     Used to compare a set of runs for a profile of interest to a baseline profile including verbose data.
     """
-    comp_df = parse_output.loc[pandas.IndexSlice[:, :, comp_name, :, :, :, :, :, :, :], ]
-    baseline_df = parse_output.loc[parse_output.index.get_level_values('name') != comp_name]
+    report_df = parse_output.get_report_df()
+    report_df = report_df.append(sweep_output.get_report_df())
+    report_df.sort_index(ascending=True, inplace=True)
+    comp_df = parse_output.get_report_data(profile=comp_name)
+    baseline_df = report_df.loc[report_df.index.get_level_values('name') != comp_name]
     baseline_df = FreqSweepAnalysis.profile_to_freq_mhz(baseline_df)
 
     # Reduce the data
@@ -1075,7 +1046,7 @@ class EnergyEfficientAgentAnalysis(Analysis):
         self._min_freq = min_freq
         self._max_freq = max_freq
 
-    def launch(self, config):
+    def launch(self, args):
         """
         Run the frequency sweep, then run the desired comparison configuration.
         """
@@ -1086,7 +1057,7 @@ class EnergyEfficientAgentAnalysis(Analysis):
         agent_conf.write()
 
         # Run frequency sweep
-        self._sweep_analysis.launch(config)
+        self._sweep_analysis.launch(args)
 
         # Set up min and max frequency
         self._min_freq = self._sweep_analysis._min_freq
@@ -1099,25 +1070,8 @@ class EnergyEfficientAgentAnalysis(Analysis):
         for iteration in range(self._iterations):
             report_path = os.path.join(self._output_dir, profile_name + '_{}.report'.format(iteration))
             trace_path = os.path.join(self._output_dir, profile_name + '_{}.trace'.format(iteration))
-
-            if config.app_argv and not os.path.exists(report_path):
-                argv = ['dummy', '--geopm-ctl', config.geopm_ctl,
-                                 '--geopm-report', report_path,
-                                 '--geopm-trace', trace_path,
-                                 '--geopm-profile', profile_name]
-                if agent_conf.get_agent() != 'monitor':
-                    argv.append('--geopm-agent=' + agent_conf.get_agent())
-                    argv.append('--geopm-policy=' + agent_conf.get_path())
-                if config.do_geopm_barrier:
-                    argv.append('--geopm-barrier')
-                argv.append('--')
-                argv.extend(config.app_argv)
-                launcher = geopmpy.launcher.factory(argv, config.num_rank, config.num_node)
-                launcher.run()
-            elif os.path.exists(report_path):
-                sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))
-            else:
-                raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
+            Analysis.try_launch(app_argv=args, report_path=report_path, trace_path=trace_path,
+                                profile_name=profile_name, agent_conf=agent_conf)
 
     def find_files(self):
         super(EnergyEfficientAgentAnalysis, self).find_files('*_{}*.report'.format(self._mode))
@@ -1133,17 +1087,15 @@ class EnergyEfficientAgentAnalysis(Analysis):
         sweep_output = self._sweep_analysis.parse()
         app_output = super(EnergyEfficientAgentAnalysis, self).parse()
         parse_output = sweep_output
-        self._freq_pnames = FreqSweepAnalysis.get_freq_profiles(parse_output, self._sweep_analysis._name)
-        parse_output = parse_output.append(app_output)
-        parse_output.sort_index(ascending=True, inplace=True)
-        return sweep_output, parse_output
+        self._freq_pnames = FreqSweepAnalysis.get_freq_profiles(parse_output.get_report_df(), self._sweep_analysis._name)
+        return sweep_output, app_output
 
     def summary_process(self, parse_output):
         sweep_output, comp_output = parse_output
         comp_name = self._name + '_' + self._mode
-        baseline_comp_df = baseline_comparison(comp_output, comp_name)
+        baseline_comp_df = baseline_comparison(comp_output, comp_name, sweep_output)
         sweep_summary_process = self._sweep_analysis.summary_process(sweep_output)
-        sweep_means_df = self._sweep_analysis._region_means_df(sweep_output)
+        sweep_means_df = self._sweep_analysis._region_means_df(sweep_output.get_report_df())
         return sweep_summary_process, sweep_means_df, baseline_comp_df
 
     def summary(self, process_output):
@@ -1291,37 +1243,9 @@ class StreamDgemmMixAnalysis(Analysis):
         self._max_freq = max_freq
         self._mix_ratios = [(1.0, 0.25), (1.0, 0.5), (1.0, 0.75), (1.0, 1.0),
                             (0.75, 1.0), (0.5, 1.0), (0.25, 1.0)]
-        loop_count = 10
-        dgemm_bigo = 20.25
-        stream_bigo = 1.449
-        dgemm_bigo_jlse = 35.647
-        dgemm_bigo_quartz = 29.12
-        stream_bigo_jlse = 1.6225
-        stream_bigo_quartz = 1.7941
-        hostname = socket.gethostname()
-        if hostname.endswith('.alcf.anl.gov'):
-            dgemm_bigo = dgemm_bigo_jlse
-            stream_bigo = stream_bigo_jlse
-        else:
-            dgemm_bigo = dgemm_bigo_quartz
-            stream_bigo = stream_bigo_quartz
 
         for (ratio_idx, ratio) in enumerate(self._mix_ratios):
             profile_prefix = self._name + '_mix_{}'.format(ratio_idx)
-            app_conf_name = os.path.join(self._output_dir, profile_prefix + '_app.config')
-            app_conf = geopmpy.io.BenchConf(app_conf_name)
-            app_conf.set_loop_count(loop_count)
-            app_conf.append_region('dgemm',  ratio[0] * dgemm_bigo)
-            app_conf.append_region('stream', ratio[1] * stream_bigo)
-            app_conf.append_region('all2all', 1.0)
-            app_conf.write()
-
-            source_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-            app_path = os.path.join(source_dir, '.libs', 'geopmbench')
-            # if not found, use geopmbench from user's PATH
-            if not os.path.exists(app_path):
-                app_path = "geopmbench"
-            app_argv = [app_path, app_conf_name]
             # Analysis class that runs the frequency sweep (will append _freq_XXXX to name)
             self._sweep_analysis[ratio_idx] = FreqSweepAnalysis(profile_prefix=profile_prefix,
                                                                 output_dir=self._output_dir,
@@ -1348,63 +1272,90 @@ class StreamDgemmMixAnalysis(Analysis):
                                                                                 enable_turbo=self._enable_turbo)
 
     def launch(self, config):
+        source_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        app_path = os.path.join(source_dir, '.libs', 'geopmbench')
+        # if not found, use geopmbench from user's PATH
+        if not os.path.exists(app_path):
+            app_path = "geopmbench"
+
+        loop_count = 10
+        dgemm_bigo = 20.25
+        stream_bigo = 1.449
+        dgemm_bigo_jlse = 35.647
+        dgemm_bigo_quartz = 29.12
+        stream_bigo_jlse = 1.6225
+        stream_bigo_quartz = 1.7941
+        hostname = socket.gethostname()
+        if hostname.endswith('.alcf.anl.gov'):
+            dgemm_bigo = dgemm_bigo_jlse
+            stream_bigo = stream_bigo_jlse
+        else:
+            dgemm_bigo = dgemm_bigo_quartz
+            stream_bigo = stream_bigo_quartz
+
         for (ratio_idx, ratio) in enumerate(self._mix_ratios):
-            self._sweep_analysis[ratio_idx].launch(config)
-            self._offline_analysis[ratio_idx].launch(config)
-            self._online_analysis[ratio_idx].launch(config)
+            profile_prefix = self._name + '_mix_{}'.format(ratio_idx)
+            app_conf_name = os.path.join(self._output_dir, profile_prefix + '_app.config')
+            app_conf = geopmpy.io.BenchConf(app_conf_name)
+            app_conf.set_loop_count(loop_count)
+            app_conf.append_region('dgemm',  ratio[0] * dgemm_bigo)
+            app_conf.append_region('stream', ratio[1] * stream_bigo)
+            app_conf.append_region('all2all', 1.0)
+            app_conf.write()
+            app_argv = [app_path, app_conf_name]
+            self._sweep_analysis[ratio_idx].launch(config + app_argv)
+            self._offline_analysis[ratio_idx].launch(config + app_argv)
+            self._online_analysis[ratio_idx].launch(config + app_argv)
 
     def find_files(self):
-        super(StreamDgemmMixAnalysis, self).find_files('*_mix*report')
+        for (ratio_idx, ratio) in enumerate(self._mix_ratios):
+            self._sweep_analysis[ratio_idx].find_files()
+            self._offline_analysis[ratio_idx].find_files()
+            self._online_analysis[ratio_idx].find_files()
 
     def parse(self):
-        parse_output = super(StreamDgemmMixAnalysis, self).parse()
-        return parse_output
+        sweep_output = {}
+        offline_output = {}
+        online_output = {}
+        for (ratio_idx, ratio) in enumerate(self._mix_ratios):
+            sweep_output[ratio_idx] = self._sweep_analysis[ratio_idx].parse()
+            _, offline_output[ratio_idx] = self._offline_analysis[ratio_idx].parse()
+            _, online_output[ratio_idx] = self._online_analysis[ratio_idx].parse()
+
+        return sweep_output, offline_output, online_output
 
     def summary_process(self, parse_output):
-        df = parse_output
-        name_prefix = self._name
-
-        runtime_data = []
-        energy_data = []
+        sweep_output, offline_output, online_output = parse_output
         app_freq_data = []
-        online_freq_data = []
         series_names = ['offline application', 'offline per-phase', 'online per-phase']
-        regions = df.index.get_level_values('region').unique().tolist()
+        regions = sweep_output[0].get_report_df().index.get_level_values('region').unique().tolist()
 
         energy_result_df = pandas.DataFrame()
         runtime_result_df = pandas.DataFrame()
         for (ratio_idx, ratio) in enumerate(self._mix_ratios):
             name = self._name + '_mix_{}'.format(ratio_idx)
 
-            optimal_freq = self._sweep_analysis[ratio_idx]._region_freq_map(df)
+            optimal_freq = self._sweep_analysis[ratio_idx]._region_freq_map(sweep_output[ratio_idx])
 
             freq_temp = [optimal_freq[region]
                          for region in sorted(regions)]
             app_freq_data.append(freq_temp)
 
-            freq_pname = FreqSweepAnalysis.get_freq_profiles(parse_output, name)
+            freq_pname = FreqSweepAnalysis.get_freq_profiles(sweep_output[ratio_idx].get_report_df(), name)
 
             baseline_freq, baseline_name = freq_pname[0]
             best_fit_freq = optimal_freq['epoch']
             best_fit_name = FreqSweepAnalysis.fixed_freq_name(name, best_fit_freq)
 
-            baseline_df = df.loc[pandas.IndexSlice[:, :, baseline_name, :, :, :, :, :, :, :], ]
-
-            best_fit_df = df.loc[pandas.IndexSlice[:, :, best_fit_name, :, :, :, :, :, :, :], ]
-            combo_df = baseline_df.append(best_fit_df)
-            comp_df = baseline_comparison(combo_df, best_fit_name)
+            comp_df = baseline_comparison(sweep_output[ratio_idx], best_fit_name, sweep_output[ratio_idx])
             offline_app_energy = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'energy_savings']
             offline_app_runtime = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'runtime_savings']
 
-            offline_df = df.loc[pandas.IndexSlice[:, :, name + '_offline', :, :, :, :, :, :, :], ]
-            combo_df = baseline_df.append(offline_df)
-            comp_df = baseline_comparison(combo_df, name + '_offline')
+            comp_df = baseline_comparison(offline_output[ratio_idx], name + '_offline', sweep_output[ratio_idx])
             offline_phase_energy = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'energy_savings']
             offline_phase_runtime = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'runtime_savings']
 
-            online_df = df.loc[pandas.IndexSlice[:, :, name + '_online', :, :, :, :, :, :, :], ]
-            combo_df = baseline_df.append(online_df)
-            comp_df = baseline_comparison(combo_df, name + '_online')
+            comp_df = baseline_comparison(online_output[ratio_idx], name + '_online', sweep_output[ratio_idx])
             online_phase_energy = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'energy_savings']
             online_phase_runtime = comp_df.loc[pandas.IndexSlice['epoch', int(baseline_freq * 1e-6)], 'runtime_savings']
 
@@ -1447,31 +1398,31 @@ def main(argv):
     help_str = """
 Usage: {argv_0} [-h|--help] [--version]
        {argv_0} ANALYSIS_TYPE --help
-       {argv_0} ANALYSIS_TYPE [-n NUM_RANK -N NUM_NODE | --skip-launch ]
-                [-p PROFILE_PREFIX] [--iterations ITERATIONS] [--verbose]
-                [--summary] [--plot] [-o OUTPUT_DIR] -- EXEC [EXEC_ARGS]
+       {argv_0} ANALYSIS_TYPE [--geopm-analysis-skip-launch ]
+                [--geopm-analysis-profile-prefix PROFILE_PREFIX]
+                [--geopm-analysis-iterations ITERATIONS]
+                [--geopm-analysis-verbose]
+                [--geopm-analysis-summary]
+                [--geopm-analysis-plot]
+                [--geopm-analysis-output-dir OUTPUT_DIR]
+                [GEOPM_LAUNCHER_ARGS] -- EXEC [EXEC_ARGS]
 
 geopmanalysis - Used to run applications and analyze results for specific
                 GEOPM use cases.
 
-  ANALYSIS_TYPE values: freq_sweep, offline, online, hint, stream_mix,
+  ANALYSIS_TYPE values: freq_sweep, offline, online, hint, stream_mix
                         power_sweep, balancer, node_efficiency,
                         node_power.
 
-  -h, --help            show this help message and exit
-  -t, --analysis-type   type of analysis to perform
-  -n, --num-rank        total number of application ranks to launch with
-  -N, --num-node        number of compute nodes to launch onto
-  -o, --output-dir      the output directory for reports, traces, and plots (default '.')
-  -p, --profile-prefix  prefix to prepend to profile name when launching
-  --summary             create a text summary of the results
-  --plot                generate plots of the results
-  -a, --use-agent       temporary option that enables the new agent code path
-  -s, --skip-launch     do not launch jobs, only analyze existing data
-  -v, --verbose         print verbose debugging information
-  --geopm-ctl           launch type for the GEOPM controller (default 'process')
-  --iterations          number of experiments to run per analysis type
-  --version             show the GEOPM version number and exit
+  -h, --help                       show this help message and exit
+  --geopm-analysis-output-dir      the output directory for reports, traces, and plots (default '.')
+  --geopm-analysis-profile-prefix  prefix to prepend to profile name when launching
+  --geopm-analysis-summary         create a text summary of the results
+  --geopm-analysis-plot            generate plots of the results
+  --geopm-analysis-skip-launch     do not launch jobs, only analyze existing data
+  --geopm-analysis-verbose         print verbose debugging information
+  --geopm-analysis-iterations      number of experiments to run per analysis type
+  --version                        show the GEOPM version number and exit
 
 """.format(argv_0=sys.argv[0])
     version_str = """\
@@ -1498,9 +1449,6 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
         sys.stdout.write(version_str)
         return 0
 
-    if os.getenv("GEOPM_AGENT", None) is not None:
-        raise RuntimeError('Use --use-agent option instead of environment variable to enable agent code path.')
-
     if len(argv) < 1:
         sys.stderr.write("<geopmpy> Error: analysis type is required.\n")
         sys.stderr.write(help_str)
@@ -1517,72 +1465,45 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
                                      add_help=False,
                                      argument_default=argparse.SUPPRESS)
 
-    parser.add_argument('-n', '--num-rank', dest='num_rank',
-                        action='store', default=None, type=int)
-    parser.add_argument('-N', '--num-node', dest='num_node',
-                        action='store', default=None, type=int)
-    parser.add_argument('-o', '--output-dir', dest='output_dir',
+    parser.add_argument('--geopm-analysis-output-dir', dest='output_dir',
                         action='store', default='.')
-    parser.add_argument('-p', '--profile-prefix', dest='profile_prefix',
-                        action='store', default='')
-    parser.add_argument('app_argv', metavar='APP_ARGV',
-                        action='store', nargs='*', default=None)
-    parser.add_argument('-s', '--skip-launch', dest='skip_launch',
+    parser.add_argument('--geopm-analysis-profile-prefix', dest='profile_prefix',
+                        action='store', default='prof')
+    parser.add_argument('--geopm-analysis-skip-launch', dest='skip_launch',
                         action='store_true', default=False)
-    parser.add_argument('--geopm-ctl', dest='geopm_ctl',
-                        action='store', default='process')
-    parser.add_argument('--iterations',
+    parser.add_argument('--geopm-analysis-iterations', dest='iterations',
                         action='store', default=1, type=int)
-    parser.add_argument('-v', '--verbose',
+    parser.add_argument('--geopm-analysis-verbose', dest='verbose',
                         action='store_true', default=False)
-    parser.add_argument('--summary',
+    parser.add_argument('--geopm-analysis-summary', dest='summary',
                         action='store_true', default=False)
-    parser.add_argument('--plot',
+    parser.add_argument('--geopm-analysis-plot', dest='plot',
                         action='store_true', default=False)
 
     # special options for the analysis type
     enforce_required = False
-    if '--skip-launch' in argv or '-s' in argv:
+    if '--geopm-analysis-skip-launch' in argv:
         enforce_required = True
     analysis_type_map[analysis_type].add_options(parser, enforce_required)
 
-    args = parser.parse_args(argv)
-    options = vars(args)
+    options, args = parser.parse_known_args(argv)
+    options = vars(options)
 
     skip_launch = options.pop('skip_launch')
     do_summary = options.pop('summary')
     do_plot = options.pop('plot')
 
-    # TODO: I think iterations can be a launch option too
-    launch_options = {}
-    for opt in ['num_rank', 'num_node', 'geopm_ctl', 'app_argv']:
-        launch_options[opt] = options.pop(opt)
-
     analysis = analysis_type_map[analysis_type](**options)
 
     if not skip_launch:
-        # if launching, must run within an allocation to make sure all runs use
-        # the same set of nodes
-        if launch_options['num_rank'] is None or launch_options['num_node'] is None:
-            raise RuntimeError('--num-rank and --num-node are required for launch; use --skip-launch to run analysis only.')
-        if 'SLURM_NNODES' in os.environ:
-            num_node = int(os.getenv('SLURM_NNODES'))
-        elif 'COBALT_NODEFILE' in os.environ:
-            with open(os.getenv('COBALT_NODEFILE')) as fid:
-                num_node = len(fid.readlines())
-        else:
-            num_node = -1
-        if num_node != launch_options['num_node']:
-            raise RuntimeError('Launch must be made inside of a job allocation and application must run on all allocated nodes.')
-
-        launch_config = LaunchConfig(do_geopm_barrier=False, **launch_options)
-        analysis.launch(launch_config)
-
+        # @todo: if launching, must run within an allocation to make sure all runs use
+        # the same set of nodes.  Checking this must be implemented with launcher methods.
+        analysis.launch(args)
     if do_summary or do_plot:
         analysis.find_files()
         parse_output = analysis.parse()
     else:
-        sys.stdout.write("Neither summary nor plot was generated.  Rerun with --summary and/or --plot to perform analysis.\n")
+        sys.stdout.write("Neither summary nor plot was generated.  Rerun with --geopm-analysis-summary and/or --geopm-analysis-plot to perform analysis.\n")
     if do_summary:
         process_output = analysis.summary_process(parse_output)
         analysis.summary(process_output)
