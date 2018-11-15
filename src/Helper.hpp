@@ -36,6 +36,11 @@
 #include <string>
 #include <memory>
 #include <utility>
+#include <typeinfo>
+#include <cxxabi.h>
+#include <iostream>
+
+#include <config.h>
 
 namespace geopm
 {
@@ -52,6 +57,23 @@ namespace geopm
     /// @param [in] path The path of the file to read.
     /// @return The contents of the file at path.
     std::string read_file(const std::string& path);
+
+    /// @brief Returns a readable type name for the given object.  This
+    ///        method can be used with (*this) to simplify error messages
+    ///        inside classes.
+    template <class T>
+    std::string class_name(const T &t)
+    {
+        int status = 0;
+        char *name = abi::__cxa_demangle(typeid(t).name(), nullptr, 0, &status);
+        if (nullptr == name || status != 0) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "<geopm> Warning: Failed to demangle name." << std::endl;
+#endif
+            name = "UnknownType";
+        }
+        return std::string(name);
+    }
 }
 
 #endif
