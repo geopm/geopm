@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e81a93b_43730623",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-11-15T19:10:29Z",
+      "side": 1,
+      "message": "We wish to measure runtime that is a function of node local optimizations only, and therefore uncorrelated between compute nodes.\"",
+      "range": {
+        "startLine": 461,
+        "startChar": 16,
+        "endLine": 462,
+        "endChar": 59
+      },
+      "revId": "31cc0b87e0f4a7a505d429a2a346e9ed6d325996",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec1caa44_b31d7f2e",
+        "filename": "src/PowerBalancerAgent.hpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-11-15T19:10:29Z",
+      "side": 1,
+      "message": "maybe reorder if holding this patch",
+      "range": {
+        "startLine": 118,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 51
+      },
+      "revId": "31cc0b87e0f4a7a505d429a2a346e9ed6d325996",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
