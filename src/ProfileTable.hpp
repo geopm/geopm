@@ -37,7 +37,7 @@
 #include <map>
 #include <set>
 
-#include "geopm_message.h"
+#include "geopm_internal.h"
 
 namespace geopm
 {
