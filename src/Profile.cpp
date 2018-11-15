@@ -45,9 +45,11 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <limits.h>
 
 #include "geopm.h"
-#include "geopm_message.h"
+#include "geopm_internal.h"
+#include "geopm_region_id.h"
 #include "geopm_time.h"
 #include "geopm_signal_handler.h"
 #include "geopm_sched.h"
@@ -62,6 +64,25 @@
 #include "Exception.hpp"
 #include "Comm.hpp"
 #include "config.h"
+
+int geopm_region_id_is_mpi(uint64_t region_id)
+{
+    return (region_id & GEOPM_REGION_ID_MPI) ? 1 : 0;
+}
+
+int geopm_region_id_is_unmarked(uint64_t region_id)
+{
+    return (region_id & GEOPM_REGION_ID_UNMARKED) ? 1 : 0;
+}
+
+uint64_t geopm_region_id_hash(uint64_t region_id)
+{
+    if (region_id != GEOPM_REGION_ID_EPOCH &&
+        region_id != GEOPM_REGION_ID_UNMARKED) {
+        region_id = ((region_id << 32) >> 32);
+    }
+    return region_id;
+}
 
 namespace geopm
 {

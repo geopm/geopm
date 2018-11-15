@@ -38,7 +38,7 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "geopm_message.h"
+#include "geopm_region_id.h"
 #include "geopm_hash.h"
 
 #include "Agent.hpp"

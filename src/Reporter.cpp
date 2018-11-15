@@ -40,6 +40,7 @@
 #include <numeric>
 #include <iostream>
 #include <iomanip>
+#include <limits.h>
 
 #include "Reporter.hpp"
 #include "PlatformIO.hpp"
@@ -50,6 +51,7 @@
 #include "TreeComm.hpp"
 #include "Exception.hpp"
 #include "OMPT.hpp"
+#include "geopm.h"
 #include "geopm_hash.h"
 #include "geopm_version.h"
 #include "config.h"
