@@ -79,7 +79,6 @@ class TestAnalysisCommandLine(unittest.TestCase):
         self.old_stderr = sys.stderr
         sys.stdout = StringIO()
         sys.stderr = StringIO()
-
         self.old_freq_sweep = geopmpy.analysis.FreqSweepAnalysis
         geopmpy.analysis.FreqSweepAnalysis = MockAnalysis
 
@@ -118,18 +117,7 @@ class TestAnalysisCommandLine(unittest.TestCase):
         self.assertIn('Usage', sys.stdout.getvalue())
         self.assertIn('HELP_TEXT TEST', sys.stdout.getvalue())
 
-    def test_launch_missing_param(self):
-        with self.assertRaises(RuntimeError) as err:
-            geopmpy.analysis.main(['freq_sweep'])
-        self.assertIn('--num-rank and --num-node are required for launch', str(err.exception))
-
-    def test_launch_no_alloc(self):
-        with self.assertRaises(RuntimeError) as err:
-            geopmpy.analysis.main(['freq_sweep', '-N 1', '-n 1'])
-        self.assertIn('Launch must be made inside of a job allocation', str(err.exception))
-
     def test_launch_only(self):
-        os.environ['SLURM_NNODES'] = '1'
         rc = geopmpy.analysis.main(['freq_sweep', '-N 1', '-n 1', 'myapp'])
         self.assertEqual(0, rc)
         expected = ['LAUNCH', 'Neither summary nor plot']
@@ -139,8 +127,9 @@ class TestAnalysisCommandLine(unittest.TestCase):
             self.assertIn(exp, res)
 
     def test_launch_plot_summary(self):
-        os.environ['SLURM_NNODES'] = '1'
-        rc = geopmpy.analysis.main(['freq_sweep', '-N 1', '-n 1', '--plot', '--summary', 'myapp'])
+        rc = geopmpy.analysis.main(['freq_sweep', '-N 1', '-n 1',
+                                    '--geopm-analysis-plot',
+                                    '--geopm-analysis-summary', 'myapp'])
         self.assertEqual(0, rc)
         expected = ['LAUNCH', 'FIND_FILES', 'PARSE', 'SUMMARY_PROCESS', 'SUMMARY', 'PLOT_PROCESS', 'PLOT']
         result = sys.stdout.getvalue().strip().split('\n')
@@ -149,7 +138,9 @@ class TestAnalysisCommandLine(unittest.TestCase):
             self.assertIn(exp, res)
 
     def test_skip_launch(self):
-        rc = geopmpy.analysis.main(['freq_sweep', '--skip-launch', '--plot', '--summary'])
+        rc = geopmpy.analysis.main(['freq_sweep', '--geopm-analysis-skip-launch',
+                                    '--geopm-analysis-plot',
+                                    '--geopm-analysis-summary'])
         self.assertEqual(0, rc)
         expected = ['FIND_FILES', 'PARSE', 'SUMMARY_PROCESS', 'SUMMARY', 'PLOT_PROCESS', 'PLOT']
         result = sys.stdout.getvalue().strip().split('\n')
