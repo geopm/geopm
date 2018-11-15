@@ -39,7 +39,6 @@ import re
 import pandas
 import numpy
 import glob
-import json
 import sys
 import subprocess
 import psutil
@@ -376,9 +375,17 @@ class AppOutput(object):
             self._region_names = self._reports_df.index.get_level_values('region').unique().tolist()
         return self._region_names
 
-    def get_report_data(self, node_name=None, region=None):
+    def get_report_data(self, profile=None, agent=None, node_name=None, region=None):
         idx = pandas.IndexSlice
         df = self._reports_df
+        if profile is not None:
+            if type(profile) is tuple:
+                minp, maxp = profile
+                df = df.loc[idx[:, :, minp:maxp, :, :, :, :], ]
+            else:
+                df = df.loc[idx[:, :, profile, :, :, :, :], ]
+        if agent is not None:
+            df = df.loc[idx[:, :, :, agent, :, :, :], ]
         if node_name is not None:
             df = df.loc[idx[:, :, :, :, node_name, :, :], ]
         if region is not None:
@@ -427,6 +434,22 @@ class AppOutput(object):
 
         """
         return self._traces_df
+
+    def extract_index_from_profile(self, inplace=False):
+        """
+        Pulls the power budget or other number out of the profile name
+        and replaces the name column of the data frame with this
+        number.
+        """
+        profile_name_map = {}
+        names_list = self._reports_df.index.get_level_values('name').unique().tolist()
+        for name in names_list:
+            # The profile name is currently set to: ${NAME}_${POWER_BUDGET}
+            profile_name_map.update({name: int(name.split('_')[-1])})
+        df = self._reports_df.rename(profile_name_map)
+        if inplace:
+            self._reports_df = df
+        return df
 
 
 class IndexTracker(object):
@@ -1133,9 +1156,9 @@ imbalance : {imbalance}
 
     def write(self):
         """Write the current config to a file."""
-        obj = {'loop-count' : self._loop_count,
-               'region' : self._region,
-               'big-o' : self._big_o}
+        obj = {'loop-count': self._loop_count,
+               'region': self._region,
+               'big-o': self._big_o}
 
         if (self._imbalance and self._hostname):
             obj['imbalance'] = self._imbalance
