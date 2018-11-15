@@ -91,7 +91,6 @@ int geopm_tprof_init_loop(int num_thread,
 
 int geopm_tprof_post(void);
 
-
 #ifdef __cplusplus
 }
 #endif
