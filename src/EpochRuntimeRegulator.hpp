@@ -41,7 +41,7 @@
 #include <list>
 
 #include "geopm_time.h"
-#include "geopm_message.h"
+#include "geopm_internal.h"
 
 namespace geopm
 {
