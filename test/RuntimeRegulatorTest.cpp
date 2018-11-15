@@ -32,7 +32,6 @@
 
 #include "gtest/gtest.h"
 #include "geopm_time.h"
-#include "geopm_message.h"
 #include "Exception.hpp"
 #include "RuntimeRegulator.hpp"
 
