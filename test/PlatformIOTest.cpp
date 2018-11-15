@@ -39,7 +39,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "geopm_message.h"
+#include "geopm_internal.h"
 #include "geopm_hash.h"
 #include "IOGroup.hpp"
 #include "MockIOGroup.hpp"

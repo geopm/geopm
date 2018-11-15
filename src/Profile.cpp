@@ -45,9 +45,10 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <limits.h>
 
 #include "geopm.h"
-#include "geopm_message.h"
+#include "geopm_internal.h"
 #include "geopm_time.h"
 #include "geopm_signal_handler.h"
 #include "geopm_sched.h"
@@ -62,6 +63,75 @@
 #include "Exception.hpp"
 #include "Comm.hpp"
 #include "config.h"
+
+int geopm_region_id_is_epoch(uint64_t rid)
+{
+    return (rid & GEOPM_REGION_ID_EPOCH) ? 1 : 0;
+}
+
+int geopm_region_id_is_mpi(uint64_t rid)
+{
+    return (rid & GEOPM_REGION_ID_MPI) ? 1 : 0;
+}
+
+int geopm_region_id_is_unmarked(uint64_t rid)
+{
+    return (rid & GEOPM_REGION_ID_UNMARKED) ? 1 : 0;
+}
+
+int geopm_region_id_is_undefined(uint64_t rid)
+{
+    return (rid & GEOPM_REGION_ID_UNDEFINED) ? 1 : 0;
+}
+
+uint64_t geopm_region_id_hash(uint64_t rid)
+{
+    if (rid != GEOPM_REGION_ID_EPOCH &&
+        rid != GEOPM_REGION_ID_UNMARKED) {
+        rid = ((rid << 32) >> 32);
+    }
+    return rid;
+}
+
+int geopm_region_id_is_nested(uint64_t rid)
+{
+    return (geopm_region_id_is_mpi(rid) && geopm_region_id_hash(rid));
+}
+
+uint64_t geopm_region_id_parent(uint64_t rid)
+{
+    return (geopm_region_id_is_nested(rid) ? geopm_region_id_hash(rid) : 0);
+}
+
+uint64_t geopm_region_id_set_mpi(uint64_t rid)
+{
+    return (rid | GEOPM_REGION_ID_MPI);
+}
+
+uint64_t geopm_region_id_unset_mpi(uint64_t rid)
+{
+    return (rid & (~GEOPM_REGION_ID_MPI));
+}
+
+uint64_t geopm_region_id_hint(uint64_t rid)
+{
+    return (rid & GEOPM_MASK_REGION_HINT);
+}
+
+int geopm_region_id_hint_is_equal(uint64_t hint_type, uint64_t rid)
+{
+    return (rid & hint_type) ? 1 : 0;
+}
+
+uint64_t geopm_region_id_set_hint(uint64_t hint_type, uint64_t rid)
+{
+    return (rid | hint_type);
+}
+
+uint64_t geopm_region_id_unset_hint(uint64_t hint_type, uint64_t rid)
+{
+    return (rid & (~hint_type));
+}
 
 namespace geopm
 {

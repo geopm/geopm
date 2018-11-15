@@ -34,7 +34,7 @@
 #define MOCKPROFILEIOSAMPLE_HPP_INCLUDE
 
 #include "ProfileIOSample.hpp"
-#include "geopm_message.h"
+#include "geopm.h"
 
 class MockProfileIOSample : public geopm::IProfileIOSample {
     public:

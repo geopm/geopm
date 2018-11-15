@@ -35,7 +35,7 @@
 
 #include "Tracer.hpp"
 #include "PlatformIO.hpp"
-#include "geopm_message.h"
+#include "geopm.h"
 
 class MockTracer : public geopm::ITracer
 {

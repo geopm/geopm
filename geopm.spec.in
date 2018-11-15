@@ -201,7 +201,6 @@ rm -f %{buildroot}/%{_mandir}/man1/geopmpy_launcher.1*
 %{_includedir}/geopm_ctl.h
 %{_includedir}/geopm_endpoint.h
 %{_includedir}/geopm_error.h
-%{_includedir}/geopm_message.h
 %{_includedir}/geopm_version.h
 
 %files -n python-geopmpy
