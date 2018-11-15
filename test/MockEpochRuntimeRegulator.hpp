@@ -34,7 +34,6 @@
 #define MOCKEPOCHRUNTIMEREGULATOR_HPP_INCLUDE
 
 #include "geopm_time.h"
-#include "geopm_message.h"
 
 #include "EpochRuntimeRegulator.hpp"
 #include "RuntimeRegulator.hpp"

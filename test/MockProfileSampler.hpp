@@ -34,7 +34,6 @@
 #define MOCKPROFILESAMPLER_HPP_INCLUDE
 
 #include "Comm.hpp"
-#include "geopm_message.h"
 #include "ProfileThread.hpp"
 #include "ProfileSampler.hpp"
 

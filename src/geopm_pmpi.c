@@ -37,6 +37,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
+#include <limits.h>
 
 #ifndef GEOPM_TEST
 #include <mpi.h>
@@ -45,7 +46,7 @@
 #include "geopm.h"
 #include "geopm_env.h"
 #include "geopm_error.h"
-#include "geopm_message.h"
+#include "geopm_internal.h"
 #include "geopm_pmpi.h"
 #include "geopm_sched.h"
 #include "geopm_mpi_comm_split.h"
