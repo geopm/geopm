@@ -123,6 +123,7 @@ install-plugin-dir:
 
 ronn_man = man/geopm.7 \
            man/geopmagent.1 \
+           man/geopm-Agent.3 \
            man/geopm_agent_c.3 \
            man/geopm_agent_energy_efficient.7 \
            man/geopm_agent_monitor.7 \
@@ -530,7 +531,7 @@ doxygen: dox-public/Doxyfile
 	doxygen dox-public/Doxyfile
 
 # MAN TARGET
-BUILT_SOURCES = ruby/bin/ronn
+BUILT_SOURCES = ruby/bin/ronn ronn/geopm-Agent.3.ronn
 
 geopm-tutorial.tar.gz: $(TUTORIAL_DIST)
 	tar --transform='s|^|geopm-|' -zcf $@ $^
@@ -551,6 +552,13 @@ $(ronn_man): man/%: ruby/bin/ronn ronn/%.ronn ronn/index.txt ronn/header.txt
 	                 `basename $@`.ronn
 	cat ronn/header.txt ronn/`basename $@` | \
 	    sed -e 's/\(#include.*\) \\fIhttp.*/\1\\fR/g' > $@
+
+ronn/geopm-Agent.3.ronn: doxygen
+	echo "geopm::Agent(3) -- geopm agent plugin interface" > $@
+	echo "===============================================" >> $@
+	echo "## DESCRIPTION" >> $@
+	echo "The Agent plugin interface." >> $@
+	./dox2man.sh dox-public/html/classgeopm_1_1_agent.html >> $@
 
 # GH_PAGES TARGET
 gh-pages: doxygen $(dist_man_MANS)
