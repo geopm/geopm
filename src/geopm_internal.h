@@ -30,13 +30,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GEOPM_MESSAGE_H_INCLUDE
-#define GEOPM_MESSAGE_H_INCLUDE
-#include <limits.h>
-#include <pthread.h>
+#ifndef GEOPM_INTERNAL_H_INCLUDE
+#define GEOPM_INTERNAL_H_INCLUDE
 #include <stdint.h>
 
-#include "geopm.h"
 #include "geopm_time.h"
 
 #ifdef __cplusplus
@@ -53,65 +50,6 @@ enum geopm_region_id_e {
     GEOPM_REGION_ID_UNDEFINED =    1ULL << 60, // Special value for an unset region id
     GEOPM_NUM_REGION_ID_PRIVATE =  3,          // Number table entries reserved for GEOPM defined regions (ignoring UNMARKED)
 };
-
-static inline int geopm_region_id_is_mpi(uint64_t rid)
-{
-    return (rid & GEOPM_REGION_ID_MPI) ? 1 : 0;
-}
-
-static inline int geopm_region_id_is_epoch(uint64_t rid)
-{
-    return (rid & GEOPM_REGION_ID_EPOCH) ? 1 : 0;
-}
-
-static inline uint64_t geopm_region_id_hash(uint64_t rid)
-{
-    if (rid != GEOPM_REGION_ID_EPOCH &&
-        rid != GEOPM_REGION_ID_UNMARKED) {
-        rid = ((rid << 32) >> 32);
-    }
-    return rid;
-}
-
-static inline int geopm_region_id_is_nested(uint64_t rid)
-{
-    return (geopm_region_id_is_mpi(rid) && geopm_region_id_hash(rid));
-}
-
-static inline uint64_t geopm_region_id_parent(uint64_t rid)
-{
-    return (geopm_region_id_is_nested(rid) ? geopm_region_id_hash(rid) : 0);
-}
-
-static inline uint64_t geopm_region_id_set_mpi(uint64_t rid)
-{
-    return (rid | GEOPM_REGION_ID_MPI);
-}
-
-static inline uint64_t geopm_region_id_unset_mpi(uint64_t rid)
-{
-    return (rid & (~GEOPM_REGION_ID_MPI));
-}
-
-static inline uint64_t geopm_region_id_hint(uint64_t rid)
-{
-    return (rid & GEOPM_MASK_REGION_HINT);
-}
-
-static inline int geopm_region_id_hint_is_equal(uint64_t hint_type, uint64_t rid)
-{
-    return (rid & hint_type) ? 1 : 0;
-}
-
-static inline uint64_t geopm_region_id_set_hint(uint64_t hint_type, uint64_t rid)
-{
-    return (rid | hint_type);
-}
-
-static inline uint64_t geopm_region_id_unset_hint(uint64_t hint_type, uint64_t rid)
-{
-    return (rid & (~hint_type));
-}
 
 /// @brief Used to pass information about regions entered and exited
 /// from the application to the tracer.
@@ -134,6 +72,12 @@ struct geopm_prof_message_s {
     /// @brief Progress of the rank within the current region.
     double progress;
 };
+
+uint64_t geopm_region_id_parent(uint64_t rid);
+
+uint64_t geopm_region_id_set_mpi(uint64_t rid);
+
+uint64_t geopm_region_id_unset_mpi(uint64_t rid);
 
 #ifdef __cplusplus
 }

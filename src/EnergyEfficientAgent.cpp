@@ -36,8 +36,8 @@
 #include "contrib/json11/json11.hpp"
 
 #include "geopm.h"
+#include "geopm_region_id.h"
 #include "geopm_hash.h"
-#include "geopm_message.h"
 
 #include "EnergyEfficientAgent.hpp"
 #include "PlatformIO.hpp"
@@ -245,8 +245,8 @@ namespace geopm
         }
         const uint64_t current_region_id = geopm_signal_to_field(m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_ID]));
         if (m_is_online) {
-            if (current_region_id != GEOPM_REGION_ID_UNMARKED &&
-                current_region_id != GEOPM_REGION_ID_UNDEFINED) {
+            if (!geopm_region_id_is_unmarked(current_region_id) &&
+                !geopm_region_id_is_undefined(current_region_id)) {
                 bool is_region_boundary = m_last_region_id != current_region_id;
                 if (is_region_boundary) {
                     // set the freq for the current region (entry)
