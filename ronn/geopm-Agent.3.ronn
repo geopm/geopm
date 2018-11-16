@@ -1,0 +1,353 @@
+geopm::Agent(3) -- geopm agent plugin interface
+===============================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## SYNOPSIS
+
+**\#include [<geopm/Agent.hpp>](https://github.com/geopm/geopm/blob/dev/src/Agent.hpp)**
+
+`Link with -lgeopm`
+
+`namespace geopm`
+
+`using std::vector, std::pair, std::string, std::map, std::function`
+
+  * `Agent::Agent(`:
+     `void);`
+
+  * `virtual Agent::~Agent(`:
+     `void);`
+
+  * `virtual void Agent::init(`:
+    `int` _level_`,` <br>
+    `const vector<int> &`_fan_in_`,` <br>
+    `bool` _is_level_root_`) = 0;`
+
+  * `virtual bool Agent::descend(`:
+    `const vector<double> &`_in_policy_`,` <br>
+    `vector<vector<double> >&` _out_policy_`) = 0`;
+
+  * `virtual bool Agent::ascend(`:
+    `const vector<vector<double> > &`_in_sample_`,` <br>
+    `vector<double> &`_out_sample_`) = 0;`
+
+  * `virtual bool Agent::adjust_platform(`:
+    `const vector<double> &`_policy_`) = 0`;
+
+  * `virtual bool Agent::sample_platform(`:
+    `vector<double> &`_sample_`) = 0;`
+
+  * `virtual void Agent::wait(`:
+     `void) = 0`;
+
+  * `virtual vector<pair<string, string> > Agent::report_header(`:
+    `void) const = 0;`
+
+  * `virtual vector<pair<string, string> > Agent::report_node(`:
+    `void) const = 0;`
+
+  * `virtual map<uint64_t, vector<pair<string, string> > > Agent::report_region(`:
+    `void) const = 0;`
+
+  * `virtual vector<string> Agent::trace_names(`:
+    `void) const = 0;`
+
+  * `virtual void Agent::trace_values(`:
+    `vector<double> &`_values_`) = 0;`
+
+  * `static int Agent::num_policy(`:
+    `const map<string, string> &`_dictionary_`);`
+
+  * `static int Agent::num_sample(`:
+    `const map<string, string> &`_dictionary_`);`
+
+  * `static vector<string> Agent::policy_names(`:
+    `const map<string, string> &`_dictionary_`);`
+
+  * `static vector<string> Agent::sample_names(`:
+    `const map<string, string> &`_dictionary_`);`
+
+  * `static map<string, string> Agent::make_dictionary(`:
+    `const vector<string> &`_policy_names_`,` <br>
+    `const vector<string> &`_sample_names_`);`
+
+  * `static void Agent::aggregate_sample(`:
+    `const vector<vector<double> > &`_in_sample_`,` <br>
+    `const vector<function<double(const vector<double>&)> > &`_agg_func_`,` <br>
+    `vector<double> &`_out_sample_`);`
+
+  * `PluginFactory<Agent> &agent_factory(`:
+    `void);`
+
+## DESCRIPTION
+The `Agent` class is an abstract pure virtual class which defines the
+fundamental procedures executed by the GEOPM runtime.  By default the
+`geopm::MonitorAgent(3)` is used, but other agents can be selected
+with the `GEOPM_AGENT` environment variable or `--geopm-agent` command
+line option to the `geopm_launcher(1)`.  Exactly one agent type is used
+during each execution of the GEOPM runtime.
+
+Any C++ class that derives from the `Agent` class and is compiled
+into a shared object file can be loaded at application launch time
+through the GEOPM plugin interface.  This allows users and system
+administrators to extend the features and behavior of the monitor and
+control process that GEOPM executes without recompiling the GEOPM
+runtime.
+
+A single process (or application thread) on each compute node utilized
+by an application running with GEOPM creates a `Controller` object and
+each of these objects creates one or more `Agent` objects.  The
+`Agent` objects are related to each other through a balanced tree of
+bi-directional communication with "leaf" `Agent` objects defined to
+have no children and one parent and "tree" `Agent` objects defined to
+have many children and one parent.  The `Agent::init`() method is
+called by the `Controller` prior to all other `Agent` methods.  The
+parameters passed by the `Controller` in this call define the geometry
+of the `Agent` tree and where the particular `Agent` object falls in
+the tree.  See detailed description of `Agent::init`() below for more
+information about the tree structure.
+
+All Controllers create an `Agent` object to execute _level_ 0, or
+"leaf" responsibilities.  The leaf responsibilities include monitoring
+signals and deriving samples to send to their parent `Agent`'s at
+_level_ 1 in the tree.  Additionally a leaf `Agent` must interpret
+policies received from their parent agent at _level_ 1 and set
+controls which reflect the policy.  Some of the `Controller` objects
+will create `Agent` objects to execute non-zero _level_, or "tree"
+responsibilities.  These non-zero _level_ `Agent` objects are
+responsible for aggregating samples from child agents to send to
+parent agents and splitting policy values from parent agents to send
+to child agents.  Note that the `Agent` running at the root of the
+tree uses the same policy/sample interface to interact with the
+resource manager.  The resource manager implements the role of a
+parent `Agent` to the root `Agent` my making calls to the
+geopm_endpoint_c(3) interface.
+
+The **PlatformIO(3)** class provides a high level interface for
+signals and controls that can be used by many different `Agent` types.
+The **PlatformIO(3)** interface can be extended through the
+**IOGroup(3)** plugin interface so that the extensions can be made
+independently of the `Agents` that use them.  Without extension the
+**PlatformIO(3)** class provides a large number of built in signals
+and controls.  These signals and controls include a wide range of
+hardware metrics, hardware settings, and signals derived from
+application behavior.  Application behavior is tracked by GEOPM's
+integration with MPI and OpenMP and also by application use of the
+**geopm_prof_c(3)** mark-up interface.
+
+## TERMS
+Below are some definitions of terms that are used to describe
+different parts of the GEOPM runtime.  Understanding these terms will
+help to interpret the documentation about how to extend the GEOPM
+runtime.  These are arranged from from highest levels of abstraction
+down to the lowest levels of abstraction.
+
+  * _launcher_:
+    Wrapper of system application launch (e.g. srun or aprun) to start
+    GEOPM runtime.
+
+  * _report_:
+    Text file containing summary of aggregated stats collected during
+    application run.
+
+  * _trace_:
+    Time series of signals collected over application run in pipe
+    separated ASCII table.
+
+  * _policy_:
+    Array of floating-point settings for Agent specific control
+    parameters in SI units.
+
+  * _sample_:
+    Array of floating-point values providing Agent specific runtime
+    data in SI units.
+
+  * _endpoint_:
+    Interface between resource manager and GEOPM runtime.
+
+  * _profile_:
+    Interface for annotating compute application; provides PlatformIO
+    region signals
+
+  * _controller_:
+    Thread on each compute node loads plugins and runs GEOPM
+    algorithm.
+
+  * _level_:
+    Attribute of an `Agent` describing the number of edges between it
+    and the nearest leaf `Agent` in the communication Tree (leaf
+    `Agents` are _level_ zero).
+
+  * _signal_:
+    Named parameter in SI units that can be measured using PlatformIO.
+
+  * _control_:
+    Named parameter in SI units that can be set using PlatformIO.
+
+
+
+## CLASS METHODS
+
+  * `init`():
+    The `init`() method is the first method that will be called and
+    provides contextual information for the `Agent` about the
+    communication tree geometry and where in the tree the `Agent`
+    resides.  The communication tree that connects the `Agent` objects
+    is a balanced tree.  The _level_ is the minimum number of edges
+    between `self` and any leaf `Agent`.  Only when _level_ is zero
+    will the `sample_platform`() an `adjust_platform`() methods be
+    called.  If the _level_ is zero then the `init`() method should
+    push all signals and controls for **PlatformIO(3)**.  The _fan_in_
+    is a vector indexed by _level_ that describes the number of
+    siblings that an `Agent` at _level_ has which share a parent.  The
+    figure below represents a tree with _fan_in_ == {4,3,2} where each
+    Agent is signified by a digit that is equal to the _level_.  Note
+    that this example supports 24 compute nodes.  The _is_level_root_
+    parameter is true for one child of each parent and only if this
+    parameter is true will the controller call the `ascend`() or
+    `descend`() methods of the object.
+
+```
+                                    (3)
+                         ___________/ \___________
+                        /                         \
+                   __ (2)                         (2) __
+           _______/  /   \____               ____/   \  \_______
+          /         |         \             /         |         \
+        (1)        (1)        (1)         (1)        (1)        (1)
+       -- --      -- --      -- --       -- --      -- --      -- --
+      / | | \    / | | \    / | | \     / | | \    / | | \    / | | \
+    (0)(0|0)(0)(0)(0|0)(0)(0)(0|0)(0) (0)(0|0)(0)(0)(0|0)(0)(0)(0|0)(0)
+```
+
+  * `descend`():
+    Split policy for children at next level down the tree.  The
+    _in_policy_ is an input vector of policy values from the parent.
+    The _out_policy_ is an output vector of policies to be sent to
+    each child.  Returns true if out_policy has been updated since
+    last call.
+
+  * `ascend`():
+    Aggregate samples from children for the next level up the tree.
+    The _in_sample_ input vector is a sample of vectors, one from each
+    child.  The _out_sample_ is an output vector of aggregated sample
+    values to be sent up to the parent.  Returns true if out_sample
+    has been updated since last call.
+
+  * `adjust_platform`():
+    Adjust the platform settings based the policy from above.
+    Settings for each control in the _policy_.  Returns true if
+    platform was adjusted, false otherwise.
+
+  * `sample_platform`():
+    Read signals from the platform and interpret/aggregate these
+    signals to create a sample which can be sent up the tree.  The
+    _sample_ parameter is an output vector of agent specific sample
+    values to be sent up the tree. Returns true if sample has been
+    updated since last call.
+
+  * `wait`():
+    Called to wait for sample period to elapse. This controls the
+    cadence of the Controller main loop.
+
+  * `report_header`():
+    Custom fields that will be added to the report header when this
+    agent is used.
+
+  * `report_node`():
+    Custom fields for the node section of the report.
+
+  * `report_region`():
+    Custom fields for each region in the report.
+
+  * `trace_names`():
+    Column headers to be added to the trace.
+
+  * `trace_values`():
+    Called to get latest values to be added to the trace.
+
+  * `num_policy`():
+    Used to look up the number of values in the policy vector sent
+    down the tree for a specific Agent. This should be called with the
+    dictionary returned by
+    `agent_factory`().`dictionary`(_agent_name_) for the Agent of
+    interest.
+
+  * `num_sample`():
+    Used to look up the number of values in the sample vector sent up
+    the tree for a specific Agent. This should be called with the
+    dictionary returned by
+    `agent_factory`().`dictionary`(_agent_name_) for the Agent of
+    interest.
+
+  * `policy_names`():
+    Used to look up the names of values in the policy vector sent down
+    the tree for a specific Agent. This should be called with the
+    dictionary returned by
+    `agent_factory`().`dictionary`(_agent_name_) for the Agent of
+    interest.
+
+  * `sample_names`():
+    Used to look up the names of values in the sample vector sent up
+    the tree for a specific Agent. This should be called with the
+    dictionary returned by
+    `agent_factory`().`dictionary`(_agent_name_) for the Agent of
+    interest.
+
+  * `make_dictionary`():
+    Used to create a correctly-formatted dictionary for an Agent at
+    the time the Agent is registered with the factory. Concrete Agent
+    classes may provide policy_names() and sample_names() methods to
+    provide the vectors to be passed to this method.
+
+  * `aggregate_sample`():
+    Generically aggregate a vector of samples given a vector of
+    aggregation functions. This helper method applies a different
+    aggregation function to each sample element while aggregating
+    across child samples. The _in_sample_ parameter is an input vector
+    over children of the sample vector received from each child.  The
+    _agg_func_ is an input vector over agent samples of the
+    aggregation function that is applied.  The _out_sample_ is an
+    output sample vector resulting from the applying the aggregation
+    across child samples.
+
+  * `agent_factory`():
+
+## ERRORS
+All functions described on this man page throw **geopm::Exception(3)**
+on error.
+
+## COPYRIGHT
+Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**
