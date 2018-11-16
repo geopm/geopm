@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "94a3ac0a_e1a2943b",
+        "filename": "src/Helper.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-11-16T00:56:23Z",
+      "side": 1,
+      "message": "Returns:\nA pointer to the start of the NUL-terminated demangled name, or NULL if the demangling fails. The caller is responsible for deallocating this memory using free.",
+      "range": {
+        "startLine": 68,
+        "startChar": 21,
+        "endLine": 68,
+        "endChar": 80
+      },
+      "revId": "2e1c98e9b9fc407b557eada91ddd75a63c836e5e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "199fe324_986e87eb",
         "filename": "src/Helper.hpp",
         "patchSetId": 1
