@@ -123,6 +123,7 @@ install-plugin-dir:
 
 ronn_man = man/geopm.7 \
            man/geopmagent.1 \
+           man/geopm-Agent.3 \
            man/geopm_agent_c.3 \
            man/geopm_agent_energy_efficient.7 \
            man/geopm_agent_monitor.7 \
@@ -191,6 +192,7 @@ EXTRA_DIST = .gitignore \
              MANIFEST \
              pull_request_template.md \
              README.md \
+             ronn/geopm-Agent.3.ronn \
              ronn/geopmagent.1.ronn \
              ronn/geopm_agent_c.3.ronn \
              ronn/geopm_agent_energy_efficient.7.ronn \
