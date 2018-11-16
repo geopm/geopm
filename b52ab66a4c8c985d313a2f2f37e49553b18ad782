@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "572182d1_58096ca0",
+        "filename": "ronn/geopmpy_launcher.1.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-16T18:16:54Z",
+      "side": 1,
+      "message": "discussed",
+      "range": {
+        "startLine": 110,
+        "startChar": 32,
+        "endLine": 110,
+        "endChar": 42
+      },
+      "revId": "b52ab66a4c8c985d313a2f2f37e49553b18ad782",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "58802325_b700187a",
+        "filename": "ronn/geopmpy_launcher.1.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-16T18:16:54Z",
+      "side": 1,
+      "message": "This option is used by the launcher to set the GEOPM_PMPI_CTL environment variable.  The command line option will override any value currently set in the environment.  See the ENVIRONMENT section of **geopm(7)**.",
+      "range": {
+        "startLine": 109,
+        "startChar": 25,
+        "endLine": 111,
+        "endChar": 18
+      },
+      "revId": "b52ab66a4c8c985d313a2f2f37e49553b18ad782",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
