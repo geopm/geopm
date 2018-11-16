@@ -39,6 +39,15 @@ namespace geopm
     const MSR *msr_knl(size_t &num_msr)
     {
         static const MSR instance[] = {
+            MSR("TIME_STAMP_COUNTER", 0x10,
+                {{"TIMESTAMP_COUNT", (struct IMSR::m_encode_s) {
+                      .begin_bit = 0,
+                      .end_bit   = 48,
+                      .domain    = IPlatformTopo::M_DOMAIN_CPU,
+                      .function  = IMSR::M_FUNCTION_OVERFLOW,
+                      .units     = IMSR::M_UNITS_NONE,
+                      .scalar    = 1.0}}},
+                {}),
             MSR("PERF_STATUS", 0x198,
                 {{"FREQ", (struct IMSR::m_encode_s) {
                       .begin_bit = 8,
