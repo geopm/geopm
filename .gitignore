@@ -21,6 +21,7 @@
 /depcomp
 /dox/html/
 /dox/latex/
+/dox-public/Doxyfile
 /dox-public/html/
 /dox-public/latex/
 .deps/

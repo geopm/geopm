@@ -57,6 +57,7 @@ geopmpy_launcher(1)              geopmpy_launcher.1
 geopmread(1)                     geopmread.1
 geopmsrun(1)                     geopmsrun.1
 geopmwrite(1)                    geopmwrite.1
+geopm-Agent(3)                   geopm-Agent.3
 geopm-Agg(3)                     geopm-Agg.3
 geopm-CircularBuffer(3)          geopm-CircularBuffer.3
 geopm-Comm(3)                    geopm-Comm.3
@@ -83,7 +84,6 @@ geopm-ProfileIOSample(3)         geopm-ProfileIOSample.3
 geopm-RegionAggregator(3)        geopm-RegionAggregator.3
 geopm-SharedMemory(3)            geopm-SharedMemory.3
 geopm-TimeIOGroup(3)             geopm-TimeIOGroup.3
-
 
 #external pages
 CPU_SET(3)                      http://linux.die.net/man/3/cpu_set

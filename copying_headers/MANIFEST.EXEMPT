@@ -40,6 +40,7 @@ ronn/geopm_agent_energy_efficient.7.ronn
 ronn/geopm_agent_monitor.7.ronn
 ronn/geopm_agent_power_balancer.7.ronn
 ronn/geopm_agent_power_governor.7.ronn
+ronn/geopm-Agent.3.ronn
 ronn/geopm-Agg.3.ronn
 ronn/geopmanalysis.1.ronn
 ronn/geopmbench.1.ronn
