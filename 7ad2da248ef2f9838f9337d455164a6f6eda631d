@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3cee1c11_bd681326",
+        "filename": "ronn/geopm_region_id_c.3.ronn",
+        "patchSetId": 9
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-16T22:06:37Z",
+      "side": 1,
+      "message": "Figure out if we need these",
+      "range": {
+        "startLine": 83,
+        "startChar": 1,
+        "endLine": 87,
+        "endChar": 69
+      },
+      "revId": "7ad2da248ef2f9838f9337d455164a6f6eda631d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
