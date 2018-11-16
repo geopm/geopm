@@ -40,7 +40,7 @@
 #include <omp.h>
 #endif
 
-#include "geopm.h"
+#include <geopm.h>
 #include "tutorial_region.h"
 #ifdef TUTORIAL_ENABLE_MKL
 #include "mkl.h"
