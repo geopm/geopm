@@ -179,6 +179,7 @@ EXTRA_DIST = .gitignore \
              copying_headers/test-license \
              copying_headers/test-dist \
              dox/Doxyfile \
+             dox-public/Doxyfile.in \
              geopm-ohpc.spec.in \
              geopm-ohpc.spec \
              geopm-theta.spec.in \

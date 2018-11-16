@@ -15,6 +15,7 @@ copying_headers/MANIFEST.EXEMPT
 copying_headers/MANIFEST.MIT-dropbox
 copying_headers/MANIFEST.NAS
 dox/Doxyfile
+dox-public/Doxyfile.in
 examples/amg/README
 examples/comd/README
 examples/example_policy.json
