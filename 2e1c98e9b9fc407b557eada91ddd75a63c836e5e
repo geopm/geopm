@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "199fe324_986e87eb",
+        "filename": "src/Helper.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-11-16T00:24:21Z",
+      "side": 1,
+      "message": "assigning value to potentially NULL pointer.",
+      "range": {
+        "startLine": 73,
+        "startChar": 12,
+        "endLine": 73,
+        "endChar": 33
+      },
+      "revId": "2e1c98e9b9fc407b557eada91ddd75a63c836e5e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
