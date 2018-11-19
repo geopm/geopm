@@ -39,7 +39,7 @@
 #include <iomanip>
 #include <sys/wait.h>
 
-#include "geopm.h"
+#include "geopm_internal.h"
 #include "geopm_sched.h"
 #include "geopm_error.h"
 #include "Exception.hpp"
