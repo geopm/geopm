@@ -115,17 +115,24 @@ namespace geopm
 
     void EpochRuntimeRegulator::epoch(int rank, struct geopm_time_s epoch_time)
     {
-        if (m_seen_first_epoch[rank]) {
-            record_exit(GEOPM_REGION_ID_EPOCH, rank, epoch_time);
+        static bool is_energy_recorded = false;
+        if (is_energy_recorded) {
+            m_epoch_start_energy_pkg = current_energy_pkg();
+            m_epoch_start_energy_dram = current_energy_dram();
+            is_energy_recorded = true;
+        }
+        else {
             m_epoch_total_energy_pkg = current_energy_pkg() - m_epoch_start_energy_pkg;
             m_epoch_total_energy_dram = current_energy_dram() - m_epoch_start_energy_dram;
         }
+
+        if (m_seen_first_epoch[rank]) {
+            record_exit(GEOPM_REGION_ID_EPOCH, rank, epoch_time);
+        }
         else {
-            std::fill(m_curr_runtime_mpi.begin(), m_curr_runtime_mpi.end(), 0.0);
-            std::fill(m_curr_runtime_ignore.begin(), m_curr_runtime_ignore.end(), 0.0);
+            m_curr_runtime_mpi[rank] = 0.0;
+            m_curr_runtime_ignore[rank] = 0.0;
             m_seen_first_epoch[rank] = true;
-            m_epoch_start_energy_pkg = current_energy_pkg();
-            m_epoch_start_energy_dram = current_energy_dram();
         }
         record_entry(GEOPM_REGION_ID_EPOCH, rank, epoch_time);
     }
