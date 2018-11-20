@@ -174,12 +174,12 @@ void PlatformIOTest::SetUp()
         .WillByDefault(Return(true));
     ON_CALL(m_topo, is_domain_within(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_PACKAGE))
         .WillByDefault(Return(true));
-    ON_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_BOARD, _, _))
-        .WillByDefault(SetArgReferee<2>(cpu_set));
-    ON_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_BOARD_MEMORY, _, _))
-        .WillByDefault(SetArgReferee<2>(cpu_set));
-    ON_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, _, _))
-        .WillByDefault(SetArgReferee<2>(cpu_set));
+    ON_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_BOARD, _))
+        .WillByDefault(Return(cpu_set));
+    ON_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_BOARD_MEMORY, _))
+        .WillByDefault(Return(cpu_set));
+    ON_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, _))
+        .WillByDefault(Return(cpu_set));
     ON_CALL(m_topo, domain_idx(IPlatformTopo::M_DOMAIN_CPU, _))
         .WillByDefault(testing::ReturnArg<1>());
 
@@ -298,8 +298,8 @@ TEST_F(PlatformIOTest, push_signal_agg)
                                          IPlatformTopo::M_DOMAIN_PACKAGE));
     std::set<int> package_cpus {0, 1, 2, 3};
     ASSERT_EQ(M_NUM_CPU, package_cpus.size());
-    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, 0, _))
-        .WillOnce(::testing::SetArgReferee<2>(package_cpus));
+    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+        .WillOnce(Return(package_cpus));
     EXPECT_CALL(m_topo, domain_idx(IPlatformTopo::M_DOMAIN_CPU, _))
         .Times(M_NUM_CPU);
 
@@ -416,8 +416,8 @@ TEST_F(PlatformIOTest, push_control_agg)
                                          IPlatformTopo::M_DOMAIN_PACKAGE));
     std::set<int> package_cpus {0, 1, 2, 3};
     ASSERT_EQ(M_NUM_CPU, package_cpus.size());
-    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, 0, _))
-        .WillOnce(::testing::SetArgReferee<2>(package_cpus));
+    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+        .WillOnce(Return(package_cpus));
     EXPECT_CALL(m_topo, domain_idx(IPlatformTopo::M_DOMAIN_CPU, _))
         .Times(M_NUM_CPU);
 
@@ -470,8 +470,8 @@ TEST_F(PlatformIOTest, sample_agg)
                                          IPlatformTopo::M_DOMAIN_PACKAGE));
     std::set<int> package_cpus {0, 1, 2, 3};
     ASSERT_EQ(M_NUM_CPU, package_cpus.size());
-    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, 0, _))
-        .WillOnce(::testing::SetArgReferee<2>(package_cpus));
+    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+        .WillOnce(Return(package_cpus));
     EXPECT_CALL(m_topo, domain_idx(IPlatformTopo::M_DOMAIN_CPU, _))
         .Times(M_NUM_CPU);
 
@@ -523,8 +523,8 @@ TEST_F(PlatformIOTest, adjust_agg)
                                          IPlatformTopo::M_DOMAIN_PACKAGE));
     std::set<int> package_cpus {0, 1, 2, 3};
     ASSERT_EQ(M_NUM_CPU, package_cpus.size());
-    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, 0, _))
-        .WillOnce(::testing::SetArgReferee<2>(package_cpus));
+    EXPECT_CALL(m_topo, domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+        .WillOnce(Return(package_cpus));
     EXPECT_CALL(m_topo, domain_idx(IPlatformTopo::M_DOMAIN_CPU, _))
         .Times(M_NUM_CPU);
 
