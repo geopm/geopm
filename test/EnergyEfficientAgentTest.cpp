@@ -63,11 +63,12 @@ using geopm::IPlatformIO;
 class EnergyEfficientAgentTest : public :: testing :: Test
 {
     protected:
-        enum mock_signal_idx_e {
+        enum mock_pio_idx_e {
             REGION_ID_IDX,
             RUNTIME_IDX,
-            FREQ_IDX,
+            FREQ_CONTROL_IDX,
             ENERGY_PKG_IDX,
+            FREQ_SIGNAL_IDX,
         };
 
         void SetUp();
@@ -113,7 +114,9 @@ void EnergyEfficientAgentTest::SetUp()
     ON_CALL(*m_platform_io, push_signal("ENERGY_PACKAGE", _, _))
         .WillByDefault(Return(ENERGY_PKG_IDX));
     ON_CALL(*m_platform_io, push_control("FREQUENCY", _, _))
-        .WillByDefault(Return(FREQ_IDX));
+        .WillByDefault(Return(FREQ_CONTROL_IDX));
+    ON_CALL(*m_platform_io, push_signal("FREQUENCY", _, _))
+        .WillByDefault(Return(FREQ_SIGNAL_IDX));
     ON_CALL(*m_platform_io, agg_function(_))
         .WillByDefault(Return(geopm::Agg::max));
     EXPECT_CALL(*m_platform_io, agg_function(_))
@@ -141,7 +144,7 @@ void EnergyEfficientAgentTest::SetUp()
                GEOPM_REGION_HINT_IGNORE, GEOPM_REGION_HINT_NETWORK,
                GEOPM_REGION_HINT_UNKNOWN};
     m_expected_freqs = {m_freq_min, m_freq_max, m_freq_min, m_freq_max, m_freq_min};
-    m_sample.resize(1);
+    m_sample.resize(2);
 
     ASSERT_EQ(m_mapped_freqs.size(), m_region_names.size());
     ASSERT_EQ(m_mapped_freqs.size(), m_region_hash.size());
@@ -176,8 +179,10 @@ TEST_F(EnergyEfficientAgentTest, map)
     for (size_t x = 0; x < M_NUM_REGIONS; x++) {
         EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX))
             .WillOnce(Return(geopm_field_to_signal(m_region_hash[x])));
+        EXPECT_CALL(*m_platform_io, sample(FREQ_SIGNAL_IDX))
+            .WillOnce(Return(1.2e9));
         m_agent->sample_platform(m_sample);
-        EXPECT_CALL(*m_platform_io, adjust(FREQ_IDX, m_mapped_freqs[x])).Times(M_NUM_CPU);
+        EXPECT_CALL(*m_platform_io, adjust(FREQ_CONTROL_IDX, m_mapped_freqs[x])).Times(M_NUM_CPU);
         m_agent->adjust_platform(m_default_policy);
     }
 }
@@ -198,6 +203,8 @@ TEST_F(EnergyEfficientAgentTest, hint)
         EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX))
             .WillOnce(Return(geopm_field_to_signal(
                 geopm_region_id_set_hint(m_hints[x], 0x1234 + x))));
+        EXPECT_CALL(*m_platform_io, sample(FREQ_SIGNAL_IDX))
+            .WillOnce(Return(1.2e9));
         double expected_freq = NAN;
         switch(m_hints[x]) {
             // Hints for low CPU frequency
@@ -219,7 +226,7 @@ TEST_F(EnergyEfficientAgentTest, hint)
                 expected_freq = m_freq_max;
                 break;
         }
-        EXPECT_CALL(*m_platform_io, adjust(FREQ_IDX, expected_freq)).Times(M_NUM_CPU);
+        EXPECT_CALL(*m_platform_io, adjust(FREQ_CONTROL_IDX, expected_freq)).Times(M_NUM_CPU);
         m_agent->sample_platform(m_sample);
         m_agent->adjust_platform(m_default_policy);
     }
@@ -236,7 +243,7 @@ TEST_F(EnergyEfficientAgentTest, online_mode)
     m_default_policy = {freq_min, freq_max};
 
     for (int x = 0; x < 4; ++x) {
-        // calls in constructor form SetUp and this test
+        // calls in constructor from SetUp and this test
         EXPECT_CALL(*m_platform_io, signal_domain_type(_)).Times(1);
         EXPECT_CALL(*m_platform_io, control_domain_type(_)).Times(1);
         EXPECT_CALL(*m_platform_io, read_signal(_, _, _)).Times(2);
@@ -252,8 +259,10 @@ TEST_F(EnergyEfficientAgentTest, online_mode)
             // within EfficientFreqRegion
             EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX))
                 .WillOnce(Return(geopm_region_id_set_hint(m_hints[x], m_region_hash[x])));
+            EXPECT_CALL(*m_platform_io, sample(FREQ_SIGNAL_IDX))
+                .WillOnce(Return(1.2e9));
             EXPECT_CALL(*m_platform_io, sample(ENERGY_PKG_IDX)).Times(2);
-            EXPECT_CALL(*m_platform_io, adjust(FREQ_IDX, _)).Times(M_NUM_CPU);
+            EXPECT_CALL(*m_platform_io, adjust(FREQ_CONTROL_IDX, _)).Times(M_NUM_CPU);
             m_agent->sample_platform(m_sample);
             m_agent->adjust_platform(m_default_policy);
         }
