@@ -48,6 +48,29 @@ extern "C"
 
 namespace geopm
 {
+    /////////////////////////////////////////////////////////////////////////////////////////
+    // Notes:
+    //
+    // How do we ask how many sockets per board?
+    //    num_domain(M_DOMAIN_PACKAGE) / num_domain(M_DOMAIN_BOARD)
+    // How do we ask how many CPUs per socket?
+    //    num_domain(M_DOMAIN_CPU) / num_domain(M_DOMAIN_PACKAGE)
+    // How do we know which Linux logical CPUs are on core 5?
+    //    domain_cpus(M_DOMAIN_CORE, 5, cpu_idx_set);
+    // How do we ask if there is on package memory?
+    //    num_domain(M_DOMAIN_PACKAGE_MEMORY) > 0
+    // How do we ask if the frequency control is per package or per core?
+    //    platform_io().control_domain_type("PERF_CTL:FREQ") == M_DOMAIN_PACKAGE
+    // How do we ask which socket Linux logical CPU 8 is on?
+    //    domain_idx(M_DOMAIN_PACKAGE, 8)
+    // How do we find out all of the other Linux logical CPUs that share a socket with CPU 8?
+    //    domain_cpus(M_DOMAIN_PACKAGE, domain_idx(M_DOMAIN_PACKAGE, 8), socket_cpu_set)
+    // How do we define a group all linux logical CPUs that are divisable by 4?
+    //    int num_cpu = num_domain(M_DOMAIN_CPU);
+    //    for (int i = 0; i < num_cpu; i +=4) {
+    //        domain_idx.push_back(i);
+    //    }
+    //    uint64_t group_domain = group_ext_define(0, domain_idx);
     class IPlatformTopo
     {
         public:
@@ -91,9 +114,8 @@ namespace geopm
             virtual int num_domain(int domain_type) const = 0;
             /// @brief Get the set of Linux logical CPUs associated
             ///        with the indexed domain.
-            virtual void domain_cpus(int domain_type,
-                                     int domain_idx,
-                                     std::set<int> &cpu_idx) const = 0;
+            virtual std::set<int> domain_cpus(int domain_type,
+                                              int domain_idx) const = 0;
             /// @brief Get the domain index for a particular domain
             ///        type that contains the given Linux logical CPU
             ///        index
@@ -140,9 +162,8 @@ namespace geopm
             PlatformTopo(const std::string &lscpu_file_name);
             virtual ~PlatformTopo() = default;
             int num_domain(int domain_type) const override;
-            void domain_cpus(int domain_type,
-                             int domain_idx,
-                             std::set<int> &cpu_idx) const override;
+            std::set<int> domain_cpus(int domain_type,
+                                      int domain_idx) const override;
             int domain_idx(int domain_type,
                            int cpu_idx) const override;
             int define_cpu_group(const std::vector<int> &cpu_domain_idx) override;

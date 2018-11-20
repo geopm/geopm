@@ -303,45 +303,45 @@ TEST_F(PlatformTopoTest, bdx_domain_cpus)
     cpu_set_board.insert(cpu_set_socket[1].begin(), cpu_set_socket[1].end());
     std::set<int> cpu_set_expect;
     std::set<int> cpu_set_actual;
-    topo.domain_cpus(IPlatformTopo::M_DOMAIN_BOARD, 0, cpu_set_actual);
+    cpu_set_actual = topo.domain_cpus(IPlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_EQ(cpu_set_board, cpu_set_actual);
 
-    topo.domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, 0, cpu_set_actual);
+    cpu_set_actual = topo.domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(cpu_set_socket[0], cpu_set_actual);
 
-    topo.domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, 1, cpu_set_actual);
+    cpu_set_actual = topo.domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, 1);
     EXPECT_EQ(cpu_set_socket[1], cpu_set_actual);
 
     cpu_set_expect = {0, 36};
-    topo.domain_cpus(IPlatformTopo::M_DOMAIN_CORE, 0, cpu_set_actual);
+    cpu_set_actual = topo.domain_cpus(IPlatformTopo::M_DOMAIN_CORE, 0);
     EXPECT_EQ(cpu_set_expect, cpu_set_actual);
 
     cpu_set_expect = {1, 37};
-    topo.domain_cpus(IPlatformTopo::M_DOMAIN_CORE, 1, cpu_set_actual);
+    cpu_set_actual = topo.domain_cpus(IPlatformTopo::M_DOMAIN_CORE, 1);
     EXPECT_EQ(cpu_set_expect, cpu_set_actual);
 
     cpu_set_expect = {0};
-    topo.domain_cpus(IPlatformTopo::M_DOMAIN_CPU, 0, cpu_set_actual);
+    cpu_set_actual = topo.domain_cpus(IPlatformTopo::M_DOMAIN_CPU, 0);
     EXPECT_EQ(cpu_set_expect, cpu_set_actual);
 
     cpu_set_expect = {1};
-    topo.domain_cpus(IPlatformTopo::M_DOMAIN_CPU, 1, cpu_set_actual);
+    cpu_set_actual = topo.domain_cpus(IPlatformTopo::M_DOMAIN_CPU, 1);
     EXPECT_EQ(cpu_set_expect, cpu_set_actual);
 
     cpu_set_expect = cpu_set_socket[0];
-    topo.domain_cpus(IPlatformTopo::M_DOMAIN_BOARD_MEMORY, 0, cpu_set_actual);
+    cpu_set_actual = topo.domain_cpus(IPlatformTopo::M_DOMAIN_BOARD_MEMORY, 0);
     EXPECT_EQ(cpu_set_expect, cpu_set_actual);
 
     cpu_set_expect = cpu_set_socket[1];
-    topo.domain_cpus(IPlatformTopo::M_DOMAIN_BOARD_MEMORY, 1, cpu_set_actual);
+    cpu_set_actual = topo.domain_cpus(IPlatformTopo::M_DOMAIN_BOARD_MEMORY, 1);
     EXPECT_EQ(cpu_set_expect, cpu_set_actual);
 
     // TODO: still to be implemented
-    EXPECT_THROW(topo.domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY, 0, cpu_set_actual), Exception);
-    EXPECT_THROW(topo.domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR, 0, cpu_set_actual), Exception);
-    EXPECT_THROW(topo.domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE_NIC, 0, cpu_set_actual), Exception);
-    EXPECT_THROW(topo.domain_cpus(IPlatformTopo::M_DOMAIN_BOARD_NIC, 0, cpu_set_actual), Exception);
-    EXPECT_THROW(topo.domain_cpus(IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR, 0, cpu_set_actual), Exception);
+    EXPECT_THROW(topo.domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY, 0), Exception);
+    EXPECT_THROW(topo.domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR, 0), Exception);
+    EXPECT_THROW(topo.domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE_NIC, 0), Exception);
+    EXPECT_THROW(topo.domain_cpus(IPlatformTopo::M_DOMAIN_BOARD_NIC, 0), Exception);
+    EXPECT_THROW(topo.domain_cpus(IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR, 0), Exception);
 
 }
 
@@ -480,27 +480,3 @@ TEST_F(PlatformTopoTest, domain_name_to_type)
     EXPECT_EQ(IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR, IPlatformTopo::domain_name_to_type("board_accelerator"));
     EXPECT_EQ(IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR, IPlatformTopo::domain_name_to_type("package_accelerator"));
 }
-
-            /////////////////////////////////////////////////////////////////////////////////////////
-            // Notes:
-            //
-            // How do we ask how many sockets per board?
-            //    num_domain(M_DOMAIN_PACKAGE) / num_domain(M_DOMAIN_BOARD)
-            // How do we ask how many CPUs per socket?
-            //    num_domain(M_DOMAIN_CPU) / num_domain(M_DOMAIN_PACKAGE)
-            // How do we know which Linux logical CPUs are on core 5?
-            //    domain_cpus(M_DOMAIN_CORE, 5, cpu_idx_set);
-            // How do we ask if there is on package memory?
-            //    num_domain(M_DOMAIN_PACKAGE_MEMORY) > 0
-            // How do we ask if the frequency control is per package or per core?
-            //    platform_io().control_domain_type("PERF_CTL:FREQ") == M_DOMAIN_PACKAGE
-            // How do we ask which socket Linux logical CPU 8 is on?
-            //    domain_idx(M_DOMAIN_PACKAGE, 8)
-            // How do we find out all of the other Linux logical CPUs that share a socket with CPU 8?
-            //    domain_cpus(M_DOMAIN_PACKAGE, domain_idx(M_DOMAIN_PACKAGE, 8), socket_cpu_set)
-            // How do we define a group all linux logical CPUs that are divisable by 4?
-            //    int num_cpu = num_domain(M_DOMAIN_CPU);
-            //    for (int i = 0; i < num_cpu; i +=4) {
-            //        domain_idx.push_back(i);
-            //    }
-            //    uint64_t group_domain = group_ext_define(0, domain_idx);

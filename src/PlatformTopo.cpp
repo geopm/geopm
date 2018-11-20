@@ -147,11 +147,10 @@ namespace geopm
         return result;
     }
 
-    void PlatformTopo::domain_cpus(int domain_type,
-                                   int domain_idx,
-                                   std::set<int> &cpu_idx) const
+    std::set<int> PlatformTopo::domain_cpus(int domain_type,
+                                            int domain_idx) const
     {
-        cpu_idx.clear();
+        std::set<int> cpu_idx;
         switch (domain_type) {
             case M_DOMAIN_BOARD:
                 for (auto numa_cpus : m_numa_map) {
@@ -189,6 +188,7 @@ namespace geopm
                                 GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
                 break;
         }
+        return cpu_idx;
     }
 
     int PlatformTopo::define_cpu_group(const std::vector<int> &cpu_domain_idx)

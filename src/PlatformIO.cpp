@@ -251,8 +251,7 @@ namespace geopm
         int result = -1;
         int base_domain_type = signal_domain_type(signal_name);
         if (m_platform_topo.is_domain_within(base_domain_type, domain_type)) {
-            std::set<int> cpus;
-            m_platform_topo.domain_cpus(domain_type, domain_idx, cpus);
+            std::set<int> cpus = m_platform_topo.domain_cpus(domain_type, domain_idx);
             std::set<int> base_domain_idx;
             for (auto it : cpus) {
                 base_domain_idx.insert(m_platform_topo.domain_idx(base_domain_type, it));
@@ -336,8 +335,7 @@ namespace geopm
         int result = -1;
         int base_domain_type = control_domain_type(control_name);
         if (m_platform_topo.is_domain_within(base_domain_type, domain_type)) {
-            std::set<int> cpus;
-            m_platform_topo.domain_cpus(domain_type, domain_idx, cpus);
+            std::set<int> cpus = m_platform_topo.domain_cpus(domain_type, domain_idx);
             std::set<int> base_domain_idx;
             for (auto it : cpus) {
                 base_domain_idx.insert(m_platform_topo.domain_idx(base_domain_type, it));
