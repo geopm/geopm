@@ -46,7 +46,7 @@ using json11::Json;
 
 namespace geopm
 {
-    void model_parse_config(const std::string config_path, uint64_t &loop_count,
+    void model_parse_config(const std::string config_path, uint64_t &pre_epoch_count, uint64_t &epoch_count,
                             std::vector<std::string> &region_name, std::vector<double> &big_o)
     {
         std::ifstream config_stream;
@@ -80,9 +80,18 @@ namespace geopm
         for (const auto &obj : root.object_items()) {
             std::string key_string = obj.first;
             Json val = obj.second;
+            if (key_string == "pre-loop-count") {
+                if (val.is_number() && floor(val.number_value()) == val.number_value()) {
+                    pre_epoch_count = val.number_value();
+                }
+                else {
+                    throw Exception("model_parse_config(): pre-loop-count expected to be an integer type",
+                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                }
+            }
             if (key_string == "loop-count") {
                 if (val.is_number() && floor(val.number_value()) == val.number_value()) {
-                    loop_count = val.number_value();
+                    epoch_count = val.number_value();
                 }
                 else {
                     throw Exception("model_parse_config(): loop-count expected to be an integer type",

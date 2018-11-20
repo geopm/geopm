@@ -38,7 +38,7 @@
 
 namespace geopm
 {
-    void model_parse_config(const std::string config_path, uint64_t &loop_count,
+    void model_parse_config(const std::string config_path, uint64_t &pre_epoch_count, uint64_t &epoch_count,
                             std::vector<std::string> &region_name, std::vector<double> &big_o);
 
 }

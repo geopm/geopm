@@ -1069,6 +1069,7 @@ class BenchConf(object):
     """
     def __init__(self, path):
         self._path = path
+        self._pre_epoch_count = 1
         self._loop_count = 1
         self._region = []
         self._big_o = []
@@ -1080,6 +1081,7 @@ class BenchConf(object):
 path      : {path}
 regions   : {regions}
 big-o     : {big_o}
+pre count : {pre_epoch_count}
 loop count: {loops}
 hostnames : {hosts}
 imbalance : {imbalance}
@@ -1087,12 +1089,16 @@ imbalance : {imbalance}
         return template.format(path=self._path,
                                regions=self._region,
                                big_o=self._big_o,
+                               pre_epoch_count=self._pre_epoch_count,
                                loops=self._loop_count,
                                hosts=self._hostname,
                                imbalance=self._imbalance)
 
     def __str__(self):
         return self.__repr__()
+
+    def set_pre_epoch_count(self, pre_epoch_count):
+        self._pre_epoch_count = pre_epoch_count
 
     def set_loop_count(self, loop_count):
         self._loop_count = loop_count
@@ -1133,7 +1139,8 @@ imbalance : {imbalance}
 
     def write(self):
         """Write the current config to a file."""
-        obj = {'loop-count' : self._loop_count,
+        obj = {'pre-epoch-count' : self._pre_epoch_count,
+               'loop-count' : self._loop_count,
                'region' : self._region,
                'big-o' : self._big_o}
 

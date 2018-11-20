@@ -44,8 +44,10 @@
 
 namespace geopm
 {
-    ModelApplication::ModelApplication(uint64_t repeat, std::vector<std::string> region_name, std::vector<double> big_o, int verbosity, int rank)
-        : m_repeat(repeat)
+    ModelApplication::ModelApplication(uint64_t num_pre_epoch, uint64_t num_epoch, std::vector<std::string> region_name,
+                                       std::vector<double> big_o, int verbosity, int rank)
+        : m_num_pre_epoch(num_pre_epoch)
+        , m_num_epoch(num_epoch)
         , m_rank(rank)
     {
         if (region_name.size() != big_o.size()) {
@@ -68,9 +70,23 @@ namespace geopm
     void ModelApplication::run(void)
     {
         if (!m_rank) {
-            std::cout << "Beginning loop of " << m_repeat << " iterations." << std::endl << std::flush;
+            std::cout << "Beginning loop of " << m_num_pre_epoch << " pre-epoch iterations." << std::endl << std::flush;
         }
-        for (uint64_t i = 0; i < m_repeat; ++i) {
+        for (uint64_t i = 0; i < m_num_pre_epoch; ++i) {
+            for (auto it = m_region.begin(); it != m_region.end(); ++it) {
+                (*it)->run();
+            }
+            if (!m_rank) {
+                std::cout << "Pre-epoch iteration: " << i << "\r" << std::flush;
+            }
+        }
+        if (!m_rank) {
+            std::cout << "Completed pre-epoch loop.                    " << std::endl << std::flush;
+        }
+        if (!m_rank) {
+            std::cout << "Beginning loop of " << m_num_epoch << " iterations." << std::endl << std::flush;
+        }
+        for (uint64_t i = 0; i < m_num_epoch; ++i) {
             (void)geopm_prof_epoch();
             for (auto it = m_region.begin(); it != m_region.end(); ++it) {
                 (*it)->run();

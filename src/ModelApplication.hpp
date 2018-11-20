@@ -42,12 +42,13 @@ namespace geopm
     class ModelApplication
     {
         public:
-            ModelApplication(uint64_t loop_count, std::vector<std::string> region_name,
+            ModelApplication(uint64_t num_pre_epoch, uint64_t num_epoch, std::vector<std::string> region_name,
                              std::vector<double> big_o, int verbosity, int rank);
             virtual ~ModelApplication();
             void run(void);
         protected:
-            uint64_t m_repeat;
+            uint64_t m_num_pre_epoch;
+            uint64_t m_num_epoch;
             int m_rank;
             std::vector<ModelRegionBase *> m_region;
     };

@@ -386,6 +386,7 @@ class TestIntegration(unittest.TestCase):
         num_rank = 16
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
+        app_conf.set_pre_epoch_count(10)
         app_conf.append_region('sleep', 1.0)
         app_conf.append_region('dgemm', 1.0)
         app_conf.append_region('all2all', 1.0)

@@ -146,19 +146,20 @@ int main(int argc, char **argv)
     }
     if (!err) {
         // Do application initialization
-        uint64_t loop_count = 0;
+        uint64_t pre_epoch_count = 0;
+        uint64_t epoch_count = 0;
         std::vector<std::string> region_sequence;
         std::vector<double> big_o_sequence;
         if (config_path) {
-            geopm::model_parse_config(config_path, loop_count, region_sequence, big_o_sequence);
+            geopm::model_parse_config(config_path, pre_epoch_count, epoch_count, region_sequence, big_o_sequence);
         }
         else {
             // Default values if no configuration is specified
-            loop_count = 10;
+            pre_epoch_count = epoch_count = 10;
             region_sequence = {"sleep", "stream", "dgemm", "stream", "all2all"};
             big_o_sequence = {1.0, 1.0, 1.0, 1.0, 1.0};
         }
-        geopm::ModelApplication app(loop_count, region_sequence, big_o_sequence, verbosity, rank);
+        geopm::ModelApplication app(pre_epoch_count, epoch_count, region_sequence, big_o_sequence, verbosity, rank);
         err = geopm_prof_exit(init_rid);
         if (!err) {
             // Run application
