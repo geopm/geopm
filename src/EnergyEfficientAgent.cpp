@@ -299,7 +299,7 @@ namespace geopm
 
     std::vector<std::string> EnergyEfficientAgent::sample_names(void)
     {
-        return {"ENERGY_PACKAGE"};
+        return {"ENERGY_PACKAGE", "FREQUENCY"};
     }
 
     std::vector<std::pair<std::string, std::string> > EnergyEfficientAgent::report_header(void) const
@@ -424,7 +424,7 @@ namespace geopm
                                                                freq_ctl_domain_type, ctl_dom_idx));
         }
         std::vector<std::string> signal_names = {"REGION_ID#", "REGION_RUNTIME",
-                                                 "ENERGY_PACKAGE", "ENERGY_DRAM",};
+                                                 "ENERGY_PACKAGE",};
         size_t signal = 0;
         m_signal_idx.push_back(m_platform_io.push_signal(signal_names[signal],
                                                          IPlatformTopo::M_DOMAIN_BOARD,

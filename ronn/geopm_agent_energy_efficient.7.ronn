@@ -87,8 +87,6 @@ to 10% performance loss is allowed.  Enable the online mode by setting
 
   `ENERGY_PACKAGE`: Total energy from the packages across all nodes.
 
-  `ENERGY_DRAM`: Total energy from DRAM across all nodes.
-
   `FREQUENCY`: The average frequency across nodes.
 
 * `Tracing Modifications`:
