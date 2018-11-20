@@ -40,8 +40,8 @@ class MockPlatformTopo : public geopm::IPlatformTopo
     public:
         MOCK_CONST_METHOD1(num_domain,
                            int(int domain_type));
-        MOCK_CONST_METHOD3(domain_cpus,
-                           void(int domain_type, int domain_idx, std::set<int> &cpu_idx));
+        MOCK_CONST_METHOD2(domain_cpus,
+                           std::set<int>(int domain_type, int domain_idx));
         MOCK_CONST_METHOD2(domain_idx,
                            int(int domain_type, int cpu_idx));
         MOCK_METHOD1(define_cpu_group,

@@ -236,8 +236,7 @@ namespace geopm
             throw Exception("MSRIOGroup::push_signal(): domain_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::set<int> cpu_idx;
-        m_platform_topo.domain_cpus(domain_type, domain_idx, cpu_idx);
+        std::set<int> cpu_idx = m_platform_topo.domain_cpus(domain_type, domain_idx);
 
         int result = -1;
         bool is_found = false;
@@ -297,8 +296,7 @@ namespace geopm
             throw Exception("MSRIOGroup::push_control(): domain_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::set<int> cpu_idx;
-        m_platform_topo.domain_cpus(domain_type, domain_idx, cpu_idx);
+        std::set<int> cpu_idx = m_platform_topo.domain_cpus(domain_type, domain_idx);
 #ifdef GEOPM_DEBUG
         if (cpu_idx.size() == 0) {
             throw Exception("MSRIOGroup::push_control(): no cpus for domain",
@@ -423,8 +421,7 @@ namespace geopm
             throw Exception("MSRIOGroup::read_signal(): domain_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::set<int> cpu_idx;
-        m_platform_topo.domain_cpus(domain_type, domain_idx, cpu_idx);
+        std::set<int> cpu_idx = m_platform_topo.domain_cpus(domain_type, domain_idx);
 
         // Copy of existing signal but map own memory
         MSRSignal signal {*(ncsm_it->second[*(cpu_idx.begin())])};
@@ -462,8 +459,7 @@ namespace geopm
             write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
         }
 
-        std::set<int> cpu_idx;
-        m_platform_topo.domain_cpus(domain_type, domain_idx, cpu_idx);
+        std::set<int> cpu_idx = m_platform_topo.domain_cpus(domain_type, domain_idx);
         for (auto cpu : cpu_idx) {
             MSRControl control = *(nccm_it->second[cpu]);
             uint64_t offset = control.offset();
