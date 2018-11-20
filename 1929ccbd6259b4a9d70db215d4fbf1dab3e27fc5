@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b04bdda_b1b27779",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-11-20T20:01:32Z",
+      "side": 1,
+      "message": "#368",
+      "range": {
+        "startLine": 13,
+        "startChar": 8,
+        "endLine": 13,
+        "endChar": 11
+      },
+      "revId": "1929ccbd6259b4a9d70db215d4fbf1dab3e27fc5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "801e1d8c_84cd4e5e",
+        "filename": "src/EpochRuntimeRegulator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-11-20T20:01:32Z",
+      "side": 1,
+      "message": "could be a member",
+      "revId": "1929ccbd6259b4a9d70db215d4fbf1dab3e27fc5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
