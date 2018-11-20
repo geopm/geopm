@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77ad800b_aa88ce6d",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-11-20T19:00:15Z",
+      "side": 1,
+      "message": "figure out where to put this (probably in test launcher).  then this class can be completely replaced by argparse.ArgumentParser",
+      "revId": "80629e6aaaa7bc904621dd2bca0065d35e8f0aa7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
