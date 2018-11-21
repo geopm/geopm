@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3c70a76e_07f2b999",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-21T19:20:42Z",
+      "side": 1,
+      "message": "Add bullet about removing DRAM energy documentation and removal of sampling DRAM energy.",
+      "revId": "95efa02e58c0e6a985baf88751b8975161054f53",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "63a7ec96_2e85cc07",
+        "filename": "test/EnergyEfficientAgentTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-21T19:20:42Z",
+      "side": 1,
+      "message": "form -\u003e fromm -\u003e from :)",
+      "range": {
+        "startLine": 246,
+        "startChar": 32,
+        "endLine": 246,
+        "endChar": 37
+      },
+      "revId": "95efa02e58c0e6a985baf88751b8975161054f53",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
