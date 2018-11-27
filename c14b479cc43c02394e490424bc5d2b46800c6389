@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39f55f38_acd4e6f0",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-27T22:41:25Z",
+      "side": 1,
+      "message": "Don\u0027t need the output variable:\n\n\n    for line in ostream.readlines():",
+      "range": {
+        "startLine": 83,
+        "startChar": 4,
+        "endLine": 85,
+        "endChar": 28
+      },
+      "revId": "c14b479cc43c02394e490424bc5d2b46800c6389",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
