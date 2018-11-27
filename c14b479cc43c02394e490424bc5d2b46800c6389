@@ -46,6 +46,30 @@
       "revId": "c14b479cc43c02394e490424bc5d2b46800c6389",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc7033db_7425d9f1",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-27T23:55:46Z",
+      "side": 1,
+      "message": "Okay I think it may be an issue since it is a StringIO.StringIO object not a real file.",
+      "parentUuid": "923b7dcb_ca50fcc9",
+      "range": {
+        "startLine": 83,
+        "startChar": 4,
+        "endLine": 85,
+        "endChar": 28
+      },
+      "revId": "c14b479cc43c02394e490424bc5d2b46800c6389",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
