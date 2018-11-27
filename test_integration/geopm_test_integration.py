@@ -39,12 +39,15 @@ import time
 import pandas
 import collections
 import socket
+import shlex
 import stat
 import datetime
+import StringIO
 
 import geopm_test_launcher
 import geopmpy.io
 import geopmpy.analysis
+import geopmpy.launcher
 
 
 def skip_unless_run_long_tests():
@@ -53,27 +56,37 @@ def skip_unless_run_long_tests():
     return lambda func: func
 
 
+def allocation_node_test(test_exec, stdout, stderr):
+    argv = shlex.split(test_exec)
+    launcher = geopmpy.launcher.factory(argv, num_rank=1, num_node=1, job_name="geopm_allocation_test")
+    launcher.run(stdout, stderr)
+
+
 def skip_unless_cpufreq():
     try:
-        os.stat("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq")
-        os.stat("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")
-    except OSError:
+        test_exec = "dummy -- stat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq \
+                     && stat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
+        dev_null = open('/dev/null', 'w')
+        allocation_node_test(test_exec, dev_null, dev_null)
+        dev_null.close()
+    except subprocess.CalledProcessError:
         return unittest.skip("Could not determine min and max frequency, enable cpufreq driver to run this test.")
     return lambda func: func
 
 
 def get_platform():
-    hostname = socket.gethostname()
-    if hostname.startswith('theta'):
-        fam = 6
-        mod = 87
-    else:
-        with open('/proc/cpuinfo') as fid:
-            for line in fid.readlines():
-                if line.startswith('cpu family\t:'):
-                    fam = int(line.split(':')[1])
-                if line.startswith('model\t\t:'):
-                    mod = int(line.split(':')[1])
+    test_exec = "dummy -- cat /proc/cpuinfo"
+    ostream = StringIO.StringIO()
+    dev_null = open('/dev/null', 'w')
+    allocation_node_test(test_exec, ostream, dev_null)
+    dev_null.close()
+    output = ostream.getvalue()
+
+    for line in output.splitlines():
+        if line.startswith('cpu family\t:'):
+            fam = int(line.split(':')[1])
+        if line.startswith('model\t\t:'):
+            mod = int(line.split(':')[1])
     return fam, mod
 
 
