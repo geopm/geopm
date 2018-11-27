@@ -1021,12 +1021,17 @@ class Trace(object):
               'epoch' is false?
 
         """
-        tmp_df = trace_df
+        # drop_duplicates() is a workaround for #662. Duplicate data
+        # rows are showing up in the trace for unmarked.
+        tmp_df = trace_df.drop_duplicates()
 
         filtered_df = tmp_df.filter(regex=column_regex).copy()
-        filtered_df['elapsed_time'] = tmp_df['seconds']
+        filtered_df['elapsed_time'] = tmp_df['time']
+        if epoch:
+            filtered_df['epoch_count'] = tmp_df['epoch_count']
         filtered_df = filtered_df.diff()
         # The following drops all 0's and the negative sample when traversing between 2 trace files.
+        # If the epoch_count column is included, this will also drop rows occuring mid-epoch.
         filtered_df = filtered_df.loc[(filtered_df > 0).all(axis=1)]
 
         # Reset 'index' to be 0 to the length of the unique trace files
@@ -1066,7 +1071,7 @@ class Trace(object):
         idx = pandas.IndexSlice
         et_sums = diffed_trace_df.groupby(level=['iteration'])['elapsed_time'].sum()
         median_index = (et_sums - et_sums.median()).abs().sort_values().index[0]
-        median_df = diffed_trace_df.loc[idx[:, :, :, :, :, :, :, median_index], ]
+        median_df = diffed_trace_df.loc[idx[:, :, :, :, :, median_index], ]
         if config.verbose:
             median_df_index = []
             median_df_index.append(median_df.index.get_level_values('version').unique()[0])
