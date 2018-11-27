@@ -114,7 +114,6 @@ class Config(object):
         self.write_csv = write_csv
         self.output_types = output_types
         self.verbose = verbose
-        self.use_agent = False
 
         # Indexing params
         self.min_drop = min_drop
@@ -153,13 +152,10 @@ class Config(object):
         if tgt_plugin is None:
             tgt_plugin = self.tgt_plugin
 
-        if self.use_agent:
-            decider_list = df.index.get_level_values('agent').unique().tolist()
-        else:
-            decider_list = df.index.get_level_values('tree_decider').unique().tolist()
-        if ref_plugin is not None and ref_plugin not in decider_list:
+        agent_list = df.index.get_level_values('agent').unique().tolist()
+        if ref_plugin is not None and ref_plugin not in agent_list:
             raise LookupError('Reference plugin {} not found in dataframe!'.format(ref_plugin))
-        if tgt_plugin is not None and tgt_plugin not in decider_list:
+        if tgt_plugin is not None and tgt_plugin not in agent_list:
             raise LookupError('Target plugin {} not found in dataframe!'.format(tgt_plugin))
 
 
@@ -359,26 +355,16 @@ def generate_bar_plot(report_df, config):
     idx = pandas.IndexSlice
     df = pandas.DataFrame()
 
-    if config.use_agent:
-        reference_g = report_df.loc[idx[config.ref_version:config.ref_version, :,
-                                    :, :, :, config.ref_plugin, :, :, 'epoch'],
-                                    config.datatype].groupby(level='name')
-    else:
-        reference_g = report_df.loc[idx[config.ref_version:config.ref_version, config.ref_profile_name:config.ref_profile_name,
-                                    config.min_drop:config.max_drop, config.ref_plugin, :, :, :, :, 'epoch'],
-                                    config.datatype].groupby(level='power_budget')
+    reference_g = report_df.loc[idx[config.ref_version:config.ref_version, :,
+                                :, :, :, config.ref_plugin, :, :, 'epoch'],
+                                config.datatype].groupby(level='name')
     df['reference_mean'] = reference_g.mean()
     df['reference_max'] = reference_g.max()
     df['reference_min'] = reference_g.min()
 
-    if config.use_agent:
-        target_g = report_df.loc[idx[config.tgt_version:config.tgt_version, :,
-                                 :, :, :, config.tgt_plugin, :, :, 'epoch'],
-                                 config.datatype].groupby(level='name')
-    else:
-        target_g = report_df.loc[idx[config.tgt_version:config.tgt_version, config.tgt_profile_name:config.tgt_profile_name,
-                                 config.min_drop:config.max_drop, config.tgt_plugin, :, :, :, :, 'epoch'],
-                                 config.datatype].groupby(level='power_budget')
+    target_g = report_df.loc[idx[config.tgt_version:config.tgt_version, :,
+                             :, :, :, config.tgt_plugin, :, :, 'epoch'],
+                             config.datatype].groupby(level='name')
     df['target_mean'] = target_g.mean()
     df['target_max'] = target_g.max()
     df['target_min'] = target_g.min()
@@ -825,9 +811,10 @@ def generate_power_plot(trace_df, config):
     if config.verbose:
         sys.stdout.write('Filtering data...\n')
         sys.stdout.flush()
+
     trace_df = trace_df.loc[idx[config.tgt_version:config.tgt_version,
                                 config.tgt_profile_name:config.tgt_profile_name,
-                                config.min_drop:config.max_drop,
+                                str(config.min_drop):str(config.max_drop),
                                 config.tgt_plugin:config.tgt_plugin], ]
 
     if len(trace_df) == 0:
@@ -838,14 +825,16 @@ def generate_power_plot(trace_df, config):
     if config.verbose:
         sys.stdout.write('Grouping data...\n')
         sys.stdout.flush()
-    for (version, name, power_budget, tree_decider, leaf_decider, agent), df in \
-            trace_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider', 'agent']):
+
+    # The assumption for this plot is that the profile name field holds the power budget
+    for (version, power_budget, agent), df in \
+            trace_df.groupby(level=['version', 'name', 'agent']):
 
         # Diff the energy counters and determine the median iteration (if multiple runs)
         median_df = geopmpy.io.Trace.get_median_df(df, 'energy', config)
         # Calculate power from the diffed counters
-        pkg_energy_cols = [s for s in median_df.keys() if 'pkg_energy' in s]
-        dram_energy_cols = [s for s in median_df.keys() if 'dram_energy' in s]
+        pkg_energy_cols = [s for s in median_df.keys() if 'energy_package' in s]
+        dram_energy_cols = [s for s in median_df.keys() if 'energy_dram' in s]
         median_df['socket_power'] = median_df[pkg_energy_cols].sum(axis=1) / median_df['elapsed_time']
         median_df['dram_power'] = median_df[dram_energy_cols].sum(axis=1) / median_df['elapsed_time']
         median_df['combined_power'] = median_df['socket_power']
@@ -858,7 +847,7 @@ def generate_power_plot(trace_df, config):
         f, ax = plt.subplots()
 
         for node_name in natsorted(node_names):
-            node_df = median_df.loc[idx[:, :, :, :, :, :, node_name], ]
+            node_df = median_df.loc[idx[:, :, :, :, node_name], ]
 
             if node_name == config.focus_node:
                 plt.plot(pandas.Series(numpy.arange(float(len(node_df))) / (len(node_df) - 1) * 100),
@@ -880,7 +869,7 @@ def generate_power_plot(trace_df, config):
                      linewidth=2.0,
                      path_effects=[pe.Stroke(linewidth=4, foreground='black'), pe.Normal()],
                      zorder=11)
-            plt.axhline(power_budget, linewidth=2, color='blue', label='Cap', zorder=11)
+            plt.axhline(int(power_budget), linewidth=2, color='blue', label='Cap', zorder=11)
 
         ax.set_xlabel('Iteration # (Normalized)')
         ylabel = 'Socket+DRAM Power (W)'
@@ -902,7 +891,7 @@ def generate_power_plot(trace_df, config):
         # Write data/plot files
         region_desc = 'epoch_only' if config.epoch_only else 'all_samples'
         file_name = '{}_combined_power_{}_{}'.format(config.profile_name.lower().replace(' ', '_'), power_budget,
-                                                     tree_decider, region_desc)
+                                                     agent, region_desc)
         if config.verbose:
             sys.stdout.write('Writing:\n')
 
@@ -1400,9 +1389,6 @@ def main(argv):
     parser.add_argument('--show',
                         help='show an interactive plot of the data',
                         action='store_true')
-    parser.add_argument('--cache',
-                        help='Load or save the data parsed in cache files prefixed with FILE_NAME.',
-                        action='store', metavar='FILE_NAME')
     parser.add_argument('--version', action='version', version=__version__)
 
     args = parser.parse_args(argv)
@@ -1425,43 +1411,9 @@ def main(argv):
     else:
         trace_glob = None
 
-    report_df = None
-    trace_df = None
-    app_output = None
-
-    if args.cache:  # If you want the use the cache, only try to load what is needed.
-        if args.verbose:
-            sys.stdout.write('Trying to load {} caches... '.format(args.cache))
-            sys.stdout.flush()
-        try:
-            if report_plots.intersection(args.plot_types):
-                report_df = pickle.load(open(args.cache + '_report.p', 'rb'))
-            if trace_plots.intersection(args.plot_types):
-                trace_df = pickle.load(open(args.cache + '_trace.p', 'rb'))
-        except IOError:
-            sys.stderr.write('WARNING: File {cache}_report.p or {cache}_trace.p failed to load! '.format(cache=args.cache))
-        if args.verbose:
-            sys.stdout.write('Done.\n')
-            sys.stdout.flush()
-
-    # If we did NOT use the cache, parse based on the plot requested
-    # If we DID use the cache but nothing was parsed above, build the cache from all the things.
-    if report_df is None and trace_df is None:
-        if args.cache:  # Parse everything, regardless of what was requested.
-            app_output = geopmpy.io.AppOutput(all_reports_glob, all_traces_glob, args.data_path, args.verbose)
-            # Save app_output in cache file
-            if args.verbose:
-                sys.stdout.write('Saving parsed data to {} cache... '.format(args.cache))
-                sys.stdout.flush()
-            app_output.get_report_df().to_pickle(args.cache + '_report.p')
-            app_output.get_trace_df().to_pickle(args.cache + '_trace.p')
-            if args.verbose:
-                sys.stdout.write('Done.\n')
-                sys.stdout.flush()
-        else:  # Parse only what was requested.
-            app_output = geopmpy.io.AppOutput(report_glob, trace_glob, args.data_path, args.verbose)
-        report_df = app_output.get_report_df()
-        trace_df = app_output.get_trace_df()
+    app_output = geopmpy.io.AppOutput(report_glob, trace_glob, args.data_path, args.verbose)
+    report_df = app_output.get_report_df()
+    trace_df = app_output.get_trace_df()
 
     if report_glob is not None and len(report_df) == 0:
         raise LookupError('No report data parsed.')

@@ -191,7 +191,7 @@ class AppOutput(object):
                 try:
                     self._traces_df = pandas.read_hdf(trace_h5_name, 'trace')
                     if verbose:
-                        sys.stdout.write('Loaded reports from {}.\n'.format(report_h5_name))
+                        sys.stdout.write('Loaded traces from {}.\n'.format(trace_h5_name))
                 except IOError as err:
                     sys.stderr.write('<geopmpy> Warning: trace HDF5 file not detected or older than traces.  Data will be saved to {}.\n'
                                      .format(trace_h5_name))
@@ -1000,7 +1000,7 @@ class Trace(object):
             tmp_df = trace_df
 
         filtered_df = tmp_df.filter(regex=column_regex).copy()
-        filtered_df['elapsed_time'] = tmp_df['seconds']
+        filtered_df['elapsed_time'] = tmp_df['time']
         filtered_df = filtered_df.diff()
         # The following drops all 0's and the negative sample when traversing between 2 trace files.
         filtered_df = filtered_df.loc[(filtered_df > 0).all(axis=1)]
@@ -1042,7 +1042,7 @@ class Trace(object):
         idx = pandas.IndexSlice
         et_sums = diffed_trace_df.groupby(level=['iteration'])['elapsed_time'].sum()
         median_index = (et_sums - et_sums.median()).abs().sort_values().index[0]
-        median_df = diffed_trace_df.loc[idx[:, :, :, :, :, :, :, median_index], ]
+        median_df = diffed_trace_df.loc[idx[:, :, :, :, :, median_index], ]
         if config.verbose:
             median_df_index = []
             median_df_index.append(median_df.index.get_level_values('version').unique()[0])
