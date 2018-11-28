@@ -233,12 +233,12 @@ class AppOutput(object):
                 sys.stdout.write('\rParsing report {} of {} ({})... '.format(fileno, files, filesize))
                 sys.stdout.flush()
             fileno += 1
-            self.add_report_df(rr, reports_df_list, reports_app_df_list)
+            self.add_report_df(rr, reports_df_list, reports_app_df_list, rp)
             # Parse the remaining reports in this file
             while (rr.get_last_offset() != rr_size):
                 rr = Report(rp, rr.get_last_offset())
                 if rr.get_node_name() is not None:
-                    self.add_report_df(rr, reports_df_list, reports_app_df_list)
+                    self.add_report_df(rr, reports_df_list, reports_app_df_list, rp)
                     if verbose:
                         sys.stdout.write('\rParsing report {} of {} ({})... '.format(fileno, files, filesize))
                         sys.stdout.flush()
@@ -279,7 +279,7 @@ class AppOutput(object):
                 sys.stdout.flush()
             fileno += 1
             tt = Trace(tp)
-            self.add_trace_df(tt, traces_df_list)  # Handles multiple traces per node
+            self.add_trace_df(tt, traces_df_list, tp)  # Handles multiple traces per node
         if verbose:
             sys.stdout.write('Done.\n')
             sys.stdout.flush()
@@ -300,7 +300,7 @@ class AppOutput(object):
             except OSError:
                 pass
 
-    def add_report_df(self, rr, reports_df_list, reports_app_df_list):
+    def add_report_df(self, rr, reports_df_list, reports_app_df_list, rp):
         """Adds a report DataFrame to the tracking list.
 
         The report tracking list is used to create the combined
@@ -317,7 +317,7 @@ class AppOutput(object):
         rdf[numeric_cols] = rdf[numeric_cols].apply(pandas.to_numeric)
 
         # Add extra index info
-        index = self._index_tracker.get_multiindex(rr)
+        index = self._index_tracker.get_multiindex(rr, rp)
         rdf = rdf.set_index(index)
         reports_df_list.append(rdf)
 
@@ -454,8 +454,12 @@ class IndexTracker(object):
     """
     def __init__(self):
         self._run_outputs = {}
+        self._iteration_index = None
+        self._iteration = None
+        self._agent = None
+        self._name = None
 
-    def _check_increment(self, run_output):
+    def _check_increment(self, run_output, dp):
         """Extracts the index tuple from the parsed data and tracks it.
 
         Checks to see if the current run_output has been seen before.
@@ -464,13 +468,28 @@ class IndexTracker(object):
         Args:
             run_output: The Report or Trace object to be tracked.
         """
+        # Remove the hostname from the data path if parsing traces.
+        dp = dp.split('-')[:-1] if '-' in dp else dp
+
+        iteration_index = (run_output.get_version(), run_output.get_start_time(),
+                           os.path.basename(run_output.get_profile_name()),
+                           run_output.get_agent(), dp)
         index = (run_output.get_version(), run_output.get_start_time(),
                  os.path.basename(run_output.get_profile_name()),
                  run_output.get_agent(), run_output.get_node_name())
-        if index not in self._run_outputs.keys():
-            self._run_outputs[index] = 1
+
+        if self._iteration_index == None or self._agent != run_output.get_agent() or self._name != os.path.basename(run_output.get_profile_name()):
+            self._iteration = 1
+            self._iteration_index = iteration_index
+            self._agent = run_output.get_agent()
+            self._name = os.path.basename(run_output.get_profile_name())
+
+        if self._iteration_index == iteration_index:
+            self._run_outputs[index] = self._iteration
         else:
-            self._run_outputs[index] += 1
+            self._iteration += 1
+            self._run_outputs[index] = self._iteration
+            self._iteration_index = iteration_index
 
     def _get_base_index(self, run_output):
         """Constructs the actual index tuple to be used to construct a
@@ -499,7 +518,7 @@ class IndexTracker(object):
 
         return key + (self._run_outputs[key], )
 
-    def get_multiindex(self, run_output):
+    def get_multiindex(self, run_output, dp):
         """Returns a MultiIndex from this run_output.  Used in DataFrame construction.
 
         This will add the current run_output to the list of tracked
@@ -518,7 +537,7 @@ class IndexTracker(object):
             pandas.MultiIndex: The unique index to identify this data object.
 
         """
-        self._check_increment(run_output)
+        self._check_increment(run_output, dp)
 
         itl = []
         index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration']
@@ -544,6 +563,9 @@ class IndexTracker(object):
 
         """
         self._run_outputs = {}
+        self._iteration_index = None
+        self._iteration = 1
+        self._agent = None
 
 
 class Report(dict):
