@@ -150,9 +150,9 @@ extern "C"
 
     static int geopm_comm_split_imp(MPI_Comm comm, const char *tag, int *num_node, MPI_Comm *split_comm, int *is_shm_root)
     {
-        int err, comm_size, comm_rank, shm_rank;
+        int err = 0, comm_size = 0, comm_rank = 0, shm_size = 0, shm_rank = 0;
         MPI_Comm shm_comm = MPI_COMM_NULL, tmp_comm = MPI_COMM_NULL;
-        MPI_Comm *split_comm_ptr;
+        MPI_Comm *split_comm_ptr = NULL;
 
         *is_shm_root = 0;
 
@@ -171,10 +171,13 @@ extern "C"
             err = geopm_comm_split_shared(comm, tag, &shm_comm);
         }
         if (!err) {
+            err = MPI_Comm_size(shm_comm, &shm_size);
+        }
+        if (!err) {
             err = MPI_Comm_rank(shm_comm, &shm_rank);
         }
         if (!err) {
-            if (!shm_rank) {
+            if (shm_rank == shm_size - 1) {
                 *is_shm_root = 1;
             }
             else {
