@@ -208,7 +208,6 @@ rm -f %{buildroot}/%{_mandir}/man1/geopmpy_launcher.1*
 %{_includedir}/geopm/Agent.hpp
 %{_includedir}/geopm/Agg.hpp
 %{_includedir}/geopm/CircularBuffer.hpp
-%{_includedir}/geopm/CombinedSignal.hpp
 %{_includedir}/geopm/Comm.hpp
 %{_includedir}/geopm/CpuinfoIOGroup.hpp
 %{_includedir}/geopm/EnergyEfficientAgent.hpp

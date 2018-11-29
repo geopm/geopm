@@ -78,7 +78,6 @@ pkginclude_HEADERS = contrib/json11/json11.hpp \
                      src/Agent.hpp \
                      src/Agg.hpp \
                      src/CircularBuffer.hpp \
-                     src/CombinedSignal.hpp \
                      src/Comm.hpp \
                      src/CpuinfoIOGroup.hpp \
                      src/EnergyEfficientAgent.hpp \

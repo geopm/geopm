@@ -97,26 +97,6 @@ namespace geopm
             virtual int push_signal(const std::string &signal_name,
                                     int domain_type,
                                     int domain_idx) = 0;
-            /// @brief Push a signal that aggregated values sampled
-            ///        from other signals.  The aggregation function
-            ///        used is determined by a call to agg_function()
-            ///        with the given signal name.
-            /// @param [in] signal_name Name of the signal requested.
-            /// @param [in] domain_type One of the values from the
-            ///        m_domain_e enum described in PlatformTopo.hpp.
-            /// @param [in] domain_idx The index of the domain within
-            ///        the set of domains of the same type on the
-            ///        platform.
-            /// @param [in] sub_signal_idx Vector of previously pushed
-            ///        signals whose values will be used to generate
-            ///        the combined signal.
-            /// @return Index of signal when sample() method is called
-            ///         or throws if the signal is not valid
-            ///         on the platform.
-            virtual int push_combined_signal(const std::string &signal_name,
-                                             int domain_type,
-                                             int domain_idx,
-                                             const std::vector<int> &sub_signal_idx) = 0;
             /// @brief Push a control onto the end of the vector that
             ///        can be adjusted.
             /// @param [in] control_name Name of the control requested.
