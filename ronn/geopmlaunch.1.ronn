@@ -1,4 +1,4 @@
-geopmpy_launcher(1) -- application launch wrapper
+geopmlauncher(1) -- application launch wrapper
 =================================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
@@ -33,9 +33,8 @@ geopmpy_launcher(1) -- application launch wrapper
 
 ## SYNOPSIS
 
-`geopmsrun` [_srun-options_] [_OPTIONS_] `--` executable [_exec-args_]
+`geopmlaunch` launcher [_launcher-options_] [_OPTIONS_] `--` executable [_exec-args_]
 
-`geopmaprun` [_aprun-options_] [_OPTIONS_] `--` executable [_exec-args_]
 
 ## DESCRIPTION
 The GEOPM launcher enables users to launch the GEOPM runtime with a
