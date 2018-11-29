@@ -66,9 +66,7 @@ application including support for static control.
 
 ## JOB LAUNCH
 
-**geopmsrun(1)**: SLURM application launch wrapper
-
-**geopmaprun(1)**: ALPS application launch wrapper
+**geopmlaunch(1)**: Application launch wrapper
 
 ## APPLICATION PROFILING
 
@@ -158,12 +156,11 @@ not support the OMPT callbacks.  Note that your compiler must be
 compatible with the LLVM OpenMP ABI for extending it in this way.
 
 ## LAUNCHING THE RUNTIME
-The recommended methods for launching the GEOPM runtime are the job
-launch wrapper scripts **geopmsrun(1)** and **geopmaprun(1)**.  See
-these man pages for details about the command line interface.  If your
-system does not support `aprun` or `srun` for job launch, please make
-a change request for support of the job launch method used on your
-system at the github issues page:
+The recommended method for launching the GEOPM runtime is the job
+launch wrapper script **geopmlaunch(1)**.  See this man page for
+details about the command line interface.  If your system does not support
+`aprun` or `srun` for job launch, please make a change request for support
+of the job launch method used on your system at the github issues page:
 
 https://github.com/geopm/geopm/issues
 
@@ -230,13 +227,12 @@ will print a subset of the fields in the trace file called
 "geopm.trace-host0".
 
 ## ENVIRONMENT
-When using the launcher wrapper scripts **geopmsrun(1)** or
-**geopmaprun(1)**, the interface to the GEOPM runtime is controlled
-exclusively by the launcher command line options.  The launcher script
-sets the environment variables described in this section according to
-the options specified on the command line.  Direct use of these
-environment variables is only recommended when launching the GEOPM
-runtime without **geopmsrun(1)** or **geopmaprun(1)**.
+When using the launcher wrapper script **geopmlaunch(1)**, the interface
+to the GEOPM runtime is controlled exclusively by the launcher command line
+options.  The launcher script sets the environment variables described in
+this section according to the options specified on the command line.  Direct
+use of these environment variables is only recommended when launching the GEOPM
+runtime _without_ **geopmlaunch(1)**.
 
   * `LD_DYNAMIC_WEAK`:
     When dynamically linking an application to libgeopm for any
@@ -431,17 +427,6 @@ runtime without **geopmsrun(1)** or **geopmaprun(1)**.
     all ranks on a node then enabling this feature will cause a
     deadlock and the application will hang.
 
-  * `GEOPM_RM`:
-    Used by job launch wrapper (geopmsrun or geopmaprun) to override
-    the resource manager to use for job launch.  This environment
-    variable serves the same purpose as the `--geopm-rm` command line
-    option.  The valid values for the variable or command line option
-    are detailed in the **geopmsrun(1)** or **geopmaprun(1)** man
-    pages.  Note that the command line option overrides what is set in
-    the environment.  If not set the script will attempt to determine
-    the resource manager based on the executable name, your PATH and
-    hostname.  This variable is also used by the integration tests.
-
   * `GEOPM_COMM`:
     Used to select the plugin description string for communication.
     The communication plugin is not currently used, but in the future
@@ -451,7 +436,7 @@ runtime without **geopmsrun(1)** or **geopmaprun(1)**.
     The user may wish to implement other communication mechanisms.
 
   * `GEOPM_DISABLE_HYPERTHREADS`:
-    Used by job launch wrapper (geopmsrun or geopmaprun) to disable
+    Used by geopmlaunch job launch wrapper to disable
     the usage of hyperthreads for pinning purposes.  The default behavior
     is to use hyperthreads for pinning.  This environment variable serves
     the same purpose as the `--geopm-disable-hyperthreads` command line
@@ -503,13 +488,12 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm-TimeIOGroup(3)**,
 **geopmagent(1)**,
 **geopmanalysis(1)**,
-**geopmaprun(1)**,
+**geopmlaunch(1)**,
 **geopmbench(1)**,
 **geopmctl(1)**,
 **geopmendpoint(1)**,
 **geopmplotter(1)**,
 **geopmpolicy(1)**,
 **geopmread(1)**,
-**geopmsrun(1)**,
 **geopmwrite(1)**,
 **ld.so(8)**
