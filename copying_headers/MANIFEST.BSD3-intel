@@ -28,7 +28,7 @@ geopm.spec.in
 Makefile.am
 openmp.mk
 scripts/geopmanalysis
-scripts/geopmaprun
+scripts/geopmlaunch
 scripts/geopmplotter
 scripts/geopmpy/analysis.py
 scripts/geopmpy/__init__.py
@@ -36,7 +36,6 @@ scripts/geopmpy/io.py
 scripts/geopmpy/launcher.py
 scripts/geopmpy/plotter.py
 scripts/geopmpy/version.py.in
-scripts/geopmsrun
 scripts/Makefile.mk
 scripts/setup.py
 scripts/test/analysis_helper.py
