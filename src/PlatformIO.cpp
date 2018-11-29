@@ -45,6 +45,7 @@
 #include "PlatformTopo.hpp"
 #include "MSRIOGroup.hpp"
 #include "TimeIOGroup.hpp"
+#include "CombinedSignal.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
 #include "Agg.hpp"
