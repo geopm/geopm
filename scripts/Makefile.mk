@@ -41,8 +41,7 @@ EXTRA_DIST += scripts/geopmpy/analysis.py \
               scripts/geopmpy/version.py \
               scripts/geopmpy/__init__.py \
               scripts/geopmanalysis \
-              scripts/geopmaprun \
-              scripts/geopmsrun \
+              scripts/geopmlaunch \
               scripts/geopmplotter \
               scripts/setup.py \
               scripts/MANIFEST.in \
