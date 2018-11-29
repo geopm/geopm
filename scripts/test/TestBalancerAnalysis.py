@@ -128,7 +128,7 @@ class TestBalancerAnalysis(unittest.TestCase):
         metric = 'runtime'
         report_df = self.make_mock_report_df()
         mock_parse_data = MockAppOutput(report_df)
-        analysis = geopmpy.analysis.BalancerAnalysis(metric=metric, normalize=False, speedup=False,
+        analysis = geopmpy.analysis.BalancerAnalysis(launcher='srun', metric=metric, normalize=False, speedup=False,
                                                      **self._config)
         result = analysis.plot_process(mock_parse_data)
         expected_df = self.make_expected_summary_df(metric)
@@ -138,7 +138,7 @@ class TestBalancerAnalysis(unittest.TestCase):
     def test_balancer_plot_process_energy(self):
         report_df = self.make_mock_report_df()
         mock_parse_data = MockAppOutput(report_df)
-        analysis = geopmpy.analysis.BalancerAnalysis(metric='energy', normalize=False, speedup=False,
+        analysis = geopmpy.analysis.BalancerAnalysis(launcher='srun', metric='energy', normalize=False, speedup=False,
                                                      **self._config)
         result = analysis.plot_process(mock_parse_data)
         expected_df = self.make_expected_summary_df('energy_pkg')
@@ -149,7 +149,7 @@ class TestBalancerAnalysis(unittest.TestCase):
         metric = 'power'
         report_df = self.make_mock_report_df()
         mock_parse_data = MockAppOutput(report_df)
-        analysis = geopmpy.analysis.BalancerAnalysis(metric=metric, normalize=False, speedup=False,
+        analysis = geopmpy.analysis.BalancerAnalysis(launcher='srun', metric=metric, normalize=False, speedup=False,
                                                      **self._config)
         result = analysis.plot_process(mock_parse_data)
         expected_df = self.make_expected_summary_df(metric)

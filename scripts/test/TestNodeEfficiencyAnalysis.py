@@ -45,7 +45,8 @@ class TestNodeEfficiencyAnalysis(unittest.TestCase):
         self._step_power = 10
         self._powers = range(self._min_power, self._max_power+self._step_power, self._step_power)
         self._sticker_freq = 1.5e9
-        self._config = {'profile_prefix': self._name_prefix,
+        self._config = {'launcher': 'srun',
+                        'profile_prefix': self._name_prefix,
                         'output_dir': '.',
                         'verbose': True,
                         'iterations': 1,

@@ -192,7 +192,7 @@ class TestFreqSweepAnalysis(unittest.TestCase):
         self._max_freq = max(self._freqs)
         self._step_freq = 100e6
         self._mid_freq = self._max_freq - self._step_freq*2
-        config = {'profile_prefix': self._name_prefix, 'output_dir': '.',
+        config = {'launcher': 'srun', 'profile_prefix': self._name_prefix, 'output_dir': '.',
                   'verbose': True, 'iterations': 1,
                   'min_freq': self._min_freq, 'max_freq': self._max_freq,
                   'enable_turbo': True}
