@@ -52,45 +52,49 @@ fi
 # create a report file
 # create trace files
 
-if [ "$GEOPM_RM" == "SLURM" ]; then
+if [ "$GEOPM_LAUNCHER" == "srun" ]; then
     # Use GEOPM launcher wrapper script with SLURM's srun
-    geopmsrun  -N 2 \
-               -n 8 \
-               --geopm-ctl=process \
-               --geopm-agent=power_governor \
-               --geopm-report=tutorial_4_governed_report \
-               --geopm-trace=tutorial_4_governed_trace \
-               --geopm-policy=tutorial_governed_policy.json \
-               -- ./tutorial_4 \
+    geopmlaunch srun \
+                -N 2 \
+                -n 8 \
+                --geopm-ctl=process \
+                --geopm-agent=power_governor \
+                --geopm-report=tutorial_4_governed_report \
+                --geopm-trace=tutorial_4_governed_trace \
+                --geopm-policy=tutorial_governed_policy.json \
+                -- ./tutorial_4 \
     && \
-    geopmsrun  -N 2 \
-               -n 8 \
-               --geopm-ctl=process \
-               --geopm-agent=power_balancer \
-               --geopm-report=tutorial_4_balanced_report \
-               --geopm-trace=tutorial_4_balanced_trace \
-               --geopm-policy=tutorial_balanced_policy.json \
-               -- ./tutorial_4
+    geopmlaunch srun \
+                -N 2 \
+                -n 8 \
+                --geopm-ctl=process \
+                --geopm-agent=power_balancer \
+                --geopm-report=tutorial_4_balanced_report \
+                --geopm-trace=tutorial_4_balanced_trace \
+                --geopm-policy=tutorial_balanced_policy.json \
+                -- ./tutorial_4
     err=$?
-elif [ "$GEOPM_RM" == "ALPS" ]; then
+elif [ "$GEOPM_LAUNCHER" == "aprun" ]; then
     # Use GEOPM launcher wrapper script with ALPS's aprun
-    geopmaprun -N 4 \
-               -n 8 \
-               --geopm-ctl=process \
-               --geopm-agent=power_governor \
-               --geopm-report=tutorial_4_governed_report \
-               --geopm-trace=tutorial_4_governed_trace \
-               --geopm-policy=tutorial_governed_policy.json \
-               -- ./tutorial_4 \
+    geopmlaunch aprun \
+                -N 4 \
+                -n 8 \
+                --geopm-ctl=process \
+                --geopm-agent=power_governor \
+                --geopm-report=tutorial_4_governed_report \
+                --geopm-trace=tutorial_4_governed_trace \
+                --geopm-policy=tutorial_governed_policy.json \
+                -- ./tutorial_4 \
     && \
-    geopmaprun -N 4 \
-               -n 8 \
-               --geopm-ctl=process \
-               --geopm-agent=power_balancer \
-               --geopm-report=tutorial_4_balanced_report \
-               --geopm-trace=tutorial_4_balanced_trace \
-               --geopm-policy=tutorial_balanced_policy.json \
-               -- ./tutorial_4
+    geopmlaunch aprun \
+                -N 4 \
+                -n 8 \
+                --geopm-ctl=process \
+                --geopm-agent=power_balancer \
+                --geopm-report=tutorial_4_balanced_report \
+                --geopm-trace=tutorial_4_balanced_trace \
+                --geopm-policy=tutorial_balanced_policy.json \
+                -- ./tutorial_4
     err=$?
 elif [ $MPIEXEC ]; then
     GEOPM_AGENT="power_governor" \
@@ -110,7 +114,7 @@ elif [ $MPIEXEC ]; then
     $MPIEXEC ./tutorial_4
     err=$?
 else
-    echo "Error: tutorial_4.sh: set GEOPM_RM to 'SLURM' or 'ALPS'." 2>&1
+    echo "Error: tutorial_4.sh: set GEOPM_LAUNCHER to 'srun' or 'aprun'." 2>&1
     echo "       If SLURM or ALPS are not available, set MPIEXEC to" 2>&1
     echo "       a command that will launch an MPI job on your system" 2>&1
     echo "       using 2 nodes and 10 processes." 2>&1

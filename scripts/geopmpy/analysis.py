@@ -98,7 +98,7 @@ class Analysis(object):
         raise NotImplementedError('Analysis base class does not implement the launch() method')
 
     @staticmethod
-    def try_launch(app_argv, report_path, trace_path, profile_name, agent_conf):
+    def try_launch(launcher_name, app_argv, report_path, trace_path, profile_name, agent_conf):
         """
         Checks if reports already exist for this run, and if not, launches
         the run to generate the report.
@@ -111,6 +111,7 @@ class Analysis(object):
                 argv.append('--geopm-agent=' + agent_conf.get_agent())
                 argv.append('--geopm-policy=' + agent_conf.get_path())
             argv.extend(app_argv)
+            argv.insert(1, launcher_name)
             launcher = geopmpy.launcher.factory(argv)
             launcher.run()
         elif os.path.exists(report_path):
@@ -233,7 +234,7 @@ class PowerSweepAnalysis(Analysis):
         self._step_power = step_power
         self._agent_type = agent_type
 
-    def launch(self, args):
+    def launch(self, launcher_name, args):
         sys_min, sys_tdp, sys_max = PowerSweepAnalysis.sys_power_avail()
         if self._min_power is None or self._min_power < sys_min:
             # system minimum is actually too low; use 50% of TDP or min rounded up to nearest step, whichever is larger
@@ -257,7 +258,7 @@ class PowerSweepAnalysis(Analysis):
                 profile_name = self._name + '_' + str(power_cap)
                 report_path = os.path.join(self._output_dir, profile_name + '_{}_{}.report'.format(self._agent_type, iteration))
                 trace_path = os.path.join(self._output_dir, profile_name + '_{}_{}.trace'.format(self._agent_type, iteration))
-                Analysis.try_launch(app_argv=args, report_path=report_path, trace_path=trace_path,
+                Analysis.try_launch(launcher_name=launcher_name, app_argv=args, report_path=report_path, trace_path=trace_path,
                                     profile_name=profile_name, agent_conf=agent_conf)
 
     def find_files(self, search_pattern='*report'):
@@ -346,9 +347,9 @@ class BalancerAnalysis(Analysis):
         self._min_power = min_power
         self._max_power = max_power
 
-    def launch(self, config):
-        self._governor_power_sweep.launch(config)
-        self._balancer_power_sweep.launch(config)
+    def launch(self, launcher_name, config):
+        self._governor_power_sweep.launch(launcher_name, config)
+        self._balancer_power_sweep.launch(launcher_name, config)
 
     def find_files(self, search_pattern='*report'):
         self._governor_power_sweep.find_files()
@@ -566,9 +567,9 @@ class NodeEfficiencyAnalysis(Analysis):
         else:
             self._nodelist = None
 
-    def launch(self, config):
-        self._governor_power_sweep.launch(config)
-        self._balancer_power_sweep.launch(config)
+    def launch(self, launcher_name, config):
+        self._governor_power_sweep.launch(launcher_name, config)
+        self._balancer_power_sweep.launch(launcher_name, config)
 
     def find_files(self, search_pattern='*report'):
         self._governor_power_sweep.find_files()
@@ -699,14 +700,14 @@ class NodePowerAnalysis(Analysis):
         self._step_power = step_power
         self._profile_name = self._name + '_nocap'
 
-    def launch(self, args):
+    def launch(self, launcher_name, args):
         agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config')
         agent_conf.write()
 
         for iteration in range(self._iterations):
             report_path = os.path.join(self._output_dir, self._profile_name + '_{}.report'.format(iteration))
             trace_path = os.path.join(self._output_dir, self._profile_name + '_{}.trace'.format(iteration))
-            Analysis.try_launch(app_argv=args, report_path=report_path, trace_path=trace_path,
+            Analysis.try_launch(launcher_name, app_argv=args, report_path=report_path, trace_path=trace_path,
                                 profile_name=self._profile_name, agent_conf=agent_conf)
 
     def find_files(self, search_pattern='*nocap*report'):
@@ -789,7 +790,7 @@ class FreqSweepAnalysis(Analysis):
         self._min_freq = min_freq
         self._max_freq = max_freq
 
-    def launch(self, args):
+    def launch(self, launcher_name, args):
         if 'GEOPM_EFFICIENT_FREQ_RID_MAP' in os.environ:
             del os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP']
         if 'GEOPM_EFFICIENT_FREQ_ONLINE' in os.environ:
@@ -816,7 +817,7 @@ class FreqSweepAnalysis(Analysis):
                            'frequency_max': freq}
                 agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', agent, options)
                 agent_conf.write()
-                Analysis.try_launch(app_argv=args, report_path=report_path, trace_path=trace_path,
+                Analysis.try_launch(launcher_name=launcher_name, app_argv=args, report_path=report_path, trace_path=trace_path,
                                     profile_name=profile_name, agent_conf=agent_conf)
 
     def find_files(self):
@@ -1046,7 +1047,7 @@ class EnergyEfficientAgentAnalysis(Analysis):
         self._min_freq = min_freq
         self._max_freq = max_freq
 
-    def launch(self, args):
+    def launch(self, launcher_name, args):
         """
         Run the frequency sweep, then run the desired comparison configuration.
         """
@@ -1057,7 +1058,7 @@ class EnergyEfficientAgentAnalysis(Analysis):
         agent_conf.write()
 
         # Run frequency sweep
-        self._sweep_analysis.launch(args)
+        self._sweep_analysis.launch(launcher_name, args)
 
         # Set up min and max frequency
         self._min_freq = self._sweep_analysis._min_freq
@@ -1070,7 +1071,7 @@ class EnergyEfficientAgentAnalysis(Analysis):
         for iteration in range(self._iterations):
             report_path = os.path.join(self._output_dir, profile_name + '_{}.report'.format(iteration))
             trace_path = os.path.join(self._output_dir, profile_name + '_{}.trace'.format(iteration))
-            Analysis.try_launch(app_argv=args, report_path=report_path, trace_path=trace_path,
+            Analysis.try_launch(launcher_name=launcher_name, app_argv=args, report_path=report_path, trace_path=trace_path,
                                 profile_name=profile_name, agent_conf=agent_conf)
 
     def find_files(self):
@@ -1396,16 +1397,17 @@ class StreamDgemmMixAnalysis(Analysis):
 
 def main(argv):
     help_str = """
-Usage: {argv_0} [-h|--help] [--version]
-       {argv_0} ANALYSIS_TYPE --help
-       {argv_0} ANALYSIS_TYPE [--geopm-analysis-skip-launch ]
-                [--geopm-analysis-profile-prefix PROFILE_PREFIX]
-                [--geopm-analysis-iterations ITERATIONS]
-                [--geopm-analysis-verbose]
-                [--geopm-analysis-summary]
-                [--geopm-analysis-plot]
-                [--geopm-analysis-output-dir OUTPUT_DIR]
-                [GEOPM_LAUNCHER_ARGS] -- EXEC [EXEC_ARGS]
+Usage: geopmanalysis [-h|--help] [--version]
+       geopmanalysis ANALYSIS_TYPE --help
+       geopmanalysis ANALYSIS_TYPE [--geopm-analysis-skip-launch]
+                                   [--geopm-launcher GEOPM_LAUNCHER]
+                                   [--geopm-analysis-profile-prefix PROFILE_PREFIX]
+                                   [--geopm-analysis-iterations ITERATIONS]
+                                   [--geopm-analysis-verbose]
+                                   [--geopm-analysis-summary]
+                                   [--geopm-analysis-plot]
+                                   [--geopm-analysis-output-dir OUTPUT_DIR]
+                                   [GEOPM_LAUNCHER_ARGS] -- EXEC [EXEC_ARGS]
 
 geopmanalysis - Used to run applications and analyze results for specific
                 GEOPM use cases.
@@ -1415,16 +1417,17 @@ geopmanalysis - Used to run applications and analyze results for specific
                         node_power.
 
   -h, --help                       show this help message and exit
+  --geopm-analysis-skip-launch     do not launch jobs, only analyze existing data
+  --geopm-analysis-launcher        required unless --geopm-analysis-skip-launch is set
   --geopm-analysis-output-dir      the output directory for reports, traces, and plots (default '.')
   --geopm-analysis-profile-prefix  prefix to prepend to profile name when launching
   --geopm-analysis-summary         create a text summary of the results
   --geopm-analysis-plot            generate plots of the results
-  --geopm-analysis-skip-launch     do not launch jobs, only analyze existing data
   --geopm-analysis-verbose         print verbose debugging information
   --geopm-analysis-iterations      number of experiments to run per analysis type
   --version                        show the GEOPM version number and exit
 
-""".format(argv_0=sys.argv[0])
+"""
     version_str = """\
 GEOPM version {version}
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
@@ -1457,7 +1460,7 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
     argv = argv[1:]
 
     if analysis_type not in analysis_type_map:
-        raise SyntaxError('Analysis type "{}" unrecognized. Available types: {}'.format(analysis_type, ' '.join(analysis_type_map.keys())))
+        raise RuntimeError('Analysis type "{}" unrecognized. Available types: {}'.format(analysis_type, ' '.join(analysis_type_map.keys())))
 
     # Common arguments
     parser = argparse.ArgumentParser(description=__doc__,
@@ -1471,6 +1474,8 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
                         action='store', default='prof')
     parser.add_argument('--geopm-analysis-skip-launch', dest='skip_launch',
                         action='store_true', default=False)
+    parser.add_argument('--geopm-analysis-launcher', dest='launcher_name',
+                        action='store', default=None, type=str)
     parser.add_argument('--geopm-analysis-iterations', dest='iterations',
                         action='store', default=1, type=int)
     parser.add_argument('--geopm-analysis-verbose', dest='verbose',
@@ -1490,15 +1495,19 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
     options = vars(options)
 
     skip_launch = options.pop('skip_launch')
+    launcher_name = options.pop('launcher_name')
     do_summary = options.pop('summary')
     do_plot = options.pop('plot')
 
     analysis = analysis_type_map[analysis_type](**options)
 
     if not skip_launch:
+        if launcher_name is None:
+            raise RuntimeError('Analysis without --geopm-analysis-skip-launch requires --geopm-analysis-launcher to be set')
         # @todo: if launching, must run within an allocation to make sure all runs use
         # the same set of nodes.  Checking this must be implemented with launcher methods.
-        analysis.launch(args)
+        args.insert(1, launcher_name)
+        analysis.launch(args, launcher_name)
     if do_summary or do_plot:
         analysis.find_files()
         parse_output = analysis.parse()

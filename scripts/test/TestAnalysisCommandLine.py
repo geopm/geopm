@@ -48,7 +48,7 @@ try:
         def add_options(parser, enforce_required):
             pass
 
-        def launch(self, launch_config):
+        def launch(self, launcher_name, launch_config):
             sys.stdout.write('LAUNCH\n')
 
         def find_files(self):
@@ -101,7 +101,7 @@ class TestAnalysisCommandLine(unittest.TestCase):
         self.assertIn('Usage', sys.stderr.getvalue())
 
     def test_bad_type(self):
-        with self.assertRaises(SyntaxError) as err:
+        with self.assertRaises(RuntimeError) as err:
             geopmpy.analysis.main(['badtype'])
 
         self.assertIn('Analysis type', str(err.exception))
@@ -118,7 +118,8 @@ class TestAnalysisCommandLine(unittest.TestCase):
         self.assertIn('HELP_TEXT TEST', sys.stdout.getvalue())
 
     def test_launch_only(self):
-        rc = geopmpy.analysis.main(['freq_sweep', '-N 1', '-n 1', 'myapp'])
+        rc = geopmpy.analysis.main(['freq_sweep', '--geopm-analysis-launcher', 'srun', '-N 1', '-n 1',
+                                    'myapp'])
         self.assertEqual(0, rc)
         expected = ['LAUNCH', 'Neither summary nor plot']
         result = sys.stdout.getvalue().strip().split('\n')
@@ -127,9 +128,8 @@ class TestAnalysisCommandLine(unittest.TestCase):
             self.assertIn(exp, res)
 
     def test_launch_plot_summary(self):
-        rc = geopmpy.analysis.main(['freq_sweep', '-N 1', '-n 1',
-                                    '--geopm-analysis-plot',
-                                    '--geopm-analysis-summary', 'myapp'])
+        rc = geopmpy.analysis.main(['freq_sweep', '--geopm-analysis-launcher', 'srun', '-N 1', '-n 1',
+                                    '--geopm-analysis-plot', '--geopm-analysis-summary', 'myapp'])
         self.assertEqual(0, rc)
         expected = ['LAUNCH', 'FIND_FILES', 'PARSE', 'SUMMARY_PROCESS', 'SUMMARY', 'PLOT_PROCESS', 'PLOT']
         result = sys.stdout.getvalue().strip().split('\n')
