@@ -147,8 +147,7 @@ ronn_man = man/geopm.7 \
            man/geopmwrite.1 \
            # end
 
-dist_man_MANS = man/geopmaprun.1 \
-                man/geopmsrun.1 \
+dist_man_MANS = man/geopmlaunch.1 \
                 $(ronn_man) \
                 # end
 
@@ -572,13 +571,9 @@ $(ronn_man): man/%: ronn/%.ronn
 	sed 's|^\[//\]: #|.\\\"|' ronn/`basename $@`.ronn > $@
 endif
 
-man/geopmsrun.1: man/geopmpy_launcher.1
+man/geopmlaunch.1: man/geopmpy_launcher.1
 	cp $^ $@
-	if [ -f ronn/geopmpy_launcher.1.html ]; then cp ronn/geopmpy_launcher.1.html ronn/geopmsrun.1.html; fi
-
-man/geopmaprun.1: man/geopmpy_launcher.1
-	cp $^ $@
-	if [ -f ronn/geopmpy_launcher.1.html ]; then cp ronn/geopmpy_launcher.1.html ronn/geopmaprun.1.html; fi
+	if [ -f ronn/geopmpy_launcher.1.html ]; then cp ronn/geopmpy_launcher.1.html ronn/geopmlaunch.1.html; fi
 
 checkprogs: gtest-checkprogs pytest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
 
