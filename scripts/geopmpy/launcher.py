@@ -57,74 +57,27 @@ import stat
 from geopmpy import __version__
 
 
-def resource_manager():
-    """
-    Heuristic to determine the resource manager used on the system.
-    Returns name of resource manager or launcher, otherwise a
-    LookupError is raised.
-    """
-    slurm_hosts = ['mr-fusion']
-    alps_hosts = ['theta']
-
-    result = None
-    for ii in range(1, len(sys.argv)):
-        if sys.argv[ii].startswith('--geopm-rm='):
-            result = sys.argv[ii][len('--geopm-rm='):]
-        elif sys.argv[ii] == '--geopm-rm' and len(sys.argv) > ii + 1:
-            result = sys.argv[ii + 1]
-
-    if not result:
-        result = os.environ.get('GEOPM_RM')
-
-    if not result:
-        hostname = socket.gethostname()
-
-        if sys.argv[0].endswith('srun'):
-            result = 'SLURM'
-        elif sys.argv[0].endswith('aprun'):
-            result = 'ALPS'
-        elif any(hostname.startswith(word) for word in slurm_hosts):
-            result = 'SLURM'
-        elif any(hostname.startswith(word) for word in alps_hosts):
-            result = 'ALPS'
-        else:
-            try:
-                exec_str = 'srun --version'
-                subprocess.check_call(exec_str, stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE, shell=True)
-                sys.stderr.write('Warning: --geopm-rm not specified, GEOPM_RM undefined and unrecognized host: "{hh}", using SLURM\n'.format(hh=hostname))
-                result = 'SLURM'
-            except subprocess.CalledProcessError:
-                try:
-                    exec_str = 'aprun --version'
-                    subprocess.check_call(exec_str, stdout=subprocess.PIPE,
-                                          stderr=subprocess.PIPE, shell=True)
-                    sys.stderr.write("Warning: --geopm-rm not specified, GEOPM_RM undefined and unrecognized host: \"{hh}\", using ALPS\n".format(hh=hostname))
-                    result = 'ALPS'
-                except subprocess.CalledProcessError:
-                    raise LookupError('Unable to determine resource manager, provide --geopm-rm option or set GEOPM_RM environment variable')
-    return result
-
-
 def factory(argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
             time_limit=None, job_name=None, node_list=None, host_file=None):
     """
     Factory that returns a Launcher object.  Class selection is based
     on return value of the geopmpy.launcher.resource_manager() function.
     """
-    rm = resource_manager()
-    if rm == 'SLURM' or rm == 'SrunLauncher':
-        return SrunLauncher(argv[1:], num_rank, num_node, cpu_per_rank, timeout,
+    launcher = argv[1]
+    if launcher == 'srun' or launcher == 'SrunLauncher':
+        return SrunLauncher(argv[2:], num_rank, num_node, cpu_per_rank, timeout,
                             time_limit, job_name, node_list, host_file)
-    elif rm == 'ALPS' or rm == 'AprunLauncher':
-        return AprunLauncher(argv[1:], num_rank, num_node, cpu_per_rank, timeout,
+    elif launcher == 'aprun' or launcher == 'AprunLauncher':
+        return AprunLauncher(argv[2:], num_rank, num_node, cpu_per_rank, timeout,
                              time_limit, job_name, node_list, host_file)
-    elif rm == 'IMPI' or rm == 'IMPIExecLauncher':
-        return IMPIExecLauncher(argv[1:], num_rank, num_node, cpu_per_rank, timeout,
+    elif launcher == 'impi' or launcher == 'IMPIExecLauncher':
+        return IMPIExecLauncher(argv[2:], num_rank, num_node, cpu_per_rank, timeout,
                                 time_limit, job_name, node_list, host_file)
-    elif rm == 'SrunTOSSLauncher':
-        return SrunTOSSLauncher(argv[1:], num_rank, num_node, cpu_per_rank, timeout,
+    elif launcher == 'SrunTOSSLauncher':
+        return SrunTOSSLauncher(argv[2:], num_rank, num_node, cpu_per_rank, timeout,
                                 time_limit, job_name, node_list, host_file)
+    else:
+        raise LookupError('Unsupported launcher ' + launcher + ' requested')
 
 
 class PassThroughError(Exception):
@@ -1308,8 +1261,8 @@ class AprunLauncher(Launcher):
 
 def main():
     """
-    Main routine used by wrapper executables like geopmsrun and
-    geopmaprun.  This function creates a launcher from the factory and
+    Main routine used by geopmlaunch wrapper executable.
+    This function creates a launcher from the factory and
     calls the run method.  If help was requested on the command line
     then help from the underlying application launcher is printed and
     the help for the GEOPM extensions are appended.  Returns -1 and
@@ -1325,12 +1278,15 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 """.format(__version__)
 
     help_str = """\
-GEOPM options:
-      --geopm-rm=rm           Use resource manager "rm" for the underlying
-                              launch mechanism.  Valid values of "rm" are
-                              "SLURM", "ALPS", "IMPI", "SrunLauncher",
+Usage:
+      geopmlaunch launcher [launcher options] [GEOPM options]
+
+Possible launcher values:     "srun", "aprun", "impi", "SrunLauncher",
                               "AlpsLauncher", "IMPIExecLauncher", or
                               "SrunTOSSLauncher".
+Possible launcher options:    "-h" , "--help".
+
+GEOPM options:
       --geopm-ctl=ctl         use geopm runtime and launch geopm with the
                               "ctl" method, one of "process", "pthread" or
                               "application"
@@ -1360,15 +1316,27 @@ GEOPM options:
 """
 
     try:
-        launcher = factory(sys.argv)
-        launcher.run()
+        launch_imp = ["SrunLauncher", "AlpsLauncher", "IMPIExecLauncher", "SrunTOSSLauncher"]
+        if '--help' not in sys.argv and '-h' not in sys.argv:
+            launcher = factory(sys.argv)
+            launcher.run()
         # Print geopm help if it appears that documentation was requested
         # Note: if application uses -h as a parameter or some other corner
         # cases there will be an extraneous help text printed at the end
         # of the run.
         if '--help' in sys.argv or '-h' in sys.argv:
+            if sys.argv[1] in launch_imp:
+                launcher = factory(sys.argv)
+                launcher.run()
+            else:
+                pid = subprocess.call(["{}".format(sys.argv[1]), "--help"], stdout=sys.stdout)
             sys.stdout.write(help_str)
         if '--version' in sys.argv:
+            if sys.argv[1] in launch_imp:
+                launcher = factory(sys.argv)
+                launcher.run()
+            else:
+                pid = subprocess.call(["{}".format(sys.argv[1]), "--version"], stdout=sys.stdout)
             sys.stdout.write(version_str)
     except Exception as e:
         # If GEOPM_DEBUG environment variable is defined print stack trace.
