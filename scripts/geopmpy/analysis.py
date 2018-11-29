@@ -1396,16 +1396,17 @@ class StreamDgemmMixAnalysis(Analysis):
 
 def main(argv):
     help_str = """
-Usage: {argv_0} [-h|--help] [--version]
-       {argv_0} ANALYSIS_TYPE --help
-       {argv_0} ANALYSIS_TYPE [--geopm-analysis-skip-launch ]
-                [--geopm-analysis-profile-prefix PROFILE_PREFIX]
-                [--geopm-analysis-iterations ITERATIONS]
-                [--geopm-analysis-verbose]
-                [--geopm-analysis-summary]
-                [--geopm-analysis-plot]
-                [--geopm-analysis-output-dir OUTPUT_DIR]
-                [GEOPM_LAUNCHER_ARGS] -- EXEC [EXEC_ARGS]
+Usage: geopmanalysis [-h|--help] [--version]
+       geopmanalysis ANALYSIS_TYPE --help
+       geopmanalysis ANALYSIS_TYPE [--geopm-analysis-skip-launch]
+                                   [--geopm-analysis-profile-prefix PROFILE_PREFIX]
+                                   [--geopm-analysis-iterations ITERATIONS]
+                                   [--geopm-analysis-verbose]
+                                   [--geopm-analysis-summary]
+                                   [--geopm-analysis-plot]
+                                   [--geopm-analysis-output-dir OUTPUT_DIR]
+                                   [--geopm-launcher GEOPM_LAUNCHER]
+                                   [GEOPM_LAUNCHER_ARGS] -- EXEC [EXEC_ARGS]
 
 geopmanalysis - Used to run applications and analyze results for specific
                 GEOPM use cases.
@@ -1415,6 +1416,7 @@ geopmanalysis - Used to run applications and analyze results for specific
                         node_power.
 
   -h, --help                       show this help message and exit
+  --geopm-launcher                 required unless --geopm-analysis-skip-launch is set
   --geopm-analysis-output-dir      the output directory for reports, traces, and plots (default '.')
   --geopm-analysis-profile-prefix  prefix to prepend to profile name when launching
   --geopm-analysis-summary         create a text summary of the results
@@ -1424,7 +1426,7 @@ geopmanalysis - Used to run applications and analyze results for specific
   --geopm-analysis-iterations      number of experiments to run per analysis type
   --version                        show the GEOPM version number and exit
 
-""".format(argv_0=sys.argv[0])
+"""
     version_str = """\
 GEOPM version {version}
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
@@ -1457,7 +1459,7 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
     argv = argv[1:]
 
     if analysis_type not in analysis_type_map:
-        raise SyntaxError('Analysis type "{}" unrecognized. Available types: {}'.format(analysis_type, ' '.join(analysis_type_map.keys())))
+        raise RuntimeError('Analysis type "{}" unrecognized. Available types: {}'.format(analysis_type, ' '.join(analysis_type_map.keys())))
 
     # Common arguments
     parser = argparse.ArgumentParser(description=__doc__,
@@ -1465,6 +1467,8 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
                                      add_help=False,
                                      argument_default=argparse.SUPPRESS)
 
+    parser.add_argument('--geopm-launcher', dest='launcher',
+                        action='store_true', default=None)
     parser.add_argument('--geopm-analysis-output-dir', dest='output_dir',
                         action='store', default='.')
     parser.add_argument('--geopm-analysis-profile-prefix', dest='profile_prefix',
@@ -1489,6 +1493,7 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
     options, args = parser.parse_known_args(argv)
     options = vars(options)
 
+    launcher = options.pop('launcher')
     skip_launch = options.pop('skip_launch')
     do_summary = options.pop('summary')
     do_plot = options.pop('plot')
@@ -1496,8 +1501,11 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
     analysis = analysis_type_map[analysis_type](**options)
 
     if not skip_launch:
+        if launcher is None:
+            raise RuntimeError('Analysis without --geopm-analysis-skip-launch requires --geopm-launcher to be set')
         # @todo: if launching, must run within an allocation to make sure all runs use
         # the same set of nodes.  Checking this must be implemented with launcher methods.
+        args.insert(0, launcher)
         analysis.launch(args)
     if do_summary or do_plot:
         analysis.find_files()

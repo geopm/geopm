@@ -48,7 +48,7 @@ the analysis can be rerun without needing an allocation using the
 each analysis is highly recommended so that reports and traces from
 different experiments are not combined by mistake.  Note that any
 arguments to the launcher are also accepted by geopmanalysis; see
-**geopmsrun(1)** or **geopmaprun(1)** for more details.
+**geopmlaunch(1)** for more details.
 
 ## ANALYSIS TYPES
 The available analysis types are:
@@ -104,6 +104,14 @@ The available analysis types are:
 * `--version`:
   Show the GEOPM version number and exit.
 
+* `--geopm-analysis-skip-launch`:
+  Do not launch jobs, only analyze existing data.
+
+* `--geopm-launcher` _GEOPM_LAUNCHER_:
+  Required unless `--geopm-analysis-skip-launch` is set.  Specifies the
+  underlying launch mechanism for the analysis job.  See **geopmlaunch(1)**
+  for more information.
+
 * `--geopm-analysis-output-dir` _OUTPUT_DIR_:
   The output directory for reports, traces, and plots (default: '.').
 
@@ -118,9 +126,6 @@ The available analysis types are:
 
 * `--geopm-analysis-plot`:
   Generate plots of the data.
-
-* `--geopm-analysis-skip-launch`:
-  Do not launch jobs, only analyze existing data.
 
 * `--geopm-analysis-verbose`:
   Print verbose debugging information.
@@ -231,13 +236,14 @@ the following additional options:
   each region at each frequency setting.  In this example, options
   beginning with --geopm-analysis- control the output from analysis,
   --geopm-ctl is passed though to the geopm launcher
-  (**geopmpy_launcher(1)**), and -N1 and -n1 are passed through to the
+  (**geopmlaunch(1)**), and -N1 and -n1 are passed through to the
   underlying resource manager.
 
     geopmanalysis freq_sweep --geopm-analysis-profile-prefix myprof \
                              --geopm-analysis-output-dir mydir \
                              --geopm-analysis-summary \
                              --geopm-ctl process \
+                             --geopm-launcher srun \
                              -N1 -n1 -- ./build/bin/geopmbench config.json
 
   The _offline_ analysis type runs a frequency sweep (if reports are
@@ -251,12 +257,13 @@ the following additional options:
     geopmanalysis offline --geopm-analysis-profile-prefix myprof \
                           --geopm-analysis-output-dir mydir \
                           --geopm-ctl process \
+                          --geopm-launcher srun \
                           -N1 -n1 -- ./build/bin/geopmbench config.json
 
   If an analysis launch has been run once, the same data can be reused
   using the --geopm-analysis-skip-launch option without supplying
-  launcher options (number of nodes, --geopm-ctl, etc.) or application
-  arguments.  This option can also be used to analyze reports and
+  launcher options (--geopm-launcher, number of nodes, --geopm-ctl, etc.)
+  or application arguments.  This option can also be used to analyze reports and
   traces generated through another launch method, provided that the
   profile names and file names are consistent with what the analysis
   expects.  For example, the following command generates plots for the
@@ -283,6 +290,7 @@ the following additional options:
                              --geopm-analysis-output-dir myprof \
                              --geopm-analysis-plot \
                              --geopm-ctl=process
+                             --geopm-launcher srun \
                              -N1 -n1
 
 ## COPYRIGHT
@@ -291,7 +299,6 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 ## SEE ALSO
 **geopm(7)**,
 **geopmpy(7)**,
-**geopmaprun(1)**,
+**geopmlaunch(1)**,
 **geopmbench(1)**,
 **geopmplotter(1)**,
-**geopmsrun(1)**
