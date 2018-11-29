@@ -161,7 +161,7 @@ ronn_man = man/geopm.7 \
            man/geopm-ProfileIOGroup.3 \
            man/geopm-ProfileIOSample.3 \
            man/geopmpy.7 \
-           man/geopmpy_launcher.1 \
+           man/geopmlaunch.1 \
            man/geopmread.1 \
            man/geopm-RegionAggregator.3 \
            man/geopm_region_id_c.3 \
@@ -172,11 +172,7 @@ ronn_man = man/geopm.7 \
            man/geopmwrite.1 \
            # end
 
-dist_man_MANS = man/geopmaprun.1 \
-                man/geopmsrun.1 \
-                $(ronn_man) \
-                # end
-
+dist_man_MANS = $(ronn_man)
 
 dist_doc_DATA = README \
                 COPYING \
@@ -257,7 +253,7 @@ EXTRA_DIST = .gitignore \
              ronn/geopm-ProfileIOGroup.3.ronn \
              ronn/geopm-ProfileIOSample.3.ronn \
              ronn/geopmpy.7.ronn \
-             ronn/geopmpy_launcher.1.ronn \
+             ronn/geopmlaunch.1.ronn \
              ronn/geopmread.1.ronn \
              ronn/geopm-RegionAggregator.3.ronn \
              ronn/geopm_region_id_c.3.ronn \
@@ -622,14 +618,6 @@ $(ronn_man): man/%: ronn/%.ronn
 	mkdir -p man
 	sed 's|^\[//\]: #|.\\\"|' ronn/`basename $@`.ronn > $@
 endif
-
-man/geopmsrun.1: man/geopmpy_launcher.1
-	cp $^ $@
-	if [ -f ronn/geopmpy_launcher.1.html ]; then cp ronn/geopmpy_launcher.1.html ronn/geopmsrun.1.html; fi
-
-man/geopmaprun.1: man/geopmpy_launcher.1
-	cp $^ $@
-	if [ -f ronn/geopmpy_launcher.1.html ]; then cp ronn/geopmpy_launcher.1.html ronn/geopmaprun.1.html; fi
 
 checkprogs: gtest-checkprogs pytest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
 
