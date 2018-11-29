@@ -48,6 +48,7 @@
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
 #include "Agg.hpp"
+#include "CombinedSignal.hpp"
 #include "geopm_test.hpp"
 
 using geopm::IOGroup;
@@ -105,7 +106,7 @@ class PlatformIOTest : public ::testing::Test
 
 void PlatformIOTest::SetUp()
 {
-    std::list<std::shared_ptr<IOGroup>> iogroup_list;
+    std::list<std::shared_ptr<IOGroup> > iogroup_list;
 
     // IOGroups for specific signals
     // Not realistic, but easier to set expectations for testing

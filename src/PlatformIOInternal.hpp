@@ -41,7 +41,6 @@
 #include <tuple>
 
 #include "PlatformIO.hpp"
-#include "CombinedSignal.hpp"
 
 namespace geopm
 {
@@ -68,10 +67,6 @@ namespace geopm
             int push_signal(const std::string &signal_name,
                             int domain_type,
                             int domain_idx) override;
-            int push_combined_signal(const std::string &signal_name,
-                                     int domain_type,
-                                     int domain_idx,
-                                     const std::vector<int> &sub_signal_idx) override;
             int push_control(const std::string &control_name,
                              int domain_type,
                              int domain_idx) override;
@@ -94,6 +89,26 @@ namespace geopm
             std::string signal_description(const std::string &signal_name) const override;
             std::string control_description(const std::string &control_name) const override;
         private:
+            /// @brief Push a signal that aggregates values sampled
+            ///        from other signals.  The aggregation function
+            ///        used is determined by a call to agg_function()
+            ///        with the given signal name.
+            /// @param [in] signal_name Name of the signal requested.
+            /// @param [in] domain_type One of the values from the
+            ///        m_domain_e enum described in PlatformTopo.hpp.
+            /// @param [in] domain_idx The index of the domain within
+            ///        the set of domains of the same type on the
+            ///        platform.
+            /// @param [in] sub_signal_idx Vector of previously pushed
+            ///        signals whose values will be used to generate
+            ///        the combined signal.
+            /// @return Index of signal when sample() method is called
+            ///         or throws if the signal is not valid
+            ///         on the platform.
+            int push_combined_signal(const std::string &signal_name,
+                                     int domain_type,
+                                     int domain_idx,
+                                     const std::vector<int> &sub_signal_idx);
             /// @brief Save a high-level signal as a combination of other signals.
             /// @param [in] signal_idx Index a caller can use to refer to this signal.
             /// @param [in] operands Input signal indices to be combined.  These must
