@@ -47,15 +47,13 @@ geopm_sched(3)                   geopm_sched.3
 geopm_version(3)                 geopm_version.3
 geopmagent(1)                    geopmagent.1
 geopmanalysis(1)                 geopmanalysis.1
-geopmaprun(1)                    geopmaprun.1
 geopmbench(1)                    geopmbench.1
 geopmctl(1)                      geopmctl.1
 geopmendpoint(1)                 geopmendpoint.1
 geopmplotter(1)                  geopmplotter.1
 geopmpolicy(1)                   geopmpolicy.1
-geopmpy_launcher(1)              geopmpy_launcher.1
+geopmlaunch(1)                   geopmplaunch.1
 geopmread(1)                     geopmread.1
-geopmsrun(1)                     geopmsrun.1
 geopmwrite(1)                    geopmwrite.1
 geopm::Agent(3)                  geopm::Agent.3
 geopm::Agg(3)                    geopm::Agg.3

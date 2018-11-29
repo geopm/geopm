@@ -74,7 +74,7 @@ ronn/geopm_prof_c.3.ronn
 ronn/GEOPM_CXX_MAN_ProfileIOGroup.3.ronn
 ronn/GEOPM_CXX_MAN_ProfileIOSample.3.ronn
 ronn/geopmpy.7.ronn
-ronn/geopmpy_launcher.1.ronn
+ronn/geopmlaunch.1.ronn
 ronn/geopmread.1.ronn
 ronn/GEOPM_CXX_MAN_RegionAggregator.3.ronn
 ronn/geopm_region_id_c.3.ronn

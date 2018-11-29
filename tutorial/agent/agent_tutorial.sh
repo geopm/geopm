@@ -49,29 +49,31 @@ echo "Redirecting output to example.stdout and example.stderr."
 # launch geopm controller as an MPI process
 # create a report file
 # create trace files
-if [ "$GEOPM_RM" == "SLURM" ]; then
+if [ "$GEOPM_LAUNCHER" == "srun" ]; then
     # Use GEOPM launcher wrapper script with SLURM's srun
-    geopmsrun  -N 2 \
-               -n 8 \
-               --geopm-ctl=process \
-               --geopm-report=agent_tutorial_report \
-               --geopm-trace=agent_tutorial_trace \
-               --geopm-agent=example \
-               --geopm-policy=example_policy.json \
-               -- geopmbench agent_tutorial_config.json \
-               1>example.stdout 2>example.stderr
+    geopmlaunch srun \
+                -N 2 \
+                -n 8 \
+                --geopm-ctl=process \
+                --geopm-report=agent_tutorial_report \
+                --geopm-trace=agent_tutorial_trace \
+                --geopm-agent=example \
+                --geopm-policy=example_policy.json \
+                -- geopmbench agent_tutorial_config.json \
+                1>example.stdout 2>example.stderr
     err=$?
-elif [ "$GEOPM_RM" == "ALPS" ]; then
+elif [ "$GEOPM_LAUNCHER" == "aprun" ]; then
     # Use GEOPM launcher wrapper script with ALPS's aprun
-    geopmaprun -N 4 \
-               -n 8 \
-               --geopm-ctl=process \
-               --geopm-report=agent_tutorial_report \
-               --geopm-trace=agent_tutorial_trace \
-               --geopm-agent=example \
-               --geopm-policy=example_policy.json \
-               -- geopmbench agent_tutorial_config.json \
-               1>example.stdout 2>example.stderr
+    geopmlaunch aprun \
+                -N 4 \
+                -n 8 \
+                --geopm-ctl=process \
+                --geopm-report=agent_tutorial_report \
+                --geopm-trace=agent_tutorial_trace \
+                --geopm-agent=example \
+                --geopm-policy=example_policy.json \
+                -- geopmbench agent_tutorial_config.json \
+                1>example.stdout 2>example.stderr
     err=$?
 elif [ $MPIEXEC ]; then
     # Use MPIEXEC and set GEOPM environment variables to launch the job
@@ -85,7 +87,7 @@ elif [ $MPIEXEC ]; then
     geopmbench agent_tutorial_config.json
     err=$?
 else
-    echo "Error: agent_tutorial.sh: set GEOPM_RM to 'SLURM' or 'ALPS'." 2>&1
+    echo "Error: agent_tutorial.sh: set GEOPM_LAUNCHER to 'srun' or 'aprun'." 2>&1
     echo "       If SLURM or ALPS are not available, set MPIEXEC to" 2>&1
     echo "       a command that will launch an MPI job on your system" 2>&1
     echo "       using 2 nodes and 10 processes." 2>&1
