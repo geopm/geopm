@@ -110,6 +110,7 @@ namespace geopm
         m_control_desc_map["MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT"] = "Set RAPL power limit";
         m_control_desc_map["MSR::PERF_CTL:FREQ"] = "Set processor frequency";
 
+        register_msr_signal("TIMESTAMP_COUNTER", "MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT");
         register_msr_signal("FREQUENCY",         "MSR::PERF_STATUS:FREQ");
         register_msr_signal("ENERGY_PACKAGE",    "MSR::PKG_ENERGY_STATUS:ENERGY");
         register_msr_signal("ENERGY_DRAM",       "MSR::DRAM_ENERGY_STATUS:ENERGY");
