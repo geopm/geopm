@@ -1,4 +1,4 @@
-geopmpy_launcher(1) -- application launch wrapper
+geopmlauncher(1) -- application launch wrapper
 =================================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
@@ -33,9 +33,8 @@ geopmpy_launcher(1) -- application launch wrapper
 
 ## SYNOPSIS
 
-`geopmsrun` [_srun-options_] [_OPTIONS_] `--` executable [_exec-args_]
+`geopmlaunch` launcher [_launcher-options_] [_OPTIONS_] `--` executable [_exec-args_]
 
-`geopmaprun` [_aprun-options_] [_OPTIONS_] `--` executable [_exec-args_]
 
 ## DESCRIPTION
 The GEOPM launcher enables users to launch the GEOPM runtime with a
@@ -43,12 +42,12 @@ simple command line interface extension to the resource manager's
 underlying job launch mechanism deployed on their system.  The
 currently supported job launch mechanisms are `srun` from the SLURM
 package and `aprun` from the ALPS package.  The GEOPM package installs
-the `geopmsrun` and `geopmaprun` executables which run the
-geopmpy.launcher.main() method in the geopmpy python package.  These
+the `geopmlaunch` executable which runs the
+geopmpy.launcher.main() method in the geopmpy python package.  This
 interfaces extend the resource manager's job launch application with
 GEOPM-specific flags.  All application launch options accepted by the
 underlying launch application (e.g. `srun` or `aprun`) can be passed
-to the GEOPM launch wrapper with the exception of CPU affinity related
+to the `geopmlaunch` wrapper with the exception of CPU affinity related
 options.  The wrapper script reinterprets the command line to set
 environment variables and pass modified options to the underlying job
 launch application.  The reinterpreted command line is echoed to
@@ -64,27 +63,20 @@ appear at the end of the command line and be preceded by two dashes:
 sequence and pass the arguments that follow unaltered while removing
 the first `--` from the command line.
 
-## OPTIONS
-* `--geopm-rm` rm:
-  Use resource manager "rm" for the underlying launch mechanism.
-  Valid values of "rm" are "SLURM", "ALPS", or "IMPI".  Additionally
-  the launcher class that supports the resource manager can be
+## SUPPORTED LAUNCHERS
+  The first positional argument is required and specifies the desired
+  underlying launch mechanism.  Valid values are "srun", "aprun", or "impi".
+  Additionally the launcher class that supports the resource manager can be
   selected by name; available launcher classes are "SrunLauncher"
   (SLURM), "AlpsLauncher" (ALPS), "IMPIExecLauncher" (IMPI), or
   "SrunTOSSLauncher" (specialization of SLURM for the tri-lab
   operating system stack).  This command line option overrides other
-  methods of determining the resource manager / launcher.  If this
-  option is not provided the environment variable GEOPM_RM is used
-  instead.  If neither of these options are set by the user then the
-  resource manager is inferred by the executable name: geopmsrun
-  implies the SLURM resource manager and geopmaprun implies the ALPS
-  resource manager.  If none of these methods can be used to select
-  the resource manager, the hostname is checked against a list of
-  hosts with known resource managers in use.  This option is used by the
-  launcher to set the GEOPM_RM environment variable.  The command line
-  option will override any value currently set in the environment.
+  methods of determining the resource manager / launcher.  This option is
+  used by the launcher to set the GEOPM_RM environment variable.  The
+  command line argument will override any value currently set in the environment.
   See the ENVIRONMENT section of **geopm(7)**.
 
+## OPTIONS
 * `--geopm-ctl` _process_|_pthread_|_application_:
   Use GEOPM runtime and launch GEOPM with one of three methods:
   _process_, _pthread_ or _application_.  The _process_ method
@@ -255,21 +247,21 @@ the first `--` from the command line.
   the current request without hyperthreads.
 
 ## EXAMPLES
-Use geopmsrun to launch the GEOPM tutorial6 on two nodes using 32
-application MPI process each with four threads:
+Use geopmlaunch to queue a job using geopmbench on a SLURM managed system
+requesting two nodes using 32 application MPI process each with four threads:
 
-    geopmsrun -N 2 -n 32 -c 4 --geopm-ctl=process --geopm-report=tutorial6.report -- ./tutorial6 tutorial6_config.json
+    geopmlaunch srun -N 2 -n 32 -c 4 --geopm-ctl=process --geopm-report=tutorial6.report -- ./tutorial6 tutorial6_config.json
 
-Use geopomaprun to launch the miniFE executable with the same
-configuration:
+Use geopmlaunch to launch the miniFE executable with the same configuration,
+but on an ALPS managed system:
 
-    geopmaprun -N 16 -n 32 --cpus-per-pe 4 --geopm-ctl process --geopm-report miniFE.report -- ./miniFE.x -nx 256 -nz 256
+    geopmlaunch aprun -N 16 -n 32 --cpus-per-pe 4 --geopm-ctl process --geopm-report miniFE.report -- ./miniFE.x -nx 256 -nz 256
 
 ## ENVIRONMENT
 Every command line option to the launcher can also be specified as an
 environment variable if desired (with the exception of `--geopm-ctl`).
-For example, instead of specifying `--geopm-rm=IMPI` one can instead
-set in the environment `GEOPM_RM=IMPI` prior to invoking the launcher
+For example, instead of specifying `--geopm-region-barrier` one can instead
+set in the environment `GEOPM_REGION_BARRIER=true` prior to invoking the launcher
 script.  The environment variables are named the same as the command
 line option but have the hyphens replaced with underscores, and are
 all uppercase.  The command line options take precedence over the

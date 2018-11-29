@@ -81,7 +81,8 @@ class Analysis(object):
         """
         raise NotImplementedError('Analysis base class does not implement the help_text() method')
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations):
+    def __init__(self, launcher, profile_prefix, output_dir, verbose, iterations):
+        self._launcher = launcher
         self._name = profile_prefix
         self._output_dir = output_dir
         self._verbose = verbose
@@ -98,7 +99,7 @@ class Analysis(object):
         raise NotImplementedError('Analysis base class does not implement the launch() method')
 
     @staticmethod
-    def try_launch(app_argv, report_path, trace_path, profile_name, agent_conf):
+    def try_launch(req_launcher, app_argv, report_path, trace_path, profile_name, agent_conf):
         """
         Checks if reports already exist for this run, and if not, launches
         the run to generate the report.
@@ -111,6 +112,7 @@ class Analysis(object):
                 argv.append('--geopm-agent=' + agent_conf.get_agent())
                 argv.append('--geopm-policy=' + agent_conf.get_path())
             argv.extend(app_argv)
+            argv.insert(1, req_launcher)
             launcher = geopmpy.launcher.factory(argv)
             launcher.run()
         elif os.path.exists(report_path):
@@ -225,9 +227,9 @@ class PowerSweepAnalysis(Analysis):
   --geopm-analysis-agent-type       Specify which agent to use.  Default is power_governor.
 """.format(PowerSweepAnalysis.__doc__)
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations,
+    def __init__(self, launcher, profile_prefix, output_dir, verbose, iterations,
                  min_power, max_power, step_power, agent_type='power_governor'):
-        super(PowerSweepAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
+        super(PowerSweepAnalysis, self).__init__(launcher, profile_prefix, output_dir, verbose, iterations)
         self._min_power = min_power
         self._max_power = max_power
         self._step_power = step_power
@@ -257,7 +259,7 @@ class PowerSweepAnalysis(Analysis):
                 profile_name = self._name + '_' + str(power_cap)
                 report_path = os.path.join(self._output_dir, profile_name + '_{}_{}.report'.format(self._agent_type, iteration))
                 trace_path = os.path.join(self._output_dir, profile_name + '_{}_{}.trace'.format(self._agent_type, iteration))
-                Analysis.try_launch(app_argv=args, report_path=report_path, trace_path=trace_path,
+                Analysis.try_launch(req_launcher=self._launcher, app_argv=args, report_path=report_path, trace_path=trace_path,
                                     profile_name=profile_name, agent_conf=agent_conf)
 
     def find_files(self, search_pattern='*report'):
@@ -330,12 +332,12 @@ class BalancerAnalysis(Analysis):
 
 {}""".format(BalancerAnalysis.__doc__, PowerSweepAnalysis.help_text())
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations,
+    def __init__(self, launcher, profile_prefix, output_dir, verbose, iterations,
                  min_power, max_power, step_power, metric, normalize, speedup):
-        super(BalancerAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
-        self._governor_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations,
+        super(BalancerAnalysis, self).__init__(launcher, profile_prefix, output_dir, verbose, iterations)
+        self._governor_power_sweep = PowerSweepAnalysis(launcher, profile_prefix, output_dir, verbose, iterations,
                                                         min_power, max_power, step_power, 'power_governor')
-        self._balancer_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations,
+        self._balancer_power_sweep = PowerSweepAnalysis(launcher, profile_prefix, output_dir, verbose, iterations,
                                                         min_power, max_power, step_power, 'power_balancer')
         self._metric = metric
         if self._metric == 'energy':
@@ -540,14 +542,14 @@ class NodeEfficiencyAnalysis(Analysis):
 {}""".format(NodeEfficiencyAnalysis.__doc__, PowerSweepAnalysis.help_text())
 
     # TODO: use configured agent type
-    def __init__(self, profile_prefix, output_dir, verbose, iterations,
+    def __init__(self, launcher, profile_prefix, output_dir, verbose, iterations,
                  min_power, max_power, step_power,
                  min_freq, max_freq, step_freq, sticker_freq, nodelist):
-        super(NodeEfficiencyAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
-        self._governor_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations,
+        super(NodeEfficiencyAnalysis, self).__init__(launcher, profile_prefix, output_dir, verbose, iterations)
+        self._governor_power_sweep = PowerSweepAnalysis(launcher, profile_prefix, output_dir, verbose, iterations,
                                                         min_power=min_power, max_power=max_power,
                                                         step_power=step_power, agent_type='power_governor')
-        self._balancer_power_sweep = PowerSweepAnalysis(profile_prefix, output_dir, verbose, iterations,
+        self._balancer_power_sweep = PowerSweepAnalysis(launcher, profile_prefix, output_dir, verbose, iterations,
                                                         min_power=min_power, max_power=max_power,
                                                         step_power=step_power, agent_type='power_balancer')
 
@@ -690,8 +692,8 @@ class NodePowerAnalysis(Analysis):
   --geopm-analysis-step-power       Size of power bins to use for plotting.  Default is 10W.
 """.format(NodePowerAnalysis.__doc__)
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_power, max_power, step_power):
-        super(NodePowerAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
+    def __init__(self, launcher, profile_prefix, output_dir, verbose, iterations, min_power, max_power, step_power):
+        super(NodePowerAnalysis, self).__init__(launcher, profile_prefix, output_dir, verbose, iterations)
 
         # min and max are only used for plot xaxis, not for launch
         self._min_power = min_power
@@ -706,7 +708,7 @@ class NodePowerAnalysis(Analysis):
         for iteration in range(self._iterations):
             report_path = os.path.join(self._output_dir, self._profile_name + '_{}.report'.format(iteration))
             trace_path = os.path.join(self._output_dir, self._profile_name + '_{}.trace'.format(iteration))
-            Analysis.try_launch(app_argv=args, report_path=report_path, trace_path=trace_path,
+            Analysis.try_launch(req_launcher=self._launcher, app_argv=args, report_path=report_path, trace_path=trace_path,
                                 profile_name=self._profile_name, agent_conf=agent_conf)
 
     def find_files(self, search_pattern='*nocap*report'):
@@ -782,8 +784,8 @@ class FreqSweepAnalysis(Analysis):
   --geopm-analysis-enable-turbo     Allows turbo to be tested when determining best per-region frequencies. (default disables turbo)
 """.format(FreqSweepAnalysis.__doc__)
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
-        super(FreqSweepAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
+    def __init__(self, launcher, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
+        super(FreqSweepAnalysis, self).__init__(launcher, profile_prefix, output_dir, verbose, iterations)
         self._perf_margin = 0.1
         self._enable_turbo = enable_turbo
         self._min_freq = min_freq
@@ -816,7 +818,7 @@ class FreqSweepAnalysis(Analysis):
                            'frequency_max': freq}
                 agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', agent, options)
                 agent_conf.write()
-                Analysis.try_launch(app_argv=args, report_path=report_path, trace_path=trace_path,
+                Analysis.try_launch(req_launcher=self._launcher, app_argv=args, report_path=report_path, trace_path=trace_path,
                                     profile_name=profile_name, agent_conf=agent_conf)
 
     def find_files(self):
@@ -1028,13 +1030,15 @@ class EnergyEfficientAgentAnalysis(Analysis):
     """
     Common functionality for analysis of any mode of the EnergyEfficientAgent.
     """
-    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
-        super(EnergyEfficientAgentAnalysis, self).__init__(profile_prefix=profile_prefix,
+    def __init__(self, launcher, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
+        super(EnergyEfficientAgentAnalysis, self).__init__(launcher=launcher,
+                                                           profile_prefix=profile_prefix,
                                                            output_dir=output_dir,
                                                            verbose=verbose,
                                                            iterations=iterations)
 
-        self._sweep_analysis = FreqSweepAnalysis(profile_prefix=self._name,
+        self._sweep_analysis = FreqSweepAnalysis(launcher=self._launcher,
+                                                 profile_prefix=self._name,
                                                  output_dir=output_dir,
                                                  verbose=verbose,
                                                  iterations=iterations,
@@ -1070,7 +1074,7 @@ class EnergyEfficientAgentAnalysis(Analysis):
         for iteration in range(self._iterations):
             report_path = os.path.join(self._output_dir, profile_name + '_{}.report'.format(iteration))
             trace_path = os.path.join(self._output_dir, profile_name + '_{}.trace'.format(iteration))
-            Analysis.try_launch(app_argv=args, report_path=report_path, trace_path=trace_path,
+            Analysis.try_launch(req_launcher=self._launcher, app_argv=args, report_path=report_path, trace_path=trace_path,
                                 profile_name=profile_name, agent_conf=agent_conf)
 
     def find_files(self):
@@ -1229,8 +1233,9 @@ class StreamDgemmMixAnalysis(Analysis):
     def help_text():
         return "  Stream-DGEMM mix analysis: {}\n{}".format(StreamDgemmMixAnalysis.__doc__, FreqSweepAnalysis.help_text())
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
-        super(StreamDgemmMixAnalysis, self).__init__(profile_prefix=profile_prefix,
+    def __init__(self, launcher, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
+        super(StreamDgemmMixAnalysis, self).__init__(launcher=launcher,
+                                                     profile_prefix=profile_prefix,
                                                      output_dir=output_dir,
                                                      verbose=verbose,
                                                      iterations=iterations)
@@ -1247,7 +1252,8 @@ class StreamDgemmMixAnalysis(Analysis):
         for (ratio_idx, ratio) in enumerate(self._mix_ratios):
             profile_prefix = self._name + '_mix_{}'.format(ratio_idx)
             # Analysis class that runs the frequency sweep (will append _freq_XXXX to name)
-            self._sweep_analysis[ratio_idx] = FreqSweepAnalysis(profile_prefix=profile_prefix,
+            self._sweep_analysis[ratio_idx] = FreqSweepAnalysis(launcher=launcher,
+                                                                profile_prefix=profile_prefix,
                                                                 output_dir=self._output_dir,
                                                                 verbose=self._verbose,
                                                                 iterations=self._iterations,
@@ -1255,7 +1261,8 @@ class StreamDgemmMixAnalysis(Analysis):
                                                                 max_freq=self._max_freq,
                                                                 enable_turbo=self._enable_turbo)
             # Analysis class that includes a full sweep plus the plugin run with freq map
-            self._offline_analysis[ratio_idx] = OfflineBaselineComparisonAnalysis(profile_prefix=profile_prefix,
+            self._offline_analysis[ratio_idx] = OfflineBaselineComparisonAnalysis(launcher=launcher,
+                                                                                  profile_prefix=profile_prefix,
                                                                                   output_dir=self._output_dir,
                                                                                   verbose=self._verbose,
                                                                                   iterations=self._iterations,
@@ -1263,7 +1270,8 @@ class StreamDgemmMixAnalysis(Analysis):
                                                                                   max_freq=self._max_freq,
                                                                                   enable_turbo=self._enable_turbo)
             # Analysis class that runs the online plugin
-            self._online_analysis[ratio_idx] = OnlineBaselineComparisonAnalysis(profile_prefix=profile_prefix,
+            self._online_analysis[ratio_idx] = OnlineBaselineComparisonAnalysis(launcher=launcher,
+                                                                                profile_prefix=profile_prefix,
                                                                                 output_dir=self._output_dir,
                                                                                 verbose=self._verbose,
                                                                                 iterations=self._iterations,
@@ -1396,16 +1404,17 @@ class StreamDgemmMixAnalysis(Analysis):
 
 def main(argv):
     help_str = """
-Usage: {argv_0} [-h|--help] [--version]
-       {argv_0} ANALYSIS_TYPE --help
-       {argv_0} ANALYSIS_TYPE [--geopm-analysis-skip-launch ]
-                [--geopm-analysis-profile-prefix PROFILE_PREFIX]
-                [--geopm-analysis-iterations ITERATIONS]
-                [--geopm-analysis-verbose]
-                [--geopm-analysis-summary]
-                [--geopm-analysis-plot]
-                [--geopm-analysis-output-dir OUTPUT_DIR]
-                [GEOPM_LAUNCHER_ARGS] -- EXEC [EXEC_ARGS]
+Usage: geopmanalysis [-h|--help] [--version]
+       geopmanalysis ANALYSIS_TYPE --help
+       geopmanalysis ANALYSIS_TYPE [--geopm-analysis-skip-launch]
+                                   [--geopm-launcher GEOPM_LAUNCHER]
+                                   [--geopm-analysis-profile-prefix PROFILE_PREFIX]
+                                   [--geopm-analysis-iterations ITERATIONS]
+                                   [--geopm-analysis-verbose]
+                                   [--geopm-analysis-summary]
+                                   [--geopm-analysis-plot]
+                                   [--geopm-analysis-output-dir OUTPUT_DIR]
+                                   [GEOPM_LAUNCHER_ARGS] -- EXEC [EXEC_ARGS]
 
 geopmanalysis - Used to run applications and analyze results for specific
                 GEOPM use cases.
@@ -1415,16 +1424,17 @@ geopmanalysis - Used to run applications and analyze results for specific
                         node_power.
 
   -h, --help                       show this help message and exit
+  --geopm-analysis-skip-launch     do not launch jobs, only analyze existing data
+  --geopm-analysis-launcher        required unless --geopm-analysis-skip-launch is set
   --geopm-analysis-output-dir      the output directory for reports, traces, and plots (default '.')
   --geopm-analysis-profile-prefix  prefix to prepend to profile name when launching
   --geopm-analysis-summary         create a text summary of the results
   --geopm-analysis-plot            generate plots of the results
-  --geopm-analysis-skip-launch     do not launch jobs, only analyze existing data
   --geopm-analysis-verbose         print verbose debugging information
   --geopm-analysis-iterations      number of experiments to run per analysis type
   --version                        show the GEOPM version number and exit
 
-""".format(argv_0=sys.argv[0])
+"""
     version_str = """\
 GEOPM version {version}
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
@@ -1457,7 +1467,7 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
     argv = argv[1:]
 
     if analysis_type not in analysis_type_map:
-        raise SyntaxError('Analysis type "{}" unrecognized. Available types: {}'.format(analysis_type, ' '.join(analysis_type_map.keys())))
+        raise RuntimeError('Analysis type "{}" unrecognized. Available types: {}'.format(analysis_type, ' '.join(analysis_type_map.keys())))
 
     # Common arguments
     parser = argparse.ArgumentParser(description=__doc__,
@@ -1471,6 +1481,8 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
                         action='store', default='prof')
     parser.add_argument('--geopm-analysis-skip-launch', dest='skip_launch',
                         action='store_true', default=False)
+    parser.add_argument('--geopm-analysis-launcher', dest='launcher',
+                        action='store', default=None, type=str)
     parser.add_argument('--geopm-analysis-iterations', dest='iterations',
                         action='store', default=1, type=int)
     parser.add_argument('--geopm-analysis-verbose', dest='verbose',
@@ -1490,14 +1502,18 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
     options = vars(options)
 
     skip_launch = options.pop('skip_launch')
+    launcher = options['launcher']
     do_summary = options.pop('summary')
     do_plot = options.pop('plot')
 
     analysis = analysis_type_map[analysis_type](**options)
 
     if not skip_launch:
+        if launcher is None:
+            raise RuntimeError('Analysis without --geopm-analysis-skip-launch requires --geopm-analysis-launcher to be set')
         # @todo: if launching, must run within an allocation to make sure all runs use
         # the same set of nodes.  Checking this must be implemented with launcher methods.
+        args.insert(1, launcher)
         analysis.launch(args)
     if do_summary or do_plot:
         analysis.find_files()
