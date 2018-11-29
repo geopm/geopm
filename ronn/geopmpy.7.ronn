@@ -37,10 +37,9 @@ package provides several command line tools and other infrastructure modules for
 both setting up and launching a job utilizing GEOPM and post-processing the profiling
 data that is output from GEOPM.  Presently there are 4 command line tools provided:
 
-**geopmaprun**<br>
-**geopmsrun**<br>
-These scripts will invoke the GEOPM launcher for either the ALPS or SLURM
-resource managers.  See **geopmpy_launcher(1)** for more information.
+**geopmlaunch**<br>
+This script will invoke the GEOPM launcher for either the ALPS or SLURM
+resource managers.  See **geopmlaunch(1)** for more information.
 
 **geopmplotter**<br>
 This script will post-process the report and trace data output from GEOPM.
@@ -112,6 +111,5 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 ## SEE ALSO
 **geopm(7)**,
 **geopmanalysis(1)**,
-**geopmaprun(1)**,
+**geopmlaunch(1)**,
 **geopmplotter(1)**,
-**geopmsrun(1)**

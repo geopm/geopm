@@ -244,5 +244,4 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm(7)**,
 **geopmpy(7)**,
 **geopmanalysis(1)**,
-**geopmaprun(1)**,
-**geopmsrun(1)**
+**geopmlaunch(1)**,
