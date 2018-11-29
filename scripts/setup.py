@@ -64,9 +64,8 @@ The python front end to the GEOPM runtime.  Includes scripts for
 launching the runtime and postprocessing the output data."""
 
 scripts = ['geopmanalysis',
-           'geopmaprun',
-           'geopmplotter',
-           'geopmsrun']
+           'geopmlaunch',
+           'geopmplotter']
 
 classifiers = ['Development Status :: 4 - Beta',
                'License :: OSI Approved :: BSD License',

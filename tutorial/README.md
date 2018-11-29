@@ -29,19 +29,23 @@ performance of the application without modifying its source code.
 This can be enabled by using the GEOPM launcher script or by setting a
 few environment variables before launching the application.  The
 tutorial_0.sh shows three different methods for launching the GEOPM
-runtime.  The first method uses the geopmsrun wrapper script for the
+runtime.  The first method uses the geopmlaunch wrapper script for the
 SLURM srun job launcher:
 
-    geopmsrun  -N 2 -n 8 --geopm-preload --geopm-ctl=process \
-        --geopm-report=tutorial_0_report --geopm-trace=tutorial_0_trace \
-        -- ./tutorial_0
+    geopmlaunch srun \
+                -N 2 -n 8 \
+                --geopm-preload --geopm-ctl=process \
+                --geopm-report=tutorial_0_report --geopm-trace=tutorial_0_trace \
+                -- ./tutorial_0
 
-The second method uses the geopmaprun wrapper script for the ALPS
+The second method uses the geopmlaunch wrapper script for the ALPS
 aprun job launcher:
 
-    geopmaprun -N 4 -n 8 --geopm-preload --geopm-ctl=process \
-        --geopm-report=tutorial_0_report --geopm-trace=tutorial_0_trace \
-        -- ./tutorial_0
+    geopmlaunch aprun \
+                -N 4 -n 8 \
+                --geopm-preload --geopm-ctl=process \
+                --geopm-report=tutorial_0_report --geopm-trace=tutorial_0_trace \
+                -- ./tutorial_0
 
 If your system does not support srun or aprun launch, the third option
 is to set a few environment variables for GEOPM as follows:
@@ -161,7 +165,7 @@ in the geopm_prof_c(3) man page.  In tutorial 5 we modify the stream
 region to send progress updates though either the threaded or
 unthreaded interface depending on if OpenMP is enabled at compile
 time.  Note that the unmodified tutorial build scripts do enable
-OpenMP, so the geopm_tprof* interfaces will be used by default.  The
+OpenMP, so the geopm_tprof\* interfaces will be used by default.  The
 progress values recorded can be seen in the trace output.
 
 6. The model application

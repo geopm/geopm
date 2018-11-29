@@ -39,10 +39,11 @@ if [ ! "$GEOPM_PREFIX" ]; then
     GEOPM_PREFIX=$HOME/build/geopm
 fi
 
-# GEOPM_RM: The resource manager to use to launch jobs.
-# Options are either 'ALPS' or 'SLURM'.
-if [ ! "$GEOPM_RM" ]; then
-    GEOPM_RM='SLURM'
+# GEOPM_LAUNCHER: The resource manager exe used to launch jobs.
+# Options are either 'aprun' or 'srun' for 'ALPS' or 'SLURM'
+# repectively.
+if [ ! "$GEOPM_LAUNCHER" ]; then
+    GEOPM_LAUNCHER='srun'
 fi
 
 # GEOPM_BINDIR: Diretory containing libgeopm.so.

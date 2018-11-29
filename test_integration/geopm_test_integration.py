@@ -58,6 +58,7 @@ def skip_unless_run_long_tests():
 
 def allocation_node_test(test_exec, stdout, stderr):
     argv = shlex.split(test_exec)
+    argv.insert(1, geopm_test_launcher.detect_launcher())
     launcher = geopmpy.launcher.factory(argv, num_rank=1, num_node=1, job_name="geopm_allocation_test")
     launcher.run(stdout, stderr)
 
@@ -236,7 +237,7 @@ class TestIntegration(unittest.TestCase):
             trace = self._output.get_trace_data(node_name=nn)
             self.assertNotEqual(0, len(trace))
 
-    @unittest.skipUnless(geopm_test_launcher.resource_manager() != "ALPS",
+    @unittest.skipUnless(geopm_test_launcher.detect_launcher() != "aprun",
                          'ALPS does not support multi-application launch on the same nodes.')
     @skip_unless_slurm_batch()
     def test_report_and_trace_generation_application(self):
@@ -265,7 +266,7 @@ class TestIntegration(unittest.TestCase):
             trace = self._output.get_trace_data(node_name=nn)
             self.assertNotEqual(0, len(trace))
 
-    @unittest.skipUnless(geopm_test_launcher.resource_manager() == "SLURM" and os.getenv('SLURM_NODELIST') is None,
+    @unittest.skipUnless(geopm_test_launcher.detect_launcher() == "srun" and os.getenv('SLURM_NODELIST') is None,
                          'Requires non-sbatch SLURM session for alloc\'d and idle nodes.')
     def test_report_generation_all_nodes(self):
         name = 'test_report_generation_all_nodes'
@@ -1029,7 +1030,8 @@ class TestIntegration(unittest.TestCase):
 
         num_node = 1
         num_rank = 4
-        temp_launcher = geopmpy.launcher.factory(["dummy"], num_node=num_node, num_rank=num_rank)
+        temp_launcher = geopmpy.launcher.factory(["dummy", geopm_test_launcher.detect_launcher()],
+                                                  num_node=num_node, num_rank=num_rank)
         launcher_argv = [
             '--geopm-ctl', 'process',
         ]
@@ -1076,7 +1078,7 @@ class TestIntegration(unittest.TestCase):
                                                                       max_freq=None,
                                                                       enable_turbo=False)
         config = launcher_argv + app_argv
-        analysis.launch(config)
+        analysis.launch(geopm_test_launcher.detect_launcher(), config)
 
         analysis.find_files()
         parse_output = analysis.parse()
@@ -1101,7 +1103,8 @@ class TestIntegration(unittest.TestCase):
 
         num_node = 1
         num_rank = 4
-        temp_launcher = geopmpy.launcher.factory(["dummy"], num_node=num_node, num_rank=num_rank)
+        temp_launcher = geopmpy.launcher.factory(["dummy", geopm_test_launcher.detect_launcher()],
+                                                  num_node=num_node, num_rank=num_rank)
         launcher_argv = [
             '--geopm-ctl', 'process',
         ]
@@ -1148,7 +1151,7 @@ class TestIntegration(unittest.TestCase):
                                                                      max_freq=None,
                                                                      enable_turbo=False)
         config = launcher_argv + app_argv
-        analysis.launch(config)
+        analysis.launch(geopm_test_launcher.detect_launcher(), config)
 
         analysis.find_files()
         parse_output = analysis.parse()
