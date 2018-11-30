@@ -71,6 +71,52 @@
     },
     {
       "key": {
+        "uuid": "986c85c9_a9cb9b9e",
+        "filename": "ronn/geopm-Agent.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-11-30T01:17:55Z",
+      "side": 1,
+      "message": "Comma here?\n\nThis sentence is a little cumbersome, and needs a break somewhere if not here.",
+      "range": {
+        "startLine": 129,
+        "startChar": 31,
+        "endLine": 129,
+        "endChar": 32
+      },
+      "revId": "70627dc6e7b1f914c94ff588c15ad30a2c05cf6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf4716ff_195fd722",
+        "filename": "ronn/geopm-Agent.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-11-30T01:17:55Z",
+      "side": 1,
+      "message": "Maybe \"with one parent\" instead of \"and...\"?  I misread this sentence a number of times before I got it.",
+      "range": {
+        "startLine": 129,
+        "startChar": 17,
+        "endLine": 129,
+        "endChar": 20
+      },
+      "revId": "70627dc6e7b1f914c94ff588c15ad30a2c05cf6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "172245df_490681c4",
         "filename": "ronn/geopm-Agent.3.ronn",
         "patchSetId": 2
@@ -186,6 +232,29 @@
     },
     {
       "key": {
+        "uuid": "d9e77cce_7b2a9ac9",
+        "filename": "ronn/geopm-Agent.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-11-30T01:17:55Z",
+      "side": 1,
+      "message": "Necessary?  Seems awkward.",
+      "range": {
+        "startLine": 157,
+        "startChar": 46,
+        "endLine": 157,
+        "endChar": 63
+      },
+      "revId": "70627dc6e7b1f914c94ff588c15ad30a2c05cf6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a87549cd_01ab3595",
         "filename": "ronn/geopm-Agent.3.ronn",
         "patchSetId": 2
@@ -206,6 +275,75 @@
       "revId": "70627dc6e7b1f914c94ff588c15ad30a2c05cf6c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa5ad83e_edcd7c5c",
+        "filename": "ronn/geopm-Agent.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-11-30T01:17:55Z",
+      "side": 1,
+      "message": "launch method?  launch app?",
+      "range": {
+        "startLine": 173,
+        "startChar": 34,
+        "endLine": 173,
+        "endChar": 40
+      },
+      "revId": "70627dc6e7b1f914c94ff588c15ad30a2c05cf6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd238064_564bd2f6",
+        "filename": "ronn/geopm-Agent.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-11-30T01:17:55Z",
+      "side": 1,
+      "message": "the",
+      "range": {
+        "startLine": 174,
+        "startChar": 3,
+        "endLine": 174,
+        "endChar": 4
+      },
+      "revId": "70627dc6e7b1f914c94ff588c15ad30a2c05cf6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a1d9e41_f7417cfd",
+        "filename": "ronn/geopm-Agent.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-11-30T01:17:55Z",
+      "side": 1,
+      "message": "a",
+      "range": {
+        "startLine": 181,
+        "startChar": 60,
+        "endLine": 181,
+        "endChar": 61
+      },
+      "revId": "70627dc6e7b1f914c94ff588c15ad30a2c05cf6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     },
     {
       "key": {
@@ -324,6 +462,53 @@
     },
     {
       "key": {
+        "uuid": "a0252b4f_563e4d55",
+        "filename": "ronn/geopm-Agent.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-11-30T01:17:55Z",
+      "side": 1,
+      "message": "Such alignment.  Much symmetry.  My OCD spirit is pleased.",
+      "parentUuid": "88db0cc8_cd78572b",
+      "range": {
+        "startLine": 237,
+        "startChar": 0,
+        "endLine": 248,
+        "endChar": 3
+      },
+      "revId": "70627dc6e7b1f914c94ff588c15ad30a2c05cf6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b4ca259a_45d5a64e",
+        "filename": "ronn/geopm-Agent.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-11-30T01:17:55Z",
+      "side": 1,
+      "message": "the",
+      "range": {
+        "startLine": 255,
+        "startChar": 3,
+        "endLine": 255,
+        "endChar": 4
+      },
+      "revId": "70627dc6e7b1f914c94ff588c15ad30a2c05cf6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8c2caf7f_6b605aec",
         "filename": "ronn/geopm-Agent.3.ronn",
         "patchSetId": 2
@@ -347,6 +532,167 @@
     },
     {
       "key": {
+        "uuid": "e9e2834f_66929d30",
+        "filename": "ronn/geopm-Agent.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-11-30T01:17:55Z",
+      "side": 1,
+      "message": "BEHOLD, I AM VECTORE!  LORD OF DATA STRUCTURES!\n(sp.)",
+      "range": {
+        "startLine": 260,
+        "startChar": 42,
+        "endLine": 260,
+        "endChar": 49
+      },
+      "revId": "70627dc6e7b1f914c94ff588c15ad30a2c05cf6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d02b05b1_53f3066a",
+        "filename": "ronn/geopm-Agent.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-11-30T01:17:55Z",
+      "side": 1,
+      "message": "the",
+      "range": {
+        "startLine": 262,
+        "startChar": 26,
+        "endLine": 262,
+        "endChar": 27
+      },
+      "revId": "70627dc6e7b1f914c94ff588c15ad30a2c05cf6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20a8598b_1a9e2acd",
+        "filename": "ronn/geopm-Agent.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-11-30T01:17:55Z",
+      "side": 1,
+      "message": "on",
+      "range": {
+        "startLine": 265,
+        "startChar": 38,
+        "endLine": 265,
+        "endChar": 39
+      },
+      "revId": "70627dc6e7b1f914c94ff588c15ad30a2c05cf6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a74e51d_78b4875c",
+        "filename": "ronn/geopm-Agent.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-11-30T01:17:55Z",
+      "side": 1,
+      "message": "the",
+      "range": {
+        "startLine": 267,
+        "startChar": 3,
+        "endLine": 267,
+        "endChar": 4
+      },
+      "revId": "70627dc6e7b1f914c94ff588c15ad30a2c05cf6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9882c0f_3e9c055c",
+        "filename": "ronn/geopm-Agent.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-11-30T01:17:55Z",
+      "side": 1,
+      "message": "the",
+      "range": {
+        "startLine": 273,
+        "startChar": 50,
+        "endLine": 273,
+        "endChar": 51
+      },
+      "revId": "70627dc6e7b1f914c94ff588c15ad30a2c05cf6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dd5bcad_58584e57",
+        "filename": "ronn/geopm-Agent.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-11-30T01:17:55Z",
+      "side": 1,
+      "message": "the",
+      "range": {
+        "startLine": 274,
+        "startChar": 17,
+        "endLine": 274,
+        "endChar": 18
+      },
+      "revId": "70627dc6e7b1f914c94ff588c15ad30a2c05cf6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79eda134_e17d66fe",
+        "filename": "ronn/geopm-Agent.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-11-30T01:17:55Z",
+      "side": 1,
+      "message": "the",
+      "range": {
+        "startLine": 277,
+        "startChar": 22,
+        "endLine": 277,
+        "endChar": 23
+      },
+      "revId": "70627dc6e7b1f914c94ff588c15ad30a2c05cf6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e87f6b47_0435e6d5",
         "filename": "ronn/geopm-Agent.3.ronn",
         "patchSetId": 2
@@ -367,6 +713,29 @@
       "revId": "70627dc6e7b1f914c94ff588c15ad30a2c05cf6c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5d0c3469_8cec2753",
+        "filename": "ronn/geopm-Agent.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2018-11-30T01:17:55Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 325,
+        "startChar": 30,
+        "endLine": 325,
+        "endChar": 31
+      },
+      "revId": "70627dc6e7b1f914c94ff588c15ad30a2c05cf6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     },
     {
       "key": {
