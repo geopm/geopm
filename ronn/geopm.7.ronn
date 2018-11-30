@@ -306,11 +306,10 @@ runtime without **geopmsrun(1)** or **geopmaprun(1)**.
                          execution. <br>
 
   * `GEOPM_AGENT`:
-    Used to select the Agent to be used by all Kontrollers.  The Agent
-    will take over the role previously held by Deciders in splitting
-    policy information to be sent to controllers lower in the tree,
-    and aggregating sampled data up the tree.  Available agents are:
-    "monitor", "power_balancer", "power_governor", and
+    Used to select the Agent to be used by all Controllers.  The Agent
+    will split policy information to be sent to controllers lower in
+    the tree, and aggregate sampled data up the tree.  Available
+    agents are: "monitor", "power_balancer", "power_governor", and
     "energy_efficient".
 
   * `GEOPM_POLICY`:
@@ -458,52 +457,6 @@ runtime without **geopmsrun(1)** or **geopmaprun(1)**.
     the same purpose as the `--geopm-disable-hyperthreads` command line
     option.  If the environment variable is set and/or the command line
     option is specified then hyperthreads will be disabled.
-
-## DEPRECATION NOTICE AND BETA INTERFACE CHANGES
-As of the GEOPM version 0.5.0 beta release, a major refactor of the
-controller and plugin architecture is provided as an optional new code
-path.  The old code path is still available for users as long as the
-controller is run without the `GEOPM_AGENT` environment variable set.
-The new code path will be active if the user selects an agent by name
-with the `GEOPM_AGENT` environment variable when launching the
-controller.  The old code path is maintained in the current Controller
-object along with the the Decider / Platform / PlatformImp plugins.
-The new code path is maintained in a replacement for the Controller
-which has been temporarily named the Kontroller.  The Kontroller will
-be renamed the Controller after the version 0.5.0 release, and the old
-code path will no longer be available.
-
-The beta release enables a new set of plugin interfaces named the
-IOGroup, Agent, and Comm.  It is through the IOGroup, Agent and Comm
-plugins that the GEOPM runtime can be extended.  The Decider /
-Platform / PlatformImp plugin extensions are deprecated and will be
-removed after this release.  The IOGroup plugin enables a user to add
-new signal and control mechanisms for an Agent to read and write.  The
-Agent plugin enables a user to add new monitor and control algorithms
-to the GEOPM runtime.  MPI use by the GEOPM runtime which is not
-linked by application has been completely encapsulated in Comm object.
-The tutorial has been extended with two new directories: tutorial/agent
-and tutorial/iogroup.  The tutorial/iogroup directory documents how to
-write an IOGroup plugin.  The tutorial/agent directory documents how
-to write an Agent plugin.
-
-The primary motivations for these changes are increasing the
-flexibility of extensions to GEOPM and improving testablity.  One
-significant problem solved by the IOGroup/PlatformIO replacement of
-the Platform/PlatformImp design is the ability to support multiple
-plugins simultaneously for extending telemetry and control.  The Agent
-interface enables a much more fully featured modification of the
-control algorithm.  Additionally the Agent definition enables the
-GEOPM resource manager interface to provide Agent-specific
-requirements.  In related changes to the inter-node communication, the
-GEOPM runtime now supports arbitrary samples and policies to be
-communicated between agents across the network.
-
-For more information regarding these changes and their effects on
-command line executables see: **geopmagent(1)** and **geopmendpoint(1)**.
-
-For more information regarding these changes and their effects on C
-interfaces: **geopm_agent_c(3)** and **geopm_endpoint_c(3)**
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
