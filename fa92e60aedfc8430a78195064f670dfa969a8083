@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf73a746_7dad12cf",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 1206,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-30T18:52:01Z",
+      "side": 1,
+      "message": "WTF",
+      "revId": "fa92e60aedfc8430a78195064f670dfa969a8083",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "03b4bfab_fac9e71e",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 1210,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-30T18:52:01Z",
+      "side": 1,
+      "message": "why is this being done with this limited set of GEOPM_ environment variables.  At least GEOPM_AGENT is missing.  I think I\u0027m missing something about why the -x option is required, and why we aren\u0027t just going through the entire envrion dictionary rather than picking out theses specific keys.",
+      "revId": "fa92e60aedfc8430a78195064f670dfa969a8083",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae10c5e2_7afb3e65",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 1266,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-11-30T18:52:01Z",
+      "side": 1,
+      "message": "Comment needs to be updated?",
+      "revId": "fa92e60aedfc8430a78195064f670dfa969a8083",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
