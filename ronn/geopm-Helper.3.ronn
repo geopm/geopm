@@ -1,5 +1,5 @@
-geopm::Class(3) -- error code descriptions
-=========================================
+geopm::Helper -- common helper methods
+======================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
 [//]: # ()
@@ -33,34 +33,17 @@ geopm::Class(3) -- error code descriptions
 
 ## SYNOPSIS
 
-**\#include [<geopm_error.h>](https://github.com/geopm/geopm/blob/dev/src/)**
+**\#include [<geopm/Helper.hpp>](https://github.com/geopm/geopm/blob/dev/src/Helper.hpp)**
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
-  * `void geopm_error_message(`:
-    `int` _err_, <br>
-    `char *`_msg_, <br>
-    `size_t` _size_`);`
-
 ## DESCRIPTION
 
-All **geopm(7)** C and Fortran APIs that can have an error condition
-occur during runtime return an error number.  This is the way
-**geopm(7)** handles errors, and almost all of the interfaces behave
-this way.  This man page describes how to interpret these returned
-error codes.  A returned error number of zero by a GEOPM API indicates
-success.  If the error number returned by a GEOPM API is positive then
-this indicates a generic system error, and if the error number is
-negative this indicates a **geopm(7)** specific error has occurred.
-Any non-zero error number can be converted into a descriptive string
-with the **geopm_error_message()** function.  The GEOPM specific error
-numbers are enumerated in the _geopm_error.h_ header file and they are
-described below.  The system error numbers are documented in the
-**errno(3)** man page.
+For more details, see the doxygen
+page at <https://geopm.github.io/dox/classgeopm_1_1_helper.html>.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
-**geopm(7)**,
-**errno(3)**
+**geopm(7)**
