@@ -57,6 +57,32 @@ geopmpy_launcher(1)              geopmpy_launcher.1
 geopmread(1)                     geopmread.1
 geopmsrun(1)                     geopmsrun.1
 geopmwrite(1)                    geopmwrite.1
+geopm-Agg(3)                     geopm-Agg.3
+geopm-CircularBuffer(3)          geopm-CircularBuffer.3
+geopm-Comm(3)                    geopm-Comm.3
+geopm-CpuinfoIOGroup(3)          geopm-CpuinfoIOGroup.3
+geopm-EnergyEfficientAgent(3)    geopm-EnergyEfficientAgent.3
+geopm-EnergyEfficientRegion(3)   geopm-EnergyEfficientRegion.3
+geopm-Exception(3)               geopm-Exception.3
+geopm-Helper(3)                  geopm-Helper.3
+geopm-IOGroup(3)                 geopm-IOGroup.3
+geopm-MPIComm(3)                 geopm-MPIComm.3
+geopm-MSR(3)                     geopm-MSR.3
+geopm-MSRIO(3)                   geopm-MSRIO.3
+geopm-MSRIOGroup(3)              geopm-MSRIOGroup.3
+geopm-MonitorAgent(3)            geopm-MonitorAgent.3
+geopm-PlatformTopo(3)            geopm-PlatformTopo.3
+geopm-PluginFactory(3)           geopm-PluginFactory.3
+geopm-PowerBalancer(3)           geopm-PowerBalancer.3
+geopm-PowerBalancerAgent(3)      geopm-PowerBalancerAgent.3
+geopm-PowerGovernor(3)           geopm-PowerGovernor.3
+geopm-PowerGovernorAgent(3)      geopm-PowerGovernorAgent.3
+geopm-ProfileIO(3)               geopm-ProfileIO.3
+geopm-ProfileIOGroup(3)          geopm-ProfileIOGroup.3
+geopm-ProfileIOSample(3)         geopm-ProfileIOSample.3
+geopm-RegionAggregator(3)        geopm-RegionAggregator.3
+geopm-SharedMemory(3)            geopm-SharedMemory.3
+geopm-TimeIOGroup(3)             geopm-TimeIOGroup.3
 
 
 #external pages

@@ -33,7 +33,7 @@ geopm_error(3) -- error code descriptions
 
 ## SYNOPSIS
 
-**\#include [<geopm_error.h>](https://github.com/geopm/geopm/blob/dev/src/)**
+**\#include [<geopm_error.h>](https://github.com/geopm/geopm/blob/dev/src/geopm_error.h)**
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
