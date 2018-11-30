@@ -188,7 +188,7 @@ the first `--` from the command line.
   `GEOPM_TRACE_SIGNALS=ENERGY_DRAM,POWER_DRAM`
 
 * `--geopm-agent` agent:
-  Specify the Agent to be used by all Kontrollers.  Available agents
+  Specify the Agent to be used by all Controllers.  Available agents
   are: "monitor", "power_balancer", "power_governor", and
   "energy_efficient".  See **geopm_agent_monitor(7)**,
   **geopm_agent_power_balancer(7)**,

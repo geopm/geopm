@@ -123,11 +123,10 @@ formatted policy file.  This control is intended to synchronize the
 run time of each rank to overcome this load imbalance.  The tutorial 3
 script executes the application with two different policies.  The
 first run enforces a uniform power budget of 150 Watts to each compute
-node using the governing decider alone, and the second run enforces an
+node using the governing agent alone, and the second run enforces an
 average power budget of 150 Watts across all compute nodes while
 diverting power to the nodes which have more work to do using the
-balancing decider at the tree levels of the hierarchy and the
-governing decider at the leaf.
+balancing agent.
 
 
 4. Adding artificial imbalance to the application

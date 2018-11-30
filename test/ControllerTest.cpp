@@ -63,10 +63,10 @@ using testing::Return;
 using testing::AtLeast;
 using testing::ContainerEq;
 
-class KontrollerTestMockPlatformIO : public MockPlatformIO
+class ControllerTestMockPlatformIO : public MockPlatformIO
 {
     public:
-        KontrollerTestMockPlatformIO()
+        ControllerTestMockPlatformIO()
         {
             ON_CALL(*this, agg_function(_))
                 .WillByDefault(Return(geopm::Agg::sum));
@@ -103,7 +103,7 @@ class ControllerTest : public ::testing::Test
         int m_num_send_up = 4;
         int m_num_send_down = 2;
         std::shared_ptr<MockComm> m_comm;
-        KontrollerTestMockPlatformIO m_platform_io;
+        ControllerTestMockPlatformIO m_platform_io;
         std::shared_ptr<MockApplicationIO> m_application_io;
         MockTreeComm *m_tree_comm;
         MockReporter *m_reporter;

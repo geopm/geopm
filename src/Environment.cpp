@@ -76,7 +76,6 @@ namespace geopm
             int do_profile() const;
             int profile_timeout(void) const;
             int debug_attach(void) const;
-            int do_kontroller(void) const;
         private:
             bool get_env(const char *name, std::string &env_string) const;
             bool get_env(const char *name, int &value) const;

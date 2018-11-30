@@ -360,7 +360,7 @@ basic features targeted for GEOPM version 1.0.  We do not anticipate
 changes to application facing interfaces of our libraries or the
 command line interfaces of our executables until after version 1.0.
 The beta release 0.5 introduces substantial changes to the interface
-between the Controller and Agent (formerly Decider) plugins.  These
+between the Controller and Agent plugins.  These
 changes enable easier and more efficient extension of signals and
 controls as well as support for multiple domain definitions where
 signals and controls pertain.  Refer to the ChangeLog for more details

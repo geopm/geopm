@@ -59,7 +59,7 @@ namespace geopm
             ///        role of root of the level.  Only root agents
             ///        for a level execute ascend() and descend().
             virtual void init(int level, const std::vector<int> &fan_in, bool is_level_root) = 0;
-            /// @brief Called by Kontroller to split policy for
+            /// @brief Called by Controller to split policy for
             ///        children at next level down the tree.
             /// @param [in] in_policy Policy values from the parent.
             /// @param [out] out_policy Vector of policies to be sent
@@ -91,9 +91,9 @@ namespace geopm
             /// @return True if sample has been updated since last
             ///         call.
             virtual bool sample_platform(std::vector<double> &sample) = 0;
-            /// @brief Called by Kontroller to wait for sample period
+            /// @brief Called by Controller to wait for sample period
             ///        to elapse.  This controls the cadence of the
-            ///        Kontroller main loop.
+            ///        Controller main loop.
             virtual void wait(void) = 0;
             /// @brief Custom fields that will be added to the report
             ///        header when this agent is used.
@@ -104,7 +104,7 @@ namespace geopm
             virtual std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(void) const = 0;
             /// @brief Column headers to be added to the trace.
             virtual std::vector<std::string> trace_names(void) const = 0;
-            /// @brief Called by Kontroller to get latest values to be
+            /// @brief Called by Controller to get latest values to be
             ///        added to the trace.
             virtual void trace_values(std::vector<double> &values) = 0;
             /// @brief Used to look up the number of values in the
