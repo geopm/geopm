@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7553c111_6ca50f06",
+        "filename": "scripts/requirements.txt",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-03T19:25:50Z",
+      "side": 1,
+      "message": "\u003e\u003d should be used instead of \u003d\u003d ?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 14
+      },
+      "revId": "42b6b5b179f69f46e047c9a55683ef00e595720b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
