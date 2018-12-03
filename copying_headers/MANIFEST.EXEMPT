@@ -47,7 +47,7 @@ ronn/geopm-CircularBuffer.3.ronn
 ronn/geopm-Comm.3.ronn
 ronn/geopmctl.1.ronn
 ronn/geopm_ctl_c.3.ronn
-ronn/geopm-CpuinfoIOGroup.ronn
+ronn/geopm-CpuinfoIOGroup.3.ronn
 ronn/geopmendpoint.1.ronn
 ronn/geopm_endpoint_c.3.ronn
 ronn/geopm-EnergyEfficientAgent.3.ronn

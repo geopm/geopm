@@ -44,9 +44,13 @@ EXTRA_DIST += scripts/geopmpy/analysis.py \
               scripts/geopmaprun \
               scripts/geopmsrun \
               scripts/geopmplotter \
-              scripts/setup.py \
               scripts/MANIFEST.in \
+              scripts/requirements.txt \
+              scripts/setup.py \
               scripts/test/analysis_helper.py \
+              scripts/test/geopm_context.py \
+              scripts/test/geopmpy_test.sh \
+              scripts/test/__init__.py \
               scripts/test/TestAffinity.py \
               scripts/test/TestAnalysisCommandLine.py \
               scripts/test/TestBalancerAnalysis.py \
@@ -55,9 +59,6 @@ EXTRA_DIST += scripts/geopmpy/analysis.py \
               scripts/test/TestNodePowerAnalysis.py \
               scripts/test/TestPowerSweepAnalysis.py \
               scripts/test/TestSubsetOptionParser.py \
-              scripts/test/geopm_context.py \
-              scripts/test/__init__.py \
-              scripts/test/geopmpy_test.sh
               # end
 
 PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
