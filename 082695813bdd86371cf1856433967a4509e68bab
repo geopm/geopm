@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d3fef599_4afd1113",
+        "filename": "src/PlatformTopo.hpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-03T19:15:03Z",
+      "side": 1,
+      "message": "ws",
+      "range": {
+        "startLine": 118,
+        "startChar": 12,
+        "endLine": 118,
+        "endChar": 37
+      },
+      "revId": "082695813bdd86371cf1856433967a4509e68bab",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
