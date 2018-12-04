@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "6683d1c5_69ef6892",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-12-04T18:40:53Z",
+      "side": 1,
+      "message": "2:",
+      "range": {
+        "startLine": 79,
+        "startChar": 37,
+        "endLine": 79,
+        "endChar": 39
+      },
+      "revId": "b08843ac4002c1876044d61118f4a0a6f3aef9bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce19c798_4c89d0be",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-12-04T18:40:53Z",
+      "side": 1,
+      "message": "2:",
+      "revId": "b08843ac4002c1876044d61118f4a0a6f3aef9bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "72bc3193_984f5afc",
         "filename": "scripts/geopmpy/launcher.py",
         "patchSetId": 10
