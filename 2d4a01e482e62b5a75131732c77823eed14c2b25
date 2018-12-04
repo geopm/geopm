@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae45cae2_9beb9a98",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1319,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-12-04T18:41:59Z",
+      "side": 1,
+      "message": "ompiexeclauncher",
+      "range": {
+        "startLine": 1319,
+        "startChar": 75,
+        "endLine": 1319,
+        "endChar": 91
+      },
+      "revId": "2d4a01e482e62b5a75131732c77823eed14c2b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
