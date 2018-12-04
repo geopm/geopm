@@ -97,7 +97,6 @@ pkginclude_HEADERS = contrib/json11/json11.hpp \
                      src/PowerBalancerAgent.hpp \
                      src/PowerGovernor.hpp \
                      src/PowerGovernorAgent.hpp \
-                     src/ProfileIO.hpp \
                      src/ProfileIOGroup.hpp \
                      src/ProfileIOSample.hpp \
                      src/RegionAggregator.hpp \
@@ -167,7 +166,6 @@ ronn_man = man/geopm.7 \
            man/GEOPM_CXX_MAN_PowerGovernor.3 \
            man/GEOPM_CXX_MAN_PowerGovernorAgent.3 \
            man/geopm_prof_c.3 \
-           man/GEOPM_CXX_MAN_ProfileIO.3 \
            man/GEOPM_CXX_MAN_ProfileIOGroup.3 \
            man/GEOPM_CXX_MAN_ProfileIOSample.3 \
            man/geopmpy.7 \
@@ -264,7 +262,6 @@ EXTRA_DIST = .gitignore \
              ronn/GEOPM_CXX_MAN_PowerGovernor.3.ronn \
              ronn/GEOPM_CXX_MAN_PowerGovernorAgent.3.ronn \
              ronn/geopm_prof_c.3.ronn \
-             ronn/GEOPM_CXX_MAN_ProfileIO.3.ronn \
              ronn/GEOPM_CXX_MAN_ProfileIOGroup.3.ronn \
              ronn/GEOPM_CXX_MAN_ProfileIOSample.3.ronn \
              ronn/geopmpy.7.ronn \
@@ -451,8 +448,6 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/PowerGovernorAgent.cpp \
                             src/Profile.cpp \
                             src/Profile.hpp \
-                            src/ProfileIO.cpp \
-                            src/ProfileIO.hpp \
                             src/ProfileTable.cpp \
                             src/ProfileTable.hpp \
                             src/ProfileThread.cpp \
