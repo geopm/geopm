@@ -120,6 +120,7 @@ endif
 install-plugin-dir:
 	$(INSTALL) -d $(DESTDIR)/$(pkglibdir)
 
+transform='s/geopm-/geopm::/'
 ronn_man = man/geopm.7 \
            man/geopmagent.1 \
            man/geopm-Agent.3 \
