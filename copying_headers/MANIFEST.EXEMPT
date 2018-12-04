@@ -71,7 +71,6 @@ ronn/GEOPM_CXX_MAN_PowerBalancerAgent.3.ronn
 ronn/GEOPM_CXX_MAN_PowerGovernor.3.ronn
 ronn/GEOPM_CXX_MAN_PowerGovernorAgent.3.ronn
 ronn/geopm_prof_c.3.ronn
-ronn/GEOPM_CXX_MAN_ProfileIO.3.ronn
 ronn/GEOPM_CXX_MAN_ProfileIOGroup.3.ronn
 ronn/GEOPM_CXX_MAN_ProfileIOSample.3.ronn
 ronn/geopmpy.7.ronn
