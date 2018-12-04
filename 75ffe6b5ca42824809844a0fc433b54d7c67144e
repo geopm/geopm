@@ -59,6 +59,29 @@
     },
     {
       "key": {
+        "uuid": "cefc43a4_7787eee3",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-04T19:13:49Z",
+      "side": 1,
+      "message": "dropped dest",
+      "range": {
+        "startLine": 316,
+        "startChar": 43,
+        "endLine": 316,
+        "endChar": 58
+      },
+      "revId": "75ffe6b5ca42824809844a0fc433b54d7c67144e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dea27b31_014098f4",
         "filename": "scripts/geopmpy/analysis.py",
         "patchSetId": 4
@@ -75,6 +98,29 @@
         "startChar": 85,
         "endLine": 405,
         "endChar": 97
+      },
+      "revId": "75ffe6b5ca42824809844a0fc433b54d7c67144e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a04efe77_cf09957c",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 523,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-04T19:13:49Z",
+      "side": 1,
+      "message": "dest got dropped here.",
+      "range": {
+        "startLine": 523,
+        "startChar": 57,
+        "endLine": 523,
+        "endChar": 73
       },
       "revId": "75ffe6b5ca42824809844a0fc433b54d7c67144e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
