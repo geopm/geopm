@@ -152,10 +152,8 @@ src/PowerGovernor.cpp
 src/PowerGovernor.hpp
 src/Profile.cpp
 src/Profile.hpp
-src/ProfileIO.cpp
 src/ProfileIOGroup.cpp
 src/ProfileIOGroup.hpp
-src/ProfileIO.hpp
 src/ProfileIOSample.cpp
 src/ProfileIOSample.hpp
 src/ProfileSampler.cpp
