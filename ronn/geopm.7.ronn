@@ -496,7 +496,6 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm-PowerBalancerAgent(3)**,
 **geopm-PowerGovernor(3)**,
 **geopm-PowerGovernorAgent(3)**,
-**geopm-ProfileIO(3)**,
 **geopm-ProfileIOGroup(3)**,
 **geopm-ProfileIOSample(3)**,
 **geopm-RegionAggregator(3)**,

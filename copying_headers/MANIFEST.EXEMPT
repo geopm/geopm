@@ -70,7 +70,6 @@ ronn/geopm-PowerBalancerAgent.3.ronn
 ronn/geopm-PowerGovernor.3.ronn
 ronn/geopm-PowerGovernorAgent.3.ronn
 ronn/geopm_prof_c.3.ronn
-ronn/geopm-ProfileIO.3.ronn
 ronn/geopm-ProfileIOGroup.3.ronn
 ronn/geopm-ProfileIOSample.3.ronn
 ronn/geopmpy.7.ronn
