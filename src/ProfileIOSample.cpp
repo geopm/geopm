@@ -37,7 +37,6 @@
 
 #include "EpochRuntimeRegulator.hpp"
 #include "ProfileIOSample.hpp"
-#include "ProfileIO.hpp"
 #include "CircularBuffer.hpp"
 #include "RuntimeRegulator.hpp"
 #include "PlatformIO.hpp"
@@ -47,6 +46,33 @@
 
 namespace geopm
 {
+    std::map<int, int> IProfileIOSample::rank_to_node_local_rank(const std::vector<int> &per_cpu_rank)
+    {
+        std::set<int> rank_set;
+        for (auto rank : per_cpu_rank) {
+            if (rank != -1) {
+                rank_set.insert(rank);
+            }
+        }
+        std::map<int, int> rank_idx_map;
+        int i = 0;
+        for (auto rank : rank_set) {
+            rank_idx_map.insert(std::pair<int, int>(rank, i));
+            ++i;
+        }
+        return rank_idx_map;
+    }
+
+    std::vector<int> IProfileIOSample::rank_to_node_local_rank_per_cpu(const std::vector<int> &per_cpu_rank)
+    {
+        std::vector<int> result(per_cpu_rank);
+        std::map<int, int> rank_idx_map = rank_to_node_local_rank(per_cpu_rank);
+        for (auto &rank_it : result) {
+            auto node_local_rank_it = rank_idx_map.find(rank_it);
+            rank_it = node_local_rank_it->second;
+        }
+        return result;
+    }
     ProfileIOSample::ProfileIOSample(const std::vector<int> &cpu_rank, IEpochRuntimeRegulator &epoch_regulator)
         : m_epoch_regulator(epoch_regulator)
         , m_thread_progress(cpu_rank.size(), NAN)
@@ -58,8 +84,8 @@ namespace geopm
         double elapsed = platform_io().read_signal("TIME", PlatformTopo::M_DOMAIN_BOARD, 0);
         geopm_time_add(&m_app_start_time, elapsed * -1, &m_app_start_time);
 
-        m_rank_idx_map = ProfileIO::rank_to_node_local_rank(cpu_rank);
-        m_cpu_rank = ProfileIO::rank_to_node_local_rank_per_cpu(cpu_rank);
+        m_rank_idx_map = rank_to_node_local_rank(cpu_rank);
+        m_cpu_rank = rank_to_node_local_rank_per_cpu(cpu_rank);
         m_num_rank = m_rank_idx_map.size();
 
         // 2 samples for linear interpolation

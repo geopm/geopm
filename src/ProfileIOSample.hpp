@@ -77,6 +77,18 @@ namespace geopm
             virtual double total_app_runtime(void) const = 0;
             /// @brief Returns the local-node rank running on each CPU.
             virtual std::vector<int> cpu_rank(void) const = 0;
+            /// @brief Provide a mapping from global MPI to rank
+            ///        number starting from 0 for this node.
+            /// @param [in] per_cpu_rank Vector of ranks running on
+            ///        each CPU.
+            /// @return Map from global rank to local rank.
+            static std::map<int, int> rank_to_node_local_rank(const std::vector<int> &per_cpu_rank);
+            /// @brief Provide the node-local rank running on each CPU
+            ///        as a vector.
+            /// @param [in] per_cpu_rank Vector of ranks running on
+            ///        each CPU.
+            /// @return Vector of local rank indexed by CPU.
+            static std::vector<int> rank_to_node_local_rank_per_cpu(const std::vector<int> &per_cpu_rank);
     };
 
     class ProfileIOSample : public IProfileIOSample
