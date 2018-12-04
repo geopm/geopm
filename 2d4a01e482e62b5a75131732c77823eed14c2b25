@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "6f279a7f_5a8b6a2c",
+        "filename": "Makefile.am",
+        "patchSetId": 5
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-04T19:01:00Z",
+      "side": 1,
+      "message": "Rename input file to geopmlaunch.1.ronn and get rid of copy target entirely",
+      "revId": "2d4a01e482e62b5a75131732c77823eed14c2b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9e14a31b_8b28e19c",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-04T19:01:00Z",
+      "side": 1,
+      "message": "factory_dict[\u0027SLURM\u0027] \u003d SrunLauncher\n   factory_dict[\u0027SrunLauncher\u0027] \u003d SrunLauncher\n   ...\n   return factory_dict[argv[1]](num_rank, num_node, cpu_per_rank, timeout, time_limit, job_name, node_list, host_file)",
+      "revId": "2d4a01e482e62b5a75131732c77823eed14c2b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ae45cae2_9beb9a98",
         "filename": "scripts/geopmpy/launcher.py",
         "patchSetId": 5
@@ -22,6 +56,23 @@
       "revId": "2d4a01e482e62b5a75131732c77823eed14c2b25",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae6a16df_6b81791e",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1320,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-04T19:01:00Z",
+      "side": 1,
+      "message": "make this the last else clause in the if elif and make the second if below and elif.",
+      "revId": "2d4a01e482e62b5a75131732c77823eed14c2b25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
