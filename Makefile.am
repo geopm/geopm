@@ -120,55 +120,64 @@ endif
 install-plugin-dir:
 	$(INSTALL) -d $(DESTDIR)/$(pkglibdir)
 
+# The transform variable will transform any installed file beginning
+# with "GEOPM_CXX_MAN_" to begin with "geopm::".  This is to avoid
+# having make targets that contain the colon character.  See autotools
+# documentation below.
+#
+# https://www.gnu.org/software/autoconf/manual/autoconf-2.67/html_node/Transformation-Rules.html
+#
+transform='s/GEOPM_CXX_MAN_/geopm::/'
+
 ronn_man = man/geopm.7 \
            man/geopmagent.1 \
-           man/geopm-Agent.3 \
+           man/GEOPM_CXX_MAN_Agent.3 \
            man/geopm_agent_c.3 \
            man/geopm_agent_energy_efficient.7 \
            man/geopm_agent_monitor.7 \
            man/geopm_agent_power_balancer.7 \
            man/geopm_agent_power_governor.7 \
-           man/geopm-Agg.3 \
+           man/GEOPM_CXX_MAN_Agg.3 \
            man/geopmanalysis.1 \
            man/geopmbench.1 \
-           man/geopm-CircularBuffer.3 \
-           man/geopm-Comm.3 \
+           man/GEOPM_CXX_MAN_CircularBuffer.3 \
+           man/GEOPM_CXX_MAN_Comm.3 \
            man/geopmctl.1 \
            man/geopm_ctl_c.3 \
-           man/geopm-CpuinfoIOGroup.3 \
+           man/GEOPM_CXX_MAN_CpuinfoIOGroup.3 \
            man/geopmendpoint.1 \
            man/geopm_endpoint_c.3 \
-           man/geopm-EnergyEfficientAgent.3 \
-           man/geopm-EnergyEfficientRegion.3 \
+           man/GEOPM_CXX_MAN_EnergyEfficientAgent.3 \
+           man/GEOPM_CXX_MAN_EnergyEfficientRegion.3 \
            man/geopm_error.3 \
-           man/geopm-Exception.3 \
+           man/GEOPM_CXX_MAN_Exception.3 \
            man/geopm_fortran.3 \
-           man/geopm-Helper.3 \
-           man/geopm-MPIComm.3 \
-           man/geopm-IOGroup.3 \
-           man/geopm-MSR.3 \
-           man/geopm-MSRIO.3 \
-           man/geopm-MSRIOGroup.3 \
-           man/geopm-MonitorAgent.3 \
-           man/geopm-PlatformTopo.3 \
+           man/GEOPM_CXX_MAN_Helper.3 \
+           man/GEOPM_CXX_MAN_MPIComm.3 \
+           man/GEOPM_CXX_MAN_IOGroup.3 \
+           man/GEOPM_CXX_MAN_MSR.3 \
+           man/GEOPM_CXX_MAN_MSRIO.3 \
+           man/GEOPM_CXX_MAN_MSRIOGroup.3 \
+           man/GEOPM_CXX_MAN_MonitorAgent.3 \
+           man/GEOPM_CXX_MAN_PlatformTopo.3 \
            man/geopmplotter.1 \
-           man/geopm-PluginFactory.3 \
-           man/geopm-PowerBalancer.3 \
-           man/geopm-PowerBalancerAgent.3 \
-           man/geopm-PowerGovernor.3 \
-           man/geopm-PowerGovernorAgent.3 \
+           man/GEOPM_CXX_MAN_PluginFactory.3 \
+           man/GEOPM_CXX_MAN_PowerBalancer.3 \
+           man/GEOPM_CXX_MAN_PowerBalancerAgent.3 \
+           man/GEOPM_CXX_MAN_PowerGovernor.3 \
+           man/GEOPM_CXX_MAN_PowerGovernorAgent.3 \
            man/geopm_prof_c.3 \
-           man/geopm-ProfileIO.3 \
-           man/geopm-ProfileIOGroup.3 \
-           man/geopm-ProfileIOSample.3 \
+           man/GEOPM_CXX_MAN_ProfileIO.3 \
+           man/GEOPM_CXX_MAN_ProfileIOGroup.3 \
+           man/GEOPM_CXX_MAN_ProfileIOSample.3 \
            man/geopmpy.7 \
            man/geopmpy_launcher.1 \
            man/geopmread.1 \
-           man/geopm-RegionAggregator.3 \
+           man/GEOPM_CXX_MAN_RegionAggregator.3 \
            man/geopm_region_id_c.3 \
            man/geopm_sched.3 \
-           man/geopm-SharedMemory.3 \
-           man/geopm-TimeIOGroup.3 \
+           man/GEOPM_CXX_MAN_SharedMemory.3 \
+           man/GEOPM_CXX_MAN_TimeIOGroup.3 \
            man/geopm_version.3 \
            man/geopmwrite.1 \
            # end
@@ -219,53 +228,53 @@ EXTRA_DIST = .gitignore \
              README.md \
              ronn/geopm.7.ronn \
              ronn/geopmagent.1.ronn \
-             ronn/geopm-Agent.3.ronn \
+             ronn/GEOPM_CXX_MAN_Agent.3.ronn \
              ronn/geopm_agent_c.3.ronn \
              ronn/geopm_agent_energy_efficient.7.ronn \
              ronn/geopm_agent_monitor.7.ronn \
              ronn/geopm_agent_power_balancer.7.ronn \
              ronn/geopm_agent_power_governor.7.ronn \
-             ronn/geopm-Agg.3.ronn \
+             ronn/GEOPM_CXX_MAN_Agg.3.ronn \
              ronn/geopmanalysis.1.ronn \
              ronn/geopmbench.1.ronn \
-             ronn/geopm-CircularBuffer.3.ronn \
-             ronn/geopm-Comm.3.ronn \
+             ronn/GEOPM_CXX_MAN_CircularBuffer.3.ronn \
+             ronn/GEOPM_CXX_MAN_Comm.3.ronn \
              ronn/geopmctl.1.ronn \
              ronn/geopm_ctl_c.3.ronn \
-             ronn/geopm-CpuinfoIOGroup.3.ronn \
+             ronn/GEOPM_CXX_MAN_CpuinfoIOGroup.3.ronn \
              ronn/geopmendpoint.1.ronn \
              ronn/geopm_endpoint_c.3.ronn \
-             ronn/geopm-EnergyEfficientAgent.3.ronn \
-             ronn/geopm-EnergyEfficientRegion.3.ronn \
+             ronn/GEOPM_CXX_MAN_EnergyEfficientAgent.3.ronn \
+             ronn/GEOPM_CXX_MAN_EnergyEfficientRegion.3.ronn \
              ronn/geopm_error.3.ronn \
-             ronn/geopm-Exception.3.ronn \
+             ronn/GEOPM_CXX_MAN_Exception.3.ronn \
              ronn/geopm_fortran.3.ronn \
-             ronn/geopm-Helper.3.ronn \
-             ronn/geopm-IOGroup.3.ronn \
-             ronn/geopm-MPIComm.3.ronn \
-             ronn/geopm-MSR.3.ronn \
-             ronn/geopm-MSRIO.3.ronn \
-             ronn/geopm-MSRIOGroup.3.ronn \
-             ronn/geopm-MonitorAgent.3.ronn \
-             ronn/geopm-PlatformTopo.3.ronn \
+             ronn/GEOPM_CXX_MAN_Helper.3.ronn \
+             ronn/GEOPM_CXX_MAN_IOGroup.3.ronn \
+             ronn/GEOPM_CXX_MAN_MPIComm.3.ronn \
+             ronn/GEOPM_CXX_MAN_MSR.3.ronn \
+             ronn/GEOPM_CXX_MAN_MSRIO.3.ronn \
+             ronn/GEOPM_CXX_MAN_MSRIOGroup.3.ronn \
+             ronn/GEOPM_CXX_MAN_MonitorAgent.3.ronn \
+             ronn/GEOPM_CXX_MAN_PlatformTopo.3.ronn \
              ronn/geopmplotter.1.ronn \
-             ronn/geopm-PluginFactory.3.ronn \
-             ronn/geopm-PowerBalancer.3.ronn \
-             ronn/geopm-PowerBalancerAgent.3.ronn \
-             ronn/geopm-PowerGovernor.3.ronn \
-             ronn/geopm-PowerGovernorAgent.3.ronn \
+             ronn/GEOPM_CXX_MAN_PluginFactory.3.ronn \
+             ronn/GEOPM_CXX_MAN_PowerBalancer.3.ronn \
+             ronn/GEOPM_CXX_MAN_PowerBalancerAgent.3.ronn \
+             ronn/GEOPM_CXX_MAN_PowerGovernor.3.ronn \
+             ronn/GEOPM_CXX_MAN_PowerGovernorAgent.3.ronn \
              ronn/geopm_prof_c.3.ronn \
-             ronn/geopm-ProfileIO.3.ronn \
-             ronn/geopm-ProfileIOGroup.3.ronn \
-             ronn/geopm-ProfileIOSample.3.ronn \
+             ronn/GEOPM_CXX_MAN_ProfileIO.3.ronn \
+             ronn/GEOPM_CXX_MAN_ProfileIOGroup.3.ronn \
+             ronn/GEOPM_CXX_MAN_ProfileIOSample.3.ronn \
              ronn/geopmpy.7.ronn \
              ronn/geopmpy_launcher.1.ronn \
              ronn/geopmread.1.ronn \
-             ronn/geopm-RegionAggregator.3.ronn \
+             ronn/GEOPM_CXX_MAN_RegionAggregator.3.ronn \
              ronn/geopm_region_id_c.3.ronn \
              ronn/geopm_sched.3.ronn \
-             ronn/geopm-SharedMemory.3.ronn \
-             ronn/geopm-TimeIOGroup.3.ronn \
+             ronn/GEOPM_CXX_MAN_SharedMemory.3.ronn \
+             ronn/GEOPM_CXX_MAN_TimeIOGroup.3.ronn \
              ronn/geopm_version.3.ronn \
              ronn/geopmwrite.1.ronn \
              ronn/header.txt \
