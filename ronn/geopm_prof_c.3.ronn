@@ -200,6 +200,7 @@ through an outer loop in the application, the "epoch".
 ## EXAMPLE
 
     #include <stdlib.h>
+    #include <stdio.h>
     #include <string.h>
     #include <errno.h>
     #include <stdint.h>
@@ -243,7 +244,7 @@ through an outer loop in the application, the "epoch".
     #pragma omp parallel default(shared) private(thread_idx, index)
     {
             thread_idx = omp_get_thread_num();
-            geopm_tprof_init(num_thread, thread_idx, num_iter, chunk_size);
+            geopm_tprof_init_loop(num_thread, thread_idx, num_iter, chunk_size);
     #pragma omp for reduction(+:sum) schedule(static, chunk_size)
             for (index = 0; index < num_iter; ++index) {
                 sum += (double)index;
