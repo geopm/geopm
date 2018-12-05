@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b8a30544_5c1fbb70",
+        "filename": "src/ProfileIOSample.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-12-05T18:42:44Z",
+      "side": 1,
+      "message": "make private for sub class",
+      "range": {
+        "startLine": 80,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 106
+      },
+      "revId": "65d1a5dcf1149a3cce06b29ab66ae3c0ca042ece",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
