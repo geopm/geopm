@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c6f2d9e_f8689d1a",
+        "filename": "ronn/geopm-Agent.3.ronn",
+        "patchSetId": 7
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-05T19:42:16Z",
+      "side": 1,
+      "message": "Explain that we are not actually using std:: in the header.",
+      "revId": "025d22e377de1f792141f8bb5c4828bde5f97bdb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
