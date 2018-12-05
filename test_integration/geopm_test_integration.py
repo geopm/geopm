@@ -31,6 +31,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+import argparse
 import os
 import sys
 import unittest
@@ -58,6 +59,7 @@ def skip_unless_run_long_tests():
 
 def allocation_node_test(test_exec, stdout, stderr):
     argv = shlex.split(test_exec)
+    argv.insert(1, sys.argv[1])
     launcher = geopmpy.launcher.factory(argv, num_rank=1, num_node=1, job_name="geopm_allocation_test")
     launcher.run(stdout, stderr)
 
@@ -236,7 +238,7 @@ class TestIntegration(unittest.TestCase):
             trace = self._output.get_trace_data(node_name=nn)
             self.assertNotEqual(0, len(trace))
 
-    @unittest.skipUnless(geopm_test_launcher.resource_manager() != "ALPS",
+    @unittest.skipUnless(sys.argv[1] != "aprun",
                          'ALPS does not support multi-application launch on the same nodes.')
     @skip_unless_slurm_batch()
     def test_report_and_trace_generation_application(self):
@@ -265,7 +267,7 @@ class TestIntegration(unittest.TestCase):
             trace = self._output.get_trace_data(node_name=nn)
             self.assertNotEqual(0, len(trace))
 
-    @unittest.skipUnless(geopm_test_launcher.resource_manager() == "SLURM" and os.getenv('SLURM_NODELIST') is None,
+    @unittest.skipUnless(sys.argv[1] == "srun" and os.getenv('SLURM_NODELIST') is None,
                          'Requires non-sbatch SLURM session for alloc\'d and idle nodes.')
     def test_report_generation_all_nodes(self):
         name = 'test_report_generation_all_nodes'
@@ -1373,4 +1375,13 @@ class TestIntegrationGeopmio(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--geopm-launcher', dest='launcher',
+                        action='store_true', default=None)
+    parser.add_argument('unittest_args', nargs='*')
+
+    args = parser.parse_args()
+
+    from pudb import set_trace; set_trace()
+    sys.argv[1:] = args.unittest_args
     unittest.main()
