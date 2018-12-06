@@ -130,9 +130,10 @@ through an outer loop in the application, the "epoch".
     hybrid thread/process paralellism (e.g. MPI + OpenMP).
 
     `GEOPM_REGION_HINT_IGNORE`: <br>
-    Do not include time spent in ignore regions when calculating epoch
-    runtime, this should be applied to application start up, shutdown,
-    or events that do not happen on every trip through the outer loop.
+    Time that can be excluded by agents when calculating epoch
+    runtime.  This hint should be applied to application start up,
+    shutdown, or events that do not happen on every trip through the
+    outer loop.
 
   * `geopm_prof_enter`():
     is called by the compute application to mark the beginning of the
@@ -151,7 +152,7 @@ through an outer loop in the application, the "epoch".
     signal the fractional progress, _fraction_ through the work
     required to complete the region where _fraction_ is between 0 and 1.
     If the _region_id_ does not match the _region_id_ of the last
-    call to geopm_prof_prof_enter() which was not nested, then this
+    call to geopm_prof_prof_enter() that was not nested, then this
     call is ignored and an error code is returned.
 
   * `geopm_prof_epoch`():
@@ -167,7 +168,7 @@ through an outer loop in the application, the "epoch".
     the `GEOPM_REGION_HINT_IGNORE` hint bit set will be ignored.
 
   * `geopm_tprof_init`():
-    resets the thread profile table which extends the functionality of
+    resets the thread profile table, which extends the functionality of
     the profiling interface to report progress within threaded
     regions.  This should be called by all threads to set up the
     table after entering a thread parallel region.  This interface
@@ -179,7 +180,7 @@ through an outer loop in the application, the "epoch".
     `geopm_tprof_init_loop`() should not be called.
 
   * `geopm_tprof_init_loop`():
-    resets the thread profile table which extends the functionality of
+    resets the thread profile table, which extends the functionality of
     the profiling interface to report progress within threaded
     regions.  This should be called by all threads to set up the table
     after entering a thread parallel region.  The interface assumes

@@ -79,9 +79,9 @@ int main(int argc, char **argv)
                         "              Print version of geopm to standard output, then exit.\n"
                         "\n"
                         "       -c policy_config\n"
-                        "              Policy configuration file or POSIX shared memory key  which  may\n"
-                        "              be created with the geopm_policy_c(3) interface or the geopmpol‐\n"
-                        "              icy(3) application.\n"
+                        "              Policy configuration file or POSIX shared memory key which may\n"
+                        "              be created with the geopm_agent_c(3) interface or the geopmagent(3)\n"
+                        "              application.\n"
                         "\n"
                         "    Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.\n"
                         "\n";

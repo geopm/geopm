@@ -51,16 +51,16 @@ geopmctl(1) -- geopm runtime control application
 
   * `-c` policy_config:
     Policy configuration file or POSIX shared memory key which may be
-    created with the **geopm_policy_c(3)** interface or the
-    **geopmpolicy(1)** application.
+    created with the **geopm_agent_c(3)** interface or the
+    **geopmagent(1)** application.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,
+**geopm_agent_c(3)**,
 **geopm_ctl_c(3)**,
-**geopm_policy_c(3)**,
+**geopmagent(1)**,
 **geopmaprun(1)**,
-**geopmpolicy(1)**,
 **geopmsrun(1)**

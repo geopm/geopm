@@ -32,8 +32,8 @@ geopm(7) -- global extensible open power manager
 [//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 
 ## DESCRIPTION
-Global Extensible Open Power Manager (GEOPM) is an extensible
-power management framework targeting high performance computing.  The
+Global Extensible Open Power Manager (GEOPM) is an extensible power
+management framework targeting high performance computing.  The
 library can be extended to support new control algorithms and new
 hardware power management features.  The GEOPM package provides built
 in features ranging from static management of power policy for each
@@ -49,8 +49,9 @@ memory with the system resource management daemon to extend the
 hierarchy above the individual MPI job level and enable management of
 system power resources for multiple MPI jobs and multiple users by the
 system resource manager.  The GEOPM package provides the libgeopm
-library, the libgeopmpolicy library, the geopmctl application and the
-geopmpolicy application.  The libgeopm library can be called within
+library, the libgeopmpolicy library, the geopmctl application, and
+several additional applications: geopmagent, geopmendpoint, geopmread,
+geopmwrite, and geopmbench.  The libgeopm library can be called within
 MPI applications to enable application feedback for informing the
 control decisions.  If modification of the target application is not
 desired then the geopmctl application can be run concurrently with the
@@ -60,8 +61,9 @@ inferred by querying the hardware through Model Specific Registers
 hierarchy tree writes processor power policy through MSRs to enact
 policy decisions.  The libgeopmpolicy library is used by a resource
 manager to set energy policy control parameters for MPI jobs.  Some
-features of libgeopmpolicy are available through the geopmpolicy
-application including support for static control.
+features of libgeopmpolicy are available through the geopmwrite,
+geopmread, and geopmagent applications including support for static
+control.
 
 
 ## JOB LAUNCH
@@ -111,10 +113,6 @@ application including support for static control.
 **geopmendpoint(1)**: Command line tool for dynamic policy control
 
 **geopmagent(1)**: Query agent information and create static policies
-
-**geopm_policy_c(3)**: GEOPM runtime policy management [DEPRECATED]
-
-**geopmpolicy(1)**: GEOPM configuration creator and static mode enforcer [DEPRECATED]
 
 ## MISC
 
@@ -472,7 +470,6 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm_endpoint_c(3)**,
 **geopm_error(3)**,
 **geopm_fortran(3)**,
-**geopm_policy_c(3)**,
 **geopm_prof_c(3)**,
 **geopm_sched(3)**,
 **geopm_version(3)**,
@@ -508,7 +505,6 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopmctl(1)**,
 **geopmendpoint(1)**,
 **geopmplotter(1)**,
-**geopmpolicy(1)**,
 **geopmread(1)**,
 **geopmsrun(1)**,
 **geopmwrite(1)**,
