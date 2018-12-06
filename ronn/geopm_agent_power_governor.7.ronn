@@ -33,16 +33,16 @@ geopm_agent_power_governor(7) -- agent enforces a power cap
 
 ## DESCRIPTION
 
-The PowerGovernorAgent is designed to enforce a per-compute-node power
-cap by varying the package power limit in response to the measured
-DRAM power.
+The PowerGovernorAgent enforces a per-compute-node power cap of the
+total power of all packages (sockets).
 
 ## AGENT BEHAVIOR HIGHLIGHTS
 
 * `Agent Name`:
-  Set the `GEOPM_AGENT` environment variable to "power_governor" and
-  the Controller instances will select the PowerGovernorAgent for
-  its control handler.  See **geopm(7)** for more information about
+  Set the `--geopm-agent` launch option or `GEOPM_AGENT` environment
+  variable to "power_governor" and the Controller will select the
+  PowerGovernorAgent for its control handler.  See **geopm_launch(1)**
+  and **geopm(7)** for more information about launch options and
   environment variables.
 
 * `Ordered Policies Descending`:
@@ -101,4 +101,5 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm_agent_power_balancer(7)**,
 **geopm_agent_c(3)**,
 **geopm_prof_c(3)**,
-**geopmagent(1)**
+**geopmagent(1)**,
+**geopmlaunch(1)**

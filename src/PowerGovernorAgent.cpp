@@ -124,7 +124,7 @@ namespace geopm
         int pkg_pwr_domain_type = m_platform_io.control_domain_type("POWER_PACKAGE");
         if (pkg_pwr_domain_type == IPlatformTopo::M_DOMAIN_INVALID) {
             throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): Platform does not support package power control",
-                            GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
+                            GEOPM_ERROR_AGENT_UNSUPPORTED, __FILE__, __LINE__);
         }
     }
 

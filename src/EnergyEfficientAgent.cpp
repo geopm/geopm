@@ -375,7 +375,7 @@ namespace geopm
             if (domain_type == IPlatformTopo::M_DOMAIN_INVALID) {
                 if (m_platform_io.signal_domain_type("CPUINFO::FREQ_STICKER") == IPlatformTopo::M_DOMAIN_INVALID) {
                     throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): unable to parse min and sticker frequencies.",
-                                    GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
+                                    GEOPM_ERROR_AGENT_UNSUPPORTED, __FILE__, __LINE__);
                 }
             }
             else {
@@ -386,7 +386,7 @@ namespace geopm
             if (domain_type == IPlatformTopo::M_DOMAIN_INVALID) {
                 if (m_platform_io.signal_domain_type("CPUINFO::FREQ_STICKER") == IPlatformTopo::M_DOMAIN_INVALID) {
                     throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): unable to parse max and sticker frequencies.",
-                                    GEOPM_ERROR_DECIDER_UNSUPPORTED, __FILE__, __LINE__);
+                                    GEOPM_ERROR_AGENT_UNSUPPORTED, __FILE__, __LINE__);
                 }
                 result = sticker_freq + M_FREQ_STEP;
             }

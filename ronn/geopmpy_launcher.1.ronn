@@ -114,20 +114,21 @@ the first `--` from the command line.
 
 * `--geopm-policy` policy:
   GEOPM policy JSON file.  To provide a shared memory region name,
-  `--geopm-endpoint` should be used instead.  See **geopmpolicy(1)**
-  for more information about how to create this input file and
-  **geopm_policy_c(3)** to learn about creating the shared memory
-  region.  This option is used by the launcher to set the GEOPM_POLICY
-  environment variable.  The command line option will override any
-  value currently set in the environment.  See the ENVIRONMENT section
-  of **geopm(7)**.
+  `--geopm-endpoint` should be used instead.  See **geopmagent(1)**
+  and **geopm_agent_c(3)** for more information about how to create
+  this input file.  This option is used by the launcher to set the
+  GEOPM_POLICY environment variable.  The command line option will
+  override any value currently set in the environment.  See the
+  ENVIRONMENT section of **geopm(7)**.
 
 * `--geopm-endpoint` endpoint:
   Basename for the policy and sample shared memory regions used to
-  communicate with the resource manager.  This option is used by the
-  launcher to set the GEOPM_ENDPOINT environment variable.  The
-  command line option will override any value currently set in the
-  environment.  See the ENVIRONMENT section of **geopm(7)**.
+  communicate with the resource manager.  See **geopmendpoint(1)** and
+  **geopm_endpoint_c(3)** to learn about creating the shared memory
+  region.  This option is used by the launcher to set the
+  GEOPM_ENDPOINT environment variable.  The command line option will
+  override any value currently set in the environment.  See the
+  ENVIRONMENT section of **geopm(7)**.
 
 * `--geopm-shmkey` key:
   Specify a special prefix to be used with all of the shared memory
@@ -170,7 +171,7 @@ the first `--` from the command line.
   by the application containing a pipe delimited ASCII table
   describing a time series of measurements made by the GEOPM runtime.
   The path is extended with the host name of the node for each created
-  file.  This feature is primarily a debugging tool, and will not
+  file.  This feature is primarily a debugging tool, and may not
   scale to large node counts due to file system issues.  This option
   is used by the launcher to set the GEOPM_TRACE environment variable.
   The command line option will override any value currently set in the
@@ -255,15 +256,15 @@ the first `--` from the command line.
   the current request without hyperthreads.
 
 ## EXAMPLES
-Use geopmsrun to launch the GEOPM tutorial6 on two nodes using 32
+Use geopmsrun to launch the GEOPM tutorial_6 on two nodes using 32
 application MPI process each with four threads:
 
-    geopmsrun -N 2 -n 32 -c 4 --geopm-ctl=process --geopm-report=tutorial6.report -- ./tutorial6 tutorial6_config.json
+    geopmsrun -N 2 -n 32 -c 4 --geopm-ctl=process --geopm-report=tutorial.report -- geopmbench tutorial_6_config
 
 Use geopomaprun to launch the miniFE executable with the same
 configuration:
 
-    geopmaprun -N 16 -n 32 --cpus-per-pe 4 --geopm-ctl process --geopm-report miniFE.report -- ./miniFE.x -nx 256 -nz 256
+    geopmaprun -N 16 -n 32 --cpus-per-pe 4 --geopm-ctl process --geopm-report miniFE.report -- ./miniFE.x -nx 256 -ny 256 -nz 256
 
 ## ENVIRONMENT
 Every command line option to the launcher can also be specified as an
@@ -294,5 +295,4 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm_agent_power_balancer(7)**,
 **geopm_agent_power_governor(7)**,
 **geopm_error(3)**,
-**geopmctl(1)**,
-**geopmpolicy(1)**
+**geopmctl(1)**

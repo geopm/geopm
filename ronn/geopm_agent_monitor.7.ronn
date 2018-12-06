@@ -38,9 +38,11 @@ is intended for application tracing and profiling only.
 ## AGENT BEHAVIOR HIGHLIGHTS
 
 * `Agent Name`:
-  Set the `GEOPM_AGENT` environment variable to "monitor" and the
-  Controller will select the Monitor Agent for its control handler.
-  See **geopm(7)** for more information about environment variables.
+  Set the `--geopm-agent` launch option or `GEOPM_AGENT` environment
+  variable to "monitor" and the Controller will select the
+  MonitorAgent for its control handler.  See **geopm_launch(1)** and
+  **geopm(7)** for more information about launch options and
+  environment variables.
 
 * `Ordered Policies Descending`:
   N/A
@@ -74,6 +76,5 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm_agent_c(3)**,
 **geopm_endpoint_c(3)**,
 **geopmagent(1)**,
-**geopmaprun(1)**,
 **geopmendpoint(1)**,
-**geopmsrun(1)**
+**geopmlaunch(1)**

@@ -42,7 +42,7 @@ nodes with higher performance.  The algorithm is designed to mitigate
 load imbalance in the application through the redistribution of power.
 
 The relationship between power cap and application performance is
-dependent on may factors including the instruction mix of the
+dependent on many factors including the instruction mix of the
 application, manufacturing variation between the processors, problem
 size, and data locality.  Because these factors and their
 relationships are not easily measured or predicted, determining the
@@ -51,23 +51,24 @@ empirically through trials.
 
 The application performance is measured by the duration of application
 epoch.  The epoch run time is reported by each MPI rank once every
-trip around the outer loop of an iterative application.  Note that the
-epoch runtime excludes any time spent in MPI communication routines.
-
-A windowed median filter is applied to the sequence of epoch times
-recorded by each rank, and then the maximum of these median filtered
-values across all MPI ranks running on each compute node is used as
-the measure of the inverse of compute node performance.  See the
-**geopm_prof_c(3)** man page for more information about the
-**geopm_prof_epoch(3)** interface used to profile the outer loop of an
-iterative application.
+trip around the outer loop of an iterative application, if the
+application has been annotated with a call to geopm_prof_epoch().  See
+the **geopm_prof_c(3)** man page for more information about geopm
+profiling methods.  Note that the epoch runtime used by the
+PowerBalancerAgent excludes any time spent in MPI communication
+routines.  A windowed median filter is applied to the sequence of
+epoch times recorded by each rank, and then the maximum of these
+median filtered values across all MPI ranks running on each compute
+node is used as the measure of the inverse of compute node
+performance.
 
 ## AGENT BEHAVIOR HIGHLIGHTS
 
 * `Agent Name`:
-  Set the `GEOPM_AGENT` environment variable to "power_balancer" and
-  the Controller instances will select the PowerBalancerAgent for
-  its control handler.  See **geopm(7)** for more information about
+  Set the `--geopm-agent` launch option or `GEOPM_AGENT` environment
+  variable to "power_balancer" and the Controller will select the
+  PowerBalancerAgent for its control handler.  See **geopm_launch(1)**
+  and **geopm(7)** for more information about launch options and
   environment variables.
 
 * `Ordered Policies Descending`:
@@ -107,17 +108,17 @@ iterative application.
 
 * `Ordered Samples Ascending`:
 
-   `STEP_COUNT`: Number of iterations of optimization algorithm since
-                 the start of the application or the last update to
-                 the average power cap received through the endpoint.
-                 Note that the algorithm is comprised of three types
-                 of step which are repeated, and the type of step can
-                 be inferred by the `STEP_COUNT` modulo three: 0
-                 implies sending down a power cap or slack power, 1
-                 implies measuring the runtime under the latest
-                 distribution of power, and 2 implies that the power
-                 limit is being reduced until the slowest runtime is
-                 met and slack power is sent up the tree.
+   `STEP_COUNT`: Number of iterations of the optimization algorithm
+                 since the start of the application or the last update
+                 to the average power cap received through the
+                 endpoint.  Note that the algorithm is comprised of
+                 three types of steps which are repeated, and the type
+                 of step can be inferred by the `STEP_COUNT` modulo
+                 three: 0 implies sending down a power cap or slack
+                 power, 1 implies measuring the runtime under the
+                 latest distribution of power, and 2 implies that the
+                 power limit is being reduced until the slowest
+                 runtime is met and slack power is sent up the tree.
 
    `MAX_EPOCH_RUNTIME`: Maximum runtime measured after applying
                         uniform power cap, or after the last
@@ -155,4 +156,5 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm_agent_power_governor(7)**,
 **geopm_agent_c(3)**,
 **geopm_prof_c(3)**,
-**geopmagent(1)**
+**geopmagent(1)**,
+**geopmlaunch(1)
