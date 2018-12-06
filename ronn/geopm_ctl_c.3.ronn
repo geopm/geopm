@@ -54,47 +54,34 @@ geopm_ctl_c(3) -- geopm runtime control thread
 
 
 ## DESCRIPTION
-The geopm_ctl_c structure is used to launch or step the global
-extensible open power manager algorithm.  There are several ways to
-enable control: explicit stepping of the control algorithm by the
-application under control, running the control algorithm as a distinct
-processes from the application under control, or running the control
-algorithm as a separate pthread owned by the application process under
-control.  Each of these methods has different requirements and trade
-offs.
+
+The geopm_ctl_c structure is used to launch the global extensible open
+power manager algorithm.  There are several ways to enable control:
+running the control algorithm as a distinct processes from the
+application under control, or running the control algorithm as a
+separate pthread owned by the application process under control.  Each
+of these methods has different requirements and trade offs.
 
   * `geopm_ctl_create`():
     creates a geopm_ctl_c object, _ctl_ which is an opaque structure
     that holds the state used to execute the control algorithm with
-    one of the other functions described in this man page.  The user
-    must provide a geopm_policy_c pointer, see **geopm_policy_c(3)**
-    man page for details.  The control algorithm relies on feedback
-    about the application profile.  The user provides an MPI
-    communicator, _comm_ which must have at least one process running
-    on every compute node under control.
+    one of the other functions described in this man page.  The
+    control algorithm relies on feedback about the application
+    profile.  The user provides an MPI communicator, _comm_ which must
+    have at least one process running on every compute node under
+    control.
 
   * `geopm_ctl_destroy`():
     destroys all resources associated with the _ctl_ structure which
     allocated by a previous call to `geopm_ctl_create`().
 
-  * `geopm_ctl_step`():
-    is called to execute one step in the hierarchical control
-    algorithm by the application process.  The call is a blocking call
-    for those processes that are the lowest MPI rank on the compute
-    node and a no-op for those that are not.  A call to this function
-    sends samples up the tree, then policies down the tree, and
-    finally if the policy has been changed for the node of the calling
-    process then the policy is enforced by writing MSR values.
-
   * `geopm_ctl_run`():
     steps the control algorithm continuously until the application
-    signals shutdown.  This is equivalent to calling
-    `geopm_ctl_step`() in a loop.
+    signals shutdown.
 
   * `geopm_ctl_pthread`():
     creates a POSIX thread running the control algorithm continuously
-    until the application signals shutdown.  This is equivalent to
-    calling `geopm_ctl_step`() in a loop.  With this method of launch
+    until the application signals shutdown.  With this method of launch
     the supporting MPI implementation must be enabled for
     `MPI_THREAD_MULTIPLE` using `MPI_Init_thread`().
 

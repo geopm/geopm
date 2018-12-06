@@ -70,7 +70,7 @@ described below.  The system error numbers are documented in the
     Invalid argument
 
   * `GEOPM_ERROR_POLICY_NULL = -4`:
-    The geopm_policy_c pointer is NULL, use geopm_policy_create()
+    The geopm_policy_c pointer is NULL, use geopm_policy_create() ////////// DEPRECATED
 
   * `GEOPM_ERROR_FILE_PARSE = -5`:
     Unable to parse input file
@@ -109,13 +109,13 @@ described below.  The system error numbers are documented in the
     Not compiled with support for OpenMP
 
   * `GEOPM_ERROR_PROF_NULL = -17`:
-    The geopm_prof_c pointer is NULL, use geopm_prof_create()
+    The geopm_prof_c pointer is NULL, use geopm_prof_create() //////// DEPRECATED
 
   * `GEOPM_ERROR_DECIDER_UNSUPPORTED = -18`:
     Specified Decider not supported or unrecognized
 
   * `GEOPM_ERROR_FACTORY_NULL = -19`:
-    The geopm_factory_c pointer is NULL, pass in a valid factory object
+    The geopm_factory_c pointer is NULL, pass in a valid factory object ///// DEPRECATED
 
   * `GEOPM_ERROR_SHUTDOWN = -20`:
     Shutdown policy has been signaled
@@ -144,6 +144,5 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm_ctl_c(3)**,
 **geopm_endpoint_c(3)**,
 **geopm_fortran(3)**,
-**geopm_policy_c(3)**,
 **geopm_prof_c(3)**,
 **errno(3)**

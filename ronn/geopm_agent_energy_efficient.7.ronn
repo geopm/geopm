@@ -65,10 +65,10 @@ to 10% performance loss is allowed.  Enable the online mode by setting
 ## AGENT BEHAVIOR HIGHLIGHTS
 
 * `Agent Name`:
-  Set the `GEOPM_AGENT` environment variable to "energy_efficient" and
-  the Controller will select the EnergyEfficientAgent for its control
-  handler.  See **geopm(7)** for more information about environment
-  variables.
+  Set the `GEOPM_AGENT` environment variable or `--geopm-agent` option
+  to "energy_efficient" and the Controller will select the
+  EnergyEfficientAgent for its control handler.  See **geopm(7)** for
+  more information about environment variables.
 
 * `Ordered Policies Descending`:
   The minimum and maximum frequency are passed down as policies.
