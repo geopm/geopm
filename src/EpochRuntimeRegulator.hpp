@@ -174,7 +174,6 @@ namespace geopm
             IPlatformIO &m_platform_io;
             IPlatformTopo &m_platform_topo;
             std::map<uint64_t, std::unique_ptr<IRuntimeRegulator> > m_rid_regulator_map;
-            bool m_is_energy_recorded;
             std::vector<bool> m_seen_first_epoch;
             std::vector<double> m_curr_runtime_ignore;
             std::vector<double> m_agg_epoch_runtime_ignore;
@@ -183,8 +182,6 @@ namespace geopm
             std::vector<double> m_agg_runtime_mpi;
             std::vector<double> m_last_epoch_runtime;
             std::vector<double> m_agg_epoch_runtime;
-            std::vector<double> m_agg_pre_epoch_runtime_mpi;
-            std::vector<double> m_agg_pre_epoch_runtime_ignore;
             std::vector<std::set<uint64_t> > m_pre_epoch_region;
             std::list<geopm_region_info_s> m_region_info;
             double m_epoch_start_energy_pkg;
