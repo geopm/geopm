@@ -253,7 +253,6 @@ rm -f %{buildroot}/%{_mandir}/man1/geopmpy_launcher.1*
 %{_includedir}/geopm/PowerBalancerAgent.hpp
 %{_includedir}/geopm/PowerGovernor.hpp
 %{_includedir}/geopm/PowerGovernorAgent.hpp
-%{_includedir}/geopm/ProfileIO.hpp
 %{_includedir}/geopm/ProfileIOGroup.hpp
 %{_includedir}/geopm/ProfileIOSample.hpp
 %{_includedir}/geopm/RegionAggregator.hpp

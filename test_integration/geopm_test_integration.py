@@ -1026,12 +1026,12 @@ class TestIntegration(unittest.TestCase):
 
         num_node = 1
         num_rank = 4
-        temp_launcher = geopmpy.launcher.factory(["dummy"])
+        temp_launcher = geopmpy.launcher.factory(["dummy"], num_node=num_node, num_rank=num_rank)
         launcher_argv = [
             '--geopm-ctl', 'process',
-            temp_launcher.num_rank_option(False), num_rank,
-            temp_launcher.num_node_option(), num_node,
         ]
+        launcher_argv.extend(temp_launcher.num_rank_option(False))
+        launcher_argv.extend(temp_launcher.num_node_option())
         loop_count = 10
         dgemm_bigo = 20.25
         stream_bigo = 1.449
@@ -1098,12 +1098,12 @@ class TestIntegration(unittest.TestCase):
 
         num_node = 1
         num_rank = 4
-        temp_launcher = geopmpy.launcher.factory(["dummy"])
+        temp_launcher = geopmpy.launcher.factory(["dummy"], num_node=num_node, num_rank=num_rank)
         launcher_argv = [
             '--geopm-ctl', 'process',
-            temp_launcher.num_rank_option(False), num_rank,
-            temp_launcher.num_node_option(), num_node,
         ]
+        launcher_argv.extend(temp_launcher.num_rank_option(False))
+        launcher_argv.extend(temp_launcher.num_node_option())
 
         loop_count = 10
         dgemm_bigo = 20.25
