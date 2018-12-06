@@ -179,7 +179,7 @@ namespace geopm
         return result;
     }
 
-    double ApplicationIO::total_region_runtime_mpi(uint64_t region_id) const
+    double ApplicationIO::total_region_mpi_runtime(uint64_t region_id) const
     {
 #ifdef GEOPM_DEBUG
         if (!m_is_connected) {
@@ -190,7 +190,7 @@ namespace geopm
 #endif
         double result = 0.0;
         try {
-            result = m_epoch_regulator->total_region_runtime_mpi(region_id);
+            result = m_epoch_regulator->total_region_mpi_time(region_id);
         }
         catch (const Exception &ex) {
         }
@@ -209,7 +209,7 @@ namespace geopm
         return m_epoch_regulator->total_epoch_runtime();
     }
 
-    double ApplicationIO::total_epoch_runtime_mpi(void) const
+    double ApplicationIO::total_epoch_mpi_runtime(void) const
     {
 #ifdef GEOPM_DEBUG
         if (!m_is_connected) {
@@ -218,7 +218,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        return m_epoch_regulator->total_epoch_runtime_mpi();
+        return m_epoch_regulator->total_epoch_mpi_time();
     }
 
     double ApplicationIO::total_epoch_energy_pkg(void) const
@@ -301,7 +301,7 @@ namespace geopm
         return current_energy_dram() - m_start_energy_dram;
     }
 
-    double ApplicationIO::total_app_runtime_mpi(void) const
+    double ApplicationIO::total_app_mpi_runtime(void) const
     {
 #ifdef GEOPM_DEBUG
         if (!m_is_connected) {
@@ -310,10 +310,10 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        return m_epoch_regulator->total_app_runtime_mpi();
+        return m_epoch_regulator->total_app_mpi_time();
     }
 
-    double ApplicationIO::total_epoch_runtime_ignore(void) const
+    double ApplicationIO::total_epoch_ignore_runtime(void) const
     {
 #ifdef GEOPM_DEBUG
         if (!m_is_connected) {
@@ -322,7 +322,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        return m_epoch_regulator->total_epoch_runtime_ignore();
+        return m_epoch_regulator->total_epoch_ignore_time();
     }
 
     int ApplicationIO::total_count(uint64_t region_id) const

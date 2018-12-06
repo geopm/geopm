@@ -118,9 +118,9 @@ TEST_F(ApplicationIOTest, passthrough)
         .WillOnce(Return(8080));
     EXPECT_EQ(8080, m_app_io->total_region_runtime(rid));
 
-    EXPECT_CALL(*m_epoch_regulator, total_region_runtime_mpi(rid))
+    EXPECT_CALL(*m_epoch_regulator, total_region_mpi_time(rid))
         .WillOnce(Return(909));
-    EXPECT_EQ(909, m_app_io->total_region_runtime_mpi(rid));
+    EXPECT_EQ(909, m_app_io->total_region_mpi_runtime(rid));
 
     EXPECT_CALL(*m_epoch_regulator, total_epoch_runtime())
         .WillOnce(Return(123));
@@ -130,9 +130,9 @@ TEST_F(ApplicationIOTest, passthrough)
         .WillOnce(Return(345));
     EXPECT_EQ(345, m_app_io->total_app_runtime());
 
-    EXPECT_CALL(*m_epoch_regulator, total_app_runtime_mpi())
+    EXPECT_CALL(*m_epoch_regulator, total_app_mpi_time())
         .WillOnce(Return(456));
-    EXPECT_EQ(456, m_app_io->total_app_runtime_mpi());
+    EXPECT_EQ(456, m_app_io->total_app_mpi_runtime());
 
     EXPECT_CALL(*m_epoch_regulator, total_count(rid))
         .WillOnce(Return(77));
