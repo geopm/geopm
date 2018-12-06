@@ -187,13 +187,13 @@ class PowerSweepAnalysis(Analysis):
         if enforce_required:
             req_default = {'required': True}
         parser.add_argument('--geopm-analysis-min-power', dest='min_power',
-                            type=int, **req_default)
+                            nargs=1, type=int, **req_default)
         parser.add_argument('--geopm-analysis-max-power', dest='max_power',
-                            type=int, **req_default)
+                            nargs=1, type=int, **req_default)
         parser.add_argument('--geopm-analysis-step-power', dest='step_power',
-                            type=int, default=10)
+                            nargs=1, type=int, default=10)
         parser.add_argument('--geopm-analysis-agent-type', dest='agent_type',
-                            type=str, required=False)
+                            nargs=1, type=str, required=False)
 
     @staticmethod
     def sys_power_avail():
@@ -312,10 +312,10 @@ class BalancerAnalysis(Analysis):
         Set up options supported by the analysis type.
         """
         PowerSweepAnalysis.add_options(parser, enforce_required)
-        parser.add_argument('--geopm-analysis-metric', default='runtime', dest='metric')
-        parser.add_argument('--geopm-analysis-normalize', action='store_true',
+        parser.add_argument('--geopm-analysis-metric', nargs=1, default='runtime', dest='metric')
+        parser.add_argument('--geopm-analysis-normalize', nargs=1, action='store_true',
                             dest='normalize', default=False)
-        parser.add_argument('--geopm-analysis-speedup', action='store_true',
+        parser.add_argument('--geopm-analysis-speedup', nargs=1, action='store_true',
                             dest='speedup', default=False)
 
     # TODO : have this return left and right columns to be formatted by caller
@@ -514,15 +514,15 @@ class NodeEfficiencyAnalysis(Analysis):
         if enforce_required:
             req_default = {'required': True}
         parser.add_argument('--geopm-analysis-min-freq', dest='min_freq',
-                            type=float, default=0.5e9)
+                            nargs=1, type=float, default=0.5e9)
         parser.add_argument('--geopm-analysis-max-freq', dest='max_freq',
-                            type=float, default=3.0e9)
+                            nargs=1, type=float, default=3.0e9)
         parser.add_argument('--geopm-analysis-step-freq', dest='step_freq',
-                            type=float, default=0.1e9)
+                            nargs=1, type=float, default=0.1e9)
         parser.add_argument('--geopm-analysis-sticker-freq', dest='sticker_freq',
-                            type=float, **req_default)
+                            nargs=1, type=float, **req_default)
         parser.add_argument('--geopm-analysis-nodelist', dest='nodelist',
-                            type=str, default=None)
+                            nargs=1, type=str, default=None)
 
     # TODO : have this return left and right columns to be formatted by caller
     @staticmethod
@@ -674,11 +674,11 @@ class NodePowerAnalysis(Analysis):
         """
         # TODO: these have the same name as PowerSweepAnalysis, but different purpose.
         parser.add_argument('--geopm-analysis-min-power', dest='min_power',
-                            type=int, default=120)
+                            nargs=1, type=int, default=120)
         parser.add_argument('--geopm-analysis-max-power', dest='max_power',
-                            type=int, default=200)
+                            nargs=1, type=int, default=200)
         parser.add_argument('--geopm-analysis-step-power', dest='step_power',
-                            type=int, default=10)
+                            nargs=1, type=int, default=10)
 
     # TODO : have this return left and right columns to be formatted by caller
     @staticmethod
@@ -765,11 +765,11 @@ class FreqSweepAnalysis(Analysis):
         if enforce_required:
             req_default = {'required': True}
         parser.add_argument('--geopm-analysis-min-freq', dest='min_freq',
-                            type=float, **req_default)
+                            nargs=1, type=float, **req_default)
         parser.add_argument('--geopm-analysis-max-freq', dest='max_freq',
-                            type=float, **req_default)
+                            nargs=1, type=float, **req_default)
         parser.add_argument('--geopm-analysis-enable-turbo', dest='enable_turbo',
-                            action='store_true', default=False)
+                            nargs=1, action='store_true', default=False)
 
     # TODO : have this return left and right columns to be formatted by caller
     @staticmethod
@@ -1466,13 +1466,13 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
                                      argument_default=argparse.SUPPRESS)
 
     parser.add_argument('--geopm-analysis-output-dir', dest='output_dir',
-                        action='store', default='.')
+                        nargs=1, action='store', default='.')
     parser.add_argument('--geopm-analysis-profile-prefix', dest='profile_prefix',
-                        action='store', default='prof')
+                        nargs=1, action='store', default='prof')
     parser.add_argument('--geopm-analysis-skip-launch', dest='skip_launch',
                         action='store_true', default=False)
     parser.add_argument('--geopm-analysis-iterations', dest='iterations',
-                        action='store', default=1, type=int)
+                        nargs=1, action='store', default=1, type=int)
     parser.add_argument('--geopm-analysis-verbose', dest='verbose',
                         action='store_true', default=False)
     parser.add_argument('--geopm-analysis-summary', dest='summary',
