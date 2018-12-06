@@ -183,7 +183,9 @@ namespace geopm
         /// signal used by the balancer, but will be changed in the future.
         region_ordered.push_back({"epoch",
                                   GEOPM_REGION_ID_EPOCH,
-                                  application_io.total_epoch_runtime(),
+                                  application_io.total_epoch_runtime() +
+                                  application_io.total_epoch_mpi_runtime() +
+                                  application_io.total_epoch_ignore_runtime(),
                                   application_io.total_count(GEOPM_REGION_ID_EPOCH)});
 
         for (const auto &region : region_ordered) {
@@ -208,7 +210,7 @@ namespace geopm
             double freq = denom != 0 ? 100.0 * numer / denom : 0.0;
             report << "    frequency (%): " << freq << std::endl;
             report << "    frequency (Hz): " << freq / 100.0 * m_platform_io.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0) << std::endl;
-            report << "    mpi-runtime (sec): " << application_io.total_region_runtime_mpi(region.id) << std::endl;
+            report << "    mpi-runtime (sec): " << application_io.total_region_mpi_runtime(region.id) << std::endl;
             report << "    count: " << region.count << std::endl;
             if (agent_region_report.find(region.id) != agent_region_report.end()) {
                 for (const auto &kv : agent_region_report.at(region.id)) {
@@ -217,15 +219,15 @@ namespace geopm
             }
         }
         // extra runtimes for epoch region
-        report << "    epoch-runtime-ignore (sec): " << application_io.total_epoch_runtime_ignore() << std::endl;
+        report << "    epoch-runtime-ignore (sec): " << application_io.total_epoch_ignore_runtime() << std::endl;
 
         double total_runtime = application_io.total_app_runtime();
         report << "Application Totals:" << std::endl
                << "    runtime (sec): " << total_runtime << std::endl
                << "    package-energy (joules): " << application_io.total_app_energy_pkg() << std::endl
                << "    dram-energy (joules): " << application_io.total_app_energy_dram() << std::endl
-               << "    mpi-runtime (sec): " << application_io.total_app_runtime_mpi() << std::endl
-               << "    ignore-time (sec): " << application_io.total_epoch_runtime_ignore() << std::endl;
+               << "    mpi-runtime (sec): " << application_io.total_app_mpi_runtime() << std::endl
+               << "    ignore-time (sec): " << application_io.total_epoch_ignore_runtime() << std::endl;
 
         std::string max_memory = get_max_memory();
         report << "    geopmctl memory HWM: " << max_memory << std::endl;

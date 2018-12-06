@@ -184,8 +184,9 @@ TEST_F(ReporterTest, generate)
     EXPECT_CALL(m_application_io, total_app_runtime()).WillOnce(Return(56));
     EXPECT_CALL(m_application_io, total_app_energy_pkg()).WillOnce(Return(2222));
     EXPECT_CALL(m_application_io, total_app_energy_dram()).WillOnce(Return(2222));
-    EXPECT_CALL(m_application_io, total_app_runtime_mpi()).WillOnce(Return(45));
-    EXPECT_CALL(m_application_io, total_epoch_runtime_ignore()).WillRepeatedly(Return(0.7));
+    EXPECT_CALL(m_application_io, total_app_mpi_runtime()).WillOnce(Return(45));
+    EXPECT_CALL(m_application_io, total_epoch_mpi_runtime()).WillOnce(Return(7.0));
+    EXPECT_CALL(m_application_io, total_epoch_ignore_runtime()).WillRepeatedly(Return(0.7));
     EXPECT_CALL(m_application_io, total_epoch_runtime()).WillOnce(Return(70.0));
     EXPECT_CALL(m_platform_io, read_signal("CPUINFO::FREQ_STICKER", geopm::IPlatformTopo::M_DOMAIN_BOARD, 0))
         .Times(4)
@@ -196,7 +197,7 @@ TEST_F(ReporterTest, generate)
             .WillOnce(Return(rid.second));
     }
     for (auto rid : m_region_mpi_time) {
-        EXPECT_CALL(m_application_io, total_region_runtime_mpi(rid.first))
+        EXPECT_CALL(m_application_io, total_region_mpi_runtime(rid.first))
             .WillOnce(Return(rid.second));
     }
     for (auto rid : m_region_count) {
@@ -285,7 +286,7 @@ TEST_F(ReporterTest, generate)
         "    count: 0\n"
         "    agent stat: 3\n"
         "Region epoch (\n"
-        "    runtime (sec): 70\n"
+        "    runtime (sec): 77.7\n"
         "    sync-runtime (sec): 666\n"
         "    package-energy (joules): 167\n"
         "    dram-energy (joules): 167\n"
