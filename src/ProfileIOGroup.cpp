@@ -69,18 +69,12 @@ namespace geopm
                            {plugin_name() + "::EPOCH_COUNT", M_SIGNAL_EPOCH_COUNT},
                            {"EPOCH_COUNT", M_SIGNAL_EPOCH_COUNT},
                            {plugin_name() + "::REGION_RUNTIME", M_SIGNAL_RUNTIME},
-                           {"REGION_RUNTIME", M_SIGNAL_RUNTIME},
-                           {plugin_name() + "::EPOCH_RUNTIME_MPI", M_SIGNAL_EPOCH_RUNTIME_MPI},
-                           {"EPOCH_RUNTIME_MPI", M_SIGNAL_EPOCH_RUNTIME_MPI},
-                           {plugin_name() + "::EPOCH_RUNTIME_IGNORE", M_SIGNAL_EPOCH_RUNTIME_IGNORE},
-                           {"EPOCH_RUNTIME_IGNORE", M_SIGNAL_EPOCH_RUNTIME_IGNORE}}
+                           {"REGION_RUNTIME", M_SIGNAL_RUNTIME}}
         , m_platform_topo(topo)
         , m_do_read(M_SIGNAL_MAX, false)
         , m_per_cpu_progress(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), NAN)
         , m_per_cpu_runtime(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), NAN)
         , m_thread_progress(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), NAN)
-        , m_epoch_runtime_mpi(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), 0.0)
-        , m_epoch_runtime_ignore(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), 0.0)
         , m_epoch_runtime(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), 0.0)
         , m_epoch_count(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), 0.0)
         , m_cpu_rank(m_profile_sample->cpu_rank())
@@ -181,7 +175,7 @@ namespace geopm
             m_thread_progress = m_profile_sample->per_cpu_thread_progress();
         }
         if (m_do_read[M_SIGNAL_EPOCH_RUNTIME]) {
-            std::vector<double> per_rank_epoch_runtime = m_epoch_regulator.last_epoch_runtime();
+            std::vector<double> per_rank_epoch_runtime = m_epoch_regulator.last_epoch_time();
             for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
                 m_epoch_runtime[cpu_idx] = per_rank_epoch_runtime[m_cpu_rank[cpu_idx]];
             }
@@ -208,18 +202,6 @@ namespace geopm
             // we assume ranks don't move between cpus
             for (size_t cpu = 0; cpu < m_per_cpu_runtime.size(); ++cpu) {
                 m_per_cpu_runtime[cpu] = cache.at(m_per_cpu_region_id[cpu])[cpu];
-            }
-        }
-        if (m_do_read[M_SIGNAL_EPOCH_RUNTIME_MPI]) {
-            std::vector<double> per_rank_epoch_runtime_mpi = m_epoch_regulator.last_epoch_runtime_mpi();
-            for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
-                m_epoch_runtime_mpi[cpu_idx] = per_rank_epoch_runtime_mpi[m_cpu_rank[cpu_idx]];
-            }
-        }
-        if (m_do_read[M_SIGNAL_EPOCH_RUNTIME_IGNORE]) {
-            std::vector<double> per_rank_epoch_runtime_ignore = m_epoch_regulator.last_epoch_runtime_ignore();
-            for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
-                m_epoch_runtime_ignore[cpu_idx] = per_rank_epoch_runtime_ignore[m_cpu_rank[cpu_idx]];
             }
         }
         m_is_batch_read = true;
@@ -263,12 +245,6 @@ namespace geopm
             case M_SIGNAL_RUNTIME:
                 result = m_per_cpu_runtime[cpu_idx];
                 break;
-            case M_SIGNAL_EPOCH_RUNTIME_MPI:
-                result = m_epoch_runtime_mpi[cpu_idx];
-                break;
-            case M_SIGNAL_EPOCH_RUNTIME_IGNORE:
-                result = m_epoch_runtime_ignore[cpu_idx];
-                break;
             default:
 #ifdef GEOPM_DEBUG
                 throw Exception("ProfileIOGroup:sample(): Signal was pushed with an invalid signal type",
@@ -306,7 +282,7 @@ namespace geopm
                 result = m_profile_sample->per_cpu_thread_progress()[cpu_idx];
                 break;
             case M_SIGNAL_EPOCH_RUNTIME:
-                result = m_epoch_regulator.last_epoch_runtime()[cpu_idx];
+                result = m_epoch_regulator.last_epoch_time()[cpu_idx];
                 break;
             case M_SIGNAL_EPOCH_COUNT:
                 result = m_epoch_regulator.epoch_count()[cpu_idx];
@@ -314,12 +290,6 @@ namespace geopm
             case M_SIGNAL_RUNTIME:
                 region_id = m_profile_sample->per_cpu_region_id()[cpu_idx];
                 result = m_profile_sample->per_cpu_runtime(region_id)[cpu_idx];
-                break;
-            case M_SIGNAL_EPOCH_RUNTIME_MPI:
-                result = m_epoch_regulator.last_epoch_runtime_mpi()[cpu_idx];
-                break;
-            case M_SIGNAL_EPOCH_RUNTIME_IGNORE:
-                result = m_epoch_regulator.last_epoch_runtime_ignore()[cpu_idx];
                 break;
             default:
 #ifdef GEOPM_DEBUG
@@ -363,11 +333,7 @@ namespace geopm
             {"EPOCH_ENERGY", Agg::sum},
             {"PROFILE::EPOCH_ENERGY", Agg::sum},
             {"EPOCH_COUNT", Agg::min},
-            {"PROFILE::EPOCH_COUNT", Agg::min},
-            {"EPOCH_RUNTIME_MPI", Agg::max},
-            {"PROFILE::EPOCH_RUNTIME_MPI", Agg::max},
-            {"EPOCH_RUNTIME_IGNORE", Agg::max},
-            {"PROFILE::EPOCH_RUNTIME_IGNORE", Agg::max}
+            {"PROFILE::EPOCH_COUNT", Agg::min}
         };
         auto it = fn_map.find(signal_name);
         if (it == fn_map.end()) {
