@@ -128,61 +128,66 @@ install-plugin-dir:
 #
 transform='s/GEOPM_CXX_MAN_/geopm::/'
 
-ronn_man = man/geopm.7 \
-           man/geopmagent.1 \
-           man/GEOPM_CXX_MAN_Agent.3 \
-           man/geopm_agent_c.3 \
-           man/geopm_agent_energy_efficient.7 \
-           man/geopm_agent_monitor.7 \
-           man/geopm_agent_power_balancer.7 \
-           man/geopm_agent_power_governor.7 \
-           man/GEOPM_CXX_MAN_Agg.3 \
-           man/geopmanalysis.1 \
-           man/geopmbench.1 \
-           man/GEOPM_CXX_MAN_CircularBuffer.3 \
-           man/GEOPM_CXX_MAN_Comm.3 \
-           man/geopmctl.1 \
-           man/geopm_ctl_c.3 \
-           man/GEOPM_CXX_MAN_CpuinfoIOGroup.3 \
-           man/geopmendpoint.1 \
-           man/geopm_endpoint_c.3 \
-           man/GEOPM_CXX_MAN_EnergyEfficientAgent.3 \
-           man/GEOPM_CXX_MAN_EnergyEfficientRegion.3 \
-           man/geopm_error.3 \
-           man/GEOPM_CXX_MAN_Exception.3 \
-           man/geopm_fortran.3 \
-           man/GEOPM_CXX_MAN_Helper.3 \
-           man/GEOPM_CXX_MAN_MPIComm.3 \
-           man/geopm_imbalancer.3 \
-           man/GEOPM_CXX_MAN_IOGroup.3 \
-           man/GEOPM_CXX_MAN_MSR.3 \
-           man/GEOPM_CXX_MAN_MSRIO.3 \
-           man/GEOPM_CXX_MAN_MSRIOGroup.3 \
-           man/GEOPM_CXX_MAN_MonitorAgent.3 \
-           man/GEOPM_CXX_MAN_PlatformTopo.3 \
-           man/geopmplotter.1 \
-           man/GEOPM_CXX_MAN_PluginFactory.3 \
-           man/GEOPM_CXX_MAN_PowerBalancer.3 \
-           man/GEOPM_CXX_MAN_PowerBalancerAgent.3 \
-           man/GEOPM_CXX_MAN_PowerGovernor.3 \
-           man/GEOPM_CXX_MAN_PowerGovernorAgent.3 \
-           man/geopm_prof_c.3 \
-           man/GEOPM_CXX_MAN_ProfileIOGroup.3 \
-           man/GEOPM_CXX_MAN_ProfileIOSample.3 \
-           man/geopmpy.7 \
-           man/geopmlaunch.1 \
-           man/geopmread.1 \
-           man/GEOPM_CXX_MAN_RegionAggregator.3 \
-           man/geopm_region_id_c.3 \
-           man/geopm_sched.3 \
-           man/GEOPM_CXX_MAN_SharedMemory.3 \
-           man/geopm_time.3 \
-           man/GEOPM_CXX_MAN_TimeIOGroup.3 \
-           man/geopm_version.3 \
-           man/geopmwrite.1 \
-           # end
+ronn_man_inst = man/geopm.7 \
+                man/geopmagent.1 \
+                man/GEOPM_CXX_MAN_Agent.3 \
+                man/geopm_agent_c.3 \
+                man/geopm_agent_energy_efficient.7 \
+                man/geopm_agent_monitor.7 \
+                man/geopm_agent_power_balancer.7 \
+                man/geopm_agent_power_governor.7 \
+                man/GEOPM_CXX_MAN_Agg.3 \
+                man/geopmbench.1 \
+                man/GEOPM_CXX_MAN_CircularBuffer.3 \
+                man/GEOPM_CXX_MAN_Comm.3 \
+                man/geopmctl.1 \
+                man/geopm_ctl_c.3 \
+                man/GEOPM_CXX_MAN_CpuinfoIOGroup.3 \
+                man/geopmendpoint.1 \
+                man/geopm_endpoint_c.3 \
+                man/GEOPM_CXX_MAN_EnergyEfficientAgent.3 \
+                man/GEOPM_CXX_MAN_EnergyEfficientRegion.3 \
+                man/geopm_error.3 \
+                man/GEOPM_CXX_MAN_Exception.3 \
+                man/geopm_fortran.3 \
+                man/GEOPM_CXX_MAN_Helper.3 \
+                man/geopm_imbalancer.3 \
+                man/GEOPM_CXX_MAN_MPIComm.3 \
+                man/GEOPM_CXX_MAN_IOGroup.3 \
+                man/GEOPM_CXX_MAN_MSR.3 \
+                man/GEOPM_CXX_MAN_MSRIO.3 \
+                man/GEOPM_CXX_MAN_MSRIOGroup.3 \
+                man/GEOPM_CXX_MAN_MonitorAgent.3 \
+                man/GEOPM_CXX_MAN_PlatformTopo.3 \
+                man/GEOPM_CXX_MAN_PluginFactory.3 \
+                man/GEOPM_CXX_MAN_PowerBalancer.3 \
+                man/GEOPM_CXX_MAN_PowerBalancerAgent.3 \
+                man/GEOPM_CXX_MAN_PowerGovernor.3 \
+                man/GEOPM_CXX_MAN_PowerGovernorAgent.3 \
+                man/geopm_prof_c.3 \
+                man/GEOPM_CXX_MAN_ProfileIOGroup.3 \
+                man/GEOPM_CXX_MAN_ProfileIOSample.3 \
+                man/geopmpy.7 \
+                man/geopmlaunch.1 \
+                man/geopmread.1 \
+                man/GEOPM_CXX_MAN_RegionAggregator.3 \
+                man/geopm_region_id_c.3 \
+                man/geopm_sched.3 \
+                man/GEOPM_CXX_MAN_SharedMemory.3 \
+                man/geopm_time.3 \
+                man/GEOPM_CXX_MAN_TimeIOGroup.3 \
+                man/geopm_version.3 \
+                man/geopmwrite.1 \
+                # end
 
-dist_man_MANS = $(ronn_man)
+ronn_man_noinst = man/geopmanalysis.1 \
+                  man/geopmplotter.1 \
+                  # end
+
+dist_man_MANS = $(ronn_man_inst) \
+                # end
+
+ronn_man = $(ronn_man_inst) $(ronn_man_noinst)
 
 dist_doc_DATA = README \
                 COPYING \
@@ -582,6 +587,8 @@ if ENABLE_DOC
 
 # DOXYGEN TARGET
 
+all-local: $(ronn_man_noinst)
+
 dox-public/Doxyfile: dox-public/Doxyfile.in
 	sed -e "s|@INSTALL_HEADER_FILES@|$(include_HEADERS) $(pkginclude_HEADERS)|g" \
             dox-public/Doxyfile.in > dox-public/Doxyfile
@@ -627,6 +634,7 @@ BUILT_SOURCES =
 $(ronn_man): man/%: ronn/%.ronn
 	mkdir -p man
 	sed 's|^\[//\]: #|.\\\"|' ronn/`basename $@`.ronn > $@
+
 endif
 
 checkprogs: gtest-checkprogs pytest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)

@@ -32,25 +32,16 @@ geopmpy(7) -- global extensible open power manager python package
 [//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 
 ## DESCRIPTION
-An extension to the Global Extensible Open Power Manager (GEOPM), the geopmpy
-package provides several command line tools and other infrastructure modules for
-both setting up and launching a job utilizing GEOPM and post-processing the profiling
-data that is output from GEOPM.  Presently there are 4 command line tools provided:
+
+An extension to the Global Extensible Open Power Manager (GEOPM), the
+geopmpy package provides several command line tools and other
+infrastructure modules for both setting up and launching a job
+utilizing GEOPM and post-processing the profiling data that is output
+from GEOPM.  Presently the following command line tools are provided:
 
 **geopmlaunch**<br>
 This script will invoke the GEOPM launcher for either the ALPS or SLURM
 resource managers.  See **geopmlaunch(1)** for more information.
-
-**geopmplotter**<br>
-This script will post-process the report and trace data output from GEOPM.
-It is capable of producing many different plots to aid in analysis.
-It can also be utilized to perform live data analysis through the Python
-shell.  See **geopmplotter(1)** for more information.
-
-**geopmanalysis**<br>
-This script will process the report and trace data output from GEOPM
-into text summaries or into a format for producing plots with the plotter.
-See **geopmanalysis(1)** for more information.
 
 In addition, there is 1 infrastructure module provided:
 
@@ -112,4 +103,4 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm(7)**,
 **geopmanalysis(1)**,
 **geopmlaunch(1)**,
-**geopmplotter(1)**,
+**geopmplotter(1)**
