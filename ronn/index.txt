@@ -50,7 +50,6 @@ geopmanalysis(1)                 geopmanalysis.1
 geopmbench(1)                    geopmbench.1
 geopmctl(1)                      geopmctl.1
 geopmendpoint(1)                 geopmendpoint.1
-geopmplotter(1)                  geopmplotter.1
 geopmpolicy(1)                   geopmpolicy.1
 geopmlaunch(1)                   geopmplaunch.1
 geopmread(1)                     geopmread.1

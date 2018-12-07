@@ -76,10 +76,6 @@ application including support for static control.
 
 ## ANALYSIS TOOLS
 
-**geopmanalysis(1)**: Run application and visualize results
-
-**geopmplotter(1)**: Visualize reports and traces
-
 **geopmread(1)**: Query platform information
 
 **geopmwrite(1)**: Modify platform state
@@ -476,11 +472,10 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm-TimeIOGroup(3)**,
 **geopmagent(1)**,
 **geopmanalysis(1)**,
-**geopmlaunch(1)**,
 **geopmbench(1)**,
 **geopmctl(1)**,
 **geopmendpoint(1)**,
-**geopmplotter(1)**,
+**geopmlaunch(1)**,
 **geopmpolicy(1)**,
 **geopmread(1)**,
 **geopmwrite(1)**,
