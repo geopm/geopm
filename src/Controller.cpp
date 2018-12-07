@@ -322,9 +322,7 @@ namespace geopm
             }
             do_send = m_tree_comm->receive_down(level, m_in_policy);
         }
-        if (std::none_of(m_in_policy.begin(), m_in_policy.end(),
-                         [](double val){return std::isnan(val);}) &&
-            m_agent[0]->adjust_platform(m_in_policy)) {
+        if (m_agent[0]->adjust_platform(m_in_policy)) {
             m_platform_io.write_batch();
         }
     }
