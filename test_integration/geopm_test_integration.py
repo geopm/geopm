@@ -729,10 +729,14 @@ class TestIntegration(unittest.TestCase):
         num_node = 4
         num_rank = 16
         loop_count = 500
-        margin = 0.05  # Balancer must out-perform governor by 5%
+        # Require that the balancer moves the maximum dgemm runtime at
+        # least 1/4 the distance to the mean dgemm runtime under the
+        # governor.
+        margin_factor =  0.25
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.append_region('dgemm', 8.0)
+        app_conf.append_region('all2all', 0.05)
         app_conf.set_loop_count(loop_count)
 
         fam, mod = get_platform()
@@ -759,7 +763,7 @@ class TestIntegration(unittest.TestCase):
             report_path = '{}.report'.format(run_name)
             trace_path = '{}.trace'.format(run_name)
             launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path,
-                                                        trace_path, time_limit=2700, region_barrier=True)
+                                                        trace_path, time_limit=2700)
             launcher.set_num_node(num_node)
             launcher.set_num_rank(num_rank)
             launcher.write_log(run_name, 'Power cap = {}W'.format(power_budget))
@@ -804,19 +808,18 @@ class TestIntegration(unittest.TestCase):
             min_runtime = float('nan')
             max_runtime = float('nan')
             node_names = self._output.get_node_names()
+            runtime_list = []
             for node_name in node_names:
-                epoch_data = self._output.get_report_data(node_name=node_name, region='epoch')
-                this_runtime = epoch_data['runtime'].item()
-                if not this_runtime <= max_runtime:
-                    max_runtime = this_runtime
-                if not this_runtime >= min_runtime:
-                    min_runtime = this_runtime
+                epoch_data = self._output.get_report_data(node_name=node_name, region='dgemm')
+                runtime_list.append(epoch_data['runtime'].item())
             if agent == 'power_governor':
-                margin = (max_runtime - min_runtime) / max_runtime / 4.0
+                mean_runtime = sum(runtime_list) / len(runtime_list)
+                max_runtime = max(runtime_list)
+                margin = margin_factor * (max_runtime - mean_runtime)
 
-            agent_runtime[agent] = max_runtime
+            agent_runtime[agent] = max(runtime_list)
 
-        self.assertGreater((1.0 - margin) * agent_runtime['power_governor'],
+        self.assertGreater(agent_runtime['power_governor'] - margin,
                            agent_runtime['power_balancer'],
                            "governor runtime: {}, balancer runtime: {}, margin: {}".format(
                                agent_runtime['power_governor'], agent_runtime['power_balancer'], margin))
