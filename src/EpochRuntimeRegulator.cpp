@@ -144,7 +144,6 @@ namespace geopm
         if (rank < 0 || rank >= m_rank_per_node) {
             throw Exception("EpochRuntimeRegulator::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-
         region_id = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id);
         if (!m_seen_first_epoch[rank]) {
             m_pre_epoch_region[rank].insert(region_id);
@@ -174,7 +173,6 @@ namespace geopm
         if (rank < 0 || rank >= m_rank_per_node) {
             throw Exception("EpochRuntimeRegulator::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-
         bool is_ignore = geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, region_id);
         bool is_mpi = geopm_region_id_is_mpi(region_id);
         region_id = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id);
