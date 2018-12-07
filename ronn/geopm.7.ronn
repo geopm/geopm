@@ -78,10 +78,6 @@ control.
 
 ## ANALYSIS TOOLS
 
-**geopmanalysis(1)**: Run application and visualize results
-
-**geopmplotter(1)**: Visualize reports and traces
-
 **geopmread(1)**: Query platform information
 
 **geopmwrite(1)**: Modify platform state
@@ -177,14 +173,6 @@ There are legacy methods for launching the runtime programmatically.
 These are documented in **geopm_ctl_c(3)**, but are deprecated as an
 application-facing interface because their use within an application
 is incompatible with the GEOPM launcher script.
-
-## PLOTTING REPORT AND TRACE DATA
-Please see the **geopmplotter(1)** and **geopmanalysis(1)** man pages
-for information about the data analysis tools available for
-visualizing the data contained in the GEOPM report and trace files.
-The report file is intended to be human readable, and the trace file
-format can be easily parsed by a wide variety of analysis
-applications.
 
 ## INTERPRETING THE REPORT
 If the `GEOPM_REPORT` environment variable is set then a report will
@@ -474,12 +462,10 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm-SharedMemory(3)**,
 **geopm-TimeIOGroup(3)**,
 **geopmagent(1)**,
-**geopmanalysis(1)**,
-**geopmlaunch(1)**,
 **geopmbench(1)**,
 **geopmctl(1)**,
 **geopmendpoint(1)**,
-**geopmplotter(1)**,
+**geopmlaunch(1)**,
 **geopmread(1)**,
 **geopmwrite(1)**,
 **ld.so(8)**

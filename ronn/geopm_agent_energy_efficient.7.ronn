@@ -50,8 +50,7 @@ will be used and the frequency will be set to either the minimum or
 maximum available frequency.  See **geopm_prof_c(3)** for the list of
 region hints.  These best-fit frequencies can be determined by running
 the application once at each available frequency and checking the
-performance of each region; this frequency sweep is available as an
-analysis type for `geopmanalysis` described in **geopmanalysis(1)**.
+performance of each region.
 The online mode finds the optimal frequency for each region
 dynamically by measuring the performance of each region and reducing
 the frequency as long as the performance is still within acceptable
@@ -124,5 +123,4 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm_agent_c(3)**,
 **geopm_prof_c(3)**,
 **geopmagent(1)**,
-**geopmanalysis(1)**,
 **geopmlaunch(1)**
