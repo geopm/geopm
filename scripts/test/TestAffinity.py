@@ -42,7 +42,7 @@ class TestAffinityLauncher(geopmpy.launcher.Launcher):
     def init_topo(self):
         raise NotImplementedError('UnitTestLauncher base class does not define init_topo()')
 
-    def parse_mpiexec_argv(self):
+    def parse_launcher_argv(self):
         pass
 
 

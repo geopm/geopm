@@ -401,7 +401,7 @@ class Launcher(object):
             self.config = None
             self.is_geopm_enabled = False
             self.is_override_enabled = False
-        self.parse_mpiexec_argv()
+        self.parse_launcher_argv()
 
         is_cpu_per_rank_override = False
 
@@ -472,9 +472,9 @@ class Launcher(object):
         Execute the command given to constructor with modified command
         line options and environment variables.
         """
-        argv_mod = [self.mpiexec()]
+        argv_mod = [self.launcher_command()]
         if self.is_override_enabled:
-            argv_mod.extend(self.mpiexec_argv(False))
+            argv_mod.extend(self.launcher_argv(False))
             argv_mod.extend(self.argv_unparsed)
         else:
             argv_mod.extend(self.argv)
@@ -490,8 +490,8 @@ class Launcher(object):
         signal.signal(signal.SIGINT, self.int_handler)
         argv_mod = ' '.join(argv_mod)
         if self.is_geopm_enabled and self.config.get_ctl() == 'application':
-            geopm_argv = [self.mpiexec()]
-            geopm_argv.extend(self.mpiexec_argv(True))
+            geopm_argv = [self.launcher_command()]
+            geopm_argv.extend(self.launcher_argv(True))
             geopm_argv.append('geopmctl')
             if self.config.get_policy():
                 geopm_argv.extend(['-c', self.config.get_policy()])
@@ -692,20 +692,20 @@ fi
 
         return result
 
-    def parse_mpiexec_argv(self):
+    def parse_launcher_argv(self):
         """
         Parse command line options accepted by the underlying job launch
         application.
         """
-        raise NotImplementedError('Launcher.parse_mpiexec_argv() undefined in the base class')
+        raise NotImplementedError('Launcher.parse_launcher_argv() undefined in the base class')
 
-    def mpiexec(self):
+    def launcher_command(self):
         """
         Returns the name/path to the job launch application.
         """
-        raise NotImplementedError('Launcher.mpiexec() undefined in the base class')
+        raise NotImplementedError('Launcher.launcher_command() undefined in the base class')
 
-    def mpiexec_argv(self, is_geopmctl):
+    def launcher_argv(self, is_geopmctl):
         """
         Returns a list of command line options for underlying job launch
         application that reflect the state of the Launcher object.
@@ -854,7 +854,7 @@ class SrunLauncher(Launcher):
         """
         sys.stderr.write("srun: interrupt (one more within 1 sec to abort)\n")
 
-    def parse_mpiexec_argv(self):
+    def parse_launcher_argv(self):
         """
         Parse the subset of srun command line arguments used or
         manipulated by GEOPM.
@@ -895,7 +895,7 @@ class SrunLauncher(Launcher):
             any(aa.startswith(('--cpu_bind', '--cpu-bind')) for aa in self.argv)):
             raise SyntaxError('The option --cpu_bind or --cpu-bind  must not be specified, this is controlled by geopm_srun.')
 
-    def mpiexec(self):
+    def launcher_command(self):
         """
         Returns 'srun', the name of the SLURM MPI job launch application.
         """
@@ -1078,13 +1078,13 @@ class IMPIExecLauncher(Launcher):
             raise RuntimeError('When using srun and specifying --geopm-ctl=application call must be made ' +
                                'inside of an salloc or sbatch environment and application must run on all allocated nodes.')
 
-    def mpiexec(self):
+    def launcher_command(self):
         """
         Returns 'mpiexec', the name of the Intel MPI Library job launch application.
         """
         return 'mpiexec'
 
-    def parse_mpiexec_argv(self):
+    def parse_launcher_argv(self):
         """
         Parse the subset of srun command line arguments used or
         manipulated by GEOPM.
@@ -1200,7 +1200,7 @@ class AprunLauncher(Launcher):
         if self.is_geopm_enabled and self.config.get_ctl() == 'application':
             raise RuntimeError('When using aprun specifying --geopm-ctl=application is not allowed.')
 
-    def parse_mpiexec_argv(self):
+    def parse_launcher_argv(self):
         """
         Parse the subset of aprun command line arguments used or
         manipulated by GEOPM.
@@ -1234,7 +1234,7 @@ class AprunLauncher(Launcher):
             aa.startswith('-cc') for aa in self.argv)):
             raise SyntaxError('The options --cpu-binding or -cc must not be specified, this is controlled by geopmpy.launcher.')
 
-    def mpiexec(self):
+    def launcher_command(self):
         """
         Returns 'aprun', the name of the ALPS MPI job launch application.
         """
