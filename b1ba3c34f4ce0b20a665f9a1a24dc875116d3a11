@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b2e146c8_a712ed46",
+        "filename": "ronn/geopm_agent_energy_efficient.7.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-07T20:22:31Z",
+      "side": 1,
+      "message": "switch order",
+      "range": {
+        "startLine": 68,
+        "startChar": 2,
+        "endLine": 68,
+        "endChar": 64
+      },
+      "revId": "b1ba3c34f4ce0b20a665f9a1a24dc875116d3a11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84767551_090a52eb",
+        "filename": "ronn/geopm_agent_energy_efficient.7.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-07T20:22:31Z",
+      "side": 1,
+      "message": "refer to geopm_launch(1) as well",
+      "range": {
+        "startLine": 70,
+        "startChar": 53,
+        "endLine": 70,
+        "endChar": 65
+      },
+      "revId": "b1ba3c34f4ce0b20a665f9a1a24dc875116d3a11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e23d103_24a52c8e",
+        "filename": "ronn/geopm_ctl_c.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-07T20:22:31Z",
+      "side": 1,
+      "message": "rm",
+      "revId": "b1ba3c34f4ce0b20a665f9a1a24dc875116d3a11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0174e2a_ea91439b",
+        "filename": "ronn/geopm_error.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-07T20:22:31Z",
+      "side": 1,
+      "message": "remove and change all the error numbers.",
+      "revId": "b1ba3c34f4ce0b20a665f9a1a24dc875116d3a11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80382890_e89a7d6b",
+        "filename": "ronn/geopm_error.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-07T20:22:31Z",
+      "side": 1,
+      "message": "AGENT",
+      "range": {
+        "startLine": 114,
+        "startChar": 17,
+        "endLine": 114,
+        "endChar": 24
+      },
+      "revId": "b1ba3c34f4ce0b20a665f9a1a24dc875116d3a11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9ea7d2f_6c155308",
+        "filename": "ronn/geopmpy_launcher.1.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-07T20:22:31Z",
+      "side": 1,
+      "message": "switch to \n\ngeopmbench tutorial_6_config.json",
+      "range": {
+        "startLine": 262,
+        "startChar": 87,
+        "endLine": 262,
+        "endChar": 97
+      },
+      "revId": "b1ba3c34f4ce0b20a665f9a1a24dc875116d3a11",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
