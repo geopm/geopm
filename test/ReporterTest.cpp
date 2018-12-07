@@ -45,6 +45,7 @@
 #include "MockTreeComm.hpp"
 #include "Helper.hpp"
 #include "geopm.h"
+#include "geopm_internal.h"
 #include "geopm_hash.h"
 #include "config.h"
 
@@ -139,7 +140,11 @@ class ReporterTest : public testing::Test
             {geopm_crc32_str(0, "all2all"), {{"agent stat", "1"}, {"agent other stat", "2"}}},
             {geopm_crc32_str(0, "model-init"), {{"agent stat", "2"}}},
             {GEOPM_REGION_ID_UNMARKED, {{"agent stat", "3"}}},
-            {GEOPM_REGION_ID_EPOCH, {{"agent stat", "4"}}}
+            {GEOPM_REGION_ID_EPOCH, {{"agent stat", "4"}}},
+            // hints should be ignored by reporter
+            {geopm_crc32_str(0, "all2all") | GEOPM_REGION_ID_MPI, {{"agent new stat", "5"}}},
+            {geopm_crc32_str(0, "model-init") | GEOPM_REGION_HINT_IGNORE, {{"agent new stat", "6"}}},
+
         };
 };
 
@@ -265,6 +270,7 @@ TEST_F(ReporterTest, generate)
         "    count: 20\n"
         "    agent stat: 1\n"
         "    agent other stat: 2\n"
+        "    agent new stat: 5\n"
         "Region model-init (\n"
         "    runtime (sec): 22.11\n"
         "    sync-runtime (sec): 333.5\n"
@@ -275,6 +281,7 @@ TEST_F(ReporterTest, generate)
         "    mpi-runtime (sec): 5.6\n"
         "    count: 1\n"
         "    agent stat: 2\n"
+        "    agent new stat: 6\n"
         "Region unmarked-region (\n"
         "    runtime (sec): 12.13\n"
         "    sync-runtime (sec): 444\n"

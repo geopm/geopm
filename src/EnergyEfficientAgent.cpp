@@ -176,7 +176,7 @@ namespace geopm
         update_freq_range(in_policy);
         bool result = false;
         double freq = m_last_freq;
-        auto it = m_rid_freq_map.find(geopm_region_id_hash(m_last_region_id));
+        auto it = m_rid_freq_map.find(m_last_region_id);
         if (it != m_rid_freq_map.end()) {
             freq = it->second;
         }
@@ -210,8 +210,7 @@ namespace geopm
                     freq = m_freq_max;
                     break;
             }
-            // @todo: does not support using the same region name with different hints
-            m_rid_freq_map[geopm_region_id_hash(m_last_region_id)] = freq;
+            m_rid_freq_map[m_last_region_id] = freq;
         }
 
         if (freq != m_last_freq) {
@@ -333,27 +332,22 @@ namespace geopm
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > result;
         // If region is in this map, online learning was used to set frequency
         for (const auto &region : m_region_map) {
-            if (geopm_region_id_is_mpi(region.first) && geopm_region_id_hash(region.first) != 0) {
-                result[geopm_region_id_hash(region.first)] =
-                    {std::make_pair("REQUESTED_ONLINE_MPI_FREQUENCY", std::to_string(region.second->freq()))};
+            if (geopm_region_id_is_mpi(region.first)) {
+                result[region.first].push_back(std::make_pair("REQUESTED_ONLINE_MPI_FREQUENCY", std::to_string(region.second->freq())));
             }
             else {
-                result[geopm_region_id_hash(region.first)] =
-                    {std::make_pair("REQUESTED_ONLINE_FREQUENCY", std::to_string(region.second->freq()))};
+                result[region.first].push_back(std::make_pair("REQUESTED_ONLINE_FREQUENCY", std::to_string(region.second->freq())));
             }
         }
         // If region is in this map, offline static frequency or hint was used
         for (const auto &region : m_rid_freq_map) {
-            if (geopm_region_id_is_mpi(region.first) && geopm_region_id_hash(region.first) != 0) {
-                result[geopm_region_id_hash(region.first)] =
-                    {std::make_pair("REQUESTED_OFFLINE_FREQUENCY", std::to_string(region.second))};
+            if (geopm_region_id_is_mpi(region.first)) {
+                result[region.first].push_back(std::make_pair("REQUESTED_OFFLINE_MPI_FREQUENCY", std::to_string(region.second)));
             }
             else {
-                result[geopm_region_id_hash(region.first)] =
-                    {std::make_pair("REQUESTED_OFFLINE_FREQUENCY", std::to_string(region.second))};
+                result[region.first].push_back(std::make_pair("REQUESTED_OFFLINE_FREQUENCY", std::to_string(region.second)));
             }
         }
-
         return result;
     }
 

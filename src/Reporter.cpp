@@ -188,6 +188,19 @@ namespace geopm
                                   application_io.total_epoch_ignore_runtime(),
                                   application_io.total_count(GEOPM_REGION_ID_EPOCH)});
 
+        // If any region data from Agent still has hints, remove them
+        std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > region_report;
+        for (const auto &region_data : agent_region_report) {
+            uint64_t region_id = geopm_region_id_hash(region_data.first);
+            auto it = region_report.find(region_id);
+            if (it == region_report.end()) {
+                region_report[region_id] = region_data.second;
+            }
+            else {
+                it->second.insert(it->second.end(), region_data.second.begin(), region_data.second.end());
+            }
+        }
+
         for (const auto &region : region_ordered) {
             uint64_t mpi_region_id = geopm_region_id_set_mpi(region.id);
             uint64_t printed_id = region.id;
@@ -212,8 +225,8 @@ namespace geopm
             report << "    frequency (Hz): " << freq / 100.0 * m_platform_io.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0) << std::endl;
             report << "    mpi-runtime (sec): " << application_io.total_region_mpi_runtime(region.id) << std::endl;
             report << "    count: " << region.count << std::endl;
-            if (agent_region_report.find(region.id) != agent_region_report.end()) {
-                for (const auto &kv : agent_region_report.at(region.id)) {
+            if (region_report.find(region.id) != region_report.end()) {
+                for (const auto &kv : region_report.at(region.id)) {
                     report << "    " << kv.first << ": " << kv.second << std::endl;
                 }
             }
