@@ -82,7 +82,7 @@ namespace geopm
             virtual bool is_regulated(uint64_t region_id) const = 0;
             /// @brief Returns the total runtime of the last iteration
             ///        of the epoch for each rank.
-            virtual std::vector<double> last_epoch_time() const = 0;
+            virtual std::vector<double> last_epoch_runtime() const = 0;
             /// @brief Returns the number of epoch calls seen by each
             ///        rank.
             virtual std::vector<double> epoch_count() const = 0;
@@ -93,18 +93,18 @@ namespace geopm
             /// @brief Returns the total time spent in MPI for a given
             ///        region.
             /// @param [in] region_id The ID of the region.
-            virtual double total_region_mpi_time(uint64_t region_id) const = 0;
+            virtual double total_region_runtime_mpi(uint64_t region_id) const = 0;
             /// @brief Returns the total runtime since the first epoch
             ///        call.  This total does not include MPI time or
             ///        ignore time.
             virtual double total_epoch_runtime(void) const = 0;
             /// @brief Returns the total time spent in MPI after the
             ///        first epoch call.
-            virtual double total_epoch_mpi_time(void) const = 0;
+            virtual double total_epoch_runtime_mpi(void) const = 0;
             /// @brief Returns the total time spent in regions marked
             ///        with GEOPM_REGION_ID_HINT_IGNORE after the
             ///        first epoch call.
-            virtual double total_epoch_ignore_time(void) const = 0;
+            virtual double total_epoch_runtime_ignore(void) const = 0;
             /// @brief Returns the total package energy since the
             ///        first epoch call.
             virtual double total_epoch_energy_pkg(void) const = 0;
@@ -113,7 +113,7 @@ namespace geopm
             virtual double total_epoch_energy_dram(void) const = 0;
             /// @brief Returns the total time spent in MPI calls since
             ///        the start of the application.
-            virtual double total_app_mpi_time(void) const = 0;
+            virtual double total_app_runtime_mpi(void) const = 0;
             /// @brief Returns the total number of times a region was
             ///        entered and exited.
             /// @param [in] region_id The ID of the region.
@@ -145,16 +145,16 @@ namespace geopm
             void record_exit(uint64_t region_id, int rank, struct geopm_time_s exit_time) override;
             const IRuntimeRegulator &region_regulator(uint64_t region_id) const override;
             bool is_regulated(uint64_t region_id) const override;
-            std::vector<double> last_epoch_time() const override;
+            std::vector<double> last_epoch_runtime() const override;
             std::vector<double> epoch_count() const override;
             double total_region_runtime(uint64_t region_id) const override;
-            double total_region_mpi_time(uint64_t region_id) const override;
+            double total_region_runtime_mpi(uint64_t region_id) const override;
             double total_epoch_runtime(void) const override;
-            double total_epoch_mpi_time(void) const override;
-            double total_epoch_ignore_time(void) const override;
+            double total_epoch_runtime_mpi(void) const override;
+            double total_epoch_runtime_ignore(void) const override;
             double total_epoch_energy_pkg(void) const override;
             double total_epoch_energy_dram(void) const override;
-            double total_app_mpi_time(void) const override;
+            double total_app_runtime_mpi(void) const override;
             int total_count(uint64_t region_id) const override;
             std::list<geopm_region_info_s> region_info(void) const override;
             void clear_region_info(void) override;
@@ -167,11 +167,11 @@ namespace geopm
             IPlatformTopo &m_platform_topo;
             std::map<uint64_t, std::unique_ptr<IRuntimeRegulator> > m_rid_regulator_map;
             std::vector<bool> m_seen_first_epoch;
-            std::vector<double> m_curr_ignore_runtime;
-            std::vector<double> m_agg_epoch_ignore_runtime;
-            std::vector<double> m_curr_mpi_runtime;
-            std::vector<double> m_agg_epoch_mpi_runtime;
-            std::vector<double> m_agg_mpi_runtime;
+            std::vector<double> m_curr_runtime_ignore;
+            std::vector<double> m_agg_epoch_runtime_ignore;
+            std::vector<double> m_curr_runtime_mpi;
+            std::vector<double> m_agg_epoch_runtime_mpi;
+            std::vector<double> m_agg_runtime_mpi;
             std::vector<double> m_last_epoch_runtime;
             std::vector<double> m_agg_epoch_runtime;
             std::vector<std::set<uint64_t> > m_pre_epoch_region;
