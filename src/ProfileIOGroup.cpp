@@ -175,7 +175,7 @@ namespace geopm
             m_thread_progress = m_profile_sample->per_cpu_thread_progress();
         }
         if (m_do_read[M_SIGNAL_EPOCH_RUNTIME]) {
-            std::vector<double> per_rank_epoch_runtime = m_epoch_regulator.last_epoch_time();
+            std::vector<double> per_rank_epoch_runtime = m_epoch_regulator.last_epoch_runtime();
             for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
                 m_epoch_runtime[cpu_idx] = per_rank_epoch_runtime[m_cpu_rank[cpu_idx]];
             }
@@ -282,7 +282,7 @@ namespace geopm
                 result = m_profile_sample->per_cpu_thread_progress()[cpu_idx];
                 break;
             case M_SIGNAL_EPOCH_RUNTIME:
-                result = m_epoch_regulator.last_epoch_time()[cpu_idx];
+                result = m_epoch_regulator.last_epoch_runtime()[cpu_idx];
                 break;
             case M_SIGNAL_EPOCH_COUNT:
                 result = m_epoch_regulator.epoch_count()[cpu_idx];

@@ -53,25 +53,25 @@ class MockEpochRuntimeRegulator : public geopm::IEpochRuntimeRegulator {
                            const geopm::IRuntimeRegulator&(uint64_t region_id));
         MOCK_CONST_METHOD1(is_regulated,
                            bool(uint64_t region_id));
-        MOCK_CONST_METHOD0(last_epoch_time,
+        MOCK_CONST_METHOD0(last_epoch_runtime,
                            std::vector<double>());
         MOCK_CONST_METHOD0(epoch_count,
                            std::vector<double>());
         MOCK_CONST_METHOD1(total_region_runtime,
                            double(uint64_t region_id));
-        MOCK_CONST_METHOD1(total_region_mpi_time,
+        MOCK_CONST_METHOD1(total_region_runtime_mpi,
                            double(uint64_t region_id));
         MOCK_CONST_METHOD0(total_epoch_runtime,
                            double(void));
-        MOCK_CONST_METHOD0(total_epoch_mpi_time,
+        MOCK_CONST_METHOD0(total_epoch_runtime_mpi,
                            double(void));
-        MOCK_CONST_METHOD0(total_epoch_ignore_time,
+        MOCK_CONST_METHOD0(total_epoch_runtime_ignore,
                            double(void));
         MOCK_CONST_METHOD0(total_epoch_energy_pkg,
                            double(void));
         MOCK_CONST_METHOD0(total_epoch_energy_dram,
                            double(void));
-        MOCK_CONST_METHOD0(total_app_mpi_time,
+        MOCK_CONST_METHOD0(total_app_runtime_mpi,
                            double(void));
         MOCK_CONST_METHOD1(total_count,
                            int(uint64_t region_id));

@@ -72,7 +72,7 @@ namespace geopm
             /// @brief Returns the total time spent in MPI for a
             ///        region.
             /// @param [in] region_id The region ID.
-            virtual double total_region_mpi_runtime(uint64_t region_id) const = 0;
+            virtual double total_region_runtime_mpi(uint64_t region_id) const = 0;
             /// @brief Returns the total application runtime.
             virtual double total_app_runtime(void) const = 0;
             /// @brief Returns the total application package energy.
@@ -81,16 +81,16 @@ namespace geopm
             virtual double total_app_energy_dram(void) const = 0;
             /// @brief Returns the total time spent in MPI for the
             ///        application.
-            virtual double total_app_mpi_runtime(void) const = 0;
+            virtual double total_app_runtime_mpi(void) const = 0;
             /// @brief Returns the total time spent in ignored regions
             ///        for the application after the first call to epoch.
-            virtual double total_epoch_ignore_runtime(void) const = 0;
+            virtual double total_epoch_runtime_ignore(void) const = 0;
             /// @brief Returns the total runtime after the first epoch
             ///        call.
             virtual double total_epoch_runtime(void) const = 0;
             /// @brief Returns the total time spent in MPI after the
             ///        first epoch call.
-            virtual double total_epoch_mpi_runtime(void) const = 0;
+            virtual double total_epoch_runtime_mpi(void) const = 0;
             /// @brief Returns the total package energy since the
             ///        first epoch call.
             virtual double total_epoch_energy_pkg(void) const = 0;
@@ -144,14 +144,14 @@ namespace geopm
             std::string profile_name(void) const override;
             std::set<std::string> region_name_set(void) const override;
             double total_region_runtime(uint64_t region_id) const override;
-            double total_region_mpi_runtime(uint64_t region_id) const override;
+            double total_region_runtime_mpi(uint64_t region_id) const override;
             double total_app_runtime(void) const override;
             double total_app_energy_pkg(void) const override;
             double total_app_energy_dram(void) const override;
-            double total_app_mpi_runtime(void) const override;
-            double total_epoch_ignore_runtime(void) const override;
+            double total_app_runtime_mpi(void) const override;
+            double total_epoch_runtime_ignore(void) const override;
             double total_epoch_runtime(void) const override;
-            double total_epoch_mpi_runtime(void) const override;
+            double total_epoch_runtime_mpi(void) const override;
             double total_epoch_energy_pkg(void) const override;
             double total_epoch_energy_dram(void) const override;
             int total_count(uint64_t region_id) const override;
