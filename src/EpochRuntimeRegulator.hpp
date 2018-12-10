@@ -83,6 +83,12 @@ namespace geopm
             /// @brief Returns the total runtime of the last iteration
             ///        of the epoch for each rank.
             virtual std::vector<double> last_epoch_runtime() const = 0;
+            /// @brief Returns the total mpi runtime of the last iteration
+            ///        of the epoch for each rank.
+            virtual std::vector<double> last_epoch_runtime_mpi() const = 0;
+            /// @brief Returns the total ignore runtime of the last iteration
+            ///        of the epoch for each rank.
+            virtual std::vector<double> last_epoch_runtime_ignore() const = 0;
             /// @brief Returns the number of epoch calls seen by each
             ///        rank.
             virtual std::vector<double> epoch_count() const = 0;
@@ -146,6 +152,8 @@ namespace geopm
             const IRuntimeRegulator &region_regulator(uint64_t region_id) const override;
             bool is_regulated(uint64_t region_id) const override;
             std::vector<double> last_epoch_runtime() const override;
+            std::vector<double> last_epoch_runtime_mpi() const override;
+            std::vector<double> last_epoch_runtime_ignore() const override;
             std::vector<double> epoch_count() const override;
             double total_region_runtime(uint64_t region_id) const override;
             double total_region_runtime_mpi(uint64_t region_id) const override;
@@ -173,6 +181,8 @@ namespace geopm
             std::vector<double> m_agg_epoch_runtime_mpi;
             std::vector<double> m_agg_runtime_mpi;
             std::vector<double> m_last_epoch_runtime;
+            std::vector<double> m_last_epoch_runtime_mpi;
+            std::vector<double> m_last_epoch_runtime_ignore;
             std::vector<double> m_agg_epoch_runtime;
             std::vector<std::set<uint64_t> > m_pre_epoch_region;
             std::list<geopm_region_info_s> m_region_info;
