@@ -62,6 +62,8 @@ class MockApplicationIO : public geopm::IApplicationIO
                            double(void));
         MOCK_CONST_METHOD0(total_app_runtime_mpi,
                            double(void));
+        MOCK_CONST_METHOD0(total_app_runtime_ignore,
+                           double(void));
         MOCK_CONST_METHOD0(total_epoch_runtime,
                            double(void));
         MOCK_CONST_METHOD0(total_epoch_runtime_mpi,
