@@ -99,7 +99,7 @@ void TracerTest::SetUp(void)
 
 void TracerTest::TearDown(void)
 {
-    std::remove(m_path.c_str());
+    std::remove((m_path + "-" + m_hostname).c_str());
 }
 
 void check_trace(std::istream &expected, std::istream &result);
