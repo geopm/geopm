@@ -18,7 +18,6 @@ dox/Doxyfile
 dox-public/Doxyfile.in
 examples/amg/README
 examples/comd/README
-examples/example_policy.json
 examples/fft/COPYING-NAS
 examples/fft/README
 examples/hacc/README
@@ -89,7 +88,6 @@ ronn/header.txt
 ronn/index.txt
 scripts/MANIFEST.in
 scripts/requirements.txt
-test/default_policy.json
 test_integration/README.md
 TODO
 tutorial/README.md

@@ -151,4 +151,5 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm_endpoint_c(3)**,
 **geopm_error(3)**,
 **geopmagent(1)**,
-**geopmendpoint(1)**
+**geopmendpoint(1)**,
+**geopmlaunch(1)**

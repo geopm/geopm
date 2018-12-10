@@ -54,8 +54,8 @@ launch application.  The reinterpreted command line is echoed to
 standard output by the script before execution.  The wrapper sets
 environment variables used by GEOPM which are described in
 **geopm(7)**, sets process CPU affinity to meet the requirements of
-GEOPM, and extends the allocation to have reserved CPUs and extra
-processes as required by the GEOPM runtime.
+GEOPM, and may increase the ranks per node or CPUs per process as
+required by the GEOPM runtime.
 
 Note: the primary compute executable and its command line options must
 appear at the end of the command line and be preceded by two dashes:
@@ -96,7 +96,7 @@ the first `--` from the command line.
   The _application_ method of launch is not compatible with `aprun`;
   with `srun`, the call must be made inside of an existing
   allocation made with salloc or sbatch and the command must request
-  all of the compute nodes assigned to the allocation. Note: if the
+  all of the compute nodes assigned to the allocation.  Note: if the
   `--geopm-ctl` option is not specified the launcher script simply
   passes all command line arguments to the system application launcher
   without modification.  This option is used by the launcher to set
@@ -105,19 +105,23 @@ the first `--` from the command line.
   ENVIRONMENT section of **geopm(7)**.
 
 * `--geopm-policy` policy:
-  GEOPM policy JSON file.  To provide a shared memory region name,
-  `--geopm-endpoint` should be used instead.  See **geopmpolicy(1)**
-  for more information about how to create this input file and
-  **geopm_policy_c(3)** to learn about creating the shared memory
-  region.  This option is used by the launcher to set the GEOPM_POLICY
-  environment variable.  The command line option will override any
-  value currently set in the environment.  See the ENVIRONMENT section
-  of **geopm(7)**.
+  GEOPM policy JSON file used to configure the Agent plugin.  To
+  provide a shared memory region name, `--geopm-endpoint` should be
+  used instead.  See **geopmagent(1)** and **geopm_agent_c(3)** for
+  more information about how to create this input file.  This option
+  is used by the launcher to set the GEOPM_POLICY environment
+  variable.  The command line option will override any value currently
+  set in the environment.  See the ENVIRONMENT section of
+  **geopm(7)**.
 
 * `--geopm-endpoint` endpoint:
+
   Basename for the policy and sample shared memory regions used to
-  communicate with the resource manager.  This option is used by the
-  launcher to set the GEOPM_ENDPOINT environment variable.  The
+  communicate with the resource manager.  This allows the resource
+  manager to dynamically control GEOPM plugins and collect feedback at
+  runtime.  See **geopmendpoint(1)** and **geopm_endpoint_c(3)** to
+  learn about creating the shared memory region.  This option is used
+  by the launcher to set the GEOPM_ENDPOINT environment variable.  The
   command line option will override any value currently set in the
   environment.  See the ENVIRONMENT section of **geopm(7)**.
 
@@ -138,34 +142,39 @@ the first `--` from the command line.
   will override any value currently set in the environment.  See the
   ENVIRONMENT section of **geopm(7)**.
 
-* `--geopm-report` file:
-  The GEOPM report output file describing the profiling information
-  collected by GEOPM.  This file is generated at the conclusion of the
-  run if this option is given.  The report contains information about
-  runtimes, MPI usage, and power consumption.  The report is broken
-  down by region if the application has been annotated with the GEOPM
-  region interface.  Note that the sampled values for 'energy' and
-  'sync-runtime' are added to the total for a region only when all
-  ranks are in a region; otherwise they are added to the unmarked
-  region.  The epoch region and application total energy are not
-  calculated by sampling but rather through start and end values.
-  When comparing energy and time values from the report, care should
-  be taken to use 'runtime' in the case of epoch and application totals,
-  and 'sync-runtime' for all other regions.  This option is used by
-  the launcher to set the GEOPM_REPORT environment variable.  The
-  command line option will override any value currently set in the
-  environment.  See the ENVIRONMENT section of **geopm(7)**.
+* `--geopm-report` path:
+  Path to the GEOPM report output file describing the profiling
+  information collected by GEOPM.  This file is generated at the
+  conclusion of the run if this option is given and will be written to
+  the file system path specified or current directory if only a file
+  name is given.  The report is a single file contains information
+  about runtimes, MPI usage, and power consumption for each node.  The
+  report is broken down by region if the application has been
+  annotated with the GEOPM region interface.  Note that the sampled
+  values for 'energy' and 'sync-runtime' are added to the total for a
+  region only when all ranks are in a region; otherwise they are added
+  to the unmarked region.  The epoch region and application total
+  energy are not calculated by sampling but rather through start and
+  end values.  When comparing energy and time values from the report,
+  care should be taken to use 'runtime' in the case of epoch and
+  application totals, and 'sync-runtime' for all other regions.  This
+  option is used by the launcher to set the GEOPM_REPORT environment
+  variable.  The command line option will override any value currently
+  set in the environment.  See the ENVIRONMENT section of
+  **geopm(7)**.
 
 * `--geopm-trace` path:
-  The base name of the trace files generated if this option is
-  specified.  One trace file is generated for each compute node used
-  by the application containing a pipe delimited ASCII table
+  The base name and path of the trace files generated if this option
+  is specified.  One trace file is generated for each compute node
+  used by the application containing a pipe-delimited ASCII table
   describing a time series of measurements made by the GEOPM runtime.
   The path is extended with the host name of the node for each created
-  file.  This feature is primarily a debugging tool, and will not
-  scale to large node counts due to file system issues.  This option
-  is used by the launcher to set the GEOPM_TRACE environment variable.
-  The command line option will override any value currently set in the
+  file.  The trace files will be written to the file system path
+  specified or current directory if only a file name is given.  This
+  feature is primarily a debugging tool, and may not scale to large
+  node counts due to file system issues.  This option is used by the
+  launcher to set the GEOPM_TRACE environment variable.  The command
+  line option will override any value currently set in the
   environment.  See the ENVIRONMENT section of **geopm(7)**.
 
 * `--geopm-trace-signals` signals:
@@ -194,6 +203,8 @@ the first `--` from the command line.
 * `--geopm-profile` name:
   The name of the profile which is printed in the report and trace
   files.  This name can be used to index the data in post-processing.
+  For example, when running a sweep of experiments with multiple power
+  caps, the profile could contain the power setting for one run.
   This option is used by the launcher to set the GEOPM_PROFILE
   environment variable.  The command line option will override any
   value currently set in the environment.  See the ENVIRONMENT section
@@ -250,12 +261,12 @@ the first `--` from the command line.
 Use geopmlaunch to queue a job using geopmbench on a SLURM managed system
 requesting two nodes using 32 application MPI process each with four threads:
 
-    geopmlaunch srun -N 2 -n 32 -c 4 --geopm-ctl=process --geopm-report=tutorial6.report -- ./tutorial6 tutorial6_config.json
+    geopmlaunch srun -N 2 -n 32 -c 4 --geopm-ctl=process --geopm-report=tutorial6.report -- geopmbench tutorial_6_config.json
 
 Use geopmlaunch to launch the miniFE executable with the same configuration,
 but on an ALPS managed system:
 
-    geopmlaunch aprun -N 16 -n 32 --cpus-per-pe 4 --geopm-ctl process --geopm-report miniFE.report -- ./miniFE.x -nx 256 -nz 256
+    geopmlaunch aprun -N 2 -n 64 --cpus-per-pe 4 --geopm-ctl process --geopm-report miniFE.report -- ./miniFE.x -nx 256 -ny 256 -nz 256
 
 ## ENVIRONMENT
 Every command line option to the launcher can also be specified as an
@@ -286,5 +297,4 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm_agent_power_balancer(7)**,
 **geopm_agent_power_governor(7)**,
 **geopm_error(3)**,
-**geopmctl(1)**,
-**geopmpolicy(1)**
+**geopmctl(1)**

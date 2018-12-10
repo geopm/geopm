@@ -46,8 +46,6 @@ region_id = {
 version = '0.3.0'
 start_time = 'Tue Nov  6 08:00:00 2018'
 power_budget = 400
-tree_decider = 'static'
-leaf_decider = 'simple'
 agent = 'energy_efficient'
 node_name = 'mynode'
 
@@ -103,7 +101,7 @@ def make_mock_sweep_report_df(name_prefix, freqs, best_fit_freq, best_fit_perf,
 
 
 def make_mock_report_df(name_prefix, metric, metric_perf):
-    ''' Make a mock report dataframe for a single frequency decider run.'''
+    ''' Make a mock report dataframe for a single run.'''
     input_data = {}
     for col in numeric_cols:
         input_data[col] = {}
