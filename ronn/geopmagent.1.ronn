@@ -84,16 +84,31 @@ Get power_balancing agent policy and sample names:
     Policy: POWER
     Sample: POWER,IS_CONVERGED,EPOCH_RUNTIME
 
+Create policy for power_governor agent with 250 Watts per node power
+budget:
+
+    $ geopmagent -a power_governor -p 250
+    {"POWER" : 250}
+
 Create policy for power_balancer agent with 250 Watts per node power
 budget:
 
-    $ geopmagent -a power_balancer -p 250
-    {"POWER" : 250}
+    $ geopmagent -a power_balancer -p 250,0,0,0
+    {"POWER_CAP" : 250, "STEP_COUNT" : 0, "MAX_EPOCH_RUNTIME" : 0, "POWER_SLACK" : 0}
+
+Create policy for energy_efficient agent with minimum frequency of 1.2
+GHz and maximum frequency of 2.4 GHz:
+
+    $ geopmagent -a energy_efficient -p 1.2e9,2.4e9
+    {"FREQ_MIN" : 1.2e+09, "FREQ_MAX" : 2.4e+09}
 
 Create policy for monitor agent which does not require any policies.
+Note that GEOPM uses the monitor agent by default, in which case
+specifying `--geopm-agent` and `--geopm-policy` are optional.
 
     $ geopmagent -a monitor -p None
     {}
+
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.

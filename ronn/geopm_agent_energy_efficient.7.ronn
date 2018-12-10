@@ -43,12 +43,13 @@ There are two modes available: offline and online.  In the offline
 mode, the best frequencies for each region are specified in the
 environment variable `GEOPM_EFFICIENT_FREQ_RID_MAP`, which is a
 JSON-formatted string mapping region name to frequency in Hertz,
-e.g. '{"region1": 1200000000, "region2": 1500000000}'.  If a frequency
-for a region is not specified, the region hint will be used and the
-frequency will be set to either the minimum or maximum available
-frequency.  See **geopm_prof_c(3)** for the list of region hints.
-These best-fit frequencies can be determined by running the
-application once at each available frequency and checking the
+e.g. '{"region1": 1200000000, "region2": 1500000000}'.  For this node,
+the environment variable `GEOPM_EFFICIENT_FREQ_ONLINE` must be
+unset. If a frequency for a region is not specified, the region hint
+will be used and the frequency will be set to either the minimum or
+maximum available frequency.  See **geopm_prof_c(3)** for the list of
+region hints.  These best-fit frequencies can be determined by running
+the application once at each available frequency and checking the
 performance of each region; this frequency sweep is available as an
 analysis type for `geopmanalysis` described in **geopmanalysis(1)**.
 The online mode finds the optimal frequency for each region
@@ -56,19 +57,27 @@ dynamically by measuring the performance of each region and reducing
 the frequency as long as the performance is still within acceptable
 limits.  The performance metric used is the maximum of the runtimes
 reported by each rank for the last execution of the region in question
-(lower is better).  It also avoids reducing frequency if energy would
-increase (due to performance loss in a frequency-sensitive region). Up
-to 10% performance loss is allowed.  Enable the online mode by setting
-`GEOPM_EFFICIENT_FREQ_ONLINE` and unsetting
-`GEOPM_EFFICIENT_FREQ_RID_MAP`.
+(lower is better).  The agent also avoids reducing frequency if energy
+would increase (due to performance loss in a frequency-sensitive
+region). Up to 10% performance loss is allowed.  Enable the online
+mode by setting `GEOPM_EFFICIENT_FREQ_ONLINE` and unsetting
+`GEOPM_EFFICIENT_FREQ_RID_MAP`, which is not used by the online mode.
 
 ## AGENT BEHAVIOR HIGHLIGHTS
 
+Policies and samples are the control parameters and sampled values
+measured by the Agent.  See **geopm::Agent(3)** for more explanation
+of how these policies and samples are communicated between agents
+and with the resource manager.  The Agent interface also provides
+methods for the Agent to extend reports and traces with additional
+Agent-specific information.
+
 * `Agent Name`:
-  Set the `GEOPM_AGENT` environment variable to "energy_efficient" and
-  the Controller will select the EnergyEfficientAgent for its control
-  handler.  See **geopm(7)** for more information about environment
-  variables.
+  Set the `--geopm-agent` launch option or `GEOPM_AGENT` environment
+  variable to "energy_efficient" and the Controller will select the
+  EnergyEfficientAgent for its control handler.  See
+  **geopm_launch(1)** and **geopm(7)** for more information about
+  launch options and environment variables.
 
 * `Ordered Policies Descending`:
   The minimum and maximum frequency are passed down as policies.
@@ -85,14 +94,18 @@ to 10% performance loss is allowed.  Enable the online mode by setting
 
 * `Ordered Samples Ascending`:
 
-  `ENERGY_PACKAGE`: Total energy from the packages across all nodes.
+  `ENERGY_PACKAGE`: Total energy from the packages across all child
+                    nodes.  At the root, this is the total energy for
+                    all nodes in the job.
 
-  `FREQUENCY`: The average frequency across nodes.
+  `FREQUENCY`: The average frequency across child nodes.  At the root,
+               this is the average frequency across all nodes in the
+               job.
 
 * `Tracing Modifications`:
   N/A
 
-* `Report Modifiers`:
+* `Report Modifications`:
   The per-node final frequency for each region is added to the report.
   This reflects the settings from the map or hint in offline mode, or
   the learned best frequency determined by the online mode.
@@ -110,7 +123,9 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm_agent_monitor(7)**,
 **geopm_agent_power_balancer(7)**,
 **geopm_agent_power_governor(7)**,
+**geopm::Agent(3)**,
 **geopm_agent_c(3)**,
 **geopm_prof_c(3)**,
 **geopmagent(1)**,
-**geopmanalysis(1)**
+**geopmanalysis(1)**,
+**geopmlaunch(1)**

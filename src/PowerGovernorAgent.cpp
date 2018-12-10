@@ -68,13 +68,9 @@ namespace geopm
         , m_last_power_budget(NAN)
         , m_epoch_power_buf(geopm::make_unique<CircularBuffer<double> >(16)) // Magic number...
         , m_sample(M_PLAT_NUM_SIGNAL)
-        , m_updates_per_sample(5)
         , m_ascend_count(0)
         , m_ascend_period(10)
-        , m_convergence_target(0.01)
-        , m_num_out_of_range(0)
         , m_min_num_converged(15)
-        , m_num_converged(0)
         , m_num_pkg(m_platform_topo.num_domain(m_platform_io.control_domain_type("POWER_PACKAGE")))
         , m_adjusted_power(0.0)
         , m_last_wait(GEOPM_TIME_REF)
