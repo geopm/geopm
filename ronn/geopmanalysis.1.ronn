@@ -59,25 +59,24 @@ The available analysis types are:
   will not be degraded by more than a given margin.
 
 * _offline_:
-  Compares the energy efficiency plugin in offline mode to the
+  Compares the energy_efficient agent in offline mode to the
   baseline at sticker frequency.
 
 * _online_:
-  Compares the energy efficiency plugin in online mode to the
+  Compares the energy_efficient agent in online mode to the
   baseline at sticker frequency.
 
 * _hint_:
-  Compares the energy efficiency plugin using per-region hints to the
+  Compares the energy_efficient agent using per-region hints to the
   baseline at sticker frequency.
 
 * _stream_mix_:
   Runs a full frequency sweep, then offline and online modes of the
-  energy efficiency plugin. The energy and runtime of the
-  application best-fit, per-phase offline mode, and per-phase
-  online mode are compared to the run at sticker frequency.
-  Note: unlike other analysis types, this analysis uses the
-  geopmbench application, and application arguments should *not* be
-  passed to it.
+  energy_efficient agent. The energy and runtime of the application
+  best-fit, per-phase offline mode, and per-phase online mode are
+  compared to the run at sticker frequency.  Note: unlike other
+  analysis types, this analysis uses the geopmbench application, and
+  application arguments should *not* be passed to it.
 
 * _power_sweep_:
   Runs the application under a range of socket power limits.
@@ -105,7 +104,8 @@ The available analysis types are:
   Show the GEOPM version number and exit.
 
 * `--geopm-analysis-skip-launch`:
-  Do not launch jobs, only analyze existing data.
+  Do not launch jobs, only analyze existing data.  Required unless
+  `--geopm-analysis-launcher` is set.
 
 * `--geopm-analysis-launcher` _GEOPM_LAUNCHER_:
   Required unless `--geopm-analysis-skip-launch` is set.  Specifies the
@@ -299,6 +299,6 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 ## SEE ALSO
 **geopm(7)**,
 **geopmpy(7)**,
-**geopmlaunch(1)**,
 **geopmbench(1)**,
+**geopmlaunch(1)**,
 **geopmplotter(1)**,

@@ -41,7 +41,6 @@ geopm_ctl_c(3)                   geopm_ctl_c.3
 geopm_endpoint_c(3)              geopm_endpoint_c.3
 geopm_error(3)                   geopm_error.3
 geopm_fortran(3)                 geopm_fortran.3
-geopm_policy_c(3)                geopm_policy_c.3
 geopm_prof_c(3)                  geopm_prof_c.3
 geopm_sched(3)                   geopm_sched.3
 geopm_version(3)                 geopm_version.3
@@ -51,7 +50,6 @@ geopmbench(1)                    geopmbench.1
 geopmctl(1)                      geopmctl.1
 geopmendpoint(1)                 geopmendpoint.1
 geopmplotter(1)                  geopmplotter.1
-geopmpolicy(1)                   geopmpolicy.1
 geopmlaunch(1)                   geopmplaunch.1
 geopmread(1)                     geopmread.1
 geopmwrite(1)                    geopmwrite.1

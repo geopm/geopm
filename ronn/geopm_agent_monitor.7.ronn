@@ -1,5 +1,5 @@
-geopm_agent_monitor(7) -- agent implementation that enforces no policies
-========================================================================
+geopm_agent_monitor(7) -- agent implementation for aggregating statistics
+=========================================================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
 [//]: # ()
@@ -33,29 +33,37 @@ geopm_agent_monitor(7) -- agent implementation that enforces no policies
 
 ## DESCRIPTION
 An implementation of the Agent interface that enforces no policies and
-is intended for application tracing and profiling only.
+is intended for application tracing and profiling only.  It collects
+statistics from each node and aggregates them over the whole
+application run.
 
 ## AGENT BEHAVIOR HIGHLIGHTS
+Policies and samples are vectors of double precision values where each
+value has a meaning defined by the **geopm::Agent(3)** implementation.
+The Agent interface also provides methods for the Agent to extend
+reports and traces with additional Agent-specific information.
 
 * `Agent Name`:
-  Set the `GEOPM_AGENT` environment variable to "monitor" and the
-  Controller will select the Monitor Agent for its control handler.
-  See **geopm(7)** for more information about environment variables.
+  Set the `--geopm-agent` launch option or `GEOPM_AGENT` environment
+  variable to "monitor" and the Controller will select the
+  MonitorAgent for its control handler.  See **geopmlaunch(1)** and
+  **geopm(7)** for more information about launch options and
+  environment variables.
 
-* `Ordered Policies Descending`:
+* `Agent Policy Definitions`:
   N/A
 
-* `Ordered Samples Ascending`:
+* `Agent Sample Definitions`:
 
   `POWER_PACKAGE`: Total power of the package(s) across all compute
                    nodes.
 
   `FREQUENCY`: The average CPU frequency across all compute nodes.
 
-* `Tracing Modifications`:
+* `Trace Column Extensions`:
   N/A
 
-* `Report Modifiers`:
+* `Report Extensions`:
   N/A
 
 * `Control Loop Gate`:
@@ -71,8 +79,9 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm_agent_energy_efficient(7)**,
 **geopm_agent_power_balancer(7)**,
 **geopm_agent_power_governor(7)**,
+**geopm::Agent(3)**,
 **geopm_agent_c(3)**,
 **geopm_endpoint_c(3)**,
 **geopmagent(1)**,
-**geopmlaunch(1)**,
 **geopmendpoint(1)**,
+**geopmlaunch(1)**
