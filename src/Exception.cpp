@@ -59,29 +59,14 @@ extern "C"
             case GEOPM_ERROR_INVALID:
                 strncpy(msg, "<geopm> Invalid argument", size);
                 break;
-            case GEOPM_ERROR_POLICY_NULL:
-                strncpy(msg, "<geopm> The geopm_policy_c pointer is NULL, use geopm_policy_create()", size);
-                break;
             case GEOPM_ERROR_FILE_PARSE:
                 strncpy(msg, "<geopm> Unable to parse input file", size);
                 break;
             case GEOPM_ERROR_LEVEL_RANGE:
                 strncpy(msg, "<geopm> Control hierarchy level is out of range", size);
                 break;
-            case GEOPM_ERROR_CTL_COMM:
-                strncpy(msg, "<geopm> Communication error in control hierarchy", size);
-                break;
-            case GEOPM_ERROR_SAMPLE_INCOMPLETE:
-                strncpy(msg, "<geopm> All children have not sent all samples", size);
-                break;
-            case GEOPM_ERROR_POLICY_UNKNOWN:
-                strncpy(msg, "<geopm> No policy has been set", size);
-                break;
             case GEOPM_ERROR_NOT_IMPLEMENTED:
                 strncpy(msg, "<geopm> Feature not yet implemented", size);
-                break;
-            case GEOPM_ERROR_NOT_TESTED:
-                strncpy(msg, "<geopm> Feature not yet tested", size);
                 break;
             case GEOPM_ERROR_PLATFORM_UNSUPPORTED:
                 strncpy(msg, "<geopm> Current platform not supported or unrecognized", size);
@@ -95,32 +80,11 @@ extern "C"
             case GEOPM_ERROR_MSR_WRITE:
                 strncpy(msg, "<geopm> Could not write to MSR device", size);
                 break;
-            case GEOPM_ERROR_OPENMP_UNSUPPORTED:
-                strncpy(msg, "<geopm> Not compiled with support for OpenMP", size);
-                break;
-            case GEOPM_ERROR_PROF_NULL:
-                strncpy(msg, "<geopm> The geopm_prof_c pointer is NULL, use geopm_prof_create()", size);
-                break;
-            case GEOPM_ERROR_DECIDER_UNSUPPORTED:
-                strncpy(msg, "<geopm> Specified Decider not supported or unrecognized", size);
-                break;
-            case GEOPM_ERROR_FACTORY_NULL:
-                strncpy(msg, "<geopm> The geopm_factory_c pointer is NULL, pass in a valid factory object", size);
-                break;
-            case GEOPM_ERROR_SHUTDOWN:
-                strncpy(msg, "<geopm> Shutdown policy has been signaled", size);
-                break;
-            case GEOPM_ERROR_TOO_MANY_COLLISIONS:
-                strncpy(msg, "<geopm> Too many collisions when inserting into hash table", size);
+            case GEOPM_ERROR_AGENT_UNSUPPORTED:
+                strncpy(msg, "<geopm> Specified Agent not supported or unrecognized", size);
                 break;
             case GEOPM_ERROR_AFFINITY:
                 strncpy(msg, "<geopm> MPI ranks are not affitinized to distinct CPUs", size);
-                break;
-            case GEOPM_ERROR_ENVIRONMENT:
-                strncpy(msg, "<geopm> Unset or invalid environment variable", size);
-                break;
-            case GEOPM_ERROR_COMM_UNSUPPORTED:
-                strncpy(msg, "<geopm> Communication implementation not supported", size);
                 break;
             case GEOPM_ERROR_NO_AGENT:
                 strncpy(msg, "<geopm> Requested agent is unavailable or invalid", size);
