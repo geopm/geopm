@@ -1506,8 +1506,7 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
             raise RuntimeError('Analysis without --geopm-analysis-skip-launch requires --geopm-analysis-launcher to be set')
         # @todo: if launching, must run within an allocation to make sure all runs use
         # the same set of nodes.  Checking this must be implemented with launcher methods.
-        args.insert(1, launcher_name)
-        analysis.launch(args, launcher_name)
+        analysis.launch(launcher_name, args)
     if do_summary or do_plot:
         analysis.find_files()
         parse_output = analysis.parse()
