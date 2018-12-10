@@ -63,6 +63,8 @@ namespace geopm
         , m_last_epoch_runtime_mpi(m_rank_per_node, 0.0)
         , m_last_epoch_runtime_ignore(m_rank_per_node, 0.0)
         , m_agg_epoch_runtime(m_rank_per_node, 0.0)
+        , m_agg_pre_epoch_runtime_mpi(m_rank_per_node, 0.0)
+        , m_agg_pre_epoch_runtime_ignore(m_rank_per_node, 0.0)
         , m_pre_epoch_region(m_rank_per_node)
         , m_epoch_start_energy_pkg(NAN)
         , m_epoch_start_energy_dram(NAN)
@@ -132,8 +134,8 @@ namespace geopm
             record_exit(GEOPM_REGION_ID_EPOCH, rank, epoch_time);
         }
         else {
-            std::fill(m_curr_runtime_mpi.begin(), m_curr_runtime_mpi.end(), 0.0);
-            std::fill(m_curr_runtime_ignore.begin(), m_curr_runtime_ignore.end(), 0.0);
+            m_curr_runtime_mpi[rank] = 0.0;
+            m_curr_runtime_ignore[rank] = 0.0;
             m_seen_first_epoch[rank] = true;
         }
         record_entry(GEOPM_REGION_ID_EPOCH, rank, epoch_time);
@@ -192,9 +194,13 @@ namespace geopm
                 m_agg_epoch_runtime[rank] += m_last_epoch_runtime[rank];
                 m_agg_epoch_runtime_mpi[rank] += m_curr_runtime_mpi[rank];
                 m_agg_epoch_runtime_ignore[rank] += m_curr_runtime_ignore[rank];
-                m_curr_runtime_mpi[rank] = 0.0;
-                m_curr_runtime_ignore[rank] = 0.0;
             }
+            else {
+                m_agg_pre_epoch_runtime_mpi[rank] += m_curr_runtime_mpi[rank];
+                m_agg_pre_epoch_runtime_ignore[rank] += m_curr_runtime_ignore[rank];
+            }
+            m_curr_runtime_mpi[rank] = 0.0;
+            m_curr_runtime_ignore[rank] = 0.0;
         }
         else if (is_mpi) {
             if (pre_epoch_it == m_pre_epoch_region[rank].end()) {
@@ -309,12 +315,12 @@ namespace geopm
 
     double EpochRuntimeRegulator::total_epoch_runtime_mpi(void) const
     {
-        return total_region_runtime_mpi(GEOPM_REGION_ID_EPOCH);
+        return Agg::average(m_agg_pre_epoch_runtime_mpi) + total_region_runtime_mpi(GEOPM_REGION_ID_EPOCH);
     }
 
     double EpochRuntimeRegulator::total_epoch_runtime_ignore(void) const
     {
-        return Agg::average(m_agg_epoch_runtime_ignore);
+        return Agg::average(m_agg_pre_epoch_runtime_ignore) + Agg::average(m_agg_epoch_runtime_ignore);
     }
 
     double EpochRuntimeRegulator::total_epoch_energy_pkg(void) const
