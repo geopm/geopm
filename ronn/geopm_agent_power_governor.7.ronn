@@ -33,30 +33,32 @@ geopm_agent_power_governor(7) -- agent enforces a power cap
 
 ## DESCRIPTION
 
-The PowerGovernorAgent is designed to enforce a per-compute-node power
-cap by varying the package power limit in response to the measured
-DRAM power.
+The PowerGovernorAgent enforces a per-compute-node power cap of the
+total power of all packages (sockets).
 
 ## AGENT BEHAVIOR HIGHLIGHTS
+Policies and samples are vectors of double precision values where each
+value has a meaning defined by the **geopm::Agent(3)** implementation.
+The Agent interface also provides methods for the Agent to extend
+reports and traces with additional Agent-specific information.
 
 * `Agent Name`:
-  Set the `GEOPM_AGENT` environment variable to "power_governor" and
-  the Controller instances will select the PowerGovernorAgent for
-  its control handler.  See **geopm(7)** for more information about
+  Set the `--geopm-agent` launch option or `GEOPM_AGENT` environment
+  variable to "power_governor" and the Controller will select the
+  PowerGovernorAgent for its control handler.  See **geopmlaunch(1)**
+  and **geopm(7)** for more information about launch options and
   environment variables.
 
-* `Ordered Policies Descending`:
+* `Agent Policy Definitions`:
 
   `POWER`: Sets the average power cap per compute node in units of
            Watts.  If NAN is passed for the power cap, the value will
            default to the thermal design power (TDP).
 
-* `Ordered Samples Ascending`:
+* `Agent Sample Definitions`:
 
-  `POWER_MAXIMUM`: Maximum power excursion in Watts measured over the
-                   last epoch.  The maximum power excursion is
-                   determined by differencing energy values across the
-                   time window provided by the policy.
+  `POWER`: Median total package and DRAM power for the node in Watts
+           measured over the last epoch.
 
   `IS_CONVERGED`: Will be 1.0 if the power policy has been
                   enforced and the power consumption by all nodes is
@@ -67,29 +69,19 @@ DRAM power.
                   This value corresponds to the `POWER_AVERAGE` policy field and
                   is expected to match unless the policy is unachievable.
 
-* `Tracing Modifications`:
-
-  `power_package`: Instantaneous power measurement of all processor
-                   packages on each compute node averaged over all
-                   compute nodes allocated to the application.
-
-  `power_dram`: Instantaneous power measurement of all DRAM modules in
-                each compute node averaged over all compute nodes
-                allocated to the application.
+* `Trace Column Extensions`:
 
   `power_budget`: Power budget assigned to the compute node associated
                   with the trace file at time of sampling.
 
 
-* `Report Modifiers`:
+* `Report Extensions`:
   N/A
 
 * `Control Loop Gate`:
-  The agent gates the Controller's control loop to a cadence of 5
-  updates to the POWER_PACKAGE platform signal.  This agent propagates
-  its ascending signals up the tree every 50 updates to the
-  POWER_PACKAGE platform signal (i.e. 10 control cycles).  For
-  example, on KNL this is around 5ms.
+  The Monitor agent gates the Controller's control loop to a cadence
+  of 5ms.  This agent propagates its ascending signals up the tree
+  every 50ms.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
@@ -99,6 +91,8 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm_agent_energy_efficient(7)**,
 **geopm_agent_monitor(7)**,
 **geopm_agent_power_balancer(7)**,
+**geopm::Agent(3)**,
 **geopm_agent_c(3)**,
 **geopm_prof_c(3)**,
-**geopmagent(1)**
+**geopmagent(1)**,
+**geopmlaunch(1)**

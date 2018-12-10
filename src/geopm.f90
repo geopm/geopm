@@ -71,14 +71,6 @@ module geopm
         !! POWER MANAGEMENT !!
         !!!!!!!!!!!!!!!!!!!!!!
 
-        !> @brief Fortran interface to @link geopm_ctl.h geopm_ctl_step @endlink C function.
-        !> @ingroup fortran
-        integer(kind=c_int) function geopm_ctl_step(ctl) bind(C)
-            import
-            implicit none
-            type(c_ptr), value, intent(in) :: ctl
-        end function geopm_ctl_step
-
         !> @brief Fortran interface to @link geopm_ctl.h geopm_ctl_run @endlink C function.
         !> @ingroup fortran
         integer(kind=c_int) function geopm_ctl_run(ctl) bind(C)

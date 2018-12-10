@@ -68,7 +68,7 @@ geopm_prof_c(3) -- application profiling interfaces
     `void);`
 
 ## DESCRIPTION
-The functions described here enable application feedback to the
+The functions described here enable application feedback to the GEOPM
 control algorithm for identifying regions of code, progress within
 regions, and iterations through loops that contain inter-node
 synchronization points in the application.  Regions of code define
@@ -130,9 +130,10 @@ through an outer loop in the application, the "epoch".
     hybrid thread/process paralellism (e.g. MPI + OpenMP).
 
     `GEOPM_REGION_HINT_IGNORE`: <br>
-    Do not include time spent in ignore regions when calculating epoch
-    runtime, this should be applied to application start up, shutdown,
-    or events that do not happen on every trip through the outer loop.
+    Region that control algorithms should ignore, and/or apply default
+    policies.  This hint should be applied to application start up,
+    shutdown, and events that do not happen on every trip through the
+    outer loop.
 
   * `geopm_prof_enter`():
     is called by the compute application to mark the beginning of the
@@ -147,12 +148,12 @@ through an outer loop in the application, the "epoch".
     error code is returned.
 
   * `geopm_prof_progress`():
-    is called by compute application in single threaded context to
-    signal the fractional progress, _fraction_ through the work
-    required to complete the region where _fraction_ is between 0 and 1.
-    If the _region_id_ does not match the _region_id_ of the last
-    call to geopm_prof_prof_enter() which was not nested, then this
-    call is ignored and an error code is returned.
+    is called by the compute application in a single threaded context
+    to signal the proportion of work completed for a region,
+    _fraction_, where _fraction_ is between 0 and 1.  If the
+    _region_id_ does not match the _region_id_ of the last call to
+    geopm_prof_prof_enter() that was not nested, then this call is
+    ignored and an error code is returned.
 
   * `geopm_prof_epoch`():
     is called once for each pass through a computational loop
@@ -167,35 +168,42 @@ through an outer loop in the application, the "epoch".
     the `GEOPM_REGION_HINT_IGNORE` hint bit set will be ignored.
 
   * `geopm_tprof_init`():
-    resets the thread profile table which extends the functionality of
-    the profiling interface to report progress within threaded
-    regions.  This should be called by all threads to set up the
-    table after entering a thread parallel region.  This interface
-    enables each thread to set the the total number work units that
-    the thread will be executing.  This corresponds to the number of
-    times that the `geopm_tprof_post`() interface will be called by
-    the thread to report progress within the region.  If
-    `geopm_tprof_init`() is called within a parallel region
-    `geopm_tprof_init_loop`() should not be called.
+    resets the thread profile table, which extends the functionality
+    of the profiling interface to report progress within threaded
+    regions.  Along with `geopm_tprof_post()`, it provides an
+    alternative to the `geopm_prof_progress()` method.  This should be
+    called by all threads to set up the table after entering a thread
+    parallel region.  This interface enables each thread to set the
+    the total number work units that the thread will be executing.
+    This corresponds to the number of times that the
+    `geopm_tprof_post`() interface will be called by the thread to
+    report progress within the region.  If `geopm_tprof_init`() is
+    called within a parallel region `geopm_tprof_init_loop`() should
+    not be called.
 
   * `geopm_tprof_init_loop`():
-    resets the thread profile table which extends the functionality of
-    the profiling interface to report progress within threaded
-    regions.  This should be called by all threads to set up the table
-    after entering a thread parallel region.  The interface assumes
-    the calling thread is numbered _thread_idx_ from a gang with a fixed
-    number of threads, _num_thread_, which are performing work sharing
-    on a list of tasks _num_iter_ long (e.g. an omp parallel for loop
-    with _num_iter_ loops).  In the specific case of an OpenMP for
-    loop statically scheduled with a chunk size then the _chunk_size_
-    argument can be specified to be non-zero and the work distribution
-    among threads is explicitly calculated.  If
-    `geopm_tprof_init_loop`() is called within a parallel region
-    `geopm_tprof_init`() should not be called.
+    resets the thread profile table, which extends the functionality
+    of the profiling interface to report progress within threaded
+    regions containing parallel for loops.  Along with
+    `geopm_tprof_post()`, it provides an alternative to the
+    `geopm_prof_progress()` method.  This should be called by all
+    threads to set up the table after entering a thread parallel
+    region.  The interface assumes the calling thread is numbered
+    _thread_idx_ from a gang with a fixed number of threads,
+    _num_thread_, which are performing work sharing on a list of tasks
+    _num_iter_ long (e.g. an omp parallel for loop with _num_iter_
+    loops).  In the specific case of an OpenMP for loop statically
+    scheduled with a chunk size then the _chunk_size_ argument can be
+    specified to be non-zero and the work distribution among threads
+    is explicitly calculated.  If `geopm_tprof_init_loop`() is called
+    within a parallel region `geopm_tprof_init`() should not be
+    called.
 
   * `geopm_tprof_post`():
     is called after a thread has completed each work unit to report
-    progress.
+    progress.  Rather than a user-provided percentage of work complete,
+    this method signals the completion of one work unit out of the total
+    passed to `geopm_tprof_init()` or `geopm_tprof_init_loop()`.
 
 ## EXAMPLE
 

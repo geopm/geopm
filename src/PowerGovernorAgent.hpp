@@ -108,13 +108,9 @@ namespace geopm
             double m_last_power_budget;
             std::unique_ptr<ICircularBuffer<double> > m_epoch_power_buf;
             std::vector<double> m_sample;
-            int m_updates_per_sample;
             int m_ascend_count;
             const int m_ascend_period;
-            const double m_convergence_target;
-            int m_num_out_of_range;
             const int m_min_num_converged;
-            int m_num_converged;
             int m_num_pkg;
             double m_adjusted_power;
             geopm_time_s m_last_wait;
