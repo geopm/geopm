@@ -49,7 +49,7 @@ fi
 err=0
 
 # Check for crc32 intrinsic support before running ProfileTable tests
-if [[ $test_name =~ ^ProfileTable ]] || [[ $test_name =~ EfficientFreqDeciderTest ]]; then
+if [[ $test_name =~ ^ProfileTable ]]; then
     if  ! ./examples/geopm_platform_supported crc32; then
         echo "Warning: _mm_crc32_u64 intrisic not supported."
         run_test=false

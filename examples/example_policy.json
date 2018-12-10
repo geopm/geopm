@@ -1,1 +1,0 @@
-{ "mode": "perf_balance_dynamic", "options": { "tree_decider": "power_balancing", "leaf_decider": "power_governing", "platform": "rapl", "power_budget": 200 } }

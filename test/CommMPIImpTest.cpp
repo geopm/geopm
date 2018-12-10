@@ -971,7 +971,3 @@ TEST_F(CommMPIImpTest, mpi_win_ops)
     check_params();
 }
 }
-
-void geopm_factory_register(struct geopm_factory_c *factory, const geopm::Comm *in_comm, void *dl_ptr)
-{
-}
