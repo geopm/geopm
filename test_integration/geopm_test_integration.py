@@ -492,7 +492,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.set_loop_count(loop_count)
         agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path, time_limit=900)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path, time_limit=900, region_barrier=True)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
