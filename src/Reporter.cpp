@@ -183,9 +183,7 @@ namespace geopm
         /// signal used by the balancer, but will be changed in the future.
         region_ordered.push_back({"epoch",
                                   GEOPM_REGION_ID_EPOCH,
-                                  application_io.total_epoch_runtime() +
-                                  application_io.total_epoch_runtime_mpi() +
-                                  application_io.total_epoch_runtime_ignore(),
+                                  application_io.total_epoch_runtime(),
                                   application_io.total_count(GEOPM_REGION_ID_EPOCH)});
 
         // If any region data from Agent still has hints, remove them
