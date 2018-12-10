@@ -63,6 +63,8 @@ namespace geopm
         , m_last_epoch_runtime_mpi(m_rank_per_node, 0.0)
         , m_last_epoch_runtime_ignore(m_rank_per_node, 0.0)
         , m_agg_epoch_runtime(m_rank_per_node, 0.0)
+        , m_agg_pre_epoch_runtime_mpi(m_rank_per_node, 0.0)
+        , m_agg_pre_epoch_runtime_ignore(m_rank_per_node, 0.0)
         , m_pre_epoch_region(m_rank_per_node)
         , m_epoch_start_energy_pkg(NAN)
         , m_epoch_start_energy_dram(NAN)
@@ -192,9 +194,13 @@ namespace geopm
                 m_agg_epoch_runtime[rank] += m_last_epoch_runtime[rank];
                 m_agg_epoch_runtime_mpi[rank] += m_curr_runtime_mpi[rank];
                 m_agg_epoch_runtime_ignore[rank] += m_curr_runtime_ignore[rank];
-                m_curr_runtime_mpi[rank] = 0.0;
-                m_curr_runtime_ignore[rank] = 0.0;
             }
+            else {
+                m_agg_pre_epoch_runtime_mpi[rank] += m_curr_runtime_mpi[rank];
+                m_agg_pre_epoch_runtime_ignore[rank] += m_curr_runtime_ignore[rank];
+            }
+            m_curr_runtime_mpi[rank] = 0.0;
+            m_curr_runtime_ignore[rank] = 0.0;
         }
         else if (is_mpi) {
             if (pre_epoch_it == m_pre_epoch_region[rank].end()) {
@@ -329,7 +335,12 @@ namespace geopm
 
     double EpochRuntimeRegulator::total_app_runtime_mpi(void) const
     {
-        return Agg::average(m_agg_runtime_mpi);
+        return Agg::average(m_agg_pre_epoch_runtime_mpi) + Agg::average(m_agg_runtime_mpi);
+    }
+
+    double EpochRuntimeRegulator::total_app_runtime_ignore(void) const
+    {
+        return Agg::average(m_agg_pre_epoch_runtime_ignore) + Agg::average(m_agg_epoch_runtime_ignore);
     }
 
     int EpochRuntimeRegulator::total_count(uint64_t region_id) const
