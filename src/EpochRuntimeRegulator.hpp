@@ -174,6 +174,7 @@ namespace geopm
             IPlatformIO &m_platform_io;
             IPlatformTopo &m_platform_topo;
             std::map<uint64_t, std::unique_ptr<IRuntimeRegulator> > m_rid_regulator_map;
+            bool m_is_energy_recorded;
             std::vector<bool> m_seen_first_epoch;
             std::vector<double> m_curr_runtime_ignore;
             std::vector<double> m_agg_epoch_runtime_ignore;
