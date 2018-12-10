@@ -238,7 +238,7 @@ namespace geopm
                << "    package-energy (joules): " << application_io.total_app_energy_pkg() << std::endl
                << "    dram-energy (joules): " << application_io.total_app_energy_dram() << std::endl
                << "    mpi-runtime (sec): " << application_io.total_app_runtime_mpi() << std::endl
-               << "    ignore-time (sec): " << application_io.total_epoch_runtime_ignore() << std::endl;
+               << "    ignore-time (sec): " << application_io.total_app_runtime_ignore() << std::endl;
 
         std::string max_memory = get_max_memory();
         report << "    geopmctl memory HWM: " << max_memory << std::endl;
