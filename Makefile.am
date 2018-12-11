@@ -159,6 +159,7 @@ ronn_man = man/geopm.7 \
            man/GEOPM_CXX_MAN_MSRIO.3 \
            man/GEOPM_CXX_MAN_MSRIOGroup.3 \
            man/GEOPM_CXX_MAN_MonitorAgent.3 \
+           man/GEOPM_CXX_MAN_PlatformIO.3 \
            man/GEOPM_CXX_MAN_PlatformTopo.3 \
            man/geopmplotter.1 \
            man/GEOPM_CXX_MAN_PluginFactory.3 \
@@ -253,6 +254,7 @@ EXTRA_DIST = .gitignore \
              ronn/GEOPM_CXX_MAN_MSRIO.3.ronn \
              ronn/GEOPM_CXX_MAN_MSRIOGroup.3.ronn \
              ronn/GEOPM_CXX_MAN_MonitorAgent.3.ronn \
+             ronn/GEOPM_CXX_MAN_PlatformIO.3.ronn \
              ronn/GEOPM_CXX_MAN_PlatformTopo.3.ronn \
              ronn/geopmplotter.1.ronn \
              ronn/GEOPM_CXX_MAN_PluginFactory.3.ronn \

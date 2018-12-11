@@ -63,8 +63,11 @@ DOMAIN_TYPE is hardware domain to which the control should be applied.
 DOMAIN_INDEX is used to indicate which instance of the domain to write
 to; indexing starts from 0 and goes up to the domain size - 1.  VALUE
 is the floating-point number in SI units that the control will be
-adjusted to.  Note that currently controls are only defined for their
-native domain.
+adjusted to.  If the DOMAIN_TYPE is a larger containing domain than
+that of the control, the same value will be applied to every contained
+subdomain.  Refer to the domain hierarchy described in
+**geopm::PlatformTopo(3)** for the descriptions of the domains and how
+they are contained within one another.
 
 `board` - domain for node-wide signals and controls <br>
 ++`package` - socket <br>
@@ -127,6 +130,12 @@ Set the frequency of CPU 2 to 1.9 GHz:
     $ geopmwrite FREQUENCY cpu 2 1.9e9
     $ geopmread FREQUENCY cpu 2
     1.9e9
+
+Set all CPUs on package 0 to 1.5 GHz (cpu 1 is on package 0):
+
+   $ geopmwrite FREQUENCY package 0 1.5e9
+   $ geopmread FREQUENCY cpu 1
+   1.5e9
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
