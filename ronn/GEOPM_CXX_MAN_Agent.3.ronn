@@ -46,12 +46,6 @@ better rendering of this manual.
 
 `Link with -lgeopm`
 
-  * `Agent::Agent(`:
-     `void);`
-
-  * `virtual Agent::~Agent(`:
-     `void);`
-
   * `virtual void Agent::init(`:
     `int` _level_`,` <br>
     `const vector<int> &`_fan_in_`,` <br>
@@ -121,12 +115,9 @@ with the `--geopm-agent` command line option to the **geopm_launcher(1)**
 or `GEOPM_AGENT` environment variable.  Exactly one agent type is
 used during each execution of the GEOPM runtime.
 
-Any C++ class that derives from the `Agent` class and is compiled
-into a shared object file can be loaded at application launch time
-through the GEOPM plugin interface.  This allows users and system
-administrators to extend the features and behavior of the monitor and
-control process that GEOPM executes without recompiling the GEOPM
-runtime.
+The **geopm::PluginFactory(3)** man page gives a general overview of
+concepts related to extending GEOPM through plugins.  Please refer to
+that overview as an introduction before implementing an `Agent` plugin.
 
 A single process (or application thread) on each compute node utilized
 by an application running with GEOPM creates a `Controller` object and
@@ -144,7 +135,7 @@ and where the particular `Agent` object falls in the tree.  See detailed
 description of `Agent::init`() below for more information about the tree
 structure.
 
-All Controllers create an `Agent` object to execute _level_ 0, or
+All `Controller`s create an `Agent` object to execute _level_ 0, or
 "leaf" responsibilities.  The leaf responsibilities include monitoring
 signals and deriving samples to send to their parent `Agent`'s at
 _level_ 1 in the tree.  Additionally a leaf `Agent` must interpret
@@ -160,69 +151,13 @@ resource manager.  The resource manager implements the role of a
 parent `Agent` to the root `Agent` by making calls to the
 **geopm_endpoint_c(3)** interface.
 
-The **PlatformIO(3)** class provides a high-level interface for
-signals and controls used by `Agent` objects.  The **PlatformIO(3)**
-class has a large number of built-in signals and controls in addition
-to providing a framework for extension.  The built-in signals and
-controls include a wide range of hardware metrics, hardware settings,
-and signals derived from application behavior.  Application behavior
-is tracked by GEOPM's integration with MPI and OpenMP and also by
-application use of the **geopm_prof_c(3)** mark-up interface. The
-**PlatformIO(3)** interface can be extended through the **IOGroup(3)**
-plugin interface.  This enables easy porting of `Agent` algorithms
-between different hardware platforms, and can enable code reuse of
+The `Agent` class is designed to read signals and write controls for
+the hardware and application using the **geopm::PlatformIO(3)**
+interface.  Please see the manual for details about how the
+`PlatformIO` abstraction enables access to hardware capabilities,
+extension of `Agent` algorithms to new hardware architectures, a
+mapping of application behavior to hardware domains, and code reuse of
 I/O implementaions by different `Agent` classes.
-
-## TERMS
-Below are some definitions of terms that are used to describe
-different parts of the GEOPM runtime.  Understanding these terms will
-help to interpret the documentation about how to extend the GEOPM
-runtime.  These are arranged from from highest levels of abstraction
-down to the lowest levels of abstraction.
-
-  * _launcher_:
-    Wrapper of system application launch (e.g. srun or aprun) that
-    executes the GEOPM runtime with the application.
-
-  * _report_:
-    Text file containing summary of aggregated stats collected during
-    application run.
-
-  * _trace_:
-    Time series of signals collected over application run in a pipe
-    separated ASCII table.
-
-  * _policy_:
-    Array of floating-point settings for `Agent`-specific control
-    parameters in SI units.
-
-  * _sample_:
-    Array of floating-point values providing `Agent`-specific runtime
-    data in SI units.
-
-  * _endpoint_:
-    Interface between resource manager and GEOPM runtime.
-
-  * _profile_:
-    Interface for annotating compute application; provides PlatformIO
-    region signals.
-
-  * _controller_:
-    Thread on each compute node that loads plugins and runs GEOPM
-    algorithm.
-
-  * _level_:
-    Attribute of an `Agent` describing the number of edges between it
-    and the nearest leaf `Agent` in the communication Tree (a leaf
-    `Agent` is _level_ zero).
-
-  * _signal_:
-    Named parameter in SI units that can be measured using PlatformIO.
-
-  * _control_:
-    Named parameter in SI units that can be set using PlatformIO.
-
-
 
 ## CLASS METHODS
 
@@ -352,7 +287,8 @@ down to the lowest levels of abstraction.
     output sample vector resulting from the applying the aggregation
     across child samples.  Note this is a static helper function.
 
-  * `agent_factory`():
+  * `agent_factory`(): FIXME
+
 
 ## ERRORS
 All functions described on this man page throw **geopm::Exception(3)**

@@ -63,6 +63,7 @@ ronn/GEOPM_CXX_MAN_MSR.3.ronn
 ronn/GEOPM_CXX_MAN_MSRIO.3.ronn
 ronn/GEOPM_CXX_MAN_MSRIOGroup.3.ronn
 ronn/GEOPM_CXX_MAN_MonitorAgent.3.ronn
+ronn/GEOPM_CXX_MAN_PlatformIO.3.ronn
 ronn/GEOPM_CXX_MAN_PlatformTopo.3.ronn
 ronn/geopmplotter.1.ronn
 ronn/GEOPM_CXX_MAN_PluginFactory.3.ronn

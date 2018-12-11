@@ -151,13 +151,14 @@ ronn_man_inst = man/geopm.7 \
                 man/GEOPM_CXX_MAN_Exception.3 \
                 man/geopm_fortran.3 \
                 man/GEOPM_CXX_MAN_Helper.3 \
-                man/geopm_imbalancer.3 \
                 man/GEOPM_CXX_MAN_MPIComm.3 \
+                man/geopm_imbalancer.3 \
                 man/GEOPM_CXX_MAN_IOGroup.3 \
                 man/GEOPM_CXX_MAN_MSR.3 \
                 man/GEOPM_CXX_MAN_MSRIO.3 \
                 man/GEOPM_CXX_MAN_MSRIOGroup.3 \
                 man/GEOPM_CXX_MAN_MonitorAgent.3 \
+                man/GEOPM_CXX_MAN_PlatformIO.3 \
                 man/GEOPM_CXX_MAN_PlatformTopo.3 \
                 man/GEOPM_CXX_MAN_PluginFactory.3 \
                 man/GEOPM_CXX_MAN_PowerBalancer.3 \
@@ -184,10 +185,10 @@ ronn_man_noinst = man/geopmanalysis.1 \
                   man/geopmplotter.1 \
                   # end
 
+ronn_man = $(ronn_man_inst) $(ronn_man_noinst)
+
 dist_man_MANS = $(ronn_man_inst) \
                 # end
-
-ronn_man = $(ronn_man_inst) $(ronn_man_noinst)
 
 dist_doc_DATA = README \
                 COPYING \
@@ -258,6 +259,7 @@ EXTRA_DIST = .gitignore \
              ronn/GEOPM_CXX_MAN_MSRIO.3.ronn \
              ronn/GEOPM_CXX_MAN_MSRIOGroup.3.ronn \
              ronn/GEOPM_CXX_MAN_MonitorAgent.3.ronn \
+             ronn/GEOPM_CXX_MAN_PlatformIO.3.ronn \
              ronn/GEOPM_CXX_MAN_PlatformTopo.3.ronn \
              ronn/geopmplotter.1.ronn \
              ronn/GEOPM_CXX_MAN_PluginFactory.3.ronn \
