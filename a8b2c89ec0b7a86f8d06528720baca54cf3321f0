@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a502c03_99cf5eed",
+        "filename": "src/EpochRuntimeRegulator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-11T19:11:27Z",
+      "side": 1,
+      "message": "Add new interface total_runtime_mpi() that has this behavior, and leave the total_epoch_runtime_mpi() the same.",
+      "range": {
+        "startLine": 316,
+        "startChar": 40,
+        "endLine": 316,
+        "endChar": 46
+      },
+      "revId": "a8b2c89ec0b7a86f8d06528720baca54cf3321f0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
