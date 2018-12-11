@@ -40,7 +40,7 @@ export LD_LIBRARY_PATH=$GEOPM_LIBDIR:$LD_LIBRARY_PATH
 
 # ensure both required plugins can be found
 export GEOPM_TUTORIAL=..
-export GEOPM_PLUGIN_PATH=$GEOPM_TUTORIAL/iogroup:$GEOPM_TUTORIAL/agent
+export GEOPM_PLUGIN=$GEOPM_TUTORIAL/iogroup:$GEOPM_TUTORIAL/agent
 
 echo "Redirecting output to example.stdout and example.stderr."
 

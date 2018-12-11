@@ -76,7 +76,7 @@ static void __attribute__((constructor)) libgeopm_load(void)
     FTSENT *file;
     int num_path = 1;
     char **paths = NULL;
-    char *default_path = GEOPM_PLUGIN_PATH;
+    char *default_path = GEOPM_PLUGIN;
     char path_env[NAME_MAX] = {0};
     char so_suffix[NAME_MAX] = ".so." GEOPM_ABI_VERSION;
     char *colon_ptr = strchr(so_suffix, ':');

@@ -33,7 +33,7 @@
 /// A sanity check that all registered IOGroups are internally consistent
 /// with respect to the list of signals and controls they provide.  This
 /// test can be used to check a new IOGroup plugin by loading it with
-/// GEOPM_PLUGIN_PATH.
+/// GEOPM_PLUGIN.
 
 #include <vector>
 #include <set>

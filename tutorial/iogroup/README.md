@@ -169,7 +169,7 @@ in the example_iogroup_load() method at the top of the file; the
 constructor attribute indicates that this method will run at plugin
 load time.  GEOPM will automatically try to load any plugins it finds
 in the plugin path (discussed in the man page for geopm(7) under the
-description of GEOPM_PLUGIN_PATH).  Do not link any of the GEOPM
+description of GEOPM_PLUGIN).  Do not link any of the GEOPM
 libraries into the plugin shared object; this will cause a circular
 link dependency.
 
@@ -182,7 +182,7 @@ The PlatformIO::save_control() method is implemented so that one must register
 all desired IOGroups prior to the invocation of PlatformIO::save_control().
 Once PlatformIO::save_control() has been called, an error is raised if
 additional IOGroups are registered.  If an IOGroup plugin is loaded by a
-mechanism other than using the GEOPM_PLUGIN_PATH, care must be taken to ensure
+mechanism other than using the GEOPM_PLUGIN, care must be taken to ensure
 that all IOGroup plugins are loaded prior to calling Agent::init() since
 PlatformIO::save_control() is called prior to the Agent::init() method.
 
@@ -192,12 +192,12 @@ PlatformIO::save_control() is called prior to the Agent::init() method.
 The ExampleIOGroup plugin is built by running tutorial_build_gnu.sh or
 tutorial_build_intel.sh.  The plugin will be loaded with the
 geopmpolicy library if it is found in a directory in
-GEOPM_PLUGIN_PATH.  Note that to be recognized as an iogroup plugin, the
-filename must begin with "libgeopmiogroup_" and end in
+GEOPM_PLUGIN.  Note that to be recognized as an iogroup plugin, the
+filename must begin with "libgeopmiogroup\_" and end in
 ".so.0.0.0".  Add the current directory (containing the
-.so file) to GEOPM_PLUGIN_PATH as follows:
+.so file) to GEOPM_PLUGIN as follows:
 
-    $ export GEOPM_PLUGIN_PATH=$PWD
+    $ export GEOPM_PLUGIN=$PWD
 
 An alternative is to install the plugin by copying the .so file into
 the GEOPM install directory, <GEOPM_INSTALL_DIR>/lib/geopm.
