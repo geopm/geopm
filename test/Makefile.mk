@@ -67,6 +67,7 @@ GTEST_TESTS = test/gtest_links/CircularBufferTest.buffer_size \
               test/gtest_links/SharedMemoryTest.share_data_ipc \
               test/gtest_links/EnvironmentTest.construction0 \
               test/gtest_links/EnvironmentTest.construction1 \
+              test/gtest_links/EnvironmentTest.invalid_ctl \
               test/gtest_links/SchedTest.test_proc_cpuset_0 \
               test/gtest_links/SchedTest.test_proc_cpuset_1 \
               test/gtest_links/SchedTest.test_proc_cpuset_2 \

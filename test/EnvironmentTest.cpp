@@ -185,3 +185,10 @@ TEST_F(EnvironmentTest, construction1)
     EXPECT_STREQ("test2", geopm_env_trace_signal(1));
     EXPECT_STREQ("test3", geopm_env_trace_signal(2));
 }
+
+TEST_F(EnvironmentTest, invalid_ctl)
+{
+    setenv("GEOPM_PMPI_CTL", "program", 1);
+
+    EXPECT_THROW(geopm_env_load(), geopm::Exception);
+}

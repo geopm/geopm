@@ -153,6 +153,11 @@ namespace geopm
             else if (tmp_str == "pthread") {
                 m_pmpi_ctl = GEOPM_PMPI_CTL_PTHREAD;
             }
+            else {
+                throw Exception("Environment::Environment(): " + tmp_str +
+                                " is not a valid value for GEOPM_PMPI_CTL see geopm(7).",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
         }
         get_env("GEOPM_DEBUG_ATTACH", m_debug_attach);
         m_do_profile = get_env("GEOPM_PROFILE", m_profile);
