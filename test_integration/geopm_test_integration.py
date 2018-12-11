@@ -1219,6 +1219,19 @@ class TestIntegration(unittest.TestCase):
                     found = True
         self.assertTrue(found, "runtime error message not found in log")
 
+    def test_tutorial_build_intel(self):
+        test_pass = True
+        test_dir = "/tmp/geopm_test_tutorial_build"
+        test_exec = "dummy -- \"cd .. && ls -la && make geopm-tutorial.tar.gz && mkdir " + test_dir + " && \
+                    cp geopm-tutorial.tar.gz " + test_dir + " && cd " + test_dir + " && \
+                    tar -xvf geopm-tutorial.tar.gz && cd geopm-tutorial && ./tutorial_build_intel.sh; \
+                    rm -rf \"" + test_dir
+        try:
+            allocation_node_test(test_exec, sys.stdout, sys.stderr)
+        except subprocess.CalledProcessError:
+            test_pass = False
+        self.assertTrue(test_pass, "error building tutorials outside of repo")
+
 
 class TestIntegrationGeopmio(unittest.TestCase):
     ''' Tests of geopmread and geopmwrite.'''
