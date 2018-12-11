@@ -31,24 +31,255 @@ geopm::PlatformTopo(3) -- platform topology information
 [//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
 [//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 
+## NAMESPACES
+The `IPlatformTopo` class and `platform_topo()` singleton accessor
+function are members of `namespace geopm`, but the full names,
+`geopm::IPlatformTopo` and `geopm::platform_topo()`, have been
+abbreviated in this manual.  Similarly, the `std::` namespace
+specifier has been omitted from the interface definitions for the
+following standard types: `std::vector`, `std::string`, and
+`std::set`, to enable better rendering of this manual.  This manual
+sometimes omits the class scope IPlatformTopo:: for brevity.
+
+Note that `IPlatformTopo` class is an abstract base class that the
+user interacts with.  The concrete implementation, `PlatformTopo`, is
+hidden by the singleton accessor.
+
 ## SYNOPSIS
 
 **\#include [<geopm/PlatformTopo.hpp>](https://github.com/geopm/geopm/blob/dev/src/PlatformTopo.hpp)**
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
+  * `IPlatformTopo &platform_topo(`
+    `void);`
+
+  * `int IPlatformTopo::num_domain(`
+    `int` _domain_type_`) const = 0;`
+
+  * `set<int> IPlatformTopo::domain_cpus(`
+    `int` _domain_type_,
+    `int` _domain_idx_`) const = 0;`
+
+  * `int IPlatformTopo::domain_idx(`
+    `int` _domain_type_,
+    `int` _cpu_idx_`) const = 0;`
+
+  * `bool IPlatformTopo::is_domain_within(`
+    `int` _inner_domain_,
+    `int` _outer_domain_`) const = 0;`
+
+  * `static string IPlatformTopo::domain_type_to_name(`
+    `int` _domain_type_`);`
+
+  * `static int IPlatformTopo::domain_name_to_type(`
+    `const std::string &`_domain_name_`);`
+
 ## DESCRIPTION
 
 This class describes the number and arrangement of cores, sockets,
-logical CPUs, memory banks, and other components.  The topology of the
-current platform is available using the singleton
-geopm::platform_topo().
+logical CPUs, memory banks, and other components.  This information is
+used when calling methods of the **geopm::PlatformIO** interface.  The
+topology of the current platform is available using the singleton
+geopm::platform_topo().  The remaining methods are accessed through
+this singleton.
 
-For more details, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_platform_topo.html>.
+Most methods in the `IPlatformTopo` interface return or require as an
+argument an integer domain type, used to refer to different parts of
+the system topology where signals and controls are applicable.  Each
+domain is defined by a type and and an index.  The domain type is a
+value from the `m_domain_e` enum, and the domain index enumerates the
+devices of that type available on the system.  Each domain type is
+related to a set of Linux logical CPUs and this can be determined with
+the `IPlatformTopo::domain_cpus()` method.  The CPUs associated with a
+domain are the set of CPUs that can most efficiently issue
+instructions to read signals from or write controls to that domain.
+
+The available domain types are as follows:
+
+  * IPlatformTopo::M_DOMAIN_INVALID = 0:
+    Indicates an invalid domain.
+
+  * IPlatformTopo::M_DOMAIN_BOARD = 1:
+    All components on a user allocated compute node. There is only a
+    single board per compute node, and every other domain is contained
+    with the board domain.
+
+  * IPlatformTopo::M_DOMAIN_PACKAGE = 2:
+    A collection of all the hardware present on a single processor
+    package installed on a distinct socket of a motherboard.
+
+  * IPlatformTopo::M_DOMAIN_CORE = 3:
+    Physical core, i.e. a group of associated hyper-threads
+
+  * IPlatformTopo::M_DOMAIN_CPU = 4:
+    Linux logical CPU.  In practice, there is one logical CPU per
+    hyperthread visible to the operating system.
+
+  * IPlatformTopo::M_DOMAIN_BOARD_MEMORY = 5:
+    Standard off-package DIMM (DRAM or NAND).
+
+  * IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY = 6:
+    On-package memory (MCDRAM).
+
+  * IPlatformTopo::M_DOMAIN_BOARD_NIC = 7:
+    Peripheral network interface controller not on the processor package.
+
+  * IPlatformTopo::M_DOMAIN_PACKAGE_NIC = 8:
+    Network interface controller on the processor package.
+
+  * IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR = 9:
+    Peripheral accelerator card not on the processor package.
+
+  * IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR = 10:
+    Accelerator unit on the package (e.g on-package graphics).
+
+  * IPlatformTopo::M_NUM_DOMAIN = 11:
+    The number of built-in domains.
+
+## SINGLETON ACCESSOR
+
+  * `platform_topo`():
+    Returns the singleton accessor for the IPlatformTopo interface.
+
+## CLASS METHODS
+
+  * `num_domain`():
+    Number of domains on the platform of a particular _domain_type_.
+    Refer to the list of domain types below.
+
+  * `domain_cpus`():
+    Get the set of Linux logical CPUs associated with the scope of
+    _domain_type_ at _domain_idx_.
+
+  * `domain_idx`():
+    Get the domain index for a particular _domain_type_ that contains
+    the given Linux logical CPU with index _cpu_idx_.
+
+  * `is_domain_within`():
+    Check if _inner_domain_ is contained within _outer_domain_.
+    M_DOMAIN_BOARD is the outermost domain representing the entire
+    node.  All other domains are contained within _board_.
+    M_DOMAIN_CORE, M_DOMAIN_CPU, M_DOMAIN_PACKAGE_MEMORY, and
+    M_DOMAIN_PACKAGE_ACCELERATOR are contained within package.
+    M_DOMAIN_CPU is contained within M_DOMAIN_CORE.  The following
+    outline summarizes the hierarchy of containing domains, where each
+    domain is also contained in parents of its parent domain.
+
+```
+    `M_DOMAIN_BOARD`
+     +---`M_DOMAIN_PACKAGE`
+          +---`M_DOMAIN_CORE`
+               +---`M_DOMAIN_CPU`
+          +---`M_DOMAIN_PACKAGE_MEMORY`
+          +---`M_DOMAIN_PACKAGE_NIC`
+          +---`M_DOMAIN_PACKAGE_ACCELERATOR`
+     +---`M_DOMAIN_BOARD_MEMORY`
+     +---`M_DOMAIN_BOARD_NIC`
+     +---`M_DOMAIN_BOARD_ACCELERATOR`
+```
+
+  * `domain_type_to_name`():
+    Convert a _domain_type_ integer to a string.  These strings are
+    used by the **geopmread(1)** and geopmwrite(1)** tools.
+
+  * `domain_name_to_type`():
+    Convert a _domain_name_ string to the corresponding integer domain type.
+    This method is the inverse of domain_type_to_name().
+
+
+## EXAMPLES
+The following example program queries the IPlatformTopo to calculate various
+information of interest about the platform.
+
+```
+#include <iostream>
+
+#include <geopm/PlatformTopo.hpp>
+
+using geopm::IPlatformTopo;
+
+int main() {
+    IPlatformTopo &topo = geopm::platform_topo();
+
+    int num_cores = topo.num_domain(IPlatformTopo::M_DOMAIN_CORE);
+    int num_cpus = topo.num_domain(IPlatformTopo::M_DOMAIN_CPU);
+    int num_pkgs = topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE);
+
+    // Print counts of various domains
+    std::cout << "Domain      Count      " << std::endl;
+    std::cout << "-----------------------" << std::endl;
+    std::cout << "cores       " << num_cores << std::endl;
+    std::cout << "packages    " << num_pkgs << std::endl;
+    std::cout << "core/pkg    " << num_cores / num_pkgs << std::endl;
+    std::cout << "cpu/core    " << num_cpus / num_cores << std::endl;
+    std::cout << "cpu/pkg     " << num_cpus / num_pkgs << std::endl;
+}
+```
+
+For example, when run on a system with 2 sockets, 4 cores per socket,
+and 3 hyperthreads per core, the following would be printed to
+standard output:
+
+```
+    Domain      Count
+    -----------------------
+    cores       8
+    packages    2
+    core/pkg    4
+    cpu/core    3
+    cpu/pkg     12
+```
+
+This loop, inserted into the above program, prints the Linux CPUs on each package:
+
+```
+    for (int pkg_idx = 0; pkg_idx < num_pkgs; ++pkg_idx) {
+        std::cout << "CPUs on package " << pkg_idx << ": ";
+        std::set<int> cpus = topo.domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, pkg_idx);
+        for(auto pcpu : cpus) {
+            std::cout << pcpu << " ";
+        }
+        std::cout << std::endl;
+    }
+```
+
+The output for the same system would be:
+
+    CPUs on package 0: 0 1 2 3 8 9 10 11 16 17 18 19
+    CPUs on package 1: 4 5 6 7 12 13 14 15 20 21 22 23
+
+To check which logical CPUs are on the same core as CPU 8:
+
+```
+    int my_cpu = 8;
+    int cpu_core = topo.domain_idx(IPlatformTopo::M_DOMAIN_CORE, my_cpu);
+    std::set<int> socket_cpu_set = topo.domain_cpus(IPlatformTopo::M_DOMAIN_CORE, cpu_core);
+    for (auto cpu : socket_cpu_set) {
+        if (cpu != my_cpu) {
+            std::cout << cpu << " ";
+        }
+    }
+    std::cout << std::endl;
+```
+
+The output for the same system would be:  0 16
+
+The number of domains can also be use to check if a hardware feature, such as
+on-package memory, is present or absent:
+
+```
+    if (topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY) > 0) {
+        std::cout << "On-package memory is present." << std::endl;
+    }
+    else {
+        std::cout << "No on-package memory." << std::endl;
+    }
+```
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
-**geopm(7)**
+**geopm(7)**,
+**geopm::PlatformIO(3)**
