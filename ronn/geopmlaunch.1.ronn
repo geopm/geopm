@@ -199,7 +199,7 @@ the first `--` from the command line.
   value currently set in the environment.  See the ENVIRONMENT section
   of **geopm(7)**.
 
-* `--geopm-plugin` path:
+* `--geopm-plugin-path` path:
   Enables GEOPM to search for plugins in places other than the default
   location.  The option is a ":" separated list of directories to
   search.  This option is used by the launcher to set the GEOPM_PLUGIN_PATH
@@ -219,7 +219,7 @@ the first `--` from the command line.
   command line option will override any value currently set in the
   environment.  See the ENVIRONMENT section of **geopm(7)**.
 
-* `--geopm-barrier`:
+* `--geopm-region-barrier`:
   Enables a node local MPI_Barrier() at time of calling
   `geopm_region_enter`() or `geopm_region_exit`() for all application
   ranks that share a node.  Since the GEOPM controller only considers
