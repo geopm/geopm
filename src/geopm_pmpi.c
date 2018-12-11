@@ -155,7 +155,7 @@ static int geopm_pmpi_init(const char *exec_name)
     }
 #endif
     if (!err) {
-        if (geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PROCESS) {
+        if (geopm_env_pmpi_ctl() == GEOPM_CTL_PROCESS) {
             g_is_geopm_pmpi_ctl_enabled = 1;
             int is_ctl;
             MPI_Comm tmp_comm;
@@ -181,7 +181,7 @@ static int geopm_pmpi_init(const char *exec_name)
                 exit(err);
             }
         }
-        else if (geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD) {
+        else if (geopm_env_pmpi_ctl() == GEOPM_CTL_PTHREAD) {
             g_is_geopm_pmpi_ctl_enabled = 1;
 
             int mpi_thread_level;
@@ -254,13 +254,13 @@ static int geopm_pmpi_finalize(void)
     int tmp_err = 0;
 
     if (!err && geopm_env_do_profile() &&
-        (!g_ctl || geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD))
+        (!g_ctl || geopm_env_pmpi_ctl() == GEOPM_CTL_PTHREAD))
     {
         PMPI_Barrier(g_geopm_comm_world_swap);
         err = geopm_prof_shutdown();
     }
 
-    if (g_ctl && geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD) {
+    if (g_ctl && geopm_env_pmpi_ctl() == GEOPM_CTL_PTHREAD) {
         void *return_val;
         err = pthread_join(g_ctl_thread, &return_val);
         err = err ? err : ((long)return_val);
@@ -291,7 +291,7 @@ int MPI_Init(int *argc, char **argv[])
 {
     int err;
 
-    if (geopm_env_pmpi_ctl() == GEOPM_PMPI_CTL_PTHREAD) {
+    if (geopm_env_pmpi_ctl() == GEOPM_CTL_PTHREAD) {
         int required = MPI_THREAD_MULTIPLE;
         int mpi_thread_level;
         err = PMPI_Init_thread(argc, argv, required, &mpi_thread_level);

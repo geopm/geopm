@@ -45,6 +45,7 @@ const char *program_invocation_name = "geopm_profile";
 #include <vector>
 
 #include "geopm_env.h"
+#include "geopm_internal.h"
 #include "Exception.hpp"
 
 #include "config.h"
@@ -124,7 +125,7 @@ namespace geopm
         m_plugin_path = "";
         m_profile = "";
         m_max_fan_out = 16;
-        m_pmpi_ctl = GEOPM_PMPI_CTL_NONE;
+        m_pmpi_ctl = GEOPM_CTL_NONE;
         m_do_region_barrier = false;
         m_do_trace = false;
         m_do_profile = false;
@@ -146,16 +147,16 @@ namespace geopm
         (void)get_env("GEOPM_PLUGIN_PATH", m_plugin_path);
         m_do_region_barrier = get_env("GEOPM_REGION_BARRIER", tmp_str);
         (void)get_env("GEOPM_PROFILE_TIMEOUT", m_profile_timeout);
-        if (get_env("GEOPM_PMPI_CTL", tmp_str)) {
+        if (get_env("GEOPM_CTL", tmp_str)) {
             if (tmp_str == "process") {
-                m_pmpi_ctl = GEOPM_PMPI_CTL_PROCESS;
+                m_pmpi_ctl = GEOPM_CTL_PROCESS;
             }
             else if (tmp_str == "pthread") {
-                m_pmpi_ctl = GEOPM_PMPI_CTL_PTHREAD;
+                m_pmpi_ctl = GEOPM_CTL_PTHREAD;
             }
             else {
                 throw Exception("Environment::Environment(): " + tmp_str +
-                                " is not a valid value for GEOPM_PMPI_CTL see geopm(7).",
+                                " is not a valid value for GEOPM_CTL see geopm(7).",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
@@ -164,7 +165,7 @@ namespace geopm
         (void)get_env("GEOPM_MAX_FAN_OUT", m_max_fan_out);
         if (m_report.length() ||
             m_do_trace ||
-            m_pmpi_ctl != GEOPM_PMPI_CTL_NONE) {
+            m_pmpi_ctl != GEOPM_CTL_NONE) {
             m_do_profile = true;
         }
         if (m_do_profile && !m_profile.length()) {

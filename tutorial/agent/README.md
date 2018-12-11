@@ -208,7 +208,7 @@ plugin and the ExampleAgent plugin are in GEOPM_PLUGIN_PATH.
 
 An example run script is provided in agent_tutorial.sh.  It uses the
 geopmbench application.  Before running, build and install GEOPM and
-make sure that both plugins are built using the tutorial_build_*.sh
+make sure that both plugins are built using the "tutorial_build_*.sh"
 script in each folder.  During the run, the idle percent will be
 printed to either standard out or standard error, depending on whether
 it falls within the bounds set in example_policy.json.  The run script

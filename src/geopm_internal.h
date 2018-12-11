@@ -51,6 +51,12 @@ enum geopm_region_id_e {
     GEOPM_NUM_REGION_ID_PRIVATE =  3,          // Number table entries reserved for GEOPM defined regions (ignoring UNMARKED)
 };
 
+enum geopm_ctl_e {
+    GEOPM_CTL_NONE,
+    GEOPM_CTL_PROCESS,
+    GEOPM_CTL_PTHREAD,
+};
+
 /// @brief Used to pass information about regions entered and exited
 /// from the application to the tracer.
 struct geopm_region_info_s

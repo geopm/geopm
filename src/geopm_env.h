@@ -37,12 +37,6 @@ extern "C"
 {
 #endif
 
-enum geopm_pmpi_ctl_e {
-    GEOPM_PMPI_CTL_NONE,
-    GEOPM_PMPI_CTL_PROCESS,
-    GEOPM_PMPI_CTL_PTHREAD,
-};
-
 const char *geopm_env_policy(void);
 const char *geopm_env_agent(void);
 const char *geopm_env_shmkey(void);

@@ -235,8 +235,8 @@ TEST_F(MPIInterfaceTest, geopm_api)
     EXPECT_EQ(0, g_test_curr_region_enter_count);
     reset();
 
-    // TODO setenv for GEOPM_PMPI_CTL_PROCESS
-    // TODO setenv for GEOPM_PMPI_CTL_PTHREAD
+    // TODO setenv for GEOPM_CTL_PROCESS
+    // TODO setenv for GEOPM_CTL_PTHREAD
 }
 
 TEST_F(MPIInterfaceTest, mpi_api)

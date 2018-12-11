@@ -348,7 +348,7 @@ runtime _without_ **geopmlaunch(1)**.
 
     `$ test -n "$GEOPM_SHMKEY" && rm -f /dev/shm${GEOPM_SHMKEY}* || rm -f /dev/shm/geopm-shm*`
 
-  * `GEOPM_PMPI_CTL`:
+  * `GEOPM_CTL`:
     When set to 'process' or 'pthread' this environment variable
     enables the launch of the GEOPM controller through the PMPI
     wrappers: in particular the wrappers for MPI_Init() or

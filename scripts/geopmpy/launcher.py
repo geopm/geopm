@@ -174,9 +174,9 @@ class Config(object):
         parser.add_argument('--geopm-profile', dest='profile', type=str)
         parser.add_argument('--geopm-shmkey', dest='shmkey', type=str)
         parser.add_argument('--geopm-timeout', dest='timeout', type=str)
-        parser.add_argument('--geopm-plugin', dest='plugin', type=str)
+        parser.add_argument('--geopm-plugin-path', dest='plugin', type=str)
         parser.add_argument('--geopm-debug-attach', dest='debug_attach', type=str)
-        parser.add_argument('--geopm-barrier', dest='barrier', action='store_true', default=False)
+        parser.add_argument('--geopm-region-barrier', dest='barrier', action='store_true', default=False)
         parser.add_argument('--geopm-preload', dest='preload', action='store_true', default=False)
         parser.add_argument('--geopm-disable-hyperthreads', dest='allow_ht_pinning', action='store_false', default=True)
 
@@ -227,7 +227,7 @@ class Config(object):
         if self.ctl == 'pthread':
             result['MPICH_MAX_THREAD_SAFETY'] = 'multiple'
         if self.ctl in ('process', 'pthread'):
-            result['GEOPM_PMPI_CTL'] = self.ctl
+            result['GEOPM_CTL'] = self.ctl
         if self.profile:
             result['GEOPM_PROFILE'] = self.profile
         else:
@@ -1263,36 +1263,36 @@ Usage:
       geopmlaunch LAUNCHER [GEOPM_OPTIONS] [LAUNCHER_ARGS]
 
 GEOPM_OPTIONS:
-      --geopm-ctl=ctl         use geopm runtime and launch geopm with the
-                              "ctl" method, one of "process", "pthread" or
-                              "application"
-      --geopm-agent=agent     specify the agent to be used
-      --geopm-policy=pol      use the geopm policy file or shared memory
-                              region "pol"
-      --geopm-report=path     create geopm report files with base name "path"
-      --geopm-trace=path      create geopm trace files with base name "path"
+      --geopm-ctl=ctl          use geopm runtime and launch geopm with the
+                               "ctl" method, one of "process", "pthread" or
+                               "application"
+      --geopm-agent=agent      specify the agent to be used
+      --geopm-policy=pol       use the geopm policy file or shared memory
+                               region "pol"
+      --geopm-report=path      create geopm report files with base name "path"
+      --geopm-trace=path       create geopm trace files with base name "path"
       --geopm-trace-signals=signals
-                              comma-separated list of signals to add as columns
-                              in the trace
-      --geopm-profile=name    set the name of the profile in the report and
-                              trace to "name"
-      --geopm-shmkey=key      use shared memory keys for geopm starting with
-                              "key"
-      --geopm-timeout=sec     application waits "sec" seconds for handshake
-                              with geopm
-      --geopm-plugin=path     look for geopm plugins in "path", a : separated
-                              list of directories
-      --geopm-debug-attach=rk attach serial debugger to rank "rk"
-      --geopm-barrier         apply node local barriers when application enters
-                              or exits a geopm region
-      --geopm-preload         use LD_PRELOAD to link libgeopm.so at runtime
+                               comma-separated list of signals to add as columns
+                               in the trace
+      --geopm-profile=name     set the name of the profile in the report and
+                               trace to "name"
+      --geopm-shmkey=key       use shared memory keys for geopm starting with
+                               "key"
+      --geopm-timeout=sec      application waits "sec" seconds for handshake
+                               with geopm
+      --geopm-plugin-path=path look for geopm plugins in "path", a : separated
+                               list of directories
+      --geopm-debug-attach=rk  attach serial debugger to rank "rk"
+      --geopm-region-barrier   apply node local barriers when application enters
+                               or exits a geopm region
+      --geopm-preload          use LD_PRELOAD to link libgeopm.so at runtime
       --geopm-disable-hyperthreads
-                              do not allow pinning to HTs
+                               do not allow pinning to HTs
 
-Possible LAUNCHER values:     "srun", "aprun", "impi", "SrunLauncher",
-                              "AlpsLauncher", "IMPIExecLauncher", or
-                              "SrunTOSSLauncher".
-Possible LAUNCHER_ARGS:       "-h" , "--help".
+Possible LAUNCHER values:      "srun", "aprun", "impi", "SrunLauncher",
+                               "AlpsLauncher", "IMPIExecLauncher", or
+                               "SrunTOSSLauncher".
+Possible LAUNCHER_ARGS:        "-h" , "--help".
 
 """
 
