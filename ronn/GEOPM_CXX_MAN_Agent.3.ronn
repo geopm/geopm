@@ -141,7 +141,7 @@ of the `Agent` tree and where the particular `Agent` object falls in
 the tree.  See detailed description of `Agent::init`() below for more
 information about the tree structure.
 
-All Controllers create an `Agent` object to execute _level_ 0, or
+All `Controller`'s create an `Agent` object to execute _level_ 0, or
 "leaf" responsibilities.  The leaf responsibilities include monitoring
 signals and deriving samples to send to their parent `Agent`'s at
 _level_ 1 in the tree.  Additionally a leaf `Agent` must interpret
@@ -157,17 +157,12 @@ resource manager.  The resource manager implements the role of a
 parent `Agent` to the root `Agent` by making calls to the
 **geopm_endpoint_c(3)** interface.
 
-The **PlatformIO(3)** class provides a high-level interface for
-signals and controls used by `Agent` objects.  The **PlatformIO(3)**
-class has a large number of built-in signals and controls in addition
-to providing a framework for extension.  The built-in signals and
-controls include a wide range of hardware metrics, hardware settings,
-and signals derived from application behavior.  Application behavior
-is tracked by GEOPM's integration with MPI and OpenMP and also by
-application use of the **geopm_prof_c(3)** mark-up interface. The
-**PlatformIO(3)** interface can be extended through the **IOGroup(3)**
-plugin interface.  This enables easy porting of `Agent` algorithms
-between different hardware platforms, and can enable code reuse of
+The `Agent` class is designed to read signals and write controls for
+the hardware and application using the **geopm::PlatformIO(3)**
+interface.  Please see the manual for details about how the
+`PlatformIO` abstraction enables access to hardware capabilities,
+extension of `Agent` algorithms to new hardware architectures, a
+mapping of application behavior to hardware domains, and code reuse of
 I/O implementaions by different `Agent` classes.
 
 ## TERMS
