@@ -48,7 +48,7 @@ enum geopmctl_const {
     GEOPMCTL_STRING_LENGTH = 128,
 };
 
-int geopmctl_main(const char *policy_path);
+int geopmctl_main(void);
 
 int main(int argc, char **argv)
 {
@@ -57,13 +57,11 @@ int main(int argc, char **argv)
     int err0 = 0;
     int err_mpi = 0;
     char error_str[MPI_MAX_ERROR_STRING] = {0};
-    char policy_config[GEOPMCTL_STRING_LENGTH] = {0};
     char policy_key[GEOPMCTL_STRING_LENGTH] = {0};
     char *policy_ptr = NULL;
     char *arg_ptr = NULL;
     MPI_Comm comm_world = MPI_COMM_NULL;
     const char *usage = "    %s [--help] [--version]\n"
-                        "              -c policy_config\n"
                         "\n"
                         "DESCRIPTION\n"
                         "       The geopmctl application runs concurrently with a computational MPI\n"
@@ -77,11 +75,6 @@ int main(int argc, char **argv)
                         "\n"
                         "       --version\n"
                         "              Print version of geopm to standard output, then exit.\n"
-                        "\n"
-                        "       -c policy_config\n"
-                        "              Policy configuration file or POSIX shared memory key  which  may\n"
-                        "              be created with the geopm_policy_c(3) interface or the geopmpol‐\n"
-                        "              icy(3) application.\n"
                         "\n"
                         "    Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.\n"
                         "\n";
@@ -145,40 +138,12 @@ int main(int argc, char **argv)
     }
 
 
-    if (!err0 &&
-        strlen(policy_config) != 0 &&
-        strlen(policy_key) != 0) {
-        err0 = EINVAL;
-        fprintf(stderr, "Error: %s either -c and -k cannot both be specified\n", argv[0]);
-    }
-
-    if (!err0 && !my_rank) {
-        if (policy_config[0]) {
-            printf("    Policy config: %s\n", policy_config);
-        }
-        if (policy_key[0]) {
-            printf("    Policy key:    %s\n", policy_key);
-        }
-        printf("\n");
-    }
-
     if (!err0) {
-        if (strlen(policy_config)) {
-            policy_ptr = policy_config;
-        }
-        else if (strlen(policy_key)) {
-            policy_ptr = policy_key;
-        }
-        else {
-            /* reusing the policy_config buffer to pass environment variables */
-            strncpy(policy_config, geopm_env_policy(),GEOPMCTL_STRING_LENGTH-1);
-            policy_ptr = policy_config;
-        }
         if (!my_rank) {
-            err0 = geopmctl_main(policy_ptr);
+            err0 = geopmctl_main();
         }
         else {
-            err0 = geopmctl_main(NULL);
+            err0 = geopmctl_main();
         }
         if (err0) {
             geopm_error_message(err0, error_str, GEOPMCTL_STRING_LENGTH);

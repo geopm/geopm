@@ -75,7 +75,7 @@ extern "C"
         return (void *) (long) geopm_run_imp((struct geopm_ctl_c *)args);
     }
 
-    int geopmctl_main(const char *policy_config)
+    int geopmctl_main(void)
     {
         int err = 0;
         try {
