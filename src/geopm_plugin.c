@@ -106,14 +106,12 @@ static void __attribute__((constructor)) libgeopm_load(void)
         paths[0] = default_path;
         char *path_ptr = path_env;
         for (int i = 1; i < num_path; ++i) {
-            paths[i] = path_ptr;
+            paths[num_path - i] = path_ptr;
             path_ptr += strlen(path_ptr) + 1;
         }
 
         if ((p_fts = fts_open(paths, fts_options, NULL)) != NULL) {
             while ((file = fts_read(p_fts)) != NULL) {
-                /// @todo Document the plugin file name requirements
-                ///       in a man page.
                 // Plugin file names must begin with any of:
                 //      "libgeopmagent_"
                 //      "libgeopmiogroup_"
