@@ -380,7 +380,7 @@ runtime _without_ **geopmlaunch(1)**.
     rank will wait for the controller before continuing execution. The
     default timeout is 30 seconds.
 
-  * `GEOPM_PLUGIN_PATH`:
+  * `GEOPM_PLUGIN`:
     The search path for GEOPM plugins. It is a colon-separated list
     of directories used by GEOPM to search for shared objects which
     contain GEOPM plugins.  In order to be available to the GEOPM

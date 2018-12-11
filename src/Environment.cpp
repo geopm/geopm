@@ -143,10 +143,10 @@ namespace geopm
             m_shmkey = "/" + m_shmkey;
         }
         m_do_trace = get_env("GEOPM_TRACE", m_trace);
-        (void)get_env("GEOPM_PLUGIN_PATH", m_plugin_path);
+        (void)get_env("GEOPM_PLUGIN", m_plugin_path);
         m_do_region_barrier = get_env("GEOPM_REGION_BARRIER", tmp_str);
         (void)get_env("GEOPM_PROFILE_TIMEOUT", m_profile_timeout);
-        if (get_env("GEOPM_PMPI_CTL", tmp_str)) {
+        if (get_env("GEOPM_CTL", tmp_str)) {
             if (tmp_str == "process") {
                 m_pmpi_ctl = GEOPM_PMPI_CTL_PROCESS;
             }

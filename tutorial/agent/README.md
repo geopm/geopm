@@ -187,7 +187,7 @@ in the example_agent_load() method at the top of the file; the
 constructor attribute indicates that this method will run at plugin
 load time.  GEOPM will automatically try to load any plugins it finds
 in the plugin path (discussed in the man page for geopm(7) under the
-description of GEOPM_PLUGIN_PATH).  Do not link any of the GEOPM
+description of GEOPM_PLUGIN).  Do not link any of the GEOPM
 libraries into the plugin shared object; this will cause a circular
 link dependency.
 
@@ -202,13 +202,13 @@ values for two policies listed in policy_names(); these are provided
 in example_policy.json.  Pass this configuration file to launcher with
 the --geopm-policy option or by setting GEOPM_POLICY=example_config.json.
 Note that to be recognized as an agent plugin, the shared library
-filename must begin with "libgeopmagent_" and end in
+filename must begin with "libgeopmagent\_" and end in
 ".so.0.0.0".  Be sure that both the ExampleIO
-plugin and the ExampleAgent plugin are in GEOPM_PLUGIN_PATH.
+plugin and the ExampleAgent plugin are in GEOPM_PLUGIN.
 
 An example run script is provided in agent_tutorial.sh.  It uses the
 geopmbench application.  Before running, build and install GEOPM and
-make sure that both plugins are built using the tutorial_build_*.sh
+make sure that both plugins are built using the "tutorial_build\_\*.sh"
 script in each folder.  During the run, the idle percent will be
 printed to either standard out or standard error, depending on whether
 it falls within the bounds set in example_policy.json.  The run script

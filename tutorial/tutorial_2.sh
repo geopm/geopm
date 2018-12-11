@@ -66,7 +66,7 @@ elif [ "$GEOPM_LAUNCHER" == "aprun" ]; then
 elif [ $MPIEXEC ]; then
     # Use MPIEXEC and set GEOPM environment variables to launch the job
     LD_DYNAMIC_WEAK=true \
-    GEOPM_PMPI_CTL=process \
+    GEOPM_CTL=process \
     GEOPM_REPORT=tutorial_2_report \
     GEOPM_TRACE=tutorial_2_trace \
     $MPIEXEC \
