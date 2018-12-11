@@ -176,7 +176,7 @@ class Config(object):
         parser.add_argument('--geopm-timeout', dest='timeout', type=str)
         parser.add_argument('--geopm-plugin', dest='plugin', type=str)
         parser.add_argument('--geopm-debug-attach', dest='debug_attach', type=str)
-        parser.add_argument('--geopm-barrier', dest='barrier', action='store_true', default=False)
+        parser.add_argument('--geopm-region-barrier', dest='barrier', action='store_true', default=False)
         parser.add_argument('--geopm-preload', dest='preload', action='store_true', default=False)
         parser.add_argument('--geopm-disable-hyperthreads', dest='allow_ht_pinning', action='store_false', default=True)
 
@@ -227,7 +227,7 @@ class Config(object):
         if self.ctl == 'pthread':
             result['MPICH_MAX_THREAD_SAFETY'] = 'multiple'
         if self.ctl in ('process', 'pthread'):
-            result['GEOPM_PMPI_CTL'] = self.ctl
+            result['GEOPM_CTL'] = self.ctl
         if self.profile:
             result['GEOPM_PROFILE'] = self.profile
         else:
@@ -1283,7 +1283,7 @@ GEOPM_OPTIONS:
       --geopm-plugin=path     look for geopm plugins in "path", a : separated
                               list of directories
       --geopm-debug-attach=rk attach serial debugger to rank "rk"
-      --geopm-barrier         apply node local barriers when application enters
+      --geopm-region-barrier  apply node local barriers when application enters
                               or exits a geopm region
       --geopm-preload         use LD_PRELOAD to link libgeopm.so at runtime
       --geopm-disable-hyperthreads
