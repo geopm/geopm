@@ -70,6 +70,7 @@ geopm::MSR(3)                    GEOPM_CXX_MAN_MSR.3
 geopm::MSRIO(3)                  GEOPM_CXX_MAN_MSRIO.3
 geopm::MSRIOGroup(3)             GEOPM_CXX_MAN_MSRIOGroup.3
 geopm::MonitorAgent(3)           GEOPM_CXX_MAN_MonitorAgent.3
+geopm::PlatformIO(3)             GEOPM_CXX_MAN_PlatformIO.3
 geopm::PlatformTopo(3)           GEOPM_CXX_MAN_PlatformTopo.3
 geopm::PluginFactory(3)          GEOPM_CXX_MAN_PluginFactory.3
 geopm::PowerBalancer(3)          GEOPM_CXX_MAN_PowerBalancer.3

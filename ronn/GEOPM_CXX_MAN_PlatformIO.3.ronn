@@ -1,0 +1,314 @@
+geopm::PlatformIO(3) -- geopm platform interface
+================================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## NAMESPACES
+
+The `PlatformIO` class, the `IPlatformIO` class, the `IOGroup` class,
+and the `platform_io()` singleton accessor function are members of the
+`namespace geopm`, but the full names, `geopm::PlatformIO`,
+`geopm::IPlatformIO`, `geopm::IOGroup` and `geopm::platform_io()`,
+have been abbreviated in this manual.  Similarly, the `std::`
+namespace specifier has been omitted from the interface definitions
+for the following standard types: `std::shared_ptr`, `std::set`,
+`std::string`, `std::function`, `std::vector`, to enable better
+rendering of this manual.
+
+Note that the `IPlatformIO` class is an abstract base class that the
+user interacts with.  The concrete implementation, `PlatformIO`, is
+hidden by the singleton accessor.  In this manual the `PlatformIO` and
+`IPlatformIO` name are used interchangeably.
+
+## SYNOPSIS
+
+**\#include [<geopm/PlatformIO.hpp>](https://github.com/geopm/geopm/blob/dev/src/PlatformIO.hpp)**
+
+`Link with -lgeopm`
+
+  * `IPlatformIO &platform_io(`:
+    `void);`
+
+  * `virtual set<string> IPlatformIO::signal_names(`:
+    `void) const = 0;`
+
+  * `virtual set<string> IPlatformIO::control_names(`:
+    `void) const = 0;`
+
+  * `virtual string IPlatformIO::signal_description(`:
+    `const string &`_signal_name_`) const = 0;`
+
+  * `virtual string IPlatformIO::control_description(`:
+    `const string &`_control_name_`) const = 0;`
+
+  * `virtual int IPlatformIO::signal_domain_type(`:
+    `const string &`_signal_name_`) const = 0;`
+
+  * `virtual int IPlatformIO::control_domain_type(`:
+    `const string &`_control_name_`) const = 0;`
+
+  * `virtual double IPlatformIO::read_signal(`:
+    `const string &`_signal_name_`,` <br>
+    `int` _domain_type_`,` <br>
+    `int` _domain_idx_`) = 0;`
+
+  * `virtual void IPlatformIO::write_control(`:
+    `const string &`_control_name_`,` <br>
+    `int` _domain_type_`,` <br>
+    `int` _domain_idx_`,` <br>
+    `double` _setting_`) = 0;`
+
+  * `virtual void IPlatformIO::save_control(`:
+    `void) = 0;`
+
+  * `virtual void IPlatformIO::restore_control(`:
+    `void) = 0;`
+
+  * `virtual int IPlatformIO::push_signal(`:
+    `const string &`_signal_name_`,` <br>
+    `int` _domain_type_`,`
+    `int` _domain_idx_`) = 0;`
+
+  * `virtual int IPlatformIO::push_control(`:
+    `const string &`_control_name_`,` <br>
+    `int` _domain_type_`,` <br>
+    `int` _domain_idx_`) = 0;`
+
+  * `virtual int IPlatformIO::num_signal(`:
+    `void) const = 0;`
+
+  * `virtual int IPlatformIO::num_control(`:
+    `void) const = 0;`
+
+  * `virtual double IPlatformIO::sample(`:
+    `int` _signal_idx_`) = 0;`
+
+  * `virtual void IPlatformIO::adjust(`:
+    `int` _control_idx_`,`
+    `double` _setting_`) = 0;`
+
+  * `virtual void IPlatformIO::read_batch(`:
+    `void) = 0;`
+
+  * `virtual void IPlatformIO::write_batch(`:
+    `void) = 0;`
+
+  * `virtual function<double(const vector<double> &)> IPlatformIO::agg_function(`:
+    `const string &`_signal_name_`) const = 0;`
+
+  * `virtual void IPlatformIO::register_iogroup(`:
+    `shared_ptr<IOGroup>` _iogroup_`) = 0;`
+
+  * `struct IPlatformIO::m_request_s {`:
+    `string` _name_`;` <br>
+    `int` _domain_type_`;` <br>
+    `int` _domain_idx_`;` <br>
+    `};`
+
+## DESCRIPTION
+The `PlatformIO` class provides a high-level interface for signals and
+controls.  There are a large number of built-in signals and controls.
+Theses built-in signals and controls include a wide range of hardware
+metrics, hardware settings, and signals derived from application
+behavior.  Application behavior is tracked by GEOPM's integration with
+MPI and OpenMP and also by application use of the **geopm_prof_c(3)**
+mark-up interface. In addition to the built-in features, `PlatformIO`
+can be extended through the **geopm::IOGroup(3)** plugin interface to
+provide arbitrary signals and controls.
+
+A signal represents any measurement in SI units that can be sampled or
+any unit-free integer that can be read.  All signals are sampled from
+a domain as defined by the **geopm::PlatformTopo(3)** class.  A
+control represents a request for a hardware domain to operate such
+that a related signal measured from the hardware domain will track the
+request.  For example, the user can set a `POWER_PACKAGE_LIMIT` in
+units of watts and the related signal, `POWER_PACKAGE`, will remain
+below the limit.  Similarly the user can set a CPU `FREQUENCY` in
+hertz and the related signal, `FREQUENCY` will show the CPU operating
+at the value set.
+
+The domains are defined to be a unit of hardware that can provide
+signals that are distinct from other domains, or can be controlled
+independantly of other domains.  Each domain is defined by a type and
+and an index.  The domain type is one of the
+`PlatformTopo::m_domain_e` values, and the domain index enumerates the
+devices of that type available on the system.  Each domain type is
+related to a set of Linux logical CPUs and this can be determined with
+the `PlatformTopo::domain_cpus()` method.  The CPUs associated with a
+domain are the set of CPUs that can issue instructions to read signals
+from or write controls to the domain most directly.  An example of a
+domain is the `PlatformTopo::M_DOMAIN_PACKAGE` which is a collection
+of all the hardware present on a single processor package installed on
+a distinct socket of a motherboard.
+
+## SINGLETON ACCESSOR
+
+  * `platform_io`():
+    There is only one `PlatformIO` object, and the only way to access
+    this object is through this function.  The function returns a
+    reference to the single `PlatformIO` object that gives access to
+    all of the CLASS METHODS described below.  See `EXAMPLE` section
+    below.
+
+## INSPECTION CLASS METHODS
+
+  * `signal_names()`:
+    Returns the names of all available signals that can be requested.
+    This includes all signals and aliases provided through `IOGroup`
+    extensions as well as signals provided by PlatformIO itself.  The
+    set of strings that are returned can be passed as a _signal_name_
+    to all `PlatformIO` methods that accept a signal name input
+    parameter.
+
+  * `control_names()`:
+    Returns the names of all available controls.  This includes all
+    controls and aliases provided by IOGroups as well as controls
+    provided by PlatformIO itself.
+
+  * `signal_description()`:
+
+  * `control_description()`:
+
+  * `signal_domain_type()`:
+    Query the domain for the signal with name _signal_name_.  Returns
+    one of the `geopm::PlatformTopo::m_domain_e` values signifying the
+    granularity at which the signal is measured.  Will return
+    `geopm::PlatformTopo::M_DOMAIN_INVALID` if the signal name is not
+    supported.
+
+  * `control_domain_type()`:
+    Query the domain for the control with the name _control_name_.
+    Returns one of the `geopm::PlatformTopo::m_domain_e` values
+    signifying the granularity at which the control can be adjusted.
+    Will return `geopm::PlatformTopo::M_DOMAIN_INVALID` if the signal
+    name is not supported.
+
+  * `agg_function()`:
+
+## SERIAL CLASS METHODS
+
+  * `read_signal()`:
+
+  * `write_control()`:
+
+  * `save_control()`:
+
+  * `restore_control()`:
+
+## BATCH CLASS METHODS
+
+  * `push_signal()`:
+    Push a signal onto the stack of batch access signals.  The signal
+    is defined by selecting a _signal_name_ from the set returned by
+    the `signal_names()` method, the _domain_type_ from one of the
+    `PlatformTopo::m_domain_e` values, and the _domain_idx_ between
+    zero to the value returned by
+    `PlatformTopo::num_domain(_domain_type_)`.  Subsequent calls to
+    the `read_batch()` method will read the signal and update the
+    internal state used to store batch signals.  The return value of
+    the method can be passed to the `sample_signal()` method to access
+    the signal stored in the internal state from the last update.  The
+    returned signal index will be repeated for each unique tuple of
+    push_signal input parameters.  All signals must be pushed onto the
+    stack prior to the first call to `read_batch()`.  Attempts to push
+    a signal onto the stack after the first call to `read_batch()` or
+    attempts to push a _signal_name_ that is not from the set
+    returened by `signal_names()` will result in a thrown
+    `geopm::Exception` with error number `GEOPM_ERROR_INVALID`.
+
+  * `push_control()`:
+
+  * `num_signal()`:
+
+  * `num_control()`:
+
+  * `sample()`:
+
+  * `adjust()`:
+
+  * `read_batch()`:
+
+  * `write_batch()`:
+
+## PLUGIN CLASS METHODS
+
+  * `register_iogroup()`:
+    Registers an `IOGroup` with the `PlatformIO` so that the signals
+    and controls provided by the object are available through the
+    `PlatformIO` interface.  The _iogroup_ is a shared pointer to a
+    class derived from the **geopm::IOGroup(3)**.  This method
+    provides the mechanism for extending the `PlatformIO` interface at
+    runtime.
+
+## TYPES
+
+  * `m_request_s`:
+
+## EXAMPLE
+
+    /* Print a signal for all CPUs on the system. */
+
+    #include <iostream>
+    #include <string>
+    #include <geopm/PlatformIO.hpp>
+    #include <geopm/PlatformTopo.hpp>
+
+    int main(int argc, char **argv)
+    {
+        if (argc != 2) {
+            std::cerr << "Usage: " << argv[0] << " SIGNAL_NAME" << std::endl;
+            return -1;
+        }
+        std::string signal_name = argv[1];
+        geopm::IPlatformIO &pio = geopm::platform_io();
+        geopm::IPlatformTopo &topo = geopm::platform_topo();
+        const int DOMAIN = pio.signal_domain_type(signal_name);
+        const int NUM_DOMAIN = topo.num_domain(DOMAIN);
+        std::cout << "cpu_idx    " << signal_name << std::endl;
+        for (int domain_idx = 0; domain_idx != NUM_DOMAIN; ++domain_idx) {
+            double signal = pio.read_signal(signal_name, DOMAIN, domain_idx);
+            for (const auto &cpu_idx : topo.domain_cpus(DOMAIN, domain_idx)) {
+                std::cout << cpu_idx << "    " << signal << std::endl;
+            }
+        }
+        return 0;
+    }
+
+
+## ERRORS
+All functions described on this man page throw **geopm::Exception(3)**
+on error.
+
+## COPYRIGHT
+Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**
