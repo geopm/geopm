@@ -57,8 +57,6 @@ int main(int argc, char **argv)
     int err0 = 0;
     int err_mpi = 0;
     char error_str[MPI_MAX_ERROR_STRING] = {0};
-    char policy_key[GEOPMCTL_STRING_LENGTH] = {0};
-    char *policy_ptr = NULL;
     char *arg_ptr = NULL;
     MPI_Comm comm_world = MPI_COMM_NULL;
     const char *usage = "    %s [--help] [--version]\n"
@@ -91,15 +89,9 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    while (!err0 && (opt = getopt(argc, argv, "c:k:")) != -1) {
+    while (!err0 && (opt = getopt(argc, argv, "")) != -1) {
         arg_ptr = NULL;
         switch (opt) {
-            case 'c':
-                arg_ptr = policy_config;
-                break;
-            case 'k':
-                arg_ptr = policy_key;
-                break;
             default:
                 fprintf(stderr, "Error: unknown parameter \"%c\"\n", opt);
                 fprintf(stderr, usage, argv[0]);
