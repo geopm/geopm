@@ -1,0 +1,205 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30cf993d_f70aeb8e",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 5
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-11T20:17:35Z",
+      "side": 1,
+      "message": "Should mention \"ignore\" hint here.",
+      "revId": "c35baf322140730c6159c2d9368b6eccc3cfd76a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7035e255_79007ba4",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-11T20:17:35Z",
+      "side": 1,
+      "message": "Policies and samples are vectors of double precision values where each value has a meaning defined by the **geopm::Agent(3)** implementation.",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 24
+      },
+      "revId": "c35baf322140730c6159c2d9368b6eccc3cfd76a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "651e6137_392c277f",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 5
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-11T20:17:35Z",
+      "side": 1,
+      "message": "Delete me.",
+      "range": {
+        "startLine": 76,
+        "startChar": 24,
+        "endLine": 78,
+        "endChar": 32
+      },
+      "revId": "c35baf322140730c6159c2d9368b6eccc3cfd76a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ee7bbd1_54a48e70",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 5
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-11T20:17:35Z",
+      "side": 1,
+      "message": "Agent Sample Definitions",
+      "range": {
+        "startLine": 128,
+        "startChar": 19,
+        "endLine": 128,
+        "endChar": 28
+      },
+      "revId": "c35baf322140730c6159c2d9368b6eccc3cfd76a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89f97fd4_ad728ba6",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 5
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-11T20:17:35Z",
+      "side": 1,
+      "message": "Trace Column Extensions",
+      "range": {
+        "startLine": 151,
+        "startChar": 11,
+        "endLine": 151,
+        "endChar": 24
+      },
+      "revId": "c35baf322140730c6159c2d9368b6eccc3cfd76a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d23e49b6_8e0f7f44",
+        "filename": "ronn/geopm_agent_power_balancer.7.ronn",
+        "patchSetId": 5
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-11T20:17:35Z",
+      "side": 1,
+      "message": "Report Extensions",
+      "range": {
+        "startLine": 177,
+        "startChar": 10,
+        "endLine": 177,
+        "endChar": 23
+      },
+      "revId": "c35baf322140730c6159c2d9368b6eccc3cfd76a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0c27d68f_675e42b8",
+        "filename": "ronn/geopm_prof_c.3.ronn",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-11T20:17:35Z",
+      "side": 1,
+      "message": "leave the way it was. Too confusing for an application developer wanting to know how to mark up their code.",
+      "range": {
+        "startLine": 72,
+        "startChar": 1,
+        "endLine": 72,
+        "endChar": 20
+      },
+      "revId": "c35baf322140730c6159c2d9368b6eccc3cfd76a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c28243b5_a5f12884",
+        "filename": "ronn/geopm_prof_c.3.ronn",
+        "patchSetId": 5
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-11T20:17:35Z",
+      "side": 1,
+      "message": "epoch runtime reference here needs to go (no longer part of the definition of epoch runtime).  Spell out that control algorithms should ignore these regions, and apply default policies to them.",
+      "range": {
+        "startLine": 133,
+        "startChar": 57,
+        "endLine": 134,
+        "endChar": 11
+      },
+      "revId": "c35baf322140730c6159c2d9368b6eccc3cfd76a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3806d3e6_ac3c9263",
+        "filename": "ronn/geopm_prof_c.3.ronn",
+        "patchSetId": 5
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-11T20:17:35Z",
+      "side": 1,
+      "message": "proportion?",
+      "range": {
+        "startLine": 152,
+        "startChar": 18,
+        "endLine": 152,
+        "endChar": 26
+      },
+      "revId": "c35baf322140730c6159c2d9368b6eccc3cfd76a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
