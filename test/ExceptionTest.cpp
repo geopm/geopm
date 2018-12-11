@@ -70,12 +70,12 @@ TEST_F(ExceptionTest, hello)
     EXPECT_TRUE(what_str.find("ExceptionTest.cpp") != std::string::npos);
     std::cerr << "Error: " << ex2.what() << std::endl;
 
-    geopm::Exception ex3("Hello world", GEOPM_ERROR_POLICY_NULL, __FILE__, __LINE__);
-    EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, ex3.err_value());
+    geopm::Exception ex3("Hello world", GEOPM_ERROR_NO_AGENT, __FILE__, __LINE__);
+    EXPECT_EQ(GEOPM_ERROR_NO_AGENT, ex3.err_value());
     what_str = std::string(ex3.what());
     EXPECT_TRUE(what_str.size() != 0);
     EXPECT_TRUE(what_str.compare(0, geopm_tag.length(), geopm_tag) == 0);
-    EXPECT_TRUE(what_str.find("policy") != std::string::npos);
+    EXPECT_TRUE(what_str.find("agent") != std::string::npos);
     EXPECT_TRUE(what_str.find("ExceptionTest.cpp") != std::string::npos);
     std::cerr << "Error value = " << ex3.err_value() << std::endl;
     try {
@@ -83,7 +83,7 @@ TEST_F(ExceptionTest, hello)
     }
     catch (...) {
         int err = geopm::exception_handler(std::current_exception());
-        EXPECT_EQ(GEOPM_ERROR_POLICY_NULL, err);
+        EXPECT_EQ(GEOPM_ERROR_NO_AGENT, err);
     }
 
     geopm::Exception ex4(0);
