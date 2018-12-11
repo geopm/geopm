@@ -101,6 +101,16 @@ ronn_man = man/geopm.7 \
            man/geopm_endpoint_c.3 \
            man/geopm_error.3 \
            man/geopm_fortran.3 \
+           man/GEOPM_CXX_MAN_Helper.3 \
+           man/GEOPM_CXX_MAN_MPIComm.3 \
+           man/geopm_imbalancer.3 \
+           man/GEOPM_CXX_MAN_IOGroup.3 \
+           man/GEOPM_CXX_MAN_MSR.3 \
+           man/GEOPM_CXX_MAN_MSRIO.3 \
+           man/GEOPM_CXX_MAN_MSRIOGroup.3 \
+           man/GEOPM_CXX_MAN_MonitorAgent.3 \
+           man/GEOPM_CXX_MAN_PlatformIO.3 \
+           man/GEOPM_CXX_MAN_PlatformTopo.3 \
            man/geopmplotter.1 \
            man/geopmpolicy.1 \
            man/geopm_policy_c.3 \
@@ -171,6 +181,16 @@ EXTRA_DIST = .gitignore \
              ronn/geopm_ctl_c.3.ronn \
              ronn/geopm_error.3.ronn \
              ronn/geopm_fortran.3.ronn \
+             ronn/GEOPM_CXX_MAN_Helper.3.ronn \
+             ronn/geopm_imbalancer.3.ronn \
+             ronn/GEOPM_CXX_MAN_IOGroup.3.ronn \
+             ronn/GEOPM_CXX_MAN_MPIComm.3.ronn \
+             ronn/GEOPM_CXX_MAN_MSR.3.ronn \
+             ronn/GEOPM_CXX_MAN_MSRIO.3.ronn \
+             ronn/GEOPM_CXX_MAN_MSRIOGroup.3.ronn \
+             ronn/GEOPM_CXX_MAN_MonitorAgent.3.ronn \
+             ronn/GEOPM_CXX_MAN_PlatformIO.3.ronn \
+             ronn/GEOPM_CXX_MAN_PlatformTopo.3.ronn \
              ronn/geopmplotter.1.ronn \
              ronn/geopmpolicy.1.ronn \
              ronn/geopm_policy_c.3.ronn \

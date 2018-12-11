@@ -1,0 +1,274 @@
+geopm::PluginFactory(3) -- abstract factory for plugins
+=======================================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## SYNOPSIS
+
+**\#include [<geopm/PluginFactory.hpp>](https://github.com/geopm/geopm/blob/dev/src/PluginFactory.hpp)**
+
+## DESCRIPTION
+GEOPM can be extended though `Agent`, `IOGroup`, and `Comm` plugins.
+This man page describes the steps for adding a plugin.  Refer to
+**geopm::Agent(3)**, **geopm::IOGroup(3)**, and **geopm::Comm(3)** for
+more details about these interfaces.  Any C++ class that derives from
+one of these plugin base classes and is compiled into a shared object
+file can be loaded at application launch time through the GEOPM plugin
+interface.  This allows users and system administrators to extend the
+features and behavior of the monitor and control process that GEOPM
+executes without recompiling the GEOPM runtime.
+
+## TERMS
+Below are some definitions of terms that are used to describe
+different parts of the GEOPM runtime.  Understanding these terms will
+help to interpret the documentation about how to extend the GEOPM
+runtime.  These are arranged from from highest levels of abstraction
+down to the lowest levels of abstraction.
+
+  * _launcher_:
+    Wrapper of system application launch (e.g. srun or aprun) that
+    executes the GEOPM runtime with the application.
+
+  * _report_:
+    Text file containing summary of aggregated stats collected during
+    application run.
+
+  * _trace_:
+    Time series of signals collected over application run in a pipe
+    separated ASCII table.
+
+  * _policy_:
+    Array of floating-point settings for `Agent`-specific control
+    parameters in SI units.
+
+  * _sample_:
+    Array of floating-point values providing `Agent`-specific runtime
+    statistics in SI units.
+
+  * _endpoint_:
+    Interface between resource manager and GEOPM runtime.
+
+  * _profile_:
+    Interface for annotating compute application; provides PlatformIO
+    region signals.
+
+  * _controller_:
+    Thread on each compute node that loads plugins and runs GEOPM
+    algorithm.
+
+  * _level_:
+    Attribute of an `Agent` describing the number of edges between it
+    and the nearest leaf `Agent` in the communication Tree (a leaf
+    `Agent` is _level_ zero).
+
+  * _signal_:
+    Named parameter in SI units that can be measured using PlatformIO.
+
+  * _control_:
+    Named parameter in SI units that can be set using PlatformIO.
+
+
+
+## BUILDING A PLUGIN SHARED OBJECT
+A GEOPM plugin is a shared object file that is loaded at runtime by
+the _controller_ through the **dlopen(3)** interface.  Each file
+provides exactly one new implementation for one of the three
+extensible classes: `IOGroup`, `Agent`, and `Comm`.  Each
+implementation is identified by a unique name string referred to as
+the _plugin_name_.  An exception will be thrown if more than one
+plugin of the same name and same type are loaded.  The _plugin_name_
+is standardized to be all lower case letters.  The shared object file
+names must conform to the patern:
+
+    libgeopm<CLASS>_<NAME>.so.1.0.0
+
+Here <NAME> is the _plugin_name_ and <CLASS> is one of the three
+strings identifying the plugin type: "iogroup", "agent", or "comm".
+The current GEOPM ABI version is 1.0.0, and the file name must end
+with this string.  Plugins must be marked to have exactly the same ABI
+version as the GEOPM library they are intended to be loaded by.  Do
+not link the plugin shared object against any of the GEOPM libraries;
+this will cause a circular link dependency.  Compile the shared object
+with flags appropriate for a dynamically loaded library, e.g. for
+`g++` and `icpc` you must provide the `-fPIC` and `-shared` options.
+
+## PLUGIN SEARCH PATH AND LOAD ORDER
+The `GEOPM_PLUGIN_PATH` is a colon separated list of directories
+that contain plugin shared object files to be loaded by the GEOPM
+runtime.  See **geopm(7)** for details about `GEOPM_PLUGIN_PATH`.
+Note that an Exception will be thrown by the register_plugin
+method if an attempt is made to register a plugin with the same name
+as a previously registered plugin.
+
+In the case of IOGroup plugins, the first path (from left to right in
+the colon separated list) containing a plugin that supports a signal
+name or control name will provide the imlementation supporting the
+signal or control at runtime, and the default search path
+(`<PREFIX>/lib/geopm`) will have the lowest priority.  The last plugin
+to register a signal or control provides the implementation.
+Therefore, the plugins in the default path are loaded first, and the
+directories in the `GEOPM_PLUGIN_PATH` are loaded in reverse (from
+right to left).
+
+
+## PLUGIN LOAD CONSTRUCTOR FUNCTION
+
+The shared object file must provide a function that is decorated with
+the `constructor` compiler directive.  The `constructor` attribute
+enables the registration of plugins when the shared object is loaded
+by a call to **dlopen(3)**.  See the following link for the `gcc`
+documentation for the
+[constructor attribute](https://gcc.gnu.org/onlinedocs/gcc-4.3.0/gcc/Function-Attributes.html).
+
+It is recommended that each class deriving from one of the GEOPM
+plugin classes implement two static helper methods called
+`plugin_name()` and `make_plugin()`.  These functions can be called
+to provide the inputs to `PluginFactory::register_plugin()`.
+
+## EXAMPLE: REGISTER IOGROUP PLUGIN
+
+```
+    // This example shows how to register an IOGroup plugin
+    #include <geopm/IOGroup.hpp> // geopm::IOGroup,
+                                 // geopm::iogroup_factory
+    #include <geopm/Helper.hpp>  // geopm::make_unique
+
+    // Header providing class ExampleIOGroup interface
+    #include "ExampleIOGroup.hpp"
+
+    // Called during dlopen() to register plugin
+    static void __attribute__((constructor))
+    register_plugin_example_iogroup(void)
+    {
+        geopm::PluginFactory<geopm::IOGroup> &iof =
+            geopm::iogroup_factory();
+        iof.register_plugin(ExampleIOGroup::plugin_name(),
+                            ExampleIOGroup::make_plugin);
+    }
+
+    // Static method used by the factory to create objects
+    std::unique_ptr<IOGroup> ExampleIOGroup::make_plugin(void)
+    {
+        return geopm::make_unique<ExampleIOGroup>();
+    }
+
+    // Static method providing unique plugin name
+    std::string ExampleIOGroup::plugin_name(void)
+    {
+        return "example";
+    }
+```
+
+## EXAMPLE: REGISTER AGENT PLUGIN
+
+```
+    // This example shows how to register an Agent plugin
+    #include <geopm/Agent.hpp>  // geopm::Agent,
+                                // geopm::agent_factory
+    #include <geopm/Helper.hpp> // geopm::make_unique
+
+    // Header providing class ExampleAgent interface
+    #include "ExampleAgent.hpp"
+
+    // Called during dlopen() to register plugin
+    static void __attribute__((constructor))
+    register_plugin_example_agent(void)
+    {
+        geopm::PluginFactory<geopm::Agent> &af =
+            geopm::agent_factory();
+        af.register_plugin(ExampleAgent::plugin_name(),
+                           ExampleAgent::make_plugin,
+                           geopm::Agent::make_dictionary(
+                               ExampleAgent::policy_names(),
+                               ExampleAgent::sample_names()));
+    }
+
+    // Static method used by the factory to create objects
+    std::unique_ptr<geopm::Agent> ExampleAgent::make_plugin(void)
+    {
+        return geopm::make_unique<ExampleAgent>();
+    }
+
+    // Static method providing unique plugin name
+    std::string ExampleAgent::plugin_name(void)
+    {
+        return "example";
+    }
+
+```
+
+## EXAMPLE: REGISTER COMM PLUGIN
+
+```
+    // This example shows how to register an Comm plugin
+    #include <geopm/Comm.hpp>   // geopm::Comm,
+                                // geopm::comm_factory
+    #include <geopm/Helper.hpp> // geopm::make_unique
+
+    // Header providing class ExampleComm interface
+    #include "ExampleComm.hpp"
+
+    // Called during dlopen() to register plugin
+    static void __attribute__((constructor))
+    register_plugin_example_comm(void)
+    {
+        geopm::PluginFactory<geopm::Comm> &cf = geopm::comm_factory();
+        cf.register_plugin(ExampleComm::plugin_name(),
+                           ExampleComm::make_plugin);
+    }
+
+    // Static method used by the factory to create objects
+    std::unique_ptr<geopm::Comm> ExampleComm::make_plugin(void)
+    {
+        return geopm::make_unique<ExampleComm>();
+    }
+
+    // Static method providing unique plugin name
+    std::string ExampleComm::plugin_name(void)
+    {
+        return "example";
+    }
+```
+
+## BACKUP
+
+For more details, see the doxygen
+page at <https://geopm.github.io/dox/classgeopm_1_1_plugin_factory.html>.
+
+## COPYRIGHT
+Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopm::Agent(3)**,
+**geopm::Comm(3)**,
+**geopm::IOGroup(3)**
+**dlopen(3)**

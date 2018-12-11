@@ -124,6 +124,20 @@ application including support for static control.
 
 **geopm_sched(3)**: Interface with Linux scheduler
 
+**geopm_time(3)**: Time related helper functions
+
+## PLUGIN EXTENSION
+
+**geopm::PluginFactory(3)**: Plugin developer guide
+
+**geopm::PlatformIO(3)**: High level platform abstraction
+
+**geopm::IOGroup(3)**: Plugin interface for platform
+
+**geopm::Agent(3)**: Plugin interface for monitor/control
+
+**geopm::Comm(3)**: Plugin interface for agent communication
+
 
 ## INTEGRATION WITH PMPI
 Linking to libgeopm will define symbols that intercept the MPI
@@ -386,16 +400,17 @@ runtime without **geopmsrun(1)** or **geopmaprun(1)**.
     default timeout is 30 seconds.
 
   * `GEOPM_PLUGIN_PATH`:
-    The search path for GEOPM plugins. It is a colon-separated list
-    of directories used by GEOPM to search for shared objects which
+    The search path for GEOPM plugins. It is a colon-separated list of
+    directories used by GEOPM to search for shared objects which
     contain GEOPM plugins.  In order to be available to the GEOPM
     runtime, plugins should register themselves with the appropriate
-    factory.  Refer to tutoral/iogroup and tutorial/agent for examples
-    of plugins that register themselves at plugin load time. A
-    zero-length directory name indicates the current working
+    factory.  See **geopm::PluginFactory(3)** for information about
+    the GEOPM plugin interface.  The plugins are loaded
+
+    A zero-length directory name indicates the current working
     directory.  A zero-length directory is inferred by a leading or
     trailing colon or two adjacent colons.  The default search
-    location is always searched and is determined at library
+    location is always loaded first and is determined at library
     configuration time and by way of the 'pkglib' variable (typically
     /usr/lib64/geopm/).
 

@@ -74,7 +74,7 @@ namespace geopm
             ///         the signal name is not supported.
             virtual int signal_domain_type(const std::string &signal_name) const = 0;
             /// @brief Query the domain for a named control.
-            /// @param [in] signal_name The name of the signal.
+            /// @param [in] control_name The name of the control.
             /// @return One of the PlatformTopo::m_domain_e values
             ///         signifying the granularity at which the
             ///         control can be adjusted.  Will return

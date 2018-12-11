@@ -58,7 +58,7 @@ numbers are enumerated in the _geopm_error.h_ header file and they are
 described below.  The system error numbers are documented in the
 **errno(3)** man page.
 
-## ERRORS NUMBERS
+## ERROR NUMBERS
 
   * `GEOPM_ERROR_RUNTIME = -1`:
     Runtime error

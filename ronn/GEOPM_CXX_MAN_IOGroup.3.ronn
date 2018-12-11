@@ -1,0 +1,268 @@
+geopm::IOGroup(3) -- provides system values and settings
+========================================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## NAMESPACES
+The `IOGroup` class and the `iogroup_factory()` singleton accessor
+function are members of the `namespace geopm`, but the full names,
+`geopm::IOGroup` and `geopm::iogroup_factory()`, have been abbreviated
+in this manual.  Similarly, the `std::` namespace specifier has been
+omitted from the interface definitions for the following standard
+types: `std::vector`, `std::string`, `std::set`, and `std::function`,
+to enable better rendering of this manual.
+
+## SYNOPSIS
+
+**\#include [<geopm/IOGroup.hpp>](https://github.com/geopm/geopm/blob/dev/src/IOGroup.hpp)**
+
+`Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
+
+  * `IOGroup::IOGroup(`:
+    `void);`
+
+  * `virtual IOGroup::~IOGroup(`:
+    `void);`
+
+  * `virtual set<string> IOGroup::signal_names(`:
+    `void) const = 0`;
+
+  * `virtual set<string> IOGroup::control_names(`:
+    `void) const = 0`;
+
+  * `virtual bool IOGroup::is_valid_signal(`:
+    `const string &`_signal_name_`) const = 0;`
+
+  * `virtual bool IOGroup::is_valid_control(`:
+    `const string &`_control_name_`) const = 0;`
+
+  * `virtual int IOGroup::signal_domain_type(`:
+    `const string &`_signal_name_`) const = 0;`
+
+  * `virtual int IOGroup::control_domain_type(`:
+    `const string &`_control_name_`) const = 0;`
+
+  * `virtual int IOGroup::push_signal(`:
+    `const string &`_signal_name_`,` <br>
+    `int` _domain_type_`,` <br>
+    `int` _domain_idx_`) = 0`;
+
+  * `virtual int IOGroup::push_control(`:
+    `const string &`_control_name_`,` <br>
+    `int` _domain_type_`,` <br>
+    `int` _domain_idx_`) = 0`;
+
+  * `virtual void IOGroup::read_batch(`:
+    `void) = 0`;
+
+  * `virtual void IOGroup::write_batch(`:
+    `void) = 0`;
+
+  * `virtual double IOGroup::sample(`:
+    `int` _sample_idx_`) = 0;`
+
+  * `virtual void IOGroup::adjust(`:
+    `int` _control_idx_`,` <br>
+    `double` _setting_`) = 0;`
+
+  * `virtual double IOGroup::read_signal(`:
+    `const string &`_signal_name_`,` <br>
+    `int` _domain_type_`,` <br>
+    `int` _domain_idx_`) = 0;`
+
+  * `virtual void IOGroup::write_control(`:
+    `const string &`_control_name_`,` <br>
+    `int` _domain_type_`,` <br>
+    `int` _domain_idx_`,` <br>
+    `double` _setting_`) = 0;`
+
+  * `virtual void IOGroup::save_control(`:
+    `void) = 0`;
+
+  * `virtual void IOGroup::restore_control(`:
+    `void) = 0`;
+
+  * `virtual function<double(const vector<double> &)> agg_function(`:
+    `const string &`_signal_name_`) const = 0;`
+
+  * `virtual string signal_description(`:
+    `const string &`_signal_name_`) const = 0;`
+
+  * `virtual string control_description(`:
+    `const string &`_control_name_`) const = 0;`
+
+  * `PluginFactory<IOGroup> &iogroup_factory(`:
+    `void);`
+
+## DESCRIPTION
+The `IOGroup` class is an abstract pure virtual class that defines the high
+level interface employed by plugins for sample input and control output.  An
+`Agent`, provided by the **geopm::Agent(3)** class,  will define one or more
+IOGroups in order to:
+
+1. Acquire the necessary sample data required for the Agent.
+2. Perform the necessary control operations as specified by the Agent.
+
+Classes may derive from the `IOGroup` class in order to provide an `Agent` with
+additional sample data or control hooks other than what is provided by GEOPM.
+The pure virtual methods in this interface must be implemented by every
+IOGroup.  If an IOGroup provides only signals, the methods related to controls
+can have empty or degenerate implementations; the reverse is also true if an
+IOGroup only provides controls.  In these cases, ensure that is_valid_signal()
+or is_valid_control() returns false as appropriate, and that signal_names() or
+control_names() returns an empty set.
+
+GEOPM provides a number of built-in IOGroups for the most common
+usages.  The list of built-in IOGroups is as follows:
+
+  * `CpuinfoIOGroup`: Provides constants for CPU frequency limits.
+     Discussed in **geopm::CpuinfoIOGroup(3)**.
+
+  * `MSRIOGroup`: Provides signals and controls based on MSRs.
+    Discussed in **geopm::MSRIOGroup(3)**.
+
+  * `ProfileIOGroup`: Provides signals from the application.
+    Discussed in **geopm::ProfileIOGroup(3)**.
+
+  * `TimeIOGroup`: Provides a signal for the current time.  Discussed
+    in **geopm::TimeIOGroup(3)**.
+
+## TERMS
+Below are some definitions of terms that are used to describe different parts
+of the IOGroup interface.  Understanding these terms will help to interpret the
+documentation about how to extend IOgroups.
+
+  * _signal_:
+    Named parameter in SI units that can be measured.
+
+  * _control_:
+    Named parameter in SI units that can be set.
+
+  * _domain_:
+    The discrete component within a compute node where a signal or control is
+    applicable.  For more information see **geopm::PlatformTopo(3)**.
+
+## CLASS METHODS
+
+  * `signal_names`(): Provides the list of all signals provided by the
+    `IOGroup`.
+
+  * `control_names`():
+    Provides the list of all controls provided by the `IOGroup`.
+
+  * `is_valid_signal`():
+    Tests if the signal_name refers to a signal supported by the
+    group.
+
+  * `is_valid_control`():
+    Test if control_name refers to a control supported by the group.
+
+  * `signal_domain_type`():
+    Query the domain for a named signal.
+
+  * `control_domain_type`():
+    Query the domain for a named control.
+
+  * `push_signal`():
+    Add a signal to the list of signals that is read by `read_batch`()
+    and sampled by `sample`().
+
+  * `push_control`():
+    Add a control to the list of controls that is written by
+    `write_batch`() and configured with `adjust`().
+
+  * `read_batch`():
+    Read all pushed signals from the platform so that the next call to
+    `sample`() will reflect the updated data.
+
+  * `write_batch`():
+    Write all of the pushed controls so that values previously given
+    to `adjust`() are written to the platform.
+
+  * `sample`():
+    Retrieve signal value from data read by last call to
+    `read_batch`() for a particular signal previously pushed with
+    `push_signal`().
+
+  * `adjust`():
+    Adjust a setting for a particular control that was previously
+    pushed with `push_control`(). This adjustment will be written to
+    the platform on the next call to `write_batch`().
+
+  * `read_signal`():
+    Read from platform and interpret into SI units a signal given its
+    name and domain. Does not modify the values stored by calling
+    `read_batch`().
+
+  * `write_control`():
+    Interpret the setting and write setting to the platform.  Does not
+    modify the values stored by calling adjust().
+
+  * `save_control`(): Save the state of all controls so that any
+    subsequent changes made through the IOGroup can be undone with a
+    call to the `restore`() method.
+
+  * `restore_control`(): Restore all controls to values recorded in
+    previous call to the `save`() method.
+
+  * `agg_function`(): Return a function that should be used when
+    aggregating the given signal.
+
+  * `signal_description`(): Returns a description of the signal. This
+    string can be used by tools to generate help text for users of the
+    IOGroup.
+
+  * `control_description`(): Returns a description of the
+    control. This string can be used by tools to generate help text
+    for users of the IOGroup.
+
+## FACTORY ACCESSOR FUNCTION
+
+  * `iogroup_factory`():
+
+
+## EXAMPLE
+Please see the GEOPM IOGroup tutorial for more information.  That code is
+located in the GEOPM source under tutorial/iogroup.
+
+## BACKUP
+
+page at <https://geopm.github.io/dox/classgeopm_1_1_i_o_group.html>.
+
+## COPYRIGHT
+Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopm::CpuinfoIOGroup(3)**,
+**geopm::MSRIOGroup(3)**,
+**geopm::ProfileIOGroup(3)**,
+**geopm::TimeIOGroup(3)**

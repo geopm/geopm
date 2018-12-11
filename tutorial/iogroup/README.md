@@ -13,19 +13,14 @@ and are based on this example.
 0. IOGroup Interface
 --------------------
 
-IOGroups extend the IOGroup base class found in src/IOGroup.hpp.  The
-pure virtual methods in this interface must be implemented by every
-IOGroup.  If an IOGroup provides only signals, the methods related to
-controls can have empty or degenerate implementations; the reverse is
-also true if an IOGroup only provides controls.  In these cases, ensure
-that is_valid_signal() or is_valid_control() returns false as appropriate, and
-that signal_names() or control_names() returns an empty set.  The example plugin
-used in this tutorial provides both signals and controls.
+IOGroups extend the IOGroup base class found in src/IOGroup.hpp.  For more
+information on the interface, see the geopm::IOGroup(3) man page.
 
-In addition to the interface methods, it can be helpful to implement
-static methods assist with registration; in this example plugin_name()
-and make_plugin() are implemented.  These methods will be discussed
-further in the section on registration.
+The example plugin used in this tutorial provides both signals and controls.
+In addition to the interface methods, it can be helpful to implement static
+methods assist with registration; in this example plugin_name() and
+make_plugin() are implemented.  These methods will be discussed further in the
+section on registration.
 
 
 1. Implementing signals
