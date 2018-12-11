@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e128d49_8786b490",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-11T19:32:28Z",
+      "side": 1,
+      "message": "option -\u003e options\n\nenvirionment -\u003e environment",
+      "revId": "1de6722b7e03c275839a07677a6d78376d9aa5fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e9126888_2892df3a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-11T19:32:28Z",
+      "side": 1,
+      "message": "GEOPM_PLUGIN_PATH | --geopm-plugin-path",
+      "range": {
+        "startLine": 11,
+        "startChar": 2,
+        "endLine": 11,
+        "endChar": 14
+      },
+      "revId": "1de6722b7e03c275839a07677a6d78376d9aa5fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}

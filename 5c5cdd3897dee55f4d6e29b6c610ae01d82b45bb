@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "63b7e5ed_57eb9327",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 3
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-11T19:32:28Z",
+      "side": 0,
+      "message": "Change me.",
+      "range": {
+        "startLine": 351,
+        "startChar": 5,
+        "endLine": 351,
+        "endChar": 19
+      },
+      "revId": "5c5cdd3897dee55f4d6e29b6c610ae01d82b45bb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d1408007_efb59a38",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 3
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-11T19:32:28Z",
+      "side": 0,
+      "message": "Be nice to have a better error message if someone sets the environment variable to \"application\".",
+      "range": {
+        "startLine": 351,
+        "startChar": 5,
+        "endLine": 351,
+        "endChar": 19
+      },
+      "revId": "5c5cdd3897dee55f4d6e29b6c610ae01d82b45bb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
