@@ -146,7 +146,7 @@ namespace geopm
         (void)get_env("GEOPM_PLUGIN_PATH", m_plugin_path);
         m_do_region_barrier = get_env("GEOPM_REGION_BARRIER", tmp_str);
         (void)get_env("GEOPM_PROFILE_TIMEOUT", m_profile_timeout);
-        if (get_env("GEOPM_PMPI_CTL", tmp_str)) {
+        if (get_env("GEOPM_CTL", tmp_str)) {
             if (tmp_str == "process") {
                 m_pmpi_ctl = GEOPM_PMPI_CTL_PROCESS;
             }
@@ -155,7 +155,7 @@ namespace geopm
             }
             else {
                 throw Exception("Environment::Environment(): " + tmp_str +
-                                " is not a valid value for GEOPM_PMPI_CTL see geopm(7).",
+                                " is not a valid value for GEOPM_CTL see geopm(7).",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }

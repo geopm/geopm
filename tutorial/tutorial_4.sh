@@ -99,7 +99,7 @@ elif [ "$GEOPM_LAUNCHER" == "aprun" ]; then
 elif [ $MPIEXEC ]; then
     GEOPM_AGENT="power_governor" \
     LD_DYNAMIC_WEAK=true \
-    GEOPM_PMPI_CTL=process \
+    GEOPM_CTL=process \
     GEOPM_REPORT=tutorial_4_governed_report \
     GEOPM_TRACE=tutorial_4_governed_trace \
     GEOPM_POLICY=tutorial_governed_policy.json \
