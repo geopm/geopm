@@ -37,6 +37,7 @@
 #include <getopt.h>
 #include <errno.h>
 #include <limits.h>
+#include <math.h>
 
 #include "geopm_agent.h"
 #include "geopm_version.h"
@@ -218,8 +219,14 @@ int main(int argc, char **argv)
             if (num_policy) {
                 int policy_count = 0;
                 char *tok = strtok(policy_vals_ptr, ",");
+                char *endptr = NULL;
                 while (!err && tok != NULL) {
-                    policy_vals[policy_count++] = atof(tok);
+                    policy_vals[policy_count++] = strtod(tok, &endptr);
+                    if (tok == endptr) {
+                        fprintf(stderr, "Error: %s is not a valid floating-point number; "
+                                "use \"NAN\" to indicate default.\n", tok);
+                        err = EINVAL;
+                    }
                     if (policy_count > GEOPMAGENT_DOUBLE_LENGTH) {
                         err = E2BIG;
                     }

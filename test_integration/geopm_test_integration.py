@@ -40,9 +40,8 @@ import pandas
 import collections
 import socket
 import shlex
-import stat
-import datetime
 import StringIO
+import json
 
 import geopm_test_launcher
 import geopmpy.io
@@ -1425,6 +1424,101 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.assertEqual(max_freq, result)
 
         self.check_no_error(['FREQUENCY', write_domain, '0', str(old_freq)])
+
+
+class TestIntegrationGeopmagent(unittest.TestCase):
+    ''' Tests of geopmagent.'''
+    def setUp(self):
+        self.exec_name = 'geopmagent'
+        self.skip_warning_string = 'Incompatible CPU frequency driver/governor'
+
+    def check_output(self, args, expected):
+        try:
+            proc = subprocess.Popen([self.exec_name] + args,
+                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            for exp in expected:
+                line = proc.stdout.readline()
+                while self.skip_warning_string in line or line == '\n':
+                    line = proc.stdout.readline()
+                self.assertIn(exp, line)
+            for line in proc.stdout:
+                if self.skip_warning_string not in line:
+                    self.assertNotIn('Error', line)
+        except subprocess.CalledProcessError as ex:
+            sys.stderr.write('{}\n'.format(ex.output))
+
+    def check_json_output(self, args, expected):
+        try:
+            proc = subprocess.Popen([self.exec_name] + args,
+                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as ex:
+            sys.stderr.write('{}\n'.format(ex.output))
+        line = proc.stdout.readline()
+        while self.skip_warning_string in line or line == '\n':
+            line = proc.stdout.readline()
+        try:
+            out_json = json.loads(line)
+        except ValueError:
+            self.fail('Could not convert json string: {}\n'.format(line))
+        self.assertEqual(expected, out_json)
+        for line in proc.stdout:
+            if self.skip_warning_string not in line:
+                self.assertNotIn('Error', line)
+
+
+    def check_no_error(self, args):
+        try:
+            proc = subprocess.Popen([self.exec_name] + args,
+                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            for line in proc.stdout:
+                if self.skip_warning_string not in line:
+                    self.assertNotIn('Error', line)
+        except subprocess.CalledProcessError as ex:
+            sys.stderr.write('{}\n'.format(ex.output))
+
+    def test_geopmagent_command_line(self):
+        '''
+        Check that geopmagent commandline arguments work.
+        '''
+        # no args
+        agent_names = ['energy_efficient', 'monitor', 'power_balancer', 'power_governor']
+        self.check_output([], agent_names)
+
+        # help message
+        self.check_output(['--help'], ['Usage'])
+
+        # version
+        self.check_no_error(['--version'])
+
+        # agent policy and sample names
+        for agent in agent_names:
+            self.check_output(['--agent', agent],
+                              ['Policy', 'Sample'])
+
+        # policy file
+        self.check_json_output(['--agent', 'monitor', '--policy', 'None'],
+                               {})
+        self.check_json_output(['--agent', 'power_governor', '--policy', '150'],
+                               {'POWER': 150})
+        # default value policy
+        self.check_json_output(['--agent', 'power_governor', '--policy', 'NAN'],
+                               {"POWER": "NAN"})
+        self.check_json_output(['--agent', 'power_governor', '--policy', 'nan'],
+                               {"POWER": "NAN"})
+        self.check_json_output(['--agent', 'energy_efficient', '--policy', 'nan,nan'],
+                               {"FREQ_MIN": "NAN", "FREQ_MAX": "NAN"})
+        self.check_json_output(['--agent', 'energy_efficient', '--policy', '1.2e9,nan'],
+                               {"FREQ_MIN": 1.2e9, "FREQ_MAX": "NAN"})
+        self.check_json_output(['--agent', 'energy_efficient', '--policy', 'nan,1.3e9'],
+                               {"FREQ_MIN": "NAN", "FREQ_MAX": 1.3e9})
+
+        # errors
+        self.check_output(['--agent', 'power_governor', '--policy', 'None'],
+                          ['not a valid floating-point number', 'Invalid argument'])
+        self.check_output(['--agent', 'monitor', '--policy', '300'],
+                          ['agent takes no parameters', 'Invalid argument'])
+        self.check_output(['--agent', 'energy_efficient', '--policy', '2.0e9'],
+                          ['Number of policies', 'Invalid argument'])
 
 
 if __name__ == '__main__':

@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cmath>
 #include <sstream>
 
 #include "geopm_agent.h"
@@ -313,15 +314,22 @@ int geopm_agent_policy_json(const char *agent_name,
 
     std::stringstream output_str;
     char policy_name[json_string_max];
+    std::string policy_value;
     try {
         if (!err) {
             output_str << "{";
             for (int i = 0; !err && i < num_policy; ++i) {
                 if (i > 0) {
-                    output_str << ",";
+                    output_str << ", ";
                 }
                 err = geopm_agent_policy_name(agent_name, i, json_string_max, policy_name);
-                output_str << "\"" << policy_name << "\" : " << policy_array[i];
+                if (std::isnan(policy_array[i])) {
+                    policy_value = "\"NAN\"";
+                }
+                else {
+                    policy_value = std::to_string(policy_array[i]);
+                }
+                output_str << "\"" << policy_name << "\": " << policy_value;
             }
             output_str << "}";
         }
