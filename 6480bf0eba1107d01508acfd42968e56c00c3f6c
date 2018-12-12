@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ab75f72_a6c1df41",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1233,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-12-12T10:51:24Z",
+      "side": 1,
+      "message": "move this logic to root Makefile as install_tutorial_check target.\nremove debug cd\u0027s and ls\u0027\nprior to build add sed to manipulate tutorial_env.sh:39 placing $(pkglibdir)",
+      "range": {
+        "startLine": 1222,
+        "startChar": 0,
+        "endLine": 1233,
+        "endChar": 78
+      },
+      "revId": "6480bf0eba1107d01508acfd42968e56c00c3f6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
