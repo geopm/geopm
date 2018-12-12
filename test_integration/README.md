@@ -30,6 +30,21 @@ The current list of tests requiring this variable to be set are:
 5. test_plugin_simple_freq_offline
 6. test_plugin_simple_freq_online
 
+### GEOPM_EXEC_WRAPPER
+Configure string for GEOPM test launcher to run arbitrary
+application to wrap target job execution.
+
+    `$ export GEOPM_EXEC_WRAPPER="numactl -m 1" \
+              ./geopm_test_integration.py -v TestIntegration.test_count`
+
+    `$ export GEOPM_EXEC_WRAPPER="valgrind --tool=memcheck --vgdb=yes \
+              --vgdb-error=0" \
+              ./geopm_test_integration.py -v TestIntegration.test_count`
+
+    `$ export GEOPM_EXEC_WRAPPER="$PATH_TO_DDT_CLIENT_BIN --ddtsessionfile \
+              $PATH_TO_DDT_CLIENT_SESSION_FILE" \
+              ./geopm_test_integration.py -v TestIntegration.test_count`
+
 EXAMPLES
 --------
 Since the log files that are emitted from the individual tests are
