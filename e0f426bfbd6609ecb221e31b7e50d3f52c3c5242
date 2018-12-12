@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46f90c5e_3fbef388",
+        "filename": "src/msr_hsx.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 782,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-12T20:04:50Z",
+      "side": 1,
+      "message": "have lock bit and current PL1 limit only as signals, remove lock from controls.\nwould be nice if the control \"POWER_PACKAGE\" were \"POWER_PACKAGE_LIMIT\" to avoid confusion with \"POWER_PACKAGE\" signal.",
+      "revId": "e0f426bfbd6609ecb221e31b7e50d3f52c3c5242",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
