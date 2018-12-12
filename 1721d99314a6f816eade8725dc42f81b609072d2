@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1785300c_3702a273",
+        "filename": "src/Agent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-12T19:23:41Z",
+      "side": 1,
+      "message": "NAN",
+      "range": {
+        "startLine": 327,
+        "startChar": 38,
+        "endLine": 327,
+        "endChar": 41
+      },
+      "revId": "1721d99314a6f816eade8725dc42f81b609072d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "add379da_8f91cefd",
+        "filename": "src/geopmagent_main.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-12T19:23:41Z",
+      "side": 1,
+      "message": "use strtod(). if nptr \u003d\u003d *endptr, no conversion was performed.",
+      "revId": "1721d99314a6f816eade8725dc42f81b609072d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "855b6498_33a3f518",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1433,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-12T19:23:41Z",
+      "side": 1,
+      "message": "Incompatible CPU frequency driver/governor",
+      "revId": "1721d99314a6f816eade8725dc42f81b609072d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1e92ec8c_43834c40",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1435,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-12T19:23:41Z",
+      "side": 1,
+      "message": "could be shared with Geopmio test",
+      "revId": "1721d99314a6f816eade8725dc42f81b609072d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a6b86f5f_17639356",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1487,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-12T19:23:41Z",
+      "side": 1,
+      "message": "potentially could use helpers from subprocess lib",
+      "revId": "1721d99314a6f816eade8725dc42f81b609072d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7140108c_92550d9e",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1507,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-12T19:23:41Z",
+      "side": 1,
+      "message": "should be an error",
+      "range": {
+        "startLine": 1504,
+        "startChar": 0,
+        "endLine": 1507,
+        "endChar": 48
+      },
+      "revId": "1721d99314a6f816eade8725dc42f81b609072d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
