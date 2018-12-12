@@ -40,9 +40,8 @@ import pandas
 import collections
 import socket
 import shlex
-import stat
-import datetime
 import StringIO
+import json
 
 import geopm_test_launcher
 import geopmpy.io
@@ -1425,6 +1424,87 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.assertEqual(max_freq, result)
 
         self.check_no_error(['FREQUENCY', write_domain, '0', str(old_freq)])
+
+
+class TestIntegrationGeopmagent(unittest.TestCase):
+    ''' Tests of geopmagent.'''
+    def setUp(self):
+        self.exec_name = "geopmagent"
+        self.skip_warning_string = 'Incompatible CPU'
+
+    def check_output(self, args, expected):
+        try:
+            proc = subprocess.Popen([self.exec_name] + args,
+                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            for exp in expected:
+                line = proc.stdout.readline()
+                while self.skip_warning_string in line or line == '\n':
+                    line = proc.stdout.readline()
+                self.assertIn(exp, line)
+            for line in proc.stdout:
+                if self.skip_warning_string not in line:
+                    self.assertNotIn('Error', line)
+        except subprocess.CalledProcessError as ex:
+            sys.stderr.write('{}\n'.format(ex.output))
+
+    def check_json_output(self, args, expected):
+        try:
+            proc = subprocess.Popen([self.exec_name] + args,
+                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            line = proc.stdout.readline()
+            while self.skip_warning_string in line or line == '\n':
+                line = proc.stdout.readline()
+            out_json = json.loads(line)
+            self.assertEqual(expected, out_json)
+            for line in proc.stdout:
+                if self.skip_warning_string not in line:
+                    self.assertNotIn('Error', line)
+        except subprocess.CalledProcessError as ex:
+            sys.stderr.write('{}\n'.format(ex.output))
+
+    def check_no_error(self, args):
+        try:
+            proc = subprocess.Popen([self.exec_name] + args,
+                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            for line in proc.stdout:
+                if self.skip_warning_string not in line:
+                    self.assertNotIn('Error', line)
+        except subprocess.CalledProcessError as ex:
+            sys.stderr.write('{}\n'.format(ex.output))
+
+    def test_geopmagent_command_line(self):
+        '''
+        Check that geopmagent commandline arguments work.
+        '''
+        # no args
+        agent_names = ['energy_efficient', 'monitor', 'power_balancer', 'power_governor']
+        self.check_output([], agent_names)
+
+        # help message
+        self.check_output(['--help'], ['Usage'])
+
+        # version
+        self.check_no_error(['--version'])
+
+        # agent policy and sample names
+        for agent in agent_names:
+            self.check_output(['--agent', agent],
+                              ['Policy', 'Sample'])
+
+        # policy file
+        self.check_json_output(['--agent', 'monitor', '--policy', 'None'],
+                               {})
+        self.check_json_output(['--agent', 'power_governor', '--policy', '150'],
+                               {'POWER': 150})
+        # default value policy
+        self.check_json_output(['--agent', 'power_governor', '--policy', 'NAN'],
+                               {"POWER": "NaN"})
+        self.check_json_output(['--agent', 'power_governor', '--policy', 'nan'],
+                               {"POWER": "NaN"})
+        self.check_json_output(['--agent', 'power_governor', '--policy', 'none'],
+                               {"POWER": "NaN"})
+        self.check_json_output(['--agent', 'power_governor', '--policy', 'None'],
+                               {"POWER": "NaN"})
 
 
 if __name__ == '__main__':

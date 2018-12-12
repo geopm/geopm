@@ -37,6 +37,7 @@
 #include <getopt.h>
 #include <errno.h>
 #include <limits.h>
+#include <math.h>
 
 #include "geopm_agent.h"
 #include "geopm_version.h"
@@ -219,6 +220,7 @@ int main(int argc, char **argv)
                 int policy_count = 0;
                 char *tok = strtok(policy_vals_ptr, ",");
                 while (!err && tok != NULL) {
+                    /// @todo atof returns 0.0 if this string is invalid or None
                     policy_vals[policy_count++] = atof(tok);
                     if (policy_count > GEOPMAGENT_DOUBLE_LENGTH) {
                         err = E2BIG;
