@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3abacbf5_24cd892e",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-12T18:57:49Z",
+      "side": 1,
+      "message": "remove one of these",
+      "range": {
+        "startLine": 96,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 21
+      },
+      "revId": "9e3de170c03f87ca4cdae87886b727625099d975",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f12f8466_1647e259",
+        "filename": "test_integration/geopm_test_launcher.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-12T18:57:49Z",
+      "side": 1,
+      "message": ":o",
+      "range": {
+        "startLine": 131,
+        "startChar": 48,
+        "endLine": 131,
+        "endChar": 49
+      },
+      "revId": "9e3de170c03f87ca4cdae87886b727625099d975",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0501a588_c6f757f0",
+        "filename": "test_integration/geopm_test_launcher.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-12T18:57:49Z",
+      "side": 1,
+      "message": "switch with 140",
+      "revId": "9e3de170c03f87ca4cdae87886b727625099d975",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c5b3de3_0d197aad",
+        "filename": "test_integration/geopm_test_launcher.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-12T18:57:49Z",
+      "side": 1,
+      "message": "shlex.split(exec_wrapper) into list and argv.extend instead of append",
+      "revId": "9e3de170c03f87ca4cdae87886b727625099d975",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
