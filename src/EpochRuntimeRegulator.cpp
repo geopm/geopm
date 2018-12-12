@@ -309,7 +309,7 @@ namespace geopm
 
     double EpochRuntimeRegulator::total_epoch_runtime_mpi(void) const
     {
-        return total_region_runtime_mpi(GEOPM_REGION_ID_EPOCH);
+        return Agg::average(m_agg_epoch_runtime_mpi);
     }
 
     double EpochRuntimeRegulator::total_epoch_runtime_ignore(void) const
