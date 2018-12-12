@@ -436,10 +436,6 @@ class Launcher(object):
             geopm_argv = [self.launcher_command()]
             geopm_argv.extend(self.launcher_argv(True))
             geopm_argv.append('geopmctl')
-            if self.config.get_policy():
-                geopm_argv.extend(['-c', self.config.get_policy()])
-            if self.config.get_shmkey():
-                geopm_argv.extend(['-s', self.config.get_shmkey()])
             geopm_argv = ' '.join(geopm_argv)
             is_geopmctl = True
         else:
