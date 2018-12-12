@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c543e24_b5516711",
+        "filename": "ronn/geopm_imbalancer.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-12T19:45:21Z",
+      "side": 1,
+      "message": "_frac_",
+      "range": {
+        "startLine": 40,
+        "startChar": 13,
+        "endLine": 40,
+        "endChar": 17
+      },
+      "revId": "737bd87dc53620788b9424e753e7a740bacd61a8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "85b63c3f_0d2f5475",
+        "filename": "ronn/geopm_time.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-12T19:45:21Z",
+      "side": 1,
+      "message": "_buf_size_",
+      "range": {
+        "startLine": 40,
+        "startChar": 10,
+        "endLine": 40,
+        "endChar": 18
+      },
+      "revId": "737bd87dc53620788b9424e753e7a740bacd61a8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "713fe9a3_d1d3f70c",
+        "filename": "ronn/geopm_time.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-12T19:45:21Z",
+      "side": 1,
+      "message": "mention that time is time in seconds relative to an arbitrary reference time.",
+      "revId": "737bd87dc53620788b9424e753e7a740bacd61a8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c3791b1_478afa17",
+        "filename": "ronn/geopm_time.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-12T19:45:21Z",
+      "side": 1,
+      "message": "truncated to _buf_size_, check if this includes null terminator",
+      "range": {
+        "startLine": 68,
+        "startChar": 24,
+        "endLine": 68,
+        "endChar": 34
+      },
+      "revId": "737bd87dc53620788b9424e753e7a740bacd61a8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
