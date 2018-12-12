@@ -97,15 +97,6 @@ class SubsetOptionParser(argparse.ArgumentParser):
         unparsed = []
         opts, unparsed = argparse.ArgumentParser.parse_known_args(self, argv)
         unfiltered.extend(unparsed)
-        idx = 0
-        while idx < len(unfiltered):
-            if unfiltered[idx] == '--':
-                unfiltered.extend(argv[idx:])
-                exec_wrapper = os.getenv('GEOPM_EXEC_WRAPPER', '')
-                if exec_wrapper and exec_wrapper not in unfiltered:
-                    unfiltered.insert(1, exec_wrapper)
-                break
-            idx += 1
         return opts, unfiltered
 
 

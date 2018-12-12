@@ -137,7 +137,11 @@ class TestLauncher(object):
                 argv.extend(['--geopm-trace', self._trace_path])
             if self._region_barrier:
                 argv.append('--geopm-region-barrier')
-            argv.extend(['--', exec_path, '--verbose', self._app_conf.get_path()])
+            exec_wrapper = os.getenv('GEOPM_EXEC_WRAPPER', '')
+            argv.extend(['--'])
+            if exec_wrapper and exec_wrapper not in argv:
+                argv.append(exec_wrapper)
+            argv.extend([exec_path, '--verbose', self._app_conf.get_path()])
             launcher = geopmpy.launcher.factory(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
                                                 self._time_limit, test_name, self._node_list, self._host_file)
             launcher.run(stdout=outfile, stderr=outfile)
