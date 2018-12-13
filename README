@@ -196,6 +196,11 @@ home directory run the following commands:
     make
     make install
 
+If building with the Intel toolchain the following environment variables
+must be set for configure:
+
+    CC=icc CXX=icpc FC=ifort F77=ifort ./configure --prefix=$HOME/build/geopm
+
 An RPM can be created on a RHEL or SUSE system with the
 
     make rpm
