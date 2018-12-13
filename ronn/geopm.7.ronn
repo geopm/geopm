@@ -136,19 +136,20 @@ the environment variables `GEOPM_REPORT` and `GEOPM_TRACE`; see
 description below.
 
 ## INTEGRATION WITH OMPT
-When the OpenMP runtime compiled with GEOPM supports the OMPT
-interface, GEOPM will use the OMPT callbacks to wrap OpenMP parallel
-regions with calls to `geopm_prof_enter()` and `geopm_prof_exit()`.
-In this way, any OpenMP parallel region not within another
-application-defined region will be reported to the GEOPM runtime.
-This will appear in the report as a region name beginning with
+Unless the GEOPM runtime is configured to disable OpenMP, the library is compiled
+against the OpenMP runtime.  If the OpenMP implementation
+that GEOPM is compiled against supports the OMPT callbacks, then GEOPM will
+use the OMPT callbacks to wrap OpenMP parallel regions with calls to
+`geopm_prof_enter()` and `geopm_prof_exit()`.  In this way, any OpenMP parallel
+region not within another application-defined region will be reported to the GEOPM
+runtime.  This will appear in the report as a region name beginning with
 "[OMPT]" and referencing the object file and function name containing
 the OpenMP parallel region e.g.
 
-`[OMPT]tutorial_6:geopm::StreamModelRegion::run()`
+`[OMPT]geopmbench:geopm::StreamModelRegion::run()`
 
 To expressly enable this feature, pass the `--enable-ompt` configure
-flag at GEOPM build time.  This will build and install the LLVM OpenMP
+flag at GEOPM configure time.  This will build and install the LLVM OpenMP
 runtime configured to support OMPT if the default OpenMP runtime does
 not support the OMPT callbacks.  Note that your compiler must be
 compatible with the LLVM OpenMP ABI for extending it in this way.
@@ -168,7 +169,7 @@ in CONTRIBUTING.md.
 
 If the job launch application is not supported by the geopmpy.launcher
 the recommended method is to use the environment variables described
-in this man page including the `GEOPM_PMPI_CTL` environment variable.
+in this man page including the `GEOPM_CTL` environment variable.
 If using the "application" launch method then the **geopmctl(1)**
 application should be launched in parallel.
 
@@ -188,13 +189,13 @@ applications.
 ## INTERPRETING THE REPORT
 If the `GEOPM_REPORT` environment variable is set then a report will
 be generated.  There is one report file generated for each run.  This
-file has a header that describes the GEOPM version and the policies
-that were used during the run.  This is followed by a breakdown first
-by compute node host name and then by each compute region.  The report
-file gives information about runtime and energy use for each
-identified code region. Additionally, time spent in calls to MPI is
-reported.  In the future the report may contain more data describing
-the application.
+file has a header that describes the GEOPM version, job start time,
+profile name (job description), and agent that were used during the run.
+This is followed by a breakdown first by compute node host name and
+then by each compute region.  The report file gives information about
+runtime and energy use for each identified code region. Additionally,
+time spent in calls to MPI is reported.  There may be Agent specific
+report modifications see **geopm::Agent(3)** man page for more information.
 
 It is important to note that per-region accounting in the report
 includes only time spent in the region by all MPI ranks concurrently
@@ -213,7 +214,8 @@ is generated.  A separate trace file is generated for each compute
 node and each file is a pipe (the `|` character) delimited ASCII
 table. The file begins with a header that is marked by lines that
 start with the `#` character.  The header contains information about
-the GEOPM version and the policy that was used during the run.
+the GEOPM version, job start time, profile name (job description), and
+agent that were used during the run.
 
 The first row following the header gives a description of each field.
 A simple method for selecting fields from the trace file is with the
@@ -303,8 +305,8 @@ runtime _without_ **geopmlaunch(1)**.
     Used to select the Agent to be used by all Controllers.  The Agent
     will split policy information to be sent to controllers lower in
     the tree, and aggregate sampled data up the tree.  Available
-    agents are: "monitor", "power_balancer", "power_governor", and
-    "energy_efficient".
+    agents are: "monitor" (default if unset), "power_balancer",
+    "power_governor", and "energy_efficient".
 
   * `GEOPM_POLICY`:
     Specifies a JSON file path containing the policy.  If the policy
@@ -323,12 +325,12 @@ runtime _without_ **geopmlaunch(1)**.
     the location for sample values written by the Controller and read
     by the resource manager will be
     "/$(GEOPM_SHMKEY)-$(GEOPM_ENDPOINT).sample".  GEOPM_ENDPOINT and
-    GEOPM_POLICY cannot both be set simultaneously; the choice of
+    GEOPM_POLICY cannot be set simultaneously; the choice of
     which to set is determined by whether the Controller should use
     shared memory to receive policies dynamically from the resource
     manager, or use a JSON file to read a fixed policy.  One or the
     other must be set when launching the GEOPM controller through the
-    PMPI interface (see GEOPM_PMPI_CTL environment variable below).
+    PMPI interface (see GEOPM_CTL environment variable below).
 
   * `GEOPM_SHMKEY`:
     Override the default shared memory key base.  The shared memory
@@ -365,12 +367,12 @@ runtime _without_ **geopmlaunch(1)**.
   * `GEOPM_PROFILE`:
     If set, will override the profile name to the value specified.
     The default profile name is the name of the compute application
-    executable.  The profile name is printed in the report and trace
-    and can be used to index the report and trace data during
-    post-processing.  When launching the GEOPM runtime with the geopmctl
-    application, this variable must be set in the environment for
-    the compute application and the geopmctl application.  The value
-    of the variable must be the same in both contexts.
+    executable.  The profile name is printed in the report and trace(s) and
+    can be used to index the report and trace data during  post-processing.
+    When launching the GEOPM runtime with the geopmctl application, this
+    variable must be set in the environment for the compute application
+    and the geopmctl application.  The value of the variable must be the
+    same in both contexts.
 
   * `GEOPM_PROFILE_TIMEOUT`:
     If set, will enable changing of the GEOPM profiler timeout.  The

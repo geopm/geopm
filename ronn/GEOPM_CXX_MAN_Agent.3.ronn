@@ -117,8 +117,8 @@ better rendering of this manual.
 The `Agent` class is an abstract pure virtual class that defines the
 fundamental procedures executed by the GEOPM runtime.  By default the
 **geopm::MonitorAgent(3)** is used, but other agents can be selected
-with the `GEOPM_AGENT` environment variable or `--geopm-agent` command
-line option to the **geopm_launcher(1)**.  Exactly one agent type is
+with the `--geopm-agent` command line option to the **geopm_launcher(1)**
+or `GEOPM_AGENT` environment variable.  Exactly one agent type is
 used during each execution of the GEOPM runtime.
 
 Any C++ class that derives from the `Agent` class and is compiled
@@ -134,12 +134,15 @@ each of these objects creates one or more `Agent` objects.  The
 `Agent` objects are related to each other through a balanced tree of
 bi-directional communication.  The "leaf" `Agent` objects are defined
 to have no children and one parent.  The "tree" `Agent` objects defined
-to have many children and one parent.  The `Agent::init`() method is
-called by the `Controller` prior to all other `Agent` methods.  The
-parameters passed by the `Controller` in this call define the geometry
-of the `Agent` tree and where the particular `Agent` object falls in
-the tree.  See detailed description of `Agent::init`() below for more
-information about the tree structure.
+to have many children and one Agent as its parent.  The "root" Agent
+objects are defined to have many children and one endpoint as its parent.
+Note that in some cases (e.g. a single node job execution) a "tree" Agent
+may not be involved at all.  The `Agent::init`() method is called by the
+`Controller` prior to all other `Agent` methods.  The parameters passed
+by the `Controller` in this call define the geometry of the `Agent` tree
+and where the particular `Agent` object falls in the tree.  See detailed
+description of `Agent::init`() below for more information about the tree
+structure.
 
 All Controllers create an `Agent` object to execute _level_ 0, or
 "leaf" responsibilities.  The leaf responsibilities include monitoring
@@ -230,7 +233,7 @@ down to the lowest levels of abstraction.
     resides.  The communication tree that connects the `Agent` objects
     is a balanced tree.  The _level_ is the minimum number of edges
     between `self` and any leaf `Agent`.  Only when _level_ is zero
-    will the `sample_platform`() an `adjust_platform`() methods be
+    will the `sample_platform`() and `adjust_platform`() methods be
     called.  If the _level_ is zero then the `init`() method should
     push all signals and controls for **PlatformIO(3)**.  The _fan_in_
     is a vector indexed by _level_ that describes the number of
@@ -264,10 +267,10 @@ down to the lowest levels of abstraction.
 
   * `ascend`():
     Aggregate samples from children for the next level up the tree.
-    The _in_sample_ input vector is a sample of vectors, one from each
-    child.  The _out_sample_ is an output vector of aggregated sample
-    values to be sent up to the parent.  Returns true if out_sample
-    has been updated since the last call.
+    The _in_sample_ input vector is a vector of sample vectors, one
+    sample vector from each child.  The _out_sample_ is an output
+    vector of aggregated sample values to be sent up to the parent.
+    Returns true if out_sample has been updated since the last call.
 
   * `adjust_platform`():
     Adjust the platform settings based on the policy from above.
