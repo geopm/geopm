@@ -66,6 +66,17 @@ is the floating-point number in SI units that the control will be
 adjusted to.  Note that currently controls are only defined for their
 native domain.
 
+`board` - domain for node-wide signals and controls <br>
+++`package` - socket <br>
+++++`core` - physical core <br>
+++++++`cpu` - Linux logical CPU <br>
+++++`package_memory` - on-package memory <br>
+++++`package_nic` - NIC within the package <br>
+++++`package_accelerator` - domain for accelerators within the package <br>
+++`board_memory` - other memory outside the package <br>
+++`board_nic` - NIC attached to the board <br>
+++`board_accelerator` - domain for accelerators on the board
+
 ## OPTIONS
 
   * `-d`, `--domain`:
