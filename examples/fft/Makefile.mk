@@ -29,9 +29,9 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += examples/fft/make.def \
-              examples/fft/COPYING-NAS \
+EXTRA_DIST += examples/fft/COPYING-NAS \
               examples/fft/README \
+              examples/fft/make.def \
               #end
 
 if ENABLE_FORTRAN
@@ -40,12 +40,14 @@ if ENABLE_OPENMP
 
     noinst_PROGRAMS += examples/fft/nas_ft
     examples_fft_nas_ft_SOURCES = examples/fft/ft.f90 \
+                                  examples/fft/global.fi \
+                                  examples/fft/mpinpb.fi \
+                                  examples/fft/npbparams.fi \
                                   examples/fft/print_results.f \
                                   examples/fft/randi8.f \
                                   examples/fft/timers.f \
-                                  examples/fft/global.fi \
-                                  examples/fft/npbparams.fi \
-                                  examples/fft/mpinpb.fi
+                                  # end
+
     examples_fft_nas_ft_LDADD = libgeopm.la libgeopmfort.la $(MPI_FCLIBS) $(MPI_CXXLIBS)
     examples_fft_nas_ft_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) $(OPENMP_CFLAGS)
     examples_fft_nas_ft_FCFLAGS = -fopenmp -msse4.2 $(MPI_FCFLAGS) $(OPENMP_CFLAGS) -O3
