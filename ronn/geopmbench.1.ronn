@@ -82,7 +82,9 @@ to CPU frequency. _all2all_ represents a network-intensive region.
 Use **geopmlaunch(1)** to launch geopmbench with a given configuration provided as
 a command line argument:
 
-    geopmlaunch srun -N 2 -n 32 -c 4 --geopm-ctl=process --geopm-report=bench.report -- geopmbench config.json
+    geopmlaunch srun -N 2 -n 32 -c 4 --geopm-ctl=process \
+                                     --geopm-report=bench.report \
+                                     -- geopmbench config.json
 
 The config file is a JSON file containing the loop count and sequence of regions in each loop.
 
