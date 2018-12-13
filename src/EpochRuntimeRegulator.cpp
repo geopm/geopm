@@ -132,8 +132,8 @@ namespace geopm
             record_exit(GEOPM_REGION_ID_EPOCH, rank, epoch_time);
         }
         else {
-            std::fill(m_curr_runtime_mpi.begin(), m_curr_runtime_mpi.end(), 0.0);
-            std::fill(m_curr_runtime_ignore.begin(), m_curr_runtime_ignore.end(), 0.0);
+            m_curr_runtime_mpi[rank] = 0.0;
+            m_curr_runtime_ignore[rank] = 0.0;
             m_seen_first_epoch[rank] = true;
         }
         record_entry(GEOPM_REGION_ID_EPOCH, rank, epoch_time);
