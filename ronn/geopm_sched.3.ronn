@@ -54,11 +54,11 @@ the future.
   * `geopm_sched_num_cpu`():
     Returns the number of online logical CPUs on the system.
 
-  * `geopm_sched_num_cpu`():
+  * `geopm_sched_get_cpu`():
     Returns the logical CPU index that the calling thread is executing on.
 
   * `geopm_sched_woomp`():
-    sets the **CPU_SET(3)** given by _woomp_ such that it includes all
+    Sets the **CPU_SET(3)** given by _woomp_ such that it includes all
     CPUs not used in an OpenMP parallel region but available to the
     calling thread.  If there are no CPU's that are part of the mask
     returned by **sched_getaffinity(2)** but not affinitized by an

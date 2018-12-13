@@ -44,7 +44,7 @@ currently supported job launch mechanisms are `srun` from the SLURM
 package and `aprun` from the ALPS package.  The GEOPM package installs
 the `geopmlaunch` executable which runs the
 geopmpy.launcher.main() method in the geopmpy python package.  This
-interfaces extend the resource manager's job launch application with
+interface extends the resource manager's job launch application with
 GEOPM-specific flags.  All application launch options accepted by the
 underlying launch application (e.g. `srun` or `aprun`) can be passed
 to the `geopmlaunch` wrapper with the exception of CPU affinity related
@@ -100,7 +100,7 @@ the first `--` from the command line.
   `--geopm-ctl` option is not specified the launcher script simply
   passes all command line arguments to the system application launcher
   without modification.  This option is used by the launcher to set
-  the GEOPM_PMPI_CTL environment variable.  The command line option
+  the GEOPM_CTL environment variable.  The command line option
   will override any value currently set in the environment.  See the
   ENVIRONMENT section of **geopm(7)**.
 
@@ -157,7 +157,7 @@ the first `--` from the command line.
   environment.  See the ENVIRONMENT section of **geopm(7)**.
 
 * `--geopm-trace` path:
-  The base name of the trace files generated if this option is
+  The base name of the trace file(s) generated if this option is
   specified.  One trace file is generated for each compute node used
   by the application containing a pipe delimited ASCII table
   describing a time series of measurements made by the GEOPM runtime.
@@ -181,15 +181,14 @@ the first `--` from the command line.
 
 * `--geopm-agent` agent:
   Specify the Agent to be used by all Controllers.  Available agents
-  are: "monitor", "power_balancer", "power_governor", and
-  "energy_efficient".  See **geopm_agent_monitor(7)**,
-  **geopm_agent_power_balancer(7)**,
-  **geopm_agent_power_governor(7)**, and
-  **geopm_agent_energy_efficient(7)** for descriptions of each agent.
-  This option is used by the launcher to set the GEOPM_AGENT
-  environment variable.  The command line option will override any
-  value currently set in the environment.  See the ENVIRONMENT section
-  of **geopm(7)**.
+  are: "monitor" (default if option not specified), "power_balancer",
+  "power_governor", and "energy_efficient".  See
+  **geopm_agent_monitor(7)**, **geopm_agent_power_balancer(7)**,
+  **geopm_agent_power_governor(7)**, and **geopm_agent_energy_efficient(7)**
+  for descriptions of each agent.  This option is used by the launcher
+  to set the GEOPM_AGENT environment variable.  The command line option
+  will override any value currently set in the environment.  See the
+  ENVIRONMENT section of **geopm(7)**.
 
 * `--geopm-profile` name:
   The name of the profile which is printed in the report and trace
@@ -250,12 +249,17 @@ the first `--` from the command line.
 Use geopmlaunch to queue a job using geopmbench on a SLURM managed system
 requesting two nodes using 32 application MPI process each with four threads:
 
-    geopmlaunch srun -N 2 -n 32 -c 4 --geopm-ctl=process --geopm-report=tutorial6.report -- ./tutorial6 tutorial6_config.json
+    geopmlaunch srun -N 2 -n 32 -c 4 --geopm-ctl=process \
+                                     --geopm-report=tutorial6.report \
+                                     -- ./tutorial6 tutorial6_config.json
 
 Use geopmlaunch to launch the miniFE executable with the same configuration,
 but on an ALPS managed system:
 
-    geopmlaunch aprun -N 16 -n 32 --cpus-per-pe 4 --geopm-ctl process --geopm-report miniFE.report -- ./miniFE.x -nx 256 -nz 256
+    geopmlaunch aprun -N 16 -n 32 --cpus-per-pe 4 \
+                                  --geopm-ctl process \
+                                  --geopm-report miniFE.report \
+                                  -- ./miniFE.x -nx 256 -nz 256
 
 ## ENVIRONMENT
 Every command line option to the launcher can also be specified as an
@@ -268,10 +272,10 @@ all uppercase.  The command line options take precedence over the
 environment variables.
 
 The usage of `--geopm-ctl` here is slightly different than how the
-controller handles the `GEOPM_PMPI_CTL` environment variable.  In the
+controller handles the `GEOPM_CTL` environment variable.  In the
 case of the launcher, one can specify _process_, _pthread_, or
 _application_ to the command line argument.  In the case of
-`GEOPM_PMPI_CTL` one can ONLY specify `process` or `pthread`, as
+`GEOPM_CTL` one can ONLY specify `process` or `pthread`, as
 launching the controller as a separate application is handled through
 the `geopmctl` binary.
 
