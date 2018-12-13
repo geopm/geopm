@@ -196,6 +196,16 @@ home directory run the following commands:
     make
     make install
 
+If building with the Intel toolchain the following environment variables
+must be set prior to running configure:
+
+    export CC=icc
+    export CXX=icpc
+    export FC=ifort
+    export F77=ifort
+    export MPICC=mpicc
+    export MPICXX=mpicxx
+
 An RPM can be created on a RHEL or SUSE system with the
 
     make rpm
