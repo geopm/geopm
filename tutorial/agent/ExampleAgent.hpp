@@ -52,6 +52,7 @@ class ExampleAgent : public geopm::Agent
         ExampleAgent(geopm::IPlatformIO &plat_io, geopm::IPlatformTopo &topo);
         virtual ~ExampleAgent() = default;
         void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
+        std::vector<double> validate_policy(const std::vector<double> &in_policy) const override;
         bool descend(const std::vector<double> &in_policy,
                      std::vector<std::vector<double> >&out_policy) override;
         bool ascend(const std::vector<std::vector<double> > &in_sample,

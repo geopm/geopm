@@ -41,6 +41,11 @@ class MockAgent : public geopm::Agent
     public:
         MOCK_METHOD3(init,
                      void(int level, const std::vector<int> &fan_in, bool is_level_root));
+        /// TODO hacky, but easier than changing all the unit tests.  Address after rc1 tag
+        std::vector<double> validate_policy(const std::vector<double> &in_policy) const override
+        {
+            return in_policy;
+        }
         MOCK_METHOD2(descend,
                      bool(const std::vector<double> &in_policy,
                           std::vector<std::vector<double> >&out_policy));
