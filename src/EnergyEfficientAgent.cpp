@@ -98,13 +98,27 @@ namespace geopm
 
     bool EnergyEfficientAgent::update_freq_range(const std::vector<double> &in_policy)
     {
+        bool result = false;
+        if (m_freq_min != in_policy[M_POLICY_FREQ_MIN] ||
+            m_freq_max != in_policy[M_POLICY_FREQ_MAX]) {
+            m_freq_min = in_policy[M_POLICY_FREQ_MIN];
+            m_freq_max = in_policy[M_POLICY_FREQ_MAX];
+            for (auto &eer : m_region_map) {
+                eer.second->update_freq_range(m_freq_min, m_freq_max, M_FREQ_STEP);
+            }
+            result = true;
+        }
+        return result;
+    }
+
+    std::vector<double> EnergyEfficientAgent::set_policy_defaults(const std::vector<double> &in_policy)
+    {
 #ifdef GEOPM_DEBUG
         if (in_policy.size() != M_NUM_POLICY) {
             throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): in_policy vector not correctly sized.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        bool result = false;
         double target_freq_min = std::isnan(in_policy[M_POLICY_FREQ_MIN]) ? get_limit("CPUINFO::FREQ_MIN") : in_policy[M_POLICY_FREQ_MIN];
         double target_freq_max = std::isnan(in_policy[M_POLICY_FREQ_MAX]) ? get_limit("CPUINFO::FREQ_MAX") : in_policy[M_POLICY_FREQ_MAX];
         if (std::isnan(target_freq_min) || std::isnan(target_freq_max) ||
@@ -112,16 +126,7 @@ namespace geopm
             throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): invalid frequency bounds.",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        if (m_freq_min != target_freq_min ||
-            m_freq_max != target_freq_max) {
-            m_freq_min = target_freq_min;
-            m_freq_max = target_freq_max;
-            for (auto &eer : m_region_map) {
-                eer.second->update_freq_range(m_freq_min, m_freq_max, M_FREQ_STEP);
-            }
-            result = true;
-        }
-        return result;
+        return {target_freq_min, target_freq_max};
     }
 
     bool EnergyEfficientAgent::descend(const std::vector<double> &in_policy,
@@ -134,7 +139,6 @@ namespace geopm
         }
 #endif
         bool result = update_freq_range(in_policy);
-
         if (result) {
             for (auto &child_policy : out_policy) {
 #ifdef GEOPM_DEBUG
