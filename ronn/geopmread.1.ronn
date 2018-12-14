@@ -62,28 +62,16 @@ signal aliases should be preferred.
 To read a specific signal, `geopmread` should be run with the three
 arguments.  SIGNAL_NAME is the name of the signal of interest.
 DOMAIN_TYPE is the hardware domain for which this signal should be
-read.  DOMAIN_INDEX is used to indicate which instance of the domain
+read.  The domain type should be a lowercase string from the list shown
+by `--domain`.  DOMAIN_INDEX is used to indicate which instance of the domain
 to read; indexing starts from 0 and goes up to the domain size - 1.
 Values read for signals are in SI units.  Note that the domain can be
 the native domain of the signal (as shown in the summary) or any
 larger containing domain, in which case the signal value will be
-aggregated into a single value for the larger domain.  All other
-domains are contained within _board_.  _core_, _cpu_,
-_package_memory_, and _package_nic_ are contained within package.
-_cpu_ is contained within _core_.  The following outline summarizes
-the hierarchy of containing domains, where each domain is also
-contained in parents of its parent domain.
-
-`board` - domain for node-wide signals and controls <br>
-++`package` - socket <br>
-++++`core` - physical core <br>
-++++++`cpu` - Linux logical CPU <br>
-++++`package_memory` - on-package memory <br>
-++++`package_nic` - NIC within the package <br>
-++++`package_accelerator` - domain for accelerators within the package <br>
-++`board_memory` - other memory outside the package <br>
-++`board_nic` - NIC attached to the board <br>
-++`board_accelerator` - domain for accelerators on the board
+aggregated into a single value for the larger domain.  Refer to the
+domain hierarchy described in **geopm::PlatformTopo(3)** for the
+descriptions of the domains and how they are contained within one
+another.
 
 The aggregation functions used for each signal are described in
 **geopm(7)** under the description for `GEOPM_TRACE_SIGNALS`.  The
