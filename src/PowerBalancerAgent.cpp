@@ -536,7 +536,7 @@ namespace geopm
         }
         bool is_tree_root = (level == (int)fan_in.size());
         if (is_tree_root) {
-            int num_pkg = m_platform_topo.num_domain(m_platform_io.control_domain_type("POWER_PACKAGE"));
+            int num_pkg = m_platform_topo.num_domain(m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT"));
             double min_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MIN", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
             double max_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
             m_power_tdp = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_TDP", IPlatformTopo::M_DOMAIN_PACKAGE, 0);

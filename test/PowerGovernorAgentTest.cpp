@@ -81,7 +81,7 @@ class PowerGovernorAgentTest : public ::testing::Test
 
 void PowerGovernorAgentTest::SetUp(void)
 {
-    EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE"))
+    EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE_LIMIT"))
         .Times(AtLeast(1))
         .WillRepeatedly(Return(IPlatformTopo::M_DOMAIN_PACKAGE));
     EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE))

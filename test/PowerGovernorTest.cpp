@@ -63,13 +63,13 @@ class PowerGovernorTest : public ::testing::Test
 
 void PowerGovernorTest::SetUp(void)
 {
-    EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE"))
+    EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE_LIMIT"))
         .Times(1)
         .WillOnce(Return(IPlatformTopo::M_DOMAIN_PACKAGE));
     EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE))
         .Times(1)
         .WillOnce(Return(m_num_package));
-    EXPECT_CALL(m_platform_io, push_control("POWER_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, _))
+    EXPECT_CALL(m_platform_io, push_control("POWER_PACKAGE_LIMIT", IPlatformTopo::M_DOMAIN_PACKAGE, _))
         .Times(m_num_package);
 
     EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MIN", IPlatformTopo::M_DOMAIN_PACKAGE, 0))

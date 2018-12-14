@@ -75,7 +75,7 @@ namespace geopm
         , m_num_out_of_range(0)
         , m_min_num_converged(15)
         , m_num_converged(0)
-        , m_num_pkg(m_platform_topo.num_domain(m_platform_io.control_domain_type("POWER_PACKAGE")))
+        , m_num_pkg(m_platform_topo.num_domain(m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT")))
         , m_adjusted_power(0.0)
         , m_last_wait(GEOPM_TIME_REF)
         , M_WAIT_SEC(0.005)
@@ -121,7 +121,7 @@ namespace geopm
         m_pio_idx[M_PLAT_SIGNAL_DRAM_POWER] = m_platform_io.push_signal("POWER_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
 
         // Setup controls
-        int pkg_pwr_domain_type = m_platform_io.control_domain_type("POWER_PACKAGE");
+        int pkg_pwr_domain_type = m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT");
         if (pkg_pwr_domain_type == IPlatformTopo::M_DOMAIN_INVALID) {
             throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): Platform does not support package power control",
                             GEOPM_ERROR_AGENT_UNSUPPORTED, __FILE__, __LINE__);

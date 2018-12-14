@@ -127,7 +127,7 @@ namespace geopm
         register_msr_signal("TEMPERATURE_PKG_UNDER", "MSR::IA32_PACKAGE_THERM_STATUS:DIGITAL_READOUT");
         register_msr_signal("TEMPERATURE_MAX", "MSR::TEMPERATURE_TARGET:PROCHOT_MIN");
 
-        register_msr_control("POWER_PACKAGE",    "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
+        register_msr_control("POWER_PACKAGE_LIMIT", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
         register_msr_control("FREQUENCY",        "MSR::PERF_CTL:FREQ");
         register_msr_control("POWER_PACKAGE_TIME_WINDOW", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
     }
@@ -331,7 +331,7 @@ namespace geopm
         if (!is_found) {
             result = m_active_control.size();
             m_active_control.push_back(std::vector<MSRControl*>());
-            if (control_name == "POWER_PACKAGE") {
+            if (control_name == "POWER_PACKAGE_LIMIT") {
                 write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
                 // for power only set the first cpu in the package; others are lowered
                 cpu_idx = {*cpu_idx.begin()};
@@ -461,7 +461,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        if (control_name == "POWER_PACKAGE") {
+        if (control_name == "POWER_PACKAGE_LIMIT") {
             write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
         }
 
@@ -836,7 +836,7 @@ namespace geopm
     void MSRIOGroup::check_control(const std::string &control_name)
     {
         static const std::set<std::string> CONTROL_SET {
-            "POWER_PACKAGE",
+            "POWER_PACKAGE_LIMIT",
             "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT",
             "FREQUENCY",
             "MSR::PERF_CTL:FREQ"};

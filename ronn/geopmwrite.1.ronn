@@ -99,7 +99,7 @@ List all available controls on the system with domain type and number:
 
     $ geopmwrite
     FREQUENCY
-    POWER_PACKAGE
+    POWER_PACKAGE_LIMIT
 
 Show the description for a control:
 
