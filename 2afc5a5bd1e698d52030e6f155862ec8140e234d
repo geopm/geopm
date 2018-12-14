@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c561c32e_b389edc8",
+        "filename": "ronn/GEOPM_CXX_MAN_Agent.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-14T22:26:37Z",
+      "side": 1,
+      "message": "Explain the single node case as a separate sentence?",
+      "range": {
+        "startLine": 137,
+        "startChar": 8,
+        "endLine": 139,
+        "endChar": 22
+      },
+      "revId": "2afc5a5bd1e698d52030e6f155862ec8140e234d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "00fa7666_3022491b",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-14T22:26:37Z",
+      "side": 1,
+      "message": "Unless the GEOPM runtime is configured to disable OpenMP, the library is compiled against the OpenMP runtime.",
+      "range": {
+        "startLine": 137,
+        "startChar": 0,
+        "endLine": 137,
+        "endChar": 45
+      },
+      "revId": "2afc5a5bd1e698d52030e6f155862ec8140e234d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f8417603_46f19671",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-14T22:26:37Z",
+      "side": 1,
+      "message": "OMPT",
+      "range": {
+        "startLine": 138,
+        "startChar": 44,
+        "endLine": 138,
+        "endChar": 48
+      },
+      "revId": "2afc5a5bd1e698d52030e6f155862ec8140e234d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8f6f4839_e2d1bf03",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-14T22:26:37Z",
+      "side": 1,
+      "message": "we love the oxford comma",
+      "range": {
+        "startLine": 190,
+        "startChar": 30,
+        "endLine": 190,
+        "endChar": 31
+      },
+      "revId": "2afc5a5bd1e698d52030e6f155862ec8140e234d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae6d6063_9be4301a",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-14T22:26:37Z",
+      "side": 1,
+      "message": "we really love oxford commas",
+      "range": {
+        "startLine": 214,
+        "startChar": 65,
+        "endLine": 214,
+        "endChar": 66
+      },
+      "revId": "2afc5a5bd1e698d52030e6f155862ec8140e234d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2db58021_b334e062",
+        "filename": "ronn/geopm.7.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-14T22:26:37Z",
+      "side": 1,
+      "message": "only true when unit testing on mac os.  Change back to program invocation name.",
+      "range": {
+        "startLine": 366,
+        "startChar": 32,
+        "endLine": 366,
+        "endChar": 69
+      },
+      "revId": "2afc5a5bd1e698d52030e6f155862ec8140e234d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
