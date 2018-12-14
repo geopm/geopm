@@ -13,12 +13,12 @@ Building the tutorials
 ----------------------
 A simple Makefile which is not part of the GEOPM autotools build
 system compiles the tutorial code.  There are two build scripts, one
-which compiles with the GNU toolchain: "tutorial_build_gnu.sh", and
-one which compiles with the Intel toolchain:
-"tutorial_build_intel.sh".  The build scripts use the GEOPM install
-location defined in "tutorial_env.sh".  If "mpicc" is not in the
-user's PATH, the environment variable "MPICC" must be set to the path
-of the to the user's MPI C compiler wrapper.
+that compiles with the GNU toolchain: "tutorial_build_gnu.sh", and one
+that compiles with the Intel toolchain: "tutorial_build_intel.sh".
+The build scripts use the GEOPM install location defined in
+"tutorial_env.sh".  If "mpicc" is not in the user's PATH, the
+environment variable "MPICC" must be set to the path of the user's MPI
+C compiler wrapper.
 
 
 0. Profiling and Tracing an Unmodified Application
