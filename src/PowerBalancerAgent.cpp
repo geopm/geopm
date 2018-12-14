@@ -558,7 +558,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        auto policy = set_policy_defaults(in_policy);
+        auto policy = validate_policy(in_policy);
         return m_role->descend(policy, out_policy);
     }
 
@@ -575,7 +575,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        auto policy = set_policy_defaults(in_policy);
+        auto policy = validate_policy(in_policy);
         return m_role->adjust_platform(policy);
     }
 
@@ -642,7 +642,8 @@ namespace geopm
                 "MIN_POWER_HEADROOM"};
     }
 
-    std::vector<double> PowerBalancerAgent::set_policy_defaults(const std::vector<double> &in_policy) {
+    std::vector<double> PowerBalancerAgent::validate_policy(const std::vector<double> &in_policy) const
+    {
         // If NAN, use default
         std::vector<double> updated_policy = in_policy;
         if (std::isnan(in_policy[M_POLICY_POWER_CAP])) {
