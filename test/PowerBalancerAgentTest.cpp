@@ -114,7 +114,7 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
         .WillOnce(Return(200));
     EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_TDP", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
         .WillOnce(Return(150));
-    EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE"))
+    EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE_LIMIT"))
         .WillOnce(Return(IPlatformTopo::M_DOMAIN_PACKAGE));
     EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE))
         .WillOnce(Return(2));
