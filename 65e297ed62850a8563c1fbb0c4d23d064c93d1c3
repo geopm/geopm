@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1d9d447_5258d54f",
+        "filename": "ronn/GEOPM_CXX_MAN_Agent.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-14T20:29:25Z",
+      "side": 0,
+      "message": "maybe bring back with \"\u003d default\" and then don\u0027t document the methods below.",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 13
+      },
+      "revId": "65e297ed62850a8563c1fbb0c4d23d064c93d1c3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}

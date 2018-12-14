@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e36ab84d_e45a79eb",
+        "filename": "ronn/GEOPM_CXX_MAN_PlatformTopo.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-14T20:29:25Z",
+      "side": 1,
+      "message": "put back in \u003d 0",
+      "range": {
+        "startLine": 54,
+        "startChar": 10,
+        "endLine": 54,
+        "endChar": 12
+      },
+      "revId": "dc193d7fd874730dce00dc2fe24e9e2e973cfe31",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7290f437_037702db",
+        "filename": "ronn/GEOPM_CXX_MAN_PlatformTopo.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-14T20:29:25Z",
+      "side": 1,
+      "message": "Lets be consistent with removing std:: from the man pages.",
+      "range": {
+        "startLine": 59,
+        "startChar": 5,
+        "endLine": 59,
+        "endChar": 10
+      },
+      "revId": "dc193d7fd874730dce00dc2fe24e9e2e973cfe31",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
