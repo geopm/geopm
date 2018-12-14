@@ -79,6 +79,11 @@ namespace geopm
         m_level = level;
     }
 
+    std::vector<double> MonitorAgent::set_policy_defaults(const std::vector<double> &in_policy)
+    {
+        return in_policy;
+    }
+
     bool MonitorAgent::descend(const std::vector<double> &in_policy,
                                std::vector<std::vector<double> >&out_policy)
     {

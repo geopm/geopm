@@ -124,6 +124,11 @@ namespace geopm
         return result;
     }
 
+    std::vector<double> EnergyEfficientAgent::set_policy_defaults(const std::vector<double> &in_policy)
+    {
+        return in_policy;
+    }
+
     bool EnergyEfficientAgent::descend(const std::vector<double> &in_policy,
                                        std::vector<std::vector<double> >&out_policy)
     {
