@@ -315,14 +315,15 @@ namespace geopm
         }
         for (int level = m_num_level_ctl - 1; level > -1; --level) {
             if (do_send) {
-                do_send = m_agent[level + 1]->descend(m_in_policy, m_out_policy[level]);
+                std::vector<double> tmp_policy = m_agent[level + 1]->replace_policy_defaults(m_in_policy);
+                do_send = m_agent[level + 1]->descend(tmp_policy, m_out_policy[level]);
             }
             if (do_send) {
                 m_tree_comm->send_down(level, m_out_policy[level]);
             }
             do_send = m_tree_comm->receive_down(level, m_in_policy);
         }
-        if (m_agent[0]->adjust_platform(m_in_policy)) {
+        if (m_agent[0]->adjust_platform(m_agent[0]->replace_policy_defaults(m_in_policy))) {
             m_platform_io.write_batch();
         }
     }

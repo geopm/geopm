@@ -124,6 +124,11 @@ namespace geopm
         }
     }
 
+    std::vector<double> PowerGovernorAgent::replace_policy_defaults(const std::vector<double> &in_policy) const
+    {
+        return in_policy;
+    }
+
     bool PowerGovernorAgent::descend(const std::vector<double> &policy_in, std::vector<std::vector<double> > &policy_out)
     {
 #ifdef GEOPM_DEBUG

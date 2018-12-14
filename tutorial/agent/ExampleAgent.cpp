@@ -84,6 +84,13 @@ void ExampleAgent::init(int level, const std::vector<int> &fan_in, bool is_level
     m_control_idx[M_PLAT_CONTROL_STDERR] = m_platform_io.push_control("STDERR", board, 0);
 }
 
+// Validate incoming policy and configure default policy requests.
+std::vector<double> ExampleAgent::replace_policy_defaults(const std::vector<double> &in_policy) const
+{
+    assert(in_policy.size() == M_NUM_POLICY);
+    return in_policy;
+}
+
 // Distribute incoming policy to children
 bool ExampleAgent::descend(const std::vector<double> &in_policy,
                            std::vector<std::vector<double> >&out_policy)
