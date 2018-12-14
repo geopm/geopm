@@ -138,6 +138,7 @@ namespace geopm
             PowerBalancerAgent();
             virtual ~PowerBalancerAgent();
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
+            std::vector<double> set_policy_defaults(const std::vector<double> &in_policy) override;
             bool descend(const std::vector<double> &in_policy,
                          std::vector<std::vector<double> >&out_policy) override;
             bool ascend(const std::vector<std::vector<double> > &in_sample,
@@ -156,7 +157,6 @@ namespace geopm
             static std::vector<std::string> sample_names(void);
 
         protected:
-            std::vector<double> set_policy_defaults(const std::vector<double> &in_policy);
             class IStep;
             class Role {
                 public:

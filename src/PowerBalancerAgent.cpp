@@ -553,13 +553,12 @@ namespace geopm
     bool PowerBalancerAgent::descend(const std::vector<double> &in_policy, std::vector<std::vector<double> > &out_policy)
     {
 #ifdef GEOPM_DEBUG
-        if (in_policy.size() != M_NUM_POLICY) {
-            throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): policy vectors are not correctly sized.",
+        if (out_policy.size() != M_NUM_POLICY) {
+            throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): out_policy vector are not correctly sized.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        auto policy = set_policy_defaults(in_policy);
-        return m_role->descend(policy, out_policy);
+        return m_role->descend(in_policy, out_policy);
     }
 
     bool PowerBalancerAgent::ascend(const std::vector<std::vector<double> > &sample_in, std::vector<double> &sample_out)
@@ -569,14 +568,7 @@ namespace geopm
 
     bool PowerBalancerAgent::adjust_platform(const std::vector<double> &in_policy)
     {
-#ifdef GEOPM_DEBUG
-        if (in_policy.size() != M_NUM_POLICY) {
-            throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): policy vectors are not correctly sized.",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        auto policy = set_policy_defaults(in_policy);
-        return m_role->adjust_platform(policy);
+        return m_role->adjust_platform(in_policy);
     }
 
     bool PowerBalancerAgent::sample_platform(std::vector<double> &out_sample)
@@ -643,6 +635,12 @@ namespace geopm
     }
 
     std::vector<double> PowerBalancerAgent::set_policy_defaults(const std::vector<double> &in_policy) {
+#ifdef GEOPM_DEBUG
+        if (in_policy.size() != M_NUM_POLICY) {
+            throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): policy vector is not correctly sized.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
         // If NAN, use default
         std::vector<double> updated_policy = in_policy;
         if (std::isnan(in_policy[M_POLICY_POWER_CAP])) {
