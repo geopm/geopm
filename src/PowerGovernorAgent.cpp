@@ -124,13 +124,30 @@ namespace geopm
         }
     }
 
+    std::vector<double> PowerGovernorAgent::set_policy_defaults(const std::vector<double> &in_policy)
+    {
+#ifdef GEOPM_DEBUG
+        if (in_policy.size() != M_NUM_POLICY) {
+            throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): one control was expected.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        double per_package_budget_in = in_policy[M_POLICY_POWER] / m_num_pkg;
+
+        if (per_package_budget_in > m_max_power_setting ||
+            per_package_budget_in < m_min_power_setting) {
+            throw Exception("PowerGovernorAgent::descend(): "
+                            "invalid power budget.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        // If NAN, use default
+        return {std::isnan(in_policy[M_POLICY_POWER]) ? m_tdp_power_setting : in_policy[M_POLICY_POWER]};
+    }
+
     bool PowerGovernorAgent::descend(const std::vector<double> &policy_in, std::vector<std::vector<double> > &policy_out)
     {
 #ifdef GEOPM_DEBUG
-        if (policy_in.size() != M_NUM_POLICY) {
-            throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): number of policies was different from expected.",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
         if (m_level == 0) {
             throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): level 0 agent not expected to call descend.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
@@ -142,29 +159,14 @@ namespace geopm
 #endif
 
         bool result = false;
-        double power_budget_in = policy_in[M_POLICY_POWER];
-        // If NAN, use default
-        if (std::isnan(power_budget_in)) {
-            power_budget_in = m_tdp_power_setting;
-        }
-
-        double per_package_budget_in = power_budget_in / m_num_pkg;
-
-        if (per_package_budget_in > m_max_power_setting ||
-            per_package_budget_in < m_min_power_setting) {
-            throw Exception("PowerGovernorAgent::descend(): "
-                            "invalid power budget.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
         // Send down if this is the first budget, or if the budget changed
-        if ((std::isnan(m_last_power_budget) && !std::isnan(power_budget_in)) ||
-            m_last_power_budget != power_budget_in) {
+        if ((std::isnan(m_last_power_budget) && !std::isnan(policy_in[M_POLICY_POWER])) ||
+            m_last_power_budget != policy_in[M_POLICY_POWER]) {
 
-            m_last_power_budget = power_budget_in;
+            m_last_power_budget = policy_in[M_POLICY_POWER];
             // Convert power budget vector into a vector of policy vectors
             for (int child_idx = 0; child_idx != m_num_children; ++child_idx) {
-                policy_out[child_idx][M_POLICY_POWER] = power_budget_in;
+                policy_out[child_idx][M_POLICY_POWER] = policy_in[M_POLICY_POWER];
             }
             m_epoch_power_buf->clear();
             m_is_converged = false;
@@ -216,20 +218,8 @@ namespace geopm
 
     bool PowerGovernorAgent::adjust_platform(const std::vector<double> &in_policy)
     {
-#ifdef GEOPM_DEBUG
-        if (in_policy.size() != M_NUM_POLICY) {
-            throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): one control was expected.",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        // If NAN, use default
-        double power_budget_in = in_policy[M_POLICY_POWER];
-        if (std::isnan(power_budget_in)) {
-            power_budget_in = m_tdp_power_setting;
-        }
-
-        bool result = m_power_gov->adjust_platform(power_budget_in, m_adjusted_power);
-        m_last_power_budget = power_budget_in;
+        bool result = m_power_gov->adjust_platform(in_policy[M_POLICY_POWER], m_adjusted_power);
+        m_last_power_budget = in_policy[M_POLICY_POWER];
         return result;
     }
 

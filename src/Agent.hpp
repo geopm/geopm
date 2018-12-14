@@ -59,6 +59,13 @@ namespace geopm
             ///        role of root of the level.  Only root agents
             ///        for a level execute ascend() and descend().
             virtual void init(int level, const std::vector<int> &fan_in, bool is_level_root) = 0;
+            /// @brief Called by Controller to validate incoming policy
+            ///        values and configure defaults requested in incoming
+            ///        policy.
+            /// @param [in] in_policy Policy values from the parent.
+            /// @return The actionalble policy corresponding to
+            //          the incoming policy request.
+            virtual std::vector<double> set_policy_defaults(const std::vector<double> &in_policy) = 0;
             /// @brief Called by Controller to split policy for
             ///        children at next level down the tree.
             /// @param [in] in_policy Policy values from the parent.
