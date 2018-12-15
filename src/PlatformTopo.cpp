@@ -191,13 +191,6 @@ namespace geopm
         return cpu_idx;
     }
 
-    int PlatformTopo::define_cpu_group(const std::vector<int> &cpu_domain_idx)
-    {
-        /// @todo Add support for define_cpu_group() method
-        throw Exception("PlatformTopo::define_cpu_group(): method not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-    }
-
     int PlatformTopo::domain_idx(int domain_type,
                                  int cpu_idx) const
     {

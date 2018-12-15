@@ -44,8 +44,6 @@ class MockPlatformTopo : public geopm::IPlatformTopo
                            std::set<int>(int domain_type, int domain_idx));
         MOCK_CONST_METHOD2(domain_idx,
                            int(int domain_type, int cpu_idx));
-        MOCK_METHOD1(define_cpu_group,
-                     int(const std::vector<int> &cpu_domain_idx));
         MOCK_CONST_METHOD2(is_domain_within,
                            bool(int inner_domain, int outer_domain));
 };
