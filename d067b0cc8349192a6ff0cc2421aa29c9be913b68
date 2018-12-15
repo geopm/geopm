@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "097737b9_fd2a9a72",
+        "filename": "src/Agent.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-15T01:11:50Z",
+      "side": 1,
+      "message": "replace all NANs in incoming policy with their default values.  Resulting policy will not contain any NANs and should be consumable by descend() and adjust_platform()",
+      "revId": "d067b0cc8349192a6ff0cc2421aa29c9be913b68",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98da8bb6_b46c124a",
+        "filename": "src/Agent.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-15T01:11:50Z",
+      "side": 1,
+      "message": "actionable",
+      "range": {
+        "startLine": 66,
+        "startChar": 28,
+        "endLine": 66,
+        "endChar": 39
+      },
+      "revId": "d067b0cc8349192a6ff0cc2421aa29c9be913b68",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "690a272c_09fe80e3",
+        "filename": "src/Agent.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-15T01:11:50Z",
+      "side": 1,
+      "message": "replace_policy_defaults\n\nmake const function",
+      "revId": "d067b0cc8349192a6ff0cc2421aa29c9be913b68",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0d01c6b_18817a07",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-15T01:11:50Z",
+      "side": 1,
+      "message": "maybe \"m_agent[0]-\u003eset_policy_defaults(m_in_policy)\" here",
+      "revId": "d067b0cc8349192a6ff0cc2421aa29c9be913b68",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09c8264d_f53c8cc2",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2018-12-15T01:11:50Z",
+      "side": 1,
+      "message": "isn\u0027t this size the number of children?",
+      "range": {
+        "startLine": 556,
+        "startChar": 12,
+        "endLine": 556,
+        "endChar": 29
+      },
+      "revId": "d067b0cc8349192a6ff0cc2421aa29c9be913b68",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
