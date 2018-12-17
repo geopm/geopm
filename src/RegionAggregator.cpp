@@ -123,8 +123,7 @@ namespace geopm
                     double prev_total = value - m_region_sample_data.at(std::make_pair(it.first, last_rid)).last_entry_value;
                     m_region_sample_data[std::make_pair(it.first, last_rid)].total += prev_total;
                     // update epoch
-                    if (!m_in_epoch && m_platform_io.sample(m_epoch_count_idx) > -1)
-                    {
+                    if (!m_in_epoch && m_platform_io.sample(m_epoch_count_idx) > -1) {
                         m_in_epoch = true;
                     }
                     if (m_in_epoch) {

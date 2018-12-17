@@ -46,6 +46,7 @@
 #include "Agent.hpp"
 #include "TreeComm.hpp"
 #include "ManagerIO.hpp"
+#include "Helper.hpp"
 #include "config.h"
 
 extern "C"
@@ -151,7 +152,7 @@ namespace geopm
                          Agent::num_sample(agent_factory().dictionary(geopm_env_agent())))),
                      std::shared_ptr<IApplicationIO>(new ApplicationIO(geopm_env_shmkey())),
                      std::unique_ptr<IReporter>(new Reporter(get_start_time(), geopm_env_report(), platform_io(), ppn1_comm->rank())),
-                     std::unique_ptr<ITracer>(new Tracer(get_start_time())),
+                     nullptr,
                      std::vector<std::unique_ptr<Agent> >{},
                      std::unique_ptr<IManagerIOSampler>(new ManagerIOSampler(geopm_env_policy(), true)))
     {
@@ -368,6 +369,9 @@ namespace geopm
 
     void Controller::setup_trace(void)
     {
+        if (m_tracer == nullptr) {
+            m_tracer = geopm::make_unique<Tracer>(get_start_time());
+        }
         auto agent_cols = m_agent[0]->trace_names();
         m_tracer->columns(agent_cols);
         m_trace_sample.resize(agent_cols.size());
