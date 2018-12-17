@@ -149,10 +149,10 @@ class TestIntegration(unittest.TestCase):
                 except OSError:
                     pass
 
-    def assertNear(self, a, b, epsilon=0.05):
+    def assertNear(self, a, b, epsilon=0.05, msg=''):
         denom = a if a != 0 else 1
         if abs((a - b) / denom) >= epsilon:
-            self.fail('The fractional difference between {a} and {b} is greater than {epsilon}'.format(a=a, b=b, epsilon=epsilon))
+            self.fail('The fractional difference between {a} and {b} is greater than {epsilon}.  {msg}'.format(a=a, b=b, epsilon=epsilon, msg=msg))
 
     def create_progress_df(self, df):
         # Build a df with only the first region entry and the exit.
@@ -417,20 +417,23 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             trace = self._output.get_trace_data(node_name=nn)
             app_totals = self._output.get_app_total_data(node_name=nn)
-            self.assertNear(trace.iloc[-1]['time'], app_totals['runtime'].item())
+            self.assertNear(trace.iloc[-1]['time'], app_totals['runtime'].item(), 'Application runtime failure, node_name={}.'.format(nn))
             # Calculate runtime totals for each region in each trace, compare to report
             tt = trace.set_index(['region_id'], append=True)
             tt = tt.groupby(level=['region_id'])
             for region_name in regions:
                 region_data = self._output.get_report_data(node_name=nn, region=region_name)
-                if region_name not in ['unmarked-region', 'model-init'] and not region_name.startswith('MPI_') and region_data['runtime'].item() != 0:
+                if (region_name not in ['unmarked-region', 'model-init'] and
+                    not region_name.startswith('MPI_') and
+                    region_data['sync_runtime'].item() != 0):
                     trace_data = tt.get_group((region_data['id'].item()))
                     trace_elapsed_time = trace_data.iloc[-1]['time'] - trace_data.iloc[0]['time']
+                    msg = 'for region {rn} on node {nn}'.format(rn=region_name, nn=nn)
                     if region_name == 'epoch':
-                        self.assertNear(trace_elapsed_time, region_data['runtime'].item())
+                        self.assertNear(trace_elapsed_time, region_data['runtime'].item(), msg=msg)
                     else:
                         # compare with time when all ranks are in the region
-                        self.assertNear(trace_elapsed_time, region_data['sync_runtime'].item())
+                        self.assertNear(trace_elapsed_time, region_data['sync_runtime'].item(), msg=msg)
 
     def test_runtime_regulator(self):
         name = 'test_runtime_regulator'

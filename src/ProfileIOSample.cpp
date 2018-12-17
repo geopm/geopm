@@ -113,7 +113,7 @@ namespace geopm
     }
 
     void ProfileIOSample::update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
-                                  std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end)
+                                 std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end)
     {
         for (auto sample_it = prof_sample_begin; sample_it != prof_sample_end; ++sample_it) {
             auto rank_idx_it = m_rank_idx_map.find(sample_it->second.rank);
