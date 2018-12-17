@@ -54,13 +54,15 @@ void dgemm(const char *transa, const char *transb, const int *M,
            const double *A, const int *LDA, const double *B,
            const int *LDB, const double *beta, double *C, const int *LDC)
 {
-#pragma omp parallel for
+
+#pragma omp parallel for private (sum)
     for (int i = 0; i < *M; ++i) {
-        for (int j = 0; j < *N; ++j) {
-            C[i * *LDC + j] = 0;
-            for (int k = 0; k < *K; ++k) {
-                C[i * *LDC + j] += A[i * *LDA + j] * B[j * *LDB + k];
+        for (int k = 0; k < *K; ++k) {
+            int sum = 0;
+            for (int j = 0; j < *N; ++j) {
+                sum += A[i * *LDA + j] * B[j * *LDB + k];
             }
+            C[i * *LDC + k] = sum;
         }
     }
 }
