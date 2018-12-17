@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c574a112_f14a13c0",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 1029,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-12-17T20:59:45Z",
+      "side": 1,
+      "message": "ortrun",
+      "range": {
+        "startLine": 1029,
+        "startChar": 16,
+        "endLine": 1029,
+        "endChar": 23
+      },
+      "revId": "07c1a9a2225ae49685274f5aaeab5175f89fe7bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
