@@ -124,7 +124,8 @@ namespace geopm
             std::vector<int> m_column_idx; // columns sampled by Tracer
             std::set<int> m_hex_column;
             std::vector<double> m_last_telemetry;
-            int m_region_id_idx = -1;
+            int m_region_hash_idx = -1;
+            int m_region_hint_idx = -1;
             int m_region_progress_idx = -1;
             int m_region_runtime_idx = -1;
     };
