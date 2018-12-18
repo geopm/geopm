@@ -66,6 +66,7 @@ TEST(AggTest, agg_function)
     EXPECT_EQ(1.0, Agg::logical_or({1.0, 1.0, 0.0}));
     EXPECT_EQ(0.0, Agg::logical_or({0.0, 0.0}));
 
-    EXPECT_EQ(geopm_field_to_signal(GEOPM_REGION_ID_UNMARKED),
-              Agg::region_id({5, 6, 7}));
+    ///@todo unmarked is non public.  still need to define '0' for region id
+    EXPECT_EQ(GEOPM_REGION_ID_UNMARKED,
+              Agg::region_hash({5, 6, 7}));
 }
