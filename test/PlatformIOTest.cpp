@@ -134,11 +134,15 @@ void PlatformIOTest::SetUp()
     tmp = std::make_shared<PlatformIOTestMockIOGroup>();
     iogroup_list.emplace_back(tmp);
     m_iogroup_ptr.push_back(tmp);
-    tmp->set_valid_signal_names({"REGION_ID#"});
-    ON_CALL(*tmp, signal_domain_type("REGION_ID#"))
+    tmp->set_valid_signal_names({"REGION_HASH", "REGION_HINT"});
+    ON_CALL(*tmp, signal_domain_type("REGION_HASH"))
         .WillByDefault(Return(IPlatformTopo::M_DOMAIN_CPU));
-    ON_CALL(*tmp, agg_function("REGION_ID#"))
-        .WillByDefault(Return(geopm::Agg::region_id));
+    ON_CALL(*tmp, agg_function("REGION_HASH"))
+        .WillByDefault(Return(geopm::Agg::region_hash));
+    ON_CALL(*tmp, signal_domain_type("REGION_HINT"))
+        .WillByDefault(Return(IPlatformTopo::M_DOMAIN_CPU));
+    ON_CALL(*tmp, agg_function("REGION_HINT"))
+        .WillByDefault(Return(geopm::Agg::region_hint));
 
     // IOGroups with signals and controls
     tmp = std::make_shared<PlatformIOTestMockIOGroup>();
@@ -190,7 +194,7 @@ TEST_F(PlatformIOTest, signal_control_names)
 {
     // IOGroup signals and PlatformIO signals
     std::set<std::string> expected_signals {"TIME", "ENERGY_PACKAGE", "ENERGY_DRAM",
-            "REGION_ID#", "FREQ", "MODE", "POWER_PACKAGE", "POWER_DRAM"};
+            "REGION_HASH", "REGION_HINT", "FREQ", "MODE", "POWER_PACKAGE", "POWER_DRAM"};
     EXPECT_EQ(expected_signals.size(), m_platio->signal_names().size());
     EXPECT_EQ(expected_signals, m_platio->signal_names());
 
@@ -597,12 +601,12 @@ TEST_F(PlatformIOTest, read_signal_override)
 TEST_F(PlatformIOTest, agg_function)
 {
     for (auto &it : m_iogroup_ptr) {
-        if (it->is_valid_signal("REGION_ID#")) {
-            EXPECT_CALL(*it, agg_function("REGION_ID#"));
+        if (it->is_valid_signal("REGION_HASH")) {
+            EXPECT_CALL(*it, agg_function("REGION_HASH"));
         }
     }
 
-    auto region_id_func = m_platio->agg_function("REGION_ID#");
+    auto region_id_func = m_platio->agg_function("REGION_HASH");
     EXPECT_EQ(geopm_field_to_signal(GEOPM_REGION_ID_UNMARKED),
               region_id_func({5, 6, 7}));
 
