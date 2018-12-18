@@ -147,7 +147,7 @@ namespace geopm
         // vector of region data, in descending order by runtime
         struct region_info {
                 std::string name;
-                uint64_t id;
+                uint64_t hash;
                 double per_rank_avg_runtime;
                 int count;
         };
@@ -172,15 +172,17 @@ namespace geopm
                       const region_info &b) -> bool {
                       return a.per_rank_avg_runtime >= b.per_rank_avg_runtime;
                   });
-        // add unmarked and epoch at the end
+        // Add unmarked and epoch at the end
+        // Note here we map the private region id notion of
+        // GEOPM_REGION_ID_UNMARKED to pubilc GEOPM_HASH_REGION_UNMARKED.
         region_ordered.push_back({"unmarked-region",
-                                  GEOPM_REGION_ID_UNMARKED,
+                                  GEOPM_HASH_REGION_UNMARKED,
                                   application_io.total_region_runtime(GEOPM_REGION_ID_UNMARKED),
                                   0});
-        /// Total epoch runtime for report includes MPI time and
-        /// ignore time, but they are removed from the runtime returned
-        /// by the API.  This behavior is to support the EPOCH_RUNTIME
-        /// signal used by the balancer, but will be changed in the future.
+        // Total epoch runtime for report includes MPI time and
+        // ignore time, but they are removed from the runtime returned
+        // by the API.  This behavior is to support the EPOCH_RUNTIME
+        // signal used by the balancer, but will be changed in the future.
         region_ordered.push_back({"epoch",
                                   GEOPM_REGION_ID_EPOCH,
                                   application_io.total_epoch_runtime(),
@@ -200,31 +202,38 @@ namespace geopm
         }
 
         for (const auto &region : region_ordered) {
-            uint64_t mpi_region_id = geopm_region_id_set_mpi(region.id);
-            uint64_t printed_id = region.id;
-            report << "Region " << region.name << " (0x" << std::hex
-                   << std::setfill('0') << std::setw(16)
-                   << printed_id << std::dec << "):"
-                   << std::setfill('\0') << std::setw(0)
-                   << std::endl;
+            uint64_t region_hash = region.hash;
+            if (GEOPM_HASH_REGION_EPOCH != region_hash) {
+#ifdef GEOPM_DEBUG
+                if (region_hash == 0) {
+                    throw Exception("Reporter::generate(): Invalid hash value detected.",
+                                    GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                }
+#endif
+                report << "Region " << region.name << " (0x" << std::hex
+                       << std::setfill('0') << std::setw(16)
+                       << region_hash << std::dec << "):"
+                       << std::setfill('\0') << std::setw(0)
+                       << std::endl;
+            }
+            else {
+                region_hash = GEOPM_HASH_REGION_EPOCH;
+                report << "Epoch Totals:"
+                       << std::endl;
+            }
             report << "    runtime (sec): " << region.per_rank_avg_runtime << std::endl;
-            report << "    sync-runtime (sec): " << m_region_agg->sample_total(m_region_bulk_runtime_idx, region.id) +
-                                                    m_region_agg->sample_total(m_region_bulk_runtime_idx, mpi_region_id) << std::endl;
-            report << "    package-energy (joules): " << m_region_agg->sample_total(m_energy_pkg_idx, region.id) +
-                                                         m_region_agg->sample_total(m_energy_pkg_idx, mpi_region_id) << std::endl;
-            report << "    dram-energy (joules): " << m_region_agg->sample_total(m_energy_dram_idx, region.id) +
-                                                      m_region_agg->sample_total(m_energy_dram_idx, mpi_region_id) << std::endl;
-            double numer = m_region_agg->sample_total(m_clk_core_idx, region.id) +
-                           m_region_agg->sample_total(m_clk_core_idx, mpi_region_id);
-            double denom = m_region_agg->sample_total(m_clk_ref_idx, region.id) +
-                           m_region_agg->sample_total(m_clk_ref_idx, mpi_region_id);
+            report << "    sync-runtime (sec): " << m_region_agg->sample_total(m_region_bulk_runtime_idx, region_hash) << std::endl;
+            report << "    package-energy (joules): " << m_region_agg->sample_total(m_energy_pkg_idx, region_hash) << std::endl;
+            report << "    dram-energy (joules): " << m_region_agg->sample_total(m_energy_dram_idx, region_hash) << std::endl;
+            double numer = m_region_agg->sample_total(m_clk_core_idx, region_hash);
+            double denom = m_region_agg->sample_total(m_clk_ref_idx, region_hash);
             double freq = denom != 0 ? 100.0 * numer / denom : 0.0;
             report << "    frequency (%): " << freq << std::endl;
             report << "    frequency (Hz): " << freq / 100.0 * m_platform_io.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0) << std::endl;
-            report << "    mpi-runtime (sec): " << application_io.total_region_runtime_mpi(region.id) << std::endl;
+            report << "    mpi-runtime (sec): " << application_io.total_region_runtime_mpi(region.hash) << std::endl;
             report << "    count: " << region.count << std::endl;
-            if (region_report.find(region.id) != region_report.end()) {
-                for (const auto &kv : region_report.at(region.id)) {
+            if (region_report.find(region.hash) != region_report.end()) {
+                for (const auto &kv : region_report.at(region.hash)) {
                     report << "    " << kv.first << ": " << kv.second << std::endl;
                 }
             }
