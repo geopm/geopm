@@ -292,7 +292,7 @@ TEST_F(ReporterTest, generate)
         "    mpi-runtime (sec): 1.2\n"
         "    count: 0\n"
         "    agent stat: 3\n"
-        "Region epoch (\n"
+        "Epoch Totals:\n"
         "    runtime (sec): 70\n"
         "    sync-runtime (sec): 666\n"
         "    package-energy (joules): 167\n"

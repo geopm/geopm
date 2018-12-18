@@ -65,7 +65,7 @@ namespace geopm
                                             int domain_idx)
     {
         int signal_idx = m_platform_io.push_signal(signal_name, domain_type, domain_idx);
-        m_region_id_idx[signal_idx] = m_platform_io.push_signal("REGION_ID#", domain_type, domain_idx);
+        m_region_id_idx[signal_idx] = m_platform_io.push_signal("REGION_HASH", domain_type, domain_idx);
         return signal_idx;
     }
 

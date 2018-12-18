@@ -82,7 +82,19 @@ int geopm_region_id_hint_is_equal(uint64_t hint_type, uint64_t region_id)
 
 uint64_t geopm_region_id_hint(uint64_t region_id)
 {
-    return (region_id & GEOPM_MASK_REGION_HINT);
+    bool is_unmarked = geopm_region_id_is_unmarked(region_id);
+    bool is_mpi = geopm_region_id_is_mpi(region_id);
+    uint64_t ret;
+    if (is_unmarked) {
+        ret = GEOPM_REGION_HINT_UNKNOWN;
+    }
+    else {
+        ret = region_id & GEOPM_MASK_REGION_HINT;
+    }
+    if (is_mpi) {
+        ret |= GEOPM_REGION_HINT_NETWORK;
+    }
+    return ret;
 }
 
 uint64_t geopm_region_id_hash(uint64_t region_id)

@@ -94,19 +94,19 @@ void RegionAggregatorTest::SetUp(void)
         .WillByDefault(Return(M_SIGNAL_CYCLES_2));
     ON_CALL(m_platio, push_signal("CYCLES", IPlatformTopo::M_DOMAIN_CPU, 3))
         .WillByDefault(Return(M_SIGNAL_CYCLES_3));
-    ON_CALL(m_platio, push_signal("REGION_ID#", IPlatformTopo::M_DOMAIN_BOARD, 0))
+    ON_CALL(m_platio, push_signal("REGION_HASH", IPlatformTopo::M_DOMAIN_BOARD, 0))
         .WillByDefault(Return(M_SIGNAL_RID_BOARD));
-    ON_CALL(m_platio, push_signal("REGION_ID#", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+    ON_CALL(m_platio, push_signal("REGION_HASH", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
         .WillByDefault(Return(M_SIGNAL_RID_PKG_0));
-    ON_CALL(m_platio, push_signal("REGION_ID#", IPlatformTopo::M_DOMAIN_PACKAGE, 1))
+    ON_CALL(m_platio, push_signal("REGION_HASH", IPlatformTopo::M_DOMAIN_PACKAGE, 1))
         .WillByDefault(Return(M_SIGNAL_RID_PKG_1));
-    ON_CALL(m_platio, push_signal("REGION_ID#", IPlatformTopo::M_DOMAIN_CPU, 0))
+    ON_CALL(m_platio, push_signal("REGION_HASH", IPlatformTopo::M_DOMAIN_CPU, 0))
         .WillByDefault(Return(M_SIGNAL_RID_CPU_0));
-    ON_CALL(m_platio, push_signal("REGION_ID#", IPlatformTopo::M_DOMAIN_CPU, 1))
+    ON_CALL(m_platio, push_signal("REGION_HASH", IPlatformTopo::M_DOMAIN_CPU, 1))
         .WillByDefault(Return(M_SIGNAL_RID_CPU_1));
-    ON_CALL(m_platio, push_signal("REGION_ID#", IPlatformTopo::M_DOMAIN_CPU, 2))
+    ON_CALL(m_platio, push_signal("REGION_HASH", IPlatformTopo::M_DOMAIN_CPU, 2))
         .WillByDefault(Return(M_SIGNAL_RID_CPU_2));
-    ON_CALL(m_platio, push_signal("REGION_ID#", IPlatformTopo::M_DOMAIN_CPU, 3))
+    ON_CALL(m_platio, push_signal("REGION_HASH", IPlatformTopo::M_DOMAIN_CPU, 3))
         .WillByDefault(Return(M_SIGNAL_RID_CPU_3));
 
     EXPECT_CALL(m_platio, push_signal("EPOCH_COUNT", _, _))
@@ -122,7 +122,7 @@ TEST_F(RegionAggregatorTest, sample_total)
     double regA = geopm_field_to_signal(regionA);
     double regB = geopm_field_to_signal(regionB);
 
-    // sampled values for REGION_ID# on each CPU, package, and board
+    // sampled values for REGION_HASH on each CPU, package, and board
     std::vector<double> rid_cpu_0 { regA, regA, regA, regB, regB, regA, regA, regA };
     std::vector<double> rid_cpu_1 { regA, regA, regA, regB, regB, regB, regA, regA };
     std::vector<double> rid_cpu_2 { regA, regA, regB, regB, regB, regB, regB, regA };
@@ -131,7 +131,7 @@ TEST_F(RegionAggregatorTest, sample_total)
     std::vector<double> rid_pkg_0(num_sample);
     std::vector<double> rid_pkg_1(num_sample);
     std::vector<double> rid_board(num_sample);
-    auto agg = geopm::Agg::region_id;
+    auto agg = geopm::Agg::region_hash;
     // set up regions for larger domains
     // 2 CPU per package, 2 packages, 1 board
     for (int idx = 0; idx < num_sample; ++idx) {
@@ -200,13 +200,13 @@ TEST_F(RegionAggregatorTest, sample_total)
     EXPECT_CALL(m_platio, push_signal("CYCLES", IPlatformTopo::M_DOMAIN_CPU, 1));
     EXPECT_CALL(m_platio, push_signal("CYCLES", IPlatformTopo::M_DOMAIN_CPU, 2));
     EXPECT_CALL(m_platio, push_signal("CYCLES", IPlatformTopo::M_DOMAIN_CPU, 3));
-    EXPECT_CALL(m_platio, push_signal("REGION_ID#", IPlatformTopo::M_DOMAIN_BOARD, 0));
-    EXPECT_CALL(m_platio, push_signal("REGION_ID#", IPlatformTopo::M_DOMAIN_PACKAGE, 0));
-    EXPECT_CALL(m_platio, push_signal("REGION_ID#", IPlatformTopo::M_DOMAIN_PACKAGE, 1));
-    EXPECT_CALL(m_platio, push_signal("REGION_ID#", IPlatformTopo::M_DOMAIN_CPU, 0));
-    EXPECT_CALL(m_platio, push_signal("REGION_ID#", IPlatformTopo::M_DOMAIN_CPU, 1));
-    EXPECT_CALL(m_platio, push_signal("REGION_ID#", IPlatformTopo::M_DOMAIN_CPU, 2));
-    EXPECT_CALL(m_platio, push_signal("REGION_ID#", IPlatformTopo::M_DOMAIN_CPU, 3));
+    EXPECT_CALL(m_platio, push_signal("REGION_HASH", IPlatformTopo::M_DOMAIN_BOARD, 0));
+    EXPECT_CALL(m_platio, push_signal("REGION_HASH", IPlatformTopo::M_DOMAIN_PACKAGE, 0));
+    EXPECT_CALL(m_platio, push_signal("REGION_HASH", IPlatformTopo::M_DOMAIN_PACKAGE, 1));
+    EXPECT_CALL(m_platio, push_signal("REGION_HASH", IPlatformTopo::M_DOMAIN_CPU, 0));
+    EXPECT_CALL(m_platio, push_signal("REGION_HASH", IPlatformTopo::M_DOMAIN_CPU, 1));
+    EXPECT_CALL(m_platio, push_signal("REGION_HASH", IPlatformTopo::M_DOMAIN_CPU, 2));
+    EXPECT_CALL(m_platio, push_signal("REGION_HASH", IPlatformTopo::M_DOMAIN_CPU, 3));
     EXPECT_EQ(M_SIGNAL_TIME, m_agg->push_signal_total("TIME", IPlatformTopo::M_DOMAIN_BOARD, 0));
     EXPECT_EQ(M_SIGNAL_ENERGY_0, m_agg->push_signal_total("ENERGY", IPlatformTopo::M_DOMAIN_PACKAGE, 0));
     EXPECT_EQ(M_SIGNAL_ENERGY_1, m_agg->push_signal_total("ENERGY", IPlatformTopo::M_DOMAIN_PACKAGE, 1));
@@ -286,7 +286,7 @@ TEST_F(RegionAggregatorTest, epoch_total)
     uint64_t reg_mpi = 0x5555 | GEOPM_REGION_ID_MPI;
 
     EXPECT_CALL(m_platio, push_signal("TIME", IPlatformTopo::M_DOMAIN_BOARD, 0));
-    EXPECT_CALL(m_platio, push_signal("REGION_ID#", IPlatformTopo::M_DOMAIN_BOARD, 0));
+    EXPECT_CALL(m_platio, push_signal("REGION_HASH", IPlatformTopo::M_DOMAIN_BOARD, 0));
     m_agg->push_signal_total("TIME", IPlatformTopo::M_DOMAIN_BOARD, 0);
     // regions before first epoch
     std::vector<uint64_t> pre_epoch_regions {reg_mpi, reg_normal, GEOPM_REGION_ID_UNMARKED};

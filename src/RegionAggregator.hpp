@@ -56,7 +56,7 @@ namespace geopm
             ///        subtracting the value of the signal at the
             ///        region exit from the region entry.  Region
             ///        entry and exit are not exact and are determined
-            ///        by the value of the REGION_ID# signal at the
+            ///        by the value of the REGION_HASH signal at the
             ///        time of read_batch().  This aggregation should
             ///        only be used for signals that are monotonically
             ///        increasing, such as time.
@@ -79,7 +79,7 @@ namespace geopm
             ///        of the signal at the region exit from the
             ///        region entry.  Region entry and exit are not
             ///        exact and are determined by the value of the
-            ///        REGION_ID# signal at the time of read_batch().
+            ///        REGION_HASH signal at the time of read_batch().
             /// @param [in] signal_idx Index returned by a previous
             ///        call to push_signal_total.
             /// @param [in] region_id The region ID to look up data
