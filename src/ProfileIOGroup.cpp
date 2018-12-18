@@ -247,6 +247,7 @@ namespace geopm
         switch (m_active_signal[signal_idx].signal_type) {
             case M_SIGNAL_REGION_ID:
                 result = geopm_field_to_signal(m_per_cpu_region_id[cpu_idx]);
+                result = geopm_region_id_unset_private(result);
                 break;
             case M_SIGNAL_PROGRESS:
                 result = m_per_cpu_progress[cpu_idx];
@@ -297,6 +298,7 @@ namespace geopm
         switch (signal_type) {
             case M_SIGNAL_REGION_ID:
                 result = geopm_field_to_signal(m_profile_sample->per_cpu_region_id()[cpu_idx]);
+                result = geopm_region_id_unset_private(result);
                 break;
             case M_SIGNAL_PROGRESS:
                 geopm_time(&read_time);
