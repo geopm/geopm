@@ -71,6 +71,7 @@ void TracerTest::SetUp(void)
 
     m_default_cols = {
         {"TIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
+        {"EPOCH_COUNT", IPlatformTopo::M_DOMAIN_BOARD, 0},
         {"REGION_ID#", IPlatformTopo::M_DOMAIN_BOARD, 0},
         {"REGION_PROGRESS", IPlatformTopo::M_DOMAIN_BOARD, 0},
         {"REGION_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
@@ -120,7 +121,7 @@ TEST_F(TracerTest, columns)
                                   "# \"node_name\" : \"" + m_hostname + "\"\n" +
                                   "# \"agent\" : \"" + m_agent + "\"\n";
     std::string expected_str = expected_header +
-        "time|region_id|region_progress|region_runtime|energy_package|energy_dram|"
+        "time|epoch_count|region_id|region_progress|region_runtime|energy_package|energy_dram|"
         "power_package|power_dram|frequency|cycles_thread|cycles_reference|extra|"
         "col1|col2\n";
     std::istringstream expected(expected_str);
@@ -152,7 +153,7 @@ TEST_F(TracerTest, update_samples)
     tracer.update(agent_vals, {}); // no additional samples after flush
 
     std::string expected_str = "\n\n\n\n\n\n"
-        "5.0e-01|0x3ff8000000000000|2.5|3.5e+00|4.5e+00|5.5e+00|6.5e+00|7.5e+00|8.5e+00|9.5e+00|1.0e+01|1.2e+01|8.9e+01|7.8e+01\n";
+        "5.0e-01|1.5e+00|0x0004000000000000|3.5|4.5e+00|5.5e+00|6.5e+00|7.5e+00|8.5e+00|9.5e+00|1.0e+01|1.2e+01|1.3e+01|8.9e+01|7.8e+01\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
     ASSERT_TRUE(result.good()) << strerror(errno);
@@ -164,6 +165,7 @@ TEST_F(TracerTest, region_entry_exit)
     Tracer tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_extra_cols, 1);
     EXPECT_CALL(m_platform_io, sample(_)).Times(m_default_cols.size() + m_extra_cols.size())
         .WillOnce(Return(2.2))  // time
+        .WillOnce(Return(0.0))  // epoch_count
         .WillOnce(Return(2.2))  // region id
         .WillOnce(Return(0.0))  // progress; should cause one region entry to be skipped
         .WillRepeatedly(Return(2.2));
@@ -185,11 +187,11 @@ TEST_F(TracerTest, region_entry_exit)
     tracer.update(agent_vals, short_regions); // no additional samples after flush
     std::string expected_str ="\n\n\n\n\n"
         "\n" // header
-        "2.2e+00|0x0000000000000123|0.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0x0000000000000123|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0x0000000000000345|0.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0x0000000000000456|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0x0000000000000345|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0.0e+00|0x0000000000000123|0.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0.0e+00|0x0000000000000123|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0.0e+00|0x0000000000000345|0.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0.0e+00|0x0000000000000456|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2e+00|0.0e+00|0x0000000000000345|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
         "\n"; // sample
 
      std::istringstream expected(expected_str);

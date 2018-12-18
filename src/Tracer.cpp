@@ -133,6 +133,7 @@ namespace geopm
             // default columns
             std::vector<IPlatformIO::m_request_s> base_columns({
                     {"TIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"EPOCH_COUNT", IPlatformTopo::M_DOMAIN_BOARD, 0},
                     {"REGION_ID#", IPlatformTopo::M_DOMAIN_BOARD, 0},
                     {"REGION_PROGRESS", IPlatformTopo::M_DOMAIN_BOARD, 0},
                     {"REGION_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
@@ -144,9 +145,9 @@ namespace geopm
                     {"CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0},
                     {"CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0}});
             // for region entry/exit, make sure region index is known
-            m_region_id_idx = 1;
-            m_region_progress_idx = 2;
-            m_region_runtime_idx = 3;
+            m_region_id_idx = 2;
+            m_region_progress_idx = 3;
+            m_region_runtime_idx = 4;
 
             // extra columns from environment
             for (const auto &extra : m_env_column) {
