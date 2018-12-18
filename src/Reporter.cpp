@@ -200,24 +200,27 @@ namespace geopm
         }
 
         for (const auto &region : region_ordered) {
-            uint64_t mpi_region_id = geopm_region_id_set_mpi(region.id);
             uint64_t printed_id = region.id;
-            report << "Region " << region.name << " (0x" << std::hex
-                   << std::setfill('0') << std::setw(16)
-                   << printed_id << std::dec << "):"
-                   << std::setfill('\0') << std::setw(0)
-                   << std::endl;
+            uint64_t region_hash;
+            if (!geopm_region_id_is_epoch(printed_id)) {
+                region_hash = geopm_region_id_hash(printed_id);
+                report << "Region " << region.name << " (0x" << std::hex
+                       << std::setfill('0') << std::setw(16)
+                       << printed_id << std::dec << "):"
+                       << std::setfill('\0') << std::setw(0)
+                       << std::endl;
+            }
+            else {
+                region_hash = geopm_crc32_str(0, "geopm_prof_epoch");
+                report << "Epoch Totals:"
+                       << std::endl;
+            }
             report << "    runtime (sec): " << region.per_rank_avg_runtime << std::endl;
-            report << "    sync-runtime (sec): " << m_region_agg->sample_total(m_region_bulk_runtime_idx, region.id) +
-                                                    m_region_agg->sample_total(m_region_bulk_runtime_idx, mpi_region_id) << std::endl;
-            report << "    package-energy (joules): " << m_region_agg->sample_total(m_energy_pkg_idx, region.id) +
-                                                         m_region_agg->sample_total(m_energy_pkg_idx, mpi_region_id) << std::endl;
-            report << "    dram-energy (joules): " << m_region_agg->sample_total(m_energy_dram_idx, region.id) +
-                                                      m_region_agg->sample_total(m_energy_dram_idx, mpi_region_id) << std::endl;
-            double numer = m_region_agg->sample_total(m_clk_core_idx, region.id) +
-                           m_region_agg->sample_total(m_clk_core_idx, mpi_region_id);
-            double denom = m_region_agg->sample_total(m_clk_ref_idx, region.id) +
-                           m_region_agg->sample_total(m_clk_ref_idx, mpi_region_id);
+            report << "    sync-runtime (sec): " << m_region_agg->sample_total(m_region_bulk_runtime_idx, region_hash) << std::endl;
+            report << "    package-energy (joules): " << m_region_agg->sample_total(m_energy_pkg_idx, region_hash) << std::endl;
+            report << "    dram-energy (joules): " << m_region_agg->sample_total(m_energy_dram_idx, region_hash) << std::endl;
+            double numer = m_region_agg->sample_total(m_clk_core_idx, region_hash);
+            double denom = m_region_agg->sample_total(m_clk_ref_idx, region_hash);
             double freq = denom != 0 ? 100.0 * numer / denom : 0.0;
             report << "    frequency (%): " << freq << std::endl;
             report << "    frequency (Hz): " << freq / 100.0 * m_platform_io.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0) << std::endl;
