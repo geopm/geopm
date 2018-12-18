@@ -30,7 +30,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #include "PluginFactory.hpp"
 #include "ProfileIOGroup.hpp"
 #include "PlatformTopo.hpp"
@@ -59,10 +58,12 @@ namespace geopm
                                      IPlatformTopo &topo)
         : m_profile_sample(profile_sample)
         , m_epoch_regulator(epoch_regulator)
-        , m_signal_idx_map{{plugin_name() + "::REGION_ID#", M_SIGNAL_REGION_ID},
+        , m_signal_idx_map{{plugin_name() + "::REGION_ID#", M_SIGNAL_REGION_HASH},
+                           {plugin_name() + "::REGION_HINT#", M_SIGNAL_REGION_HINT},
                            {plugin_name() + "::REGION_PROGRESS", M_SIGNAL_PROGRESS},
                            {plugin_name() + "::REGION_THREAD_PROGRESS", M_SIGNAL_THREAD_PROGRESS},
-                           {"REGION_ID#", M_SIGNAL_REGION_ID},
+                           {"REGION_ID#", M_SIGNAL_REGION_HASH},
+                           {"REGION_HINT#", M_SIGNAL_REGION_HINT},
                            {"REGION_PROGRESS", M_SIGNAL_PROGRESS},
                            {"REGION_THREAD_PROGRESS", M_SIGNAL_THREAD_PROGRESS},
                            {plugin_name() + "::EPOCH_RUNTIME", M_SIGNAL_EPOCH_RUNTIME},
@@ -154,9 +155,9 @@ namespace geopm
             result = m_active_signal.size();
             m_active_signal.push_back({signal_type, domain_type, domain_idx});
             m_do_read[signal_type] = true;
-            // Runtime signal requires region_id as well
+            // Runtime signal requires region_hash as well
             if (signal_type == M_SIGNAL_RUNTIME) {
-                m_do_read[M_SIGNAL_REGION_ID] = true;
+                m_do_read[M_SIGNAL_REGION_HASH] = true;
             }
         }
         return result;
@@ -170,7 +171,7 @@ namespace geopm
 
     void ProfileIOGroup::read_batch(void)
     {
-        if (m_do_read[M_SIGNAL_REGION_ID]) {
+        if (m_do_read[M_SIGNAL_REGION_HASH] || m_do_read[M_SIGNAL_REGION_HINT]) {
             m_per_cpu_region_id = m_profile_sample->per_cpu_region_id();
         }
         if (m_do_read[M_SIGNAL_PROGRESS]) {
@@ -246,8 +247,13 @@ namespace geopm
         /// @todo support for non-cpu signal domains
         int cpu_idx = m_active_signal[signal_idx].domain_idx;
         switch (m_active_signal[signal_idx].signal_type) {
-            case M_SIGNAL_REGION_ID:
-                result = geopm_field_to_signal(m_per_cpu_region_id[cpu_idx]);
+            case M_SIGNAL_REGION_HASH:
+                result = geopm_field_to_signal(geopm_region_id_hash(
+                                               m_per_cpu_region_id[cpu_idx]));
+                break;
+            case M_SIGNAL_REGION_HINT:
+                result = geopm_field_to_signal(geopm_region_id_hint(
+                                               m_per_cpu_region_id[cpu_idx]));
                 break;
             case M_SIGNAL_PROGRESS:
                 result = m_per_cpu_progress[cpu_idx];
@@ -296,8 +302,13 @@ namespace geopm
         uint64_t region_id;
         double result = NAN;
         switch (signal_type) {
-            case M_SIGNAL_REGION_ID:
-                result = geopm_field_to_signal(m_profile_sample->per_cpu_region_id()[cpu_idx]);
+            case M_SIGNAL_REGION_HASH:
+                result = geopm_field_to_signal(geopm_region_id_hash(
+                                               m_profile_sample->per_cpu_region_id()[cpu_idx]));
+                break;
+            case M_SIGNAL_REGION_HINT:
+                result = geopm_field_to_signal(geopm_region_id_hint(
+                                               m_profile_sample->per_cpu_region_id()[cpu_idx]));
                 break;
             case M_SIGNAL_PROGRESS:
                 geopm_time(&read_time);

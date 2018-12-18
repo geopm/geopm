@@ -658,6 +658,12 @@ class Report(dict):
                             region_id = match.group(3)
                         else:
                             region_id = match.group(2) + match.group(3)
+                if region_name is None:
+                    match = re.search(r'^Epoch Totals:', line)
+                    if match is not None:
+                        region_name = 'epoch'
+                        #fixme we want to hide this too
+                        region_id = '0x8000000000000000'
                 if runtime is None:
                     match = re.search(r'^\s+runtime.+: ' + float_regex, line)
                     if match is not None:
