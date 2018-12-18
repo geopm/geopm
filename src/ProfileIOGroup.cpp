@@ -30,7 +30,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #include "ProfileIOGroup.hpp"
 #include "PlatformTopo.hpp"
 #include "EpochRuntimeRegulator.hpp"
@@ -58,11 +57,13 @@ namespace geopm
                                      IPlatformTopo &topo)
         : m_profile_sample(profile_sample)
         , m_epoch_regulator(epoch_regulator)
-        , m_signal_idx_map{{plugin_name() + "::REGION_ID#", M_SIGNAL_REGION_ID},
-                           {plugin_name() + "::REGION_PROGRESS", M_SIGNAL_PROGRESS},
+        , m_signal_idx_map{{plugin_name() + "::REGION_HASH", M_SIGNAL_REGION_HASH},
+                           {plugin_name() + "::REGION_HINT", M_SIGNAL_REGION_HINT},
+                           {plugin_name() + "::REGION_PROGRESS", M_SIGNAL_REGION_PROGRESS},
                            {plugin_name() + "::REGION_THREAD_PROGRESS", M_SIGNAL_THREAD_PROGRESS},
-                           {"REGION_ID#", M_SIGNAL_REGION_ID},
-                           {"REGION_PROGRESS", M_SIGNAL_PROGRESS},
+                           {"REGION_HASH", M_SIGNAL_REGION_HASH},
+                           {"REGION_HINT", M_SIGNAL_REGION_HINT},
+                           {"REGION_PROGRESS", M_SIGNAL_REGION_PROGRESS},
                            {"REGION_THREAD_PROGRESS", M_SIGNAL_THREAD_PROGRESS},
                            {plugin_name() + "::EPOCH_RUNTIME", M_SIGNAL_EPOCH_RUNTIME},
                            {"EPOCH_RUNTIME", M_SIGNAL_EPOCH_RUNTIME},
@@ -153,9 +154,9 @@ namespace geopm
             result = m_active_signal.size();
             m_active_signal.push_back({signal_type, domain_type, domain_idx});
             m_do_read[signal_type] = true;
-            // Runtime signal requires region_id as well
+            // Runtime signal requires region_hash as well
             if (signal_type == M_SIGNAL_RUNTIME) {
-                m_do_read[M_SIGNAL_REGION_ID] = true;
+                m_do_read[M_SIGNAL_REGION_HASH] = true;
             }
         }
         return result;
@@ -169,10 +170,10 @@ namespace geopm
 
     void ProfileIOGroup::read_batch(void)
     {
-        if (m_do_read[M_SIGNAL_REGION_ID]) {
+        if (m_do_read[M_SIGNAL_REGION_HASH] || m_do_read[M_SIGNAL_REGION_HINT]) {
             m_per_cpu_region_id = m_profile_sample->per_cpu_region_id();
         }
-        if (m_do_read[M_SIGNAL_PROGRESS]) {
+        if (m_do_read[M_SIGNAL_REGION_PROGRESS]) {
             struct geopm_time_s read_time;
             geopm_time(&read_time);
             m_per_cpu_progress = m_profile_sample->per_cpu_progress(read_time);
@@ -245,10 +246,13 @@ namespace geopm
         /// @todo support for non-cpu signal domains
         int cpu_idx = m_active_signal[signal_idx].domain_idx;
         switch (m_active_signal[signal_idx].signal_type) {
-            case M_SIGNAL_REGION_ID:
-                result = geopm_field_to_signal(m_per_cpu_region_id[cpu_idx]);
+            case M_SIGNAL_REGION_HASH:
+                result = geopm_region_id_hash(m_per_cpu_region_id[cpu_idx]);
                 break;
-            case M_SIGNAL_PROGRESS:
+            case M_SIGNAL_REGION_HINT:
+                result = geopm_region_id_hint(m_per_cpu_region_id[cpu_idx]);
+                break;
+            case M_SIGNAL_REGION_PROGRESS:
                 result = m_per_cpu_progress[cpu_idx];
                 break;
             case M_SIGNAL_THREAD_PROGRESS:
@@ -295,10 +299,13 @@ namespace geopm
         uint64_t region_id;
         double result = NAN;
         switch (signal_type) {
-            case M_SIGNAL_REGION_ID:
-                result = geopm_field_to_signal(m_profile_sample->per_cpu_region_id()[cpu_idx]);
+            case M_SIGNAL_REGION_HASH:
+                result = geopm_region_id_hash(m_profile_sample->per_cpu_region_id()[cpu_idx]);
                 break;
-            case M_SIGNAL_PROGRESS:
+            case M_SIGNAL_REGION_HINT:
+                result = geopm_region_id_hint(m_profile_sample->per_cpu_region_id()[cpu_idx]);
+                break;
+            case M_SIGNAL_REGION_PROGRESS:
                 geopm_time(&read_time);
                 result = m_profile_sample->per_cpu_progress(read_time)[cpu_idx];
                 break;
@@ -356,8 +363,10 @@ namespace geopm
             {"PROFILE::REGION_PROGRESS", Agg::min},
             {"REGION_THREAD_PROGRESS", Agg::min},
             {"PROFILE::REGION_THREAD_PROGRESS", Agg::min},
-            {"REGION_ID#", Agg::region_id},
-            {"PROFILE::REGION_ID#", Agg::region_id},
+            {"REGION_HASH", Agg::region_hash},
+            {"PROFILE::REGION_HASH", Agg::region_hash},
+            {"REGION_HINT", Agg::region_hint},
+            {"PROFILE::REGION_HINT", Agg::region_hint},
             {"EPOCH_RUNTIME", Agg::max},
             {"PROFILE::EPOCH_RUNTIME", Agg::max},
             {"EPOCH_ENERGY", Agg::sum},
