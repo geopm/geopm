@@ -77,11 +77,13 @@ namespace geopm
             static std::string plugin_name(void);
         private:
             enum m_signal_type {
-                M_SIGNAL_REGION_ID,
-                M_SIGNAL_PROGRESS,
-                M_SIGNAL_EPOCH_RUNTIME,
                 M_SIGNAL_EPOCH_COUNT,
+                M_SIGNAL_REGION_HASH,
+                M_SIGNAL_REGION_HINT,
+                M_SIGNAL_REGION_PROGRESS,
                 M_SIGNAL_RUNTIME,
+                /// private constructs... create side channel for runtime to access?
+                M_SIGNAL_EPOCH_RUNTIME,
                 M_SIGNAL_THREAD_PROGRESS,
                 M_SIGNAL_EPOCH_RUNTIME_MPI,
                 M_SIGNAL_EPOCH_RUNTIME_IGNORE,
