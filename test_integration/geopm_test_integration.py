@@ -420,26 +420,28 @@ class TestIntegration(unittest.TestCase):
             self.assertNear(trace.iloc[-1]['time'], app_totals['runtime'].item(), 'Application runtime failure, node_name={}.'.format(nn))
             # Calculate runtime totals for each region in each trace, compare to report
             tt = trace.reset_index(level='index')  # move 'index' field from multiindex to columns
-            tt = tt.set_index(['region_id'], append=True)  # add region_id column to multiindex
-            tt_reg = tt.groupby(level=['region_id'])
+            tt = tt.set_index(['region_hash'], append=True)  # add region_hash column to multiindex
+            tt_reg = tt.groupby(level=['region_hash'])
             for region_name in regions:
                 region_data = self._output.get_report_data(node_name=nn, region=region_name)
                 if (region_name not in ['unmarked-region', 'model-init'] and
                     not region_name.startswith('MPI_') and
                     region_data['sync_runtime'].item() != 0):
-                    region_id = region_data['id'].item()
-                    trace_data = tt_reg.get_group(region_id)
+                    region_hash = region_data['id'].item()
+                    trace_data = tt_reg.get_group(region_hash)
                     start_idx = trace_data.iloc[0]['index']
                     end_idx = trace_data.iloc[-1]['index'] + 1  # use time from sample after exiting region
                     start_time = tt.loc[tt['index'] == start_idx]['time'].item()
                     end_time = tt.loc[tt['index'] == end_idx]['time'].item()
                     trace_elapsed_time = end_time - start_time
                     msg = 'for region {rn} on node {nn}'.format(rn=region_name, nn=nn)
-                    if region_name == 'epoch':
-                        self.assertNear(trace_elapsed_time, region_data['runtime'].item(), msg=msg)
-                    else:
-                        # compare with time when all ranks are in the region
+                    if region_name != 'epoch':
+                        trace_data = tt.get_group((region_data['id'].item()))
+                        trace_elapsed_time = trace_data.iloc[-1]['time'] - trace_data.iloc[0]['time']
                         self.assertNear(trace_elapsed_time, region_data['sync_runtime'].item(), msg=msg)
+                    else:
+                        trace_elapsed_time = trace.iloc[-1]['time'] - trace['time'].loc[trace['epoch_count'] == 0].iloc[0]
+                        self.assertNear(trace_elapsed_time, region_data['runtime'].item(), msg=msg)
 
     def test_runtime_regulator(self):
         name = 'test_runtime_regulator'
@@ -471,8 +473,8 @@ class TestIntegration(unittest.TestCase):
             app_totals = self._output.get_app_total_data(node_name=nn)
             trace = self._output.get_trace_data(node_name=nn)
             self.assertNear(trace.iloc[-1]['time'], app_totals['runtime'].item())
-            tt = trace.set_index(['region_id'], append=True)
-            tt = tt.groupby(level=['region_id'])
+            tt = trace.set_index(['region_hash'], append=True)
+            tt = tt.groupby(level=['region_hash'])
             for region_name in regions:
                 region_data = self._output.get_report_data(node_name=nn, region=region_name)
                 if region_name not in ['unmarked-region', 'model-init', 'epoch'] and not region_name.startswith('MPI_') and region_data['runtime'].item() != 0:
@@ -512,9 +514,9 @@ class TestIntegration(unittest.TestCase):
         # Calculate region times from traces
         region_times = collections.defaultdict(lambda: collections.defaultdict(dict))
         for nn in node_names:
-            tt = self._output.get_trace_data(node_name=nn).set_index(['region_id'], append=True).groupby(level=['region_id'])
+            tt = self._output.get_trace_data(node_name=nn).set_index(['region_hash'], append=True).groupby(level=['region_hash'])
 
-            for region_id, data in tt:
+            for region_hash, data in tt:
                 filtered_df = self.create_progress_df(data)
                 filtered_df = filtered_df.diff()
                 # Since I'm not separating out the progress 0's from 1's, when I do the diff I only care about the
@@ -523,9 +525,9 @@ class TestIntegration(unittest.TestCase):
 
                 if len(filtered_df) > 1:
                     launcher.write_log(name, 'Region elapsed time stats from {} - {} :\n{}'\
-                                       .format(nn, region_id, filtered_df['time'].describe()))
+                                       .format(nn, region_hash, filtered_df['time'].describe()))
                     filtered_df['time'].describe()
-                    region_times[nn][region_id] = filtered_df
+                    region_times[nn][region_hash] = filtered_df
 
             launcher.write_log(name, '{}'.format('-' * 80))
 
@@ -551,8 +553,8 @@ class TestIntegration(unittest.TestCase):
             for region_name in regions:
                 rr = self._output.get_report_data(node_name=nn, region=region_name)
                 report_ids.append(rr['id'].item())
-            for region_id in region_times[nn].keys():
-                self.assertTrue(region_id in report_ids, msg='Report from {} missing region_id {}'.format(nn, region_id))
+            for region_hash in region_times[nn].keys():
+                self.assertTrue(region_hash in report_ids, msg='Report from {} missing region_hash {}'.format(nn, region_hash))
 
     def test_progress(self):
         name = 'test_progress'
@@ -601,13 +603,13 @@ class TestIntegration(unittest.TestCase):
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
         for nn in node_names:
+            trace_data = self._output.get_trace_data(node_name=nn)
             spin_data = self._output.get_report_data(node_name=nn, region='spin')
             epoch_data = self._output.get_report_data(node_name=nn, region='epoch')
             self.assertNear(delay * loop_count, spin_data['runtime'].item())
             self.assertEqual(loop_count, spin_data['count'].item())
             self.assertEqual(loop_count, epoch_data['count'].item())
-
-        # TODO Trace file parsing + analysis
+            self.assertEqual(loop_count, trace_data['epoch_count'][-1])
 
     @skip_unless_run_long_tests()
     def test_scaling(self):
@@ -702,9 +704,7 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             tt = self._output.get_trace_data(node_name=nn)
 
-            epoch = '0x8000000000000000'
-
-            first_epoch_index = tt.loc[tt['region_id'] == epoch][:1].index[0]
+            first_epoch_index = tt.loc[tt['epoch_count'] == 0][:1].index[0]
             epoch_dropped_data = tt[first_epoch_index:]  # Drop all startup data
 
             power_data = epoch_dropped_data.filter(regex='energy')
@@ -786,9 +786,8 @@ class TestIntegration(unittest.TestCase):
             # Total power consumed will be Socket(s) + DRAM
             for nn in node_names:
                 tt = self._output.get_trace_data(node_name=nn)
-                epoch = '0x8000000000000000'
 
-                first_epoch_index = tt.loc[tt['region_id'] == epoch][:1].index[0]
+                first_epoch_index = tt.loc[tt['epoch_count'] == 0][:1].index[0]
                 epoch_dropped_data = tt[first_epoch_index:]  # Drop all startup data
 
                 power_data = epoch_dropped_data.filter(regex='energy')
@@ -863,13 +862,14 @@ class TestIntegration(unittest.TestCase):
 
         for nn in node_names:
             tt = self._output.get_trace_data(node_name=nn)
-            tt = tt.set_index(['region_id'], append=True)
-            tt = tt.groupby(level=['region_id'])
-            for region_id, data in tt:
+            tt = tt.set_index(['region_hash'], append=True)
+            tt = tt.groupby(level=['region_hash'])
+            for region_hash, data in tt:
                 tmp = data['region_progress'].diff()
+                #@todo legacy branch?
                 # Look for changes in progress that are more negative
                 # than can be expected due to extrapolation error.
-                if region_id == 8300189175:
+                if region_hash == 8300189175:
                     negative_progress = tmp.loc[(tmp > -1) & (tmp < -0.1)]
                     launcher.write_log(name, '{}'.format(negative_progress))
                     self.assertEqual(0, len(negative_progress))

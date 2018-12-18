@@ -100,25 +100,44 @@ namespace geopm
         return result;
     }
 
-    double Agg::region_id(const std::vector<double> &operand)
+    double Agg::region_hash(const std::vector<double> &operand)
     {
-        uint64_t common_rid = GEOPM_REGION_ID_UNMARKED;
+        uint64_t common_hash = GEOPM_HASH_REGION_UNMARKED;
         if (operand.size()) {
-            for (const auto &it : operand) {
-                uint64_t it_rid = geopm_signal_to_field(it);
-                if (it_rid != GEOPM_REGION_ID_UNMARKED &&
-                    common_rid == GEOPM_REGION_ID_UNMARKED) {
-                    common_rid = it_rid;
+            for (const uint64_t &curr_hash : operand) {
+                if (curr_hash != GEOPM_HASH_REGION_UNMARKED &&
+                    common_hash == GEOPM_HASH_REGION_UNMARKED) {
+                    common_hash = curr_hash;
                 }
-                if (common_rid != GEOPM_REGION_ID_UNMARKED &&
-                    it_rid != GEOPM_REGION_ID_UNMARKED &&
-                    it_rid != common_rid) {
-                    common_rid = GEOPM_REGION_ID_UNMARKED;
+                if (common_hash != GEOPM_HASH_REGION_UNMARKED &&
+                    curr_hash != GEOPM_HASH_REGION_UNMARKED &&
+                    curr_hash != common_hash) {
+                    common_hash = GEOPM_HASH_REGION_UNMARKED;
                     break;
                 }
             }
         }
-        return geopm_field_to_signal(common_rid);
+        return common_hash;
+    }
+
+    double Agg::region_hint(const std::vector<double> &operand)
+    {
+        uint64_t common_hint = GEOPM_REGION_HINT_UNKNOWN;
+        if (operand.size()) {
+            for (const uint64_t &curr_hint : operand) {
+                if (curr_hint != GEOPM_REGION_HINT_UNKNOWN &&
+                    common_hint == GEOPM_REGION_HINT_UNKNOWN) {
+                    common_hint = curr_hint;
+                }
+                if (common_hint != GEOPM_REGION_HINT_UNKNOWN &&
+                    curr_hint != GEOPM_REGION_HINT_UNKNOWN &&
+                    curr_hint != common_hint) {
+                    common_hint = GEOPM_REGION_HINT_UNKNOWN;
+                    break;
+                }
+            }
+        }
+        return common_hint;
     }
 
     double Agg::min(const std::vector<double> &operand)
