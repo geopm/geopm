@@ -202,11 +202,17 @@ namespace geopm
         for (const auto &region : region_ordered) {
             uint64_t mpi_region_id = geopm_region_id_set_mpi(region.id);
             uint64_t printed_id = region.id;
-            report << "Region " << region.name << " (0x" << std::hex
-                   << std::setfill('0') << std::setw(16)
-                   << printed_id << std::dec << "):"
-                   << std::setfill('\0') << std::setw(0)
-                   << std::endl;
+            if (!geopm_region_id_is_epoch(printed_id)) {
+                report << "Region " << region.name << " (0x" << std::hex
+                       << std::setfill('0') << std::setw(16)
+                       << printed_id << std::dec << "):"
+                       << std::setfill('\0') << std::setw(0)
+                       << std::endl;
+            }
+            else {
+                report << "Epoch Totals:"
+                       << std::endl;
+            }
             report << "    runtime (sec): " << region.per_rank_avg_runtime << std::endl;
             report << "    sync-runtime (sec): " << m_region_agg->sample_total(m_region_bulk_runtime_idx, region.id) +
                                                     m_region_agg->sample_total(m_region_bulk_runtime_idx, mpi_region_id) << std::endl;
