@@ -39,6 +39,7 @@
 #include <memory>
 #include <functional>
 
+#include "geopm.h"
 #include "geopm_time.h"
 
 #include "Agent.hpp"
@@ -87,10 +88,16 @@ namespace geopm
             };
 
             enum m_signal_e {
-                M_SIGNAL_REGION_ID,
+                M_SIGNAL_REGION_HASH,
+                M_SIGNAL_REGION_HINT,
                 M_SIGNAL_RUNTIME,
                 M_SIGNAL_PKG_ENERGY,
                 M_NUM_SIGNAL,
+            };
+
+            struct m_region_s {
+                uint64_t hash;
+                uint64_t hint;
             };
 
             IPlatformIO &m_platform_io;
@@ -102,7 +109,7 @@ namespace geopm
             std::vector<int> m_control_idx;
             double m_last_freq;
             double m_curr_adapt_freq;
-            std::map<uint64_t, double> m_rid_freq_map;
+            std::map<uint64_t, double> m_hash_freq_map;
             // for online adaptive mode
             bool m_is_online = false;
             std::map<uint64_t, std::unique_ptr<EnergyEfficientRegion> > m_region_map;
@@ -113,7 +120,8 @@ namespace geopm
             size_t m_num_sample;
             int m_level = -1;
             int m_num_children = 0;
-            uint64_t m_last_region_id = 0;
+            m_region_s m_last_region = {.hash = GEOPM_HASH_REGION_INVALID,
+                                        .hint = GEOPM_REGION_HINT_UNKNOWN};
             size_t m_num_ascend = 0;
     };
 }

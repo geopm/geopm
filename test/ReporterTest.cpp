@@ -212,29 +212,19 @@ TEST_F(ReporterTest, generate)
     for (auto rid : m_region_rt) {
         EXPECT_CALL(*m_agg, sample_total(M_TIME_IDX, rid.first))
             .WillOnce(Return(rid.second));
-        EXPECT_CALL(*m_agg, sample_total(M_TIME_IDX, geopm_region_id_set_mpi(rid.first)))
-            .WillOnce(Return(0.5));
     }
     for (auto rid : m_region_energy) {
         EXPECT_CALL(*m_agg, sample_total(M_ENERGY_PKG_IDX, rid.first))
             .WillOnce(Return(rid.second/2.0));
-        EXPECT_CALL(*m_agg, sample_total(M_ENERGY_PKG_IDX, geopm_region_id_set_mpi(rid.first)))
-            .WillOnce(Return(0.5));
         EXPECT_CALL(*m_agg, sample_total(M_ENERGY_DRAM_IDX, rid.first))
             .WillOnce(Return(rid.second/2.0));
-        EXPECT_CALL(*m_agg, sample_total(M_ENERGY_DRAM_IDX, geopm_region_id_set_mpi(rid.first)))
-            .WillOnce(Return(0.5));
     }
     for (auto rid : m_region_clk_core) {
         EXPECT_CALL(*m_agg, sample_total(M_CLK_CORE_IDX, rid.first))
             .WillOnce(Return(rid.second));
-        EXPECT_CALL(*m_agg, sample_total(M_CLK_CORE_IDX, geopm_region_id_set_mpi(rid.first)))
-            .WillOnce(Return(rid.second));
     }
     for (auto rid : m_region_clk_ref) {
         EXPECT_CALL(*m_agg, sample_total(M_CLK_REF_IDX, rid.first))
-            .WillOnce(Return(rid.second));
-        EXPECT_CALL(*m_agg, sample_total(M_CLK_REF_IDX, geopm_region_id_set_mpi(rid.first)))
             .WillOnce(Return(rid.second));
     }
     EXPECT_CALL(*m_comm, rank()).WillOnce(Return(0));
@@ -292,7 +282,7 @@ TEST_F(ReporterTest, generate)
         "    mpi-runtime (sec): 1.2\n"
         "    count: 0\n"
         "    agent stat: 3\n"
-        "Region epoch (\n"
+        "Epoch Totals:\n"
         "    runtime (sec): 70\n"
         "    sync-runtime (sec): 666\n"
         "    package-energy (joules): 167\n"

@@ -40,6 +40,14 @@
 extern "C" {
 #endif
 
+/***************************/
+/* APPLICATION REGION HASH */
+/***************************/
+enum geopm_hash_region_e {
+    GEOPM_HASH_REGION_INVALID  = 0x0ULL,
+    GEOPM_HASH_REGION_UNMARKED = 0xa7c0d90ULL,
+};
+
 /****************************/
 /* APPLICATION REGION HINTS */
 /****************************/
