@@ -141,7 +141,7 @@ namespace geopm
         }
         else {
             result = geopm_crc32_str(0, (char *)(&name.front()));
-            if (!result) {
+            if (GEOPM_REGION_HASH_INVALID == result) {
                 throw Exception("ProfileTable::key(): CRC 32 hashed to zero!", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             err = pthread_mutex_lock(&(m_key_map_lock));
