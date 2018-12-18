@@ -82,6 +82,8 @@ int geopm_region_id_hint_is_equal(uint64_t hint_type, uint64_t region_id)
 
 uint64_t geopm_region_id_hint(uint64_t region_id)
 {
+    ///@todo if region_id is_unmarked set unknown hint
+    ///@todo if region_id is_mpi set network hint
     return (region_id & GEOPM_MASK_REGION_HINT);
 }
 
