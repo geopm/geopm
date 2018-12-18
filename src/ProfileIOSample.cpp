@@ -124,7 +124,7 @@ namespace geopm
             }
 #endif
             size_t local_rank = rank_idx_it->second;
-            uint64_t region_id = sample_it->second.region_id;
+            const uint64_t region_id = sample_it->second.region_id;
             if (geopm_region_id_is_epoch(region_id)) {
                 m_epoch_regulator.epoch(local_rank, sample_it->second.timestamp);
             }
