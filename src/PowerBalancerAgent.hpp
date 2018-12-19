@@ -42,8 +42,6 @@ namespace geopm
 {
     class IPlatformIO;
     class IPlatformTopo;
-    template <class type>
-    class ICircularBuffer;
     class IPowerBalancer;
     class IPowerGovernor;
 

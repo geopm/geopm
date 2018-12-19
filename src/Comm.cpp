@@ -38,6 +38,7 @@
 #include <list>
 
 #include "Exception.hpp"
+#include "PluginFactory.hpp"
 #include "Comm.hpp"
 #include "config.h"
 

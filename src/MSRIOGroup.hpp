@@ -41,7 +41,6 @@
 
 namespace geopm
 {
-    class MSR;
     class IMSR;
     class MSRSignal;
     class MSRControl;

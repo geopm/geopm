@@ -37,11 +37,12 @@
 #include <map>
 #include <vector>
 
-#include "PluginFactory.hpp"
 #include "PlatformIO.hpp"
 
 namespace geopm
 {
+    template <class T> class PluginFactory;
+
     class Agent
     {
         public:

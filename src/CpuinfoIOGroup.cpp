@@ -36,6 +36,7 @@
 #include <fstream>
 #include <algorithm>
 #include <iterator>
+#include "PluginFactory.hpp"
 #include "CpuinfoIOGroup.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
