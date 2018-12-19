@@ -34,22 +34,18 @@ exec_prefix ?= $(prefix)
 bindir ?= $(prefix)/bin
 libexecdir ?= $(exec_prefix)/libexec
 
-EXTRA_DIST += scripts/geopmpy/analysis.py \
-              scripts/geopmpy/launcher.py \
-              scripts/geopmpy/plotter.py \
-              scripts/geopmpy/io.py \
-              scripts/geopmpy/version.py \
-              scripts/geopmpy/__init__.py \
+EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmanalysis \
               scripts/geopmlaunch \
               scripts/geopmplotter \
-              scripts/MANIFEST.in \
+              scripts/geopmpy/__init__.py \
+              scripts/geopmpy/analysis.py \
+              scripts/geopmpy/io.py \
+              scripts/geopmpy/launcher.py \
+              scripts/geopmpy/plotter.py \
+              scripts/geopmpy/version.py \
               scripts/requirements.txt \
               scripts/setup.py \
-              scripts/test/analysis_helper.py \
-              scripts/test/geopm_context.py \
-              scripts/test/geopmpy_test.sh \
-              scripts/test/__init__.py \
               scripts/test/TestAffinity.py \
               scripts/test/TestAnalysisCommandLine.py \
               scripts/test/TestBalancerAnalysis.py \
@@ -58,10 +54,17 @@ EXTRA_DIST += scripts/geopmpy/analysis.py \
               scripts/test/TestNodePowerAnalysis.py \
               scripts/test/TestPowerSweepAnalysis.py \
               scripts/test/TestSubsetOptionParser.py \
+              scripts/test/__init__.py \
+              scripts/test/analysis_helper.py \
+              scripts/test/geopm_context.py \
+              scripts/test/geopmpy_test.sh \
               # end
 
 PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestAffinity.test_affinity_1 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_10 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_11 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_12 \
                scripts/test/pytest_links/TestAffinity.test_affinity_2 \
                scripts/test/pytest_links/TestAffinity.test_affinity_3 \
                scripts/test/pytest_links/TestAffinity.test_affinity_4 \
@@ -70,30 +73,27 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestAffinity.test_affinity_7 \
                scripts/test/pytest_links/TestAffinity.test_affinity_8 \
                scripts/test/pytest_links/TestAffinity.test_affinity_9 \
-               scripts/test/pytest_links/TestAffinity.test_affinity_10 \
-               scripts/test/pytest_links/TestAffinity.test_affinity_11 \
-               scripts/test/pytest_links/TestAffinity.test_affinity_12 \
-               scripts/test/pytest_links/TestAnalysisCommandLine.test_no_args \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_bad_type \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_help \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_help_custom \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_launch_only \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_launch_plot_summary \
-               scripts/test/pytest_links/TestBalancerAnalysis.test_balancer_plot_process_runtime \
+               scripts/test/pytest_links/TestAnalysisCommandLine.test_no_args \
                scripts/test/pytest_links/TestBalancerAnalysis.test_balancer_plot_process_energy \
                scripts/test/pytest_links/TestBalancerAnalysis.test_balancer_plot_process_power \
-               scripts/test/pytest_links/TestFreqSweepAnalysis.test_region_freq_map \
+               scripts/test/pytest_links/TestBalancerAnalysis.test_balancer_plot_process_runtime \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_offline_baseline_comparison_report \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_online_baseline_comparison_report \
+               scripts/test/pytest_links/TestFreqSweepAnalysis.test_region_freq_map \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_stream_dgemm_mix_report \
                scripts/test/pytest_links/TestNodeEfficiencyAnalysis.test_node_efficiency_process \
                scripts/test/pytest_links/TestNodePowerAnalysis.test_node_power_process \
                scripts/test/pytest_links/TestPowerSweepAnalysis.test_power_sweep_summary \
                scripts/test/pytest_links/TestSubsetOptionParser.test_all_param_unknown \
-               scripts/test/pytest_links/TestSubsetOptionParser.test_some_param_known \
                scripts/test/pytest_links/TestSubsetOptionParser.test_geopm_srun_mix_arg_overlap \
-               scripts/test/pytest_links/TestSubsetOptionParser.test_geopm_srun_mix_no_arg_overlap \
                scripts/test/pytest_links/TestSubsetOptionParser.test_geopm_srun_mix_no_arg \
+               scripts/test/pytest_links/TestSubsetOptionParser.test_geopm_srun_mix_no_arg_overlap \
+               scripts/test/pytest_links/TestSubsetOptionParser.test_some_param_known \
                # end
 
 TESTS += $(PYTEST_TESTS)

@@ -35,18 +35,18 @@ EXTRA_DIST += examples/README.md \
               examples/amg/README \
               examples/comd/0001-Marked-up-CoMD-code-for-use-with-GEOPM.patch \
               examples/comd/README \
+              examples/hacc/README \
+              examples/minife/0001-Adding-geopm-markup-to-CORAL-version-of-miniFE.patch \
               examples/minife/0001-Optimized-MiniFE-code-for-Intel-hardware.patch \
               examples/minife/0002-Marked-up-MiniFE-code-for-use-with-GEOPM.patch \
-              examples/minife/0001-Adding-geopm-markup-to-CORAL-version-of-miniFE.patch \
               examples/minife/README \
               examples/nekbone/0001-Optimized-nekbone-code-for-Intel-hardware.patch \
               examples/nekbone/0002-Marked-up-nekbone-code-for-use-with-GEOPM.patch \
               examples/nekbone/0003-Increase-problem-size-for-Theta.patch \
               examples/nekbone/README \
-              examples/qbox/README \
               examples/qbox/0001-Adding-geopm-markup-for-qbox.patch \
               examples/qbox/0002-Fixing-run-scripts-and-adding-run-scipt-for-qbox.patch \
-              examples/hacc/README \
+              examples/qbox/README \
               #end
 
 noinst_PROGRAMS += examples/geopm_print_error
@@ -72,8 +72,8 @@ endif
 
 if ENABLE_MPI
 if ENABLE_SCHED
-    noinst_PROGRAMS += examples/synthetic_benchmark \
-                       examples/print_affinity \
+    noinst_PROGRAMS += examples/print_affinity \
+                       examples/synthetic_benchmark \
                        # end
     examples_synthetic_benchmark_SOURCES = examples/synthetic_benchmark.cpp examples/synthetic_benchmark.hpp
     examples_synthetic_benchmark_LDADD = libgeopm.la $(MPI_CXXLIBS)
@@ -86,8 +86,7 @@ endif
 if ENABLE_MPI
 if ENABLE_OPENMP
 if ENABLE_SCHED
-    noinst_PROGRAMS += examples/simple_prof_c \
-                       #end
+    noinst_PROGRAMS += examples/simple_prof_c
     examples_simple_prof_c_SOURCES = examples/simple_prof_c.c
     examples_simple_prof_c_LDADD = libgeopm.la $(MPI_CXXLIBS)
     examples_simple_prof_c_CPPFLAGS = $(AM_CPPFLAGS) $(MPI_CPPFLAGS) $(OPENMP_CFLAGS)
