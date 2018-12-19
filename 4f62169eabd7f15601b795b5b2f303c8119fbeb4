@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "846ba9f2_002eb62c",
+        "filename": "scripts/outlier/outlier_detection.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-19T18:31:35Z",
+      "side": 1,
+      "message": "maybe some carriage returns would be nice.",
+      "revId": "4f62169eabd7f15601b795b5b2f303c8119fbeb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
