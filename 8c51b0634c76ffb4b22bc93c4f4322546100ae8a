@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff7a43dc_9b8230e4",
+        "filename": "src/ProfileIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-19T02:54:41Z",
+      "side": 1,
+      "message": "need to unset the bits on the uint64 not the double:\n\nresult \u003d geopm_field_to_signal(\n             geopm_region_id_unset_private(\n                 m_per_cpu_region_id[cpu_idx]));",
+      "range": {
+        "startLine": 249,
+        "startChar": 0,
+        "endLine": 250,
+        "endChar": 63
+      },
+      "revId": "8c51b0634c76ffb4b22bc93c4f4322546100ae8a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7b5e1bac_0b9ef962",
+        "filename": "src/ProfileIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-19T02:54:41Z",
+      "side": 1,
+      "message": "same applies here.",
+      "range": {
+        "startLine": 300,
+        "startChar": 16,
+        "endLine": 301,
+        "endChar": 63
+      },
+      "revId": "8c51b0634c76ffb4b22bc93c4f4322546100ae8a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
