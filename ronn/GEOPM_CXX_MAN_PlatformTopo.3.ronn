@@ -51,28 +51,28 @@ hidden by the singleton accessor.
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
-  * `IPlatformTopo &platform_topo(`
+  * `IPlatformTopo &platform_topo(`:
     `void);`
 
-  * `int IPlatformTopo::num_domain(`
+  * `int IPlatformTopo::num_domain(`:
     `int` _domain_type_`) const = 0;`
 
-  * `set<int> IPlatformTopo::domain_cpus(`
-    `int` _domain_type_,
+  * `set<int> IPlatformTopo::domain_cpus(`:
+    `int` _domain_type_`,` <br>
     `int` _domain_idx_`) const = 0;`
 
-  * `int IPlatformTopo::domain_idx(`
-    `int` _domain_type_,
+  * `int IPlatformTopo::domain_idx(`:
+    `int` _domain_type_`,` <br>
     `int` _cpu_idx_`) const = 0;`
 
-  * `bool IPlatformTopo::is_domain_within(`
-    `int` _inner_domain_,
+  * `bool IPlatformTopo::is_domain_within(`:
+    `int` _inner_domain_`,` <br>
     `int` _outer_domain_`) const = 0;`
 
-  * `static string IPlatformTopo::domain_type_to_name(`
+  * `static string IPlatformTopo::domain_type_to_name(`:
     `int` _domain_type_`);`
 
-  * `static int IPlatformTopo::domain_name_to_type(`
+  * `static int IPlatformTopo::domain_name_to_type(`:
     `const std::string &`_domain_name_`);`
 
 ## DESCRIPTION
