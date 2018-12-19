@@ -46,10 +46,7 @@ to enable better rendering of this manual.
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
-  * `IOGroup::IOGroup(`:
-    `void);`
-
-  * `virtual IOGroup::~IOGroup(`:
+  * `PluginFactory<IOGroup> &iogroup_factory(`:
     `void);`
 
   * `virtual set<string> IOGroup::signal_names(`:
@@ -119,9 +116,6 @@ to enable better rendering of this manual.
   * `virtual string control_description(`:
     `const string &`_control_name_`) const = 0;`
 
-  * `PluginFactory<IOGroup> &iogroup_factory(`:
-    `void);`
-
 ## DESCRIPTION
 The `IOGroup` class is an abstract pure virtual class that defines the high
 level interface employed by plugins for sample input and control output.  An
@@ -170,20 +164,33 @@ documentation about how to extend IOgroups.
     The discrete component within a compute node where a signal or control is
     applicable.  For more information see **geopm::PlatformTopo(3)**.
 
+## FACTORY ACCESSOR
+  * `iogroup_factory`():
+    This method returns the singleton accessor for the IOGroup factory.
+    Calling this method will create the factory if it does not already exist.
+    If it is creating the factory, the `MSRIOGroup`, `TimeIOGroup`, and
+    `CpuinfoIOGroup` will also be created and registered as plugins within the
+    factory.  For more information see **geopm::PlatformIO(3)** and/or
+    **geopm::PluginFactory(3)**.
+
 ## CLASS METHODS
 
   * `signal_names`(): Provides the list of all signals provided by the
-    `IOGroup`.
+    `IOGroup`.  The set of strings that are returned can be passed as a
+    `signal_name` to all of the `IOGroup` methods that accept a `signal_name`
+    as an input parameter.
 
   * `control_names`():
-    Provides the list of all controls provided by the `IOGroup`.
+    Provides the list of all controls provided by the `IOGroup`.  The set of
+    strings that are returned can be passed as a `control_name` to all of the
+    `IOGroup` methods that accept a `control_name` as an input parameter.
 
   * `is_valid_signal`():
     Tests if the signal_name refers to a signal supported by the
-    group.
+    `IOGroup`.
 
   * `is_valid_control`():
-    Test if control_name refers to a control supported by the group.
+    Test if control_name refers to a control supported by the IOGroup.
 
   * `signal_domain_type`():
     Query the domain for a named signal.
@@ -193,22 +200,27 @@ documentation about how to extend IOgroups.
 
   * `push_signal`():
     Add a signal to the list of signals that is read by `read_batch`()
-    and sampled by `sample`().
+    and sampled by `sample`().  This method should return a unique index
+    for each signal that can be utilized when calling `sample`().
 
   * `push_control`():
     Add a control to the list of controls that is written by
-    `write_batch`() and configured with `adjust`().
+    `write_batch`() and configured with `adjust`().  This method should
+    return a unique index for each control that can be utilized when calling
+    `control`().
 
   * `read_batch`():
     Read all pushed signals from the platform so that the next call to
-    `sample`() will reflect the updated data.
+    `sample`() will reflect the updated data.  The intention is that
+    `read_batch`() will read the all of the `IOGroup`'s signals into memory once
+    per call.
 
   * `write_batch`():
     Write all of the pushed controls so that values previously given
     to `adjust`() are written to the platform.
 
   * `sample`():
-    Retrieve signal value from data read by last call to
+    Retrieve a signal value from the data read by the last call to
     `read_batch`() for a particular signal previously pushed with
     `push_signal`().
 
@@ -219,7 +231,7 @@ documentation about how to extend IOgroups.
 
   * `read_signal`():
     Read from platform and interpret into SI units a signal given its
-    name and domain. Does not modify the values stored by calling
+    name and domain. Does *not* modify the values stored by calling
     `read_batch`().
 
   * `write_control`():
@@ -234,7 +246,7 @@ documentation about how to extend IOgroups.
     previous call to the `save`() method.
 
   * `agg_function`(): Return a function that should be used when
-    aggregating the given signal.
+    aggregating the given signal.  For more information see **geopm::Agg(3)**.
 
   * `signal_description`(): Returns a description of the signal. This
     string can be used by tools to generate help text for users of the
@@ -244,25 +256,19 @@ documentation about how to extend IOgroups.
     control. This string can be used by tools to generate help text
     for users of the IOGroup.
 
-## FACTORY ACCESSOR FUNCTION
-
-  * `iogroup_factory`():
-
-
 ## EXAMPLE
-Please see the GEOPM IOGroup tutorial for more information.  That code is
-located in the GEOPM source under tutorial/iogroup.
-
-## BACKUP
-
-page at <https://geopm.github.io/dox/classgeopm_1_1_i_o_group.html>.
+Please see the [GEOPM IOGroup
+tutorial](https://github.com/geopm/geopm/tree/dev/tutorial/iogroup) for more
+information.  That code is located in the GEOPM source under tutorial/iogroup.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,
+**geopm::Agg(3)**,
 **geopm::CpuinfoIOGroup(3)**,
 **geopm::MSRIOGroup(3)**,
+**geopm::PlatformIO(3)**,
 **geopm::ProfileIOGroup(3)**,
 **geopm::TimeIOGroup(3)**
