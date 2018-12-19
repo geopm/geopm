@@ -35,10 +35,10 @@
 
 #include <vector>
 
-#include "ModelRegion.hpp"
-
 namespace geopm
 {
+    class ModelRegionBase;
+
     class ModelApplication
     {
         public:

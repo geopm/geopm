@@ -41,7 +41,7 @@
 #include <list>
 
 #include "PlatformIO.hpp"
-#include "geopm_internal.h"
+struct geopm_region_info_s;
 
 namespace geopm
 {

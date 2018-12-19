@@ -31,6 +31,7 @@
  */
 
 #include "gtest/gtest.h"
+#include "geopm_internal.h"
 #include "SampleRegulator.hpp"
 #include "CircularBuffer.hpp"
 

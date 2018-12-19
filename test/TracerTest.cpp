@@ -40,6 +40,7 @@
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "MockPlatformIO.hpp"
+#include "geopm_internal.h"
 #include "geopm_hash.h"
 #include "geopm_test.hpp"
 

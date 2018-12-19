@@ -38,6 +38,7 @@
 #include <limits.h>
 
 #include "geopm.h"
+#include "ModelRegion.hpp"
 #include "Exception.hpp"
 #include "ModelApplication.hpp"
 #include "config.h"

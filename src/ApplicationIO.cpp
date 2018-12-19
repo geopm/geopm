@@ -32,6 +32,7 @@
 
 #include <utility>
 
+#include "Exception.hpp"
 #include "ApplicationIO.hpp"
 #include "EpochRuntimeRegulator.hpp"
 #include "PlatformIO.hpp"

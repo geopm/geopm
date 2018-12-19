@@ -42,12 +42,12 @@
 #include "geopm_time.h"
 
 #include "Agent.hpp"
-#include "EnergyEfficientRegion.hpp"
 
 namespace geopm
 {
     class IPlatformIO;
     class IPlatformTopo;
+    class EnergyEfficientRegion;
 
     class EnergyEfficientAgent : public Agent
     {

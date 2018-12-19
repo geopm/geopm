@@ -35,6 +35,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+#include "Exception.hpp"
 #include "PowerGovernorAgent.hpp"
 #include "MockPowerGovernor.hpp"
 #include "MockPlatformIO.hpp"
