@@ -69,7 +69,7 @@ geopm_prof_c(3) -- application profiling interfaces
 
 ## DESCRIPTION
 The functions described here enable application feedback to the GEOPM
-control algoritm for identifying regions of code, progress within
+control algorithm for identifying regions of code, progress within
 regions, and iterations through loops that contain inter-node
 synchronization points in the application.  Regions of code define
 periods in the application during which control parameters are tuned
@@ -127,7 +127,7 @@ through an outer loop in the application, the "epoch".
 
     `GEOPM_REGION_HINT_PARALLEL`: <br>
     Calculation that is executed by a multi-threaded process in a
-    hybrid thread/process paralellism (e.g. MPI + OpenMP).
+    hybrid thread/process parallelism (e.g. MPI + OpenMP).
 
     `GEOPM_REGION_HINT_IGNORE`: <br>
     Region that control algorithms should ignore, and/or apply default
@@ -173,7 +173,7 @@ through an outer loop in the application, the "epoch".
     regions.  Along with `geopm_tprof_post()`, it provides an
     alternative to the `geopm_prof_progress()` method.  This should be
     called by all threads to set up the table after entering a thread
-    parallel region.  This interface enables each thread to set the
+    parallel region.  This interface enables each thread to set
     the total number work units that the thread will be executing.
     This corresponds to the number of times that the
     `geopm_tprof_post`() interface will be called by the thread to

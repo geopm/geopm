@@ -157,7 +157,7 @@ interface.  Please see the manual for details about how the
 `PlatformIO` abstraction enables access to hardware capabilities,
 extension of `Agent` algorithms to new hardware architectures, a
 mapping of application behavior to hardware domains, and code reuse of
-I/O implementaions by different `Agent` classes.
+I/O implementations by different `Agent` classes.
 
 ## CLASS METHODS
 

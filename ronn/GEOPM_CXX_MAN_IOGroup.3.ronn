@@ -152,7 +152,7 @@ usages.  The list of built-in IOGroups is as follows:
 ## TERMS
 Below are some definitions of terms that are used to describe different parts
 of the IOGroup interface.  Understanding these terms will help to interpret the
-documentation about how to extend IOgroups.
+documentation about how to extend IOGroups.
 
   * _signal_:
     Named parameter in SI units that can be measured.

@@ -106,7 +106,7 @@ implementation is identified by a unique name string referred to as
 the _plugin_name_.  An exception will be thrown if more than one
 plugin of the same name and same type are loaded.  The _plugin_name_
 is standardized to be all lower case letters.  The shared object file
-names must conform to the patern:
+names must conform to the pattern:
 
     libgeopm<CLASS>_<NAME>.so.1.0.0
 
@@ -130,7 +130,7 @@ as a previously registered plugin.
 
 In the case of IOGroup plugins, the first path (from left to right in
 the colon separated list) containing a plugin that supports a signal
-name or control name will provide the imlementation supporting the
+name or control name will provide the implementation supporting the
 signal or control at runtime, and the default search path
 (`<PREFIX>/lib/geopm`) will have the lowest priority.  The last plugin
 to register a signal or control provides the implementation.

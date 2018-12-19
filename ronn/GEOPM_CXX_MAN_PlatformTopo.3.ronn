@@ -87,7 +87,7 @@ this singleton.
 Most methods in the `IPlatformTopo` interface return or require as an
 argument an integer domain type, used to refer to different parts of
 the system topology where signals and controls are applicable.  Each
-domain is defined by a type and and an index.  The domain type is a
+domain is defined by a type and an index.  The domain type is a
 value from the `m_domain_e` enum, and the domain index enumerates the
 devices of that type available on the system.  Each domain type is
 related to a set of Linux logical CPUs and this can be determined with
