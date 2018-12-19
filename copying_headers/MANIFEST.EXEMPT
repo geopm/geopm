@@ -88,6 +88,8 @@ ronn/geopmwrite.1.ronn
 ronn/header.txt
 ronn/index.txt
 scripts/MANIFEST.in
+scripts/outlier/README.md
+scripts/outlier/theta_nodelist_broken.txt
 scripts/requirements.txt
 test_integration/README.md
 TODO
