@@ -38,10 +38,10 @@
 #include <string>
 #include <list>
 
-#include "PluginFactory.hpp"
-
 namespace geopm
 {
+    template <class T> class PluginFactory;
+
     /// @brief Abstract base class for interprocess communication in geopm
     class Comm
     {

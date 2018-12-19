@@ -37,10 +37,10 @@
 #include <vector>
 #include <set>
 
-#include "PluginFactory.hpp"
-
 namespace geopm
 {
+    template <class T> class PluginFactory;
+
     class IOGroup
     {
         public:

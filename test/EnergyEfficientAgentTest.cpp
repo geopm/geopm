@@ -42,6 +42,7 @@
 #include "geopm_hash.h"
 
 #include "Agent.hpp"
+#include "EnergyEfficientRegion.hpp"
 #include "EnergyEfficientAgent.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"

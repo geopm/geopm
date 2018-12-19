@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
+#include "PluginFactory.hpp"
 #include "TimeIOGroup.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"

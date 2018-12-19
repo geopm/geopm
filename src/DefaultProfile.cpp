@@ -58,6 +58,7 @@
 #include "ControlMessage.hpp"
 #include "SharedMemory.hpp"
 #include "Exception.hpp"
+#include "PluginFactory.hpp"
 #include "Comm.hpp"
 
 #include "config.h"

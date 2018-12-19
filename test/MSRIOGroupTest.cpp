@@ -49,6 +49,7 @@
 #include "PlatformTopo.hpp"
 #include "MSRIO.hpp"
 #include "Exception.hpp"
+#include "PluginFactory.hpp"
 #include "MSRIOGroup.hpp"
 #include "MockPlatformTopo.hpp"
 #include "geopm_test.hpp"

@@ -31,6 +31,7 @@
  */
 
 #include "gtest/gtest.h"
+#include "PluginFactory.hpp"
 #include "TimeIOGroup.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"

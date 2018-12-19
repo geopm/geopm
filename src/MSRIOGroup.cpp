@@ -36,7 +36,6 @@
 #include <algorithm>
 #include <utility>
 #include <iomanip>
-#include <sstream>
 #include <iostream>
 
 #include "geopm_sched.h"

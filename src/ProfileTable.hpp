@@ -37,8 +37,6 @@
 #include <map>
 #include <set>
 
-#include "geopm_internal.h"
-
 namespace geopm
 {
     /// @brief Container for multi-threaded or multi-process
