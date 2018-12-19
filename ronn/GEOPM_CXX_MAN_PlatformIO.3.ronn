@@ -231,7 +231,7 @@ at the value set.
     stack prior to the first call to `read_batch()`.  Attempts to push
     a signal onto the stack after the first call to `read_batch()` or
     attempts to push a _signal_name_ that is not from the set
-    returened by `signal_names()` will result in a thrown
+    returned by `signal_names()` will result in a thrown
     `geopm::Exception` with error number `GEOPM_ERROR_INVALID`.
 
   * `push_control()`:

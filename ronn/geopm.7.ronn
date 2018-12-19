@@ -277,7 +277,7 @@ runtime _without_ **geopmlaunch(1)**.
     "ENERGY_PACKAGE", "POWER_PACKAGE", and "FREQUENCY" are included
     in the trace by default.
 
-    `TIME` - time elaspsed since the beginning of execution. <br>
+    `TIME` - time elapsed since the beginning of execution. <br>
     `REGION_ID#` - 64-bit integer region ID that all ranks are
                    running, including MPI flag (bit 62) if applicable.
                    A nested MPI region for the region ID
@@ -421,7 +421,7 @@ runtime _without_ **geopmlaunch(1)**.
   * `GEOPM_COMM`:
     Used to select the plugin description string for communication.
     The communication plugin is not currently used, but in the future
-    the the comm plugin will be used for all communication between
+    the comm plugin will be used for all communication between
     Controllers running on different nodes.  The only installed
     communication plugin uses MPI and the description string is "MPIComm".
     The user may wish to implement other communication mechanisms.
