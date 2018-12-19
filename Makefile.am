@@ -276,6 +276,8 @@ EXTRA_DIST = .gitignore \
              ronn/geopmwrite.1.ronn \
              ronn/header.txt \
              ronn/index.txt \
+             scripts/outlier/outlier_detection.py \
+             scripts/outlier/theta_nodelist_broken.txt \
              src/Comm.hpp \
              TODO \
              tracker/track \

@@ -37,6 +37,7 @@ scripts/geopmpy/launcher.py
 scripts/geopmpy/plotter.py
 scripts/geopmpy/version.py.in
 scripts/Makefile.mk
+scripts/outlier/outlier_detection.py
 scripts/setup.py
 scripts/test/analysis_helper.py
 scripts/test/geopm_context.py
