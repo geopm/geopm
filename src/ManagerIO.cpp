@@ -39,6 +39,7 @@
 
 #include "contrib/json11/json11.hpp"
 
+#include "PluginFactory.hpp"
 #include "ManagerIO.hpp"
 #include "PlatformTopo.hpp"
 #include "SharedMemory.hpp"

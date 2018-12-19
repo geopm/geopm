@@ -39,6 +39,7 @@
 #include "geopm_region_id.h"
 #include "geopm_hash.h"
 
+#include "EnergyEfficientRegion.hpp"
 #include "EnergyEfficientAgent.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"

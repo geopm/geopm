@@ -48,6 +48,7 @@
 #include "geopm_hash.h"
 #include "geopm_version.h"
 #include "geopm.h"
+#include "geopm_internal.h"
 #include "geopm_region_id.h"
 #include "config.h"
 

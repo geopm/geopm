@@ -32,6 +32,7 @@
 
 #include <stdlib.h>
 #include "gtest/gtest.h"
+#include "geopm_internal.h"
 #include "Exception.hpp"
 #include "ProfileTable.hpp"
 

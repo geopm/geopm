@@ -42,6 +42,7 @@
 #include "geopm_hash.h"
 
 #include "Exception.hpp"
+#include "PluginFactory.hpp"
 #include "CpuinfoIOGroup.hpp"
 #include "PlatformTopo.hpp"
 #include "geopm_test.hpp"

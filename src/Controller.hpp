@@ -43,9 +43,7 @@
 namespace geopm
 {
     class Comm;
-    class IPlatformTopo;
     class IPlatformIO;
-    class IManagerIO;
     class IManagerIOSampler;
     class IApplicationIO;
     class IReporter;

@@ -38,7 +38,6 @@
 #include <map>
 #include <memory>
 
-#include "geopm_internal.h"
 #include "geopm_time.h"
 
 namespace geopm

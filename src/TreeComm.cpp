@@ -38,6 +38,7 @@
 
 #include "geopm_env.h"
 
+#include "Exception.hpp"
 #include "TreeComm.hpp"
 #include "TreeCommLevel.hpp"
 #include "Comm.hpp"

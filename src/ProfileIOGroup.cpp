@@ -31,6 +31,7 @@
  */
 
 
+#include "PluginFactory.hpp"
 #include "ProfileIOGroup.hpp"
 #include "PlatformTopo.hpp"
 #include "EpochRuntimeRegulator.hpp"
