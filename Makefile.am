@@ -31,21 +31,24 @@
 
 # GLOBAL SETTINGS
 ACLOCAL_AMFLAGS = -I m4
-AM_CPPFLAGS += -I$(top_srcdir)/src -DGEOPM_PLUGIN_PATH=\"$(pkglibdir)\" -D_POSIX_C_SOURCE=200809L -DOMPI_SKIP_MPICXX
+AM_CPPFLAGS += -I$(top_srcdir)/src \
+               -DGEOPM_PLUGIN_PATH=\"$(pkglibdir)\" \
+               -D_POSIX_C_SOURCE=200809L \
+               -DOMPI_SKIP_MPICXX
 
 # THINGS THAT ARE INSTALLED
 lib_LTLIBRARIES = libgeopmpolicy.la
-bin_PROGRAMS = geopmread \
+bin_PROGRAMS = geopmagent \
+               geopmread \
                geopmwrite \
-               geopmagent \
                #end
 pkglib_LTLIBRARIES =
 nodist_include_HEADERS =
 
 if ENABLE_MPI
     lib_LTLIBRARIES += libgeopm.la
-    bin_PROGRAMS += geopmctl \
-                    geopmbench \
+    bin_PROGRAMS += geopmbench \
+                    geopmctl \
                     # end
 if ENABLE_FORTRAN
     lib_LTLIBRARIES += libgeopmfort.la
@@ -68,9 +71,9 @@ include_HEADERS = src/geopm.h \
                   src/geopm_endpoint.h \
                   src/geopm_error.h \
                   src/geopm_imbalancer.h \
+                  src/geopm_region_id.h \
                   src/geopm_sched.h \
                   src/geopm_time.h \
-                  src/geopm_region_id.h \
                   src/geopm_version.h \
                   # end
 
@@ -128,32 +131,17 @@ install-plugin-dir:
 #
 transform='s/GEOPM_CXX_MAN_/geopm::/'
 
-ronn_man_inst = man/geopm.7 \
-                man/geopmagent.1 \
-                man/GEOPM_CXX_MAN_Agent.3 \
-                man/geopm_agent_c.3 \
-                man/geopm_agent_energy_efficient.7 \
-                man/geopm_agent_monitor.7 \
-                man/geopm_agent_power_balancer.7 \
-                man/geopm_agent_power_governor.7 \
+ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/GEOPM_CXX_MAN_Agg.3 \
-                man/geopmbench.1 \
                 man/GEOPM_CXX_MAN_CircularBuffer.3 \
                 man/GEOPM_CXX_MAN_Comm.3 \
-                man/geopmctl.1 \
-                man/geopm_ctl_c.3 \
                 man/GEOPM_CXX_MAN_CpuinfoIOGroup.3 \
-                man/geopmendpoint.1 \
-                man/geopm_endpoint_c.3 \
                 man/GEOPM_CXX_MAN_EnergyEfficientAgent.3 \
                 man/GEOPM_CXX_MAN_EnergyEfficientRegion.3 \
-                man/geopm_error.3 \
                 man/GEOPM_CXX_MAN_Exception.3 \
-                man/geopm_fortran.3 \
                 man/GEOPM_CXX_MAN_Helper.3 \
-                man/GEOPM_CXX_MAN_MPIComm.3 \
-                man/geopm_imbalancer.3 \
                 man/GEOPM_CXX_MAN_IOGroup.3 \
+                man/GEOPM_CXX_MAN_MPIComm.3 \
                 man/GEOPM_CXX_MAN_MSR.3 \
                 man/GEOPM_CXX_MAN_MSRIO.3 \
                 man/GEOPM_CXX_MAN_MSRIOGroup.3 \
@@ -165,19 +153,34 @@ ronn_man_inst = man/geopm.7 \
                 man/GEOPM_CXX_MAN_PowerBalancerAgent.3 \
                 man/GEOPM_CXX_MAN_PowerGovernor.3 \
                 man/GEOPM_CXX_MAN_PowerGovernorAgent.3 \
-                man/geopm_prof_c.3 \
                 man/GEOPM_CXX_MAN_ProfileIOGroup.3 \
                 man/GEOPM_CXX_MAN_ProfileIOSample.3 \
-                man/geopmpy.7 \
-                man/geopmlaunch.1 \
-                man/geopmread.1 \
                 man/GEOPM_CXX_MAN_RegionAggregator.3 \
+                man/GEOPM_CXX_MAN_SharedMemory.3 \
+                man/GEOPM_CXX_MAN_TimeIOGroup.3 \
+                man/geopm.7 \
+                man/geopm_agent_c.3 \
+                man/geopm_agent_energy_efficient.7 \
+                man/geopm_agent_monitor.7 \
+                man/geopm_agent_power_balancer.7 \
+                man/geopm_agent_power_governor.7 \
+                man/geopm_ctl_c.3 \
+                man/geopm_endpoint_c.3 \
+                man/geopm_error.3 \
+                man/geopm_fortran.3 \
+                man/geopm_imbalancer.3 \
+                man/geopm_prof_c.3 \
                 man/geopm_region_id_c.3 \
                 man/geopm_sched.3 \
-                man/GEOPM_CXX_MAN_SharedMemory.3 \
                 man/geopm_time.3 \
-                man/GEOPM_CXX_MAN_TimeIOGroup.3 \
                 man/geopm_version.3 \
+                man/geopmagent.1 \
+                man/geopmbench.1 \
+                man/geopmctl.1 \
+                man/geopmendpoint.1 \
+                man/geopmlaunch.1 \
+                man/geopmpy.7 \
+                man/geopmread.1 \
                 man/geopmwrite.1 \
                 # end
 
@@ -190,69 +193,56 @@ ronn_man = $(ronn_man_inst) $(ronn_man_noinst)
 dist_man_MANS = $(ronn_man_inst) \
                 # end
 
-dist_doc_DATA = README \
-                COPYING \
+dist_doc_DATA = COPYING \
+                README \
                 VERSION \
                 # end
 
-EXTRA_DIST = .gitignore \
+EXTRA_DIST = $(TUTORIAL_DIST) \
+             .gitignore \
              .travis.yml \
              .travis_obs.sh \
-             autogen.sh \
-             ChangeLog \
              CODE_OF_CONDUCT.md \
-             configure.ac \
-             contrib/json11/README.md \
-             contrib/json11/LICENSE.txt \
              CONTRIBUTING.md \
+             ChangeLog \
+             MANIFEST \
+             Makefile.am \
+             README.md \
+             TODO \
+             autogen.sh \
+             configure.ac \
+             contrib/json11/LICENSE.txt \
+             contrib/json11/README.md \
+             copying_headers/MANIFEST.BSD3-intel \
+             copying_headers/MANIFEST.BSD3-llnl \
+             copying_headers/MANIFEST.EXEMPT \
+             copying_headers/MANIFEST.MIT-dropbox \
+             copying_headers/MANIFEST.NAS \
              copying_headers/header.BSD3-intel \
              copying_headers/header.BSD3-llnl \
              copying_headers/header.MIT-dropbox \
              copying_headers/header.NAS \
-             copying_headers/MANIFEST.BSD3-llnl \
-             copying_headers/MANIFEST.BSD3-intel \
-             copying_headers/MANIFEST.MIT-dropbox \
-             copying_headers/MANIFEST.EXEMPT \
-             copying_headers/MANIFEST.NAS \
-             copying_headers/test-license \
              copying_headers/test-dist \
-             dox/Doxyfile \
+             copying_headers/test-license \
              dox-public/Doxyfile.in \
-             geopm-ohpc.spec.in \
+             dox/Doxyfile \
              geopm-ohpc.spec \
-             geopm-theta.spec.in \
+             geopm-ohpc.spec.in \
              geopm-theta.spec \
-             geopm.spec.in \
+             geopm-theta.spec.in \
+             geopm-tutorial.tar.gz \
              geopm.spec \
-             Makefile.am \
-             MANIFEST \
+             geopm.spec.in \
              pull_request_template.md \
-             README.md \
-             ronn/geopm.7.ronn \
-             ronn/geopmagent.1.ronn \
              ronn/GEOPM_CXX_MAN_Agent.3.ronn \
-             ronn/geopm_agent_c.3.ronn \
-             ronn/geopm_agent_energy_efficient.7.ronn \
-             ronn/geopm_agent_monitor.7.ronn \
-             ronn/geopm_agent_power_balancer.7.ronn \
-             ronn/geopm_agent_power_governor.7.ronn \
              ronn/GEOPM_CXX_MAN_Agg.3.ronn \
-             ronn/geopmanalysis.1.ronn \
-             ronn/geopmbench.1.ronn \
              ronn/GEOPM_CXX_MAN_CircularBuffer.3.ronn \
              ronn/GEOPM_CXX_MAN_Comm.3.ronn \
-             ronn/geopmctl.1.ronn \
-             ronn/geopm_ctl_c.3.ronn \
              ronn/GEOPM_CXX_MAN_CpuinfoIOGroup.3.ronn \
-             ronn/geopmendpoint.1.ronn \
-             ronn/geopm_endpoint_c.3.ronn \
              ronn/GEOPM_CXX_MAN_EnergyEfficientAgent.3.ronn \
              ronn/GEOPM_CXX_MAN_EnergyEfficientRegion.3.ronn \
-             ronn/geopm_error.3.ronn \
              ronn/GEOPM_CXX_MAN_Exception.3.ronn \
-             ronn/geopm_fortran.3.ronn \
              ronn/GEOPM_CXX_MAN_Helper.3.ronn \
-             ronn/geopm_imbalancer.3.ronn \
              ronn/GEOPM_CXX_MAN_IOGroup.3.ronn \
              ronn/GEOPM_CXX_MAN_MPIComm.3.ronn \
              ronn/GEOPM_CXX_MAN_MSR.3.ronn \
@@ -261,25 +251,41 @@ EXTRA_DIST = .gitignore \
              ronn/GEOPM_CXX_MAN_MonitorAgent.3.ronn \
              ronn/GEOPM_CXX_MAN_PlatformIO.3.ronn \
              ronn/GEOPM_CXX_MAN_PlatformTopo.3.ronn \
-             ronn/geopmplotter.1.ronn \
              ronn/GEOPM_CXX_MAN_PluginFactory.3.ronn \
              ronn/GEOPM_CXX_MAN_PowerBalancer.3.ronn \
              ronn/GEOPM_CXX_MAN_PowerBalancerAgent.3.ronn \
              ronn/GEOPM_CXX_MAN_PowerGovernor.3.ronn \
              ronn/GEOPM_CXX_MAN_PowerGovernorAgent.3.ronn \
-             ronn/geopm_prof_c.3.ronn \
              ronn/GEOPM_CXX_MAN_ProfileIOGroup.3.ronn \
              ronn/GEOPM_CXX_MAN_ProfileIOSample.3.ronn \
-             ronn/geopmpy.7.ronn \
-             ronn/geopmlaunch.1.ronn \
-             ronn/geopmread.1.ronn \
              ronn/GEOPM_CXX_MAN_RegionAggregator.3.ronn \
+             ronn/GEOPM_CXX_MAN_SharedMemory.3.ronn \
+             ronn/GEOPM_CXX_MAN_TimeIOGroup.3.ronn \
+             ronn/geopm.7.ronn \
+             ronn/geopm_agent_c.3.ronn \
+             ronn/geopm_agent_energy_efficient.7.ronn \
+             ronn/geopm_agent_monitor.7.ronn \
+             ronn/geopm_agent_power_balancer.7.ronn \
+             ronn/geopm_agent_power_governor.7.ronn \
+             ronn/geopm_ctl_c.3.ronn \
+             ronn/geopm_endpoint_c.3.ronn \
+             ronn/geopm_error.3.ronn \
+             ronn/geopm_fortran.3.ronn \
+             ronn/geopm_imbalancer.3.ronn \
+             ronn/geopm_prof_c.3.ronn \
              ronn/geopm_region_id_c.3.ronn \
              ronn/geopm_sched.3.ronn \
-             ronn/GEOPM_CXX_MAN_SharedMemory.3.ronn \
              ronn/geopm_time.3.ronn \
-             ronn/GEOPM_CXX_MAN_TimeIOGroup.3.ronn \
              ronn/geopm_version.3.ronn \
+             ronn/geopmagent.1.ronn \
+             ronn/geopmanalysis.1.ronn \
+             ronn/geopmbench.1.ronn \
+             ronn/geopmctl.1.ronn \
+             ronn/geopmendpoint.1.ronn \
+             ronn/geopmlaunch.1.ronn \
+             ronn/geopmplotter.1.ronn \
+             ronn/geopmpy.7.ronn \
+             ronn/geopmread.1.ronn \
              ronn/geopmwrite.1.ronn \
              ronn/header.txt \
              ronn/index.txt \
@@ -287,28 +293,25 @@ EXTRA_DIST = .gitignore \
              scripts/outlier/outlier_detection.py \
              scripts/outlier/theta_nodelist_broken.txt \
              src/Comm.hpp \
-             TODO \
-             tracker/track \
-             $(TUTORIAL_DIST) \
-             test_hw/geopm_time.h \
              test_hw/Makefile \
-             test_hw/rapl_pkg_limit_test.c \
+             test_hw/geopm_time.h \
              test_hw/rapl_pkg_limit_plot.py \
              test_hw/rapl_pkg_limit_sweep.sh \
-             geopm-tutorial.tar.gz \
+             test_hw/rapl_pkg_limit_test.c \
+             tracker/track \
              # end
 
-TUTORIAL_DIST = tutorial/agent/agent_tutorial.sh \
-                tutorial/agent/agent_tutorial_config.json \
+TUTORIAL_DIST = tutorial/Makefile \
+                tutorial/README.md \
                 tutorial/agent/ExampleAgent.cpp \
                 tutorial/agent/ExampleAgent.hpp \
-                tutorial/agent/example_policy.json \
                 tutorial/agent/README.md \
+                tutorial/agent/agent_tutorial.sh \
+                tutorial/agent/agent_tutorial_config.json \
+                tutorial/agent/example_policy.json \
                 tutorial/iogroup/ExampleIOGroup.cpp \
                 tutorial/iogroup/ExampleIOGroup.hpp \
                 tutorial/iogroup/README.md \
-                tutorial/Makefile \
-                tutorial/README.md \
                 tutorial/tutorial_0.c \
                 tutorial/tutorial_0.sh \
                 tutorial/tutorial_1.c \
@@ -321,8 +324,8 @@ TUTORIAL_DIST = tutorial/agent/agent_tutorial.sh \
                 tutorial/tutorial_4.sh \
                 tutorial/tutorial_5.c \
                 tutorial/tutorial_5.sh \
-                tutorial/tutorial_6_config.json \
                 tutorial/tutorial_6.sh \
+                tutorial/tutorial_6_config.json \
                 tutorial/tutorial_balanced_policy.json \
                 tutorial/tutorial_build_gnu.sh \
                 tutorial/tutorial_build_intel.sh \
@@ -377,7 +380,9 @@ if ENABLE_FORTRAN
 endif
 endif
 
-libgeopmpolicy_la_SOURCES = src/Agent.cpp \
+libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
+                            contrib/json11/json11.hpp \
+                            src/Agent.cpp \
                             src/Agent.hpp \
                             src/Agg.cpp \
                             src/Agg.hpp \
@@ -390,21 +395,84 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/Comm.hpp \
                             src/ControlMessage.cpp \
                             src/ControlMessage.hpp \
+                            src/Controller.cpp \
+                            src/Controller.hpp \
                             src/CpuinfoIOGroup.cpp \
                             src/CpuinfoIOGroup.hpp \
                             src/DefaultProfile.cpp \
-                            src/Environment.cpp \
                             src/EnergyEfficientAgent.cpp \
                             src/EnergyEfficientAgent.hpp \
                             src/EnergyEfficientRegion.cpp \
                             src/EnergyEfficientRegion.hpp \
+                            src/Environment.cpp \
                             src/EpochRuntimeRegulator.cpp \
                             src/EpochRuntimeRegulator.hpp \
                             src/Exception.cpp \
                             src/Exception.hpp \
-                            src/Imbalancer.cpp \
+                            src/Helper.cpp \
+                            src/Helper.hpp \
                             src/IOGroup.cpp \
                             src/IOGroup.hpp \
+                            src/Imbalancer.cpp \
+                            src/MSR.cpp \
+                            src/MSR.hpp \
+                            src/MSRIO.cpp \
+                            src/MSRIO.hpp \
+                            src/MSRIOGroup.cpp \
+                            src/MSRIOGroup.hpp \
+                            src/ManagerIO.cpp \
+                            src/ManagerIO.hpp \
+                            src/MonitorAgent.cpp \
+                            src/MonitorAgent.hpp \
+                            src/OMPT.cpp \
+                            src/OMPT.hpp \
+                            src/PlatformIO.cpp \
+                            src/PlatformIO.hpp \
+                            src/PlatformIOInternal.hpp \
+                            src/PlatformTopo.cpp \
+                            src/PlatformTopo.hpp \
+                            src/PluginFactory.hpp \
+                            src/PowerBalancer.cpp \
+                            src/PowerBalancer.hpp \
+                            src/PowerBalancerAgent.cpp \
+                            src/PowerBalancerAgent.hpp \
+                            src/PowerGovernor.cpp \
+                            src/PowerGovernor.hpp \
+                            src/PowerGovernorAgent.cpp \
+                            src/PowerGovernorAgent.hpp \
+                            src/Profile.cpp \
+                            src/Profile.hpp \
+                            src/ProfileIOGroup.cpp \
+                            src/ProfileIOGroup.hpp \
+                            src/ProfileIOSample.cpp \
+                            src/ProfileIOSample.hpp \
+                            src/ProfileSampler.cpp \
+                            src/ProfileSampler.hpp \
+                            src/ProfileTable.cpp \
+                            src/ProfileTable.hpp \
+                            src/ProfileThread.cpp \
+                            src/ProfileThread.hpp \
+                            src/RegionAggregator.cpp \
+                            src/RegionAggregator.hpp \
+                            src/Reporter.cpp \
+                            src/Reporter.hpp \
+                            src/RuntimeRegulator.cpp \
+                            src/RuntimeRegulator.hpp \
+                            src/SampleRegulator.cpp \
+                            src/SampleRegulator.hpp \
+                            src/SampleScheduler.cpp \
+                            src/SampleScheduler.hpp \
+                            src/SharedMemory.cpp \
+                            src/SharedMemory.hpp \
+                            src/SignalHandler.cpp \
+                            src/TimeIOGroup.cpp \
+                            src/TimeIOGroup.hpp \
+                            src/Tracer.cpp \
+                            src/Tracer.hpp \
+                            src/TreeComm.cpp \
+                            src/TreeComm.hpp \
+                            src/TreeCommLevel.cpp \
+                            src/TreeCommLevel.hpp \
                             src/geopm.h \
                             src/geopm_agent.h \
                             src/geopm_endpoint.h \
@@ -422,86 +490,21 @@ libgeopmpolicy_la_SOURCES = src/Agent.cpp \
                             src/geopm_time.h \
                             src/geopm_version.c \
                             src/geopm_version.h \
-                            src/Helper.hpp \
-                            src/Helper.cpp \
-                            src/ManagerIO.cpp \
-                            src/ManagerIO.hpp \
-                            src/Controller.cpp \
-                            src/Controller.hpp \
-                            src/MonitorAgent.cpp \
-                            src/MonitorAgent.hpp \
-                            src/MSR.cpp \
-                            src/MSR.hpp \
-                            src/MSRIO.cpp \
-                            src/MSRIO.hpp \
-                            src/MSRIOGroup.cpp \
-                            src/MSRIOGroup.hpp \
                             src/msr_hsx.cpp \
                             src/msr_knl.cpp \
                             src/msr_skx.cpp \
                             src/msr_snb.cpp \
-                            src/OMPT.cpp \
-                            src/OMPT.hpp \
-                            src/PlatformIO.cpp \
-                            src/PlatformIO.hpp \
-                            src/PlatformIOInternal.hpp \
-                            src/PlatformTopo.cpp \
-                            src/PlatformTopo.hpp \
-                            src/PluginFactory.hpp \
-                            src/PowerGovernor.hpp \
-                            src/PowerGovernor.cpp \
-                            src/PowerBalancer.hpp \
-                            src/PowerBalancer.cpp \
-                            src/PowerBalancerAgent.hpp \
-                            src/PowerBalancerAgent.cpp \
-                            src/PowerGovernorAgent.hpp \
-                            src/PowerGovernorAgent.cpp \
-                            src/Profile.cpp \
-                            src/Profile.hpp \
-                            src/ProfileTable.cpp \
-                            src/ProfileTable.hpp \
-                            src/ProfileThread.cpp \
-                            src/ProfileThread.hpp \
-                            src/ProfileSampler.cpp \
-                            src/ProfileSampler.hpp \
-                            src/RegionAggregator.cpp \
-                            src/RegionAggregator.hpp \
-                            src/Reporter.cpp \
-                            src/Reporter.hpp \
-                            src/SampleRegulator.cpp \
-                            src/SampleRegulator.hpp \
-                            src/SampleScheduler.cpp \
-                            src/SampleScheduler.hpp \
-                            src/SharedMemory.cpp \
-                            src/SharedMemory.hpp \
-                            src/SignalHandler.cpp \
-                            src/TimeIOGroup.cpp \
-                            src/TimeIOGroup.hpp \
-                            src/Tracer.cpp \
-                            src/Tracer.hpp \
-                            src/TreeComm.cpp \
-                            src/TreeComm.hpp \
-                            src/TreeCommLevel.cpp \
-                            src/TreeCommLevel.hpp \
-                            contrib/json11/json11.cpp \
-                            contrib/json11/json11.hpp \
-                            src/ProfileIOGroup.cpp \
-                            src/ProfileIOGroup.hpp \
-                            src/ProfileIOSample.cpp \
-                            src/ProfileIOSample.hpp \
-                            src/RuntimeRegulator.cpp \
-                            src/RuntimeRegulator.hpp \
                             # end
 
 geopmread_SOURCES = src/geopmread_main.cpp \
                     #end
 geopmwrite_SOURCES = src/geopmwrite_main.cpp \
                      #end
-geopmagent_SOURCES = src/geopmagent_main.c \
-                     src/geopm_agent.h \
-                     src/geopm_version.h \
-                     src/geopm_error.h \
+geopmagent_SOURCES = src/geopm_agent.h \
                      src/geopm_env.h \
+                     src/geopm_error.h \
+                     src/geopm_version.h \
+                     src/geopmagent_main.c \
                      # end
 
 if ENABLE_MPI
@@ -510,13 +513,13 @@ if ENABLE_MPI
     # users to link to both libgeopm and libgeopmpolicy when calling
     # into application facing APIs.
     libgeopm_la_SOURCES = $(libgeopmpolicy_la_SOURCES) \
-                          src/geopm_ctl.h \
-                          src/geopm_mpi_comm_split.h \
-                          src/geopm_pmpi.h \
-                          src/geopm_pmpi.c \
-                          src/MPICommSplit.cpp \
                           src/MPIComm.cpp \
                           src/MPIComm.hpp \
+                          src/MPICommSplit.cpp \
+                          src/geopm_ctl.h \
+                          src/geopm_mpi_comm_split.h \
+                          src/geopm_pmpi.c \
+                          src/geopm_pmpi.h \
                           # end
 if ENABLE_FORTRAN
     libgeopmfort_la_SOURCES = src/geopm.f90 \
@@ -524,8 +527,8 @@ if ENABLE_FORTRAN
                               # end
 endif
 
-    geopmctl_SOURCES = src/geopmctl_main.c \
-                       src/geopm_version.h \
+    geopmctl_SOURCES = src/geopm_version.h \
+                       src/geopmctl_main.c \
                        # end
 endif
 
@@ -544,9 +547,9 @@ endif
 DISTCLEANFILES = VERSION MANIFEST
 
 CLEAN_LOCAL_TARGETS= clean-local-coverage \
-                     clean-local-man \
                      clean-local-fortran \
                      clean-local-googletest \
+                     clean-local-man \
                      clean-local-openmp \
                      # end
 
@@ -655,9 +658,9 @@ PHONY_TARGETS = clean-local \
                 clean-local-coverage \
                 clean-local-man \
                 distclean-local \
-                rpm \
                 doxygen \
                 gh_pages \
+                rpm \
                 # end
 
 include test/Makefile.mk
