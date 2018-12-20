@@ -51,4 +51,4 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 ## SEE ALSO
 **geopm(7)**,
 **geopm_agent_monitor(7)**,
-**geopm-Agent(3)**
+**geopm::Agent(3)**

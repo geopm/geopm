@@ -41,7 +41,7 @@ geopm::PowerGovernorAgent(3) -- agent that enforces a power cap
 
 The behavior of this agent is described in more detail in the
 **geopm_agent_power_governor(7)** man page.  The power limit is
-enforced using the **geopm-PowerGovernor(3)** class.
+enforced using the **geopm::PowerGovernor(3)** class.
 
 For more details, see the doxygen
 page at <https://geopm.github.io/dox/classgeopm_1_1_power_governor_agent.html>.
@@ -52,5 +52,5 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 ## SEE ALSO
 **geopm(7)**,
 **geopm_agent_power_governor(7)**,
-**geopm-Agent(3)**,
-**geopm-PowerGovernor(3)**
+**geopm::Agent(3)**,
+**geopm::PowerGovernor(3)**

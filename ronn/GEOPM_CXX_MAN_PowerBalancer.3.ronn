@@ -50,4 +50,4 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,
-**geopm-PowerBalancerAgent(3)**
+**geopm::PowerBalancerAgent(3)**
