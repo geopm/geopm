@@ -112,7 +112,11 @@ control.
 
 **geopm_error(3)**: Error code descriptions
 
+**geopm_imbalancer(3)**: Add artificial imbalance to nodes
+
 **geopm_version(3)**: GEOPM library version
+
+**geopm_region_id_c(3)**: Region ID helper functions
 
 **geopm_sched(3)**: Interface with Linux scheduler
 
@@ -438,6 +442,13 @@ runtime _without_ **geopmlaunch(1)**.
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
+**geopmagent(1)**,
+**geopmbench(1)**,
+**geopmctl(1)**,
+**geopmendpoint(1)**,
+**geopmlaunch(1)**,
+**geopmread(1)**,
+**geopmwrite(1)**,
 **geopmpy(7)**,
 **geopm_agent_energy_efficient(7)**,
 **geopm_agent_monitor(7)**,
@@ -448,9 +459,13 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm_endpoint_c(3)**,
 **geopm_error(3)**,
 **geopm_fortran(3)**,
+**geopm_imbalancer(3)**
 **geopm_prof_c(3)**,
+**geopm_region_id_c(3)**
 **geopm_sched(3)**,
+**geopm_time(3)**
 **geopm_version(3)**,
+**geopm::Agent(3)**
 **geopm::Agg(3)**,
 **geopm::CircularBuffer(3)**,
 **geopm::Comm(3)**,
@@ -471,16 +486,10 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm::PowerBalancerAgent(3)**,
 **geopm::PowerGovernor(3)**,
 **geopm::PowerGovernorAgent(3)**,
+**geopm::ProfileIO(3)**,
 **geopm::ProfileIOGroup(3)**,
 **geopm::ProfileIOSample(3)**,
 **geopm::RegionAggregator(3)**,
 **geopm::SharedMemory(3)**,
 **geopm::TimeIOGroup(3)**,
-**geopmagent(1)**,
-**geopmbench(1)**,
-**geopmctl(1)**,
-**geopmendpoint(1)**,
-**geopmlaunch(1)**,
-**geopmread(1)**,
-**geopmwrite(1)**,
 **ld.so(8)**
