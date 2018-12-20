@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe7c5a34_3fad5373",
+        "filename": "ronn/GEOPM_CXX_MAN_IOGroup.3.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-12-20T22:41:16Z",
+      "side": 1,
+      "message": "implement this interface?",
+      "range": {
+        "startLine": 153,
+        "startChar": 66,
+        "endLine": 154,
+        "endChar": 15
+      },
+      "revId": "7834c3f6cce3fdc77ceb82702059ec2482ec2905",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7ba8baf_66199aa2",
+        "filename": "ronn/GEOPM_CXX_MAN_IOGroup.3.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-12-20T22:41:16Z",
+      "side": 1,
+      "message": "why?",
+      "range": {
+        "startLine": 169,
+        "startChar": 13,
+        "endLine": 169,
+        "endChar": 14
+      },
+      "revId": "7834c3f6cce3fdc77ceb82702059ec2482ec2905",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
