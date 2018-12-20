@@ -35,6 +35,7 @@
 
 #include <set>
 #include <string>
+#include <functional>
 
 #include "IOGroup.hpp"
 

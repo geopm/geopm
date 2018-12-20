@@ -33,6 +33,8 @@
 #define CPUINFOIOGROUP_HPP_INCLUDE
 
 #include <map>
+#include <functional>
+
 #include "IOGroup.hpp"
 
 namespace geopm
