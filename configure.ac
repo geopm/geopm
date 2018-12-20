@@ -131,8 +131,8 @@ AC_SUBST([enable_debug])
 
 if test "x$enable_coverage" = "x1" ; then
   AC_DEFINE([GEOPM_COVERAGE], [ ], [Enables test coverage reporting])
-  EXTRA_CFLAGS="$EXTRA_CFLAGS --coverage"
-  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS --coverage"
+  EXTRA_CFLAGS="$EXTRA_CFLAGS --coverage -fprofile-args -ftest-coverage"
+  EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS --coverage -fprofile-args -ftest-coverage"
   EXTRA_LDFLAGS="$EXTRA_LDFLAGS --coverage -lgcov"
 fi
 AC_SUBST([enable_coverage])

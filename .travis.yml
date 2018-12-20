@@ -44,14 +44,14 @@ before_install:
     - git fetch origin --tags
     - git fetch origin $TRAVIS_BRANCH
     - ./autogen.sh
-    - pip install --user pandas natsort matplotlib cycler tables psutil
+    - pip install --user pandas natsort matplotlib cycler tables psutil cpp-coveralls
 
 install:
-    - CXX="g++-4.8" CC="gcc-4.8" ./configure --disable-fortran --enable-debug
+    - CXX="g++-4.8" CC="gcc-4.8" ./configure --disable-fortran --enable-debug --enable-gcov
 
 script:
     - make
-    - make check
+    - make coverage
     - ./copying_headers/test-dist
 
 env:
@@ -70,6 +70,7 @@ env:
         - MPLBACKEND='Agg'
 
 after_success:
+    - coveralls --include src --exclude contrib --exclude examples --exclude gmock-1.7.0 --exclude ruby --exclude test --exclude test_hw --exclude tutorial --exclude config.h --gcov-options '\-lp'
     - make dist
     - ./.travis_obs.sh
 
@@ -88,6 +89,7 @@ addons:
     - libopenmpi-dev
     - rpm
     - osc
+    - lcov
     - python-pip
 
 notifications:

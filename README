@@ -50,6 +50,7 @@ including support for static control.
 TRAVIS CI
 ---------
 [![Build Status](https://travis-ci.org/geopm/geopm.svg)](https://travis-ci.org/geopm/geopm)
+[![Coverage Status](https://coveralls.io/repos/github/geopm/geopm/badge.svg?branch=dev)](https://coveralls.io/github/geopm/geopm?branch=dev)
 
 The GEOPM public GitHub project has been integrated with Travis
 continuous integration.
