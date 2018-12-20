@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <functional>
+
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "geopm_test.hpp"

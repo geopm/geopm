@@ -36,6 +36,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <functional>
 
 namespace geopm
 {
