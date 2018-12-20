@@ -39,7 +39,7 @@ geopm::MPIComm(3) -- implementation of Comm using MPI
 
 ## DESCRIPTION
 
-This class implements the Comm abstraction (**geopm-Comm(3)**) using MPI
+This class implements the Comm abstraction (**geopm::Comm(3)**) using MPI
 as the underlying communication mechanism.
 
 For more details, see the doxygen
@@ -50,4 +50,4 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,
-**geopm-Comm(3)**
+**geopm::Comm(3)**
