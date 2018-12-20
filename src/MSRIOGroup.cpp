@@ -333,6 +333,8 @@ namespace geopm
             if (control_name == "POWER_PACKAGE_LIMIT") {
                 write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
                 // for power only set the first cpu in the package; others are lowered
+            }
+            if (domain_type == IPlatformTopo::M_DOMAIN_PACKAGE) {
                 cpu_idx = {*cpu_idx.begin()};
             }
             for (auto cpu : cpu_idx) {
@@ -464,16 +466,70 @@ namespace geopm
             write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
         }
 
-        std::set<int> cpu_idx = m_platform_topo.domain_cpus(domain_type, domain_idx);
-        for (auto cpu : cpu_idx) {
-            MSRControl control = *(nccm_it->second[cpu]);
-            uint64_t offset = control.offset();
-            uint64_t field = 0;
-            uint64_t mask = 0;
-            control.map_field(&field, &mask);
-            control.adjust(setting);
-            m_msrio->write_msr(cpu, offset, field, mask);
+        // For controls that are package scoped there is a single
+        // register which is used by all hardware threads, so writing
+        // a package scoped MSR to any Linux logical CPU on the
+        // package will effect the change for all CPUs on the package.
+        //
+        // In constrast, each core scoped MSRs is supported by a
+        // register associated with each hyperthread on the core.  The
+        // hardware applies an arbitration algorithm to effect control
+        // on a core as a function of the request made to each of the
+        // hyperthreads on the core.  In the case of controlling
+        // frequency, for instance, all hyperthreads associated with a
+        // core must run at the same frequency.  If the frequency
+        // control MSR values for all of the hyperthreads on one core
+        // are not equal, then the highest value among them is selected.
+
+        switch (domain_type) {
+            case IPlatformTopo::M_DOMAIN_PACKAGE:
+                write_control_package(nccm_it->second, domain_idx, setting);
+                break;
+            case IPlatformTopo::M_DOMAIN_CORE:
+                write_control_core(nccm_it->second, domain_idx, setting);
+                break;
+            case IPlatformTopo::M_DOMAIN_CPU:
+                write_control_cpu(nccm_it->second, domain_idx, setting);
+                break;
+            default:
+                throw Exception("MSRIOGroup::write_control(): Unsupported domain requested.",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                break;
         }
+    }
+
+    void MSRIOGroup::write_control_package(const std::vector<MSRControl *> &cpu_control,
+                                           int package_idx,
+                                           double setting)
+    {
+        int cpu_idx = *(m_platform_topo.domain_cpus(
+                          IPlatformTopo::M_DOMAIN_PACKAGE,
+                          package_idx).begin());
+        write_control_cpu(cpu_control, cpu_idx, setting);
+    }
+
+    void MSRIOGroup::write_control_core(const std::vector<MSRControl *> &cpu_control,
+                                        int core_idx,
+                                        double setting)
+    {
+        std::set<int> cpu_set = m_platform_topo.domain_cpus(IPlatformTopo::M_DOMAIN_CORE, core_idx);
+        for (auto cpu_idx : cpu_set) {
+            write_control_cpu(cpu_control, cpu_idx, setting);
+        }
+    }
+
+
+    void MSRIOGroup::write_control_cpu(const std::vector<MSRControl *> &cpu_control,
+                                       int cpu_idx,
+                                       double setting)
+    {
+        MSRControl control = *(cpu_control[cpu_idx]);
+        uint64_t offset = control.offset();
+        uint64_t field = 0;
+        uint64_t mask = 0;
+        control.map_field(&field, &mask);
+        control.adjust(setting);
+        m_msrio->write_msr(cpu_idx, offset, field, mask);
     }
 
     void MSRIOGroup::save_control(void)

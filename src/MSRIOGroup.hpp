@@ -133,6 +133,15 @@ namespace geopm
             void register_raw_msr_signal(const std::string &msr_name, const IMSR &msr_ptr);
             void enable_fixed_counters(void);
             void check_control(const std::string &control_name);
+            void write_control_package(const std::vector<MSRControl *> &cpu_control,
+                                       int package_idx,
+                                       double setting);
+            void write_control_core(const std::vector<MSRControl *> &cpu_control,
+                                    int core_idx,
+                                    double setting);
+            void write_control_cpu(const std::vector<MSRControl *> &cpu_control,
+                                   int cpu_idx,
+                                   double setting);
 
             /// @brief Configure memory for all pushed signals and controls.
             void activate(void);
