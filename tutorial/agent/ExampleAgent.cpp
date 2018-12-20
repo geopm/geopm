@@ -35,6 +35,7 @@
 #include <assert.h>
 
 #include "ExampleAgent.hpp"
+#include "geopm/PluginFactory.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Helper.hpp"

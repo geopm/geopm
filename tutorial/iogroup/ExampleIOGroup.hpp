@@ -36,7 +36,9 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <memory>
 
+#include "geopm/PluginFactory.hpp"
 #include "geopm/IOGroup.hpp"
 
 namespace geopm
