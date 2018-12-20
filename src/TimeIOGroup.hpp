@@ -34,6 +34,7 @@
 #define TIMEIOGROUP_HPP_INCLUDE
 
 #include <set>
+#include <functional>
 
 #include "IOGroup.hpp"
 #include "geopm_time.h"
