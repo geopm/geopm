@@ -52,7 +52,8 @@
 #include <mkl.h>
 #else
 // Terrible DGEMM implementation should only be used if there is no
-// BLAS support.  Build assumes that MKL is the only provider of BLAS.
+// BLAS support.  Build assumes that the Intel(R) Math Kernel Library
+// is the only provider of BLAS.
 static inline
 void dgemm(const char *transa, const char *transb, const int *M,
            const int *N, const int *K, const double *alpha,
