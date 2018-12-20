@@ -529,12 +529,12 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             for region_name in regions:
                 rr = self._output.get_report_data(node_name=nn, region=region_name)
-                if rr['id'].item() != 0 and rr['count'].item() > 1:
+                if (region_name != 'epoch' and
+                    rr['id'].item() != 0 and
+                    rr['count'].item() > 1):
                     if write_regions:
                         launcher.write_log(name, 'Region {} is {}.'.format(rr['id'].item(), region_name))
                     runtime = rr['sync_runtime'].item()
-                    if region_name == 'epoch':
-                        runtime = rr['runtime'].item()
                     self.assertNear(runtime,
                                     region_times[nn][rr['id'].item()]['time'].sum())
             write_regions = False
