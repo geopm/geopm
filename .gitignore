@@ -11,6 +11,7 @@
 .gdb_history
 .libs/
 /*.la
+/BLURB
 /MANIFEST
 /Makefile
 /Makefile.in
