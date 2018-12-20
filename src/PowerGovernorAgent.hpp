@@ -34,6 +34,7 @@
 #define POWERGOVERNORAGENT_HPP_INCLUDE
 
 #include <vector>
+#include <functional>
 
 #include "Agent.hpp"
 #include "geopm_time.h"

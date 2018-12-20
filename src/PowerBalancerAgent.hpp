@@ -34,6 +34,7 @@
 #define BALANCINGAGENT_HPP_INCLUDE
 
 #include <vector>
+#include <functional>
 
 #include "geopm_time.h"
 #include "Agent.hpp"
