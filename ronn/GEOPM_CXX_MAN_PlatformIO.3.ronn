@@ -154,6 +154,94 @@ below the limit.  Similarly the user can set a CPU `FREQUENCY` in
 hertz and the related signal, `FREQUENCY` will show the CPU operating
 at the value set.
 
+## ALIASING SIGNALS AND CONTROLS
+
+There are two classes of signals and control names: "low level" and
+"high level".  All `IOGroup`'s are expected to provide low level
+signals and controls with names that are prefixed with the IOGroup
+name and two colons, e.g. the `MSRIOGroup` provides the
+`MSR::PKG_ENERGY_STATUS:ENERGY` signal.  If the signal or control may
+be supported on more than one platform, the implementation should be
+aliased to a high level name.  This high level name enables the signal
+or control to be supported by more than one `IOGroup`, and different
+platforms will support the loading different sets of `IOGroups`.  The
+`MSRIOGroup` aliases the above signal to the high level
+`PACKAGE_ENERGY` signal which can be used on any platform to measure
+the current package energy value.  Agents are encouraged to request
+high level signals and controls to make the implementation more
+portable.  The high level signals and controls supported by built-in
+`IOGroup` classes are listed below.  See **geopm::PluginFactory(7)**
+secton on `SEARCH AND LOAD ORDER` for information about how the
+`GEOPM_PLUGIN_PATH` environment variable is used to select which
+`IOGroup` implementation is used in the case where more than one
+provides the same high level signal or control.
+
+  * `TIME`:
+    time elapsed since the beginning of execution.
+
+  * `EPOCH_COUNT`:
+    Number of completed executions of an epoch.  Prior to the first call
+    by the applicaiton to `geopm_prof_epoch()` the signal returns as -1.
+    With each call to `geopm_prof_epoch()` the count increases by one.
+
+  * `REGION_ID#`:
+    64-bit integer region ID that all ranks are running, including MPI
+    flag (bit 62) if applicable.  A nested MPI region for the region
+    ID 0x0000000012345678 will appear as 0x4000000012345678.  If all
+    ranks are not in the same region, it will be recorded as unmarked
+    (0x2000000000000000).  Epoch boundaries are recorded as entry and
+    exit to the epoch region (0x8000000000000000).
+
+  * `REGION_ID`:
+    NOT YET SUPPORTED.  The lower 32 bit hash of the region id name
+    without hint or hidden bit set.
+
+  * `REGION_HINT`:
+    NOT YET SUPPORTED.  The region hint (see **geopm_prof_c(3)**)
+    associated with the currently running region.  For any interval
+    when all ranks are within an MPI function inside of a user defined
+    region, the hint will change from the hint associated with the
+    user defined region to GEOPM_REGION_HINT_NETWORK.
+
+  * `REGION_PROGRESS`:
+    minimum per-rank reported progress through the current region.
+
+  * `REGION_RUNTIME`:
+    maximum per-rank of the last recorded runtime for the current
+    region.
+
+  * `ENERGY_PACKAGE`:
+    total energy aggregated over the processor package.
+
+  * `POWER_PACKAGE`:
+    total power aggregated over the processor package.
+
+  * `FREQUENCY`:
+    average CPU frequency over the specified domain.
+
+  * `ENERGY_DRAM`:
+    total energy aggregated over the DRAM DIMMs associated with a NUMA
+    node.
+
+  * `POWER_DRAM`:
+    total power aggregated over the DRAM DIMMs associated with a NUMA
+    node.
+
+  * `POWER_PACKAGE_MIN`:
+    minimum setting for package power.
+
+  * `POWER_PACKAGE_MAX`:
+    maximum setting for package power.
+
+  * `CYCLES_THREAD`:
+    average over the domain of clock cycles executed by cores since
+    the beginning of execution.
+
+  * `CYCLES_REFERENCE`:
+    average over the domain of clock reference cycles since the
+    beginning of execution.
+
+
 ## SINGLETON ACCESSOR
 
   * `platform_io`():
