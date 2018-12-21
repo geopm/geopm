@@ -92,10 +92,8 @@ down to the lowest levels of abstraction.
   * _signal_:
     Named parameter in SI units that can be measured using PlatformIO.
 
-  * _control_:
+  * _control_ :
     Named parameter in SI units that can be set using PlatformIO.
-
-
 
 ## BUILDING A PLUGIN SHARED OBJECT
 A GEOPM plugin is a shared object file that is loaded at runtime by
@@ -137,7 +135,6 @@ to register a signal or control provides the implementation.
 Therefore, the plugins in the default path are loaded first, and the
 directories in the `GEOPM_PLUGIN_PATH` are loaded in reverse (from
 right to left).
-
 
 ## PLUGIN LOAD CONSTRUCTOR FUNCTION
 
@@ -258,7 +255,10 @@ to provide the inputs to `PluginFactory::register_plugin()`.
     }
 ```
 
-## BACKUP
+## EXAMPLE AGENT
+Please see the (Agent
+tutorial)[https://github.com/geopm/geopm/tree/dev/tutorial/agent] for more
+information.  This code is located in the GEOPM source under tutorial/agent.
 
 For more details, see the doxygen
 page at <https://geopm.github.io/dox/classgeopm_1_1_plugin_factory.html>.
