@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "574c976e_63b0fd01",
+        "filename": "ronn/GEOPM_CXX_MAN_PluginFactory.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2018-12-21T01:40:07Z",
+      "side": 1,
+      "message": "capital P?",
+      "range": {
+        "startLine": 52,
+        "startChar": 47,
+        "endLine": 52,
+        "endChar": 48
+      },
+      "revId": "2e952567ee695a30ae3069733af2d7bfd81c6e6f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
