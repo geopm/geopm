@@ -46,6 +46,9 @@ better rendering of this manual.
 
 `Link with -lgeopm`
 
+  * `PluginFactory<Agent> &agent_factory(`:
+    `void);`
+
   * `virtual void Agent::init(`:
     `int` _level_`,` <br>
     `const vector<int> &`_fan_in_`,` <br>
@@ -104,9 +107,6 @@ better rendering of this manual.
     `const vector<function<double(const vector<double>&)>> &`_agg_func_`,` <br>
     `vector<double> &`_out_sample_`);`
 
-  * `PluginFactory<Agent> &agent_factory(`:
-    `void);`
-
 ## DESCRIPTION
 The `Agent` class is an abstract pure virtual class that defines the
 fundamental procedures executed by the GEOPM runtime.  By default the
@@ -158,6 +158,13 @@ interface.  Please see the manual for details about how the
 extension of `Agent` algorithms to new hardware architectures, a
 mapping of application behavior to hardware domains, and code reuse of
 I/O implementations by different `Agent` classes.
+
+## FACTORY ACCESSOR
+  * `agent_factory`():
+    This method returns the singleton accessor for the Agent factory.
+    Calling this method will create the factory if it does not already exist.
+    If this method is creating the factory, loading of the built-in Agents
+    will be attempted.  For more information see **geopm::PluginFactory(3)**.
 
 ## CLASS METHODS
 
@@ -287,12 +294,14 @@ I/O implementations by different `Agent` classes.
     output sample vector resulting from the applying the aggregation
     across child samples.  Note this is a static helper function.
 
-  * `agent_factory`(): FIXME
-
-
 ## ERRORS
 All functions described on this man page throw **geopm::Exception(3)**
 on error.
+
+## EXAMPLE
+Please see the (Agent
+tutorial)[https://github.com/geopm/geopm/tree/dev/tutorial/agent] for more
+information.  This code is located in the GEOPM source under tutorial/agent.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
