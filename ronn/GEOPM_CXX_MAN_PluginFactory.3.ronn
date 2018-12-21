@@ -47,23 +47,9 @@ features and behavior of the monitor and control process that GEOPM
 executes without recompiling the GEOPM runtime.
 
 ## TERMS
-Below are some definitions of terms that are used to describe
-different parts of the GEOPM runtime.  Understanding these terms will
-help to interpret the documentation about how to extend the GEOPM
-runtime.  These are arranged from from highest levels of abstraction
-down to the lowest levels of abstraction.
-
-  * _launcher_:
-    Wrapper of system application launch (e.g. srun or aprun) that
-    executes the GEOPM runtime with the application.
-
-  * _report_:
-    Text file containing summary of aggregated stats collected during
-    application run.
-
-  * _trace_:
-    Time series of signals collected over application run in a pipe
-    separated ASCII table.
+Below are some definitions of terms that are used to describe different parts
+of the PluginFactory interface.  Understanding these terms will help to
+interpret the documentation about how to write plugins for GEOPM.
 
   * _policy_:
     Array of floating-point settings for `Agent`-specific control
@@ -73,29 +59,15 @@ down to the lowest levels of abstraction.
     Array of floating-point values providing `Agent`-specific runtime
     statistics in SI units.
 
-  * _endpoint_:
-    Interface between resource manager and GEOPM runtime.
-
-  * _profile_:
-    Interface for annotating compute application; provides PlatformIO
-    region signals.
-
   * _controller_:
     Thread on each compute node that loads plugins and runs GEOPM
     algorithm.
 
-  * _level_:
-    Attribute of an `Agent` describing the number of edges between it
-    and the nearest leaf `Agent` in the communication Tree (a leaf
-    `Agent` is _level_ zero).
-
   * _signal_:
     Named parameter in SI units that can be measured using PlatformIO.
 
-  * _control_:
+  * _control_ :
     Named parameter in SI units that can be set using PlatformIO.
-
-
 
 ## BUILDING A PLUGIN SHARED OBJECT
 A GEOPM plugin is a shared object file that is loaded at runtime by
@@ -137,7 +109,6 @@ to register a signal or control provides the implementation.
 Therefore, the plugins in the default path are loaded first, and the
 directories in the `GEOPM_PLUGIN_PATH` are loaded in reverse (from
 right to left).
-
 
 ## PLUGIN LOAD CONSTRUCTOR FUNCTION
 
@@ -258,7 +229,10 @@ to provide the inputs to `PluginFactory::register_plugin()`.
     }
 ```
 
-## BACKUP
+## EXAMPLE AGENT
+Please see the (Agent
+tutorial)[https://github.com/geopm/geopm/tree/dev/tutorial/agent] for more
+information.  This code is located in the GEOPM source under tutorial/agent.
 
 For more details, see the doxygen
 page at <https://geopm.github.io/dox/classgeopm_1_1_plugin_factory.html>.
