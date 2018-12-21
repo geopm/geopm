@@ -51,7 +51,7 @@ geopmanalysis(1)                 geopmanalysis.1
 geopmbench(1)                    geopmbench.1
 geopmctl(1)                      geopmctl.1
 geopmendpoint(1)                 geopmendpoint.1
-geopmlaunch(1)                   geopmplaunch.1
+geopmlaunch(1)                   geopmlaunch.1
 geopmread(1)                     geopmread.1
 geopmwrite(1)                    geopmwrite.1
 geopm::Agent(3)                  GEOPM_CXX_MAN_Agent.3
