@@ -31,9 +31,31 @@ geopm::PluginFactory(3) -- abstract factory for plugins
 [//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
 [//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 
+## NAMESPACES
+The `PluginFactory` template class is a  member of the `namespace geopm`, but
+the full names, `geopm::PluginFactory<class T>`, has been abbreviated in this
+manual.  Similarly, the `std::` namespace specifier has been omitted from the
+interface definitions for the following standard types: `std::vector`,
+`std::string`, `std::set`, and `std::function`, to enable better rendering of
+this manual.
+
 ## SYNOPSIS
 
 **\#include [<geopm/PluginFactory.hpp>](https://github.com/geopm/geopm/blob/dev/src/PluginFactory.hpp)**
+
+  * `void PluginFactory<T>::register_plugin(`:
+    `const string &`_plugin_name_`,` <br>
+    `function<unique_ptr<T>()>` _make_plugin_`,` <br>
+    `const map<string, string> &`_dictionary_`);`
+
+  * `unique_ptr<T> PluginFactory<T>make_plugin(`:
+    `const std::string &`_plugin_name_`) const;`
+
+  * `vector<string> PluginFactory<T>plugin_names(`:
+    `void) const`;
+
+  * `const map<string, string> PluginFactory<T>&dictionary(`:
+    `const std::string &`_plugin_name_`) const;`
 
 ## DESCRIPTION
 GEOPM can be extended though `Agent`, `IOGroup`, and `Comm` plugins.
@@ -76,7 +98,7 @@ down to the lowest levels of abstraction.
   * _endpoint_:
     Interface between resource manager and GEOPM runtime.
 
-  * _profile_:
+  * _profile_ :
     Interface for annotating compute application; provides PlatformIO
     region signals.
 
@@ -94,6 +116,25 @@ down to the lowest levels of abstraction.
 
   * _control_ :
     Named parameter in SI units that can be set using PlatformIO.
+
+## CLASS METHODS
+  * `register_plugin`(): Add a plugin to this factory.  The _plugin_name_
+    parameter will be used to request plugins of the registered type.  The
+    _make_plugin_ parameter will return a new objects of the registered type.
+    The _dictionary_ is an optional string, string dictionary containing static
+    information about the registered type.
+
+  * `make_plugin`(): Creates a object of the registered type.  If the type
+    was not previously registered, an exception will be thrown.  The
+    _plugin_name_ parameter will be used to look up the constructor function
+    used to create the object.
+
+  * `plugin_names`(): Returns a list of all valid plugin names that have been
+    registered with this factory.
+
+  * `dictionary`(): Returns an optional dictionary of static metadata about
+    a registered type.  If the type was not registered, an exception is thrown.
+    The _plugin_name_ parameter is used to look up the desired dictionary.
 
 ## BUILDING A PLUGIN SHARED OBJECT
 A GEOPM plugin is a shared object file that is loaded at runtime by

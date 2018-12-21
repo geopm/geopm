@@ -182,7 +182,6 @@ documentation about how to extend IOGroups.
     and/or **geopm::PluginFactory(3)**.
 
 ## CLASS METHODS
-
   * `signal_names`(): Provides the list of all signals provided by the
     `IOGroup`.  The set of strings that are returned can be passed as a
     `signal_name` to all of the `IOGroup` methods that accept a `signal_name`
