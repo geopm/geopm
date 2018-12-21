@@ -1,3 +1,164 @@
+* Fri Dec 21 2018 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v1.0.0-rc1
++ Release overview:
+  - This is the first candidate for the v1.0.0 release of the GEOPM package.
+  - The version 1.0 is significant in that semantic versioning https://semver.org/ is intended for all subsequent releases.
+  - The APIs defined by all installed header files and the documented behavior of those interfaces shall remain compatible with linking applications until version 2.0.
+  - The documented definition for all built in signals and controls supported by PlatformIO is not intended to change prior to version 2.0.
++ Expected changes prior to v1.0.0 release:
+  - The documentation included in this release candidate will be improved upon prior to the actual v1.0.0 release.
+  - Man pages which currently link to doxygen will be filled in.
+  - The definition of the high order bits in the REGION_ID# signal supported by PlatformIO may be changed in the way documented in the PlatformIO(3) man page to split into two signals (REGION_ID AND REGION_HINT).
+  - It is possible that interface classes currently prefixed with "I" may be renamed to exclude the "I" (e.g. IPlatformIO -> PlatformIO).
+  - In this case the concrete implementation would be appended with "Imp" (e.g. PlatformIO -> PlatformIOImp).
+  - The appearance of the epoch signal in the REGION_ID column of the trace will be removed.
+  - The EPOCH_COUNT signal will be added to the default set of traced signals to enable tracking of epoch calls.
++ High level summary of changes since v0.6.1:
+  - With this release we have removed all references to the Policy, Decider, Platform and PlatformImp objects.
+  - These have been replaced by the PlatformIO / IOGroup / Agent class interactions.
+  - The Kontroller object which was supporting the new code path has been renamed Controller.
+  - The legacy Controller implementation has been removed.
+  - GEOPM no longer depends on the hwloc library, and is relying on running lscpu on compute node instead.
++ Modified implementations and interfaces:
+  - Rename launcher to geopmlaunch.
+  - Do not install geopmanalysis and geopmplotter command line utilities.
+  - The command line interfaces for these tools will be changing.
+  - Once they are committed, we will begin installing them again.
+  - Remove unused error codes from geopm_error.h.
+  - Remove some deprecated interfaces and files.
+  - Remove legacy artifacts from Reporter and Tracer.
+  - Remove legacy structures from geopm_message.h.
+  - Remove deprecated API headers.
+  - Remove CtlConf Python object.
+  - Remove region ID memory from derivative for power signals, this is a feature for agent to implement.
+  - Remove unused arguments from the geopmctl_main.
+  - Remove push_combined_signal() from PlatformIO interface.
+  - Remove NAN check for policy in Controller.  Agents are responsible for handling NAN.
+  - Remove IPlatformTopo::define_cpu_group(). This method is not implemented and not used.
+  - Remove MPI bit from region ID in report.
+  - Remove install of geopm_message.h and geopm_plugin.h.
+  - Remove environment variables for min/max frequency used by EnergyEfficientAgent: this functionality is provided through the policy as documented.
+  - Fixes for online mode of EnergyEfficientAgent: ignore 0.0 when sampling runtime, fix min/max frequency range in analysis.py, fix final requested frequency printed in report.
+  - EnergyEfficientAgent no longer considers DRAM energy in its optimization.
+  - Change default frequency for hints from min to max in EnergyEfficientAgent.
+  - Implement EnergyEfficientAgent analysis using hints only.
+  - Change meaning of EPOCH_RUNTIME signal: MPI and ignore time reported explicitly and a separately.
+  - Install many C++ headers into /usr/include/geopm.
+  - Move geopmbench source files files from tutorial directory into src.
+  - Don't copy any files from src into tutorials.
+  - Update tutorials to use Agent code path.
+  - Throw if multiple hints given to geopm_prof_region.
+  - Allow writing controls for containing domains: the same value will be written to every subdomain.
+  - Update EpochRuntimeRegulator accounting: PKG and DRAM energy dissociated from rank.
+  - Updated to report pre-epoch MPI and ignore runtime.
+  - Make TreeComm fan out configurable with environment variable.
+  - Per thread progress is supported by the 'REGION_THREAD_PROGRESS' signal.
+  - Align command line options to the launcher and the environment variables used by the controller.
+  - Merge tutorial Makefiles into one and remove duplicate scripts.
+  - Rename runtime related APIs.
+  - Merge ProfileIO into ProfileIOSample.
+  - Refactor analysis.py command line parsing to use argparse, etc.
+  - Move some header includes from headers into source files when possible.
+  - Change "POWER_PACKAGE" control name to "POWER_PACKAGE_LIMIT".
+  - Expose MSR PKG_POWER_LIMIT fields as signals.
+  - Reorder directory search in plugin load: load plugins from right to left to so leftmost plugin wins in case of IOGroup loading same name for controls and signals.
+  - Use accumulator member in EpochRuntimeRegulator for MPI runtime.
+  - Changes to the launcher for mpiexec using in hydra
+  - Move set_policy_defaults to Agent interface
+  - Aggregation functions have been moved out of PlatformIO and into their own class: Agg.
+  - Implement agg_function for IOGroups, including tutorial.
+  - Do not stop integration test in looper if one test fails.
+  - Increase shmem table size to 2MB per rank to reduce risk of overflow.
+  - Remove hash table structure in ProfileTable; all regions now use the same table entry.
+  - Change CpuinfoIOGroup to throw in constructor if cpuinfo could not be parsed.
+  - In python analysis do not parse traces if total size is more than half of memory.
+  - Remove redundant HDF5 cache from analysis.py.
+  - Remove TURBO_RATIO_LIMIT2 control for platforms where it is not in whitelist.
+  - Read multiple samples for a short time in geopmread to support POWER signals.
+  - Narrow scope of warning message about cpufreq governor: only print warning when an attempt is made to write to a control that begins with POWER or FREQUENCY.
+  - Prevent MSRIOGroup from throwing when saving MSRs.
+  - Implement and use AgentConf in python code to create agent polices.
++ Updated features:
+  - Add timestamp counter to available signals.
+  - Add --info option to geopmread and geopmwrite.
+  - Add check for invalid GEOPM_CTL values.
+  - Add temperature signals.
+  - Add Imbalancer interface to libgeopm and libgeopmpolicy:  Imbalancer_*() -> geopm_imbalancer_*().
+  - Add some placeholder descriptions to MSRIOGroup and TimeIOGroup to support integration tests.
+  - Add methods to RegionAggregator to get region IDs and signals.
+  - Add methods to PlatformIO to provide signal/control descriptions: this will be used to augment geopmread/write with descriptions.
+  - Add description APIs for IOGroup: allows IOGroups to provide a user-friendly description of signals/controls.
+  - Add GEOPM_TIME_REF constant for use with geopm_time_*() APIs.
+  - Add INSTRUCTIONS_RETIRED alias signal.
+  - Add TIMESTAMP_COUNTER alias for MSRIOGroup.
+  - Add signal to enable reading of the RAPL lock bit.
+  - Add PKG_POWER_LIMIT MSR fields as a signal.
+  - Add expect_same aggregation function that returns NAN if any elements of the vector differ.
+  - Add average node frequency to EnergyEfficientAgent tree samples.
+  - Add support for POWER_* as signals that give meaningful results without runtime.
+  - Add module conflict of darshan to theta module file.
+  - Add psutils python dependency.
+  - Add warnings for system misconfiguration.
+  - Add read_file() to Helper.hpp.
+  - Add job start in Trace and Report headers.
+  - Add outlier detector script.
+  - Add handling of NAN for default policy values to all agents.
+  - Add parsing for overhead fields to io.py.
+  - Add reading of the thread table through PlatformIO.
++ Updated and extended integration tests:
+  - Ignore misconfigured system warnings in integration test.
+  - Remove ignore of multiple plugin load warnings that stopped occurring after removal of legacy code.
+  - Do not test epoch runtime in test_region_runtimes.
+  - Add all2all to power_balancer integration test.
+  - Adjust power_balancer test logic to compare Governor and Balancer relatively.
+  - Fix EnergyEfficientAgent integration test.
+  - Test decorators implemented to use launcher.  This forces the checks to be run on the compute nodes.
+  - Update integration tests to reflect removal of legacy code path.
+  - Update test_power_consumption to use PowerGovernor.
+  - Fix integration test to exclude MPI and model-init regions from tests using traces.
+  - Fix integration test to use assertNear to account for new MPI region markup.
+  - Move GEOPM_EXEC_WRAPPER functionality into integration test.
++ Updated unit tests:
+  - Add tests of domain aggregation for pushed signals.
+  - Add test for geopmread signal aggregation.
+  - Stop the unit tests from littering files.
+  - Fixed signed / unsigned comparison issue in PlatformIO test.
+  - Update unit tests to reflect removal of legacy code path.
+  - Add test of IOGroup factory that checks that an IOGroup's list of signal/control names are all valid.
++ Updates to documentation:
+  - Update GEOPM main README.
+  - Add doxygen target for public interface files.
+  - Add man pages for all C++ headers that are now installed to support plugin development.
+  - Full man pages have been added for PluginFactory, PlatformIO, PlatformTopo, Agent, and IOGroup.
+  - Add documentation about aliasing signals and controls.
+  - Update launcher ronn to include references to env vars.
+  - Add README for outlier_detection.
+  - Update the tutorial README.md to reference geopmbench and point out the agent and iogroup subdirectories.
+  - Document how to build GEOPM with Intel Toolchain.
+  - Fix example source code in geopm_prof_c.3 man page.
+  - Add man pages for geopm_time.h and geopm_imbalancer.h.
+  - Update Doxygen to reflect removal of legacy code path.
+  - Remove alpha and beta labels from documentation.
++ Bug fixes:
+  - Fix how starting energy counters are recorded in EpochRuntimeRegulator.
+  - Fix timestamp issue with Tracer.
+  - Fix region handling in Reporter hints.
+  - Fix OMPT enabled pthread launch with Controller/Agent.
+  - Fix for invalid function for some MSR signals.
+  - Fix for EnergyEfficientAgent policy: initialize min and max frequency to NAN.
+  - Fix EnergyEfficentAgent offline analysis parsing.
+  - Fix geopmbench stream benchmark which was using too little memory.
+  - Fix python tests to print better warnings and avoid print command.
+  - Fix for MPI region entry: MPI regions used in GEOPM startup were given a region ID of 0.
+  - Fix initialization of per rank ignore and mpi runtime.
+  - Fix default policy generated by geopmagent to properly represent NAN.
+  - Fix reporting of  MPI and ignore runtime prior to first epoch for report totals.
+* Mon Oct 29 2018 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.6.1
+- Hotfix for v0.6.0 release.
+- Fix MPI functions called during startup getting assigned region 0.
+- Fix missing profiling of some MPI functions when called from fortran.
+- Fix performance regression due to attempt to profile non-blocking MPI calls.
+- Fix to remove unsupported MSR from skylake platform definition (TURBO_RATIO_LIMIT2).
+- Fix to prevent throw when trying to save/restore MSRs that are not supported on the system.
 * Tue Oct 02 2018 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v0.6.0
 - Stabilized Agent code path.
 - Last release with Decider/Platform/PlatformImp support.
