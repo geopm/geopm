@@ -118,7 +118,7 @@ namespace geopm
             virtual int num_control(void) const = 0;
             /// @brief Sample a single signal that has been pushed on
             ///        to the signal stack.  Must be called after a call
-            ///        to read_signal(void) method which updates the state
+            ///        to read_batch(void) method which updates the state
             ///        of all signals.
             /// @param [in] signal_idx index returned by a previous call
             ///        to the push_signal() method.
@@ -127,7 +127,7 @@ namespace geopm
             /// @brief Adjust a single control that has been pushed on
             ///        to the control stack.  This control will not
             ///        take effect until the next call to
-            ///        write_control(void).
+            ///        write_batch(void).
             /// @param [in] control_idx Index of control to be adjusted
             ///        returned by a previous call to the push_control() method.
             /// @param [in] setting Value of control parameter in SI units.
@@ -173,11 +173,11 @@ namespace geopm
                                        double setting) = 0;
             /// @brief Save the state of all controls so that any
             ///        subsequent changes made through PlatformIO
-            ///        can be undone with a call to the restore()
+            ///        can be undone with a call to the restore_control()
             ///        method.
             virtual void save_control(void) = 0;
             /// @brief Restore all controls to values recorded in
-            ///        previous call to the save() method.
+            ///        previous call to the save_control() method.
             virtual void restore_control(void) = 0;
             /// @brief Returns a function appropriate for aggregating
             ///        multiple values of the given signal into a

@@ -176,7 +176,7 @@ secton on `SEARCH AND LOAD ORDER` for information about how the
 provides the same high level signal or control.
 
   * `TIME`:
-    time elapsed since the beginning of execution.
+    Time elapsed since the beginning of execution.
 
   * `EPOCH_COUNT`:
     Number of completed executions of an epoch.  Prior to the first call
@@ -203,41 +203,41 @@ provides the same high level signal or control.
     user defined region to GEOPM_REGION_HINT_NETWORK.
 
   * `REGION_PROGRESS`:
-    minimum per-rank reported progress through the current region.
+    Minimum per-rank reported progress through the current region.
 
   * `REGION_RUNTIME`:
-    maximum per-rank of the last recorded runtime for the current
+    Maximum per-rank of the last recorded runtime for the current
     region.
 
   * `ENERGY_PACKAGE`:
-    total energy aggregated over the processor package.
+    Total energy aggregated over the processor package.
 
   * `POWER_PACKAGE`:
-    total power aggregated over the processor package.
+    Total power aggregated over the processor package.
 
   * `FREQUENCY`:
-    average CPU frequency over the specified domain.
+    Average CPU frequency over the specified domain.
 
   * `ENERGY_DRAM`:
-    total energy aggregated over the DRAM DIMMs associated with a NUMA
+    Total energy aggregated over the DRAM DIMMs associated with a NUMA
     node.
 
   * `POWER_DRAM`:
-    total power aggregated over the DRAM DIMMs associated with a NUMA
+    Total power aggregated over the DRAM DIMMs associated with a NUMA
     node.
 
   * `POWER_PACKAGE_MIN`:
-    minimum setting for package power.
+    Minimum setting for package power.
 
   * `POWER_PACKAGE_MAX`:
-    maximum setting for package power.
+    Maximum setting for package power.
 
   * `CYCLES_THREAD`:
-    average over the domain of clock cycles executed by cores since
+    Average over the domain of clock cycles executed by cores since
     the beginning of execution.
 
   * `CYCLES_REFERENCE`:
-    average over the domain of clock reference cycles since the
+    Average over the domain of clock reference cycles since the
     beginning of execution.
 
 
@@ -263,7 +263,9 @@ provides the same high level signal or control.
   * `control_names()`:
     Returns the names of all available controls.  This includes all
     controls and aliases provided by IOGroups as well as controls
-    provided by PlatformIO itself.
+    provided by PlatformIO itself.  The set of strings that are returned
+    can be passed as a _control_name_ to all `PlatformIO` methods that
+    accept a control name input parameter.
 
   * `signal_description()`:
     Returns the description of the signal as defined by the IOGroup that
@@ -284,7 +286,7 @@ provides the same high level signal or control.
     Query the domain for the control with the name _control_name_.
     Returns one of the `geopm::PlatformTopo::m_domain_e` values
     signifying the granularity at which the control can be adjusted.
-    Will return `geopm::PlatformTopo::M_DOMAIN_INVALID` if the signal
+    Will return `geopm::PlatformTopo::M_DOMAIN_INVALID` if the control
     name is not supported.
 
   * `agg_function()`:
@@ -293,12 +295,22 @@ provides the same high level signal or control.
 ## SERIAL CLASS METHODS
 
   * `read_signal()`:
+    Read from the platform and interpret into SI units a signal
+    given its name and domain.  Does not modify values stored by
+    calling `read_batch()`.
 
   * `write_control()`:
+    Interpret the setting and write it to the platform.  Does not
+    modify the values stored by calling `adjust()`.
 
   * `save_control()`:
+    Save the state of all controls so that any subsequent changes
+    made through PlatformIO may be reverted with a call to
+    `restore_control()`.
 
   * `restore_control()`:
+    Restore all controls to values recorded in previous call to
+    `save_control()`.
 
 ## BATCH CLASS METHODS
 
@@ -315,25 +327,54 @@ provides the same high level signal or control.
     the signal stored in the internal state from the last update.  The
     returned signal index will be repeated for each unique tuple of
     push_signal input parameters.  All signals must be pushed onto the
-    stack prior to the first call to `read_batch()`.  Attempts to push
-    a signal onto the stack after the first call to `read_batch()` or
+    stack prior to the first call to `adjust()` or `read_batch()`.  Attempts to push
+    a signal onto the stack after the first call to `adjust()` or `read_batch()` or
     attempts to push a _signal_name_ that is not from the set
     returned by `signal_names()` will result in a thrown
     `geopm::Exception` with error number `GEOPM_ERROR_INVALID`.
 
   * `push_control()`:
+    Push a control onto the stack of batch access controls.  The control
+    is defined by selecting a _control_name_ from the set returned by
+    the `control_names()` method, the _domain_type_ from one of the
+    `PlatformTopo::m_domain_e` values, and the _domain_idx_ between
+    zero to the value returned by
+    `PlatformTopo::num_domain(_domain_type_)`.  The return value of
+    the method can be passed to the `adjust()` method which will update the
+    internal state used to store batch controls.  Subsequent calls to
+    the `write_batch()` method access the control values in the internal
+    state and write the values to the hardware.  The
+    returned control index will be repeated for each unique tuple of
+    push_control input parameters.  All controls must be pushed onto the
+    stack prior to the first call to `adjust()` or `read_batch()`.  Attempts to push
+    a controls onto the stack after the first call to `adjust()` or `read_batch()` or
+    attempts to push a _control_name_ that is not from the set
+    returned by `control_names()` will result in a thrown
+    `geopm::Exception` with error number `GEOPM_ERROR_INVALID`.
 
   * `num_signal()`:
+    Returns the number of `push_signal()` with unique tuple of input.
 
   * `num_control()`:
+    Returns the number of `push_control()` with unique tuple of input.
 
   * `sample()`:
+    Samples cached value of a single signal that has been pushed via
+    `push_signal()` cached value is upated at the time of call to
+    `read_batch()`.
 
   * `adjust()`:
+    Updates cached value for single control that has been pushed via
+    `push_control()` cached value will be written to the platform at time of
+    call to `write_batch()`.
 
   * `read_batch()`:
+    Read all push signals from the platform so that the next call to `sample()`
+    will reflect the updated data.
 
   * `write_batch()`:
+    Write all pushed controls so that values provided to `adjust()`
+    are written to the platform.
 
 ## PLUGIN CLASS METHODS
 
