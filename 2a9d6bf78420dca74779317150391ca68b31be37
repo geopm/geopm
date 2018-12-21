@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f38ec8ab_2777713d",
+        "filename": "ronn/GEOPM_CXX_MAN_PlatformIO.3.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2018-12-21T18:38:38Z",
+      "side": 1,
+      "message": "rm whitespace",
+      "revId": "2a9d6bf78420dca74779317150391ca68b31be37",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
