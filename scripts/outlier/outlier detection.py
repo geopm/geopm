@@ -1,13 +1,24 @@
 #!/usr/bin/python
 
-# python 2 compatibility
-from __future__ import print_function
-
 import math
 import numpy as np
 import sys
 
-nid_pos_dict = {int(ll[0]): dict(zip(("column", "row", "chassis", "slot", "node"), tuple(map(int, ll[1:])))) for ll in map(lambda l: l.strip().split(), open('theta_nodelist_broken.txt').readlines())}
+def parse_nodelist(fname="theta_nodelist_broken.txt"):
+    rval = {}
+    lines = [l.strip().split() for l in open('theta_nodelist_broken.txt')]
+    for line in open('theta_nodelist_broken.txt'):
+        ll = map(int, line.strip().split())
+        rval[ll[0]] = {
+                "column": ll[1],
+                "row": ll[2],
+                "chassis": ll[3],
+                "slot": ll[4],
+                "node": ll[5]
+                }
+    return rval
+
+nid_pos_dict = parse_nodelist()
 
 # dealing with the deprecated column names in the nekbone traces
 keymap = {"seconds": "time",
@@ -52,7 +63,7 @@ def trace_iterate(trace_file):
         delta = {}
         if ldict['region_id'] == '0x2000000000000000':
             continue
-        if ldict['region_id'] != '0x8000000000000000':
+        if ldict['region_id'] not in ['0x8000000000000000', '0x0000000000000000']:
             continue
         if ldict['region_id'] not in last:
             last[ldict['region_id']] = ldict.copy()
@@ -179,11 +190,11 @@ if __name__ == '__main__':
     global_avg, node_stats = power_and_temperature_stats(nids, traces)
 
     if len(outliers) == 0:
-        print("No outliers detected.")
+        sys.stdout.write("No outliers detected.\n")
     else:
-        print("OUTLIERS IDENTIFIED:")
+        sys.stdout.write("OUTLIERS IDENTIFIED:\n")
         outliers.sort()
         for outlier_prob, nid in outliers:
             delta = {k: node_stats[nid][k] - global_avg[k] for k in global_avg.keys()}
             status = {True: "Runt", False: "Pick"}[delta['power'] >= 0]
-            print("Node %5d, %5.2f%%, %s, %5.1fW, %5.1fC" % (nid, 100*outlier_prob, status, delta['power'], delta['temperature']))
+            sys.stdout.write("Node %5d, %5.2f%%, %s, %5.1fW, %5.1fC\n" % (nid, 100*outlier_prob, status, delta['power'], delta['temperature']))
