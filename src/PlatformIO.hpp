@@ -118,7 +118,7 @@ namespace geopm
             virtual int num_control(void) const = 0;
             /// @brief Sample a single signal that has been pushed on
             ///        to the signal stack.  Must be called after a call
-            ///        to read_signal(void) method which updates the state
+            ///        to read_batch(void) method which updates the state
             ///        of all signals.
             /// @param [in] signal_idx index returned by a previous call
             ///        to the push_signal() method.
@@ -127,7 +127,7 @@ namespace geopm
             /// @brief Adjust a single control that has been pushed on
             ///        to the control stack.  This control will not
             ///        take effect until the next call to
-            ///        write_control(void).
+            ///        write_batch(void).
             /// @param [in] control_idx Index of control to be adjusted
             ///        returned by a previous call to the push_control() method.
             /// @param [in] setting Value of control parameter in SI units.
