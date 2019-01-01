@@ -328,6 +328,15 @@ namespace geopm
         values[M_TRACE_SAMPLE_PWR_BUDGET] = m_last_power_budget;
     }
 
+    void PowerGovernorAgent::enforce_static_policy(const std::vector<double> &policy) const
+    {
+        if (policy.size() != M_NUM_POLICY) {
+            throw Exception("PowerGovernorAgent::enforce_static_policy(): policy vector incorrectly sized.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        platform_io().write_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_BOARD, 0, policy[M_POLICY_POWER]);
+    }
+
     std::string PowerGovernorAgent::plugin_name(void)
     {
         return "power_governor";
