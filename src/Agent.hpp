@@ -122,6 +122,10 @@ namespace geopm
             /// @brief Called by Controller to get latest values to be
             ///        added to the trace.
             virtual void trace_values(std::vector<double> &values) = 0;
+            /// @brief Enforce the policy one time with
+            ///        PlatformIO::write_control().  Called to enforce
+            ///        static policies in the absence of a Controller.
+            virtual void enforce_policy(const std::vector<double> &policy) const {}
             /// @brief Used to look up the number of values in the
             ///        policy vector sent down the tree for a specific
             ///        Agent.  This should be called with the

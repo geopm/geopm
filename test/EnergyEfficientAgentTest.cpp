@@ -359,3 +359,16 @@ TEST_F(EnergyEfficientAgentTest, static_methods)
     EXPECT_EQ(pol_names, EnergyEfficientAgent::policy_names());
     EXPECT_EQ(sam_names, EnergyEfficientAgent::sample_names());
 }
+
+TEST_F(EnergyEfficientAgentTest, enforce_policy)
+{
+    const double limit = 1e9;
+    const std::vector<double> policy{0, limit};
+    const std::vector<double> bad_policy{100, 200, 300};
+
+    EXPECT_CALL(m_platio, write_control("FREQUENCY", GEOPM_DOMAIN_BOARD, 0, limit));
+
+    m_agent0->enforce_policy(policy);
+
+    EXPECT_THROW(m_agent0->enforce_policy(bad_policy), geopm::Exception);
+}
