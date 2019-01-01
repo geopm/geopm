@@ -199,6 +199,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/PowerBalancerAgentTest.power_balancer_agent \
               test/gtest_links/PowerBalancerAgentTest.tree_agent \
               test/gtest_links/PowerBalancerAgentTest.tree_root_agent \
+              test/gtest_links/PowerBalancerAgentTest.enforce_static_policy \
               test/gtest_links/PowerBalancerTest.balance \
               test/gtest_links/PowerBalancerTest.is_runtime_stable \
               test/gtest_links/PowerBalancerTest.power_cap \

@@ -277,3 +277,17 @@ TEST_F(PowerGovernorAgentTest, split_policy)
         check_result(expected[child], policy_out[child]);
     }
 }
+
+TEST_F(PowerGovernorAgentTest, enforce_static_policy)
+{
+    const double limit = 100;
+    const std::vector<double> policy{limit};
+    const std::vector<double> bad_policy{100, 200, 300};
+
+    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_BOARD, 0, limit));
+
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
+    m_agent->enforce_static_policy(policy);
+
+    EXPECT_THROW(m_agent->enforce_static_policy(bad_policy), geopm::Exception);
+}
