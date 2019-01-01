@@ -300,6 +300,15 @@ namespace geopm
     {
     }
 
+    void EnergyEfficientAgent::enforce_static_policy(const std::vector<double> &policy) const
+    {
+        if (policy.size() != M_NUM_POLICY) {
+            throw Exception("EnergyEfficientAgent::enforce_static_policy(): policy vector incorrectly sized.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        platform_io().write_control("FREQUENCY", GEOPM_DOMAIN_BOARD, 0, policy[M_POLICY_FREQ_MAX]);
+    }
+
     void EnergyEfficientAgent::init_platform_io(void)
     {
         m_freq_governor->init_platform_io();
