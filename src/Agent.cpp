@@ -42,6 +42,10 @@
 #include "PowerGovernorAgent.hpp"
 #include "EnergyEfficientAgent.hpp"
 #include "FrequencyMapAgent.hpp"
+#include "Environment.hpp"
+#include "ManagerIO.hpp"
+#include "SharedMemoryUser.hpp"
+#include "Helper.hpp"
 #include "config.h"
 
 namespace geopm
@@ -139,7 +143,7 @@ namespace geopm
     }
 
     std::map<std::string, std::string> Agent::make_dictionary(const std::vector<std::string> &policy_names,
-                                                               const std::vector<std::string> &sample_names)
+                                                              const std::vector<std::string> &sample_names)
     {
         std::map<std::string, std::string> result;
         for (size_t sample_idx = 0; sample_idx != sample_names.size(); ++sample_idx) {
@@ -374,7 +378,6 @@ int geopm_agent_name(int agent_idx,
     catch (...) {
         err = geopm::exception_handler(std::current_exception(), false);
     }
-
     return err;
 }
 
@@ -388,6 +391,24 @@ int geopm_agent_num_avail(int* num_agent)
     catch (...) {
         err = geopm::exception_handler(std::current_exception(), false);
     }
+    return err;
+}
 
+int geopm_agent_static_policy(void)
+{
+    int err = 0;
+    try {
+        std::vector<double> policy(
+            geopm::make_unique<geopm::ManagerIOSamplerImp>(
+                geopm::environment().policy(), true)->sample());
+        std::shared_ptr<geopm::Agent> agent(
+            geopm::agent_factory().make_plugin(
+                geopm::environment().agent()));
+        agent->validate_policy(policy);
+        agent->enforce_static_policy(policy);
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), false);
+    }
     return err;
 }
