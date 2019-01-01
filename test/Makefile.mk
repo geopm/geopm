@@ -80,15 +80,16 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/CpuinfoIOGroupTest.parse_sticker_without_at \
               test/gtest_links/CpuinfoIOGroupTest.plugin \
               test/gtest_links/CpuinfoIOGroupTest.valid_signals \
-              test/gtest_links/EnergyEfficientAgentTest.validate_policy_default \
-              test/gtest_links/EnergyEfficientAgentTest.validate_policy_clamp \
-              test/gtest_links/EnergyEfficientAgentTest.split_policy_unchanged \
-              test/gtest_links/EnergyEfficientAgentTest.split_policy_changed \
-              test/gtest_links/EnergyEfficientAgentTest.split_policy_errors \
               test/gtest_links/EnergyEfficientAgentTest.aggregate_sample \
               test/gtest_links/EnergyEfficientAgentTest.do_write_batch \
+              test/gtest_links/EnergyEfficientAgentTest.enforce_policy \
               test/gtest_links/EnergyEfficientAgentTest.sample_adjust_platform \
+              test/gtest_links/EnergyEfficientAgentTest.split_policy_changed \
+              test/gtest_links/EnergyEfficientAgentTest.split_policy_errors \
+              test/gtest_links/EnergyEfficientAgentTest.split_policy_unchanged \
               test/gtest_links/EnergyEfficientAgentTest.static_methods \
+              test/gtest_links/EnergyEfficientAgentTest.validate_policy_clamp \
+              test/gtest_links/EnergyEfficientAgentTest.validate_policy_default \
               test/gtest_links/EnergyEfficientRegionTest.after_too_many_increase_freq_stays_at_higher \
               test/gtest_links/EnergyEfficientRegionTest.freq_does_not_go_above_max \
               test/gtest_links/EnergyEfficientRegionTest.freq_does_not_go_below_min \
@@ -203,11 +204,13 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/PowerBalancerAgentTest.power_balancer_agent \
               test/gtest_links/PowerBalancerAgentTest.tree_agent \
               test/gtest_links/PowerBalancerAgentTest.tree_root_agent \
+              test/gtest_links/PowerBalancerAgentTest.enforce_policy \
               test/gtest_links/PowerBalancerTest.balance \
               test/gtest_links/PowerBalancerTest.is_runtime_stable \
               test/gtest_links/PowerBalancerTest.power_cap \
               test/gtest_links/PowerGovernorAgentTest.adjust_platform \
               test/gtest_links/PowerGovernorAgentTest.aggregate_sample \
+              test/gtest_links/PowerGovernorAgentTest.enforce_policy \
               test/gtest_links/PowerGovernorAgentTest.split_policy \
               test/gtest_links/PowerGovernorAgentTest.sample_platform \
               test/gtest_links/PowerGovernorAgentTest.wait \
