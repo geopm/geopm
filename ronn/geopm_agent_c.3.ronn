@@ -74,6 +74,9 @@ geopm_agent_c(3) -- query information about available agents
     `size_t` _agent_name_max_, <br>
     `char *`_agent_name_`);`
 
+  * `int geopm_agent_enforce_policy(`:
+    `void);`
+
 ## DESCRIPTION
 The _geopm_agent_c_ interface is used to query GEOPM about agents on a
 system and create static policies for those agents.  The interface
@@ -133,6 +136,16 @@ zero upon success; see [ERRORS][] section below for details.
     output string is specified in _agent_name_max_.  Returns zero if the
     _agent_idx_ is in range, and the agent name can be stored in the output
     string (_agent_name_).  Otherwise an error code is returned.
+
+  * `geopm_agent_enforce_policy`():
+    queries the environment for the `GEOPM_AGENT` and `GEOPM_POLICY`
+    and enforces the policy for the agent by writing controls to the
+    platform (see **geopm_pio_c(3)**).  A resource manager can use
+    this function to enforce the GEOPM configured policy (see
+    **geopm(7)**) prior to releasing compute nodes for a user
+    allocation.  More generally this function allows one-time use of
+    an Agent outside of the context of an MPI runtime or the use of a
+    GEOPM Controller.
 
 ## ERRORS
 All functions described on this man page return an error code.  See
