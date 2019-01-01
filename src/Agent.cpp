@@ -42,6 +42,12 @@
 #include "PowerGovernorAgent.hpp"
 #include "EnergyEfficientAgent.hpp"
 #include "FrequencyMapAgent.hpp"
+#include "Environment.hpp"
+#include "PlatformIO.hpp"
+#include "PlatformTopo.hpp"
+#include "ManagerIO.hpp"
+#include "SharedMemoryUser.hpp"
+#include "Helper.hpp"
 #include "config.h"
 
 namespace geopm
@@ -139,7 +145,7 @@ namespace geopm
     }
 
     std::map<std::string, std::string> Agent::make_dictionary(const std::vector<std::string> &policy_names,
-                                                               const std::vector<std::string> &sample_names)
+                                                              const std::vector<std::string> &sample_names)
     {
         std::map<std::string, std::string> result;
         for (size_t sample_idx = 0; sample_idx != sample_names.size(); ++sample_idx) {
@@ -374,7 +380,6 @@ int geopm_agent_name(int agent_idx,
     catch (...) {
         err = geopm::exception_handler(std::current_exception(), false);
     }
-
     return err;
 }
 
@@ -388,6 +393,37 @@ int geopm_agent_num_avail(int* num_agent)
     catch (...) {
         err = geopm::exception_handler(std::current_exception(), false);
     }
+    return err;
+}
 
+int geopm_agent_static_policy(void)
+{
+    int err = 0;
+    try {
+        const std::map<std::string, std::string> policy_control_map {
+            {"POWER_CAP", "POWER_LIMIT"},
+            {"POWER", "POWER_LIMIT"},
+            {"FREQ_MAX", "FREQUENCY"}
+        };
+        std::unique_ptr<geopm::ManagerIOSampler> mios(
+        geopm::make_unique<geopm::ManagerIOSamplerImp>(geopm::environment().policy(), true));
+        std::vector<double> policy(mios->sample());
+        std::vector<std::string> pname = geopm::Agent::policy_names(
+                                         geopm::agent_factory().dictionary(
+                                         geopm::environment().agent()));
+        int policy_idx = 0;
+        for (const auto &name : pname) {
+            auto it = policy_control_map.find(name);
+            if (it != policy_control_map.end()) {
+                geopm::platform_io().write_control(it->second,
+                                                   GEOPM_DOMAIN_BOARD, 0,
+                                                   policy.at(policy_idx));
+            }
+            ++policy_idx;
+        }
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), false);
+    }
     return err;
 }

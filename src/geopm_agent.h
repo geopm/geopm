@@ -171,6 +171,15 @@ int geopm_agent_name(int agent_idx,
                      size_t agent_name_max,
                      char *agent_name);
 
+/*!
+ *  @brief Enforce a static implementation of the agent's policy.  The
+ *         agent and the policy are chosen based on the GEOPM
+ *         environment variables and configuration files.
+ *
+ *  @return Zero on success, error code on failure.
+ */
+int geopm_agent_static_policy(void);
+
 #ifdef __cplusplus
 }
 #endif
