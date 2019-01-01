@@ -223,3 +223,16 @@ TEST_F(FrequencyMapAgentTest, hint)
         EXPECT_TRUE(m_agent->do_write_batch());
     }
 }
+
+TEST_F(FrequencyMapAgentTest, enforce_policy)
+{
+    const double limit = 1e9;
+    const std::vector<double> policy{0, limit};
+    const std::vector<double> bad_policy{100, 200, 300};
+
+    EXPECT_CALL(*m_platform_io, write_control("FREQUENCY", GEOPM_DOMAIN_BOARD, 0, limit));
+
+    m_agent->enforce_policy(policy);
+
+    EXPECT_THROW(m_agent->enforce_policy(bad_policy), geopm::Exception);
+}

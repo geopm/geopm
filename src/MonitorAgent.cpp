@@ -154,4 +154,9 @@ namespace geopm
     {
 
     }
+
+    void MonitorAgent::enforce_policy(const std::vector<double> &policy) const
+    {
+
+    }
 }

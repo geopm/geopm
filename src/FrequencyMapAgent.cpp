@@ -269,6 +269,15 @@ namespace geopm
     {
     }
 
+    void FrequencyMapAgent::enforce_policy(const std::vector<double> &policy) const
+    {
+        if (policy.size() != M_NUM_POLICY) {
+            throw Exception("FrequencyMapAgent::enforce_policy(): policy vector incorrectly sized.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        m_platform_io.write_control("FREQUENCY", GEOPM_DOMAIN_BOARD, 0, policy[M_POLICY_FREQ_MAX]);
+    }
+
     void FrequencyMapAgent::init_platform_io(void)
     {
         m_freq_governor->init_platform_io();

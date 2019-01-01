@@ -552,3 +552,18 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
     EXPECT_EQ(out_sample, exp_out_sample);
     }
 }
+
+TEST_F(PowerBalancerAgentTest, enforce_policy)
+{
+    const double limit = 100;
+    const std::vector<double> policy{limit, NAN, NAN, NAN};
+    const std::vector<double> bad_policy{100};
+
+    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_BOARD, 0, limit));
+
+    m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
+                                                     std::move(m_power_gov), std::move(m_power_bal));
+    m_agent->enforce_policy(policy);
+
+    EXPECT_THROW(m_agent->enforce_policy(bad_policy), geopm::Exception);
+}
