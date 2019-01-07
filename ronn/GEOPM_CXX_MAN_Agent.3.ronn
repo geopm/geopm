@@ -109,11 +109,13 @@ better rendering of this manual.
 
 ## DESCRIPTION
 The `Agent` class is an abstract pure virtual class that defines the
-fundamental procedures executed by the GEOPM runtime.  By default the
-**geopm::MonitorAgent(3)** is used, but other agents can be selected
-with the `--geopm-agent` command line option to the **geopm_launcher(1)**
-or `GEOPM_AGENT` environment variable.  Exactly one agent type is
-used during each execution of the GEOPM runtime.
+fundamental procedures executed by the GEOPM runtime.  In general, the
+Agent is responsible for making decisions about how and what control the
+runtime should exert based on readings of system values.  By default
+the **geopm::MonitorAgent(3)** is used, but other agents can be
+selected with the `--geopm-agent` command line option to the
+**geopm_launcher(1)** or `GEOPM_AGENT` environment variable.  Exactly
+one agent type is used during each execution of the GEOPM runtime.
 
 The **geopm::PluginFactory(3)** man page gives a general overview of
 concepts related to extending GEOPM through plugins.  Please refer to
