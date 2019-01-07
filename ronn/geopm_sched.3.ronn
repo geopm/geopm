@@ -42,20 +42,32 @@ geopm_sched.h(3) -- interface with Linux scheduler
   * `int geopm_sched_get_cpu(`:
     `void);`
 
+  * `int geopm_sched_proc_cpuset(`:
+    `int` _num_cpu_, <br>
+    `cpu_set_t *`_proc_cpuset_`);`
+
   * `int geopm_sched_woomp(`:
     `int` _num_cpu_, <br>
     `cpu_set_t *`_woomp_`);`
 
+  * `int geopm_sched_popen(`:
+    `const char *`_cmd_, <br>
+    `FILE **`_woomp_`);`
+
 ## DESCRIPTION
 The _geopm_sched.h_ header defines GEOPM interfaces for interacting with
-the linux scheduler.  This set of interfaces may grow in
-the future.
+the linux scheduler.
 
   * `geopm_sched_num_cpu`():
     Returns the number of online logical CPUs on the system.
 
   * `geopm_sched_get_cpu`():
     Returns the logical CPU index that the calling thread is executing on.
+
+  * `geopm_sched_proc_cpuset`():
+    Gets the the bit masks for the first _num_cpu_ logical CPUs copied to
+    _proc_cpuset_.
+
 
   * `geopm_sched_woomp`():
     Sets the **CPU_SET(3)** given by _woomp_ such that it includes all
@@ -74,6 +86,10 @@ the future.
     in terms of number of CPUs.  If an error occurs a non-zero error
     number is returned. See **geopm_error(3)** for a full description
     of the error numbers and how to convert them to strings.
+
+  * `geopm_sched_popen`():
+    Makes call to **popen(3)** forwarding input _cmd_ and if successful
+    returns a standard I/O stream for the spawned process.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
