@@ -60,7 +60,7 @@ ronn/GEOPM_CXX_MAN_ProfileIOSample.3.ronn
 ronn/GEOPM_CXX_MAN_RegionAggregator.3.ronn
 ronn/GEOPM_CXX_MAN_SharedMemory.3.ronn
 ronn/GEOPM_CXX_MAN_TimeIOGroup.3.ronn
-ronn/geopm.7.ronn
+ronn/geopm.7.ronn.in
 ronn/geopm_agent_c.3.ronn
 ronn/geopm_agent_energy_efficient.7.ronn
 ronn/geopm_agent_monitor.7.ronn
