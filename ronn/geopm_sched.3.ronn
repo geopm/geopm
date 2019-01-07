@@ -42,20 +42,36 @@ geopm_sched.h(3) -- interface with Linux scheduler
   * `int geopm_sched_get_cpu(`:
     `void);`
 
+  * `int geopm_sched_proc_cpuset(`:
+    `int` _num_cpu_, <br>
+    `cpu_set_t *`_proc_cpuset_`);`
+
   * `int geopm_sched_woomp(`:
     `int` _num_cpu_, <br>
     `cpu_set_t *`_woomp_`);`
 
+  * `int geopm_sched_popen(`:
+    `const char *`_cmd_, <br>
+    `FILE **`_fid_`);`
+
 ## DESCRIPTION
 The _geopm_sched.h_ header defines GEOPM interfaces for interacting with
-the linux scheduler.  This set of interfaces may grow in
-the future.
+the linux scheduler.
 
   * `geopm_sched_num_cpu`():
-    Returns the number of online logical CPUs on the system.
+    Returns the number of online Linux logical CPUs on the system.
 
   * `geopm_sched_get_cpu`():
-    Returns the logical CPU index that the calling thread is executing on.
+    Returns the Linux logical CPU index that the calling thread is executing on.
+
+  * `geopm_sched_proc_cpuset`():
+    Provides a **CPU_SET(3)** bit mask identifying the Linux logical CPUs on
+    which the calling process is allowed to run. The user must allocate the bit
+    arrary _proc_cpu_set_ prior to calling this function, and the number of bits
+    allocated is given by the _num_cpu_ parameter. All of the bits in _proc_cpu_set_
+    will be zeroed except for the offsets corresponding to CPUs that the process has
+    access to which will be set to one. Returns zero on success and an error
+    code on failure.
 
   * `geopm_sched_woomp`():
     Sets the **CPU_SET(3)** given by _woomp_ such that it includes all
@@ -75,6 +91,17 @@ the future.
     number is returned. See **geopm_error(3)** for a full description
     of the error numbers and how to convert them to strings.
 
+  * `geopm_sched_popen`():
+    Enables calls to **popen(3)** within a process that is running the GEOPM
+    Controller without triggering GEOPM's signal handling when the subprocess
+    completes. This may be useful for built-in and plugin-loaded actors of the
+    GEOPM runtime.  Unlike **popen(3)**, this function blocks until the opened process
+    has completed, and it also suppresses the SIGCHILD signal which is raised
+    when the opened process completes. The _cmd_ is the shell command that is
+    executed, and the _fid_ is a file descriptor that provides the standard output
+    from the opened process. Returns zero upon success and an error code on failure.
+    Note that this will not work with MPICH and possibly other implementations of MPI.
+
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
@@ -83,6 +110,7 @@ Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
 **CPU_SET(3)**,
+**popen(3)**,
 **pthread_setaffinity_np(3)**,
 **pthread_attr_setaffinity_np(3)**,
 **sched_getaffinity(2)**,
