@@ -57,15 +57,15 @@ extracting specific data.  See the in-file docstrings for more info.
   * `Source Builds`:
   Building GEOPM with the build instructions posted on the GitHub site will put
   the Python scripts in either the system path for Python, or in a subdirectory
-  of the "--prefix" path.  See the [ENVIRONMENT][] section for more information on
+  of the "--prefix" path.  See the [ENVIRONMENT] section for more information on
   how to setup this configuration.
 
   * `Via PyPI`:
-    The geopmpy package can be installed via pip from PyPI with:
+  The geopmpy package can be installed via pip from PyPI with:
 
-      sudo pip install geopmpy<br><br>
+      sudo pip install geopmpy
 
-      OR for an individual user install (not system wide)<br><br>
+   OR for an individual user install (not system wide):
 
       pip install --user geopmpy
 
