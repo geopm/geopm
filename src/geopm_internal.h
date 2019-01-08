@@ -41,9 +41,13 @@
 extern "C" {
 #endif
 
-// Region id enums go from bit 63 and work their way down.
-// Hint enums in geopm.h go from bit 32 and work their way up.
-// There is a possibility of a conflict sometime in the future if they overlap.
+/// Helper that creates the DefaultProfile signleton (if not already created)
+/// and catches all exceptions.
+int geopm_prof_init(void);
+
+/// Region id enums go from bit 63 and work their way down.
+/// Hint enums in geopm.h go from bit 32 and work their way up.
+/// There is a possibility of a conflict sometime in the future if they overlap.
 enum geopm_region_id_e {
     GEOPM_REGION_ID_EPOCH =        1ULL << 63, // Signaling the start of an epoch, no associated Region
     GEOPM_REGION_ID_MPI =          1ULL << 62, // Execution of MPI calls
