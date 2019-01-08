@@ -1,5 +1,5 @@
 geopm_region_id_c(3) -- application profiling insight interfaces
-===================================================
+================================================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
 [//]: # ()
@@ -61,22 +61,22 @@ to the region being executed by a particular rank as served by the PlatformIO
 **geopm(7)**.
 
   * `geopm_region_id_is_mpi`():
-    Returns 1 if __region_id__ is currently executing an MPI operation,
+    Returns 1 if _region_id_ is currently executing an MPI operation,
     otherwise returns 0.
 
   * `geopm_region_id_is_unmarked`():
-    Returns 1 if __region_id__ is currently executing unmarked code,
+    Returns 1 if _region_id_ is currently executing unmarked code,
     otherwise returns 0.
 
   * `geopm_region_id_hint_is_equal`():
-    Returns 1 if __region_id__ is associated with __hint_type__,
+    Returns 1 if _region_id_ is associated with _hint_type_,
     otherwise returns 0.
 
   * `geopm_region_id_hint`():
-    Returns hint type that is associated with __region_id__.
+    Returns hint type that is associated with _region_id_.
 
   * `geopm_region_id_hash`():
-    Returns __region_id__ dissociated from hints.
+    Returns _region_id_ dissociated from hints.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
