@@ -41,9 +41,8 @@ The GEOPM launcher enables users to launch the GEOPM runtime with a
 simple command line interface extension to the resource manager's
 underlying job launch mechanism deployed on their system.  The
 currently supported job launch mechanisms are `srun` from the SLURM
-package and `aprun` from the ALPS package.  The GEOPM package installs
-the `geopmlaunch` executable which runs the
-geopmpy.launcher.main() method in the geopmpy python package.  This
+package, `aprun` from the ALPS package, and `impi` from the Intel (R) package.
+The GEOPM Python package `geopmpy` installs the `geopmlaunch` executable.  This
 interface extends the resource manager's job launch application with
 GEOPM-specific flags.  All application launch options accepted by the
 underlying launch application (e.g. `srun` or `aprun`) can be passed
@@ -70,29 +69,25 @@ the first `--` from the command line.
   selected by name; available launcher classes are "SrunLauncher"
   (SLURM), "AlpsLauncher" (ALPS), "IMPIExecLauncher" (IMPI), or
   "SrunTOSSLauncher" (specialization of SLURM for the tri-lab
-  operating system stack).  This command line option overrides other
-  methods of determining the resource manager / launcher.  This option is
-  used by the launcher to set the GEOPM_RM environment variable.  The
-  command line argument will override any value currently set in the environment.
-  See the ENVIRONMENT section of **geopm(7)**.
+  operating system stack).
 
 ## OPTIONS
 * `--geopm-ctl` _process_|_pthread_|_application_:
   Use GEOPM runtime and launch GEOPM with one of three methods:
   _process_, _pthread_ or _application_.  The _process_ method
-  allocates one extra MPI process per node for the GEOPM controller.
+  allocates one extra MPI process per node for the GEOPM Controller.
   The _pthread_ method spawns a thread from one MPI process per node
-  to run the GEOPM controller.  The _application_ method launches the
+  to run the GEOPM Controller.  The _application_ method launches the
   **geopmctl(1)** application in the background which connects to the
   primary compute application.  The _process_ method can be used in
   the widest variety of cases, but some systems require that each MPI
   process be assigned the same number of CPUs which may waste
-  resources by assigning more than one CPU to the GEOPM controller
+  resources by assigning more than one CPU to the GEOPM Controller
   process.  The _pthread_ option requires support for
   MPI_THREAD_MULTIPLE which is not enabled at many sites and on some
   systems affinitizing one extra CPU to the MPI process that threads
-  out the controller may be not be possible resulting in running the
-  GEOPM controller on the same CPU as the main compute application.
+  out the Controller may be not be possible resulting in running the
+  GEOPM Controller on the same CPU as the main compute application.
   The _application_ method of launch is not compatible with `aprun`;
   with `srun`, the call must be made inside of an existing
   allocation made with salloc or sbatch and the command must request
@@ -115,7 +110,6 @@ the first `--` from the command line.
   **geopm(7)**.
 
 * `--geopm-endpoint` endpoint:
-
   Basename for the policy and sample shared memory regions used to
   communicate with the resource manager.  This allows the resource
   manager to dynamically control GEOPM plugins and collect feedback at
@@ -136,7 +130,7 @@ the first `--` from the command line.
 
 * `--geopm-timeout` sec:
   Time in seconds that the application should wait for the GEOPM
-  controller to connect over shared memory.  The default value is 30
+  Controller to connect over shared memory.  The default value is 30
   seconds.  This option is used by the launcher to set the
   GEOPM_PROFILE_TIMEOUT environment variable.  The command line option
   will override any value currently set in the environment.  See the
@@ -147,7 +141,7 @@ the first `--` from the command line.
   information collected by GEOPM.  This file is generated at the
   conclusion of the run if this option is given and will be written to
   the file system path specified or current directory if only a file
-  name is given.  The report is a single file contains information
+  name is given.  The report is a single file that contains information
   about runtimes, MPI usage, and power consumption for each node.  The
   report is broken down by region if the application has been
   annotated with the GEOPM region interface.  Note that the sampled
@@ -232,17 +226,16 @@ the first `--` from the command line.
 * `--geopm-region-barrier`:
   Enables a node local MPI_Barrier() at time of calling
   `geopm_region_enter`() or `geopm_region_exit`() for all application
-  ranks that share a node.  Since the GEOPM controller only considers
+  ranks that share a node.  Since the GEOPM Controller only considers
   a region to be entered when all ranks on a node have entered the
-  region, enabling this feature forces control throughout all of the
-  time every rank spends in a region.  This feature is primarily used
-  for debugging purposes.  WARNING: If all regions marked in the
-  application are not entered synchronously by all ranks on a node
-  then enabling this feature will cause a deadlock and the application
-  will hang.  This option is used by the launcher to set the
-  GEOPM_REGION_BARRIER environment variable.  The command line option
-  will override any value currently set in the environment.  See the
-  ENVIRONMENT section of **geopm(7)**.
+  region, enabling this feature forces node-local rank synchronization.
+  This feature is primarily used for debugging purposes.
+  WARNING: If all regions marked in the application are not entered
+  synchronously by all ranks on a node then enabling this feature will
+  cause a deadlock and the application will hang.  This option is used
+  by the launcher to set the GEOPM_REGION_BARRIER environment variable.
+  The command line option will override any value currently set in
+  the environment.  See the ENVIRONMENT section of **geopm(7)**.
 
 * `--geopm-preload`:
   Use LD_PRELOAD to link libgeopm.so at runtime.  This can be used to
@@ -252,7 +245,7 @@ the first `--` from the command line.
 * `--geopm-disable-hyperthreads`:
   Prevent the launcher from trying to use hyperthreads for pinning
   purposes when attempting to satisfy the MPI ranks / OMP threads
-  configuration specified.  This is done for both the controller and
+  configuration specified.  This is done for both the Controller and
   the application.  An error is raised if the launcher cannot satisfy
   the current request without hyperthreads.
 
@@ -283,11 +276,11 @@ all uppercase.  The command line options take precedence over the
 environment variables.
 
 The usage of `--geopm-ctl` here is slightly different than how the
-controller handles the `GEOPM_CTL` environment variable.  In the
+Controller handles the `GEOPM_CTL` environment variable.  In the
 case of the launcher, one can specify _process_, _pthread_, or
 _application_ to the command line argument.  In the case of
 `GEOPM_CTL` one can ONLY specify `process` or `pthread`, as
-launching the controller as a separate application is handled through
+launching the Controller as a separate application is handled through
 the `geopmctl` binary.
 
 ## COPYRIGHT
