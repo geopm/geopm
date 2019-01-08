@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f4aeb17_078f887a",
+        "filename": "ronn/geopm_sched.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-08T00:07:46Z",
+      "side": 1,
+      "message": "_fid_",
+      "range": {
+        "startLine": 55,
+        "startChar": 13,
+        "endLine": 55,
+        "endChar": 20
+      },
+      "revId": "fdbb020bdb2af19e8df15abc415bc9c026842009",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e472234_4943012b",
+        "filename": "ronn/geopm_sched.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-08T00:07:46Z",
+      "side": 1,
+      "message": "Provides a **CPU_SET(3)** bit mask identifying the Linux logical CPUs on which the calling process is allowed to run.  The user must allocate the bit arrary _proc_cpu_set_ prior to calling this function, and the number of bits allocated is given by the _num_cpu_ parameter.  All of the bits in _proc_cpu_set_ will be zeroed except for the offsets corresponding to CPUs that the process has access to which will be set to one.  Returns zero on success and an error code on failure.",
+      "range": {
+        "startLine": 68,
+        "startChar": 4,
+        "endLine": 69,
+        "endChar": 16
+      },
+      "revId": "fdbb020bdb2af19e8df15abc415bc9c026842009",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6cc1f6c3_5d65c7eb",
+        "filename": "ronn/geopm_sched.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-08T00:07:46Z",
+      "side": 1,
+      "message": "Enables calls to popen(3) within a process that is running the GEOPM controller without triggering GEOPM\u0027s signal handling when the subprocess completes.  Unlike popen(3), this function blocks until the opened process has completed, and it also suppresses the SIGCHILD signal which is raised when the opened process completes.  The _cmd_ is the shell command that is executed, and the _fid_ is a file descriptor that provides the standard output from the opened process.  Returns zero upon success and an error code on failure.",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 92,
+        "endChar": 58
+      },
+      "revId": "fdbb020bdb2af19e8df15abc415bc9c026842009",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
