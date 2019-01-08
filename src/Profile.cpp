@@ -58,6 +58,7 @@
 #include "Profile.hpp"
 #include "ProfileTable.hpp"
 #include "ProfileThread.hpp"
+#include "PluginFactory.hpp"
 #include "SampleScheduler.hpp"
 #include "ControlMessage.hpp"
 #include "SharedMemory.hpp"
@@ -136,7 +137,7 @@ namespace geopm
         struct geopm_time_s overhead_entry;
         geopm_time(&overhead_entry);
         if (m_reduce_comm == nullptr) {
-            m_reduce_comm = geopm::comm_factory().make_plugin(geopm_env_comm());
+            m_reduce_comm = comm_factory().make_plugin(geopm_env_comm());
         }
 #endif
         std::string sample_key(key_base + "-sample");
