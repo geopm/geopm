@@ -47,6 +47,7 @@ extern const char *program_invocation_name;
 extern "C"
 {
     void geopm_env_load(void);
+    int geopm_parse_plugin_path(const char *plugin_path_str, char ***paths, int *num_path);
 }
 
 class EnvironmentTest: public :: testing :: Test
@@ -192,4 +193,39 @@ TEST_F(EnvironmentTest, invalid_ctl)
     setenv("GEOPM_CTL", "program", 1);
 
     EXPECT_THROW(geopm_env_load(), geopm::Exception);
+}
+
+TEST_F(EnvironmentTest, parse_plugin_path)
+{
+    char **paths = NULL;
+    int num_path = 0;
+    char *default_path = GEOPM_DEFAULT_PLUGIN_PATH;
+    int err = 0;
+
+    // "" --> {default_path}
+    err = geopm_parse_plugin_path("", &paths, &num_path);
+    ASSERT_EQ(0, err);
+    ASSERT_EQ(1, num_path);
+    EXPECT_STREQ(default_path, paths[0]);
+    free(paths);
+
+    // "path/one" --> {default_path, "path/one"}
+    err = geopm_parse_plugin_path("path/one", &paths, &num_path);
+    ASSERT_EQ(0, err);
+    ASSERT_EQ(2, num_path);
+    EXPECT_STREQ(default_path, paths[0]);
+    EXPECT_STREQ("path/one", paths[1]);
+    free(paths[1]);
+    free(paths);
+
+    // "path/one:path/two" --> {default_path, "path/two", "path/one"}
+    err = geopm_parse_plugin_path("path/one:path/two", &paths, &num_path);
+    ASSERT_EQ(0, err);
+    ASSERT_EQ(3, num_path);
+    EXPECT_STREQ(default_path, paths[0]);
+    EXPECT_STREQ("path/two", paths[1]);
+    EXPECT_STREQ("path/one", paths[2]);
+    free(paths[1]);
+    free(paths[2]);
+    free(paths);
 }

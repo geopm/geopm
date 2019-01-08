@@ -404,4 +404,45 @@ extern "C"
     {
         return geopm::environment().debug_attach();
     }
+
+    int geopm_parse_plugin_path(const char *plugin_path_str, char ***paths, int *num_path)
+    {
+        // Plugin load order is default first, followed by user plugin path from right to left
+        // This means that plugins in left-most side of plugin path have highest priority
+        // for overloading signal and control names.
+        int err = 0;
+        char path_env[NAME_MAX] = {0};
+        *num_path = 1;
+        // count paths in list and replace : with null terminator
+        if (strlen(plugin_path_str)) {
+            ++(*num_path);
+            strncpy(path_env, plugin_path_str, NAME_MAX - 1);
+            char *path_ptr = path_env;
+            while ((path_ptr = strchr(path_ptr, ':'))) {
+                *path_ptr = '\0';
+                ++(*num_path);
+                ++path_ptr;
+            }
+        }
+        // copy individual paths out of path_env buffer
+        *paths = (char**)calloc(*num_path + 1, sizeof(char *));
+        if (!*paths) {
+            err = ENOMEM;
+#ifdef GEOPM_DEBUG
+            fprintf(stderr, "Warning: failed to calloc paths.\n");
+#endif
+        }
+        if (!err) {
+            (*paths)[0] = GEOPM_DEFAULT_PLUGIN_PATH;
+            char *path_ptr = path_env;
+            int len = strlen(path_ptr);
+            for (int i = 1; i < (*num_path); ++i) {
+                (*paths)[(*num_path) - i] = (char*)malloc(len + 1);
+                strncpy((*paths)[(*num_path) - i], path_ptr, len + 1);
+                path_ptr += len + 1;
+                len = strlen(path_ptr);
+            }
+        }
+        return err;
+    }
 }

@@ -94,6 +94,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/EnvironmentTest.construction0 \
               test/gtest_links/EnvironmentTest.construction1 \
               test/gtest_links/EnvironmentTest.invalid_ctl \
+              test/gtest_links/EnvironmentTest.parse_plugin_path \
               test/gtest_links/EpochRuntimeRegulatorTest.all_ranks_enter_exit \
               test/gtest_links/EpochRuntimeRegulatorTest.epoch_runtime \
               test/gtest_links/EpochRuntimeRegulatorTest.invalid_ranks \

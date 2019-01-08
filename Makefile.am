@@ -32,7 +32,7 @@
 # GLOBAL SETTINGS
 ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS += -I$(top_srcdir)/src \
-               -DGEOPM_PLUGIN_PATH=\"$(pkglibdir)\" \
+               -DGEOPM_DEFAULT_PLUGIN_PATH=\"$(pkglibdir)\" \
                -D_POSIX_C_SOURCE=200809L \
                -DOMPI_SKIP_MPICXX
 

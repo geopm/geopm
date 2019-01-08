@@ -68,48 +68,25 @@ static int geopm_name_ends_with(char *str, char *key)
     return result;
 }
 
+// defined in Environment.cpp for testing
+int geopm_parse_plugin_path(const char *plugin_path_str, char ***paths, int *num_path);
+
 static void __attribute__((constructor)) libgeopm_load(void)
 {
     int err = 0;
     int fts_options = FTS_COMFOLLOW | FTS_NOCHDIR;
     FTS *p_fts;
     FTSENT *file;
-    int num_path = 1;
+    int num_path = 0;
     char **paths = NULL;
-    char *default_path = GEOPM_PLUGIN_PATH;
-    char path_env[NAME_MAX] = {0};
     char so_suffix[NAME_MAX] = ".so." GEOPM_ABI_VERSION;
     char *colon_ptr = strchr(so_suffix, ':');
     while (colon_ptr) {
         *colon_ptr = '.';
         colon_ptr = strchr(colon_ptr, ':');
     }
-
-    if (strlen(geopm_env_plugin_path())) {
-        ++num_path;
-        strncpy(path_env, geopm_env_plugin_path(), NAME_MAX - 1);
-        char *path_ptr = path_env;
-        while ((path_ptr = strchr(path_ptr, ':'))) {
-            *path_ptr = '\0';
-            ++num_path;
-            ++path_ptr;
-        }
-    }
-    paths = calloc(num_path + 1, sizeof(char *));
-    if (!paths) {
-        err = ENOMEM;
-#ifdef GEOPM_DEBUG
-        fprintf(stderr, "Warning: failed to calloc paths.\n");
-#endif
-    }
+    err = geopm_parse_plugin_path(geopm_env_plugin_path(), &paths, &num_path);
     if (!err) {
-        paths[0] = default_path;
-        char *path_ptr = path_env;
-        for (int i = 1; i < num_path; ++i) {
-            paths[num_path - i] = path_ptr;
-            path_ptr += strlen(path_ptr) + 1;
-        }
-
         if ((p_fts = fts_open(paths, fts_options, NULL)) != NULL) {
             while ((file = fts_read(p_fts)) != NULL) {
                 // Plugin file names must begin with any of:
@@ -136,6 +113,9 @@ static void __attribute__((constructor)) libgeopm_load(void)
                 }
             }
             fts_close(p_fts);
+        }
+        for (int i = 1; i < num_path; ++i) {
+            free(paths[i]);
         }
         free(paths);
     }
