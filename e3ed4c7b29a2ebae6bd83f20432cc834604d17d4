@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f106fb73_65e3bf9c",
+        "filename": "ronn/geopm_sched.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-01-08T19:39:07Z",
+      "side": 1,
+      "message": "Note that this will not work with MPICH implementation of MPI.",
+      "range": {
+        "startLine": 102,
+        "startChar": 23,
+        "endLine": 102,
+        "endChar": 37
+      },
+      "revId": "e3ed4c7b29a2ebae6bd83f20432cc834604d17d4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
