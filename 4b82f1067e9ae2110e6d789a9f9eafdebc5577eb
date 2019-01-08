@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8b0bcd7_7d293fe3",
+        "filename": "src/geopm_internal.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-01-08T19:30:14Z",
+      "side": 1,
+      "message": "move to just north of the function def\u0027s below.",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 0
+      },
+      "revId": "4b82f1067e9ae2110e6d789a9f9eafdebc5577eb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
