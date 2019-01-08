@@ -92,6 +92,7 @@
 /ronn/*.3
 /ronn/*.7
 /ronn/*.html
+/ronn/geopm.7.ronn
 /ruby/
 /scripts/AUTHORS
 /scripts/COPYING
