@@ -64,6 +64,7 @@ def compare_dataframe(test, expected_df, result):
         pandas.testing.assert_frame_equal(expected_df, result)
 
 
-class MockAppOutput(geopmpy.io.AppOutput):
-    def __init__(self, report_df):
-        self._reports_df = report_df
+if not g_skip_analysis_test:
+    class MockAppOutput(geopmpy.io.AppOutput):
+        def __init__(self, report_df):
+            self._reports_df = report_df
