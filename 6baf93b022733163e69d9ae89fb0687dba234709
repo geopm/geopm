@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3d6e6d7_177c0106",
+        "filename": "ronn/geopmpy.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-01-08T19:32:23Z",
+      "side": 1,
+      "message": "fix your damn io and test.",
+      "range": {
+        "startLine": 60,
+        "startChar": 2,
+        "endLine": 68,
+        "endChar": 55
+      },
+      "revId": "6baf93b022733163e69d9ae89fb0687dba234709",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
