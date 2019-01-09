@@ -116,12 +116,7 @@ static inline uint64_t geopm_region_id_unset_hint(uint64_t hint_type, uint64_t r
 
 static inline uint64_t geopm_region_id_unset_private(uint64_t region_id)
 {
- /*  In the future (post v1.0.0-rc1) both GEOPM_REGION_ID_MPI and GEOPM_REGION_ID_UNMARKED
-  *  will be masked out.  Example Agents (EE) are using this information
-  *  presently but we plan to provide PlatformIO signals to access this information
-  *  explicitly.
-  */
-    return (region_id & (~(GEOPM_REGION_ID_EPOCH)));
+    return (region_id & (~(GEOPM_REGION_ID_EPOCH | GEOPM_REGION_ID_MPI | GEOPM_REGION_ID_UNMARKED)));
 }
 
 #ifdef __cplusplus

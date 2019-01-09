@@ -60,6 +60,10 @@ namespace geopm
             ///        which is the region of the rank running on that
             ///        CPU.
             virtual std::vector<uint64_t> per_cpu_region_id(void) const = 0;
+            /// @brief Return the hint of the region that each CPU is running,
+            ///        which is the region of the rank running on that
+            ///        CPU.
+            virtual std::vector<uint64_t> per_cpu_region_hint(void) const = 0;
             /// @brief Return the current progress through the region
             ///        on each CPU.
             /// @param [in] extrapolation_time The timestamp to use to
@@ -88,6 +92,7 @@ namespace geopm
                         std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end) override;
             void update_thread(const std::vector<double> &thread_progress) override;
             std::vector<uint64_t> per_cpu_region_id(void) const override;
+            std::vector<uint64_t> per_cpu_region_hint(void) const override;
             std::vector<double> per_cpu_progress(const struct geopm_time_s &extrapolation_time) const override;
             std::vector<double> per_cpu_thread_progress(void) const override;
             std::vector<double> per_cpu_runtime(uint64_t region_id) const override;

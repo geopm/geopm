@@ -78,6 +78,7 @@ namespace geopm
         private:
             enum m_signal_type {
                 M_SIGNAL_REGION_ID,
+                M_SIGNAL_REGION_HINT,
                 M_SIGNAL_PROGRESS,
                 M_SIGNAL_EPOCH_RUNTIME,
                 M_SIGNAL_EPOCH_COUNT,
@@ -103,6 +104,7 @@ namespace geopm
             bool m_is_batch_read = false;
             std::vector<struct m_signal_config> m_active_signal;
             std::vector<uint64_t> m_per_cpu_region_id;
+            std::vector<uint64_t> m_per_cpu_region_hint;
             std::vector<double> m_per_cpu_progress;
             std::vector<double> m_per_cpu_runtime;
             std::vector<double> m_thread_progress;
