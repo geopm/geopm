@@ -35,13 +35,66 @@ geopm::CircularBuffer(3) -- generic circular buffer
 
 **\#include [<geopm/CircularBuffer.hpp>](https://github.com/geopm/geopm/blob/dev/src/CircularBuffer.hpp)**
 
-## DESCRIPTION
+  * `void set_capacity(`:
+    `const unsigned int` _size_`);`
 
-For more details, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_circular_buffer.html>.
+  * `void clear(`:
+    `void);`
+
+  * `int size(`:
+    `void) const;`
+
+  * `int capacity(`:
+    `void) const;`
+
+  * `void insert(`:
+    `const T` _value_`);`
+
+  * `const T& value(`
+    `const unsigned int` _index_`) const;`
+
+  * `std::vector<T> make_vector(`:
+    `void) const;`
+
+## DESCRIPTION
+The CircularBuffer container implements a fixed-size buffer. Once at
+capacity, any new insertions cause the oldest entry to be dropped.
+
+  * `set_capacity`():
+  Resets the capacity of the circular buffer to _size_ without
+  modifying its current contents.
+
+  * `clear`():
+  Clears all entries from the buffer.  The size becomes 0, but the
+  capacity is unchanged.
+
+  * `size`():
+  Returns the number of items in the buffer.  This value will be less
+  than or equal to the current capacity of the buffer.
+
+  * `capacity`():
+  Returns the current size of the circular buffer at the time of the
+  call.
+
+  * `insert`():
+  Inserts _value_ into the buffer.  If the buffer is not full, the new
+  value is simply added to the buffer. It the buffer is at capacity,
+  The head of the buffer is dropped and moved to the next oldest entry
+  and the new value is then inserted at the end of the buffer.
+
+  * `value`():
+  Accesses the contents of the circular buffer at _index_. Valid
+  indices range from 0 to [size-1], where size is the number of valid
+  entries in the buffer.  An attempt to retrieve a value for an out of
+  bound index will throw a **geopm::Exception(3)** with an
+  error_value() of GEOPM_ERROR_INVALID.
+
+  * `make_vector`():
+  Create a vector from the circular buffer contents.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
-**geopm(7)**
+**geopm(7)**,
+**geopm::Exception(3)**
