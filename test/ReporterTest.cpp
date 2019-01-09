@@ -97,53 +97,53 @@ class ReporterTest : public testing::Test
         std::string m_profile_name = "my profile";
         std::set<std::string> m_region_set = {"all2all", "model-init"};
         std::map<uint64_t, double> m_region_runtime = {
-            {geopm_crc32_str(0, "all2all"), 33.33},
-            {geopm_crc32_str(0, "model-init"), 22.11},
+            {geopm_crc32_str("all2all"), 33.33},
+            {geopm_crc32_str("model-init"), 22.11},
             {GEOPM_REGION_ID_UNMARKED, 12.13}
         };
         std::map<uint64_t, double> m_region_mpi_time = {
-            {geopm_crc32_str(0, "all2all"), 3.4},
-            {geopm_crc32_str(0, "model-init"), 5.6},
+            {geopm_crc32_str("all2all"), 3.4},
+            {geopm_crc32_str("model-init"), 5.6},
             {GEOPM_REGION_ID_UNMARKED, 1.2},
             {GEOPM_REGION_ID_EPOCH, 4.2}
         };
         std::map<uint64_t, double> m_region_count = {
-            {geopm_crc32_str(0, "all2all"), 20},
-            {geopm_crc32_str(0, "model-init"), 1},
+            {geopm_crc32_str("all2all"), 20},
+            {geopm_crc32_str("model-init"), 1},
             {GEOPM_REGION_ID_EPOCH, 0}
         };
         std::map<uint64_t, double> m_region_rt = {
-            {geopm_crc32_str(0, "all2all"), 555},
-            {geopm_crc32_str(0, "model-init"), 333},
+            {geopm_crc32_str("all2all"), 555},
+            {geopm_crc32_str("model-init"), 333},
             {GEOPM_REGION_ID_UNMARKED, 444},
             {GEOPM_REGION_ID_EPOCH, 666}
         };
         std::map<uint64_t, double> m_region_energy = {
-            {geopm_crc32_str(0, "all2all"), 777},
-            {geopm_crc32_str(0, "model-init"), 888},
+            {geopm_crc32_str("all2all"), 777},
+            {geopm_crc32_str("model-init"), 888},
             {GEOPM_REGION_ID_UNMARKED, 222},
             {GEOPM_REGION_ID_EPOCH, 334}
         };
         std::map<uint64_t, double> m_region_clk_core = {
-            {geopm_crc32_str(0, "all2all"), 4545},
-            {geopm_crc32_str(0, "model-init"), 5656},
+            {geopm_crc32_str("all2all"), 4545},
+            {geopm_crc32_str("model-init"), 5656},
             {GEOPM_REGION_ID_UNMARKED, 3434},
             {GEOPM_REGION_ID_EPOCH, 7878}
         };
         std::map<uint64_t, double> m_region_clk_ref = {
-            {geopm_crc32_str(0, "all2all"), 5555},
-            {geopm_crc32_str(0, "model-init"), 6666},
+            {geopm_crc32_str("all2all"), 5555},
+            {geopm_crc32_str("model-init"), 6666},
             {GEOPM_REGION_ID_UNMARKED, 4444},
             {GEOPM_REGION_ID_EPOCH, 8888}
         };
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > m_region_agent_detail = {
-            {geopm_crc32_str(0, "all2all"), {{"agent stat", "1"}, {"agent other stat", "2"}}},
-            {geopm_crc32_str(0, "model-init"), {{"agent stat", "2"}}},
+            {geopm_crc32_str("all2all"), {{"agent stat", "1"}, {"agent other stat", "2"}}},
+            {geopm_crc32_str("model-init"), {{"agent stat", "2"}}},
             {GEOPM_REGION_ID_UNMARKED, {{"agent stat", "3"}}},
             {GEOPM_REGION_ID_EPOCH, {{"agent stat", "4"}}},
             // hints should be ignored by reporter
-            {geopm_crc32_str(0, "all2all") | GEOPM_REGION_ID_MPI, {{"agent new stat", "5"}}},
-            {geopm_crc32_str(0, "model-init") | GEOPM_REGION_HINT_IGNORE, {{"agent new stat", "6"}}},
+            {geopm_crc32_str("all2all") | GEOPM_REGION_ID_MPI, {{"agent new stat", "5"}}},
+            {geopm_crc32_str("model-init") | GEOPM_REGION_HINT_IGNORE, {{"agent new stat", "6"}}},
 
         };
 };

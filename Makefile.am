@@ -70,6 +70,7 @@ include_HEADERS = src/geopm.h \
                   src/geopm_ctl.h \
                   src/geopm_endpoint.h \
                   src/geopm_error.h \
+                  src/geopm_hash.h \
                   src/geopm_imbalancer.h \
                   src/geopm_region_id.h \
                   src/geopm_sched.h \
@@ -168,6 +169,7 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/geopm_endpoint_c.3 \
                 man/geopm_error.3 \
                 man/geopm_fortran.3 \
+                man/geopm_hash.3 \
                 man/geopm_imbalancer.3 \
                 man/geopm_prof_c.3 \
                 man/geopm_region_id_c.3 \
@@ -271,6 +273,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/geopm_endpoint_c.3.ronn \
              ronn/geopm_error.3.ronn \
              ronn/geopm_fortran.3.ronn \
+             ronn/geopm_hash.3.ronn \
              ronn/geopm_imbalancer.3.ronn \
              ronn/geopm_prof_c.3.ronn \
              ronn/geopm_region_id_c.3.ronn \
