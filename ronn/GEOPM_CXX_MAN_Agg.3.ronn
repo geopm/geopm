@@ -37,17 +37,95 @@ geopm::Agg(3) -- data aggregation functions
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
-## DESCRIPTION
+  * `static double Agg::sum(`
+    `const std::vector<double> &`_operands_`);`
 
+  * `static double Agg::average(`
+    `const std::vector<double> &`_operands_`);`
+
+  * `static double Agg::median(
+    `const std::vector<double> &`_operands_`);`
+
+  * `static double Agg::logical_and(`
+    `const std::vector<double> &`_operands_`);`
+
+  * `static double Agg::logical_or(`
+    `const std::vector<double> &`_operands_`);`
+
+  * `static double Agg::min(`
+    `const std::vector<double> &`_operands_`);`
+
+  * `static double Agg::max(`
+    `const std::vector<double> &`_operands_`);`
+
+  * `static double Agg::stddev(`
+    `const std::vector<double> &`_operands_`);`
+
+  * `static double Agg::region_id(`
+    `const std::vector<double> &`_operands_`);`
+
+  * `static double Agg::select_first(`
+    `const std::vector<double> &`_operands_`);`
+
+  * `static double Agg::expect_same(`
+    `const std::vector<double> &`_operands_`);`
+
+## DESCRIPTION
 This class contains helper functions for aggregating multiple
 floating-point samples to a single number.  They can be used to
 simplify Agent implementation.
 
-For more details, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_agg.html>.
+## CLASS METHODS
+
+  * `sum`():
+    Returns the sum of the input _operands_.
+
+  * `average`():
+    Returns the average of the input _operands_.
+
+  * `median`():
+    Returns the median of the input _operands_.
+
+  * `logical_and`():
+    Returns the output of logical AND over all the _operands_ where
+    0.0 is false and all other values are true.
+
+  * `logical_or`():
+    Returns the output of logical OR over all the _operands_ where 0.0
+    is false and all other values are true.
+
+  * `min`():
+    Returns the minimum value from the input _operands_.
+
+  * `max`():
+    Returns the maximum value from the input _operands_.
+
+  * `stddev`():
+    Returns the standard deviation of the input _operands_.
+
+  * `region_id`():
+    If all _operands_ are the same, returns the common value.
+    Otherwise, returns GEOPM_REGION_ID_UNMARKED.  This is intended for
+    situations where all ranks in a domain must be in the same region
+    to exert control for that region.  Note that although the input
+    and output signals are double values, region IDs are 64-bit
+    integers that should be translated to and from doubles using
+    `geopm_signal_to_field()` and `geopm_field_to_signal()` found in
+    **geopm_hash(3)** before attempting to interpret the result.
+
+  * `select_first`():
+    Returns the first value in the _operands_ vector and ignores other
+    values.  If the vector is empty, returns 0.0.
+
+  * `expect_same`():
+    Returns the common value if all _operands_ are the same, or NAN
+    otherwise.  This function should not be used to aggregate values
+    that may be interpreted as NAN such as raw register values or region
+    IDs.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
-**geopm(7)**
+**geopm(7)**,
+**geopm_hash(3)**
