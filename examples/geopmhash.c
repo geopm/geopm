@@ -47,7 +47,7 @@ int main(int argc, char **argv)
         printf(usage, argv[0]);
     }
     else {
-        printf("0x%.16llx\n", (unsigned long long)geopm_crc32_str(0, argv[1]));
+        printf("0x%.16llx\n", (unsigned long long)geopm_crc32_str(argv[1]));
     }
     return 0;
 }
