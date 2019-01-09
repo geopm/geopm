@@ -30,7 +30,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #include "PluginFactory.hpp"
 #include "ProfileIOGroup.hpp"
 #include "PlatformTopo.hpp"
@@ -60,9 +59,11 @@ namespace geopm
         : m_profile_sample(profile_sample)
         , m_epoch_regulator(epoch_regulator)
         , m_signal_idx_map{{plugin_name() + "::REGION_ID#", M_SIGNAL_REGION_ID},
+                           {plugin_name() + "::REGION_HINT", M_SIGNAL_REGION_HINT},
                            {plugin_name() + "::REGION_PROGRESS", M_SIGNAL_PROGRESS},
                            {plugin_name() + "::REGION_THREAD_PROGRESS", M_SIGNAL_THREAD_PROGRESS},
                            {"REGION_ID#", M_SIGNAL_REGION_ID},
+                           {"REGION_HINT", M_SIGNAL_REGION_HINT},
                            {"REGION_PROGRESS", M_SIGNAL_PROGRESS},
                            {"REGION_THREAD_PROGRESS", M_SIGNAL_THREAD_PROGRESS},
                            {plugin_name() + "::EPOCH_RUNTIME", M_SIGNAL_EPOCH_RUNTIME},
@@ -173,6 +174,9 @@ namespace geopm
         if (m_do_read[M_SIGNAL_REGION_ID]) {
             m_per_cpu_region_id = m_profile_sample->per_cpu_region_id();
         }
+        if (m_do_read[M_SIGNAL_REGION_HINT]) {
+            m_per_cpu_region_hint = m_profile_sample->per_cpu_region_hint();
+        }
         if (m_do_read[M_SIGNAL_PROGRESS]) {
             struct geopm_time_s read_time;
             geopm_time(&read_time);
@@ -247,8 +251,12 @@ namespace geopm
         int cpu_idx = m_active_signal[signal_idx].domain_idx;
         switch (m_active_signal[signal_idx].signal_type) {
             case M_SIGNAL_REGION_ID:
+                /// @todo remove this unset private and unset in m_sample->per_cpu_region_id
                 result = geopm_field_to_signal(geopm_region_id_unset_private(
                                                m_per_cpu_region_id[cpu_idx]));
+                break;
+            case M_SIGNAL_REGION_HINT:
+                result = geopm_field_to_signal(m_per_cpu_region_hint[cpu_idx]);
                 break;
             case M_SIGNAL_PROGRESS:
                 result = m_per_cpu_progress[cpu_idx];
@@ -298,8 +306,12 @@ namespace geopm
         double result = NAN;
         switch (signal_type) {
             case M_SIGNAL_REGION_ID:
+                /// @todo remove this unset private and unset in m_sample->per_cpu_region_id
                 result = geopm_field_to_signal(geopm_region_id_unset_private(
                                                m_per_cpu_region_id[cpu_idx]));
+                break;
+            case M_SIGNAL_REGION_HINT:
+                result = geopm_field_to_signal(m_per_cpu_region_hint[cpu_idx]);
                 break;
             case M_SIGNAL_PROGRESS:
                 geopm_time(&read_time);
