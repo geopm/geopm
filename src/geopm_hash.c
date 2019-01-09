@@ -31,6 +31,7 @@
  */
 
 #include <string.h>
+#include <smmintrin.h>
 
 #include "geopm_hash.h"
 #include "config.h"
@@ -40,9 +41,14 @@ extern "C"
 {
 #endif
 
-uint64_t geopm_crc32_str(uint64_t begin, const char *key)
+uint64_t geopm_crc32_u64(uint64_t begin, uint64_t key)
 {
-    uint64_t result = begin;
+    return _mm_crc32_u64(begin, key);
+}
+
+uint64_t geopm_crc32_str(const char *key)
+{
+    uint64_t result = 0;
     const uint64_t *ptr = (const uint64_t *)key;
     size_t num_word = strlen(key) / 8;
     for (size_t i = 0; i < num_word; ++i) {

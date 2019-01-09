@@ -154,7 +154,7 @@ namespace geopm
         std::vector<region_info> region_ordered;
         auto region_name_set = application_io.region_name_set();
         for (const auto &region : region_name_set) {
-            uint64_t region_id = geopm_crc32_str(0, region.c_str());
+            uint64_t region_id = geopm_crc32_str(region.c_str());
             std::string region_name = region;
             ompt_pretty_name(region_name);
 

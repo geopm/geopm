@@ -169,18 +169,25 @@ platforms will support the loading different sets of `IOGroups`.  The
 the current package energy value.  Agents are encouraged to request
 high level signals and controls to make the implementation more
 portable.  The high level signals and controls supported by built-in
-`IOGroup` classes are listed below.  See **geopm::PluginFactory(7)**
-secton on `SEARCH AND LOAD ORDER` for information about how the
+`IOGroup` classes are listed below.  See **geopm::PluginFactory(3)**
+section on `SEARCH AND LOAD ORDER` for information about how the
 `GEOPM_PLUGIN_PATH` environment variable is used to select which
 `IOGroup` implementation is used in the case where more than one
 provides the same high level signal or control.
+
+Signal names that end in '#', such as `REGION_ID#`, are 64-bit
+integers encoded to be stored as doubles.  These values should not use
+direct conversion between the values, but should instead decode the
+64-bit integer from the double using `geopm_signal_to_field()`
+described in **geopm_hash(3)**.  The **geopm::MSRIOGroup(3)** also
+provides raw MSR field signals that are encoded in this way.
 
   * `TIME`:
     Time elapsed since the beginning of execution.
 
   * `EPOCH_COUNT`:
     Number of completed executions of an epoch.  Prior to the first call
-    by the applicaiton to `geopm_prof_epoch()` the signal returns as -1.
+    by the application to `geopm_prof_epoch()` the signal returns as -1.
     With each call to `geopm_prof_epoch()` the count increases by one.
 
   * `REGION_ID#`:
@@ -189,7 +196,10 @@ provides the same high level signal or control.
     ID 0x0000000012345678 will appear as 0x4000000012345678.  If all
     ranks are not in the same region, it will be recorded as unmarked
     (0x2000000000000000).  Epoch boundaries are recorded as entry and
-    exit to the epoch region (0x8000000000000000).
+    exit to the epoch region (0x8000000000000000).  It is recommended
+    to use `geopm_signal_to_field()` from **geopm_hash(3)** to decode
+    this signal and the functions in **geopm_region_id_c(3)** to
+    interpret the resulting 64-bit integer.
 
   * `REGION_ID`:
     NOT YET SUPPORTED.  The lower 32 bit hash of the region id name
@@ -327,30 +337,32 @@ provides the same high level signal or control.
     the signal stored in the internal state from the last update.  The
     returned signal index will be repeated for each unique tuple of
     push_signal input parameters.  All signals must be pushed onto the
-    stack prior to the first call to `adjust()` or `read_batch()`.  Attempts to push
-    a signal onto the stack after the first call to `adjust()` or `read_batch()` or
-    attempts to push a _signal_name_ that is not from the set
-    returned by `signal_names()` will result in a thrown
-    `geopm::Exception` with error number `GEOPM_ERROR_INVALID`.
+    stack prior to the first call to `adjust()` or `read_batch()`.
+    Attempts to push a signal onto the stack after the first call to
+    `adjust()` or `read_batch()` or attempts to push a _signal_name_
+    that is not from the set returned by `signal_names()` will result
+    in a thrown `geopm::Exception` with error number
+    `GEOPM_ERROR_INVALID`.
 
   * `push_control()`:
-    Push a control onto the stack of batch access controls.  The control
-    is defined by selecting a _control_name_ from the set returned by
-    the `control_names()` method, the _domain_type_ from one of the
-    `PlatformTopo::m_domain_e` values, and the _domain_idx_ between
-    zero to the value returned by
+    Push a control onto the stack of batch access controls.  The
+    control is defined by selecting a _control_name_ from the set
+    returned by the `control_names()` method, the _domain_type_ from
+    one of the `PlatformTopo::m_domain_e` values, and the _domain_idx_
+    between zero to the value returned by
     `PlatformTopo::num_domain(_domain_type_)`.  The return value of
-    the method can be passed to the `adjust()` method which will update the
-    internal state used to store batch controls.  Subsequent calls to
-    the `write_batch()` method access the control values in the internal
-    state and write the values to the hardware.  The
-    returned control index will be repeated for each unique tuple of
-    push_control input parameters.  All controls must be pushed onto the
-    stack prior to the first call to `adjust()` or `read_batch()`.  Attempts to push
-    a controls onto the stack after the first call to `adjust()` or `read_batch()` or
-    attempts to push a _control_name_ that is not from the set
-    returned by `control_names()` will result in a thrown
-    `geopm::Exception` with error number `GEOPM_ERROR_INVALID`.
+    the method can be passed to the `adjust()` method which will
+    update the internal state used to store batch controls.
+    Subsequent calls to the `write_batch()` method access the control
+    values in the internal state and write the values to the hardware.
+    The returned control index will be repeated for each unique tuple
+    of push_control input parameters.  All controls must be pushed
+    onto the stack prior to the first call to `adjust()` or
+    `read_batch()`.  Attempts to push a controls onto the stack after
+    the first call to `adjust()` or `read_batch()` or attempts to push
+    a _control_name_ that is not from the set returned by
+    `control_names()` will result in a thrown `geopm::Exception` with
+    error number `GEOPM_ERROR_INVALID`.
 
   * `num_signal()`:
     Returns the number of `push_signal()` with unique tuple of input.
@@ -365,8 +377,8 @@ provides the same high level signal or control.
 
   * `adjust()`:
     Updates cached value for single control that has been pushed via
-    `push_control()` cached value will be written to the platform at time of
-    call to `write_batch()`.
+    `push_control()` cached value will be written to the platform at
+    time of call to `write_batch()`.
 
   * `read_batch()`:
     Read all push signals from the platform so that the next call to `sample()`
@@ -429,4 +441,12 @@ on error.
 Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation. All rights reserved.
 
 ## SEE ALSO
-**geopm(7)**
+**geopm(7)**,
+**geopm_hash(3)**,
+**geopm_prof_c(3)**,
+**geopm_region_id(3)**,
+**geopm::Exception(3)**,
+**geopm::IOGroup(3)**,
+**geopm::MSRIOGroup(3)**,
+**geopm::PlatformTopo(3)**,
+**geopm::PluginFactory(3)**

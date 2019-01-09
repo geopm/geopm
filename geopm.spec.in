@@ -185,6 +185,7 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 %doc %{_mandir}/man3/geopm_endpoint_c.3.gz
 %doc %{_mandir}/man3/geopm_error.3.gz
 %doc %{_mandir}/man3/geopm_fortran.3.gz
+%doc %{_mandir}/man3/geopm_hash.3.gz
 %doc %{_mandir}/man3/geopm_imbalancer.3.gz
 %doc %{_mandir}/man3/geopm_prof_c.3.gz
 %doc %{_mandir}/man3/geopm_region_id_c.3.gz
@@ -233,6 +234,7 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 %{_includedir}/geopm_ctl.h
 %{_includedir}/geopm_endpoint.h
 %{_includedir}/geopm_error.h
+%{_includedir}/geopm_hash.h
 %{_includedir}/geopm_imbalancer.h
 %{_includedir}/geopm_region_id.h
 %{_includedir}/geopm_sched.h
