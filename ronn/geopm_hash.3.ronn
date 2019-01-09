@@ -1,0 +1,90 @@
+geopm_hash.h(3) -- helper methods for encoding
+==============================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## SYNOPSIS
+**\#include [<geopm_hash.h>](https://github.com/geopm/geopm/blob/dev/src/geopm_hash.h)**
+
+`Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
+
+  * `uint64_t geopm_crc32_str(`:
+    `uint64_t` _begin_, <br>
+    `uint64_t` _key_`);`
+
+  * `uint64_t geopm_crc32_str(`:
+    `uint64_t` _begin_, <br>
+    `uint64_t` _key_`);`
+
+  * `static inline uint64_t geopm_signal_to_field(`:
+    `double` _signal_`);`
+
+  * `static inline double geopm_field_to_signal(`:
+    `uint64_t` _field_`);`
+
+## DESCRIPTION
+The _geopm_hash.h_ header defines GEOPM interfaces for encoding region
+names into 64-bit integers and working with 64-bit integer values
+stored as doubles.  More functions for dealing with 64-bit region IDs
+can be found in **geopm_region_id_c(3)**.
+
+  * `geopm_crc32_u64`():
+    Wrapper for the CRC32 hash hardware instruction, which starts with
+    the value _begin_ and hashes the value _key_ to produce a 32-bit
+    result.
+
+  * `geopm_crc32_str`():
+    Using _begin_ as a starting value, hashes the string _key_ to
+    produce a 64-bit value.  This function is used to produce unique
+    region IDs for named regions.  An `Agent` implementation with
+    specialized behavior for specific region names can use this
+    function to figure out the region ID to expect for the desired
+    region.  As this uses the CRC32 algorithm, only the bottom 32 bits
+    will be filled in, reserving the top 32 bits for hints and other
+    information.
+
+  * `geopm_signal_to_field`():
+    Convert a double _signal_ into a 64-bit field.  This function is
+    especially useful for converting region IDs read as signals from
+    **geopm::PlatformIO(3)** but may also be used to work with raw MSR
+    values.
+
+  * `geopm_field_to_signal`():
+    Convert a 64-bit _field_ into a double representation appropriate
+    for a signal returned by an IOGroup.
+
+## COPYRIGHT
+Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopm_region_id_c(3)**,
+**geopm::PlatformIO(3)**
