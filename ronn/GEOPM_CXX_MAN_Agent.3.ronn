@@ -56,20 +56,20 @@ better rendering of this manual.
 
   * `virtual bool Agent::descend(`:
     `const vector<double> &`_in_policy_`,` <br>
-    `vector<vector<double>>&` _out_policy_`) = 0`;
+    `vector<vector<double>>&` _out_policy_`) = 0;`
 
   * `virtual bool Agent::ascend(`:
     `const vector<vector<double>> &`_in_sample_`,` <br>
     `vector<double> &`_out_sample_`) = 0;`
 
   * `virtual bool Agent::adjust_platform(`:
-    `const vector<double> &`_policy_`) = 0`;
+    `const vector<double> &`_policy_`) = 0;`
 
   * `virtual bool Agent::sample_platform(`:
     `vector<double> &`_sample_`) = 0;`
 
   * `virtual void Agent::wait(`:
-     `void) = 0`;
+     `void) = 0;`
 
   * `virtual vector<pair<string, string>> Agent::report_header(`:
     `void) const = 0;`

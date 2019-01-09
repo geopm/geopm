@@ -37,37 +37,37 @@ geopm::Agg(3) -- data aggregation functions
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
-  * `static double Agg::sum(`
+  * `static double Agg::sum(`:
     `const std::vector<double> &`_operands_`);`
 
-  * `static double Agg::average(`
+  * `static double Agg::average(`:
     `const std::vector<double> &`_operands_`);`
 
-  * `static double Agg::median(`
+  * `static double Agg::median(`:
     `const std::vector<double> &`_operands_`);`
 
-  * `static double Agg::logical_and(`
+  * `static double Agg::logical_and(`:
     `const std::vector<double> &`_operands_`);`
 
-  * `static double Agg::logical_or(`
+  * `static double Agg::logical_or(`:
     `const std::vector<double> &`_operands_`);`
 
-  * `static double Agg::min(`
+  * `static double Agg::min(`:
     `const std::vector<double> &`_operands_`);`
 
-  * `static double Agg::max(`
+  * `static double Agg::max(`:
     `const std::vector<double> &`_operands_`);`
 
-  * `static double Agg::stddev(`
+  * `static double Agg::stddev(`:
     `const std::vector<double> &`_operands_`);`
 
-  * `static double Agg::region_id(`
+  * `static double Agg::region_id(`:
     `const std::vector<double> &`_operands_`);`
 
-  * `static double Agg::select_first(`
+  * `static double Agg::select_first(`:
     `const std::vector<double> &`_operands_`);`
 
-  * `static double Agg::expect_same(`
+  * `static double Agg::expect_same(`:
     `const std::vector<double> &`_operands_`);`
 
 ## DESCRIPTION

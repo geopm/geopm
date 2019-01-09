@@ -50,7 +50,7 @@ geopm::CircularBuffer(3) -- generic circular buffer
   * `void insert(`:
     `const T` _value_`);`
 
-  * `const T& value(`
+  * `const T& value(`:
     `const unsigned int` _index_`) const;`
 
   * `std::vector<T> make_vector(`:
