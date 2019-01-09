@@ -455,7 +455,7 @@ namespace geopm
                                     ": Region best-fit frequency must be a number",
                                     GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                uint64_t rid = geopm_crc32_str(0, obj.first.c_str());
+                uint64_t rid = geopm_crc32_str(obj.first.c_str());
                 m_rid_freq_map[rid] = obj.second.number_value();
             }
         }
