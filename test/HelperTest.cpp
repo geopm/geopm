@@ -30,37 +30,44 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HELPER_HPP_INCLUDE
-#define HELPER_HPP_INCLUDE
+#include "gtest/gtest.h"
 
 #include <string>
-#include <memory>
-#include <utility>
 #include <vector>
 
-namespace geopm
+#include "Helper.hpp"
+#include "geopm_test.hpp"
+
+TEST(HelperTest, split_string)
 {
-    /// @brief Implementation of std::make_unique (C++14) for C++11.
-    ///        Note that this version will only work for non-array
-    ///        types.
-    template <class Type, class ...Args>
-    std::unique_ptr<Type> make_unique(Args &&...args)
-    {
-        return std::unique_ptr<Type>(new Type(std::forward<Args>(args)...));
-    }
+    std::vector<std::string> result;
+    std::vector<std::string> expected;
 
-    /// @brief Reads the specified file and returns the contents in a string.
-    /// @param [in] path The path of the file to read.
-    /// @return The contents of the file at path.
-    std::string read_file(const std::string& path);
+    result = geopm::split_string("", " ");
+    expected = {};
+    EXPECT_EQ(expected, result);
 
-    /// @brief Splits a string according to a delimiter.
-    /// @param [in] str The string to be split.
-    /// @param [in] delim The delimiter to use to divide the string.
-    ///        Cannot be empty.
-    /// @return A vector of string pieces.
-    std::vector<std::string> split_string(const std::string &str,
-                                          const std::string &delim);
+    result = geopm::split_string(":", ":");
+    expected = {"", ""};
+    EXPECT_EQ(expected, result);
+
+    result = geopm::split_string(" ", ":");
+    expected = {" "};
+    EXPECT_EQ(expected, result);
+
+    result = geopm::split_string("one:two", " ");
+    expected = {"one:two"};
+    EXPECT_EQ(expected, result);
+
+    result = geopm::split_string("one:two", ":");
+    expected = {"one", "two"};
+    EXPECT_EQ(expected, result);
+
+    result = geopm::split_string(":one::two:three:", ":");
+    expected = {"", "one", "", "two", "three", ""};
+    EXPECT_EQ(expected, result);
+
+    GEOPM_EXPECT_THROW_MESSAGE(geopm::split_string("one:two", ""),
+                               GEOPM_ERROR_INVALID,
+                               "invalid delimiter");
 }
-
-#endif

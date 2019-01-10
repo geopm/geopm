@@ -59,5 +59,26 @@ namespace geopm
 
         return contents;
     }
-}
 
+    std::vector<std::string> split_string(const std::string &str,
+                                          const std::string &delim)
+    {
+        if (delim.empty()) {
+            throw Exception("Helper::" + std::string(__func__) + "(): invalid delimiter",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::vector<std::string> pieces;
+        if (!str.empty()) {
+            size_t start_pos = 0;
+            size_t del_pos = str.find(delim);
+            while (del_pos != std::string::npos) {
+                pieces.push_back(str.substr(start_pos, del_pos-start_pos));
+                start_pos = del_pos + 1;
+                del_pos = str.find(delim, start_pos);
+            }
+            /// add the last piece
+            pieces.push_back(str.substr(start_pos, del_pos-start_pos));
+        }
+        return pieces;
+    }
+}
