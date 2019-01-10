@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c832e1e4_561580b4",
+        "filename": "ronn/geopm_hash.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-10T20:00:00Z",
+      "side": 1,
+      "message": "u64",
+      "range": {
+        "startLine": 39,
+        "startChar": 26,
+        "endLine": 39,
+        "endChar": 29
+      },
+      "revId": "48814f1ed14ed278ca6269b61d691d1e5e0ea2ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b35561e_8dc19b93",
+        "filename": "ronn/geopm_hash.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-10T20:00:00Z",
+      "side": 1,
+      "message": "char *",
+      "range": {
+        "startLine": 45,
+        "startChar": 5,
+        "endLine": 45,
+        "endChar": 13
+      },
+      "revId": "48814f1ed14ed278ca6269b61d691d1e5e0ea2ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e65df08_73830d0f",
+        "filename": "ronn/geopm_hash.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-10T20:00:00Z",
+      "side": 1,
+      "message": "Implements the CRC32 hash function",
+      "range": {
+        "startLine": 60,
+        "startChar": 4,
+        "endLine": 60,
+        "endChar": 53
+      },
+      "revId": "48814f1ed14ed278ca6269b61d691d1e5e0ea2ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a00b21e6_cd113b7c",
+        "filename": "ronn/geopm_hash.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-10T20:00:00Z",
+      "side": 1,
+      "message": "Consider removing _begin_ parameter from this interface for 1.0",
+      "revId": "48814f1ed14ed278ca6269b61d691d1e5e0ea2ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
