@@ -482,7 +482,7 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/geopm_hash.h \
                             src/geopm_imbalancer.h \
                             src/geopm_internal.h \
-                            src/geopm_plugin.c \
+                            src/geopm_plugin.cpp \
                             src/geopm_region_id.h \
                             src/geopm_sched.c \
                             src/geopm_sched.h \

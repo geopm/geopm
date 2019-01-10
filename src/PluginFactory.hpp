@@ -68,6 +68,7 @@ namespace geopm
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
                 m_dictionary.emplace(plugin_name, dictionary);
+                m_plugin_names.push_back(plugin_name);
             }
             /// @brief Create an object of the requested type.  If the
             ///        type was not registered, throws an exception.
@@ -86,17 +87,12 @@ namespace geopm
                 return it->second();
             }
             /// @brief Returns a list of all valid plugin names
-            ///        registered with the factory.
+            ///        registered with the factory in the order they
+            ///        were registered.
             /// @return List of valid plugin names.
             std::vector<std::string> plugin_names(void) const
             {
-                std::vector<std::string> result;
-                for (auto it = m_name_func_map.begin();
-                     it != m_name_func_map.end();
-                     ++it) {
-                    result.push_back(it->first);
-                }
-                return result;
+                return m_plugin_names;
             }
             /// @brief Returns the dictionary of static metadata about
             ///        a registered type.  If the type was not
@@ -115,6 +111,7 @@ namespace geopm
             }
         private:
             std::map<std::string, std::function<std::unique_ptr<T>()> > m_name_func_map;
+            std::vector<std::string> m_plugin_names;
             std::map<std::string, const std::map<std::string, std::string> > m_dictionary;
             static const std::map<std::string, std::string> m_empty_dictionary;
     };
