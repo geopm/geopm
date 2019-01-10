@@ -165,7 +165,7 @@ src/geopm_hash.h
 src/geopm_imbalancer.h
 src/geopm_internal.h
 src/geopm_mpi_comm_split.h
-src/geopm_plugin.c
+src/geopm_plugin.cpp
 src/geopm_pmpi.c
 src/geopm_pmpi.h
 src/geopm_pmpi_fortran.c
