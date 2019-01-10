@@ -1,6 +1,8 @@
 !/test/fortran/*.f90
 *.gcda
 *.gcno
+*.lo
+*.o
 *.pkl
 *.pyc
 *.swp
@@ -142,6 +144,7 @@
 /tutorial/contrib
 /tutorial/geopm_time.h
 /tutorial/iogroup/*.so.*
+/tutorial/plugin_load/*/*.so.*
 /tutorial/tutorial_4_imbalance.conf
 /tutorial/tutorial_[0-9]
 /tutorial/tutorial_[0-9]*_report-*
