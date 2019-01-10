@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "91e8db28_29dcfd2c",
+        "filename": "src/ProfileIOGroup.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-10T00:02:25Z",
+      "side": 1,
+      "message": "These can be defined without the #.  Both the region id and the hint can be represented as a double precision number without loss of precision.",
+      "range": {
+        "startLine": 61,
+        "startChar": 1,
+        "endLine": 62,
+        "endChar": 60
+      },
+      "revId": "01e41839944b49a08d2460f3ab95a5d4be6f4a8a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b793e7c3_b71f178a",
+        "filename": "src/ProfileIOGroup.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-10T00:02:25Z",
+      "side": 1,
+      "message": "do not call geopm_field_to_signal(), just return the hash as a double precision number.",
+      "range": {
+        "startLine": 251,
+        "startChar": 25,
+        "endLine": 251,
+        "endChar": 47
+      },
+      "revId": "01e41839944b49a08d2460f3ab95a5d4be6f4a8a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed24c3f3_0eed4c40",
+        "filename": "src/ProfileIOGroup.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-10T00:02:25Z",
+      "side": 1,
+      "message": "Same, just convert the hint to a double directly.",
+      "range": {
+        "startLine": 255,
+        "startChar": 25,
+        "endLine": 255,
+        "endChar": 47
+      },
+      "revId": "01e41839944b49a08d2460f3ab95a5d4be6f4a8a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "748020c3_14f12282",
+        "filename": "src/ProfileIOGroup.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-10T00:02:25Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 306,
+        "startChar": 25,
+        "endLine": 306,
+        "endChar": 46
+      },
+      "revId": "01e41839944b49a08d2460f3ab95a5d4be6f4a8a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c35e49c5_8901b806",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-10T00:02:25Z",
+      "side": 1,
+      "message": "REGION_HASH and REGION_HINT should replace REGION_ID# right?",
+      "range": {
+        "startLine": 138,
+        "startChar": 22,
+        "endLine": 138,
+        "endChar": 33
+      },
+      "revId": "01e41839944b49a08d2460f3ab95a5d4be6f4a8a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
