@@ -199,6 +199,7 @@ test/EnergyEfficientRegionTest.cpp
 test/EnvironmentTest.cpp
 test/EpochRuntimeRegulatorTest.cpp
 test/ExceptionTest.cpp
+test/HelperTest.cpp
 test/IOGroupTest.cpp
 test/InternalProfile.cpp
 test/InternalProfile.hpp
