@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3881a977_a82c6725",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-01-11T17:49:10Z",
+      "side": 1,
+      "message": "this is wrong.  marching orders are to change user defined hint to network hint during mpi calls not add network hint.",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 15
+      },
+      "revId": "81712062102dd6a0a4db9b7a39a22041454e7938",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
