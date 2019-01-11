@@ -113,7 +113,7 @@ namespace geopm
             virtual double total_epoch_runtime_ignore(void) const = 0;
             /// @brief Returns the total package energy since the
             ///        first epoch call.
-            virtual double total_epoch_energy_pkg(void) const = 0;
+            virtual double total_epoch_energy_pkg(int pkg_idx) const = 0;
             /// @brief Returns the total dram energy since the first
             ///        epoch call.
             virtual double total_epoch_energy_dram(void) const = 0;
@@ -163,7 +163,7 @@ namespace geopm
             double total_epoch_runtime(void) const override;
             double total_epoch_runtime_mpi(void) const override;
             double total_epoch_runtime_ignore(void) const override;
-            double total_epoch_energy_pkg(void) const override;
+            double total_epoch_energy_pkg(int pkg_idx) const override;
             double total_epoch_energy_dram(void) const override;
             double total_app_runtime_mpi(void) const override;
             double total_app_runtime_ignore(void) const override;
@@ -172,7 +172,7 @@ namespace geopm
             void clear_region_info(void) override;
         private:
             std::vector<double> per_rank_last_runtime(uint64_t region_id) const;
-            double current_energy_pkg(void) const;
+            double current_energy_pkg(int pkg_idx) const;
             double current_energy_dram(void) const;
             int m_rank_per_node;
             IPlatformIO &m_platform_io;
@@ -193,9 +193,9 @@ namespace geopm
             std::vector<double> m_agg_pre_epoch_runtime_ignore;
             std::vector<std::set<uint64_t> > m_pre_epoch_region;
             std::list<geopm_region_info_s> m_region_info;
-            double m_epoch_start_energy_pkg;
+            std::vector<double> m_epoch_start_energy_pkg;
             double m_epoch_start_energy_dram;
-            double m_epoch_total_energy_pkg;
+            std::vector<double> m_epoch_total_energy_pkg;
             double m_epoch_total_energy_dram;
             std::map<uint64_t, int> m_region_rank_count;
     };

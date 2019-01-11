@@ -39,6 +39,7 @@
 #include "PlatformTopo.hpp"
 #include "Reporter.hpp"
 #include "MockPlatformIO.hpp"
+#include "MockPlatformTopo.hpp"
 #include "MockRegionAggregator.hpp"
 #include "MockApplicationIO.hpp"
 #include "MockComm.hpp"
@@ -78,16 +79,18 @@ class ReporterTest : public testing::Test
     protected:
         enum {
             M_TIME_IDX,
-            M_ENERGY_PKG_IDX,
             M_ENERGY_DRAM_IDX,
             M_CLK_CORE_IDX,
             M_CLK_REF_IDX,
+            M_ENERGY_PKG_0_IDX,
+            M_ENERGY_PKG_1_IDX,
         };
         ReporterTest();
         void TearDown(void);
         std::string m_report_name = "test_reporter.out";
 
         MockPlatformIO m_platform_io;
+        MockPlatformTopo m_platform_topo;
         MockRegionAggregator *m_agg;  // freed with Reporter
         MockApplicationIO m_application_io;
         std::shared_ptr<ReporterTestMockComm> m_comm;
@@ -160,16 +163,21 @@ ReporterTest::ReporterTest()
     EXPECT_CALL(*m_agg, init());
     EXPECT_CALL(*m_agg, push_signal_total("TIME", _, _))
         .WillOnce(Return(M_TIME_IDX));
-    EXPECT_CALL(*m_agg, push_signal_total("ENERGY_PACKAGE", _, _))
-        .WillOnce(Return(M_ENERGY_PKG_IDX));
     EXPECT_CALL(*m_agg, push_signal_total("ENERGY_DRAM", _, _))
         .WillOnce(Return(M_ENERGY_DRAM_IDX));
     EXPECT_CALL(*m_agg, push_signal_total("CYCLES_REFERENCE", _, _))
         .WillOnce(Return(M_CLK_REF_IDX));
     EXPECT_CALL(*m_agg, push_signal_total("CYCLES_THREAD", _, _))
         .WillOnce(Return(M_CLK_CORE_IDX));
+    EXPECT_CALL(m_platform_topo, num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE))
+        .WillOnce(Return(2));
+    EXPECT_CALL(*m_agg, push_signal_total("ENERGY_PACKAGE", geopm::IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+        .WillOnce(Return(M_ENERGY_PKG_0_IDX));
+    EXPECT_CALL(*m_agg, push_signal_total("ENERGY_PACKAGE", geopm::IPlatformTopo::M_DOMAIN_PACKAGE, 1))
+        .WillOnce(Return(M_ENERGY_PKG_1_IDX));
+
     m_comm = std::make_shared<ReporterTestMockComm>();
-    m_reporter = geopm::make_unique<Reporter>(m_start_time, m_report_name, m_platform_io, 0,
+    m_reporter = geopm::make_unique<Reporter>(m_start_time, m_report_name, m_platform_io, m_platform_topo, 0,
                                               std::unique_ptr<MockRegionAggregator>(m_agg));
     m_reporter->init();
 }
@@ -187,7 +195,8 @@ TEST_F(ReporterTest, generate)
     EXPECT_CALL(m_application_io, profile_name());
     EXPECT_CALL(m_application_io, region_name_set());
     EXPECT_CALL(m_application_io, total_app_runtime()).WillOnce(Return(56));
-    EXPECT_CALL(m_application_io, total_app_energy_pkg()).WillOnce(Return(2222));
+    EXPECT_CALL(m_application_io, total_app_energy_pkg(0)).WillOnce(Return(2222));
+    EXPECT_CALL(m_application_io, total_app_energy_pkg(1)).WillOnce(Return(2222));
     EXPECT_CALL(m_application_io, total_app_energy_dram()).WillOnce(Return(2222));
     EXPECT_CALL(m_application_io, total_app_runtime_mpi()).WillOnce(Return(45));
     EXPECT_CALL(m_application_io, total_app_runtime_ignore()).WillOnce(Return(0.7));
@@ -216,9 +225,13 @@ TEST_F(ReporterTest, generate)
             .WillOnce(Return(0.5));
     }
     for (auto rid : m_region_energy) {
-        EXPECT_CALL(*m_agg, sample_total(M_ENERGY_PKG_IDX, rid.first))
+        EXPECT_CALL(*m_agg, sample_total(M_ENERGY_PKG_0_IDX, rid.first))
             .WillOnce(Return(rid.second/2.0));
-        EXPECT_CALL(*m_agg, sample_total(M_ENERGY_PKG_IDX, geopm_region_id_set_mpi(rid.first)))
+        EXPECT_CALL(*m_agg, sample_total(M_ENERGY_PKG_1_IDX, rid.first))
+            .WillOnce(Return(rid.second/2.0));
+        EXPECT_CALL(*m_agg, sample_total(M_ENERGY_PKG_0_IDX, geopm_region_id_set_mpi(rid.first)))
+            .WillOnce(Return(0.5));
+        EXPECT_CALL(*m_agg, sample_total(M_ENERGY_PKG_1_IDX, geopm_region_id_set_mpi(rid.first)))
             .WillOnce(Return(0.5));
         EXPECT_CALL(*m_agg, sample_total(M_ENERGY_DRAM_IDX, rid.first))
             .WillOnce(Return(rid.second/2.0));
@@ -262,7 +275,8 @@ TEST_F(ReporterTest, generate)
         "Region all2all (\n"
         "    runtime (sec): 33.33\n"
         "    sync-runtime (sec): 555.5\n"
-        "    package-energy (joules): 389\n"
+        "    package-0-energy (joules): 389\n"
+        "    package-1-energy (joules): 389\n"
         "    dram-energy (joules): 389\n"
         "    frequency (%): 81.81\n"
         "    frequency (Hz): 0.818182\n"
@@ -274,7 +288,8 @@ TEST_F(ReporterTest, generate)
         "Region model-init (\n"
         "    runtime (sec): 22.11\n"
         "    sync-runtime (sec): 333.5\n"
-        "    package-energy (joules): 444.5\n"
+        "    package-0-energy (joules): 444.5\n"
+        "    package-1-energy (joules): 444.5\n"
         "    dram-energy (joules): 444.5\n"
         "    frequency (%): 84.84\n"
         "    frequency (Hz): 0.848485\n"
@@ -285,7 +300,8 @@ TEST_F(ReporterTest, generate)
         "Region unmarked-region (\n"
         "    runtime (sec): 12.13\n"
         "    sync-runtime (sec): 444\n"
-        "    package-energy (joules): 111.5\n"
+        "    package-0-energy (joules): 111.5\n"
+        "    package-1-energy (joules): 111.5\n"
         "    dram-energy (joules): 111.5\n"
         "    frequency (%): 77.2727\n"
         "    frequency (Hz): 0.772727\n"
@@ -295,7 +311,8 @@ TEST_F(ReporterTest, generate)
         "Region epoch (\n"
         "    runtime (sec): 70\n"
         "    sync-runtime (sec): 666\n"
-        "    package-energy (joules): 167\n"
+        "    package-0-energy (joules): 167\n"
+        "    package-1-energy (joules): 167\n"
         "    dram-energy (joules): 167\n"
         "    frequency (%): 88.6364\n"
         "    frequency (Hz): 0.886364\n"
@@ -305,7 +322,8 @@ TEST_F(ReporterTest, generate)
         "    epoch-runtime-ignore (sec): 0.7\n"
         "Application Totals:\n"
         "    runtime (sec): 56\n"
-        "    package-energy (joules): 2222\n"
+        "    package-0-energy (joules): 2222\n"
+        "    package-1-energy (joules): 2222\n"
         "    dram-energy (joules): 2222\n"
         "    mpi-runtime (sec): 45\n"
         "    ignore-time (sec): 0.7\n"

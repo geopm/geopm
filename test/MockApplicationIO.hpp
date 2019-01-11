@@ -54,8 +54,8 @@ class MockApplicationIO : public geopm::IApplicationIO
                            double(uint64_t region_id));
         MOCK_CONST_METHOD0(total_app_runtime,
                            double(void));
-        MOCK_CONST_METHOD0(total_app_energy_pkg,
-                           double(void));
+        MOCK_CONST_METHOD1(total_app_energy_pkg,
+                           double(int pkg_idx));
         MOCK_CONST_METHOD0(total_app_energy_dram,
                            double(void));
         MOCK_CONST_METHOD0(total_epoch_runtime_ignore,
@@ -68,8 +68,8 @@ class MockApplicationIO : public geopm::IApplicationIO
                            double(void));
         MOCK_CONST_METHOD0(total_epoch_runtime_mpi,
                            double(void));
-        MOCK_CONST_METHOD0(total_epoch_energy_pkg,
-                           double(void));
+        MOCK_CONST_METHOD1(total_epoch_energy_pkg,
+                           double(int pkg_idx));
         MOCK_CONST_METHOD0(total_epoch_energy_dram,
                            double(void));
         MOCK_CONST_METHOD1(total_count,
