@@ -22,6 +22,213 @@
       "revId": "81712062102dd6a0a4db9b7a39a22041454e7938",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eea8d1f9_a276f5f7",
+        "filename": "src/ProfileIOGroup.hpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-01-11T18:01:01Z",
+      "side": 1,
+      "message": "move down with other report supporting signals",
+      "range": {
+        "startLine": 83,
+        "startChar": 16,
+        "endLine": 83,
+        "endChar": 39
+      },
+      "revId": "81712062102dd6a0a4db9b7a39a22041454e7938",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9360f34_ebd73abd",
+        "filename": "src/ProfileIOGroup.hpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-01-11T18:01:01Z",
+      "side": 1,
+      "message": "move this to position 0 to match trace column order",
+      "range": {
+        "startLine": 84,
+        "startChar": 16,
+        "endLine": 84,
+        "endChar": 37
+      },
+      "revId": "81712062102dd6a0a4db9b7a39a22041454e7938",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "128f19f8_ce9de813",
+        "filename": "src/ProfileIOGroup.hpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-01-11T18:01:01Z",
+      "side": 1,
+      "message": "do we want to provide side channel for epoch runtime, mpi, ignore such that these private constructs arent visible to platform io?",
+      "range": {
+        "startLine": 87,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 45
+      },
+      "revId": "81712062102dd6a0a4db9b7a39a22041454e7938",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2454ad3d_ddbbf119",
+        "filename": "src/RegionAggregator.hpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-01-11T18:01:01Z",
+      "side": 1,
+      "message": "region_hash",
+      "range": {
+        "startLine": 89,
+        "startChar": 65,
+        "endLine": 89,
+        "endChar": 74
+      },
+      "revId": "81712062102dd6a0a4db9b7a39a22041454e7938",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8eafd5d8_dd81a711",
+        "filename": "test/AggTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-01-11T18:01:01Z",
+      "side": 1,
+      "message": "not needed anymore?",
+      "range": {
+        "startLine": 69,
+        "startChar": 14,
+        "endLine": 69,
+        "endChar": 35
+      },
+      "revId": "81712062102dd6a0a4db9b7a39a22041454e7938",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2be50745_e3615934",
+        "filename": "test/EnergyEfficientAgentTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-01-11T18:01:01Z",
+      "side": 1,
+      "message": "add REGION_HINT_IDX",
+      "range": {
+        "startLine": 68,
+        "startChar": 12,
+        "endLine": 68,
+        "endChar": 27
+      },
+      "revId": "81712062102dd6a0a4db9b7a39a22041454e7938",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9571190e_eb007379",
+        "filename": "test/EnergyEfficientAgentTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-01-11T18:01:01Z",
+      "side": 1,
+      "message": "not needed",
+      "range": {
+        "startLine": 182,
+        "startChar": 29,
+        "endLine": 182,
+        "endChar": 50
+      },
+      "revId": "81712062102dd6a0a4db9b7a39a22041454e7938",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed64e2ec_5c30844b",
+        "filename": "test/PlatformIOTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-01-11T18:01:01Z",
+      "side": 1,
+      "message": "add REGION_HINT",
+      "range": {
+        "startLine": 193,
+        "startChar": 13,
+        "endLine": 193,
+        "endChar": 24
+      },
+      "revId": "81712062102dd6a0a4db9b7a39a22041454e7938",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9b2f11d_a4275a65",
+        "filename": "test/RegionAggregatorTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-01-11T18:01:01Z",
+      "side": 1,
+      "message": "add REGION_HINT too?",
+      "range": {
+        "startLine": 97,
+        "startChar": 35,
+        "endLine": 97,
+        "endChar": 46
+      },
+      "revId": "81712062102dd6a0a4db9b7a39a22041454e7938",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
