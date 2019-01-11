@@ -62,18 +62,19 @@
 
 namespace geopm
 {
-    Reporter::Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, int rank)
-        : Reporter(start_time, report_name, platform_io, rank,
+    Reporter::Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, IPlatformTopo &platform_topo, int rank)
+        : Reporter(start_time, report_name, platform_io, platform_topo, rank,
                    std::unique_ptr<IRegionAggregator>(new RegionAggregator))
     {
 
     }
 
-    Reporter::Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, int rank,
+    Reporter::Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, IPlatformTopo &platform_topo, int rank,
                        std::unique_ptr<IRegionAggregator> agg)
         : m_start_time(start_time)
         , m_report_name(report_name)
         , m_platform_io(platform_io)
+        , m_platform_topo(platform_topo)
         , m_region_agg(std::move(agg))
         , m_rank(rank)
     {
@@ -83,10 +84,13 @@ namespace geopm
     void Reporter::init(void)
     {
         m_region_bulk_runtime_idx = m_region_agg->push_signal_total("TIME", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_energy_pkg_idx = m_region_agg->push_signal_total("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_energy_dram_idx = m_region_agg->push_signal_total("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_clk_core_idx = m_region_agg->push_signal_total("CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_clk_ref_idx = m_region_agg->push_signal_total("CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        const int num_pkg = m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE);
+        for (int pkg_idx = 0; pkg_idx < num_pkg; ++pkg_idx) {
+            m_energy_pkg_idx.push_back(m_region_agg->push_signal_total("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, pkg_idx));
+        }
 
         if (!m_rank) {
             // check if report file can be created
@@ -210,8 +214,11 @@ namespace geopm
             report << "    runtime (sec): " << region.per_rank_avg_runtime << std::endl;
             report << "    sync-runtime (sec): " << m_region_agg->sample_total(m_region_bulk_runtime_idx, region.id) +
                                                     m_region_agg->sample_total(m_region_bulk_runtime_idx, mpi_region_id) << std::endl;
-            report << "    package-energy (joules): " << m_region_agg->sample_total(m_energy_pkg_idx, region.id) +
-                                                         m_region_agg->sample_total(m_energy_pkg_idx, mpi_region_id) << std::endl;
+            for (unsigned pkg_idx = 0; pkg_idx < m_energy_pkg_idx.size(); ++pkg_idx) {
+                report << "    package-" << pkg_idx << "-energy (joules): "
+                       << m_region_agg->sample_total(m_energy_pkg_idx[pkg_idx], region.id) +
+                          m_region_agg->sample_total(m_energy_pkg_idx[pkg_idx], mpi_region_id) << std::endl;
+            }
             report << "    dram-energy (joules): " << m_region_agg->sample_total(m_energy_dram_idx, region.id) +
                                                       m_region_agg->sample_total(m_energy_dram_idx, mpi_region_id) << std::endl;
             double numer = m_region_agg->sample_total(m_clk_core_idx, region.id) +
@@ -234,9 +241,12 @@ namespace geopm
 
         double total_runtime = application_io.total_app_runtime();
         report << "Application Totals:" << std::endl
-               << "    runtime (sec): " << total_runtime << std::endl
-               << "    package-energy (joules): " << application_io.total_app_energy_pkg() << std::endl
-               << "    dram-energy (joules): " << application_io.total_app_energy_dram() << std::endl
+               << "    runtime (sec): " << total_runtime << std::endl;
+        for (unsigned pkg_idx = 0; pkg_idx < m_energy_pkg_idx.size(); ++pkg_idx) {
+            report << "    package-" << pkg_idx << "-energy (joules): "
+                   << application_io.total_app_energy_pkg(pkg_idx) << std::endl;
+        }
+        report << "    dram-energy (joules): " << application_io.total_app_energy_dram() << std::endl
                << "    mpi-runtime (sec): " << application_io.total_app_runtime_mpi() << std::endl
                << "    ignore-time (sec): " << application_io.total_app_runtime_ignore() << std::endl;
 
