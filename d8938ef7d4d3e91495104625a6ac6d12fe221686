@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "402de82d_3c0211d0",
+        "filename": "src/Reporter.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-11T23:01:46Z",
+      "side": 1,
+      "message": "how does this function work now?",
+      "range": {
+        "startLine": 205,
+        "startChar": 17,
+        "endLine": 205,
+        "endChar": 41
+      },
+      "revId": "d8938ef7d4d3e91495104625a6ac6d12fe221686",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
