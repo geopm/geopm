@@ -31,6 +31,7 @@
  */
 
 #include <map>
+#include <memory>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -39,6 +40,7 @@
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
 #include "geopm_test.hpp"
+#include "Helper.hpp"
 
 using geopm::EpochRuntimeRegulator;
 using geopm::IPlatformTopo;
@@ -48,41 +50,40 @@ using testing::_;
 class EpochRuntimeRegulatorTest : public ::testing::Test
 {
     protected:
-        EpochRuntimeRegulatorTest();
         void SetUp();
         std::map<uint64_t, std::vector<double> > m_runtime_steps;
         std::map<uint64_t, double> m_total_runtime;
         static constexpr int M_NUM_RANK = 2;
-        EpochRuntimeRegulator m_regulator;
-        MockPlatformIO m_platform_io;
         MockPlatformTopo m_platform_topo;
+        MockPlatformIO m_platform_io;
+        std::unique_ptr<EpochRuntimeRegulator> m_regulator;
 };
 
-//constexpr EpochRuntimeRegulatorTest::M_NUM_RANKS;
-EpochRuntimeRegulatorTest::EpochRuntimeRegulatorTest()
-    : m_regulator(M_NUM_RANK, m_platform_io, m_platform_topo)
-{
-
-}
+constexpr int EpochRuntimeRegulatorTest::M_NUM_RANK;
 
 void EpochRuntimeRegulatorTest::SetUp()
 {
-
+    EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(2)
+        .WillRepeatedly(Return(2));
+    m_regulator = geopm::make_unique<EpochRuntimeRegulator>(M_NUM_RANK, m_platform_io, m_platform_topo);
 }
 
 TEST_F(EpochRuntimeRegulatorTest, invalid_ranks)
 {
+    EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(4)
+        .WillRepeatedly(Return(2));
+
     GEOPM_EXPECT_THROW_MESSAGE(EpochRuntimeRegulator(-1, m_platform_io, m_platform_topo),
                                GEOPM_ERROR_RUNTIME, "invalid max rank count");
     GEOPM_EXPECT_THROW_MESSAGE(EpochRuntimeRegulator(0, m_platform_io, m_platform_topo),
                                GEOPM_ERROR_RUNTIME, "invalid max rank count");
-    GEOPM_EXPECT_THROW_MESSAGE(m_regulator.record_entry(GEOPM_REGION_ID_UNMARKED, -1, {{1,1}}),
+    GEOPM_EXPECT_THROW_MESSAGE(m_regulator->record_entry(GEOPM_REGION_ID_UNMARKED, -1, {{1,1}}),
                                GEOPM_ERROR_RUNTIME, "invalid rank value");
-    GEOPM_EXPECT_THROW_MESSAGE(m_regulator.record_entry(GEOPM_REGION_ID_UNMARKED, 99, {{1,1}}),
+    GEOPM_EXPECT_THROW_MESSAGE(m_regulator->record_entry(GEOPM_REGION_ID_UNMARKED, 99, {{1,1}}),
                                GEOPM_ERROR_RUNTIME, "invalid rank value");
-    GEOPM_EXPECT_THROW_MESSAGE(m_regulator.record_exit(GEOPM_REGION_ID_UNMARKED, -1, {{1,1}}),
+    GEOPM_EXPECT_THROW_MESSAGE(m_regulator->record_exit(GEOPM_REGION_ID_UNMARKED, -1, {{1,1}}),
                                GEOPM_ERROR_RUNTIME, "invalid rank value");
-    GEOPM_EXPECT_THROW_MESSAGE(m_regulator.record_exit(GEOPM_REGION_ID_UNMARKED, 99, {{1,1}}),
+    GEOPM_EXPECT_THROW_MESSAGE(m_regulator->record_exit(GEOPM_REGION_ID_UNMARKED, 99, {{1,1}}),
                                GEOPM_ERROR_RUNTIME, "invalid rank value");
 
 }
@@ -90,14 +91,14 @@ TEST_F(EpochRuntimeRegulatorTest, invalid_ranks)
 TEST_F(EpochRuntimeRegulatorTest, unknown_region)
 {
     uint64_t region_id = 0x98765432;
-    EXPECT_FALSE(m_regulator.is_regulated(region_id));
-    GEOPM_EXPECT_THROW_MESSAGE(m_regulator.region_regulator(region_id),
+    EXPECT_FALSE(m_regulator->is_regulated(region_id));
+    GEOPM_EXPECT_THROW_MESSAGE(m_regulator->region_regulator(region_id),
                                GEOPM_ERROR_RUNTIME, "unknown region detected");
-    GEOPM_EXPECT_THROW_MESSAGE(m_regulator.record_exit(region_id, 0, {{1,1}}),
+    GEOPM_EXPECT_THROW_MESSAGE(m_regulator->record_exit(region_id, 0, {{1,1}}),
                                GEOPM_ERROR_RUNTIME, "unknown region detected");
 
-    m_regulator.record_entry(region_id, 0, {{1,1}});
-    EXPECT_TRUE(m_regulator.is_regulated(region_id));
+    m_regulator->record_entry(region_id, 0, {{1,1}});
+    EXPECT_TRUE(m_regulator->is_regulated(region_id));
 }
 
 TEST_F(EpochRuntimeRegulatorTest, rank_enter_exit_trace)
@@ -108,11 +109,11 @@ TEST_F(EpochRuntimeRegulatorTest, rank_enter_exit_trace)
     geopm_time_s end0 {{11, 0}};
     geopm_time_s end1 {{12, 1}};
 
-    m_regulator.record_entry(region_id, 0, start0);
-    m_regulator.record_entry(region_id, 1, start1);
-    m_regulator.record_exit(region_id, 0, end0);
-    m_regulator.record_exit(region_id, 1, end1);
-    auto region_info = m_regulator.region_info();
+    m_regulator->record_entry(region_id, 0, start0);
+    m_regulator->record_entry(region_id, 1, start1);
+    m_regulator->record_exit(region_id, 0, end0);
+    m_regulator->record_exit(region_id, 1, end1);
+    auto region_info = m_regulator->region_info();
     ASSERT_EQ(2u, region_info.size());
     std::vector<double> expected_progress = {0.0, 1.0};
     std::vector<double> expected_runtime = {0.0, 10.0};
@@ -125,13 +126,13 @@ TEST_F(EpochRuntimeRegulatorTest, rank_enter_exit_trace)
         EXPECT_EQ(expected_runtime[idx], info.runtime);
         ++idx;
     }
-    EXPECT_EQ(1, m_regulator.total_count(region_id));
+    EXPECT_EQ(1, m_regulator->total_count(region_id));
 
-    m_regulator.clear_region_info();
+    m_regulator->clear_region_info();
     // single ranks do not change region info list
-    m_regulator.record_entry(region_id, 0, start0);
-    m_regulator.record_exit(region_id, 0, end0);
-    region_info = m_regulator.region_info();
+    m_regulator->record_entry(region_id, 0, start0);
+    m_regulator->record_exit(region_id, 0, end0);
+    region_info = m_regulator->region_info();
     EXPECT_EQ(0u, region_info.size());
 }
 
@@ -144,19 +145,17 @@ TEST_F(EpochRuntimeRegulatorTest, all_ranks_enter_exit)
     };
 
     for (int rank = 0; rank < M_NUM_RANK; ++rank) {
-        m_regulator.record_entry(region_id, rank, start);
-        m_regulator.record_exit(region_id, rank, end[rank]);
+        m_regulator->record_entry(region_id, rank, start);
+        m_regulator->record_exit(region_id, rank, end[rank]);
     }
 
-    EXPECT_DOUBLE_EQ(10.0, m_regulator.total_region_runtime(region_id));
+    EXPECT_DOUBLE_EQ(10.0, m_regulator->total_region_runtime(region_id));
 }
 
 TEST_F(EpochRuntimeRegulatorTest, epoch_runtime)
 {
     int num_package = 2;
     int num_memory = 1;
-    EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(6)
-        .WillRepeatedly(Return(num_package));
     EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_BOARD_MEMORY)).Times(6)
         .WillRepeatedly(Return(num_memory));
     EXPECT_CALL(m_platform_io, read_signal("ENERGY_PACKAGE", _, _))
@@ -165,27 +164,27 @@ TEST_F(EpochRuntimeRegulatorTest, epoch_runtime)
         .Times(num_memory * 6);
 
     uint64_t region_id = 0x98765432;
-    m_regulator.record_entry(region_id, 0, {{1, 0}});
-    m_regulator.record_entry(region_id, 1, {{1, 0}});
-    m_regulator.record_exit(region_id, 0, {{2, 0}});
-    m_regulator.record_exit(region_id, 1, {{2, 0}});
-    m_regulator.epoch(0, {{2, 0}});
-    m_regulator.epoch(1, {{2, 0}});
-    m_regulator.record_entry(region_id, 0, {{2, 0}});
-    m_regulator.record_entry(region_id, 1, {{2, 0}});
-    m_regulator.record_exit(region_id, 0, {{3, 0}});
-    m_regulator.record_exit(region_id, 1, {{3, 0}});
-    m_regulator.epoch(0, {{3, 0}});
-    m_regulator.epoch(1, {{3, 0}});
-    m_regulator.record_entry(region_id, 0, {{3, 0}});
-    m_regulator.record_entry(region_id, 1, {{3, 0}});
-    m_regulator.record_exit(region_id, 0, {{4, 0}});
-    m_regulator.record_exit(region_id, 1, {{4, 0}});
-    m_regulator.epoch(0, {{4, 0}});
-    m_regulator.epoch(1, {{4, 0}});
+    m_regulator->record_entry(region_id, 0, {{1, 0}});
+    m_regulator->record_entry(region_id, 1, {{1, 0}});
+    m_regulator->record_exit(region_id, 0, {{2, 0}});
+    m_regulator->record_exit(region_id, 1, {{2, 0}});
+    m_regulator->epoch(0, {{2, 0}});
+    m_regulator->epoch(1, {{2, 0}});
+    m_regulator->record_entry(region_id, 0, {{2, 0}});
+    m_regulator->record_entry(region_id, 1, {{2, 0}});
+    m_regulator->record_exit(region_id, 0, {{3, 0}});
+    m_regulator->record_exit(region_id, 1, {{3, 0}});
+    m_regulator->epoch(0, {{3, 0}});
+    m_regulator->epoch(1, {{3, 0}});
+    m_regulator->record_entry(region_id, 0, {{3, 0}});
+    m_regulator->record_entry(region_id, 1, {{3, 0}});
+    m_regulator->record_exit(region_id, 0, {{4, 0}});
+    m_regulator->record_exit(region_id, 1, {{4, 0}});
+    m_regulator->epoch(0, {{4, 0}});
+    m_regulator->epoch(1, {{4, 0}});
 
-    EXPECT_EQ(3, m_regulator.total_count(region_id));
-    EXPECT_EQ(2, m_regulator.total_count(GEOPM_REGION_ID_EPOCH));
-    EXPECT_DOUBLE_EQ(3.0, m_regulator.total_region_runtime(region_id));
-    EXPECT_DOUBLE_EQ(2.0, m_regulator.total_region_runtime(GEOPM_REGION_ID_EPOCH));
+    EXPECT_EQ(3, m_regulator->total_count(region_id));
+    EXPECT_EQ(2, m_regulator->total_count(GEOPM_REGION_ID_EPOCH));
+    EXPECT_DOUBLE_EQ(3.0, m_regulator->total_region_runtime(region_id));
+    EXPECT_DOUBLE_EQ(2.0, m_regulator->total_region_runtime(GEOPM_REGION_ID_EPOCH));
 }

@@ -76,7 +76,7 @@ namespace geopm
             /// @brief Returns the total application runtime.
             virtual double total_app_runtime(void) const = 0;
             /// @brief Returns the total application package energy.
-            virtual double total_app_energy_pkg(void) const = 0;
+            virtual double total_app_energy_pkg(int pkg_idx) const = 0;
             /// @brief Returns the total application dram energy.
             virtual double total_app_energy_dram(void) const = 0;
             /// @brief Returns the total time spent in MPI for the
@@ -96,7 +96,7 @@ namespace geopm
             virtual double total_epoch_runtime_mpi(void) const = 0;
             /// @brief Returns the total package energy since the
             ///        first epoch call.
-            virtual double total_epoch_energy_pkg(void) const = 0;
+            virtual double total_epoch_energy_pkg(int pkg_idx) const = 0;
             /// @brief Returns the total dram energy since the
             ///        first epoch call.
             virtual double total_epoch_energy_dram(void) const = 0;
@@ -149,14 +149,14 @@ namespace geopm
             double total_region_runtime(uint64_t region_id) const override;
             double total_region_runtime_mpi(uint64_t region_id) const override;
             double total_app_runtime(void) const override;
-            double total_app_energy_pkg(void) const override;
+            double total_app_energy_pkg(int pkg_idx) const override;
             double total_app_energy_dram(void) const override;
             double total_app_runtime_mpi(void) const override;
             double total_app_runtime_ignore(void) const override;
             double total_epoch_runtime_ignore(void) const override;
             double total_epoch_runtime(void) const override;
             double total_epoch_runtime_mpi(void) const override;
-            double total_epoch_energy_pkg(void) const override;
+            double total_epoch_energy_pkg(int pkg_idx) const override;
             double total_epoch_energy_dram(void) const override;
             int total_count(uint64_t region_id) const override;
             void update(std::shared_ptr<Comm> comm) override;
@@ -167,7 +167,7 @@ namespace geopm
         private:
             static constexpr size_t M_SHMEM_REGION_SIZE = 2*1024*1024;
 
-            double current_energy_pkg(void) const;
+            double current_energy_pkg(int pkg_idx) const;
             double current_energy_dram(void) const;
 
             std::unique_ptr<IProfileSampler> m_sampler;
@@ -183,7 +183,7 @@ namespace geopm
             bool m_is_connected;
             int m_rank_per_node;
             std::unique_ptr<IEpochRuntimeRegulator> m_epoch_regulator;
-            double m_start_energy_pkg;
+            std::vector<double> m_start_energy_pkg;
             double m_start_energy_dram;
     };
 }
