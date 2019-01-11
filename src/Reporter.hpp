@@ -96,13 +96,14 @@ namespace geopm
     };
 
     class IPlatformIO;
+    class IPlatformTopo;
     class IRegionAggregator;
 
     class Reporter : public IReporter
     {
         public:
-            Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, int rank);
-            Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, int rank,
+            Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, IPlatformTopo &platform_topo, int rank);
+            Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, IPlatformTopo &platform_topo, int rank,
                      std::unique_ptr<IRegionAggregator> agg);
             virtual ~Reporter() = default;
             void init(void) override;
@@ -120,13 +121,14 @@ namespace geopm
             std::string m_start_time;
             std::string m_report_name;
             IPlatformIO &m_platform_io;
+            IPlatformTopo &m_platform_topo;
             std::unique_ptr<IRegionAggregator> m_region_agg;
             int m_rank;
             int m_region_bulk_runtime_idx;
-            int m_energy_pkg_idx;
             int m_energy_dram_idx;
             int m_clk_core_idx;
             int m_clk_ref_idx;
+            std::vector<int> m_energy_pkg_idx;
     };
 }
 

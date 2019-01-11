@@ -66,9 +66,9 @@ namespace geopm
         , m_agg_pre_epoch_runtime_mpi(m_rank_per_node, 0.0)
         , m_agg_pre_epoch_runtime_ignore(m_rank_per_node, 0.0)
         , m_pre_epoch_region(m_rank_per_node)
-        , m_epoch_start_energy_pkg(NAN)
+        , m_epoch_start_energy_pkg(m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE), NAN)
         , m_epoch_start_energy_dram(NAN)
-        , m_epoch_total_energy_pkg(NAN)
+        , m_epoch_total_energy_pkg(m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE), NAN)
         , m_epoch_total_energy_dram(NAN)
     {
         if (m_rank_per_node <= 0) {
@@ -98,14 +98,9 @@ namespace geopm
     }
 
     /// @todo temporarily repeated here and in ApplicationIO, until these classes are combined.
-    double EpochRuntimeRegulator::current_energy_pkg(void) const
+    double EpochRuntimeRegulator::current_energy_pkg(int pkg_idx) const
     {
-        double energy = 0.0;
-        int num_package = m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE);
-        for (int pkg = 0; pkg < num_package; ++pkg) {
-            energy += m_platform_io.read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, pkg);
-        }
-        return energy;
+        return m_platform_io.read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, pkg_idx);
     }
 
     double EpochRuntimeRegulator::current_energy_dram(void) const
@@ -121,12 +116,16 @@ namespace geopm
     void EpochRuntimeRegulator::epoch(int rank, struct geopm_time_s epoch_time)
     {
         if (!m_is_energy_recorded) {
-            m_epoch_start_energy_pkg = current_energy_pkg();
+            for (unsigned pkg_idx = 0; pkg_idx < m_epoch_start_energy_pkg.size(); ++pkg_idx) {
+                m_epoch_start_energy_pkg[pkg_idx] = current_energy_pkg(pkg_idx);
+            }
             m_epoch_start_energy_dram = current_energy_dram();
             m_is_energy_recorded = true;
         }
         else {
-            m_epoch_total_energy_pkg = current_energy_pkg() - m_epoch_start_energy_pkg;
+            for (unsigned pkg_idx = 0; pkg_idx < m_epoch_start_energy_pkg.size(); ++pkg_idx) {
+                m_epoch_total_energy_pkg[pkg_idx] = current_energy_pkg(pkg_idx) - m_epoch_start_energy_pkg[pkg_idx];
+            }
             m_epoch_total_energy_dram = current_energy_dram() - m_epoch_start_energy_dram;
         }
 
@@ -323,9 +322,9 @@ namespace geopm
         return Agg::average(m_agg_epoch_runtime_ignore);
     }
 
-    double EpochRuntimeRegulator::total_epoch_energy_pkg(void) const
+    double EpochRuntimeRegulator::total_epoch_energy_pkg(int pkg_idx) const
     {
-        return m_epoch_total_energy_pkg;
+        return m_epoch_total_energy_pkg.at(pkg_idx);
     }
 
     double EpochRuntimeRegulator::total_epoch_energy_dram(void) const
