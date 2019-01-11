@@ -137,17 +137,21 @@ control_names() returns an empty set.
 GEOPM provides a number of built-in IOGroups for the most common
 usages.  The list of built-in IOGroups is as follows:
 
-  * `CpuinfoIOGroup`: Provides constants for CPU frequency limits.
-     Discussed in **geopm::CpuinfoIOGroup(3)**.
+  * `CpuinfoIOGroup`:
+    Provides constants for CPU frequency limits.  Discussed in
+    **geopm::CpuinfoIOGroup(3)**.
 
-  * `MSRIOGroup`: Provides signals and controls based on MSRs.
-    Discussed in **geopm::MSRIOGroup(3)**.
+  * `MSRIOGroup`:
+    Provides signals and controls based on MSRs.  Discussed in
+    **geopm::MSRIOGroup(3)**.
 
-  * `ProfileIOGroup`: Provides signals from the application.
-    Discussed in **geopm::ProfileIOGroup(3)**.
+  * `ProfileIOGroup`:
+    Provides signals from the application. Discussed in
+    **geopm::ProfileIOGroup(3)**.
 
-  * `TimeIOGroup`: Provides a signal for the current time.  Discussed
-    in **geopm::TimeIOGroup(3)**.
+  * `TimeIOGroup`:
+    Provides a signal for the current time.  Discussed in
+    **geopm::TimeIOGroup(3)**.
 
 The APIs discussed in **geopm::PlatformIO(3)** with regard to signals and
 controls are ultimately fulfilled by the individual IOGroups that implement
@@ -182,10 +186,11 @@ documentation about how to extend IOGroups.
     and/or **geopm::PluginFactory(3)**.
 
 ## CLASS METHODS
-  * `signal_names`(): Provides the list of all signals provided by the
-    `IOGroup`.  The set of strings that are returned can be passed as a
-    `signal_name` to all of the `IOGroup` methods that accept a `signal_name`
-    as an input parameter.
+  * `signal_names`():
+    Provides the list of all signals provided by the `IOGroup`.  The
+    set of strings that are returned can be passed as a `signal_name`
+    to all of the `IOGroup` methods that accept a `signal_name` as an
+    input parameter.
 
   * `control_names`():
     Provides the list of all controls provided by the `IOGroup`.  The set of
@@ -245,23 +250,26 @@ documentation about how to extend IOGroups.
     Interpret the setting and write setting to the platform.  Does not
     modify the values stored by calling adjust().
 
-  * `save_control`(): Save the state of all controls so that any
-    subsequent changes made through the IOGroup can be undone with a
-    call to the `restore`() method.
+  * `save_control`():
+    Save the state of all controls so that any subsequent changes made
+    through the IOGroup can be undone with a call to the `restore`()
+    method.
 
-  * `restore_control`(): Restore all controls to values recorded in
-    previous call to the `save`() method.
+  * `restore_control`():
+    Restore all controls to values recorded in previous call to the
+    `save`() method.
 
-  * `agg_function`(): Return a function that should be used when
-    aggregating the given signal.  For more information see **geopm::Agg(3)**.
+  * `agg_function`():
+    Return a function that should be used when aggregating the given
+    signal.  For more information see **geopm::Agg(3)**.
 
-  * `signal_description`(): Returns a description of the signal. This
-    string can be used by tools to generate help text for users of the
-    IOGroup.
+  * `signal_description`():
+    Returns a description of the signal. This string can be used by
+    tools to generate help text for users of the IOGroup.
 
-  * `control_description`(): Returns a description of the
-    control. This string can be used by tools to generate help text
-    for users of the IOGroup.
+  * `control_description`():
+    Returns a description of the control. This string can be used by
+    tools to generate help text for users of the IOGroup.
 
 ## EXAMPLE
 Please see the [GEOPM IOGroup
