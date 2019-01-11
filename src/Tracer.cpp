@@ -44,6 +44,7 @@
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
+#include "Helper.hpp"
 #include "geopm_env.h"
 #include "geopm_hash.h"
 #include "geopm_version.h"
@@ -114,16 +115,6 @@ namespace geopm
             m_stream << m_buffer.str();
             m_stream.close();
         }
-    }
-
-    std::string Tracer::hostname(void)
-    {
-        char hostname[NAME_MAX];
-        int err = gethostname(hostname, NAME_MAX);
-        if (err) {
-            throw Exception("Tracer::hostname() gethostname() failed", err, __FILE__, __LINE__);
-        }
-        return hostname;
     }
 
     void Tracer::columns(const std::vector<std::string> &agent_cols)

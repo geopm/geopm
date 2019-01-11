@@ -37,6 +37,7 @@
 #include <fstream>
 
 #include "Exception.hpp"
+#include "Helper.hpp"
 #include "geopm_time.h"
 #include "geopm_imbalancer.h"
 
@@ -70,17 +71,12 @@ Imbalancer::Imbalancer(const std::string config_path)
     : Imbalancer()
 {
     if (config_path.length()) {
-        char hostname[HOST_NAME_MAX + 1];
-        hostname[HOST_NAME_MAX] = '\0';
-        if (gethostname(hostname, HOST_NAME_MAX)) {
-            throw geopm::Exception("gethostname():", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
         std::ifstream config_stream(config_path, std::ifstream::in);
         std::string this_host;
         double this_frac;
         while(config_stream.good()) {
             config_stream >> this_host >> this_frac;
-            if (strncmp(hostname, this_host.c_str(), HOST_NAME_MAX) == 0) {
+            if (geopm::hostname() == this_host) {
                 frac(this_frac);
             }
         }

@@ -39,6 +39,7 @@
 
 #include "Exception.hpp"
 #include "ModelParse.hpp"
+#include "Helper.hpp"
 #include "geopm_imbalancer.h"
 #include "config.h"
 
@@ -171,12 +172,7 @@ namespace geopm
         }
 
         if (hostname.size()) {
-            char hostname_tmp[NAME_MAX];
-            hostname_tmp[NAME_MAX - 1] = '\0';
-            if (gethostname(hostname_tmp, NAME_MAX - 1)) {
-               throw geopm::Exception("gethostname():", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-            std::string this_hostname(hostname_tmp);
+            std::string this_hostname = geopm::hostname();
             auto hostname_it = hostname.begin();
             for (auto imbalance_it = imbalance.begin(); imbalance_it != imbalance.end(); ++imbalance_it, ++hostname_it) {
                 if (this_hostname == *hostname_it) {

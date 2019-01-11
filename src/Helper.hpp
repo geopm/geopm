@@ -52,6 +52,8 @@ namespace geopm
     /// @param [in] path The path of the file to read.
     /// @return The contents of the file at path.
     std::string read_file(const std::string& path);
+
+    std::string hostname(void);
 }
 
 #endif

@@ -106,7 +106,6 @@ namespace geopm
                         std::list<geopm_region_info_s> region_entry_exit) override;
             void flush(void) override;
         private:
-            static std::string hostname(void);
             /// @brief Format and write the values in m_last_telemetry to the trace.
             void write_line(void);
             std::string m_file_path;

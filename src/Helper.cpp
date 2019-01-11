@@ -30,6 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <unistd.h>
+#include <limits.h>
+
 #include <fstream>
 #include "Helper.hpp"
 #include "Exception.hpp"
@@ -59,5 +62,14 @@ namespace geopm
 
         return contents;
     }
-}
 
+    std::string hostname(void)
+    {
+        char hostname[NAME_MAX];
+        int err = gethostname(hostname, NAME_MAX);
+        if (err) {
+            throw Exception("Helper::hostname() gethostname() failed", err, __FILE__, __LINE__);
+        }
+        return hostname;
+    }
+}
