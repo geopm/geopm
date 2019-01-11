@@ -61,6 +61,9 @@ namespace geopm
     /// @return A vector of string pieces.
     std::vector<std::string> split_string(const std::string &str,
                                           const std::string &delim);
+
+    /// @brief Returns the current hostname as a string.
+    std::string hostname(void);
 }
 
 #endif
