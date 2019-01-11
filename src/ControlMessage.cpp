@@ -39,6 +39,7 @@
 #include "geopm_time.h"
 #include "ControlMessage.hpp"
 #include "Exception.hpp"
+#include "Helper.hpp"
 
 #include "config.h"
 
@@ -69,13 +70,7 @@ namespace geopm
                            m_ctl_msg.app_status == M_STATUS_MAP_BEGIN);
             } while (!is_init && geopm_time_since(&start) < M_WAIT_SEC);
             if (!is_init) {
-                char hostname[NAME_MAX];
-                int err = gethostname(hostname, NAME_MAX);
-                std::string hostname_str = "";
-                if (!err) {
-                    hostname_str = std::string(hostname);
-                }
-                throw Exception("ControlMessage::wait(): " + hostname_str +
+                throw Exception("ControlMessage::wait(): " + hostname() +
                                 " : is_ctl=" + std::to_string(m_is_ctl) +
                                 " : is_writer=" + std::to_string(m_is_writer) +
                                 " : Timed out waiting for startup",
@@ -109,13 +104,7 @@ namespace geopm
             }
         }
         if (this_status() != m_last_status) {
-            char hostname[NAME_MAX];
-            int err = gethostname(hostname, NAME_MAX);
-            std::string hostname_str = "";
-            if (!err) {
-                hostname_str = std::string(hostname);
-            }
-            throw Exception("ControlMessage::wait(): " + hostname_str +
+            throw Exception("ControlMessage::wait(): " + hostname() +
                             " : is_ctl=" + std::to_string(m_is_ctl) +
                             " : is_writer=" + std::to_string(m_is_writer) +
                             " : Timed out waiting for status " + std::to_string(m_last_status),

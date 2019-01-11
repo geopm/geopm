@@ -40,6 +40,7 @@
 
 #include "ModelParse.hpp"
 #include "Exception.hpp"
+#include "Helper.hpp"
 
 using geopm::model_parse_config;
 using geopm::Exception;
@@ -155,14 +156,9 @@ TEST_F(ModelApplicationTest, parse_config_errors)
     EXPECT_THROW(model_parse_config(m_filename, m_loop_count, m_region_name, m_big_o),
                  Exception);
 
-    char hostname_tmp[NAME_MAX];
-    hostname_tmp[NAME_MAX - 1] = '\0';
-    if (gethostname(hostname_tmp, NAME_MAX - 1)) {
-        FAIL() << "unable to get hostname";
-    }
     std::ofstream bad_imbalance_item2(m_filename);
     bad_imbalance_item2 << "{\"imbalance\":[-20.2], \"hostname\":[\""
-                        << hostname_tmp << "\"]}" << std::endl;
+                        << geopm::hostname() << "\"]}" << std::endl;
     bad_imbalance_item2.close();
     EXPECT_THROW(model_parse_config(m_filename, m_loop_count, m_region_name, m_big_o),
                  Exception);
