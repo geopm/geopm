@@ -37,13 +37,285 @@ geopm::MPIComm(3) -- implementation of Comm using MPI
 
 `Link with -lgeopm (MPI)`
 
+## SYNOPSIS
+  * `MPIComm(`:
+    `void);`
+
+  * `MPIComm(`:
+    `MPI_Comm `_in_comm_`);`
+
+  * `MPIComm(`:
+    `const MPIComm *`_in_comm_`);`
+
+  * `MPIComm(`:
+    `const MPIComm *`_in_comm_`,`<br>
+    `std::vector<int> `_dimension_`,`<br>
+    `std::vector<int> `_periods_`,`<br>
+    `bool `_is_reorder_`);`
+
+  * `MPIComm(`:
+    `const MPIComm *`_in_comm_`,`<br>
+    `int `_color_`,`<br>
+    `int `_key_`);`
+
+  * `MPIComm(`:
+    `const MPIComm *`_in_comm_`,`<br>
+    `std::string `_tag_`,`<br>
+    `bool &`_is_ctl_`);`
+
+  * `MPIComm(`:
+    `const MPIComm *`_in_comm_`,`<br>
+    `std::string `_tag_`);`
+
+  * `MPIComm(`:
+    `const MPIComm *`_in_comm_`,`<br>
+    `std::string `_tag_`,`<br>
+    `int `_split_type_`);`
+
+  * `~MPIComm(`:
+    `void);`
+
+  * `static std::string plugin_name(`:
+    `void);`
+
+  * `static std::unique_ptr<Comm> make_plugin(`:
+    `void);`
+
+  * `static MPIComm &comm_world(`:
+    `void);`
+
+  * `std::shared_ptr<Comm> split(`:
+    `void) const;`
+
+  * `std::shared_ptr<Comm> split(`:
+    `int `_color_`,`<br>
+    `int `_key_`) const;`
+
+  * `std::shared_ptr<Comm> split(`:
+    `const std::string &`_tag_`,`<br>
+    `int `_split_type_`) const;`
+
+  * `std::shared_ptr<Comm> split(`:
+    `std::vector<int> `_dimensions_`,`<br>
+    `std::vector<int> `_periods_`,`<br>
+    `bool `_is_reorder_`) const;`
+
+  * `std::shared_ptr<Comm> split_cart(`:
+    `std::vector<int> `_dimensions_`) const;`
+
+  * `bool comm_supported(`:
+    `const std::string &`_description_`) const;`
+
+  * `int cart_rank(`:
+    `const std::vector<int> &`_coords_`) const;`
+
+  * `int rank(`:
+    `void) const;`
+
+  * `int num_rank(`:
+    `void) const;`
+
+  * `void dimension_create(`:
+    `int `_num_ranks_`,`<br>
+    `std::vector<int> &`_dimension_`) const;`
+
+  * `void alloc_mem(`:
+    `size_t `_size_`,`<br>
+    `void **`_base_`);`
+
+  * `void free_mem(`:
+    `void *`_base_`);`
+
+  * `size_t window_create(`:
+    `size_t `_size_`,`<br>
+    `void *`_base_`);`
+
+  * `void window_destroy(`:
+    `size_t `_window_id_`);`
+
+  * `void coordinate(`:
+    `int `_rank_`,`<br>
+    `std::vector<int> &`_coord_`) const;`
+
+  * `std::vector<int> coordinate(`:
+    `int `_rank_`) const;`
+
+  * `void window_lock(`:
+    `size_t `_window_id_`,`<br>
+    `bool `_is_exclusive_`,`<br>
+    `int `_rank_`,`<br>
+    `int `_assert_`) const;`
+
+  * `void window_unlock(`:
+    `size_t `_window_id_`,`<br>
+    `int `_rank_`) const;`
+
+  * `void barrier(`:
+    `void) const;`
+
+  * `void broadcast(`:
+    `void *`_buffer_`,`<br>
+    `size_t `_size_`,`<br>
+    `int `_root_`) const;`
+
+  * `bool test(`:
+    `bool `_is_true_`) const;`
+
+  * `void reduce_max(`:
+    `double *`_send_buf_`,`<br>
+    `double *`_recv_buf_`,`<br>
+    `size_t `_count_`,`<br>
+    `int `_root_`) const;`
+
+  * `void gather(`:
+    `const void *`_send_buf_`,`<br>
+    `size_t `_send_size_`,`<br>
+    `void *`_recv_buf_`,`<br>
+    `size_t `_recv_size_`,`<br>
+    `int `_root_`) const;`
+
+  * `void gatherv(`:
+    `const void *`_send_buf_`,`<br>
+    `size_t `_send_size_`,`<br>
+    `void *`_recv_buf_`,`<br>
+    `const std::vector<size_t> &`_recv_sizes_`,`<br>
+    `const std::vector<off_t> &`_rank_offset_`,`<br>
+    `int `_root_`) const;`
+
+  * `void window_put(`:
+    `const void *`_send_buf_`,`<br>
+    `size_t `_send_size_`,`<br>
+    `int `_rank_`,`<br>
+    `off_t `_disp_`,`<br>
+    `size_t `_window_id_`) const;`
+
+  * `void tear_down(`:
+    `void);`
+
+
 ## DESCRIPTION
 
 This class implements the Comm abstraction (**geopm::Comm(3)**) using MPI
 as the underlying communication mechanism.
 
-For more details, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_m_p_i_comm.html>.
+## CLASS METHODS
+  * `MPIComm`():
+
+
+  * `MPIComm`():
+
+
+  * `MPIComm`():
+
+
+  * `MPIComm`():
+
+
+  * `MPIComm`():
+
+
+  * `MPIComm`():
+
+
+  * `MPIComm`():
+
+
+  * `MPIComm`():
+
+
+  * `~MPIComm`():
+
+
+  * `plugin_name`():
+
+
+  * `make_plugin`():
+
+
+  * `&comm_world`():
+
+
+  * `split`():
+
+
+  * `split`():
+
+
+  * `split`():
+
+
+  * `split`():
+
+
+  * `split_cart`():
+
+
+  * `comm_supported`():
+
+
+  * `cart_rank`():
+
+
+  * `rank`():
+
+
+  * `num_rank`():
+
+
+  * `dimension_create`():
+
+
+  * `alloc_mem`():
+
+
+  * `free_mem`():
+
+
+  * `window_create`():
+
+
+  * `window_destroy`():
+
+
+  * `coordinate`():
+
+
+  * `coordinate`():
+
+
+  * `window_lock`():
+
+
+  * `window_unlock`():
+
+
+  * `barrier`():
+
+
+  * `broadcast`():
+
+
+  * `test`():
+
+
+  * `reduce_max`():
+
+
+  * `gather`():
+
+
+  * `gatherv`():
+
+
+  * `window_put`():
+
+
+  * `tear_down`():
+
+
+## ENUMERATIONS
+
+
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.

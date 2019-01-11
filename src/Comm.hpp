@@ -85,7 +85,7 @@ namespace geopm
             /// @param [in] num_ranks Number of ranks that must fit in Cartesian grid.
             ///
             /// @param [in, out] dimension Number of ranks per dimension.  The size of this vector
-            ///        dictates the number of dimensions in the grid.  Fill indecies with 0 for API
+            ///        dictates the number of dimensions in the grid.  Fill indices with 0 for API
             ///        to fill with suitable value.
             virtual void dimension_create(int num_ranks, std::vector<int> &dimension) const = 0;
             /// @brief Free memory that was allocated for message passing and RMA
@@ -155,7 +155,7 @@ namespace geopm
             virtual bool test(bool is_true) const = 0;
             /// @brief Reduce distributed messages across all ranks using specified operation, store result on all ranks
             ///
-            /// @param [in] send_buf Start address of memory buffer to be trasnmitted.
+            /// @param [in] send_buf Start address of memory buffer to be transmitted.
             ///
             /// @param [out] recv_buf Start address of memory buffer to receive data.
             ///
@@ -164,7 +164,7 @@ namespace geopm
             virtual void reduce_max(double *send_buf, double *recv_buf, size_t count, int root) const = 0;
             /// @brief Gather bytes from all processes
             ///
-            /// @param [in] send_buf Start address of memory buffer to be trasnmitted.
+            /// @param [in] send_buf Start address of memory buffer to be transmitted.
             ///
             /// @param [in] send_size Size of buffer to be sent.
             ///
@@ -177,7 +177,7 @@ namespace geopm
                                 size_t recv_size, int root) const = 0;
             /// @brief Gather bytes into specified location from all processes
             ///
-            /// @param [in] send_buf Start address of memory buffer to be trasnmitted.
+            /// @param [in] send_buf Start address of memory buffer to be transmitted.
             ///
             /// @param [in] send_size Size of buffer to be sent.
             ///
