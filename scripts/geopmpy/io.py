@@ -614,7 +614,7 @@ class Report(dict):
         self._profile_name = None
         self._agent = None
         self._total_runtime = None
-        self._total_energy_pkg = None
+        self._total_energy_pkg = []
         self._total_energy_dram = None
         self._total_ignore_runtime = None
         self._total_mpi_runtime = None
@@ -623,7 +623,8 @@ class Report(dict):
         self._node_name = None
 
         found_totals = False
-        (region_name, region_id, runtime, sync_runtime, energy_pkg, energy_dram, frequency, mpi_runtime, count) = None, None, None, None, None, None, None, None, None
+        (region_name, region_id, runtime, sync_runtime, energy_dram, frequency, mpi_runtime, count) = None, None, None, None, None, None, None, None
+        energy_pkg = []
         float_regex = r'([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)'
 
         with open(self._path, 'r') as fid:
@@ -666,10 +667,10 @@ class Report(dict):
                     match = re.search(r'^\s+sync-runtime.+: ' + float_regex, line)
                     if match is not None:
                         sync_runtime = float(match.group(1))
-                if energy_pkg is None:
-                    match = re.search(r'^\s+package-energy.+: ' + float_regex, line)
-                    if match is not None:
-                        energy_pkg = float(match.group(1))
+                match = re.search(r'^\s+package-{}-energy.+: {}'.format(len(energy_pkg), float_regex), line)
+                if match is not None:
+                    energy_pkg.append(float(match.group(1)))
+
                 if energy_dram is None:
                     match = re.search(r'^\s+dram-energy.+: ' + float_regex, line)
                     if match is not None:
@@ -698,10 +699,9 @@ class Report(dict):
                         match = re.search(r'\s+runtime.+: ' + float_regex, line)
                         if match is not None:
                             self._total_runtime = float(match.group(1))
-                    if self._total_energy_pkg is None:
-                        match = re.search(r'\s+package-energy.+: ' + float_regex, line)
-                        if match is not None:
-                            self._total_energy_pkg = float(match.group(1))
+                    match = re.search(r'\s+package-{}-energy.+: {}'.format(len(self._total_energy_pkg), float_regex), line)
+                    if match is not None:
+                        self._total_energy_pkg.append(float(match.group(1)))
                     if self._total_energy_dram is None:
                         match = re.search(r'\s+dram-energy.+: ' + float_regex, line)
                         if match is not None:
@@ -751,7 +751,8 @@ class Report(dict):
         if self._total_energy_dram is None:
             self._total_energy_dram = 0
         if (len(line) != 0 and (region_name is not None or not found_totals or
-            None in (self._total_runtime, self._total_energy_pkg, self._total_energy_dram, self._total_ignore_runtime, self._total_mpi_runtime))):
+            None in (self._total_runtime, self._total_energy_dram, self._total_ignore_runtime, self._total_mpi_runtime)) or
+            len(self._total_energy_pkg) == 0):
             raise SyntaxError('Unable to parse report {} before offset {}: '.format(self._path, self._offset))
 
     # Fields used for dataframe construction only
@@ -803,8 +804,8 @@ class Region(dict):
         name: The name of the region.
         rid: The numeric ID of the region.
         runtime: The accumulated time of the region in seconds.
-        energy_pkg: The accumulated package energy from this region in
-                    Joules.
+        energy_pkg: List of the accumulated per-package energy from
+                    this region in Joules.
         energy_dram: The accumulated DRAM energy from this region in
                      Joules.
         frequency: The average frequency achieved during this region
