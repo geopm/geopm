@@ -38,10 +38,10 @@
 #include <set>
 #include <functional>
 
+#include "PluginFactory.hpp"
+
 namespace geopm
 {
-    template <class T> class PluginFactory;
-
     class IOGroup
     {
         public:
