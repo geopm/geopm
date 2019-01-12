@@ -35,7 +35,6 @@
 
 #include "geopm_agent.h"
 #include "string.h"
-#include "PluginFactory.hpp"
 #include "Agent.hpp"
 #include "MonitorAgent.hpp"
 #include "PowerBalancerAgent.hpp"
