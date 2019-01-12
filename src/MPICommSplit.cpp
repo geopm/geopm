@@ -39,7 +39,6 @@
 #include "Exception.hpp"
 #include "Controller.hpp"
 #include "Comm.hpp"
-#include "PluginFactory.hpp"
 #include "MPIComm.hpp"
 
 #include "config.h"

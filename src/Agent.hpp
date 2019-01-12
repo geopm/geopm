@@ -39,11 +39,10 @@
 #include <functional>
 
 #include "PlatformIO.hpp"
+#include "PluginFactory.hpp"
 
 namespace geopm
 {
-    template <class T> class PluginFactory;
-
     class Agent
     {
         public:
