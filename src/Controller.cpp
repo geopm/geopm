@@ -33,7 +33,6 @@
 #include <algorithm>
 #include <cmath>
 
-#include "PluginFactory.hpp"
 #include "geopm_env.h"
 #include "geopm_signal_handler.h"
 #include "Controller.hpp"

@@ -37,7 +37,6 @@
 #include <numeric>
 #include <iostream>
 
-#include "PluginFactory.hpp"
 #include "geopm_sched.h"
 #include "geopm_hash.h"
 #include "geopm.h"
