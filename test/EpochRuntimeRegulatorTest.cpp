@@ -153,16 +153,10 @@ TEST_F(EpochRuntimeRegulatorTest, all_ranks_enter_exit)
 
 TEST_F(EpochRuntimeRegulatorTest, epoch_runtime)
 {
-    int num_package = 2;
-    int num_memory = 1;
-    EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(6)
-        .WillRepeatedly(Return(num_package));
-    EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_BOARD_MEMORY)).Times(6)
-        .WillRepeatedly(Return(num_memory));
-    EXPECT_CALL(m_platform_io, read_signal("ENERGY_PACKAGE", _, _))
-        .Times(num_package * 6);
-    EXPECT_CALL(m_platform_io, read_signal("ENERGY_DRAM", _, _))
-        .Times(num_memory * 6);
+    EXPECT_CALL(m_platform_io, read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0))
+        .Times(6);
+    EXPECT_CALL(m_platform_io, read_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0))
+        .Times(6);
 
     uint64_t region_id = 0x98765432;
     m_regulator.record_entry(region_id, 0, {{1, 0}});
