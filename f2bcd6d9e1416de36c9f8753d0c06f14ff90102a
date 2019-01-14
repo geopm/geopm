@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50c73918_7fe038ac",
+        "filename": "src/Reporter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-14T19:01:24Z",
+      "side": 1,
+      "message": "\"package-energy-\" \u003c\u003c pkg_idx\nOR preferably:\n\"energy-package-\" \u003c\u003c pkg_idx\n\nbut index needs to go at the end.",
+      "range": {
+        "startLine": 218,
+        "startChar": 30,
+        "endLine": 218,
+        "endChar": 63
+      },
+      "revId": "f2bcd6d9e1416de36c9f8753d0c06f14ff90102a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
