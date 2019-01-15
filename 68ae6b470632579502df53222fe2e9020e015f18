@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "404b78b9_6e59ed80",
+        "filename": "src/geopm_plugin.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-15T19:11:42Z",
+      "side": 1,
+      "message": "GEOPM_DEFAULT_PLUGIN_PATH",
+      "revId": "68ae6b470632579502df53222fe2e9020e015f18",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9987c03_badb5206",
+        "filename": "src/geopm_plugin.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-15T19:11:42Z",
+      "side": 1,
+      "message": "I think this should be reversed before inserting",
+      "revId": "68ae6b470632579502df53222fe2e9020e015f18",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
