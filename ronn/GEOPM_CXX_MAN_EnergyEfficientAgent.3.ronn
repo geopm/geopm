@@ -37,14 +37,126 @@ geopm::EnergyEfficientAgent(3) -- agent for saving energy
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
+  * `EnergyEfficientAgent(`:
+    `void);`
+
+  * `EnergyEfficientAgent(`:
+    `IPlatformIO &`_plat_io_`,`<br>
+    `IPlatformTopo &`_topo_`);`
+
+  * `~EnergyEfficientAgent(`:
+    `void) = default;`
+
+  * `void init(`:
+    `int `_level_`,`<br>
+    `const std::vector<int> &`_fan_in_`,`<br>
+    `bool `_is_level_root_`);`
+
+  * `std::vector<double> validate_policy(`:
+    `const std::vector<double> &`_in_policy_`) const;`
+
+  * `bool descend(`:
+    `const std::vector<double> &`_in_policy_`,`<br>
+    `std::vector<std::vector<double> `_>&out_policy_`);`
+
+  * `bool ascend(`:
+    `const std::vector<std::vector<double> > &`_in_sample_`,`<br>
+    `std::vector<double> &`_out_sample_`);`
+
+  * `bool adjust_platform(`:
+    `const std::vector<double> &`_in_policy_`);`
+
+  * `bool sample_platform(`:
+    `std::vector<double> &`_out_sample_`);`
+
+  * `void wait(`:
+    `void);`
+
+  * `std::vector<std::pair<std::string, std::string> > report_header(`:
+    `void) const;`
+
+  * `std::vector<std::pair<std::string, std::string> > report_node(`:
+    `void) const;`
+
+  * `std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(`:
+    `void) const;`
+
+  * `std::vector<std::string> trace_names(`:
+    `void) const;`
+
+  * `void trace_values(`:
+    `std::vector<double> &`_values_`);`
+
+  * `static std::string plugin_name(`:
+    `void);`
+
+  * `static std::unique_ptr<Agent> make_plugin(`:
+    `void);`
+
+  * `static std::vector<std::string> policy_names(`:
+    `void);`
+
+  * `static std::vector<std::string> sample_names(`:
+    `void);`
+
 ## DESCRIPTION
 
 The behavior of this agent is described in more detail in the
 **geopm_agent_energy_efficient(7)** man page.  The core of the
 online algorithm is implemented in **geopm::EnergyEfficientRegion(3)**.
 
-For more details on the implementation, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_energy_efficient_agent.html>.
+## CLASS METHODS
+
+  * `init`():
+
+
+  * `validate_policy`():
+
+
+  * `descend`():
+
+
+  * `ascend`():
+
+
+  * `adjust_platform`():
+
+
+  * `sample_platform`():
+
+
+  * `wait`():
+
+
+  * `report_header`():
+
+
+  * `report_node`():
+
+
+  * `report_region`():
+
+
+  * `trace_names`():
+
+
+  * `trace_values`():
+
+
+  * `plugin_name`():
+
+
+  * `make_plugin`():
+
+
+  * `policy_names`():
+
+
+  * `sample_names`():
+
+
+## ENUMERATIONS
+
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.

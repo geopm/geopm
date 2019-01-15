@@ -39,6 +39,114 @@ geopm::PowerGovernor(3) -- enforces a power limit
 
 ## DESCRIPTION
 
+## SYNOPSIS
+  * `IPowerGovernor(`:
+    `void) = default;`
+
+  * `~IPowerGovernor(`:
+    `void) = default;`
+
+  * `void init_platform_io(`:
+    `void);`
+
+  * `void sample_platform(`:
+    `void);`
+
+  * `bool adjust_platform(`:
+    `double `_node_power_request_`,`<br>
+    `double &`_node_power_actual_`);`
+
+  * `void set_power_bounds(`:
+    `double `_min_pkg_power_`,`<br>
+    `double `_max_pkg_power_`);`
+
+  * `double power_package_time_window(`:
+    `void) const;`
+
+  * `PowerGovernor(`:
+    `IPlatformIO &`_platform_io_`,`<br>
+    `IPlatformTopo &`_platform_topo_`);`
+
+  * `~PowerGovernor(`:
+    `void);`
+
+  * `void init_platform_io(`:
+    `void);`
+
+  * `void sample_platform(`:
+    `void);`
+
+  * `bool adjust_platform(`:
+    `double `_node_power_request_`,`<br>
+    `double &`_node_power_actual_`);`
+
+  * `void set_power_bounds(`:
+    `double `_min_pkg_power_`,`<br>
+    `double `_max_pkg_power_`);`
+
+  * `double power_package_time_window(`:
+    `void) const;`
+
+## DESCRIPTION
+Class PowerGovernor
+
+## CLASS METHODS
+  * `IPowerGovernor`():
+
+
+  * `~IPowerGovernor`():
+
+
+  * `init_platform_io`():
+    Registsters signals and controls with PlatformIO.
+
+  * `sample_platform`():
+    To be called inside of the Agent's
+    sample_platform() method to read any values
+    required when calling adjust_platform().  This
+    method is currently a noop since no signals are
+    required for this algorithm.
+
+  * `adjust_platform`():
+    Calculates metric of DRAM power history, subtracting that value
+    from the provided target node power.
+    [in] node_power_request Total expected node power consumption.
+    [out] node_power_actual Achievable node power limit.  Should equal
+    @return True if platform adjustments have been made, false otherwise.
+
+  * `set_power_bounds`():
+    Sets min and max package bounds.
+    [in] min_pkg_power Minimum package power.
+    [in] max_pkg_power Maximum package power.
+
+  * `power_package_time_window`():
+    Get the time window for controling package power.
+    @return Time window in units of seconds.
+
+  * `PowerGovernor`():
+
+
+  * `~PowerGovernor`():
+
+
+  * `init_platform_io`():
+
+
+  * `sample_platform`():
+
+
+  * `adjust_platform`():
+
+
+  * `set_power_bounds`():
+
+
+  * `power_package_time_window`():
+
+
+## ENUMERATIONS
+
+
 This class is used by the PowerGovernorAgent and the PowerBalancerAgent
 to enforce power limits.
 

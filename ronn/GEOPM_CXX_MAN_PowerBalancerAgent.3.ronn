@@ -39,6 +39,474 @@ geopm::PowerBalancerAgent(3) -- agent optimizing performance under a power cap
 
 ## DESCRIPTION
 
+## SYNOPSIS
+  * `PowerBalancerAgent(`:
+    `IPlatformIO &`_platform_io_`,`<br>
+    `IPlatformTopo &`_platform_topo_`,`<br>
+    `std::unique_ptr<IPowerGovernor> `_power_governor_`,`<br>
+    `std::unique_ptr<IPowerBalancer> `_power_balancer_`);`
+
+  * `PowerBalancerAgent(`:
+    `void);`
+
+  * `~PowerBalancerAgent(`:
+    `void);`
+
+  * `void init(`:
+    `int `_level_`,`<br>
+    `const std::vector<int> &`_fan_in_`,`<br>
+    `bool `_is_level_root_`);`
+
+  * `std::vector<double> validate_policy(`:
+    `const std::vector<double> &`_in_policy_`) const;`
+
+  * `bool descend(`:
+    `const std::vector<double> &`_in_policy_`,`<br>
+    `std::vector<std::vector<double> `_>&out_policy_`);`
+
+  * `bool ascend(`:
+    `const std::vector<std::vector<double> > &`_in_sample_`,`<br>
+    `std::vector<double> &`_out_sample_`);`
+
+  * `bool adjust_platform(`:
+    `const std::vector<double> &`_in_policy_`);`
+
+  * `bool sample_platform(`:
+    `std::vector<double> &`_out_sample_`);`
+
+  * `void wait(`:
+    `void);`
+
+  * `std::vector<std::pair<std::string, std::string> > report_header(`:
+    `void) const;`
+
+  * `std::vector<std::pair<std::string, std::string> > report_node(`:
+    `void) const;`
+
+  * `std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(`:
+    `void) const;`
+
+  * `std::vector<std::string> trace_names(`:
+    `void) const;`
+
+  * `void trace_values(`:
+    `std::vector<double> &`_values_`);`
+
+  * `static std::string plugin_name(`:
+    `void);`
+
+  * `static std::unique_ptr<Agent> make_plugin(`:
+    `void);`
+
+  * `static std::vector<std::string> policy_names(`:
+    `void);`
+
+  * `static std::vector<std::string> sample_names(`:
+    `void);`
+
+  * `bool descend(`:
+    `const std::vector<double> &`_in_policy_`,`<br>
+    `std::vector<std::vector<double> `_>&out_policy_`);`
+
+  * `bool ascend(`:
+    `const std::vector<std::vector<double> > &`_in_sample_`,`<br>
+    `std::vector<double> &`_out_sample_`);`
+
+  * `bool adjust_platform(`:
+    `const std::vector<double> &`_in_policy_`);`
+
+  * `bool sample_platform(`:
+    `std::vector<double> &`_out_sample_`);`
+
+  * `std::vector<std::string> trace_names(`:
+    `void) const;`
+
+  * `void trace_values(`:
+    `std::vector<double> &`_values_`);`
+
+  * `IStep(`:
+    `void) = default;`
+
+  * `~IStep(`:
+    `void) = default;`
+
+  * `void update_policy(`:
+    `RootRole &`_role_`,`<br>
+    `const std::vector<double> &`_sample_`) const;`
+
+  * `void enter_step(`:
+    `LeafRole &`_role_`,`<br>
+    `const std::vector<double> &`_in_policy_`) const;`
+
+  * `void sample_platform(`:
+    `LeafRole &`_role_`) const;`
+
+  * `SendDownLimitStep(`:
+    `void) = default;`
+
+  * `~SendDownLimitStep(`:
+    `void) = default;`
+
+  * `void update_policy(`:
+    `PowerBalancerAgent::RootRole &`_role_`,`<br>
+    `const std::vector<double> &`_sample_`) const;`
+
+  * `void enter_step(`:
+    `PowerBalancerAgent::LeafRole &`_role_`,`<br>
+    `const std::vector<double> &`_in_policy_`) const;`
+
+  * `void sample_platform(`:
+    `PowerBalancerAgent::LeafRole &`_role_`) const;`
+
+  * `MeasureRuntimeStep(`:
+    `void) = default;`
+
+  * `~MeasureRuntimeStep(`:
+    `void) = default;`
+
+  * `void update_policy(`:
+    `PowerBalancerAgent::RootRole &`_role_`,`<br>
+    `const std::vector<double> &`_sample_`) const;`
+
+  * `void enter_step(`:
+    `PowerBalancerAgent::LeafRole &`_role_`,`<br>
+    `const std::vector<double> &`_in_policy_`) const;`
+
+  * `void sample_platform(`:
+    `PowerBalancerAgent::LeafRole &`_role_`) const;`
+
+  * `ReduceLimitStep(`:
+    `void) = default;`
+
+  * `~ReduceLimitStep(`:
+    `void) = default;`
+
+  * `void update_policy(`:
+    `PowerBalancerAgent::RootRole &`_role_`,`<br>
+    `const std::vector<double> &`_sample_`) const;`
+
+  * `void enter_step(`:
+    `PowerBalancerAgent::LeafRole &`_role_`,`<br>
+    `const std::vector<double> &`_in_policy_`) const;`
+
+  * `void sample_platform(`:
+    `PowerBalancerAgent::LeafRole &`_role_`) const;`
+
+  * `TreeRole(`:
+    `int `_level_`,`<br>
+    `const std::vector<int> &`_fan_in_`);`
+
+  * `~TreeRole(`:
+    `void);`
+
+  * `bool descend(`:
+    `const std::vector<double> &`_in_policy_`,`<br>
+    `std::vector<std::vector<double> `_>&out_policy_`);`
+
+  * `bool ascend(`:
+    `const std::vector<std::vector<double> > &`_in_sample_`,`<br>
+    `std::vector<double> &`_out_sample_`);`
+
+  * `RootRole(`:
+    `int `_level_`,`<br>
+    `const std::vector<int> &`_fan_in_`,`<br>
+    `double `_min_power_`,`<br>
+    `double `_max_power_`);`
+
+  * `~RootRole(`:
+    `void);`
+
+  * `bool descend(`:
+    `const std::vector<double> &`_in_policy_`,`<br>
+    `std::vector<std::vector<double> `_>&out_policy_`);`
+
+  * `bool ascend(`:
+    `const std::vector<std::vector<double> > &`_in_sample_`,`<br>
+    `std::vector<double> &`_out_sample_`);`
+
+  * `LeafRole(`:
+    `IPlatformIO &`_platform_io_`,`<br>
+    `IPlatformTopo &`_platform_topo_`,`<br>
+    `std::unique_ptr<IPowerGovernor> `_power_governor_`,`<br>
+    `std::unique_ptr<IPowerBalancer> `_power_balancer_`);`
+
+  * `~LeafRole(`:
+    `void);`
+
+  * `bool adjust_platform(`:
+    `const std::vector<double> &`_in_policy_`);`
+
+  * `bool sample_platform(`:
+    `std::vector<double> &`_out_sample_`);`
+
+  * `std::vector<std::string> trace_names(`:
+    `void) const;`
+
+  * `void trace_values(`:
+    `std::vector<double> &`_values_`);`
+
+## DESCRIPTION
+Class LeafRole
+
+## CLASS METHODS
+  * `PowerBalancerAgent`():
+    The power cap enforced on average over all
+    nodes running the application.  This has
+    value 0.0 except in two cases.  In the
+    first case this is the M_SEND_DOWN_LIMIT
+    step at the beginning of the application
+    run.  This value will also be non-zero in
+    the case where the resource mananger has
+    requested a new budget for the application,
+    and thus, the algorithm must be restarted
+    at step M_SEND_DOWN_LIMIT.
+    Step that the root is providing a policy
+    for.  The parent has received a sample
+    matching this step in the last walk up the
+    tree, execpt in the case where the endpoint
+    has recently been updated with a new
+    policy, in this case the step will be
+    M_SEND_DOWN_LIMIT and the policy indexed by
+    M_POLICY_POWER_CAP will have a non-zero
+    value.
+    The largest runtime reported by any leaf
+    agent since the last redistribution of
+    power.  This will have value 0.0 until all
+    leaf agents have reported a runtime to the
+    root agent.
+    This value is updated in step
+    M_STEP_ADJUST_LIMIT to the amount that each
+    leaf agent should increase their power
+    limit by calling:
+    power_cap(current_limit + slack)
+    by before starting the algorithm over again
+    at step M_STEP_MEASURE_RUNTIME.  For all
+    other steps this value is 0.0.
+    Number of steps in each iteration of the
+    balancing algorithm.
+    The the step counter that is currently in
+    execution.  Note that the step is equal to
+    the step counter modulo M_NUM_STEP and is
+    reset each time a new power cap is provided
+    by sending a policy with a non-zero
+    M_POLICY_POWER_CAP field.
+    Maximum expected runtime for any node
+    below.
+    The sum of all slack power available from
+    children below the agent.
+    Smallest difference between maximum power
+    limit and current power limit for any node
+    below.
+    Number of elements in a sample vector.
+
+  * `PowerBalancerAgent`():
+
+
+  * `~PowerBalancerAgent`():
+
+
+  * `init`():
+
+
+  * `validate_policy`():
+
+
+  * `descend`():
+
+
+  * `ascend`():
+
+
+  * `adjust_platform`():
+
+
+  * `sample_platform`():
+
+
+  * `wait`():
+
+
+  * `report_header`():
+
+
+  * `report_node`():
+
+
+  * `report_region`():
+
+
+  * `trace_names`():
+
+
+  * `trace_values`():
+
+
+  * `plugin_name`():
+
+
+  * `make_plugin`():
+
+
+  * `policy_names`():
+
+
+  * `sample_names`():
+
+
+  * `descend`():
+
+
+  * `ascend`():
+
+
+  * `adjust_platform`():
+
+
+  * `sample_platform`():
+
+
+  * `trace_names`():
+
+
+  * `trace_values`():
+
+
+  * `IStep`():
+
+
+  * `~IStep`():
+
+
+  * `update_policy`():
+
+
+  * `enter_step`():
+
+
+  * `sample_platform`():
+
+
+  * `SendDownLimitStep`():
+
+
+  * `~SendDownLimitStep`():
+
+
+  * `update_policy`():
+
+
+  * `enter_step`():
+
+
+  * `sample_platform`():
+
+
+  * `MeasureRuntimeStep`():
+
+
+  * `~MeasureRuntimeStep`():
+
+
+  * `update_policy`():
+
+
+  * `enter_step`():
+
+
+  * `sample_platform`():
+
+
+  * `ReduceLimitStep`():
+
+
+  * `~ReduceLimitStep`():
+
+
+  * `update_policy`():
+
+
+  * `enter_step`():
+
+
+  * `sample_platform`():
+
+
+  * `TreeRole`():
+
+
+  * `~TreeRole`():
+
+
+  * `descend`():
+
+
+  * `ascend`():
+
+
+  * `RootRole`():
+
+
+  * `~RootRole`():
+
+
+  * `descend`():
+
+
+  * `ascend`():
+
+
+  * `LeafRole`():
+
+
+  * `~LeafRole`():
+
+
+  * `adjust_platform`():
+
+
+  * `sample_platform`():
+
+
+  * `trace_names`():
+
+
+  * `trace_values`():
+
+
+## ENUMERATIONS
+enum m_policy_e {
+M_POLICY_POWER_CAP,
+M_POLICY_STEP_COUNT,
+M_POLICY_MAX_EPOCH_RUNTIME,
+M_POLICY_POWER_SLACK,
+M_NUM_POLICY,
+};
+enum m_sample_e {
+M_SAMPLE_STEP_COUNT,
+M_SAMPLE_MAX_EPOCH_RUNTIME,
+M_SAMPLE_SUM_POWER_SLACK,
+M_SAMPLE_MIN_POWER_HEADROOM,
+M_NUM_SAMPLE,
+};
+enum m_plat_signal_e {
+M_PLAT_SIGNAL_EPOCH_RUNTIME,
+M_PLAT_SIGNAL_EPOCH_COUNT,
+M_PLAT_SIGNAL_EPOCH_RUNTIME_MPI,
+M_PLAT_SIGNAL_EPOCH_RUNTIME_IGNORE,
+M_PLAT_NUM_SIGNAL,
+};
+enum m_trace_sample_e {
+M_TRACE_SAMPLE_EPOCH_RUNTIME,
+M_TRACE_SAMPLE_POWER_LIMIT,
+M_TRACE_SAMPLE_POLICY_POWER_CAP,
+M_TRACE_SAMPLE_POLICY_STEP_COUNT,
+M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME,
+M_TRACE_SAMPLE_POLICY_POWER_SLACK,
+M_TRACE_SAMPLE_POLICY_POWER_LIMIT,
+M_TRACE_NUM_SAMPLE,
+};
+
+
 The behavior of this agent is described in more detail in the
 **geopm_agent_power_balancer(7)** man page.  The balancing algorithm
 is implemented using the **geopm::PowerBalancer(3)** class.

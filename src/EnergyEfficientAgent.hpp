@@ -111,7 +111,6 @@ namespace geopm
             std::vector<int> m_signal_idx;
             std::vector<std::function<double(const std::vector<double>&)> > m_agg_func;
             size_t m_num_sample;
-            int m_level = -1;
             int m_num_children = 0;
             uint64_t m_last_region_id = 0;
             size_t m_num_ascend = 0;
