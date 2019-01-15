@@ -288,6 +288,16 @@ namespace geopm
         return result;
     }
 
+    std::set<int> PlatformTopo::nested_domains(int inner_domain, int outer_domain, int outer_idx) const
+    {
+        std::set<int> inner_domain_idx;
+        std::set<int> cpus = domain_cpus(outer_domain, outer_idx);
+        for (auto cc : cpus) {
+            inner_domain_idx.insert(domain_idx(inner_domain, cc));
+        }
+        return inner_domain_idx;
+    }
+
     std::vector<std::string> IPlatformTopo::domain_names(void)
     {
         return {
