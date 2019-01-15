@@ -88,7 +88,6 @@ namespace geopm
 
     void EnergyEfficientAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
-        m_level = level;
         if (level == 0) {
             m_num_children = 0;
         }

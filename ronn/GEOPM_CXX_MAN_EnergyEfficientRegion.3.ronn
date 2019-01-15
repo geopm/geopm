@@ -37,14 +37,66 @@ geopm::EnergyEfficientRegion(3) -- region frequency tuning history
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
+  * `EnergyEfficientRegion(`:
+    `IPlatformIO &`_platform_io_`,`<br>
+    `int `_runtime_idx_`,`<br>
+    `int `_pkg_energy_idx_`);`
+
+  * `~EnergyEfficientRegion(`:
+    `void) = default;`
+
+  * `double freq(`:
+    `void) const;`
+
+  * `void update_freq_range(`:
+    `const double `_freq_min_`,`<br>
+    `const double `_freq_max_`,`<br>
+    `const double `_freq_step_`);`
+
+  * `void update_entry(`:
+    `void);`
+
+  * `void update_exit(`:
+    `void);`
+
 ## DESCRIPTION
+This class is used by the online mode of the
+**geopm::EnergyEfficientAgent(3)** to store history about the
+performance of a region at each frequency setting and find the best
+frequency for each region.
 
-This class is used by **geopm::EnergyEfficientAgent(3)** to store
-history about the performance of a region at each frequency setting
-and find the best frequency for each region.
+## CLASS METHODS
 
-For more details, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_energy_efficient_region.html>.
+  * `freq`():
+    Returns the current frequency chosen for the region.
+
+  * `update_freq_range`():
+    Reset the range of available frequencies.  Uses _freq_min_ for the
+    new minimum, _freq_max_ for the new maximum, and _freq_step_ for
+    the new step size between frequency settings.  This method is expected
+    to be called whenever the Agent receives a new frequency range to use
+    for its operation.
+
+  * `update_entry`():
+    Measures the current energy at the beginning of a region.  This will
+    be used when the region exits to determine the energy consummed during
+    the last pass through the region.
+
+  * `update_exit`():
+    Implements one step of the learning algorithm for the tracked
+    region.  The algorithm attempts to lower the frequency for a
+    region until the performance degrades beyond an acceptable
+    threshold (default is 10%) or until the energy used increases.
+    First, it calculates the performance and energy for the latest
+    iteration at the current frequency setting.  If the energy has
+    increased since lower from a higher frequency, it raises the
+    frequency again.  Similarly, if the performance has worsened too
+    much, it raises the frequency.  Otherwise, if both energy and
+    performance are still within range, it lowers the frequency.
+    After a number of failed attempts to lower the frequency (default
+    is 4), the learning stops and the region is kept at the chosen
+    frequency.
+
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.

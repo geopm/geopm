@@ -37,14 +37,302 @@ geopm::PowerBalancerAgent(3) -- agent optimizing performance under a power cap
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
+This class implements all public methods of the **geopm::Agent(3)** interface.
+
+  * `static std::string plugin_name(`:
+    `void);`
+
+  * `static std::unique_ptr<Agent> make_plugin(`:
+    `void);`
+
+  * `static std::vector<std::string> policy_names(`:
+    `void);`
+
+  * `static std::vector<std::string> sample_names(`:
+    `void);`
+
+
 ## DESCRIPTION
 
 The behavior of this agent is described in more detail in the
 **geopm_agent_power_balancer(7)** man page.  The balancing algorithm
 is implemented using the **geopm::PowerBalancer(3)** class.
 
-For more details, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_power_balancer_agent.html>.
+
+## CLASS METHODS
+  * `PowerBalancerAgent`():
+    The power cap enforced on average over all
+    nodes running the application.  This has
+    value 0.0 except in two cases.  In the
+    first case this is the M_SEND_DOWN_LIMIT
+    step at the beginning of the application
+    run.  This value will also be non-zero in
+    the case where the resource mananger has
+    requested a new budget for the application,
+    and thus, the algorithm must be restarted
+    at step M_SEND_DOWN_LIMIT.
+    Step that the root is providing a policy
+    for.  The parent has received a sample
+    matching this step in the last walk up the
+    tree, execpt in the case where the endpoint
+    has recently been updated with a new
+    policy, in this case the step will be
+    M_SEND_DOWN_LIMIT and the policy indexed by
+    M_POLICY_POWER_CAP will have a non-zero
+    value.
+    The largest runtime reported by any leaf
+    agent since the last redistribution of
+    power.  This will have value 0.0 until all
+    leaf agents have reported a runtime to the
+    root agent.
+    This value is updated in step
+    M_STEP_ADJUST_LIMIT to the amount that each
+    leaf agent should increase their power
+    limit by calling:
+    power_cap(current_limit + slack)
+    by before starting the algorithm over again
+    at step M_STEP_MEASURE_RUNTIME.  For all
+    other steps this value is 0.0.
+    Number of steps in each iteration of the
+    balancing algorithm.
+    The the step counter that is currently in
+    execution.  Note that the step is equal to
+    the step counter modulo M_NUM_STEP and is
+    reset each time a new power cap is provided
+    by sending a policy with a non-zero
+    M_POLICY_POWER_CAP field.
+    Maximum expected runtime for any node
+    below.
+    The sum of all slack power available from
+    children below the agent.
+    Smallest difference between maximum power
+    limit and current power limit for any node
+    below.
+    Number of elements in a sample vector.
+
+  * `PowerBalancerAgent`():
+
+
+  * `~PowerBalancerAgent`():
+
+
+  * `init`():
+
+
+  * `validate_policy`():
+
+
+  * `descend`():
+
+
+  * `ascend`():
+
+
+  * `adjust_platform`():
+
+
+  * `sample_platform`():
+
+
+  * `wait`():
+    Waits until the time since the last wait call reaches 5ms.  This
+    causes the Controller main loop to happen with a 5ms cadence.
+
+
+  * `report_header`():
+
+
+  * `report_node`():
+
+
+  * `report_region`():
+
+
+  * `trace_names`():
+
+
+  * `trace_values`():
+
+
+  * `plugin_name`():
+
+
+  * `make_plugin`():
+
+
+  * `policy_names`():
+
+
+  * `sample_names`():
+
+
+  * `descend`():
+
+
+  * `ascend`():
+
+
+  * `adjust_platform`():
+
+
+  * `sample_platform`():
+
+
+  * `trace_names`():
+
+
+  * `trace_values`():
+
+
+  * `IStep`():
+
+
+  * `~IStep`():
+
+
+  * `update_policy`():
+
+
+  * `enter_step`():
+
+
+  * `sample_platform`():
+
+
+  * `SendDownLimitStep`():
+
+
+  * `~SendDownLimitStep`():
+
+
+  * `update_policy`():
+
+
+  * `enter_step`():
+
+
+  * `sample_platform`():
+
+
+  * `MeasureRuntimeStep`():
+
+
+  * `~MeasureRuntimeStep`():
+
+
+  * `update_policy`():
+
+
+  * `enter_step`():
+
+
+  * `sample_platform`():
+
+
+  * `ReduceLimitStep`():
+
+
+  * `~ReduceLimitStep`():
+
+
+  * `update_policy`():
+
+
+  * `enter_step`():
+
+
+  * `sample_platform`():
+
+
+  * `TreeRole`():
+
+
+  * `~TreeRole`():
+
+
+  * `descend`():
+
+
+  * `ascend`():
+
+
+  * `RootRole`():
+
+
+  * `~RootRole`():
+
+
+  * `descend`():
+
+
+  * `ascend`():
+
+
+  * `LeafRole`():
+
+
+  * `~LeafRole`():
+
+
+  * `adjust_platform`():
+
+
+  * `sample_platform`():
+
+
+  * `trace_names`():
+
+
+  * `trace_values`():
+
+  * `plugin_name`():
+    Returns the name of the plugin to use when registering this plugin
+    with the factory.
+
+  * `make_plugin`():
+    Returns a pointer to a new PowerBalancerAgent object.
+
+  * `policy_names`():
+
+    Returns the names of the policies expected by this agent, which
+    are "FREQ_MIN", the minimum frequency allowed, and "FREQ_MAX", the
+    maximum frequency allowed.
+
+  * `sample_names`():
+    Returns the names of the samples returned by ascend().
+
+## ENUMERATIONS
+enum m_policy_e {
+M_POLICY_POWER_CAP,
+M_POLICY_STEP_COUNT,
+M_POLICY_MAX_EPOCH_RUNTIME,
+M_POLICY_POWER_SLACK,
+M_NUM_POLICY,
+};
+enum m_sample_e {
+M_SAMPLE_STEP_COUNT,
+M_SAMPLE_MAX_EPOCH_RUNTIME,
+M_SAMPLE_SUM_POWER_SLACK,
+M_SAMPLE_MIN_POWER_HEADROOM,
+M_NUM_SAMPLE,
+};
+enum m_plat_signal_e {
+M_PLAT_SIGNAL_EPOCH_RUNTIME,
+M_PLAT_SIGNAL_EPOCH_COUNT,
+M_PLAT_SIGNAL_EPOCH_RUNTIME_MPI,
+M_PLAT_SIGNAL_EPOCH_RUNTIME_IGNORE,
+M_PLAT_NUM_SIGNAL,
+};
+enum m_trace_sample_e {
+M_TRACE_SAMPLE_EPOCH_RUNTIME,
+M_TRACE_SAMPLE_POWER_LIMIT,
+M_TRACE_SAMPLE_POLICY_POWER_CAP,
+M_TRACE_SAMPLE_POLICY_STEP_COUNT,
+M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME,
+M_TRACE_SAMPLE_POLICY_POWER_SLACK,
+M_TRACE_SAMPLE_POLICY_POWER_LIMIT,
+M_TRACE_NUM_SAMPLE,
+};
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.

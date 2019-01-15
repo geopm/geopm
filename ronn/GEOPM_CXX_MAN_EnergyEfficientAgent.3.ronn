@@ -37,14 +37,83 @@ geopm::EnergyEfficientAgent(3) -- agent for saving energy
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
+This class implements all public methods of the **geopm::Agent(3)** interface.
+
+  * `static std::string plugin_name(`:
+    `void);`
+
+  * `static std::unique_ptr<Agent> make_plugin(`:
+    `void);`
+
+  * `static std::vector<std::string> policy_names(`:
+    `void);`
+
+  * `static std::vector<std::string> sample_names(`:
+    `void);`
+
 ## DESCRIPTION
 
 The behavior of this agent is described in more detail in the
 **geopm_agent_energy_efficient(7)** man page.  The core of the
 online algorithm is implemented in **geopm::EnergyEfficientRegion(3)**.
 
-For more details on the implementation, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_energy_efficient_agent.html>.
+## CLASS METHODS
+
+  * `init`():
+
+
+  * `validate_policy`():
+
+
+  * `descend`():
+
+
+  * `ascend`():
+
+
+  * `adjust_platform`():
+
+
+  * `sample_platform`():
+
+
+  * `wait`():
+    Waits until the time since the last wait call reaches 5ms.  This
+    causes the Controller main loop to happen with a 5ms cadence.
+
+  * `report_header`():
+
+
+  * `report_node`():
+
+
+  * `report_region`():
+
+
+  * `trace_names`():
+
+
+  * `trace_values`():
+
+
+  * `plugin_name`():
+    Returns the name of the plugin to use when registering this plugin
+    with the factory.
+
+  * `make_plugin`():
+    Returns a pointer to a new EnergyEfficientAgent object.
+
+  * `policy_names`():
+
+    Returns the names of the policies expected by this agent, which
+    are "FREQ_MIN", the minimum frequency allowed, and "FREQ_MAX", the
+    maximum frequency allowed.
+
+  * `sample_names`():
+    Returns the names of the samples returned by ascend().
+
+## ENUMERATIONS
+
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.

@@ -39,11 +39,225 @@ geopm::PowerBalancer(3) -- balances power according to epoch runtime
 
 ## DESCRIPTION
 
+## SYNOPSIS
+  * `IPowerBalancer(`:
+    `void) = default;`
+
+  * `~IPowerBalancer(`:
+    `void) = default;`
+
+  * `void power_cap(`:
+    `double `_cap_`);`
+
+  * `double power_cap(`:
+    `void) const;`
+
+  * `double power_limit(`:
+    `void) const;`
+
+  * `void power_limit_adjusted(`:
+    `double `_limit_`);`
+
+  * `bool is_runtime_stable(`:
+    `double `_measured_runtime_`);`
+
+  * `double runtime_sample(`:
+    `void) const;`
+
+  * `void calculate_runtime_sample(`:
+    `void);`
+
+  * `void target_runtime(`:
+    `double `_largest_runtime_`);`
+
+  * `bool is_target_met(`:
+    `double `_measured_runtime_`);`
+
+  * `double power_slack(`:
+    `void);`
+
+  * `PowerBalancer(`:
+    `double `_ctl_latency_`,`<br>
+    `double `_trial_delta_`,`<br>
+    `int `_num_sample_`,`<br>
+    `double `_measure_duration_`);`
+
+  * `PowerBalancer(`:
+    `double `_ctl_latency_`);`
+
+  * `~PowerBalancer(`:
+    `void) = default;`
+
+  * `void power_cap(`:
+    `double `_cap_`);`
+
+  * `double power_cap(`:
+    `void) const;`
+
+  * `double power_limit(`:
+    `void) const;`
+
+  * `void power_limit_adjusted(`:
+    `double `_limit_`);`
+
+  * `bool is_runtime_stable(`:
+    `double `_measured_runtime_`);`
+
+  * `double runtime_sample(`:
+    `void) const;`
+
+  * `void calculate_runtime_sample(`:
+    `void);`
+
+  * `void target_runtime(`:
+    `double `_largest_runtime_`);`
+
+  * `bool is_target_met(`:
+    `double `_measured_runtime_`);`
+
+  * `double power_slack(`:
+    `void);`
+
+## DESCRIPTION
+Class PowerBalancer
+
 This class is used by the PowerBalancerAgent to implement the power
 balancing algorithm.
 
-For more details, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_power_balancer.html>.
+## CLASS METHODS
+  * `IPowerBalancer`():
+    Construct a IPowerBalancer object.
+
+  * `~IPowerBalancer`():
+    Destroy a IPowerBalancer object.
+
+  * `power_cap`():
+    Should be called at the start of application
+    execution with the average power cap across
+    compute nodes. Should be called at the end of
+    the second phase of execution to note that the
+    power savings made across all compute nodes has
+    been evenly redistributed.
+    power_cap The new maximum power limit equal to
+    the current power limit plus the amount of
+    power saved that is being redistributed.
+
+  * `power_cap`():
+    The current power cap which cannot be exceeded
+    without breaking contract that the average
+    power budget across all compute nodes is
+    maintained.
+    @return The current value of the power cap.
+
+  * `power_limit`():
+    Returns the current power limit prescribed for
+    this node.
+    @return The current power limit in units of Watts.
+
+  * `power_limit_adjusted`():
+    Notify power balancer that a new limit has been
+    set with the governor.
+    limit limit that was set.
+
+  * `is_runtime_stable`():
+    Update the object with a runtime measured under
+    the current power limit and test if the current
+    runtime sample is reliable such that a call
+    runtime_sample() can be made.
+    measured_runtime Most recent measurement of the
+    execution time for an epoch on the node being
+    managed under the current power limit.
+    @return True if a stable measurement of expected
+    runtime for an epoch can be made with the
+    runtime_sample() method, and false otherwise.
+
+  * `runtime_sample`():
+    Return the expected execution time of an application
+    epoch under the current power limit.
+
+  * `calculate_runtime_sample`():
+    Sample the measured runtimes under the current
+    power cap in the first phase of execution.
+    This measurement will be aggregated across all
+    compute nodes to find the largest runtime
+    measured.
+
+  * `target_runtime`():
+    Set the target runtime which is the largest
+    epoch execution time measured by any compute
+    node since the application began or the last
+    global increase to the power budget.
+    largest_runtime The largest expected runtime
+    for one epoch across all compute nodes under
+    the current power budget.
+
+  * `is_target_met`():
+    During the second phase of execution the power
+    limit is decreased until the epoch runtime on
+    the compute node under management has increased
+    to the runtime of the slowest compute node.
+    This method is used to update the object with a
+    new measurement and also test if the current
+    power limit meets the requirements.  If the
+    method returns false, then the value returned
+    by power_limit() may have been updated.  The
+    new power limit should be enforced for the next
+    epoch execution.
+    measured_runtime Most recent measurement of the
+    execution time for an epoch on the node being
+    managed under the current power limit.
+    @return True if the current power limit is reliably
+    close to the target runtime and excess power
+    should be sent up to the root to be
+    redistributed, and false if more trials are
+    required.
+
+  * `power_slack`():
+    Query the difference between the last power cap
+    setting and the current power limit.  If this
+    method is called and it returns zero then the
+    trial delta used to lower the power limit is
+    reduced by a factor of two.
+    @return The difference between the last power cap and
+    the current power limit in units of Watts.
+
+  * `PowerBalancer`():
+    Construct a testable PowerBalancer object.
+
+  * `PowerBalancer`():
+    Construct a PowerBalancer object.
+
+  * `~PowerBalancer`():
+    Destroy a PowerBalancer object.
+
+  * `power_cap`():
+
+
+  * `power_cap`():
+
+
+  * `power_limit`():
+
+
+  * `power_limit_adjusted`():
+
+
+  * `is_runtime_stable`():
+
+
+  * `runtime_sample`():
+
+
+  * `calculate_runtime_sample`():
+
+
+  * `target_runtime`():
+
+
+  * `is_target_met`():
+
+
+  * `power_slack`():
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.

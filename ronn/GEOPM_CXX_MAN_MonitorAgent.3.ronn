@@ -37,13 +37,87 @@ geopm::MonitorAgent -- agent that enforces no policies
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
+This class implements all public methods of the **geopm::Agent(3)** interface.
+
+  * `static std::string plugin_name(`:
+    `void);`
+
+  * `static std::unique_ptr<Agent> make_plugin(`:
+    `void);`
+
+  * `static std::vector<std::string> policy_names(`:
+    `void);`
+
+  * `static std::vector<std::string> sample_names(`:
+    `void);`
+
 ## DESCRIPTION
+The MonitorAgent is used to do sampling only; no policy will be
+enforced.  The behavior of this agent is described in more detail in
+the **geopm_agent_monitor(7)** man page.
 
-The behavior of this agent is described in more detail in the
-**geopm_agent_monitor(7)** man page.
+## CLASS METHODS
 
-For more details, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_monitor_agent.html>.
+  * `init`():
+
+
+  * `validate_policy`():
+
+
+  * `descend`():
+
+
+  * `ascend`():
+
+
+  * `adjust_platform`():
+
+
+  * `sample_platform`():
+
+
+  * `wait`():
+    Waits until the time since the last wait call reaches 5ms.  This
+    causes the Controller main loop to happen with a 5ms cadence.
+
+  * `report_header`():
+
+
+  * `report_node`():
+
+
+  * `report_region`():
+
+
+  * `trace_names`():
+
+
+  * `trace_values`():
+
+
+  * `plugin_name`():
+
+
+  * `make_plugin`():
+
+
+  * `policy_names`():
+
+
+  * `sample_names`():
+
+  * `plugin_name`():
+    Returns the name of the plugin to use when registering this plugin
+    with the factory.
+
+  * `make_plugin`():
+    Returns a pointer to a new MonitorAgent object.
+
+  * `policy_names`():
+    Returns an empty vector; no policies are expected by this Agent.
+
+  * `sample_names`():
+    Returns the names of the samples returned by ascend().
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
