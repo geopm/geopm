@@ -48,6 +48,7 @@
 
 using geopm::ApplicationIO;
 using geopm::IPlatformTopo;
+using testing::_;
 using testing::Return;
 
 class ApplicationIOTest : public ::testing::Test
@@ -87,10 +88,12 @@ void ApplicationIOTest::SetUp()
         .WillOnce(Return(m_num_package_domain));
     EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_BOARD_MEMORY))
         .WillOnce(Return(m_num_memory_domain));
-    EXPECT_CALL(m_platform_io, read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, m_num_package_domain - 1))
-        .WillOnce(Return(122.0));
-    EXPECT_CALL(m_platform_io, read_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD_MEMORY, m_num_memory_domain - 1))
-        .WillOnce(Return(221.0));
+    EXPECT_CALL(m_platform_io, read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, _))
+        .Times(m_num_package_domain)
+        .WillRepeatedly(Return(122.0/m_num_package_domain));
+    EXPECT_CALL(m_platform_io, read_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD_MEMORY, _))
+        .Times(m_num_memory_domain)
+        .WillRepeatedly(Return(221.0/m_num_memory_domain));
     std::vector<int> ranks {1, 2, 3, 4};
     EXPECT_CALL(*m_sampler, cpu_rank()).WillOnce(Return(ranks));
     m_app_io = geopm::make_unique<ApplicationIO>(m_shm_key, std::move(tmp_s), tmp_pio,
