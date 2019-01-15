@@ -83,9 +83,13 @@ void ApplicationIOTest::SetUp()
     m_num_memory_domain = 1;
     EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU))
         .WillOnce(Return(m_num_cpu_domain));
-    EXPECT_CALL(m_platform_io, read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0))
+    EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE))
+        .WillOnce(Return(m_num_package_domain));
+    EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_BOARD_MEMORY))
+        .WillOnce(Return(m_num_memory_domain));
+    EXPECT_CALL(m_platform_io, read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, m_num_package_domain - 1))
         .WillOnce(Return(122.0));
-    EXPECT_CALL(m_platform_io, read_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0))
+    EXPECT_CALL(m_platform_io, read_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD_MEMORY, m_num_memory_domain - 1))
         .WillOnce(Return(221.0));
     std::vector<int> ranks {1, 2, 3, 4};
     EXPECT_CALL(*m_sampler, cpu_rank()).WillOnce(Return(ranks));

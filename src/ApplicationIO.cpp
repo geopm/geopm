@@ -260,12 +260,22 @@ namespace geopm
 
     double ApplicationIO::current_energy_pkg(void) const
     {
-        return m_platform_io.read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        double energy = 0.0;
+        int num_package = m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE);
+        for (int pkg = 0; pkg < num_package; ++pkg) {
+            energy += m_platform_io.read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
+        }
+        return energy;
    }
 
     double ApplicationIO::current_energy_dram(void) const
     {
-        return m_platform_io.read_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        double energy = 0.0;
+        int num_dram = m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_BOARD_MEMORY);
+        for (int dram = 0; dram < num_dram; ++dram) {
+            energy += m_platform_io.read_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD_MEMORY, 0);
+        }
+        return energy;
     }
 
     double ApplicationIO::total_app_energy_pkg(void) const
