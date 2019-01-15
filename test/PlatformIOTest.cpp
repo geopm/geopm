@@ -55,6 +55,7 @@ using geopm::IOGroup;
 using geopm::PlatformIO;
 using geopm::IPlatformIO;
 using geopm::IPlatformTopo;
+using geopm::Agg;
 
 using ::testing::_;
 using ::testing::Return;
@@ -143,7 +144,7 @@ void PlatformIOTest::SetUp()
     ON_CALL(*tmp, signal_domain_type("REGION_ID#"))
         .WillByDefault(Return(IPlatformTopo::M_DOMAIN_CPU));
     ON_CALL(*tmp, agg_function("REGION_ID#"))
-        .WillByDefault(Return(geopm::Agg::region_id));
+        .WillByDefault(Return(Agg::region_id));
 
     // IOGroups with signals and controls
     tmp = std::make_shared<PlatformIOTestMockIOGroup>();
@@ -159,6 +160,8 @@ void PlatformIOTest::SetUp()
         .WillByDefault(Return(IPlatformTopo::M_DOMAIN_PACKAGE));
     ON_CALL(*tmp, control_domain_type("MODE"))
         .WillByDefault(Return(IPlatformTopo::M_DOMAIN_PACKAGE));
+    ON_CALL(*tmp, agg_function("FREQ"))
+        .WillByDefault(Return(Agg::average));
 
     // Group that overrides previous signals and controls
     tmp = std::make_shared<PlatformIOTestMockIOGroup>();
@@ -209,7 +212,6 @@ TEST_F(PlatformIOTest, signal_control_names)
     EXPECT_EQ(expected_controls.size(), m_platio->control_names().size());
     EXPECT_EQ(expected_controls, m_platio->control_names());
 }
-
 
 TEST_F(PlatformIOTest, signal_control_description)
 {
@@ -557,6 +559,7 @@ TEST_F(PlatformIOTest, read_signal)
         }
         EXPECT_CALL(*it, read_batch()).Times(0);
     }
+    EXPECT_CALL(m_topo, is_domain_within(_, _));
     double freq = m_platio->read_signal("FREQ", IPlatformTopo::M_DOMAIN_CPU, 0);
     double time = m_platio->read_signal("TIME", IPlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_DOUBLE_EQ(4e9, freq);
@@ -567,20 +570,62 @@ TEST_F(PlatformIOTest, read_signal)
                                GEOPM_ERROR_INVALID, "domain 5 is not valid for signal \"TIME\"");
 }
 
+TEST_F(PlatformIOTest, read_signal_agg)
+{
+    for (auto &it : m_iogroup_ptr) {
+        if (it->is_valid_signal("FREQ")) {
+            EXPECT_CALL(*it, signal_domain_type("FREQ")).Times(AtLeast(1));
+            EXPECT_CALL(*it, agg_function("FREQ"));
+            for (auto cpu : m_cpu_set0) {
+                EXPECT_CALL(*it, read_signal("FREQ", IPlatformTopo::M_DOMAIN_CPU, cpu))
+                    .WillOnce(Return(1e9 * (cpu)));
+            }
+        }
+        EXPECT_CALL(*it, read_batch()).Times(0);
+    }
+    EXPECT_CALL(m_topo, is_domain_within(_, _));
+    EXPECT_CALL(m_topo, domain_cpus(_, _));
+    EXPECT_CALL(m_topo, domain_idx(_, _)).Times(m_cpu_set0.size());
+    double expected = (0 + 1 + 4 + 5) * 1e9 / 4.0;
+    double freq = m_platio->read_signal("FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
+    EXPECT_DOUBLE_EQ(expected, freq);
+}
+
 TEST_F(PlatformIOTest, write_control)
 {
     for (auto &it : m_iogroup_ptr) {
-        if (it->is_valid_control("FREQ")) {
-            EXPECT_CALL(*it, control_domain_type("FREQ")).Times(AtLeast(1));
-            EXPECT_CALL(*it, write_control("FREQ", IPlatformTopo::M_DOMAIN_CPU, 0, 3e9));
+        if (it->is_valid_control("MODE")) {
+            EXPECT_CALL(*it, control_domain_type("MODE")).Times(AtLeast(1));
+            if (it->control_domain_type("MODE") == IPlatformTopo::M_DOMAIN_BOARD) {
+                EXPECT_CALL(*it, write_control("MODE", IPlatformTopo::M_DOMAIN_BOARD, 0, 3e9));
+            }
         }
         EXPECT_CALL(*it, write_batch()).Times(0);
     }
-    m_platio->write_control("FREQ", IPlatformTopo::M_DOMAIN_CPU, 0, 3e9);
+    EXPECT_CALL(m_topo, is_domain_within(_, _));
+    m_platio->write_control("MODE", IPlatformTopo::M_DOMAIN_BOARD, 0, 3e9);
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->write_control("INVALID", IPlatformTopo::M_DOMAIN_CPU, 0, 0.0),
                                GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
-    GEOPM_EXPECT_THROW_MESSAGE(m_platio->write_control("FREQ", IPlatformTopo::M_DOMAIN_BOARD_MEMORY, 0, 4e9),
-                               GEOPM_ERROR_INVALID, "domain 5 is not valid for control \"FREQ\"");
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->write_control("MODE", IPlatformTopo::M_DOMAIN_BOARD_MEMORY, 0, 4e9),
+                               GEOPM_ERROR_INVALID, "domain 5 is not valid for control \"MODE\"");
+}
+
+TEST_F(PlatformIOTest, write_control_agg)
+{
+    double value = 3e9;
+    for (auto &it : m_iogroup_ptr) {
+        if (it->is_valid_control("FREQ")) {
+            EXPECT_CALL(*it, control_domain_type("FREQ")).Times(AtLeast(1));
+            for (auto cpu : m_cpu_set0) {
+                EXPECT_CALL(*it, write_control("FREQ", IPlatformTopo::M_DOMAIN_CPU, cpu, value));
+            }
+            EXPECT_CALL(*it, write_batch()).Times(0);
+        }
+    }
+    EXPECT_CALL(m_topo, is_domain_within(_, _));
+    EXPECT_CALL(m_topo, domain_cpus(_, _));
+    EXPECT_CALL(m_topo, domain_idx(_, _)).Times(m_cpu_set0.size());
+    m_platio->write_control("FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0, value);
 }
 
 TEST_F(PlatformIOTest, read_signal_override)
@@ -597,6 +642,7 @@ TEST_F(PlatformIOTest, read_signal_override)
             EXPECT_CALL(*it, read_signal(_, _, _)).Times(0);
         }
     }
+    EXPECT_CALL(m_topo, is_domain_within(_, _));
     double freq = m_platio->read_signal("MODE", IPlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_DOUBLE_EQ(5e9, freq);
 
@@ -616,6 +662,7 @@ TEST_F(PlatformIOTest, write_control_override)
             EXPECT_CALL(*it, write_control(_, _, _, _)).Times(0);
         }
     }
+    EXPECT_CALL(m_topo, is_domain_within(_, _));
     m_platio->write_control("MODE", IPlatformTopo::M_DOMAIN_BOARD, 0, value);
 
     EXPECT_THROW(m_platio->write_control("MODE", IPlatformTopo::M_DOMAIN_PACKAGE, 0, value),
