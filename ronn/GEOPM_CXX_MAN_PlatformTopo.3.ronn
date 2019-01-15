@@ -57,10 +57,6 @@ hidden by the singleton accessor.
   * `int IPlatformTopo::num_domain(`:
     `int` _domain_type_`) const = 0;`
 
-  * `set<int> IPlatformTopo::domain_cpus(`:
-    `int` _domain_type_`,` <br>
-    `int` _domain_idx_`) const = 0;`
-
   * `int IPlatformTopo::domain_idx(`:
     `int` _domain_type_`,` <br>
     `int` _cpu_idx_`) const = 0;`
@@ -68,6 +64,11 @@ hidden by the singleton accessor.
   * `bool IPlatformTopo::is_domain_within(`:
     `int` _inner_domain_`,` <br>
     `int` _outer_domain_`) const = 0;`
+
+  * `set<int> IPlatformTopo::nested_domains(`:
+    `int` _inner_domain_`,` <br>
+    `int` _outer_domain_`,` <br>
+    `int` _outer_idx_`) const = 0;`
 
   * `static string IPlatformTopo::domain_type_to_name(`:
     `int` _domain_type_`);`
@@ -148,10 +149,6 @@ The available domain types are as follows:
     Number of domains on the platform of a particular _domain_type_.
     Refer to the list of domain types below.
 
-  * `domain_cpus`():
-    Get the set of Linux logical CPUs associated with the scope of
-    _domain_type_ at _domain_idx_.
-
   * `domain_idx`():
     Get the domain index for a particular _domain_type_ that contains
     the given Linux logical CPU with index _cpu_idx_.
@@ -178,6 +175,11 @@ The available domain types are as follows:
      +---`M_DOMAIN_BOARD_NIC`
      +---`M_DOMAIN_BOARD_ACCELERATOR`
 ```
+  * `nested_domains`():
+    Returns the set of smaller domains of type _inner_domain_
+    contained with a larger domain of type _outer_domain_ at
+    _outer_idx_.  If the inner domain is not the same as or contained
+    within the outer domain, it throws an error.
 
   * `domain_type_to_name`():
     Convert a _domain_type_ integer to a string.  These strings are
