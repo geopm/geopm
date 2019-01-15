@@ -85,10 +85,6 @@ namespace geopm
             /// @brief Number of domains on the platform of a
             ///        particular m_domain_e type.
             virtual int num_domain(int domain_type) const = 0;
-            /// @brief Get the set of Linux logical CPUs associated
-            ///        with the indexed domain.
-            virtual std::set<int> domain_cpus(int domain_type,
-                                              int domain_idx) const = 0;
             /// @brief Get the domain index for a particular domain
             ///        type that contains the given Linux logical CPU
             ///        index
@@ -100,6 +96,15 @@ namespace geopm
             /// @return True if the inner_domain is contained within
             ///         the outer_domain.
             virtual bool is_domain_within(int inner_domain, int outer_domain) const = 0;
+            /// @brief Get the set of smaller domains contained in a larger one.
+            ///        If the inner domain is not the same as or contained within
+            ///        the outer domain, it throws an error.
+            /// @param [in] inner_domain The contained domain type.
+            /// @param [in] outer_domain The containing domain type.
+            /// @param [in] outer_idx The containing domain index.
+            /// @return The set of domain indices for the inner domain that are
+            ///         within the outer domain.
+            virtual std::set<int> nested_domains(int inner_domain, int outer_domain, int outer_idx) const = 0;
             /// @brief Convert a domain type enum to a string.
             /// @param [in] domain_type Domain type from the
             ///        m_domain_e enum.
@@ -127,12 +132,16 @@ namespace geopm
             PlatformTopo(const std::string &lscpu_file_name);
             virtual ~PlatformTopo() = default;
             int num_domain(int domain_type) const override;
-            std::set<int> domain_cpus(int domain_type,
-                                      int domain_idx) const override;
             int domain_idx(int domain_type,
                            int cpu_idx) const override;
             bool is_domain_within(int inner_domain, int outer_domain) const override;
+            std::set<int> nested_domains(int inner_domain, int outer_domain, int outer_idx) const override;
         private:
+            /// @brief Get the set of Linux logical CPUs associated
+            ///        with the indexed domain.
+            std::set<int> domain_cpus(int domain_type,
+                                      int domain_idx) const;
+
             void lscpu(std::map<std::string, std::string> &lscpu_map);
             void parse_lscpu(const std::map<std::string, std::string> &lscpu_map,
                              int &num_package,
