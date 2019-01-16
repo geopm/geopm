@@ -161,6 +161,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/PlatformIOTest.signal_control_names \
               test/gtest_links/PlatformIOTest.signal_power \
               test/gtest_links/PlatformIOTest.write_control \
+              test/gtest_links/PlatformIOTest.write_control_override \
               test/gtest_links/PlatformTopoTest.bdx_domain_cpus \
               test/gtest_links/PlatformTopoTest.bdx_domain_idx \
               test/gtest_links/PlatformTopoTest.bdx_num_domain \
