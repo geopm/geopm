@@ -132,6 +132,11 @@ namespace geopm
                                             int domain_idx);
             /// @brief Sample a combined signal using the saved function and operands.
             double sample_combined(int signal_idx);
+            /// @brief Look up the IOGroup that provides the given signal.
+            std::shared_ptr<IOGroup> find_signal_iogroup(const std::string &signal_name) const;
+            /// @brief Look up the IOGroup that provides the given control.
+            std::shared_ptr<IOGroup> find_control_iogroup(const std::string &control_name) const;
+
             bool m_is_active;
             IPlatformTopo &m_platform_topo;
             std::list<std::shared_ptr<IOGroup> > m_iogroup_list;
