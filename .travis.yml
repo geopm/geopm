@@ -30,7 +30,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-sudo: required
+sudo: false
+
+compiler:
+    - clang
+    - gcc
 
 dist: trusty
 
@@ -47,15 +51,20 @@ before_install:
     - pip install --user pandas natsort matplotlib cycler tables psutil
 
 install:
-    - CXX="g++-4.8" CC="gcc-4.8" ./configure --disable-fortran --enable-debug
+    - ./configure --disable-fortran --enable-debug --prefix=$(pwd)
+
+cache:
+    directories:
+        - mpich
 
 script:
-    - make
-    - make check
+    - ./travis_ci.sh
     - ./copying_headers/test-dist
 
 env:
     global:
+        - MAKEFLAGS="-j 2"
+        - MPLBACKEND='Agg'
         # OSC_CREDENTIALS for geopm/geopm
         - secure: "J5TFi7y/vy6upnrENCHD1PnRM8HX46LK+66CFoTP17Fmx1Zo4eR2aFT2WBEkxBOsuw3HbSxC7NCOx4T9cyAWhcC5CaKtuQGJHJdGzbjmv85OHN9hxjvjCQRsiW2V/XBhl9DJr56Z23OS2oyIGTJzdQPV45Lgmu2yXE2gY8Kdk21P2/PxaeyzyJCBM+ejX9kQK7FYdAT/xSlMiHUFkdd6Sj2se23jUHD2MqN+EcLGqBzWdYIoAexJuDPAe3fR/yl66DDIBulYQinuQv07hej9TxLcNcRyWzZqUbHe0V1nKt+zwGjtSv6rEwqB1gPRIVr1mUOidbucHs42EwQNgqxaNMPo/XOPpeOgNPiNKr2xxWElzSMi2WZv14x3uDmkBZ2Yiew3F8oG28qeQWSHbXE0/m8WDlnrHx1r4h1/ir32tTQa/u8/w/creqGm3/flRvDlIim8cuv+cSoU5a/V9dhZrzyCQfNrjGFLaDl7FWXpU3oScDuP5CB/ZIdZkIFR2HQPQScuXEUw5gE10toLrO9G5G8+nf8GlDvasdgJON8kvRVyrYnDSvQrAyMp+8IbsN5HXN4S2Gpf1jpMkTlpCZ91yagkiS8mWNMHbPljmyrR3KyOFqK4b3MCeFdYspUQWQxAxhCeaN4EGJXT9Of62qcf4NsUMu7YHjVK9Nl9iHcynDo="
         # OSC_CREDENTIALS for cmcantalupo/geopm
@@ -67,10 +76,10 @@ env:
         # OSC_CREDENTIALS for bakerbrandond/geopm
         - secure: "XVTtoccFxsQfev1a9urWQyW7HV0R/VHT3Obtx+xjG8n5JJ4LxK+wK1OPFZ1bqlOalVMyMgAvStx/vTC3J+Pisxlsmc9U88+Xav1fpEr4mAr2JVQC2O73zic5fZmMChhGB/bwaL1UjkXgx8LLqXGZhzgrA4o6JocUZcZVodr9bcp8XJ0MQEWwIv4kxONvwZgl2Y6kWBxjKWv72uOzYJtUjBRvG6DTQBpPAj1NkwnMHQlSM00pxlSxVvhv8Iv7XlFOVi3VAU1leeLxsM6UD+DSVNjNN49iRbjHepXnFA/3dFfDSSfUpO+4bZH2RyQN6axOXRnP8Tra+rMs5nCM2FM/aReQoy0fqN+lTB4nQNtkdVuinY7/NnfD9XqLiOKiPU3tjcjGS0Etg17lbrKFPqMhoTkd2Jac+N4Z/Z3A1+xxLdYrp5GbGqEAEuGvFfTev0aj5X1KMcgmRk3RFlRLlfwKXHmqEJ0XZLhy72xRSRG9PJX+EvM1bvvnWmLaOmORk4u7pAVAxM+HQzz8GS2gCMZVcHTr+Od73XxMKC7NeAUrX6R/vepgkpWhMSbO+8QwP+OKuyHkwjsM+227unLqvGztnj2gdOf31xR6GHzT/8ZvMsTOn9GFEtOZDWu7gVkGzPJ8qX3Vt2cfC1mPsrJ+Z9f7xa/W+lD/1LE/kbrhXgbbINk="
     matrix:
-        - MPLBACKEND='Agg'
+        - CI_MODE=unit
+        - CI_MODE=integration
 
 after_success:
-    - make dist
     - ./.travis_obs.sh
 
 after_failure:
