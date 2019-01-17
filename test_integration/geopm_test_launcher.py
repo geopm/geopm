@@ -56,7 +56,9 @@ def detect_launcher():
     result = None
     hostname = socket.gethostname()
 
-    if any(hostname.startswith(word) for word in slurm_hosts):
+    if ('TRAVIS_CI_MODE' in os.environ):
+        result = 'ompi'
+    elif any(hostname.startswith(word) for word in slurm_hosts):
         result = 'srun'
     elif any(hostname.startswith(word) for word in alps_hosts):
         result = 'aprun'
