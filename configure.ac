@@ -427,20 +427,6 @@ AC_COMPILE_IFELSE([
 ])
 
 [CFLAGS="$CFLAGS_SAVE"]
-[CFLAGS="$CFLAGS -Wall -Werror -Wno-null-dereference"]
-AC_MSG_CHECKING([for support for -Wno-null-dereference])
-AC_COMPILE_IFELSE([
-    AC_LANG_PROGRAM([[#include <stdio.h>]],
-          [[printf("Hello World.\n");]])
-],[
-    AC_MSG_RESULT(yes)
-    AM_CONDITIONAL([GEOPM_DISABLE_NULL_DEREF], [true])
-],[
-    AC_MSG_RESULT(no)
-    AM_CONDITIONAL([GEOPM_DISABLE_NULL_DEREF], [false])
-])
-
-[CFLAGS="$CFLAGS_SAVE"]
 [CFLAGS="$CFLAGS -Wall -Werror -Wno-inconsistent-missing-override"]
 AC_MSG_CHECKING([for support for -Wno-inconsistent-missing-override])
 AC_COMPILE_IFELSE([
@@ -453,7 +439,6 @@ AC_COMPILE_IFELSE([
     AC_MSG_RESULT(no)
     AM_CONDITIONAL([GEOPM_DISABLE_INCONSISTENT_OVERRIDE], [false])
 ])
-
 
 [LDFLAGS="$LDFLAGS_SAVE"]
 [CFLAGS="$CFLAGS_SAVE"]
