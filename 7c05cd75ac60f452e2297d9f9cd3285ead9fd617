@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7662ed49_403ce680",
+        "filename": "test/PlatformIOTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-01-17T19:41:04Z",
+      "side": 1,
+      "message": "A comment explaining why this works would be great.",
+      "range": {
+        "startLine": 593,
+        "startChar": 22,
+        "endLine": 593,
+        "endChar": 47
+      },
+      "revId": "7c05cd75ac60f452e2297d9f9cd3285ead9fd617",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "784ce983_923af750",
+        "filename": "test/PlatformIOTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-01-17T19:41:04Z",
+      "side": 1,
+      "message": "This won\u0027t catch if we wrote the same value N times a single CPU.",
+      "range": {
+        "startLine": 617,
+        "startChar": 23,
+        "endLine": 617,
+        "endChar": 40
+      },
+      "revId": "7c05cd75ac60f452e2297d9f9cd3285ead9fd617",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
