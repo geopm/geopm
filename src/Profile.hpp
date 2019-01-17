@@ -314,9 +314,11 @@ namespace geopm
             double m_parent_progress;
             int m_parent_num_enter;
             std::shared_ptr<Comm> m_reduce_comm;
+#ifdef GEOPM_OVERHEAD
             double m_overhead_time;
             double m_overhead_time_startup;
             double m_overhead_time_shutdown;
+#endif
     };
 }
 

@@ -73,6 +73,8 @@ def factory(argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
     factory_dict['mpiexec.hydra'] = IMPIExecLauncher
     factory_dict['IMPIExecLauncher'] = IMPIExecLauncher
     factory_dict['SrunTOSSLauncher'] = SrunTOSSLauncher
+    #todo
+    #factory_dict['MpichLauncher'] = MpichLauncher
     try:
         return factory_dict[argv[1]](argv[2:], num_rank, num_node, cpu_per_rank, timeout,
                                 time_limit, job_name, node_list, host_file)
