@@ -64,12 +64,7 @@
 /geopmread
 /geopmwrite
 /gh-pages/
-/gmock-1.7.0.zip
-/gmock-1.7.0/
-/gmock-all.o
-/gtest-1.7.0.zip
-/gtest-1.7.0/
-/gtest-all.o
+/googletest-release-1.8.1/
 /install-sh
 /keyvals.mod
 /libgmock.a
@@ -88,6 +83,7 @@
 /openmp/*
 /plugin/*.lo
 /plugin/*.o
+/release-1.8.1.tar.gz
 /ronn/*.1
 /ronn/*.3
 /ronn/*.7
@@ -130,7 +126,6 @@
 /test/geopm_mpi_test
 /test/geopm_mpi_test_api
 /test/geopm_print_error
-/test/geopm_static_modes_test
 /test/geopm_test
 /test/gtest_links
 /test/gtest_links/*
