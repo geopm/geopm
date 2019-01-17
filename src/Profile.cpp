@@ -128,11 +128,9 @@ namespace geopm
         , m_parent_progress(0.0)
         , m_parent_num_enter(0)
         , m_reduce_comm(reduce_comm)
-#ifdef GEOPM_OVERHEAD
         , m_overhead_time(0.0)
         , m_overhead_time_startup(0.0)
         , m_overhead_time_shutdown(0.0)
-#endif
     {
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_entry;

@@ -115,12 +115,6 @@ fi
 [enable_msrsafe_ioctl_write="0"]
 )
 
-if test "x$enable_openmp" = "xno" ; then
-  enable_openmp="0"
-else
-  enable_openmp="1"
-fi
-
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
   CFLAGS="$CFLAGS -O0 -g"
@@ -152,6 +146,21 @@ if test "x$enable_msrsafe_ioctl_write" = "x1" ; then
 fi
 AC_SUBST([enable_msrsafe_ioctl_write])
 
+AC_LANG_PUSH([C++])
+AC_OPENMP()
+AC_LANG_POP([C++])
+
+if test "x$OPENMP_CFLAGS" = "x" ; then
+  enable_openmp="no"
+else
+  enable_openmp="yes"
+fi
+
+if test "x$enable_openmp" = "xno" ; then
+  enable_openmp="0"
+else
+  enable_openmp="1"
+fi
 
 AC_SUBST([enable_openmp])
 AM_CONDITIONAL([ENABLE_OPENMP], [test "x$enable_openmp" = "x1"])
@@ -259,11 +268,6 @@ if test "x$enable_fortran" = "x1"; then
          AC_MSG_ERROR([Failed to determine MPI Fortran 77  build flags use --with-mpi-bin or --with-mpicxx or --disable-mpi]))
 fi
 fi
-
-AC_LANG_PUSH([C++])
-AC_OPENMP()
-AC_LANG_POP([C++])
-
 
 [MPI_FCFLAGS=$MPI_FFLAGS]
 [MPI_FFLAGS=$MPI_F77FLAGS]
@@ -425,6 +429,35 @@ AC_COMPILE_IFELSE([
     AC_MSG_RESULT(no)
     AM_CONDITIONAL([GEOPM_DISABLE_NULL_PTR], [false])
 ])
+
+[CFLAGS="$CFLAGS_SAVE"]
+[CFLAGS="$CFLAGS -Wall -Werror -Wno-null-dereference"]
+AC_MSG_CHECKING([for support for -Wno-null-dereference])
+AC_COMPILE_IFELSE([
+    AC_LANG_PROGRAM([[#include <stdio.h>]],
+          [[printf("Hello World.\n");]])
+],[
+    AC_MSG_RESULT(yes)
+    AM_CONDITIONAL([GEOPM_DISABLE_NULL_DEREF], [true])
+],[
+    AC_MSG_RESULT(no)
+    AM_CONDITIONAL([GEOPM_DISABLE_NULL_DEREF], [false])
+])
+
+[CFLAGS="$CFLAGS_SAVE"]
+[CFLAGS="$CFLAGS -Wall -Werror -Wno-inconsistent-missing-override"]
+AC_MSG_CHECKING([for support for -Wno-inconsistent-missing-override])
+AC_COMPILE_IFELSE([
+    AC_LANG_PROGRAM([[#include <stdio.h>]],
+          [[printf("Hello World.\n");]])
+],[
+    AC_MSG_RESULT(yes)
+    AM_CONDITIONAL([GEOPM_DISABLE_INCONSISTENT_OVERRIDE], [true])
+],[
+    AC_MSG_RESULT(no)
+    AM_CONDITIONAL([GEOPM_DISABLE_INCONSISTENT_OVERRIDE], [false])
+])
+
 
 [LDFLAGS="$LDFLAGS_SAVE"]
 [CFLAGS="$CFLAGS_SAVE"]

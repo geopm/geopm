@@ -91,8 +91,8 @@ namespace geopm
             void save_control(void) override;
             void restore_control(void) override;
             std::function<double(const std::vector<double> &)> agg_function(const std::string &signal_name) const override;
-            std::string signal_description(const std::string &signal_name) const override;
-            std::string control_description(const std::string &control_name) const override;
+            std::string signal_description(const std::string &signal_name) const;
+            std::string control_description(const std::string &control_name) const;
             /// @brief Fill string with the msr-safe whitelist file contents
             ///        reflecting all known MSRs for the current platform.
             /// @return String formatted to be written to
