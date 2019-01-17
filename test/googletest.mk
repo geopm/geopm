@@ -31,80 +31,74 @@
 
 AM_CPPFLAGS += -I$(googletest)/include
 AM_CPPFLAGS += -I$(googlemock)/include
-BUILT_SOURCES += $(googlemock)/VERSION
-EXTRA_DIST += $(googlemock_archive)
-DISTCLEANFILES += $(googlemock)/VERSION \
-                  $(googlemock_archive) \
+BUILT_SOURCES += $(googletest_suite)/VERSION
+EXTRA_DIST += $(googletest_suite_archive_download)
+DISTCLEANFILES += $(googletest_suite)/VERSION \
+                  $(googletest_suite_archive) \
                   # end
 
-if GEOPM_DISABLE_NULL_PTR
-    AM_CPPFLAGS += -fno-delete-null-pointer-checks
-endif
-
-if GEOPM_DISABLE_NULL_DEREF
-    AM_CPPFLAGS += -Wno-null-dereference
-endif
-
-dist-googletest: googlemock_archive_check
+dist-googletest: googletest_archive_check
 check-am: libgmock.a libgtest.a
 clean-local-googletest: clean-local-gmock
 
-googlemock_version = 1.7.0
-googlemock = gmock-$(googlemock_version)
-googletest = $(googlemock)/gtest
-googlemock_archive = $(googlemock).zip
-googlemock_url = https://github.com/geopm/gmock-1.7.0/releases/download/v1.7.0/$(googlemock_archive)
-googlemock_sha1 = f9d9dd882a25f4069ed9ee48e70aff1b53e3c5a5
+googletest_version = 1.8.1
+googletest_suite = googletest-release-$(googletest_version)
+googlemock = $(googletest_suite)/googlemock
+googletest = $(googletest_suite)/googletest
+googletest_suite_archive = release-$(googletest_version).tar.gz
+googletest_suite_archive_download = googletest-$(googletest_suite_archive)
+googletest_url = https://github.com/google/googletest/archive/$(googletest_suite_archive)
+googletest_sha1 = 152b849610d91a9dfa1401293f43230c2e0c33f8
 
-$(googlemock_archive):
-	wget --timeout=20 $(googlemock_url) || \
-	curl --connect-timeout 20 -O $(googlemock_url) || \
+$(googletest_suite_archive_download):
+	wget --timeout=20 -O $(googletest_suite_archive_download) $(googletest_url) || \
+	curl --connect-timeout 20 -L -o $(googletest_suite_archive_download) $(googlemock_url) || \
 	echo "Warning: Unable to download gmock archive" 2>&1 && \
-	touch $(googlemock_archive)
+	touch $(googletest_suite_archive_download)
 
-googlemock_archive_check: $(googlemock_archive)
+googletest_archive_check: $(googletest_suite_archive_download)
 	@if [ ! -s $^ ]; then \
 	    echo "Error: The gmock archive is empty" 2>&1; \
 	    exit -1; \
 	fi
-	@if [ $$(sha1sum $^ | awk '{print $$1}') != $(googlemock_sha1) ]; then \
+	@if [ $$(sha1sum $^ | awk '{print $$1}') != $(googletest_sha1) ]; then \
 	    echo "Error: The gmock archive does not have the correct SHA-1 checksum" 2>&1; \
 	    exit -1; \
 	fi
-	@echo '[ PASSED ] googlemock_archive_check'
+	@echo '[ PASSED ] googletest_archive_check'
 
-$(googlemock)/VERSION: $(googlemock_archive)
+$(googletest_suite)/VERSION: $(googletest_suite_archive_download)
 	@if [ ! -s $^ ]; then \
-	    mkdir -p $(googlemock); \
-	    touch $(googlemock)/VERSION; \
-	elif [ $$(sha1sum $^ | awk '{print $$1}') != $(googlemock_sha1) ]; then \
+	    mkdir -p $(googletest_suite); \
+	    touch $(googletest_suite)/VERSION; \
+	elif [ $$(sha1sum $^ | awk '{print $$1}') != $(googletest_sha1) ]; then \
 	    echo "Error: The gmock archive does not have the correct SHA-1 checksum" 2>&1; \
 	    exit -1; \
 	else \
-	    rm -rf $(googlemock); \
-	    unzip $^; \
-	    echo $(googlemock_version) > $(googlemock)/VERSION; \
+	    rm -rf $(googletest_suite); \
+	    tar -xvf $^; \
+	    echo $(googletest_version) > $(googletest_suite)/VERSION; \
 	fi
 
-libgmock.a: $(googlemock)/VERSION
+libgmock.a: $(googletest_suite)/VERSION
 	@if [ ! -s $^ ]; then \
 	    echo "Error: Failure to extract or download gmock archive" 2>&1; \
 	    exit -1; \
 	fi
-	$(CXX) $(CXXFLAGS) -isystem $(googlemock)/include -I$(googlemock) -isystem $(googletest)/include -I$(googletest) -pthread \
+	$(CXX) $(CXXFLAGS) -isystem $(googlemock)/include -I$(googlemock) -isystem $(googletest)/include -I$(googletest) -pthread -fno-delete-null-pointer-checks \
 	      -c $(googlemock)/src/gmock-all.cc
 	ar -rv libgmock.a gmock-all.o
 
-libgtest.a: $(googlemock)/VERSION
+libgtest.a: $(googletest_suite)/VERSION
 	@if [ ! -s $^ ]; then \
 	    echo "Error: Failure to extract or download gmock archive" 2>&1; \
 	    exit -1; \
 	fi
-	$(CXX) $(CXXFLAGS) -isystem $(googletest)/include -I$(googletest) -pthread \
+	$(CXX) $(CXXFLAGS) -isystem $(googletest)/include -I$(googletest) -pthread -fno-delete-null-pointer-checks \
 	      -c $(googletest)/src/gtest-all.cc
 	ar -rv libgtest.a gtest-all.o
 
 clean-local-gmock:
-	rm -rf libgtest.a libgmock.a $(googlemock)
+	rm -rf libgtest.a libgmock.a $(googletest_suite)
 
-PHONY_TARGETS += googlemock_archive_check clean-local-gmock
+PHONY_TARGETS += googletest_archive_check clean-local-gmock
