@@ -351,10 +351,6 @@ test_geopm_test_CPPFLAGS = $(AM_CPPFLAGS) -Iplugin
 test_geopm_test_CFLAGS = $(AM_CFLAGS)
 test_geopm_test_CXXFLAGS = $(AM_CXXFLAGS)
 
-if GEOPM_DISABLE_NULL_PTR
-    test_geopm_test_CFLAGS += -fno-delete-null-pointer-checks
-    test_geopm_test_CXXFLAGS += -fno-delete-null-pointer-checks
-endif
 if GEOPM_DISABLE_INCONSISTENT_OVERRIDE
     test_geopm_test_CFLAGS += -Wno-inconsistent-missing-override
     test_geopm_test_CXXFLAGS += -Wno-inconsistent-missing-override
@@ -373,10 +369,6 @@ if ENABLE_MPI
     test_geopm_mpi_test_api_LDFLAGS = $(AM_LDFLAGS)
     test_geopm_mpi_test_api_CFLAGS = $(AM_CFLAGS)
     test_geopm_mpi_test_api_CXXFLAGS= $(AM_CXXFLAGS)
-if GEOPM_DISABLE_NULL_PTR
-    test_geopm_mpi_test_api_CFLAGS += -fno-delete-null-pointer-checks
-    test_geopm_mpi_test_api_CXXFLAGS += -fno-delete-null-pointer-checks
-endif
 endif
 
 # Target for building test programs.

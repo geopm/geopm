@@ -54,6 +54,10 @@ before_install:
 install:
     - ./configure --disable-fortran --enable-debug --prefix=$GEOPM_INSTALL_ROOT
 
+cache:
+    directories:
+      - googletest-release-1.8.1/
+
 script:
     - ./travis_ci.sh
 
