@@ -77,6 +77,7 @@ def factory(argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
     factory_dict['SrunTOSSLauncher'] = SrunTOSSLauncher
     factory_dict['ompi'] = OMPIExecLauncher
     factory_dict['OMPIExecLauncher'] = OMPIExecLauncher
+
     try:
         return factory_dict[argv[1]](argv[2:], num_rank, num_node, cpu_per_rank, timeout,
                                 time_limit, job_name, node_list, host_file)
