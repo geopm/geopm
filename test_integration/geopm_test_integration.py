@@ -82,6 +82,8 @@ def get_platform():
     dev_null.close()
     output = ostream.getvalue()
 
+    fam = 0
+    mod = 0
     for line in output.splitlines():
         if line.startswith('cpu family\t:'):
             fam = int(line.split(':')[1])
@@ -134,8 +136,12 @@ def skip_unless_slurm_batch():
 class TestIntegration(unittest.TestCase):
     def setUp(self):
         self.longMessage = True
-        self._agent = 'power_governor'
-        self._options = {'power_budget': 150}
+        if 'CI_MODE' not in os.environ:
+            self._agent = 'power_governor'
+            self._options = {'power_budget': 150}
+        else:
+            self._agent = 'monitor'
+            self._options = dict()
         self._tmp_files = []
         self._output = None
 
