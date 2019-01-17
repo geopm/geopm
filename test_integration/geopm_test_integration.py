@@ -134,8 +134,12 @@ def skip_unless_slurm_batch():
 class TestIntegration(unittest.TestCase):
     def setUp(self):
         self.longMessage = True
-        self._agent = 'power_governor'
-        self._options = {'power_budget': 150}
+        if 'CI_MODE' not in os.environ:
+            self._agent = 'power_governor'
+            self._options = {'power_budget': 150}
+        else:
+            self._agent = 'monitor'
+            self._options = dict()
         self._tmp_files = []
         self._output = None
 
@@ -169,6 +173,7 @@ class TestIntegration(unittest.TestCase):
             last_index = index + 1  # Set the next starting index to be one past where we are
         filtered_df = pandas.concat(row_list)
         return filtered_df
+
 
     def test_report_and_trace_generation(self):
         name = 'test_report_and_trace_generation'
