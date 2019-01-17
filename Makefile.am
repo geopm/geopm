@@ -293,12 +293,14 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              scripts/outlier/outlier_detection.py \
              scripts/outlier/theta_nodelist_broken.txt \
              src/Comm.hpp \
+             travis_ci.sh \
              test_hw/Makefile \
              test_hw/geopm_time.h \
              test_hw/rapl_pkg_limit_plot.py \
              test_hw/rapl_pkg_limit_sweep.sh \
              test_hw/rapl_pkg_limit_test.c \
              tracker/track \
+             test_integration/test_count_app.config \
              # end
 
 TUTORIAL_DIST = tutorial/Makefile \

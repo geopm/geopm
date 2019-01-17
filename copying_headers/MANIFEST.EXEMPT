@@ -92,6 +92,7 @@ scripts/MANIFEST.in
 scripts/outlier/README.md
 scripts/outlier/theta_nodelist_broken.txt
 scripts/requirements.txt
+travis_ci.sh
 test_integration/README.md
 tutorial/README.md
 tutorial/agent/README.md
@@ -101,3 +102,4 @@ tutorial/iogroup/README.md
 tutorial/tutorial_6_config.json
 tutorial/tutorial_balanced_policy.json
 tutorial/tutorial_governed_policy.json
+test_integration/test_count_app.config
