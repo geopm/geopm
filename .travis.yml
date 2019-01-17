@@ -59,6 +59,10 @@ install:
     - export PYTHONPATH=$GEOPM_INSTALL_ROOT/lib/python2.7/site-packages/:$(pwd)/scripts/build/lib/:$PYTHONPATH
     - export MANPATH=$GEOPM_INSTALL_ROOT/share/man:$MANPATH
 
+cache:
+    directories:
+      - googletest-release-1.8.1/
+
 script:
     - ./travis_ci.sh
 
