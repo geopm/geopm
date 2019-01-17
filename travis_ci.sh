@@ -75,8 +75,9 @@ elif [ $CI_MODE == "integration" ]; then
 #        LD_LIBRARY_PATH=$MPICH_INSTALL_ROOT/lib MV2_ENABLE_AFFINITY=0 KMP_AFFINITY=disabled KMP_WARNINGS=FALSE $MPICH_INSTALL_ROOT/bin/mpirun -p 5 \
 #        -- ../.libs/geopmbench --verbose test_count_app.config
     TRAVIS_CI_MODE=ompi GEOPM_KEEP_FILES=barrelroll GEOPM_RUN_LONG_TESTS=yup ./geopm_test_integration.py -v TestIntegration.test_count
-    #cat *.report *.trace*
-    exit $?
+    RET=$?
+    ls -la .
+    exit $RET
 else
     echo "Unsupported CI_MODE."
     exit 1
