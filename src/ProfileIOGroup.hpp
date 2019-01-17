@@ -72,8 +72,8 @@ namespace geopm
             void save_control(void) override;
             void restore_control(void) override;
             std::function<double(const std::vector<double> &)> agg_function(const std::string &signal_name) const override;
-            std::string signal_description(const std::string &signal_name) const;
-            std::string control_description(const std::string &control_name) const;
+            std::string signal_description(const std::string &signal_name) const override;
+            std::string control_description(const std::string &control_name) const override;
             static std::string plugin_name(void);
         private:
             enum m_signal_type {
