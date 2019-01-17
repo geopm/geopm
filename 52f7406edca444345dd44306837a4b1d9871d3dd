@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c257dd1_e98ecd91",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-01-17T19:19:19Z",
+      "side": 1,
+      "message": "Can this be removed by restructuring the if() statements?",
+      "range": {
+        "startLine": 200,
+        "startChar": 12,
+        "endLine": 200,
+        "endChar": 20
+      },
+      "revId": "52f7406edca444345dd44306837a4b1d9871d3dd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5042cb66_87c29e59",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-01-17T19:19:19Z",
+      "side": 1,
+      "message": "See if the raw pointer usage can be removed here.",
+      "range": {
+        "startLine": 232,
+        "startChar": 19,
+        "endLine": 232,
+        "endChar": 35
+      },
+      "revId": "52f7406edca444345dd44306837a4b1d9871d3dd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcee0044_0a6b51f8",
+        "filename": "test/PlatformIOTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 607,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-01-17T19:19:19Z",
+      "side": 1,
+      "message": "Check @ the package level.",
+      "range": {
+        "startLine": 607,
+        "startChar": 62,
+        "endLine": 607,
+        "endChar": 74
+      },
+      "revId": "52f7406edca444345dd44306837a4b1d9871d3dd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
