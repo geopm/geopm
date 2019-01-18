@@ -32,18 +32,70 @@
 
 sudo: false
 
-compiler:
-    - clang #todo version?
-    - g++-4.8
-
-dist: trusty
-
 language: cpp
 
-git:
-    depth: 1000
+env:
+    global:
+        - MAKEFLAGS="-j 2"
+        - MPLBACKEND='Agg'
+        # OSC_CREDENTIALS for geopm/geopm
+        - secure: "J5TFi7y/vy6upnrENCHD1PnRM8HX46LK+66CFoTP17Fmx1Zo4eR2aFT2WBEkxBOsuw3HbSxC7NCOx4T9cyAWhcC5CaKtuQGJHJdGzbjmv85OHN9hxjvjCQRsiW2V/XBhl9DJr56Z23OS2oyIGTJzdQPV45Lgmu2yXE2gY8Kdk21P2/PxaeyzyJCBM+ejX9kQK7FYdAT/xSlMiHUFkdd6Sj2se23jUHD2MqN+EcLGqBzWdYIoAexJuDPAe3fR/yl66DDIBulYQinuQv07hej9TxLcNcRyWzZqUbHe0V1nKt+zwGjtSv6rEwqB1gPRIVr1mUOidbucHs42EwQNgqxaNMPo/XOPpeOgNPiNKr2xxWElzSMi2WZv14x3uDmkBZ2Yiew3F8oG28qeQWSHbXE0/m8WDlnrHx1r4h1/ir32tTQa/u8/w/creqGm3/flRvDlIim8cuv+cSoU5a/V9dhZrzyCQfNrjGFLaDl7FWXpU3oScDuP5CB/ZIdZkIFR2HQPQScuXEUw5gE10toLrO9G5G8+nf8GlDvasdgJON8kvRVyrYnDSvQrAyMp+8IbsN5HXN4S2Gpf1jpMkTlpCZ91yagkiS8mWNMHbPljmyrR3KyOFqK4b3MCeFdYspUQWQxAxhCeaN4EGJXT9Of62qcf4NsUMu7YHjVK9Nl9iHcynDo="
+        # OSC_CREDENTIALS for cmcantalupo/geopm
+        - secure: "i7+m1SqcoDLD0FAodAk1XOEi+2O1mjoo/C+cIv03yoWUwasJ8qaGuI8wEba8ViuZ4xBbT5aVH8/xUqwjeUWEk+NCQy47OP86mKBm6BAeLfONaZeHXu8K+IJg4lzKL0VzRjd3Svf4cjRgzD3yWGoiuDMGRWFEdtALdglE8jCoq94mViD4K+0lxpyFU7K2ACIfguuhtFeEq3YzdUWIDxkDock7HcpMWrHHa0Rpf05v6zWPxzvmBR36czcnouweNo4Dtirss0elsXyePyOJLYxEzmj1f2Mlhet7iIw/ZyajlNXn80KJMUEnU8wd8PLXtxBpr97p4B8meL+54nv/eeJcB4bzyL7RFOqV0kJMUkNqV9uU/qFPqVzipQVaZbUr2l8Nhy/Lmu24BQA5PNVq2i9ayhN6N2dLSdLu1A1EdMZHcB91PlbG4zbBXYM5RDrJ1ATDhD+NXYiCxGei2Sct2RCK2nbI8XbXiGo91OC8D/wtEYHpz8WIEQXyIpEBC6OVrMEUtDxBbvIJfn/zpyyTPcSCojP5NYtMTie8At832Aa8L5/7w5hDGFafYYqZDoyTS9supIXD4pwcVg4JNRWViQEuU/csNV+/WXwTKFkxD4UA+77B2Pv6vsA0t1AqONa9Ydg6GzkPj7q5u9fPQ3oFh63AbGB5Unjotjst5Z346OoEDyU="
+        # OSC_CREDENTIALS for bgeltz/geopm
+        - secure: "F3NbmvrA0JQ6WKLBtDw98kqgHv3/+GKZEvdxa1pvs7HTD+nY+MOVocN3/24SMTDtAgwCnacUV2zYq9NipYPICLCdNzkB0DBVRDALFjmSAhouYpdPWYeQqRqTzVYktpYgPRhQOXuTgREqUlko2ZHMGtNwCmdafrI4YWI78sUk120tuiZxpK1JaWTiH2lyoA4EzEX7H0Ti//zsKiyUnxMeU547JkZFKbW/ojtbYum08YgRAL31qar9x0DQ86EM2hx3K3uy3/B4wbalS9qqAp7JKhB0DoNcgL3Xx0ysbKEE1+AA2FwuogAIOWva8xWS4Gd26JLsrzYPWzNxD2TwDZ5cntzewdyeJdu15e3tu3vYrE+0BiDOvMpuQiY+89R1qy61gJkXZeNPskevEIRGjLiPXrj0PaYBJ8z4bn/iJJKhY50N4W/UEosB6hg64GDUo5pI8YJWqCBpkM+AdTdWeJGxKZMyELHAa2zfYmXitNlvzQKTjseQz1i0xpl2/oX3NTv0ZC0YfCaH7nrADOEFHggmwBaA3vdOs2JqdxnP6bidD2RQzmloRgDWD6NTtZkzGZzb+D5irgZWvQTc2G9m4D86vOt99wMYRapk/7rC+jTUrL5gInukjB82JOTwFf6z82s4BzbQ0DuU4tndnoGqELZwnyFPGehnbxtENPgpFzzgMR0="
+        # OSC_CREDENTIALS for dianarg/geopm
+        - secure: "fupAbhWPpKVuQiJE1KbPbQFBEb67IRq39wl18+h0897HbyIka5moRRK8ImDaXYQIFAar7TbgBGq9aveTQusCMN8krAodI1tquNICx9S+/BEipdL27w1F597UErwkTNkxdq2RmQ355+Lf6AkcHudfO2tHvWEhj5SHjlt6zCG7dVU4SxJ/zgGHYwqyN9omYfv/5WsP186BgOvcdRiG7scx8f+cEsRV894PQvKGOvzq+LyS4QlH63Bzsy0uXfzL7Jr06/1/CJEQFXEFbUVGFECt3L7Mw/zKvYcvBpH7M5s4X3T2pqoReo4QqSzaW7bP3YFNith1YQfLPnCkmagc7ZLmPMBhZ/s2MAHCVmKN3y98g3yK9obk5X1q4ALV4QOxTQ+umksSYfWU+fhWDNiRsFyK95rhSymPaQzVHWyEB4/WoK002nv+WU1jM8iwIyn/I1XBt/+tD5FMSft9E0smEGgx6Crmf/KLnEp9Lq2/lOdMkkjEVd25zYRbqNwp67zHXroCJqJ3Q8PaGCARQtSDX/BbmpYSX+oYEb5kSPOIbJIzx8CltQe/npVEEYKpeSJWZX9dutA1Hyr9oPZIu/U1QOiiCUsfIhHY7NhaIe4rw2V0hQtLBOFbCuH1WzFsbx+HIPcwgv6d3UifqE5uxcMe3Ss6lEfYhyqd0pBFC5tH7MYfknw="
+        # OSC_CREDENTIALS for bakerbrandond/geopm
+        - secure: "XVTtoccFxsQfev1a9urWQyW7HV0R/VHT3Obtx+xjG8n5JJ4LxK+wK1OPFZ1bqlOalVMyMgAvStx/vTC3J+Pisxlsmc9U88+Xav1fpEr4mAr2JVQC2O73zic5fZmMChhGB/bwaL1UjkXgx8LLqXGZhzgrA4o6JocUZcZVodr9bcp8XJ0MQEWwIv4kxONvwZgl2Y6kWBxjKWv72uOzYJtUjBRvG6DTQBpPAj1NkwnMHQlSM00pxlSxVvhv8Iv7XlFOVi3VAU1leeLxsM6UD+DSVNjNN49iRbjHepXnFA/3dFfDSSfUpO+4bZH2RyQN6axOXRnP8Tra+rMs5nCM2FM/aReQoy0fqN+lTB4nQNtkdVuinY7/NnfD9XqLiOKiPU3tjcjGS0Etg17lbrKFPqMhoTkd2Jac+N4Z/Z3A1+xxLdYrp5GbGqEAEuGvFfTev0aj5X1KMcgmRk3RFlRLlfwKXHmqEJ0XZLhy72xRSRG9PJX+EvM1bvvnWmLaOmORk4u7pAVAxM+HQzz8GS2gCMZVcHTr+Od73XxMKC7NeAUrX6R/vepgkpWhMSbO+8QwP+OKuyHkwjsM+227unLqvGztnj2gdOf31xR6GHzT/8ZvMsTOn9GFEtOZDWu7gVkGzPJ8qX3Vt2cfC1mPsrJ+Z9f7xa/W+lD/1LE/kbrhXgbbINk="
+
+  matrix:
+    include:
+      - name: "Linux Build [GNU]"
+      - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-4.8
+            - g++-4.8
+            - openmpi-bin
+            - libopenmpi-dev
+            - rpm
+            - osc
+            - python-pip
+      env:
+        - MATRIX_EVAL="CI_MODE=unit && CC=gcc-4.8 && CXX=g++-4.8"
+        - MATRIX_EVAL="CI_MODE=integration && CI_MPI_RT=ompi && CC=gcc-4.8 && CXX=g++-4.8"
+        - MATRIX_EVAL="CI_MODE=integration && CI_MPI_RT=mpich && CC=gcc-4.8 && CXX=g++-4.8"
+    include:
+      - name: "Linux Unit Build [Clang]"
+      - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - clang #todo version?
+            - openmpi-bin
+            - libopenmpi-dev
+            - rpm
+            - osc
+            - python-pip
+      env:
+        - MATRIX_EVAL="CI_MODE=unit && CC=clang && CXX=clang++"                               #todo version
+        - MATRIX_EVAL="CI_MODE=integration && CI_MPI_RT=ompi && CC=clang && CXX=clang++"      #todo version
+        - MATRIX_EVAL="CI_MODE=integration && CI_MPI_RT=mpich && CC=clang && CXX=clang++"     #todo version
+    include:
+      - name: "OSX Unit Build [Clang]"
+      - os: osx
+      osx_image: xcode8
+      env:
+        - MATRIX_EVAL="brew install open-mpi && CI_MODE=unit && CC=gcc-4.8 && CXX=g++-4.8"
 
 before_install:
+    - eval "${MATRIX_EVAL}"
     - rvm install 2.0.0
     - git fetch origin --tags
     - git fetch origin $TRAVIS_BRANCH
@@ -67,26 +119,6 @@ cache:
 script:
     - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GEOPM_INSTALL_ROOT/lib ./travis_ci.sh
 
-env:
-    matrix:
-        #- MPI_RT=ompi
-        #- MPI_RT=mpich
-        - CI_MODE=unit
-        - CI_MODE=integration
-    global:
-        - MAKEFLAGS="-j 2"
-        - MPLBACKEND='Agg'
-        # OSC_CREDENTIALS for geopm/geopm
-        - secure: "J5TFi7y/vy6upnrENCHD1PnRM8HX46LK+66CFoTP17Fmx1Zo4eR2aFT2WBEkxBOsuw3HbSxC7NCOx4T9cyAWhcC5CaKtuQGJHJdGzbjmv85OHN9hxjvjCQRsiW2V/XBhl9DJr56Z23OS2oyIGTJzdQPV45Lgmu2yXE2gY8Kdk21P2/PxaeyzyJCBM+ejX9kQK7FYdAT/xSlMiHUFkdd6Sj2se23jUHD2MqN+EcLGqBzWdYIoAexJuDPAe3fR/yl66DDIBulYQinuQv07hej9TxLcNcRyWzZqUbHe0V1nKt+zwGjtSv6rEwqB1gPRIVr1mUOidbucHs42EwQNgqxaNMPo/XOPpeOgNPiNKr2xxWElzSMi2WZv14x3uDmkBZ2Yiew3F8oG28qeQWSHbXE0/m8WDlnrHx1r4h1/ir32tTQa/u8/w/creqGm3/flRvDlIim8cuv+cSoU5a/V9dhZrzyCQfNrjGFLaDl7FWXpU3oScDuP5CB/ZIdZkIFR2HQPQScuXEUw5gE10toLrO9G5G8+nf8GlDvasdgJON8kvRVyrYnDSvQrAyMp+8IbsN5HXN4S2Gpf1jpMkTlpCZ91yagkiS8mWNMHbPljmyrR3KyOFqK4b3MCeFdYspUQWQxAxhCeaN4EGJXT9Of62qcf4NsUMu7YHjVK9Nl9iHcynDo="
-        # OSC_CREDENTIALS for cmcantalupo/geopm
-        - secure: "i7+m1SqcoDLD0FAodAk1XOEi+2O1mjoo/C+cIv03yoWUwasJ8qaGuI8wEba8ViuZ4xBbT5aVH8/xUqwjeUWEk+NCQy47OP86mKBm6BAeLfONaZeHXu8K+IJg4lzKL0VzRjd3Svf4cjRgzD3yWGoiuDMGRWFEdtALdglE8jCoq94mViD4K+0lxpyFU7K2ACIfguuhtFeEq3YzdUWIDxkDock7HcpMWrHHa0Rpf05v6zWPxzvmBR36czcnouweNo4Dtirss0elsXyePyOJLYxEzmj1f2Mlhet7iIw/ZyajlNXn80KJMUEnU8wd8PLXtxBpr97p4B8meL+54nv/eeJcB4bzyL7RFOqV0kJMUkNqV9uU/qFPqVzipQVaZbUr2l8Nhy/Lmu24BQA5PNVq2i9ayhN6N2dLSdLu1A1EdMZHcB91PlbG4zbBXYM5RDrJ1ATDhD+NXYiCxGei2Sct2RCK2nbI8XbXiGo91OC8D/wtEYHpz8WIEQXyIpEBC6OVrMEUtDxBbvIJfn/zpyyTPcSCojP5NYtMTie8At832Aa8L5/7w5hDGFafYYqZDoyTS9supIXD4pwcVg4JNRWViQEuU/csNV+/WXwTKFkxD4UA+77B2Pv6vsA0t1AqONa9Ydg6GzkPj7q5u9fPQ3oFh63AbGB5Unjotjst5Z346OoEDyU="
-        # OSC_CREDENTIALS for bgeltz/geopm
-        - secure: "F3NbmvrA0JQ6WKLBtDw98kqgHv3/+GKZEvdxa1pvs7HTD+nY+MOVocN3/24SMTDtAgwCnacUV2zYq9NipYPICLCdNzkB0DBVRDALFjmSAhouYpdPWYeQqRqTzVYktpYgPRhQOXuTgREqUlko2ZHMGtNwCmdafrI4YWI78sUk120tuiZxpK1JaWTiH2lyoA4EzEX7H0Ti//zsKiyUnxMeU547JkZFKbW/ojtbYum08YgRAL31qar9x0DQ86EM2hx3K3uy3/B4wbalS9qqAp7JKhB0DoNcgL3Xx0ysbKEE1+AA2FwuogAIOWva8xWS4Gd26JLsrzYPWzNxD2TwDZ5cntzewdyeJdu15e3tu3vYrE+0BiDOvMpuQiY+89R1qy61gJkXZeNPskevEIRGjLiPXrj0PaYBJ8z4bn/iJJKhY50N4W/UEosB6hg64GDUo5pI8YJWqCBpkM+AdTdWeJGxKZMyELHAa2zfYmXitNlvzQKTjseQz1i0xpl2/oX3NTv0ZC0YfCaH7nrADOEFHggmwBaA3vdOs2JqdxnP6bidD2RQzmloRgDWD6NTtZkzGZzb+D5irgZWvQTc2G9m4D86vOt99wMYRapk/7rC+jTUrL5gInukjB82JOTwFf6z82s4BzbQ0DuU4tndnoGqELZwnyFPGehnbxtENPgpFzzgMR0="
-        # OSC_CREDENTIALS for dianarg/geopm
-        - secure: "fupAbhWPpKVuQiJE1KbPbQFBEb67IRq39wl18+h0897HbyIka5moRRK8ImDaXYQIFAar7TbgBGq9aveTQusCMN8krAodI1tquNICx9S+/BEipdL27w1F597UErwkTNkxdq2RmQ355+Lf6AkcHudfO2tHvWEhj5SHjlt6zCG7dVU4SxJ/zgGHYwqyN9omYfv/5WsP186BgOvcdRiG7scx8f+cEsRV894PQvKGOvzq+LyS4QlH63Bzsy0uXfzL7Jr06/1/CJEQFXEFbUVGFECt3L7Mw/zKvYcvBpH7M5s4X3T2pqoReo4QqSzaW7bP3YFNith1YQfLPnCkmagc7ZLmPMBhZ/s2MAHCVmKN3y98g3yK9obk5X1q4ALV4QOxTQ+umksSYfWU+fhWDNiRsFyK95rhSymPaQzVHWyEB4/WoK002nv+WU1jM8iwIyn/I1XBt/+tD5FMSft9E0smEGgx6Crmf/KLnEp9Lq2/lOdMkkjEVd25zYRbqNwp67zHXroCJqJ3Q8PaGCARQtSDX/BbmpYSX+oYEb5kSPOIbJIzx8CltQe/npVEEYKpeSJWZX9dutA1Hyr9oPZIu/U1QOiiCUsfIhHY7NhaIe4rw2V0hQtLBOFbCuH1WzFsbx+HIPcwgv6d3UifqE5uxcMe3Ss6lEfYhyqd0pBFC5tH7MYfknw="
-        # OSC_CREDENTIALS for bakerbrandond/geopm
-        - secure: "XVTtoccFxsQfev1a9urWQyW7HV0R/VHT3Obtx+xjG8n5JJ4LxK+wK1OPFZ1bqlOalVMyMgAvStx/vTC3J+Pisxlsmc9U88+Xav1fpEr4mAr2JVQC2O73zic5fZmMChhGB/bwaL1UjkXgx8LLqXGZhzgrA4o6JocUZcZVodr9bcp8XJ0MQEWwIv4kxONvwZgl2Y6kWBxjKWv72uOzYJtUjBRvG6DTQBpPAj1NkwnMHQlSM00pxlSxVvhv8Iv7XlFOVi3VAU1leeLxsM6UD+DSVNjNN49iRbjHepXnFA/3dFfDSSfUpO+4bZH2RyQN6axOXRnP8Tra+rMs5nCM2FM/aReQoy0fqN+lTB4nQNtkdVuinY7/NnfD9XqLiOKiPU3tjcjGS0Etg17lbrKFPqMhoTkd2Jac+N4Z/Z3A1+xxLdYrp5GbGqEAEuGvFfTev0aj5X1KMcgmRk3RFlRLlfwKXHmqEJ0XZLhy72xRSRG9PJX+EvM1bvvnWmLaOmORk4u7pAVAxM+HQzz8GS2gCMZVcHTr+Od73XxMKC7NeAUrX6R/vepgkpWhMSbO+8QwP+OKuyHkwjsM+227unLqvGztnj2gdOf31xR6GHzT/8ZvMsTOn9GFEtOZDWu7gVkGzPJ8qX3Vt2cfC1mPsrJ+Z9f7xa/W+lD/1LE/kbrhXgbbINk="
-
 after_success:
     - ./.travis_obs.sh
 
@@ -94,20 +126,6 @@ after_failure:
     - cat test_integration/*.log
     - cat scripts/test/pytest_links/*.log
     - cat test/gtest_links/*.log
-
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - clang #todo version?
-    - gcc-4.8
-    - g++-4.8
-    - openmpi-bin
-    - libopenmpi-dev
-    - rpm
-    - osc
-    - python-pip
 
 notifications:
   slack:
