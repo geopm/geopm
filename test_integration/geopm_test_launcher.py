@@ -53,29 +53,28 @@ def detect_launcher():
     slurm_hosts = ['mr-fusion']
     alps_hosts = ['theta']
 
-    result = None
+    result = os.environ.get('CI_MPI_RT', None)
     hostname = socket.gethostname()
 
-    if ('TRAVIS_CI_MODE' in os.environ):
-        result = 'ompi'
-    elif any(hostname.startswith(word) for word in slurm_hosts):
-        result = 'srun'
-    elif any(hostname.startswith(word) for word in alps_hosts):
-        result = 'aprun'
-    else:
-        try:
-            exec_str = 'srun --version'
-            subprocess.check_call(exec_str, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE, shell=True)
+    if result is None:
+        if any(hostname.startswith(word) for word in slurm_hosts):
             result = 'srun'
-        except subprocess.CalledProcessError:
+        elif any(hostname.startswith(word) for word in alps_hosts):
+            result = 'aprun'
+        else:
             try:
-                exec_str = 'aprun --version'
+                exec_str = 'srun --version'
                 subprocess.check_call(exec_str, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE, shell=True)
-                result = 'aprun'
+                result = 'srun'
             except subprocess.CalledProcessError:
-                raise LookupError('Unable to determine resource manager')
+                try:
+                    exec_str = 'aprun --version'
+                    subprocess.check_call(exec_str, stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE, shell=True)
+                    result = 'aprun'
+                except subprocess.CalledProcessError:
+                    raise LookupError('Unable to determine resource manager')
     return result
 
 
