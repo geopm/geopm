@@ -75,6 +75,8 @@ def factory(argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
     factory_dict['mpiexec.hydra'] = IMPIExecLauncher
     factory_dict['IMPIExecLauncher'] = IMPIExecLauncher
     factory_dict['SrunTOSSLauncher'] = SrunTOSSLauncher
+    #todo DO NOT MERGE
+    factory_dict['mpiexec'] = OMPIExecLauncher
     factory_dict['ompi'] = OMPIExecLauncher
     factory_dict['OMPIExecLauncher'] = OMPIExecLauncher
 
