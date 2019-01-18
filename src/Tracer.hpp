@@ -113,7 +113,6 @@ namespace geopm
             std::string m_header;
             std::string m_hostname;
             bool m_is_trace_enabled;
-            bool m_do_header;
             std::ofstream m_stream;
             std::ostringstream m_buffer;
             off_t m_buffer_limit;
