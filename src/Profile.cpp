@@ -138,6 +138,14 @@ namespace geopm
         if (m_reduce_comm == nullptr) {
             m_reduce_comm = geopm::comm_factory().make_plugin(geopm_env_comm());
         }
+#else
+        /// read and write to satisfy clang ifndef GEOPM_OVERHEAD
+        ++m_overhead_time;
+        --m_overhead_time;
+        ++m_overhead_time_startup;
+        --m_overhead_time_startup;
+        ++m_overhead_time_shutdown;
+        --m_overhead_time_shutdown;
 #endif
         std::string sample_key(key_base + "-sample");
         std::string tprof_key(key_base + "-tprof");

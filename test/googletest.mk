@@ -37,6 +37,14 @@ DISTCLEANFILES += $(googlemock)/VERSION \
                   $(googlemock_archive) \
                   # end
 
+if GEOPM_DISABLE_NULL_PTR
+    AM_CPPFLAGS += -fno-delete-null-pointer-checks
+endif
+
+if GEOPM_DISABLE_NULL_DEREF
+    AM_CPPFLAGS += -Wno-null-dereference
+endif
+
 dist-googletest: googlemock_archive_check
 check-am: libgmock.a libgtest.a
 clean-local-googletest: clean-local-gmock
@@ -83,7 +91,7 @@ libgmock.a: $(googlemock)/VERSION
 	    echo "Error: Failure to extract or download gmock archive" 2>&1; \
 	    exit -1; \
 	fi
-	$(CXX) $(CXXFLAGS) -isystem $(googlemock)/include -I$(googlemock) -isystem $(googletest)/include -I$(googletest) -pthread -fno-delete-null-pointer-checks \
+	$(CXX) $(CXXFLAGS) -isystem $(googlemock)/include -I$(googlemock) -isystem $(googletest)/include -I$(googletest) -pthread \
 	      -c $(googlemock)/src/gmock-all.cc
 	ar -rv libgmock.a gmock-all.o
 
@@ -92,7 +100,7 @@ libgtest.a: $(googlemock)/VERSION
 	    echo "Error: Failure to extract or download gmock archive" 2>&1; \
 	    exit -1; \
 	fi
-	$(CXX) $(CXXFLAGS) -isystem $(googletest)/include -I$(googletest) -pthread -fno-delete-null-pointer-checks \
+	$(CXX) $(CXXFLAGS) -isystem $(googletest)/include -I$(googletest) -pthread \
 	      -c $(googletest)/src/gtest-all.cc
 	ar -rv libgtest.a gtest-all.o
 

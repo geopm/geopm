@@ -61,7 +61,6 @@ namespace geopm
             virtual double energy_metric();
 
             IPlatformIO &m_platform_io;
-            size_t m_curr_idx;
             double m_curr_freq = NAN;
             double m_target = 0.0;
             const double M_PERF_MARGIN = 0.10;  // up to 10% degradation allowed

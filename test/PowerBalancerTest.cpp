@@ -57,7 +57,7 @@ class PowerBalancerTest : public ::testing::Test
         const double M_POWER_CAP = 300;
         const double M_TRIAL_DELTA = 1.0;
         const size_t M_NUM_SAMPLE = 3;
-        const int M_MEASURE_DURATION = 0.05;
+        const double M_MEASURE_DURATION = 0.05;
         std::unique_ptr<PowerBalancer> m_balancer;
 };
 
