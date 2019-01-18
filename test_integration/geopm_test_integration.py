@@ -175,6 +175,7 @@ class TestIntegration(unittest.TestCase):
         return filtered_df
 
 
+    @unittest.skipUnless('CI_MODE' not in os.environ, "This test can't be run in Travis CI.")
     def test_report_and_trace_generation(self):
         name = 'test_report_and_trace_generation'
         report_path = name + '.report'
@@ -200,6 +201,7 @@ class TestIntegration(unittest.TestCase):
             trace = self._output.get_trace_data(node_name=nn)
             self.assertNotEqual(0, len(trace))
 
+    @unittest.skipUnless('CI_MODE' not in os.environ, "This test can't be run in Travis CI.")
     def test_no_report_and_trace_generation(self):
         name = 'test_no_report_and_trace_generation'
         num_node = 4
@@ -214,6 +216,7 @@ class TestIntegration(unittest.TestCase):
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
+    @unittest.skipUnless('CI_MODE' not in os.environ, "This test can't be run in Travis CI.")
     @unittest.skipUnless('mr-fusion' in socket.gethostname(), "This test only enabled on known working systems.")
     def test_report_and_trace_generation_pthread(self):
         name = 'test_report_and_trace_generation_pthread'
@@ -241,6 +244,7 @@ class TestIntegration(unittest.TestCase):
             trace = self._output.get_trace_data(node_name=nn)
             self.assertNotEqual(0, len(trace))
 
+    @unittest.skipUnless('CI_MODE' not in os.environ, "This test can't be run in Travis CI.")
     @unittest.skipUnless(geopm_test_launcher.detect_launcher() != "aprun",
                          'ALPS does not support multi-application launch on the same nodes.')
     @skip_unless_slurm_batch()
@@ -270,6 +274,7 @@ class TestIntegration(unittest.TestCase):
             trace = self._output.get_trace_data(node_name=nn)
             self.assertNotEqual(0, len(trace))
 
+    @unittest.skipUnless('CI_MODE' not in os.environ, "This test can't be run in Travis CI.")
     @unittest.skipUnless(geopm_test_launcher.detect_launcher() == "srun" and os.getenv('SLURM_NODELIST') is None,
                          'Requires non-sbatch SLURM session for alloc\'d and idle nodes.')
     def test_report_generation_all_nodes(self):
@@ -396,6 +401,7 @@ class TestIntegration(unittest.TestCase):
             self.assertGreater(0.1, app_totals['mpi-runtime'].item())
             self.assertEqual(loop_count, spin_data['count'].item())
 
+    @unittest.skipUnless('CI_MODE' not in os.environ, "This test can't be run in Travis CI.")
     def test_trace_runtimes(self):
         name = 'test_trace_runtimes'
         report_path = name + '.report'
@@ -485,6 +491,7 @@ class TestIntegration(unittest.TestCase):
                         if first_time is True and df['region_progress'] == 0:
                             self.assertNear(df['region_runtime'], expected_region_runtime[region_name], epsilon=0.001)
 
+    @unittest.skipUnless('CI_MODE' not in os.environ, "This test can't be run in Travis CI.")
     @skip_unless_run_long_tests()
     def test_region_runtimes(self):
         name = 'test_region_runtimes'
@@ -608,6 +615,7 @@ class TestIntegration(unittest.TestCase):
 
         # TODO Trace file parsing + analysis
 
+    @unittest.skipUnless('CI_MODE' not in os.environ, "This test can't be run in Travis CI.")
     @skip_unless_run_long_tests()
     def test_scaling(self):
         """
@@ -662,6 +670,7 @@ class TestIntegration(unittest.TestCase):
                 self._output.remove_files()
 
     @skip_unless_run_long_tests()
+    @unittest.skipUnless('CI_MODE' not in os.environ, "This test can't be run in Travis CI.")
     def test_power_consumption(self):
         name = 'test_power_consumption'
         report_path = name + '.report'
@@ -732,6 +741,7 @@ class TestIntegration(unittest.TestCase):
 
     @skip_unless_run_long_tests()
     @skip_unless_slurm_batch()
+    @unittest.skipUnless('CI_MODE' not in os.environ, "This test can't be run in Travis CI.")
     def test_power_balancer(self):
         name = 'test_power_balancer'
         num_node = 4
@@ -915,6 +925,7 @@ class TestIntegration(unittest.TestCase):
             self.assertGreater(0.06, 1 - (float(len(delta_t)) / size_orig))
             self.assertGreater(max_nstd, delta_t.std() / delta_t.mean())
 
+    @unittest.skipUnless('CI_MODE' not in os.environ, "This test can't be run in Travis CI.")
     def test_mpi_runtimes(self):
         name = 'test_mpi_runtimes'
         report_path = name + '.report'
@@ -958,6 +969,7 @@ class TestIntegration(unittest.TestCase):
             self.assertEqual(0, sleep_data['mpi_runtime'].item())
             self.assertEqual(0, dgemm_data['mpi_runtime'].item())
 
+    @unittest.skipUnless('CI_MODE' not in os.environ, "This test can't be run in Travis CI.")
     def test_ignore_runtime(self):
         name = 'test_ignore_runtime'
         report_path = name + '.report'
@@ -984,6 +996,7 @@ class TestIntegration(unittest.TestCase):
             app_data = self._output.get_app_total_data(node_name=nn)
             self.assertEqual(ignore_data['runtime'].item(), app_data['ignore-runtime'].item())
 
+    @unittest.skipUnless('CI_MODE' not in os.environ, "This test can't be run in Travis CI.")
     @skip_unless_config_enable('ompt')
     def test_unmarked_ompt(self):
         name = 'test_unmarked_ompt'
@@ -1027,6 +1040,7 @@ class TestIntegration(unittest.TestCase):
             self.assertLessEqual(1, len(gemm_region))
 
     @skip_unless_run_long_tests()
+    @unittest.skipUnless('CI_MODE' not in os.environ, "This test can't be run in Travis CI.")
     @skip_unless_platform_bdx()
     @skip_unless_cpufreq()
     def test_agent_energy_efficient_offline(self):
@@ -1100,6 +1114,7 @@ class TestIntegration(unittest.TestCase):
         self.assertLess(-10.0, runtime_savings_epoch)  # want -10% or better
 
     @skip_unless_run_long_tests()
+    @unittest.skipUnless('CI_MODE' not in os.environ, "This test can't be run in Travis CI.")
     @skip_unless_platform_bdx()
     @skip_unless_cpufreq()
     def test_agent_energy_efficient_online(self):
