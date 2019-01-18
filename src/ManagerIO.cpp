@@ -247,7 +247,7 @@ namespace geopm
     void ManagerIOSampler::read_shmem(void)
     {
         if (m_shmem == nullptr) {
-            m_shmem = geopm::make_unique<SharedMemoryUser>(m_path, 5);
+            m_shmem = geopm::make_unique<SharedMemoryUser>(m_path, geopm_env_profile_timeout());
         }
 
         m_data = (struct geopm_manager_shmem_s *) m_shmem->pointer(); // Managed by shmem subsystem.

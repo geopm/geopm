@@ -279,7 +279,7 @@ namespace geopm
     void Profile::init_tprof_table(const std::string &tprof_key, IPlatformTopo &topo)
     {
         if (!m_tprof_table) {
-            m_tprof_shmem = std::unique_ptr<ISharedMemoryUser>(new SharedMemoryUser(tprof_key, 3.0));
+            m_tprof_shmem = std::unique_ptr<ISharedMemoryUser>(new SharedMemoryUser(tprof_key, geopm_env_profile_timeout()));
             m_shm_comm->barrier();
             if (!m_shm_rank) {
                 m_tprof_shmem->unlink();
@@ -293,7 +293,7 @@ namespace geopm
         if (!m_table) {
             std::string table_shm_key(sample_key);
             table_shm_key += "-" + std::to_string(m_rank);
-            m_table_shmem = std::unique_ptr<ISharedMemoryUser>(new SharedMemoryUser(table_shm_key, 3.0));
+            m_table_shmem = std::unique_ptr<ISharedMemoryUser>(new SharedMemoryUser(table_shm_key, geopm_env_profile_timeout()));
             m_table_shmem->unlink();
             m_table = std::unique_ptr<IProfileTable>(new ProfileTable(m_table_shmem->size(), m_table_shmem->pointer()));
         }

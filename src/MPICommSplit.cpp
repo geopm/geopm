@@ -122,7 +122,7 @@ extern "C"
                 }
             }
             if (!shmem) {
-                shmem_user = new geopm::SharedMemoryUser(shmem_key.str(), 1);
+                shmem_user = new geopm::SharedMemoryUser(shmem_key.str(), geopm_env_profile_timeout());
             }
             else {
                 color = rank;
