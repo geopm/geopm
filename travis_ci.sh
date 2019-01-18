@@ -41,8 +41,38 @@ if [ $CI_MODE == "unit" ]; then
     exit $?
 elif [ $CI_MODE == "integration" ]; then
     make install && make dist && cd test_integration
+#    if [ -f mpich/lib/libmpich.so ]; then
+#        echo "libmpich.so found -- nothing to build."
+#    else
+#        echo "Downloading mpich source."
+#        wget http://www.mpich.org/static/downloads/3.2/mpich-3.2.tar.gz
+#        tar xfz mpich-3.2.tar.gz
+#        rm mpich-3.2.tar.gz
+#        echo "configuring and building mpich."
+#        cd mpich-3.2
+#        ./configure \
+#            --prefix=$MPICH_INSTALL_ROOT \
+#            --enable-static=false \
+#            --enable-alloca=true \
+#            --disable-doc \
+#            --disable-long-double \
+#            --enable-threads=single \
+#            --enable-fortran=no \
+#            --enable-fast=all \
+#            --enable-g=none \
+#            --enable-timing=none
+#        make
+#        make install
+#        #export env vars as needed to run integration tests using --prefix=$(pwd)/tmp_install from configure
+#        cd -
+#        rm -rf mpich-3.2
+#    fi
+    make install && cd test_integration
     GEOPM_KEEP_FILES=barrelroll GEOPM_RUN_LONG_TESTS=yup ./geopm_test_integration.py -v TestIntegration.test_count
     exit $?
+    RET=$?
+    ls -la .
+    exit $RET
 else
     echo "Unsupported CI_MODE."
     exit 1
