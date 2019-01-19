@@ -68,13 +68,13 @@ namespace geopm
             /// @brief initialize internal data structures to batch
             ///        read/write from MSRs.
             /// @param [in] read_cpu_idx A vector of logical Linux CPU
-            ///        indicies to read from when read_batch() method
+            ///        indices to read from when read_batch() method
             ///        is called.
             /// @param [in] read_offset A vector of the MSR offsets to
             ///        be read from when the read_batch() method is
             ///        called.
             /// @param [in] write_cpu_idx A vector of logical Linux
-            ///        CPU indicies to write to when the write_batch()
+            ///        CPU indices to write to when the write_batch()
             ///        method is called.
             /// @param [in] write_offset A vector of the MSR offset to
             ///        be written to when the write_batch() method is

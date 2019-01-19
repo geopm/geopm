@@ -37,10 +37,80 @@ geopm::MSRIO(3) -- methods for reading and writing MSRs
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
-## DESCRIPTION
+  * `uint64_t read_msr(`:
+    `int `_cpu_idx_`,`<br>
+    `uint64_t `_offset_`);`
 
-For more details, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_m_s_r_i_o.html>.
+  * `void write_msr(`:
+    `int `_cpu_idx_`,`<br>
+    `uint64_t `_offset_`,`<br>
+    `uint64_t `_raw_value_`,`<br>
+    `uint64_t `_write_mask_`);`
+
+  * `void config_batch(`:
+    `const std::vector<int> &`_read_cpu_idx_`,`<br>
+    `const std::vector<uint64_t> &`_read_offset_`,`<br>
+    `const std::vector<int> &`_write_cpu_idx_`,`<br>
+    `const std::vector<uint64_t> &`_write_offset_`,`<br>
+    `const std::vector<uint64_t> &`_write_mask_`);`
+
+  * `void read_batch(`:
+    `std::vector<uint64_t> &`_raw_value_`);`
+
+  * `void write_batch(`:
+    `const std::vector<uint64_t> &`_raw_value_`);`
+
+  * `void msr_path(`:
+    `int `_cpu_idx_`,`<br>
+    `bool `_is_fallback_`,`<br>
+    `std::string &`_path_`);`
+
+## DESCRIPTION
+The MSRIO class handles reading and writing to Model-Specific Registers (MSRs).
+The implementation uses msr-safe, found at <https://github.com/LLNL/msr-safe>
+to allow access to a controlled set of MSRs from user space.
+Refer to **geopm::MSR(3)** for more details.
+
+## CLASS METHODS
+
+  * `read_msr`():
+    Read from a single MSR at _offset_ on the logicial Linux CPU
+    specified by _cpu_idx_.  Returns the raw encoded MSR value.
+
+  * `write_msr`():
+    Write to a single MSR at _offset_ on the logical Linux CPU
+    specified by _cpu_idx_.  The value in _raw_value_ will be masked
+    with _write_mask_ and the value will only be written for bits
+    where the mask is 1.  All other bits in the MSR will remain
+    unmodified.  If the _raw_value_ tries to write any bits outside
+    the mask, an error will be raised.
+
+  * `config_batch`():
+    Initializes internal data structures to batch read and write from
+    MSRs.  For reading, the vectors _read_cpu_idx_ and _read_offset_
+    set the logical Linux CPU indices and offsets respectively for
+    locations that will be read from when the read_batch() method is
+    called().  For writing, the logical Linux CPU indices, offsets,
+    and write masks are specified by the _write_cpu_idx_,
+    _write_offset_, and _write_mask_ vectors respectively.  These
+    determine the locations that will be written when the write_batch()
+    method is called.
+
+  * `read_batch`():
+    Batch read a set of MSRs configured by a previous call to the
+    batch_config() method.  The resulting raw encoded MSR values are
+    returned through the _raw_value_ parameter.
+
+  * `write_batch`():
+    Batch write a set of MSRs configured by a previous call to the
+    batch_config() method.  The values in the _raw_value_ vector will
+    be written to the corresponding configured locations.
+
+  * `msr_path`():
+    Determines the path to the file descriptor to use for the logical
+    Linux CPU at _cpu_idx_.  If _is_fallback_ is set to true, the
+    stock MSR driver will be used (requires root permissions).  The
+    resulting path is returned through the _path_ parameter.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
