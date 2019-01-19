@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae69b266_5a638c2e",
+        "filename": "tutorial/tutorial_region.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-19T00:49:01Z",
+      "side": 1,
+      "message": "j is out of scope here!",
+      "range": {
+        "startLine": 64,
+        "startChar": 25,
+        "endLine": 64,
+        "endChar": 26
+      },
+      "revId": "4f42940bf8fb2ab25e2794dbd6dc56774b773006",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
