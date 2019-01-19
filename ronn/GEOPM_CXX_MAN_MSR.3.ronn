@@ -37,15 +37,304 @@ geopm::MSR(3) -- model-specific register
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
+  * `struct m_encode_s {`:
+    `int` _begin_bit_; <br>
+    `int` _end_bit_; <br>
+    `int` _domain_; <br>
+    `int` _function_; <br>
+    `int` _units_; <br>
+    `double` _scalar_; `};`
+
+  * `enum m_function_e;`
+
+  * `enum m_units_e;`
+
+  * `std::string MSR::name(`:
+    `void) const;`
+
+  * `uint64_t MSR::offset(`:
+    `void) const;`
+
+  * `int MSR::num_signal(`:
+    `void) const;`
+
+  * `int MSR::num_control(`:
+    `void) const;`
+
+  * `std::string MSR::signal_name(`:
+    `int `_signal_idx_`) const;`
+
+  * `std::string MSR::control_name(`:
+    `int `_control_idx_`) const;`
+
+  * `int MSR::signal_index(`:
+    `const std::string &`_name_`) const;`
+
+  * `int MSR::control_index(`:
+    `const std::string &`_name_`) const;`
+
+  * `double MSR::signal(`:
+    `int `_signal_idx_`,`<br>
+    `uint64_t `_field_`,`<br>
+    `uint64_t &`_last_field_`,`<br>
+    `uint64_t &`_num_overflow_`) const;`
+
+  * `void MSR::control(`:
+    `int `_control_idx_`,`<br>
+    `double `_value_`,`<br>
+    `uint64_t &`_field_`,`<br>
+    `uint64_t &`_mask_`) const;`
+
+  * `uint64_t MSR::mask(`:
+    `int `_control_idx_`) const;`
+
+  * `int MSR::domain_type(`:
+    `void) const;`
+
+  * `int MSR::decode_function(`:
+    `int `_signal_idx_`) const;`
+
+  * `std::string MSRSignal::name(`:
+    `void) const;`
+
+  * `int MSRSignal::domain_type(`:
+    `void) const;`
+
+  * `int MSRSignal::cpu_idx(`:
+    `void) const;`
+
+  * `double MSRSignal::sample(`:
+    `void);`
+
+  * `uint64_t MSRSignal::offset(`:
+    `void) const;`
+
+  * `void MSRSignal::map_field(`:
+    `const uint64_t *`_field_`);`
+
+  * `std::string MSRControl::name(`:
+    `void) const;`
+
+  * `int MSRControl::domain_type(`:
+    `void) const;`
+
+  * `int MSRControl::cpu_idx(`:
+    `void) const;`
+
+  * `void MSRControl::adjust(`:
+    `double `_setting_`);`
+
+  * `uint64_t MSRControl::offset(`:
+    `void) const;`
+
+  * `uint64_t MSRControl::mask(`:
+    `void) const;`
+
+  * `void MSRControl::map_field(`:
+    `uint64_t *`_field_`,`<br>
+    `uint64_t *`_mask_`);`
+
 ## DESCRIPTION
+The `MSR` class encapsulates details of Model Specific Registers
+(MSRs) on Intel architectures.  This page provides information that
+may be useful for developers wishing to extend or modify the set of
+MSRs available or add new supported platforms; general users of
+**geopm::PlatformIO(3)** should not need to be concerned with these
+implementation details.  A complete reference covering the format and
+usage of MSRs can be found in The Intel Software Developer's Manual at
+<https://software.intel.com/en-us/articles/intel-sdm>.  The
+`MSRSignal` and `MSRControl` classes are used to represent individual
+bitfields of an MSR for reading or writing respectively.  Note that in
+most cases, all fields of an MSR will be read only (signals) or
+writeable (controls).  In some cases, fields which are controls have
+also been exposed as signals for inspection and debugging purposes.
+Also note that the set of MSRs made available through GEOPM is a
+subset of all MSRs on supported systems.  The MSRs supported for a
+given system can be seen using **geopmread(1)** for signals,
+**geopmwrite(1)** for controls, or in the source code for individual
+platforms in src/msr_*.cpp.
 
-An MSR object contains all the data needed to read from model-specific
-registers on Intel platforms.  For more information on Intel MSRs,
-refer to the Intel Software Developer Manuals at
-<https://software.intel.com/en-us/articles/intel-sdm>.
+MSRs are defined for hardware domains, described in
+**geopm::PlatformTopo(3)**.  Although the underlying file descriptor
+interface for reading and writing MSRs uses Linux logical CPUs, in
+many cases the MSR is only applicable at a wider granularity.  This
+detail is hidden when using **geopm::MSRIOGroup(3)** through
+**geopm::PlatformIO(3)** to access MSR-based signals and controls.
 
-For more details, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_m_s_r.html>.
+## MSR BITFIELD ENCODING
+
+The `m_encode_s` structure describes a bitfield within an MSR. The fields are:
+
+    * _begin_bit_:
+    First bit of the field, (inclusive)
+
+    * _end_bit_:
+    Last bit of the field (exclusive)
+
+    * _domain_:
+    The hardware domain over which the MSR is applicable.  See
+    **geopm::IPlatformTopo(3)** for descriptions of the domains.
+
+    * _function_:
+    Encoding function that converts the bit field into an integer to
+    be scaled (see m_function_e below)
+
+    * _units_:
+    SI unit of the signal or control (see m_units_e below)
+
+    * _scalar_:
+    Scale factor used to convert integer output of function to SI
+    units.
+
+The `m_function_e` enum specifies the encoding/decoding function used
+to convert the bitfield into SI units. The available functions are:
+
+    * _M_FUNCTION_SCALE_:
+    Multiply by the scalar value only.  The scalar is also applied by
+    all other functions.
+
+    * _M_FUNCTION_LOG_HALF_:
+    A number encoded using the formula 2.0 ^ -X
+
+    * _M_FUNCTION_7_BIT_FLOAT_:
+    A floating-point number encoded in 7 bits using the formula `2 ^ Y
+    * (1.0 + Z / 4.0) : Y in [0:5), Z in [5:7)`
+
+    * _M_FUNCTION_OVERFLOW_:
+    Used for counters that may overflow.
+
+The `m_units_e` enum specifies the SI unit for a signal or control.
+The available units are:
+
+    * _M_UNITS_NONE_:
+    Used for counters and other quantities with no units.
+
+    * _M_UNITS_SECONDS_:
+    Used for time in seconds.
+
+    * _M_UNITS_HERTZ_:
+    Used for frequency in hertz.
+
+    * _M_UNITS_WATTS_:
+    Used for power in watts.
+
+    * M_UNITS_JOULES_:
+    Used for energy in joules.
+
+    * _M_UNITS_CELSIUS_:
+    Used for temperature in degrees Celsius.
+
+## MSR CLASS METHODS
+
+  * `name`():
+    Returns the name of the MSR provided in the SDM.
+
+  * `offset`():
+    Returns the 64-bit byte offset to register address for the MSR.
+
+  * `num_signal`():
+    Returns the number of distinct signals encoded as bit fields in
+    the MSR.
+
+  * `num_control`():
+    Returns the number of distinct controls encoded as bit fields in the MSR.
+
+  * `signal_name`():
+    Returns the name of the signal with field index _signal_idx_.  The index
+    ranges from 0 to num_signal() - 1.
+
+  * `control_name`():
+    Returns the name of the control with field index _signal_idx_.  The index
+    ranges from 0 to num_control() - 1.
+
+  * `signal_index`():
+    Returns the field index for the signal with the given _name_.
+    If the name is not found, -1 is returned.
+
+  * `control_index`():
+    Returns the field index for the control with the given _name_.
+    If the name is not found, -1 is returned.
+
+  * `signal`():
+    Extract and decode into SI units the signal at _signal_idx_ from a
+    64-bit register value, _field_.  If the decode function is
+    M_FUNCTION_OVERFLOW, _last_field_ should contain the previous
+    value of the register and the value will be updated when the
+    function returns.  Similarly _num_overflow_ is an in-out parameter
+    containing the number of times the register overflowed.
+
+  * `control`():
+    Set the control bit field at _control_idx_ in an MSR.  The _value_
+    in SI units will be encoded.  The write mask is returned through
+    the parameter _mask_ and the raw bits of the MSR to be written are
+    returned in _field_.
+
+  * `mask`():
+    Returns the write mask given a bit field index _control_idx_.
+
+  * `domain_type`():
+    Returns the type of the domain that the MSR encodes.  All bit
+    fields of an MSR are the same domain.  See
+    **geopm::PlatformTopo(3)** for more information on domains.
+
+  * `decode_function`():
+    The function used to decode the MSR value as defined
+    in the m_function_e enum.
+
+## MSRSIGNAL CLASS METHODS
+
+  * `name`():
+    Returns the name of the feature being measured.
+
+  * `domain_type`():
+    Returns the type of the domain under measurement.  See
+    **geopm::PlatformTopo(3)** for more information on domains.
+
+  * `cpu_idx`():
+    Returns the index of the logical Linux CPU used by this signal.
+    For domains that span multiple CPUs, there will be multiple
+    MSRSignals corresponding to different CPUs that read the same
+    system value.
+
+  * `sample`():
+    Returns the value of the signal in SI units.
+
+  * `offset`():
+    Returns the MSR offset for a signal.
+
+  * `map_field`():
+    Map 64 bits of memory at location _field_ storing the raw value of
+    an MSR that will be referenced when calculating the signal.
+
+## MSRCONTROL CLASS METHODS
+
+  * `name`():
+    Returns the name of the feature under control.
+
+  * `domain_type`():
+    Returns the type of the domain under control.  See
+    **geopm::PlatformTopo(3)** for more information on domains.
+
+  * `cpu_idx`():
+    Returns the index of the logical Linux CPU used by this control.
+    For domains that span multiple CPUs, there will be multiple
+    MSRControls corresponding to different CPUs that write the same
+    system value.
+
+  * `adjust`():
+    Set the value in SI units for the control to _setting_.
+
+  * `offset`():
+    Returns the MSR offset for a control.
+
+  * `mask`():
+    Returns the mask for the MSR that is written by the control.
+
+  * `map_field`():
+    Map 64 bits of memory at location _field_ storing the raw value of
+    an MSR that will be referenced when enforcing the control.  The
+    mask to be applied when writing the control is stored in the
+    location pointed to by _mask_.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
@@ -53,4 +342,6 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
 ## SEE ALSO
 **geopm(7)**,
 **geopm::MSRIO(3)**,
-**geopm::MSRIOGroup(3)**
+**geopm::MSRIOGroup(3)**,
+**geopmread(1)**,
+**geopmwrite(1)**
