@@ -51,7 +51,7 @@ namespace geopm
             struct m_encode_s {
                 int begin_bit;  /// First bit of the field, inclusive.
                 int end_bit;    /// Last bit of the field, exclusive.
-                int domain;     /// Domain over which the MSR is shared (geopm_domain_type_e).
+                int domain;     /// Domain over which the MSR is shared.
                 int function;   /// Function which converts the bit field into an integer to be scaled (m_function_e).
                 int units;      /// Scalar converts the integer output of function into units (m_units_e).
                 double scalar;  /// Scale factor to convert integer output of function to SI units.
@@ -76,7 +76,7 @@ namespace geopm
             IMSR() = default;
             virtual ~IMSR() = default;
             /// @brief Query the name of the MSR.
-            /// @param msr_name [out] The name of the MSR.
+            /// @return The name of the MSR.
             virtual std::string name(void) const = 0;
             /// @brief The byte offset for the MSR.
             /// @return The 64-bit offset to the register.
@@ -92,12 +92,12 @@ namespace geopm
             /// @brief Query the name of a signal bit field.
             /// @param [in] signal_idx The index of the bit field in
             ///        range from to 0 to num_signal() - 1.
-            /// @param [out] name The name of a signal bit field.
+            /// @return The name of a signal bit field.
             virtual std::string signal_name(int signal_idx) const = 0;
             /// @brief Query the name of a control bit field.
             /// @param [in] control_idx The index of the bit field in
             ///        range from to 0 to num_control() - 1.
-            /// @param [out] name The name of a control bit field.
+            /// @return The name of a control bit field.
             virtual std::string control_name(int control_idx) const = 0;
             /// @brief Query for the signal index given a name.
             /// @param [in] name The name of the signal bit field.
@@ -112,9 +112,12 @@ namespace geopm
             /// @brief Extract a signal from a raw MSR value.
             /// @param [in] signal_idx Index of the signal bit field.
             /// @param [in] field the 64-bit register value to decode.
-            /// @param [in] last_field Previous value of the MSR.
+            /// @param [in, out] last_field Previous value of the MSR.
             ///        Only relevant if the decode function is
             ///        M_FUNCTION_OVERFLOW.
+            /// @param [in, out] num_overflow Number of times the
+            ///        register has overflowed. Only relevant if the
+            ///        decode function is M_FUNCTION_OVERFLOW.
             /// @return The decoded signal in SI units.
             virtual double signal(int signal_idx,
                                   uint64_t field,
@@ -162,21 +165,20 @@ namespace geopm
             ///         enum described in PlatformTopo.hpp.
             virtual int domain_type(void) const = 0;
             /// @brief Get the index of the cpu in the domain under measurement.
-            /// @return The index of the domain within the set of
-            ///         domains of the same type on the platform.
+            /// @return The index of the CPU within the set of CPUs
+            ///         on the platform.
             virtual int cpu_idx(void) const = 0;
             /// @brief Get the value of the signal.
             /// @return The value of the parameter measured in SI
             ///         units.
             virtual double sample(void) = 0;
-            /// @brief Gets the MSR offset for each of the MSRs that are
-            ///        combined to provide a signal.
-            /// @param [out] offset The MSR offset values.
+            /// @brief Gets the MSR offset for a signal.
+            /// @return The MSR offset value.
             virtual uint64_t offset(void) const = 0;
             /// @brief Map 64 bits of memory storing the raw value of
             ///        an MSR that will be referenced when calculating
             ///        the signal.
-            /// @param [in] Pointer to the memory containing the raw
+            /// @param [in] field Pointer to the memory containing the raw
             ///        MSR value.
             virtual void map_field(const uint64_t *field) = 0;
     };
@@ -193,21 +195,20 @@ namespace geopm
             /// @return One of the values from the m_domain_e
             ///         enum described in PlatformTopo.hpp.
             virtual int domain_type(void) const = 0;
-            /// @brief Get the index of the cpu in the domain under control.
-            /// @return The index of the domain within the set of
-            ///        domains of the same type on the platform.
+            /// @brief Get the index of the CPU in the domain under control.
+            /// @return The index of the CPU within the set of
+            ///        CPUs on the platform.
             virtual int cpu_idx(void) const = 0;
             /// @brief Set the value for the control.
             /// @param [in] setting Value in SI units of the parameter
             ///        controlled by the object.
             virtual void adjust(double setting) = 0;
-            /// @brief Gets the MSR offset for each of the MSRs that are
-            ///        set by the control.
-            /// @param [out] offset The MSR offset values.
+            /// @brief Gets the MSR offset for the control.
+            /// @param [out] offset The MSR offset value.
             virtual uint64_t offset(void) const = 0;
-            /// @brief Gets the mask for each of the MSRs that are
-            ///        written by the control.
-            /// @param [out] mask The write mask values.
+            /// @brief Gets the mask for the MSR that is written by
+            ///        the control.
+            /// @param [out] mask The write mask value.
             virtual uint64_t mask(void) const = 0;
             /// @brief Map 64 bits of memory storing the raw value of
             ///        an MSR that will be referenced when enforcing

@@ -37,13 +37,178 @@ geopm::MSRIOGroup -- IOGroup providing MSR-based signals and controls
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
-## DESCRIPTION
+This class implements all public methods of the **geopm::IOGroup(3)** interface.
 
+  * `std::string msr_whitelist(`:
+    `void) const;`
+
+  * `std::string msr_whitelist(`:
+    `int `_cpuid_`) const;`
+
+  * `int cpuid(`:
+    `void) const;`
+
+  * `void register_msr_signal(`:
+    `const std::string &`_signal_name_`);`
+
+  * `void register_msr_control(`:
+    `const std::string &`_control_name_`);`
+
+  * `static std::string plugin_name(`:
+    `void);`
+
+  * `static std::unique_ptr<IOGroup> make_plugin(`:
+    `void);`
+
+## DESCRIPTION
 The MSRIOGroup provides hardware signals and controls using MSRs on Intel
 platforms.  It relies on **geopm::MSR(3)** and **geopm::MSRIO(3)**.
 
-For more details, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_m_s_r_i_o_group.html>.
+## CLASS METHODS
+
+  * `signal_names`():
+    Returns the list of signal names provided by this IOGroup.  This
+    includes aliases for common hardware-based signals such as
+    FREQUENCY, as well as the supported MSRs for the current platform.
+
+  * `control_names`():
+    Returns the list of control names provided by this IOGroup.  This
+    includes aliases for common hardware-based controls such as
+    FREQUENCY, as well as the supported MSRs for the current platform.
+
+  * `is_valid_signal`():
+    Returns whether the given _signal_name_ is supported by the
+    MSRIOGroup for the current platform.  Note that different
+    platforms may have different supported MSRs.
+
+  * `is_valid_control`():
+    Returns whether the given _control_name_ is supported by the
+    MSRIOGroup for the current platform.  Note that different
+    platforms may have different supported MSRs.
+
+  * `signal_domain_type`():
+    Returns the domain type for the the signal specified by
+    _signal_name_.  The domain for a signal may be different on
+    different platforms.
+
+  * `control_domain_type`():
+    Returns the domain type for the the control specified by
+    _control_name_.  The domain for a control may be different on
+    different platforms.
+
+  * `push_signal`():
+    Adds the signal specified by _signal_name_ for _domain_type_ at
+    index _domain_idx_ to the list of signals to be read during
+    read_batch().  If the domain of a signal spans multiple Linux
+    logical CPUs, only one CPU from that domain will be read, since
+    all CPUs from the same domain and index will return the same
+    value.
+
+  * `push_control`():
+    Adds the control specified by _control_name_ for _domain_type_ at
+    index _domain_idx_ to the list of controls to be written during
+    write_batch().  If the domain of a control spans multiple Linux
+    logical CPUs, values written to that control will be written to
+    all CPUs in the domain.
+
+  * `read_batch`():
+    Sets up **geopm::MSRIO(3)** for batch reading if needed, then reads
+    all pushed signals through the MSRIO::read_batch() method.
+
+  * `write_batch`():
+    Writes all adjusted values through the **geopm::MSRIO(3)**
+    write_batch() method.
+
+  * `sample`():
+    Returns the value of the signal specified by a _signal_idx_
+    returned from push_signal().  The value will have been updated by
+    the most recent call to read_batch().
+
+  * `adjust`():
+    Sets the control specified by a _control_idx_ returned from
+    push_control() to the value _setting_.  The value will be written
+    to the underlying MSR by the next call to write_batch().
+
+  * `read_signal`():
+     Immediately read and decode the underlying MSR supporting
+    _signal_name_ for _domain_type_ at index _domain_idx_ and return
+    the result in SI units.
+
+  * `write_control`():
+    Immediately encode the SI unit value _setting_ and write the
+    correct bits of the MSR supporting _control_name_ for
+    _domain_type_ at _domain_idx_.
+
+  * `save_control`():
+    Attempts to read and save the current values of all control MSRs
+    for the platform.  If any control is not able to be read, it will
+    be skipped.
+
+  * `restore_control`():
+    Using the values saved by save_control(), attempts to write back
+    the original values of all control MSRs.  Any control that is not
+    able to be written will be skipped.
+
+  * `agg_function`():
+    Returns the function that should be used to aggregate
+    _signal_name_.  If one was not previously specified by this class,
+    the default function is select_first from **geopm::Agg(3)**.
+
+  * `signal_description`():
+    Returns a string description for _signal_name_, if defined.
+    Further descriptions of MSR signals can be found in The Intel
+    Software Developer's Manual at
+    <https://software.intel.com/en-us/articles/intel-sdm>
+
+  * `control_description`():
+    Returns a string description for _control_name_, if defined.
+    Further descriptions of MSR controls can be found in The Intel
+    Software Developer's Manual at
+    <https://software.intel.com/en-us/articles/intel-sdm>.
+
+  * `msr_whitelist`():
+    Fill string with the msr-safe whitelist file contents reflecting
+    all known MSRs for the current platform.  Returns a string
+    formatted to be written to an msr-safe whitelist file.
+
+  * `msr_whitelist`(int cpu_id):
+    Fill string with the msr-safe whitelist file contents reflecting
+    all known MSRs for the specified platform specified by _cpuid_.
+    Returns string formatted to be written to an msr-safe whitelist
+    file.
+
+  * `cpuid`():
+    Get the cpuid of the current platform.
+
+  * `register_msr_signal`():
+    Register a single MSR field as a signal. This is called by
+    init_msr().  The _signal_name_ is a compound signal name of the
+    form "msr_name:field_name" where msr_name is the name of the MSR
+    and the field_name is the name of the signal field held in the
+    MSR.
+
+  * `register_msr_control`():
+    Register a single MSR field as a control. This is called by
+    init_msr().  The _control_name_ is a compound control name of the
+    form "msr_name:field_name" where msr_name is the name of the MSR
+    and the field_name is the name of the control field held in the
+    MSR.
+
+  * `plugin_name`():
+    Returns the name of the plugin to use when this plugin is
+    registered with the IOGroup factory; see
+    **geopm::PluginFactory(3)** for more details.
+
+  * `make_plugin`():
+    Returns a pointer to a new MSRIOGroup object; see
+    **geopm::PluginFactory(3)** for more details.
+
+## ENUMERATIONS
+
+  * `enum m_cpuid_e`:
+    Contains the list of currently-supported cpuid values.  The cpuid
+    can be determined by running `lscpu` and appending the CPU family
+    in hex to the Model in hex.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation. All rights reserved.
