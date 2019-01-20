@@ -37,18 +37,133 @@ geopm::Exception(3) -- custom geopm exceptions
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
-## DESCRIPTION
+  * `void geopm_error_destroy_shmem(`:
+    `void);`
 
+  * `int exception_handler(`:
+    `std::exception_ptr `_eptr_`,`<br>
+    `bool `_do_print_`);`
+
+  * `Exception(`:
+    `void);`
+
+  * `Exception(`:
+    `const Exception &`_other_`);`
+
+  * `Exception(`:
+    `int `_err_`);`
+
+  * `Exception(`:
+    `const std::string &`_what_`,`<br>
+    `int `_err_`);`
+
+  * `Exception(`:
+    `int `_err_`,`<br>
+    `const char *`_file_`,`<br>
+    `int `_line_`);`
+
+  * `Exception(`:
+    `const std::string &`_what_`,`<br>
+    `int `_err_`,`<br>
+    `const char *`_file_`,`<br>
+    `int `_line_`);`
+
+  * `~Exception(`:
+    `void) = default;`
+
+  * `int err_value(`:
+    `void) const;`
+
+  * `SignalException(`:
+    `void);`
+
+  * `SignalException(`:
+    `int `_signum_`);`
+
+  * `SignalException(`:
+    `const SignalException &`_other_`);`
+
+  * `~SignalException(`:
+    `void);`
+
+  * `int sig_value(`:
+    `void) const;`
+
+## DESCRIPTION
 This class is used to format error messages for the GEOPM runtime
 according to the error code.  The list of errors is described in
-**geopm_error(3)**.
+**geopm_error(3)**.  Positive error codes are system errors (see
+**errno(3)**), negative values are GEOPM errors.  If zero is specified
+for the error code, GEOPM_ERROR_RUNTIME (-1) is assumed.
 
-For more details, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_exception.html>.
+## CLASS METHODS
+
+  * `geopm_error_destroy_shmem`():
+    Unlinks all shared memory keys in case of error.  Looks in
+    /dev/shm for any keys starting with "/geopm-shm" or the
+    GEOPM_SHMKEY environment variable if set.  All matching keys are
+    unlinked with shm_unlink().
+
+  * `exception_handler`():
+    Handle a thrown exception pointed to by _eptr_ and return an error
+    value.  This exception handler is used by every GEOPM C interface
+    to handle any exceptions that are thrown during execution of a C++
+    implementation.  If GEOPM has been configured with debugging
+    enabled and _do_print_ is true, then this handler will print an
+    explanatory message to standard error.  In all cases it will
+    convert the C++ exception into an error number which can be used
+    with geopm_error_message() to obtain an error message.  Note that
+    the error message printed when debugging is enabled has more
+    specific information than the message produced by
+    geopm_error_message().
+
+  * `Exception`():
+    Empty constructor.  Uses errno to determine the error code.
+    Enables an abbreviated what() result.
+
+  * `Exception`(int err):
+    Error number only constructor.  User provides error code through
+    _err_.  Enables an abbreviated what() result.
+
+  * `Exception`(const std::string &what, int err):
+    Message and error number constructor.  User provides message
+    _what_ and error code _err_.  The error message provided is
+    appended to the abbreviated what() result.
+
+  * `Exception`(int err, const char *file, int line):
+
+    Error number and line number constructor.  User provides error
+    code _err_ and source code location where the exception was
+    thrown.  The _file_ name and _line_ number may come from
+    preprocessor macros `__FILE__` and `__LINE__` respectively.  The
+    what() method produces the abbreviated message with the file and
+    line number information appended.
+
+  * `Exception`(const std::string &what, int err, const char *file, int line):
+    Message, error number, file and line constructor.  User provides
+    message _what_, error code _err_, and location where the exception
+    was thrown.  The _file_ name and _line_ number may come from
+    preprocessor macros `__FILE__` and `__LINE__` respectively.  The
+    what() method appends the user specified message, file name and
+    line number to the abbreviated message.  This is the most verbose
+    messaging available with the Exception class.
+
+  * `err_value`():
+    Returns the non-zero error code associated with the
+    exception.  Negative error codes are GEOPM-specific
+    and documented in the **geopm_error(3)** man page.
+    Positive error codes are system errors and are
+    documented in the system **errno(3)** man page.  A brief
+    description of all error codes can be obtained with
+    the geopm_error_message() interface.
+
+  * `sig_value`():
+    Returns the signal number associated with the SignalException.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,
-**geopm_error(3)**
+**geopm_error(3)**,
+**errno(3)
