@@ -37,10 +37,30 @@ geopm::Helper -- common helper methods
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
-## DESCRIPTION
+  * `template <class Type, class ...Args> std::unique_ptr<Type> make_unique(`:
+    `Args &`_&...args_`);`
 
-For more details, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_helper.html>.
+  * `std::string read_file(`:
+    `const std::string& `_path_`);`
+
+  * `std::vector<std::string> split_string(`:
+    `const std::string &`_str_`,`<br>
+    `const std::string &`_delim_`);`
+
+## DESCRIPTION
+The _Helper.hpp_ file defines various utility functions.
+
+  * `make_unique`():
+    Implementation of std::make_unique (C++14) for C++11, scoped to
+    the geopm:: namespace.  Note that this version will only work for
+    non-array types.
+
+  * `read_file`():
+    Reads the file specified by _path_ and returns the contents in a string.
+
+  * `split_string`():
+    Splits a string _str_ according to a delimiter _delim_ and returns
+    the pieces in a vector.  The delimiter cannot be empty.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation. All rights reserved.

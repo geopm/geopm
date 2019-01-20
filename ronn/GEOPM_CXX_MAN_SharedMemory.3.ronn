@@ -37,10 +37,97 @@ geopm::SharedMemory(3) -- abstractions for shared memory
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
-## DESCRIPTION
+  * `SharedMemory(`:
+    `const std::string &`_shm_key_`,`<br>
+    `size_t `_size_`);`
 
-For more details, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_shared_memory.html>.
+  * `~SharedMemory(`:
+    `void);`
+
+  * `void *SharedMemory::pointer(`:
+    `void) const;`
+
+  * `std::string SharedMemory::key(`:
+    `void) const;`
+
+  * `size_t SharedMemory::size(`:
+    `void) const;`
+
+  * `SharedMemoryUser(`:
+    `const std::string &`_shm_key_`,`<br>
+    `unsigned int `_timeout_`);`
+
+  * `SharedMemoryUser(`:
+    `const std::string &`_shm_key_`);`
+
+  * `~SharedMemoryUser(`:
+    `void);`
+
+  * `void *SharedMemoryUser::pointer(`:
+    `void) const;`
+
+  * `std::string SharedMemoryUser::key(`:
+    `void) const;`
+
+  * `size_t SharedMemoryUser::size(`:
+    `void) const;`
+
+  * `void SharedMemoryUser::unlink(`:
+    `void);`
+
+## DESCRIPTION
+The SharedMemory class encapsulates the creation of inter-process
+shared memory.  The SharedMemoryUser class encapsulates attaching to
+inter-process shared memory.  In the GEOPM runtime, shared memory is
+used to communicate between the user application's MPI calls and calls
+to **geopm_prof_c(3)** methods, and the Controller running on the same
+node.
+
+## SHAREDMEMORY CLASS METHODS
+
+  * `SharedMemory`():
+    Constructor creates an inter-process shared memory region with key
+    _shm_key_ and _size_.
+
+  * `~SharedMemory`():
+    Destructor destroys and unlinks the shared memory region.
+
+  * `pointer`():
+    Returns a pointer to the shared memory region.
+
+  * `key`():
+    Returns the key to the shared memory region.
+
+  * `size`():
+    Returns the size of the shared memory region.
+
+
+## SHAREDMEMORYUSER CLASS METHODS
+
+  * `SharedMemoryUser`():
+    Constructor attempts to attach to a inter-process shared memory
+    region with key _shm_key_. This version of the constructor tries
+    to attach multiple times until a _timeout_ in seconds is reached.
+
+  * `SharedMemoryUser`():
+    Constructor attempts to attach to a inter-process shared memory
+    region with key _shm_key_. This version of the constructor
+    attempts to attach a single time.
+
+  * `~SharedMemoryUser`():
+    Destructor detaches from shared memory region.
+
+  * `pointer`():
+    Returns a pointer to the shared memory region.
+
+  * `key`():
+    Returns the key to the shared memory region.
+
+  * `size`():
+    Returns the size of the shared memory region.
+
+  * `unlink`():
+    Unlink the shared memory region.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation. All rights reserved.

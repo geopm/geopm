@@ -51,6 +51,8 @@ namespace geopm
             /// @brief Retrieve the key to the shared memory region.
             /// @return Key to the shared memory region.
             virtual std::string key(void) const = 0;
+            /// @brief Retrieve the size of the shared memory region.
+            /// @return Size of the shared memory region.
             virtual size_t size(void) const = 0;
     };
 
@@ -61,17 +63,24 @@ namespace geopm
             ISharedMemoryUser() = default;
             ISharedMemoryUser(const ISharedMemoryUser &other) = default;
             virtual ~ISharedMemoryUser() = default;
+            /// @brief Retrieve a pointer to the shared memory region.
+            /// @return Void pointer to the shared memory region.
             virtual void *pointer(void) const = 0;
+            /// @brief Retrieve the key to the shared memory region.
+            /// @return Key to the shared memory region.
             virtual std::string key(void) const = 0;
+            /// @brief Retrieve the size of the shared memory region.
+            /// @return Size of the shared memory region.
             virtual size_t size(void) const = 0;
+            /// @brief Unlink the shared memory region.
             virtual void unlink(void) = 0;
     };
 
     class SharedMemory : public ISharedMemory
     {
         public:
-            /// @brief Constructor takes a key and a size and creates a inter-process
-            /// shared memory region.
+            /// @brief Constructor takes a key and a size and creates
+            ///        an inter-process shared memory region.
             /// @param [in] shm_key Shared memory key to create the region.
             /// @param [in] size Size of the region to create.
             SharedMemory(const std::string &shm_key, size_t size);
