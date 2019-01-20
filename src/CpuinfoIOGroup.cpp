@@ -244,18 +244,11 @@ namespace geopm
                             "not valid for CpuinfoIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        switch (domain_type) {
-            case PlatformTopo::M_DOMAIN_BOARD:
-            case PlatformTopo::M_DOMAIN_PACKAGE:
-            case PlatformTopo::M_DOMAIN_CORE:
-            case PlatformTopo::M_DOMAIN_CPU:
-                break;
-            case PlatformTopo::M_DOMAIN_INVALID:
-            default:
-                throw Exception("CpuinfoIOGroup:read_signal(): domain_type " + std::to_string(domain_type) +
-                                "not valid for CpuinfoIOGroup",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        };
+        else if (domain_type != PlatformTopo::M_DOMAIN_BOARD) {
+            throw Exception("CpuinfoIOGroup:read_signal(): domain_type " + std::to_string(domain_type) +
+                            "not valid for CpuinfoIOGroup",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         return m_signal_value_map.find(signal_name)->second;
     }
 

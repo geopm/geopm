@@ -37,13 +37,94 @@ geopm::TimeIOGroup(3) -- IOGroup providing time signals
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
+This class implements all public methods of the **geopm::IOGroup(3)** interface.
+
+  * `static std::string plugin_name(`:
+    `void);`
+
+  * `static std::unique_ptr<IOGroup> make_plugin(`:
+    `void);`
+
 ## DESCRIPTION
 
 This IOGroup provides an implementation of the TIME signal for the
-current time.
+time since GEOPM startup.
 
-For more details, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_time_i_o_group.html>.
+## CLASS METHODS
+
+  * `signal_names`():
+    Returns the time signal name, "TIME::ELAPSED", and its alias, "TIME".
+
+  * `control_names`():
+    Does nothing; this IOGroup does not provide any controls.
+
+  * `is_valid_signal`():
+    Returns true if the _signal_name is one from the list returned by
+    signal_names().
+
+  * `is_valid_control`():
+    Returns false; this IOGroup does not provide any controls.
+
+  * `signal_domain_type`():
+    If the _signal_name_ is valid for this IOGroup, returns
+    M_DOMAIN_BOARD.
+
+  * `control_domain_type`():
+    Returns M_DOMAIN_INVALID; this IOGroup does not provide any controls.
+
+  * `push_signal`():
+    Since this IOGroup only provides one signal, returns 0 if the _signal_name_
+    is valid.  The _domain_type_ and _domain_idx_ are ignored.
+
+  * `push_control`():
+    Should not be called; this IOGroup does not provide any controls.
+
+  * `read_batch`():
+    If a time signal has been pushed, updates the time since the
+    TimeIOGroup was created.
+
+  * `write_batch`():
+    Does nothing; this IOGroup does not provide any controls.
+
+  * `sample`():
+    Returns the value of the signal specified by a _signal_idx_
+    returned from push_signal().  The value will have been updated by
+    the most recent call to read_batch().
+
+  * `adjust`():
+    Should not be called; this IOGroup does not provide any controls.
+
+  * `read_signal`():
+    If _signal_name_ is valid, immediately return the time since the
+    TimeIOGroup was created.
+
+  * `write_control`():
+    Should not be called; this IOGroup does not provide any controls.
+
+  * `save_control`():
+    Does nothing; this IOGroup does not provide any controls.
+
+  * `restore_control`():
+    Does nothing; this IOGroup does not provide any controls.
+
+  * `agg_function`():
+    The TIME signal provided by this IOGroup is aggregated using the
+    average() function from **geopm::Agg(3)**.
+
+  * `signal_description`():
+    Returns a string description for _signal_name_, if defined.
+
+  * `control_description`():
+    Does nothing; this IOGroup does not provide any controls.
+
+  * `plugin_name`():
+    Returns the name of the plugin to use when this plugin is
+    registered with the IOGroup factory; see
+    **geopm::PluginFactory(3)** for more details.
+
+  * `make_plugin`():
+    Returns a pointer to a new TimeIOGroup object; see
+    **geopm::PluginFactory(3)** for more details.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.

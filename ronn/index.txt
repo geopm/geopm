@@ -94,3 +94,4 @@ ld.so(8)                        https://linux.die.net/man/8/ld.so
 lscpu(1)                        https://linux.die.net/man/1/lscpu
 asctime_r(3)                    https://linux.die.net/man/3/asctime_r
 dlopen(3)                       https://linux.die.net/man/3/dlopen
+proc(5)                         http://man7.org/linux/man-pages/man5/proc.5.html
