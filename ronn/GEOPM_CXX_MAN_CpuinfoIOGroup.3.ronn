@@ -37,10 +37,166 @@ geopm::CpuinfoIOGroup(3) -- IOGroup for CPU frequency limits
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
-## DESCRIPTION
+  * `CpuinfoIOGroup(`:
+    `void);`
 
-For more details, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_cpuinfo_i_o_group.html>.
+  * `CpuinfoIOGroup(`:
+    `const std::string &`_cpu_info_path_`,`<br>
+    `const std::string &`_cpu_freq_min_path_`,`<br>
+    `const std::string &`_cpu_freq_max_path_`);`
+
+  * `~CpuinfoIOGroup(`:
+    `void) = default;`
+
+  * `std::set<std::string> signal_names(`:
+    `void) const;`
+
+  * `std::set<std::string> control_names(`:
+    `void) const;`
+
+  * `bool is_valid_signal(`:
+    `const std::string &`_signal_name_`) const;`
+
+  * `bool is_valid_control(`:
+    `const std::string &`_control_name_`) const;`
+
+  * `int signal_domain_type(`:
+    `const std::string &`_signal_name_`) const;`
+
+  * `int control_domain_type(`:
+    `const std::string &`_control_name_`) const;`
+
+  * `int push_signal(`:
+    `const std::string &`_signal_name_`,`<br>
+    `int `_domain_type_`,`<br>
+    `int `_domain_idx_`);`
+
+  * `int push_control(`:
+    `const std::string &`_control_name_`,`<br>
+    `int `_domain_type_`,`<br>
+    `int `_domain_idx_`);`
+
+  * `void read_batch(`:
+    `void);`
+
+  * `void write_batch(`:
+    `void);`
+
+  * `double sample(`:
+    `int `_batch_idx_`);`
+
+  * `void adjust(`:
+    `int `_batch_idx_`,`<br>
+    `double `_setting_`);`
+
+  * `double read_signal(`:
+    `const std::string &`_signal_name_`,`<br>
+    `int `_domain_type_`,`<br>
+    `int `_domain_idx_`);`
+
+  * `void write_control(`:
+    `const std::string &`_control_name_`,`<br>
+    `int `_domain_type_`,`<br>
+    `int `_domain_idx_`,`<br>
+    `double `_setting_`);`
+
+  * `void save_control(`:
+    `void);`
+
+  * `void restore_control(`:
+    `void);`
+
+  * `std::function<double(const std::vector<double> &)> agg_function(`:
+    `const std::string &`_signal_name_`) const;`
+
+  * `std::string signal_description(`:
+    `const std::string &`_signal_name_`) const;`
+
+  * `std::string control_description(`:
+    `const std::string &`_control_name_`) const;`
+
+  * `static std::string plugin_name(`:
+    `void);`
+
+  * `static std::unique_ptr<IOGroup> make_plugin(`:
+    `void);`
+
+## DESCRIPTION
+Class CpuinfoIOGroup
+/// @brief IOGroup that provides constants for CPU frequency limits
+///        as signals for PlatformIO.
+
+## CLASS METHODS
+  * `CpuinfoIOGroup`():
+
+
+  * `CpuinfoIOGroup`():
+
+
+  * `~CpuinfoIOGroup`():
+
+
+  * `signal_names`():
+
+
+  * `control_names`():
+
+
+  * `is_valid_signal`():
+
+
+  * `is_valid_control`():
+
+
+  * `signal_domain_type`():
+
+
+  * `control_domain_type`():
+
+
+  * `push_signal`():
+
+
+  * `push_control`():
+
+
+  * `read_batch`():
+
+
+  * `write_batch`():
+
+
+  * `sample`():
+
+
+  * `adjust`():
+
+
+  * `read_signal`():
+
+
+  * `write_control`():
+
+
+  * `save_control`():
+
+
+  * `restore_control`():
+
+
+  * `agg_function`():
+
+
+  * `signal_description`():
+
+
+  * `control_description`():
+
+
+  * `plugin_name`():
+
+
+  * `make_plugin`():
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
