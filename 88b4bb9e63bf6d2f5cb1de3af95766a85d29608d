@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c9924a96_a50d47ed",
+        "filename": ".travis.yml",
+        "patchSetId": 21
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-22T17:55:51Z",
+      "side": 1,
+      "message": "Was there some problem with parallel make hanging on single core containers?",
+      "revId": "88b4bb9e63bf6d2f5cb1de3af95766a85d29608d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "061b03cf_1a31c5be",
+        "filename": "travis_ci.sh",
+        "patchSetId": 21
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-22T17:55:51Z",
+      "side": 1,
+      "message": "This does `make dist` already",
+      "range": {
+        "startLine": 38,
+        "startChar": 35,
+        "endLine": 38,
+        "endChar": 62
+      },
+      "revId": "88b4bb9e63bf6d2f5cb1de3af95766a85d29608d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
