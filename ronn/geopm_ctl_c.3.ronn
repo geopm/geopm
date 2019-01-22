@@ -1,7 +1,7 @@
 geopm_ctl_c(3) -- geopm runtime control thread
 ==============================================
 
-[//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -90,7 +90,7 @@ All functions described on this man page return an error code.  See
 to convert them to strings.
 
 ## COPYRIGHT
-Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
+Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,
