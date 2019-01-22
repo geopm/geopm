@@ -53,6 +53,7 @@ before_install:
 
 install:
     - export INSTALL_ROOT=$(pwd)/tmp_install
+    - export MPICH_INSTALL_ROOT=$INSTALL_ROOT/mpich
     - export GEOPM_INSTALL_ROOT=$INSTALL_ROOT/geopm
     - ./configure --disable-fortran --enable-debug --prefix=$GEOPM_INSTALL_ROOT
     - export PATH=$GEOPM_INSTALL_ROOT/bin:$PATH
@@ -64,11 +65,12 @@ cache:
       - googletest-release-1.8.1/
 
 script:
-    - ./travis_ci.sh
+    - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GEOPM_INSTALL_ROOT/lib ./travis_ci.sh
 
 env:
     matrix:
         - CI_MODE=unit
+        - CI_MODE=integration && CI_MPI_RT=ompi
     global:
         - MAKEFLAGS="-j 2"
         - MPLBACKEND='Agg'
@@ -87,6 +89,7 @@ after_success:
     - ./.travis_obs.sh
 
 after_failure:
+    - cat test_integration/*.log
     - cat scripts/test/pytest_links/*.log
     - cat test/gtest_links/*.log
 
