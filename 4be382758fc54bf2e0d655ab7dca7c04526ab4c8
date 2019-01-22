@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e114bdd_45cd682e",
+        "filename": "test/PowerBalancerTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-22T17:57:36Z",
+      "side": 1,
+      "message": "So this was just 0 before?  are there any effects on the test?",
+      "revId": "4be382758fc54bf2e0d655ab7dca7c04526ab4c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
