@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "6771534b_2db4b51e",
+        "filename": "configure.ac",
+        "patchSetId": 5
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-22T19:48:40Z",
+      "side": 1,
+      "message": "Check that --disable-openmp works?",
+      "revId": "4be382758fc54bf2e0d655ab7dca7c04526ab4c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45cfd9d9_07887a6e",
+        "filename": "src/Profile.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-22T19:48:40Z",
+      "side": 1,
+      "message": "No inclusion of config.h in the header.  Find some way to fix without including config.h in a header.",
+      "range": {
+        "startLine": 317,
+        "startChar": 0,
+        "endLine": 317,
+        "endChar": 1
+      },
+      "revId": "4be382758fc54bf2e0d655ab7dca7c04526ab4c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8e114bdd_45cd682e",
         "filename": "test/PowerBalancerTest.cpp",
         "patchSetId": 5
