@@ -1,7 +1,7 @@
 geopm_error(3) -- error code descriptions
 =========================================
 
-[//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -100,7 +100,7 @@ described below.  The system error numbers are documented in the
     Requested agent is unavailable or invalid
 
 ## COPYRIGHT
-Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
+Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,
