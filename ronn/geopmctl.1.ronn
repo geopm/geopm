@@ -1,7 +1,7 @@
 geopmctl(1) -- geopm runtime control application
 ================================================
 
-[//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -49,7 +49,7 @@ geopmctl(1) -- geopm runtime control application
     Print version of GEOPM to standard output, then exit.
 
 ## COPYRIGHT
-Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
+Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,

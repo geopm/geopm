@@ -1,7 +1,7 @@
 geopm(7) -- global extensible open power manager
 ================================================
 
-[//]: # (Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -380,7 +380,7 @@ runtime _without_ **geopmlaunch(1)**.
     line option is specified then hyperthreads will be disabled.
 
 ## COPYRIGHT
-Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation. All rights reserved.
+Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopmpy(7)**,
