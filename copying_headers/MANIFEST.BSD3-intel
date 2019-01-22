@@ -270,7 +270,6 @@ test_integration/geopm_context.py
 test_integration/geopm_test_integration.py
 test_integration/geopm_test_launcher.py
 test_integration/geopm_test_loop.sh
-tracker/track
 tutorial/Makefile
 tutorial/agent/ExampleAgent.cpp
 tutorial/agent/ExampleAgent.hpp
