@@ -22,6 +22,52 @@
       "revId": "4afa8640a27d10d0c849355b0cb154ad57186800",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09b2efff_d2202aa6",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 21
+      },
+      "lineNbr": 1433,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-22T17:30:48Z",
+      "side": 1,
+      "message": "Why these changes?  The LAUNCHER_ARGS are listed at the bottom of the text because the launcher\u0027s --help output is printed below the help_str.",
+      "range": {
+        "startLine": 1433,
+        "startChar": 27,
+        "endLine": 1433,
+        "endChar": 44
+      },
+      "revId": "4afa8640a27d10d0c849355b0cb154ad57186800",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90a2355a_45373247",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 21
+      },
+      "lineNbr": 1470,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-22T17:30:48Z",
+      "side": 1,
+      "message": "Inconsistent",
+      "range": {
+        "startLine": 1470,
+        "startChar": 9,
+        "endLine": 1470,
+        "endChar": 22
+      },
+      "revId": "4afa8640a27d10d0c849355b0cb154ad57186800",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
