@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0fd65e1_b5d6253b",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 21
+      },
+      "lineNbr": 1080,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-01-22T01:43:18Z",
+      "side": 1,
+      "message": "not ready.  implement with pass",
+      "range": {
+        "startLine": 1080,
+        "startChar": 4,
+        "endLine": 1080,
+        "endChar": 43
+      },
+      "revId": "4afa8640a27d10d0c849355b0cb154ad57186800",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
