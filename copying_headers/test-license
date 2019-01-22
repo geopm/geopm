@@ -125,24 +125,12 @@ class Filter(object, FilterBorg):
             self._right_filter = re.compile(base_filter + os.linesep)
             self._Zright_filter = re.compile(base_filter + r'\Z')
             date_filter = r'[,\- \t\(\)]*[12][90]\d\d\)?'
-            self._crdate_filter = re.compile(r'([Cc]opyright)' + date_filter)
-            self._cdate_filter = re.compile(r'(\([Cc]\))' + date_filter)
 
     def filter(self, head):
         result = self._Aleft_filter.sub('', head)
         result = self._left_filter.sub(os.linesep, result)
         result = self._right_filter.sub(os.linesep, result)
         result = self._Zright_filter.sub('', result)
-        while True:
-            tmp = self._crdate_filter.sub(r'\1', result)
-            if tmp == result:
-                break
-            result = tmp
-        while True:
-            tmp = self._cdate_filter.sub(r'\1', result)
-            if tmp == result:
-                break
-            result = tmp
         result = result.strip()
         return result
 
