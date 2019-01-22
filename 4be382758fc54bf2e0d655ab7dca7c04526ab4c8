@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cafc8a84_863a4e30",
+        "filename": ".travis.yml",
+        "patchSetId": 21
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-22T20:17:27Z",
+      "side": 0,
+      "message": "This was to fix broken calls to git describe which is used in autogen.sh to generate VERSION file.",
+      "range": {
+        "startLine": 40,
+        "startChar": 11,
+        "endLine": 40,
+        "endChar": 15
+      },
+      "revId": "4be382758fc54bf2e0d655ab7dca7c04526ab4c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}

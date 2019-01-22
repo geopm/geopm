@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "33c25e15_a7364de5",
+        "filename": ".travis.yml",
+        "patchSetId": 21
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-22T20:17:27Z",
+      "side": 1,
+      "message": "How do exports work in travis?",
+      "range": {
+        "startLine": 55,
+        "startChar": 6,
+        "endLine": 55,
+        "endChar": 12
+      },
+      "revId": "88b4bb9e63bf6d2f5cb1de3af95766a85d29608d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c9924a96_a50d47ed",
         "filename": ".travis.yml",
         "patchSetId": 21
@@ -13,6 +36,52 @@
       "writtenOn": "2019-01-22T17:55:51Z",
       "side": 1,
       "message": "Was there some problem with parallel make hanging on single core containers?",
+      "revId": "88b4bb9e63bf6d2f5cb1de3af95766a85d29608d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb973350_01e4ac73",
+        "filename": ".travis.yml",
+        "patchSetId": 21
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-22T20:17:27Z",
+      "side": 1,
+      "message": "Theta is at 5.0.1",
+      "range": {
+        "startLine": 94,
+        "startChar": 18,
+        "endLine": 94,
+        "endChar": 25
+      },
+      "revId": "88b4bb9e63bf6d2f5cb1de3af95766a85d29608d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f95efad9_64d2543d",
+        "filename": "travis_ci.sh",
+        "patchSetId": 21
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-22T20:17:27Z",
+      "side": 1,
+      "message": "delete me",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 54
+      },
       "revId": "88b4bb9e63bf6d2f5cb1de3af95766a85d29608d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
