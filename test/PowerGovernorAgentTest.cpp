@@ -141,6 +141,7 @@ TEST_F(PowerGovernorAgentTest, wait)
     m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
     m_agent->init(1, m_fan_in, false);
     geopm_time_s start_time, end_time;
+    m_agent->wait();
     geopm_time(&start_time);
     m_agent->wait();
     geopm_time(&end_time);
