@@ -3,7 +3,7 @@ From: "Steve S. Sylvester" <steve.s.sylvester@intel.com>
 Date: Fri, 18 Nov 2016 14:57:29 -0800
 Subject: [PATCH] Adding geopm markup to AMG.
 
-#  Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation
+#  Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
