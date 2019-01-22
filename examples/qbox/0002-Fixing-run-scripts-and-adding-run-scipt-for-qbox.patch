@@ -3,7 +3,7 @@ From: "Steve S. Sylvester" <steve.s.sylvester@intel.com>
 Date: Fri, 2 Dec 2016 10:45:18 -0800
 Subject: [PATCH 2/2] Fixing run scripts and adding run scipt for qbox.
 
-#  Copyright (c) 2015, 2016, 2017, 2018, Intel Corporation
+#  Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
