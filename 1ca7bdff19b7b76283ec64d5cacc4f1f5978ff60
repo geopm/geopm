@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1bac957f_a4cd3a60",
+        "filename": "ronn/GEOPM_CXX_MAN_MSRIOGroup.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-23T22:53:45Z",
+      "side": 1,
+      "message": "Copy paste signatures for base class methods.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 80
+      },
+      "revId": "1ca7bdff19b7b76283ec64d5cacc4f1f5978ff60",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71afa4f9_14699796",
+        "filename": "ronn/GEOPM_CXX_MAN_MSRIOGroup.3.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-23T22:53:45Z",
+      "side": 1,
+      "message": "Merge polymorphic descriptions together and define the behavior as a function of which parameters are provided.  I.e. If _cpu_id_ is provided...otherwise...",
+      "range": {
+        "startLine": 174,
+        "startChar": 20,
+        "endLine": 174,
+        "endChar": 30
+      },
+      "revId": "1ca7bdff19b7b76283ec64d5cacc4f1f5978ff60",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
