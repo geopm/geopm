@@ -38,7 +38,7 @@ DISTCLEANFILES += $(googletest_suite)/VERSION \
                   # end
 
 dist-googletest: googletest_archive_check
-check-am: libgmock.a libgtest.a
+check-am: $(googlemock)/lib/libgmock.a $(googletest)/lib/libgtest.a
 clean-local-googletest: clean-local-gmock
 
 googletest_version = 1.8.1
@@ -79,25 +79,27 @@ $(googletest_suite)/VERSION: $(googletest_suite_archive)
 	    echo $(googletest_version) > $(googletest_suite)/VERSION; \
 	fi
 
-libgmock.a: $(googletest_suite)/VERSION
+$(googlemock)/lib/libgmock.a: $(googletest_suite)/VERSION
 	@if [ ! -s $^ ]; then \
 	    echo "Error: Failure to extract or download gmock archive" 2>&1; \
 	    exit -1; \
 	fi
 	$(CXX) $(CXXFLAGS) -isystem $(googlemock)/include -I$(googlemock) -isystem $(googletest)/include -I$(googletest) -pthread -fno-delete-null-pointer-checks \
 	      -c $(googlemock)/src/gmock-all.cc
-	ar -rv libgmock.a gmock-all.o
+	mkdir -p $(googlemock)/lib
+	ar -rv $(googlemock)/lib/libgmock.a gmock-all.o
 
-libgtest.a: $(googletest_suite)/VERSION
+$(googletest)/lib/libgtest.a: $(googletest_suite)/VERSION
 	@if [ ! -s $^ ]; then \
 	    echo "Error: Failure to extract or download gmock archive" 2>&1; \
 	    exit -1; \
 	fi
 	$(CXX) $(CXXFLAGS) -isystem $(googletest)/include -I$(googletest) -pthread -fno-delete-null-pointer-checks \
 	      -c $(googletest)/src/gtest-all.cc
-	ar -rv libgtest.a gtest-all.o
+	mkdir -p $(googletest)/lib
+	ar -rv $(googletest)/lib/libgtest.a gtest-all.o
 
 clean-local-gmock:
-	rm -rf libgtest.a libgmock.a $(googletest_suite)
+	rm -rf $(googletest_suite)
 
 PHONY_TARGETS += googletest_archive_check clean-local-gmock
