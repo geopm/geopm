@@ -69,8 +69,6 @@
 /gtest-all.o
 /install-sh
 /keyvals.mod
-/libgmock.a
-/libgtest.a
 /libtool
 /ltmain.sh
 /m4/libtool.m4
