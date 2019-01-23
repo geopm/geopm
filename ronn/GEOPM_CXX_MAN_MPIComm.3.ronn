@@ -1,7 +1,7 @@
 geopm::MPIComm(3) -- implementation of Comm using MPI
 =====================================================
 
-[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -46,7 +46,7 @@ For more details, see the doxygen
 page at <https://geopm.github.io/dox/classgeopm_1_1_m_p_i_comm.html>.
 
 ## COPYRIGHT
-Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation. All rights reserved.
+Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,

@@ -1,7 +1,7 @@
 geopm::Exception(3) -- custom geopm exceptions
 ==============================================
 
-[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -160,7 +160,7 @@ for the error code, GEOPM_ERROR_RUNTIME (-1) is assumed.
     Returns the signal number associated with the SignalException.
 
 ## COPYRIGHT
-Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation. All rights reserved.
+Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,

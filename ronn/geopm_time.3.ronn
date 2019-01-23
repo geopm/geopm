@@ -1,7 +1,7 @@
 geopm_time.h(3) -- helper methods for time
 ==========================================
 
-[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -85,7 +85,7 @@ structure is used to hold time values.
     Returns the number of seconds elapsed between the current time and _begin_.
 
 ## COPYRIGHT
-Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation. All rights reserved.
+Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,

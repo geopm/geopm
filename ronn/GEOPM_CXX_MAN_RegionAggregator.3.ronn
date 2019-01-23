@@ -1,7 +1,7 @@
 geopm::RegionAggregator(3) -- per-region aggregated signal data
 ===============================================================
 
-[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -109,7 +109,7 @@ signals similar to the `push_signal()` method of
     the REGION_ID# signal.
 
 ## COPYRIGHT
-Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation. All rights reserved.
+Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**

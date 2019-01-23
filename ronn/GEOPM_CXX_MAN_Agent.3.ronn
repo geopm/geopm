@@ -1,7 +1,7 @@
 geopm::Agent(3) -- geopm agent plugin interface
 ===============================================
 
-[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -306,7 +306,7 @@ tutorial)[https://github.com/geopm/geopm/tree/dev/tutorial/agent] for more
 information.  This code is located in the GEOPM source under tutorial/agent.
 
 ## COPYRIGHT
-Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation. All rights reserved.
+Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**

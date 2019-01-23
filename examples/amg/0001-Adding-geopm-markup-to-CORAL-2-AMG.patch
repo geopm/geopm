@@ -3,7 +3,7 @@ From: Diana Guttman <diana.r.guttman@intel.com>
 Date: Tue, 18 Sep 2018 21:23:35 +0000
 Subject: [PATCH] Adding geopm markup to CORAL 2 AMG.
 
-#  Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation
+#  Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions

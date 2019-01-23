@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation
+ * Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
                         "  -v, --version             print version of GEOPM to standard output,\n"
                         "                            then exit\n"
                         "\n"
-                        "Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation. All rights reserved.\n"
+                        "Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.\n"
                         "\n";
 
     static struct option long_options[] = {
@@ -103,7 +103,7 @@ int main(int argc, char **argv)
                 return 0;
             case 'v':
                 printf("%s\n", geopm_version());
-                printf("\n\nCopyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation. All rights reserved.\n\n");
+                printf("\n\nCopyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.\n\n");
                 return 0;
             case '?': // opt is ? when an option required an arg but it was missing
                 fprintf(stderr, usage, argv[0]);

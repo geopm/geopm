@@ -3,7 +3,7 @@ From: Brad Geltz <brad.geltz@intel.com>
 Date: Fri, 11 May 2018 18:10:18 -0700
 Subject: [PATCH 2/3] Marked up nekbone code for use with GEOPM.
 
-#  Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation
+#  Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions

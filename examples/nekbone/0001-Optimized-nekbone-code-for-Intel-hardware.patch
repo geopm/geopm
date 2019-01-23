@@ -6,7 +6,7 @@ Subject: [PATCH 1/2] Optimized nekbone code for Intel hardware.
 - Changes described in README_changes_Intel.txt.
 - Code acquired from Thomas Spelce <thomas.spelce@intel.com>.
 
-#  Copyright (c) 2015, 2016, 2017, 2018, 2019 Intel Corporation
+#  Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
