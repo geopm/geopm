@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e819aaed_1386ada6",
+        "filename": ".gitignore",
+        "patchSetId": 21
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-23T19:40:55Z",
+      "side": 1,
+      "message": "rename file after wget or curl to be gtest specific (not release-)",
+      "range": {
+        "startLine": 88,
+        "startChar": 1,
+        "endLine": 88,
+        "endChar": 8
+      },
+      "revId": "4f24930620192dbb0c4c257d87c8a8e9a353cd5b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b8dd0d7_c248be1a",
+        "filename": "test/googletest.mk",
+        "patchSetId": 21
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-23T19:40:55Z",
+      "side": 1,
+      "message": "this is the name used in the URL, but it should not be the name of the file after it is downloaded.  Add another variable called \n\ngoogletest_suite_archive_local\n\nwhich has a value that is prefixed by googletest- and move the file to this name after download.",
+      "range": {
+        "startLine": 48,
+        "startChar": 27,
+        "endLine": 48,
+        "endChar": 63
+      },
+      "revId": "4f24930620192dbb0c4c257d87c8a8e9a353cd5b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
