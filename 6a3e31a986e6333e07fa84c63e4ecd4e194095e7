@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed67b7e2_b5ae7fca",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-23T19:46:51Z",
+      "side": 1,
+      "message": "Move below the consumption of 0x and check that online_cpu_mask.size() is greater than zero.",
+      "range": {
+        "startLine": 394,
+        "startChar": 16,
+        "endLine": 394,
+        "endChar": 42
+      },
+      "revId": "6a3e31a986e6333e07fa84c63e4ecd4e194095e7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e885180b_036bf109",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-23T19:46:51Z",
+      "side": 1,
+      "message": "same issue as above.",
+      "range": {
+        "startLine": 435,
+        "startChar": 20,
+        "endLine": 435,
+        "endChar": 28
+      },
+      "revId": "6a3e31a986e6333e07fa84c63e4ecd4e194095e7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
