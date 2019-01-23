@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4f7c61d5_0621cc91",
+        "filename": "src/Helper.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-23T23:23:14Z",
+      "side": 1,
+      "message": "hostname[NAME_MAX - 1] \u003d \u0027\\0\u0027;",
+      "range": {
+        "startLine": 68,
+        "startChar": 8,
+        "endLine": 68,
+        "endChar": 32
+      },
+      "revId": "b90ff8182e1ae064ee0d7e70583d43071faffa12",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "480dc7bd_a57d1ee9",
+        "filename": "src/Helper.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-23T23:23:14Z",
+      "side": 1,
+      "message": "NAME_MAX - 1",
+      "range": {
+        "startLine": 69,
+        "startChar": 40,
+        "endLine": 69,
+        "endChar": 48
+      },
+      "revId": "b90ff8182e1ae064ee0d7e70583d43071faffa12",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
