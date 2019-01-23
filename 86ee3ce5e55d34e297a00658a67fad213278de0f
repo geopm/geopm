@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "72f42486_589af2af",
+        "filename": "test/googletest.mk",
+        "patchSetId": 24
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-23T23:44:08Z",
+      "side": 0,
+      "message": "Bring this back and remove the reference to -Wno-null-dereferece in the compile lines below.",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 5
+      },
+      "revId": "86ee3ce5e55d34e297a00658a67fad213278de0f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
