@@ -298,7 +298,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              test_hw/rapl_pkg_limit_plot.py \
              test_hw/rapl_pkg_limit_sweep.sh \
              test_hw/rapl_pkg_limit_test.c \
-             tracker/track \
              # end
 
 TUTORIAL_DIST = tutorial/Makefile \
