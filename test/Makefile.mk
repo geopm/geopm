@@ -343,8 +343,8 @@ test_geopm_test_SOURCES = src/EnergyEfficientAgent.cpp \
                           # end
 
 test_geopm_test_LDADD = libgeopmpolicy.la \
-                        libgmock.a \
-                        libgtest.a \
+                        $(googlemock)/lib/libgmock.a \
+                        $(googletest)/lib/libgtest.a \
                         # end
 
 test_geopm_test_CPPFLAGS = $(AM_CPPFLAGS) -Iplugin
@@ -366,8 +366,8 @@ if ENABLE_MPI
                                       # end
 
     test_geopm_mpi_test_api_LDADD = libgeopmpolicy.la \
-                                    libgmock.a \
-                                    libgtest.a \
+                                    $(googlemock)/lib/libgmock.a \
+                                    $(googletest)/lib/libgtest.a \
                                     # end
 
     test_geopm_mpi_test_api_LDFLAGS = $(AM_LDFLAGS)
