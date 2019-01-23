@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f8a73257_f6789f8f",
+        "filename": "ronn/GEOPM_CXX_MAN_Exception.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-23T23:01:07Z",
+      "side": 1,
+      "message": "Get rid of extra constructors.",
+      "revId": "b0f95510d402a1a39a586652133bfd4694ac515a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "618e3ed5_987d5602",
+        "filename": "ronn/GEOPM_CXX_MAN_Exception.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-23T23:01:07Z",
+      "side": 1,
+      "message": "extra line",
+      "revId": "b0f95510d402a1a39a586652133bfd4694ac515a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
