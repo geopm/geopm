@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9720d9f9_45acafca",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-24T19:07:07Z",
+      "side": 1,
+      "message": "maybe this is generalization of domain_cpus?  Check if it\u0027s being called anywhere else.  potentially replace domain_cpus with subdomain_indices() in public interface and make domain_cpus() private.\n- nested_domains()\n- throw if is_domain_within returns false",
+      "revId": "5cc67e0b59e6cf7bc2d35b0a8934edf9b194515b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9ab9dc6_7df13363",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-24T19:07:07Z",
+      "side": 1,
+      "message": ":(",
+      "revId": "5cc67e0b59e6cf7bc2d35b0a8934edf9b194515b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acb4fd05_d36ba97d",
+        "filename": "test/PlatformIOTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-24T19:07:07Z",
+      "side": 1,
+      "message": "EXPECT_CALL(*it, read_signal(\"FREQ\", M_DOMAIN_PACKAGE, _).Times(0);",
+      "revId": "5cc67e0b59e6cf7bc2d35b0a8934edf9b194515b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
