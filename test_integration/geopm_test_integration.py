@@ -419,15 +419,21 @@ class TestIntegration(unittest.TestCase):
             app_totals = self._output.get_app_total_data(node_name=nn)
             self.assertNear(trace.iloc[-1]['time'], app_totals['runtime'].item(), 'Application runtime failure, node_name={}.'.format(nn))
             # Calculate runtime totals for each region in each trace, compare to report
-            tt = trace.set_index(['region_id'], append=True)
-            tt = tt.groupby(level=['region_id'])
+            tt = trace.reset_index(level='index')  # move 'index' field from multiindex to columns
+            tt = tt.set_index(['region_id'], append=True)  # add region_id column to multiindex
+            tt_reg = tt.groupby(level=['region_id'])
             for region_name in regions:
                 region_data = self._output.get_report_data(node_name=nn, region=region_name)
                 if (region_name not in ['unmarked-region', 'model-init'] and
                     not region_name.startswith('MPI_') and
                     region_data['sync_runtime'].item() != 0):
-                    trace_data = tt.get_group((region_data['id'].item()))
-                    trace_elapsed_time = trace_data.iloc[-1]['time'] - trace_data.iloc[0]['time']
+                    region_id = region_data['id'].item()
+                    trace_data = tt_reg.get_group(region_id)
+                    start_idx = trace_data.iloc[0]['index']
+                    end_idx = trace_data.iloc[-1]['index'] + 1  # use time from sample after exiting region
+                    start_time = tt.loc[tt['index'] == start_idx]['time'].item()
+                    end_time = tt.loc[tt['index'] == end_idx]['time'].item()
+                    trace_elapsed_time = end_time - start_time
                     msg = 'for region {rn} on node {nn}'.format(rn=region_name, nn=nn)
                     if region_name == 'epoch':
                         self.assertNear(trace_elapsed_time, region_data['runtime'].item(), msg=msg)
