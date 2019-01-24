@@ -69,6 +69,7 @@ def factory(argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
     factory_dict['SrunLauncher'] = SrunLauncher
     factory_dict['aprun'] = AprunLauncher
     factory_dict['AprunLauncher'] = AprunLauncher
+    factory_dict['DdtAprunLauncher'] = DdtAprunLauncher
     factory_dict['impi'] = IMPIExecLauncher
     factory_dict['mpiexec.hydra'] = IMPIExecLauncher
     factory_dict['IMPIExecLauncher'] = IMPIExecLauncher
@@ -333,6 +334,7 @@ class Launcher(object):
             self.is_geopm_enabled = False
             self.is_override_enabled = False
         self.parse_launcher_argv()
+        self.do_debug = False
 
         is_cpu_per_rank_override = False
 
@@ -526,6 +528,7 @@ fi
         self.thread_per_core = cpu_tpc_core_socket[1]
         self.core_per_socket = cpu_tpc_core_socket[2]
         self.num_socket = cpu_tpc_core_socket[3]
+        self.set_debug(True) # Only valid for launchers that check the do_debug variable
 
     def affinity_list(self, is_geopmctl):
         """
@@ -749,6 +752,19 @@ fi
         reserved by a scheduler for current job context.
         """
         raise NotImplementedError('Launcher.get_alloc_nodes() undefined in the base class')
+
+    def set_debug(self, do_debug):
+        """
+        Controls whether or not the string to connect to DDT is incorporated into the
+        launch_command().
+        """
+        self.do_debug=do_debug
+
+    def get_debug(self):
+        """
+        Returns state of debug variable.
+        """
+        return self.do_debug
 
 
 class SrunLauncher(Launcher):
@@ -1223,6 +1239,19 @@ class AprunLauncher(Launcher):
             result = ['-e',  "LD_PRELOAD='{}'".format(value)]
         return result
 
+class DdtAprunLauncher(AprunLauncher):
+    def launcher_command(self):
+        """
+        Returns 'aprun', the name of the ALPS MPI job launch application.
+        """
+        orig = super(DdtAprunLauncher, self).launcher_command()
+        dbg = '/soft/debuggers/ddt/bin/ddt --connect'
+
+        if self.get_debug() is True:
+            return ' '.join([dbg, orig])
+        else:
+            return orig
+
 
 def main():
     """
@@ -1285,7 +1314,7 @@ Possible LAUNCHER_ARGS:        "-h" , "--help".
         # Note: if application uses -h as a parameter or some other corner
         # cases there will be an extraneous help text printed at the end
         # of the run.
-        launch_imp = ["SrunLauncher", "AlpsLauncher", "IMPIExecLauncher", "SrunTOSSLauncher"]
+        launch_imp = ["SrunLauncher", "AlpsLauncher", "IMPIExecLauncher", "SrunTOSSLauncher", "DdtAprunLauncher"]
         if '--help' not in sys.argv and '-h' not in sys.argv or sys.argv[1] in launch_imp:
             launcher = factory(sys.argv)
             launcher.run()
