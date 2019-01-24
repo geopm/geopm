@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed17e412_22db338b",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-24T18:43:59Z",
+      "side": 1,
+      "message": "need to check is_found here too",
+      "revId": "04f7c32ef1a4b559cbfe01ab5ac04965628d56ea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3f25f97_c8f0a41a",
+        "filename": "test/PlatformIOTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-24T18:43:59Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "04f7c32ef1a4b559cbfe01ab5ac04965628d56ea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
