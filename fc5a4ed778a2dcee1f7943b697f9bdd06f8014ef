@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1d2416b_b1cac38e",
+        "filename": "configure.ac",
+        "patchSetId": 26
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-24T00:13:44Z",
+      "side": 0,
+      "message": "delete, no longer needed with gtest 1.8",
+      "range": {
+        "startLine": 416,
+        "startChar": 0,
+        "endLine": 427,
+        "endChar": 2
+      },
+      "revId": "fc5a4ed778a2dcee1f7943b697f9bdd06f8014ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
