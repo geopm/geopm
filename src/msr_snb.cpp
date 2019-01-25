@@ -573,7 +573,7 @@ namespace geopm
                       .domain    = IPlatformTopo::M_DOMAIN_BOARD_MEMORY,
                       .function  = IMSR::M_FUNCTION_OVERFLOW,
                       .units     = IMSR::M_UNITS_JOULES,
-                      .scalar    = 1.5258789063e-5}}},
+                      .scalar    = 1.5258789063e-05}}},
                 {}),
             MSR("PLATFORM_INFO", 0xCE,
                 {{"MAX_NON_TURBO_RATIO", (struct IMSR::m_encode_s) {
