@@ -198,19 +198,30 @@ class PowerSweepAnalysis(Analysis):
 
     @staticmethod
     def sys_power_avail():
+        proc = subprocess.Popen(['geopmread', '--domain'],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc.wait()
+        num_package = 1
+        line = proc.stdout.readline().strip()
+        while line:
+            pieces = line.split()
+            if len(pieces) >= 2 and pieces[0] == 'package':
+                num_package = int(pieces[1])
+            line = proc.stdout.readline().strip()
+
         # TODO: this would be nicer with PlatformIO python API
         proc = subprocess.Popen(['geopmread', 'POWER_PACKAGE_MIN', 'package', '0'],
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         proc.wait()
-        min_power = int(proc.stdout.readline().strip())
+        min_power = int(proc.stdout.readline().strip()) * num_package
         proc = subprocess.Popen(['geopmread', 'POWER_PACKAGE_TDP', 'package', '0'],
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         proc.wait()
-        tdp_power = int(proc.stdout.readline().strip())
+        tdp_power = int(proc.stdout.readline().strip()) * num_package
         proc = subprocess.Popen(['geopmread', 'POWER_PACKAGE_MAX', 'package', '0'],
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         proc.wait()
-        max_power = int(proc.stdout.readline().strip())
+        max_power = int(proc.stdout.readline().strip()) * num_package
 
         return min_power, tdp_power, max_power
 
