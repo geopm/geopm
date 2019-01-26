@@ -158,6 +158,7 @@ class Config(object):
         parser.add_argument('--geopm-report', dest='report', type=str)
         parser.add_argument('--geopm-trace', dest='trace', type=str)
         parser.add_argument('--geopm-trace-signals', dest='trace_signals', type=str)
+        parser.add_argument('--geopm-report-signals', dest='report_signals', type=str)
         parser.add_argument('--geopm-agent', dest='agent', type=str)
         parser.add_argument('--geopm-profile', dest='profile', type=str)
         parser.add_argument('--geopm-shmkey', dest='shmkey', type=str)
@@ -179,6 +180,7 @@ class Config(object):
         self.report = opts.report
         self.trace = opts.trace
         self.trace_signals = opts.trace_signals
+        self.report_signals = opts.report_signals
         self.agent = opts.agent
         self.profile = opts.profile
         self.shmkey = opts.shmkey
@@ -232,6 +234,8 @@ class Config(object):
             result['GEOPM_TRACE'] = self.trace
         if self.trace_signals:
             result['GEOPM_TRACE_SIGNALS'] = self.trace_signals
+        if self.report_signals:
+            result['GEOPM_REPORT_SIGNALS'] = self.report_signals
         if self.shmkey:
             result['GEOPM_SHMKEY'] = self.shmkey
         if self.timeout:
