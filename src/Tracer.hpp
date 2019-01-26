@@ -83,6 +83,7 @@ namespace geopm
     };
 
     class IPlatformIO;
+    class IPlatformTopo;
 
     /// @brief Class used to write a trace of the telemetry and policy.
     class Tracer : public ITracer
@@ -97,6 +98,7 @@ namespace geopm
                    const std::string &profile_name,
                    bool do_trace,
                    IPlatformIO &platform_io,
+                   IPlatformTopo &platform_topo,
                    const std::vector<std::string> &env_column,
                    int precision);
             /// @brief Tracer destructor, virtual.
@@ -117,6 +119,7 @@ namespace geopm
             off_t m_buffer_limit;
 
             IPlatformIO &m_platform_io;
+            IPlatformTopo &m_platform_topo;
             std::vector<std::string> m_env_column; // extra columns from environment
             int m_precision;
             std::vector<int> m_column_idx; // columns sampled by Tracer

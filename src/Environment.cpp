@@ -47,6 +47,7 @@ const char *program_invocation_name = "geopm_profile";
 #include "geopm_env.h"
 #include "geopm_internal.h"
 #include "Exception.hpp"
+#include "Helper.hpp"
 
 #include "config.h"
 
@@ -69,8 +70,10 @@ namespace geopm
             const char *profile(void) const;
             const char *agent(void) const;
             const char *trace_signal(int index) const;
+            const char *report_signal(int index) const;
             int max_fan_out(void) const;
             int num_trace_signal(void) const;
+            int num_report_signal(void) const;
             int pmpi_ctl(void) const;
             int do_region_barrier(void) const;
             int do_trace(void) const;
@@ -96,6 +99,7 @@ namespace geopm
             int m_profile_timeout;
             int m_debug_attach;
             std::vector<std::string> m_trace_signal;
+            std::vector<std::string> m_report_signal;
     };
 
     static Environment &test_environment(void)
@@ -132,8 +136,9 @@ namespace geopm
         m_profile_timeout = 30;
         m_debug_attach = -1;
         m_trace_signal.clear();
+        m_report_signal.clear();
 
-        std::string tmp_str("");
+        std::string tmp_str;
 
         (void)get_env("GEOPM_REPORT", m_report);
         (void)get_env("GEOPM_COMM", m_comm);
@@ -171,24 +176,12 @@ namespace geopm
         if (m_do_profile && !m_profile.length()) {
             m_profile = program_invocation_name;
         }
-
-        bool do_parse = get_env("GEOPM_TRACE_SIGNALS", tmp_str);
-        if (do_parse) {
-            std::string request;
-            // split on comma
-            size_t begin = 0;
-            size_t end = -1;
-            do {
-                begin = end + 1;
-                end = tmp_str.find(",", begin);
-                request = tmp_str.substr(begin, end - begin);
-                if (!request.empty()) {
-                    m_trace_signal.push_back(request);
-                }
-            }
-            while (end != std::string::npos);
+        if (get_env("GEOPM_TRACE_SIGNALS", tmp_str)) {
+            m_trace_signal = split_string(tmp_str, ",");
         }
-
+        if (get_env("GEOPM_REPORT_SIGNALS", tmp_str)) {
+            m_report_signal = split_string(tmp_str, ",");
+        }
     }
 
     bool Environment::get_env(const char *name, std::string &env_string) const
@@ -265,12 +258,22 @@ namespace geopm
 
     const char *Environment::trace_signal(int index) const
     {
-        static const char *empty_string = "";
-        const char *result = empty_string;
-        if (index >= 0 || (size_t)index <= m_trace_signal.size()) {
-            result = m_trace_signal[index].c_str();
+        try {
+            return m_trace_signal.at(index).c_str();
         }
-        return result;
+        catch (std::out_of_range) {
+            return NULL;
+        }
+    }
+
+    const char *Environment::report_signal(int index) const
+    {
+        try {
+            return m_report_signal.at(index).c_str();
+        }
+        catch (std::out_of_range) {
+            return NULL;
+        }
     }
 
     int Environment::max_fan_out(void) const
@@ -281,6 +284,11 @@ namespace geopm
     int Environment::num_trace_signal(void) const
     {
         return m_trace_signal.size();
+    }
+
+    int Environment::num_report_signal(void) const
+    {
+        return m_report_signal.size();
     }
 
     int Environment::pmpi_ctl(void) const
@@ -365,6 +373,11 @@ extern "C"
         return geopm::environment().trace_signal(index);
     }
 
+    const char *geopm_env_report_signal(int index)
+    {
+        return geopm::environment().report_signal(index);
+    }
+
     int geopm_env_max_fan_out(void)
     {
         return geopm::environment().max_fan_out();
@@ -373,6 +386,11 @@ extern "C"
     int geopm_env_num_trace_signal(void)
     {
         return geopm::environment().num_trace_signal();
+    }
+
+    int geopm_env_num_report_signal(void)
+    {
+        return geopm::environment().num_report_signal();
     }
 
     int geopm_env_pmpi_ctl(void)

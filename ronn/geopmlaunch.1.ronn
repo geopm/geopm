@@ -181,12 +181,26 @@ the first `--` from the command line.
   A comma-separated list of signal names to be added as columns in the
   trace.  This option has no effect unless tracing is enabled with
   `--geopm-trace`.  The signal names must be valid for the platform
-  and will be sampled for the entire node.  Refer to the documentation
-  for GEOPM_TRACE_SIGNALS in **geopm(7)** for a list of valid signal
-  names. For example, the following will add total DRAM energy and
-  power as columns in the trace:
+  and will be aggregated over the entire node unless the domain is
+  specified by appending "@domain_type" to the signal name.  Refer
+  to the documentation for GEOPM_TRACE_SIGNALS in **geopm(7)** for a
+  list of valid signal names. For example, the following will add
+  DRAM energy and power for each NUMA node as columns in the trace:
 
-  `GEOPM_TRACE_SIGNALS=ENERGY_DRAM,POWER_DRAM`
+  `GEOPM_TRACE_SIGNALS=ENERGY_DRAM@board_memory,POWER_DRAM@board_memory`
+
+* `--geopm-report-signals` signals:
+  A comma-separated list of signal names to be added as fields in the
+  report.  This option has no effect unless reporting is enabled with
+  `--geopm-report`.  The signal names must be valid for the platform
+  and will be aggregated over the entire node unless the domain is
+  specified by appending "@domain_type" to the signal name.  Refer to
+  the documentation for GEOPM_REPORT_SIGNALS in **geopm(7)** for a
+  list of valid signal names. For example, the following will extend
+  the region and application totals sections of the report with
+  package energy for each package:
+
+  `GEOPM_REPORT_SIGNALS=ENERGY_PACKAGE@package,ENERGY_DRAM@board_memory`
 
 * `--geopm-agent` agent:
   Specify the Agent to be used by all Controllers.  Available agents
