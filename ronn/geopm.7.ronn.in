@@ -238,9 +238,10 @@ runtime _without_ **geopmlaunch(1)**.
     Used to insert additional columns into the trace beyond the
     default columns and the columns added by the Agent.  The value
     must be formatted as a comma-separated list of valid signal names.
-    All custom signals added to the trace will be sampled and
-    aggregated for the entire node.  For example, the following will
-    add total DRAM energy and power as columns in the trace:
+    When not specified all custom signals added to the trace will be
+    sampled and aggregated for the entire node.  For example, the
+    following will add total DRAM energy and power as columns in the
+    trace:
 
     `GEOPM_TRACE_SIGNALS=ENERGY_DRAM,POWER_DRAM`
 
@@ -248,7 +249,29 @@ runtime _without_ **geopmlaunch(1)**.
     **PlatformIO(3)** man page.  "TIME", "REGION_ID#",
     "REGION_PROGRESS", "REGION_RUNTIME", "ENERGY_PACKAGE",
     "POWER_PACKAGE", and "FREQUENCY" are included in the trace by
-    default.
+    default.  A domain other than board can be specified by appending
+    the signal name with an "@" character and then specifying one of the
+    domains, e.g:
+
+    `GEOPM_TRACE_SIGNALS=POWER_PACKAGE@package`
+
+    will trace the package power for each package on the system.
+
+  * `GEOPM_REGION_SIGNALS`:
+    Used to insert additional measurements into the report beyond the
+    default values.  The value must be formatted as a comma-separated
+    list of valid signals names.  The signals ailable and their
+    descriptions are documented int eh **PlatformIO(3)** man page.  By
+    default the signals in the report will be aggregated to the board
+    domain.  A domain other than board can be specified by appending
+    ths sigal name with an "@" character and then specifying one of the
+    domains, .e.g:
+
+    `GEOPM_REPORT_SIGNALS=ENERGY_PACKAGE@pacakge`
+
+    will add an entry into the report for each region and for the
+    application totals measuring the accumulated energy within the
+    region for each package on the system.
 
   * `GEOPM_AGENT`:
     Used to select the Agent to be used by all Controllers.  The Agent
