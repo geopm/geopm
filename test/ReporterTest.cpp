@@ -39,6 +39,7 @@
 #include "PlatformTopo.hpp"
 #include "Reporter.hpp"
 #include "MockPlatformIO.hpp"
+#include "MockPlatformTopo.hpp"
 #include "MockRegionAggregator.hpp"
 #include "MockApplicationIO.hpp"
 #include "MockComm.hpp"
@@ -88,6 +89,7 @@ class ReporterTest : public testing::Test
         std::string m_report_name = "test_reporter.out";
 
         MockPlatformIO m_platform_io;
+        MockPlatformTopo m_platform_topo;
         MockRegionAggregator *m_agg;  // freed with Reporter
         MockApplicationIO m_application_io;
         std::shared_ptr<ReporterTestMockComm> m_comm;
@@ -164,7 +166,7 @@ ReporterTest::ReporterTest()
     EXPECT_CALL(*m_agg, push_signal_total("CYCLES_THREAD", _, _))
         .WillOnce(Return(M_CLK_CORE_IDX));
     m_comm = std::make_shared<ReporterTestMockComm>();
-    m_reporter = geopm::make_unique<Reporter>(m_start_time, m_report_name, m_platform_io, 0,
+    m_reporter = geopm::make_unique<Reporter>(m_start_time, m_report_name, m_platform_io, m_platform_topo, 0,
                                               std::unique_ptr<MockRegionAggregator>(m_agg));
     m_reporter->init();
 }

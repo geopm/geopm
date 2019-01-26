@@ -40,6 +40,7 @@
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "MockPlatformIO.hpp"
+#include "MockPlatformTopo.hpp"
 #include "geopm_internal.h"
 #include "geopm_hash.h"
 #include "geopm_test.hpp"
@@ -57,6 +58,7 @@ class TracerTest : public ::testing::Test
         void SetUp(void);
         void TearDown(void);
         MockPlatformIO m_platform_io;
+        MockPlatformTopo m_platform_topo;
         std::string m_path = "test.trace";
         std::string m_hostname = "myhost";
         std::string m_agent = "myagent";
@@ -109,7 +111,7 @@ void check_trace(std::istream &expected, std::istream &result);
 
 TEST_F(TracerTest, columns)
 {
-    Tracer tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_extra_cols, 1);
+    Tracer tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_platform_topo, m_extra_cols, 1);
 
     // columns from agent will be printed as-is
     std::vector<std::string> agent_cols {"col1", "col2"};
@@ -134,7 +136,7 @@ TEST_F(TracerTest, columns)
 
 TEST_F(TracerTest, update_samples)
 {
-    Tracer tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_extra_cols, 1);
+    Tracer tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_platform_topo, m_extra_cols, 1);
     int idx = 0;
     for (auto cc : m_default_cols) {
         EXPECT_CALL(m_platform_io, sample(idx))
@@ -164,7 +166,7 @@ TEST_F(TracerTest, update_samples)
 
 TEST_F(TracerTest, region_entry_exit)
 {
-    Tracer tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_extra_cols, 1);
+    Tracer tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_platform_topo, m_extra_cols, 1);
     EXPECT_CALL(m_platform_io, sample(_)).Times(m_default_cols.size() + m_extra_cols.size())
         .WillOnce(Return(2.2))  // time
         .WillOnce(Return(0.0))  // epoch_count

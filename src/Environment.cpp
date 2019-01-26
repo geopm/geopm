@@ -47,6 +47,7 @@ const char *program_invocation_name = "geopm_profile";
 #include "geopm_env.h"
 #include "geopm_internal.h"
 #include "Exception.hpp"
+#include "Helper.hpp"
 
 #include "config.h"
 
@@ -68,9 +69,9 @@ namespace geopm
             const char *plugin_path(void) const;
             const char *profile(void) const;
             const char *agent(void) const;
-            const char *trace_signal(int index) const;
+            const char *trace_signals(void) const;
+            const char *report_signals(void) const;
             int max_fan_out(void) const;
-            int num_trace_signal(void) const;
             int pmpi_ctl(void) const;
             int do_region_barrier(void) const;
             int do_trace(void) const;
@@ -95,7 +96,8 @@ namespace geopm
             bool m_do_profile;
             int m_profile_timeout;
             int m_debug_attach;
-            std::vector<std::string> m_trace_signal;
+            std::string m_trace_signals;
+            std::string m_report_signals;
     };
 
     static Environment &test_environment(void)
@@ -131,9 +133,10 @@ namespace geopm
         m_do_profile = false;
         m_profile_timeout = 30;
         m_debug_attach = -1;
-        m_trace_signal.clear();
+        m_trace_signals = "";
+        m_report_signals = "";
 
-        std::string tmp_str("");
+        std::string tmp_str;
 
         (void)get_env("GEOPM_REPORT", m_report);
         (void)get_env("GEOPM_COMM", m_comm);
@@ -160,7 +163,7 @@ namespace geopm
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
-        get_env("GEOPM_DEBUG_ATTACH", m_debug_attach);
+        (void)get_env("GEOPM_DEBUG_ATTACH", m_debug_attach);
         m_do_profile = get_env("GEOPM_PROFILE", m_profile);
         (void)get_env("GEOPM_MAX_FAN_OUT", m_max_fan_out);
         if (m_report.length() ||
@@ -171,24 +174,8 @@ namespace geopm
         if (m_do_profile && !m_profile.length()) {
             m_profile = program_invocation_name;
         }
-
-        bool do_parse = get_env("GEOPM_TRACE_SIGNALS", tmp_str);
-        if (do_parse) {
-            std::string request;
-            // split on comma
-            size_t begin = 0;
-            size_t end = -1;
-            do {
-                begin = end + 1;
-                end = tmp_str.find(",", begin);
-                request = tmp_str.substr(begin, end - begin);
-                if (!request.empty()) {
-                    m_trace_signal.push_back(request);
-                }
-            }
-            while (end != std::string::npos);
-        }
-
+        (void)get_env("GEOPM_TRACE_SIGNALS", m_trace_signals);
+        (void)get_env("GEOPM_REPORT_SIGNALS", m_report_signals);
     }
 
     bool Environment::get_env(const char *name, std::string &env_string) const
@@ -263,24 +250,19 @@ namespace geopm
         return m_plugin_path.c_str();
     }
 
-    const char *Environment::trace_signal(int index) const
+    const char *Environment::trace_signals(void) const
     {
-        static const char *empty_string = "";
-        const char *result = empty_string;
-        if (index >= 0 || (size_t)index <= m_trace_signal.size()) {
-            result = m_trace_signal[index].c_str();
-        }
-        return result;
+        return m_trace_signals.c_str();
+    }
+
+    const char *Environment::report_signals(void) const
+    {
+        return m_report_signals.c_str();
     }
 
     int Environment::max_fan_out(void) const
     {
         return m_max_fan_out;
-    }
-
-    int Environment::num_trace_signal(void) const
-    {
-        return m_trace_signal.size();
     }
 
     int Environment::pmpi_ctl(void) const
@@ -360,19 +342,19 @@ extern "C"
     {
         return geopm::environment().profile();
     }
-    const char *geopm_env_trace_signal(int index)
+    const char *geopm_env_trace_signals(void)
     {
-        return geopm::environment().trace_signal(index);
+        return geopm::environment().trace_signals();
+    }
+
+    const char *geopm_env_report_signals(void)
+    {
+        return geopm::environment().report_signals();
     }
 
     int geopm_env_max_fan_out(void)
     {
         return geopm::environment().max_fan_out();
-    }
-
-    int geopm_env_num_trace_signal(void)
-    {
-        return geopm::environment().num_trace_signal();
     }
 
     int geopm_env_pmpi_ctl(void)
