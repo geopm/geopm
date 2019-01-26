@@ -55,6 +55,7 @@
 #include "geopm.h"
 #include "geopm_hash.h"
 #include "geopm_version.h"
+#include "geopm_env.h"
 #include "config.h"
 
 #ifdef GEOPM_HAS_XMMINTRIN
@@ -63,18 +64,19 @@
 
 namespace geopm
 {
-    Reporter::Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, int rank)
-        : Reporter(start_time, report_name, platform_io, rank,
+    Reporter::Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, IPlatformTopo &platform_topo, int rank)
+        : Reporter(start_time, report_name, platform_io, platform_topo, rank,
                    std::unique_ptr<IRegionAggregator>(new RegionAggregator))
     {
 
     }
 
-    Reporter::Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, int rank,
+    Reporter::Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, IPlatformTopo &platform_topo, int rank,
                        std::unique_ptr<IRegionAggregator> agg)
         : m_start_time(start_time)
         , m_report_name(report_name)
         , m_platform_io(platform_io)
+        , m_platform_topo(platform_topo)
         , m_region_agg(std::move(agg))
         , m_rank(rank)
     {
@@ -88,6 +90,21 @@ namespace geopm
         m_energy_dram_idx = m_region_agg->push_signal_total("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_clk_core_idx = m_region_agg->push_signal_total("CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_clk_ref_idx = m_region_agg->push_signal_total("CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        for (int sig_idx = 0; sig_idx < geopm_env_num_report_signal(); ++sig_idx) {
+            std::string signal_name(geopm_env_report_signal(sig_idx));
+            std::vector<std::string> signal_name_domain = split_string(signal_name, "@");
+            if (signal_name_domain.size() == 2) {
+                int domain_type = m_platform_topo.domain_name_to_type(signal_name_domain[1]);
+                for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(domain_type); ++domain_idx) {
+                    m_env_signal_name.push_back(signal_name + '-' + std::to_string(domain_idx));
+                    m_env_signal_idx.push_back(m_region_agg->push_signal_total(signal_name_domain[0], domain_type, domain_idx));
+                }
+            }
+            else {
+                m_env_signal_name.push_back(signal_name);
+                m_env_signal_idx.push_back(m_region_agg->push_signal_total(signal_name, IPlatformTopo::M_DOMAIN_BOARD, 0));
+            }
+        }
 
         if (!m_rank) {
             // check if report file can be created
@@ -226,6 +243,10 @@ namespace geopm
                 for (const auto &kv : region_report.at(region.id)) {
                     report << "    " << kv.first << ": " << kv.second << std::endl;
                 }
+            }
+            for (size_t env_idx = 0; env_idx != m_env_signal_name.size(); ++env_idx) {
+                report << "    " << m_env_signal_name[env_idx] << ": " << m_region_agg->sample_total(m_env_signal_idx.at(env_idx), region.id) +
+                                                                          m_region_agg->sample_total(m_env_signal_idx.at(env_idx), mpi_region_id) << std::endl;
             }
         }
         // extra runtimes for epoch region
