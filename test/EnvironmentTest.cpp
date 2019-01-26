@@ -162,7 +162,7 @@ TEST_F(EnvironmentTest, construction1)
     setenv("GEOPM_CTL", m_pmpi_ctl_str.c_str(), 1);
     setenv("GEOPM_DEBUG_ATTACH", std::to_string(m_debug_attach).c_str(), 1);
     //setenv("GEOPM_PROFILE", m_profile.c_str(), 1);
-    setenv("GEOPM_TRACE_SIGNALS", "test1,test2,,test3", 0);
+    setenv("GEOPM_TRACE_SIGNALS", "test1,test2,test3", 0);
 
     m_profile = program_invocation_name;
 
