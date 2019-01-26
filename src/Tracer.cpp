@@ -59,7 +59,7 @@ namespace geopm
 {
     Tracer::Tracer(const std::string &start_time)
         : Tracer(start_time, geopm_env_trace(), hostname(), geopm_env_agent(),
-                 geopm_env_profile(), geopm_env_do_trace(), platform_io(),
+                 geopm_env_profile(), geopm_env_do_trace(), platform_io(), platform_topo(),
                  {}, 16)
     {
 
@@ -72,6 +72,7 @@ namespace geopm
                    const std::string &profile_name,
                    bool do_trace,
                    IPlatformIO &platform_io,
+                   IPlatformTopo &platform_topo,
                    const std::vector<std::string> &env_column,
                    int precision)
         : m_file_path(file_path)
@@ -79,14 +80,12 @@ namespace geopm
         , m_is_trace_enabled(do_trace)
         , m_buffer_limit(134217728) // 128 MiB
         , m_platform_io(platform_io)
+        , m_platform_topo(platform_topo)
         , m_env_column(env_column)
         , m_precision(precision)
     {
         if (m_env_column.empty()) {
-            auto num_extra_cols = geopm_env_num_trace_signal();
-            for (int i = 0; i < num_extra_cols; ++i) {
-                m_env_column.push_back(geopm_env_trace_signal(i));
-            }
+            m_env_column = split_string(geopm_env_trace_signals(), ",");
         }
 
         if (m_is_trace_enabled) {
@@ -140,8 +139,22 @@ namespace geopm
             m_region_runtime_idx = 3;
 
             // extra columns from environment
-            for (const auto &extra : m_env_column) {
-                base_columns.push_back({extra, IPlatformTopo::M_DOMAIN_BOARD, 0});
+            for (const auto &extra_signal : m_env_column) {
+                std::vector<std::string> signal_domain = split_string(extra_signal, "@");
+                if (signal_domain.size() == 2) {
+                    int domain_type = m_platform_topo.domain_name_to_type(signal_domain[1]);
+                    int num_domain = m_platform_topo.num_domain(domain_type);
+                    for (int domain_idx = 0; domain_idx != num_domain; ++domain_idx) {
+                        base_columns.push_back({signal_domain[0], domain_type, domain_idx});
+                    }
+                }
+                else if (signal_domain.size() == 1) {
+                    base_columns.push_back({extra_signal, IPlatformTopo::M_DOMAIN_BOARD, 0});
+                }
+                else {
+                    throw Exception("Tracer::columns(): Environment trace extension contains signals with multiple \"@\" characters.",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
             }
 
             // set up columns to be sampled by Tracer
