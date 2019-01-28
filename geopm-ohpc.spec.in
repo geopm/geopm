@@ -15,7 +15,6 @@
 
 # Base package name
 %define pname geopm
-%define PNAME GEOPM
 
 # Install paths
 %define docdir %{OHPC_PUB}/doc/contrib/%{pname}-%{compiler_family}-%{mpi_family}-%{version}
@@ -26,12 +25,9 @@ Summary:       Global Extensible Open Power Manager
 Version:       @VERSION@
 Release:       1
 License:       BSD-3-Clause
-Group:         %{PROJ_NAME}/parallel-libs
+Group:         %{PROJ_NAME}/perf-tools
 URL:           https://geopm.github.io
 Source0:       https://github.com/geopm/geopm/releases/download/v%{version}/geopm-%{version}.tar.gz
-Source1:       OHPC_macros
-Requires:      kmod-msr-safe
-Requires:      msr-safe
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: libtool
@@ -55,7 +51,7 @@ BuildRequires: openssh
 %ohpc_setup_compiler
 test -f configure || ./autogen.sh
 ./configure --prefix=%{install_path} \
-            --disable-fortran --disable-doc \
+            --disable-doc \
             || ( cat config.log && false )
 %{__make}
 
@@ -103,10 +99,5 @@ setenv          %{PNAME}_INC        %{install_path}/include
 EOF
 
 %files
-%defattr(-,root,root,-)
 %{OHPC_PUB}
 %doc README COPYING VERSION
-
-%changelog
-* Wed May 30 2018 <brad.geltz@intel.com> v0.5.0
-- Initial commit.
