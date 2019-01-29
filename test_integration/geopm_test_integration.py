@@ -1468,7 +1468,6 @@ class TestIntegrationGeopmagent(unittest.TestCase):
             if self.skip_warning_string not in line:
                 self.assertNotIn('Error', line)
 
-
     def check_no_error(self, args):
         try:
             proc = subprocess.Popen([self.exec_name] + args,
@@ -1484,7 +1483,7 @@ class TestIntegrationGeopmagent(unittest.TestCase):
         Check that geopmagent commandline arguments work.
         '''
         # no args
-        agent_names = ['energy_efficient', 'monitor', 'power_balancer', 'power_governor']
+        agent_names = ['monitor', 'power_balancer', 'power_governor', 'energy_efficient']
         self.check_output([], agent_names)
 
         # help message
