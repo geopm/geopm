@@ -1,0 +1,307 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ff9c0ae_0a026d5b",
+        "filename": "ronn/geopm.7.ronn.in",
+        "patchSetId": 3
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:30:54Z",
+      "side": 1,
+      "message": "available",
+      "range": {
+        "startLine": 263,
+        "startChar": 46,
+        "endLine": 263,
+        "endChar": 54
+      },
+      "revId": "75c0539145568efdb725b35d6c836007638f59d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a9261ac_49179165",
+        "filename": "ronn/geopm.7.ronn.in",
+        "patchSetId": 3
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:30:54Z",
+      "side": 1,
+      "message": "eh?",
+      "range": {
+        "startLine": 264,
+        "startChar": 36,
+        "endLine": 264,
+        "endChar": 38
+      },
+      "revId": "75c0539145568efdb725b35d6c836007638f59d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fa7f2b5_3e308e85",
+        "filename": "ronn/geopm.7.ronn.in",
+        "patchSetId": 3
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:30:54Z",
+      "side": 1,
+      "message": "signal",
+      "range": {
+        "startLine": 267,
+        "startChar": 8,
+        "endLine": 267,
+        "endChar": 14
+      },
+      "revId": "75c0539145568efdb725b35d6c836007638f59d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15a040d3_7bad3c74",
+        "filename": "ronn/geopm.7.ronn.in",
+        "patchSetId": 3
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:30:54Z",
+      "side": 1,
+      "message": "package",
+      "range": {
+        "startLine": 270,
+        "startChar": 41,
+        "endLine": 270,
+        "endChar": 48
+      },
+      "revId": "75c0539145568efdb725b35d6c836007638f59d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2d5a92f_895ab12e",
+        "filename": "ronn/geopmlaunch.1.ronn",
+        "patchSetId": 3
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:30:54Z",
+      "side": 1,
+      "message": "appending",
+      "range": {
+        "startLine": 185,
+        "startChar": 15,
+        "endLine": 185,
+        "endChar": 27
+      },
+      "revId": "75c0539145568efdb725b35d6c836007638f59d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbb08c76_392275e4",
+        "filename": "ronn/geopmlaunch.1.ronn",
+        "patchSetId": 3
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:30:54Z",
+      "side": 1,
+      "message": "add @ example",
+      "revId": "75c0539145568efdb725b35d6c836007638f59d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b754c82d_f3e7eec7",
+        "filename": "ronn/geopmlaunch.1.ronn",
+        "patchSetId": 3
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:30:54Z",
+      "side": 1,
+      "message": "clarify how to do this somewhere.  1. aliases are valid on every platform  2. other signals can be determined by running geopmread on a compute node.",
+      "range": {
+        "startLine": 195,
+        "startChar": 38,
+        "endLine": 195,
+        "endChar": 68
+      },
+      "revId": "75c0539145568efdb725b35d6c836007638f59d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4bea86f_d316b3b7",
+        "filename": "ronn/geopmlaunch.1.ronn",
+        "patchSetId": 3
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:30:54Z",
+      "side": 1,
+      "message": "add comma example",
+      "revId": "75c0539145568efdb725b35d6c836007638f59d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30a13448_5142f72f",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:30:54Z",
+      "side": 1,
+      "message": "\u003c",
+      "revId": "75c0539145568efdb725b35d6c836007638f59d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f50738b_6d2a4264",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:30:54Z",
+      "side": 1,
+      "message": "copy paste is bad mmkay",
+      "range": {
+        "startLine": 273,
+        "startChar": 40,
+        "endLine": 273,
+        "endChar": 42
+      },
+      "revId": "75c0539145568efdb725b35d6c836007638f59d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8aa12f30_99332c32",
+        "filename": "src/Reporter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:30:54Z",
+      "side": 1,
+      "message": "handle multiple @?\n\nalso need to document and enforce that signal names can\u0027t contain @, or allow and make this code more flexible; might make @ required for those signals.  my vote is for disallow @ and other special characters (# only at end?, comma).  maybe just enforce rules for identifiers/bash variable names.",
+      "revId": "75c0539145568efdb725b35d6c836007638f59d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8edd69da_c5a455ed",
+        "filename": "src/Reporter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:30:54Z",
+      "side": 1,
+      "message": "GEOPM_DEBUG block to assert that m_env_signal_name.size() \u003d\u003d m_env_signal_idx.size()\n\nor make these into vector of pairs",
+      "revId": "75c0539145568efdb725b35d6c836007638f59d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1ef0439_f626c07b",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:30:54Z",
+      "side": 1,
+      "message": "I wish this was lower down closer to use.  Also could have a better name",
+      "revId": "75c0539145568efdb725b35d6c836007638f59d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9847aad_2040b884",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:30:54Z",
+      "side": 1,
+      "message": "does this need to check for hex columns too?\n\nbetter order for columns would be: default + agent + environment\n\nsome of these changes could go in a different patch",
+      "revId": "75c0539145568efdb725b35d6c836007638f59d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e1c96ab_7c2891bc",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:30:54Z",
+      "side": 1,
+      "message": "maybe get rid of this entirely",
+      "range": {
+        "startLine": 286,
+        "startChar": 0,
+        "endLine": 290,
+        "endChar": 71
+      },
+      "revId": "75c0539145568efdb725b35d6c836007638f59d8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
