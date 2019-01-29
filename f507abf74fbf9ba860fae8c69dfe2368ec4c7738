@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8aa17c16_6bdfe384",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:51:27Z",
+      "side": 1,
+      "message": "should throw if inner_domain is not within outer domain.  also need test.",
+      "revId": "f507abf74fbf9ba860fae8c69dfe2368ec4c7738",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50f9f625_e8670435",
+        "filename": "src/PlatformTopo.hpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:51:27Z",
+      "side": 1,
+      "message": "need to update man page",
+      "revId": "f507abf74fbf9ba860fae8c69dfe2368ec4c7738",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b73dfe61_c7200786",
+        "filename": "src/PlatformTopo.hpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:51:27Z",
+      "side": 1,
+      "message": "the indexed outer domain",
+      "range": {
+        "startLine": 106,
+        "startChar": 31,
+        "endLine": 106,
+        "endChar": 47
+      },
+      "revId": "f507abf74fbf9ba860fae8c69dfe2368ec4c7738",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9169f59c_9c3cfee0",
+        "filename": "test/PlatformTopoTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-01-29T19:51:27Z",
+      "side": 1,
+      "message": "add a test for nested_domains(BOARD, BOARD, 0)",
+      "revId": "f507abf74fbf9ba860fae8c69dfe2368ec4c7738",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
