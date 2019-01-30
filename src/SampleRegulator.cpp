@@ -33,7 +33,6 @@
 #include <string.h>
 
 #include "geopm_internal.h"
-#include "geopm_region_id.h"
 #include "Helper.hpp"
 #include "SampleRegulator.hpp"
 #include "CircularBuffer.hpp"

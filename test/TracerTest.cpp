@@ -171,7 +171,7 @@ TEST_F(TracerTest, update_samples)
     tracer.update(agent_vals, {}); // no additional samples after flush
 
     std::string expected_str = "\n\n\n\n\n\n"
-        "5.0e-01|1.5e+00|0x0000000000000002|0x0000000100000000|4.5|5.5e+00|6.5e+00|7.5e+00|8.5e+00|9.5e+00|1.0e+01|1.2e+01|1.2e+01|1.4e+01|1.5e+01|1.6e+01|1.7e+01|8.9e+01|7.8e+0\n";
+        "5.0e-01|1.5e+00|0x0000000000000002|0x0000000000000003|4.5|5.5e+00|6.5e+00|7.5e+00|8.5e+00|9.5e+00|1.0e+01|1.2e+01|1.2e+01|1.4e+01|1.5e+01|1.6e+01|1.7e+01|8.9e+01|7.8e+0\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
     ASSERT_TRUE(result.good()) << strerror(errno);
@@ -182,10 +182,10 @@ TEST_F(TracerTest, region_entry_exit)
 {
     Tracer tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_platform_topo, m_extra_cols_str, 1);
     EXPECT_CALL(m_platform_io, sample(_)).Times(m_default_cols.size() + m_num_extra_cols)
-        .WillOnce(Return(2.2))  // time
-        .WillOnce(Return(0.0))  // epoch_count
-        .WillOnce(Return(2.0))  // region hash
-        .WillOnce(Return(0.2))  // region hint
+        .WillOnce(Return(2.2))                        // time
+        .WillOnce(Return(0.0))                        // epoch_count
+        .WillOnce(Return(0x123))                      // region hash
+        .WillOnce(Return(GEOPM_REGION_HINT_UNKNOWN))  // region hint
         .WillOnce(Return(0.0))  // progress; should cause one region entry to be skipped
         .WillRepeatedly(Return(2.2));
 
@@ -193,12 +193,11 @@ TEST_F(TracerTest, region_entry_exit)
     std::vector<double> agent_vals {88.8, 77.7};
 
     std::list<geopm_region_info_s> short_regions = {
-        {0x123, 0.0, 3.2},
-        {0x123, 1.0, 3.2},
-        {0x345, 0.0, 3.2},
-        {0x456, 1.0, 3.2},
-        {0x345, 1.0, 3.2},
-        {geopm_signal_to_field(2.2), 0.0} // entry into the current region should not be recorded
+        {0x123, GEOPM_REGION_HINT_UNKNOWN, 0.0, 3.2},
+        {0x123, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2},
+        {0x345, GEOPM_REGION_HINT_UNKNOWN, 0.0, 3.2},
+        {0x456, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2},
+        {0x345, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2},
     };
     tracer.columns(agent_cols);
     tracer.update(agent_vals, short_regions);
@@ -211,7 +210,7 @@ TEST_F(TracerTest, region_entry_exit)
         "2.2e+00|0.0e+00|0x0000000000000345|0x0000000100000000|0.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
         "2.2e+00|0.0e+00|0x0000000000000456|0x0000000100000000|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
         "2.2e+00|0.0e+00|0x0000000000000345|0x0000000100000000|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "\n\n"; // sample
+        "\n"; // sample
 
      std::istringstream expected(expected_str);
      std::ifstream result(m_path + "-" + m_hostname);
