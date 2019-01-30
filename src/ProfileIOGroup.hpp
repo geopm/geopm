@@ -78,11 +78,13 @@ namespace geopm
         private:
             enum m_signal_type {
                 M_SIGNAL_REGION_ID,
-                M_SIGNAL_PROGRESS,
-                M_SIGNAL_EPOCH_RUNTIME,
                 M_SIGNAL_EPOCH_COUNT,
+                M_SIGNAL_REGION_HASH,
+                M_SIGNAL_REGION_HINT,
+                M_SIGNAL_REGION_PROGRESS,
                 M_SIGNAL_RUNTIME,
                 M_SIGNAL_THREAD_PROGRESS,
+                M_SIGNAL_EPOCH_RUNTIME,
                 M_SIGNAL_EPOCH_RUNTIME_MPI,
                 M_SIGNAL_EPOCH_RUNTIME_IGNORE,
                 M_SIGNAL_MAX,
