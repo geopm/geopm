@@ -78,11 +78,13 @@ namespace geopm
         private:
             enum m_signal_type {
                 M_SIGNAL_REGION_ID,
-                M_SIGNAL_PROGRESS,
-                M_SIGNAL_EPOCH_RUNTIME,
                 M_SIGNAL_EPOCH_COUNT,
+                M_SIGNAL_REGION_HASH,
+                M_SIGNAL_REGION_HINT,
+                M_SIGNAL_REGION_PROGRESS,
                 M_SIGNAL_RUNTIME,
                 M_SIGNAL_THREAD_PROGRESS,
+                M_SIGNAL_EPOCH_RUNTIME,
                 M_SIGNAL_EPOCH_RUNTIME_MPI,
                 M_SIGNAL_EPOCH_RUNTIME_IGNORE,
                 M_SIGNAL_MAX,
@@ -100,7 +102,7 @@ namespace geopm
             std::map<std::string, int> m_signal_idx_map;
             IPlatformTopo &m_platform_topo;
             std::vector<bool> m_do_read;
-            bool m_is_batch_read = false;
+            bool m_is_batch_read;
             std::vector<struct m_signal_config> m_active_signal;
             std::vector<uint64_t> m_per_cpu_region_id;
             std::vector<double> m_per_cpu_progress;
