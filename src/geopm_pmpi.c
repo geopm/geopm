@@ -184,7 +184,7 @@ static int geopm_pmpi_init(const char *exec_name)
         else if (geopm_env_pmpi_ctl() == GEOPM_CTL_PTHREAD) {
             g_is_geopm_pmpi_ctl_enabled = 1;
 
-            int mpi_thread_level;
+            int mpi_thread_level = 0;
             pthread_attr_t thread_attr;
 #ifndef __APPLE__
             int num_cpu = geopm_sched_num_cpu();
@@ -289,34 +289,27 @@ static int geopm_pmpi_finalize(void)
 #ifndef GEOPM_TEST
 int MPI_Init(int *argc, char **argv[])
 {
-    int err;
-
-    if (geopm_env_pmpi_ctl() == GEOPM_CTL_PTHREAD) {
-        int required = MPI_THREAD_MULTIPLE;
-        int mpi_thread_level;
-        err = PMPI_Init_thread(argc, argv, required, &mpi_thread_level);
-        if (!err && mpi_thread_level < MPI_THREAD_MULTIPLE) {
-            err = GEOPM_ERROR_LOGIC;
-        }
-    }
-    else {
-        err = PMPI_Init(argc, argv);
-    }
-    PMPI_Barrier(MPI_COMM_WORLD);
-    if (!err) {
-        if (argv && *argv && **argv && strlen(**argv)) {
-            err = geopm_pmpi_init(**argv);
-        }
-        else {
-            err = geopm_pmpi_init("Fortran");
-        }
-    }
-    return err;
+    int provided = 0;
+    return MPI_Init_thread(argc, argv, MPI_THREAD_SINGLE, &provided);
 }
 
 int MPI_Init_thread(int *argc, char **argv[], int required, int *provided)
 {
-    int err = PMPI_Init_thread(argc, argv, required, provided);
+    int err = 0;
+
+    if (geopm_env_pmpi_ctl() == GEOPM_CTL_PTHREAD &&
+        required < MPI_THREAD_MULTIPLE) {
+        required = MPI_THREAD_MULTIPLE;
+    }
+    err = PMPI_Init_thread(argc, argv, required, provided);
+    if (!err &&
+        geopm_env_pmpi_ctl() == GEOPM_CTL_PTHREAD &&
+        *provided < MPI_THREAD_MULTIPLE) {
+        err = GEOPM_ERROR_RUNTIME;
+    }
+    if (!err) {
+        err = PMPI_Barrier(MPI_COMM_WORLD);
+    }
     if (!err) {
         if (argv && *argv && **argv && strlen(**argv)) {
             err = geopm_pmpi_init(**argv);
