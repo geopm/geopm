@@ -30,7 +30,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-source tutorial_env.sh
+. tutorial_env.sh
 
 # OMP_FLAGS: Flags for enabling OpenMP
 if [ ! "$OMP_FLAGS" ]; then

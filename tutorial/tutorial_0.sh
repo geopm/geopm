@@ -32,7 +32,7 @@
 #
 
 set err=0
-source tutorial_env.sh
+. tutorial_env.sh
 
 export PATH=$GEOPM_BINDIR:$PATH
 export PYTHONPATH=$GEOPMPY_PKGDIR:$PYTHONPATH
@@ -44,7 +44,7 @@ export LD_LIBRARY_PATH=$GEOPM_LIBDIR:$LD_LIBRARY_PATH
 # launch geopm controller as an MPI process
 # create a report file
 # create trace files
-if [ "$GEOPM_LAUNCHER" == "srun" ]; then
+if [ "$GEOPM_LAUNCHER" = "srun" ]; then
     # Use GEOPM launcher wrapper script with SLURM's srun
     geopmlaunch srun \
                 -N 2 \
@@ -55,7 +55,7 @@ if [ "$GEOPM_LAUNCHER" == "srun" ]; then
                 --geopm-trace=tutorial_0_trace \
                 -- ./tutorial_0
     err=$?
-elif [ "$GEOPM_LAUNCHER" == "aprun" ]; then
+elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
     # Use GEOPM launcher wrapper script with ALPS's aprun
     geopmlaunch aprun \
                 -N 4 \
@@ -66,7 +66,7 @@ elif [ "$GEOPM_LAUNCHER" == "aprun" ]; then
                 --geopm-trace=tutorial_0_trace \
                 -- ./tutorial_0
     err=$?
-elif [ $MPIEXEC ]; then
+elif [ "$MPIEXEC" ]; then
     # Use MPIEXEC and set GEOPM environment variables to launch the job
     LD_PRELOAD=$GEOPM_LIBDIR/libgeopm.so \
     LD_DYNAMIC_WEAK=true \
