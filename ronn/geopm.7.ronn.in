@@ -86,8 +86,6 @@ geopm(7) -- global extensible open power manager
 
 **geopm_time(3)**: Time related helper functions
 
-**geopm_region_id(3)**: Region related helper functions
-
 **geopm_hash(3)**: Numerical encoding helper functions
 
 ## PLUGIN EXTENSION
@@ -246,7 +244,7 @@ runtime _without_ **geopmlaunch(1)**.
     `GEOPM_TRACE_SIGNALS=ENERGY_DRAM,POWER_DRAM`
 
     The signals available and their descriptions are documented in the
-    **PlatformIO(3)** man page.  "TIME", "REGION_ID#",
+    **PlatformIO(3)** man page.  "TIME", "REGION_HASH", "REGION_HINT",
     "REGION_PROGRESS", "REGION_RUNTIME", "ENERGY_PACKAGE",
     "POWER_PACKAGE", and "FREQUENCY" are included in the trace by
     default.  A domain other than board can be specified by appending
@@ -434,7 +432,6 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
 **geopm_fortran(3)**,
 **geopm_hash(3)**,
 **geopm_prof_c(3)**,
-**geopm_region_id_c(3)**,
 **geopm_sched(3)**,
 **geopm_time(3)**,
 **geopm_version(3)**,

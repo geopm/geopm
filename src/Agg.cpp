@@ -100,27 +100,6 @@ namespace geopm
         return result;
     }
 
-    double Agg::region_id(const std::vector<double> &operand)
-    {
-        uint64_t common_rid = GEOPM_REGION_ID_UNMARKED;
-        if (operand.size()) {
-            for (const auto &it : operand) {
-                uint64_t it_rid = geopm_signal_to_field(it);
-                if (it_rid != GEOPM_REGION_ID_UNMARKED &&
-                    common_rid == GEOPM_REGION_ID_UNMARKED) {
-                    common_rid = it_rid;
-                }
-                if (common_rid != GEOPM_REGION_ID_UNMARKED &&
-                    it_rid != GEOPM_REGION_ID_UNMARKED &&
-                    it_rid != common_rid) {
-                    common_rid = GEOPM_REGION_ID_UNMARKED;
-                    break;
-                }
-            }
-        }
-        return geopm_field_to_signal(common_rid);
-    }
-
     static double common_value(const std::vector<double> &operand, double no_match)
     {
         return (operand.size() &&

@@ -33,7 +33,7 @@
 #include <algorithm>
 
 #include "geopm.h"
-#include "geopm_region_id.h"
+#include "geopm_internal.h"
 #include "Exception.hpp"
 #include "Helper.hpp"
 #include "RuntimeRegulator.hpp"
@@ -164,7 +164,8 @@ namespace geopm
             ++num_ranks;
             // only log entry when all ranks have entered
             if (num_ranks == m_rank_per_node && region_id != GEOPM_REGION_HASH_UNMARKED) {
-                m_region_info.push_back({region_id,
+                m_region_info.push_back({geopm_region_id_hash(region_id),
+                                         geopm_region_id_hint(region_id),
                                          0.0,
                                          Agg::max(reg_it.first->second->per_rank_last_runtime())});
             }
@@ -225,7 +226,8 @@ namespace geopm
             int &num_ranks = count_it.first->second;
             // only log exit when first rank exits
             if (num_ranks == m_rank_per_node && region_id != GEOPM_REGION_HASH_UNMARKED) {
-                m_region_info.push_back({region_id,
+                m_region_info.push_back({geopm_region_id_hash(region_id),
+                                         geopm_region_id_hint(region_id),
                                          1.0,
                                          Agg::max(reg_it->second->per_rank_last_runtime())});
             }
