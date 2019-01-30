@@ -57,12 +57,10 @@ namespace geopm
                                      IPlatformTopo &topo)
         : m_profile_sample(profile_sample)
         , m_epoch_regulator(epoch_regulator)
-        , m_signal_idx_map{{plugin_name() + "::REGION_ID#", M_SIGNAL_REGION_ID},
-                           {plugin_name() + "::REGION_HASH", M_SIGNAL_REGION_HASH},
+        , m_signal_idx_map{{plugin_name() + "::REGION_HASH", M_SIGNAL_REGION_HASH},
                            {plugin_name() + "::REGION_HINT", M_SIGNAL_REGION_HINT},
                            {plugin_name() + "::REGION_PROGRESS", M_SIGNAL_REGION_PROGRESS},
                            {plugin_name() + "::REGION_THREAD_PROGRESS", M_SIGNAL_THREAD_PROGRESS},
-                           {"REGION_ID#", M_SIGNAL_REGION_ID},
                            {"REGION_HASH", M_SIGNAL_REGION_HASH},
                            {"REGION_HINT", M_SIGNAL_REGION_HINT},
                            {"REGION_PROGRESS", M_SIGNAL_REGION_PROGRESS},
@@ -159,7 +157,7 @@ namespace geopm
             m_do_read[signal_type] = true;
             // Runtime signal requires region_id as well
             if (signal_type == M_SIGNAL_RUNTIME) {
-                m_do_read[M_SIGNAL_REGION_ID] = true;
+                m_do_read[M_SIGNAL_REGION_HASH] = true;
             }
         }
         return result;
@@ -173,8 +171,7 @@ namespace geopm
 
     void ProfileIOGroup::read_batch(void)
     {
-        if (m_do_read[M_SIGNAL_REGION_ID] ||
-            m_do_read[M_SIGNAL_REGION_HASH] ||
+        if (m_do_read[M_SIGNAL_REGION_HASH] ||
             m_do_read[M_SIGNAL_REGION_HINT]) {
             m_per_cpu_region_id = m_profile_sample->per_cpu_region_id();
         }
@@ -251,9 +248,6 @@ namespace geopm
         /// @todo support for non-cpu signal domains
         int cpu_idx = m_active_signal[signal_idx].domain_idx;
         switch (m_active_signal[signal_idx].signal_type) {
-            case M_SIGNAL_REGION_ID:
-                result = geopm_field_to_signal(m_per_cpu_region_id[cpu_idx]);
-                break;
             case M_SIGNAL_REGION_HASH:
                 result = geopm_region_id_hash(m_per_cpu_region_id[cpu_idx]);
                 break;
@@ -307,9 +301,6 @@ namespace geopm
         uint64_t region_id;
         double result = NAN;
         switch (signal_type) {
-            case M_SIGNAL_REGION_ID:
-                result = geopm_field_to_signal(m_profile_sample->per_cpu_region_id()[cpu_idx]);
-                break;
             case M_SIGNAL_REGION_HASH:
                 result = geopm_region_id_hash(m_profile_sample->per_cpu_region_id()[cpu_idx]);
                 break;
