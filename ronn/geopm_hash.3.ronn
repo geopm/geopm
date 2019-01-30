@@ -52,8 +52,7 @@ geopm_hash.h(3) -- helper methods for encoding
 ## DESCRIPTION
 The _geopm_hash.h_ header defines GEOPM interfaces for encoding region
 names into 64-bit integers and working with 64-bit integer values
-stored as doubles.  More functions for dealing with 64-bit region IDs
-can be found in **geopm_region_id_c(3)**.
+stored as doubles.
 
   * `geopm_crc32_u64`():
     Implements the CRC32 hashing algorithm, which starts with
@@ -84,5 +83,4 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
 
 ## SEE ALSO
 **geopm(7)**,
-**geopm_region_id_c(3)**,
 **geopm::PlatformIO(3)**

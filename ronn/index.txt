@@ -44,7 +44,6 @@ geopm_fortran(3)                 geopm_fortran.3
 geopm_hash(3)                    geopm_hash.3
 geopm_imbalancer(3)              geopm_imbalancer.3
 geopm_prof_c(3)                  geopm_prof_c.3
-geopm_region_id_c(3)             geopm_region_id_c.3
 geopm_sched(3)                   geopm_sched.3
 geopm_time(3)                    geopm_time.3
 geopm_version(3)                 geopm_version.3

@@ -77,7 +77,6 @@ namespace geopm
             static std::string plugin_name(void);
         private:
             enum m_signal_type {
-                M_SIGNAL_REGION_ID,
                 M_SIGNAL_EPOCH_COUNT,
                 M_SIGNAL_REGION_HASH,
                 M_SIGNAL_REGION_HINT,
