@@ -52,6 +52,7 @@ class PlatformTopoTest : public :: testing :: Test
         std::string m_knl_lscpu_str;
         std::string m_bdx_lscpu_str;
         std::string m_ppc_lscpu_str;
+        std::string m_no0x_lscpu_str;
         bool m_do_unlink;
 };
 
@@ -153,6 +154,33 @@ void PlatformTopoTest::SetUp()
         "L3 cache:              8192K\n"
         "NUMA node0 CPU(s):     0x1010101010101010101\n"
         "NUMA node1 CPU(s):     0x101010101010101010100000000000000000000\n";
+    m_no0x_lscpu_str =
+        "Architecture:          x86_64\n"
+        "CPU op-mode(s):        32-bit, 64-bit\n"
+        "Byte Order:            Little Endian\n"
+        "CPU(s):                72\n"
+        "On-line CPU(s) mask:   ffffffffffffffffff\n"
+        "Thread(s) per core:    2\n"
+        "Core(s) per socket:    18\n"
+        "Socket(s):             2\n"
+        "NUMA node(s):          2\n"
+        "Vendor ID:             GenuineIntel\n"
+        "CPU family:            6\n"
+        "Model:                 79\n"
+        "Model name:            Intel(R) Xeon(R) CPU E5-2695 v4 @ 2.10GHz\n"
+        "Stepping:              1\n"
+        "CPU MHz:               2101.000\n"
+        "CPU max MHz:           2101.0000\n"
+        "CPU min MHz:           1200.0000\n"
+        "BogoMIPS:              4190.38\n"
+        "Virtualization:        VT-x\n"
+        "L1d cache:             32K\n"
+        "L1i cache:             32K\n"
+        "L2 cache:              256K\n"
+        "L3 cache:              46080K\n"
+        "NUMA node0 CPU(s):     3ffff00003ffff\n"
+        "NUMA node1 CPU(s):     ffffc0000ffffc0000\n"
+        "Flags:                 fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch epb cat_l3 cdp_l3 invpcid_single intel_pt spec_ctrl ibpb_support tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm cqm rdt_a rdseed adx smap xsaveopt cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local dtherm ida arat pln pts\n";
     m_do_unlink = false;
 }
 
@@ -223,6 +251,18 @@ TEST_F(PlatformTopoTest, ppc_num_domain)
     EXPECT_EQ(2, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE));
     EXPECT_EQ(20, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CORE));
     EXPECT_EQ(20, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CPU));
+    EXPECT_EQ(2, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_MEMORY));
+    EXPECT_EQ(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
+}
+
+TEST_F(PlatformTopoTest, no0x_num_domain)
+{
+    write_lscpu(m_no0x_lscpu_str);
+    geopm::PlatformTopo topo(m_lscpu_file_name);
+    EXPECT_EQ(1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_EQ(2, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_EQ(36, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CORE));
+    EXPECT_EQ(72, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CPU));
     EXPECT_EQ(2, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_MEMORY));
     EXPECT_EQ(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
 }

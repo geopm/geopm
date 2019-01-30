@@ -170,6 +170,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/PlatformTopoTest.domain_type_to_name \
               test/gtest_links/PlatformTopoTest.hsw_num_domain \
               test/gtest_links/PlatformTopoTest.knl_num_domain \
+              test/gtest_links/PlatformTopoTest.no0x_num_domain \
               test/gtest_links/PlatformTopoTest.parse_error \
               test/gtest_links/PlatformTopoTest.ppc_num_domain \
               test/gtest_links/PlatformTopoTest.singleton_construction \
