@@ -182,8 +182,8 @@ namespace geopm
         update_freq_range(in_policy);
         bool result = false;
         double freq = m_last_freq;
-        auto it = m_rid_freq_map.find(m_last_region_id);
-        if (it != m_rid_freq_map.end()) {
+        auto it = m_hash_freq_map.find(m_last_region.hash);
+        if (it != m_hash_freq_map.end()) {
             freq = it->second;
         }
         else if (m_is_online) {
@@ -195,7 +195,7 @@ namespace geopm
             }
         }
         else {
-            switch(geopm_region_id_hint(m_last_region_id)) {
+            switch(m_last_region.hint) {
                 // Hints for low CPU frequency
                 case GEOPM_REGION_HINT_MEMORY:
                 case GEOPM_REGION_HINT_NETWORK:
@@ -216,7 +216,7 @@ namespace geopm
                     freq = m_freq_max;
                     break;
             }
-            m_rid_freq_map[m_last_region_id] = freq;
+            m_hash_freq_map[m_last_region.hash] = freq;
         }
 
         if (freq != m_last_freq) {
@@ -248,16 +248,17 @@ namespace geopm
         for (size_t sample_idx = 0; sample_idx < m_num_sample; ++sample_idx) {
             out_sample[sample_idx] = m_platform_io.sample(m_sample_idx[sample_idx]);
         }
-        const uint64_t current_region_id = geopm_signal_to_field(m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_ID]));
+        const uint64_t current_region_hash = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH]);
+        const uint64_t current_region_hint = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HINT]);
         if (m_is_online) {
-            if (!geopm_region_id_is_unmarked(current_region_id)) {
-                bool is_region_boundary = m_last_region_id != current_region_id;
+            if (current_region_hash != GEOPM_REGION_HASH_UNMARKED) {
+                bool is_region_boundary = m_last_region.hash != current_region_hash;
                 if (is_region_boundary) {
                     // set the freq for the current region (entry)
-                    auto region_it = m_region_map.find(current_region_id);
+                    auto region_it = m_region_map.find(current_region_hash);
                     if (region_it == m_region_map.end()) {
                         auto tmp = m_region_map.emplace(
-                            current_region_id,
+                            current_region_hash,
                             std::unique_ptr<EnergyEfficientRegion>(
                                 new EnergyEfficientRegion(m_platform_io,
                                     m_signal_idx[M_SIGNAL_RUNTIME],
@@ -268,12 +269,12 @@ namespace geopm
 
                     m_curr_adapt_freq = region_it->second->freq();
                 }
-                if (m_last_region_id != 0 && is_region_boundary) {
+                if (m_last_region.hash != GEOPM_REGION_HASH_INVALID && is_region_boundary) {
                     // update previous region (exit)
-                    auto region_it = m_region_map.find(m_last_region_id);
+                    auto region_it = m_region_map.find(m_last_region.hash);
                     if (region_it == m_region_map.end()) {
                         auto tmp = m_region_map.emplace(
-                            m_last_region_id,
+                            m_last_region.hash,
                             std::unique_ptr<EnergyEfficientRegion>(
                                 new EnergyEfficientRegion(m_platform_io,
                                     m_signal_idx[M_SIGNAL_RUNTIME],
@@ -284,7 +285,8 @@ namespace geopm
                 }
             }
         }
-        m_last_region_id = current_region_id;
+        m_last_region.hash = current_region_hash;
+        m_last_region.hint = current_region_hint;
         return true;
     }
 
@@ -323,10 +325,10 @@ namespace geopm
             result.push_back({"Final online freq map", oss.str()});
         }
         oss.str("");
-        for (const auto &region : m_rid_freq_map) {
+        for (const auto &region : m_hash_freq_map) {
             oss << std::hex << region.first << ":" << std::dec << region.second << " ";
         }
-        if (m_rid_freq_map.size()) {
+        if (m_hash_freq_map.size()) {
             result.push_back({"Final offline/hint freq map", oss.str()});
         }
 
@@ -346,7 +348,7 @@ namespace geopm
             }
         }
         // If region is in this map, offline static frequency or hint was used
-        for (const auto &region : m_rid_freq_map) {
+        for (const auto &region : m_hash_freq_map) {
             if (geopm_region_id_is_mpi(region.first)) {
                 result[region.first].push_back(std::make_pair("REQUESTED_OFFLINE_MPI_FREQUENCY", std::to_string(region.second)));
             }
@@ -423,19 +425,18 @@ namespace geopm
             m_control_idx.push_back(m_platform_io.push_control("FREQUENCY",
                                                                freq_ctl_domain_type, ctl_dom_idx));
         }
-        std::vector<std::string> signal_names = {"REGION_ID#", "REGION_RUNTIME",
-                                                 "ENERGY_PACKAGE",};
-        size_t signal = 0;
-        m_signal_idx.push_back(m_platform_io.push_signal(signal_names[signal],
-                                                         IPlatformTopo::M_DOMAIN_BOARD,
-                                                         0));
+        /// All modes require REGION_HASH and REGION_HINT
+        std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT"};
         if (m_is_online) {
-            // All signals needed for adaptive mode
-            for (signal = 1; signal < signal_names.size(); ++signal) {
-                m_signal_idx.push_back(m_platform_io.push_signal(signal_names[signal],
-                                                                 IPlatformTopo::M_DOMAIN_BOARD,
-                                                                 0));
-            }
+            /// Online mode required signals
+            signal_names.push_back("REGION_RUNTIME");
+            signal_names.push_back("ENERGY_PACKAGE");
+        }
+
+        for (size_t signal = m_signal_idx.size(); signal < signal_names.size(); ++signal) {
+            m_signal_idx.push_back(m_platform_io.push_signal(signal_names[signal],
+                                                             IPlatformTopo::M_DOMAIN_BOARD,
+                                                             0));
         }
     }
 
@@ -456,8 +457,8 @@ namespace geopm
                                     ": Region best-fit frequency must be a number",
                                     GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                uint64_t rid = geopm_crc32_str(obj.first.c_str());
-                m_rid_freq_map[rid] = obj.second.number_value();
+                uint64_t hash = geopm_crc32_str(obj.first.c_str());
+                m_hash_freq_map[hash] = obj.second.number_value();
             }
         }
     }
