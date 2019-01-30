@@ -83,7 +83,8 @@ void TracerTest::SetUp(void)
         {"POWER_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0},
         {"FREQUENCY", IPlatformTopo::M_DOMAIN_BOARD, 0},
         {"CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0}
+        {"CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0},
+        {"TEMPERATURE", IPlatformTopo::M_DOMAIN_BOARD, 0}
     };
     m_extra_cols = {"EXTRA"};
 
@@ -124,7 +125,7 @@ TEST_F(TracerTest, columns)
                                   "# \"agent\" : \"" + m_agent + "\"\n";
     std::string expected_str = expected_header +
         "time|epoch_count|region_hash|region_hint|region_progress|region_runtime|energy_package|energy_dram|"
-        "power_package|power_dram|frequency|cycles_thread|cycles_reference|extra|"
+        "power_package|power_dram|frequency|cycles_thread|cycles_reference|temperature|extra|"
         "col1|col2\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
@@ -155,7 +156,7 @@ TEST_F(TracerTest, update_samples)
     tracer.update(agent_vals, {}); // no additional samples after flush
 
     std::string expected_str = "\n\n\n\n\n\n"
-        "5.0e-01|1.5e+00|0x0000000000000002|0x0000000100000000|4.5|5.5e+00|6.5e+00|7.5e+00|8.5e+00|9.5e+00|1.0e+01|1.2e+01|1.2e+01|1.4e+01|8.9e+01|7.8e+0\n";
+        "5.0e-01|1.5e+00|0x0000000000000002|0x0000000100000000|4.5|5.5e+00|6.5e+00|7.5e+00|8.5e+00|9.5e+00|1.0e+01|1.2e+01|1.2e+01|1.4e+01|1.5e+01|8.9e+01|7.8e+0\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
     ASSERT_TRUE(result.good()) << strerror(errno);
@@ -190,11 +191,11 @@ TEST_F(TracerTest, region_entry_exit)
     tracer.update(agent_vals, short_regions); // no additional samples after flush
     std::string expected_str ="\n\n\n\n\n"
         "\n" // header
-        "2.2e+00|0.0e+00|0x0000000000000123|0x0000000100000000|0.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+0\n"
-        "2.2e+00|0.0e+00|0x0000000000000123|0x0000000100000000|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+0\n"
-        "2.2e+00|0.0e+00|0x0000000000000345|0x0000000100000000|0.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+0\n"
-        "2.2e+00|0.0e+00|0x0000000000000456|0x0000000100000000|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+0\n"
-        "2.2e+00|0.0e+00|0x0000000000000345|0x0000000100000000|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+0\n"
+        "2.2e+00|0.0e+00|0x0000000000000123|0x0000000100000000|0.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+0\n"
+        "2.2e+00|0.0e+00|0x0000000000000123|0x0000000100000000|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+0\n"
+        "2.2e+00|0.0e+00|0x0000000000000345|0x0000000100000000|0.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+0\n"
+        "2.2e+00|0.0e+00|0x0000000000000456|0x0000000100000000|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+0\n"
+        "2.2e+00|0.0e+00|0x0000000000000345|0x0000000100000000|1.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+0\n"
         "\n\n"; // sample
 
      std::istringstream expected(expected_str);
