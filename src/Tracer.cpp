@@ -133,7 +133,8 @@ namespace geopm
                     {"POWER_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0},
                     {"FREQUENCY", IPlatformTopo::M_DOMAIN_BOARD, 0},
                     {"CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0}});
+                    {"CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"TEMPERATURE", IPlatformTopo::M_DOMAIN_BOARD, 0}});
             // for region entry/exit, make sure region index is known
             m_region_id_idx = 1;
             m_region_progress_idx = 2;
