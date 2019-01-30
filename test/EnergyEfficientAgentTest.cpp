@@ -65,7 +65,8 @@ class EnergyEfficientAgentTest : public :: testing :: Test
 {
     protected:
         enum mock_pio_idx_e {
-            REGION_ID_IDX,
+            REGION_HASH_IDX,
+            REGION_HINT_IDX,
             RUNTIME_IDX,
             FREQ_CONTROL_IDX,
             ENERGY_PKG_IDX,
@@ -74,12 +75,13 @@ class EnergyEfficientAgentTest : public :: testing :: Test
 
         void SetUp();
         void TearDown();
+        static const int M_NUM_CPU = 4;
         static const size_t M_NUM_REGIONS = 5;
-        std::vector<size_t> m_hints;
         std::vector<double> m_expected_freqs;
         std::unique_ptr<EnergyEfficientAgent> m_agent;
         std::vector<std::string> m_region_names;
         std::vector<uint64_t> m_region_hash;
+        std::vector<uint64_t> m_region_hint;
         std::vector<double> m_mapped_freqs;
         std::vector<double> m_sample;
         std::vector<double> m_default_policy;
@@ -87,7 +89,6 @@ class EnergyEfficientAgentTest : public :: testing :: Test
         double m_freq_max;
         std::unique_ptr<MockPlatformIO> m_platform_io;
         std::unique_ptr<MockPlatformTopo> m_platform_topo;
-        const int M_NUM_CPU = 4;
 };
 
 void EnergyEfficientAgentTest::SetUp()
@@ -108,8 +109,10 @@ void EnergyEfficientAgentTest::SetUp()
         .WillByDefault(Return(2.2e9));
     ON_CALL(*m_platform_io, read_signal(std::string("CPUINFO::FREQ_STEP"), _, _))
         .WillByDefault(Return(100e6));
-    ON_CALL(*m_platform_io, push_signal("REGION_ID#", _, _))
-        .WillByDefault(Return(REGION_ID_IDX));
+    ON_CALL(*m_platform_io, push_signal("REGION_HASH", _, _))
+        .WillByDefault(Return(REGION_HASH_IDX));
+    ON_CALL(*m_platform_io, push_signal("REGION_HINT", _, _))
+        .WillByDefault(Return(REGION_HINT_IDX));
     ON_CALL(*m_platform_io, push_signal("REGION_RUNTIME", _, _))
         .WillByDefault(Return(RUNTIME_IDX));
     ON_CALL(*m_platform_io, push_signal("ENERGY_PACKAGE", _, _))
@@ -139,11 +142,11 @@ void EnergyEfficientAgentTest::SetUp()
     m_default_policy = {m_freq_min, m_freq_max};
 
     // order of hints should alternate between min and max expected frequency
-    m_hints = {GEOPM_REGION_HINT_COMPUTE, GEOPM_REGION_HINT_MEMORY,
-               GEOPM_REGION_HINT_SERIAL, GEOPM_REGION_HINT_NETWORK,
-               GEOPM_REGION_HINT_PARALLEL, GEOPM_REGION_HINT_IO,
-               GEOPM_REGION_HINT_IGNORE, GEOPM_REGION_HINT_NETWORK,
-               GEOPM_REGION_HINT_UNKNOWN};
+    m_region_hint = {GEOPM_REGION_HINT_COMPUTE, GEOPM_REGION_HINT_MEMORY,
+                     GEOPM_REGION_HINT_SERIAL, GEOPM_REGION_HINT_NETWORK,
+                     GEOPM_REGION_HINT_PARALLEL, GEOPM_REGION_HINT_IO,
+                     GEOPM_REGION_HINT_IGNORE, GEOPM_REGION_HINT_NETWORK,
+                     GEOPM_REGION_HINT_UNKNOWN};
     m_expected_freqs = {m_freq_min, m_freq_max, m_freq_min, m_freq_max, m_freq_min};
     m_sample.resize(2);
 
@@ -178,8 +181,10 @@ TEST_F(EnergyEfficientAgentTest, map)
         .WillRepeatedly(Return(8888));
 
     for (size_t x = 0; x < M_NUM_REGIONS; x++) {
-        EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX))
-            .WillOnce(Return(geopm_field_to_signal(m_region_hash[x])));
+        EXPECT_CALL(*m_platform_io, sample(REGION_HASH_IDX))
+            .WillOnce(Return(m_region_hash[x]));
+        EXPECT_CALL(*m_platform_io, sample(REGION_HINT_IDX))
+            .WillOnce(Return(m_region_hint[x]));
         EXPECT_CALL(*m_platform_io, sample(FREQ_SIGNAL_IDX))
             .WillOnce(Return(1.2e9));
         m_agent->sample_platform(m_sample);
@@ -197,17 +202,18 @@ TEST_F(EnergyEfficientAgentTest, name)
 TEST_F(EnergyEfficientAgentTest, hint)
 {
     EXPECT_CALL(*m_platform_io, sample(ENERGY_PKG_IDX))
-        .Times(m_hints.size())
+        .Times(m_region_hint.size())
         .WillRepeatedly(Return(8888));
 
-    for (size_t x = 0; x < m_hints.size(); x++) {
-        EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX))
-            .WillOnce(Return(geopm_field_to_signal(
-                geopm_region_id_set_hint(m_hints[x], 0x1234 + x))));
+    for (size_t x = 0; x < m_region_hint.size(); x++) {
+        EXPECT_CALL(*m_platform_io, sample(REGION_HASH_IDX))
+            .WillOnce(Return(0x1234 + x));
+        EXPECT_CALL(*m_platform_io, sample(REGION_HINT_IDX))
+            .WillOnce(Return(m_region_hint[x]));
         EXPECT_CALL(*m_platform_io, sample(FREQ_SIGNAL_IDX))
             .WillOnce(Return(1.2e9));
         double expected_freq = NAN;
-        switch(m_hints[x]) {
+        switch(m_region_hint[x]) {
             // Hints for low CPU frequency
             case GEOPM_REGION_HINT_MEMORY:
             case GEOPM_REGION_HINT_NETWORK:
@@ -243,12 +249,13 @@ TEST_F(EnergyEfficientAgentTest, online_mode)
     double freq_max = 2e9;
     m_default_policy = {freq_min, freq_max};
 
-    for (int x = 0; x < 4; ++x) {
+    for (size_t x = 0; x < m_region_hint.size(); ++x) {
         // calls in constructor from SetUp and this test
         EXPECT_CALL(*m_platform_io, signal_domain_type(_)).Times(1);
         EXPECT_CALL(*m_platform_io, control_domain_type(_)).Times(1);
         EXPECT_CALL(*m_platform_io, read_signal(_, _, _)).Times(2);
-        EXPECT_CALL(*m_platform_io, push_signal("REGION_ID#", _, _)).Times(1);
+        EXPECT_CALL(*m_platform_io, push_signal("REGION_HASH", _, _)).Times(1);
+        EXPECT_CALL(*m_platform_io, push_signal("REGION_HINT", _, _)).Times(1);
         EXPECT_CALL(*m_platform_io, push_control("FREQUENCY", _, _)).Times(M_NUM_CPU);
         EXPECT_CALL(*m_platform_io, push_signal("REGION_RUNTIME", _, _)).Times(1);
         EXPECT_CALL(*m_platform_io, push_signal("ENERGY_PACKAGE", _, _)).Times(2);
@@ -258,8 +265,10 @@ TEST_F(EnergyEfficientAgentTest, online_mode)
 
         {
             // within EfficientFreqRegion
-            EXPECT_CALL(*m_platform_io, sample(REGION_ID_IDX))
-                .WillOnce(Return(geopm_region_id_set_hint(m_hints[x], m_region_hash[x])));
+            EXPECT_CALL(*m_platform_io, sample(REGION_HASH_IDX))
+                .WillOnce(Return(m_region_hash[x]));
+            EXPECT_CALL(*m_platform_io, sample(REGION_HINT_IDX))
+                .WillOnce(Return(m_region_hint[x]));
             EXPECT_CALL(*m_platform_io, sample(FREQ_SIGNAL_IDX))
                 .WillOnce(Return(1.2e9));
             EXPECT_CALL(*m_platform_io, sample(ENERGY_PKG_IDX)).Times(2);
