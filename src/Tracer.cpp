@@ -124,7 +124,9 @@ namespace geopm
             // default columns
             std::vector<IPlatformIO::m_request_s> base_columns({
                     {"TIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"REGION_ID#", IPlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"EPOCH_COUNT", IPlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"REGION_HASH", IPlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"REGION_HINT", IPlatformTopo::M_DOMAIN_BOARD, 0},
                     {"REGION_PROGRESS", IPlatformTopo::M_DOMAIN_BOARD, 0},
                     {"REGION_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
                     {"ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0},
@@ -135,9 +137,10 @@ namespace geopm
                     {"CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0},
                     {"CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0}});
             // for region entry/exit, make sure region index is known
-            m_region_id_idx = 1;
-            m_region_progress_idx = 2;
-            m_region_runtime_idx = 3;
+            m_region_hash_idx = 2;
+            m_region_hint_idx = 3;
+            m_region_progress_idx = 4;
+            m_region_runtime_idx = 5;
 
             // extra columns from environment
             for (const auto &extra : m_env_column) {
@@ -149,7 +152,8 @@ namespace geopm
                 m_column_idx.push_back(m_platform_io.push_signal(col.name,
                                                                  col.domain_type,
                                                                  col.domain_idx));
-                if (col.name.find("#") != std::string::npos) {
+                if (col.name.find("#") != std::string::npos ||
+                    col.name == "REGION_HASH" || col.name == "REGION_HINT") {
                     m_hex_column.insert(m_column_idx.back());
                 }
                 if (first) {
@@ -179,16 +183,15 @@ namespace geopm
                 m_buffer << "|";
             }
             if (m_hex_column.find(m_column_idx[idx]) != m_hex_column.end()) {
-                m_buffer << "0x" << std::hex << std::setfill('0') << std::setw(16);
-                uint64_t value = geopm_signal_to_field(m_last_telemetry[idx]);
-                if ((int)idx == m_region_id_idx) {
-                    // Remove hints from trace
-                    value = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, value);
-                    // Remove MPI bit in trace
-                    value = geopm_region_id_unset_mpi(value);
+#ifdef GEOPM_DEBUG
+                if ((uint64_t) m_last_telemetry[idx] == 0) {
+                    throw Exception("Tracer::write_line(): Invalid hash or hint value detected.",
+                                    GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                 }
-                m_buffer << value;
-                m_buffer << std::setfill('\0') << std::setw(0);
+#endif
+                m_buffer << "0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
+                m_buffer << (uint64_t) m_last_telemetry[idx];
+                m_buffer << std::setfill('\0') << std::setw(0) << std::scientific;
             }
             else if ((int)idx == m_region_progress_idx) {
                 m_buffer << std::setprecision(1) << std::fixed
@@ -226,7 +229,8 @@ namespace geopm
                 ++col_idx;
             }
             // save region id and progress, which will get written over by entry/exit
-            double region_id = m_last_telemetry[m_region_id_idx];
+            double region_hash = geopm_region_id_hash(m_last_telemetry[m_region_hash_idx]);
+            double region_hint = geopm_region_id_hint(m_last_telemetry[m_region_hint_idx]);
             double region_progress = m_last_telemetry[m_region_progress_idx];
             double region_runtime = m_last_telemetry[m_region_runtime_idx];
 
@@ -234,12 +238,14 @@ namespace geopm
             size_t idx = 0;
             for (const auto &reg : region_entry_exit) {
                 // skip the last region entry if it matches the
-                // sampled telemetry region id and progress
+                // sampled telemetry region hash, hint, and progress
                 if (!((idx == region_entry_exit.size() - 1) &&
                       region_progress == reg.progress &&
                       region_progress == 0.0 &&
-                      region_id == geopm_field_to_signal(reg.region_id) )) {
-                    m_last_telemetry[m_region_id_idx] = geopm_field_to_signal(reg.region_id);
+                      region_hash == geopm_region_id_hash(reg.region_id) &&
+                      region_hint == geopm_region_id_hint(reg.region_id) )) {
+                    m_last_telemetry[m_region_hash_idx] = geopm_region_id_hash(reg.region_id);
+                    m_last_telemetry[m_region_hint_idx] = geopm_region_id_hint(reg.region_id);
                     m_last_telemetry[m_region_progress_idx] = reg.progress;
                     m_last_telemetry[m_region_runtime_idx] = reg.runtime;
                     write_line();
@@ -247,7 +253,8 @@ namespace geopm
                 ++idx;
             }
             // print sampled data last
-            m_last_telemetry[m_region_id_idx] = region_id;
+            m_last_telemetry[m_region_hash_idx] = region_hash;
+            m_last_telemetry[m_region_hint_idx] = region_hint;
             m_last_telemetry[m_region_progress_idx] = region_progress;
             m_last_telemetry[m_region_runtime_idx] = region_runtime;
             write_line();
