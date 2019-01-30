@@ -493,8 +493,8 @@ class TestIntegration(unittest.TestCase):
         name = 'test_region_runtimes'
         report_path = name + '.report'
         trace_path = name + '.trace'
-        num_node = 4
-        num_rank = 16
+        num_node = 1
+        num_rank = 4
         loop_count = 500
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())

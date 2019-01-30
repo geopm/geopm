@@ -43,6 +43,16 @@ extern "C" {
 /***************************/
 /* APPLICATION REGION HASH */
 /***************************/
+/// @brief Used to pass information about regions entered and exited
+/// from the application to the tracer.
+struct geopm_region_info_s
+{
+    uint64_t region_hash;
+    uint64_t region_hint;
+    double progress;
+    double runtime;
+};
+
 enum geopm_region_hash_e {
     GEOPM_REGION_HASH_INVALID  = 0x0ULL,
     GEOPM_REGION_HASH_UNMARKED = 0x725e8066ULL, /* Note the value is the geopm_crc32_str() of the stringified enum */

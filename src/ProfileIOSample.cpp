@@ -33,7 +33,7 @@
 #include <set>
 #include <algorithm>
 
-#include "geopm_region_id.h"
+#include "geopm_internal.h"
 
 #include "EpochRuntimeRegulator.hpp"
 #include "ProfileIOSample.hpp"
@@ -63,7 +63,7 @@ namespace geopm
 
         // 2 samples for linear interpolation
         m_rank_sample_buffer.resize(m_num_rank, CircularBuffer<struct m_rank_sample_s>(2));
-        m_region_id.resize(m_num_rank, GEOPM_REGION_ID_UNMARKED);
+        m_region_id.resize(m_num_rank, GEOPM_REGION_HASH_UNMARKED);
     }
 
     ProfileIOSample::~ProfileIOSample()
@@ -105,8 +105,8 @@ namespace geopm
         /// @todo This time should come from the application.
         geopm_time(&time);
         for (int rank = 0; rank < (int)m_region_id.size(); ++rank) {
-            if (m_region_id[rank] == GEOPM_REGION_ID_UNMARKED) {
-                m_epoch_regulator.record_exit(GEOPM_REGION_ID_UNMARKED, rank, time);
+            if (m_region_id[rank] == GEOPM_REGION_HASH_UNMARKED) {
+                m_epoch_regulator.record_exit(GEOPM_REGION_HASH_UNMARKED, rank, time);
             }
             m_epoch_regulator.epoch(rank, time);
         }
@@ -133,8 +133,8 @@ namespace geopm
                                                      .progress = sample_it->second.progress };
                 if (m_region_id[local_rank] != region_id) {
                     if (rank_sample.progress == 0.0) {
-                        if (m_region_id[local_rank] == GEOPM_REGION_ID_UNMARKED) {
-                            m_epoch_regulator.record_exit(GEOPM_REGION_ID_UNMARKED, local_rank, rank_sample.timestamp);
+                        if (m_region_id[local_rank] == GEOPM_REGION_HASH_UNMARKED) {
+                            m_epoch_regulator.record_exit(GEOPM_REGION_HASH_UNMARKED, local_rank, rank_sample.timestamp);
                         }
                         m_epoch_regulator.record_entry(region_id, local_rank, rank_sample.timestamp);
                     }
@@ -147,9 +147,9 @@ namespace geopm
                         m_region_id[local_rank] = mpi_parent_rid;
                     }
                     else {
-                        if (m_region_id[local_rank] != GEOPM_REGION_ID_UNMARKED) {
-                            m_region_id[local_rank] = GEOPM_REGION_ID_UNMARKED;
-                            m_epoch_regulator.record_entry(GEOPM_REGION_ID_UNMARKED, local_rank, rank_sample.timestamp);
+                        if (m_region_id[local_rank] != GEOPM_REGION_HASH_UNMARKED) {
+                            m_region_id[local_rank] = GEOPM_REGION_HASH_UNMARKED;
+                            m_epoch_regulator.record_entry(GEOPM_REGION_HASH_UNMARKED, local_rank, rank_sample.timestamp);
                         }
                     }
                 }
@@ -242,7 +242,7 @@ namespace geopm
 
     std::vector<uint64_t> ProfileIOSample::per_cpu_region_id(void) const
     {
-        std::vector<uint64_t> result(m_cpu_rank.size(), GEOPM_REGION_ID_UNMARKED);
+        std::vector<uint64_t> result(m_cpu_rank.size(), GEOPM_REGION_HASH_UNMARKED);
         int cpu_idx = 0;
         for (auto rank : m_cpu_rank) {
             result[cpu_idx] = m_region_id[rank];

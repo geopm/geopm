@@ -33,7 +33,7 @@
 #include <algorithm>
 
 #include "geopm.h"
-#include "geopm_region_id.h"
+#include "geopm_internal.h"
 #include "Exception.hpp"
 #include "Helper.hpp"
 #include "RuntimeRegulator.hpp"
@@ -80,7 +80,7 @@ namespace geopm
                                     std::make_tuple(geopm::make_unique<RuntimeRegulator>
                                                     (m_rank_per_node)));
         m_rid_regulator_map.emplace(std::piecewise_construct,
-                                    std::make_tuple(GEOPM_REGION_ID_UNMARKED),
+                                    std::make_tuple(GEOPM_REGION_HASH_UNMARKED),
                                     std::make_tuple(geopm::make_unique<RuntimeRegulator>
                                                     (m_rank_per_node)));
     }
@@ -93,7 +93,7 @@ namespace geopm
         /// @todo This time should come from the application.
         geopm_time(&time);
         for (int rank = 0; rank < m_rank_per_node; ++rank) {
-            record_entry(GEOPM_REGION_ID_UNMARKED, rank, time);
+            record_entry(GEOPM_REGION_HASH_UNMARKED, rank, time);
         }
     }
 
@@ -163,8 +163,9 @@ namespace geopm
             int &num_ranks = count_it.first->second;
             ++num_ranks;
             // only log entry when all ranks have entered
-            if (num_ranks == m_rank_per_node && region_id != GEOPM_REGION_ID_UNMARKED) {
-                m_region_info.push_back({region_id,
+            if (num_ranks == m_rank_per_node && region_id != GEOPM_REGION_HASH_UNMARKED) {
+                m_region_info.push_back({geopm_region_id_hash(region_id),
+                                         geopm_region_id_hint(region_id),
                                          0.0,
                                          Agg::max(reg_it.first->second->per_rank_last_runtime())});
             }
@@ -224,8 +225,9 @@ namespace geopm
             auto count_it = m_region_rank_count.emplace(region_id, 0);
             int &num_ranks = count_it.first->second;
             // only log exit when first rank exits
-            if (num_ranks == m_rank_per_node && region_id != GEOPM_REGION_ID_UNMARKED) {
-                m_region_info.push_back({region_id,
+            if (num_ranks == m_rank_per_node && region_id != GEOPM_REGION_HASH_UNMARKED) {
+                m_region_info.push_back({geopm_region_id_hash(region_id),
+                                         geopm_region_id_hint(region_id),
                                          1.0,
                                          Agg::max(reg_it->second->per_rank_last_runtime())});
             }
@@ -293,7 +295,8 @@ namespace geopm
     double EpochRuntimeRegulator::total_region_runtime_mpi(uint64_t region_id) const
     {
         double result = 0.0;
-        if (region_id == GEOPM_REGION_ID_EPOCH) {
+        if (region_id == GEOPM_REGION_ID_EPOCH ||
+            region_id == GEOPM_REGION_HASH_EPOCH) {
             result = Agg::average(m_agg_epoch_runtime_mpi);
         }
         else {
@@ -346,8 +349,13 @@ namespace geopm
     int EpochRuntimeRegulator::total_count(uint64_t region_id) const
     {
         int result = 0;
-        auto rank_count = region_regulator(region_id).per_rank_count();
-        if (rank_count.size() != 0) {
+        if (region_id == GEOPM_REGION_ID_EPOCH ||
+            region_id == GEOPM_REGION_HASH_EPOCH) {
+            auto rank_count = epoch_count();
+            result = *std::max_element(rank_count.begin(), rank_count.end());
+        }
+        else {
+            auto rank_count = region_regulator(region_id).per_rank_count();
             result = *std::max_element(rank_count.begin(), rank_count.end());
         }
         return result;

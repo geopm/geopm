@@ -38,6 +38,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+#include "geopm.h"
 #include "ApplicationIO.hpp"
 #include "Helper.hpp"
 #include "MockEpochRuntimeRegulator.hpp"
@@ -142,9 +143,9 @@ TEST_F(ApplicationIOTest, passthrough)
     EXPECT_EQ(77, m_app_io->total_count(rid));
 
     std::list<geopm_region_info_s> expected, result;
-    expected = { {0x123, 0.0, 3.2},
-                 {0x123, 1.0, 3.2},
-                 {0x345, 0.0, 3.2} };
+    expected = { {0x123, GEOPM_REGION_HINT_UNKNOWN, 0.0, 3.2},
+                 {0x123, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2},
+                 {0x345, GEOPM_REGION_HINT_UNKNOWN, 0.0, 3.2} };
 
     EXPECT_CALL(*m_epoch_regulator, region_info())
         .WillOnce(Return(expected));
@@ -152,7 +153,8 @@ TEST_F(ApplicationIOTest, passthrough)
     EXPECT_EQ(expected.size(), result.size());
     auto exp_it = expected.cbegin();
     for (auto res_it = result.cbegin(); (res_it != result.end()) &&(exp_it != expected.end());) {
-        EXPECT_EQ(exp_it->region_id, res_it->region_id);
+        EXPECT_EQ(exp_it->region_hash, res_it->region_hash);
+        EXPECT_EQ(exp_it->region_hint, res_it->region_hint);
         EXPECT_EQ(exp_it->progress, res_it->progress);
         EXPECT_EQ(exp_it->runtime, res_it->runtime);
         ++res_it;

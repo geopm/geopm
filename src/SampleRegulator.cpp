@@ -33,7 +33,6 @@
 #include <string.h>
 
 #include "geopm_internal.h"
-#include "geopm_region_id.h"
 #include "Helper.hpp"
 #include "SampleRegulator.hpp"
 #include "CircularBuffer.hpp"
@@ -58,7 +57,7 @@ namespace geopm
         for (int i = 0; i < m_num_rank; ++i) {
             m_rank_sample_prev.push_back(geopm::make_unique<CircularBuffer<struct m_rank_sample_s> >(M_INTERP_TYPE_LINEAR)); // two samples are required for linear interpolation
         }
-        m_region_id.resize(m_num_rank, GEOPM_REGION_ID_UNMARKED);
+        m_region_id.resize(m_num_rank, GEOPM_REGION_HASH_UNMARKED);
     }
 
     void SampleRegulator::operator () (const struct geopm_time_s &platform_sample_time,
@@ -93,7 +92,7 @@ namespace geopm
         if (prof_sample_begin != prof_sample_end) {
             for (auto it = prof_sample_begin; it != prof_sample_end; ++it) {
                 if (!geopm_region_id_is_epoch(it->second.region_id) &&
-                    it->second.region_id != GEOPM_REGION_ID_UNMARKED) {
+                    it->second.region_id != GEOPM_REGION_HASH_UNMARKED) {
                     struct m_rank_sample_s rank_sample;
                     rank_sample.timestamp = it->second.timestamp;
                     rank_sample.progress = it->second.progress;
@@ -104,7 +103,7 @@ namespace geopm
                         m_rank_sample_prev[rank_idx]->clear();
                     }
                     if (rank_sample.progress == 1.0) {
-                        m_region_id[rank_idx] = GEOPM_REGION_ID_UNMARKED;
+                        m_region_id[rank_idx] = GEOPM_REGION_HASH_UNMARKED;
                     }
                     else {
                         m_region_id[rank_idx] = it->second.region_id;

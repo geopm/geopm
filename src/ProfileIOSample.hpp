@@ -40,6 +40,8 @@
 
 #include "geopm_time.h"
 
+struct geopm_prof_message_s;
+
 namespace geopm
 {
     template <typename T> class CircularBuffer;
