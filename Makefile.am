@@ -72,7 +72,6 @@ include_HEADERS = src/geopm.h \
                   src/geopm_error.h \
                   src/geopm_hash.h \
                   src/geopm_imbalancer.h \
-                  src/geopm_region_id.h \
                   src/geopm_sched.h \
                   src/geopm_time.h \
                   src/geopm_version.h \
@@ -168,7 +167,6 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/geopm_hash.3 \
                 man/geopm_imbalancer.3 \
                 man/geopm_prof_c.3 \
-                man/geopm_region_id_c.3 \
                 man/geopm_sched.3 \
                 man/geopm_time.3 \
                 man/geopm_version.3 \
@@ -274,7 +272,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/geopm_hash.3.ronn \
              ronn/geopm_imbalancer.3.ronn \
              ronn/geopm_prof_c.3.ronn \
-             ronn/geopm_region_id_c.3.ronn \
              ronn/geopm_sched.3.ronn \
              ronn/geopm_time.3.ronn \
              ronn/geopm_version.3.ronn \
@@ -488,7 +485,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/geopm_imbalancer.h \
                             src/geopm_internal.h \
                             src/geopm_plugin.cpp \
-                            src/geopm_region_id.h \
                             src/geopm_sched.c \
                             src/geopm_sched.h \
                             src/geopm_signal_handler.h \
