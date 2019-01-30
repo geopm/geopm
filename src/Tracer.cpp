@@ -49,8 +49,6 @@
 #include "geopm_hash.h"
 #include "geopm_version.h"
 #include "geopm.h"
-#include "geopm_internal.h"
-#include "geopm_region_id.h"
 #include "config.h"
 
 using geopm::IPlatformTopo;
@@ -232,8 +230,8 @@ namespace geopm
                 ++col_idx;
             }
             // save region id and progress, which will get written over by entry/exit
-            double region_hash = geopm_region_id_hash(m_last_telemetry[m_region_hash_idx]);
-            double region_hint = geopm_region_id_hint(m_last_telemetry[m_region_hint_idx]);
+            double region_hash = m_last_telemetry[m_region_hash_idx];
+            double region_hint = m_last_telemetry[m_region_hint_idx];
             double region_progress = m_last_telemetry[m_region_progress_idx];
             double region_runtime = m_last_telemetry[m_region_runtime_idx];
 
@@ -245,10 +243,10 @@ namespace geopm
                 if (!((idx == region_entry_exit.size() - 1) &&
                       region_progress == reg.progress &&
                       region_progress == 0.0 &&
-                      region_hash == geopm_region_id_hash(reg.region_id) &&
-                      region_hint == geopm_region_id_hint(reg.region_id) )) {
-                    m_last_telemetry[m_region_hash_idx] = geopm_region_id_hash(reg.region_id);
-                    m_last_telemetry[m_region_hint_idx] = geopm_region_id_hint(reg.region_id);
+                      region_hash == reg.region_hash &&
+                      region_hint == reg.region_hint )) {
+                    m_last_telemetry[m_region_hash_idx] = reg.region_hash;
+                    m_last_telemetry[m_region_hint_idx] = reg.region_hint;
                     m_last_telemetry[m_region_progress_idx] = reg.progress;
                     m_last_telemetry[m_region_runtime_idx] = reg.runtime;
                     write_line();

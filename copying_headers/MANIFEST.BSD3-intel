@@ -169,7 +169,6 @@ src/geopm_plugin.cpp
 src/geopm_pmpi.c
 src/geopm_pmpi.h
 src/geopm_pmpi_fortran.c
-src/geopm_region_id.h
 src/geopm_sched.c
 src/geopm_sched.h
 src/geopm_signal_handler.h

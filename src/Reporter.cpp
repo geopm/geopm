@@ -173,10 +173,10 @@ namespace geopm
                   });
         // Add unmarked and epoch at the end
         // Note here we map the private region id notion of
-        // GEOPM_REGION_ID_UNMARKED to pubilc GEOPM_REGION_HASH_UNMARKED.
+        // GEOPM_REGION_HASH_UNMARKED to pubilc GEOPM_REGION_HASH_UNMARKED.
         region_ordered.push_back({"unmarked-region",
                                   GEOPM_REGION_HASH_UNMARKED,
-                                  application_io.total_region_runtime(GEOPM_REGION_ID_UNMARKED),
+                                  application_io.total_region_runtime(GEOPM_REGION_HASH_UNMARKED),
                                   0});
         // Total epoch runtime for report includes MPI time and
         // ignore time, but they are removed from the runtime returned
@@ -185,8 +185,7 @@ namespace geopm
         region_ordered.push_back({"epoch",
                                   GEOPM_REGION_HASH_EPOCH,
                                   application_io.total_epoch_runtime(),
-                                  /// @todo epoch_count?
-                                  application_io.total_count(GEOPM_REGION_ID_EPOCH)});
+                                  application_io.total_count(GEOPM_REGION_HASH_EPOCH)});
 
         for (const auto &region : region_ordered) {
             if (GEOPM_REGION_HASH_EPOCH != region.hash) {
@@ -215,8 +214,7 @@ namespace geopm
             double freq = denom != 0 ? 100.0 * numer / denom : 0.0;
             report << "    frequency (%): " << freq << std::endl;
             report << "    frequency (Hz): " << freq / 100.0 * m_platform_io.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0) << std::endl;
-            /// @todo total_epoch_runtime_mpi
-            report << "    mpi-runtime (sec): " << application_io.total_region_runtime_mpi(region.hash != GEOPM_REGION_HASH_EPOCH ? region.hash : GEOPM_REGION_ID_EPOCH) << std::endl;
+            report << "    mpi-runtime (sec): " << application_io.total_region_runtime_mpi(region.hash) << std::endl;
             report << "    count: " << region.count << std::endl;
             const auto &it = agent_region_report.find(region.hash);
                 if (it != agent_region_report.end()) {

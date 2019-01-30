@@ -34,7 +34,7 @@
 #define GEOPM_INTERNAL_H_INCLUDE
 #include <stdint.h>
 
-#include "geopm_region_id.h"
+#include "geopm.h"
 #include "geopm_time.h"
 
 #ifdef __cplusplus
@@ -53,7 +53,6 @@ enum geopm_region_hash_epoch_e {
 enum geopm_region_id_e {
     GEOPM_REGION_ID_EPOCH =        1ULL << 63, // Signaling the start of an epoch, no associated Region
     GEOPM_REGION_ID_MPI =          1ULL << 62, // Execution of MPI calls
-    GEOPM_REGION_ID_UNMARKED =     1ULL << 61, // Code executed outside of a region
     GEOPM_NUM_REGION_ID_PRIVATE =  3,          // Number table entries reserved for GEOPM defined regions (ignoring UNMARKED)
 };
 
@@ -61,15 +60,6 @@ enum geopm_ctl_e {
     GEOPM_CTL_NONE,
     GEOPM_CTL_PROCESS,
     GEOPM_CTL_PTHREAD,
-};
-
-/// @brief Used to pass information about regions entered and exited
-/// from the application to the tracer.
-struct geopm_region_info_s
-{
-    uint64_t region_id;
-    double progress;
-    double runtime;
 };
 
 /// @brief Structure used to hold single profiling
@@ -89,9 +79,28 @@ struct geopm_prof_message_s {
 /// and catches all exceptions.
 int geopm_prof_init(void);
 
+/*********************************/
+/* APPLICATION PROFILING INSIGHT */
+/*********************************/
+static inline uint64_t geopm_region_id_hash(uint64_t region_id)
+{
+    uint64_t ret = ((region_id << 32) >> 32);
+
+    if (GEOPM_REGION_HASH_UNMARKED == region_id ||
+        GEOPM_REGION_HASH_INVALID == ret) {
+        ret = GEOPM_REGION_HASH_UNMARKED;
+    }
+    return ret;
+}
+
 static inline int geopm_region_id_is_epoch(uint64_t region_id)
 {
     return (region_id & GEOPM_REGION_ID_EPOCH) ? 1 : 0;
+}
+
+static inline int geopm_region_id_is_mpi(uint64_t region_id)
+{
+    return (region_id & GEOPM_REGION_ID_MPI) ? 1 : 0;
 }
 
 static inline int geopm_region_id_is_nested(uint64_t region_id)
@@ -101,7 +110,7 @@ static inline int geopm_region_id_is_nested(uint64_t region_id)
 
 static inline uint64_t geopm_region_id_parent(uint64_t region_id)
 {
-    return (geopm_region_id_is_nested(region_id) ? geopm_region_id_hash(region_id) : 0);
+    return (geopm_region_id_is_nested(region_id) ? geopm_region_id_hash(region_id) : GEOPM_REGION_HASH_INVALID);
 }
 
 static inline uint64_t geopm_region_id_set_mpi(uint64_t region_id)
@@ -122,6 +131,31 @@ static inline uint64_t geopm_region_id_set_hint(uint64_t hint_type, uint64_t reg
 static inline uint64_t geopm_region_id_unset_hint(uint64_t hint_type, uint64_t region_id)
 {
     return (region_id & (~hint_type));
+}
+
+static inline int geopm_region_id_hint_is_equal(uint64_t hint_type, uint64_t region_id)
+{
+    return (region_id & hint_type) ? 1 : 0;
+}
+
+static inline uint64_t geopm_region_id_hint(uint64_t region_id)
+{
+    bool is_unmarked = GEOPM_REGION_HASH_UNMARKED == region_id;
+    bool is_mpi = geopm_region_id_is_mpi(region_id);
+    uint64_t ret;
+    if (is_unmarked) {
+        ret = GEOPM_REGION_HINT_UNKNOWN;
+    }
+    else if (is_mpi) {
+        ret = GEOPM_REGION_HINT_NETWORK;
+    }
+    else {
+        ret = region_id & GEOPM_MASK_REGION_HINT;
+        if (!ret) {
+            ret = GEOPM_REGION_HINT_UNKNOWN;
+        }
+    }
+    return ret;
 }
 
 #ifdef __cplusplus
