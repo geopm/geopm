@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b270e89a_a2deb7f3",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-30T19:01:39Z",
+      "side": 1,
+      "message": "set debug to false here instead of in the initializer?",
+      "revId": "f7d90501927f28939efa8454c2b58991cb2b36f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c10c6f71_ba1e7142",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1248,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-30T19:01:39Z",
+      "side": 1,
+      "message": "Require that ddt is in the PATH rather than hardcoding the path to ddt on theta.",
+      "range": {
+        "startLine": 1248,
+        "startChar": 15,
+        "endLine": 1248,
+        "endChar": 42
+      },
+      "revId": "f7d90501927f28939efa8454c2b58991cb2b36f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
