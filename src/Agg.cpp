@@ -121,6 +121,32 @@ namespace geopm
         return geopm_field_to_signal(common_rid);
     }
 
+    double Agg::region_hash(const std::vector<double> &operand)
+    {
+        uint64_t common_hash = GEOPM_REGION_HASH_UNMARKED;
+        if (operand.size() && ((common_hash = operand[0]) != GEOPM_REGION_HASH_UNMARKED)) {
+            common_hash = std::all_of(operand.cbegin(),
+                    operand.cend(),
+                    [common_hash](double x) {
+                    return x == common_hash;
+                    }) ? common_hash : GEOPM_REGION_HASH_UNMARKED;
+        }
+        return common_hash;
+    }
+
+    double Agg::region_hint(const std::vector<double> &operand)
+    {
+        uint64_t common_hint = GEOPM_REGION_HINT_UNKNOWN;
+        if (operand.size() && ((common_hint = operand[0]) != GEOPM_REGION_HINT_UNKNOWN)) {
+            common_hint = std::all_of(operand.cbegin(),
+                    operand.cend(),
+                    [common_hint](double x) {
+                    return x == common_hint;
+                    }) ? common_hint : GEOPM_REGION_HINT_UNKNOWN;
+        }
+        return common_hint;
+    }
+
     double Agg::min(const std::vector<double> &operand)
     {
         double result = NAN;
