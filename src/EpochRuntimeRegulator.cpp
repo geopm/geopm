@@ -33,7 +33,7 @@
 #include <algorithm>
 
 #include "geopm.h"
-#include "geopm_region_id.h"
+#include "geopm_internal.h"
 #include "Exception.hpp"
 #include "Helper.hpp"
 #include "RuntimeRegulator.hpp"

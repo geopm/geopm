@@ -61,7 +61,10 @@ geopm::Agg(3) -- data aggregation functions
   * `static double Agg::stddev(`:
     `const std::vector<double> &`_operands_`);`
 
-  * `static double Agg::region_id(`:
+  * `static double Agg::region_hash(`:
+    `const std::vector<double> &`_operands_`);`
+
+  * `static double Agg::region_hint(`:
     `const std::vector<double> &`_operands_`);`
 
   * `static double Agg::select_first(`:
@@ -103,15 +106,17 @@ simplify Agent implementation.
   * `stddev`():
     Returns the standard deviation of the input _operands_.
 
-  * `region_id`():
+  * `region_hash`():
     If all _operands_ are the same, returns the common value.
-    Otherwise, returns GEOPM_REGION_ID_UNMARKED.  This is intended for
+    Otherwise, returns GEOPM_REGION_HASH_UNMARKED.  This is intended for
     situations where all ranks in a domain must be in the same region
-    to exert control for that region.  Note that although the input
-    and output signals are double values, region IDs are 64-bit
-    integers that should be translated to and from doubles using
-    `geopm_signal_to_field()` and `geopm_field_to_signal()` found in
-    **geopm_hash(3)** before attempting to interpret the result.
+    to exert control for that region.
+
+  * `region_hint`():
+    If all _operands_ are the same, returns the common value.
+    Otherwise, returns GEOPM_REGION_HINT_UNKNOWN.  This is intended for
+    situations where all ranks in a domain must be in the same region
+    to exert control for that region.
 
   * `select_first`():
     Returns the first value in the _operands_ vector and ignores other
