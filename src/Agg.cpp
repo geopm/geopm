@@ -121,6 +121,46 @@ namespace geopm
         return geopm_field_to_signal(common_rid);
     }
 
+    double Agg::region_hash(const std::vector<double> &operand)
+    {
+        uint64_t common_hash = GEOPM_HASH_REGION_UNMARKED;
+        if (operand.size()) {
+            for (const uint64_t &curr_hash : operand) {
+                if (curr_hash != GEOPM_HASH_REGION_UNMARKED &&
+                    common_hash == GEOPM_HASH_REGION_UNMARKED) {
+                    common_hash = curr_hash;
+                }
+                if (common_hash != GEOPM_HASH_REGION_UNMARKED &&
+                    curr_hash != GEOPM_HASH_REGION_UNMARKED &&
+                    curr_hash != common_hash) {
+                    common_hash = GEOPM_HASH_REGION_UNMARKED;
+                    break;
+                }
+            }
+        }
+        return common_hash;
+    }
+
+    double Agg::region_hint(const std::vector<double> &operand)
+    {
+        uint64_t common_hint = GEOPM_REGION_HINT_UNKNOWN;
+        if (operand.size()) {
+            for (const uint64_t &curr_hint : operand) {
+                if (curr_hint != GEOPM_REGION_HINT_UNKNOWN &&
+                    common_hint == GEOPM_REGION_HINT_UNKNOWN) {
+                    common_hint = curr_hint;
+                }
+                if (common_hint != GEOPM_REGION_HINT_UNKNOWN &&
+                    curr_hint != GEOPM_REGION_HINT_UNKNOWN &&
+                    curr_hint != common_hint) {
+                    common_hint = GEOPM_REGION_HINT_UNKNOWN;
+                    break;
+                }
+            }
+        }
+        return common_hint;
+    }
+
     double Agg::min(const std::vector<double> &operand)
     {
         double result = NAN;
