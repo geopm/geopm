@@ -316,6 +316,12 @@ int MPI_Init(int *argc, char **argv[])
 
 int MPI_Init_thread(int *argc, char **argv[], int required, int *provided)
 {
+    if (geopm_env_pmpi_ctl() == GEOPM_CTL_PTHREAD && required != MPI_THREAD_MULTIPLE) {
+        fprintf(stderr, "Warning: Launching GEOPM with the pthread launch mechanism requires that the MPI "
+                "runtime supports MPI_THREAD_MULTIPLE.  Increasing the required level of thread "
+                "support to MPI_THREAD_MULTIPLE.\n");
+        required = MPI_THREAD_MULTIPLE;
+    }
     int err = PMPI_Init_thread(argc, argv, required, provided);
     if (!err) {
         if (argv && *argv && **argv && strlen(**argv)) {
