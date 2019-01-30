@@ -99,52 +99,48 @@ class ReporterTest : public testing::Test
         std::map<uint64_t, double> m_region_runtime = {
             {geopm_crc32_str("all2all"), 33.33},
             {geopm_crc32_str("model-init"), 22.11},
-            {GEOPM_REGION_ID_UNMARKED, 12.13}
+            {GEOPM_REGION_HASH_UNMARKED, 12.13}
         };
         std::map<uint64_t, double> m_region_mpi_time = {
             {geopm_crc32_str("all2all"), 3.4},
             {geopm_crc32_str("model-init"), 5.6},
-            {GEOPM_REGION_ID_UNMARKED, 1.2},
-            {GEOPM_REGION_ID_EPOCH, 4.2}
+            {GEOPM_REGION_HASH_UNMARKED, 1.2},
+            {GEOPM_REGION_HASH_EPOCH, 4.2}
         };
         std::map<uint64_t, double> m_region_count = {
             {geopm_crc32_str("all2all"), 20},
             {geopm_crc32_str("model-init"), 1},
-            {GEOPM_REGION_ID_EPOCH, 0}
+            {GEOPM_REGION_HASH_EPOCH, 0}
         };
         std::map<uint64_t, double> m_region_rt = {
             {geopm_crc32_str("all2all"), 555},
             {geopm_crc32_str("model-init"), 333},
-            {GEOPM_REGION_ID_UNMARKED, 444},
-            {GEOPM_REGION_ID_EPOCH, 666}
+            {GEOPM_REGION_HASH_UNMARKED, 444},
+            {GEOPM_REGION_HASH_EPOCH, 666}
         };
         std::map<uint64_t, double> m_region_energy = {
             {geopm_crc32_str("all2all"), 777},
             {geopm_crc32_str("model-init"), 888},
-            {GEOPM_REGION_ID_UNMARKED, 222},
-            {GEOPM_REGION_ID_EPOCH, 334}
+            {GEOPM_REGION_HASH_UNMARKED, 222},
+            {GEOPM_REGION_HASH_EPOCH, 334}
         };
         std::map<uint64_t, double> m_region_clk_core = {
             {geopm_crc32_str("all2all"), 4545},
             {geopm_crc32_str("model-init"), 5656},
-            {GEOPM_REGION_ID_UNMARKED, 3434},
-            {GEOPM_REGION_ID_EPOCH, 7878}
+            {GEOPM_REGION_HASH_UNMARKED, 3434},
+            {GEOPM_REGION_HASH_EPOCH, 7878}
         };
         std::map<uint64_t, double> m_region_clk_ref = {
             {geopm_crc32_str("all2all"), 5555},
             {geopm_crc32_str("model-init"), 6666},
-            {GEOPM_REGION_ID_UNMARKED, 4444},
-            {GEOPM_REGION_ID_EPOCH, 8888}
+            {GEOPM_REGION_HASH_UNMARKED, 4444},
+            {GEOPM_REGION_HASH_EPOCH, 8888}
         };
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > m_region_agent_detail = {
             {geopm_crc32_str("all2all"), {{"agent stat", "1"}, {"agent other stat", "2"}}},
             {geopm_crc32_str("model-init"), {{"agent stat", "2"}}},
-            {GEOPM_REGION_ID_UNMARKED, {{"agent stat", "3"}}},
-            {GEOPM_REGION_ID_EPOCH, {{"agent stat", "4"}}},
-            // hints should be ignored by reporter
-            {geopm_crc32_str("all2all") | GEOPM_REGION_ID_MPI, {{"agent new stat", "5"}}},
-            {geopm_crc32_str("model-init") | GEOPM_REGION_HINT_IGNORE, {{"agent new stat", "6"}}},
-
+            {GEOPM_REGION_HASH_UNMARKED, {{"agent stat", "3"}}},
+            {GEOPM_REGION_HASH_EPOCH, {{"agent stat", "4"}}},
         };
 };
 
@@ -202,7 +198,8 @@ TEST_F(ReporterTest, generate)
             .WillOnce(Return(rid.second));
     }
     for (auto rid : m_region_mpi_time) {
-        EXPECT_CALL(m_application_io, total_region_runtime_mpi(rid.first))
+        /// @todo expect epoch_runtime_mpi instead
+        EXPECT_CALL(m_application_io, total_region_runtime_mpi(rid.first != GEOPM_REGION_HASH_EPOCH ? rid.first : GEOPM_REGION_ID_EPOCH))
             .WillOnce(Return(rid.second));
     }
     for (auto rid : m_region_count) {
@@ -212,29 +209,19 @@ TEST_F(ReporterTest, generate)
     for (auto rid : m_region_rt) {
         EXPECT_CALL(*m_agg, sample_total(M_TIME_IDX, rid.first))
             .WillOnce(Return(rid.second));
-        EXPECT_CALL(*m_agg, sample_total(M_TIME_IDX, geopm_region_id_set_mpi(rid.first)))
-            .WillOnce(Return(0.5));
     }
     for (auto rid : m_region_energy) {
         EXPECT_CALL(*m_agg, sample_total(M_ENERGY_PKG_IDX, rid.first))
             .WillOnce(Return(rid.second/2.0));
-        EXPECT_CALL(*m_agg, sample_total(M_ENERGY_PKG_IDX, geopm_region_id_set_mpi(rid.first)))
-            .WillOnce(Return(0.5));
         EXPECT_CALL(*m_agg, sample_total(M_ENERGY_DRAM_IDX, rid.first))
             .WillOnce(Return(rid.second/2.0));
-        EXPECT_CALL(*m_agg, sample_total(M_ENERGY_DRAM_IDX, geopm_region_id_set_mpi(rid.first)))
-            .WillOnce(Return(0.5));
     }
     for (auto rid : m_region_clk_core) {
         EXPECT_CALL(*m_agg, sample_total(M_CLK_CORE_IDX, rid.first))
             .WillOnce(Return(rid.second));
-        EXPECT_CALL(*m_agg, sample_total(M_CLK_CORE_IDX, geopm_region_id_set_mpi(rid.first)))
-            .WillOnce(Return(rid.second));
     }
     for (auto rid : m_region_clk_ref) {
         EXPECT_CALL(*m_agg, sample_total(M_CLK_REF_IDX, rid.first))
-            .WillOnce(Return(rid.second));
-        EXPECT_CALL(*m_agg, sample_total(M_CLK_REF_IDX, geopm_region_id_set_mpi(rid.first)))
             .WillOnce(Return(rid.second));
     }
     EXPECT_CALL(*m_comm, rank()).WillOnce(Return(0));
@@ -261,8 +248,8 @@ TEST_F(ReporterTest, generate)
         "four: 4\n"
         "Region all2all (\n"
         "    runtime (sec): 33.33\n"
-        "    sync-runtime (sec): 555.5\n"
-        "    package-energy (joules): 389\n"
+        "    sync-runtime (sec): 555\n"
+        "    package-energy (joules): 388.5\n"
         "    dram-energy (joules): 389\n"
         "    frequency (%): 81.81\n"
         "    frequency (Hz): 0.818182\n"
@@ -292,7 +279,7 @@ TEST_F(ReporterTest, generate)
         "    mpi-runtime (sec): 1.2\n"
         "    count: 0\n"
         "    agent stat: 3\n"
-        "Region epoch (\n"
+        "Epoch Totals:\n"
         "    runtime (sec): 70\n"
         "    sync-runtime (sec): 666\n"
         "    package-energy (joules): 167\n"
