@@ -190,27 +190,15 @@ provides raw MSR field signals that are encoded in this way.
     by the application to `geopm_prof_epoch()` the signal returns as -1.
     With each call to `geopm_prof_epoch()` the count increases by one.
 
-  * `REGION_ID#`:
-    64-bit integer region ID that all ranks are running, including MPI
-    flag (bit 62) if applicable.  A nested MPI region for the region
-    ID 0x0000000012345678 will appear as 0x4000000012345678.  If all
-    ranks are not in the same region, it will be recorded as unmarked
-    (0x2000000000000000).  Epoch boundaries are recorded as entry and
-    exit to the epoch region (0x8000000000000000).  It is recommended
-    to use `geopm_signal_to_field()` from **geopm_hash(3)** to decode
-    this signal and the functions in **geopm_region_id_c(3)** to
-    interpret the resulting 64-bit integer.
-
-  * `REGION_ID`:
-    NOT YET SUPPORTED.  The lower 32 bit hash of the region id name
-    without hint or hidden bit set.
+  * `REGION_HASH`:
+    The region hash (see **geopm_prof_c(3)**) of region currently being ran by
+    all ranks, otherwise GEOPM_REGION_HASH_UNMARKED.
 
   * `REGION_HINT`:
-    NOT YET SUPPORTED.  The region hint (see **geopm_prof_c(3)**)
-    associated with the currently running region.  For any interval
-    when all ranks are within an MPI function inside of a user defined
-    region, the hint will change from the hint associated with the
-    user defined region to GEOPM_REGION_HINT_NETWORK.
+    The region hint (see **geopm_prof_c(3)**) associated with the currently
+    running region.  For any interval when all ranks are within an MPI
+    function inside of a user defined region, the hint will change from the
+    hint associated with the user defined region to GEOPM_REGION_HINT_NETWORK.
 
   * `REGION_PROGRESS`:
     Minimum per-rank reported progress through the current region.
@@ -444,7 +432,6 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
 **geopm(7)**,
 **geopm_hash(3)**,
 **geopm_prof_c(3)**,
-**geopm_region_id(3)**,
 **geopm::Exception(3)**,
 **geopm::IOGroup(3)**,
 **geopm::MSRIOGroup(3)**,
