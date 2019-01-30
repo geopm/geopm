@@ -49,8 +49,6 @@
 #include "geopm_hash.h"
 #include "geopm_version.h"
 #include "geopm.h"
-#include "geopm_internal.h"
-#include "geopm_region_id.h"
 #include "config.h"
 
 using geopm::IPlatformTopo;
@@ -231,8 +229,8 @@ namespace geopm
                 ++col_idx;
             }
             // save region id and progress, which will get written over by entry/exit
-            double region_hash = geopm_region_id_hash(m_last_telemetry[m_region_hash_idx]);
-            double region_hint = geopm_region_id_hint(m_last_telemetry[m_region_hint_idx]);
+            double region_hash = m_last_telemetry[m_region_hash_idx];
+            double region_hint = m_last_telemetry[m_region_hint_idx];
             double region_progress = m_last_telemetry[m_region_progress_idx];
             double region_runtime = m_last_telemetry[m_region_runtime_idx];
 

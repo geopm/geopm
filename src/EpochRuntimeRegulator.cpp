@@ -33,7 +33,7 @@
 #include <algorithm>
 
 #include "geopm.h"
-#include "geopm_region_id.h"
+#include "geopm_internal.h"
 #include "Exception.hpp"
 #include "Helper.hpp"
 #include "RuntimeRegulator.hpp"
@@ -293,7 +293,8 @@ namespace geopm
     double EpochRuntimeRegulator::total_region_runtime_mpi(uint64_t region_id) const
     {
         double result = 0.0;
-        if (region_id == GEOPM_REGION_ID_EPOCH) {
+        if (region_id == GEOPM_REGION_ID_EPOCH ||
+            region_id == GEOPM_REGION_HASH_EPOCH) {
             result = Agg::average(m_agg_epoch_runtime_mpi);
         }
         else {
@@ -346,8 +347,13 @@ namespace geopm
     int EpochRuntimeRegulator::total_count(uint64_t region_id) const
     {
         int result = 0;
-        auto rank_count = region_regulator(region_id).per_rank_count();
-        if (rank_count.size() != 0) {
+        if (region_id == GEOPM_REGION_ID_EPOCH ||
+            region_id == GEOPM_REGION_HASH_EPOCH) {
+            auto rank_count = epoch_count();
+            result = *std::max_element(rank_count.begin(), rank_count.end());
+        }
+        else {
+            auto rank_count = region_regulator(region_id).per_rank_count();
             result = *std::max_element(rank_count.begin(), rank_count.end());
         }
         return result;
