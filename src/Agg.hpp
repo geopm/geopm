@@ -67,13 +67,6 @@ namespace geopm
             static double stddev(const std::vector<double> &operand);
             /// @brief If all operands are the same, returns the
             ///        common value.  Otherwise, returns
-            ///        GEOPM_REGION_ID_UNMARKED.  This is intended for
-            ///        situations where all ranks in a domain must be
-            ///        in the same region to exert control for that
-            ///        region.
-            static double region_id(const std::vector<double> &operand);
-            /// @brief If all operands are the same, returns the
-            ///        common value.  Otherwise, returns
             ///        GEOPM_REGION_HASH_UNMARKED.  This is intended for
             ///        situations where all ranks in a domain must be
             ///        in the same region to exert control for that
