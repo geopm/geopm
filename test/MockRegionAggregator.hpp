@@ -44,7 +44,7 @@ class MockRegionAggregator : public geopm::IRegionAggregator
                                             int domain_idx));
         MOCK_METHOD2(sample_total, double(int signal_idx, uint64_t region_id));
         MOCK_METHOD0(read_batch, void(void));
-        MOCK_CONST_METHOD0(tracked_region_ids, std::set<uint64_t>());
+        MOCK_CONST_METHOD0(tracked_region_hash, std::set<uint64_t>());
         MOCK_CONST_METHOD0(tracked_signals, std::set<int>());
 };
 #endif
