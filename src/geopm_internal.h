@@ -41,6 +41,12 @@
 extern "C" {
 #endif
 
+/// @brief Enum for internally defined region hashes.
+/// Note the value is the geopm_crc32_str() of the stringified enum
+enum geopm_region_hash_epoch_e {
+    GEOPM_REGION_HASH_EPOCH = 0x66c91423ULL,
+};
+
 /// Region id enums go from bit 63 and work their way down.
 /// Hint enums in geopm.h go from bit 32 and work their way up.
 /// There is a possibility of a conflict sometime in the future if they overlap.
