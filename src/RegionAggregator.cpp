@@ -50,7 +50,7 @@ namespace geopm
 
     RegionAggregator::RegionAggregator(IPlatformIO &platio)
         : m_platform_io(platio)
-        , m_in_epoch(false)
+        , m_last_epoch_count(-1)
     {
 
     }
@@ -65,32 +65,32 @@ namespace geopm
                                             int domain_idx)
     {
         int signal_idx = m_platform_io.push_signal(signal_name, domain_type, domain_idx);
-        m_region_id_idx[signal_idx] = m_platform_io.push_signal("REGION_ID#", domain_type, domain_idx);
+        m_region_hash_idx[signal_idx] = m_platform_io.push_signal("REGION_HASH", domain_type, domain_idx);
         return signal_idx;
     }
 
-    double RegionAggregator::sample_total(int signal_idx, uint64_t region_id)
+    double RegionAggregator::sample_total(int signal_idx, uint64_t region_hash)
     {
         if (signal_idx < 0) {
             throw Exception("RegionAggregator::sample_total(): Invalid signal index",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (m_region_id_idx.find(signal_idx) == m_region_id_idx.end()) {
+        if (m_region_hash_idx.find(signal_idx) == m_region_hash_idx.end()) {
             throw Exception("RegionAggregator::sample_total(): Cannot call sample_total "
                             "for signal index not pushed with push_signal_total.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         double current_value = 0.0;
-        uint64_t curr_rid = geopm_signal_to_field(m_platform_io.sample(m_region_id_idx.at(signal_idx)));
-        curr_rid = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, curr_rid);
+        uint64_t curr_hash = m_platform_io.sample(m_region_hash_idx.at(signal_idx));
+        m_tracked_region_hash.insert(curr_hash);
         // Look up the data for this combination of signal and region ID
-        auto idx = std::make_pair(signal_idx, region_id);
+        auto idx = std::make_pair(signal_idx, region_hash);
         auto data_it = m_region_sample_data.find(idx);
         if (data_it != m_region_sample_data.end()) {
             const auto &data = data_it->second;
             current_value += data.total;
             // if currently in this region, add current value to total
-            if (region_id == curr_rid &&
+            if (region_hash == curr_hash &&
                 !std::isnan(data.last_entry_value)) {
                 current_value += m_platform_io.sample(signal_idx) - data.last_entry_value;
             }
@@ -100,47 +100,38 @@ namespace geopm
 
     void RegionAggregator::read_batch(void)
     {
-        for (const auto &it : m_region_id_idx) {
+        for (const auto &it : m_region_hash_idx) {
             double value = m_platform_io.sample(it.first);
-            uint64_t region_id = geopm_signal_to_field(m_platform_io.sample(it.second));
-            bool is_ignore = geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, region_id);
-            region_id = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id);
-            m_is_ignore[region_id] = is_ignore;
+            const uint64_t region_hash = m_platform_io.sample(it.second);
+            m_tracked_region_hash.insert(region_hash);
             // first time sampling this signal
-            if (m_last_region_id.find(it.first) == m_last_region_id.end()) {
-                m_last_region_id[it.first] = region_id;
+            if (m_last_region_hash.find(it.first) == m_last_region_hash.end()) {
+                m_last_region_hash[it.first] = region_hash;
                 // set start value for first region to be recording this signal
-                m_region_sample_data[std::make_pair(it.first, region_id)].last_entry_value = value;
+                m_region_sample_data[std::make_pair(it.first, region_hash)].last_entry_value = value;
             }
             else {
-                uint64_t last_rid = m_last_region_id[it.first];
-                last_rid = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, last_rid);
+                const uint64_t last_hash = m_last_region_hash[it.first];
                 // region boundary
-                if (region_id != last_rid) {
+                if (region_hash != last_hash) {
                     // add entry to new region
-                    m_region_sample_data[std::make_pair(it.first, region_id)].last_entry_value = value;
+                    m_region_sample_data[std::make_pair(it.first, region_hash)].last_entry_value = value;
                     // update total for previous region
-                    double prev_total = value - m_region_sample_data.at(std::make_pair(it.first, last_rid)).last_entry_value;
-                    m_region_sample_data[std::make_pair(it.first, last_rid)].total += prev_total;
+                    double prev_total = value - m_region_sample_data.at(std::make_pair(it.first, last_hash)).last_entry_value;
+                    m_region_sample_data[std::make_pair(it.first, last_hash)].total += prev_total;
                     // update epoch
-                    if (!m_in_epoch && m_platform_io.sample(m_epoch_count_idx) > -1) {
-                        m_in_epoch = true;
+                    double curr_epoch_count = m_platform_io.sample(m_epoch_count_idx);
+                    if (curr_epoch_count != m_last_epoch_count) {
+                        m_region_sample_data[std::make_pair(it.first, GEOPM_REGION_HASH_EPOCH)].total += prev_total;
                     }
-                    if (m_in_epoch) {
-                        m_region_sample_data[std::make_pair(it.first, GEOPM_REGION_ID_EPOCH)].total += prev_total;
-                    }
-                    m_last_region_id[it.first] = region_id;
+                    m_last_region_hash[it.first] = region_hash;
                 }
             }
         }
     }
 
-    std::set<uint64_t> RegionAggregator::tracked_region_ids(void) const
+    std::set<uint64_t> RegionAggregator::tracked_region_hash(void) const
     {
-        std::set<uint64_t> result;
-        for (const auto &rid : m_is_ignore) {
-            result.insert(rid.first);
-        }
-        return result;
+        return m_tracked_region_hash;
     }
 }
