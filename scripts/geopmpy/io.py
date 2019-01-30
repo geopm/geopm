@@ -658,6 +658,10 @@ class Report(dict):
                             region_id = match.group(3)
                         else:
                             region_id = match.group(2) + match.group(3)
+                if region_name is None:
+                    match = re.search(r'^Epoch Totals:', line)
+                    if match is not None:
+                        region_name = 'epoch'
                 if runtime is None:
                     match = re.search(r'^\s+runtime.+: ' + float_regex, line)
                     if match is not None:
@@ -896,9 +900,10 @@ class Trace(object):
     """
     def __init__(self, trace_path, use_agent=True):
         self._path = trace_path
-        self._df = pandas.read_csv(trace_path, sep='|', comment='#', dtype={'region_id': str})  # region_id must be a string because pandas can't handle 64-bit integers
+        self._df = pandas.read_csv(trace_path, sep='|', comment='#', dtype={'region_hash': str, 'region_hint': str})  # region_hash and region_hint must be a string because pandas can't handle 64-bit integers
         self._df.columns = list(map(str.strip, self._df[:0]))  # Strip whitespace from column names
-        self._df['region_id'] = self._df['region_id'].astype(str).map(str.strip)  # Strip whitespace from region ID's
+        self._df['region_hash'] = self._df['region_hash'].astype(str).map(str.strip)  # Strip whitespace from region hashes
+        self._df['region_hint'] = self._df['region_hint'].astype(str).map(str.strip)  # Strip whitespace from region hints
         self._version = None
         self._start_time = None
         self._profile_name = None
@@ -921,7 +926,7 @@ class Trace(object):
 
         >>> tt = geopmpy.io.Trace('170-4-balanced-minife-trace-mr-fusion5')
         >>> tt.keys()
-        Index([u'region_id', u'seconds', u'pkg_energy-0', u'dram_energy-0',...
+        Index([u'region_hash', u'region_hint', u'seconds', u'pkg_energy-0', u'dram_energy-0',...
 
         """
         return getattr(self._df, attr)
@@ -931,8 +936,9 @@ class Trace(object):
 
         This allows standard DataFrame slicing operations to take place.
 
-        >>> tt[['region_id', 'time', 'energy_package', 'energy_dram']][:5]
-                     region_id      time  energy_package-0  energy_dram-0
+        @todo, update
+        >>> tt[['region_hash', 'region_hint', 'time', 'energy_package', 'energy_dram']][:5]
+                     region_hash region_hint      time  energy_package-0  energy_dram-0
         0  2305843009213693952  0.662906     106012.363770   25631.015519
         1  2305843009213693952  0.667854     106012.873718   25631.045777
         2  2305843009213693952  0.672882     106013.411621   25631.075807
@@ -1015,12 +1021,7 @@ class Trace(object):
               'epoch' is false?
 
         """
-        epoch_rid = '0x8000000000000000' if '0x' in trace_df['region_id'].iloc[0] else '9223372036854775808'
-
-        if epoch:
-            tmp_df = trace_df.loc[trace_df['region_id'] == epoch_rid]
-        else:
-            tmp_df = trace_df
+        tmp_df = trace_df
 
         filtered_df = tmp_df.filter(regex=column_regex).copy()
         filtered_df['elapsed_time'] = tmp_df['seconds']
