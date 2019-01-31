@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d94e24b_6832f5cd",
+        "filename": "src/RegionAggregator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-31T19:45:19Z",
+      "side": 1,
+      "message": "check region_hash is not GEOPM_REGION_HASH_INVALID",
+      "range": {
+        "startLine": 106,
+        "startChar": 12,
+        "endLine": 106,
+        "endChar": 54
+      },
+      "revId": "671e140199d63cd25306dfaf714a256295df8070",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
