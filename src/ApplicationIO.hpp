@@ -109,13 +109,6 @@ namespace geopm
             /// @param [in] comm Shared pointer to the comm used by
             ///        the Controller.
             virtual void update(std::shared_ptr<Comm> comm) = 0;
-            /// @brief Returns the list of all regions entered or
-            ///        exited since the last call to
-            ///        clear_region_info().
-            virtual std::list<geopm_region_info_s> region_info(void) const = 0;
-            /// @brief Resets the internal list of region entries and
-            ///        exits.
-            virtual void clear_region_info(void) = 0;
             /// @brief Signal to the application that the Controller
             ///        is ready to begin receiving samples.
             virtual void controller_ready(void) = 0;
@@ -160,8 +153,6 @@ namespace geopm
             double total_epoch_energy_dram(void) const override;
             int total_count(uint64_t region_id) const override;
             void update(std::shared_ptr<Comm> comm) override;
-            std::list<geopm_region_info_s> region_info(void) const override;
-            void clear_region_info(void) override;
             void controller_ready(void) override;
             void abort(void) override;
         private:
