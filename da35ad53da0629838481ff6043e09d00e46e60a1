@@ -2,6 +2,98 @@
   "comments": [
     {
       "key": {
+        "uuid": "26d9e351_878f9139",
+        "filename": "src/Agg.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-31T19:36:13Z",
+      "side": 1,
+      "message": "if (operand.size() \u0026\u0026 (common_hash \u003d operand[0]) !\u003d GEOPM_HASH_REGION_UNMARKED)) {\n    common_hash \u003d std::all_of(operand.begin(),\n                              operand.end(),\n                              [](double x) {\n                                  return x \u003d\u003d common_hash;\n                              }) ? common_hash : GEOPM_HASH_REGION_UNMARKED;\n}\n\n// one liners are awesome!",
+      "range": {
+        "startLine": 127,
+        "startChar": 8,
+        "endLine": 127,
+        "endChar": 27
+      },
+      "revId": "da35ad53da0629838481ff6043e09d00e46e60a1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fc3b3cb_f488925a",
+        "filename": "src/Agg.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-31T19:36:13Z",
+      "side": 1,
+      "message": "GEOPM_HASH_REGION_UNMARKED -\u003e GEOPM_REGION_HASH_UNMARKED",
+      "range": {
+        "startLine": 77,
+        "startChar": 29,
+        "endLine": 77,
+        "endChar": 40
+      },
+      "revId": "da35ad53da0629838481ff6043e09d00e46e60a1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4bd4136e_964355ac",
+        "filename": "src/ProfileIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-31T19:36:13Z",
+      "side": 1,
+      "message": "new line?",
+      "range": {
+        "startLine": 176,
+        "startChar": 46,
+        "endLine": 176,
+        "endChar": 47
+      },
+      "revId": "da35ad53da0629838481ff6043e09d00e46e60a1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b77e59e6_3ee842b0",
+        "filename": "src/geopm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-31T19:36:13Z",
+      "side": 1,
+      "message": "geopm_region_hash_e {\n    GEOPM_REGION_HASH...",
+      "range": {
+        "startLine": 46,
+        "startChar": 11,
+        "endLine": 46,
+        "endChar": 25
+      },
+      "revId": "da35ad53da0629838481ff6043e09d00e46e60a1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "292117aa_271ee917",
         "filename": "src/geopm_internal.h",
         "patchSetId": 1
@@ -19,6 +111,23 @@
         "endLine": 44,
         "endChar": 61
       },
+      "revId": "da35ad53da0629838481ff6043e09d00e46e60a1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3932bd44_7449d84d",
+        "filename": "test/AggTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-01-31T19:36:13Z",
+      "side": 1,
+      "message": "Add tests where region id and region hash are all the same.",
       "revId": "da35ad53da0629838481ff6043e09d00e46e60a1",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
