@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "292117aa_271ee917",
+        "filename": "src/geopm_internal.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-01-31T02:34:25Z",
+      "side": 1,
+      "message": "comment belongs to patch that employs the new implementation in reporter and tracer.",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 61
+      },
+      "revId": "da35ad53da0629838481ff6043e09d00e46e60a1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
