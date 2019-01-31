@@ -66,8 +66,7 @@ namespace geopm
             ///        regions recorded by the application.  There may
             ///        be multiple entires and exits for each
             ///        telemetry sample.
-            virtual void update(const std::vector<double> &agent_signals,
-                                std::list<geopm_region_info_s> region_entry_exit) = 0;
+            virtual void update(const std::vector<double> &agent_signals) = 0;
             /// @brief Write the remaining trace data to the file and
             ///        stop tracing.
             virtual void flush(void) = 0;
@@ -102,8 +101,7 @@ namespace geopm
             /// @brief Tracer destructor, virtual.
             virtual ~Tracer();
             void columns(const std::vector<std::string> &agent_cols) override;
-            void update(const std::vector<double> &agent_signals,
-                        std::list<geopm_region_info_s> region_entry_exit) override;
+            void update(const std::vector<double> &agent_signals) override;
             void flush(void) override;
         private:
             /// @brief Format and write the values in m_last_telemetry to the trace.

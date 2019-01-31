@@ -208,8 +208,7 @@ namespace geopm
         m_buffer << "\n";
     }
 
-    void Tracer::update(const std::vector<double> &agent_values,
-                        std::list<geopm_region_info_s> region_entry_exit)
+    void Tracer::update(const std::vector<double> &agent_values)
     {
         if (m_is_trace_enabled) {
 #ifdef GEOPM_DEBUG
@@ -237,24 +236,6 @@ namespace geopm
             double region_progress = m_last_telemetry[m_region_progress_idx];
             double region_runtime = m_last_telemetry[m_region_runtime_idx];
 
-            // insert samples for region entry/exit
-            size_t idx = 0;
-            for (const auto &reg : region_entry_exit) {
-                // skip the last region entry if it matches the
-                // sampled telemetry region hash, hint, and progress
-                if (!((idx == region_entry_exit.size() - 1) &&
-                      region_progress == reg.progress &&
-                      region_progress == 0.0 &&
-                      region_hash == geopm_region_id_hash(reg.region_id) &&
-                      region_hint == geopm_region_id_hint(reg.region_id) )) {
-                    m_last_telemetry[m_region_hash_idx] = geopm_region_id_hash(reg.region_id);
-                    m_last_telemetry[m_region_hint_idx] = geopm_region_id_hint(reg.region_id);
-                    m_last_telemetry[m_region_progress_idx] = reg.progress;
-                    m_last_telemetry[m_region_runtime_idx] = reg.runtime;
-                    write_line();
-                }
-                ++idx;
-            }
             // print sampled data last
             m_last_telemetry[m_region_hash_idx] = region_hash;
             m_last_telemetry[m_region_hint_idx] = region_hint;
