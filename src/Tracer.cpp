@@ -136,7 +136,7 @@ namespace geopm
                     {"FREQUENCY", IPlatformTopo::M_DOMAIN_BOARD, 0},
                     {"CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0},
                     {"CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"TEMPERATURE", IPlatformTopo::M_DOMAIN_BOARD, 0}});
+                    {"TEMPERATURE_CORE", IPlatformTopo::M_DOMAIN_BOARD, 0}});
             // for region entry/exit, make sure region index is known
             m_region_hash_idx = 2;
             m_region_hint_idx = 3;

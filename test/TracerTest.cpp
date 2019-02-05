@@ -84,7 +84,7 @@ void TracerTest::SetUp(void)
         {"FREQUENCY", IPlatformTopo::M_DOMAIN_BOARD, 0},
         {"CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0},
         {"CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"TEMPERATURE", IPlatformTopo::M_DOMAIN_BOARD, 0}
+        {"TEMPERATURE_CORE", IPlatformTopo::M_DOMAIN_BOARD, 0}
     };
     m_extra_cols = {"EXTRA"};
 
@@ -125,7 +125,7 @@ TEST_F(TracerTest, columns)
                                   "# \"agent\" : \"" + m_agent + "\"\n";
     std::string expected_str = expected_header +
         "time|epoch_count|region_hash|region_hint|region_progress|region_runtime|energy_package|energy_dram|"
-        "power_package|power_dram|frequency|cycles_thread|cycles_reference|temperature|extra|"
+        "power_package|power_dram|frequency|cycles_thread|cycles_reference|temperature_core|extra|"
         "col1|col2\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
