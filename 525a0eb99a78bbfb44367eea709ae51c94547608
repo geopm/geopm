@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f1ecfcf_1ede5ebb",
+        "filename": "src/geopm_internal.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-05T01:10:31Z",
+      "side": 1,
+      "message": "Did this come from a string constant in the code somewhere?",
+      "revId": "525a0eb99a78bbfb44367eea709ae51c94547608",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
