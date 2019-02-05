@@ -71,10 +71,16 @@ TEST(AggTest, agg_function)
               Agg::region_id({5, 6, 7}));
 
     EXPECT_EQ(GEOPM_REGION_HASH_UNMARKED,
+              Agg::region_hash({}));
+
+    EXPECT_EQ(GEOPM_REGION_HASH_UNMARKED,
               Agg::region_hash({5, 6, 7}));
 
     EXPECT_EQ(5,
               Agg::region_hash({5, 5, 5}));
+
+    EXPECT_EQ(GEOPM_REGION_HINT_UNKNOWN,
+              Agg::region_hint({}));
 
     EXPECT_EQ(GEOPM_REGION_HINT_UNKNOWN,
               Agg::region_hint({5, 6, 7}));
