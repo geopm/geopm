@@ -80,6 +80,7 @@ namespace geopm
         , m_platform_io(platform_io)
         , m_env_column(env_column)
         , m_precision(precision)
+        , m_signal_idx(M_NUM_SIGNAL, -1)
     {
         if (m_env_column.empty()) {
             auto num_extra_cols = geopm_env_num_trace_signal();

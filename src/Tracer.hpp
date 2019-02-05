@@ -106,6 +106,13 @@ namespace geopm
                         std::list<geopm_region_info_s> region_entry_exit) override;
             void flush(void) override;
         private:
+            enum m_signal_e {
+                M_SIGNAL_REGION_HASH,
+                M_SIGNAL_REGION_HINT,
+                M_SIGNAL_REGION_PROGRESS,
+                M_SIGNAL_RUNTIME,
+                M_NUM_SIGNAL,
+            };
             /// @brief Format and write the values in m_last_telemetry to the trace.
             void write_line(void);
             std::string m_file_path;
@@ -122,10 +129,7 @@ namespace geopm
             std::vector<int> m_column_idx; // columns sampled by Tracer
             std::set<int> m_hex_column;
             std::vector<double> m_last_telemetry;
-            int m_region_hash_idx = -1;
-            int m_region_hint_idx = -1;
-            int m_region_progress_idx = -1;
-            int m_region_runtime_idx = -1;
+            std::vector<int> m_signal_idx;
     };
 }
 
