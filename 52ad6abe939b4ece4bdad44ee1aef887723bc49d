@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10c71753_90f33685",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-05T19:55:50Z",
+      "side": 1,
+      "message": "Always call through to MPI_Init_thread() with MPI_THREAD_SINGLE.",
+      "range": {
+        "startLine": 303,
+        "startChar": 14,
+        "endLine": 303,
+        "endChar": 36
+      },
+      "revId": "52ad6abe939b4ece4bdad44ee1aef887723bc49d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
