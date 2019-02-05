@@ -22,6 +22,30 @@
       "revId": "659da31347d03cb9d873c5dd6dda8f3a88ca3485",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a55977c_c11b6c0b",
+        "filename": "ronn/geopm.7.ronn.in",
+        "patchSetId": 10
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-05T20:14:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df19027c_346e518c",
+      "range": {
+        "startLine": 252,
+        "startChar": 14,
+        "endLine": 252,
+        "endChar": 39
+      },
+      "revId": "659da31347d03cb9d873c5dd6dda8f3a88ca3485",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
