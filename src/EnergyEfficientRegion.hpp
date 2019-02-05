@@ -60,12 +60,14 @@ namespace geopm
             virtual double perf_metric();
             virtual double energy_metric();
 
+            const double M_PERF_MARGIN;
+            const double M_ENERGY_MARGIN;
+            const size_t M_MIN_BASE_SAMPLE;
+            const size_t M_MAX_INCREASE;
+
             IPlatformIO &m_platform_io;
-            double m_curr_freq = NAN;
-            double m_target = 0.0;
-            const double M_PERF_MARGIN = 0.10;  // up to 10% degradation allowed
-            const double M_ENERGY_MARGIN = 0.025;
-            const size_t M_MIN_BASE_SAMPLE = 4;
+            double m_curr_freq;
+            double m_target;
 
             bool m_is_learning;
             struct m_freq_ctx_s {
@@ -76,12 +78,11 @@ namespace geopm
             };
 
             std::map<size_t, struct m_freq_ctx_s> m_freq_ctx_map;
-            const size_t M_MAX_INCREASE = 4;
 
             double m_freq_step;
             std::set<double> m_allowed_freq;
             double m_curr_freq_max;
-            double m_start_energy = 0.0;
+            double m_start_energy;
 
             int m_runtime_idx;
             int m_pkg_energy_idx;
