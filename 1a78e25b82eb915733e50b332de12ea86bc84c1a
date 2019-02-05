@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "112f3ea1_86847349",
+        "filename": "ronn/geopm.7.ronn.in",
+        "patchSetId": 13
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-05T20:37:03Z",
+      "side": 1,
+      "message": "Specify that the signal must be monotonically increasing.",
+      "range": {
+        "startLine": 264,
+        "startChar": 5,
+        "endLine": 264,
+        "endChar": 25
+      },
+      "revId": "1a78e25b82eb915733e50b332de12ea86bc84c1a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
