@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "16131f49_7d4d120c",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-02-05T22:46:39Z",
+      "side": 1,
+      "message": "Still uninitialized.",
+      "range": {
+        "startLine": 292,
+        "startChar": 8,
+        "endLine": 292,
+        "endChar": 16
+      },
+      "revId": "5c25771627f525fef313d08cd51829d83e24c6f4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
