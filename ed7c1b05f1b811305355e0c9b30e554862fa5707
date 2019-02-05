@@ -16,6 +16,24 @@
       "revId": "ed7c1b05f1b811305355e0c9b30e554862fa5707",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "608d0fd4_90b5cbb9",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-02-05T17:42:20Z",
+      "side": 1,
+      "message": "correct.  not checking for epoch, just give back a (valid) hash",
+      "parentUuid": "ea88193d_1658f8c9",
+      "revId": "ed7c1b05f1b811305355e0c9b30e554862fa5707",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
