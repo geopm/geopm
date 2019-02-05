@@ -65,6 +65,30 @@
     },
     {
       "key": {
+        "uuid": "10629196_731bd26c",
+        "filename": "src/Reporter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-02-05T05:12:00Z",
+      "side": 1,
+      "message": "Yes it is confusing.  Yes this actor is still aware of the private concept of region id.  in fact this is the mapping from the private region if concept to public facing hash/hint",
+      "parentUuid": "25340cab_f5b9600c",
+      "range": {
+        "startLine": 179,
+        "startChar": 34,
+        "endLine": 179,
+        "endChar": 95
+      },
+      "revId": "cb92937ca0546ee557adae1b6acc603dea88baf4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "460de913_487a4ca1",
         "filename": "src/Reporter.cpp",
         "patchSetId": 6
@@ -76,6 +100,24 @@
       "writtenOn": "2019-02-05T01:51:47Z",
       "side": 1,
       "message": "same question for this method.  maybe we need a epoch_count() getter for ApplicationIO?",
+      "revId": "cb92937ca0546ee557adae1b6acc603dea88baf4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f724cc1_aa1d9b10",
+        "filename": "src/Reporter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-02-05T05:12:00Z",
+      "side": 1,
+      "message": "Yes, in another patch.",
+      "parentUuid": "460de913_487a4ca1",
       "revId": "cb92937ca0546ee557adae1b6acc603dea88baf4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
