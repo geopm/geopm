@@ -65,7 +65,12 @@ namespace geopm
         , M_SEND_PERIOD(10)
         , m_last_freq(NAN)
         , m_curr_adapt_freq(NAN)
+        , m_is_online(false)
         , m_last_wait(GEOPM_TIME_REF)
+        , m_level(-1)
+        , m_num_children(0)
+        , m_last_region(std::make_pair(GEOPM_REGION_HASH_INVALID, GEOPM_REGION_HINT_UNKNOWN))
+        , m_num_ascend(0)
     {
         parse_env_map();
         const char* env_freq_online_str = getenv("GEOPM_EFFICIENT_FREQ_ONLINE");
