@@ -1,0 +1,181 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a3f3ab7c_141ed4a7",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 905,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-05T01:51:47Z",
+      "side": 1,
+      "message": "hashes, hints on next line",
+      "range": {
+        "startLine": 905,
+        "startChar": 117,
+        "endLine": 905,
+        "endChar": 123
+      },
+      "revId": "cb92937ca0546ee557adae1b6acc603dea88baf4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bfd647e_8f00fdc5",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 1026,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-05T01:51:47Z",
+      "side": 1,
+      "message": "does this come through in the region_hash column?  or is this todo intended to be part of this patch?",
+      "revId": "cb92937ca0546ee557adae1b6acc603dea88baf4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25340cab_f5b9600c",
+        "filename": "src/Reporter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-05T01:51:47Z",
+      "side": 1,
+      "message": "I\u0027m a little confused about whether this API is supposed to use the public hashes or private region IDs.  In the loop above (164) it looks like it was always using hashes in spite of the variable name.  Even though Reporter is technically internal, I would expect it to only need the public facing concepts for hash/hint.",
+      "range": {
+        "startLine": 179,
+        "startChar": 34,
+        "endLine": 179,
+        "endChar": 95
+      },
+      "revId": "cb92937ca0546ee557adae1b6acc603dea88baf4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "460de913_487a4ca1",
+        "filename": "src/Reporter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-05T01:51:47Z",
+      "side": 1,
+      "message": "same question for this method.  maybe we need a epoch_count() getter for ApplicationIO?",
+      "revId": "cb92937ca0546ee557adae1b6acc603dea88baf4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27032c7c_621187d4",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-05T01:51:47Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "cb92937ca0546ee557adae1b6acc603dea88baf4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d90a96d2_ee86a011",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-05T01:51:47Z",
+      "side": 1,
+      "message": "It\u0027s ok for a raw MSR to have a value of 0.  This could also check for the hash/hint index explicitly",
+      "revId": "cb92937ca0546ee557adae1b6acc603dea88baf4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef00c27c_a3d8224f",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-05T01:51:47Z",
+      "side": 1,
+      "message": "can remove this",
+      "revId": "cb92937ca0546ee557adae1b6acc603dea88baf4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37a87420_9a52ae5f",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-05T01:51:47Z",
+      "side": 1,
+      "message": "cool, not nearly as bad as expected",
+      "range": {
+        "startLine": 443,
+        "startChar": 12,
+        "endLine": 443,
+        "endChar": 110
+      },
+      "revId": "cb92937ca0546ee557adae1b6acc603dea88baf4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00042693_7d8f0988",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 873,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-05T01:51:47Z",
+      "side": 1,
+      "message": "anyone know what this is?  or what the above comment is referring to?",
+      "range": {
+        "startLine": 873,
+        "startChar": 34,
+        "endLine": 873,
+        "endChar": 44
+      },
+      "revId": "cb92937ca0546ee557adae1b6acc603dea88baf4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
