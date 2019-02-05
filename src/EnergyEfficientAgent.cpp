@@ -30,8 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sstream>
 #include <cmath>
+#include <sstream>
+#include <iostream>
 
 #include "contrib/json11/json11.hpp"
 
@@ -125,6 +126,8 @@ namespace geopm
                 eer.second->update_freq_range(m_freq_min, m_freq_max, M_FREQ_STEP);
             }
             result = true;
+            // reset frequencies from environment
+            parse_env_map();
         }
         return result;
     }
@@ -437,6 +440,7 @@ namespace geopm
 
     void EnergyEfficientAgent::parse_env_map(void)
     {
+        m_hash_freq_map.clear();
         const char* env_freq_rid_map_str = getenv("GEOPM_EFFICIENT_FREQ_RID_MAP");
         if (env_freq_rid_map_str) {
             std::string full_str(env_freq_rid_map_str);
@@ -454,6 +458,20 @@ namespace geopm
                 }
                 uint64_t hash = geopm_crc32_str(obj.first.c_str());
                 m_hash_freq_map[hash] = obj.second.number_value();
+                if (m_hash_freq_map[hash] > m_freq_max) {
+                    m_hash_freq_map[hash] = m_freq_max;
+#ifdef GEOPM_DEBUG
+                    std::cerr << "<geopm> Warning: requested frequency for region "
+                              << obj.first << " was decreased to " << m_freq_max << std::endl;
+#endif
+                }
+                if (m_hash_freq_map[hash] < m_freq_min) {
+                    m_hash_freq_map[hash] = m_freq_min;
+#ifdef GEOPM_DEBUG
+                    std::cerr << "<geopm> Warning: requested frequency for region "
+                              << obj.first << " was increased to " << m_freq_min << std::endl;
+#endif
+                }
             }
         }
     }

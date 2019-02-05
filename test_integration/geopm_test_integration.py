@@ -1027,6 +1027,65 @@ class TestIntegration(unittest.TestCase):
             gemm_region = [key for key in region_names if key.lower().find('gemm') != -1]
             self.assertLessEqual(1, len(gemm_region))
 
+    def test_agent_energy_efficient_sweep(self):
+        """
+        Test of the frequency sweep using the EnergyEfficientAgent.
+        """
+        name = 'test_agent_energy_efficient_sweep'
+        num_node = 4
+        num_rank = 16
+        temp_launcher = geopmpy.launcher.factory(["dummy", geopm_test_launcher.detect_launcher()],
+                                                  num_node=num_node, num_rank=num_rank)
+        launcher_argv = [
+            '--geopm-ctl', 'process',
+        ]
+        launcher_argv.extend(temp_launcher.num_rank_option(False))
+        launcher_argv.extend(temp_launcher.num_node_option())
+        loop_count = 10
+        dgemm_bigo = 2.25
+        stream_bigo = 1.449
+        app_conf_name = name + '_app.config'
+        app_conf = geopmpy.io.BenchConf(app_conf_name)
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.set_loop_count(loop_count)
+        app_conf.append_region('dgemm', dgemm_bigo)
+        app_conf.append_region('stream', stream_bigo)
+        app_conf.append_region('all2all', 1.0)
+        app_conf.write()
+
+        source_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        app_path = os.path.join(source_dir, '.libs', 'geopmbench')
+        # if not found, use geopmbench from user's PATH
+        if not os.path.exists(app_path):
+            app_path = "geopmbench"
+        app_argv = [app_path, app_conf_name]
+
+        os.environ['GEOPM_MAX_FAN_OUT'] = '2'
+        # Runs frequency sweep, generates best-fit frequency mapping, and
+        # runs with the plugin at a fixed frequency.
+        analysis = geopmpy.analysis.FreqSweepAnalysis(profile_prefix=name,
+                                                      output_dir='.',
+                                                      iterations=1,
+                                                      verbose=True,
+                                                      min_freq=None,
+                                                      max_freq=None,
+                                                      enable_turbo=False)
+        config = launcher_argv + app_argv
+        analysis.launch(geopm_test_launcher.detect_launcher(), config)
+
+        analysis.find_files()
+        for report_file in analysis._report_paths:
+            freq = report_file.split('freq_')[-1].split('.')[0]
+            output = geopmpy.io.AppOutput(report_file)
+            num_region = len(output.get_region_names()) - 1  # epoch does not have a frequency
+            with open(report_file, 'r') as report:
+                line_count = 0
+                for line in report:
+                    if 'REQUESTED_' in line and '_FREQUENCY' in line:
+                        self.assertIn(freq, line)
+                        line_count += 1
+                self.assertEqual(num_node * num_region, line_count)
+
     @skip_unless_run_long_tests()
     #@skip_unless_platform_bdx()
     @skip_unless_cpufreq()
@@ -1034,7 +1093,7 @@ class TestIntegration(unittest.TestCase):
         """
         Test of the EnergyEfficientAgent offline auto mode.
         """
-        name = 'test_plugin_efficient_freq_offline'
+        name = 'test_agent_energy_efficient_offline'
 
         num_node = 1
         num_rank = 4
