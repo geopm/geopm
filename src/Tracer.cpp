@@ -185,7 +185,9 @@ namespace geopm
             }
             if (m_hex_column.find(m_column_idx[idx]) != m_hex_column.end()) {
 #ifdef GEOPM_DEBUG
-                if ((uint64_t) m_last_telemetry[idx] == 0) {
+                if (((uint64_t) m_region_hash_idx == idx ||
+                     (uint64_t) m_region_hint_idx == idx) &&
+                    (uint64_t) m_last_telemetry[idx] == GEOPM_REGION_HASH_INVALID) {
                     throw Exception("Tracer::write_line(): Invalid hash or hint value detected.",
                                     GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                 }
