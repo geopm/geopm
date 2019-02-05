@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "170af2f8_8c0b1aec",
+        "filename": "src/Agg.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-05T15:50:51Z",
+      "side": 1,
+      "message": "https://review.gerrithub.io/c/geopm/geopm/+/443436",
+      "range": {
+        "startLine": 127,
+        "startChar": 27,
+        "endLine": 127,
+        "endChar": 88
+      },
+      "revId": "525a0eb99a78bbfb44367eea709ae51c94547608",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3f1ecfcf_1ede5ebb",
         "filename": "src/geopm_internal.h",
         "patchSetId": 3
@@ -16,6 +39,24 @@
       "revId": "525a0eb99a78bbfb44367eea709ae51c94547608",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2c5063e_78a7739d",
+        "filename": "src/geopm_internal.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-05T15:50:51Z",
+      "side": 1,
+      "message": "./examples/geopmhash GEOPM_REGION_HASH_EPOCH\n0x0000000066c91423",
+      "parentUuid": "3f1ecfcf_1ede5ebb",
+      "revId": "525a0eb99a78bbfb44367eea709ae51c94547608",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
