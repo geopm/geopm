@@ -42,7 +42,14 @@ namespace geopm
     EnergyEfficientRegion::EnergyEfficientRegion(IPlatformIO &platform_io,
                                                  int runtime_idx,
                                                  int pkg_energy_idx)
-        : m_platform_io(platform_io)
+        : M_PERF_MARGIN(0.10)  // up to 10% degradation allowed
+        , M_ENERGY_MARGIN(0.025)
+        , M_MIN_BASE_SAMPLE(4)
+        , M_MAX_INCREASE(4)
+        , m_platform_io(platform_io)
+        , m_curr_freq(NAN)
+        , m_target(0.0)
+        , m_start_energy(0.0)
         , m_runtime_idx(runtime_idx)
         , m_pkg_energy_idx(pkg_energy_idx)
     {
