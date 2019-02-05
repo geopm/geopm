@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "bc491d31_262b4c40",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-02-05T05:20:22Z",
+      "side": 1,
+      "message": "good eye.  the is left over from an implementation where the keys for maps were pairs instead of just hash.  may be something to look into later?  wasn\u0027t totally sure of the implementation plans for this agent regarding these changes.",
+      "parentUuid": "0980fa71_08460673",
+      "revId": "b28a0e95be2557a7a2a71dbc52913271cc8386ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7ba41c24_ae84fc6f",
         "filename": "src/EnergyEfficientAgent.cpp",
         "patchSetId": 8
@@ -47,6 +65,30 @@
       "writtenOn": "2019-02-05T02:03:18Z",
       "side": 1,
       "message": "supposed to be m_region_hash.size()?",
+      "range": {
+        "startLine": 253,
+        "startChar": 24,
+        "endLine": 253,
+        "endChar": 25
+      },
+      "revId": "b28a0e95be2557a7a2a71dbc52913271cc8386ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9a0b7d9_20f0493d",
+        "filename": "test/EnergyEfficientAgentTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-02-05T05:20:22Z",
+      "side": 1,
+      "message": "meh",
+      "parentUuid": "ef3a6542_4e9d989b",
       "range": {
         "startLine": 253,
         "startChar": 24,
