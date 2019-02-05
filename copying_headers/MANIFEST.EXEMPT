@@ -36,14 +36,12 @@ pull_request_template.md
 ronn/GEOPM_CXX_MAN_Agent.3.ronn
 ronn/GEOPM_CXX_MAN_Agg.3.ronn
 ronn/GEOPM_CXX_MAN_CircularBuffer.3.ronn
-ronn/GEOPM_CXX_MAN_Comm.3.ronn
 ronn/GEOPM_CXX_MAN_CpuinfoIOGroup.3.ronn
 ronn/GEOPM_CXX_MAN_EnergyEfficientAgent.3.ronn
 ronn/GEOPM_CXX_MAN_EnergyEfficientRegion.3.ronn
 ronn/GEOPM_CXX_MAN_Exception.3.ronn
 ronn/GEOPM_CXX_MAN_Helper.3.ronn
 ronn/GEOPM_CXX_MAN_IOGroup.3.ronn
-ronn/GEOPM_CXX_MAN_MPIComm.3.ronn
 ronn/GEOPM_CXX_MAN_MSR.3.ronn
 ronn/GEOPM_CXX_MAN_MSRIO.3.ronn
 ronn/GEOPM_CXX_MAN_MSRIOGroup.3.ronn
