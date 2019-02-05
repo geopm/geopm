@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7eb08128_2cb9cce5",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1340,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-05T20:11:49Z",
+      "side": 1,
+      "message": "can we reused dictionary that we look these up in from the factory?",
+      "range": {
+        "startLine": 1340,
+        "startChar": 6,
+        "endLine": 1340,
+        "endChar": 115
+      },
+      "revId": "aca53111a6caf058cb36b77e26c8e62babb9de16",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f9d93fc_83f795b9",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1342,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-05T20:11:49Z",
+      "side": 1,
+      "message": "restore value that was set before function was called.",
+      "revId": "aca53111a6caf058cb36b77e26c8e62babb9de16",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
