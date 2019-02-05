@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0fb807c_8608f57b",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-05T22:34:04Z",
+      "side": 1,
+      "message": "Not sure if klocwork will complain about these uninitialized output arguments",
+      "revId": "fb8eef4f487067c2fa3acbc4552afab01c4e412a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9b6c39c_c11cd86b",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-05T22:34:04Z",
+      "side": 1,
+      "message": "use !\u003d ?",
+      "range": {
+        "startLine": 303,
+        "startChar": 37,
+        "endLine": 303,
+        "endChar": 38
+      },
+      "revId": "fb8eef4f487067c2fa3acbc4552afab01c4e412a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
