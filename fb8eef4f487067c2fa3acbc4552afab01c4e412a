@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "d8cf19f0_d42bf39b",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-02-05T22:45:26Z",
+      "side": 1,
+      "message": "More uninitialized vars.",
+      "range": {
+        "startLine": 301,
+        "startChar": 12,
+        "endLine": 301,
+        "endChar": 28
+      },
+      "revId": "fb8eef4f487067c2fa3acbc4552afab01c4e412a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c9b6c39c_c11cd86b",
         "filename": "src/geopm_pmpi.c",
         "patchSetId": 5
