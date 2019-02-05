@@ -82,14 +82,12 @@ pkginclude_HEADERS = contrib/json11/json11.hpp \
                      src/Agent.hpp \
                      src/Agg.hpp \
                      src/CircularBuffer.hpp \
-                     src/Comm.hpp \
                      src/CpuinfoIOGroup.hpp \
                      src/EnergyEfficientAgent.hpp \
                      src/EnergyEfficientRegion.hpp \
                      src/Exception.hpp \
                      src/Helper.hpp \
                      src/IOGroup.hpp \
-                     src/MPIComm.hpp \
                      src/MSR.hpp \
                      src/MSRIO.hpp \
                      src/MSRIOGroup.hpp \
@@ -135,14 +133,12 @@ transform='s/GEOPM_CXX_MAN_/geopm::/'
 ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/GEOPM_CXX_MAN_Agg.3 \
                 man/GEOPM_CXX_MAN_CircularBuffer.3 \
-                man/GEOPM_CXX_MAN_Comm.3 \
                 man/GEOPM_CXX_MAN_CpuinfoIOGroup.3 \
                 man/GEOPM_CXX_MAN_EnergyEfficientAgent.3 \
                 man/GEOPM_CXX_MAN_EnergyEfficientRegion.3 \
                 man/GEOPM_CXX_MAN_Exception.3 \
                 man/GEOPM_CXX_MAN_Helper.3 \
                 man/GEOPM_CXX_MAN_IOGroup.3 \
-                man/GEOPM_CXX_MAN_MPIComm.3 \
                 man/GEOPM_CXX_MAN_MSR.3 \
                 man/GEOPM_CXX_MAN_MSRIO.3 \
                 man/GEOPM_CXX_MAN_MSRIOGroup.3 \
@@ -188,6 +184,8 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
 
 ronn_man_noinst = man/geopmanalysis.1 \
                   man/geopmplotter.1 \
+                  man/GEOPM_CXX_MAN_Comm.3 \
+                  man/GEOPM_CXX_MAN_MPIComm.3 \ \
                   # end
 
 ronn_man = $(ronn_man_inst) $(ronn_man_noinst)
@@ -295,7 +293,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              scripts/outlier/README.md \
              scripts/outlier/outlier_detection.py \
              scripts/outlier/theta_nodelist_broken.txt \
-             src/Comm.hpp \
              travis_ci.sh \
              test_hw/Makefile \
              test_hw/geopm_time.h \
