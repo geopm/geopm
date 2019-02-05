@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0980fa71_08460673",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-05T02:03:18Z",
+      "side": 1,
+      "message": "don\u0027t need this; you can replace curr_pair.first with current_region_hash below",
+      "revId": "b28a0e95be2557a7a2a71dbc52913271cc8386ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ba41c24_ae84fc6f",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-05T02:03:18Z",
+      "side": 1,
+      "message": "need to be careful that these indexes match M_SIGNAL_* constants used for sample().  TBH I\u0027m surprised to see the old code doing this; it seems risky.",
+      "revId": "b28a0e95be2557a7a2a71dbc52913271cc8386ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef3a6542_4e9d989b",
+        "filename": "test/EnergyEfficientAgentTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-05T02:03:18Z",
+      "side": 1,
+      "message": "supposed to be m_region_hash.size()?",
+      "range": {
+        "startLine": 253,
+        "startChar": 24,
+        "endLine": 253,
+        "endChar": 25
+      },
+      "revId": "b28a0e95be2557a7a2a71dbc52913271cc8386ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
