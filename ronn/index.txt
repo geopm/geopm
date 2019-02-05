@@ -57,14 +57,12 @@ geopmwrite(1)                    geopmwrite.1
 geopm::Agent(3)                  GEOPM_CXX_MAN_Agent.3
 geopm::Agg(3)                    GEOPM_CXX_MAN_Agg.3
 geopm::CircularBuffer(3)         GEOPM_CXX_MAN_CircularBuffer.3
-geopm::Comm(3)                   GEOPM_CXX_MAN_Comm.3
 geopm::CpuinfoIOGroup(3)         GEOPM_CXX_MAN_CpuinfoIOGroup.3
 geopm::EnergyEfficientAgent(3)   GEOPM_CXX_MAN_EnergyEfficientAgent.3
 geopm::EnergyEfficientRegion(3)  GEOPM_CXX_MAN_EnergyEfficientRegion.3
 geopm::Exception(3)              GEOPM_CXX_MAN_Exception.3
 geopm::Helper(3)                 GEOPM_CXX_MAN_Helper.3
 geopm::IOGroup(3)                GEOPM_CXX_MAN_IOGroup.3
-geopm::MPIComm(3)                GEOPM_CXX_MAN_MPIComm.3
 geopm::MSR(3)                    GEOPM_CXX_MAN_MSR.3
 geopm::MSRIO(3)                  GEOPM_CXX_MAN_MSRIO.3
 geopm::MSRIOGroup(3)             GEOPM_CXX_MAN_MSRIOGroup.3
