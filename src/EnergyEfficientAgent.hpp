@@ -39,7 +39,6 @@
 #include <memory>
 #include <functional>
 
-#include "geopm.h"
 #include "geopm_time.h"
 
 #include "Agent.hpp"
@@ -106,17 +105,17 @@ namespace geopm
             double m_curr_adapt_freq;
             std::map<uint64_t, double> m_hash_freq_map;
             // for online adaptive mode
-            bool m_is_online = false;
+            bool m_is_online;
             std::map<uint64_t, std::unique_ptr<EnergyEfficientRegion> > m_region_map;
             geopm_time_s m_last_wait;
             std::vector<int> m_sample_idx;
             std::vector<int> m_signal_idx;
             std::vector<std::function<double(const std::vector<double>&)> > m_agg_func;
             size_t m_num_sample;
-            int m_level = -1;
-            int m_num_children = 0;
-            std::pair<uint64_t, uint64_t>  m_last_region = std::make_pair(GEOPM_REGION_HASH_INVALID, GEOPM_REGION_HINT_UNKNOWN);
-            size_t m_num_ascend = 0;
+            int m_level;
+            int m_num_children;
+            std::pair<uint64_t, uint64_t>  m_last_region;
+            size_t m_num_ascend;
     };
 }
 
