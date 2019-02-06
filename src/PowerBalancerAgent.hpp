@@ -122,13 +122,13 @@ namespace geopm
             };
 
             enum m_trace_sample_e {
-                M_TRACE_SAMPLE_EPOCH_RUNTIME,
-                M_TRACE_SAMPLE_POWER_LIMIT,
                 M_TRACE_SAMPLE_POLICY_POWER_CAP,
                 M_TRACE_SAMPLE_POLICY_STEP_COUNT,
                 M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME,
                 M_TRACE_SAMPLE_POLICY_POWER_SLACK,
-                M_TRACE_SAMPLE_POLICY_POWER_LIMIT,
+                M_TRACE_SAMPLE_EPOCH_RUNTIME,
+                M_TRACE_SAMPLE_POWER_LIMIT,
+                M_TRACE_SAMPLE_ENFORCED_POWER_LIMIT,
                 M_TRACE_NUM_SAMPLE,
             };
 

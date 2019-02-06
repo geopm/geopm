@@ -362,13 +362,13 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
     int counter = 0;
     std::vector<double> trace_vals(7, NAN);
     std::vector<double> exp_trace_vals(7, NAN);
-    const std::vector<std::string> trace_cols = {"epoch_runtime",
-                                                 "power_limit",
-                                                 "policy_power_cap",
+    const std::vector<std::string> trace_cols = {"policy_power_cap",
                                                  "policy_step_count",
                                                  "policy_max_epoch_runtime",
                                                  "policy_power_slack",
-                                                 "policy_power_limit"};
+                                                 "epoch_runtime",
+                                                 "power_limit",
+                                                 "enforced_power_limit"};
     std::vector<double> epoch_rt_mpi = {0.50, 0.75};
     std::vector<double> epoch_rt_ignore = {0.25, 0.27};
     std::vector<double> epoch_rt = {1.0, 1.01};
