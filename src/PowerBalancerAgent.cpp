@@ -238,12 +238,12 @@ namespace geopm
     std::vector<std::string> PowerBalancerAgent::LeafRole::trace_names(void) const
     {
         return {"epoch_runtime",            // M_TRACE_SAMPLE_EPOCH_RUNTIME
-                "power_limit",              // M_TRACE_SAMPLE_POWER_LIMIT
                 "policy_power_cap",         // M_TRACE_SAMPLE_POLICY_POWER_CAP
                 "policy_step_count",        // M_TRACE_SAMPLE_POLICY_STEP_COUNT
                 "policy_max_epoch_runtime", // M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME
                 "policy_power_slack",       // M_TRACE_SAMPLE_POLICY_POWER_SLACK
-                "policy_power_limit"        // M_TRACE_SAMPLE_POLICY_POWER_LIMIT
+                "power_limit",              // M_TRACE_SAMPLE_POWER_LIMIT
+                "enforced_power_limit"      // M_TRACE_SAMPLE_ENFORCED_POWER_LIMIT
                };
     }
 
@@ -256,12 +256,12 @@ namespace geopm
         }
 #endif
         values[M_TRACE_SAMPLE_EPOCH_RUNTIME] = m_power_balancer->runtime_sample();
-        values[M_TRACE_SAMPLE_POWER_LIMIT] = m_power_balancer->power_limit();
         values[M_TRACE_SAMPLE_POLICY_POWER_CAP] = m_policy[M_POLICY_POWER_CAP];
         values[M_TRACE_SAMPLE_POLICY_STEP_COUNT] = m_policy[M_POLICY_STEP_COUNT];
         values[M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME] = m_policy[M_POLICY_MAX_EPOCH_RUNTIME];
         values[M_TRACE_SAMPLE_POLICY_POWER_SLACK] = m_policy[M_POLICY_POWER_SLACK];
-        values[M_TRACE_SAMPLE_POLICY_POWER_LIMIT] = m_actual_limit;
+        values[M_TRACE_SAMPLE_POWER_LIMIT] = m_power_balancer->power_limit();
+        values[M_TRACE_SAMPLE_ENFORCED_POWER_LIMIT] = m_actual_limit;
     }
 
     PowerBalancerAgent::TreeRole::TreeRole(int level, const std::vector<int> &fan_in)
