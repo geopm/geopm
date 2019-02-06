@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dcd524c3_e8598d5b",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-02-06T23:45:12Z",
+      "side": 1,
+      "message": "no policy_, rename enum.  move south near enforced (non-policy vals)",
+      "range": {
+        "startLine": 259,
+        "startChar": 15,
+        "endLine": 259,
+        "endChar": 48
+      },
+      "revId": "f438e3b042d6e44bd90e4da6c4020efd3c944580",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
