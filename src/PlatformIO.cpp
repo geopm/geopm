@@ -104,7 +104,6 @@ namespace geopm
 
     std::shared_ptr<IOGroup> PlatformIO::find_signal_iogroup(const std::string &signal_name) const
     {
-
         std::shared_ptr<IOGroup> result = nullptr;
         bool is_found = false;
         for (auto it = m_iogroup_list.rbegin();
