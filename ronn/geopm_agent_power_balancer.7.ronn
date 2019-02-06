@@ -151,7 +151,7 @@ reports and traces with additional Agent-specific information.
                    calls by the application averaged over all ranks on
                    the node and excluding time spent in MPI calls.
 
-  `power_limit`: Power limit assigned to the compute node associated
+  `policy_power_limit`: Power limit assigned to the compute node associated
                  with the trace file at time of sampling.
 
   `policy_power_cap`: The latest power cap received through the
@@ -167,7 +167,7 @@ reports and traces with additional Agent-specific information.
   `policy_power_slack`: The latest power slack value received from the
                         parent.
 
-  `policy_power_limit`: The actual power limit that was set on the
+  `enforced_power_limit`: The actual power limit that was set on the
                         node.  It may be different from the requested
                         limit due to hardware constraints.
 
