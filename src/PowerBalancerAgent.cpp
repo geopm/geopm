@@ -243,7 +243,7 @@ namespace geopm
                 "policy_step_count",        // M_TRACE_SAMPLE_POLICY_STEP_COUNT
                 "policy_max_epoch_runtime", // M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME
                 "policy_power_slack",       // M_TRACE_SAMPLE_POLICY_POWER_SLACK
-                "policy_power_limit"        // M_TRACE_SAMPLE_POLICY_POWER_LIMIT
+                "enforced_power_limit"      // M_TRACE_SAMPLE_POLICY_POWER_LIMIT
                };
     }
 
