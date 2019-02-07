@@ -52,14 +52,14 @@ TEST_F(TimeIOGroupTest, is_valid)
     EXPECT_FALSE(m_group.is_valid_signal("INVALID"));
     EXPECT_FALSE(m_group.is_valid_control("TIME::ELAPSED"));
     EXPECT_FALSE(m_group.is_valid_control("INVALID"));
-    EXPECT_EQ(PlatformTopo::M_DOMAIN_BOARD, m_group.signal_domain_type("TIME::ELAPSED"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, m_group.signal_domain_type("TIME::ELAPSED"));
     EXPECT_EQ(PlatformTopo::M_DOMAIN_INVALID, m_group.signal_domain_type("INVALID"));
     EXPECT_EQ(PlatformTopo::M_DOMAIN_INVALID, m_group.control_domain_type("TIME::ELAPSED"));
     EXPECT_EQ(PlatformTopo::M_DOMAIN_INVALID, m_group.control_domain_type("INVALID"));
 
     // alias
     EXPECT_TRUE(m_group.is_valid_signal("TIME"));
-    EXPECT_EQ(PlatformTopo::M_DOMAIN_BOARD, m_group.signal_domain_type("TIME"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, m_group.signal_domain_type("TIME"));
 
     // all provided signals are valid
     EXPECT_NE(0u, m_group.signal_names().size());
