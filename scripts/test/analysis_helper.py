@@ -36,8 +36,8 @@ import sys
 try:
     import pandas
     import geopm_context
-    import geopmpy.analysis
     import geopmpy.io
+    import geopmpy.analysis
     g_skip_analysis_test = False
     g_skip_analysis_ex = None
 except ImportError as ex:
