@@ -61,6 +61,8 @@ class EnvironmentTest: public :: testing :: Test
         std::string m_plugin_path;
         std::string m_profile;
         std::string m_pmpi_ctl_str;
+        std::string m_trace_signals;
+        std::string m_report_signals;
         int m_pmpi_ctl;
         bool m_do_region_barrier;
         bool m_do_trace;
@@ -71,19 +73,21 @@ class EnvironmentTest: public :: testing :: Test
 
 void EnvironmentTest::SetUp()
 {
-    m_report = std::string("report-test_value");
-    m_policy = std::string("policy-test_value");
-    m_shmkey = std::string("shmkey-test_value");
-    m_trace = std::string("trace-test_value");
-    m_plugin_path = std::string("plugin_path-test_value");
-    m_profile = std::string("profile-test_value");
+    m_report = "report-test_value";
+    m_policy = "policy-test_value";
+    m_shmkey = "shmkey-test_value";
+    m_trace = "trace-test_value";
+    m_plugin_path = "plugin_path-test_value";
+    m_profile = "profile-test_value";
     m_pmpi_ctl = GEOPM_CTL_NONE;
     m_do_region_barrier = false;
     m_do_trace = false;
     m_do_profile = false;
     m_profile_timeout = 30;
     m_debug_attach = -1;
-    m_pmpi_ctl_str = std::string("none");
+    m_pmpi_ctl_str = "none";
+    m_trace_signals = "test1,test2,test3";
+    m_report_signals = "best1,best2,best3";
 
     unsetenv("GEOPM_REPORT");
     unsetenv("GEOPM_POLICY");
@@ -162,29 +166,28 @@ TEST_F(EnvironmentTest, construction1)
     setenv("GEOPM_CTL", m_pmpi_ctl_str.c_str(), 1);
     setenv("GEOPM_DEBUG_ATTACH", std::to_string(m_debug_attach).c_str(), 1);
     //setenv("GEOPM_PROFILE", m_profile.c_str(), 1);
-    setenv("GEOPM_TRACE_SIGNALS", "test1,test2,,test3", 0);
+    setenv("GEOPM_TRACE_SIGNALS", m_trace_signals.c_str(), 1);
+    setenv("GEOPM_REPORT_SIGNALS", m_report_signals.c_str(), 1);
 
     m_profile = program_invocation_name;
 
     geopm_env_load();
 
     std::string default_shmkey("/geopm-shm-" + std::to_string(geteuid()));
-    EXPECT_EQ(m_policy, std::string(geopm_env_policy()));
-    EXPECT_EQ(default_shmkey, std::string(geopm_env_shmkey()));
-    EXPECT_EQ(m_trace, std::string(geopm_env_trace()));
-    EXPECT_EQ(m_plugin_path, std::string(geopm_env_plugin_path()));
-    EXPECT_EQ(m_report, std::string(geopm_env_report()));
-    EXPECT_EQ(m_profile, std::string(geopm_env_profile()));
+    EXPECT_EQ(m_policy, geopm_env_policy());
+    EXPECT_EQ(default_shmkey, geopm_env_shmkey());
+    EXPECT_EQ(m_trace, geopm_env_trace());
+    EXPECT_EQ(m_plugin_path, geopm_env_plugin_path());
+    EXPECT_EQ(m_report, geopm_env_report());
+    EXPECT_EQ(m_profile, geopm_env_profile());
     EXPECT_EQ(m_pmpi_ctl, geopm_env_pmpi_ctl());
     EXPECT_EQ(0, geopm_env_do_region_barrier());
     EXPECT_EQ(1, geopm_env_do_trace());
     EXPECT_EQ(1, geopm_env_do_profile());
     EXPECT_EQ(m_profile_timeout, geopm_env_profile_timeout());
     EXPECT_EQ(m_debug_attach, geopm_env_debug_attach());
-    EXPECT_EQ(3, geopm_env_num_trace_signal());
-    EXPECT_STREQ("test1", geopm_env_trace_signal(0));
-    EXPECT_STREQ("test2", geopm_env_trace_signal(1));
-    EXPECT_STREQ("test3", geopm_env_trace_signal(2));
+    EXPECT_EQ(m_trace_signals, geopm_env_trace_signals());
+    EXPECT_EQ(m_report_signals, geopm_env_report_signals());
 }
 
 TEST_F(EnvironmentTest, invalid_ctl)
