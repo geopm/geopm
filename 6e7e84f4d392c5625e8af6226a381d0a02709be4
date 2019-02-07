@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "65a75f0e_146f57f4",
+        "filename": "ronn/geopm.7.ronn.in",
+        "patchSetId": 3
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-02-07T18:02:04Z",
+      "side": 1,
+      "message": "very surprised to see this here in dev... think I lost my documentation patch?",
+      "range": {
+        "startLine": 249,
+        "startChar": 42,
+        "endLine": 249,
+        "endChar": 52
+      },
+      "revId": "6e7e84f4d392c5625e8af6226a381d0a02709be4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
