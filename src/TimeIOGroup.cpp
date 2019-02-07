@@ -73,7 +73,7 @@ namespace geopm
     {
         int result = PlatformTopo::M_DOMAIN_INVALID;
         if (is_valid_signal(signal_name)) {
-            result = PlatformTopo::M_DOMAIN_BOARD;
+            result = PlatformTopo::M_DOMAIN_CPU;
         }
         return result;
     }
@@ -183,7 +183,7 @@ namespace geopm
                             "not valid for TimeIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return Agg::average;
+        return Agg::select_first;
     }
 
     std::string TimeIOGroup::signal_description(const std::string &signal_name) const
