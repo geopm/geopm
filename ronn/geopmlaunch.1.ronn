@@ -115,7 +115,6 @@ the first `--` from the command line.
   **geopm(7)**.
 
 * `--geopm-endpoint` endpoint:
-
   Basename for the policy and sample shared memory regions used to
   communicate with the resource manager.  This allows the resource
   manager to dynamically control GEOPM plugins and collect feedback at
@@ -143,25 +142,33 @@ the first `--` from the command line.
   ENVIRONMENT section of **geopm(7)**.
 
 * `--geopm-report` path:
-  Path to the GEOPM report output file describing the profiling
-  information collected by GEOPM.  This file is generated at the
-  conclusion of the run if this option is given and will be written to
-  the file system path specified or current directory if only a file
-  name is given.  The report is a single file contains information
-  about runtimes, MPI usage, and power consumption for each node.  The
-  report is broken down by region if the application has been
-  annotated with the GEOPM region interface.  Note that the sampled
-  values for 'energy' and 'sync-runtime' are added to the total for a
-  region only when all ranks are in a region; otherwise they are added
-  to the unmarked region.  The epoch region and application total
-  energy are not calculated by sampling but rather through start and
-  end values.  When comparing energy and time values from the report,
-  care should be taken to use 'runtime' in the case of epoch and
-  application totals, and 'sync-runtime' for all other regions.  This
-  option is used by the launcher to set the GEOPM_REPORT environment
-  variable.  The command line option will override any value currently
-  set in the environment.  See the ENVIRONMENT section of
-  **geopm(7)**.
+  Specifies the path to the GEOPM report output file that is generated
+  at the conclusion of the run if this option is provided.  If the
+  option is not provided, no report will be created.  The GEOPM report
+  contains a summary of the profiling information collected by GEOPM
+  throughout the application execution.  The report contains
+  information about runtimes, MPI usage, and power consumption for
+  each compute node used by the application.  The report is broken
+  down compute node and then by region.  The regions are defined by
+  use of the **geopm_prof_c(3)** interfaces or automatic inference
+  of regions based on interposing on the MPI or OpenMP interfaces.
+  Note that the sampled values, like 'energy', are accumulated into
+  the sum for a region only when all ranks on a compute node are
+  concurrently executing the same region; otherwise statistics
+  gathered are accumulated within the 'unmarked-region'.  Also note
+  that the `sync-runtime` accumulates the total amount of time when
+  all ranks within a compute node were synchronously within the
+  region.  The `runtime` value is the time spent within a region by a
+  rank averaged over all ranks on the node regardless of synchronicity
+  of execution.  The "Application totals" are not calculated by
+  sampling throughout the run, but rather by differencing values
+  measured at the start and end of the application.  When comparing
+  energy and time values from the report, care should be taken to use
+  'runtime' in the case of application totals, and 'sync-runtime' for
+  all other regions.  This option is used by the launcher to set the
+  `GEOPM_REPORT` environment variable.  The command line option will
+  override any value currently set in the environment.  See the
+  ENVIRONMENT section of **geopm(7)**.
 
 * `--geopm-trace` path:
   The base name and path of the trace file(s) generated if this option
