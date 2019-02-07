@@ -39,6 +39,7 @@
 #include "PlatformTopo.hpp"
 #include "Reporter.hpp"
 #include "MockPlatformIO.hpp"
+#include "MockPlatformTopo.hpp"
 #include "MockRegionAggregator.hpp"
 #include "MockApplicationIO.hpp"
 #include "MockComm.hpp"
@@ -55,6 +56,7 @@ using testing::Return;
 using testing::_;
 using testing::SaveArg;
 using testing::SetArgPointee;
+
 
 // Mock for gathering reports; assumes one node only
 class ReporterTestMockComm : public MockComm
@@ -82,12 +84,15 @@ class ReporterTest : public testing::Test
             M_ENERGY_DRAM_IDX,
             M_CLK_CORE_IDX,
             M_CLK_REF_IDX,
+            M_ENERGY_PKG_ENV_IDX_0,
+            M_ENERGY_PKG_ENV_IDX_1,
         };
         ReporterTest();
         void TearDown(void);
         std::string m_report_name = "test_reporter.out";
 
         MockPlatformIO m_platform_io;
+        MockPlatformTopo m_platform_topo;
         MockRegionAggregator *m_agg;  // freed with Reporter
         MockApplicationIO m_application_io;
         std::shared_ptr<ReporterTestMockComm> m_comm;
@@ -155,7 +160,7 @@ ReporterTest::ReporterTest()
     EXPECT_CALL(*m_agg, init());
     EXPECT_CALL(*m_agg, push_signal_total("TIME", _, _))
         .WillOnce(Return(M_TIME_IDX));
-    EXPECT_CALL(*m_agg, push_signal_total("ENERGY_PACKAGE", _, _))
+    EXPECT_CALL(*m_agg, push_signal_total("ENERGY_PACKAGE", geopm::IPlatformTopo::M_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_ENERGY_PKG_IDX));
     EXPECT_CALL(*m_agg, push_signal_total("ENERGY_DRAM", _, _))
         .WillOnce(Return(M_ENERGY_DRAM_IDX));
@@ -163,9 +168,18 @@ ReporterTest::ReporterTest()
         .WillOnce(Return(M_CLK_REF_IDX));
     EXPECT_CALL(*m_agg, push_signal_total("CYCLES_THREAD", _, _))
         .WillOnce(Return(M_CLK_CORE_IDX));
+
+    EXPECT_CALL(m_platform_topo, num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE))
+        .WillRepeatedly(Return(2));
+
+    EXPECT_CALL(*m_agg, push_signal_total("ENERGY_PACKAGE", geopm::IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+        .WillOnce(Return(M_ENERGY_PKG_ENV_IDX_0));
+    EXPECT_CALL(*m_agg, push_signal_total("ENERGY_PACKAGE", geopm::IPlatformTopo::M_DOMAIN_PACKAGE, 1))
+        .WillOnce(Return(M_ENERGY_PKG_ENV_IDX_1));
+
     m_comm = std::make_shared<ReporterTestMockComm>();
-    m_reporter = geopm::make_unique<Reporter>(m_start_time, m_report_name, m_platform_io, 0,
-                                              std::unique_ptr<MockRegionAggregator>(m_agg));
+    m_reporter = geopm::make_unique<Reporter>(m_start_time, m_report_name, m_platform_io, m_platform_topo, 0,
+                                              std::unique_ptr<MockRegionAggregator>(m_agg), "ENERGY_PACKAGE@package");
     m_reporter->init();
 }
 
@@ -214,6 +228,10 @@ TEST_F(ReporterTest, generate)
             .WillOnce(Return(rid.second/2.0));
         EXPECT_CALL(*m_agg, sample_total(M_ENERGY_DRAM_IDX, rid.first))
             .WillOnce(Return(rid.second/2.0));
+        EXPECT_CALL(*m_agg, sample_total(M_ENERGY_PKG_ENV_IDX_0, rid.first))
+            .WillOnce(Return(rid.second/4.0));
+        EXPECT_CALL(*m_agg, sample_total(M_ENERGY_PKG_ENV_IDX_1, rid.first))
+            .WillOnce(Return(rid.second/4.0));
     }
     for (auto rid : m_region_clk_core) {
         EXPECT_CALL(*m_agg, sample_total(M_CLK_CORE_IDX, rid.first))
@@ -254,6 +272,8 @@ TEST_F(ReporterTest, generate)
         "    frequency (Hz): 0.818182\n"
         "    mpi-runtime (sec): 3.4\n"
         "    count: 20\n"
+        "    ENERGY_PACKAGE@package-0: 194.25\n"
+        "    ENERGY_PACKAGE@package-1: 194.25\n"
         "    agent stat: 1\n"
         "    agent other stat: 2\n"
         "Region model-init (\n"
@@ -265,6 +285,8 @@ TEST_F(ReporterTest, generate)
         "    frequency (Hz): 0.848485\n"
         "    mpi-runtime (sec): 5.6\n"
         "    count: 1\n"
+        "    ENERGY_PACKAGE@package-0: 222\n"
+        "    ENERGY_PACKAGE@package-1: 222\n"
         "    agent stat: 2\n"
         "Region unmarked-region (\n"
         "    runtime (sec): 12.13\n"
@@ -275,6 +297,8 @@ TEST_F(ReporterTest, generate)
         "    frequency (Hz): 0.772727\n"
         "    mpi-runtime (sec): 1.2\n"
         "    count: 0\n"
+        "    ENERGY_PACKAGE@package-0: 55.5\n"
+        "    ENERGY_PACKAGE@package-1: 55.5\n"
         "    agent stat: 3\n"
         "Epoch Totals:\n"
         "    runtime (sec): 70\n"
@@ -285,6 +309,8 @@ TEST_F(ReporterTest, generate)
         "    frequency (Hz): 0.886364\n"
         "    mpi-runtime (sec): 4.2\n"
         "    count: 0\n"
+        "    ENERGY_PACKAGE@package-0: 83.5\n"
+        "    ENERGY_PACKAGE@package-1: 83.5\n"
         "    epoch-runtime-ignore (sec): 0.7\n"
         "Application Totals:\n"
         "    runtime (sec): 56\n"
