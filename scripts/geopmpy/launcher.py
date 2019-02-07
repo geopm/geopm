@@ -44,13 +44,11 @@ import sys
 import os
 import argparse
 import subprocess
-import socket
 import math
 import signal
 import StringIO
 import itertools
 import glob
-import re
 import shlex
 import stat
 import textwrap
@@ -158,17 +156,17 @@ class Config(object):
             raise PassThroughError('--geopm-disable-ctl specified; disabling the controller...')
         # Parse the subset of arguments used by geopm
         parser = SubsetOptionParser()
-        parser.add_argument('--geopm-ctl', dest='ctl', type=str, default='process')
-        parser.add_argument('--geopm-policy', dest='policy', type=str)
-        parser.add_argument('--geopm-endpoint', dest='endpoint', type=str)
-        parser.add_argument('--geopm-report', dest='report', type=str, default='geopm.report')
+        parser.add_argument('--geopm-report', dest='report', type=str)
+        parser.add_argument('--geopm-report-signals', dest='report_signals', type=str)
         parser.add_argument('--geopm-trace', dest='trace', type=str)
         parser.add_argument('--geopm-trace-signals', dest='trace_signals', type=str)
-        parser.add_argument('--geopm-report-signals', dest='report_signals', type=str)
-        parser.add_argument('--geopm-agent', dest='agent', type=str)
         parser.add_argument('--geopm-profile', dest='profile', type=str)
+        parser.add_argument('--geopm-ctl', dest='ctl', type=str)
+        parser.add_argument('--geopm-agent', dest='agent', type=str)
+        parser.add_argument('--geopm-policy', dest='policy', type=str)
         parser.add_argument('--geopm-shmkey', dest='shmkey', type=str)
         parser.add_argument('--geopm-timeout', dest='timeout', type=str)
+        parser.add_argument('--geopm-endpoint', dest='endpoint', type=str)
         parser.add_argument('--geopm-plugin-path', dest='plugin', type=str)
         parser.add_argument('--geopm-debug-attach', dest='debug_attach', type=str)
         parser.add_argument('--geopm-region-barrier', dest='barrier', action='store_true', default=False)
@@ -1261,20 +1259,22 @@ Usage:
       geopmlaunch LAUNCHER [GEOPM_OPTIONS] [LAUNCHER_ARGS]
 
 GEOPM_OPTIONS:
-      --geopm-ctl=ctl          use geopm runtime and launch geopm with the
-                               "ctl" method, one of "process", "pthread" or
-                               "application" (default: "process")
-      --geopm-agent=agent      specify the agent to be used
-      --geopm-policy=pol       use the geopm policy file or shared memory
-                               region "pol"
       --geopm-report=path      create geopm report files with base name "path"
                                (default: "geopm.report")
+      --geopm-report-signals=signals
+                               comma-separated list of signals to add to report
       --geopm-trace=path       create geopm trace files with base name "path"
       --geopm-trace-signals=signals
                                comma-separated list of signals to add as columns
                                in the trace
       --geopm-profile=name     set the name of the profile in the report and
                                trace to "name"
+      --geopm-ctl=ctl          use geopm runtime and launch geopm with the
+                               "ctl" method, one of "process", "pthread" or
+                               "application"
+      --geopm-agent=agent      specify the agent to be used
+      --geopm-policy=pol       use the geopm policy file or shared memory
+                               region "pol"
       --geopm-shmkey=key       use shared memory keys for geopm starting with
                                "key"
       --geopm-timeout=sec      application waits "sec" seconds for handshake

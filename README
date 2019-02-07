@@ -281,20 +281,17 @@ See kernel documentation
 [here](https://www.kernel.org/doc/Documentation/cpu-freq/governors.txt)
 for more information.
 
-### GEOPM MPI LAUNCH WRAPPER
+### GEOPM APPLICATION LAUNCH WRAPPER
+
 The GEOPM package installs the command, "geopmlaunch".  This is a
-wrapper for the MPI launch commands like "mpiexec.hydra", "srun", and
-"aprun" where the wrapper script enables the GEOPM runtime.  The
+wrapper for the MPI launch commands like "srun", "aprun", and
+"mpiexec" where the wrapper script enables the GEOPM runtime.  The
 "geopmlaunch" command supports exactly the same command line interface
 as the underlying launch command, but the wrapper extends the
-interface with GEOPM specific options.  When the "--geopm-ctl" option
-is passed to the wrapper it will launch the GEOPM runtime with your
-application while enforcing the GEOPM requirements by manipulating the
-options passed to the underlying launch command.  This includes
-handling the CPU affinity requirements and getting the GEOPM control
-process on each node up and ready to connect to the main compute
-application.  The wrapper is documented in the geopmlaunch(1) man
-page.
+interface with GEOPM specific options.  The "geopmlaunch" application
+launches the primary compute application and the GEOPM control thread
+on each compute node and manages the CPU affinity requirements for all
+processes.  The wrapper is documented in the geopmlaunch(1) man page.
 
 There are several underlying MPI application launchers that
 "geopmlaunch" wrapper supports.  See the geopmlaunch(1) man page for
@@ -338,21 +335,42 @@ community).
 
 TESTING
 -------
-From within the source code directory, unit tests can be executed with the
-"make check" target.
+From within the source code directory, unit tests can be executed with
+the "make check" target.  The unit tests can be built without executing
+them with the "make checkprogs" target.  A typical parallel build and
+test cyle is executed with the following commands:
+
+    make -j
+    make checkprogs -j
+    make check
+
+The unit tests can be executed on any development system, including
+VMs and containers, that meets the BUILD REQUIREMENTS section above.
+
+The integration tests are located in the "test_integration" directory.
+These tests require a system meeting all of the requirements discussed
+in the RUN REQUIREMENTS section above and can be executed as follows:
+
+    cd test_integration
+    ./geopm_test_integration.py
+
+These integration tests are based on pyunit and leverage the geopmpy
+python package to validate the runtime.  Please report failures of
+these tests as issues.
 
 STATUS
 ------
-This software is production quality.  We will be enforcing
-[semantic versioning](https://semver.org/) for all releases following
-version 1.0.  We are very interested in feedback from the community.
-Refer to the ChangeLog a high level history of changes in each
-release.  See
+This software is production quality as of version 1.0.  We will be
+enforcing [semantic versioning](https://semver.org/) for all releases
+following version 1.0.  We are very interested in feedback from the
+community.  Refer to the ChangeLog a high level history of changes in
+each release.  See
 [github issues page](https://github.com/geopm/geopm/issues)
-for information about ongoing work.  Test coverage by unit tests is
-lacking for some files and will continue to be improved.  The line
-coverage results from gcov as reported by gcovr for the latest release
-can be found [here](http://geopm.github.io/coverage/index.html)
+for information about ongoing work and please provide feedback by
+opening issues.  Test coverage by unit tests is lacking for some files
+and will continue to be improved.  The line coverage results from gcov
+as reported by gcovr for the latest release can be found
+[here](http://geopm.github.io/coverage/index.html)
 
 ACKNOWLEDGMENTS
 ---------------

@@ -175,7 +175,7 @@ section on `SEARCH AND LOAD ORDER` for information about how the
 `IOGroup` implementation is used in the case where more than one
 provides the same high level signal or control.
 
-Signal names that end in '#', such as `REGION_ID#`, are 64-bit
+Signal names that end in '#' (for example, raw MSR values) are 64-bit
 integers encoded to be stored as doubles.  These values should not use
 direct conversion between the values, but should instead decode the
 64-bit integer from the double using `geopm_signal_to_field()`
@@ -192,7 +192,7 @@ provides raw MSR field signals that are encoded in this way.
 
   * `REGION_HASH`:
     The hash of the region of code (see **geopm_prof_c(3)**) currently being
-    ran by all ranks, otherwise GEOPM_REGION_HASH_UNMARKED.
+    run by all ranks, otherwise GEOPM_REGION_HASH_UNMARKED.
 
   * `REGION_HINT`:
     The region hint (see **geopm_prof_c(3)**) associated with the currently
