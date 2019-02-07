@@ -73,7 +73,7 @@ namespace geopm
     {
         int result = PlatformTopo::M_DOMAIN_INVALID;
         if (is_valid_signal(signal_name)) {
-            result = PlatformTopo::M_DOMAIN_BOARD;
+            result = PlatformTopo::M_DOMAIN_CPU;
         }
         return result;
     }
