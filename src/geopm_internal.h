@@ -53,7 +53,6 @@ enum geopm_region_hash_epoch_e {
 enum geopm_region_id_e {
     GEOPM_REGION_ID_EPOCH =        1ULL << 63, // Signaling the start of an epoch, no associated Region
     GEOPM_REGION_ID_MPI =          1ULL << 62, // Execution of MPI calls
-    GEOPM_REGION_ID_UNMARKED =     1ULL << 61, // Code executed outside of a region
     GEOPM_NUM_REGION_ID_PRIVATE =  3,          // Number table entries reserved for GEOPM defined regions (ignoring UNMARKED)
 };
 
