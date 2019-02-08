@@ -195,10 +195,10 @@ namespace geopm
                   });
         // Add unmarked and epoch at the end
         // Note here we map the private region id notion of
-        // GEOPM_REGION_ID_UNMARKED to pubilc GEOPM_REGION_HASH_UNMARKED.
+        // GEOPM_REGION_HASH_UNMARKED to pubilc GEOPM_REGION_HASH_UNMARKED.
         region_ordered.push_back({"unmarked-region",
                                   GEOPM_REGION_HASH_UNMARKED,
-                                  application_io.total_region_runtime(GEOPM_REGION_ID_UNMARKED),
+                                  application_io.total_region_runtime(GEOPM_REGION_HASH_UNMARKED),
                                   0});
         // Total epoch runtime for report includes MPI time and
         // ignore time, but they are removed from the runtime returned
