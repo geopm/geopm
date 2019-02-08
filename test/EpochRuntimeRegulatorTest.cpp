@@ -35,6 +35,8 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+#include "geopm.h"
+#include "geopm_internal.h"
 #include "EpochRuntimeRegulator.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
@@ -76,13 +78,13 @@ TEST_F(EpochRuntimeRegulatorTest, invalid_ranks)
                                GEOPM_ERROR_RUNTIME, "invalid max rank count");
     GEOPM_EXPECT_THROW_MESSAGE(EpochRuntimeRegulator(0, m_platform_io, m_platform_topo),
                                GEOPM_ERROR_RUNTIME, "invalid max rank count");
-    GEOPM_EXPECT_THROW_MESSAGE(m_regulator.record_entry(GEOPM_REGION_ID_UNMARKED, -1, {{1,1}}),
+    GEOPM_EXPECT_THROW_MESSAGE(m_regulator.record_entry(GEOPM_REGION_HASH_UNMARKED, -1, {{1,1}}),
                                GEOPM_ERROR_RUNTIME, "invalid rank value");
-    GEOPM_EXPECT_THROW_MESSAGE(m_regulator.record_entry(GEOPM_REGION_ID_UNMARKED, 99, {{1,1}}),
+    GEOPM_EXPECT_THROW_MESSAGE(m_regulator.record_entry(GEOPM_REGION_HASH_UNMARKED, 99, {{1,1}}),
                                GEOPM_ERROR_RUNTIME, "invalid rank value");
-    GEOPM_EXPECT_THROW_MESSAGE(m_regulator.record_exit(GEOPM_REGION_ID_UNMARKED, -1, {{1,1}}),
+    GEOPM_EXPECT_THROW_MESSAGE(m_regulator.record_exit(GEOPM_REGION_HASH_UNMARKED, -1, {{1,1}}),
                                GEOPM_ERROR_RUNTIME, "invalid rank value");
-    GEOPM_EXPECT_THROW_MESSAGE(m_regulator.record_exit(GEOPM_REGION_ID_UNMARKED, 99, {{1,1}}),
+    GEOPM_EXPECT_THROW_MESSAGE(m_regulator.record_exit(GEOPM_REGION_HASH_UNMARKED, 99, {{1,1}}),
                                GEOPM_ERROR_RUNTIME, "invalid rank value");
 
 }
@@ -120,7 +122,8 @@ TEST_F(EpochRuntimeRegulatorTest, rank_enter_exit_trace)
     // region info should be based on last entry and first exit
     // for time all the ranks were in the region
     for (const auto &info : region_info) {
-        EXPECT_EQ(region_id, info.region_id);
+        EXPECT_EQ(geopm_region_id_hash(region_id), info.region_hash);
+        EXPECT_EQ(geopm_region_id_hint(region_id), info.region_hint);
         EXPECT_EQ(expected_progress[idx], info.progress);
         EXPECT_EQ(expected_runtime[idx], info.runtime);
         ++idx;
