@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0092d17d_198089d3",
+        "filename": "src/geopm.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-08T19:47:04Z",
+      "side": 1,
+      "message": "geopm_internal.h please.",
+      "revId": "b8271e9eccf26621f4a4561390a8948d4fa1b2e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49c76ed0_eb98d762",
+        "filename": "test/EpochRuntimeRegulatorTest.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-08T19:47:04Z",
+      "side": 1,
+      "message": "debug",
+      "range": {
+        "startLine": 107,
+        "startChar": 0,
+        "endLine": 107,
+        "endChar": 11
+      },
+      "revId": "b8271e9eccf26621f4a4561390a8948d4fa1b2e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14d55a68_3cd31805",
+        "filename": "test/EpochRuntimeRegulatorTest.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-08T19:47:04Z",
+      "side": 1,
+      "message": "debug",
+      "range": {
+        "startLine": 160,
+        "startChar": 4,
+        "endLine": 160,
+        "endChar": 11
+      },
+      "revId": "b8271e9eccf26621f4a4561390a8948d4fa1b2e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73808e5c_c2f6cba1",
+        "filename": "test/ReporterTest.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-08T19:47:04Z",
+      "side": 1,
+      "message": "debug",
+      "range": {
+        "startLine": 194,
+        "startChar": 5,
+        "endLine": 194,
+        "endChar": 11
+      },
+      "revId": "b8271e9eccf26621f4a4561390a8948d4fa1b2e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e23d28da_4174b51b",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 18
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-08T19:47:04Z",
+      "side": 1,
+      "message": "oops",
+      "range": {
+        "startLine": 496,
+        "startChar": 0,
+        "endLine": 497,
+        "endChar": 20
+      },
+      "revId": "b8271e9eccf26621f4a4561390a8948d4fa1b2e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
