@@ -67,7 +67,7 @@ namespace geopm
             enum m_units_e {
                 M_UNITS_NONE,
                 M_UNITS_SECONDS,
-                M_UNITS_HZ,
+                M_UNITS_HERTZ,
                 M_UNITS_WATTS,
                 M_UNITS_JOULES,
                 M_UNITS_CELSIUS,
