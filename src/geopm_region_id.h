@@ -45,8 +45,6 @@ extern "C" {
 /*********************************/
 int geopm_region_id_is_mpi(uint64_t region_id);
 
-int geopm_region_id_is_unmarked(uint64_t region_id);
-
 int geopm_region_id_hint_is_equal(uint64_t hint_type, uint64_t region_id);
 
 uint64_t geopm_region_id_hint(uint64_t region_id);
