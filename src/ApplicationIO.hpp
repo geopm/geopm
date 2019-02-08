@@ -85,6 +85,8 @@ namespace geopm
             /// @brief Returns the total ignore time spent in the
             ///        application.
             virtual double total_app_runtime_ignore(void) const = 0;
+            /// @brief Returns the number of times the epoch was executed.
+            virtual int total_epoch_count(void) const = 0;
             /// @brief Returns the total time spent in ignored regions
             ///        for the application after the first call to epoch.
             virtual double total_epoch_runtime_ignore(void) const = 0;
@@ -153,6 +155,7 @@ namespace geopm
             double total_app_energy_dram(void) const override;
             double total_app_runtime_mpi(void) const override;
             double total_app_runtime_ignore(void) const override;
+            int total_epoch_count(void) const override;
             double total_epoch_runtime_ignore(void) const override;
             double total_epoch_runtime(void) const override;
             double total_epoch_runtime_mpi(void) const override;

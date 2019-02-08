@@ -207,8 +207,7 @@ namespace geopm
         region_ordered.push_back({"epoch",
                                   GEOPM_REGION_HASH_EPOCH,
                                   application_io.total_epoch_runtime(),
-                                  /// @todo epoch_count?
-                                  application_io.total_count(GEOPM_REGION_ID_EPOCH)});
+                                  application_io.total_epoch_count()});
 
         for (const auto &region : region_ordered) {
             if (GEOPM_REGION_HASH_EPOCH != region.hash) {
@@ -235,10 +234,16 @@ namespace geopm
             double numer = m_region_agg->sample_total(m_clk_core_idx, region.hash);
             double denom = m_region_agg->sample_total(m_clk_ref_idx, region.hash);
             double freq = denom != 0 ? 100.0 * numer / denom : 0.0;
+            double mpi_runtime = 0.0;
+            if (GEOPM_REGION_HASH_EPOCH == region.hash ) {
+                mpi_runtime = application_io.total_epoch_runtime_mpi();
+            }
+            else {
+                mpi_runtime = application_io.total_region_runtime_mpi(region.hash);
+            }
             report << "    frequency (%): " << freq << std::endl;
             report << "    frequency (Hz): " << freq / 100.0 * m_platform_io.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0) << std::endl;
-            /// @todo total_epoch_runtime_mpi
-            report << "    mpi-runtime (sec): " << application_io.total_region_runtime_mpi(region.hash != GEOPM_REGION_HASH_EPOCH ? region.hash : GEOPM_REGION_ID_EPOCH) << std::endl;
+            report << "    mpi-runtime (sec): " << mpi_runtime << std::endl;
             report << "    count: " << region.count << std::endl;
             for (const auto &env_it : m_env_signal_name_idx) {
                 report << "    " << env_it.first << ": " << m_region_agg->sample_total(env_it.second, region.hash) << std::endl;
