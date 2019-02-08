@@ -80,7 +80,7 @@ namespace geopm
                                     std::make_tuple(geopm::make_unique<RuntimeRegulator>
                                                     (m_rank_per_node)));
         m_rid_regulator_map.emplace(std::piecewise_construct,
-                                    std::make_tuple(GEOPM_REGION_ID_UNMARKED),
+                                    std::make_tuple(GEOPM_REGION_HASH_UNMARKED),
                                     std::make_tuple(geopm::make_unique<RuntimeRegulator>
                                                     (m_rank_per_node)));
     }
@@ -93,7 +93,7 @@ namespace geopm
         /// @todo This time should come from the application.
         geopm_time(&time);
         for (int rank = 0; rank < m_rank_per_node; ++rank) {
-            record_entry(GEOPM_REGION_ID_UNMARKED, rank, time);
+            record_entry(GEOPM_REGION_HASH_UNMARKED, rank, time);
         }
     }
 
@@ -163,7 +163,7 @@ namespace geopm
             int &num_ranks = count_it.first->second;
             ++num_ranks;
             // only log entry when all ranks have entered
-            if (num_ranks == m_rank_per_node && region_id != GEOPM_REGION_ID_UNMARKED) {
+            if (num_ranks == m_rank_per_node && region_id != GEOPM_REGION_HASH_UNMARKED) {
                 m_region_info.push_back({region_id,
                                          0.0,
                                          Agg::max(reg_it.first->second->per_rank_last_runtime())});
@@ -224,7 +224,7 @@ namespace geopm
             auto count_it = m_region_rank_count.emplace(region_id, 0);
             int &num_ranks = count_it.first->second;
             // only log exit when first rank exits
-            if (num_ranks == m_rank_per_node && region_id != GEOPM_REGION_ID_UNMARKED) {
+            if (num_ranks == m_rank_per_node && region_id != GEOPM_REGION_HASH_UNMARKED) {
                 m_region_info.push_back({region_id,
                                          1.0,
                                          Agg::max(reg_it->second->per_rank_last_runtime())});

@@ -70,11 +70,6 @@ int geopm_region_id_is_mpi(uint64_t region_id)
     return (region_id & GEOPM_REGION_ID_MPI) ? 1 : 0;
 }
 
-int geopm_region_id_is_unmarked(uint64_t region_id)
-{
-    return (region_id & GEOPM_REGION_ID_UNMARKED) ? 1 : 0;
-}
-
 int geopm_region_id_hint_is_equal(uint64_t hint_type, uint64_t region_id)
 {
     return (region_id & hint_type) ? 1 : 0;
@@ -82,13 +77,11 @@ int geopm_region_id_hint_is_equal(uint64_t hint_type, uint64_t region_id)
 
 uint64_t geopm_region_id_hint(uint64_t region_id)
 {
-    bool is_unmarked = geopm_region_id_is_unmarked(region_id);
-    bool is_mpi = geopm_region_id_is_mpi(region_id);
     uint64_t ret;
-    if (is_unmarked) {
+    if (GEOPM_REGION_HASH_UNMARKED == region_id) {
         ret = GEOPM_REGION_HINT_UNKNOWN;
     }
-    else if (is_mpi) {
+    else if (geopm_region_id_is_mpi(region_id)) {
         ret = GEOPM_REGION_HINT_NETWORK;
     }
     else {
