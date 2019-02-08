@@ -100,6 +100,9 @@ namespace geopm
             ///        region.
             /// @param [in] region_id The ID of the region.
             virtual double total_region_runtime_mpi(uint64_t region_id) const = 0;
+            /// @brief Returns the maximum number of epoch calls seen by each
+            ///        rank.
+            virtual int total_epoch_count() const = 0;
             /// @brief Returns the total runtime since the first epoch
             ///        call.  This total does not include MPI time or
             ///        ignore time.
@@ -160,6 +163,7 @@ namespace geopm
             std::vector<double> epoch_count() const override;
             double total_region_runtime(uint64_t region_id) const override;
             double total_region_runtime_mpi(uint64_t region_id) const override;
+            int total_epoch_count() const override;
             double total_epoch_runtime(void) const override;
             double total_epoch_runtime_mpi(void) const override;
             double total_epoch_runtime_ignore(void) const override;
