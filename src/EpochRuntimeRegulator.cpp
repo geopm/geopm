@@ -294,7 +294,7 @@ namespace geopm
     {
         double result = 0.0;
         if (region_id == GEOPM_REGION_ID_EPOCH) {
-            result = Agg::average(m_agg_epoch_runtime_mpi);
+            result = total_epoch_runtime_mpi();
         }
         else {
             try {
@@ -343,10 +343,26 @@ namespace geopm
         return Agg::average(m_agg_pre_epoch_runtime_ignore) + Agg::average(m_agg_epoch_runtime_ignore);
     }
 
+    int EpochRuntimeRegulator::total_epoch_count() const
+    {
+        int result = 0;
+        auto rank_count = m_rid_regulator_map.at(GEOPM_REGION_ID_EPOCH)->per_rank_count();
+        if (rank_count.size() != 0) {
+            result = *std::max_element(rank_count.begin(), rank_count.end());
+        }
+        return result;
+    }
+
     int EpochRuntimeRegulator::total_count(uint64_t region_id) const
     {
         int result = 0;
-        auto rank_count = region_regulator(region_id).per_rank_count();
+        std::vector<double> rank_count;
+        if (region_id == GEOPM_REGION_ID_EPOCH) {
+            rank_count = epoch_count();
+        }
+        else {
+            rank_count = region_regulator(region_id).per_rank_count();
+        }
         if (rank_count.size() != 0) {
             result = *std::max_element(rank_count.begin(), rank_count.end());
         }

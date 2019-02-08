@@ -72,6 +72,8 @@ class MockApplicationIO : public geopm::IApplicationIO
                            double(void));
         MOCK_CONST_METHOD0(total_epoch_energy_dram,
                            double(void));
+        MOCK_CONST_METHOD0(total_epoch_count,
+                           int(void));
         MOCK_CONST_METHOD1(total_count,
                            int(uint64_t region_id));
         MOCK_METHOD1(update,
