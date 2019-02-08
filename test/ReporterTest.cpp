@@ -114,7 +114,7 @@ class ReporterTest : public testing::Test
         std::map<uint64_t, double> m_region_count = {
             {geopm_crc32_str("all2all"), 20},
             {geopm_crc32_str("model-init"), 1},
-            {GEOPM_REGION_ID_EPOCH, 0}
+            {GEOPM_REGION_HASH_EPOCH, 0}
         };
         std::map<uint64_t, double> m_region_rt = {
             {geopm_crc32_str("all2all"), 555},
@@ -210,13 +210,24 @@ TEST_F(ReporterTest, generate)
             .WillOnce(Return(rid.second));
     }
     for (auto rid : m_region_mpi_time) {
-        /// @todo expect epoch_runtime_mpi instead
-        EXPECT_CALL(m_application_io, total_region_runtime_mpi(rid.first != GEOPM_REGION_HASH_EPOCH ? rid.first : GEOPM_REGION_ID_EPOCH))
-            .WillOnce(Return(rid.second));
+        if (GEOPM_REGION_HASH_EPOCH == rid.first) {
+            EXPECT_CALL(m_application_io, total_epoch_runtime_mpi())
+                .WillOnce(Return(rid.second));
+        }
+        else {
+            EXPECT_CALL(m_application_io, total_region_runtime_mpi(rid.first))
+                .WillOnce(Return(rid.second));
+        }
     }
     for (auto rid : m_region_count) {
-        EXPECT_CALL(m_application_io, total_count(rid.first))
-            .WillOnce(Return(rid.second));
+        if (GEOPM_REGION_HASH_EPOCH == rid.first) {
+            EXPECT_CALL(m_application_io, total_epoch_count())
+                .WillOnce(Return(rid.second));
+        }
+        else {
+            EXPECT_CALL(m_application_io, total_count(rid.first))
+                .WillOnce(Return(rid.second));
+        }
     }
     for (auto rid : m_region_rt) {
         EXPECT_CALL(*m_agg, sample_total(M_TIME_IDX, rid.first))
