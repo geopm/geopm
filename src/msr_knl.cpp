@@ -54,7 +54,7 @@ namespace geopm
                       .end_bit   = 16,
                       .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
-                      .units     = IMSR::M_UNITS_HZ,
+                      .units     = IMSR::M_UNITS_HERTZ,
                       .scalar    = 1e8}}},
                 {}),
             MSR("PERF_CTL", 0x199,
@@ -63,7 +63,7 @@ namespace geopm
                       .end_bit   = 16,
                       .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
-                      .units     = IMSR::M_UNITS_HZ,
+                      .units     = IMSR::M_UNITS_HERTZ,
                       .scalar    = 1e8}},
                  {"TURBO_DISENGAGE", (struct IMSR::m_encode_s) {
                       .begin_bit = 32,
@@ -77,7 +77,7 @@ namespace geopm
                       .end_bit   = 16,
                       .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
                       .function  = IMSR::M_FUNCTION_SCALE,
-                      .units     = IMSR::M_UNITS_HZ,
+                      .units     = IMSR::M_UNITS_HERTZ,
                       .scalar    = 1e8}},
                  {"TURBO_DISENGAGE", (struct IMSR::m_encode_s) {
                       .begin_bit = 32,
