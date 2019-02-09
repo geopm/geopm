@@ -168,11 +168,7 @@ static int geopm_pmpi_init(const char *exec_name)
                 g_geopm_comm_world_swap_f = PMPI_Comm_c2f(g_geopm_comm_world_swap);
             }
             if (!err && is_ctl) {
-                int ctl_rank;
-                err = PMPI_Comm_rank(g_geopm_comm_world_swap, &ctl_rank);
-                if (!err) {
-                    err = geopm_ctl_create(g_geopm_comm_world_swap, &g_ctl);
-                }
+                err = geopm_ctl_create(g_geopm_comm_world_swap, &g_ctl);
                 if (!err) {
                     err = geopm_ctl_run(g_ctl);
                 }
