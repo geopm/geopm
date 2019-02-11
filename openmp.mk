@@ -37,7 +37,10 @@ pkglibdir ?= $(libdir)/geopm
 AM_CPPFLAGS += -Iopenmp/include
 AM_LDFLAGS += -Lopenmp/lib
 
-BUILT_SOURCES += openmp/lib/libiomp5.so
+BUILT_SOURCES += openmp/lib/libiomp5.so \
+                 openmp/include/omp.h \
+                 openmp/include/ompt.h \
+                 # end
 
 EXTRA_DIST += $(openmp_archive)
 DISTCLEANFILES += openmp/VERSION \
@@ -98,7 +101,11 @@ openmp/lib/libiomp5.so: $(openmp_so)
 	cp $(openmp_so) openmp/lib/libomp.so
 	ln -sf libomp.so openmp/lib/libiomp5.so
 	mkdir -p openmp/include
+
+openmp/include/omp.h: openmp/lib/libiomp5.so
 	cp openmp-$(openmp_version).src/runtime/exports/common.ompt/include/omp.h openmp/include/omp.h
+
+openmp/include/ompt.h: openmp/lib/libiomp5.so
 	cp openmp-$(openmp_version).src/runtime/exports/common.ompt/include/ompt.h openmp/include/ompt.h
 
 install-openmp: openmp/lib/libiomp5.so
