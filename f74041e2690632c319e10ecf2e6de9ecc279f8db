@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ca6c7b0_d0f0a582",
+        "filename": "src/OMPT.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-12T18:56:33Z",
+      "side": 1,
+      "message": "region_hash",
+      "range": {
+        "startLine": 140,
+        "startChar": 26,
+        "endLine": 140,
+        "endChar": 28
+      },
+      "revId": "f74041e2690632c319e10ecf2e6de9ecc279f8db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bae7848f_ac49fe58",
+        "filename": "src/geopm_internal.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-12T18:56:33Z",
+      "side": 1,
+      "message": "Delete, not used.",
+      "range": {
+        "startLine": 56,
+        "startChar": 2,
+        "endLine": 56,
+        "endChar": 37
+      },
+      "revId": "f74041e2690632c319e10ecf2e6de9ecc279f8db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
