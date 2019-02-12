@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8353dcc1_d065a9a0",
+        "filename": "src/Agg.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-02-12T00:04:09Z",
+      "side": 0,
+      "message": "Ok so in the patch to remove private encoding of un-marked I didn\u0027t change these references to GEOPM_REGION_HASH_UNMARKED because it just didn\u0027t really make sense.  So we have another piece of meat for our commit sandwich here.",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 5
+      },
+      "revId": "c88f112a1149a20b3be4050aac60eb1544b2a315",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
