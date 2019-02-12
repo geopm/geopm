@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "67ddd0de_9744eb84",
+        "filename": "src/ApplicationIO.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-12T18:22:58Z",
+      "side": 1,
+      "message": "time to add decorators to the C++ code?",
+      "range": {
+        "startLine": 331,
+        "startChar": 0,
+        "endLine": 337,
+        "endChar": 6
+      },
+      "revId": "7eda524e1cad4aa57d8c76974ddbd3e27f5337c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5d9aba24_7eec7b4d",
         "filename": "src/Reporter.cpp",
         "patchSetId": 3
