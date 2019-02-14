@@ -30,24 +30,18 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-unset GEOPM_PMPI_CTL
-unset GEOPM_POLICY
-unset GEOPM_REPORT
-unset GEOPM_TRACE
-
 test_name=`basename $0`
 dir_name=`dirname $0`
 run_test=true
 xml_dir=$dir_name
 base_dir=$dir_name/../..
 
-export LD_LIBRARY_PATH=$base_dir/.libs:$base_dir/openmp/lib:$LD_LIBRARY_PATH
-
 if [[ $GTEST_XML_DIR ]]; then
     xml_dir=$GTEST_XML_DIR
 fi
 err=0
 
+# todo can be handled with detection and --gtest_filter=-ProfileTableTest.*
 # Check for crc32 intrinsic support before running ProfileTable tests
 if [[ $test_name =~ ^ProfileTable ]]; then
     if  ! ./examples/geopm_platform_supported crc32; then
@@ -56,6 +50,7 @@ if [[ $test_name =~ ^ProfileTable ]]; then
     fi
 fi
 
+# todo can be handled with detection and --gtest_filter=-SharedMemoryTest*
 # Skipped on Mac because the implementation is lax about invalid shmem construction
 if [[ $test_name == SharedMemoryTest.invalid_construction ]]; then
     if  [[ $(uname) == Darwin ]]; then
@@ -65,9 +60,6 @@ fi
 
 if [ "$run_test" == "true" ]; then
     exec_name=geopm_test
-    if [[ $test_name =~ ^MPIInterface ]]; then
-        exec_name=geopm_mpi_test_api
-    fi
     $dir_name/../.libs/$exec_name \
         --gtest_filter=$test_name --gtest_output=xml:$xml_dir/$test_name.xml >& $dir_name/$test_name.log
     err=$?
