@@ -34,6 +34,12 @@
 
 int main(int argc, char **argv)
 {
+    unsetenv("GEOPM_PMPI_CTL");
+    unsetenv("GEOPM_POLICY");
+    unsetenv("GEOPM_REPORT");
+    unsetenv("GEOPM_TRACE");
+    /// @ todo if you don't want th bloat the makefile creating a geopm_test-filters list
+    /// we can augment gtest-filters here as it is in argv
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
