@@ -146,6 +146,7 @@ class Config(object):
         parser.add_argument('--geopm-report-signals', dest='report_signals', type=str)
         parser.add_argument('--geopm-trace', dest='trace', type=str)
         parser.add_argument('--geopm-trace-signals', dest='trace_signals', type=str)
+        parser.add_argument('--geopm-trace-profile', dest='trace_profile', type=str)
         parser.add_argument('--geopm-profile', dest='profile', type=str)
         parser.add_argument('--geopm-ctl', dest='ctl', type=str, default='process')
         parser.add_argument('--geopm-agent', dest='agent', type=str)
@@ -169,6 +170,7 @@ class Config(object):
         self.endpoint = opts.endpoint
         self.report = opts.report
         self.trace = opts.trace
+        self.trace_profile = opts.trace_profile
         self.trace_signals = opts.trace_signals
         self.report_signals = opts.report_signals
         self.agent = opts.agent
@@ -222,6 +224,8 @@ class Config(object):
             result['GEOPM_REPORT'] = self.report
         if self.trace:
             result['GEOPM_TRACE'] = self.trace
+        if self.trace_profile:
+            result['GEOPM_TRACE_PROFILE'] = self.trace_profile
         if self.trace_signals:
             result['GEOPM_TRACE_SIGNALS'] = self.trace_signals
         if self.report_signals:
@@ -1262,6 +1266,8 @@ GEOPM_OPTIONS:
       --geopm-report-signals=signals
                                comma-separated list of signals to add to report
       --geopm-trace=path       create geopm trace files with base name "path"
+      --geopm-trace-profile=path
+                               create geopm profile trace files with base name "path"
       --geopm-trace-signals=signals
                                comma-separated list of signals to add as columns
                                in the trace

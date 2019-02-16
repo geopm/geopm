@@ -208,6 +208,21 @@ listed below.
   command line option will override any value currently set in the
   environment.  See the ENVIRONMENT section of **geopm(7)**.
 
+* `--geopm-trace-profile` path:
+  The base name and path of the profile trace file(s) generated if
+  this option is specified.  One trace file is generated for each
+  compute node used by the application containing a pipe-delimited
+  ASCII table describing a log of each call to the `geopm_prof_*()`
+  APIs.  The path is extended with the host name of the node for each
+  created file.  The profile trace files will be written to the file
+  system path specified or current directory if only a file name is
+  given.  This feature is primarily a debugging tool, and may not
+  scale to large node counts due to file system issues.  This option
+  is used by the launcher to set the GEOPM_TRACE_PROFILE environment
+  variable.  The command line option will override any value currently
+  set in the environment.  See the ENVIRONMENT section of
+  **geopm(7)**.
+
 * `--geopm-profile` name:
   The name of the profile which is printed in the report and trace
   files.  This name can be used to index the data in post-processing.
