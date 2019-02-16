@@ -207,6 +207,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/ProfileTestIntegration.misconfig_ctl_shmem \
               test/gtest_links/ProfileTestIntegration.misconfig_table_shmem \
               test/gtest_links/ProfileTestIntegration.misconfig_tprof_shmem \
+              test/gtest_links/ProfileTracerTest.format \
               test/gtest_links/RegionAggregatorTest.epoch_total \
               test/gtest_links/RegionAggregatorTest.sample_total \
               test/gtest_links/ReporterTest.generate \
@@ -333,6 +334,7 @@ test_geopm_test_SOURCES = src/EnergyEfficientAgent.cpp \
                           test/PowerGovernorTest.cpp \
                           test/ProfileTableTest.cpp \
                           test/ProfileTest.cpp \
+                          test/ProfileTracerTest.cpp \
                           test/RegionAggregatorTest.cpp \
                           test/ReporterTest.cpp \
                           test/RuntimeRegulatorTest.cpp \
