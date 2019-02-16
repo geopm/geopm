@@ -105,7 +105,6 @@ namespace geopm
     {
         if (m_stream.good() && m_is_trace_enabled) {
             m_stream << m_buffer.str();
-            m_stream.close();
         }
     }
 
