@@ -59,6 +59,9 @@
 /geopm*.tar.gz
 /geopm.mod
 /geopm.o
+.gdbinit.geopm
+.gdbinit.geopm.local
+*.log
 /geopmagent
 /geopmbench
 /geopmctl
@@ -135,6 +138,7 @@
 /test/gtest_links/*
 /test_integration/*.h5
 /test_integration/*.log
+/test_integration/*.out
 /test_integration/*.report
 /test_integration/*.trace*
 /test_integration/geopm_test_integration
