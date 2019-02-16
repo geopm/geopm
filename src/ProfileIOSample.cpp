@@ -42,6 +42,7 @@
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Helper.hpp"
+#include "ProfileTracer.hpp"
 #include "config.h"
 
 namespace geopm
@@ -49,6 +50,7 @@ namespace geopm
     ProfileIOSample::ProfileIOSample(const std::vector<int> &cpu_rank, IEpochRuntimeRegulator &epoch_regulator)
         : m_epoch_regulator(epoch_regulator)
         , m_thread_progress(cpu_rank.size(), NAN)
+        , m_profile_tracer(geopm::make_unique<ProfileTracer>())
     {
         // This object is created when app connects
         geopm_time(&m_app_start_time);
@@ -115,6 +117,7 @@ namespace geopm
     void ProfileIOSample::update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                                  std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end)
     {
+        m_profile_tracer->update(prof_sample_begin, prof_sample_end);
         for (auto sample_it = prof_sample_begin; sample_it != prof_sample_end; ++sample_it) {
             auto rank_idx_it = m_rank_idx_map.find(sample_it->second.rank);
 #ifdef GEOPM_DEBUG
