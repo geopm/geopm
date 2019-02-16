@@ -1,0 +1,1 @@
+GEOPM_EXEC_WRAPPER='valgrind --vgdb=yes --vgdb-error=0' OMP_NUM_THREADS=16 GEOPM_KEEP_FILES=barrelroll GEOPM_RUN_LONG_TESTS=yup ./test_ee_stream_dgemm_mix.py TestIntegrationEEStreamDGEMMMix.test_montone_frequency
