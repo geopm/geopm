@@ -29,240 +29,34 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-check_PROGRAMS += test/geopm_test
+check_PROGRAMS += $(cat) geopm_test.list \
+                  # end
 
 if ENABLE_MPI
-    check_PROGRAMS += test/geopm_mpi_test_api
+check_PROGRAMS += $(cat) geopm_mpi_test.list \
+                  # end
 endif
 
-GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
-              test/gtest_links/AggTest.agg_function \
-              test/gtest_links/ApplicationIOTest.passthrough \
-              test/gtest_links/CircularBufferTest.buffer_capacity \
-              test/gtest_links/CircularBufferTest.buffer_size \
-              test/gtest_links/CircularBufferTest.buffer_values \
-              test/gtest_links/CombinedSignalTest.sample_flat_derivative \
-              test/gtest_links/CombinedSignalTest.sample_slope_derivative \
-              test/gtest_links/CombinedSignalTest.sample_sum \
-              test/gtest_links/CommMPIImpTest.mpi_allreduce \
-              test/gtest_links/CommMPIImpTest.mpi_barrier \
-              test/gtest_links/CommMPIImpTest.mpi_broadcast \
-              test/gtest_links/CommMPIImpTest.mpi_cart_ops \
-              test/gtest_links/CommMPIImpTest.mpi_comm_ops \
-              test/gtest_links/CommMPIImpTest.mpi_dims_create \
-              test/gtest_links/CommMPIImpTest.mpi_gather \
-              test/gtest_links/CommMPIImpTest.mpi_gatherv \
-              test/gtest_links/CommMPIImpTest.mpi_mem_ops \
-              test/gtest_links/CommMPIImpTest.mpi_reduce \
-              test/gtest_links/CommMPIImpTest.mpi_win_ops \
-              test/gtest_links/ControlMessageTest.cpu_rank \
-              test/gtest_links/ControlMessageTest.is_name_begin \
-              test/gtest_links/ControlMessageTest.is_sample_begin \
-              test/gtest_links/ControlMessageTest.is_sample_end \
-              test/gtest_links/ControlMessageTest.is_shutdown \
-              test/gtest_links/ControlMessageTest.loop_begin_0 \
-              test/gtest_links/ControlMessageTest.loop_begin_1 \
-              test/gtest_links/ControlMessageTest.step \
-              test/gtest_links/ControlMessageTest.wait \
-              test/gtest_links/ControllerTest.single_node \
-              test/gtest_links/ControllerTest.two_level_controller_0 \
-              test/gtest_links/ControllerTest.two_level_controller_1 \
-              test/gtest_links/ControllerTest.two_level_controller_2 \
-              test/gtest_links/CpuinfoIOGroupTest.parse_cpu_freq \
-              test/gtest_links/CpuinfoIOGroupTest.parse_error_no_sticker \
-              test/gtest_links/CpuinfoIOGroupTest.parse_error_sticker_bad_path \
-              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_missing_newline \
-              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_multiple_ghz \
-              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_multiple_model_name \
-              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_with_at \
-              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_with_ghz_space \
-              test/gtest_links/CpuinfoIOGroupTest.parse_sticker_without_at \
-              test/gtest_links/CpuinfoIOGroupTest.plugin \
-              test/gtest_links/CpuinfoIOGroupTest.valid_signals \
-              test/gtest_links/EnergyEfficientAgentTest.hint \
-              test/gtest_links/EnergyEfficientAgentTest.map \
-              test/gtest_links/EnergyEfficientAgentTest.name \
-              test/gtest_links/EnergyEfficientAgentTest.online_mode \
-              test/gtest_links/EnergyEfficientRegionTest.after_too_many_increase_freq_stays_at_higher \
-              test/gtest_links/EnergyEfficientRegionTest.energy_increases_freq_steps_back_up \
-              test/gtest_links/EnergyEfficientRegionTest.freq_does_not_go_above_max \
-              test/gtest_links/EnergyEfficientRegionTest.freq_does_not_go_below_min \
-              test/gtest_links/EnergyEfficientRegionTest.freq_starts_at_maximum \
-              test/gtest_links/EnergyEfficientRegionTest.only_changes_freq_after_enough_samples \
-              test/gtest_links/EnergyEfficientRegionTest.performance_decreases_freq_steps_back_up \
-              test/gtest_links/EnergyEfficientRegionTest.update_ignores_nan_sample \
-              test/gtest_links/EnvironmentTest.construction0 \
-              test/gtest_links/EnvironmentTest.construction1 \
-              test/gtest_links/EnvironmentTest.invalid_ctl \
-              test/gtest_links/EpochRuntimeRegulatorTest.all_ranks_enter_exit \
-              test/gtest_links/EpochRuntimeRegulatorTest.epoch_runtime \
-              test/gtest_links/EpochRuntimeRegulatorTest.invalid_ranks \
-              test/gtest_links/EpochRuntimeRegulatorTest.rank_enter_exit_trace \
-              test/gtest_links/EpochRuntimeRegulatorTest.unknown_region \
-              test/gtest_links/ExceptionTest.hello \
-              test/gtest_links/HelperTest.split_string \
-              test/gtest_links/IOGroupTest.control_names_are_valid \
-              test/gtest_links/IOGroupTest.controls_have_descriptions \
-              test/gtest_links/IOGroupTest.signal_names_are_valid \
-              test/gtest_links/IOGroupTest.signals_have_agg_functions \
-              test/gtest_links/IOGroupTest.signals_have_descriptions \
-              test/gtest_links/MSRIOGroupTest.adjust \
-              test/gtest_links/MSRIOGroupTest.control_alias \
-              test/gtest_links/MSRIOGroupTest.control_error \
-              test/gtest_links/MSRIOGroupTest.cpuid \
-              test/gtest_links/MSRIOGroupTest.push_control \
-              test/gtest_links/MSRIOGroupTest.push_signal \
-              test/gtest_links/MSRIOGroupTest.read_signal \
-              test/gtest_links/MSRIOGroupTest.register_msr_control \
-              test/gtest_links/MSRIOGroupTest.register_msr_signal \
-              test/gtest_links/MSRIOGroupTest.sample \
-              test/gtest_links/MSRIOGroupTest.sample_raw \
-              test/gtest_links/MSRIOGroupTest.signal_alias \
-              test/gtest_links/MSRIOGroupTest.signal_error \
-              test/gtest_links/MSRIOGroupTest.supported_cpuid \
-              test/gtest_links/MSRIOGroupTest.whitelist \
-              test/gtest_links/MSRIOGroupTest.write_control \
-              test/gtest_links/MSRIOTest.read_aligned \
-              test/gtest_links/MSRIOTest.read_batch \
-              test/gtest_links/MSRIOTest.read_unaligned \
-              test/gtest_links/MSRIOTest.write \
-              test/gtest_links/MSRIOTest.write_batch \
-              test/gtest_links/MSRTest.msr \
-              test/gtest_links/MSRTest.msr_control \
-              test/gtest_links/MSRTest.msr_overflow \
-              test/gtest_links/MSRTest.msr_signal \
-              test/gtest_links/ManagerIOSamplerTest.negative_bad_files \
-              test/gtest_links/ManagerIOSamplerTest.negative_parse_json_file \
-              test/gtest_links/ManagerIOSamplerTest.negative_parse_shm \
-              test/gtest_links/ManagerIOSamplerTest.negative_shm_setup_mutex \
-              test/gtest_links/ManagerIOSamplerTest.parse_json_file \
-              test/gtest_links/ManagerIOSamplerTest.parse_shm \
-              test/gtest_links/ManagerIOSamplerTestIntegration.parse_shm \
-              test/gtest_links/ManagerIOTest.negative_write_json_file \
-              test/gtest_links/ManagerIOTest.write_json_file \
-              test/gtest_links/ManagerIOTest.write_shm \
-              test/gtest_links/ManagerIOTestIntegration.write_shm \
-              test/gtest_links/ModelApplicationTest.parse_config_errors \
-              test/gtest_links/MonitorAgentTest.ascend_aggregates_signals \
-              test/gtest_links/MonitorAgentTest.descend_nothing \
-              test/gtest_links/MonitorAgentTest.fixed_signal_list \
-              test/gtest_links/MonitorAgentTest.sample_platform \
-              test/gtest_links/PlatformIOTest.adjust \
-              test/gtest_links/PlatformIOTest.adjust_agg \
-              test/gtest_links/PlatformIOTest.domain_type \
-              test/gtest_links/PlatformIOTest.push_control \
-              test/gtest_links/PlatformIOTest.push_control_agg \
-              test/gtest_links/PlatformIOTest.push_signal \
-              test/gtest_links/PlatformIOTest.push_signal_agg \
-              test/gtest_links/PlatformIOTest.read_signal \
-              test/gtest_links/PlatformIOTest.read_signal_agg \
-              test/gtest_links/PlatformIOTest.read_signal_override \
-              test/gtest_links/PlatformIOTest.sample \
-              test/gtest_links/PlatformIOTest.sample_agg \
-              test/gtest_links/PlatformIOTest.signal_control_names \
-              test/gtest_links/PlatformIOTest.signal_power \
-              test/gtest_links/PlatformIOTest.write_control \
-              test/gtest_links/PlatformIOTest.write_control_override \
-              test/gtest_links/PlatformIOTest.write_control_agg \
-              test/gtest_links/PlatformTopoTest.bdx_domain_idx \
-              test/gtest_links/PlatformTopoTest.bdx_is_domain_within \
-              test/gtest_links/PlatformTopoTest.bdx_nested_domains \
-              test/gtest_links/PlatformTopoTest.bdx_num_domain \
-              test/gtest_links/PlatformTopoTest.construction \
-              test/gtest_links/PlatformTopoTest.domain_name_to_type \
-              test/gtest_links/PlatformTopoTest.domain_type_to_name \
-              test/gtest_links/PlatformTopoTest.hsw_num_domain \
-              test/gtest_links/PlatformTopoTest.knl_num_domain \
-              test/gtest_links/PlatformTopoTest.no0x_num_domain \
-              test/gtest_links/PlatformTopoTest.parse_error \
-              test/gtest_links/PlatformTopoTest.ppc_num_domain \
-              test/gtest_links/PlatformTopoTest.singleton_construction \
-              test/gtest_links/PowerBalancerAgentTest.leaf_agent \
-              test/gtest_links/PowerBalancerAgentTest.power_balancer_agent \
-              test/gtest_links/PowerBalancerAgentTest.tree_agent \
-              test/gtest_links/PowerBalancerAgentTest.tree_root_agent \
-              test/gtest_links/PowerBalancerTest.balance \
-              test/gtest_links/PowerBalancerTest.is_runtime_stable \
-              test/gtest_links/PowerBalancerTest.power_cap \
-              test/gtest_links/PowerGovernorAgentTest.adjust_platform \
-              test/gtest_links/PowerGovernorAgentTest.ascend \
-              test/gtest_links/PowerGovernorAgentTest.descend \
-              test/gtest_links/PowerGovernorAgentTest.sample_platform \
-              test/gtest_links/PowerGovernorAgentTest.wait \
-              test/gtest_links/PowerGovernorTest.govern \
-              test/gtest_links/PowerGovernorTest.govern_max \
-              test/gtest_links/PowerGovernorTest.govern_min \
-              test/gtest_links/ProfileTableTest.hello \
-              test/gtest_links/ProfileTableTest.name_set_fill_long \
-              test/gtest_links/ProfileTableTest.name_set_fill_short \
-              test/gtest_links/ProfileTableTest.overfill \
-              test/gtest_links/ProfileTest.enter_exit \
-              test/gtest_links/ProfileTest.epoch \
-              test/gtest_links/ProfileTest.progress \
-              test/gtest_links/ProfileTest.region \
-              test/gtest_links/ProfileTest.shutdown \
-              test/gtest_links/ProfileTest.tprof_table \
-              test/gtest_links/ProfileTestIntegration.config \
-              test/gtest_links/ProfileTestIntegration.misconfig_affinity \
-              test/gtest_links/ProfileTestIntegration.misconfig_ctl_shmem \
-              test/gtest_links/ProfileTestIntegration.misconfig_table_shmem \
-              test/gtest_links/ProfileTestIntegration.misconfig_tprof_shmem \
-              test/gtest_links/RegionAggregatorTest.epoch_total \
-              test/gtest_links/RegionAggregatorTest.sample_total \
-              test/gtest_links/ReporterTest.generate \
-              test/gtest_links/RuntimeRegulatorTest.all_in_and_out \
-              test/gtest_links/RuntimeRegulatorTest.all_reenter \
-              test/gtest_links/RuntimeRegulatorTest.config_rank_then_workers \
-              test/gtest_links/RuntimeRegulatorTest.exceptions \
-              test/gtest_links/RuntimeRegulatorTest.one_rank_reenter_and_exit \
-              test/gtest_links/SampleRegulatorTest.align_profile \
-              test/gtest_links/SampleRegulatorTest.insert_platform \
-              test/gtest_links/SampleRegulatorTest.insert_profile \
-              test/gtest_links/SchedTest.test_proc_cpuset_0 \
-              test/gtest_links/SchedTest.test_proc_cpuset_1 \
-              test/gtest_links/SchedTest.test_proc_cpuset_2 \
-              test/gtest_links/SchedTest.test_proc_cpuset_3 \
-              test/gtest_links/SchedTest.test_proc_cpuset_4 \
-              test/gtest_links/SchedTest.test_proc_cpuset_5 \
-              test/gtest_links/SchedTest.test_proc_cpuset_6 \
-              test/gtest_links/SchedTest.test_proc_cpuset_7 \
-              test/gtest_links/SchedTest.test_proc_cpuset_8 \
-              test/gtest_links/SharedMemoryTest.fd_check \
-              test/gtest_links/SharedMemoryTest.invalid_construction \
-              test/gtest_links/SharedMemoryTest.share_data \
-              test/gtest_links/SharedMemoryTest.share_data_ipc \
-              test/gtest_links/TimeIOGroupTest.adjust \
-              test/gtest_links/TimeIOGroupTest.is_valid \
-              test/gtest_links/TimeIOGroupTest.push \
-              test/gtest_links/TimeIOGroupTest.read_nothing \
-              test/gtest_links/TimeIOGroupTest.read_signal \
-              test/gtest_links/TimeIOGroupTest.read_signal_and_batch \
-              test/gtest_links/TimeIOGroupTest.sample \
-              test/gtest_links/TracerTest.columns \
-              test/gtest_links/TracerTest.region_entry_exit \
-              test/gtest_links/TracerTest.update_samples \
-              test/gtest_links/TreeCommLevelTest.level_rank \
-              test/gtest_links/TreeCommLevelTest.receive_down_complete \
-              test/gtest_links/TreeCommLevelTest.receive_down_incomplete \
-              test/gtest_links/TreeCommLevelTest.receive_up_complete \
-              test/gtest_links/TreeCommLevelTest.receive_up_incomplete \
-              test/gtest_links/TreeCommLevelTest.send_down \
-              test/gtest_links/TreeCommLevelTest.send_up \
-              test/gtest_links/TreeCommTest.geometry \
-              test/gtest_links/TreeCommTest.geometry_nonroot \
-              test/gtest_links/TreeCommTest.overhead_send \
-              test/gtest_links/TreeCommTest.send_receive \
-              # end
+#test_env = "LD_LIBRARY_PATH=.libs:openmp/lib:$LD_LIBRARY_PATH"
 
-if ENABLE_MPI
-GTEST_TESTS += test/gtest_links/MPIInterfaceTest.geopm_api \
-               test/gtest_links/MPIInterfaceTest.mpi_api \
-               # end
-endif
-
-TESTS += $(GTEST_TESTS) \
+#todo could build up gtest-filter here
+#todo proper env setting...
+TESTS += $("LD_LIBRARY_PATH=.libs:openmp/lib:$LD_LIBRARY_PATH" test/geopm_test) \
+         $("LD_LIBRARY_PATH=.libs:openmp/lib:$LD_LIBRARY_PATH" test/geopm_mpi_test_api) \
          copying_headers/test-license \
+         # if $? != 1 test failed, then gen/parse/equiv of
+         # geopm_test.result and geopm_mpi_test_api.result
          # end
+#Removed all the bs from Makefile.in ...and
+#@todo replace with simplified means
+#of generating of this message.
+#could be as simple as making and parsing a
+#geopm_test.result and geopm_mpi_test_api.result
+#if failed report total and num_fail from *.result
+#report="Please report to christopher.m.cantalupo@intel.com"; \
+test `echo "$$report" | wc -c` -le `echo "$$banner" | wc -c` || \
+  dashes="$$report"; \
+fi; \
 
 EXTRA_DIST += test/InternalProfile.cpp \
               test/InternalProfile.hpp \
@@ -377,7 +171,7 @@ if ENABLE_MPI
 endif
 
 # Target for building test programs.
-gtest-checkprogs: $(GTEST_TESTS)
+gtest-checkprogs: bins
 
 PHONY_TARGETS += gtest-checkprogs
 
