@@ -97,13 +97,13 @@ namespace geopm
         m_func_map["MSR::PERF_STATUS:FREQ"] = Agg::average;
         m_func_map["MSR::PKG_ENERGY_STATUS:ENERGY"] = Agg::sum;
         m_func_map["MSR::DRAM_ENERGY_STATUS:ENERGY"] = Agg::sum;
-        m_func_map["MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY"] = Agg::sum;
-        m_func_map["MSR::PERF_FIXED_CTR1:CPU_CLK_UNHALTED_THREAD"] = Agg::sum;
-        m_func_map["MSR::PERF_FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC"] = Agg::sum;
+        m_func_map["MSR::FIXED_CTR0:INST_RETIRED_ANY"] = Agg::sum;
+        m_func_map["MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD"] = Agg::sum;
+        m_func_map["MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC"] = Agg::sum;
         m_func_map["MSR::PKG_POWER_INFO:MIN_POWER"] = Agg::expect_same;
         m_func_map["MSR::PKG_POWER_INFO:MAX_POWER"] = Agg::expect_same;
         m_func_map["MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER"] = Agg::expect_same;
-        m_func_map["MSR::IA32_THERM_STATUS:DIGITAL_READOUT"] = Agg::average;
+        m_func_map["MSR::THERM_STATUS:DIGITAL_READOUT"] = Agg::average;
         m_func_map["MSR::TEMPERATURE_TARGET:PROCHOT_MIN"] = Agg::expect_same;
 
         m_signal_desc_map["MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER"] = "Maximum power to stay within thermal limits (TDP)";
@@ -115,15 +115,15 @@ namespace geopm
         register_msr_signal("FREQUENCY",         "MSR::PERF_STATUS:FREQ");
         register_msr_signal("ENERGY_PACKAGE",    "MSR::PKG_ENERGY_STATUS:ENERGY");
         register_msr_signal("ENERGY_DRAM",       "MSR::DRAM_ENERGY_STATUS:ENERGY");
-        register_msr_signal("INSTRUCTIONS_RETIRED", "MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY");
-        register_msr_signal("CYCLES_THREAD",     "MSR::PERF_FIXED_CTR1:CPU_CLK_UNHALTED_THREAD");
-        register_msr_signal("CYCLES_REFERENCE",  "MSR::PERF_FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC");
+        register_msr_signal("INSTRUCTIONS_RETIRED", "MSR::FIXED_CTR0:INST_RETIRED_ANY");
+        register_msr_signal("CYCLES_THREAD",     "MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD");
+        register_msr_signal("CYCLES_REFERENCE",  "MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC");
         register_msr_signal("POWER_PACKAGE_MIN", "MSR::PKG_POWER_INFO:MIN_POWER");
         register_msr_signal("POWER_PACKAGE_MAX", "MSR::PKG_POWER_INFO:MAX_POWER");
         register_msr_signal("POWER_PACKAGE_TDP", "MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER");
         // @todo: have MSRIOGroup handle this combined signal instead of platformIO
-        register_msr_signal("TEMPERATURE_CORE_UNDER", "MSR::IA32_THERM_STATUS:DIGITAL_READOUT");
-        register_msr_signal("TEMPERATURE_PKG_UNDER", "MSR::IA32_PACKAGE_THERM_STATUS:DIGITAL_READOUT");
+        register_msr_signal("TEMPERATURE_CORE_UNDER", "MSR::THERM_STATUS:DIGITAL_READOUT");
+        register_msr_signal("TEMPERATURE_PKG_UNDER", "MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT");
         register_msr_signal("TEMPERATURE_MAX", "MSR::TEMPERATURE_TARGET:PROCHOT_MIN");
 
         register_msr_control("POWER_PACKAGE_LIMIT", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
@@ -744,19 +744,19 @@ namespace geopm
     {
         for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
             write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR0", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::PERF_FIXED_CTR_CTRL:EN0_OS", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::PERF_FIXED_CTR_CTRL:EN0_USR", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::PERF_FIXED_CTR_CTRL:EN0_PMI", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
+            write_control("MSR::FIXED_CTR_CTRL:EN0_OS", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::FIXED_CTR_CTRL:EN0_USR", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::FIXED_CTR_CTRL:EN0_PMI", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
 
             write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR1", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::PERF_FIXED_CTR_CTRL:EN1_OS", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::PERF_FIXED_CTR_CTRL:EN1_USR", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::PERF_FIXED_CTR_CTRL:EN1_PMI", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
+            write_control("MSR::FIXED_CTR_CTRL:EN1_OS", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::FIXED_CTR_CTRL:EN1_USR", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::FIXED_CTR_CTRL:EN1_PMI", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
 
             write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR2", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::PERF_FIXED_CTR_CTRL:EN2_OS", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::PERF_FIXED_CTR_CTRL:EN2_USR", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::PERF_FIXED_CTR_CTRL:EN2_PMI", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
+            write_control("MSR::FIXED_CTR_CTRL:EN2_OS", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::FIXED_CTR_CTRL:EN2_USR", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::FIXED_CTR_CTRL:EN2_PMI", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
 
             write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR0", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
             write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR1", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
