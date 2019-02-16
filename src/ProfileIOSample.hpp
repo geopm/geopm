@@ -79,6 +79,7 @@ namespace geopm
 
     template <typename T> class CircularBuffer;
     class EpochRuntimeRegulator;
+    class ProfileTracer;
 
     class ProfileIOSampleImp : public ProfileIOSample
     {
@@ -137,6 +138,7 @@ namespace geopm
             ///        stored ProfileSampler data used for
             ///        extrapolation.
             std::vector<uint64_t> m_region_id;
+            std::unique_ptr<ProfileTracer> m_profile_tracer;
     };
 }
 

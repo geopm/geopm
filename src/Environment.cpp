@@ -99,6 +99,7 @@ namespace geopm
                        "GEOPM_AGENT",
                        "GEOPM_SHMKEY",
                        "GEOPM_TRACE",
+                       "GEOPM_TRACE_PROFILE",
                        "GEOPM_PLUGIN_PATH",
                        "GEOPM_REGION_BARRIER",
                        "GEOPM_TIMEOUT",
@@ -111,6 +112,7 @@ namespace geopm
         , m_runtime_names({"GEOPM_PROFILE",
                            "GEOPM_REPORT",
                            "GEOPM_TRACE",
+                           "GEOPM_TRACE_PROFILE",
                            "GEOPM_CTL"})
         , m_name_value_map ({{"GEOPM_COMM" ,"MPIComm"},
                              {"GEOPM_AGENT", "monitor"},
@@ -228,6 +230,11 @@ namespace geopm
         return lookup("GEOPM_TRACE");
     }
 
+    std::string EnvironmentImp::trace_profile(void) const
+    {
+        return lookup("GEOPM_TRACE_PROFILE");
+    }
+
     std::string EnvironmentImp::profile(void) const
     {
         std::string ret = lookup("GEOPM_PROFILE");
@@ -291,6 +298,11 @@ namespace geopm
     bool EnvironmentImp::do_trace(void) const
     {
         return is_set("GEOPM_TRACE");
+    }
+
+    bool EnvironmentImp::do_trace_profile(void) const
+    {
+        return is_set("GEOPM_TRACE_PROFILE");
     }
 
     bool EnvironmentImp::do_profile(void) const
