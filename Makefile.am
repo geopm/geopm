@@ -198,6 +198,8 @@ dist_doc_DATA = COPYING \
 
 EXTRA_DIST = $(TUTORIAL_DIST) \
              .gitignore \
+             .gdbinit.geopm \
+             .gdbinit.geopm.local \
              .travis.yml \
              .travis_obs.sh \
              CODE_OF_CONDUCT.md \
@@ -208,6 +210,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              README.md \
              TODO \
              autogen.sh \
+             client_attach.sh \
              configure.ac \
              contrib/json11/LICENSE.txt \
              contrib/json11/README.md \
@@ -222,6 +225,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              copying_headers/header.NAS \
              copying_headers/test-dist \
              copying_headers/test-license \
+             debug.sh \
              dox-public/Doxyfile.in \
              dox/Doxyfile \
              geopm-ohpc.spec \
@@ -291,11 +295,15 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              scripts/outlier/outlier_detection.py \
              scripts/outlier/theta_nodelist_broken.txt \
              travis_ci.sh \
+             test.sh \
              test_hw/Makefile \
              test_hw/geopm_time.h \
              test_hw/rapl_pkg_limit_plot.py \
              test_hw/rapl_pkg_limit_sweep.sh \
              test_hw/rapl_pkg_limit_test.c \
+             test_integration/redir.sh \
+             test_integration/run.sh \
+             test_integration/get_pids.sh \
              # end
 
 TUTORIAL_DIST = tutorial/Makefile \

@@ -1,4 +1,6 @@
 .gitignore
+.gdbinit.geopm
+.gdbinit.geopm.local
 AUTHORS
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
@@ -8,6 +10,7 @@ MANIFEST
 README
 README.md
 TODO
+client_attach.sh
 contrib/json11/LICENSE.txt
 contrib/json11/README.md
 copying_headers/MANIFEST.BSD3-intel
@@ -20,6 +23,7 @@ copying_headers/header.BSD3-llnl
 copying_headers/header.MIT-dropbox
 copying_headers/header.NAS
 dox-public/Doxyfile.in
+debug.sh
 dox/Doxyfile
 examples/README.md
 examples/amg/README
@@ -92,6 +96,10 @@ scripts/MANIFEST.in
 scripts/outlier/README.md
 scripts/outlier/theta_nodelist_broken.txt
 scripts/requirements.txt
+test.sh
+test_integration/redir.sh
+test_integration/run.sh
+test_integration/get_pids.sh
 test_integration/README.md
 tutorial/README.md
 tutorial/agent/README.md
