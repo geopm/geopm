@@ -132,6 +132,8 @@ src/ProfileTable.cpp
 src/ProfileTable.hpp
 src/ProfileThread.cpp
 src/ProfileThread.hpp
+src/ProfileTracer.cpp
+src/ProfileTracer.hpp
 src/RegionAggregator.cpp
 src/RegionAggregator.hpp
 src/Reporter.cpp
@@ -242,6 +244,7 @@ test/PowerGovernorAgentTest.cpp
 test/PowerGovernorTest.cpp
 test/ProfileTableTest.cpp
 test/ProfileTest.cpp
+test/ProfileTracerTest.cpp
 test/RegionAggregatorTest.cpp
 test/ReporterTest.cpp
 test/RuntimeRegulatorTest.cpp
