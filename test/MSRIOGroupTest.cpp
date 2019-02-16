@@ -265,22 +265,22 @@ TEST_F(MSRIOGroupTest, push_signal)
 
     EXPECT_TRUE(m_msrio_group->is_valid_signal("MSR::PERF_STATUS:FREQ"));
     EXPECT_FALSE(m_msrio_group->is_valid_signal("INVALID"));
-    EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, m_msrio_group->signal_domain_type("MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY"));
+    EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, m_msrio_group->signal_domain_type("MSR::FIXED_CTR0:INST_RETIRED_ANY"));
     EXPECT_EQ(IPlatformTopo::M_DOMAIN_INVALID, m_msrio_group->signal_domain_type("INVALID"));
 
     // push valid signals
     int freq_idx_0 = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(0, freq_idx_0);
-    int inst_idx_0 = m_msrio_group->push_signal("MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY",
+    int inst_idx_0 = m_msrio_group->push_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY",
                                                 IPlatformTopo::M_DOMAIN_CPU, 0);
     ASSERT_EQ(1, inst_idx_0);
 
     // pushing same signal gives same index
-    int idx2 = m_msrio_group->push_signal("MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY", IPlatformTopo::M_DOMAIN_CPU, 0);
+    int idx2 = m_msrio_group->push_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY", IPlatformTopo::M_DOMAIN_CPU, 0);
     EXPECT_EQ(inst_idx_0, idx2);
 
     // pushing same signal for another cpu gives different index
-    int inst_idx_1 = m_msrio_group->push_signal("MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY", IPlatformTopo::M_DOMAIN_CPU, 1);
+    int inst_idx_1 = m_msrio_group->push_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY", IPlatformTopo::M_DOMAIN_CPU, 1);
     EXPECT_NE(inst_idx_0, inst_idx_1);
 
     // all provided signals are valid
@@ -299,9 +299,9 @@ TEST_F(MSRIOGroupTest, sample)
 
     int freq_idx_0 = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(0, freq_idx_0);
-    int inst_idx_0 = m_msrio_group->push_signal("MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY",
+    int inst_idx_0 = m_msrio_group->push_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY",
                                                 IPlatformTopo::M_DOMAIN_CPU, 0);
-    int inst_idx_1 = m_msrio_group->push_signal("MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY",
+    int inst_idx_1 = m_msrio_group->push_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY",
                                                 IPlatformTopo::M_DOMAIN_CPU, 1);
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->sample(freq_idx_0),
                                GEOPM_ERROR_RUNTIME, "sample() called before signal was read");
@@ -369,9 +369,9 @@ TEST_F(MSRIOGroupTest, sample_raw)
     EXPECT_CALL(m_topo, nested_domains(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_CPU, _)).Times(2 + m_num_cpu * 15);
     EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU)).Times(2 + m_num_cpu * 15);
 
-    int inst_idx_0 = m_msrio_group->push_signal("MSR::PERF_FIXED_CTR0#",
+    int inst_idx_0 = m_msrio_group->push_signal("MSR::FIXED_CTR0#",
                                                 IPlatformTopo::M_DOMAIN_CPU, 0);
-    int inst_idx_1 = m_msrio_group->push_signal("MSR::PERF_FIXED_CTR0#",
+    int inst_idx_1 = m_msrio_group->push_signal("MSR::FIXED_CTR0#",
                                                 IPlatformTopo::M_DOMAIN_CPU, 1);
     int fd_0 = open(m_test_dev_path[0].c_str(), O_RDWR);
     int fd_1 = open(m_test_dev_path[1].c_str(), O_RDWR);
@@ -415,13 +415,13 @@ TEST_F(MSRIOGroupTest, read_signal)
     num_write = pwrite(fd_0, &value, sizeof(value), 0x309);
     ASSERT_EQ(num_write, sizeof(value));
 
-    double inst_0 = m_msrio_group->read_signal("MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY", IPlatformTopo::M_DOMAIN_CPU, 0);
+    double inst_0 = m_msrio_group->read_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY", IPlatformTopo::M_DOMAIN_CPU, 0);
     // 64-bit counters are normalized to first sample
     EXPECT_EQ(7777, inst_0);
     value = 8888;
     num_write = pwrite(fd_0, &value, sizeof(value), 0x309);
     ASSERT_EQ(num_write, sizeof(value));
-    inst_0 = m_msrio_group->read_signal("MSR::PERF_FIXED_CTR0:INST_RETIRED_ANY", IPlatformTopo::M_DOMAIN_CPU, 0);
+    inst_0 = m_msrio_group->read_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY", IPlatformTopo::M_DOMAIN_CPU, 0);
     EXPECT_EQ(8888, inst_0);
 
     close(fd_0);
@@ -484,7 +484,7 @@ TEST_F(MSRIOGroupTest, push_control)
 
     EXPECT_TRUE(m_msrio_group->is_valid_control("MSR::PERF_CTL:FREQ"));
     EXPECT_FALSE(m_msrio_group->is_valid_control("INVALID"));
-    EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, m_msrio_group->control_domain_type("MSR::PERF_FIXED_CTR_CTRL:EN0_OS"));
+    EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, m_msrio_group->control_domain_type("MSR::FIXED_CTR_CTRL:EN0_OS"));
     EXPECT_EQ(IPlatformTopo::M_DOMAIN_INVALID, m_msrio_group->control_domain_type("INVALID"));
 
     // push valid controls
