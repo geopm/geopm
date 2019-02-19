@@ -112,7 +112,7 @@ class TestLauncher(object):
 
     def check_run(self, test_name):
         with open(test_name + '.log', 'a') as outfile:
-            argv = ['dummy', detect_launcher(), 'true']
+            argv = ['dummy', detect_launcher(), '--geopm-disable-ctl', 'true']
             launcher = geopmpy.launcher.factory(argv, self._num_rank, self._num_node,
                                                 self._cpu_per_rank, self._timeout,
                                                 self._time_limit, self._job_name,
@@ -155,13 +155,13 @@ class TestLauncher(object):
 
     @staticmethod
     def get_idle_nodes():
-        argv = ['dummy', detect_launcher(), 'true']
+        argv = ['dummy', detect_launcher(), '--geopm-disable-ctl', 'true']
         launcher = geopmpy.launcher.factory(argv, 1, 1)
         return launcher.get_idle_nodes()
 
     @staticmethod
     def get_alloc_nodes():
-        argv = ['dummy', detect_launcher(), 'true']
+        argv = ['dummy', detect_launcher(), '--geopm-disable-ctl', 'true']
         launcher = geopmpy.launcher.factory(argv, 1, 1)
         return launcher.get_alloc_nodes()
 
@@ -173,7 +173,7 @@ class TestLauncher(object):
         # Figure out the number of CPUs per rank leaving one for the
         # OS and one (potentially, may/may not be use depending on pmpi_ctl)
         # for the controller.
-        argv = ['dummy', detect_launcher(), 'lscpu']
+        argv = ['dummy', detect_launcher(), '--geopm-disable-ctl', 'lscpu']
         launcher = geopmpy.launcher.factory(argv, 1, 1)
         ostream = StringIO.StringIO()
         launcher.run(stdout=ostream)
