@@ -41,7 +41,7 @@
 
 namespace geopm
 {
-    /// @brief IOGroup that provides a signal for the current time.
+    /// @brief IOGroup that provides a signal for the time since GEOPM startup.
     class TimeIOGroup : public IOGroup
     {
         public:
