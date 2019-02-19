@@ -37,10 +37,87 @@ geopm::ProfileIOSample(3) -- sample region data from application
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
-## DESCRIPTION
+  * `ProfileIOSample(`:
+    `const std::vector<int> &`_cpu_rank_`,`<br>
+    `IEpochRuntimeRegulator &`_epoch_regulator_`);`
 
-For more details, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_profile_i_o_sample.html>.
+  * `~ProfileIOSample(`:
+    `void);`
+
+  * `void finalize_unmarked_region(`:
+    `void);`
+
+  * `void update(`:
+    `std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator `_prof_sample_begin_`,`<br>
+    `std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator `_prof_sample_end_`);`
+
+  * `void update_thread(`:
+    `const std::vector<double> &`_thread_progress_`);`
+
+  * `std::vector<uint64_t> per_cpu_region_id(`:
+    `void) const;`
+
+  * `std::vector<double> per_cpu_progress(`:
+    `const struct geopm_time_s &`_extrapolation_time_`) const;`
+
+  * `std::vector<double> per_cpu_thread_progress(`:
+    `void) const;`
+
+  * `std::vector<double> per_cpu_runtime(`:
+    `uint64_t `_region_id_`) const;`
+
+  * `double total_app_runtime(`:
+    `void) const;`
+
+  * `std::vector<int> cpu_rank(`:
+    `void) const;`
+
+## DESCRIPTION
+Class ProfileIOSample
+see also: **geopm::ProfileIOGroup(3)**
+
+todo: relate to EpochRuntimeRegulator?
+
+## CLASS METHODS
+
+  * `ProfileIOSample`():
+
+
+  * `~ProfileIOSample`():
+
+
+  * `finalize_unmarked_region`():
+
+
+  * `update`():
+    Update internal state with a batch of samples from the
+    application.
+
+  * `update_thread`():
+
+
+  * `per_cpu_region_id`():
+    Return the region ID that each CPU is running,
+    which is the region of the rank running on that
+    CPU.
+
+  * `per_cpu_progress`():
+    Return the current progress through the region on each CPU.  The
+    current progress is estimated based on the previous two samples
+    using the _extrapolation_time_ timestamp
+
+  * `per_cpu_thread_progress`():
+
+
+  * `per_cpu_runtime`():
+    Return the last runtime of the given _region_id_ for the rank
+    running on each CPU.
+
+  * `total_app_runtime`():
+    Return the total time from the start of the application until now.
+
+  * `cpu_rank`():
+    Returns the local-node rank running on each CPU.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.

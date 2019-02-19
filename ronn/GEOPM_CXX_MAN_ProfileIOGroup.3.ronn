@@ -37,14 +37,93 @@ geopm::ProfileIOGroup(3) -- IOGroup providing application signals
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
-## DESCRIPTION
+This class implements all public methods of the **geopm::IOGroup(3)** interface.
 
-For more details, see the doxygen
-page at <https://geopm.github.io/dox/classgeopm_1_1_profile_i_o_group.html>.
+  * `static std::string plugin_name(`:
+    `void);`
+
+## DESCRIPTION
+Class ProfileIOGroup
+/// @brief IOGroup that provides signals from the application.
+see also: **geopm::ProfileIOSample(3)**
+
+## CLASS METHODS
+  * `ProfileIOGroup`():
+
+
+  * `ProfileIOGroup`():
+
+
+  * `~ProfileIOGroup`():
+
+
+  * `signal_names`():
+
+
+  * `control_names`():
+
+
+  * `is_valid_signal`():
+
+
+  * `is_valid_control`():
+
+
+  * `signal_domain_type`():
+
+
+  * `control_domain_type`():
+
+
+  * `push_signal`():
+
+
+  * `push_control`():
+
+
+  * `read_batch`():
+
+
+  * `write_batch`():
+
+
+  * `sample`():
+
+
+  * `adjust`():
+
+
+  * `read_signal`():
+
+
+  * `write_control`():
+
+
+  * `save_control`():
+
+
+  * `restore_control`():
+
+
+  * `agg_function`():
+
+
+  * `signal_description`():
+
+
+  * `control_description`():
+
+
+  * `plugin_name`():
+  * `plugin_name`():
+    Returns the name of the plugin to use when this plugin is
+    registered with the IOGroup factory; see
+    **geopm::PluginFactory(3)** for more details.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,
-**geopm::IOGroup(3)**
+**geopm::IOGroup(3)**,
+**geopm::ProfileIOSample(3)**
