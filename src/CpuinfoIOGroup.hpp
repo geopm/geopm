@@ -72,6 +72,8 @@ namespace geopm
             static std::unique_ptr<IOGroup> make_plugin(void);
         private:
             const std::map<std::string, double> m_signal_value_map;
+            const std::map<std::string, std::function<double(const std::vector<double> &)> > m_func_map;
+            const std::map<std::string, std::string> m_desc_map;
     };
 }
 

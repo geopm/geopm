@@ -675,7 +675,11 @@ namespace geopm
         auto func = agg_function(msr_name_field);
         m_func_map[signal_name] = func;
         // Copy description for the alias
-        m_signal_desc_map[signal_name] = signal_description(msr_name_field);
+        auto desc = signal_description(msr_name_field);
+        if (signal_name != msr_name_field) {
+            desc = "Alias for " + msr_name_field + ". " + desc;
+        }
+        m_signal_desc_map[signal_name] = desc;
     }
 
     void MSRIOGroup::register_msr_control(const std::string &control_name)
@@ -727,7 +731,11 @@ namespace geopm
             cpu_control[cpu_idx] = new MSRControl(msr_obj, msr_obj.domain_type(), cpu_idx, control_idx);
         }
         // Copy description for the alias
-        m_control_desc_map[control_name] = control_description(msr_name_field);
+        auto desc = control_description(msr_name_field);
+        if (control_name != msr_name_field) {
+            desc = "Alias for " + msr_name_field + ". " + desc;
+        }
+        m_control_desc_map[control_name] = desc;
     }
 
     std::string MSRIOGroup::plugin_name(void)
@@ -768,7 +776,7 @@ namespace geopm
     std::function<double(const std::vector<double> &)> MSRIOGroup::agg_function(const std::string &signal_name) const
     {
         if (!is_valid_signal(signal_name)) {
-            throw Exception("MSRIOIOGroup::agg_function(): signal_name " + signal_name +
+            throw Exception("MSRIOGroup::agg_function(): signal_name " + signal_name +
                             " not valid for MSRIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -783,11 +791,11 @@ namespace geopm
     std::string MSRIOGroup::signal_description(const std::string &signal_name) const
     {
         if (!is_valid_signal(signal_name)) {
-            throw Exception("MSRIOIOGroup::signal_description(): signal_name " + signal_name +
+            throw Exception("MSRIOGroup::signal_description(): signal_name " + signal_name +
                             " not valid for MSRIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::string result = "";
+        std::string result = "Refer to the Software Developer's Manual for information about this MSR";
         auto it = m_signal_desc_map.find(signal_name);
         if (it != m_signal_desc_map.end()) {
             result = it->second;
@@ -798,11 +806,11 @@ namespace geopm
     std::string MSRIOGroup::control_description(const std::string &control_name) const
     {
         if (!is_valid_control(control_name)) {
-            throw Exception("MSRIOIOGroup::control_description(): control_name " + control_name +
+            throw Exception("MSRIOGroup::control_description(): control_name " + control_name +
                             " not valid for MSRIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::string result = "";
+        std::string result = "Refer to the Software Developer's Manual for information about this MSR";
         auto it = m_control_desc_map.find(control_name);
         if (it != m_control_desc_map.end()) {
             result = it->second;
