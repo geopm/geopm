@@ -1,0 +1,17 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import subprocess
+
+scripts_dir = os.path.dirname(os.path.realpath(__file__))
+cmd = '{}/geopm_test --gtest_list_tests'.format(scripts_dir)
+pid = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+out, err = pid.communicate()
+with open('GTEST_TESTS', 'w') as result:
+    for ll in out.splitlines():
+        if ll.endswith('.'):
+            cl = ll
+        else:
+            result.write('test/gtest_list/{}{}\n'.format(cl.strip(),ll.strip()))
+

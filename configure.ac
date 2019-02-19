@@ -462,6 +462,9 @@ CHANGELOG=ChangeLog
 AC_SUBST_FILE([BLURB])
 BLURB=BLURB
 
+AC_SUBST_FILE([GTEST_TESTS])
+GTEST_TESTS=GTEST_TESTS
+
 AC_CONFIG_FILES([Makefile geopm.spec geopm-ohpc.spec geopm-theta.spec scripts/geopmpy/version.py ronn/geopm.7.ronn])
 AC_OUTPUT
 
