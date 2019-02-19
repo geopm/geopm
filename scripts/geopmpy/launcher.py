@@ -1277,9 +1277,9 @@ GEOPM_OPTIONS:
       --geopm-disable-hyperthreads
                                do not allow pinning to HTs
 
-Possible LAUNCHER values:      "srun", "aprun", "impi", "SrunLauncher",
-                               "AlpsLauncher", "IMPIExecLauncher", or
-                               "SrunTOSSLauncher".
+Possible LAUNCHER values:      "srun", "aprun", "impi", "mpiexec.hydra",
+                               "SrunLauncher", "AprunLauncher",
+                               "IMPIExecLauncher", or "SrunTOSSLauncher".
 Possible LAUNCHER_ARGS:        "-h" , "--help".
 
 """
@@ -1289,7 +1289,8 @@ Possible LAUNCHER_ARGS:        "-h" , "--help".
         # Note: if application uses -h as a parameter or some other corner
         # cases there will be an extraneous help text printed at the end
         # of the run.
-        launch_imp = ["SrunLauncher", "AlpsLauncher", "IMPIExecLauncher", "SrunTOSSLauncher"]
+        launch_imp = ['srun', 'aprun', 'impi', 'mpiexec.hydra', 'SrunLauncher', 'AprunLauncher',
+                      'IMPIExecLauncher', 'SrunTOSSLauncher']
         if '--help' not in sys.argv and '-h' not in sys.argv or sys.argv[1] in launch_imp:
             launcher = factory(sys.argv)
             launcher.run()
