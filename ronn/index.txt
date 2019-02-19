@@ -92,3 +92,4 @@ ld.so(8)                        http://man7.org/linux/man-pages/man8/ld.so.8.htm
 lscpu(1)                        http://man7.org/linux/man-pages/man1/lscpu.1.html
 asctime_r(3)                    http://man7.org/linux/man-pages/man3/asctime_r.3.html
 dlopen(3)                       http://man7.org/linux/man-pages/man3/dlopen.3.html
+proc(5)                         http://man7.org/linux/man-pages/man5/proc.5.html
