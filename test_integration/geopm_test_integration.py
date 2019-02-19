@@ -1029,7 +1029,7 @@ class TestIntegration(unittest.TestCase):
             self.assertLessEqual(1, len(gemm_region))
 
     @skip_unless_run_long_tests()
-    @skip_unless_platform_bdx_skx()
+    #@skip_unless_platform_bdx_skx()
     @skip_unless_cpufreq()
     def test_agent_energy_efficient_offline(self):
         """
@@ -1105,7 +1105,7 @@ class TestIntegration(unittest.TestCase):
         self.assertLess(-10.0, runtime_savings_epoch)  # want -10% or better
 
     @skip_unless_run_long_tests()
-    @skip_unless_platform_bdx_skx()
+    #@skip_unless_platform_bdx_skx()
     @skip_unless_cpufreq()
     def test_agent_energy_efficient_online(self):
         """
