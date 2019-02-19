@@ -53,28 +53,33 @@ import glob
 import re
 import shlex
 import stat
+import textwrap
 
+from collections import OrderedDict
 from geopmpy import __version__
+
+
+def get_launcher_dict():
+    return OrderedDict([('srun', SrunLauncher),
+                        ('SrunLauncher', SrunLauncher),
+                        ('aprun', AprunLauncher),
+                        ('AprunLauncher', AprunLauncher),
+                        ('impi', IMPIExecLauncher),
+                        ('mpiexec.hydra', IMPIExecLauncher),
+                        ('IMPIExecLauncher', IMPIExecLauncher),
+                        ('SrunTOSSLauncher', SrunTOSSLauncher)
+                       ])
 
 
 def factory(argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
             time_limit=None, job_name=None, node_list=None, host_file=None):
     """
-    Factory that returns a Launcher object.  Class selection is based
-    on return value of the geopmpy.launcher.resource_manager() function.
+    Factory that returns a Launcher object.
     """
     launcher = argv[1]
-    factory_dict = dict()
-    factory_dict['srun'] = SrunLauncher
-    factory_dict['SrunLauncher'] = SrunLauncher
-    factory_dict['aprun'] = AprunLauncher
-    factory_dict['AprunLauncher'] = AprunLauncher
-    factory_dict['impi'] = IMPIExecLauncher
-    factory_dict['mpiexec.hydra'] = IMPIExecLauncher
-    factory_dict['IMPIExecLauncher'] = IMPIExecLauncher
-    factory_dict['SrunTOSSLauncher'] = SrunTOSSLauncher
+    factory_dict = get_launcher_dict()
     try:
-        return factory_dict[argv[1]](argv[2:], num_rank, num_node, cpu_per_rank, timeout,
+        return factory_dict[launcher](argv[2:], num_rank, num_node, cpu_per_rank, timeout,
                                 time_limit, job_name, node_list, host_file)
     except KeyError:
         raise LookupError('Unsupported launcher ' + launcher + ' requested')
@@ -1246,6 +1251,10 @@ GEOPM version {}
 Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
 """.format(__version__)
 
+    launcher_prefix = "Possible LAUNCHER values:      "
+    wrapper = textwrap.TextWrapper(width=80, initial_indent=launcher_prefix,
+                                   subsequent_indent=' '*len(launcher_prefix))
+    launchers = ', '.join('"' + ii + '"' for ii in get_launcher_dict().keys())
     help_str = """\
 Usage:
       geopmlaunch LAUNCHER [GEOPM_OPTIONS] [LAUNCHER_ARGS]
@@ -1277,20 +1286,18 @@ GEOPM_OPTIONS:
       --geopm-disable-hyperthreads
                                do not allow pinning to HTs
 
-Possible LAUNCHER values:      "srun", "aprun", "impi", "mpiexec.hydra",
-                               "SrunLauncher", "AprunLauncher",
-                               "IMPIExecLauncher", or "SrunTOSSLauncher".
+{}
 Possible LAUNCHER_ARGS:        "-h" , "--help".
 
-"""
+""".format(wrapper.fill(launchers))
+    indent_str = '      '
 
     try:
         # Print geopm help if it appears that documentation was requested
         # Note: if application uses -h as a parameter or some other corner
         # cases there will be an extraneous help text printed at the end
         # of the run.
-        launch_imp = ['srun', 'aprun', 'impi', 'mpiexec.hydra', 'SrunLauncher', 'AprunLauncher',
-                      'IMPIExecLauncher', 'SrunTOSSLauncher']
+        launch_imp = get_launcher_dict().keys()
         if '--help' not in sys.argv and '-h' not in sys.argv or sys.argv[1] in launch_imp:
             launcher = factory(sys.argv)
             launcher.run()
