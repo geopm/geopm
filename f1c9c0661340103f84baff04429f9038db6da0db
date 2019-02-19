@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "35b515f0_a4e3e56e",
+        "filename": "src/msr_snb.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 890,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-19T18:41:35Z",
+      "side": 1,
+      "message": "Add as signal only, not control",
+      "revId": "f1c9c0661340103f84baff04429f9038db6da0db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95ec5ccb_a364d27d",
+        "filename": "src/msr_snb.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 944,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-19T18:41:35Z",
+      "side": 1,
+      "message": "check this one too",
+      "revId": "f1c9c0661340103f84baff04429f9038db6da0db",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
