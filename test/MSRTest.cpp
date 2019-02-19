@@ -154,7 +154,7 @@ void MSRTest::ConfigControls()
 {
     m_control_names = {"ctl1", "ctl2", "ctl3"};
     m_con_begin_bits = {0, 0, 32};
-    m_con_end_bits = {8, 32, 64};
+    m_con_end_bits = {7, 31, 63};
     m_control_scalars = {0.1, 0.5, 1.0};
     m_control_value = 314159.265359;
     m_expected_con_fields = {216, 4294967277, 77309411328};
@@ -230,7 +230,7 @@ TEST_F(MSRTest, msr_overflow)
     auto signal = std::pair<std::string, struct IMSR::m_encode_s>
                      ("sig4", (struct IMSR::m_encode_s) {
                          .begin_bit = 0,
-                         .end_bit   = 4,
+                         .end_bit   = 3,
                          .domain    = IPlatformTopo::M_DOMAIN_CPU,
                          .function  = IMSR::M_FUNCTION_OVERFLOW,
                          .units     = IMSR::M_UNITS_NONE,
@@ -257,7 +257,7 @@ TEST_F(MSRTest, msr_overflow)
     auto signal2 = std::pair<std::string, struct IMSR::m_encode_s>
                       ("sig42", (struct IMSR::m_encode_s) {
                           .begin_bit = 0,
-                          .end_bit   = 48,
+                          .end_bit   = 47,
                           .domain    = IPlatformTopo::M_DOMAIN_CPU,
                           .function  = IMSR::M_FUNCTION_OVERFLOW,
                           .units     = IMSR::M_UNITS_NONE,
