@@ -84,7 +84,7 @@ extern "C"
                 strncpy(msg, "<geopm> Specified Agent not supported or unrecognized", size);
                 break;
             case GEOPM_ERROR_AFFINITY:
-                strncpy(msg, "<geopm> MPI ranks are not affitinized to distinct CPUs", size);
+                strncpy(msg, "<geopm> MPI ranks are not affinitized to distinct CPUs", size);
                 break;
             case GEOPM_ERROR_NO_AGENT:
                 strncpy(msg, "<geopm> Requested agent is unavailable or invalid", size);
