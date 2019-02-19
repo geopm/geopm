@@ -151,16 +151,17 @@ class Config(object):
         options.
         """
         self.ctl = None
-        if not any(aa.startswith('--geopm-ctl') for aa in argv):
+        if any(aa.startswith('--geopm-disable-ctl') for aa in argv):
+            argv.remove('--geopm-disable-ctl')
             if any(aa.startswith('--geopm-') for aa in argv):
-                raise RuntimeError('Some GEOPM options have been provided but --geopm-ctl has not.')
-            raise PassThroughError('The --geopm-ctl flag is not specified.')
+                raise RuntimeError('Some GEOPM options have been provided but --geopm-disable-ctl was also given.')
+            raise PassThroughError('--geopm-disable-ctl specified; disabling the controller...')
         # Parse the subset of arguments used by geopm
         parser = SubsetOptionParser()
-        parser.add_argument('--geopm-ctl', dest='ctl', type=str)
+        parser.add_argument('--geopm-ctl', dest='ctl', type=str, default='process')
         parser.add_argument('--geopm-policy', dest='policy', type=str)
         parser.add_argument('--geopm-endpoint', dest='endpoint', type=str)
-        parser.add_argument('--geopm-report', dest='report', type=str)
+        parser.add_argument('--geopm-report', dest='report', type=str, default='geopm.report')
         parser.add_argument('--geopm-trace', dest='trace', type=str)
         parser.add_argument('--geopm-trace-signals', dest='trace_signals', type=str)
         parser.add_argument('--geopm-report-signals', dest='report_signals', type=str)
@@ -512,7 +513,7 @@ fi
             fid.write(tmp_script_txt)
         os.chmod(tmp_script, stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR)
 
-        argv = shlex.split("dummy {} -- ./{}".format(self.launcher_command(), tmp_script))
+        argv = shlex.split('dummy {} --geopm-disable-ctl -- ./{}'.format(self.launcher_command(), tmp_script))
         # Note that a warning may be emitted by underlying launcher when main application uses more
         # than one node and the node list is passed.  We should run lscpu on all the nodes in the
         # allocation and check that the node topology is uniform across all nodes used by the job
@@ -520,7 +521,7 @@ fi
         launcher = factory(argv, self.num_node, self.num_node, host_file=self.host_file, node_list=self.node_list)
         launcher.run()
         os.remove(tmp_script)
-        argv = shlex.split("dummy {} -- lscpu --hex".format(self.launcher_command()))
+        argv = shlex.split('dummy {} --geopm-disable-ctl -- lscpu --hex'.format(self.launcher_command()))
         launcher = factory(argv, 1, 1, host_file=self.host_file, node_list=self.node_list)
         ostream = StringIO.StringIO()
         launcher.run(stdout=ostream)
@@ -1262,11 +1263,12 @@ Usage:
 GEOPM_OPTIONS:
       --geopm-ctl=ctl          use geopm runtime and launch geopm with the
                                "ctl" method, one of "process", "pthread" or
-                               "application"
+                               "application" (default: "process")
       --geopm-agent=agent      specify the agent to be used
       --geopm-policy=pol       use the geopm policy file or shared memory
                                region "pol"
       --geopm-report=path      create geopm report files with base name "path"
+                               (default: "default_report")
       --geopm-trace=path       create geopm trace files with base name "path"
       --geopm-trace-signals=signals
                                comma-separated list of signals to add as columns
@@ -1285,6 +1287,8 @@ GEOPM_OPTIONS:
       --geopm-preload          use LD_PRELOAD to link libgeopm.so at runtime
       --geopm-disable-hyperthreads
                                do not allow pinning to HTs
+      --geopm-disable-ctl      do not launch geopm; pass through commands to
+                               underlying launcher
 
 {}
 Possible LAUNCHER_ARGS:        "-h" , "--help".
