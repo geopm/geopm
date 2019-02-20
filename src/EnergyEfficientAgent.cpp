@@ -129,9 +129,9 @@ namespace geopm
         return result;
     }
 
-    std::vector<double> EnergyEfficientAgent::validate_policy(const std::vector<double> &in_policy) const
+    void EnergyEfficientAgent::validate_policy(std::vector<double> &in_policy) const
     {
-        return in_policy;
+
     }
 
     bool EnergyEfficientAgent::descend(const std::vector<double> &in_policy,

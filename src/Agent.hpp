@@ -66,10 +66,9 @@ namespace geopm
             ///        'NaN' at the desired offset in the policy vector.
             ///        Returned policy should not contain 'NaN's and be
             ///        consumeable by descend and adjust_platform.
-            /// @param [in] in_policy Policy values from the parent.
-            /// @return The actionable policy corresponding to
-            ///         the incoming policy request.
-            virtual std::vector<double> validate_policy(const std::vector<double> &in_policy) const = 0;
+            /// @param [in, out] policy Policy values from the parent should
+            ///        be sanitized to contain actionable policy;
+            virtual void validate_policy(std::vector<double> &in_policy) const = 0;
             /// @brief Called by Controller to split policy for
             ///        children at next level down the tree.
             /// @param [in] in_policy Policy values from the parent.
