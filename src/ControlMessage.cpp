@@ -47,7 +47,7 @@ namespace geopm
 {
 
     ControlMessage::ControlMessage(struct geopm_ctl_message_s &ctl_msg, bool is_ctl, bool is_writer)
-        : M_WAIT_SEC(geopm_env_profile_timeout())
+        : M_WAIT_SEC(geopm_env_timeout())
         , m_ctl_msg(ctl_msg)
         , m_is_ctl(is_ctl)
         , m_is_writer(is_writer)

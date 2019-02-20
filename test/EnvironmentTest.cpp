@@ -67,7 +67,7 @@ class EnvironmentTest: public :: testing :: Test
         bool m_do_region_barrier;
         bool m_do_trace;
         bool m_do_profile;
-        int m_profile_timeout;
+        int m_timeout;
         int m_debug_attach;
 };
 
@@ -83,7 +83,7 @@ void EnvironmentTest::SetUp()
     m_do_region_barrier = false;
     m_do_trace = false;
     m_do_profile = false;
-    m_profile_timeout = 30;
+    m_timeout = 30;
     m_debug_attach = -1;
     m_pmpi_ctl_str = "none";
     m_trace_signals = "test1,test2,test3";
@@ -95,7 +95,7 @@ void EnvironmentTest::SetUp()
     unsetenv("GEOPM_TRACE");
     unsetenv("GEOPM_PLUGIN_PATH");
     unsetenv("GEOPM_REGION_BARRIER");
-    unsetenv("GEOPM_PROFILE_TIMEOUT");
+    unsetenv("GEOPM_TIMEOUT");
     unsetenv("GEOPM_CTL");
     unsetenv("GEOPM_DEBUG_ATTACH");
     unsetenv("GEOPM_PROFILE");
@@ -113,7 +113,7 @@ void EnvironmentTest::TearDown()
     unsetenv("GEOPM_PLUGIN_PATH");
     unsetenv("GEOPM_REGION_BARRIER");
     unsetenv("GEOPM_ERROR_AFFINITY_IGNORE");
-    unsetenv("GEOPM_PROFILE_TIMEOUT");
+    unsetenv("GEOPM_TIMEOUT");
     unsetenv("GEOPM_CTL");
     unsetenv("GEOPM_DEBUG_ATTACH");
     unsetenv("GEOPM_PROFILE");
@@ -130,7 +130,7 @@ TEST_F(EnvironmentTest, construction0)
     setenv("GEOPM_TRACE", m_trace.c_str(), 1);
     setenv("GEOPM_PLUGIN_PATH", m_plugin_path.c_str(), 1);
     setenv("GEOPM_REGION_BARRIER", "", 1);
-    setenv("GEOPM_PROFILE_TIMEOUT", std::to_string(m_profile_timeout).c_str(), 1);
+    setenv("GEOPM_TIMEOUT", std::to_string(m_timeout).c_str(), 1);
     m_pmpi_ctl_str = std::string("process");
     m_pmpi_ctl = GEOPM_CTL_PROCESS;
     setenv("GEOPM_CTL", m_pmpi_ctl_str.c_str(), 1);
@@ -149,7 +149,7 @@ TEST_F(EnvironmentTest, construction0)
     EXPECT_EQ(1, geopm_env_do_region_barrier());
     EXPECT_EQ(1, geopm_env_do_trace());
     EXPECT_EQ(1, geopm_env_do_profile());
-    EXPECT_EQ(m_profile_timeout, geopm_env_profile_timeout());
+    EXPECT_EQ(m_timeout, geopm_env_timeout());
     EXPECT_EQ(m_debug_attach, geopm_env_debug_attach());
 }
 
@@ -160,7 +160,7 @@ TEST_F(EnvironmentTest, construction1)
     setenv("GEOPM_TRACE", m_trace.c_str(), 1);
     setenv("GEOPM_PLUGIN_PATH", m_plugin_path.c_str(), 1);
     //setenv("GEOPM_REGION_BARRIER", "", 1);
-    setenv("GEOPM_PROFILE_TIMEOUT", std::to_string(m_profile_timeout).c_str(), 1);
+    setenv("GEOPM_TIMEOUT", std::to_string(m_timeout).c_str(), 1);
     m_pmpi_ctl_str = std::string("pthread");
     m_pmpi_ctl = GEOPM_CTL_PTHREAD;
     setenv("GEOPM_CTL", m_pmpi_ctl_str.c_str(), 1);
@@ -184,7 +184,7 @@ TEST_F(EnvironmentTest, construction1)
     EXPECT_EQ(0, geopm_env_do_region_barrier());
     EXPECT_EQ(1, geopm_env_do_trace());
     EXPECT_EQ(1, geopm_env_do_profile());
-    EXPECT_EQ(m_profile_timeout, geopm_env_profile_timeout());
+    EXPECT_EQ(m_timeout, geopm_env_timeout());
     EXPECT_EQ(m_debug_attach, geopm_env_debug_attach());
     EXPECT_EQ(m_trace_signals, geopm_env_trace_signals());
     EXPECT_EQ(m_report_signals, geopm_env_report_signals());
