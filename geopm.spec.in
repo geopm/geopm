@@ -156,14 +156,12 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 %doc %{_mandir}/man3/geopm::Agent.3.gz
 %doc %{_mandir}/man3/geopm::Agg.3.gz
 %doc %{_mandir}/man3/geopm::CircularBuffer.3.gz
-%doc %{_mandir}/man3/geopm::Comm.3.gz
 %doc %{_mandir}/man3/geopm::CpuinfoIOGroup.3.gz
 %doc %{_mandir}/man3/geopm::EnergyEfficientAgent.3.gz
 %doc %{_mandir}/man3/geopm::EnergyEfficientRegion.3.gz
 %doc %{_mandir}/man3/geopm::Exception.3.gz
 %doc %{_mandir}/man3/geopm::Helper.3.gz
 %doc %{_mandir}/man3/geopm::IOGroup.3.gz
-%doc %{_mandir}/man3/geopm::MPIComm.3.gz
 %doc %{_mandir}/man3/geopm::MSR.3.gz
 %doc %{_mandir}/man3/geopm::MSRIO.3.gz
 %doc %{_mandir}/man3/geopm::MSRIOGroup.3.gz
@@ -188,7 +186,6 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 %doc %{_mandir}/man3/geopm_hash.3.gz
 %doc %{_mandir}/man3/geopm_imbalancer.3.gz
 %doc %{_mandir}/man3/geopm_prof_c.3.gz
-%doc %{_mandir}/man3/geopm_region_id_c.3.gz
 %doc %{_mandir}/man3/geopm_sched.3.gz
 %doc %{_mandir}/man3/geopm_time.3.gz
 %doc %{_mandir}/man3/geopm_version.3.gz
@@ -205,14 +202,12 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 %{_includedir}/geopm/Agent.hpp
 %{_includedir}/geopm/Agg.hpp
 %{_includedir}/geopm/CircularBuffer.hpp
-%{_includedir}/geopm/Comm.hpp
 %{_includedir}/geopm/CpuinfoIOGroup.hpp
 %{_includedir}/geopm/EnergyEfficientAgent.hpp
 %{_includedir}/geopm/EnergyEfficientRegion.hpp
 %{_includedir}/geopm/Exception.hpp
 %{_includedir}/geopm/Helper.hpp
 %{_includedir}/geopm/IOGroup.hpp
-%{_includedir}/geopm/MPIComm.hpp
 %{_includedir}/geopm/MSR.hpp
 %{_includedir}/geopm/MSRIO.hpp
 %{_includedir}/geopm/MSRIOGroup.hpp
@@ -236,7 +231,6 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 %{_includedir}/geopm_error.h
 %{_includedir}/geopm_hash.h
 %{_includedir}/geopm_imbalancer.h
-%{_includedir}/geopm_region_id.h
 %{_includedir}/geopm_sched.h
 %{_includedir}/geopm_time.h
 %{_includedir}/geopm_version.h
