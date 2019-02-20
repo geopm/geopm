@@ -69,6 +69,14 @@ def get_launcher_dict():
                        ])
 
 
+def get_launcher_command(launcher):
+    try:
+        launcher_command = get_launcher_dict()[launcher]._launcher_command()
+    except KeyError:
+        raise LookupError('Unsupported launcher ' + launcher + ' requested')
+    return launcher_command
+
+
 def factory(argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
             time_limit=None, job_name=None, node_list=None, host_file=None):
     """
@@ -314,6 +322,13 @@ class Launcher(object):
     Abstract base class for MPI job launch application abstraction.
     Defines common methods used by all Launcher objects.
     """
+    @staticmethod
+    def _launcher_command():
+        """
+        Returns the name/path to the job launch application.
+        """
+        raise NotImplementedError('Launcher.launcher_command() undefined in the base class')
+
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None, partition=None):
         """
@@ -411,7 +426,7 @@ class Launcher(object):
         Execute the command given to constructor with modified command
         line options and environment variables.
         """
-        argv_mod = [self.launcher_command()]
+        argv_mod = [self._launcher_command()]
         if self.is_override_enabled:
             argv_mod.extend(self.launcher_argv(False))
             argv_mod.extend(self.argv_unparsed)
@@ -429,7 +444,7 @@ class Launcher(object):
         signal.signal(signal.SIGINT, self.int_handler)
         argv_mod = ' '.join(argv_mod)
         if self.is_geopm_enabled and self.config.get_ctl() == 'application':
-            geopm_argv = [self.launcher_command()]
+            geopm_argv = [self._launcher_command()]
             geopm_argv.extend(self.launcher_argv(True))
             geopm_argv.append('geopmctl')
             geopm_argv = ' '.join(geopm_argv)
@@ -511,7 +526,7 @@ fi
             fid.write(tmp_script_txt)
         os.chmod(tmp_script, stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR)
 
-        argv = shlex.split('dummy {} --geopm-disable-ctl -- ./{}'.format(self.launcher_command(), tmp_script))
+        argv = shlex.split('dummy {} --geopm-disable-ctl -- ./{}'.format(self._launcher_command(), tmp_script))
         # Note that a warning may be emitted by underlying launcher when main application uses more
         # than one node and the node list is passed.  We should run lscpu on all the nodes in the
         # allocation and check that the node topology is uniform across all nodes used by the job
@@ -519,7 +534,7 @@ fi
         launcher = factory(argv, self.num_node, self.num_node, host_file=self.host_file, node_list=self.node_list)
         launcher.run()
         os.remove(tmp_script)
-        argv = shlex.split('dummy {} --geopm-disable-ctl -- lscpu --hex'.format(self.launcher_command()))
+        argv = shlex.split('dummy {} --geopm-disable-ctl -- lscpu --hex'.format(self._launcher_command()))
         launcher = factory(argv, 1, 1, host_file=self.host_file, node_list=self.node_list)
         ostream = StringIO.StringIO()
         launcher.run(stdout=ostream)
@@ -633,12 +648,6 @@ fi
         application.
         """
         raise NotImplementedError('Launcher.parse_launcher_argv() undefined in the base class')
-
-    def launcher_command(self):
-        """
-        Returns the name/path to the job launch application.
-        """
-        raise NotImplementedError('Launcher.launcher_command() undefined in the base class')
 
     def launcher_argv(self, is_geopmctl):
         """
@@ -764,6 +773,13 @@ class SrunLauncher(Launcher):
     Launcher derived object for use with the SLURM job launch
     application srun.
     """
+    @staticmethod
+    def _launcher_command():
+        """
+        Returns 'srun', the name of the SLURM MPI job launch application.
+        """
+        return 'srun'
+
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None):
         """
@@ -826,12 +842,6 @@ class SrunLauncher(Launcher):
         if (self.is_geopm_enabled and
             any(aa.startswith(('--cpu_bind', '--cpu-bind')) for aa in self.argv)):
             raise SyntaxError('The option --cpu_bind or --cpu-bind  must not be specified, this is controlled by geopm_srun.')
-
-    def launcher_command(self):
-        """
-        Returns 'srun', the name of the SLURM MPI job launch application.
-        """
-        return 'srun'
 
     def num_node_option(self):
         """
@@ -989,6 +999,13 @@ class IMPIExecLauncher(Launcher):
     Launcher derived object for use with the Intel(R) MPI Library job launch
     application mpiexec.hydra.
     """
+    @staticmethod
+    def _launcher_command():
+        """
+        Returns 'mpiexec.hydra', the name of the Intel MPI Library job launch application.
+        """
+        return 'mpiexec.hydra'
+
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None):
         """
@@ -1006,12 +1023,6 @@ class IMPIExecLauncher(Launcher):
             os.getenv('SLURM_NNODES') != str(self.num_node)):
             raise RuntimeError('When using srun and specifying --geopm-ctl=application call must be made ' +
                                'inside of an salloc or sbatch environment and application must run on all allocated nodes.')
-
-    def launcher_command(self):
-        """
-        Returns 'mpiexec.hydra', the name of the Intel MPI Library job launch application.
-        """
-        return 'mpiexec.hydra'
 
     def parse_launcher_argv(self):
         """
@@ -1115,6 +1126,13 @@ class IMPIExecLauncher(Launcher):
 
 
 class AprunLauncher(Launcher):
+    @staticmethod
+    def _launcher_command():
+        """
+        Returns 'aprun', the name of the ALPS MPI job launch application.
+        """
+        return 'aprun'
+
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None):
         """
@@ -1159,12 +1177,6 @@ class AprunLauncher(Launcher):
             any(aa.startswith('--cpu-binding') or
             aa.startswith('-cc') for aa in self.argv)):
             raise SyntaxError('The options --cpu-binding or -cc must not be specified, this is controlled by geopmpy.launcher.')
-
-    def launcher_command(self):
-        """
-        Returns 'aprun', the name of the ALPS MPI job launch application.
-        """
-        return 'aprun'
 
     def num_node_option(self):
         """
@@ -1297,27 +1309,24 @@ Possible LAUNCHER_ARGS:        "-h" , "--help".
     indent_str = '      '
 
     try:
-        # Print geopm help if it appears that documentation was requested
-        # Note: if application uses -h as a parameter or some other corner
-        # cases there will be an extraneous help text printed at the end
-        # of the run.
-        launch_imp = get_launcher_dict().keys()
-        if '--help' not in sys.argv and '-h' not in sys.argv or sys.argv[1] in launch_imp:
+        # Print geopm help or version if requested
+        if '--help' not in sys.argv and '-h' not in sys.argv and '--version' not in sys.argv:
             launcher = factory(sys.argv)
             launcher.run()
-        else:
+        elif '--help' in sys.argv or '-h' in sys.argv:
             # geopmlaunch <--help | -h>
-            if sys.argv[1] == "--help" or sys.argv[1] == "-h":
-                sys.stdout.write(help_str)
-            # geopmlaunch <srun | arun | impi> <--help | -h>
-            elif '--help' in sys.argv or '-h' in sys.argv:
-                sys.stdout.write(help_str)
-                pid = subprocess.call(["{}".format(sys.argv[1]), "--help"], stdout=sys.stdout)
-            # geopmlaunch <srun | arun | impi> <--version>
-            else:
-                pid = subprocess.call(["{}".format(sys.argv[1]), "--version"], stdout=sys.stdout)
-        if '--version' in sys.argv:
-                sys.stdout.write(version_str)
+            sys.stdout.write(help_str)
+            if sys.argv[1] != '--help' and sys.argv[1] != '-h':
+                # geopmlaunch <srun | arun | impi> <--help | -h>
+                launcher_command = get_launcher_command(sys.argv[1])
+                pid = subprocess.call(['{}'.format(launcher_command), '--help'], stdout=sys.stdout)
+        else:
+            # geopmlaunch <--version>
+            sys.stdout.write(version_str)
+            if sys.argv[1] != '--version':
+                # geopmlaunch <srun | arun | impi> <--version>
+                launcher_command = get_launcher_command(sys.argv[1])
+                pid = subprocess.call(['{}'.format(launcher_command), '--version'], stdout=sys.stdout)
     except Exception as e:
         # If GEOPM_DEBUG environment variable is defined print stack trace.
         if os.getenv('GEOPM_DEBUG'):
