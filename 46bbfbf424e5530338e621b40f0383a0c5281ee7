@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6945186e_556a50b3",
+        "filename": "src/Agent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-20T22:32:39Z",
+      "side": 1,
+      "message": ".",
+      "range": {
+        "startLine": 70,
+        "startChar": 64,
+        "endLine": 70,
+        "endChar": 65
+      },
+      "revId": "46bbfbf424e5530338e621b40f0383a0c5281ee7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "752e37c1_5b0477d1",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-20T22:32:39Z",
+      "side": 1,
+      "message": "I don\u0027t think this needs to be addressed in this patch, but why don\u0027t we call this *only* at the root?  Are we expecting some NaNs to come down at intermediate levels of the tree?",
+      "revId": "46bbfbf424e5530338e621b40f0383a0c5281ee7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
