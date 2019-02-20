@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6789a806_f28f2225",
+        "filename": "ronn/GEOPM_CXX_MAN_CpuinfoIOGroup.3.ronn",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-20T18:54:01Z",
+      "side": 1,
+      "message": "Replace with actual interface.",
+      "revId": "063fe89e93a6f50805ff4f720f384733c0ccb7ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
