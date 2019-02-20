@@ -244,7 +244,7 @@ class Config(object):
         if self.shmkey:
             result['GEOPM_SHMKEY'] = self.shmkey
         if self.timeout:
-            result['GEOPM_PROFILE_TIMEOUT'] = self.timeout
+            result['GEOPM_TIMEOUT'] = self.timeout
         if self.plugin:
             result['GEOPM_PLUGIN_PATH'] = self.plugin
         if self.debug_attach:

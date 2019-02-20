@@ -76,7 +76,7 @@ namespace geopm
             int do_region_barrier(void) const;
             int do_trace(void) const;
             int do_profile() const;
-            int profile_timeout(void) const;
+            int timeout(void) const;
             int debug_attach(void) const;
         private:
             bool get_env(const char *name, std::string &env_string) const;
@@ -94,7 +94,7 @@ namespace geopm
             bool m_do_region_barrier;
             bool m_do_trace;
             bool m_do_profile;
-            int m_profile_timeout;
+            int m_timeout;
             int m_debug_attach;
             std::string m_trace_signals;
             std::string m_report_signals;
@@ -131,7 +131,7 @@ namespace geopm
         m_do_region_barrier = false;
         m_do_trace = false;
         m_do_profile = false;
-        m_profile_timeout = 30;
+        m_timeout = 30;
         m_debug_attach = -1;
         m_trace_signals = "";
         m_report_signals = "";
@@ -149,7 +149,7 @@ namespace geopm
         m_do_trace = get_env("GEOPM_TRACE", m_trace);
         (void)get_env("GEOPM_PLUGIN_PATH", m_plugin_path);
         m_do_region_barrier = get_env("GEOPM_REGION_BARRIER", tmp_str);
-        (void)get_env("GEOPM_PROFILE_TIMEOUT", m_profile_timeout);
+        (void)get_env("GEOPM_TIMEOUT", m_timeout);
         if (get_env("GEOPM_CTL", tmp_str)) {
             if (tmp_str == "process") {
                 m_pmpi_ctl = GEOPM_CTL_PROCESS;
@@ -285,9 +285,9 @@ namespace geopm
         return m_do_profile;
     }
 
-    int Environment::profile_timeout(void) const
+    int Environment::timeout(void) const
     {
-        return m_profile_timeout;
+        return m_timeout;
     }
 
     int Environment::debug_attach(void) const
@@ -377,9 +377,9 @@ extern "C"
         return geopm::environment().do_profile();
     }
 
-    int geopm_env_profile_timeout(void)
+    int geopm_env_timeout(void)
     {
-        return geopm::environment().profile_timeout();
+        return geopm::environment().timeout();
     }
 
     int geopm_env_debug_attach(void)
