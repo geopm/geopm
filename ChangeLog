@@ -1,3 +1,60 @@
+* Fri Feb 22 2019 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v1.0.0-rc2
+- Modified implementations and interfaces:
+- Remove geopm_prof_init() interface from installed header.
+- Fix geopmhash example command line tool.
+- Update plugin loading implementation to use C++.
+- Refactor IOGroup lookup in PlatformIO.
+- Modify analysis power sweep to consider multiple packages.
+- Support lscpu versions that omit 0x from hex values.
+- Do not install Comm.hpp or MPIComm.hpp.
+- Modify time signal to be scoped to the CPU.
+- Rename M_UNITS_HZ to M_UNITS_HERTZ
+- Add tables module to Python requirements.
+- Change MSR names to match names in Intel (R) Software Developers Manual.
+- Make end bit of MSR bitfield inclusive.
+- Add descriptions for built-in signals and controls.
+- Align launcher names and programmatically generate list of supported launchers.
+- Updated features:
+- Update tracer to enable user specified column signals to also specify domain.
+- Update reporter to enable user specified signals and domains.
+- Add REGION_HASH and REGION_HINT signals.
+- Remove all references to the region_id from public interfaces.
+- Add domain aggregation for read_signal and write_control.
+- Add TEMPERATURE as default trace column.
+- Add split_string() helper function.
+- Install geopm_hash.h and add man page.
+- Add helper function to replace gethostname().
+- Improve trace column header names for PowerBalancerAgent.
+- Modify how epoch totals are calculated.
+- Updated and extended integration tests:
+- Fix fence-post problem in test_trace_runtimes.
+- Skip EnergyEfficientAgent integration test on non-BDX platforms.
+- Updated unit tests:
+- Fix timing issue with PowerGovernorAgentTest.wait test.
+- Fix geopmagent CLI test.
+- Clean up PlatformIOTest.
+- Update to googletest v1.8.1.
+- Optimize Travis CI build.
+- Updates to documentation:
+- Update man pages to reflect environment extension of report and trace.
+- Update man pages for Agg, CircularBuffer, IOGroup, Exception, Helper, RegionAggregator, SharedMemory, PluginFactory, MSR, MSRIO, and MSRIOGroup classes.
+- Update geopm_region_id_c.3 man page.
+- Update geopm_sched.3.ronn.
+- Add tutorial about plugin loading order.
+- Add missing links to geopm(7) man page.
+- Update copyright date to 2019.
+- Use BLURB in geopm.7 man page.
+- Sync spec file for OpenHPC with the one published with OpenHPC.
+- Change die.net links to man7.org
+- Bug fixes:
+- Fix all timeouts for usages of SharedMemoryUser to reflect geopm_env_profile_timeout().
+- Fix energy status units for DRAM on Haswell and Broadwell.
+- Fix energy reporting on multi-socket systems.
+- Fix issue when application calls MPI_Init_thread() to increase thread level to match GEOPM requirements.
+- Fix broken build when configured with --enable-overhead.
+- Fix issues detected with clang.
+- Fix launcher args for IMPI.
+- Fix throw in Tracer when reading hash and hint which are allowed to be zero.
 * Fri Dec 21 2018 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v1.0.0-rc1
 - Release overview:
 - This is the first candidate for the v1.0.0 release of the GEOPM package.
