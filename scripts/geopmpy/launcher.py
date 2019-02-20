@@ -64,8 +64,8 @@ def get_launcher_dict():
                         ('SrunLauncher', SrunLauncher),
                         ('aprun', AprunLauncher),
                         ('AprunLauncher', AprunLauncher),
-                        ('impi', IMPIExecLauncher),
                         ('mpiexec.hydra', IMPIExecLauncher),
+                        ('impi', IMPIExecLauncher),
                         ('IMPIExecLauncher', IMPIExecLauncher),
                         ('SrunTOSSLauncher', SrunTOSSLauncher)
                        ])
@@ -766,6 +766,13 @@ class SrunLauncher(Launcher):
     Launcher derived object for use with the SLURM job launch
     application srun.
     """
+    @staticmethod
+    def launcher_cmd():
+        """
+        Returns 'srun', the name of the SLURM MPI job launch application.
+        """
+        return 'srun'
+
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None):
         """
@@ -969,6 +976,13 @@ class SrunTOSSLauncher(SrunLauncher):
     Launcher derived object for use with systems using TOSS and the
     mpibind plugin from LLNL.
     """
+    @staticmethod
+    def launcher_cmd():
+        """
+        Returns the name of the base class launcher.
+        """
+        return super(SrunTOSSLauncher, SrunTOSSLauncher).launcher_cmd()
+
     def affinity_option(self, is_geopmctl):
         """
         Returns the mpibind option used with SLURM on TOSS.
@@ -991,6 +1005,13 @@ class IMPIExecLauncher(Launcher):
     Launcher derived object for use with the Intel(R) MPI Library job launch
     application mpiexec.hydra.
     """
+    @staticmethod
+    def launcher_cmd():
+        """
+        Returns 'mpiexec.hydra', the name of the Intel MPI Library job launch application.
+        """
+        return 'mpiexec.hydra'
+
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None):
         """
@@ -1117,6 +1138,13 @@ class IMPIExecLauncher(Launcher):
 
 
 class AprunLauncher(Launcher):
+    @staticmethod
+    def launcher_cmd():
+        """
+        Returns 'aprun', the name of the ALPS MPI job launch application.
+        """
+        return 'aprun'
+
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None):
         """
@@ -1301,21 +1329,24 @@ Possible LAUNCHER_ARGS:        "-h" , "--help".
         # Note: if application uses -h as a parameter or some other corner
         # cases there will be an extraneous help text printed at the end
         # of the run.
-        launch_imp = get_launcher_dict().keys()
-        if '--help' not in sys.argv and '-h' not in sys.argv or sys.argv[1] in launch_imp:
+        if '--help' not in sys.argv and '-h' not in sys.argv:
             launcher = factory(sys.argv)
             launcher.run()
         else:
+            try:
+                launcher_cmd = get_launcher_dict()[sys.argv[1]].launcher_cmd()
+            except KeyError:
+                raise LookupError('Unsupported launcher ' + sys.argv[1] + ' requested')
             # geopmlaunch <--help | -h>
             if sys.argv[1] == "--help" or sys.argv[1] == "-h":
                 sys.stdout.write(help_str)
             # geopmlaunch <srun | arun | impi> <--help | -h>
             elif '--help' in sys.argv or '-h' in sys.argv:
                 sys.stdout.write(help_str)
-                pid = subprocess.call(["{}".format(sys.argv[1]), "--help"], stdout=sys.stdout)
+                pid = subprocess.call(["{}".format(launcher_cmd), "--help"], stdout=sys.stdout)
             # geopmlaunch <srun | arun | impi> <--version>
             else:
-                pid = subprocess.call(["{}".format(sys.argv[1]), "--version"], stdout=sys.stdout)
+                pid = subprocess.call(["{}".format(launcher_cmd), "--version"], stdout=sys.stdout)
         if '--version' in sys.argv:
                 sys.stdout.write(version_str)
     except Exception as e:
