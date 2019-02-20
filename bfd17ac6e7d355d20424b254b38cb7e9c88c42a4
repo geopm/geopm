@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c600e2c_649f044d",
+        "filename": "configure.ac",
+        "patchSetId": 1
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-20T19:32:18Z",
+      "side": 1,
+      "message": "test/GTEST_TESTS",
+      "range": {
+        "startLine": 465,
+        "startChar": 15,
+        "endLine": 465,
+        "endChar": 26
+      },
+      "revId": "bfd17ac6e7d355d20424b254b38cb7e9c88c42a4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aaa452cc_7e13caa0",
+        "filename": "test/Makefile.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-20T19:32:18Z",
+      "side": 1,
+      "message": "$(GTEST_MPI_TESTS) must be added to the list as well",
+      "range": {
+        "startLine": 165,
+        "startChar": 18,
+        "endLine": 165,
+        "endChar": 29
+      },
+      "revId": "bfd17ac6e7d355d20424b254b38cb7e9c88c42a4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
