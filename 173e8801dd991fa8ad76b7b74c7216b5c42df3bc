@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1d556a8_c5cfb598",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-20T19:24:02Z",
+      "side": 1,
+      "message": "geopm.report",
+      "range": {
+        "startLine": 10,
+        "startChar": 21,
+        "endLine": 10,
+        "endChar": 35
+      },
+      "revId": "173e8801dd991fa8ad76b7b74c7216b5c42df3bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b648e89_e0e16ed3",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-20T19:24:02Z",
+      "side": 1,
+      "message": "Can also be removed.",
+      "revId": "173e8801dd991fa8ad76b7b74c7216b5c42df3bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da5bde53_26c030cc",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-20T19:24:02Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 178,
+        "startChar": 7,
+        "endLine": 180,
+        "endChar": 96
+      },
+      "revId": "173e8801dd991fa8ad76b7b74c7216b5c42df3bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63107014_ad939e3b",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 1270,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-20T19:24:02Z",
+      "side": 1,
+      "message": "geopm.report",
+      "range": {
+        "startLine": 1270,
+        "startChar": 42,
+        "endLine": 1270,
+        "endChar": 56
+      },
+      "revId": "173e8801dd991fa8ad76b7b74c7216b5c42df3bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}

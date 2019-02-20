@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f9102ba_86c8df23",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-20T19:24:02Z",
+      "side": 0,
+      "message": "if any(aa.startswith(\u0027--geopm-disable-ctl\u0027) for aa in argv):\n    argv.remove(\u0027--geopm-disable-ctl\u0027)\n    if any(aa.startswith(\u0027--geopm-\u0027) for aa in argv):\n        raise RuntimeError(\u0027Some GEOPM options have been provided but --geopm-disable-ctl was also given.\u0027)\n    raise PassThroughError(\u0027--geopm-disable-ctl specified; disabling the controller...\u0027)",
+      "range": {
+        "startLine": 154,
+        "startChar": 8,
+        "endLine": 154,
+        "endChar": 64
+      },
+      "revId": "25de794fc40791cc86f701aa19c07878912d209b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
