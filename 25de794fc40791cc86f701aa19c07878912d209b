@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad0ba759_8998e559",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-20T23:39:03Z",
+      "side": 0,
+      "message": "Why is the validate_policy() call removed entirely?",
+      "revId": "25de794fc40791cc86f701aa19c07878912d209b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24e52349_d594e844",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-20T23:39:03Z",
+      "side": 0,
+      "message": "Same question as above.",
+      "revId": "25de794fc40791cc86f701aa19c07878912d209b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
