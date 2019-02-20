@@ -64,7 +64,6 @@ def get_launcher_dict():
                         ('SrunLauncher', SrunLauncher),
                         ('aprun', AprunLauncher),
                         ('AprunLauncher', AprunLauncher),
-                        ('impi', IMPIExecLauncher),
                         ('mpiexec.hydra', IMPIExecLauncher),
                         ('IMPIExecLauncher', IMPIExecLauncher),
                         ('SrunTOSSLauncher', SrunTOSSLauncher)
@@ -1301,7 +1300,7 @@ Possible LAUNCHER_ARGS:        "-h" , "--help".
         # Note: if application uses -h as a parameter or some other corner
         # cases there will be an extraneous help text printed at the end
         # of the run.
-        launch_imp = get_launcher_dict().keys()
+        launch_imp = [ii for ii in get_launcher_dict().keys() if 'Launcher' in ii]
         if '--help' not in sys.argv and '-h' not in sys.argv or sys.argv[1] in launch_imp:
             launcher = factory(sys.argv)
             launcher.run()
