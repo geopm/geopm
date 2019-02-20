@@ -54,6 +54,9 @@ better rendering of this manual.
     `const vector<int> &`_fan_in_`,` <br>
     `bool` _is_level_root_`) = 0;`
 
+  * `virtual void Agent::validate_policy(`:
+    `vector<double> &`_policy_`) = const 0;`
+
   * `virtual bool Agent::descend(`:
     `const vector<double> &`_in_policy_`,` <br>
     `vector<vector<double>>&` _out_policy_`) = 0;`
@@ -201,6 +204,12 @@ I/O implementations by different `Agent` classes.
       / | | \    / | | \    / | | \     / | | \    / | | \    / | | \
     (0)(0|0)(0)(0)(0|0)(0)(0)(0|0)(0) (0)(0|0)(0)(0)(0|0)(0)(0)(0|0)(0)
 ```
+
+  * `validate_policy`():
+    Called by user of Agent class  to validate incoming policy values and
+    replace NaNs with defaults.  If a value of _policy_ is not NaN but the
+    value is not supported by the Agent the method will throw a geopm::Exception
+    with error code GEOPM_ERROR_INVALID.
 
   * `descend`():
     Split policy for children at next level down the tree.  The
