@@ -90,6 +90,11 @@ namespace geopm
                             " not valid for TimeIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        if (domain_type != PlatformTopo::M_DOMAIN_CPU) {
+            throw Exception("TimeIOGroup::push_signal(): signal_name " + signal_name +
+                            " not defined for domain " + std::to_string(domain_type),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         if (m_is_batch_read) {
             throw Exception("TimeIOGroup::push_signal(): cannot push signal after call to read_batch().",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -145,6 +150,11 @@ namespace geopm
         if (!is_valid_signal(signal_name)) {
             throw Exception("TimeIOGroup:read_signal(): " + signal_name +
                             "not valid for TimeIOGroup",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (domain_type != PlatformTopo::M_DOMAIN_CPU) {
+            throw Exception("TimeIOGroup::read_signal(): signal_name " + signal_name +
+                            " not defined for domain " + std::to_string(domain_type),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return geopm_time_since(&m_time_zero);
