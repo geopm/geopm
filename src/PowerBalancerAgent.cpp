@@ -558,8 +558,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        auto policy = validate_policy(in_policy);
-        return m_role->descend(policy, out_policy);
+        return m_role->descend(in_policy, out_policy);
     }
 
     bool PowerBalancerAgent::ascend(const std::vector<std::vector<double> > &sample_in, std::vector<double> &sample_out)
@@ -575,8 +574,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        auto policy = validate_policy(in_policy);
-        return m_role->adjust_platform(policy);
+        return m_role->adjust_platform(in_policy);
     }
 
     bool PowerBalancerAgent::sample_platform(std::vector<double> &out_sample)
@@ -642,28 +640,26 @@ namespace geopm
                 "MIN_POWER_HEADROOM"};
     }
 
-    std::vector<double> PowerBalancerAgent::validate_policy(const std::vector<double> &in_policy) const
+    void PowerBalancerAgent::validate_policy(std::vector<double> &policy) const
     {
         // If NAN, use default
-        std::vector<double> updated_policy = in_policy;
-        if (std::isnan(in_policy[M_POLICY_POWER_CAP])) {
-            updated_policy[M_POLICY_POWER_CAP] = m_power_tdp;
+        if (std::isnan(policy[M_POLICY_POWER_CAP])) {
+            policy[M_POLICY_POWER_CAP] = m_power_tdp;
         }
-        if (std::isnan(in_policy[M_POLICY_STEP_COUNT])) {
-            updated_policy[M_POLICY_STEP_COUNT] = 0.0;
+        if (std::isnan(policy[M_POLICY_STEP_COUNT])) {
+            policy[M_POLICY_STEP_COUNT] = 0.0;
         }
-        if (std::isnan(in_policy[M_POLICY_MAX_EPOCH_RUNTIME])) {
-            updated_policy[M_POLICY_MAX_EPOCH_RUNTIME] = 0.0;
+        if (std::isnan(policy[M_POLICY_MAX_EPOCH_RUNTIME])) {
+            policy[M_POLICY_MAX_EPOCH_RUNTIME] = 0.0;
         }
-        if (std::isnan(in_policy[M_POLICY_POWER_SLACK])) {
-            updated_policy[M_POLICY_POWER_SLACK] = 0.0;
+        if (std::isnan(policy[M_POLICY_POWER_SLACK])) {
+            policy[M_POLICY_POWER_SLACK] = 0.0;
         }
         // Policy of all zero is not valid
-        if (std::all_of(updated_policy.begin(), updated_policy.end(),
+        if (std::all_of(policy.begin(), policy.end(),
                         [] (double x) { return x == 0.0; })) {
             throw Exception("PowerBalancerAgent: invalid policy.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return updated_policy;
     }
 }

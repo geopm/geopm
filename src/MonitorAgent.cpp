@@ -79,9 +79,9 @@ namespace geopm
         m_level = level;
     }
 
-    std::vector<double> MonitorAgent::validate_policy(const std::vector<double> &in_policy) const
+    void MonitorAgent::validate_policy(std::vector<double> &policy) const
     {
-        return in_policy;
+
     }
 
     bool MonitorAgent::descend(const std::vector<double> &in_policy,
