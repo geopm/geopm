@@ -49,6 +49,7 @@
 
 using geopm::IPlatformTopo;
 using geopm::CpuinfoIOGroup;
+using geopm::Exception;
 
 class CpuinfoIOGroupTest: public :: testing :: Test
 {
@@ -98,6 +99,52 @@ TEST_F(CpuinfoIOGroupTest, valid_signals)
         EXPECT_TRUE(freq_limits.is_valid_signal(sig));
     }
     EXPECT_EQ(0u, freq_limits.control_names().size());
+}
+
+TEST_F(CpuinfoIOGroupTest, read_signal)
+{
+    const std::string cpuinfo_str =
+        "processor       : 254\n"
+        "vendor_id       : GenuineIntel\n"
+        "cpu family      : 6\n"
+        "model           : 87\n"
+        "model name      : Intel(R) Genuine Intel(R) CPU 0000 @ 1.30GHz\n"
+        "stepping        : 1\n";
+    std::ofstream cpuinfo_stream(m_cpuinfo_path);
+    cpuinfo_stream << cpuinfo_str;
+    cpuinfo_stream.close();
+    CpuinfoIOGroup freq_limits(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path);
+    double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0);
+    EXPECT_DOUBLE_EQ(1.3e9, freq);
+
+    // cannot read from wrong domain
+    EXPECT_THROW(freq_limits.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_PACKAGE, 0),
+                 Exception);
+}
+
+TEST_F(CpuinfoIOGroupTest, push_signal)
+{
+    const std::string cpuinfo_str =
+        "processor       : 254\n"
+        "vendor_id       : GenuineIntel\n"
+        "cpu family      : 6\n"
+        "model           : 87\n"
+        "model name      : Intel(R) Genuine Intel(R) CPU 0000 @ 1.30GHz\n"
+        "stepping        : 1\n";
+    std::ofstream cpuinfo_stream(m_cpuinfo_path);
+    cpuinfo_stream << cpuinfo_str;
+    cpuinfo_stream.close();
+    CpuinfoIOGroup freq_limits(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path);
+
+    int idx = freq_limits.push_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0);
+    EXPECT_GT(idx, 0);
+    freq_limits.read_batch();
+    double freq = freq_limits.sample(idx);
+    EXPECT_DOUBLE_EQ(1.3e9, freq);
+
+    // cannot push to wrong domain
+    EXPECT_THROW(freq_limits.push_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_PACKAGE, 0),
+                 Exception);
 }
 
 TEST_F(CpuinfoIOGroupTest, parse_sticker_with_at)
