@@ -39,6 +39,47 @@
       "revId": "46bbfbf424e5530338e621b40f0383a0c5281ee7",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "126556f8_a8d24d13",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-02-21T00:07:38Z",
+      "side": 1,
+      "message": "This is an optimization.  The assumption is that the Controller will walk-down in a cohesive fashion, always coming down from the root.  All trees have root so end_point policy is scrubbed there and propogate down.",
+      "parentUuid": "752e37c1_5b0477d1",
+      "revId": "46bbfbf424e5530338e621b40f0383a0c5281ee7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f767b693_03e5fc05",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-02-21T00:07:38Z",
+      "side": 1,
+      "message": "Unless there is no tree (single node) and leaf is responsible for scrubbing.",
+      "range": {
+        "startLine": 327,
+        "startChar": 0,
+        "endLine": 327,
+        "endChar": 49
+      },
+      "revId": "46bbfbf424e5530338e621b40f0383a0c5281ee7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
