@@ -32,6 +32,7 @@
 
 #include <sstream>
 #include <cmath>
+#include <iomanip>
 
 #include "contrib/json11/json11.hpp"
 
@@ -77,7 +78,13 @@ namespace geopm
         if (env_freq_online_str) {
             m_is_online = true;
         }
-        init_platform_io();
+        for (auto sample : sample_names()) {
+            m_signal_idx.push_back(m_platform_io.push_signal(sample,
+                                                             IPlatformTopo::M_DOMAIN_BOARD,
+                                                             0));
+            m_agg_func.push_back(m_platform_io.agg_function(sample));
+        }
+        m_num_sample = m_signal_idx.size();
     }
 
     std::string EnergyEfficientAgent::plugin_name(void)
@@ -93,8 +100,9 @@ namespace geopm
     void EnergyEfficientAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
         m_level = level;
-        if (level == 0) {
+        if (m_level == 0) {
             m_num_children = 0;
+            init_platform_io();
         }
         else {
             m_num_children = fan_in[level - 1];
@@ -121,8 +129,10 @@ namespace geopm
             m_freq_max != target_freq_max) {
             m_freq_min = target_freq_min;
             m_freq_max = target_freq_max;
-            for (auto &eer : m_region_map) {
-                eer.second->update_freq_range(m_freq_min, m_freq_max, M_FREQ_STEP);
+            if (m_level == 0) {
+                for (auto &eer : m_region_map) {
+                    eer.second->update_freq_range(m_freq_min, m_freq_max, M_FREQ_STEP);
+                }
             }
             result = true;
         }
@@ -250,7 +260,7 @@ namespace geopm
         }
 #endif
         for (size_t sample_idx = 0; sample_idx < m_num_sample; ++sample_idx) {
-            out_sample[sample_idx] = m_platform_io.sample(m_sample_idx[sample_idx]);
+            out_sample[sample_idx] = m_platform_io.sample(m_signal_idx[sample_idx]);
         }
         const uint64_t current_region_hash = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH]);
         const uint64_t current_region_hint = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HINT]);
@@ -268,6 +278,8 @@ namespace geopm
                                     m_signal_idx[M_SIGNAL_RUNTIME],
                                     m_signal_idx[M_SIGNAL_PKG_ENERGY])));
                         region_it = tmp.first;
+                        /// @todo update ctor to take min, max, step
+                        region_it->second->update_freq_range(m_freq_min, m_freq_max, M_FREQ_STEP);
                     }
                     region_it->second->update_entry();
 
@@ -284,6 +296,8 @@ namespace geopm
                                     m_signal_idx[M_SIGNAL_RUNTIME],
                                     m_signal_idx[M_SIGNAL_PKG_ENERGY])));
                         region_it = tmp.first;
+                        /// @todo update ctor to take min, max, step
+                        region_it->second->update_freq_range(m_freq_min, m_freq_max, M_FREQ_STEP);
                     }
                     region_it->second->update_exit();
                 }
@@ -321,18 +335,26 @@ namespace geopm
     {
         std::vector<std::pair<std::string, std::string> > result;
         std::ostringstream oss;
-        for (const auto &region : m_region_map) {
-            oss << std::hex << region.first << ":" << std::dec << region.second->freq() << " ";
-        }
         if (m_region_map.size()) {
             result.push_back({"Final online freq map", oss.str()});
-        }
-        oss.str("");
-        for (const auto &region : m_hash_freq_map) {
-            oss << std::hex << region.first << ":" << std::dec << region.second << " ";
+            for (const auto &region : m_region_map) {
+                /// @todo make precision ctor param?
+                oss << "0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
+                oss << std::hex << region.first;
+                oss << std::setfill('\0') << std::setw(0) << std::scientific;
+                oss << std::setprecision(16) << std::scientific;
+                oss << ":" << std::dec << region.second->freq() << " ";
+            }
         }
         if (m_hash_freq_map.size()) {
             result.push_back({"Final offline/hint freq map", oss.str()});
+            for (const auto &region : m_hash_freq_map) {
+                /// @todo make precision ctor param?  oss << "0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
+                oss << std::hex << region.first;
+                oss << std::setfill('\0') << std::setw(0) << std::scientific;
+                oss << std::setprecision(16) << std::scientific;
+                oss << ":" << std::dec << region.second << " ";
+            }
         }
 
         return result;
@@ -407,12 +429,10 @@ namespace geopm
     {
         // All columns sampled will be in the trace
         for (auto sample : sample_names()) {
-            m_sample_idx.push_back(m_platform_io.push_signal(sample,
+            m_signal_idx.push_back(m_platform_io.push_signal(sample,
                                                              IPlatformTopo::M_DOMAIN_BOARD,
                                                              0));
-            m_agg_func.push_back(m_platform_io.agg_function(sample));
         }
-        m_num_sample = m_sample_idx.size();
 
         const int freq_ctl_domain_type = m_platform_io.control_domain_type("FREQUENCY");
         const int num_freq_ctl_domain = m_platform_topo.num_domain(freq_ctl_domain_type);

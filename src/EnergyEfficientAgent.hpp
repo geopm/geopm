@@ -87,6 +87,8 @@ namespace geopm
             };
 
             enum m_signal_e {
+                M_SIGNAL_ENERGY_PACKAGE,
+                M_SIGNAL_FREQUENCY,
                 M_SIGNAL_REGION_HASH,
                 M_SIGNAL_REGION_HINT,
                 M_SIGNAL_RUNTIME,
@@ -108,7 +110,6 @@ namespace geopm
             bool m_is_online;
             std::map<uint64_t, std::unique_ptr<EnergyEfficientRegion> > m_region_map;
             geopm_time_s m_last_wait;
-            std::vector<int> m_sample_idx;
             std::vector<int> m_signal_idx;
             std::vector<std::function<double(const std::vector<double>&)> > m_agg_func;
             size_t m_num_sample;
