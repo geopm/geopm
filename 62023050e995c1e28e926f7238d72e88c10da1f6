@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "845492c1_5bb4cc57",
+        "filename": "ronn/GEOPM_CXX_MAN_Agent.3.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-02-21T19:41:19Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 58,
+        "startChar": 30,
+        "endLine": 58,
+        "endChar": 31
+      },
+      "revId": "62023050e995c1e28e926f7238d72e88c10da1f6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
