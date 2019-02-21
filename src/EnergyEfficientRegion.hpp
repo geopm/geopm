@@ -49,11 +49,12 @@ namespace geopm
     {
         public:
             EnergyEfficientRegion(IPlatformIO &platform_io,
+                                  double freq_min, double freq_max, double freq_step,
                                   int runtime_idx,
                                   int pkg_energy_idx);
             virtual ~EnergyEfficientRegion() = default;
             double freq(void) const;
-            void update_freq_range(const double freq_min, const double freq_max, const double freq_step);
+            void update_freq_range(double freq_min, double freq_max, double freq_step);
             void update_entry(void);
             void update_exit(void);
         private:

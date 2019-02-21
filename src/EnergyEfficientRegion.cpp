@@ -41,6 +41,7 @@
 namespace geopm
 {
     EnergyEfficientRegion::EnergyEfficientRegion(IPlatformIO &platform_io,
+                                                 double freq_min, double freq_max, double freq_step,
                                                  int runtime_idx,
                                                  int pkg_energy_idx)
         : M_PERF_MARGIN(0.10)  // up to 10% degradation allowed
@@ -55,10 +56,10 @@ namespace geopm
         , m_runtime_idx(runtime_idx)
         , m_pkg_energy_idx(pkg_energy_idx)
     {
-
+        update_freq_range(freq_min, freq_max, freq_step);
     }
 
-    void EnergyEfficientRegion::update_freq_range(const double freq_min, const double freq_max, const double freq_step)
+    void EnergyEfficientRegion::update_freq_range(double freq_min, double freq_max, double freq_step)
     {
         /// @todo m_freq_step == freq_step else we have to re-key our map
         ///       or make m_freq_step const
