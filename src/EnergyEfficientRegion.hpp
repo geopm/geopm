@@ -49,14 +49,36 @@ namespace geopm
     {
         public:
             EnergyEfficientRegion(IPlatformIO &platform_io,
+                                  double freq_min, double freq_max, double freq_step,
                                   int runtime_idx,
                                   int pkg_energy_idx);
             virtual ~EnergyEfficientRegion() = default;
             double freq(void) const;
-            void update_freq_range(const double freq_min, const double freq_max, const double freq_step);
+            void update_freq_range(double freq_min, double freq_max, double freq_step);
             void update_entry(void);
             void update_exit(void);
+            std::vector<std::string> trace_names(void) const;
+            void trace_values(std::vector<double> &values);
         private:
+            enum trace_col_e {
+                TRACE_COL_M_IS_LEARNING,
+                TRACE_COL_M_CURR_STEP,
+                TRACE_COL_M_TARGET,
+                TRACE_COL_NUM_INCREASE,
+                TRACE_COL_PERF_METRIC,
+                TRACE_COL_ENERGY_METRIC,
+                TRACE_COL_MED_FILT_PERF_METRIC,
+                TRACE_COL_MED_FILT_ENERGY_METRIC,
+                TRACE_COL_NUM,
+            };
+
+            struct m_freq_ctx_s {
+                size_t num_increase;
+                CircularBuffer<double> perf_buff;
+                CircularBuffer<double> energy_buff;
+                double energy;
+            };
+
             // Used to determine whether performance degraded or not.
             // Higher is better.
             virtual double perf_metric();
@@ -68,24 +90,19 @@ namespace geopm
             const size_t M_MAX_INCREASE;
 
             IPlatformIO &m_platform_io;
-            double m_curr_freq;
-            double m_target;
-
             bool m_is_learning;
-            struct m_freq_ctx_s {
-                size_t num_increase;
-                CircularBuffer<double> perf;
-                CircularBuffer<double> energy;
-            };
-
-            std::map<size_t, struct m_freq_ctx_s> m_freq_ctx_map;
+            int m_curr_step;
+            double m_target;
+            double m_freq_min;
+            double m_freq_max;
             double m_freq_step;
-            std::set<double> m_allowed_freq;
-            double m_curr_freq_max;
+            uint64_t m_max_step;
             double m_start_energy;
 
             int m_runtime_idx;
             int m_pkg_energy_idx;
+            std::map<uint64_t, struct m_freq_ctx_s> m_freq_ctx_map;
+            std::set<double> m_allowed_freq;
     };
 
 } // namespace geopm
