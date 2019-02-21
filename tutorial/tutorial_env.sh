@@ -76,5 +76,5 @@ fi
 
 # GEOPM_LDFLAGS: Contains link options for geopm.
 if [ ! "$GEOPM_LDFLAGS" ]; then
-    GEOPM_LDFLAGS="-L$GEOPM_LIB -lgeopm"
+    GEOPM_LDFLAGS="-L$GEOPM_LIB"
 fi
