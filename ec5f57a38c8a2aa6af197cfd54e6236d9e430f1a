@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ec54027_e6102707",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-21T00:50:55Z",
+      "side": 1,
+      "message": "not needed now",
+      "revId": "ec5f57a38c8a2aa6af197cfd54e6236d9e430f1a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
