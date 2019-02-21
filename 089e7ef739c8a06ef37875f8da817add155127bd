@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d8aa85d_1952abca",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 1197,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-21T02:44:39Z",
+      "side": 1,
+      "message": "return launcher_cmd()?",
+      "revId": "089e7ef739c8a06ef37875f8da817add155127bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
