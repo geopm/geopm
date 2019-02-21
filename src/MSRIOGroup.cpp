@@ -822,7 +822,7 @@ namespace geopm
     {
         const MSR *msr_arr = NULL;
         arr_size = 0;
-	    return msr_skx(arr_size);
+	    //return msr_skx(arr_size);
         switch (cpu_id) {
             case MSRIOGroup::M_CPUID_KNL:
                 msr_arr = msr_knl(arr_size);

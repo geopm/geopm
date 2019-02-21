@@ -86,11 +86,18 @@ namespace geopm
                 M_NUM_POLICY,
             };
 
+            enum m_sample_e {
+                M_SAMPLE_ENERGY_PACKAGE,
+                M_SAMPLE_FREQUENCY,
+                M_NUM_SAMPLE,
+            };
+
             enum m_signal_e {
+                M_SIGNAL_ENERGY_PACKAGE,
+                M_SIGNAL_FREQUENCY,
                 M_SIGNAL_REGION_HASH,
                 M_SIGNAL_REGION_HINT,
                 M_SIGNAL_RUNTIME,
-                M_SIGNAL_PKG_ENERGY,
                 M_NUM_SIGNAL,
             };
 
@@ -102,7 +109,7 @@ namespace geopm
             const size_t M_SEND_PERIOD;
             std::vector<int> m_control_idx;
             double m_last_freq;
-            double m_curr_adapt_freq;
+            std::map<uint64_t, double> m_adapt_freq_map;
             std::map<uint64_t, double> m_hash_freq_map;
             // for online adaptive mode
             bool m_is_online;
