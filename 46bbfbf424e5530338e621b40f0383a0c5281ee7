@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "e7a55ac0_d619dd55",
+        "filename": "ronn/GEOPM_CXX_MAN_Agent.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-21T02:17:57Z",
+      "side": 1,
+      "message": "Validate policy vector _in_policy_ by replacing NaN elements with with default values.  This method will throw a geopm::Exception with error code GEOPM_ERROR_INVALID if a value in _in_policy_ is not NaN and is also not a value for the parameter supported by the Agent.",
+      "range": {
+        "startLine": 209,
+        "startChar": 28,
+        "endLine": 209,
+        "endChar": 36
+      },
+      "revId": "46bbfbf424e5530338e621b40f0383a0c5281ee7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6945186e_556a50b3",
         "filename": "src/Agent.hpp",
         "patchSetId": 1
@@ -16,6 +39,29 @@
       "range": {
         "startLine": 70,
         "startChar": 64,
+        "endLine": 70,
+        "endChar": 65
+      },
+      "revId": "46bbfbf424e5530338e621b40f0383a0c5281ee7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca39a041_a7538fe4",
+        "filename": "src/Agent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-21T02:17:57Z",
+      "side": 1,
+      "message": "Replace NaN values with defaults.",
+      "range": {
+        "startLine": 69,
+        "startChar": 47,
         "endLine": 70,
         "endChar": 65
       },
@@ -54,6 +100,24 @@
       "side": 1,
       "message": "This is an optimization.  The assumption is that the Controller will walk-down in a cohesive fashion, always coming down from the root.  All trees have root so end_point policy is scrubbed there and propogate down.",
       "parentUuid": "752e37c1_5b0477d1",
+      "revId": "46bbfbf424e5530338e621b40f0383a0c5281ee7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88a355a2_6fb61f2c",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-21T02:17:57Z",
+      "side": 1,
+      "message": "The issue is that the children start without getting any values from their parent.  In this case the m_in_policy is filled with NaN values, and validate will replace with defaults.",
+      "parentUuid": "126556f8_a8d24d13",
       "revId": "46bbfbf424e5530338e621b40f0383a0c5281ee7",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
