@@ -16,6 +16,24 @@
       "revId": "ec5f57a38c8a2aa6af197cfd54e6236d9e430f1a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5856d527_de8f87ca",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-02-21T01:01:39Z",
+      "side": 1,
+      "message": "ditto, check in line above.  fix inline here?",
+      "parentUuid": "7ec54027_e6102707",
+      "revId": "ec5f57a38c8a2aa6af197cfd54e6236d9e430f1a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
