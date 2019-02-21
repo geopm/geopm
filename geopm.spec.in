@@ -106,11 +106,11 @@ test -f configure || ./autogen.sh
 
 %if %{defined suse_version}
 LD_LIBRARY_PATH=/usr/lib64/mpi/gcc/openmpi/lib \
-%{__make} check || \
+%{__make} check PYTEST_TESTS='' || \
 ( cat test/gtest_links/*.log && cat scripts/test/pytest_links/*.log && false )
 %else
 LD_LIBRARY_PATH=/usr/lib64/openmpi/lib \
-%{__make} check || \
+%{__make} check PYTEST_TESTS='' || \
 ( cat test/gtest_links/*.log && cat scripts/test/pytest_links/*.log && false )
 %endif
 
