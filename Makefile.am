@@ -365,6 +365,7 @@ TUTORIAL_DIST = tutorial/Makefile \
                 tutorial/tutorial_env.sh \
                 tutorial/tutorial_governed_policy.json \
                 tutorial/tutorial_region.c \
+                tutorial/tutorial_region_prof.c \
                 tutorial/tutorial_region.h \
                 # end
 
