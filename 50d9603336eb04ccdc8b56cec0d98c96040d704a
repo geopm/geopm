@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4b8d43a_4c03c871",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1303,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-21T01:53:22Z",
+      "side": 1,
+      "message": "I would expect this to print the srun help text followed by the geopm option help text\nlikewise, geopmlaunch SrunLauncher --version should print the srun version followed by the geopm version.  I\u0027m not sure this is what is implemented here.  We want to use launch_imp.launcher_command() and make this a static method so we can call it with the class.",
+      "revId": "50d9603336eb04ccdc8b56cec0d98c96040d704a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
