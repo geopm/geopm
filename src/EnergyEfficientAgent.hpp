@@ -75,10 +75,55 @@ namespace geopm
             static std::vector<std::string> policy_names(void);
             static std::vector<std::string> sample_names(void);
         private:
-            bool update_freq_range(const std::vector<double> &in_policy);
+            friend class IMode;
+            class IMode {
+                public:
+                    IMode() = default;
+                    virtual ~IMode() = default;
+                    virtual void init_platform_io(std::vector<std::string> &signal_names) = 0;
+                    virtual void post_policy_change(EnergyEfficientAgent &ctx) = 0;
+                    virtual double select_frequency(EnergyEfficientAgent &ctx) = 0;
+                    virtual void post_sample_platform(EnergyEfficientAgent &ctx, uint64_t current_region_hash, uint64_t current_region_hint) = 0;
+                    virtual std::vector<std::pair<std::string, std::string> > report_node(void) const = 0;
+                    virtual std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(void) const = 0;
+                    virtual std::vector<std::string> trace_names(void) const = 0;
+                    virtual void trace_values(EnergyEfficientAgent &ctx, std::vector<double> &values) = 0;
+            };
+            class OnlineMode : public IMode {
+                public:
+                    OnlineMode() = default;
+                    virtual ~OnlineMode() = default;
+                    void init_platform_io(std::vector<std::string> &signal_names) override;
+                    void post_policy_change(EnergyEfficientAgent &ctx) override;
+                    double select_frequency(EnergyEfficientAgent &ctx) override;
+                    void post_sample_platform(EnergyEfficientAgent &ctx, uint64_t current_region_hash, uint64_t current_region_hint) override;
+                    std::vector<std::pair<std::string, std::string> > report_node(void) const override;
+                    std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(void) const override;
+                    std::vector<std::string> trace_names(void) const override;
+                    void trace_values(EnergyEfficientAgent &ctx, std::vector<double> &values) override;
+                private:
+                    std::map<uint64_t, double> m_adapt_freq_map;
+                    std::map<uint64_t, std::unique_ptr<EnergyEfficientRegion> > m_region_map;
+            };
+            class OfflineMode : public IMode {
+                public:
+                    OfflineMode();
+                    virtual ~OfflineMode() = default;
+                    void init_platform_io(std::vector<std::string> &signal_names) override;
+                    void post_policy_change(EnergyEfficientAgent &ctx) override;
+                    double select_frequency(EnergyEfficientAgent &ctx) override;
+                    void post_sample_platform(EnergyEfficientAgent &ctx, uint64_t current_region_hash, uint64_t current_region_hint) override;
+                    std::vector<std::pair<std::string, std::string> > report_node(void) const override;
+                    std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(void) const override;
+                    std::vector<std::string> trace_names(void) const override;
+                    void trace_values(EnergyEfficientAgent &ctx, std::vector<double> &values) override;
+                private:
+                    void parse_env_map(void);
+                    std::map<uint64_t, double> m_hash_freq_map;
+            };
+            bool update_policy(const std::vector<double> &policy);
             double get_limit(const std::string &sig_name) const;
             void init_platform_io(void);
-            void parse_env_map(void);
 
             enum m_policy_e {
                 M_POLICY_FREQ_MIN,
@@ -86,11 +131,18 @@ namespace geopm
                 M_NUM_POLICY,
             };
 
+            enum m_sample_e {
+                M_SAMPLE_ENERGY_PACKAGE,
+                M_SAMPLE_FREQUENCY,
+                M_NUM_SAMPLE,
+            };
+
             enum m_signal_e {
+                M_SIGNAL_ENERGY_PACKAGE,
+                M_SIGNAL_FREQUENCY,
                 M_SIGNAL_REGION_HASH,
                 M_SIGNAL_REGION_HINT,
                 M_SIGNAL_RUNTIME,
-                M_SIGNAL_PKG_ENERGY,
                 M_NUM_SIGNAL,
             };
 
@@ -102,19 +154,14 @@ namespace geopm
             const size_t M_SEND_PERIOD;
             std::vector<int> m_control_idx;
             double m_last_freq;
-            double m_curr_adapt_freq;
-            std::map<uint64_t, double> m_hash_freq_map;
-            // for online adaptive mode
-            bool m_is_online;
-            std::map<uint64_t, std::unique_ptr<EnergyEfficientRegion> > m_region_map;
+            std::pair<uint64_t, uint64_t> m_last_region;
+            std::unique_ptr<IMode> m_mode;
             geopm_time_s m_last_wait;
             std::vector<int> m_sample_idx;
             std::vector<int> m_signal_idx;
             std::vector<std::function<double(const std::vector<double>&)> > m_agg_func;
-            size_t m_num_sample;
             int m_level;
             int m_num_children;
-            std::pair<uint64_t, uint64_t>  m_last_region;
             size_t m_num_ascend;
     };
 }
