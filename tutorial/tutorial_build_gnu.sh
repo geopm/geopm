@@ -38,6 +38,6 @@ if [ ! "$OMP_FLAGS" ]; then
 fi
 
 make \
-CFLAGS="$GEOPM_CFLAGS $OMP_FLAGS -std=gnu11 -mavx" \
-CXXFLAGS="$GEOPM_CFLAGS $OMP_FLAGS -std=gnu++11 -mavx" \
-LDFLAGS="$GEOPM_LDFLAGS $OMP_FLAGS -lm -lrt -mavx"
+CFLAGS="$OMP_FLAGS -std=gnu11 -mavx" \
+CXXFLAGS="$OMP_FLAGS -std=gnu++11 -mavx" \
+LDFLAGS="$OMP_FLAGS -lm -lrt -mavx"
