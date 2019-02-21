@@ -86,7 +86,15 @@ namespace geopm
                 M_NUM_POLICY,
             };
 
+            enum m_sample_e {
+                M_SAMPLE_ENERGY_PACKAGE,
+                M_SAMPLE_FREQUENCY,
+                M_NUM_SAMPLE,
+            };
+
             enum m_signal_e {
+                M_SIGNAL_ENERGY_PACKAGE,
+                M_SIGNAL_FREQUENCY,
                 M_SIGNAL_REGION_HASH,
                 M_SIGNAL_REGION_HINT,
                 M_SIGNAL_RUNTIME,
