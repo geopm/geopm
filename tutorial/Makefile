@@ -69,25 +69,25 @@ tutorial_2.o: tutorial_2.c
 	$(MPICC) -c $^ $(CFLAGS) -o $@
 
 tutorial_2: tutorial_2.o tutorial_region.o
-	$(MPICC) $^ $(LDFLAGS) -lgeopm -o $@
+	$(MPICC) $^ $(LDFLAGS) -o $@
 
 tutorial_3.o: tutorial_3.c
 	$(MPICC) -c $^ $(CFLAGS) -o $@
 
 tutorial_3: tutorial_3.o tutorial_region.o
-	$(MPICC) $^ $(LDFLAGS) -lgeopm -o $@
+	$(MPICC) $^ $(LDFLAGS) -o $@
 
 tutorial_4.o: tutorial_4.c
 	$(MPICC) -c $^ $(CFLAGS) -o $@
 
 tutorial_4: tutorial_4.o tutorial_region.o
-	$(MPICC) $^ $(LDFLAGS) -lgeopm -lstdc++ -o $@
+	$(MPICC) $^ $(LDFLAGS) -lstdc++ -o $@
 
 tutorial_5.o: tutorial_5.c
 	$(MPICC) -c $^ $(CFLAGS) -o $@
 
 tutorial_5: tutorial_5.o tutorial_region.o
-	$(MPICC) $^ $(LDFLAGS) -lgeopm -lstdc++ -o $@
+	$(MPICC) $^ $(LDFLAGS) -lstdc++ -o $@
 
 tutorial_region.o: tutorial_region.c tutorial_region.h
 	$(MPICC) -c tutorial_region.c $(CFLAGS) -o $@
