@@ -372,4 +372,5 @@ tutorial/tutorial_build_gnu.sh
 tutorial/tutorial_build_intel.sh
 tutorial/tutorial_env.sh
 tutorial/tutorial_region.c
+tutorial/tutorial_region_prof.c
 tutorial/tutorial_region.h
