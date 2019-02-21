@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b1a6c9d_82c0323b",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 843,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-21T03:18:50Z",
+      "side": 1,
+      "message": "I\u0027m not sure why we need this indirection, and also why we can\u0027t just call self._launcher_command().",
+      "range": {
+        "startLine": 843,
+        "startChar": 8,
+        "endLine": 843,
+        "endChar": 47
+      },
+      "revId": "8eb5154340df0d3f2febb5aa181bb6368354205e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
