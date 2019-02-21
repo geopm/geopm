@@ -51,30 +51,30 @@ fi
 
 # GEOPM_BIN: Directory containing geopm programs.
 if [ ! "$GEOPM_BIN" ]; then
-    GEOPM_BIN=$GEOPM_PREFIX/bin
+    export GEOPM_BIN=$GEOPM_PREFIX/bin
 fi
 
 # GEOPM_LIB: Directory containing libgeopm.so.
 if [ ! "$GEOPM_LIB" ]; then
-    GEOPM_LIB=$GEOPM_PREFIX/lib
+    export GEOPM_LIB=$GEOPM_PREFIX/lib
 fi
 
 # GEOPMPY_PKGDIR: Directory containing geopmpy packages.
 if [ ! "$GEOPMPY_PKGDIR" ]; then
-    GEOPMPY_PKGDIR=$GEOPM_LIB/python2.7/site-packages
+    export GEOPMPY_PKGDIR=$GEOPM_LIB/python2.7/site-packages
 fi
 
 # GEOPM_INC: Directory containing geopm.h.
 if [ ! "$GEOPM_INC" ]; then
-    GEOPM_INC=$GEOPM_PREFIX/include
+    export GEOPM_INC=$GEOPM_PREFIX/include
 fi
 
 # GEOPM_CFLAGS: Contains compile options for geopm.
 if [ ! "$GEOPM_CFLAGS" ]; then
-    GEOPM_CFLAGS="-I$GEOPM_INC"
+    export GEOPM_CFLAGS="-I$GEOPM_INC"
 fi
 
 # GEOPM_LDFLAGS: Contains link options for geopm.
 if [ ! "$GEOPM_LDFLAGS" ]; then
-    GEOPM_LDFLAGS="-L$GEOPM_LIB -lgeopm"
+    export GEOPM_LDFLAGS="-L$GEOPM_LIB -lgeopm"
 fi
