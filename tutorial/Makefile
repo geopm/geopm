@@ -86,11 +86,14 @@ tutorial_4: tutorial_4.o tutorial_region.o
 tutorial_5.o: tutorial_5.c
 	$(MPICC) -c $^ $(CFLAGS) -o $@
 
-tutorial_5: tutorial_5.o tutorial_region.o
+tutorial_5: tutorial_5.o tutorial_region.o tutorial_region_prof.o
 	$(MPICC) $^ $(LDFLAGS) -lgeopm -lstdc++ -o $@
 
 tutorial_region.o: tutorial_region.c tutorial_region.h
 	$(MPICC) -c tutorial_region.c $(CFLAGS) -o $@
+
+tutorial_region_prof.o: tutorial_region_prof.c tutorial_region.h
+	$(MPICC) -c tutorial_region_prof.c $(CFLAGS) $(GEOPM_CFLAGS) -o $@
 
 agent/libgeopmagent_example_agent.so.0.0.0: agent/ExampleAgent.cpp agent/ExampleAgent.hpp
 	$(CXX) agent/ExampleAgent.cpp $(CXXFLAGS) -I ./agent $(GEOPM_PLUGIN_FLAGS) -o $@
