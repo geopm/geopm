@@ -35,12 +35,36 @@
 #include "EnergyEfficientRegion.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
-#include "Exception.hpp"
+#include <iostream>
+#include "Helper.hpp"
 #include "config.h"
 
 namespace geopm
 {
+    static size_t calc_num_step(double freq_min, double freq_max, double freq_step)
+    {
+        return 1 + (size_t)(ceil((freq_max - freq_min) / freq_step));
+    }
+
+    struct FreqContext {
+            FreqContext(uint64_t buffer_size);
+            virtual ~FreqContext() = default;
+            int count;
+            size_t num_increase;
+            CircularBuffer<double> perf_buff;
+            CircularBuffer<double> energy_buff;
+    };
+
+    FreqContext::FreqContext(uint64_t buffer_size)
+        : count(0)
+        , num_increase(0)
+    {
+        perf_buff.set_capacity(buffer_size);
+        energy_buff.set_capacity(buffer_size);
+    }
+
     EnergyEfficientRegion::EnergyEfficientRegion(IPlatformIO &platform_io,
+                                                 double freq_min, double freq_max, double freq_step,
                                                  int runtime_idx,
                                                  int pkg_energy_idx)
         : M_PERF_MARGIN(0.10)  // up to 10% degradation allowed
@@ -48,48 +72,47 @@ namespace geopm
         , M_MIN_BASE_SAMPLE(4)
         , M_MAX_INCREASE(4)
         , m_platform_io(platform_io)
-        , m_curr_freq(NAN)
-        , m_target(0.0)
         , m_is_learning(true)
+        , m_curr_step(-1)
+        , m_target(0.0)
+        , m_curr_perf(NAN)
         , m_start_energy(0.0)
+        , m_curr_energy(NAN)
         , m_runtime_idx(runtime_idx)
         , m_pkg_energy_idx(pkg_energy_idx)
     {
-
+        update_freq_range(freq_min, freq_max, freq_step);
     }
 
-    void EnergyEfficientRegion::update_freq_range(const double freq_min, const double freq_max, const double freq_step)
+    void EnergyEfficientRegion::update_freq_range(double freq_min, double freq_max, double freq_step)
     {
         /// @todo m_freq_step == freq_step else we have to re-key our map
         ///       or make m_freq_step const
-
-        const struct m_freq_ctx_s freq_ctx_stub = {.num_increase = 0};
         // set up allowed frequency range
+        m_freq_min = freq_min;
         m_freq_step = freq_step;
-        double num_freq_step = 1 + (size_t)(ceil((freq_max - freq_min) / m_freq_step));
-        m_allowed_freq.clear();
-        double freq = 0.0;
-        for (double step = 0; step < num_freq_step; ++step) {
-            freq = freq_min + (step * m_freq_step);
-            m_allowed_freq.insert(freq);
-            auto it = m_freq_ctx_map.emplace(std::piecewise_construct,
-                                   std::make_tuple(freq / m_freq_step),
-                                   std::make_tuple(freq_ctx_stub));
-            it.first->second.perf.set_capacity(M_MIN_BASE_SAMPLE);
-            it.first->second.energy.set_capacity(M_MIN_BASE_SAMPLE);
+        m_freq_ctx_map.clear();
+        size_t step;
+        for (step = 0; step < calc_num_step(freq_min, freq_max, freq_step); ++step) {
+            m_freq_ctx_map.emplace(std::piecewise_construct,
+                                   std::make_tuple(step),
+                                   std::make_tuple(geopm::make_unique<FreqContext>(M_MIN_BASE_SAMPLE)));
         }
-        m_curr_freq_max = freq;
-        if (std::isnan(m_curr_freq)) {
+        m_max_step = step;
+        m_freq_max = freq_min + (m_max_step * m_freq_step);
+        double curr_freq = freq_min + (m_curr_step * m_freq_step);
+        if (m_curr_step == -1) {
+            m_curr_step = m_max_step;
             m_is_learning = true;
-            m_curr_freq = m_curr_freq_max;
-        } else if (m_curr_freq < *m_allowed_freq.begin()) {
-            m_curr_freq = *m_allowed_freq.begin();
-            if (m_freq_ctx_map[m_curr_freq / m_freq_step].num_increase == M_MAX_INCREASE) {
+            curr_freq = m_freq_max;
+        } else if (curr_freq < freq_min) {
+            m_curr_step = 0;
+            if (m_freq_ctx_map.find(m_curr_step)->second->num_increase == M_MAX_INCREASE) {
                 m_is_learning = false;
             }
-        } else if (m_curr_freq > m_curr_freq_max) {
-            m_curr_freq = m_curr_freq_max;
-            if (m_freq_ctx_map[m_curr_freq / m_freq_step].num_increase == M_MAX_INCREASE) {
+        } else if (curr_freq > m_freq_max) {
+            m_curr_step = m_max_step;
+            if (m_freq_ctx_map.find(m_curr_step)->second->num_increase == M_MAX_INCREASE) {
                 m_is_learning = false;
             }
         }
@@ -97,9 +120,8 @@ namespace geopm
 
     double EnergyEfficientRegion::perf_metric()
     {
-        double runtime = m_platform_io.sample(m_runtime_idx);
         // Higher is better for performance, so negate
-        return -1.0 * runtime;
+        return -1.0 * m_platform_io.sample(m_runtime_idx);
     }
 
     double EnergyEfficientRegion::energy_metric()
@@ -109,7 +131,7 @@ namespace geopm
 
     double EnergyEfficientRegion::freq(void) const
     {
-        return m_curr_freq;
+        return m_freq_min + (m_curr_step * m_freq_step);
     }
 
     void EnergyEfficientRegion::update_entry()
@@ -119,67 +141,87 @@ namespace geopm
 
     void EnergyEfficientRegion::update_exit()
     {
-        auto &curr_freq_ctx = m_freq_ctx_map[m_curr_freq / m_freq_step];
-        auto step_up_freq_ctx_it = m_freq_ctx_map.find((m_curr_freq + m_freq_step) / m_freq_step);
+        m_curr_perf = perf_metric();
+        m_curr_energy = energy_metric() - m_start_energy;
         if (m_is_learning) {
-            double perf = perf_metric();
-            double energy = energy_metric() - m_start_energy;
-            if (!std::isnan(perf) && !std::isnan(energy) &&
-                perf != 0.0 && energy != 0.0) {
-                curr_freq_ctx.perf.insert(perf);
-                curr_freq_ctx.energy.insert(energy);
+            auto &curr_freq_ctx = m_freq_ctx_map.find(m_curr_step)->second;
+            if (!std::isnan(m_curr_perf) && m_curr_perf != 0.0 &&
+                !std::isnan(m_curr_energy) && m_curr_energy != 0.0) {
+                curr_freq_ctx->perf_buff.insert(m_curr_perf);
+                curr_freq_ctx->energy_buff.insert(m_curr_energy);
+                curr_freq_ctx->count++;
             }
-            double med_perf = Agg::median(curr_freq_ctx.perf.make_vector());
-            double med_energy = Agg::median(curr_freq_ctx.energy.make_vector());
-            if (curr_freq_ctx.perf.size() > 0) {
-                if ((size_t) curr_freq_ctx.perf.size() >= M_MIN_BASE_SAMPLE &&
-                    m_target == 0.0 &&
-                    m_curr_freq == m_curr_freq_max) {
+            if (curr_freq_ctx->count % M_MIN_BASE_SAMPLE == 0) {
+                curr_freq_ctx->count = 0;
+                auto step_up_freq_ctx_it = m_freq_ctx_map.find(m_curr_step + 1);
+                double curr_med_perf = Agg::median(curr_freq_ctx->perf_buff.make_vector());
+                double curr_med_energy = Agg::median(curr_freq_ctx->energy_buff.make_vector());
+                if (!std::isnan(curr_med_perf)) {
 
-                    if (med_perf > 0.0) {
-                        m_target = (1.0 - M_PERF_MARGIN) * med_perf;
+                    if (curr_med_perf > 0.0) {
+                        m_target = (1.0 - M_PERF_MARGIN) * curr_med_perf;
                     }
                     else {
-                        m_target = (1.0 + M_PERF_MARGIN) * med_perf;
+                        m_target = (1.0 + M_PERF_MARGIN) * curr_med_perf;
                     }
                 }
 
                 bool do_increase = false;
-                // assume best min energy is at highest freq if energy follows cpu-bound
-                // pattern; otherwise, energy should decrease with frequency.
-                const auto &step_up_freq_ctx = step_up_freq_ctx_it->second;
-                if (m_curr_freq != m_curr_freq_max &&
-                    Agg::median(step_up_freq_ctx.energy.make_vector()) <
-                    (1.0 - M_ENERGY_MARGIN) * med_energy) {
-                    do_increase = true;
+                if (step_up_freq_ctx_it != m_freq_ctx_map.end()) {
+                    // assume best min energy is at highest freq if energy follows cpu-bound
+                    // pattern; otherwise, energy should decrease with frequency.
+                    const auto &step_up_freq_ctx = step_up_freq_ctx_it->second;
+                    double step_up_med_energy = Agg::median(step_up_freq_ctx->energy_buff.make_vector());
+                    if (step_up_med_energy < (1.0 - M_ENERGY_MARGIN) * curr_med_energy) {
+                        do_increase = true;
+                    }
                 }
-                else if (m_target != 0.0) {
-                    if (med_perf > m_target) {
-                        double next_freq = m_curr_freq - m_freq_step;
-                        if (m_allowed_freq.find(next_freq) != m_allowed_freq.end()) {
+                if (m_target != 0.0) {
+                    if (curr_med_perf > m_target) {
+                        uint64_t next_step = m_curr_step - 1;
+                        if (m_freq_ctx_map.find(next_step) != m_freq_ctx_map.end()) {
                             // Performance is in range; lower frequency
-                            m_curr_freq = next_freq;
+                            m_curr_step = next_step;
                         }
                     }
                     else {
-                        double next_freq = m_curr_freq + m_freq_step;
-                        if (m_allowed_freq.find(next_freq) != m_allowed_freq.end()) {
-                            do_increase = true;
-                        }
+                        do_increase = true;
                     }
                 }
 
                 if (do_increase) {
                     // Performance degraded too far; increase freq
-                    ++curr_freq_ctx.num_increase;
+                    ++curr_freq_ctx->num_increase;
                     // If the frequency has been lowered too far too
                     // many times, stop learning
-                    if (curr_freq_ctx.num_increase == M_MAX_INCREASE) {
+                    if (curr_freq_ctx->num_increase == M_MAX_INCREASE) {
                         m_is_learning = false;
                     }
-                    m_curr_freq += m_freq_step;
+                    m_curr_step++;
                 }
             }
         }
+    }
+
+    std::vector<std::string> EnergyEfficientRegion::trace_names(void) const
+    {
+        return {"m_is_learning", "m_learn_count", "m_curr_step", "m_target", "num_increase",
+                "perf_metric", "energy_metric", "med_filt_perf_metric", "med_filt_energy_metric"};
+    }
+
+    void EnergyEfficientRegion::trace_values(std::vector<double> &values)
+    {
+        auto &curr_freq_ctx = m_freq_ctx_map.find(m_curr_step)->second;
+        double med_perf = Agg::median(curr_freq_ctx->perf_buff.make_vector());
+        double med_energy = Agg::median(curr_freq_ctx->energy_buff.make_vector());
+        values[TRACE_COL_M_IS_LEARNING] = m_is_learning;
+        values[TRACE_COL_M_LEARN_COUNT] = curr_freq_ctx->count;
+        values[TRACE_COL_M_CURR_STEP] = m_curr_step;
+        values[TRACE_COL_M_TARGET] = m_target;
+        values[TRACE_COL_NUM_INCREASE] = curr_freq_ctx->num_increase;
+        values[TRACE_COL_PERF_METRIC] = m_curr_perf;
+        values[TRACE_COL_ENERGY_METRIC] = m_curr_energy;
+        values[TRACE_COL_MED_FILT_PERF_METRIC] = med_perf;
+        values[TRACE_COL_MED_FILT_ENERGY_METRIC] = med_energy;
     }
 }
