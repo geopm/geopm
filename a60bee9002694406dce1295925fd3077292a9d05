@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21efe0d8_5d3fa513",
+        "filename": "src/EnergyEfficientAgent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-02-22T00:44:17Z",
+      "side": 0,
+      "message": "bring this back",
+      "range": {
+        "startLine": 111,
+        "startChar": 12,
+        "endLine": 111,
+        "endChar": 42
+      },
+      "revId": "a60bee9002694406dce1295925fd3077292a9d05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
