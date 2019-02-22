@@ -356,7 +356,7 @@ listed below.
   the application.  An error is raised if the launcher cannot satisfy
   the current request without hyperthreads.
 
-* `--geopm-disable-ctl`:
+* `--geopm-ctl-disable`:
   Used to allow passing the command through to the underlying launcher.
   By default, `geopmlaunch` will launch the GEOPM runtime in process mode.
   When this option is specified, the GEOPM runtime will not be launched.
