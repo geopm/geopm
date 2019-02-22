@@ -149,11 +149,11 @@ class Config(object):
         options.
         """
         self.ctl = None
-        if any(aa.startswith('--geopm-disable-ctl') for aa in argv):
-            argv.remove('--geopm-disable-ctl')
+        if any(aa.startswith('--geopm-ctl-disable') for aa in argv):
+            argv.remove('--geopm-ctl-disable')
             if any(aa.startswith('--geopm-') for aa in argv):
-                raise RuntimeError('Some GEOPM options have been provided but --geopm-disable-ctl was also given.')
-            raise PassThroughError('--geopm-disable-ctl specified; disabling the controller...')
+                raise RuntimeError('Some GEOPM options have been provided but --geopm-ctl-disable was also given.')
+            raise PassThroughError('--geopm-ctl-disable specified; disabling the controller...')
         # Parse the subset of arguments used by geopm
         parser = SubsetOptionParser()
         parser.add_argument('--geopm-report', dest='report', type=str)
@@ -511,7 +511,7 @@ fi
             fid.write(tmp_script_txt)
         os.chmod(tmp_script, stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR)
 
-        argv = shlex.split('dummy {} --geopm-disable-ctl -- ./{}'.format(self.launcher_command(), tmp_script))
+        argv = shlex.split('dummy {} --geopm-ctl-disable -- ./{}'.format(self.launcher_command(), tmp_script))
         # Note that a warning may be emitted by underlying launcher when main application uses more
         # than one node and the node list is passed.  We should run lscpu on all the nodes in the
         # allocation and check that the node topology is uniform across all nodes used by the job
@@ -519,7 +519,7 @@ fi
         launcher = factory(argv, self.num_node, self.num_node, host_file=self.host_file, node_list=self.node_list)
         launcher.run()
         os.remove(tmp_script)
-        argv = shlex.split('dummy {} --geopm-disable-ctl -- lscpu --hex'.format(self.launcher_command()))
+        argv = shlex.split('dummy {} --geopm-ctl-disable -- lscpu --hex'.format(self.launcher_command()))
         launcher = factory(argv, 1, 1, host_file=self.host_file, node_list=self.node_list)
         ostream = StringIO.StringIO()
         launcher.run(stdout=ostream)
@@ -1287,7 +1287,7 @@ GEOPM_OPTIONS:
       --geopm-preload          use LD_PRELOAD to link libgeopm.so at runtime
       --geopm-disable-hyperthreads
                                do not allow pinning to HTs
-      --geopm-disable-ctl      do not launch geopm; pass through commands to
+      --geopm-ctl-disable      do not launch geopm; pass through commands to
                                underlying launcher
 
 {}

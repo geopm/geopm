@@ -58,7 +58,7 @@ def skip_unless_run_long_tests():
 def allocation_node_test(test_exec, stdout, stderr):
     argv = shlex.split(test_exec)
     argv.insert(1, geopm_test_launcher.detect_launcher())
-    argv.insert(2, '--geopm-disable-ctl')
+    argv.insert(2, '--geopm-ctl-disable')
     launcher = geopmpy.launcher.factory(argv, num_rank=1, num_node=1, job_name="geopm_allocation_test")
     launcher.run(stdout, stderr)
 
