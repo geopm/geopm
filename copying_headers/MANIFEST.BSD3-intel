@@ -48,7 +48,6 @@ scripts/test/TestFreqSweepAnalysis.py
 scripts/test/TestNodeEfficiencyAnalysis.py
 scripts/test/TestNodePowerAnalysis.py
 scripts/test/TestPowerSweepAnalysis.py
-scripts/test/TestSubsetOptionParser.py
 scripts/test/__init__.py
 scripts/test/analysis_helper.py
 scripts/test/geopm_context.py

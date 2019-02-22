@@ -30,4 +30,4 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-__all__ = ['geopm_context', 'TestAffinity', 'TestAnalysis', 'TestSubsetOptionParser']
+__all__ = ['geopm_context', 'TestAffinity', 'TestAnalysis']
