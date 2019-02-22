@@ -33,8 +33,8 @@
 
 """This module provides a way to launch MPI applications using the
 GEOPM runtime by wrapping the call to the system MPI application
-launcher.  The module currently supports wrapping the SLURM 'srun'
-command and the ALPS 'aprun' command.  The primary use of this module
+launcher.  The module currently supports wrapping the SLURM "srun"
+command and the ALPS "aprun" command.  The primary use of this module
 is through the geopmlauncher(1) command line executable which calls
 the geopmpy.launcher.main() function.  See the geopmlauncher(1) man
 page for details about the command line interface.
@@ -455,7 +455,7 @@ class Launcher(object):
         if 'fileno' in dir(stdout) and 'fileno' in dir(stderr):
             if is_geopmctl:
                 # Need to set OMP_NUM_THREADS to 1 in the env before the run
-                stdout.write("Controller launch config: {}\n".format(geopm_argv))
+                stdout.write('Controller launch config: {}\n'.format(geopm_argv))
                 stdout.flush()
                 self.config.set_omp_num_threads(1)
                 geopm_pid = subprocess.Popen(geopm_argv, env=self.environ(),
@@ -622,14 +622,14 @@ fi
                 core_index -= app_core_per_rank
 
         if core_index <= 0:
-            sys.stderr.write("Warning: User requested all cores for application. ")
+            sys.stderr.write('Warning: User requested all cores for application. ')
             if self.config.allow_ht_pinning and core_per_node * app_thread_per_core < self.num_linux_cpu:
-                sys.stderr.write("GEOPM controller will share a core with the application.\n")
+                sys.stderr.write('GEOPM controller will share a core with the application.\n')
                 # Run controller on the lowest hyperthread that is not
                 # occupied by the application
                 geopm_ctl_cpu = core_per_node * app_thread_per_core
             else:
-                sys.stderr.write("GEOPM controller will share a core with the OS.\n")
+                sys.stderr.write('GEOPM controller will share a core with the OS.\n')
                 # Oversubscribe Linux CPU 0, no better solution
                 geopm_ctl_cpu = 0
         else:
@@ -776,7 +776,7 @@ class SrunLauncher(Launcher):
     @staticmethod
     def _launcher_command():
         """
-        Returns 'srun', the name of the SLURM MPI job launch application.
+        Returns "srun", the name of the SLURM MPI job launch application.
         """
         return 'srun'
 
@@ -968,7 +968,7 @@ class SrunLauncher(Launcher):
             value = ':'.join((ll for ll in
                               ('libgeopm.so', os.getenv('LD_PRELOAD'))
                               if ll is not None))
-            result = ["--export=LD_PRELOAD={},ALL".format(value)]
+            result = ['--export=LD_PRELOAD={},ALL'.format(value)]
         return result
 
 
@@ -1002,7 +1002,7 @@ class IMPIExecLauncher(Launcher):
     @staticmethod
     def _launcher_command():
         """
-        Returns 'mpiexec.hydra', the name of the Intel MPI Library job launch application.
+        Returns "mpiexec.hydra", the name of the Intel MPI Library job launch application.
         """
         return 'mpiexec.hydra'
 
@@ -1117,7 +1117,6 @@ class IMPIExecLauncher(Launcher):
         Returns a list of the names of compute nodes that have been
         reserved by a scheduler for current job context using the
         sinfo command.
-
         """
         if self.is_slurm_enabled:
             return subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).splitlines()
@@ -1129,7 +1128,7 @@ class AprunLauncher(Launcher):
     @staticmethod
     def _launcher_command():
         """
-        Returns 'aprun', the name of the ALPS MPI job launch application.
+        Returns "aprun", the name of the ALPS MPI job launch application.
         """
         return 'aprun'
 
@@ -1254,7 +1253,6 @@ def main():
     prints an error message if an error occurs.  If the GEOPM_DEBUG
     environment variable is set and an error occurs a complete stack
     trace will be printed.
-
     """
     err = 0
     version_str = """\
@@ -1262,7 +1260,7 @@ GEOPM version {}
 Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
 """.format(__version__)
 
-    launcher_prefix = "Possible LAUNCHER values:      "
+    launcher_prefix = 'Possible LAUNCHER values:      '
     wrapper = textwrap.TextWrapper(width=80, initial_indent=launcher_prefix,
                                    subsequent_indent=' '*len(launcher_prefix))
     launchers = ', '.join('"' + ii + '"' for ii in get_launcher_dict().keys())
@@ -1331,7 +1329,7 @@ Possible LAUNCHER_ARGS:        "-h" , "--help".
         # If GEOPM_DEBUG environment variable is defined print stack trace.
         if os.getenv('GEOPM_DEBUG'):
             raise
-        sys.stderr.write("<geopmpy.launcher> {err}\n".format(err=e))
+        sys.stderr.write('<geopmpy.launcher> {err}\n'.format(err=e))
         err = -1
     return err
 
