@@ -56,32 +56,33 @@ import textwrap
 from collections import OrderedDict
 from geopmpy import __version__
 
+class LauncherFactory(object):
+    def __init__(self):
+        self._launcher_dict = OrderedDict([('srun', SrunLauncher),
+                                           ('SrunLauncher', SrunLauncher),
+                                           ('aprun', AprunLauncher),
+                                           ('AprunLauncher', AprunLauncher),
+                                           ('impi', IMPIExecLauncher),
+                                           ('mpiexec.hydra', IMPIExecLauncher),
+                                           ('IMPIExecLauncher', IMPIExecLauncher),
+                                           ('SrunTOSSLauncher', SrunTOSSLauncher)])
 
-def get_launcher_dict():
-    return OrderedDict([('srun', SrunLauncher),
-                        ('SrunLauncher', SrunLauncher),
-                        ('aprun', AprunLauncher),
-                        ('AprunLauncher', AprunLauncher),
-                        ('impi', IMPIExecLauncher),
-                        ('mpiexec.hydra', IMPIExecLauncher),
-                        ('IMPIExecLauncher', IMPIExecLauncher),
-                        ('SrunTOSSLauncher', SrunTOSSLauncher)
-                       ])
+    def get_class(launcher_name):
+        try:
+            return self._launcher_dict[launcher_name](argv[2:], num_rank, num_node, cpu_per_rank, timeout,
+                                                      time_limit, job_name, node_list, host_file)
+        except KeyError:
+            raise LookupError('Unsupported launcher "{}" requested'.format(launcher_name))
 
 
-def factory(argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
-            time_limit=None, job_name=None, node_list=None, host_file=None):
-    """
-    Factory that returns a Launcher object.
-    """
-    launcher = argv[1]
-    factory_dict = get_launcher_dict()
-    try:
-        return factory_dict[launcher](argv[2:], num_rank, num_node, cpu_per_rank, timeout,
-                                time_limit, job_name, node_list, host_file)
-    except KeyError:
-        raise LookupError('Unsupported launcher ' + launcher + ' requested')
-
+    def create(argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
+               time_limit=None, job_name=None, node_list=None, host_file=None):
+        """
+        Factory that returns a Launcher object.
+        """
+        launcher = argv[1]
+        return get_launcher_class(launcher)(argv[2:], num_rank, num_node, cpu_per_rank, timeout,
+                                            time_limit, job_name, node_list, host_file)
 
 class PassThroughError(Exception):
     """
@@ -516,11 +517,12 @@ fi
         # than one node and the node list is passed.  We should run lscpu on all the nodes in the
         # allocation and check that the node topology is uniform across all nodes used by the job
         # instead of just running on one node.
-        launcher = factory(argv, self.num_node, self.num_node, host_file=self.host_file, node_list=self.node_list)
+        factory = LauncherFactory()
+        launcher = factory.create(argv, self.num_node, self.num_node, host_file=self.host_file, node_list=self.node_list)
         launcher.run()
         os.remove(tmp_script)
         argv = shlex.split('dummy {} --geopm-disable-ctl -- lscpu --hex'.format(self.launcher_command()))
-        launcher = factory(argv, 1, 1, host_file=self.host_file, node_list=self.node_list)
+        launcher = factory.create(argv, 1, 1, host_file=self.host_file, node_list=self.node_list)
         ostream = StringIO.StringIO()
         launcher.run(stdout=ostream)
         out = ostream.getvalue()
@@ -1302,22 +1304,16 @@ Possible LAUNCHER_ARGS:        "-h" , "--help".
         # cases there will be an extraneous help text printed at the end
         # of the run.
         launch_imp = get_launcher_dict().keys()
-        if '--help' not in sys.argv and '-h' not in sys.argv or sys.argv[1] in launch_imp:
-            launcher = factory(sys.argv)
-            launcher.run()
-        else:
-            # geopmlaunch <--help | -h>
-            if sys.argv[1] == "--help" or sys.argv[1] == "-h":
-                sys.stdout.write(help_str)
-            # geopmlaunch <srun | arun | impi> <--help | -h>
-            elif '--help' in sys.argv or '-h' in sys.argv:
-                sys.stdout.write(help_str)
-                pid = subprocess.call(["{}".format(sys.argv[1]), "--help"], stdout=sys.stdout)
-            # geopmlaunch <srun | arun | impi> <--version>
-            else:
-                pid = subprocess.call(["{}".format(sys.argv[1]), "--version"], stdout=sys.stdout)
-        if '--version' in sys.argv:
-                sys.stdout.write(version_str)
+        is_help_request = ('--help' in sys.argv or '-h' in sys.argv)
+        is_version_requeset = ('--version' in sys.argv)
+        if is_help_request or is_version_request:
+            sys.argv.extend('--geopm-disable-ctl')
+        launcher = LauncherFactory().create(sys.argv)
+        launcher.run()
+        if is_help_request:
+            sys.stdout.write(help_str)
+        if is_version_request:
+            sys.stdout.write(version_str)
     except Exception as e:
         # If GEOPM_DEBUG environment variable is defined print stack trace.
         if os.getenv('GEOPM_DEBUG'):
