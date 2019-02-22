@@ -56,48 +56,34 @@ import textwrap
 from collections import OrderedDict
 from geopmpy import __version__
 
+class LauncherFactory(object):
+    def __init__(self):
+        self._launcher_dict = OrderedDict([('srun', SrunLauncher),
+                                           ('SrunLauncher', SrunLauncher),
+                                           ('aprun', AprunLauncher),
+                                           ('AprunLauncher', AprunLauncher),
+                                           ('impi', IMPIExecLauncher),
+                                           ('mpiexec.hydra', IMPIExecLauncher),
+                                           ('IMPIExecLauncher', IMPIExecLauncher),
+                                           ('SrunTOSSLauncher', SrunTOSSLauncher)])
 
-def get_launcher_dict():
-    return OrderedDict([('srun', SrunLauncher),
-                        ('SrunLauncher', SrunLauncher),
-                        ('aprun', AprunLauncher),
-                        ('AprunLauncher', AprunLauncher),
-                        ('impi', IMPIExecLauncher),
-                        ('mpiexec.hydra', IMPIExecLauncher),
-                        ('IMPIExecLauncher', IMPIExecLauncher),
-                        ('SrunTOSSLauncher', SrunTOSSLauncher)
-                       ])
+    def create(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
+               time_limit=None, job_name=None, node_list=None, host_file=None):
+        try:
+            launcher_name = argv[1]
+            return self._launcher_dict[launcher_name](argv[2:], num_rank, num_node, cpu_per_rank, timeout,
+                                                      time_limit, job_name, node_list, host_file)
+        except KeyError:
+            raise LookupError('Unsupported launcher "{}" requested'.format(launcher_name))
 
-
-def factory(argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
-            time_limit=None, job_name=None, node_list=None, host_file=None):
-    """
-    Factory that returns a Launcher object.
-    """
-    launcher = argv[1]
-    factory_dict = get_launcher_dict()
-    try:
-        return factory_dict[launcher](argv[2:], num_rank, num_node, cpu_per_rank, timeout,
-                                time_limit, job_name, node_list, host_file)
-    except KeyError:
-        raise LookupError('Unsupported launcher ' + launcher + ' requested')
+    def get_launcher_names(self):
+        return self._launcher_dict.keys()
 
 
 class PassThroughError(Exception):
     """
     Exception raised when geopm is not to be used.
     """
-
-
-class SubsetOptionParser(argparse.ArgumentParser):
-    """
-    OptionParser derived object that will parse a subset of command
-    line arguments and prepend unrecognized arguments to positional
-    arguments.  GEOPM command line option help is appended to the job
-    launcher's help message.
-    """
-    def parse_args(self, argv):
-        return argparse.ArgumentParser.parse_known_args(self, argv)
 
 
 def int_ceil_div(aa, bb):
@@ -155,7 +141,7 @@ class Config(object):
                 raise RuntimeError('Some GEOPM options have been provided but --geopm-disable-ctl was also given.')
             raise PassThroughError('--geopm-disable-ctl specified; disabling the controller...')
         # Parse the subset of arguments used by geopm
-        parser = SubsetOptionParser()
+        parser = argparse.ArgumentParser(add_help=False)
         parser.add_argument('--geopm-report', dest='report', type=str)
         parser.add_argument('--geopm-report-signals', dest='report_signals', type=str)
         parser.add_argument('--geopm-trace', dest='trace', type=str)
@@ -516,11 +502,12 @@ fi
         # than one node and the node list is passed.  We should run lscpu on all the nodes in the
         # allocation and check that the node topology is uniform across all nodes used by the job
         # instead of just running on one node.
-        launcher = factory(argv, self.num_node, self.num_node, host_file=self.host_file, node_list=self.node_list)
+        factory = LauncherFactory()
+        launcher = factory.create(argv, self.num_node, self.num_node, host_file=self.host_file, node_list=self.node_list)
         launcher.run()
         os.remove(tmp_script)
         argv = shlex.split('dummy {} --geopm-disable-ctl -- lscpu --hex'.format(self.launcher_command()))
-        launcher = factory(argv, 1, 1, host_file=self.host_file, node_list=self.node_list)
+        launcher = factory.create(argv, 1, 1, host_file=self.host_file, node_list=self.node_list)
         ostream = StringIO.StringIO()
         launcher.run(stdout=ostream)
         out = ostream.getvalue()
@@ -791,7 +778,7 @@ class SrunLauncher(Launcher):
         Parse the subset of srun command line arguments used or
         manipulated by GEOPM.
         """
-        parser = SubsetOptionParser()
+        parser = argparse.ArgumentParser(add_help=False)
         parser.add_argument('-n', '--ntasks', dest='num_rank', type=int)
         parser.add_argument('-N', '--nodes', dest='num_node', type=int)
         parser.add_argument('-c', '--cpus-per-task', dest='cpu_per_rank', type=int)
@@ -1018,7 +1005,7 @@ class IMPIExecLauncher(Launcher):
         Parse the subset of srun command line arguments used or
         manipulated by GEOPM.
         """
-        parser = SubsetOptionParser()
+        parser = argparse.ArgumentParser(add_help=False)
         parser.add_argument('-n', dest='num_rank', type=int)
         parser.add_argument('-hosts', dest='node_list', type=str)
         parser.add_argument('-f', '--hostfile', dest='host_file', type=str)
@@ -1131,7 +1118,7 @@ class AprunLauncher(Launcher):
         Parse the subset of aprun command line arguments used or
         manipulated by GEOPM.
         """
-        parser = SubsetOptionParser()
+        parser = argparse.ArgumentParser(add_help=False)
         parser.add_argument('-n', '--pes', dest='num_rank', type=int)
         parser.add_argument('-N', '--pes-per-node', dest='rank_per_node', type=int)
         parser.add_argument('-d', '--cpus-per-pe', dest='cpu_per_rank', type=int)
@@ -1253,7 +1240,7 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
     launcher_prefix = "Possible LAUNCHER values:      "
     wrapper = textwrap.TextWrapper(width=80, initial_indent=launcher_prefix,
                                    subsequent_indent=' '*len(launcher_prefix))
-    launchers = ', '.join('"' + ii + '"' for ii in get_launcher_dict().keys())
+    launchers = ', '.join('"' + ii + '"' for ii in LauncherFactory().get_launcher_names())
     help_str = """\
 Usage:
       geopmlaunch LAUNCHER [GEOPM_OPTIONS] [LAUNCHER_ARGS]
@@ -1291,33 +1278,24 @@ GEOPM_OPTIONS:
                                underlying launcher
 
 {}
-Possible LAUNCHER_ARGS:        "-h" , "--help".
+Possible LAUNCHER_ARGS:        "--help".
 
 """.format(wrapper.fill(launchers))
     indent_str = '      '
 
     try:
-        # Print geopm help if it appears that documentation was requested
-        # Note: if application uses -h as a parameter or some other corner
-        # cases there will be an extraneous help text printed at the end
-        # of the run.
-        launch_imp = get_launcher_dict().keys()
-        if '--help' not in sys.argv and '-h' not in sys.argv or sys.argv[1] in launch_imp:
-            launcher = factory(sys.argv)
+        # Print geopm help or version if it appears that documentation was requested
+        is_help_request = ('--help' in sys.argv)
+        is_version_request = ('--version' in sys.argv)
+        if is_help_request or is_version_request:
+            sys.argv.append('--geopm-disable-ctl')
+        if sys.argv[1] not in ['--help', '--version']:
+            launcher = LauncherFactory().create(sys.argv)
             launcher.run()
-        else:
-            # geopmlaunch <--help | -h>
-            if sys.argv[1] == "--help" or sys.argv[1] == "-h":
-                sys.stdout.write(help_str)
-            # geopmlaunch <srun | arun | impi> <--help | -h>
-            elif '--help' in sys.argv or '-h' in sys.argv:
-                sys.stdout.write(help_str)
-                pid = subprocess.call(["{}".format(sys.argv[1]), "--help"], stdout=sys.stdout)
-            # geopmlaunch <srun | arun | impi> <--version>
-            else:
-                pid = subprocess.call(["{}".format(sys.argv[1]), "--version"], stdout=sys.stdout)
-        if '--version' in sys.argv:
-                sys.stdout.write(version_str)
+        if is_help_request:
+            sys.stdout.write(help_str)
+        if is_version_request:
+            sys.stdout.write(version_str)
     except Exception as e:
         # If GEOPM_DEBUG environment variable is defined print stack trace.
         if os.getenv('GEOPM_DEBUG'):
