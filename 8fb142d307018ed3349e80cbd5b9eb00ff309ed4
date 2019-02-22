@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9ad8230_0cfdca2b",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1307,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-02-22T22:36:08Z",
+      "side": 1,
+      "message": "get rid of non-standard -h",
+      "range": {
+        "startLine": 1307,
+        "startChar": 48,
+        "endLine": 1307,
+        "endChar": 56
+      },
+      "revId": "8fb142d307018ed3349e80cbd5b9eb00ff309ed4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
