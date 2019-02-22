@@ -135,11 +135,11 @@ class Config(object):
         options.
         """
         self.ctl = None
-        if any(aa.startswith('--geopm-disable-ctl') for aa in argv):
-            argv.remove('--geopm-disable-ctl')
+        if any(aa.startswith('--geopm-ctl-disable') for aa in argv):
+            argv.remove('--geopm-ctl-disable')
             if any(aa.startswith('--geopm-') for aa in argv):
-                raise RuntimeError('Some GEOPM options have been provided but --geopm-disable-ctl was also given.')
-            raise PassThroughError('--geopm-disable-ctl specified; disabling the controller...')
+                raise RuntimeError('Some GEOPM options have been provided but --geopm-ctl-disable was also given.')
+            raise PassThroughError('--geopm-ctl-disable specified; disabling the controller...')
         # Parse the subset of arguments used by geopm
         parser = argparse.ArgumentParser(add_help=False)
         parser.add_argument('--geopm-report', dest='report', type=str)
@@ -157,7 +157,7 @@ class Config(object):
         parser.add_argument('--geopm-debug-attach', dest='debug_attach', type=str)
         parser.add_argument('--geopm-region-barrier', dest='barrier', action='store_true', default=False)
         parser.add_argument('--geopm-preload', dest='preload', action='store_true', default=False)
-        parser.add_argument('--geopm-disable-hyperthreads', dest='allow_ht_pinning', action='store_false', default=True)
+        parser.add_argument('--geopm-hyperthreads-disable', dest='allow_ht_pinning', action='store_false', default=True)
 
         opts, self.argv_unparsed = parser.parse_known_args(argv)
         # Error check inputs
@@ -497,7 +497,7 @@ fi
             fid.write(tmp_script_txt)
         os.chmod(tmp_script, stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR)
 
-        argv = shlex.split('dummy {} --geopm-disable-ctl -- ./{}'.format(self.launcher_command(), tmp_script))
+        argv = shlex.split('dummy {} --geopm-ctl-disable -- ./{}'.format(self.launcher_command(), tmp_script))
         # Note that a warning may be emitted by underlying launcher when main application uses more
         # than one node and the node list is passed.  We should run lscpu on all the nodes in the
         # allocation and check that the node topology is uniform across all nodes used by the job
@@ -506,7 +506,7 @@ fi
         launcher = factory.create(argv, self.num_node, self.num_node, host_file=self.host_file, node_list=self.node_list)
         launcher.run()
         os.remove(tmp_script)
-        argv = shlex.split('dummy {} --geopm-disable-ctl -- lscpu --hex'.format(self.launcher_command()))
+        argv = shlex.split('dummy {} --geopm-ctl-disable -- lscpu --hex'.format(self.launcher_command()))
         launcher = factory.create(argv, 1, 1, host_file=self.host_file, node_list=self.node_list)
         ostream = StringIO.StringIO()
         launcher.run(stdout=ostream)
@@ -551,7 +551,7 @@ fi
             raise RuntimeError('Cores cannot be shared between MPI ranks')
         if not self.config.allow_ht_pinning and app_thread_per_core > 1:
             raise RuntimeError('Hyperthreads needed to satisfy ranks/threads configuration, but forbidden by'
-                               ' --geopm-disable-hyperthreads.')
+                               ' --geopm-hyperthreads-disable.')
         if app_cpu_per_node > self.num_linux_cpu:
             raise RuntimeError('Requested more application threads per node than the number of Linux logical CPUs')
 
@@ -1272,9 +1272,9 @@ GEOPM_OPTIONS:
       --geopm-region-barrier   apply node local barriers when application enters
                                or exits a geopm region
       --geopm-preload          use LD_PRELOAD to link libgeopm.so at runtime
-      --geopm-disable-hyperthreads
+      --geopm-hyperthreads-disable
                                do not allow pinning to HTs
-      --geopm-disable-ctl      do not launch geopm; pass through commands to
+      --geopm-ctl-disable      do not launch geopm; pass through commands to
                                underlying launcher
 
 {}
@@ -1287,7 +1287,7 @@ GEOPM_OPTIONS:
         is_help_request = ('--help' in sys.argv)
         is_version_request = ('--version' in sys.argv)
         if is_help_request or is_version_request:
-            sys.argv.append('--geopm-disable-ctl')
+            sys.argv.append('--geopm-ctl-disable')
         if sys.argv[1] not in ['--help', '--version']:
             launcher = LauncherFactory().create(sys.argv)
             launcher.run()

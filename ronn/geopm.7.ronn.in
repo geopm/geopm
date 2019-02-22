@@ -278,7 +278,7 @@ executed.
 
   * `GEOPM_DISABLE_HYPERTHREADS`:
     See documentation for equivalent command line option to
-    **geopmlaunch(1)** called `--geopm-disable-hyperthreads`.
+    **geopmlaunch(1)** called `--geopm-hyperthreads-disable`.
 
 
 ## COPYRIGHT

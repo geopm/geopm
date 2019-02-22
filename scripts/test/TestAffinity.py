@@ -58,7 +58,7 @@ class XeonAffinityLauncher(TestAffinityLauncher):
 
 class QuartzAffinityLauncher(TestAffinityLauncher):
     def __init__(self, argv, num_rank, num_node, cpu_per_rank):
-        argv.append('--geopm-disable-hyperthreads')
+        argv.append('--geopm-hyperthreads-disable')
         super(QuartzAffinityLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank)
 
     def init_topo(self):
@@ -253,7 +253,7 @@ class TestAffinity(unittest.TestCase):
     def test_affinity_18(self):
         launcher = QuartzAffinityLauncher(['--geopm-ctl', 'process'], 1, 1, 40)
         err_msg = 'Hyperthreads needed to satisfy ranks/threads configuration, but forbidden by'\
-                  ' --geopm-disable-hyperthreads.'
+                  ' --geopm-hyperthreads-disable.'
         with self.assertRaisesRegexp(RuntimeError, err_msg) as cm:
             launcher.affinity_list(False)
 
