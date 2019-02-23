@@ -1074,7 +1074,36 @@ namespace geopm
                       .function  = IMSR::M_FUNCTION_7_BIT_FLOAT,
                       .units     = IMSR::M_UNITS_SECONDS,
                       .scalar    = 9.765625e-04}}},
-                {})
+                {}),
+            MSR("UNCORE_RATIO_LIMIT", 0x620,
+                {{"MIN_RATIO", (struct IMSR::m_encode_s) {
+                      .begin_bit = 8,
+                      .end_bit   = 14,
+                      .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
+                      .function  = IMSR::M_FUNCTION_SCALE,
+                      .units     = IMSR::M_UNITS_HERTZ,
+                      .scalar    = 1e8}},
+                 {"MAX_RATIO", (struct IMSR::m_encode_s) {
+                      .begin_bit = 0,
+                      .end_bit   = 6,
+                      .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
+                      .function  = IMSR::M_FUNCTION_SCALE,
+                      .units     = IMSR::M_UNITS_HERTZ,
+                      .scalar    = 1e8}}},
+                {{"MIN_RATIO", (struct IMSR::m_encode_s) {
+                      .begin_bit = 8,
+                      .end_bit   = 14,
+                      .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
+                      .function  = IMSR::M_FUNCTION_SCALE,
+                      .units     = IMSR::M_UNITS_HERTZ,
+                      .scalar    = 1e8}},
+                 {"MAX_RATIO", (struct IMSR::m_encode_s) {
+                      .begin_bit = 0,
+                      .end_bit   = 6,
+                      .domain    = IPlatformTopo::M_DOMAIN_PACKAGE,
+                      .function  = IMSR::M_FUNCTION_SCALE,
+                      .units     = IMSR::M_UNITS_HERTZ,
+                      .scalar    = 1e8}}}),
         };
         num_msr = sizeof(instance) / sizeof(MSR);
         return instance;
