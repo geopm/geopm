@@ -122,7 +122,9 @@ initialized.
 
     `GEOPM_REGION_HINT_NETWORK`: <br>
     Inter-node network dominated region, default for unnested MPI
-    calls.
+    calls.  User defined regions that have this hint will have the MPI
+    time spent within this region attributed to the region as whole
+    for the periods of time when all ranks are within an MPI function.
 
     `GEOPM_REGION_HINT_IO`: <br>
     Disk input/output dominated region.

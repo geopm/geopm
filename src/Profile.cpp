@@ -357,7 +357,7 @@ namespace geopm
             m_tprof_table->enable(false);
             // Allow nesting of one MPI region within a non-mpi region
             if (m_curr_region_id &&
-                !geopm_region_id_is_mpi(m_curr_region_id) &&
+                geopm_region_id_hint(m_curr_region_id) != GEOPM_REGION_HINT_NETWORK &&
                 geopm_region_id_is_mpi(region_id)) {
                 m_parent_num_enter = m_num_enter;
                 m_num_enter = 0;

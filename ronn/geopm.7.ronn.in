@@ -177,6 +177,10 @@ debugging issues related region synchronicity.  In the future the
 scope of this requirement may change from all ranks on a node to all
 ranks running within the same domain of control.
 
+The hint that is used when a user marked region is created may influence
+the accounting of time spent in MPI.  For more information, please see
+see **geopm_prof_c(3)**.
+
 ## INTERPRETING THE TRACE
 If the `GEOPM_TRACE` environment variable is set (see below) then a
 trace file with time ordered information about the application runtime
