@@ -112,7 +112,7 @@ class Analysis(object):
                 argv.append('--geopm-policy=' + agent_conf.get_path())
             argv.extend(app_argv)
             argv.insert(1, launcher_name)
-            launcher = geopmpy.launcher.factory(argv)
+            launcher = geopmpy.launcher.Factory().create(argv)
             launcher.run()
         elif os.path.exists(report_path):
             sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))

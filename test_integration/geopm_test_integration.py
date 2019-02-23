@@ -59,7 +59,7 @@ def allocation_node_test(test_exec, stdout, stderr):
     argv = shlex.split(test_exec)
     argv.insert(1, geopm_test_launcher.detect_launcher())
     argv.insert(2, '--geopm-ctl-disable')
-    launcher = geopmpy.launcher.factory(argv, num_rank=1, num_node=1, job_name="geopm_allocation_test")
+    launcher = geopmpy.launcher.Factory().create(argv, num_rank=1, num_node=1, job_name="geopm_allocation_test")
     launcher.run(stdout, stderr)
 
 
@@ -1039,8 +1039,8 @@ class TestIntegration(unittest.TestCase):
 
         num_node = 1
         num_rank = 4
-        temp_launcher = geopmpy.launcher.factory(["dummy", geopm_test_launcher.detect_launcher()],
-                                                  num_node=num_node, num_rank=num_rank)
+        temp_launcher = geopmpy.launcher.Factory().create(["dummy", geopm_test_launcher.detect_launcher()],
+                                                          num_node=num_node, num_rank=num_rank)
         launcher_argv = [
             '--geopm-ctl', 'process',
         ]
@@ -1112,8 +1112,8 @@ class TestIntegration(unittest.TestCase):
 
         num_node = 1
         num_rank = 4
-        temp_launcher = geopmpy.launcher.factory(["dummy", geopm_test_launcher.detect_launcher()],
-                                                  num_node=num_node, num_rank=num_rank)
+        temp_launcher = geopmpy.launcher.Factory().create(["dummy", geopm_test_launcher.detect_launcher()],
+                                                          num_node=num_node, num_rank=num_rank)
         launcher_argv = [
             '--geopm-ctl', 'process',
         ]
