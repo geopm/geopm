@@ -113,10 +113,10 @@ class TestLauncher(object):
     def check_run(self, test_name):
         with open(test_name + '.log', 'a') as outfile:
             argv = ['dummy', detect_launcher(), '--geopm-ctl-disable', 'true']
-            launcher = geopmpy.launcher.factory(argv, self._num_rank, self._num_node,
-                                                self._cpu_per_rank, self._timeout,
-                                                self._time_limit, self._job_name,
-                                                self._node_list, self._host_file)
+            launcher = geopmpy.launcher.Factory().create(argv, self._num_rank, self._num_node,
+                                                         self._cpu_per_rank, self._timeout,
+                                                         self._time_limit, self._job_name,
+                                                         self._node_list, self._host_file)
             launcher.run(stdout=outfile, stderr=outfile)
 
     def run(self, test_name):
@@ -143,8 +143,8 @@ class TestLauncher(object):
             if exec_wrapper:
                 argv.extend(shlex.split(exec_wrapper))
             argv.extend([exec_path, '--verbose', self._app_conf.get_path()])
-            launcher = geopmpy.launcher.factory(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
-                                                self._time_limit, test_name, self._node_list, self._host_file)
+            launcher = geopmpy.launcher.Factory().create(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
+                                                         self._time_limit, test_name, self._node_list, self._host_file)
             launcher.run(stdout=outfile, stderr=outfile)
 
     def get_report(self):
@@ -156,13 +156,13 @@ class TestLauncher(object):
     @staticmethod
     def get_idle_nodes():
         argv = ['dummy', detect_launcher(), '--geopm-ctl-disable', 'true']
-        launcher = geopmpy.launcher.factory(argv, 1, 1)
+        launcher = geopmpy.launcher.Factory().create(argv, 1, 1)
         return launcher.get_idle_nodes()
 
     @staticmethod
     def get_alloc_nodes():
         argv = ['dummy', detect_launcher(), '--geopm-ctl-disable', 'true']
-        launcher = geopmpy.launcher.factory(argv, 1, 1)
+        launcher = geopmpy.launcher.Factory().create(argv, 1, 1)
         return launcher.get_alloc_nodes()
 
     def write_log(self, test_name, message):
@@ -174,7 +174,7 @@ class TestLauncher(object):
         # OS and one (potentially, may/may not be use depending on pmpi_ctl)
         # for the controller.
         argv = ['dummy', detect_launcher(), '--geopm-ctl-disable', 'lscpu']
-        launcher = geopmpy.launcher.factory(argv, 1, 1)
+        launcher = geopmpy.launcher.Factory().create(argv, 1, 1)
         ostream = StringIO.StringIO()
         launcher.run(stdout=ostream)
         out = ostream.getvalue()

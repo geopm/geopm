@@ -56,7 +56,7 @@ import textwrap
 from collections import OrderedDict
 from geopmpy import __version__
 
-class LauncherFactory(object):
+class Factory(object):
     def __init__(self):
         self._launcher_dict = OrderedDict([('srun', SrunLauncher),
                                            ('SrunLauncher', SrunLauncher),
@@ -502,7 +502,7 @@ fi
         # than one node and the node list is passed.  We should run lscpu on all the nodes in the
         # allocation and check that the node topology is uniform across all nodes used by the job
         # instead of just running on one node.
-        factory = LauncherFactory()
+        factory = Factory()
         launcher = factory.create(argv, self.num_node, self.num_node, host_file=self.host_file, node_list=self.node_list)
         launcher.run()
         os.remove(tmp_script)
@@ -1240,7 +1240,7 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
     launcher_prefix = "Possible LAUNCHER values:      "
     wrapper = textwrap.TextWrapper(width=80, initial_indent=launcher_prefix,
                                    subsequent_indent=' '*len(launcher_prefix))
-    launchers = ', '.join('"' + ii + '"' for ii in LauncherFactory().get_launcher_names())
+    launchers = ', '.join('"' + ii + '"' for ii in Factory().get_launcher_names())
     help_str = """\
 Usage:
       geopmlaunch LAUNCHER [GEOPM_OPTIONS] [LAUNCHER_ARGS]
@@ -1289,7 +1289,7 @@ GEOPM_OPTIONS:
         if is_help_request or is_version_request:
             sys.argv.append('--geopm-ctl-disable')
         if sys.argv[1] not in ['--help', '--version']:
-            launcher = LauncherFactory().create(sys.argv)
+            launcher = Factory().create(sys.argv)
             launcher.run()
         if is_help_request:
             sys.stdout.write(help_str)
