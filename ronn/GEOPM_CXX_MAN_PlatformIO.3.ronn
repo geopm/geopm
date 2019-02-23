@@ -199,6 +199,11 @@ provides raw MSR field signals that are encoded in this way.
     running region.  For any interval when all ranks are within an MPI
     function inside of a user defined region, the hint will change from the
     hint associated with the user defined region to GEOPM_REGION_HINT_NETWORK.
+    If the user defined region was defined with GEOPM_REGION_HINT_NETWORK and
+    there is an interval within the region when all ranks are within an MPI
+    function, GEOPM will not attribute the time spent within the MPI function as
+    MPI time in the report files.  It will be instead attributed to the time
+    spent in the region as a whole.
 
   * `REGION_PROGRESS`:
     Minimum per-rank reported progress through the current region.
