@@ -90,7 +90,6 @@ TEST_F(PowerBalancerAgentTest, power_balancer_agent)
     m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
                                                      std::move(m_power_gov), std::move(m_power_bal));
 
-    PowerBalancerAgent::make_plugin();
     EXPECT_EQ("power_balancer", m_agent->plugin_name());
     EXPECT_EQ(exp_pol_names, m_agent->policy_names());
     EXPECT_EQ(exp_smp_names, m_agent->sample_names());
