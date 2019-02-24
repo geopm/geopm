@@ -47,15 +47,15 @@
 namespace geopm
 {
     ProfileIOGroup::ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
-                                     IEpochRuntimeRegulator &epoch_regulator)
+                                   IEpochRuntimeRegulator &epoch_regulator)
         : ProfileIOGroup(profile_sample, epoch_regulator, platform_topo())
     {
 
     }
 
     ProfileIOGroup::ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
-                                     IEpochRuntimeRegulator &epoch_regulator,
-                                     IPlatformTopo &topo)
+                                   IEpochRuntimeRegulator &epoch_regulator,
+                                   IPlatformTopo &topo)
         : m_profile_sample(profile_sample)
         , m_epoch_regulator(epoch_regulator)
         , m_signal_idx_map{{plugin_name() + "::REGION_HASH", M_SIGNAL_REGION_HASH},
