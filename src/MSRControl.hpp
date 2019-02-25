@@ -36,6 +36,7 @@
 #include <stdint.h>
 
 #include <string>
+#include <memory>
 
 namespace geopm
 {
@@ -46,6 +47,10 @@ namespace geopm
         public:
             IMSRControl() = default;
             virtual ~IMSRControl() = default;
+            /// @brief Make a copy of the concrete object and call
+            ///        map_field() on the new object.
+            virtual std::unique_ptr<IMSRControl> copy_and_remap(uint64_t *field,
+                                                                uint64_t *mask) const = 0;
             /// @brief Get the control parameter name.
             /// @return The name of the feature under control.
             virtual std::string name(void) const = 0;
@@ -95,8 +100,8 @@ namespace geopm
                        int domain_type,
                        int cpu_idx,
                        int control_idx);
-            MSRControl(const MSRControl &other) = default;
-            MSRControl &operator=(const MSRControl &other) = default;
+            std::unique_ptr<IMSRControl> copy_and_remap(uint64_t *field,
+                                                        uint64_t *mask) const override;
             virtual ~MSRControl();
             virtual std::string name(void) const override;
             int domain_type(void) const override;
@@ -106,6 +111,10 @@ namespace geopm
             uint64_t mask(void) const override;
             void map_field(uint64_t *field, uint64_t *mask) override;
         private:
+            // Copying is disallowed except through copy_and_remap() method
+            MSRControl(const MSRControl &other);
+            MSRControl &operator=(const MSRControl &other) = default;
+
             const std::string m_name;
             const IMSR &m_msr_obj;
             const int m_domain_type;
