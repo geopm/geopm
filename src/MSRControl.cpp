@@ -55,9 +55,30 @@ namespace geopm
 
     }
 
+    MSRControl::MSRControl(const MSRControl &other)
+        : m_name(other.m_name)
+        , m_msr_obj(other.m_msr_obj)
+        , m_domain_type(other.m_domain_type)
+        , m_cpu_idx(other.m_cpu_idx)
+        , m_control_idx(other.m_control_idx)
+        , m_field_ptr(nullptr)
+        , m_mask_ptr(nullptr)
+        , m_is_field_mapped(false)
+    {
+
+    }
+
     MSRControl::~MSRControl()
     {
 
+    }
+
+    std::unique_ptr<IMSRControl> MSRControl::copy_and_remap(uint64_t *field,
+                                                            uint64_t *mask) const
+    {
+        std::unique_ptr<IMSRControl> result {new MSRControl(*this)};
+        result->map_field(field, mask);
+        return result;
     }
 
     std::string MSRControl::name() const

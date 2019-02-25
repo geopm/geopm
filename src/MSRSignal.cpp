@@ -90,6 +90,13 @@ namespace geopm
 
     }
 
+    std::unique_ptr<IMSRSignal> MSRSignal::copy_and_remap(const uint64_t *field) const
+    {
+        std::unique_ptr<IMSRSignal> result {new MSRSignal(*this)};
+        result->map_field(field);
+        return result;
+    }
+
     std::string MSRSignal::name(void) const
     {
         return m_name;
