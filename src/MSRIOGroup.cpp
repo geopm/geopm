@@ -43,6 +43,8 @@
 #include "Exception.hpp"
 #include "Agg.hpp"
 #include "MSR.hpp"
+#include "MSRSignal.hpp"
+#include "MSRControl.hpp"
 #include "MSRIOGroup.hpp"
 #include "MSRIO.hpp"
 #include "PlatformTopo.hpp"
