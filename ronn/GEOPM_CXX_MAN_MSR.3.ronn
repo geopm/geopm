@@ -33,7 +33,9 @@ geopm::MSR(3) -- model-specific register
 
 ## SYNOPSIS
 
-**\#include [<geopm/MSR.hpp>](https://github.com/geopm/geopm/blob/dev/src/MSR.hpp)**
+**\#include [<geopm/MSR.hpp>](https://github.com/geopm/geopm/blob/dev/src/MSR.hpp)**<br>
+**\#include [<geopm/MSRSignal.hpp>](https://github.com/geopm/geopm/blob/dev/src/MSRSignal.hpp)**<br>
+**\#include [<geopm/MSRControl.hpp>](https://github.com/geopm/geopm/blob/dev/src/MSRControl.hpp)**
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 

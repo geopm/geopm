@@ -88,8 +88,10 @@ pkginclude_HEADERS = contrib/json11/json11.hpp \
                      src/Helper.hpp \
                      src/IOGroup.hpp \
                      src/MSR.hpp \
+                     src/MSRControl.hpp \
                      src/MSRIO.hpp \
                      src/MSRIOGroup.hpp \
+                     src/MSRSignal.hpp \
                      src/MonitorAgent.hpp \
                      src/PlatformIO.hpp \
                      src/PlatformTopo.hpp \
@@ -189,6 +191,8 @@ ronn_man_noinst = man/geopmanalysis.1 \
 ronn_man = $(ronn_man_inst) $(ronn_man_noinst)
 
 dist_man_MANS = $(ronn_man_inst) \
+                man/GEOPM_CXX_MAN_MSRControl.3 \
+                man/GEOPM_CXX_MAN_MSRSignal.3 \
                 # end
 
 dist_doc_DATA = COPYING \
@@ -418,10 +422,14 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/Imbalancer.cpp \
                             src/MSR.cpp \
                             src/MSR.hpp \
+                            src/MSRControl.cpp \
+                            src/MSRControl.hpp \
                             src/MSRIO.cpp \
                             src/MSRIO.hpp \
                             src/MSRIOGroup.cpp \
                             src/MSRIOGroup.hpp \
+                            src/MSRSignal.cpp \
+                            src/MSRSignal.hpp \
                             src/ManagerIO.cpp \
                             src/ManagerIO.hpp \
                             src/MonitorAgent.cpp \
@@ -645,6 +653,15 @@ $(ronn_man): man/%: ronn/%.ronn
 	sed 's|^\[//\]: #|.\\\"|' ronn/`basename $@`.ronn > $@
 
 endif
+
+man/GEOPM_CXX_MAN_MSRSignal.3: man/GEOPM_CXX_MAN_MSR.3
+	cp $^ $@
+	if [ -f ronn/GEOPM_CXX_MAN_MSR.3.html ]; then cp ronn/GEOPM_CXX_MAN_MSR.3.html ronn/GEOPM_CXX_MAN_MSRSignal.3.html; fi
+
+man/GEOPM_CXX_MAN_MSRControl.3: man/GEOPM_CXX_MAN_MSR.3
+	cp $^ $@
+	if [ -f ronn/GEOPM_CXX_MAN_MSR.3.html ]; then cp ronn/GEOPM_CXX_MAN_MSR.3.html ronn/GEOPM_CXX_MAN_MSRControl.3.html; fi
+
 
 checkprogs: gtest-checkprogs pytest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
 
