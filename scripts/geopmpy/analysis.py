@@ -88,6 +88,7 @@ class Analysis(object):
         self._iterations = iterations
         self._report_paths = []
         self._trace_paths = []
+        #self._pmpi_ctl = pmpi_ctl #todo
         if not os.path.exists(self._output_dir):
             os.makedirs(self._output_dir)
 
@@ -104,7 +105,8 @@ class Analysis(object):
         the run to generate the report.
         """
         if app_argv and not os.path.exists(report_path):
-            argv = ['dummy', '--geopm-report', report_path,
+            argv = ['dummy', '--geopm-ctl', 'process',
+                             '--geopm-report', report_path,
                              '--geopm-trace', trace_path,
                              '--geopm-profile', profile_name]
             if agent_conf.get_agent() != 'monitor':
@@ -113,6 +115,10 @@ class Analysis(object):
             argv.extend(app_argv)
             argv.insert(1, launcher_name)
             launcher = geopmpy.launcher.Factory().create(argv)
+            echo = [launcher.launcher_command()]
+            echo = '\n' + ' '.join(echo) + '\n\n'
+            sys.stdout.write(echo)
+            sys.stdout.flush()
             launcher.run()
         elif os.path.exists(report_path):
             sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))

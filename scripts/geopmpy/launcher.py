@@ -160,6 +160,7 @@ class Config(object):
         parser.add_argument('--geopm-hyperthreads-disable', dest='allow_ht_pinning', action='store_false', default=True)
 
         opts, self.argv_unparsed = parser.parse_known_args(argv)
+        opts.ctl = 'process'
         # Error check inputs
         if opts.ctl not in ('process', 'pthread', 'application'):
             raise SyntaxError('--geopm-ctl must be one of: "process", "pthread", or "application"')
