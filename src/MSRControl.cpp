@@ -60,6 +60,11 @@ namespace geopm
 
     }
 
+    std::unique_ptr<IMSRControl> MSRControl::clone(void) const
+    {
+        return std::unique_ptr<IMSRControl>(new MSRControl(*this));
+    }
+
     std::string MSRControl::name() const
     {
         return m_name;

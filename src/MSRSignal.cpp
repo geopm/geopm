@@ -90,6 +90,11 @@ namespace geopm
 
     }
 
+    std::unique_ptr<IMSRSignal> MSRSignal::clone(void) const
+    {
+        return std::unique_ptr<IMSRSignal>(new MSRSignal(*this));
+    }
+
     std::string MSRSignal::name(void) const
     {
         return m_name;
