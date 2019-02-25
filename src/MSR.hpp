@@ -38,7 +38,6 @@
 #include <vector>
 #include <map>
 
-
 namespace geopm
 {
     /// @brief Class describing all of the encoded values within a
@@ -152,75 +151,6 @@ namespace geopm
             virtual int decode_function(int signal_idx) const = 0;
     };
 
-    class IMSRSignal
-    {
-        public:
-            IMSRSignal() = default;
-            virtual ~IMSRSignal() = default;
-            /// @brief Get the signal parameter name.
-            /// @return The name of the feature being measured.
-            virtual std::string name(void) const = 0;
-            /// @brief Get the type of the domain under measurement.
-            /// @return One of the values from the IPlatformTopo::m_domain_e
-            ///         enum described in PlatformTopo.hpp.
-            virtual int domain_type(void) const = 0;
-            /// @brief Get the index of the cpu in the domain under measurement.
-            /// @return The index of the CPU within the set of CPUs
-            ///         on the platform.
-            virtual int cpu_idx(void) const = 0;
-            /// @brief Get the value of the signal.
-            /// @return The value of the parameter measured in SI
-            ///         units.
-            virtual double sample(void) = 0;
-            /// @brief Gets the MSR offset for a signal.
-            /// @return The MSR offset value.
-            virtual uint64_t offset(void) const = 0;
-            /// @brief Map 64 bits of memory storing the raw value of
-            ///        an MSR that will be referenced when calculating
-            ///        the signal.
-            /// @param [in] field Pointer to the memory containing the raw
-            ///        MSR value.
-            virtual void map_field(const uint64_t *field) = 0;
-    };
-
-    class IMSRControl
-    {
-        public:
-            IMSRControl() = default;
-            virtual ~IMSRControl() = default;
-            /// @brief Get the control parameter name.
-            /// @return The name of the feature under control.
-            virtual std::string name(void) const = 0;
-            /// @brief Get the type of the domain under control.
-            /// @return One of the values from the m_domain_e
-            ///         enum described in PlatformTopo.hpp.
-            virtual int domain_type(void) const = 0;
-            /// @brief Get the index of the CPU in the domain under control.
-            /// @return The index of the CPU within the set of
-            ///        CPUs on the platform.
-            virtual int cpu_idx(void) const = 0;
-            /// @brief Set the value for the control.
-            /// @param [in] setting Value in SI units of the parameter
-            ///        controlled by the object.
-            virtual void adjust(double setting) = 0;
-            /// @brief Gets the MSR offset for the control.
-            /// @param [out] offset The MSR offset value.
-            virtual uint64_t offset(void) const = 0;
-            /// @brief Gets the mask for the MSR that is written by
-            ///        the control.
-            /// @param [out] mask The write mask value.
-            virtual uint64_t mask(void) const = 0;
-            /// @brief Map 64 bits of memory storing the raw value of
-            ///        an MSR that will be referenced when enforcing
-            ///        the control.
-            /// @param [in] field Pointer to the memory containing the
-            ///        raw MSR value.
-            /// @param [in] mask Pointer to mask that is applied when
-            ///        writing value.
-            virtual void map_field(uint64_t *field,
-                                   uint64_t *mask) = 0;
-    };
-
     class MSREncode;
 
     class MSR : public IMSR
@@ -275,89 +205,6 @@ namespace geopm
             const std::vector<double> m_prog_value;
 
     };
-
-    class MSRSignal : public IMSRSignal
-    {
-        public:
-            /// @brief Constructor for the MSRSignal class used when the
-            ///        signal is determined by a single bit field in a
-            ///        single MSR.
-            /// @param [in] msr_obj Pointer to the MSR object
-            ///        describing the MSR that contains the signal.
-            /// @param [in] cpu_idx The logical Linux CPU index to
-            ///        query for the MSR.
-            /// @param [in] signal_idx The index of the signal within
-            ///        the MSR that the class represents.
-            MSRSignal(const IMSR &msr_obj,
-                      int domain_type,
-                      int cpu_idx,
-                      int signal_idx);
-            /// @brief Constructor for an MSRSignal corresponding to the raw
-            ///        value of the entire MSR.
-            MSRSignal(const IMSR &msr_obj,
-                      int domain_type,
-                      int cpu_idx);
-            /// @brief Copy constructor.  After copying, map field
-            ///        must be called again on the new MSRSignal.
-            MSRSignal(const MSRSignal &other);
-            MSRSignal &operator=(const MSRSignal &other) = delete;
-            virtual ~MSRSignal() = default;
-            virtual std::string name(void) const override;
-            int domain_type(void) const override;
-            int cpu_idx(void) const override;
-            double sample(void) override;
-            uint64_t offset(void) const override;
-            void map_field(const uint64_t *field) override;
-        private:
-            const std::string m_name;
-            const IMSR &m_msr_obj;
-            const int m_domain_type;
-            const int m_cpu_idx;
-            const int m_signal_idx;
-            const uint64_t *m_field_ptr;
-            uint64_t m_field_last;
-            uint64_t m_num_overflow;
-            bool m_is_field_mapped;
-            bool m_is_raw;
-    };
-
-    class MSRControl : public IMSRControl
-    {
-        public:
-            /// @brief Constructor for the MSRControl class used when the
-            ///        control is enforced with a single bit field in a
-            ///        single MSR.
-            /// @param [in] msr_obj Pointer to the MSR object
-            ///        describing the MSR that contains the control.
-            /// @param [in] cpu_idx The logical Linux CPU index to
-            ///        write the MSR.
-            /// @param [in] control_idx The index of the control within
-            ///        the MSR that the class represents.
-            MSRControl(const IMSR &msr_obj,
-                       int domain_type,
-                       int cpu_idx,
-                       int control_idx);
-            MSRControl(const MSRControl &other) = default;
-            MSRControl &operator=(const MSRControl &other) = default;
-            virtual ~MSRControl();
-            virtual std::string name(void) const override;
-            int domain_type(void) const override;
-            int cpu_idx(void) const override;
-            void adjust(double setting) override;
-            uint64_t offset(void) const override;
-            uint64_t mask(void) const override;
-            void map_field(uint64_t *field, uint64_t *mask) override;
-        private:
-            const std::string m_name;
-            const IMSR &m_msr_obj;
-            const int m_domain_type;
-            const int m_cpu_idx;
-            const int m_control_idx;
-            uint64_t *m_field_ptr;
-            uint64_t *m_mask_ptr;
-            bool m_is_field_mapped;
-    };
-
 }
 
 #endif
