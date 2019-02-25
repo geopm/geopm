@@ -423,11 +423,10 @@ namespace geopm
                                                                domain_type, domain_idx);
 
         // Copy of existing signal but map own memory
-        // TODO: fix this copy
-        MSRSignal signal {*(dynamic_cast<MSRSignal*>((ncsm_it->second[*(cpu_idx.begin())]).get()))};
-        uint64_t offset = signal.offset();
+        std::unique_ptr<IMSRSignal> signal {ncsm_it->second[*(cpu_idx.begin())]->clone()};
+        uint64_t offset = signal->offset();
         uint64_t field = 0;
-        signal.map_field(&field);
+        signal->map_field(&field);
         field = m_msrio->read_msr(*(cpu_idx.begin()), offset);
         // @todo last value can only get updated with read batch. This means that
         // multiple calls to read_signal for a 64-bit counter will return 0
@@ -435,7 +434,7 @@ namespace geopm
         // Alternative it to update last_value here, but that would mean
         // multiple calls to sample() could return different values if interleaved
         // with a call to read_signal().
-        return signal.sample();
+        return signal->sample();
     }
 
     void MSRIOGroup::write_control(const std::string &control_name, int domain_type, int domain_idx, double setting)
@@ -462,13 +461,14 @@ namespace geopm
         std::set<int> cpu_idx = m_platform_topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
                                                                domain_type, domain_idx);
         for (auto cpu : cpu_idx) {
-            /// TODO: fix this copy
-            MSRControl control = *(dynamic_cast<MSRControl*>(nccm_it->second[cpu].get()));
-            uint64_t offset = control.offset();
+            // Copy of existing control but map own memory
+            //MSRControl control = *(dynamic_cast<MSRControl*>(nccm_it->second[cpu].get()));
+            std::unique_ptr<IMSRControl> control = nccm_it->second[cpu]->clone();
+            uint64_t offset = control->offset();
             uint64_t field = 0;
             uint64_t mask = 0;
-            control.map_field(&field, &mask);
-            control.adjust(setting);
+            control->map_field(&field, &mask);
+            control->adjust(setting);
             m_msrio->write_msr(cpu, offset, field, mask);
         }
     }
