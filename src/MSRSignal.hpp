@@ -36,6 +36,7 @@
 #include <stdint.h>
 
 #include <string>
+#include <memory>
 
 namespace geopm
 {
@@ -46,6 +47,10 @@ namespace geopm
         public:
             IMSRSignal() = default;
             virtual ~IMSRSignal() = default;
+            /// @brief Make a copy of the concrete object.
+            ///        The map_field() method should be called on
+            ///        the new object.
+            virtual std::unique_ptr<IMSRSignal> clone(void) const = 0;
             /// @brief Get the signal parameter name.
             /// @return The name of the feature being measured.
             virtual std::string name(void) const = 0;
@@ -93,18 +98,19 @@ namespace geopm
             MSRSignal(const IMSR &msr_obj,
                       int domain_type,
                       int cpu_idx);
-            /// @brief Copy constructor.  After copying, map field
-            ///        must be called again on the new MSRSignal.
-            MSRSignal(const MSRSignal &other);
-            MSRSignal &operator=(const MSRSignal &other) = delete;
             virtual ~MSRSignal() = default;
-            virtual std::string name(void) const override;
+            std::unique_ptr<IMSRSignal> clone(void) const override;
+            std::string name(void) const override;
             int domain_type(void) const override;
             int cpu_idx(void) const override;
             double sample(void) override;
             uint64_t offset(void) const override;
             void map_field(const uint64_t *field) override;
         private:
+            // Copying is disallowed except through clone() method
+            MSRSignal(const MSRSignal &other);
+            MSRSignal &operator=(const MSRSignal &other) = delete;
+
             const std::string m_name;
             const IMSR &m_msr_obj;
             const int m_domain_type;
