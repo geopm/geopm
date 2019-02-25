@@ -136,9 +136,9 @@ namespace geopm
     void MSRIOGroup::register_raw_msr_signal(const std::string &msr_name, const IMSR &msr_ptr)
     {
         // Insert the signal name with an empty vector into the map
-        auto ins_ret = m_name_cpu_signal_map.insert(std::pair<std::string, std::vector<MSRSignal *> >(m_name_prefix + msr_name + "#", {}));
+        auto ins_ret = m_name_cpu_signal_map.insert(std::pair<std::string, std::vector<std::shared_ptr<IMSRSignal> > >(m_name_prefix + msr_name + "#", {}));
         // Get reference to the per-cpu signal vector
-        std::vector <MSRSignal *> &cpu_signal = (*(ins_ret.first)).second;
+        auto &cpu_signal = (*(ins_ret.first)).second;
         // Check to see if the signal name has already been registered
         if (!ins_ret.second) {
             throw Exception("MSRIOGroup::register_raw_msr_signal(): msr_name " + msr_name +
@@ -151,25 +151,14 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         const IMSR &msr_obj = name_msr_it->second;
-        cpu_signal.resize(m_num_cpu, nullptr);
         for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-            cpu_signal[cpu_idx] = new MSRSignal(msr_obj, msr_obj.domain_type(),
-                                                cpu_idx);
+            cpu_signal.emplace_back(new MSRSignal(msr_obj, msr_obj.domain_type(), cpu_idx));
         }
     }
 
     MSRIOGroup::~MSRIOGroup()
     {
-        for (auto &ncsm : m_name_cpu_signal_map) {
-            for (auto &sig_ptr : ncsm.second) {
-                delete sig_ptr;
-            }
-        }
-        for (auto &nccm : m_name_cpu_control_map) {
-            for (auto &ctl_ptr : nccm.second) {
-                delete ctl_ptr;
-            }
-        }
+
     }
 
     std::set<std::string> MSRIOGroup::signal_names(void) const
@@ -267,8 +256,8 @@ namespace geopm
 
         if (!is_found) {
             result = m_active_signal.size();
-            m_active_signal.push_back(ncsm_it->second[*(cpu_idx.begin())]);
-            MSRSignal *msr_sig = m_active_signal[result];
+            m_active_signal.emplace_back(ncsm_it->second[*(cpu_idx.begin())]);
+            const auto &msr_sig = m_active_signal[result];
 #ifdef GEOPM_DEBUG
             if (!msr_sig) {
                 throw Exception("MSRIOGroup::push_signal(): NULL MSRSignal pointer was saved in active signals",
@@ -333,14 +322,14 @@ namespace geopm
 
         if (!is_found) {
             result = m_active_control.size();
-            m_active_control.push_back(std::vector<MSRControl*>());
+            m_active_control.emplace_back();
             if (control_name == "POWER_PACKAGE_LIMIT") {
                 write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
                 // for power only set the first cpu in the package; others are lowered
                 cpu_idx = {*cpu_idx.begin()};
             }
             for (auto cpu : cpu_idx) {
-                MSRControl *msr_ctl = nccm_it->second[cpu];
+                const auto &msr_ctl = nccm_it->second[cpu];
                 m_active_control[result].push_back(msr_ctl);
 #ifdef GEOPM_DEBUG
                 if (!msr_ctl) {
@@ -405,7 +394,7 @@ namespace geopm
         if (!m_is_active) {
             activate();
         }
-        for (auto control : m_active_control[control_idx]) {
+        for (auto &control : m_active_control[control_idx]) {
             control->adjust(setting);
         }
         m_is_adjusted[control_idx] = true;
@@ -434,7 +423,8 @@ namespace geopm
                                                                domain_type, domain_idx);
 
         // Copy of existing signal but map own memory
-        MSRSignal signal {*(ncsm_it->second[*(cpu_idx.begin())])};
+        // TODO: fix this copy
+        MSRSignal signal {*(dynamic_cast<MSRSignal*>((ncsm_it->second[*(cpu_idx.begin())]).get()))};
         uint64_t offset = signal.offset();
         uint64_t field = 0;
         signal.map_field(&field);
@@ -472,7 +462,8 @@ namespace geopm
         std::set<int> cpu_idx = m_platform_topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
                                                                domain_type, domain_idx);
         for (auto cpu : cpu_idx) {
-            MSRControl control = *(nccm_it->second[cpu]);
+            /// TODO: fix this copy
+            MSRControl control = *(dynamic_cast<MSRControl*>(nccm_it->second[cpu].get()));
             uint64_t offset = control.offset();
             uint64_t field = 0;
             uint64_t mask = 0;
@@ -486,7 +477,7 @@ namespace geopm
     {
         for (const auto &pair_it : m_name_cpu_control_map) {
             bool do_skip = false;
-            for (MSRControl *ctl_ptr : pair_it.second) {
+            for (const auto &ctl_ptr : pair_it.second) {
                 try {
                     auto it = m_per_cpu_restore[ctl_ptr->cpu_idx()].find(ctl_ptr->offset());
                     if (it == m_per_cpu_restore[ctl_ptr->cpu_idx()].end()) {
@@ -613,7 +604,7 @@ namespace geopm
             ++msr_idx;
         }
         msr_idx = 0;
-        for (auto control : m_active_control) {
+        for (auto &control : m_active_control) {
             for (auto &msr_ctl : control) {
                 uint64_t *field_ptr = &(m_write_field[msr_idx]);
                 uint64_t *mask_ptr = &(m_write_mask[msr_idx]);
@@ -645,16 +636,15 @@ namespace geopm
         std::string field_name(name_field.substr(colon_pos + 1));
 
         // Insert the signal name with an empty vector into the map
-        auto ins_ret = m_name_cpu_signal_map.insert(std::pair<std::string, std::vector<MSRSignal *> >(signal_name, {}));
+        auto ins_ret = m_name_cpu_signal_map.insert(std::pair<std::string, std::vector<std::shared_ptr<IMSRSignal> > >(signal_name, {}));
         // Get reference to the per-cpu signal vector
-        std::vector <MSRSignal *> &cpu_signal = (*(ins_ret.first)).second;
+        auto &cpu_signal = (*(ins_ret.first)).second;
         // Check to see if the signal name has already been registered
         if (!ins_ret.second) {
             throw Exception("MSRIOGroup::register_msr_signal(): signal_name " + signal_name +
                             " was previously registered.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        cpu_signal.resize(m_num_cpu, nullptr);
 
         auto name_msr_it = m_name_msr_map.find(msr_name);
         if (name_msr_it == m_name_msr_map.end()) {
@@ -669,8 +659,7 @@ namespace geopm
         }
 
         for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-            cpu_signal[cpu_idx] = new MSRSignal(msr_obj, msr_obj.domain_type(),
-                                                cpu_idx, signal_idx);
+            cpu_signal.emplace_back(new MSRSignal(msr_obj, msr_obj.domain_type(), cpu_idx, signal_idx));
         }
 
         // Set up aggregation for the alias
@@ -705,9 +694,9 @@ namespace geopm
         std::string field_name(name_field.substr(colon_pos + 1));
 
         // Insert the control name with an empty vector into the map
-        auto ins_ret = m_name_cpu_control_map.insert(std::pair<std::string, std::vector<MSRControl *> >(control_name, {}));
+        auto ins_ret = m_name_cpu_control_map.insert(std::pair<std::string, std::vector<std::shared_ptr<IMSRControl> > >(control_name, {}));
         // Get reference to the per-cpu control vector
-        std::vector <MSRControl *> &cpu_control = (*(ins_ret.first)).second;
+        auto &cpu_control = (*(ins_ret.first)).second;
         // Check to see if the control name has already been registered
         if (!ins_ret.second) {
             throw Exception("MSRIOGroup::register_msr_control(): control_name " + control_name +
@@ -715,7 +704,6 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
 
         }
-        cpu_control.resize(m_num_cpu, NULL);
 
         auto name_msr_it = m_name_msr_map.find(msr_name);
         if (name_msr_it == m_name_msr_map.end()) {
@@ -730,7 +718,7 @@ namespace geopm
         }
 
         for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-            cpu_control[cpu_idx] = new MSRControl(msr_obj, msr_obj.domain_type(), cpu_idx, control_idx);
+            cpu_control.emplace_back(new MSRControl(msr_obj, msr_obj.domain_type(), cpu_idx, control_idx));
         }
         // Copy description for the alias
         auto desc = control_description(msr_name_field);

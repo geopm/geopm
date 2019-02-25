@@ -43,8 +43,8 @@
 namespace geopm
 {
     class IMSR;
-    class MSRSignal;
-    class MSRControl;
+    class IMSRSignal;
+    class IMSRControl;
     class IMSRIO;
     class IPlatformTopo;
 
@@ -145,11 +145,11 @@ namespace geopm
             std::vector<bool> m_is_adjusted;
             // Mappings from names to all valid signals and controls
             std::map<std::string, const IMSR &> m_name_msr_map;
-            std::map<std::string, std::vector<MSRSignal *> > m_name_cpu_signal_map;
-            std::map<std::string, std::vector<MSRControl *> > m_name_cpu_control_map;
+            std::map<std::string, std::vector<std::shared_ptr<IMSRSignal> > > m_name_cpu_signal_map;
+            std::map<std::string, std::vector<std::shared_ptr<IMSRControl> > > m_name_cpu_control_map;
             // Pushed signals and controls only
-            std::vector<MSRSignal *> m_active_signal;
-            std::vector<std::vector<MSRControl *> > m_active_control;
+            std::vector<std::shared_ptr<IMSRSignal> > m_active_signal;
+            std::vector<std::vector<std::shared_ptr<IMSRControl> > > m_active_control;
             // Vectors are over MSRs for all active signals
             std::vector<uint64_t> m_read_field;
             std::vector<int> m_read_cpu_idx;
