@@ -48,6 +48,7 @@
 #include "geopm_hash.h"
 #include "PlatformTopo.hpp"
 #include "MSRIO.hpp"
+#include "MSR.hpp"
 #include "Exception.hpp"
 #include "PluginFactory.hpp"
 #include "MSRIOGroup.hpp"
@@ -57,6 +58,7 @@
 using geopm::MSRIOGroup;
 using geopm::IPlatformTopo;
 using geopm::Exception;
+using geopm::MSR;
 using testing::Return;
 using testing::SetArgReferee;
 using testing::_;
@@ -67,7 +69,7 @@ class MSRIOGroupTest : public :: testing :: Test
     protected:
         void SetUp();
         std::vector<std::string> m_test_dev_path;
-        std::unique_ptr<geopm::MSRIOGroup> m_msrio_group;
+        std::unique_ptr<MSRIOGroup> m_msrio_group;
         MockPlatformTopo m_topo;
         int m_num_cpu = 16;
         void mock_enable_fixed_counters(void);
@@ -712,4 +714,434 @@ TEST_F(MSRIOGroupTest, register_msr_control)
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_control("MSR::PERF_STATUS:BAD"),
                                GEOPM_ERROR_INVALID, "field_name: BAD could not be found");
 
+}
+
+TEST_F(MSRIOGroupTest, parse_json_msrs_errors)
+{
+    std::string json = "{}}";
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "detected a malformed json string");
+
+    // missing keys
+    json = R"({  "msrs":{}, "cpuid": "N/A" })";
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"arch\" key is required");
+    json = R"({  "arch": "common", "msrs": {} })";
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"cpuid\" key is required");
+    json = R"({  "arch": "common", "cpuid": "N/A" })";
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"msrs\" key is required");
+    // unexpected keys
+    json = R"({ "extra": {}, "arch": "common", "cpuid": "N/A", "msrs": {} })";
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "unexpected key \"extra\" found at top level");
+
+    // invalid values
+    json = R"({"arch": {}, "cpuid": "N/A", "msrs": {} })";
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"arch\" must be a string");
+    json = R"({"arch": "common", "cpuid": "invalid", "msrs": {} })";
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"cpuid\" must be a hex string or N/A");
+    json = R"({"arch": "common", "cpuid": 200, "msrs": {} })";
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"cpuid\" must be a hex string or N/A");
+    json = R"({"arch": "common", "cpuid": "N/A", "msrs": "none"})";
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"msrs\" must be an object");
+
+    json = R"({"arch": "common", "cpuid": "N/A", "msrs": { "MSR_ONE": 1 } })";
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "msr \"MSR_ONE\" must be an object");
+
+    // required msr keys
+    std::string header = R"({ "arch": "common", "cpuid": "N/A", "msrs": { )";
+    std::string footer = R"(  } } )";
+    json = header + R"(
+           "MSR_ONE": { "extra": {}, "offset": "0x10", "domain": "cpu", "fields": {} }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "unexpected key \"extra\" found in msr \"MSR_ONE\"");
+
+    json = header + R"(
+           "MSR_ONE": { "domain": "cpu", "fields": {} }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"offset\" key is required for \"MSR_ONE\"");
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "fields": {} }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"domain\" key is required for \"MSR_ONE\"");
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "cpu" }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"fields\" key is required for \"MSR_ONE\"");
+
+    json = header + R"(
+           "MSR_ONE": { "offset": 10, "domain": "cpu", "fields": {} }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"offset\" within msr \"MSR_ONE\" must be a hex string");
+    json = header + R"(
+           "MSR_ONE": { "offset": "invalid", "domain": "cpu", "fields": {} }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"offset\" within msr \"MSR_ONE\" must be a hex string");
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": 3, "fields": {} }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"domain\" within msr \"MSR_ONE\" must be a valid domain string");
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "unknown", "fields": {} }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"domain\" within msr \"MSR_ONE\" must be a valid domain string");
+
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "cpu", "fields": [] }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"fields\" within msr \"MSR_ONE\" must be an object");
+
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "cpu",
+               "fields": {
+                   "FIELD_RO" : 2
+               }
+           }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"FIELD_RO\" field within msr \"MSR_ONE\" must be an object");
+
+    // required MSR bitfield keys
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "cpu",
+               "fields": {
+                   "FIELD_RO" : {
+                       "begin_bit": 1,
+                       "end_bit": 4,
+                       "function": "scale",
+                       "units": "hertz",
+                       "scalar": 2,
+                       "writeable": false,
+                       "extra": 4
+                   }
+               }
+           }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "unexpected key \"extra\" found in \"MSR_ONE:FIELD_RO\"");
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "cpu",
+               "fields": {
+                   "FIELD_RO" : {
+                       "end_bit": 4,
+                       "function": "scale",
+                       "units": "hertz",
+                       "scalar": 2,
+                       "writeable": false
+                   }
+               }
+           }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"begin_bit\" key is required for \"MSR_ONE:FIELD_RO\"");
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "cpu",
+               "fields": {
+                   "FIELD_RO" : {
+                       "begin_bit": 1,
+                       "function": "scale",
+                       "units": "hertz",
+                       "scalar": 2,
+                       "writeable": false
+                   }
+               }
+           }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"end_bit\" key is required for \"MSR_ONE:FIELD_RO\"");
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "cpu",
+               "fields": {
+                   "FIELD_RO" : {
+                       "begin_bit": 1,
+                       "end_bit": 4,
+                       "units": "hertz",
+                       "scalar": 2,
+                       "writeable": false
+                   }
+               }
+           }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"function\" key is required for \"MSR_ONE:FIELD_RO\"");
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "cpu",
+               "fields": {
+                   "FIELD_RO" : {
+                       "begin_bit": 1,
+                       "end_bit": 4,
+                       "function": "scale",
+                       "scalar": 2,
+                       "writeable": false
+                   }
+               }
+           }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"units\" key is required for \"MSR_ONE:FIELD_RO\"");
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "cpu",
+               "fields": {
+                   "FIELD_RO" : {
+                       "begin_bit": 1,
+                       "end_bit": 4,
+                       "function": "scale",
+                       "units": "hertz",
+                       "writeable": false
+                   }
+               }
+           }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"scalar\" key is required for \"MSR_ONE:FIELD_RO\"");
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "cpu",
+               "fields": {
+                   "FIELD_RO" : {
+                       "begin_bit": 1,
+                       "end_bit": 4,
+                       "function": "scale",
+                       "units": "hertz",
+                       "scalar": 2
+                   }
+               }
+           }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"writeable\" key is required for \"MSR_ONE:FIELD_RO\"");
+
+
+    // check types
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "cpu",
+               "fields": {
+                   "FIELD_RO" : {
+                       "begin_bit": "one",
+                       "end_bit": 4,
+                       "function": "scale",
+                       "units": "hertz",
+                       "scalar": 2,
+                       "writeable": false
+                   }
+               }
+           }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"begin_bit\" within \"MSR_ONE:FIELD_RO\" must be an integer");
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "cpu",
+               "fields": {
+                   "FIELD_RO" : {
+                       "begin_bit": 1.1,
+                       "end_bit": 4,
+                       "function": "scale",
+                       "units": "hertz",
+                       "scalar": 2,
+                       "writeable": false
+                   }
+               }
+           }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"begin_bit\" within \"MSR_ONE:FIELD_RO\" must be an integer");
+
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "cpu",
+               "fields": {
+                   "FIELD_RO" : {
+                       "begin_bit": 1,
+                       "end_bit": "four",
+                       "function": "scale",
+                       "units": "hertz",
+                       "scalar": 2,
+                       "writeable": false
+                   }
+               }
+           }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"end_bit\" within \"MSR_ONE:FIELD_RO\" must be an integer");
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "cpu",
+               "fields": {
+                   "FIELD_RO" : {
+                       "begin_bit": 1,
+                       "end_bit": 4.4,
+                       "function": "scale",
+                       "units": "hertz",
+                       "scalar": 2,
+                       "writeable": false
+                   }
+               }
+           }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"end_bit\" within \"MSR_ONE:FIELD_RO\" must be an integer");
+
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "cpu",
+               "fields": {
+                   "FIELD_RO" : {
+                       "begin_bit": 1,
+                       "end_bit": 4,
+                       "function": 2,
+                       "units": "hertz",
+                       "scalar": 2,
+                       "writeable": false
+                   }
+               }
+           }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"function\" within \"MSR_ONE:FIELD_RO\" must be a valid function string");
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "cpu",
+               "fields": {
+                   "FIELD_RO" : {
+                       "begin_bit": 1,
+                       "end_bit": 4,
+                       "function": "scale",
+                       "units": 3,
+                       "scalar": 2,
+                       "writeable": false
+                   }
+               }
+           }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"units\" within \"MSR_ONE:FIELD_RO\" must be a string");
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "cpu",
+               "fields": {
+                   "FIELD_RO" : {
+                       "begin_bit": 1,
+                       "end_bit": 4,
+                       "function": "scale",
+                       "units": "hertz",
+                       "scalar": "two",
+                       "writeable": false
+                   }
+               }
+           }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"scalar\" within \"MSR_ONE:FIELD_RO\" must be a number");
+    json = header + R"(
+           "MSR_ONE": { "offset": "0x10", "domain": "cpu",
+               "fields": {
+                   "FIELD_RO" : {
+                       "begin_bit": 1,
+                       "end_bit": 4,
+                       "function": "scale",
+                       "units": "hertz",
+                       "scalar": 2,
+                       "writeable": 0
+                   }
+               }
+           }
+    )" + footer;
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(json),
+                               GEOPM_ERROR_INVALID,
+                               "\"writeable\" within \"MSR_ONE:FIELD_RO\" must be a bool");
+
+}
+
+TEST_F(MSRIOGroupTest, parse_json_msrs)
+{
+    std::string header = R"({ "arch": "common", "cpuid": "N/A", "msrs": { )";
+    std::string footer = R"(  } } )";
+    std::string json = header + R"(
+           "MSR_ONE": { "offset": "0x12", "domain": "package",
+               "fields": {
+                   "FIELD_RO" : {
+                       "begin_bit": 1,
+                       "end_bit": 4,
+                       "function": "scale",
+                       "units": "hertz",
+                       "scalar": 2,
+                       "writeable": false
+                   }
+               }
+           },
+           "MSR_TWO": { "offset": "0x10", "domain": "cpu",
+               "fields": {
+                   "FIELD_RW" : {
+                       "begin_bit": 1,
+                       "end_bit": 4,
+                       "function": "scale",
+                       "units": "hertz",
+                       "scalar": 2,
+                       "writeable": true
+                   }
+               }
+           }
+    )" + footer;
+    auto msr_list = MSRIOGroup::parse_json_msrs(json);
+    ASSERT_EQ(2u, msr_list.size());
+    auto &msr0 = msr_list[0];
+    EXPECT_EQ("MSR_ONE", msr0->name());
+    EXPECT_EQ(0x12, msr0->offset());
+    EXPECT_EQ(IPlatformTopo::M_DOMAIN_PACKAGE, msr0->domain_type());
+    EXPECT_EQ(1u, msr0->num_signal());
+    EXPECT_EQ(0u, msr0->num_control());
+    EXPECT_EQ("FIELD_RO", msr0->signal_name(0));
+
+    auto &msr1 = msr_list[1];
+    EXPECT_EQ("MSR_TWO", msr1->name());
+    EXPECT_EQ(0x10, msr1->offset());
+    EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, msr1->domain_type());
+    EXPECT_EQ(1u, msr1->num_signal());
+    EXPECT_EQ(1u, msr1->num_control());
+    EXPECT_EQ("FIELD_RW", msr1->signal_name(0));
+    EXPECT_EQ("FIELD_RW", msr1->control_name(0));
 }
