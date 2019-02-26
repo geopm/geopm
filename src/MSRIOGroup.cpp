@@ -38,6 +38,8 @@
 #include <iomanip>
 #include <iostream>
 
+#include "contrib/json11/json11.hpp"
+
 #include "geopm_sched.h"
 #include "geopm_hash.h"
 #include "Exception.hpp"
@@ -50,6 +52,8 @@
 #include "PlatformTopo.hpp"
 #include "Helper.hpp"
 #include "config.h"
+
+using json11::Json;
 
 #define GEOPM_MSR_IO_GROUP_PLUGIN_NAME "MSR"
 
@@ -882,5 +886,183 @@ namespace geopm
             }
         }
         do_check_governor = false;
+    }
+
+    std::vector<std::unique_ptr<IMSR> > MSRIOGroup::parse_json_msrs(const std::string &str)
+    {
+        std::vector<std::unique_ptr<IMSR> > result;
+        std::string err;
+        Json root = Json::parse(str, err);
+        if (!err.empty() || !root.is_object()) {
+            throw Exception("MSRIOGroup::" + std::string(__func__) + "(): detected a malformed json string: " + err,
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        /// Used to validate type and value of JSON objects
+        struct json_checker
+        {
+            public:
+                // base JSON type
+                Json::Type json_type;
+                // additional constraints, assuming base type matches
+                std::function<bool(const Json &obj)> is_valid;
+                // message to use if check fails
+                std::string message;
+        };
+        auto null_func = [](const Json &obj) { return true; };
+        auto is_hex_string = [](const Json &obj) {
+            return (obj.string_value().find("0x") == 0);
+        };
+        auto is_valid_cpuid = [is_hex_string](const Json &cpuid) {
+            return (is_hex_string(cpuid) || cpuid.string_value() == "N/A");
+        };
+        auto is_valid_domain = [](const Json &domain) {
+            try {
+                IPlatformTopo::domain_name_to_type(domain.string_value());
+            }
+            catch (const Exception &ex) {
+                return false;
+            }
+            return true;
+        };
+        auto is_integer = [](const Json &num) {
+            return ((double)((int)(num.number_value())) == num.number_value());
+        };
+        //// Validate top level keys
+        /// @todo: Validate arch value
+        /// @todo: Validate cpuid value
+        std::map<std::string, json_checker> top_level_keys = {
+            {"arch", {Json::STRING, null_func, "must be a string"}},
+            {"cpuid", {Json::STRING, is_valid_cpuid, "must be a hex string or N/A"}},
+            {"msrs", {Json::OBJECT, null_func, "must be an object"}}
+        };
+
+        auto top_level_obj = root.object_items();
+        // check for extra keys
+        for (const auto &obj : top_level_obj) {
+            if (top_level_keys.find(obj.first) == top_level_keys.end()) {
+                throw Exception("MSRIOGroup::" + std::string(__func__) + "(): unexpected key \"" + obj.first + "\" found at top level",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+        // check for required keys
+        for (auto key_check : top_level_keys) {
+            std::string key = key_check.first;
+            json_checker key_param = key_check.second;
+            if (top_level_obj.find(key) == top_level_obj.end()) {
+                throw Exception("MSRIOGroup::" + std::string(__func__) + "(): \"" + key + "\" key is required",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            Json obj = root[key];
+            if (obj.type() != key_param.json_type || !key_param.is_valid(obj)) {
+                throw Exception("MSRIOGroup::" + std::string(__func__) + "(): \"" + key + "\" " + key_param.message,
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+
+        /// Parse MSRs list
+        auto msr_obj = root["msrs"].object_items();
+        for (auto msr : msr_obj) {
+            std::string msr_name = msr.first;
+            if (msr.second.type() != Json::OBJECT) {
+                throw Exception("MSRIOGroup::" + std::string(__func__) + "(): data for msr \"" + msr_name + "\" must be an object",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            auto msr_data = msr.second.object_items();
+
+            // expected keys for msr
+            std::map<std::string, json_checker> msr_keys = {
+                {"offset", {Json::STRING, is_hex_string, "must be a hex string"}},
+                {"domain", {Json::STRING, is_valid_domain, "must be a valid domain string"}},
+                {"fields", {Json::OBJECT, null_func, "must be an object"}}
+            };
+            // check for extra keys
+            for (const auto &obj : msr_data) {
+                if (msr_keys.find(obj.first) == msr_keys.end()) {
+                    throw Exception("MSRIOGroup::" + std::string(__func__) + "(): unexpected key \"" + obj.first + "\" found in msr \"" + msr_name + "\"",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+            }
+            // check for required keys
+            for (auto msr_obj : msr_keys) {
+                std::string key = msr_obj.first;
+                json_checker msr_param = msr_obj.second;
+                if (msr_data.find(key) == msr_data.end()) {
+                    throw Exception("MSRIOGroup::" + std::string(__func__) + "(): \"" + key + "\" key is required for \"" + msr_name + "\"",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+
+                Json obj = msr_data[key];
+                if (obj.type() != msr_param.json_type || !msr_param.is_valid(obj)) {
+                    throw Exception("MSRIOGroup::" + std::string(__func__) + "(): \"" + key + "\" within msr \"" + msr_name + "\" " + msr_param.message,
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+            }
+
+            std::vector<std::pair<std::string, struct IMSR::m_encode_s> > signals;
+            std::vector<std::pair<std::string, struct IMSR::m_encode_s> > controls;
+
+            /// Validate fields within MSR
+            auto fields_obj = msr_data["fields"].object_items();
+            for (auto field : fields_obj) {
+                std::string field_name = field.first;
+                if (field.second.type() != Json::OBJECT) {
+                    throw Exception("MSRIOGroup::" + std::string(__func__) + "(): \"" + field_name + "\" field within msr \"" + msr_name + "\" must be an object",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+                auto field_data = field.second.object_items();
+
+                std::map<std::string, json_checker> field_checker {
+                    {"begin_bit", {Json::NUMBER, is_integer, "must be an integer"}},
+                    {"end_bit", {Json::NUMBER, is_integer, "must be an integer"}},
+                    {"function", {Json::STRING, null_func, "must be a valid function string"}},
+                    {"units", {Json::STRING, null_func, "must be a string"}},
+                    {"scalar", {Json::NUMBER, null_func, "must be a number"}},
+                    {"writeable", {Json::BOOL, null_func, "must be a bool"}}
+                };
+
+                // check for extra keys
+                for (const auto &obj : field_data) {
+                    if (field_checker.find(obj.first) == field_checker.end()) {
+                        throw Exception("MSRIOGroup::" + std::string(__func__) + "(): unexpected key \"" + obj.first + "\" found in \"" + msr_name + ":" + field_name + "\"",
+                                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    }
+                }
+                for (auto check : field_checker) {
+                    std::string param_name = check.first;
+                    json_checker param_check = check.second;
+                    if (field_data.find(param_name) == field_data.end()) {
+                        throw Exception("MSRIOGroup::" + std::string(__func__) + "(): \"" + param_name + "\" key is required for \"" + msr_name + ":" + field_name + "\"",
+                                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    }
+                    Json obj = field_data[param_name];
+                    if (obj.type() != param_check.json_type || !param_check.is_valid(obj)) {
+                        throw Exception("MSRIOGroup::" + std::string(__func__) + "(): \"" + param_name + "\" within \"" + msr_name + ":" + field_name + "\" " + param_check.message,
+                                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    }
+                }
+                // field is valid, add to list
+                IMSR::m_encode_s param {
+                    .begin_bit = (int)(field_data["begin_bit"].number_value()),
+                    .end_bit = (int)(field_data["end_bit"].number_value()),
+                    .domain = IPlatformTopo::domain_name_to_type(msr_data["domain"].string_value()),
+                    .function = IMSR::string_to_function(field_data["function"].string_value()),
+                    .units = IMSR::string_to_units(field_data["units"].string_value()),
+                    .scalar = field_data["scalar"].number_value(),
+                };
+                signals.push_back({field_name, param});
+                if (field_data["writeable"].bool_value()) {
+                    controls.push_back({field_name, param});
+                }
+            } // end fields_obj loop
+            uint64_t msr_offset = std::stoull(msr_data["offset"].string_value(), 0, 16);
+            if (msr_offset == 0ull) {
+                throw Exception("MSRIOGroup::" + std::string(__func__) + "(): invalid offset for " + msr_name + ": " + msr_data["offset"].string_value(),
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            result.emplace_back(new MSR(msr_name, msr_offset, signals, controls));
+        } // end msr_obj loop
+
+        return result;
     }
 }
