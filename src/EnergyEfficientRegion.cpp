@@ -183,4 +183,18 @@ namespace geopm
             }
         }
     }
+
+    std::vector<std::string> EnergyEfficientRegion::trace_names(void) const
+    {
+        return {"M_IS_LEARNING", "M_CURR_FREQ", "M_TARGET", "PERF_METRIC", "ENERGY_METRIC"};
+    }
+
+    void EnergyEfficientRegion::trace_values(std::vector<double> &values)
+    {
+        values[TRACE_COL_M_IS_LEARNING] = m_is_learning;
+        values[TRACE_COL_M_CURR_FREQ] = m_curr_freq;
+        values[TRACE_COL_M_TARGET] = m_target;
+        values[TRACE_COL_PERF_METRIC] = perf_metric();
+        values[TRACE_COL_ENERGY_METRIC] = energy_metric();
+    }
 }

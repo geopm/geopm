@@ -432,7 +432,10 @@ namespace geopm
 
     std::vector<std::string> EnergyEfficientAgent::OnlineMode::trace_names(void) const
     {
-        return {};
+        //m_region_map.find(ctx.m_last_region.first).trace_values(values);
+        //return m_region_map.trace_names();
+        /// todo pipe thru to static?
+        return {"M_IS_LEARNING", "M_CURR_FREQ", "M_TARGET", "PERF_METRIC", "ENERGY_METRIC"};
     }
 
     std::vector<std::string> EnergyEfficientAgent::OfflineMode::trace_names(void) const
@@ -445,17 +448,21 @@ namespace geopm
         return m_mode->trace_names();
     }
 
-    void EnergyEfficientAgent::OnlineMode::trace_values(std::vector<double> &values)
+    void EnergyEfficientAgent::OnlineMode::trace_values(EnergyEfficientAgent &ctx, std::vector<double> &values)
     {
+        auto reg_it = m_region_map.find(ctx.m_last_region.first);
+        if (reg_it != m_region_map.end()) {
+            reg_it->second->trace_values(values);
+        }
     }
 
-    void EnergyEfficientAgent::OfflineMode::trace_values(std::vector<double> &values)
+    void EnergyEfficientAgent::OfflineMode::trace_values(EnergyEfficientAgent &ctx, std::vector<double> &values)
     {
     }
 
     void EnergyEfficientAgent::trace_values(std::vector<double> &values)
     {
-        m_mode->trace_values(values);
+        m_mode->trace_values(*this, values);
     }
 
     double EnergyEfficientAgent::get_limit(const std::string &sig_name) const

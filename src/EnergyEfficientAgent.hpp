@@ -87,7 +87,7 @@ namespace geopm
                     virtual std::vector<std::pair<std::string, std::string> > report_node(void) const = 0;
                     virtual std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(void) const = 0;
                     virtual std::vector<std::string> trace_names(void) const = 0;
-                    virtual void trace_values(std::vector<double> &values) = 0;
+                    virtual void trace_values(EnergyEfficientAgent &ctx, std::vector<double> &values) = 0;
             };
             class OnlineMode : public IMode {
                 public:
@@ -100,7 +100,7 @@ namespace geopm
                     std::vector<std::pair<std::string, std::string> > report_node(void) const override;
                     std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(void) const override;
                     std::vector<std::string> trace_names(void) const override;
-                    void trace_values(std::vector<double> &values) override;
+                    void trace_values(EnergyEfficientAgent &ctx, std::vector<double> &values) override;
                 private:
                     std::map<uint64_t, double> m_adapt_freq_map;
                     std::map<uint64_t, std::unique_ptr<EnergyEfficientRegion> > m_region_map;
@@ -116,7 +116,7 @@ namespace geopm
                     std::vector<std::pair<std::string, std::string> > report_node(void) const override;
                     std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(void) const override;
                     std::vector<std::string> trace_names(void) const override;
-                    void trace_values(std::vector<double> &values) override;
+                    void trace_values(EnergyEfficientAgent &ctx, std::vector<double> &values) override;
                 private:
                     void parse_env_map(void);
                     std::map<uint64_t, double> m_hash_freq_map;
