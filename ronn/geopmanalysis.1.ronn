@@ -262,12 +262,12 @@ the following additional options:
 
   If an analysis launch has been run once, the same data can be reused
   using the --geopm-analysis-skip-launch option without supplying
-  launcher options (--geopm-launcher, number of nodes, --geopm-ctl, etc.)
-  or application arguments.  This option can also be used to analyze reports and
-  traces generated through another launch method, provided that the
-  profile names and file names are consistent with what the analysis
-  expects.  For example, the following command generates plots for the
-  previous analysis:
+  launcher options (--geopm-analysis-launcher, number of nodes,
+  --geopm-ctl, etc.) or application arguments.  This option can also
+  be used to analyze reports and traces generated through another
+  launch method, provided that the profile names and file names are
+  consistent with what the analysis expects.  For example, the
+  following command generates plots for the previous analysis:
 
     geopmanalysis offline --geopm-analysis-profile-prefix myprof \
                           --geopm-analysis-output-dir myprof \

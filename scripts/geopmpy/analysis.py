@@ -1411,7 +1411,7 @@ def main(argv):
 Usage: geopmanalysis [-h|--help] [--version]
        geopmanalysis ANALYSIS_TYPE --help
        geopmanalysis ANALYSIS_TYPE [--geopm-analysis-skip-launch]
-                                   [--geopm-launcher GEOPM_LAUNCHER]
+                                   [--geopm-analysis-launcher GEOPM_LAUNCHER]
                                    [--geopm-analysis-profile-prefix PROFILE_PREFIX]
                                    [--geopm-analysis-iterations ITERATIONS]
                                    [--geopm-analysis-verbose]

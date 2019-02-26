@@ -142,12 +142,12 @@ class Config(object):
             raise PassThroughError('--geopm-ctl-disable specified; disabling the controller...')
         # Parse the subset of arguments used by geopm
         parser = argparse.ArgumentParser(add_help=False)
-        parser.add_argument('--geopm-report', dest='report', type=str)
+        parser.add_argument('--geopm-report', dest='report', type=str, default='geopm.report')
         parser.add_argument('--geopm-report-signals', dest='report_signals', type=str)
         parser.add_argument('--geopm-trace', dest='trace', type=str)
         parser.add_argument('--geopm-trace-signals', dest='trace_signals', type=str)
         parser.add_argument('--geopm-profile', dest='profile', type=str)
-        parser.add_argument('--geopm-ctl', dest='ctl', type=str)
+        parser.add_argument('--geopm-ctl', dest='ctl', type=str, default='process')
         parser.add_argument('--geopm-agent', dest='agent', type=str)
         parser.add_argument('--geopm-policy', dest='policy', type=str)
         parser.add_argument('--geopm-shmkey', dest='shmkey', type=str)
@@ -1258,7 +1258,7 @@ GEOPM_OPTIONS:
                                trace to "name"
       --geopm-ctl=ctl          use geopm runtime and launch geopm with the
                                "ctl" method, one of "process", "pthread" or
-                               "application"
+                               "application" (default: "process")
       --geopm-agent=agent      specify the agent to be used
       --geopm-policy=pol       use the geopm policy file or shared memory
                                region "pol"
