@@ -123,6 +123,7 @@ namespace geopm
             void register_msr_control(const std::string &control_name);
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
+            static std::vector<std::unique_ptr<IMSR> > parse_json_msrs(const std::string &str);
         private:
             struct m_restore_s {
                 uint64_t value;
