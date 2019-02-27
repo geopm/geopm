@@ -74,9 +74,9 @@ namespace geopm
 
             struct m_freq_ctx_s {
                 size_t num_increase;
+                double energy;
                 CircularBuffer<double> perf_buff;
                 CircularBuffer<double> energy_buff;
-                double energy;
             };
 
             // Used to determine whether performance degraded or not.

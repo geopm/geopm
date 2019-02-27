@@ -66,7 +66,10 @@ namespace geopm
         /// @todo m_freq_step == freq_step else we have to re-key our map
         ///       or make m_freq_step const
 
-        const struct m_freq_ctx_s freq_ctx_stub = {.num_increase = 0};
+        const struct m_freq_ctx_s freq_ctx_stub = {.num_increase = 0,
+                                                   .energy = 0,
+                                                   .perf_buff = CircularBuffer<double>(),
+                                                   .energy_buff = CircularBuffer<double>(),};
         // set up allowed frequency range
         m_freq_min = freq_min;
         m_freq_step = freq_step;
