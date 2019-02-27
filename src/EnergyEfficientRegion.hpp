@@ -36,6 +36,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <memory>
 
 #include "CircularBuffer.hpp"
 
@@ -72,11 +73,16 @@ namespace geopm
                 TRACE_COL_NUM,
             };
 
-            struct m_freq_ctx_s {
-                size_t num_increase;
-                double energy;
-                CircularBuffer<double> perf_buff;
-                CircularBuffer<double> energy_buff;
+            class FreqContext {
+                public:
+                    FreqContext(uint64_t buffer_size);
+                    virtual ~FreqContext() = default;
+                    /// @todo fixup
+                //protected:
+                    size_t num_increase;
+                    double energy;
+                    CircularBuffer<double> perf_buff;
+                    CircularBuffer<double> energy_buff;
             };
 
             // Used to determine whether performance degraded or not.
@@ -101,7 +107,7 @@ namespace geopm
 
             int m_runtime_idx;
             int m_pkg_energy_idx;
-            std::map<uint64_t, struct m_freq_ctx_s> m_freq_ctx_map;
+            std::map<uint64_t, std::unique_ptr<FreqContext> > m_freq_ctx_map;
             std::set<double> m_allowed_freq;
     };
 
