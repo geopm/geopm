@@ -490,7 +490,7 @@ class Launcher(object):
         tmp_script_txt = """\
 #!/bin/bash
 if [ ! -e /tmp/geopm-lscpu.log ]; then
-    lscpu --hex > /tmp/geopm-lscpu.log && chmod a+rw /tmp/geopm-lscpu.log
+    LC_ALL=C lscpu --hex > /tmp/geopm-lscpu.log && chmod a+rw /tmp/geopm-lscpu.log
 fi
 """
         with open(tmp_script, 'w') as fid:
