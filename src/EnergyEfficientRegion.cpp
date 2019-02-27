@@ -134,7 +134,7 @@ namespace geopm
             double curr_perf = perf_metric();
             double curr_energy = energy_metric() - m_start_energy;
             double curr_med_perf = Agg::median(curr_freq_ctx->second->perf_buff.make_vector());
-            //double curr_med_energy = Agg::median(curr_freq_ctx->second->energy_buff.make_vector());
+            double curr_med_energy = Agg::median(curr_freq_ctx->second->energy_buff.make_vector());
                 if (!std::isnan(curr_med_perf)) {
 
                     if (curr_med_perf > 0.0) {
@@ -150,8 +150,8 @@ namespace geopm
                 // assume best min energy is at highest freq if energy follows cpu-bound
                 // pattern; otherwise, energy should decrease with frequency.
                 const auto &step_up_freq_ctx = step_up_freq_ctx_it->second;
-                if (step_up_freq_ctx->energy <
-                    (1.0 - M_ENERGY_MARGIN) * curr_freq_ctx->second->energy) {
+                double step_up_med_energy = Agg::median(step_up_freq_ctx->energy_buff.make_vector());
+                if (step_up_med_energy < (1.0 - M_ENERGY_MARGIN) * curr_med_energy) {
                     do_increase = true;
                 }
             }
