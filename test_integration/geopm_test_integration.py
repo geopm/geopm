@@ -1038,7 +1038,7 @@ class TestIntegration(unittest.TestCase):
         name = 'test_plugin_efficient_freq_offline'
 
         num_node = 1
-        num_rank = 4
+        num_rank = 3
         temp_launcher = geopmpy.launcher.Factory().create(["dummy", geopm_test_launcher.detect_launcher()],
                                                           num_node=num_node, num_rank=num_rank)
         launcher_argv = [
