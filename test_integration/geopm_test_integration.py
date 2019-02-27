@@ -1044,7 +1044,7 @@ class TestIntegration(unittest.TestCase):
         report_path = name + '.report'
         trace_path = name + '.trace'
         num_node = 1
-        num_rank = 4
+        num_rank = 3
         loop_count = 10
         dgemm_bigo = 20.25
         stream_bigo = 1.449
@@ -1125,7 +1125,7 @@ class TestIntegration(unittest.TestCase):
         name = 'test_agent_energy_efficient_online'
 
         num_node = 1
-        num_rank = 4
+        num_rank = 3
         temp_launcher = geopmpy.launcher.Factory().create(["dummy", geopm_test_launcher.detect_launcher()],
                                                           num_node=num_node, num_rank=num_rank)
         launcher_argv = [
