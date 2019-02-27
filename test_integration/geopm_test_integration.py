@@ -1051,7 +1051,7 @@ class TestIntegration(unittest.TestCase):
         report_path = name + '.report'
         trace_path = name + '.trace'
         num_node = 1
-        num_rank = 4
+        num_rank = 3
         loop_count = 5
         dgemm_bigo = 20.25
         stream_bigo = 1.449
@@ -1122,7 +1122,7 @@ class TestIntegration(unittest.TestCase):
         self._options = {'frequency_min': min_freq,
                          'frequency_max': max_freq}
         num_node = 1
-        num_rank = 4
+        num_rank = 3
         loop_count = 25
         dgemm_bigo = 20.25
         stream_bigo = 1.449
