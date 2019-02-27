@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "08065253_436ab629",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-02-27T08:34:13Z",
+      "side": 1,
+      "message": "Does not need access to EnergyEfficientAgent ctx",
+      "range": {
+        "startLine": 437,
+        "startChar": 43,
+        "endLine": 437,
+        "endChar": 55
+      },
+      "revId": "401b2e88772f4e1723aa2045cd60e6ef9a4d1341",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "af1e64b5_3aba42ac",
         "filename": "src/EnergyEfficientRegion.cpp",
         "patchSetId": 8
