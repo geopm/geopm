@@ -227,10 +227,14 @@ namespace geopm
                 report << "Epoch Totals:"
                        << std::endl;
             }
+            double sync_rt = m_region_agg->sample_total(m_region_bulk_runtime_idx, region.hash);
+            double package_energy = m_region_agg->sample_total(m_energy_pkg_idx, region.hash);
+            double energy = package_energy == 0 ? 1 : package_energy / sync_rt;
             report << "    runtime (sec): " << region.per_rank_avg_runtime << std::endl;
-            report << "    sync-runtime (sec): " << m_region_agg->sample_total(m_region_bulk_runtime_idx, region.hash) << std::endl;
-            report << "    package-energy (joules): " << m_region_agg->sample_total(m_energy_pkg_idx, region.hash) << std::endl;
+            report << "    sync-runtime (sec): " << sync_rt << std::endl;
+            report << "    package-energy (joules): " << package_energy << std::endl;
             report << "    dram-energy (joules): " << m_region_agg->sample_total(m_energy_dram_idx, region.hash) << std::endl;
+            report << "    energy (joules): " << energy << std::endl;
             double numer = m_region_agg->sample_total(m_clk_core_idx, region.hash);
             double denom = m_region_agg->sample_total(m_clk_ref_idx, region.hash);
             double freq = denom != 0 ? 100.0 * numer / denom : 0.0;
