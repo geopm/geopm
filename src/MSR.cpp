@@ -40,6 +40,7 @@
 #include <cmath>
 #include <sstream>
 #include <numeric>
+#include <map>
 
 #include "MSR.hpp"
 #include "MSRIO.hpp"
@@ -54,6 +55,22 @@
 
 namespace geopm
 {
+    const std::map<std::string, IMSR::m_function_e> IMSR::M_FUNCTION_STRING = {
+        {"scale", M_FUNCTION_SCALE},
+        {"log_half", M_FUNCTION_LOG_HALF},
+        {"7_bit_float", M_FUNCTION_7_BIT_FLOAT},
+        {"overflow", M_FUNCTION_OVERFLOW}
+    };
+
+    const std::map<std::string, IMSR::m_units_e> IMSR::M_UNITS_STRING = {
+        {"none", M_UNITS_NONE},
+        {"seconds", M_UNITS_SECONDS},
+        {"hertz", M_UNITS_HERTZ},
+        {"watts", M_UNITS_WATTS},
+        {"joules", M_UNITS_JOULES},
+        {"celsius", M_UNITS_CELSIUS}
+    };
+
     /// @brief Class for translating between a double precision value
     /// and the encoded 64 bit MSR value.
     class MSREncode
@@ -207,7 +224,6 @@ namespace geopm
         , m_prog_msr(0)
         , m_prog_field_name(0)
         , m_prog_value(0)
-
     {
         init(signal, control);
     }
@@ -358,5 +374,25 @@ namespace geopm
     int MSR::decode_function(int signal_idx) const
     {
         return m_signal_encode[signal_idx]->decode_function();
+    }
+
+    IMSR::m_function_e IMSR::string_to_function(const std::string &str)
+    {
+        auto it = M_FUNCTION_STRING.find(str);
+        if (it == M_FUNCTION_STRING.end()) {
+            throw Exception("IMSR::string_to_units(): invalid function string",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
+    }
+
+    IMSR::m_units_e IMSR::string_to_units(const std::string &str)
+    {
+        auto it = M_UNITS_STRING.find(str);
+        if (it == M_UNITS_STRING.end()) {
+            throw Exception("IMSR::string_to_units(): invalid units string",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
     }
 }
