@@ -63,7 +63,13 @@ namespace geopm
     const MSR *msr_hsx(size_t &num_msr);
     const MSR *msr_snb(size_t &num_msr);
     const MSR *msr_skx(size_t &num_msr);
-    static const MSR *init_msr_arr(int cpu_id, size_t &arr_size);
+
+    extern std::string arch_msr_json;
+    extern std::string knl_msr_json;
+    extern std::string hsx_msr_json;
+    extern std::string snb_msr_json;
+    extern std::string skx_msr_json;
+    static std::vector<std::unique_ptr<IMSR> > init_msr_arr(int cpu_id);
 
     MSRIOGroup::MSRIOGroup()
         : MSRIOGroup(platform_topo(), std::unique_ptr<IMSRIO>(new MSRIO), cpuid(), geopm_sched_num_cpu())
@@ -82,11 +88,8 @@ namespace geopm
         , m_per_cpu_restore(m_num_cpu)
         , m_is_fixed_enabled(false)
     {
-        size_t num_msr = 0;
-        const MSR *msr_arr = init_msr_arr(cpuid, num_msr);
-        for (const MSR *msr_ptr = msr_arr;
-             msr_ptr != msr_arr + num_msr;
-             ++msr_ptr) {
+        m_msr_arr = init_msr_arr(cpuid);
+        for (const auto &msr_ptr : m_msr_arr) {
             m_name_msr_map.insert(std::pair<std::string, const IMSR &>(msr_ptr->name(), *msr_ptr));
             for (int idx = 0; idx < msr_ptr->num_signal(); idx++) {
                 register_msr_signal(m_name_prefix + msr_ptr->name() + ":" + msr_ptr->signal_name(idx));
@@ -533,16 +536,14 @@ namespace geopm
 
     std::string MSRIOGroup::msr_whitelist(int cpuid) const
     {
-        size_t num_msr = 0;
-        const MSR *msr_arr = init_msr_arr(cpuid, num_msr);
         std::ostringstream whitelist;
         whitelist << "# MSR        Write Mask           # Comment" << std::endl;
         whitelist << std::setfill('0') << std::hex;
-        for (size_t idx = 0; idx < num_msr; idx++) {
-            std::string msr_name = msr_arr[idx].name();
-            uint64_t msr_offset = msr_arr[idx].offset();
-            size_t num_signals = msr_arr[idx].num_signal();
-            size_t num_controls = msr_arr[idx].num_control();
+        for (const auto &msr : m_msr_arr) {
+            std::string msr_name = msr->name();
+            uint64_t msr_offset = msr->offset();
+            size_t num_signals = msr->num_signal();
+            size_t num_controls = msr->num_control();
             uint64_t write_mask = 0;
 
             if (!num_signals && !num_controls) {
@@ -553,7 +554,7 @@ namespace geopm
             if (num_controls) {
                 for (size_t cidx = 0; cidx < num_controls; cidx++) {
                     uint64_t idx_field = 0, idx_mask = 0;
-                    msr_arr[idx].control(cidx, 1, idx_field, idx_mask);
+                    msr->control(cidx, 1, idx_field, idx_mask);
                     write_mask |= idx_mask;
                 }
             }
@@ -811,29 +812,38 @@ namespace geopm
         return result;
     }
 
-    const MSR *init_msr_arr(int cpu_id, size_t &arr_size)
+    std::vector<std::unique_ptr<IMSR> > init_msr_arr(int cpu_id)
     {
-        const MSR *msr_arr = NULL;
-        arr_size = 0;
+        std::vector<std::unique_ptr<IMSR> > msr_arr = MSRIOGroup::parse_json_msrs(arch_msr_json);
+        // todo: parse arch registers first, then platform specific
+        std::vector<std::unique_ptr<IMSR> > msr_arr_platform;
         switch (cpu_id) {
             case MSRIOGroup::M_CPUID_KNL:
-                msr_arr = msr_knl(arr_size);
+                msr_arr_platform = MSRIOGroup::parse_json_msrs(knl_msr_json);
                 break;
             case MSRIOGroup::M_CPUID_HSX:
             case MSRIOGroup::M_CPUID_BDX:
-                msr_arr = msr_hsx(arr_size);
+                msr_arr_platform = MSRIOGroup::parse_json_msrs(hsx_msr_json);
                 break;
             case MSRIOGroup::M_CPUID_SNB:
             case MSRIOGroup::M_CPUID_IVT:
-                msr_arr = msr_snb(arr_size);
+                msr_arr_platform = MSRIOGroup::parse_json_msrs(snb_msr_json);
                 break;
             case MSRIOGroup::M_CPUID_SKX:
-	        msr_arr = msr_skx(arr_size);
+                msr_arr_platform = MSRIOGroup::parse_json_msrs(skx_msr_json);
                 break;
             default:
                 throw Exception("MSRIOGroup: Unsupported CPUID",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
+        // todo: search path for additional json files to parse
+        std::vector<std::unique_ptr<IMSR> > msr_arr_custom;
+        msr_arr.insert(msr_arr.end(),
+                       std::make_move_iterator(msr_arr_platform.begin()),
+                       std::make_move_iterator(msr_arr_platform.end()));
+        msr_arr.insert(msr_arr.end(),
+                       std::make_move_iterator(msr_arr_custom.begin()),
+                       std::make_move_iterator(msr_arr_custom.end()));
         return msr_arr;
     }
 
@@ -1045,9 +1055,12 @@ namespace geopm
                 }
                 // field is valid, add to list
                 IMSR::m_encode_s param {
-                    //.begin_bit = field_data["begin_bit"].number_value(),
-                    //    .end_bit = field_data["end_bit"].number_value(),
-                    .domain = IPlatformTopo::domain_name_to_type(msr_data["domain"].string_value())
+                    .begin_bit = field_data["begin_bit"].number_value(),
+                    .end_bit = field_data["end_bit"].number_value(),
+                    .domain = IPlatformTopo::domain_name_to_type(msr_data["domain"].string_value()),
+                    .function = IMSR::string_to_function(field_data["function"].string_value()),
+                    .units = IMSR::string_to_units(field_data["units"].string_value()),
+                    .scalar = field_data["scalar"].number_value(),
                 };
                 signals.push_back({field_name, param});
                 if (field_data["writeable"].bool_value()) {
