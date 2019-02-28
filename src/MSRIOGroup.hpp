@@ -144,6 +144,8 @@ namespace geopm
             std::unique_ptr<IMSRIO> m_msrio;
             int m_cpuid;
             std::vector<bool> m_is_adjusted;
+            // TODO: figure out diff with m_name_msr_map
+            std::vector<std::unique_ptr<IMSR> > m_msr_arr;
             // Mappings from names to all valid signals and controls
             std::map<std::string, const IMSR &> m_name_msr_map;
             std::map<std::string, std::vector<std::shared_ptr<IMSRSignal> > > m_name_cpu_signal_map;
