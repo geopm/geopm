@@ -53,6 +53,7 @@ using geopm::MSRControl;
 using geopm::IMSRControl;
 using geopm::IPlatformIO;
 using geopm::IPlatformTopo;
+using geopm::Exception;
 
 class MSRTest : public :: testing :: Test
 {
@@ -185,10 +186,10 @@ TEST_F(MSRTest, msr)
 {
     const IMSR *msr = m_msrs[2];
     uint64_t field = 0, mask = 0;
-    EXPECT_THROW(msr->control(2, 80000000000000.0, field, mask), geopm::Exception);
-    EXPECT_THROW(msr->control(2, -1.0, field, mask), geopm::Exception);
-    EXPECT_THROW(msr->signal_name(-1), geopm::Exception);
-    EXPECT_THROW(msr->control_name(-1), geopm::Exception);
+    EXPECT_THROW(msr->control(2, 80000000000000.0, field, mask), Exception);
+    EXPECT_THROW(msr->control(2, -1.0, field, mask), Exception);
+    EXPECT_THROW(msr->signal_name(-1), Exception);
+    EXPECT_THROW(msr->control_name(-1), Exception);
 
     int msr_idx = 0;
     for (auto msr_it = m_msrs.begin(); msr_it != m_msrs.end(); ++msr_it, msr_idx++) {
@@ -296,7 +297,7 @@ TEST_F(MSRTest, msr_signal)
     EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, sig.domain_type());
     EXPECT_EQ(m_cpu_idx, sig.cpu_idx());
     /// @todo check exception mesage for field mapping error.
-    EXPECT_THROW(sig.sample(), geopm::Exception);
+    EXPECT_THROW(sig.sample(), Exception);
     uint64_t offset = sig.offset();
     EXPECT_EQ(m_msr_offsets[msr_idx], offset);
     sig.map_field(&m_signal_field);
@@ -315,11 +316,31 @@ TEST_F(MSRTest, msr_control)
     EXPECT_EQ((m_msr_names[msr_idx] + ":" + m_control_names[con_idx]), con.name());
     EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, con.domain_type());
     EXPECT_EQ(m_cpu_idx, con.cpu_idx());
-    EXPECT_THROW(con.adjust(m_control_value), geopm::Exception);
+    EXPECT_THROW(con.adjust(m_control_value), Exception);
     uint64_t offset = con.offset();
     EXPECT_EQ(m_msr_offsets[msr_idx], offset);
     con.map_field(&field, &mask);
     con.adjust(m_control_value);
     EXPECT_EQ(m_expected_con_masks[con_idx], mask);
     EXPECT_EQ(m_expected_con_fields[con_idx], field);
+}
+
+TEST_F(MSRTest, string_to_function)
+{
+    EXPECT_EQ(IMSR::M_FUNCTION_SCALE, IMSR::string_to_function("scale"));
+    EXPECT_EQ(IMSR::M_FUNCTION_LOG_HALF, IMSR::string_to_function("log_half"));
+    EXPECT_EQ(IMSR::M_FUNCTION_7_BIT_FLOAT, IMSR::string_to_function("7_bit_float"));
+    EXPECT_EQ(IMSR::M_FUNCTION_OVERFLOW, IMSR::string_to_function("overflow"));
+    EXPECT_THROW(IMSR::string_to_function("invalid"), Exception);
+}
+
+TEST_F(MSRTest, string_to_units)
+{
+    EXPECT_EQ(IMSR::M_UNITS_NONE, IMSR::string_to_units("none"));
+    EXPECT_EQ(IMSR::M_UNITS_SECONDS, IMSR::string_to_units("seconds"));
+    EXPECT_EQ(IMSR::M_UNITS_HERTZ, IMSR::string_to_units("hertz"));
+    EXPECT_EQ(IMSR::M_UNITS_WATTS, IMSR::string_to_units("watts"));
+    EXPECT_EQ(IMSR::M_UNITS_JOULES, IMSR::string_to_units("joules"));
+    EXPECT_EQ(IMSR::M_UNITS_CELSIUS, IMSR::string_to_units("celsius"));
+    EXPECT_THROW(IMSR::string_to_units("invalid"), Exception);
 }
