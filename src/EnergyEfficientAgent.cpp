@@ -420,7 +420,7 @@ namespace geopm
         //m_region_map.find(ctx.m_last_region.first).trace_values(values);
         //return m_region_map.trace_names();
         /// todo pipe thru to static?
-        return {"m_is_learning", "m_curr_step", "m_target", "num_increase",
+        return {"m_is_learning", "m_learn_count", "m_curr_step", "m_target", "num_increase",
                 "perf_metric", "energy_metric", "med_filt_perf_metric", "med_filt_energy_metric"};
     }
 

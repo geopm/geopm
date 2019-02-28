@@ -63,6 +63,7 @@ namespace geopm
         private:
             enum trace_col_e {
                 TRACE_COL_M_IS_LEARNING,
+                TRACE_COL_M_LEARN_COUNT,
                 TRACE_COL_M_CURR_STEP,
                 TRACE_COL_M_TARGET,
                 TRACE_COL_NUM_INCREASE,
@@ -79,8 +80,8 @@ namespace geopm
                     virtual ~FreqContext() = default;
                     /// @todo fixup
                 //protected:
+                    int m_count;
                     size_t num_increase;
-                    double energy;
                     CircularBuffer<double> perf_buff;
                     CircularBuffer<double> energy_buff;
             };
@@ -99,11 +100,13 @@ namespace geopm
             bool m_is_learning;
             int m_curr_step;
             double m_target;
+            double m_curr_perf;
+            double m_start_energy;
+            double m_curr_energy;
             double m_freq_min;
             double m_freq_max;
             double m_freq_step;
             uint64_t m_max_step;
-            double m_start_energy;
 
             int m_runtime_idx;
             int m_pkg_energy_idx;
