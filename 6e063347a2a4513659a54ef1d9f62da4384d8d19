@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c514070_5a46d2b4",
+        "filename": "src/Reporter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-28T22:30:00Z",
+      "side": 1,
+      "message": "check sync_rt \u003d\u003d 0 for the denominator",
+      "range": {
+        "startLine": 232,
+        "startChar": 28,
+        "endLine": 232,
+        "endChar": 47
+      },
+      "revId": "6e063347a2a4513659a54ef1d9f62da4384d8d19",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
