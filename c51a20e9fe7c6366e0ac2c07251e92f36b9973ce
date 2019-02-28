@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "76b8f063_421d6418",
+        "filename": "src/EnergyEfficientRegion.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-02-28T22:04:15Z",
+      "side": 1,
+      "message": "these could move inside the perf.size() \u003e 0 if",
+      "revId": "c51a20e9fe7c6366e0ac2c07251e92f36b9973ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
