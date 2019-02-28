@@ -359,4 +359,40 @@ namespace geopm
     {
         return m_signal_encode[signal_idx]->decode_function();
     }
+
+    IMSR::m_function_e IMSR::string_to_function(const std::string &str)
+    {
+        m_function_e result = M_FUNCTION_SCALE;
+        if (str == "log_half") {
+            result = M_FUNCTION_LOG_HALF;
+        }
+        else if (str == "7_bit_float") {
+            result = M_FUNCTION_7_BIT_FLOAT;
+        }
+        else if (str == "overflow") {
+            result = M_FUNCTION_OVERFLOW;
+        }
+        return result;
+    }
+
+    IMSR::m_units_e IMSR::string_to_units(const std::string &str)
+    {
+        m_units_e result = M_UNITS_NONE;
+        if (str == "seconds") {
+            result = M_UNITS_SECONDS;
+        }
+        else if (str == "hertz") {
+            result = M_UNITS_HERTZ;
+        }
+        else if (str == "watts") {
+            result = M_UNITS_WATTS;
+        }
+        else if (str == "joules") {
+            result = M_UNITS_JOULES;
+        }
+        else if (str == "celsius") {
+            result = M_UNITS_CELSIUS;
+        }
+        return result;
+    }
 }

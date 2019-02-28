@@ -323,3 +323,21 @@ TEST_F(MSRTest, msr_control)
     EXPECT_EQ(m_expected_con_masks[con_idx], mask);
     EXPECT_EQ(m_expected_con_fields[con_idx], field);
 }
+
+TEST_F(MSRTest, string_to_function)
+{
+    EXPECT_EQ(IMSR::M_FUNCTION_SCALE, IMSR::string_to_function("scale"));
+    EXPECT_EQ(IMSR::M_FUNCTION_LOG_HALF, IMSR::string_to_function("log_half"));
+    EXPECT_EQ(IMSR::M_FUNCTION_7_BIT_FLOAT, IMSR::string_to_function("7_bit_float"));
+    EXPECT_EQ(IMSR::M_FUNCTION_OVERFLOW, IMSR::string_to_function("overflow"));
+}
+
+TEST_F(MSRTest, string_to_units)
+{
+    EXPECT_EQ(IMSR::M_UNITS_NONE, IMSR::string_to_units("none"));
+    EXPECT_EQ(IMSR::M_UNITS_SECONDS, IMSR::string_to_units("seconds"));
+    EXPECT_EQ(IMSR::M_UNITS_HERTZ, IMSR::string_to_units("hertz"));
+    EXPECT_EQ(IMSR::M_UNITS_WATTS, IMSR::string_to_units("watts"));
+    EXPECT_EQ(IMSR::M_UNITS_JOULES, IMSR::string_to_units("joules"));
+    EXPECT_EQ(IMSR::M_UNITS_CELSIUS, IMSR::string_to_units("celsius"));
+}
