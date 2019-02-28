@@ -64,7 +64,7 @@ namespace geopm
 
     EnergyEfficientRegion::FreqContext::FreqContext(uint64_t buffer_size)
         : num_increase(0)
-        , energy(0)
+        //, energy(0)
     {
         perf_buff.set_capacity(buffer_size);
         energy_buff.set_capacity(buffer_size);
@@ -136,7 +136,7 @@ namespace geopm
             double curr_perf = perf_metric();
             double curr_energy = energy_metric() - m_start_energy;
             double curr_med_perf = Agg::median(curr_freq_ctx->second->perf_buff.make_vector());
-            //double curr_med_energy = Agg::median(curr_freq_ctx->second->energy_buff.make_vector());
+            double curr_med_energy = Agg::median(curr_freq_ctx->second->energy_buff.make_vector());
             if (!std::isnan(curr_med_perf)) {
 
                 if (curr_med_perf > 0.0) {
@@ -152,10 +152,10 @@ namespace geopm
                 // assume best min energy is at highest freq if energy follows cpu-bound
                 // pattern; otherwise, energy should decrease with frequency.
                 const auto &step_up_freq_ctx = step_up_freq_ctx_it->second;
-                //double step_up_med_energy = Agg::median(step_up_freq_ctx->energy_buff.make_vector());
-                double step_up_energy = step_up_freq_ctx->energy;
-                //if (step_up_med_energy < (1.0 - M_ENERGY_MARGIN) * curr_med_energy) {
-                if (step_up_energy < (1.0 - M_ENERGY_MARGIN) * curr_energy) {
+                double step_up_med_energy = Agg::median(step_up_freq_ctx->energy_buff.make_vector());
+                //double step_up_energy = step_up_freq_ctx->energy;
+                //if (step_up_energy < (1.0 - M_ENERGY_MARGIN) * curr_energy) {
+                if (step_up_med_energy < (1.0 - M_ENERGY_MARGIN) * curr_med_energy) {
                     do_increase = true;
                 }
             }
@@ -187,7 +187,7 @@ namespace geopm
             }
             if (!std::isnan(curr_energy) && curr_energy != 0.0) {
                 curr_freq_ctx->second->energy_buff.insert(curr_energy);
-                curr_freq_ctx->second->energy = curr_energy;
+                //curr_freq_ctx->second->energy = curr_energy;
             }
         }
     }

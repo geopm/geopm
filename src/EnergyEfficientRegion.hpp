@@ -80,7 +80,7 @@ namespace geopm
                     /// @todo fixup
                 //protected:
                     size_t num_increase;
-                    double energy;
+                    //double energy;
                     CircularBuffer<double> perf_buff;
                     CircularBuffer<double> energy_buff;
             };
