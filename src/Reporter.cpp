@@ -227,10 +227,14 @@ namespace geopm
                 report << "Epoch Totals:"
                        << std::endl;
             }
+            double sync_rt = m_region_agg->sample_total(m_region_bulk_runtime_idx, region.hash);
+            double package_energy = m_region_agg->sample_total(m_energy_pkg_idx, region.hash);
+            double power = sync_rt == 0 ? 0 : package_energy / sync_rt;
             report << "    runtime (sec): " << region.per_rank_avg_runtime << std::endl;
-            report << "    sync-runtime (sec): " << m_region_agg->sample_total(m_region_bulk_runtime_idx, region.hash) << std::endl;
-            report << "    package-energy (joules): " << m_region_agg->sample_total(m_energy_pkg_idx, region.hash) << std::endl;
+            report << "    sync-runtime (sec): " << sync_rt << std::endl;
+            report << "    package-energy (joules): " << package_energy << std::endl;
             report << "    dram-energy (joules): " << m_region_agg->sample_total(m_energy_dram_idx, region.hash) << std::endl;
+            report << "    power (watts): " << power << std::endl;
             double numer = m_region_agg->sample_total(m_clk_core_idx, region.hash);
             double denom = m_region_agg->sample_total(m_clk_ref_idx, region.hash);
             double freq = denom != 0 ? 100.0 * numer / denom : 0.0;
@@ -259,10 +263,13 @@ namespace geopm
         report << "    epoch-runtime-ignore (sec): " << application_io.total_epoch_runtime_ignore() << std::endl;
 
         double total_runtime = application_io.total_app_runtime();
+        double app_energy_pkg = application_io.total_app_energy_pkg();
+        double avg_power = total_runtime == 0 ? 0 : app_energy_pkg / total_runtime;
         report << "Application Totals:" << std::endl
                << "    runtime (sec): " << total_runtime << std::endl
-               << "    package-energy (joules): " << application_io.total_app_energy_pkg() << std::endl
+               << "    package-energy (joules): " << app_energy_pkg << std::endl
                << "    dram-energy (joules): " << application_io.total_app_energy_dram() << std::endl
+               << "    power (watts): " << avg_power << std::endl
                << "    mpi-runtime (sec): " << application_io.total_app_runtime_mpi() << std::endl
                << "    ignore-time (sec): " << application_io.total_app_runtime_ignore() << std::endl;
 
