@@ -40,6 +40,7 @@
 #include <cmath>
 #include <sstream>
 #include <numeric>
+#include <map>
 
 #include "MSR.hpp"
 #include "MSRIO.hpp"
@@ -358,5 +359,40 @@ namespace geopm
     int MSR::decode_function(int signal_idx) const
     {
         return m_signal_encode[signal_idx]->decode_function();
+    }
+
+    IMSR::m_function_e IMSR::string_to_function(const std::string &str)
+    {
+        static std::map<std::string, m_function_e> func_string {
+            {"scale", M_FUNCTION_SCALE},
+            {"log_half", M_FUNCTION_LOG_HALF},
+            {"7_bit_float", M_FUNCTION_7_BIT_FLOAT},
+            {"overflow", M_FUNCTION_OVERFLOW}
+        };
+        auto it = func_string.find(str);
+        if (it == func_string.end()) {
+            throw Exception("IMSR::string_to_units(): invalid function string",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
+    }
+
+    IMSR::m_units_e IMSR::string_to_units(const std::string &str)
+    {
+        static std::map<std::string, m_units_e> units_string {
+            {"none", M_UNITS_NONE},
+            {"seconds", M_UNITS_SECONDS},
+            {"hertz", M_UNITS_HERTZ},
+            {"watts", M_UNITS_WATTS},
+            {"joules", M_UNITS_JOULES},
+            {"celsius", M_UNITS_CELSIUS},
+
+        };
+        auto it = units_string.find(str);
+        if (it == units_string.end()) {
+            throw Exception("IMSR::string_to_units(): invalid units string",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
     }
 }

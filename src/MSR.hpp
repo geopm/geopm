@@ -149,6 +149,12 @@ namespace geopm
             /// @brief The function used to decode the MSR value as defined
             ///        in the m_function_e enum.
             virtual int decode_function(int signal_idx) const = 0;
+
+            /// @brief Convert a string to the corresponding m_function_e value
+            static m_function_e string_to_function(const std::string &str);
+            /// @brief Convert a string to the corresponding m_function_e value
+            /// @todo Consider leaving units field as a string.  enum is not being used.
+            static m_units_e string_to_units(const std::string &str);
     };
 
     class MSREncode;
