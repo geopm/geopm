@@ -183,10 +183,11 @@ src/geopmbench_main.cpp
 src/geopmctl_main.c
 src/geopmread_main.cpp
 src/geopmwrite_main.cpp
-src/msr_hsx.cpp
-src/msr_knl.cpp
-src/msr_skx.cpp
-src/msr_snb.cpp
+src/msr_data_arch.cpp
+src/msr_data_hsx.cpp
+src/msr_data_knl.cpp
+src/msr_data_skx.cpp
+src/msr_data_snb.cpp
 test/AgentFactoryTest.cpp
 test/AggTest.cpp
 test/ApplicationIOTest.cpp
