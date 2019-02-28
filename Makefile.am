@@ -499,10 +499,11 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/geopm_time.h \
                             src/geopm_version.c \
                             src/geopm_version.h \
-                            src/msr_hsx.cpp \
-                            src/msr_knl.cpp \
-                            src/msr_skx.cpp \
-                            src/msr_snb.cpp \
+                            src/msr_data_arch.cpp \
+                            src/msr_data_hsx.cpp \
+                            src/msr_data_knl.cpp \
+                            src/msr_data_skx.cpp \
+                            src/msr_data_snb.cpp \
                             # end
 
 geopmread_SOURCES = src/geopmread_main.cpp \
