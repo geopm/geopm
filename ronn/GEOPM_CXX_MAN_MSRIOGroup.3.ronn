@@ -271,6 +271,14 @@ It relies on **geopm::MSR(3)** and **geopm::MSRIO(3)**.
     can be determined by running `lscpu` and appending the CPU family
     in hex to the Model in hex.
 
+## ENVIRONMENT
+If the `GEOPM_PLUGIN_PATH` environment variable is set to a
+colon-separated list of paths, the paths will be checked for files
+starting with "msr_" and ending in ".json".  The default plugin path
+will also be searched.  The MSRIOGroup will attempt to load additional
+MSR definitions from any JSON file it finds.  Refer to the
+documentation for `--geopm-plugin-path` in **geopmlaunch(1)**.
+
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
 
@@ -278,4 +286,5 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
 **geopm(7)**,
 **geopm::IOGroup(3)**,
 **geopm::MSR(3)**,
-**geopm::MSRIO(3)**
+**geopm::MSRIO(3)**,
+**geopmlaunch(1)**
