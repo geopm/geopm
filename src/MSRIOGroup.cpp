@@ -32,6 +32,7 @@
 
 #include <cpuid.h>
 #include <cmath>
+
 #include <sstream>
 #include <algorithm>
 #include <utility>
@@ -832,8 +833,27 @@ namespace geopm
                 throw Exception("MSRIOGroup: Unsupported CPUID",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        // todo: search path for additional json files to parse
+        // search path for additional json files to parse
         std::vector<std::unique_ptr<IMSR> > msr_arr_custom;
+        auto custom_path = getenv("GEOPM_MSRIOGROUP_CUSTOM_MSR_PATH");
+        if (custom_path != nullptr) {
+            std::vector<std::string> dirs = split_string(custom_path, ":");
+            for (const auto &dir : dirs) {
+                auto files = list_directory_files(dir);
+                for (const auto &file : files) {
+                    std::string filename = dir + "/" + file;
+                    size_t size = filename.size();
+                    if (string_ends_with(filename, ".json")) {
+                        std::string data = read_file(filename);
+                        std::vector<std::unique_ptr<IMSR> > temp = MSRIOGroup::parse_json_msrs(data);
+                        msr_arr_custom.insert(msr_arr_custom.begin(),
+                                              std::make_move_iterator(temp.begin()),
+                                              std::make_move_iterator(temp.end()));
+                    }
+                }
+            }
+        }
+
         msr_arr.insert(msr_arr.end(),
                        std::make_move_iterator(msr_arr_platform.begin()),
                        std::make_move_iterator(msr_arr_platform.end()));
