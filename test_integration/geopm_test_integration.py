@@ -1347,6 +1347,29 @@ class TestIntegrationGeopmio(unittest.TestCase):
             else:
                 self.check_output_range([signal, "board", "0"], *val_range)
 
+    def test_geopmread_custom_msr(self):
+        '''
+        Check that MSRIOGroup picks up additional MSRs in path.
+        '''
+        self.exec_name = "geopmread"
+        path = os.path.join(
+           os.path.dirname(
+            os.path.dirname(
+             os.path.realpath(__file__))),
+           'examples/custom_msr/')
+        custom_env = os.environ.copy()
+        custom_env['GEOPM_MSRIOGROUP_CUSTOM_PATH'] = path
+        all_signals = []
+        try:
+            proc = subprocess.Popen([self.exec_name], env=custom_env,
+                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            for line in proc.stdout:
+                if self.skip_warning_string not in line:
+                    all_signals.append(line.strip())
+        except subprocess.CalledProcessError as ex:
+            sys.stderr.write('{}\n'.format(ex.output))
+        self.assertIn('MSR::CORE_PERF_LIMIT_REASONS#', all_signals)
+
     def test_geopmwrite_command_line(self):
         '''
         Check that geopmwrite commandline arguments work.

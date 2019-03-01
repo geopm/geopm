@@ -271,6 +271,12 @@ It relies on **geopm::MSR(3)** and **geopm::MSRIO(3)**.
     can be determined by running `lscpu` and appending the CPU family
     in hex to the Model in hex.
 
+## ENVIRONMENT
+If the `GEOPM_MSRIOGROUP_CUSTOM_PATH` environment variable is set to a
+colon-separated list of paths, the paths will be checked for files
+ending in ".json".  The MSRIOGroup will attempt to load additional MSR
+definitions from any JSON file it finds.
+
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
 
