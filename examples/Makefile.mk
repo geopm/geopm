@@ -35,6 +35,7 @@ EXTRA_DIST += examples/README.md \
               examples/amg/README \
               examples/comd/0001-Marked-up-CoMD-code-for-use-with-GEOPM.patch \
               examples/comd/README \
+              examples/custom_msr/msr_reasons.json \
               examples/hacc/README \
               examples/minife/0001-Adding-geopm-markup-to-CORAL-version-of-miniFE.patch \
               examples/minife/0001-Optimized-MiniFE-code-for-Intel-hardware.patch \
