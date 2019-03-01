@@ -32,6 +32,8 @@
 
 #include <cpuid.h>
 #include <cmath>
+#include <dirent.h>
+
 #include <sstream>
 #include <algorithm>
 #include <utility>
@@ -838,6 +840,28 @@ namespace geopm
         }
         // todo: search path for additional json files to parse
         std::vector<std::unique_ptr<IMSR> > msr_arr_custom;
+        auto custom_path = getenv("GEOPM_MSRIOGROUP_CUSTOM_MSR_PATH");
+        if (custom_path != nullptr) {
+            // see geopm_plugin.cpp
+            std::vector<std::string> dirs = split_string(custom_path, ":");
+            for (const auto &dir : dirs) {
+                DIR *did = opendir(dir.c_str());
+                if (did) {
+                    struct dirent *entry;
+                    while ((entry = readdir(did))) {
+                        std::string filename {entry->d_name};
+                        // @todo: check for .json suffix
+                        std::string data = read_file(filename);
+                        std::vector<std::unique_ptr<IMSR> > temp = MSRIOGroup::parse_json_msrs(data);
+                        msr_arr_custom.insert(msr_arr_custom.begin(),
+                                              std::make_move_iterator(temp.begin()),
+                                              std::make_move_iterator(temp.end()));
+                    }
+                    closedir(did);
+                }
+            }
+        }
+
         msr_arr.insert(msr_arr.end(),
                        std::make_move_iterator(msr_arr_platform.begin()),
                        std::make_move_iterator(msr_arr_platform.end()));
