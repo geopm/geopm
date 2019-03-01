@@ -1,0 +1,188 @@
+{
+    "arch": "extra_skx",
+    "cpuid": "N/A",
+    "msrs": {
+        "CORE_PERF_LIMIT_REASONS": {
+            "offset": "0x64F",
+            "domain": "package",
+            "fields": {
+                "PROCHOT_STATUS": {
+                    "begin_bit": 0,
+                    "end_bit": 0,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": false
+                },
+                "THERMAL_STATUS": {
+                    "begin_bit": 1,
+                    "end_bit": 1,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": false
+                },
+                "RESIDENCY_STATE_REGULATION_STATUS": {
+                    "begin_bit": 4,
+                    "end_bit": 4,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": false
+                },
+                "RATL_STATUS": {
+                    "begin_bit": 5,
+                    "end_bit": 5,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": false
+                },
+                "VR_THERM_ALERT_STATUS": {
+                    "begin_bit": 6,
+                    "end_bit": 6,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": false
+                },
+                "VR_TDC_ALERT_STATUS": {
+                    "begin_bit": 7,
+                    "end_bit": 7,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": false
+                },
+                "OTHER_STATUS": {
+                    "begin_bit": 8,
+                    "end_bit": 8,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": false
+                },
+                "PL1_STATUS": {
+                    "begin_bit": 10,
+                    "end_bit": 10,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": false
+                },
+                "PL2_STATUS": {
+                    "begin_bit": 11,
+                    "end_bit": 11,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": false
+                },
+                "MAX_TURBO_STATUS": {
+                    "begin_bit": 12,
+                    "end_bit": 12,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": false
+                },
+                "TURBO_TRANS_ATTENUATION": {
+                    "begin_bit": 13,
+                    "end_bit": 13,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": false
+                },
+                "PROCHOT_LOG": {
+                    "begin_bit": 16,
+                    "end_bit": 16,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": true
+                },
+                "THERMAL_LOG": {
+                    "begin_bit": 17,
+                    "end_bit": 17,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": true
+                },
+                "RESIDENCY_STATE_REGULATION_LOG": {
+                    "begin_bit": 20,
+                    "end_bit": 20,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": true
+                },
+                "RATL_LOG": {
+                    "begin_bit": 21,
+                    "end_bit": 21,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": true
+                },
+                "VR_THERM_ALERT_LOG": {
+                    "begin_bit": 22,
+                    "end_bit": 22,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": true
+                },
+                "VR_TDC_LOG": {
+                    "begin_bit": 23,
+                    "end_bit": 23,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": true
+                },
+                "OTHER_LOG": {
+                    "begin_bit": 24,
+                    "end_bit": 24,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": true
+                },
+                "PL1_LOG": {
+                    "begin_bit": 26,
+                    "end_bit": 26,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": true
+                },
+                "PL2_LOG": {
+                    "begin_bit": 27,
+                    "end_bit": 27,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": true
+                },
+                "MAX_TURBO_LIMIT_LOG": {
+                    "begin_bit": 28,
+                    "end_bit": 28,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": true
+                },
+                "TURBO_TRANS_ATTENUATION_LOG": {
+                    "begin_bit": 29,
+                    "end_bit": 29,
+                    "function": "scale",
+                    "units": "none",
+                    "scalar": 1.0,
+                    "writeable": true
+                }
+            }
+        }
+    }
+}
