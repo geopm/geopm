@@ -92,6 +92,12 @@ periodically the user can alleviate load imbalance on larger time
 scales than the regions provide.  This is done by marking iterations
 through an outer loop in the application, the "epoch".
 
+`WARNING:` All of the functions described herein require that MPI has
+been initialized (e.g. via MPI_Init()) and is properly functioning
+before they are invoked.  These functions make use of various MPI
+calls in their implementations and will return errors if MPI is not
+initialized.
+
   * `geopm_prof_region`():
     registers an application region.  The _region_name_ and _hint_ are
     input parameters, and the _region_id_ is output.  The _region_id_
