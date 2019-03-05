@@ -415,6 +415,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/EpochRuntimeRegulator.hpp \
                             src/Exception.cpp \
                             src/Exception.hpp \
+                            src/FrequencyMapAgent.cpp \
+                            src/FrequencyMapAgent.hpp \
                             src/Helper.cpp \
                             src/Helper.hpp \
                             src/IOGroup.cpp \

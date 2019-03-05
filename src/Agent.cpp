@@ -40,6 +40,7 @@
 #include "PowerBalancerAgent.hpp"
 #include "PowerGovernorAgent.hpp"
 #include "EnergyEfficientAgent.hpp"
+#include "FrequencyMapAgent.hpp"
 #include "config.h"
 
 namespace geopm
@@ -64,6 +65,10 @@ namespace geopm
                                           EnergyEfficientAgent::make_plugin,
                                           Agent::make_dictionary(EnergyEfficientAgent::policy_names(),
                                                                  EnergyEfficientAgent::sample_names()));
+        g_plugin_factory->register_plugin(FrequencyMapAgent::plugin_name(),
+                                          FrequencyMapAgent::make_plugin,
+                                          Agent::make_dictionary(FrequencyMapAgent::policy_names(),
+                                                                 FrequencyMapAgent::sample_names()));
     }
 
     PluginFactory<Agent> &agent_factory(void)
