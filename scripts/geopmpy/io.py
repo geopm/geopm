@@ -1181,7 +1181,8 @@ class AgentConf(object):
 
     """
     def __init__(self, path, agent='monitor', options=dict()):
-        supported_agents = {'monitor', 'power_governor', 'power_balancer', 'energy_efficient'}
+        supported_agents = {'monitor', 'power_governor', 'power_balancer', 'energy_efficient',
+                            'frequency_map'}
         self._path = path
         if agent not in supported_agents:
             raise SyntaxError('AgentConf does not support agent type: ' + agent + '!')
@@ -1209,6 +1210,6 @@ class AgentConf(object):
                     outfile.write("{{\"POWER_CAP\" : {}, \"STEP_COUNT\" : {}, \"MAX_EPOCH_RUNTIME\" : {}"\
                                   ", \"POWER_SLACK\" : {}}}\n"\
                                   .format(str(self._options['power_budget']), str(0.0), str(0.0), str(0.0)))
-            elif self._agent == 'energy_efficient':
+            elif self._agent in ['energy_efficient', 'frequency_map']:
                     outfile.write("{{\"FREQ_MIN\" : {}, \"FREQ_MAX\" : {}}}\n"\
                                   .format(str(self._options['frequency_min']), str(self._options['frequency_max'])))
