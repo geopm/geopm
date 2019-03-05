@@ -208,6 +208,7 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 %{_includedir}/geopm/EnergyEfficientAgent.hpp
 %{_includedir}/geopm/EnergyEfficientRegion.hpp
 %{_includedir}/geopm/Exception.hpp
+%{_includedir}/geopm/FrequencyMapAgent.hpp
 %{_includedir}/geopm/Helper.hpp
 %{_includedir}/geopm/IOGroup.hpp
 %{_includedir}/geopm/MSR.hpp
