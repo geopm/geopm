@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "265e2999_38c75bc1",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-03-05T22:55:16Z",
+      "side": 1,
+      "message": "TODO, update with dox and integration/analysis test changes?",
+      "range": {
+        "startLine": 370,
+        "startChar": 51,
+        "endLine": 370,
+        "endChar": 79
+      },
+      "revId": "00f7dee4b23f02f3601474fa8c53dcc6847a8605",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
