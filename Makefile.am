@@ -84,6 +84,7 @@ pkginclude_HEADERS = contrib/json11/json11.hpp \
                      src/CpuinfoIOGroup.hpp \
                      src/EnergyEfficientAgent.hpp \
                      src/EnergyEfficientRegion.hpp \
+                     src/FrequencyMapAgent.hpp \
                      src/Exception.hpp \
                      src/Helper.hpp \
                      src/IOGroup.hpp \
@@ -415,6 +416,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/EpochRuntimeRegulator.hpp \
                             src/Exception.cpp \
                             src/Exception.hpp \
+                            src/FrequencyMapAgent.cpp \
+                            src/FrequencyMapAgent.hpp \
                             src/Helper.cpp \
                             src/Helper.hpp \
                             src/IOGroup.cpp \
