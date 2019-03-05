@@ -295,6 +295,7 @@ test_geopm_test_SOURCES = src/EnergyEfficientAgent.cpp \
                           test/EnvironmentTest.cpp \
                           test/EpochRuntimeRegulatorTest.cpp \
                           test/ExceptionTest.cpp \
+                          test/FrequencyMapAgentTest.cpp \
                           test/HelperTest.cpp \
                           test/IOGroupTest.cpp \
                           test/MSRIOGroupTest.cpp \
