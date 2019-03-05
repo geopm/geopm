@@ -74,6 +74,13 @@ def skip_unless_cpufreq():
         return unittest.skip("Could not determine min and max frequency, enable cpufreq driver to run this test.")
     return lambda func: func
 
+def do_geopmread(read_str):
+    test_exec = "dummy -- geopmread " + read_str
+    ostream = StringIO.StringIO()
+    dev_null = open('/dev/null', 'w')
+    allocation_node_test(test_exec, ostream, dev_null)
+    dev_null.close()
+    return float(ostream.getvalue().splitlines()[-1])
 
 def get_platform():
     test_exec = "dummy -- cat /proc/cpuinfo"
@@ -1028,25 +1035,24 @@ class TestIntegration(unittest.TestCase):
             gemm_region = [key for key in region_names if key.lower().find('gemm') != -1]
             self.assertLessEqual(1, len(gemm_region))
 
-    @skip_unless_run_long_tests()
-    @skip_unless_platform_bdx()
     @skip_unless_cpufreq()
-    def test_agent_energy_efficient_offline(self):
+    def test_agent_frequency_map(self):
         """
-        Test of the EnergyEfficientAgent offline auto mode.
+        Test of the FrequencyMapAgent.
         """
-        name = 'test_plugin_efficient_freq_offline'
-
+        min_freq = do_geopmread("CPUINFO::FREQ_MIN board 0")
+        max_freq = do_geopmread("CPUINFO::FREQ_MAX board 0")
+        sticker_freq = do_geopmread("CPUINFO::FREQ_STICKER board 0")
+        freq_step = do_geopmread("CPUINFO::FREQ_STEP board 0")
+        self._agent = "frequency_map"
+        self._options = {'frequency_min': min_freq,
+                         'frequency_max': max_freq}
+        name = 'test_frequency_map'
+        report_path = name + '.report'
+        trace_path = name + '.trace'
         num_node = 1
         num_rank = 4
-        temp_launcher = geopmpy.launcher.Factory().create(["dummy", geopm_test_launcher.detect_launcher()],
-                                                          num_node=num_node, num_rank=num_rank)
-        launcher_argv = [
-            '--geopm-ctl', 'process',
-        ]
-        launcher_argv.extend(temp_launcher.num_rank_option(False))
-        launcher_argv.extend(temp_launcher.num_node_option())
-        loop_count = 10
+        loop_count = 5
         dgemm_bigo = 20.25
         stream_bigo = 1.449
         dgemm_bigo_jlse = 35.647
@@ -1061,45 +1067,43 @@ class TestIntegration(unittest.TestCase):
             dgemm_bigo = dgemm_bigo_quartz
             stream_bigo = stream_bigo_quartz
 
-        app_conf_name = name + '_app.config'
-        app_conf = geopmpy.io.BenchConf(app_conf_name)
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
         self._tmp_files.append(app_conf.get_path())
         app_conf.set_loop_count(loop_count)
         app_conf.append_region('dgemm', dgemm_bigo)
         app_conf.append_region('stream', stream_bigo)
         app_conf.append_region('all2all', 1.0)
         app_conf.write()
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        data = {}
+        data['dgemm'] = sticker_freq
+        data['stream'] = sticker_freq - 2 * freq_step
+        data['all2all'] = min_freq
+        os.environ['GEOPM_FREQUENCY_MAP_AGENT_CONFIG'] = json.dumps(data)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path,
+                                                    trace_path, region_barrier=True)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run(name)
 
-        source_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        app_path = os.path.join(source_dir, '.libs', 'geopmbench')
-        # if not found, use geopmbench from user's PATH
-        if not os.path.exists(app_path):
-            app_path = "geopmbench"
-        app_argv = [app_path, app_conf_name]
-
-        # Runs frequency sweep, generates best-fit frequency mapping, and
-        # runs with the plugin in offline mode.
-        analysis = geopmpy.analysis.OfflineBaselineComparisonAnalysis(profile_prefix=name,
-                                                                      output_dir='.',
-                                                                      iterations=1,
-                                                                      verbose=True,
-                                                                      min_freq=None,
-                                                                      max_freq=None,
-                                                                      enable_turbo=False)
-        config = launcher_argv + app_argv
-        analysis.launch(geopm_test_launcher.detect_launcher(), config)
-
-        analysis.find_files()
-        parse_output = analysis.parse()
-        process_output = analysis.summary_process(parse_output)
-        analysis.summary(process_output)
-        _, _, process_output = process_output
-        sticker_freq_idx = process_output.loc['epoch'].index[-2]
-        energy_savings_epoch = process_output.loc['epoch']['energy_savings'][sticker_freq_idx]
-        runtime_savings_epoch = process_output.loc['epoch']['runtime_savings'][sticker_freq_idx]
-
-        self.assertLess(0.0, energy_savings_epoch)
-        self.assertLess(-10.0, runtime_savings_epoch)  # want -10% or better
+        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
+        node_names = self._output.get_node_names()
+        self.assertEqual(len(node_names), num_node)
+        regions = self._output.get_region_names()
+        for nn in node_names:
+            trace = self._output.get_trace_data(node_name=nn)
+            # Calculate runtime totals for each region in each trace, compare to report
+            #tt = trace.reset_index(level='index')  # move 'index' field from multiindex to columns
+            #tt = tt.set_index(['region_hash'], append=True)  # add region_hash column to multiindex
+            #tt_reg = tt.groupby(level=['region_hash'])
+            for region_name in regions:
+                region_data = self._output.get_report_data(node_name=nn, region=region_name)
+                if (region_name in ['dgemm', 'stream', 'all2all']):
+                    #todo verify trace frequencies
+                    #todo verify agent report augment frequecies
+                    msg = region_name + " frequency should be near assigned map frequency"
+                    self.assertNear(region_data['frequency'].item(), data[region_name] / sticker_freq * 100, msg=msg)
 
     @skip_unless_run_long_tests()
     @skip_unless_platform_bdx()
