@@ -32,8 +32,10 @@
 
 #include <unistd.h>
 #include <limits.h>
+#include <dirent.h>
 
 #include <fstream>
+#include <algorithm>
 #include "Helper.hpp"
 #include "Exception.hpp"
 #include "config.h"
@@ -95,4 +97,32 @@ namespace geopm
         }
         return hostname;
     }
+
+    std::vector<std::string> list_directory_files(const std::string &path)
+    {
+        std::vector<std::string> file_list;
+        DIR *did = opendir(path.c_str());
+        if (did) {
+            struct dirent *entry;
+            while ((entry = readdir(did))) {
+                file_list.emplace_back(entry->d_name);
+            }
+            closedir(did);
+        }
+        return file_list;
+    }
+
+    int string_begins_with(const std::string &str, const std::string &key)
+    {
+        int result = str.find(key) == 0;
+        return result;
+    }
+
+    int string_ends_with(std::string str, std::string key)
+    {
+        std::reverse(str.begin(), str.end());
+        std::reverse(key.begin(), key.end());
+        return string_begins_with(str, key);
+    }
+
 }
