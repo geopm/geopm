@@ -30,14 +30,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <limits.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
 #include <dlfcn.h>
 
 #include <vector>
@@ -49,19 +41,6 @@
 
 #include "config.h"
 
-static int geopm_name_begins_with(const std::string &str, const std::string &key)
-{
-    int result = str.find(key) == 0;
-    return result;
-}
-
-static int geopm_name_ends_with(std::string str, std::string key)
-{
-    std::reverse(str.begin(), str.end());
-    std::reverse(key.begin(), key.end());
-    return geopm_name_begins_with(str, key);
-}
-
 static const char *GEOPM_AGENT_PLUGIN_PREFIX    = "libgeopmagent_";
 static const char *GEOPM_IOGROUP_PLUGIN_PREFIX  = "libgeopmiogroup_";
 static const char *GEOPM_COMM_PLUGIN_PREFIX     = "libgeopmcomm_";
@@ -69,9 +48,7 @@ static void __attribute__((constructor)) geopmpolicy_load(void)
 {
     std::string env_plugin_path_str;
     const char *env_plugin_path = geopm_env_plugin_path();
-    DIR *did = NULL;
     std::vector<std::string> plugin_paths {GEOPM_DEFAULT_PLUGIN_PATH};
-    std::vector<std::string> plugins;
     std::string so_suffix = ".so." GEOPM_ABI_VERSION;
 
     if (env_plugin_path) {
@@ -86,24 +63,21 @@ static void __attribute__((constructor)) geopmpolicy_load(void)
         std::reverse(user_paths.begin(), user_paths.end());
         plugin_paths.insert(plugin_paths.end(), user_paths.begin(), user_paths.end());
     }
-    for (auto &path : plugin_paths) {
-        did = opendir(path.c_str());
-        if (did) {
-            struct dirent *entry;
-            while ((entry = readdir(did))) {
-                if (geopm_name_ends_with(entry->d_name, so_suffix) ||
-                    geopm_name_ends_with(entry->d_name, ".dylib")) {
-                    if (geopm_name_begins_with(std::string(entry->d_name), GEOPM_COMM_PLUGIN_PREFIX) ||
-                        geopm_name_begins_with(std::string(entry->d_name), GEOPM_IOGROUP_PLUGIN_PREFIX) ||
-                        geopm_name_begins_with(std::string(entry->d_name), GEOPM_AGENT_PLUGIN_PREFIX)) {
-                        plugins.push_back(path + "/" + std::string(entry->d_name));
-                    }
+    std::vector<std::string> plugins;
+    for (const auto &path : plugin_paths) {
+        std::vector<std::string> files = geopm::list_directory_files(path);
+        for (const auto &name : files) {
+            if (geopm::string_ends_with(name, so_suffix) ||
+                geopm::string_ends_with(name, ".dylib")) {
+                if (geopm::string_begins_with(name, GEOPM_COMM_PLUGIN_PREFIX) ||
+                    geopm::string_begins_with(name, GEOPM_IOGROUP_PLUGIN_PREFIX) ||
+                    geopm::string_begins_with(name, GEOPM_AGENT_PLUGIN_PREFIX)) {
+                    plugins.push_back(path + "/" + name);
                 }
             }
-            closedir(did);
         }
     }
-    for (auto &plugin : plugins) {
+    for (const auto &plugin : plugins) {
         if (NULL == dlopen(plugin.c_str(), RTLD_NOLOAD)) {
             if (NULL == dlopen(plugin.c_str(), RTLD_LAZY)) {
 #ifdef GEOPM_DEBUG
