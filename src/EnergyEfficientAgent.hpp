@@ -47,6 +47,7 @@ namespace geopm
 {
     class IPlatformIO;
     class IPlatformTopo;
+    class IFrequencyGovernor;
     class EnergyEfficientRegion;
 
     class EnergyEfficientAgent : public Agent
@@ -92,33 +93,36 @@ namespace geopm
             };
 
             enum m_signal_e {
-                M_SIGNAL_ENERGY_PACKAGE,
-                M_SIGNAL_FREQUENCY,
                 M_SIGNAL_REGION_HASH,
                 M_SIGNAL_REGION_HINT,
-                M_SIGNAL_RUNTIME,
+                M_SIGNAL_REGION_RUNTIME,
+                M_SIGNAL_ENERGY_PACKAGE,
+                M_SIGNAL_FREQUENCY,
                 M_NUM_SIGNAL,
+            };
+
+            struct region_info_s {
+                uint64_t hash;
+                uint64_t hint;
             };
 
             const int M_PRECISION;
             IPlatformIO &m_platform_io;
             IPlatformTopo &m_platform_topo;
-            double m_freq_min;
-            double m_freq_max;
-            const double M_FREQ_STEP;
+            std::unique_ptr<IFrequencyGovernor> m_freq_governor;
             const size_t M_SEND_PERIOD;
             std::vector<int> m_control_idx;
-            double m_last_freq;
-            std::pair<uint64_t, uint64_t> m_last_region;
+            std::vector<double> m_last_freq;
+            std::vector<struct region_info_s>  m_last_region;
             std::map<uint64_t, double> m_adapt_freq_map;
             std::map<uint64_t, std::unique_ptr<EnergyEfficientRegion> > m_region_map;
             geopm_time_s m_last_wait;
-            std::vector<int> m_sample_idx;
-            std::vector<int> m_signal_idx;
+            std::vector<std::vector<int> > m_signal_idx;
             std::vector<std::function<double(const std::vector<double>&)> > m_agg_func;
             int m_level;
             int m_num_children;
             size_t m_num_ascend;
+            int m_num_freq_ctl_domain;
     };
 }
 
