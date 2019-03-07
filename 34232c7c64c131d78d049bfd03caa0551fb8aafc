@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "826e5726_980a33dc",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-03-07T19:09:46Z",
+      "side": 1,
+      "message": "\u003c\u003c",
+      "range": {
+        "startLine": 129,
+        "startChar": 36,
+        "endLine": 129,
+        "endChar": 39
+      },
+      "revId": "34232c7c64c131d78d049bfd03caa0551fb8aafc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "071ea647_5e74b798",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-03-07T19:09:46Z",
+      "side": 1,
+      "message": "\u003c\u003c",
+      "range": {
+        "startLine": 155,
+        "startChar": 35,
+        "endLine": 155,
+        "endChar": 38
+      },
+      "revId": "34232c7c64c131d78d049bfd03caa0551fb8aafc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e06fb5b9_7dfa5650",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-03-07T19:09:46Z",
+      "side": 1,
+      "message": "Frequency map",
+      "range": {
+        "startLine": 252,
+        "startChar": 27,
+        "endLine": 252,
+        "endChar": 54
+      },
+      "revId": "34232c7c64c131d78d049bfd03caa0551fb8aafc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "995e4bab_7c4f6fae",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-03-07T19:09:46Z",
+      "side": 1,
+      "message": "frequency-map",
+      "range": {
+        "startLine": 263,
+        "startChar": 59,
+        "endLine": 263,
+        "endChar": 86
+      },
+      "revId": "34232c7c64c131d78d049bfd03caa0551fb8aafc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57cb829a_93031ef4",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-03-07T19:09:46Z",
+      "side": 1,
+      "message": "GEOPM_FREQUENCY_MAP",
+      "range": {
+        "startLine": 336,
+        "startChar": 42,
+        "endLine": 336,
+        "endChar": 74
+      },
+      "revId": "34232c7c64c131d78d049bfd03caa0551fb8aafc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e839dd8f_7676501b",
+        "filename": "src/FrequencyMapAgent.hpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-03-07T19:09:46Z",
+      "side": 1,
+      "message": "do not need",
+      "range": {
+        "startLine": 50,
+        "startChar": 10,
+        "endLine": 50,
+        "endChar": 31
+      },
+      "revId": "34232c7c64c131d78d049bfd03caa0551fb8aafc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d29226a_73b7b136",
+        "filename": "src/FrequencyMapAgent.hpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-03-07T19:09:46Z",
+      "side": 1,
+      "message": "declare here, define in source",
+      "range": {
+        "startLine": 95,
+        "startChar": 29,
+        "endLine": 95,
+        "endChar": 41
+      },
+      "revId": "34232c7c64c131d78d049bfd03caa0551fb8aafc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
