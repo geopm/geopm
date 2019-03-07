@@ -361,6 +361,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/PowerBalancerTest.cpp \
                           test/PowerGovernorAgentTest.cpp \
                           test/PowerGovernorTest.cpp \
+                          test/ProfileSamplerTest.cpp \
                           test/ProfileTableTest.cpp \
                           test/ProfileTest.cpp \
                           test/RegionAggregatorTest.cpp \

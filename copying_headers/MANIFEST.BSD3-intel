@@ -274,6 +274,7 @@ test/PowerGovernorAgentTest.cpp
 test/PowerGovernorTest.cpp
 test/ProfileTableTest.cpp
 test/ProfileTest.cpp
+test/ProfileSamplerTest.cpp
 test/RegionAggregatorTest.cpp
 test/ReporterTest.cpp
 test/RuntimeRegulatorTest.cpp

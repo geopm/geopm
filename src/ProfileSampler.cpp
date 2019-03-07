@@ -70,35 +70,35 @@ namespace geopm
     const struct geopm_prof_message_s GEOPM_INVALID_PROF_MSG = {-1, 0, GEOPM_TIME_REF, -1.0};
 
     ProfileSamplerImp::ProfileSamplerImp(size_t table_size)
-        : ProfileSamplerImp(platform_topo(), table_size)
+        : ProfileSamplerImp(platform_topo(), environment(), table_size)
     {
     }
 
-    ProfileSamplerImp::ProfileSamplerImp(const PlatformTopo &topo, size_t table_size)
-        : m_ctl_shmem(nullptr)
-        , m_ctl_msg(nullptr)
+#define TPROF_SIZE 64 * topo.num_domain(GEOPM_DOMAIN_CPU)
+    ProfileSamplerImp::ProfileSamplerImp(const PlatformTopo &topo, const Environment &environment,  size_t table_size)
+        : ProfileSamplerImp(table_size, TPROF_SIZE, environment.timeout(),
+                geopm::make_unique<SharedMemoryImp>("/dev/shm/" + environment.shmkey() + "sample", sizeof(struct geopm_ctl_message_s)),
+        geopm::make_unique<SharedMemoryImp>("/dev/shm/" + environment.shmkey() + "-tprof", TPROF_SIZE))
+    {
+    }
+
+    ProfileSamplerImp::ProfileSamplerImp(size_t table_size, size_t tprof_size, double timeout, std::unique_ptr<SharedMemory> ctl_shmem, std::unique_ptr<SharedMemory> tprof_shmem)
+        : m_ctl_shmem(std::move(ctl_shmem))
+        , m_ctl_msg(geopm::make_unique<ControlMessageImp>(*(struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), true, true, timeout))
         , m_table_size(table_size)
         , m_do_report(false)
-        , m_tprof_shmem(nullptr)
-        , m_tprof_table(nullptr)
+        , m_tprof_shmem(std::move(tprof_shmem))
+        , m_tprof_table(geopm::make_unique<ProfileThreadTableImp>(tprof_size, m_tprof_shmem->pointer()))
         , m_rank_per_node(0)
     {
-        const Environment &env = environment();
-        const std::string key_base = env.shmkey();
-        std::string sample_key = key_base + "-sample";
-        std::string sample_key_path("/dev/shm/" + sample_key);
+        //@todo is this dev/shmem redundant
+        //std::string sample_key_path("/dev/shm/" + sample_key);
         // Remove shared memory file if one already exists.
-        (void)unlink(sample_key_path.c_str());
-        m_ctl_shmem = geopm::make_unique<SharedMemoryImp>(sample_key, sizeof(struct geopm_ctl_message_s));
-        m_ctl_msg = geopm::make_unique<ControlMessageImp>(*(struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), true, true, env.timeout());
-
-        std::string tprof_key = key_base + "-tprof";
-        std::string tprof_key_path("/dev/shm/" + tprof_key);
+        //(void)unlink(sample_key_path.c_str());
+        //@todo is this dev/shmem redundant?
+        //std::string tprof_key_path("/dev/shm/" + tprof_key);
         // Remove shared memory file if one already exists.
-        (void)unlink(tprof_key_path.c_str());
-        size_t tprof_size = 64 * topo.num_domain(GEOPM_DOMAIN_CPU);
-        m_tprof_shmem = geopm::make_unique<SharedMemoryImp>(tprof_key, tprof_size);
-        m_tprof_table = geopm::make_unique<ProfileThreadTableImp>(tprof_size, m_tprof_shmem->pointer());
+        //(void)unlink(tprof_key_path.c_str());
         errno = 0; // Ignore errors from the unlink calls.
     }
 
@@ -106,8 +106,6 @@ namespace geopm
 
     void ProfileSamplerImp::initialize(void)
     {
-        std::ostringstream shm_key;
-
         m_ctl_msg->wait(); // M_STATUS_MAP_BEGIN
         m_ctl_msg->step(); // M_STATUS_MAP_BEGIN
         m_ctl_msg->wait(); // M_STATUS_MAP_END
@@ -119,6 +117,7 @@ namespace geopm
             }
         }
 
+        std::ostringstream shm_key;
         for (auto it = rank_set.begin(); it != rank_set.end(); ++it) {
             shm_key.str("");
             shm_key << m_ctl_shmem->key() <<  "-"  << *it;
