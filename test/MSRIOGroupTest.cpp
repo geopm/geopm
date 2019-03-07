@@ -64,6 +64,7 @@ using testing::Return;
 using testing::SetArgReferee;
 using testing::_;
 using testing::WithArg;
+using testing::NiceMock;
 using json11::Json;
 
 class MSRIOGroupTest : public :: testing :: Test
@@ -72,7 +73,7 @@ class MSRIOGroupTest : public :: testing :: Test
         void SetUp();
         std::vector<std::string> m_test_dev_path;
         std::unique_ptr<MSRIOGroup> m_msrio_group;
-        MockPlatformTopo m_topo;
+        NiceMock<MockPlatformTopo> m_topo;
         int m_num_cpu = 16;
         void mock_enable_fixed_counters(void);
 };
@@ -93,16 +94,6 @@ class MockMSRIO : public geopm::MSRIO
         const int m_num_cpu;
         std::vector<std::string> m_test_dev_path;
 };
-
-
-void MSRIOGroupTest::mock_enable_fixed_counters(void)
-{
-    // expectations for write_control() inside enable_fixed_counters()
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU))
-        .Times(m_num_cpu * 15); // 15 enable bits to set
-    EXPECT_CALL(m_topo, nested_domains(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_CPU, _))
-        .Times(m_num_cpu * 15);
-}
 
 MockMSRIO::MockMSRIO(int num_cpu)
     : MSRIO(num_cpu)
@@ -235,9 +226,6 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
 
 TEST_F(MSRIOGroupTest, signal_error)
 {
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(2);
-    mock_enable_fixed_counters();
-
     // error cases for push_signal
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("INVALID", IPlatformTopo::M_DOMAIN_CPU, 0),
                                GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
@@ -262,11 +250,6 @@ TEST_F(MSRIOGroupTest, signal_error)
 
 TEST_F(MSRIOGroupTest, push_signal)
 {
-    EXPECT_CALL(m_topo, nested_domains(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_PACKAGE, _));
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_CALL(m_topo, nested_domains(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_CPU, _)).Times(3 + m_num_cpu * 15);
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU)).Times(3 + m_num_cpu * 15);
-
     EXPECT_TRUE(m_msrio_group->is_valid_signal("MSR::PERF_STATUS:FREQ"));
     EXPECT_FALSE(m_msrio_group->is_valid_signal("INVALID"));
     EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, m_msrio_group->signal_domain_type("MSR::FIXED_CTR0:INST_RETIRED_ANY"));
@@ -296,11 +279,6 @@ TEST_F(MSRIOGroupTest, push_signal)
 
 TEST_F(MSRIOGroupTest, sample)
 {
-    EXPECT_CALL(m_topo, nested_domains(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_PACKAGE, _)).Times(1);
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(1);
-    EXPECT_CALL(m_topo, nested_domains(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_CPU, _)).Times(2 + m_num_cpu * 15);
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU)).Times(2 + m_num_cpu * 15);
-
     int freq_idx_0 = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(0, freq_idx_0);
     int inst_idx_0 = m_msrio_group->push_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY",
@@ -370,9 +348,6 @@ TEST_F(MSRIOGroupTest, sample)
 
 TEST_F(MSRIOGroupTest, sample_raw)
 {
-    EXPECT_CALL(m_topo, nested_domains(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_CPU, _)).Times(2 + m_num_cpu * 15);
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU)).Times(2 + m_num_cpu * 15);
-
     int inst_idx_0 = m_msrio_group->push_signal("MSR::FIXED_CTR0#",
                                                 IPlatformTopo::M_DOMAIN_CPU, 0);
     int inst_idx_1 = m_msrio_group->push_signal("MSR::FIXED_CTR0#",
@@ -400,11 +375,6 @@ TEST_F(MSRIOGroupTest, sample_raw)
 
 TEST_F(MSRIOGroupTest, read_signal)
 {
-    EXPECT_CALL(m_topo, nested_domains(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_PACKAGE, _)).Times(1);
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(1);
-    EXPECT_CALL(m_topo, nested_domains(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_CPU, _)).Times(2 + m_num_cpu * 15);
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU)).Times(2 + m_num_cpu * 15);
-
     int fd_0 = open(m_test_dev_path[0].c_str(), O_RDWR);
     ASSERT_NE(-1, fd_0);
 
@@ -433,11 +403,6 @@ TEST_F(MSRIOGroupTest, read_signal)
 
 TEST_F(MSRIOGroupTest, signal_alias)
 {
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(2);
-    EXPECT_CALL(m_topo, nested_domains(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_PACKAGE, _)).Times(2);
-
-    mock_enable_fixed_counters();
-
     int freq_idx = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(0, freq_idx);
     int alias = m_msrio_group->push_signal("FREQUENCY", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
@@ -458,8 +423,6 @@ TEST_F(MSRIOGroupTest, signal_alias)
 
 TEST_F(MSRIOGroupTest, control_error)
 {
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(2);
-
     // error cases for push_control
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("INVALID", IPlatformTopo::M_DOMAIN_CPU, 0),
                                GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
@@ -483,9 +446,6 @@ TEST_F(MSRIOGroupTest, control_error)
 
 TEST_F(MSRIOGroupTest, push_control)
 {
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(3);
-    EXPECT_CALL(m_topo, nested_domains(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_PACKAGE, _)).Times(3);
-
     EXPECT_TRUE(m_msrio_group->is_valid_control("MSR::PERF_CTL:FREQ"));
     EXPECT_FALSE(m_msrio_group->is_valid_control("INVALID"));
     EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, m_msrio_group->control_domain_type("MSR::FIXED_CTR_CTRL:EN0_OS"));
@@ -510,9 +470,6 @@ TEST_F(MSRIOGroupTest, push_control)
 
 TEST_F(MSRIOGroupTest, adjust)
 {
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(2);
-    EXPECT_CALL(m_topo, nested_domains(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_PACKAGE, _)).Times(2);
-
     int freq_idx_0 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
     int power_idx = m_msrio_group->push_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
 
@@ -564,9 +521,6 @@ TEST_F(MSRIOGroupTest, adjust)
 
 TEST_F(MSRIOGroupTest, write_control)
 {
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(2);
-    EXPECT_CALL(m_topo, nested_domains(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_PACKAGE, _)).Times(2);
-
     int fd_0 = open(m_test_dev_path[0].c_str(), O_RDWR);
     ASSERT_NE(-1, fd_0);
     uint64_t value;
@@ -588,8 +542,6 @@ TEST_F(MSRIOGroupTest, write_control)
 
 TEST_F(MSRIOGroupTest, control_alias)
 {
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(2);
-    EXPECT_CALL(m_topo, nested_domains(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_PACKAGE, _)).Times(2);
     int freq_idx = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(0, freq_idx);
     int alias = m_msrio_group->push_control("FREQUENCY", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
