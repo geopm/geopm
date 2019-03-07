@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "191633e5_b6e22f49",
+        "filename": "src/MSRIOGroup.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 926,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-03-07T22:57:49Z",
+      "side": 1,
+      "message": "M_DOMAIN_BOARD ? Why not check the RAPL lock bit on packages other than package 0?",
+      "range": {
+        "startLine": 926,
+        "startChar": 82,
+        "endLine": 926,
+        "endChar": 98
+      },
+      "revId": "3bca54ecccf2445e905f02d6b7525948b37bff19",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
