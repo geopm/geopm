@@ -266,7 +266,12 @@ namespace geopm
             ///
             /// @param [in] table_size The size of the hash table that will
             ///        be created for each application rank.
-            ProfileSamplerImp(const PlatformTopo &topo, size_t table_size);
+            ProfileSamplerImp(const PlatformTopo &topo, size_t table_size, const std::string &shm_key, double timeout);
+            ProfileSamplerImp(size_t table_size, size_t tprof_size, double timeout,
+                              std::unique_ptr<SharedMemory> ctl_shmem, std::unique_ptr<SharedMemory> tprof_shmem);
+            ProfileSamplerImp(size_t table_size,
+                              std::unique_ptr<SharedMemory> ctl_shmem, std::unique_ptr<SharedMemory> tprof_shmem,
+                              std::unique_ptr<ControlMessage> ctl_msg, std::shared_ptr<ProfileThreadTable> tprof_table);
             /// @brief ProfileSamplerImp destructor.
             virtual ~ProfileSamplerImp();
             /// @brief Retrieve the maximum capacity of all the per-rank
