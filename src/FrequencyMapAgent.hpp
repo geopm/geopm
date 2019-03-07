@@ -47,6 +47,7 @@ namespace geopm
 {
     class PlatformIO;
     class PlatformTopo;
+    class IFrequencyGovernor;
 
     class FrequencyMapAgent : public Agent
     {
@@ -75,7 +76,6 @@ namespace geopm
             static std::vector<std::string> sample_names(void);
         private:
             bool update_policy(const std::vector<double> &policy);
-            double get_limit(const std::string &sig_name) const;
             void init_platform_io(void);
             void parse_env_map(void);
 
@@ -91,20 +91,23 @@ namespace geopm
                 M_NUM_SIGNAL,
             };
 
+            struct region_info_s {
+                uint64_t hash;
+                uint64_t hint;
+            };
+
             const int M_PRECISION;
             PlatformIO &m_platform_io;
             PlatformTopo &m_platform_topo;
-            double m_freq_min;
-            double m_freq_max;
-            const double M_FREQ_STEP;
-            std::vector<int> m_control_idx;
-            double m_last_freq;
-            std::pair<uint64_t, uint64_t> m_last_region;
+            std::unique_ptr<IFrequencyGovernor> m_freq_governor;
+            std::vector<struct region_info_s>  m_last_region;
+            std::vector<double> m_last_freq;
             std::map<uint64_t, double> m_hash_freq_map;
             geopm_time_s m_last_wait;
-            std::vector<int> m_signal_idx;
+            std::vector<std::vector<int> > m_signal_idx;
             int m_level;
             int m_num_children;
+            int m_num_freq_ctl_domain;
     };
 }
 
