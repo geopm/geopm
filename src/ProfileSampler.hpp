@@ -236,6 +236,7 @@ namespace geopm
             int rank_per_node;
     };
 
+    class Environment;
     class PlatformTopo;
 
     /// @brief Retrieves sample data from the set of application ranks on
@@ -266,7 +267,8 @@ namespace geopm
             ///
             /// @param [in] table_size The size of the hash table that will
             ///        be created for each application rank.
-            ProfileSamplerImp(const PlatformTopo &topo, size_t table_size);
+            ProfileSamplerImp(const PlatformTopo &topo, const Environment &environment, size_t table_size);
+            ProfileSamplerImp(size_t table_size, size_t tprof_size, double timeout, std::unique_ptr<SharedMemory> ctl_shmem, std::unique_ptr<SharedMemory> tprof_shmem);
             /// @brief ProfileSamplerImp destructor.
             virtual ~ProfileSamplerImp();
             /// @brief Retrieve the maximum capacity of all the per-rank
