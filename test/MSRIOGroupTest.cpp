@@ -64,6 +64,7 @@ using testing::Return;
 using testing::SetArgReferee;
 using testing::_;
 using testing::WithArg;
+using testing::AtLeast;
 using json11::Json;
 
 class MSRIOGroupTest : public :: testing :: Test
@@ -483,8 +484,8 @@ TEST_F(MSRIOGroupTest, control_error)
 
 TEST_F(MSRIOGroupTest, push_control)
 {
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(3);
-    EXPECT_CALL(m_topo, nested_domains(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_PACKAGE, _)).Times(3);
+    EXPECT_CALL(m_topo, num_domain(_)).Times(AtLeast(1));
+    EXPECT_CALL(m_topo, nested_domains(_, _, _)).Times(AtLeast(1));
 
     EXPECT_TRUE(m_msrio_group->is_valid_control("MSR::PERF_CTL:FREQ"));
     EXPECT_FALSE(m_msrio_group->is_valid_control("INVALID"));
@@ -510,8 +511,8 @@ TEST_F(MSRIOGroupTest, push_control)
 
 TEST_F(MSRIOGroupTest, adjust)
 {
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(2);
-    EXPECT_CALL(m_topo, nested_domains(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_PACKAGE, _)).Times(2);
+    EXPECT_CALL(m_topo, num_domain(_)).Times(AtLeast(1));
+    EXPECT_CALL(m_topo, nested_domains(_, _, _)).Times(AtLeast(1));
 
     int freq_idx_0 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
     int power_idx = m_msrio_group->push_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
@@ -564,8 +565,8 @@ TEST_F(MSRIOGroupTest, adjust)
 
 TEST_F(MSRIOGroupTest, write_control)
 {
-    EXPECT_CALL(m_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE)).Times(2);
-    EXPECT_CALL(m_topo, nested_domains(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_PACKAGE, _)).Times(2);
+    EXPECT_CALL(m_topo, num_domain(_)).Times(AtLeast(1));
+    EXPECT_CALL(m_topo, nested_domains(_, _, _)).Times(AtLeast(1));
 
     int fd_0 = open(m_test_dev_path[0].c_str(), O_RDWR);
     ASSERT_NE(-1, fd_0);
