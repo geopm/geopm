@@ -1108,7 +1108,7 @@ class TestIntegration(unittest.TestCase):
                     self.assertNear(region_data['frequency'].item(), data[region_name] / sticker_freq * 100, msg=msg)
 
     @skip_unless_run_long_tests()
-    @skip_unless_platform_bdx_skx()
+    #@skip_unless_platform_bdx_skx()
     @skip_unless_cpufreq()
     @skip_unless_slurm_batch()
     def test_agent_energy_efficient(self):
