@@ -101,6 +101,15 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/EpochRuntimeRegulatorTest.rank_enter_exit_trace \
               test/gtest_links/EpochRuntimeRegulatorTest.unknown_region \
               test/gtest_links/ExceptionTest.hello \
+              test/gtest_links/FrequencyGovernorTest.frequency_control_domain \
+              test/gtest_links/FrequencyGovernorTest.frequency_control_domain_default \
+              test/gtest_links/FrequencyGovernorTest.frequency_control_domain_error \
+              test/gtest_links/FrequencyGovernorTest.adjust_platform \
+              test/gtest_links/FrequencyGovernorTest.adjust_platform_clamping \
+              test/gtest_links/FrequencyGovernorTest.adjust_platform_error \
+              test/gtest_links/FrequencyGovernorTest.frequency_bounds_in_range \
+              test/gtest_links/FrequencyGovernorTest.frequency_bounds_invalid \
+              test/gtest_links/FrequencyGovernorTest.validate_policy \
               test/gtest_links/FrequencyMapAgentTest.hint \
               test/gtest_links/FrequencyMapAgentTest.map \
               test/gtest_links/FrequencyMapAgentTest.name \
@@ -305,6 +314,7 @@ test_geopm_test_SOURCES = src/EnergyEfficientAgent.cpp \
                           test/EnvironmentTest.cpp \
                           test/EpochRuntimeRegulatorTest.cpp \
                           test/ExceptionTest.cpp \
+                          test/FrequencyGovernorTest.cpp \
                           test/FrequencyMapAgentTest.cpp \
                           test/HelperTest.cpp \
                           test/IOGroupTest.cpp \

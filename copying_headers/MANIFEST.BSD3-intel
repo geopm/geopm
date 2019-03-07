@@ -79,6 +79,9 @@ src/EpochRuntimeRegulator.cpp
 src/EpochRuntimeRegulator.hpp
 src/Exception.cpp
 src/Exception.hpp
+src/FrequencyGovernor.cpp
+src/FrequencyGovernor.hpp
+src/FrequencyGovernorImp.hpp
 src/FrequencyMapAgent.cpp
 src/FrequencyMapAgent.hpp
 src/Helper.cpp
@@ -209,6 +212,7 @@ test/EnergyEfficientRegionTest.cpp
 test/EnvironmentTest.cpp
 test/EpochRuntimeRegulatorTest.cpp
 test/ExceptionTest.cpp
+test/FrequencyGovernorTest.cpp
 test/FrequencyMapAgentTest.cpp
 test/HelperTest.cpp
 test/IOGroupTest.cpp
