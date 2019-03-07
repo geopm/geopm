@@ -441,6 +441,7 @@ namespace geopm
 
     void MSRIOGroup::write_control(const std::string &control_name, int domain_type, int domain_idx, double setting)
     {
+        check_control(control_name);
         auto nccm_it = m_name_cpu_control_map.find(control_name);
         if (nccm_it == m_name_cpu_control_map.end()) {
             throw Exception("MSRIOGroup::write_control(): control name \"" +
@@ -864,7 +865,7 @@ namespace geopm
 
     void MSRIOGroup::check_control(const std::string &control_name)
     {
-        static const std::set<std::string> CONTROL_SET {
+        static const std::set<std::string> FREQ_CONTROL_SET {
             "POWER_PACKAGE_LIMIT",
             "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT",
             "FREQUENCY",
@@ -872,7 +873,7 @@ namespace geopm
         static bool do_check_governor = true;
 
         if (do_check_governor &&
-            CONTROL_SET.find(control_name) != CONTROL_SET.end())
+            FREQ_CONTROL_SET.find(control_name) != FREQ_CONTROL_SET.end())
         {
             bool do_print_warning = false;
             std::string scaling_driver = "cpufreq-sysfs-read-error";
@@ -911,8 +912,29 @@ namespace geopm
                           << "CPU frequency or power limit with GEOPM.  Other Linux power settings, including the intel_pstate driver,"
                           << "may overwrite GEOPM controls for frequency and power limits." << std::endl;
             }
+            do_check_governor = false;
         }
-        do_check_governor = false;
+
+        static const std::set<std::string> POWER_CONTROL_SET {
+            "POWER_PACKAGE_LIMIT",
+            "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT"};
+        static bool do_check_rapl_lock = true;
+        if (do_check_rapl_lock &&
+            POWER_CONTROL_SET.find(control_name) != POWER_CONTROL_SET.end()) {
+
+            int domain = signal_domain_type("MSR::PKG_POWER_LIMIT:LOCK");
+            int num_domain = m_platform_topo.num_domain(domain);
+            double lock = 0.0;
+            for (int dom_idx = 0; dom_idx < num_domain; ++dom_idx) {
+                lock += read_signal("MSR::PKG_POWER_LIMIT:LOCK", domain, dom_idx);
+            }
+            if (lock != 0.0) {
+                std::cerr << "Warning: <geopm> MSRIOGroup::" << std::string(__func__)
+                          << "(): Unable to control power when RAPL lock bit is set. "
+                          << "Check BIOS settings to ensure RAPL is enabled." << std::endl;
+            }
+            do_check_rapl_lock = false;
+        }
     }
 
     /// Used to validate types and values of JSON objects
