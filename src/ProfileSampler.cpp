@@ -64,11 +64,6 @@
 #include "Exception.hpp"
 #include "config.h"
 
-static bool geopm_prof_compare(const std::pair<uint64_t, struct geopm_prof_message_s> &aa, const std::pair<uint64_t, struct geopm_prof_message_s> &bb)
-{
-    return geopm_time_comp(&(aa.second.timestamp), &(bb.second.timestamp));
-}
-
 namespace geopm
 {
     const struct geopm_prof_message_s GEOPM_INVALID_PROF_MSG = {-1, 0, GEOPM_TIME_REF, -1.0};
@@ -291,7 +286,6 @@ namespace geopm
     void ProfileRankSampler::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length)
     {
         m_table->dump(content_begin, length);
-        std::stable_sort(content_begin, content_begin + length, geopm_prof_compare);
     }
 
     bool ProfileRankSampler::name_fill(std::set<std::string> &name_set)
