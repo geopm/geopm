@@ -31,36 +31,11 @@
  */
 #include "Profile.hpp"
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-#ifdef __APPLE__
-#define _DARWIN_C_SOURCE
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#endif
-
-#include <algorithm>
-#include <iostream>
-#include <sstream>
-
-#include <float.h>
 #include <unistd.h>
 #include <string.h>
-#include <errno.h>
 
 #include "geopm.h"
-#include "geopm_internal.h"
-#include "geopm_signal_handler.h"
-#include "geopm_sched.h"
-#include "Environment.hpp"
-#include "ProfileTable.hpp"
-#include "ProfileThread.hpp"
-#include "SampleScheduler.hpp"
-#include "ControlMessage.hpp"
-#include "SharedMemory.hpp"
 #include "Exception.hpp"
-#include "Comm.hpp"
 
 #include "config.h"
 
@@ -71,12 +46,12 @@ namespace geopm
     class DefaultProfile : public ProfileImp
     {
         public:
-            DefaultProfile(const std::string prof_name, std::unique_ptr<Comm> comm);
+            DefaultProfile();
             virtual ~DefaultProfile();
     };
 
-    DefaultProfile::DefaultProfile(const std::string prof_name, std::unique_ptr<Comm> comm)
-        : ProfileImp(prof_name, std::move(comm))
+    DefaultProfile::DefaultProfile()
+        : ProfileImp()
     {
         g_pmpi_prof_enabled = m_is_enabled;
     }
@@ -89,7 +64,7 @@ namespace geopm
 
 static geopm::DefaultProfile &geopm_default_prof(void)
 {
-    static geopm::DefaultProfile default_prof(geopm::environment().profile(), geopm::comm_factory().make_plugin(geopm::environment().comm()));
+    static geopm::DefaultProfile default_prof();
     return default_prof;
 }
 

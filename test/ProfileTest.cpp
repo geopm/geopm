@@ -195,15 +195,10 @@ ProfileTest::ProfileTest()
     , m_topo(M_NUM_CPU)
 {
     m_comm = std::make_shared<MockComm>();
-
-    setenv("GEOPM_REGION_BARRIER", "1", 1);
-    setenv("GEOPM_PROFILE_TIMEOUT", "1", 1);
 }
 
 ProfileTest::~ProfileTest()
 {
-    unsetenv("GEOPM_REGION_BARRIER");
-    unsetenv("GEOPM_PROFILE_TIMEOUT");
 }
 
 TEST_F(ProfileTest, region)
