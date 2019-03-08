@@ -166,6 +166,7 @@ namespace geopm
     };
 
     class Comm;
+    class Environment;
     class SharedMemoryUser;
     class ControlMessage;
     class PlatformTopo;
@@ -175,6 +176,7 @@ namespace geopm
     class ProfileImp : public Profile
     {
         public:
+            ProfileImp();
             /// @brief ProfileImp constructor.
             ///
             /// The ProfileImp object is used by the application to
@@ -182,17 +184,10 @@ namespace geopm
             /// information to a shared memory region to be read by
             /// the geopm::Controller process.
             ///
-            /// @param [in] prof_name Name associated with the
-            ///        profile.  This name will be printed in the
-            ///        header of the report.
-            ///
-            /// @param [in] comm The application's MPI communicator.
-            ///        Each rank of this communicator will report to a
-            ///        separate shared memory region.  One
-            ///        geopm::Controller on each compute node will
-            ///        consume the output from each rank running on
-            ///        the compute node.
-            ProfileImp(const std::string &prof_name, std::unique_ptr<Comm> comm);
+            /// @param [in] environment Reference to an Environment
+            //         instance representing user environment at
+            //         the time of runtime startup.
+            ProfileImp(const Environment &environment);
             /// @brief ProfileImp testable constructor.
             ///
             /// @param [in] prof_name Name associated with the
@@ -222,12 +217,15 @@ namespace geopm
             ///
             /// @param [in] ctl_msg Preconstructed SampleScheduler instance.
             ProfileImp(const std::string &prof_name, const std::string &key_base,
+                       const std::string &report, double timeout, bool do_region_barrier,
                        std::unique_ptr<Comm> comm, std::unique_ptr<ControlMessage> ctl_msg,
                        const PlatformTopo &topo, std::unique_ptr<ProfileTable> table,
                        std::shared_ptr<ProfileThreadTable> t_table,
-                       std::unique_ptr<SampleScheduler> scheduler);
+                       std::unique_ptr<SampleScheduler> scheduler,
+                       std::shared_ptr<Comm> reduce_comm);
             /// @brief Test constructor.
             ProfileImp(const std::string &prof_name, const std::string &key_base,
+                       const std::string &report, double timeout, bool do_region_barrier,
                        std::unique_ptr<Comm> comm, std::unique_ptr<ControlMessage> ctl_msg,
                        const PlatformTopo &topo, std::unique_ptr<ProfileTable> table,
                        std::shared_ptr<ProfileThreadTable> t_table,
@@ -282,6 +280,9 @@ namespace geopm
             void print(const std::string file_name);
             /// @brief holds the string name of the profile.
             std::string m_prof_name;
+            std::string m_report;
+            double m_timeout;
+            bool m_do_region_barrier;
             /// @brief Holds the 64 bit unique region identifier
             ///        for the current region.
             uint64_t m_curr_region_id;
