@@ -244,6 +244,7 @@ test/MockComm.hpp
 test/MockControlMessage.hpp
 test/MockEnergyEfficientRegion.hpp
 test/MockEpochRuntimeRegulator.hpp
+test/MockEnvironment.hpp
 test/MockFrequencyGovernor.hpp
 test/MockIOGroup.hpp
 test/MockManagerIOSampler.hpp

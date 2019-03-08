@@ -46,8 +46,11 @@
 #include "MockProfileThreadTable.hpp"
 #include "MockSampleScheduler.hpp"
 #include "MockControlMessage.hpp"
+#include "Comm.hpp"
 #include "MockComm.hpp"
+#include "MockEnvironment.hpp"
 
+using geopm::Comm;
 using geopm::Exception;
 using geopm::Profile;
 using geopm::ProfileImp;
@@ -153,6 +156,7 @@ class ProfileTest : public :: testing :: Test
         ProfileTest();
         ~ProfileTest();
     protected:
+        std::unique_ptr<Comm> make_comm_plugin(void);
         const std::string M_SHM_KEY;
         const std::string M_PROF_NAME;
         const size_t M_SHMEM_REGION_SIZE;
@@ -168,9 +172,10 @@ class ProfileTest : public :: testing :: Test
         std::unique_ptr<ProfileTestSampleScheduler> m_scheduler;
         std::unique_ptr<ProfileTestControlMessage> m_ctl_msg;
         ProfileTestPlatformTopo m_topo;
-        std::shared_ptr<MockComm> m_comm;
+        std::unique_ptr<MockComm> m_comm;
 
         std::unique_ptr<Profile> m_profile;
+        MockEnvironment m_env;
 };
 
 class ProfileTestIntegration : public ProfileTest
@@ -194,16 +199,20 @@ ProfileTest::ProfileTest()
     , m_rank({0, 1})
     , m_topo(M_NUM_CPU)
 {
-    m_comm = std::make_shared<MockComm>();
-
-    setenv("GEOPM_REGION_BARRIER", "1", 1);
-    setenv("GEOPM_PROFILE_TIMEOUT", "1", 1);
+    m_comm = geopm::make_unique<MockComm>();
+    //EXPECT_CALL(*m_comm, enable(testing::_))
+        //.WillRepeatedly(testing::Return());
+    geopm::comm_factory().register_plugin("ProfileTestMockComm",
+                                          make_comm_plugin);
 }
 
 ProfileTest::~ProfileTest()
 {
-    unsetenv("GEOPM_REGION_BARRIER");
-    unsetenv("GEOPM_PROFILE_TIMEOUT");
+}
+
+std::unique_ptr<Comm> ProfileTest::make_comm_plugin(void)
+{
+    return std::move(m_comm);
 }
 
 TEST_F(ProfileTest, region)
@@ -228,9 +237,7 @@ TEST_F(ProfileTest, region)
         m_shm_comm = std::make_shared<ProfileTestComm>(shm_rank, M_SHM_COMM_SIZE);
         m_world_comm = geopm::make_unique<ProfileTestComm>(world_rank, m_shm_comm);
 
-        m_profile = geopm::make_unique<ProfileImp>(M_PROF_NAME, M_SHM_KEY, std::move(m_world_comm),
-                                                   std::move(m_ctl_msg), m_topo, std::move(m_table),
-                                                   std::move(m_tprof), std::move(m_scheduler), m_comm);
+        m_profile = geopm::make_unique<ProfileImp>(m_env);
         long hint = 0;
         uint64_t rid = m_profile->region(region_name, hint);
         EXPECT_EQ(expected_rid, rid);
@@ -271,9 +278,7 @@ TEST_F(ProfileTest, enter_exit)
     m_world_comm = geopm::make_unique<ProfileTestComm>(world_rank, m_shm_comm);
     m_scheduler = geopm::make_unique<ProfileTestSampleScheduler>();
 
-    m_profile = geopm::make_unique<ProfileImp>(M_PROF_NAME, M_SHM_KEY, std::move(m_world_comm),
-                                            std::move(m_ctl_msg), m_topo, std::move(m_table),
-                                            std::move(m_tprof), std::move(m_scheduler), m_comm);
+    m_profile = geopm::make_unique<ProfileImp>(m_env);
     long hint = 0;
     for (size_t idx = 0; idx < m_region_names.size(); ++idx) {
         region_name = m_region_names[idx];
@@ -336,9 +341,7 @@ TEST_F(ProfileTest, progress)
     EXPECT_CALL(*m_scheduler, record_exit())
         .WillOnce(testing::Return());
 
-    m_profile = geopm::make_unique<ProfileImp>(M_PROF_NAME, M_SHM_KEY, std::move(m_world_comm),
-                                               std::move(m_ctl_msg), m_topo, std::move(m_table),
-                                               std::move(m_tprof), std::move(m_scheduler), m_comm);
+    m_profile = geopm::make_unique<ProfileImp>(m_env);
     region_name = m_region_names[0];
     long hint = 0;
     uint64_t rid = m_profile->region(m_region_names[0], hint);
@@ -376,9 +379,7 @@ TEST_F(ProfileTest, epoch)
     m_world_comm = geopm::make_unique<ProfileTestComm>(world_rank, m_shm_comm);
     m_scheduler = geopm::make_unique<ProfileTestSampleScheduler>();
 
-    m_profile = geopm::make_unique<ProfileImp>(M_PROF_NAME, M_SHM_KEY, std::move(m_world_comm),
-                                               std::move(m_ctl_msg), m_topo, std::move(m_table),
-                                               std::move(m_tprof), std::move(m_scheduler), m_comm);
+    m_profile = geopm::make_unique<ProfileImp>(m_env);
     m_profile->epoch();
 }
 
@@ -403,9 +404,7 @@ TEST_F(ProfileTest, shutdown)
     m_world_comm = geopm::make_unique<ProfileTestComm>(world_rank, m_shm_comm);
     m_scheduler = geopm::make_unique<ProfileTestSampleScheduler>();
 
-    m_profile = geopm::make_unique<ProfileImp>(M_PROF_NAME, M_SHM_KEY, std::move(m_world_comm),
-                                               std::move(m_ctl_msg), m_topo, std::move(m_table),
-                                               std::move(m_tprof), std::move(m_scheduler), m_comm);
+    m_profile = geopm::make_unique<ProfileImp>(m_env);
     m_profile->shutdown();
     m_profile->region(m_region_names[0], 0);
     m_profile->enter(0);
@@ -444,9 +443,7 @@ TEST_F(ProfileTest, tprof_table)
     m_world_comm = geopm::make_unique<ProfileTestComm>(world_rank, m_shm_comm);
     m_scheduler = geopm::make_unique<ProfileTestSampleScheduler>();
 
-    m_profile = geopm::make_unique<ProfileImp>(M_PROF_NAME, M_SHM_KEY, std::move(m_world_comm),
-                                               std::move(m_ctl_msg), m_topo, std::move(m_table),
-                                               std::move(m_tprof), std::move(m_scheduler), m_comm);
+    m_profile = geopm::make_unique<ProfileImp>(m_env);
     EXPECT_EQ(M_NUM_CPU, m_profile->tprof_table()->num_cpu());
 }
 
@@ -464,8 +461,7 @@ TEST_F(ProfileTestIntegration, config)
             auto tprof_shm = geopm::make_unique<SharedMemoryImp>(M_SHM_KEY + "-tprof", M_NUM_CPU * 64);
             std::string table_shm_key = M_SHM_KEY + "-sample-" + std::to_string(world_rank);
             auto table_shm = geopm::make_unique<SharedMemoryImp>(table_shm_key, M_SHMEM_REGION_SIZE);
-            m_profile = geopm::make_unique<ProfileImp>(M_PROF_NAME, M_SHM_KEY, std::move(m_world_comm),
-                                                       std::move(m_ctl_msg), m_topo, nullptr, nullptr, nullptr, m_comm);
+            //m_profile = geopm::make_unique<ProfileImp>(m_env);
             tprof_shm.reset();
             table_shm.reset();
         }
@@ -480,15 +476,13 @@ TEST_F(ProfileTestIntegration, misconfig_ctl_shmem)
     m_world_comm = geopm::make_unique<ProfileTestComm>(world_rank, m_shm_comm);
 
     // no ctl_shmem
-    ProfileImp(M_PROF_NAME, M_SHM_KEY, std::move(m_world_comm),
-               nullptr, m_topo, nullptr, nullptr, nullptr, m_comm);
+    //ProfileImp(m_env);
 
     // small ctl_shmem
     m_shm_comm = std::make_shared<ProfileTestComm>(shm_rank, M_SHM_COMM_SIZE);
     m_world_comm = geopm::make_unique<ProfileTestComm>(world_rank, m_shm_comm);
     auto ctl_shm = geopm::make_unique<SharedMemoryImp>(M_SHM_KEY + "-sample", 1);
-    ProfileImp(M_PROF_NAME, M_SHM_KEY, std::move(m_world_comm),
-               nullptr, m_topo, nullptr, nullptr, nullptr, m_comm);
+    //ProfileImp(m_env);
 }
 
 TEST_F(ProfileTestIntegration, misconfig_tprof_shmem)
@@ -500,8 +494,7 @@ TEST_F(ProfileTestIntegration, misconfig_tprof_shmem)
     m_world_comm = geopm::make_unique<ProfileTestComm>(world_rank, m_shm_comm);
 
     // no tprof_shmem
-    ProfileImp(M_PROF_NAME, M_SHM_KEY, std::move(m_world_comm),
-               std::move(m_ctl_msg), m_topo, nullptr, nullptr, nullptr, m_comm);
+    //ProfileImp(m_env);
 
     m_ctl_msg = geopm::make_unique<ProfileTestControlMessage>();
     m_shm_comm = std::make_shared<ProfileTestComm>(shm_rank, M_SHM_COMM_SIZE);
@@ -509,8 +502,7 @@ TEST_F(ProfileTestIntegration, misconfig_tprof_shmem)
 
     // small tprof_shmem
     auto tprof_shm = geopm::make_unique<SharedMemoryImp>(M_SHM_KEY + "-tprof", (M_NUM_CPU * 64) - 1);
-    ProfileImp(M_PROF_NAME, M_SHM_KEY, std::move(m_world_comm),
-               std::move(m_ctl_msg), m_topo, nullptr, nullptr, nullptr, m_comm);
+    //ProfileImp(m_env);
 }
 
 TEST_F(ProfileTestIntegration, misconfig_table_shmem)
@@ -523,8 +515,7 @@ TEST_F(ProfileTestIntegration, misconfig_table_shmem)
     m_tprof = geopm::make_unique<ProfileTestProfileThreadTable>(M_NUM_CPU);
 
     // no table_shmem
-    ProfileImp(M_PROF_NAME, M_SHM_KEY, std::move(m_world_comm),
-               std::move(m_ctl_msg), m_topo, nullptr, std::move(m_tprof), nullptr, m_comm);
+    //ProfileImp(m_env);
 
     m_ctl_msg = geopm::make_unique<ProfileTestControlMessage>();
     m_shm_comm = std::make_shared<ProfileTestComm>(shm_rank, M_SHM_COMM_SIZE);
@@ -534,8 +525,7 @@ TEST_F(ProfileTestIntegration, misconfig_table_shmem)
     auto table_shm = geopm::make_unique<SharedMemoryImp>(table_shm_key, 1);
 
     // small table_shmem
-    ProfileImp(M_PROF_NAME, M_SHM_KEY, std::move(m_world_comm),
-               std::move(m_ctl_msg), m_topo, nullptr, std::move(m_tprof), nullptr, m_comm);
+    //ProfileImp(m_env);
 }
 
 TEST_F(ProfileTestIntegration, misconfig_affinity)
@@ -552,6 +542,5 @@ TEST_F(ProfileTestIntegration, misconfig_affinity)
     auto tprof_shm = geopm::make_unique<SharedMemoryImp>(M_SHM_KEY + "-tprof", M_NUM_CPU * 64);
     std::string table_shm_key = M_SHM_KEY + "-sample-" + std::to_string(world_rank);
     auto table_shm = geopm::make_unique<SharedMemoryImp>(table_shm_key, M_SHMEM_REGION_SIZE);
-    ProfileImp(M_PROF_NAME, M_SHM_KEY, std::move(m_world_comm),
-               std::move(m_ctl_msg), m_topo, nullptr, nullptr, nullptr, m_comm);
+    //ProfileImp(m_env);
 }
