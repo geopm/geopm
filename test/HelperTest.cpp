@@ -38,36 +38,36 @@
 #include "Helper.hpp"
 #include "geopm_test.hpp"
 
-TEST(HelperTest, split_string)
+TEST(HelperTest, string_split)
 {
     std::vector<std::string> result;
     std::vector<std::string> expected;
 
-    result = geopm::split_string("", " ");
+    result = geopm::string_split("", " ");
     expected = {};
     EXPECT_EQ(expected, result);
 
-    result = geopm::split_string(":", ":");
+    result = geopm::string_split(":", ":");
     expected = {"", ""};
     EXPECT_EQ(expected, result);
 
-    result = geopm::split_string(" ", ":");
+    result = geopm::string_split(" ", ":");
     expected = {" "};
     EXPECT_EQ(expected, result);
 
-    result = geopm::split_string("one:two", " ");
+    result = geopm::string_split("one:two", " ");
     expected = {"one:two"};
     EXPECT_EQ(expected, result);
 
-    result = geopm::split_string("one:two", ":");
+    result = geopm::string_split("one:two", ":");
     expected = {"one", "two"};
     EXPECT_EQ(expected, result);
 
-    result = geopm::split_string(":one::two:three:", ":");
+    result = geopm::string_split(":one::two:three:", ":");
     expected = {"", "one", "", "two", "three", ""};
     EXPECT_EQ(expected, result);
 
-    GEOPM_EXPECT_THROW_MESSAGE(geopm::split_string("one:two", ""),
+    GEOPM_EXPECT_THROW_MESSAGE(geopm::string_split("one:two", ""),
                                GEOPM_ERROR_INVALID,
                                "invalid delimiter");
 }
