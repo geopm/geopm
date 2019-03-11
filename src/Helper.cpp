@@ -66,7 +66,7 @@ namespace geopm
         return contents;
     }
 
-    std::vector<std::string> split_string(const std::string &str,
+    std::vector<std::string> string_split(const std::string &str,
                                           const std::string &delim)
     {
         if (delim.empty()) {
