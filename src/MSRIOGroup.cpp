@@ -838,7 +838,7 @@ namespace geopm
         const char *env_plugin_path = geopm_env_plugin_path();
         std::vector<std::string> plugin_paths {GEOPM_DEFAULT_PLUGIN_PATH};
         if (env_plugin_path) {
-            std::vector<std::string> dirs = split_string(std::string(env_plugin_path), ":");
+            std::vector<std::string> dirs = string_split(std::string(env_plugin_path), ":");
             plugin_paths.insert(plugin_paths.end(), dirs.begin(), dirs.end());
         }
         std::vector<std::unique_ptr<IMSR> > msr_arr_custom;
