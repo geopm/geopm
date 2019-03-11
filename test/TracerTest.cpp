@@ -95,7 +95,7 @@ void TracerTest::SetUp(void)
         {"TEMPERATURE_CORE", IPlatformTopo::M_DOMAIN_BOARD, 0}
     };
     m_extra_cols_str = "EXTRA,EXTRA_SPECIAL@cpu";
-    m_extra_cols = geopm::split_string(m_extra_cols_str, ",");
+    m_extra_cols = geopm::string_split(m_extra_cols_str, ",");
 
     int idx = 0;
     for (auto cc : m_default_cols) {

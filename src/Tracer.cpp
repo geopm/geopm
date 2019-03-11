@@ -138,8 +138,8 @@ namespace geopm
             m_region_runtime_idx = 5;
 
             // extra columns from environment
-            for (const auto &extra_signal : split_string(m_env_column, ",")) {
-                std::vector<std::string> signal_domain = split_string(extra_signal, "@");
+            for (const auto &extra_signal : string_split(m_env_column, ",")) {
+                std::vector<std::string> signal_domain = string_split(extra_signal, "@");
                 if (signal_domain.size() == 2) {
                     int domain_type = m_platform_topo.domain_name_to_type(signal_domain[1]);
                     int num_domain = m_platform_topo.num_domain(domain_type);

@@ -59,7 +59,7 @@ static void __attribute__((constructor)) geopmpolicy_load(void)
         }
         env_plugin_path_str = std::string(env_plugin_path);
         // load paths in reverse order from environment variable list
-        auto user_paths = geopm::split_string(env_plugin_path_str, ":");
+        auto user_paths = geopm::string_split(env_plugin_path_str, ":");
         std::reverse(user_paths.begin(), user_paths.end());
         plugin_paths.insert(plugin_paths.end(), user_paths.begin(), user_paths.end());
     }
