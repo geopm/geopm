@@ -91,8 +91,8 @@ namespace geopm
         m_energy_dram_idx = m_region_agg->push_signal_total("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_clk_core_idx = m_region_agg->push_signal_total("CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0);
         m_clk_ref_idx = m_region_agg->push_signal_total("CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        for (const std::string &signal_name : split_string(m_env_signals, ",")) {
-            std::vector<std::string> signal_name_domain = split_string(signal_name, "@");
+        for (const std::string &signal_name : string_split(m_env_signals, ",")) {
+            std::vector<std::string> signal_name_domain = string_split(signal_name, "@");
             if (signal_name_domain.size() == 2) {
                 int domain_type = m_platform_topo.domain_name_to_type(signal_name_domain[1]);
                 for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(domain_type); ++domain_idx) {

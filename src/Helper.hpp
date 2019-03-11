@@ -59,7 +59,7 @@ namespace geopm
     /// @param [in] delim The delimiter to use to divide the string.
     ///        Cannot be empty.
     /// @return A vector of string pieces.
-    std::vector<std::string> split_string(const std::string &str,
+    std::vector<std::string> string_split(const std::string &str,
                                           const std::string &delim);
 
     /// @brief Returns the current hostname as a string.
