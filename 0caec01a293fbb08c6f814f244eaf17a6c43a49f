@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d6eb5131_e58740a0",
+        "filename": "src/Helper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-11T17:38:46Z",
+      "side": 1,
+      "message": "throw, print strerror(errno)",
+      "parentUuid": "3ba77c7c_7e170c45",
+      "range": {
+        "startLine": 111,
+        "startChar": 7,
+        "endLine": 111,
+        "endChar": 9
+      },
+      "revId": "0caec01a293fbb08c6f814f244eaf17a6c43a49f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "38797f14_1e18efcf",
         "filename": "src/Helper.hpp",
         "patchSetId": 2
