@@ -119,17 +119,15 @@ namespace geopm
         return file_list;
     }
 
-    int string_begins_with(const std::string &str, const std::string &key)
+    bool string_begins_with(const std::string &str, const std::string &key)
     {
-        int result = str.find(key) == 0;
-        return result;
+        return (str.find(key) == 0);
     }
 
-    int string_ends_with(std::string str, std::string key)
+    bool string_ends_with(std::string str, std::string key)
     {
         std::reverse(str.begin(), str.end());
         std::reverse(key.begin(), key.end());
         return string_begins_with(str, key);
     }
-
 }
