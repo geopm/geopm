@@ -70,10 +70,10 @@ namespace geopm
     std::vector<std::string> list_directory_files(const std::string &path);
 
     /// @brief Returns whether one string begins with another.
-    int string_begins_with(const std::string &str, const std::string &key);
+    bool string_begins_with(const std::string &str, const std::string &key);
 
     /// @brief Returns whether one string ends with another.
-    int string_ends_with(std::string str, std::string key);
+    bool string_ends_with(std::string str, std::string key);
 }
 
 #endif

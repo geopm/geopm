@@ -100,6 +100,8 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/EpochRuntimeRegulatorTest.rank_enter_exit_trace \
               test/gtest_links/EpochRuntimeRegulatorTest.unknown_region \
               test/gtest_links/ExceptionTest.hello \
+              test/gtest_links/HelperTest.string_begins_with \
+              test/gtest_links/HelperTest.string_ends_with \
               test/gtest_links/HelperTest.string_split \
               test/gtest_links/IOGroupTest.control_names_are_valid \
               test/gtest_links/IOGroupTest.controls_have_descriptions \
