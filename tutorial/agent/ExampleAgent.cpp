@@ -86,10 +86,9 @@ void ExampleAgent::init(int level, const std::vector<int> &fan_in, bool is_level
 }
 
 // Validate incoming policy and configure default policy requests.
-std::vector<double> ExampleAgent::validate_policy(const std::vector<double> &in_policy) const
+void ExampleAgent::validate_policy(std::vector<double> &in_policy) const
 {
     assert(in_policy.size() == M_NUM_POLICY);
-    return in_policy;
 }
 
 // Distribute incoming policy to children
