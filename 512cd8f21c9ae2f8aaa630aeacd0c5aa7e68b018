@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5258f4a0_3d2db89d",
+        "filename": "src/MSRIOGroup.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-12T19:18:56Z",
+      "side": 1,
+      "message": "change back to warning",
+      "revId": "512cd8f21c9ae2f8aaa630aeacd0c5aa7e68b018",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e0196dc_1c4c4084",
+        "filename": "test/MSRIOGroupTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-12T19:18:56Z",
+      "side": 1,
+      "message": "consider using NiceMock",
+      "revId": "512cd8f21c9ae2f8aaa630aeacd0c5aa7e68b018",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
