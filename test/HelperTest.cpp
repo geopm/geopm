@@ -71,3 +71,21 @@ TEST(HelperTest, string_split)
                                GEOPM_ERROR_INVALID,
                                "invalid delimiter");
 }
+
+TEST(HelperTest, string_begins_with)
+{
+    EXPECT_EQ(1, geopm::string_begins_with("apple pie", "apple"));
+    EXPECT_EQ(0, geopm::string_begins_with("apple pie", "pie"));
+    EXPECT_EQ(1, geopm::string_begins_with("banana", "banana"));
+    EXPECT_EQ(0, geopm::string_begins_with("", "nothing"));
+    EXPECT_EQ(1, geopm::string_begins_with("nothing", ""));
+}
+
+TEST(HelperTest, string_ends_with)
+{
+    EXPECT_EQ(1, geopm::string_ends_with("strawberry milkshake", "shake"));
+    EXPECT_EQ(0, geopm::string_ends_with("strawberry milkshake", "straw"));
+    EXPECT_EQ(1, geopm::string_ends_with("orange", "orange"));
+    EXPECT_EQ(0, geopm::string_ends_with("", "plum"));
+    EXPECT_EQ(1, geopm::string_ends_with("plum", ""));
+}

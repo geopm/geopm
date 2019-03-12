@@ -119,7 +119,7 @@ namespace geopm
 
     int string_begins_with(const std::string &str, const std::string &key)
     {
-        int result = str.find(key) == 0;
+        int result = (str.find(key) == 0);
         return result;
     }
 
@@ -129,5 +129,4 @@ namespace geopm
         std::reverse(key.begin(), key.end());
         return string_begins_with(str, key);
     }
-
 }
