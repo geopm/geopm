@@ -149,8 +149,8 @@ namespace geopm
         m_freq_governor->get_frequency_bounds(freq_min, freq_max);
         std::vector<double> target_freq;
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
-            const uint64_t curr_hash = m_last_region[ctl_idx].hash;
-            const uint64_t curr_hint = m_last_region[ctl_idx].hint;
+            const uint64_t curr_hash = m_last_region[ctl_idx].region_hash;
+            const uint64_t curr_hint = m_last_region[ctl_idx].region_hint;
             auto it = m_hash_freq_map.find(curr_hash);
             if (it != m_hash_freq_map.end()) {
                 freq = it->second;
@@ -191,8 +191,8 @@ namespace geopm
     bool FrequencyMapAgent::sample_platform(std::vector<double> &out_sample)
     {
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
-            m_last_region[ctl_idx].hash = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH][ctl_idx]);
-            m_last_region[ctl_idx].hint = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HINT][ctl_idx]);
+            m_last_region[ctl_idx].region_hash = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH][ctl_idx]);
+            m_last_region[ctl_idx].region_hint = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HINT][ctl_idx]);
         }
         return false;
     }
@@ -265,9 +265,9 @@ namespace geopm
         }
         const int freq_ctl_domain_type = m_freq_governor->init_platform_io();
         m_num_freq_ctl_domain = m_platform_topo.num_domain(freq_ctl_domain_type);
-        m_last_region = std::vector<struct region_info_s>(m_num_freq_ctl_domain,
-                                                          (struct region_info_s) {.hash = GEOPM_REGION_HASH_INVALID,
-                                                                                  .hint = GEOPM_REGION_HINT_UNKNOWN});
+        m_last_region = std::vector<struct geopm_region_info_s>(m_num_freq_ctl_domain,
+                                                          (struct geopm_region_info_s) {.region_hash = GEOPM_REGION_HASH_INVALID,
+                                                                                  .region_hint = GEOPM_REGION_HINT_UNKNOWN});
         m_last_freq = std::vector<double>(m_num_freq_ctl_domain, NAN);
         std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT"};
         for (size_t sig_idx = 0; sig_idx < M_NUM_SIGNAL; ++sig_idx) {
