@@ -153,8 +153,8 @@ TEST_F(ApplicationIOTest, passthrough)
     EXPECT_EQ(expected.size(), result.size());
     auto exp_it = expected.cbegin();
     for (auto res_it = result.cbegin(); (res_it != result.end()) &&(exp_it != expected.end());) {
-        EXPECT_EQ(exp_it->region_hash, res_it->region_hash);
-        EXPECT_EQ(exp_it->region_hint, res_it->region_hint);
+        EXPECT_EQ(exp_it->hash, res_it->hash);
+        EXPECT_EQ(exp_it->hint, res_it->hint);
         EXPECT_EQ(exp_it->progress, res_it->progress);
         EXPECT_EQ(exp_it->runtime, res_it->runtime);
         ++res_it;
