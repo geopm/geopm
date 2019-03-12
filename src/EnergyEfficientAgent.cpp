@@ -176,8 +176,8 @@ namespace geopm
         m_freq_governor->get_frequency_bounds(freq_min, freq_max);
         std::vector<double> target_freq;
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
-            const uint64_t curr_hash = m_last_region[ctl_idx].hash;
-            //const uint64_t curr_hint = m_last_region[ctl_idx].hint;
+            const uint64_t curr_hash = m_last_region[ctl_idx].region_hash;
+            //const uint64_t curr_hint = m_last_region[ctl_idx].region_hint;
             auto freq_it = m_adapt_freq_map.find(curr_hash);
             auto reg_it = m_region_map.find(curr_hash);
             if (freq_it != m_adapt_freq_map.end() &&
@@ -209,7 +209,7 @@ namespace geopm
             const uint64_t current_region_hash = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH][ctl_idx]);
             const uint64_t current_region_hint = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HINT][ctl_idx]);
             if (current_region_hash != GEOPM_REGION_HASH_INVALID) {
-                bool is_region_boundary = m_last_region[ctl_idx].hash != current_region_hash;
+                bool is_region_boundary = m_last_region[ctl_idx].region_hash != current_region_hash;
                 if (is_region_boundary) {
                     double freq_min = NAN;
                     double freq_max = NAN;
@@ -230,7 +230,7 @@ namespace geopm
                     }
 
                     // update previous region (exit)
-                    uint64_t last_region = m_last_region[ctl_idx].hash;
+                    uint64_t last_region = m_last_region[ctl_idx].region_hash;
                     if (last_region != GEOPM_REGION_HASH_INVALID &&
                         last_region != GEOPM_REGION_HASH_UNMARKED) {
                         auto last_region_it = m_region_map.find(last_region);
@@ -241,8 +241,8 @@ namespace geopm
                         last_region_it->second->update_exit();
                     }
                 }
-                m_last_region[ctl_idx].hash = current_region_hash;
-                m_last_region[ctl_idx].hint = current_region_hint;
+                m_last_region[ctl_idx].region_hash = current_region_hash;
+                m_last_region[ctl_idx].region_hint = current_region_hint;
             }
         }
         return true;
@@ -317,9 +317,9 @@ namespace geopm
         }
         const int freq_ctl_domain_type = m_freq_governor->init_platform_io();
         m_num_freq_ctl_domain = m_platform_topo.num_domain(freq_ctl_domain_type);
-        m_last_region = std::vector<struct region_info_s>(m_num_freq_ctl_domain,
-                                                          (struct region_info_s) {.hash = GEOPM_REGION_HASH_INVALID,
-                                                                                  .hint = GEOPM_REGION_HINT_UNKNOWN});
+        m_last_region = std::vector<struct geopm_region_info_s>(m_num_freq_ctl_domain,
+                                                          (struct geopm_region_info_s) {.region_hash = GEOPM_REGION_HASH_INVALID,
+                                                                                  .region_hint = GEOPM_REGION_HINT_UNKNOWN});
         m_last_freq = std::vector<double>(m_num_freq_ctl_domain, NAN);
         std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT", "REGION_RUNTIME"};
         for (size_t sig_idx = 0; sig_idx < signal_names.size(); ++sig_idx) {
