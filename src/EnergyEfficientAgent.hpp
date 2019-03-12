@@ -39,6 +39,7 @@
 #include <memory>
 #include <functional>
 
+#include "geopm.h"
 #include "geopm_time.h"
 
 #include "Agent.hpp"
@@ -101,10 +102,6 @@ namespace geopm
                 M_NUM_SIGNAL,
             };
 
-            struct region_info_s {
-                uint64_t hash;
-                uint64_t hint;
-            };
 
             const int M_PRECISION;
             IPlatformIO &m_platform_io;
@@ -113,7 +110,7 @@ namespace geopm
             const size_t M_SEND_PERIOD;
             std::vector<int> m_control_idx;
             std::vector<double> m_last_freq;
-            std::vector<struct region_info_s>  m_last_region;
+            std::vector<struct geopm_region_info_s>  m_last_region;
             std::map<uint64_t, double> m_adapt_freq_map;
             std::map<uint64_t, std::unique_ptr<EnergyEfficientRegion> > m_region_map;
             geopm_time_s m_last_wait;

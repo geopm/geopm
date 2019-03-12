@@ -61,16 +61,6 @@ enum geopm_ctl_e {
     GEOPM_CTL_PTHREAD,
 };
 
-/// @brief Used to pass information about regions entered and exited
-/// from the application to the tracer.
-struct geopm_region_info_s
-{
-    uint64_t region_hash;
-    uint64_t region_hint;
-    double progress;
-    double runtime;
-};
-
 /// @brief Structure used to hold single profiling
 /// messages obtained from the application.
 struct geopm_prof_message_s {
