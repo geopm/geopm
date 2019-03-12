@@ -70,6 +70,16 @@ enum geopm_region_hint_e {
                                   GEOPM_REGION_HINT_IGNORE,
 };
 
+/// @brief Used to pass information about regions entered and exited
+/// from the application to the tracer.
+struct geopm_region_info_s
+{
+    uint64_t hash;
+    uint64_t hint;
+    double progress;
+    double runtime;
+};
+
 /*************************/
 /* APPLICATION PROFILING */
 /*************************/

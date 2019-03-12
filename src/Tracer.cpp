@@ -251,10 +251,10 @@ namespace geopm
                 if (!((idx == region_entry_exit.size() - 1) &&
                       region_progress == reg.progress &&
                       region_progress == 0.0 &&
-                      region_hash == reg.region_hash &&
-                      region_hint == reg.region_hint )) {
-                    m_last_telemetry[m_region_hash_idx] = reg.region_hash;
-                    m_last_telemetry[m_region_hint_idx] = reg.region_hint;
+                      region_hash == reg.hash &&
+                      region_hint == reg.hint )) {
+                    m_last_telemetry[m_region_hash_idx] = reg.hash;
+                    m_last_telemetry[m_region_hint_idx] = reg.hint;
                     m_last_telemetry[m_region_progress_idx] = reg.progress;
                     m_last_telemetry[m_region_runtime_idx] = reg.runtime;
                     write_line();

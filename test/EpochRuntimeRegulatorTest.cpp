@@ -122,8 +122,8 @@ TEST_F(EpochRuntimeRegulatorTest, rank_enter_exit_trace)
     // region info should be based on last entry and first exit
     // for time all the ranks were in the region
     for (const auto &info : region_info) {
-        EXPECT_EQ(geopm_region_id_hash(region_id), info.region_hash);
-        EXPECT_EQ(geopm_region_id_hint(region_id), info.region_hint);
+        EXPECT_EQ(geopm_region_id_hash(region_id), info.hash);
+        EXPECT_EQ(geopm_region_id_hint(region_id), info.hint);
         EXPECT_EQ(expected_progress[idx], info.progress);
         EXPECT_EQ(expected_runtime[idx], info.runtime);
         ++idx;
