@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92db49b6_1df3df01",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-03-13T21:56:19Z",
+      "side": 1,
+      "message": "this propmted the io.py change.  todo really address the req\u0027s here (report) and in trace for agent augmentation requirements (avoid future collisions).",
+      "range": {
+        "startLine": 265,
+        "startChar": 59,
+        "endLine": 265,
+        "endChar": 72
+      },
+      "revId": "cd1f8880c6bc066c564dbd9c473fbdcf7b88f856",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
