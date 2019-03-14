@@ -178,6 +178,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/PlatformTopoTest.bdx_nested_domains \
               test/gtest_links/PlatformTopoTest.bdx_num_domain \
               test/gtest_links/PlatformTopoTest.construction \
+              test/gtest_links/PlatformTopoTest.create_cache \
               test/gtest_links/PlatformTopoTest.domain_name_to_type \
               test/gtest_links/PlatformTopoTest.domain_type_to_name \
               test/gtest_links/PlatformTopoTest.hsw_num_domain \

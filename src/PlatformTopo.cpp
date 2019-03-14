@@ -29,11 +29,16 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <cpuid.h>
+
 #include <map>
 #include <sstream>
 #include <string>
-#include <cpuid.h>
 
 #include "geopm_sched.h"
 #include "PlatformTopo.hpp"
@@ -87,9 +92,10 @@ namespace geopm
 
     }
 
-    PlatformTopoImp::PlatformTopoImp(const std::string &lscpu_file_name)
-        : M_LSCPU_FILE_NAME("/tmp/geopm-lscpu.log")
-        , M_TEST_LSCPU_FILE_NAME(lscpu_file_name)
+    const std::string PlatformTopoImp::M_CACHE_FILE_NAME = "/tmp/geopm-topo-cache";
+
+    PlatformTopoImp::PlatformTopoImp(const std::string &test_cache_file_name)
+        : M_TEST_CACHE_FILE_NAME(test_cache_file_name)
         , m_do_fclose(true)
     {
         std::map<std::string, std::string> lscpu_map;
@@ -364,6 +370,34 @@ namespace geopm
         return it->second;
     }
 
+    void PlatformTopoImp::create_cache(void)
+    {
+        create_cache(M_CACHE_FILE_NAME);
+    }
+
+    void PlatformTopoImp::create_cache(const std::string &cache_file_name)
+    {
+        // If cache file is not present, create it
+        struct stat cache_stat;
+        if (stat(cache_file_name.c_str(), &cache_stat)) {
+            std::string cmd = "out=" + cache_file_name + ";"
+                              "lscpu -x > $out && "
+                              "chmod a+rw $out";
+            FILE *pid;
+            int err = geopm_sched_popen(cmd.c_str(), &pid);
+            if (err) {
+                unlink(cache_file_name.c_str());
+                throw Exception("PlatformTopo::create_cache(): Could not popen lscpu command: ",
+                         err, __FILE__, __LINE__);
+            }
+            if (pclose(pid)) {
+                unlink(cache_file_name.c_str());
+                throw Exception("PlatformTopo::create_cache(): Could not pclose lscpu command: ",
+                         errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+        }
+    }
+
     void PlatformTopoImp::parse_lscpu(const std::map<std::string, std::string> &lscpu_map,
                                    int &num_package,
                                    int &core_per_package,
@@ -455,15 +489,15 @@ namespace geopm
     FILE *PlatformTopoImp::open_lscpu(void)
     {
         FILE *result = nullptr;
-        if (M_TEST_LSCPU_FILE_NAME.size()) {
-            result = fopen(M_TEST_LSCPU_FILE_NAME.c_str(), "r");
+        if (M_TEST_CACHE_FILE_NAME.size()) {
+            result = fopen(M_TEST_CACHE_FILE_NAME.c_str(), "r");
             if (!result) {
                 throw Exception("PlatformTopoImp::open_lscpu(): Could not open test lscpu file",
                                 errno ? errno : GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
         }
         else {
-            result = fopen(M_LSCPU_FILE_NAME.c_str(), "r");
+            result = fopen(M_CACHE_FILE_NAME.c_str(), "r");
             if (!result) {
                 int err = geopm_sched_popen("lscpu -x", &result);
                 if (err) {

@@ -129,13 +129,17 @@ namespace geopm
     {
         public:
             PlatformTopoImp();
-            PlatformTopoImp(const std::string &lscpu_file_name);
+            PlatformTopoImp(const std::string &test_cache_file_name);
             virtual ~PlatformTopoImp() = default;
             int num_domain(int domain_type) const override;
             int domain_idx(int domain_type,
                            int cpu_idx) const override;
             bool is_domain_within(int inner_domain, int outer_domain) const override;
             std::set<int> nested_domains(int inner_domain, int outer_domain, int outer_idx) const override;
+            /// @brief Create cache file in tmpfs that can be read
+            ///        instead of popen() call.
+            static void create_cache(void);
+            static void create_cache(const std::string &cache_file_name);
         private:
             /// @brief Get the set of Linux logical CPUs associated
             ///        with the indexed domain.
@@ -152,8 +156,8 @@ namespace geopm
             FILE *open_lscpu(void);
             void close_lscpu(FILE *fid);
 
-            const std::string M_LSCPU_FILE_NAME;
-            const std::string M_TEST_LSCPU_FILE_NAME;
+            static const std::string M_CACHE_FILE_NAME;
+            const std::string M_TEST_CACHE_FILE_NAME;
             bool m_do_fclose;
             int m_num_package;
             int m_core_per_package;
