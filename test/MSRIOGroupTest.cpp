@@ -950,18 +950,18 @@ TEST_F(MSRIOGroupTest, parse_json_msrs)
     ASSERT_EQ(2u, msr_list.size());
     auto &msr0 = msr_list[0];
     EXPECT_EQ("MSR_ONE", msr0->name());
-    EXPECT_EQ(0x12, msr0->offset());
+    EXPECT_EQ(0x12U, msr0->offset());
     EXPECT_EQ(IPlatformTopo::M_DOMAIN_PACKAGE, msr0->domain_type());
-    EXPECT_EQ(1u, msr0->num_signal());
-    EXPECT_EQ(0u, msr0->num_control());
+    EXPECT_EQ(1, msr0->num_signal());
+    EXPECT_EQ(0, msr0->num_control());
     EXPECT_EQ("FIELD_RO", msr0->signal_name(0));
 
     auto &msr1 = msr_list[1];
     EXPECT_EQ("MSR_TWO", msr1->name());
-    EXPECT_EQ(0x10, msr1->offset());
+    EXPECT_EQ(0x10U, msr1->offset());
     EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, msr1->domain_type());
-    EXPECT_EQ(1u, msr1->num_signal());
-    EXPECT_EQ(1u, msr1->num_control());
+    EXPECT_EQ(1, msr1->num_signal());
+    EXPECT_EQ(1, msr1->num_control());
     EXPECT_EQ("FIELD_RW", msr1->signal_name(0));
     EXPECT_EQ("FIELD_RW", msr1->control_name(0));
 }
