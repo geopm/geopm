@@ -93,6 +93,19 @@ fi
 [enable_overhead="0"]
 )
 
+AC_ARG_ENABLE([beta],
+  [AS_HELP_STRING([--enable-beta], [Enable beta features of GEOPM that have intefaces expected to change])],
+[if test "x$enable_beta" = "xno" ; then
+  enable_beta="0"
+else
+  enable_beta="1"
+fi
+],
+[enable_beta="0"]
+)
+AC_SUBST([enable_beta])
+AM_CONDITIONAL([ENABLE_BETA], [test "x$enable_beta" = "x1"])
+
 AC_ARG_ENABLE([procfs],
   [AS_HELP_STRING([--disable-procfs], [Disable use of procfs for use on operating systems other than standard Linux])],
 [if test "x$enable_procfs" = "xno" ; then
@@ -148,7 +161,7 @@ fi
 AC_SUBST([enable_procfs])
 
 if test "x$enable_msrsafe_ioctl_write" = "x1" ; then
-  AC_DEFINE([GEOPM_MSRSAFE_IOCTL_WRITE], [ ], [Enables user of msr-safe ioctl feature for writing (broken as of msr-safe version 1.2.0)])
+  AC_DEFINE([GEOPM_MSRSAFE_IOCTL_WRITE], [ ], [Enables use of msr-safe ioctl feature for writing (broken as of msr-safe version 1.2.0)])
 fi
 AC_SUBST([enable_msrsafe_ioctl_write])
 
@@ -462,7 +475,15 @@ CHANGELOG=ChangeLog
 AC_SUBST_FILE([BLURB])
 BLURB=BLURB
 
-AC_CONFIG_FILES([Makefile geopm.spec geopm-ohpc.spec geopm-theta.spec scripts/geopmpy/version.py ronn/geopm.7.ronn])
+if test "x$enable_beta" = "x1"; then
+INSTALL_PYTHON_PROGS="'geopmlaunch', 'geopmanalysis', 'geopmplotter'"
+else
+INSTALL_PYTHON_PROGS="'geopmlaunch'"
+fi
+AC_SUBST([INSTALL_PYTHON_PROGS])
+
+AC_CONFIG_FILES([Makefile geopm.spec geopm-ohpc.spec geopm-theta.spec scripts/geopmpy/version.py ronn/geopm.7.ronn scripts/setup.py])
+AC_CONFIG_COMMANDS([setup.py], [chmod +x scripts/setup.py])
 AC_OUTPUT
 
 # ============================================================================
@@ -517,4 +538,5 @@ AC_MSG_RESULT([openmp             : ${enable_openmp}])
 AC_MSG_RESULT([fortran            : ${enable_fortran}])
 AC_MSG_RESULT([doc                : ${enable_doc}])
 AC_MSG_RESULT([ompt               : ${enable_ompt}])
+AC_MSG_RESULT([beta               : ${enable_beta}])
 AC_MSG_RESULT([===============================================================================])

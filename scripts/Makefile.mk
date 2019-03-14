@@ -46,6 +46,7 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmpy/version.py \
               scripts/requirements.txt \
               scripts/setup.py \
+              scripts/setup.py.in \
               scripts/test/TestAffinity.py \
               scripts/test/TestAnalysisCommandLine.py \
               scripts/test/TestBalancerAnalysis.py \
@@ -103,7 +104,11 @@ $(PYTEST_TESTS): scripts/test/pytest_links/%:
 clean-local-pytest-script-links:
 	rm -f scripts/test/pytest_links/*
 
-CLEAN_LOCAL_TARGETS += clean-local-pytest-script-links
+clean-local-python: scripts/setup.py
+	cd scripts && ./setup.py clean --all
 
-install-python:
+CLEAN_LOCAL_TARGETS += clean-local-pytest-script-links \
+                       clean-local-python
+
+install-python: scripts/setup.py
 	cd scripts && ./setup.py install -O1 --root $(DESTDIR)/ --prefix $(prefix)
