@@ -42,6 +42,9 @@ PRINT DOMAIN NAME AND SIZE <br>
 READ SIGNAL <br>
 `geopmread` SIGNAL_NAME DOMAIN_TYPE DOMAIN_INDEX
 
+CREATE CACHE <br>
+`geopmread` --cache
+
 GET HELP OR VERSION <br>
 `geopmread` --help | --version
 
@@ -80,6 +83,13 @@ board domain.  Note that not all signals have aggregation functions,
 and if a signal is not readable at board domain, it cannot be printed
 in the trace.
 
+This utility can be used to create a geopm::PlatformTopo cache file in
+the tmpfs.  When this file is not present the **geopmread(1)**,
+**geopmwrite(1)**, **geopmctl(1)** and **geopmlaunch(1)** will
+**popen(1)** a subprocess which provides the platform topology
+information.  This subprocess will not be created if the cache file
+exists.  The the `--cache` option below for more information.
+
 ## OPTIONS
 
   * `-d`, `--domain`:
@@ -89,6 +99,14 @@ in the trace.
   * `-i`, `--info`:
     Print description of a signal if SIGNAL_NAME is provided, or print a
     list of all available signals with their descriptions, if any.
+
+  * `-c`, `--cache`:
+    Create a cache file for the geopm::PlatformTopo object if one does
+    not exist.  File permissions of the cache file are set to
+    "-rw-rw-rw-", i.e. 666. The path for the cache file is
+    "/tmp/geopm-topo-cache".  If the file exists no operation will be
+    performed.  To force the creation of a new cache file, remove the
+    existing cache file prior to executing this command.
 
   * `-h`, `--help`:
     Print brief summary of the command line usage information,
