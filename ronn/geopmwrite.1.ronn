@@ -42,6 +42,9 @@ PRINT DOMAIN NAME AND SIZE <br>
 WRITE CONTROL <br>
 `geopmwrite` CONTROL_NAME DOMAIN_TYPE DOMAIN_INDEX VALUE
 
+CREATE CACHE <br>
+`geopmwrite` --cache
+
 GET HELP OR VERSION <br>
 `geopmwrite` --help | --version
 
@@ -80,11 +83,30 @@ they are contained within one another.
 ++`board_nic` - NIC attached to the board <br>
 ++`board_accelerator` - domain for accelerators on the board
 
+This utility can be used to create a geopm::PlatformTopo cache file in
+the tmpfs.  When this file is not present the **geopmread(1)**,
+**geopmwrite(1)**, **geopmctl(1)** and **geopmlaunch(1)** will
+**popen(1)** a subprocess which provides the platform topology
+information.  This subprocess will not be created if the cache file
+exists.  See the `--cache` option below for more information.
+
 ## OPTIONS
 
   * `-d`, `--domain`:
     Print domain of a control if CONTROL_NAME is provided, or print a
     list of all domains on the system.
+
+  * `-i`, `--info`:
+    Print description of a signal if CONTROL_NAME is provided, or print a
+    list of all available controls with their descriptions, if any.
+
+  * `-c`, `--cache`:
+    Create a cache file for the geopm::PlatformTopo object if one does
+    not exist.  File permissions of the cache file are set to
+    "-rw-rw-rw-", i.e. 666. The path for the cache file is
+    "/tmp/geopm-topo-cache".  If the file exists no operation will be
+    performed.  To force the creation of a new cache file, remove the
+    existing cache file prior to executing this command.
 
   * `-h`, `--help`:
     Print brief summary of the command line usage information,
