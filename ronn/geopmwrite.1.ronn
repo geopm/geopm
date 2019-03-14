@@ -86,6 +86,14 @@ they are contained within one another.
     Print domain of a control if CONTROL_NAME is provided, or print a
     list of all domains on the system.
 
+  * `-i`, `--info`:
+    Print description of a signal if CONTROL_NAME is provided, or print a
+    list of all available controls with their descriptions, if any.
+
+  * `-c`, `--cache`:
+    Create a cache file for the geopm::PlatformTopo object.  The path
+    for the cache file is "/tmp/geopm-topo-cache".
+
   * `-h`, `--help`:
     Print brief summary of the command line usage information,
     then exit.
