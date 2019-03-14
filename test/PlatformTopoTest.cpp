@@ -32,8 +32,11 @@
 
 #include <unistd.h>
 #include <fstream>
+#include <string>
+
 #include "gtest/gtest.h"
 
+#include "Helper.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
 
@@ -614,4 +617,55 @@ TEST_F(PlatformTopoTest, domain_name_to_type)
     EXPECT_EQ(IPlatformTopo::M_DOMAIN_PACKAGE_NIC, IPlatformTopo::domain_name_to_type("package_nic"));
     EXPECT_EQ(IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR, IPlatformTopo::domain_name_to_type("board_accelerator"));
     EXPECT_EQ(IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR, IPlatformTopo::domain_name_to_type("package_accelerator"));
+}
+
+TEST_F(PlatformTopoTest, create_cache)
+{
+    // Delete existing cache
+    const std::string cache_file_path = "/tmp/geopm-topo-cache";
+    unlink(cache_file_path.c_str());
+
+    // Create script that wraps lscpu
+    std::string lscpu_script = "#!/bin/bash\n"
+                               "if [ \"$PLATFORM_TOPO_TEST_LSCPU_ERROR\" -ne 0 ]; then\n"
+                               "    exit -1;\n"
+                               "else\n"
+                               "    /usr/bin/lscpu $*\n"
+                               "fi\n";
+    std::ofstream script_stream("lscpu");
+    script_stream << lscpu_script;
+    script_stream.close();
+    chmod("lscpu", S_IRWXU|S_IRWXG|S_IROTH|S_IXOTH);
+
+    // Put CWD in the front of PATH
+    std::string path_env(getenv("PATH"));
+    path_env = ":" + path_env;
+    setenv("PATH", path_env.c_str(), 1);
+
+    // Test case: no lscpu error, file does not exist
+    setenv("PLATFORM_TOPO_TEST_LSCPU_ERROR", "0", 1);
+
+    PlatformTopo::create_cache();
+
+    std::ifstream cache_stream(cache_file_path);
+    std::string cache_line;
+    getline(cache_stream, cache_line);
+    ASSERT_TRUE(geopm::string_begins_with(cache_line, "Architecture:"));
+    cache_stream.close();
+
+    // Test case: file exist, lscpu should not be called, but if it
+    // does it will error.
+    setenv("PLATFORM_TOPO_TEST_LSCPU_ERROR", "1", 1);
+    PlatformTopo::create_cache();
+
+    cache_stream.open(cache_file_path);
+    getline(cache_stream, cache_line);
+    ASSERT_TRUE(geopm::string_begins_with(cache_line, "Architecture:"));
+    cache_stream.close();
+
+    // Test case: file does not exist and lscpu returns an error code.
+    unlink(cache_file_path.c_str());
+    EXPECT_THROW(PlatformTopo::create_cache(), geopm::Exception);
+    struct stat stat_struct;
+    ASSERT_EQ(-1, stat(cache_file_path.c_str(), &stat_struct));
 }
