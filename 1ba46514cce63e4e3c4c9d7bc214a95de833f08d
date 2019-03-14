@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11caf421_42c1d273",
+        "filename": "ronn/geopmread.1.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-14T19:11:52Z",
+      "side": 1,
+      "message": "Add to synopsis",
+      "revId": "1ba46514cce63e4e3c4c9d7bc214a95de833f08d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7ed1fd3_cddffeaa",
+        "filename": "ronn/geopmwrite.1.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-14T19:11:52Z",
+      "side": 1,
+      "message": "add to synopsis",
+      "revId": "1ba46514cce63e4e3c4c9d7bc214a95de833f08d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16efe530_d329d6e8",
+        "filename": "ronn/geopmwrite.1.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-14T19:11:52Z",
+      "side": 1,
+      "message": "Does not get created if file exists.",
+      "revId": "1ba46514cce63e4e3c4c9d7bc214a95de833f08d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f261f6f_2a982cdf",
+        "filename": "src/PlatformTopo.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-14T19:11:52Z",
+      "side": 1,
+      "message": "add doc for do_force input\n\nor always force and get rid of do_force",
+      "revId": "1ba46514cce63e4e3c4c9d7bc214a95de833f08d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
