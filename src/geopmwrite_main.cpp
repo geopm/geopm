@@ -64,7 +64,7 @@ int main(int argc, char **argv)
                         "       geopmwrite CONTROL_NAME DOMAIN_TYPE DOMAIN_INDEX VALUE\n"
                         "       geopmwrite [--domain [CONTROL_NAME]]\n"
                         "       geopmwrite [--info [CONTROL_NAME]]\n"
-                        "       geopmwrite [--help] [--version]\n"
+                        "       geopmwrite [--help] [--version] [--cache]\n"
                         "\n"
                         "  CONTROL_NAME:  name of the control\n"
                         "  DOMAIN_TYPE:  name of the domain for which the control should be written\n"
@@ -73,6 +73,7 @@ int main(int argc, char **argv)
                         "\n"
                         "  -d, --domain                     print domain of a control\n"
                         "  -i, --info                       print longer description of a control\n"
+                        "  -c, --cache                      create geopm topo cache if it does not exist\n"
                         "  -h, --help                       print brief summary of the command line\n"
                         "                                   usage information, then exit\n"
                         "  -v, --version                    print version of GEOPM to standard output,\n"
@@ -84,6 +85,7 @@ int main(int argc, char **argv)
     static struct option long_options[] = {
         {"domain", no_argument, NULL, 'd'},
         {"info", no_argument, NULL, 'i'},
+        {"cache", no_argument, NULL, 'c'},
         {"help", no_argument, NULL, 'h'},
         {"version", no_argument, NULL, 'v'},
         {NULL, 0, NULL, 0}
@@ -93,7 +95,7 @@ int main(int argc, char **argv)
     int err = 0;
     bool is_domain = false;
     bool is_info = false;
-    while (!err && (opt = getopt_long(argc, argv, "dihv", long_options, NULL)) != -1) {
+    while (!err && (opt = getopt_long(argc, argv, "dichv", long_options, NULL)) != -1) {
         switch (opt) {
             case 'd':
                 is_domain = true;
@@ -101,6 +103,9 @@ int main(int argc, char **argv)
             case 'i':
                 is_info = true;
                 break;
+            case 'c':
+                geopm::PlatformTopo::create_cache();
+                return 0;
             case 'h':
                 printf("%s", usage);
                 return 0;
