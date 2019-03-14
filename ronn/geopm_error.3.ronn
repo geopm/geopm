@@ -106,7 +106,6 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
 **geopm(7)**,
 **geopm_agent_c(3)**,
 **geopm_ctl_c(3)**,
-**geopm_endpoint_c(3)**,
 **geopm_fortran(3)**,
 **geopm_prof_c(3)**,
 **errno(3)**

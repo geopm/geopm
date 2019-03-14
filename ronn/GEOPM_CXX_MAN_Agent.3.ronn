@@ -130,8 +130,8 @@ each of these objects creates one or more `Agent` objects.  The
 `Agent` objects are related to each other through a balanced tree of
 bi-directional communication.  The "leaf" `Agent` objects are defined
 to have no children and one parent.  The "tree" `Agent` objects defined
-to have many children and one Agent as its parent.  The "root" Agent
-objects are defined to have many children and one endpoint as its parent.
+to have many children and one Agent as the parent.  The "root" Agent
+objects are defined to have many children and a static policy as the parent.
 Note that in some cases (e.g. a single node job execution) a "tree" Agent
 may not be involved at all.  The `Agent::init`() method is called by the
 `Controller` prior to all other `Agent` methods.  The parameters passed
@@ -152,9 +152,7 @@ responsible for aggregating samples from child agents to send to
 parent agents and splitting policy values from parent agents to send
 to child agents.  Note that the `Agent` running at the root of the
 tree uses the same policy/sample interface to interact with the
-resource manager.  The resource manager implements the role of a
-parent `Agent` to the root `Agent` by making calls to the
-**geopm_endpoint_c(3)** interface.
+resource manager.
 
 The `Agent` class is designed to read signals and write controls for
 the hardware and application using the **geopm::PlatformIO(3)**

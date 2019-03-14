@@ -97,44 +97,40 @@ reports and traces with additional Agent-specific information.
                 child agents in the balancer's tree-hierarchical
                 implementation.  This parameter is not used if the
                 `POWER_CAP` policy is non-zero.  When creating a
-                static policy file or when setting a policy with the
-                geopm_endpoint_agent_policy() API the `POWER_CAP`
-                should be non-zero, and this value can be set to zero.
-                If set to NAN, it will default to 0.
+                static policy file, the `POWER_CAP` should be
+                non-zero, and this value can be set to zero.  If set
+                to NAN, it will default to 0.
 
   `MAX_EPOCH_RUNTIME`: Used as an inter-agent message passed from
                        parent to child agents in the balancer's
                        tree-hierarchical implementation.  This
                        parameter is not used if the `POWER_CAP` policy
                        is non-zero.  When creating a static policy
-                       file or when setting a policy with the
-                       geopm_endpoint_agent_policy() API the
-                       `POWER_CAP` should be non-zero, and this value
-                       can be set to zero.  If set to NAN, it will
-                       default to 0.
+                       file, the `POWER_CAP` should be non-zero, and
+                       this value can be set to zero.  If set to NAN,
+                       it will default to 0.
 
   `POWER_SLACK`: Used as an inter-agent message passed from parent to
                  child agents in the balancer's tree-hierarchical
                  implementation.  This parameter is not used if the
                  `POWER_CAP` policy is non-zero.  When creating a
-                 static policy file or when setting a policy with the
-                 geopm_endpoint_agent_policy() API the `POWER_CAP`
-                 should be non-zero, and this value can be set to
-                 zero.  If set to NAN, it will default to 0.
+                 static policy file, the `POWER_CAP` should be
+                 non-zero, and this value can be set to zero.  If set
+                 to NAN, it will default to 0.
 
 * `Agent Sample Definitions`:
 
    `STEP_COUNT`: Number of iterations of the optimization algorithm
                  since the start of the application or the last update
-                 to the average power cap received through the
-                 endpoint.  Note that the algorithm is comprised of
-                 three types of steps which are repeated, and the type
-                 of step can be inferred by the `STEP_COUNT` modulo
-                 three: 0 implies sending down a power cap or slack
-                 power, 1 implies measuring the runtime under the
-                 latest distribution of power, and 2 implies that the
-                 power limit is being reduced until the slowest
-                 runtime is met and slack power is sent up the tree.
+                 to the average power cap received at the root.  Note
+                 that the algorithm is comprised of three types of
+                 steps which are repeated, and the type of step can be
+                 inferred by the `STEP_COUNT` modulo three: 0 implies
+                 sending down a power cap or slack power, 1 implies
+                 measuring the runtime under the latest distribution
+                 of power, and 2 implies that the power limit is being
+                 reduced until the slowest runtime is met and slack
+                 power is sent up the tree.
 
    `MAX_EPOCH_RUNTIME`: Maximum runtime measured after applying
                         uniform power cap, or after the last

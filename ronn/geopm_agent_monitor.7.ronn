@@ -81,7 +81,5 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
 **geopm_agent_power_governor(7)**,
 **geopm::Agent(3)**,
 **geopm_agent_c(3)**,
-**geopm_endpoint_c(3)**,
 **geopmagent(1)**,
-**geopmendpoint(1)**,
 **geopmlaunch(1)**

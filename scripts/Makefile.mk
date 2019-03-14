@@ -103,7 +103,11 @@ $(PYTEST_TESTS): scripts/test/pytest_links/%:
 clean-local-pytest-script-links:
 	rm -f scripts/test/pytest_links/*
 
-CLEAN_LOCAL_TARGETS += clean-local-pytest-script-links
+clean-local-python:
+	cd scripts && ./setup.py clean --all
+
+CLEAN_LOCAL_TARGETS += clean-local-pytest-script-links \
+                       clean-local-python
 
 install-python:
 	cd scripts && ./setup.py install -O1 --root $(DESTDIR)/ --prefix $(prefix)

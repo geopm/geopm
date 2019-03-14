@@ -64,9 +64,9 @@ namespace geopm
                 /// @brief Step that the root is providing a policy
                 ///        for.  The parent has received a sample
                 ///        matching this step in the last walk up the
-                ///        tree, execpt in the case where the endpoint
-                ///        has recently been updated with a new
-                ///        policy, in this case the step will be
+                ///        tree, except in the case where the root
+                ///        Agent has recently been updated with a new
+                ///        policy; in this case the step will be
                 ///        M_SEND_DOWN_LIMIT and the policy indexed by
                 ///        M_POLICY_POWER_CAP will have a non-zero
                 ///        value.
