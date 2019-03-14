@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "080d36ee_c8f4c8b8",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 1208,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-14T05:09:07Z",
+      "side": 1,
+      "message": "not for this patch, but at some point we should fix this to use json library",
+      "revId": "43c351bd2dee47f3b1152d95179098e10ad0235d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1936b355_370cce70",
         "filename": "src/FrequencyMapAgent.cpp",
         "patchSetId": 12
@@ -19,6 +36,63 @@
         "endLine": 254,
         "endChar": 27
       },
+      "revId": "43c351bd2dee47f3b1152d95179098e10ad0235d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c9a68b6_b5275179",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-14T05:09:07Z",
+      "side": 1,
+      "message": "might want to check that this is between min and max frequency",
+      "revId": "43c351bd2dee47f3b1152d95179098e10ad0235d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "defcb8bb_9b523a9f",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 1099,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-14T05:09:07Z",
+      "side": 1,
+      "message": "can remove",
+      "range": {
+        "startLine": 1096,
+        "startChar": 0,
+        "endLine": 1099,
+        "endChar": 55
+      },
+      "revId": "43c351bd2dee47f3b1152d95179098e10ad0235d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f605bf43_c3471800",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 1104,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-14T05:09:07Z",
+      "side": 1,
+      "message": "this should probably wait until we implement io.py parsing for the agent report extensions.",
       "revId": "43c351bd2dee47f3b1152d95179098e10ad0235d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
