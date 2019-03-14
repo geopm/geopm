@@ -90,6 +90,10 @@ in the trace.
     Print description of a signal if SIGNAL_NAME is provided, or print a
     list of all available signals with their descriptions, if any.
 
+  * `-c`, `--cache`:
+    Create a cache file for the geopm::PlatformTopo object.  The path
+    for the cache file is "/tmp/geopm-topo-cache".
+
   * `-h`, `--help`:
     Print brief summary of the command line usage information,
     then exit.
