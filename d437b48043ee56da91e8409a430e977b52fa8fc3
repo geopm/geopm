@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41ce72d8_a50783fc",
+        "filename": "Makefile.am",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-15T19:26:34Z",
+      "side": 1,
+      "message": "try ronn_man_inst +\u003d beta files inside of if",
+      "revId": "d437b48043ee56da91e8409a430e977b52fa8fc3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3804ec48_bad143fa",
+        "filename": "configure.ac",
+        "patchSetId": 2
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-15T19:26:34Z",
+      "side": 1,
+      "message": "have this be a boolean and put binary names in setup.py\n\nENABLE_BETA\u003dTrue\nAC_SUBST([ENABLE_BETA])",
+      "revId": "d437b48043ee56da91e8409a430e977b52fa8fc3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7d87c09_b48fa216",
+        "filename": "ronn/geopm.7.ronn.in",
+        "patchSetId": 2
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-15T19:26:34Z",
+      "side": 1,
+      "message": "put in README",
+      "revId": "d437b48043ee56da91e8409a430e977b52fa8fc3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
