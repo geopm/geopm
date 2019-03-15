@@ -37,8 +37,8 @@
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
 
-using geopm::IPlatformTopo;
 using geopm::PlatformTopo;
+using geopm::PlatformTopoImp;
 using geopm::Exception;
 
 class PlatformTopoTest : public :: testing :: Test
@@ -202,182 +202,182 @@ void PlatformTopoTest::write_lscpu(const std::string &lscpu_str)
 TEST_F(PlatformTopoTest, hsw_num_domain)
 {
     write_lscpu(m_hsw_lscpu_str);
-    geopm::PlatformTopo topo(m_lscpu_file_name);
-    EXPECT_EQ(1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD));
-    EXPECT_EQ(1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_EQ(2, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CORE));
-    EXPECT_EQ(2, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CPU));
-    EXPECT_EQ(1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_MEMORY));
-    EXPECT_EQ(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
+    PlatformTopoImp topo(m_lscpu_file_name);
+    EXPECT_EQ(1, topo.num_domain(PlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_EQ(1, topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_EQ(2, topo.num_domain(PlatformTopo::M_DOMAIN_CORE));
+    EXPECT_EQ(2, topo.num_domain(PlatformTopo::M_DOMAIN_CPU));
+    EXPECT_EQ(1, topo.num_domain(PlatformTopo::M_DOMAIN_BOARD_MEMORY));
+    EXPECT_EQ(0, topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
 
     /// @todo when implemented, add tests for each platform
-    EXPECT_EQ(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_NIC));
-    EXPECT_EQ(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_NIC));
-    EXPECT_EQ(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR));
-    EXPECT_EQ(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR));
+    EXPECT_EQ(0, topo.num_domain(PlatformTopo::M_DOMAIN_BOARD_NIC));
+    EXPECT_EQ(0, topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE_NIC));
+    EXPECT_EQ(0, topo.num_domain(PlatformTopo::M_DOMAIN_BOARD_ACCELERATOR));
+    EXPECT_EQ(0, topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR));
 
-    EXPECT_THROW(topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_INVALID), geopm::Exception);
+    EXPECT_THROW(topo.num_domain(PlatformTopo::M_DOMAIN_INVALID), geopm::Exception);
 }
 
 TEST_F(PlatformTopoTest, knl_num_domain)
 {
     write_lscpu(m_knl_lscpu_str);
-    geopm::PlatformTopo topo(m_lscpu_file_name);
-    EXPECT_EQ(1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD));
-    EXPECT_EQ(1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_EQ(64, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CORE));
-    EXPECT_EQ(256, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CPU));
-    EXPECT_EQ(1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_MEMORY));
-    EXPECT_EQ(1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
+    PlatformTopoImp topo(m_lscpu_file_name);
+    EXPECT_EQ(1, topo.num_domain(PlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_EQ(1, topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_EQ(64, topo.num_domain(PlatformTopo::M_DOMAIN_CORE));
+    EXPECT_EQ(256, topo.num_domain(PlatformTopo::M_DOMAIN_CPU));
+    EXPECT_EQ(1, topo.num_domain(PlatformTopo::M_DOMAIN_BOARD_MEMORY));
+    EXPECT_EQ(1, topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
 }
 
 TEST_F(PlatformTopoTest, bdx_num_domain)
 {
     write_lscpu(m_bdx_lscpu_str);
-    geopm::PlatformTopo topo(m_lscpu_file_name);
-    EXPECT_EQ(1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD));
-    EXPECT_EQ(2, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_EQ(36, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CORE));
-    EXPECT_EQ(72, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CPU));
-    EXPECT_EQ(2, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_MEMORY));
-    EXPECT_EQ(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
+    PlatformTopoImp topo(m_lscpu_file_name);
+    EXPECT_EQ(1, topo.num_domain(PlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_EQ(2, topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_EQ(36, topo.num_domain(PlatformTopo::M_DOMAIN_CORE));
+    EXPECT_EQ(72, topo.num_domain(PlatformTopo::M_DOMAIN_CPU));
+    EXPECT_EQ(2, topo.num_domain(PlatformTopo::M_DOMAIN_BOARD_MEMORY));
+    EXPECT_EQ(0, topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
 }
 
 TEST_F(PlatformTopoTest, ppc_num_domain)
 {
     write_lscpu(m_ppc_lscpu_str);
-    geopm::PlatformTopo topo(m_lscpu_file_name);
-    EXPECT_EQ(1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD));
-    EXPECT_EQ(2, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_EQ(20, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CORE));
-    EXPECT_EQ(20, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CPU));
-    EXPECT_EQ(2, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_MEMORY));
-    EXPECT_EQ(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
+    PlatformTopoImp topo(m_lscpu_file_name);
+    EXPECT_EQ(1, topo.num_domain(PlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_EQ(2, topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_EQ(20, topo.num_domain(PlatformTopo::M_DOMAIN_CORE));
+    EXPECT_EQ(20, topo.num_domain(PlatformTopo::M_DOMAIN_CPU));
+    EXPECT_EQ(2, topo.num_domain(PlatformTopo::M_DOMAIN_BOARD_MEMORY));
+    EXPECT_EQ(0, topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
 }
 
 TEST_F(PlatformTopoTest, no0x_num_domain)
 {
     write_lscpu(m_no0x_lscpu_str);
-    geopm::PlatformTopo topo(m_lscpu_file_name);
-    EXPECT_EQ(1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD));
-    EXPECT_EQ(2, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_EQ(36, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CORE));
-    EXPECT_EQ(72, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CPU));
-    EXPECT_EQ(2, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_MEMORY));
-    EXPECT_EQ(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
+    PlatformTopoImp topo(m_lscpu_file_name);
+    EXPECT_EQ(1, topo.num_domain(PlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_EQ(2, topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_EQ(36, topo.num_domain(PlatformTopo::M_DOMAIN_CORE));
+    EXPECT_EQ(72, topo.num_domain(PlatformTopo::M_DOMAIN_CPU));
+    EXPECT_EQ(2, topo.num_domain(PlatformTopo::M_DOMAIN_BOARD_MEMORY));
+    EXPECT_EQ(0, topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
 }
 
 TEST_F(PlatformTopoTest, construction)
 {
-    geopm::PlatformTopo topo;
-    EXPECT_EQ(1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD));
-    EXPECT_LT(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_LT(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CORE));
-    EXPECT_LT(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CPU));
-    EXPECT_LT(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_MEMORY));
-    EXPECT_LT(-1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
+    PlatformTopoImp topo;
+    EXPECT_EQ(1, topo.num_domain(PlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_LT(0, topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_LT(0, topo.num_domain(PlatformTopo::M_DOMAIN_CORE));
+    EXPECT_LT(0, topo.num_domain(PlatformTopo::M_DOMAIN_CPU));
+    EXPECT_LT(0, topo.num_domain(PlatformTopo::M_DOMAIN_BOARD_MEMORY));
+    EXPECT_LT(-1, topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
 }
 
 TEST_F(PlatformTopoTest, singleton_construction)
 {
-    geopm::IPlatformTopo &topo = geopm::platform_topo();
-    EXPECT_EQ(1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD));
-    EXPECT_LT(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_LT(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CORE));
-    EXPECT_LT(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_CPU));
-    EXPECT_LT(0, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_BOARD_MEMORY));
-    EXPECT_LT(-1, topo.num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
+    PlatformTopo &topo = geopm::platform_topo();
+    EXPECT_EQ(1, topo.num_domain(PlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_LT(0, topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_LT(0, topo.num_domain(PlatformTopo::M_DOMAIN_CORE));
+    EXPECT_LT(0, topo.num_domain(PlatformTopo::M_DOMAIN_CPU));
+    EXPECT_LT(0, topo.num_domain(PlatformTopo::M_DOMAIN_BOARD_MEMORY));
+    EXPECT_LT(-1, topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
 }
 
 TEST_F(PlatformTopoTest, bdx_domain_idx)
 {
     write_lscpu(m_bdx_lscpu_str);
-    geopm::PlatformTopo topo(m_lscpu_file_name);
-    EXPECT_EQ(0, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_BOARD, 0));
-    EXPECT_EQ(0, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_PACKAGE, 0));
-    EXPECT_EQ(1, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_PACKAGE, 18));
-    EXPECT_EQ(0, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_PACKAGE, 9));
-    EXPECT_EQ(1, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_PACKAGE, 27));
-    EXPECT_EQ(0, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_CORE, 0));
-    EXPECT_EQ(17, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_CORE, 17));
-    EXPECT_EQ(17, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_CORE, 53));
-    EXPECT_EQ(18, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_CORE, 18));
-    EXPECT_EQ(18, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_CORE, 54));
-    EXPECT_EQ(18, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_CORE, 54));
+    PlatformTopoImp topo(m_lscpu_file_name);
+    EXPECT_EQ(0, topo.domain_idx(PlatformTopo::M_DOMAIN_BOARD, 0));
+    EXPECT_EQ(0, topo.domain_idx(PlatformTopo::M_DOMAIN_PACKAGE, 0));
+    EXPECT_EQ(1, topo.domain_idx(PlatformTopo::M_DOMAIN_PACKAGE, 18));
+    EXPECT_EQ(0, topo.domain_idx(PlatformTopo::M_DOMAIN_PACKAGE, 9));
+    EXPECT_EQ(1, topo.domain_idx(PlatformTopo::M_DOMAIN_PACKAGE, 27));
+    EXPECT_EQ(0, topo.domain_idx(PlatformTopo::M_DOMAIN_CORE, 0));
+    EXPECT_EQ(17, topo.domain_idx(PlatformTopo::M_DOMAIN_CORE, 17));
+    EXPECT_EQ(17, topo.domain_idx(PlatformTopo::M_DOMAIN_CORE, 53));
+    EXPECT_EQ(18, topo.domain_idx(PlatformTopo::M_DOMAIN_CORE, 18));
+    EXPECT_EQ(18, topo.domain_idx(PlatformTopo::M_DOMAIN_CORE, 54));
+    EXPECT_EQ(18, topo.domain_idx(PlatformTopo::M_DOMAIN_CORE, 54));
     for (int cpu_idx = 0; cpu_idx < 72; ++cpu_idx) {
-        EXPECT_EQ(cpu_idx, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_CPU, cpu_idx));
+        EXPECT_EQ(cpu_idx, topo.domain_idx(PlatformTopo::M_DOMAIN_CPU, cpu_idx));
     }
-    EXPECT_THROW(topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_CPU, 72), geopm::Exception);
-    EXPECT_THROW(topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_CPU, 90), geopm::Exception);
-    EXPECT_THROW(topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_CPU, -18), geopm::Exception);
-    EXPECT_THROW(topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_INVALID, 0), geopm::Exception);
+    EXPECT_THROW(topo.domain_idx(PlatformTopo::M_DOMAIN_CPU, 72), geopm::Exception);
+    EXPECT_THROW(topo.domain_idx(PlatformTopo::M_DOMAIN_CPU, 90), geopm::Exception);
+    EXPECT_THROW(topo.domain_idx(PlatformTopo::M_DOMAIN_CPU, -18), geopm::Exception);
+    EXPECT_THROW(topo.domain_idx(PlatformTopo::M_DOMAIN_INVALID, 0), geopm::Exception);
 
     std::set<int> cpu_set_node0 = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
                                    36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53};
     std::set<int> cpu_set_node1 = {18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
                                    54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71};
     for (auto cpu_idx : cpu_set_node0) {
-        EXPECT_EQ(0, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_BOARD_MEMORY, cpu_idx));
+        EXPECT_EQ(0, topo.domain_idx(PlatformTopo::M_DOMAIN_BOARD_MEMORY, cpu_idx));
     }
     for (auto cpu_idx : cpu_set_node1) {
-        EXPECT_EQ(1, topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_BOARD_MEMORY, cpu_idx));
+        EXPECT_EQ(1, topo.domain_idx(PlatformTopo::M_DOMAIN_BOARD_MEMORY, cpu_idx));
     }
-    EXPECT_THROW(topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY, 0), geopm::Exception);
-    EXPECT_THROW(topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_BOARD_NIC, 0), geopm::Exception);
-    EXPECT_THROW(topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_NIC, 0), geopm::Exception);
-    EXPECT_THROW(topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR, 0), geopm::Exception);
-    EXPECT_THROW(topo.domain_idx(geopm::IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR, 0), geopm::Exception);
+    EXPECT_THROW(topo.domain_idx(PlatformTopo::M_DOMAIN_PACKAGE_MEMORY, 0), geopm::Exception);
+    EXPECT_THROW(topo.domain_idx(PlatformTopo::M_DOMAIN_BOARD_NIC, 0), geopm::Exception);
+    EXPECT_THROW(topo.domain_idx(PlatformTopo::M_DOMAIN_PACKAGE_NIC, 0), geopm::Exception);
+    EXPECT_THROW(topo.domain_idx(PlatformTopo::M_DOMAIN_BOARD_ACCELERATOR, 0), geopm::Exception);
+    EXPECT_THROW(topo.domain_idx(PlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR, 0), geopm::Exception);
 }
 
 TEST_F(PlatformTopoTest, bdx_is_domain_within)
 {
     write_lscpu(m_bdx_lscpu_str);
-    geopm::PlatformTopo topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name);
 
     // domains containing CPUs
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_CORE));
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_CPU));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_CPU, PlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_CPU, PlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_CPU, PlatformTopo::M_DOMAIN_CORE));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_CPU, PlatformTopo::M_DOMAIN_CPU));
     // needed to support POWER_DRAM signal
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_BOARD_MEMORY));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_CPU, PlatformTopo::M_DOMAIN_BOARD_MEMORY));
 
     // domains containing cores
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_CORE, IPlatformTopo::M_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_CORE, IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_CORE, IPlatformTopo::M_DOMAIN_CORE));
-    EXPECT_FALSE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_CORE, IPlatformTopo::M_DOMAIN_CPU));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_CORE, PlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_CORE, PlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_CORE, PlatformTopo::M_DOMAIN_CORE));
+    EXPECT_FALSE(topo.is_domain_within(PlatformTopo::M_DOMAIN_CORE, PlatformTopo::M_DOMAIN_CPU));
 
     // domains containing package
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_PACKAGE, IPlatformTopo::M_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_PACKAGE, IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_FALSE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_PACKAGE, IPlatformTopo::M_DOMAIN_CORE));
-    EXPECT_FALSE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_PACKAGE, IPlatformTopo::M_DOMAIN_CPU));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_PACKAGE, PlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_PACKAGE, PlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_FALSE(topo.is_domain_within(PlatformTopo::M_DOMAIN_PACKAGE, PlatformTopo::M_DOMAIN_CORE));
+    EXPECT_FALSE(topo.is_domain_within(PlatformTopo::M_DOMAIN_PACKAGE, PlatformTopo::M_DOMAIN_CPU));
 
     // domains containing board
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_BOARD, IPlatformTopo::M_DOMAIN_BOARD));
-    EXPECT_FALSE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_BOARD, IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_FALSE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_BOARD, IPlatformTopo::M_DOMAIN_CORE));
-    EXPECT_FALSE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_BOARD, IPlatformTopo::M_DOMAIN_CPU));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_BOARD, PlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_FALSE(topo.is_domain_within(PlatformTopo::M_DOMAIN_BOARD, PlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_FALSE(topo.is_domain_within(PlatformTopo::M_DOMAIN_BOARD, PlatformTopo::M_DOMAIN_CORE));
+    EXPECT_FALSE(topo.is_domain_within(PlatformTopo::M_DOMAIN_BOARD, PlatformTopo::M_DOMAIN_CPU));
 
     // other domains in the board
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_BOARD_NIC, IPlatformTopo::M_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR, IPlatformTopo::M_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_BOARD_MEMORY, IPlatformTopo::M_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_PACKAGE_NIC, IPlatformTopo::M_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR, IPlatformTopo::M_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY, IPlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_BOARD_NIC, PlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_BOARD_ACCELERATOR, PlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_BOARD_MEMORY, PlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_PACKAGE_NIC, PlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR, PlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_PACKAGE_MEMORY, PlatformTopo::M_DOMAIN_BOARD));
 
     // other domains in the package
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_PACKAGE_NIC, IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR, IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_TRUE(topo.is_domain_within(IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY, IPlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_PACKAGE_NIC, PlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR, PlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_TRUE(topo.is_domain_within(PlatformTopo::M_DOMAIN_PACKAGE_MEMORY, PlatformTopo::M_DOMAIN_PACKAGE));
 }
 
 TEST_F(PlatformTopoTest, bdx_nested_domains)
 {
     write_lscpu(m_bdx_lscpu_str);
-    geopm::PlatformTopo topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name);
 
     std::set<int> cpu_set_board;
     std::set<int> core_set_board;
@@ -397,132 +397,132 @@ TEST_F(PlatformTopoTest, bdx_nested_domains)
     // CPUs
     std::set<int> idx_set_expect;
     std::set<int> idx_set_actual;
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
-                                         IPlatformTopo::M_DOMAIN_BOARD, 0);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_CPU,
+                                         PlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_EQ(cpu_set_board, idx_set_actual);
 
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
-                                         IPlatformTopo::M_DOMAIN_PACKAGE, 0);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_CPU,
+                                         PlatformTopo::M_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(cpu_set_socket[0], idx_set_actual);
 
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
-                                         IPlatformTopo::M_DOMAIN_PACKAGE, 1);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_CPU,
+                                         PlatformTopo::M_DOMAIN_PACKAGE, 1);
     EXPECT_EQ(cpu_set_socket[1], idx_set_actual);
 
     idx_set_expect = {0, 36};
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
-                                         IPlatformTopo::M_DOMAIN_CORE, 0);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_CPU,
+                                         PlatformTopo::M_DOMAIN_CORE, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = {1, 37};
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
-                                         IPlatformTopo::M_DOMAIN_CORE, 1);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_CPU,
+                                         PlatformTopo::M_DOMAIN_CORE, 1);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = {0};
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
-                                         IPlatformTopo::M_DOMAIN_CPU, 0);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_CPU,
+                                         PlatformTopo::M_DOMAIN_CPU, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = {1};
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
-                                         IPlatformTopo::M_DOMAIN_CPU, 1);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_CPU,
+                                         PlatformTopo::M_DOMAIN_CPU, 1);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = cpu_set_socket[0];
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
-                                         IPlatformTopo::M_DOMAIN_BOARD_MEMORY, 0);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_CPU,
+                                         PlatformTopo::M_DOMAIN_BOARD_MEMORY, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = cpu_set_socket[1];
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
-                                         IPlatformTopo::M_DOMAIN_BOARD_MEMORY, 1);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_CPU,
+                                         PlatformTopo::M_DOMAIN_BOARD_MEMORY, 1);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     // Core
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_CORE,
-                                         IPlatformTopo::M_DOMAIN_BOARD, 0);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_CORE,
+                                         PlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_EQ(core_set_board, idx_set_actual);
 
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_CORE,
-                                         IPlatformTopo::M_DOMAIN_PACKAGE, 0);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_CORE,
+                                         PlatformTopo::M_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(core_set_socket[0], idx_set_actual);
 
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_CORE,
-                                         IPlatformTopo::M_DOMAIN_PACKAGE, 1);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_CORE,
+                                         PlatformTopo::M_DOMAIN_PACKAGE, 1);
     EXPECT_EQ(core_set_socket[1], idx_set_actual);
 
     idx_set_expect = {0};
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_CORE,
-                                         IPlatformTopo::M_DOMAIN_CORE, 0);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_CORE,
+                                         PlatformTopo::M_DOMAIN_CORE, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = {1};
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_CORE,
-                                         IPlatformTopo::M_DOMAIN_CORE, 1);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_CORE,
+                                         PlatformTopo::M_DOMAIN_CORE, 1);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
-    EXPECT_THROW(topo.nested_domains(IPlatformTopo::M_DOMAIN_CORE,
-                                     IPlatformTopo::M_DOMAIN_CPU, 0),
+    EXPECT_THROW(topo.nested_domains(PlatformTopo::M_DOMAIN_CORE,
+                                     PlatformTopo::M_DOMAIN_CPU, 0),
                  Exception);
 
     // Package
     idx_set_expect = {0, 1};
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_PACKAGE,
-                                         IPlatformTopo::M_DOMAIN_BOARD, 0);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_PACKAGE,
+                                         PlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = {0};
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_PACKAGE,
-                                         IPlatformTopo::M_DOMAIN_PACKAGE, 0);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_PACKAGE,
+                                         PlatformTopo::M_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = {1};
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_PACKAGE,
-                                         IPlatformTopo::M_DOMAIN_PACKAGE, 1);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_PACKAGE,
+                                         PlatformTopo::M_DOMAIN_PACKAGE, 1);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
-    EXPECT_THROW(topo.nested_domains(IPlatformTopo::M_DOMAIN_PACKAGE,
-                                     IPlatformTopo::M_DOMAIN_CPU, 0),
+    EXPECT_THROW(topo.nested_domains(PlatformTopo::M_DOMAIN_PACKAGE,
+                                     PlatformTopo::M_DOMAIN_CPU, 0),
                  Exception);
 
     // Board Memory
     idx_set_expect = {0, 1};
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_BOARD_MEMORY,
-                                         IPlatformTopo::M_DOMAIN_BOARD, 0);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_BOARD_MEMORY,
+                                         PlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = {0};
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_BOARD_MEMORY,
-                                         IPlatformTopo::M_DOMAIN_BOARD_MEMORY, 0);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_BOARD_MEMORY,
+                                         PlatformTopo::M_DOMAIN_BOARD_MEMORY, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = {1};
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_BOARD_MEMORY,
-                                         IPlatformTopo::M_DOMAIN_BOARD_MEMORY, 1);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_BOARD_MEMORY,
+                                         PlatformTopo::M_DOMAIN_BOARD_MEMORY, 1);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
-    EXPECT_THROW(topo.nested_domains(IPlatformTopo::M_DOMAIN_BOARD_MEMORY,
-                                     IPlatformTopo::M_DOMAIN_CPU, 0),
+    EXPECT_THROW(topo.nested_domains(PlatformTopo::M_DOMAIN_BOARD_MEMORY,
+                                     PlatformTopo::M_DOMAIN_CPU, 0),
                  Exception);
 
     // Board
     idx_set_expect = {0};
-    idx_set_actual = topo.nested_domains(IPlatformTopo::M_DOMAIN_BOARD,
-                                         IPlatformTopo::M_DOMAIN_BOARD, 0);
+    idx_set_actual = topo.nested_domains(PlatformTopo::M_DOMAIN_BOARD,
+                                         PlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     // TODO: still to be implemented
-    EXPECT_THROW(topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
-                                     IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY, 0), Exception);
-    EXPECT_THROW(topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
-                                     IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR, 0), Exception);
-    EXPECT_THROW(topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
-                                     IPlatformTopo::M_DOMAIN_PACKAGE_NIC, 0), Exception);
-    EXPECT_THROW(topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
-                                     IPlatformTopo::M_DOMAIN_BOARD_NIC, 0), Exception);
-    EXPECT_THROW(topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
-                                     IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR, 0), Exception);
+    EXPECT_THROW(topo.nested_domains(PlatformTopo::M_DOMAIN_CPU,
+                                     PlatformTopo::M_DOMAIN_PACKAGE_MEMORY, 0), Exception);
+    EXPECT_THROW(topo.nested_domains(PlatformTopo::M_DOMAIN_CPU,
+                                     PlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR, 0), Exception);
+    EXPECT_THROW(topo.nested_domains(PlatformTopo::M_DOMAIN_CPU,
+                                     PlatformTopo::M_DOMAIN_PACKAGE_NIC, 0), Exception);
+    EXPECT_THROW(topo.nested_domains(PlatformTopo::M_DOMAIN_CPU,
+                                     PlatformTopo::M_DOMAIN_BOARD_NIC, 0), Exception);
+    EXPECT_THROW(topo.nested_domains(PlatformTopo::M_DOMAIN_CPU,
+                                     PlatformTopo::M_DOMAIN_BOARD_ACCELERATOR, 0), Exception);
 }
 
 TEST_F(PlatformTopoTest, parse_error)
@@ -554,15 +554,15 @@ TEST_F(PlatformTopoTest, parse_error)
         "Socket(s):             1\n";
 
     write_lscpu(lscpu_missing_cpu);
-    EXPECT_THROW(PlatformTopo topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
     write_lscpu(lscpu_missing_thread);
-    EXPECT_THROW(PlatformTopo topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
     write_lscpu(lscpu_missing_cores);
-    EXPECT_THROW(PlatformTopo topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
     write_lscpu(lscpu_missing_sockets);
-    EXPECT_THROW(PlatformTopo topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
     write_lscpu(lscpu_missing_numa);
-    EXPECT_THROW(PlatformTopo topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
 
     std::string lscpu_non_number =
         "CPU(s):                xx\n"
@@ -571,7 +571,7 @@ TEST_F(PlatformTopoTest, parse_error)
         "Socket(s):             1\n"
         "NUMA node(s):          1\n";
     write_lscpu(lscpu_non_number);
-    EXPECT_THROW(PlatformTopo topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
 
     std::string lscpu_invalid =
         "CPU(s):                2\n"
@@ -580,38 +580,38 @@ TEST_F(PlatformTopoTest, parse_error)
         "Socket(s):             2\n"
         "NUMA node(s):          1\n";
     write_lscpu(lscpu_invalid);
-    EXPECT_THROW(PlatformTopo topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
 }
 
 TEST_F(PlatformTopoTest, domain_type_to_name)
 {
-    EXPECT_THROW(IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_INVALID),
+    EXPECT_THROW(PlatformTopo::domain_type_to_name(PlatformTopo::M_DOMAIN_INVALID),
                  Exception);
 
-    EXPECT_EQ("board", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_BOARD));
-    EXPECT_EQ("package", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_EQ("core", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_CORE));
-    EXPECT_EQ("cpu", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_CPU));
-    EXPECT_EQ("board_memory", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_BOARD_MEMORY));
-    EXPECT_EQ("package_memory", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
-    EXPECT_EQ("board_nic", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_BOARD_NIC));
-    EXPECT_EQ("package_nic", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_PACKAGE_NIC));
-    EXPECT_EQ("board_accelerator", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR));
-    EXPECT_EQ("package_accelerator", IPlatformTopo::domain_type_to_name(IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR));
+    EXPECT_EQ("board", PlatformTopo::domain_type_to_name(PlatformTopo::M_DOMAIN_BOARD));
+    EXPECT_EQ("package", PlatformTopo::domain_type_to_name(PlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_EQ("core", PlatformTopo::domain_type_to_name(PlatformTopo::M_DOMAIN_CORE));
+    EXPECT_EQ("cpu", PlatformTopo::domain_type_to_name(PlatformTopo::M_DOMAIN_CPU));
+    EXPECT_EQ("board_memory", PlatformTopo::domain_type_to_name(PlatformTopo::M_DOMAIN_BOARD_MEMORY));
+    EXPECT_EQ("package_memory", PlatformTopo::domain_type_to_name(PlatformTopo::M_DOMAIN_PACKAGE_MEMORY));
+    EXPECT_EQ("board_nic", PlatformTopo::domain_type_to_name(PlatformTopo::M_DOMAIN_BOARD_NIC));
+    EXPECT_EQ("package_nic", PlatformTopo::domain_type_to_name(PlatformTopo::M_DOMAIN_PACKAGE_NIC));
+    EXPECT_EQ("board_accelerator", PlatformTopo::domain_type_to_name(PlatformTopo::M_DOMAIN_BOARD_ACCELERATOR));
+    EXPECT_EQ("package_accelerator", PlatformTopo::domain_type_to_name(PlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR));
 }
 
 TEST_F(PlatformTopoTest, domain_name_to_type)
 {
-    EXPECT_THROW(IPlatformTopo::domain_name_to_type("unknown"), Exception);
+    EXPECT_THROW(PlatformTopo::domain_name_to_type("unknown"), Exception);
 
-    EXPECT_EQ(IPlatformTopo::M_DOMAIN_BOARD, IPlatformTopo::domain_name_to_type("board"));
-    EXPECT_EQ(IPlatformTopo::M_DOMAIN_PACKAGE, IPlatformTopo::domain_name_to_type("package"));
-    EXPECT_EQ(IPlatformTopo::M_DOMAIN_CORE, IPlatformTopo::domain_name_to_type("core"));
-    EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::domain_name_to_type("cpu"));
-    EXPECT_EQ(IPlatformTopo::M_DOMAIN_BOARD_MEMORY, IPlatformTopo::domain_name_to_type("board_memory"));
-    EXPECT_EQ(IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY, IPlatformTopo::domain_name_to_type("package_memory"));
-    EXPECT_EQ(IPlatformTopo::M_DOMAIN_BOARD_NIC, IPlatformTopo::domain_name_to_type("board_nic"));
-    EXPECT_EQ(IPlatformTopo::M_DOMAIN_PACKAGE_NIC, IPlatformTopo::domain_name_to_type("package_nic"));
-    EXPECT_EQ(IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR, IPlatformTopo::domain_name_to_type("board_accelerator"));
-    EXPECT_EQ(IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR, IPlatformTopo::domain_name_to_type("package_accelerator"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_BOARD, PlatformTopo::domain_name_to_type("board"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_PACKAGE, PlatformTopo::domain_name_to_type("package"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_CORE, PlatformTopo::domain_name_to_type("core"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, PlatformTopo::domain_name_to_type("cpu"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_BOARD_MEMORY, PlatformTopo::domain_name_to_type("board_memory"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_PACKAGE_MEMORY, PlatformTopo::domain_name_to_type("package_memory"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_BOARD_NIC, PlatformTopo::domain_name_to_type("board_nic"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_PACKAGE_NIC, PlatformTopo::domain_name_to_type("package_nic"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_BOARD_ACCELERATOR, PlatformTopo::domain_name_to_type("board_accelerator"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR, PlatformTopo::domain_name_to_type("package_accelerator"));
 }

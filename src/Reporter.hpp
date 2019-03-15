@@ -95,15 +95,15 @@ namespace geopm
                                   const ITreeComm &tree_comm) = 0;
     };
 
-    class IPlatformIO;
-    class IPlatformTopo;
+    class PlatformIO;
+    class PlatformTopo;
     class IRegionAggregator;
 
     class Reporter : public IReporter
     {
         public:
-            Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, IPlatformTopo &platform_topo, int rank);
-            Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, IPlatformTopo &platform_topo, int rank,
+            Reporter(const std::string &start_time, const std::string &report_name, PlatformIO &platform_io, PlatformTopo &platform_topo, int rank);
+            Reporter(const std::string &start_time, const std::string &report_name, PlatformIO &platform_io, PlatformTopo &platform_topo, int rank,
                      std::unique_ptr<IRegionAggregator> agg, const std::string &env_signal);
             virtual ~Reporter() = default;
             void init(void) override;
@@ -120,8 +120,8 @@ namespace geopm
 
             std::string m_start_time;
             std::string m_report_name;
-            IPlatformIO &m_platform_io;
-            IPlatformTopo &m_platform_topo;
+            PlatformIO &m_platform_io;
+            PlatformTopo &m_platform_topo;
             std::unique_ptr<IRegionAggregator> m_region_agg;
             int m_rank;
             int m_region_bulk_runtime_idx;

@@ -47,7 +47,7 @@
 #include "PlatformTopo.hpp"
 #include "geopm_test.hpp"
 
-using geopm::IPlatformTopo;
+using geopm::PlatformTopo;
 using geopm::CpuinfoIOGroup;
 using geopm::Exception;
 
@@ -114,11 +114,11 @@ TEST_F(CpuinfoIOGroupTest, read_signal)
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
     CpuinfoIOGroup freq_limits(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path);
-    double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0);
+    double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", PlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_DOUBLE_EQ(1.3e9, freq);
 
     // cannot read from wrong domain
-    EXPECT_THROW(freq_limits.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_PACKAGE, 0),
+    EXPECT_THROW(freq_limits.read_signal("CPUINFO::FREQ_STICKER", PlatformTopo::M_DOMAIN_PACKAGE, 0),
                  Exception);
 }
 
@@ -136,14 +136,14 @@ TEST_F(CpuinfoIOGroupTest, push_signal)
     cpuinfo_stream.close();
     CpuinfoIOGroup freq_limits(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path);
 
-    int idx = freq_limits.push_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0);
+    int idx = freq_limits.push_signal("CPUINFO::FREQ_STICKER", PlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_GT(idx, 0);
     freq_limits.read_batch();
     double freq = freq_limits.sample(idx);
     EXPECT_DOUBLE_EQ(1.3e9, freq);
 
     // cannot push to wrong domain
-    EXPECT_THROW(freq_limits.push_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_PACKAGE, 0),
+    EXPECT_THROW(freq_limits.push_signal("CPUINFO::FREQ_STICKER", PlatformTopo::M_DOMAIN_PACKAGE, 0),
                  Exception);
 }
 
@@ -180,7 +180,7 @@ TEST_F(CpuinfoIOGroupTest, parse_sticker_with_at)
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
     CpuinfoIOGroup freq_limits(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path);
-    double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0);
+    double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", PlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_DOUBLE_EQ(1.3e9, freq);
 }
 
@@ -217,7 +217,7 @@ TEST_F(CpuinfoIOGroupTest, parse_sticker_without_at)
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
     CpuinfoIOGroup freq_limits(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path);
-    double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0);
+    double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", PlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_DOUBLE_EQ(1.2e9, freq);
 }
 
@@ -254,7 +254,7 @@ TEST_F(CpuinfoIOGroupTest, parse_sticker_with_ghz_space)
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
     CpuinfoIOGroup freq_limits(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path);
-    double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0);
+    double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", PlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_DOUBLE_EQ(1.1e9, freq);
 }
 
@@ -271,7 +271,7 @@ TEST_F(CpuinfoIOGroupTest, parse_sticker_missing_newline)
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
     CpuinfoIOGroup freq_limits(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path);
-    double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0);
+    double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", PlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_DOUBLE_EQ(1.1e9, freq);
 }
 
@@ -307,7 +307,7 @@ TEST_F(CpuinfoIOGroupTest, parse_sticker_multiple_ghz)
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
     CpuinfoIOGroup freq_limits(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path);
-    double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0);
+    double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", PlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_DOUBLE_EQ(1.5e9, freq);
 }
 
@@ -345,7 +345,7 @@ TEST_F(CpuinfoIOGroupTest, parse_sticker_multiple_model_name)
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
     CpuinfoIOGroup freq_limits(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path);
-    double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0);
+    double freq = freq_limits.read_signal("CPUINFO::FREQ_STICKER", PlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_DOUBLE_EQ(1.3e9, freq);
 }
 
@@ -383,9 +383,9 @@ TEST_F(CpuinfoIOGroupTest, parse_cpu_freq)
     cpuinfo_stream << cpuinfo_str;
     cpuinfo_stream.close();
     CpuinfoIOGroup freq_limits(m_cpuinfo_path, m_cpufreq_min_path, m_cpufreq_max_path);
-    double freq = freq_limits.read_signal("CPUINFO::FREQ_MIN", IPlatformTopo::M_DOMAIN_BOARD, 0);
+    double freq = freq_limits.read_signal("CPUINFO::FREQ_MIN", PlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_DOUBLE_EQ(1.0e9, freq);
-    freq = freq_limits.read_signal("CPUINFO::FREQ_MAX", IPlatformTopo::M_DOMAIN_BOARD, 0);
+    freq = freq_limits.read_signal("CPUINFO::FREQ_MAX", PlatformTopo::M_DOMAIN_BOARD, 0);
     EXPECT_DOUBLE_EQ(2.0e9, freq);
 }
 

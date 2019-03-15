@@ -41,7 +41,6 @@
 #include "geopm_hash.h"
 #include "geopm.h"
 #include "PlatformIO.hpp"
-#include "PlatformIOInternal.hpp"
 #include "PlatformTopo.hpp"
 #include "MSRIOGroup.hpp"
 #include "TimeIOGroup.hpp"
@@ -54,20 +53,20 @@
 
 namespace geopm
 {
-    IPlatformIO &platform_io(void)
+    PlatformIO &platform_io(void)
     {
-        static PlatformIO instance;
+        static PlatformIOImp instance;
         return instance;
     }
 
-    PlatformIO::PlatformIO()
-        : PlatformIO({}, platform_topo())
+    PlatformIOImp::PlatformIOImp()
+        : PlatformIOImp({}, platform_topo())
     {
 
     }
 
-    PlatformIO::PlatformIO(std::list<std::shared_ptr<IOGroup> > iogroup_list,
-                           IPlatformTopo &topo)
+    PlatformIOImp::PlatformIOImp(std::list<std::shared_ptr<IOGroup> > iogroup_list,
+                                 PlatformTopo &topo)
         : m_is_active(false)
         , m_platform_topo(topo)
         , m_iogroup_list(iogroup_list)
@@ -92,17 +91,17 @@ namespace geopm
         }
     }
 
-    void PlatformIO::register_iogroup(std::shared_ptr<IOGroup> iogroup)
+    void PlatformIOImp::register_iogroup(std::shared_ptr<IOGroup> iogroup)
     {
         if (m_do_restore) {
-            throw Exception("PlatformIO::register_iogroup(): "
+            throw Exception("PlatformIOImp::register_iogroup(): "
                             "IOGroup cannot be registered after a call to save_control()",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         m_iogroup_list.push_back(iogroup);
     }
 
-    std::shared_ptr<IOGroup> PlatformIO::find_signal_iogroup(const std::string &signal_name) const
+    std::shared_ptr<IOGroup> PlatformIOImp::find_signal_iogroup(const std::string &signal_name) const
     {
         std::shared_ptr<IOGroup> result = nullptr;
         bool is_found = false;
@@ -117,7 +116,7 @@ namespace geopm
         return result;
     }
 
-    std::shared_ptr<IOGroup> PlatformIO::find_control_iogroup(const std::string &control_name) const
+    std::shared_ptr<IOGroup> PlatformIOImp::find_control_iogroup(const std::string &control_name) const
     {
         std::shared_ptr<IOGroup> result = nullptr;
         bool is_found = false;
@@ -132,9 +131,9 @@ namespace geopm
         return result;
     }
 
-    std::set<std::string> PlatformIO::signal_names(void) const
+    std::set<std::string> PlatformIOImp::signal_names(void) const
     {
-        /// @todo better handling for signals provided by PlatformIO
+        /// @todo better handling for signals provided by PlatformIOImp
         /// These depend on ENERGY signals and should not be available
         /// if ENERGY_PACKAGE and ENERGY_DRAM are not available.
         std::set<std::string> result {"POWER_PACKAGE", "POWER_DRAM"};
@@ -145,7 +144,7 @@ namespace geopm
         return result;
     }
 
-    std::set<std::string> PlatformIO::control_names(void) const
+    std::set<std::string> PlatformIOImp::control_names(void) const
     {
         std::set<std::string> result;
         for (const auto &io_group : m_iogroup_list) {
@@ -155,7 +154,7 @@ namespace geopm
         return result;
     }
 
-    int PlatformIO::signal_domain_type(const std::string &signal_name) const
+    int PlatformIOImp::signal_domain_type(const std::string &signal_name) const
     {
         int result = PlatformTopo::M_DOMAIN_INVALID;
         bool is_found = false;
@@ -164,7 +163,7 @@ namespace geopm
             is_found = true;
             result = iogroup->signal_domain_type(signal_name);
         }
-        /// @todo better handling for signals provided by PlatformIO
+        /// @todo better handling for signals provided by PlatformIOImp
         if (!is_found) {
             if (signal_name == "POWER_PACKAGE") {
                 result = signal_domain_type("ENERGY_PACKAGE");
@@ -184,14 +183,14 @@ namespace geopm
             }
         }
         if (!is_found) {
-            throw Exception("PlatformIO::signal_domain_type(): signal name \"" +
+            throw Exception("PlatformIOImp::signal_domain_type(): signal name \"" +
                             signal_name + "\" not found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result;
     }
 
-    int PlatformIO::control_domain_type(const std::string &control_name) const
+    int PlatformIOImp::control_domain_type(const std::string &control_name) const
     {
         int result = PlatformTopo::M_DOMAIN_INVALID;
         auto iogroup = find_control_iogroup(control_name);
@@ -199,19 +198,19 @@ namespace geopm
             result = iogroup->control_domain_type(control_name);
         }
         else {
-            throw Exception("PlatformIO::control_domain_type(): control name \"" +
+            throw Exception("PlatformIOImp::control_domain_type(): control name \"" +
                             control_name + "\" not found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result;
     }
 
-    int PlatformIO::push_signal(const std::string &signal_name,
-                                int domain_type,
-                                int domain_idx)
+    int PlatformIOImp::push_signal(const std::string &signal_name,
+                                   int domain_type,
+                                   int domain_idx)
     {
         if (m_is_active) {
-            throw Exception("PlatformIO::push_signal(): pushing signals after read_batch() or adjust().",
+            throw Exception("PlatformIOImp::push_signal(): pushing signals after read_batch() or adjust().",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         int result = -1;
@@ -244,7 +243,7 @@ namespace geopm
             m_existing_signal[sig_tup] = result;
         }
         if (result == -1) {
-            throw Exception("PlatformIO::push_signal(): no support for signal name \"" +
+            throw Exception("PlatformIOImp::push_signal(): no support for signal name \"" +
                             signal_name + "\" and domain type \"" +
                             std::to_string(domain_type) + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -252,9 +251,9 @@ namespace geopm
         return result;
     }
 
-    int PlatformIO::push_signal_power(const std::string &signal_name,
-                                      int domain_type,
-                                      int domain_idx)
+    int PlatformIOImp::push_signal_power(const std::string &signal_name,
+                                         int domain_type,
+                                         int domain_idx)
     {
         int result = -1;
         if (signal_name == "POWER_PACKAGE" || signal_name == "POWER_DRAM") {
@@ -278,9 +277,9 @@ namespace geopm
         return result;
     }
 
-    int PlatformIO::push_signal_temperature(const std::string &signal_name,
-                                            int domain_type,
-                                            int domain_idx)
+    int PlatformIOImp::push_signal_temperature(const std::string &signal_name,
+                                               int domain_type,
+                                               int domain_idx)
     {
         int result = -1;
         if (signal_name == "TEMPERATURE_CORE" || signal_name == "TEMPERATURE_PACKAGE") {
@@ -300,7 +299,7 @@ namespace geopm
                                              [] (const std::vector<double> &val) -> double {
 #ifdef GEOPM_DEBUG
                                                  if (val.size() != 2) {
-                                                     throw Exception("PlatformIO::push_signal_temperature(): expected two values to subtract for temperature.",
+                                                     throw Exception("PlatformIOImp::push_signal_temperature(): expected two values to subtract for temperature.",
                                                                      GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                                                  }
 #endif
@@ -312,9 +311,9 @@ namespace geopm
         return result;
     }
 
-    int PlatformIO::push_signal_convert_domain(const std::string &signal_name,
-                                               int domain_type,
-                                               int domain_idx)
+    int PlatformIOImp::push_signal_convert_domain(const std::string &signal_name,
+                                                  int domain_type,
+                                                  int domain_idx)
     {
         int result = -1;
         int base_domain_type = signal_domain_type(signal_name);
@@ -330,10 +329,10 @@ namespace geopm
         return result;
     }
 
-    int PlatformIO::push_combined_signal(const std::string &signal_name,
-                                         int domain_type,
-                                         int domain_idx,
-                                         const std::vector<int> &sub_signal_idx)
+    int PlatformIOImp::push_combined_signal(const std::string &signal_name,
+                                            int domain_type,
+                                            int domain_idx,
+                                            const std::vector<int> &sub_signal_idx)
     {
         int result = m_active_signal.size();
         std::unique_ptr<CombinedSignal> combiner = geopm::make_unique<CombinedSignal>(agg_function(signal_name));
@@ -343,20 +342,20 @@ namespace geopm
     }
 
 
-    void PlatformIO::register_combined_signal(int signal_idx,
-                                              std::vector<int> operands,
-                                              std::unique_ptr<CombinedSignal> signal)
+    void PlatformIOImp::register_combined_signal(int signal_idx,
+                                                 std::vector<int> operands,
+                                                 std::unique_ptr<CombinedSignal> signal)
     {
         auto tmp = std::make_pair(operands, std::move(signal));
         m_combined_signal[signal_idx] = std::move(tmp);
     }
 
-    int PlatformIO::push_control(const std::string &control_name,
-                                 int domain_type,
-                                 int domain_idx)
+    int PlatformIOImp::push_control(const std::string &control_name,
+                                    int domain_type,
+                                    int domain_idx)
     {
         if (m_is_active) {
-            throw Exception("PlatformIO::push_control(): pushing controls after read_batch() or adjust().",
+            throw Exception("PlatformIOImp::push_control(): pushing controls after read_batch() or adjust().",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         int result = -1;
@@ -382,16 +381,16 @@ namespace geopm
             }
         }
         if (result == -1) {
-            throw Exception("PlatformIO::push_control(): control name \"" +
+            throw Exception("PlatformIOImp::push_control(): control name \"" +
                             control_name + "\" not found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result;
     }
 
-    int PlatformIO::push_control_convert_domain(const std::string &control_name,
-                                                int domain_type,
-                                                int domain_idx)
+    int PlatformIOImp::push_control_convert_domain(const std::string &control_name,
+                                                   int domain_type,
+                                                   int domain_idx)
     {
         int result = -1;
         int base_domain_type = control_domain_type(control_name);
@@ -409,25 +408,25 @@ namespace geopm
         return result;
     }
 
-    int PlatformIO::num_signal(void) const
+    int PlatformIOImp::num_signal(void) const
     {
         return m_active_signal.size();
     }
 
-    int PlatformIO::num_control(void) const
+    int PlatformIOImp::num_control(void) const
     {
         return m_active_control.size();
     }
 
-    double PlatformIO::sample(int signal_idx)
+    double PlatformIOImp::sample(int signal_idx)
     {
         double result = NAN;
         if (signal_idx < 0 || signal_idx >= num_signal()) {
-            throw Exception("PlatformIO::sample(): signal_idx out of range",
+            throw Exception("PlatformIOImp::sample(): signal_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (!m_is_active) {
-            throw Exception("PlatformIO::sample(): read_batch() not called prior to call to sample()",
+            throw Exception("PlatformIOImp::sample(): read_batch() not called prior to call to sample()",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         auto &group_idx_pair = m_active_signal[signal_idx];
@@ -440,7 +439,7 @@ namespace geopm
         return result;
     }
 
-    double PlatformIO::sample_combined(int signal_idx)
+    double PlatformIOImp::sample_combined(int signal_idx)
     {
         double result = NAN;
         auto &op_func_pair = m_combined_signal.at(signal_idx);
@@ -454,15 +453,15 @@ namespace geopm
         return result;
     }
 
-    void PlatformIO::adjust(int control_idx,
-                            double setting)
+    void PlatformIOImp::adjust(int control_idx,
+                               double setting)
     {
         if (control_idx < 0 || control_idx >= num_control()) {
-            throw Exception("PlatformIO::adjust(): control_idx out of range",
+            throw Exception("PlatformIOImp::adjust(): control_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (std::isnan(setting)) {
-            throw Exception("PlatformIO::adjust(): setting is NAN",
+            throw Exception("PlatformIOImp::adjust(): setting is NAN",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         auto &group_idx_pair = m_active_control[control_idx];
@@ -478,7 +477,7 @@ namespace geopm
         m_is_active = true;
     }
 
-    void PlatformIO::read_batch(void)
+    void PlatformIOImp::read_batch(void)
     {
         for (auto &it : m_iogroup_list) {
             it->read_batch();
@@ -486,21 +485,21 @@ namespace geopm
         m_is_active = true;
     }
 
-    void PlatformIO::write_batch(void)
+    void PlatformIOImp::write_batch(void)
     {
         for (auto &it : m_iogroup_list) {
             it->write_batch();
         }
     }
 
-    double PlatformIO::read_signal(const std::string &signal_name,
-                                   int domain_type,
-                                   int domain_idx)
+    double PlatformIOImp::read_signal(const std::string &signal_name,
+                                      int domain_type,
+                                      int domain_idx)
     {
         double result = NAN;
         auto iogroup = find_signal_iogroup(signal_name);
         if (iogroup == nullptr) {
-            throw Exception("PlatformIO::read_signal(): signal name \"" + signal_name + "\" not found",
+            throw Exception("PlatformIOImp::read_signal(): signal name \"" + signal_name + "\" not found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         else if (iogroup->signal_domain_type(signal_name) != domain_type) {
@@ -512,9 +511,9 @@ namespace geopm
         return result;
     }
 
-    double PlatformIO::read_signal_convert_domain(const std::string &signal_name,
-                                                  int domain_type,
-                                                  int domain_idx)
+    double PlatformIOImp::read_signal_convert_domain(const std::string &signal_name,
+                                                     int domain_type,
+                                                     int domain_idx)
     {
         double result = NAN;
         int base_domain_type = signal_domain_type(signal_name);
@@ -528,21 +527,21 @@ namespace geopm
             result = agg_function(signal_name)(values);
         }
         else {
-            throw Exception("PlatformIO::read_signal(): domain " + std::to_string(domain_type) +
+            throw Exception("PlatformIOImp::read_signal(): domain " + std::to_string(domain_type) +
                             " is not valid for signal \"" + signal_name + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result;
     }
 
-    void PlatformIO::write_control(const std::string &control_name,
-                                   int domain_type,
-                                   int domain_idx,
-                                   double setting)
+    void PlatformIOImp::write_control(const std::string &control_name,
+                                      int domain_type,
+                                      int domain_idx,
+                                      double setting)
     {
         auto iogroup = find_control_iogroup(control_name);
         if (iogroup == nullptr) {
-            throw Exception("PlatformIO::write_control(): control name \"" + control_name + "\" not found",
+            throw Exception("PlatformIOImp::write_control(): control name \"" + control_name + "\" not found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         else if (iogroup->control_domain_type(control_name) != domain_type) {
@@ -553,10 +552,10 @@ namespace geopm
         }
     }
 
-    void PlatformIO::write_control_convert_domain(const std::string &control_name,
-                                                  int domain_type,
-                                                  int domain_idx,
-                                                  double setting)
+    void PlatformIOImp::write_control_convert_domain(const std::string &control_name,
+                                                     int domain_type,
+                                                     int domain_idx,
+                                                     double setting)
     {
         int base_domain_type = control_domain_type(control_name);
         if (m_platform_topo.is_domain_within(base_domain_type, domain_type)) {
@@ -567,13 +566,13 @@ namespace geopm
             }
         }
         else {
-            throw Exception("PlatformIO::write_control(): domain " + std::to_string(domain_type) +
+            throw Exception("PlatformIOImp::write_control(): domain " + std::to_string(domain_type) +
                             " is not valid for control \"" + control_name + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
 
-    void PlatformIO::save_control(void)
+    void PlatformIOImp::save_control(void)
     {
         m_do_restore = true;
         for (auto &it : m_iogroup_list) {
@@ -581,7 +580,7 @@ namespace geopm
         }
     }
 
-    void PlatformIO::restore_control(void)
+    void PlatformIOImp::restore_control(void)
     {
         if (m_do_restore) {
             for (auto &it : m_iogroup_list) {
@@ -590,24 +589,24 @@ namespace geopm
         }
     }
 
-    std::function<double(const std::vector<double> &)> PlatformIO::agg_function(const std::string &signal_name) const
+    std::function<double(const std::vector<double> &)> PlatformIOImp::agg_function(const std::string &signal_name) const
     {
-        // Special signals from PlatformIO
-        /// @todo: find a better way to track signals produced by PlatformIO itself
+        // Special signals from PlatformIOImp
+        /// @todo: find a better way to track signals produced by PlatformIOImp itself
         if (signal_name == "POWER_PACKAGE" || signal_name == "POWER_DRAM") {
             return Agg::sum;
         }
         auto iogroup = find_signal_iogroup(signal_name);
         if (iogroup == nullptr) {
-            throw Exception("PlatformIO::agg_function(): unknown how to aggregate \"" + signal_name + "\"",
+            throw Exception("PlatformIOImp::agg_function(): unknown how to aggregate \"" + signal_name + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return iogroup->agg_function(signal_name);
     }
 
-    std::string PlatformIO::signal_description(const std::string &signal_name) const
+    std::string PlatformIOImp::signal_description(const std::string &signal_name) const
     {
-        /// @todo: find a better way to track signals produced by PlatformIO itself
+        /// @todo: find a better way to track signals produced by PlatformIOImp itself
         if (signal_name == "POWER_PACKAGE") {
             return "Average package power in watts over the last 8 samples (usually 40 ms).";
         }
@@ -616,17 +615,17 @@ namespace geopm
         }
         auto iogroup = find_signal_iogroup(signal_name);
         if (iogroup == nullptr) {
-            throw Exception("PlatformIO::signal_description(): unknown signal \"" + signal_name + "\"",
+            throw Exception("PlatformIOImp::signal_description(): unknown signal \"" + signal_name + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return iogroup->signal_description(signal_name);
     }
 
-    std::string PlatformIO::control_description(const std::string &control_name) const
+    std::string PlatformIOImp::control_description(const std::string &control_name) const
     {
         auto iogroup = find_control_iogroup(control_name);
         if (iogroup == nullptr) {
-            throw Exception("PlatformIO::control_description(): unknown control \"" + control_name + "\"",
+            throw Exception("PlatformIOImp::control_description(): unknown control \"" + control_name + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return iogroup->control_description(control_name);

@@ -52,15 +52,15 @@ namespace geopm
 
     }
 
-    PowerGovernorAgent::PowerGovernorAgent(IPlatformIO &platform_io, IPlatformTopo &platform_topo, std::unique_ptr<IPowerGovernor> power_gov)
+    PowerGovernorAgent::PowerGovernorAgent(PlatformIO &platform_io, PlatformTopo &platform_topo, std::unique_ptr<IPowerGovernor> power_gov)
         : m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
         , m_level(-1)
         , m_is_converged(false)
         , m_is_sample_stable(false)
-        , m_min_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MIN", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
-        , m_max_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
-        , m_tdp_power_setting(m_platform_io.read_signal("POWER_PACKAGE_TDP", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+        , m_min_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MIN", PlatformTopo::M_DOMAIN_PACKAGE, 0))
+        , m_max_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MAX", PlatformTopo::M_DOMAIN_PACKAGE, 0))
+        , m_tdp_power_setting(m_platform_io.read_signal("POWER_PACKAGE_TDP", PlatformTopo::M_DOMAIN_PACKAGE, 0))
         , m_power_gov(std::move(power_gov))
         , m_pio_idx(M_PLAT_NUM_SIGNAL)
         , m_agg_func(M_NUM_SAMPLE)
@@ -113,12 +113,12 @@ namespace geopm
     {
         m_power_gov->init_platform_io();
         // Setup signals
-        m_pio_idx[M_PLAT_SIGNAL_PKG_POWER] = m_platform_io.push_signal("POWER_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_pio_idx[M_PLAT_SIGNAL_DRAM_POWER] = m_platform_io.push_signal("POWER_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_pio_idx[M_PLAT_SIGNAL_PKG_POWER] = m_platform_io.push_signal("POWER_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0);
+        m_pio_idx[M_PLAT_SIGNAL_DRAM_POWER] = m_platform_io.push_signal("POWER_DRAM", PlatformTopo::M_DOMAIN_BOARD, 0);
 
         // Setup controls
         int pkg_pwr_domain_type = m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT");
-        if (pkg_pwr_domain_type == IPlatformTopo::M_DOMAIN_INVALID) {
+        if (pkg_pwr_domain_type == PlatformTopo::M_DOMAIN_INVALID) {
             throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): Platform does not support package power control",
                             GEOPM_ERROR_AGENT_UNSUPPORTED, __FILE__, __LINE__);
         }

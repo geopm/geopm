@@ -52,8 +52,6 @@
 #include "geopm_internal.h"
 #include "config.h"
 
-using geopm::IPlatformTopo;
-
 namespace geopm
 {
     Tracer::Tracer(const std::string &start_time)
@@ -70,8 +68,8 @@ namespace geopm
                    const std::string &agent,
                    const std::string &profile_name,
                    bool do_trace,
-                   IPlatformIO &platform_io,
-                   IPlatformTopo &platform_topo,
+                   PlatformIO &platform_io,
+                   PlatformTopo &platform_topo,
                    const std::string &env_column,
                    int precision)
         : m_file_path(file_path)
@@ -116,21 +114,21 @@ namespace geopm
             bool first = true;
 
             // default columns
-            std::vector<IPlatformIO::m_request_s> base_columns({
-                    {"TIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"EPOCH_COUNT", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"REGION_HASH", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"REGION_HINT", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"REGION_PROGRESS", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"REGION_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"POWER_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"POWER_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"FREQUENCY", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"TEMPERATURE_CORE", IPlatformTopo::M_DOMAIN_BOARD, 0}});
+            std::vector<PlatformIO::m_request_s> base_columns({
+                    {"TIME", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"EPOCH_COUNT", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"REGION_HASH", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"REGION_HINT", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"REGION_PROGRESS", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"REGION_RUNTIME", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"ENERGY_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"ENERGY_DRAM", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"POWER_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"POWER_DRAM", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"FREQUENCY", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"CYCLES_THREAD", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"CYCLES_REFERENCE", PlatformTopo::M_DOMAIN_BOARD, 0},
+                    {"TEMPERATURE_CORE", PlatformTopo::M_DOMAIN_BOARD, 0}});
             // for region entry/exit, make sure region index is known
             m_region_hash_idx = 2;
             m_region_hint_idx = 3;
@@ -148,7 +146,7 @@ namespace geopm
                     }
                 }
                 else if (signal_domain.size() == 1) {
-                    base_columns.push_back({extra_signal, IPlatformTopo::M_DOMAIN_BOARD, 0});
+                    base_columns.push_back({extra_signal, PlatformTopo::M_DOMAIN_BOARD, 0});
                 }
                 else {
                     throw Exception("Tracer::columns(): Environment trace extension contains signals with multiple \"@\" characters.",
@@ -286,7 +284,7 @@ namespace geopm
         m_is_trace_enabled = false;
     }
 
-    std::string ITracer::pretty_name(const IPlatformIO::m_request_s &col) {
+    std::string ITracer::pretty_name(const PlatformIO::m_request_s &col) {
         std::ostringstream result;
         std::string name = col.name;
         if (name.find("#") == name.length() - 1) {
@@ -295,8 +293,8 @@ namespace geopm
         std::transform(name.begin(), name.end(), name.begin(),
                        [](unsigned char c){ return std::tolower(c); });
         result << name;
-        if (col.domain_type != IPlatformTopo::M_DOMAIN_BOARD) {
-            result << "-" << IPlatformTopo::domain_type_to_name(col.domain_type)
+        if (col.domain_type != PlatformTopo::M_DOMAIN_BOARD) {
+            result << "-" << PlatformTopo::domain_type_to_name(col.domain_type)
                    << "-" << col.domain_idx;
         }
         return result.str();

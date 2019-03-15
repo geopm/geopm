@@ -47,7 +47,7 @@
 #include "MockPlatformTopo.hpp"
 
 using geopm::ApplicationIO;
-using geopm::IPlatformTopo;
+using geopm::PlatformTopo;
 using testing::_;
 using testing::Return;
 
@@ -82,16 +82,16 @@ void ApplicationIOTest::SetUp()
     m_num_cpu_domain = 4;
     m_num_package_domain = 1;
     m_num_memory_domain = 1;
-    EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU))
+    EXPECT_CALL(m_platform_topo, num_domain(PlatformTopo::M_DOMAIN_CPU))
         .WillOnce(Return(m_num_cpu_domain));
-    EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE))
+    EXPECT_CALL(m_platform_topo, num_domain(PlatformTopo::M_DOMAIN_PACKAGE))
         .WillOnce(Return(m_num_package_domain));
-    EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_BOARD_MEMORY))
+    EXPECT_CALL(m_platform_topo, num_domain(PlatformTopo::M_DOMAIN_BOARD_MEMORY))
         .WillOnce(Return(m_num_memory_domain));
-    EXPECT_CALL(m_platform_io, read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, _))
+    EXPECT_CALL(m_platform_io, read_signal("ENERGY_PACKAGE", PlatformTopo::M_DOMAIN_PACKAGE, _))
         .Times(m_num_package_domain)
         .WillRepeatedly(Return(122.0/m_num_package_domain));
-    EXPECT_CALL(m_platform_io, read_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD_MEMORY, _))
+    EXPECT_CALL(m_platform_io, read_signal("ENERGY_DRAM", PlatformTopo::M_DOMAIN_BOARD_MEMORY, _))
         .Times(m_num_memory_domain)
         .WillRepeatedly(Return(221.0/m_num_memory_domain));
     std::vector<int> ranks {1, 2, 3, 4};

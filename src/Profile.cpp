@@ -67,7 +67,7 @@
 namespace geopm
 {
     Profile::Profile(const std::string &prof_name, const std::string &key_base, std::unique_ptr<Comm> comm,
-                     std::unique_ptr<IControlMessage> ctl_msg, IPlatformTopo &topo, std::unique_ptr<IProfileTable> table,
+                     std::unique_ptr<IControlMessage> ctl_msg, PlatformTopo &topo, std::unique_ptr<IProfileTable> table,
                      std::shared_ptr<IProfileThreadTable> t_table, std::unique_ptr<ISampleScheduler> scheduler)
         : Profile(prof_name, key_base, std::move(comm), std::move(ctl_msg), topo,
                   std::move(table), t_table, std::move(scheduler), nullptr)
@@ -76,7 +76,7 @@ namespace geopm
     }
 
     Profile::Profile(const std::string &prof_name, const std::string &key_base, std::unique_ptr<Comm> comm,
-                     std::unique_ptr<IControlMessage> ctl_msg, IPlatformTopo &topo, std::unique_ptr<IProfileTable> table,
+                     std::unique_ptr<IControlMessage> ctl_msg, PlatformTopo &topo, std::unique_ptr<IProfileTable> table,
                      std::shared_ptr<IProfileThreadTable> t_table, std::unique_ptr<ISampleScheduler> scheduler,
                      std::shared_ptr<Comm> reduce_comm)
         : m_is_enabled(true)
@@ -124,7 +124,7 @@ namespace geopm
         init_prof_comm(std::move(comm), shm_num_rank);
         try {
             init_ctl_msg(sample_key);
-            init_cpu_list(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU));
+            init_cpu_list(topo.num_domain(PlatformTopo::M_DOMAIN_CPU));
             init_cpu_affinity(shm_num_rank);
             init_tprof_table(tprof_key, topo);
             init_table(sample_key);
@@ -246,7 +246,7 @@ namespace geopm
         m_ctl_msg->wait();  // M_STATUS_MAP_END
     }
 
-    void Profile::init_tprof_table(const std::string &tprof_key, IPlatformTopo &topo)
+    void Profile::init_tprof_table(const std::string &tprof_key, PlatformTopo &topo)
     {
         if (!m_tprof_table) {
             m_tprof_shmem = std::unique_ptr<ISharedMemoryUser>(new SharedMemoryUser(tprof_key, geopm_env_timeout()));

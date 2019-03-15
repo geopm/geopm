@@ -44,15 +44,15 @@
 
 namespace geopm
 {
-    class IPlatformIO;
-    class IPlatformTopo;
+    class PlatformIO;
+    class PlatformTopo;
 
     /// @brief Agent used to do sampling only; no policy will be enforced.
     class MonitorAgent : public Agent
     {
         public:
             MonitorAgent();
-            MonitorAgent(IPlatformIO &plat_io, IPlatformTopo &topo);
+            MonitorAgent(PlatformIO &plat_io, PlatformTopo &topo);
             virtual ~MonitorAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &policy) const override;
@@ -76,8 +76,8 @@ namespace geopm
         private:
             void load_trace_columns(void);
 
-            IPlatformIO &m_platform_io;
-            IPlatformTopo &m_platform_topo;
+            PlatformIO &m_platform_io;
+            PlatformTopo &m_platform_topo;
             geopm_time_s m_last_wait;
             std::vector<int> m_sample_idx;
             std::vector<std::function<double(const std::vector<double>&)> > m_agg_func;

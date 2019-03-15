@@ -48,7 +48,7 @@ extern "C"
 
 namespace geopm
 {
-    class IPlatformTopo
+    class PlatformTopo
     {
         public:
             enum m_domain_e {
@@ -80,8 +80,8 @@ namespace geopm
                 M_NUM_DOMAIN,
             };
 
-            IPlatformTopo() = default;
-            virtual ~IPlatformTopo() = default;
+            PlatformTopo() = default;
+            virtual ~PlatformTopo() = default;
             /// @brief Number of domains on the platform of a
             ///        particular m_domain_e type.
             virtual int num_domain(int domain_type) const = 0;
@@ -123,14 +123,14 @@ namespace geopm
 
     };
 
-    IPlatformTopo &platform_topo(void);
+    PlatformTopo &platform_topo(void);
 
-    class PlatformTopo : public IPlatformTopo
+    class PlatformTopoImp : public PlatformTopo
     {
         public:
-            PlatformTopo();
-            PlatformTopo(const std::string &lscpu_file_name);
-            virtual ~PlatformTopo() = default;
+            PlatformTopoImp();
+            PlatformTopoImp(const std::string &lscpu_file_name);
+            virtual ~PlatformTopoImp() = default;
             int num_domain(int domain_type) const override;
             int domain_idx(int domain_type,
                            int cpu_idx) const override;

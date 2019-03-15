@@ -79,11 +79,11 @@ namespace geopm
             ///        domain index.
             /// @param [in] col The request structure containing the
             ///        signal name, domain type, and domain index.
-            static std::string pretty_name(const IPlatformIO::m_request_s &col);
+            static std::string pretty_name(const PlatformIO::m_request_s &col);
     };
 
-    class IPlatformIO;
-    class IPlatformTopo;
+    class PlatformIO;
+    class PlatformTopo;
 
     /// @brief Class used to write a trace of the telemetry and policy.
     class Tracer : public ITracer
@@ -97,8 +97,8 @@ namespace geopm
                    const std::string &agent,
                    const std::string &profile_name,
                    bool do_trace,
-                   IPlatformIO &platform_io,
-                   IPlatformTopo &platform_topo,
+                   PlatformIO &platform_io,
+                   PlatformTopo &platform_topo,
                    const std::string &env_column,
                    int precision);
             /// @brief Tracer destructor, virtual.
@@ -118,8 +118,8 @@ namespace geopm
             std::ostringstream m_buffer;
             off_t m_buffer_limit;
 
-            IPlatformIO &m_platform_io;
-            IPlatformTopo &m_platform_topo;
+            PlatformIO &m_platform_io;
+            PlatformTopo &m_platform_topo;
             std::string m_env_column; // extra columns from environment
             int m_precision;
             std::vector<int> m_column_idx; // columns sampled by Tracer

@@ -38,7 +38,7 @@
 #include "geopm_time.h"
 
 using geopm::TimeIOGroup;
-using geopm::IPlatformTopo;
+using geopm::PlatformTopo;
 using geopm::Exception;
 
 class TimeIOGroupTest : public :: testing :: Test
@@ -51,7 +51,7 @@ class TimeIOGroupTest : public :: testing :: Test
 };
 
 TimeIOGroupTest::TimeIOGroupTest()
-    : m_time_domain(IPlatformTopo::M_DOMAIN_CPU)
+    : m_time_domain(PlatformTopo::M_DOMAIN_CPU)
 {
 
 }
@@ -63,9 +63,9 @@ TEST_F(TimeIOGroupTest, is_valid)
     EXPECT_FALSE(m_group.is_valid_control("TIME::ELAPSED"));
     EXPECT_FALSE(m_group.is_valid_control("INVALID"));
     EXPECT_EQ(m_time_domain, m_group.signal_domain_type("TIME::ELAPSED"));
-    EXPECT_EQ(IPlatformTopo::M_DOMAIN_INVALID, m_group.signal_domain_type("INVALID"));
-    EXPECT_EQ(IPlatformTopo::M_DOMAIN_INVALID, m_group.control_domain_type("TIME::ELAPSED"));
-    EXPECT_EQ(IPlatformTopo::M_DOMAIN_INVALID, m_group.control_domain_type("INVALID"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_INVALID, m_group.signal_domain_type("INVALID"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_INVALID, m_group.control_domain_type("TIME::ELAPSED"));
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_INVALID, m_group.control_domain_type("INVALID"));
 
     // alias
     EXPECT_TRUE(m_group.is_valid_signal("TIME"));
@@ -93,7 +93,7 @@ TEST_F(TimeIOGroupTest, push)
     EXPECT_EQ(idx3, idx1);
 
     // must push to correct domain
-    EXPECT_THROW(m_group.push_signal("TIME", IPlatformTopo::M_DOMAIN_PACKAGE, 0), Exception);
+    EXPECT_THROW(m_group.push_signal("TIME", PlatformTopo::M_DOMAIN_PACKAGE, 0), Exception);
 }
 
 TEST_F(TimeIOGroupTest, read_nothing)
@@ -175,7 +175,7 @@ TEST_F(TimeIOGroupTest, read_signal)
     EXPECT_THROW(m_group.read_signal("INVALID", m_time_domain, 0), Exception);
 
     // must read correct domain
-    EXPECT_THROW(m_group.read_signal("TIME", IPlatformTopo::M_DOMAIN_PACKAGE, 0), Exception);
+    EXPECT_THROW(m_group.read_signal("TIME", PlatformTopo::M_DOMAIN_PACKAGE, 0), Exception);
 }
 
 TEST_F(TimeIOGroupTest, read_signal_and_batch)

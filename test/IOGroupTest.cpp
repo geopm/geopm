@@ -54,7 +54,7 @@
 
 using geopm::PluginFactory;
 using geopm::IOGroup;
-using geopm::IPlatformTopo;
+using geopm::PlatformTopo;
 using geopm::ProfileIOGroup;
 using testing::Return;
 
@@ -107,7 +107,7 @@ TEST_F(IOGroupTest, signal_names_are_valid)
         auto signal_names = group->signal_names();
         for (auto name : signal_names) {
             EXPECT_TRUE(group->is_valid_signal(name)) << name;
-            EXPECT_NE(IPlatformTopo::M_DOMAIN_INVALID, group->signal_domain_type(name)) << name;
+            EXPECT_NE(PlatformTopo::M_DOMAIN_INVALID, group->signal_domain_type(name)) << name;
         }
     }
 }
@@ -118,7 +118,7 @@ TEST_F(IOGroupTest, control_names_are_valid)
         auto control_names = group->control_names();
         for (auto name : control_names) {
             EXPECT_TRUE(group->is_valid_control(name)) << name;
-            EXPECT_NE(IPlatformTopo::M_DOMAIN_INVALID, group->control_domain_type(name)) << name;
+            EXPECT_NE(PlatformTopo::M_DOMAIN_INVALID, group->control_domain_type(name)) << name;
         }
     }
 }

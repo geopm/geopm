@@ -37,7 +37,6 @@
 #include "MSRSignal.hpp"
 #include "MSRControl.hpp"
 #include "PlatformTopo.hpp"
-#include "PlatformIO.hpp"
 #include "Exception.hpp"
 
 using testing::_;
@@ -51,8 +50,7 @@ using geopm::MSRSignal;
 using geopm::IMSRSignal;
 using geopm::MSRControl;
 using geopm::IMSRControl;
-using geopm::IPlatformIO;
-using geopm::IPlatformTopo;
+using geopm::PlatformTopo;
 using geopm::Exception;
 
 class MSRTest : public :: testing :: Test
@@ -99,7 +97,7 @@ class MSRTest : public :: testing :: Test
 void MSRTest::SetUp()
 {
     m_cpu_idx = 2;
-    m_domain_types = {IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_CPU, IPlatformTopo::M_DOMAIN_CPU};
+    m_domain_types = {PlatformTopo::M_DOMAIN_CPU, PlatformTopo::M_DOMAIN_CPU, PlatformTopo::M_DOMAIN_CPU};
     m_function_types = {IMSR::M_FUNCTION_SCALE, IMSR::M_FUNCTION_LOG_HALF, IMSR::M_FUNCTION_7_BIT_FLOAT};
     m_unit_types = {IMSR::M_UNITS_NONE, IMSR::M_UNITS_NONE, IMSR::M_UNITS_NONE};
 
@@ -234,7 +232,7 @@ TEST_F(MSRTest, msr_overflow)
                      ("sig4", (struct IMSR::m_encode_s) {
                          .begin_bit = 0,
                          .end_bit   = 3,
-                         .domain    = IPlatformTopo::M_DOMAIN_CPU,
+                         .domain    = PlatformTopo::M_DOMAIN_CPU,
                          .function  = IMSR::M_FUNCTION_OVERFLOW,
                          .units     = IMSR::M_UNITS_NONE,
                          .scalar    = 1.0});
@@ -261,7 +259,7 @@ TEST_F(MSRTest, msr_overflow)
                       ("sig42", (struct IMSR::m_encode_s) {
                           .begin_bit = 0,
                           .end_bit   = 47,
-                          .domain    = IPlatformTopo::M_DOMAIN_CPU,
+                          .domain    = PlatformTopo::M_DOMAIN_CPU,
                           .function  = IMSR::M_FUNCTION_OVERFLOW,
                           .units     = IMSR::M_UNITS_NONE,
                           .scalar    = 1.0});
@@ -290,11 +288,11 @@ TEST_F(MSRTest, msr_signal)
     int msr_idx = 0;
     int sig_idx = 0;
     MSRSignal sig(*m_msrs[msr_idx],
-                  IPlatformTopo::M_DOMAIN_CPU,
+                  PlatformTopo::M_DOMAIN_CPU,
                   m_cpu_idx, sig_idx);
 
     EXPECT_EQ((m_msr_names[msr_idx] + ":" + m_signal_names[sig_idx]), sig.name());
-    EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, sig.domain_type());
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, sig.domain_type());
     EXPECT_EQ(m_cpu_idx, sig.cpu_idx());
     /// @todo check exception mesage for field mapping error.
     EXPECT_THROW(sig.sample(), Exception);
@@ -310,11 +308,11 @@ TEST_F(MSRTest, msr_control)
     int con_idx = 0;
     uint64_t field = 0, mask = 0;
     MSRControl con(*m_msrs[msr_idx],
-                   IPlatformTopo::M_DOMAIN_CPU,
+                   PlatformTopo::M_DOMAIN_CPU,
                    m_cpu_idx, con_idx);
 
     EXPECT_EQ((m_msr_names[msr_idx] + ":" + m_control_names[con_idx]), con.name());
-    EXPECT_EQ(IPlatformTopo::M_DOMAIN_CPU, con.domain_type());
+    EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, con.domain_type());
     EXPECT_EQ(m_cpu_idx, con.cpu_idx());
     EXPECT_THROW(con.adjust(m_control_value), Exception);
     uint64_t offset = con.offset();

@@ -59,7 +59,7 @@ using ::testing::Return;
 using ::testing::AtLeast;
 using geopm::EnergyEfficientAgent;
 using geopm::PlatformTopo;
-using geopm::IPlatformIO;
+using geopm::Agg;
 
 class EnergyEfficientAgentTest : public :: testing :: Test
 {
@@ -122,9 +122,9 @@ void EnergyEfficientAgentTest::SetUp()
     ON_CALL(*m_platform_io, push_signal("FREQUENCY", _, _))
         .WillByDefault(Return(FREQ_SIGNAL_IDX));
     ON_CALL(*m_platform_io, agg_function(_))
-        .WillByDefault(Return(geopm::Agg::max));
+        .WillByDefault(Return(Agg::max));
     EXPECT_CALL(*m_platform_io, agg_function(_))
-        .WillRepeatedly(Return(geopm::Agg::max));
+        .WillRepeatedly(Return(Agg::max));
 
     // calls in constructor
     EXPECT_CALL(*m_platform_topo, num_domain(_)).Times(AtLeast(1));

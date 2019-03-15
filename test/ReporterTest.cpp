@@ -51,6 +51,7 @@
 #include "config.h"
 
 using geopm::Reporter;
+using geopm::PlatformTopo;
 using testing::HasSubstr;
 using testing::Return;
 using testing::_;
@@ -159,7 +160,7 @@ ReporterTest::ReporterTest()
     EXPECT_CALL(*m_agg, init());
     EXPECT_CALL(*m_agg, push_signal_total("TIME", _, _))
         .WillOnce(Return(M_TIME_IDX));
-    EXPECT_CALL(*m_agg, push_signal_total("ENERGY_PACKAGE", geopm::IPlatformTopo::M_DOMAIN_BOARD, 0))
+    EXPECT_CALL(*m_agg, push_signal_total("ENERGY_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_ENERGY_PKG_IDX));
     EXPECT_CALL(*m_agg, push_signal_total("ENERGY_DRAM", _, _))
         .WillOnce(Return(M_ENERGY_DRAM_IDX));
@@ -168,12 +169,12 @@ ReporterTest::ReporterTest()
     EXPECT_CALL(*m_agg, push_signal_total("CYCLES_THREAD", _, _))
         .WillOnce(Return(M_CLK_CORE_IDX));
 
-    EXPECT_CALL(m_platform_topo, num_domain(geopm::IPlatformTopo::M_DOMAIN_PACKAGE))
+    EXPECT_CALL(m_platform_topo, num_domain(PlatformTopo::M_DOMAIN_PACKAGE))
         .WillRepeatedly(Return(2));
 
-    EXPECT_CALL(*m_agg, push_signal_total("ENERGY_PACKAGE", geopm::IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+    EXPECT_CALL(*m_agg, push_signal_total("ENERGY_PACKAGE", PlatformTopo::M_DOMAIN_PACKAGE, 0))
         .WillOnce(Return(M_ENERGY_PKG_ENV_IDX_0));
-    EXPECT_CALL(*m_agg, push_signal_total("ENERGY_PACKAGE", geopm::IPlatformTopo::M_DOMAIN_PACKAGE, 1))
+    EXPECT_CALL(*m_agg, push_signal_total("ENERGY_PACKAGE", PlatformTopo::M_DOMAIN_PACKAGE, 1))
         .WillOnce(Return(M_ENERGY_PKG_ENV_IDX_1));
 
     m_comm = std::make_shared<ReporterTestMockComm>();
@@ -201,7 +202,7 @@ TEST_F(ReporterTest, generate)
     EXPECT_CALL(m_application_io, total_app_runtime_ignore()).WillOnce(Return(0.7));
     EXPECT_CALL(m_application_io, total_epoch_runtime_ignore()).WillRepeatedly(Return(0.7));
     EXPECT_CALL(m_application_io, total_epoch_runtime()).WillOnce(Return(70.0));
-    EXPECT_CALL(m_platform_io, read_signal("CPUINFO::FREQ_STICKER", geopm::IPlatformTopo::M_DOMAIN_BOARD, 0))
+    EXPECT_CALL(m_platform_io, read_signal("CPUINFO::FREQ_STICKER", PlatformTopo::M_DOMAIN_BOARD, 0))
         .Times(4)
         .WillRepeatedly(Return(1.0));
     EXPECT_CALL(m_tree_comm, overhead_send()).WillOnce(Return(678 * 56));

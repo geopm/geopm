@@ -38,7 +38,6 @@
 #include <vector>
 #include <functional>
 
-#include "PlatformIO.hpp"
 #include "PluginFactory.hpp"
 
 namespace geopm

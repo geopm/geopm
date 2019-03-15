@@ -39,7 +39,7 @@
 
 namespace geopm
 {
-    class IPlatformTopo;
+    class PlatformTopo;
 
     class IProfileThreadTable
     {
@@ -60,7 +60,7 @@ namespace geopm
     {
         public:
             ProfileThreadTable(size_t buffer_size, void *buffer);
-            ProfileThreadTable(IPlatformTopo &topo, size_t buffer_size, void *buffer);
+            ProfileThreadTable(PlatformTopo &topo, size_t buffer_size, void *buffer);
             ProfileThreadTable(const ProfileThreadTable &other);
             virtual ~ProfileThreadTable() = default;
             void enable(bool is_enabled) override;

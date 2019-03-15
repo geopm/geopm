@@ -438,7 +438,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/OMPT.hpp \
                             src/PlatformIO.cpp \
                             src/PlatformIO.hpp \
-                            src/PlatformIOInternal.hpp \
                             src/PlatformTopo.cpp \
                             src/PlatformTopo.hpp \
                             src/PluginFactory.hpp \

@@ -45,7 +45,7 @@ namespace geopm
 
     }
 
-    MonitorAgent::MonitorAgent(IPlatformIO &plat_io, IPlatformTopo &topo)
+    MonitorAgent::MonitorAgent(PlatformIO &plat_io, PlatformTopo &topo)
         : m_platform_io(plat_io)
         , m_platform_topo(topo)
         , m_last_wait(GEOPM_TIME_REF)
@@ -57,7 +57,7 @@ namespace geopm
 
         for (auto name : sample_names()) {
             m_sample_idx.push_back(m_platform_io.push_signal(name,
-                                                             IPlatformTopo::M_DOMAIN_BOARD,
+                                                             PlatformTopo::M_DOMAIN_BOARD,
                                                              0));
             m_agg_func.push_back(m_platform_io.agg_function(name));
         }

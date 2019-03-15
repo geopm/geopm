@@ -52,7 +52,7 @@
 using geopm::Exception;
 using geopm::Profile;
 using geopm::SharedMemory;
-using geopm::IPlatformTopo;
+using geopm::PlatformTopo;
 
 extern "C"
 {
@@ -94,7 +94,7 @@ class ProfileTestPlatformTopo : public MockPlatformTopo
     public:
         ProfileTestPlatformTopo(int num_cpu)
         {
-            EXPECT_CALL(*this, num_domain(IPlatformTopo::M_DOMAIN_CPU))
+            EXPECT_CALL(*this, num_domain(PlatformTopo::M_DOMAIN_CPU))
                 .WillRepeatedly(testing::Return(num_cpu));
         }
 };

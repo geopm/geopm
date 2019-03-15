@@ -33,13 +33,12 @@
 
 #include "EnergyEfficientRegion.hpp"
 #include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
 #include "Exception.hpp"
 #include "config.h"
 
 namespace geopm
 {
-    EnergyEfficientRegion::EnergyEfficientRegion(IPlatformIO &platform_io,
+    EnergyEfficientRegion::EnergyEfficientRegion(PlatformIO &platform_io,
                                                  int runtime_idx,
                                                  int pkg_energy_idx)
         : M_PERF_MARGIN(0.10)  // up to 10% degradation allowed

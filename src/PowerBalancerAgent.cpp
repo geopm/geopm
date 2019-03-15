@@ -138,13 +138,13 @@ namespace geopm
         return *M_STEP_IMP[step()];
     }
 
-    PowerBalancerAgent::LeafRole::LeafRole(IPlatformIO &platform_io, IPlatformTopo &platform_topo,
+    PowerBalancerAgent::LeafRole::LeafRole(PlatformIO &platform_io, PlatformTopo &platform_topo,
                                            std::unique_ptr<IPowerGovernor> power_governor, std::unique_ptr<IPowerBalancer> power_balancer)
         : Role()
         , m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
-        , m_power_max(m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE) *
-                      m_platform_io.read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+        , m_power_max(m_platform_topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE) *
+                      m_platform_io.read_signal("POWER_PACKAGE_MAX", PlatformTopo::M_DOMAIN_PACKAGE, 0))
         , m_pio_idx(M_PLAT_NUM_SIGNAL)
         , m_power_governor(std::move(power_governor))
         , m_power_balancer(std::move(power_balancer))
@@ -172,10 +172,10 @@ namespace geopm
     {
         m_power_governor->init_platform_io();
         // Setup signals
-        m_pio_idx[M_PLAT_SIGNAL_EPOCH_RUNTIME] = m_platform_io.push_signal("EPOCH_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_pio_idx[M_PLAT_SIGNAL_EPOCH_COUNT] = m_platform_io.push_signal("EPOCH_COUNT", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_pio_idx[M_PLAT_SIGNAL_EPOCH_RUNTIME_MPI] = m_platform_io.push_signal("EPOCH_RUNTIME_MPI", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_pio_idx[M_PLAT_SIGNAL_EPOCH_RUNTIME_IGNORE] = m_platform_io.push_signal("EPOCH_RUNTIME_IGNORE", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_pio_idx[M_PLAT_SIGNAL_EPOCH_RUNTIME] = m_platform_io.push_signal("EPOCH_RUNTIME", PlatformTopo::M_DOMAIN_BOARD, 0);
+        m_pio_idx[M_PLAT_SIGNAL_EPOCH_COUNT] = m_platform_io.push_signal("EPOCH_COUNT", PlatformTopo::M_DOMAIN_BOARD, 0);
+        m_pio_idx[M_PLAT_SIGNAL_EPOCH_RUNTIME_MPI] = m_platform_io.push_signal("EPOCH_RUNTIME_MPI", PlatformTopo::M_DOMAIN_BOARD, 0);
+        m_pio_idx[M_PLAT_SIGNAL_EPOCH_RUNTIME_IGNORE] = m_platform_io.push_signal("EPOCH_RUNTIME_IGNORE", PlatformTopo::M_DOMAIN_BOARD, 0);
     }
 
     bool PowerBalancerAgent::LeafRole::adjust_platform(const std::vector<double> &in_policy)
@@ -509,8 +509,8 @@ namespace geopm
 
     }
 
-    PowerBalancerAgent::PowerBalancerAgent(IPlatformIO &platform_io,
-                                           IPlatformTopo &platform_topo,
+    PowerBalancerAgent::PowerBalancerAgent(PlatformIO &platform_io,
+                                           PlatformTopo &platform_topo,
                                            std::unique_ptr<IPowerGovernor> power_governor,
                                            std::unique_ptr<IPowerBalancer> power_balancer)
         : m_platform_io(platform_io)
@@ -537,9 +537,9 @@ namespace geopm
         bool is_tree_root = (level == (int)fan_in.size());
         if (is_tree_root) {
             int num_pkg = m_platform_topo.num_domain(m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT"));
-            double min_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MIN", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
-            double max_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
-            m_power_tdp = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_TDP", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
+            double min_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MIN", PlatformTopo::M_DOMAIN_PACKAGE, 0);
+            double max_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MAX", PlatformTopo::M_DOMAIN_PACKAGE, 0);
+            m_power_tdp = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_TDP", PlatformTopo::M_DOMAIN_PACKAGE, 0);
             m_role = std::make_shared<RootRole>(level, fan_in, min_power, max_power);
         }
         else if (level == 0) {

@@ -53,8 +53,8 @@
 #include "Agg.hpp"
 
 using geopm::Controller;
-using geopm::IPlatformIO;
-using geopm::IPlatformTopo;
+using geopm::PlatformIO;
+using geopm::PlatformTopo;
 using geopm::ApplicationIO;
 using geopm::Agent;
 using testing::NiceMock;
@@ -77,7 +77,7 @@ class ControllerTestMockPlatformIO : public MockPlatformIO
             ON_CALL(*this, sample(-1))
                 .WillByDefault(Return(NAN));
         }
-        void add_supported_signal(IPlatformIO::m_request_s signal, double default_value)
+        void add_supported_signal(PlatformIO::m_request_s signal, double default_value)
         {
             ON_CALL(*this, push_signal(signal.name, signal.domain_type, signal.domain_idx))
                 .WillByDefault(Return(m_index));
@@ -120,10 +120,10 @@ class ControllerTest : public ::testing::Test
 
 void ControllerTest::SetUp()
 {
-    m_platform_io.add_supported_signal({"TIME", IPlatformTopo::M_DOMAIN_BOARD, 0}, 99);
-    m_platform_io.add_supported_signal({"POWER_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0}, 4545);
-    m_platform_io.add_supported_signal({"FREQUENCY", IPlatformTopo::M_DOMAIN_BOARD, 0}, 333);
-    m_platform_io.add_supported_signal({"REGION_PROGRESS", IPlatformTopo::M_DOMAIN_BOARD, 0}, 0.5);
+    m_platform_io.add_supported_signal({"TIME", PlatformTopo::M_DOMAIN_BOARD, 0}, 99);
+    m_platform_io.add_supported_signal({"POWER_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0}, 4545);
+    m_platform_io.add_supported_signal({"FREQUENCY", PlatformTopo::M_DOMAIN_BOARD, 0}, 333);
+    m_platform_io.add_supported_signal({"REGION_PROGRESS", PlatformTopo::M_DOMAIN_BOARD, 0}, 0.5);
 
     m_comm = std::make_shared<MockComm>();
     m_application_io = std::make_shared<MockApplicationIO>();

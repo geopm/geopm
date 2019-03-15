@@ -44,7 +44,7 @@ namespace geopm
     class Comm;
     class ISharedMemoryUser;
     class IControlMessage;
-    class IPlatformTopo;
+    class PlatformTopo;
     class IProfileTable;
     class IProfileThreadTable;
     class ISampleScheduler;
@@ -221,11 +221,11 @@ namespace geopm
             ///
             /// @param [in] ctl_msg Preconstructed SampleScheduler instance.
             Profile(const std::string &prof_name, const std::string &key_base, std::unique_ptr<Comm> comm,
-                    std::unique_ptr<IControlMessage> ctl_msg, IPlatformTopo &topo, std::unique_ptr<IProfileTable> table,
+                    std::unique_ptr<IControlMessage> ctl_msg, PlatformTopo &topo, std::unique_ptr<IProfileTable> table,
                     std::shared_ptr<IProfileThreadTable> t_table, std::unique_ptr<ISampleScheduler> scheduler);
             /// @brief Test constructor.
             Profile(const std::string &prof_name, const std::string &key_base, std::unique_ptr<Comm> comm,
-                    std::unique_ptr<IControlMessage> ctl_msg, IPlatformTopo &topo, std::unique_ptr<IProfileTable> table,
+                    std::unique_ptr<IControlMessage> ctl_msg, PlatformTopo &topo, std::unique_ptr<IProfileTable> table,
                     std::shared_ptr<IProfileThreadTable> t_table, std::unique_ptr<ISampleScheduler> scheduler,
                     std::shared_ptr<Comm> reduce_comm);
             /// @brief Profile destructor, virtual.
@@ -248,7 +248,7 @@ namespace geopm
             /// as well as their affinity masks.
             void init_cpu_list(int num_cpu);
             void init_cpu_affinity(int shm_num_rank);
-            void init_tprof_table(const std::string &tprof_key, IPlatformTopo &topo);
+            void init_tprof_table(const std::string &tprof_key, PlatformTopo &topo);
             void init_table(const std::string &sample_key);
         private:
             enum m_profile_const_e {

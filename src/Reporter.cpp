@@ -64,14 +64,14 @@
 
 namespace geopm
 {
-    Reporter::Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, IPlatformTopo &platform_topo, int rank)
+    Reporter::Reporter(const std::string &start_time, const std::string &report_name, PlatformIO &platform_io, PlatformTopo &platform_topo, int rank)
         : Reporter(start_time, report_name, platform_io, platform_topo, rank,
                    std::unique_ptr<IRegionAggregator>(new RegionAggregator), geopm_env_report_signals())
     {
 
     }
 
-    Reporter::Reporter(const std::string &start_time, const std::string &report_name, IPlatformIO &platform_io, IPlatformTopo &platform_topo, int rank,
+    Reporter::Reporter(const std::string &start_time, const std::string &report_name, PlatformIO &platform_io, PlatformTopo &platform_topo, int rank,
                        std::unique_ptr<IRegionAggregator> agg, const std::string &env_signals)
         : m_start_time(start_time)
         , m_report_name(report_name)
@@ -86,11 +86,11 @@ namespace geopm
 
     void Reporter::init(void)
     {
-        m_region_bulk_runtime_idx = m_region_agg->push_signal_total("TIME", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_energy_pkg_idx = m_region_agg->push_signal_total("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_energy_dram_idx = m_region_agg->push_signal_total("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_clk_core_idx = m_region_agg->push_signal_total("CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_clk_ref_idx = m_region_agg->push_signal_total("CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_region_bulk_runtime_idx = m_region_agg->push_signal_total("TIME", PlatformTopo::M_DOMAIN_BOARD, 0);
+        m_energy_pkg_idx = m_region_agg->push_signal_total("ENERGY_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0);
+        m_energy_dram_idx = m_region_agg->push_signal_total("ENERGY_DRAM", PlatformTopo::M_DOMAIN_BOARD, 0);
+        m_clk_core_idx = m_region_agg->push_signal_total("CYCLES_THREAD", PlatformTopo::M_DOMAIN_BOARD, 0);
+        m_clk_ref_idx = m_region_agg->push_signal_total("CYCLES_REFERENCE", PlatformTopo::M_DOMAIN_BOARD, 0);
         for (const std::string &signal_name : string_split(m_env_signals, ",")) {
             std::vector<std::string> signal_name_domain = string_split(signal_name, "@");
             if (signal_name_domain.size() == 2) {
@@ -104,7 +104,7 @@ namespace geopm
             else if (signal_name_domain.size() == 1) {
                 m_env_signal_name_idx.emplace_back(
                     signal_name,
-                    m_region_agg->push_signal_total(signal_name, IPlatformTopo::M_DOMAIN_BOARD, 0));
+                    m_region_agg->push_signal_total(signal_name, PlatformTopo::M_DOMAIN_BOARD, 0));
             }
             else {
                 throw Exception("Reporter::init(): Environment report extension contains signals with multiple \"@\" characters.",
@@ -246,7 +246,7 @@ namespace geopm
                 mpi_runtime = application_io.total_region_runtime_mpi(region.hash);
             }
             report << "    frequency (%): " << freq << std::endl;
-            report << "    frequency (Hz): " << freq / 100.0 * m_platform_io.read_signal("CPUINFO::FREQ_STICKER", IPlatformTopo::M_DOMAIN_BOARD, 0) << std::endl;
+            report << "    frequency (Hz): " << freq / 100.0 * m_platform_io.read_signal("CPUINFO::FREQ_STICKER", PlatformTopo::M_DOMAIN_BOARD, 0) << std::endl;
             report << "    mpi-runtime (sec): " << mpi_runtime << std::endl;
             report << "    count: " << region.count << std::endl;
             for (const auto &env_it : m_env_signal_name_idx) {
