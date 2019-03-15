@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "72693b07_6fceee93",
+        "filename": "ronn/geopmread.1.ronn",
+        "patchSetId": 7
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-15T19:09:02Z",
+      "side": 1,
+      "message": "rm",
+      "range": {
+        "startLine": 91,
+        "startChar": 13,
+        "endLine": 91,
+        "endChar": 17
+      },
+      "revId": "ad66e48be0d30c2047f414a600ac9045426bdbb8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5387378_80576526",
+        "filename": "ronn/geopmwrite.1.ronn",
+        "patchSetId": 7
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-15T19:09:02Z",
+      "side": 1,
+      "message": "rm",
+      "range": {
+        "startLine": 91,
+        "startChar": 13,
+        "endLine": 91,
+        "endChar": 17
+      },
+      "revId": "ad66e48be0d30c2047f414a600ac9045426bdbb8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fe89fa1_e33b56c8",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-15T19:09:02Z",
+      "side": 1,
+      "message": "rm",
+      "revId": "ad66e48be0d30c2047f414a600ac9045426bdbb8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1935496e_397ebb96",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-15T19:09:02Z",
+      "side": 1,
+      "message": "indentation?",
+      "revId": "ad66e48be0d30c2047f414a600ac9045426bdbb8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "740d3789_4783d8dd",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-15T19:09:02Z",
+      "side": 1,
+      "message": "here too",
+      "revId": "ad66e48be0d30c2047f414a600ac9045426bdbb8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
