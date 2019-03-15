@@ -47,15 +47,15 @@
 namespace geopm
 {
     ProfileIOGroup::ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
-                                     IEpochRuntimeRegulator &epoch_regulator)
+                                   IEpochRuntimeRegulator &epoch_regulator)
         : ProfileIOGroup(profile_sample, epoch_regulator, platform_topo())
     {
 
     }
 
     ProfileIOGroup::ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
-                                     IEpochRuntimeRegulator &epoch_regulator,
-                                     IPlatformTopo &topo)
+                                   IEpochRuntimeRegulator &epoch_regulator,
+                                   PlatformTopo &topo)
         : m_profile_sample(profile_sample)
         , m_epoch_regulator(epoch_regulator)
         , m_signal_idx_map{{plugin_name() + "::REGION_HASH", M_SIGNAL_REGION_HASH},
@@ -79,13 +79,13 @@ namespace geopm
         , m_platform_topo(topo)
         , m_do_read(M_SIGNAL_MAX, false)
         , m_is_batch_read(false)
-        , m_per_cpu_progress(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), NAN)
-        , m_per_cpu_runtime(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), NAN)
-        , m_thread_progress(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), NAN)
-        , m_epoch_runtime_mpi(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), 0.0)
-        , m_epoch_runtime_ignore(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), 0.0)
-        , m_epoch_runtime(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), 0.0)
-        , m_epoch_count(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU), 0.0)
+        , m_per_cpu_progress(topo.num_domain(PlatformTopo::M_DOMAIN_CPU), NAN)
+        , m_per_cpu_runtime(topo.num_domain(PlatformTopo::M_DOMAIN_CPU), NAN)
+        , m_thread_progress(topo.num_domain(PlatformTopo::M_DOMAIN_CPU), NAN)
+        , m_epoch_runtime_mpi(topo.num_domain(PlatformTopo::M_DOMAIN_CPU), 0.0)
+        , m_epoch_runtime_ignore(topo.num_domain(PlatformTopo::M_DOMAIN_CPU), 0.0)
+        , m_epoch_runtime(topo.num_domain(PlatformTopo::M_DOMAIN_CPU), 0.0)
+        , m_epoch_count(topo.num_domain(PlatformTopo::M_DOMAIN_CPU), 0.0)
         , m_cpu_rank(m_profile_sample->cpu_rank())
     {
 
@@ -122,9 +122,9 @@ namespace geopm
 
     int ProfileIOGroup::signal_domain_type(const std::string &signal_name) const
     {
-        int result = IPlatformTopo::M_DOMAIN_INVALID;
+        int result = PlatformTopo::M_DOMAIN_INVALID;
         if (is_valid_signal(signal_name)) {
-            result = IPlatformTopo::M_DOMAIN_CPU;
+            result = PlatformTopo::M_DOMAIN_CPU;
         }
         return result;
     }

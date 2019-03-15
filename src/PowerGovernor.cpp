@@ -45,14 +45,14 @@
 
 namespace geopm
 {
-    PowerGovernor::PowerGovernor(IPlatformIO &platform_io, IPlatformTopo &platform_topo)
+    PowerGovernor::PowerGovernor(PlatformIO &platform_io, PlatformTopo &platform_topo)
         : m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
         , M_POWER_PACKAGE_TIME_WINDOW(0.015)
         , m_pkg_pwr_domain_type(m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT"))
         , m_num_pkg(m_platform_topo.num_domain(m_pkg_pwr_domain_type))
-        , M_MIN_PKG_POWER_SETTING(m_platform_io.read_signal("POWER_PACKAGE_MIN", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
-        , M_MAX_PKG_POWER_SETTING(m_platform_io.read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+        , M_MIN_PKG_POWER_SETTING(m_platform_io.read_signal("POWER_PACKAGE_MIN", PlatformTopo::M_DOMAIN_PACKAGE, 0))
+        , M_MAX_PKG_POWER_SETTING(m_platform_io.read_signal("POWER_PACKAGE_MAX", PlatformTopo::M_DOMAIN_PACKAGE, 0))
         , m_min_pkg_power_policy(M_MIN_PKG_POWER_SETTING)
         , m_max_pkg_power_policy(M_MAX_PKG_POWER_SETTING)
         , m_last_pkg_power_setting(NAN)

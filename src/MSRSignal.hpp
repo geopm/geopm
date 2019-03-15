@@ -54,7 +54,7 @@ namespace geopm
             /// @return The name of the feature being measured.
             virtual std::string name(void) const = 0;
             /// @brief Get the type of the domain under measurement.
-            /// @return One of the values from the IPlatformTopo::m_domain_e
+            /// @return One of the values from the PlatformTopo::m_domain_e
             ///         enum described in PlatformTopo.hpp.
             virtual int domain_type(void) const = 0;
             /// @brief Get the index of the cpu in the domain under measurement.

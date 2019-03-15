@@ -39,8 +39,8 @@
 #include "Helper.hpp"
 #include "Agg.hpp"
 
-using geopm::IPlatformTopo;
-using geopm::IPlatformIO;
+using geopm::PlatformTopo;
+using geopm::PlatformIO;
 using geopm::MonitorAgent;
 using ::testing::_;
 using ::testing::Return;
@@ -57,8 +57,8 @@ class MonitorAgentTest : public ::testing::Test
         void SetUp();
         MockPlatformIO m_platform_io;
         MockPlatformTopo m_platform_topo;
-        IPlatformIO &m_plat_io_ref;
-        IPlatformTopo &m_plat_topo_ref;
+        PlatformIO &m_plat_io_ref;
+        PlatformTopo &m_plat_topo_ref;
         std::unique_ptr<geopm::MonitorAgent> m_agent;
 };
 
@@ -72,9 +72,9 @@ MonitorAgentTest::MonitorAgentTest()
 void MonitorAgentTest::SetUp()
 {
     // all signals are over entire board for now
-    ON_CALL(m_platform_io, push_signal("POWER_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0))
+    ON_CALL(m_platform_io, push_signal("POWER_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0))
         .WillByDefault(Return(M_POWER_PACKAGE));
-    ON_CALL(m_platform_io, push_signal("FREQUENCY", IPlatformTopo::M_DOMAIN_BOARD, 0))
+    ON_CALL(m_platform_io, push_signal("FREQUENCY", PlatformTopo::M_DOMAIN_BOARD, 0))
         .WillByDefault(Return(M_FREQUENCY));
 
     EXPECT_CALL(m_platform_io, push_signal("POWER_PACKAGE", _, _));
@@ -87,7 +87,7 @@ void MonitorAgentTest::SetUp()
     EXPECT_CALL(m_platform_io, agg_function("FREQUENCY"))
         .WillOnce(Return(geopm::Agg::average));
 
-    m_agent = geopm::make_unique<MonitorAgent>(m_plat_io_ref, m_plat_topo_ref);
+    m_agent = geopm::make_unique<MonitorAgent>(m_platform_io, m_platform_topo);
 }
 
 TEST_F(MonitorAgentTest, fixed_signal_list)

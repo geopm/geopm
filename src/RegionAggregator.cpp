@@ -47,7 +47,7 @@ namespace geopm
 
     }
 
-    RegionAggregator::RegionAggregator(IPlatformIO &platio)
+    RegionAggregator::RegionAggregator(PlatformIO &platio)
         : m_platform_io(platio)
         , m_last_epoch_count(-1)
     {
@@ -56,7 +56,7 @@ namespace geopm
 
     void RegionAggregator::init(void)
     {
-        m_epoch_count_idx = m_platform_io.push_signal("EPOCH_COUNT", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_epoch_count_idx = m_platform_io.push_signal("EPOCH_COUNT", PlatformTopo::M_DOMAIN_BOARD, 0);
     }
 
     int RegionAggregator::push_signal_total(const std::string &signal_name,

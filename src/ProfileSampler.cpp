@@ -73,7 +73,7 @@ namespace geopm
     {
     }
 
-    ProfileSampler::ProfileSampler(IPlatformTopo &topo, size_t table_size)
+    ProfileSampler::ProfileSampler(PlatformTopo &topo, size_t table_size)
         : m_ctl_shmem(nullptr)
         , m_ctl_msg(nullptr)
         , m_table_size(table_size)
@@ -95,7 +95,7 @@ namespace geopm
         std::string tprof_key_path("/dev/shm/" + tprof_key);
         // Remove shared memory file if one already exists.
         (void)unlink(tprof_key_path.c_str());
-        size_t tprof_size = 64 * topo.num_domain(IPlatformTopo::M_DOMAIN_CPU);
+        size_t tprof_size = 64 * topo.num_domain(PlatformTopo::M_DOMAIN_CPU);
         m_tprof_shmem = geopm::make_unique<SharedMemory>(tprof_key, tprof_size);
         m_tprof_table = geopm::make_unique<ProfileThreadTable>(tprof_size, m_tprof_shmem->pointer());
         errno = 0; // Ignore errors from the unlink calls.

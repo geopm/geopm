@@ -42,8 +42,8 @@
 #include "geopm/Agg.hpp"
 
 using geopm::Agent;
-using geopm::IPlatformIO;
-using geopm::IPlatformTopo;
+using geopm::PlatformIO;
+using geopm::PlatformTopo;
 
 // Registers this Agent with the Agent factory, making it visible
 // to the Controller when the plugin is first loaded.
@@ -74,7 +74,7 @@ ExampleAgent::ExampleAgent()
 void ExampleAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
 {
     // all signals and controls will be at board domain
-    int board = IPlatformTopo::M_DOMAIN_BOARD;
+    int board = PlatformTopo::M_DOMAIN_BOARD;
     // push signals
     m_signal_idx[M_PLAT_SIGNAL_USER] = m_platform_io.push_signal("USER_TIME", board, 0);
     m_signal_idx[M_PLAT_SIGNAL_SYSTEM] = m_platform_io.push_signal("SYSTEM_TIME", board, 0);

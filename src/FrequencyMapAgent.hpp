@@ -45,14 +45,14 @@
 
 namespace geopm
 {
-    class IPlatformIO;
-    class IPlatformTopo;
+    class PlatformIO;
+    class PlatformTopo;
 
     class FrequencyMapAgent : public Agent
     {
         public:
             FrequencyMapAgent();
-            FrequencyMapAgent(IPlatformIO &plat_io, IPlatformTopo &topo);
+            FrequencyMapAgent(PlatformIO &plat_io, PlatformTopo &topo);
             virtual ~FrequencyMapAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &policy) const override;
@@ -92,8 +92,8 @@ namespace geopm
             };
 
             const int M_PRECISION;
-            IPlatformIO &m_platform_io;
-            IPlatformTopo &m_platform_topo;
+            PlatformIO &m_platform_io;
+            PlatformTopo &m_platform_topo;
             double m_freq_min;
             double m_freq_max;
             const double M_FREQ_STEP;

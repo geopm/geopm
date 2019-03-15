@@ -98,13 +98,13 @@ namespace geopm
             virtual std::set<uint64_t> tracked_region_hash(void) const = 0;
     };
 
-    class IPlatformIO;
+    class PlatformIO;
 
     class RegionAggregator : public IRegionAggregator
     {
         public:
             RegionAggregator();
-            RegionAggregator(IPlatformIO &platio);
+            RegionAggregator(PlatformIO &platio);
             void init(void) override;
             int push_signal_total(const std::string &signal_idx,
                                   int domain_type,
@@ -113,7 +113,7 @@ namespace geopm
             void read_batch(void) override;
             std::set<uint64_t> tracked_region_hash(void) const override;
         private:
-            IPlatformIO &m_platform_io;
+            PlatformIO &m_platform_io;
             std::map<int, int> m_region_hash_idx;
             struct m_region_data_s
             {

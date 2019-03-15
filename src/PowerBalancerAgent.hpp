@@ -41,8 +41,8 @@
 
 namespace geopm
 {
-    class IPlatformIO;
-    class IPlatformTopo;
+    class PlatformIO;
+    class PlatformTopo;
     class IPowerBalancer;
     class IPowerGovernor;
 
@@ -132,7 +132,7 @@ namespace geopm
                 M_TRACE_NUM_SAMPLE,
             };
 
-            PowerBalancerAgent(IPlatformIO &platform_io, IPlatformTopo &platform_topo,
+            PowerBalancerAgent(PlatformIO &platform_io, PlatformTopo &platform_topo,
                                std::unique_ptr<IPowerGovernor> power_governor, std::unique_ptr<IPowerBalancer> power_balancer);
             PowerBalancerAgent();
             virtual ~PowerBalancerAgent();
@@ -203,8 +203,8 @@ namespace geopm
                     bool m_is_step_complete;
             };
 
-            IPlatformIO &m_platform_io;
-            IPlatformTopo &m_platform_topo;
+            PlatformIO &m_platform_io;
+            PlatformTopo &m_platform_topo;
             std::shared_ptr<Role> m_role;
             std::unique_ptr<IPowerGovernor> m_power_governor;   /// temporary ownership, std::move'd to Role on init
             std::unique_ptr<IPowerBalancer> m_power_balancer;   /// temporary ownership, std::move'd to Role on init
@@ -291,7 +291,7 @@ namespace geopm
                 friend class MeasureRuntimeStep;
                 friend class ReduceLimitStep;
                 public:
-                    LeafRole(IPlatformIO &platform_io, IPlatformTopo &platform_topo,
+                    LeafRole(PlatformIO &platform_io, PlatformTopo &platform_topo,
                              std::unique_ptr<IPowerGovernor> power_governor, std::unique_ptr<IPowerBalancer> power_balancer);
                     virtual ~LeafRole();
                     bool adjust_platform(const std::vector<double> &in_policy) override;
@@ -300,8 +300,8 @@ namespace geopm
                     void trace_values(std::vector<double> &values) override;
                 private:
                     void init_platform_io(void);
-                    IPlatformIO &m_platform_io;
-                    IPlatformTopo &m_platform_topo;
+                    PlatformIO &m_platform_io;
+                    PlatformTopo &m_platform_topo;
                     double m_power_max;
                     std::vector<int> m_pio_idx;
                     std::unique_ptr<IPowerGovernor> m_power_governor;

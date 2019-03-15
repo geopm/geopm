@@ -65,8 +65,8 @@ namespace geopm
                                  std::unique_ptr<IProfileSampler> sampler,
                                  std::shared_ptr<IProfileIOSample> pio_sample,
                                  std::unique_ptr<IEpochRuntimeRegulator> epoch_regulator,
-                                 IPlatformIO &platform_io,
-                                 IPlatformTopo &platform_topo)
+                                 PlatformIO &platform_io,
+                                 PlatformTopo &platform_topo)
         : m_sampler(std::move(sampler))
         , m_profile_io_sample(pio_sample)
         , m_platform_io(platform_io)
@@ -261,9 +261,9 @@ namespace geopm
     double ApplicationIO::current_energy_pkg(void) const
     {
         double energy = 0.0;
-        int num_package = m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE);
+        int num_package = m_platform_topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE);
         for (int pkg = 0; pkg < num_package; ++pkg) {
-            energy += m_platform_io.read_signal("ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_PACKAGE, pkg);
+            energy += m_platform_io.read_signal("ENERGY_PACKAGE", PlatformTopo::M_DOMAIN_PACKAGE, pkg);
         }
         return energy;
    }
@@ -271,9 +271,9 @@ namespace geopm
     double ApplicationIO::current_energy_dram(void) const
     {
         double energy = 0.0;
-        int num_dram = m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_BOARD_MEMORY);
+        int num_dram = m_platform_topo.num_domain(PlatformTopo::M_DOMAIN_BOARD_MEMORY);
         for (int dram = 0; dram < num_dram; ++dram) {
-            energy += m_platform_io.read_signal("ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD_MEMORY, dram);
+            energy += m_platform_io.read_signal("ENERGY_DRAM", PlatformTopo::M_DOMAIN_BOARD_MEMORY, dram);
         }
         return energy;
     }

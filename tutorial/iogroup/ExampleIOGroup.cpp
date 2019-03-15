@@ -43,7 +43,7 @@
 #include "geopm/Agg.hpp"
 
 using geopm::Exception;
-using geopm::IPlatformTopo;
+using geopm::PlatformTopo;
 
 // Registers this IOGroup with the IOGroup factory, making it visible
 // to PlatformIO when the plugin is first loaded.
@@ -113,9 +113,9 @@ bool ExampleIOGroup::is_valid_control(const std::string &control_name) const
 // Return board domain for all valid signals
 int ExampleIOGroup::signal_domain_type(const std::string &signal_name) const
 {
-    int result = IPlatformTopo::M_DOMAIN_INVALID;
+    int result = PlatformTopo::M_DOMAIN_INVALID;
     if (is_valid_signal(signal_name)) {
-        result = IPlatformTopo::M_DOMAIN_BOARD;
+        result = PlatformTopo::M_DOMAIN_BOARD;
     }
     return result;
 }
@@ -123,9 +123,9 @@ int ExampleIOGroup::signal_domain_type(const std::string &signal_name) const
 // Return board domain for all valid controls
 int ExampleIOGroup::control_domain_type(const std::string &control_name) const
 {
-    int result = IPlatformTopo::M_DOMAIN_INVALID;
+    int result = PlatformTopo::M_DOMAIN_INVALID;
     if (is_valid_control(control_name)) {
-        result = IPlatformTopo::M_DOMAIN_BOARD;
+        result = PlatformTopo::M_DOMAIN_BOARD;
     }
     return result;
 }
@@ -138,11 +138,11 @@ int ExampleIOGroup::push_signal(const std::string &signal_name, int domain_type,
                         " not valid for ExampleIOGroup.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    if (domain_type != IPlatformTopo::M_DOMAIN_BOARD) {
+    if (domain_type != PlatformTopo::M_DOMAIN_BOARD) {
         throw Exception("ExampleIOGroup::push_signal(): domain_type must be M_DOMAIN_BOARD.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_BOARD)) {
+    if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(PlatformTopo::M_DOMAIN_BOARD)) {
         throw Exception("ExampleIOGroup::push_signal(): domain_idx out of range.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
@@ -164,11 +164,11 @@ int ExampleIOGroup::push_control(const std::string &control_name, int domain_typ
                         " not valid for ExampleIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    if (domain_type != IPlatformTopo::M_DOMAIN_BOARD) {
+    if (domain_type != PlatformTopo::M_DOMAIN_BOARD) {
         throw Exception("ExampleIOGroup::push_control(): domain_type must be M_DOMAIN_BOARD.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_BOARD)) {
+    if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(PlatformTopo::M_DOMAIN_BOARD)) {
         throw Exception("ExampleIOGroup::push_control(): domain_idx out of range.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
@@ -287,11 +287,11 @@ double ExampleIOGroup::read_signal(const std::string &signal_name, int domain_ty
                         "not valid for ExampleIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    if (domain_type != IPlatformTopo::M_DOMAIN_BOARD) {
+    if (domain_type != PlatformTopo::M_DOMAIN_BOARD) {
         throw Exception("ExampleIOGroup::push_signal(): domain_type must be M_DOMAIN_BOARD.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_BOARD)) {
+    if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(PlatformTopo::M_DOMAIN_BOARD)) {
         throw Exception("ExampleIOGroup::push_signal(): domain_idx out of range.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
@@ -330,11 +330,11 @@ void ExampleIOGroup::write_control(const std::string &control_name, int domain_t
                         "not valid for ExampleIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    if (domain_type != IPlatformTopo::M_DOMAIN_BOARD) {
+    if (domain_type != PlatformTopo::M_DOMAIN_BOARD) {
         throw Exception("ExampleIOGroup::push_control(): domain_type must be M_DOMAIN_BOARD.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
-    if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_BOARD)) {
+    if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(PlatformTopo::M_DOMAIN_BOARD)) {
         throw Exception("ExampleIOGroup::push_control(): domain_idx out of range.",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }

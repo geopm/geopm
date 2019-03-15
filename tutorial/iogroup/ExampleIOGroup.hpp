@@ -43,7 +43,7 @@
 
 namespace geopm
 {
-    class IPlatformTopo;
+    class PlatformTopo;
 }
 
 /// @brief IOGroup that provides a signals for user and idle CPU time, and
@@ -88,7 +88,7 @@ class ExampleIOGroup : public geopm::IOGroup
             M_CONTROL_STDERR,
             M_NUM_CONTROL
         };
-        geopm::IPlatformTopo &m_platform_topo;
+        geopm::PlatformTopo &m_platform_topo;
         /// Whether any signal has been pushed
         bool m_do_batch_read;
         /// Whether read_batch() has been called at least once

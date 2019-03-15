@@ -73,7 +73,7 @@ namespace geopm
 
     }
 
-    MSRIOGroup::MSRIOGroup(IPlatformTopo &topo, std::unique_ptr<IMSRIO> msrio, int cpuid, int num_cpu)
+    MSRIOGroup::MSRIOGroup(PlatformTopo &topo, std::unique_ptr<IMSRIO> msrio, int cpuid, int num_cpu)
         : m_platform_topo(topo)
         , m_num_cpu(num_cpu)
         , m_is_active(false)
@@ -195,7 +195,7 @@ namespace geopm
 
     int MSRIOGroup::signal_domain_type(const std::string &signal_name) const
     {
-        int result = IPlatformTopo::M_DOMAIN_INVALID;
+        int result = PlatformTopo::M_DOMAIN_INVALID;
         auto it = m_name_cpu_signal_map.find(signal_name);
         if (it != m_name_cpu_signal_map.end()) {
             result = it->second[0]->domain_type();
@@ -205,7 +205,7 @@ namespace geopm
 
     int MSRIOGroup::control_domain_type(const std::string &control_name) const
     {
-        int result = IPlatformTopo::M_DOMAIN_INVALID;
+        int result = PlatformTopo::M_DOMAIN_INVALID;
         auto it = m_name_cpu_control_map.find(control_name);
         if (it != m_name_cpu_control_map.end()) {
             result = it->second[0]->domain_type();
@@ -236,7 +236,7 @@ namespace geopm
             throw Exception("MSRIOGroup::push_signal(): domain_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::set<int> cpu_idx = m_platform_topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
+        std::set<int> cpu_idx = m_platform_topo.nested_domains(PlatformTopo::M_DOMAIN_CPU,
                                                                domain_type, domain_idx);
 
         int result = -1;
@@ -297,7 +297,7 @@ namespace geopm
             throw Exception("MSRIOGroup::push_control(): domain_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::set<int> cpu_idx = m_platform_topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
+        std::set<int> cpu_idx = m_platform_topo.nested_domains(PlatformTopo::M_DOMAIN_CPU,
                                                                domain_type, domain_idx);
 #ifdef GEOPM_DEBUG
         if (cpu_idx.size() == 0) {
@@ -423,7 +423,7 @@ namespace geopm
             throw Exception("MSRIOGroup::read_signal(): domain_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::set<int> cpu_idx = m_platform_topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
+        std::set<int> cpu_idx = m_platform_topo.nested_domains(PlatformTopo::M_DOMAIN_CPU,
                                                                domain_type, domain_idx);
 
         // Copy of existing signal but map own memory
@@ -462,7 +462,7 @@ namespace geopm
             write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
         }
 
-        std::set<int> cpu_idx = m_platform_topo.nested_domains(IPlatformTopo::M_DOMAIN_CPU,
+        std::set<int> cpu_idx = m_platform_topo.nested_domains(PlatformTopo::M_DOMAIN_CPU,
                                                                domain_type, domain_idx);
         for (auto cpu : cpu_idx) {
             // Copy of existing control but map own memory
@@ -743,24 +743,24 @@ namespace geopm
     void MSRIOGroup::enable_fixed_counters(void)
     {
         for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-            write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR0", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::FIXED_CTR_CTRL:EN0_OS", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::FIXED_CTR_CTRL:EN0_USR", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::FIXED_CTR_CTRL:EN0_PMI", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
+            write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR0", PlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::FIXED_CTR_CTRL:EN0_OS", PlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::FIXED_CTR_CTRL:EN0_USR", PlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::FIXED_CTR_CTRL:EN0_PMI", PlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
 
-            write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR1", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::FIXED_CTR_CTRL:EN1_OS", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::FIXED_CTR_CTRL:EN1_USR", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::FIXED_CTR_CTRL:EN1_PMI", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
+            write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR1", PlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::FIXED_CTR_CTRL:EN1_OS", PlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::FIXED_CTR_CTRL:EN1_USR", PlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::FIXED_CTR_CTRL:EN1_PMI", PlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
 
-            write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR2", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::FIXED_CTR_CTRL:EN2_OS", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::FIXED_CTR_CTRL:EN2_USR", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
-            write_control("MSR::FIXED_CTR_CTRL:EN2_PMI", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
+            write_control("MSR::PERF_GLOBAL_CTRL:EN_FIXED_CTR2", PlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::FIXED_CTR_CTRL:EN2_OS", PlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::FIXED_CTR_CTRL:EN2_USR", PlatformTopo::M_DOMAIN_CPU, cpu_idx, 1.0);
+            write_control("MSR::FIXED_CTR_CTRL:EN2_PMI", PlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
 
-            write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR0", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
-            write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR1", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
-            write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR2", IPlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
+            write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR0", PlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
+            write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR1", PlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
+            write_control("MSR::PERF_GLOBAL_OVF_CTRL:CLEAR_OVF_FIXED_CTR2", PlatformTopo::M_DOMAIN_CPU, cpu_idx, 0);
         }
         m_is_fixed_enabled = true;
     }
@@ -994,7 +994,7 @@ namespace geopm
         };
         auto is_valid_domain = [](const Json &domain) {
             try {
-                IPlatformTopo::domain_name_to_type(domain.string_value());
+                PlatformTopo::domain_name_to_type(domain.string_value());
             }
             catch (const Exception &ex) {
                 return false;
@@ -1059,7 +1059,7 @@ namespace geopm
                 IMSR::m_encode_s param {
                     .begin_bit = (int)(field_data["begin_bit"].number_value()),
                     .end_bit = (int)(field_data["end_bit"].number_value()),
-                    .domain = IPlatformTopo::domain_name_to_type(msr_data["domain"].string_value()),
+                    .domain = PlatformTopo::domain_name_to_type(msr_data["domain"].string_value()),
                     .function = IMSR::string_to_function(field_data["function"].string_value()),
                     .units = IMSR::string_to_units(field_data["units"].string_value()),
                     .scalar = field_data["scalar"].number_value(),

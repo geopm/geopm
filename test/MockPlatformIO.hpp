@@ -36,7 +36,7 @@
 #include "PlatformIO.hpp"
 #include "IOGroup.hpp"
 
-class MockPlatformIO : public geopm::IPlatformIO
+class MockPlatformIO : public geopm::PlatformIO
 {
     public:
         MOCK_METHOD1(register_iogroup,

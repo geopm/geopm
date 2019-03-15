@@ -43,7 +43,7 @@
 namespace geopm
 {
     class Comm;
-    class IPlatformIO;
+    class PlatformIO;
     class IManagerIOSampler;
     class IApplicationIO;
     class IReporter;
@@ -62,7 +62,7 @@ namespace geopm
             /// @brief Constructor for testing that allows injecting mocked
             ///        versions of internal objects.
             Controller(std::shared_ptr<Comm> comm,
-                       IPlatformIO &plat_io,
+                       PlatformIO &plat_io,
                        const std::string &agent_name,
                        int num_send_up,
                        int num_send_down,
@@ -129,7 +129,7 @@ namespace geopm
             void init_agents(void);
 
             std::shared_ptr<Comm> m_comm;
-            IPlatformIO &m_platform_io;
+            PlatformIO &m_platform_io;
             std::string m_agent_name;
             const int m_num_send_down;
             const int m_num_send_up;

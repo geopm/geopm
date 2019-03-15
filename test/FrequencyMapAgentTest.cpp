@@ -58,7 +58,6 @@ using ::testing::Return;
 using ::testing::AtLeast;
 using geopm::FrequencyMapAgent;
 using geopm::PlatformTopo;
-using geopm::IPlatformIO;
 
 class FrequencyMapAgentTest : public :: testing :: Test
 {
@@ -217,4 +216,3 @@ TEST_F(FrequencyMapAgentTest, hint)
         m_agent->adjust_platform(m_default_policy);
     }
 }
-

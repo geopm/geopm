@@ -42,7 +42,7 @@
 #include "Helper.hpp"
 
 using geopm::PowerGovernor;
-using geopm::IPlatformTopo;
+using geopm::PlatformTopo;
 using ::testing::_;
 using ::testing::Return;
 
@@ -65,22 +65,22 @@ void PowerGovernorTest::SetUp(void)
 {
     EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE_LIMIT"))
         .Times(1)
-        .WillOnce(Return(IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE))
+        .WillOnce(Return(PlatformTopo::M_DOMAIN_PACKAGE));
+    EXPECT_CALL(m_platform_topo, num_domain(PlatformTopo::M_DOMAIN_PACKAGE))
         .Times(1)
         .WillOnce(Return(m_num_package));
-    EXPECT_CALL(m_platform_io, push_control("POWER_PACKAGE_LIMIT", IPlatformTopo::M_DOMAIN_PACKAGE, _))
+    EXPECT_CALL(m_platform_io, push_control("POWER_PACKAGE_LIMIT", PlatformTopo::M_DOMAIN_PACKAGE, _))
         .Times(m_num_package);
 
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MIN", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MIN", PlatformTopo::M_DOMAIN_PACKAGE, 0))
         .Times(1)
         .WillOnce(Return(M_PKG_POWER_MIN));
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", PlatformTopo::M_DOMAIN_PACKAGE, 0))
         .Times(1)
         .WillOnce(Return(M_PKG_POWER_MAX));
-    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_TIME_WINDOW", IPlatformTopo::M_DOMAIN_PACKAGE, 0, M_PKG_POWER_WIN))
+    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_TIME_WINDOW", PlatformTopo::M_DOMAIN_PACKAGE, 0, M_PKG_POWER_WIN))
         .Times(1);
-    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_TIME_WINDOW", IPlatformTopo::M_DOMAIN_PACKAGE, 1, M_PKG_POWER_WIN))
+    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_TIME_WINDOW", PlatformTopo::M_DOMAIN_PACKAGE, 1, M_PKG_POWER_WIN))
         .Times(1);
 
     m_governor = geopm::make_unique<PowerGovernor>(m_platform_io, m_platform_topo);

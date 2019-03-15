@@ -53,10 +53,8 @@
 #include "Helper.hpp"
 #include "Exception.hpp"
 #include "ManagerIO.hpp"
-#include "PlatformTopo.hpp"
 #include "SharedMemory.hpp"
 
-using geopm::IPlatformTopo;
 using geopm::ManagerIO;
 using geopm::ManagerIOSampler;
 using geopm::SharedMemory;

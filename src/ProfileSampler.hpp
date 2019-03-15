@@ -231,7 +231,7 @@ namespace geopm
             int rank_per_node;
     };
 
-    class IPlatformTopo;
+    class PlatformTopo;
 
     /// @brief Retrieves sample data from the set of application ranks on
     ///        a single node.
@@ -261,7 +261,7 @@ namespace geopm
             ///
             /// @param [in] table_size The size of the hash table that will
             ///        be created for each application rank.
-            ProfileSampler(IPlatformTopo &topo, size_t table_size);
+            ProfileSampler(PlatformTopo &topo, size_t table_size);
             /// @brief ProfileSampler destructor.
             virtual ~ProfileSampler();
             /// @brief Retrieve the maximum capacity of all the per-rank

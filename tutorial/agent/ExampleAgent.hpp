@@ -40,8 +40,8 @@
 
 namespace geopm
 {
-    class IPlatformIO;
-    class IPlatformTopo;
+    class PlatformTopo;
+    class PlatformIO;
 }
 
 /// @brief Agent
@@ -49,7 +49,7 @@ class ExampleAgent : public geopm::Agent
 {
     public:
         ExampleAgent();
-        ExampleAgent(geopm::IPlatformIO &plat_io, geopm::IPlatformTopo &topo);
+        ExampleAgent(geopm::PlatformIO &plat_io, geopm::PlatformTopo &topo);
         virtual ~ExampleAgent() = default;
         void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
         void validate_policy(std::vector<double> &in_policy) const override;
@@ -112,8 +112,8 @@ class ExampleAgent : public geopm::Agent
 
         };
 
-        geopm::IPlatformIO &m_platform_io;
-        geopm::IPlatformTopo &m_platform_topo;
+        geopm::PlatformIO &m_platform_io;
+        geopm::PlatformTopo &m_platform_topo;
 
         std::vector<int> m_signal_idx;
         std::vector<int> m_control_idx;

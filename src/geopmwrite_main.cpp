@@ -53,8 +53,8 @@
 
 #include "config.h"
 
-using geopm::IPlatformIO;
-using geopm::IPlatformTopo;
+using geopm::PlatformIO;
+using geopm::PlatformTopo;
 
 int parse_domain_type(const std::string &dom);
 
@@ -130,14 +130,14 @@ int main(int argc, char **argv)
         pos_args.emplace_back(argv[optind++]);
     }
 
-    IPlatformIO &platform_io = geopm::platform_io();
-    IPlatformTopo &platform_topo = geopm::platform_topo();
+    PlatformIO &platform_io = geopm::platform_io();
+    PlatformTopo &platform_topo = geopm::platform_topo();
     if (is_domain) {
         if (pos_args.size() == 0) {
             // print all domains
-            for (int dom = IPlatformTopo::M_DOMAIN_BOARD; dom < IPlatformTopo::M_NUM_DOMAIN; ++dom) {
+            for (int dom = PlatformTopo::M_DOMAIN_BOARD; dom < PlatformTopo::M_NUM_DOMAIN; ++dom) {
                 std::cout << std::setw(24) << std::left
-                          << IPlatformTopo::domain_type_to_name(dom)
+                          << PlatformTopo::domain_type_to_name(dom)
                           << platform_topo.num_domain(dom) << std::endl;
             }
         }
@@ -145,7 +145,7 @@ int main(int argc, char **argv)
             // print domain for one control
             try {
                 int domain_type = platform_io.control_domain_type(pos_args[0]);
-                std::cout << IPlatformTopo::domain_type_to_name(domain_type) << std::endl;
+                std::cout << PlatformTopo::domain_type_to_name(domain_type) << std::endl;
             }
             catch (const geopm::Exception &ex) {
                 std::cerr << "Error: unable to determine control type: " << ex.what() << std::endl;
@@ -204,7 +204,7 @@ int main(int argc, char **argv)
             }
             if (!err) {
                 try {
-                    int domain_type = IPlatformTopo::domain_name_to_type(pos_args[1]);
+                    int domain_type = PlatformTopo::domain_name_to_type(pos_args[1]);
                     int idx = platform_io.push_control(control_name, domain_type, domain_idx);
                     platform_io.adjust(idx, write_value);
                     platform_io.write_batch();

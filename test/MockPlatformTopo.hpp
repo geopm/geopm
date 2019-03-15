@@ -35,7 +35,7 @@
 
 #include "PlatformTopo.hpp"
 
-class MockPlatformTopo : public geopm::IPlatformTopo
+class MockPlatformTopo : public geopm::PlatformTopo
 {
     public:
         MOCK_CONST_METHOD1(num_domain,

@@ -40,13 +40,13 @@
 namespace geopm
 {
 
-    class IPlatformIO;
+    class PlatformIO;
 
     /// @brief Holds the performance history of a Region.
     class EnergyEfficientRegion
     {
         public:
-            EnergyEfficientRegion(IPlatformIO &platform_io,
+            EnergyEfficientRegion(PlatformIO &platform_io,
                                   int runtime_idx,
                                   int pkg_energy_idx);
             virtual ~EnergyEfficientRegion() = default;
@@ -65,7 +65,7 @@ namespace geopm
             const size_t M_MIN_BASE_SAMPLE;
             const size_t M_MAX_INCREASE;
 
-            IPlatformIO &m_platform_io;
+            PlatformIO &m_platform_io;
             double m_curr_freq;
             double m_target;
 

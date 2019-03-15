@@ -41,8 +41,8 @@
 
 namespace geopm
 {
-    class IPlatformIO;
-    class IPlatformTopo;
+    class PlatformIO;
+    class PlatformTopo;
     template <class type>
     class ICircularBuffer;
     class IPowerGovernor;
@@ -71,7 +71,7 @@ namespace geopm
             };
 
             PowerGovernorAgent();
-            PowerGovernorAgent(IPlatformIO &platform_io, IPlatformTopo &platform_topo, std::unique_ptr<IPowerGovernor> power_gov);
+            PowerGovernorAgent(PlatformIO &platform_io, PlatformTopo &platform_topo, std::unique_ptr<IPowerGovernor> power_gov);
             virtual ~PowerGovernorAgent();
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &policy) const override;
@@ -94,8 +94,8 @@ namespace geopm
         private:
             void init_platform_io(void);
 
-            IPlatformIO &m_platform_io;
-            IPlatformTopo &m_platform_topo;
+            PlatformIO &m_platform_io;
+            PlatformTopo &m_platform_topo;
 
             int m_level;
             bool m_is_converged;

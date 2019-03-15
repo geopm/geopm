@@ -39,7 +39,7 @@
 #include "geopm/Agg.hpp"
 
 using geopm::Exception;
-using geopm::IPlatformTopo;
+using geopm::PlatformTopo;
 
 // Registers this IOGroup with the IOGroup factory, making it visible
 // to PlatformIO when the plugin is first loaded.
@@ -123,16 +123,16 @@ bool BobIOGroup::is_valid_control(const std::string &control_name) const
 
 int BobIOGroup::signal_domain_type(const std::string &signal_name) const
 {
-    int result = IPlatformTopo::M_DOMAIN_INVALID;
+    int result = PlatformTopo::M_DOMAIN_INVALID;
     if (is_valid_signal(signal_name)) {
-        result = IPlatformTopo::M_DOMAIN_BOARD;
+        result = PlatformTopo::M_DOMAIN_BOARD;
     }
     return result;
 }
 
 int BobIOGroup::control_domain_type(const std::string &control_name) const
 {
-    return IPlatformTopo::M_DOMAIN_INVALID;
+    return PlatformTopo::M_DOMAIN_INVALID;
 }
 
 int BobIOGroup::push_signal(const std::string &signal_name, int domain_type, int domain_idx)

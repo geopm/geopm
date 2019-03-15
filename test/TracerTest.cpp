@@ -47,8 +47,8 @@
 #include "geopm_test.hpp"
 
 using geopm::Tracer;
-using geopm::IPlatformIO;
-using geopm::IPlatformTopo;
+using geopm::PlatformIO;
+using geopm::PlatformTopo;
 using testing::_;
 using testing::Return;
 using testing::HasSubstr;
@@ -65,7 +65,7 @@ class TracerTest : public ::testing::Test
         std::string m_agent = "myagent";
         std::string m_profile = "myprofile";
         std::string m_start_time = "Tue Nov  6 08:00:00 2018";
-        std::vector<IPlatformIO::m_request_s> m_default_cols;
+        std::vector<PlatformIO::m_request_s> m_default_cols;
         std::vector<std::string> m_extra_cols;
         std::string m_extra_cols_str;
         const int m_num_extra_cols = 3;
@@ -75,24 +75,24 @@ void TracerTest::SetUp(void)
 {
     std::remove(m_path.c_str());
 
-    EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU))
+    EXPECT_CALL(m_platform_topo, num_domain(PlatformTopo::M_DOMAIN_CPU))
         .WillOnce(Return(2));
 
     m_default_cols = {
-        {"TIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"EPOCH_COUNT", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"REGION_HASH", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"REGION_HINT", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"REGION_PROGRESS", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"REGION_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"POWER_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"POWER_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"FREQUENCY", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"TEMPERATURE_CORE", IPlatformTopo::M_DOMAIN_BOARD, 0}
+        {"TIME", PlatformTopo::M_DOMAIN_BOARD, 0},
+        {"EPOCH_COUNT", PlatformTopo::M_DOMAIN_BOARD, 0},
+        {"REGION_HASH", PlatformTopo::M_DOMAIN_BOARD, 0},
+        {"REGION_HINT", PlatformTopo::M_DOMAIN_BOARD, 0},
+        {"REGION_PROGRESS", PlatformTopo::M_DOMAIN_BOARD, 0},
+        {"REGION_RUNTIME", PlatformTopo::M_DOMAIN_BOARD, 0},
+        {"ENERGY_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0},
+        {"ENERGY_DRAM", PlatformTopo::M_DOMAIN_BOARD, 0},
+        {"POWER_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0},
+        {"POWER_DRAM", PlatformTopo::M_DOMAIN_BOARD, 0},
+        {"FREQUENCY", PlatformTopo::M_DOMAIN_BOARD, 0},
+        {"CYCLES_THREAD", PlatformTopo::M_DOMAIN_BOARD, 0},
+        {"CYCLES_REFERENCE", PlatformTopo::M_DOMAIN_BOARD, 0},
+        {"TEMPERATURE_CORE", PlatformTopo::M_DOMAIN_BOARD, 0}
     };
     m_extra_cols_str = "EXTRA,EXTRA_SPECIAL@cpu";
     m_extra_cols = geopm::string_split(m_extra_cols_str, ",");
@@ -103,13 +103,13 @@ void TracerTest::SetUp(void)
             .WillOnce(Return(idx));
         ++idx;
     }
-    EXPECT_CALL(m_platform_io, push_signal("EXTRA", IPlatformTopo::M_DOMAIN_BOARD, 0))
+    EXPECT_CALL(m_platform_io, push_signal("EXTRA", PlatformTopo::M_DOMAIN_BOARD, 0))
             .WillOnce(Return(idx));
     ++idx;
-    EXPECT_CALL(m_platform_io, push_signal("EXTRA_SPECIAL", IPlatformTopo::M_DOMAIN_CPU, 0))
+    EXPECT_CALL(m_platform_io, push_signal("EXTRA_SPECIAL", PlatformTopo::M_DOMAIN_CPU, 0))
         .WillOnce(Return(idx));
     ++idx;
-    EXPECT_CALL(m_platform_io, push_signal("EXTRA_SPECIAL", IPlatformTopo::M_DOMAIN_CPU, 1))
+    EXPECT_CALL(m_platform_io, push_signal("EXTRA_SPECIAL", PlatformTopo::M_DOMAIN_CPU, 1))
         .WillOnce(Return(idx));
 }
 
