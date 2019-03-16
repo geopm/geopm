@@ -41,41 +41,41 @@
 
 namespace geopm
 {
-    RegionAggregator::RegionAggregator()
-        : RegionAggregator(platform_io())
+    RegionAggregatorImp::RegionAggregatorImp()
+        : RegionAggregatorImp(platform_io())
     {
 
     }
 
-    RegionAggregator::RegionAggregator(PlatformIO &platio)
+    RegionAggregatorImp::RegionAggregatorImp(PlatformIO &platio)
         : m_platform_io(platio)
         , m_last_epoch_count(-1)
     {
 
     }
 
-    void RegionAggregator::init(void)
+    void RegionAggregatorImp::init(void)
     {
         m_epoch_count_idx = m_platform_io.push_signal("EPOCH_COUNT", PlatformTopo::M_DOMAIN_BOARD, 0);
     }
 
-    int RegionAggregator::push_signal_total(const std::string &signal_name,
-                                            int domain_type,
-                                            int domain_idx)
+    int RegionAggregatorImp::push_signal_total(const std::string &signal_name,
+                                               int domain_type,
+                                               int domain_idx)
     {
         int signal_idx = m_platform_io.push_signal(signal_name, domain_type, domain_idx);
         m_region_hash_idx[signal_idx] = m_platform_io.push_signal("REGION_HASH", domain_type, domain_idx);
         return signal_idx;
     }
 
-    double RegionAggregator::sample_total(int signal_idx, uint64_t region_hash)
+    double RegionAggregatorImp::sample_total(int signal_idx, uint64_t region_hash)
     {
         if (signal_idx < 0) {
-            throw Exception("RegionAggregator::sample_total(): Invalid signal index",
+            throw Exception("RegionAggregatorImp::sample_total(): Invalid signal index",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (m_region_hash_idx.find(signal_idx) == m_region_hash_idx.end()) {
-            throw Exception("RegionAggregator::sample_total(): Cannot call sample_total "
+            throw Exception("RegionAggregatorImp::sample_total(): Cannot call sample_total "
                             "for signal index not pushed with push_signal_total.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -97,7 +97,7 @@ namespace geopm
         return current_value;
     }
 
-    void RegionAggregator::read_batch(void)
+    void RegionAggregatorImp::read_batch(void)
     {
         for (const auto &it : m_region_hash_idx) {
             double value = m_platform_io.sample(it.first);
@@ -129,7 +129,7 @@ namespace geopm
         }
     }
 
-    std::set<uint64_t> RegionAggregator::tracked_region_hash(void) const
+    std::set<uint64_t> RegionAggregatorImp::tracked_region_hash(void) const
     {
         return m_tracked_region_hash;
     }

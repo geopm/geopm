@@ -44,8 +44,8 @@ namespace geopm
     class PlatformIO;
     class PlatformTopo;
     template <class type>
-    class ICircularBuffer;
-    class IPowerGovernor;
+    class CircularBuffer;
+    class PowerGovernor;
 
     class PowerGovernorAgent : public Agent
     {
@@ -71,7 +71,9 @@ namespace geopm
             };
 
             PowerGovernorAgent();
-            PowerGovernorAgent(PlatformIO &platform_io, PlatformTopo &platform_topo, std::unique_ptr<IPowerGovernor> power_gov);
+            PowerGovernorAgent(PlatformIO &platform_io,
+                               PlatformTopo &platform_topo,
+                               std::unique_ptr<PowerGovernor> power_gov);
             virtual ~PowerGovernorAgent();
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &policy) const override;
@@ -103,12 +105,12 @@ namespace geopm
             double m_min_power_setting;
             double m_max_power_setting;
             double m_tdp_power_setting;
-            std::unique_ptr<IPowerGovernor> m_power_gov;
+            std::unique_ptr<PowerGovernor> m_power_gov;
             std::vector<int> m_pio_idx;
             std::vector<std::function<double(const std::vector<double>&)> > m_agg_func;
             int m_num_children;
             double m_last_power_budget;
-            std::unique_ptr<ICircularBuffer<double> > m_epoch_power_buf;
+            std::unique_ptr<CircularBuffer<double> > m_epoch_power_buf;
             std::vector<double> m_sample;
             int m_ascend_count;
             const int m_ascend_period;

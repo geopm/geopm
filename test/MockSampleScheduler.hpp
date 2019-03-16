@@ -35,15 +35,15 @@
 
 #include "SampleScheduler.hpp"
 
-class MockSampleScheduler : public geopm::ISampleScheduler
+class MockSampleScheduler : public geopm::SampleScheduler
 {
     public:
         MOCK_METHOD0(do_sample,
-                bool (void));
+                     bool (void));
         MOCK_METHOD0(record_exit,
-                void (void));
+                     void (void));
         MOCK_METHOD0(clear,
-                void (void));
+                     void (void));
 };
 
 #endif

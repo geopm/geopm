@@ -38,7 +38,7 @@
 #include <vector>
 #include "SharedMemory.hpp"
 
-class MockSharedMemory : public geopm::ISharedMemory
+class MockSharedMemory : public geopm::SharedMemory
 {
     public:
         MockSharedMemory() = delete;

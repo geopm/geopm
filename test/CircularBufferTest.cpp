@@ -30,30 +30,25 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
+#include <memory>
 
 #include "gtest/gtest.h"
 #include "CircularBuffer.hpp"
+#include "Helper.hpp"
 
 class CircularBufferTest: public :: testing :: Test
 {
     protected:
         void SetUp();
-        void TearDown();
-        geopm::CircularBuffer<double>* m_buffer;
+        std::unique_ptr<geopm::CircularBuffer<double> > m_buffer;
 };
 
 void CircularBufferTest::SetUp()
 {
-    m_buffer = new geopm::CircularBuffer<double>(5);
+    m_buffer = geopm::make_unique<geopm::CircularBufferImp<double> >(5);
     m_buffer->insert(1.0);
     m_buffer->insert(2.0);
     m_buffer->insert(3.0);
-}
-
-void CircularBufferTest::TearDown()
-{
-    delete m_buffer;
 }
 
 TEST_F(CircularBufferTest, buffer_size)

@@ -45,11 +45,11 @@ namespace geopm
     /// The CircularBuffer container implements a fixed size buffer. Once
     /// at capacity, any new insertions cause the oldest entry to be dropped.
     template <class type>
-    class ICircularBuffer
+    class CircularBuffer
     {
         public:
-            ICircularBuffer() = default;
-            virtual ~ICircularBuffer() = default;
+            CircularBuffer() = default;
+            virtual ~CircularBuffer() = default;
             /// @brief Re-size the circular buffer.
             ///
             /// Resets the capacity of the circular buffer without
@@ -109,18 +109,18 @@ namespace geopm
     /// The CircularBuffer container implements a fixed size buffer. Once
     /// at capacity, any new insertions cause the oldest entry to be dropped.
     template <class type>
-    class CircularBuffer : public ICircularBuffer <type>
+    class CircularBufferImp : public CircularBuffer <type>
     {
         public:
-            CircularBuffer();
-            /// @brief Constructor for the CircularBuffer template.
+            CircularBufferImp();
+            /// @brief Constructor for the CircularBufferImp template.
             ///
             /// Creates an empty circular buffer with a set capacity.
             ///
             /// @param [in] size Requested capacity for the buffer.
-            CircularBuffer(unsigned int size);
-            /// @brief CircularBuffer destructor, virtual
-            virtual ~CircularBuffer();
+            CircularBufferImp(unsigned int size);
+            /// @brief CircularBufferImp destructor, virtual
+            virtual ~CircularBufferImp();
             void set_capacity(const unsigned int size) override;
             void clear(void) override;
             int size(void) const override;
@@ -140,14 +140,14 @@ namespace geopm
     };
 
     template <class type>
-    CircularBuffer<type>::CircularBuffer()
-        : CircularBuffer(0)
+    CircularBufferImp<type>::CircularBufferImp()
+        : CircularBufferImp(0)
     {
 
     }
 
     template <class type>
-    CircularBuffer<type>::CircularBuffer(unsigned int size)
+    CircularBufferImp<type>::CircularBufferImp(unsigned int size)
         : m_buffer(size)
         , m_head(0)
         , m_count(0)
@@ -157,32 +157,32 @@ namespace geopm
     }
 
     template <class type>
-    CircularBuffer<type>::~CircularBuffer()
+    CircularBufferImp<type>::~CircularBufferImp()
     {
 
     }
 
     template <class type>
-    int CircularBuffer<type>::size() const
+    int CircularBufferImp<type>::size() const
     {
         return m_count;
     }
 
     template <class type>
-    int CircularBuffer<type>::capacity() const
+    int CircularBufferImp<type>::capacity() const
     {
         return m_max_size;
     }
 
     template <class type>
-    void CircularBuffer<type>::clear()
+    void CircularBufferImp<type>::clear()
     {
         m_head = 0;
         m_count = 0;
     }
 
     template <class type>
-    void CircularBuffer<type>::set_capacity(const unsigned int size)
+    void CircularBufferImp<type>::set_capacity(const unsigned int size)
     {
         if (size < m_count) {
             int size_diff = m_count - size;
@@ -204,10 +204,10 @@ namespace geopm
     }
 
     template <class type>
-    void CircularBuffer<type>::insert(const type value)
+    void CircularBufferImp<type>::insert(const type value)
     {
         if (m_max_size < 1) {
-            throw Exception("CircularBuffer::insert(): Cannot insert into a buffer of 0 size", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("CircularBufferImp::insert(): Cannot insert into a buffer of 0 size", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         if (m_count < m_max_size) {
             m_buffer[m_count] = value;
@@ -220,16 +220,16 @@ namespace geopm
     }
 
     template <class type>
-    const type& CircularBuffer<type>::value(const unsigned int index) const
+    const type& CircularBufferImp<type>::value(const unsigned int index) const
     {
         if (index >= m_count) {
-            throw Exception("CircularBuffer::value(): index is out of bounds", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("CircularBufferImp::value(): index is out of bounds", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return m_buffer[(m_head + index) % m_max_size];
     }
 
     template <class type>
-    std::vector<type> CircularBuffer<type>::make_vector(void) const
+    std::vector<type> CircularBufferImp<type>::make_vector(void) const
     {
         std::vector<type> result(size());
         if (m_head == 0) {

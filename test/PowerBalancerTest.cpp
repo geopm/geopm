@@ -40,6 +40,7 @@
 #include "Helper.hpp"
 
 using geopm::PowerBalancer;
+using geopm::PowerBalancerImp;
 using ::testing::_;
 using ::testing::Return;
 using ::testing::Sequence;
@@ -63,7 +64,7 @@ class PowerBalancerTest : public ::testing::Test
 
 void PowerBalancerTest::SetUp(void)
 {
-    m_balancer = geopm::make_unique<PowerBalancer>(M_CONTROL_LATENCY, M_TRIAL_DELTA, M_NUM_SAMPLE, M_MEASURE_DURATION);
+    m_balancer = geopm::make_unique<PowerBalancerImp>(M_CONTROL_LATENCY, M_TRIAL_DELTA, M_NUM_SAMPLE, M_MEASURE_DURATION);
     m_balancer->power_cap(M_POWER_CAP);
 }
 

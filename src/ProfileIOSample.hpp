@@ -44,14 +44,11 @@ struct geopm_prof_message_s;
 
 namespace geopm
 {
-    template <typename T> class CircularBuffer;
-    class IEpochRuntimeRegulator;
-
-    class IProfileIOSample
+    class ProfileIOSample
     {
         public:
-            IProfileIOSample() {}
-            virtual ~IProfileIOSample() {}
+            ProfileIOSample() {}
+            virtual ~ProfileIOSample() {}
             virtual void finalize_unmarked_region() = 0;
             /// @brief Update internal state with a batch of samples from the
             ///        application.
@@ -80,11 +77,14 @@ namespace geopm
             virtual std::vector<int> cpu_rank(void) const = 0;
     };
 
-    class ProfileIOSample : public IProfileIOSample
+    template <typename T> class CircularBufferImp;
+    class EpochRuntimeRegulator;
+
+    class ProfileIOSampleImp : public ProfileIOSample
     {
         public:
-            ProfileIOSample(const std::vector<int> &cpu_rank, IEpochRuntimeRegulator &epoch_regulator);
-            virtual ~ProfileIOSample();
+            ProfileIOSampleImp(const std::vector<int> &cpu_rank, EpochRuntimeRegulator &epoch_regulator);
+            virtual ~ProfileIOSampleImp();
             void finalize_unmarked_region() override;
             void update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                         std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end) override;
@@ -124,14 +124,14 @@ namespace geopm
             ///        ProfileSampler data to the node local rank
             ///        index.
             std::map<int, int> m_rank_idx_map;
-            IEpochRuntimeRegulator &m_epoch_regulator;
+            EpochRuntimeRegulator &m_epoch_regulator;
             /// @brief The rank index of the rank running on each CPU.
             std::vector<int> m_cpu_rank;
             /// @brief Number of ranks running on the node.
             size_t m_num_rank;
             /// @brief Per rank record of last profile samples in
             ///        m_region_id_prev
-            std::vector<CircularBuffer<struct m_rank_sample_s> > m_rank_sample_buffer;
+            std::vector<CircularBufferImp<struct m_rank_sample_s> > m_rank_sample_buffer;
             std::vector<double> m_thread_progress;
             /// @brief The region_id of each rank derived from the
             ///        stored ProfileSampler data used for

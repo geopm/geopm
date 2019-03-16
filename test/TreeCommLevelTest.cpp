@@ -41,6 +41,7 @@
 #include "geopm_test.hpp"
 
 using geopm::TreeCommLevel;
+using geopm::TreeCommLevelImp;
 using testing::Return;
 using testing::Invoke;
 using testing::SetArgPointee;
@@ -105,8 +106,8 @@ void TreeCommLevelTest::SetUp()
     EXPECT_CALL(*m_comm_1, window_create(0, NULL)).WillOnce(Return((size_t)m_sample_window[1])); // sample window
     EXPECT_CALL(*m_comm_1, window_create(policy_size, _)).WillOnce(Return((size_t)m_policy_window[1]));
 
-    m_level_rank_0 = std::make_shared<TreeCommLevel>(m_comm_0, m_num_up, m_num_down);
-    m_level_rank_1 = std::make_shared<TreeCommLevel>(m_comm_1, m_num_up, m_num_down);
+    m_level_rank_0 = std::make_shared<TreeCommLevelImp>(m_comm_0, m_num_up, m_num_down);
+    m_level_rank_1 = std::make_shared<TreeCommLevelImp>(m_comm_1, m_num_up, m_num_down);
 }
 
 void TreeCommLevelTest::TearDown()
@@ -160,7 +161,7 @@ TEST_F(TreeCommLevelTest, level_rank)
                          { free(base); }));
     // create and destroy level for rank 42
     {
-        TreeCommLevel level(comm, m_num_up, m_num_down);
+        TreeCommLevelImp level(comm, m_num_up, m_num_down);
         EXPECT_EQ(42, level.level_rank());
     }
 }

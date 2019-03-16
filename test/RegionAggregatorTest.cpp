@@ -47,6 +47,7 @@
 #include "geopm_test.hpp"
 
 using geopm::RegionAggregator;
+using geopm::RegionAggregatorImp;
 using geopm::PlatformTopo;
 using testing::_;
 using testing::Return;
@@ -110,7 +111,7 @@ void RegionAggregatorTest::SetUp(void)
 
     EXPECT_CALL(m_platio, push_signal("EPOCH_COUNT", _, _))
         .WillOnce(Return(M_SIGNAL_EPOCH_COUNT));
-    m_agg = geopm::make_unique<RegionAggregator>(m_platio);
+    m_agg = geopm::make_unique<RegionAggregatorImp>(m_platio);
     m_agg->init();
 }
 

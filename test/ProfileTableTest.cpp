@@ -31,39 +31,42 @@
  */
 
 #include <stdlib.h>
+
+#include <memory>
+
 #include "gtest/gtest.h"
+
 #include "geopm_internal.h"
 #include "Exception.hpp"
 #include "ProfileTable.hpp"
+#include "Helper.hpp"
+
+using geopm::ProfileTable;
+using geopm::ProfileTableImp;
 
 class ProfileTableTest: public :: testing :: Test
 {
     public:
         ProfileTableTest();
-        virtual ~ProfileTableTest();
+        virtual ~ProfileTableTest() = default;
         void overfill_small(void);
     protected:
         size_t m_size;
         size_t m_small_size;
         char m_ptr[5192];
         char m_small_ptr[256];
-        geopm::ProfileTable *m_table;
-        geopm::ProfileTable *m_table_small;
+        std::unique_ptr<ProfileTable> m_table;
+        std::unique_ptr<ProfileTable> m_table_small;
 };
 
 ProfileTableTest::ProfileTableTest()
     : m_size(sizeof(m_ptr))
     , m_small_size(sizeof(m_small_ptr))
 {
-    m_table = new geopm::ProfileTable(m_size, (void *)m_ptr);
-    m_table_small = new geopm::ProfileTable(m_small_size, (void *)m_small_ptr);
+    m_table = geopm::make_unique<ProfileTableImp>(m_size, (void *)m_ptr);
+    m_table_small = geopm::make_unique<ProfileTableImp>(m_small_size, (void *)m_small_ptr);
 }
 
-ProfileTableTest::~ProfileTableTest()
-{
-    delete m_table_small;
-    delete m_table;
-}
 
 void ProfileTableTest::overfill_small(void)
 {
@@ -96,9 +99,9 @@ TEST_F(ProfileTableTest, hello)
     insert_message.progress = 9.876;
     insert_message.region_id = 5678;
     m_table->insert(insert_message);
-    EXPECT_THROW(geopm::ProfileTable(0,NULL), geopm::Exception);
+    EXPECT_THROW(ProfileTableImp(0, NULL), geopm::Exception);
     uint64_t tmp[128];
-    EXPECT_THROW(geopm::ProfileTable(1,tmp), geopm::Exception);
+    EXPECT_THROW(ProfileTableImp(1,tmp), geopm::Exception);
     uint64_t key0 = m_table->key("hello");
     uint64_t key1 = m_table->key("hello1");
     uint64_t key2 = m_table->key("hello");

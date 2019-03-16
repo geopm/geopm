@@ -46,7 +46,7 @@
 #include "geopm_hash.h"
 #include "geopm_test.hpp"
 
-using geopm::Tracer;
+using geopm::TracerImp;
 using geopm::PlatformIO;
 using geopm::PlatformTopo;
 using testing::_;
@@ -122,7 +122,7 @@ void check_trace(std::istream &expected, std::istream &result);
 
 TEST_F(TracerTest, columns)
 {
-    Tracer tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_platform_topo, m_extra_cols_str, 1);
+    TracerImp tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_platform_topo, m_extra_cols_str, 1);
 
     // columns from agent will be printed as-is
     std::vector<std::string> agent_cols {"col1", "col2"};
@@ -148,7 +148,7 @@ TEST_F(TracerTest, columns)
 
 TEST_F(TracerTest, update_samples)
 {
-    Tracer tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_platform_topo, m_extra_cols_str, 1);
+    TracerImp tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_platform_topo, m_extra_cols_str, 1);
     int idx = 0;
     for (auto cc : m_default_cols) {
         EXPECT_CALL(m_platform_io, sample(idx))
@@ -180,7 +180,7 @@ TEST_F(TracerTest, update_samples)
 
 TEST_F(TracerTest, region_entry_exit)
 {
-    Tracer tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_platform_topo, m_extra_cols_str, 1);
+    TracerImp tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_platform_topo, m_extra_cols_str, 1);
     EXPECT_CALL(m_platform_io, sample(_)).Times(m_default_cols.size() + m_num_extra_cols)
         .WillOnce(Return(2.2))                        // time
         .WillOnce(Return(0.0))                        // epoch_count

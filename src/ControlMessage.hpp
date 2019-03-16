@@ -58,11 +58,11 @@ namespace geopm
     ///
     /// Interface for application and controller to communicate during
     /// the start up and shut down phases.
-    class IControlMessage
+    class ControlMessage
     {
         public:
-            IControlMessage() = default;
-            virtual ~IControlMessage() = default;
+            ControlMessage() = default;
+            virtual ~ControlMessage() = default;
             /// @brief Signal an advance to next phase in runtime.
             virtual void step(void) = 0;
             /// @brief Wait for message that other side has advanced
@@ -115,10 +115,10 @@ namespace geopm
             virtual void loop_begin(void) = 0;
     };
 
-    class ControlMessage : public IControlMessage
+    class ControlMessageImp : public ControlMessage
     {
         public:
-            /// @brief ControlMessage constructor.
+            /// @brief ControlMessageImp constructor.
             ///
             /// @param [in] ctl_msg Buffer allocated in shared memory
             /// that is large enough to store a geopm_ctl_message_s.
@@ -133,9 +133,9 @@ namespace geopm
             /// the caller is the controller or the lowest application
             /// rank on the node and false if the caller is any other
             /// application rank.
-            ControlMessage(struct geopm_ctl_message_s &ctl_msg, bool is_ctl, bool is_writer);
-            /// @brief ControlMessage virtual destructor
-            virtual ~ControlMessage() = default;
+            ControlMessageImp(struct geopm_ctl_message_s &ctl_msg, bool is_ctl, bool is_writer);
+            /// @brief ControlMessageImp virtual destructor
+            virtual ~ControlMessageImp() = default;
             void step() override;
             void wait() override;
             void abort(void) override;

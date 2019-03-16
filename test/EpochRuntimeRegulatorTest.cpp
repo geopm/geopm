@@ -42,7 +42,7 @@
 #include "MockPlatformTopo.hpp"
 #include "geopm_test.hpp"
 
-using geopm::EpochRuntimeRegulator;
+using geopm::EpochRuntimeRegulatorImp;
 using geopm::PlatformTopo;
 using testing::Return;
 using testing::_;
@@ -55,7 +55,7 @@ class EpochRuntimeRegulatorTest : public ::testing::Test
         std::map<uint64_t, std::vector<double> > m_runtime_steps;
         std::map<uint64_t, double> m_total_runtime;
         static constexpr int M_NUM_RANK = 2;
-        EpochRuntimeRegulator m_regulator;
+        EpochRuntimeRegulatorImp m_regulator;
         MockPlatformIO m_platform_io;
         MockPlatformTopo m_platform_topo;
 };
@@ -74,9 +74,9 @@ void EpochRuntimeRegulatorTest::SetUp()
 
 TEST_F(EpochRuntimeRegulatorTest, invalid_ranks)
 {
-    GEOPM_EXPECT_THROW_MESSAGE(EpochRuntimeRegulator(-1, m_platform_io, m_platform_topo),
+    GEOPM_EXPECT_THROW_MESSAGE(EpochRuntimeRegulatorImp(-1, m_platform_io, m_platform_topo),
                                GEOPM_ERROR_RUNTIME, "invalid max rank count");
-    GEOPM_EXPECT_THROW_MESSAGE(EpochRuntimeRegulator(0, m_platform_io, m_platform_topo),
+    GEOPM_EXPECT_THROW_MESSAGE(EpochRuntimeRegulatorImp(0, m_platform_io, m_platform_topo),
                                GEOPM_ERROR_RUNTIME, "invalid max rank count");
     GEOPM_EXPECT_THROW_MESSAGE(m_regulator.record_entry(GEOPM_REGION_HASH_UNMARKED, -1, {{1,1}}),
                                GEOPM_ERROR_RUNTIME, "invalid rank value");

@@ -62,23 +62,28 @@
 #include "SharedMemory.hpp"
 #include "Exception.hpp"
 #include "Comm.hpp"
+#include "Helper.hpp"
 #include "config.h"
 
 namespace geopm
 {
-    Profile::Profile(const std::string &prof_name, const std::string &key_base, std::unique_ptr<Comm> comm,
-                     std::unique_ptr<IControlMessage> ctl_msg, PlatformTopo &topo, std::unique_ptr<IProfileTable> table,
-                     std::shared_ptr<IProfileThreadTable> t_table, std::unique_ptr<ISampleScheduler> scheduler)
-        : Profile(prof_name, key_base, std::move(comm), std::move(ctl_msg), topo,
-                  std::move(table), t_table, std::move(scheduler), nullptr)
+    ProfileImp::ProfileImp(const std::string &prof_name, const std::string &key_base,
+                           std::unique_ptr<Comm> comm, std::unique_ptr<ControlMessage> ctl_msg,
+                           PlatformTopo &topo, std::unique_ptr<ProfileTable> table,
+                           std::shared_ptr<ProfileThreadTable> t_table,
+                           std::unique_ptr<SampleScheduler> scheduler)
+        : ProfileImp(prof_name, key_base, std::move(comm), std::move(ctl_msg), topo,
+                     std::move(table), t_table, std::move(scheduler), nullptr)
     {
 
     }
 
-    Profile::Profile(const std::string &prof_name, const std::string &key_base, std::unique_ptr<Comm> comm,
-                     std::unique_ptr<IControlMessage> ctl_msg, PlatformTopo &topo, std::unique_ptr<IProfileTable> table,
-                     std::shared_ptr<IProfileThreadTable> t_table, std::unique_ptr<ISampleScheduler> scheduler,
-                     std::shared_ptr<Comm> reduce_comm)
+    ProfileImp::ProfileImp(const std::string &prof_name, const std::string &key_base,
+                        std::unique_ptr<Comm> comm, std::unique_ptr<ControlMessage> ctl_msg,
+                        PlatformTopo &topo, std::unique_ptr<ProfileTable> table,
+                        std::shared_ptr<ProfileThreadTable> t_table,
+                        std::unique_ptr<SampleScheduler> scheduler,
+                        std::shared_ptr<Comm> reduce_comm)
         : m_is_enabled(true)
         , m_prof_name(prof_name)
         , m_curr_region_id(0)
@@ -147,13 +152,13 @@ namespace geopm
 #endif
     }
 
-    Profile::Profile(const std::string &prof_name, std::unique_ptr<Comm> comm)
-        : Profile(prof_name, geopm_env_shmkey(), std::move(comm), nullptr, platform_topo(), nullptr,
-                  nullptr, std::unique_ptr<ISampleScheduler>(new SampleScheduler(0.01)))
+    ProfileImp::ProfileImp(const std::string &prof_name, std::unique_ptr<Comm> comm)
+        : ProfileImp(prof_name, geopm_env_shmkey(), std::move(comm), nullptr, platform_topo(), nullptr,
+                     nullptr, geopm::make_unique<SampleSchedulerImp>(0.01))
     {
     }
 
-    void Profile::init_prof_comm(std::unique_ptr<Comm> comm, int &shm_num_rank)
+    void ProfileImp::init_prof_comm(std::unique_ptr<Comm> comm, int &shm_num_rank)
     {
         if (!m_shm_comm) {
             m_rank = comm->rank();
@@ -166,23 +171,23 @@ namespace geopm
         }
     }
 
-    void Profile::init_ctl_msg(const std::string &sample_key)
+    void ProfileImp::init_ctl_msg(const std::string &sample_key)
     {
         if (!m_ctl_msg) {
-            m_ctl_shmem = std::unique_ptr<ISharedMemoryUser>(new SharedMemoryUser(sample_key, geopm_env_timeout()));
+            m_ctl_shmem = geopm::make_unique<SharedMemoryUserImp>(sample_key, geopm_env_timeout());
             m_shm_comm->barrier();
             if (!m_shm_rank) {
                 m_ctl_shmem->unlink();
             }
 
             if (m_ctl_shmem->size() < sizeof(struct geopm_ctl_message_s)) {
-                throw Exception("Profile: ctl_shmem too small", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                throw Exception("ProfileImp: ctl_shmem too small", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-            m_ctl_msg = std::unique_ptr<IControlMessage>(new ControlMessage(*(struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), false, !m_shm_rank));
+            m_ctl_msg = geopm::make_unique<ControlMessageImp>(*(struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), false, !m_shm_rank);
         }
     }
 
-    void Profile::init_cpu_list(int num_cpu)
+    void ProfileImp::init_cpu_list(int num_cpu)
     {
         if (!m_is_enabled) {
             return;
@@ -191,7 +196,7 @@ namespace geopm
         cpu_set_t *proc_cpuset = NULL;
         proc_cpuset = CPU_ALLOC(num_cpu);
         if (!proc_cpuset) {
-            throw Exception("Profile: unable to allocate process CPU mask",
+            throw Exception("ProfileImp: unable to allocate process CPU mask",
                             ENOMEM, __FILE__, __LINE__);
         }
         geopm_sched_proc_cpuset(num_cpu, proc_cpuset);
@@ -203,7 +208,7 @@ namespace geopm
         free(proc_cpuset);
     }
 
-    void Profile::init_cpu_affinity(int shm_num_rank)
+    void ProfileImp::init_cpu_affinity(int shm_num_rank)
     {
         m_shm_comm->barrier();
         m_ctl_msg->step();  // M_STATUS_MAP_BEGIN
@@ -236,7 +241,7 @@ namespace geopm
         if (!m_shm_rank) {
             for (int i = 0; i < GEOPM_MAX_NUM_CPU; ++i) {
                 if (m_ctl_msg->cpu_rank(i) == -2) {
-                    throw Exception("Profile: cpu_rank not initialized correctly.",
+                    throw Exception("ProfileImp: cpu_rank not initialized correctly.",
                                     GEOPM_ERROR_AFFINITY, __FILE__, __LINE__);
                 }
             }
@@ -246,26 +251,26 @@ namespace geopm
         m_ctl_msg->wait();  // M_STATUS_MAP_END
     }
 
-    void Profile::init_tprof_table(const std::string &tprof_key, PlatformTopo &topo)
+    void ProfileImp::init_tprof_table(const std::string &tprof_key, PlatformTopo &topo)
     {
         if (!m_tprof_table) {
-            m_tprof_shmem = std::unique_ptr<ISharedMemoryUser>(new SharedMemoryUser(tprof_key, geopm_env_timeout()));
+            m_tprof_shmem = geopm::make_unique<SharedMemoryUserImp>(tprof_key, geopm_env_timeout());
             m_shm_comm->barrier();
             if (!m_shm_rank) {
                 m_tprof_shmem->unlink();
             }
-            m_tprof_table = std::shared_ptr<IProfileThreadTable>(new ProfileThreadTable(topo, m_tprof_shmem->size(), m_tprof_shmem->pointer()));
+            m_tprof_table = std::make_shared<ProfileThreadTableImp>(topo, m_tprof_shmem->size(), m_tprof_shmem->pointer());
         }
     }
 
-    void Profile::init_table(const std::string &sample_key)
+    void ProfileImp::init_table(const std::string &sample_key)
     {
         if (!m_table) {
             std::string table_shm_key(sample_key);
             table_shm_key += "-" + std::to_string(m_rank);
-            m_table_shmem = std::unique_ptr<ISharedMemoryUser>(new SharedMemoryUser(table_shm_key, geopm_env_timeout()));
+            m_table_shmem = geopm::make_unique<SharedMemoryUserImp>(table_shm_key, geopm_env_timeout());
             m_table_shmem->unlink();
-            m_table = std::unique_ptr<IProfileTable>(new ProfileTable(m_table_shmem->size(), m_table_shmem->pointer()));
+            m_table = geopm::make_unique<ProfileTableImp>(m_table_shmem->size(), m_table_shmem->pointer());
         }
 
         m_shm_comm->barrier();
@@ -273,12 +278,12 @@ namespace geopm
         m_ctl_msg->wait();  // M_STATUS_SAMPLE_BEGIN
     }
 
-    Profile::~Profile()
+    ProfileImp::~ProfileImp()
     {
         shutdown();
     }
 
-    void Profile::shutdown(void)
+    void ProfileImp::shutdown(void)
     {
         if (!m_is_enabled) {
             return;
@@ -305,7 +310,7 @@ namespace geopm
         m_is_enabled = false;
     }
 
-    uint64_t Profile::region(const std::string region_name, long hint)
+    uint64_t ProfileImp::region(const std::string region_name, long hint)
     {
         if (!m_is_enabled) {
             return 0;
@@ -317,7 +322,7 @@ namespace geopm
 #endif
 
         if (hint && ((hint & (hint - 1)) != 0)) {   /// power of 2 check
-            throw Exception("Profile:region() multiple region hints set and only 1 at a time is supported.",
+            throw Exception("ProfileImp:region() multiple region hints set and only 1 at a time is supported.",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         uint64_t result = m_table->key(region_name);
@@ -331,7 +336,7 @@ namespace geopm
         return result;
     }
 
-    void Profile::enter(uint64_t region_id)
+    void ProfileImp::enter(uint64_t region_id)
     {
         if (!m_is_enabled) {
             return;
@@ -381,7 +386,7 @@ namespace geopm
 
     }
 
-    void Profile::exit(uint64_t region_id)
+    void ProfileImp::exit(uint64_t region_id)
     {
         if (!m_is_enabled) {
             return;
@@ -433,7 +438,7 @@ namespace geopm
 
     }
 
-    void Profile::progress(uint64_t region_id, double fraction)
+    void ProfileImp::progress(uint64_t region_id, double fraction)
     {
         if (!m_is_enabled) {
             return;
@@ -458,7 +463,7 @@ namespace geopm
 
     }
 
-    void Profile::epoch(void)
+    void ProfileImp::epoch(void)
     {
         if (!m_is_enabled ||
             geopm_region_id_hint_is_equal(m_curr_region_id,
@@ -484,7 +489,7 @@ namespace geopm
 
     }
 
-    void Profile::sample(void)
+    void ProfileImp::sample(void)
     {
         if (!m_is_enabled) {
             return;
@@ -508,7 +513,7 @@ namespace geopm
 
     }
 
-    void Profile::print(const std::string file_name)
+    void ProfileImp::print(const std::string file_name)
     {
         if (!m_is_enabled || !m_table_shmem) {
             return;
@@ -531,7 +536,7 @@ namespace geopm
         char *buffer_ptr = (char *)(m_table_shmem->pointer());
 
         if (m_table_shmem->size() < file_name.length() + 1 + m_prof_name.length() + 1) {
-            throw Exception("Profile:print() profile file name and profile name are too long to fit in a table buffer", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("ProfileImp:print() profile file name and profile name are too long to fit in a table buffer", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
         strncpy(buffer_ptr, file_name.c_str(), buffer_remain - 1);
@@ -572,7 +577,7 @@ namespace geopm
 
     }
 
-    std::shared_ptr<IProfileThreadTable> Profile::tprof_table(void)
+    std::shared_ptr<ProfileThreadTable> ProfileImp::tprof_table(void)
     {
         return m_tprof_table;
     }

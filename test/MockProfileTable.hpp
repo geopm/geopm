@@ -35,24 +35,24 @@
 
 #include "ProfileTable.hpp"
 
-class MockProfileTable : public geopm::IProfileTable
+class MockProfileTable : public geopm::ProfileTable
 {
     public:
         MOCK_METHOD1(key,
-                uint64_t (const std::string &name));
+                     uint64_t (const std::string &name));
         MOCK_METHOD1(insert,
-                void (const struct geopm_prof_message_s &value));
+                     void (const struct geopm_prof_message_s &value));
         MOCK_CONST_METHOD0(capacity,
-                size_t (void));
+                           size_t (void));
         MOCK_CONST_METHOD0(size,
-                size_t (void));
+                           size_t (void));
         MOCK_METHOD2(dump,
-                void (std::vector<std::pair<uint64_t, struct geopm_prof_message_s>>::iterator content,
-                    size_t &length));
+                     void (std::vector<std::pair<uint64_t, struct geopm_prof_message_s>>::iterator content,
+                           size_t &length));
         MOCK_METHOD1(name_fill,
-                bool (size_t header_offset));
+                     bool (size_t header_offset));
         MOCK_METHOD2(name_set,
-                bool (size_t header_offset, std::set<std::string> &name));
+                     bool (size_t header_offset, std::set<std::string> &name));
 };
 
 #endif

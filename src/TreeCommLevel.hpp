@@ -38,13 +38,11 @@
 
 namespace geopm
 {
-    class Comm;
-
-    class ITreeCommLevel
+    class TreeCommLevel
     {
         public:
-            ITreeCommLevel() = default;
-            virtual ~ITreeCommLevel() = default;
+            TreeCommLevel() = default;
+            virtual ~TreeCommLevel() = default;
             /// @brief Returns the rank for this level.
             virtual int level_rank(void) const = 0;
             /// @brief Send samples up to the parent.
@@ -60,11 +58,13 @@ namespace geopm
             virtual size_t overhead_send(void) const = 0;
     };
 
-    class TreeCommLevel : public ITreeCommLevel
+    class Comm;
+
+    class TreeCommLevelImp : public TreeCommLevel
     {
         public:
-            TreeCommLevel(std::shared_ptr<Comm> comm, int num_send_up, int num_send_down);
-            virtual ~TreeCommLevel();
+            TreeCommLevelImp(std::shared_ptr<Comm> comm, int num_send_up, int num_send_down);
+            virtual ~TreeCommLevelImp();
             int level_rank(void) const override;
             void send_up(const std::vector<double> &sample) override;
             void send_down(const std::vector<std::vector<double> > &policy) override;

@@ -47,11 +47,11 @@ namespace geopm
 {
     class Comm;
 
-    class IApplicationIO
+    class ApplicationIO
     {
         public:
-            IApplicationIO() = default;
-            virtual ~IApplicationIO() = default;
+            ApplicationIO() = default;
+            virtual ~ApplicationIO() = default;
             /// @brief Connect to the application via
             ///        shared memory.
             virtual void connect(void) = 0;
@@ -126,23 +126,23 @@ namespace geopm
             virtual void abort(void) = 0;
     };
 
-    class IProfileSampler;
-    class IEpochRuntimeRegulator;
-    class IProfileIOSample;
+    class ProfileSampler;
+    class EpochRuntimeRegulator;
+    class ProfileIOSample;
     class PlatformIO;
     class PlatformTopo;
 
-    class ApplicationIO : public IApplicationIO
+    class ApplicationIOImp : public ApplicationIO
     {
         public:
-            ApplicationIO(const std::string &shm_key);
-            ApplicationIO(const std::string &shm_key,
-                          std::unique_ptr<IProfileSampler> sampler,
-                          std::shared_ptr<IProfileIOSample> pio_sample,
-                          std::unique_ptr<IEpochRuntimeRegulator>,
-                          PlatformIO &platform_io,
-                          PlatformTopo &platform_topo);
-            virtual ~ApplicationIO();
+            ApplicationIOImp(const std::string &shm_key);
+            ApplicationIOImp(const std::string &shm_key,
+                             std::unique_ptr<ProfileSampler> sampler,
+                             std::shared_ptr<ProfileIOSample> pio_sample,
+                             std::unique_ptr<EpochRuntimeRegulator>,
+                             PlatformIO &platform_io,
+                             PlatformTopo &platform_topo);
+            virtual ~ApplicationIOImp();
             void connect(void) override;
             bool do_shutdown(void) const override;
             std::string report_name(void) const override;
@@ -173,8 +173,8 @@ namespace geopm
             double current_energy_pkg(void) const;
             double current_energy_dram(void) const;
 
-            std::unique_ptr<IProfileSampler> m_sampler;
-            std::shared_ptr<IProfileIOSample> m_profile_io_sample;
+            std::unique_ptr<ProfileSampler> m_sampler;
+            std::shared_ptr<ProfileIOSample> m_profile_io_sample;
             std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > m_prof_sample;
             PlatformIO &m_platform_io;
             PlatformTopo &m_platform_topo;
@@ -185,7 +185,7 @@ namespace geopm
             std::vector<bool> m_is_epoch_changed;
             bool m_is_connected;
             int m_rank_per_node;
-            std::unique_ptr<IEpochRuntimeRegulator> m_epoch_regulator;
+            std::unique_ptr<EpochRuntimeRegulator> m_epoch_regulator;
             double m_start_energy_pkg;
             double m_start_energy_dram;
     };

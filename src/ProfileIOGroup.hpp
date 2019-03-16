@@ -41,18 +41,18 @@
 
 namespace geopm
 {
-    class IEpochRuntimeRegulator;
-    class IProfileIOSample;
+    class EpochRuntimeRegulator;
+    class ProfileIOSample;
     class PlatformTopo;
 
     /// @brief IOGroup that provides signals from the application.
     class ProfileIOGroup : public IOGroup
     {
         public:
-            ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
-                           IEpochRuntimeRegulator &epoch_regulator);
-            ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
-                           IEpochRuntimeRegulator &epoch_regulator,
+            ProfileIOGroup(std::shared_ptr<ProfileIOSample> profile_sample,
+                           EpochRuntimeRegulator &epoch_regulator);
+            ProfileIOGroup(std::shared_ptr<ProfileIOSample> profile_sample,
+                           EpochRuntimeRegulator &epoch_regulator,
                            PlatformTopo &topo);
             virtual ~ProfileIOGroup();
             std::set<std::string> signal_names(void) const override;
@@ -96,8 +96,8 @@ namespace geopm
 
             int check_signal(const std::string &signal_name, int domain_type, int domain_idx) const;
 
-            std::shared_ptr<IProfileIOSample> m_profile_sample;
-            IEpochRuntimeRegulator &m_epoch_regulator;
+            std::shared_ptr<ProfileIOSample> m_profile_sample;
+            EpochRuntimeRegulator &m_epoch_regulator;
             std::map<std::string, int> m_signal_idx_map;
             PlatformTopo &m_platform_topo;
             std::vector<bool> m_do_read;

@@ -45,23 +45,23 @@
 
 namespace geopm
 {
-    ProfileThreadTable::ProfileThreadTable(size_t buffer_size, void *buffer)
-        : ProfileThreadTable(platform_topo(), buffer_size, buffer)
+    ProfileThreadTableImp::ProfileThreadTableImp(size_t buffer_size, void *buffer)
+        : ProfileThreadTableImp(platform_topo(), buffer_size, buffer)
     {
     }
 
-    ProfileThreadTable::ProfileThreadTable(PlatformTopo &topo, size_t buffer_size, void *buffer)
+    ProfileThreadTableImp::ProfileThreadTableImp(PlatformTopo &topo, size_t buffer_size, void *buffer)
         : m_buffer((uint32_t *)buffer)
         , m_num_cpu(topo.num_domain(PlatformTopo::M_DOMAIN_CPU))
         , m_stride(64 / sizeof(uint32_t))
     {
         if (buffer_size < 64 * m_num_cpu) {
-            throw Exception("ProfileThreadTable: provided buffer too small",
+            throw Exception("ProfileThreadTableImp: provided buffer too small",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
 
-    ProfileThreadTable::ProfileThreadTable(const ProfileThreadTable &other)
+    ProfileThreadTableImp::ProfileThreadTableImp(const ProfileThreadTableImp &other)
         : m_buffer(other.m_buffer)
         , m_num_cpu(other.m_num_cpu)
         , m_stride(other.m_stride)
@@ -70,17 +70,17 @@ namespace geopm
 
     }
 
-    int ProfileThreadTable::num_cpu(void)
+    int ProfileThreadTableImp::num_cpu(void)
     {
         return m_num_cpu;
     }
 
-    void ProfileThreadTable::enable(bool is_enabled)
+    void ProfileThreadTableImp::enable(bool is_enabled)
     {
         m_is_enabled = is_enabled;
     }
 
-    void ProfileThreadTable::init(const uint32_t num_work_unit)
+    void ProfileThreadTableImp::init(const uint32_t num_work_unit)
     {
         if (!m_is_enabled) {
             return;
@@ -89,7 +89,7 @@ namespace geopm
         m_buffer[cpu_idx() * m_stride + 1] = num_work_unit;
     }
 
-    void ProfileThreadTable::init(int num_thread, int thread_idx, size_t num_iter, size_t chunk_size)
+    void ProfileThreadTableImp::init(int num_thread, int thread_idx, size_t num_iter, size_t chunk_size)
     {
         if (!m_is_enabled) {
             return;
@@ -113,7 +113,7 @@ namespace geopm
         init(num_work_unit[thread_idx]);
     }
 
-    void ProfileThreadTable::init(int num_thread, int thread_idx, size_t num_iter)
+    void ProfileThreadTableImp::init(int num_thread, int thread_idx, size_t num_iter)
     {
         if (!m_is_enabled) {
             return;
@@ -126,7 +126,7 @@ namespace geopm
         init(num_work_unit[thread_idx]);
     }
 
-    void ProfileThreadTable::post(void)
+    void ProfileThreadTableImp::post(void)
     {
         if (!m_is_enabled) {
             return;
@@ -134,7 +134,7 @@ namespace geopm
         ++m_buffer[cpu_idx() * m_stride];
     }
 
-    void ProfileThreadTable::dump(std::vector<double> &progress)
+    void ProfileThreadTableImp::dump(std::vector<double> &progress)
     {
         double numer;
         uint32_t denom;
@@ -145,7 +145,7 @@ namespace geopm
         }
     }
 
-    int ProfileThreadTable::cpu_idx(void)
+    int ProfileThreadTableImp::cpu_idx(void)
     {
 #ifndef __APPLE__
         static thread_local int result = -1;
@@ -155,7 +155,7 @@ namespace geopm
         if (result == -1) {
             result = geopm_sched_get_cpu();
             if (result >= geopm_sched_num_cpu()) {
-                throw Exception("ProfileThreadTable::cpu_idx(): Number of online CPUs is less than or equal to the value returned by sched_getcpu()",
+                throw Exception("ProfileThreadTableImp::cpu_idx(): Number of online CPUs is less than or equal to the value returned by sched_getcpu()",
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
         }

@@ -36,14 +36,14 @@
 
 namespace geopm
 {
-    SampleScheduler::SampleScheduler(double overhead_frac)
+    SampleSchedulerImp::SampleSchedulerImp(double overhead_frac)
         : m_overhead_frac(overhead_frac)
         , m_status(M_STATUS_CLEAR)
     {
 
     }
 
-    bool SampleScheduler::do_sample(void)
+    bool SampleSchedulerImp::do_sample(void)
     {
         bool result = true;
         switch (m_status) {
@@ -54,7 +54,7 @@ namespace geopm
                 break;
             case M_STATUS_ENTERED:
                 if (m_sample_time == -1.0) {
-                    throw Exception("SampleScheduler::do_sample(): do_sample() called twice without call to record_exit()", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                    throw Exception("SampleSchedulerImp::do_sample(): do_sample() called twice without call to record_exit()", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                 }
                 m_work_time = geopm_time_since(&m_entry_time);
                 m_sample_stride = (size_t)(m_sample_time/(m_overhead_frac * m_work_time)) + 1;
@@ -71,16 +71,16 @@ namespace geopm
                 }
                 break;
             default:
-                throw Exception("SampleScheduler::do_sample(): Status has invalid value", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                throw Exception("SampleSchedulerImp::do_sample(): Status has invalid value", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                 break;
         }
         return result;
     }
-    void SampleScheduler::record_exit(void)
+    void SampleSchedulerImp::record_exit(void)
     {
         switch (m_status) {
             case M_STATUS_CLEAR:
-                throw Exception("SampleScheduler::record_exit(): record_exit() called without prior call to do_sample()", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                throw Exception("SampleSchedulerImp::record_exit(): record_exit() called without prior call to do_sample()", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                 break;
             case M_STATUS_ENTERED:
                 m_sample_time = geopm_time_since(&m_entry_time);
@@ -88,12 +88,12 @@ namespace geopm
             case M_STATUS_READY:
                 break;
             default:
-                throw Exception("SampleScheduler::do_sample(): Status has invalid value", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                throw Exception("SampleSchedulerImp::do_sample(): Status has invalid value", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                 break;
         }
     }
 
-    void SampleScheduler::clear(void)
+    void SampleSchedulerImp::clear(void)
     {
         m_status = M_STATUS_CLEAR;
     }

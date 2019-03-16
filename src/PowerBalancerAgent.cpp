@@ -133,13 +133,15 @@ namespace geopm
         return step(m_step_count);
     }
 
-    const PowerBalancerAgent::IStep& PowerBalancerAgent::Role::step_imp()
+    const PowerBalancerAgent::Step& PowerBalancerAgent::Role::step_imp()
     {
         return *M_STEP_IMP[step()];
     }
 
-    PowerBalancerAgent::LeafRole::LeafRole(PlatformIO &platform_io, PlatformTopo &platform_topo,
-                                           std::unique_ptr<IPowerGovernor> power_governor, std::unique_ptr<IPowerBalancer> power_balancer)
+    PowerBalancerAgent::LeafRole::LeafRole(PlatformIO &platform_io,
+                                           PlatformTopo &platform_topo,
+                                           std::unique_ptr<PowerGovernor> power_governor,
+                                           std::unique_ptr<PowerBalancer> power_balancer)
         : Role()
         , m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
@@ -157,10 +159,10 @@ namespace geopm
         , m_is_out_of_bounds(false)
     {
         if (nullptr == m_power_governor) {
-            m_power_governor = geopm::make_unique<PowerGovernor>(m_platform_io, m_platform_topo);
+            m_power_governor = geopm::make_unique<PowerGovernorImp>(m_platform_io, m_platform_topo);
         }
         if (nullptr == m_power_balancer) {
-            m_power_balancer = geopm::make_unique<PowerBalancer>(M_STABILITY_FACTOR * m_power_governor->power_package_time_window());
+            m_power_balancer = geopm::make_unique<PowerBalancerImp>(M_STABILITY_FACTOR * m_power_governor->power_package_time_window());
         }
         init_platform_io();
         m_is_step_complete = true;
@@ -511,8 +513,8 @@ namespace geopm
 
     PowerBalancerAgent::PowerBalancerAgent(PlatformIO &platform_io,
                                            PlatformTopo &platform_topo,
-                                           std::unique_ptr<IPowerGovernor> power_governor,
-                                           std::unique_ptr<IPowerBalancer> power_balancer)
+                                           std::unique_ptr<PowerGovernor> power_governor,
+                                           std::unique_ptr<PowerBalancer> power_balancer)
         : m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
         , m_role(nullptr)

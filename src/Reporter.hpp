@@ -44,8 +44,8 @@
 namespace geopm
 {
     class Comm;
-    class IApplicationIO;
-    class ITreeComm;
+    class ApplicationIO;
+    class TreeComm;
 
     /// @brief A class used by the Controller to format the report at
     ///        the end of a run.  Most of the information for the
@@ -53,11 +53,11 @@ namespace geopm
     ///        of a run, however the Reporter is also responsible for
     ///        pushing some per-region signals to indicate that they
     ///        should be tracked by the PlatformIO.
-    class IReporter
+    class Reporter
     {
         public:
-            IReporter() = default;
-            virtual ~IReporter() = default;
+            Reporter() = default;
+            virtual ~Reporter() = default;
             /// @brief Set up per-region tracking of energy signals
             ///        and signals used to calculate frequency.
             virtual void init(void) = 0;
@@ -90,31 +90,33 @@ namespace geopm
                                   const std::vector<std::pair<std::string, std::string> > &agent_report_header,
                                   const std::vector<std::pair<std::string, std::string> > &agent_node_report,
                                   const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report,
-                                  const IApplicationIO &application_io,
+                                  const ApplicationIO &application_io,
                                   std::shared_ptr<Comm> comm,
-                                  const ITreeComm &tree_comm) = 0;
+                                  const TreeComm &tree_comm) = 0;
     };
 
     class PlatformIO;
     class PlatformTopo;
-    class IRegionAggregator;
+    class RegionAggregator;
 
-    class Reporter : public IReporter
+    class ReporterImp : public Reporter
     {
         public:
-            Reporter(const std::string &start_time, const std::string &report_name, PlatformIO &platform_io, PlatformTopo &platform_topo, int rank);
-            Reporter(const std::string &start_time, const std::string &report_name, PlatformIO &platform_io, PlatformTopo &platform_topo, int rank,
-                     std::unique_ptr<IRegionAggregator> agg, const std::string &env_signal);
-            virtual ~Reporter() = default;
+            ReporterImp(const std::string &start_time, const std::string &report_name,
+                        PlatformIO &platform_io, PlatformTopo &platform_topo, int rank);
+            ReporterImp(const std::string &start_time, const std::string &report_name,
+                        PlatformIO &platform_io, PlatformTopo &platform_topo, int rank,
+                        std::unique_ptr<RegionAggregator> agg, const std::string &env_signal);
+            virtual ~ReporterImp() = default;
             void init(void) override;
             void update(void) override;
             void generate(const std::string &agent_name,
                           const std::vector<std::pair<std::string, std::string> > &agent_report_header,
                           const std::vector<std::pair<std::string, std::string> > &agent_node_report,
                           const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report,
-                          const IApplicationIO &application_io,
+                          const ApplicationIO &application_io,
                           std::shared_ptr<Comm> comm,
-                          const ITreeComm &tree_comm) override;
+                          const TreeComm &tree_comm) override;
         private:
             std::string get_max_memory(void);
 
@@ -122,7 +124,7 @@ namespace geopm
             std::string m_report_name;
             PlatformIO &m_platform_io;
             PlatformTopo &m_platform_topo;
-            std::unique_ptr<IRegionAggregator> m_region_agg;
+            std::unique_ptr<RegionAggregator> m_region_agg;
             int m_rank;
             int m_region_bulk_runtime_idx;
             int m_energy_pkg_idx;

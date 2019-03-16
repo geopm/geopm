@@ -52,7 +52,7 @@ namespace geopm
 
     }
 
-    PowerGovernorAgent::PowerGovernorAgent(PlatformIO &platform_io, PlatformTopo &platform_topo, std::unique_ptr<IPowerGovernor> power_gov)
+    PowerGovernorAgent::PowerGovernorAgent(PlatformIO &platform_io, PlatformTopo &platform_topo, std::unique_ptr<PowerGovernor> power_gov)
         : m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
         , m_level(-1)
@@ -66,7 +66,7 @@ namespace geopm
         , m_agg_func(M_NUM_SAMPLE)
         , m_num_children(0)
         , m_last_power_budget(NAN)
-        , m_epoch_power_buf(geopm::make_unique<CircularBuffer<double> >(16)) // Magic number...
+        , m_epoch_power_buf(geopm::make_unique<CircularBufferImp<double> >(16)) // Magic number...
         , m_sample(M_PLAT_NUM_SIGNAL)
         , m_ascend_count(0)
         , m_ascend_period(10)
@@ -91,7 +91,7 @@ namespace geopm
         m_level = level;
         if (m_level == 0) {
             if (nullptr == m_power_gov) {
-                m_power_gov = geopm::make_unique<PowerGovernor>(platform_io(), platform_topo());
+                m_power_gov = geopm::make_unique<PowerGovernorImp>(platform_io(), platform_topo());
             }
             init_platform_io(); // Only do this at the leaf level.
         }

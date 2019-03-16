@@ -43,8 +43,8 @@ namespace geopm
 {
     class PlatformIO;
     class PlatformTopo;
-    class IPowerBalancer;
-    class IPowerGovernor;
+    class PowerBalancer;
+    class PowerGovernor;
 
     class PowerBalancerAgent : public Agent
     {
@@ -132,8 +132,10 @@ namespace geopm
                 M_TRACE_NUM_SAMPLE,
             };
 
-            PowerBalancerAgent(PlatformIO &platform_io, PlatformTopo &platform_topo,
-                               std::unique_ptr<IPowerGovernor> power_governor, std::unique_ptr<IPowerBalancer> power_balancer);
+            PowerBalancerAgent(PlatformIO &platform_io,
+                               PlatformTopo &platform_topo,
+                               std::unique_ptr<PowerGovernor> power_governor,
+                               std::unique_ptr<PowerBalancer> power_balancer);
             PowerBalancerAgent();
             virtual ~PowerBalancerAgent();
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
@@ -156,7 +158,7 @@ namespace geopm
             static std::vector<std::string> sample_names(void);
 
         protected:
-            class IStep;
+            class Step;
             class Role {
                 public:
                     virtual bool descend(const std::vector<double> &in_policy,
@@ -170,7 +172,7 @@ namespace geopm
                 protected:
                     int step(size_t step_count) const;
                     int step(void) const;
-                    const IStep& step_imp();
+                    const Step& step_imp();
 
                     enum m_step_e {
                         /// @brief On first iteration send down resource
@@ -197,7 +199,7 @@ namespace geopm
 
                     Role();
                     virtual ~Role();
-                    const std::vector<std::shared_ptr<const IStep> > M_STEP_IMP;
+                    const std::vector<std::shared_ptr<const Step> > M_STEP_IMP;
                     std::vector<double> m_policy;
                     int m_step_count;
                     bool m_is_step_complete;
@@ -206,8 +208,8 @@ namespace geopm
             PlatformIO &m_platform_io;
             PlatformTopo &m_platform_topo;
             std::shared_ptr<Role> m_role;
-            std::unique_ptr<IPowerGovernor> m_power_governor;   /// temporary ownership, std::move'd to Role on init
-            std::unique_ptr<IPowerBalancer> m_power_balancer;   /// temporary ownership, std::move'd to Role on init
+            std::unique_ptr<PowerGovernor> m_power_governor;   /// temporary ownership, std::move'd to Role on init
+            std::unique_ptr<PowerBalancer> m_power_balancer;   /// temporary ownership, std::move'd to Role on init
             struct geopm_time_s m_last_wait;
             const double M_WAIT_SEC;
             double m_power_tdp;
@@ -216,16 +218,16 @@ namespace geopm
             class LeafRole;
             class TreeRole;
 
-            class IStep {
+            class Step {
                 public:
-                    IStep() = default;
-                    virtual ~IStep() = default;
+                    Step() = default;
+                    virtual ~Step() = default;
                     virtual void update_policy(RootRole &role, const std::vector<double> &sample) const = 0;
                     virtual void enter_step(LeafRole &role, const std::vector<double> &in_policy) const = 0;
                     virtual void sample_platform(LeafRole &role) const = 0;
             };
 
-            class SendDownLimitStep : public IStep {
+            class SendDownLimitStep : public Step {
                 public:
                     SendDownLimitStep() = default;
                    ~SendDownLimitStep() = default;
@@ -234,7 +236,7 @@ namespace geopm
                    void sample_platform(PowerBalancerAgent::LeafRole &role) const;
             };
 
-            class MeasureRuntimeStep : public IStep {
+            class MeasureRuntimeStep : public Step {
                 public:
                     MeasureRuntimeStep() = default;
                     ~MeasureRuntimeStep() = default;
@@ -243,7 +245,7 @@ namespace geopm
                     void sample_platform(PowerBalancerAgent::LeafRole &role) const;
             };
 
-            class ReduceLimitStep : public IStep {
+            class ReduceLimitStep : public Step {
                 public:
                     ReduceLimitStep() = default;
                     ~ReduceLimitStep() = default;
@@ -291,8 +293,10 @@ namespace geopm
                 friend class MeasureRuntimeStep;
                 friend class ReduceLimitStep;
                 public:
-                    LeafRole(PlatformIO &platform_io, PlatformTopo &platform_topo,
-                             std::unique_ptr<IPowerGovernor> power_governor, std::unique_ptr<IPowerBalancer> power_balancer);
+                    LeafRole(PlatformIO &platform_io,
+                             PlatformTopo &platform_topo,
+                             std::unique_ptr<PowerGovernor> power_governor,
+                             std::unique_ptr<PowerBalancer> power_balancer);
                     virtual ~LeafRole();
                     bool adjust_platform(const std::vector<double> &in_policy) override;
                     bool sample_platform(std::vector<double> &out_sample) override;
@@ -304,8 +308,8 @@ namespace geopm
                     PlatformTopo &m_platform_topo;
                     double m_power_max;
                     std::vector<int> m_pio_idx;
-                    std::unique_ptr<IPowerGovernor> m_power_governor;
-                    std::unique_ptr<IPowerBalancer> m_power_balancer;
+                    std::unique_ptr<PowerGovernor> m_power_governor;
+                    std::unique_ptr<PowerBalancer> m_power_balancer;
                     int m_last_epoch_count;
                     double m_runtime;
                     double m_actual_limit;

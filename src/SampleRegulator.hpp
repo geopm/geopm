@@ -42,9 +42,6 @@
 
 namespace geopm
 {
-    template <class type>
-    class ICircularBuffer;
-
     /// @brief Class merges Platform and Profile time series data.
     ///
     /// The SampleRegulator class is a functor used by the Controller
@@ -126,6 +123,9 @@ namespace geopm
             virtual const std::map<int, int> &rank_idx_map(void) const = 0;
     };
 
+    template <class type>
+    class CircularBuffer;
+
     class SampleRegulator : public ISampleRegulator
     {
         public:
@@ -185,7 +185,7 @@ namespace geopm
             std::vector<uint64_t> m_region_id;
             /// @brief Per rank record of last profile samples in
             /// m_region_id_prev
-            std::vector<std::unique_ptr<ICircularBuffer<struct m_rank_sample_s> > > m_rank_sample_prev;
+            std::vector<std::unique_ptr<CircularBuffer<struct m_rank_sample_s> > > m_rank_sample_prev;
             /// @brief The platform sample time.
             struct geopm_time_s m_aligned_time;
             /// @brief Vector to multiply with signal_domain_matrix to

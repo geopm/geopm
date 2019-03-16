@@ -46,15 +46,15 @@
 
 namespace geopm
 {
-    ProfileIOGroup::ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
-                                   IEpochRuntimeRegulator &epoch_regulator)
+    ProfileIOGroup::ProfileIOGroup(std::shared_ptr<ProfileIOSample> profile_sample,
+                                   EpochRuntimeRegulator &epoch_regulator)
         : ProfileIOGroup(profile_sample, epoch_regulator, platform_topo())
     {
 
     }
 
-    ProfileIOGroup::ProfileIOGroup(std::shared_ptr<IProfileIOSample> profile_sample,
-                                   IEpochRuntimeRegulator &epoch_regulator,
+    ProfileIOGroup::ProfileIOGroup(std::shared_ptr<ProfileIOSample> profile_sample,
+                                   EpochRuntimeRegulator &epoch_regulator,
                                    PlatformTopo &topo)
         : m_profile_sample(profile_sample)
         , m_epoch_regulator(epoch_regulator)

@@ -42,18 +42,12 @@
 
 namespace geopm
 {
-    class Comm;
-    class ISharedMemory;
-    class IControlMessage;
-    class IProfileTable;
-    class IProfileThreadTable;
-
-    class IProfileRankSampler
+    class ProfileRankSampler
     {
         public:
-            IProfileRankSampler() = default;
-            IProfileRankSampler(const IProfileRankSampler &other) = default;
-            virtual ~IProfileRankSampler() = default;
+            ProfileRankSampler() = default;
+            ProfileRankSampler(const ProfileRankSampler &other) = default;
+            virtual ~ProfileRankSampler() = default;
             /// @brief Returns the samples present in the hash table.
             ///
             /// Fills in a portion of a vector specified by a vector iterator.
@@ -86,12 +80,15 @@ namespace geopm
             virtual void profile_name(std::string &prof_str) const = 0;
     };
 
-    class IProfileSampler
+    class Comm;
+    class ProfileThreadTable;
+
+    class ProfileSampler
     {
         public:
-            IProfileSampler() = default;
-            IProfileSampler(const IProfileSampler &other) = default;
-            virtual ~IProfileSampler() = default;
+            ProfileSampler() = default;
+            ProfileSampler(const ProfileSampler &other) = default;
+            virtual ~ProfileSampler() = default;
             /// @brief Retrieve the maximum capacity of all the per-rank
             ///        hash tables.
             ///
@@ -155,7 +152,7 @@ namespace geopm
             virtual std::set<std::string> name_set(void) const = 0;
             virtual std::string report_name(void) const = 0;
             virtual std::string profile_name(void) const = 0;
-            virtual std::shared_ptr<IProfileThreadTable> tprof_table(void) const = 0;
+            virtual std::shared_ptr<ProfileThreadTable> tprof_table(void) const = 0;
             /// @brief Signal to the application that the controller
             ///        is ready to begin receiving samples.
             virtual void controller_ready(void) = 0;
@@ -163,18 +160,24 @@ namespace geopm
             virtual void abort(void) = 0;
     };
 
+
+    class SharedMemory;
+    class ControlMessage;
+    class ProfileTable;
+
+
     /// @brief Retrieves sample data from a single application rank through
     ///        a shared memory interface.
     ///
     /// The ProfileRankSampler is the runtime side interface to the shared
     /// memory region for a single rank of the application. It can retrieve
     /// samples from the shared hash table for that rank.
-    class ProfileRankSampler : public IProfileRankSampler
+    class ProfileRankSamplerImp : public ProfileRankSampler
     {
         public:
-            /// @brief ProfileRankSampler constructor.
+            /// @brief ProfileRankSamplerImp constructor.
             ///
-            /// The ProfileRankSampler constructor takes in a unique shared
+            /// The ProfileRankSamplerImp constructor takes in a unique shared
             /// memory key for the rank as well as the size of the hash table
             /// to be shared with the application rank. It creates the shared
             /// memory region and the hash table that the application will
@@ -185,11 +188,11 @@ namespace geopm
             ///
             /// @param [in] table_size Size of the hash table to create in
             ///        the shared memory region.
-            ProfileRankSampler(const std::string shm_key, size_t table_size);
-            /// @brief ProfileRankSampler destructor.
+            ProfileRankSamplerImp(const std::string shm_key, size_t table_size);
+            /// @brief ProfileRankSamplerImp destructor.
             ///
             /// Cleans up the hash table and shared memory region.
-            virtual ~ProfileRankSampler() = default;
+            virtual ~ProfileRankSamplerImp() = default;
             /// @brief Returns the samples present in the hash table.
             ///
             /// Fills in a portion of a vector specified by a vector iterator.
@@ -207,15 +210,15 @@ namespace geopm
             bool name_fill(std::set<std::string> &name_set) override;
             void report_name(std::string &report_str) const override;
             void profile_name(std::string &prof_str) const override;
-            std::shared_ptr<IProfileThreadTable> tprof_table(void) const;
+            std::shared_ptr<ProfileThreadTable> tprof_table(void) const;
         private:
             /// Holds the shared memory region used for sampling from the
             /// application process.
-            std::unique_ptr<ISharedMemory> m_table_shmem;
+            std::unique_ptr<SharedMemory> m_table_shmem;
             /// The hash table which stores application process samples.
-            std::unique_ptr<IProfileTable> m_table;
-            std::unique_ptr<ISharedMemory> m_tprof_shmem;
-            std::shared_ptr<IProfileThreadTable> m_tprof_table;
+            std::unique_ptr<ProfileTable> m_table;
+            std::unique_ptr<SharedMemory> m_tprof_shmem;
+            std::shared_ptr<ProfileThreadTable> m_tprof_table;
             /// Holds the initial state of the last region entered.
             struct geopm_prof_message_s m_region_entry;
             /// Holds the initial state of the last region entered.
@@ -241,18 +244,18 @@ namespace geopm
     /// on a single compute node. It is also the interface to the shared
     /// memory region used to coordinate between the geopm runtime and
     /// the MPI application.
-    class ProfileSampler : public IProfileSampler
+    class ProfileSamplerImp : public ProfileSampler
     {
         public:
-            /// @brief ProfileSampler constructor.
+            /// @brief ProfileSamplerImp constructor.
             ///
             /// Constructs a shared memory region for coordination between
             /// the geopm runtime and the MPI application.
             ///
             /// @param [in] table_size The size of the hash table that will
             ///        be created for each application rank.
-            ProfileSampler(size_t table_size);
-            /// @brief ProfileSampler constructor.
+            ProfileSamplerImp(size_t table_size);
+            /// @brief ProfileSamplerImp constructor.
             ///
             /// Constructs a shared memory region for coordination between
             /// the geopm runtime and the MPI application.
@@ -261,9 +264,9 @@ namespace geopm
             ///
             /// @param [in] table_size The size of the hash table that will
             ///        be created for each application rank.
-            ProfileSampler(PlatformTopo &topo, size_t table_size);
-            /// @brief ProfileSampler destructor.
-            virtual ~ProfileSampler();
+            ProfileSamplerImp(PlatformTopo &topo, size_t table_size);
+            /// @brief ProfileSamplerImp destructor.
+            virtual ~ProfileSamplerImp();
             /// @brief Retrieve the maximum capacity of all the per-rank
             ///        hash tables.
             ///
@@ -280,28 +283,28 @@ namespace geopm
             std::set<std::string> name_set(void) const override;
             std::string report_name(void) const override;
             std::string profile_name(void) const override;
-            std::shared_ptr<IProfileThreadTable> tprof_table(void) const override;
+            std::shared_ptr<ProfileThreadTable> tprof_table(void) const override;
             void controller_ready(void) override;
             void abort(void) override;
         private:
             /// Holds the shared memory region used for application coordination
             /// and control.
-            std::unique_ptr<ISharedMemory> m_ctl_shmem;
+            std::unique_ptr<SharedMemory> m_ctl_shmem;
             /// Pointer to the control structure used for application coordination
             /// and control.
-            std::unique_ptr<IControlMessage> m_ctl_msg;
+            std::unique_ptr<ControlMessage> m_ctl_msg;
             /// List of per-rank samplers for each MPI application rank running
             /// on the local compute node.
-            std::forward_list<std::unique_ptr<IProfileRankSampler> > m_rank_sampler;
+            std::forward_list<std::unique_ptr<ProfileRankSampler> > m_rank_sampler;
             /// Size of the hash tables to create for each MPI application rank
-            /// running on the local compute node..
+            /// running on the local compute node.
             const size_t m_table_size;
             std::set<std::string> m_name_set;
             std::string m_report_name;
             std::string m_profile_name;
             bool m_do_report;
-            std::unique_ptr<ISharedMemory> m_tprof_shmem;
-            std::shared_ptr<IProfileThreadTable> m_tprof_table;
+            std::unique_ptr<SharedMemory> m_tprof_shmem;
+            std::shared_ptr<ProfileThreadTable> m_tprof_table;
             int m_rank_per_node;
     };
 }
