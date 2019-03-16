@@ -43,13 +43,13 @@ namespace geopm
     ///        optimize performance. An average per compute node power
     ///        maximum is maintained, but individual nodes will be
     ///        allowed above or below this average.
-    class IPowerBalancer
+    class PowerBalancer
     {
         public:
             /// @brief Construct a IPowerBalancer object.
-            IPowerBalancer() = default;
+            PowerBalancer() = default;
             /// @brief Destroy a IPowerBalancer object.
-            virtual ~IPowerBalancer() = default;
+            virtual ~PowerBalancer() = default;
             /// @brief Should be called at the start of application
             ///        execution with the average power cap across
             ///        compute nodes. Should be called at the end of
@@ -132,17 +132,17 @@ namespace geopm
             virtual double power_slack(void) = 0;
     };
 
-    template <typename T> class ICircularBuffer;
+    template <typename T> class CircularBuffer;
 
-    class PowerBalancer : public IPowerBalancer
+    class PowerBalancerImp : public PowerBalancer
     {
         public:
-            /// @brief Construct a testable PowerBalancer object.
-            PowerBalancer(double ctl_latency, double trial_delta, int num_sample, double measure_duration);
-            /// @brief Construct a PowerBalancer object.
-            PowerBalancer(double ctl_latency);
-            /// @brief Destroy a PowerBalancer object.
-            virtual ~PowerBalancer() = default;
+            /// @brief Construct a testable PowerBalancerImp object.
+            PowerBalancerImp(double ctl_latency, double trial_delta, int num_sample, double measure_duration);
+            /// @brief Construct a PowerBalancerImp object.
+            PowerBalancerImp(double ctl_latency);
+            /// @brief Destroy a PowerBalancerImp object.
+            virtual ~PowerBalancerImp() = default;
             void power_cap(double cap) override;
             double power_cap(void) const override;
             double power_limit(void) const override;
@@ -173,7 +173,7 @@ namespace geopm
             double m_trial_delta;
             double m_runtime_sample;
             bool m_is_target_met;
-            std::unique_ptr<ICircularBuffer<double> > m_runtime_buffer;
+            std::unique_ptr<CircularBuffer<double> > m_runtime_buffer;
             std::vector<double> m_runtime_vec;
     };
 }

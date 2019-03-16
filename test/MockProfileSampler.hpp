@@ -37,11 +37,11 @@
 #include "ProfileThread.hpp"
 #include "ProfileSampler.hpp"
 
-class MockProfileSampler : public geopm::IProfileSampler
+class MockProfileSampler : public geopm::ProfileSampler
 {
     public:
         MOCK_CONST_METHOD0(capacity,
-                     size_t (void));
+                           size_t (void));
         MOCK_METHOD3(sample,
                      void (std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content,
                            size_t &length,
@@ -65,7 +65,7 @@ class MockProfileSampler : public geopm::IProfileSampler
         MOCK_CONST_METHOD0(profile_name,
                            std::string (void));
         MOCK_CONST_METHOD0(tprof_table,
-                           std::shared_ptr<geopm::IProfileThreadTable>(void));
+                           std::shared_ptr<geopm::ProfileThreadTable>(void));
         MOCK_METHOD0(controller_ready,
                      void(void));
         MOCK_METHOD0(abort,

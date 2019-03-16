@@ -44,11 +44,11 @@ namespace geopm
 {
     class Comm;
     class PlatformIO;
-    class IManagerIOSampler;
-    class IApplicationIO;
-    class IReporter;
-    class ITracer;
-    class ITreeComm;
+    class ManagerIOSampler;
+    class ApplicationIO;
+    class Reporter;
+    class Tracer;
+    class TreeComm;
     class Agent;
 
     class Controller
@@ -66,12 +66,12 @@ namespace geopm
                        const std::string &agent_name,
                        int num_send_up,
                        int num_send_down,
-                       std::unique_ptr<ITreeComm> tree_comm,
-                       std::shared_ptr<IApplicationIO> application_io,
-                       std::unique_ptr<IReporter> reporter,
-                       std::unique_ptr<ITracer> tracer,
+                       std::unique_ptr<TreeComm> tree_comm,
+                       std::shared_ptr<ApplicationIO> application_io,
+                       std::unique_ptr<Reporter> reporter,
+                       std::unique_ptr<Tracer> tracer,
                        std::vector<std::unique_ptr<Agent> > level_agent,
-                       std::unique_ptr<IManagerIOSampler> manager_io_sampler);
+                       std::unique_ptr<ManagerIOSampler> manager_io_sampler);
             virtual ~Controller();
             /// @brief Run control algorithm.
             ///
@@ -133,13 +133,13 @@ namespace geopm
             std::string m_agent_name;
             const int m_num_send_down;
             const int m_num_send_up;
-            std::unique_ptr<ITreeComm> m_tree_comm;
+            std::unique_ptr<TreeComm> m_tree_comm;
             const int m_num_level_ctl;
             const int m_max_level;
             const int m_root_level;
-            std::shared_ptr<IApplicationIO> m_application_io;
-            std::unique_ptr<IReporter> m_reporter;
-            std::unique_ptr<ITracer> m_tracer;
+            std::shared_ptr<ApplicationIO> m_application_io;
+            std::unique_ptr<Reporter> m_reporter;
+            std::unique_ptr<Tracer> m_tracer;
             std::vector<std::unique_ptr<Agent> > m_agent;
             const bool m_is_root;
             std::vector<double> m_in_policy;
@@ -148,7 +148,7 @@ namespace geopm
             std::vector<double> m_out_sample;
             std::vector<double> m_trace_sample;
 
-            std::unique_ptr<IManagerIOSampler> m_manager_io_sampler;
+            std::unique_ptr<ManagerIOSampler> m_manager_io_sampler;
 
             std::vector<std::string> m_agent_policy_names;
             std::vector<std::string> m_agent_sample_names;

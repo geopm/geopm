@@ -47,11 +47,11 @@ struct geopm_region_info_s;
 namespace geopm
 {
     /// @brief Abstract base class for the Tracer object defines the interface.
-    class ITracer
+    class Tracer
     {
         public:
-            ITracer() = default;
-            virtual ~ITracer() = default;
+            Tracer() = default;
+            virtual ~Tracer() = default;
             /// @brief Set up default columns and add columns to be
             //         provided by the Agent.
             virtual void columns(const std::vector<std::string> &agent_cols) = 0;
@@ -86,23 +86,23 @@ namespace geopm
     class PlatformTopo;
 
     /// @brief Class used to write a trace of the telemetry and policy.
-    class Tracer : public ITracer
+    class TracerImp : public Tracer
     {
         public:
-            /// @brief Tracer constructor.
-            Tracer(const std::string &start_time);
-            Tracer(const std::string &start_time,
-                   const std::string &file_path,
-                   const std::string &hostname,
-                   const std::string &agent,
-                   const std::string &profile_name,
-                   bool do_trace,
-                   PlatformIO &platform_io,
-                   PlatformTopo &platform_topo,
-                   const std::string &env_column,
-                   int precision);
-            /// @brief Tracer destructor, virtual.
-            virtual ~Tracer();
+            /// @brief TracerImp constructor.
+            TracerImp(const std::string &start_time);
+            TracerImp(const std::string &start_time,
+                      const std::string &file_path,
+                      const std::string &hostname,
+                      const std::string &agent,
+                      const std::string &profile_name,
+                      bool do_trace,
+                      PlatformIO &platform_io,
+                      PlatformTopo &platform_topo,
+                      const std::string &env_column,
+                      int precision);
+            /// @brief TracerImp destructor, virtual.
+            virtual ~TracerImp();
             void columns(const std::vector<std::string> &agent_cols) override;
             void update(const std::vector<double> &agent_signals,
                         std::list<geopm_region_info_s> region_entry_exit) override;
@@ -122,7 +122,7 @@ namespace geopm
             PlatformTopo &m_platform_topo;
             std::string m_env_column; // extra columns from environment
             int m_precision;
-            std::vector<int> m_column_idx; // columns sampled by Tracer
+            std::vector<int> m_column_idx; // columns sampled by TracerImp
             std::set<int> m_hex_column;
             std::vector<double> m_last_telemetry;
             int m_region_hash_idx = -1;

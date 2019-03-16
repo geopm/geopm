@@ -35,7 +35,7 @@
 
 #include "ManagerIO.hpp"
 
-class MockManagerIOSampler : public geopm::IManagerIOSampler
+class MockManagerIOSampler : public geopm::ManagerIOSampler
 {
     public:
         MOCK_METHOD0(read_batch,

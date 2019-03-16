@@ -41,7 +41,7 @@
 
 namespace geopm
 {
-    TreeCommLevel::TreeCommLevel(std::shared_ptr<Comm> comm, int num_send_up, int num_send_down)
+    TreeCommLevelImp::TreeCommLevelImp(std::shared_ptr<Comm> comm, int num_send_up, int num_send_down)
         : m_comm(comm)
         , m_size(comm->num_rank())
         , m_rank(comm->rank())
@@ -59,7 +59,7 @@ namespace geopm
         create_window();
     }
 
-    TreeCommLevel::~TreeCommLevel()
+    TreeCommLevelImp::~TreeCommLevelImp()
     {
         m_comm->barrier();
         // Destroy sample window
@@ -74,15 +74,15 @@ namespace geopm
         }
     }
 
-    int TreeCommLevel::level_rank(void) const
+    int TreeCommLevelImp::level_rank(void) const
     {
         return m_rank;
     }
 
-    void TreeCommLevel::send_up(const std::vector<double> &sample)
+    void TreeCommLevelImp::send_up(const std::vector<double> &sample)
     {
         if (sample.size() != m_num_send_up) {
-            throw Exception("TreeCommLevel::send_up(): sample vector is not sized correctly.",
+            throw Exception("TreeCommLevelImp::send_up(): sample vector is not sized correctly.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         size_t msg_size = m_num_send_up * sizeof(double);
@@ -101,11 +101,11 @@ namespace geopm
         }
     }
 
-    void TreeCommLevel::send_down(const std::vector<std::vector<double> > &policy)
+    void TreeCommLevelImp::send_down(const std::vector<std::vector<double> > &policy)
     {
 #ifdef GEOPM_DEBUG
         if (m_rank != 0) {
-            throw Exception("TreeCommLevel::send_down() called from rank not at root of level",
+            throw Exception("TreeCommLevelImp::send_down() called from rank not at root of level",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
@@ -114,7 +114,7 @@ namespace geopm
             std::any_of(policy.begin(), policy.end(),
                         [num_down](std::vector<double> it)
                         {return it.size() != num_down;})) {
-            throw Exception("TreeCommLevel::send_down(): policy vector is not sized correctly.",
+            throw Exception("TreeCommLevelImp::send_down(): policy vector is not sized correctly.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         size_t msg_size = sizeof(double) * m_num_send_down;
@@ -135,7 +135,7 @@ namespace geopm
         }
     }
 
-    bool TreeCommLevel::receive_up(std::vector<std::vector<double> > &sample)
+    bool TreeCommLevelImp::receive_up(std::vector<std::vector<double> > &sample)
     {
 #ifdef GEOPM_DEBUG
         if (m_rank != 0) {
@@ -148,7 +148,7 @@ namespace geopm
             std::any_of(sample.begin(), sample.end(),
                         [num_up](std::vector<double> it)
                         {return it.size() != num_up;})) {
-            throw Exception("TreeCommLevel::send_down(): policy vector is not sized correctly.",
+            throw Exception("TreeCommLevelImp::send_down(): policy vector is not sized correctly.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -181,7 +181,7 @@ namespace geopm
         return is_complete;
     }
 
-    bool TreeCommLevel::receive_down(std::vector<double> &policy)
+    bool TreeCommLevelImp::receive_down(std::vector<double> &policy)
     {
         bool is_complete = false;
         if (m_rank) {
@@ -201,12 +201,12 @@ namespace geopm
         return is_complete;
     }
 
-    size_t TreeCommLevel::overhead_send(void) const
+    size_t TreeCommLevelImp::overhead_send(void) const
     {
         return m_overhead_send;
     }
 
-    void TreeCommLevel::create_window()
+    void TreeCommLevelImp::create_window()
     {
         // Create policy window
         // Note mem_size includes extra is_complete element

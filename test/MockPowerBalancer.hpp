@@ -35,7 +35,7 @@
 
 #include "PowerBalancer.hpp"
 
-class MockPowerBalancer : public geopm::IPowerBalancer {
+class MockPowerBalancer : public geopm::PowerBalancer {
     public:
         MOCK_METHOD1(power_cap,
                      void(double cap));

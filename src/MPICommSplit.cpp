@@ -97,8 +97,8 @@ extern "C"
             shmem_key << geopm_env_shmkey() << "-comm-split-" << tag;
             std::ostringstream shmem_path;
             shmem_path << "/dev/shm" << shmem_key.str();
-            geopm::SharedMemory *shmem = NULL;
-            geopm::SharedMemoryUser *shmem_user = NULL;
+            std::shared_ptr<geopm::SharedMemoryImp> shmem = nullptr;
+            std::shared_ptr<geopm::SharedMemoryUserImp> shmem_user = nullptr;
             int rank, color = -1;
 
             MPI_Comm_rank(comm, &rank);
@@ -114,7 +114,7 @@ extern "C"
             }
             MPI_Barrier(comm);
             try {
-                shmem = new geopm::SharedMemory(shmem_key.str(), sizeof(int));
+                shmem = std::make_shared<geopm::SharedMemoryImp>(shmem_key.str(), sizeof(int));
             }
             catch (const geopm::Exception &ex) {
                 if (ex.err_value() != EEXIST) {
@@ -122,7 +122,7 @@ extern "C"
                 }
             }
             if (!shmem) {
-                shmem_user = new geopm::SharedMemoryUser(shmem_key.str(), geopm_env_timeout());
+                shmem_user = std::make_shared<geopm::SharedMemoryUserImp>(shmem_key.str(), geopm_env_timeout());
             }
             else {
                 color = rank;
@@ -133,8 +133,6 @@ extern "C"
                 color = *((int*)(shmem_user->pointer()));
             }
             err = MPI_Comm_split(comm, color, rank, split_comm);
-            delete shmem;
-            delete shmem_user;
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());

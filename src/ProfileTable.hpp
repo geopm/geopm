@@ -58,11 +58,11 @@ namespace geopm
     /// inter-process shared memory.  See the geopm::SharedMemory
     /// class for information on usage with POSIX inter-process shared
     /// memory.
-    class IProfileTable
+    class ProfileTable
     {
         public:
-            IProfileTable() = default;
-            virtual ~IProfileTable() = default;
+            ProfileTable() = default;
+            virtual ~ProfileTable() = default;
             /// @brief Hash the name string into a random 64 bit
             ///        integer.
             ///
@@ -167,10 +167,10 @@ namespace geopm
             virtual bool name_set(size_t header_offset, std::set<std::string> &name) = 0;
     };
 
-    class ProfileTable : public IProfileTable
+    class ProfileTableImp : public ProfileTable
     {
         public:
-            /// @brief Constructor for the ProfileTable.
+            /// @brief Constructor for the ProfileTableImp.
             ///
             /// The memory that is used by the container is provided
             /// at construction time.  There are other ancillary data
@@ -181,9 +181,9 @@ namespace geopm
             ///
             /// @param buffer [in] Pointer to beginning of virtual
             ///        address range used for storing the data.
-            ProfileTable(size_t size, void *buffer);
-            /// ProfileTable destructor, virtual.
-            virtual ~ProfileTable() = default;
+            ProfileTableImp(size_t size, void *buffer);
+            /// ProfileTableImp destructor, virtual.
+            virtual ~ProfileTableImp() = default;
             uint64_t key(const std::string &name) override;
             void insert(const struct geopm_prof_message_s &value) override;
             size_t capacity(void) const override;

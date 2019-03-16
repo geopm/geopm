@@ -36,10 +36,10 @@
 #include "geopm.h"
 #include "ProfileIOSample.hpp"
 
-class MockProfileIOSample : public geopm::IProfileIOSample {
+class MockProfileIOSample : public geopm::ProfileIOSample {
     public:
         MOCK_METHOD0(finalize_unmarked_region,
-                           void(void));
+                     void(void));
         MOCK_METHOD2(update,
                      void(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin, std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end));
         MOCK_METHOD1(update_thread,

@@ -39,7 +39,6 @@
 
 #include "CircularBuffer.hpp"
 
-
 namespace geopm
 {
     /// @brief Used by PlatformIO to define a signal as a function of
@@ -71,7 +70,7 @@ namespace geopm
             };
             const int M_NUM_SAMPLE_HISTORY;
             // time + energy history
-            CircularBuffer<m_sample_s> m_history;
+            CircularBufferImp<m_sample_s> m_history;
             int m_derivative_num_fit;
     };
 }

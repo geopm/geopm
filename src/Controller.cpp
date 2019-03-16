@@ -147,14 +147,18 @@ namespace geopm
                      geopm_env_agent(),
                      Agent::num_policy(agent_factory().dictionary(geopm_env_agent())),
                      Agent::num_sample(agent_factory().dictionary(geopm_env_agent())),
-                     std::unique_ptr<ITreeComm>(new TreeComm(ppn1_comm,
+                     std::unique_ptr<TreeComm>(new TreeCommImp(ppn1_comm,
                          Agent::num_policy(agent_factory().dictionary(geopm_env_agent())),
                          Agent::num_sample(agent_factory().dictionary(geopm_env_agent())))),
-                     std::shared_ptr<IApplicationIO>(new ApplicationIO(geopm_env_shmkey())),
-                     std::unique_ptr<IReporter>(new Reporter(get_start_time(), geopm_env_report(), platform_io(), platform_topo(), ppn1_comm->rank())),
+                     std::shared_ptr<ApplicationIO>(new ApplicationIOImp(geopm_env_shmkey())),
+                     std::unique_ptr<Reporter>(new ReporterImp(get_start_time(),
+                                                                geopm_env_report(),
+                                                                platform_io(),
+                                                                platform_topo(),
+                                                                ppn1_comm->rank())),
                      nullptr,
                      std::vector<std::unique_ptr<Agent> >{},
-                     std::unique_ptr<IManagerIOSampler>(new ManagerIOSampler(geopm_env_policy(), true)))
+                     std::unique_ptr<ManagerIOSampler>(new ManagerIOSamplerImp(geopm_env_policy(), true)))
     {
 
     }
@@ -164,12 +168,12 @@ namespace geopm
                            const std::string &agent_name,
                            int num_send_down,
                            int num_send_up,
-                           std::unique_ptr<ITreeComm> tree_comm,
-                           std::shared_ptr<IApplicationIO> application_io,
-                           std::unique_ptr<IReporter> reporter,
-                           std::unique_ptr<ITracer> tracer,
+                           std::unique_ptr<TreeComm> tree_comm,
+                           std::shared_ptr<ApplicationIO> application_io,
+                           std::unique_ptr<Reporter> reporter,
+                           std::unique_ptr<Tracer> tracer,
                            std::vector<std::unique_ptr<Agent> > level_agent,
-                           std::unique_ptr<IManagerIOSampler> manager_io_sampler)
+                           std::unique_ptr<ManagerIOSampler> manager_io_sampler)
         : m_comm(comm)
         , m_platform_io(plat_io)
         , m_agent_name(agent_name)
@@ -372,7 +376,7 @@ namespace geopm
     void Controller::setup_trace(void)
     {
         if (m_tracer == nullptr) {
-            m_tracer = geopm::make_unique<Tracer>(get_start_time());
+            m_tracer = geopm::make_unique<TracerImp>(get_start_time());
         }
         auto agent_cols = m_agent[0]->trace_names();
         m_tracer->columns(agent_cols);

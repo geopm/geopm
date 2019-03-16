@@ -40,11 +40,11 @@
 
 namespace geopm
 {
-    class IRuntimeRegulator
+    class RuntimeRegulator
     {
         public:
-            IRuntimeRegulator() = default;
-            virtual ~IRuntimeRegulator() = default;
+            RuntimeRegulator() = default;
+            virtual ~RuntimeRegulator() = default;
             /// @brief Called when the region is entered on a
             ///        particular rank.
             /// @param [in] rank The rank that entered the region.
@@ -74,13 +74,13 @@ namespace geopm
             virtual std::vector<double> per_rank_count(void) const = 0;
     };
 
-    class RuntimeRegulator : public IRuntimeRegulator
+    class RuntimeRegulatorImp : public RuntimeRegulator
     {
         public:
-            RuntimeRegulator() = delete;
-            RuntimeRegulator(const RuntimeRegulator &other) = default;
-            RuntimeRegulator(int num_rank);
-            virtual ~RuntimeRegulator() = default;
+            RuntimeRegulatorImp() = delete;
+            RuntimeRegulatorImp(const RuntimeRegulatorImp &other) = default;
+            RuntimeRegulatorImp(int num_rank);
+            virtual ~RuntimeRegulatorImp() = default;
             void record_entry(int rank, struct geopm_time_s entry_time) override;
             void record_exit(int rank, struct geopm_time_s exit_time) override;
             std::vector<double> per_rank_last_runtime(void) const override;

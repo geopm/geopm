@@ -37,6 +37,7 @@
 
 using geopm::Exception;
 using geopm::RuntimeRegulator;
+using geopm::RuntimeRegulatorImp;
 
 class RuntimeRegulatorTest : public :: testing :: Test
 {
@@ -79,15 +80,15 @@ void RuntimeRegulatorTest::TearDown()
 
 TEST_F(RuntimeRegulatorTest, exceptions)
 {
-    EXPECT_THROW(new RuntimeRegulator(0), Exception);
-    RuntimeRegulator rtr(M_NUM_RANKS);
+    EXPECT_THROW(new RuntimeRegulatorImp(0), Exception);
+    RuntimeRegulatorImp rtr(M_NUM_RANKS);
     EXPECT_THROW(rtr.record_entry(-1, m_entry[0][0]), Exception);
     EXPECT_THROW(rtr.record_exit(-1, m_exit[0][0]), Exception);
 }
 
 TEST_F(RuntimeRegulatorTest, all_in_and_out)
 {
-    RuntimeRegulator rtr(M_NUM_RANKS);
+    RuntimeRegulatorImp rtr(M_NUM_RANKS);
     std::vector<double> expected(M_NUM_RANKS);
     for (int it = 0; it < M_NUM_ITERATIONS; it++) {
         for (int rank = 0; rank < M_NUM_RANKS; rank++) {
@@ -108,7 +109,7 @@ TEST_F(RuntimeRegulatorTest, all_in_and_out)
 
 TEST_F(RuntimeRegulatorTest, all_reenter)
 {
-    RuntimeRegulator rtr(M_NUM_RANKS);
+    RuntimeRegulatorImp rtr(M_NUM_RANKS);
     std::vector<double> expected(M_NUM_RANKS);
     int it = 1;
     for (int rank = 0; rank < M_NUM_RANKS; ++rank) {
@@ -130,7 +131,7 @@ TEST_F(RuntimeRegulatorTest, all_reenter)
 
 TEST_F(RuntimeRegulatorTest, one_rank_reenter_and_exit)
 {
-    RuntimeRegulator rtr(M_NUM_RANKS);
+    RuntimeRegulatorImp rtr(M_NUM_RANKS);
     int it = 1;
     for (int rank = 0; rank < M_NUM_RANKS; rank++) {
         rtr.record_entry(rank, m_entry[it][rank]);
@@ -155,7 +156,7 @@ TEST_F(RuntimeRegulatorTest, one_rank_reenter_and_exit)
 
 TEST_F(RuntimeRegulatorTest, config_rank_then_workers)
 {
-    RuntimeRegulator rtr(M_NUM_RANKS);
+    RuntimeRegulatorImp rtr(M_NUM_RANKS);
     std::vector<double> expected(M_NUM_RANKS);
     int it = 1;
     for (int rr = 0; rr < M_NUM_RANKS; ++rr) {

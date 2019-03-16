@@ -30,22 +30,28 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <memory>
+
 #include "gtest/gtest.h"
+
 #include "ControlMessage.hpp"
+#include "Helper.hpp"
 
 using geopm::ControlMessage;
+using geopm::ControlMessageImp;
+
 enum control_message_test_e {
-    M_STATUS_UNDEFINED = geopm::ControlMessage::M_STATUS_UNDEFINED,
-    M_STATUS_MAP_BEGIN = geopm::ControlMessage::M_STATUS_MAP_BEGIN,
-    M_STATUS_MAP_END = geopm::ControlMessage::M_STATUS_MAP_END,
-    M_STATUS_SAMPLE_BEGIN = geopm::ControlMessage::M_STATUS_SAMPLE_BEGIN,
-    M_STATUS_SAMPLE_END = geopm::ControlMessage::M_STATUS_SAMPLE_END,
-    M_STATUS_NAME_BEGIN = geopm::ControlMessage::M_STATUS_NAME_BEGIN,
-    M_STATUS_NAME_LOOP_BEGIN = geopm::ControlMessage::M_STATUS_NAME_LOOP_BEGIN,
-    M_STATUS_NAME_LOOP_END = geopm::ControlMessage::M_STATUS_NAME_LOOP_END,
-    M_STATUS_NAME_END = geopm::ControlMessage::M_STATUS_NAME_END,
-    M_STATUS_SHUTDOWN = geopm::ControlMessage::M_STATUS_SHUTDOWN,
-    M_STATUS_ABORT = geopm::ControlMessage::M_STATUS_ABORT,
+    M_STATUS_UNDEFINED = ControlMessageImp::M_STATUS_UNDEFINED,
+    M_STATUS_MAP_BEGIN = ControlMessageImp::M_STATUS_MAP_BEGIN,
+    M_STATUS_MAP_END = ControlMessageImp::M_STATUS_MAP_END,
+    M_STATUS_SAMPLE_BEGIN = ControlMessageImp::M_STATUS_SAMPLE_BEGIN,
+    M_STATUS_SAMPLE_END = ControlMessageImp::M_STATUS_SAMPLE_END,
+    M_STATUS_NAME_BEGIN = ControlMessageImp::M_STATUS_NAME_BEGIN,
+    M_STATUS_NAME_LOOP_BEGIN = ControlMessageImp::M_STATUS_NAME_LOOP_BEGIN,
+    M_STATUS_NAME_LOOP_END = ControlMessageImp::M_STATUS_NAME_LOOP_END,
+    M_STATUS_NAME_END = ControlMessageImp::M_STATUS_NAME_END,
+    M_STATUS_SHUTDOWN = ControlMessageImp::M_STATUS_SHUTDOWN,
+    M_STATUS_ABORT = ControlMessageImp::M_STATUS_ABORT,
 };
 
 
@@ -56,11 +62,10 @@ class ControlMessageTest: public testing::Test
         virtual ~ControlMessageTest() = default;
     protected:
         void SetUp();
-        void TearDown();
         struct geopm_ctl_message_s m_test_ctl_msg_buffer;
-        geopm::ControlMessage *m_test_ctl_msg;
-        geopm::ControlMessage *m_test_app_msg;
-        geopm::ControlMessage *m_test_app_noop_msg;
+        std::unique_ptr<ControlMessage> m_test_ctl_msg;
+        std::unique_ptr<ControlMessage> m_test_app_msg;
+        std::unique_ptr<ControlMessage> m_test_app_noop_msg;
 };
 
 
@@ -68,16 +73,9 @@ void ControlMessageTest::SetUp()
 {
     // Application control message must be constructed first to avoid
     // hang when controller message is constructed.
-    m_test_app_msg = new geopm::ControlMessage(m_test_ctl_msg_buffer, false, true);
-    m_test_ctl_msg = new geopm::ControlMessage(m_test_ctl_msg_buffer, true, true);
-    m_test_app_noop_msg = new geopm::ControlMessage(m_test_ctl_msg_buffer, false, false);
-}
-
-void ControlMessageTest::TearDown()
-{
-    delete m_test_app_noop_msg;
-    delete m_test_app_msg;
-    delete m_test_ctl_msg;
+    m_test_app_msg = geopm::make_unique<ControlMessageImp>(m_test_ctl_msg_buffer, false, true);
+    m_test_ctl_msg = geopm::make_unique<ControlMessageImp>(m_test_ctl_msg_buffer, true, true);
+    m_test_app_noop_msg = geopm::make_unique<ControlMessageImp>(m_test_ctl_msg_buffer, false, false);
 }
 
 TEST_F(ControlMessageTest, step)

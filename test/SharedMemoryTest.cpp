@@ -30,7 +30,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include <sys/stat.h>
 
 #include "gtest/gtest.h"
@@ -38,6 +37,9 @@
 #include "geopm_env.h"
 #include "Exception.hpp"
 #include "SharedMemory.hpp"
+
+using geopm::SharedMemory;
+using geopm::SharedMemoryImp;
 
 class SharedMemoryTest : public :: testing :: Test
 {
@@ -66,15 +68,15 @@ void SharedMemoryTest::TearDown()
 
 void SharedMemoryTest::config_shmem()
 {
-    m_shmem = new geopm::SharedMemory(m_shm_key, m_size);
+    m_shmem = new geopm::SharedMemoryImp(m_shm_key, m_size);
 }
 
 void SharedMemoryTest::config_shmem_u()
 {
-    m_shmem_u = new geopm::SharedMemoryUser(m_shm_key, 1); // 1 second timeout
+    m_shmem_u = new geopm::SharedMemoryUserImp(m_shm_key, 1); // 1 second timeout
     // if 1 second timeout constructor worked so should this, just throw away instance
     // warning, will spin for INT_MAX seconds if there is a failure...
-    delete new geopm::SharedMemoryUser(m_shm_key);
+    delete new geopm::SharedMemoryUserImp(m_shm_key);
 }
 
 void SharedMemoryTest::cleanup_shmem()
@@ -115,10 +117,10 @@ TEST_F(SharedMemoryTest, fd_check)
 TEST_F(SharedMemoryTest, invalid_construction)
 {
     m_shm_key += "-invalid_construction";
-    EXPECT_THROW((new geopm::SharedMemory(m_shm_key, 0)), geopm::Exception);  // invalid memory region size
-    EXPECT_THROW((new geopm::SharedMemoryUser(m_shm_key, 1)), geopm::Exception);
-    EXPECT_THROW((new geopm::SharedMemory("", m_size)), geopm::Exception);  // invalid key
-    EXPECT_THROW((new geopm::SharedMemoryUser("", 1)), geopm::Exception);
+    EXPECT_THROW((new geopm::SharedMemoryImp(m_shm_key, 0)), geopm::Exception);  // invalid memory region size
+    EXPECT_THROW((new geopm::SharedMemoryUserImp(m_shm_key, 1)), geopm::Exception);
+    EXPECT_THROW((new geopm::SharedMemoryImp("", m_size)), geopm::Exception);  // invalid key
+    EXPECT_THROW((new geopm::SharedMemoryUserImp("", 1)), geopm::Exception);
 }
 
 TEST_F(SharedMemoryTest, share_data)

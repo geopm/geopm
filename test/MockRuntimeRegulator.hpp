@@ -38,7 +38,7 @@
 
 #include "RuntimeRegulator.hpp"
 
-class MockRuntimeRegulator : public geopm::IRuntimeRegulator
+class MockRuntimeRegulator : public geopm::RuntimeRegulator
 {
     public:
         MOCK_METHOD2(record_entry,

@@ -41,13 +41,7 @@
 
 namespace geopm
 {
-    class Comm;
-    class ISharedMemoryUser;
-    class IControlMessage;
-    class PlatformTopo;
-    class IProfileTable;
-    class IProfileThreadTable;
-    class ISampleScheduler;
+    class ProfileThreadTable;
 
     /// @brief Enables application profiling and application feedback
     ///        to the control algorithm.
@@ -84,12 +78,12 @@ namespace geopm
     /// for use with the geopm_prof_c structure and are named
     /// accordingly.  The geopm_prof_c structure is an opaque
     /// reference to the Profile class.
-    class IProfile
+    class Profile
     {
         public:
-            IProfile() = default;
-            IProfile(const IProfile &other) = default;
-            virtual ~IProfile() = default;
+            Profile() = default;
+            Profile(const Profile &other) = default;
+            virtual ~Profile() = default;
             /// @brief Register a region of code to be profiled.
             ///
             /// The statistics gathered for each region are aggregated
@@ -168,15 +162,22 @@ namespace geopm
             /// application.
             virtual void epoch(void) = 0;
             virtual void shutdown(void) = 0;
-            virtual std::shared_ptr<IProfileThreadTable> tprof_table(void) = 0;
+            virtual std::shared_ptr<ProfileThreadTable> tprof_table(void) = 0;
     };
 
-    class Profile : public IProfile
+    class Comm;
+    class SharedMemoryUser;
+    class ControlMessage;
+    class PlatformTopo;
+    class ProfileTable;
+    class SampleScheduler;
+
+    class ProfileImp : public Profile
     {
         public:
-            /// @brief Profile constructor.
+            /// @brief ProfileImp constructor.
             ///
-            /// The Profile object is used by the application to
+            /// The ProfileImp object is used by the application to
             /// instrument regions of code and post profile
             /// information to a shared memory region to be read by
             /// the geopm::Controller process.
@@ -191,8 +192,8 @@ namespace geopm
             ///        geopm::Controller on each compute node will
             ///        consume the output from each rank running on
             ///        the compute node.
-            Profile(const std::string &prof_name, std::unique_ptr<Comm> comm);
-            /// @brief Profile testable constructor.
+            ProfileImp(const std::string &prof_name, std::unique_ptr<Comm> comm);
+            /// @brief ProfileImp testable constructor.
             ///
             /// @param [in] prof_name Name associated with the
             ///        profile.  This name will be printed in the
@@ -220,23 +221,27 @@ namespace geopm
             ///        bypasses shmem creation.
             ///
             /// @param [in] ctl_msg Preconstructed SampleScheduler instance.
-            Profile(const std::string &prof_name, const std::string &key_base, std::unique_ptr<Comm> comm,
-                    std::unique_ptr<IControlMessage> ctl_msg, PlatformTopo &topo, std::unique_ptr<IProfileTable> table,
-                    std::shared_ptr<IProfileThreadTable> t_table, std::unique_ptr<ISampleScheduler> scheduler);
+            ProfileImp(const std::string &prof_name, const std::string &key_base,
+                       std::unique_ptr<Comm> comm, std::unique_ptr<ControlMessage> ctl_msg,
+                       PlatformTopo &topo, std::unique_ptr<ProfileTable> table,
+                       std::shared_ptr<ProfileThreadTable> t_table,
+                       std::unique_ptr<SampleScheduler> scheduler);
             /// @brief Test constructor.
-            Profile(const std::string &prof_name, const std::string &key_base, std::unique_ptr<Comm> comm,
-                    std::unique_ptr<IControlMessage> ctl_msg, PlatformTopo &topo, std::unique_ptr<IProfileTable> table,
-                    std::shared_ptr<IProfileThreadTable> t_table, std::unique_ptr<ISampleScheduler> scheduler,
-                    std::shared_ptr<Comm> reduce_comm);
-            /// @brief Profile destructor, virtual.
-            virtual ~Profile();
+            ProfileImp(const std::string &prof_name, const std::string &key_base,
+                       std::unique_ptr<Comm> comm, std::unique_ptr<ControlMessage> ctl_msg,
+                       PlatformTopo &topo, std::unique_ptr<ProfileTable> table,
+                       std::shared_ptr<ProfileThreadTable> t_table,
+                       std::unique_ptr<SampleScheduler> scheduler,
+                       std::shared_ptr<Comm> reduce_comm);
+            /// @brief ProfileImp destructor, virtual.
+            virtual ~ProfileImp();
             uint64_t region(const std::string region_name, long hint) override;
             void enter(uint64_t region_id) override;
             void exit(uint64_t region_id) override;
             void progress(uint64_t region_id, double fraction) override;
             void epoch(void) override;
             void shutdown(void) override;
-            std::shared_ptr<IProfileThreadTable> tprof_table(void) override;
+            std::shared_ptr<ProfileThreadTable> tprof_table(void) override;
             void init_prof_comm(std::unique_ptr<Comm> comm, int &shm_num_rank);
             void init_ctl_msg(const std::string &sample_key);
             /// @brief Fill in rank affinity list.
@@ -286,20 +291,20 @@ namespace geopm
             double m_progress;
             /// @brief Attaches to the shared memory region for
             ///        control messages.
-            std::unique_ptr<ISharedMemoryUser> m_ctl_shmem;
+            std::unique_ptr<SharedMemoryUser> m_ctl_shmem;
             /// @brief Holds a pointer to the shared memory region
             ///        used to pass control messages to and from the geopm
             ///        runtime.
-            std::unique_ptr<IControlMessage> m_ctl_msg;
+            std::unique_ptr<ControlMessage> m_ctl_msg;
             /// @brief Attaches to the shared memory region for
             ///        passing samples to the geopm runtime.
-            std::unique_ptr<ISharedMemoryUser> m_table_shmem;
+            std::unique_ptr<SharedMemoryUser> m_table_shmem;
             /// @brief Hash table for sample messages contained in
             ///        shared memory.
-            std::unique_ptr<IProfileTable> m_table;
-            std::unique_ptr<ISharedMemoryUser> m_tprof_shmem;
-            std::shared_ptr<IProfileThreadTable> m_tprof_table;
-            std::unique_ptr<ISampleScheduler> m_scheduler;
+            std::unique_ptr<ProfileTable> m_table;
+            std::unique_ptr<SharedMemoryUser> m_tprof_shmem;
+            std::shared_ptr<ProfileThreadTable> m_tprof_table;
+            std::unique_ptr<SampleScheduler> m_scheduler;
             /// @brief Holds a list of cpus that the rank process is
             ///        bound to.
             std::list<int> m_cpu_list;

@@ -42,11 +42,11 @@
 
 namespace geopm
 {
-    class IRegionAggregator
+    class RegionAggregator
     {
         public:
-            IRegionAggregator() = default;
-            virtual ~IRegionAggregator() = default;
+            RegionAggregator() = default;
+            virtual ~RegionAggregator() = default;
             /// @brief Push required PlatformIO signals (EPOCH_COUNT).
             virtual void init(void) = 0;
             /// @brief Push a signal to be accumulated per-region.  It
@@ -100,11 +100,11 @@ namespace geopm
 
     class PlatformIO;
 
-    class RegionAggregator : public IRegionAggregator
+    class RegionAggregatorImp : public RegionAggregator
     {
         public:
-            RegionAggregator();
-            RegionAggregator(PlatformIO &platio);
+            RegionAggregatorImp();
+            RegionAggregatorImp(PlatformIO &platio);
             void init(void) override;
             int push_signal_total(const std::string &signal_idx,
                                   int domain_type,

@@ -37,7 +37,7 @@
 
 #include "TreeComm.hpp"
 
-class MockTreeComm : public geopm::ITreeComm
+class MockTreeComm : public geopm::TreeComm
 {
     public:
         MOCK_CONST_METHOD0(num_level_controlled,

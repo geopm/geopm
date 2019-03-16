@@ -37,7 +37,7 @@
 #include "ApplicationIO.hpp"
 #include "Comm.hpp"
 
-class MockReporter : public geopm::IReporter
+class MockReporter : public geopm::Reporter
 {
     public:
         MOCK_METHOD0(init, void(void));
@@ -47,9 +47,9 @@ class MockReporter : public geopm::IReporter
                           const std::vector<std::pair<std::string, std::string> > &agent_report_header,
                           const std::vector<std::pair<std::string, std::string> > &agent_node_report,
                           const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report,
-                          const geopm::IApplicationIO &application_io,
+                          const geopm::ApplicationIO &application_io,
                           std::shared_ptr<geopm::Comm> comm,
-                          const geopm::ITreeComm &tree_comm));
+                          const geopm::TreeComm &tree_comm));
 };
 
 #endif

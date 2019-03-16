@@ -67,7 +67,7 @@ static int g_pmpi_prof_enabled = 0;
 
 namespace geopm
 {
-    class DefaultProfile : public Profile
+    class DefaultProfile : public ProfileImp
     {
         public:
             DefaultProfile(const std::string prof_name, std::unique_ptr<Comm> comm);
@@ -75,7 +75,7 @@ namespace geopm
     };
 
     DefaultProfile::DefaultProfile(const std::string prof_name, std::unique_ptr<Comm> comm)
-        : Profile(prof_name, std::move(comm))
+        : ProfileImp(prof_name, std::move(comm))
     {
         g_pmpi_prof_enabled = 1;
     }
@@ -199,7 +199,7 @@ extern "C"
     {
         int err = 0;
         try {
-            std::shared_ptr<geopm::IProfileThreadTable> table_ptr = geopm_default_prof().tprof_table();
+            std::shared_ptr<geopm::ProfileThreadTable> table_ptr = geopm_default_prof().tprof_table();
             if (chunk_size) {
                 table_ptr->init(num_thread, thread_idx, num_iter, chunk_size);
             }

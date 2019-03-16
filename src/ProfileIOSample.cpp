@@ -46,7 +46,8 @@
 
 namespace geopm
 {
-    ProfileIOSample::ProfileIOSample(const std::vector<int> &cpu_rank, IEpochRuntimeRegulator &epoch_regulator)
+    ProfileIOSampleImp::ProfileIOSampleImp(const std::vector<int> &cpu_rank,
+                                           EpochRuntimeRegulator &epoch_regulator)
         : m_epoch_regulator(epoch_regulator)
         , m_thread_progress(cpu_rank.size(), NAN)
     {
@@ -62,16 +63,16 @@ namespace geopm
         m_num_rank = m_rank_idx_map.size();
 
         // 2 samples for linear interpolation
-        m_rank_sample_buffer.resize(m_num_rank, CircularBuffer<struct m_rank_sample_s>(2));
+        m_rank_sample_buffer.resize(m_num_rank, CircularBufferImp<struct m_rank_sample_s>(2));
         m_region_id.resize(m_num_rank, GEOPM_REGION_HASH_UNMARKED);
     }
 
-    ProfileIOSample::~ProfileIOSample()
+    ProfileIOSampleImp::~ProfileIOSampleImp()
     {
 
     }
 
-    std::map<int, int> ProfileIOSample::rank_to_node_local_rank(const std::vector<int> &per_cpu_rank)
+    std::map<int, int> ProfileIOSampleImp::rank_to_node_local_rank(const std::vector<int> &per_cpu_rank)
     {
         std::set<int> rank_set;
         for (auto rank : per_cpu_rank) {
@@ -88,7 +89,7 @@ namespace geopm
         return rank_idx_map;
     }
 
-    std::vector<int> ProfileIOSample::rank_to_node_local_rank_per_cpu(const std::vector<int> &per_cpu_rank)
+    std::vector<int> ProfileIOSampleImp::rank_to_node_local_rank_per_cpu(const std::vector<int> &per_cpu_rank)
     {
         std::vector<int> result(per_cpu_rank);
         std::map<int, int> rank_idx_map = rank_to_node_local_rank(per_cpu_rank);
@@ -99,7 +100,7 @@ namespace geopm
         return result;
     }
 
-    void ProfileIOSample::finalize_unmarked_region()
+    void ProfileIOSampleImp::finalize_unmarked_region()
     {
         struct geopm_time_s time;
         /// @todo This time should come from the application.
@@ -112,14 +113,14 @@ namespace geopm
         }
     }
 
-    void ProfileIOSample::update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
-                                 std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end)
+    void ProfileIOSampleImp::update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
+                                    std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end)
     {
         for (auto sample_it = prof_sample_begin; sample_it != prof_sample_end; ++sample_it) {
             auto rank_idx_it = m_rank_idx_map.find(sample_it->second.rank);
 #ifdef GEOPM_DEBUG
             if (rank_idx_it == m_rank_idx_map.end()) {
-                throw Exception("ProfileIOSample::update(): invalid profile sample data",
+                throw Exception("ProfileIOSampleImp::update(): invalid profile sample data",
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
 #endif
@@ -161,12 +162,12 @@ namespace geopm
         }
     }
 
-    void ProfileIOSample::update_thread(const std::vector<double> &thread_progress)
+    void ProfileIOSampleImp::update_thread(const std::vector<double> &thread_progress)
     {
         m_thread_progress = thread_progress;
     }
 
-    std::vector<double> ProfileIOSample::per_cpu_progress(const struct geopm_time_s &extrapolation_time) const
+    std::vector<double> ProfileIOSampleImp::per_cpu_progress(const struct geopm_time_s &extrapolation_time) const
     {
         std::vector<double> result(m_cpu_rank.size(), 0.0);
         std::vector<double> rank_progress = per_rank_progress(extrapolation_time);
@@ -178,12 +179,12 @@ namespace geopm
         return result;
     }
 
-    std::vector<double> ProfileIOSample::per_cpu_thread_progress(void) const
+    std::vector<double> ProfileIOSampleImp::per_cpu_thread_progress(void) const
     {
         return m_thread_progress;
     }
 
-    std::vector<double> ProfileIOSample::per_rank_progress(const struct geopm_time_s &extrapolation_time) const
+    std::vector<double> ProfileIOSampleImp::per_rank_progress(const struct geopm_time_s &extrapolation_time) const
     {
         double delta;
         double factor;
@@ -231,7 +232,7 @@ namespace geopm
                     break;
                 default:
 #ifdef GEOPM_DEBUG
-                    throw Exception("ProfileIOSample::align_prof() CircularBuffer has more than two values",
+                    throw Exception("ProfileIOSampleImp::align_prof() CircularBuffer has more than two values",
                                     GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
 #endif
                     break;
@@ -240,7 +241,7 @@ namespace geopm
         return result;
     }
 
-    std::vector<uint64_t> ProfileIOSample::per_cpu_region_id(void) const
+    std::vector<uint64_t> ProfileIOSampleImp::per_cpu_region_id(void) const
     {
         std::vector<uint64_t> result(m_cpu_rank.size(), GEOPM_REGION_HASH_UNMARKED);
         int cpu_idx = 0;
@@ -251,7 +252,7 @@ namespace geopm
         return result;
     }
 
-    std::vector<double> ProfileIOSample::per_cpu_runtime(uint64_t region_id) const
+    std::vector<double> ProfileIOSampleImp::per_cpu_runtime(uint64_t region_id) const
     {
         std::vector<double> result(m_cpu_rank.size(), 0.0);
         const std::vector<double> &rank_runtimes = m_epoch_regulator.region_regulator(region_id).per_rank_last_runtime();
@@ -259,7 +260,7 @@ namespace geopm
         for (auto rank : m_cpu_rank) {
 #ifdef GEOPM_DEBUG
             if (rank >= (int)rank_runtimes.size()) {
-                throw Exception("ProfileIOSample::per_cpu_runtime: node-local rank "
+                throw Exception("ProfileIOSampleImp::per_cpu_runtime: node-local rank "
                                 "for rank " + std::to_string(rank) + " not found in map.",
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
@@ -270,12 +271,12 @@ namespace geopm
         return result;
     }
 
-    double ProfileIOSample::total_app_runtime(void) const
+    double ProfileIOSampleImp::total_app_runtime(void) const
     {
         return geopm_time_since(&m_app_start_time);
     }
 
-    std::vector<int> ProfileIOSample::cpu_rank(void) const
+    std::vector<int> ProfileIOSampleImp::cpu_rank(void) const
     {
         return m_cpu_rank;
     }

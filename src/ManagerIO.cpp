@@ -52,21 +52,20 @@ using json11::Json;
 
 namespace geopm
 {
-
-    ManagerIO::ManagerIO(const std::string &data_path, bool is_policy)
-        : ManagerIO(data_path, is_policy, geopm_env_agent())
+    ManagerIOImp::ManagerIOImp(const std::string &data_path, bool is_policy)
+        : ManagerIOImp(data_path, is_policy, geopm_env_agent())
     {
     }
 
-    ManagerIO::ManagerIO(const std::string &data_path, bool is_policy, const std::string &agent_name)
-        : ManagerIO(data_path,
-                    nullptr,
-                    is_policy ? Agent::policy_names(agent_factory().dictionary(agent_name)) :
-                                Agent::sample_names(agent_factory().dictionary(agent_name)))
+    ManagerIOImp::ManagerIOImp(const std::string &data_path, bool is_policy, const std::string &agent_name)
+        : ManagerIOImp(data_path,
+                       nullptr,
+                       is_policy ? Agent::policy_names(agent_factory().dictionary(agent_name)) :
+                                   Agent::sample_names(agent_factory().dictionary(agent_name)))
     {
     }
 
-    ManagerIO::ManagerIO(const std::string &path, std::unique_ptr<ISharedMemory> shmem,
+    ManagerIOImp::ManagerIOImp(const std::string &path, std::unique_ptr<SharedMemory> shmem,
                          const std::vector<std::string> &signal_names)
         : m_path(path)
         , m_signal_names(signal_names)
@@ -77,7 +76,7 @@ namespace geopm
     {
         if (m_shmem == nullptr && m_is_shm_data) {
             size_t shmem_size = sizeof(struct geopm_manager_shmem_s);
-            m_shmem = geopm::make_unique<SharedMemory>(m_path, shmem_size);
+            m_shmem = geopm::make_unique<SharedMemoryImp>(m_path, shmem_size);
         }
 
         if (m_is_shm_data) {
@@ -87,7 +86,7 @@ namespace geopm
         }
     }
 
-    void ManagerIO::setup_mutex(pthread_mutex_t &lock)
+    void ManagerIOImp::setup_mutex(pthread_mutex_t &lock)
     {
         pthread_mutexattr_t lock_attr;
         int err = pthread_mutexattr_init(&lock_attr);
@@ -108,16 +107,16 @@ namespace geopm
         }
     }
 
-    void ManagerIO::adjust(const std::vector<double> &settings)
+    void ManagerIOImp::adjust(const std::vector<double> &settings)
     {
         if (settings.size() != m_signal_names.size()) {
-            throw Exception("ManagerIO::" + std::string(__func__) + "(): size of settings does not match signal names.",
+            throw Exception("ManagerIOImp::" + std::string(__func__) + "(): size of settings does not match signal names.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         m_samples_up = settings;
     }
 
-    void ManagerIO::adjust(const std::string &signal_name, double setting)
+    void ManagerIOImp::adjust(const std::string &signal_name, double setting)
     {
         // TODO : The next line does a linear search.  This may need optimized in the future.
         auto signal_it = std::find(m_signal_names.begin(), m_signal_names.end(), signal_name);
@@ -127,13 +126,13 @@ namespace geopm
             m_samples_up[signal_idx] = setting;
         }
         else {
-            throw Exception("ManagerIO::" + std::string(__func__)  + "(): requested signal \"" + signal_name
+            throw Exception("ManagerIOImp::" + std::string(__func__)  + "(): requested signal \"" + signal_name
                             + "\" does not exist in m_signal_names.  Was it passed to the constructor?",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
 
-    void ManagerIO::write_batch(void)
+    void ManagerIOImp::write_batch(void)
     {
         if (m_is_shm_data) {
             write_shmem();
@@ -143,18 +142,18 @@ namespace geopm
         }
     }
 
-    std::vector<std::string> ManagerIO::signal_names(void) const
+    std::vector<std::string> ManagerIOImp::signal_names(void) const
     {
         return m_signal_names;
     }
 
-    void ManagerIO::write_file(void)
+    void ManagerIOImp::write_file(void)
     {
         std::ofstream json_file_out(m_path, std::ifstream::out);
         std::map<std::string, double> signal_value_map;
 
         if (!json_file_out.is_open()) {
-            throw Exception("ManagerIOSampler::" + std::string(__func__) + "(): output file \"" + m_path +
+            throw Exception("ManagerIOImp::" + std::string(__func__) + "(): output file \"" + m_path +
                             "\" could not be opened", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -167,11 +166,11 @@ namespace geopm
         json_file_out.close();
     }
 
-    void ManagerIO::write_shmem(void)
+    void ManagerIOImp::write_shmem(void)
     {
         int err = pthread_mutex_lock(&m_data->lock); // Default mutex will block until this completes.
         if (err) {
-            throw Exception("ManagerIOSampler::pthread_mutex_lock()", err, __FILE__, __LINE__);
+            throw Exception("ManagerIOImp::pthread_mutex_lock()", err, __FILE__, __LINE__);
         }
 
         m_data->is_updated = true;
@@ -183,20 +182,20 @@ namespace geopm
 
     /*********************************************************************************************************/
 
-    ManagerIOSampler::ManagerIOSampler(const std::string &data_path, bool is_policy)
-        : ManagerIOSampler(data_path, is_policy, geopm_env_agent())
+    ManagerIOSamplerImp::ManagerIOSamplerImp(const std::string &data_path, bool is_policy)
+        : ManagerIOSamplerImp(data_path, is_policy, geopm_env_agent())
     {
     }
 
-    ManagerIOSampler::ManagerIOSampler(const std::string &data_path, bool is_policy, const std::string &agent_name)
-        : ManagerIOSampler(data_path,
-                           nullptr,
-                           is_policy ? Agent::policy_names(agent_factory().dictionary(agent_name)) :
-                                       Agent::sample_names(agent_factory().dictionary(agent_name)))
+    ManagerIOSamplerImp::ManagerIOSamplerImp(const std::string &data_path, bool is_policy, const std::string &agent_name)
+        : ManagerIOSamplerImp(data_path,
+                              nullptr,
+                              is_policy ? Agent::policy_names(agent_factory().dictionary(agent_name)) :
+                                          Agent::sample_names(agent_factory().dictionary(agent_name)))
     {
     }
 
-    ManagerIOSampler::ManagerIOSampler(const std::string &path, std::unique_ptr<ISharedMemoryUser> shmem, const std::vector<std::string> &signal_names)
+    ManagerIOSamplerImp::ManagerIOSamplerImp(const std::string &path, std::unique_ptr<SharedMemoryUser> shmem, const std::vector<std::string> &signal_names)
         : m_path(path)
         , m_signal_names(signal_names)
         , m_shmem(std::move(shmem))
@@ -206,7 +205,7 @@ namespace geopm
         read_batch();
     }
 
-    std::map<std::string, double> ManagerIOSampler::parse_json(void)
+    std::map<std::string, double> ManagerIOSamplerImp::parse_json(void)
     {
         std::map<std::string, double> signal_value_map;
         std::string json_str;
@@ -217,7 +216,7 @@ namespace geopm
         std::string err;
         Json root = Json::parse(json_str, err);
         if (!err.empty() || !root.is_object()) {
-            throw Exception("ManagerIOSampler::" + std::string(__func__) + "(): detected a malformed json config file: " + err,
+            throw Exception("ManagerIOSamplerImp::" + std::string(__func__) + "(): detected a malformed json config file: " + err,
                             GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
         }
 
@@ -244,22 +243,22 @@ namespace geopm
         return signal_value_map;
     }
 
-    void ManagerIOSampler::read_shmem(void)
+    void ManagerIOSamplerImp::read_shmem(void)
     {
         if (m_shmem == nullptr) {
-            m_shmem = geopm::make_unique<SharedMemoryUser>(m_path, geopm_env_timeout());
+            m_shmem = geopm::make_unique<SharedMemoryUserImp>(m_path, geopm_env_timeout());
         }
 
         m_data = (struct geopm_manager_shmem_s *) m_shmem->pointer(); // Managed by shmem subsystem.
 
         int err = pthread_mutex_lock(&m_data->lock); // Default mutex will block until this completes.
         if (err) {
-            throw Exception("ManagerIOSampler::pthread_mutex_lock()", err, __FILE__, __LINE__);
+            throw Exception("ManagerIOSamplerImp::pthread_mutex_lock()", err, __FILE__, __LINE__);
         }
 
         if (m_data->is_updated == 0) {
             (void) pthread_mutex_unlock(&m_data->lock);
-            throw Exception("ManagerIOSampler::" + std::string(__func__) + "(): reread of shm region requested before update.",
+            throw Exception("ManagerIOSamplerImp::" + std::string(__func__) + "(): reread of shm region requested before update.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -268,17 +267,17 @@ namespace geopm
         (void) pthread_mutex_unlock(&m_data->lock);
 
         if (m_signals_down.size() != m_signal_names.size()) {
-            throw Exception("ManagerIOSampler::" + std::string(__func__) + "(): Data read from shmem does not match size of signal names.",
+            throw Exception("ManagerIOSamplerImp::" + std::string(__func__) + "(): Data read from shmem does not match size of signal names.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
 
-    bool ManagerIOSampler::is_valid_signal(const std::string &signal_name) const
+    bool ManagerIOSamplerImp::is_valid_signal(const std::string &signal_name) const
     {
         return std::find(m_signal_names.begin(), m_signal_names.end(), signal_name) != m_signal_names.end();
     }
 
-    void ManagerIOSampler::read_batch(void)
+    void ManagerIOSamplerImp::read_batch(void)
     {
         if (m_is_shm_data == true) {
             read_shmem();
@@ -292,7 +291,7 @@ namespace geopm
                         m_signals_down.emplace_back(signal_value_map.at(signal));
                     }
                     catch (const std::out_of_range&) {
-                        throw Exception("ManagerIOSampler::" + std::string(__func__) + "(): Signal \"" + signal + "\" not found.",
+                        throw Exception("ManagerIOSamplerImp::" + std::string(__func__) + "(): Signal \"" + signal + "\" not found.",
                                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                     }
                 }
@@ -300,12 +299,12 @@ namespace geopm
         }
     }
 
-    std::vector<double> ManagerIOSampler::sample(void) const
+    std::vector<double> ManagerIOSamplerImp::sample(void) const
     {
         return m_signals_down;
     }
 
-    double ManagerIOSampler::sample(const std::string &signal_name) const
+    double ManagerIOSamplerImp::sample(const std::string &signal_name) const
     {
         if (!is_valid_signal(signal_name)) {
             throw Exception("ManagerIOGroup::" + std::string(__func__) + "(): " + signal_name + " not valid for ManagerIOGroup.",
@@ -317,15 +316,15 @@ namespace geopm
         return m_signals_down.at(it);
     }
 
-    bool ManagerIOSampler::is_update_available(void)
+    bool ManagerIOSamplerImp::is_update_available(void)
     {
         if(m_data == nullptr) {
-            throw Exception("ManagerIOSampler::" + std::string(__func__) + "(): m_data is null", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("ManagerIOSamplerImp::" + std::string(__func__) + "(): m_data is null", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return m_data->is_updated != 0;
     }
 
-    std::vector<std::string> ManagerIOSampler::signal_names(void) const
+    std::vector<std::string> ManagerIOSamplerImp::signal_names(void) const
     {
         return m_signal_names;
     }

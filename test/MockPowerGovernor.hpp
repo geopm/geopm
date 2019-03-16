@@ -35,7 +35,7 @@
 
 #include "PowerGovernor.hpp"
 
-class MockPowerGovernor : public geopm::IPowerGovernor
+class MockPowerGovernor : public geopm::PowerGovernor
 {
     public:
         MOCK_METHOD0(init_platform_io,

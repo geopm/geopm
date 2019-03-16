@@ -41,11 +41,11 @@ namespace geopm
     class PlatformIO;
     class PlatformTopo;
 
-    class IPowerGovernor
+    class PowerGovernor
     {
         public:
-            IPowerGovernor() = default;
-            virtual ~IPowerGovernor() = default;
+            PowerGovernor() = default;
+            virtual ~PowerGovernor() = default;
             /// @brief Registsters signals and controls with PlatformIO.
             virtual void init_platform_io(void) = 0;
             /// @brief To be called inside of the Agent's
@@ -70,11 +70,11 @@ namespace geopm
             virtual double power_package_time_window(void) const = 0;
     };
 
-    class PowerGovernor : public IPowerGovernor
+    class PowerGovernorImp : public PowerGovernor
     {
         public:
-            PowerGovernor(PlatformIO &platform_io, PlatformTopo &platform_topo);
-            virtual ~PowerGovernor();
+            PowerGovernorImp(PlatformIO &platform_io, PlatformTopo &platform_topo);
+            virtual ~PowerGovernorImp();
             void init_platform_io(void) override;
             virtual void sample_platform(void) override;
             bool adjust_platform(double node_power_request, double &node_power_actual) override;

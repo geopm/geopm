@@ -46,9 +46,9 @@
 
 namespace geopm
 {
-    EpochRuntimeRegulator::EpochRuntimeRegulator(int rank_per_node,
-                                                 PlatformIO &platform_io,
-                                                 PlatformTopo &platform_topo)
+    EpochRuntimeRegulatorImp::EpochRuntimeRegulatorImp(int rank_per_node,
+                                                       PlatformIO &platform_io,
+                                                       PlatformTopo &platform_topo)
         : m_rank_per_node(rank_per_node < 0 ? 0 : rank_per_node)
         , m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
@@ -72,22 +72,22 @@ namespace geopm
         , m_epoch_total_energy_dram(NAN)
     {
         if (m_rank_per_node <= 0) {
-            throw Exception("EpochRuntimeRegulator::EpochRuntimeRegulator(): invalid max rank count",
+            throw Exception("EpochRuntimeRegulatorImp::EpochRuntimeRegulatorImp(): invalid max rank count",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         m_rid_regulator_map.emplace(std::piecewise_construct,
                                     std::make_tuple(GEOPM_REGION_ID_EPOCH),
-                                    std::make_tuple(geopm::make_unique<RuntimeRegulator>
+                                    std::make_tuple(geopm::make_unique<RuntimeRegulatorImp>
                                                     (m_rank_per_node)));
         m_rid_regulator_map.emplace(std::piecewise_construct,
                                     std::make_tuple(GEOPM_REGION_HASH_UNMARKED),
-                                    std::make_tuple(geopm::make_unique<RuntimeRegulator>
+                                    std::make_tuple(geopm::make_unique<RuntimeRegulatorImp>
                                                     (m_rank_per_node)));
     }
 
-    EpochRuntimeRegulator::~EpochRuntimeRegulator() = default;
+    EpochRuntimeRegulatorImp::~EpochRuntimeRegulatorImp() = default;
 
-    void EpochRuntimeRegulator::init_unmarked_region()
+    void EpochRuntimeRegulatorImp::init_unmarked_region()
     {
         struct geopm_time_s time;
         /// @todo This time should come from the application.
@@ -98,7 +98,7 @@ namespace geopm
     }
 
     /// @todo temporarily repeated here and in ApplicationIO, until these classes are combined.
-    double EpochRuntimeRegulator::current_energy_pkg(void) const
+    double EpochRuntimeRegulatorImp::current_energy_pkg(void) const
     {
         double energy = 0.0;
         int num_package = m_platform_topo.num_domain(PlatformTopo::M_DOMAIN_PACKAGE);
@@ -108,7 +108,7 @@ namespace geopm
         return energy;
     }
 
-    double EpochRuntimeRegulator::current_energy_dram(void) const
+    double EpochRuntimeRegulatorImp::current_energy_dram(void) const
     {
         double energy = 0.0;
         int num_dram = m_platform_topo.num_domain(PlatformTopo::M_DOMAIN_BOARD_MEMORY);
@@ -118,7 +118,7 @@ namespace geopm
         return energy;
     }
 
-    void EpochRuntimeRegulator::epoch(int rank, struct geopm_time_s epoch_time)
+    void EpochRuntimeRegulatorImp::epoch(int rank, struct geopm_time_s epoch_time)
     {
         if (!m_is_energy_recorded) {
             m_epoch_start_energy_pkg = current_energy_pkg();
@@ -141,10 +141,10 @@ namespace geopm
         record_entry(GEOPM_REGION_ID_EPOCH, rank, epoch_time);
     }
 
-    void EpochRuntimeRegulator::record_entry(uint64_t region_id, int rank, struct geopm_time_s entry_time)
+    void EpochRuntimeRegulatorImp::record_entry(uint64_t region_id, int rank, struct geopm_time_s entry_time)
     {
         if (rank < 0 || rank >= m_rank_per_node) {
-            throw Exception("EpochRuntimeRegulator::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("EpochRuntimeRegulatorImp::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
         region_id = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id);
@@ -153,7 +153,7 @@ namespace geopm
         }
         auto reg_it = m_rid_regulator_map.emplace(std::piecewise_construct,
                                                   std::forward_as_tuple(region_id),
-                                                  std::forward_as_tuple(geopm::make_unique<RuntimeRegulator>
+                                                  std::forward_as_tuple(geopm::make_unique<RuntimeRegulatorImp>
                                                                         (m_rank_per_node)));
         reg_it.first->second->record_entry(rank, entry_time);
 
@@ -172,10 +172,10 @@ namespace geopm
         }
     }
 
-    void EpochRuntimeRegulator::record_exit(uint64_t region_id, int rank, struct geopm_time_s exit_time)
+    void EpochRuntimeRegulatorImp::record_exit(uint64_t region_id, int rank, struct geopm_time_s exit_time)
     {
         if (rank < 0 || rank >= m_rank_per_node) {
-            throw Exception("EpochRuntimeRegulator::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("EpochRuntimeRegulatorImp::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
         bool is_ignore = geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, region_id);
@@ -184,7 +184,7 @@ namespace geopm
         auto pre_epoch_it = m_pre_epoch_region[rank].find(region_id);
         auto reg_it = m_rid_regulator_map.find(region_id);
         if (reg_it == m_rid_regulator_map.end()) {
-            throw Exception("EpochRuntimeRegulator::record_exit(): unknown region detected.", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("EpochRuntimeRegulatorImp::record_exit(): unknown region detected.", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         reg_it->second->record_exit(rank, exit_time);
         if (geopm_region_id_is_epoch(region_id)) {
@@ -235,52 +235,52 @@ namespace geopm
         }
     }
 
-    const IRuntimeRegulator &EpochRuntimeRegulator::region_regulator(uint64_t region_id) const
+    const RuntimeRegulator &EpochRuntimeRegulatorImp::region_regulator(uint64_t region_id) const
     {
         region_id = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id);
         auto reg_it = m_rid_regulator_map.find(region_id);
         if (reg_it == m_rid_regulator_map.end()) {
-            throw Exception("EpochRuntimeRegulator::region_regulator(): unknown region detected.", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("EpochRuntimeRegulatorImp::region_regulator(): unknown region detected.", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         return *(reg_it->second);
     }
 
-    bool EpochRuntimeRegulator::is_regulated(uint64_t region_id) const
+    bool EpochRuntimeRegulatorImp::is_regulated(uint64_t region_id) const
     {
         return m_rid_regulator_map.find(region_id) != m_rid_regulator_map.end();
     }
 
-    std::vector<double> EpochRuntimeRegulator::last_epoch_runtime_mpi() const
+    std::vector<double> EpochRuntimeRegulatorImp::last_epoch_runtime_mpi() const
     {
         return m_last_epoch_runtime_mpi;
     }
 
-    std::vector<double> EpochRuntimeRegulator::last_epoch_runtime_ignore() const
+    std::vector<double> EpochRuntimeRegulatorImp::last_epoch_runtime_ignore() const
     {
         return m_last_epoch_runtime_ignore;
     }
 
-    std::vector<double> EpochRuntimeRegulator::last_epoch_runtime() const
+    std::vector<double> EpochRuntimeRegulatorImp::last_epoch_runtime() const
     {
         return m_last_epoch_runtime;
     }
 
-    std::vector<double> EpochRuntimeRegulator::epoch_count() const
+    std::vector<double> EpochRuntimeRegulatorImp::epoch_count() const
     {
         return m_rid_regulator_map.at(GEOPM_REGION_ID_EPOCH)->per_rank_count();
     }
 
-    std::vector<double> EpochRuntimeRegulator::per_rank_last_runtime(uint64_t region_id) const
+    std::vector<double> EpochRuntimeRegulatorImp::per_rank_last_runtime(uint64_t region_id) const
     {
         auto reg_it = m_rid_regulator_map.find(region_id);
         if (reg_it == m_rid_regulator_map.end()) {
-            throw Exception("EpochRuntimeRegulator::per_rank_last_runtime(): unknown region detected.", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            throw Exception("EpochRuntimeRegulatorImp::per_rank_last_runtime(): unknown region detected.", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 
         return reg_it->second->per_rank_last_runtime();
     }
 
-    double EpochRuntimeRegulator::total_region_runtime(uint64_t region_id) const
+    double EpochRuntimeRegulatorImp::total_region_runtime(uint64_t region_id) const
     {
         double result = 0.0;
         if (region_id == GEOPM_REGION_ID_EPOCH) {
@@ -292,7 +292,7 @@ namespace geopm
         return result;
     }
 
-    double EpochRuntimeRegulator::total_region_runtime_mpi(uint64_t region_id) const
+    double EpochRuntimeRegulatorImp::total_region_runtime_mpi(uint64_t region_id) const
     {
         double result = 0.0;
         if (region_id == GEOPM_REGION_ID_EPOCH) {
@@ -310,42 +310,42 @@ namespace geopm
         return result;
     }
 
-    double EpochRuntimeRegulator::total_epoch_runtime(void) const
+    double EpochRuntimeRegulatorImp::total_epoch_runtime(void) const
     {
         return total_region_runtime(GEOPM_REGION_ID_EPOCH);
     }
 
-    double EpochRuntimeRegulator::total_epoch_runtime_mpi(void) const
+    double EpochRuntimeRegulatorImp::total_epoch_runtime_mpi(void) const
     {
         return Agg::average(m_agg_epoch_runtime_mpi);
     }
 
-    double EpochRuntimeRegulator::total_epoch_runtime_ignore(void) const
+    double EpochRuntimeRegulatorImp::total_epoch_runtime_ignore(void) const
     {
         return Agg::average(m_agg_epoch_runtime_ignore);
     }
 
-    double EpochRuntimeRegulator::total_epoch_energy_pkg(void) const
+    double EpochRuntimeRegulatorImp::total_epoch_energy_pkg(void) const
     {
         return m_epoch_total_energy_pkg;
     }
 
-    double EpochRuntimeRegulator::total_epoch_energy_dram(void) const
+    double EpochRuntimeRegulatorImp::total_epoch_energy_dram(void) const
     {
         return m_epoch_total_energy_dram;
     }
 
-    double EpochRuntimeRegulator::total_app_runtime_mpi(void) const
+    double EpochRuntimeRegulatorImp::total_app_runtime_mpi(void) const
     {
         return Agg::average(m_agg_pre_epoch_runtime_mpi) + Agg::average(m_agg_runtime_mpi);
     }
 
-    double EpochRuntimeRegulator::total_app_runtime_ignore(void) const
+    double EpochRuntimeRegulatorImp::total_app_runtime_ignore(void) const
     {
         return Agg::average(m_agg_pre_epoch_runtime_ignore) + Agg::average(m_agg_epoch_runtime_ignore);
     }
 
-    int EpochRuntimeRegulator::total_epoch_count() const
+    int EpochRuntimeRegulatorImp::total_epoch_count() const
     {
         int result = 0;
         auto rank_count = m_rid_regulator_map.at(GEOPM_REGION_ID_EPOCH)->per_rank_count();
@@ -355,7 +355,7 @@ namespace geopm
         return result;
     }
 
-    int EpochRuntimeRegulator::total_count(uint64_t region_id) const
+    int EpochRuntimeRegulatorImp::total_count(uint64_t region_id) const
     {
         int result = 0;
         std::vector<double> rank_count;
@@ -371,12 +371,12 @@ namespace geopm
         return result;
     }
 
-    std::list<geopm_region_info_s> EpochRuntimeRegulator::region_info(void) const
+    std::list<geopm_region_info_s> EpochRuntimeRegulatorImp::region_info(void) const
     {
         return m_region_info;
     }
 
-    void EpochRuntimeRegulator::clear_region_info(void)
+    void EpochRuntimeRegulatorImp::clear_region_info(void)
     {
         m_region_info.clear();
     }

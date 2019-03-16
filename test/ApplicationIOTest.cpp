@@ -47,6 +47,7 @@
 #include "MockPlatformTopo.hpp"
 
 using geopm::ApplicationIO;
+using geopm::ApplicationIOImp;
 using geopm::PlatformTopo;
 using testing::_;
 using testing::Return;
@@ -96,8 +97,8 @@ void ApplicationIOTest::SetUp()
         .WillRepeatedly(Return(221.0/m_num_memory_domain));
     std::vector<int> ranks {1, 2, 3, 4};
     EXPECT_CALL(*m_sampler, cpu_rank()).WillOnce(Return(ranks));
-    m_app_io = geopm::make_unique<ApplicationIO>(m_shm_key, std::move(tmp_s), tmp_pio,
-                                                 std::move(tmp_reg), m_platform_io, m_platform_topo);
+    m_app_io = geopm::make_unique<ApplicationIOImp>(m_shm_key, std::move(tmp_s), tmp_pio,
+                                                    std::move(tmp_reg), m_platform_io, m_platform_topo);
     m_app_io->connect();
 }
 

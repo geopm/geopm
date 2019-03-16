@@ -46,7 +46,7 @@
 namespace geopm
 {
 
-    ControlMessage::ControlMessage(struct geopm_ctl_message_s &ctl_msg, bool is_ctl, bool is_writer)
+    ControlMessageImp::ControlMessageImp(struct geopm_ctl_message_s &ctl_msg, bool is_ctl, bool is_writer)
         : M_WAIT_SEC(geopm_env_timeout())
         , m_ctl_msg(ctl_msg)
         , m_is_ctl(is_ctl)
@@ -63,14 +63,14 @@ namespace geopm
             do {
                 geopm_signal_handler_check();
                 if (this_status() == M_STATUS_ABORT) {
-                    throw Exception("ControlMessage::wait(): Abort sent through control message",
+                    throw Exception("ControlMessageImp::wait(): Abort sent through control message",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
                 is_init = (m_ctl_msg.app_status == 0 ||
                            m_ctl_msg.app_status == M_STATUS_MAP_BEGIN);
             } while (!is_init && geopm_time_since(&start) < M_WAIT_SEC);
             if (!is_init) {
-                throw Exception("ControlMessage::wait(): " + hostname() +
+                throw Exception("ControlMessageImp::wait(): " + hostname() +
                                 " : is_ctl=" + std::to_string(m_is_ctl) +
                                 " : is_writer=" + std::to_string(m_is_writer) +
                                 " : Timed out waiting for startup",
@@ -79,7 +79,7 @@ namespace geopm
         }
     }
 
-    void ControlMessage::step(void)
+    void ControlMessageImp::step(void)
     {
         if (m_is_ctl && m_ctl_msg.ctl_status != M_STATUS_SHUTDOWN) {
             m_ctl_msg.ctl_status++;
@@ -89,7 +89,7 @@ namespace geopm
         }
     }
 
-    void ControlMessage::wait(void)
+    void ControlMessageImp::wait(void)
     {
         if (m_last_status != M_STATUS_SHUTDOWN) {
             ++m_last_status;
@@ -99,12 +99,12 @@ namespace geopm
         while (this_status() != m_last_status && geopm_time_since(&start) < M_WAIT_SEC) {
             geopm_signal_handler_check();
             if (this_status() == M_STATUS_ABORT) {
-                throw Exception("ControlMessage::wait(): Abort sent through control message",
+                throw Exception("ControlMessageImp::wait(): Abort sent through control message",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
         if (this_status() != m_last_status) {
-            throw Exception("ControlMessage::wait(): " + hostname() +
+            throw Exception("ControlMessageImp::wait(): " + hostname() +
                             " : is_ctl=" + std::to_string(m_is_ctl) +
                             " : is_writer=" + std::to_string(m_is_writer) +
                             " : Timed out waiting for status " + std::to_string(m_last_status),
@@ -112,7 +112,7 @@ namespace geopm
         }
     }
 
-    void ControlMessage::abort(void)
+    void ControlMessageImp::abort(void)
     {
         if (m_is_ctl) {
             m_ctl_msg.ctl_status = M_STATUS_ABORT;
@@ -122,42 +122,42 @@ namespace geopm
         }
     }
 
-    void ControlMessage::cpu_rank(int cpu_idx, int rank)
+    void ControlMessageImp::cpu_rank(int cpu_idx, int rank)
     {
         m_ctl_msg.cpu_rank[cpu_idx] = rank;
     }
 
-    int ControlMessage::cpu_rank(int cpu_idx) const
+    int ControlMessageImp::cpu_rank(int cpu_idx) const
     {
         return m_ctl_msg.cpu_rank[cpu_idx];
     }
 
-    bool ControlMessage::is_sample_begin(void) const
+    bool ControlMessageImp::is_sample_begin(void) const
     {
         return (m_ctl_msg.app_status == M_STATUS_SAMPLE_BEGIN);
     }
 
-    bool ControlMessage::is_sample_end(void) const
+    bool ControlMessageImp::is_sample_end(void) const
     {
         return (m_ctl_msg.app_status == M_STATUS_SAMPLE_END);
     }
 
-    bool ControlMessage::is_name_begin(void) const
+    bool ControlMessageImp::is_name_begin(void) const
     {
         return (m_ctl_msg.app_status == M_STATUS_NAME_BEGIN);
     }
 
-    bool ControlMessage::is_shutdown(void) const
+    bool ControlMessageImp::is_shutdown(void) const
     {
         return (m_ctl_msg.app_status == M_STATUS_SHUTDOWN);
     }
 
-    int ControlMessage::this_status() const
+    int ControlMessageImp::this_status() const
     {
         return (m_is_ctl ? m_ctl_msg.app_status : m_ctl_msg.ctl_status);
     }
 
-    void ControlMessage::loop_begin()
+    void ControlMessageImp::loop_begin()
     {
         if (m_is_ctl) {
             while (m_ctl_msg.app_status != M_STATUS_NAME_LOOP_BEGIN) {

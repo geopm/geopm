@@ -55,9 +55,9 @@
 #include "ManagerIO.hpp"
 #include "SharedMemory.hpp"
 
-using geopm::ManagerIO;
-using geopm::ManagerIOSampler;
-using geopm::SharedMemory;
+using geopm::ManagerIOImp;
+using geopm::ManagerIOSamplerImp;
+using geopm::SharedMemoryImp;
 using geopm::geopm_manager_shmem_s;
 using geopm::Exception;
 
@@ -97,14 +97,14 @@ ManagerIOTest::ManagerIOTest()
 TEST_F(ManagerIOTest, write_json_file)
 {
     std::vector<std::string> signal_names = {"POWER_CONSUMED", "RUNTIME", "GHZ"};
-    ManagerIO jio(m_json_file_path, nullptr, signal_names);
+    ManagerIOImp jio(m_json_file_path, nullptr, signal_names);
 
     jio.adjust("GHZ", 2.3e9);
     jio.adjust("RUNTIME", 12.3456);
     jio.adjust("POWER_CONSUMED", 777);
     jio.write_batch();
 
-    ManagerIOSampler jios(m_json_file_path, nullptr, signal_names);
+    ManagerIOSamplerImp jios(m_json_file_path, nullptr, signal_names);
 
     EXPECT_EQ(777, jios.sample("POWER_CONSUMED"));
     EXPECT_EQ(12.3456, jios.sample("RUNTIME"));
@@ -120,7 +120,7 @@ TEST_F(ManagerIOTest, write_shm)
     struct geopm_manager_shmem_s *data = (struct geopm_manager_shmem_s *) shmem->pointer();
 
     std::vector<std::string> signal_names = {"POWER_CONSUMED", "RUNTIME", "GHZ"};
-    ManagerIO jio(m_shm_path, std::move(shmem), signal_names);
+    ManagerIOImp jio(m_shm_path, std::move(shmem), signal_names);
 
     jio.adjust("POWER_CONSUMED", 777);
     jio.adjust("RUNTIME", 12.3456);
@@ -142,7 +142,7 @@ TEST_F(ManagerIOTest, negative_write_json_file)
     chmod(path.c_str(), 0);
 
     const std::vector<std::string> signal_names = {"FAKE_SIGNAL"};
-    ManagerIO jio (path, nullptr, signal_names);
+    ManagerIOImp jio (path, nullptr, signal_names);
 
     GEOPM_EXPECT_THROW_MESSAGE(jio.write_batch(),
                                GEOPM_ERROR_INVALID, "output file \"" + path + "\" could not be opened");
@@ -153,7 +153,7 @@ TEST_F(ManagerIOTestIntegration, write_shm)
 {
     std::vector<std::string> signal_names = {"POWER_CONSUMED", "RUNTIME", "GHZ1", "GHZ2", "GHZ3", "GHZ4", "GHZ5", "GHZ6",
                                              "GHZ7", "GHZ8"};
-    ManagerIO mio(m_shm_path, nullptr, signal_names);
+    ManagerIOImp mio(m_shm_path, nullptr, signal_names);
 
     mio.adjust("POWER_CONSUMED", 777);
     mio.adjust("RUNTIME", 12.3456);
@@ -167,7 +167,7 @@ TEST_F(ManagerIOTestIntegration, write_shm)
     mio.adjust("GHZ2", 2.2e9);
     mio.write_batch();
 
-    ManagerIOSampler mios(m_shm_path, nullptr, signal_names);
+    ManagerIOSamplerImp mios(m_shm_path, nullptr, signal_names);
 
     EXPECT_EQ(777, mios.sample("POWER_CONSUMED"));
     EXPECT_EQ(12.3456, mios.sample("RUNTIME"));
@@ -256,7 +256,7 @@ TEST_F(ManagerIOSamplerTest, parse_json_file)
 {
     std::vector<std::string> signal_names = {"POWER_MAX", "FREQUENCY_MAX", "FREQUENCY_MIN", "PI",
                                              "DEFAULT1", "DEFAULT2", "DEFAULT3"};
-    ManagerIOSampler gp(m_json_file_path, nullptr, signal_names);
+    ManagerIOSamplerImp gp(m_json_file_path, nullptr, signal_names);
 
     EXPECT_EQ(400, gp.sample("POWER_MAX"));
     EXPECT_EQ(2.3e9, gp.sample("FREQUENCY_MAX"));
@@ -270,12 +270,12 @@ TEST_F(ManagerIOSamplerTest, parse_json_file)
 TEST_F(ManagerIOSamplerTest, negative_parse_json_file)
 {
     const std::vector<std::string> signal_names = {"FAKE_SIGNAL"};
-    GEOPM_EXPECT_THROW_MESSAGE(new ManagerIOSampler(m_json_file_path_bad, nullptr, signal_names),
+    GEOPM_EXPECT_THROW_MESSAGE(new ManagerIOSamplerImp(m_json_file_path_bad, nullptr, signal_names),
                                GEOPM_ERROR_FILE_PARSE, "unsupported type or malformed json config file");
 
     // Don't parse if Agent doesn't require any policies
     const std::vector<std::string> signal_names_empty;
-    ManagerIOSampler("", nullptr, signal_names_empty);
+    ManagerIOSamplerImp("", nullptr, signal_names_empty);
 }
 
 TEST_F(ManagerIOSamplerTest, parse_shm)
@@ -286,13 +286,13 @@ TEST_F(ManagerIOSamplerTest, parse_shm)
 
     // Build the data
     data->is_updated = true;
-    ManagerIO::setup_mutex(data->lock);
+    ManagerIOImp::setup_mutex(data->lock);
     double tmp[] = { 1.1, 2.2, 3.3, 4.4, 5.5 };
     data->count = sizeof(tmp) / sizeof(tmp[0]);
     memcpy(data->values, tmp, sizeof(tmp));
 
     std::vector<std::string> signal_names = {"ONE", "TWO", "THREE", "FOUR", "FIVE"};
-    ManagerIOSampler gp("/FAKE_PATH", std::move(shmem), signal_names);
+    ManagerIOSamplerImp gp("/FAKE_PATH", std::move(shmem), signal_names);
 
     EXPECT_FALSE(gp.is_update_available());
     EXPECT_EQ(1.1, gp.sample("ONE"));
@@ -310,14 +310,14 @@ TEST_F(ManagerIOSamplerTest, negative_parse_shm)
 
     // Build the data
     data->is_updated = false; // This will force the parsing logic to throw since the structure is "not updated".
-    ManagerIO::setup_mutex(data->lock);
+    ManagerIOImp::setup_mutex(data->lock);
 
     double tmp[] = { 1.1, 2.2, 3.3, 4.4, 5.5 };
     data->count = sizeof(tmp) / sizeof(tmp[0]);
     memcpy(data->values, tmp, sizeof(tmp));
 
     std::vector<std::string> signal_names = {"ONE", "TWO", "THREE", "FOUR", "FIVE"};
-    GEOPM_EXPECT_THROW_MESSAGE(new ManagerIOSampler("/FAKE_PATH", std::move(shmem), signal_names),
+    GEOPM_EXPECT_THROW_MESSAGE(new ManagerIOSamplerImp("/FAKE_PATH", std::move(shmem), signal_names),
                                GEOPM_ERROR_INVALID, "reread of shm region requested before update");
 }
 
@@ -331,10 +331,10 @@ TEST_F(ManagerIOSamplerTest, negative_shm_setup_mutex)
 
     // Build the data
     data->is_updated = true;
-    ManagerIO::setup_mutex(data->lock);
+    ManagerIOImp::setup_mutex(data->lock);
     (void) pthread_mutex_lock(&data->lock); // Force pthread_mutex_lock to puke by trying to lock a locked mutex.
 
-    GEOPM_EXPECT_THROW_MESSAGE(new ManagerIOSampler("/FAKE_PATH", std::move(shmem), {""}),
+    GEOPM_EXPECT_THROW_MESSAGE(new ManagerIOSamplerImp("/FAKE_PATH", std::move(shmem), {""}),
                                EDEADLK, "Resource deadlock avoided");
 }
 
@@ -344,10 +344,10 @@ TEST_F(ManagerIOSamplerTest, negative_bad_files)
     std::ofstream empty_file(path, std::ofstream::out);
     empty_file.close();
     const std::vector<std::string> signal_names = {"FAKE_SIGNAL"};
-    GEOPM_EXPECT_THROW_MESSAGE(new ManagerIOSampler(path, nullptr, signal_names),
+    GEOPM_EXPECT_THROW_MESSAGE(new ManagerIOSamplerImp(path, nullptr, signal_names),
                                GEOPM_ERROR_INVALID, "input file invalid");
     chmod(path.c_str(), 0);
-    GEOPM_EXPECT_THROW_MESSAGE(new ManagerIOSampler(path, nullptr, signal_names),
+    GEOPM_EXPECT_THROW_MESSAGE(new ManagerIOSamplerImp(path, nullptr, signal_names),
                                GEOPM_ERROR_INVALID, "file \"" + path + "\" could not be opened");
     std::remove(path.c_str());
 }
@@ -358,18 +358,18 @@ TEST_F(ManagerIOSamplerTestIntegration, parse_shm)
     std::remove(full_path.c_str());
 
     size_t shmem_size = sizeof(struct geopm_manager_shmem_s);
-    SharedMemory sm(m_shm_path, shmem_size);
+    SharedMemoryImp sm(m_shm_path, shmem_size);
     struct geopm_manager_shmem_s *data = (struct geopm_manager_shmem_s *) sm.pointer();
 
     // Build the data
     data->is_updated = true;
-    ManagerIO::setup_mutex(data->lock);
+    ManagerIOImp::setup_mutex(data->lock);
     double tmp[] = { 1.1, 2.2, 3.3, 4.4, 5.5 };
     data->count = sizeof(tmp) / sizeof(tmp[0]);
     memcpy(data->values, tmp, sizeof(tmp));
 
     std::vector<std::string> signal_names = {"ONE", "TWO", "THREE", "FOUR", "FIVE"};
-    ManagerIOSampler gp(m_shm_path, nullptr, signal_names);
+    ManagerIOSamplerImp gp(m_shm_path, nullptr, signal_names);
 
     EXPECT_FALSE(gp.is_update_available());
     EXPECT_EQ(1.1, gp.sample("ONE"));

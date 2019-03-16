@@ -35,23 +35,23 @@
 
 #include "ProfileThread.hpp"
 
-class MockProfileThreadTable : public geopm::IProfileThreadTable
+class MockProfileThreadTable : public geopm::ProfileThreadTable
 {
     public:
         MOCK_METHOD1(enable,
-                void (bool is_enabled));
+                     void (bool is_enabled));
         MOCK_METHOD3(init,
-                void (int num_thread, int thread_idx, size_t num_iter));
+                     void (int num_thread, int thread_idx, size_t num_iter));
         MOCK_METHOD4(init,
-                void (int num_thread, int thread_idx, size_t num_iter, size_t chunk_size));
+                     void (int num_thread, int thread_idx, size_t num_iter, size_t chunk_size));
         MOCK_METHOD1(init,
-                void (uint32_t num_work_unit));
+                     void (uint32_t num_work_unit));
         MOCK_METHOD0(post,
-                void (void));
+                     void (void));
         MOCK_METHOD1(dump,
-                void (std::vector<double> &progress));
+                     void (std::vector<double> &progress));
         MOCK_METHOD0(num_cpu,
-                int (void));
+                     int (void));
 };
 
 #endif

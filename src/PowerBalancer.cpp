@@ -41,13 +41,14 @@
 
 namespace geopm
 {
-    PowerBalancer::PowerBalancer(double ctl_latency)
-        : PowerBalancer(ctl_latency, 0.125, 5, 0.25)
+    PowerBalancerImp::PowerBalancerImp(double ctl_latency)
+        : PowerBalancerImp(ctl_latency, 0.125, 5, 0.25)
     {
 
     }
 
-    PowerBalancer::PowerBalancer(double ctl_latency, double trial_delta, int num_sample, double measure_duration)
+    PowerBalancerImp::PowerBalancerImp(double ctl_latency, double trial_delta,
+                                       int num_sample, double measure_duration)
         : M_CONTROL_LATENCY(ctl_latency)
         , M_MIN_TRIAL_DELTA(trial_delta)
         , M_MIN_NUM_SAMPLE(num_sample)
@@ -61,12 +62,12 @@ namespace geopm
         , m_trial_delta(8.0)
         , m_runtime_sample(NAN)
         , m_is_target_met(false)
-        , m_runtime_buffer(make_unique<CircularBuffer<double> >(0))
+        , m_runtime_buffer(make_unique<CircularBufferImp<double> >(0))
     {
 
     }
 
-    void PowerBalancer::power_cap(double cap)
+    void PowerBalancerImp::power_cap(double cap)
     {
         m_power_limit = cap;
         m_power_cap = cap;
@@ -74,12 +75,12 @@ namespace geopm
         m_target_runtime = NAN;
     }
 
-    double PowerBalancer::power_cap(void) const
+    double PowerBalancerImp::power_cap(void) const
     {
         return m_power_cap;
     }
 
-    void PowerBalancer::power_limit_adjusted(double actual_limit)
+    void PowerBalancerImp::power_limit_adjusted(double actual_limit)
     {
         // m_power_limit starts as the requested limit.  actual limit is what the governor returned.
         if (actual_limit > m_power_limit) {
@@ -94,17 +95,17 @@ namespace geopm
         }
     }
 
-    double PowerBalancer::power_limit(void) const
+    double PowerBalancerImp::power_limit(void) const
     {
         return m_power_limit;
     }
 
-    bool PowerBalancer::is_limit_stable(void)
+    bool PowerBalancerImp::is_limit_stable(void)
     {
         return (geopm_time_since(&m_power_limit_change_time) > M_CONTROL_LATENCY);
     }
 
-    bool PowerBalancer::is_runtime_stable(double measured_runtime)
+    bool PowerBalancerImp::is_runtime_stable(double measured_runtime)
     {
         bool result = false;
         bool is_stable = is_limit_stable() && !std::isnan(measured_runtime);
@@ -134,12 +135,12 @@ namespace geopm
         return result;
     }
 
-    double PowerBalancer::runtime_sample(void) const
+    double PowerBalancerImp::runtime_sample(void) const
     {
         return m_runtime_sample;
     }
 
-    void PowerBalancer::calculate_runtime_sample(void)
+    void PowerBalancerImp::calculate_runtime_sample(void)
     {
         if (m_runtime_buffer->size() != 0) {
             m_runtime_sample = Agg::median(m_runtime_buffer->make_vector());
@@ -149,7 +150,7 @@ namespace geopm
         }
     }
 
-    void PowerBalancer::target_runtime(double largest_runtime)
+    void PowerBalancerImp::target_runtime(double largest_runtime)
     {
         m_target_runtime = largest_runtime * (1 - M_RUNTIME_FRACTION);
         if (m_runtime_sample > m_target_runtime) {
@@ -160,11 +161,11 @@ namespace geopm
         }
     }
 
-    bool PowerBalancer::is_target_met(double measured_runtime)
+    bool PowerBalancerImp::is_target_met(double measured_runtime)
     {
 #ifdef GEOPM_DEBUG
         if (std::isnan(measured_runtime)) {
-            throw Exception("PowerBalancer::" + std::string(__func__) +
+            throw Exception("PowerBalancerImp::" + std::string(__func__) +
                             "Encountered NAN for sampled epoch runtime.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
@@ -188,7 +189,7 @@ namespace geopm
         return m_is_target_met;
     }
 
-    double PowerBalancer::power_slack(void)
+    double PowerBalancerImp::power_slack(void)
     {
         double result = m_power_cap - m_power_limit;
         if (result == 0.0) {

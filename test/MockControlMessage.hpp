@@ -35,7 +35,7 @@
 
 #include "ControlMessage.hpp"
 
-class MockControlMessage : public geopm::IControlMessage
+class MockControlMessage : public geopm::ControlMessage
 {
     public:
         MOCK_METHOD0(step,

@@ -35,7 +35,7 @@
 
 #include "ApplicationIO.hpp"
 
-class MockApplicationIO : public geopm::IApplicationIO
+class MockApplicationIO : public geopm::ApplicationIO
 {
     public:
         MOCK_METHOD0(connect,

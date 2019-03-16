@@ -64,15 +64,18 @@
 
 namespace geopm
 {
-    Reporter::Reporter(const std::string &start_time, const std::string &report_name, PlatformIO &platform_io, PlatformTopo &platform_topo, int rank)
-        : Reporter(start_time, report_name, platform_io, platform_topo, rank,
-                   std::unique_ptr<IRegionAggregator>(new RegionAggregator), geopm_env_report_signals())
+    ReporterImp::ReporterImp(const std::string &start_time, const std::string &report_name,
+                       PlatformIO &platform_io, PlatformTopo &platform_topo, int rank)
+        : ReporterImp(start_time, report_name, platform_io, platform_topo, rank,
+                      std::unique_ptr<RegionAggregator>(new RegionAggregatorImp),
+                      geopm_env_report_signals())
     {
 
     }
 
-    Reporter::Reporter(const std::string &start_time, const std::string &report_name, PlatformIO &platform_io, PlatformTopo &platform_topo, int rank,
-                       std::unique_ptr<IRegionAggregator> agg, const std::string &env_signals)
+    ReporterImp::ReporterImp(const std::string &start_time, const std::string &report_name,
+                             PlatformIO &platform_io, PlatformTopo &platform_topo, int rank,
+                             std::unique_ptr<RegionAggregator> agg, const std::string &env_signals)
         : m_start_time(start_time)
         , m_report_name(report_name)
         , m_platform_io(platform_io)
@@ -84,7 +87,7 @@ namespace geopm
 
     }
 
-    void Reporter::init(void)
+    void ReporterImp::init(void)
     {
         m_region_bulk_runtime_idx = m_region_agg->push_signal_total("TIME", PlatformTopo::M_DOMAIN_BOARD, 0);
         m_energy_pkg_idx = m_region_agg->push_signal_total("ENERGY_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0);
@@ -107,7 +110,7 @@ namespace geopm
                     m_region_agg->push_signal_total(signal_name, PlatformTopo::M_DOMAIN_BOARD, 0));
             }
             else {
-                throw Exception("Reporter::init(): Environment report extension contains signals with multiple \"@\" characters.",
+                throw Exception("ReporterImp::init(): Environment report extension contains signals with multiple \"@\" characters.",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
@@ -125,18 +128,18 @@ namespace geopm
         m_region_agg->init();
     }
 
-    void Reporter::update()
+    void ReporterImp::update()
     {
         m_region_agg->read_batch();
     }
 
-    void Reporter::generate(const std::string &agent_name,
-                            const std::vector<std::pair<std::string, std::string> > &agent_report_header,
-                            const std::vector<std::pair<std::string, std::string> > &agent_node_report,
-                            const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report,
-                            const IApplicationIO &application_io,
-                            std::shared_ptr<Comm> comm,
-                            const ITreeComm &tree_comm)
+    void ReporterImp::generate(const std::string &agent_name,
+                               const std::vector<std::pair<std::string, std::string> > &agent_report_header,
+                               const std::vector<std::pair<std::string, std::string> > &agent_node_report,
+                               const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report,
+                               const ApplicationIO &application_io,
+                               std::shared_ptr<Comm> comm,
+                               const TreeComm &tree_comm)
     {
         std::string report_name(application_io.report_name());
         if (report_name.size() == 0) {
@@ -213,7 +216,7 @@ namespace geopm
             if (GEOPM_REGION_HASH_EPOCH != region.hash) {
 #ifdef GEOPM_DEBUG
                 if (GEOPM_REGION_HASH_INVALID == region.hash) {
-                    throw Exception("Reporter::generate(): Invalid hash value detected.",
+                    throw Exception("ReporterImp::generate(): Invalid hash value detected.",
                                     GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                 }
 #endif
@@ -310,7 +313,7 @@ namespace geopm
         }
     }
 
-    std::string Reporter::get_max_memory()
+    std::string ReporterImp::get_max_memory()
     {
         char status_buffer[8192];
         status_buffer[8191] = '\0';
@@ -318,21 +321,21 @@ namespace geopm
 
         int fd = open(proc_path, O_RDONLY);
         if (fd == -1) {
-            throw Exception("Reporter::generate(): Unable to open " + std::string(proc_path),
+            throw Exception("ReporterImp::generate(): Unable to open " + std::string(proc_path),
                             errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
         ssize_t num_read = read(fd, status_buffer, 8191);
         if (num_read == -1) {
             (void)close(fd);
-            throw Exception("Reporter::generate(): Unable to read " + std::string(proc_path),
+            throw Exception("ReporterImp::generate(): Unable to read " + std::string(proc_path),
                             errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         status_buffer[num_read] = '\0';
 
         int err = close(fd);
         if (err) {
-            throw Exception("Reporter::generate(): Unable to close " + std::string(proc_path),
+            throw Exception("ReporterImp::generate(): Unable to close " + std::string(proc_path),
                             errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 

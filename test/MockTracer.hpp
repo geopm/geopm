@@ -37,7 +37,7 @@
 #include "PlatformIO.hpp"
 #include "geopm.h"
 
-class MockTracer : public geopm::ITracer
+class MockTracer : public geopm::Tracer
 {
     public:
         MOCK_METHOD1(columns,

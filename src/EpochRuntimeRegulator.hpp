@@ -46,13 +46,13 @@ struct geopm_region_info_s;
 
 namespace geopm
 {
-    class IRuntimeRegulator;
+    class RuntimeRegulator;
 
-    class IEpochRuntimeRegulator
+    class EpochRuntimeRegulator
     {
         public:
-            IEpochRuntimeRegulator() = default;
-            virtual ~IEpochRuntimeRegulator() = default;
+            EpochRuntimeRegulator() = default;
+            virtual ~EpochRuntimeRegulator() = default;
             /// @brief Handle the initial entry into the unmarked
             ///        region when the application starts.
             virtual void init_unmarked_region() = 0;
@@ -76,7 +76,7 @@ namespace geopm
             ///        a given region.  This method is intended for
             ///        internal use by the ApplicationIO.
             /// @param [in] region_id The ID of the region.
-            virtual const IRuntimeRegulator &region_regulator(uint64_t region_id) const = 0;
+            virtual const RuntimeRegulator &region_regulator(uint64_t region_id) const = 0;
             /// @brief Returns whether or not the region is being
             ///        tracked by the EpochRuntimeRegulator.
             /// @param [in] region_id The ID of the region.
@@ -145,18 +145,18 @@ namespace geopm
     class PlatformIO;
     class PlatformTopo;
 
-    class EpochRuntimeRegulator : public IEpochRuntimeRegulator
+    class EpochRuntimeRegulatorImp : public EpochRuntimeRegulator
     {
         public:
-            EpochRuntimeRegulator() = delete;
-            EpochRuntimeRegulator(int rank_per_node, PlatformIO &platform_io,
-                                  PlatformTopo &platform_topo);
-            virtual ~EpochRuntimeRegulator();
+            EpochRuntimeRegulatorImp() = delete;
+            EpochRuntimeRegulatorImp(int rank_per_node, PlatformIO &platform_io,
+                                     PlatformTopo &platform_topo);
+            virtual ~EpochRuntimeRegulatorImp();
             virtual void init_unmarked_region() override;
             void epoch(int rank, struct geopm_time_s epoch_time) override;
             void record_entry(uint64_t region_id, int rank, struct geopm_time_s entry_time) override;
             void record_exit(uint64_t region_id, int rank, struct geopm_time_s exit_time) override;
-            const IRuntimeRegulator &region_regulator(uint64_t region_id) const override;
+            const RuntimeRegulator &region_regulator(uint64_t region_id) const override;
             bool is_regulated(uint64_t region_id) const override;
             std::vector<double> last_epoch_runtime() const override;
             std::vector<double> last_epoch_runtime_mpi() const override;
@@ -182,7 +182,7 @@ namespace geopm
             int m_rank_per_node;
             PlatformIO &m_platform_io;
             PlatformTopo &m_platform_topo;
-            std::map<uint64_t, std::unique_ptr<IRuntimeRegulator> > m_rid_regulator_map;
+            std::map<uint64_t, std::unique_ptr<RuntimeRegulator> > m_rid_regulator_map;
             bool m_is_energy_recorded;
             std::vector<bool> m_seen_first_epoch;
             std::vector<double> m_curr_runtime_ignore;

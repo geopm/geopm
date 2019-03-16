@@ -45,7 +45,7 @@
 
 namespace geopm
 {
-    PowerGovernor::PowerGovernor(PlatformIO &platform_io, PlatformTopo &platform_topo)
+    PowerGovernorImp::PowerGovernorImp(PlatformIO &platform_io, PlatformTopo &platform_topo)
         : m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
         , M_POWER_PACKAGE_TIME_WINDOW(0.015)
@@ -60,12 +60,12 @@ namespace geopm
 
     }
 
-    PowerGovernor::~PowerGovernor()
+    PowerGovernorImp::~PowerGovernorImp()
     {
 
     }
 
-    void PowerGovernor::init_platform_io(void)
+    void PowerGovernorImp::init_platform_io(void)
     {
         for(int domain_idx = 0; domain_idx < m_num_pkg; ++domain_idx) {
             int control_idx = m_platform_io.push_control("POWER_PACKAGE_LIMIT", m_pkg_pwr_domain_type, domain_idx);
@@ -74,16 +74,16 @@ namespace geopm
         }
     }
 
-    void PowerGovernor::sample_platform(void)
+    void PowerGovernorImp::sample_platform(void)
     {
 
     }
 
-    bool PowerGovernor::adjust_platform(double node_power_request, double &node_power_actual)
+    bool PowerGovernorImp::adjust_platform(double node_power_request, double &node_power_actual)
     {
 #ifdef GEOPM_DEBUG
         if (!m_control_idx.size()) {
-            throw Exception("PowerGovernor::" + std::string(__func__) + "(): init_platform_io has not been called.",
+            throw Exception("PowerGovernorImp::" + std::string(__func__) + "(): init_platform_io has not been called.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
@@ -108,21 +108,21 @@ namespace geopm
         return result;
     }
 
-    void PowerGovernor::set_power_bounds(double min_pkg_power, double max_pkg_power)
+    void PowerGovernorImp::set_power_bounds(double min_pkg_power, double max_pkg_power)
     {
         if (min_pkg_power < M_MIN_PKG_POWER_SETTING) {
-            throw Exception("PowerGovernor::" + std::string(__func__) + " invalid min_pkg_power bound.",
+            throw Exception("PowerGovernorImp::" + std::string(__func__) + " invalid min_pkg_power bound.",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         if (max_pkg_power > M_MAX_PKG_POWER_SETTING) {
-            throw Exception("PowerGovernor::" + std::string(__func__) + " invalid max_pkg_power bound.",
+            throw Exception("PowerGovernorImp::" + std::string(__func__) + " invalid max_pkg_power bound.",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         m_min_pkg_power_policy = min_pkg_power;
         m_max_pkg_power_policy = max_pkg_power;
     }
 
-    double PowerGovernor::power_package_time_window(void) const
+    double PowerGovernorImp::power_package_time_window(void) const
     {
         return M_POWER_PACKAGE_TIME_WINDOW;
     }

@@ -38,8 +38,7 @@
 #include "EpochRuntimeRegulator.hpp"
 #include "RuntimeRegulator.hpp"
 
-
-class MockEpochRuntimeRegulator : public geopm::IEpochRuntimeRegulator {
+class MockEpochRuntimeRegulator : public geopm::EpochRuntimeRegulator {
     public:
         MOCK_METHOD0(init_unmarked_region,
                      void());
@@ -50,7 +49,7 @@ class MockEpochRuntimeRegulator : public geopm::IEpochRuntimeRegulator {
         MOCK_METHOD3(record_exit,
                      void(uint64_t region_id, int rank, struct geopm_time_s exit_time));
         MOCK_CONST_METHOD1(region_regulator,
-                           const geopm::IRuntimeRegulator&(uint64_t region_id));
+                           const geopm::RuntimeRegulator&(uint64_t region_id));
         MOCK_CONST_METHOD1(is_regulated,
                            bool(uint64_t region_id));
         MOCK_CONST_METHOD0(last_epoch_runtime_mpi,

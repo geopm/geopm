@@ -54,24 +54,24 @@
 
 namespace geopm
 {
-    Tracer::Tracer(const std::string &start_time)
-        : Tracer(start_time, geopm_env_trace(), hostname(), geopm_env_agent(),
-                 geopm_env_profile(), geopm_env_do_trace(), platform_io(), platform_topo(),
-                 geopm_env_trace_signals(), 16)
+    TracerImp::TracerImp(const std::string &start_time)
+        : TracerImp(start_time, geopm_env_trace(), hostname(), geopm_env_agent(),
+                    geopm_env_profile(), geopm_env_do_trace(), platform_io(), platform_topo(),
+                    geopm_env_trace_signals(), 16)
     {
 
     }
 
-    Tracer::Tracer(const std::string &start_time,
-                   const std::string &file_path,
-                   const std::string &hostname,
-                   const std::string &agent,
-                   const std::string &profile_name,
-                   bool do_trace,
-                   PlatformIO &platform_io,
-                   PlatformTopo &platform_topo,
-                   const std::string &env_column,
-                   int precision)
+    TracerImp::TracerImp(const std::string &start_time,
+                         const std::string &file_path,
+                         const std::string &hostname,
+                         const std::string &agent,
+                         const std::string &profile_name,
+                         bool do_trace,
+                         PlatformIO &platform_io,
+                         PlatformTopo &platform_topo,
+                         const std::string &env_column,
+                         int precision)
         : m_file_path(file_path)
         , m_hostname(hostname)
         , m_is_trace_enabled(do_trace)
@@ -100,7 +100,7 @@ namespace geopm
         }
     }
 
-    Tracer::~Tracer()
+    TracerImp::~TracerImp()
     {
         if (m_stream.good() && m_is_trace_enabled) {
             m_stream << m_buffer.str();
@@ -108,7 +108,7 @@ namespace geopm
         }
     }
 
-    void Tracer::columns(const std::vector<std::string> &agent_cols)
+    void TracerImp::columns(const std::vector<std::string> &agent_cols)
     {
         if (m_is_trace_enabled) {
             bool first = true;
@@ -149,12 +149,12 @@ namespace geopm
                     base_columns.push_back({extra_signal, PlatformTopo::M_DOMAIN_BOARD, 0});
                 }
                 else {
-                    throw Exception("Tracer::columns(): Environment trace extension contains signals with multiple \"@\" characters.",
+                    throw Exception("TracerImp::columns(): Environment trace extension contains signals with multiple \"@\" characters.",
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
             }
 
-            // set up columns to be sampled by Tracer
+            // set up columns to be sampled by TracerImp
             for (const auto &col : base_columns) {
                 m_column_idx.push_back(m_platform_io.push_signal(col.name,
                                                                  col.domain_type,
@@ -182,7 +182,7 @@ namespace geopm
         }
     }
 
-    void Tracer::write_line(void)
+    void TracerImp::write_line(void)
     {
         m_buffer << std::setprecision(m_precision) << std::scientific;
         for (size_t idx = 0; idx < m_last_telemetry.size(); ++idx) {
@@ -194,7 +194,7 @@ namespace geopm
                 if (((uint64_t) m_region_hash_idx == idx ||
                      (uint64_t) m_region_hint_idx == idx) &&
                     (uint64_t) m_last_telemetry[idx] == GEOPM_REGION_HASH_INVALID) {
-                    throw Exception("Tracer::write_line(): Invalid hash or hint value detected.",
+                    throw Exception("TracerImp::write_line(): Invalid hash or hint value detected.",
                                     GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                 }
 #endif
@@ -214,17 +214,17 @@ namespace geopm
         m_buffer << "\n";
     }
 
-    void Tracer::update(const std::vector<double> &agent_values,
-                        std::list<geopm_region_info_s> region_entry_exit)
+    void TracerImp::update(const std::vector<double> &agent_values,
+                           std::list<geopm_region_info_s> region_entry_exit)
     {
         if (m_is_trace_enabled) {
 #ifdef GEOPM_DEBUG
             if (m_column_idx.size() == 0) {
-                throw Exception("Tracer::update(): No columns added to trace.",
+                throw Exception("TracerImp::update(): No columns added to trace.",
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
             if (m_column_idx.size() + agent_values.size() != m_last_telemetry.size()) {
-                throw Exception("Tracer::update(): Last telemetry buffer not sized correctly.",
+                throw Exception("TracerImp::update(): Last telemetry buffer not sized correctly.",
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
 #endif
@@ -276,7 +276,7 @@ namespace geopm
         }
     }
 
-    void Tracer::flush(void)
+    void TracerImp::flush(void)
     {
         m_stream << m_buffer.str();
         m_buffer.str("");
@@ -284,7 +284,7 @@ namespace geopm
         m_is_trace_enabled = false;
     }
 
-    std::string ITracer::pretty_name(const PlatformIO::m_request_s &col) {
+    std::string Tracer::pretty_name(const PlatformIO::m_request_s &col) {
         std::ostringstream result;
         std::string name = col.name;
         if (name.find("#") == name.length() - 1) {

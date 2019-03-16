@@ -40,7 +40,7 @@
 
 #include "TreeCommLevel.hpp"
 
-class MockTreeCommLevel : public geopm::ITreeCommLevel {
+class MockTreeCommLevel : public geopm::TreeCommLevel {
     public:
         MOCK_CONST_METHOD0(level_rank,
                      int(void));
