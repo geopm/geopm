@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07ccfc2f_2b7f903f",
+        "filename": "test/PlatformTopoTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-16T02:44:26Z",
+      "side": 1,
+      "message": "Might make sense as an integration test since we are relying on the real lscpu of the test system.",
+      "revId": "5ff208982952570234d0f5ac73e0e0ef2370782a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd6d5349_02604fca",
+        "filename": "test/PlatformTopoTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-16T02:44:26Z",
+      "side": 1,
+      "message": "amazing",
+      "range": {
+        "startLine": 628,
+        "startChar": 0,
+        "endLine": 644,
+        "endChar": 0
+      },
+      "revId": "5ff208982952570234d0f5ac73e0e0ef2370782a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
