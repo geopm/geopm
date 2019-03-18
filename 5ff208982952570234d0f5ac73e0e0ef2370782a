@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "4c945898_49f90433",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-03-18T17:29:32Z",
+      "side": 1,
+      "message": "(void)",
+      "range": {
+        "startLine": 389,
+        "startChar": 16,
+        "endLine": 389,
+        "endChar": 22
+      },
+      "revId": "5ff208982952570234d0f5ac73e0e0ef2370782a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "07ccfc2f_2b7f903f",
         "filename": "test/PlatformTopoTest.cpp",
         "patchSetId": 8
