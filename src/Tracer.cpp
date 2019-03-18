@@ -117,20 +117,20 @@ namespace geopm
 
             // default columns
             std::vector<IPlatformIO::m_request_s> base_columns({
-                    {"TIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"EPOCH_COUNT", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"REGION_HASH", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"REGION_HINT", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"REGION_PROGRESS", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"REGION_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"POWER_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"POWER_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"FREQUENCY", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0},
-                    {"TEMPERATURE_CORE", IPlatformTopo::M_DOMAIN_BOARD, 0}});
+                    {"TIME", GEOPM_DOMAIN_BOARD, 0},
+                    {"EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0},
+                    {"REGION_HASH", GEOPM_DOMAIN_BOARD, 0},
+                    {"REGION_HINT", GEOPM_DOMAIN_BOARD, 0},
+                    {"REGION_PROGRESS", GEOPM_DOMAIN_BOARD, 0},
+                    {"REGION_RUNTIME", GEOPM_DOMAIN_BOARD, 0},
+                    {"ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0},
+                    {"ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0},
+                    {"POWER_PACKAGE", GEOPM_DOMAIN_BOARD, 0},
+                    {"POWER_DRAM", GEOPM_DOMAIN_BOARD, 0},
+                    {"FREQUENCY", GEOPM_DOMAIN_BOARD, 0},
+                    {"CYCLES_THREAD", GEOPM_DOMAIN_BOARD, 0},
+                    {"CYCLES_REFERENCE", GEOPM_DOMAIN_BOARD, 0},
+                    {"TEMPERATURE_CORE", GEOPM_DOMAIN_BOARD, 0}});
             // for region entry/exit, make sure region index is known
             m_region_hash_idx = 2;
             m_region_hint_idx = 3;
@@ -148,7 +148,7 @@ namespace geopm
                     }
                 }
                 else if (signal_domain.size() == 1) {
-                    base_columns.push_back({extra_signal, IPlatformTopo::M_DOMAIN_BOARD, 0});
+                    base_columns.push_back({extra_signal, GEOPM_DOMAIN_BOARD, 0});
                 }
                 else {
                     throw Exception("Tracer::columns(): Environment trace extension contains signals with multiple \"@\" characters.",
@@ -295,7 +295,7 @@ namespace geopm
         std::transform(name.begin(), name.end(), name.begin(),
                        [](unsigned char c){ return std::tolower(c); });
         result << name;
-        if (col.domain_type != IPlatformTopo::M_DOMAIN_BOARD) {
+        if (col.domain_type != GEOPM_DOMAIN_BOARD) {
             result << "-" << IPlatformTopo::domain_type_to_name(col.domain_type)
                    << "-" << col.domain_idx;
         }

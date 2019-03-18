@@ -54,7 +54,7 @@ namespace geopm
         geopm_time(&m_app_start_time);
 
         // Ths following is necessary because all other usages of "time zero" query the TimeIOGroup.
-        double elapsed = platform_io().read_signal("TIME", PlatformTopo::M_DOMAIN_BOARD, 0);
+        double elapsed = platform_io().read_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
         geopm_time_add(&m_app_start_time, elapsed * -1, &m_app_start_time);
 
         m_rank_idx_map = rank_to_node_local_rank(cpu_rank);
