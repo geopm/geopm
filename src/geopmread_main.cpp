@@ -137,7 +137,7 @@ int main(int argc, char **argv)
     if (is_domain) {
         if (pos_args.size() == 0) {
             // print all domains
-            for (int dom = IPlatformTopo::M_DOMAIN_BOARD; dom < IPlatformTopo::M_NUM_DOMAIN; ++dom) {
+            for (int dom = GEOPM_DOMAIN_BOARD; dom < GEOPM_NUM_DOMAIN; ++dom) {
                 std::cout << std::setw(24) << std::left
                           << IPlatformTopo::domain_type_to_name(dom)
                           << platform_topo.num_domain(dom) << std::endl;

@@ -65,22 +65,22 @@ void PowerGovernorTest::SetUp(void)
 {
     EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE_LIMIT"))
         .Times(1)
-        .WillOnce(Return(IPlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_PACKAGE))
+        .WillOnce(Return(GEOPM_DOMAIN_PACKAGE));
+    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .Times(1)
         .WillOnce(Return(m_num_package));
-    EXPECT_CALL(m_platform_io, push_control("POWER_PACKAGE_LIMIT", IPlatformTopo::M_DOMAIN_PACKAGE, _))
+    EXPECT_CALL(m_platform_io, push_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_PACKAGE, _))
         .Times(m_num_package);
 
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MIN", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_PACKAGE, 0))
         .Times(1)
         .WillOnce(Return(M_PKG_POWER_MIN));
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0))
         .Times(1)
         .WillOnce(Return(M_PKG_POWER_MAX));
-    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_TIME_WINDOW", IPlatformTopo::M_DOMAIN_PACKAGE, 0, M_PKG_POWER_WIN))
+    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_TIME_WINDOW", GEOPM_DOMAIN_PACKAGE, 0, M_PKG_POWER_WIN))
         .Times(1);
-    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_TIME_WINDOW", IPlatformTopo::M_DOMAIN_PACKAGE, 1, M_PKG_POWER_WIN))
+    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_TIME_WINDOW", GEOPM_DOMAIN_PACKAGE, 1, M_PKG_POWER_WIN))
         .Times(1);
 
     m_governor = geopm::make_unique<PowerGovernor>(m_platform_io, m_platform_topo);

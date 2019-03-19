@@ -143,8 +143,8 @@ namespace geopm
         : Role()
         , m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
-        , m_power_max(m_platform_topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE) *
-                      m_platform_io.read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0))
+        , m_power_max(m_platform_topo.num_domain(GEOPM_DOMAIN_PACKAGE) *
+                      m_platform_io.read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0))
         , m_pio_idx(M_PLAT_NUM_SIGNAL)
         , m_power_governor(std::move(power_governor))
         , m_power_balancer(std::move(power_balancer))
@@ -172,10 +172,10 @@ namespace geopm
     {
         m_power_governor->init_platform_io();
         // Setup signals
-        m_pio_idx[M_PLAT_SIGNAL_EPOCH_RUNTIME] = m_platform_io.push_signal("EPOCH_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_pio_idx[M_PLAT_SIGNAL_EPOCH_COUNT] = m_platform_io.push_signal("EPOCH_COUNT", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_pio_idx[M_PLAT_SIGNAL_EPOCH_RUNTIME_MPI] = m_platform_io.push_signal("EPOCH_RUNTIME_MPI", IPlatformTopo::M_DOMAIN_BOARD, 0);
-        m_pio_idx[M_PLAT_SIGNAL_EPOCH_RUNTIME_IGNORE] = m_platform_io.push_signal("EPOCH_RUNTIME_IGNORE", IPlatformTopo::M_DOMAIN_BOARD, 0);
+        m_pio_idx[M_PLAT_SIGNAL_EPOCH_RUNTIME] = m_platform_io.push_signal("EPOCH_RUNTIME", GEOPM_DOMAIN_BOARD, 0);
+        m_pio_idx[M_PLAT_SIGNAL_EPOCH_COUNT] = m_platform_io.push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0);
+        m_pio_idx[M_PLAT_SIGNAL_EPOCH_RUNTIME_MPI] = m_platform_io.push_signal("EPOCH_RUNTIME_MPI", GEOPM_DOMAIN_BOARD, 0);
+        m_pio_idx[M_PLAT_SIGNAL_EPOCH_RUNTIME_IGNORE] = m_platform_io.push_signal("EPOCH_RUNTIME_IGNORE", GEOPM_DOMAIN_BOARD, 0);
     }
 
     bool PowerBalancerAgent::LeafRole::adjust_platform(const std::vector<double> &in_policy)
@@ -537,9 +537,9 @@ namespace geopm
         bool is_tree_root = (level == (int)fan_in.size());
         if (is_tree_root) {
             int num_pkg = m_platform_topo.num_domain(m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT"));
-            double min_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MIN", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
-            double max_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MAX", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
-            m_power_tdp = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_TDP", IPlatformTopo::M_DOMAIN_PACKAGE, 0);
+            double min_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_PACKAGE, 0);
+            double max_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0);
+            m_power_tdp = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_PACKAGE, 0);
             m_role = std::make_shared<RootRole>(level, fan_in, min_power, max_power);
         }
         else if (level == 0) {

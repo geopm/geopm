@@ -124,7 +124,7 @@ namespace geopm
         init_prof_comm(std::move(comm), shm_num_rank);
         try {
             init_ctl_msg(sample_key);
-            init_cpu_list(topo.num_domain(IPlatformTopo::M_DOMAIN_CPU));
+            init_cpu_list(topo.num_domain(GEOPM_DOMAIN_CPU));
             init_cpu_affinity(shm_num_rank);
             init_tprof_table(tprof_key, topo);
             init_table(sample_key);

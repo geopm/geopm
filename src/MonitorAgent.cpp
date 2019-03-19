@@ -57,7 +57,7 @@ namespace geopm
 
         for (auto name : sample_names()) {
             m_sample_idx.push_back(m_platform_io.push_signal(name,
-                                                             IPlatformTopo::M_DOMAIN_BOARD,
+                                                             GEOPM_DOMAIN_BOARD,
                                                              0));
             m_agg_func.push_back(m_platform_io.agg_function(name));
         }

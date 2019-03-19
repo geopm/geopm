@@ -72,9 +72,9 @@ MonitorAgentTest::MonitorAgentTest()
 void MonitorAgentTest::SetUp()
 {
     // all signals are over entire board for now
-    ON_CALL(m_platform_io, push_signal("POWER_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0))
+    ON_CALL(m_platform_io, push_signal("POWER_PACKAGE", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(M_POWER_PACKAGE));
-    ON_CALL(m_platform_io, push_signal("FREQUENCY", IPlatformTopo::M_DOMAIN_BOARD, 0))
+    ON_CALL(m_platform_io, push_signal("FREQUENCY", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(M_FREQUENCY));
 
     EXPECT_CALL(m_platform_io, push_signal("POWER_PACKAGE", _, _));

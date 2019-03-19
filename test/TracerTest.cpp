@@ -75,24 +75,24 @@ void TracerTest::SetUp(void)
 {
     std::remove(m_path.c_str());
 
-    EXPECT_CALL(m_platform_topo, num_domain(IPlatformTopo::M_DOMAIN_CPU))
+    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_CPU))
         .WillOnce(Return(2));
 
     m_default_cols = {
-        {"TIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"EPOCH_COUNT", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"REGION_HASH", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"REGION_HINT", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"REGION_PROGRESS", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"REGION_RUNTIME", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"ENERGY_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"ENERGY_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"POWER_PACKAGE", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"POWER_DRAM", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"FREQUENCY", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"CYCLES_THREAD", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"CYCLES_REFERENCE", IPlatformTopo::M_DOMAIN_BOARD, 0},
-        {"TEMPERATURE_CORE", IPlatformTopo::M_DOMAIN_BOARD, 0}
+        {"TIME", GEOPM_DOMAIN_BOARD, 0},
+        {"EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0},
+        {"REGION_HASH", GEOPM_DOMAIN_BOARD, 0},
+        {"REGION_HINT", GEOPM_DOMAIN_BOARD, 0},
+        {"REGION_PROGRESS", GEOPM_DOMAIN_BOARD, 0},
+        {"REGION_RUNTIME", GEOPM_DOMAIN_BOARD, 0},
+        {"ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0},
+        {"ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0},
+        {"POWER_PACKAGE", GEOPM_DOMAIN_BOARD, 0},
+        {"POWER_DRAM", GEOPM_DOMAIN_BOARD, 0},
+        {"FREQUENCY", GEOPM_DOMAIN_BOARD, 0},
+        {"CYCLES_THREAD", GEOPM_DOMAIN_BOARD, 0},
+        {"CYCLES_REFERENCE", GEOPM_DOMAIN_BOARD, 0},
+        {"TEMPERATURE_CORE", GEOPM_DOMAIN_BOARD, 0}
     };
     m_extra_cols_str = "EXTRA,EXTRA_SPECIAL@cpu";
     m_extra_cols = geopm::string_split(m_extra_cols_str, ",");
@@ -103,13 +103,13 @@ void TracerTest::SetUp(void)
             .WillOnce(Return(idx));
         ++idx;
     }
-    EXPECT_CALL(m_platform_io, push_signal("EXTRA", IPlatformTopo::M_DOMAIN_BOARD, 0))
+    EXPECT_CALL(m_platform_io, push_signal("EXTRA", GEOPM_DOMAIN_BOARD, 0))
             .WillOnce(Return(idx));
     ++idx;
-    EXPECT_CALL(m_platform_io, push_signal("EXTRA_SPECIAL", IPlatformTopo::M_DOMAIN_CPU, 0))
+    EXPECT_CALL(m_platform_io, push_signal("EXTRA_SPECIAL", GEOPM_DOMAIN_CPU, 0))
         .WillOnce(Return(idx));
     ++idx;
-    EXPECT_CALL(m_platform_io, push_signal("EXTRA_SPECIAL", IPlatformTopo::M_DOMAIN_CPU, 1))
+    EXPECT_CALL(m_platform_io, push_signal("EXTRA_SPECIAL", GEOPM_DOMAIN_CPU, 1))
         .WillOnce(Return(idx));
 }
 
