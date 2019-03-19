@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5fcf1d00_2800c990",
+        "filename": "src/geopm_pio.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-03-19T19:14:53Z",
+      "side": 1,
+      "message": "geopm_pio_num_pushed_signal()\ngeopm_pio_num_pushed_control()\n\nLikewise make the change in the PlatformIO interface.",
+      "range": {
+        "startLine": 75,
+        "startChar": 4,
+        "endLine": 75,
+        "endChar": 24
+      },
+      "revId": "bf25c4a117f2255eaa531de5306ad299f8bd1635",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
