@@ -121,7 +121,9 @@ down to the lowest levels of abstraction.
     statistics in SI units.
 
   * _endpoint_:
-    Interface between resource manager and GEOPM runtime.
+    Interface between resource manager and GEOPM runtime.  This feature
+    is still under development and is only available when GEOPM is compiled
+    with the `--enable-beta` flag.
 
   * _profile_:
     Interface for annotating compute application; provides PlatformIO
