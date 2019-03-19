@@ -40,7 +40,7 @@ scripts/geopmpy/launcher.py
 scripts/geopmpy/plotter.py
 scripts/geopmpy/version.py.in
 scripts/outlier/outlier_detection.py
-scripts/setup.py
+scripts/setup.py.in
 scripts/test/TestAffinity.py
 scripts/test/TestAnalysisCommandLine.py
 scripts/test/TestBalancerAnalysis.py

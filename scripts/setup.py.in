@@ -63,7 +63,11 @@ long_description = """\
 The python front end to the GEOPM runtime.  Includes scripts for
 launching the runtime and postprocessing the output data."""
 
-scripts = ['geopmlaunch']
+
+scripts = ["geopmlaunch"]
+add_beta_tools = @ENABLE_BETA@
+if add_beta_tools:
+    scripts += ["geopmanalysis", "geopmplotter"]
 
 classifiers = ['Development Status :: 4 - Beta',
                'License :: OSI Approved :: BSD License',
