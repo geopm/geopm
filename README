@@ -372,6 +372,14 @@ and will continue to be improved.  The line coverage results from gcov
 as reported by gcovr for the latest release can be found
 [here](http://geopm.github.io/coverage/index.html)
 
+Some new features of GEOPM are still under development, and their
+interfaces may change before they are included in official releases.
+To enable these features in the GEOPM install location, configure
+GEOPM with the `--enable-beta` configure flag.  The features currently
+considered unfinalized are the endpoint interface, the `geopmendpoint`
+application, the `geopmanalysis` application, and the `geopmplotter`
+application.
+
 ACKNOWLEDGMENTS
 ---------------
 Development of the GEOPM software package has been partially funded

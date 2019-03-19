@@ -265,14 +265,12 @@ listed below.
   GEOPM policy JSON file used to configure the Agent plugin.  If the
   policy is provided through this file, it will only be read once and
   cannot be changed dynamically.  In this mode, samples will not be
-  provided to the resource manager.  To provide a shared memory region
-  name, `--geopm-endpoint` should be used instead; `--geopm-policy`
-  and `--geopm-endpoint` cannot be set simultaneously.  See
-  **geopmagent(1)** and **geopm_agent_c(3)** for more information
-  about how to create this input file.  This option is used by the
-  launcher to set the GEOPM_POLICY environment variable.  The command
-  line option will override any value currently set in the
-  environment.  See the ENVIRONMENT section of **geopm(7)**.
+  provided to the resource manager.  See **geopmagent(1)** and
+  **geopm_agent_c(3)** for more information about how to create this
+  input file.  This option is used by the launcher to set the
+  GEOPM_POLICY environment variable.  The command line option will
+  override any value currently set in the environment.  See the
+  ENVIRONMENT section of **geopm(7)**.
 
 * `--geopm-shmkey` key:
   Specify a special prefix to be used with all of the shared memory
