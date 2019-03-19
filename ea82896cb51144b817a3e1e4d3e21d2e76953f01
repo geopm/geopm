@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1dd1c141_f3366bd6",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-03-19T22:38:56Z",
+      "side": 1,
+      "message": "move up to ~180 assign m_hash_freq[curr_hash] \u003d freq",
+      "range": {
+        "startLine": 185,
+        "startChar": 12,
+        "endLine": 185,
+        "endChar": 27
+      },
+      "revId": "ea82896cb51144b817a3e1e4d3e21d2e76953f01",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
