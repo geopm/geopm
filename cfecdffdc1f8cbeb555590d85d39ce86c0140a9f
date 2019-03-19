@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8843430e_7e08ae0f",
+        "filename": "src/ApplicationIO.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-03-19T19:44:49Z",
+      "side": 1,
+      "message": "ws",
+      "range": {
+        "startLine": 65,
+        "startChar": 30,
+        "endLine": 65,
+        "endChar": 34
+      },
+      "revId": "cfecdffdc1f8cbeb555590d85d39ce86c0140a9f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
