@@ -154,10 +154,8 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/ManagerIOTest.write_shm \
               test/gtest_links/ManagerIOTestIntegration.write_shm \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
-              test/gtest_links/MonitorAgentTest.ascend_aggregates_signals \
-              test/gtest_links/MonitorAgentTest.descend_nothing \
-              test/gtest_links/MonitorAgentTest.fixed_signal_list \
-              test/gtest_links/MonitorAgentTest.sample_platform \
+              test/gtest_links/MonitorAgentTest.policy_names \
+              test/gtest_links/MonitorAgentTest.sample_names \
               test/gtest_links/PlatformIOTest.adjust \
               test/gtest_links/PlatformIOTest.adjust_agg \
               test/gtest_links/PlatformIOTest.domain_type \

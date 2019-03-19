@@ -40,7 +40,6 @@
 #include "Agg.hpp"
 
 using geopm::PlatformTopo;
-using geopm::PlatformIO;
 using geopm::MonitorAgent;
 using ::testing::_;
 using ::testing::Return;
@@ -48,88 +47,25 @@ using ::testing::Return;
 class MonitorAgentTest : public ::testing::Test
 {
     protected:
-        enum signal_idx_e {
-            M_OTHER,  // signal not used by this agent; index may not start at 0
-            M_POWER_PACKAGE,
-            M_FREQUENCY,
-        };
-        MonitorAgentTest();
         void SetUp();
         MockPlatformIO m_platform_io;
         MockPlatformTopo m_platform_topo;
-        PlatformIO &m_plat_io_ref;
-        PlatformTopo &m_plat_topo_ref;
         std::unique_ptr<geopm::MonitorAgent> m_agent;
 };
 
-MonitorAgentTest::MonitorAgentTest()
-    : m_plat_io_ref(m_platform_io)
-    , m_plat_topo_ref(m_platform_topo)
-{
-
-}
-
 void MonitorAgentTest::SetUp()
 {
-    // all signals are over entire board for now
-    ON_CALL(m_platform_io, push_signal("POWER_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(M_POWER_PACKAGE));
-    ON_CALL(m_platform_io, push_signal("FREQUENCY", PlatformTopo::M_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(M_FREQUENCY));
-
-    EXPECT_CALL(m_platform_io, push_signal("POWER_PACKAGE", _, _));
-    EXPECT_CALL(m_platform_io, push_signal("FREQUENCY", _, _));
-
-    // does not necessarily match PlatformIO, but Agent should call
-    // these and use whatever function is returned
-    EXPECT_CALL(m_platform_io, agg_function("POWER_PACKAGE"))
-        .WillOnce(Return(geopm::Agg::sum));
-    EXPECT_CALL(m_platform_io, agg_function("FREQUENCY"))
-        .WillOnce(Return(geopm::Agg::average));
-
     m_agent = geopm::make_unique<MonitorAgent>(m_platform_io, m_platform_topo);
 }
 
-TEST_F(MonitorAgentTest, fixed_signal_list)
+TEST_F(MonitorAgentTest, sample_names)
 {
-    // default list we collect with this agent
-    // if this list changes, update the mocked platform for this test
-    std::vector<std::string> expected_signals = {"POWER_PACKAGE", "FREQUENCY"};
-    EXPECT_EQ(expected_signals, m_agent->sample_names());
+    std::vector<std::string> expected_sample_names = {};
+    EXPECT_EQ(expected_sample_names, m_agent->sample_names());
 }
 
-TEST_F(MonitorAgentTest, sample_platform)
-{
-    std::vector<double> expected_value {456, 789};
-    EXPECT_CALL(m_platform_io, sample(M_POWER_PACKAGE))
-        .WillOnce(Return(expected_value[0]));
-    EXPECT_CALL(m_platform_io, sample(M_FREQUENCY))
-        .WillOnce(Return(expected_value[1]));
-
-    std::vector<double> result(expected_value.size());
-    m_agent->sample_platform(result);
-    EXPECT_EQ(expected_value, result);
-}
-
-TEST_F(MonitorAgentTest, descend_nothing)
+TEST_F(MonitorAgentTest, policy_names)
 {
     std::vector<std::string> expected_policy_names = {};
     EXPECT_EQ(expected_policy_names, m_agent->policy_names());
-}
-
-TEST_F(MonitorAgentTest, ascend_aggregates_signals)
-{
-    std::vector<std::vector<double> > input = {
-        {3, 8},
-        {4, 9},
-        {5, 10}
-    };
-    std::vector<double> expected = {
-        12,  // sum
-        9,   // average
-    };
-    std::vector<double> result(expected.size());;
-    m_agent->ascend(input, result);
-
-    EXPECT_EQ(expected, result);
 }

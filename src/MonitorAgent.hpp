@@ -79,12 +79,6 @@ namespace geopm
             PlatformIO &m_platform_io;
             PlatformTopo &m_platform_topo;
             geopm_time_s m_last_wait;
-            std::vector<int> m_sample_idx;
-            std::vector<std::function<double(const std::vector<double>&)> > m_agg_func;
-            size_t m_num_sample;
-            int m_level;
-            size_t m_num_ascend;
-            const size_t M_SEND_PERIOD;
             const double M_WAIT_SEC;
     };
 }

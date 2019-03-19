@@ -54,11 +54,7 @@ reports and traces with additional Agent-specific information.
   N/A
 
 * `Agent Sample Definitions`:
-
-  `POWER_PACKAGE`: Total power of the package(s) across all compute
-                   nodes.
-
-  `FREQUENCY`: The average CPU frequency across all compute nodes.
+  N/A
 
 * `Trace Column Extensions`:
   N/A

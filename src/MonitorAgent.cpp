@@ -49,19 +49,9 @@ namespace geopm
         : m_platform_io(plat_io)
         , m_platform_topo(topo)
         , m_last_wait(GEOPM_TIME_REF)
-        , m_num_ascend(0)
-        , M_SEND_PERIOD(10)
         , M_WAIT_SEC(0.005)
     {
         geopm_time(&m_last_wait);
-
-        for (auto name : sample_names()) {
-            m_sample_idx.push_back(m_platform_io.push_signal(name,
-                                                             PlatformTopo::M_DOMAIN_BOARD,
-                                                             0));
-            m_agg_func.push_back(m_platform_io.agg_function(name));
-        }
-        m_num_sample = m_sample_idx.size();
     }
 
     std::string MonitorAgent::plugin_name(void)
@@ -76,7 +66,7 @@ namespace geopm
 
     void MonitorAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
-        m_level = level;
+
     }
 
     void MonitorAgent::validate_policy(std::vector<double> &policy) const
@@ -93,15 +83,7 @@ namespace geopm
     bool MonitorAgent::ascend(const std::vector<std::vector<double> > &in_sample,
                               std::vector<double> &out_sample)
     {
-#ifdef GEOPM_DEBUG
-        if (out_sample.size() != m_num_sample) {
-            throw Exception("MonitorAgent::ascend(): out_sample vector not correctly sized.",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        aggregate_sample(in_sample, m_agg_func, out_sample);
-        /// @todo should we check if the out_sample has changed before returning true?
-        return true;
+        return false;
     }
 
     bool MonitorAgent::adjust_platform(const std::vector<double> &in_policy)
@@ -111,24 +93,7 @@ namespace geopm
 
     bool MonitorAgent::sample_platform(std::vector<double> &out_sample)
     {
-#ifdef GEOPM_DEBUG
-        if (out_sample.size() != m_num_sample) {
-            throw Exception("MonitorAgent::sample_platform(): out_sample vector not correctly sized.",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        bool result = false;
-        if (m_num_ascend == 0) {
-            for (size_t sample_idx = 0; sample_idx < m_num_sample; ++sample_idx) {
-                out_sample[sample_idx] = m_platform_io.sample(m_sample_idx[sample_idx]);
-            }
-            result = true;
-        }
-        ++m_num_ascend;
-        if (m_num_ascend == M_SEND_PERIOD) {
-           m_num_ascend = 0;
-        }
-        return result;
+        return false;
     }
 
     void MonitorAgent::wait(void)
@@ -146,7 +111,7 @@ namespace geopm
 
     std::vector<std::string> MonitorAgent::sample_names(void)
     {
-        return {"POWER_PACKAGE", "FREQUENCY"};
+        return {};
     }
 
     std::vector<std::pair<std::string, std::string> > MonitorAgent::report_header(void) const

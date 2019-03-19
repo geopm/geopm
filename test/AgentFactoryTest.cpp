@@ -38,7 +38,7 @@
 #include "PluginFactory.hpp"
 #include "Agent.hpp"
 #include "MonitorAgent.hpp"
-//#include "PowerBalancerAgent.hpp"
+#include "PowerBalancerAgent.hpp"
 
 using geopm::Agent;
 
@@ -50,15 +50,13 @@ TEST(AgentFactoryTest, static_info_monitor)
     int num_policy = Agent::num_policy(dict);
     int num_sample = Agent::num_sample(dict);
     EXPECT_EQ(0, num_policy);
-    EXPECT_EQ(2, num_sample);
-    std::vector<std::string> exp_sample = {"POWER_PACKAGE", "FREQUENCY"};
+    EXPECT_EQ(0, num_sample);
+    std::vector<std::string> exp_sample = {};
     std::vector<std::string> exp_policy = {};
     EXPECT_EQ(exp_sample, Agent::sample_names(dict));
     EXPECT_EQ(exp_policy, Agent::policy_names(dict));
 }
 
-/// @todo Re-enable when PowerBalancerAgent is added
-#if 0
 TEST(AgentFactoryTest, static_info_balancing)
 {
     auto &factory = geopm::agent_factory();
@@ -66,11 +64,16 @@ TEST(AgentFactoryTest, static_info_balancing)
     auto &dict = factory.dictionary(agent_name);
     int num_policy = Agent::num_policy(dict);
     int num_sample = Agent::num_sample(dict);
-    EXPECT_EQ(0, num_policy);
-    EXPECT_EQ(0, num_sample);
-    std::vector<std::string> exp_sample = {};
-    std::vector<std::string> exp_policy = {};
+    EXPECT_EQ(4, num_policy);
+    EXPECT_EQ(4, num_sample);
+    std::vector<std::string> exp_sample = {"STEP_COUNT",
+                                           "MAX_EPOCH_RUNTIME",
+                                           "SUM_POWER_SLACK",
+                                           "MIN_POWER_HEADROOM"};
+    std::vector<std::string> exp_policy = {"POWER_CAP",
+                                           "STEP_COUNT",
+                                           "MAX_EPOCH_RU`NTIME",
+                                           "POWER_SLACK"};
     EXPECT_EQ(exp_sample, Agent::sample_names(dict));
     EXPECT_EQ(exp_policy, Agent::policy_names(dict));
 }
-#endif
