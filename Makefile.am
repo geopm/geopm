@@ -68,7 +68,6 @@ dist: dist-googletest dist-openmp
 include_HEADERS = src/geopm.h \
                   src/geopm_agent.h \
                   src/geopm_ctl.h \
-                  src/geopm_endpoint.h \
                   src/geopm_error.h \
                   src/geopm_hash.h \
                   src/geopm_imbalancer.h \
@@ -76,6 +75,9 @@ include_HEADERS = src/geopm.h \
                   src/geopm_time.h \
                   src/geopm_version.h \
                   # end
+if ENABLE_BETA
+    include_HEADERS += src/geopm_endpoint.h
+endif
 
 pkginclude_HEADERS = contrib/json11/json11.hpp \
                      src/Agent.hpp \
@@ -164,7 +166,6 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/geopm_agent_power_balancer.7 \
                 man/geopm_agent_power_governor.7 \
                 man/geopm_ctl_c.3 \
-                man/geopm_endpoint_c.3 \
                 man/geopm_error.3 \
                 man/geopm_fortran.3 \
                 man/geopm_hash.3 \
@@ -176,18 +177,27 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/geopmagent.1 \
                 man/geopmbench.1 \
                 man/geopmctl.1 \
-                man/geopmendpoint.1 \
                 man/geopmlaunch.1 \
                 man/geopmpy.7 \
                 man/geopmread.1 \
                 man/geopmwrite.1 \
                 # end
 
-ronn_man_noinst = man/geopmanalysis.1 \
-                  man/geopmplotter.1 \
-                  man/GEOPM_CXX_MAN_Comm.3 \
+ronn_man_noinst = man/GEOPM_CXX_MAN_Comm.3 \
                   man/GEOPM_CXX_MAN_MPIComm.3 \
                   # end
+
+if ENABLE_BETA
+ronn_man_inst += man/geopmanalysis.1 \
+                 man/geopmendpoint.1 \
+                 man/geopmplotter.1 \
+                 man/geopm_endpoint_c.3
+else
+ronn_man_noinst += man/geopmanalysis.1 \
+                   man/geopmendpoint.1 \
+                   man/geopmplotter.1 \
+                   man/geopm_endpoint_c.3
+endif
 
 ronn_man = $(ronn_man_inst) $(ronn_man_noinst)
 
