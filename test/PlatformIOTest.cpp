@@ -167,11 +167,11 @@ void PlatformIOTest::SetUp()
     m_cpu_set_board = {0, 1, 2, 3, 4, 5, 6, 7};
     m_cpu_set0 = {0, 1, 4, 5};
     m_cpu_set1 = {2, 3, 6, 7};
-    ON_CALL(m_topo, is_domain_within(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD))
+    ON_CALL(m_topo, is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD))
         .WillByDefault(Return(true));
-    ON_CALL(m_topo, is_domain_within(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD_MEMORY))
+    ON_CALL(m_topo, is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD_MEMORY))
         .WillByDefault(Return(true));
-    ON_CALL(m_topo, is_domain_within(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE))
+    ON_CALL(m_topo, is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE))
         .WillByDefault(Return(true));
     ON_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD, _))
         .WillByDefault(Return(m_cpu_set_board));
@@ -296,7 +296,7 @@ TEST_F(PlatformIOTest, push_signal)
 
 TEST_F(PlatformIOTest, push_signal_agg)
 {
-    EXPECT_CALL(m_topo, is_domain_within(GEOPM_DOMAIN_CPU,
+    EXPECT_CALL(m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
                                          GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
 
@@ -381,7 +381,7 @@ TEST_F(PlatformIOTest, push_control)
 
 TEST_F(PlatformIOTest, push_control_agg)
 {
-    EXPECT_CALL(m_topo, is_domain_within(GEOPM_DOMAIN_CPU,
+    EXPECT_CALL(m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
                                          GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
     EXPECT_EQ(0, m_platio->num_control());
@@ -425,7 +425,7 @@ TEST_F(PlatformIOTest, sample)
 
 TEST_F(PlatformIOTest, sample_agg)
 {
-    EXPECT_CALL(m_topo, is_domain_within(GEOPM_DOMAIN_CPU,
+    EXPECT_CALL(m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
                                          GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("FREQ")).Times(AtLeast(1));
@@ -474,7 +474,7 @@ TEST_F(PlatformIOTest, adjust)
 
 TEST_F(PlatformIOTest, adjust_agg)
 {
-    EXPECT_CALL(m_topo, is_domain_within(GEOPM_DOMAIN_CPU,
+    EXPECT_CALL(m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
                                          GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
     double value = 1.23e9;
@@ -498,7 +498,7 @@ TEST_F(PlatformIOTest, adjust_agg)
 
 TEST_F(PlatformIOTest, read_signal)
 {
-    EXPECT_CALL(m_topo, is_domain_within(_, _));
+    EXPECT_CALL(m_topo, is_nested_domain(_, _));
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("FREQ"));
     EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, 0))
         .WillOnce(Return(4e9));
@@ -519,7 +519,7 @@ TEST_F(PlatformIOTest, read_signal)
 
 TEST_F(PlatformIOTest, read_signal_agg)
 {
-    EXPECT_CALL(m_topo, is_domain_within(_, _));
+    EXPECT_CALL(m_topo, is_nested_domain(_, _));
     EXPECT_CALL(m_topo, nested_domains(_, _, _));
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("FREQ")).Times(AtLeast(1));
     EXPECT_CALL(*m_control_iogroup, agg_function("FREQ")).WillOnce(Return(Agg::average));
@@ -540,7 +540,7 @@ TEST_F(PlatformIOTest, write_control)
     EXPECT_CALL(*m_override_iogroup, write_batch()).Times(0);
 
     double value = 3e9;
-    EXPECT_CALL(m_topo, is_domain_within(_, _));
+    EXPECT_CALL(m_topo, is_nested_domain(_, _));
     EXPECT_CALL(*m_override_iogroup, control_domain_type("MODE")).Times(AtLeast(1));
     EXPECT_CALL(*m_override_iogroup, write_control("MODE", GEOPM_DOMAIN_BOARD, 0, value));
     m_platio->write_control("MODE", GEOPM_DOMAIN_BOARD, 0, value);
@@ -556,7 +556,7 @@ TEST_F(PlatformIOTest, write_control_agg)
     EXPECT_CALL(*m_override_iogroup, write_batch()).Times(0);
 
     double value = 3e9;
-    EXPECT_CALL(m_topo, is_domain_within(_, _));
+    EXPECT_CALL(m_topo, is_nested_domain(_, _));
     EXPECT_CALL(m_topo, nested_domains(_, _, _));
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
     for (auto cpu : m_cpu_set0) {
@@ -573,7 +573,7 @@ TEST_F(PlatformIOTest, read_signal_override)
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("MODE")).Times(0);
     EXPECT_CALL(*m_control_iogroup, read_signal(_, _, _)).Times(0);
 
-    EXPECT_CALL(m_topo, is_domain_within(_, _));
+    EXPECT_CALL(m_topo, is_nested_domain(_, _));
     EXPECT_CALL(*m_override_iogroup, signal_domain_type("MODE")).Times(AtLeast(1));
     EXPECT_CALL(*m_override_iogroup, read_signal("MODE", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(5e9));
@@ -592,7 +592,7 @@ TEST_F(PlatformIOTest, write_control_override)
     EXPECT_CALL(*m_control_iogroup, write_control(_, _, _, _)).Times(0);
 
     double value = 10;
-    EXPECT_CALL(m_topo, is_domain_within(_, _));
+    EXPECT_CALL(m_topo, is_nested_domain(_, _));
     EXPECT_CALL(*m_override_iogroup, control_domain_type("MODE")).Times(AtLeast(1));
     EXPECT_CALL(*m_override_iogroup, write_control("MODE", GEOPM_DOMAIN_BOARD, 0, value));
     m_platio->write_control("MODE", GEOPM_DOMAIN_BOARD, 0, value);
