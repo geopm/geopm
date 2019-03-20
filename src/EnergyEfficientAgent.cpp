@@ -369,8 +369,8 @@ namespace geopm
         double result = NAN;
         const double sticker_freq = m_platform_io.read_signal("CPUINFO::FREQ_STICKER", domain_type, 0);
         if (sig_name == "CPUINFO::FREQ_MIN") {
-            if (domain_type == PlatformTopo::M_DOMAIN_INVALID) {
-                if (m_platform_io.signal_domain_type("CPUINFO::FREQ_STICKER") == PlatformTopo::M_DOMAIN_INVALID) {
+            if (domain_type == GEOPM_DOMAIN_INVALID) {
+                if (m_platform_io.signal_domain_type("CPUINFO::FREQ_STICKER") == GEOPM_DOMAIN_INVALID) {
                     throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): unable to parse min and sticker frequencies.",
                                     GEOPM_ERROR_AGENT_UNSUPPORTED, __FILE__, __LINE__);
                 }
@@ -380,8 +380,8 @@ namespace geopm
             }
         }
         else if (sig_name == "CPUINFO::FREQ_MAX") {
-            if (domain_type == PlatformTopo::M_DOMAIN_INVALID) {
-                if (m_platform_io.signal_domain_type("CPUINFO::FREQ_STICKER") == PlatformTopo::M_DOMAIN_INVALID) {
+            if (domain_type == GEOPM_DOMAIN_INVALID) {
+                if (m_platform_io.signal_domain_type("CPUINFO::FREQ_STICKER") == GEOPM_DOMAIN_INVALID) {
                     throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): unable to parse max and sticker frequencies.",
                                     GEOPM_ERROR_AGENT_UNSUPPORTED, __FILE__, __LINE__);
                 }
@@ -408,7 +408,7 @@ namespace geopm
         // All columns sampled will be in the trace
         for (auto sample : sample_names()) {
             m_sample_idx.push_back(m_platform_io.push_signal(sample,
-                                                             PlatformTopo::M_DOMAIN_BOARD,
+                                                             GEOPM_DOMAIN_BOARD,
                                                              0));
             m_agg_func.push_back(m_platform_io.agg_function(sample));
         }
@@ -430,7 +430,7 @@ namespace geopm
 
         for (size_t signal = m_signal_idx.size(); signal < signal_names.size(); ++signal) {
             m_signal_idx.push_back(m_platform_io.push_signal(signal_names[signal],
-                                                             PlatformTopo::M_DOMAIN_BOARD,
+                                                             GEOPM_DOMAIN_BOARD,
                                                              0));
         }
     }

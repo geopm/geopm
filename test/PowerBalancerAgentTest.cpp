@@ -107,15 +107,15 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
     int level = 2;
     int num_children = M_FAN_IN[level - 1];
 
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MIN", PlatformTopo::M_DOMAIN_PACKAGE, 0))
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_PACKAGE, 0))
         .WillOnce(Return(50));
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", PlatformTopo::M_DOMAIN_PACKAGE, 0))
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0))
         .WillOnce(Return(200));
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_TDP", PlatformTopo::M_DOMAIN_PACKAGE, 0))
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_PACKAGE, 0))
         .WillOnce(Return(150));
     EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE_LIMIT"))
-        .WillOnce(Return(PlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_CALL(m_platform_topo, num_domain(PlatformTopo::M_DOMAIN_PACKAGE))
+        .WillOnce(Return(GEOPM_DOMAIN_PACKAGE));
+    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .WillOnce(Return(2));
 
     m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
@@ -372,22 +372,22 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
     std::vector<double> epoch_rt_ignore = {0.25, 0.27};
     std::vector<double> epoch_rt = {1.0, 1.01};
 
-    EXPECT_CALL(m_platform_topo, num_domain(PlatformTopo::M_DOMAIN_PACKAGE))
+    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .WillOnce(Return(M_NUM_PKGS));
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", PlatformTopo::M_DOMAIN_PACKAGE, _))
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, _))
         .WillOnce(Return(M_POWER_PACKAGE_MAX));
-    EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", PlatformTopo::M_DOMAIN_BOARD, 0))
+    EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_SIGNAL_EPOCH_COUNT));
-    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME", PlatformTopo::M_DOMAIN_BOARD, 0))
+    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_SIGNAL_EPOCH_RUNTIME));
     EXPECT_CALL(m_platform_io, sample(M_SIGNAL_EPOCH_COUNT))
         .WillRepeatedly(InvokeWithoutArgs([&counter]()
                 {
                     return (double) ++counter;
                 }));
-    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_MPI", PlatformTopo::M_DOMAIN_BOARD, 0))
+    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_MPI", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_SIGNAL_EPOCH_RUNTIME_MPI));
-    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_IGNORE", PlatformTopo::M_DOMAIN_BOARD, 0))
+    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_IGNORE", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_SIGNAL_EPOCH_RUNTIME_IGNORE));
 
     Sequence e_rt_pio_seq;
