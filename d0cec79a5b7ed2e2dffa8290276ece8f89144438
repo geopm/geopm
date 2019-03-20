@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0fcb464c_4b584675",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-20T18:37:09Z",
+      "side": 1,
+      "message": "I think this will still work with domain board 0 (need to check the agg function) and then this doesn\u0027t necessarily need to be KNL-specific",
+      "revId": "d0cec79a5b7ed2e2dffa8290276ece8f89144438",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
