@@ -56,7 +56,7 @@ namespace geopm
 
     void RegionAggregatorImp::init(void)
     {
-        m_epoch_count_idx = m_platform_io.push_signal("EPOCH_COUNT", PlatformTopo::M_DOMAIN_BOARD, 0);
+        m_epoch_count_idx = m_platform_io.push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0);
     }
 
     int RegionAggregatorImp::push_signal_total(const std::string &signal_name,

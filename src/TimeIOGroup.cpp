@@ -71,16 +71,16 @@ namespace geopm
 
     int TimeIOGroup::signal_domain_type(const std::string &signal_name) const
     {
-        int result = PlatformTopo::M_DOMAIN_INVALID;
+        int result = GEOPM_DOMAIN_INVALID;
         if (is_valid_signal(signal_name)) {
-            result = PlatformTopo::M_DOMAIN_CPU;
+            result = GEOPM_DOMAIN_CPU;
         }
         return result;
     }
 
     int TimeIOGroup::control_domain_type(const std::string &control_name) const
     {
-        return PlatformTopo::M_DOMAIN_INVALID;
+        return GEOPM_DOMAIN_INVALID;
     }
 
     int TimeIOGroup::push_signal(const std::string &signal_name, int domain_type, int domain_idx)
@@ -90,7 +90,7 @@ namespace geopm
                             " not valid for TimeIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_type != PlatformTopo::M_DOMAIN_CPU) {
+        if (domain_type != GEOPM_DOMAIN_CPU) {
             throw Exception("TimeIOGroup::push_signal(): signal_name " + signal_name +
                             " not defined for domain " + std::to_string(domain_type),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -152,7 +152,7 @@ namespace geopm
                             "not valid for TimeIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_type != PlatformTopo::M_DOMAIN_CPU) {
+        if (domain_type != GEOPM_DOMAIN_CPU) {
             throw Exception("TimeIOGroup::read_signal(): signal_name " + signal_name +
                             " not defined for domain " + std::to_string(domain_type),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);

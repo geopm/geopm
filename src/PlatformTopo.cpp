@@ -108,40 +108,40 @@ namespace geopm
     {
         int result = 0;
         switch (domain_type) {
-            case M_DOMAIN_BOARD:
+            case GEOPM_DOMAIN_BOARD:
                 result = 1;
                 break;
-            case M_DOMAIN_PACKAGE:
+            case GEOPM_DOMAIN_PACKAGE:
                 result = m_num_package;
                 break;
-            case M_DOMAIN_CORE:
+            case GEOPM_DOMAIN_CORE:
                 result = m_num_package * m_core_per_package;
                 break;
-            case M_DOMAIN_CPU:
+            case GEOPM_DOMAIN_CPU:
                 result = m_num_package * m_core_per_package * m_thread_per_core;
                 break;
-            case M_DOMAIN_BOARD_MEMORY:
+            case GEOPM_DOMAIN_BOARD_MEMORY:
                 for (const auto &it : m_numa_map) {
                     if (it.size()) {
                         ++result;
                     }
                 }
                 break;
-            case M_DOMAIN_PACKAGE_MEMORY:
+            case GEOPM_DOMAIN_PACKAGE_MEMORY:
                 for (const auto &it : m_numa_map) {
                     if (!it.size()) {
                         ++result;
                     }
                 }
                 break;
-            case M_DOMAIN_BOARD_NIC:
-            case M_DOMAIN_PACKAGE_NIC:
-            case M_DOMAIN_BOARD_ACCELERATOR:
-            case M_DOMAIN_PACKAGE_ACCELERATOR:
+            case GEOPM_DOMAIN_BOARD_NIC:
+            case GEOPM_DOMAIN_PACKAGE_NIC:
+            case GEOPM_DOMAIN_BOARD_ACCELERATOR:
+            case GEOPM_DOMAIN_PACKAGE_ACCELERATOR:
                 /// @todo Add support for NIC and accelerators to PlatformTopo.
                 result = 0;
                 break;
-            case M_DOMAIN_INVALID:
+            case GEOPM_DOMAIN_INVALID:
                 throw Exception("PlatformTopoImp::num_domain(): invalid domain specified",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 break;
@@ -158,12 +158,12 @@ namespace geopm
     {
         std::set<int> cpu_idx;
         switch (domain_type) {
-            case M_DOMAIN_BOARD:
+            case GEOPM_DOMAIN_BOARD:
                 for (auto numa_cpus : m_numa_map) {
                     cpu_idx.insert(numa_cpus.begin(), numa_cpus.end());
                 }
                 break;
-            case M_DOMAIN_PACKAGE:
+            case GEOPM_DOMAIN_PACKAGE:
                 for (int thread_idx = 0;
                      thread_idx != m_thread_per_core;
                      ++thread_idx) {
@@ -174,17 +174,17 @@ namespace geopm
                     }
                 }
                 break;
-            case M_DOMAIN_CORE:
+            case GEOPM_DOMAIN_CORE:
                 for (int thread_idx = 0;
                      thread_idx != m_thread_per_core;
                      ++thread_idx) {
                     cpu_idx.insert(domain_idx + thread_idx * m_core_per_package * m_num_package);
                 }
                 break;
-            case M_DOMAIN_CPU:
+            case GEOPM_DOMAIN_CPU:
                 cpu_idx.insert(domain_idx);
                 break;
-            case M_DOMAIN_BOARD_MEMORY:
+            case GEOPM_DOMAIN_BOARD_MEMORY:
                 cpu_idx = m_numa_map[domain_idx];
                 break;
             default:
@@ -201,25 +201,25 @@ namespace geopm
                                  int cpu_idx) const
     {
         int result = -1;
-        int num_cpu = num_domain(M_DOMAIN_CPU);
+        int num_cpu = num_domain(GEOPM_DOMAIN_CPU);
         int core_idx = 0;
         int numa_idx = 0;
         if (cpu_idx >= 0 && cpu_idx < num_cpu) {
             switch (domain_type) {
-                case M_DOMAIN_BOARD:
+                case GEOPM_DOMAIN_BOARD:
                     result = 0;
                     break;
-                case M_DOMAIN_PACKAGE:
+                case GEOPM_DOMAIN_PACKAGE:
                     core_idx = cpu_idx % (m_num_package * m_core_per_package);
                     result = core_idx / m_core_per_package;
                     break;
-                case M_DOMAIN_CORE:
+                case GEOPM_DOMAIN_CORE:
                     result = cpu_idx % (m_num_package * m_core_per_package);
                     break;
-                case M_DOMAIN_CPU:
+                case GEOPM_DOMAIN_CPU:
                     result = cpu_idx;
                     break;
-                case M_DOMAIN_BOARD_MEMORY:
+                case GEOPM_DOMAIN_BOARD_MEMORY:
                     numa_idx = 0;
                     for (const auto &set_it : m_numa_map) {
                         for (const auto &cpu_it : set_it) {
@@ -236,16 +236,16 @@ namespace geopm
                         ++numa_idx;
                     }
                     break;
-                case M_DOMAIN_PACKAGE_MEMORY:
-                case M_DOMAIN_BOARD_NIC:
-                case M_DOMAIN_PACKAGE_NIC:
-                case M_DOMAIN_BOARD_ACCELERATOR:
-                case M_DOMAIN_PACKAGE_ACCELERATOR:
+                case GEOPM_DOMAIN_PACKAGE_MEMORY:
+                case GEOPM_DOMAIN_BOARD_NIC:
+                case GEOPM_DOMAIN_PACKAGE_NIC:
+                case GEOPM_DOMAIN_BOARD_ACCELERATOR:
+                case GEOPM_DOMAIN_PACKAGE_ACCELERATOR:
                     /// @todo Add support for package memory NIC and accelerators to domain_idx() method.
                     throw Exception("PlatformTopoImp::domain_idx() no support yet for PACKAGE_MEMORY, NIC, or ACCELERATOR",
                                     GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
                     break;
-                case M_DOMAIN_INVALID:
+                case GEOPM_DOMAIN_INVALID:
                 default:
                     throw Exception("PlatformTopoImp::domain_idx() invalid domain specified",
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -263,31 +263,31 @@ namespace geopm
     {
         bool result = false;
         static const std::set<int> package_domain = {
-            M_DOMAIN_CPU,
-            M_DOMAIN_CORE,
-            M_DOMAIN_PACKAGE_MEMORY,
-            M_DOMAIN_PACKAGE_NIC,
-            M_DOMAIN_PACKAGE_ACCELERATOR,
+            GEOPM_DOMAIN_CPU,
+            GEOPM_DOMAIN_CORE,
+            GEOPM_DOMAIN_PACKAGE_MEMORY,
+            GEOPM_DOMAIN_PACKAGE_NIC,
+            GEOPM_DOMAIN_PACKAGE_ACCELERATOR,
         };
         if (inner_domain == outer_domain) {
             result = true;
         }
-        else if (outer_domain == M_DOMAIN_BOARD) {
+        else if (outer_domain == GEOPM_DOMAIN_BOARD) {
             // All domains are within the board domain
             result = true;
         }
-        else if (outer_domain == M_DOMAIN_CORE &&
-                 inner_domain == M_DOMAIN_CPU) {
+        else if (outer_domain == GEOPM_DOMAIN_CORE &&
+                 inner_domain == GEOPM_DOMAIN_CPU) {
             // Only the CPU domain is within the core.
             result = true;
         }
-        else if (outer_domain == M_DOMAIN_PACKAGE &&
+        else if (outer_domain == GEOPM_DOMAIN_PACKAGE &&
                  package_domain.find(inner_domain) != package_domain.end()) {
             // Everything under the package scope is in the package_domain set.
             result = true;
         }
-        else if (outer_domain == M_DOMAIN_BOARD_MEMORY &&
-                 inner_domain == M_DOMAIN_CPU) {
+        else if (outer_domain == GEOPM_DOMAIN_BOARD_MEMORY &&
+                 inner_domain == GEOPM_DOMAIN_CPU) {
             // To support mapping CPU signals to DRAM domain (e.g. power)
             result = true;
         }
@@ -312,7 +312,6 @@ namespace geopm
     std::vector<std::string> PlatformTopo::domain_names(void)
     {
         return {
-            "invalid",
             "board",
             "package",
             "core",
@@ -329,19 +328,19 @@ namespace geopm
     std::map<std::string, int> PlatformTopo::domain_types(void)
     {
         std::map<std::string, int> result;
-        int domain_type = M_DOMAIN_INVALID;
+        int domain_type = GEOPM_DOMAIN_INVALID;
         auto names = domain_names();
         for (const auto &name : names) {
             result[name] = domain_type;
             ++domain_type;
         }
 #ifdef GEOPM_DEBUG
-        if (names.size() != M_NUM_DOMAIN) {
+        if (names.size() != GEOPM_NUM_DOMAIN) {
             throw Exception("PlatformTopo::m_domain_name has incorrect size.  "
                             "Domains must match m_domain_e in number and order.",
                             GEOPM_ERROR_LOGIC);
         }
-        if (result.size() != M_NUM_DOMAIN) {
+        if (result.size() != GEOPM_NUM_DOMAIN) {
             throw Exception("PlatformTopo::m_domain_type has incorrect size.  "
                             "Domain type mapping must match m_domain_name.",
                             GEOPM_ERROR_LOGIC);
@@ -352,7 +351,7 @@ namespace geopm
 
     std::string PlatformTopo::domain_type_to_name(int domain_type)
     {
-        if (domain_type <= M_DOMAIN_INVALID || domain_type > M_NUM_DOMAIN) {
+        if (domain_type <= GEOPM_DOMAIN_INVALID || domain_type > GEOPM_NUM_DOMAIN) {
             throw Exception("PlatformTopo::domain_type_to_name(): unrecognized domain_type: " + std::to_string(domain_type),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
