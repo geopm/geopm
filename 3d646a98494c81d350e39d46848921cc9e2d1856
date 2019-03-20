@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ead5b4f_3985a2f0",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-03-20T18:46:02Z",
+      "side": 1,
+      "message": "Use THERMAL_SPEC_POWER instead.",
+      "range": {
+        "startLine": 156,
+        "startChar": 62,
+        "endLine": 156,
+        "endChar": 71
+      },
+      "revId": "3d646a98494c81d350e39d46848921cc9e2d1856",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
