@@ -66,7 +66,7 @@ namespace geopm
             /// @param [in] outer_domain The containing domain type.
             /// @return True if the inner_domain is contained within
             ///         the outer_domain.
-            virtual bool is_domain_within(int inner_domain, int outer_domain) const = 0;
+            virtual bool is_nested_domain(int inner_domain, int outer_domain) const = 0;
             /// @brief Get the set of smaller domains contained in a larger one.
             ///        If the inner domain is not the same as or contained within
             ///        the outer domain, it throws an error.
@@ -105,7 +105,7 @@ namespace geopm
             int num_domain(int domain_type) const override;
             int domain_idx(int domain_type,
                            int cpu_idx) const override;
-            bool is_domain_within(int inner_domain, int outer_domain) const override;
+            bool is_nested_domain(int inner_domain, int outer_domain) const override;
             std::set<int> nested_domains(int inner_domain, int outer_domain, int outer_idx) const override;
             /// @brief Create cache file in tmpfs that can be read
             ///        instead of popen() call.
