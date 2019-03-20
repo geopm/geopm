@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d67fdf8_61c04fc1",
+        "filename": "ronn/geopmwrite.1.ronn",
+        "patchSetId": 10
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-20T18:42:26Z",
+      "side": 1,
+      "message": "geopmwrite",
+      "range": {
+        "startLine": 46,
+        "startChar": 1,
+        "endLine": 46,
+        "endChar": 10
+      },
+      "revId": "790aec7fb24a56b0ff576856f0747055b0a910e3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
