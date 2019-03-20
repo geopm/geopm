@@ -95,7 +95,7 @@ class ProfileTestPlatformTopo : public MockPlatformTopo
     public:
         ProfileTestPlatformTopo(int num_cpu)
         {
-            EXPECT_CALL(*this, num_domain(PlatformTopo::M_DOMAIN_CPU))
+            EXPECT_CALL(*this, num_domain(GEOPM_DOMAIN_CPU))
                 .WillRepeatedly(testing::Return(num_cpu));
         }
 };

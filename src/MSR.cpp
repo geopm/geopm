@@ -220,7 +220,7 @@ namespace geopm
         , m_offset(offset)
         , m_signal_encode(signal.size(), NULL)
         , m_control_encode(control.size())
-        , m_domain_type(PlatformTopo::M_DOMAIN_INVALID)
+        , m_domain_type(GEOPM_DOMAIN_INVALID)
         , m_prog_msr(0)
         , m_prog_field_name(0)
         , m_prog_value(0)

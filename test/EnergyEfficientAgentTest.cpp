@@ -95,12 +95,12 @@ void EnergyEfficientAgentTest::SetUp()
 {
     m_platform_io = geopm::make_unique<MockPlatformIO>();
     m_platform_topo = geopm::make_unique<MockPlatformTopo>();
-    ON_CALL(*m_platform_topo, num_domain(PlatformTopo::M_DOMAIN_CPU))
+    ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_CPU))
         .WillByDefault(Return(M_NUM_CPU));
     ON_CALL(*m_platform_io, signal_domain_type(_))
-        .WillByDefault(Return(PlatformTopo::M_DOMAIN_BOARD));
+        .WillByDefault(Return(GEOPM_DOMAIN_BOARD));
     ON_CALL(*m_platform_io, control_domain_type(_))
-        .WillByDefault(Return(PlatformTopo::M_DOMAIN_CPU));
+        .WillByDefault(Return(GEOPM_DOMAIN_CPU));
     ON_CALL(*m_platform_io, read_signal(std::string("CPUINFO::FREQ_MIN"), _, _))
         .WillByDefault(Return(1.0e9));
     ON_CALL(*m_platform_io, read_signal(std::string("CPUINFO::FREQ_STICKER"), _, _))
