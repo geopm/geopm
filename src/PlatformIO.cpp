@@ -317,7 +317,7 @@ namespace geopm
     {
         int result = -1;
         int base_domain_type = signal_domain_type(signal_name);
-        if (m_platform_topo.is_domain_within(base_domain_type, domain_type)) {
+        if (m_platform_topo.is_nested_domain(base_domain_type, domain_type)) {
             std::set<int> base_domain_idx = m_platform_topo.nested_domains(base_domain_type,
                                                                            domain_type, domain_idx);
             std::vector<int> signal_idx;
@@ -394,7 +394,7 @@ namespace geopm
     {
         int result = -1;
         int base_domain_type = control_domain_type(control_name);
-        if (m_platform_topo.is_domain_within(base_domain_type, domain_type)) {
+        if (m_platform_topo.is_nested_domain(base_domain_type, domain_type)) {
             std::set<int> base_domain_idx = m_platform_topo.nested_domains(base_domain_type,
                                                                            domain_type, domain_idx);
             std::vector<int> control_idx;
@@ -517,7 +517,7 @@ namespace geopm
     {
         double result = NAN;
         int base_domain_type = signal_domain_type(signal_name);
-        if (m_platform_topo.is_domain_within(base_domain_type, domain_type)) {
+        if (m_platform_topo.is_nested_domain(base_domain_type, domain_type)) {
             std::set<int> base_domain_idx = m_platform_topo.nested_domains(base_domain_type,
                                                                            domain_type, domain_idx);
             std::vector<double> values;
@@ -558,7 +558,7 @@ namespace geopm
                                                      double setting)
     {
         int base_domain_type = control_domain_type(control_name);
-        if (m_platform_topo.is_domain_within(base_domain_type, domain_type)) {
+        if (m_platform_topo.is_nested_domain(base_domain_type, domain_type)) {
             std::set<int> base_domain_idx = m_platform_topo.nested_domains(base_domain_type,
                                                                            domain_type, domain_idx);
             for (auto idx : base_domain_idx) {
