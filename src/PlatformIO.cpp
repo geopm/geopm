@@ -156,7 +156,7 @@ namespace geopm
 
     int PlatformIOImp::signal_domain_type(const std::string &signal_name) const
     {
-        int result = PlatformTopo::M_DOMAIN_INVALID;
+        int result = GEOPM_DOMAIN_INVALID;
         bool is_found = false;
         auto iogroup = find_signal_iogroup(signal_name);
         if (iogroup != nullptr) {
@@ -192,7 +192,7 @@ namespace geopm
 
     int PlatformIOImp::control_domain_type(const std::string &control_name) const
     {
-        int result = PlatformTopo::M_DOMAIN_INVALID;
+        int result = GEOPM_DOMAIN_INVALID;
         auto iogroup = find_control_iogroup(control_name);
         if (iogroup != nullptr) {
             result = iogroup->control_domain_type(control_name);
@@ -265,7 +265,7 @@ namespace geopm
                 energy_idx = push_signal("ENERGY_DRAM", domain_type, domain_idx);
             }
 
-            int time_idx = push_signal("TIME", PlatformTopo::M_DOMAIN_BOARD, 0);
+            int time_idx = push_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
             result = m_active_signal.size();
 
             register_combined_signal(result,

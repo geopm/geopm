@@ -120,10 +120,10 @@ class ControllerTest : public ::testing::Test
 
 void ControllerTest::SetUp()
 {
-    m_platform_io.add_supported_signal({"TIME", PlatformTopo::M_DOMAIN_BOARD, 0}, 99);
-    m_platform_io.add_supported_signal({"POWER_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0}, 4545);
-    m_platform_io.add_supported_signal({"FREQUENCY", PlatformTopo::M_DOMAIN_BOARD, 0}, 333);
-    m_platform_io.add_supported_signal({"REGION_PROGRESS", PlatformTopo::M_DOMAIN_BOARD, 0}, 0.5);
+    m_platform_io.add_supported_signal({"TIME", GEOPM_DOMAIN_BOARD, 0}, 99);
+    m_platform_io.add_supported_signal({"POWER_PACKAGE", GEOPM_DOMAIN_BOARD, 0}, 4545);
+    m_platform_io.add_supported_signal({"FREQUENCY", GEOPM_DOMAIN_BOARD, 0}, 333);
+    m_platform_io.add_supported_signal({"REGION_PROGRESS", GEOPM_DOMAIN_BOARD, 0}, 0.5);
 
     m_comm = std::make_shared<MockComm>();
     m_application_io = std::make_shared<MockApplicationIO>();
