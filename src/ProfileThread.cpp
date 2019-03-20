@@ -52,7 +52,7 @@ namespace geopm
 
     ProfileThreadTableImp::ProfileThreadTableImp(PlatformTopo &topo, size_t buffer_size, void *buffer)
         : m_buffer((uint32_t *)buffer)
-        , m_num_cpu(topo.num_domain(PlatformTopo::M_DOMAIN_CPU))
+        , m_num_cpu(topo.num_domain(GEOPM_DOMAIN_CPU))
         , m_stride(64 / sizeof(uint32_t))
     {
         if (buffer_size < 64 * m_num_cpu) {

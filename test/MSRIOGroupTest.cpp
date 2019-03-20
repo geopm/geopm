@@ -165,15 +165,15 @@ void MSRIOGroupTest::SetUp()
 {
     std::unique_ptr<MockMSRIO> msrio(new MockMSRIO(m_num_cpu));
     m_test_dev_path = msrio->test_dev_paths();
-    ON_CALL(m_topo, num_domain(PlatformTopo::M_DOMAIN_PACKAGE)).WillByDefault(Return(1));
-    ON_CALL(m_topo, num_domain(PlatformTopo::M_DOMAIN_CPU)).WillByDefault(Return(m_num_cpu));
+    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_PACKAGE)).WillByDefault(Return(1));
+    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU)).WillByDefault(Return(m_num_cpu));
     std::set<int> package_cpus;
     for (int ii = 0; ii < m_num_cpu; ++ii) {
-        ON_CALL(m_topo, nested_domains(PlatformTopo::M_DOMAIN_CPU, PlatformTopo::M_DOMAIN_CPU, ii))
+        ON_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CPU, ii))
             .WillByDefault(Return(std::set<int>{ii}));
         package_cpus.insert(ii);
     }
-    ON_CALL(m_topo, nested_domains(PlatformTopo::M_DOMAIN_CPU, PlatformTopo::M_DOMAIN_PACKAGE, _))
+    ON_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, _))
         .WillByDefault(Return(package_cpus));
 
     m_msrio_group = std::unique_ptr<MSRIOGroup>(new MSRIOGroup(m_topo, std::move(msrio), 0x657, m_num_cpu)); // KNL cpuid
@@ -227,12 +227,12 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
 TEST_F(MSRIOGroupTest, signal_error)
 {
     // error cases for push_signal
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("INVALID", PlatformTopo::M_DOMAIN_CPU, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("INVALID", GEOPM_DOMAIN_CPU, 0),
                                GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", PlatformTopo::M_DOMAIN_PACKAGE, -1),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_PACKAGE, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
 
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", PlatformTopo::M_DOMAIN_PACKAGE, 9000),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_PACKAGE, 9000),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
 
     // sample
@@ -240,11 +240,11 @@ TEST_F(MSRIOGroupTest, signal_error)
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->sample(22), GEOPM_ERROR_INVALID, "signal_idx out of range");
 
     // read_signal
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->read_signal("INVALID", PlatformTopo::M_DOMAIN_CPU, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->read_signal("INVALID", GEOPM_DOMAIN_CPU, 0),
                                GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", PlatformTopo::M_DOMAIN_PACKAGE, -1),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_PACKAGE, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", PlatformTopo::M_DOMAIN_PACKAGE, 9000),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_PACKAGE, 9000),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
 }
 
@@ -252,22 +252,22 @@ TEST_F(MSRIOGroupTest, push_signal)
 {
     EXPECT_TRUE(m_msrio_group->is_valid_signal("MSR::PERF_STATUS:FREQ"));
     EXPECT_FALSE(m_msrio_group->is_valid_signal("INVALID"));
-    EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, m_msrio_group->signal_domain_type("MSR::FIXED_CTR0:INST_RETIRED_ANY"));
-    EXPECT_EQ(PlatformTopo::M_DOMAIN_INVALID, m_msrio_group->signal_domain_type("INVALID"));
+    EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("MSR::FIXED_CTR0:INST_RETIRED_ANY"));
+    EXPECT_EQ(GEOPM_DOMAIN_INVALID, m_msrio_group->signal_domain_type("INVALID"));
 
     // push valid signals
-    int freq_idx_0 = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", PlatformTopo::M_DOMAIN_PACKAGE, 0);
+    int freq_idx_0 = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(0, freq_idx_0);
     int inst_idx_0 = m_msrio_group->push_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY",
-                                                PlatformTopo::M_DOMAIN_CPU, 0);
+                                                GEOPM_DOMAIN_CPU, 0);
     ASSERT_EQ(1, inst_idx_0);
 
     // pushing same signal gives same index
-    int idx2 = m_msrio_group->push_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY", PlatformTopo::M_DOMAIN_CPU, 0);
+    int idx2 = m_msrio_group->push_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(inst_idx_0, idx2);
 
     // pushing same signal for another cpu gives different index
-    int inst_idx_1 = m_msrio_group->push_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY", PlatformTopo::M_DOMAIN_CPU, 1);
+    int inst_idx_1 = m_msrio_group->push_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY", GEOPM_DOMAIN_CPU, 1);
     EXPECT_NE(inst_idx_0, inst_idx_1);
 
     // all provided signals are valid
@@ -279,12 +279,12 @@ TEST_F(MSRIOGroupTest, push_signal)
 
 TEST_F(MSRIOGroupTest, sample)
 {
-    int freq_idx_0 = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", PlatformTopo::M_DOMAIN_PACKAGE, 0);
+    int freq_idx_0 = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(0, freq_idx_0);
     int inst_idx_0 = m_msrio_group->push_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY",
-                                                PlatformTopo::M_DOMAIN_CPU, 0);
+                                                GEOPM_DOMAIN_CPU, 0);
     int inst_idx_1 = m_msrio_group->push_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY",
-                                                PlatformTopo::M_DOMAIN_CPU, 1);
+                                                GEOPM_DOMAIN_CPU, 1);
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->sample(freq_idx_0),
                                GEOPM_ERROR_RUNTIME, "sample() called before signal was read");
 
@@ -339,7 +339,7 @@ TEST_F(MSRIOGroupTest, sample)
     EXPECT_EQ(87654, inst_0);
     EXPECT_EQ(65432, inst_1);
 
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", PlatformTopo::M_DOMAIN_PACKAGE, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_PACKAGE, 0),
                                GEOPM_ERROR_INVALID, "cannot push a signal after read_batch");
 
     close(fd_0);
@@ -349,9 +349,9 @@ TEST_F(MSRIOGroupTest, sample)
 TEST_F(MSRIOGroupTest, sample_raw)
 {
     int inst_idx_0 = m_msrio_group->push_signal("MSR::FIXED_CTR0#",
-                                                PlatformTopo::M_DOMAIN_CPU, 0);
+                                                GEOPM_DOMAIN_CPU, 0);
     int inst_idx_1 = m_msrio_group->push_signal("MSR::FIXED_CTR0#",
-                                                PlatformTopo::M_DOMAIN_CPU, 1);
+                                                GEOPM_DOMAIN_CPU, 1);
     int fd_0 = open(m_test_dev_path[0].c_str(), O_RDWR);
     int fd_1 = open(m_test_dev_path[1].c_str(), O_RDWR);
     ASSERT_NE(-1, fd_0);
@@ -382,20 +382,20 @@ TEST_F(MSRIOGroupTest, read_signal)
     uint64_t value = 0xD00;
     size_t num_write = pwrite(fd_0, &value, sizeof(value), 0x198);
     ASSERT_EQ(num_write, sizeof(value));
-    double freq_0 = m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", PlatformTopo::M_DOMAIN_PACKAGE, 0);
+    double freq_0 = m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(1.3e9, freq_0);
 
     value = 7777;
     num_write = pwrite(fd_0, &value, sizeof(value), 0x309);
     ASSERT_EQ(num_write, sizeof(value));
 
-    double inst_0 = m_msrio_group->read_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY", PlatformTopo::M_DOMAIN_CPU, 0);
+    double inst_0 = m_msrio_group->read_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY", GEOPM_DOMAIN_CPU, 0);
     // 64-bit counters are normalized to first sample
     EXPECT_EQ(7777, inst_0);
     value = 8888;
     num_write = pwrite(fd_0, &value, sizeof(value), 0x309);
     ASSERT_EQ(num_write, sizeof(value));
-    inst_0 = m_msrio_group->read_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY", PlatformTopo::M_DOMAIN_CPU, 0);
+    inst_0 = m_msrio_group->read_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(8888, inst_0);
 
     close(fd_0);
@@ -403,9 +403,9 @@ TEST_F(MSRIOGroupTest, read_signal)
 
 TEST_F(MSRIOGroupTest, signal_alias)
 {
-    int freq_idx = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", PlatformTopo::M_DOMAIN_PACKAGE, 0);
+    int freq_idx = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(0, freq_idx);
-    int alias = m_msrio_group->push_signal("FREQUENCY", PlatformTopo::M_DOMAIN_PACKAGE, 0);
+    int alias = m_msrio_group->push_signal("FREQUENCY", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(freq_idx, alias);
 
     int fd = open(m_test_dev_path[0].c_str(), O_RDWR);
@@ -424,11 +424,11 @@ TEST_F(MSRIOGroupTest, signal_alias)
 TEST_F(MSRIOGroupTest, control_error)
 {
     // error cases for push_control
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("INVALID", PlatformTopo::M_DOMAIN_CPU, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("INVALID", GEOPM_DOMAIN_CPU, 0),
                                GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("MSR::PERF_CTL:FREQ", PlatformTopo::M_DOMAIN_PACKAGE, -1),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_PACKAGE, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("MSR::PERF_CTL:FREQ", PlatformTopo::M_DOMAIN_PACKAGE, 9000),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_PACKAGE, 9000),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
 
     // adjust
@@ -436,11 +436,11 @@ TEST_F(MSRIOGroupTest, control_error)
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->adjust(22, 0), GEOPM_ERROR_INVALID, "control_idx out of range");
 
     // write_control
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_control("INVALID", PlatformTopo::M_DOMAIN_CPU, 0, 1e9),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_control("INVALID", GEOPM_DOMAIN_CPU, 0, 1e9),
                                GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_control("MSR::PERF_CTL:FREQ", PlatformTopo::M_DOMAIN_PACKAGE, -1, 1e9),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_PACKAGE, -1, 1e9),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_control("MSR::PERF_CTL:FREQ", PlatformTopo::M_DOMAIN_PACKAGE, 9000, 1e9),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_PACKAGE, 9000, 1e9),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
 }
 
@@ -448,17 +448,17 @@ TEST_F(MSRIOGroupTest, push_control)
 {
     EXPECT_TRUE(m_msrio_group->is_valid_control("MSR::PERF_CTL:FREQ"));
     EXPECT_FALSE(m_msrio_group->is_valid_control("INVALID"));
-    EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, m_msrio_group->control_domain_type("MSR::FIXED_CTR_CTRL:EN0_OS"));
-    EXPECT_EQ(PlatformTopo::M_DOMAIN_INVALID, m_msrio_group->control_domain_type("INVALID"));
+    EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->control_domain_type("MSR::FIXED_CTR_CTRL:EN0_OS"));
+    EXPECT_EQ(GEOPM_DOMAIN_INVALID, m_msrio_group->control_domain_type("INVALID"));
 
     // push valid controls
-    int freq_idx_0 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", PlatformTopo::M_DOMAIN_PACKAGE, 0);
+    int freq_idx_0 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(0, freq_idx_0);
-    int power_idx = m_msrio_group->push_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", PlatformTopo::M_DOMAIN_PACKAGE, 0);
+    int power_idx = m_msrio_group->push_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", GEOPM_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(1, power_idx);
 
     // pushing same control gives same index
-    int idx2 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", PlatformTopo::M_DOMAIN_PACKAGE, 0);
+    int idx2 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(freq_idx_0, idx2);
 
     // all provided controls are valid
@@ -470,8 +470,8 @@ TEST_F(MSRIOGroupTest, push_control)
 
 TEST_F(MSRIOGroupTest, adjust)
 {
-    int freq_idx_0 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", PlatformTopo::M_DOMAIN_PACKAGE, 0);
-    int power_idx = m_msrio_group->push_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", PlatformTopo::M_DOMAIN_PACKAGE, 0);
+    int freq_idx_0 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_PACKAGE, 0);
+    int power_idx = m_msrio_group->push_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", GEOPM_DOMAIN_PACKAGE, 0);
 
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_batch(), GEOPM_ERROR_INVALID,
                                "called before all controls were adjusted");
@@ -513,7 +513,7 @@ TEST_F(MSRIOGroupTest, adjust)
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0x640ULL, (value & 0x7FFF));
 
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("INVALID", PlatformTopo::M_DOMAIN_CPU, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("INVALID", GEOPM_DOMAIN_CPU, 0),
                                GEOPM_ERROR_INVALID, "cannot push a control after read_batch() or adjust()");
 
     close(fd_0);
@@ -527,12 +527,12 @@ TEST_F(MSRIOGroupTest, write_control)
     size_t num_read;
 
     // Set frequency to 3 GHz immediately
-    m_msrio_group->write_control("MSR::PERF_CTL:FREQ", PlatformTopo::M_DOMAIN_PACKAGE, 0, 3e9);
+    m_msrio_group->write_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_PACKAGE, 0, 3e9);
     num_read = pread(fd_0, &value, sizeof(value), 0x199);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0x1E00ULL, (value & 0xFF00));
 
-    m_msrio_group->write_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", PlatformTopo::M_DOMAIN_PACKAGE, 0, 300);
+    m_msrio_group->write_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", GEOPM_DOMAIN_PACKAGE, 0, 300);
     num_read = pread(fd_0, &value, sizeof(value), 0x610);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0x960ULL, (value & 0x7FFF));
@@ -542,9 +542,9 @@ TEST_F(MSRIOGroupTest, write_control)
 
 TEST_F(MSRIOGroupTest, control_alias)
 {
-    int freq_idx = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", PlatformTopo::M_DOMAIN_PACKAGE, 0);
+    int freq_idx = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(0, freq_idx);
-    int alias = m_msrio_group->push_control("FREQUENCY", PlatformTopo::M_DOMAIN_PACKAGE, 0);
+    int alias = m_msrio_group->push_control("FREQUENCY", GEOPM_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(freq_idx, alias);
     int fd = open(m_test_dev_path[0].c_str(), O_RDWR);
     ASSERT_NE(-1, fd);
@@ -903,7 +903,7 @@ TEST_F(MSRIOGroupTest, parse_json_msrs)
     auto &msr0 = msr_list[0];
     EXPECT_EQ("MSR_ONE", msr0->name());
     EXPECT_EQ(0x12U, msr0->offset());
-    EXPECT_EQ(PlatformTopo::M_DOMAIN_PACKAGE, msr0->domain_type());
+    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, msr0->domain_type());
     EXPECT_EQ(1, msr0->num_signal());
     EXPECT_EQ(0, msr0->num_control());
     EXPECT_EQ("FIELD_RO", msr0->signal_name(0));
@@ -911,7 +911,7 @@ TEST_F(MSRIOGroupTest, parse_json_msrs)
     auto &msr1 = msr_list[1];
     EXPECT_EQ("MSR_TWO", msr1->name());
     EXPECT_EQ(0x10U, msr1->offset());
-    EXPECT_EQ(PlatformTopo::M_DOMAIN_CPU, msr1->domain_type());
+    EXPECT_EQ(GEOPM_DOMAIN_CPU, msr1->domain_type());
     EXPECT_EQ(1, msr1->num_signal());
     EXPECT_EQ(1, msr1->num_control());
     EXPECT_EQ("FIELD_RW", msr1->signal_name(0));
