@@ -84,8 +84,8 @@ void PowerGovernorAgentTest::SetUp(void)
 {
     EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE_LIMIT"))
         .Times(AtLeast(1))
-        .WillRepeatedly(Return(PlatformTopo::M_DOMAIN_PACKAGE));
-    EXPECT_CALL(m_platform_topo, num_domain(PlatformTopo::M_DOMAIN_PACKAGE))
+        .WillRepeatedly(Return(GEOPM_DOMAIN_PACKAGE));
+    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .WillOnce(Return(m_num_package));
     // Warning: if ENERGY_PACKAGE does not return updated values,
     // PowerGovernorAgent::wait() will loop forever.
@@ -95,11 +95,11 @@ void PowerGovernorAgentTest::SetUp(void)
                     m_energy_package += 10.0; return m_energy_package;
                 }));
 
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MIN", PlatformTopo::M_DOMAIN_PACKAGE, 0))
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_PACKAGE, 0))
         .WillOnce(Return(m_power_min));
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", PlatformTopo::M_DOMAIN_PACKAGE, 0))
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0))
         .WillOnce(Return(m_power_max));
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_TDP", PlatformTopo::M_DOMAIN_PACKAGE, 0))
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_PACKAGE, 0))
         .WillOnce(Return(m_power_max));
 
     m_fan_in = {2, 2};
@@ -108,9 +108,9 @@ void PowerGovernorAgentTest::SetUp(void)
 
 void PowerGovernorAgentTest::set_up_leaf(void)
 {
-    EXPECT_CALL(m_platform_io, push_signal("POWER_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0))
+    EXPECT_CALL(m_platform_io, push_signal("POWER_PACKAGE", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_SIGNAL_POWER_PACKAGE));
-    EXPECT_CALL(m_platform_io, push_signal("POWER_DRAM", PlatformTopo::M_DOMAIN_BOARD, 0))
+    EXPECT_CALL(m_platform_io, push_signal("POWER_DRAM", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_SIGNAL_POWER_DRAM));
     EXPECT_CALL(*m_power_gov, init_platform_io());
     EXPECT_CALL(*m_power_gov, sample_platform())

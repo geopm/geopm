@@ -123,16 +123,16 @@ bool AliceIOGroup::is_valid_control(const std::string &control_name) const
 
 int AliceIOGroup::signal_domain_type(const std::string &signal_name) const
 {
-    int result = PlatformTopo::M_DOMAIN_INVALID;
+    int result = GEOPM_DOMAIN_INVALID;
     if (is_valid_signal(signal_name)) {
-        result = PlatformTopo::M_DOMAIN_BOARD;
+        result = GEOPM_DOMAIN_BOARD;
     }
     return result;
 }
 
 int AliceIOGroup::control_domain_type(const std::string &control_name) const
 {
-    return PlatformTopo::M_DOMAIN_INVALID;
+    return GEOPM_DOMAIN_INVALID;
 }
 
 int AliceIOGroup::push_signal(const std::string &signal_name, int domain_type, int domain_idx)

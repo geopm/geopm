@@ -33,17 +33,17 @@ geopm::PlatformIO(3) -- geopm platform interface
 
 ## NAMESPACES
 
-The `IPlatformIO` class, the `IOGroup` class, and the `platform_io()`
+The `PlatformIO` class, the `IOGroup` class, and the `platform_io()`
 singleton accessor function are members of the `namespace geopm`, but
-the full names, `geopm::IPlatformIO`, `geopm::IOGroup` and
+the full names, `geopm::PlatformIO`, `geopm::IOGroup` and
 `geopm::platform_io()`, have been abbreviated in this manual.
 Similarly, the `std::` namespace specifier has been omitted from the
 interface definitions for the following standard types:
 `std::shared_ptr`, `std::set`, `std::string`, `std::function`,
 `std::vector`, to enable better rendering of this manual.
 
-Note that the `IPlatformIO` class is an abstract base class that the
-user interacts with.  The concrete implementation, `PlatformIO`, is
+Note that the `PlatformIO` class is an abstract base class that the
+user interacts with.  The concrete implementation, `PlatformIOImp`, is
 hidden by the singleton accessor.
 
 ## SYNOPSIS
@@ -52,80 +52,80 @@ hidden by the singleton accessor.
 
 `Link with -lgeopm`
 
-  * `IPlatformIO &platform_io(`:
+  * `PlatformIO &platform_io(`:
     `void);`
 
-  * `virtual set<string> IPlatformIO::signal_names(`:
+  * `virtual set<string> PlatformIO::signal_names(`:
     `void) const = 0;`
 
-  * `virtual set<string> IPlatformIO::control_names(`:
+  * `virtual set<string> PlatformIO::control_names(`:
     `void) const = 0;`
 
-  * `virtual string IPlatformIO::signal_description(`:
+  * `virtual string PlatformIO::signal_description(`:
     `const string &`_signal_name_`) const = 0;`
 
-  * `virtual string IPlatformIO::control_description(`:
+  * `virtual string PlatformIO::control_description(`:
     `const string &`_control_name_`) const = 0;`
 
-  * `virtual int IPlatformIO::signal_domain_type(`:
+  * `virtual int PlatformIO::signal_domain_type(`:
     `const string &`_signal_name_`) const = 0;`
 
-  * `virtual int IPlatformIO::control_domain_type(`:
+  * `virtual int PlatformIO::control_domain_type(`:
     `const string &`_control_name_`) const = 0;`
 
-  * `virtual double IPlatformIO::read_signal(`:
+  * `virtual double PlatformIO::read_signal(`:
     `const string &`_signal_name_`,` <br>
     `int` _domain_type_`,` <br>
     `int` _domain_idx_`) = 0;`
 
-  * `virtual void IPlatformIO::write_control(`:
+  * `virtual void PlatformIO::write_control(`:
     `const string &`_control_name_`,` <br>
     `int` _domain_type_`,` <br>
     `int` _domain_idx_`,` <br>
     `double` _setting_`) = 0;`
 
-  * `virtual void IPlatformIO::save_control(`:
+  * `virtual void PlatformIO::save_control(`:
     `void) = 0;`
 
-  * `virtual void IPlatformIO::restore_control(`:
+  * `virtual void PlatformIO::restore_control(`:
     `void) = 0;`
 
-  * `virtual int IPlatformIO::push_signal(`:
+  * `virtual int PlatformIO::push_signal(`:
     `const string &`_signal_name_`,` <br>
     `int` _domain_type_`,`
     `int` _domain_idx_`) = 0;`
 
-  * `virtual int IPlatformIO::push_control(`:
+  * `virtual int PlatformIO::push_control(`:
     `const string &`_control_name_`,` <br>
     `int` _domain_type_`,` <br>
     `int` _domain_idx_`) = 0;`
 
-  * `virtual int IPlatformIO::num_signal(`:
+  * `virtual int PlatformIO::num_signal(`:
     `void) const = 0;`
 
-  * `virtual int IPlatformIO::num_control(`:
+  * `virtual int PlatformIO::num_control(`:
     `void) const = 0;`
 
-  * `virtual double IPlatformIO::sample(`:
+  * `virtual double PlatformIO::sample(`:
     `int` _signal_idx_`) = 0;`
 
-  * `virtual void IPlatformIO::adjust(`:
+  * `virtual void PlatformIO::adjust(`:
     `int` _control_idx_`,`
     `double` _setting_`) = 0;`
 
-  * `virtual void IPlatformIO::read_batch(`:
+  * `virtual void PlatformIO::read_batch(`:
     `void) = 0;`
 
-  * `virtual void IPlatformIO::write_batch(`:
+  * `virtual void PlatformIO::write_batch(`:
     `void) = 0;`
 
-  * `virtual function<double(const vector<double> &)> IPlatformIO::agg_function(`:
+  * `virtual function<double(const vector<double> &)> PlatformIO::agg_function(`:
     `const string &`_signal_name_`) const = 0;`
 
-  * `virtual void IPlatformIO::register_iogroup(`:
+  * `virtual void PlatformIO::register_iogroup(`:
     `shared_ptr<IOGroup>` _iogroup_`) = 0;`
 
-  * `struct IPlatformIO::m_request_s {`:
+  * `struct PlatformIO::m_request_s {`:
     `string` _name_`;` <br>
     `int` _domain_type_`;` <br>
     `int` _domain_idx_`;` <br>
@@ -277,14 +277,14 @@ provides raw MSR field signals that are encoded in this way.
     Query the domain for the signal with name _signal_name_.  Returns
     one of the `geopm::PlatformTopo::m_domain_e` values signifying the
     granularity at which the signal is measured.  Will return
-    `geopm::PlatformTopo::M_DOMAIN_INVALID` if the signal name is not
+    `GEOPM_DOMAIN_INVALID` if the signal name is not
     supported.
 
   * `control_domain_type()`:
     Query the domain for the control with the name _control_name_.
     Returns one of the `geopm::PlatformTopo::m_domain_e` values
     signifying the granularity at which the control can be adjusted.
-    Will return `geopm::PlatformTopo::M_DOMAIN_INVALID` if the control
+    Will return `GEOPM_DOMAIN_INVALID` if the control
     name is not supported.
 
   * `agg_function()`:
@@ -406,8 +406,8 @@ provides raw MSR field signals that are encoded in this way.
             return -1;
         }
         std::string signal_name = argv[1];
-        geopm::IPlatformIO &pio = geopm::platform_io();
-        geopm::IPlatformTopo &topo = geopm::platform_topo();
+        geopm::PlatformIO &pio = geopm::platform_io();
+        geopm::PlatformTopo &topo = geopm::platform_topo();
         const int DOMAIN = pio.signal_domain_type(signal_name);
         const int NUM_DOMAIN = topo.num_domain(DOMAIN);
         std::cout << "cpu_idx    " << signal_name << std::endl;

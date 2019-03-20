@@ -282,8 +282,8 @@ namespace geopm
         double result = NAN;
         const double sticker_freq = m_platform_io.read_signal("CPUINFO::FREQ_STICKER", domain_type, 0);
         if (sig_name == "CPUINFO::FREQ_MIN") {
-            if (domain_type == PlatformTopo::M_DOMAIN_INVALID) {
-                if (m_platform_io.signal_domain_type("CPUINFO::FREQ_STICKER") == PlatformTopo::M_DOMAIN_INVALID) {
+            if (domain_type == GEOPM_DOMAIN_INVALID) {
+                if (m_platform_io.signal_domain_type("CPUINFO::FREQ_STICKER") == GEOPM_DOMAIN_INVALID) {
                     throw Exception("FrequencyMapAgent::" + std::string(__func__) + "(): unable to parse min and sticker frequencies.",
                                     GEOPM_ERROR_AGENT_UNSUPPORTED, __FILE__, __LINE__);
                 }
@@ -293,8 +293,8 @@ namespace geopm
             }
         }
         else if (sig_name == "CPUINFO::FREQ_MAX") {
-            if (domain_type == PlatformTopo::M_DOMAIN_INVALID) {
-                if (m_platform_io.signal_domain_type("CPUINFO::FREQ_STICKER") == PlatformTopo::M_DOMAIN_INVALID) {
+            if (domain_type == GEOPM_DOMAIN_INVALID) {
+                if (m_platform_io.signal_domain_type("CPUINFO::FREQ_STICKER") == GEOPM_DOMAIN_INVALID) {
                     throw Exception("FrequencyMapAgent::" + std::string(__func__) + "(): unable to parse max and sticker frequencies.",
                                     GEOPM_ERROR_AGENT_UNSUPPORTED, __FILE__, __LINE__);
                 }
@@ -328,7 +328,7 @@ namespace geopm
         std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT"};
         for (auto const&signal_name : signal_names) {
             m_signal_idx.push_back(m_platform_io.push_signal(signal_name,
-                                   PlatformTopo::M_DOMAIN_BOARD,
+                                   GEOPM_DOMAIN_BOARD,
                                    0));
         }
     }
