@@ -40,6 +40,8 @@
 #include <string>
 #include <stdio.h>
 
+#include "geopm_topo.h"
+
 extern "C"
 {
     /// @brief Identify host CPU.
@@ -51,35 +53,6 @@ namespace geopm
     class PlatformTopo
     {
         public:
-            enum m_domain_e {
-                /// @brief Reserved to represent an invalid domain
-                M_DOMAIN_INVALID = 0,
-                /// @brief All components on a user allocated compute
-                ///        node (one per controller)
-                M_DOMAIN_BOARD = 1,
-                /// @Brief Single processor package in one socket
-                M_DOMAIN_PACKAGE = 2,
-                /// @brief Group of associated hyper-threads
-                M_DOMAIN_CORE = 3,
-                /// @brief Linux logical CPU
-                M_DOMAIN_CPU = 4,
-                /// @brief Standard off package DIMM (DRAM or NAND)
-                M_DOMAIN_BOARD_MEMORY = 5,
-                /// @brief On package memory (MCDRAM)
-                M_DOMAIN_PACKAGE_MEMORY = 6,
-                /// @brief Network interface controller on the PCI bus
-                M_DOMAIN_BOARD_NIC = 7,
-                /// @brief Network interface controller on the
-                ///        processor package
-                M_DOMAIN_PACKAGE_NIC = 8,
-                /// @brief Accelerator card on the PCI bus
-                M_DOMAIN_BOARD_ACCELERATOR = 9,
-                /// @brief Accelerator unit on the package (e.g
-                ///        on-package graphics)
-                M_DOMAIN_PACKAGE_ACCELERATOR = 10,
-                M_NUM_DOMAIN,
-            };
-
             PlatformTopo() = default;
             virtual ~PlatformTopo() = default;
             /// @brief Number of domains on the platform of a
