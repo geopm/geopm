@@ -74,6 +74,13 @@ def skip_unless_cpufreq():
         return unittest.skip("Could not determine min and max frequency, enable cpufreq driver to run this test.")
     return lambda func: func
 
+def do_geopmwrite(write_str):
+    test_exec = "dummy -- geopmwrite " + write_str
+    ostream = StringIO.StringIO()
+    dev_null = open('/dev/null', 'w')
+    allocation_node_test(test_exec, ostream, dev_null)
+    dev_null.close()
+
 def do_geopmread(read_str):
     test_exec = "dummy -- geopmread " + read_str
     ostream = StringIO.StringIO()
@@ -146,8 +153,12 @@ class TestIntegration(unittest.TestCase):
         self._options = {'power_budget': 150}
         self._tmp_files = []
         self._output = None
+        self._power_limit = do_geopmread("MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER package 0")
+        self._frequency = do_geopmread("FREQUENCY package 0")
 
     def tearDown(self):
+        do_geopmwrite("POWER_PACKAGE_LIMIT package 0 " + str(self._power_limit))
+        do_geopmwrite("FREQUENCY package 0 " + str(self._frequency))
         if sys.exc_info() == (None, None, None) and os.getenv('GEOPM_KEEP_FILES') is None:
             if self._output is not None:
                 self._output.remove_files()
