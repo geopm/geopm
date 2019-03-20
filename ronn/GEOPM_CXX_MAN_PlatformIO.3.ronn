@@ -277,14 +277,14 @@ provides raw MSR field signals that are encoded in this way.
     Query the domain for the signal with name _signal_name_.  Returns
     one of the `geopm::PlatformTopo::m_domain_e` values signifying the
     granularity at which the signal is measured.  Will return
-    `geopm::PlatformTopo::M_DOMAIN_INVALID` if the signal name is not
+    `GEOPM_DOMAIN_INVALID` if the signal name is not
     supported.
 
   * `control_domain_type()`:
     Query the domain for the control with the name _control_name_.
     Returns one of the `geopm::PlatformTopo::m_domain_e` values
     signifying the granularity at which the control can be adjusted.
-    Will return `geopm::PlatformTopo::M_DOMAIN_INVALID` if the control
+    Will return `GEOPM_DOMAIN_INVALID` if the control
     name is not supported.
 
   * `agg_function()`:

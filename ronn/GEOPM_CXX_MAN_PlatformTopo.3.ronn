@@ -98,44 +98,44 @@ instructions to read signals from or write controls to that domain.
 
 The available domain types are as follows:
 
-  * IPlatformTopo::M_DOMAIN_INVALID = 0:
+  * GEOPM_DOMAIN_INVALID = 0:
     Indicates an invalid domain.
 
-  * IPlatformTopo::M_DOMAIN_BOARD = 1:
+  * GEOPM_DOMAIN_BOARD = 1:
     All components on a user allocated compute node. There is only a
     single board per compute node, and every other domain is contained
     with the board domain.
 
-  * IPlatformTopo::M_DOMAIN_PACKAGE = 2:
+  * GEOPM_DOMAIN_PACKAGE = 2:
     A collection of all the hardware present on a single processor
     package installed on a distinct socket of a motherboard.
 
-  * IPlatformTopo::M_DOMAIN_CORE = 3:
+  * GEOPM_DOMAIN_CORE = 3:
     Physical core, i.e. a group of associated hyper-threads
 
-  * IPlatformTopo::M_DOMAIN_CPU = 4:
+  * GEOPM_DOMAIN_CPU = 4:
     Linux logical CPU.  In practice, there is one logical CPU per
     hyperthread visible to the operating system.
 
-  * IPlatformTopo::M_DOMAIN_BOARD_MEMORY = 5:
+  * GEOPM_DOMAIN_BOARD_MEMORY = 5:
     Standard off-package DIMM (DRAM or NAND).
 
-  * IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY = 6:
+  * GEOPM_DOMAIN_PACKAGE_MEMORY = 6:
     On-package memory (MCDRAM).
 
-  * IPlatformTopo::M_DOMAIN_BOARD_NIC = 7:
+  * GEOPM_DOMAIN_BOARD_NIC = 7:
     Peripheral network interface controller not on the processor package.
 
-  * IPlatformTopo::M_DOMAIN_PACKAGE_NIC = 8:
+  * GEOPM_DOMAIN_PACKAGE_NIC = 8:
     Network interface controller on the processor package.
 
-  * IPlatformTopo::M_DOMAIN_BOARD_ACCELERATOR = 9:
+  * GEOPM_DOMAIN_BOARD_ACCELERATOR = 9:
     Peripheral accelerator card not on the processor package.
 
-  * IPlatformTopo::M_DOMAIN_PACKAGE_ACCELERATOR = 10:
+  * GEOPM_DOMAIN_PACKAGE_ACCELERATOR = 10:
     Accelerator unit on the package (e.g on-package graphics).
 
-  * IPlatformTopo::M_NUM_DOMAIN = 11:
+  * IGEOPM_NUM_DOMAIN = 11:
     The number of built-in domains.
 
 ## SINGLETON ACCESSOR
@@ -204,9 +204,9 @@ using geopm::IPlatformTopo;
 int main() {
     IPlatformTopo &topo = geopm::platform_topo();
 
-    int num_cores = topo.num_domain(IPlatformTopo::M_DOMAIN_CORE);
-    int num_cpus = topo.num_domain(IPlatformTopo::M_DOMAIN_CPU);
-    int num_pkgs = topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE);
+    int num_cores = topo.num_domain(GEOPM_DOMAIN_CORE);
+    int num_cpus = topo.num_domain(GEOPM_DOMAIN_CPU);
+    int num_pkgs = topo.num_domain(GEOPM_DOMAIN_PACKAGE);
 
     // Print counts of various domains
     std::cout << "Domain      Count      " << std::endl;
@@ -238,7 +238,7 @@ This loop, inserted into the above program, prints the Linux CPUs on each packag
 ```
     for (int pkg_idx = 0; pkg_idx < num_pkgs; ++pkg_idx) {
         std::cout << "CPUs on package " << pkg_idx << ": ";
-        std::set<int> cpus = topo.domain_cpus(IPlatformTopo::M_DOMAIN_PACKAGE, pkg_idx);
+        std::set<int> cpus = topo.domain_cpus(GEOPM_DOMAIN_PACKAGE, pkg_idx);
         for(auto pcpu : cpus) {
             std::cout << pcpu << " ";
         }
@@ -255,8 +255,8 @@ To check which logical CPUs are on the same core as CPU 8:
 
 ```
     int my_cpu = 8;
-    int cpu_core = topo.domain_idx(IPlatformTopo::M_DOMAIN_CORE, my_cpu);
-    std::set<int> socket_cpu_set = topo.domain_cpus(IPlatformTopo::M_DOMAIN_CORE, cpu_core);
+    int cpu_core = topo.domain_idx(GEOPM_DOMAIN_CORE, my_cpu);
+    std::set<int> socket_cpu_set = topo.domain_cpus(GEOPM_DOMAIN_CORE, cpu_core);
     for (auto cpu : socket_cpu_set) {
         if (cpu != my_cpu) {
             std::cout << cpu << " ";
@@ -271,7 +271,7 @@ The number of domains can also be use to check if a hardware feature, such as
 on-package memory, is present or absent:
 
 ```
-    if (topo.num_domain(IPlatformTopo::M_DOMAIN_PACKAGE_MEMORY) > 0) {
+    if (topo.num_domain(GEOPM_DOMAIN_PACKAGE_MEMORY) > 0) {
         std::cout << "On-package memory is present." << std::endl;
     }
     else {

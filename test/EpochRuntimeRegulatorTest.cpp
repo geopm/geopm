@@ -158,9 +158,9 @@ TEST_F(EpochRuntimeRegulatorTest, epoch_runtime)
 {
     int num_package = 2;
     int num_memory = 1;
-    EXPECT_CALL(m_platform_topo, num_domain(PlatformTopo::M_DOMAIN_PACKAGE)).Times(6)
+    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE)).Times(6)
         .WillRepeatedly(Return(num_package));
-    EXPECT_CALL(m_platform_topo, num_domain(PlatformTopo::M_DOMAIN_BOARD_MEMORY)).Times(6)
+    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD_MEMORY)).Times(6)
         .WillRepeatedly(Return(num_memory));
     EXPECT_CALL(m_platform_io, read_signal("ENERGY_PACKAGE", _, _))
         .Times(num_package * 6);

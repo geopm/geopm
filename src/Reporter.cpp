@@ -89,11 +89,11 @@ namespace geopm
 
     void ReporterImp::init(void)
     {
-        m_region_bulk_runtime_idx = m_region_agg->push_signal_total("TIME", PlatformTopo::M_DOMAIN_BOARD, 0);
-        m_energy_pkg_idx = m_region_agg->push_signal_total("ENERGY_PACKAGE", PlatformTopo::M_DOMAIN_BOARD, 0);
-        m_energy_dram_idx = m_region_agg->push_signal_total("ENERGY_DRAM", PlatformTopo::M_DOMAIN_BOARD, 0);
-        m_clk_core_idx = m_region_agg->push_signal_total("CYCLES_THREAD", PlatformTopo::M_DOMAIN_BOARD, 0);
-        m_clk_ref_idx = m_region_agg->push_signal_total("CYCLES_REFERENCE", PlatformTopo::M_DOMAIN_BOARD, 0);
+        m_region_bulk_runtime_idx = m_region_agg->push_signal_total("TIME", GEOPM_DOMAIN_BOARD, 0);
+        m_energy_pkg_idx = m_region_agg->push_signal_total("ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0);
+        m_energy_dram_idx = m_region_agg->push_signal_total("ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0);
+        m_clk_core_idx = m_region_agg->push_signal_total("CYCLES_THREAD", GEOPM_DOMAIN_BOARD, 0);
+        m_clk_ref_idx = m_region_agg->push_signal_total("CYCLES_REFERENCE", GEOPM_DOMAIN_BOARD, 0);
         for (const std::string &signal_name : string_split(m_env_signals, ",")) {
             std::vector<std::string> signal_name_domain = string_split(signal_name, "@");
             if (signal_name_domain.size() == 2) {
@@ -107,7 +107,7 @@ namespace geopm
             else if (signal_name_domain.size() == 1) {
                 m_env_signal_name_idx.emplace_back(
                     signal_name,
-                    m_region_agg->push_signal_total(signal_name, PlatformTopo::M_DOMAIN_BOARD, 0));
+                    m_region_agg->push_signal_total(signal_name, GEOPM_DOMAIN_BOARD, 0));
             }
             else {
                 throw Exception("ReporterImp::init(): Environment report extension contains signals with multiple \"@\" characters.",
@@ -249,7 +249,7 @@ namespace geopm
                 mpi_runtime = application_io.total_region_runtime_mpi(region.hash);
             }
             report << "    frequency (%): " << freq << std::endl;
-            report << "    frequency (Hz): " << freq / 100.0 * m_platform_io.read_signal("CPUINFO::FREQ_STICKER", PlatformTopo::M_DOMAIN_BOARD, 0) << std::endl;
+            report << "    frequency (Hz): " << freq / 100.0 * m_platform_io.read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0) << std::endl;
             report << "    mpi-runtime (sec): " << mpi_runtime << std::endl;
             report << "    count: " << region.count << std::endl;
             for (const auto &env_it : m_env_signal_name_idx) {
