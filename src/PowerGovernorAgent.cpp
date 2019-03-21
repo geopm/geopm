@@ -124,30 +124,16 @@ namespace geopm
         }
     }
 
-    void PowerGovernorAgent::validate_policy(std::vector<double> &policy) const
-    {
-
-    }
-
-    bool PowerGovernorAgent::descend(const std::vector<double> &policy_in, std::vector<std::vector<double> > &policy_out)
+    bool PowerGovernorAgent::policy(std::vector<double> &policy)
     {
 #ifdef GEOPM_DEBUG
-        if (policy_in.size() != M_NUM_POLICY) {
+        if (policy.size() != M_NUM_POLICY) {
             throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): number of policies was different from expected.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
-        if (m_level == 0) {
-            throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): level 0 agent not expected to call descend.",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-        if (policy_out.size() != (size_t)m_num_children) {
-            throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): policy_out vector not correctly sized.",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
 #endif
-
         bool result = false;
-        double power_budget_in = policy_in[M_POLICY_POWER];
+        double power_budget_in = policy[M_POLICY_POWER];
         // If NAN, use default
         if (std::isnan(power_budget_in)) {
             power_budget_in = m_tdp_power_setting;
@@ -157,25 +143,44 @@ namespace geopm
 
         if (per_package_budget_in > m_max_power_setting ||
             per_package_budget_in < m_min_power_setting) {
-            throw Exception("PowerGovernorAgent::descend(): "
-                            "invalid power budget.",
+            throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): invalid power budget.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         // Send down if this is the first budget, or if the budget changed
         if ((std::isnan(m_last_power_budget) && !std::isnan(power_budget_in)) ||
             m_last_power_budget != power_budget_in) {
+            result = true;
 
             m_last_power_budget = power_budget_in;
-            // Convert power budget vector into a vector of policy vectors
-            for (int child_idx = 0; child_idx != m_num_children; ++child_idx) {
-                policy_out[child_idx][M_POLICY_POWER] = power_budget_in;
-            }
             m_epoch_power_buf->clear();
             m_is_converged = false;
-            result = true;
         }
         return result;
+    }
+
+    void PowerGovernorAgent::descend(std::vector<std::vector<double> > &policy_out) const
+    {
+#ifdef GEOPM_DEBUG
+        if (m_level == 0) {
+            throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): level 0 agent not expected to call descend.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+        if (policy_out.size() != (size_t)m_num_children) {
+            throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): policy_out vector not correctly sized.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        // Convert power budget vector into a vector of policy vectors
+        for (int child_idx = 0; child_idx != m_num_children; ++child_idx) {
+#ifdef GEOPM_DEBUG
+            if (child_policy.size() != M_NUM_POLICY) {
+                throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): child_policy vector not correctly sized.",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
+#endif
+            policy_out[child_idx][M_POLICY_POWER] = m_last_power_budget;
+        }
     }
 
     bool PowerGovernorAgent::ascend(const std::vector<std::vector<double> > &in_sample, std::vector<double> &out_sample)
@@ -219,22 +224,9 @@ namespace geopm
         return result;
     }
 
-    bool PowerGovernorAgent::adjust_platform(const std::vector<double> &in_policy)
+    bool PowerGovernorAgent::adjust_platform()
     {
-#ifdef GEOPM_DEBUG
-        if (in_policy.size() != M_NUM_POLICY) {
-            throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): one control was expected.",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        // If NAN, use default
-        double power_budget_in = in_policy[M_POLICY_POWER];
-        if (std::isnan(power_budget_in)) {
-            power_budget_in = m_tdp_power_setting;
-        }
-
-        bool result = m_power_gov->adjust_platform(power_budget_in, m_adjusted_power);
-        m_last_power_budget = power_budget_in;
+        bool result = m_power_gov->adjust_platform(m_last_power_budget, m_adjusted_power);
         return result;
     }
 

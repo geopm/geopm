@@ -55,12 +55,11 @@ namespace geopm
             MonitorAgent(PlatformIO &plat_io, PlatformTopo &topo);
             virtual ~MonitorAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
-            void validate_policy(std::vector<double> &policy) const override;
-            bool descend(const std::vector<double> &in_policy,
-                         std::vector<std::vector<double> >&out_policy) override;
+            bool policy(std::vector<double> &policy) override;
+            void descend(std::vector<std::vector<double> >&out_policy) const override;
             bool ascend(const std::vector<std::vector<double> > &in_sample,
                         std::vector<double> &out_sample) override;
-            bool adjust_platform(const std::vector<double> &in_policy) override;
+            bool adjust_platform() override;
             bool sample_platform(std::vector<double> &out_sample) override;
             void wait(void) override;
             std::vector<std::pair<std::string, std::string> > report_header(void) const override;

@@ -139,12 +139,11 @@ namespace geopm
             PowerBalancerAgent();
             virtual ~PowerBalancerAgent();
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
-            void validate_policy(std::vector<double> &policy) const override;
-            bool descend(const std::vector<double> &in_policy,
-                         std::vector<std::vector<double> >&out_policy) override;
+            bool policy(std::vector<double> &policy) override;
+            void descend(std::vector<std::vector<double> >&out_policy) const override;
             bool ascend(const std::vector<std::vector<double> > &in_sample,
                         std::vector<double> &out_sample) override;
-            bool adjust_platform(const std::vector<double> &in_policy) override;
+            bool adjust_platform() override;
             bool sample_platform(std::vector<double> &out_sample) override;
             void wait(void) override;
             std::vector<std::pair<std::string, std::string> > report_header(void) const override;
@@ -161,11 +160,12 @@ namespace geopm
             class Step;
             class Role {
                 public:
-                    virtual bool descend(const std::vector<double> &in_policy,
-                                         std::vector<std::vector<double> >&out_policy);
+                    /// @todo make pure virutal
+                    virtual bool policy(std::vector<double> &policy);
+                    virtual void descend(std::vector<std::vector<double> >&out_policy) const;
                     virtual bool ascend(const std::vector<std::vector<double> > &in_sample,
                                         std::vector<double> &out_sample);
-                    virtual bool adjust_platform(const std::vector<double> &in_policy);
+                    virtual bool adjust_platform();
                     virtual bool sample_platform(std::vector<double> &out_sample);
                     virtual std::vector<std::string> trace_names(void) const;
                     virtual void trace_values(std::vector<double> &values);
@@ -212,7 +212,6 @@ namespace geopm
             std::unique_ptr<PowerBalancer> m_power_balancer;   /// temporary ownership, std::move'd to Role on init
             struct geopm_time_s m_last_wait;
             const double M_WAIT_SEC;
-            double m_power_tdp;
 
             class RootRole;
             class LeafRole;
@@ -261,8 +260,7 @@ namespace geopm
                 public:
                     TreeRole(int level, const std::vector<int> &fan_in);
                     virtual ~TreeRole();
-                    virtual bool descend(const std::vector<double> &in_policy,
-                                         std::vector<std::vector<double> >&out_policy) override;
+                    virtual void descend(std::vector<std::vector<double> >&out_policy) const override;
                     virtual bool ascend(const std::vector<std::vector<double> > &in_sample,
                                         std::vector<double> &out_sample) override;
                 protected:
@@ -275,10 +273,9 @@ namespace geopm
                 friend class MeasureRuntimeStep;
                 friend class ReduceLimitStep;
                 public:
-                    RootRole(int level, const std::vector<int> &fan_in, double min_power, double max_power);
+                    RootRole(int level, const std::vector<int> &fan_in, double min_power, double max_power, double tdp_power);
                     virtual ~RootRole();
-                    bool descend(const std::vector<double> &in_policy,
-                                 std::vector<std::vector<double> >&out_policy) override;
+                    virtual void descend(std::vector<std::vector<double> >&out_policy) const override;
                     bool ascend(const std::vector<std::vector<double> > &in_sample,
                                 std::vector<double> &out_sample) override;
                 private:
@@ -286,6 +283,7 @@ namespace geopm
                     double m_root_cap;
                     const double M_MIN_PKG_POWER_SETTING;
                     const double M_MAX_PKG_POWER_SETTING;
+                    const double M_POWER_TDP;
             };
 
             class LeafRole : public Role {
@@ -298,7 +296,7 @@ namespace geopm
                              std::unique_ptr<PowerGovernor> power_governor,
                              std::unique_ptr<PowerBalancer> power_balancer);
                     virtual ~LeafRole();
-                    bool adjust_platform(const std::vector<double> &in_policy) override;
+                    bool adjust_platform() override;
                     bool sample_platform(std::vector<double> &out_sample) override;
                     std::vector<std::string> trace_names(void) const override;
                     void trace_values(std::vector<double> &values) override;

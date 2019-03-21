@@ -69,15 +69,14 @@ namespace geopm
 
     }
 
-    void MonitorAgent::validate_policy(std::vector<double> &policy) const
-    {
-
-    }
-
-    bool MonitorAgent::descend(const std::vector<double> &in_policy,
-                               std::vector<std::vector<double> >&out_policy)
+    bool MonitorAgent::policy(std::vector<double> &policy)
     {
         return false;
+    }
+
+    void MonitorAgent::descend(std::vector<std::vector<double> >&out_policy) const
+    {
+
     }
 
     bool MonitorAgent::ascend(const std::vector<std::vector<double> > &in_sample,
@@ -86,7 +85,7 @@ namespace geopm
         return false;
     }
 
-    bool MonitorAgent::adjust_platform(const std::vector<double> &in_policy)
+    bool MonitorAgent::adjust_platform()
     {
         return false;
     }
