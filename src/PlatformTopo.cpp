@@ -311,42 +311,27 @@ namespace geopm
 
     std::vector<std::string> PlatformTopo::domain_names(void)
     {
-        return {
-            "board",
-            "package",
-            "core",
-            "cpu",
-            "board_memory",
-            "package_memory",
-            "board_nic",
-            "package_nic",
-            "board_accelerator",
-            "package_accelerator",
-        };
+        std::vector<std::string> result(GEOPM_NUM_DOMAIN);
+        for (const auto &it : domain_types()) {
+            result.at(it.second) = it.first;
+        }
+        return result;
     }
 
     std::map<std::string, int> PlatformTopo::domain_types(void)
     {
-        std::map<std::string, int> result;
-        int domain_type = GEOPM_DOMAIN_INVALID;
-        auto names = domain_names();
-        for (const auto &name : names) {
-            result[name] = domain_type;
-            ++domain_type;
-        }
-#ifdef GEOPM_DEBUG
-        if (names.size() != GEOPM_NUM_DOMAIN) {
-            throw Exception("PlatformTopo::m_domain_name has incorrect size.  "
-                            "Domains must match m_domain_e in number and order.",
-                            GEOPM_ERROR_LOGIC);
-        }
-        if (result.size() != GEOPM_NUM_DOMAIN) {
-            throw Exception("PlatformTopo::m_domain_type has incorrect size.  "
-                            "Domain type mapping must match m_domain_name.",
-                            GEOPM_ERROR_LOGIC);
-        }
-#endif
-        return result;
+        return {
+            {"board", GEOPM_DOMAIN_BOARD},
+            {"package", GEOPM_DOMAIN_PACKAGE},
+            {"core", GEOPM_DOMAIN_CORE},
+            {"cpu", GEOPM_DOMAIN_CPU},
+            {"board_memory", GEOPM_DOMAIN_BOARD_MEMORY},
+            {"package_memory", GEOPM_DOMAIN_PACKAGE_MEMORY},
+            {"board_nic", GEOPM_DOMAIN_BOARD_NIC},
+            {"package_nic", GEOPM_DOMAIN_PACKAGE_NIC},
+            {"board_accelerator", GEOPM_DOMAIN_BOARD_ACCELERATOR},
+            {"package_accelerator", GEOPM_DOMAIN_PACKAGE_ACCELERATOR}
+        };
     }
 
     std::string PlatformTopo::domain_type_to_name(int domain_type)
