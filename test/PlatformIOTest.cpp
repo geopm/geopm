@@ -183,6 +183,15 @@ void PlatformIOTest::SetUp()
         .WillByDefault(Return(m_cpu_set0));
     ON_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 1))
         .WillByDefault(Return(m_cpu_set1));
+    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_BOARD))
+        .WillByDefault(Return(1));
+    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU))
+        .WillByDefault(Return(m_cpu_set_board.size()));
+    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
+        .WillByDefault(Return(2));
+    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_BOARD_MEMORY))
+        .WillByDefault(Return(2));
+
 
     m_iogroup_ptr = {
         m_time_iogroup,
