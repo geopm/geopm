@@ -171,9 +171,11 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/geopm_fortran.3 \
                 man/geopm_hash.3 \
                 man/geopm_imbalancer.3 \
+                man/geopm_pio_c.3 \
                 man/geopm_prof_c.3 \
                 man/geopm_sched.3 \
                 man/geopm_time.3 \
+                man/geopm_topo_c.3 \
                 man/geopm_version.3 \
                 man/geopmagent.1 \
                 man/geopmbench.1 \
@@ -278,9 +280,11 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/geopm_fortran.3.ronn \
              ronn/geopm_hash.3.ronn \
              ronn/geopm_imbalancer.3.ronn \
+             ronn/geopm_pio_c.3.ronn \
              ronn/geopm_prof_c.3.ronn \
              ronn/geopm_sched.3.ronn \
              ronn/geopm_time.3.ronn \
+             ronn/geopm_topo_c.3.ronn \
              ronn/geopm_version.3.ronn \
              ronn/geopmagent.1.ronn \
              ronn/geopmanalysis.1.ronn \

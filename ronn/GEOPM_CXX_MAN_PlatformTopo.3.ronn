@@ -96,47 +96,7 @@ the `IPlatformTopo::domain_cpus()` method.  The CPUs associated with a
 domain are the set of CPUs that can most efficiently issue
 instructions to read signals from or write controls to that domain.
 
-The available domain types are as follows:
-
-  * GEOPM_DOMAIN_INVALID = 0:
-    Indicates an invalid domain.
-
-  * GEOPM_DOMAIN_BOARD = 1:
-    All components on a user allocated compute node. There is only a
-    single board per compute node, and every other domain is contained
-    with the board domain.
-
-  * GEOPM_DOMAIN_PACKAGE = 2:
-    A collection of all the hardware present on a single processor
-    package installed on a distinct socket of a motherboard.
-
-  * GEOPM_DOMAIN_CORE = 3:
-    Physical core, i.e. a group of associated hyper-threads
-
-  * GEOPM_DOMAIN_CPU = 4:
-    Linux logical CPU.  In practice, there is one logical CPU per
-    hyperthread visible to the operating system.
-
-  * GEOPM_DOMAIN_BOARD_MEMORY = 5:
-    Standard off-package DIMM (DRAM or NAND).
-
-  * GEOPM_DOMAIN_PACKAGE_MEMORY = 6:
-    On-package memory (MCDRAM).
-
-  * GEOPM_DOMAIN_BOARD_NIC = 7:
-    Peripheral network interface controller not on the processor package.
-
-  * GEOPM_DOMAIN_PACKAGE_NIC = 8:
-    Network interface controller on the processor package.
-
-  * GEOPM_DOMAIN_BOARD_ACCELERATOR = 9:
-    Peripheral accelerator card not on the processor package.
-
-  * GEOPM_DOMAIN_PACKAGE_ACCELERATOR = 10:
-    Accelerator unit on the package (e.g on-package graphics).
-
-  * IGEOPM_NUM_DOMAIN = 11:
-    The number of built-in domains.
+The available domain types are defined in the **geopm_topo(3)** man page.
 
 ## SINGLETON ACCESSOR
 

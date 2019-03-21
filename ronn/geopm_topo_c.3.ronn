@@ -1,0 +1,102 @@
+geopm_topo_c(3) -- query platform component topology
+====================================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## SYNOPSIS
+
+  * `int geopm_topo_num_domain(`:
+    `int` _domain_type_`);`
+
+  * `int geopm_topo_domain_idx(`:
+    `int` _domain_type_,
+    `int` _cpu_idx_`);`
+
+  * `int geopm_topo_num_domain_nested(`:
+    `int` _inner_domain_,
+    `int` _outer_domain_`);`
+
+  * `int geopm_topo_domain_nested(`:
+    `int` _inner_domain_,
+    `int` _outer_domain_,
+    `int` _outer_idx_,
+    `int *`_domain_nested_`);`
+
+  * `int geopm_topo_domain_name(`:
+    `int` _domain_type_,
+    `size_t` _domain_name_max_,
+    `char *`_domain_name_`);`
+
+  * `int geopm_topo_domain_type(`:
+    `const char *`_domain_name_`);`
+
+## DOMAIN TYPES
+
+  * GEOPM_DOMAIN_INVALID = -1:
+    Indicates an invalid domain.
+
+  * GEOPM_DOMAIN_BOARD = 0:
+    All components on a user allocated compute node. There is only a
+    single board per compute node, and every other domain is contained
+    with the board domain.
+
+  * GEOPM_DOMAIN_PACKAGE = 1:
+    A collection of all the hardware present on a single processor
+    package installed on a distinct socket of a motherboard.
+
+  * GEOPM_DOMAIN_CORE = 2:
+    Physical core, i.e. a group of associated hyper-threads
+
+  * GEOPM_DOMAIN_CPU = 3:
+    Linux logical CPU.  In practice, there is one logical CPU per
+    hyperthread visible to the operating system.
+
+  * GEOPM_DOMAIN_BOARD_MEMORY = 4:
+    Standard off-package DIMM (DRAM or NAND).
+
+  * GEOPM_DOMAIN_PACKAGE_MEMORY = 5:
+    On-package memory (MCDRAM).
+
+  * GEOPM_DOMAIN_BOARD_NIC = 6:
+    Peripheral network interface controller not on the processor package.
+
+  * GEOPM_DOMAIN_PACKAGE_NIC = 7:
+    Network interface controller on the processor package.
+
+  * GEOPM_DOMAIN_BOARD_ACCELERATOR = 8:
+    Peripheral accelerator card not on the processor package.
+
+  * GEOPM_DOMAIN_PACKAGE_ACCELERATOR = 9:
+    Accelerator unit on the package (e.g on-package graphics).
+
+  * GEOPM_NUM_DOMAIN = 10:
+    The number of valid built-in domains.
+
