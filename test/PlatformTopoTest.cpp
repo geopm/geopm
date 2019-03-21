@@ -31,6 +31,8 @@
  */
 
 #include <unistd.h>
+#include <limits.h>
+
 #include <fstream>
 #include <string>
 
@@ -59,6 +61,48 @@ class PlatformTopoTest : public :: testing :: Test
         std::string m_no0x_lscpu_str;
         bool m_do_unlink;
 };
+
+static void spoof_lscpu(void)
+{
+    // Create script that wraps lscpu
+    std::string lscpu_script = "#!/bin/bash\n"
+                               "if [ \"$PLATFORM_TOPO_TEST_LSCPU_ERROR\" -ne 0 ]; then\n"
+                               "    exit -1;\n"
+                               "else\n"
+                               "    echo Architecture:          x86_64"
+                               "    echo CPU op-mode(s):        32-bit, 64-bit"
+                               "    echo Byte Order:            Little Endian"
+                               "    echo CPU(s):                2"
+                               "    echo On-line CPU(s) mask:   0x3"
+                               "    echo Thread(s) per core:    1"
+                               "    echo Core(s) per socket:    2"
+                               "    echo Socket(s):             1"
+                               "    echo NUMA node(s):          1"
+                               "    echo Vendor ID:             GenuineIntel"
+                               "    echo CPU family:            6"
+                               "    echo Model:                 61"
+                               "    echo Model name:            Intel(R) Core(TM) i7-5650U CPU @ 2.20GHz"
+                               "    echo Stepping:              4"
+                               "    echo CPU MHz:               2200.000"
+                               "    echo BogoMIPS:              4400.00"
+                               "    echo Hypervisor vendor:     KVM"
+                               "    echo Virtualization type:   full"
+                               "    echo L1d cache:             32K"
+                               "    echo L1i cache:             32K"
+                               "    echo L2 cache:              256K"
+                               "    echo L3 cache:              4096K"
+                               "    echo NUMA node0 CPU(s):     0x3"
+                               "fi\n";
+    std::ofstream script_stream("lscpu");
+    script_stream << lscpu_script;
+    script_stream.close();
+    chmod("lscpu", S_IRWXU|S_IRWXG|S_IROTH|S_IXOTH);
+
+    // Put CWD in the front of PATH
+    std::string path_env(":" + m_path_env_save);
+    setenv("PATH", path_env.c_str(), 1);
+}
+
 
 void PlatformTopoTest::SetUp()
 {
@@ -629,22 +673,7 @@ TEST_F(PlatformTopoTest, create_cache)
     // Delete existing cache
     const std::string cache_file_path = "PlatformTopoTest-geopm-topo-cache";
     unlink(cache_file_path.c_str());
-
-    // Create script that wraps lscpu
-    std::string lscpu_script = "#!/bin/bash\n"
-                               "if [ \"$PLATFORM_TOPO_TEST_LSCPU_ERROR\" -ne 0 ]; then\n"
-                               "    exit -1;\n"
-                               "else\n"
-                               "    echo Architecture: x86\n"
-                               "fi\n";
-    std::ofstream script_stream("lscpu");
-    script_stream << lscpu_script;
-    script_stream.close();
-    chmod("lscpu", S_IRWXU|S_IRWXG|S_IROTH|S_IXOTH);
-
-    // Put CWD in the front of PATH
-    std::string path_env(":" + m_path_env_save);
-    setenv("PATH", path_env.c_str(), 1);
+    spoof_lscpu();
 
     // Test case: no lscpu error, file does not exist
     setenv("PLATFORM_TOPO_TEST_LSCPU_ERROR", "0", 1);
@@ -672,4 +701,50 @@ TEST_F(PlatformTopoTest, create_cache)
     EXPECT_THROW(PlatformTopoImp::create_cache(cache_file_path), geopm::Exception);
     struct stat stat_struct;
     ASSERT_EQ(-1, stat(cache_file_path.c_str(), &stat_struct));
+}
+
+
+TEST_F(PlatformTopoTest, call_c_wrappers)
+{
+    spoof_lscpu();
+    // negative test num_domain()
+    ASSERT_GT(0, geopm_topo_num_domain(GEOPM_NUM_DOMAIN));
+    // simple test for num_domain()
+    ASSERT_EQ(1, geopm_topo_num_domain(GEOPM_DOMAIN_BOARD));
+    // negative test for domain_idx()
+    ASSERT_GT(0, geopm_topo_domain_idx(GEOPM_DOMAIN_BOARD, -1));
+    // simple test for domain_idx()
+    ASSERT_EQ(0, geopm_topo_domain_idx(GEOPM_DOMAIN_BOARD, 0));
+    // check that the cpus are indexed properly
+    int num_cpu = geopm_topo_num_domain(GEOPM_DOMAIN_CPU);
+    ASSERT_LE(1, num_cpu);
+    EXPECT_EQ(0, geopm_topo_domain_idx(GEOPM_DOMAIN_BOARD, num_cpu - 1));
+    // another negative test for domain_idx
+    EXPECT_GT(0, geopm_topo_domain_idx(GEOPM_DOMAIN_BOARD, num_cpu));
+    // simple test for num_domain_nested
+    ASSERT_GT(0, geopm_topo_num_domain_nested(GEOPM_DOMAIN_BOARD, GEOPM_DOMAIN_CPU));
+    // simple test for num_domain_nested
+    ASSERT_EQ(num_cpu, geopm_topo_num_domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD));
+    // negative test for domain_nested()
+    EXPECT_GT(0, geopm_topo_domain_nested(GEOPM_DOMAIN_BOARD, GEOPM_DOMAIN_CPU, 0, NULL));
+    // simple test for domain_nested()
+    std::vector<int> expect_cpu(num_cpu);
+    std::vector<int> actual_cpu(num_cpu, -1);
+    for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
+        expect_cpu[cpu_idx] = cpu_idx;
+    }
+    EXPECT_EQ(0, geopm_topo_domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD, 0, actual_cpu.data()));
+    EXPECT_EQ(expect_cpu, actual_cpu);
+    char domain_name[NAME_MAX];
+    std::string domain_name_str;
+    // negative test for domain_name()
+    EXPECT_GT(0, geopm_topo_domain_name(GEOPM_NUM_DOMAIN, NAME_MAX, domain_name));
+    // simple test for domain_name()
+    EXPECT_EQ(0, geopm_topo_domain_name(GEOPM_DOMAIN_CPU, NAME_MAX, domain_name));
+    domain_name_str = domain_name;
+    EXPECT_EQ("cpu", domain_name_str);
+    // negative test for domain_type()
+    EXPECT_GT(0, geopm_topo_domain_type("raspberry"));
+    // simple test for domain_type()
+    EXPECT_EQ(GEOPM_DOMAIN_CPU, geopm_topo_domain_type("cpu"));
 }
