@@ -61,7 +61,7 @@ hidden by the singleton accessor.
     `int` _domain_type_`,` <br>
     `int` _cpu_idx_`) const = 0;`
 
-  * `bool PlatformTopo::is_domain_within(`:
+  * `bool PlatformTopo::is_nested_domain(`:
     `int` _inner_domain_`,` <br>
     `int` _outer_domain_`) const = 0;`
 
@@ -153,7 +153,7 @@ The available domain types are as follows:
     Get the domain index for a particular _domain_type_ that contains
     the given Linux logical CPU with index _cpu_idx_.
 
-  * `is_domain_within`():
+  * `is_nested_domain`():
     Check if _inner_domain_ is contained within _outer_domain_.
     GEOPM_DOMAIN_BOARD is the outermost domain representing the entire
     node.  All other domains are contained within _board_.
