@@ -31,6 +31,8 @@
  */
 
 #include <unistd.h>
+#include <limits.h>
+
 #include <fstream>
 #include <string>
 
@@ -672,4 +674,49 @@ TEST_F(PlatformTopoTest, create_cache)
     EXPECT_THROW(PlatformTopoImp::create_cache(cache_file_path), geopm::Exception);
     struct stat stat_struct;
     ASSERT_EQ(-1, stat(cache_file_path.c_str(), &stat_struct));
+}
+
+
+TEST_F(PlatformTopoTest, call_c_wrappers)
+{
+    // negative test num_domain()
+    ASSERT_GT(0, geopm_topo_num_domain(GEOPM_NUM_DOMAIN));
+    // simple test for num_domain()
+    ASSERT_EQ(1, geopm_topo_num_domain(GEOPM_DOMAIN_BOARD));
+    // negative test for domain_idx()
+    ASSERT_GT(0, geopm_topo_domain_idx(GEOPM_DOMAIN_BOARD, -1));
+    // simple test for domain_idx()
+    ASSERT_EQ(0, geopm_topo_domain_idx(GEOPM_DOMAIN_BOARD, 0));
+    // check that the cpus are indexed properly
+    int num_cpu = geopm_topo_num_domain(GEOPM_DOMAIN_CPU);
+    ASSERT_LE(1, num_cpu);
+    EXPECT_EQ(0, geopm_topo_domain_idx(GEOPM_DOMAIN_BOARD, num_cpu - 1));
+    // another negative test for domain_idx
+    EXPECT_GT(0, geopm_topo_domain_idx(GEOPM_DOMAIN_BOARD, num_cpu));
+    // simple test for num_domain_nested
+    ASSERT_GT(0, geopm_topo_num_domain_nested(GEOPM_DOMAIN_BOARD, GEOPM_DOMAIN_CPU));
+    // simple test for num_domain_nested
+    ASSERT_EQ(num_cpu, geopm_topo_num_domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD));
+    // negative test for domain_nested()
+    EXPECT_GT(0, geopm_topo_domain_nested(GEOPM_DOMAIN_BOARD, GEOPM_DOMAIN_CPU, 0, NULL));
+    // simple test for domain_nested()
+    std::vector<int> expect_cpu(num_cpu);
+    std::vector<int> actual_cpu(num_cpu, -1);
+    for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
+        expect_cpu[cpu_idx] = cpu_idx;
+    }
+    EXPECT_EQ(0, geopm_topo_domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD, 0, actual_cpu.data()));
+    EXPECT_EQ(expect_cpu, actual_cpu);
+    char domain_name[NAME_MAX];
+    std::string domain_name_str;
+    // negative test for domain_name()
+    EXPECT_GT(0, geopm_topo_domain_name(GEOPM_NUM_DOMAIN, NAME_MAX, domain_name));
+    // simple test for domain_name()
+    EXPECT_EQ(0, geopm_topo_domain_name(GEOPM_DOMAIN_CPU, NAME_MAX, domain_name));
+    domain_name_str = domain_name;
+    EXPECT_EQ("cpu", domain_name_str);
+    // negative test for domain_type()
+    EXPECT_GT(0, geopm_topo_domain_type("raspberry"));
+    // simple test for domain_type()
+    EXPECT_EQ(GEOPM_DOMAIN_CPU, geopm_topo_domain_type("cpu"));
 }
