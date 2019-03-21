@@ -94,7 +94,7 @@ namespace geopm
         }
     }
 
-    void FrequencyMapAgent::validate_policy(std::vector<double> &policy) const
+    bool FrequencyMapAgent::policy(std::vector<double> &policy)
     {
         /// @todo more checks
 #ifdef GEOPM_DEBUG
@@ -103,6 +103,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
+        bool result = false;
         double target_freq_min = std::isnan(policy[M_POLICY_FREQ_MIN]) ? get_limit("CPUINFO::FREQ_MIN") : policy[M_POLICY_FREQ_MIN];
         double target_freq_max = std::isnan(policy[M_POLICY_FREQ_MAX]) ? get_limit("CPUINFO::FREQ_MAX") : policy[M_POLICY_FREQ_MAX];
         if (std::isnan(target_freq_min) || std::isnan(target_freq_max) ||
@@ -112,6 +113,8 @@ namespace geopm
         }
         policy[M_POLICY_FREQ_MIN] = target_freq_min;
         policy[M_POLICY_FREQ_MAX] = target_freq_max;
+        /// @todo is there an m_policy member?  update here and return true
+        return result;
     }
 
     bool FrequencyMapAgent::update_policy(const std::vector<double> &policy)
@@ -126,8 +129,7 @@ namespace geopm
         return result;
     }
 
-    bool FrequencyMapAgent::descend(const std::vector<double> &in_policy,
-                                    std::vector<std::vector<double> >&out_policy)
+    void FrequencyMapAgent::descend(std::vector<std::vector<double> >&out_policy) const
     {
 #ifdef GEOPM_DEBUG
         if (out_policy.size() != (size_t) m_num_children) {
@@ -135,21 +137,16 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        bool result = update_policy(in_policy);
-
-        if (result) {
-            for (auto &child_policy : out_policy) {
+        for (auto &child_policy : out_policy) {
 #ifdef GEOPM_DEBUG
-                if (child_policy.size() != M_NUM_POLICY) {
-                    throw Exception("FrequencyMapAgent::" + std::string(__func__) + "(): child_policy vector not correctly sized.",
-                                    GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-                }
-#endif
-                child_policy[M_POLICY_FREQ_MIN] = m_freq_min;
-                child_policy[M_POLICY_FREQ_MAX] = m_freq_max;
+            if (child_policy.size() != M_NUM_POLICY) {
+                throw Exception("FrequencyMapAgent::" + std::string(__func__) + "(): child_policy vector not correctly sized.",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
+#endif
+            child_policy[M_POLICY_FREQ_MIN] = m_freq_min;
+            child_policy[M_POLICY_FREQ_MAX] = m_freq_max;
         }
-        return result;
     }
 
     bool FrequencyMapAgent::ascend(const std::vector<std::vector<double> > &in_sample,
@@ -158,9 +155,8 @@ namespace geopm
         return false;
     }
 
-    bool FrequencyMapAgent::adjust_platform(const std::vector<double> &in_policy)
+    bool FrequencyMapAgent::adjust_platform()
     {
-        update_policy(in_policy);
         double freq = NAN;
         auto it = m_hash_freq_map.find(m_last_region.first);
         if (it != m_hash_freq_map.end()) {

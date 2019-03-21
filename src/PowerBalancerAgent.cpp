@@ -68,14 +68,63 @@ namespace geopm
 
     PowerBalancerAgent::Role::~Role() = default;
 
-    bool PowerBalancerAgent::Role::descend(const std::vector<double> &in_policy,
-            std::vector<std::vector<double> >&out_policy)
+    bool PowerBalancerAgent::Role::policy(std::vector<double> &policy)
+    {
+#ifdef GEOPM_DEBUG
+        if (policy.size() != M_NUM_POLICY) {
+            throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): policy vectors are not correctly sized.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        bool result = false;
+        // If NAN, use default
+        ///@todo m_power_tdp exists in RootRole only.
+        ///      This default setting needs to be moved
+        ///      to that role's implementation
+        if (std::isnan(policy[M_POLICY_POWER_CAP])) {
+            policy[M_POLICY_POWER_CAP] = m_power_tdp;
+        }
+        if (std::isnan(policy[M_POLICY_STEP_COUNT])) {
+            policy[M_POLICY_STEP_COUNT] = 0.0;
+        }
+        if (std::isnan(policy[M_POLICY_MAX_EPOCH_RUNTIME])) {
+            policy[M_POLICY_MAX_EPOCH_RUNTIME] = 0.0;
+        }
+        if (std::isnan(policy[M_POLICY_POWER_SLACK])) {
+            policy[M_POLICY_POWER_SLACK] = 0.0;
+        }
+        // Policy of all zero is not valid
+        if (std::all_of(policy.begin(), policy.end(),
+                        [] (double x) { return x == 0.0; })) {
+            throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): invalid policy.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (m_is_step_complete &&
+            policy[M_POLICY_STEP_COUNT] != m_step_count) {
+            if (policy[M_POLICY_STEP_COUNT] == M_STEP_SEND_DOWN_LIMIT) {
+                m_step_count = M_STEP_SEND_DOWN_LIMIT;
+                result = true;
+            }
+            else if (policy[M_POLICY_STEP_COUNT] == m_step_count + 1) {
+                ++m_step_count;
+                result = true;
+            }
+            else {
+                throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): policy is out of sync with agent step.",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            m_is_step_complete = false;
+        }
+        m_policy = policy;
+        return result;
+    }
+
+    void PowerBalancerAgent::Role::descend(std::vector<std::vector<double> >&out_policy) const
     {
 #ifdef GEOPM_DEBUG
         throw Exception("PowerBalancerAgent::Role::" + std::string(__func__) + "(): was called on non-tree agent",
                         GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
 #endif
-        return false;
     }
 
     bool PowerBalancerAgent::Role::ascend(const std::vector<std::vector<double> > &in_sample,
@@ -88,7 +137,7 @@ namespace geopm
         return false;
     }
 
-    bool PowerBalancerAgent::Role::adjust_platform(const std::vector<double> &in_policy)
+    bool PowerBalancerAgent::Role::adjust_platform()
     {
 #ifdef GEOPM_DEBUG
         throw Exception("PowerBalancerAgent::Role::" + std::string(__func__) + "(): was called on non-leaf agent",
@@ -180,29 +229,28 @@ namespace geopm
         m_pio_idx[M_PLAT_SIGNAL_EPOCH_RUNTIME_IGNORE] = m_platform_io.push_signal("EPOCH_RUNTIME_IGNORE", PlatformTopo::M_DOMAIN_BOARD, 0);
     }
 
-    bool PowerBalancerAgent::LeafRole::adjust_platform(const std::vector<double> &in_policy)
+    bool PowerBalancerAgent::LeafRole::adjust_platform()
     {
-        m_policy = in_policy;
-        if (in_policy[M_POLICY_POWER_CAP] != 0.0) {
+        if (m_policy[M_POLICY_POWER_CAP] != 0.0) {
             // New power cap from resource manager, reset
             // algorithm.
             m_step_count = M_STEP_SEND_DOWN_LIMIT;
-            m_power_balancer->power_cap(in_policy[M_POLICY_POWER_CAP]);
-            if (in_policy[M_POLICY_POWER_CAP] > m_power_max) {
-                m_power_max = in_policy[M_POLICY_POWER_CAP];
+            m_power_balancer->power_cap(m_policy[M_POLICY_POWER_CAP]);
+            if (m_policy[M_POLICY_POWER_CAP] > m_power_max) {
+                m_power_max = m_policy[M_POLICY_POWER_CAP];
             }
             m_is_step_complete = true;
         }
-        else if (in_policy[M_POLICY_STEP_COUNT] != m_step_count) {
+        else if (m_policy[M_POLICY_STEP_COUNT] != m_step_count) {
             // Advance a step
             ++m_step_count;
             m_is_step_complete = false;
-            if (m_step_count != in_policy[M_POLICY_STEP_COUNT]) {
+            if (m_step_count != m_policy[M_POLICY_STEP_COUNT]) {
                 throw Exception("PowerBalancerAgent::adjust_platform(): The policy step is out of sync "
                                 "with the agent step or first policy received had a zero power cap.",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-            step_imp().enter_step(*this, in_policy);
+            step_imp().enter_step(*this, m_policy);
         }
 
         bool result = false;
@@ -287,8 +335,7 @@ namespace geopm
 
     PowerBalancerAgent::TreeRole::~TreeRole() = default;
 
-    bool PowerBalancerAgent::TreeRole::descend(const std::vector<double> &in_policy,
-                                               std::vector<std::vector<double> >&out_policy)
+    void PowerBalancerAgent::TreeRole::descend(std::vector<std::vector<double> >&out_policy) const
     {
 #ifdef GEOPM_DEBUG
         if (out_policy.size() != (size_t)M_NUM_CHILDREN) {
@@ -296,29 +343,11 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        bool result = false;
-        if (m_is_step_complete &&
-            in_policy[M_POLICY_STEP_COUNT] != m_step_count) {
-            if (in_policy[M_POLICY_STEP_COUNT] == M_STEP_SEND_DOWN_LIMIT) {
-                m_step_count = M_STEP_SEND_DOWN_LIMIT;
-            }
-            else if (in_policy[M_POLICY_STEP_COUNT] == m_step_count + 1) {
-                ++m_step_count;
-            }
-            else {
-                throw Exception("PowerBalancerAgent::descend(): policy is out of sync with agent step.",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-            m_is_step_complete = false;
-            // Copy the input policy directly into each child's
-            // policy.
-            for (auto &po : out_policy) {
-                po = in_policy;
-            }
-            m_policy = in_policy;
-            result = true;
+        // Copy the input policy directly into each child's
+        // policy.
+        for (auto &po : out_policy) {
+            po = m_policy;
         }
-        return result;
     }
 
     bool PowerBalancerAgent::TreeRole::ascend(const std::vector<std::vector<double> > &in_sample,
@@ -358,12 +387,13 @@ namespace geopm
     }
 
     PowerBalancerAgent::RootRole::RootRole(int level, const std::vector<int> &fan_in,
-                                           double min_power, double max_power)
+                                           double min_power, double max_power, double tdp_power)
         : TreeRole(level, fan_in)
         , M_NUM_NODE(calc_num_node(fan_in))
         , m_root_cap(NAN)
         , M_MIN_PKG_POWER_SETTING(min_power)
         , M_MAX_PKG_POWER_SETTING(max_power)
+        , M_POWER_TDP(tdp_power)
     {
         m_step_count = M_STEP_SEND_DOWN_LIMIT;
         m_is_step_complete = false;
@@ -387,8 +417,7 @@ namespace geopm
         return result;
     }
 
-    bool PowerBalancerAgent::RootRole::descend(const std::vector<double> &in_policy,
-            std::vector<std::vector<double> >&out_policy)
+    void PowerBalancerAgent::RootRole::descend(std::vector<std::vector<double> >&out_policy) const
     {
 #ifdef GEOPM_DEBUG
         if (out_policy.size() != (size_t)M_NUM_CHILDREN) {
@@ -396,36 +425,9 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        bool result = false;
-        if (in_policy[M_POLICY_POWER_CAP] != m_root_cap) {
-            m_step_count = M_STEP_SEND_DOWN_LIMIT;
-            m_policy[M_POLICY_POWER_CAP] = in_policy[M_POLICY_POWER_CAP];
-            m_policy[M_POLICY_STEP_COUNT] = M_STEP_SEND_DOWN_LIMIT;
-            m_policy[M_POLICY_MAX_EPOCH_RUNTIME] = 0.0;
-            m_policy[M_POLICY_POWER_SLACK] = 0.0;
-            m_root_cap = in_policy[M_POLICY_POWER_CAP];
-            if (m_root_cap > M_MAX_PKG_POWER_SETTING ||
-                m_root_cap < M_MIN_PKG_POWER_SETTING) {
-                throw Exception("PowerBalancerAgent::descend(): invalid power budget: " + std::to_string(m_root_cap),
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-            result = true;
+        for (auto &po : out_policy) {
+            po = m_policy;
         }
-        else if (m_step_count + 1 == m_policy[M_POLICY_STEP_COUNT]) {
-            ++m_step_count;
-            m_is_step_complete = false;
-            result = true;
-        }
-        else if (m_step_count != m_policy[M_POLICY_STEP_COUNT]) {
-            throw Exception("PowerBalancerAgent::descend(): updated policy is out of sync with current step",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        if (result) {
-            for (auto &po : out_policy) {
-                po = m_policy;
-            }
-        }
-        return result;
     }
 
     void PowerBalancerAgent::SendDownLimitStep::update_policy(PowerBalancerAgent::RootRole &role, const std::vector<double> &sample) const
@@ -522,7 +524,6 @@ namespace geopm
         , m_power_balancer(std::move(power_balancer))
         , m_last_wait(GEOPM_TIME_REF)
         , M_WAIT_SEC(0.005)
-        , m_power_tdp(NAN)
     {
         geopm_time(&m_last_wait);
     }
@@ -541,8 +542,8 @@ namespace geopm
             int num_pkg = m_platform_topo.num_domain(m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT"));
             double min_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MIN", PlatformTopo::M_DOMAIN_PACKAGE, 0);
             double max_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MAX", PlatformTopo::M_DOMAIN_PACKAGE, 0);
-            m_power_tdp = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_TDP", PlatformTopo::M_DOMAIN_PACKAGE, 0);
-            m_role = std::make_shared<RootRole>(level, fan_in, min_power, max_power);
+            double tdp_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_TDP", PlatformTopo::M_DOMAIN_PACKAGE, 0);
+            m_role = std::make_shared<RootRole>(level, fan_in, min_power, max_power, tdp_power);
         }
         else if (level == 0) {
             m_role = std::make_shared<LeafRole>(m_platform_io, m_platform_topo, std::move(m_power_governor), std::move(m_power_balancer));
@@ -552,15 +553,9 @@ namespace geopm
         }
     }
 
-    bool PowerBalancerAgent::descend(const std::vector<double> &in_policy, std::vector<std::vector<double> > &out_policy)
+    void PowerBalancerAgent::descend(std::vector<std::vector<double> > &out_policy) const
     {
-#ifdef GEOPM_DEBUG
-        if (in_policy.size() != M_NUM_POLICY) {
-            throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): policy vectors are not correctly sized.",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        return m_role->descend(in_policy, out_policy);
+        return m_role->descend(out_policy);
     }
 
     bool PowerBalancerAgent::ascend(const std::vector<std::vector<double> > &sample_in, std::vector<double> &sample_out)
@@ -568,15 +563,9 @@ namespace geopm
         return m_role->ascend(sample_in, sample_out);
     }
 
-    bool PowerBalancerAgent::adjust_platform(const std::vector<double> &in_policy)
+    bool PowerBalancerAgent::adjust_platform()
     {
-#ifdef GEOPM_DEBUG
-        if (in_policy.size() != M_NUM_POLICY) {
-            throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): policy vectors are not correctly sized.",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        return m_role->adjust_platform(in_policy);
+        return m_role->adjust_platform();
     }
 
     bool PowerBalancerAgent::sample_platform(std::vector<double> &out_sample)
@@ -642,26 +631,8 @@ namespace geopm
                 "MIN_POWER_HEADROOM"};
     }
 
-    void PowerBalancerAgent::validate_policy(std::vector<double> &policy) const
+    bool PowerBalancerAgent::policy(std::vector<double> &policy)
     {
-        // If NAN, use default
-        if (std::isnan(policy[M_POLICY_POWER_CAP])) {
-            policy[M_POLICY_POWER_CAP] = m_power_tdp;
-        }
-        if (std::isnan(policy[M_POLICY_STEP_COUNT])) {
-            policy[M_POLICY_STEP_COUNT] = 0.0;
-        }
-        if (std::isnan(policy[M_POLICY_MAX_EPOCH_RUNTIME])) {
-            policy[M_POLICY_MAX_EPOCH_RUNTIME] = 0.0;
-        }
-        if (std::isnan(policy[M_POLICY_POWER_SLACK])) {
-            policy[M_POLICY_POWER_SLACK] = 0.0;
-        }
-        // Policy of all zero is not valid
-        if (std::all_of(policy.begin(), policy.end(),
-                        [] (double x) { return x == 0.0; })) {
-            throw Exception("PowerBalancerAgent: invalid policy.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
+        return m_role->policy(policy);
     }
 }

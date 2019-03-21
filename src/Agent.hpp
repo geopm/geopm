@@ -69,15 +69,14 @@ namespace geopm
             ///        If a value of policy is not NaN but the value is not
             ///        supported by the Agent the method will throw a geopm::Exception
             ///        with error code GEOPM_ERROR_INVALID.
-            virtual void validate_policy(std::vector<double> &policy) const = 0;
+            /// @return True if internal policy state has been updated indicating
+            ///         descend or adjust_platform should be called.
+            virtual bool policy(std::vector<double> &policy) = 0;
             /// @brief Called by Controller to split policy for
             ///        children at next level down the tree.
-            /// @param [in] in_policy Policy values from the parent.
             /// @param [out] out_policy Vector of policies to be sent
             ///        to each child.
-            /// @return True if out_policy has been updated since last call.
-            virtual bool descend(const std::vector<double> &in_policy,
-                                 std::vector<std::vector<double> >&out_policy) = 0;
+            virtual void descend(std::vector<std::vector<double> >&out_policy) const = 0;
             /// @brief Aggregate samples from children for the next
             ///        level up the tree.
             /// @param [in] in_sample Vector of sample vectors, one
@@ -93,7 +92,7 @@ namespace geopm
             /// @param [in] policy Settings for each control in the
             ///        policy.
             /// @return True if platform was adjusted, false otherwise.
-            virtual bool adjust_platform(const std::vector<double> &policy) = 0;
+            virtual bool adjust_platform() = 0;
             /// @brief Read signals from the platform and
             ///        interpret/aggregate these signals to create a
             ///        sample which can be sent up the tree.

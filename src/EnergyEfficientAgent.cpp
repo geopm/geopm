@@ -129,13 +129,12 @@ namespace geopm
         return result;
     }
 
-    void EnergyEfficientAgent::validate_policy(std::vector<double> &policy) const
+    bool EnergyEfficientAgent::policy(std::vector<double> &policy)
     {
-
+        return update_freq_range(policy);
     }
 
-    bool EnergyEfficientAgent::descend(const std::vector<double> &in_policy,
-                                       std::vector<std::vector<double> >&out_policy)
+    void EnergyEfficientAgent::descend(std::vector<std::vector<double> >&out_policy) const
     {
 #ifdef GEOPM_DEBUG
         if (out_policy.size() != (size_t) m_num_children) {
@@ -143,21 +142,16 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        bool result = update_freq_range(in_policy);
-
-        if (result) {
-            for (auto &child_policy : out_policy) {
+        for (auto &child_policy : out_policy) {
 #ifdef GEOPM_DEBUG
-                if (child_policy.size() != M_NUM_POLICY) {
-                    throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): child_policy vector not correctly sized.",
-                                    GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-                }
-#endif
-                child_policy[M_POLICY_FREQ_MIN] = m_freq_min;
-                child_policy[M_POLICY_FREQ_MAX] = m_freq_max;
+            if (child_policy.size() != M_NUM_POLICY) {
+                throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): child_policy vector not correctly sized.",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
+#endif
+            child_policy[M_POLICY_FREQ_MIN] = m_freq_min;
+            child_policy[M_POLICY_FREQ_MAX] = m_freq_max;
         }
-        return result;
     }
 
     bool EnergyEfficientAgent::ascend(const std::vector<std::vector<double> > &in_sample,
@@ -181,9 +175,8 @@ namespace geopm
         return result;
     }
 
-    bool EnergyEfficientAgent::adjust_platform(const std::vector<double> &in_policy)
+    bool EnergyEfficientAgent::adjust_platform()
     {
-        update_freq_range(in_policy);
         bool result = false;
         double freq = m_last_freq;
         auto it = m_hash_freq_map.find(m_last_region.first);
