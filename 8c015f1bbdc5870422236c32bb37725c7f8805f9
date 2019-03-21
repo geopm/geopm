@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "feff1203_1cf20a99",
+        "filename": "test/PlatformTopoTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-21T18:40:16Z",
+      "side": 1,
+      "message": "might be nice to restore environment",
+      "revId": "8c015f1bbdc5870422236c32bb37725c7f8805f9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
