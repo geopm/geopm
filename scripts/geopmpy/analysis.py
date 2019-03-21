@@ -72,7 +72,7 @@ class Analysis(object):
         """
         Set up options supported by the analysis type.
         """
-        raise NotImplementedError('Analysis base class does not implement the app_options() method')
+        raise NotImplementedError('Analysis base class does not implement the add_options() method')
 
     @staticmethod
     def help_text():
@@ -802,11 +802,6 @@ class FreqSweepAnalysis(Analysis):
         self._max_freq = max_freq
 
     def launch(self, launcher_name, args):
-        if 'GEOPM_EFFICIENT_FREQ_RID_MAP' in os.environ:
-            del os.environ['GEOPM_EFFICIENT_FREQ_RID_MAP']
-        if 'GEOPM_EFFICIENT_FREQ_ONLINE' in os.environ:
-            del os.environ['GEOPM_EFFICIENT_FREQ_ONLINE']
-
         sys_min, sys_max = FreqSweepAnalysis.sys_freq_avail()
         if self._min_freq is None or self._min_freq < sys_min:
             if self._verbose:
@@ -818,7 +813,7 @@ class FreqSweepAnalysis(Analysis):
             self._max_freq = sys_max
         num_step = 1 + int((self._max_freq - self._min_freq) / FreqSweepAnalysis.step_freq)
         freqs = [FreqSweepAnalysis.step_freq * ss + self._min_freq for ss in range(num_step)]
-        agent = 'energy_efficient'
+        agent = 'frequency_map'
         for iteration in range(self._iterations):
             for freq in freqs:
                 profile_name = FreqSweepAnalysis.fixed_freq_name(self._name, freq)
@@ -1034,6 +1029,133 @@ def baseline_comparison(parse_output, comp_name, sweep_output):
     baseline_means_df = pandas.concat([baseline_means_df, rs], axis=1)
 
     return baseline_means_df
+
+
+class FrequencyMapBaselineComparisonAnalysis(Analysis):
+    """
+    Runs a frequency sweep to determine the best frequency for each region,
+    then runs the FrequencyMapAgent with the mapping of region to frequency.
+    """
+
+    @staticmethod
+    def add_options(parser, enforce_required):
+        FreqSweepAnalysis.add_options(parser, enforce_required)
+
+    @staticmethod
+    def help_text():
+        return "  Frequency map analysis: {}\n{}".format(FrequencyMapBaselineComparisonAnalysis.__doc__,
+                                                         FreqSweepAnalysis.help_text())
+
+    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
+        super(FrequencyMapBaselineComparisonAnalysis, self).__init__(profile_prefix=profile_prefix,
+                                                                     output_dir=output_dir,
+                                                                     verbose=verbose,
+                                                                     iterations=iterations)
+
+        self._sweep_analysis = FreqSweepAnalysis(profile_prefix=self._name,
+                                                 output_dir=output_dir,
+                                                 verbose=verbose,
+                                                 iterations=iterations,
+                                                 min_freq=min_freq,
+                                                 max_freq=max_freq,
+                                                 enable_turbo=enable_turbo)
+        self._enable_turbo = enable_turbo
+        self._freq_pnames = []
+        self._min_freq = min_freq
+        self._max_freq = max_freq
+
+    def _setup_environment(self):
+        self._sweep_analysis.find_files()
+        parse_output = self._sweep_analysis.parse()
+        process_output = self._sweep_analysis.summary_process(parse_output)
+        region_freq_str = self._sweep_analysis._region_freq_str(process_output['region_freq_map'])
+        if self._verbose:
+            sys.stdout.write(self._sweep_analysis._region_freq_str_pretty(process_output['region_freq_map']))
+        os.environ['GEOPM_FREQUENCY_MAP'] = region_freq_str
+
+    def launch(self, launcher_name, args):
+        """
+        Run the frequency sweep, then run the desired comparison configuration.
+        """
+        agent = 'frequency_map'
+        options = {'frequency_min': self._min_freq,
+                   'frequency_max': self._max_freq}
+        agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', agent, options)
+        agent_conf.write()
+
+        # Run frequency sweep
+        self._sweep_analysis.launch(launcher_name, args)
+
+        # Set up min and max frequency
+        self._min_freq = self._sweep_analysis._min_freq
+        self._max_freq = self._sweep_analysis._max_freq
+
+        # Set up environment variables
+        self._setup_environment()
+
+        profile_name = self._name + '_map'
+        for iteration in range(self._iterations):
+            report_path = os.path.join(self._output_dir, profile_name + '_{}.report'.format(iteration))
+            trace_path = os.path.join(self._output_dir, profile_name + '_{}.trace'.format(iteration))
+            Analysis.try_launch(launcher_name=launcher_name, app_argv=args, report_path=report_path, trace_path=trace_path,
+                                profile_name=profile_name, agent_conf=agent_conf)
+
+    def find_files(self):
+        super(FrequencyMapBaselineComparisonAnalysis, self).find_files('*_map*.report')
+        self._sweep_analysis.find_files()
+
+    def parse(self):
+        """
+        Combines reports from the sweep with other reports to be
+        compared, which are determined by the profile name passed at
+        construction time.
+        """
+        # each keeps track of only their own report paths, so need to combine parses
+        sweep_output = self._sweep_analysis.parse()
+        app_output = super(FrequencyMapBaselineComparisonAnalysis, self).parse()
+        parse_output = sweep_output
+        self._freq_pnames = FreqSweepAnalysis.get_freq_profiles(parse_output.get_report_df(), self._sweep_analysis._name)
+        return sweep_output, app_output
+
+    def summary_process(self, parse_output):
+        sweep_output, comp_output = parse_output
+        comp_name = self._name + '_map'
+        baseline_comp_df = baseline_comparison(comp_output, comp_name, sweep_output)
+        sweep_summary_process = self._sweep_analysis.summary_process(sweep_output)
+        sweep_means_df = self._sweep_analysis._region_means_df(sweep_output.get_report_df())
+        return sweep_summary_process, sweep_means_df, baseline_comp_df
+
+    def summary(self, process_output):
+        sweep_summary_process, sweep_means_df, comp_df = process_output
+        name = self._name + '_map'
+        ref_freq_idx = 0 if self._enable_turbo else 1
+        ref_freq = int(self._freq_pnames[ref_freq_idx][0] * 1e-6)
+
+        rs = 'Summary for {}\n\n'.format(name)
+        rs += self._sweep_analysis._region_freq_str_pretty(sweep_summary_process['region_freq_map']) + '\n'
+        rs += 'Energy Decrease compared to {} MHz: {:.2f}%\n'.format(ref_freq, comp_df.loc[pandas.IndexSlice['epoch', ref_freq], 'energy_savings'])
+        rs += 'Runtime Decrease compared to {} MHz: {:.2f}%\n\n'.format(ref_freq, comp_df.loc[pandas.IndexSlice['epoch', ref_freq], 'runtime_savings'])
+        rs += 'Epoch data:\n'
+        rs += str(comp_df.loc[pandas.IndexSlice['epoch', :], ].sort_index(ascending=False)) + '\n'
+        rs += '-' * 120 + '\n'
+        sys.stdout.write(rs + '\n')
+
+        if self._verbose:
+            rs = '=' * 120 + '\n'
+            rs += 'Frequency Sweep Data\n'
+            rs += '=' * 120 + '\n'
+            rs += all_region_data_pretty(sweep_means_df)
+            rs += '=' * 120 + '\n'
+            rs += 'Frequency Map Analysis Data\n'
+            rs += '=' * 120 + '\n'
+            rs += all_region_data_pretty(comp_df)
+            sys.stdout.write(rs + '\n')
+
+    def plot_process(self, parse_output):
+        sys.stdout.write("<geopmpy>: Warning: No plot implemented for this analysis type.\n")
+
+    def plot(self, process_output):
+        pass
 
 
 class EnergyEfficientAgentAnalysis(Analysis):
@@ -1447,6 +1569,7 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
     analysis_type_map = {'freq_sweep': FreqSweepAnalysis,
                          'offline': OfflineBaselineComparisonAnalysis,
                          'online': OnlineBaselineComparisonAnalysis,
+                         'freq_map': FrequencyMapBaselineComparisonAnalysis,
                          'hint': HintBaselineComparisonAnalysis,
                          'stream_mix': StreamDgemmMixAnalysis,
                          'power_sweep': PowerSweepAnalysis,
