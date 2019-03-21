@@ -343,49 +343,49 @@ TEST_F(PlatformTopoTest, bdx_domain_idx)
     EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_PACKAGE_ACCELERATOR, 0), geopm::Exception);
 }
 
-TEST_F(PlatformTopoTest, bdx_is_domain_within)
+TEST_F(PlatformTopoTest, bdx_is_nested_domain)
 {
     write_lscpu(m_bdx_lscpu_str);
     PlatformTopoImp topo(m_lscpu_file_name);
 
     // domains containing CPUs
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE));
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CORE));
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CPU));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CORE));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CPU));
     // needed to support POWER_DRAM signal
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD_MEMORY));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD_MEMORY));
 
     // domains containing cores
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_PACKAGE));
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_CORE));
-    EXPECT_FALSE(topo.is_domain_within(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_CPU));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_PACKAGE));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_CORE));
+    EXPECT_FALSE(topo.is_nested_domain(GEOPM_DOMAIN_CORE, GEOPM_DOMAIN_CPU));
 
     // domains containing package
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_PACKAGE));
-    EXPECT_FALSE(topo.is_domain_within(GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CORE));
-    EXPECT_FALSE(topo.is_domain_within(GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CPU));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_PACKAGE));
+    EXPECT_FALSE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CORE));
+    EXPECT_FALSE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE, GEOPM_DOMAIN_CPU));
 
     // domains containing board
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_BOARD, GEOPM_DOMAIN_BOARD));
-    EXPECT_FALSE(topo.is_domain_within(GEOPM_DOMAIN_BOARD, GEOPM_DOMAIN_PACKAGE));
-    EXPECT_FALSE(topo.is_domain_within(GEOPM_DOMAIN_BOARD, GEOPM_DOMAIN_CORE));
-    EXPECT_FALSE(topo.is_domain_within(GEOPM_DOMAIN_BOARD, GEOPM_DOMAIN_CPU));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_BOARD, GEOPM_DOMAIN_BOARD));
+    EXPECT_FALSE(topo.is_nested_domain(GEOPM_DOMAIN_BOARD, GEOPM_DOMAIN_PACKAGE));
+    EXPECT_FALSE(topo.is_nested_domain(GEOPM_DOMAIN_BOARD, GEOPM_DOMAIN_CORE));
+    EXPECT_FALSE(topo.is_nested_domain(GEOPM_DOMAIN_BOARD, GEOPM_DOMAIN_CPU));
 
     // other domains in the board
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_BOARD_NIC, GEOPM_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_BOARD_ACCELERATOR, GEOPM_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_BOARD_MEMORY, GEOPM_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_PACKAGE_NIC, GEOPM_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_PACKAGE_ACCELERATOR, GEOPM_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_PACKAGE_MEMORY, GEOPM_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_BOARD_NIC, GEOPM_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR, GEOPM_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_BOARD_MEMORY, GEOPM_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_NIC, GEOPM_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_ACCELERATOR, GEOPM_DOMAIN_BOARD));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_MEMORY, GEOPM_DOMAIN_BOARD));
 
     // other domains in the package
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_PACKAGE_NIC, GEOPM_DOMAIN_PACKAGE));
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_PACKAGE_ACCELERATOR, GEOPM_DOMAIN_PACKAGE));
-    EXPECT_TRUE(topo.is_domain_within(GEOPM_DOMAIN_PACKAGE_MEMORY, GEOPM_DOMAIN_PACKAGE));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_NIC, GEOPM_DOMAIN_PACKAGE));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_ACCELERATOR, GEOPM_DOMAIN_PACKAGE));
+    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_MEMORY, GEOPM_DOMAIN_PACKAGE));
 }
 
 TEST_F(PlatformTopoTest, bdx_nested_domains)
