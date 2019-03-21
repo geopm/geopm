@@ -259,7 +259,7 @@ namespace geopm
         return result;
     }
 
-    bool PlatformTopoImp::is_domain_within(int inner_domain, int outer_domain) const
+    bool PlatformTopoImp::is_nested_domain(int inner_domain, int outer_domain) const
     {
         bool result = false;
         static const std::set<int> package_domain = {
@@ -296,7 +296,7 @@ namespace geopm
 
     std::set<int> PlatformTopoImp::nested_domains(int inner_domain, int outer_domain, int outer_idx) const
     {
-        if (inner_domain != outer_domain && !is_domain_within(inner_domain, outer_domain)) {
+        if (inner_domain != outer_domain && !is_nested_domain(inner_domain, outer_domain)) {
             throw Exception("PlatformTopoImp::nested_domains(): domain type " + std::to_string(inner_domain) +
                             " is not contained within domain type " + std::to_string(outer_domain),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);

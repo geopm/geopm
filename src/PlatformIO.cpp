@@ -317,7 +317,7 @@ namespace geopm
     {
         int result = -1;
         int base_domain_type = signal_domain_type(signal_name);
-        if (m_platform_topo.is_domain_within(base_domain_type, domain_type)) {
+        if (m_platform_topo.is_nested_domain(base_domain_type, domain_type)) {
             std::set<int> base_domain_idx = m_platform_topo.nested_domains(base_domain_type,
                                                                            domain_type, domain_idx);
             std::vector<int> signal_idx;
@@ -394,7 +394,7 @@ namespace geopm
     {
         int result = -1;
         int base_domain_type = control_domain_type(control_name);
-        if (m_platform_topo.is_domain_within(base_domain_type, domain_type)) {
+        if (m_platform_topo.is_nested_domain(base_domain_type, domain_type)) {
             std::set<int> base_domain_idx = m_platform_topo.nested_domains(base_domain_type,
                                                                            domain_type, domain_idx);
             std::vector<int> control_idx;
@@ -408,12 +408,12 @@ namespace geopm
         return result;
     }
 
-    int PlatformIOImp::num_signal(void) const
+    int PlatformIOImp::num_signal_pushed(void) const
     {
         return m_active_signal.size();
     }
 
-    int PlatformIOImp::num_control(void) const
+    int PlatformIOImp::num_control_pushed(void) const
     {
         return m_active_control.size();
     }
@@ -421,7 +421,7 @@ namespace geopm
     double PlatformIOImp::sample(int signal_idx)
     {
         double result = NAN;
-        if (signal_idx < 0 || signal_idx >= num_signal()) {
+        if (signal_idx < 0 || signal_idx >= num_signal_pushed()) {
             throw Exception("PlatformIOImp::sample(): signal_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -456,7 +456,7 @@ namespace geopm
     void PlatformIOImp::adjust(int control_idx,
                                double setting)
     {
-        if (control_idx < 0 || control_idx >= num_control()) {
+        if (control_idx < 0 || control_idx >= num_control_pushed()) {
             throw Exception("PlatformIOImp::adjust(): control_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -517,7 +517,7 @@ namespace geopm
     {
         double result = NAN;
         int base_domain_type = signal_domain_type(signal_name);
-        if (m_platform_topo.is_domain_within(base_domain_type, domain_type)) {
+        if (m_platform_topo.is_nested_domain(base_domain_type, domain_type)) {
             std::set<int> base_domain_idx = m_platform_topo.nested_domains(base_domain_type,
                                                                            domain_type, domain_idx);
             std::vector<double> values;
@@ -558,7 +558,7 @@ namespace geopm
                                                      double setting)
     {
         int base_domain_type = control_domain_type(control_name);
-        if (m_platform_topo.is_domain_within(base_domain_type, domain_type)) {
+        if (m_platform_topo.is_nested_domain(base_domain_type, domain_type)) {
             std::set<int> base_domain_idx = m_platform_topo.nested_domains(base_domain_type,
                                                                            domain_type, domain_idx);
             for (auto idx : base_domain_idx) {
