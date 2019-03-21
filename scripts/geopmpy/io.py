@@ -1205,11 +1205,16 @@ class AgentConf(object):
         """Write the current config to a file."""
         with open(self._path, "w") as outfile:
             if self._agent == 'power_governor':
-                    outfile.write("{{\"POWER\" : {}}}\n".format(str(self._options['power_budget'])))
+                outfile.write("{{\"POWER\" : {}}}\n".format(str(self._options['power_budget'])))
             elif self._agent == 'power_balancer':
-                    outfile.write("{{\"POWER_CAP\" : {}, \"STEP_COUNT\" : {}, \"MAX_EPOCH_RUNTIME\" : {}"\
-                                  ", \"POWER_SLACK\" : {}}}\n"\
-                                  .format(str(self._options['power_budget']), str(0.0), str(0.0), str(0.0)))
-            elif self._agent in ['energy_efficient', 'frequency_map']:
-                    outfile.write("{{\"FREQ_MIN\" : {}, \"FREQ_MAX\" : {}}}\n"\
-                                  .format(str(self._options['frequency_min']), str(self._options['frequency_max'])))
+                outfile.write("{{\"POWER_CAP\" : {}, \"STEP_COUNT\" : {}, \"MAX_EPOCH_RUNTIME\" : {}"\
+                              ", \"POWER_SLACK\" : {}}}\n"\
+                              .format(str(self._options['power_budget']), str(0.0), str(0.0), str(0.0)))
+            elif self._agent in ['frequency_map']:
+                outfile.write("{{\"FREQ_MIN\" : {}, \"FREQ_MAX\" : {}}}\n"\
+                              .format(str(self._options['frequency_min']), str(self._options['frequency_max'])))
+            elif self._agent in ['energy_efficient']:
+                outfile.write("{{\"FREQ_MIN\" : {}, \"FREQ_MAX\" : {}, \"PERF_MARGIN\": {}}}\n"\
+                              .format(str(self._options['frequency_min']),
+                                      str(self._options['frequency_max']),
+                                      str(self._options['perf_margin'])))
