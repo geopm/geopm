@@ -514,7 +514,7 @@ TEST_F(PlatformIOTest, read_signal)
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->read_signal("INVALID", GEOPM_DOMAIN_CPU, 0),
                                GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->read_signal("TIME", GEOPM_DOMAIN_BOARD_MEMORY, 0),
-                               GEOPM_ERROR_INVALID, "domain 5 is not valid for signal \"TIME\"");
+                               GEOPM_ERROR_INVALID, "domain 4 is not valid for signal \"TIME\"");
 }
 
 TEST_F(PlatformIOTest, read_signal_agg)
@@ -547,7 +547,7 @@ TEST_F(PlatformIOTest, write_control)
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->write_control("INVALID", GEOPM_DOMAIN_CPU, 0, 0.0),
                                GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->write_control("MODE", GEOPM_DOMAIN_BOARD_MEMORY, 0, 4e9),
-                               GEOPM_ERROR_INVALID, "domain 5 is not valid for control \"MODE\"");
+                               GEOPM_ERROR_INVALID, "domain 4 is not valid for control \"MODE\"");
 }
 
 TEST_F(PlatformIOTest, write_control_agg)
