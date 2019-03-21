@@ -50,6 +50,10 @@ geopm(7) -- global extensible open power manager
 
 **geopmwrite(1)**: Modify platform state
 
+**geopm_topo_c(3)**: Query platform component topology
+
+**geopm_pio_c(3)**: Interfaces to query and modify platform
+
 **geopmbench(1)**: Synthetic benchmark application
 
 ## BUILT-IN AGENTS

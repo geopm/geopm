@@ -86,6 +86,8 @@ int geopm_topo_domain_name(int domain_type,
 
 int geopm_topo_domain_type(const char *domain_name);
 
+int geopm_topo_create_cache(void);
+
 #ifdef __cplusplus
 }
 #endif
