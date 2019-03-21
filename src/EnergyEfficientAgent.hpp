@@ -47,6 +47,7 @@ namespace geopm
 {
     class PlatformIO;
     class PlatformTopo;
+    class IFrequencyGovernor;
     class EnergyEfficientRegion;
 
     class EnergyEfficientAgent : public Agent
@@ -88,25 +89,36 @@ namespace geopm
             enum m_signal_e {
                 M_SIGNAL_REGION_HASH,
                 M_SIGNAL_REGION_HINT,
-                M_SIGNAL_RUNTIME,
+                M_SIGNAL_REGION_RUNTIME,
+                M_SIGNAL_ENERGY_PACKAGE,
+                M_SIGNAL_FREQUENCY,
                 M_NUM_SIGNAL,
+            };
+
+            struct region_info_s {
+                uint64_t hash;
+                uint64_t hint;
             };
 
             const int M_PRECISION;
             PlatformIO &m_platform_io;
             PlatformTopo &m_platform_topo;
+            std::unique_ptr<IFrequencyGovernor> m_freq_governor;
             double m_freq_min;
             double m_freq_max;
-            const double M_FREQ_STEP;
+            double m_freq_step;
             std::vector<int> m_control_idx;
+            //std::vector<double> m_last_freq;
             double m_last_freq;
-            std::pair<uint64_t, uint64_t> m_last_region;
+            //std::vector<struct region_info_s>  m_last_region;
+            struct region_info_s  m_last_region;
             std::map<uint64_t, double> m_adapt_freq_map;
             std::map<uint64_t, std::unique_ptr<EnergyEfficientRegion> > m_region_map;
             geopm_time_s m_last_wait;
             std::vector<int> m_signal_idx;
             int m_level;
             int m_num_children;
+            int m_num_freq_ctl_domain;
     };
 }
 
