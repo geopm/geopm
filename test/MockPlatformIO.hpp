@@ -56,9 +56,9 @@ class MockPlatformIO : public geopm::PlatformIO
                          const std::vector<int> &sub_signal_idx));
         MOCK_METHOD3(push_control,
                      int(const std::string &control_name, int domain_type, int domain_idx));
-        MOCK_CONST_METHOD0(num_signal,
+        MOCK_CONST_METHOD0(num_signal_pushed,
                            int(void));
-        MOCK_CONST_METHOD0(num_control,
+        MOCK_CONST_METHOD0(num_control_pushed,
                            int(void));
         MOCK_METHOD1(sample,
                      double(int signal_idx));

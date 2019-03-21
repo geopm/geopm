@@ -115,9 +115,9 @@ namespace geopm
                                      int domain_type,
                                      int domain_idx) = 0;
             /// @brief Return number of signals that have been pushed.
-            virtual int num_signal(void) const = 0;
+            virtual int num_signal_pushed(void) const = 0;
             /// @brief Return number of controls that have been pushed.
-            virtual int num_control(void) const = 0;
+            virtual int num_control_pushed(void) const = 0;
             /// @brief Sample a single signal that has been pushed on
             ///        to the signal stack.  Must be called after a call
             ///        to read_batch(void) method which updates the state
@@ -230,8 +230,8 @@ namespace geopm
             int push_control(const std::string &control_name,
                              int domain_type,
                              int domain_idx) override;
-            int num_signal(void) const override;
-            int num_control(void) const override;
+            int num_signal_pushed(void) const override;
+            int num_control_pushed(void) const override;
             double sample(int signal_idx) override;
             void adjust(int control_idx, double setting) override;
             void read_batch(void) override;

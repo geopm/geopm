@@ -100,10 +100,10 @@ hidden by the singleton accessor.
     `int` _domain_type_`,` <br>
     `int` _domain_idx_`) = 0;`
 
-  * `virtual int IPlatformIO::num_signal(`:
+  * `virtual int IPlatformIO::num_signal_pushed(`:
     `void) const = 0;`
 
-  * `virtual int IPlatformIO::num_control(`:
+  * `virtual int IPlatformIO::num_control_pushed(`:
     `void) const = 0;`
 
   * `virtual double IPlatformIO::sample(`:
@@ -352,10 +352,10 @@ provides raw MSR field signals that are encoded in this way.
     `control_names()` will result in a thrown `geopm::Exception` with
     error number `GEOPM_ERROR_INVALID`.
 
-  * `num_signal()`:
+  * `num_signal_pushed()`:
     Returns the number of `push_signal()` with unique tuple of input.
 
-  * `num_control()`:
+  * `num_control_pushed()`:
     Returns the number of `push_control()` with unique tuple of input.
 
   * `sample()`:
