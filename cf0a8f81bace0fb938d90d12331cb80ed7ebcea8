@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b169c5d9_d5c0e834",
+        "filename": "src/Agent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-22T19:41:31Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 74,
+        "startChar": 32,
+        "endLine": 74,
+        "endChar": 52
+      },
+      "revId": "cf0a8f81bace0fb938d90d12331cb80ed7ebcea8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4901084_2207d21e",
+        "filename": "src/Agent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-22T19:41:31Z",
+      "side": 1,
+      "message": "rm const",
+      "range": {
+        "startLine": 79,
+        "startChar": 79,
+        "endLine": 79,
+        "endChar": 85
+      },
+      "revId": "cf0a8f81bace0fb938d90d12331cb80ed7ebcea8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74d16c14_120cc9b2",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-22T19:41:31Z",
+      "side": 1,
+      "message": "descend -\u003e get_child_policy()\n\nagent-\u003eset_policy(m_in_policy);\ndo_send \u003d agent-\u003edescend(\u0026out);  //non const\nif (do_send) {\n\n    m_tree_comm-\u003esend_down(out);\n}",
+      "range": {
+        "startLine": 324,
+        "startChar": 15,
+        "endLine": 324,
+        "endChar": 65
+      },
+      "revId": "cf0a8f81bace0fb938d90d12331cb80ed7ebcea8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0b23f02_9c5cfa43",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-22T19:41:31Z",
+      "side": 1,
+      "message": "weird behavior where a leaf agent can enforce policies on its own before receiving a policy from the parent.  consider checking do_send here, wait for policy for parent.",
+      "revId": "cf0a8f81bace0fb938d90d12331cb80ed7ebcea8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e27a3e6e_e5ca92eb",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-22T19:41:31Z",
+      "side": 1,
+      "message": "ascend() -\u003e aggregate_samples()\n\nm_in_sample -\u003e m_child_sampleS\nm_out_sample -\u003e m_parent_sample",
+      "revId": "cf0a8f81bace0fb938d90d12331cb80ed7ebcea8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5938abc_633ee653",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-22T19:41:31Z",
+      "side": 1,
+      "message": "maybe some more logic errors about out_policy being sanitized; i.e. no NAN, in range\n\nNAN checks, size checks could move into Controller",
+      "revId": "cf0a8f81bace0fb938d90d12331cb80ed7ebcea8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
