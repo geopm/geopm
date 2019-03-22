@@ -46,10 +46,13 @@ using geopm::Exception;
 
 class PlatformTopoTest : public :: testing :: Test
 {
+    public:
+        PlatformTopoTest();
     protected:
         void SetUp();
         void TearDown();
         void write_lscpu(const std::string &lscpu_str);
+        const char *m_path_env_save;
         std::string m_lscpu_file_name;
         std::string m_hsw_lscpu_str;
         std::string m_knl_lscpu_str;
@@ -58,6 +61,12 @@ class PlatformTopoTest : public :: testing :: Test
         std::string m_no0x_lscpu_str;
         bool m_do_unlink;
 };
+
+PlatformTopoTest::PlatformTopoTest()
+    : m_path_env_save(getenv("PATH"))
+{
+
+}
 
 void PlatformTopoTest::SetUp()
 {
@@ -193,6 +202,7 @@ void PlatformTopoTest::TearDown()
         unlink(m_lscpu_file_name.c_str());
     }
     (void)unlink("lscpu");
+    (void)setenv("PATH", m_path_env_save, 1);
 }
 
 void PlatformTopoTest::write_lscpu(const std::string &lscpu_str)
@@ -639,7 +649,7 @@ TEST_F(PlatformTopoTest, create_cache)
     chmod("lscpu", S_IRWXU|S_IRWXG|S_IROTH|S_IXOTH);
 
     // Put CWD in the front of PATH
-    std::string path_env(getenv("PATH"));
+    std::string path_env(m_path_env_save ? m_path_env_save : "");
     path_env = ":" + path_env;
     setenv("PATH", path_env.c_str(), 1);
 
