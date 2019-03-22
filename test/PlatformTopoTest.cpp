@@ -50,6 +50,7 @@ class PlatformTopoTest : public :: testing :: Test
         void SetUp();
         void TearDown();
         void write_lscpu(const std::string &lscpu_str);
+        std::string m_path_env_save;
         std::string m_lscpu_file_name;
         std::string m_hsw_lscpu_str;
         std::string m_knl_lscpu_str;
@@ -61,6 +62,8 @@ class PlatformTopoTest : public :: testing :: Test
 
 void PlatformTopoTest::SetUp()
 {
+    const char *path_cstr = getenv("PATH");
+    m_path_env_save = path_cstr ? path_cstr : "";
     m_lscpu_file_name = "PlatformTopoTest-lscpu";
     m_hsw_lscpu_str =
         "Architecture:          x86_64\n"
@@ -193,6 +196,7 @@ void PlatformTopoTest::TearDown()
         unlink(m_lscpu_file_name.c_str());
     }
     (void)unlink("lscpu");
+    (void)setenv("PATH", m_path_env_save.c_str(), 1);
 }
 
 void PlatformTopoTest::write_lscpu(const std::string &lscpu_str)
@@ -639,8 +643,7 @@ TEST_F(PlatformTopoTest, create_cache)
     chmod("lscpu", S_IRWXU|S_IRWXG|S_IROTH|S_IXOTH);
 
     // Put CWD in the front of PATH
-    std::string path_env(getenv("PATH"));
-    path_env = ":" + path_env;
+    std::string path_env(":" + m_path_env_save);
     setenv("PATH", path_env.c_str(), 1);
 
     // Test case: no lscpu error, file does not exist
