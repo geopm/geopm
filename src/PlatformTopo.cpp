@@ -295,10 +295,10 @@ namespace geopm
         return result;
     }
 
-    std::set<int> PlatformTopoImp::nested_domains(int inner_domain, int outer_domain, int outer_idx) const
+    std::set<int> PlatformTopoImp::domain_nested(int inner_domain, int outer_domain, int outer_idx) const
     {
-        if (inner_domain != outer_domain && !is_nested_domain(inner_domain, outer_domain)) {
-            throw Exception("PlatformTopoImp::nested_domains(): domain type " + std::to_string(inner_domain) +
+        if (!is_nested_domain(inner_domain, outer_domain)) {
+            throw Exception("PlatformTopoImp::domain_nested(): domain type " + std::to_string(inner_domain) +
                             " is not contained within domain type " + std::to_string(outer_domain),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -602,7 +602,7 @@ extern "C"
         try {
             int num_domain_nested = geopm_topo_num_domain_nested(inner_domain, outer_domain);
             if (num_domain_nested > 0) {
-                std::set<int> nested_set(geopm::platform_topo().nested_domains(inner_domain, outer_domain, outer_idx));
+                std::set<int> nested_set(geopm::platform_topo().domain_nested(inner_domain, outer_domain, outer_idx));
                 if (nested_set.size() == (size_t)num_domain_nested) {
                     int idx = 0;
                     for (const auto &domain : nested_set) {
