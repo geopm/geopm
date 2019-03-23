@@ -65,7 +65,7 @@ hidden by the singleton accessor.
     `int` _inner_domain_`,` <br>
     `int` _outer_domain_`) const = 0;`
 
-  * `set<int> PlatformTopo::nested_domains(`:
+  * `set<int> PlatformTopo::domain_nested(`:
     `int` _inner_domain_`,` <br>
     `int` _outer_domain_`,` <br>
     `int` _outer_idx_`) const = 0;`
@@ -135,7 +135,7 @@ The available domain types are defined in the **geopm_topo(3)** man page.
      +---`GEOPM_DOMAIN_BOARD_NIC`
      +---`GEOPM_DOMAIN_BOARD_ACCELERATOR`
 ```
-  * `nested_domains`():
+  * `domain_nested`():
     Returns the set of smaller domains of type _inner_domain_
     contained with a larger domain of type _outer_domain_ at
     _outer_idx_.  If the inner domain is not the same as or contained
