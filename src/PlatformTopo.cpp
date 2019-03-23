@@ -35,6 +35,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <cpuid.h>
+#include <string.h>
 
 #include <map>
 #include <sstream>
@@ -546,5 +547,114 @@ namespace geopm
             }
         }
         close_lscpu(fid);
+    }
+}
+
+extern "C"
+{
+    int geopm_topo_num_domain(int domain_type)
+    {
+        int result = 0;
+        try {
+            result = geopm::platform_topo().num_domain(domain_type);
+        }
+        catch (...) {
+            result = geopm::exception_handler(std::current_exception());
+            result = result < 0 ? result : GEOPM_ERROR_RUNTIME;
+        }
+        return result;
+    }
+
+    int geopm_topo_domain_idx(int domain_type, int cpu_idx)
+    {
+        int result = 0;
+        try {
+            result = geopm::platform_topo().domain_idx(domain_type, cpu_idx);
+        }
+        catch (...) {
+            result = geopm::exception_handler(std::current_exception());
+            result = result < 0 ? result : GEOPM_ERROR_RUNTIME;
+        }
+        return result;
+    }
+
+    int geopm_topo_num_domain_nested(int inner_domain, int outer_domain)
+    {
+        int result = GEOPM_ERROR_INVALID;
+        try {
+            if (geopm::platform_topo().is_nested_domain(inner_domain, outer_domain)) {
+                int num_inner_domain = geopm::platform_topo().num_domain(inner_domain);
+                int num_outer_domain = geopm::platform_topo().num_domain(outer_domain);
+                result = num_inner_domain / num_outer_domain;
+            }
+        }
+        catch (...) {
+            result = geopm::exception_handler(std::current_exception());
+            result = result < 0 ? result : GEOPM_ERROR_RUNTIME;
+        }
+        return result;
+    }
+
+    int geopm_topo_domain_nested(int inner_domain, int outer_domain,
+                                 int outer_idx, int *domain_nested)
+    {
+        int err = 0;
+        try {
+            int num_domain_nested = geopm_topo_num_domain_nested(inner_domain, outer_domain);
+            if (num_domain_nested > 0) {
+                std::set<int> nested_set(geopm::platform_topo().nested_domains(inner_domain, outer_domain, outer_idx));
+                if (nested_set.size() == (size_t)num_domain_nested) {
+                    int idx = 0;
+                    for (const auto &domain : nested_set) {
+                        domain_nested[idx] = domain;
+                        ++idx;
+                    }
+                }
+                else {
+                    err = GEOPM_ERROR_RUNTIME;
+                }
+            }
+            else {
+                err = num_domain_nested;
+            }
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
+    int geopm_topo_domain_name(int domain_type, size_t domain_name_max,
+                               char *domain_name)
+    {
+        int err = 0;
+        try {
+            std::string domain_name_string = geopm::platform_topo().domain_type_to_name(domain_type);
+            domain_name[domain_name_max - 1] = '\0';
+            strncpy(domain_name, domain_name_string.c_str(), domain_name_max);
+            if (domain_name[domain_name_max - 1] != '\0') {
+                domain_name[domain_name_max - 1] = '\0';
+                err = GEOPM_ERROR_INVALID;
+            }
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
+    int geopm_topo_domain_type(const char *domain_name)
+    {
+        int result = 0;
+        try {
+            result = geopm::platform_topo().domain_name_to_type(domain_name);
+        }
+        catch (...) {
+            result = geopm::exception_handler(std::current_exception());
+            result = result < 0 ? result : GEOPM_ERROR_RUNTIME;
+        }
+        return result;
     }
 }
