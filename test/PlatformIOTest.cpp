@@ -173,15 +173,15 @@ void PlatformIOTest::SetUp()
         .WillByDefault(Return(true));
     ON_CALL(m_topo, is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE))
         .WillByDefault(Return(true));
-    ON_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD, _))
+    ON_CALL(m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD, _))
         .WillByDefault(Return(m_cpu_set_board));
-    ON_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD_MEMORY, 0))
+    ON_CALL(m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD_MEMORY, 0))
         .WillByDefault(Return(m_cpu_set0));
-    ON_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD_MEMORY, 1))
+    ON_CALL(m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD_MEMORY, 1))
         .WillByDefault(Return(m_cpu_set1));
-    ON_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0))
+    ON_CALL(m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0))
         .WillByDefault(Return(m_cpu_set0));
-    ON_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 1))
+    ON_CALL(m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 1))
         .WillByDefault(Return(m_cpu_set1));
 
     m_iogroup_ptr = {
@@ -298,7 +298,7 @@ TEST_F(PlatformIOTest, push_signal_agg)
 {
     EXPECT_CALL(m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
                                          GEOPM_DOMAIN_PACKAGE));
-    EXPECT_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
+    EXPECT_CALL(m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
 
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("FREQ")).Times(AtLeast(1));
     for (auto cpu : m_cpu_set0) {
@@ -383,7 +383,7 @@ TEST_F(PlatformIOTest, push_control_agg)
 {
     EXPECT_CALL(m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
                                          GEOPM_DOMAIN_PACKAGE));
-    EXPECT_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
+    EXPECT_CALL(m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
     EXPECT_EQ(0, m_platio->num_control_pushed());
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
     for (auto cpu : m_cpu_set0) {
@@ -427,7 +427,7 @@ TEST_F(PlatformIOTest, sample_agg)
 {
     EXPECT_CALL(m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
                                          GEOPM_DOMAIN_PACKAGE));
-    EXPECT_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
+    EXPECT_CALL(m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("FREQ")).Times(AtLeast(1));
     EXPECT_CALL(*m_control_iogroup, agg_function("FREQ"))
         .WillOnce(Return(geopm::Agg::average));
@@ -476,7 +476,7 @@ TEST_F(PlatformIOTest, adjust_agg)
 {
     EXPECT_CALL(m_topo, is_nested_domain(GEOPM_DOMAIN_CPU,
                                          GEOPM_DOMAIN_PACKAGE));
-    EXPECT_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
+    EXPECT_CALL(m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, 0));
     double value = 1.23e9;
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
     for (auto cpu : m_cpu_set0) {
@@ -520,7 +520,7 @@ TEST_F(PlatformIOTest, read_signal)
 TEST_F(PlatformIOTest, read_signal_agg)
 {
     EXPECT_CALL(m_topo, is_nested_domain(_, _));
-    EXPECT_CALL(m_topo, nested_domains(_, _, _));
+    EXPECT_CALL(m_topo, domain_nested(_, _, _));
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("FREQ")).Times(AtLeast(1));
     EXPECT_CALL(*m_control_iogroup, agg_function("FREQ")).WillOnce(Return(Agg::average));
     for (auto cpu : m_cpu_set0) {
@@ -557,7 +557,7 @@ TEST_F(PlatformIOTest, write_control_agg)
 
     double value = 3e9;
     EXPECT_CALL(m_topo, is_nested_domain(_, _));
-    EXPECT_CALL(m_topo, nested_domains(_, _, _));
+    EXPECT_CALL(m_topo, domain_nested(_, _, _));
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ")).Times(AtLeast(1));
     for (auto cpu : m_cpu_set0) {
         EXPECT_CALL(*m_control_iogroup, write_control("FREQ", GEOPM_DOMAIN_CPU, cpu, value));
