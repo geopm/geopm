@@ -318,8 +318,8 @@ namespace geopm
         int result = -1;
         int base_domain_type = signal_domain_type(signal_name);
         if (m_platform_topo.is_nested_domain(base_domain_type, domain_type)) {
-            std::set<int> base_domain_idx = m_platform_topo.nested_domains(base_domain_type,
-                                                                           domain_type, domain_idx);
+            std::set<int> base_domain_idx = m_platform_topo.domain_nested(base_domain_type,
+                                                                          domain_type, domain_idx);
             std::vector<int> signal_idx;
             for (auto it : base_domain_idx) {
                 signal_idx.push_back(push_signal(signal_name, base_domain_type, it));
@@ -395,8 +395,8 @@ namespace geopm
         int result = -1;
         int base_domain_type = control_domain_type(control_name);
         if (m_platform_topo.is_nested_domain(base_domain_type, domain_type)) {
-            std::set<int> base_domain_idx = m_platform_topo.nested_domains(base_domain_type,
-                                                                           domain_type, domain_idx);
+            std::set<int> base_domain_idx = m_platform_topo.domain_nested(base_domain_type,
+                                                                          domain_type, domain_idx);
             std::vector<int> control_idx;
             for (auto it : base_domain_idx) {
                 control_idx.push_back(push_control(control_name, base_domain_type, it));
@@ -518,8 +518,8 @@ namespace geopm
         double result = NAN;
         int base_domain_type = signal_domain_type(signal_name);
         if (m_platform_topo.is_nested_domain(base_domain_type, domain_type)) {
-            std::set<int> base_domain_idx = m_platform_topo.nested_domains(base_domain_type,
-                                                                           domain_type, domain_idx);
+            std::set<int> base_domain_idx = m_platform_topo.domain_nested(base_domain_type,
+                                                                          domain_type, domain_idx);
             std::vector<double> values;
             for (auto idx : base_domain_idx) {
                 values.push_back(read_signal(signal_name, base_domain_type, idx));
@@ -559,8 +559,8 @@ namespace geopm
     {
         int base_domain_type = control_domain_type(control_name);
         if (m_platform_topo.is_nested_domain(base_domain_type, domain_type)) {
-            std::set<int> base_domain_idx = m_platform_topo.nested_domains(base_domain_type,
-                                                                           domain_type, domain_idx);
+            std::set<int> base_domain_idx = m_platform_topo.domain_nested(base_domain_type,
+                                                                          domain_type, domain_idx);
             for (auto idx : base_domain_idx) {
                 write_control(control_name, base_domain_type, idx, setting);
             }
