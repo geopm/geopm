@@ -169,11 +169,11 @@ void MSRIOGroupTest::SetUp()
     ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU)).WillByDefault(Return(m_num_cpu));
     std::set<int> package_cpus;
     for (int ii = 0; ii < m_num_cpu; ++ii) {
-        ON_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CPU, ii))
+        ON_CALL(m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CPU, ii))
             .WillByDefault(Return(std::set<int>{ii}));
         package_cpus.insert(ii);
     }
-    ON_CALL(m_topo, nested_domains(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, _))
+    ON_CALL(m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, _))
         .WillByDefault(Return(package_cpus));
 
     m_msrio_group = std::unique_ptr<MSRIOGroup>(new MSRIOGroup(m_topo, std::move(msrio), 0x657, m_num_cpu)); // KNL cpuid
