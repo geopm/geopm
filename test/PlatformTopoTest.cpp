@@ -384,7 +384,7 @@ TEST_F(PlatformTopoTest, bdx_is_nested_domain)
     EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_MEMORY, GEOPM_DOMAIN_PACKAGE));
 }
 
-TEST_F(PlatformTopoTest, bdx_nested_domains)
+TEST_F(PlatformTopoTest, bdx_domain_nested)
 {
     write_lscpu(m_bdx_lscpu_str);
     PlatformTopoImp topo(m_lscpu_file_name);
@@ -407,132 +407,132 @@ TEST_F(PlatformTopoTest, bdx_nested_domains)
     // CPUs
     std::set<int> idx_set_expect;
     std::set<int> idx_set_actual;
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_CPU,
-                                         GEOPM_DOMAIN_BOARD, 0);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                        GEOPM_DOMAIN_BOARD, 0);
     EXPECT_EQ(cpu_set_board, idx_set_actual);
 
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_CPU,
-                                         GEOPM_DOMAIN_PACKAGE, 0);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                        GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(cpu_set_socket[0], idx_set_actual);
 
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_CPU,
-                                         GEOPM_DOMAIN_PACKAGE, 1);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                        GEOPM_DOMAIN_PACKAGE, 1);
     EXPECT_EQ(cpu_set_socket[1], idx_set_actual);
 
     idx_set_expect = {0, 36};
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_CPU,
-                                         GEOPM_DOMAIN_CORE, 0);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                        GEOPM_DOMAIN_CORE, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = {1, 37};
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_CPU,
-                                         GEOPM_DOMAIN_CORE, 1);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                        GEOPM_DOMAIN_CORE, 1);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = {0};
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_CPU,
-                                         GEOPM_DOMAIN_CPU, 0);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                        GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = {1};
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_CPU,
-                                         GEOPM_DOMAIN_CPU, 1);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                        GEOPM_DOMAIN_CPU, 1);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = cpu_set_socket[0];
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_CPU,
-                                         GEOPM_DOMAIN_BOARD_MEMORY, 0);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                        GEOPM_DOMAIN_BOARD_MEMORY, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = cpu_set_socket[1];
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_CPU,
-                                         GEOPM_DOMAIN_BOARD_MEMORY, 1);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                        GEOPM_DOMAIN_BOARD_MEMORY, 1);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     // Core
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_CORE,
-                                         GEOPM_DOMAIN_BOARD, 0);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_CORE,
+                                        GEOPM_DOMAIN_BOARD, 0);
     EXPECT_EQ(core_set_board, idx_set_actual);
 
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_CORE,
-                                         GEOPM_DOMAIN_PACKAGE, 0);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_CORE,
+                                        GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(core_set_socket[0], idx_set_actual);
 
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_CORE,
-                                         GEOPM_DOMAIN_PACKAGE, 1);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_CORE,
+                                        GEOPM_DOMAIN_PACKAGE, 1);
     EXPECT_EQ(core_set_socket[1], idx_set_actual);
 
     idx_set_expect = {0};
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_CORE,
-                                         GEOPM_DOMAIN_CORE, 0);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_CORE,
+                                        GEOPM_DOMAIN_CORE, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = {1};
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_CORE,
-                                         GEOPM_DOMAIN_CORE, 1);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_CORE,
+                                        GEOPM_DOMAIN_CORE, 1);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
-    EXPECT_THROW(topo.nested_domains(GEOPM_DOMAIN_CORE,
-                                     GEOPM_DOMAIN_CPU, 0),
+    EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_CORE,
+                                    GEOPM_DOMAIN_CPU, 0),
                  Exception);
 
     // Package
     idx_set_expect = {0, 1};
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_PACKAGE,
-                                         GEOPM_DOMAIN_BOARD, 0);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_PACKAGE,
+                                        GEOPM_DOMAIN_BOARD, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = {0};
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_PACKAGE,
-                                         GEOPM_DOMAIN_PACKAGE, 0);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_PACKAGE,
+                                        GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = {1};
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_PACKAGE,
-                                         GEOPM_DOMAIN_PACKAGE, 1);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_PACKAGE,
+                                        GEOPM_DOMAIN_PACKAGE, 1);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
-    EXPECT_THROW(topo.nested_domains(GEOPM_DOMAIN_PACKAGE,
-                                     GEOPM_DOMAIN_CPU, 0),
+    EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_PACKAGE,
+                                    GEOPM_DOMAIN_CPU, 0),
                  Exception);
 
     // Board Memory
     idx_set_expect = {0, 1};
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_BOARD_MEMORY,
-                                         GEOPM_DOMAIN_BOARD, 0);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_BOARD_MEMORY,
+                                        GEOPM_DOMAIN_BOARD, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = {0};
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_BOARD_MEMORY,
-                                         GEOPM_DOMAIN_BOARD_MEMORY, 0);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_BOARD_MEMORY,
+                                        GEOPM_DOMAIN_BOARD_MEMORY, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     idx_set_expect = {1};
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_BOARD_MEMORY,
-                                         GEOPM_DOMAIN_BOARD_MEMORY, 1);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_BOARD_MEMORY,
+                                        GEOPM_DOMAIN_BOARD_MEMORY, 1);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
-    EXPECT_THROW(topo.nested_domains(GEOPM_DOMAIN_BOARD_MEMORY,
-                                     GEOPM_DOMAIN_CPU, 0),
+    EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_BOARD_MEMORY,
+                                    GEOPM_DOMAIN_CPU, 0),
                  Exception);
 
     // Board
     idx_set_expect = {0};
-    idx_set_actual = topo.nested_domains(GEOPM_DOMAIN_BOARD,
-                                         GEOPM_DOMAIN_BOARD, 0);
+    idx_set_actual = topo.domain_nested(GEOPM_DOMAIN_BOARD,
+                                        GEOPM_DOMAIN_BOARD, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     // TODO: still to be implemented
-    EXPECT_THROW(topo.nested_domains(GEOPM_DOMAIN_CPU,
-                                     GEOPM_DOMAIN_PACKAGE_MEMORY, 0), Exception);
-    EXPECT_THROW(topo.nested_domains(GEOPM_DOMAIN_CPU,
-                                     GEOPM_DOMAIN_PACKAGE_ACCELERATOR, 0), Exception);
-    EXPECT_THROW(topo.nested_domains(GEOPM_DOMAIN_CPU,
-                                     GEOPM_DOMAIN_PACKAGE_NIC, 0), Exception);
-    EXPECT_THROW(topo.nested_domains(GEOPM_DOMAIN_CPU,
-                                     GEOPM_DOMAIN_BOARD_NIC, 0), Exception);
-    EXPECT_THROW(topo.nested_domains(GEOPM_DOMAIN_CPU,
-                                     GEOPM_DOMAIN_BOARD_ACCELERATOR, 0), Exception);
+    EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                    GEOPM_DOMAIN_PACKAGE_MEMORY, 0), Exception);
+    EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                    GEOPM_DOMAIN_PACKAGE_ACCELERATOR, 0), Exception);
+    EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                    GEOPM_DOMAIN_PACKAGE_NIC, 0), Exception);
+    EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                    GEOPM_DOMAIN_BOARD_NIC, 0), Exception);
+    EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                    GEOPM_DOMAIN_BOARD_ACCELERATOR, 0), Exception);
 }
 
 TEST_F(PlatformTopoTest, parse_error)
