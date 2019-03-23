@@ -77,7 +77,7 @@ namespace geopm
             /// @param [in] outer_idx The containing domain index.
             /// @return The set of domain indices for the inner domain that are
             ///         within the indexed outer domain.
-            virtual std::set<int> nested_domains(int inner_domain, int outer_domain, int outer_idx) const = 0;
+            virtual std::set<int> domain_nested(int inner_domain, int outer_domain, int outer_idx) const = 0;
             /// @brief Convert a domain type enum to a string.
             /// @param [in] domain_type Domain type from the
             ///        m_domain_e enum.
@@ -111,7 +111,7 @@ namespace geopm
             int domain_idx(int domain_type,
                            int cpu_idx) const override;
             bool is_nested_domain(int inner_domain, int outer_domain) const override;
-            std::set<int> nested_domains(int inner_domain, int outer_domain, int outer_idx) const override;
+            std::set<int> domain_nested(int inner_domain, int outer_domain, int outer_idx) const override;
             static void create_cache();
             static void create_cache(const std::string &cache_file_name);
         private:
