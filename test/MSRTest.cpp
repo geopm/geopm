@@ -43,13 +43,10 @@ using testing::_;
 using testing::Invoke;
 using testing::Sequence;
 
-using geopm::IMSR;
-using geopm::IMSR;
 using geopm::MSR;
-using geopm::MSRSignal;
-using geopm::IMSRSignal;
-using geopm::MSRControl;
-using geopm::IMSRControl;
+using geopm::MSRImp;
+using geopm::MSRSignalImp;
+using geopm::MSRControlImp;
 using geopm::PlatformTopo;
 using geopm::Exception;
 
@@ -69,7 +66,7 @@ class MSRTest : public :: testing :: Test
 
         // signals config
         const size_t M_NUM_SIGNALS = 3;
-        std::vector<std::pair<std::string, struct IMSR::m_encode_s> > m_signals;
+        std::vector<std::pair<std::string, struct MSR::m_encode_s> > m_signals;
         std::vector<std::string> m_signal_names;
         std::vector<int> m_sig_begin_bits;
         std::vector<int> m_sig_end_bits;
@@ -79,7 +76,7 @@ class MSRTest : public :: testing :: Test
 
         // controls config
         const size_t M_NUM_CONTROLS = 3;
-        std::vector<std::pair<std::string, struct IMSR::m_encode_s> > m_controls;
+        std::vector<std::pair<std::string, struct MSR::m_encode_s> > m_controls;
         std::vector<std::string> m_control_names;
         std::vector<int> m_con_begin_bits;
         std::vector<int> m_con_end_bits;
@@ -91,15 +88,15 @@ class MSRTest : public :: testing :: Test
         // MSR
         std::vector<std::string> m_msr_names;
         std::vector<uint64_t> m_msr_offsets;
-        std::vector<const IMSR *> m_msrs;
+        std::vector<const MSR *> m_msrs;
 };
 
 void MSRTest::SetUp()
 {
     m_cpu_idx = 2;
     m_domain_types = {GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CPU};
-    m_function_types = {IMSR::M_FUNCTION_SCALE, IMSR::M_FUNCTION_LOG_HALF, IMSR::M_FUNCTION_7_BIT_FLOAT};
-    m_unit_types = {IMSR::M_UNITS_NONE, IMSR::M_UNITS_NONE, IMSR::M_UNITS_NONE};
+    m_function_types = {MSR::M_FUNCTION_SCALE, MSR::M_FUNCTION_LOG_HALF, MSR::M_FUNCTION_7_BIT_FLOAT};
+    m_unit_types = {MSR::M_UNITS_NONE, MSR::M_UNITS_NONE, MSR::M_UNITS_NONE};
 
     ConfigSignals();
     ConfigControls();
@@ -107,9 +104,9 @@ void MSRTest::SetUp()
     m_msr_names = {"test_msr_0", "test_msr_1", "test_msr_2"};
     m_msr_offsets = {2, 8, 16};
 
-    MSR *stage0 = new MSR(m_msr_names[0], m_msr_offsets[0], m_signals, {});         // signal only
-    MSR *stage1 = new MSR(m_msr_names[1], m_msr_offsets[1], {}, m_controls);        // control only
-    MSR *stage2 = new MSR(m_msr_names[2], m_msr_offsets[2], m_signals, m_controls); // signal and control
+    MSR *stage0 = new MSRImp(m_msr_names[0], m_msr_offsets[0], m_signals, {});         // signal only
+    MSR *stage1 = new MSRImp(m_msr_names[1], m_msr_offsets[1], {}, m_controls);        // control only
+    MSR *stage2 = new MSRImp(m_msr_names[2], m_msr_offsets[2], m_signals, m_controls); // signal and control
 
     m_msrs = {stage0, stage1, stage2};
 }
@@ -140,8 +137,8 @@ void MSRTest::ConfigSignals()
 
     m_signals.resize(M_NUM_SIGNALS);
     for (size_t idx = 0; idx < M_NUM_SIGNALS; idx++) {
-        m_signals[idx] = std::pair<std::string, struct IMSR::m_encode_s>(
-                             m_signal_names[idx], (struct IMSR::m_encode_s) {
+        m_signals[idx] = std::pair<std::string, struct MSR::m_encode_s>(
+                             m_signal_names[idx], (struct MSR::m_encode_s) {
                                  .begin_bit = m_sig_begin_bits[idx],
                                  .end_bit   = m_sig_end_bits[idx],
                                  .domain    = m_domain_types[idx],
@@ -169,8 +166,8 @@ void MSRTest::ConfigControls()
 
     m_controls.resize(M_NUM_CONTROLS);
     for (size_t idx = 0; idx < M_NUM_CONTROLS; idx++) {
-        m_controls[idx] = std::pair<std::string, struct IMSR::m_encode_s>(
-                              m_control_names[idx], (struct IMSR::m_encode_s) {
+        m_controls[idx] = std::pair<std::string, struct MSR::m_encode_s>(
+                              m_control_names[idx], (struct MSR::m_encode_s) {
                                   .begin_bit = m_con_begin_bits[idx],
                                   .end_bit   = m_con_end_bits[idx],
                                   .domain    = m_domain_types[idx],
@@ -182,7 +179,7 @@ void MSRTest::ConfigControls()
 
 TEST_F(MSRTest, msr)
 {
-    const IMSR *msr = m_msrs[2];
+    const MSR *msr = m_msrs[2];
     uint64_t field = 0, mask = 0;
     EXPECT_THROW(msr->control(2, 80000000000000.0, field, mask), Exception);
     EXPECT_THROW(msr->control(2, -1.0, field, mask), Exception);
@@ -228,15 +225,15 @@ TEST_F(MSRTest, msr)
 
 TEST_F(MSRTest, msr_overflow)
 {
-    auto signal = std::pair<std::string, struct IMSR::m_encode_s>
-                     ("sig4", (struct IMSR::m_encode_s) {
+    auto signal = std::pair<std::string, struct MSR::m_encode_s>
+                     ("sig4", (struct MSR::m_encode_s) {
                          .begin_bit = 0,
                          .end_bit   = 3,
                          .domain    = GEOPM_DOMAIN_CPU,
-                         .function  = IMSR::M_FUNCTION_OVERFLOW,
-                         .units     = IMSR::M_UNITS_NONE,
+                         .function  = MSR::M_FUNCTION_OVERFLOW,
+                         .units     = MSR::M_UNITS_NONE,
                          .scalar    = 1.0});
-    MSR msr("msr4", 0, {signal}, {});
+    MSRImp msr("msr4", 0, {signal}, {});
     uint64_t last_field = 0;
     uint64_t num_overflow = 0;
 
@@ -255,15 +252,15 @@ TEST_F(MSRTest, msr_overflow)
     EXPECT_DOUBLE_EQ(50.0, of_value);  // 2 + 3 * 16
 
     // Test with real counter values
-    auto signal2 = std::pair<std::string, struct IMSR::m_encode_s>
-                      ("sig42", (struct IMSR::m_encode_s) {
+    auto signal2 = std::pair<std::string, struct MSR::m_encode_s>
+                      ("sig42", (struct MSR::m_encode_s) {
                           .begin_bit = 0,
                           .end_bit   = 47,
                           .domain    = GEOPM_DOMAIN_CPU,
-                          .function  = IMSR::M_FUNCTION_OVERFLOW,
-                          .units     = IMSR::M_UNITS_NONE,
+                          .function  = MSR::M_FUNCTION_OVERFLOW,
+                          .units     = MSR::M_UNITS_NONE,
                           .scalar    = 1.0});
-    MSR msr2("msr42", 0, {signal2}, {});
+    MSRImp msr2("msr42", 0, {signal2}, {});
 
     last_field = 0;
     num_overflow = 0;
@@ -287,9 +284,9 @@ TEST_F(MSRTest, msr_signal)
 {
     int msr_idx = 0;
     int sig_idx = 0;
-    MSRSignal sig(*m_msrs[msr_idx],
-                  GEOPM_DOMAIN_CPU,
-                  m_cpu_idx, sig_idx);
+    MSRSignalImp sig(*m_msrs[msr_idx],
+                     GEOPM_DOMAIN_CPU,
+                     m_cpu_idx, sig_idx);
 
     EXPECT_EQ((m_msr_names[msr_idx] + ":" + m_signal_names[sig_idx]), sig.name());
     EXPECT_EQ(GEOPM_DOMAIN_CPU, sig.domain_type());
@@ -307,9 +304,9 @@ TEST_F(MSRTest, msr_control)
     int msr_idx = 1;
     int con_idx = 0;
     uint64_t field = 0, mask = 0;
-    MSRControl con(*m_msrs[msr_idx],
-                   GEOPM_DOMAIN_CPU,
-                   m_cpu_idx, con_idx);
+    MSRControlImp con(*m_msrs[msr_idx],
+                      GEOPM_DOMAIN_CPU,
+                      m_cpu_idx, con_idx);
 
     EXPECT_EQ((m_msr_names[msr_idx] + ":" + m_control_names[con_idx]), con.name());
     EXPECT_EQ(GEOPM_DOMAIN_CPU, con.domain_type());
@@ -325,20 +322,20 @@ TEST_F(MSRTest, msr_control)
 
 TEST_F(MSRTest, string_to_function)
 {
-    EXPECT_EQ(IMSR::M_FUNCTION_SCALE, IMSR::string_to_function("scale"));
-    EXPECT_EQ(IMSR::M_FUNCTION_LOG_HALF, IMSR::string_to_function("log_half"));
-    EXPECT_EQ(IMSR::M_FUNCTION_7_BIT_FLOAT, IMSR::string_to_function("7_bit_float"));
-    EXPECT_EQ(IMSR::M_FUNCTION_OVERFLOW, IMSR::string_to_function("overflow"));
-    EXPECT_THROW(IMSR::string_to_function("invalid"), Exception);
+    EXPECT_EQ(MSR::M_FUNCTION_SCALE, MSR::string_to_function("scale"));
+    EXPECT_EQ(MSR::M_FUNCTION_LOG_HALF, MSR::string_to_function("log_half"));
+    EXPECT_EQ(MSR::M_FUNCTION_7_BIT_FLOAT, MSR::string_to_function("7_bit_float"));
+    EXPECT_EQ(MSR::M_FUNCTION_OVERFLOW, MSR::string_to_function("overflow"));
+    EXPECT_THROW(MSR::string_to_function("invalid"), Exception);
 }
 
 TEST_F(MSRTest, string_to_units)
 {
-    EXPECT_EQ(IMSR::M_UNITS_NONE, IMSR::string_to_units("none"));
-    EXPECT_EQ(IMSR::M_UNITS_SECONDS, IMSR::string_to_units("seconds"));
-    EXPECT_EQ(IMSR::M_UNITS_HERTZ, IMSR::string_to_units("hertz"));
-    EXPECT_EQ(IMSR::M_UNITS_WATTS, IMSR::string_to_units("watts"));
-    EXPECT_EQ(IMSR::M_UNITS_JOULES, IMSR::string_to_units("joules"));
-    EXPECT_EQ(IMSR::M_UNITS_CELSIUS, IMSR::string_to_units("celsius"));
-    EXPECT_THROW(IMSR::string_to_units("invalid"), Exception);
+    EXPECT_EQ(MSR::M_UNITS_NONE, MSR::string_to_units("none"));
+    EXPECT_EQ(MSR::M_UNITS_SECONDS, MSR::string_to_units("seconds"));
+    EXPECT_EQ(MSR::M_UNITS_HERTZ, MSR::string_to_units("hertz"));
+    EXPECT_EQ(MSR::M_UNITS_WATTS, MSR::string_to_units("watts"));
+    EXPECT_EQ(MSR::M_UNITS_JOULES, MSR::string_to_units("joules"));
+    EXPECT_EQ(MSR::M_UNITS_CELSIUS, MSR::string_to_units("celsius"));
+    EXPECT_THROW(MSR::string_to_units("invalid"), Exception);
 }

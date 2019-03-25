@@ -40,7 +40,7 @@
 
 namespace geopm
 {
-    SampleRegulator::SampleRegulator(const std::vector<int> &cpu_rank)
+    SampleRegulatorImp::SampleRegulatorImp(const std::vector<int> &cpu_rank)
     {
         std::set<int> rank_set;
         for (auto it = cpu_rank.begin(); it != cpu_rank.end(); ++it) {
@@ -60,13 +60,13 @@ namespace geopm
         m_region_id.resize(m_num_rank, GEOPM_REGION_HASH_UNMARKED);
     }
 
-    void SampleRegulator::operator () (const struct geopm_time_s &platform_sample_time,
-                                       std::vector<double>::const_iterator platform_sample_begin,
-                                       std::vector<double>::const_iterator platform_sample_end,
-                                       std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
-                                       std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end,
-                                       std::vector<double> &aligned_signal,
-                                       std::vector<uint64_t> &region_id)
+    void SampleRegulatorImp::operator () (const struct geopm_time_s &platform_sample_time,
+                                          std::vector<double>::const_iterator platform_sample_begin,
+                                          std::vector<double>::const_iterator platform_sample_end,
+                                          std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
+                                          std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end,
+                                          std::vector<double> &aligned_signal,
+                                          std::vector<uint64_t> &region_id)
     {
         // Insert new application profile data into buffers
         insert(prof_sample_begin, prof_sample_end);
@@ -81,13 +81,13 @@ namespace geopm
         region_id = m_region_id;
     }
 
-    const std::map<int, int> &SampleRegulator::rank_idx_map(void) const
+    const std::map<int, int> &SampleRegulatorImp::rank_idx_map(void) const
     {
         return m_rank_idx_map;
     }
 
-    void SampleRegulator::insert(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
-                                 std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end)
+    void SampleRegulatorImp::insert(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
+                                    std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end)
     {
         if (prof_sample_begin != prof_sample_end) {
             for (auto it = prof_sample_begin; it != prof_sample_end; ++it) {
@@ -114,8 +114,8 @@ namespace geopm
         }
     }
 
-    void SampleRegulator::insert(std::vector<double>::const_iterator platform_sample_begin,
-                                 std::vector<double>::const_iterator platform_sample_end)
+    void SampleRegulatorImp::insert(std::vector<double>::const_iterator platform_sample_begin,
+                                    std::vector<double>::const_iterator platform_sample_end)
     {
         if (!m_aligned_signal.size()) {
             m_num_platform_signal = std::distance(platform_sample_begin, platform_sample_end);
@@ -124,7 +124,7 @@ namespace geopm
         std::copy(platform_sample_begin, platform_sample_end, m_aligned_signal.begin());
     }
 
-    void SampleRegulator::align(const struct geopm_time_s &timestamp)
+    void SampleRegulatorImp::align(const struct geopm_time_s &timestamp)
     {
         int i = 0;
         double delta;
@@ -164,7 +164,7 @@ namespace geopm
                     m_aligned_signal[m_num_platform_signal + M_NUM_RANK_SIGNAL * i] = progress;
                     break;
                 default:
-                    throw Exception("SampleRegulator::align_prof() CircularBuffer has more than two values", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                    throw Exception("SampleRegulatorImp::align_prof() CircularBuffer has more than two values", GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                     break;
             }
             ++i;

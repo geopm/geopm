@@ -43,7 +43,7 @@ namespace geopm
     /// @brief Class describing all of the encoded values within a
     /// single MSR register.  This class encodes how to access fields
     /// within an MSR, but does not hold the state of any registers.
-    class IMSR
+    class MSR
     {
         public:
             /// @brief Structure describing a bit field in an MSR.
@@ -72,8 +72,8 @@ namespace geopm
                 M_UNITS_CELSIUS,
             };
 
-            IMSR() = default;
-            virtual ~IMSR() = default;
+            MSR() = default;
+            virtual ~MSR() = default;
             /// @brief Query the name of the MSR.
             /// @return The name of the MSR.
             virtual std::string name(void) const = 0;
@@ -162,10 +162,10 @@ namespace geopm
 
     class MSREncode;
 
-    class MSR : public IMSR
+    class MSRImp : public MSR
     {
         public:
-            /// @brief Constructor for the MSR class for fixed MSRs.
+            /// @brief Constructor for the MSRImp class for fixed MSRs.
             /// @param [in] msr_name The name of the MSR.
             /// @param [in] offset The byte offset of the MSR.
             /// @param [in] signal Vector of signal name and encode
@@ -174,12 +174,11 @@ namespace geopm
             /// @param [in] control Vector of control name and encode
             /// struct pairs describing all controls embedded in the
             /// MSR.
-            MSR(const std::string &msr_name,
-                uint64_t offset,
-                const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > &signal,
-                const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > &control);
-            /// @brief MSR class destructor.
-            virtual ~MSR();
+            MSRImp(const std::string &msr_name,
+                   uint64_t offset,
+                   const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &signal,
+                   const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &control);
+            virtual ~MSRImp();
             std::string name(void) const override;
             uint64_t offset(void) const override;
             int num_signal(void) const override;
@@ -200,8 +199,8 @@ namespace geopm
             int domain_type(void) const override;
             int decode_function(int signal_idx) const override;
         private:
-            void init(const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > &signal,
-                      const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > &control);
+            void init(const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &signal,
+                      const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &control);
             std::string m_name;
             uint64_t m_offset;
             std::vector<MSREncode *> m_signal_encode;
@@ -209,7 +208,7 @@ namespace geopm
             std::map<std::string, int> m_signal_map;
             std::map<std::string, int> m_control_map;
             int m_domain_type;
-            const std::vector<const IMSR *> m_prog_msr;
+            const std::vector<const MSR *> m_prog_msr;
             const std::vector<std::string> m_prog_field_name;
             const std::vector<double> m_prog_value;
 

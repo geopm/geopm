@@ -39,11 +39,11 @@
 
 namespace geopm
 {
-    class IMSRIO
+    class MSRIO
     {
         public:
-            IMSRIO() = default;
-            virtual ~IMSRIO() = default;
+            MSRIO() = default;
+            virtual ~MSRIO() = default;
             /// @brief Read from a single MSR on a CPU.
             /// @brief [in] cpu_idx logical Linux CPU index to read
             ///        from.
@@ -100,12 +100,12 @@ namespace geopm
             virtual void write_batch(const std::vector<uint64_t> &raw_value) = 0;
     };
 
-    class MSRIO : public IMSRIO
+    class MSRIOImp : public MSRIO
     {
         public:
-            MSRIO();
-            MSRIO(int num_cpu);
-            virtual ~MSRIO();
+            MSRIOImp();
+            MSRIOImp(int num_cpu);
+            virtual ~MSRIOImp();
             uint64_t read_msr(int cpu_idx,
                               uint64_t offset) override;
             void write_msr(int cpu_idx,

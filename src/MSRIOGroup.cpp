@@ -65,15 +65,15 @@ namespace geopm
     const std::string hsx_msr_json(void);
     const std::string snb_msr_json(void);
     const std::string skx_msr_json(void);
-    static std::vector<std::unique_ptr<IMSR> > init_msr_arr(int cpu_id);
+    static std::vector<std::unique_ptr<MSR> > init_msr_arr(int cpu_id);
 
     MSRIOGroup::MSRIOGroup()
-        : MSRIOGroup(platform_topo(), std::unique_ptr<IMSRIO>(new MSRIO), cpuid(), geopm_sched_num_cpu())
+        : MSRIOGroup(platform_topo(), std::unique_ptr<MSRIO>(new MSRIOImp), cpuid(), geopm_sched_num_cpu())
     {
 
     }
 
-    MSRIOGroup::MSRIOGroup(PlatformTopo &topo, std::unique_ptr<IMSRIO> msrio, int cpuid, int num_cpu)
+    MSRIOGroup::MSRIOGroup(PlatformTopo &topo, std::unique_ptr<MSRIO> msrio, int cpuid, int num_cpu)
         : m_platform_topo(topo)
         , m_num_cpu(num_cpu)
         , m_is_active(false)
@@ -86,7 +86,7 @@ namespace geopm
     {
         m_msr_arr = init_msr_arr(cpuid);
         for (const auto &msr_ptr : m_msr_arr) {
-            m_name_msr_map.insert(std::pair<std::string, const IMSR &>(msr_ptr->name(), *msr_ptr));
+            m_name_msr_map.insert(std::pair<std::string, const MSR &>(msr_ptr->name(), *msr_ptr));
             for (int idx = 0; idx < msr_ptr->num_signal(); idx++) {
                 register_msr_signal(m_name_prefix + msr_ptr->name() + ":" + msr_ptr->signal_name(idx));
             }
@@ -136,10 +136,10 @@ namespace geopm
         register_msr_control("POWER_PACKAGE_TIME_WINDOW", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
     }
 
-    void MSRIOGroup::register_raw_msr_signal(const std::string &msr_name, const IMSR &msr_ptr)
+    void MSRIOGroup::register_raw_msr_signal(const std::string &msr_name, const MSR &msr_ptr)
     {
         // Insert the signal name with an empty vector into the map
-        auto ins_ret = m_name_cpu_signal_map.insert(std::pair<std::string, std::vector<std::shared_ptr<IMSRSignal> > >(m_name_prefix + msr_name + "#", {}));
+        auto ins_ret = m_name_cpu_signal_map.insert(std::pair<std::string, std::vector<std::shared_ptr<MSRSignal> > >(m_name_prefix + msr_name + "#", {}));
         // Get reference to the per-cpu signal vector
         auto &cpu_signal = (*(ins_ret.first)).second;
         // Check to see if the signal name has already been registered
@@ -153,10 +153,10 @@ namespace geopm
             throw Exception("MSRIOGroup::register_raw_msr_signal(): msr_name could not be found: " + msr_name,
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        const IMSR &msr_obj = name_msr_it->second;
+        const MSR &msr_obj = name_msr_it->second;
         cpu_signal.resize(m_num_cpu, nullptr);
         for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-            cpu_signal[cpu_idx] = std::make_shared<MSRSignal>(msr_obj, msr_obj.domain_type(), cpu_idx);
+            cpu_signal[cpu_idx] = std::make_shared<MSRSignalImp>(msr_obj, msr_obj.domain_type(), cpu_idx);
         }
     }
 
@@ -428,7 +428,7 @@ namespace geopm
 
         // Copy of existing signal but map own memory
         uint64_t field = 0;
-        std::unique_ptr<IMSRSignal> signal = ncsm_it->second[*(cpu_idx.begin())]->copy_and_remap(&field);
+        std::unique_ptr<MSRSignal> signal = ncsm_it->second[*(cpu_idx.begin())]->copy_and_remap(&field);
         uint64_t offset = signal->offset();
         field = m_msrio->read_msr(*(cpu_idx.begin()), offset);
         // @todo last value can only get updated with read batch. This means that
@@ -468,7 +468,7 @@ namespace geopm
             // Copy of existing control but map own memory
             uint64_t field = 0;
             uint64_t mask = 0;
-            std::unique_ptr<IMSRControl> control = nccm_it->second[cpu]->copy_and_remap(&field, &mask);
+            std::unique_ptr<MSRControl> control = nccm_it->second[cpu]->copy_and_remap(&field, &mask);
             uint64_t offset = control->offset();
             control->adjust(setting);
             m_msrio->write_msr(cpu, offset, field, mask);
@@ -636,7 +636,7 @@ namespace geopm
         std::string field_name(name_field.substr(colon_pos + 1));
 
         // Insert the signal name with an empty vector into the map
-        auto ins_ret = m_name_cpu_signal_map.insert(std::pair<std::string, std::vector<std::shared_ptr<IMSRSignal> > >(signal_name, {}));
+        auto ins_ret = m_name_cpu_signal_map.insert(std::pair<std::string, std::vector<std::shared_ptr<MSRSignal> > >(signal_name, {}));
         // Get reference to the per-cpu signal vector
         auto &cpu_signal = (*(ins_ret.first)).second;
         // Check to see if the signal name has already been registered
@@ -652,7 +652,7 @@ namespace geopm
             throw Exception("MSRIOGroup::register_msr_signal(): msr_name could not be found: " + msr_name,
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        const IMSR &msr_obj = name_msr_it->second;
+        const MSR &msr_obj = name_msr_it->second;
         int signal_idx = msr_obj.signal_index(field_name);
         if (signal_idx == -1) {
             throw Exception("MSRIOGroup::register_msr_signal(): field_name: " + field_name + " could not be found",
@@ -660,7 +660,7 @@ namespace geopm
         }
 
         for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-            cpu_signal[cpu_idx] = std::make_shared<MSRSignal>(msr_obj, msr_obj.domain_type(), cpu_idx, signal_idx);
+            cpu_signal[cpu_idx] = std::make_shared<MSRSignalImp>(msr_obj, msr_obj.domain_type(), cpu_idx, signal_idx);
         }
 
         // Set up aggregation for the alias
@@ -695,7 +695,7 @@ namespace geopm
         std::string field_name(name_field.substr(colon_pos + 1));
 
         // Insert the control name with an empty vector into the map
-        auto ins_ret = m_name_cpu_control_map.insert(std::pair<std::string, std::vector<std::shared_ptr<IMSRControl> > >(control_name, {}));
+        auto ins_ret = m_name_cpu_control_map.insert(std::pair<std::string, std::vector<std::shared_ptr<MSRControl> > >(control_name, {}));
         // Get reference to the per-cpu control vector
         auto &cpu_control = (*(ins_ret.first)).second;
         // Check to see if the control name has already been registered
@@ -712,7 +712,7 @@ namespace geopm
             throw Exception("MSRIOGroup::register_msr_control(): msr_name could not be found",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        const IMSR &msr_obj = name_msr_it->second;
+        const MSR &msr_obj = name_msr_it->second;
         int control_idx = msr_obj.control_index(field_name);
         if (control_idx == -1) {
             throw Exception("MSRIOGroup::register_msr_control(): field_name: " + field_name + " could not be found",
@@ -720,7 +720,7 @@ namespace geopm
         }
 
         for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
-            cpu_control[cpu_idx] = std::make_shared<MSRControl>(msr_obj, msr_obj.domain_type(), cpu_idx, control_idx);
+            cpu_control[cpu_idx] = std::make_shared<MSRControlImp>(msr_obj, msr_obj.domain_type(), cpu_idx, control_idx);
         }
         // Copy description for the alias
         auto desc = control_description(msr_name_field);
@@ -810,11 +810,11 @@ namespace geopm
         return result;
     }
 
-    std::vector<std::unique_ptr<IMSR> > init_msr_arr(int cpu_id)
+    std::vector<std::unique_ptr<MSR> > init_msr_arr(int cpu_id)
     {
-        std::vector<std::unique_ptr<IMSR> > msr_arr = MSRIOGroup::parse_json_msrs(arch_msr_json());
+        std::vector<std::unique_ptr<MSR> > msr_arr = MSRIOGroup::parse_json_msrs(arch_msr_json());
         // parse arch registers first, then platform specific
-        std::vector<std::unique_ptr<IMSR> > msr_arr_platform;
+        std::vector<std::unique_ptr<MSR> > msr_arr_platform;
         switch (cpu_id) {
             case MSRIOGroup::M_CPUID_KNL:
                 msr_arr_platform = MSRIOGroup::parse_json_msrs(knl_msr_json());
@@ -841,14 +841,14 @@ namespace geopm
             std::vector<std::string> dirs = string_split(std::string(env_plugin_path), ":");
             plugin_paths.insert(plugin_paths.end(), dirs.begin(), dirs.end());
         }
-        std::vector<std::unique_ptr<IMSR> > msr_arr_custom;
+        std::vector<std::unique_ptr<MSR> > msr_arr_custom;
         for (const auto &dir : plugin_paths) {
             auto files = list_directory_files(dir);
             for (const auto &file : files) {
                 std::string filename = dir + "/" + file;
                 if (string_begins_with(file, "msr_") && string_ends_with(file, ".json")) {
                     std::string data = read_file(filename);
-                    std::vector<std::unique_ptr<IMSR> > temp = MSRIOGroup::parse_json_msrs(data);
+                    std::vector<std::unique_ptr<MSR> > temp = MSRIOGroup::parse_json_msrs(data);
                     msr_arr_custom.insert(msr_arr_custom.begin(),
                                           std::make_move_iterator(temp.begin()),
                                           std::make_move_iterator(temp.end()));
@@ -977,9 +977,9 @@ namespace geopm
         }
     }
 
-    std::vector<std::unique_ptr<IMSR> > MSRIOGroup::parse_json_msrs(const std::string &str)
+    std::vector<std::unique_ptr<MSR> > MSRIOGroup::parse_json_msrs(const std::string &str)
     {
-        std::vector<std::unique_ptr<IMSR> > result;
+        std::vector<std::unique_ptr<MSR> > result;
         std::string err;
         Json root = Json::parse(str, err);
         if (!err.empty() || !root.is_object()) {
@@ -1029,8 +1029,8 @@ namespace geopm
             };
             check_expected_key_values(msr_root, msr_keys, "in msr \"" + msr_name + "\"");
 
-            std::vector<std::pair<std::string, struct IMSR::m_encode_s> > signals;
-            std::vector<std::pair<std::string, struct IMSR::m_encode_s> > controls;
+            std::vector<std::pair<std::string, struct MSR::m_encode_s> > signals;
+            std::vector<std::pair<std::string, struct MSR::m_encode_s> > controls;
 
             /// Validate fields within MSR
             auto msr_data = msr.second.object_items();
@@ -1056,12 +1056,12 @@ namespace geopm
 
                 // field is valid, add to list
                 auto field_data = field.second.object_items();
-                IMSR::m_encode_s param {
+                MSR::m_encode_s param {
                     .begin_bit = (int)(field_data["begin_bit"].number_value()),
                     .end_bit = (int)(field_data["end_bit"].number_value()),
                     .domain = PlatformTopo::domain_name_to_type(msr_data["domain"].string_value()),
-                    .function = IMSR::string_to_function(field_data["function"].string_value()),
-                    .units = IMSR::string_to_units(field_data["units"].string_value()),
+                    .function = MSR::string_to_function(field_data["function"].string_value()),
+                    .units = MSR::string_to_units(field_data["units"].string_value()),
                     .scalar = field_data["scalar"].number_value(),
                 };
                 signals.push_back({field_name, param});
@@ -1074,7 +1074,7 @@ namespace geopm
                 throw Exception("MSRIOGroup::" + std::string(__func__) + "(): invalid offset for " + msr_name + ": " + msr_data["offset"].string_value(),
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            result.emplace_back(new MSR(msr_name, msr_offset, signals, controls));
+            result.emplace_back(new MSRImp(msr_name, msr_offset, signals, controls));
         }
 
         return result;
