@@ -55,14 +55,14 @@
 
 namespace geopm
 {
-    const std::map<std::string, IMSR::m_function_e> IMSR::M_FUNCTION_STRING = {
+    const std::map<std::string, MSR::m_function_e> MSR::M_FUNCTION_STRING = {
         {"scale", M_FUNCTION_SCALE},
         {"log_half", M_FUNCTION_LOG_HALF},
         {"7_bit_float", M_FUNCTION_7_BIT_FLOAT},
         {"overflow", M_FUNCTION_OVERFLOW}
     };
 
-    const std::map<std::string, IMSR::m_units_e> IMSR::M_UNITS_STRING = {
+    const std::map<std::string, MSR::m_units_e> MSR::M_UNITS_STRING = {
         {"none", M_UNITS_NONE},
         {"seconds", M_UNITS_SECONDS},
         {"hertz", M_UNITS_HERTZ},
@@ -76,7 +76,7 @@ namespace geopm
     class MSREncode
     {
         public:
-            MSREncode(const struct IMSR::m_encode_s &msre);
+            MSREncode(const struct MSR::m_encode_s &msre);
             MSREncode(int begin_bit, int end_bit, int function, double scalar);
             virtual ~MSREncode() = default;
             double decode(uint64_t field, uint64_t &last_field, uint64_t &num_overflow);
@@ -94,7 +94,7 @@ namespace geopm
     };
 
 
-    MSREncode::MSREncode(const struct IMSR::m_encode_s &msre)
+    MSREncode::MSREncode(const struct MSR::m_encode_s &msre)
         : MSREncode(msre.begin_bit, msre.end_bit, msre.function, msre.scalar)
     {
 
@@ -124,24 +124,24 @@ namespace geopm
         uint64_t subfield_last = (last_field & m_mask) >> m_shift;
         uint64_t float_y, float_z;
         switch (m_function) {
-            case IMSR::M_FUNCTION_LOG_HALF:
+            case MSR::M_FUNCTION_LOG_HALF:
                 // F = S * 2.0 ^ -X
                 result = 1.0 / (1ULL << subfield);
                 break;
-            case IMSR::M_FUNCTION_7_BIT_FLOAT:
+            case MSR::M_FUNCTION_7_BIT_FLOAT:
                 // F = S * 2 ^ Y * (1.0 + Z / 4.0)
                 // Y in bits [0:5) and Z in bits [5:7)
                 float_y = subfield & 0x1F;
                 float_z = subfield >> 5;
                 result = (1ULL << float_y) * (1.0 + float_z / 4.0);
                 break;
-            case IMSR::M_FUNCTION_OVERFLOW:
+            case MSR::M_FUNCTION_OVERFLOW:
                 if (subfield_last > subfield) {
                     ++num_overflow;
                 }
                 result = subfield + ((m_subfield_max + 1.0) * num_overflow);
                 break;
-            case IMSR::M_FUNCTION_SCALE:
+            case MSR::M_FUNCTION_SCALE:
                 result = subfield;
                 break;
             default:
@@ -158,15 +158,15 @@ namespace geopm
         double value_inferred = 0.0;
         uint64_t float_y, float_z;
         switch (m_function) {
-            case IMSR::M_FUNCTION_SCALE:
+            case MSR::M_FUNCTION_SCALE:
                 result = (uint64_t)(m_inverse * value);
                 break;
-            case IMSR::M_FUNCTION_LOG_HALF:
+            case MSR::M_FUNCTION_LOG_HALF:
                 // F = S * 2.0 ^ -X =>
                 // X = log2(S / F)
                 result = (uint64_t)std::log2(m_scalar / value);
                 break;
-            case IMSR::M_FUNCTION_7_BIT_FLOAT:
+            case MSR::M_FUNCTION_7_BIT_FLOAT:
                 // F = S * 2 ^ Y * (1.0 + Z / 4.0)
                 // Y in bits [0:5) and Z in bits [5:7)
                 if (value > 0) {
@@ -190,7 +190,7 @@ namespace geopm
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
                 break;
-            case IMSR::M_FUNCTION_OVERFLOW:
+            case MSR::M_FUNCTION_OVERFLOW:
                 result = (uint64_t)value;
                 break;
             default:
@@ -212,10 +212,10 @@ namespace geopm
         return m_function;
     }
 
-    MSR::MSR(const std::string &msr_name,
-             uint64_t offset,
-             const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > &signal,
-             const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > &control)
+    MSRImp::MSRImp(const std::string &msr_name,
+                   uint64_t offset,
+                   const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &signal,
+                   const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &control)
         : m_name(msr_name)
         , m_offset(offset)
         , m_signal_encode(signal.size(), NULL)
@@ -228,7 +228,7 @@ namespace geopm
         init(signal, control);
     }
 
-    MSR::~MSR()
+    MSRImp::~MSRImp()
     {
         for (auto it = m_control_encode.rbegin(); it != m_control_encode.rend(); ++it) {
             delete (*it);
@@ -238,10 +238,9 @@ namespace geopm
         }
     }
 
-    void MSR::init(const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > &signal,
-                   const std::vector<std::pair<std::string, struct IMSR::m_encode_s> > &control)
+    void MSRImp::init(const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &signal,
+                      const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &control)
     {
-
         int idx = 0;
         for (auto it = signal.begin(); it != signal.end(); ++it, ++idx) {
             m_signal_map.insert(std::pair<std::string, int>(it->first, idx));
@@ -259,35 +258,35 @@ namespace geopm
             m_domain_type = control[0].second.domain;
         }
         else {
-            throw Exception("MSR::init(): both signal and control vectors are empty",
+            throw Exception("MSRImp::init(): both signal and control vectors are empty",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
 
-    std::string MSR::name(void) const
+    std::string MSRImp::name(void) const
     {
         return m_name;
     }
 
-    uint64_t MSR::offset(void) const
+    uint64_t MSRImp::offset(void) const
     {
         return m_offset;
     }
 
-    int MSR::num_signal(void) const
+    int MSRImp::num_signal(void) const
     {
         return m_signal_encode.size();
     }
 
-    int MSR::num_control(void) const
+    int MSRImp::num_control(void) const
     {
         return m_control_encode.size();
     }
 
-    std::string MSR::signal_name(int signal_idx) const
+    std::string MSRImp::signal_name(int signal_idx) const
     {
         if (signal_idx < 0 || signal_idx >= num_signal()) {
-            throw Exception("MSR::signal_name(): signal_idx out of range",
+            throw Exception("MSRImp::signal_name(): signal_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         std::string result = "";
@@ -300,10 +299,10 @@ namespace geopm
         return result;
     }
 
-    std::string MSR::control_name(int control_idx) const
+    std::string MSRImp::control_name(int control_idx) const
     {
         if (control_idx < 0 || control_idx >= num_control()) {
-            throw Exception("MSR::control_name(): control_idx out of range",
+            throw Exception("MSRImp::control_name(): control_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         std::string result = "";
@@ -316,7 +315,7 @@ namespace geopm
         return result;
     }
 
-    int MSR::signal_index(const std::string &name) const
+    int MSRImp::signal_index(const std::string &name) const
     {
         int result = -1;
         auto it = m_signal_map.find(name);
@@ -326,7 +325,7 @@ namespace geopm
         return result;
     }
 
-    int MSR::control_index(const std::string &name) const
+    int MSRImp::control_index(const std::string &name) const
     {
         int result = -1;
         auto it = m_control_map.find(name);
@@ -336,10 +335,10 @@ namespace geopm
         return result;
     }
 
-    double MSR::signal(int signal_idx,
-                       uint64_t field,
-                       uint64_t &last_field,
-                       uint64_t &num_overflow) const
+    double MSRImp::signal(int signal_idx,
+                          uint64_t field,
+                          uint64_t &last_field,
+                          uint64_t &num_overflow) const
     {
         if (signal_idx < 0 || signal_idx >= num_signal()) {
             throw Exception("MSR::signal(): signal_idx out of range",
@@ -348,10 +347,10 @@ namespace geopm
         return m_signal_encode[signal_idx]->decode(field, last_field, num_overflow);
     }
 
-    void MSR::control(int control_idx,
-                      double value,
-                      uint64_t &field,
-                      uint64_t &mask) const
+    void MSRImp::control(int control_idx,
+                         double value,
+                         uint64_t &field,
+                         uint64_t &mask) const
     {
         if (control_idx < 0 || control_idx >= num_control()) {
             throw Exception("MSR::control(): control_idx out of range",
@@ -361,36 +360,36 @@ namespace geopm
         mask = m_control_encode[control_idx]->mask();
     }
 
-    uint64_t MSR::mask(int control_idx) const
+    uint64_t MSRImp::mask(int control_idx) const
     {
         return m_control_encode[control_idx]->mask();
     }
 
-    int MSR::domain_type(void) const
+    int MSRImp::domain_type(void) const
     {
         return m_domain_type;
     }
 
-    int MSR::decode_function(int signal_idx) const
+    int MSRImp::decode_function(int signal_idx) const
     {
         return m_signal_encode[signal_idx]->decode_function();
     }
 
-    IMSR::m_function_e IMSR::string_to_function(const std::string &str)
+    MSR::m_function_e MSR::string_to_function(const std::string &str)
     {
         auto it = M_FUNCTION_STRING.find(str);
         if (it == M_FUNCTION_STRING.end()) {
-            throw Exception("IMSR::string_to_units(): invalid function string",
+            throw Exception("MSR::string_to_units(): invalid function string",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return it->second;
     }
 
-    IMSR::m_units_e IMSR::string_to_units(const std::string &str)
+    MSR::m_units_e MSR::string_to_units(const std::string &str)
     {
         auto it = M_UNITS_STRING.find(str);
         if (it == M_UNITS_STRING.end()) {
-            throw Exception("IMSR::string_to_units(): invalid units string",
+            throw Exception("MSR::string_to_units(): invalid units string",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return it->second;

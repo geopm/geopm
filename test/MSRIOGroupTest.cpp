@@ -78,7 +78,7 @@ class MSRIOGroupTest : public :: testing :: Test
         void mock_enable_fixed_counters(void);
 };
 
-class MockMSRIO : public geopm::MSRIO
+class MockMSRIO : public geopm::MSRIOImp
 {
     public:
         MockMSRIO(int num_cpu);
@@ -96,7 +96,7 @@ class MockMSRIO : public geopm::MSRIO
 };
 
 MockMSRIO::MockMSRIO(int num_cpu)
-    : MSRIO(num_cpu)
+    : MSRIOImp(num_cpu)
     , M_MAX_OFFSET(4096)
     , m_num_cpu(num_cpu)
 {

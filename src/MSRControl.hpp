@@ -40,16 +40,16 @@
 
 namespace geopm
 {
-    class IMSR;
+    class MSR;
 
-    class IMSRControl
+    class MSRControl
     {
         public:
-            IMSRControl() = default;
-            virtual ~IMSRControl() = default;
+            MSRControl() = default;
+            virtual ~MSRControl() = default;
             /// @brief Make a copy of the concrete object and call
             ///        map_field() on the new object.
-            virtual std::unique_ptr<IMSRControl> copy_and_remap(uint64_t *field,
+            virtual std::unique_ptr<MSRControl> copy_and_remap(uint64_t *field,
                                                                 uint64_t *mask) const = 0;
             /// @brief Get the control parameter name.
             /// @return The name of the feature under control.
@@ -84,10 +84,10 @@ namespace geopm
                                    uint64_t *mask) = 0;
     };
 
-    class MSRControl : public IMSRControl
+    class MSRControlImp : public MSRControl
     {
         public:
-            /// @brief Constructor for the MSRControl class used when the
+            /// @brief Constructor for the MSRControlImp class used when the
             ///        control is enforced with a single bit field in a
             ///        single MSR.
             /// @param [in] msr_obj Pointer to the MSR object
@@ -96,13 +96,13 @@ namespace geopm
             ///        write the MSR.
             /// @param [in] control_idx The index of the control within
             ///        the MSR that the class represents.
-            MSRControl(const IMSR &msr_obj,
-                       int domain_type,
-                       int cpu_idx,
-                       int control_idx);
-            std::unique_ptr<IMSRControl> copy_and_remap(uint64_t *field,
-                                                        uint64_t *mask) const override;
-            virtual ~MSRControl();
+            MSRControlImp(const MSR &msr_obj,
+                          int domain_type,
+                          int cpu_idx,
+                          int control_idx);
+            std::unique_ptr<MSRControl> copy_and_remap(uint64_t *field,
+                                                       uint64_t *mask) const override;
+            virtual ~MSRControlImp();
             virtual std::string name(void) const override;
             int domain_type(void) const override;
             int cpu_idx(void) const override;
@@ -112,11 +112,11 @@ namespace geopm
             void map_field(uint64_t *field, uint64_t *mask) override;
         private:
             // Copying is disallowed except through copy_and_remap() method
-            MSRControl(const MSRControl &other);
-            MSRControl &operator=(const MSRControl &other) = default;
+            MSRControlImp(const MSRControlImp &other);
+            MSRControlImp &operator=(const MSRControlImp &other) = default;
 
             const std::string m_name;
-            const IMSR &m_msr_obj;
+            const MSR &m_msr_obj;
             const int m_domain_type;
             const int m_cpu_idx;
             const int m_control_idx;

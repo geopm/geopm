@@ -42,10 +42,10 @@
 
 namespace geopm
 {
-    class IMSR;
-    class IMSRSignal;
-    class IMSRControl;
-    class IMSRIO;
+    class MSR;
+    class MSRSignal;
+    class MSRControl;
+    class MSRIO;
     class PlatformTopo;
 
     /// @brief IOGroup that provides signals and controls based on MSRs.
@@ -62,7 +62,7 @@ namespace geopm
             };
 
             MSRIOGroup();
-            MSRIOGroup(PlatformTopo &platform_topo, std::unique_ptr<IMSRIO> msrio, int cpuid, int num_cpu);
+            MSRIOGroup(PlatformTopo &platform_topo, std::unique_ptr<MSRIO> msrio, int cpuid, int num_cpu);
             virtual ~MSRIOGroup();
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
@@ -123,7 +123,7 @@ namespace geopm
             void register_msr_control(const std::string &control_name);
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
-            static std::vector<std::unique_ptr<IMSR> > parse_json_msrs(const std::string &str);
+            static std::vector<std::unique_ptr<MSR> > parse_json_msrs(const std::string &str);
         private:
             struct m_restore_s {
                 uint64_t value;
@@ -131,7 +131,7 @@ namespace geopm
             };
             void register_msr_signal(const std::string &signal_name, const std::string &msr_field_name);
             void register_msr_control(const std::string &control_name, const std::string &msr_field_name);
-            void register_raw_msr_signal(const std::string &msr_name, const IMSR &msr_ptr);
+            void register_raw_msr_signal(const std::string &msr_name, const MSR &msr_ptr);
             void enable_fixed_counters(void);
             void check_control(const std::string &control_name);
 
@@ -141,18 +141,18 @@ namespace geopm
             int m_num_cpu;
             bool m_is_active;
             bool m_is_read;
-            std::unique_ptr<IMSRIO> m_msrio;
+            std::unique_ptr<MSRIO> m_msrio;
             int m_cpuid;
             std::vector<bool> m_is_adjusted;
             // TODO: figure out diff with m_name_msr_map
-            std::vector<std::unique_ptr<IMSR> > m_msr_arr;
+            std::vector<std::unique_ptr<MSR> > m_msr_arr;
             // Mappings from names to all valid signals and controls
-            std::map<std::string, const IMSR &> m_name_msr_map;
-            std::map<std::string, std::vector<std::shared_ptr<IMSRSignal> > > m_name_cpu_signal_map;
-            std::map<std::string, std::vector<std::shared_ptr<IMSRControl> > > m_name_cpu_control_map;
+            std::map<std::string, const MSR &> m_name_msr_map;
+            std::map<std::string, std::vector<std::shared_ptr<MSRSignal> > > m_name_cpu_signal_map;
+            std::map<std::string, std::vector<std::shared_ptr<MSRControl> > > m_name_cpu_control_map;
             // Pushed signals and controls only
-            std::vector<std::shared_ptr<IMSRSignal> > m_active_signal;
-            std::vector<std::vector<std::shared_ptr<IMSRControl> > > m_active_control;
+            std::vector<std::shared_ptr<MSRSignal> > m_active_signal;
+            std::vector<std::vector<std::shared_ptr<MSRControl> > > m_active_control;
             // Vectors are over MSRs for all active signals
             std::vector<uint64_t> m_read_field;
             std::vector<int> m_read_cpu_idx;

@@ -35,7 +35,7 @@
 #include "SampleRegulator.hpp"
 #include "CircularBuffer.hpp"
 
-class SampleRegulatorTest : public geopm::SampleRegulator, public testing::Test
+class SampleRegulatorTest : public geopm::SampleRegulatorImp, public testing::Test
 {
     public:
         SampleRegulatorTest();
@@ -51,7 +51,7 @@ class SampleRegulatorTest : public geopm::SampleRegulator, public testing::Test
 // affinity over the 8 total CPUs.  There are three platform signals
 // per cpu.
 SampleRegulatorTest::SampleRegulatorTest(void)
-    : SampleRegulator({1, 1, 2, 2, 3, 3, 4, 4})
+    : SampleRegulatorImp({1, 1, 2, 2, 3, 3, 4, 4})
     , m_test_cpu_rank({1, 1, 2, 2, 3, 3, 4, 4})
     , m_test_plat(24)
 {

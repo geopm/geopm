@@ -39,10 +39,10 @@
 
 namespace geopm
 {
-    MSRControl::MSRControl(const IMSR &msr_obj,
-                           int domain_type,
-                           int cpu_idx,
-                           int control_idx)
+    MSRControlImp::MSRControlImp(const MSR &msr_obj,
+                                 int domain_type,
+                                 int cpu_idx,
+                                 int control_idx)
         : m_name(msr_obj.name() + ":" + msr_obj.control_name(control_idx))
         , m_msr_obj(msr_obj)
         , m_domain_type(domain_type)
@@ -55,7 +55,7 @@ namespace geopm
 
     }
 
-    MSRControl::MSRControl(const MSRControl &other)
+    MSRControlImp::MSRControlImp(const MSRControlImp &other)
         : m_name(other.m_name)
         , m_msr_obj(other.m_msr_obj)
         , m_domain_type(other.m_domain_type)
@@ -68,54 +68,54 @@ namespace geopm
 
     }
 
-    MSRControl::~MSRControl()
+    MSRControlImp::~MSRControlImp()
     {
 
     }
 
-    std::unique_ptr<IMSRControl> MSRControl::copy_and_remap(uint64_t *field,
-                                                            uint64_t *mask) const
+    std::unique_ptr<MSRControl> MSRControlImp::copy_and_remap(uint64_t *field,
+                                                              uint64_t *mask) const
     {
-        std::unique_ptr<IMSRControl> result {new MSRControl(*this)};
+        std::unique_ptr<MSRControl> result {new MSRControlImp(*this)};
         result->map_field(field, mask);
         return result;
     }
 
-    std::string MSRControl::name() const
+    std::string MSRControlImp::name() const
     {
         return m_name;
     }
 
-    int MSRControl::domain_type(void) const
+    int MSRControlImp::domain_type(void) const
     {
         return m_domain_type;
     }
 
-    int MSRControl::cpu_idx(void) const
+    int MSRControlImp::cpu_idx(void) const
     {
         return m_cpu_idx;
     }
 
-    void MSRControl::adjust(double setting)
+    void MSRControlImp::adjust(double setting)
     {
         if (!m_is_field_mapped) {
-            throw Exception("MSRControl::adjust(): must call map() method before adjust() can be called",
+            throw Exception("MSRControlImp::adjust(): must call map() method before adjust() can be called",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         m_msr_obj.control(m_control_idx, setting, *m_field_ptr, *m_mask_ptr);
     }
 
-    uint64_t MSRControl::offset(void) const
+    uint64_t MSRControlImp::offset(void) const
     {
         return m_msr_obj.offset();
     }
 
-    uint64_t MSRControl::mask(void) const
+    uint64_t MSRControlImp::mask(void) const
     {
         return m_msr_obj.mask(m_control_idx);
     }
 
-    void MSRControl::map_field(uint64_t *field, uint64_t *mask)
+    void MSRControlImp::map_field(uint64_t *field, uint64_t *mask)
     {
         m_field_ptr = field;
         m_mask_ptr = mask;

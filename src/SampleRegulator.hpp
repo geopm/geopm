@@ -71,12 +71,12 @@ namespace geopm
     /// operator () method is broken down into four steps, each
     /// represented by a private method, this enables individual
     /// testing of each step.
-    class ISampleRegulator
+    class SampleRegulator
     {
         public:
-            ISampleRegulator() = default;
-            ISampleRegulator(const ISampleRegulator &other) = default;
-            virtual ~ISampleRegulator() = default;
+            SampleRegulator() = default;
+            SampleRegulator(const SampleRegulator &other) = default;
+            virtual ~SampleRegulator() = default;
             /// @brief The parenthesis operator which implements the
             /// SampleRegulator functor.
             ///
@@ -126,10 +126,10 @@ namespace geopm
     template <class type>
     class CircularBuffer;
 
-    class SampleRegulator : public ISampleRegulator
+    class SampleRegulatorImp : public SampleRegulator
     {
         public:
-            /// @brief SampleRegulator constructor.
+            /// @brief SampleRegulatorImp constructor.
             ///
             /// Creates data structures used for mapping rank reported
             /// in the profile message to the node local rank which is
@@ -141,9 +141,9 @@ namespace geopm
             /// Note that each rank may run on multiple CPUs but it is
             /// assumed that each CPU is allocated to a specific MPI
             /// rank.
-            SampleRegulator(const std::vector<int> &cpu_rank);
-            /// @brief SampleRegulator destructor, virtual.
-            virtual ~SampleRegulator() = default;
+            SampleRegulatorImp(const std::vector<int> &cpu_rank);
+            /// @brief SampleRegulatorImp destructor, virtual.
+            virtual ~SampleRegulatorImp() = default;
             void operator () (const struct geopm_time_s &platform_sample_time,
                               std::vector<double>::const_iterator platform_sample_begin,
                               std::vector<double>::const_iterator platform_sample_end,

@@ -46,7 +46,7 @@
 
 // Class derived from MSRIO used to test MSRIO w/o accessing the msr
 // device files.
-class TestMSRIO : public geopm::MSRIO
+class TestMSRIO : public geopm::MSRIOImp
 {
     public:
         TestMSRIO(int num_cpu);
@@ -66,7 +66,7 @@ class TestMSRIO : public geopm::MSRIO
 };
 
 TestMSRIO::TestMSRIO(int num_cpu)
-    : MSRIO(num_cpu)
+    : MSRIOImp(num_cpu)
     , M_MAX_OFFSET(4096)
     , m_num_cpu(num_cpu)
 {
