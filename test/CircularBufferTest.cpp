@@ -45,7 +45,7 @@ class CircularBufferTest: public :: testing :: Test
 
 void CircularBufferTest::SetUp()
 {
-    m_buffer = geopm::make_unique<geopm::CircularBufferImp<double> >(5);
+    m_buffer = geopm::make_unique<geopm::CircularBuffer<double> >(5);
     m_buffer->insert(1.0);
     m_buffer->insert(2.0);
     m_buffer->insert(3.0);

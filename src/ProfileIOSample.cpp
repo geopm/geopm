@@ -63,7 +63,7 @@ namespace geopm
         m_num_rank = m_rank_idx_map.size();
 
         // 2 samples for linear interpolation
-        m_rank_sample_buffer.resize(m_num_rank, CircularBufferImp<struct m_rank_sample_s>(2));
+        m_rank_sample_buffer.resize(m_num_rank, CircularBuffer<struct m_rank_sample_s>(2));
         m_region_id.resize(m_num_rank, GEOPM_REGION_HASH_UNMARKED);
     }
 
