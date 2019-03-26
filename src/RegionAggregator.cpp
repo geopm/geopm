@@ -30,17 +30,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "RegionAggregatorImp.hpp"
+
 #include "geopm.h"
 #include "geopm_internal.h"
 #include "geopm_hash.h"
-#include "RegionAggregator.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
+#include "Helper.hpp"
 #include "config.h"
 
 namespace geopm
 {
+    std::unique_ptr<RegionAggregator> RegionAggregator::make_unique(void)
+    {
+        return geopm::make_unique<RegionAggregatorImp>();
+    }
+
+    std::shared_ptr<RegionAggregator> RegionAggregator::make_shared(void)
+    {
+        return std::make_shared<RegionAggregatorImp>();
+    }
+
     RegionAggregatorImp::RegionAggregatorImp()
         : RegionAggregatorImp(platform_io())
     {
