@@ -34,6 +34,7 @@
 #define CIRCULARBUFFER_HPP_INCLUDE
 
 #include <stdlib.h>
+
 #include <vector>
 
 #include "Exception.hpp"
@@ -41,24 +42,30 @@
 namespace geopm
 {
     /// @brief Templated container for a circular buffer implementation.
-    ///
     /// The CircularBuffer container implements a fixed size buffer. Once
     /// at capacity, any new insertions cause the oldest entry to be dropped.
     template <class type>
     class CircularBuffer
     {
         public:
-            CircularBuffer() = default;
-            virtual ~CircularBuffer() = default;
+            CircularBuffer();
+            /// @brief Constructor for the CircularBuffer template.
+            ///
+            /// Creates an empty circular buffer with a set capacity.
+            ///
+            /// @param [in] size Requested capacity for the buffer.
+            CircularBuffer(unsigned int size);
+            /// @brief CircularBuffer destructor, virtual
+            virtual ~CircularBuffer();
             /// @brief Re-size the circular buffer.
             ///
             /// Resets the capacity of the circular buffer without
             /// modifying its current contents.
             ///
             /// @param [in] size Requested capacity for the buffer.
-            virtual void set_capacity(const unsigned int size) = 0;
+            void set_capacity(const unsigned int size);
             /// @brief Clears all entries from the buffer.
-            virtual void clear(void) = 0;
+            void clear(void);
             /// @brief Size of the buffer contents.
             ///
             /// Returns the number of items in the buffer. This
@@ -66,14 +73,14 @@ namespace geopm
             /// capacity of the buffer.
             //
             /// @return Size of the buffer contents.
-            virtual int size(void) const = 0;
+            int size(void) const;
             /// @brief Capacity of the buffer.
             ///
             /// Returns the current size of the circular buffer at
             /// the time of the call.
             ///
             /// @return Capacity of the buffer.
-            virtual int capacity(void) const = 0;
+            int capacity(void) const;
             /// @brief Insert a value into the buffer.
             ///
             /// If the buffer is not full, the new value is simply
@@ -83,7 +90,7 @@ namespace geopm
             /// at the end of the buffer.
             ///
             /// @param [in] value The value to be inserted.
-            virtual void insert(const type value) = 0;
+            void insert(const type value);
             /// @brief Returns a constant reference to the value from the buffer.
             ///
             /// Accesses the contents of the circular buffer
@@ -97,37 +104,11 @@ namespace geopm
             /// @param [in] index Buffer index to retrieve.
             ///
             /// @return Value from the specified buffer index.
-            virtual const type& value(const unsigned int index) const = 0;
+            const type& value(const unsigned int index) const;
             /// @brief Create a vector from the circular buffer contents.
             ///
             /// @return Vector containing the circular buffer contents.
-            virtual std::vector<type> make_vector(void) const = 0;
-    };
-
-    /// @brief Templated container for a circular buffer implementation.
-    ///
-    /// The CircularBuffer container implements a fixed size buffer. Once
-    /// at capacity, any new insertions cause the oldest entry to be dropped.
-    template <class type>
-    class CircularBufferImp : public CircularBuffer <type>
-    {
-        public:
-            CircularBufferImp();
-            /// @brief Constructor for the CircularBufferImp template.
-            ///
-            /// Creates an empty circular buffer with a set capacity.
-            ///
-            /// @param [in] size Requested capacity for the buffer.
-            CircularBufferImp(unsigned int size);
-            /// @brief CircularBufferImp destructor, virtual
-            virtual ~CircularBufferImp();
-            void set_capacity(const unsigned int size) override;
-            void clear(void) override;
-            int size(void) const override;
-            int capacity(void) const override;
-            void insert(const type value) override;
-            const type& value(const unsigned int index) const override;
-            std::vector<type> make_vector(void) const override;
+            std::vector<type> make_vector(void) const;
         private:
             /// @brief Vector holding the buffer data.
             std::vector<type> m_buffer;
@@ -140,14 +121,14 @@ namespace geopm
     };
 
     template <class type>
-    CircularBufferImp<type>::CircularBufferImp()
-        : CircularBufferImp(0)
+    CircularBuffer<type>::CircularBuffer()
+        : CircularBuffer(0)
     {
 
     }
 
     template <class type>
-    CircularBufferImp<type>::CircularBufferImp(unsigned int size)
+    CircularBuffer<type>::CircularBuffer(unsigned int size)
         : m_buffer(size)
         , m_head(0)
         , m_count(0)
@@ -157,32 +138,32 @@ namespace geopm
     }
 
     template <class type>
-    CircularBufferImp<type>::~CircularBufferImp()
+    CircularBuffer<type>::~CircularBuffer()
     {
 
     }
 
     template <class type>
-    int CircularBufferImp<type>::size() const
+    int CircularBuffer<type>::size() const
     {
         return m_count;
     }
 
     template <class type>
-    int CircularBufferImp<type>::capacity() const
+    int CircularBuffer<type>::capacity() const
     {
         return m_max_size;
     }
 
     template <class type>
-    void CircularBufferImp<type>::clear()
+    void CircularBuffer<type>::clear()
     {
         m_head = 0;
         m_count = 0;
     }
 
     template <class type>
-    void CircularBufferImp<type>::set_capacity(const unsigned int size)
+    void CircularBuffer<type>::set_capacity(const unsigned int size)
     {
         if (size < m_count) {
             int size_diff = m_count - size;
@@ -204,10 +185,10 @@ namespace geopm
     }
 
     template <class type>
-    void CircularBufferImp<type>::insert(const type value)
+    void CircularBuffer<type>::insert(const type value)
     {
         if (m_max_size < 1) {
-            throw Exception("CircularBufferImp::insert(): Cannot insert into a buffer of 0 size", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("CircularBuffer::insert(): Cannot insert into a buffer of 0 size", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         if (m_count < m_max_size) {
             m_buffer[m_count] = value;
@@ -220,16 +201,16 @@ namespace geopm
     }
 
     template <class type>
-    const type& CircularBufferImp<type>::value(const unsigned int index) const
+    const type& CircularBuffer<type>::value(const unsigned int index) const
     {
         if (index >= m_count) {
-            throw Exception("CircularBufferImp::value(): index is out of bounds", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("CircularBuffer::value(): index is out of bounds", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return m_buffer[(m_head + index) % m_max_size];
     }
 
     template <class type>
-    std::vector<type> CircularBufferImp<type>::make_vector(void) const
+    std::vector<type> CircularBuffer<type>::make_vector(void) const
     {
         std::vector<type> result(size());
         if (m_head == 0) {

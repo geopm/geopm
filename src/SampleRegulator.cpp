@@ -55,7 +55,7 @@ namespace geopm
             ++i;
         }
         for (int i = 0; i < m_num_rank; ++i) {
-            m_rank_sample_prev.push_back(geopm::make_unique<CircularBufferImp<struct m_rank_sample_s> >(M_INTERP_TYPE_LINEAR)); // two samples are required for linear interpolation
+            m_rank_sample_prev.push_back(geopm::make_unique<CircularBuffer<struct m_rank_sample_s> >(M_INTERP_TYPE_LINEAR)); // two samples are required for linear interpolation
         }
         m_region_id.resize(m_num_rank, GEOPM_REGION_HASH_UNMARKED);
     }
