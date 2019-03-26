@@ -30,18 +30,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "PowerBalancerAgent.hpp"
+
 #include <cfloat>
 #include <cmath>
 #include <algorithm>
 #include <iostream>
 
 #include "PowerGovernor.hpp"
-#include "PowerBalancerAgent.hpp"
 #include "PowerBalancer.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
-#include "CircularBuffer.hpp"
 #include "Agg.hpp"
 #include "Helper.hpp"
 #include "config.h"
@@ -340,7 +340,7 @@ namespace geopm
             m_is_step_complete = true;
             if (out_sample[M_SAMPLE_STEP_COUNT] != m_step_count) {
                 throw Exception("PowerBalancerAgent::TreeRole::" + std::string(__func__) +
-                                "(): sample recieved has true for step complete field, " +
+                                "(): sample received has true for step complete field, " +
                                 "but the step_count does not match the agent's current step_count.",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }

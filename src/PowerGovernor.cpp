@@ -30,17 +30,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "PowerGovernor.hpp"
+
 #include <cmath>
 #include <limits.h>
 #include <vector>
 #include <iostream>
 #include <unistd.h>
 
-#include "CircularBuffer.hpp"
 #include "Helper.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
-#include "PowerGovernor.hpp"
+#include "Exception.hpp"
 #include "config.h"
 
 namespace geopm
