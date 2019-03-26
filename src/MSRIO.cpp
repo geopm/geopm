@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "MSRIOImp.hpp"
+
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -40,7 +42,6 @@
 #include <map>
 
 #include "Exception.hpp"
-#include "MSRIO.hpp"
 #include "geopm_sched.h"
 #include "config.h"
 
