@@ -437,14 +437,18 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/Imbalancer.cpp \
                             src/MSR.cpp \
                             src/MSR.hpp \
+                            src/MSRImp.hpp \
                             src/MSRControl.cpp \
                             src/MSRControl.hpp \
+                            src/MSRControlImp.hpp \
                             src/MSRIO.cpp \
                             src/MSRIO.hpp \
+                            src/MSRIOImp.hpp \
                             src/MSRIOGroup.cpp \
                             src/MSRIOGroup.hpp \
                             src/MSRSignal.cpp \
                             src/MSRSignal.hpp \
+                            src/MSRSignalImp.hpp \
                             src/ManagerIO.cpp \
                             src/ManagerIO.hpp \
                             src/MonitorAgent.cpp \
