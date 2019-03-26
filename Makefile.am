@@ -417,6 +417,7 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/Comm.hpp \
                             src/ControlMessage.cpp \
                             src/ControlMessage.hpp \
+                            src/ControlMessageImp.hpp \
                             src/Controller.cpp \
                             src/Controller.hpp \
                             src/CpuinfoIOGroup.cpp \
