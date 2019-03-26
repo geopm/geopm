@@ -45,7 +45,6 @@ import json
 
 import geopm_test_launcher
 import geopmpy.io
-import geopmpy.analysis
 import geopmpy.launcher
 
 
@@ -73,6 +72,13 @@ def skip_unless_cpufreq():
     except subprocess.CalledProcessError:
         return unittest.skip("Could not determine min and max frequency, enable cpufreq driver to run this test.")
     return lambda func: func
+
+def do_geopmwrite(write_str):
+    test_exec = "dummy -- geopmwrite " + write_str
+    ostream = StringIO.StringIO()
+    dev_null = open('/dev/null', 'w')
+    allocation_node_test(test_exec, ostream, dev_null)
+    dev_null.close()
 
 def do_geopmread(read_str):
     test_exec = "dummy -- geopmread " + read_str
@@ -146,8 +152,12 @@ class TestIntegration(unittest.TestCase):
         self._options = {'power_budget': 150}
         self._tmp_files = []
         self._output = None
+        self._power_limit = do_geopmread("MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER package 0")
+        self._frequency = do_geopmread("FREQUENCY package 0")
 
     def tearDown(self):
+        do_geopmwrite("POWER_PACKAGE_LIMIT package 0 " + str(self._power_limit))
+        do_geopmwrite("FREQUENCY package 0 " + str(self._frequency))
         if sys.exc_info() == (None, None, None) and os.getenv('GEOPM_KEEP_FILES') is None:
             if self._output is not None:
                 self._output.remove_files()
@@ -1102,25 +1112,23 @@ class TestIntegration(unittest.TestCase):
                     self.assertNear(region_data['frequency'].item(), data[region_name] / sticker_freq * 100, msg=msg)
 
     @skip_unless_run_long_tests()
-    @skip_unless_platform_bdx()
     @skip_unless_cpufreq()
-    def test_agent_energy_efficient_online(self):
+    @skip_unless_slurm_batch()
+    def test_agent_energy_efficient(self):
         """
-        Test of the EnergyEfficientAgent online auto mode.
+        Test of the EnergyEfficientAgent.
         """
-        name = 'test_agent_energy_efficient_online'
-
+        name = 'test_energy_effiecient_sticker'
+        min_freq = do_geopmread("CPUINFO::FREQ_MIN board 0")
+        max_freq = do_geopmread("CPUINFO::FREQ_MAX board 0")
+        sticker_freq = do_geopmread("CPUINFO::FREQ_STICKER board 0")
+        freq_step = do_geopmread("CPUINFO::FREQ_STEP board 0")
+        self._agent = "energy_efficient"
+        self._options = {'frequency_min': min_freq,
+                         'frequency_max': max_freq}
         num_node = 1
         num_rank = 4
-        temp_launcher = geopmpy.launcher.Factory().create(["dummy", geopm_test_launcher.detect_launcher()],
-                                                          num_node=num_node, num_rank=num_rank)
-        launcher_argv = [
-            '--geopm-ctl', 'process',
-        ]
-        launcher_argv.extend(temp_launcher.num_rank_option(False))
-        launcher_argv.extend(temp_launcher.num_node_option())
-
-        loop_count = 10
+        loop_count = 25
         dgemm_bigo = 20.25
         stream_bigo = 1.449
         dgemm_bigo_jlse = 35.647
@@ -1134,46 +1142,45 @@ class TestIntegration(unittest.TestCase):
         else:
             dgemm_bigo = dgemm_bigo_quartz
             stream_bigo = stream_bigo_quartz
-        app_conf_name = name + '_app.config'
-        app_conf = geopmpy.io.BenchConf(app_conf_name)
-        self._tmp_files.append(app_conf.get_path())
-        app_conf.set_loop_count(loop_count)
 
-        app_conf.append_region('dgemm', dgemm_bigo)
-        app_conf.append_region('stream', stream_bigo)
-        app_conf.append_region('all2all', 1.0)
-        app_conf.write()
+        run = ['_sticker', '_nan_nan']
+        for rr in run:
+            report_path = name + rr + '.report'
+            trace_path = name + rr + '.trace'
+            app_conf = geopmpy.io.BenchConf(name + '_app.config')
+            self._tmp_files.append(app_conf.get_path())
+            app_conf.set_loop_count(loop_count)
+            app_conf.append_region('dgemm', dgemm_bigo)
+            app_conf.append_region('stream', stream_bigo)
+            app_conf.write()
+            if rr == '_sticker':
+                freq = sticker_freq
+            else:
+                freq = '"NaN"'
+            self._options = {'frequency_min': freq,
+                             'frequency_max': freq}
+            agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
+            self._tmp_files.append(agent_conf.get_path())
+            launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path,
+                                                        trace_path, region_barrier=True, time_limit=900)
+            launcher.set_num_node(num_node)
+            launcher.set_num_rank(num_rank)
+            launcher.run(name + rr)
 
-        source_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        app_path = os.path.join(source_dir, '.libs', 'geopmbench')
-        # if not found, use geopmbench from user's PATH
-        if not os.path.exists(app_path):
-            app_path = "geopmbench"
-        app_argv = [app_path, app_conf_name]
-
-        # Runs frequency sweep and runs with the plugin in online mode.
-        analysis = geopmpy.analysis.OnlineBaselineComparisonAnalysis(profile_prefix=name,
-                                                                     output_dir='.',
-                                                                     iterations=1,
-                                                                     verbose=True,
-                                                                     min_freq=None,
-                                                                     max_freq=None,
-                                                                     enable_turbo=False)
-        config = launcher_argv + app_argv
-        analysis.launch(geopm_test_launcher.detect_launcher(), config)
-
-        analysis.find_files()
-        parse_output = analysis.parse()
-        process_output = analysis.summary_process(parse_output)
-        analysis.summary(process_output)
-        _, _, process_output = process_output
-
-        sticker_freq_idx = process_output.loc['epoch'].index[-2]
-        energy_savings_epoch = process_output.loc['epoch']['energy_savings'][sticker_freq_idx]
-        runtime_savings_epoch = process_output.loc['epoch']['runtime_savings'][sticker_freq_idx]
-
-        self.assertLess(0.0, energy_savings_epoch)
-        self.assertLess(-10.0, runtime_savings_epoch)  # want -10% or better
+        # compare the app_total runtime and energy and assert within bounds
+        report_path = name + run[0] + '.report'
+        trace_path = name + run[0] + '.trace'
+        sticker_out = geopmpy.io.AppOutput(report_path, trace_path + '*')
+        report_path = name + run[1] + '.report'
+        trace_path = name + run[1] + '.trace'
+        nan_out = geopmpy.io.AppOutput(report_path, trace_path + '*')
+        for nn in nan_out.get_node_names():
+            sticker_app_total = sticker_out.get_app_total_data(node_name=nn)
+            nan_app_total = nan_out.get_app_total_data(node_name=nn)
+            runtime_savings_epoch = (sticker_app_total['runtime'].item() - nan_app_total['runtime'].item()) / sticker_app_total['runtime'].item()
+            energy_savings_epoch = (sticker_app_total['energy-package'].item() - nan_app_total['energy-package'].item()) / sticker_app_total['energy-package'].item()
+            self.assertGreater(runtime_savings_epoch, -0.1)  # want -10% or better
+            self.assertLess(0.0, energy_savings_epoch)
 
     @skip_unless_slurm_batch()
     def test_controller_signal_handling(self):
