@@ -66,6 +66,7 @@ src/Comm.cpp
 src/Comm.hpp
 src/ControlMessage.cpp
 src/ControlMessage.hpp
+src/ControlMessageImp.hpp
 src/Controller.cpp
 src/Controller.hpp
 src/CpuinfoIOGroup.cpp
