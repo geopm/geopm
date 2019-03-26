@@ -243,16 +243,26 @@ I/O implementations by different `Agent` classes.
 
   * `report_header`():
     Custom fields that will be added to the report header when this
-    agent is used.
+    agent is used.  To be consistent with the rest of the header, the
+    keys should be title case; they should not contain the colon
+    character ':'.
 
   * `report_node`():
-    Custom fields for the node section of the report.
+    Custom fields for the Host section of the report.  To be
+    consistent with the rest of this section, the keys should be title
+    case; they should not contain the colon character ':'.
 
   * `report_region`():
-    Custom fields for each region in the report.
+    Custom fields for each region in the report.  To be consistent
+    with the rest of the region report, the string keys that will
+    appear at the start of each line should be all lower case with
+    words separated by hyphens.  The field name should include the
+    units if applicable and must not contain the colon ':' character.
 
   * `trace_names`():
-    Column headers to be added to the trace.
+    Column headers to be added to the trace.  These will be
+    automatically converted to lower case.  The header names should
+    not contain the pipe character '|'.
 
   * `trace_values`():
     Called to get latest values to be added to the trace.
