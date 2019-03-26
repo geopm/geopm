@@ -34,11 +34,10 @@
 #define REGIONAGGREGATOR_HPP_INCLUDE
 
 #include <cstdint>
-#include <cmath>
 
-#include <map>
 #include <string>
 #include <set>
+#include <memory>
 
 namespace geopm
 {
@@ -96,36 +95,12 @@ namespace geopm
             /// @brief Returns the set of region hashes tracked by this
             ///        object.
             virtual std::set<uint64_t> tracked_region_hash(void) const = 0;
-    };
-
-    class PlatformIO;
-
-    class RegionAggregatorImp : public RegionAggregator
-    {
-        public:
-            RegionAggregatorImp();
-            RegionAggregatorImp(PlatformIO &platio);
-            void init(void) override;
-            int push_signal_total(const std::string &signal_idx,
-                                  int domain_type,
-                                  int domain_idx) override;
-            double sample_total(int signal_idx, uint64_t region_hash) override;
-            void read_batch(void) override;
-            std::set<uint64_t> tracked_region_hash(void) const override;
-        private:
-            PlatformIO &m_platform_io;
-            std::map<int, int> m_region_hash_idx;
-            struct m_region_data_s
-            {
-                double total = 0.0;
-                double last_entry_value = NAN;
-            };
-            // Data for each combination of signal index and region hash
-            std::map<std::pair<int, uint64_t>, m_region_data_s> m_region_sample_data;
-            std::map<int, uint64_t> m_last_region_hash;
-            double m_last_epoch_count;
-            int m_epoch_count_idx;
-            std::set<uint64_t> m_tracked_region_hash;
+            /// @brief Returns a unique_ptr to a concrete object
+            ///        constructed using the underlying implementation
+            static std::unique_ptr<RegionAggregator> make_unique();
+            /// @brief Returns a shared_ptr to a concrete object
+            ///        constructed using the underlying implementation
+            static std::shared_ptr<RegionAggregator> make_shared();
     };
 }
 
