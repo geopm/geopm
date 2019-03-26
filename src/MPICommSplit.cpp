@@ -30,12 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sstream>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <sstream>
+
 #include "geopm_env.h"
-#include "SharedMemory.hpp"
 #include "geopm_mpi_comm_split.h"
+#include "SharedMemoryImp.hpp"
 #include "Exception.hpp"
 #include "Controller.hpp"
 #include "Comm.hpp"
