@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "PlatformTopoImp.hpp"
+
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -41,7 +43,6 @@
 #include <string>
 
 #include "geopm_sched.h"
-#include "PlatformTopo.hpp"
 #include "Exception.hpp"
 
 #include "config.h"
