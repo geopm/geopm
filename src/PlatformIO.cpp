@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "PlatformIOImp.hpp"
+
 #include <cpuid.h>
 #include <iomanip>
 #include <cmath>
@@ -40,7 +42,6 @@
 #include "geopm_sched.h"
 #include "geopm_hash.h"
 #include "geopm.h"
-#include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "MSRIOGroup.hpp"
 #include "TimeIOGroup.hpp"
