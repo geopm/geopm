@@ -36,11 +36,11 @@
 #include <iostream>
 #include <unistd.h>
 
-#include "CircularBuffer.hpp"
 #include "Helper.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "PowerGovernor.hpp"
+#include "Exception.hpp"
 #include "config.h"
 
 namespace geopm

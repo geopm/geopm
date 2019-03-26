@@ -35,7 +35,7 @@
 #include "geopm_internal.h"
 #include "Helper.hpp"
 #include "SampleRegulator.hpp"
-#include "CircularBuffer.hpp"
+#include "CircularBufferImp.hpp"
 #include "config.h"
 
 namespace geopm

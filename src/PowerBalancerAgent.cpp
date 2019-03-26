@@ -41,7 +41,6 @@
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
-#include "CircularBuffer.hpp"
 #include "Agg.hpp"
 #include "Helper.hpp"
 #include "config.h"

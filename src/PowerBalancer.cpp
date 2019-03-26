@@ -34,7 +34,7 @@
 #include <cmath>
 
 #include "PowerBalancer.hpp"
-#include "CircularBuffer.hpp"
+#include "CircularBufferImp.hpp"
 #include "Agg.hpp"
 #include "Helper.hpp"
 #include "config.h"

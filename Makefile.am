@@ -398,6 +398,7 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/ApplicationIO.cpp \
                             src/ApplicationIO.hpp \
                             src/CircularBuffer.hpp \
+                            src/CircularBufferImp.hpp \
                             src/CombinedSignal.cpp \
                             src/CombinedSignal.hpp \
                             src/Comm.cpp \
