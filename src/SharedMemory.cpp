@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "SharedMemoryImp.hpp"
+
 #include <limits.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -41,13 +43,43 @@
 #include <sstream>
 
 #include "geopm_time.h"
-#include "SharedMemory.hpp"
-#include "Exception.hpp"
 #include "geopm_signal_handler.h"
+#include "Exception.hpp"
+#include "Helper.hpp"
 #include "config.h"
 
 namespace geopm
 {
+    std::unique_ptr<SharedMemory> SharedMemory::make_unique(const std::string &shm_key, size_t size)
+    {
+        return geopm::make_unique<SharedMemoryImp>(shm_key, size);
+    }
+
+    std::shared_ptr<SharedMemory> SharedMemory::make_shared(const std::string &shm_key, size_t size)
+    {
+        return std::make_shared<SharedMemoryImp>(shm_key, size);
+    }
+
+    std::unique_ptr<SharedMemoryUser> SharedMemoryUser::make_unique(const std::string &shm_key)
+    {
+        return geopm::make_unique<SharedMemoryUserImp>(shm_key);
+    }
+
+    std::shared_ptr<SharedMemoryUser> SharedMemoryUser::make_shared(const std::string &shm_key)
+    {
+        return std::make_shared<SharedMemoryUserImp>(shm_key);
+    }
+
+    std::unique_ptr<SharedMemoryUser> SharedMemoryUser::make_unique(const std::string &shm_key, unsigned int timeout)
+    {
+        return geopm::make_unique<SharedMemoryUserImp>(shm_key, timeout);
+    }
+
+    std::shared_ptr<SharedMemoryUser> SharedMemoryUser::make_shared(const std::string &shm_key, unsigned int timeout)
+    {
+        return std::make_shared<SharedMemoryUserImp>(shm_key, timeout);
+    }
+
     SharedMemoryImp::SharedMemoryImp(const std::string &shm_key, size_t size)
         : m_shm_key(shm_key)
         , m_size(size)
