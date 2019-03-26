@@ -119,7 +119,7 @@ namespace geopm
         return {};
     }
 
-    std::vector<std::pair<std::string, std::string> > MonitorAgent::report_node(void) const
+    std::vector<std::pair<std::string, std::string> > MonitorAgent::report_host(void) const
     {
         return {};
     }

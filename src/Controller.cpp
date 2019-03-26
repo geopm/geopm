@@ -284,11 +284,11 @@ namespace geopm
             agent_report_header = m_agent[m_root_level]->report_header();
         }
 
-        auto agent_node_report = m_agent[0]->report_node();
+        auto agent_host_report = m_agent[0]->report_host();
 
         m_reporter->generate(m_agent_name,
                              agent_report_header,
-                             agent_node_report,
+                             agent_host_report,
                              m_agent[0]->report_region(),
                              *m_application_io,
                              m_comm,

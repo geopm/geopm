@@ -191,7 +191,7 @@ TEST_F(ControllerTest, single_node)
 
     // generate report and trace
     EXPECT_CALL(*agent, report_header()).WillOnce(Return(m_agent_report));
-    EXPECT_CALL(*agent, report_node()).WillOnce(Return(m_agent_report));
+    EXPECT_CALL(*agent, report_host()).WillOnce(Return(m_agent_report));
     EXPECT_CALL(*agent, report_region()).WillOnce(Return(m_region_names));
     EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
     EXPECT_CALL(*m_tracer, flush());
@@ -261,7 +261,7 @@ TEST_F(ControllerTest, two_level_controller_1)
     // only root should add header
     EXPECT_CALL(*agent, report_header()).Times(0);
 
-    EXPECT_CALL(*agent, report_node()).WillOnce(Return(m_agent_report));
+    EXPECT_CALL(*agent, report_host()).WillOnce(Return(m_agent_report));
     EXPECT_CALL(*agent, report_region()).WillOnce(Return(m_region_names));
     EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
     EXPECT_CALL(*m_tracer, flush());
@@ -352,7 +352,7 @@ TEST_F(ControllerTest, two_level_controller_2)
         // only root should add header
         EXPECT_CALL(*agent, report_header()).Times(0);
     }
-    EXPECT_CALL(*m_level_agent[0], report_node()).WillOnce(Return(m_agent_report));
+    EXPECT_CALL(*m_level_agent[0], report_host()).WillOnce(Return(m_agent_report));
     EXPECT_CALL(*m_level_agent[0], report_region()).WillOnce(Return(m_region_names));
     EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
     EXPECT_CALL(*m_tracer, flush());
@@ -440,7 +440,7 @@ TEST_F(ControllerTest, two_level_controller_0)
     }
 
     EXPECT_CALL(*m_level_agent[root_level], report_header()).WillOnce(Return(m_agent_report));
-    EXPECT_CALL(*m_level_agent[0], report_node()).WillOnce(Return(m_agent_report));
+    EXPECT_CALL(*m_level_agent[0], report_host()).WillOnce(Return(m_agent_report));
     EXPECT_CALL(*m_level_agent[0], report_region()).WillOnce(Return(m_region_names));
     EXPECT_CALL(*m_reporter, generate(_, _, _, _, _, _, _));
     EXPECT_CALL(*m_tracer, flush());

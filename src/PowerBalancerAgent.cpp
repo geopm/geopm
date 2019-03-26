@@ -596,7 +596,7 @@ namespace geopm
         return {};
     }
 
-    std::vector<std::pair<std::string, std::string> > PowerBalancerAgent::report_node(void) const
+    std::vector<std::pair<std::string, std::string> > PowerBalancerAgent::report_host(void) const
     {
         return {};
     }

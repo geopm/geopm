@@ -57,7 +57,7 @@ class MockAgent : public geopm::Agent
                      void(void));
         MOCK_CONST_METHOD0(report_header,
                            std::vector<std::pair<std::string, std::string> >(void));
-        MOCK_CONST_METHOD0(report_node,
+        MOCK_CONST_METHOD0(report_host,
                            std::vector<std::pair<std::string, std::string> >(void));
         MOCK_CONST_METHOD0(report_region,
                            std::map<uint64_t, std::vector<std::pair<std::string, std::string> > >(void));
