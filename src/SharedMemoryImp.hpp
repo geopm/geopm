@@ -30,40 +30,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKSHAREDMEMORYUSER_HPP_INCLUDE
-#define MOCKSHAREDMEMORYUSER_HPP_INCLUDE
+#ifndef SHAREDMEMORYIMP_HPP_INCLUDE
+#define SHAREDMEMORYIMP_HPP_INCLUDE
 
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include <vector>
-#include "SharedMemoryUser.hpp"
+#include "SharedMemory.hpp"
 
-class MockSharedMemoryUser : public geopm::SharedMemoryUser
+namespace geopm
 {
-    public:
-        MockSharedMemoryUser() = delete;
-        MockSharedMemoryUser(size_t size) {
-            m_buffer = std::vector<char>(size);
-            EXPECT_CALL(*this, size())
-                .WillRepeatedly(testing::Return(size));
-            EXPECT_CALL(*this, pointer())
-                .WillRepeatedly(testing::Return(m_buffer.data()));
-            EXPECT_CALL(*this, unlink())
-                .WillRepeatedly(testing::Return());
-        };
+    class SharedMemoryImp : public SharedMemory
+    {
+        public:
+            /// @brief Constructor takes a key and a size and creates
+            ///        an inter-process shared memory region.
+            /// @param [in] shm_key Shared memory key to create the region.
+            /// @param [in] size Size of the region to create.
+            SharedMemoryImp(const std::string &shm_key, size_t size);
+            /// @brief Destructor destroys and unlinks the shared memory region.
+            virtual ~SharedMemoryImp();
+            /// @brief Retrieve a pointer to the shared memory region.
+            /// @return Void pointer to the shared memory region.
+            void *pointer(void) const override;
+            /// @brief Retrieve the key to the shared memory region.
+            /// @return Key to the shared memory region.
+            std::string key(void) const override;
+            size_t size(void) const override;
+        private:
+            /// @brief Shared memory key for the region.
+            std::string m_shm_key;
+            /// @brief Size of the region.
+            size_t m_size;
+            /// @brief Pointer to the region.
+            void *m_ptr;
+    };
+}
 
-        virtual ~MockSharedMemoryUser() = default;
-
-        MOCK_CONST_METHOD0(pointer,
-                           void *(void));
-        MOCK_CONST_METHOD0(key,
-                           std::string (void));
-        MOCK_CONST_METHOD0(size,
-                           size_t (void));
-        MOCK_METHOD0(unlink,
-                     void (void));
-
-    protected:
-        std::vector<char> m_buffer;
-};
 #endif

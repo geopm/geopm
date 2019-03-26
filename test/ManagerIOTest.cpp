@@ -53,7 +53,8 @@
 #include "Helper.hpp"
 #include "Exception.hpp"
 #include "ManagerIO.hpp"
-#include "SharedMemory.hpp"
+#include "SharedMemoryImp.hpp"
+#include "SharedMemoryUserImp.hpp"
 
 using geopm::ManagerIOImp;
 using geopm::ManagerIOSamplerImp;

@@ -157,6 +157,9 @@ src/SampleScheduler.cpp
 src/SampleScheduler.hpp
 src/SharedMemory.cpp
 src/SharedMemory.hpp
+src/SharedMemoryImp.hpp
+src/SharedMemoryUser.hpp
+src/SharedMemoryUserImp.hpp
 src/SignalHandler.cpp
 src/TimeIOGroup.cpp
 src/TimeIOGroup.hpp

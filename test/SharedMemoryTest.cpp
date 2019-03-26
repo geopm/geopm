@@ -36,7 +36,8 @@
 #include "geopm_error.h"
 #include "geopm_env.h"
 #include "Exception.hpp"
-#include "SharedMemory.hpp"
+#include "SharedMemoryImp.hpp"
+#include "SharedMemoryUserImp.hpp"
 
 using geopm::SharedMemory;
 using geopm::SharedMemoryImp;
