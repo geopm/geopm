@@ -60,7 +60,7 @@
 #include "SampleScheduler.hpp"
 #include "Comm.hpp"
 #include "ControlMessage.hpp"
-#include "SharedMemory.hpp"
+#include "SharedMemoryImp.hpp"
 #include "Exception.hpp"
 #include "config.h"
 

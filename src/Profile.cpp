@@ -59,7 +59,7 @@
 #include "ProfileThread.hpp"
 #include "SampleScheduler.hpp"
 #include "ControlMessage.hpp"
-#include "SharedMemory.hpp"
+#include "SharedMemoryImp.hpp"
 #include "Exception.hpp"
 #include "Comm.hpp"
 #include "Helper.hpp"
