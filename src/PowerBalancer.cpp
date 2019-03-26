@@ -30,11 +30,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "PowerBalancer.hpp"
+
 #include <vector>
 #include <cmath>
 
-#include "PowerBalancer.hpp"
-#include "CircularBuffer.hpp"
+#include "CircularBufferImp.hpp"
 #include "Agg.hpp"
 #include "Helper.hpp"
 #include "config.h"
@@ -62,7 +63,7 @@ namespace geopm
         , m_trial_delta(8.0)
         , m_runtime_sample(NAN)
         , m_is_target_met(false)
-        , m_runtime_buffer(make_unique<CircularBufferImp<double> >(0))
+        , m_runtime_buffer(geopm::make_unique<CircularBufferImp<double> >(0))
     {
 
     }

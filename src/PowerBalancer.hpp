@@ -34,6 +34,7 @@
 #define POWERBALANCER_HPP_INCLUDE
 
 #include <memory>
+#include <vector>
 
 #include "geopm_time.h"
 

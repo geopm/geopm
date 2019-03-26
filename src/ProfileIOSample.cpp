@@ -37,7 +37,7 @@
 
 #include "EpochRuntimeRegulator.hpp"
 #include "ProfileIOSample.hpp"
-#include "CircularBuffer.hpp"
+#include "CircularBufferImp.hpp"
 #include "RuntimeRegulator.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"

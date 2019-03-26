@@ -33,7 +33,7 @@
 #include <memory>
 
 #include "gtest/gtest.h"
-#include "CircularBuffer.hpp"
+#include "CircularBufferImp.hpp"
 #include "Helper.hpp"
 
 class CircularBufferTest: public :: testing :: Test
