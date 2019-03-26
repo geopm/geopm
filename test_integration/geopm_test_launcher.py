@@ -50,6 +50,7 @@ def detect_launcher():
     Returns name of resource manager or launcher, otherwise a
     LookupError is raised.
     """
+    return "impi";
     slurm_hosts = ['mr-fusion']
     alps_hosts = ['theta']
 
