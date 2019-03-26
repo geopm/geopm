@@ -33,59 +33,48 @@
 #ifndef ENERGYEFFICIENTREGION_HPP_INCLUDE
 #define ENERGYEFFICIENTREGION_HPP_INCLUDE
 
-#include <map>
 #include <set>
 #include <vector>
+#include <memory>
+
+#include "CircularBuffer.hpp"
 
 namespace geopm
 {
-
-    class PlatformIO;
-
     /// @brief Holds the performance history of a Region.
     class EnergyEfficientRegion
     {
         public:
-            EnergyEfficientRegion(PlatformIO &platform_io,
-                                  int runtime_idx,
-                                  int pkg_energy_idx);
+            EnergyEfficientRegion(double freq_min, double freq_max, double freq_step);
             virtual ~EnergyEfficientRegion() = default;
             double freq(void) const;
-            void update_freq_range(const double freq_min, const double freq_max, const double freq_step);
-            void update_entry(void);
-            void update_exit(void);
+            void update_freq_range(double freq_min, double freq_max, double freq_step);
+            void update_exit(double perf_metric);
         private:
-            // Used to determine whether performance degraded or not.
-            // Higher is better.
-            virtual double perf_metric();
-            virtual double energy_metric();
+            struct FreqContext {
+                FreqContext()
+                    : num_increase(0)
+                    , perf(NAN)
+                {
+                };
 
-            const double M_PERF_MARGIN;
-            const double M_ENERGY_MARGIN;
-            const size_t M_MIN_BASE_SAMPLE;
-            const size_t M_MAX_INCREASE;
-
-            PlatformIO &m_platform_io;
-            double m_curr_freq;
-            double m_target;
-
-            bool m_is_learning;
-            struct m_freq_ctx_s {
+                virtual ~FreqContext() = default;
                 size_t num_increase;
-                double perf_max;
-                double energy_min;
-                size_t num_sample;
+                double perf;
             };
 
-            std::map<size_t, struct m_freq_ctx_s> m_freq_ctx_map;
+            const double M_PERF_MARGIN;
+            const size_t M_MAX_INCREASE;
 
+            bool m_is_learning;
+            uint64_t m_max_step;
             double m_freq_step;
-            std::set<double> m_allowed_freq;
-            double m_curr_freq_max;
-            double m_start_energy;
+            int m_curr_step;
+            double m_freq_min;
+            double m_target;
+            double m_curr_perf;
 
-            int m_runtime_idx;
-            int m_pkg_energy_idx;
+            std::vector<std::unique_ptr<FreqContext> > m_freq_ctx;
     };
 
 } // namespace geopm
