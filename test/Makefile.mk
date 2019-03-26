@@ -80,16 +80,10 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/CpuinfoIOGroupTest.parse_sticker_without_at \
               test/gtest_links/CpuinfoIOGroupTest.plugin \
               test/gtest_links/CpuinfoIOGroupTest.valid_signals \
-              test/gtest_links/EnergyEfficientAgentTest.hint \
-              test/gtest_links/EnergyEfficientAgentTest.map \
-              test/gtest_links/EnergyEfficientAgentTest.name \
-              test/gtest_links/EnergyEfficientAgentTest.online_mode \
               test/gtest_links/EnergyEfficientRegionTest.after_too_many_increase_freq_stays_at_higher \
-              test/gtest_links/EnergyEfficientRegionTest.energy_increases_freq_steps_back_up \
               test/gtest_links/EnergyEfficientRegionTest.freq_does_not_go_above_max \
               test/gtest_links/EnergyEfficientRegionTest.freq_does_not_go_below_min \
               test/gtest_links/EnergyEfficientRegionTest.freq_starts_at_maximum \
-              test/gtest_links/EnergyEfficientRegionTest.only_changes_freq_after_enough_samples \
               test/gtest_links/EnergyEfficientRegionTest.performance_decreases_freq_steps_back_up \
               test/gtest_links/EnergyEfficientRegionTest.update_ignores_nan_sample \
               test/gtest_links/EnvironmentTest.construction0 \
