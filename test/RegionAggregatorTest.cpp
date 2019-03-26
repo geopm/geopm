@@ -35,7 +35,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "RegionAggregator.hpp"
+#include "RegionAggregatorImp.hpp"
 #include "Helper.hpp"
 #include "PlatformTopo.hpp"
 #include "Agg.hpp"

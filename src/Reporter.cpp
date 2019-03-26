@@ -45,7 +45,7 @@
 #include "Reporter.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
-#include "RegionAggregator.hpp"
+#include "RegionAggregatorImp.hpp"
 #include "ApplicationIO.hpp"
 #include "Comm.hpp"
 #include "TreeComm.hpp"
