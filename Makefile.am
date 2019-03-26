@@ -467,6 +467,7 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/ProfileIOGroup.hpp \
                             src/ProfileIOSample.cpp \
                             src/ProfileIOSample.hpp \
+                            src/ProfileIOSampleImp.hpp \
                             src/ProfileSampler.cpp \
                             src/ProfileSampler.hpp \
                             src/ProfileTable.cpp \

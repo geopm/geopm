@@ -30,13 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "ProfileIOSampleImp.hpp"
+
 #include <set>
 #include <algorithm>
 
 #include "geopm_internal.h"
 
 #include "EpochRuntimeRegulator.hpp"
-#include "ProfileIOSample.hpp"
 #include "CircularBufferImp.hpp"
 #include "RuntimeRegulator.hpp"
 #include "PlatformIO.hpp"
