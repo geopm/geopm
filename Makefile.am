@@ -486,6 +486,7 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/ProfileThread.hpp \
                             src/RegionAggregator.cpp \
                             src/RegionAggregator.hpp \
+                            src/RegionAggregatorImp.hpp \
                             src/Reporter.cpp \
                             src/Reporter.hpp \
                             src/RuntimeRegulator.cpp \
