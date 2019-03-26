@@ -30,22 +30,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cmath>
+#include <string.h>
 #include <fstream>
 #include <sstream>
 #include <algorithm>
 #include <string>
-#include <cmath>
-#include <string.h>
 
 #include "contrib/json11/json11.hpp"
 
+#include "geopm_env.h"
 #include "ManagerIO.hpp"
 #include "PlatformTopo.hpp"
-#include "SharedMemory.hpp"
+#include "SharedMemoryImp.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
 #include "Agent.hpp"
-#include "geopm_env.h"
 #include "config.h"
 
 using json11::Json;
@@ -66,7 +66,7 @@ namespace geopm
     }
 
     ManagerIOImp::ManagerIOImp(const std::string &path, std::unique_ptr<SharedMemory> shmem,
-                         const std::vector<std::string> &signal_names)
+                               const std::vector<std::string> &signal_names)
         : m_path(path)
         , m_signal_names(signal_names)
         , m_shmem(std::move(shmem))

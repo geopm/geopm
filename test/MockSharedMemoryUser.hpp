@@ -36,7 +36,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include <vector>
-#include "SharedMemory.hpp"
+#include "SharedMemoryUser.hpp"
 
 class MockSharedMemoryUser : public geopm::SharedMemoryUser
 {

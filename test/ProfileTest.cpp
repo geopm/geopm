@@ -40,7 +40,7 @@
 #include "Helper.hpp"
 #include "Profile.hpp"
 #include "Exception.hpp"
-#include "SharedMemory.hpp"
+#include "SharedMemoryImp.hpp"
 #include "MockComm.hpp"
 #include "MockPlatformTopo.hpp"
 #include "MockProfileTable.hpp"
