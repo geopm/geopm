@@ -30,6 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "SharedMemoryImp.hpp"
+#include "SharedMemoryUserImp.hpp"
+
 #include <limits.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -41,7 +44,6 @@
 #include <sstream>
 
 #include "geopm_time.h"
-#include "SharedMemory.hpp"
 #include "Exception.hpp"
 #include "geopm_signal_handler.h"
 #include "config.h"

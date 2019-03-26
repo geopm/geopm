@@ -41,7 +41,8 @@
 
 #include "ManagerIO.hpp"
 #include "PlatformTopo.hpp"
-#include "SharedMemory.hpp"
+#include "SharedMemoryImp.hpp"
+#include "SharedMemoryUserImp.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
 #include "Agent.hpp"
@@ -66,7 +67,7 @@ namespace geopm
     }
 
     ManagerIOImp::ManagerIOImp(const std::string &path, std::unique_ptr<SharedMemory> shmem,
-                         const std::vector<std::string> &signal_names)
+                               const std::vector<std::string> &signal_names)
         : m_path(path)
         , m_signal_names(signal_names)
         , m_shmem(std::move(shmem))
