@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "MSRImp.hpp"
+
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -38,11 +40,11 @@
 #include <string.h>
 #include <cfloat>
 #include <cmath>
+
 #include <sstream>
 #include <numeric>
 #include <map>
 
-#include "MSR.hpp"
 #include "MSRIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"

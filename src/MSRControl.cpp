@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MSRControl.hpp"
+#include "MSRControlImp.hpp"
 
 #include <cmath>
 

@@ -41,7 +41,7 @@
 #include <string>
 #include "gtest/gtest.h"
 
-#include "MSRIO.hpp"
+#include "MSRIOImp.hpp"
 #include "Exception.hpp"
 
 // Class derived from MSRIO used to test MSRIO w/o accessing the msr

@@ -34,7 +34,6 @@
 #define MSRIO_HPP_INCLUDE
 
 #include <stdint.h>
-#include <string>
 #include <vector>
 
 namespace geopm
@@ -98,61 +97,6 @@ namespace geopm
             /// @param [in] raw_value The raw encoded MSR values to be
             ///        written.
             virtual void write_batch(const std::vector<uint64_t> &raw_value) = 0;
-    };
-
-    class MSRIOImp : public MSRIO
-    {
-        public:
-            MSRIOImp();
-            MSRIOImp(int num_cpu);
-            virtual ~MSRIOImp();
-            uint64_t read_msr(int cpu_idx,
-                              uint64_t offset) override;
-            void write_msr(int cpu_idx,
-                           uint64_t offset,
-                           uint64_t raw_value,
-                           uint64_t write_mask) override;
-            void config_batch(const std::vector<int> &read_cpu_idx,
-                              const std::vector<uint64_t> &read_offset,
-                              const std::vector<int> &write_cpu_idx,
-                              const std::vector<uint64_t> &write_offset,
-                              const std::vector<uint64_t> &write_mask) override;
-            void read_batch(std::vector<uint64_t> &raw_value) override;
-            void write_batch(const std::vector<uint64_t> &raw_value) override;
-        private:
-            struct m_msr_batch_op_s {
-                uint16_t cpu;      /// @brief In: CPU to execute {rd/wr}msr ins.
-                uint16_t isrdmsr;  /// @brief In: 0=wrmsr, non-zero=rdmsr
-                int32_t err;       /// @brief Out: Error code from operation
-                uint32_t msr;      /// @brief In: MSR Address to perform op
-                uint64_t msrdata;  /// @brief In/Out: Input/Result to/from operation
-                uint64_t wmask;    /// @brief Out: Write mask applied to wrmsr
-            };
-
-            struct m_msr_batch_array_s {
-                uint32_t numops;               /// @brief In: # of operations in ops array
-                struct m_msr_batch_op_s *ops;  /// @brief In: Array[numops] of operations
-            };
-
-            void open_msr(int cpu_idx);
-            void open_msr_batch(void);
-            void close_msr(int cpu_idx);
-            void close_msr_batch(void);
-            int msr_desc(int cpu_idx);
-            int msr_batch_desc(void);
-            void msr_ioctl(bool is_read);
-            virtual void msr_path(int cpu_idx,
-                                  bool is_fallback,
-                                  std::string &path);
-            virtual void msr_batch_path(std::string &path);
-
-            const int m_num_cpu;
-            std::vector<int> m_file_desc;
-            bool m_is_batch_enabled;
-            struct m_msr_batch_array_s m_read_batch;
-            struct m_msr_batch_array_s m_write_batch;
-            std::vector<struct m_msr_batch_op_s> m_read_batch_op;
-            std::vector<struct m_msr_batch_op_s> m_write_batch_op;
     };
 }
 

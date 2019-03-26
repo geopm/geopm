@@ -33,9 +33,9 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "MSR.hpp"
-#include "MSRSignal.hpp"
-#include "MSRControl.hpp"
+#include "MSRImp.hpp"
+#include "MSRSignalImp.hpp"
+#include "MSRControlImp.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
 
