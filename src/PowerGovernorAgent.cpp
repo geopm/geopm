@@ -69,7 +69,7 @@ namespace geopm
         , m_last_power_budget(NAN)
         , m_power_budget_changed(false)
         , m_power_setting_changed(false)
-        , m_epoch_power_buf(geopm::make_unique<CircularBufferImp<double> >(16)) // Magic number...
+        , m_epoch_power_buf(geopm::make_unique<CircularBuffer<double> >(16)) // Magic number...
         , m_sample(M_PLAT_NUM_SIGNAL)
         , m_ascend_count(0)
         , m_ascend_period(10)

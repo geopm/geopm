@@ -77,7 +77,7 @@ namespace geopm
             virtual std::vector<int> cpu_rank(void) const = 0;
     };
 
-    template <typename T> class CircularBufferImp;
+    template <typename T> class CircularBuffer;
     class EpochRuntimeRegulator;
 
     class ProfileIOSampleImp : public ProfileIOSample
@@ -131,7 +131,7 @@ namespace geopm
             size_t m_num_rank;
             /// @brief Per rank record of last profile samples in
             ///        m_region_id_prev
-            std::vector<CircularBufferImp<struct m_rank_sample_s> > m_rank_sample_buffer;
+            std::vector<CircularBuffer<struct m_rank_sample_s> > m_rank_sample_buffer;
             std::vector<double> m_thread_progress;
             /// @brief The region_id of each rank derived from the
             ///        stored ProfileSampler data used for
