@@ -36,7 +36,7 @@
 #include "geopm_error.h"
 #include "geopm_env.h"
 #include "Exception.hpp"
-#include "SharedMemory.hpp"
+#include "SharedMemoryImp.hpp"
 
 using geopm::SharedMemory;
 using geopm::SharedMemoryImp;
@@ -60,6 +60,7 @@ void SharedMemoryTest::SetUp()
 {
     m_shm_key = std::string(geopm_env_shmkey()) + "-SharedMemoryTest-" + std::to_string(getpid());
     m_size = sizeof(size_t);
+    m_shmem = NULL;
 }
 
 void SharedMemoryTest::TearDown()
@@ -74,9 +75,6 @@ void SharedMemoryTest::config_shmem()
 void SharedMemoryTest::config_shmem_u()
 {
     m_shmem_u = new geopm::SharedMemoryUserImp(m_shm_key, 1); // 1 second timeout
-    // if 1 second timeout constructor worked so should this, just throw away instance
-    // warning, will spin for INT_MAX seconds if there is a failure...
-    delete new geopm::SharedMemoryUserImp(m_shm_key);
 }
 
 void SharedMemoryTest::cleanup_shmem()

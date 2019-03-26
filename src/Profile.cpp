@@ -38,14 +38,14 @@
 #include <sys/sysctl.h>
 #endif
 
-#include <algorithm>
-#include <iostream>
-
 #include <float.h>
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
+
+#include <algorithm>
+#include <iostream>
 
 #include "geopm.h"
 #include "geopm_internal.h"
@@ -59,7 +59,7 @@
 #include "ProfileThread.hpp"
 #include "SampleScheduler.hpp"
 #include "ControlMessage.hpp"
-#include "SharedMemory.hpp"
+#include "SharedMemoryImp.hpp"
 #include "Exception.hpp"
 #include "Comm.hpp"
 #include "Helper.hpp"
