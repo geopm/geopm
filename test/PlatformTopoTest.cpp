@@ -39,7 +39,7 @@
 #include "gtest/gtest.h"
 
 #include "Helper.hpp"
-#include "PlatformTopo.hpp"
+#include "PlatformTopoImp.hpp"
 #include "Exception.hpp"
 
 using geopm::PlatformTopo;
