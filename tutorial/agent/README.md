@@ -140,7 +140,7 @@ report_header():
   top of the report.  In this example, the Agent adds the wait time
   used for the control loop.
 
-report_node():
+report_host():
 
   Adds key-value pairs of details for a single node.  In this example,
   the Agent adds the highest and lowest idle % seen on the node.

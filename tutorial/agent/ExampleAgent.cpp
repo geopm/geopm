@@ -194,7 +194,7 @@ std::vector<std::pair<std::string, std::string> > ExampleAgent::report_header(vo
 }
 
 // Adds min and max idle percentage to the per-node section of the report
-std::vector<std::pair<std::string, std::string> > ExampleAgent::report_node(void) const
+std::vector<std::pair<std::string, std::string> > ExampleAgent::report_host(void) const
 {
     return {
         {"Lowest idle %", std::to_string(m_min_idle)},

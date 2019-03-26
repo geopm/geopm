@@ -64,7 +64,7 @@ namespace geopm
             bool sample_platform(std::vector<double> &out_sample) override;
             void wait(void) override;
             std::vector<std::pair<std::string, std::string> > report_header(void) const override;
-            std::vector<std::pair<std::string, std::string> > report_node(void) const override;
+            std::vector<std::pair<std::string, std::string> > report_host(void) const override;
             std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(void) const override;
             std::vector<std::string> trace_names(void) const override;
             void trace_values(std::vector<double> &values) override;
