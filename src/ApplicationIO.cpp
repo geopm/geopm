@@ -39,7 +39,7 @@
 #include "PlatformTopo.hpp"
 #include "ProfileSampler.hpp"
 #include "ProfileThread.hpp"
-#include "ProfileIOSample.hpp"
+#include "ProfileIOSampleImp.hpp"
 #include "ProfileIOGroup.hpp"
 #include "Helper.hpp"
 #include "config.h"
