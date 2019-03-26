@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "ControlMessageImp.hpp"
+
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
@@ -37,7 +39,6 @@
 #include "geopm_signal_handler.h"
 #include "geopm_env.h"
 #include "geopm_time.h"
-#include "ControlMessage.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
 
@@ -45,7 +46,6 @@
 
 namespace geopm
 {
-
     ControlMessageImp::ControlMessageImp(struct geopm_ctl_message_s &ctl_msg, bool is_ctl, bool is_writer)
         : M_WAIT_SEC(geopm_env_timeout())
         , m_ctl_msg(ctl_msg)
@@ -173,5 +173,4 @@ namespace geopm
         }
         m_last_status = M_STATUS_NAME_LOOP_BEGIN;
     }
-
 }
