@@ -38,7 +38,6 @@
 #include <set>
 #include <map>
 #include <string>
-#include <stdio.h>
 
 #include "geopm_topo.h"
 
@@ -96,48 +95,8 @@ namespace geopm
         private:
             static std::vector<std::string> domain_names(void);
             static std::map<std::string, int> domain_types(void);
-
     };
 
     PlatformTopo &platform_topo(void);
-
-    class PlatformTopoImp : public PlatformTopo
-    {
-        public:
-            PlatformTopoImp();
-            PlatformTopoImp(const std::string &test_cache_file_name);
-            virtual ~PlatformTopoImp() = default;
-            int num_domain(int domain_type) const override;
-            int domain_idx(int domain_type,
-                           int cpu_idx) const override;
-            bool is_domain_within(int inner_domain, int outer_domain) const override;
-            std::set<int> nested_domains(int inner_domain, int outer_domain, int outer_idx) const override;
-            static void create_cache();
-            static void create_cache(const std::string &cache_file_name);
-        private:
-            static const std::string M_CACHE_FILE_NAME;
-            /// @brief Get the set of Linux logical CPUs associated
-            ///        with the indexed domain.
-            std::set<int> domain_cpus(int domain_type,
-                                      int domain_idx) const;
-
-            void lscpu(std::map<std::string, std::string> &lscpu_map);
-            void parse_lscpu(const std::map<std::string, std::string> &lscpu_map,
-                             int &num_package,
-                             int &core_per_package,
-                             int &thread_per_core);
-            void parse_lscpu_numa(std::map<std::string, std::string> lscpu_map,
-                                  std::vector<std::set<int> > &numa_map);
-            FILE *open_lscpu(void);
-            void close_lscpu(FILE *fid);
-
-            const std::string M_TEST_CACHE_FILE_NAME;
-            bool m_do_fclose;
-            int m_num_package;
-            int m_core_per_package;
-            int m_thread_per_core;
-            std::vector<std::set<int> > m_numa_map;
-    };
-
 }
 #endif
