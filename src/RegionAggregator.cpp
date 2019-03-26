@@ -30,10 +30,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "RegionAggregatorImp.hpp"
+
 #include "geopm.h"
 #include "geopm_internal.h"
 #include "geopm_hash.h"
-#include "RegionAggregator.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
