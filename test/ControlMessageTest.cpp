@@ -34,7 +34,7 @@
 
 #include "gtest/gtest.h"
 
-#include "ControlMessage.hpp"
+#include "ControlMessageImp.hpp"
 #include "Helper.hpp"
 
 using geopm::ControlMessage;
