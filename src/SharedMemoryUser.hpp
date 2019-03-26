@@ -30,40 +30,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKSHAREDMEMORYUSER_HPP_INCLUDE
-#define MOCKSHAREDMEMORYUSER_HPP_INCLUDE
+#ifndef SHAREDMEMORYUSER_HPP_INCLUDE
+#define SHAREDMEMORYUSER_HPP_INCLUDE
 
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include <vector>
-#include "SharedMemoryUser.hpp"
+#include <string>
+#include <stdlib.h>
 
-class MockSharedMemoryUser : public geopm::SharedMemoryUser
+namespace geopm
 {
-    public:
-        MockSharedMemoryUser() = delete;
-        MockSharedMemoryUser(size_t size) {
-            m_buffer = std::vector<char>(size);
-            EXPECT_CALL(*this, size())
-                .WillRepeatedly(testing::Return(size));
-            EXPECT_CALL(*this, pointer())
-                .WillRepeatedly(testing::Return(m_buffer.data()));
-            EXPECT_CALL(*this, unlink())
-                .WillRepeatedly(testing::Return());
-        };
+    /// @brief This class encapsulates attaching to inter-process shared memory.
+    class SharedMemoryUser
+    {
+        public:
+            SharedMemoryUser() = default;
+            SharedMemoryUser(const SharedMemoryUser &other) = default;
+            virtual ~SharedMemoryUser() = default;
+            /// @brief Retrieve a pointer to the shared memory region.
+            /// @return Void pointer to the shared memory region.
+            virtual void *pointer(void) const = 0;
+            /// @brief Retrieve the key to the shared memory region.
+            /// @return Key to the shared memory region.
+            virtual std::string key(void) const = 0;
+            /// @brief Retrieve the size of the shared memory region.
+            /// @return Size of the shared memory region.
+            virtual size_t size(void) const = 0;
+            /// @brief Unlink the shared memory region.
+            virtual void unlink(void) = 0;
+    };
+}
 
-        virtual ~MockSharedMemoryUser() = default;
-
-        MOCK_CONST_METHOD0(pointer,
-                           void *(void));
-        MOCK_CONST_METHOD0(key,
-                           std::string (void));
-        MOCK_CONST_METHOD0(size,
-                           size_t (void));
-        MOCK_METHOD0(unlink,
-                     void (void));
-
-    protected:
-        std::vector<char> m_buffer;
-};
 #endif
