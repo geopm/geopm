@@ -135,7 +135,7 @@ namespace geopm
 
     void ReporterImp::generate(const std::string &agent_name,
                                const std::vector<std::pair<std::string, std::string> > &agent_report_header,
-                               const std::vector<std::pair<std::string, std::string> > &agent_node_report,
+                               const std::vector<std::pair<std::string, std::string> > &agent_host_report,
                                const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report,
                                const ApplicationIO &application_io,
                                std::shared_ptr<Comm> comm,
@@ -162,10 +162,10 @@ namespace geopm
                 master_report << kv.first << ": " << kv.second << std::endl;
             }
         }
-        // per-node report
+        // per-host report
         std::ostringstream report;
         report << "\nHost: " << hostname() << std::endl;
-        for (const auto &kv : agent_node_report) {
+        for (const auto &kv : agent_host_report) {
             report << kv.first << ": " << kv.second << std::endl;
         }
         // vector of region data, in descending order by runtime

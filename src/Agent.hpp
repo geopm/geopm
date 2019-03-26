@@ -109,8 +109,8 @@ namespace geopm
             /// @brief Custom fields that will be added to the report
             ///        header when this agent is used.
             virtual std::vector<std::pair<std::string, std::string> > report_header(void) const = 0;
-            /// @brief Custom fields for the node section of the report.
-            virtual std::vector<std::pair<std::string, std::string> > report_node(void) const = 0;
+            /// @brief Custom fields for the host section of the report.
+            virtual std::vector<std::pair<std::string, std::string> > report_host(void) const = 0;
             /// @brief Custom fields for each region in the report.
             virtual std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(void) const = 0;
             /// @brief Column headers to be added to the trace.

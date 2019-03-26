@@ -282,7 +282,7 @@ namespace geopm
         return {};
     }
 
-    std::vector<std::pair<std::string, std::string> > PowerGovernorAgent::report_node(void) const
+    std::vector<std::pair<std::string, std::string> > PowerGovernorAgent::report_host(void) const
     {
         return {};
     }

@@ -94,7 +94,7 @@ TEST_F(PowerBalancerAgentTest, power_balancer_agent)
     EXPECT_EQ(exp_pol_names, m_agent->policy_names());
     EXPECT_EQ(exp_smp_names, m_agent->sample_names());
     m_agent->report_header();
-    m_agent->report_node();
+    m_agent->report_host();
     m_agent->report_region();
     m_agent->wait();
 

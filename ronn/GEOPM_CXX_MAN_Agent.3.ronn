@@ -77,7 +77,7 @@ better rendering of this manual.
   * `virtual vector<pair<string, string>> Agent::report_header(`:
     `void) const = 0;`
 
-  * `virtual vector<pair<string, string>> Agent::report_node(`:
+  * `virtual vector<pair<string, string>> Agent::report_host(`:
     `void) const = 0;`
 
   * `virtual map<uint64_t, vector<pair<string, string>>> Agent::report_region(`:
@@ -247,7 +247,7 @@ I/O implementations by different `Agent` classes.
     keys should be title case, e.g. "Start Time"; they must not
     contain the colon character ':'.
 
-  * `report_node`():
+  * `report_host`():
     Custom fields for the Host section of the report.  To be
     consistent with the rest of this section, the keys should have
     the first letter capitalized, e.g. "Final freq map"; they must

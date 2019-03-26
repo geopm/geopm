@@ -239,7 +239,7 @@ namespace geopm
         return {};
     }
 
-    std::vector<std::pair<std::string, std::string> > FrequencyMapAgent::report_node(void) const
+    std::vector<std::pair<std::string, std::string> > FrequencyMapAgent::report_host(void) const
     {
         std::vector<std::pair<std::string, std::string> > result;
         std::ostringstream oss;

@@ -73,7 +73,7 @@ namespace geopm
             /// @param [in] agent_report_header Optional list of
             ///             key-value pairs from the agent to be added
             ///             to the report header.
-            /// @param [in] agent_node_report Optional list of
+            /// @param [in] agent_host_report Optional list of
             ///             key-value pairs from the agent to be added
             ///             to the host section of the report.
             /// @param [in] agent_region_report Optional mapping from
@@ -88,7 +88,7 @@ namespace geopm
             ///             by the controller.
             virtual void generate(const std::string &agent_name,
                                   const std::vector<std::pair<std::string, std::string> > &agent_report_header,
-                                  const std::vector<std::pair<std::string, std::string> > &agent_node_report,
+                                  const std::vector<std::pair<std::string, std::string> > &agent_host_report,
                                   const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report,
                                   const ApplicationIO &application_io,
                                   std::shared_ptr<Comm> comm,
@@ -112,7 +112,7 @@ namespace geopm
             void update(void) override;
             void generate(const std::string &agent_name,
                           const std::vector<std::pair<std::string, std::string> > &agent_report_header,
-                          const std::vector<std::pair<std::string, std::string> > &agent_node_report,
+                          const std::vector<std::pair<std::string, std::string> > &agent_host_report,
                           const std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > &agent_region_report,
                           const ApplicationIO &application_io,
                           std::shared_ptr<Comm> comm,
