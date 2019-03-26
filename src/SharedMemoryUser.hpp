@@ -30,8 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SHAREDMEMORY_HPP_INCLUDE
-#define SHAREDMEMORY_HPP_INCLUDE
+#ifndef SHAREDMEMORYUSER_HPP_INCLUDE
+#define SHAREDMEMORYUSER_HPP_INCLUDE
 
 #include <stdlib.h>
 
@@ -40,13 +40,13 @@
 
 namespace geopm
 {
-    /// @brief This class encapsulates the creation of inter-process shared memory.
-    class SharedMemory
+    /// @brief This class encapsulates attaching to inter-process shared memory.
+    class SharedMemoryUser
     {
         public:
-            SharedMemory() = default;
-            SharedMemory(const SharedMemory &other) = default;
-            virtual ~SharedMemory() = default;
+            SharedMemoryUser() = default;
+            SharedMemoryUser(const SharedMemoryUser &other) = default;
+            virtual ~SharedMemoryUser() = default;
             /// @brief Retrieve a pointer to the shared memory region.
             /// @return Void pointer to the shared memory region.
             virtual void *pointer(void) const = 0;
@@ -56,12 +56,16 @@ namespace geopm
             /// @brief Retrieve the size of the shared memory region.
             /// @return Size of the shared memory region.
             virtual size_t size(void) const = 0;
+            /// @brief Unlink the shared memory region.
+            virtual void unlink(void) = 0;
             /// @brief Returns a unique_ptr to a concrete object
             ///        constructed using the underlying implementation
-            static std::unique_ptr<SharedMemory> make_unique(const std::string &shm_key, size_t size);
+            static std::unique_ptr<SharedMemoryUser> make_unique(const std::string &shm_key);
+            static std::unique_ptr<SharedMemoryUser> make_unique(const std::string &shm_key, unsigned int timeout);
             /// @brief Returns a shared_ptr to a concrete object
             ///        constructed using the underlying implementation
-            static std::shared_ptr<SharedMemory> make_shared(const std::string &shm_key, size_t size);
+            static std::shared_ptr<SharedMemoryUser> make_shared(const std::string &shm_key);
+            static std::shared_ptr<SharedMemoryUser> make_shared(const std::string &shm_key, unsigned int timeout);
     };
 }
 

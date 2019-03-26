@@ -34,8 +34,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "geopm_env.h"
-#include "SharedMemory.hpp"
 #include "geopm_mpi_comm_split.h"
+#include "SharedMemoryImp.hpp"
 #include "Exception.hpp"
 #include "Controller.hpp"
 #include "Comm.hpp"
