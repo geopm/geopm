@@ -107,6 +107,7 @@ pkginclude_HEADERS = contrib/json11/json11.hpp \
                      src/PowerGovernorAgent.hpp \
                      src/RegionAggregator.hpp \
                      src/SharedMemory.hpp \
+                     src/SharedMemoryUser.hpp \
                      src/TimeIOGroup.hpp \
                      # end
 
@@ -496,6 +497,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/SampleScheduler.hpp \
                             src/SharedMemory.cpp \
                             src/SharedMemory.hpp \
+                            src/SharedMemoryImp.hpp \
+                            src/SharedMemoryUser.hpp \
                             src/SignalHandler.cpp \
                             src/TimeIOGroup.cpp \
                             src/TimeIOGroup.hpp \
