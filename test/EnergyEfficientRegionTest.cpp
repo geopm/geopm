@@ -65,7 +65,8 @@ EnergyEfficientRegionTest::EnergyEfficientRegionTest()
                     M_FREQ_MIN, M_FREQ_MAX, M_FREQ_STEP,
                     M_SIGNAL_RUNTIME)
 {
-
+    //ASSERT_NE(M_FREQ_MIN, M_FREQ_MAX);
+    //ASSERT_NE(0, M_FREQ_STEP);
 }
 
 TEST_F(EnergyEfficientRegionTest, freq_starts_at_maximum)
@@ -101,6 +102,9 @@ TEST_F(EnergyEfficientRegionTest, freq_does_not_go_below_min)
 
     double updated_min = M_FREQ_MIN + M_FREQ_STEP;
     EXPECT_THROW(m_freq_region.update_freq_range(updated_min, M_FREQ_MAX, M_FREQ_STEP), geopm::Exception);
+    /// @todo logic below is to be implemented
+    //m_freq_region.update_freq_range(updated_min, M_FREQ_MAX, M_FREQ_STEP);
+    //ASSERT_EQ(updated_min, m_freq_region.freq());
 }
 
 TEST_F(EnergyEfficientRegionTest, freq_does_not_go_above_max)
@@ -113,6 +117,8 @@ TEST_F(EnergyEfficientRegionTest, freq_does_not_go_above_max)
     for (size_t i = 0; i < samples.size(); ++i) {
         if (i == 2) {
             EXPECT_THROW(m_freq_region.update_freq_range(M_FREQ_MIN, updated_max, M_FREQ_STEP), geopm::Exception);
+            /// @todo logic below is to be implemented
+            //m_freq_region.update_freq_range(M_FREQ_MIN, updated_max, M_FREQ_STEP);
             return;
         }
         EXPECT_CALL(m_platform_io, sample(M_SIGNAL_RUNTIME))

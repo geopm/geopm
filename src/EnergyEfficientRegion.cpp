@@ -79,8 +79,32 @@ namespace geopm
             m_is_learning = true;
         }
         else {
+///@todo will implement post 1.0
             throw Exception("EnergyEfficientRegion::" + std::string(__func__) + "().",
                             GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+#if 0
+            double curr_freq = freq();
+            /// @todo if freq_step has changed there is more work to do
+            if (curr_freq < freq_min) {
+                /// need to create 1 or more FreqContext, and place at front of m_freq_ctx
+                int new_steps = calc_num_step(freq_min, m_freq_min, freq_step);
+                m_freq_ctx.insert(m_freq_ctx.begin(), new_steps, geopm::make_unique<FreqContext>());
+                m_curr_step--; // assume we want to experiment with next step down?
+            } else if (curr_freq > m_freq_max) {
+                /// need to create 1 or more FreqContext, and place at back of m_freq_ctx
+                int new_steps = calc_num_step(m_freq_max, freq_max, freq_step);
+                for (int step = 0; step <= new_steps; ++step) {
+                    m_freq_ctx.push_back(geopm::make_unique<FreqContext>());
+                }
+                m_curr_step = calc_num_step(freq_min, freq_max, freq_step) - 1;
+            }
+            if (m_freq_ctx[m_curr_step]->num_increase == M_MAX_INCREASE) {
+                m_is_learning = false;
+            }
+            m_freq_min = freq_min;
+            m_freq_max = freq_max;
+            m_freq_step = freq_step;
+#endif
         }
     }
 
