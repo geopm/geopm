@@ -187,6 +187,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/PlatformTopoTest.parse_error \
               test/gtest_links/PlatformTopoTest.ppc_num_domain \
               test/gtest_links/PlatformTopoTest.singleton_construction \
+              test/gtest_links/PlatformTopoTest.call_c_wrappers \
               test/gtest_links/PowerBalancerAgentTest.leaf_agent \
               test/gtest_links/PowerBalancerAgentTest.power_balancer_agent \
               test/gtest_links/PowerBalancerAgentTest.tree_agent \
