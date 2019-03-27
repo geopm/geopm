@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75a6366b_d8cfd5e6",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-27T23:58:10Z",
+      "side": 1,
+      "message": "board 0",
+      "range": {
+        "startLine": 159,
+        "startChar": 43,
+        "endLine": 159,
+        "endChar": 52
+      },
+      "revId": "a9f4e91f40891c38a18a7b1306201464926d4239",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01c14451_4e062df0",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 1121,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-27T23:58:10Z",
+      "side": 1,
+      "message": "c",
+      "range": {
+        "startLine": 1121,
+        "startChar": 32,
+        "endLine": 1121,
+        "endChar": 34
+      },
+      "revId": "a9f4e91f40891c38a18a7b1306201464926d4239",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
