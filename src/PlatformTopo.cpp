@@ -155,8 +155,18 @@ namespace geopm
     }
 
     std::set<int> PlatformTopoImp::domain_cpus(int domain_type,
-                                            int domain_idx) const
+                                               int domain_idx) const
     {
+        if (domain_type < 0 || domain_type >= GEOPM_NUM_DOMAIN) {
+            throw Exception("PlatformTopoImp::domain_cpus(): domain_type out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        int num_dom = num_domain(domain_type);
+        if (domain_idx < 0 || domain_idx >= num_dom) {
+            throw Exception("PlatformTopoImp::domain_cpus(): domain_idx out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         std::set<int> cpu_idx;
         switch (domain_type) {
             case GEOPM_DOMAIN_BOARD:
@@ -199,10 +209,20 @@ namespace geopm
     }
 
     int PlatformTopoImp::domain_idx(int domain_type,
-                                 int cpu_idx) const
+                                    int cpu_idx) const
     {
         int result = -1;
         int num_cpu = num_domain(GEOPM_DOMAIN_CPU);
+
+        if (domain_type < 0 || domain_type >= GEOPM_NUM_DOMAIN) {
+            throw Exception("PlatformTopoImp::domain_idx(): domain_type out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (cpu_idx < 0 || cpu_idx >= num_cpu) {
+            throw Exception("PlatformTopoImp::domain_idx(): cpu_idx out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         int core_idx = 0;
         int numa_idx = 0;
         if (cpu_idx >= 0 && cpu_idx < num_cpu) {
@@ -337,7 +357,7 @@ namespace geopm
 
     std::string PlatformTopo::domain_type_to_name(int domain_type)
     {
-        if (domain_type <= GEOPM_DOMAIN_INVALID || domain_type > GEOPM_NUM_DOMAIN) {
+        if (domain_type <= GEOPM_DOMAIN_INVALID || domain_type >= GEOPM_NUM_DOMAIN) {
             throw Exception("PlatformTopo::domain_type_to_name(): unrecognized domain_type: " + std::to_string(domain_type),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -389,9 +409,9 @@ namespace geopm
     }
 
     void PlatformTopoImp::parse_lscpu(const std::map<std::string, std::string> &lscpu_map,
-                                   int &num_package,
-                                   int &core_per_package,
-                                   int &thread_per_core)
+                                      int &num_package,
+                                      int &core_per_package,
+                                      int &thread_per_core)
     {
         const std::string keys[6] = {"CPU(s)",
                                      "Thread(s) per core",
@@ -443,7 +463,7 @@ namespace geopm
     }
 
     void PlatformTopoImp::parse_lscpu_numa(std::map<std::string, std::string> lscpu_map,
-                                        std::vector<std::set<int> > &numa_map)
+                                           std::vector<std::set<int> > &numa_map)
     {
         // TODO: what to do if there are no numa node lines?
         bool is_node_found = true;
