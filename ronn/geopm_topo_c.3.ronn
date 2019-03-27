@@ -62,6 +62,9 @@ geopm_topo_c(3) -- query platform component topology
   * `int geopm_topo_domain_type(`:
     `const char *`_domain_name_`);`
 
+  * `int geopm_topo_create_cache(`:
+    `void);`
+
 ## DOMAIN TYPES
 
   * GEOPM_DOMAIN_INVALID = -1:
@@ -165,8 +168,20 @@ goals and use case for this interface.
     type.  If the string does not match any of the valid domain names,
     then GEOPM_DOMAIN_INVALID is returned.
 
+  * `geopm_topo_create_cache`():
+    Create a cache file for the **geopm::PlatformTopo(3)** object if
+    one does not exist.  This cache file will be used by any calls to
+    the other `geopm_topo_*()` functions documented here as well as
+    any use of the GEOPM runtime.  File permissions of the cache file
+    are set to "-rw-rw-rw-", i.e. 666. The path for the cache file is
+    `/tmp/geopm-topo-cache`.  If the file exists no operation will be
+    performed.  To force the creation of a new cache file,
+    **unlink(3)** the existing cache file prior to calling this
+    function.
+
 ## SEE ALSO
 **geopm(7)**,
 **geopm_pio_c(3)**,
 **geopm::PlatformTopo(3)**,
 **geopm::PlatformIO(3)**
+**unlink(3)**

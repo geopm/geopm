@@ -657,4 +657,17 @@ extern "C"
         }
         return result;
     }
+
+    int geopm_topo_create_cache(void)
+    {
+        int err = 0;
+        try {
+            geopm::PlatformTopo::create_cache();
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
 }
