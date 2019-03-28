@@ -726,14 +726,14 @@ TEST_F(PlatformTopoTest, call_c_wrappers)
     // simple test for num_domain_nested
     ASSERT_EQ(num_cpu, geopm_topo_num_domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD));
     // negative test for domain_nested()
-    EXPECT_GT(0, geopm_topo_domain_nested(GEOPM_DOMAIN_BOARD, GEOPM_DOMAIN_CPU, 0, NULL));
+    EXPECT_GT(0, geopm_topo_domain_nested(GEOPM_DOMAIN_BOARD, GEOPM_DOMAIN_CPU, 0, num_cpu, NULL));
     // simple test for domain_nested()
     std::vector<int> expect_cpu(num_cpu);
     std::vector<int> actual_cpu(num_cpu, -1);
     for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
         expect_cpu[cpu_idx] = cpu_idx;
     }
-    EXPECT_EQ(0, geopm_topo_domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD, 0, actual_cpu.data()));
+    EXPECT_EQ(0, geopm_topo_domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD, 0, num_cpu, actual_cpu.data()));
     EXPECT_EQ(expect_cpu, actual_cpu);
     char domain_name[NAME_MAX];
     std::string domain_name_str;
