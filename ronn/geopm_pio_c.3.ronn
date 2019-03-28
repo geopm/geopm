@@ -58,7 +58,8 @@ geopm_pio_c(7) -- interfaces to query and modify platform
   * `int geopm_pio_read_signal(`:
     `const char *`_signal_name_, <br>
     `int` _domain_type_, <br>
-    `int` _domain_idx_`);`
+    `int` _domain_idx_, <br>
+    `double *`_result_`);`
 
   * `int geopm_pio_write_control(`:
     `const char *`_control_name_, <br>
