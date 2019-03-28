@@ -631,3 +631,316 @@ namespace geopm
         return iogroup->control_description(control_name);
     }
 }
+
+extern "C" {
+
+    int geopm_pio_num_signal_name(void)
+    {
+        int result = 0;
+        try {
+            result = geopm::platform_io().signal_names().size();
+        }
+        catch (...) {
+            result = geopm::exception_handler(std::current_exception());
+            result = result < 0 ? result : GEOPM_ERROR_RUNTIME;
+        }
+        return result;
+    }
+
+    static int geopm_pio_name_set_idx(int name_idx, size_t result_max,
+                                      const std::set<std::string> name_set, char *result)
+    {
+        int err = 0;
+        if (name_idx >= 0 &&
+            (size_t)name_idx < name_set.size() &&
+            result_max > 0) {
+            auto ns_it = name_set.begin();
+            for (int name_count = 0; name_count < name_idx; ++name_count) {
+                ++ns_it;
+            }
+            result[result_max - 1] = '\0';
+            strncpy(result, ns_it->c_str(), result_max );
+            if (result[result_max - 1] != '\0') {
+                err = GEOPM_ERROR_INVALID;
+                result[result_max - 1] = '\0';
+            }
+        }
+        else {
+            err = GEOPM_ERROR_INVALID;
+        }
+        return err;
+    }
+
+    int geopm_pio_signal_name(int name_idx, size_t result_max, char *result)
+    {
+        int err = 0;
+        try {
+            std::set<std::string> name_set = geopm::platform_io().signal_names();
+            err = geopm_pio_name_set_idx(name_idx, result_max, name_set, result);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
+    int geopm_pio_num_control_name(void)
+    {
+        int result = 0;
+        try {
+            result = geopm::platform_io().control_names().size();
+        }
+        catch (...) {
+            result = geopm::exception_handler(std::current_exception());
+            result = result < 0 ? result : GEOPM_ERROR_RUNTIME;
+        }
+        return result;
+    }
+
+    int geopm_pio_control_name(int name_idx, size_t result_max, char *result)
+    {
+        int err = 0;
+        try {
+            std::set<std::string> name_set = geopm::platform_io().control_names();
+            err = geopm_pio_name_set_idx(name_idx, result_max, name_set, result);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
+    int geopm_pio_signal_domain_type(const char *signal_name)
+    {
+        int result = 0;
+        try {
+            const std::string signal_name_string(signal_name);
+            result = geopm::platform_io().signal_domain_type(signal_name_string);
+        }
+        catch (...) {
+            result = geopm::exception_handler(std::current_exception());
+            result = result < 0 ? result : GEOPM_ERROR_RUNTIME;
+        }
+        return result;
+    }
+
+    int geopm_pio_control_domain_type(const char *control_name)
+    {
+        int result = 0;
+        try {
+            const std::string control_name_string(control_name);
+            result = geopm::platform_io().control_domain_type(control_name_string);
+        }
+        catch (...) {
+            result = geopm::exception_handler(std::current_exception());
+            result = result < 0 ? result : GEOPM_ERROR_RUNTIME;
+        }
+        return result;
+    }
+
+    int geopm_pio_read_signal(const char *signal_name, int domain_type,
+                              int domain_idx, double *result)
+    {
+        int err = 0;
+        try {
+            const std::string signal_name_string(signal_name);
+            *result = geopm::platform_io().read_signal(signal_name_string, domain_type, domain_idx);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
+    int geopm_pio_write_control(const char *control_name, int domain_type,
+                                int domain_idx, double setting)
+    {
+        int err = 0;
+        try {
+            const std::string control_name_string(control_name);
+            geopm::platform_io().write_control(control_name_string, domain_type, domain_idx, setting);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
+    int geopm_pio_push_signal(const char *signal_name, int domain_type, int domain_idx)
+    {
+        int result = 0;
+        try {
+            const std::string signal_name_string(signal_name);
+            result = geopm::platform_io().push_signal(signal_name_string, domain_type, domain_idx);
+        }
+        catch (...) {
+            result = geopm::exception_handler(std::current_exception());
+            result = result < 0 ? result : GEOPM_ERROR_RUNTIME;
+        }
+        return result;
+    }
+
+    int geopm_pio_push_control(const char *control_name, int domain_type, int domain_idx)
+    {
+        int result = 0;
+        try {
+            const std::string control_name_string(control_name);
+            result = geopm::platform_io().push_control(control_name_string, domain_type, domain_idx);
+        }
+        catch (...) {
+            result = geopm::exception_handler(std::current_exception());
+            result = result < 0 ? result : GEOPM_ERROR_RUNTIME;
+        }
+        return result;
+    }
+
+    int geopm_pio_num_signal_pushed(void)
+    {
+        int result = 0;
+        try {
+            result = geopm::platform_io().num_signal_pushed();
+        }
+        catch (...) {
+            result = geopm::exception_handler(std::current_exception());
+            result = result < 0 ? result : GEOPM_ERROR_RUNTIME;
+        }
+        return result;
+    }
+
+    int geopm_pio_num_control_pushed(void)
+    {
+        int result = 0;
+        try {
+            result = geopm::platform_io().num_control_pushed();
+        }
+        catch (...) {
+            result = geopm::exception_handler(std::current_exception());
+            result = result < 0 ? result : GEOPM_ERROR_RUNTIME;
+        }
+        return result;
+    }
+
+    int geopm_pio_sample(int signal_idx, double *result)
+    {
+        int err = 0;
+        try {
+            *result = geopm::platform_io().sample(signal_idx);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
+    int geopm_pio_adjust(int control_idx, double setting)
+    {
+        int err = 0;
+        try {
+            geopm::platform_io().adjust(control_idx, setting);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
+    int geopm_pio_read_batch(void)
+    {
+        int err = 0;
+        try {
+            geopm::platform_io().read_batch();
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
+    int geopm_pio_write_batch(void)
+    {
+        int err = 0;
+        try {
+            geopm::platform_io().write_batch();
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
+    int geopm_pio_save_control(void)
+    {
+        int err = 0;
+        try {
+            geopm::platform_io().save_control();
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
+    int geopm_pio_restore_control(void)
+    {
+        int err = 0;
+        try {
+            geopm::platform_io().restore_control();
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
+    int geopm_pio_signal_description(const char *signal_name, size_t description_max,
+                                     char *description)
+    {
+        int err = 0;
+        try {
+            const std::string signal_name_string(signal_name);
+            std::string description_string = geopm::platform_io().signal_description(signal_name_string);
+            description[description_max - 1] = '\0';
+            strncpy(description, description_string.c_str(), description_max);
+            if (description[description_max - 1] != '\0') {
+                description[description_max - 1] = '\0';
+                err = GEOPM_ERROR_INVALID;
+            }
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+
+    int geopm_pio_control_description(const char *control_name, size_t description_max,
+                                      char *description)
+    {
+        int err = 0;
+        try {
+            const std::string control_name_string(control_name);
+            std::string description_string = geopm::platform_io().control_description(control_name_string);
+            description[description_max - 1] = '\0';
+            strncpy(description, description_string.c_str(), description_max);
+            if (description[description_max - 1] != '\0') {
+                description[description_max - 1] = '\0';
+                err = GEOPM_ERROR_INVALID;
+            }
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+            err = err < 0 ? err : GEOPM_ERROR_RUNTIME;
+        }
+        return err;
+    }
+}
