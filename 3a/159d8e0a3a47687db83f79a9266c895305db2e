@@ -1,0 +1,9 @@
+Code-Review+2: Diana Guttman <diana.r.guttman@intel.com>
+Klocwork+1: <fsp@intel.com>
+Verified+1: <fsp@intel.com>
+Verified+1: Diana Guttman <diana.r.guttman@intel.com>
+Submitted-by: Diana Guttman <diana.r.guttman@intel.com>
+Submitted-at: Thu, 28 Mar 2019 19:05:00 +0000
+Reviewed-on: https://review.gerrithub.io/c/geopm/geopm/+/449123
+Project: geopm/geopm
+Branch: refs/heads/dev
