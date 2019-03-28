@@ -77,7 +77,11 @@ namespace geopm
             ///        to each child.
             /// @return True if out_policy has been updated since last call.
             virtual bool descend(const std::vector<double> &in_policy,
-                                 std::vector<std::vector<double> >&out_policy) = 0;
+                                 std::vector<std::vector<double> >&out_policy)
+            {
+                split_policy(in_policy, out_policy);
+                return do_send_policy();
+            }
             /// @brief Aggregate samples from children for the next
             ///        level up the tree.
             /// @param [in] in_sample Vector of sample vectors, one
@@ -87,7 +91,11 @@ namespace geopm
             /// @return True if out_sample has been updated since last
             ///         call.
             virtual bool ascend(const std::vector<std::vector<double> > &in_sample,
-                                std::vector<double> &out_sample) = 0;
+                                std::vector<double> &out_sample)
+            {
+                aggregate_sample(in_sample, out_sample);
+                return do_send_sample();
+            }
             /// @brief Adjust the platform settings based the policy
             ///        from above.
             /// @param [in] policy Settings for each control in the
@@ -169,6 +177,21 @@ namespace geopm
             static void aggregate_sample(const std::vector<std::vector<double> > &in_sample,
                                          const std::vector<std::function<double(const std::vector<double>&)> > &agg_func,
                                          std::vector<double> &out_sample);
+            /// New Agent APIs
+            /// - need docs
+            /// - k-methods will replace deprecated adjust_platform() and sample_platform()
+            /// - validate_policy is unchanged
+
+            // decide how to divide policy between children
+            virtual void split_policy(const std::vector<double> &in_policy,
+                                      std::vector<std::vector<double> > &out_policy) {}
+            virtual bool do_send_policy(void) const { return false; }
+            virtual void kadjust_platform(const std::vector<double> &in_policy) {}
+            virtual bool do_write_batch(void) const { return false; }
+            virtual void ksample_platform(std::vector<double> &out_sample) {}
+            virtual void aggregate_sample(const std::vector<std::vector<double> > &in_sample,
+                                          std::vector<double> &out_sample) {}
+            virtual bool do_send_sample(void) const { return false;}
         private:
             static const std::string m_num_sample_string;
             static const std::string m_num_policy_string;
