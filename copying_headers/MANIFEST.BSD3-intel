@@ -236,6 +236,7 @@ test/MockApplicationIO.hpp
 test/MockComm.hpp
 test/MockControlMessage.hpp
 test/MockEpochRuntimeRegulator.hpp
+test/MockFrequencyGovernor.hpp
 test/MockIOGroup.hpp
 test/MockManagerIOSampler.hpp
 test/MockPlatformIO.hpp
