@@ -72,7 +72,7 @@ TEST(AgentFactoryTest, static_info_balancing)
                                            "MIN_POWER_HEADROOM"};
     std::vector<std::string> exp_policy = {"POWER_CAP",
                                            "STEP_COUNT",
-                                           "MAX_EPOCH_RU`NTIME",
+                                           "MAX_EPOCH_RUNTIME",
                                            "POWER_SLACK"};
     EXPECT_EQ(exp_sample, Agent::sample_names(dict));
     EXPECT_EQ(exp_policy, Agent::policy_names(dict));
