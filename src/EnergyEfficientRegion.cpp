@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <cmath>
+#include <iostream>
 
 #include "Agg.hpp"
 #include "EnergyEfficientRegion.hpp"
@@ -89,6 +90,7 @@ namespace geopm
             if (!std::isnan(m_curr_perf) && m_curr_perf != 0.0) {
                 if (m_target == 0.0) {
                     m_target = (1.0 + M_PERF_MARGIN) * m_curr_perf;
+                    std::cout << m_target << std::endl;
                 }
 
                 bool do_increase = false;
