@@ -52,6 +52,7 @@ geopm_topo_c(3) -- query platform component topology
     `int` _inner_domain_, <br>
     `int` _outer_domain_, <br>
     `int` _outer_idx_, <br>
+    `size_t` _num_domain_nested_, <br>
     `int *`_domain_nested_`);`
 
   * `int geopm_topo_domain_name(`:
@@ -143,13 +144,13 @@ goals and use case for this interface.
   * `geopm_topo_domain_nested`():
     Fills the output array _domain_nested_ with the domain indices of
     all of the _inner_domain_ types nested within the specific
-    _outer_domain_ type indexed by _outer_idx_.  Note that the
-    _domain_nested_ array must be sized according to the positive
-    return value from `geopm_topo_num_domain_nested`(_inner_domain_,
-    _outer_domain_).  Zero is returned upon success, a negative error
-    code is returned if _inner_domain_ is not within _outer_domain_,
-    or if _outer_idx_ is not between zero and
-    `geopm_topo_num_domain`(_outer_domain_).
+    _outer_domain_ type indexed by _outer_idx_.  The
+    _num_domain_nested_ defines the length of the _domain_nested_
+    array must match the positive return value from
+    `geopm_topo_num_domain_nested`(_inner_domain_, _outer_domain_).
+    Zero is returned upon success.  A negative error code is returned
+    if _inner_domain_ is not within _outer_domain_, or if _outer_idx_
+    is not between zero and `geopm_topo_num_domain`(_outer_domain_).
 
   * `geopm_topo_domain_name`():
     Assigns the name string associated with the _domain_type_ the

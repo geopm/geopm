@@ -605,7 +605,9 @@ extern "C"
             if (geopm::platform_topo().is_nested_domain(inner_domain, outer_domain)) {
                 int num_inner_domain = geopm::platform_topo().num_domain(inner_domain);
                 int num_outer_domain = geopm::platform_topo().num_domain(outer_domain);
-                result = num_inner_domain / num_outer_domain;
+                if (num_outer_domain > 0 && num_inner_domain > 0) {
+                    result = num_inner_domain / num_outer_domain;
+                }
             }
         }
         catch (...) {
@@ -615,13 +617,14 @@ extern "C"
         return result;
     }
 
-    int geopm_topo_domain_nested(int inner_domain, int outer_domain,
-                                 int outer_idx, int *domain_nested)
+    int geopm_topo_domain_nested(int inner_domain, int outer_domain, int outer_idx,
+                                 size_t num_domain_nested, int *domain_nested)
     {
         int err = 0;
         try {
-            int num_domain_nested = geopm_topo_num_domain_nested(inner_domain, outer_domain);
-            if (num_domain_nested > 0) {
+            int num_domain_nested_ref = geopm_topo_num_domain_nested(inner_domain, outer_domain);
+            if (num_domain_nested_ref > 0 &&
+                num_domain_nested == (size_t)num_domain_nested_ref) {
                 std::set<int> nested_set(geopm::platform_topo().domain_nested(inner_domain, outer_domain, outer_idx));
                 if (nested_set.size() == (size_t)num_domain_nested) {
                     int idx = 0;

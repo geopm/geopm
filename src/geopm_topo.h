@@ -78,6 +78,7 @@ int geopm_topo_num_domain_nested(int inner_domain,
 int geopm_topo_domain_nested(int inner_domain,
                              int outer_domain,
                              int outer_idx,
+                             size_t num_domain_nested,
                              int *domain_nested);
 
 int geopm_topo_domain_name(int domain_type,
