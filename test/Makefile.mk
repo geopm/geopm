@@ -36,6 +36,7 @@ if ENABLE_MPI
 endif
 
 GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
+              test/gtest_links/AgentFactoryTest.static_info_balancing \
               test/gtest_links/AggTest.agg_function \
               test/gtest_links/ApplicationIOTest.passthrough \
               test/gtest_links/CircularBufferTest.buffer_capacity \
