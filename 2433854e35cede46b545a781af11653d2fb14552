@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "72098bc7_9b570823",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-28T17:56:22Z",
+      "side": 1,
+      "message": "check num_outer_domain \u003d\u003d 0",
+      "revId": "2433854e35cede46b545a781af11653d2fb14552",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af02ca93_045e432e",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-03-28T17:56:22Z",
+      "side": 1,
+      "message": "might want to pass size also\n\nint domain_nested[]",
+      "revId": "2433854e35cede46b545a781af11653d2fb14552",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
