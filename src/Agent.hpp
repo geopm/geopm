@@ -169,6 +169,23 @@ namespace geopm
             static void aggregate_sample(const std::vector<std::vector<double> > &in_sample,
                                          const std::vector<std::function<double(const std::vector<double>&)> > &agg_func,
                                          std::vector<double> &out_sample);
+            // change NAN to defaults
+            //void validate_policy(& inout_policy) const;
+            /// New Agent APIs
+            /// - need docs
+            /// - k-methods will replace deprecated adjust_platform() and sample_platform()
+            /// - validate_policy is unchanged
+
+            // decide how to divide policy between children
+            virtual void split_policy(const std::vector<double>& in_policy,
+                                      std::vector<std::vector<double> >& out_policy) {}
+            virtual bool do_send_policy(void) const { return false; }
+            virtual void kadjust_platform(const std::vector<double>& in_policy) {}
+            virtual bool do_write_batch(void) const { return false; }
+            virtual void ksample_platform(std::vector<double>& out_sample) {}
+            virtual void aggregate_sample(const std::vector<std::vector<double> > &in_sample,
+                                          std::vector<double>& out_sample);
+            virtual bool do_send_sample(void) const;
         private:
             static const std::string m_num_sample_string;
             static const std::string m_num_policy_string;
