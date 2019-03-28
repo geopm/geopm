@@ -327,6 +327,7 @@ test_geopm_test_SOURCES = src/EnergyEfficientAgent.cpp \
                           test/MockComm.hpp \
                           test/MockControlMessage.hpp \
                           test/MockEpochRuntimeRegulator.hpp \
+                          test/MockFrequencyGovernor.hpp \
                           test/MockIOGroup.hpp \
                           test/MockManagerIOSampler.hpp \
                           test/MockPlatformIO.hpp \
