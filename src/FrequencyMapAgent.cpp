@@ -30,18 +30,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "FrequencyMapAgent.hpp"
+
 #include <sstream>
 #include <cmath>
 #include <iomanip>
+#include <utility>
 
 #include "contrib/json11/json11.hpp"
 
 #include "geopm.h"
 #include "geopm_hash.h"
 
-#include "FrequencyMapAgent.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
+#include "FrequencyGovernor.hpp"
 #include "Helper.hpp"
 #include "Exception.hpp"
 #include "config.h"
@@ -51,20 +54,17 @@ using json11::Json;
 namespace geopm
 {
     FrequencyMapAgent::FrequencyMapAgent()
-        : FrequencyMapAgent(platform_io(), platform_topo())
+        : FrequencyMapAgent(platform_io(), platform_topo(), nullptr)
     {
 
     }
 
-    FrequencyMapAgent::FrequencyMapAgent(PlatformIO &plat_io, PlatformTopo &topo)
+    FrequencyMapAgent::FrequencyMapAgent(PlatformIO &plat_io, PlatformTopo &topo,
+                                         std::shared_ptr<FrequencyGovernor> gov)
         : M_PRECISION(16)
         , m_platform_io(plat_io)
         , m_platform_topo(topo)
-        , m_freq_min(NAN)
-        , m_freq_max(NAN)
-        , M_FREQ_STEP(get_limit("CPUINFO::FREQ_STEP"))
-        , m_last_freq(NAN)
-        , m_last_region(std::make_pair(GEOPM_REGION_HASH_INVALID, GEOPM_REGION_HINT_UNKNOWN))
+        , m_freq_governor(gov)
         , m_last_wait(GEOPM_TIME_REF)
         , m_level(-1)
         , m_num_children(0)
@@ -105,26 +105,12 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        double target_freq_min = std::isnan(policy[M_POLICY_FREQ_MIN]) ? get_limit("CPUINFO::FREQ_MIN") : policy[M_POLICY_FREQ_MIN];
-        double target_freq_max = std::isnan(policy[M_POLICY_FREQ_MAX]) ? get_limit("CPUINFO::FREQ_MAX") : policy[M_POLICY_FREQ_MAX];
-        if (std::isnan(target_freq_min) || std::isnan(target_freq_max) ||
-            target_freq_min > target_freq_max) {
-            throw Exception("FrequencyMapAgent::" + std::string(__func__) + "(): invalid frequency bounds.",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        policy[M_POLICY_FREQ_MIN] = target_freq_min;
-        policy[M_POLICY_FREQ_MAX] = target_freq_max;
+        m_freq_governor->validate_policy(policy[M_POLICY_FREQ_MIN], policy[M_POLICY_FREQ_MAX]);
     }
 
     void FrequencyMapAgent::update_policy(const std::vector<double> &policy)
     {
-        m_is_policy_updated = false;
-        if (m_freq_min != policy[M_POLICY_FREQ_MIN] ||
-            m_freq_max != policy[M_POLICY_FREQ_MAX]) {
-            m_freq_min = policy[M_POLICY_FREQ_MIN];
-            m_freq_max = policy[M_POLICY_FREQ_MAX];
-            m_is_policy_updated = true;
-        }
+        m_is_policy_updated = m_freq_governor->set_frequency_bounds(policy[M_POLICY_FREQ_MIN], policy[M_POLICY_FREQ_MAX]);
     }
 
     void FrequencyMapAgent::split_policy(const std::vector<double>& in_policy,
@@ -146,8 +132,8 @@ namespace geopm
                                     GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                 }
 #endif
-                child_policy[M_POLICY_FREQ_MIN] = m_freq_min;
-                child_policy[M_POLICY_FREQ_MAX] = m_freq_max;
+                child_policy[M_POLICY_FREQ_MIN] = in_policy[M_POLICY_FREQ_MIN];
+                child_policy[M_POLICY_FREQ_MAX] = in_policy[M_POLICY_FREQ_MAX];
             }
         }
     }
@@ -178,46 +164,49 @@ namespace geopm
     {
         update_policy(in_policy);
         double freq = NAN;
-        auto it = m_hash_freq_map.find(m_last_region.first);
-        if (it != m_hash_freq_map.end()) {
-            freq = it->second;
-        }
-        else {
-            switch(m_last_region.second) {
-                // Hints for low CPU frequency
-                case GEOPM_REGION_HINT_MEMORY:
-                case GEOPM_REGION_HINT_NETWORK:
-                case GEOPM_REGION_HINT_IO:
-                    freq = m_freq_min;
-                    break;
-
-                // Hints for maximum CPU frequency
-                case GEOPM_REGION_HINT_COMPUTE:
-                case GEOPM_REGION_HINT_SERIAL:
-                case GEOPM_REGION_HINT_PARALLEL:
-                    freq = m_freq_max;
-                    break;
-                // Hint Inconclusive
-                //case GEOPM_REGION_HINT_UNKNOWN:
-                //case GEOPM_REGION_HINT_IGNORE:
-                default:
-                    freq = m_freq_max;
-                    break;
+        double freq_min = NAN;
+        double freq_max = NAN;
+        double freq_step = NAN;  //todo: not used by this agent
+        m_freq_governor->get_frequency_bounds(freq_min, freq_max, freq_step);
+        std::vector<double> target_freq;
+        for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
+            const uint64_t curr_hash = m_last_region[ctl_idx].hash;
+            const uint64_t curr_hint = m_last_region[ctl_idx].hint;
+            auto it = m_hash_freq_map.find(curr_hash);
+            if (it != m_hash_freq_map.end()) {
+                freq = it->second;
             }
-        }
+            else {
+                switch(curr_hint) {
+                    // Hints for low CPU frequency
+                    case GEOPM_REGION_HINT_MEMORY:
+                    case GEOPM_REGION_HINT_NETWORK:
+                    case GEOPM_REGION_HINT_IO:
+                        freq = freq_min;
+                        break;
 
-        if (GEOPM_REGION_HASH_INVALID != m_last_region.first) {
-            m_hash_freq_map[m_last_region.first] = freq;
-        }
-
-        m_is_frequency_changed = false;
-        if (freq != m_last_freq) {
-            for (auto ctl_idx : m_control_idx) {
-                m_platform_io.adjust(ctl_idx, freq);
+                    // Hints for maximum CPU frequency
+                    case GEOPM_REGION_HINT_COMPUTE:
+                    case GEOPM_REGION_HINT_SERIAL:
+                    case GEOPM_REGION_HINT_PARALLEL:
+                        freq = freq_max;
+                        break;
+                    // Hint Inconclusive
+                    //case GEOPM_REGION_HINT_UNKNOWN:
+                    //case GEOPM_REGION_HINT_IGNORE:
+                    default:
+                        freq = freq_max;
+                        break;
+                }
             }
-            m_last_freq = freq;
-            m_is_frequency_changed = true;
+            target_freq.push_back(freq);
         }
+        /// @todo
+        if (GEOPM_REGION_HASH_INVALID != m_last_region[0].hash) {
+            m_hash_freq_map[m_last_region[0].hash] = target_freq[0];
+        }
+
+        m_is_frequency_changed = m_freq_governor->adjust_platform(target_freq, m_last_freq);
     }
 
     bool FrequencyMapAgent::do_write_batch(void) const
@@ -233,10 +222,9 @@ namespace geopm
 
     void FrequencyMapAgent::ksample_platform(std::vector<double> &out_sample)
     {
-        const uint64_t current_region_hash = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH]);
-        const uint64_t current_region_hint = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HINT]);
-        if (current_region_hash != GEOPM_REGION_HASH_INVALID) {
-            m_last_region = std::make_pair(current_region_hash, current_region_hint);
+        for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
+            m_last_region[ctl_idx].hash = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH][ctl_idx]);
+            m_last_region[ctl_idx].hint = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HINT][ctl_idx]);
         }
     }
 
@@ -284,7 +272,6 @@ namespace geopm
     std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > FrequencyMapAgent::report_region(void) const
     {
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > result;
-        // If region is in this map, offline static frequency or hint was used
         for (const auto &region : m_hash_freq_map) {
             /// @todo re-implement with m_region_map and m_hash_freq_map keys as pair (hash + hint)
             result[region.first].push_back(std::make_pair("frequency-map", std::to_string(region.second)));
@@ -301,60 +288,29 @@ namespace geopm
     {
     }
 
-    double FrequencyMapAgent::get_limit(const std::string &sig_name) const
-    {
-        const int domain_type = m_platform_io.signal_domain_type(sig_name);
-        double result = NAN;
-        const double sticker_freq = m_platform_io.read_signal("CPUINFO::FREQ_STICKER", domain_type, 0);
-        if (sig_name == "CPUINFO::FREQ_MIN") {
-            if (domain_type == GEOPM_DOMAIN_INVALID) {
-                if (m_platform_io.signal_domain_type("CPUINFO::FREQ_STICKER") == GEOPM_DOMAIN_INVALID) {
-                    throw Exception("FrequencyMapAgent::" + std::string(__func__) + "(): unable to parse min and sticker frequencies.",
-                                    GEOPM_ERROR_AGENT_UNSUPPORTED, __FILE__, __LINE__);
-                }
-            }
-            else {
-                result = m_platform_io.read_signal(sig_name, domain_type, 0);
-            }
-        }
-        else if (sig_name == "CPUINFO::FREQ_MAX") {
-            if (domain_type == GEOPM_DOMAIN_INVALID) {
-                if (m_platform_io.signal_domain_type("CPUINFO::FREQ_STICKER") == GEOPM_DOMAIN_INVALID) {
-                    throw Exception("FrequencyMapAgent::" + std::string(__func__) + "(): unable to parse max and sticker frequencies.",
-                                    GEOPM_ERROR_AGENT_UNSUPPORTED, __FILE__, __LINE__);
-                }
-                result = sticker_freq + M_FREQ_STEP;
-            }
-            else {
-                result = m_platform_io.read_signal(sig_name, domain_type, 0);
-            }
-        }
-        else if (sig_name == "CPUINFO::FREQ_STEP") {
-            result = m_platform_io.read_signal(sig_name, domain_type, 0);
-        }
-#ifdef GEOPM_DEBUG
-        else {
-            throw Exception("FrequencyMapAgent::" + std::string(__func__) + "(): requested invalid signal name.",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        return result;
-    }
-
     void FrequencyMapAgent::init_platform_io(void)
     {
-        const int freq_ctl_domain_type = m_platform_io.control_domain_type("FREQUENCY");
-        const int num_freq_ctl_domain = m_platform_topo.num_domain(freq_ctl_domain_type);
-        for (int ctl_dom_idx = 0; ctl_dom_idx != num_freq_ctl_domain; ++ctl_dom_idx) {
-            m_control_idx.push_back(m_platform_io.push_control("FREQUENCY",
-                                                               freq_ctl_domain_type, ctl_dom_idx));
+        if (m_freq_governor == nullptr) {
+            m_freq_governor = FrequencyGovernor::make_shared(m_platform_io,
+                                                             m_platform_topo);
         }
-
+        // todo: inject domain board for debugging
+        m_freq_governor->init_platform_io(GEOPM_DOMAIN_BOARD);
+        const int freq_ctl_domain_type = m_freq_governor->frequency_domain_type();
+        m_num_freq_ctl_domain = m_platform_topo.num_domain(freq_ctl_domain_type);
+        m_last_region = std::vector<struct region_info_s>(m_num_freq_ctl_domain,
+                                                          (struct region_info_s) {
+                                                              .hash = GEOPM_REGION_HASH_INVALID,
+                                                              .hint = GEOPM_REGION_HINT_UNKNOWN});
+        m_last_freq = std::vector<double>(m_num_freq_ctl_domain, NAN);
         std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT"};
-        for (auto const&signal_name : signal_names) {
-            m_signal_idx.push_back(m_platform_io.push_signal(signal_name,
-                                   GEOPM_DOMAIN_BOARD,
-                                   0));
+        for (size_t sig_idx = 0; sig_idx < signal_names.size(); ++sig_idx) {
+            m_signal_idx.push_back(std::vector<int>());
+            for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
+                m_signal_idx[sig_idx].push_back(m_platform_io.push_signal(signal_names[sig_idx],
+                                                                          freq_ctl_domain_type,
+                                                                          ctl_idx));
+            }
         }
     }
 
