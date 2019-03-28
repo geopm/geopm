@@ -48,6 +48,7 @@
 #include "Agg.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
+#include "MockFrequencyGovernor.hpp"
 #include "PlatformTopo.hpp"
 #include "geopm.h"
 
@@ -56,6 +57,8 @@ using ::testing::Invoke;
 using ::testing::Sequence;
 using ::testing::Return;
 using ::testing::AtLeast;
+using ::testing::DoAll;
+using ::testing::SetArgReferee;
 using geopm::FrequencyMapAgent;
 using geopm::PlatformTopo;
 
@@ -81,49 +84,41 @@ class FrequencyMapAgentTest : public :: testing :: Test
         std::vector<double> m_default_policy;
         double m_freq_min;
         double m_freq_max;
+        double m_freq_step;
         std::unique_ptr<MockPlatformIO> m_platform_io;
         std::unique_ptr<MockPlatformTopo> m_platform_topo;
+        std::shared_ptr<MockFrequencyGovernor> m_governor;
 };
 
 void FrequencyMapAgentTest::SetUp()
 {
     m_platform_io = geopm::make_unique<MockPlatformIO>();
     m_platform_topo = geopm::make_unique<MockPlatformTopo>();
-    ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_CPU))
-        .WillByDefault(Return(M_NUM_CPU));
-    ON_CALL(*m_platform_io, signal_domain_type(_))
-        .WillByDefault(Return(GEOPM_DOMAIN_BOARD));
-    ON_CALL(*m_platform_io, control_domain_type(_))
-        .WillByDefault(Return(GEOPM_DOMAIN_CPU));
-    ON_CALL(*m_platform_io, read_signal(std::string("CPUINFO::FREQ_MIN"), _, _))
-        .WillByDefault(Return(1.0e9));
-    ON_CALL(*m_platform_io, read_signal(std::string("CPUINFO::FREQ_STICKER"), _, _))
-        .WillByDefault(Return(1.3e9));
-    ON_CALL(*m_platform_io, read_signal(std::string("CPUINFO::FREQ_MAX"), _, _))
-        .WillByDefault(Return(2.2e9));
-    ON_CALL(*m_platform_io, read_signal(std::string("CPUINFO::FREQ_STEP"), _, _))
-        .WillByDefault(Return(100e6));
+    m_governor = std::make_shared<MockFrequencyGovernor>();
+    ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD))
+        .WillByDefault(Return(1));
     ON_CALL(*m_platform_io, push_signal("REGION_HASH", _, _))
         .WillByDefault(Return(REGION_HASH_IDX));
     ON_CALL(*m_platform_io, push_signal("REGION_HINT", _, _))
         .WillByDefault(Return(REGION_HINT_IDX));
-    ON_CALL(*m_platform_io, push_control("FREQUENCY", _, _))
-        .WillByDefault(Return(FREQ_CONTROL_IDX));
     ON_CALL(*m_platform_io, agg_function(_))
         .WillByDefault(Return(geopm::Agg::max));
-    EXPECT_CALL(*m_platform_io, agg_function(_))
-        .WillRepeatedly(Return(geopm::Agg::max));
-
-    // calls in constructor
-    EXPECT_CALL(*m_platform_topo, num_domain(_)).Times(AtLeast(1));
-    EXPECT_CALL(*m_platform_io, signal_domain_type(_)).Times(AtLeast(1));
-    EXPECT_CALL(*m_platform_io, control_domain_type(_)).Times(AtLeast(1));
-    EXPECT_CALL(*m_platform_io, read_signal(_, _, _)).Times(AtLeast(1));
-    EXPECT_CALL(*m_platform_io, push_signal(_, _, _)).Times(AtLeast(1));
-    EXPECT_CALL(*m_platform_io, push_control(_, _, _)).Times(M_NUM_CPU);
 
     m_freq_min = 1800000000.0;
     m_freq_max = 2200000000.0;
+    m_freq_step = 100000000.0;
+    ON_CALL(*m_governor, frequency_domain_type())
+        .WillByDefault(Return(GEOPM_DOMAIN_BOARD));
+    ON_CALL(*m_governor, get_frequency_bounds(_, _, _))
+        .WillByDefault(DoAll(
+            SetArgReferee<0>(m_freq_min),
+            SetArgReferee<1>(m_freq_max),
+            SetArgReferee<2>(m_freq_step)));
+
+    // calls in constructor
+    EXPECT_CALL(*m_platform_topo, num_domain(_)).Times(AtLeast(1));
+    EXPECT_CALL(*m_platform_io, push_signal(_, _, _)).Times(AtLeast(1));
+
     m_region_names = {"mapped_region0", "mapped_region1", "mapped_region2", "mapped_region3", "mapped_region4"};
     m_region_hash = {0xeffa9a8d, 0x4abb08f3, 0xa095c880, 0x5d45afe, 0x71243e97};
     m_mapped_freqs = {m_freq_max, 2100000000.0, 2000000000.0, 1900000000.0, m_freq_min};
@@ -153,7 +148,10 @@ void FrequencyMapAgentTest::SetUp()
 
     setenv("GEOPM_FREQUENCY_MAP", ss.str().c_str(), 1);
 
-    m_agent = geopm::make_unique<FrequencyMapAgent>(*m_platform_io, *m_platform_topo);
+    m_agent = geopm::make_unique<FrequencyMapAgent>(*m_platform_io, *m_platform_topo, m_governor);
+    // todo: this test assumes board domain is used for control
+    EXPECT_CALL(*m_governor, init_platform_io(GEOPM_DOMAIN_BOARD));
+    EXPECT_CALL(*m_governor, frequency_domain_type());
     m_agent->init(0, {}, false);
 }
 
@@ -169,9 +167,14 @@ TEST_F(FrequencyMapAgentTest, map)
             .WillOnce(Return(m_region_hash[x]));
         EXPECT_CALL(*m_platform_io, sample(REGION_HINT_IDX))
             .WillOnce(Return(m_region_hint[x]));
+        std::vector<double> adjust_vals = {m_mapped_freqs[x]};
+        EXPECT_CALL(*m_governor, set_frequency_bounds(m_freq_min, m_freq_max));
+        EXPECT_CALL(*m_governor, get_frequency_bounds(_, _, _));
+        EXPECT_CALL(*m_governor, adjust_platform(adjust_vals, _))
+            .WillOnce(DoAll(SetArgReferee<1>(adjust_vals),
+                            (Return(true))));
         std::vector<double> tmp;
         m_agent->sample_platform(tmp);
-        EXPECT_CALL(*m_platform_io, adjust(FREQ_CONTROL_IDX, m_mapped_freqs[x])).Times(M_NUM_CPU);
         m_agent->adjust_platform(m_default_policy);
     }
 }
@@ -210,9 +213,14 @@ TEST_F(FrequencyMapAgentTest, hint)
                 expected_freq = m_freq_max;
                 break;
         }
-        EXPECT_CALL(*m_platform_io, adjust(FREQ_CONTROL_IDX, expected_freq)).Times(M_NUM_CPU);
         std::vector<double> tmp;
         m_agent->sample_platform(tmp);
+        EXPECT_CALL(*m_governor, set_frequency_bounds(m_freq_min, m_freq_max));
+        EXPECT_CALL(*m_governor, get_frequency_bounds(_, _, _));
+        std::vector<double> adjust_vals = {expected_freq};
+        EXPECT_CALL(*m_governor, adjust_platform(adjust_vals, _))
+            .WillOnce(DoAll(SetArgReferee<1>(adjust_vals),
+                            (Return(true))));
         m_agent->adjust_platform(m_default_policy);
     }
 }

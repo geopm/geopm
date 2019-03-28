@@ -39,6 +39,7 @@
 #include <memory>
 #include <functional>
 
+#include "geopm.h"
 #include "geopm_time.h"
 
 #include "Agent.hpp"
@@ -47,12 +48,14 @@ namespace geopm
 {
     class PlatformIO;
     class PlatformTopo;
+    class FrequencyGovernor;
 
     class FrequencyMapAgent : public Agent
     {
         public:
             FrequencyMapAgent();
-            FrequencyMapAgent(PlatformIO &plat_io, PlatformTopo &topo);
+            FrequencyMapAgent(PlatformIO &plat_io, PlatformTopo &topo,
+                              std::shared_ptr<FrequencyGovernor> gov);
             virtual ~FrequencyMapAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &policy) const override;
@@ -80,7 +83,6 @@ namespace geopm
             static std::vector<std::string> sample_names(void);
         private:
             void update_policy(const std::vector<double> &policy);
-            double get_limit(const std::string &sig_name) const;
             void init_platform_io(void);
             void parse_env_map(void);
 
@@ -99,19 +101,17 @@ namespace geopm
             const int M_PRECISION;
             PlatformIO &m_platform_io;
             PlatformTopo &m_platform_topo;
-            double m_freq_min;
-            double m_freq_max;
-            const double M_FREQ_STEP;
-            std::vector<int> m_control_idx;
-            double m_last_freq;
-            std::pair<uint64_t, uint64_t> m_last_region;
+            std::shared_ptr<FrequencyGovernor> m_freq_governor;
+            std::vector<struct geopm_region_info_s>  m_last_region;
+            std::vector<double> m_last_freq;
             std::map<uint64_t, double> m_hash_freq_map;
             geopm_time_s m_last_wait;
-            std::vector<int> m_signal_idx;
+            std::vector<std::vector<int> > m_signal_idx;
             int m_level;
             int m_num_children;
             bool m_is_policy_updated;
             bool m_is_frequency_changed;
+            int m_num_freq_ctl_domain;
     };
 }
 
