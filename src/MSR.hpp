@@ -36,6 +36,8 @@
 #include <stdint.h>
 #include <string>
 #include <map>
+#include <memory>
+#include <vector>
 
 namespace geopm
 {
@@ -154,6 +156,14 @@ namespace geopm
             /// @brief Convert a string to the corresponding m_function_e value
             /// @todo Consider leaving units field as a string.  enum is not being used.
             static m_units_e string_to_units(const std::string &str);
+            static std::shared_ptr<MSR> make_shared(const std::string &msr_name,
+                                                    uint64_t offset,
+                                                    const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &signal,
+                                                    const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &control);
+            static std::unique_ptr<MSR> make_unique(const std::string &msr_name,
+                                                    uint64_t offset,
+                                                    const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &signal,
+                                                    const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &control);
         private:
             static const std::map<std::string, m_function_e> M_FUNCTION_STRING;
             static const std::map<std::string, m_units_e> M_UNITS_STRING;
