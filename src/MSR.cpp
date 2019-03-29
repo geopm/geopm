@@ -44,9 +44,11 @@
 #include <sstream>
 #include <numeric>
 #include <map>
+#include <memory>
 
 #include "MSRIO.hpp"
 #include "PlatformTopo.hpp"
+#include "Helper.hpp"
 #include "Exception.hpp"
 #include "geopm_sched.h"
 #include "geopm_hash.h"
@@ -395,5 +397,20 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return it->second;
+    }
+
+    std::shared_ptr<MSR> MSR::make_shared(const std::string &msr_name,
+                                          uint64_t offset,
+                                          const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &signal,
+                                          const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &control)
+    {
+        return std::make_shared<MSRImp>(msr_name, offset, signal, control);
+    }
+    std::unique_ptr<MSR> MSR::make_unique(const std::string &msr_name,
+                                          uint64_t offset,
+                                          const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &signal,
+                                          const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &control)
+    {
+        return geopm::make_unique<MSRImp>(msr_name, offset, signal, control);
     }
 }
