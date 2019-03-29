@@ -92,19 +92,23 @@ void ExampleAgent::validate_policy(std::vector<double> &in_policy) const
 }
 
 // Distribute incoming policy to children
-bool ExampleAgent::descend(const std::vector<double> &in_policy,
-                           std::vector<std::vector<double> >&out_policy)
+void ExampleAgent::split_policy(const std::vector<double>& in_policy,
+                                std::vector<std::vector<double> >& out_policy)
 {
     assert(in_policy.size() == M_NUM_POLICY);
     for (auto &child_pol : out_policy) {
         child_pol = in_policy;
     }
+}
+
+bool ExampleAgent::do_send_policy(void) const
+{
     return true;
 }
 
 // Aggregate average utilization samples from children
-bool ExampleAgent::ascend(const std::vector<std::vector<double> > &in_sample,
-                          std::vector<double> &out_sample)
+void ExampleAgent::aggregate_sample(const std::vector<std::vector<double> > &in_sample,
+                                    std::vector<double>& out_sample)
 {
     assert(out_sample.size() == M_NUM_SAMPLE);
     std::vector<double> child_sample(in_sample.size());
@@ -114,11 +118,21 @@ bool ExampleAgent::ascend(const std::vector<std::vector<double> > &in_sample,
         }
         out_sample[sample_idx] = geopm::Agg::average(child_sample);
     }
+}
+
+bool ExampleAgent::do_send_sample(void) const
+{
     return true;
 }
 
-// Print idle percentage to either standard out or standard error
+// Set up idle percentage to print to either standard out or standard error
 bool ExampleAgent::adjust_platform(const std::vector<double> &in_policy)
+{
+    kadjust_platform(in_policy);
+    return do_write_batch();
+}
+
+void ExampleAgent::kadjust_platform(const std::vector<double>& in_policy)
 {
     assert(in_policy.size() == M_NUM_POLICY);
     // Check for NAN to set default values for policy
@@ -132,19 +146,23 @@ bool ExampleAgent::adjust_platform(const std::vector<double> &in_policy)
     }
 
     double idle_percent = m_last_sample[M_SAMPLE_IDLE_PCT];
-    if (std::isnan(idle_percent)) {
-        return false;
+    if (!std::isnan(idle_percent)) {
+        if (idle_percent < low_thresh) {
+            m_platform_io.adjust(m_control_idx[M_PLAT_CONTROL_STDERR], idle_percent);
+        }
+        else if (idle_percent > high_thresh) {
+            m_platform_io.adjust(m_control_idx[M_PLAT_CONTROL_STDERR], idle_percent);
+        }
+        else {
+            m_platform_io.adjust(m_control_idx[M_PLAT_CONTROL_STDOUT], idle_percent);
+        }
     }
-    if (idle_percent < low_thresh) {
-        m_platform_io.adjust(m_control_idx[M_PLAT_CONTROL_STDERR], idle_percent);
-    }
-    else if (idle_percent > high_thresh) {
-        m_platform_io.adjust(m_control_idx[M_PLAT_CONTROL_STDERR], idle_percent);
-    }
-    else {
-        m_platform_io.adjust(m_control_idx[M_PLAT_CONTROL_STDOUT], idle_percent);
-    }
-    return true;
+}
+
+// If idle percent had a valid value, execute the print
+bool ExampleAgent::do_write_batch(void) const
+{
+    return !(std::isnan(m_last_sample[M_SAMPLE_IDLE_PCT]));
 }
 
 // Read signals from the platform and calculate samples to be sent up
@@ -174,6 +192,11 @@ bool ExampleAgent::sample_platform(std::vector<double> &out_sample)
         m_max_idle = m_last_sample[M_SAMPLE_IDLE_PCT];
     }
     return true;
+}
+
+void ExampleAgent::ksample_platform(std::vector<double>& out_sample)
+{
+
 }
 
 // Wait for the remaining cycle time to keep Controller loop cadence at 1 second
