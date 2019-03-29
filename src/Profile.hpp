@@ -255,6 +255,8 @@ namespace geopm
             void init_cpu_affinity(int shm_num_rank);
             void init_tprof_table(const std::string &tprof_key, PlatformTopo &topo);
             void init_table(const std::string &sample_key);
+        protected:
+            bool m_is_enabled;
         private:
             enum m_profile_const_e {
                 M_PROF_SAMPLE_PERIOD = 1,
@@ -278,7 +280,6 @@ namespace geopm
             ///        to this name if multiple files are created.
             ///
             void print(const std::string file_name);
-            bool m_is_enabled;
             /// @brief holds the string name of the profile.
             std::string m_prof_name;
             /// @brief Holds the 64 bit unique region identifier
