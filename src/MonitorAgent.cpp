@@ -74,14 +74,24 @@ namespace geopm
 
     }
 
-    bool MonitorAgent::descend(const std::vector<double> &in_policy,
-                               std::vector<std::vector<double> >&out_policy)
+    void MonitorAgent::split_policy(const std::vector<double>& in_policy,
+                                    std::vector<std::vector<double> >& out_policy)
+    {
+
+    }
+
+    bool MonitorAgent::do_send_policy(void) const
     {
         return false;
     }
 
-    bool MonitorAgent::ascend(const std::vector<std::vector<double> > &in_sample,
-                              std::vector<double> &out_sample)
+    void MonitorAgent::aggregate_sample(const std::vector<std::vector<double> > &in_sample,
+                                        std::vector<double>& out_sample)
+    {
+
+    }
+
+    bool MonitorAgent::do_send_sample(void) const
     {
         return false;
     }
@@ -91,9 +101,25 @@ namespace geopm
         return false;
     }
 
+    void MonitorAgent::kadjust_platform(const std::vector<double>& in_policy)
+    {
+
+    }
+
+    bool MonitorAgent::do_write_batch(void) const
+    {
+        return false;
+    }
+
+
     bool MonitorAgent::sample_platform(std::vector<double> &out_sample)
     {
         return false;
+    }
+
+    void MonitorAgent::ksample_platform(std::vector<double>& out_sample)
+    {
+
     }
 
     void MonitorAgent::wait(void)
