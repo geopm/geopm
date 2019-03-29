@@ -33,7 +33,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "MSRImp.hpp"
+#include "MSR.hpp"
 #include "MSRSignalImp.hpp"
 #include "MSRControlImp.hpp"
 #include "PlatformTopo.hpp"
@@ -44,7 +44,6 @@ using testing::Invoke;
 using testing::Sequence;
 
 using geopm::MSR;
-using geopm::MSRImp;
 using geopm::MSRSignalImp;
 using geopm::MSRControlImp;
 using geopm::PlatformTopo;
@@ -88,7 +87,7 @@ class MSRTest : public :: testing :: Test
         // MSR
         std::vector<std::string> m_msr_names;
         std::vector<uint64_t> m_msr_offsets;
-        std::vector<const MSR *> m_msrs;
+        std::vector<std::shared_ptr<MSR> > m_msrs;
 };
 
 void MSRTest::SetUp()
@@ -104,18 +103,14 @@ void MSRTest::SetUp()
     m_msr_names = {"test_msr_0", "test_msr_1", "test_msr_2"};
     m_msr_offsets = {2, 8, 16};
 
-    MSR *stage0 = new MSRImp(m_msr_names[0], m_msr_offsets[0], m_signals, {});         // signal only
-    MSR *stage1 = new MSRImp(m_msr_names[1], m_msr_offsets[1], {}, m_controls);        // control only
-    MSR *stage2 = new MSRImp(m_msr_names[2], m_msr_offsets[2], m_signals, m_controls); // signal and control
-
-    m_msrs = {stage0, stage1, stage2};
+    m_msrs = {MSR::make_shared(m_msr_names[0], m_msr_offsets[0], m_signals, {}),          // signal only
+              MSR::make_shared(m_msr_names[1], m_msr_offsets[1], {}, m_controls),         // control only
+              MSR::make_shared(m_msr_names[2], m_msr_offsets[2], m_signals, m_controls)}; // signal and control
 }
 
 void MSRTest::TearDown()
 {
-    for (auto msr_it = m_msrs.begin(); msr_it != m_msrs.end(); ++msr_it) {
-        delete *msr_it;
-    }
+
 }
 
 void MSRTest::ConfigSignals()
@@ -179,7 +174,7 @@ void MSRTest::ConfigControls()
 
 TEST_F(MSRTest, msr)
 {
-    const MSR *msr = m_msrs[2];
+    std::shared_ptr<MSR> msr = m_msrs[2];
     uint64_t field = 0, mask = 0;
     EXPECT_THROW(msr->control(2, 80000000000000.0, field, mask), Exception);
     EXPECT_THROW(msr->control(2, -1.0, field, mask), Exception);
@@ -233,22 +228,22 @@ TEST_F(MSRTest, msr_overflow)
                          .function  = MSR::M_FUNCTION_OVERFLOW,
                          .units     = MSR::M_UNITS_NONE,
                          .scalar    = 1.0});
-    MSRImp msr("msr4", 0, {signal}, {});
+    std::unique_ptr<MSR> msr = MSR::make_unique("msr4", 0, {signal}, {});
     uint64_t last_field = 0;
     uint64_t num_overflow = 0;
 
     // no overflow
-    double raw_value = msr.signal(0, 5, last_field, num_overflow);
+    double raw_value = msr->signal(0, 5, last_field, num_overflow);
     EXPECT_DOUBLE_EQ(5.0, raw_value);
 
     // overflowed
-    double of_value = msr.signal(0, 4, last_field, num_overflow);
+    double of_value = msr->signal(0, 4, last_field, num_overflow);
     EXPECT_DOUBLE_EQ(20.0, of_value);  // 4 + 16
 
     // multiple overflow
-    of_value = msr.signal(0, 3, last_field, num_overflow);
+    of_value = msr->signal(0, 3, last_field, num_overflow);
     EXPECT_DOUBLE_EQ(35.0, of_value);  // 3 + 2 * 16
-    of_value = msr.signal(0, 2, last_field, num_overflow);
+    of_value = msr->signal(0, 2, last_field, num_overflow);
     EXPECT_DOUBLE_EQ(50.0, of_value);  // 2 + 3 * 16
 
     // Test with real counter values
@@ -260,13 +255,13 @@ TEST_F(MSRTest, msr_overflow)
                           .function  = MSR::M_FUNCTION_OVERFLOW,
                           .units     = MSR::M_UNITS_NONE,
                           .scalar    = 1.0});
-    MSRImp msr2("msr42", 0, {signal2}, {});
+    std::unique_ptr<MSR> msr2 = MSR::make_unique("msr42", 0, {signal2}, {});
 
     last_field = 0;
     num_overflow = 0;
 
     uint64_t input_value = 0xFFFFFF27AAE8;
-    of_value = msr2.signal(0, input_value, last_field, num_overflow);
+    of_value = msr2->signal(0, input_value, last_field, num_overflow);
     EXPECT_DOUBLE_EQ((double)input_value, of_value);
 
     // Setup funky rollover
@@ -274,7 +269,7 @@ TEST_F(MSRTest, msr_overflow)
     input_value = 0xFFFF000DD5D0;
     uint64_t expected_value = input_value + pow(2, 48); // i.e. 0x1FFFF000DD5D0
 
-    of_value = msr2.signal(0, input_value, last_field, num_overflow);
+    of_value = msr2->signal(0, input_value, last_field, num_overflow);
     EXPECT_DOUBLE_EQ((double)expected_value, of_value)
                      << "\nActual is : 0x" << std::hex << (uint64_t)of_value << std::endl
                      << "Expected is : 0x" << std::hex << expected_value << std::endl;
