@@ -36,7 +36,7 @@
 #include "gmock/gmock.h"
 
 #include "CircularBuffer.hpp"
-#include "PowerBalancer.hpp"
+#include "PowerBalancerImp.hpp"
 #include "Helper.hpp"
 
 using geopm::PowerBalancer;
