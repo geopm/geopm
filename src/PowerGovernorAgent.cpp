@@ -93,7 +93,7 @@ namespace geopm
         m_level = level;
         if (m_level == 0) {
             if (nullptr == m_power_gov) {
-                m_power_gov = geopm::make_unique<PowerGovernorImp>(platform_io(), platform_topo());
+                m_power_gov = PowerGovernor::make_unique();
             }
             init_platform_io(); // Only do this at the leaf level.
         }

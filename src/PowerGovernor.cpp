@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "PowerGovernor.hpp"
+#include "PowerGovernorImp.hpp"
 
 #include <cmath>
 #include <limits.h>
@@ -46,6 +46,22 @@
 
 namespace geopm
 {
+    std::unique_ptr<PowerGovernor> PowerGovernor::make_unique(void)
+    {
+        return geopm::make_unique<PowerGovernorImp>();
+    }
+
+    std::shared_ptr<PowerGovernor> PowerGovernor::make_shared(void)
+    {
+        return std::make_shared<PowerGovernorImp>();
+    }
+
+    PowerGovernorImp::PowerGovernorImp()
+        : PowerGovernorImp(platform_io(), platform_topo())
+    {
+
+    }
+
     PowerGovernorImp::PowerGovernorImp(PlatformIO &platform_io, PlatformTopo &platform_topo)
         : m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
