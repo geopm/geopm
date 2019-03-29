@@ -77,12 +77,17 @@ namespace geopm
             virtual ~PowerGovernorAgent();
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &policy) const override;
-            bool descend(const std::vector<double> &in_policy,
-                         std::vector<std::vector<double> >&out_policy) override;
-            bool ascend(const std::vector<std::vector<double> > &in_sample,
-                        std::vector<double> &out_sample) override;
+            void split_policy(const std::vector<double> &in_policy,
+                              std::vector<std::vector<double> > &out_policy) override;
+            bool do_send_policy(void) const override;
+            void aggregate_sample(const std::vector<std::vector<double> > &in_sample,
+                                  std::vector<double> &out_sample) override;
+            bool do_send_sample(void) const override;
             bool adjust_platform(const std::vector<double> &in_policy) override;
+            void kadjust_platform(const std::vector<double> &in_policy) override;
+            bool do_write_batch(void) const override;
             bool sample_platform(std::vector<double> &out_sample) override;
+            void ksample_platform(std::vector<double> &out_sample) override;
             void wait(void) override;
             std::vector<std::pair<std::string, std::string> > report_header(void) const override;
             std::vector<std::pair<std::string, std::string> > report_host(void) const override;
@@ -95,13 +100,12 @@ namespace geopm
             static std::vector<std::string> sample_names(void);
         private:
             void init_platform_io(void);
-
             PlatformIO &m_platform_io;
             PlatformTopo &m_platform_topo;
-
             int m_level;
             bool m_is_converged;
             bool m_is_sample_stable;
+            bool m_do_send_sample;
             double m_min_power_setting;
             double m_max_power_setting;
             double m_tdp_power_setting;
@@ -110,6 +114,8 @@ namespace geopm
             std::vector<std::function<double(const std::vector<double>&)> > m_agg_func;
             int m_num_children;
             double m_last_power_budget;
+            bool m_power_budget_changed;
+            bool m_power_setting_changed;
             std::unique_ptr<CircularBuffer<double> > m_epoch_power_buf;
             std::vector<double> m_sample;
             int m_ascend_count;
