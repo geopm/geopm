@@ -36,14 +36,13 @@
 #include "gmock/gmock.h"
 
 #include "geopm_test.hpp"
-#include "PowerGovernor.hpp"
+#include "PowerGovernorImp.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
 #include "Helper.hpp"
 
 using geopm::PowerGovernor;
 using geopm::PowerGovernorImp;
-using geopm::PlatformTopo;
 using ::testing::_;
 using ::testing::Return;
 
