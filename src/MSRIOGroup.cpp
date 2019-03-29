@@ -45,7 +45,7 @@
 #include "geopm_env.h"
 #include "Exception.hpp"
 #include "Agg.hpp"
-#include "MSRImp.hpp"
+#include "MSR.hpp"
 #include "MSRSignalImp.hpp"
 #include "MSRControlImp.hpp"
 #include "MSRIOGroup.hpp"
@@ -1074,7 +1074,7 @@ namespace geopm
                 throw Exception("MSRIOGroup::" + std::string(__func__) + "(): invalid offset for " + msr_name + ": " + msr_data["offset"].string_value(),
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
-            result.emplace_back(new MSRImp(msr_name, msr_offset, signals, controls));
+            result.emplace_back(MSR::make_unique(msr_name, msr_offset, signals, controls));
         }
 
         return result;
