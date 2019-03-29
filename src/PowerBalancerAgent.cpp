@@ -159,10 +159,10 @@ namespace geopm
         , m_is_out_of_bounds(false)
     {
         if (nullptr == m_power_governor) {
-            m_power_governor = geopm::make_unique<PowerGovernorImp>(m_platform_io, m_platform_topo);
+            m_power_governor = PowerGovernor::make_unique();
         }
         if (nullptr == m_power_balancer) {
-            m_power_balancer = geopm::make_unique<PowerBalancerImp>(M_STABILITY_FACTOR * m_power_governor->power_package_time_window());
+            m_power_balancer = PowerBalancer::make_unique(M_STABILITY_FACTOR * m_power_governor->power_package_time_window());
         }
         init_platform_io();
         m_is_step_complete = true;
