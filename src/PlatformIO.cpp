@@ -213,6 +213,15 @@ namespace geopm
             throw Exception("PlatformIOImp::push_signal(): pushing signals after read_batch() or adjust().",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        if (domain_type < 0 || domain_type >= GEOPM_NUM_DOMAIN) {
+            throw Exception("PlatformIOImp::push_signal(): domain_type is out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
+            throw Exception("PlatformIOImp::push_signal(): domain_idx is out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         int result = -1;
         auto sig_tup = std::make_tuple(signal_name, domain_type, domain_idx);
         auto sig_tup_it = m_existing_signal.find(sig_tup);
@@ -358,6 +367,15 @@ namespace geopm
             throw Exception("PlatformIOImp::push_control(): pushing controls after read_batch() or adjust().",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        if (domain_type < 0 || domain_type >= GEOPM_NUM_DOMAIN) {
+            throw Exception("PlatformIOImp::push_control(): domain_type is out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
+            throw Exception("PlatformIOImp::push_control(): domain_idx is out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         int result = -1;
         auto ctl_tup = std::make_tuple(control_name, domain_type, domain_idx);
         auto ctl_tup_it = m_existing_control.find(ctl_tup);
@@ -496,6 +514,15 @@ namespace geopm
                                       int domain_type,
                                       int domain_idx)
     {
+        if (domain_type < 0 || domain_type >= GEOPM_NUM_DOMAIN) {
+            throw Exception("PlatformIOImp::read_signal(): domain_type is out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
+            throw Exception("PlatformIOImp::read_signal(): domain_idx is out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         double result = NAN;
         auto iogroup = find_signal_iogroup(signal_name);
         if (iogroup == nullptr) {
@@ -539,6 +566,15 @@ namespace geopm
                                       int domain_idx,
                                       double setting)
     {
+        if (domain_type < 0 || domain_type >= GEOPM_NUM_DOMAIN) {
+            throw Exception("PlatformIOImp::write_control(): domain_type is out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
+            throw Exception("PlatformIOImp::write_control(): domain_idx is out of range",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         auto iogroup = find_control_iogroup(control_name);
         if (iogroup == nullptr) {
             throw Exception("PlatformIOImp::write_control(): control name \"" + control_name + "\" not found",
