@@ -77,7 +77,7 @@ namespace geopm
     DefaultProfile::DefaultProfile(const std::string prof_name, std::unique_ptr<Comm> comm)
         : ProfileImp(prof_name, std::move(comm))
     {
-        g_pmpi_prof_enabled = 1;
+        g_pmpi_prof_enabled = m_is_enabled;
     }
 
     DefaultProfile::~DefaultProfile()
