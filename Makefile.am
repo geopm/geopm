@@ -105,8 +105,6 @@ pkginclude_HEADERS = contrib/json11/json11.hpp \
                      src/PowerBalancerAgent.hpp \
                      src/PowerGovernor.hpp \
                      src/PowerGovernorAgent.hpp \
-                     src/ProfileIOGroup.hpp \
-                     src/ProfileIOSample.hpp \
                      src/RegionAggregator.hpp \
                      src/SharedMemory.hpp \
                      src/TimeIOGroup.hpp \
@@ -156,8 +154,6 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/GEOPM_CXX_MAN_PowerBalancerAgent.3 \
                 man/GEOPM_CXX_MAN_PowerGovernor.3 \
                 man/GEOPM_CXX_MAN_PowerGovernorAgent.3 \
-                man/GEOPM_CXX_MAN_ProfileIOGroup.3 \
-                man/GEOPM_CXX_MAN_ProfileIOSample.3 \
                 man/GEOPM_CXX_MAN_RegionAggregator.3 \
                 man/GEOPM_CXX_MAN_SharedMemory.3 \
                 man/GEOPM_CXX_MAN_TimeIOGroup.3 \
@@ -189,6 +185,8 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
 
 ronn_man_noinst = man/GEOPM_CXX_MAN_Comm.3 \
                   man/GEOPM_CXX_MAN_MPIComm.3 \
+                  man/GEOPM_CXX_MAN_ProfileIOGroup.3 \
+                  man/GEOPM_CXX_MAN_ProfileIOSample.3 \
                   # end
 
 if ENABLE_BETA

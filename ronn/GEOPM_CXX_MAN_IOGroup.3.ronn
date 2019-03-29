@@ -288,5 +288,4 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
 **geopm::CpuinfoIOGroup(3)**,
 **geopm::MSRIOGroup(3)**,
 **geopm::PlatformIO(3)**,
-**geopm::ProfileIOGroup(3)**,
 **geopm::TimeIOGroup(3)**
