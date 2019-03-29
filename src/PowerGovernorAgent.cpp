@@ -58,6 +58,7 @@ namespace geopm
         , m_level(-1)
         , m_is_converged(false)
         , m_is_sample_stable(false)
+        , m_do_send_sample(false)
         , m_min_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_PACKAGE, 0))
         , m_max_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0))
         , m_tdp_power_setting(m_platform_io.read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_PACKAGE, 0))
@@ -66,6 +67,8 @@ namespace geopm
         , m_agg_func(M_NUM_SAMPLE)
         , m_num_children(0)
         , m_last_power_budget(NAN)
+        , m_power_budget_changed(false)
+        , m_power_setting_changed(false)
         , m_epoch_power_buf(geopm::make_unique<CircularBufferImp<double> >(16)) // Magic number...
         , m_sample(M_PLAT_NUM_SIGNAL)
         , m_ascend_count(0)
@@ -75,7 +78,6 @@ namespace geopm
         , m_adjusted_power(0.0)
         , m_last_wait(GEOPM_TIME_REF)
         , M_WAIT_SEC(0.005)
-
     {
         geopm_time(&m_last_wait);
     }
@@ -129,10 +131,11 @@ namespace geopm
 
     }
 
-    bool PowerGovernorAgent::descend(const std::vector<double> &policy_in, std::vector<std::vector<double> > &policy_out)
+    void PowerGovernorAgent::split_policy(const std::vector<double> &in_policy,
+                                          std::vector<std::vector<double> > &out_policy)
     {
 #ifdef GEOPM_DEBUG
-        if (policy_in.size() != M_NUM_POLICY) {
+        if (in_policy.size() != M_NUM_POLICY) {
             throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): number of policies was different from expected.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
@@ -140,14 +143,12 @@ namespace geopm
             throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): level 0 agent not expected to call descend.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
-        if (policy_out.size() != (size_t)m_num_children) {
+        if (out_policy.size() != (size_t)m_num_children) {
             throw Exception("PowerGovernorAgent::" + std::string(__func__) + "(): policy_out vector not correctly sized.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-
-        bool result = false;
-        double power_budget_in = policy_in[M_POLICY_POWER];
+        double power_budget_in = in_policy[M_POLICY_POWER];
         // If NAN, use default
         if (std::isnan(power_budget_in)) {
             power_budget_in = m_tdp_power_setting;
@@ -169,16 +170,24 @@ namespace geopm
             m_last_power_budget = power_budget_in;
             // Convert power budget vector into a vector of policy vectors
             for (int child_idx = 0; child_idx != m_num_children; ++child_idx) {
-                policy_out[child_idx][M_POLICY_POWER] = power_budget_in;
+                out_policy[child_idx][M_POLICY_POWER] = power_budget_in;
             }
             m_epoch_power_buf->clear();
             m_is_converged = false;
-            result = true;
+            m_power_budget_changed = true;
         }
-        return result;
+        else {
+            m_power_budget_changed = false;
+        }
     }
 
-    bool PowerGovernorAgent::ascend(const std::vector<std::vector<double> > &in_sample, std::vector<double> &out_sample)
+    bool PowerGovernorAgent::do_send_policy(void) const
+    {
+        return m_power_budget_changed;
+    }
+
+    void PowerGovernorAgent::aggregate_sample(const std::vector<std::vector<double> > &in_sample,
+                                              std::vector<double> &out_sample)
     {
 #ifdef GEOPM_DEBUG
         if (out_sample.size() != M_NUM_SAMPLE) {
@@ -194,7 +203,6 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        bool result = false;
         m_is_sample_stable = std::all_of(in_sample.begin(), in_sample.end(),
             [](const std::vector<double> &val)
             {
@@ -205,21 +213,35 @@ namespace geopm
         // ascend period times, then aggregate the samples and send
         // them up the tree.
         if (m_is_sample_stable && m_ascend_count == 0) {
-            result = true;
-            aggregate_sample(in_sample, m_agg_func, out_sample);
+            m_do_send_sample = true;
+            Agent::aggregate_sample(in_sample, m_agg_func, out_sample);
         }
+        else {
+            m_do_send_sample = false;
+        }
+
         // Increment the ascend counter if the children are stable.
         if (m_is_sample_stable) {
             ++m_ascend_count;
             if (m_ascend_count == m_ascend_period) {
-                m_ascend_count = 0;
+               m_ascend_count = 0;
             }
         }
 
-        return result;
+    }
+
+    bool PowerGovernorAgent::do_send_sample(void) const
+    {
+        return m_do_send_sample;
     }
 
     bool PowerGovernorAgent::adjust_platform(const std::vector<double> &in_policy)
+    {
+        kadjust_platform(in_policy);
+        return do_write_batch();
+    }
+
+    void PowerGovernorAgent::kadjust_platform(const std::vector<double> &in_policy)
     {
 #ifdef GEOPM_DEBUG
         if (in_policy.size() != M_NUM_POLICY) {
@@ -232,13 +254,23 @@ namespace geopm
         if (std::isnan(power_budget_in)) {
             power_budget_in = m_tdp_power_setting;
         }
-
-        bool result = m_power_gov->adjust_platform(power_budget_in, m_adjusted_power);
+        m_power_setting_changed = m_power_gov->adjust_platform(power_budget_in, m_adjusted_power);
         m_last_power_budget = power_budget_in;
-        return result;
+    }
+
+    bool PowerGovernorAgent::do_write_batch(void) const
+    {
+        // m_adjusted_power == m_prev_power_setting
+        return m_power_setting_changed;
     }
 
     bool PowerGovernorAgent::sample_platform(std::vector<double> &out_sample)
+    {
+        ksample_platform(out_sample);
+        return do_send_sample();
+    }
+
+    void PowerGovernorAgent::ksample_platform(std::vector<double> &out_sample)
     {
 #ifdef GEOPM_DEBUG
         if (out_sample.size() != M_NUM_SAMPLE) {
@@ -246,7 +278,6 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        bool result = false;
         m_power_gov->sample_platform();
         // Populate sample vector by reading from PlatformIO
         for (int sample_idx = 0; sample_idx < M_PLAT_NUM_SIGNAL; ++sample_idx) {
@@ -264,9 +295,11 @@ namespace geopm
             out_sample[M_SAMPLE_POWER] = median;
             out_sample[M_SAMPLE_IS_CONVERGED] = (median <= m_last_power_budget); // todo might want fudge factor
             out_sample[M_SAMPLE_POWER_ENFORCED] = m_adjusted_power;
-            result = true;
+            m_do_send_sample = true;
         }
-        return result;
+        else {
+            m_do_send_sample = false;
+        }
     }
 
     void PowerGovernorAgent::wait()
