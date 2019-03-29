@@ -34,7 +34,6 @@
 #define POWERGOVERNOR_HPP_INCLUDE
 
 #include <memory>
-#include <vector>
 
 namespace geopm
 {
@@ -68,30 +67,12 @@ namespace geopm
             /// @brief Get the time window for controling package power.
             /// @return Time window in units of seconds.
             virtual double power_package_time_window(void) const = 0;
-    };
-
-    class PowerGovernorImp : public PowerGovernor
-    {
-        public:
-            PowerGovernorImp(PlatformIO &platform_io, PlatformTopo &platform_topo);
-            virtual ~PowerGovernorImp();
-            void init_platform_io(void) override;
-            virtual void sample_platform(void) override;
-            bool adjust_platform(double node_power_request, double &node_power_actual) override;
-            void set_power_bounds(double min_pkg_power, double max_pkg_power) override;
-            double power_package_time_window(void) const override;
-        private:
-            PlatformIO &m_platform_io;
-            PlatformTopo &m_platform_topo;
-            const double M_POWER_PACKAGE_TIME_WINDOW;
-            int m_pkg_pwr_domain_type;
-            int m_num_pkg;
-            const double M_MIN_PKG_POWER_SETTING;
-            const double M_MAX_PKG_POWER_SETTING;
-            double m_min_pkg_power_policy;
-            double m_max_pkg_power_policy;
-            std::vector<int> m_control_idx;
-            double m_last_pkg_power_setting;
+            /// @brief Returns a unique_ptr to a concrete object
+            ///        constructed using the underlying implementation
+            static std::unique_ptr<PowerGovernor> make_unique(PlatformIO &platform_io, PlatformTopo &platform_topo);
+            /// @brief Returns a shared_ptr to a concrete object
+            ///        constructed using the underlying implementation
+            static std::shared_ptr<PowerGovernor> make_shared(PlatformIO &platform_io, PlatformTopo &platform_topo);
     };
 }
 

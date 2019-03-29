@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "PowerBalancer.hpp"
+#include "PowerBalancerImp.hpp"
 
 #include <vector>
 #include <cmath>
@@ -42,6 +42,16 @@
 
 namespace geopm
 {
+    std::unique_ptr<PowerBalancer> PowerBalancer::make_unique(double ctl_latency)
+    {
+        return geopm::make_unique<PowerBalancerImp>(ctl_latency);
+    }
+
+    std::shared_ptr<PowerBalancer> PowerBalancer::make_shared(double ctl_latency)
+    {
+        return std::make_shared<PowerBalancerImp>(ctl_latency);
+    }
+
     PowerBalancerImp::PowerBalancerImp(double ctl_latency)
         : PowerBalancerImp(ctl_latency, 0.125, 5, 0.25)
     {
