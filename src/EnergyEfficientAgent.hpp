@@ -58,10 +58,15 @@ namespace geopm
             virtual ~EnergyEfficientAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &policy) const override;
-            bool descend(const std::vector<double> &in_policy,
-                         std::vector<std::vector<double> >&out_policy) override;
-            bool ascend(const std::vector<std::vector<double> > &in_sample,
-                        std::vector<double> &out_sample) override;
+            void split_policy(const std::vector<double> &in_policy,
+                              std::vector<std::vector<double> > &out_policy) override;
+            bool do_send_policy(void) const override;
+            void aggregate_sample(const std::vector<std::vector<double> > &in_sample,
+                                  std::vector<double> &out_sample) override;
+            bool do_send_sample(void) const override;
+            void kadjust_platform(const std::vector<double> &in_policy) override;
+            bool do_write_batch(void) const override;
+            void ksample_platform(std::vector<double> &out_sample) override;
             bool adjust_platform(const std::vector<double> &in_policy) override;
             bool sample_platform(std::vector<double> &out_sample) override;
             void wait(void) override;
@@ -108,6 +113,8 @@ namespace geopm
             std::vector<int> m_signal_idx;
             int m_level;
             int m_num_children;
+            bool m_do_send_policy;
+            bool m_do_adjust_platform;
     };
 }
 
