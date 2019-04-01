@@ -49,12 +49,14 @@ namespace geopm
     class PlatformIO;
     class PlatformTopo;
     class EnergyEfficientRegion;
+    class FrequencyGovernor;
 
     class EnergyEfficientAgent : public Agent
     {
         public:
             EnergyEfficientAgent();
-            EnergyEfficientAgent(PlatformIO &plat_io, PlatformTopo &topo);
+            EnergyEfficientAgent(PlatformIO &plat_io, PlatformTopo &topo,
+                                 std::shared_ptr<FrequencyGovernor> gov);
             virtual ~EnergyEfficientAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &policy) const override;
@@ -77,7 +79,6 @@ namespace geopm
             static std::vector<std::string> sample_names(void);
         private:
             bool update_freq_range(const std::vector<double> &in_policy);
-            double get_limit(const std::string &sig_name) const;
             void init_platform_io(void);
 
             enum m_policy_e {
@@ -96,16 +97,14 @@ namespace geopm
             const int M_PRECISION;
             PlatformIO &m_platform_io;
             PlatformTopo &m_platform_topo;
-            double m_freq_min;
-            double m_freq_max;
-            const double M_FREQ_STEP;
-            std::vector<int> m_control_idx;
-            double m_last_freq;
-            struct geopm_region_info_s  m_last_region;
+            std::shared_ptr<FrequencyGovernor> m_freq_governor;
+            int m_num_freq_ctl_domain;
+            std::vector<struct geopm_region_info_s>  m_last_region;
+            std::vector<double> m_last_freq;
             std::map<uint64_t, double> m_adapt_freq_map;
             std::map<uint64_t, std::unique_ptr<EnergyEfficientRegion> > m_region_map;
             geopm_time_s m_last_wait;
-            std::vector<int> m_signal_idx;
+            std::vector<std::vector<int> > m_signal_idx;
             int m_level;
             int m_num_children;
     };
