@@ -332,7 +332,7 @@ namespace geopm
         }
 #endif
         bool result = false;
-        aggregate_sample(in_sample, M_AGG_FUNC, out_sample);
+        Agent::aggregate_sample(in_sample, M_AGG_FUNC, out_sample);
         if (!m_is_step_complete && out_sample[M_SAMPLE_STEP_COUNT] == m_step_count) {
             // Method returns true if all children have completed the step
             // for the first time.
@@ -523,6 +523,9 @@ namespace geopm
         , m_last_wait(GEOPM_TIME_REF)
         , M_WAIT_SEC(0.005)
         , m_power_tdp(NAN)
+        , m_do_send_sample(false)
+        , m_do_send_policy(false)
+        , m_do_write_batch(false)
     {
         geopm_time(&m_last_wait);
     }
@@ -531,7 +534,7 @@ namespace geopm
 
     void PowerBalancerAgent::init(int level, const std::vector<int> &fan_in, bool is_root)
     {
-        if (fan_in.size() == (size_t) 0) {
+        if (fan_in.size() == 0ull) {
             throw Exception("PowerBalancerAgent::" + std::string(__func__) +
                             "(): single node job detected, user power_governor.",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -552,7 +555,8 @@ namespace geopm
         }
     }
 
-    bool PowerBalancerAgent::descend(const std::vector<double> &in_policy, std::vector<std::vector<double> > &out_policy)
+    void PowerBalancerAgent::split_policy(const std::vector<double> &in_policy,
+                                          std::vector<std::vector<double> > &out_policy)
     {
 #ifdef GEOPM_DEBUG
         if (in_policy.size() != M_NUM_POLICY) {
@@ -560,28 +564,56 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        return m_role->descend(in_policy, out_policy);
+        m_do_send_policy =  m_role->descend(in_policy, out_policy);
     }
 
-    bool PowerBalancerAgent::ascend(const std::vector<std::vector<double> > &sample_in, std::vector<double> &sample_out)
+    bool PowerBalancerAgent::do_send_policy(void) const
     {
-        return m_role->ascend(sample_in, sample_out);
+        return m_do_send_policy;
+    }
+
+    void PowerBalancerAgent::aggregate_sample(const std::vector<std::vector<double> > &in_sample,
+                                              std::vector<double> &out_sample)
+    {
+        m_do_send_sample = m_role->ascend(in_sample, out_sample);
+    }
+
+    bool PowerBalancerAgent::do_send_sample(void) const
+    {
+        return m_do_send_sample;
     }
 
     bool PowerBalancerAgent::adjust_platform(const std::vector<double> &in_policy)
     {
+        kadjust_platform(in_policy);
+        return do_write_batch();
+    }
+
+    void PowerBalancerAgent::kadjust_platform(const std::vector<double> &in_policy)
+    {
 #ifdef GEOPM_DEBUG
         if (in_policy.size() != M_NUM_POLICY) {
             throw Exception("PowerBalancerAgent::" + std::string(__func__) + "(): policy vectors are not correctly sized.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        return m_role->adjust_platform(in_policy);
+        m_do_write_batch = m_role->adjust_platform(in_policy);
+    }
+
+    bool PowerBalancerAgent::do_write_batch(void) const
+    {
+        return m_do_write_batch;
     }
 
     bool PowerBalancerAgent::sample_platform(std::vector<double> &out_sample)
     {
-        return m_role->sample_platform(out_sample);
+        ksample_platform(out_sample);
+        return do_send_sample();
+    }
+
+    void PowerBalancerAgent::ksample_platform(std::vector<double> &out_sample)
+    {
+        m_do_send_sample = m_role->sample_platform(out_sample);
     }
 
     void PowerBalancerAgent::wait(void)    {
