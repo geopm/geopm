@@ -68,6 +68,8 @@ namespace geopm
         , m_last_wait(GEOPM_TIME_REF)
         , m_level(-1)
         , m_num_children(0)
+        , m_is_policy_updated(false)
+        , m_is_frequency_changed(false)
     {
         parse_env_map();
     }
@@ -114,20 +116,19 @@ namespace geopm
         policy[M_POLICY_FREQ_MAX] = target_freq_max;
     }
 
-    bool FrequencyMapAgent::update_policy(const std::vector<double> &policy)
+    void FrequencyMapAgent::update_policy(const std::vector<double> &policy)
     {
-        bool result = false;
+        m_is_policy_updated = false;
         if (m_freq_min != policy[M_POLICY_FREQ_MIN] ||
             m_freq_max != policy[M_POLICY_FREQ_MAX]) {
             m_freq_min = policy[M_POLICY_FREQ_MIN];
             m_freq_max = policy[M_POLICY_FREQ_MAX];
-            result = true;
+            m_is_policy_updated = true;
         }
-        return result;
     }
 
-    bool FrequencyMapAgent::descend(const std::vector<double> &in_policy,
-                                    std::vector<std::vector<double> >&out_policy)
+    void FrequencyMapAgent::split_policy(const std::vector<double>& in_policy,
+                                         std::vector<std::vector<double> >& out_policy)
     {
 #ifdef GEOPM_DEBUG
         if (out_policy.size() != (size_t) m_num_children) {
@@ -135,9 +136,9 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        bool result = update_policy(in_policy);
+       update_policy(in_policy);
 
-        if (result) {
+        if (m_is_policy_updated) {
             for (auto &child_policy : out_policy) {
 #ifdef GEOPM_DEBUG
                 if (child_policy.size() != M_NUM_POLICY) {
@@ -149,16 +150,31 @@ namespace geopm
                 child_policy[M_POLICY_FREQ_MAX] = m_freq_max;
             }
         }
-        return result;
     }
 
-    bool FrequencyMapAgent::ascend(const std::vector<std::vector<double> > &in_sample,
-                                   std::vector<double> &out_sample)
+    bool FrequencyMapAgent::do_send_policy(void) const
+    {
+        return m_is_policy_updated;
+    }
+
+    void FrequencyMapAgent::aggregate_sample(const std::vector<std::vector<double> > &in_sample,
+                                             std::vector<double>& out_sample)
+    {
+
+    }
+
+    bool FrequencyMapAgent::do_send_sample(void) const
     {
         return false;
     }
 
     bool FrequencyMapAgent::adjust_platform(const std::vector<double> &in_policy)
+    {
+        kadjust_platform(in_policy);
+        return do_write_batch();
+    }
+
+    void FrequencyMapAgent::kadjust_platform(const std::vector<double> &in_policy)
     {
         update_policy(in_policy);
         double freq = NAN;
@@ -194,25 +210,35 @@ namespace geopm
             m_hash_freq_map[m_last_region.first] = freq;
         }
 
-        bool result = false;
+        // todo: save previous and current freq instead of bool
+        m_is_frequency_changed = false;
         if (freq != m_last_freq) {
             for (auto ctl_idx : m_control_idx) {
                 m_platform_io.adjust(ctl_idx, freq);
             }
             m_last_freq = freq;
-            result = true;
+            m_is_frequency_changed = true;
         }
-        return result;
+    }
+
+    bool FrequencyMapAgent::do_write_batch(void) const
+    {
+        return m_is_frequency_changed;
     }
 
     bool FrequencyMapAgent::sample_platform(std::vector<double> &out_sample)
+    {
+        ksample_platform(out_sample);
+        return do_send_sample();
+    }
+
+    void FrequencyMapAgent::ksample_platform(std::vector<double> &out_sample)
     {
         const uint64_t current_region_hash = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH]);
         const uint64_t current_region_hint = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HINT]);
         if (current_region_hash != GEOPM_REGION_HASH_INVALID) {
             m_last_region = std::make_pair(current_region_hash, current_region_hint);
         }
-        return false;
     }
 
     void FrequencyMapAgent::wait(void)
