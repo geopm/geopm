@@ -355,8 +355,8 @@ encoded in this way.
     The returned control index will be repeated for each unique tuple
     of push_control input parameters.  All controls must be pushed
     onto the stack prior to the first call to `adjust()` or
-    `read_batch()`.  Attempts to push a controls onto the stack after
-    the first call to `adjust()` or `read_batch()` or attempts to push
+    `write_batch()`.  Attempts to push a controls onto the stack after
+    the first call to `adjust()` or `write_batch()` or attempts to push
     a _control_name_ that is not from the set returned by
     `control_names()` will result in a thrown `geopm::Exception` with
     error number `GEOPM_ERROR_INVALID`.
