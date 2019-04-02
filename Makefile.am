@@ -86,10 +86,8 @@ pkginclude_HEADERS = contrib/json11/json11.hpp \
                      src/Agg.hpp \
                      src/CircularBuffer.hpp \
                      src/CpuinfoIOGroup.hpp \
-                     src/EnergyEfficientAgent.hpp \
                      src/EnergyEfficientRegion.hpp \
                      src/FrequencyGovernor.hpp \
-                     src/FrequencyMapAgent.hpp \
                      src/Exception.hpp \
                      src/Helper.hpp \
                      src/IOGroup.hpp \
@@ -98,14 +96,11 @@ pkginclude_HEADERS = contrib/json11/json11.hpp \
                      src/MSRIO.hpp \
                      src/MSRIOGroup.hpp \
                      src/MSRSignal.hpp \
-                     src/MonitorAgent.hpp \
                      src/PlatformIO.hpp \
                      src/PlatformTopo.hpp \
                      src/PluginFactory.hpp \
                      src/PowerBalancer.hpp \
-                     src/PowerBalancerAgent.hpp \
                      src/PowerGovernor.hpp \
-                     src/PowerGovernorAgent.hpp \
                      src/RegionAggregator.hpp \
                      src/SharedMemory.hpp \
                      src/SharedMemoryUser.hpp \
@@ -140,7 +135,6 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/GEOPM_CXX_MAN_Agg.3 \
                 man/GEOPM_CXX_MAN_CircularBuffer.3 \
                 man/GEOPM_CXX_MAN_CpuinfoIOGroup.3 \
-                man/GEOPM_CXX_MAN_EnergyEfficientAgent.3 \
                 man/GEOPM_CXX_MAN_EnergyEfficientRegion.3 \
                 man/GEOPM_CXX_MAN_Exception.3 \
                 man/GEOPM_CXX_MAN_Helper.3 \
@@ -148,14 +142,11 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/GEOPM_CXX_MAN_MSR.3 \
                 man/GEOPM_CXX_MAN_MSRIO.3 \
                 man/GEOPM_CXX_MAN_MSRIOGroup.3 \
-                man/GEOPM_CXX_MAN_MonitorAgent.3 \
                 man/GEOPM_CXX_MAN_PlatformIO.3 \
                 man/GEOPM_CXX_MAN_PlatformTopo.3 \
                 man/GEOPM_CXX_MAN_PluginFactory.3 \
                 man/GEOPM_CXX_MAN_PowerBalancer.3 \
-                man/GEOPM_CXX_MAN_PowerBalancerAgent.3 \
                 man/GEOPM_CXX_MAN_PowerGovernor.3 \
-                man/GEOPM_CXX_MAN_PowerGovernorAgent.3 \
                 man/GEOPM_CXX_MAN_RegionAggregator.3 \
                 man/GEOPM_CXX_MAN_SharedMemory.3 \
                 man/GEOPM_CXX_MAN_TimeIOGroup.3 \
@@ -186,7 +177,11 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 # end
 
 ronn_man_noinst = man/GEOPM_CXX_MAN_Comm.3 \
+                  man/GEOPM_CXX_MAN_EnergyEfficientAgent.3 \
+                  man/GEOPM_CXX_MAN_MonitorAgent.3 \
                   man/GEOPM_CXX_MAN_MPIComm.3 \
+                  man/GEOPM_CXX_MAN_PowerBalancerAgent.3 \
+                  man/GEOPM_CXX_MAN_PowerGovernorAgent.3 \
                   man/GEOPM_CXX_MAN_ProfileIOGroup.3 \
                   man/GEOPM_CXX_MAN_ProfileIOSample.3 \
                   # end

@@ -39,7 +39,7 @@ geopm::EnergyEfficientRegion(3) -- region frequency tuning history
 
 ## DESCRIPTION
 
-This class is used by **geopm::EnergyEfficientAgent(3)** to store
+This class is used by **geopm_agent_energy_efficient(7)** to store
 history about the performance of a region at each frequency setting
 and find the best frequency for each region.
 
@@ -51,4 +51,4 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
 
 ## SEE ALSO
 **geopm(7)**,
-**geopm::EnergyEfficientAgent(3)**
+**geopm_agent_energy_efficient(7)**
