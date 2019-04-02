@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f2667b14_0c1fe4ce",
+        "filename": "src/PowerGovernor.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-02T18:36:48Z",
+      "side": 0,
+      "message": "add a default empty constructor that calls singletons.",
+      "range": {
+        "startLine": 76,
+        "startChar": 29,
+        "endLine": 76,
+        "endChar": 81
+      },
+      "revId": "6890948101d3ac38f2266a6d781dc9fb617a6153",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
