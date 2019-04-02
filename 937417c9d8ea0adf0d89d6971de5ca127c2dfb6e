@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97617211_694d491b",
+        "filename": "src/PowerGovernorAgent.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-02T17:52:56Z",
+      "side": 1,
+      "message": "yuck",
+      "range": {
+        "startLine": 263,
+        "startChar": 8,
+        "endLine": 263,
+        "endChar": 51
+      },
+      "revId": "937417c9d8ea0adf0d89d6971de5ca127c2dfb6e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
