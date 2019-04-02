@@ -687,6 +687,9 @@ extern "C" {
                                       const std::set<std::string> name_set, char *result)
     {
         int err = 0;
+        if (result_max != 0) {
+            result[0] = '\0';
+        }
         if (name_idx >= 0 &&
             (size_t)name_idx < name_set.size() &&
             result_max > 0) {
@@ -710,6 +713,9 @@ extern "C" {
     int geopm_pio_signal_name(int name_idx, size_t result_max, char *result)
     {
         int err = 0;
+        if (result_max != 0) {
+            result[0] = '\0';
+        }
         try {
             std::set<std::string> name_set = geopm::platform_io().signal_names();
             err = geopm_pio_name_set_idx(name_idx, result_max, name_set, result);
@@ -737,6 +743,9 @@ extern "C" {
     int geopm_pio_control_name(int name_idx, size_t result_max, char *result)
     {
         int err = 0;
+        if (result_max != 0) {
+            result[0] = '\0';
+        }
         try {
             std::set<std::string> name_set = geopm::platform_io().control_names();
             err = geopm_pio_name_set_idx(name_idx, result_max, name_set, result);
