@@ -49,6 +49,16 @@ geopm_pio_c(7) -- interfaces to query and modify platform
     `size_t` _result_max_, <br>
     `char *`_result_`);`
 
+  * `int geopm_pio_signal_description(`:
+    `const char *`_signal_name_, <br>
+    `size_t` _description_max_, <br>
+    `char *`_description_`);`
+
+  * `int geopm_pio_control_description(`:
+    `const char *`_control_name_, <br>
+    `size_t` _description_max_, <br>
+    `char *`_description_`);`
+
   * `int geopm_pio_signal_domain_type(`:
     `const char *`_signal_name_`);`
 
@@ -67,6 +77,12 @@ geopm_pio_c(7) -- interfaces to query and modify platform
     `int` _domain_idx_, <br>
     `double` _setting_`);`
 
+  * `int geopm_pio_save_control(`:
+    `void);`
+
+  * `int geopm_pio_restore_control(`:
+    `void);`
+
   * `int geopm_pio_push_signal(`:
     `const char *`_signal_name_, <br>
     `int` _domain_type_, <br>
@@ -83,6 +99,12 @@ geopm_pio_c(7) -- interfaces to query and modify platform
   * `int geopm_pio_num_control_pushed(`:
     `void);`
 
+  * `int geopm_pio_read_batch(`:
+    `void);`
+
+  * `int geopm_pio_write_batch(`:
+    `void);`
+
   * `int geopm_pio_sample(`:
     `int` _signal_idx_, <br>
     `double *`_result_`);`
@@ -91,33 +113,152 @@ geopm_pio_c(7) -- interfaces to query and modify platform
     `int` _control_idx_, <br>
     `double` _setting_`);`
 
-  * `int geopm_pio_read_batch(`:
-    `void);`
-
-  * `int geopm_pio_write_batch(`:
-    `void);`
-
-  * `int geopm_pio_save_control(`:
-    `void);`
-
-  * `int geopm_pio_restore_control(`:
-    `void);`
-
-  * `int geopm_pio_signal_description(`:
-    `const char *`_signal_name_, <br>
-    `size_t` _description_max_, <br>
-    `char *`_description_`);`
-
-  * `int geopm_pio_control_description(`:
-    `const char *`_control_name_, <br>
-    `size_t` _description_max_, <br>
-    `char *`_description_`);`
-
 ## DESCRIPTION
-These provide a C interface to the **geopm::PlatformIO(3)** C++
-interface.  See the **geopm::PlatformIO(3)** man page for more
-information.
 
+The interfaces described in this man page are the C language bindings
+for the **PlatformPlatformIO(3)** C++ class.  Please refer to the
+**geopm::PlatformIO(3)** and **geopm::PlatformTopo(3)** man pages for
+a general overview of the GEOPM platform interface layer.  The
+**geopm_topo_c(3)** man page describes the C wrappers for the
+**geopm::PlatformTopo(3)** C++ class and documents the
+`geopm_domain_e` enum.  The `geopm_domain_e` enum is selected from for
+the _domain_type_ parameter to many functions in the geopm_pio_*()
+interface and the return value for some other functions.
+
+## INSPECTION FUNCTIONS
+
+  * `geopm_pio_num_signal_name`():
+    Returns the number of signal names that can be indexed with the
+    _name_idx_ parameter to the `geopm_pio_signal_name()` function.
+    Any error in loading the platform will result in a negative error
+    code describing the faiure.
+
+  * `geopm_pio_signal_name`():
+    Sets the _result_ string to the name of the signal indexed by
+    _name_idx_.  At most _result_max_ bytes are writen to the _result_
+    vector.  If _result_max_ is non-zero the _result_ string will always be
+    null terminated.  If _name_idx_ is greater than zero and less than
+    the return value from `geopm_pio_num_signal_name()` the return
+    value will be `GEOPM_ERROR_INVALID`.  The return code will also
+    be `GEOPM_ERROR_INVALID` if _result_max_ is too small to contain
+    the signal name.  Any other error will result in a negative error
+    code.  Zero is returned on success.
+
+  * `geopm_pio_num_control_name`():
+    Returns the number of control names that can be indexed with the
+    _name_idx_ parameter to the `geopm_pio_control_name()` function.
+    Any error in loading the platform will result in a negative error
+    code describing the faiure.
+
+  * `geopm_pio_control_name`():
+    Sets the _result_ string to the name of the control indexed by
+    _name_idx_.  At most _result_max_ bytes are writen to the _result_
+    vector.  If _result_max_ is non-zero the _result_ string will always be
+    null terminated.  If _name_idx_ is greater than zero and less than
+    the return value from `geopm_pio_num_control_name()` the return
+    value will be `GEOPM_ERROR_INVALID`.  The return code will also
+    be `GEOPM_ERROR_INVALID` if _result_max_ is too small to contain
+    the control name.  Any other error will result in a negative error
+    code.  Zero is returned on success.
+
+  * `geopm_pio_signal_description`():
+    Sets the _result_ string to the description associated with
+    _signal_name_.  At most _result_max_ bytes are writen to the
+    _result_ vector.  If _result_max_ is non-zero the _result_ string
+    will always be null terminated.  The return code will be
+    `GEOPM_ERROR_INVALID` if _result_max_ is too small to contain the
+    description.  Any other error will result in a negative error
+    code.  Zero is returned on success.
+
+  * `geopm_pio_control_description`():
+    Sets the _result_ string to the description associated with
+    _control_name_.  At most _result_max_ bytes are writen to the
+    _result_ vector.  If _result_max_ is non-zero the _result_ string
+    will always be null terminated.  The return code will be
+    `GEOPM_ERROR_INVALID` if _result_max_ is too small to contain the
+    description.  Any other error will result in a negative error
+    code.  Zero is returned on success.
+
+  * `geopm_pio_signal_domain_type`():
+    Query the domain for the signal with name _signal_name_.  Returns
+    one of the `geopm_domain_e` values signifying the granularity at
+    which the signal is measured.  Will return a negative error code
+    if any error occurs, e.g. a request for a _signal_name_ that
+    is not supported by the platform.
+
+  * `geopm_pio_control_domain_type`():
+    Query the domain for the control with the name _control_name_.
+    Returns one of the `geopm_domain_e` values signifying the
+    granularity at which the control can be adjusted.  Will return a
+    negative error code if any error occurs, e.g. a request for a
+    _control_name_ that is not supported by the platform.
+
+## SERIAL FUNCTIONS
+
+  * `geopm_pio_read_signal`():
+    Read from the platform and interpret into SI units a signal
+    associated with _signal_name_ and store the value in _result_.
+    This value is read from the `geopm_topo_e` _domain_type_ domain
+    indexed by _domain_idx_.  If the signal is native to a domain
+    contained within _domain_type_, the values from the contained
+    domains are aggregated to form _result_.  Calling this function
+    does not modify values stored by calling `geopm_pio_read_batch()`.
+    If an error occurs then negative error code is returned.  Zero is
+    returned upon success.
+
+  * `geopm_pio_write_control`():
+    Interpret the _setting_ in SI units associated with _control_name_
+    and write it to the platform.  This value is written to the
+    `geopm_topo_e` _domain_type_ domain indexed by _domain_idx_.  If
+    the control is native to a domain contained within _domain_type_,
+    then the _setting_ is written to all contained domains.  Calling
+    this function does not modify values stored by calling
+    `geopm_pio_adust()`.  If an error occurs then negative error code
+    is returned.  Zero is returned upon success.
+
+  * `geopm_pio_save_control`():
+    Save the state of all controls so that any subsequent changes made
+    through `geopm_pio_write_control()` or `geopm_pio_write_batch()`
+    may be reverted with a call to `geopm_pio_restore_control()`.  The
+    control setings are stored in memory managed by GEOPM.  If an
+    error occurs then negative error code is returned.  Zero is
+    returned upon success.
+
+  * `geopm_pio_restore_control`():
+    Restore the state recorded by the last call to
+    `geopm_pio_save_control()` so that all subsequent changes made
+    through `geopm_pio_write_control()` or `geopm_pio_write_batch()`
+    are reverted to their previous settings.  If an error occurs then
+    negative error code is returned.  Zero is returned upon success.
+
+## BATCH FUNCTIONS
+
+  * `geopm_pio_push_signal`():
+    _signal_name_, _domain_type_, _domain_idx_
+
+  * `geopm_pio_push_control`():
+    _control_name_, _domain_type_, _domain_idx_
+
+  * `geopm_pio_num_signal_pushed`():
+
+  * `geopm_pio_num_control_pushed`():
+
+  * `geopm_pio_read_batch`():
+
+  * `geopm_pio_write_batch`():
+
+  * `geopm_pio_sample`():
+    _signal_idx_, _result_
+
+  * `geopm_pio_adjust`():
+    _control_idx_,  _setting_
+
+## RETURN VALUE
+
+If an error occurs in any call to an interface documented here, the
+return value of the function will be a negagative integer
+corresponding to one of the error codes documented in
+**geopm_error(3)**.
 
 ## SEE ALSO
 **geopm(7)**,
