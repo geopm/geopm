@@ -467,10 +467,12 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/PluginFactory.hpp \
                             src/PowerBalancer.cpp \
                             src/PowerBalancer.hpp \
+                            src/PowerBalancerImp.hpp \
                             src/PowerBalancerAgent.cpp \
                             src/PowerBalancerAgent.hpp \
                             src/PowerGovernor.cpp \
                             src/PowerGovernor.hpp \
+                            src/PowerGovernorImp.hpp \
                             src/PowerGovernorAgent.cpp \
                             src/PowerGovernorAgent.hpp \
                             src/Profile.cpp \
