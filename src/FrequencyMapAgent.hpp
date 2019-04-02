@@ -65,11 +65,9 @@ namespace geopm
             void aggregate_sample(const std::vector<std::vector<double> > &in_sample,
                                   std::vector<double> &out_sample) override;
             bool do_send_sample(void) const override;
-            bool adjust_platform(const std::vector<double> &in_policy) override;
-            void kadjust_platform(const std::vector<double> &in_policy) override;
+            void adjust_platform(const std::vector<double> &in_policy) override;
             bool do_write_batch(void) const override;
-            bool sample_platform(std::vector<double> &out_sample) override;
-            void ksample_platform(std::vector<double> &out_sample) override;
+            void sample_platform(std::vector<double> &out_sample) override;
             void wait(void) override;
             std::vector<std::pair<std::string, std::string> > report_header(void) const override;
             std::vector<std::pair<std::string, std::string> > report_host(void) const override;

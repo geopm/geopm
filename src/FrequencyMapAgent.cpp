@@ -113,8 +113,8 @@ namespace geopm
         m_is_policy_updated = m_freq_governor->set_frequency_bounds(policy[M_POLICY_FREQ_MIN], policy[M_POLICY_FREQ_MAX]);
     }
 
-    void FrequencyMapAgent::split_policy(const std::vector<double>& in_policy,
-                                         std::vector<std::vector<double> >& out_policy)
+    void FrequencyMapAgent::split_policy(const std::vector<double> &in_policy,
+                                         std::vector<std::vector<double> > &out_policy)
     {
 #ifdef GEOPM_DEBUG
         if (out_policy.size() != (size_t) m_num_children) {
@@ -144,7 +144,7 @@ namespace geopm
     }
 
     void FrequencyMapAgent::aggregate_sample(const std::vector<std::vector<double> > &in_sample,
-                                             std::vector<double>& out_sample)
+                                             std::vector<double> &out_sample)
     {
 
     }
@@ -154,13 +154,7 @@ namespace geopm
         return false;
     }
 
-    bool FrequencyMapAgent::adjust_platform(const std::vector<double> &in_policy)
-    {
-        kadjust_platform(in_policy);
-        return do_write_batch();
-    }
-
-    void FrequencyMapAgent::kadjust_platform(const std::vector<double> &in_policy)
+    void FrequencyMapAgent::adjust_platform(const std::vector<double> &in_policy)
     {
         update_policy(in_policy);
         double freq = NAN;
@@ -214,13 +208,7 @@ namespace geopm
         return m_is_frequency_changed;
     }
 
-    bool FrequencyMapAgent::sample_platform(std::vector<double> &out_sample)
-    {
-        ksample_platform(out_sample);
-        return do_send_sample();
-    }
-
-    void FrequencyMapAgent::ksample_platform(std::vector<double> &out_sample)
+    void FrequencyMapAgent::sample_platform(std::vector<double> &out_sample)
     {
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
             m_last_region[ctl_idx].hash = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH][ctl_idx]);

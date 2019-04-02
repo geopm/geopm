@@ -126,13 +126,7 @@ bool ExampleAgent::do_send_sample(void) const
 }
 
 // Set up idle percentage to print to either standard out or standard error
-bool ExampleAgent::adjust_platform(const std::vector<double> &in_policy)
-{
-    kadjust_platform(in_policy);
-    return do_write_batch();
-}
-
-void ExampleAgent::kadjust_platform(const std::vector<double>& in_policy)
+void ExampleAgent::adjust_platform(const std::vector<double>& in_policy)
 {
     assert(in_policy.size() == M_NUM_POLICY);
     // Check for NAN to set default values for policy
@@ -166,7 +160,7 @@ bool ExampleAgent::do_write_batch(void) const
 }
 
 // Read signals from the platform and calculate samples to be sent up
-bool ExampleAgent::sample_platform(std::vector<double> &out_sample)
+void ExampleAgent::sample_platform(std::vector<double> &out_sample)
 {
     assert(out_sample.size() == M_NUM_SAMPLE);
     // Collect latest times from platform signals
@@ -191,12 +185,6 @@ bool ExampleAgent::sample_platform(std::vector<double> &out_sample)
     if (std::isnan(m_max_idle) || m_last_sample[M_SAMPLE_IDLE_PCT] > m_max_idle) {
         m_max_idle = m_last_sample[M_SAMPLE_IDLE_PCT];
     }
-    return true;
-}
-
-void ExampleAgent::ksample_platform(std::vector<double>& out_sample)
-{
-
 }
 
 // Wait for the remaining cycle time to keep Controller loop cadence at 1 second

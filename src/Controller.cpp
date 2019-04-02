@@ -321,7 +321,8 @@ namespace geopm
         for (int level = m_num_level_ctl - 1; level > -1; --level) {
             if (do_send) {
                 m_agent[level + 1]->validate_policy(m_in_policy);
-                do_send = m_agent[level + 1]->descend(m_in_policy, m_out_policy[level]);
+                m_agent[level + 1]->split_policy(m_in_policy, m_out_policy[level]);
+                do_send = m_agent[level + 1]->do_send_policy();
             }
             if (do_send) {
                 m_tree_comm->send_down(level, m_out_policy[level]);
@@ -329,7 +330,8 @@ namespace geopm
             do_send = m_tree_comm->receive_down(level, m_in_policy);
         }
         m_agent[0]->validate_policy(m_in_policy);
-        if (m_agent[0]->adjust_platform(m_in_policy)) {
+        m_agent[0]->adjust_platform(m_in_policy);
+        if (m_agent[0]->do_write_batch()) {
             m_platform_io.write_batch();
         }
     }
@@ -338,7 +340,8 @@ namespace geopm
     {
         m_application_io->update(m_comm);
         m_platform_io.read_batch();
-        bool do_send = m_agent[0]->sample_platform(m_out_sample);
+        m_agent[0]->sample_platform(m_out_sample);
+        bool do_send = m_agent[0]->do_send_sample();
         m_reporter->update();
         m_agent[0]->trace_values(m_trace_sample);
         m_tracer->update(m_trace_sample, m_application_io->region_info());
@@ -350,7 +353,8 @@ namespace geopm
             }
             do_send = m_tree_comm->receive_up(level, m_in_sample[level]);
             if (do_send) {
-                do_send = m_agent[level + 1]->ascend(m_in_sample[level], m_out_sample);
+                m_agent[level + 1]->aggregate_sample(m_in_sample[level], m_out_sample);
+                do_send = m_agent[level + 1]->do_send_sample();
             }
         }
         if (do_send) {
