@@ -180,9 +180,16 @@ goals and use case for this interface.
     **unlink(3)** the existing cache file prior to calling this
     function.
 
+## RETURN VALUE
+If an error occurs in any call to an interface documented here, the
+return value of the function will be a negative integer
+corresponding to one of the error codes documented in
+**geopm_error(3)**.
+
 ## SEE ALSO
 **geopm(7)**,
 **geopm_pio_c(3)**,
+**geopm_error(3)**,
 **geopm::PlatformTopo(3)**,
 **geopm::PlatformIO(3)**,
 **unlink(3)**
