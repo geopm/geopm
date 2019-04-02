@@ -240,7 +240,6 @@ namespace geopm
                 const uint64_t last_region_hint = m_last_region[ctl_idx].hint;
                 // Higher is better for performance, so negate
                 const double last_region_perf_metric = -1.0 * m_last_region[ctl_idx].runtime;
-                const bool curr_region_is_invalid = last_region_hash == GEOPM_REGION_HASH_INVALID;
                 if (last_region_hash != GEOPM_REGION_HASH_INVALID &&
                     last_region_hash != GEOPM_REGION_HASH_UNMARKED &&
                     last_region_hint != GEOPM_REGION_HINT_COMPUTE) {
