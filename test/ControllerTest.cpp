@@ -177,13 +177,16 @@ TEST_F(ControllerTest, single_node)
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
     EXPECT_CALL(*agent, trace_values(_)).Times(m_num_step);
-    EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step).WillRepeatedly(Return(true));
-    EXPECT_CALL(*agent, sample_platform(_)).Times(m_num_step)
+    EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step);
+    EXPECT_CALL(*agent, do_write_batch())
+        .WillRepeatedly(Return(true));
+    EXPECT_CALL(*agent, sample_platform(_)).Times(m_num_step);
+    EXPECT_CALL(*agent, do_send_sample()).Times(m_num_step)
         .WillRepeatedly(Return(true));
     EXPECT_CALL(*agent, wait()).Times(m_num_step);
-    // should not call ascend/descend
-    EXPECT_CALL(*agent, ascend(_, _)).Times(0);
-    EXPECT_CALL(*agent, descend(_, _)).Times(0);
+    // should not call aggregate_sample/split_policy
+    EXPECT_CALL(*agent, aggregate_sample(_, _)).Times(0);
+    EXPECT_CALL(*agent, split_policy(_, _)).Times(0);
 
     for (int step = 0; step < m_num_step; ++step) {
         controller.step();
@@ -246,13 +249,16 @@ TEST_F(ControllerTest, two_level_controller_1)
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
     EXPECT_CALL(*agent, trace_values(_)).Times(m_num_step);
-    EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step).WillRepeatedly(Return(true));
-    EXPECT_CALL(*agent, sample_platform(_)).Times(m_num_step)
+    EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step);
+    EXPECT_CALL(*agent, do_write_batch())
+        .WillRepeatedly(Return(true));
+    EXPECT_CALL(*agent, sample_platform(_)).Times(m_num_step);
+    EXPECT_CALL(*agent, do_send_sample()).Times(m_num_step)
         .WillRepeatedly(Return(true));
     EXPECT_CALL(*agent, wait()).Times(m_num_step);
-    // should not call ascend/descend
-    EXPECT_CALL(*agent, ascend(_, _)).Times(0);
-    EXPECT_CALL(*agent, descend(_, _)).Times(0);
+    // should not call aggregate_sample/split_policy
+    EXPECT_CALL(*agent, aggregate_sample(_, _)).Times(0);
+    EXPECT_CALL(*agent, split_policy(_, _)).Times(0);
 
     for (int step = 0; step < m_num_step; ++step) {
         controller.step();
@@ -332,16 +338,19 @@ TEST_F(ControllerTest, two_level_controller_2)
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
-    EXPECT_CALL(*m_level_agent[0], sample_platform(_)).Times(m_num_step)
+    EXPECT_CALL(*m_level_agent[0], sample_platform(_)).Times(m_num_step);
+    EXPECT_CALL(*m_level_agent[0], do_send_sample()).Times(m_num_step)
         .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[0], wait()).Times(m_num_step);
-    // agent 0 should not call ascend/descend
-    EXPECT_CALL(*m_level_agent[0], ascend(_, _)).Times(0);
-    EXPECT_CALL(*m_level_agent[0], descend(_, _)).Times(0);
+    // agent 0 should not call aggregate_sample/split_policy
+    EXPECT_CALL(*m_level_agent[0], aggregate_sample(_, _)).Times(0);
+    EXPECT_CALL(*m_level_agent[0], split_policy(_, _)).Times(0);
 
-    EXPECT_CALL(*m_level_agent[1], descend(_, _)).Times(m_num_step)
+    EXPECT_CALL(*m_level_agent[1], split_policy(_, _)).Times(m_num_step);
+    EXPECT_CALL(*m_level_agent[1], do_send_policy())
         .WillRepeatedly(Return(true));
-    EXPECT_CALL(*m_level_agent[1], ascend(_, _)).Times(m_num_step)
+    EXPECT_CALL(*m_level_agent[1], aggregate_sample(_, _)).Times(m_num_step);
+    EXPECT_CALL(*m_level_agent[1], do_send_sample())
         .WillRepeatedly(Return(true));
 
     for (int step = 0; step < m_num_step; ++step) {
@@ -419,20 +428,25 @@ TEST_F(ControllerTest, two_level_controller_0)
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
-    EXPECT_CALL(*m_level_agent[0], sample_platform(_)).Times(m_num_step)
+    EXPECT_CALL(*m_level_agent[0], sample_platform(_)).Times(m_num_step);
+    EXPECT_CALL(*m_level_agent[0], do_send_sample()).Times(m_num_step)
         .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[0], wait()).Times(m_num_step);
-    // agent 0 should not call ascend/descend
-    EXPECT_CALL(*m_level_agent[0], ascend(_, _)).Times(0);
-    EXPECT_CALL(*m_level_agent[0], descend(_, _)).Times(0);
+    // agent 0 should not call aggregate_sample/split_policy
+    EXPECT_CALL(*m_level_agent[0], aggregate_sample(_, _)).Times(0);
+    EXPECT_CALL(*m_level_agent[0], split_policy(_, _)).Times(0);
 
-    EXPECT_CALL(*m_level_agent[2], descend(_, _)).Times(m_num_step)
+    EXPECT_CALL(*m_level_agent[2], split_policy(_, _)).Times(m_num_step);
+    EXPECT_CALL(*m_level_agent[2], do_send_policy())
         .WillRepeatedly(Return(true));
-    EXPECT_CALL(*m_level_agent[1], descend(_, _)).Times(m_num_step)
+    EXPECT_CALL(*m_level_agent[1], split_policy(_, _)).Times(m_num_step);
+    EXPECT_CALL(*m_level_agent[1], do_send_policy())
         .WillRepeatedly(Return(true));
-    EXPECT_CALL(*m_level_agent[1], ascend(_, _)).Times(m_num_step)
+    EXPECT_CALL(*m_level_agent[1], aggregate_sample(_, _)).Times(m_num_step);
+    EXPECT_CALL(*m_level_agent[1], do_send_sample())
         .WillRepeatedly(Return(true));
-    EXPECT_CALL(*m_level_agent[2], ascend(_, _)).Times(m_num_step)
+    EXPECT_CALL(*m_level_agent[2], aggregate_sample(_, _)).Times(m_num_step);
+    EXPECT_CALL(*m_level_agent[2], do_send_sample())
         .WillRepeatedly(Return(true));
 
     for (int step = 0; step < m_num_step; ++step) {

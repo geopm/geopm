@@ -200,8 +200,8 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/PowerBalancerTest.is_runtime_stable \
               test/gtest_links/PowerBalancerTest.power_cap \
               test/gtest_links/PowerGovernorAgentTest.adjust_platform \
-              test/gtest_links/PowerGovernorAgentTest.ascend \
-              test/gtest_links/PowerGovernorAgentTest.descend \
+              test/gtest_links/PowerGovernorAgentTest.aggregate_sample \
+              test/gtest_links/PowerGovernorAgentTest.split_policy \
               test/gtest_links/PowerGovernorAgentTest.sample_platform \
               test/gtest_links/PowerGovernorAgentTest.wait \
               test/gtest_links/PowerGovernorTest.govern \
