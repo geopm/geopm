@@ -74,8 +74,8 @@ namespace geopm
 
     }
 
-    void MonitorAgent::split_policy(const std::vector<double>& in_policy,
-                                    std::vector<std::vector<double> >& out_policy)
+    void MonitorAgent::split_policy(const std::vector<double> &in_policy,
+                                    std::vector<std::vector<double> > &out_policy)
     {
 
     }
@@ -86,7 +86,7 @@ namespace geopm
     }
 
     void MonitorAgent::aggregate_sample(const std::vector<std::vector<double> > &in_sample,
-                                        std::vector<double>& out_sample)
+                                        std::vector<double> &out_sample)
     {
 
     }
@@ -96,12 +96,7 @@ namespace geopm
         return false;
     }
 
-    bool MonitorAgent::adjust_platform(const std::vector<double> &in_policy)
-    {
-        return false;
-    }
-
-    void MonitorAgent::kadjust_platform(const std::vector<double>& in_policy)
+    void MonitorAgent::adjust_platform(const std::vector<double> &in_policy)
     {
 
     }
@@ -111,13 +106,7 @@ namespace geopm
         return false;
     }
 
-
-    bool MonitorAgent::sample_platform(std::vector<double> &out_sample)
-    {
-        return false;
-    }
-
-    void MonitorAgent::ksample_platform(std::vector<double>& out_sample)
+    void MonitorAgent::sample_platform(std::vector<double> &out_sample)
     {
 
     }

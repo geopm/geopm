@@ -583,13 +583,7 @@ namespace geopm
         return m_do_send_sample;
     }
 
-    bool PowerBalancerAgent::adjust_platform(const std::vector<double> &in_policy)
-    {
-        kadjust_platform(in_policy);
-        return do_write_batch();
-    }
-
-    void PowerBalancerAgent::kadjust_platform(const std::vector<double> &in_policy)
+    void PowerBalancerAgent::adjust_platform(const std::vector<double> &in_policy)
     {
 #ifdef GEOPM_DEBUG
         if (in_policy.size() != M_NUM_POLICY) {
@@ -605,13 +599,7 @@ namespace geopm
         return m_do_write_batch;
     }
 
-    bool PowerBalancerAgent::sample_platform(std::vector<double> &out_sample)
-    {
-        ksample_platform(out_sample);
-        return do_send_sample();
-    }
-
-    void PowerBalancerAgent::ksample_platform(std::vector<double> &out_sample)
+    void PowerBalancerAgent::sample_platform(std::vector<double> &out_sample)
     {
         m_do_send_sample = m_role->sample_platform(out_sample);
     }

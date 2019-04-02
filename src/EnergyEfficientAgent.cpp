@@ -166,19 +166,14 @@ namespace geopm
     {
     }
 
-    void EnergyEfficientAgent::kadjust_platform(const std::vector<double> &in_policy)
-    {
-        m_do_adjust_platform = adjust_platform(in_policy);
-    }
-
     bool EnergyEfficientAgent::do_write_batch(void) const
     {
         return m_do_adjust_platform;
     }
 
-    bool EnergyEfficientAgent::adjust_platform(const std::vector<double> &in_policy)
+    void EnergyEfficientAgent::adjust_platform(const std::vector<double> &in_policy)
     {
-        bool result = false;
+        m_do_adjust_platform = false;
         update_freq_range(in_policy);
         std::vector<double> target_freq;
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
@@ -193,12 +188,11 @@ namespace geopm
             }
         }
         if (target_freq.size()) {
-            result = m_freq_governor->adjust_platform(target_freq, m_last_freq);
+            m_do_adjust_platform = m_freq_governor->adjust_platform(target_freq, m_last_freq);
         }
-        return result;
     }
 
-    void EnergyEfficientAgent::ksample_platform(std::vector<double> &out_sample)
+    void EnergyEfficientAgent::sample_platform(std::vector<double> &out_sample)
     {
         double freq_min = NAN;
         double freq_max = NAN;
@@ -258,11 +252,6 @@ namespace geopm
     bool EnergyEfficientAgent::do_send_sample(void) const
     {
         return false;
-    }
-
-    bool EnergyEfficientAgent::sample_platform(std::vector<double> &out_sample)
-    {
-        return do_send_sample();
     }
 
     void EnergyEfficientAgent::wait(void)

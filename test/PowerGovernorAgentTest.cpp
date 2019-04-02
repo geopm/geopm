@@ -212,7 +212,7 @@ TEST_F(PowerGovernorAgentTest, adjust_platform)
     }
 }
 
-TEST_F(PowerGovernorAgentTest, ascend)
+TEST_F(PowerGovernorAgentTest, aggregate_sample)
 {
     m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
     m_agent->init(1, m_fan_in, false);
@@ -221,22 +221,26 @@ TEST_F(PowerGovernorAgentTest, ascend)
     std::vector<double> out_sample {NAN, NAN, NAN};
     // always false if not converged
     for (int i = 0; i < m_ascend_period * 2; ++i) {
-        EXPECT_FALSE(m_agent->ascend(in_sample, out_sample));
+        m_agent->aggregate_sample(in_sample, out_sample);
+        EXPECT_FALSE(m_agent->do_send_sample());
     }
 
     // once per m_ascend_period if converged
     in_sample = {{2.3, true}, {3.4, true}};
     // average of power samples
     std::vector<double> expected {(2.3 + 3.4)/2.0, true, 1.5};
-    EXPECT_TRUE(m_agent->ascend(in_sample, out_sample));
+    m_agent->aggregate_sample(in_sample, out_sample);
+    EXPECT_TRUE(m_agent->do_send_sample());
     check_result(expected, out_sample);
     for (int i = 1; i < m_ascend_period; ++i) {
-        EXPECT_FALSE(m_agent->ascend(in_sample, out_sample));
+        m_agent->aggregate_sample(in_sample, out_sample);
+        EXPECT_FALSE(m_agent->do_send_sample());
     }
-    EXPECT_TRUE(m_agent->ascend(in_sample, out_sample));
+    m_agent->aggregate_sample(in_sample, out_sample);
+    EXPECT_TRUE(m_agent->do_send_sample());
 }
 
-TEST_F(PowerGovernorAgentTest, descend)
+TEST_F(PowerGovernorAgentTest, split_policy)
 {
     m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
     m_agent->init(1, m_fan_in, false);
@@ -245,11 +249,12 @@ TEST_F(PowerGovernorAgentTest, descend)
     std::vector<std::vector<double> > policy_out {{NAN}, {NAN}};
 
     // invalid budget
-    EXPECT_THROW(m_agent->descend({10}, policy_out), geopm::Exception);
+    EXPECT_THROW(m_agent->split_policy({10}, policy_out), geopm::Exception);
 
     // all children get same budget
     policy_in = {100};
-    EXPECT_TRUE(m_agent->descend(policy_in, policy_out));
+    m_agent->split_policy(policy_in, policy_out);
+    EXPECT_TRUE(m_agent->do_send_policy());
     std::vector<std::vector<double> > expected {{100}, {100}};
     for (int child = 0; child < m_fan_in[1]; ++child) {
         check_result(expected[child], policy_out[child]);
@@ -257,12 +262,14 @@ TEST_F(PowerGovernorAgentTest, descend)
 
     // budget stays the same
     for (int i = 0; i < 50; ++i) {
-        EXPECT_FALSE(m_agent->descend(policy_in, policy_out));
+        m_agent->split_policy(policy_in, policy_out);
+        EXPECT_FALSE(m_agent->do_send_policy());
     }
 
     // updated budget
     policy_in = {150};
-    EXPECT_TRUE(m_agent->descend(policy_in, policy_out));
+    m_agent->split_policy(policy_in, policy_out);
+    EXPECT_TRUE(m_agent->do_send_policy());
     expected = {{150}, {150}};
     for (int child = 0; child < m_fan_in[1]; ++child) {
         check_result(expected[child], policy_out[child]);
