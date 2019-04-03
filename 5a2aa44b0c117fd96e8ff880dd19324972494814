@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7876ef4f_70adc45c",
+        "filename": "Makefile.am",
+        "patchSetId": 4
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-03T00:54:03Z",
+      "side": 1,
+      "message": "Switch.  Put it right above here and get rid of the \"BUILD_SOURCES \u003d \" in the else conditional.",
+      "range": {
+        "startLine": 632,
+        "startChar": 0,
+        "endLine": 633,
+        "endChar": 13
+      },
+      "revId": "5a2aa44b0c117fd96e8ff880dd19324972494814",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09fe0401_c96f0ca6",
+        "filename": "Makefile.am",
+        "patchSetId": 4
+      },
+      "lineNbr": 648,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-03T00:54:03Z",
+      "side": 1,
+      "message": "Other place it is set.",
+      "revId": "5a2aa44b0c117fd96e8ff880dd19324972494814",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04d85de3_d196edf1",
+        "filename": "Makefile.am",
+        "patchSetId": 4
+      },
+      "lineNbr": 680,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-03T00:54:03Z",
+      "side": 1,
+      "message": "Needs to be outside of the if ENABLE_DOC switch...\nsorry",
+      "revId": "5a2aa44b0c117fd96e8ff880dd19324972494814",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
