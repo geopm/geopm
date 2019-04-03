@@ -153,6 +153,7 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/geopm.7 \
                 man/geopm_agent_c.3 \
                 man/geopm_agent_energy_efficient.7 \
+                man/geopm_agent_frequency_map.7 \
                 man/geopm_agent_monitor.7 \
                 man/geopm_agent_power_balancer.7 \
                 man/geopm_agent_power_governor.7 \
@@ -276,6 +277,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/geopm.7.ronn \
              ronn/geopm_agent_c.3.ronn \
              ronn/geopm_agent_energy_efficient.7.ronn \
+             ronn/geopm_agent_frequency_map.7.ronn \
              ronn/geopm_agent_monitor.7.ronn \
              ronn/geopm_agent_power_balancer.7.ronn \
              ronn/geopm_agent_power_governor.7.ronn \

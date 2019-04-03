@@ -62,6 +62,8 @@ geopm(7) -- global extensible open power manager
 
 **geopm_agent_energy_efficient(7)**: Agent for saving energy
 
+**geopm_agent_frequency_map(7)**: Agent for running regions at optimal frequencies
+
 **geopm_agent_power_balancer(7)**: Agent that optimizes performance under a power cap
 
 **geopm_agent_power_governor(7)**: Agent that enforces a power cap
@@ -290,6 +292,7 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
 ## SEE ALSO
 **geopmpy(7)**,
 **geopm_agent_energy_efficient(7)**,
+**geopm_agent_frequency_map(7)**,
 **geopm_agent_monitor(7)**,
 **geopm_agent_power_balancer(7)**,
 **geopm_agent_power_governor(7)**,
