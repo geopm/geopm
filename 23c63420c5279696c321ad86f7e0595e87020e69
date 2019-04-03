@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "08390708_db9fb3ff",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-03T16:14:32Z",
+      "side": 1,
+      "message": "I wouldn\u0027t be opposed to a getter for each of min. max, step.  Then we don\u0027t need to use output parameters",
+      "revId": "23c63420c5279696c321ad86f7e0595e87020e69",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26546e12_45746cca",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-03T16:14:32Z",
+      "side": 1,
+      "message": "does the other agent use this info?  maybe we can remove the output param?",
+      "revId": "23c63420c5279696c321ad86f7e0595e87020e69",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abe47db6_c65e4982",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-03T16:14:32Z",
+      "side": 1,
+      "message": "still used?",
+      "range": {
+        "startLine": 201,
+        "startChar": 54,
+        "endLine": 201,
+        "endChar": 65
+      },
+      "revId": "23c63420c5279696c321ad86f7e0595e87020e69",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c48aa859_72162bc2",
+        "filename": "test/FrequencyGovernorTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-03T16:14:32Z",
+      "side": 1,
+      "message": "should be M_CTL_DOMAIN i.e. core\n\nactually this is the same as the next test now, so can go away",
+      "range": {
+        "startLine": 96,
+        "startChar": 14,
+        "endLine": 96,
+        "endChar": 30
+      },
+      "revId": "23c63420c5279696c321ad86f7e0595e87020e69",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92eb01d8_5def2aa1",
+        "filename": "test/FrequencyGovernorTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-03T16:14:32Z",
+      "side": 1,
+      "message": "this test can go away now; no way to hit this",
+      "range": {
+        "startLine": 107,
+        "startChar": 0,
+        "endLine": 113,
+        "endChar": 1
+      },
+      "revId": "23c63420c5279696c321ad86f7e0595e87020e69",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
