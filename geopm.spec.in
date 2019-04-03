@@ -187,6 +187,7 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 %doc %{_mandir}/man3/geopm_version.3.gz
 %doc %{_mandir}/man7/geopm.7.gz
 %doc %{_mandir}/man7/geopm_agent_energy_efficient.7.gz
+%doc %{_mandir}/man7/geopm_agent_frequency_map.7.gz
 %doc %{_mandir}/man7/geopm_agent_monitor.7.gz
 %doc %{_mandir}/man7/geopm_agent_power_balancer.7.gz
 %doc %{_mandir}/man7/geopm_agent_power_governor.7.gz
