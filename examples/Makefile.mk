@@ -101,6 +101,7 @@ if ENABLE_SCHED
     examples_print_affinity_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) $(OPENMP_CFLAGS)
     examples_print_affinity_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CXXFLAGS) $(OPENMP_CFLAGS)
 if ENABLE_FORTRAN
+    BUILT_SOURCES += geopm.mod
     noinst_PROGRAMS += examples/simple_prof_f
     examples_simple_prof_f_SOURCES = examples/simple_prof_f.f90
     examples_simple_prof_f_CPPFLAGS = $(AM_CPPFLAGS) $(MPI_CPPFLAGS) $(OPENMP_CFLAGS)
