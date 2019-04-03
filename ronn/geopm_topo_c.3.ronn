@@ -68,6 +68,9 @@ geopm_topo_c(3) -- query platform component topology
 
 ## DOMAIN TYPES
 
+The `geopm_domain_e` enum defines a set of values that correspond to
+hardware components on the system:
+
   * GEOPM_DOMAIN_INVALID = -1:
     Indicates an invalid domain.
 
@@ -111,8 +114,8 @@ geopm_topo_c(3) -- query platform component topology
 ## DESCRIPTION
 
 The interfaces described in this man page are the C language bindings
-for the **PlatformTopo(3)** C++ class.  Please refer to the
-**PlatformTopo(3)** man page for a general description of the purpose,
+for the **geopm::PlatformTopo(3)** C++ class.  Please refer to the
+**geopm::PlatformTopo(3)** man page for a general description of the purpose,
 goals and use case for this interface.
 
   * `geopm_topo_num_domain`():
