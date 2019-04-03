@@ -674,7 +674,7 @@ $(ronn_man): man/%: ruby/bin/ronn ronn/%.ronn ronn/index.txt ronn/header.txt
 gh-pages: doxygen $(dist_man_MANS)
 	mkdir -p gh-pages/dox
 	mkdir -p gh-pages/man
-	cp -rf dox/html/* gh-pages/dox/.
+	cp -rf dox-public/html/* gh-pages/dox/.
 	cp ronn/*.html gh-pages/man/.
 
 else
