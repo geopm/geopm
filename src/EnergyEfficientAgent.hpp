@@ -103,7 +103,6 @@ namespace geopm
             std::unique_ptr<FrequencyGovernor> m_freq_governor;
             int m_num_freq_ctl_domain;
             std::vector<struct geopm_region_info_s>  m_last_region;
-            std::vector<double> m_last_freq;
             std::map<uint64_t, double> m_adapt_freq_map;
             std::map<uint64_t, std::unique_ptr<EnergyEfficientRegion> > m_region_map;
             geopm_time_s m_last_wait;
@@ -111,7 +110,6 @@ namespace geopm
             int m_level;
             int m_num_children;
             bool m_do_send_policy;
-            bool m_do_adjust_platform;
     };
 }
 
