@@ -101,14 +101,12 @@ namespace geopm
             PlatformTopo &m_platform_topo;
             std::shared_ptr<FrequencyGovernor> m_freq_governor;
             std::vector<struct geopm_region_info_s>  m_last_region;
-            std::vector<double> m_last_freq;
             std::map<uint64_t, double> m_hash_freq_map;
             geopm_time_s m_last_wait;
             std::vector<std::vector<int> > m_signal_idx;
             int m_level;
             int m_num_children;
             bool m_is_policy_updated;
-            bool m_is_frequency_changed;
             int m_num_freq_ctl_domain;
     };
 }

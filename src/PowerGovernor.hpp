@@ -59,7 +59,8 @@ namespace geopm
             /// @param [out] node_power_actual Achievable node power limit.  Should equal
             //              node_power_request unless clamped by bounds.
             /// @return True if platform adjustments have been made, false otherwise.
-            virtual bool adjust_platform(double node_power_request, double &node_power_actual) = 0;
+            virtual void adjust_platform(double node_power_request, double &node_power_actual) = 0;
+            virtual bool do_write_batch(void) const = 0;
             /// @brief Sets min and max package bounds.
             /// @param [in] min_pkg_power Minimum package power.
             /// @param [in] max_pkg_power Maximum package power.
