@@ -64,6 +64,7 @@ ronn/GEOPM_CXX_MAN_TimeIOGroup.3.ronn
 ronn/geopm.7.ronn.in
 ronn/geopm_agent_c.3.ronn
 ronn/geopm_agent_energy_efficient.7.ronn
+ronn/geopm_agent_frequency_map.7.ronn
 ronn/geopm_agent_monitor.7.ronn
 ronn/geopm_agent_power_balancer.7.ronn
 ronn/geopm_agent_power_governor.7.ronn
