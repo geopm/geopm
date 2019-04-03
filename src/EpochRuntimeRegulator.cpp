@@ -178,9 +178,9 @@ namespace geopm
             throw Exception("EpochRuntimeRegulatorImp::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
-        bool is_ignore = geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, region_id) ||
-                         geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_NETWORK, region_id);
         bool is_mpi = geopm_region_id_is_mpi(region_id);
+        bool is_ignore = geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, region_id) ||
+                         (is_mpi && geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_NETWORK, region_id));
         region_id = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id);
         auto pre_epoch_it = m_pre_epoch_region[rank].find(region_id);
         auto reg_it = m_rid_regulator_map.find(region_id);
