@@ -77,7 +77,12 @@ def do_geopmwrite(write_str):
     test_exec = "dummy -- geopmwrite " + write_str
     ostream = StringIO.StringIO()
     dev_null = open('/dev/null', 'w')
-    allocation_node_test(test_exec, ostream, dev_null)
+    try:
+        allocation_node_test(test_exec, ostream, dev_null)
+    except Exception as e:
+        import traceback
+        import logging
+        logging.error(traceback.format_exc())
     dev_null.close()
 
 def do_geopmread(read_str):
@@ -774,7 +779,7 @@ class TestIntegration(unittest.TestCase):
             # budget for KNL
             power_budget = 130
         else:
-            power_budget = 130
+            power_budget = 200
         self._options = {'power_budget': power_budget}
         gov_agent_conf_path = name + '_gov_agent.config'
         bal_agent_conf_path = name + '_bal_agent.config'
