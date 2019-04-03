@@ -116,6 +116,7 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
 ## SEE ALSO
 **geopm(7)**,
 **geopm_agent_energy_efficient(7)**,
+**geopm_agent_frequency_map(7)**,
 **geopm_agent_monitor(7)**,
 **geopm_agent_power_balancer(7)**,
 **geopm_agent_power_governor(7)**,

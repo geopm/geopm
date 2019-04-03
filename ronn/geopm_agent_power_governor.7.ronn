@@ -79,9 +79,8 @@ reports and traces with additional Agent-specific information.
   N/A
 
 * `Control Loop Gate`:
-  The Monitor agent gates the Controller's control loop to a cadence
-  of 5ms.  This agent propagates its ascending signals up the tree
-  every 50ms.
+  The agent gates the Controller's control loop to a cadence
+  of 5ms.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
