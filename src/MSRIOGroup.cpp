@@ -916,27 +916,27 @@ namespace geopm
             do_check_governor = false;
         }
 
-        static const std::set<std::string> POWER_CONTROL_SET {
-            "POWER_PACKAGE_LIMIT",
-            "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT"};
-        static bool do_check_rapl_lock = true;
-        if (do_check_rapl_lock &&
-            POWER_CONTROL_SET.find(control_name) != POWER_CONTROL_SET.end()) {
+        // static const std::set<std::string> POWER_CONTROL_SET {
+        //     "POWER_PACKAGE_LIMIT",
+        //     "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT"};
+        // static bool do_check_rapl_lock = true;
+        // if (do_check_rapl_lock &&
+        //     POWER_CONTROL_SET.find(control_name) != POWER_CONTROL_SET.end()) {
 
-            int domain = signal_domain_type("MSR::PKG_POWER_LIMIT:LOCK");
-            int num_domain = m_platform_topo.num_domain(domain);
-            double lock = 0.0;
-            for (int dom_idx = 0; dom_idx < num_domain; ++dom_idx) {
-                lock += read_signal("MSR::PKG_POWER_LIMIT:LOCK", domain, dom_idx);
-            }
-            if (lock != 0.0) {
-                throw Exception("MSRIOGroup::" + std::string(__func__) + "(): " +
-                                "Unable to control power when RAPL lock bit is set. " +
-                                "Check BIOS settings to ensure RAPL is enabled.",
-                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-            do_check_rapl_lock = false;
-        }
+        //     int domain = signal_domain_type("MSR::PKG_POWER_LIMIT:LOCK");
+        //     int num_domain = m_platform_topo.num_domain(domain);
+        //     double lock = 0.0;
+        //     for (int dom_idx = 0; dom_idx < num_domain; ++dom_idx) {
+        //         lock += read_signal("MSR::PKG_POWER_LIMIT:LOCK", domain, dom_idx);
+        //     }
+        //     if (lock != 0.0) {
+        //         throw Exception("MSRIOGroup::" + std::string(__func__) + "(): " +
+        //                         "Unable to control power when RAPL lock bit is set. " +
+        //                         "Check BIOS settings to ensure RAPL is enabled.",
+        //                         GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        //     }
+        //     do_check_rapl_lock = false;
+        // }
     }
 
     /// Used to validate types and values of JSON objects
