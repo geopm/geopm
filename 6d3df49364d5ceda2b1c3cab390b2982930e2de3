@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba7cf137_017f73e4",
+        "filename": "src/FrequencyGovernor.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-03T19:15:34Z",
+      "side": 1,
+      "message": "can remove this",
+      "revId": "6d3df49364d5ceda2b1c3cab390b2982930e2de3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
