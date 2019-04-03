@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42af951e_c12d3a38",
+        "filename": "tutorial/agent/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-03T22:10:27Z",
+      "side": 1,
+      "message": "The ExampleAgent queues a message containing the idle percent to one of the controls provided by the ExampleIOGroup.  If the idle percent is in bounds then the message is queued for the \"STDOUT\" control, if it is out of bounds the message is queued for the \"STDERR\" control.",
+      "range": {
+        "startLine": 87,
+        "startChar": 10,
+        "endLine": 87,
+        "endChar": 28
+      },
+      "revId": "9fdbdd9bd320016a00bce2cafdb7e4553c638d8d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
