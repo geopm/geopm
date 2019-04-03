@@ -80,7 +80,7 @@ hidden by the singleton accessor.
 
 This class describes the number and arrangement of cores, sockets,
 logical CPUs, memory banks, and other components.  This information is
-used when calling methods of the **geopm::PlatformIO** interface.  The
+used when calling methods of the **geopm::PlatformIO(3)** interface.  The
 topology of the current platform is available using the singleton
 geopm::platform_topo().  The remaining methods are accessed through
 this singleton.

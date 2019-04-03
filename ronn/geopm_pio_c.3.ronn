@@ -110,7 +110,7 @@ geopm_pio_c(7) -- interfaces to query and modify platform
 ## DESCRIPTION
 
 The interfaces described in this man page are the C language bindings
-for the **PlatformPlatformIO(3)** C++ class.  Please refer to the
+for the **geopm::PlatformIO(3)** C++ class.  Please refer to the
 **geopm::PlatformIO(3)** and **geopm::PlatformTopo(3)** man pages for
 a general overview of the GEOPM platform interface layer.  The
 **geopm_topo_c(3)** man page describes the C wrappers for the
