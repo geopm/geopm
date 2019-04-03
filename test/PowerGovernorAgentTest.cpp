@@ -117,7 +117,12 @@ void PowerGovernorAgentTest::set_up_leaf(void)
         .Times(AtLeast(0));
     EXPECT_CALL(*m_power_gov, adjust_platform(_, _))
         .Times(AtLeast(0))
-        .WillRepeatedly(DoAll(SaveArg<0>(&m_val_cache), SetArgReferee<1>(m_val_cache), Return(true)));
+        .WillRepeatedly(DoAll(SaveArg<0>(&m_val_cache), SetArgReferee<1>(m_val_cache)));
+    EXPECT_CALL(*m_power_gov, adjust_platform(_, _))
+        .Times(AtLeast(0));
+    EXPECT_CALL(*m_power_gov, do_write_batch())
+        .Times(AtLeast(0))
+        .WillRepeatedly(Return(true));
     m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, std::move(m_power_gov));
 }
 

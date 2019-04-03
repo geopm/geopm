@@ -171,8 +171,9 @@ TEST_F(FrequencyMapAgentTest, map)
         EXPECT_CALL(*m_governor, set_frequency_bounds(m_freq_min, m_freq_max));
         EXPECT_CALL(*m_governor, get_frequency_bounds(_, _, _));
         EXPECT_CALL(*m_governor, adjust_platform(adjust_vals, _))
-            .WillOnce(DoAll(SetArgReferee<1>(adjust_vals),
-                            (Return(true))));
+            .WillOnce(SetArgReferee<1>(adjust_vals));
+        EXPECT_CALL(*m_governor, do_write_batch())
+            .WillOnce(Return(true));
         std::vector<double> tmp;
         m_agent->sample_platform(tmp);
         m_agent->adjust_platform(m_default_policy);
@@ -219,8 +220,9 @@ TEST_F(FrequencyMapAgentTest, hint)
         EXPECT_CALL(*m_governor, get_frequency_bounds(_, _, _));
         std::vector<double> adjust_vals = {expected_freq};
         EXPECT_CALL(*m_governor, adjust_platform(adjust_vals, _))
-            .WillOnce(DoAll(SetArgReferee<1>(adjust_vals),
-                            (Return(true))));
+            .WillOnce(SetArgReferee<1>(adjust_vals));
+        EXPECT_CALL(*m_governor, do_write_batch())
+            .WillOnce(Return(true));
         m_agent->adjust_platform(m_default_policy);
     }
 }

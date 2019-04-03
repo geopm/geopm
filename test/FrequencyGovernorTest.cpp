@@ -91,9 +91,9 @@ void FrequencyGovernorTest::SetUp(void)
 TEST_F(FrequencyGovernorTest, frequency_control_domain)
 {
     auto gov = geopm::make_unique<FrequencyGovernorImp>(m_platio, m_topo);
-    gov->init_platform_io(GEOPM_DOMAIN_BOARD);
+    gov->init_platform_io();
     int domain = gov->frequency_domain_type();
-    EXPECT_EQ(GEOPM_DOMAIN_BOARD, domain);
+    EXPECT_EQ(GEOPM_DOMAIN_CPU, domain);
 }
 
 TEST_F(FrequencyGovernorTest, frequency_control_domain_default)
@@ -107,7 +107,7 @@ TEST_F(FrequencyGovernorTest, frequency_control_domain_default)
 TEST_F(FrequencyGovernorTest, frequency_control_domain_error)
 {
     auto gov = geopm::make_unique<FrequencyGovernorImp>(m_platio, m_topo);
-    GEOPM_EXPECT_THROW_MESSAGE(gov->init_platform_io(GEOPM_DOMAIN_CPU),
+    GEOPM_EXPECT_THROW_MESSAGE(gov->init_platform_io(),
                                GEOPM_ERROR_INVALID,
                                "invalid domain");
 }
@@ -128,7 +128,8 @@ TEST_F(FrequencyGovernorTest, adjust_platform)
     for (int idx = 0; idx < num_domain; ++idx) {
         EXPECT_CALL(m_platio, adjust(M_FREQ_CTL_IDX[idx], request[idx]));
     }
-    bool result = m_gov->adjust_platform(request, actual);
+    m_gov->adjust_platform(request, actual);
+    bool result = m_gov->do_write_batch();
     EXPECT_TRUE(result);
     EXPECT_EQ(request, actual);
 }
@@ -150,7 +151,8 @@ TEST_F(FrequencyGovernorTest, adjust_platform_clamping)
     for (int idx = 0; idx < num_domain; ++idx) {
         EXPECT_CALL(m_platio, adjust(M_FREQ_CTL_IDX[idx], expected[idx]));
     }
-    bool result = m_gov->adjust_platform(request, actual);
+    m_gov->adjust_platform(request, actual);
+    bool result = m_gov->do_write_batch();
     EXPECT_TRUE(result);
     EXPECT_EQ(expected, actual);
     EXPECT_NE(actual, request);

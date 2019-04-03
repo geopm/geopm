@@ -69,6 +69,8 @@ namespace geopm
         , M_PLAT_FREQ_MAX(get_limit("CPUINFO::FREQ_MAX"))
         , m_freq_min(M_PLAT_FREQ_MIN)
         , m_freq_max(M_PLAT_FREQ_MAX)
+        , m_do_write_batch(false)
+        , m_freq_ctl_domain_type(-1)
     {
 
     }
@@ -108,6 +110,7 @@ namespace geopm
     void FrequencyGovernorImp::init_platform_io(int freq_ctl_domain_type)
     {
         m_freq_ctl_domain_type = freq_ctl_domain_type;
+        m_last_freq = std::vector<double>(m_freq_ctl_domain_type, NAN);
         const int num_freq_ctl_domain = m_platform_topo.num_domain(m_freq_ctl_domain_type);
         for (int ctl_dom_idx = 0; ctl_dom_idx != num_freq_ctl_domain; ++ctl_dom_idx) {
             m_control_idx.push_back(m_platform_io.push_control("FREQUENCY",
@@ -121,7 +124,7 @@ namespace geopm
         return m_freq_ctl_domain_type;
     }
 
-    bool FrequencyGovernorImp::adjust_platform(const std::vector<double> &frequency_request,
+    void FrequencyGovernorImp::adjust_platform(const std::vector<double> &frequency_request,
                                                std::vector<double> &frequency_actual)
     {
         if (frequency_request.size() != m_control_idx.size()) {
@@ -134,6 +137,8 @@ namespace geopm
                             "(): size of actual vector does not match size of control domain.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+
+        m_do_write_batch = std::equal(m_last_freq.begin(), m_last_freq.end(), frequency_request.begin());
         for (size_t idx = 0; idx < m_control_idx.size(); ++idx) {
             if (frequency_request[idx] > m_freq_max) {
                 frequency_actual[idx] = m_freq_max;
@@ -146,7 +151,12 @@ namespace geopm
             }
             m_platform_io.adjust(m_control_idx[idx], frequency_actual[idx]);
         }
-        return true;
+        m_last_freq = frequency_actual;
+    }
+
+    bool FrequencyGovernorImp::do_write_batch(void) const
+    {
+        return m_do_write_batch;
     }
 
     bool FrequencyGovernorImp::set_frequency_bounds(double freq_min, double freq_max)

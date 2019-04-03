@@ -49,11 +49,6 @@ namespace geopm
             /// @brief Registers signals and controls with PlatformIO using the
             ///        default control domain.
             virtual void init_platform_io(void) = 0;
-            /// @brief Registers signals and controls with PlatformIO using the
-            ///        default control domain.
-            /// @param [in] freq_ctl_domain_type The domain by which frequency
-            ///        should be controlled.
-            virtual void init_platform_io(int freq_ctl_domain_type) = 0;
             /// @brief Get the domain type of frequency control on the
             ///        platform.  Users of the FrequencyGovernor can
             ///        use this information to determine the size of
@@ -68,8 +63,12 @@ namespace geopm
             //              frequency.  Should equal frequency_request
             //              unless clamped by bounds.
             /// @return True if platform adjustments have been made, false otherwise.
-            virtual bool adjust_platform(const std::vector<double> &frequency_request,
+            virtual void adjust_platform(const std::vector<double> &frequency_request,
                                          std::vector<double> &frequency_actual) = 0;
+            /// @brief Returns true if last call to adjust_platform requires writing
+            //         of controls.
+            /// @return True if platform adjustments have been made, false otherwise.
+            virtual bool do_write_batch(void) const = 0;
             /// @brief Sets min and max package bounds.  The defaults before calling
             ///        this method are the min and max frequency for the platform.
             /// @param [in] freq_min Minimum frequency value for the control domain.

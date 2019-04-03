@@ -71,7 +71,6 @@ namespace geopm
         , m_level(-1)
         , m_num_children(0)
         , m_do_send_policy(false)
-        , m_do_adjust_platform(false)
     {
 
     }
@@ -168,28 +167,31 @@ namespace geopm
 
     bool EnergyEfficientAgent::do_write_batch(void) const
     {
-        return m_do_adjust_platform;
+        return m_freq_governor->do_write_batch();
     }
 
     void EnergyEfficientAgent::adjust_platform(const std::vector<double> &in_policy)
     {
-        m_do_adjust_platform = false;
         update_freq_range(in_policy);
-        std::vector<double> target_freq;
+        /// @todo a little wasteful to have these vars and extra call to get access to freq_max
+        double freq_min = NAN;
+        double freq_max = NAN;
+        double freq_step = NAN;
+        m_freq_governor->get_frequency_bounds(freq_min, freq_max, freq_step);
+        std::vector<double> target_freq(m_num_freq_ctl_domain, freq_max);
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
             auto it = m_adapt_freq_map.find(m_last_region[ctl_idx].hash);
             if (GEOPM_REGION_HASH_INVALID != m_last_region[ctl_idx].hash &&
                 it != m_adapt_freq_map.end()) {
-                target_freq.push_back(m_adapt_freq_map[m_last_region[ctl_idx].hash]);
+                target_freq[ctl_idx] = m_adapt_freq_map[m_last_region[ctl_idx].hash];
             }
             else if (GEOPM_REGION_HASH_INVALID != m_last_region[ctl_idx].hash) {
                 throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): unknown target frequency.",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
-        if (target_freq.size()) {
-            m_do_adjust_platform = m_freq_governor->adjust_platform(target_freq, m_last_freq);
-        }
+        std::vector<double> tmp(m_num_freq_ctl_domain, NAN); // we don't care if we get clamped so throw away var
+        m_freq_governor->adjust_platform(target_freq, tmp);
     }
 
     void EnergyEfficientAgent::sample_platform(std::vector<double> &out_sample)
@@ -329,7 +331,6 @@ namespace geopm
                                                           .hint = GEOPM_REGION_HINT_UNKNOWN,
                                                           .progress = 0,
                                                           .runtime = 0});
-        m_last_freq = std::vector<double>(m_num_freq_ctl_domain, NAN);
 
         std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT", "REGION_RUNTIME"};
 

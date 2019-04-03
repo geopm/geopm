@@ -108,7 +108,6 @@ namespace geopm
             int m_level;
             int m_num_children;
             bool m_is_policy_updated;
-            bool m_is_frequency_changed;
             int m_num_freq_ctl_domain;
     };
 }
