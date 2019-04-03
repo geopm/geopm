@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f57ccc8a_248278ac",
+        "filename": "src/EpochRuntimeRegulator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-03T19:56:02Z",
+      "side": 1,
+      "message": "the only time is_ignore is used is when is_mpi \u003d\u003d False.  This means your logic for is_ignore is now not determined by hint network.  This should break the balancer if MPI regions are wrapped in network hint regions, as we have done for HACC.",
+      "range": {
+        "startLine": 183,
+        "startChar": 25,
+        "endLine": 183,
+        "endChar": 105
+      },
+      "revId": "17ebfb05ac8d6f21a2e3a45396dcfdaf251b64d5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
