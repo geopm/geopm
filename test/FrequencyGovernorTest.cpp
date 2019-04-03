@@ -75,7 +75,7 @@ void FrequencyGovernorTest::SetUp(void)
     ON_CALL(m_platio, read_signal("CPUINFO::FREQ_MIN", _, _)).WillByDefault(Return(M_PLAT_MIN_FREQ));
     ON_CALL(m_platio, read_signal("CPUINFO::FREQ_MAX", _, _)).WillByDefault(Return(M_PLAT_MAX_FREQ));
 
-    ASSERT_EQ(M_NUM_CORE, M_FREQ_CTL_IDX.size());
+    ASSERT_EQ(M_NUM_CORE, (int)M_FREQ_CTL_IDX.size());
     for (int idx = 0; idx < M_NUM_CORE; ++idx) {
         ON_CALL(m_platio, push_control("FREQUENCY", M_CTL_DOMAIN, idx)).
             WillByDefault(Return(M_FREQ_CTL_IDX[idx]));
@@ -122,7 +122,7 @@ TEST_F(FrequencyGovernorTest, adjust_platform)
     int num_domain = m_topo.num_domain(domain);
     EXPECT_EQ(M_NUM_CORE, num_domain);
     request = {1.1e9, 1.2e9, 1.5e9, 1.7e9};
-    ASSERT_EQ(num_domain, request.size());
+    ASSERT_EQ(num_domain, (int)request.size());
     actual = {NAN, NAN, NAN, NAN};
     // check that controls are actually applied
     for (int idx = 0; idx < num_domain; ++idx) {
@@ -143,8 +143,8 @@ TEST_F(FrequencyGovernorTest, adjust_platform_clamping)
     EXPECT_EQ(M_NUM_CORE, num_domain);
     request = {3.1e9, 1.2e9, 1.5e9, 0.7e9};
     actual = {NAN, NAN, NAN, NAN};
-    ASSERT_EQ(num_domain, request.size());
-    ASSERT_EQ(num_domain, actual.size());
+    ASSERT_EQ(num_domain, (int)request.size());
+    ASSERT_EQ(num_domain, (int)actual.size());
     std::vector<double> expected = {M_PLAT_MAX_FREQ, 1.2e9, 1.5e9, M_PLAT_MIN_FREQ};
     // check that controls are actually applied
     for (int idx = 0; idx < num_domain; ++idx) {
