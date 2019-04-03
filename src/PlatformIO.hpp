@@ -111,10 +111,6 @@ namespace geopm
             virtual int push_control(const std::string &control_name,
                                      int domain_type,
                                      int domain_idx) = 0;
-            /// @brief Return number of signals that have been pushed.
-            virtual int num_signal_pushed(void) const = 0;
-            /// @brief Return number of controls that have been pushed.
-            virtual int num_control_pushed(void) const = 0;
             /// @brief Sample a single signal that has been pushed on
             ///        to the signal stack.  Must be called after a call
             ///        to read_batch(void) method which updates the state

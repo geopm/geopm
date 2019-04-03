@@ -73,10 +73,6 @@ int geopm_pio_push_control(const char *control_name,
                            int domain_type,
                            int domain_idx);
 
-int geopm_pio_num_signal_pushed(void);
-
-int geopm_pio_num_control_pushed(void);
-
 int geopm_pio_sample(int signal_idx,
                      double *result);
 

@@ -100,12 +100,6 @@ hidden by the singleton accessor.
     `int` _domain_type_`,` <br>
     `int` _domain_idx_`) = 0;`
 
-  * `virtual int PlatformIO::num_signal_pushed(`:
-    `void) const = 0;`
-
-  * `virtual int PlatformIO::num_control_pushed(`:
-    `void) const = 0;`
-
   * `virtual double PlatformIO::sample(`:
     `int` _signal_idx_`) = 0;`
 
@@ -360,12 +354,6 @@ encoded in this way.
     a _control_name_ that is not from the set returned by
     `control_names()` will result in a thrown `geopm::Exception` with
     error number `GEOPM_ERROR_INVALID`.
-
-  * `num_signal_pushed()`:
-    Returns the number of `push_signal()` with unique tuple of input.
-
-  * `num_control_pushed()`:
-    Returns the number of `push_control()` with unique tuple of input.
 
   * `sample()`:
     Samples cached value of a single signal that has been pushed via

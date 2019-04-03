@@ -125,7 +125,7 @@ class PlatformIOTest : public ::testing::Test
     protected:
         void SetUp();
         std::list<std::shared_ptr<PlatformIOTestMockIOGroup> > m_iogroup_ptr;
-        std::unique_ptr<PlatformIO> m_platio;
+        std::unique_ptr<PlatformIOImp> m_platio;
         MockPlatformTopo m_topo;
         std::set<int> m_cpu_set_board;
         std::set<int> m_cpu_set0;

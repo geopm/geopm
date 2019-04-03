@@ -64,8 +64,6 @@ namespace geopm
             int push_control(const std::string &control_name,
                              int domain_type,
                              int domain_idx) override;
-            int num_signal_pushed(void) const override;
-            int num_control_pushed(void) const override;
             double sample(int signal_idx) override;
             void adjust(int control_idx, double setting) override;
             void read_batch(void) override;
@@ -82,6 +80,8 @@ namespace geopm
             std::function<double(const std::vector<double> &)> agg_function(const std::string &signal_name) const override;
             std::string signal_description(const std::string &signal_name) const override;
             std::string control_description(const std::string &control_name) const override;
+            int num_signal_pushed(void) const;  // Used for testing only
+            int num_control_pushed(void) const; // Used for testing only
         private:
             /// @brief Push a signal that aggregates values sampled
             ///        from other signals.  The aggregation function
