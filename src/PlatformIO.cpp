@@ -836,32 +836,6 @@ extern "C" {
         return result;
     }
 
-    int geopm_pio_num_signal_pushed(void)
-    {
-        int result = 0;
-        try {
-            result = geopm::platform_io().num_signal_pushed();
-        }
-        catch (...) {
-            result = geopm::exception_handler(std::current_exception());
-            result = result < 0 ? result : GEOPM_ERROR_RUNTIME;
-        }
-        return result;
-    }
-
-    int geopm_pio_num_control_pushed(void)
-    {
-        int result = 0;
-        try {
-            result = geopm::platform_io().num_control_pushed();
-        }
-        catch (...) {
-            result = geopm::exception_handler(std::current_exception());
-            result = result < 0 ? result : GEOPM_ERROR_RUNTIME;
-        }
-        return result;
-    }
-
     int geopm_pio_sample(int signal_idx, double *result)
     {
         int err = 0;
