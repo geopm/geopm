@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8fd80d11_28c6760d",
+        "filename": "ronn/geopm.7.ronn.in",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-03T22:31:12Z",
+      "side": 1,
+      "message": "user selected map of",
+      "range": {
+        "startLine": 65,
+        "startChar": 63,
+        "endLine": 65,
+        "endChar": 70
+      },
+      "revId": "c40c57d9c4441411ae40b9354e010995b9b97fd5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
