@@ -72,7 +72,7 @@ trigger messages to be printed to the screen.  Note that NAN is a valid
 setting for a policy and indicates that the Agent should use a
 reasonable default value for that policy.
 
-descend():
+split_policy():
 
   Copies the policy from the parent into the vector for each child.
   A more sophisticated Agent could use samples coming up the tree as
@@ -82,12 +82,18 @@ descend():
 
 adjust_platform():
 
-  If the utilization is out of bounds, the Agent uses the STDERR
-  signal to print the value.  Otherwise, it uses the STDOUT signal to
-  print the current idle percent.  Both controls will be written on
-  every iteration of the control loop, but only one will be adjusted
-  with a new value.
+  If the utilization is out of bounds, the Agent adjust the STDERR
+  control to save the current idle percent to be printed.  Otherwise,
+  it uses the STDOUT control.  Both controls will be written on every
+  iteration of the control loop as long as do_write_batch() returns
+  true, but only one will be adjusted with a new value.
 
+do_write_batch():
+
+  If the current idle percent is invalid (NaN), this method returns
+  false to indicate to the runtime that nothing should be printed.
+  Otherwise it returns true and the value set up by adjust_platform()
+  will be written to standard out or standard error.
 
 3. Samples
 ----------
@@ -107,7 +113,7 @@ sample_platform():
   total.  Note that the output vector is owned by the Controller and
   should not be resized by the Agent.
 
-ascend():
+aggregate_sample():
 
   The vector passed in contains a vector of samples from each child.
   For each sample being passed up to the next level in the tree,
@@ -164,6 +170,13 @@ wait() uses the time of the previous call to make sure the Controller
 cycles are close to 1 second, even if the work from one cycle takes
 slightly more or less time than the previous one.
 
+The cadence of tree communication can also be gated using the
+do_send_policy() and do_send_sample() methods.  The do_send_policy()
+method will determine whether policies at the current level are sent
+down the tree in a given iteration of the control loop.  The
+do_send_sample() method will likewise determine whether samples are
+sent up the tree.  In this example, policies and samples are always
+propagated on every iteration, so both methods return true.
 
 6. Set up registration on plugin load
 -------------------------------------
