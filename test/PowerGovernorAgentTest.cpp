@@ -117,7 +117,12 @@ void PowerGovernorAgentTest::set_up_leaf(void)
         .Times(AtLeast(0));
     EXPECT_CALL(*m_power_gov, adjust_platform(_, _))
         .Times(AtLeast(0))
-        .WillRepeatedly(DoAll(SaveArg<0>(&m_val_cache), SetArgReferee<1>(m_val_cache), Return(true)));
+        .WillRepeatedly(DoAll(SaveArg<0>(&m_val_cache), SetArgReferee<1>(m_val_cache)));
+    EXPECT_CALL(*m_power_gov, adjust_platform(_, _))
+        .Times(AtLeast(0));
+    EXPECT_CALL(*m_power_gov, do_write_batch())
+        .Times(AtLeast(0))
+        .WillRepeatedly(Return(true));
     m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, std::move(m_power_gov));
 }
 
@@ -154,6 +159,7 @@ TEST_F(PowerGovernorAgentTest, sample_platform)
     m_agent->init(0, m_fan_in, false);
     // initial power budget
     m_agent->adjust_platform({100});
+    EXPECT_TRUE(m_agent->do_write_batch());
 
     EXPECT_CALL(m_platform_io, sample(M_SIGNAL_POWER_PACKAGE)).Times(m_min_num_converged + 1)
         .WillRepeatedly(Return(50.5));
@@ -193,6 +199,7 @@ TEST_F(PowerGovernorAgentTest, adjust_platform)
     {
         for (int i = 0; i < m_samples_per_control; ++i) {
             m_agent->adjust_platform(policy);
+            EXPECT_TRUE(m_agent->do_write_batch());
         }
     }
 
@@ -202,13 +209,8 @@ TEST_F(PowerGovernorAgentTest, adjust_platform)
             power_budget += 1;
             policy = {power_budget};
             m_agent->adjust_platform(policy);
+            EXPECT_TRUE(m_agent->do_write_batch());
         }
-    }
-    // adjust will use default for NAN
-    {
-        EXPECT_NE(m_power_max, m_val_cache);
-        m_agent->adjust_platform({NAN});
-        EXPECT_EQ(m_power_max, m_val_cache);
     }
 }
 

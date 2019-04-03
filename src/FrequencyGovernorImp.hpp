@@ -48,13 +48,16 @@ namespace geopm
             FrequencyGovernorImp(PlatformIO &platform_io, PlatformTopo &platform_topo);
             virtual ~FrequencyGovernorImp();
             void init_platform_io(void) override;
-            void init_platform_io(int control_domain) override;
             int frequency_domain_type(void) const override;
-            bool adjust_platform(const std::vector<double> &frequency_request, std::vector<double> &frequency_actual) override;
+            void adjust_platform(const std::vector<double> &frequency_request) override;
+            bool do_write_batch(void) const override;
             bool set_frequency_bounds(double freq_min, double freq_max) override;
-            void get_frequency_bounds(double &freq_min, double &freq_max, double &freq_step) const override;
+            double get_frequency_min() const override;
+            double get_frequency_max() const override;
+            double get_frequency_step() const override;
             void validate_policy(double &freq_min, double &freq_max) const override;
         private:
+            void init_platform_io(int control_domain);
             double get_limit(const std::string &sig_name) const;
             PlatformIO &m_platform_io;
             PlatformTopo &m_platform_topo;
@@ -63,8 +66,10 @@ namespace geopm
             const double M_PLAT_FREQ_MAX;
             double m_freq_min;
             double m_freq_max;
+            bool m_do_write_batch;
             int m_freq_ctl_domain_type;
             std::vector<int> m_control_idx;
+            std::vector<double> m_last_freq;
     };
 }
 

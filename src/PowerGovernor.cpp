@@ -73,6 +73,7 @@ namespace geopm
         , m_min_pkg_power_policy(M_MIN_PKG_POWER_SETTING)
         , m_max_pkg_power_policy(M_MAX_PKG_POWER_SETTING)
         , m_last_pkg_power_setting(NAN)
+        , m_do_write_batch(false)
     {
 
     }
@@ -96,7 +97,7 @@ namespace geopm
 
     }
 
-    bool PowerGovernorImp::adjust_platform(double node_power_request, double &node_power_actual)
+    void PowerGovernorImp::adjust_platform(double node_power_request, double &node_power_actual)
     {
 #ifdef GEOPM_DEBUG
         if (!m_control_idx.size()) {
@@ -104,7 +105,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        bool result = false;
+        m_do_write_batch = false;
         if (!std::isnan(node_power_request)) {
             double target_pkg_power = node_power_request / m_num_pkg;
             if (target_pkg_power < m_min_pkg_power_policy) {
@@ -119,10 +120,14 @@ namespace geopm
                 }
                 m_last_pkg_power_setting = target_pkg_power;
                 node_power_actual = m_num_pkg * target_pkg_power;
-                result = true;
+                m_do_write_batch = true;
             }
         }
-        return result;
+    }
+
+    bool PowerGovernorImp::do_write_batch() const
+    {
+        return m_do_write_batch;
     }
 
     void PowerGovernorImp::set_power_bounds(double min_pkg_power, double max_pkg_power)

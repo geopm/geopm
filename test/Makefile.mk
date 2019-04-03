@@ -95,9 +95,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/EpochRuntimeRegulatorTest.rank_enter_exit_trace \
               test/gtest_links/EpochRuntimeRegulatorTest.unknown_region \
               test/gtest_links/ExceptionTest.hello \
-              test/gtest_links/FrequencyGovernorTest.frequency_control_domain \
               test/gtest_links/FrequencyGovernorTest.frequency_control_domain_default \
-              test/gtest_links/FrequencyGovernorTest.frequency_control_domain_error \
               test/gtest_links/FrequencyGovernorTest.adjust_platform \
               test/gtest_links/FrequencyGovernorTest.adjust_platform_clamping \
               test/gtest_links/FrequencyGovernorTest.adjust_platform_error \

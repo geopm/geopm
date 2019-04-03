@@ -88,14 +88,6 @@ void FrequencyGovernorTest::SetUp(void)
     m_gov->init_platform_io();
 }
 
-TEST_F(FrequencyGovernorTest, frequency_control_domain)
-{
-    auto gov = geopm::make_unique<FrequencyGovernorImp>(m_platio, m_topo);
-    gov->init_platform_io(GEOPM_DOMAIN_BOARD);
-    int domain = gov->frequency_domain_type();
-    EXPECT_EQ(GEOPM_DOMAIN_BOARD, domain);
-}
-
 TEST_F(FrequencyGovernorTest, frequency_control_domain_default)
 {
     auto gov = geopm::make_unique<FrequencyGovernorImp>(m_platio, m_topo);
@@ -104,18 +96,9 @@ TEST_F(FrequencyGovernorTest, frequency_control_domain_default)
     EXPECT_EQ(M_CTL_DOMAIN, domain);
 }
 
-TEST_F(FrequencyGovernorTest, frequency_control_domain_error)
-{
-    auto gov = geopm::make_unique<FrequencyGovernorImp>(m_platio, m_topo);
-    GEOPM_EXPECT_THROW_MESSAGE(gov->init_platform_io(GEOPM_DOMAIN_CPU),
-                               GEOPM_ERROR_INVALID,
-                               "invalid domain");
-}
-
 TEST_F(FrequencyGovernorTest, adjust_platform)
 {
     std::vector<double> request;
-    std::vector<double> actual;
     int domain = m_gov->frequency_domain_type();
     EXPECT_EQ(M_CTL_DOMAIN, domain);
     // todo: should caller use platform topo, or get this through governor?
@@ -123,78 +106,62 @@ TEST_F(FrequencyGovernorTest, adjust_platform)
     EXPECT_EQ(M_NUM_CORE, num_domain);
     request = {1.1e9, 1.2e9, 1.5e9, 1.7e9};
     ASSERT_EQ(num_domain, (int)request.size());
-    actual = {NAN, NAN, NAN, NAN};
     // check that controls are actually applied
     for (int idx = 0; idx < num_domain; ++idx) {
         EXPECT_CALL(m_platio, adjust(M_FREQ_CTL_IDX[idx], request[idx]));
     }
-    bool result = m_gov->adjust_platform(request, actual);
+    m_gov->adjust_platform(request);
+    bool result = m_gov->do_write_batch();
     EXPECT_TRUE(result);
-    EXPECT_EQ(request, actual);
 }
 
 TEST_F(FrequencyGovernorTest, adjust_platform_clamping)
 {
     std::vector<double> request;
-    std::vector<double> actual;
     int domain = m_gov->frequency_domain_type();
     EXPECT_EQ(M_CTL_DOMAIN, domain);
     int num_domain = m_topo.num_domain(domain);
     EXPECT_EQ(M_NUM_CORE, num_domain);
     request = {3.1e9, 1.2e9, 1.5e9, 0.7e9};
-    actual = {NAN, NAN, NAN, NAN};
     ASSERT_EQ(num_domain, (int)request.size());
-    ASSERT_EQ(num_domain, (int)actual.size());
     std::vector<double> expected = {M_PLAT_MAX_FREQ, 1.2e9, 1.5e9, M_PLAT_MIN_FREQ};
     // check that controls are actually applied
     for (int idx = 0; idx < num_domain; ++idx) {
         EXPECT_CALL(m_platio, adjust(M_FREQ_CTL_IDX[idx], expected[idx]));
     }
-    bool result = m_gov->adjust_platform(request, actual);
+    m_gov->adjust_platform(request);
+    bool result = m_gov->do_write_batch();
     EXPECT_TRUE(result);
-    EXPECT_EQ(expected, actual);
-    EXPECT_NE(actual, request);
 }
 
 TEST_F(FrequencyGovernorTest, adjust_platform_error)
 {
     std::vector<double> request;
-    std::vector<double> actual;
-    GEOPM_EXPECT_THROW_MESSAGE(m_gov->adjust_platform(request, actual),
+    GEOPM_EXPECT_THROW_MESSAGE(m_gov->adjust_platform(request),
                                GEOPM_ERROR_INVALID,
                                "size of request vector");
-    request = {1.1e9, 1.1e9, 1.1e9, 1.1e9};
-    GEOPM_EXPECT_THROW_MESSAGE(m_gov->adjust_platform(request, actual),
-                               GEOPM_ERROR_INVALID,
-                               "size of actual vector");
 }
 
 TEST_F(FrequencyGovernorTest, frequency_bounds_in_range)
 {
-    double min = NAN;
-    double max = NAN;
-    double step = NAN;
     // default settings
-    m_gov->get_frequency_bounds(min, max, step);
-    EXPECT_DOUBLE_EQ(M_PLAT_MIN_FREQ, min);
-    EXPECT_DOUBLE_EQ(M_PLAT_MAX_FREQ, max);
-    EXPECT_DOUBLE_EQ(M_PLAT_STEP_FREQ, step);
+    EXPECT_DOUBLE_EQ(M_PLAT_MIN_FREQ, m_gov->get_frequency_min());
+    EXPECT_DOUBLE_EQ(M_PLAT_MAX_FREQ, m_gov->get_frequency_max());
+    EXPECT_DOUBLE_EQ(M_PLAT_STEP_FREQ, m_gov->get_frequency_step());
 
     // change settings
     double new_min = M_PLAT_MIN_FREQ + M_PLAT_STEP_FREQ;
     double new_max = M_PLAT_MAX_FREQ - M_PLAT_STEP_FREQ;
     bool result = m_gov->set_frequency_bounds(new_min, new_max);
     EXPECT_TRUE(result);
-    m_gov->get_frequency_bounds(min, max, step);
-    EXPECT_DOUBLE_EQ(new_min, min);
-    EXPECT_DOUBLE_EQ(new_max, max);
+    EXPECT_DOUBLE_EQ(new_min, m_gov->get_frequency_min());
+    EXPECT_DOUBLE_EQ(new_max, m_gov->get_frequency_max());
 
     // same settings
     result = m_gov->set_frequency_bounds(new_min, new_max);
     EXPECT_FALSE(result);
-    m_gov->get_frequency_bounds(min, max, step);
-    EXPECT_DOUBLE_EQ(new_min, min);
-    EXPECT_DOUBLE_EQ(new_max, max);
+    EXPECT_DOUBLE_EQ(new_min, m_gov->get_frequency_min());
+    EXPECT_DOUBLE_EQ(new_max, m_gov->get_frequency_max());
 }
 
 TEST_F(FrequencyGovernorTest, frequency_bounds_invalid)
