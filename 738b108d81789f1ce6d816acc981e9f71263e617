@@ -22,6 +22,23 @@
       "revId": "738b108d81789f1ce6d816acc981e9f71263e617",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6f1e1b9_04ed0575",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 1005,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-03T20:24:25Z",
+      "side": 1,
+      "message": "maybe a nit, to be clear this is (all2all + ignore region) \u003d\u003d (app total mpi + app total ignore) right?  even though we expect mpi time to be zero at the moment",
+      "revId": "738b108d81789f1ce6d816acc981e9f71263e617",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
