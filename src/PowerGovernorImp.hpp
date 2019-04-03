@@ -49,7 +49,8 @@ namespace geopm
             virtual ~PowerGovernorImp();
             void init_platform_io(void) override;
             virtual void sample_platform(void) override;
-            bool adjust_platform(double node_power_request, double &node_power_actual) override;
+            void adjust_platform(double node_power_request, double &node_power_actual) override;
+            bool do_write_batch(void) const override;
             void set_power_bounds(double min_pkg_power, double max_pkg_power) override;
             double power_package_time_window(void) const override;
         private:
@@ -64,6 +65,7 @@ namespace geopm
             double m_max_pkg_power_policy;
             std::vector<int> m_control_idx;
             double m_last_pkg_power_setting;
+            bool m_do_write_batch;
     };
 }
 

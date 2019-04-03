@@ -49,11 +49,6 @@ namespace geopm
             /// @brief Registers signals and controls with PlatformIO using the
             ///        default control domain.
             virtual void init_platform_io(void) = 0;
-            /// @brief Registers signals and controls with PlatformIO using the
-            ///        default control domain.
-            /// @param [in] freq_ctl_domain_type The domain by which frequency
-            ///        should be controlled.
-            virtual void init_platform_io(int freq_ctl_domain_type) = 0;
             /// @brief Get the domain type of frequency control on the
             ///        platform.  Users of the FrequencyGovernor can
             ///        use this information to determine the size of
@@ -64,24 +59,27 @@ namespace geopm
             ///        min and max frequency if request cannot be
             ///        satisfied.
             /// @param [in] frequency_request Desired per domain frequency.
-            /// @param [out] frequency_actual Actual per domain
-            //              frequency.  Should equal frequency_request
-            //              unless clamped by bounds.
             /// @return True if platform adjustments have been made, false otherwise.
-            virtual bool adjust_platform(const std::vector<double> &frequency_request,
-                                         std::vector<double> &frequency_actual) = 0;
+            virtual void adjust_platform(const std::vector<double> &frequency_request) = 0;
+            /// @brief Returns true if last call to adjust_platform requires writing
+            //         of controls.
+            /// @return True if platform adjustments have been made, false otherwise.
+            virtual bool do_write_batch(void) const = 0;
             /// @brief Sets min and max package bounds.  The defaults before calling
             ///        this method are the min and max frequency for the platform.
             /// @param [in] freq_min Minimum frequency value for the control domain.
             /// @param [in] freq_max Maximum frequency value for the control domain.
             /// @return Returns true if internal state updated, otherwise false.
             virtual bool set_frequency_bounds(double freq_min, double freq_max) = 0;
-            /// @brief Returns the current min and max frequency used by the governor.
-            /// @param [out] freq_min Minimum frequency.
-            /// @param [out] freq_max Maximum frequency.
-            /// @param [out] freq_step Frequency step size for the
-            ///        platform.
-            virtual void get_frequency_bounds(double &freq_min, double &freq_max, double &freq_step) const = 0;
+            /// @brief Returns the current min frequency used by the governor.
+            /// @return Minimum frequency.
+            virtual double get_frequency_min() const = 0;
+            /// @brief Returns the current max frequency used by the governor.
+            /// @return Maximum frequency.
+            virtual double get_frequency_max() const = 0;
+            /// @brief Returns the frequency step for the platform.
+            /// @return Step frequency.
+            virtual double get_frequency_step() const = 0;
             /// @brief Checks that the minimum and maximum frequency
             ///        are within range for the platform.  If not,
             ///        they will be clamped at the min and max for the

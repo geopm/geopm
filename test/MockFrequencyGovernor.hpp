@@ -40,17 +40,20 @@ class MockFrequencyGovernor : public geopm::FrequencyGovernor
     public:
         MOCK_METHOD0(init_platform_io,
                      void(void));
-        MOCK_METHOD1(init_platform_io,
-                     void(int control_domain));
         MOCK_CONST_METHOD0(frequency_domain_type,
                            int(void));
-        MOCK_METHOD2(adjust_platform,
-                     bool(const std::vector<double> &frequency_request,
-                          std::vector<double> &frequency_actual));
+        MOCK_METHOD1(adjust_platform,
+                     void(const std::vector<double> &frequency_request));
+        MOCK_CONST_METHOD0(do_write_batch,
+                           bool());
         MOCK_METHOD2(set_frequency_bounds,
                      bool(double freq_min, double freq_max));
-        MOCK_CONST_METHOD3(get_frequency_bounds,
-                           void(double &freq_min, double &freq_max, double &freq_step));
+        MOCK_CONST_METHOD0(get_frequency_min,
+                           double());
+        MOCK_CONST_METHOD0(get_frequency_max,
+                           double());
+        MOCK_CONST_METHOD0(get_frequency_step,
+                           double());
         MOCK_CONST_METHOD2(validate_policy,
                            void(double &freq_min, double &freq_max));
 };
