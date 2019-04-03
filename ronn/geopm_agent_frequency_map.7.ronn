@@ -1,5 +1,5 @@
-geopm_agent_monitor(7) -- agent implementation for aggregating statistics
-=========================================================================
+geopm_agent_frequency_map(7) -- agent for running regions at user selected frequencies
+======================================================================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
 [//]: # ()
@@ -32,10 +32,17 @@ geopm_agent_monitor(7) -- agent implementation for aggregating statistics
 [//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 
 ## DESCRIPTION
-An implementation of the Agent interface that enforces no policies and
-is intended for application tracing and profiling only.  It collects
-statistics from each node and aggregates them over the whole
-application run.
+This Agent is used to map predetermined optimal frequencies to named regions.
+The best frequencies for each region are
+specified in the environment variable `GEOPM_FREQUENCY_MAP`,
+which is a JSON-formatted string mapping region name to frequency in
+Hertz, e.g. '{"region1": 1200000000, "region2": 1500000000}'.  If a
+frequency for a region is not specified, the region hint will be used
+and the frequency will be set to either the minimum or maximum
+available frequency.  See **geopm_prof_c(3)** for the list of region
+hints.  These best-fit frequencies can be determined by running the
+application once at each available frequency and checking the
+performance of each region.
 
 ## AGENT BEHAVIOR HIGHLIGHTS
 Policies and samples are vectors of double precision values where each
@@ -45,13 +52,24 @@ reports and traces with additional Agent-specific information.
 
 * `Agent Name`:
   Set the `--geopm-agent` launch option or `GEOPM_AGENT` environment
-  variable to "monitor" and the Controller will select the
-  MonitorAgent for its control handler.  See **geopmlaunch(1)** and
+  variable to "frequency_map" and the Controller will select the
+  FrequencyMapAgent for its control handler.  See **geopmlaunch(1)** and
   **geopm(7)** for more information about launch options and
   environment variables.
 
 * `Agent Policy Definitions`:
-  N/A
+  The minimum and maximum frequency are passed down as policies.
+  Setting both to the same value can be used to force the entire
+  application to run at one frequency.
+
+  `FREQ_MIN`: The minimum frequency that the algorithm is allowed to
+              choose for any region.  If NAN is passed, it will use
+              the minimum available frequency by default.
+
+  `FREQ_MAX`: The maximum frequency that the algorithm is allowed to
+              choose for any region.  If NAN is passed, it will use
+              the maximum available frequency by default.
+
 
 * `Agent Sample Definitions`:
   N/A
@@ -60,10 +78,10 @@ reports and traces with additional Agent-specific information.
   N/A
 
 * `Report Extensions`:
-  N/A
+  The assigned frequency for each region is added to the report.
 
 * `Control Loop Gate`:
-  The Monitor agent gates the Controller's control loop to a cadence
+  The agent gates the Controller's control loop to a cadence
   of 5ms.
 
 ## COPYRIGHT

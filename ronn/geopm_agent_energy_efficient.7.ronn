@@ -1,5 +1,5 @@
-geopm_agent_energy_efficient(7) -- agent for saving energy
-==========================================================
+geopm_agent_energy_efficient(7) -- agent for saving energy, also finds optimal region frequencies
+=================================================================================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
 [//]: # ()
@@ -39,28 +39,16 @@ per region so that memory- and I/O-bound regions run at lower
 frequencies without increasing runtime but CPU-bound regions are still
 run at high frequencies.
 
-There are two modes available: offline and online.  In the offline
-mode, the best frequencies for each region are specified in the
-environment variable `GEOPM_EFFICIENT_FREQ_RID_MAP`, which is a
-JSON-formatted string mapping region name to frequency in Hertz,
-e.g. '{"region1": 1200000000, "region2": 1500000000}'.  For this node,
-the environment variable `GEOPM_EFFICIENT_FREQ_ONLINE` must be
-unset. If a frequency for a region is not specified, the region hint
-will be used and the frequency will be set to either the minimum or
-maximum available frequency.  See **geopm_prof_c(3)** for the list of
-region hints.  These best-fit frequencies can be determined by running
-the application once at each available frequency and checking the
-performance of each region.
-The online mode finds the optimal frequency for each region
+The EnergyEfficientAgent finds the optimal frequency for each region
 dynamically by measuring the performance of each region and reducing
 the frequency as long as the performance is still within acceptable
 limits.  The performance metric used is the maximum of the runtimes
 reported by each rank for the last execution of the region in question
-(lower is better).  The agent also avoids reducing frequency if energy
-would increase (due to performance loss in a frequency-sensitive
-region). Up to 10% performance loss is allowed.  Enable the online
-mode by setting `GEOPM_EFFICIENT_FREQ_ONLINE` and unsetting
-`GEOPM_EFFICIENT_FREQ_RID_MAP`, which is not used by the online mode.
+(lower is better).  Up to 10% performance loss is allowed.  To avoid
+increasing energy due to performance loss in frequency-sensitive
+regions, any region marked with the GEOPM_REGION_HINT_COMPUTE or
+GEOPM_REGION_HINT_UNMARKED hints will always run at the maximum
+frequency from the policy.
 
 ## AGENT BEHAVIOR HIGHLIGHTS
 Policies and samples are vectors of double precision values where each
@@ -89,27 +77,18 @@ reports and traces with additional Agent-specific information.
               the maximum available frequency by default.
 
 * `Agent Sample Definitions`:
-
-  `ENERGY_PACKAGE`: Total energy from the packages across all child
-                    nodes.  At the root, this is the total energy for
-                    all nodes in the job.
-
-  `FREQUENCY`: The average frequency across child nodes.  At the root,
-               this is the average frequency across all nodes in the
-               job.
+  N/A
 
 * `Trace Column Extensions`:
   N/A
 
 * `Report Extensions`:
-  The per-node final frequency for each region is added to the report.
-  This reflects the settings from the map or hint in offline mode, or
-  the learned best frequency determined by the online mode.
+  The per-node learned best-fit frequency for each region is added to
+  the report, except for regions with the GEOPM_REGION_HINT_COMPUTE hint,
+  which run at maximum frequency.
 
 * `Control Loop Gate`:
   The agent gates the Controller's control loop to a cadence of 5ms.
-  This agent propagates its ascending signals up the tree every 50ms
-  (10 control cycles).
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
