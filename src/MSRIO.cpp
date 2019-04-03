@@ -41,14 +41,25 @@
 #include <sstream>
 #include <map>
 
-#include "Exception.hpp"
 #include "geopm_sched.h"
+#include "Exception.hpp"
+#include "Helper.hpp"
 #include "config.h"
 
 #define GEOPM_IOC_MSR_BATCH _IOWR('c', 0xA2, struct geopm::MSRIOImp::m_msr_batch_array_s)
 
 namespace geopm
 {
+    std::unique_ptr<MSRIO> MSRIO::make_unique(void)
+    {
+        return geopm::make_unique<MSRIOImp>();
+    }
+
+    std::shared_ptr<MSRIO> MSRIO::make_shared(void)
+    {
+        return std::make_shared<MSRIOImp>();
+    }
+
     MSRIOImp::MSRIOImp()
         : MSRIOImp(geopm_sched_num_cpu())
     {

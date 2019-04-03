@@ -35,6 +35,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include <memory>
 
 namespace geopm
 {
@@ -97,6 +98,12 @@ namespace geopm
             /// @param [in] raw_value The raw encoded MSR values to be
             ///        written.
             virtual void write_batch(const std::vector<uint64_t> &raw_value) = 0;
+            /// @brief Returns a unique_ptr to a concrete object
+            ///        constructed using the underlying implementation
+            static std::unique_ptr<MSRIO> make_unique(void);
+            /// @brief Returns a shared_ptr to a concrete object
+            ///        constructed using the underlying implementation
+            static std::shared_ptr<MSRIO> make_shared(void);
     };
 }
 
