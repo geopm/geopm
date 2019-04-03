@@ -1,3 +1,62 @@
+* Wed Apr 3 2019 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v1.0.0+rc3
+- Modified implementations and interfaces:
+- Finalized interfaces for 1.0.0 release.
+- Changed class naming scheme to drop "I" prefix from interface base classes and add "Imp" suffix to implementation classes.
+- Replaced ascend() and descend() Agent methods with more fine grained interface.
+- Modified MSRIOGroup to use JSON to store MSR data.
+- Updated utility classes for Agent interface changes.
+- Removed use of raw pointers from MSRIOGroup.
+- Added Helper function to list files in a directory.
+- Renamed split_string() to string_split().
+- Removed sort call from table dump since no longer needed.
+- Removed samples sent up tree from MonitorAgent.
+- Moved "PlatformTopo::m_domain_e" to a C enum "geopm_domain_e" in geopm_topo.h.
+- Changed GEOPM_DOMAIN_INVALID to -1 and shifted the all other domains values by one.
+- Renamed all references to the PlatformTopo::m_domain_e enum to use geopm_domain_e.
+- Removed PlatformIO::num_signal() and PlatformIO::num_control() from public interface.
+- Renamed PlatformIO method is_domain_within() to is_nested_domain().
+- Moved geopm_region_info_s to geopm.h.
+- Renamed Agent::report_node() to report_host().
+- Removed ProfileIOGroup from installed headers.
+- Renamed CircularBufferImp to CircularBuffer.
+- Moved MSRSignal and MSRControl into their own files.
+- Moved Imp classes for installed classes to own non-installed header.
+- Moved SharedMemory and SharedMemoryUser classes into separate headers.
+- Introduced FrequencyGovernor that holds common code for setting frequency.
+- Updated EnergyEfficientAgent and FrequencyMapAgent to use FrequencyGovernor.
+- Replaced ascend() and descend() methods in all built in agents to use new APIs.
+- Removed num_signal_pushed() and num_control_pushed() from public PlatformIO APIs.
+- Made tutorial shell scripts compatible with more shell variants.
+- Updated features:
+- Implemented and documented C wrappers for the PlatformIO class: geopm_pio_c(3).
+- Implemented and documented C wrappers for the PlatformTopo class: geopm_topo_c(3).
+- Changed implementation to stop sending messages about MPI regions nested inside of network hint regions.
+- Added command line option to geopmread(1) and geopmwrite(1) to create topology cache file.
+- Added make_unique and make_shared factory methods all installed C++ header classes.
+- Added check for RAPL lock bit when using power controls
+- Added UNCORE_RATIO_LIMIT MSR support for HSX, BDX, and SKX.
+- Added per-region power to Report.
+- Enabled MSRIOGroup to extend MSRs through JSON file at runtime located in GEOPM_PLUGIN_PATH.
+- Added MSR methods for parsing function and units strings.
+- Introduced FrequencyMapAgent which runs regions at specified frequencies.
+- Added --enable-beta configure flag which installs beta features with make install target.
+- Updated and extended integration tests:
+- Ignore failures for missing python packages.
+- Added feature to save/restore power limit and frequency between each integration test.
+- Updated unit tests:
+- Added more unit tests for Helper.
+- Fixed AgentFactoryTest.
+- Updates to documentation:
+- Added documentation on MPI requirements for geopm_prof_c(3) APIs.
+- Removed references to endpoint in documentation since this is still a beta feature.
+- Added documentation about Agent report/trace extension name conventions.
+- Add man page for geopm_pio_c(3) and geopm_topo_c(3).
+- Add man page for geopm_agent_frequency_map(7).
+- Bug fixes:
+- Fixed EnergyEfficientAgent so it actually functions properly.
+- Fixed issue with using temporary script in launcher to execute lscpu.
+- Fixed missing input parameter checks in PlatformTopo and PlatformIO.
+- Fixed Fortran build and missing dependency that could break parallel builds.
 * Fri Feb 22 2019 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v1.0.0+rc2
 - Modified implementations and interfaces:
 - Rename GEOPM_PROFILE_TIMEOUT environment variable to GEOPM_TIMEOUT
