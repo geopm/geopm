@@ -80,7 +80,7 @@ hidden by the singleton accessor.
 
 This class describes the number and arrangement of cores, sockets,
 logical CPUs, memory banks, and other components.  This information is
-used when calling methods of the **geopm::PlatformIO** interface.  The
+used when calling methods of the **geopm::PlatformIO(3)** interface.  The
 topology of the current platform is available using the singleton
 geopm::platform_topo().  The remaining methods are accessed through
 this singleton.
@@ -91,7 +91,7 @@ the system topology where signals and controls are applicable.  Each
 domain is defined by a type and an index.  The domain type is a value
 from the `geopm_domain_e` enum, and the domain index enumerates the
 devices of that type available on the system.  Refer to the list of
-domain types in **platform_topo_c(3)**.  Each domain type is related
+domain types in **geopm_topo_c(3)**.  Each domain type is related
 to a set of Linux logical CPUs and this can be determined with the
 `PlatformTopo::domain_cpus()` method.  The CPUs associated with a
 domain are the set of CPUs that can most efficiently issue
