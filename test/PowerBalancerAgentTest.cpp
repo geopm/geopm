@@ -48,7 +48,6 @@
 using geopm::PowerBalancerAgent;
 using geopm::PlatformTopo;
 using ::testing::_;
-using ::testing::DoAll;
 using ::testing::SetArgReferee;
 using ::testing::ContainerEq;
 using ::testing::Return;
@@ -430,7 +429,10 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
     double actual_limit = 299.0;
     EXPECT_CALL(*m_power_gov, adjust_platform(300.0, _))
         .Times(4)
-        .WillRepeatedly(DoAll(SetArgReferee<1>(actual_limit), Return(true)));
+        .WillRepeatedly(SetArgReferee<1>(actual_limit));
+    EXPECT_CALL(*m_power_gov, do_write_batch())
+        .Times(4)
+        .WillRepeatedly(Return(true));
     m_power_bal = geopm::make_unique<MockPowerBalancer>();
     EXPECT_CALL(*m_power_bal, power_limit_adjusted(actual_limit))
         .Times(4);

@@ -93,17 +93,20 @@ TEST_F(PowerGovernorTest, govern)
     double node_power_set = 0.0;
     double node_power_request = m_num_package * (M_PKG_POWER_MAX - 1);
     EXPECT_CALL(m_platform_io, adjust(_, M_PKG_POWER_MAX - 1)).Times(m_num_package);
-    EXPECT_TRUE(m_governor->adjust_platform(node_power_request, node_power_set));
+    m_governor->adjust_platform(node_power_request, node_power_set);
+    EXPECT_TRUE(m_governor->do_write_batch());
     EXPECT_DOUBLE_EQ(node_power_request, node_power_set);
 
     node_power_request = m_num_package * M_PKG_POWER_MAX;
     node_power_set = 0.0;
     EXPECT_CALL(m_platform_io, adjust(_, M_PKG_POWER_MAX)).Times(m_num_package);
-    EXPECT_TRUE(m_governor->adjust_platform(node_power_request, node_power_set));
+    m_governor->adjust_platform(node_power_request, node_power_set);
+    EXPECT_TRUE(m_governor->do_write_batch());
     EXPECT_DOUBLE_EQ(node_power_request, node_power_set);
 
     node_power_set = 0.0;
-    EXPECT_FALSE(m_governor->adjust_platform(node_power_request, node_power_set));
+    m_governor->adjust_platform(node_power_request, node_power_set);
+    EXPECT_FALSE(m_governor->do_write_batch());
     EXPECT_EQ(0.0, node_power_set);
 }
 

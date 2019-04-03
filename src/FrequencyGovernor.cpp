@@ -69,6 +69,8 @@ namespace geopm
         , M_PLAT_FREQ_MAX(get_limit("CPUINFO::FREQ_MAX"))
         , m_freq_min(M_PLAT_FREQ_MIN)
         , m_freq_max(M_PLAT_FREQ_MAX)
+        , m_do_write_batch(false)
+        , m_freq_ctl_domain_type(-1)
     {
 
     }
@@ -108,6 +110,7 @@ namespace geopm
     void FrequencyGovernorImp::init_platform_io(int freq_ctl_domain_type)
     {
         m_freq_ctl_domain_type = freq_ctl_domain_type;
+        m_last_freq = std::vector<double>(m_freq_ctl_domain_type, NAN);
         const int num_freq_ctl_domain = m_platform_topo.num_domain(m_freq_ctl_domain_type);
         for (int ctl_dom_idx = 0; ctl_dom_idx != num_freq_ctl_domain; ++ctl_dom_idx) {
             m_control_idx.push_back(m_platform_io.push_control("FREQUENCY",
@@ -121,32 +124,36 @@ namespace geopm
         return m_freq_ctl_domain_type;
     }
 
-    bool FrequencyGovernorImp::adjust_platform(const std::vector<double> &frequency_request,
-                                               std::vector<double> &frequency_actual)
+    void FrequencyGovernorImp::adjust_platform(const std::vector<double> &frequency_request)
     {
         if (frequency_request.size() != m_control_idx.size()) {
             throw Exception("FrequencyGovernorImp::" + std::string(__func__) +
                             "(): size of request vector does not match size of control domain.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (frequency_actual.size() != m_control_idx.size()) {
-            throw Exception("FrequencyGovernorImp::" + std::string(__func__) +
-                            "(): size of actual vector does not match size of control domain.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
+
+        m_do_write_batch = !std::equal(m_last_freq.begin(), m_last_freq.end(), frequency_request.begin());
+        std::vector<double> frequency_actual;
         for (size_t idx = 0; idx < m_control_idx.size(); ++idx) {
+            double clamp_freq = NAN;
             if (frequency_request[idx] > m_freq_max) {
-                frequency_actual[idx] = m_freq_max;
+                clamp_freq = m_freq_max;
             }
             else if (frequency_request[idx] < m_freq_min) {
-                frequency_actual[idx] = m_freq_min;
+                clamp_freq = m_freq_min;
             }
             else {
-                frequency_actual[idx] = frequency_request[idx];
+                clamp_freq = frequency_request[idx];
             }
+            frequency_actual.push_back(clamp_freq);
             m_platform_io.adjust(m_control_idx[idx], frequency_actual[idx]);
         }
-        return true;
+        m_last_freq = frequency_actual;
+    }
+
+    bool FrequencyGovernorImp::do_write_batch(void) const
+    {
+        return m_do_write_batch;
     }
 
     bool FrequencyGovernorImp::set_frequency_bounds(double freq_min, double freq_max)
@@ -167,11 +174,19 @@ namespace geopm
         return result;
     }
 
-    void FrequencyGovernorImp::get_frequency_bounds(double &freq_min, double &freq_max, double &freq_step) const
+    double FrequencyGovernorImp::get_frequency_min()  const
     {
-        freq_min = m_freq_min;
-        freq_max = m_freq_max;
-        freq_step = M_FREQ_STEP;
+        return m_freq_min;
+    }
+
+    double FrequencyGovernorImp::get_frequency_max()  const
+    {
+        return m_freq_max;
+    }
+
+    double FrequencyGovernorImp::get_frequency_step()  const
+    {
+        return M_FREQ_STEP;
     }
 
     void FrequencyGovernorImp::validate_policy(double &freq_min, double &freq_max) const

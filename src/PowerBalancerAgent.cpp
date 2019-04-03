@@ -209,7 +209,8 @@ namespace geopm
         // Request the power limit from the balancer
         double request_limit = m_power_balancer->power_limit();
         if (!std::isnan(request_limit) && request_limit != 0.0) {
-            result = m_power_governor->adjust_platform(request_limit, m_actual_limit);
+            m_power_governor->adjust_platform(request_limit, m_actual_limit);
+            result = m_power_governor->do_write_batch();
             if (request_limit < m_actual_limit) {
                 m_is_out_of_bounds = true;
             }

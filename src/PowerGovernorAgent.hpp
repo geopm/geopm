@@ -113,7 +113,6 @@ namespace geopm
             int m_num_children;
             double m_last_power_budget;
             bool m_power_budget_changed;
-            bool m_power_setting_changed;
             std::unique_ptr<CircularBuffer<double> > m_epoch_power_buf;
             std::vector<double> m_sample;
             int m_ascend_count;

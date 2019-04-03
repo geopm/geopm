@@ -68,7 +68,6 @@ namespace geopm
         , m_num_children(0)
         , m_last_power_budget(NAN)
         , m_power_budget_changed(false)
-        , m_power_setting_changed(false)
         , m_epoch_power_buf(geopm::make_unique<CircularBuffer<double> >(16)) // Magic number...
         , m_sample(M_PLAT_NUM_SIGNAL)
         , m_ascend_count(0)
@@ -248,13 +247,13 @@ namespace geopm
         if (std::isnan(power_budget_in)) {
             power_budget_in = m_tdp_power_setting;
         }
-        m_power_setting_changed = m_power_gov->adjust_platform(power_budget_in, m_adjusted_power);
+        m_power_gov->adjust_platform(power_budget_in, m_adjusted_power);
         m_last_power_budget = power_budget_in;
     }
 
     bool PowerGovernorAgent::do_write_batch(void) const
     {
-        return m_power_setting_changed;
+        return m_power_gov->do_write_batch();
     }
 
     void PowerGovernorAgent::sample_platform(std::vector<double> &out_sample)

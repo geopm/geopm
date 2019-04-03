@@ -69,7 +69,6 @@ namespace geopm
         , m_level(-1)
         , m_num_children(0)
         , m_is_policy_updated(false)
-        , m_is_frequency_changed(false)
     {
         parse_env_map();
     }
@@ -158,10 +157,8 @@ namespace geopm
     {
         update_policy(in_policy);
         double freq = NAN;
-        double freq_min = NAN;
-        double freq_max = NAN;
-        double freq_step = NAN;  //todo: not used by this agent
-        m_freq_governor->get_frequency_bounds(freq_min, freq_max, freq_step);
+        double freq_min = m_freq_governor->get_frequency_min();
+        double freq_max = m_freq_governor->get_frequency_max();
         std::vector<double> target_freq;
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
             const uint64_t curr_hash = m_last_region[ctl_idx].hash;
@@ -193,19 +190,18 @@ namespace geopm
                         break;
                 }
             }
+            if (GEOPM_REGION_HASH_INVALID != m_last_region[ctl_idx].hash) {
+                m_hash_freq_map[m_last_region[ctl_idx].hash] = freq;
+            }
             target_freq.push_back(freq);
         }
-        /// @todo
-        if (GEOPM_REGION_HASH_INVALID != m_last_region[0].hash) {
-            m_hash_freq_map[m_last_region[0].hash] = target_freq[0];
-        }
 
-        m_is_frequency_changed = m_freq_governor->adjust_platform(target_freq, m_last_freq);
+        m_freq_governor->adjust_platform(target_freq);
     }
 
     bool FrequencyMapAgent::do_write_batch(void) const
     {
-        return m_is_frequency_changed;
+        return m_freq_governor->do_write_batch();
     }
 
     void FrequencyMapAgent::sample_platform(std::vector<double> &out_sample)
@@ -281,15 +277,13 @@ namespace geopm
         if (m_freq_governor == nullptr) {
             m_freq_governor = FrequencyGovernor::make_shared();
         }
-        // todo: inject domain board for debugging
-        m_freq_governor->init_platform_io(GEOPM_DOMAIN_BOARD);
+        m_freq_governor->init_platform_io();
         const int freq_ctl_domain_type = m_freq_governor->frequency_domain_type();
         m_num_freq_ctl_domain = m_platform_topo.num_domain(freq_ctl_domain_type);
         m_last_region = std::vector<struct geopm_region_info_s>(m_num_freq_ctl_domain,
                                                                 (struct geopm_region_info_s) {
                                                                     .hash = GEOPM_REGION_HASH_INVALID,
                                                                     .hint = GEOPM_REGION_HINT_UNKNOWN});
-        m_last_freq = std::vector<double>(m_num_freq_ctl_domain, NAN);
         std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT"};
         for (size_t sig_idx = 0; sig_idx < signal_names.size(); ++sig_idx) {
             m_signal_idx.push_back(std::vector<int>());
