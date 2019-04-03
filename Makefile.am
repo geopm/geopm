@@ -670,6 +670,9 @@ gh-pages: doxygen $(dist_man_MANS)
 else
 
 BUILT_SOURCES =
+if ENABLE_FORTRAN
+BUILT_SOURCES += geopm.mod
+endif
 
 $(ronn_man): man/%: ronn/%.ronn
 	mkdir -p man
