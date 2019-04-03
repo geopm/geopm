@@ -162,7 +162,7 @@ class TestIntegration(unittest.TestCase):
         self._frequency = do_geopmread("MSR::PERF_CTL:FREQ board 0")
 
     def tearDown(self):
-        do_geopmwrite("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0 " + str(self._power_limit))
+        #do_geopmwrite("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0 " + str(self._power_limit))
         do_geopmwrite("MSR::PERF_CTL:FREQ board 0 " + str(self._frequency))
         if sys.exc_info() == (None, None, None) and os.getenv('GEOPM_KEEP_FILES') is None:
             if self._output is not None:
