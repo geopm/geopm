@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d2c7f059_e18d89d4",
+        "filename": "ronn/geopm_agent_energy_efficient.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-03T22:15:35Z",
+      "side": 1,
+      "message": "delete",
+      "range": {
+        "startLine": 92,
+        "startChar": 2,
+        "endLine": 93,
+        "endChar": 22
+      },
+      "revId": "15e04639e887004c71a8c49f0a0cc736c16ff214",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be6fb1b2_739953ee",
+        "filename": "ronn/geopm_agent_frequency_map.7.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-03T22:15:35Z",
+      "side": 1,
+      "message": "delete",
+      "range": {
+        "startLine": 85,
+        "startChar": 11,
+        "endLine": 86,
+        "endChar": 13
+      },
+      "revId": "15e04639e887004c71a8c49f0a0cc736c16ff214",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
