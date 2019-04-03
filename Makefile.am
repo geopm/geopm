@@ -610,8 +610,11 @@ distclean-local-ruby:
 
 # FORTRAN MODULE TARGET
 if ENABLE_FORTRAN
+BUILT_SOURCES = geopm.mod
 geopm.mod: src/geopm.f90
 	$(FC) $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS) -c $<
+else
+BUILT_SOURCES =
 endif
 
 # RPM TARGET
@@ -645,7 +648,7 @@ doxygen: dox-public/Doxyfile
 	doxygen dox-public/Doxyfile
 
 # MAN TARGET
-BUILT_SOURCES = ruby/bin/ronn
+BUILT_SOURCES += ruby/bin/ronn
 
 geopm-tutorial.tar.gz: $(TUTORIAL_DIST)
 	tar --transform='s|^|geopm-|' -zcf $@ $^
@@ -675,8 +678,6 @@ gh-pages: doxygen $(dist_man_MANS)
 	cp ronn/*.html gh-pages/man/.
 
 else
-
-BUILT_SOURCES =
 
 $(ronn_man): man/%: ronn/%.ronn
 	mkdir -p man
