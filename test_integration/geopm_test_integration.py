@@ -999,8 +999,10 @@ class TestIntegration(unittest.TestCase):
         self.assertEqual(len(node_names), num_node)
         for nn in node_names:
             ignore_data = self._output.get_report_data(node_name=nn, region='ignore')
+            all2all_data = self._output.get_report_data(node_name=nn, region='all2all')
             app_data = self._output.get_app_total_data(node_name=nn)
-            self.assertEqual(ignore_data['runtime'].item(), app_data['ignore-runtime'].item())
+            msg = "total ignore should be near all2all + ignore runtime"
+            self.assertNear(all2all_data['runtime'].item() + ignore_data['runtime'].item(), app_data['ignore-runtime'].item())
 
     @skip_unless_config_enable('ompt')
     def test_unmarked_ompt(self):
