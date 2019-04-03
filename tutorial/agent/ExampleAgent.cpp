@@ -101,6 +101,7 @@ void ExampleAgent::split_policy(const std::vector<double>& in_policy,
     }
 }
 
+// Indicate whether to send the policy down to children
 bool ExampleAgent::do_send_policy(void) const
 {
     return true;
@@ -120,6 +121,7 @@ void ExampleAgent::aggregate_sample(const std::vector<std::vector<double> > &in_
     }
 }
 
+// Indicate whether to send samples up to the parent
 bool ExampleAgent::do_send_sample(void) const
 {
     return true;

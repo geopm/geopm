@@ -55,20 +55,29 @@ better rendering of this manual.
     `bool` _is_level_root_`) = 0;`
 
   * `virtual void Agent::validate_policy(`:
-    `vector<double> &`_policy_`) = const 0;`
+    `vector<double> &`_policy_`) const = 0;`
 
-  * `virtual bool Agent::descend(`:
+  * `virtual void Agent::split_policy(`:
     `const vector<double> &`_in_policy_`,` <br>
     `vector<vector<double>>&` _out_policy_`) = 0;`
 
-  * `virtual bool Agent::ascend(`:
+  * `virtual bool Agent::do_send_policy(`:
+    `void) = 0;`
+
+  * `virtual void Agent::aggregate_sample(`:
     `const vector<vector<double>> &`_in_sample_`,` <br>
     `vector<double> &`_out_sample_`) = 0;`
 
-  * `virtual bool Agent::adjust_platform(`:
+  * `virtual bool Agent::do_send_sample(`:
+    `void) = 0;`
+
+  * `virtual void Agent::adjust_platform(`:
     `const vector<double> &`_policy_`) = 0;`
 
-  * `virtual bool Agent::sample_platform(`:
+  * `virtual bool Agent::do_write_batch(`:
+    `void) = 0;`
+
+  * `virtual void Agent::sample_platform(`:
     `vector<double> &`_sample_`) = 0;`
 
   * `virtual void Agent::wait(`:
@@ -142,7 +151,7 @@ structure.
 
 All `Controller`s create an `Agent` object to execute _level_ 0, or
 "leaf" responsibilities.  The leaf responsibilities include monitoring
-signals and deriving samples to send to their parent `Agent`'s at
+signals and deriving samples to send to their parent `Agent`s at
 _level_ 1 in the tree.  Additionally a leaf `Agent` must interpret
 policies received from their parent agent at _level_ 1 and set
 controls which reflect the policy.  Some of the `Controller` objects
@@ -209,26 +218,39 @@ I/O implementations by different `Agent` classes.
     value is not supported by the Agent the method will throw a geopm::Exception
     with error code GEOPM_ERROR_INVALID.
 
-  * `descend`():
+  * `split_policy`():
     Split policy for children at next level down the tree.  The
     _in_policy_ is an input vector of policy values from the parent.
     The _out_policy_ is an output vector of policies to be sent to
-    each child.  Returns true if out_policy has been updated since
-    the last call.
+    each child.
 
-  * `ascend`():
+  * `do_send_policy`():
+     Used to indicate to the Controller whether to send the output
+     from `split_policy()` down the tree to the Agent's children.
+     Returns true if the policy has been updated since the last call.
+
+  * `aggregate_sample`():
     Aggregate samples from children for the next level up the tree.
     The _in_sample_ parameter is a vector of sample vectors, one
     sample vector from each child.  The samples from a given index
     in the input vectors are transformed to a single value at the
     same index in the output.  The _out_sample_ is an output vector
     of aggregated sample values to be sent up to the parent.
-    Returns true if out_sample has been updated since the last call.
+
+  * `do_send_sample`():
+    Used to indicate to the Controller whether to send the output from
+    `aggregate_sample()` up the tree to the Agent's parent.  Returns
+    true if any samples have been updated since the last call.
 
   * `adjust_platform`():
     Adjust the platform settings based on the policy from above.
-    Settings for each control in the _policy_.  Returns true if
-    the platform was adjusted, false otherwise.
+    Settings for each control are in the _policy_.
+
+  * `do_write_batch`():
+    Used to indicate to the Controller whether to call
+    `PlatformIO::write_batch()` to enact new control values on the
+    platform.  Returns true if any control values have been updated
+    since the last call.
 
   * `sample_platform`():
     Read signals from the platform and interpret/aggregate these
