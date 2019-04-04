@@ -38,6 +38,7 @@ extern const char *program_invocation_name;
 #include <stdlib.h>
 #include <iostream>
 #include <memory>
+#include <fstream>
 
 #include "gtest/gtest.h"
 #include "geopm_env.h"
@@ -47,18 +48,24 @@ extern const char *program_invocation_name;
 #include "Exception.hpp"
 #include "Helper.hpp"
 
+#include "contrib/json11/json11.hpp"
+
+using json11::Json;
+using geopm::EnvironmentImp;
+
 extern "C"
 {
     void geopm_env_load(void);
 }
 
-using geopm::Environment;
-
-class EnvironmentTest: public :: testing :: Test
+class EnvironmentTest: public :: testing :: Test, protected EnvironmentImp
 {
     protected:
+        void to_json(const std::string &path) const;
         void SetUp();
         void TearDown();
+        const std::string M_DEFAULT_PATH = "env_test_default.json";
+        const std::string M_OVERRIDE_PATH = "env_test_override.json";
         std::string m_report;
         std::string m_policy;
         std::string m_shmkey;
@@ -75,8 +82,28 @@ class EnvironmentTest: public :: testing :: Test
         bool m_do_profile;
         int m_timeout;
         int m_debug_attach;
-        std::unique_ptr<Environment> m_env;
 };
+
+void EnvironmentTest::to_json(const std::string &path) const
+{
+    // @todo arbitrary subset of all member, resolve
+    Json root = Json::object {
+                               {"GEOPM_REPORT", m_report},
+                               {"GEOPM_POLICY", m_policy},
+                               {"GEOPM_SHMKEY", m_shmkey},
+                               {"GEOPM_TRACE", m_trace},
+                               {"GEOPM_PLUGIN_PATH", m_plugin_path},
+                               {"GEOPM_REGION_BARRIER", std::to_string(m_do_region_barrier)},
+                               {"GEOPM_TIMEOUT", std::to_string(m_timeout)},
+                               {"GEOPM_CTL", m_pmpi_ctl_str},
+                               {"GEOPM_DEBUG_ATTACH", std::to_string(m_debug_attach)},
+                               {"GEOPM_PROFILE", m_profile},
+                               {"GEOPM_FREQUENCY_MAP", m_frequency_map},
+                             };
+    std::ofstream json_file_out(path, std::ifstream::out);
+    json_file_out << root.dump();
+    json_file_out.close();
+}
 
 void EnvironmentTest::SetUp()
 {
@@ -88,9 +115,9 @@ void EnvironmentTest::SetUp()
     m_profile = "profile-test_value";
     m_frequency_map = "hash:freq,hash:freq,hash:freq";
     m_pmpi_ctl = GEOPM_CTL_NONE;
-    m_do_region_barrier = false;
-    m_do_trace = false;
-    m_do_profile = false;
+    m_do_region_barrier = true;
+    m_do_trace = true;
+    m_do_profile = true;
     m_timeout = 30;
     m_debug_attach = -1;
     m_pmpi_ctl_str = "none";
@@ -128,39 +155,93 @@ void EnvironmentTest::TearDown()
     unsetenv("GEOPM_COMM");
     unsetenv("GEOPM_AGENT");
     unsetenv("GEOPM_TRACE_SIGNALS");
+    (void)unlink(M_DEFAULT_PATH.c_str());
+    (void)unlink(M_OVERRIDE_PATH.c_str());
 }
 
 TEST_F(EnvironmentTest, construction0)
 {
-    setenv("GEOPM_REPORT", m_report.c_str(), 1);
-    setenv("GEOPM_POLICY", m_policy.c_str(), 1);
-    setenv("GEOPM_SHMKEY", m_shmkey.c_str(), 1);
-    setenv("GEOPM_TRACE", m_trace.c_str(), 1);
-    setenv("GEOPM_PLUGIN_PATH", m_plugin_path.c_str(), 1);
-    setenv("GEOPM_REGION_BARRIER", "", 1);
-    setenv("GEOPM_TIMEOUT", std::to_string(m_timeout).c_str(), 1);
-    m_pmpi_ctl_str = std::string("process");
-    m_pmpi_ctl = GEOPM_CTL_PROCESS;
-    setenv("GEOPM_CTL", m_pmpi_ctl_str.c_str(), 1);
-    setenv("GEOPM_DEBUG_ATTACH", std::to_string(m_debug_attach).c_str(), 1);
-    setenv("GEOPM_PROFILE", m_profile.c_str(), 1);
-    setenv("GEOPM_FREQUENCY_MAP", m_frequency_map.c_str(), 1);
+    for (size_t test_idx = 0; test_idx < 4; ++test_idx) {
+        switch (test_idx) {
+            case 0: // user only
+                setenv("GEOPM_REPORT", m_report.c_str(), 1);
+                setenv("GEOPM_POLICY", m_policy.c_str(), 1);
+                setenv("GEOPM_SHMKEY", m_shmkey.c_str(), 1);
+                setenv("GEOPM_TRACE", m_trace.c_str(), 1);
+                setenv("GEOPM_PLUGIN_PATH", m_plugin_path.c_str(), 1);
+                setenv("GEOPM_REGION_BARRIER", std::to_string(m_do_region_barrier).c_str(), 1);
+                setenv("GEOPM_TIMEOUT", std::to_string(m_timeout).c_str(), 1);
+                m_pmpi_ctl_str = std::string("process");
+                m_pmpi_ctl = GEOPM_CTL_PROCESS;
+                setenv("GEOPM_CTL", m_pmpi_ctl_str.c_str(), 1);
+                setenv("GEOPM_DEBUG_ATTACH", std::to_string(m_debug_attach).c_str(), 1);
+                setenv("GEOPM_PROFILE", m_profile.c_str(), 1);
+                setenv("GEOPM_FREQUENCY_MAP", m_frequency_map.c_str(), 1);
+                break;
+            case 1: // default only
+                m_pmpi_ctl_str = std::string("process");
+                m_pmpi_ctl = GEOPM_CTL_PROCESS;
+                to_json(M_DEFAULT_PATH);
+                break;
+            case 2: // override only
+                m_pmpi_ctl_str = std::string("process");
+                m_pmpi_ctl = GEOPM_CTL_PROCESS;
+                to_json(M_OVERRIDE_PATH);
+                break;
+            case 3: // default and override
+                m_pmpi_ctl_str = std::string("process");
+                m_pmpi_ctl = GEOPM_CTL_PROCESS;
+                to_json(M_DEFAULT_PATH);
+                m_pmpi_ctl_str = std::string("pthread");
+                m_pmpi_ctl = GEOPM_CTL_PTHREAD;
+                to_json(M_OVERRIDE_PATH);
+                break;
+            case 4: // user, default and override
+                //@todo
+                break;
+        }
+        switch (test_idx) {
+            case 0: // user only
+                this->load("", "");
+            case 1: // default only
+                this->load(M_DEFAULT_PATH, "");
+                break;
+            case 2: // override only
+                this->load("", M_OVERRIDE_PATH);
+                break;
+            case 3: // default and override
+                this->load(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+                break;
+            case 4: // user, default and override
+                this->load(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+                break;
+        }
 
-    m_env = geopm::make_unique<Environment>();
-
-    EXPECT_EQ(m_policy, m_env->policy());
-    EXPECT_EQ("/" + m_shmkey, m_env->shmkey());
-    EXPECT_EQ(m_trace, m_env->trace());
-    EXPECT_EQ(m_plugin_path, m_env->plugin_path());
-    EXPECT_EQ(m_report, m_env->report());
-    EXPECT_EQ(m_profile, m_env->profile());
-    EXPECT_EQ(m_frequency_map, m_env->frequency_map());
-    EXPECT_EQ(m_pmpi_ctl, m_env->pmpi_ctl());
-    EXPECT_EQ(1, m_env->do_region_barrier());
-    EXPECT_EQ(1, m_env->do_trace());
-    EXPECT_EQ(1, m_env->do_profile());
-    EXPECT_EQ(m_timeout, m_env->timeout());
-    EXPECT_EQ(m_debug_attach, m_env->debug_attach());
+        switch (test_idx) {
+            case 0: // user only
+            case 1: // default only
+            case 2: // override only
+            case 3: // default and override
+                EXPECT_EQ(m_policy, this->policy());
+                EXPECT_EQ("/" + m_shmkey, this->shmkey());
+                EXPECT_EQ(m_trace, this->trace());
+                EXPECT_EQ(m_plugin_path, this->plugin_path());
+                EXPECT_EQ(m_report, this->report());
+                EXPECT_EQ(m_profile, this->profile());
+                EXPECT_EQ(m_frequency_map, this->frequency_map());
+                EXPECT_EQ(m_pmpi_ctl, this->pmpi_ctl());
+                EXPECT_EQ(m_do_region_barrier, this->do_region_barrier());
+                EXPECT_EQ(m_do_trace, this->do_trace());
+                EXPECT_EQ(m_do_profile, this->do_profile());
+                EXPECT_EQ(m_timeout, this->timeout());
+                EXPECT_EQ(m_debug_attach, this->debug_attach());
+                break;
+            case 4: // user, default and override
+                //@todo
+                break;
+        }
+        TearDown();
+    }
 }
 
 TEST_F(EnvironmentTest, construction1)
@@ -170,6 +251,7 @@ TEST_F(EnvironmentTest, construction1)
     setenv("GEOPM_TRACE", m_trace.c_str(), 1);
     setenv("GEOPM_PLUGIN_PATH", m_plugin_path.c_str(), 1);
     //setenv("GEOPM_REGION_BARRIER", "", 1);
+    m_do_region_barrier = false;
     setenv("GEOPM_TIMEOUT", std::to_string(m_timeout).c_str(), 1);
     m_pmpi_ctl_str = std::string("pthread");
     m_pmpi_ctl = GEOPM_CTL_PTHREAD;
@@ -181,34 +263,36 @@ TEST_F(EnvironmentTest, construction1)
 
     m_profile = program_invocation_name;
 
-    m_env = geopm::make_unique<Environment>();
+    this->load("", "");
 
     std::string default_shmkey("/geopm-shm-" + std::to_string(geteuid()));
 
-    EXPECT_EQ(m_pmpi_ctl, m_env->pmpi_ctl());
-    EXPECT_EQ(1, m_env->do_profile());
-    EXPECT_EQ(m_debug_attach, m_env->debug_attach());
-    EXPECT_EQ(m_policy, m_env->policy());
-    EXPECT_EQ(default_shmkey, m_env->shmkey());
-    EXPECT_EQ(m_trace, m_env->trace());
-    EXPECT_EQ(m_plugin_path, m_env->plugin_path());
-    EXPECT_EQ(m_report, m_env->report());
-    EXPECT_EQ(m_profile, m_env->profile());
-    EXPECT_EQ(m_pmpi_ctl, m_env->pmpi_ctl());
-    EXPECT_EQ(0, m_env->do_region_barrier());
-    EXPECT_EQ(1, m_env->do_trace());
-    EXPECT_EQ(1, m_env->do_profile());
-    EXPECT_EQ(m_timeout, m_env->timeout());
-    EXPECT_EQ(m_debug_attach, m_env->debug_attach());
-    EXPECT_EQ(m_trace_signals, m_env->trace_signals());
-    EXPECT_EQ(m_report_signals, m_env->report_signals());
+    EXPECT_EQ(m_pmpi_ctl, this->pmpi_ctl());
+    EXPECT_EQ(1, this->do_profile());
+    EXPECT_EQ(m_debug_attach, this->debug_attach());
+    EXPECT_EQ(m_policy, this->policy());
+    EXPECT_EQ(default_shmkey, this->shmkey());
+    EXPECT_EQ(m_trace, this->trace());
+    EXPECT_EQ(m_plugin_path, this->plugin_path());
+    EXPECT_EQ(m_report, this->report());
+    EXPECT_EQ(m_profile, this->profile());
+    EXPECT_EQ(m_pmpi_ctl, this->pmpi_ctl());
+    EXPECT_EQ(m_do_region_barrier, this->do_region_barrier());
+    EXPECT_EQ(m_do_trace, this->do_trace());
+    EXPECT_EQ(m_do_profile, this->do_profile());
+    EXPECT_EQ(m_timeout, this->timeout());
+    EXPECT_EQ(m_debug_attach, this->debug_attach());
+    EXPECT_EQ(m_trace_signals, this->trace_signals());
+    EXPECT_EQ(m_report_signals, this->report_signals());
 }
 
 TEST_F(EnvironmentTest, invalid_ctl)
 {
     setenv("GEOPM_CTL", "program", 1);
 
-    EXPECT_THROW(Environment(), geopm::Exception);
+    this->load("", "");
+
+    EXPECT_THROW(this->pmpi_ctl(), geopm::Exception);
 }
 
 TEST_F(EnvironmentTest, c_apis)
@@ -227,6 +311,4 @@ TEST_F(EnvironmentTest, c_apis)
     (void)geopm_env_do_profile(&test_do_profile);
     (void)geopm_env_debug_attach(&test_debug_attach);
     EXPECT_EQ(GEOPM_CTL_PROCESS, test_pmpi_ctl);
-    EXPECT_EQ(1, test_do_profile);
-    EXPECT_EQ(m_debug_attach, test_debug_attach);
 }
