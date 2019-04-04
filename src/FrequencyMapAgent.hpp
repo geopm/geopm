@@ -55,7 +55,7 @@ namespace geopm
         public:
             FrequencyMapAgent();
             FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo,
-                              std::shared_ptr<FrequencyGovernor> gov);
+                              std::shared_ptr<FrequencyGovernor> gov, std::map<uint64_t, double> frequency_map);
             virtual ~FrequencyMapAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &policy) const override;
@@ -82,7 +82,6 @@ namespace geopm
         private:
             void update_policy(const std::vector<double> &policy);
             void init_platform_io(void);
-            void parse_env_map(void);
 
             enum m_policy_e {
                 M_POLICY_FREQ_MIN,
