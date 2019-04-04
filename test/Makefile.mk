@@ -96,8 +96,14 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/EnergyEfficientRegionTest.freq_starts_at_maximum \
               test/gtest_links/EnergyEfficientRegionTest.performance_decreases_freq_steps_back_up \
               test/gtest_links/EnergyEfficientRegionTest.update_ignores_nan_sample \
-              test/gtest_links/EnvironmentTest.construction0 \
-              test/gtest_links/EnvironmentTest.construction1 \
+              test/gtest_links/EnvironmentTest.internal_defaults \
+              test/gtest_links/EnvironmentTest.user_only \
+              test/gtest_links/EnvironmentTest.user_only_do_profile \
+              test/gtest_links/EnvironmentTest.user_only_do_profile_name \
+              test/gtest_links/EnvironmentTest.default_only \
+              test/gtest_links/EnvironmentTest.override_only \
+              test/gtest_links/EnvironmentTest.default_and_override \
+              test/gtest_links/EnvironmentTest.user_default_and_override \
               test/gtest_links/EnvironmentTest.invalid_ctl \
               test/gtest_links/EnvironmentTest.c_apis \
               test/gtest_links/EpochRuntimeRegulatorTest.all_ranks_enter_exit \
