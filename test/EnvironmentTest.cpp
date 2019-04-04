@@ -75,7 +75,7 @@ class EnvironmentTest: public :: testing :: Test
         bool m_do_profile;
         int m_timeout;
         int m_debug_attach;
-        std::unique_ptr<Environment> m_env;
+        std::unique_ptr<EnvironmentImp> m_env;
 };
 
 void EnvironmentTest::SetUp()
@@ -146,7 +146,7 @@ TEST_F(EnvironmentTest, construction0)
     setenv("GEOPM_PROFILE", m_profile.c_str(), 1);
     setenv("GEOPM_FREQUENCY_MAP", m_frequency_map.c_str(), 1);
 
-    m_env = geopm::make_unique<Environment>();
+    m_env = geopm::make_unique<EnvironmentImp>("/var/lib/geopm/environment-default.json");
 
     EXPECT_EQ(m_policy, m_env->policy());
     EXPECT_EQ("/" + m_shmkey, m_env->shmkey());
@@ -181,7 +181,7 @@ TEST_F(EnvironmentTest, construction1)
 
     m_profile = program_invocation_name;
 
-    m_env = geopm::make_unique<Environment>();
+    m_env = geopm::make_unique<EnvironmentImp>("/var/lib/geopm/environment-default.json");
 
     std::string default_shmkey("/geopm-shm-" + std::to_string(geteuid()));
 
@@ -208,7 +208,7 @@ TEST_F(EnvironmentTest, invalid_ctl)
 {
     setenv("GEOPM_CTL", "program", 1);
 
-    EXPECT_THROW(Environment(), geopm::Exception);
+    EXPECT_THROW(EnvironmentImp("/var/lib/geopm/environment-default.json"), geopm::Exception);
 }
 
 TEST_F(EnvironmentTest, c_apis)
@@ -227,6 +227,4 @@ TEST_F(EnvironmentTest, c_apis)
     (void)geopm_env_do_profile(&test_do_profile);
     (void)geopm_env_debug_attach(&test_debug_attach);
     EXPECT_EQ(GEOPM_CTL_PROCESS, test_pmpi_ctl);
-    EXPECT_EQ(1, test_do_profile);
-    EXPECT_EQ(m_debug_attach, test_debug_attach);
 }
