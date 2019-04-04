@@ -60,6 +60,7 @@ class EnvironmentTest: public :: testing :: Test
         std::string m_trace;
         std::string m_plugin_path;
         std::string m_profile;
+        std::string m_frequency_map;
         std::string m_pmpi_ctl_str;
         std::string m_trace_signals;
         std::string m_report_signals;
@@ -79,6 +80,7 @@ void EnvironmentTest::SetUp()
     m_trace = "trace-test_value";
     m_plugin_path = "plugin_path-test_value";
     m_profile = "profile-test_value";
+    m_frequency_map = "hash:freq,hash:freq,hash:freq";//@todo
     m_pmpi_ctl = GEOPM_CTL_NONE;
     m_do_region_barrier = false;
     m_do_trace = false;
@@ -136,6 +138,7 @@ TEST_F(EnvironmentTest, construction0)
     setenv("GEOPM_CTL", m_pmpi_ctl_str.c_str(), 1);
     setenv("GEOPM_DEBUG_ATTACH", std::to_string(m_debug_attach).c_str(), 1);
     setenv("GEOPM_PROFILE", m_profile.c_str(), 1);
+    setenv("GEOPM_FREQUENCY_MAP", m_frequency_map.c_str(), 1);
 
     geopm_env_load();
 
@@ -145,6 +148,7 @@ TEST_F(EnvironmentTest, construction0)
     //EXPECT_EQ(m_plugin_path, std::string(geopm_env_plugin_path()));
     //EXPECT_EQ(m_report, std::string(geopm_env_report()));
     //EXPECT_EQ(m_profile, std::string(geopm_env_profile()));
+    //EXPECT_EQ(m_frequency_map, std::string(geopm_env_frequency_map()));
     //EXPECT_EQ(1, geopm_env_do_region_barrier());
     //EXPECT_EQ(1, geopm_env_do_trace());
     //EXPECT_EQ(m_timeout, geopm_env_timeout());
