@@ -85,6 +85,42 @@ namespace geopm
                 }
             }
         },
+        "PERF_STATUS": {
+            "offset": "0x198",
+            "domain": "package",
+            "fields": {
+                "FREQ": {
+                    "begin_bit": 8,
+                    "end_bit":   15,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "writeable": false
+                }
+            }
+        },
+        "PERF_CTL": {
+            "offset": "0x199",
+            "domain": "package",
+            "fields": {
+                "FREQ": {
+                    "begin_bit": 8,
+                    "end_bit":   15,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "writeable": true
+                },
+                "TURBO_DISENGAGE": {
+                    "begin_bit": 32,
+                    "end_bit":   32,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                }
+            }
+        },
         "TEMPERATURE_TARGET": {
             "offset": "0x1A2",
             "domain": "core",
