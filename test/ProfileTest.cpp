@@ -55,11 +55,6 @@ using geopm::ProfileImp;
 using geopm::SharedMemoryImp;
 using geopm::PlatformTopo;
 
-extern "C"
-{
-    void geopm_env_load(void);
-}
-
 class ProfileTestControlMessage : public MockControlMessage
 {
     public:
@@ -204,7 +199,6 @@ ProfileTest::ProfileTest()
 
     setenv("GEOPM_REGION_BARRIER", "1", 1);
     setenv("GEOPM_PROFILE_TIMEOUT", "1", 1);
-    geopm_env_load();
 }
 
 ProfileTest::~ProfileTest()
@@ -549,7 +543,6 @@ TEST_F(ProfileTestIntegration, misconfig_affinity)
 {
     int world_rank = 0;
     int shm_rank = 0;
-    geopm_env_load();
     m_ctl_msg = geopm::make_unique<ProfileTestControlMessage>();
     EXPECT_CALL(*m_ctl_msg, cpu_rank(testing::_))
         .WillRepeatedly(testing::Return(-2));
