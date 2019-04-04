@@ -42,6 +42,7 @@
 #include "geopm.h"
 #include "geopm_hash.h"
 
+#include "Environment.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "FrequencyGovernor.hpp"
@@ -53,24 +54,49 @@ using json11::Json;
 
 namespace geopm
 {
+    static std::map<uint64_t, double> parse_env_map(void)
+    {
+        std::map<uint64_t, double> frequency_map;
+        std::string env_map_str = environment().frequency_map();
+        if (env_map_str.length()) {
+            std::string err;
+            Json root = Json::parse(env_map_str, err);
+            if (!err.empty() || !root.is_object()) {
+                throw Exception("FrequencyMapAgent::" + std::string(__func__) + "(): detected a malformed json config file: " + err,
+                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+            }
+            for (const auto &obj : root.object_items()) {
+                if (obj.second.type() != Json::NUMBER) {
+                    throw Exception("FrequencyMapAgent::" + std::string(__func__) +
+                                    ": Region best-fit frequency must be a number",
+                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                }
+                uint64_t hash = geopm_crc32_str(obj.first.c_str());
+                frequency_map[hash] = obj.second.number_value();
+            }
+        }
+        return frequency_map;
+    }
+
     FrequencyMapAgent::FrequencyMapAgent()
-        : FrequencyMapAgent(platform_io(), platform_topo(), FrequencyGovernor::make_shared())
+        : FrequencyMapAgent(platform_io(), platform_topo(), FrequencyGovernor::make_shared(), parse_env_map())
     {
 
     }
 
     FrequencyMapAgent::FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo,
-                                         std::shared_ptr<FrequencyGovernor> gov)
+                                         std::shared_ptr<FrequencyGovernor> gov, std::map<uint64_t, double> frequency_map)
         : M_PRECISION(16)
         , m_platform_io(plat_io)
         , m_platform_topo(topo)
         , m_freq_governor(gov)
+        , m_hash_freq_map(frequency_map)
         , m_last_wait(GEOPM_TIME_REF)
         , m_level(-1)
         , m_num_children(0)
         , m_is_policy_updated(false)
     {
-        parse_env_map();
+
     }
 
     std::string FrequencyMapAgent::plugin_name(void)
@@ -288,29 +314,6 @@ namespace geopm
                 m_signal_idx[sig_idx].push_back(m_platform_io.push_signal(signal_names[sig_idx],
                                                                           freq_ctl_domain_type,
                                                                           ctl_idx));
-            }
-        }
-    }
-
-    void FrequencyMapAgent::parse_env_map(void)
-    {
-        const char* env_map_str = getenv("GEOPM_FREQUENCY_MAP");
-        if (env_map_str) {
-            std::string full_str(env_map_str);
-            std::string err;
-            Json root = Json::parse(full_str, err);
-            if (!err.empty() || !root.is_object()) {
-                throw Exception("FrequencyMapAgent::" + std::string(__func__) + "(): detected a malformed json config file: " + err,
-                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
-            }
-            for (const auto &obj : root.object_items()) {
-                if (obj.second.type() != Json::NUMBER) {
-                    throw Exception("FrequencyMapAgent::" + std::string(__func__) +
-                                    ": Region best-fit frequency must be a number",
-                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
-                }
-                uint64_t hash = geopm_crc32_str(obj.first.c_str());
-                m_hash_freq_map[hash] = obj.second.number_value();
             }
         }
     }
