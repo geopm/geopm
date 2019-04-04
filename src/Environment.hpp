@@ -43,28 +43,54 @@ namespace geopm
     class Environment
     {
         public:
-            Environment();
+            Environment() = default;
             virtual ~Environment() = default;
+            virtual std::string report(void) const = 0;
+            virtual std::string comm(void) const = 0;
+            virtual std::string policy(void) const = 0;
+            virtual std::string shmkey(void) const = 0;
+            virtual std::string trace(void) const = 0;
+            virtual std::string plugin_path(void) const = 0;
+            virtual std::string profile(void) const = 0;
+            virtual std::string frequency_map(void) const = 0;
+            virtual std::string agent(void) const = 0;
+            virtual std::string trace_signals(void) const = 0;
+            virtual std::string report_signals(void) const = 0;
+            virtual int max_fan_out(void) const = 0;
+            virtual int pmpi_ctl(void) const = 0;
+            virtual int do_region_barrier(void) const = 0;
+            virtual int do_trace(void) const = 0;
+            virtual int do_profile() const = 0;
+            virtual int timeout(void) const = 0;
+            virtual int debug_attach(void) const = 0;
+    };
+
+    class EnvironmentImp : public Environment
+    {
+        public:
+            EnvironmentImp();
+            virtual ~EnvironmentImp() = default;
             void load(void);
-            std::string report(void) const;
-            std::string comm(void) const;
-            std::string policy(void) const;
-            std::string shmkey(void) const;
-            std::string trace(void) const;
-            std::string plugin_path(void) const;
-            std::string profile(void) const;
-            std::string frequency_map(void) const;
-            std::string agent(void) const;
-            std::string trace_signals(void) const;
-            std::string report_signals(void) const;
-            int max_fan_out(void) const;
-            int pmpi_ctl(void) const;
-            int do_region_barrier(void) const;
-            int do_trace(void) const;
-            int do_profile() const;
-            int timeout(void) const;
-            int debug_attach(void) const;
+            std::string report(void) const override;
+            std::string comm(void) const override;
+            std::string policy(void) const override;
+            std::string shmkey(void) const override;
+            std::string trace(void) const override;
+            std::string plugin_path(void) const override;
+            std::string profile(void) const override;
+            std::string frequency_map(void) const override;
+            std::string agent(void) const override;
+            std::string trace_signals(void) const override;
+            std::string report_signals(void) const override;
+            int max_fan_out(void) const override;
+            int pmpi_ctl(void) const override;
+            int do_region_barrier(void) const override;
+            int do_trace(void) const override;
+            int do_profile() const override;
+            int timeout(void) const override;
+            int debug_attach(void) const override;
         private:
+            EnvironmentImp(const std::string &default_settings_path, const std::string &override_settings_path);
             bool get_env(const char *name, std::string &env_string) const;
             bool get_env(const char *name, int &value) const;
             std::string m_report;
@@ -76,6 +102,7 @@ namespace geopm
             std::string m_plugin_path;
             std::string m_profile;
             std::string m_frequency_map;
+            std::string m_pmpi_ctl_str;
             int m_max_fan_out;
             int m_pmpi_ctl;
             bool m_do_region_barrier;
@@ -85,6 +112,9 @@ namespace geopm
             int m_debug_attach;
             std::string m_trace_signals;
             std::string m_report_signals;
+            std::string m_region_barrier;
+            std::map<std::string, std::string&> m_exp_str_type;
+            std::map<std::string, int&> m_exp_num_type;
     };
 
 
