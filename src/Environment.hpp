@@ -53,6 +53,7 @@ namespace geopm
             std::string trace(void) const;
             std::string plugin_path(void) const;
             std::string profile(void) const;
+            std::string frequency_map(void) const;
             std::string agent(void) const;
             std::string trace_signals(void) const;
             std::string report_signals(void) const;
@@ -74,6 +75,7 @@ namespace geopm
             std::string m_trace;
             std::string m_plugin_path;
             std::string m_profile;
+            std::string m_frequency_map;
             int m_max_fan_out;
             int m_pmpi_ctl;
             bool m_do_region_barrier;
