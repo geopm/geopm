@@ -239,6 +239,8 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              copying_headers/test-license \
              dox-public/Doxyfile.in \
              dox/Doxyfile \
+             environment-default.json \
+             environment-override.json \
              geopm-ohpc.spec \
              geopm-ohpc.spec.in \
              geopm-theta.spec \
@@ -426,6 +428,7 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/EnergyEfficientRegion.hpp \
                             src/Environment.hpp \
                             src/Environment.cpp \
+                            src/Environment.hpp \
                             src/EpochRuntimeRegulator.cpp \
                             src/EpochRuntimeRegulator.hpp \
                             src/Exception.cpp \
