@@ -93,10 +93,9 @@ namespace geopm
             ManagerIOImp() = delete;
             ManagerIOImp(const ManagerIOImp &other) = delete;
 
-            ManagerIOImp(const Environment &environment, const std::string &data_path, bool is_policy);
-            ManagerIOImp(const Environment &environment, const std::string &data_path,
-                         bool is_policy);
-            ManagerIOImp(const Environment &environment, const std::string &data_path,
+            ManagerIOImp(bool is_policy);
+            ManagerIOImp(const Environment &environment, bool is_policy);
+            ManagerIOImp(const Environment &environment,
                          std::unique_ptr<SharedMemory> shmem,
                          const std::vector<std::string> &signal_names);
 
@@ -151,9 +150,9 @@ namespace geopm
         public:
             ManagerIOSamplerImp() = delete;
             ManagerIOSamplerImp(const ManagerIOSamplerImp &other) = delete;
-            ManagerIOSamplerImp(const Environment &environment, const std::string &data_path, bool is_policy);
-            ManagerIOSamplerImp(const Environment &environment, const std::string &data_path, bool is_policy);
-            ManagerIOSamplerImp(const Environment &environment, const std::string &data_path,
+            ManagerIOSamplerImp(bool is_policy);
+            ManagerIOSamplerImp(const Environment &environment, bool is_policy);
+            ManagerIOSamplerImp(const Environment &environment,
                                 std::unique_ptr<SharedMemoryUser> shmem,
                                 const std::vector<std::string> &signal_names);
             ~ManagerIOSamplerImp() = default;

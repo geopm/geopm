@@ -86,7 +86,7 @@ namespace geopm
                         std::unique_ptr<SampleScheduler> scheduler,
                         std::shared_ptr<Comm> reduce_comm)
         : m_environment(environment)
-        : m_is_enabled(true)
+        , m_is_enabled(true)
         , m_prof_name(m_environment.profile())
         , m_curr_region_id(0)
         , m_num_enter(0)
@@ -124,7 +124,7 @@ namespace geopm
         ++m_overhead_time_shutdown;
         --m_overhead_time_shutdown;
 #endif
-        std::string key_base = environment.smhkey();
+        std::string key_base = m_environment.shmkey();
         std::string sample_key(key_base + "-sample");
         std::string tprof_key(key_base + "-tprof");
         int shm_num_rank = 0;
@@ -186,7 +186,7 @@ namespace geopm
             if (m_ctl_shmem->size() < sizeof(struct geopm_ctl_message_s)) {
                 throw Exception("ProfileImp: ctl_shmem too small", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-            m_ctl_msg = geopm::make_unique<ControlMessageImp>(*(struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), false, !m_shm_rank);
+            m_ctl_msg = geopm::make_unique<ControlMessageImp>(m_environment.timeout(), *(struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), false, !m_shm_rank);
         }
     }
 
@@ -353,7 +353,7 @@ namespace geopm
         // if we are not currently in a region
         if (!m_curr_region_id && region_id) {
             if (!geopm_region_id_is_mpi(region_id) &&
-                m_environment.region_barrier()) {
+                m_environment.do_region_barrier()) {
                 m_shm_comm->barrier();
             }
             m_curr_region_id = region_id;
@@ -429,7 +429,7 @@ namespace geopm
             }
 
             if (!geopm_region_id_is_mpi(region_id) &&
-                m_environment.region_barrier()) {
+                m_environment.do_region_barrier()) {
                 m_shm_comm->barrier();
             }
 

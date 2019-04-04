@@ -111,7 +111,7 @@ extern "C"
         int err = 0;
         char err_msg[2 * NAME_MAX];
         DIR *did = opendir("/dev/shm");
-        std::string key_base = environment().shmkey();
+        std::string key_base = geopm::environment().shmkey();
         if (did &&
             strlen(key_base.c_str()) &&
             *(key_base.c_str()) == '/' &&

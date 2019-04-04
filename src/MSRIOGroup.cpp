@@ -836,10 +836,10 @@ namespace geopm
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         // search path for additional json files to parse
-        const char *env_plugin_path = environment().plugin_path();
+        std::string env_plugin_path = environment().plugin_path();
         std::vector<std::string> plugin_paths {GEOPM_DEFAULT_PLUGIN_PATH};
-        if (env_plugin_path) {
-            std::vector<std::string> dirs = string_split(std::string(env_plugin_path), ":");
+        if (env_plugin_path.length()) {
+            std::vector<std::string> dirs = string_split(env_plugin_path, ":");
             plugin_paths.insert(plugin_paths.end(), dirs.begin(), dirs.end());
         }
         std::vector<std::unique_ptr<MSR> > msr_arr_custom;

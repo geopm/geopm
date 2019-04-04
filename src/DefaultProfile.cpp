@@ -89,8 +89,8 @@ namespace geopm
 
 static geopm::DefaultProfile &geopm_default_prof(void)
 {
-    const Environment &env = environment();
-    static geopm::DefaultProfile default_prof(env, geopm::comm_factory().make_plugin(env.comm()));
+    const geopm::Environment &environment = geopm::environment();
+    static geopm::DefaultProfile default_prof(environment, geopm::comm_factory().make_plugin(environment.comm()));
     return default_prof;
 }
 

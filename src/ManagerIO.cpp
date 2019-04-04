@@ -53,23 +53,23 @@ using json11::Json;
 
 namespace geopm
 {
-    ManagerIOImp::ManagerIOImp(const std::string &data_path, bool is_policy)
-        : ManagerIOImp(environment(), data_path, is_policy)
+    ManagerIOImp::ManagerIOImp(bool is_policy)
+        : ManagerIOImp(environment(), is_policy)
     {
     }
 
-    ManagerIOImp::ManagerIOImp(const Environment &environment, const std::string &data_path, bool is_policy)
-        : ManagerIOImp(environment, data_path,
+    ManagerIOImp::ManagerIOImp(const Environment &environment, bool is_policy)
+        : ManagerIOImp(environment,
                        nullptr,
                        is_policy ? Agent::policy_names(agent_factory().dictionary(environment.agent())) :
                                    Agent::sample_names(agent_factory().dictionary(environment.agent())))
     {
     }
 
-    ManagerIOImp::ManagerIOImp(const Environment &environment, const std::string &path, std::unique_ptr<SharedMemory> shmem,
+    ManagerIOImp::ManagerIOImp(const Environment &environment, std::unique_ptr<SharedMemory> shmem,
                                const std::vector<std::string> &signal_names)
         : m_environment(environment)
-        , m_path(path)
+        , m_path(m_environment.policy())
         , m_signal_names(signal_names)
         , m_shmem(std::move(shmem))
         , m_data(nullptr)
@@ -184,22 +184,21 @@ namespace geopm
 
     /*********************************************************************************************************/
 
-    ManagerIOSamplerImp::ManagerIOSamplerImp(const Environment &environment, const std::string &data_path, bool is_policy)
-        : ManagerIOSamplerImp(data_path, is_policy, environment.agent())
+    ManagerIOSamplerImp::ManagerIOSamplerImp(bool is_policy)
+        : ManagerIOSamplerImp(environment(), is_policy)
     {
     }
 
-    ManagerIOSamplerImp::ManagerIOSamplerImp(const Environment &environment, const std::string &data_path, bool is_policy)
-        : ManagerIOSamplerImp(environment, data_path,
-                              nullptr,
+    ManagerIOSamplerImp::ManagerIOSamplerImp(const Environment &environment, bool is_policy)
+        : ManagerIOSamplerImp(environment, nullptr,
                               is_policy ? Agent::policy_names(agent_factory().dictionary(environment.agent())) :
                                           Agent::sample_names(agent_factory().dictionary(environment.agent())))
     {
     }
 
-    ManagerIOSamplerImp::ManagerIOSamplerImp(const std::string &path, std::unique_ptr<SharedMemoryUser> shmem, const std::vector<std::string> &signal_names)
+    ManagerIOSamplerImp::ManagerIOSamplerImp(const Environment &environment, std::unique_ptr<SharedMemoryUser> shmem, const std::vector<std::string> &signal_names)
         : m_environment(environment)
-        , m_path(path)
+        , m_path(m_environment.policy())
         , m_signal_names(signal_names)
         , m_shmem(std::move(shmem))
         , m_data(nullptr)

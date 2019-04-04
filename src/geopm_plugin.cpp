@@ -46,18 +46,16 @@ static const char *GEOPM_IOGROUP_PLUGIN_PREFIX  = "libgeopmiogroup_";
 static const char *GEOPM_COMM_PLUGIN_PREFIX     = "libgeopmcomm_";
 static void __attribute__((constructor)) geopmpolicy_load(void)
 {
-    std::string env_plugin_path_str;
-    const char *env_plugin_path = environment().plugin_path();
+    std::string env_plugin_path_str = geopm::environment().plugin_path();
     std::vector<std::string> plugin_paths {GEOPM_DEFAULT_PLUGIN_PATH};
     std::string so_suffix = ".so." GEOPM_ABI_VERSION;
 
-    if (env_plugin_path) {
+    if (env_plugin_path_str.length()) {
         for (auto it = so_suffix.begin(); it != so_suffix.end(); ++it) {
             if (*it == ':') {
                 so_suffix.replace(it, it + 1, ".");
             }
         }
-        env_plugin_path_str = std::string(env_plugin_path);
         // load paths in reverse order from environment variable list
         auto user_paths = geopm::string_split(env_plugin_path_str, ":");
         std::reverse(user_paths.begin(), user_paths.end());

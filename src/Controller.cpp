@@ -81,9 +81,9 @@ extern "C"
     {
         int err = 0;
         try {
-            const Environment &env = environment();
-            auto tmp_comm = geopm::comm_factory().make_plugin(geopm_env_comm());
-            geopm::Controller ctl(env, std::move(tmp_comm));
+            const geopm::Environment &environment = geopm::environment();
+            auto tmp_comm = geopm::comm_factory().make_plugin(environment.comm());
+            geopm::Controller ctl(environment, std::move(tmp_comm));
             err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
         }
         catch (...) {
@@ -150,9 +150,9 @@ namespace geopm
                      Agent::num_policy(agent_factory().dictionary(environment.agent())),
                      Agent::num_sample(agent_factory().dictionary(environment.agent())),
                      std::unique_ptr<TreeComm>(new TreeCommImp(ppn1_comm,
-                         Agent::num_policy(agent_factory().dictionary(geopm_env_agent())),
-                         Agent::num_sample(agent_factory().dictionary(geopm_env_agent())))),
-                     std::shared_ptr<ApplicationIO>(new ApplicationIOImp(geopm_env_shmkey())),
+                         Agent::num_policy(agent_factory().dictionary(environment.agent())),
+                         Agent::num_sample(agent_factory().dictionary(environment.agent())))),
+                     std::shared_ptr<ApplicationIO>(new ApplicationIOImp(environment.shmkey())),
                      std::unique_ptr<Reporter>(new ReporterImp(platform_topo(),
                                                                get_start_time(),
                                                                environment.report(),
@@ -160,7 +160,7 @@ namespace geopm
                                                                ppn1_comm->rank())),
                      nullptr,
                      std::vector<std::unique_ptr<Agent> >{},
-                     std::unique_ptr<ManagerIOSampler>(new ManagerIOSamplerImp(environment.policy(), true)))
+                     std::unique_ptr<ManagerIOSampler>(new ManagerIOSamplerImp(environment, true)))
     {
 
     }

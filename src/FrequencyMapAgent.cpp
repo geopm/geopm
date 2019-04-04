@@ -40,9 +40,9 @@
 #include "contrib/json11/json11.hpp"
 
 #include "geopm.h"
-#include "geopm_env.h"
 #include "geopm_hash.h"
 
+#include "Environment.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "FrequencyGovernor.hpp"
@@ -298,7 +298,7 @@ namespace geopm
 
     void FrequencyMapAgent::parse_env_map(void)
     {
-        std::string env_map_str = geopm_env_frequency_map();
+        std::string env_map_str = environment().frequency_map();
         if (env_map_str.size()) {
             std::string err;
             Json root = Json::parse(env_map_str, err);
