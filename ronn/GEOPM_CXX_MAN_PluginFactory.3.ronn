@@ -60,7 +60,7 @@ this manual.
 ## DESCRIPTION
 GEOPM can be extended though `Agent`, `IOGroup`, and `Comm` plugins.
 This man page describes the steps for adding a plugin.  Refer to
-**geopm::Agent(3)**, **geopm::IOGroup(3)**, and **geopm::Comm(3)** for
+**geopm::Agent(3)**, and **geopm::IOGroup(3)** for
 more details about these interfaces.  Any C++ class that derives from
 one of these plugin base classes and is compiled into a shared object
 file can be loaded at application launch time through the GEOPM plugin
@@ -326,6 +326,5 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
 ## SEE ALSO
 **geopm(7)**,
 **geopm::Agent(3)**,
-**geopm::Comm(3)**,
 **geopm::IOGroup(3)**,
 **dlopen(3)**
