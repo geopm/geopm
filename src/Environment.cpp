@@ -46,31 +46,63 @@ const char *program_invocation_name = "geopm_profile";
 #include <string>
 #include <vector>
 
+#include "contrib/json11/json11.hpp"
+
 #include "geopm_internal.h"
 #include "Exception.hpp"
 #include "Helper.hpp"
 
 #include "config.h"
 
+using json11::Json;
+
 namespace geopm
 {
-    static Environment &test_environment(void)
+    const Environment &environment(void)
     {
         static Environment instance;
         return instance;
     }
 
-    static const Environment &environment(void)
+    static void parse_environment_file(const std::string &settings_path,
+                                       std::map<std::string, std::string&> &str_settings,
+                                       std::map<std::string, int&> &num_settings)
     {
-        return test_environment();
+        std::string json_str;
+        json_str = read_file(settings_path);
+        std::string err;
+        Json root = Json::parse(json_str, err);
+        if (!err.empty() || !root.is_object()) {
+            throw Exception("Environment::" + std::string(__func__) + "(): detected a malformed json config file: " + err,
+                            GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+        }
+        for (const auto &obj : root.object_items()) {
+            auto str_it = str_settings.find(obj.first);
+            if (str_it != str_settings.end() &&
+                obj.second.type() != Json::STRING) {
+                throw Exception("Environment::" + std::string(__func__) +
+                                ": value for " + obj.first + " expected to be a string",
+                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+            }
+            else {
+                str_it->second = obj.second.string_value();
+                continue;
+            }
+            auto num_it = num_settings.find(obj.first);
+            if (num_it != num_settings.end() &&
+                obj.second.type() != Json::NUMBER) {
+                throw Exception("Environment::" + std::string(__func__) +
+                                ": value for " + obj.first + " expected to be numeric",
+                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+            }
+            else {
+                num_it->second = obj.second.number_value();
+                continue;
+            }
+        }
     }
 
-    Environment::Environment()
-    {
-        load();
-    }
-
-    void Environment::load()
+    Environment::Environment(const std::string &default_settings_path, const std::string &override_settings_path)
     {
         m_report = "";
         m_comm = "MPIComm";
@@ -90,38 +122,43 @@ namespace geopm
         m_debug_attach = -1;
         m_trace_signals = "";
         m_report_signals = "";
+        m_pmpi_ctl_str = "none";
 
-        std::string tmp_str;
+        m_exp_str_type.emplace("GEOPM_TRACE", m_trace);
+        m_exp_str_type.emplace("GEOPM_PROFILE", m_profile);
+        m_exp_str_type.emplace("GEOPM_REPORT", m_report);
+        m_exp_str_type.emplace("GEOPM_COMM", m_comm);
+        m_exp_str_type.emplace("GEOPM_POLICY", m_policy);
+        m_exp_str_type.emplace("GEOPM_AGENT", m_agent);
+        m_exp_str_type.emplace("GEOPM_SHMKEY", m_shmkey);
+        m_exp_str_type.emplace("GEOPM_FREQUENCY_MAP", m_frequency_map);
+        m_exp_str_type.emplace("GEOPM_TRACE_SIGNALS", m_trace_signals);
+        m_exp_str_type.emplace("GEOPM_REPORT_SIGNALS", m_report_signals);
+        m_exp_str_type.emplace("GEOPM_PLUGIN_PATH", m_plugin_path);
+        m_exp_str_type.emplace("GEOPM_CTL", m_pmpi_ctl_str);
 
-        (void)get_env("GEOPM_REPORT", m_report);
-        (void)get_env("GEOPM_COMM", m_comm);
-        (void)get_env("GEOPM_POLICY", m_policy);
-        (void)get_env("GEOPM_AGENT", m_agent);
-        (void)get_env("GEOPM_SHMKEY", m_shmkey);
-        if (m_shmkey[0] != '/') {
-            m_shmkey = "/" + m_shmkey;
+        m_exp_num_type.emplace("GEOPM_DEBUG_ATTACH", m_debug_attach);
+        m_exp_num_type.emplace("GEOPM_MAX_FAN_OUT", m_max_fan_out);
+        m_exp_num_type.emplace("GEOPM_TIMEOUT", m_timeout);
+        m_exp_str_type.emplace("GEOPM_REGION_BARRIER", m_region_barrier);
+
+        parse_environment_file(default_settings_path, m_exp_str_type, m_exp_num_type);
+        parse_environment_file(override_settings_path, m_exp_str_type, m_exp_num_type);
+
+        m_do_trace = m_trace.size() != 0;
+        m_do_profile = m_profile.size() != 0;
+        m_do_region_barrier = m_region_barrier.size() != 0;
+        if (m_exp_str_type["GEOPM_CTL"] == "process") {
+            m_pmpi_ctl = GEOPM_CTL_PROCESS;
         }
-        m_do_trace = get_env("GEOPM_TRACE", m_trace);
-        (void)get_env("GEOPM_PLUGIN_PATH", m_plugin_path);
-        m_do_region_barrier = get_env("GEOPM_REGION_BARRIER", tmp_str);
-        (void)get_env("GEOPM_TIMEOUT", m_timeout);
-        if (get_env("GEOPM_CTL", tmp_str)) {
-            if (tmp_str == "process") {
-                m_pmpi_ctl = GEOPM_CTL_PROCESS;
-            }
-            else if (tmp_str == "pthread") {
-                m_pmpi_ctl = GEOPM_CTL_PTHREAD;
-            }
-            else {
-                throw Exception("Environment::Environment(): " + tmp_str +
-                                " is not a valid value for GEOPM_CTL see geopm(7).",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
+        else if (m_exp_str_type["GEOPM_CTL"] == "pthread") {
+            m_pmpi_ctl = GEOPM_CTL_PTHREAD;
         }
-        (void)get_env("GEOPM_DEBUG_ATTACH", m_debug_attach);
-        m_do_profile = get_env("GEOPM_PROFILE", m_profile);
-        (void)get_env("GEOPM_FREQUENCY_MAP", m_frequency_map);
-        (void)get_env("GEOPM_MAX_FAN_OUT", m_max_fan_out);
+        else {
+            throw Exception("Environment::Environment(): " + m_exp_str_type["GEOPM_CTL"] +
+                            " is not a valid value for GEOPM_CTL see geopm(7).",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         if (m_report.length() ||
             m_do_trace ||
             m_pmpi_ctl != GEOPM_CTL_NONE) {
@@ -130,8 +167,14 @@ namespace geopm
         if (m_do_profile && !m_profile.length()) {
             m_profile = program_invocation_name;
         }
-        (void)get_env("GEOPM_TRACE_SIGNALS", m_trace_signals);
-        (void)get_env("GEOPM_REPORT_SIGNALS", m_report_signals);
+        if (m_shmkey[0] != '/') {
+            m_shmkey = "/" + m_shmkey;
+        }
+    }
+
+    Environment::Environment()
+        : Environment("/var/lib/geopm/environment-default.json", "/var/lib/geopm/environment-override.json")
+    {
     }
 
     bool Environment::get_env(const char *name, std::string &env_string) const
