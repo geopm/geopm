@@ -80,6 +80,7 @@ namespace geopm
         m_trace = "";
         m_plugin_path = "";
         m_profile = "";
+        m_frequency_map = "";
         m_max_fan_out = 16;
         m_pmpi_ctl = GEOPM_CTL_NONE;
         m_do_region_barrier = false;
@@ -119,6 +120,7 @@ namespace geopm
         }
         (void)get_env("GEOPM_DEBUG_ATTACH", m_debug_attach);
         m_do_profile = get_env("GEOPM_PROFILE", m_profile);
+        (void)get_env("GEOPM_FREQUENCY_MAP", m_frequency_map);
         (void)get_env("GEOPM_MAX_FAN_OUT", m_max_fan_out);
         if (m_report.length() ||
             m_do_trace ||
@@ -197,6 +199,11 @@ namespace geopm
     std::string Environment::profile(void) const
     {
         return m_profile;
+    }
+
+    std::string Environment::frequency_map(void) const
+    {
+        return m_frequency_map;
     }
 
     std::string Environment::plugin_path(void) const
