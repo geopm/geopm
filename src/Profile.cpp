@@ -124,7 +124,7 @@ namespace geopm
         ++m_overhead_time_shutdown;
         --m_overhead_time_shutdown;
 #endif
-        std::string key_base = environment.smhkey();
+        std::string key_base = m_environment.smhkey();
         std::string sample_key(key_base + "-sample");
         std::string tprof_key(key_base + "-tprof");
         int shm_num_rank = 0;
