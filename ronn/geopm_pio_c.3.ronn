@@ -33,6 +33,10 @@ geopm_pio_c(7) -- interfaces to query and modify platform
 
 ## SYNOPSIS
 
+**\#include [<geopm_pio.h>](https://github.com/geopm/geopm/blob/dev/src/geopm_pio.h)**
+
+`Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
+
   * `int geopm_pio_num_signal_name(`:
     `void);`
 
