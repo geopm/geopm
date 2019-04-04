@@ -1,0 +1,15 @@
+{
+    "GEOPM_REPORT":"",
+    "GEOPM_COMM":"MPIComm",
+    "GEOPM_POLICY":"",
+    "GEOPM_AGENT":"monitor",
+    "GEOPM_SHMKEY":"/geopm-shm-TODOOOOOOOOOOOOOO=uid",
+    "GEOPM_PLUGIN_PATH":"",
+    "GEOPM_TIMEOUT":30,
+    "GEOPM_CTL":"pthread",
+    "GEOPM_DEBUG_ATTACH":-1,
+    "GEOPM_FREQUENCY_MAP":"",
+    "GEOPM_MAX_FAN_OUT":16,
+    "GEOPM_TRACE_SIGNALS":"",
+    "GEOPM_REPORT_SIGNALS":"",
+}
