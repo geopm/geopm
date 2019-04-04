@@ -21,6 +21,8 @@ copying_headers/header.MIT-dropbox
 copying_headers/header.NAS
 dox-public/Doxyfile.in
 dox/Doxyfile
+environment-override.json
+environment-default.json
 examples/README.md
 examples/amg/README
 examples/comd/README
