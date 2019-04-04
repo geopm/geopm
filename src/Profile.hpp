@@ -198,8 +198,6 @@ namespace geopm
             ///        profile.  This name will be printed in the
             ///        header of the report.
             ///
-            /// @param [in] key_base Shmem key prefix.
-            ///
             /// @param [in] comm The application's MPI communicator.
             ///        Each rank of this communicator will report to a
             ///        separate shared memory region.  One
