@@ -40,7 +40,6 @@
 #include "contrib/json11/json11.hpp"
 
 #include "geopm.h"
-#include "geopm_env.h"
 #include "geopm_hash.h"
 
 #include "Environment.hpp"
