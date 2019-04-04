@@ -61,7 +61,6 @@ def allocation_node_test(test_exec, stdout, stderr):
     launcher = geopmpy.launcher.Factory().create(argv, num_rank=1, num_node=1, job_name="geopm_allocation_test")
     launcher.run(stdout, stderr)
 
-
 def skip_unless_cpufreq():
     try:
         test_exec = "dummy -- stat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq \
@@ -75,18 +74,25 @@ def skip_unless_cpufreq():
 
 def do_geopmwrite(write_str):
     test_exec = "dummy -- geopmwrite " + write_str
-    ostream = StringIO.StringIO()
-    dev_null = open('/dev/null', 'w')
-    allocation_node_test(test_exec, ostream, dev_null)
-    dev_null.close()
+    stdout = StringIO.StringIO()
+    stderr = StringIO.StringIO()
+    try:
+        allocation_node_test(test_exec, stdout, stderr)
+    except subprocess.CalledProcessError as err:
+        sys.stderr.write(stderr.getvalue())
+        raise err
+
 
 def do_geopmread(read_str):
     test_exec = "dummy -- geopmread " + read_str
-    ostream = StringIO.StringIO()
-    dev_null = open('/dev/null', 'w')
-    allocation_node_test(test_exec, ostream, dev_null)
-    dev_null.close()
-    return float(ostream.getvalue().splitlines()[-1])
+    stdout = StringIO.StringIO()
+    stderr = StringIO.StringIO()
+    try:
+        allocation_node_test(test_exec, stdout, stderr)
+    except subprocess.CalledProcessError as err:
+        sys.stderr.write(stderr.getvalue())
+        raise err
+    return float(stdout.getvalue().splitlines()[-1])
 
 def get_platform():
     test_exec = "dummy -- cat /proc/cpuinfo"
@@ -1417,7 +1423,6 @@ class TestIntegrationGeopmio(unittest.TestCase):
         '''
         Check that geopmwrite can be used to set frequency.
         '''
-
         def read_stdout_line(stdout):
             line = stdout.readline()
             while self.skip_warning_string in line:
