@@ -127,6 +127,12 @@ is also a value from the `geopm_domain_e` enum.
 
 ## INSPECTION FUNCTIONS
 
+TODO: would be nice if all c apis returned int was for errors only
+
+TODO: need to add interface (or explicit return coding) for caller
+to discover that str lens (other sizes in general) are not large enough.
+add return param and set required size there?
+
   * `geopm_pio_num_signal_name`():
     Returns the number of signal names that can be indexed with the
     _name_idx_ parameter to the `geopm_pio_signal_name()` function.
@@ -136,13 +142,14 @@ is also a value from the `geopm_domain_e` enum.
   * `geopm_pio_signal_name`():
     Sets the _result_ string to the name of the signal indexed by
     _name_idx_.  At most _result_max_ bytes are written to the _result_
-    vector.  If _result_max_ is non-zero the _result_ string will always be
-    null terminated.  If _name_idx_ is greater than zero and less than
-    the return value from `geopm_pio_num_signal_name()` the return
-    value will be `GEOPM_ERROR_INVALID`.  The return code will also
-    be `GEOPM_ERROR_INVALID` if _result_max_ is too small to contain
-    the signal name.  Any other error will result in a negative error
-    code.  Zero is returned on success.
+    vector.  The caller must allocate enough space for desired string
+    in addition to null termination byte.  If _result_max_ is non-zero
+    the _result_ string will always be null terminated.  If _name_idx_
+    is less than zero and greater than the return value from
+    `geopm_pio_num_signal_name()` the return value will be `GEOPM_ERROR_INVALID`.
+    The return code will also be `GEOPM_ERROR_INVALID` if _result_max_
+    is too small to contain the signal name.  Any other error will result
+    in a negative error code.  Zero is returned on success.
 
   * `geopm_pio_num_control_name`():
     Returns the number of control names that can be indexed with the
@@ -153,13 +160,14 @@ is also a value from the `geopm_domain_e` enum.
   * `geopm_pio_control_name`():
     Sets the _result_ string to the name of the control indexed by
     _name_idx_.  At most _result_max_ bytes are written to the _result_
-    vector.  If _result_max_ is non-zero the _result_ string will always be
-    null terminated.  If _name_idx_ is greater than zero and less than
-    the return value from `geopm_pio_num_control_name()` the return
-    value will be `GEOPM_ERROR_INVALID`.  The return code will also
-    be `GEOPM_ERROR_INVALID` if _result_max_ is too small to contain
-    the control name.  Any other error will result in a negative error
-    code.  Zero is returned on success.
+    vector.  The caller must allocate enough space for desired string
+    in addition to null termination byte.  If _result_max_ is non-zero
+    the _result_ string will always be null terminated.  If _name_idx_
+    is less than zero and greater than the return value from
+    `geopm_pio_num_control_name()` the return value will be
+    `GEOPM_ERROR_INVALID`.  The return code will also be `GEOPM_ERROR_INVALID`
+    if _result_max_ is too small to contain the control name.  Any other
+    error will result in a negative error code.  Zero is returned on success.
 
   * `geopm_pio_signal_description`():
     Sets the _result_ string to the description associated with
