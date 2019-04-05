@@ -110,7 +110,7 @@ pkginclude_HEADERS = contrib/json11/json11.hpp \
 if ENABLE_MPI
 if ENABLE_FORTRAN
 
-all-local: geopm.mod
+all-local: geopm.mod scripts/geopmpy/_topo.so
 
 install-fortran:
 	$(INSTALL) -d $(DESTDIR)/$(libdir)/$(FC)/modules/geopm-`uname -m`

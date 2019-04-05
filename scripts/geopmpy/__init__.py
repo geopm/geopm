@@ -34,7 +34,7 @@
 """
 The geopm python package with four modules: launcher, io plotter and version.
 """
-__all__ = ['launcher', 'io', 'plotter', 'version']
+__all__ = ['launcher', 'io', 'plotter', 'topo', 'version', '_topo']
 
 from geopmpy.version import __version__
 

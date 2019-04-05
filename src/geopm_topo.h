@@ -33,6 +33,8 @@
 #ifndef GEOPM_TOPO_H_INCLUDE
 #define GEOPM_TOPO_H_INCLUDE
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

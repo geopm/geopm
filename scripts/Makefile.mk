@@ -34,6 +34,24 @@ exec_prefix ?= $(prefix)
 bindir ?= $(prefix)/bin
 libexecdir ?= $(exec_prefix)/libexec
 
+BUILT_SOURCES += src/geopm_topo_python_wrap.c
+noinst_LTLIBRARIES += libtopo.la
+libtopo_la_SOURCES = src/geopm_topo_python_wrap.c
+libtopo_la_LDFLAGS = -rpath /usr/lib64 $(AM_LDFLAGS) -lpython2.7 -fPIC -shared -version-info $(geopm_abi_version)
+libtopo_la_LIBADD = libgeopmpolicy.la
+libtopo_la_CFLAGS = $(AM_CFLAGS) -I/usr/include/python2.7
+
+src/geopm_topo_python_wrap.c: src/geopm_topo_python.h
+	swig -python -module topo -outdir scripts/geopmpy src/geopm_topo_python.h
+	echo '#undef _POSIX_C_SOURCE' > src/geopm_topo_python_wrap.prefix
+	echo '#include "geopm_topo_python.h"' >> src/geopm_topo_python_wrap.prefix
+	cat src/geopm_topo_python_wrap.prefix src/geopm_topo_python_wrap.c > src/geopm_topo_python_wrap.updated
+	mv src/geopm_topo_python_wrap.updated src/geopm_topo_python_wrap.c
+	rm src/geopm_topo_python_wrap.prefix
+
+scripts/geopmpy/_topo.so: .libs/libtopo.so
+	cp .libs/libtopo.so scripts/geopmpy/_topo.so
+
 EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmanalysis \
               scripts/geopmlaunch \

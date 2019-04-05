@@ -103,11 +103,14 @@
 /scripts/figures
 /scripts/geopm/version.py
 /scripts/geopmpy.egg-info/*
+/scripts/geopmpy/_topo.so
 /scripts/geopmpy/version.py
 /scripts/setup.py
 /scripts/test/pytest_links/*
+/scripts/geopmpy/topo.py
 /src/*.lo
 /src/*.o
+/src/geopm_topo_python_wrap.c
 /stamp-h1
 /tags
 /test-driver
