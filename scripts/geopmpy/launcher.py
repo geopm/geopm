@@ -34,10 +34,11 @@
 """This module provides a way to launch MPI applications using the
 GEOPM runtime by wrapping the call to the system MPI application
 launcher.  The module currently supports wrapping the SLURM 'srun'
-command and the ALPS 'aprun' command.  The primary use of this module
-is through the geopmlauncher(1) command line executable which calls
-the geopmpy.launcher.main() function.  See the geopmlauncher(1) man
-page for details about the command line interface.
+command, the ALPS 'aprun' command, and intel's mpiexec.hydra.  The
+primary use of this module is through the geopmlauncher(1) command
+line executable which calls the geopmpy.launcher.main() function.  See
+the geopmlauncher(1) man page for details about the command line
+interface.
 """
 
 import sys
@@ -385,7 +386,7 @@ class Launcher(object):
                 raise SyntaxError('Number of nodes must be specified.')
             self.init_topo()
             if not is_cpu_per_rank_override and 'OMP_NUM_THREADS' not in os.environ:
-                self.cpu_per_rank = (self.num_linux_cpu - self.thread_per_core) // self.rank_per_node
+                self.cpu_per_rank = (self.num_linux_cpu - self.num_socket * self.thread_per_core) // self.rank_per_node
                 if self.cpu_per_rank == 0:
                     self.cpu_per_rank = 1
             if self.config.get_ctl() == 'process':
