@@ -38,7 +38,7 @@
 #include <memory>
 #include <cmath>
 
-#include "geopm_env.h"
+#include "Environment.hpp"
 
 #include "Exception.hpp"
 #include "TreeCommLevel.hpp"
@@ -212,7 +212,7 @@ namespace geopm
             fan_out.resize(num_fan_out);
             fan_out[0] = num_nodes;
 
-            const int max_fan_out = geopm_env_max_fan_out();
+            const int max_fan_out = environment().max_fan_out();
             while (fan_out[0] > max_fan_out && fan_out[num_fan_out - 1] != 1) {
                 ++num_fan_out;
                 fan_out.resize(num_fan_out);
