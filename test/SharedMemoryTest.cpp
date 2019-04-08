@@ -34,7 +34,6 @@
 
 #include "gtest/gtest.h"
 #include "geopm_error.h"
-#include "geopm_env.h"
 #include "Exception.hpp"
 #include "SharedMemoryImp.hpp"
 
@@ -58,7 +57,7 @@ class SharedMemoryTest : public :: testing :: Test
 
 void SharedMemoryTest::SetUp()
 {
-    m_shm_key = std::string(geopm_env_shmkey()) + "-SharedMemoryTest-" + std::to_string(getpid());
+    m_shm_key = "/geopm-shm-foo-SharedMemoryTest-" + std::to_string(getpid());
     m_size = sizeof(size_t);
     m_shmem = NULL;
     m_shmem_u = NULL;
