@@ -42,6 +42,7 @@
 
 namespace geopm
 {
+    class Environment;
     class Comm;
     class PlatformIO;
     class ManagerIOSampler;
@@ -58,10 +59,10 @@ namespace geopm
             ///
             /// @param [in] ppn1_comm The MPI communicator that supports
             ///        the control messages.
-            Controller(std::shared_ptr<Comm> ppn1_comm);
+            Controller(const Environment &environment, std::shared_ptr<Comm> ppn1_comm);
             /// @brief Constructor for testing that allows injecting mocked
             ///        versions of internal objects.
-            Controller(std::shared_ptr<Comm> comm,
+            Controller(const Environment &environment, std::shared_ptr<Comm> comm,
                        PlatformIO &plat_io,
                        const std::string &agent_name,
                        int num_send_up,
@@ -128,6 +129,7 @@ namespace geopm
         private:
             void init_agents(void);
 
+            const Environment &m_environment;
             std::shared_ptr<Comm> m_comm;
             PlatformIO &m_platform_io;
             std::string m_agent_name;

@@ -53,7 +53,7 @@
 #include "geopm_internal.h"
 #include "geopm_signal_handler.h"
 #include "geopm_sched.h"
-#include "geopm_env.h"
+#include "Environment.hpp"
 #include "ProfileTable.hpp"
 #include "ProfileThread.hpp"
 #include "SampleScheduler.hpp"
@@ -71,12 +71,12 @@ namespace geopm
     class DefaultProfile : public ProfileImp
     {
         public:
-            DefaultProfile(const std::string prof_name, std::unique_ptr<Comm> comm);
+            DefaultProfile(const Environment &environment, std::unique_ptr<Comm> comm);
             virtual ~DefaultProfile();
     };
 
-    DefaultProfile::DefaultProfile(const std::string prof_name, std::unique_ptr<Comm> comm)
-        : ProfileImp(prof_name, std::move(comm))
+    DefaultProfile::DefaultProfile(const Environment &environment, std::unique_ptr<Comm> comm)
+        : ProfileImp(environment, std::move(comm))
     {
         g_pmpi_prof_enabled = m_is_enabled;
     }
@@ -89,7 +89,8 @@ namespace geopm
 
 static geopm::DefaultProfile &geopm_default_prof(void)
 {
-    static geopm::DefaultProfile default_prof(geopm_env_profile(), geopm::comm_factory().make_plugin(geopm_env_comm()));
+    const Environment &env = environment();
+    static geopm::DefaultProfile default_prof(env, geopm::comm_factory().make_plugin(env.comm()));
     return default_prof;
 }
 

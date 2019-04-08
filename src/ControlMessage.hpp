@@ -133,7 +133,7 @@ namespace geopm
             /// the caller is the controller or the lowest application
             /// rank on the node and false if the caller is any other
             /// application rank.
-            ControlMessageImp(struct geopm_ctl_message_s &ctl_msg, bool is_ctl, bool is_writer);
+            ControlMessageImp(double wait_sec, struct geopm_ctl_message_s &ctl_msg, bool is_ctl, bool is_writer);
             /// @brief ControlMessageImp virtual destructor
             virtual ~ControlMessageImp() = default;
             void step() override;
