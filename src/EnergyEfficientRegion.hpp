@@ -33,6 +33,7 @@
 #ifndef ENERGYEFFICIENTREGION_HPP_INCLUDE
 #define ENERGYEFFICIENTREGION_HPP_INCLUDE
 
+#include <cmath>
 #include <set>
 #include <vector>
 #include <memory>

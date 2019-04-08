@@ -33,7 +33,7 @@
 #ifndef CONTROLMESSAGE_HPP_INCLUDE
 #define CONTROLMESSAGE_HPP_INCLUDE
 
-#include <stdint.h>
+#include <cstdint>
 
 enum geopm_ctl_message_e {
     GEOPM_MAX_NUM_CPU = 768

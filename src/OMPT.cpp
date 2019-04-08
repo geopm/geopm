@@ -30,7 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdint.h>
+#include "OMPT.hpp"
+
+#include <cstdint>
 #include <string>
 #include <limits.h>
 #include <map>
@@ -44,7 +46,6 @@
 #include "geopm_sched.h"
 #include "geopm_error.h"
 #include "Exception.hpp"
-#include "OMPT.hpp"
 #include "config.h"
 
 #ifndef GEOPM_ENABLE_OMPT

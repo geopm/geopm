@@ -30,10 +30,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "ApplicationIO.hpp"
+
 #include <utility>
 
 #include "Exception.hpp"
-#include "ApplicationIO.hpp"
 #include "EpochRuntimeRegulator.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"

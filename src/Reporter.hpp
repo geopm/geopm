@@ -33,7 +33,7 @@
 #ifndef REPORTER_HPP_INCLUDE
 #define REPORTER_HPP_INCLUDE
 
-#include <stdint.h>
+#include <cstdint>
 
 #include <map>
 #include <set>
