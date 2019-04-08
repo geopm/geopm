@@ -48,8 +48,8 @@ namespace geopm
     {
         public:
             PlatformIOImp();
-            PlatformIOImp(std::list<std::shared_ptr<IOGroup> > iogroup_list,
-                          const PlatformTopo &topo);
+            PlatformIOImp(const PlatformTopo &topo,
+                          std::list<std::shared_ptr<IOGroup> > iogroup_list);
             PlatformIOImp(const PlatformIOImp &other) = delete;
             PlatformIOImp & operator=(const PlatformIOImp&) = delete;
             virtual ~PlatformIOImp() = default;
@@ -138,7 +138,7 @@ namespace geopm
             /// @brief Look up the IOGroup that provides the given control.
             std::shared_ptr<IOGroup> find_control_iogroup(const std::string &control_name) const;
             bool m_is_active;
-            const PlatformTopo &m_platform_topo;
+            const PlatformTopo &PLATFORM_TOPO;
             std::list<std::shared_ptr<IOGroup> > m_iogroup_list;
             std::vector<std::pair<std::shared_ptr<IOGroup>, int> > m_active_signal;
             std::vector<std::pair<std::shared_ptr<IOGroup>, int> > m_active_control;

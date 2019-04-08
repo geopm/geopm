@@ -179,7 +179,7 @@ ReporterTest::ReporterTest()
         .WillOnce(Return(M_ENERGY_PKG_ENV_IDX_1));
 
     m_comm = std::make_shared<ReporterTestMockComm>();
-    m_reporter = geopm::make_unique<ReporterImp>(m_start_time, m_report_name, m_platform_io, m_platform_topo, 0,
+    m_reporter = geopm::make_unique<ReporterImp>(m_platform_topo, m_start_time, m_report_name, m_platform_io, 0,
                                                  std::unique_ptr<MockRegionAggregator>(m_agg), "ENERGY_PACKAGE@package");
     m_reporter->init();
 }
