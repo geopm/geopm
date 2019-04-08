@@ -102,10 +102,10 @@ namespace geopm
     class ReporterImp : public Reporter
     {
         public:
-            ReporterImp(const std::string &start_time, const std::string &report_name,
-                        PlatformIO &platform_io, const PlatformTopo &platform_topo, int rank);
-            ReporterImp(const std::string &start_time, const std::string &report_name,
-                        PlatformIO &platform_io, const PlatformTopo &platform_topo, int rank,
+            ReporterImp(const PlatformTopo &platform_topo, const std::string &start_time, const std::string &report_name,
+                        PlatformIO &platform_io, int rank);
+            ReporterImp(const PlatformTopo &platform_topo, const std::string &start_time, const std::string &report_name,
+                        PlatformIO &platform_io, int rank,
                         std::unique_ptr<RegionAggregator> agg, const std::string &env_signal);
             virtual ~ReporterImp() = default;
             void init(void) override;
@@ -120,10 +120,10 @@ namespace geopm
         private:
             std::string get_max_memory(void);
 
+            const PlatformTopo &PLATFORM_TOPO;
             std::string m_start_time;
             std::string m_report_name;
             PlatformIO &m_platform_io;
-            const PlatformTopo &m_platform_topo;
             std::unique_ptr<RegionAggregator> m_region_agg;
             int m_rank;
             int m_region_bulk_runtime_idx;

@@ -83,7 +83,7 @@ void PowerGovernorTest::SetUp(void)
     EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_TIME_WINDOW", GEOPM_DOMAIN_PACKAGE, 1, M_PKG_POWER_WIN))
         .Times(1);
 
-    m_governor = geopm::make_unique<PowerGovernorImp>(m_platform_io, m_platform_topo);
+    m_governor = geopm::make_unique<PowerGovernorImp>(m_platform_topo, m_platform_io);
     m_governor->init_platform_io();
 }
 

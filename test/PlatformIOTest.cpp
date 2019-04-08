@@ -205,7 +205,7 @@ void PlatformIOTest::SetUp()
         iogroup_list.emplace_back(ptr);
     }
 
-    m_platio.reset(new PlatformIOImp(iogroup_list, m_topo));
+    m_platio.reset(new PlatformIOImp(m_topo, iogroup_list));
 }
 
 TEST_F(PlatformIOTest, signal_control_names)

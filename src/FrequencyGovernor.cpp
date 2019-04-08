@@ -56,14 +56,14 @@ namespace geopm
     }
 
     FrequencyGovernorImp::FrequencyGovernorImp()
-        : FrequencyGovernorImp(platform_io(), platform_topo())
+        : FrequencyGovernorImp(platform_topo(), platform_io())
     {
 
     }
 
-    FrequencyGovernorImp::FrequencyGovernorImp(PlatformIO &platform_io, const PlatformTopo &platform_topo)
-        : m_platform_io(platform_io)
-        , m_platform_topo(platform_topo)
+    FrequencyGovernorImp::FrequencyGovernorImp(const PlatformTopo &platform_topo, PlatformIO &platform_io)
+        : PLATFORM_TOPO(platform_topo)
+        , m_platform_io(platform_io)
         , M_FREQ_STEP(get_limit("CPUINFO::FREQ_STEP"))
         , M_PLAT_FREQ_MIN(get_limit("CPUINFO::FREQ_MIN"))
         , M_PLAT_FREQ_MAX(get_limit("CPUINFO::FREQ_MAX"))
@@ -111,7 +111,7 @@ namespace geopm
     {
         m_freq_ctl_domain_type = freq_ctl_domain_type;
         m_last_freq = std::vector<double>(m_freq_ctl_domain_type, NAN);
-        const int num_freq_ctl_domain = m_platform_topo.num_domain(m_freq_ctl_domain_type);
+        const int num_freq_ctl_domain = PLATFORM_TOPO.num_domain(m_freq_ctl_domain_type);
         for (int ctl_dom_idx = 0; ctl_dom_idx != num_freq_ctl_domain; ++ctl_dom_idx) {
             m_control_idx.push_back(m_platform_io.push_control("FREQUENCY",
                                                                m_freq_ctl_domain_type,

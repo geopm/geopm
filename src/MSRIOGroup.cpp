@@ -75,7 +75,7 @@ namespace geopm
     }
 
     MSRIOGroup::MSRIOGroup(const PlatformTopo &topo, std::unique_ptr<MSRIO> msrio, int cpuid, int num_cpu)
-        : m_platform_topo(topo)
+        : PLATFORM_TOPO(topo)
         , m_num_cpu(num_cpu)
         , m_is_active(false)
         , m_is_read(false)
@@ -233,11 +233,11 @@ namespace geopm
             throw Exception("MSRIOGroup::push_signal(): domain_type does not match the domain of the signal.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
+        if (domain_idx < 0 || domain_idx >= PLATFORM_TOPO.num_domain(domain_type)) {
             throw Exception("MSRIOGroup::push_signal(): domain_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::set<int> cpu_idx = m_platform_topo.domain_nested(GEOPM_DOMAIN_CPU,
+        std::set<int> cpu_idx = PLATFORM_TOPO.domain_nested(GEOPM_DOMAIN_CPU,
                                                               domain_type, domain_idx);
 
         int result = -1;
@@ -294,11 +294,11 @@ namespace geopm
             throw Exception("MSRIOGroup::push_control(): domain_type does not match the domain of the control.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
+        if (domain_idx < 0 || domain_idx >= PLATFORM_TOPO.num_domain(domain_type)) {
             throw Exception("MSRIOGroup::push_control(): domain_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::set<int> cpu_idx = m_platform_topo.domain_nested(GEOPM_DOMAIN_CPU,
+        std::set<int> cpu_idx = PLATFORM_TOPO.domain_nested(GEOPM_DOMAIN_CPU,
                                                               domain_type, domain_idx);
 #ifdef GEOPM_DEBUG
         if (cpu_idx.size() == 0) {
@@ -420,11 +420,11 @@ namespace geopm
             throw Exception("MSRIOGroup::read_signal(): domain_type requested does not match the domain of the signal.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
+        if (domain_idx < 0 || domain_idx >= PLATFORM_TOPO.num_domain(domain_type)) {
             throw Exception("MSRIOGroup::read_signal(): domain_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::set<int> cpu_idx = m_platform_topo.domain_nested(GEOPM_DOMAIN_CPU,
+        std::set<int> cpu_idx = PLATFORM_TOPO.domain_nested(GEOPM_DOMAIN_CPU,
                                                               domain_type, domain_idx);
 
         // Copy of existing signal but map own memory
@@ -454,7 +454,7 @@ namespace geopm
             throw Exception("MSRIOGroup::write_control(): domain_type does not match the domain of the control.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
+        if (domain_idx < 0 || domain_idx >= PLATFORM_TOPO.num_domain(domain_type)) {
             throw Exception("MSRIOGroup::write_control(): domain_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -463,7 +463,7 @@ namespace geopm
             write_control("MSR::PKG_POWER_LIMIT:PL1_LIMIT_ENABLE", domain_type, domain_idx, 1.0);
         }
 
-        std::set<int> cpu_idx = m_platform_topo.domain_nested(GEOPM_DOMAIN_CPU,
+        std::set<int> cpu_idx = PLATFORM_TOPO.domain_nested(GEOPM_DOMAIN_CPU,
                                                               domain_type, domain_idx);
         for (auto cpu : cpu_idx) {
             // Copy of existing control but map own memory
@@ -925,7 +925,7 @@ namespace geopm
             POWER_CONTROL_SET.find(control_name) != POWER_CONTROL_SET.end()) {
 
             int domain = signal_domain_type("MSR::PKG_POWER_LIMIT:LOCK");
-            int num_domain = m_platform_topo.num_domain(domain);
+            int num_domain = PLATFORM_TOPO.num_domain(domain);
             double lock = 0.0;
             for (int dom_idx = 0; dom_idx < num_domain; ++dom_idx) {
                 lock += read_signal("MSR::PKG_POWER_LIMIT:LOCK", domain, dom_idx);
