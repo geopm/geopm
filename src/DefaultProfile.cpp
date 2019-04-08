@@ -53,7 +53,7 @@
 #include "geopm_internal.h"
 #include "geopm_signal_handler.h"
 #include "geopm_sched.h"
-#include "geopm_env.h"
+#include "Environment.hpp"
 #include "ProfileTable.hpp"
 #include "ProfileThread.hpp"
 #include "SampleScheduler.hpp"
@@ -89,7 +89,7 @@ namespace geopm
 
 static geopm::DefaultProfile &geopm_default_prof(void)
 {
-    static geopm::DefaultProfile default_prof(geopm_env_profile(), geopm::comm_factory().make_plugin(geopm_env_comm()));
+    static geopm::DefaultProfile default_prof(geopm::environment().profile(), geopm::comm_factory().make_plugin(geopm::environment().comm()));
     return default_prof;
 }
 
