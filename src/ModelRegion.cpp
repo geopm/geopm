@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "ModelRegion.hpp"
+
 #include <stdlib.h>
 #include <iostream>
 #include <time.h>
@@ -43,7 +45,6 @@
 
 #include "geopm.h"
 #include "geopm_time.h"
-#include "ModelRegion.hpp"
 #include "Exception.hpp"
 #include "geopm_imbalancer.h"
 #include "config.h"

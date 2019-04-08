@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "TreeComm.hpp"
+
 #include <limits.h>
 #include <string.h>
 #include <algorithm>
@@ -39,7 +41,6 @@
 #include "geopm_env.h"
 
 #include "Exception.hpp"
-#include "TreeComm.hpp"
 #include "TreeCommLevel.hpp"
 #include "Comm.hpp"
 #include "config.h"

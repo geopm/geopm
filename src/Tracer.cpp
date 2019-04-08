@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "Tracer.hpp"
+
 #include <unistd.h>
 #include <limits.h>
 #include <string.h>
@@ -40,7 +42,6 @@
 #include <algorithm>
 #include <time.h>
 
-#include "Tracer.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"

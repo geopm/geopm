@@ -29,6 +29,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "ProfileSampler.hpp"
+
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -54,7 +56,6 @@
 #include "geopm_env.h"
 #include "Helper.hpp"
 #include "PlatformTopo.hpp"
-#include "ProfileSampler.hpp"
 #include "ProfileTable.hpp"
 #include "ProfileThread.hpp"
 #include "SampleScheduler.hpp"
