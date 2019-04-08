@@ -168,16 +168,16 @@ namespace geopm
             void controller_ready(void) override;
             void abort(void) override;
         private:
-            static constexpr size_t M_SHMEM_REGION_SIZE = 2*1024*1024;
 
             double current_energy_pkg(void) const;
             double current_energy_dram(void) const;
 
+            const size_t M_SHMEM_REGION_SIZE;
+            const PlatformTopo &m_platform_topo;
+            PlatformIO &m_platform_io;
             std::unique_ptr<ProfileSampler> m_sampler;
             std::shared_ptr<ProfileIOSample> m_profile_io_sample;
             std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > m_prof_sample;
-            PlatformIO &m_platform_io;
-            const PlatformTopo &m_platform_topo;
             std::vector<double> m_thread_progress;
             std::vector<uint64_t> m_region_id;
             // Per rank vector counting number of entries into MPI.

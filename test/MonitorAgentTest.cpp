@@ -34,12 +34,9 @@
 #include "gmock/gmock.h"
 
 #include "MonitorAgent.hpp"
-#include "MockPlatformIO.hpp"
-#include "MockPlatformTopo.hpp"
 #include "Helper.hpp"
 #include "Agg.hpp"
 
-using geopm::PlatformTopo;
 using geopm::MonitorAgent;
 using ::testing::_;
 using ::testing::Return;
@@ -48,14 +45,12 @@ class MonitorAgentTest : public ::testing::Test
 {
     protected:
         void SetUp();
-        MockPlatformIO m_platform_io;
-        MockPlatformTopo m_platform_topo;
         std::unique_ptr<geopm::MonitorAgent> m_agent;
 };
 
 void MonitorAgentTest::SetUp()
 {
-    m_agent = geopm::make_unique<MonitorAgent>(m_platform_io, m_platform_topo);
+    m_agent = geopm::make_unique<MonitorAgent>();
 }
 
 TEST_F(MonitorAgentTest, sample_names)

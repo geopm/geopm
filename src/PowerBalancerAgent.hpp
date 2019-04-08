@@ -208,8 +208,8 @@ namespace geopm
                     bool m_is_step_complete;
             };
 
-            PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
+            PlatformIO &m_platform_io;
             std::shared_ptr<Role> m_role;
             std::unique_ptr<PowerGovernor> m_power_governor;   /// temporary ownership, std::move'd to Role on init
             std::unique_ptr<PowerBalancer> m_power_balancer;   /// temporary ownership, std::move'd to Role on init
@@ -310,8 +310,8 @@ namespace geopm
                     void trace_values(std::vector<double> &values) override;
                 private:
                     void init_platform_io(void);
-                    PlatformIO &m_platform_io;
                     const PlatformTopo &m_platform_topo;
+                    PlatformIO &m_platform_io;
                     double m_power_max;
                     std::vector<int> m_pio_idx;
                     std::unique_ptr<PowerGovernor> m_power_governor;
