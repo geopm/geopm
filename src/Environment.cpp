@@ -46,7 +46,6 @@ const char *program_invocation_name = "geopm_profile";
 #include <string>
 #include <vector>
 
-#include "geopm_env.h"
 #include "geopm_internal.h"
 #include "Exception.hpp"
 #include "Helper.hpp"
@@ -55,15 +54,10 @@ const char *program_invocation_name = "geopm_profile";
 
 namespace geopm
 {
-    static Environment &test_environment(void)
+    const Environment &environment(void)
     {
         static Environment instance;
         return instance;
-    }
-
-    static const Environment &environment(void)
-    {
-        return test_environment();
     }
 
     Environment::Environment()
@@ -165,54 +159,54 @@ namespace geopm
         return result;
     }
 
-    const char *Environment::report(void) const
+    std::string Environment::report(void) const
     {
-        return m_report.c_str();
+        return m_report;
     }
 
-    const char *Environment::comm(void) const
+    std::string Environment::comm(void) const
     {
-        return m_comm.c_str();
+        return m_comm;
     }
 
-    const char *Environment::policy(void) const
+    std::string Environment::policy(void) const
     {
-        return m_policy.c_str();
+        return m_policy;
     }
 
-    const char *Environment::agent(void) const
+    std::string Environment::agent(void) const
     {
-        return m_agent.c_str();
+        return m_agent;
     }
 
-    const char *Environment::shmkey(void) const
+    std::string Environment::shmkey(void) const
     {
-        return m_shmkey.c_str();
+        return m_shmkey;
     }
 
-    const char *Environment::trace(void) const
+    std::string Environment::trace(void) const
     {
-        return m_trace.c_str();
+        return m_trace;
     }
 
-    const char *Environment::profile(void) const
+    std::string Environment::profile(void) const
     {
-        return m_profile.c_str();
+        return m_profile;
     }
 
-    const char *Environment::plugin_path(void) const
+    std::string Environment::plugin_path(void) const
     {
-        return m_plugin_path.c_str();
+        return m_plugin_path;
     }
 
-    const char *Environment::trace_signals(void) const
+    std::string Environment::trace_signals(void) const
     {
-        return m_trace_signals.c_str();
+        return m_trace_signals;
     }
 
-    const char *Environment::report_signals(void) const
+    std::string Environment::report_signals(void) const
     {
-        return m_report_signals.c_str();
+        return m_report_signals;
     }
 
     int Environment::max_fan_out(void) const
@@ -248,97 +242,5 @@ namespace geopm
     int Environment::debug_attach(void) const
     {
         return m_debug_attach;
-    }
-}
-
-extern "C"
-{
-    void geopm_env_load(void)
-    {
-        geopm::test_environment().load();
-    }
-
-    const char *geopm_env_policy(void)
-    {
-        return geopm::environment().policy();
-    }
-
-    const char *geopm_env_agent(void)
-    {
-        return geopm::environment().agent();
-    }
-
-    const char *geopm_env_shmkey(void)
-    {
-        return geopm::environment().shmkey();
-    }
-
-    const char *geopm_env_trace(void)
-    {
-        return geopm::environment().trace();
-    }
-
-    const char *geopm_env_plugin_path(void)
-    {
-        return geopm::environment().plugin_path();
-    }
-
-    const char *geopm_env_report(void)
-    {
-        return geopm::environment().report();
-    }
-
-    const char *geopm_env_comm(void)
-    {
-        return geopm::environment().comm();
-    }
-
-    const char *geopm_env_profile(void)
-    {
-        return geopm::environment().profile();
-    }
-    const char *geopm_env_trace_signals(void)
-    {
-        return geopm::environment().trace_signals();
-    }
-
-    const char *geopm_env_report_signals(void)
-    {
-        return geopm::environment().report_signals();
-    }
-
-    int geopm_env_max_fan_out(void)
-    {
-        return geopm::environment().max_fan_out();
-    }
-
-    int geopm_env_pmpi_ctl(void)
-    {
-        return geopm::environment().pmpi_ctl();
-    }
-
-    int geopm_env_do_region_barrier(void)
-    {
-        return geopm::environment().do_region_barrier();
-    }
-
-    int geopm_env_do_trace(void)
-    {
-        return geopm::environment().do_trace();
-    }
-
-    int geopm_env_do_profile(void)
-    {
-        return geopm::environment().do_profile();
-    }
-
-    int geopm_env_timeout(void)
-    {
-        return geopm::environment().timeout();
-    }
-
-    int geopm_env_debug_attach(void)
-    {
-        return geopm::environment().debug_attach();
     }
 }
