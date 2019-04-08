@@ -41,7 +41,7 @@
 
 #include "contrib/json11/json11.hpp"
 
-#include "geopm_env.h"
+#include "Environment.hpp"
 #include "PlatformTopo.hpp"
 #include "SharedMemoryImp.hpp"
 #include "Exception.hpp"
@@ -54,7 +54,7 @@ using json11::Json;
 namespace geopm
 {
     ManagerIOImp::ManagerIOImp(const std::string &data_path, bool is_policy)
-        : ManagerIOImp(data_path, is_policy, geopm_env_agent())
+        : ManagerIOImp(data_path, is_policy, environment().agent())
     {
     }
 
@@ -184,7 +184,7 @@ namespace geopm
     /*********************************************************************************************************/
 
     ManagerIOSamplerImp::ManagerIOSamplerImp(const std::string &data_path, bool is_policy)
-        : ManagerIOSamplerImp(data_path, is_policy, geopm_env_agent())
+        : ManagerIOSamplerImp(data_path, is_policy, environment().agent())
     {
     }
 
@@ -247,7 +247,7 @@ namespace geopm
     void ManagerIOSamplerImp::read_shmem(void)
     {
         if (m_shmem == nullptr) {
-            m_shmem = geopm::make_unique<SharedMemoryUserImp>(m_path, geopm_env_timeout());
+            m_shmem = geopm::make_unique<SharedMemoryUserImp>(m_path, environment().timeout());
         }
 
         m_data = (struct geopm_manager_shmem_s *) m_shmem->pointer(); // Managed by shmem subsystem.
