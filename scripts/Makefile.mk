@@ -44,6 +44,7 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmpy/io.py \
               scripts/geopmpy/launcher.py \
               scripts/geopmpy/plotter.py \
+              scripts/geopmpy/topo.py \
               scripts/geopmpy/version.py \
               scripts/requirements.txt \
               scripts/setup.py \
@@ -105,6 +106,9 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestNodeEfficiencyAnalysis.test_node_efficiency_process \
                scripts/test/pytest_links/TestNodePowerAnalysis.test_node_power_process \
                scripts/test/pytest_links/TestPowerSweepAnalysis.test_power_sweep_summary \
+               scripts/test/pytest_links/TestTopo.test_num_domain \
+               scripts/test/pytest_links/TestTopo.test_domain_domain_nested \
+               scripts/test/pytest_links/TestTopo.test_domain_name_type \
                # end
 
 TESTS += $(PYTEST_TESTS)
