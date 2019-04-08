@@ -54,7 +54,7 @@
 #include "geopm_time.h"
 #include "geopm_signal_handler.h"
 #include "geopm_sched.h"
-#include "geopm_env.h"
+#include "Environment.hpp"
 #include "PlatformTopo.hpp"
 #include "ProfileTable.hpp"
 #include "ProfileThread.hpp"
@@ -68,25 +68,26 @@
 
 namespace geopm
 {
-    ProfileImp::ProfileImp(const std::string &prof_name, const std::string &key_base,
+    ProfileImp::ProfileImp(const Environment &environment,
                            std::unique_ptr<Comm> comm, std::unique_ptr<ControlMessage> ctl_msg,
                            const PlatformTopo &topo, std::unique_ptr<ProfileTable> table,
                            std::shared_ptr<ProfileThreadTable> t_table,
                            std::unique_ptr<SampleScheduler> scheduler)
-        : ProfileImp(prof_name, key_base, std::move(comm), std::move(ctl_msg), topo,
+        : ProfileImp(environment, std::move(comm), std::move(ctl_msg), topo,
                      std::move(table), t_table, std::move(scheduler), nullptr)
     {
 
     }
 
-    ProfileImp::ProfileImp(const std::string &prof_name, const std::string &key_base,
+    ProfileImp::ProfileImp(const Environment &environment,
                         std::unique_ptr<Comm> comm, std::unique_ptr<ControlMessage> ctl_msg,
                         const PlatformTopo &topo, std::unique_ptr<ProfileTable> table,
                         std::shared_ptr<ProfileThreadTable> t_table,
                         std::unique_ptr<SampleScheduler> scheduler,
                         std::shared_ptr<Comm> reduce_comm)
-        : m_is_enabled(true)
-        , m_prof_name(prof_name)
+        : m_environment(environment)
+        , m_is_enabled(true)
+        , m_prof_name(m_environment.profile())
         , m_curr_region_id(0)
         , m_num_enter(0)
         , m_progress(0.0)
@@ -112,7 +113,7 @@ namespace geopm
         struct geopm_time_s overhead_entry;
         geopm_time(&overhead_entry);
         if (m_reduce_comm == nullptr) {
-            m_reduce_comm = geopm::comm_factory().make_plugin(geopm_env_comm());
+            m_reduce_comm = geopm::comm_factory().make_plugin(m_environment.comm());
         }
 #else
         /// read and write to satisfy clang ifndef GEOPM_OVERHEAD
@@ -123,6 +124,7 @@ namespace geopm
         ++m_overhead_time_shutdown;
         --m_overhead_time_shutdown;
 #endif
+        std::string key_base = m_environment.shmkey();
         std::string sample_key(key_base + "-sample");
         std::string tprof_key(key_base + "-tprof");
         int shm_num_rank = 0;
@@ -153,8 +155,8 @@ namespace geopm
 #endif
     }
 
-    ProfileImp::ProfileImp(const std::string &prof_name, std::unique_ptr<Comm> comm)
-        : ProfileImp(prof_name, geopm_env_shmkey(), std::move(comm), nullptr, platform_topo(), nullptr,
+    ProfileImp::ProfileImp(const Environment &environment, std::unique_ptr<Comm> comm)
+        : ProfileImp(environment, std::move(comm), nullptr, platform_topo(), nullptr,
                      nullptr, geopm::make_unique<SampleSchedulerImp>(0.01))
     {
     }
@@ -175,7 +177,7 @@ namespace geopm
     void ProfileImp::init_ctl_msg(const std::string &sample_key)
     {
         if (!m_ctl_msg) {
-            m_ctl_shmem = geopm::make_unique<SharedMemoryUserImp>(sample_key, geopm_env_timeout());
+            m_ctl_shmem = geopm::make_unique<SharedMemoryUserImp>(sample_key, m_environment.timeout());
             m_shm_comm->barrier();
             if (!m_shm_rank) {
                 m_ctl_shmem->unlink();
@@ -184,7 +186,7 @@ namespace geopm
             if (m_ctl_shmem->size() < sizeof(struct geopm_ctl_message_s)) {
                 throw Exception("ProfileImp: ctl_shmem too small", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
-            m_ctl_msg = geopm::make_unique<ControlMessageImp>(*(struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), false, !m_shm_rank);
+            m_ctl_msg = geopm::make_unique<ControlMessageImp>(m_environment.timeout(), *(struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), false, !m_shm_rank);
         }
     }
 
@@ -255,7 +257,7 @@ namespace geopm
     void ProfileImp::init_tprof_table(const std::string &tprof_key, const PlatformTopo &topo)
     {
         if (!m_tprof_table) {
-            m_tprof_shmem = geopm::make_unique<SharedMemoryUserImp>(tprof_key, geopm_env_timeout());
+            m_tprof_shmem = geopm::make_unique<SharedMemoryUserImp>(tprof_key, m_environment.timeout());
             m_shm_comm->barrier();
             if (!m_shm_rank) {
                 m_tprof_shmem->unlink();
@@ -269,7 +271,7 @@ namespace geopm
         if (!m_table) {
             std::string table_shm_key(sample_key);
             table_shm_key += "-" + std::to_string(m_rank);
-            m_table_shmem = geopm::make_unique<SharedMemoryUserImp>(table_shm_key, geopm_env_timeout());
+            m_table_shmem = geopm::make_unique<SharedMemoryUserImp>(table_shm_key, m_environment.timeout());
             m_table_shmem->unlink();
             m_table = geopm::make_unique<ProfileTableImp>(m_table_shmem->size(), m_table_shmem->pointer());
         }
@@ -303,7 +305,7 @@ namespace geopm
         m_overhead_time_shutdown = geopm_time_since(&overhead_entry);
 #endif
 
-        print(geopm_env_report());
+        print(m_environment.report());
         m_shm_comm->barrier();
         m_ctl_msg->step();  // M_STATUS_SHUTDOWN
         m_shm_comm->tear_down();
@@ -351,7 +353,7 @@ namespace geopm
         // if we are not currently in a region
         if (!m_curr_region_id && region_id) {
             if (!geopm_region_id_is_mpi(region_id) &&
-                geopm_env_do_region_barrier()) {
+                m_environment.do_region_barrier()) {
                 m_shm_comm->barrier();
             }
             m_curr_region_id = region_id;
@@ -427,7 +429,7 @@ namespace geopm
             }
 
             if (!geopm_region_id_is_mpi(region_id) &&
-                geopm_env_do_region_barrier()) {
+                m_environment.do_region_barrier()) {
                 m_shm_comm->barrier();
             }
 
