@@ -34,7 +34,7 @@
 #include <unistd.h>
 #include <sstream>
 
-#include "geopm_env.h"
+#include "Environment.hpp"
 #include "geopm_mpi_comm_split.h"
 #include "SharedMemoryImp.hpp"
 #include "Exception.hpp"
@@ -62,7 +62,7 @@ extern "C"
         int err = 0;
         try {
             auto tmp_comm = std::unique_ptr<geopm::Comm>(new geopm::MPIComm(comm));
-            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(std::move(tmp_comm)));
+            *ctl = (struct geopm_ctl_c *)(new geopm::Controller(geopm::environment(), std::move(tmp_comm)));
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception(), true);
@@ -94,8 +94,9 @@ extern "C"
         int err = 0;
         struct stat stat_struct;
         try {
+            const geopm::Environment &environment = geopm::environment();
             std::ostringstream shmem_key;
-            shmem_key << geopm_env_shmkey() << "-comm-split-" << tag;
+            shmem_key << environment.shmkey() << "-comm-split-" << tag;
             std::ostringstream shmem_path;
             shmem_path << "/dev/shm" << shmem_key.str();
             std::shared_ptr<geopm::SharedMemoryImp> shmem = nullptr;
@@ -123,7 +124,7 @@ extern "C"
                 }
             }
             if (!shmem) {
-                shmem_user = std::make_shared<geopm::SharedMemoryUserImp>(shmem_key.str(), geopm_env_timeout());
+                shmem_user = std::make_shared<geopm::SharedMemoryUserImp>(shmem_key.str(), environment.timeout());
             }
             else {
                 color = rank;
