@@ -62,6 +62,7 @@ class ControlMessageTest: public testing::Test
         virtual ~ControlMessageTest() = default;
     protected:
         void SetUp();
+        const int m_timeout = 60;
         struct geopm_ctl_message_s m_test_ctl_msg_buffer;
         std::unique_ptr<ControlMessage> m_test_ctl_msg;
         std::unique_ptr<ControlMessage> m_test_app_msg;
@@ -73,9 +74,9 @@ void ControlMessageTest::SetUp()
 {
     // Application control message must be constructed first to avoid
     // hang when controller message is constructed.
-    m_test_app_msg = geopm::make_unique<ControlMessageImp>(m_test_ctl_msg_buffer, false, true);
-    m_test_ctl_msg = geopm::make_unique<ControlMessageImp>(m_test_ctl_msg_buffer, true, true);
-    m_test_app_noop_msg = geopm::make_unique<ControlMessageImp>(m_test_ctl_msg_buffer, false, false);
+    m_test_app_msg = geopm::make_unique<ControlMessageImp>(m_timeout, m_test_ctl_msg_buffer, false, true);
+    m_test_ctl_msg = geopm::make_unique<ControlMessageImp>(m_timeout, m_test_ctl_msg_buffer, true, true);
+    m_test_app_noop_msg = geopm::make_unique<ControlMessageImp>(m_timeout, m_test_ctl_msg_buffer, false, false);
 }
 
 TEST_F(ControlMessageTest, step)
