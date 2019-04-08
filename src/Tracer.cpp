@@ -46,7 +46,7 @@
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
-#include "geopm_env.h"
+#include "Environment.hpp"
 #include "geopm_hash.h"
 #include "geopm_version.h"
 #include "geopm.h"
@@ -56,9 +56,9 @@
 namespace geopm
 {
     TracerImp::TracerImp(const std::string &start_time)
-        : TracerImp(start_time, geopm_env_trace(), hostname(), geopm_env_agent(),
-                    geopm_env_profile(), geopm_env_do_trace(), platform_io(), platform_topo(),
-                    geopm_env_trace_signals(), 16)
+        : TracerImp(start_time, environment().trace(), hostname(), environment().agent(),
+                    environment().profile(), environment().do_trace(), platform_io(), platform_topo(),
+                    environment().trace_signals(), 16)
     {
 
     }
