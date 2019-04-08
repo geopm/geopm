@@ -37,17 +37,16 @@ extern const char *program_invocation_name;
 
 #include <stdlib.h>
 #include <iostream>
+#include <memory>
 
 #include "gtest/gtest.h"
 #include "geopm_error.h"
-#include "geopm_env.h"
 #include "geopm_internal.h"
+#include "Environment.hpp"
 #include "Exception.hpp"
+#include "Helper.hpp"
 
-extern "C"
-{
-    void geopm_env_load(void);
-}
+using geopm::Environment;
 
 class EnvironmentTest: public :: testing :: Test
 {
@@ -69,6 +68,7 @@ class EnvironmentTest: public :: testing :: Test
         bool m_do_profile;
         int m_timeout;
         int m_debug_attach;
+        std::unique_ptr<Environment> m_env;
 };
 
 void EnvironmentTest::SetUp()
@@ -137,20 +137,20 @@ TEST_F(EnvironmentTest, construction0)
     setenv("GEOPM_DEBUG_ATTACH", std::to_string(m_debug_attach).c_str(), 1);
     setenv("GEOPM_PROFILE", m_profile.c_str(), 1);
 
-    geopm_env_load();
+    m_env = geopm::make_unique<Environment>();
 
-    EXPECT_EQ(m_policy, std::string(geopm_env_policy()));
-    EXPECT_EQ("/" + m_shmkey, std::string(geopm_env_shmkey()));
-    EXPECT_EQ(m_trace, std::string(geopm_env_trace()));
-    EXPECT_EQ(m_plugin_path, std::string(geopm_env_plugin_path()));
-    EXPECT_EQ(m_report, std::string(geopm_env_report()));
-    EXPECT_EQ(m_profile, std::string(geopm_env_profile()));
-    EXPECT_EQ(m_pmpi_ctl, geopm_env_pmpi_ctl());
-    EXPECT_EQ(1, geopm_env_do_region_barrier());
-    EXPECT_EQ(1, geopm_env_do_trace());
-    EXPECT_EQ(1, geopm_env_do_profile());
-    EXPECT_EQ(m_timeout, geopm_env_timeout());
-    EXPECT_EQ(m_debug_attach, geopm_env_debug_attach());
+    EXPECT_EQ(m_policy, std::string(m_env->policy()));
+    EXPECT_EQ("/" + m_shmkey, std::string(m_env->shmkey()));
+    EXPECT_EQ(m_trace, std::string(m_env->trace()));
+    EXPECT_EQ(m_plugin_path, std::string(m_env->plugin_path()));
+    EXPECT_EQ(m_report, std::string(m_env->report()));
+    EXPECT_EQ(m_profile, std::string(m_env->profile()));
+    EXPECT_EQ(m_pmpi_ctl, m_env->pmpi_ctl());
+    EXPECT_EQ(1, m_env->do_region_barrier());
+    EXPECT_EQ(1, m_env->do_trace());
+    EXPECT_EQ(1, m_env->do_profile());
+    EXPECT_EQ(m_timeout, m_env->timeout());
+    EXPECT_EQ(m_debug_attach, m_env->debug_attach());
 }
 
 TEST_F(EnvironmentTest, construction1)
@@ -171,28 +171,32 @@ TEST_F(EnvironmentTest, construction1)
 
     m_profile = program_invocation_name;
 
-    geopm_env_load();
+    m_env = geopm::make_unique<Environment>();
 
     std::string default_shmkey("/geopm-shm-" + std::to_string(geteuid()));
-    EXPECT_EQ(m_policy, geopm_env_policy());
-    EXPECT_EQ(default_shmkey, geopm_env_shmkey());
-    EXPECT_EQ(m_trace, geopm_env_trace());
-    EXPECT_EQ(m_plugin_path, geopm_env_plugin_path());
-    EXPECT_EQ(m_report, geopm_env_report());
-    EXPECT_EQ(m_profile, geopm_env_profile());
-    EXPECT_EQ(m_pmpi_ctl, geopm_env_pmpi_ctl());
-    EXPECT_EQ(0, geopm_env_do_region_barrier());
-    EXPECT_EQ(1, geopm_env_do_trace());
-    EXPECT_EQ(1, geopm_env_do_profile());
-    EXPECT_EQ(m_timeout, geopm_env_timeout());
-    EXPECT_EQ(m_debug_attach, geopm_env_debug_attach());
-    EXPECT_EQ(m_trace_signals, geopm_env_trace_signals());
-    EXPECT_EQ(m_report_signals, geopm_env_report_signals());
+
+    EXPECT_EQ(m_pmpi_ctl, m_env->pmpi_ctl());
+    EXPECT_EQ(1, m_env->do_profile());
+    EXPECT_EQ(m_debug_attach, m_env->debug_attach());
+    EXPECT_EQ(m_policy, m_env->policy());
+    EXPECT_EQ(default_shmkey, m_env->shmkey());
+    EXPECT_EQ(m_trace, m_env->trace());
+    EXPECT_EQ(m_plugin_path, m_env->plugin_path());
+    EXPECT_EQ(m_report, m_env->report());
+    EXPECT_EQ(m_profile, m_env->profile());
+    EXPECT_EQ(m_pmpi_ctl, m_env->pmpi_ctl());
+    EXPECT_EQ(0, m_env->do_region_barrier());
+    EXPECT_EQ(1, m_env->do_trace());
+    EXPECT_EQ(1, m_env->do_profile());
+    EXPECT_EQ(m_timeout, m_env->timeout());
+    EXPECT_EQ(m_debug_attach, m_env->debug_attach());
+    EXPECT_EQ(m_trace_signals, m_env->trace_signals());
+    EXPECT_EQ(m_report_signals, m_env->report_signals());
 }
 
 TEST_F(EnvironmentTest, invalid_ctl)
 {
     setenv("GEOPM_CTL", "program", 1);
 
-    EXPECT_THROW(geopm_env_load(), geopm::Exception);
+    EXPECT_THROW(Environment(), geopm::Exception);
 }
