@@ -31,12 +31,38 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-"""The geopm python package modules: launcher, error, io, plotter,
-topo, and version.
+import unittest
+import geopm_context
+import geopmpy.topo
 
-"""
 
-__all__ = ['launcher', 'error', 'io', 'plotter', 'topo', 'version']
+class TestTopo(unittest.TestCase):
+    def test_num_domain(self):
+        num_cpu_str = geopmpy.topo.num_domain("cpu")
+        self.assertLess(0, num_cpu_str)
+        num_cpu_int = geopmpy.topo.num_domain(geopmpy.topo.DOMAIN_CPU)
+        self.assertEqual(num_cpu_str, num_cpu_int)
 
-from geopmpy.version import __version__
+    def test_domain_domain_nested(self):
+        num_cpu = geopmpy.topo.num_domain("cpu")
+        num_pkg = geopmpy.topo.num_domain("package")
+        pkg_cpu_map = [[] for pkg_idx in range(num_pkg)]
+        for cpu_idx in range(num_cpu):
+            pkg_idx_str = geopmpy.topo.domain_idx("package", cpu_idx)
+            pkg_idx_int = geopmpy.topo.domain_idx(geopmpy.topo.DOMAIN_PACKAGE, cpu_idx)
+            self.assertEqual(pkg_idx_int, pkg_idx_str)
+            pkg_cpu_map[pkg_idx_str].append(cpu_idx)
+        for pkg_idx in range(num_pkg):
+            self.assertEqual(pkg_cpu_map[pkg_idx], geopmpy.topo.domain_nested('cpu', 'package', pkg_idx))
+            self.assertEqual(pkg_cpu_map[pkg_idx], geopmpy.topo.domain_nested(geopmpy.topo.DOMAIN_CPU, geopmpy.topo.DOMAIN_PACKAGE, pkg_idx))
 
+    def test_domain_name_type(self):
+        self.assertEqual('cpu', geopmpy.topo.domain_name(geopmpy.topo.DOMAIN_CPU))
+        self.assertEqual(geopmpy.topo.DOMAIN_CPU, geopmpy.topo.domain_type('cpu'))
+        with self.assertRaises(RuntimeError):
+            geopmpy.topo.num_domain('non-domain')
+        with self.assertRaises(RuntimeError):
+            geopmpy.topo.num_domain(100)
+
+if __name__ == '__main__':
+    unittest.main()
