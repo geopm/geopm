@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f293f4d3_99ca6108",
+        "filename": "scripts/geopmpy/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-08T23:24:01Z",
+      "side": 1,
+      "message": "commas",
+      "range": {
+        "startLine": 35,
+        "startChar": 54,
+        "endLine": 35,
+        "endChar": 65
+      },
+      "revId": "061415d400f0c6dd9137905182b2704f9870c418",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b232dfd_436ffa1c",
+        "filename": "scripts/geopmpy/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-08T23:24:01Z",
+      "side": 1,
+      "message": "just get rid of the number",
+      "range": {
+        "startLine": 35,
+        "startChar": 29,
+        "endLine": 35,
+        "endChar": 35
+      },
+      "revId": "061415d400f0c6dd9137905182b2704f9870c418",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80c8cb60_11a57f28",
+        "filename": "scripts/geopmpy/topo.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-08T23:24:01Z",
+      "side": 1,
+      "message": "could make these class variables i.e. static",
+      "revId": "061415d400f0c6dd9137905182b2704f9870c418",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
