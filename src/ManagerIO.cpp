@@ -41,7 +41,7 @@
 
 #include "contrib/json11/json11.hpp"
 
-#include "geopm_env.h"
+#include "Environment.hpp"
 #include "PlatformTopo.hpp"
 #include "SharedMemoryImp.hpp"
 #include "Exception.hpp"
@@ -54,21 +54,22 @@ using json11::Json;
 namespace geopm
 {
     ManagerIOImp::ManagerIOImp(const std::string &data_path, bool is_policy)
-        : ManagerIOImp(data_path, is_policy, geopm_env_agent())
+        : ManagerIOImp(environment(), data_path, is_policy)
     {
     }
 
-    ManagerIOImp::ManagerIOImp(const std::string &data_path, bool is_policy, const std::string &agent_name)
-        : ManagerIOImp(data_path,
+    ManagerIOImp::ManagerIOImp(const Environment &environment, const std::string &data_path, bool is_policy)
+        : ManagerIOImp(environment, data_path,
                        nullptr,
-                       is_policy ? Agent::policy_names(agent_factory().dictionary(agent_name)) :
-                                   Agent::sample_names(agent_factory().dictionary(agent_name)))
+                       is_policy ? Agent::policy_names(agent_factory().dictionary(environment.agent())) :
+                                   Agent::sample_names(agent_factory().dictionary(environment.agent())))
     {
     }
 
-    ManagerIOImp::ManagerIOImp(const std::string &path, std::unique_ptr<SharedMemory> shmem,
+    ManagerIOImp::ManagerIOImp(const Environment &environment, const std::string &path, std::unique_ptr<SharedMemory> shmem,
                                const std::vector<std::string> &signal_names)
-        : m_path(path)
+        : m_environment(environment)
+        , m_path(path)
         , m_signal_names(signal_names)
         , m_shmem(std::move(shmem))
         , m_data(nullptr)
@@ -183,21 +184,22 @@ namespace geopm
 
     /*********************************************************************************************************/
 
-    ManagerIOSamplerImp::ManagerIOSamplerImp(const std::string &data_path, bool is_policy)
-        : ManagerIOSamplerImp(data_path, is_policy, geopm_env_agent())
+    ManagerIOSamplerImp::ManagerIOSamplerImp(const Environment &environment, const std::string &data_path, bool is_policy)
+        : ManagerIOSamplerImp(data_path, is_policy, environment.agent())
     {
     }
 
-    ManagerIOSamplerImp::ManagerIOSamplerImp(const std::string &data_path, bool is_policy, const std::string &agent_name)
-        : ManagerIOSamplerImp(data_path,
+    ManagerIOSamplerImp::ManagerIOSamplerImp(const Environment &environment, const std::string &data_path, bool is_policy)
+        : ManagerIOSamplerImp(environment, data_path,
                               nullptr,
-                              is_policy ? Agent::policy_names(agent_factory().dictionary(agent_name)) :
-                                          Agent::sample_names(agent_factory().dictionary(agent_name)))
+                              is_policy ? Agent::policy_names(agent_factory().dictionary(environment.agent())) :
+                                          Agent::sample_names(agent_factory().dictionary(environment.agent())))
     {
     }
 
     ManagerIOSamplerImp::ManagerIOSamplerImp(const std::string &path, std::unique_ptr<SharedMemoryUser> shmem, const std::vector<std::string> &signal_names)
-        : m_path(path)
+        : m_environment(environment)
+        , m_path(path)
         , m_signal_names(signal_names)
         , m_shmem(std::move(shmem))
         , m_data(nullptr)
@@ -247,7 +249,7 @@ namespace geopm
     void ManagerIOSamplerImp::read_shmem(void)
     {
         if (m_shmem == nullptr) {
-            m_shmem = geopm::make_unique<SharedMemoryUserImp>(m_path, geopm_env_timeout());
+            m_shmem = geopm::make_unique<SharedMemoryUserImp>(m_path, m_environment.timeout());
         }
 
         m_data = (struct geopm_manager_shmem_s *) m_shmem->pointer(); // Managed by shmem subsystem.

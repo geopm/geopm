@@ -36,7 +36,6 @@
 #include <string.h>
 
 #include "geopm_signal_handler.h"
-#include "geopm_env.h"
 #include "Exception.hpp"
 #include "config.h"
 

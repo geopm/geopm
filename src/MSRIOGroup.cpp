@@ -44,7 +44,7 @@
 
 #include "geopm_sched.h"
 #include "geopm_hash.h"
-#include "geopm_env.h"
+#include "Environment.hpp"
 #include "Exception.hpp"
 #include "Agg.hpp"
 #include "MSR.hpp"
@@ -836,7 +836,7 @@ namespace geopm
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         // search path for additional json files to parse
-        const char *env_plugin_path = geopm_env_plugin_path();
+        const char *env_plugin_path = environment().plugin_path();
         std::vector<std::string> plugin_paths {GEOPM_DEFAULT_PLUGIN_PATH};
         if (env_plugin_path) {
             std::vector<std::string> dirs = string_split(std::string(env_plugin_path), ":");

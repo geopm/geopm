@@ -84,6 +84,7 @@ namespace geopm
             virtual std::vector<std::string> signal_names(void) const = 0;
     };
 
+    class Environment;
     class SharedMemory;
 
     class ManagerIOImp : public ManagerIO
@@ -92,9 +93,10 @@ namespace geopm
             ManagerIOImp() = delete;
             ManagerIOImp(const ManagerIOImp &other) = delete;
 
-            ManagerIOImp(const std::string &data_path, bool is_policy);
-            ManagerIOImp(const std::string &data_path, bool is_policy, const std::string &agent_name);
-            ManagerIOImp(const std::string &data_path,
+            ManagerIOImp(const Environment &environment, const std::string &data_path, bool is_policy);
+            ManagerIOImp(const Environment &environment, const std::string &data_path,
+                         bool is_policy);
+            ManagerIOImp(const Environment &environment, const std::string &data_path,
                          std::unique_ptr<SharedMemory> shmem,
                          const std::vector<std::string> &signal_names);
 
@@ -109,6 +111,7 @@ namespace geopm
             void write_file();
             void write_shmem();
 
+            const Environment &m_environment;
             std::string m_path;
             std::vector<std::string> m_signal_names;
             std::unique_ptr<SharedMemory> m_shmem;
@@ -148,10 +151,9 @@ namespace geopm
         public:
             ManagerIOSamplerImp() = delete;
             ManagerIOSamplerImp(const ManagerIOSamplerImp &other) = delete;
-            ManagerIOSamplerImp(const std::string &data_path, bool is_policy);
-            ManagerIOSamplerImp(const std::string &data_path, bool is_policy,
-                                const std::string &agent_name);
-            ManagerIOSamplerImp(const std::string &data_path,
+            ManagerIOSamplerImp(const Environment &environment, const std::string &data_path, bool is_policy);
+            ManagerIOSamplerImp(const Environment &environment, const std::string &data_path, bool is_policy);
+            ManagerIOSamplerImp(const Environment &environment, const std::string &data_path,
                                 std::unique_ptr<SharedMemoryUser> shmem,
                                 const std::vector<std::string> &signal_names);
             ~ManagerIOSamplerImp() = default;
@@ -166,6 +168,7 @@ namespace geopm
             std::map<std::string, double> parse_json(void);
             void read_shmem(void);
 
+            const Environment &m_environment;
             std::string m_path;
             std::vector<std::string> m_signal_names;
             std::unique_ptr<SharedMemoryUser> m_shmem;
