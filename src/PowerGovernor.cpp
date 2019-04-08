@@ -62,7 +62,7 @@ namespace geopm
 
     }
 
-    PowerGovernorImp::PowerGovernorImp(PlatformIO &platform_io, PlatformTopo &platform_topo)
+    PowerGovernorImp::PowerGovernorImp(PlatformIO &platform_io, const PlatformTopo &platform_topo)
         : m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
         , M_POWER_PACKAGE_TIME_WINDOW(0.015)

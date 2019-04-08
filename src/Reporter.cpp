@@ -65,7 +65,7 @@
 namespace geopm
 {
     ReporterImp::ReporterImp(const std::string &start_time, const std::string &report_name,
-                       PlatformIO &platform_io, PlatformTopo &platform_topo, int rank)
+                       PlatformIO &platform_io, const PlatformTopo &platform_topo, int rank)
         : ReporterImp(start_time, report_name, platform_io, platform_topo, rank,
                       std::unique_ptr<RegionAggregator>(new RegionAggregatorImp),
                       geopm_env_report_signals())
@@ -74,7 +74,7 @@ namespace geopm
     }
 
     ReporterImp::ReporterImp(const std::string &start_time, const std::string &report_name,
-                             PlatformIO &platform_io, PlatformTopo &platform_topo, int rank,
+                             PlatformIO &platform_io, const PlatformTopo &platform_topo, int rank,
                              std::unique_ptr<RegionAggregator> agg, const std::string &env_signals)
         : m_start_time(start_time)
         , m_report_name(report_name)

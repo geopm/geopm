@@ -53,7 +53,7 @@ namespace geopm
                            EpochRuntimeRegulator &epoch_regulator);
             ProfileIOGroup(std::shared_ptr<ProfileIOSample> profile_sample,
                            EpochRuntimeRegulator &epoch_regulator,
-                           PlatformTopo &topo);
+                           const PlatformTopo &topo);
             virtual ~ProfileIOGroup();
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
@@ -99,7 +99,7 @@ namespace geopm
             std::shared_ptr<ProfileIOSample> m_profile_sample;
             EpochRuntimeRegulator &m_epoch_regulator;
             std::map<std::string, int> m_signal_idx_map;
-            PlatformTopo &m_platform_topo;
+            const PlatformTopo &m_platform_topo;
             std::vector<bool> m_do_read;
             bool m_is_batch_read;
             std::vector<struct m_signal_config> m_active_signal;

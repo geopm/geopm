@@ -141,7 +141,7 @@ namespace geopm
                              std::shared_ptr<ProfileIOSample> pio_sample,
                              std::unique_ptr<EpochRuntimeRegulator>,
                              PlatformIO &platform_io,
-                             PlatformTopo &platform_topo);
+                             const PlatformTopo &platform_topo);
             virtual ~ApplicationIOImp();
             void connect(void) override;
             bool do_shutdown(void) const override;
@@ -177,7 +177,7 @@ namespace geopm
             std::shared_ptr<ProfileIOSample> m_profile_io_sample;
             std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > m_prof_sample;
             PlatformIO &m_platform_io;
-            PlatformTopo &m_platform_topo;
+            const PlatformTopo &m_platform_topo;
             std::vector<double> m_thread_progress;
             std::vector<uint64_t> m_region_id;
             // Per rank vector counting number of entries into MPI.

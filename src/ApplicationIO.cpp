@@ -66,7 +66,7 @@ namespace geopm
                                  std::shared_ptr<ProfileIOSample> pio_sample,
                                  std::unique_ptr<EpochRuntimeRegulator> epoch_regulator,
                                  PlatformIO &platform_io,
-                                 PlatformTopo &platform_topo)
+                                 const PlatformTopo &platform_topo)
         : m_sampler(std::move(sampler))
         , m_profile_io_sample(pio_sample)
         , m_platform_io(platform_io)

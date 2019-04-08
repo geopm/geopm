@@ -72,7 +72,7 @@ namespace geopm
 
             PowerGovernorAgent();
             PowerGovernorAgent(PlatformIO &platform_io,
-                               PlatformTopo &platform_topo,
+                               const PlatformTopo &platform_topo,
                                std::unique_ptr<PowerGovernor> power_gov);
             virtual ~PowerGovernorAgent();
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
@@ -99,7 +99,7 @@ namespace geopm
         private:
             void init_platform_io(void);
             PlatformIO &m_platform_io;
-            PlatformTopo &m_platform_topo;
+            const PlatformTopo &m_platform_topo;
             int m_level;
             bool m_is_converged;
             bool m_is_sample_stable;

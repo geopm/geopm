@@ -223,13 +223,13 @@ namespace geopm
             /// @param [in] ctl_msg Preconstructed SampleScheduler instance.
             ProfileImp(const std::string &prof_name, const std::string &key_base,
                        std::unique_ptr<Comm> comm, std::unique_ptr<ControlMessage> ctl_msg,
-                       PlatformTopo &topo, std::unique_ptr<ProfileTable> table,
+                       const PlatformTopo &topo, std::unique_ptr<ProfileTable> table,
                        std::shared_ptr<ProfileThreadTable> t_table,
                        std::unique_ptr<SampleScheduler> scheduler);
             /// @brief Test constructor.
             ProfileImp(const std::string &prof_name, const std::string &key_base,
                        std::unique_ptr<Comm> comm, std::unique_ptr<ControlMessage> ctl_msg,
-                       PlatformTopo &topo, std::unique_ptr<ProfileTable> table,
+                       const PlatformTopo &topo, std::unique_ptr<ProfileTable> table,
                        std::shared_ptr<ProfileThreadTable> t_table,
                        std::unique_ptr<SampleScheduler> scheduler,
                        std::shared_ptr<Comm> reduce_comm);
@@ -253,7 +253,7 @@ namespace geopm
             /// as well as their affinity masks.
             void init_cpu_list(int num_cpu);
             void init_cpu_affinity(int shm_num_rank);
-            void init_tprof_table(const std::string &tprof_key, PlatformTopo &topo);
+            void init_tprof_table(const std::string &tprof_key, const PlatformTopo &topo);
             void init_table(const std::string &sample_key);
         protected:
             bool m_is_enabled;

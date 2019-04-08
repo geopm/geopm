@@ -52,7 +52,7 @@ namespace geopm
     {
         public:
             MonitorAgent();
-            MonitorAgent(PlatformIO &plat_io, PlatformTopo &topo);
+            MonitorAgent(PlatformIO &plat_io, const PlatformTopo &topo);
             virtual ~MonitorAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &policy) const override;
@@ -80,7 +80,7 @@ namespace geopm
             void load_trace_columns(void);
 
             PlatformIO &m_platform_io;
-            PlatformTopo &m_platform_topo;
+            const PlatformTopo &m_platform_topo;
             geopm_time_s m_last_wait;
             const double M_WAIT_SEC;
     };

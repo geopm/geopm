@@ -61,7 +61,7 @@ namespace geopm
 
     }
 
-    FrequencyGovernorImp::FrequencyGovernorImp(PlatformIO &platform_io, PlatformTopo &platform_topo)
+    FrequencyGovernorImp::FrequencyGovernorImp(PlatformIO &platform_io, const PlatformTopo &platform_topo)
         : m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
         , M_FREQ_STEP(get_limit("CPUINFO::FREQ_STEP"))

@@ -54,7 +54,7 @@ namespace geopm
     {
         public:
             FrequencyMapAgent();
-            FrequencyMapAgent(PlatformIO &plat_io, PlatformTopo &topo,
+            FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo,
                               std::shared_ptr<FrequencyGovernor> gov);
             virtual ~FrequencyMapAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
@@ -98,7 +98,7 @@ namespace geopm
 
             const int M_PRECISION;
             PlatformIO &m_platform_io;
-            PlatformTopo &m_platform_topo;
+            const PlatformTopo &m_platform_topo;
             std::shared_ptr<FrequencyGovernor> m_freq_governor;
             std::vector<struct geopm_region_info_s>  m_last_region;
             std::map<uint64_t, double> m_hash_freq_map;

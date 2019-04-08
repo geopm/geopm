@@ -103,9 +103,9 @@ namespace geopm
     {
         public:
             ReporterImp(const std::string &start_time, const std::string &report_name,
-                        PlatformIO &platform_io, PlatformTopo &platform_topo, int rank);
+                        PlatformIO &platform_io, const PlatformTopo &platform_topo, int rank);
             ReporterImp(const std::string &start_time, const std::string &report_name,
-                        PlatformIO &platform_io, PlatformTopo &platform_topo, int rank,
+                        PlatformIO &platform_io, const PlatformTopo &platform_topo, int rank,
                         std::unique_ptr<RegionAggregator> agg, const std::string &env_signal);
             virtual ~ReporterImp() = default;
             void init(void) override;
@@ -123,7 +123,7 @@ namespace geopm
             std::string m_start_time;
             std::string m_report_name;
             PlatformIO &m_platform_io;
-            PlatformTopo &m_platform_topo;
+            const PlatformTopo &m_platform_topo;
             std::unique_ptr<RegionAggregator> m_region_agg;
             int m_rank;
             int m_region_bulk_runtime_idx;

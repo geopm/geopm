@@ -60,7 +60,7 @@ namespace geopm
 
     }
 
-    EnergyEfficientAgent::EnergyEfficientAgent(PlatformIO &plat_io, PlatformTopo &topo,
+    EnergyEfficientAgent::EnergyEfficientAgent(PlatformIO &plat_io, const PlatformTopo &topo,
                                                std::unique_ptr<FrequencyGovernor> gov)
         : M_PRECISION(16)
         , m_platform_io(plat_io)

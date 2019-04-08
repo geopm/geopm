@@ -133,7 +133,7 @@ namespace geopm
             };
 
             PowerBalancerAgent(PlatformIO &platform_io,
-                               PlatformTopo &platform_topo,
+                               const PlatformTopo &platform_topo,
                                std::unique_ptr<PowerGovernor> power_governor,
                                std::unique_ptr<PowerBalancer> power_balancer);
             PowerBalancerAgent();
@@ -209,7 +209,7 @@ namespace geopm
             };
 
             PlatformIO &m_platform_io;
-            PlatformTopo &m_platform_topo;
+            const PlatformTopo &m_platform_topo;
             std::shared_ptr<Role> m_role;
             std::unique_ptr<PowerGovernor> m_power_governor;   /// temporary ownership, std::move'd to Role on init
             std::unique_ptr<PowerBalancer> m_power_balancer;   /// temporary ownership, std::move'd to Role on init
@@ -300,7 +300,7 @@ namespace geopm
                 friend class ReduceLimitStep;
                 public:
                     LeafRole(PlatformIO &platform_io,
-                             PlatformTopo &platform_topo,
+                             const PlatformTopo &platform_topo,
                              std::unique_ptr<PowerGovernor> power_governor,
                              std::unique_ptr<PowerBalancer> power_balancer);
                     virtual ~LeafRole();
@@ -311,7 +311,7 @@ namespace geopm
                 private:
                     void init_platform_io(void);
                     PlatformIO &m_platform_io;
-                    PlatformTopo &m_platform_topo;
+                    const PlatformTopo &m_platform_topo;
                     double m_power_max;
                     std::vector<int> m_pio_idx;
                     std::unique_ptr<PowerGovernor> m_power_governor;

@@ -50,7 +50,7 @@ namespace geopm
     {
     }
 
-    ProfileThreadTableImp::ProfileThreadTableImp(PlatformTopo &topo, size_t buffer_size, void *buffer)
+    ProfileThreadTableImp::ProfileThreadTableImp(const PlatformTopo &topo, size_t buffer_size, void *buffer)
         : m_buffer((uint32_t *)buffer)
         , m_num_cpu(topo.num_domain(GEOPM_DOMAIN_CPU))
         , m_stride(64 / sizeof(uint32_t))

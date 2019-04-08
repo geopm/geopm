@@ -55,7 +55,7 @@ namespace geopm
 
     ProfileIOGroup::ProfileIOGroup(std::shared_ptr<ProfileIOSample> profile_sample,
                                    EpochRuntimeRegulator &epoch_regulator,
-                                   PlatformTopo &topo)
+                                   const PlatformTopo &topo)
         : m_profile_sample(profile_sample)
         , m_epoch_regulator(epoch_regulator)
         , m_signal_idx_map{{plugin_name() + "::REGION_HASH", M_SIGNAL_REGION_HASH},

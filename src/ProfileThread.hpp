@@ -60,7 +60,7 @@ namespace geopm
     {
         public:
             ProfileThreadTableImp(size_t buffer_size, void *buffer);
-            ProfileThreadTableImp(PlatformTopo &topo, size_t buffer_size, void *buffer);
+            ProfileThreadTableImp(const PlatformTopo &topo, size_t buffer_size, void *buffer);
             ProfileThreadTableImp(const ProfileThreadTableImp &other);
             virtual ~ProfileThreadTableImp() = default;
             void enable(bool is_enabled) override;
