@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "MSRIOGroup.hpp"
+
 #include <cpuid.h>
 #include <cmath>
 #include <sstream>
@@ -48,7 +50,6 @@
 #include "MSR.hpp"
 #include "MSRSignalImp.hpp"
 #include "MSRControlImp.hpp"
-#include "MSRIOGroup.hpp"
 #include "MSRIOImp.hpp"
 #include "PlatformTopo.hpp"
 #include "Helper.hpp"

@@ -29,10 +29,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "EnergyEfficientRegion.hpp"
+
 #include <cmath>
 
 #include "Agg.hpp"
-#include "EnergyEfficientRegion.hpp"
 #include "Helper.hpp"
 #include "config.h"
 

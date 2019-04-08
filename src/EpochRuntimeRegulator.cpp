@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "EpochRuntimeRegulator.hpp"
+
 #include <algorithm>
 
 #include "geopm.h"
@@ -37,7 +39,6 @@
 #include "Exception.hpp"
 #include "Helper.hpp"
 #include "RuntimeRegulator.hpp"
-#include "EpochRuntimeRegulator.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Agg.hpp"

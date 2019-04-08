@@ -29,12 +29,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "SampleRegulator.hpp"
+
 #include <iostream>
 #include <string.h>
 
 #include "geopm_internal.h"
 #include "Helper.hpp"
-#include "SampleRegulator.hpp"
 #include "CircularBuffer.hpp"
 #include "config.h"
 
