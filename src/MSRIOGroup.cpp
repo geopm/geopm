@@ -518,7 +518,10 @@ namespace geopm
                                        pair_it.second.mask);
                 }
                 catch (const Exception &e) {
+                    // TODO: this still looks like an error, not a warning
+#ifdef GEOPM_DEBUG
                     std::cerr << e.what() << std::endl;
+#endif
                 }
             }
             ++cpu_idx;
