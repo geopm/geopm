@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "ModelParse.hpp"
+
 #include <cmath>
 #include <unistd.h>
 #include <fstream>
@@ -38,7 +40,6 @@
 #include "contrib/json11/json11.hpp"
 
 #include "Exception.hpp"
-#include "ModelParse.hpp"
 #include "Helper.hpp"
 #include "geopm_imbalancer.h"
 #include "config.h"

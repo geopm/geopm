@@ -30,12 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "Controller.hpp"
+
 #include <algorithm>
 #include <cmath>
 
 #include "geopm_env.h"
 #include "geopm_signal_handler.h"
-#include "Controller.hpp"
 #include "ApplicationIO.hpp"
 #include "Reporter.hpp"
 #include "Tracer.hpp"

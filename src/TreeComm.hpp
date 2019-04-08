@@ -33,6 +33,9 @@
 #ifndef TREECOMM_HPP_INCLUDE
 #define TREECOMM_HPP_INCLUDE
 
+#include <stddef.h>
+#include <cstdint>
+#include <memory>
 #include <vector>
 
 namespace geopm

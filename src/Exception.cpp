@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "Exception.hpp"
+
 #include <string.h>
 #include <stdio.h>
 #include <iostream>
@@ -40,7 +42,6 @@
 #include <signal.h>
 #include <limits.h>
 
-#include "Exception.hpp"
 #include "geopm_env.h"
 #include "geopm_signal_handler.h"
 #include "config.h"

@@ -40,6 +40,8 @@
 #include <forward_list>
 #include <memory>
 
+#include "geopm_internal.h"
+
 namespace geopm
 {
     class ProfileRankSampler

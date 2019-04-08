@@ -30,13 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "TreeCommLevel.hpp"
+
 #include <string.h>
 #include <cmath>
 #include <algorithm>
 
 #include "Comm.hpp"
 #include "Exception.hpp"
-#include "TreeCommLevel.hpp"
 #include "config.h"
 
 namespace geopm

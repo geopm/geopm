@@ -31,6 +31,7 @@
  */
 
 #include "IOGroup.hpp"
+
 #include "MSRIOGroup.hpp"
 #include "CpuinfoIOGroup.hpp"
 #include "TimeIOGroup.hpp"

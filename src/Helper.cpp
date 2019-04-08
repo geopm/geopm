@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "Helper.hpp"
+
 #include <unistd.h>
 #include <limits.h>
 #include <dirent.h>
@@ -37,7 +39,6 @@
 
 #include <fstream>
 #include <algorithm>
-#include "Helper.hpp"
 #include "Exception.hpp"
 #include "config.h"
 
