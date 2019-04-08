@@ -68,8 +68,8 @@ namespace geopm
 
     PlatformIOImp::PlatformIOImp(std::list<std::shared_ptr<IOGroup> > iogroup_list,
                                  const PlatformTopo &topo)
-        : m_is_active(false)
-        , m_platform_topo(topo)
+        : m_platform_topo(topo)
+        , m_is_active(false)
         , m_iogroup_list(iogroup_list)
         , m_do_restore(false)
     {

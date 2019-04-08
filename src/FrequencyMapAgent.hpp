@@ -97,8 +97,8 @@ namespace geopm
             };
 
             const int M_PRECISION;
-            PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
+            PlatformIO &m_platform_io;
             std::shared_ptr<FrequencyGovernor> m_freq_governor;
             std::vector<struct geopm_region_info_s>  m_last_region;
             std::map<uint64_t, double> m_hash_freq_map;

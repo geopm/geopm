@@ -120,10 +120,10 @@ namespace geopm
         private:
             std::string get_max_memory(void);
 
+            const PlatformTopo &m_platform_topo;
             std::string m_start_time;
             std::string m_report_name;
             PlatformIO &m_platform_io;
-            const PlatformTopo &m_platform_topo;
             std::unique_ptr<RegionAggregator> m_region_agg;
             int m_rank;
             int m_region_bulk_runtime_idx;

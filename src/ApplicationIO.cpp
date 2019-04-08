@@ -68,10 +68,10 @@ namespace geopm
                                  std::unique_ptr<EpochRuntimeRegulator> epoch_regulator,
                                  PlatformIO &platform_io,
                                  const PlatformTopo &platform_topo)
-        : m_sampler(std::move(sampler))
-        , m_profile_io_sample(pio_sample)
+        : m_platform_topo(platform_topo)
         , m_platform_io(platform_io)
-        , m_platform_topo(platform_topo)
+        , m_sampler(std::move(sampler))
+        , m_profile_io_sample(pio_sample)
         , m_thread_progress(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU))
         , m_is_connected(false)
         , m_rank_per_node(-1)
