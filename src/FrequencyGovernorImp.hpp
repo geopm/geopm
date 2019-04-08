@@ -59,8 +59,8 @@ namespace geopm
         private:
             void init_platform_io(int control_domain);
             double get_limit(const std::string &sig_name) const;
-            PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
+            PlatformIO &m_platform_io;
             const double M_FREQ_STEP;
             const double M_PLAT_FREQ_MIN;
             const double M_PLAT_FREQ_MAX;

@@ -62,8 +62,8 @@ namespace geopm
     FrequencyMapAgent::FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo,
                                          std::shared_ptr<FrequencyGovernor> gov)
         : M_PRECISION(16)
-        , m_platform_io(plat_io)
         , m_platform_topo(topo)
+        , m_platform_io(plat_io)
         , m_freq_governor(gov)
         , m_last_wait(GEOPM_TIME_REF)
         , m_level(-1)
