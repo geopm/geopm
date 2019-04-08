@@ -61,15 +61,15 @@ namespace geopm
     }
 
     PlatformIOImp::PlatformIOImp()
-        : PlatformIOImp({}, platform_topo())
+        : PlatformIOImp(platform_topo(), {})
     {
 
     }
 
-    PlatformIOImp::PlatformIOImp(std::list<std::shared_ptr<IOGroup> > iogroup_list,
-                                 const PlatformTopo &topo)
-        : m_is_active(false)
-        , m_platform_topo(topo)
+    PlatformIOImp::PlatformIOImp(const PlatformTopo &topo,
+                                 std::list<std::shared_ptr<IOGroup> > iogroup_list)
+        : PLATFORM_TOPO(topo)
+        , m_is_active(false)
         , m_iogroup_list(iogroup_list)
         , m_do_restore(false)
     {
@@ -218,7 +218,7 @@ namespace geopm
             throw Exception("PlatformIOImp::push_signal(): domain_type is out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
+        if (domain_idx < 0 || domain_idx >= PLATFORM_TOPO.num_domain(domain_type)) {
             throw Exception("PlatformIOImp::push_signal(): domain_idx is out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -327,8 +327,8 @@ namespace geopm
     {
         int result = -1;
         int base_domain_type = signal_domain_type(signal_name);
-        if (m_platform_topo.is_nested_domain(base_domain_type, domain_type)) {
-            std::set<int> base_domain_idx = m_platform_topo.domain_nested(base_domain_type,
+        if (PLATFORM_TOPO.is_nested_domain(base_domain_type, domain_type)) {
+            std::set<int> base_domain_idx = PLATFORM_TOPO.domain_nested(base_domain_type,
                                                                           domain_type, domain_idx);
             std::vector<int> signal_idx;
             for (auto it : base_domain_idx) {
@@ -372,7 +372,7 @@ namespace geopm
             throw Exception("PlatformIOImp::push_control(): domain_type is out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
+        if (domain_idx < 0 || domain_idx >= PLATFORM_TOPO.num_domain(domain_type)) {
             throw Exception("PlatformIOImp::push_control(): domain_idx is out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -413,8 +413,8 @@ namespace geopm
     {
         int result = -1;
         int base_domain_type = control_domain_type(control_name);
-        if (m_platform_topo.is_nested_domain(base_domain_type, domain_type)) {
-            std::set<int> base_domain_idx = m_platform_topo.domain_nested(base_domain_type,
+        if (PLATFORM_TOPO.is_nested_domain(base_domain_type, domain_type)) {
+            std::set<int> base_domain_idx = PLATFORM_TOPO.domain_nested(base_domain_type,
                                                                           domain_type, domain_idx);
             std::vector<int> control_idx;
             for (auto it : base_domain_idx) {
@@ -519,7 +519,7 @@ namespace geopm
             throw Exception("PlatformIOImp::read_signal(): domain_type is out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
+        if (domain_idx < 0 || domain_idx >= PLATFORM_TOPO.num_domain(domain_type)) {
             throw Exception("PlatformIOImp::read_signal(): domain_idx is out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -545,8 +545,8 @@ namespace geopm
     {
         double result = NAN;
         int base_domain_type = signal_domain_type(signal_name);
-        if (m_platform_topo.is_nested_domain(base_domain_type, domain_type)) {
-            std::set<int> base_domain_idx = m_platform_topo.domain_nested(base_domain_type,
+        if (PLATFORM_TOPO.is_nested_domain(base_domain_type, domain_type)) {
+            std::set<int> base_domain_idx = PLATFORM_TOPO.domain_nested(base_domain_type,
                                                                           domain_type, domain_idx);
             std::vector<double> values;
             for (auto idx : base_domain_idx) {
@@ -571,7 +571,7 @@ namespace geopm
             throw Exception("PlatformIOImp::write_control(): domain_type is out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_idx < 0 || domain_idx >= m_platform_topo.num_domain(domain_type)) {
+        if (domain_idx < 0 || domain_idx >= PLATFORM_TOPO.num_domain(domain_type)) {
             throw Exception("PlatformIOImp::write_control(): domain_idx is out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -595,8 +595,8 @@ namespace geopm
                                                      double setting)
     {
         int base_domain_type = control_domain_type(control_name);
-        if (m_platform_topo.is_nested_domain(base_domain_type, domain_type)) {
-            std::set<int> base_domain_idx = m_platform_topo.domain_nested(base_domain_type,
+        if (PLATFORM_TOPO.is_nested_domain(base_domain_type, domain_type)) {
+            std::set<int> base_domain_idx = PLATFORM_TOPO.domain_nested(base_domain_type,
                                                                           domain_type, domain_idx);
             for (auto idx : base_domain_idx) {
                 write_control(control_name, base_domain_type, idx, setting);

@@ -123,7 +123,7 @@ void PowerGovernorAgentTest::set_up_leaf(void)
     EXPECT_CALL(*m_power_gov, do_write_batch())
         .Times(AtLeast(0))
         .WillRepeatedly(Return(true));
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, std::move(m_power_gov));
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_topo, m_platform_io, std::move(m_power_gov));
 }
 
 // check if containers are equal, including NAN
@@ -143,7 +143,7 @@ void PowerGovernorAgentTest::check_result(const std::vector<double> &expected,
 
 TEST_F(PowerGovernorAgentTest, wait)
 {
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_topo, m_platform_io, nullptr);
     m_agent->init(1, m_fan_in, false);
     geopm_time_s start_time, end_time;
     m_agent->wait();
@@ -216,7 +216,7 @@ TEST_F(PowerGovernorAgentTest, adjust_platform)
 
 TEST_F(PowerGovernorAgentTest, aggregate_sample)
 {
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_topo, m_platform_io, nullptr);
     m_agent->init(1, m_fan_in, false);
 
     std::vector<std::vector<double> > in_sample {{2.2, false, 1.0}, {3.3, true, 2.0}};
@@ -244,7 +244,7 @@ TEST_F(PowerGovernorAgentTest, aggregate_sample)
 
 TEST_F(PowerGovernorAgentTest, split_policy)
 {
-    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_topo, m_platform_io, nullptr);
     m_agent->init(1, m_fan_in, false);
 
     std::vector<double> policy_in;

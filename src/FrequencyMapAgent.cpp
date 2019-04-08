@@ -54,12 +54,12 @@ using json11::Json;
 namespace geopm
 {
     FrequencyMapAgent::FrequencyMapAgent()
-        : FrequencyMapAgent(platform_io(), platform_topo(), nullptr)
+        : FrequencyMapAgent(platform_topo(), platform_io(), nullptr)
     {
 
     }
 
-    FrequencyMapAgent::FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo,
+    FrequencyMapAgent::FrequencyMapAgent(const PlatformTopo &topo, PlatformIO &plat_io,
                                          std::shared_ptr<FrequencyGovernor> gov)
         : M_PRECISION(16)
         , m_platform_io(plat_io)

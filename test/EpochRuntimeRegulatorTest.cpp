@@ -62,7 +62,7 @@ class EpochRuntimeRegulatorTest : public ::testing::Test
 
 //constexpr EpochRuntimeRegulatorTest::M_NUM_RANKS;
 EpochRuntimeRegulatorTest::EpochRuntimeRegulatorTest()
-    : m_regulator(M_NUM_RANK, m_platform_io, m_platform_topo)
+    : m_regulator(m_platform_topo, M_NUM_RANK, m_platform_io)
 {
 
 }
@@ -74,9 +74,9 @@ void EpochRuntimeRegulatorTest::SetUp()
 
 TEST_F(EpochRuntimeRegulatorTest, invalid_ranks)
 {
-    GEOPM_EXPECT_THROW_MESSAGE(EpochRuntimeRegulatorImp(-1, m_platform_io, m_platform_topo),
+    GEOPM_EXPECT_THROW_MESSAGE(EpochRuntimeRegulatorImp(m_platform_topo, -1, m_platform_io),
                                GEOPM_ERROR_RUNTIME, "invalid max rank count");
-    GEOPM_EXPECT_THROW_MESSAGE(EpochRuntimeRegulatorImp(0, m_platform_io, m_platform_topo),
+    GEOPM_EXPECT_THROW_MESSAGE(EpochRuntimeRegulatorImp(m_platform_topo, 0, m_platform_io),
                                GEOPM_ERROR_RUNTIME, "invalid max rank count");
     GEOPM_EXPECT_THROW_MESSAGE(m_regulator.record_entry(GEOPM_REGION_HASH_UNMARKED, -1, {{1,1}}),
                                GEOPM_ERROR_RUNTIME, "invalid rank value");

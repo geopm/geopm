@@ -86,7 +86,7 @@ TEST_F(PowerBalancerAgentTest, power_balancer_agent)
                                                     "MAX_EPOCH_RUNTIME",
                                                     "SUM_POWER_SLACK",
                                                     "MIN_POWER_HEADROOM"};
-    m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
+    m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_topo, m_platform_io,
                                                      std::move(m_power_gov), std::move(m_power_bal));
 
     EXPECT_EQ("power_balancer", m_agent->plugin_name());
@@ -117,7 +117,7 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .WillOnce(Return(2));
 
-    m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
+    m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_topo, m_platform_io,
                                                      std::move(m_power_gov), std::move(m_power_bal));
     m_agent->init(level, M_FAN_IN, IS_ROOT);
 
@@ -244,7 +244,7 @@ TEST_F(PowerBalancerAgentTest, tree_agent)
     int level = 1;
     int num_children = M_FAN_IN[level - 1];
 
-    m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
+    m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_topo, m_platform_io,
                                                      std::move(m_power_gov), std::move(m_power_bal));
     m_agent->init(level, M_FAN_IN, IS_ROOT);
 
@@ -453,7 +453,7 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
         .WillRepeatedly(Return(300.0));
     EXPECT_CALL(*m_power_bal, power_limit())
         .WillRepeatedly(Return(300.0));
-    m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
+    m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_topo, m_platform_io,
                                                      std::move(m_power_gov), std::move(m_power_bal));
     m_agent->init(level, M_FAN_IN, IS_ROOT);
 
