@@ -30,12 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "PowerGovernorAgent.hpp"
+
 #include <cfloat>
 #include <cmath>
 #include <algorithm>
 
 #include "PowerGovernor.hpp"
-#include "PowerGovernorAgent.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"

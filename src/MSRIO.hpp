@@ -33,7 +33,7 @@
 #ifndef MSRIO_HPP_INCLUDE
 #define MSRIO_HPP_INCLUDE
 
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 #include <memory>
 

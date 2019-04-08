@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "ManagerIO.hpp"
+
 #include <cmath>
 #include <string.h>
 #include <fstream>
@@ -40,7 +42,6 @@
 #include "contrib/json11/json11.hpp"
 
 #include "geopm_env.h"
-#include "ManagerIO.hpp"
 #include "PlatformTopo.hpp"
 #include "SharedMemoryImp.hpp"
 #include "Exception.hpp"

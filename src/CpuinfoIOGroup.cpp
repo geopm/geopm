@@ -30,13 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "CpuinfoIOGroup.hpp"
+
 #include <cmath>
 #include <cstring>
 
 #include <fstream>
 #include <algorithm>
 #include <iterator>
-#include "CpuinfoIOGroup.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
 #include "Agg.hpp"

@@ -33,7 +33,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
-#include <stdint.h>
+#include <cstdint>
 #include <string.h>
 #include <mpi.h>
 #include <limits.h>

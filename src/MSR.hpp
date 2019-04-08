@@ -33,7 +33,7 @@
 #ifndef MSR_HPP_INCLUDE
 #define MSR_HPP_INCLUDE
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <map>
 #include <memory>

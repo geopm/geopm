@@ -33,6 +33,8 @@
 #ifndef MODELAPPLICATION_HPP_INCLUDE
 #define MODELAPPLICATION_HPP_INCLUDE
 
+#include <cstdint>
+#include <string>
 #include <vector>
 
 namespace geopm

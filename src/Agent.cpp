@@ -30,12 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "Agent.hpp"
+
 #include <cmath>
 #include <sstream>
 
 #include "geopm_agent.h"
 #include "string.h"
-#include "Agent.hpp"
 #include "MonitorAgent.hpp"
 #include "PowerBalancerAgent.hpp"
 #include "PowerGovernorAgent.hpp"

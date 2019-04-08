@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "Comm.hpp"
+
 #include <inttypes.h>
 #include <cpuid.h>
 #include <string>
@@ -38,7 +40,6 @@
 #include <list>
 
 #include "Exception.hpp"
-#include "Comm.hpp"
 #include "config.h"
 
 namespace geopm

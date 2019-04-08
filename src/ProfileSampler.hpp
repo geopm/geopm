@@ -33,12 +33,14 @@
 #ifndef PROFILESAMPLER_HPP_INCLUDE
 #define PROFILESAMPLER_HPP_INCLUDE
 
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 #include <string>
 #include <set>
 #include <forward_list>
 #include <memory>
+
+#include "geopm_internal.h"
 
 namespace geopm
 {
