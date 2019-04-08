@@ -37,22 +37,9 @@ extern "C"
 {
 #endif
 
-const char *geopm_env_policy(void);
-const char *geopm_env_agent(void);
-const char *geopm_env_shmkey(void);
-const char *geopm_env_trace(void);
-const char *geopm_env_plugin_path(void);
-const char *geopm_env_report(void);
-const char *geopm_env_comm(void);
-const char *geopm_env_profile(void);
-const char *geopm_env_trace_signals(void);
-const char *geopm_env_report_signals(void);
-int geopm_env_max_fan_out(void);
-int geopm_env_pmpi_ctl(void);
-int geopm_env_do_region_barrier(void);
-int geopm_env_do_trace(void);
+//@todo return error code and ints by ref
 int geopm_env_do_profile(void);
-int geopm_env_timeout(void);
+int geopm_env_pmpi_ctl(void);
 int geopm_env_debug_attach(void);
 
 #ifdef __cplusplus
