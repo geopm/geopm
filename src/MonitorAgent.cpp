@@ -32,8 +32,6 @@
 
 #include "MonitorAgent.hpp"
 
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
 #include "Helper.hpp"
 #include "Exception.hpp"
 #include "config.h"
@@ -41,16 +39,8 @@
 namespace geopm
 {
     MonitorAgent::MonitorAgent()
-        : MonitorAgent(platform_io(), platform_topo())
-    {
-
-    }
-
-    MonitorAgent::MonitorAgent(PlatformIO &plat_io, const PlatformTopo &topo)
-        : m_platform_io(plat_io)
-        , m_platform_topo(topo)
+        : M_WAIT_SEC(0.005)
         , m_last_wait(GEOPM_TIME_REF)
-        , M_WAIT_SEC(0.005)
     {
         geopm_time(&m_last_wait);
     }

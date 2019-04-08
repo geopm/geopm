@@ -96,10 +96,10 @@ namespace geopm
 
             int check_signal(const std::string &signal_name, int domain_type, int domain_idx) const;
 
+            const PlatformTopo &m_platform_topo;
             std::shared_ptr<ProfileIOSample> m_profile_sample;
             EpochRuntimeRegulator &m_epoch_regulator;
             std::map<std::string, int> m_signal_idx_map;
-            const PlatformTopo &m_platform_topo;
             std::vector<bool> m_do_read;
             bool m_is_batch_read;
             std::vector<struct m_signal_config> m_active_signal;
