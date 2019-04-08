@@ -57,7 +57,8 @@ namespace geopm
     ProfileIOGroup::ProfileIOGroup(std::shared_ptr<ProfileIOSample> profile_sample,
                                    EpochRuntimeRegulator &epoch_regulator,
                                    const PlatformTopo &topo)
-        : m_profile_sample(profile_sample)
+        : m_platform_topo(topo)
+        , m_profile_sample(profile_sample)
         , m_epoch_regulator(epoch_regulator)
         , m_signal_idx_map{{plugin_name() + "::REGION_HASH", M_SIGNAL_REGION_HASH},
                            {plugin_name() + "::REGION_HINT", M_SIGNAL_REGION_HINT},
@@ -77,16 +78,15 @@ namespace geopm
                            {"EPOCH_RUNTIME_MPI", M_SIGNAL_EPOCH_RUNTIME_MPI},
                            {plugin_name() + "::EPOCH_RUNTIME_IGNORE", M_SIGNAL_EPOCH_RUNTIME_IGNORE},
                            {"EPOCH_RUNTIME_IGNORE", M_SIGNAL_EPOCH_RUNTIME_IGNORE}}
-        , m_platform_topo(topo)
         , m_do_read(M_SIGNAL_MAX, false)
         , m_is_batch_read(false)
-        , m_per_cpu_progress(topo.num_domain(GEOPM_DOMAIN_CPU), NAN)
-        , m_per_cpu_runtime(topo.num_domain(GEOPM_DOMAIN_CPU), NAN)
-        , m_thread_progress(topo.num_domain(GEOPM_DOMAIN_CPU), NAN)
-        , m_epoch_runtime_mpi(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
-        , m_epoch_runtime_ignore(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
-        , m_epoch_runtime(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
-        , m_epoch_count(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
+        , m_per_cpu_progress(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU), NAN)
+        , m_per_cpu_runtime(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU), NAN)
+        , m_thread_progress(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU), NAN)
+        , m_epoch_runtime_mpi(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
+        , m_epoch_runtime_ignore(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
+        , m_epoch_runtime(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
+        , m_epoch_count(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
         , m_cpu_rank(m_profile_sample->cpu_rank())
     {
 
