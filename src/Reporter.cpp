@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "Reporter.hpp"
+
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
@@ -42,7 +44,6 @@
 #include <iomanip>
 #include <limits.h>
 
-#include "Reporter.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "RegionAggregatorImp.hpp"

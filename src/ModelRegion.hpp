@@ -34,7 +34,7 @@
 #define MODELREGION_HPP_INCLUDE
 
 #include <string>
-#include <stdint.h>
+#include <cstdint>
 
 namespace geopm
 {

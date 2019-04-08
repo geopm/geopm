@@ -30,12 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "MPIComm.hpp"
+
 #include <sstream>
 #include <limits.h>
 #include <map>
 
 #include "Comm.hpp"
-#include "MPIComm.hpp"
 #include "Exception.hpp"
 #include "SharedMemory.hpp"
 #include "geopm_env.h"

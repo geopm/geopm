@@ -33,7 +33,7 @@
 #ifndef MSRSIGNAL_HPP_INCLUDE
 #define MSRSIGNAL_HPP_INCLUDE
 
-#include <stdint.h>
+#include <cstdint>
 
 #include <string>
 #include <memory>

@@ -34,7 +34,7 @@
 #define PROFILETHREAD_HPP_INCLUDE
 
 #include <stdlib.h>
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 namespace geopm

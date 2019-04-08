@@ -31,9 +31,11 @@
  */
 
 
+#include "ProfileTable.hpp"
+
 #include <limits.h>
 #include <pthread.h>
-#include <stdint.h>
+#include <cstdint>
 #include <string.h>
 
 #include <algorithm>
@@ -42,7 +44,6 @@
 #include "geopm_internal.h"
 #include "geopm_hash.h"
 #include "Exception.hpp"
-#include "ProfileTable.hpp"
 
 #include "config.h"
 

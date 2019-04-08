@@ -33,7 +33,7 @@
 #ifndef PROFILE_HPP_INCLUDE
 #define PROFILE_HPP_INCLUDE
 
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 #include <string>
 #include <list>

@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "ControlMessage.hpp"
+
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
@@ -37,7 +39,6 @@
 #include "geopm_signal_handler.h"
 #include "geopm_env.h"
 #include "geopm_time.h"
-#include "ControlMessage.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
 
