@@ -33,6 +33,8 @@
 #ifndef OMPT_HPP_INCLUDE
 #define OMPT_HPP_INCLUDE
 
+#include <string>
+
 namespace geopm
 {
     /// Convert function-address into function-name in region name

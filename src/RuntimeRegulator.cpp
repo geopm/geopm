@@ -30,8 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Exception.hpp"
 #include "RuntimeRegulator.hpp"
+
+#include "Exception.hpp"
 
 #include "config.h"
 

@@ -30,11 +30,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "CombinedSignal.hpp"
+
 #include <cmath>
 #include <numeric>
 #include <algorithm>
 
-#include "CombinedSignal.hpp"
 #include "Exception.hpp"
 #include "Agg.hpp"
 #include "config.h"

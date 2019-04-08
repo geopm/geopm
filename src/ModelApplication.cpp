@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "ModelApplication.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <streambuf>
@@ -40,7 +42,6 @@
 #include "geopm.h"
 #include "ModelRegion.hpp"
 #include "Exception.hpp"
-#include "ModelApplication.hpp"
 #include "config.h"
 
 namespace geopm
