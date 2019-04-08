@@ -35,6 +35,8 @@
 const char *program_invocation_name = "geopm_profile";
 #endif
 
+#include "Environment.hpp"
+
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
@@ -53,53 +55,6 @@ const char *program_invocation_name = "geopm_profile";
 
 namespace geopm
 {
-    /// @brief Environment class encapsulates all functionality related to
-    /// dealing with runtime environment variables.
-    class Environment
-    {
-        public:
-            Environment();
-            virtual ~Environment() = default;
-            void load(void);
-            const char *report(void) const;
-            const char *comm(void) const;
-            const char *policy(void) const;
-            const char *shmkey(void) const;
-            const char *trace(void) const;
-            const char *plugin_path(void) const;
-            const char *profile(void) const;
-            const char *agent(void) const;
-            const char *trace_signals(void) const;
-            const char *report_signals(void) const;
-            int max_fan_out(void) const;
-            int pmpi_ctl(void) const;
-            int do_region_barrier(void) const;
-            int do_trace(void) const;
-            int do_profile() const;
-            int timeout(void) const;
-            int debug_attach(void) const;
-        private:
-            bool get_env(const char *name, std::string &env_string) const;
-            bool get_env(const char *name, int &value) const;
-            std::string m_report;
-            std::string m_comm;
-            std::string m_policy;
-            std::string m_agent;
-            std::string m_shmkey;
-            std::string m_trace;
-            std::string m_plugin_path;
-            std::string m_profile;
-            int m_max_fan_out;
-            int m_pmpi_ctl;
-            bool m_do_region_barrier;
-            bool m_do_trace;
-            bool m_do_profile;
-            int m_timeout;
-            int m_debug_attach;
-            std::string m_trace_signals;
-            std::string m_report_signals;
-    };
-
     static Environment &test_environment(void)
     {
         static Environment instance;
