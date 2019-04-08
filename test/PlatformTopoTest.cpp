@@ -333,7 +333,7 @@ TEST_F(PlatformTopoTest, construction)
 
 TEST_F(PlatformTopoTest, singleton_construction)
 {
-    PlatformTopo &topo = geopm::platform_topo();
+    const PlatformTopo &topo = geopm::platform_topo();
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_LT(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_LT(0, topo.num_domain(GEOPM_DOMAIN_CORE));
