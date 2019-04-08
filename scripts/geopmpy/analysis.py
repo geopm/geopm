@@ -816,9 +816,12 @@ class FreqSweepAnalysis(Analysis):
             if self._verbose:
                 sys.stderr.write("<geopmpy>: Warning: Invalid or unspecified max_freq; using system maximum: {}.\n".format(sys_max))
             self._max_freq = sys_max
-        num_step = 1 + int((self._max_freq - self._min_freq) / FreqSweepAnalysis.step_freq)
+        num_step = 1 + int((self._max_freq - self._min_freq) // FreqSweepAnalysis.step_freq)
         freqs = [FreqSweepAnalysis.step_freq * ss + self._min_freq for ss in range(num_step)]
-        agent = 'energy_efficient'
+        # add turbo frequency if applicable
+        if self._max_freq not in freqs:
+            freqs.append(self._max_freq)
+        agent = 'frequency_map'
         for iteration in range(self._iterations):
             for freq in freqs:
                 profile_name = FreqSweepAnalysis.fixed_freq_name(self._name, freq)
@@ -966,8 +969,8 @@ class FreqSweepAnalysis(Analysis):
                 if line.startswith('model name\t:'):
                     sticker_freq = float(line.split('@')[1].split('GHz')[0]) * 1e9
                     break
-            max_freq = sticker_freq + FreqSweepAnalysis.step_freq
-
+        with open('/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq') as fid:
+            max_freq = 1e3 * float(fid.readline())
         return min_freq, max_freq
 
     @staticmethod
