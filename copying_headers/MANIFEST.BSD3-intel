@@ -75,6 +75,7 @@ src/EnergyEfficientAgent.hpp
 src/EnergyEfficientRegion.cpp
 src/EnergyEfficientRegion.hpp
 src/Environment.cpp
+src/Environment.hpp
 src/EpochRuntimeRegulator.cpp
 src/EpochRuntimeRegulator.hpp
 src/Exception.cpp
