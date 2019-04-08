@@ -177,7 +177,6 @@ src/geopm.h
 src/geopm_agent.h
 src/geopm_ctl.h
 src/geopm_endpoint.h
-src/geopm_env.h
 src/geopm_error.h
 src/geopm_hash.c
 src/geopm_hash.h

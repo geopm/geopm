@@ -34,7 +34,7 @@
 #include <unistd.h>
 #include <sstream>
 
-#include "geopm_env.h"
+#include "Environment.hpp"
 #include "geopm_mpi_comm_split.h"
 #include "SharedMemoryImp.hpp"
 #include "Exception.hpp"
@@ -93,9 +93,10 @@ extern "C"
     {
         int err = 0;
         struct stat stat_struct;
+        const Environment &environment = environment();
         try {
             std::ostringstream shmem_key;
-            shmem_key << geopm_env_shmkey() << "-comm-split-" << tag;
+            shmem_key << environment.shmkey() << "-comm-split-" << tag;
             std::ostringstream shmem_path;
             shmem_path << "/dev/shm" << shmem_key.str();
             std::shared_ptr<geopm::SharedMemoryImp> shmem = nullptr;
@@ -123,7 +124,7 @@ extern "C"
                 }
             }
             if (!shmem) {
-                shmem_user = std::make_shared<geopm::SharedMemoryUserImp>(shmem_key.str(), geopm_env_timeout());
+                shmem_user = std::make_shared<geopm::SharedMemoryUserImp>(shmem_key.str(), environment.timeout());
             }
             else {
                 color = rank;
