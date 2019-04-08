@@ -42,7 +42,7 @@
 #include <signal.h>
 #include <limits.h>
 
-#include "geopm_env.h"
+#include "Environment.hpp"
 #include "geopm_signal_handler.h"
 #include "config.h"
 
@@ -111,18 +111,26 @@ extern "C"
         int err = 0;
         char err_msg[2 * NAME_MAX];
         DIR *did = opendir("/dev/shm");
-        if (did &&
-            strlen(geopm_env_shmkey()) &&
-            *(geopm_env_shmkey()) == '/' &&
-            strchr(geopm_env_shmkey(), ' ') == NULL &&
-            strchr(geopm_env_shmkey() + 1, '/') == NULL) {
+        std::string key_base;
+        try {
+            key_base = geopm::environment().shmkey();
+        }
+        catch (...) {
+            err = GEOPM_ERROR_RUNTIME;
+        }
+        if (!err &&
+            did &&
+            strlen(key_base.c_str()) &&
+            *(key_base.c_str()) == '/' &&
+            strchr(key_base.c_str(), ' ') == NULL &&
+            strchr(key_base.c_str() + 1, '/') == NULL) {
 
             struct dirent *entry;
             char shm_key[NAME_MAX];
             shm_key[0] = '/';
             shm_key[NAME_MAX - 1] = '\0';
             while ((entry = readdir(did))) {
-                if (strstr(entry->d_name, geopm_env_shmkey() + 1) == entry->d_name) {
+                if (strstr(entry->d_name, key_base.c_str() + 1) == entry->d_name) {
                     strncpy(shm_key + 1, entry->d_name, NAME_MAX - 2);
                     err = shm_unlink(shm_key);
                     if (err) {

@@ -37,7 +37,6 @@
 #include <limits.h>
 
 #include "geopm_signal_handler.h"
-#include "geopm_env.h"
 #include "geopm_time.h"
 #include "Exception.hpp"
 #include "Helper.hpp"
@@ -47,8 +46,8 @@
 namespace geopm
 {
 
-    ControlMessageImp::ControlMessageImp(struct geopm_ctl_message_s &ctl_msg, bool is_ctl, bool is_writer)
-        : M_WAIT_SEC(geopm_env_timeout())
+    ControlMessageImp::ControlMessageImp(struct geopm_ctl_message_s &ctl_msg, bool is_ctl, bool is_writer, double wait_sec)
+        : M_WAIT_SEC(wait_sec)
         , m_ctl_msg(ctl_msg)
         , m_is_ctl(is_ctl)
         , m_is_writer(is_writer)
