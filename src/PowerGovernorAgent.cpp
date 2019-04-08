@@ -48,14 +48,14 @@
 namespace geopm
 {
     PowerGovernorAgent::PowerGovernorAgent()
-        : PowerGovernorAgent(platform_io(), platform_topo(), nullptr)
+        : PowerGovernorAgent(platform_topo(), platform_io(), nullptr)
     {
 
     }
 
-    PowerGovernorAgent::PowerGovernorAgent(PlatformIO &platform_io, const PlatformTopo &platform_topo, std::unique_ptr<PowerGovernor> power_gov)
-        : m_platform_io(platform_io)
-        , m_platform_topo(platform_topo)
+    PowerGovernorAgent::PowerGovernorAgent(const PlatformTopo &platform_topo, PlatformIO &platform_io, std::unique_ptr<PowerGovernor> power_gov)
+        : PLATFORM_TOPO(platform_topo)
+        , m_platform_io(platform_io)
         , m_level(-1)
         , m_is_converged(false)
         , m_is_sample_stable(false)
@@ -74,7 +74,7 @@ namespace geopm
         , m_ascend_count(0)
         , m_ascend_period(10)
         , m_min_num_converged(15)
-        , m_num_pkg(m_platform_topo.num_domain(m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT")))
+        , m_num_pkg(PLATFORM_TOPO.num_domain(m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT")))
         , m_adjusted_power(0.0)
         , m_last_wait(GEOPM_TIME_REF)
         , M_WAIT_SEC(0.005)

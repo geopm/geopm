@@ -84,13 +84,13 @@ void FrequencyGovernorTest::SetUp(void)
         .WillByDefault(Throw(geopm::Exception("invalid domain for frequency control",
                                               GEOPM_ERROR_INVALID, __FILE__, __LINE__)));
 
-    m_gov = geopm::make_unique<FrequencyGovernorImp>(m_platio, m_topo);
+    m_gov = geopm::make_unique<FrequencyGovernorImp>(m_topo, m_platio);
     m_gov->init_platform_io();
 }
 
 TEST_F(FrequencyGovernorTest, frequency_control_domain_default)
 {
-    auto gov = geopm::make_unique<FrequencyGovernorImp>(m_platio, m_topo);
+    auto gov = geopm::make_unique<FrequencyGovernorImp>(m_topo, m_platio);
     gov->init_platform_io();
     int domain = gov->frequency_domain_type();
     EXPECT_EQ(M_CTL_DOMAIN, domain);

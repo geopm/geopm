@@ -47,12 +47,12 @@
 
 namespace geopm
 {
-    EpochRuntimeRegulatorImp::EpochRuntimeRegulatorImp(int rank_per_node,
-                                                       PlatformIO &platform_io,
-                                                       const PlatformTopo &platform_topo)
-        : m_rank_per_node(rank_per_node < 0 ? 0 : rank_per_node)
+    EpochRuntimeRegulatorImp::EpochRuntimeRegulatorImp(const PlatformTopo &platform_topo,
+                                                       int rank_per_node,
+                                                       PlatformIO &platform_io)
+        : PLATFORM_TOPO(platform_topo)
+        , m_rank_per_node(rank_per_node < 0 ? 0 : rank_per_node)
         , m_platform_io(platform_io)
-        , m_platform_topo(platform_topo)
         , m_is_energy_recorded(false)
         , m_seen_first_epoch(m_rank_per_node, false)
         , m_curr_runtime_ignore(m_rank_per_node, 0.0)
@@ -102,7 +102,7 @@ namespace geopm
     double EpochRuntimeRegulatorImp::current_energy_pkg(void) const
     {
         double energy = 0.0;
-        int num_package = m_platform_topo.num_domain(GEOPM_DOMAIN_PACKAGE);
+        int num_package = PLATFORM_TOPO.num_domain(GEOPM_DOMAIN_PACKAGE);
         for (int pkg = 0; pkg < num_package; ++pkg) {
             energy += m_platform_io.read_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE, pkg);
         }
@@ -112,7 +112,7 @@ namespace geopm
     double EpochRuntimeRegulatorImp::current_energy_dram(void) const
     {
         double energy = 0.0;
-        int num_dram = m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_MEMORY);
+        int num_dram = PLATFORM_TOPO.num_domain(GEOPM_DOMAIN_BOARD_MEMORY);
         for (int dram = 0; dram < num_dram; ++dram) {
             energy += m_platform_io.read_signal("ENERGY_DRAM", GEOPM_DOMAIN_BOARD_MEMORY, dram);
         }

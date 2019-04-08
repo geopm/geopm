@@ -55,16 +55,16 @@ using json11::Json;
 namespace geopm
 {
     EnergyEfficientAgent::EnergyEfficientAgent()
-        : EnergyEfficientAgent(platform_io(), platform_topo(), nullptr)
+        : EnergyEfficientAgent(platform_topo(), platform_io(), nullptr)
     {
 
     }
 
-    EnergyEfficientAgent::EnergyEfficientAgent(PlatformIO &plat_io, const PlatformTopo &topo,
+    EnergyEfficientAgent::EnergyEfficientAgent(const PlatformTopo &topo, PlatformIO &plat_io,
                                                std::unique_ptr<FrequencyGovernor> gov)
-        : M_PRECISION(16)
+        : PLATFORM_TOPO(topo)
+        , M_PRECISION(16)
         , m_platform_io(plat_io)
-        , m_platform_topo(topo)
         , m_freq_governor(std::move(gov))
         , m_num_freq_ctl_domain(-1)
         , m_last_wait(GEOPM_TIME_REF)
@@ -317,7 +317,7 @@ namespace geopm
         }
         m_freq_governor->init_platform_io();
         const int freq_ctl_domain_type = m_freq_governor->frequency_domain_type();
-        m_num_freq_ctl_domain = m_platform_topo.num_domain(freq_ctl_domain_type);
+        m_num_freq_ctl_domain = PLATFORM_TOPO.num_domain(freq_ctl_domain_type);
         m_last_region = std::vector<struct geopm_region_info_s>(m_num_freq_ctl_domain,
                                                           (struct geopm_region_info_s) {
                                                           .hash = GEOPM_REGION_HASH_INVALID,
