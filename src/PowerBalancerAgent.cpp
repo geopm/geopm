@@ -143,8 +143,8 @@ namespace geopm
                                            std::unique_ptr<PowerGovernor> power_governor,
                                            std::unique_ptr<PowerBalancer> power_balancer)
         : Role()
-        , m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
+        , m_platform_io(platform_io)
         , m_power_max(m_platform_topo.num_domain(GEOPM_DOMAIN_PACKAGE) *
                       m_platform_io.read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0))
         , m_pio_idx(M_PLAT_NUM_SIGNAL)
@@ -516,8 +516,8 @@ namespace geopm
                                            const PlatformTopo &platform_topo,
                                            std::unique_ptr<PowerGovernor> power_governor,
                                            std::unique_ptr<PowerBalancer> power_balancer)
-        : m_platform_io(platform_io)
-        , m_platform_topo(platform_topo)
+        : m_platform_topo(platform_topo)
+        , m_platform_io(platform_io)
         , m_role(nullptr)
         , m_power_governor(std::move(power_governor))
         , m_power_balancer(std::move(power_balancer))

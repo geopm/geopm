@@ -50,9 +50,9 @@ namespace geopm
     EpochRuntimeRegulatorImp::EpochRuntimeRegulatorImp(int rank_per_node,
                                                        PlatformIO &platform_io,
                                                        const PlatformTopo &platform_topo)
-        : m_rank_per_node(rank_per_node < 0 ? 0 : rank_per_node)
+        : m_platform_topo(platform_topo)
         , m_platform_io(platform_io)
-        , m_platform_topo(platform_topo)
+        , m_rank_per_node(rank_per_node < 0 ? 0 : rank_per_node)
         , m_is_energy_recorded(false)
         , m_seen_first_epoch(m_rank_per_node, false)
         , m_curr_runtime_ignore(m_rank_per_node, 0.0)
