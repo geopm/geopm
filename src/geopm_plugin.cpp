@@ -36,7 +36,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "geopm_env.h"
+#include "Environment.hpp"
 #include "Helper.hpp"
 
 #include "config.h"
@@ -47,7 +47,7 @@ static const char *GEOPM_COMM_PLUGIN_PREFIX     = "libgeopmcomm_";
 static void __attribute__((constructor)) geopmpolicy_load(void)
 {
     std::string env_plugin_path_str;
-    const char *env_plugin_path = geopm_env_plugin_path();
+    const char *env_plugin_path = environment().plugin_path();
     std::vector<std::string> plugin_paths {GEOPM_DEFAULT_PLUGIN_PATH};
     std::string so_suffix = ".so." GEOPM_ABI_VERSION;
 

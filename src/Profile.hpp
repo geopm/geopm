@@ -41,6 +41,7 @@
 
 namespace geopm
 {
+    class Environment;
     class ProfileThreadTable;
 
     /// @brief Enables application profiling and application feedback
@@ -182,9 +183,7 @@ namespace geopm
             /// information to a shared memory region to be read by
             /// the geopm::Controller process.
             ///
-            /// @param [in] prof_name Name associated with the
-            ///        profile.  This name will be printed in the
-            ///        header of the report.
+            /// @param [in] environment Environment class signleton.
             ///
             /// @param [in] comm The application's MPI communicator.
             ///        Each rank of this communicator will report to a
@@ -192,7 +191,7 @@ namespace geopm
             ///        geopm::Controller on each compute node will
             ///        consume the output from each rank running on
             ///        the compute node.
-            ProfileImp(const std::string &prof_name, std::unique_ptr<Comm> comm);
+            ProfileImp(const Environment &environment, std::unique_ptr<Comm> comm);
             /// @brief ProfileImp testable constructor.
             ///
             /// @param [in] prof_name Name associated with the
@@ -221,13 +220,13 @@ namespace geopm
             ///        bypasses shmem creation.
             ///
             /// @param [in] ctl_msg Preconstructed SampleScheduler instance.
-            ProfileImp(const std::string &prof_name, const std::string &key_base,
+            ProfileImp(const Environment &environment,
                        std::unique_ptr<Comm> comm, std::unique_ptr<ControlMessage> ctl_msg,
                        const PlatformTopo &topo, std::unique_ptr<ProfileTable> table,
                        std::shared_ptr<ProfileThreadTable> t_table,
                        std::unique_ptr<SampleScheduler> scheduler);
             /// @brief Test constructor.
-            ProfileImp(const std::string &prof_name, const std::string &key_base,
+            ProfileImp(const Environment &environment,
                        std::unique_ptr<Comm> comm, std::unique_ptr<ControlMessage> ctl_msg,
                        const PlatformTopo &topo, std::unique_ptr<ProfileTable> table,
                        std::shared_ptr<ProfileThreadTable> t_table,
@@ -280,6 +279,7 @@ namespace geopm
             ///        to this name if multiple files are created.
             ///
             void print(const std::string file_name);
+            const Environment &m_environment;
             /// @brief holds the string name of the profile.
             std::string m_prof_name;
             /// @brief Holds the 64 bit unique region identifier
