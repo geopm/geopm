@@ -56,29 +56,29 @@
 namespace geopm
 {
     TracerImp::TracerImp(const std::string &start_time)
-        : TracerImp(start_time, geopm_env_trace(), hostname(), geopm_env_agent(),
-                    geopm_env_profile(), geopm_env_do_trace(), platform_io(), platform_topo(),
+        : TracerImp(platform_topo(), start_time, geopm_env_trace(), hostname(), geopm_env_agent(),
+                    geopm_env_profile(), geopm_env_do_trace(), platform_io(),
                     geopm_env_trace_signals(), 16)
     {
 
     }
 
-    TracerImp::TracerImp(const std::string &start_time,
+    TracerImp::TracerImp(const PlatformTopo &platform_topo,
+                         const std::string &start_time,
                          const std::string &file_path,
                          const std::string &hostname,
                          const std::string &agent,
                          const std::string &profile_name,
                          bool do_trace,
                          PlatformIO &platform_io,
-                         const PlatformTopo &platform_topo,
                          const std::string &env_column,
                          int precision)
-        : m_file_path(file_path)
+        : PLATFORM_TOPO(platform_topo)
+        , m_file_path(file_path)
         , m_hostname(hostname)
         , m_is_trace_enabled(do_trace)
         , m_buffer_limit(134217728) // 128 MiB
         , m_platform_io(platform_io)
-        , m_platform_topo(platform_topo)
         , m_env_column(env_column)
         , m_precision(precision)
     {
@@ -140,8 +140,8 @@ namespace geopm
             for (const auto &extra_signal : string_split(m_env_column, ",")) {
                 std::vector<std::string> signal_domain = string_split(extra_signal, "@");
                 if (signal_domain.size() == 2) {
-                    int domain_type = m_platform_topo.domain_name_to_type(signal_domain[1]);
-                    int num_domain = m_platform_topo.num_domain(domain_type);
+                    int domain_type = PLATFORM_TOPO.domain_name_to_type(signal_domain[1]);
+                    int num_domain = PLATFORM_TOPO.num_domain(domain_type);
                     for (int domain_idx = 0; domain_idx != num_domain; ++domain_idx) {
                         base_columns.push_back({signal_domain[0], domain_type, domain_idx});
                     }

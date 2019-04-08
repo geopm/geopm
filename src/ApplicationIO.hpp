@@ -136,12 +136,12 @@ namespace geopm
     {
         public:
             ApplicationIOImp(const std::string &shm_key);
-            ApplicationIOImp(const std::string &shm_key,
+            ApplicationIOImp(const PlatformTopo &platform_topo,
+                             const std::string &shm_key,
                              std::unique_ptr<ProfileSampler> sampler,
                              std::shared_ptr<ProfileIOSample> pio_sample,
                              std::unique_ptr<EpochRuntimeRegulator>,
-                             PlatformIO &platform_io,
-                             const PlatformTopo &platform_topo);
+                             PlatformIO &platform_io);
             virtual ~ApplicationIOImp();
             void connect(void) override;
             bool do_shutdown(void) const override;
@@ -173,11 +173,11 @@ namespace geopm
             double current_energy_pkg(void) const;
             double current_energy_dram(void) const;
 
+            const PlatformTopo &PLATFORM_TOPO;
             std::unique_ptr<ProfileSampler> m_sampler;
             std::shared_ptr<ProfileIOSample> m_profile_io_sample;
             std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > m_prof_sample;
             PlatformIO &m_platform_io;
-            const PlatformTopo &m_platform_topo;
             std::vector<double> m_thread_progress;
             std::vector<uint64_t> m_region_id;
             // Per rank vector counting number of entries into MPI.

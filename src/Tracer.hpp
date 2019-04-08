@@ -91,14 +91,14 @@ namespace geopm
         public:
             /// @brief TracerImp constructor.
             TracerImp(const std::string &start_time);
-            TracerImp(const std::string &start_time,
+            TracerImp(const PlatformTopo &platform_topo,
+                      const std::string &start_time,
                       const std::string &file_path,
                       const std::string &hostname,
                       const std::string &agent,
                       const std::string &profile_name,
                       bool do_trace,
                       PlatformIO &platform_io,
-                      const PlatformTopo &platform_topo,
                       const std::string &env_column,
                       int precision);
             /// @brief TracerImp destructor, virtual.
@@ -110,6 +110,7 @@ namespace geopm
         private:
             /// @brief Format and write the values in m_last_telemetry to the trace.
             void write_line(void);
+            const PlatformTopo &PLATFORM_TOPO;
             std::string m_file_path;
             std::string m_header;
             std::string m_hostname;
@@ -119,7 +120,6 @@ namespace geopm
             off_t m_buffer_limit;
 
             PlatformIO &m_platform_io;
-            const PlatformTopo &m_platform_topo;
             std::string m_env_column; // extra columns from environment
             int m_precision;
             std::vector<int> m_column_idx; // columns sampled by TracerImp

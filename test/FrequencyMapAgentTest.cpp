@@ -147,7 +147,7 @@ void FrequencyMapAgentTest::SetUp()
 
     setenv("GEOPM_FREQUENCY_MAP", ss.str().c_str(), 1);
 
-    m_agent = geopm::make_unique<FrequencyMapAgent>(*m_platform_io, *m_platform_topo, m_governor);
+    m_agent = geopm::make_unique<FrequencyMapAgent>(*m_platform_topo, *m_platform_io, m_governor);
     // todo: this test assumes board domain is used for control
     EXPECT_CALL(*m_governor, init_platform_io());
     EXPECT_CALL(*m_governor, frequency_domain_type());

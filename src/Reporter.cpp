@@ -65,22 +65,22 @@
 
 namespace geopm
 {
-    ReporterImp::ReporterImp(const std::string &start_time, const std::string &report_name,
-                       PlatformIO &platform_io, const PlatformTopo &platform_topo, int rank)
-        : ReporterImp(start_time, report_name, platform_io, platform_topo, rank,
+    ReporterImp::ReporterImp(const PlatformTopo &platform_topo, const std::string &start_time, const std::string &report_name,
+                       PlatformIO &platform_io, int rank)
+        : ReporterImp(platform_topo, start_time, report_name, platform_io, rank,
                       std::unique_ptr<RegionAggregator>(new RegionAggregatorImp),
                       geopm_env_report_signals())
     {
 
     }
 
-    ReporterImp::ReporterImp(const std::string &start_time, const std::string &report_name,
-                             PlatformIO &platform_io, const PlatformTopo &platform_topo, int rank,
+    ReporterImp::ReporterImp(const PlatformTopo &platform_topo, const std::string &start_time, const std::string &report_name,
+                             PlatformIO &platform_io, int rank,
                              std::unique_ptr<RegionAggregator> agg, const std::string &env_signals)
-        : m_start_time(start_time)
+        : PLATFORM_TOPO(platform_topo)
+        , m_start_time(start_time)
         , m_report_name(report_name)
         , m_platform_io(platform_io)
-        , m_platform_topo(platform_topo)
         , m_region_agg(std::move(agg))
         , m_rank(rank)
         , m_env_signals(env_signals)
@@ -98,8 +98,8 @@ namespace geopm
         for (const std::string &signal_name : string_split(m_env_signals, ",")) {
             std::vector<std::string> signal_name_domain = string_split(signal_name, "@");
             if (signal_name_domain.size() == 2) {
-                int domain_type = m_platform_topo.domain_name_to_type(signal_name_domain[1]);
-                for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(domain_type); ++domain_idx) {
+                int domain_type = PLATFORM_TOPO.domain_name_to_type(signal_name_domain[1]);
+                for (int domain_idx = 0; domain_idx < PLATFORM_TOPO.num_domain(domain_type); ++domain_idx) {
                     m_env_signal_name_idx.emplace_back(
                         signal_name + '-' + std::to_string(domain_idx),
                         m_region_agg->push_signal_total(signal_name_domain[0], domain_type, domain_idx));
