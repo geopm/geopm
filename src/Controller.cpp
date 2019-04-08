@@ -35,9 +35,9 @@
 #include <algorithm>
 #include <cmath>
 
-#include "geopm_env.h"
 #include "geopm_signal_handler.h"
 #include "ApplicationIO.hpp"
+#include "Environment.hpp"
 #include "Reporter.hpp"
 #include "Tracer.hpp"
 #include "Exception.hpp"
@@ -81,8 +81,9 @@ extern "C"
     {
         int err = 0;
         try {
-            auto tmp_comm = geopm::comm_factory().make_plugin(geopm_env_comm());
-            geopm::Controller ctl(std::move(tmp_comm));
+            const geopm::Environment &environment = geopm::environment();
+            auto tmp_comm = geopm::comm_factory().make_plugin(environment.comm());
+            geopm::Controller ctl(environment, std::move(tmp_comm));
             err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
         }
         catch (...) {
@@ -142,29 +143,29 @@ namespace geopm
         return ret;
     }
 
-    Controller::Controller(std::shared_ptr<Comm> ppn1_comm)
-        : Controller(ppn1_comm,
+    Controller::Controller(const Environment &environment, std::shared_ptr<Comm> ppn1_comm)
+        : Controller(environment, ppn1_comm,
                      platform_io(),
-                     geopm_env_agent(),
-                     Agent::num_policy(agent_factory().dictionary(geopm_env_agent())),
-                     Agent::num_sample(agent_factory().dictionary(geopm_env_agent())),
+                     environment.agent(),
+                     Agent::num_policy(agent_factory().dictionary(environment.agent())),
+                     Agent::num_sample(agent_factory().dictionary(environment.agent())),
                      std::unique_ptr<TreeComm>(new TreeCommImp(ppn1_comm,
-                         Agent::num_policy(agent_factory().dictionary(geopm_env_agent())),
-                         Agent::num_sample(agent_factory().dictionary(geopm_env_agent())))),
-                     std::shared_ptr<ApplicationIO>(new ApplicationIOImp(geopm_env_shmkey())),
+                         Agent::num_policy(agent_factory().dictionary(environment.agent())),
+                         Agent::num_sample(agent_factory().dictionary(environment.agent())))),
+                     std::shared_ptr<ApplicationIO>(new ApplicationIOImp(environment.shmkey())),
                      std::unique_ptr<Reporter>(new ReporterImp(platform_topo(),
                                                                get_start_time(),
-                                                               geopm_env_report(),
+                                                               environment.report(),
                                                                platform_io(),
                                                                ppn1_comm->rank())),
                      nullptr,
                      std::vector<std::unique_ptr<Agent> >{},
-                     std::unique_ptr<ManagerIOSampler>(new ManagerIOSamplerImp(geopm_env_policy(), true)))
+                     std::unique_ptr<ManagerIOSampler>(new ManagerIOSamplerImp(environment, true)))
     {
 
     }
 
-    Controller::Controller(std::shared_ptr<Comm> comm,
+    Controller::Controller(const Environment &environment, std::shared_ptr<Comm> comm,
                            PlatformIO &plat_io,
                            const std::string &agent_name,
                            int num_send_down,
@@ -175,7 +176,8 @@ namespace geopm
                            std::unique_ptr<Tracer> tracer,
                            std::vector<std::unique_ptr<Agent> > level_agent,
                            std::unique_ptr<ManagerIOSampler> manager_io_sampler)
-        : m_comm(comm)
+        : m_environment(environment)
+        , m_comm(comm)
         , m_platform_io(plat_io)
         , m_agent_name(agent_name)
         , m_num_send_down(num_send_down)

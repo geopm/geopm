@@ -42,6 +42,7 @@
 #include "geopm.h"
 #include "geopm_hash.h"
 
+#include "Environment.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "FrequencyGovernor.hpp"
@@ -297,11 +298,10 @@ namespace geopm
 
     void FrequencyMapAgent::parse_env_map(void)
     {
-        const char* env_map_str = getenv("GEOPM_FREQUENCY_MAP");
-        if (env_map_str) {
-            std::string full_str(env_map_str);
+        std::string env_map_str = environment().frequency_map();
+        if (env_map_str.size()) {
             std::string err;
-            Json root = Json::parse(full_str, err);
+            Json root = Json::parse(env_map_str, err);
             if (!err.empty() || !root.is_object()) {
                 throw Exception("FrequencyMapAgent::" + std::string(__func__) + "(): detected a malformed json config file: " + err,
                                 GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);

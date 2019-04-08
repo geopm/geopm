@@ -56,7 +56,7 @@
 #include "geopm.h"
 #include "geopm_hash.h"
 #include "geopm_version.h"
-#include "geopm_env.h"
+#include "Environment.hpp"
 #include "config.h"
 
 #ifdef GEOPM_HAS_XMMINTRIN
@@ -69,7 +69,7 @@ namespace geopm
                        PlatformIO &platform_io, int rank)
         : ReporterImp(platform_topo, start_time, report_name, platform_io, rank,
                       std::unique_ptr<RegionAggregator>(new RegionAggregatorImp),
-                      geopm_env_report_signals())
+                      environment().report_signals())
     {
 
     }
