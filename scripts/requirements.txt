@@ -6,3 +6,4 @@ natsort>=5.3.2
 psutil>=5.4.8
 pandas>=0.22.0
 tables>=3.4.3
+cffi>=1.6.0
