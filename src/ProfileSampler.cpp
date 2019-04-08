@@ -53,7 +53,7 @@
 #include "geopm_time.h"
 #include "geopm_signal_handler.h"
 #include "geopm_sched.h"
-#include "geopm_env.h"
+#include "Environment.hpp"
 #include "Helper.hpp"
 #include "PlatformTopo.hpp"
 #include "ProfileTable.hpp"
@@ -83,16 +83,16 @@ namespace geopm
         , m_tprof_table(nullptr)
         , m_rank_per_node(0)
     {
-        std::string sample_key(geopm_env_shmkey());
-        sample_key += "-sample";
+        const Environment &env = environment();
+        const std::string key_base = env.shmkey();
+        std::string sample_key = key_base + "-sample";
         std::string sample_key_path("/dev/shm/" + sample_key);
         // Remove shared memory file if one already exists.
         (void)unlink(sample_key_path.c_str());
         m_ctl_shmem = geopm::make_unique<SharedMemoryImp>(sample_key, sizeof(struct geopm_ctl_message_s));
-        m_ctl_msg = geopm::make_unique<ControlMessageImp>(*(struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), true, true);
+        m_ctl_msg = geopm::make_unique<ControlMessageImp>(*(struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), true, true, env.timeout());
 
-        std::string tprof_key(geopm_env_shmkey());
-        tprof_key += "-tprof";
+        std::string tprof_key = key_base + "-tprof";
         std::string tprof_key_path("/dev/shm/" + tprof_key);
         // Remove shared memory file if one already exists.
         (void)unlink(tprof_key_path.c_str());
