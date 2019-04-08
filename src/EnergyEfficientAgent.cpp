@@ -63,8 +63,8 @@ namespace geopm
     EnergyEfficientAgent::EnergyEfficientAgent(PlatformIO &plat_io, const PlatformTopo &topo,
                                                std::unique_ptr<FrequencyGovernor> gov)
         : M_PRECISION(16)
-        , m_platform_io(plat_io)
         , m_platform_topo(topo)
+        , m_platform_io(plat_io)
         , m_freq_governor(std::move(gov))
         , m_num_freq_ctl_domain(-1)
         , m_last_wait(GEOPM_TIME_REF)

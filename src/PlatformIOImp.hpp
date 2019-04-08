@@ -137,8 +137,8 @@ namespace geopm
             std::shared_ptr<IOGroup> find_signal_iogroup(const std::string &signal_name) const;
             /// @brief Look up the IOGroup that provides the given control.
             std::shared_ptr<IOGroup> find_control_iogroup(const std::string &control_name) const;
-            bool m_is_active;
             const PlatformTopo &m_platform_topo;
+            bool m_is_active;
             std::list<std::shared_ptr<IOGroup> > m_iogroup_list;
             std::vector<std::pair<std::shared_ptr<IOGroup>, int> > m_active_signal;
             std::vector<std::pair<std::shared_ptr<IOGroup>, int> > m_active_control;
