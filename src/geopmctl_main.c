@@ -40,7 +40,6 @@
 
 #include "geopm_version.h"
 #include "geopm_error.h"
-#include "geopm_env.h"
 
 #include "config.h"
 
