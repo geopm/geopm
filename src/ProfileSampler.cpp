@@ -73,7 +73,7 @@ namespace geopm
     {
     }
 
-    ProfileSamplerImp::ProfileSamplerImp(PlatformTopo &topo, size_t table_size)
+    ProfileSamplerImp::ProfileSamplerImp(const PlatformTopo &topo, size_t table_size)
         : m_ctl_shmem(nullptr)
         , m_ctl_msg(nullptr)
         , m_table_size(table_size)

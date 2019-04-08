@@ -62,7 +62,7 @@ namespace geopm
             };
 
             MSRIOGroup();
-            MSRIOGroup(PlatformTopo &platform_topo, std::unique_ptr<MSRIO> msrio, int cpuid, int num_cpu);
+            MSRIOGroup(const PlatformTopo &platform_topo, std::unique_ptr<MSRIO> msrio, int cpuid, int num_cpu);
             virtual ~MSRIOGroup();
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
@@ -137,7 +137,7 @@ namespace geopm
 
             /// @brief Configure memory for all pushed signals and controls.
             void activate(void);
-            PlatformTopo &m_platform_topo;
+            const PlatformTopo &m_platform_topo;
             int m_num_cpu;
             bool m_is_active;
             bool m_is_read;

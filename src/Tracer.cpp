@@ -69,7 +69,7 @@ namespace geopm
                          const std::string &profile_name,
                          bool do_trace,
                          PlatformIO &platform_io,
-                         PlatformTopo &platform_topo,
+                         const PlatformTopo &platform_topo,
                          const std::string &env_column,
                          int precision)
         : m_file_path(file_path)

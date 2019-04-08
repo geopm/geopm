@@ -98,7 +98,7 @@ namespace geopm
                       const std::string &profile_name,
                       bool do_trace,
                       PlatformIO &platform_io,
-                      PlatformTopo &platform_topo,
+                      const PlatformTopo &platform_topo,
                       const std::string &env_column,
                       int precision);
             /// @brief TracerImp destructor, virtual.
@@ -119,7 +119,7 @@ namespace geopm
             off_t m_buffer_limit;
 
             PlatformIO &m_platform_io;
-            PlatformTopo &m_platform_topo;
+            const PlatformTopo &m_platform_topo;
             std::string m_env_column; // extra columns from environment
             int m_precision;
             std::vector<int> m_column_idx; // columns sampled by TracerImp

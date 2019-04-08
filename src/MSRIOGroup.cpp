@@ -73,7 +73,7 @@ namespace geopm
 
     }
 
-    MSRIOGroup::MSRIOGroup(PlatformTopo &topo, std::unique_ptr<MSRIO> msrio, int cpuid, int num_cpu)
+    MSRIOGroup::MSRIOGroup(const PlatformTopo &topo, std::unique_ptr<MSRIO> msrio, int cpuid, int num_cpu)
         : m_platform_topo(topo)
         , m_num_cpu(num_cpu)
         , m_is_active(false)

@@ -45,7 +45,7 @@ namespace geopm
     {
         public:
             FrequencyGovernorImp();
-            FrequencyGovernorImp(PlatformIO &platform_io, PlatformTopo &platform_topo);
+            FrequencyGovernorImp(PlatformIO &platform_io, const PlatformTopo &platform_topo);
             virtual ~FrequencyGovernorImp();
             void init_platform_io(void) override;
             int frequency_domain_type(void) const override;
@@ -60,7 +60,7 @@ namespace geopm
             void init_platform_io(int control_domain);
             double get_limit(const std::string &sig_name) const;
             PlatformIO &m_platform_io;
-            PlatformTopo &m_platform_topo;
+            const PlatformTopo &m_platform_topo;
             const double M_FREQ_STEP;
             const double M_PLAT_FREQ_MIN;
             const double M_PLAT_FREQ_MAX;

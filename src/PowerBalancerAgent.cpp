@@ -139,7 +139,7 @@ namespace geopm
     }
 
     PowerBalancerAgent::LeafRole::LeafRole(PlatformIO &platform_io,
-                                           PlatformTopo &platform_topo,
+                                           const PlatformTopo &platform_topo,
                                            std::unique_ptr<PowerGovernor> power_governor,
                                            std::unique_ptr<PowerBalancer> power_balancer)
         : Role()
@@ -513,7 +513,7 @@ namespace geopm
     }
 
     PowerBalancerAgent::PowerBalancerAgent(PlatformIO &platform_io,
-                                           PlatformTopo &platform_topo,
+                                           const PlatformTopo &platform_topo,
                                            std::unique_ptr<PowerGovernor> power_governor,
                                            std::unique_ptr<PowerBalancer> power_balancer)
         : m_platform_io(platform_io)

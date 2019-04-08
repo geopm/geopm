@@ -84,7 +84,7 @@ namespace geopm
 {
     const std::string PlatformTopoImp::M_CACHE_FILE_NAME = "/tmp/geopm-topo-cache";
 
-    PlatformTopo &platform_topo(void)
+    const PlatformTopo &platform_topo(void)
     {
         static PlatformTopoImp instance;
         return instance;

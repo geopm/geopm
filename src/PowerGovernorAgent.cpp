@@ -52,7 +52,7 @@ namespace geopm
 
     }
 
-    PowerGovernorAgent::PowerGovernorAgent(PlatformIO &platform_io, PlatformTopo &platform_topo, std::unique_ptr<PowerGovernor> power_gov)
+    PowerGovernorAgent::PowerGovernorAgent(PlatformIO &platform_io, const PlatformTopo &platform_topo, std::unique_ptr<PowerGovernor> power_gov)
         : m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
         , m_level(-1)

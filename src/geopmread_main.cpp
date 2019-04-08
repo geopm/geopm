@@ -133,7 +133,7 @@ int main(int argc, char **argv)
     }
 
     PlatformIO &platform_io = geopm::platform_io();
-    PlatformTopo &platform_topo = geopm::platform_topo();
+    const PlatformTopo &platform_topo = geopm::platform_topo();
     if (is_domain) {
         if (pos_args.size() == 0) {
             // print all domains

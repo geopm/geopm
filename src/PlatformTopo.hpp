@@ -97,6 +97,6 @@ namespace geopm
             static std::map<std::string, int> domain_types(void);
     };
 
-    PlatformTopo &platform_topo(void);
+    const PlatformTopo &platform_topo(void);
 }
 #endif

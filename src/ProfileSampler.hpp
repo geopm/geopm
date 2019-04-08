@@ -264,7 +264,7 @@ namespace geopm
             ///
             /// @param [in] table_size The size of the hash table that will
             ///        be created for each application rank.
-            ProfileSamplerImp(PlatformTopo &topo, size_t table_size);
+            ProfileSamplerImp(const PlatformTopo &topo, size_t table_size);
             /// @brief ProfileSamplerImp destructor.
             virtual ~ProfileSamplerImp();
             /// @brief Retrieve the maximum capacity of all the per-rank
