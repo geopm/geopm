@@ -42,6 +42,7 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmpy/analysis.py \
               scripts/geopmpy/io.py \
               scripts/geopmpy/launcher.py \
+              scripte/geopmpy/pio.py \
               scripts/geopmpy/plotter.py \
               scripte/geopmpy/topo.py \
               scripts/geopmpy/version.py \
