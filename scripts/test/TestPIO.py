@@ -31,12 +31,45 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-"""The geopm python package: launcher, error, io, pio, plotter, topo,
-and version.
+import unittest
+import sys
+import geopm_context
+import geopmpy.pio
+import geopmpy.topo
 
-"""
+class TestPIO(unittest.TestCase):
+    def setUp(self):
+        geopmpy.pio.save_control()
 
-__all__ = ['launcher', 'error', 'io', 'pio', 'plotter', 'topo', 'version']
+    def tearDown(self):
+        geopmpy.pio.restore_control()
 
-from geopmpy.version import __version__
+    def test_domain_name(self):
+        time_domain_type = geopmpy.pio.signal_domain_type("TIME")
+        time_domain_name = geopmpy.topo.domain_name(time_domain_type)
+        self.assertEqual('cpu', time_domain_name)
 
+    def test_signal_names(self):
+        all_signal_names = geopmpy.pio.signal_names()
+        self.assertEqual(list, type(all_signal_names))
+        self.assertTrue('TIME' in all_signal_names)
+
+    def test_control_names(self):
+        all_control_names = geopmpy.pio.control_names()
+        self.assertEqual(list, type(all_control_names))
+
+    def test_read_signal(self):
+        time = geopmpy.pio.read_signal('TIME', 'cpu', 0)
+        try:
+            power = geopmpy.pio.read_signal('POWER_PACKAGE', 'cpu', 0)
+        except RuntimeError:
+            sys.stdout.write('<warning> failed to read package power\n')
+
+    def test_write_control(self):
+        try:
+            geopmpy.pio.write_control('FREQUENCY', 'package', 0, 1.0e9)
+        except RuntimeError:
+            sys.stdout.write('<warning> failed to write cpu frequency\n')
+
+if __name__ == '__main__':
+    unittest.main()

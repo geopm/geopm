@@ -141,7 +141,7 @@ def domain_type(domain_name):
         if domain_name >= 0 and domain_name < NUM_DOMAIN:
             result = domain_name
         else:
-            raise RuntimeError("domain_type is out of range: {}".format(domain_name)
+            raise RuntimeError("domain_type is out of range: {}".format(domain_name))
     else:
         global _dl
         domain_name_cstr = _ffi.new("char[]", str(domain_name))
