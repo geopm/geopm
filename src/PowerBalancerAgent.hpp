@@ -132,8 +132,8 @@ namespace geopm
                 M_TRACE_NUM_SAMPLE,
             };
 
-            PowerBalancerAgent(PlatformIO &platform_io,
-                               const PlatformTopo &platform_topo,
+            PowerBalancerAgent(const PlatformTopo &platform_topo,
+                               PlatformIO &platform_io,
                                std::unique_ptr<PowerGovernor> power_governor,
                                std::unique_ptr<PowerBalancer> power_balancer);
             PowerBalancerAgent();
@@ -208,8 +208,8 @@ namespace geopm
                     bool m_is_step_complete;
             };
 
+            const PlatformTopo &PLATFORM_TOPO;
             PlatformIO &m_platform_io;
-            const PlatformTopo &m_platform_topo;
             std::shared_ptr<Role> m_role;
             std::unique_ptr<PowerGovernor> m_power_governor;   /// temporary ownership, std::move'd to Role on init
             std::unique_ptr<PowerBalancer> m_power_balancer;   /// temporary ownership, std::move'd to Role on init
@@ -299,8 +299,8 @@ namespace geopm
                 friend class MeasureRuntimeStep;
                 friend class ReduceLimitStep;
                 public:
-                    LeafRole(PlatformIO &platform_io,
-                             const PlatformTopo &platform_topo,
+                    LeafRole(const PlatformTopo &platform_topo,
+                             PlatformIO &platform_io,
                              std::unique_ptr<PowerGovernor> power_governor,
                              std::unique_ptr<PowerBalancer> power_balancer);
                     virtual ~LeafRole();
@@ -310,8 +310,8 @@ namespace geopm
                     void trace_values(std::vector<double> &values) override;
                 private:
                     void init_platform_io(void);
+                    const PlatformTopo &PLATFORM_TOPO;
                     PlatformIO &m_platform_io;
-                    const PlatformTopo &m_platform_topo;
                     double m_power_max;
                     std::vector<int> m_pio_idx;
                     std::unique_ptr<PowerGovernor> m_power_governor;

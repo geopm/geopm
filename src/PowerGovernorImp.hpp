@@ -45,7 +45,7 @@ namespace geopm
     {
         public:
             PowerGovernorImp();
-            PowerGovernorImp(PlatformIO &platform_io, const PlatformTopo &platform_topo);
+            PowerGovernorImp(const PlatformTopo &platform_topo, PlatformIO &platform_io);
             virtual ~PowerGovernorImp();
             void init_platform_io(void) override;
             virtual void sample_platform(void) override;
@@ -54,8 +54,8 @@ namespace geopm
             void set_power_bounds(double min_pkg_power, double max_pkg_power) override;
             double power_package_time_window(void) const override;
         private:
+            const PlatformTopo &PLATFORM_TOPO;
             PlatformIO &m_platform_io;
-            const PlatformTopo &m_platform_topo;
             const double M_POWER_PACKAGE_TIME_WINDOW;
             int m_pkg_pwr_domain_type;
             int m_num_pkg;

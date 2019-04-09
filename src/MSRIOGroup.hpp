@@ -137,7 +137,7 @@ namespace geopm
 
             /// @brief Configure memory for all pushed signals and controls.
             void activate(void);
-            const PlatformTopo &m_platform_topo;
+            const PlatformTopo &PLATFORM_TOPO;
             int m_num_cpu;
             bool m_is_active;
             bool m_is_read;

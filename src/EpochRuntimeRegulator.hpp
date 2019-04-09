@@ -149,8 +149,8 @@ namespace geopm
     {
         public:
             EpochRuntimeRegulatorImp() = delete;
-            EpochRuntimeRegulatorImp(int rank_per_node, PlatformIO &platform_io,
-                                     const PlatformTopo &platform_topo);
+            EpochRuntimeRegulatorImp(const PlatformTopo &platform_topo, int rank_per_node,
+                                     PlatformIO &platform_io);
             virtual ~EpochRuntimeRegulatorImp();
             virtual void init_unmarked_region() override;
             void epoch(int rank, struct geopm_time_s epoch_time) override;
@@ -179,9 +179,9 @@ namespace geopm
             std::vector<double> per_rank_last_runtime(uint64_t region_id) const;
             double current_energy_pkg(void) const;
             double current_energy_dram(void) const;
+            const PlatformTopo &PLATFORM_TOPO;
             int m_rank_per_node;
             PlatformIO &m_platform_io;
-            const PlatformTopo &m_platform_topo;
             std::map<uint64_t, std::unique_ptr<RuntimeRegulator> > m_rid_regulator_map;
             bool m_is_energy_recorded;
             std::vector<bool> m_seen_first_epoch;
