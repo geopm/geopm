@@ -38,6 +38,7 @@ scripts/geopmpy/analysis.py
 scripts/geopmpy/error.py
 scripts/geopmpy/io.py
 scripts/geopmpy/launcher.py
+scripts/geopmpy/pio.py
 scripts/geopmpy/plotter.py
 scripts/geopmpy/topo.py
 scripts/geopmpy/version.py.in
@@ -51,6 +52,7 @@ scripts/test/TestFreqSweepAnalysis.py
 scripts/test/TestNodeEfficiencyAnalysis.py
 scripts/test/TestNodePowerAnalysis.py
 scripts/test/TestPowerSweepAnalysis.py
+scripts/test/TestPIO.py
 scripts/test/TestTopo.py
 scripts/test/__init__.py
 scripts/test/analysis_helper.py
