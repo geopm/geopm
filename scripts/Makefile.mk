@@ -43,6 +43,7 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmpy/error.py \
               scripts/geopmpy/io.py \
               scripts/geopmpy/launcher.py \
+              scripts/geopmpy/pio.py \
               scripts/geopmpy/plotter.py \
               scripts/geopmpy/topo.py \
               scripts/geopmpy/version.py \
@@ -56,6 +57,7 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/test/TestFreqSweepAnalysis.py \
               scripts/test/TestNodeEfficiencyAnalysis.py \
               scripts/test/TestNodePowerAnalysis.py \
+              scripts/test/TestPIO.py \
               scripts/test/TestPowerSweepAnalysis.py \
               scripts/test/__init__.py \
               scripts/test/analysis_helper.py \
@@ -106,6 +108,11 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestNodeEfficiencyAnalysis.test_node_efficiency_process \
                scripts/test/pytest_links/TestNodePowerAnalysis.test_node_power_process \
                scripts/test/pytest_links/TestPowerSweepAnalysis.test_power_sweep_summary \
+               scripts/test/pytest_links/TestPIO.test_domain_name \
+               scripts/test/pytest_links/TestPIO.test_signal_names \
+               scripts/test/pytest_links/TestPIO.test_control_names \
+               scripts/test/pytest_links/TestPIO.test_read_signal \
+               scripts/test/pytest_links/TestPIO.test_write_control \
                scripts/test/pytest_links/TestTopo.test_num_domain \
                scripts/test/pytest_links/TestTopo.test_domain_domain_nested \
                scripts/test/pytest_links/TestTopo.test_domain_name_type \
