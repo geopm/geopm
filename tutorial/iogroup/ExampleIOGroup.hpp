@@ -88,7 +88,7 @@ class ExampleIOGroup : public geopm::IOGroup
             M_CONTROL_STDERR,
             M_NUM_CONTROL
         };
-        geopm::PlatformTopo &m_platform_topo;
+        const geopm::PlatformTopo &m_platform_topo;
         /// Whether any signal has been pushed
         bool m_do_batch_read;
         /// Whether read_batch() has been called at least once

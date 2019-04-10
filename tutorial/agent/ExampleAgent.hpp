@@ -49,7 +49,6 @@ class ExampleAgent : public geopm::Agent
 {
     public:
         ExampleAgent();
-        ExampleAgent(geopm::PlatformIO &plat_io, geopm::PlatformTopo &topo);
         virtual ~ExampleAgent() = default;
         void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
         void validate_policy(std::vector<double> &in_policy) const override;
@@ -70,7 +69,7 @@ class ExampleAgent : public geopm::Agent
         void trace_values(std::vector<double> &values) override;
 
         static std::string plugin_name(void);
-        static std::unique_ptr<Agent> make_plugin(void);
+        static std::unique_ptr<geopm::Agent> make_plugin(void);
         static std::vector<std::string> policy_names(void);
         static std::vector<std::string> sample_names(void);
     private:
@@ -112,11 +111,11 @@ class ExampleAgent : public geopm::Agent
             M_TRACE_VAL_SIGNAL_SYSTEM,
             M_TRACE_VAL_SIGNAL_IDLE,
             M_TRACE_VAL_SIGNAL_NICE,
-
+            M_NUM_TRACE_VAL
         };
 
         geopm::PlatformIO &m_platform_io;
-        geopm::PlatformTopo &m_platform_topo;
+        const geopm::PlatformTopo &m_platform_topo;
 
         std::vector<int> m_signal_idx;
         std::vector<int> m_control_idx;

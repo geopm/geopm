@@ -30,13 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "ExampleIOGroup.hpp"
+
 #include <cmath>
 
 #include <fstream>
 #include <iostream>
 #include <string>
 
-#include "ExampleIOGroup.hpp"
 #include "geopm/IOGroup.hpp"
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
@@ -401,6 +402,7 @@ std::string ExampleIOGroup::signal_description(const std::string &signal_name) c
             break;
         case M_SIGNAL_SYSTEM_TIME:
             result = "CPU time spent in system mode";
+            break;
         case M_SIGNAL_IDLE_TIME:
             result = "CPU idle time";
             break;

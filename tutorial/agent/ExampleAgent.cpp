@@ -30,11 +30,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cmath>
-#include <algorithm>
-#include <assert.h>
-
 #include "ExampleAgent.hpp"
+
+#include <cmath>
+#include <cassert>
+#include <algorithm>
+
 #include "geopm/PluginFactory.hpp"
 #include "geopm/PlatformIO.hpp"
 #include "geopm/PlatformTopo.hpp"
