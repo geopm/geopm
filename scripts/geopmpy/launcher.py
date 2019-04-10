@@ -328,6 +328,7 @@ class Launcher(object):
             self.is_override_enabled = False
         self.parse_launcher_argv()
 
+        self.cpu_per_rank = None
         is_cpu_per_rank_override = False
 
         # Override values if they are passed in construction call
@@ -385,9 +386,16 @@ class Launcher(object):
                 raise SyntaxError('Number of nodes must be specified.')
             self.init_topo()
             if not is_cpu_per_rank_override and 'OMP_NUM_THREADS' not in os.environ:
-                self.cpu_per_rank = (self.num_linux_cpu - self.thread_per_core) // self.rank_per_node
+                # exclude 2 cores for GEOPM and OS
+                available_cores = self.num_linux_cpu // self.thread_per_core - 2
+                core_per_rank = available_cores // self.rank_per_node
+                if self.config.allow_ht_pinning:
+                    self.cpu_per_rank = core_per_rank * self.thread_per_core
+                else:
+                    self.cpu_per_rank = core_per_rank
                 if self.cpu_per_rank == 0:
                     self.cpu_per_rank = 1
+                sys.stderr.write('Warning: User did not provide OMP_NUM_THREADS, using {}\n'.format(self.cpu_per_rank))
             if self.config.get_ctl() == 'process':
                 self.num_rank += self.num_node
                 self.rank_per_node += 1
@@ -529,8 +537,6 @@ class Launcher(object):
         # Number of application ranks per socket (floored)
         rank_per_socket = app_rank_per_node // self.num_socket
         rank_per_socket_remainder = app_rank_per_node % self.num_socket
-        # Number of logical CPUs per socket
-        cpu_per_socket = self.num_linux_cpu // self.num_socket
 
         app_thread_per_core = 1
         while app_thread_per_core * core_per_node < app_cpu_per_node:
@@ -555,7 +561,7 @@ class Launcher(object):
         core_index = core_per_node - 1
 
         if rank_per_socket_remainder == 0:
-            socket_boundary = self.core_per_socket * (self.num_socket - 1)  # 22
+            socket_boundary = self.core_per_socket * (self.num_socket - 1)
             for socket in range(self.num_socket - 1, -1, -1):
                 for rank in range(rank_per_socket - 1, -1, -1):  # Start assigning ranks to cores from the highest rank/core backwards
                     base_cores = range(core_index, core_index - app_core_per_rank, -1)
@@ -566,9 +572,9 @@ class Launcher(object):
                     if not is_geopmctl:
                         result.insert(0, cpu_range)
                     core_index -= app_core_per_rank
-
                 if not (rank == 0 and socket == 0):
-                    # Do not subtract the socket boundary if we've pinned the last rank on the last socket
+                    # Reset to highest core in the next socket when crossing the socket boundary
+                    # unless we've pinned the last rank on the last socket
                     core_index = socket_boundary - 1
 
                 socket_boundary -= self.core_per_socket
