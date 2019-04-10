@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf2ad690_419b0386",
+        "filename": "ronn/geopm_pio_c.3.ronn",
+        "patchSetId": 4
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-04-10T17:49:29Z",
+      "side": 1,
+      "message": "We could also call out in the text that they will at most be NAME_MAX for now till we add an interface to get the string length.\n\nIf you\u0027re intending on these TODO\u0027s to get checked in, I think they should be a comment otherwise they\u0027ll show up in the generated man page.",
+      "range": {
+        "startLine": 132,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 45
+      },
+      "revId": "71767593dd83d1bad07643f38c3a5c07eb210102",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
