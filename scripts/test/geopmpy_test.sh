@@ -33,5 +33,7 @@
 test_name=`basename $0`
 dir_name=`dirname $0`
 test_class=$(echo $test_name | awk -F. '{print $1}')
+lib_dir=$(realpath $dir_name/../../../.libs)
+export LD_LIBRARY_PATH=$lib_dir:$LD_LIBRARY_PATH
 
 python $dir_name/../$test_class.py --verbose $test_name >& $dir_name/$test_name.log
