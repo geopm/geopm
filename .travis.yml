@@ -49,7 +49,7 @@ before_install:
     - git fetch origin --tags
     - git fetch origin $TRAVIS_BRANCH
     - ./autogen.sh
-    - pip install --user pandas natsort matplotlib cycler tables psutil
+    - pip install --user -r ./scripts/requirements.txt
 
 install:
     - ./configure --disable-fortran --enable-debug --prefix=$GEOPM_INSTALL_ROOT
