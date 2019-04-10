@@ -32,8 +32,10 @@
 #
 
 import unittest
+import math
 import geopm_context
 import geopmpy.launcher
+
 
 class TestAffinityLauncher(geopmpy.launcher.Launcher):
     def __init__(self, argv, num_rank, num_node, cpu_per_rank):
@@ -56,6 +58,7 @@ class XeonAffinityLauncher(TestAffinityLauncher):
         self.core_per_socket = 22
         self.num_socket = 2
 
+
 class QuartzAffinityLauncher(TestAffinityLauncher):
     def __init__(self, argv, num_rank, num_node, cpu_per_rank):
         argv.append('--geopm-hyperthreads-disable')
@@ -66,6 +69,7 @@ class QuartzAffinityLauncher(TestAffinityLauncher):
         self.thread_per_core = 2
         self.core_per_socket = 18
         self.num_socket = 2
+
 
 class KNLAffinityLauncher(TestAffinityLauncher):
     def __init__(self, argv, num_rank, num_node, cpu_per_rank):
@@ -87,6 +91,7 @@ class ToyAffinityLauncher(TestAffinityLauncher):
         self.thread_per_core = 2
         self.core_per_socket = 4
         self.num_socket = 2
+
 
 class TestAffinity(unittest.TestCase):
     def setUp(self):
@@ -266,6 +271,358 @@ class TestAffinity(unittest.TestCase):
                   for kk in range(4)]
         expect.insert(0, {0})
         self.assertEqual(expect, actual)
+
+
+class Topo():
+    def __init__(self, num_socket, core_per_socket, hthread_per_core):
+        self._hthread_per_core = hthread_per_core
+        self._core_per_socket = core_per_socket
+        self._num_socket = num_socket
+        self._num_core = self._core_per_socket * self._num_socket
+        self._num_linux_cpu = self._hthread_per_core * self._num_core
+        # used by tests
+        self.core_list = range(self._num_core)
+        self.hyperthreads = {}
+        for core in self.core_list:
+            self.hyperthreads[core] = [core + ht*self._num_core for ht in range(1, self._hthread_per_core)]
+        assert math.ceil(self._num_core / self._num_socket) == (self._num_core // self._num_socket)
+        self.socket_cores = {}
+        for sock in range(self._num_socket):
+            self.socket_cores[sock] = [sock*self._core_per_socket + cc for cc in range(self._core_per_socket)]
+
+
+# TODO: tests for these
+KNLTopo = Topo(num_socket=1, core_per_socket=64, hthread_per_core=4)
+QuartzTopo = Topo(num_socket=2, core_per_socket=18, hthread_per_core=2)
+XeonTopo = Topo(num_socket=2, core_per_socket=22, hthread_per_core=2)
+
+
+class ToyAffinityLauncher2(TestAffinityLauncher):
+    def __init__(self, argv, num_rank, num_node, cpu_per_rank, topo):
+        self.topo = topo
+        TestAffinityLauncher.__init__(self, argv, num_rank, num_node, cpu_per_rank)
+
+    def init_topo(self):
+        self.thread_per_core = self.topo._hthread_per_core
+        self.core_per_socket = self.topo._core_per_socket
+        self.num_socket = self.topo._num_socket
+        self.num_linux_cpu = self.topo._num_linux_cpu
+
+
+class TestAffinity2(unittest.TestCase):
+    '''
+    Expected behavior for pthread is same as process, but GEOPM's cores are added to the first app rank.
+    TODO: consider adding these as a second set of expectations using the same set up in previous test class
+    Q: are cores assigned to GEOPM and app always the same, regardless of mode?  i.e. could
+    set up expected cores/threads for each, then change assertEqual slightly based on mode
+    '''
+    def setUp(self):
+        self.maxDiff = 4096
+        self.process_argv = ['--geopm-ctl', 'process']
+        self.pthread_argv = ['--geopm-ctl', 'pthread']
+        self.application_argv = ['--geopm-ctl', 'application']
+        self.default_topo = Topo(hthread_per_core=2, core_per_socket=4, num_socket=2)
+
+    def check_process_mode(self, geopm_cpus, app_cpus, launch_args):
+        args = launch_args.copy()
+        self.process_argv += args.pop('add_args', [])
+        launcher = ToyAffinityLauncher2(self.process_argv, **args)
+        actual = launcher.affinity_list(False)
+        expect = [geopm_cpus] + app_cpus
+        self.assertEqual(expect, actual)
+
+    def check_pthread_mode(self, geopm_cpus, app_cpus, launch_args):
+        args = launch_args.copy()
+        self.pthread_argv += args.pop('add_args', [])
+        launcher = ToyAffinityLauncher2(self.pthread_argv, **args)
+        actual = launcher.affinity_list(False)
+        expect = [geopm_cpus | app_cpus[0]] + app_cpus[1:]
+        self.assertEqual(expect, actual)
+
+    def check_application_mode(self, geopm_cpus, app_cpus, launch_args):
+        args = launch_args.copy()
+        self.application_argv += args.pop('add_args', [])
+        launcher = ToyAffinityLauncher2(self.application_argv, **args)
+        actual = launcher.affinity_list(True)
+        expect = [geopm_cpus]
+        self.assertEqual(expect, actual)
+        actual = launcher.affinity_list(False)
+        expect = app_cpus
+        self.assertEqual(expect, actual)
+
+    # TODO: machine with 1 core only, 2 cores
+
+    def test_1rank_1thread(self):
+        topo = self.default_topo
+        launch_args = {
+            'topo': topo,
+            'num_rank': 1,
+            'num_node': 1,  # TODO: any point in testing multiple nodes? used in tutorial test
+            'cpu_per_rank': 1,
+        }
+        geopm_cpus = {1}                   # leave 0 for OS
+        app_cpus = [{topo.core_list[-1]}]  # last real core in the list
+
+        self.check_process_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_pthread_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_application_mode(geopm_cpus, app_cpus, launch_args)
+
+    def test_1rank_leave_2_cores(self):
+        topo = self.default_topo
+        app_cores = topo._num_core - 2
+        launch_args = {
+            'topo': topo,
+            'num_rank': 1,
+            'num_node': 1,
+            'cpu_per_rank': app_cores,
+        }
+        geopm_cpus = {1}                               # leave 0 for OS
+        app_cpus = [set(topo.core_list[-app_cores:])]  # app_core cores from the end
+
+        self.check_process_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_pthread_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_application_mode(geopm_cpus, app_cpus, launch_args)
+
+    def test_1rank_geopm_os_shared(self):
+        topo = self.default_topo
+        app_cores = topo._num_core - 1
+        launch_args = {
+            'topo': topo,
+            'num_rank': 1,
+            'num_node': 1,
+            'cpu_per_rank': app_cores,
+        }
+        geopm_cpus = {topo.hyperthreads[0][0]}         # core 0's first hyperthread
+        app_cpus = [set(topo.core_list[-app_cores:])]  # app_core cores from the end
+
+        self.check_process_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_pthread_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_application_mode(geopm_cpus, app_cpus, launch_args)
+
+    def test_1rank_geopm_os_app_shared(self):
+        topo = self.default_topo
+        app_cores = topo._num_core
+        launch_args = {
+            'topo': topo,
+            'num_rank': 1,
+            'num_node': 1,
+            'cpu_per_rank': app_cores,
+        }
+        geopm_cpus = {topo.hyperthreads[0][0]}  # core 0's hyperthread, shared
+        app_cpus = [set(topo.core_list)]  # app uses all cores
+        # TODO: app or geopm could use a hyperthread on core 0
+        # geopm could use a different core, still shared with app
+
+        self.check_process_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_pthread_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_application_mode(geopm_cpus, app_cpus, launch_args)
+
+    def test_1rank_geopm_os_shared_noht(self):
+        topo = self.default_topo
+        app_cores = topo._num_core - 1
+        launch_args = {
+            'topo': topo,
+            'num_rank': 1,
+            'num_node': 1,
+            'cpu_per_rank': app_cores,
+            'add_args': ['--geopm-hyperthreads-disable'],
+        }
+        geopm_cpus = {0}  # core 0, shared with OS
+        app_cpus = [set(topo.core_list[-app_cores:])]  # app_core cores from the end
+
+        self.check_process_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_pthread_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_application_mode(geopm_cpus, app_cpus, launch_args)
+
+    def test_1rank_geopm_os_app_shared_noht(self):
+        topo = self.default_topo
+        app_cores = topo._num_core
+        launch_args = {
+            'topo': topo,
+            'num_rank': 1,
+            'num_node': 1,
+            'cpu_per_rank': app_cores,
+            'add_args': ['--geopm-hyperthreads-disable'],
+        }
+        geopm_cpus = {0}  # core 0, shared with app and OS
+        app_cpus = [set(topo.core_list)]  # app uses all cores
+
+        self.check_process_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_pthread_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_application_mode(geopm_cpus, app_cpus, launch_args)
+
+    def test_1rank_no_env_threads(self):
+        topo = self.default_topo
+        launch_args = {
+            'topo': topo,
+            'num_rank': 1,
+            'num_node': 1,
+            'cpu_per_rank': None,
+        }
+        # TODO: add helper function to get set of cores and their hyperthreads
+        # or change hyperthreads map to include physical cores
+        expected_app = set()
+        for core in topo.core_list[2:]:  # cores reserved for OS and geopm
+            expected_app.add(core)
+            for ht in topo.hyperthreads[core]:
+                expected_app.add(ht)
+        geopm_cpus = {1}  # leave core 0 for OS
+        app_cpus = [expected_app]
+
+        self.check_process_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_pthread_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_application_mode(geopm_cpus, app_cpus, launch_args)
+
+    def test_1rank_no_env_threads_noht(self):
+        topo = self.default_topo
+        launch_args = {
+            'topo': topo,
+            'num_rank': 1,
+            'num_node': 1,
+            'cpu_per_rank': None,
+            'add_args': ['--geopm-hyperthreads-disable']
+        }
+        geopm_cpus = {1}  # leave core 0 for OS
+        app_cpus = [set(topo.core_list[2:])]  # app uses all cores - 2 reserved
+
+        self.check_process_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_pthread_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_application_mode(geopm_cpus, app_cpus, launch_args)
+
+    def test_per_core_rank_noht(self):
+        topo = self.default_topo
+        app_cores = topo._num_core
+        launch_args = {
+            'topo': topo,
+            'num_rank': app_cores,
+            'num_node': 1,
+            'cpu_per_rank': 1,
+            'add_args': ['--geopm-hyperthreads-disable']
+        }
+        geopm_cpus = {0}  # core 0, shared with app and OS
+        app_cpus = [{x} for x in topo.core_list]  # app uses all cores
+
+        self.check_process_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_pthread_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_application_mode(geopm_cpus, app_cpus, launch_args)
+
+    def test_per_core_rank_1reserved_noht(self):
+        topo = self.default_topo
+        app_cores = topo._num_core - 1
+        launch_args = {
+            'topo': topo,
+            'num_rank': app_cores,
+            'num_node': 1,
+            'cpu_per_rank': 1,
+            'add_args': ['--geopm-hyperthreads-disable']
+        }
+        geopm_cpus = {0}  # core 0, shared with OS
+        app_cpus = [{x} for x in topo.core_list[1:]]  # app uses all cores except 0
+
+        self.check_process_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_pthread_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_application_mode(geopm_cpus, app_cpus, launch_args)
+
+    def test_per_core_rank_2reserved_noht(self):
+        topo = self.default_topo
+        app_cores = topo._num_core - 2
+        launch_args = {
+            'topo': topo,
+            'num_rank': app_cores,
+            'num_node': 1,
+            'cpu_per_rank': 1,
+            'add_args': ['--geopm-hyperthreads-disable']
+        }
+        geopm_cpus = {0}  # shared with OS; TODO: could go on a free core
+        app_cpus = [{x} for x in topo.socket_cores[0][1:]]  # app uses 3 cores from each socket
+        app_cpus += [{x} for x in topo.socket_cores[1][1:]]
+        self.check_process_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_pthread_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_application_mode(geopm_cpus, app_cpus, launch_args)
+
+    def test_2rank_no_env_threads(self):
+        topo = self.default_topo
+        launch_args = {
+            'topo': topo,
+            'num_rank': 2,
+            'num_node': 1,
+            'cpu_per_rank': None,
+        }
+        app_cpus = [set(), set()]
+        # one rank per socket
+        for rank in range(topo._num_socket):
+            for core in topo.socket_cores[rank][1:]:
+                app_cpus[rank].add(core)
+                app_cpus[rank].update(topo.hyperthreads[core])
+        geopm_cpus = {0}  # TODO: could use a core on socket 1
+
+        self.check_process_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_pthread_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_application_mode(geopm_cpus, app_cpus, launch_args)
+
+    def test_2rank_no_env_threads_noht(self):
+        topo = self.default_topo
+        launch_args = {
+            'topo': topo,
+            'num_rank': 2,
+            'num_node': 1,
+            'cpu_per_rank': None,
+            'add_args': ['--geopm-hyperthreads-disable']
+        }
+        geopm_cpus = {0}  # shared with OS; TODO: could use a core on socket 1
+        app_cpus = [set(topo.socket_cores[0][1:]),
+                    set(topo.socket_cores[1][1:])]
+
+        self.check_process_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_pthread_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_application_mode(geopm_cpus, app_cpus, launch_args)
+
+    def test_3rank_no_env_threads_noht(self):
+        topo = self.default_topo
+        launch_args = {
+            'topo': topo,
+            'num_rank': 3,
+            'num_node': 1,
+            'cpu_per_rank': None,
+            'add_args': ['--geopm-hyperthreads-disable']
+        }
+        expected_app_cores = 2
+        app_cpus = [set(), set(), set()]
+        core = 2
+        # two cores for each
+        for rank in range(len(app_cpus)):
+            for cc in range(expected_app_cores):
+                app_cpus[rank].add(core)
+                core += 1
+        geopm_cpus = {1}
+
+        self.check_process_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_pthread_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_application_mode(geopm_cpus, app_cpus, launch_args)
+
+    def test_3rank_no_env_threads(self):
+        topo = self.default_topo
+        launch_args = {
+            'topo': topo,
+            'num_rank': 3,
+            'num_node': 1,
+            'cpu_per_rank': None,
+        }
+        expected_app_cores = 2
+        app_cpus = [set(), set(), set()]
+        core = 2
+        # two cores for each with hyperthreads
+        for rank in range(len(app_cpus)):
+            for cc in range(expected_app_cores):
+                app_cpus[rank].add(core)
+                app_cpus[rank].update(topo.hyperthreads[core])
+                core += 1
+        geopm_cpus = {1}
+
+        self.check_process_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_pthread_mode(geopm_cpus, app_cpus, launch_args)
+        self.check_application_mode(geopm_cpus, app_cpus, launch_args)
+
 
 if __name__ == '__main__':
     unittest.main()
