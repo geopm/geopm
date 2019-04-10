@@ -65,14 +65,27 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestAffinity.test_affinity_10 \
                scripts/test/pytest_links/TestAffinity.test_affinity_11 \
                scripts/test/pytest_links/TestAffinity.test_affinity_12 \
-               scripts/test/pytest_links/TestAffinity.test_affinity_2 \
-               scripts/test/pytest_links/TestAffinity.test_affinity_3 \
                scripts/test/pytest_links/TestAffinity.test_affinity_4 \
                scripts/test/pytest_links/TestAffinity.test_affinity_5 \
                scripts/test/pytest_links/TestAffinity.test_affinity_6 \
                scripts/test/pytest_links/TestAffinity.test_affinity_7 \
                scripts/test/pytest_links/TestAffinity.test_affinity_8 \
                scripts/test/pytest_links/TestAffinity.test_affinity_9 \
+               scripts/test/pytest_links/TestAffinity.test_1rank_1thread \
+               scripts/test/pytest_links/TestAffinity.test_1rank_geopm_os_app_shared \
+               scripts/test/pytest_links/TestAffinity.test_1rank_geopm_os_app_shared_noht \
+               scripts/test/pytest_links/TestAffinity.test_1rank_geopm_os_shared \
+               scripts/test/pytest_links/TestAffinity.test_1rank_geopm_os_shared_noht \
+               scripts/test/pytest_links/TestAffinity.test_1rank_leave_2_cores \
+               scripts/test/pytest_links/TestAffinity.test_1rank_no_env_threads \
+               scripts/test/pytest_links/TestAffinity.test_1rank_no_env_threads_noht \
+               scripts/test/pytest_links/TestAffinity.test_2rank_no_env_threads \
+               scripts/test/pytest_links/TestAffinity.test_2rank_no_env_threads_noht \
+               scripts/test/pytest_links/TestAffinity.test_3rank_no_env_threads \
+               scripts/test/pytest_links/TestAffinity.test_3rank_no_env_threads_noht \
+               scripts/test/pytest_links/TestAffinity.test_per_core_rank_1reserved_noht \
+               scripts/test/pytest_links/TestAffinity.test_per_core_rank_2reserved_noht \
+               scripts/test/pytest_links/TestAffinity.test_per_core_rank_noht \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_bad_type \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_help \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_help_custom \
