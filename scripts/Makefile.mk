@@ -40,6 +40,7 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmplotter \
               scripts/geopmpy/__init__.py \
               scripts/geopmpy/analysis.py \
+              scripts/geopmpy/error.py \
               scripts/geopmpy/io.py \
               scripts/geopmpy/launcher.py \
               scripts/geopmpy/plotter.py \
