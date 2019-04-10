@@ -40,6 +40,7 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmplotter \
               scripts/geopmpy/__init__.py \
               scripts/geopmpy/analysis.py \
+              scripts/geopmpy/error.py \
               scripts/geopmpy/io.py \
               scripts/geopmpy/launcher.py \
               scripts/geopmpy/plotter.py \
@@ -50,6 +51,7 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/test/TestAffinity.py \
               scripts/test/TestAnalysisCommandLine.py \
               scripts/test/TestBalancerAnalysis.py \
+              scripts/test/TestError.py \
               scripts/test/TestFreqSweepAnalysis.py \
               scripts/test/TestNodeEfficiencyAnalysis.py \
               scripts/test/TestNodePowerAnalysis.py \
@@ -95,6 +97,7 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestBalancerAnalysis.test_balancer_plot_process_energy \
                scripts/test/pytest_links/TestBalancerAnalysis.test_balancer_plot_process_power \
                scripts/test/pytest_links/TestBalancerAnalysis.test_balancer_plot_process_runtime \
+               scripts/test/pytest_links/TestError.test_error_message \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_offline_baseline_comparison_report \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_online_baseline_comparison_report \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_region_freq_map \

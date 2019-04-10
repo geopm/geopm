@@ -35,6 +35,7 @@ scripts/geopmlaunch
 scripts/geopmplotter
 scripts/geopmpy/__init__.py
 scripts/geopmpy/analysis.py
+scripts/geopmpy/error.py
 scripts/geopmpy/io.py
 scripts/geopmpy/launcher.py
 scripts/geopmpy/plotter.py
@@ -44,6 +45,7 @@ scripts/setup.py.in
 scripts/test/TestAffinity.py
 scripts/test/TestAnalysisCommandLine.py
 scripts/test/TestBalancerAnalysis.py
+scripts/test/TestError.py
 scripts/test/TestFreqSweepAnalysis.py
 scripts/test/TestNodeEfficiencyAnalysis.py
 scripts/test/TestNodePowerAnalysis.py
