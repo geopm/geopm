@@ -536,9 +536,9 @@ namespace geopm
     void PowerBalancerAgent::init(int level, const std::vector<int> &fan_in, bool is_root)
     {
         if (fan_in.size() == 0ull) {
-            throw Exception("PowerBalancerAgent::" + std::string(__func__) +
-                            "(): single node job detected, user power_governor.",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            std::cerr << "<geopm> Warning: "
+                      << "PowerBalancerAgent::" << std::string(__func__)
+                      << "(): single node job detected, use power_governor." << std::endl;
         }
         bool is_tree_root = (level == (int)fan_in.size());
         if (is_tree_root) {
