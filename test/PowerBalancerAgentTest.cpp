@@ -54,10 +54,13 @@ using ::testing::Return;
 using ::testing::Sequence;
 using ::testing::InvokeWithoutArgs;
 using ::testing::InSequence;
+using ::testing::AtLeast;
 
 class PowerBalancerAgentTest : public ::testing::Test
 {
     protected:
+        void SetUp();
+
         enum {
             M_SIGNAL_EPOCH_COUNT,
             M_SIGNAL_EPOCH_RUNTIME,
@@ -76,6 +79,12 @@ class PowerBalancerAgentTest : public ::testing::Test
         const std::vector<int> M_FAN_IN = {2, 2};
 };
 
+void PowerBalancerAgentTest::SetUp()
+{
+    m_power_gov = geopm::make_unique<MockPowerGovernor>();
+    m_power_bal = geopm::make_unique<MockPowerBalancer>();
+}
+
 TEST_F(PowerBalancerAgentTest, power_balancer_agent)
 {
     const std::vector<std::string> exp_pol_names = {"POWER_CAP",
@@ -86,6 +95,7 @@ TEST_F(PowerBalancerAgentTest, power_balancer_agent)
                                                     "MAX_EPOCH_RUNTIME",
                                                     "SUM_POWER_SLACK",
                                                     "MIN_POWER_HEADROOM"};
+    MockPowerGovernor *power_gov_p = m_power_gov.get();
     m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
                                                      std::move(m_power_gov), std::move(m_power_bal));
 
@@ -97,7 +107,15 @@ TEST_F(PowerBalancerAgentTest, power_balancer_agent)
     m_agent->report_region();
     m_agent->wait();
 
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->init(0, {}, false), GEOPM_ERROR_RUNTIME, "single node job detected, user power_governor.");
+    // check that single-node balancer can be initialized
+    EXPECT_CALL(m_platform_topo, num_domain(_)).Times(AtLeast(1));
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", _, _));
+    EXPECT_CALL(*power_gov_p, init_platform_io());
+    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME", _, _));
+    EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", _, _));
+    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_MPI", _, _));
+    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_IGNORE", _, _));
+    m_agent->init(0, {}, false);
 }
 
 TEST_F(PowerBalancerAgentTest, tree_root_agent)
