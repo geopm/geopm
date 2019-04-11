@@ -40,6 +40,8 @@
 
 namespace geopm
 {
+    class PlatformIO;
+    class PlatformTopo;
 
     class PowerGovernorImp : public PowerGovernor
     {
