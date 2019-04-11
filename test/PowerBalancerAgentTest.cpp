@@ -97,7 +97,8 @@ TEST_F(PowerBalancerAgentTest, power_balancer_agent)
     m_agent->report_region();
     m_agent->wait();
 
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->init(0, {}, false), GEOPM_ERROR_RUNTIME, "single node job detected, user power_governor.");
+    // check that single-node balancer can be initialized
+    m_agent->init(0, {}, false);
 }
 
 TEST_F(PowerBalancerAgentTest, tree_root_agent)
