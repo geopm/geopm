@@ -505,12 +505,13 @@ class TestIntegration(unittest.TestCase):
                     trace_data = tt.get_group(region_data['id'].item())
                     filtered_df = self.create_progress_df(trace_data)
                     first_time = False
+                    epsilon = 0.001 if region_name != 'sleep' else 0.05
                     for index, df in filtered_df.iterrows():
                         if df['region_progress'] == 1:
-                            self.assertNear(df['region_runtime'], expected_region_runtime[region_name], epsilon=0.001)
+                            self.assertNear(df['region_runtime'], expected_region_runtime[region_name], epsilon=epsilon)
                             first_time = True
                         if first_time is True and df['region_progress'] == 0:
-                            self.assertNear(df['region_runtime'], expected_region_runtime[region_name], epsilon=0.001)
+                            self.assertNear(df['region_runtime'], expected_region_runtime[region_name], epsilon=epsilon)
 
     @skip_unless_run_long_tests()
     def test_region_runtimes(self):
