@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d530e5e2_db9541e4",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-11T23:41:59Z",
+      "side": 1,
+      "message": "else case for when str_it \u003d\u003d str_settings.end()\n\nsame for num_settings below",
+      "revId": "a27220da198e7dec893caded13c146a553f538e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b30f2000_65a4d128",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-11T23:41:59Z",
+      "side": 1,
+      "message": "before user environment",
+      "revId": "a27220da198e7dec893caded13c146a553f538e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
