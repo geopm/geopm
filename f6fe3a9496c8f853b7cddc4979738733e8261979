@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "532bb39f_2c9d3ba7",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-11T23:25:16Z",
+      "side": 1,
+      "message": "could also have the default ctor for the Controller call the singleton accessor, and only inject this in the test constructor for Controller",
+      "revId": "f6fe3a9496c8f853b7cddc4979738733e8261979",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "923b726f_c4c351d7",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-11T23:25:16Z",
+      "side": 1,
+      "message": "Since this isn\u0027t a test constructor, can just call singleton instead of using a parameter",
+      "revId": "f6fe3a9496c8f853b7cddc4979738733e8261979",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38ed784c_7371a059",
+        "filename": "src/DefaultProfile.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-11T23:25:16Z",
+      "side": 1,
+      "message": "why not just geopm::environment().comm() ?",
+      "range": {
+        "startLine": 93,
+        "startChar": 93,
+        "endLine": 93,
+        "endChar": 111
+      },
+      "revId": "f6fe3a9496c8f853b7cddc4979738733e8261979",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
