@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10b28f0c_d005b43c",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-12T21:53:48Z",
+      "side": 1,
+      "message": "Same here.",
+      "revId": "8bcec84c2ed0e841b4892802afec8bb6e7e9a181",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f491d900_70f20008",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-12T21:53:48Z",
+      "side": 1,
+      "message": "same here.",
+      "revId": "8bcec84c2ed0e841b4892802afec8bb6e7e9a181",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a503195b_5eaf368e",
+        "filename": "src/Exception.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-12T21:53:48Z",
+      "side": 1,
+      "message": "This code is now relying on std::string::string(), std::string::c_str() and std::string:~string() no-throw.  The constructor may throw, although the other two cannot.  I\u0027d rather a C-wrapper than have all these C++ routines being called outside of a try catch.",
+      "revId": "8bcec84c2ed0e841b4892802afec8bb6e7e9a181",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
