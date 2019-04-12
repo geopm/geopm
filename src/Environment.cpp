@@ -161,24 +161,6 @@ namespace geopm
         (void)get_env("GEOPM_REPORT_SIGNALS", m_report_signals);
 
         parse_environment_file(override_settings_path, m_exp_str_type);
-
-        if (m_pmpi_ctl_str == "process") {
-            m_pmpi_ctl = GEOPM_CTL_PROCESS;
-        }
-        else if (m_pmpi_ctl_str == "pthread") {
-            m_pmpi_ctl = GEOPM_CTL_PTHREAD;
-        }
-        if (m_report.length() ||
-            m_trace.length() != 0 ||
-            m_pmpi_ctl != GEOPM_CTL_NONE) {
-            m_do_profile = true;
-        }
-        if (m_do_profile && !m_profile.length()) {
-            m_profile = program_invocation_name;
-        }
-        if (m_shmkey[0] != '/') {
-            m_shmkey = "/" + m_shmkey;
-        }
     }
 
     bool EnvironmentImp::get_env(const char *name, std::string &env_string) const
@@ -235,6 +217,9 @@ namespace geopm
 
     std::string EnvironmentImp::shmkey(void) const
     {
+        if (m_shmkey[0] != '/') {
+            m_shmkey = "/" + m_shmkey;
+        }
         return m_shmkey;
     }
 
@@ -245,6 +230,9 @@ namespace geopm
 
     std::string EnvironmentImp::profile(void) const
     {
+        if (m_do_profile && !m_profile.length()) {
+            m_profile = program_invocation_name;
+        }
         return m_profile;
     }
 
@@ -275,7 +263,13 @@ namespace geopm
 
     int EnvironmentImp::pmpi_ctl(void) const
     {
-        if (m_pmpi_ctl == GEOPM_CTL_NONE) {
+        if (m_pmpi_ctl_str == "process") {
+            m_pmpi_ctl = GEOPM_CTL_PROCESS;
+        }
+        else if (m_pmpi_ctl_str == "pthread") {
+            m_pmpi_ctl = GEOPM_CTL_PTHREAD;
+        }
+        else {
             throw Exception("EnvironmentImp::EnvironmentImp(): " + m_pmpi_ctl_str +
                             " is not a valid value for GEOPM_CTL see geopm(7).",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -295,6 +289,11 @@ namespace geopm
 
     int EnvironmentImp::do_profile(void) const
     {
+        if (m_report.length() ||
+            m_trace.length() != 0 ||
+            m_pmpi_ctl != GEOPM_CTL_NONE) {
+            m_do_profile = true;
+        }
         return m_do_profile;
     }
 
