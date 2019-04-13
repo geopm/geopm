@@ -72,7 +72,9 @@ namespace geopm
         , m_num_children(0)
         , m_do_send_policy(false)
     {
-
+        if (m_freq_governor == nullptr) {
+            m_freq_governor = FrequencyGovernor::make_unique();
+        }
     }
 
     std::string EnergyEfficientAgent::plugin_name(void)
@@ -312,9 +314,6 @@ namespace geopm
 
     void EnergyEfficientAgent::init_platform_io(void)
     {
-        if (m_freq_governor == nullptr) {
-            m_freq_governor = FrequencyGovernor::make_unique();
-        }
         m_freq_governor->init_platform_io();
         const int freq_ctl_domain_type = m_freq_governor->frequency_domain_type();
         m_num_freq_ctl_domain = m_platform_topo.num_domain(freq_ctl_domain_type);
