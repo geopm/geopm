@@ -55,7 +55,7 @@ using json11::Json;
 namespace geopm
 {
     EnergyEfficientAgent::EnergyEfficientAgent()
-        : EnergyEfficientAgent(platform_io(), platform_topo(), nullptr)
+        : EnergyEfficientAgent(platform_io(), platform_topo(), FrequencyGovernor::make_unique())
     {
 
     }
@@ -107,17 +107,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        bool result = m_freq_governor->set_frequency_bounds(in_policy[M_POLICY_FREQ_MIN], in_policy[M_POLICY_FREQ_MAX]);;
-        if (result) {
-            for (auto &eer : m_region_map) {
-                double freq_min = m_freq_governor->get_frequency_min();
-                double freq_max = m_freq_governor->get_frequency_max();
-                double freq_step = m_freq_governor->get_frequency_step();
-                eer.second->update_freq_range(freq_min, freq_max, freq_step);
-            }
-            result = true;
-        }
-        return result;
+        return m_freq_governor->set_frequency_bounds(in_policy[M_POLICY_FREQ_MIN], in_policy[M_POLICY_FREQ_MAX]);;
     }
 
     void EnergyEfficientAgent::validate_policy(std::vector<double> &policy) const

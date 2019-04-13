@@ -54,7 +54,7 @@ using json11::Json;
 namespace geopm
 {
     FrequencyMapAgent::FrequencyMapAgent()
-        : FrequencyMapAgent(platform_io(), platform_topo(), nullptr)
+        : FrequencyMapAgent(platform_io(), platform_topo(), FrequencyGovernor::make_shared())
     {
 
     }
