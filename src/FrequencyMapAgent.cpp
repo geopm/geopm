@@ -71,6 +71,9 @@ namespace geopm
         , m_is_policy_updated(false)
     {
         parse_env_map();
+        if (m_freq_governor == nullptr) {
+            m_freq_governor = FrequencyGovernor::make_shared();
+        }
     }
 
     std::string FrequencyMapAgent::plugin_name(void)
@@ -121,7 +124,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-       update_policy(in_policy);
+        update_policy(in_policy);
 
         if (m_is_policy_updated) {
             for (auto &child_policy : out_policy) {
@@ -274,9 +277,6 @@ namespace geopm
 
     void FrequencyMapAgent::init_platform_io(void)
     {
-        if (m_freq_governor == nullptr) {
-            m_freq_governor = FrequencyGovernor::make_shared();
-        }
         m_freq_governor->init_platform_io();
         const int freq_ctl_domain_type = m_freq_governor->frequency_domain_type();
         m_num_freq_ctl_domain = m_platform_topo.num_domain(freq_ctl_domain_type);
