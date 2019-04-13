@@ -113,7 +113,7 @@ namespace geopm
                 double freq_min = m_freq_governor->get_frequency_min();
                 double freq_max = m_freq_governor->get_frequency_max();
                 double freq_step = m_freq_governor->get_frequency_step();
-                eer.second->update_freq_range(freq_min, freq_max, freq_step);
+                // @todo: not implemented: update_freq_range in EnergyEfficientRegion
             }
             result = true;
         }
