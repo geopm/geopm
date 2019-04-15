@@ -274,8 +274,8 @@ if __name__ == '__main__':
     if analysis_type:
         run_commands = textwrap.dedent('''\
         geopmanalysis {analysis_type} \\
-            --geopm-analysis-launcher=srun \\
-            -N $NUM_NODES -n $(($RANKS_PER_NODE * $NUM_NODES)) \\
+            --geopm-analysis-launcher=impi \\
+            -n $NUM_NODES -ppn $RANKS_PER_NODE \\
             --geopm-analysis-summary \\
             --geopm-analysis-profile-prefix=$PROFILE_NAME \\
             -- $APP_EXECUTABLE $APP_PARAMS
@@ -294,7 +294,7 @@ if __name__ == '__main__':
 
         run_commands = textwrap.dedent('''\
         geopmagent -a {agent} {nans} > {agent}_policy.json
-        geopmlaunch srun -N $NUM_NODES -n $(($RANKS_PER_NODE * $NUM_NODES)) \\
+        geopmlaunch impi -n $NUM_NODES -ppn $RANKS_PER_NODE \\
             --geopm-agent={agent} \\
             --geopm-policy={agent}_policy.json \\
             --geopm-report=$PROFILE_NAME.report \\
