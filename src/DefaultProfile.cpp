@@ -187,11 +187,13 @@ extern "C"
     int geopm_tprof_init(uint32_t num_work_unit)
     {
         int err = 0;
-        try {
-            geopm_default_prof().tprof_table()->init(num_work_unit);
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
+        if (g_pmpi_prof_enabled) {
+            try {
+                geopm_default_prof().tprof_table()->init(num_work_unit);
+            }
+            catch (...) {
+                err = geopm::exception_handler(std::current_exception());
+            }
         }
         return err;
     }
@@ -199,17 +201,19 @@ extern "C"
     int geopm_tprof_init_loop(int num_thread, int thread_idx, size_t num_iter, size_t chunk_size)
     {
         int err = 0;
-        try {
-            std::shared_ptr<geopm::ProfileThreadTable> table_ptr = geopm_default_prof().tprof_table();
-            if (chunk_size) {
-                table_ptr->init(num_thread, thread_idx, num_iter, chunk_size);
+        if (g_pmpi_prof_enabled) {
+            try {
+                std::shared_ptr<geopm::ProfileThreadTable> table_ptr = geopm_default_prof().tprof_table();
+                if (chunk_size) {
+                    table_ptr->init(num_thread, thread_idx, num_iter, chunk_size);
+                }
+                else {
+                    table_ptr->init(num_thread, thread_idx, num_iter);
+                }
             }
-            else {
-                table_ptr->init(num_thread, thread_idx, num_iter);
+            catch (...) {
+                err = geopm::exception_handler(std::current_exception());
             }
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
         }
         return err;
     }
@@ -217,11 +221,13 @@ extern "C"
     int geopm_tprof_post(void)
     {
         int err = 0;
-        try {
-            geopm_default_prof().tprof_table()->post();
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception());
+        if (g_pmpi_prof_enabled) {
+            try {
+                geopm_default_prof().tprof_table()->post();
+            }
+            catch (...) {
+                err = geopm::exception_handler(std::current_exception());
+            }
         }
         return err;
     }
