@@ -127,6 +127,9 @@ extern "C"
     int geopm_prof_enter(uint64_t region_id)
     {
         int err = 0;
+        if (g_pmpi_prof_enabled == 0) {
+            return GEOPM_ERROR_RUNTIME;
+        }
         try {
             geopm_default_prof().enter(region_id);
         }
@@ -139,6 +142,9 @@ extern "C"
     int geopm_prof_exit(uint64_t region_id)
     {
         int err = 0;
+        if (g_pmpi_prof_enabled == 0) {
+            return GEOPM_ERROR_RUNTIME;
+        }
         try {
             geopm_default_prof().exit(region_id);
         }
@@ -151,6 +157,9 @@ extern "C"
     int geopm_prof_progress(uint64_t region_id, double fraction)
     {
         int err = 0;
+        if (g_pmpi_prof_enabled == 0) {
+            return GEOPM_ERROR_RUNTIME;
+        }
         try {
             geopm_default_prof().progress(region_id, fraction);
         }
@@ -163,6 +172,9 @@ extern "C"
     int geopm_prof_epoch(void)
     {
         int err = 0;
+        if (g_pmpi_prof_enabled == 0) {
+            return GEOPM_ERROR_RUNTIME;
+        }
         try {
             geopm_default_prof().epoch();
         }
@@ -175,6 +187,9 @@ extern "C"
     int geopm_prof_shutdown(void)
     {
         int err = 0;
+        if (g_pmpi_prof_enabled == 0) {
+            return GEOPM_ERROR_RUNTIME;
+        }
         try {
             geopm_default_prof().shutdown();
         }
@@ -187,6 +202,9 @@ extern "C"
     int geopm_tprof_init(uint32_t num_work_unit)
     {
         int err = 0;
+        if (g_pmpi_prof_enabled == 0) {
+            return GEOPM_ERROR_RUNTIME;
+        }
         try {
             geopm_default_prof().tprof_table()->init(num_work_unit);
         }
@@ -199,6 +217,9 @@ extern "C"
     int geopm_tprof_init_loop(int num_thread, int thread_idx, size_t num_iter, size_t chunk_size)
     {
         int err = 0;
+        if (g_pmpi_prof_enabled == 0) {
+            return GEOPM_ERROR_RUNTIME;
+        }
         try {
             std::shared_ptr<geopm::ProfileThreadTable> table_ptr = geopm_default_prof().tprof_table();
             if (chunk_size) {
@@ -217,6 +238,9 @@ extern "C"
     int geopm_tprof_post(void)
     {
         int err = 0;
+        if (g_pmpi_prof_enabled == 0) {
+            return GEOPM_ERROR_RUNTIME;
+        }
         try {
             geopm_default_prof().tprof_table()->post();
         }
