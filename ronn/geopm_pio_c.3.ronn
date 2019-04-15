@@ -135,14 +135,15 @@ is also a value from the `geopm_domain_e` enum.
 
   * `geopm_pio_signal_name`():
     Sets the _result_ string to the name of the signal indexed by
-    _name_idx_.  At most _result_max_ bytes are written to the _result_
-    vector.  If _result_max_ is non-zero the _result_ string will always be
-    null terminated.  If _name_idx_ is greater than zero and less than
-    the return value from `geopm_pio_num_signal_name()` the return
-    value will be `GEOPM_ERROR_INVALID`.  The return code will also
-    be `GEOPM_ERROR_INVALID` if _result_max_ is too small to contain
-    the signal name.  Any other error will result in a negative error
-    code.  Zero is returned on success.
+    _name_idx_.  At most _result_max_ bytes are written to the
+    _result_ string.  The value of _name_idx_ must be greater than
+    zero and less than the return value from
+    `geopm_pio_num_signal_name()` or else an error will occur.
+    Providing a string of `NAME_MAX` length (from `limits.h`) will be
+    sufficient for storing any result.  If _result_max_ is too small
+    to contain the signal name an error will occur.  Zero is returned
+    on success and a negative error code is returned if any error
+    occurs.
 
   * `geopm_pio_num_control_name`():
     Returns the number of control names that can be indexed with the
@@ -152,32 +153,33 @@ is also a value from the `geopm_domain_e` enum.
 
   * `geopm_pio_control_name`():
     Sets the _result_ string to the name of the control indexed by
-    _name_idx_.  At most _result_max_ bytes are written to the _result_
-    vector.  If _result_max_ is non-zero the _result_ string will always be
-    null terminated.  If _name_idx_ is greater than zero and less than
-    the return value from `geopm_pio_num_control_name()` the return
-    value will be `GEOPM_ERROR_INVALID`.  The return code will also
-    be `GEOPM_ERROR_INVALID` if _result_max_ is too small to contain
-    the control name.  Any other error will result in a negative error
-    code.  Zero is returned on success.
+    _name_idx_.  At most _result_max_ bytes are written to the
+    _result_ string.  The value of _name_idx_ must be greater than
+    zero and less than the return value from
+    `geopm_pio_num_control_name()` or else an error will occur.
+    Providing a string of `NAME_MAX` length (from `limits.h`) will be
+    sufficient for storing any result.  If _result_max_ is too small
+    to contain the control name an error will occur.  Zero is returned
+    on success and a negative error code is returned if any error
+    occurs.
 
   * `geopm_pio_signal_description`():
-    Sets the _result_ string to the description associated with
+    Sets the _result_ string to the signal description associated with
     _signal_name_.  At most _result_max_ bytes are written to the
-    _result_ vector.  If _result_max_ is non-zero the _result_ string
-    will always be null terminated.  The return code will be
-    `GEOPM_ERROR_INVALID` if _result_max_ is too small to contain the
-    description.  Any other error will result in a negative error
-    code.  Zero is returned on success.
+    _result_ string.  Providing a string of `NAME_MAX` length (from
+    `limits.h`) will be sufficient for storing any result.  If
+    _result_max_ is too small to contain the description an error will
+    occur.  Zero is returned on success and a negative error code is
+    returned if any error occurs.
 
   * `geopm_pio_control_description`():
-    Sets the _result_ string to the description associated with
+    Sets the _result_ string to the control description associated with
     _control_name_.  At most _result_max_ bytes are written to the
-    _result_ vector.  If _result_max_ is non-zero the _result_ string
-    will always be null terminated.  The return code will be
-    `GEOPM_ERROR_INVALID` if _result_max_ is too small to contain the
-    description.  Any other error will result in a negative error
-    code.  Zero is returned on success.
+    _result_ string.  Providing a string of `NAME_MAX` length (from
+    `limits.h`) will be sufficient for storing any result.  If
+    _result_max_ is too small to contain the description an error will
+    occur.  Zero is returned on success and a negative error code is
+    returned if any error occurs.
 
   * `geopm_pio_signal_domain_type`():
     Query the domain for the signal with name _signal_name_.  Returns
@@ -280,13 +282,13 @@ is also a value from the `geopm_domain_e` enum.
     `geopm_pio_push_signal()` and writes the value into _result_.  The
     _signal_idx_ provided matches the return value from
     `geopm_pio_push_signal()` when the signal was pushed. The cached
-    value is upated at the time of call to `geopm_pio_read_batch()`.
+    value is updated at the time of call to `geopm_pio_read_batch()`.
 
   * `geopm_pio_adjust`():
     Updates cached value for single control that has been pushed via
     `geopm_pio_push_control()` to the value _setting_.  The
-    _controL_idx_ provided matches the return value from
-    `goepm_pio_push_control()` when the control was pushed.  The
+    _control_idx_ provided matches the return value from
+    `geopm_pio_push_control()` when the control was pushed.  The
     cached value will be written to the platform at time of call to
     `geopm_pio_write_batch()`.
 

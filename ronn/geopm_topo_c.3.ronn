@@ -156,13 +156,14 @@ goals and use case for this interface.
     is not between zero and `geopm_topo_num_domain`(_outer_domain_).
 
   * `geopm_topo_domain_name`():
-    Assigns the name string associated with the _domain_type_ to the
-    output character array _domain_name_.  At most _domain_name_max_
-    characters will be written to the string.  The string will be NULL
-    terminated unless _domain_name_max_ is zero.  The function returns
-    zero on success and an error code upon failure.  If the name must
-    be truncated because _domain_name_max_ is too small, the function
-    will return GEOPM_ERROR_INVALID.
+    Sets the _domain_name_ string to the name associated with the
+    _domain_type_ selected from the `geopm_domain_e` enum.  At most
+    _result_max_ bytes are written to the _domain_name_ string.
+    Providing a string of `NAME_MAX` length (from `limits.h`) will be
+    sufficient for storing any result.  If _result_max_ is too small
+    to contain the domain name an error will occur.  Zero is returned
+    on success and a negative error code is returned if any error
+    occurs.
 
   * `geopm_topo_domain_type`():
     Returns the domain type that is associated with the provided
