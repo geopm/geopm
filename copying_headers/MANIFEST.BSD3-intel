@@ -30,6 +30,7 @@ examples/timed_region.cpp
 geopm.spec.in
 openmp.mk
 scripts/Makefile.mk
+scripts/gen_run.py
 scripts/geopmanalysis
 scripts/geopmlaunch
 scripts/geopmplotter
