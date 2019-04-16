@@ -50,7 +50,7 @@ aprun job launcher:
 If your system does not support srun or aprun launch, the third option
 is to set a few environment variables for GEOPM as follows:
 
-    LD_PRELOAD=$GEOPM_LIBDIR/libgeopm.so
+    LD_PRELOAD=$GEOPM_LIB/libgeopm.so
     LD_DYNAMIC_WEAK=true
     GEOPM_PMPI_CTL=process
     GEOPM_REPORT=tutorial_0_report

@@ -46,32 +46,32 @@ if [ ! "$GEOPM_LAUNCHER" ]; then
     GEOPM_LAUNCHER='srun'
 fi
 
-# GEOPM_BINDIR: Diretory containing libgeopm.so.
-if [ ! "$GEOPM_BINDIR" ]; then
-    GEOPM_BINDIR=$GEOPM_PREFIX/bin
+# GEOPM_BIN: Directory containing geopm programs.
+if [ ! "$GEOPM_BIN" ]; then
+    GEOPM_BIN=$GEOPM_PREFIX/bin
 fi
 
-# GEOPM_LIBDIR: Diretory containing libgeopm.so.
-if [ ! "$GEOPM_LIBDIR" ]; then
-    GEOPM_LIBDIR=$GEOPM_PREFIX/lib
+# GEOPM_LIB: Directory containing libgeopm.so.
+if [ ! "$GEOPM_LIB" ]; then
+    GEOPM_LIB=$GEOPM_PREFIX/lib
 fi
 
-# GEOPMPY_PKGDIR: Diretory containing .
+# GEOPMPY_PKGDIR: Directory containing geopmpy packages.
 if [ ! "$GEOPMPY_PKGDIR" ]; then
-    GEOPMPY_PKGDIR=$GEOPM_PREFIX/lib/python2.7/site-packages
+    GEOPMPY_PKGDIR=$GEOPM_LIB/python2.7/site-packages
 fi
 
-# GEOPM_INCLUDEDIR: Directory containing geopm.h.
-if [ ! "$GEOPM_INCLUDEDIR" ]; then
-    GEOPM_INCLUDEDIR=$GEOPM_PREFIX/include
+# GEOPM_INC: Directory containing geopm.h.
+if [ ! "$GEOPM_INC" ]; then
+    GEOPM_INC=$GEOPM_PREFIX/include
 fi
 
 # GEOPM_CFLAGS: Contains compile options for geopm.
 if [ ! "$GEOPM_CFLAGS" ]; then
-    GEOPM_CFLAGS="-I$GEOPM_INCLUDEDIR"
+    GEOPM_CFLAGS="-I$GEOPM_INC"
 fi
 
 # GEOPM_LDFLAGS: Contains link options for geopm.
 if [ ! "$GEOPM_LDFLAGS" ]; then
-    GEOPM_LDFLAGS="-L$GEOPM_LIBDIR -lgeopm"
+    GEOPM_LDFLAGS="-L$GEOPM_LIB -lgeopm"
 fi
