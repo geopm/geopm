@@ -34,9 +34,9 @@
 set err=0
 . tutorial_env.sh
 
-export PATH=$GEOPM_BINDIR:$PATH
+export PATH=$GEOPM_BIN:$PATH
 export PYTHONPATH=$GEOPMPY_PKGDIR:$PYTHONPATH
-export LD_LIBRARY_PATH=$GEOPM_LIBDIR:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$GEOPM_LIB:$LD_LIBRARY_PATH
 
 # Run on 2 nodes
 # with 8 MPI ranks
