@@ -1,3 +1,27 @@
+* Tue Apr 16 2019 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v1.0.0
+- Release overview:
+- The official 1.0 release of the GEOPM software!
+- Primary changes are bug fixes and documentation updates since release candidate 3.
+- Updates to integration tests:
+- Fix test_runtime_regulator integration test which had improper tolerances for sleep() interface.
+- Update some integration tests to print errors when platform read/write fails.
+- Updates to unit tests:
+- Add more unit tests for launcher affinity.
+- Updates to documentation:
+- Clean up geopm_pio_c(3) and geopm_topo_c(3) man pages.
+- Remove references to Comm man pages that are not installed.
+- Add include and linking instructions to geopm_pio.3.ronn.
+- Installed header clean up:
+- Update PlatformTopo singleton to return const reference.
+- Clean up forward declaration in public header.
+- Bug fixes:
+- Fix tprof API calls when Controller is not present to avoid segmentation fault.
+- Fix issue by removing call to EnergyEfficientRegion::update_freq_range().
+- Fix issue where FrequencyGovernor was being used but not created by agents above the leaf.
+- Fix missing hidden header dependencies.
+- Fix OMP_NUM_THREADS calculation when --geopm-hyperthreads-disable option is provided to launcher.
+- Fix IOGroup and Agent tutorials to use new Agent interfaces.
+- Fix domain for frequency signal/control on some x86 platforms.
 * Wed Apr 3 2019 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v1.0.0+rc3
 - Modified implementations and interfaces:
 - Finalized interfaces for 1.0.0 release.
