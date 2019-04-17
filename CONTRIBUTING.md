@@ -15,7 +15,7 @@ emitted by GEOPM at run time.  Please provide the version of GEOPM
 that produced the problem.  The GEOPM version can be found by running
 the command
 
-    geopmpolicy --version
+    geopmread --version
 
 Providing code that is small and reproduces the issue is nice to have.
 
