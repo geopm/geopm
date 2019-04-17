@@ -713,7 +713,7 @@ class TestIntegration(unittest.TestCase):
             self._options['power_budget'] = 200
         gov_agent_conf_path = name + '_gov_agent.config'
         self._tmp_files.append(gov_agent_conf_path)
-        gov_agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
+        gov_agent_conf = geopmpy.io.AgentConf(gov_agent_conf_path, self._agent, self._options)
         launcher = geopm_test_launcher.TestLauncher(app_conf, gov_agent_conf, report_path,
                                                     trace_path, time_limit=900)
         launcher.set_num_node(num_node)
@@ -1154,7 +1154,9 @@ class TestIntegration(unittest.TestCase):
         run = ['_sticker', '_nan_nan']
         for rr in run:
             report_path = name + rr + '.report'
+            self._tmp_files.append(report_path)
             trace_path = name + rr + '.trace'
+            self._tmp_files.append(trace_path)
             app_conf = geopmpy.io.BenchConf(name + '_app.config')
             self._tmp_files.append(app_conf.get_path())
             app_conf.set_loop_count(loop_count)
@@ -1198,6 +1200,7 @@ class TestIntegration(unittest.TestCase):
         """
         name = 'test_controller_signal_handling'
         report_path = name + '.report'
+        self._tmp_files.append(report_path)
         num_node = 4
         num_rank = 8
         app_conf = geopmpy.io.BenchConf(name + '_app.config')
