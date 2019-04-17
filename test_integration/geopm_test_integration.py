@@ -741,7 +741,7 @@ class TestIntegration(unittest.TestCase):
             self._options['power_budget'] = 200
         gov_agent_conf_path = name + '_gov_agent.config'
         self._tmp_files.append(gov_agent_conf_path)
-        gov_agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
+        gov_agent_conf = geopmpy.io.AgentConf(gov_agent_conf_path, self._agent, self._options)
         launcher = geopm_test_launcher.TestLauncher(app_conf, gov_agent_conf, report_path,
                                                     trace_path, time_limit=900)
         launcher.set_num_node(num_node)
@@ -1234,6 +1234,7 @@ class TestIntegration(unittest.TestCase):
         run = ['_sticker', '_nan_nan']
         for rr in run:
             report_path = name + rr + '.report'
+            self._tmp_files.append(report_path)
             trace_path = name + rr + '.trace'
             app_conf = geopmpy.io.BenchConf(name + '_app.config')
             self._tmp_files.append(app_conf.get_path())
@@ -1260,10 +1261,13 @@ class TestIntegration(unittest.TestCase):
         report_path = name + run[0] + '.report'
         trace_path = name + run[0] + '.trace'
         sticker_out = geopmpy.io.AppOutput(report_path, trace_path + '*')
+        for nn in sticker_out.get_node_names():
+            self._tmp_files.append(trace_path + '-{}'.format(nn))
         report_path = name + run[1] + '.report'
         trace_path = name + run[1] + '.trace'
         nan_out = geopmpy.io.AppOutput(report_path, trace_path + '*')
         for nn in nan_out.get_node_names():
+            self._tmp_files.append(trace_path + '-{}'.format(nn))
             sticker_app_total = sticker_out.get_app_total_data(node_name=nn)
             nan_app_total = nan_out.get_app_total_data(node_name=nn)
             runtime_savings_epoch = (sticker_app_total['runtime'].item() - nan_app_total['runtime'].item()) / sticker_app_total['runtime'].item()
