@@ -69,7 +69,7 @@ add_beta_tools = @ENABLE_BETA@
 if add_beta_tools:
     scripts += ["geopmanalysis", "geopmplotter"]
 
-classifiers = ['Development Status :: 4 - Beta',
+classifiers = ['Development Status :: 5 - Production/Stable',
                'License :: OSI Approved :: BSD License',
                'Operating System :: POSIX :: Linux',
                'Natural Language :: English',
