@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c9aa5c09_c4b98d61",
+        "filename": "src/Environment.hpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-19T20:05:19Z",
+      "side": 1,
+      "message": "space",
+      "revId": "8faaabf2d8de2f53044dbd115056053a796ae82c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
