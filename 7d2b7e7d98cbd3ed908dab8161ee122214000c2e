@@ -82,6 +82,30 @@
     },
     {
       "key": {
+        "uuid": "f73a4863_6924745b",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-04-19T21:32:52Z",
+      "side": 1,
+      "message": "this is the side-channel to enable testing of the C interfaces",
+      "parentUuid": "fc9ca1d1_43942b87",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 5
+      },
+      "revId": "7d2b7e7d98cbd3ed908dab8161ee122214000c2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8697bc18_2ad6ee77",
         "filename": "test/EnvironmentTest.cpp",
         "patchSetId": 24
@@ -105,6 +129,30 @@
     },
     {
       "key": {
+        "uuid": "22118a2b_d99200c4",
+        "filename": "test/EnvironmentTest.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-04-19T21:32:52Z",
+      "side": 1,
+      "message": "The environment_vars struct is a protected member of the EnvironmentImp class.  I\u0027d like to push back here and get formal justification for the preference of leaking private implementation details (types) just to support testing when this is just as viable a solution.",
+      "parentUuid": "8697bc18_2ad6ee77",
+      "range": {
+        "startLine": 61,
+        "startChar": 50,
+        "endLine": 61,
+        "endChar": 74
+      },
+      "revId": "7d2b7e7d98cbd3ed908dab8161ee122214000c2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "83c027d3_46abfda0",
         "filename": "test/EnvironmentTest.cpp",
         "patchSetId": 24
@@ -116,6 +164,30 @@
       "writtenOn": "2019-04-19T21:20:02Z",
       "side": 1,
       "message": "I\u0027d rather have these be separate tests",
+      "range": {
+        "startLine": 242,
+        "startChar": 0,
+        "endLine": 243,
+        "endChar": 27
+      },
+      "revId": "7d2b7e7d98cbd3ed908dab8161ee122214000c2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "076a2226_2601b74f",
+        "filename": "test/EnvironmentTest.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-04-19T21:32:52Z",
+      "side": 1,
+      "message": "roger",
+      "parentUuid": "83c027d3_46abfda0",
       "range": {
         "startLine": 242,
         "startChar": 0,
