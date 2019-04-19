@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50b11b6b_4b62b17d",
+        "filename": "Makefile.am",
+        "patchSetId": 24
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-19T21:20:02Z",
+      "side": 1,
+      "message": "repeated",
+      "revId": "7d2b7e7d98cbd3ed908dab8161ee122214000c2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4442de9_a50f122d",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-19T21:20:02Z",
+      "side": 1,
+      "message": "the ex.what() from read_file() should at least have details about what went wrong with opening the file.  maybe have a debug print here?",
+      "revId": "7d2b7e7d98cbd3ed908dab8161ee122214000c2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d0acd58_6401ab9b",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-19T21:20:02Z",
+      "side": 1,
+      "message": "still need to handle the case where str_it \u003d\u003d str_settings.end().  I think we should probably be strict about not accepting unknown keys, but maybe we should discuss the implications of that.",
+      "range": {
+        "startLine": 103,
+        "startChar": 20,
+        "endLine": 103,
+        "endChar": 26
+      },
+      "revId": "7d2b7e7d98cbd3ed908dab8161ee122214000c2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc9ca1d1_43942b87",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-19T21:20:02Z",
+      "side": 1,
+      "message": "Is this needed, since default constructor calls load(str,str)?",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 5
+      },
+      "revId": "7d2b7e7d98cbd3ed908dab8161ee122214000c2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8697bc18_2ad6ee77",
+        "filename": "test/EnvironmentTest.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-19T21:20:02Z",
+      "side": 1,
+      "message": "why not have a member in the test?",
+      "range": {
+        "startLine": 61,
+        "startChar": 50,
+        "endLine": 61,
+        "endChar": 74
+      },
+      "revId": "7d2b7e7d98cbd3ed908dab8161ee122214000c2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83c027d3_46abfda0",
+        "filename": "test/EnvironmentTest.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-19T21:20:02Z",
+      "side": 1,
+      "message": "I\u0027d rather have these be separate tests",
+      "range": {
+        "startLine": 242,
+        "startChar": 0,
+        "endLine": 243,
+        "endChar": 27
+      },
+      "revId": "7d2b7e7d98cbd3ed908dab8161ee122214000c2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
