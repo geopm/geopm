@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dab285c4_d949ef30",
+        "filename": "scripts/geopmpy/topo.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-22T19:30:00Z",
+      "side": 1,
+      "message": "consider removing this check (and others like it) it is effectively an optimization.",
+      "range": {
+        "startLine": 115,
+        "startChar": 4,
+        "endLine": 115,
+        "endChar": 33
+      },
+      "revId": "1e3e1a5ad6b6dd0f71e4f1f76a90608abc661fea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f88c1ae0_083c8545",
+        "filename": "scripts/requirements.txt",
+        "patchSetId": 10
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-22T19:30:00Z",
+      "side": 1,
+      "message": "move this change into error wrapper patch which is merged first",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 1
+      },
+      "revId": "1e3e1a5ad6b6dd0f71e4f1f76a90608abc661fea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
