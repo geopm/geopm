@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e79c9ac0_9caf05a2",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-22T18:04:50Z",
+      "side": 1,
+      "message": "Add unit test please.  Make sure that the rest of the implementation works with one node only.",
+      "range": {
+        "startLine": 539,
+        "startChar": 0,
+        "endLine": 539,
+        "endChar": 6
+      },
+      "revId": "32b0d777912bfd138223ff8b69a1e0059b3bf0ee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
