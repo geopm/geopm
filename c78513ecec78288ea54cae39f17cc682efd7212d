@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a61643d8_9a9d61d6",
+        "filename": "scripts/geopmpy/error.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-22T19:20:31Z",
+      "side": 1,
+      "message": "delete",
+      "revId": "c78513ecec78288ea54cae39f17cc682efd7212d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
