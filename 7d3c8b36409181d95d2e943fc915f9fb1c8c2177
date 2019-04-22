@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "37b42343_eca3e67d",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-22T18:03:10Z",
+      "side": 0,
+      "message": "Delete GEOPM_FREQUENCY_MAP instead",
+      "revId": "7d3c8b36409181d95d2e943fc915f9fb1c8c2177",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
