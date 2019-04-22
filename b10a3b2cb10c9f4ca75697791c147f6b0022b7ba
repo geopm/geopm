@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f8af3d1_bbe64f87",
+        "filename": "scripts/geopmpy/pio.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-22T19:41:14Z",
+      "side": 1,
+      "message": "add doc strings here and in other patches as well.",
+      "range": {
+        "startLine": 365,
+        "startChar": 2,
+        "endLine": 365,
+        "endChar": 14
+      },
+      "revId": "b10a3b2cb10c9f4ca75697791c147f6b0022b7ba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbb96a26_3232b6d8",
+        "filename": "scripts/geopmpy/pio.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-22T19:41:14Z",
+      "side": 1,
+      "message": "delete",
+      "range": {
+        "startLine": 412,
+        "startChar": 1,
+        "endLine": 433,
+        "endChar": 28
+      },
+      "revId": "b10a3b2cb10c9f4ca75697791c147f6b0022b7ba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b73bc32_a75cb0cf",
+        "filename": "scripts/test/TestPIO.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-22T19:41:14Z",
+      "side": 1,
+      "message": "get rid of the topo.domain_name() call and use the enums from geopmpy.topo",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 49
+      },
+      "revId": "b10a3b2cb10c9f4ca75697791c147f6b0022b7ba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ebd5e0a_d0ca6381",
+        "filename": "scripts/test/TestPIO.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-22T19:41:14Z",
+      "side": 1,
+      "message": "Call twice and sleep in between.",
+      "revId": "b10a3b2cb10c9f4ca75697791c147f6b0022b7ba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
