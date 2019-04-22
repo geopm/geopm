@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "38c5cdcf_f77405dc",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-22T19:11:47Z",
+      "side": 1,
+      "message": "Change scope to be internal to the Environment class, or make them static to the file.",
+      "range": {
+        "startLine": 61,
+        "startChar": 4,
+        "endLine": 61,
+        "endChar": 43
+      },
+      "revId": "7d2b7e7d98cbd3ed908dab8161ee122214000c2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a4442de9_a50f122d",
         "filename": "src/Environment.cpp",
         "patchSetId": 24
@@ -30,6 +53,24 @@
       "writtenOn": "2019-04-19T21:20:02Z",
       "side": 1,
       "message": "the ex.what() from read_file() should at least have details about what went wrong with opening the file.  maybe have a debug print here?",
+      "revId": "7d2b7e7d98cbd3ed908dab8161ee122214000c2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05bd20b2_f734b6a7",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-22T19:11:47Z",
+      "side": 1,
+      "message": "Want to throw in case where file exists, but cannot be opened, or if file is poorly formatted (below), but absence of file should not throw or warn.",
+      "parentUuid": "a4442de9_a50f122d",
       "revId": "7d2b7e7d98cbd3ed908dab8161ee122214000c2e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
@@ -123,6 +164,52 @@
         "startChar": 0,
         "endLine": 122,
         "endChar": 5
+      },
+      "revId": "7d2b7e7d98cbd3ed908dab8161ee122214000c2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e053140_30ad7bd8",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-22T19:11:47Z",
+      "side": 1,
+      "message": "ws issue",
+      "range": {
+        "startLine": 178,
+        "startChar": 14,
+        "endLine": 178,
+        "endChar": 15
+      },
+      "revId": "7d2b7e7d98cbd3ed908dab8161ee122214000c2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e823fcce_c6a3690a",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-22T19:11:47Z",
+      "side": 1,
+      "message": "Need to be careful about useage like:\n\nexport GEOPM_REGION_BARRIER\n\nthis would enable barriers in old implementation, but not in the new one (zero length string).",
+      "range": {
+        "startLine": 180,
+        "startChar": 23,
+        "endLine": 180,
+        "endChar": 43
       },
       "revId": "7d2b7e7d98cbd3ed908dab8161ee122214000c2e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
