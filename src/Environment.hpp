@@ -90,35 +90,12 @@ namespace geopm
             int timeout(void) const override;
             int debug_attach(void) const override;
         protected:
-            struct environment_vars {
-                std::string report;
-                std::string comm;
-                std::string policy;
-                std::string agent;
-                std::string shmkey;
-                std::string trace;
-                std::string plugin_path;
-                std::string profile;
-                std::string frequency_map;
-                std::string pmpi_ctl_str;
-                std::string max_fan_out;
-                std::string timeout;
-                std::string debug_attach;
-                std::string trace_signals;
-                std::string report_signals;
-                std::string region_barrier;
-                bool do_trace() const;
-                bool do_profile() const;
-                bool do_region_barrier() const;
-            };
             EnvironmentImp(const std::string &default_settings_path, const std::string &override_settings_path);
             void load(const std::string &default_settings_path, const std::string &override_settings_path);
-            std::map<std::string, std::string&> gen_map(struct environment_vars &vars);
-            bool get_env(const char *name, std::string &env_string) const;
-            bool get_env(const char *name, int &value) const;
-            struct environment_vars m_vars;
+            std::string at_env(const std::string &env_var, bool do_throw) const;
+            bool is_set(const std::string& env_var) const;
+            std::map<std::string, std::string> m_vars;
     };
-
 
     const Environment &environment(void);
 }
