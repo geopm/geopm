@@ -39,7 +39,7 @@
 #include "Exception.hpp"
 
 using ::testing::Return;
-using geopm::EnergyEfficientRegion;
+using geopm::EnergyEfficientRegionImp;
 
 class EnergyEfficientRegionTest : public ::testing::Test
 {
@@ -51,7 +51,7 @@ class EnergyEfficientRegionTest : public ::testing::Test
         const double M_FREQ_MAX = 2.2e9;
         const double M_FREQ_STEP = 1.0e8;
 
-        EnergyEfficientRegion m_freq_region;
+        EnergyEfficientRegionImp m_freq_region;
 };
 
 EnergyEfficientRegionTest::EnergyEfficientRegionTest()
