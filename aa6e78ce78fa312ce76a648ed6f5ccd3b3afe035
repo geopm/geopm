@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce3ee118_ebb8ef4f",
+        "filename": "scripts/geopmpy/topo.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-23T18:09:37Z",
+      "side": 1,
+      "message": "domain",
+      "range": {
+        "startLine": 139,
+        "startChar": 16,
+        "endLine": 139,
+        "endChar": 27
+      },
+      "revId": "aa6e78ce78fa312ce76a648ed6f5ccd3b3afe035",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
