@@ -55,18 +55,22 @@ using json11::Json;
 namespace geopm
 {
     EnergyEfficientAgent::EnergyEfficientAgent()
-        : EnergyEfficientAgent(platform_io(), platform_topo(), FrequencyGovernor::make_unique())
+        : EnergyEfficientAgent(platform_io(), platform_topo(),
+                               FrequencyGovernor::make_shared(),
+                               std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> >())
     {
 
     }
 
     EnergyEfficientAgent::EnergyEfficientAgent(PlatformIO &plat_io, const PlatformTopo &topo,
-                                               std::unique_ptr<FrequencyGovernor> gov)
+                                               std::shared_ptr<FrequencyGovernor> gov,
+                                               std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > region_map)
         : M_PRECISION(16)
         , m_platform_io(plat_io)
         , m_platform_topo(topo)
-        , m_freq_governor(std::move(gov))
+        , m_freq_governor(gov)
         , m_num_freq_ctl_domain(-1)
+        , m_region_map(region_map)
         , m_last_wait(GEOPM_TIME_REF)
         , m_level(-1)
         , m_num_children(0)
@@ -127,19 +131,19 @@ namespace geopm
             throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): out_policy vector not correctly sized.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
+        for (auto &child_policy : out_policy) {
+            if (child_policy.size() != M_NUM_POLICY) {
+                throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): child_policy vector not correctly sized.",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
+        }
+
 #endif
-        m_do_send_policy = false | update_freq_range(in_policy);
+        m_do_send_policy = update_freq_range(in_policy);
 
         if (m_do_send_policy) {
             for (auto &child_policy : out_policy) {
-#ifdef GEOPM_DEBUG
-                if (child_policy.size() != M_NUM_POLICY) {
-                    throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): child_policy vector not correctly sized.",
-                                    GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-                }
-#endif
-                child_policy[M_POLICY_FREQ_MIN] = in_policy[M_POLICY_FREQ_MIN];
-                child_policy[M_POLICY_FREQ_MAX] = in_policy[M_POLICY_FREQ_MAX];
+                child_policy = in_policy;
             }
         }
     }
@@ -152,6 +156,7 @@ namespace geopm
     void EnergyEfficientAgent::aggregate_sample(const std::vector<std::vector<double> > &in_sample,
                                                 std::vector<double> &out_sample)
     {
+
     }
 
     bool EnergyEfficientAgent::do_write_batch(void) const
@@ -170,7 +175,7 @@ namespace geopm
                 it != m_adapt_freq_map.end()) {
                 target_freq[ctl_idx] = m_adapt_freq_map[m_last_region[ctl_idx].hash];
             }
-            else if (GEOPM_REGION_HASH_INVALID != m_last_region[ctl_idx].hash) {
+            else if (it == m_adapt_freq_map.end()) {
                 throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): unknown target frequency.",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
@@ -201,7 +206,7 @@ namespace geopm
                     /// set the freq for the current region (entry)
                     auto curr_region_it = m_region_map.find(current_region_hash);
                     if (curr_region_it == m_region_map.end()) {
-                        auto tmp = m_region_map.emplace(current_region_hash, geopm::make_unique<EnergyEfficientRegion>
+                        auto tmp = m_region_map.emplace(current_region_hash, std::make_shared<EnergyEfficientRegionImp>
                                                         (freq_min, freq_max, freq_step));
                         curr_region_it = tmp.first;
                     }
@@ -212,9 +217,8 @@ namespace geopm
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
                 m_adapt_freq_map[current_region_hash] = target_freq;
-            }
-            /// update previous region (exit)
-            if (is_region_boundary) {
+
+                /// update previous region (exit)
                 const uint64_t last_region_hash = m_last_region[ctl_idx].hash;
                 const uint64_t last_region_hint = m_last_region[ctl_idx].hint;
                 // Higher is better for performance, so negate
@@ -298,6 +302,7 @@ namespace geopm
 
     void EnergyEfficientAgent::trace_values(std::vector<double> &values)
     {
+
     }
 
     void EnergyEfficientAgent::init_platform_io(void)

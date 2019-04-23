@@ -131,6 +131,7 @@ namespace geopm
                                     GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                 }
 #endif
+                // todo: just copy the vector?
                 child_policy[M_POLICY_FREQ_MIN] = in_policy[M_POLICY_FREQ_MIN];
                 child_policy[M_POLICY_FREQ_MAX] = in_policy[M_POLICY_FREQ_MAX];
             }

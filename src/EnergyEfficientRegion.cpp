@@ -44,7 +44,7 @@ namespace geopm
         return 1 + (size_t)(ceil((freq_max - freq_min) / freq_step));
     }
 
-    EnergyEfficientRegion::EnergyEfficientRegion(double freq_min, double freq_max, double freq_step)
+    EnergyEfficientRegionImp::EnergyEfficientRegionImp(double freq_min, double freq_max, double freq_step)
         : M_PERF_MARGIN(0.10)  // up to 10% degradation allowed
         , M_MAX_INCREASE(4)
         , m_is_learning(true)
@@ -65,7 +65,7 @@ namespace geopm
         update_freq_range(freq_min, freq_max, freq_step);
     }
 
-    void EnergyEfficientRegion::update_freq_range(double freq_min, double freq_max, double freq_step)
+    void EnergyEfficientRegionImp::update_freq_range(double freq_min, double freq_max, double freq_step)
     {
         if (m_curr_step == -1) {
             /// @todo, should we start at sticker?  sticker - 1?
@@ -73,17 +73,17 @@ namespace geopm
             m_is_learning = true;
         }
         else {
-            throw Exception("EnergyEfficientRegion::" + std::string(__func__) + "().",
+            throw Exception("EnergyEfficientRegionImp::" + std::string(__func__) + "().",
                             GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         }
     }
 
-    double EnergyEfficientRegion::freq(void) const
+    double EnergyEfficientRegionImp::freq(void) const
     {
         return m_freq_min + (m_curr_step * m_freq_step);
     }
 
-    void EnergyEfficientRegion::update_exit(double curr_perf_metric)
+    void EnergyEfficientRegionImp::update_exit(double curr_perf_metric)
     {
         if (m_is_learning) {
             auto &curr_freq_ctx = m_freq_ctx[m_curr_step];
