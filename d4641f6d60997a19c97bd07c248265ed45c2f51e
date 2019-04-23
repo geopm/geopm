@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b655f123_80416f4b",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-23T01:06:18Z",
+      "side": 1,
+      "message": "also known as \"16\"?",
+      "range": {
+        "startLine": 174,
+        "startChar": 40,
+        "endLine": 174,
+        "endChar": 58
+      },
+      "revId": "d4641f6d60997a19c97bd07c248265ed45c2f51e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
