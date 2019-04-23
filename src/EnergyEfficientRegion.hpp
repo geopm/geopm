@@ -46,11 +46,20 @@ namespace geopm
     class EnergyEfficientRegion
     {
         public:
-            EnergyEfficientRegion(double freq_min, double freq_max, double freq_step);
             virtual ~EnergyEfficientRegion() = default;
-            double freq(void) const;
-            void update_freq_range(double freq_min, double freq_max, double freq_step);
-            void update_exit(double curr_perf_metric);
+            virtual double freq(void) const = 0;
+            virtual void update_freq_range(double freq_min, double freq_max, double freq_step) = 0;
+            virtual void update_exit(double curr_perf_metric) = 0;
+    };
+
+    class EnergyEfficientRegionImp : public EnergyEfficientRegion
+    {
+        public:
+            EnergyEfficientRegionImp(double freq_min, double freq_max, double freq_step);
+            virtual ~EnergyEfficientRegionImp() = default;
+            double freq(void) const override;
+            void update_freq_range(double freq_min, double freq_max, double freq_step) override;
+            void update_exit(double curr_perf_metric) override;
         private:
             struct FreqContext {
                 FreqContext()
