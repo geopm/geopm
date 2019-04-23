@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5b812b1_e724f367",
+        "filename": "scripts/test/geopmpy_test.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-23T18:05:01Z",
+      "side": 1,
+      "message": "should this be in geopm_context.py?",
+      "revId": "2518863876f9eda947bcb4289a66a3059a93f1d2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
