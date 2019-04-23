@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e306084_6dc2184c",
+        "filename": "scripts/geopmpy/pio.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-23T18:20:23Z",
+      "side": 1,
+      "message": "pushed",
+      "range": {
+        "startLine": 362,
+        "startChar": 16,
+        "endLine": 362,
+        "endChar": 21
+      },
+      "revId": "170addf233b3cf32f854f0d9fb47784047a662d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "600ad355_c12a8253",
+        "filename": "scripts/geopmpy/pio.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-23T18:20:23Z",
+      "side": 1,
+      "message": "rm\n\nexplain what a description is",
+      "range": {
+        "startLine": 408,
+        "startChar": 34,
+        "endLine": 408,
+        "endChar": 44
+      },
+      "revId": "170addf233b3cf32f854f0d9fb47784047a662d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afab9a80_35c2e6c3",
+        "filename": "scripts/geopmpy/pio.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-23T18:20:23Z",
+      "side": 1,
+      "message": "same as above",
+      "range": {
+        "startLine": 429,
+        "startChar": 22,
+        "endLine": 429,
+        "endChar": 45
+      },
+      "revId": "170addf233b3cf32f854f0d9fb47784047a662d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a81defaf_b5388bea",
+        "filename": "scripts/test/TestPIO.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-23T18:20:23Z",
+      "side": 1,
+      "message": "spin and check read_signal",
+      "revId": "170addf233b3cf32f854f0d9fb47784047a662d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
