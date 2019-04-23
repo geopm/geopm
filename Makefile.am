@@ -439,6 +439,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/IOGroup.cpp \
                             src/IOGroup.hpp \
                             src/Imbalancer.cpp \
+                            src/ModelParse.cpp \
+                            src/ModelParse.hpp \
                             src/MSR.cpp \
                             src/MSR.hpp \
                             src/MSRImp.hpp \

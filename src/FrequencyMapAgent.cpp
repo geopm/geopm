@@ -120,20 +120,17 @@ namespace geopm
             throw Exception("FrequencyMapAgent::" + std::string(__func__) + "(): out_policy vector not correctly sized.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
+        for (auto &child_policy : out_policy) {
+            if (child_policy.size() != M_NUM_POLICY) {
+                throw Exception("FrequencyMapAgent::" + std::string(__func__) + "(): child_policy vector not correctly sized.",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
+        }
 #endif
         update_policy(in_policy);
 
         if (m_is_policy_updated) {
-            for (auto &child_policy : out_policy) {
-#ifdef GEOPM_DEBUG
-                if (child_policy.size() != M_NUM_POLICY) {
-                    throw Exception("FrequencyMapAgent::" + std::string(__func__) + "(): child_policy vector not correctly sized.",
-                                    GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-                }
-#endif
-                child_policy[M_POLICY_FREQ_MIN] = in_policy[M_POLICY_FREQ_MIN];
-                child_policy[M_POLICY_FREQ_MAX] = in_policy[M_POLICY_FREQ_MAX];
-            }
+            std::fill(out_policy.begin(), out_policy.end(), in_policy);
         }
     }
 
