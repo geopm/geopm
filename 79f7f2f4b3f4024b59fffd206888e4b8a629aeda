@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "0e8304e2_f977e7f4",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-24T17:26:07Z",
+      "side": 1,
+      "message": "nit: indentation",
+      "revId": "79f7f2f4b3f4024b59fffd206888e4b8a629aeda",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f27b17a6_cff7f477",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-24T17:26:07Z",
+      "side": 1,
+      "message": "Are the other env vars still going to be initialized to empty string in the case where they are not set anywhere?",
+      "revId": "79f7f2f4b3f4024b59fffd206888e4b8a629aeda",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ffc5a146_681a12f1",
         "filename": "src/Environment.cpp",
         "patchSetId": 27
@@ -71,6 +105,23 @@
     },
     {
       "key": {
+        "uuid": "1c2e1806_e72ab157",
+        "filename": "test/EnvironmentTest.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-24T17:26:07Z",
+      "side": 1,
+      "message": "I think you can construct a json11::Json object from a std::map, then use dump()",
+      "revId": "79f7f2f4b3f4024b59fffd206888e4b8a629aeda",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9f5ba506_4cb1650c",
         "filename": "test/EnvironmentTest.cpp",
         "patchSetId": 27
@@ -88,6 +139,23 @@
         "endLine": 98,
         "endChar": 55
       },
+      "revId": "79f7f2f4b3f4024b59fffd206888e4b8a629aeda",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66b9a2a7_4f445ceb",
+        "filename": "test/EnvironmentTest.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-24T17:26:07Z",
+      "side": 1,
+      "message": "not working?",
       "revId": "79f7f2f4b3f4024b59fffd206888e4b8a629aeda",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
