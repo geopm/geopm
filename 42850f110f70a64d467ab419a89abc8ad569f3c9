@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "999ee102_28bddc9d",
+        "filename": "src/Exception.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-24T16:41:19Z",
+      "side": 1,
+      "message": "why not just leave the geopm_env_shmkey c-wrapper in place and do the exception handling there?",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 9
+      },
+      "revId": "42850f110f70a64d467ab419a89abc8ad569f3c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c08bcf2d_27244303",
+        "filename": "src/ProfileSampler.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-24T16:41:19Z",
+      "side": 1,
+      "message": "why not just use the singleton accessor below?  Not a big deal, but this is the pattern elsewhere.",
+      "range": {
+        "startLine": 86,
+        "startChar": 8,
+        "endLine": 86,
+        "endChar": 47
+      },
+      "revId": "42850f110f70a64d467ab419a89abc8ad569f3c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1f2c5f0_20d97e74",
+        "filename": "src/geopm_plugin.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-24T16:41:19Z",
+      "side": 1,
+      "message": "We need to handle exceptions here.  Please leave c-wrapper.",
+      "revId": "42850f110f70a64d467ab419a89abc8ad569f3c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60ee03eb_cf3e186f",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-24T16:41:19Z",
+      "side": 1,
+      "message": "need to check err",
+      "range": {
+        "startLine": 308,
+        "startChar": 8,
+        "endLine": 308,
+        "endChar": 13
+      },
+      "revId": "42850f110f70a64d467ab419a89abc8ad569f3c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14bbec5f_e959009b",
+        "filename": "test/EnvironmentTest.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-24T16:41:19Z",
+      "side": 1,
+      "message": "Is there any way to get rid of this function?",
+      "range": {
+        "startLine": 217,
+        "startChar": 4,
+        "endLine": 217,
+        "endChar": 21
+      },
+      "revId": "42850f110f70a64d467ab419a89abc8ad569f3c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
