@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "7627b6be_fa19169a",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-04-24T16:46:34Z",
+      "side": 1,
+      "message": "If this call throws, err will be 0 when this function returns and pmpi_ctl will not be set.  This will be hard to debug since there\u0027s no indication that the problem is here.\n\nOne of the ways geopm::environment() will throw is if GEOPM_CTL is set to anything other than \"process\" or \"pthread\" in the environment.\n\nYou could set err in the catch.  You could verify that the environment was created successfully before calling .pmpi_ctl().",
+      "range": {
+        "startLine": 268,
+        "startChar": 16,
+        "endLine": 268,
+        "endChar": 60
+      },
+      "revId": "42850f110f70a64d467ab419a89abc8ad569f3c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d08685af_d07c8643",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-04-24T16:46:34Z",
+      "side": 1,
+      "message": "Same comment as above.  If geopm::environment() throws, err will be 0 on return.",
+      "range": {
+        "startLine": 284,
+        "startChar": 16,
+        "endLine": 284,
+        "endChar": 64
+      },
+      "revId": "42850f110f70a64d467ab419a89abc8ad569f3c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4bfa741_a2e27ad7",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-04-24T16:46:34Z",
+      "side": 1,
+      "message": "Same.",
+      "range": {
+        "startLine": 300,
+        "startChar": 16,
+        "endLine": 300,
+        "endChar": 68
+      },
+      "revId": "42850f110f70a64d467ab419a89abc8ad569f3c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "999ee102_28bddc9d",
         "filename": "src/Exception.cpp",
         "patchSetId": 21
