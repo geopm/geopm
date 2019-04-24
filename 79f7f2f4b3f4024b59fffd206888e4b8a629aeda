@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ffc5a146_681a12f1",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-24T17:17:09Z",
+      "side": 1,
+      "message": "I still prefer \"16\" to std::to_string(16)",
+      "range": {
+        "startLine": 176,
+        "startChar": 39,
+        "endLine": 176,
+        "endChar": 58
+      },
+      "revId": "79f7f2f4b3f4024b59fffd206888e4b8a629aeda",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec775839_0c4ca138",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-24T17:17:09Z",
+      "side": 1,
+      "message": "I beleive this is the first use of default values in declaration.  I think I would prefer to be explicit even if it takes more lines:\n\nstd::string EnvironmetImp::at_env(const std::string \u0026env_var) const\n{\n    at_env(env_var, false);\n}",
+      "range": {
+        "startLine": 186,
+        "startChar": 67,
+        "endLine": 186,
+        "endChar": 86
+      },
+      "revId": "79f7f2f4b3f4024b59fffd206888e4b8a629aeda",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6cef1ec_80fe85c3",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-24T17:17:09Z",
+      "side": 1,
+      "message": "Looks like you are using throw to indicate logic in a non-exceptional use case.  If it isn\u0027t exceptional it shouldn\u0027t throw.",
+      "range": {
+        "startLine": 204,
+        "startChar": 34,
+        "endLine": 204,
+        "endChar": 38
+      },
+      "revId": "79f7f2f4b3f4024b59fffd206888e4b8a629aeda",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f5ba506_4cb1650c",
+        "filename": "test/EnvironmentTest.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-24T17:17:09Z",
+      "side": 1,
+      "message": "please don\u0027t leave commented code",
+      "range": {
+        "startLine": 98,
+        "startChar": 4,
+        "endLine": 98,
+        "endChar": 55
+      },
+      "revId": "79f7f2f4b3f4024b59fffd206888e4b8a629aeda",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65279a9a_2f222f8f",
+        "filename": "test/EnvironmentTest.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-24T17:17:09Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 2
+      },
+      "revId": "79f7f2f4b3f4024b59fffd206888e4b8a629aeda",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
