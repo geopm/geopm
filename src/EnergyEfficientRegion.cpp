@@ -44,15 +44,16 @@ namespace geopm
         return 1 + (size_t)(ceil((freq_max - freq_min) / freq_step));
     }
 
-    EnergyEfficientRegionImp::EnergyEfficientRegionImp(double freq_min, double freq_max, double freq_step)
-        : M_PERF_MARGIN(0.10)  // up to 10% degradation allowed
-        , M_MAX_INCREASE(4)
+    EnergyEfficientRegionImp::EnergyEfficientRegionImp(double freq_min, double freq_max,
+                                                       double freq_step, double perf_margin)
+        : M_MAX_INCREASE(4)
         , m_is_learning(true)
         , m_max_step (calc_num_step(freq_min, freq_max, freq_step) - 1)
         , m_freq_step (freq_step)
         , m_curr_step(-1)
         , m_freq_min (freq_min)
         , m_target(0.0)
+        , m_perf_margin(perf_margin)
     {
         /// @brief we are not clearing the m_freq_ctx vector once created, such that we
         ///        do not have to re-learn frequencies that were temporarily removed via
@@ -62,6 +63,12 @@ namespace geopm
             m_freq_ctx.push_back(geopm::make_unique<FreqContext>());
         }
         update_freq_range(freq_min, freq_max, freq_step);
+#ifdef GEOPM_DEBUG
+        if (perf_margin < 0.0 || perf_margin > 1.0) {
+            throw Exception("EnergyEfficientRegionImp::" + std::string(__func__) + "(): invalid perf_margin",
+                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
     }
 
     void EnergyEfficientRegionImp::update_freq_range(double freq_min, double freq_max, double freq_step)
@@ -75,6 +82,11 @@ namespace geopm
             throw Exception("EnergyEfficientRegionImp::" + std::string(__func__) + "().",
                             GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         }
+    }
+
+    void EnergyEfficientRegionImp::update_perf_margin(double perf_margin)
+    {
+        m_perf_margin = perf_margin;
     }
 
     double EnergyEfficientRegionImp::freq(void) const
@@ -93,7 +105,7 @@ namespace geopm
                 double median = Agg::median(curr_freq_ctx->perf.make_vector());
                 if (!std::isnan(median) && median != 0.0) {
                     if (m_target == 0.0) {
-                        m_target = (1.0 + M_PERF_MARGIN) * median;
+                        m_target = (1.0 + m_perf_margin) * median;
                     }
                     bool do_increase = false;
                     if (m_target != 0.0) {

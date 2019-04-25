@@ -70,6 +70,7 @@ class EnergyEfficientAgentTest : public :: testing :: Test
         static constexpr int M_NUM_CHILDREN = 3;
         static constexpr int M_FREQ_DOMAIN = GEOPM_DOMAIN_CORE;
         static constexpr int M_NUM_FREQ_DOMAIN = 4;
+        static constexpr double M_PERF_MARGIN = 0.10;
         // offsets for PlatformIO signal indices
         const int HASH_SIG = 1000;
         const int HINT_SIG = 2000;
@@ -123,9 +124,8 @@ TEST_F(EnergyEfficientAgentTest, validate_policy_default)
     EXPECT_CALL(*m_gov, validate_policy(_, _))
         .WillOnce(DoAll(SetArgReferee<0>(sys_min),
                         SetArgReferee<1>(sys_max)));
-
-    std::vector<double> in_policy {NAN, NAN};
-    std::vector<double> expected {sys_min, sys_max};
+    std::vector<double> in_policy {NAN, NAN, NAN};
+    std::vector<double> expected {sys_min, sys_max, 0.10};
     m_agent0->validate_policy(in_policy);
     EXPECT_EQ(expected, in_policy);
 }
@@ -134,18 +134,26 @@ TEST_F(EnergyEfficientAgentTest, validate_policy_clamp)
 {
     EXPECT_CALL(*m_gov, validate_policy(_, _));
     // validate policy does not do clamping for frequency
-    std::vector<double> wide_policy {0.9e9, 2.1e9};
+    std::vector<double> wide_policy {0.9e9, 2.1e9, 0.5};
     std::vector<double> in_policy = wide_policy;
     m_agent0->validate_policy(in_policy);
     EXPECT_EQ(wide_policy, in_policy);
+}
+
+TEST_F(EnergyEfficientAgentTest, validate_policy_perf_margin)
+{
+    std::vector<double> in_policy {NAN, NAN, -0.2};
+    EXPECT_THROW(m_agent0->validate_policy(in_policy), geopm::Exception);
+    in_policy = {NAN, NAN, 1.2};
+    EXPECT_THROW(m_agent0->validate_policy(in_policy), geopm::Exception);
 }
 
 TEST_F(EnergyEfficientAgentTest, split_policy_unchanged)
 {
     double in_pol_min = 1.1e9;
     double in_pol_max = 2.1e9;
-    std::vector<double> in_policy {in_pol_min, in_pol_max};
-    std::vector<double> garbage {5.67, 8.90};
+    std::vector<double> in_policy {in_pol_min, in_pol_max, M_PERF_MARGIN};
+    std::vector<double> garbage {5.67, 8.90, 7.8};
     std::vector<std::vector<double> > out_policy {M_NUM_CHILDREN, garbage};
 
     EXPECT_CALL(*m_gov, set_frequency_bounds(in_pol_min, in_pol_max))
@@ -162,8 +170,8 @@ TEST_F(EnergyEfficientAgentTest, split_policy_changed)
 {
     double in_pol_min = 1.1e9;
     double in_pol_max = 2.1e9;
-    std::vector<double> in_policy {in_pol_min, in_pol_max};
-    std::vector<double> garbage {5.67, 8.90};
+    std::vector<double> in_policy {in_pol_min, in_pol_max, M_PERF_MARGIN};
+    std::vector<double> garbage {5.67, 8.90, 7.9};
     std::vector<std::vector<double> > out_policy {M_NUM_CHILDREN, garbage};
 
     EXPECT_CALL(*m_gov, set_frequency_bounds(in_pol_min, in_pol_max))
@@ -178,7 +186,7 @@ TEST_F(EnergyEfficientAgentTest, split_policy_changed)
 TEST_F(EnergyEfficientAgentTest, split_policy_errors)
 {
 #ifdef GEOPM_DEBUG
-    std::vector<double> in_policy {1.2e9, 1.4e9};
+    std::vector<double> in_policy {1.2e9, 1.4e9, M_PERF_MARGIN};
     std::vector<std::vector<double> > out_policy {M_NUM_CHILDREN, in_policy};
     std::vector<double> bad_in {4, 4, 4, 4, 4, 4};
     std::vector<std::vector<double> > bad_out1 {8, in_policy};
@@ -224,7 +232,7 @@ TEST_F(EnergyEfficientAgentTest, sample_adjust_platform)
     double lo2 = 1.3e9;
     double med = 1.5e9;
     double max = 2.0e9;
-    std::vector<double> in_policy {min, max};
+    std::vector<double> in_policy {min, max, M_PERF_MARGIN};
 
     uint64_t UM = GEOPM_REGION_HASH_UNMARKED;
     std::map<uint64_t, uint64_t> region_hints = {
@@ -356,7 +364,7 @@ TEST_F(EnergyEfficientAgentTest, sample_adjust_platform)
 TEST_F(EnergyEfficientAgentTest, static_methods)
 {
     EXPECT_EQ("energy_efficient", EnergyEfficientAgent::plugin_name());
-    std::vector<std::string> pol_names {"FREQ_MIN", "FREQ_MAX"};
+    std::vector<std::string> pol_names {"FREQ_MIN", "FREQ_MAX", "PERF_MARGIN"};
     std::vector<std::string> sam_names {};
     EXPECT_EQ(pol_names, EnergyEfficientAgent::policy_names());
     EXPECT_EQ(sam_names, EnergyEfficientAgent::sample_names());
@@ -365,8 +373,8 @@ TEST_F(EnergyEfficientAgentTest, static_methods)
 TEST_F(EnergyEfficientAgentTest, enforce_policy)
 {
     const double limit = 1e9;
-    const std::vector<double> policy{0, limit};
-    const std::vector<double> bad_policy{100, 200, 300};
+    const std::vector<double> policy{0, limit, 0.15};
+    const std::vector<double> bad_policy{100, 200, 300, 400};
 
     EXPECT_CALL(m_platio, write_control("FREQUENCY", GEOPM_DOMAIN_BOARD, 0, limit));
 
