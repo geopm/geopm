@@ -37,6 +37,7 @@
 
 #include "EnergyEfficientRegion.hpp"
 #include "Exception.hpp"
+#include "config.h"
 
 using ::testing::Return;
 using geopm::EnergyEfficientRegionImp;
@@ -55,9 +56,19 @@ class EnergyEfficientRegionTest : public ::testing::Test
 };
 
 EnergyEfficientRegionTest::EnergyEfficientRegionTest()
-    : m_freq_region(M_FREQ_MIN, M_FREQ_MAX, M_FREQ_STEP)
+    : m_freq_region(M_FREQ_MIN, M_FREQ_MAX, M_FREQ_STEP, 0.10)
 {
 
+}
+
+TEST_F(EnergyEfficientRegionTest, invalid_perf_margin)
+{
+#ifdef GEOPM_DEBUG
+    EXPECT_THROW(EnergyEfficientRegionImp(M_FREQ_MIN, M_FREQ_MAX, M_FREQ_STEP, -0.7),
+                 geopm::Exception);
+    EXPECT_THROW(EnergyEfficientRegionImp(M_FREQ_MIN, M_FREQ_MAX, M_FREQ_STEP, 1.7),
+                 geopm::Exception);
+#endif
 }
 
 TEST_F(EnergyEfficientRegionTest, freq_starts_at_maximum)
