@@ -88,6 +88,7 @@ namespace geopm
             enum m_policy_e {
                 M_POLICY_FREQ_MIN,
                 M_POLICY_FREQ_MAX,
+                M_POLICY_PERF_MARGIN,
                 M_NUM_POLICY,
             };
 

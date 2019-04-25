@@ -120,6 +120,13 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
+        if (std::isnan(policy[M_POLICY_PERF_MARGIN])) {
+            policy[M_POLICY_PERF_MARGIN] = 0.10;
+        }
+        else if (policy[M_POLICY_PERF_MARGIN] < 0.0 || policy[M_POLICY_PERF_MARGIN] > 1.0) {
+            throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): performance margin must be between 0.0 and 1.0.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         m_freq_governor->validate_policy(policy[M_POLICY_FREQ_MIN], policy[M_POLICY_FREQ_MAX]);
     }
 
@@ -207,7 +214,7 @@ namespace geopm
                     auto curr_region_it = m_region_map.find(current_region_hash);
                     if (curr_region_it == m_region_map.end()) {
                         auto tmp = m_region_map.emplace(current_region_hash, std::make_shared<EnergyEfficientRegionImp>
-                                                        (freq_min, freq_max, freq_step));
+                                                        (freq_min, freq_max, freq_step, 0.10));
                         curr_region_it = tmp.first;
                     }
                     target_freq = curr_region_it->second->freq();
@@ -254,7 +261,7 @@ namespace geopm
 
     std::vector<std::string> EnergyEfficientAgent::policy_names(void)
     {
-        return {"FREQ_MIN", "FREQ_MAX"};
+        return {"FREQ_MIN", "FREQ_MAX", "PERF_MARGIN"};
     }
 
     std::vector<std::string> EnergyEfficientAgent::sample_names(void)
