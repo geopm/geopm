@@ -84,12 +84,13 @@ namespace geopm
             static std::vector<std::string> policy_names(void);
             static std::vector<std::string> sample_names(void);
         private:
-            bool update_freq_range(const std::vector<double> &in_policy);
+            bool update_policy(const std::vector<double> &in_policy);
             void init_platform_io(void);
 
             enum m_policy_e {
                 M_POLICY_FREQ_MIN,
                 M_POLICY_FREQ_MAX,
+                M_POLICY_PERF_MARGIN,
                 M_NUM_POLICY,
             };
 
@@ -101,6 +102,7 @@ namespace geopm
             };
 
             const int M_PRECISION;
+            const double M_POLICY_PERF_MARGIN_DEFAULT;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
             std::shared_ptr<FrequencyGovernor> m_freq_governor;
@@ -114,6 +116,7 @@ namespace geopm
             int m_num_children;
             bool m_do_send_policy;
             std::shared_ptr<DebugIOGroup> m_debug_iog;
+            double m_perf_margin;
     };
 }
 
