@@ -70,6 +70,7 @@ namespace geopm
         , M_MIN_LEARNING_RUNTIME(M_WAIT_SEC * 10)
         , M_NETWORK_NUM_SAMPLE_DELAY(2)
         , M_UNMARKED_NUM_SAMPLE_DELAY(2)
+        , M_POLICY_PERF_MARGIN_DEFAULT(0.10)  // max 10% performance degradation
         , m_platform_io(plat_io)
         , m_platform_topo(topo)
         , m_freq_governor(gov)
@@ -81,6 +82,7 @@ namespace geopm
         , m_level(-1)
         , m_num_children(0)
         , m_do_send_policy(false)
+        , m_perf_margin(M_POLICY_PERF_MARGIN_DEFAULT)
     {
 
     }
@@ -107,7 +109,7 @@ namespace geopm
         }
     }
 
-    bool EnergyEfficientAgent::update_freq_range(const std::vector<double> &in_policy)
+    bool EnergyEfficientAgent::update_policy(const std::vector<double> &in_policy)
     {
 #ifdef GEOPM_DEBUG
         if (in_policy.size() != M_NUM_POLICY) {
@@ -116,9 +118,10 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
+        m_perf_margin = in_policy[M_POLICY_PERF_MARGIN];
         // @todo: to support dynamic policies, policy values need to be passed to regions
         return m_freq_governor->set_frequency_bounds(in_policy[M_POLICY_FREQ_MIN],
-                                                     in_policy[M_POLICY_FREQ_MAX]);;
+                                                     in_policy[M_POLICY_FREQ_MAX]);
     }
 
     void EnergyEfficientAgent::validate_policy(std::vector<double> &policy) const
@@ -130,6 +133,13 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
+        if (std::isnan(policy[M_POLICY_PERF_MARGIN])) {
+            policy[M_POLICY_PERF_MARGIN] = M_POLICY_PERF_MARGIN_DEFAULT;
+        }
+        else if (policy[M_POLICY_PERF_MARGIN] < 0.0 || policy[M_POLICY_PERF_MARGIN] > 1.0) {
+            throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): performance margin must be between 0.0 and 1.0.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         m_freq_governor->validate_policy(policy[M_POLICY_FREQ_MIN],
                                          policy[M_POLICY_FREQ_MAX]);
     }
@@ -151,7 +161,7 @@ namespace geopm
             }
         }
 #endif
-        m_do_send_policy = update_freq_range(in_policy);
+        m_do_send_policy = update_policy(in_policy);
 
         if (m_do_send_policy) {
             std::fill(out_policy.begin(), out_policy.end(), in_policy);
@@ -176,7 +186,7 @@ namespace geopm
 
     void EnergyEfficientAgent::adjust_platform(const std::vector<double> &in_policy)
     {
-        update_freq_range(in_policy);
+        update_policy(in_policy);
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
             uint64_t hash = m_last_region_info[ctl_idx].hash;
             uint64_t hint = m_last_region_info[ctl_idx].hint;
@@ -228,7 +238,8 @@ namespace geopm
                     auto current_region_it = m_region_map[ctl_idx].find(current_region_hash);
                     if (current_region_it == m_region_map[ctl_idx].end()) {
                         auto tmp = m_region_map[ctl_idx].emplace(current_region_hash,
-                            std::make_shared<EnergyEfficientRegionImp>(freq_min, freq_max, freq_step));
+                                                                 std::make_shared<EnergyEfficientRegionImp>
+                                                                 (freq_min, freq_max, freq_step, m_perf_margin));
                         current_region_it = tmp.first;
                     }
                 }
@@ -278,7 +289,7 @@ namespace geopm
 
     std::vector<std::string> EnergyEfficientAgent::policy_names(void)
     {
-        return {"FREQ_MIN", "FREQ_MAX"};
+        return {"FREQ_MIN", "FREQ_MAX", "PERF_MARGIN"};
     }
 
     std::vector<std::string> EnergyEfficientAgent::sample_names(void)
