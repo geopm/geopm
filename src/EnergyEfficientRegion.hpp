@@ -50,16 +50,19 @@ namespace geopm
             virtual double freq(void) const = 0;
             virtual void update_freq_range(double freq_min, double freq_max, double freq_step) = 0;
             virtual void update_exit(double curr_perf_metric) = 0;
+            virtual void update_perf_margin(double perf_margin) = 0;
     };
 
     class EnergyEfficientRegionImp : public EnergyEfficientRegion
     {
         public:
-            EnergyEfficientRegionImp(double freq_min, double freq_max, double freq_step);
+            EnergyEfficientRegionImp(double freq_min, double freq_max,
+                                     double freq_step, double perf_margin);
             virtual ~EnergyEfficientRegionImp() = default;
             double freq(void) const override;
             void update_freq_range(double freq_min, double freq_max, double freq_step) override;
             void update_exit(double curr_perf_metric) override;
+            void update_perf_margin(double perf_margin) override;
         private:
             struct FreqContext {
                 FreqContext()
@@ -73,7 +76,6 @@ namespace geopm
                 double perf;
             };
 
-            const double M_PERF_MARGIN;
             const size_t M_MAX_INCREASE;
 
             bool m_is_learning;
@@ -83,6 +85,7 @@ namespace geopm
             double m_freq_min;
             double m_last_perf;
             double m_target;
+            double m_perf_margin;
 
             std::vector<std::unique_ptr<FreqContext> > m_freq_ctx;
     };

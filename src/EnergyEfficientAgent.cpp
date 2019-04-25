@@ -67,6 +67,7 @@ namespace geopm
                                                std::shared_ptr<FrequencyGovernor> gov,
                                                std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > region_map)
         : M_PRECISION(16)
+        , M_POLICY_PERF_MARGIN_DEFAULT(0.10)  // max 10% performance degradation
         , m_platform_io(plat_io)
         , m_platform_topo(topo)
         , m_freq_governor(gov)
@@ -76,6 +77,7 @@ namespace geopm
         , m_level(-1)
         , m_num_children(0)
         , m_do_send_policy(false)
+        , m_perf_margin(M_POLICY_PERF_MARGIN_DEFAULT)
     {
         m_debug_iog = std::make_shared<DebugIOGroup>(m_platform_topo);
         m_platform_io.register_iogroup(m_debug_iog);
@@ -103,7 +105,7 @@ namespace geopm
         }
     }
 
-    bool EnergyEfficientAgent::update_freq_range(const std::vector<double> &in_policy)
+    bool EnergyEfficientAgent::update_policy(const std::vector<double> &in_policy)
     {
 #ifdef GEOPM_DEBUG
         if (in_policy.size() != M_NUM_POLICY) {
@@ -111,6 +113,13 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
+        if (m_perf_margin != in_policy[M_POLICY_PERF_MARGIN]) {
+            m_perf_margin = in_policy[M_POLICY_PERF_MARGIN];
+            for (auto &region : m_region_map) {
+                region.second->update_perf_margin(m_perf_margin);
+            }
+        }
+        // @todo: to support dynamic policies, policy values need to be passed to regions
         return m_freq_governor->set_frequency_bounds(in_policy[M_POLICY_FREQ_MIN], in_policy[M_POLICY_FREQ_MAX]);;
     }
 
@@ -122,6 +131,13 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
+        if (std::isnan(policy[M_POLICY_PERF_MARGIN])) {
+            policy[M_POLICY_PERF_MARGIN] = M_POLICY_PERF_MARGIN_DEFAULT;
+        }
+        else if (policy[M_POLICY_PERF_MARGIN] < 0.0 || policy[M_POLICY_PERF_MARGIN] > 1.0) {
+            throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): performance margin must be between 0.0 and 1.0.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         m_freq_governor->validate_policy(policy[M_POLICY_FREQ_MIN], policy[M_POLICY_FREQ_MAX]);
     }
 
@@ -141,7 +157,7 @@ namespace geopm
         }
 
 #endif
-        m_do_send_policy = update_freq_range(in_policy);
+        m_do_send_policy = update_policy(in_policy);
 
         if (m_do_send_policy) {
             std::fill(out_policy.begin(), out_policy.end(), in_policy);
@@ -166,7 +182,7 @@ namespace geopm
 
     void EnergyEfficientAgent::adjust_platform(const std::vector<double> &in_policy)
     {
-        update_freq_range(in_policy);
+        update_policy(in_policy);
         double freq_max = m_freq_governor->get_frequency_max();
         std::vector<double> target_freq(m_num_freq_ctl_domain, freq_max);
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
@@ -208,7 +224,7 @@ namespace geopm
                     auto curr_region_it = m_region_map.find(current_region_hash);
                     if (curr_region_it == m_region_map.end()) {
                         auto tmp = m_region_map.emplace(current_region_hash, std::make_shared<EnergyEfficientRegionImp>
-                                                        (freq_min, freq_max, freq_step));
+                                                        (freq_min, freq_max, freq_step, m_perf_margin));
                         curr_region_it = tmp.first;
                     }
                     target_freq = curr_region_it->second->freq();
@@ -255,7 +271,7 @@ namespace geopm
 
     std::vector<std::string> EnergyEfficientAgent::policy_names(void)
     {
-        return {"FREQ_MIN", "FREQ_MAX"};
+        return {"FREQ_MIN", "FREQ_MAX", "PERF_MARGIN"};
     }
 
     std::vector<std::string> EnergyEfficientAgent::sample_names(void)
@@ -334,6 +350,7 @@ namespace geopm
         }
         m_debug_iog->register_signal("EE::last_runtime", freq_ctl_domain_type, runtime_ptr);
         m_debug_iog->register_signal("EE::last_hash#", freq_ctl_domain_type, hash_ptr);
+        m_debug_iog->register_signal("EE::perf_margin", GEOPM_DOMAIN_BOARD, {&m_perf_margin});
 
         std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT", "REGION_RUNTIME"};
 

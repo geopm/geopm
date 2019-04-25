@@ -80,7 +80,6 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/CpuinfoIOGroupTest.parse_sticker_without_at \
               test/gtest_links/CpuinfoIOGroupTest.plugin \
               test/gtest_links/CpuinfoIOGroupTest.valid_signals \
-              test/gtest_links/DebugIOGroupTest.something \
               test/gtest_links/EnergyEfficientAgentTest.aggregate_sample \
               test/gtest_links/EnergyEfficientAgentTest.do_write_batch \
               test/gtest_links/EnergyEfficientAgentTest.enforce_policy \
@@ -95,6 +94,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/EnergyEfficientRegionTest.freq_does_not_go_above_max \
               test/gtest_links/EnergyEfficientRegionTest.freq_does_not_go_below_min \
               test/gtest_links/EnergyEfficientRegionTest.freq_starts_at_maximum \
+              test/gtest_links/EnergyEfficientRegionTest.invalid_perf_margin \
               test/gtest_links/EnergyEfficientRegionTest.performance_decreases_freq_steps_back_up \
               test/gtest_links/EnergyEfficientRegionTest.update_ignores_nan_sample \
               test/gtest_links/EnvironmentTest.construction0 \
