@@ -44,9 +44,9 @@ namespace geopm
         return 1 + (size_t)(ceil((freq_max - freq_min) / freq_step));
     }
 
-    EnergyEfficientRegionImp::EnergyEfficientRegionImp(double freq_min, double freq_max, double freq_step)
-        : M_PERF_MARGIN(0.10)  // up to 10% degradation allowed
-        , M_MIN_PERF_SAMPLE(5)
+    EnergyEfficientRegionImp::EnergyEfficientRegionImp(double freq_min, double freq_max,
+                                                       double freq_step, double perf_margin)
+        : M_MIN_PERF_SAMPLE(5)
         , m_is_learning(true)
         , m_max_step(calc_num_step(freq_min, freq_max, freq_step) - 1)
         , m_freq_step(freq_step)
@@ -54,6 +54,7 @@ namespace geopm
         , m_freq_min(freq_min)
         , m_target(0.0)
         , m_is_disabled(false)
+        , m_perf_margin(perf_margin)
     {
         /// @brief we are not clearing the m_freq_perf vector once created, such that we
         ///        do not have to re-learn frequencies that were temporarily removed via
@@ -63,6 +64,12 @@ namespace geopm
             m_freq_perf.push_back(geopm::make_unique<CircularBuffer<double> >(M_MIN_PERF_SAMPLE));
         }
         update_freq_range(freq_min, freq_max, freq_step);
+#ifdef GEOPM_DEBUG
+        if (perf_margin < 0.0 || perf_margin > 1.0) {
+            throw Exception("EnergyEfficientRegionImp::" + std::string(__func__) + "(): invalid perf_margin",
+                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
     }
 
     void EnergyEfficientRegionImp::update_freq_range(double freq_min, double freq_max, double freq_step)
@@ -94,7 +101,7 @@ namespace geopm
                 double perf_max = Agg::max(curr_perf_buffer->make_vector());
                 if (!std::isnan(perf_max) && perf_max != 0.0) {
                     if (m_target == 0.0) {
-                        m_target = (1.0 + M_PERF_MARGIN) * perf_max;
+                        m_target = (1.0 + m_perf_margin) * perf_max;
                     }
                     bool do_increase = false;
                     if (m_target != 0.0) {
