@@ -55,7 +55,8 @@ namespace geopm
     class EnergyEfficientRegionImp : public EnergyEfficientRegion
     {
         public:
-            EnergyEfficientRegionImp(double freq_min, double freq_max, double freq_step);
+            EnergyEfficientRegionImp(double freq_min, double freq_max,
+                                     double freq_step, double perf_margin);
             virtual ~EnergyEfficientRegionImp() = default;
             double freq(void) const override;
             void update_freq_range(double freq_min, double freq_max, double freq_step) override;
@@ -72,7 +73,6 @@ namespace geopm
                 size_t num_increase;
                 CircularBuffer<double> perf;
             };
-            const double M_PERF_MARGIN;
             const size_t M_MAX_INCREASE;
             bool m_is_learning;
             uint64_t m_max_step;
@@ -80,6 +80,7 @@ namespace geopm
             int m_curr_step;
             double m_freq_min;
             double m_target;
+            double m_perf_margin;
             std::vector<std::unique_ptr<FreqContext> > m_freq_ctx;
     };
 

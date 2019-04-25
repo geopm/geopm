@@ -1211,4 +1211,5 @@ class AgentConf(object):
                 outfile.write(geopmpy.agent.policy_json(self._agent, [self._options['frequency_min'], self._options['frequency_max']]))
             elif self._agent in ['energy_efficient']:
                 outfile.write(geopmpy.agent.policy_json(self._agent, [self._options['frequency_min'],
-                                                                      self._options['frequency_max']]))
+                                                                      self._options['frequency_max'],
+                                                                      self._options['perf_margin']]))
