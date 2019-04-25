@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7da77b2c_ceb012ce",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-25T18:50:58Z",
+      "side": 0,
+      "message": "rename to update_policy(in_policy) and then update perf margin in region objects at the same time and also cache a local value m_perf_margin.",
+      "range": {
+        "startLine": 176,
+        "startChar": 8,
+        "endLine": 176,
+        "endChar": 25
+      },
+      "revId": "600128f8a27f65dbdc9609c15da70a689dbaaf96",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}

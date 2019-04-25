@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5877026c_1e839474",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-25T18:50:58Z",
+      "side": 1,
+      "message": "const double M_POLICY_PERF_MARGIN_DEFAULT;",
+      "range": {
+        "startLine": 124,
+        "startChar": 43,
+        "endLine": 124,
+        "endChar": 48
+      },
+      "revId": "237fc63ee7d26dec20fc7478fecb085b98e25af1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d86085f_d2f25c6b",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-25T18:50:58Z",
+      "side": 1,
+      "message": "use m_perf_margin",
+      "range": {
+        "startLine": 217,
+        "startChar": 87,
+        "endLine": 217,
+        "endChar": 92
+      },
+      "revId": "237fc63ee7d26dec20fc7478fecb085b98e25af1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
