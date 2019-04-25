@@ -44,9 +44,9 @@ namespace geopm
         return 1 + (size_t)(ceil((freq_max - freq_min) / freq_step));
     }
 
-    EnergyEfficientRegionImp::EnergyEfficientRegionImp(double freq_min, double freq_max, double freq_step)
-        : M_PERF_MARGIN(0.10)  // up to 10% degradation allowed
-        , M_MAX_INCREASE(4)
+    EnergyEfficientRegionImp::EnergyEfficientRegionImp(double freq_min, double freq_max,
+                                                       double freq_step, double perf_margin)
+        : M_MAX_INCREASE(4)
         , m_is_learning(true)
         , m_max_step (calc_num_step(freq_min, freq_max, freq_step) - 1)
         , m_freq_step (freq_step)
@@ -54,6 +54,7 @@ namespace geopm
         , m_freq_min (freq_min)
         , m_last_perf(NAN)
         , m_target(0.0)
+        , m_perf_margin(perf_margin)
     {
         /// @brief we are not clearing the m_freq_ctx vector once created, such that we
         ///        do not have to re-learn frequencies that were temporarily removed via
@@ -63,6 +64,12 @@ namespace geopm
             m_freq_ctx.push_back(geopm::make_unique<FreqContext>());
         }
         update_freq_range(freq_min, freq_max, freq_step);
+#ifdef GEOPM_DEBUG
+        if (perf_margin < 0.0 || perf_margin > 1.0) {
+            throw Exception("EnergyEfficientRegionImp::" + std::string(__func__) + "(): invalid perf_margin",
+                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
     }
 
     void EnergyEfficientRegionImp::update_freq_range(double freq_min, double freq_max, double freq_step)
@@ -78,6 +85,11 @@ namespace geopm
         }
     }
 
+    void EnergyEfficientRegionImp::update_perf_margin(double perf_margin)
+    {
+        m_perf_margin = perf_margin;
+    }
+
     double EnergyEfficientRegionImp::freq(void) const
     {
         return m_freq_min + (m_curr_step * m_freq_step);
@@ -89,7 +101,7 @@ namespace geopm
             auto &curr_freq_ctx = m_freq_ctx[m_curr_step];
             if (!std::isnan(m_last_perf) && m_last_perf != 0.0) {
                 if (m_target == 0.0) {
-                    m_target = (1.0 + M_PERF_MARGIN) * m_last_perf;
+                    m_target = (1.0 + m_perf_margin) * m_last_perf;
                 }
 
                 bool do_increase = false;
