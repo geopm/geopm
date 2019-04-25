@@ -103,7 +103,7 @@ Create policy for energy_efficient agent with minimum frequency of 1.2
 GHz and maximum frequency of 2.4 GHz:
 
     $ geopmagent -a energy_efficient -p 1.2e9,2.4e9
-    {"FREQ_MIN" : 1.2e+09, "FREQ_MAX" : 2.4e+09}
+    {"FREQ_MIN" : 1.2e+09, "FREQ_MAX" : 2.4e+09, "PERF_MARGIN": "NAN"}
 
 Create policy for monitor agent which does not require any policies.
 Note that GEOPM uses the monitor agent by default, in which case
