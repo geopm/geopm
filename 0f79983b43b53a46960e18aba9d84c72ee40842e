@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c2aed8fc_fa7a7308",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-25T18:37:14Z",
+      "side": 1,
+      "message": "std::fill(out_policy.begin(), out_policy.end(), in_policy);",
+      "range": {
+        "startLine": 145,
+        "startChar": 12,
+        "endLine": 145,
+        "endChar": 51
+      },
+      "revId": "0f79983b43b53a46960e18aba9d84c72ee40842e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a20f9eef_19f8840e",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-25T18:37:14Z",
+      "side": 1,
+      "message": "if (GEOPM_REGION_HASH_INVALID !\u003d m_last_region[ctl_idx].hash) {\n    auto it \u003d m_adapt_freq_map.find(m_last_region[ctl_idx].hash);\n    if (it !\u003d m_adapt_freq_map.end()) {\n        ...\n    }\n    else {\n        throw(...)\n    }\n}",
+      "range": {
+        "startLine": 174,
+        "startChar": 1,
+        "endLine": 182,
+        "endChar": 9
+      },
+      "revId": "0f79983b43b53a46960e18aba9d84c72ee40842e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4c49b24_4086630b",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-25T18:37:14Z",
+      "side": 1,
+      "message": "std::fill(...)",
+      "range": {
+        "startLine": 134,
+        "startChar": 16,
+        "endLine": 134,
+        "endChar": 46
+      },
+      "revId": "0f79983b43b53a46960e18aba9d84c72ee40842e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a190fb9_6f09890a",
+        "filename": "test/EnergyEfficientAgentTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-25T18:37:14Z",
+      "side": 1,
+      "message": "rm",
+      "range": {
+        "startLine": 51,
+        "startChar": 1,
+        "endLine": 51,
+        "endChar": 18
+      },
+      "revId": "0f79983b43b53a46960e18aba9d84c72ee40842e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a8fac0f_41ea9589",
+        "filename": "test/EnergyEfficientAgentTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-25T18:37:14Z",
+      "side": 1,
+      "message": "rm",
+      "range": {
+        "startLine": 95,
+        "startChar": 3,
+        "endLine": 95,
+        "endChar": 5
+      },
+      "revId": "0f79983b43b53a46960e18aba9d84c72ee40842e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8e207b1_e2c18b6b",
+        "filename": "test/EnergyEfficientAgentTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-25T18:37:14Z",
+      "side": 1,
+      "message": "rm",
+      "range": {
+        "startLine": 114,
+        "startChar": 3,
+        "endLine": 114,
+        "endChar": 5
+      },
+      "revId": "0f79983b43b53a46960e18aba9d84c72ee40842e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "902ee499_8abf0469",
+        "filename": "test/EnergyEfficientAgentTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-25T18:37:14Z",
+      "side": 1,
+      "message": "use gtest skip macro",
+      "range": {
+        "startLine": 182,
+        "startChar": 0,
+        "endLine": 182,
+        "endChar": 18
+      },
+      "revId": "0f79983b43b53a46960e18aba9d84c72ee40842e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a564964b_35b18650",
+        "filename": "test/Makefile.mk",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-25T18:37:14Z",
+      "side": 1,
+      "message": "rm",
+      "range": {
+        "startLine": 32,
+        "startChar": 24,
+        "endLine": 33,
+        "endChar": 23
+      },
+      "revId": "0f79983b43b53a46960e18aba9d84c72ee40842e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc6a3da6_d40dfdc5",
+        "filename": "test/Makefile.mk",
+        "patchSetId": 2
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-25T18:37:14Z",
+      "side": 1,
+      "message": "abc order or preferably, add to libgeopmpolicy.so.",
+      "range": {
+        "startLine": 347,
+        "startChar": 0,
+        "endLine": 348,
+        "endChar": 46
+      },
+      "revId": "0f79983b43b53a46960e18aba9d84c72ee40842e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
