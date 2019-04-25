@@ -91,6 +91,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/EnergyEfficientAgentTest.validate_policy_clamp \
               test/gtest_links/EnergyEfficientAgentTest.validate_policy_default \
               test/gtest_links/EnergyEfficientRegionTest.freq_starts_at_maximum \
+              test/gtest_links/EnergyEfficientRegionTest.invalid_perf_margin \
               test/gtest_links/EnergyEfficientRegionTest.update_ignores_nan_sample \
               test/gtest_links/EnvironmentTest.internal_defaults \
               test/gtest_links/EnvironmentTest.user_only \
