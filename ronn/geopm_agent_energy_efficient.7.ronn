@@ -44,11 +44,10 @@ dynamically by measuring the performance of each region and reducing
 the frequency as long as the performance is still within acceptable
 limits.  The performance metric used is the maximum of the runtimes
 reported by each rank for the last execution of the region in question
-(lower is better).  Up to 10% performance loss is allowed.  To avoid
-increasing energy due to performance loss in frequency-sensitive
-regions, any region marked with the GEOPM_REGION_HINT_COMPUTE or
-GEOPM_REGION_HINT_UNMARKED hints will always run at the maximum
-frequency from the policy.
+(lower is better).  Up to 10% performance loss is allowed, unless a
+different tolerance is specified with the `PERF_MARGIN` policy.  To
+avoid increasing energy due to performance loss, when not in a marked
+region, it will always run at the maximum frequency from the policy.
 
 ## AGENT BEHAVIOR HIGHLIGHTS
 Policies and samples are vectors of double precision values where each
@@ -76,6 +75,10 @@ reports and traces with additional Agent-specific information.
               choose for any region.  If NAN is passed, it will use
               the maximum available frequency by default.
 
+  `PERF_MARGIN`: The maximum performance degradation allowed when
+                 trying to lower the frequency for a region.  If
+                 NAN is passed, it will use 10% by default.
+
 * `Agent Sample Definitions`:
   N/A
 
@@ -84,8 +87,7 @@ reports and traces with additional Agent-specific information.
 
 * `Report Extensions`:
   The per-node learned best-fit frequency for each region is added to
-  the report, except for regions with the GEOPM_REGION_HINT_COMPUTE hint,
-  which run at maximum frequency.
+  the report.
 
 * `Control Loop Gate`:
   The agent gates the Controller's control loop to a cadence of 5ms.
