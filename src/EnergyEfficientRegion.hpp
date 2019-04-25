@@ -55,7 +55,8 @@ namespace geopm
     class EnergyEfficientRegionImp : public EnergyEfficientRegion
     {
         public:
-            EnergyEfficientRegionImp(double freq_min, double freq_max, double freq_step);
+            EnergyEfficientRegionImp(double freq_min, double freq_max,
+                                     double freq_step, double perf_margin);
             virtual ~EnergyEfficientRegionImp() = default;
             double freq(void) const override;
             void update_freq_range(double freq_min, double freq_max, double freq_step) override;

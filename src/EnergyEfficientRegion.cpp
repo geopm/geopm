@@ -44,8 +44,9 @@ namespace geopm
         return 1 + (size_t)(ceil((freq_max - freq_min) / freq_step));
     }
 
-    EnergyEfficientRegionImp::EnergyEfficientRegionImp(double freq_min, double freq_max, double freq_step)
-        : M_PERF_MARGIN(0.10)  // up to 10% degradation allowed
+    EnergyEfficientRegionImp::EnergyEfficientRegionImp(double freq_min, double freq_max,
+                                                       double freq_step, double perf_margin)
+        : M_PERF_MARGIN(perf_margin)
         , M_MAX_INCREASE(4)
         , m_is_learning(true)
         , m_max_step (calc_num_step(freq_min, freq_max, freq_step) - 1)
@@ -63,6 +64,12 @@ namespace geopm
             m_freq_ctx.push_back(geopm::make_unique<FreqContext>());
         }
         update_freq_range(freq_min, freq_max, freq_step);
+#ifdef GEOPM_DEBUG
+        if (perf_margin < 0.0 || perf_margin > 1.0) {
+            throw Exception("EnergyEfficientRegionImp::" + std::string(__func__) + "(): invalid perf_margin",
+                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
     }
 
     void EnergyEfficientRegionImp::update_freq_range(double freq_min, double freq_max, double freq_step)
