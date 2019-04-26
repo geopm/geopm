@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6bbcfe3_8731f5ce",
+        "filename": "src/Agent.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-26T18:45:11Z",
+      "side": 1,
+      "message": "PACKAGE_POWER_LIMIT",
+      "range": {
+        "startLine": 405,
+        "startChar": 29,
+        "endLine": 405,
+        "endChar": 40
+      },
+      "revId": "0436e57fac9687ef8746330f62eed917fc746937",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89b4a9fd_ac85328c",
+        "filename": "src/Agent.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-26T18:45:11Z",
+      "side": 1,
+      "message": "indent.",
+      "range": {
+        "startLine": 415,
+        "startChar": 8,
+        "endLine": 415,
+        "endChar": 93
+      },
+      "revId": "0436e57fac9687ef8746330f62eed917fc746937",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "618e8486_dc066bbb",
+        "filename": "src/Agent.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-04-26T18:45:11Z",
+      "side": 1,
+      "message": "pname[policy_idx] and use index based for loop.",
+      "range": {
+        "startLine": 422,
+        "startChar": 46,
+        "endLine": 422,
+        "endChar": 50
+      },
+      "revId": "0436e57fac9687ef8746330f62eed917fc746937",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
