@@ -44,7 +44,7 @@ import subprocess
 import psutil
 from natsort import natsorted
 from geopmpy import __version__
-
+import geopmpy.agent
 
 try:
     _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).split()
@@ -1181,8 +1181,7 @@ class AgentConf(object):
 
     """
     def __init__(self, path, agent='monitor', options=dict()):
-        supported_agents = {'monitor', 'power_governor', 'power_balancer', 'energy_efficient',
-                            'frequency_map'}
+        supported_agents = geopmpy.agent.names()
         self._path = path
         if agent not in supported_agents:
             raise SyntaxError('AgentConf does not support agent type: ' + agent + '!')
@@ -1205,11 +1204,8 @@ class AgentConf(object):
         """Write the current config to a file."""
         with open(self._path, "w") as outfile:
             if self._agent == 'power_governor':
-                    outfile.write("{{\"POWER\" : {}}}\n".format(str(self._options['power_budget'])))
+                outfile.write(geopmpy.agent.policy_json([self._options['power_budget']]))
             elif self._agent == 'power_balancer':
-                    outfile.write("{{\"POWER_CAP\" : {}, \"STEP_COUNT\" : {}, \"MAX_EPOCH_RUNTIME\" : {}"\
-                                  ", \"POWER_SLACK\" : {}}}\n"\
-                                  .format(str(self._options['power_budget']), str(0.0), str(0.0), str(0.0)))
+                outfile.write(geopmpy.agent.policy_json([self._options['power_budget'], 0.0, 0.0, 0.0]))
             elif self._agent in ['energy_efficient', 'frequency_map']:
-                    outfile.write("{{\"FREQ_MIN\" : {}, \"FREQ_MAX\" : {}}}\n"\
-                                  .format(str(self._options['frequency_min']), str(self._options['frequency_max'])))
+                outfile.write(geopmpy.agent.policy_json([self._options['frequency_min'], self._options['frequency_max']]))
