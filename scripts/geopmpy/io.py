@@ -44,7 +44,7 @@ import subprocess
 import psutil
 from natsort import natsorted
 from geopmpy import __version__
-
+import geopmpy.agent
 
 try:
     _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).split()
@@ -1181,8 +1181,7 @@ class AgentConf(object):
 
     """
     def __init__(self, path, agent='monitor', options=dict()):
-        supported_agents = {'monitor', 'power_governor', 'power_balancer', 'energy_efficient',
-                            'frequency_map'}
+        supported_agents = geopmpy.agent.names()
         self._path = path
         if agent not in supported_agents:
             raise SyntaxError('AgentConf does not support agent type: ' + agent + '!')
@@ -1211,9 +1210,5 @@ class AgentConf(object):
             elif self._agent in ['frequency_map']:
                 outfile.write(geopmpy.agent.policy_json(self._agent, [self._options['frequency_min'], self._options['frequency_max']]))
             elif self._agent in ['energy_efficient']:
-                # todo: fix integration tests
-                if 'perf_margin' not in self._options:
-                    self._options['perf_margin'] = 0.10
                 outfile.write(geopmpy.agent.policy_json(self._agent, [self._options['frequency_min'],
-                                                                      self._options['frequency_max'],
-                                                                      str(self._options['perf_margin'])]))
+                                                                      self._options['frequency_max']]))
