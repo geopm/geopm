@@ -31,11 +31,40 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-"""The geopm python package: launcher, error, io, pio, plotter, topo, agent,
-and version.
+import unittest
+import json
+import geopm_context
+import geopmpy.agent
 
-"""
 
-__all__ = ['agent', 'error', 'io', 'launcher', 'pio', 'plotter', 'topo', 'version']
+class TestAgent(unittest.TestCase):
+    def test_policy_names(self):
+        for agent in geopmpy.agent.names():
+            policy = geopmpy.agent.policy_names(agent)
+            self.assertTrue(type(policy) is list)
 
-from geopmpy.version import __version__
+    def test_sample_names(self):
+        for agent in geopmpy.agent.names():
+            sample = geopmpy.agent.sample_names(agent)
+            self.assertTrue(type(sample) is list)
+
+    def test_agent_names(self):
+        names = geopmpy.agent.names()
+        expected = set(['energy_efficient', 'power_balancer', 'power_governor',
+                        'frequency_map', 'monitor'])
+        self.assertEqual(expected, set(names))
+
+    def test_json(self):
+        for agent in geopmpy.agent.names():
+            policy_names = geopmpy.agent.policy_names(agent)
+            exp_policy = {}
+            for pp in policy_names:
+                exp_policy[unicode(pp)] = u'NAN'
+            policy_val = [float('nan')] * len(policy_names)
+            json_str = geopmpy.agent.policy_json(agent, policy_val)
+            res_policy = json.loads(json_str)
+            self.assertEqual(exp_policy, res_policy)
+
+
+if __name__ == '__main__':
+    unittest.main()

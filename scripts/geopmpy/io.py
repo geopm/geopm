@@ -44,7 +44,7 @@ import subprocess
 import psutil
 from natsort import natsorted
 from geopmpy import __version__
-
+from geopmpy import agent
 
 try:
     _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).split()
@@ -1203,13 +1203,11 @@ class AgentConf(object):
 
     def write(self):
         """Write the current config to a file."""
+        policy_values = [float('nan')] * len(agent.policy_names(self._agent))
+        if self.agent in ['power_governor', 'power_balancer']:
+            policy_values[0] = self._options['power_budget']
+        elif self._agent in ['frequency_map', 'energy_efficient']:
+            policy_values[0] = self._options['frequency_min']
+            policy_values[1] = self._options['frequency_max']
         with open(self._path, "w") as outfile:
-            if self._agent == 'power_governor':
-                    outfile.write("{{\"POWER\" : {}}}\n".format(str(self._options['power_budget'])))
-            elif self._agent == 'power_balancer':
-                    outfile.write("{{\"POWER_CAP\" : {}, \"STEP_COUNT\" : {}, \"MAX_EPOCH_RUNTIME\" : {}"\
-                                  ", \"POWER_SLACK\" : {}}}\n"\
-                                  .format(str(self._options['power_budget']), str(0.0), str(0.0), str(0.0)))
-            elif self._agent in ['energy_efficient', 'frequency_map']:
-                    outfile.write("{{\"FREQ_MIN\" : {}, \"FREQ_MAX\" : {}}}\n"\
-                                  .format(str(self._options['frequency_min']), str(self._options['frequency_max'])))
+            outfile.write(agent.policy_json(self._agent, policy_values))
