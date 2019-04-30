@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3febbd3c_b79d6bff",
+        "filename": "src/MSRIOGroup.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-30T18:58:23Z",
+      "side": 1,
+      "message": "!env_plugin_path.empty()",
+      "range": {
+        "startLine": 841,
+        "startChar": 12,
+        "endLine": 841,
+        "endChar": 36
+      },
+      "revId": "1cd7458d598d4583f1d9e1a64ac9333741ab122d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a2b9db3_0abfacd1",
+        "filename": "src/geopm_plugin.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-30T18:58:23Z",
+      "side": 1,
+      "message": "use .empty()",
+      "range": {
+        "startLine": 68,
+        "startChar": 16,
+        "endLine": 68,
+        "endChar": 44
+      },
+      "revId": "1cd7458d598d4583f1d9e1a64ac9333741ab122d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d668e91_56c2e728",
+        "filename": "src/geopm_pmpi.c",
+        "patchSetId": 25
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-30T18:58:23Z",
+      "side": 1,
+      "message": "Chris would feel better if everything from here down stays in .c file, but everything above can move to cpp.  This should allow getting rid of all the C interfaces to the environment, and geopm_env_load().",
+      "range": {
+        "startLine": 332,
+        "startChar": 0,
+        "endLine": 332,
+        "endChar": 39
+      },
+      "revId": "1cd7458d598d4583f1d9e1a64ac9333741ab122d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
