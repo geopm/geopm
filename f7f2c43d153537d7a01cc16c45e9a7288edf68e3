@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b42fbfa7_76d3baca",
+        "filename": "src/EnergyEfficientRegion.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-30T17:52:13Z",
+      "side": 1,
+      "message": "record perf target (m_ref_perf).  is policy for perf margin changes, recalculate the target inside update_perf_margin().",
+      "revId": "f7f2c43d153537d7a01cc16c45e9a7288edf68e3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e6271b4_ebef9539",
+        "filename": "src/EnergyEfficientRegion.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-30T17:52:13Z",
+      "side": 1,
+      "message": "get rid of this.  we always call adjust_platform() before sample_platform() so the m_perf_margin in the agent should have been set.",
+      "revId": "f7f2c43d153537d7a01cc16c45e9a7288edf68e3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
