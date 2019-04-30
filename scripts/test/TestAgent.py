@@ -31,11 +31,46 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-"""The geopm python package: launcher, error, io, pio, plotter, topo, agent,
-and version.
+import unittest
+import geopm_context
+import geopmpy.agent
 
-"""
 
-__all__ = ['launcher', 'error', 'io', 'pio', 'plotter', 'topo', 'version', 'agent']
+class TestAgent(unittest.TestCase):
+    def test_is_supported(self):
+        self.assertTrue(geopmpy.agent.is_supported('energy_efficient'))
+        self.assertTrue(geopmpy.agent.is_supported('power_balancer'))
+        self.assertTrue(geopmpy.agent.is_supported('power_governor'))
+        self.assertTrue(geopmpy.agent.is_supported('frequency_map'))
+        self.assertTrue(geopmpy.agent.is_supported('monitor'))
 
-from geopmpy.version import __version__
+    def test_policy_names(self):
+        for agent in geopmpy.agent.names():
+            policy = geopmpy.agent.policy_names(agent)
+            self.assertTrue(type(policy) is list)
+
+    def test_sample_names(self):
+        for agent in geopmpy.agent.names():
+            sample = geopmpy.agent.sample_names(agent)
+            self.assertTrue(type(sample) is list)
+
+    def test_agent_names(self):
+        names = geopmpy.agent.names()
+        self.assertTrue('energy_efficient' in names)
+        self.assertTrue('power_balancer' in names)
+        self.assertTrue('power_governor' in names)
+        self.assertTrue('frequency_map' in names)
+        self.assertTrue('monitor' in names)
+
+    def test_json(self):
+        for agent in geopmpy.agent.names():
+            policy = geopmpy.agent.policy_names(agent)
+            num_policy = len(policy)
+            policy_val = [float('nan')]*num_policy
+            json_str = geopmpy.agent.policy_json(agent, policy_val)
+            for policy_name in policy:
+                self.assertTrue(policy_name in json_str)
+
+
+if __name__ == '__main__':
+    unittest.main()
