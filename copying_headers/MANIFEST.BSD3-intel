@@ -34,6 +34,7 @@ scripts/geopmanalysis
 scripts/geopmlaunch
 scripts/geopmplotter
 scripts/geopmpy/__init__.py
+scripts/geopmpy/agent.py
 scripts/geopmpy/analysis.py
 scripts/geopmpy/error.py
 scripts/geopmpy/io.py
@@ -45,6 +46,7 @@ scripts/geopmpy/version.py.in
 scripts/outlier/outlier_detection.py
 scripts/setup.py.in
 scripts/test/TestAffinity.py
+scripts/test/TestAgent.py
 scripts/test/TestAnalysisCommandLine.py
 scripts/test/TestBalancerAnalysis.py
 scripts/test/TestError.py
