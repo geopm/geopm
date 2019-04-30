@@ -84,7 +84,8 @@ install_requires = ['pandas>=0.19.2',
                     'matplotlib',
                     'cycler',
                     'tables',
-                    'psutil']
+                    'psutil',
+                    'cffi']
 
 setup(name='geopmpy',
       version=__version__,
