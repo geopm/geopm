@@ -107,12 +107,12 @@ int geopm_agent_policy_json(const char *agent_name,
                             char *json_string);
 
 /*!
- *  @brief The number of sampled paramters provided by agent.
+ *  @brief The number of sampled parameters provided by agent.
  *
  *  @param [in] agent_name Name of agent type.
  *
  *  @param [out] num_sample The number of values provided by the agent
- *         when the geopm_endpoint_agent_sample() function is called.
+ *         when the geopm_agent_sample_name() function is called.
  *
  *  @return Zero on success, error code on failure.
  */
@@ -130,7 +130,7 @@ int geopm_agent_num_sample(const char *agent_name,
  *         sample_name string.
  *
  *  @param [out] sample_name The name of the sample parameter provided
- *         by the indexed entry when the geopm_endpoint_agent_sample()
+ *         by the indexed entry when the geopm_agent_sample_name()
  *         function is called.  String is unmodified if an error
  *         condition occurs.
  *
