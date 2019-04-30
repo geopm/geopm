@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8dcb5e46_e1ed170f",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-30T19:09:30Z",
+      "side": 1,
+      "message": "\"30\", \"-1\"",
+      "revId": "e83d74932137cf70d18ed775a99662df009c0f74",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31df5671_374b8eb2",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-04-30T19:09:30Z",
+      "side": 1,
+      "message": "can simplify this with m_vars.find().  If this is the only place do_throw is used, we can get rid of it.",
+      "revId": "e83d74932137cf70d18ed775a99662df009c0f74",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
