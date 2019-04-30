@@ -39,6 +39,7 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmlaunch \
               scripts/geopmplotter \
               scripts/geopmpy/__init__.py \
+              scripts/geopmpy/agent.py \
               scripts/geopmpy/analysis.py \
               scripts/geopmpy/error.py \
               scripts/geopmpy/io.py \
@@ -51,6 +52,7 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/setup.py \
               scripts/setup.py.in \
               scripts/test/TestAffinity.py \
+              scripts/test/TestAgent.py \
               scripts/test/TestAnalysisCommandLine.py \
               scripts/test/TestBalancerAnalysis.py \
               scripts/test/TestError.py \
@@ -92,6 +94,11 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestAffinity.test_per_core_rank_1reserved_noht \
                scripts/test/pytest_links/TestAffinity.test_per_core_rank_2reserved_noht \
                scripts/test/pytest_links/TestAffinity.test_per_core_rank_noht \
+               scripts/test/pytest_links/TestAgent.test_agent_names \
+               scripts/test/pytest_links/TestAgent.test_is_supported \
+               scripts/test/pytest_links/TestAgent.test_json \
+               scripts/test/pytest_links/TestAgent.test_policy_names \
+               scripts/test/pytest_links/TestAgent.test_sample_names \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_bad_type \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_help \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_help_custom \
