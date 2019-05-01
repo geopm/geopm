@@ -518,7 +518,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/geopm.h \
                             src/geopm_agent.h \
                             src/geopm_endpoint.h \
-                            src/geopm_env.h \
                             src/geopm_error.h \
                             src/geopm_hash.c \
                             src/geopm_hash.h \
@@ -545,7 +544,6 @@ geopmread_SOURCES = src/geopmread_main.cpp \
 geopmwrite_SOURCES = src/geopmwrite_main.cpp \
                      #end
 geopmagent_SOURCES = src/geopm_agent.h \
-                     src/geopm_env.h \
                      src/geopm_error.h \
                      src/geopm_version.h \
                      src/geopmagent_main.c \
@@ -563,6 +561,7 @@ if ENABLE_MPI
                           src/geopm_ctl.h \
                           src/geopm_mpi_comm_split.h \
                           src/geopm_pmpi.c \
+                          src/geopm_pmpi_helper.cpp \
                           src/geopm_pmpi.h \
                           # end
 if ENABLE_FORTRAN

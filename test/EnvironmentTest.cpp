@@ -43,7 +43,6 @@ extern const char *program_invocation_name;
 #include "contrib/json11/json11.hpp"
 
 #include "gtest/gtest.h"
-#include "geopm_env.h"
 #include "geopm_error.h"
 #include "geopm_internal.h"
 #include "Environment.hpp"
@@ -53,11 +52,6 @@ extern const char *program_invocation_name;
 using json11::Json;
 using geopm::Environment;
 using geopm::EnvironmentImp;
-
-extern "C"
-{
-    void geopm_env_load(void);
-}
 
 class EnvironmentTest: public :: testing :: Test
 {
@@ -400,28 +394,4 @@ TEST_F(EnvironmentTest, invalid_ctl)
     m_env = geopm::make_unique<EnvironmentImp>("", "");
 
     EXPECT_THROW(m_env->pmpi_ctl(), geopm::Exception);
-}
-
-TEST_F(EnvironmentTest, c_apis)
-{
-    std::map<std::string, std::string> exp_vars = {
-        {"GEOPM_CTL", "process"},
-        {"GEOPM_DEBUG_ATTACH", "42"},
-        {"GEOPM_PROFILE", "c_apis-profile"},
-    };
-    setenv("GEOPM_CTL", exp_vars.at("GEOPM_CTL").c_str(), 1);
-    setenv("GEOPM_DEBUG_ATTACH", exp_vars.at("GEOPM_DEBUG_ATTACH").c_str(), 1);
-    setenv("GEOPM_PROFILE", exp_vars.at("GEOPM_PROFILE").c_str(), 1);
-
-    geopm_env_load();
-
-    int test_pmpi_ctl = 0xdeadbeef;
-    int test_do_profile = 0xdeadbeef;
-    int test_debug_attach = 0xdeadbeef;
-    (void)geopm_env_pmpi_ctl(&test_pmpi_ctl);
-    (void)geopm_env_do_profile(&test_do_profile);
-    (void)geopm_env_debug_attach(&test_debug_attach);
-    EXPECT_EQ(GEOPM_CTL_PROCESS, test_pmpi_ctl);
-    EXPECT_EQ(1, test_do_profile);
-    EXPECT_EQ(exp_vars["GEOPM_DEBUG_ATTACH"], std::to_string(test_debug_attach));
 }

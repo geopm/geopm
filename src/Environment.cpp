@@ -50,7 +50,6 @@ const char *program_invocation_name = "geopm_profile";
 
 #include "contrib/json11/json11.hpp"
 
-#include "geopm_env.h"
 #include "geopm_internal.h"
 #include "Exception.hpp"
 #include "Helper.hpp"
@@ -165,24 +164,14 @@ namespace geopm
                              "GEOPM_TRACE",
                              "GEOPM_CTL",
                             })
-    {
-        load(default_settings_path, override_settings_path);
-    }
-
-    void EnvironmentImp::load(void)
-    {
-        load(DEFAULT_SETTINGS_PATH, OVERRIDE_SETTINGS_PATH);
-    }
-
-    void EnvironmentImp::load(const std::string &default_settings_path, const std::string &override_settings_path)
-    {
-        m_vars = {{"GEOPM_COMM" ,"MPIComm"},
+        , m_vars ({{"GEOPM_COMM" ,"MPIComm"},
                   {"GEOPM_AGENT", "monitor"},
                   {"GEOPM_SHMKEY", "/geopm-shm-" + std::to_string(geteuid())},
                   {"GEOPM_MAX_FAN_OUT", "16"},
                   {"GEOPM_TIMEOUT", "30"},
                   {"GEOPM_DEBUG_ATTACH", "-1"},
-                 };
+                  })
+    {
         parse_environment_file(m_known_vars, default_settings_path, m_vars);
 
         parse_environment(m_known_vars, m_vars);
@@ -318,64 +307,5 @@ namespace geopm
     int EnvironmentImp::debug_attach(void) const
     {
         return std::stoi(at_env("GEOPM_DEBUG_ATTACH"));
-    }
-}
-
-extern "C"
-{
-    void geopm_env_load(void)
-    {
-        geopm::test_environment().load();
-    }
-
-    int geopm_env_pmpi_ctl(int *pmpi_ctl)
-    {
-        int err = 0;
-        try {
-            if (!pmpi_ctl) {
-                err = GEOPM_ERROR_INVALID;
-            }
-            else {
-                *pmpi_ctl = geopm::environment().pmpi_ctl();
-            }
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception(), false);
-        }
-        return err;
-    }
-
-    int geopm_env_do_profile(int *do_profile)
-    {
-        int err = 0;
-        try {
-            if (!do_profile) {
-                err = GEOPM_ERROR_INVALID;
-            }
-            else {
-                *do_profile = geopm::environment().do_profile();
-            }
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception(), false);
-        }
-        return err;
-    }
-
-    int geopm_env_debug_attach(int *debug_attach)
-    {
-        int err = 0;
-        try {
-            if (!debug_attach) {
-                err = GEOPM_ERROR_INVALID;
-            }
-            else {
-                *debug_attach = geopm::environment().debug_attach();
-            }
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception(), false);
-        }
-        return err;
     }
 }

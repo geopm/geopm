@@ -56,4 +56,7 @@ uint64_t geopm_mpi_func_rid(const char *func_name);
 
 #define GEOPM_PMPI_EXIT_MACRO geopm_mpi_region_exit(func_rid);
 
+int geopm_pmpi_init_thread(int *argc, char **argv[], int required, int *provided);
+int geopm_pmpi_finalize(void);
+MPI_Comm geopm_swap_comm_world(MPI_Comm comm);
 #endif //GEOPM_PMPI_H_INCLUDE
