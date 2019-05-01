@@ -36,7 +36,6 @@
 #include "gmock/gmock.h"
 #include "geopm_test.hpp"
 #include "geopm_internal.h"
-#include "geopm_env.h"
 #include "Helper.hpp"
 #include "Profile.hpp"
 #include "Exception.hpp"

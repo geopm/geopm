@@ -66,6 +66,17 @@ extern "C"
     #define MPI_MAX_OBJECT_NAME 16
     #define MPI_INFO_NULL 0
 
+    static int g_is_geopm_pmpi_ctl_enabled = 0;
+    static MPI_Comm g_geopm_comm_world_swap = MPI_COMM_WORLD;
+    static MPI_Comm g_ppn1_comm = MPI_COMM_NULL;
+    static struct geopm_ctl_c *g_ctl = NULL;
+
+    MPI_Comm geopm_swap_comm_world(MPI_Comm comm)
+    {
+        return comm != MPI_COMM_WORLD ?
+               comm : g_geopm_comm_world_swap;
+    }
+
     // will be set to MPI region ID in test setup
     uint64_t G_EXPECTED_REGION_ID = 1234;
 
@@ -143,9 +154,33 @@ extern "C"
         return 0;
     }
 
+#include "geopm_internal.h"
+
+    void geopm_mpi_region_enter(uint64_t func_rid)
+    {
+        if (func_rid) {
+            geopm_prof_enter(func_rid);
+        }
+        geopm_prof_enter(GEOPM_REGION_ID_MPI);
+    }
+
+    void geopm_mpi_region_exit(uint64_t func_rid)
+    {
+        geopm_prof_exit(GEOPM_REGION_ID_MPI);
+        if (func_rid) {
+            geopm_prof_exit(func_rid);
+        }
+    }
     int geopm_prof_region(const char *region_name, uint64_t hint, uint64_t *region_id) {
         *region_id = G_EXPECTED_REGION_ID;
         return 0;
+    }
+
+    uint64_t geopm_mpi_func_rid(const char *func_name)
+    {
+        uint64_t result = 0;
+        (void)geopm_prof_region(func_name, 0x0, &result);
+        return result;
     }
 } // end extern C
 
@@ -234,9 +269,6 @@ TEST_F(MPIInterfaceTest, geopm_api)
     EXPECT_EQ((uint64_t)0, g_test_curr_region_enter_id);
     EXPECT_EQ(0, g_test_curr_region_enter_count);
     reset();
-
-    // TODO setenv for GEOPM_CTL_PROCESS
-    // TODO setenv for GEOPM_CTL_PTHREAD
 }
 
 TEST_F(MPIInterfaceTest, mpi_api)
