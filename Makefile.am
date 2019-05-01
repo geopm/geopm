@@ -419,6 +419,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/Controller.hpp \
                             src/CpuinfoIOGroup.cpp \
                             src/CpuinfoIOGroup.hpp \
+                            src/DebugIOGroup.cpp \
+                            src/DebugIOGroup.hpp \
                             src/DefaultProfile.cpp \
                             src/EnergyEfficientAgent.cpp \
                             src/EnergyEfficientAgent.hpp \
