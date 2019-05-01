@@ -151,6 +151,8 @@ extern "C"
 
 #define GEOPM_TEST
 #include "geopm_pmpi.c"
+// somethings up here with extern C?
+#include "geopm_pmpi_helper.cpp"
 
 class MPIInterfaceTest: public :: testing :: Test
 {
