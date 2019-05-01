@@ -48,6 +48,7 @@
 #include "PlatformTopo.hpp"
 #include "Helper.hpp"
 #include "Exception.hpp"
+#include "DebugIOGroup.hpp"
 #include "config.h"
 
 using json11::Json;
@@ -76,7 +77,8 @@ namespace geopm
         , m_num_children(0)
         , m_do_send_policy(false)
     {
-
+        m_debug_iog = std::make_shared<DebugIOGroup>(m_platform_topo);
+        m_platform_io.register_iogroup(m_debug_iog);
     }
 
     std::string EnergyEfficientAgent::plugin_name(void)
@@ -324,6 +326,14 @@ namespace geopm
                                                           .hint = GEOPM_REGION_HINT_UNKNOWN,
                                                           .progress = 0,
                                                           .runtime = 0});
+        std::vector<double*> runtime_ptr(m_num_freq_ctl_domain);
+        std::vector<uint64_t*> hash_ptr(m_num_freq_ctl_domain);
+        for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
+            runtime_ptr[ctl_idx] = &m_last_region[ctl_idx].runtime;
+            hash_ptr[ctl_idx] = &m_last_region[ctl_idx].hash;
+        }
+        m_debug_iog->register_signal("EE::last_runtime", freq_ctl_domain_type, runtime_ptr);
+        m_debug_iog->register_signal("EE::last_hash#", freq_ctl_domain_type, hash_ptr);
 
         std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT", "REGION_RUNTIME"};
 

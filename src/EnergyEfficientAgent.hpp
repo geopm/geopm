@@ -50,6 +50,7 @@ namespace geopm
     class PlatformTopo;
     class EnergyEfficientRegion;
     class FrequencyGovernor;
+    class DebugIOGroup;
 
     class EnergyEfficientAgent : public Agent
     {
@@ -112,6 +113,7 @@ namespace geopm
             int m_level;
             int m_num_children;
             bool m_do_send_policy;
+            std::shared_ptr<DebugIOGroup> m_debug_iog;
     };
 }
 
