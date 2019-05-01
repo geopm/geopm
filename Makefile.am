@@ -563,6 +563,7 @@ if ENABLE_MPI
                           src/geopm_ctl.h \
                           src/geopm_mpi_comm_split.h \
                           src/geopm_pmpi.c \
+                          src/geopm_pmpi_helper.cpp \
                           src/geopm_pmpi.h \
                           # end
 if ENABLE_FORTRAN
