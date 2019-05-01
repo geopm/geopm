@@ -214,19 +214,31 @@ namespace geopm
         m_platform_io.restore_control();
     }
 
+    void Controller::create_agents(void)
+    {
+        if (m_agent.size() == 0) {
+            for (int level = 0; level < m_max_level; ++level) {
+                m_agent.push_back(agent_factory().make_plugin(m_agent_name));
+            }
+        }
+    }
+
     void Controller::init_agents(void)
     {
+#ifdef GEOPM_DEBUG
+        if (m_agent.size() != m_max_level) {
+            throw Exception("Controller must call create_agents() before init_agents().",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
         std::vector<int> fan_in(m_tree_comm->root_level());
         int level = 0;
         for (auto &it : fan_in) {
             it = m_tree_comm->level_size(level);
             ++level;
         }
-        if (m_agent.size() == 0) {
-            for (level = 0; level < m_max_level; ++level) {
-                m_agent.push_back(agent_factory().make_plugin(m_agent_name));
-                m_agent.back()->init(level, fan_in, (level < m_tree_comm->num_level_controlled()));
-            }
+        for (level = 0; level < m_max_level; ++level) {
+            m_agent[level]->init(level, fan_in, (level < m_tree_comm->num_level_controlled()));
         }
 
         /// @todo move somewhere else: need to happen after Agents are constructed
@@ -244,6 +256,8 @@ namespace geopm
     void Controller::run(void)
     {
         m_application_io->connect();
+        geopm_signal_handler_check();
+        create_agents();
         geopm_signal_handler_check();
         m_platform_io.save_control();
         geopm_signal_handler_check();
