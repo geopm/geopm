@@ -48,6 +48,7 @@
 #include "PlatformTopo.hpp"
 #include "Helper.hpp"
 #include "Exception.hpp"
+#include "DebugIOGroup.hpp"
 #include "config.h"
 
 using json11::Json;
@@ -69,14 +70,34 @@ namespace geopm
         , m_platform_io(plat_io)
         , m_platform_topo(topo)
         , m_freq_governor(gov)
-        , m_num_freq_ctl_domain(-1)
+        , m_freq_ctl_domain_type(m_freq_governor->frequency_domain_type())
+        , m_num_freq_ctl_domain(m_platform_topo.num_domain(m_freq_ctl_domain_type))
         , m_region_map(region_map)
         , m_last_wait(GEOPM_TIME_REF)
         , m_level(-1)
         , m_num_children(0)
         , m_do_send_policy(false)
     {
+        // debug values: last_runtime, last_hash
+        int total_values = m_num_freq_ctl_domain + m_num_freq_ctl_domain;
+        m_debug_values = std::make_shared<std::vector<double> >(total_values);
+        m_debug_iog = std::make_shared<DebugIOGroup>(m_platform_topo, m_debug_values);
+        m_debug_iog->register_signal("EE::last_runtime", m_freq_ctl_domain_type);
+        m_debug_iog->register_signal("EE::last_hash#", m_freq_ctl_domain_type);
+        m_platform_io.register_iogroup(m_debug_iog);
+    }
 
+    void EnergyEfficientAgent::update_debug_values(void)
+    {
+        // Values for the same signal must be adjacent in the vector
+        // and in the order they were registered. Do not fuse these loops.
+        int debug_idx = 0;
+        for (int ctl_idx = 0; ctl_idx < m_num_freq_ctl_domain; ++ctl_idx, ++debug_idx) {
+            (*m_debug_values)[debug_idx] = m_last_region[ctl_idx].runtime;
+        }
+        for (int ctl_idx = 0; ctl_idx < m_num_freq_ctl_domain; ++ctl_idx, ++debug_idx) {
+            (*m_debug_values)[debug_idx] = geopm_field_to_signal(m_last_region[ctl_idx].hash);
+        }
     }
 
     std::string EnergyEfficientAgent::plugin_name(void)
@@ -316,22 +337,18 @@ namespace geopm
     void EnergyEfficientAgent::init_platform_io(void)
     {
         m_freq_governor->init_platform_io();
-        const int freq_ctl_domain_type = m_freq_governor->frequency_domain_type();
-        m_num_freq_ctl_domain = m_platform_topo.num_domain(freq_ctl_domain_type);
         m_last_region = std::vector<struct geopm_region_info_s>(m_num_freq_ctl_domain,
                                                           (struct geopm_region_info_s) {
                                                           .hash = GEOPM_REGION_HASH_INVALID,
                                                           .hint = GEOPM_REGION_HINT_UNKNOWN,
                                                           .progress = 0,
                                                           .runtime = 0});
-
         std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT", "REGION_RUNTIME"};
-
         for (size_t sig_idx = 0; sig_idx < signal_names.size(); ++sig_idx) {
             m_signal_idx.push_back(std::vector<int>());
             for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
                 m_signal_idx[sig_idx].push_back(m_platform_io.push_signal(signal_names[sig_idx],
-                            freq_ctl_domain_type, ctl_idx));
+                                                                          m_freq_ctl_domain_type, ctl_idx));
             }
         }
     }

@@ -50,6 +50,7 @@ namespace geopm
     class PlatformTopo;
     class EnergyEfficientRegion;
     class FrequencyGovernor;
+    class DebugIOGroup;
 
     class EnergyEfficientAgent : public Agent
     {
@@ -85,6 +86,7 @@ namespace geopm
         private:
             bool update_freq_range(const std::vector<double> &in_policy);
             void init_platform_io(void);
+            void update_debug_values(void);
 
             enum m_policy_e {
                 M_POLICY_FREQ_MIN,
@@ -103,7 +105,8 @@ namespace geopm
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
             std::shared_ptr<FrequencyGovernor> m_freq_governor;
-            int m_num_freq_ctl_domain;
+            const int m_freq_ctl_domain_type;
+            const int m_num_freq_ctl_domain;
             std::vector<struct geopm_region_info_s>  m_last_region;
             std::map<uint64_t, double> m_adapt_freq_map;
             std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > m_region_map;
@@ -112,6 +115,8 @@ namespace geopm
             int m_level;
             int m_num_children;
             bool m_do_send_policy;
+            std::shared_ptr<std::vector<double> > m_debug_values;
+            std::shared_ptr<DebugIOGroup> m_debug_iog;
     };
 }
 
