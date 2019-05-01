@@ -48,6 +48,7 @@
 #include "PlatformTopo.hpp"
 #include "Helper.hpp"
 #include "Exception.hpp"
+#include "DebugIOGroup.hpp"
 #include "config.h"
 
 using json11::Json;
@@ -80,7 +81,28 @@ namespace geopm
         , m_do_send_policy(false)
         , m_perf_margin(M_POLICY_PERF_MARGIN_DEFAULT)
     {
+        // debug values: last_runtime, last_hash, perf margin
+        int total_values = 2*m_num_freq_ctl_domain + 1;
+        m_debug_values = std::make_shared<std::vector<double> >(total_values);
+        m_debug_iog = std::make_shared<DebugIOGroup>(m_platform_topo, m_debug_values);
+        m_debug_iog->register_signal("EE::last_runtime", m_freq_ctl_domain_type);
+        m_debug_iog->register_signal("EE::last_hash#", m_freq_ctl_domain_type);
+        m_debug_iog->register_signal("EE::perf_margin", GEOPM_DOMAIN_BOARD);
+        m_platform_io.register_iogroup(m_debug_iog);
+    }
 
+    void EnergyEfficientAgent::update_debug_values(void)
+    {
+        // Values for the same signal must be adjacent in the vector
+        // and in the order they were registered. Do not fuse these loops.
+        int debug_idx = 0;
+        for (int ctl_idx = 0; ctl_idx < m_num_freq_ctl_domain; ++ctl_idx, ++debug_idx) {
+            (*m_debug_values)[debug_idx] = m_last_region[ctl_idx].runtime;
+        }
+        for (int ctl_idx = 0; ctl_idx < m_num_freq_ctl_domain; ++ctl_idx, ++debug_idx) {
+            (*m_debug_values)[debug_idx] = geopm_field_to_signal(m_last_region[ctl_idx].hash);
+        }
+        (*m_debug_values)[debug_idx] = m_perf_margin;
     }
 
     std::string EnergyEfficientAgent::plugin_name(void)
@@ -247,6 +269,7 @@ namespace geopm
                 m_last_region[ctl_idx] = {current_region_hash, current_region_hint, 0, current_region_runtime};
             }
         }
+        update_debug_values();
     }
 
     bool EnergyEfficientAgent::do_send_sample(void) const
@@ -347,14 +370,12 @@ namespace geopm
                                                           .hint = GEOPM_REGION_HINT_UNKNOWN,
                                                           .progress = 0,
                                                           .runtime = 0});
-
         std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT", "REGION_RUNTIME"};
-
         for (size_t sig_idx = 0; sig_idx < signal_names.size(); ++sig_idx) {
             m_signal_idx.push_back(std::vector<int>());
             for (int ctl_idx = 0; ctl_idx < m_num_freq_ctl_domain; ++ctl_idx) {
                 m_signal_idx[sig_idx].push_back(m_platform_io.push_signal(signal_names[sig_idx],
-                            m_freq_ctl_domain_type, ctl_idx));
+                                                                          m_freq_ctl_domain_type, ctl_idx));
             }
         }
     }
