@@ -72,7 +72,6 @@ namespace geopm
             EnvironmentImp();
             EnvironmentImp(const std::string &default_settings_path, const std::string &override_settings_path);
             virtual ~EnvironmentImp() = default;
-            void load(void);
             std::string report(void) const override;
             std::string comm(void) const override;
             std::string policy(void) const override;
@@ -92,12 +91,11 @@ namespace geopm
             int timeout(void) const override;
             int debug_attach(void) const override;
         protected:
-            void load(const std::string &default_settings_path, const std::string &override_settings_path);
             bool is_set(const std::string &env_var) const;
             std::string at_env(const std::string &env_var) const;
-            std::map<std::string, std::string> m_vars;
             const std::set<std::string> m_known_vars;
             const std::set<std::string> m_require_runtime;
+            std::map<std::string, std::string> m_vars;
     };
 
     const Environment &environment(void);
