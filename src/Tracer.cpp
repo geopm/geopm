@@ -200,7 +200,7 @@ namespace geopm
                 }
 #endif
                 m_buffer << "0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
-                m_buffer << (uint64_t) m_last_telemetry[idx];
+                m_buffer << geopm_signal_to_field(m_last_telemetry[idx]);
                 m_buffer << std::setfill('\0') << std::setw(0) << std::scientific;
             }
             else if ((int)idx == m_region_progress_idx) {
