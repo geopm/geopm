@@ -395,6 +395,25 @@ _application_ to the command line argument.  In the case of
 launching the controller as a separate application is handled through
 the `geopmctl` binary.
 
+The interpretation of the environment is effected if either of the
+GEOPM configuration files exist:
+
+    /etc/geopm/environment-default.json
+    /etc/geopm/environment-override.json
+
+These files may specify system default and override settings for all
+of the GEOPM environment variables.  The `environment-default.json`
+file contains a json object mapping geopm environment variable strings
+to strings that defines default values for any unspecified GEOPM
+environment variable or unspecified `geopmlaunch` command line
+options.  The `environment-override.json` contains a json object that
+defines values for GEOPM environment variables that take precedence
+over any settings provided by the user either through the environment
+or through the `geopmlaunch` command line options.  The order of
+precedence for each GEOPM variable is: override configuration file,
+`geopmlaunch` command line option, environment setting, and then the
+default configuration file.
+
 The `KMP_WARNINGS` environment variable is set to 'FALSE', thus
 disabling the Intel OpenMP warnings.  This avoids warnings emitted
 because the launcher configures the `OMP_PROC_BIND` environment
