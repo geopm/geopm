@@ -48,6 +48,7 @@ extern const char *program_invocation_name;
 #include "Exception.hpp"
 #include "Helper.hpp"
 
+using geopm::Environment;
 using geopm::EnvironmentImp;
 
 extern "C"
@@ -55,7 +56,7 @@ extern "C"
     void geopm_env_load(void);
 }
 
-class EnvironmentTest: public :: testing :: Test, protected EnvironmentImp
+class EnvironmentTest: public :: testing :: Test
 {
     protected:
         void SetUp();
@@ -66,6 +67,7 @@ class EnvironmentTest: public :: testing :: Test, protected EnvironmentImp
         const std::string M_OVERRIDE_PATH = "env_test_override.json";
         std::map<std::string, std::string> m_user;
         std::map<std::string, int> m_pmpi_ctl_map;
+        std::unique_ptr<Environment> m_env;
 };
 
 void EnvironmentTest::vars_to_json(std::map<std::string, std::string> vars, const std::string &path)
@@ -87,35 +89,51 @@ void EnvironmentTest::vars_to_json(std::map<std::string, std::string> vars, cons
     json_file_out.close();
 }
 
+static std::string at_env(const std::map<std::string, std::string> &exp_vars, const std::string &env_var)
+{
+    return exp_vars.at(env_var);
+}
+
+static bool is_set(const std::map<std::string, std::string> &exp_vars, const std::string& env_var)
+{
+    bool ret = false;
+    try {
+        (void)at_env(exp_vars, env_var);
+        ret = true;
+    } catch (...) {
+    }
+    return ret;
+}
+
 void EnvironmentTest::expect_vars(std::map<std::string, std::string> exp_vars) const
 {
-    EXPECT_EQ(exp_vars["GEOPM_REPORT"], this->report());
-    EXPECT_EQ(exp_vars["GEOPM_COMM"], this->comm());
-    EXPECT_EQ(exp_vars["GEOPM_POLICY"], this->policy());
-    EXPECT_EQ(exp_vars["GEOPM_AGENT"], this->agent());
-    EXPECT_EQ(exp_vars["GEOPM_SHMKEY"], this->shmkey());
-    EXPECT_EQ(exp_vars["GEOPM_TRACE"], this->trace());
-    EXPECT_EQ(is_set("GEOPM_TRACE") , this->do_trace());
-    EXPECT_EQ(exp_vars["GEOPM_PLUGIN_PATH"], this->plugin_path());
-    EXPECT_EQ(exp_vars["GEOPM_PROFILE"], this->profile());
-    EXPECT_EQ(is_set("GEOPM_PROFILE") ||
-              is_set("GEOPM_REPORT") ||
-              is_set("GEOPM_TRACE") ||
-              exp_vars["GEOPM_CTL"] != "none", this->do_profile());
-    EXPECT_EQ(exp_vars["GEOPM_FREQUENCY_MAP"], this->frequency_map());
+    EXPECT_EQ(is_set(exp_vars, "GEOPM_TRACE") , m_env->do_trace());
+    EXPECT_EQ(is_set(exp_vars, "GEOPM_PROFILE") ||
+              is_set(exp_vars, "GEOPM_REPORT") ||
+              is_set(exp_vars, "GEOPM_TRACE") ||
+              exp_vars["GEOPM_CTL"] != "none", m_env->do_profile());
+    EXPECT_EQ(exp_vars["GEOPM_REPORT"], m_env->report());
+    EXPECT_EQ(exp_vars["GEOPM_COMM"], m_env->comm());
+    EXPECT_EQ(exp_vars["GEOPM_POLICY"], m_env->policy());
+    EXPECT_EQ(exp_vars["GEOPM_AGENT"], m_env->agent());
+    EXPECT_EQ(exp_vars["GEOPM_SHMKEY"], m_env->shmkey());
+    EXPECT_EQ(exp_vars["GEOPM_TRACE"], m_env->trace());
+    EXPECT_EQ(exp_vars["GEOPM_PLUGIN_PATH"], m_env->plugin_path());
+    EXPECT_EQ(exp_vars["GEOPM_PROFILE"], m_env->profile());
+    EXPECT_EQ(exp_vars["GEOPM_FREQUENCY_MAP"], m_env->frequency_map());
     auto it = m_pmpi_ctl_map.find(exp_vars["GEOPM_CTL"]);
     if (it == m_pmpi_ctl_map.end()) {
-        EXPECT_THROW(this->pmpi_ctl(), geopm::Exception);
+        EXPECT_THROW(m_env->pmpi_ctl(), geopm::Exception);
     }
     else {
-        EXPECT_EQ(it->second, this->pmpi_ctl());
+        EXPECT_EQ(it->second, m_env->pmpi_ctl());
     }
-    EXPECT_EQ(exp_vars["GEOPM_MAX_FAN_OUT"], std::to_string(this->max_fan_out()));
-    EXPECT_EQ(exp_vars["GEOPM_TIMEOUT"], std::to_string(this->timeout()));
-    EXPECT_EQ(exp_vars["GEOPM_DEBUG_ATTACH"], std::to_string(this->debug_attach()));
-    EXPECT_EQ(exp_vars["GEOPM_TRACE_SIGNALS"], this->trace_signals());
-    EXPECT_EQ(exp_vars["GEOPM_REPORT_SIGNALS"], this->report_signals());
-    EXPECT_EQ(is_set("GEOPM_REGION_BARRIER"), this->do_region_barrier());
+    EXPECT_EQ(exp_vars["GEOPM_MAX_FAN_OUT"], std::to_string(m_env->max_fan_out()));
+    EXPECT_EQ(exp_vars["GEOPM_TIMEOUT"], std::to_string(m_env->timeout()));
+    EXPECT_EQ(exp_vars["GEOPM_DEBUG_ATTACH"], std::to_string(m_env->debug_attach()));
+    EXPECT_EQ(exp_vars["GEOPM_TRACE_SIGNALS"], m_env->trace_signals());
+    EXPECT_EQ(exp_vars["GEOPM_REPORT_SIGNALS"], m_env->report_signals());
+    EXPECT_EQ(is_set(exp_vars, "GEOPM_REGION_BARRIER"), m_env->do_region_barrier());
 }
 
 void EnvironmentTest::SetUp()
@@ -179,7 +197,7 @@ TEST_F(EnvironmentTest, internal_defaults)
               {"GEOPM_DEBUG_ATTACH", "-1"},
              };
 
-    this->load("", "");
+    m_env = geopm::make_unique<EnvironmentImp>("", "");
     std::map<std::string, std::string> exp_vars = internal_default_vars;
     expect_vars(exp_vars);
 }
@@ -199,7 +217,7 @@ TEST_F(EnvironmentTest, user_only)
         setenv(kv.first.c_str(), kv.second.c_str(), 1);
     }
 
-    this->load("", "");
+    m_env = geopm::make_unique<EnvironmentImp>("", "");
     std::map<std::string, std::string> exp_vars = m_user;
     exp_vars["GEOPM_SHMKEY"] = internal_default_vars["GEOPM_SHMKEY"];
     exp_vars["GEOPM_TIMEOUT"] = internal_default_vars["GEOPM_TIMEOUT"];
@@ -229,7 +247,7 @@ TEST_F(EnvironmentTest, default_only)
              };
     vars_to_json(default_vars, M_DEFAULT_PATH);
 
-    this->load(M_DEFAULT_PATH, "");
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, "");
     std::map<std::string, std::string> exp_vars = default_vars;
     exp_vars["GEOPM_SHMKEY"] = "/" + exp_vars["GEOPM_SHMKEY"];
 
@@ -258,7 +276,7 @@ TEST_F(EnvironmentTest, override_only)
              };
     vars_to_json(override_vars, M_OVERRIDE_PATH);
 
-    this->load("", M_OVERRIDE_PATH);
+    m_env = geopm::make_unique<EnvironmentImp>("", M_OVERRIDE_PATH);
     std::map<std::string, std::string> exp_vars = override_vars;
 
     expect_vars(exp_vars);
@@ -306,7 +324,7 @@ TEST_F(EnvironmentTest, default_and_override)
     vars_to_json(default_vars, M_DEFAULT_PATH);
     vars_to_json(override_vars, M_OVERRIDE_PATH);
 
-    this->load(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
     std::map<std::string, std::string> exp_vars = override_vars;
     expect_vars(exp_vars);
 }
@@ -340,7 +358,7 @@ TEST_F(EnvironmentTest, user_default_and_override)
     // override
     vars_to_json(override_vars, M_OVERRIDE_PATH);
 
-    this->load(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
     std::map<std::string, std::string> exp_vars = {
         {"GEOPM_REPORT", m_user["GEOPM_REPORT"]},
         {"GEOPM_COMM", override_vars["GEOPM_COMM"]},
@@ -366,9 +384,9 @@ TEST_F(EnvironmentTest, invalid_ctl)
 {
     setenv("GEOPM_CTL", "program", 1);
 
-    this->load("", "");
+    m_env = geopm::make_unique<EnvironmentImp>("", "");
 
-    EXPECT_THROW(this->pmpi_ctl(), geopm::Exception);
+    EXPECT_THROW(m_env->pmpi_ctl(), geopm::Exception);
 }
 
 TEST_F(EnvironmentTest, c_apis)
