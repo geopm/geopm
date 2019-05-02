@@ -202,29 +202,37 @@ A simple method for selecting fields from the trace file is with the
 will print a subset of the fields in the trace file called
 "geopm.trace-host0".
 
+## CONFIGURATION AND ADMINISTRATION
+
+
 ## ENVIRONMENT
 When using the launcher wrapper script **geopmlaunch(1)**, the
-interface to the GEOPM runtime is controlled exclusively by the
-launcher command line options.  The launcher script sets the
-environment variables described in this section according to the
-options specified on the command line.  Direct use of these
-environment variables is only recommended when launching the GEOPM
-runtime _without_ **geopmlaunch(1)**.  If launching the GEOPM
-controller in application mode without **geopmlaunch(1)**, the
-environment variables documented below must be set to the same values
-in the contexts where **geopmctl(1)** and the compute application are
-executed.
+interface to the GEOPM runtime is controlled by the launcher command
+line options.  The launcher script sets the environment variables
+described in this section according to the options specified on the
+command line.  Direct use of these environment variables is only
+recommended when launching the GEOPM runtime _without_
+**geopmlaunch(1)**.  If launching the GEOPM controller in application
+mode without **geopmlaunch(1)**, the environment variables documented
+below must be set to the same values in the contexts where
+**geopmctl(1)** and the compute application are executed.
 
-  * `LD_DYNAMIC_WEAK`:
-    When dynamically linking an application to libgeopm for any
-    features supported by the PMPI profiling of the MPI runtime it may
-    be required that the LD_DYNAMIC_WEAK environment variable be set
-    at runtime as is documented in the **ld.so(8)** man page.  When
-    dynamically linking an application, if care is taken to link the
-    libgeopm library before linking the library providing the weak MPI
-    symbols, e.g. "-lgeopm -lmpi", linking order precedence will
-    enforce the required override of the MPI interface symbols and the
-    LD_DYNAMIC_WEAK environment variable is not required at runtime.
+In addition to the environment, there are two node-local configuration
+files that will impact the way the GEOPM behaves.  These are located
+in the following paths:
+
+    /etc/geopm/environment-default.json
+    /etc/geopm/environment-override.json
+
+These files contain JSON objects that map geopm environment variables
+to default or override values.  The `environment-default.json` file
+will determine default values for the GEOPM runtime in the case where
+the values are not set in the calling environment.  The
+`environment-override.json` file will enforce that any GEOPM process
+running on the compute node will use the values specified regardless
+of the values set in the calling environment.
+
+GEOPM ENVIRONMENT VARIABLES
 
   * `GEOPM_REPORT`:
     See documentation for equivalent command line option to
@@ -285,6 +293,19 @@ executed.
   * `GEOPM_DISABLE_HYPERTHREADS`:
     See documentation for equivalent command line option to
     **geopmlaunch(1)** called `--geopm-hyperthreads-disable`.
+
+OTHER ENVIRONMENT VARIABLES
+
+  * `LD_DYNAMIC_WEAK`:
+    When dynamically linking an application to libgeopm for any
+    features supported by the PMPI profiling of the MPI runtime it may
+    be required that the LD_DYNAMIC_WEAK environment variable be set
+    at runtime as is documented in the **ld.so(8)** man page.  When
+    dynamically linking an application, if care is taken to link the
+    libgeopm library before linking the library providing the weak MPI
+    symbols, e.g. "-lgeopm -lmpi", linking order precedence will
+    enforce the required override of the MPI interface symbols and the
+    LD_DYNAMIC_WEAK environment variable is not required at runtime.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.

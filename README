@@ -282,7 +282,6 @@ See kernel documentation
 for more information.
 
 ### GEOPM APPLICATION LAUNCH WRAPPER
-
 The GEOPM package installs the command, "geopmlaunch".  This is a
 wrapper for the MPI launch commands like "srun", "aprun", and
 "mpiexec" where the wrapper script enables the GEOPM runtime.  The
@@ -332,6 +331,75 @@ you are using and consider extending the geopmlaunch wrapper to
 support your system configuration (please see the CONTRIBUTING.md file
 for information about how to share these implementation with the
 community).
+
+RESOURCE MANAGER INTEGRATION
+----------------------------
+The GEOPM package can be integrated with a resource manager by adding
+two calls into the `libgeopmpolicy.so` library prior to releasing
+resources to the user (prologue), and one call after the resources have
+been reclaimed from the user (epilogue).  In the prologue, the resource
+manager calls:
+
+    geopm_pio_save_control()
+
+which records into memory the value of all controls that can be
+written through GEOPM (see geopm_pio_c(3)).  The second call made by
+the resource manager is:
+
+    geopm_agent_enforce_policy()
+
+and this call enforces the configured policy (see geopm_agent_c(3)).
+In the epilogue, the resource manager calls:
+
+    geopm_pio_restore_control()
+
+which will set all controls back to the values read in the epilogue.
+The configuration of the policy enforced in the prologue is controlled
+by the two files:
+
+    /etc/geopm/environment-default.json
+    /etc/geopm/environment-override.json
+
+which are JSON objects mapping GEOPM environment variable strings to
+string values.  The default configuration file controls values used
+when a GEOPM variable is not set in the calling environment.  The
+override configuration file enforces values for GEOPM variables
+regardless of what is specified in the calling environment.  The list
+of all GEOPM environment variables can be found in the geopm(7) man
+page.  The two GEOPM environment variables used by
+geopm_agent_enforce_policy() are GEOPM_AGENT and GEOPM_POLICY.  Note
+that it is expected that /etc is mounted on a node local file system,
+so the geopm configuration files are typically part of the compute
+node boot image.  Also note that the GEOPM_POLICY value specifies a
+path to another JSON object which may be located on a shared file
+system, and this second file controls the values enforced (e.g. power
+cap value in Watts, or CPU frequency value in Hz).
+
+An example of integration with the SLURM resource manager via a SPANK
+plugin can be found here:
+
+https://github.com/geopm/geopm-slurm
+
+and this implements the prologue and epilogue as described above.
+
+An example use case for integration of GEOPM with a resource manager
+is to enable a power cap to be applied to all processors so that
+applications which are launched without the geopmlaunch(1) application
+will be restricted to a uniform power cap, and users who use the
+geopmlaunch(1) application to execute their jobs will use a power
+balancer agent algorithm to maintain the power cap on average across
+the allocation while enabling less efficient processors run at higher
+power caps while running more efficient processors at lower power
+caps.  First the following JSON object would be written the boot image
+of the compute node
+
+    $ cat /etc/geopm/environment-override.json
+    {"GEOPM_AGENT": "power_balancer",
+     "GEOPM_POLICY": "/shared_fs/config/geopm_power_balancer.json"}
+
+Note that the "POWER_CAP" value controlling the limit is specified in
+a secondary JSON file that may be located on a shared file system.
+This enables the limit to be modified without changing the boot image.
 
 TESTING
 -------
