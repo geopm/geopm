@@ -282,7 +282,6 @@ See kernel documentation
 for more information.
 
 ### GEOPM APPLICATION LAUNCH WRAPPER
-
 The GEOPM package installs the command, "geopmlaunch".  This is a
 wrapper for the MPI launch commands like "srun", "aprun", and
 "mpiexec" where the wrapper script enables the GEOPM runtime.  The

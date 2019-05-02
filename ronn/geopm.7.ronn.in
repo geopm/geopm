@@ -204,16 +204,39 @@ will print a subset of the fields in the trace file called
 
 ## ENVIRONMENT
 When using the launcher wrapper script **geopmlaunch(1)**, the
-interface to the GEOPM runtime is controlled exclusively by the
-launcher command line options.  The launcher script sets the
-environment variables described in this section according to the
-options specified on the command line.  Direct use of these
-environment variables is only recommended when launching the GEOPM
-runtime _without_ **geopmlaunch(1)**.  If launching the GEOPM
-controller in application mode without **geopmlaunch(1)**, the
-environment variables documented below must be set to the same values
-in the contexts where **geopmctl(1)** and the compute application are
-executed.
+interface to the GEOPM runtime is controlled by the launcher command
+line options.  The launcher script sets the environment variables
+described in this section according to the options specified on the
+command line.  Direct use of these environment variables is only
+recommended when launching the GEOPM runtime _without_
+**geopmlaunch(1)**.  If launching the GEOPM controller in application
+mode without **geopmlaunch(1)**, the environment variables documented
+below must be set to the same values in the contexts where
+**geopmctl(1)** and the compute application are executed.
+
+In addition to the environment, there are two node-local configuration
+files that will impact the way the GEOPM behaves.  These are located
+in the following paths:
+
+    /etc/geopm/environment-default.json
+    /etc/geopm/environment-override.json
+
+These files contain json objects that map geopm environment variables
+to default or override values.  The `environment-default.json` file
+will determine default values for the GEOPM runtime in the case where
+the values are not set in the environment.  The
+`environment-override.json` file will enforce that any process running
+on the compute node will use the values specified regardless of the
+values set in the environment.  An useful example is having a system
+administrator set the `environment-override.json` on each compute node
+to contain the following json object:
+
+    {"GEOPM_AGENT": "power_balancer",
+     "GEOPM_POLICY": "/shared_fs/config/geopm_power_balancer.json"}
+
+This will force any use of the GEOPM runtime on the compute node to
+target the power balancer agent using a power cap controlled by the
+system administrator and managed on a shared file system.
 
   * `LD_DYNAMIC_WEAK`:
     When dynamically linking an application to libgeopm for any
