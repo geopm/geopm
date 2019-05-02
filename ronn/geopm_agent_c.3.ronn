@@ -145,7 +145,11 @@ zero upon success; see [ERRORS][] section below for details.
     **geopm(7)**) prior to releasing compute nodes for a user
     allocation.  More generally this function allows one-time use of
     an Agent outside of the context of an MPI runtime or the use of a
-    GEOPM Controller.
+    GEOPM Controller.  Note that the enforcement of the policy will
+    not support any of the dynamic features of the agent.  For instance,
+    calling `geopm_agent_enforce_policy`() for the power_balancer will
+    set all nodes to the same power limit, and those limits will not
+    vary with time.
 
 ## ERRORS
 All functions described on this man page return an error code.  See
