@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "960b53ae_c24c9552",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 38
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-05-02T18:44:35Z",
+      "side": 1,
+      "message": "/var/lib/geopm -\u003e /etc/geopm/ ?",
+      "range": {
+        "startLine": 62,
+        "startChar": 55,
+        "endLine": 62,
+        "endChar": 62
+      },
+      "revId": "7f0a79b503faf02ce27469d20b47cbc4c1098758",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b994108a_e8b00e83",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 38
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-05-02T18:44:35Z",
+      "side": 1,
+      "message": "replace with is_set(\"GEOPM_CTL\")",
+      "range": {
+        "startLine": 298,
+        "startChar": 15,
+        "endLine": 298,
+        "endChar": 45
+      },
+      "revId": "7f0a79b503faf02ce27469d20b47cbc4c1098758",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
