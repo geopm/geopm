@@ -112,7 +112,9 @@ namespace geopm
     {
         if (munmap(m_ptr, m_size)) {
 #ifdef GEOPM_DEBUG
-            std::cerr << "Warning: " << Exception("SharedMemoryImp: Could not unmap pointer",
+            // Exception in dtor?
+            // if this is kosher, why not just 'throw'?
+            std::cerr << "Warning: <geopm> " << Exception("SharedMemoryImp: Could not unmap pointer",
                                                   errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__).what() << std::endl;
 #endif
         }
@@ -207,7 +209,9 @@ namespace geopm
     {
         if (munmap(m_ptr, m_size)) {
 #ifdef GEOPM_DEBUG
-            std::cerr << "Warning: " << Exception("SharedMemory: Could not unmap pointer",
+            // Exception in dtor?
+            // if this is kosher, why not just 'throw'?
+            std::cerr << "Warning: <geopm> " << Exception("SharedMemory: Could not unmap pointer",
                                                   errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__).what() << std::endl;
 #endif
         }
