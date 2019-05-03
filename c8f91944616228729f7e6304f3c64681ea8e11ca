@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "63769079_008bbddc",
+        "filename": "ronn/geopm.7.ronn.in",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-03T20:28:35Z",
+      "side": 1,
+      "message": "GEOPM",
+      "range": {
+        "startLine": 224,
+        "startChar": 42,
+        "endLine": 224,
+        "endChar": 48
+      },
+      "revId": "c8f91944616228729f7e6304f3c64681ea8e11ca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e375a032_483d4448",
+        "filename": "ronn/geopm.7.ronn.in",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-03T20:28:35Z",
+      "side": 1,
+      "message": "JSON",
+      "range": {
+        "startLine": 224,
+        "startChar": 20,
+        "endLine": 224,
+        "endChar": 25
+      },
+      "revId": "c8f91944616228729f7e6304f3c64681ea8e11ca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e8fca79_428f7eb1",
+        "filename": "ronn/geopm.7.ronn.in",
+        "patchSetId": 1
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-03T20:28:35Z",
+      "side": 1,
+      "message": "any GEOPM process",
+      "range": {
+        "startLine": 228,
+        "startChar": 51,
+        "endLine": 228,
+        "endChar": 62
+      },
+      "revId": "c8f91944616228729f7e6304f3c64681ea8e11ca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9f1bb96_67857b1a",
+        "filename": "ronn/geopm.7.ronn.in",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-03T20:28:35Z",
+      "side": 1,
+      "message": "JSON",
+      "range": {
+        "startLine": 232,
+        "startChar": 25,
+        "endLine": 232,
+        "endChar": 30
+      },
+      "revId": "c8f91944616228729f7e6304f3c64681ea8e11ca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
