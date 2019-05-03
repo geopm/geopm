@@ -120,7 +120,7 @@ namespace geopm
             if (!m_report_name.empty()) {
                 std::ofstream test_open(m_report_name);
                 if (!test_open.good()) {
-                    std::cerr << "Warning: unable to open report file '" << m_report_name
+                    std::cerr << "Warning: <geopm> Unable to open report file '" << m_report_name
                               << "' for writing: " << strerror(errno) << std::endl;
                 }
                 std::remove(m_report_name.c_str());
