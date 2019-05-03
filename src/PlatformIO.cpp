@@ -80,7 +80,7 @@ namespace geopm
                 }
                 catch (const geopm::Exception &ex) {
 #ifdef GEOPM_DEBUG
-                    std::cerr << "<geopm> Warning: failed to load " << it << " IOGroup.  "
+                    std::cerr << "Warning: <geopm> Failed to load " << it << " IOGroup.  "
                               << "GEOPM may not work properly unless an alternate "
                               << "IOGroup plugin is loaded to provide signals/controls "
                               << "required by the Controller and Agent."

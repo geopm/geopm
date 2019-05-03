@@ -87,7 +87,7 @@ namespace geopm
             output_path << m_file_path << "-" << m_hostname;
             m_stream.open(output_path.str());
             if (!m_stream.good()) {
-                std::cerr << "Warning: unable to open trace file '" << output_path.str()
+                std::cerr << "Warning: <geopm> Unable to open trace file '" << output_path.str()
                           << "': " << strerror(errno) << std::endl;
                 m_is_trace_enabled = false;
             }

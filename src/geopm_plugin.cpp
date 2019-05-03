@@ -95,7 +95,7 @@ static void __attribute__((constructor)) geopmpolicy_load(void)
         if (NULL == dlopen(plugin.c_str(), RTLD_NOLOAD)) {
             if (NULL == dlopen(plugin.c_str(), RTLD_LAZY)) {
 #ifdef GEOPM_DEBUG
-                std::cerr << "Warning: failed to dlopen plugin " << plugin << std::endl;
+                std::cerr << "Warning: <geopm> Failed to dlopen plugin " << plugin << std::endl;
 #endif
             }
         }
