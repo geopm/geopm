@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6385f18_ec657043",
+        "filename": "scripts/geopmpy/agent.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-03T18:47:54Z",
+      "side": 1,
+      "message": "this should use geopm_agent_policy_json",
+      "revId": "d61409cfd2e549c581fbdf98d9b9de32fcc1489d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcebac92_26d5697c",
+        "filename": "scripts/geopmpy/agent.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-03T18:47:54Z",
+      "side": 1,
+      "message": "fix",
+      "revId": "d61409cfd2e549c581fbdf98d9b9de32fcc1489d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
