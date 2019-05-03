@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d7bbc0b_1aa8a20a",
+        "filename": "test/DebugIOGroupTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-03T18:26:48Z",
+      "side": 1,
+      "message": "rm",
+      "revId": "9a3561945dcf4eeec9c7115b2799e14309aa7944",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eff9029b_a59f3f8f",
+        "filename": "test/Makefile.mk",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-03T18:26:48Z",
+      "side": 1,
+      "message": "fix",
+      "revId": "9a3561945dcf4eeec9c7115b2799e14309aa7944",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
