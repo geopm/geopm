@@ -37,6 +37,7 @@ const char *program_invocation_name = "geopm_profile";
 
 #include "Environment.hpp"
 
+#include <iostream>
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
@@ -89,53 +90,6 @@ namespace geopm
         return result;
     }
 
-    static void parse_environment(const std::set<std::string> &known_env_variables,
-                                  std::map<std::string, std::string> &str_settings)
-    {
-        for (const auto &env_var : known_env_variables) {
-            std::string value;
-            if(get_env(env_var, value)) {
-                str_settings[env_var] = value;
-            }
-        }
-    }
-
-    static void parse_environment_file(const std::set<std::string> &known_env_variables,
-                                       const std::string &settings_path,
-                                       std::map<std::string, std::string> &str_settings)
-    {
-        std::string json_str;
-        bool good_path = true;
-        try {
-            json_str = read_file(settings_path);
-        }
-        catch (const geopm::Exception &ex) {
-            //@todo specific exception?
-            good_path = false;
-        }
-        if (good_path) {
-            std::string err;
-            Json root = Json::parse(json_str, err);
-            if (!err.empty() || !root.is_object()) {
-                throw Exception("EnvironmentImp::" + std::string(__func__) + "(): detected a malformed json config file: " + err,
-                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
-            }
-            for (const auto &obj : root.object_items()) {
-                if (known_env_variables.find(obj.first) == known_env_variables.end()) {
-                    throw Exception("EnvironmentImp::" + std::string(__func__) +
-                                    ": environment key " + obj.first + " is unexpected",
-                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
-                }
-                else if (obj.second.type() != Json::STRING) {
-                    throw Exception("EnvironmentImp::" + std::string(__func__) +
-                                    ": value for " + obj.first + " expected to be a string",
-                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
-                }
-                str_settings[obj.first] = obj.second.string_value();
-            }
-        }
-    }
-
     EnvironmentImp::EnvironmentImp()
         : EnvironmentImp(DEFAULT_SETTINGS_PATH, OVERRIDE_SETTINGS_PATH)
     {
@@ -172,10 +126,62 @@ namespace geopm
                   {"GEOPM_DEBUG_ATTACH", "-1"},
                   })
     {
-        parse_environment_file(m_known_vars, default_settings_path, m_vars);
+        parse_environment_file(default_settings_path);
+        std::set<std::string> user_vars;
+        parse_environment();
+        parse_environment_file(override_settings_path);
+    }
 
-        parse_environment(m_known_vars, m_vars);
-        parse_environment_file(m_known_vars, override_settings_path, m_vars);
+    void EnvironmentImp::parse_environment()
+    {
+        for (const auto &env_var : m_known_vars) {
+            std::string value;
+            if(get_env(env_var, value)) {
+                m_vars[env_var] = value;
+                m_user_vars.insert(env_var);
+            }
+        }
+    }
+
+    void EnvironmentImp::parse_environment_file(const std::string &settings_path)
+    {
+        std::string json_str;
+        bool good_path = true;
+        try {
+            json_str = read_file(settings_path);
+        }
+        catch (const geopm::Exception &ex) {
+            //@todo specific exception?
+            good_path = false;
+        }
+        if (good_path) {
+            std::string err;
+            Json root = Json::parse(json_str, err);
+            if (!err.empty() || !root.is_object()) {
+                throw Exception("EnvironmentImp::" + std::string(__func__) + "(): detected a malformed json config file: " + err,
+                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+            }
+            for (const auto &obj : root.object_items()) {
+                if (m_known_vars.find(obj.first) == m_known_vars.end()) {
+                    throw Exception("EnvironmentImp::" + std::string(__func__) +
+                                    ": environment key " + obj.first + " is unexpected",
+                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                }
+                else if (obj.second.type() != Json::STRING) {
+                    throw Exception("EnvironmentImp::" + std::string(__func__) +
+                                    ": value for " + obj.first + " expected to be a string",
+                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
+                }
+                auto override_value = obj.second.string_value();
+                if (m_user_vars.find(obj.first) != m_user_vars.end()) {
+                    auto user_value = m_vars[obj.first];
+                    std::cerr << "Warning: <geopm> User provided environment variable \"" << obj.first
+                              << "\" with value <"  << user_value << ">"
+                              << "\" has been overriden with value <"  << override_value << std::endl;
+                }
+                m_vars[obj.first] = override_value;
+            }
+        }
     }
 
     bool EnvironmentImp::is_set(const std::string &env_var) const
