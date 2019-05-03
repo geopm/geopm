@@ -191,16 +191,20 @@ namespace geopm
                 m_buffer << "|";
             }
             if (m_hex_column.find(m_column_idx[idx]) != m_hex_column.end()) {
-#ifdef GEOPM_DEBUG
-                if (((uint64_t) m_region_hash_idx == idx ||
-                     (uint64_t) m_region_hint_idx == idx) &&
-                    (uint64_t) m_last_telemetry[idx] == GEOPM_REGION_HASH_INVALID) {
-                    throw Exception("TracerImp::write_line(): Invalid hash or hint value detected.",
-                                    GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-                }
-#endif
                 m_buffer << "0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
-                m_buffer << geopm_signal_to_field(m_last_telemetry[idx]);
+                if (((uint64_t) m_region_hash_idx == idx ||
+                     (uint64_t) m_region_hint_idx == idx)) {
+#ifdef GEOPM_DEBUG
+                    if ((uint64_t) m_last_telemetry[idx] == GEOPM_REGION_HASH_INVALID) {
+                        throw Exception("TracerImp::write_line(): Invalid hash or hint value detected.",
+                                        GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                    }
+#endif
+                    m_buffer << (uint64_t)m_last_telemetry[idx];
+                }
+                else {
+                    m_buffer << geopm_signal_to_field(m_last_telemetry[idx]);
+                }
                 m_buffer << std::setfill('\0') << std::setw(0) << std::scientific;
             }
             else if ((int)idx == m_region_progress_idx) {
