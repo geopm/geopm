@@ -669,7 +669,7 @@ $(ronn_man): man/%: ruby/bin/ronn ronn/%.ronn ronn/index.txt ronn/header.txt
 	export GEM_PATH=`readlink -f $(top_srcdir)/ruby`:$$GEM_PATH && \
 	cd ronn && \
 	../ruby/bin/ronn --date=`date "+%Y-%m-%d"` \
-	                 --organization="Intel Corporation" \
+	                 --organization="GEOPM @VERSION@" \
 	                 `basename $@`.ronn
 	cat ronn/header.txt ronn/`basename $@` | \
 	    sed -e 's/\(#include.*\) \\fIhttp.*/\1\\fR/g' > $@
