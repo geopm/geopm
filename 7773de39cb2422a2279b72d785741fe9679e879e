@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "9544c825_d615e7ce",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T18:45:04Z",
+      "side": 1,
+      "message": "manager",
+      "range": {
+        "startLine": 10,
+        "startChar": 45,
+        "endLine": 10,
+        "endChar": 52
+      },
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c57c7c63_e4ce7e4c",
         "filename": "README",
         "patchSetId": 7
@@ -48,6 +71,29 @@
     },
     {
       "key": {
+        "uuid": "9fccaa10_6c03e7d8",
+        "filename": "README",
+        "patchSetId": 7
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T18:45:04Z",
+      "side": 1,
+      "message": "prologue",
+      "range": {
+        "startLine": 374,
+        "startChar": 28,
+        "endLine": 374,
+        "endChar": 37
+      },
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c7531290_324c302a",
         "filename": "README",
         "patchSetId": 7
@@ -64,6 +110,75 @@
         "startChar": 14,
         "endLine": 378,
         "endChar": 44
+      },
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c649a79e_c9e2cc8b",
+        "filename": "README",
+        "patchSetId": 7
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T18:45:04Z",
+      "side": 1,
+      "message": "new paragraph",
+      "range": {
+        "startLine": 384,
+        "startChar": 15,
+        "endLine": 385,
+        "endChar": 40
+      },
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf56ea7f_8cb60362",
+        "filename": "README",
+        "patchSetId": 7
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T18:45:04Z",
+      "side": 1,
+      "message": "node-local",
+      "range": {
+        "startLine": 398,
+        "startChar": 51,
+        "endLine": 398,
+        "endChar": 61
+      },
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b58c800_b39e8abf",
+        "filename": "README",
+        "patchSetId": 7
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T18:45:04Z",
+      "side": 1,
+      "message": "explain why we want to use the balancer rather than the governor.  This allows users to opt in to gain back some performance lost.",
+      "range": {
+        "startLine": 418,
+        "startChar": 17,
+        "endLine": 418,
+        "endChar": 37
       },
       "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
@@ -117,6 +232,52 @@
     },
     {
       "key": {
+        "uuid": "e8244c5f_105d9937",
+        "filename": "README",
+        "patchSetId": 7
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T18:45:04Z",
+      "side": 1,
+      "message": "First,",
+      "range": {
+        "startLine": 437,
+        "startChar": 41,
+        "endLine": 437,
+        "endChar": 47
+      },
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2574e034_639a7cf0",
+        "filename": "README",
+        "patchSetId": 7
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T18:45:04Z",
+      "side": 1,
+      "message": "should be documented here or in agent man page that this is the power cap for the whole board, not per socket.",
+      "range": {
+        "startLine": 444,
+        "startChar": 15,
+        "endLine": 444,
+        "endChar": 24
+      },
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "67bdcec2_a485632f",
         "filename": "README",
         "patchSetId": 7
@@ -156,6 +317,98 @@
         "startChar": 41,
         "endLine": 398,
         "endChar": 50
+      },
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7f01675_edf6b5b6",
+        "filename": "ronn/geopmlaunch.1.ronn",
+        "patchSetId": 7
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T18:45:04Z",
+      "side": 1,
+      "message": "JSON",
+      "range": {
+        "startLine": 406,
+        "startChar": 16,
+        "endLine": 406,
+        "endChar": 21
+      },
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59707a70_25363372",
+        "filename": "ronn/geopmlaunch.1.ronn",
+        "patchSetId": 7
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T18:45:04Z",
+      "side": 1,
+      "message": "GEOPM",
+      "range": {
+        "startLine": 406,
+        "startChar": 36,
+        "endLine": 406,
+        "endChar": 42
+      },
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dadfea8_c0023b33",
+        "filename": "ronn/geopmlaunch.1.ronn",
+        "patchSetId": 7
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T18:45:04Z",
+      "side": 1,
+      "message": "define",
+      "range": {
+        "startLine": 407,
+        "startChar": 16,
+        "endLine": 407,
+        "endChar": 24
+      },
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3c0db1a_aa7f0977",
+        "filename": "ronn/geopmlaunch.1.ronn",
+        "patchSetId": 7
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T18:45:04Z",
+      "side": 1,
+      "message": "JSON",
+      "range": {
+        "startLine": 409,
+        "startChar": 53,
+        "endLine": 409,
+        "endChar": 58
       },
       "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
