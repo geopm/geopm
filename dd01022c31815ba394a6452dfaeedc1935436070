@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "b8729a91_e99287f7",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 41
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-05-06T18:12:38Z",
+      "side": 1,
+      "message": "Use is_set() to setup the if().  Then use at_env() to get the string if needed.",
+      "range": {
+        "startLine": 278,
+        "startChar": 18,
+        "endLine": 278,
+        "endChar": 43
+      },
+      "revId": "dd01022c31815ba394a6452dfaeedc1935436070",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b0ad6a4a_de3d0397",
         "filename": "test/EnvironmentTest.cpp",
         "patchSetId": 41
@@ -36,6 +59,24 @@
       "writtenOn": "2019-05-06T17:06:53Z",
       "side": 1,
       "message": "might want to use methods from json11 instead",
+      "revId": "dd01022c31815ba394a6452dfaeedc1935436070",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39268c1b_0fda26e3",
+        "filename": "test/EnvironmentTest.cpp",
+        "patchSetId": 41
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-05-06T18:12:38Z",
+      "side": 1,
+      "message": "https://github.com/dropbox/json11/blob/master/test.cpp#L154",
+      "parentUuid": "b0ad6a4a_de3d0397",
       "revId": "dd01022c31815ba394a6452dfaeedc1935436070",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
