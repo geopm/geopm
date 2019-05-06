@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ecd1e80a_dfba0adf",
+        "filename": "src/geopm_plugin.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T16:44:28Z",
+      "side": 1,
+      "message": "I see a bunch of other things below that can throw also.  Maybe rather than just wrapping this one call, there should be a try catch in geopmpolicy_load().. maybe for a future patch rather than blocking this one",
+      "revId": "c2c99a1aee8630b0174fcbe4c0f4adf49b7e703c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
