@@ -1,0 +1,182 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c57c7c63_e4ce7e4c",
+        "filename": "README",
+        "patchSetId": 7
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T16:30:36Z",
+      "side": 1,
+      "message": "should be?",
+      "range": {
+        "startLine": 364,
+        "startChar": 35,
+        "endLine": 364,
+        "endChar": 38
+      },
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bf1deba_4859a5b0",
+        "filename": "README",
+        "patchSetId": 7
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T16:30:36Z",
+      "side": 1,
+      "message": "might want to put link to the geopm-slurm example up here",
+      "range": {
+        "startLine": 364,
+        "startChar": 22,
+        "endLine": 364,
+        "endChar": 24
+      },
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7531290_324c302a",
+        "filename": "README",
+        "patchSetId": 7
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T16:30:36Z",
+      "side": 1,
+      "message": "such as a static power cap",
+      "range": {
+        "startLine": 378,
+        "startChar": 14,
+        "endLine": 378,
+        "endChar": 44
+      },
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b425043_ca07f65d",
+        "filename": "README",
+        "patchSetId": 7
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T16:30:36Z",
+      "side": 1,
+      "message": "would be",
+      "range": {
+        "startLine": 421,
+        "startChar": 23,
+        "endLine": 421,
+        "endChar": 25
+      },
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd041bf6_210b74fc",
+        "filename": "README",
+        "patchSetId": 7
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T16:30:36Z",
+      "side": 1,
+      "message": "would",
+      "range": {
+        "startLine": 436,
+        "startChar": 55,
+        "endLine": 436,
+        "endChar": 66
+      },
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67bdcec2_a485632f",
+        "filename": "README",
+        "patchSetId": 7
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T16:30:36Z",
+      "side": 1,
+      "message": "show this file too",
+      "range": {
+        "startLine": 445,
+        "startChar": 23,
+        "endLine": 445,
+        "endChar": 48
+      },
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6bda999_a0f4564c",
+        "filename": "ronn/geopmlaunch.1.ronn",
+        "patchSetId": 7
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T16:30:36Z",
+      "side": 1,
+      "message": "affected",
+      "range": {
+        "startLine": 398,
+        "startChar": 41,
+        "endLine": 398,
+        "endChar": 50
+      },
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebe73632_e821bbb8",
+        "filename": "ronn/geopmlaunch.1.ronn",
+        "patchSetId": 7
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-06T16:30:36Z",
+      "side": 1,
+      "message": "also some hardcoded defaults if not defined in any of these",
+      "revId": "7773de39cb2422a2279b72d785741fe9679e879e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
