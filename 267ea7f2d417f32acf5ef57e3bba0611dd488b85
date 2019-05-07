@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0c976e7_a5684db4",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-05-07T18:14:16Z",
+      "side": 1,
+      "message": "I think these 2 if() statements can be collapsed into one.  Move the m_vars[obj.first]... (line 179) down, and remove line 180.",
+      "range": {
+        "startLine": 175,
+        "startChar": 16,
+        "endLine": 183,
+        "endChar": 17
+      },
+      "revId": "267ea7f2d417f32acf5ef57e3bba0611dd488b85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
