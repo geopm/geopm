@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "f78e615b_148fdd57",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 41
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-05-07T00:18:16Z",
+      "side": 1,
+      "message": "NACK; for now at least.  I understand that this request is coming in for the sake of readability but the duped code here prevents 2 searches (one for is_set, one for at_env).  This optimization may be premature (env is not in critical path and # of vars is low) so if you -1 me again I\u0027m willing to fix.",
+      "parentUuid": "b8729a91_e99287f7",
+      "range": {
+        "startLine": 278,
+        "startChar": 18,
+        "endLine": 278,
+        "endChar": 43
+      },
+      "revId": "dd01022c31815ba394a6452dfaeedc1935436070",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b0ad6a4a_de3d0397",
         "filename": "test/EnvironmentTest.cpp",
         "patchSetId": 41
