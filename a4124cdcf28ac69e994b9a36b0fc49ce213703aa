@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "18887e06_b5dd720c",
+        "filename": "src/geopm_pmpi_helper.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-05-07T18:07:56Z",
+      "side": 1,
+      "message": "This is called by the GEOPM_PMPI_ENTER_MACRO macro which is called by C code.  Doesn\u0027t this function and the next one still have to be in an extern C {} block because of that?\n\nAlso geopm_mpi_func_rid().  Is it safer to just keep the whole file in an extern C {} block?",
+      "range": {
+        "startLine": 127,
+        "startChar": 5,
+        "endLine": 127,
+        "endChar": 27
+      },
+      "revId": "a4124cdcf28ac69e994b9a36b0fc49ce213703aa",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0ac1a75_9261a59d",
+        "filename": "test/MPIInterfaceTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-05-07T18:07:56Z",
+      "side": 1,
+      "message": "I don\u0027t understand why these are redefined here.",
+      "range": {
+        "startLine": 159,
+        "startChar": 4,
+        "endLine": 173,
+        "endChar": 5
+      },
+      "revId": "a4124cdcf28ac69e994b9a36b0fc49ce213703aa",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
