@@ -334,7 +334,9 @@ namespace geopm
             throw Exception("PowerGovernorAgent::enforce_policy(): policy vector incorrectly sized.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        m_platform_io.write_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_BOARD, 0, policy[M_POLICY_POWER]);
+        int control_domain = m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT");
+        double pkg_policy = policy[M_POLICY_POWER] / m_platform_topo.num_domain(control_domain);
+        m_platform_io.write_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_BOARD, 0, pkg_policy);
     }
 
     std::string PowerGovernorAgent::plugin_name(void)
