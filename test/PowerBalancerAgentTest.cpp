@@ -72,7 +72,7 @@ class PowerBalancerAgentTest : public ::testing::Test
         std::unique_ptr<PowerBalancerAgent> m_agent;
 
         const double M_POWER_PACKAGE_MAX = 325;
-        const int M_NUM_PKGS = 1;
+        const int M_NUM_PKGS = 2;
         const std::vector<int> M_FAN_IN = {2, 2};
 };
 
@@ -426,7 +426,7 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
     EXPECT_CALL(*m_power_gov, init_platform_io());
     EXPECT_CALL(*m_power_gov, sample_platform())
         .Times(4);
-    double actual_limit = 299.0;
+    double actual_limit = 299.0 / M_NUM_PKGS;
     EXPECT_CALL(*m_power_gov, adjust_platform(300.0, _))
         .Times(4)
         .WillRepeatedly(SetArgReferee<1>(actual_limit));
@@ -523,7 +523,7 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
     /// M_STEP_REDUCE_LIMIT
     {
     in_policy = {0.0, curr_cnt, curr_epc, curr_slk};
-    exp_out_sample = {(double)ctl_step, curr_epc, 0.0, 25.0};
+    exp_out_sample = {(double)ctl_step, curr_epc, 0.0, 350.0};
 
     m_agent->adjust_platform(in_policy);
     adj_ret = m_agent->do_write_batch();
@@ -540,7 +540,7 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
     /// M_STEP_SEND_DOWN_LIMIT
     {
     in_policy = {0.0, curr_cnt, curr_epc, curr_slk};
-    exp_out_sample = {(double)ctl_step, curr_epc, 0.0, 25.0};
+    exp_out_sample = {(double)ctl_step, curr_epc, 0.0, 350.0};
 
     m_agent->adjust_platform(in_policy);
     adj_ret = m_agent->do_write_batch();
@@ -559,7 +559,12 @@ TEST_F(PowerBalancerAgentTest, enforce_policy)
     const std::vector<double> policy{limit, NAN, NAN, NAN};
     const std::vector<double> bad_policy{100};
 
-    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_BOARD, 0, limit));
+    EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE_LIMIT"))
+        .WillOnce(Return(GEOPM_DOMAIN_PACKAGE));
+    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
+        .WillOnce(Return(M_NUM_PKGS));
+    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_BOARD,
+                                             0, limit/M_NUM_PKGS));
 
     m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
                                                      std::move(m_power_gov), std::move(m_power_bal));

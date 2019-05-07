@@ -86,7 +86,8 @@ void PowerGovernorAgentTest::SetUp(void)
         .Times(AtLeast(1))
         .WillRepeatedly(Return(GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
-        .WillOnce(Return(m_num_package));
+        .Times(AtLeast(1))
+        .WillRepeatedly(Return(m_num_package));
     // Warning: if ENERGY_PACKAGE does not return updated values,
     // PowerGovernorAgent::wait() will loop forever.
     m_energy_package = 555.5;
@@ -284,7 +285,8 @@ TEST_F(PowerGovernorAgentTest, enforce_policy)
     const std::vector<double> policy{limit};
     const std::vector<double> bad_policy{100, 200, 300};
 
-    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_BOARD, 0, limit));
+    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_BOARD,
+                                             0, limit/m_num_package));
 
     m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
     m_agent->enforce_policy(policy);
