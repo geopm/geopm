@@ -105,8 +105,8 @@ namespace geopm
             int m_freq_ctl_domain_type;
             int m_num_freq_ctl_domain;
             std::vector<struct geopm_region_info_s>  m_last_region;
-            std::map<uint64_t, double> m_adapt_freq_map;
-            std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > m_region_map;
+            std::vector<std::map<uint64_t, double> > m_adapt_freq_map;
+            std::vector<std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > > m_region_map;
             geopm_time_s m_last_wait;
             std::vector<std::vector<int> > m_signal_idx;
             int m_level;
