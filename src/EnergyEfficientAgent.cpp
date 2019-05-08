@@ -69,7 +69,8 @@ namespace geopm
         , m_platform_io(plat_io)
         , m_platform_topo(topo)
         , m_freq_governor(gov)
-        , m_num_freq_ctl_domain(-1)
+        , m_freq_ctl_domain_type(m_freq_governor->frequency_domain_type())
+        , m_num_freq_ctl_domain(m_platform_topo.num_domain(m_freq_ctl_domain_type))
         , m_region_map(region_map)
         , m_last_wait(GEOPM_TIME_REF)
         , m_level(-1)
@@ -316,8 +317,6 @@ namespace geopm
     void EnergyEfficientAgent::init_platform_io(void)
     {
         m_freq_governor->init_platform_io();
-        const int freq_ctl_domain_type = m_freq_governor->frequency_domain_type();
-        m_num_freq_ctl_domain = m_platform_topo.num_domain(freq_ctl_domain_type);
         m_last_region = std::vector<struct geopm_region_info_s>(m_num_freq_ctl_domain,
                                                           (struct geopm_region_info_s) {
                                                           .hash = GEOPM_REGION_HASH_INVALID,
@@ -329,9 +328,9 @@ namespace geopm
 
         for (size_t sig_idx = 0; sig_idx < signal_names.size(); ++sig_idx) {
             m_signal_idx.push_back(std::vector<int>());
-            for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
+            for (int ctl_idx = 0; ctl_idx < m_num_freq_ctl_domain; ++ctl_idx) {
                 m_signal_idx[sig_idx].push_back(m_platform_io.push_signal(signal_names[sig_idx],
-                            freq_ctl_domain_type, ctl_idx));
+                            m_freq_ctl_domain_type, ctl_idx));
             }
         }
     }

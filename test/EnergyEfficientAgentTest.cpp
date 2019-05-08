@@ -90,10 +90,9 @@ void EnergyEfficientAgentTest::SetUp()
     m_region_map[0x12] = std::make_shared<MockEnergyEfficientRegion>();
     m_region_map[0x34] = std::make_shared<MockEnergyEfficientRegion>();
     m_region_map[0x56] = std::make_shared<MockEnergyEfficientRegion>();
-    // expectations for init_platform_io
-    EXPECT_CALL(m_topo, num_domain(M_FREQ_DOMAIN));
-    EXPECT_CALL(*m_gov, init_platform_io());
-    EXPECT_CALL(*m_gov, frequency_domain_type());
+    // expectations for constructor
+    EXPECT_CALL(m_topo, num_domain(M_FREQ_DOMAIN)).Times(2);
+    EXPECT_CALL(*m_gov, frequency_domain_type()).Times(2);
     for (int idx = 0; idx < M_NUM_FREQ_DOMAIN; ++idx) {
         EXPECT_CALL(m_platio, push_signal("REGION_HASH", M_FREQ_DOMAIN, idx))
             .WillOnce(Return(HASH_SIG + idx));
@@ -107,9 +106,12 @@ void EnergyEfficientAgentTest::SetUp()
         region_map[kv.first] = kv.second;
     }
     m_agent0 = geopm::make_unique<EnergyEfficientAgent>(m_platio, m_topo, m_gov, region_map);
-    m_agent0->init(0, fan_in, false);
     m_agent1 = geopm::make_unique<EnergyEfficientAgent>(m_platio, m_topo, m_gov,
                                                         std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> >());
+
+    // expectations for init
+    EXPECT_CALL(*m_gov, init_platform_io()).Times(1);
+    m_agent0->init(0, fan_in, false);
     m_agent1->init(1, fan_in, false);
 }
 

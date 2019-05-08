@@ -70,7 +70,7 @@ namespace geopm
         , m_freq_min(M_PLAT_FREQ_MIN)
         , m_freq_max(M_PLAT_FREQ_MAX)
         , m_do_write_batch(false)
-        , m_freq_ctl_domain_type(-1)
+        , m_freq_ctl_domain_type(m_platform_io.control_domain_type("FREQUENCY"))
     {
 
     }
@@ -104,12 +104,6 @@ namespace geopm
 
     void FrequencyGovernorImp::init_platform_io(void)
     {
-        init_platform_io(m_platform_io.control_domain_type("FREQUENCY"));
-    }
-
-    void FrequencyGovernorImp::init_platform_io(int freq_ctl_domain_type)
-    {
-        m_freq_ctl_domain_type = freq_ctl_domain_type;
         m_last_freq = std::vector<double>(m_freq_ctl_domain_type, NAN);
         const int num_freq_ctl_domain = m_platform_topo.num_domain(m_freq_ctl_domain_type);
         for (int ctl_dom_idx = 0; ctl_dom_idx != num_freq_ctl_domain; ++ctl_dom_idx) {
