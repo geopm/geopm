@@ -57,7 +57,6 @@ namespace geopm
             double get_frequency_step() const override;
             void validate_policy(double &freq_min, double &freq_max) const override;
         private:
-            void init_platform_io(int control_domain);
             double get_limit(const std::string &sig_name) const;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
