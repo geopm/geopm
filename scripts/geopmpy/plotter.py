@@ -342,29 +342,40 @@ def generate_bar_plot(report_df, config):
         * Allow for a single plugin to be plotted (e.g. only a target)?
     """
     if config.ref_plugin is None:
-        config.ref_plugin = 'static_policy'
+        config.ref_plugin = 'power_governor'
         sys.stdout.write('WARNING: No reference plugin set.  Use "--ref_plugin" to override.  ' +
-                         'Assuming "static_policy".\n')
+                         'Assuming "power_governor".\n')
     if config.tgt_plugin is None:
-        config.tgt_plugin = 'power_balancing'
+        config.tgt_plugin = 'power_balancer'
         sys.stdout.write('WARNING: No target plugin set.  Use "--tgt_plugin" to override.  ' +
-                         'Assuming "power_balancing".\n')
+                         'Assuming "power_balancer".\n')
     sys.stdout.flush()
 
     config.check_plugins(report_df)
     idx = pandas.IndexSlice
     df = pandas.DataFrame()
 
-    reference_g = report_df.loc[idx[config.ref_version:config.ref_version, :,
-                                :, :, :, config.ref_plugin, :, :, 'epoch'],
-                                config.datatype].groupby(level='name')
+    # This indexing code assumes that the power budget was set in the profile name.
+    reference_g = report_df.loc[idx[config.ref_version:config.ref_version, # version
+                                    :,                                     # start_time
+                                    :,                                     # name
+                                    config.ref_plugin,                     # reference agent
+                                    :,                                     # node_name
+                                    :,                                     # iteration
+                                    'epoch'],                              # region
+                                config.datatype].groupby(level='name') # Group by power budget
     df['reference_mean'] = reference_g.mean()
     df['reference_max'] = reference_g.max()
     df['reference_min'] = reference_g.min()
 
-    target_g = report_df.loc[idx[config.tgt_version:config.tgt_version, :,
-                             :, :, :, config.tgt_plugin, :, :, 'epoch'],
-                             config.datatype].groupby(level='name')
+    target_g = report_df.loc[idx[config.tgt_version:config.tgt_version, # version
+                                 :,                                     # start_time
+                                 :,                                     # name
+                                 config.tgt_plugin,                     # target agent
+                                 :,                                     # node_name
+                                 :,                                     # iteration
+                                 'epoch'],                              # region
+                             config.datatype].groupby(level='name') # Group by power budget
     df['target_mean'] = target_g.mean()
     df['target_max'] = target_g.max()
     df['target_min'] = target_g.min()
@@ -430,9 +441,10 @@ def generate_bar_plot(report_df, config):
     ax.set_xticks(index)
     xlabels = [tick.split('_')[-1] for tick in df.index]
     ax.set_xticklabels(xlabels)
-    ax.set_xlabel('Per-Node Socket Power Limit (W)')
+    ax.set_xlabel('Average Node Power Limit (W)')
 
-    ylabel = config.datatype.title()
+    datatype_title = config.datatype.title().replace('Energy_Pkg', 'Energy')
+    ylabel = datatype_title
     if config.normalize and not config.speedup:
         ylabel = 'Normalized {}'.format(ylabel)
     elif not config.normalize and not config.speedup:
@@ -443,7 +455,7 @@ def generate_bar_plot(report_df, config):
     ax.set_ylabel(ylabel)
     ax.grid(axis='y', linestyle='--', color='black')
 
-    plt.title('{} {} Comparison{}'.format(config.profile_name, config.datatype.title(), config.misc_text), y=1.02)
+    plt.title('{}: {} Decreases from Power Balancing{}'.format(config.profile_name, datatype_title, config.misc_text), y=1.02)
     plt.margins(0.02, 0.01)
     plt.axis('tight')
     plt.legend(shadow=True, fancybox=True, fontsize=config.legend_fontsize, loc='best').set_zorder(11)
@@ -465,6 +477,8 @@ def generate_bar_plot(report_df, config):
 
     # Write data/plot files
     file_name = '{}_{}_comparison'.format(config.profile_name.lower().replace(' ', '_'), config.datatype)
+    if config.normalize:
+        file_name += '_normalized'
     if config.speedup:
         file_name += '_speeudp'
     if config.verbose:
@@ -1356,7 +1370,7 @@ def main(argv):
                         help='use this name as the reference to compare against.',
                         action='store', metavar='PROFILE_NAME')
     parser.add_argument('--ref_plugin',
-                        help='use this tree decider plugin as the reference to compare against.',
+                        help='use this agent as the reference to compare against.',
                         action='store', metavar='PLUGIN_NAME')
     parser.add_argument('--tgt_version',
                         help='use this version as the target for analysis (to compare against the ref-plugin.',
@@ -1365,7 +1379,7 @@ def main(argv):
                         help='use this name as the target for analysis (to compare against the ref-plugin.',
                         action='store', metavar='PROFILE_NAME')
     parser.add_argument('--tgt_plugin',
-                        help='use this tree decider plugin as the target for analysis (to compare against \
+                        help='use this agent as the target for analysis (to compare against \
                         the ref-plugin).',
                         action='store', metavar='PLUGIN_NAME')
     parser.add_argument('--datatype',
