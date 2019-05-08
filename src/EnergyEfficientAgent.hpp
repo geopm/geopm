@@ -102,6 +102,7 @@ namespace geopm
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
             std::shared_ptr<FrequencyGovernor> m_freq_governor;
+            int m_freq_ctl_domain_type;
             int m_num_freq_ctl_domain;
             std::vector<struct geopm_region_info_s>  m_last_region;
             std::map<uint64_t, double> m_adapt_freq_map;
