@@ -43,12 +43,12 @@ static policies for those agents.  When no options are provided,
 agent is specified with option `-a` but `-p` is not given,
 `geopmagent` will print names of the agent's policies and samples.  If
 both `-a` and `-p` are provided then `geopmagent` will print to
-standard output a JSON formatted policy string corresponding to the
+standard output a JSON-formatted policy string corresponding to the
 policy values specified by the `-p` option.  The argument to `-p` is a
 comma-separated list of policy parameters.  To determine the parameter
 names and ordering appropriate for the `-p` option, run `geopmagent`
 with only the `-a` option and inspect the output line beginning with
-the string "Policy:".  The JSON formatted string can be piped to a
+the string "Policy:".  The JSON-formatted string can be piped to a
 file to be used as the `GEOPM_POLICY` as described in **geopm(7)** to
 provide a static input policy for the GEOPM controller.  If `-p` is
 given but `-a` is not, an error is reported.
