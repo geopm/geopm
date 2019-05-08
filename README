@@ -26,7 +26,7 @@ simple use case is reading hardware counters and setting hardware
 controls with platform independant syntax using a command line tool on
 a particular compute node.  An advanced use case is dynamically
 coordinating hardware settings across all compute nodes used by an
-application is response to the application's behavior and requests
+application in response to the application's behavior and requests
 from the resource manager.  The dynamic coordination is implemented as
 a hierarchical control system for scalable communication and
 decentralized control. The hierarchical control system can optimize
@@ -237,7 +237,7 @@ found [here](https://superuser.com/a/1179962).
 
 ### MSR DRIVER
 The msr-safe kernel driver must be loaded at runtime to support
-user-level read and write of white-listed MSRs.  The msr-safe kernel
+user-level read and write of whitelisted MSRs.  The msr-safe kernel
 driver is distributed with OpenHPC and can be installed using the RPMs
 distributed there (see INSTALL section above).
 

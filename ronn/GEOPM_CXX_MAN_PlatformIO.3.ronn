@@ -128,7 +128,7 @@ hidden by the singleton accessor.
 ## DESCRIPTION
 The `PlatformIO` class provides a high-level interface for signals
 (system monitors) and controls (system settings).  There are a large
-number of built-in signals and controls.  Theses built-in signals and
+number of built-in signals and controls.  These built-in signals and
 controls include a wide range of hardware metrics, hardware settings,
 and signals derived from application behavior.  Application behavior
 is tracked by GEOPM's integration with MPI and OpenMP and also by
