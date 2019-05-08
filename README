@@ -237,7 +237,7 @@ found [here](https://superuser.com/a/1179962).
 
 ### MSR DRIVER
 The msr-safe kernel driver must be loaded at runtime to support
-user-level read and write of white-listed MSRs.  The msr-safe kernel
+user-level read and write of whitelisted MSRs.  The msr-safe kernel
 driver is distributed with OpenHPC and can be installed using the RPMs
 distributed there (see INSTALL section above).
 
