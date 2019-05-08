@@ -71,7 +71,8 @@ namespace geopm
         , m_freq_governor(gov)
         , m_freq_ctl_domain_type(m_freq_governor->frequency_domain_type())
         , m_num_freq_ctl_domain(m_platform_topo.num_domain(m_freq_ctl_domain_type))
-        , m_region_map(region_map)
+        , m_adapt_freq_map(m_num_freq_ctl_domain)
+        , m_region_map(m_num_freq_ctl_domain, region_map)
         , m_last_wait(GEOPM_TIME_REF)
         , m_level(-1)
         , m_num_children(0)
@@ -110,6 +111,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
+        // @todo: to support dynamic policies, policy values need to be passed to regions
         return m_freq_governor->set_frequency_bounds(in_policy[M_POLICY_FREQ_MIN], in_policy[M_POLICY_FREQ_MAX]);;
     }
 
@@ -170,9 +172,9 @@ namespace geopm
         std::vector<double> target_freq(m_num_freq_ctl_domain, freq_max);
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
             if (GEOPM_REGION_HASH_INVALID != m_last_region[ctl_idx].hash) {
-                auto it = m_adapt_freq_map.find(m_last_region[ctl_idx].hash);
-                if (it != m_adapt_freq_map.end()) {
-                    target_freq[ctl_idx] = m_adapt_freq_map[m_last_region[ctl_idx].hash];
+                auto it = m_adapt_freq_map[ctl_idx].find(m_last_region[ctl_idx].hash);
+                if (it != m_adapt_freq_map[ctl_idx].end()) {
+                    target_freq[ctl_idx] = m_adapt_freq_map[ctl_idx][m_last_region[ctl_idx].hash];
                 }
                 else {
                     throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): unknown target frequency.",
@@ -204,9 +206,9 @@ namespace geopm
                 }
                 else if (!curr_region_is_invalid) {
                     /// set the freq for the current region (entry)
-                    auto curr_region_it = m_region_map.find(current_region_hash);
-                    if (curr_region_it == m_region_map.end()) {
-                        auto tmp = m_region_map.emplace(current_region_hash, std::make_shared<EnergyEfficientRegionImp>
+                    auto curr_region_it = m_region_map[ctl_idx].find(current_region_hash);
+                    if (curr_region_it == m_region_map[ctl_idx].end()) {
+                        auto tmp = m_region_map[ctl_idx].emplace(current_region_hash, std::make_shared<EnergyEfficientRegionImp>
                                                         (freq_min, freq_max, freq_step));
                         curr_region_it = tmp.first;
                     }
@@ -216,7 +218,7 @@ namespace geopm
                     throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): unexpected (region hash:hint)",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
-                m_adapt_freq_map[current_region_hash] = target_freq;
+                m_adapt_freq_map[ctl_idx][current_region_hash] = target_freq;
 
                 /// update previous region (exit)
                 const uint64_t last_region_hash = m_last_region[ctl_idx].hash;
@@ -226,8 +228,8 @@ namespace geopm
                 if (last_region_hash != GEOPM_REGION_HASH_INVALID &&
                     last_region_hash != GEOPM_REGION_HASH_UNMARKED &&
                     last_region_hint != GEOPM_REGION_HINT_COMPUTE) {
-                    auto last_region_it = m_region_map.find(last_region_hash);
-                    if (last_region_it == m_region_map.end()) {
+                    auto last_region_it = m_region_map[ctl_idx].find(last_region_hash);
+                    if (last_region_it == m_region_map[ctl_idx].end()) {
                         throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): region exit before entry detected.",
                                         GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                     }
@@ -269,14 +271,15 @@ namespace geopm
 
     std::vector<std::pair<std::string, std::string> > EnergyEfficientAgent::report_host(void) const
     {
+        auto region_freq_map = report_region();
         std::vector<std::pair<std::string, std::string> > result;
         std::ostringstream oss;
         oss << std::setprecision(EnergyEfficientAgent::M_PRECISION) << std::scientific;
-        for (const auto &region : m_region_map) {
+        for (const auto &region : region_freq_map) {
             oss << "\n\t0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
             oss << region.first;
             oss << std::setfill('\0') << std::setw(0) << std::scientific;
-            oss << ":" << region.second->freq();
+            oss << ":" << region.second[0].second;  // Only item in the vector is requested frequency
         }
         oss << "\n";
         result.push_back({"Final online freq map", oss.str()});
@@ -287,10 +290,23 @@ namespace geopm
     std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > EnergyEfficientAgent::report_region(void) const
     {
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > result;
-        // If region is in this map, online learning was used to set frequency
-        for (const auto &region : m_region_map) {
+        std::map<uint64_t, double> totals;
+        for (int ctl_idx = 0; ctl_idx < m_num_freq_ctl_domain; ++ctl_idx) {
+            // If region is in this map, online learning was used to set frequency
+            for (const auto &region : m_region_map[ctl_idx]) {
+                auto total_it = totals.find(region.first);
+                if (total_it == totals.end()) {
+                    totals[region.first] = region.second->freq();
+                }
+                else {
+                    totals[region.first] += region.second->freq();
+                }
+            }
+        }
+        for (const auto &region : totals) {
             /// @todo re-implement with m_region_map and m_hash_freq_map keys as pair (hash + hint)
-            result[region.first].push_back(std::make_pair("requested-online-frequency", std::to_string(region.second->freq())));
+            result[region.first].push_back(std::make_pair("requested-online-frequency",
+                                                          std::to_string(region.second / m_num_freq_ctl_domain)));
         }
         return result;
     }
