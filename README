@@ -133,9 +133,10 @@ requirements must be met.
 The GEOPM package requires a compiler that supports the MPI 2.2 and
 C++11 standards.  These requirements can be met by using GCC version
 4.7 or greater and installing the openmpi-devel package version 1.7 or
-greater on RHEL or SLES Linux.  Documentation creation including
-man pages further requires the rubygems package, and the ruby-devel
-package.
+greater on RHEL and SLES Linux, and libopenmpi-dev on Ubuntu.
+Documentation creation including man pages further requires the
+rubygems and ruby-devel package on RHEL and SLES, or ruby and ruby-dev on
+Ubuntu.
 
 RHEL:
 
@@ -144,6 +145,11 @@ RHEL:
 SUSE:
 
     zypper install openmpi-devel elfutils-libelf-devel ruby-devel rubygems
+
+UBUNTU (as of 18.04.3 LTS):
+
+    apt install libtool automake libopenmpi-dev build-essential gfortran \
+        libelf-dev ruby ruby-dev python libsqlite3-dev
 
 Alternatively these can be installed from source, and an alternate MPI
 implementation to OpenMPI can be selected (e.g. one provided by
