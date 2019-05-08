@@ -336,7 +336,7 @@ namespace geopm
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
         big_o(big_o_in);
-        int err = ModelRegionBase::region(GEOPM_REGION_HINT_COMPUTE);
+        int err = ModelRegionBase::region(GEOPM_REGION_HINT_UNKNOWN);
         if (err) {
             throw Exception("DGEMMModelRegion::DGEMMModelRegion()",
                             err, __FILE__, __LINE__);
