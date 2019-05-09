@@ -1445,7 +1445,7 @@ def main(argv):
     if report_glob is not None and len(report_df) == 0:
         raise LookupError('No report data parsed.')
     if trace_glob is not None and len(trace_df) == 0:
-        raise LookupError('No trace data parsed.')
+        sys.stderr.write('<geopmpy> Warning: No trace data parsed.\n')
 
     if args.profile_name:
         profile_name = args.profile_name
