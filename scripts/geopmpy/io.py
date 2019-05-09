@@ -156,7 +156,7 @@ class AppOutput(object):
                 trace_glob = os.path.join(dir_name, traces)
                 trace_paths = natsorted(glob.glob(trace_glob))
                 if len(trace_paths) == 0:
-                    raise RuntimeError('No trace files found with pattern {}.'.format(trace_glob))
+                    sys.stderr.write('<geopmpy> Warning: No trace files found with pattern {}.\n'.format(trace_glob))
             elif type(traces) is list:
                 trace_paths = [os.path.join(dir_name, path) for path in traces]
             else:
@@ -165,50 +165,51 @@ class AppOutput(object):
             self._all_paths.extend(trace_paths)
             self._index_tracker.reset()
 
-            if do_cache:
-                # unique cache name based on trace files in this list
-                dirs = set()
-                for rr in trace_paths:
-                    dirs.add(rr)
-                dirs = list(dirs)
-                h5_dir = dirs[0] if len(dirs) == 1 else '.'
-                paths_str = str(trace_paths)
-                trace_h5_name = os.path.join(dir_name, 'trace_{}.h5'.format(hash(paths_str)))
-                self._all_paths.append(trace_h5_name)
+            if len(trace_paths) > 0:
+                if do_cache:
+                    # unique cache name based on trace files in this list
+                    dirs = set()
+                    for rr in trace_paths:
+                        dirs.add(rr)
+                    dirs = list(dirs)
+                    h5_dir = dirs[0] if len(dirs) == 1 else '.'
+                    paths_str = str(trace_paths)
+                    trace_h5_name = os.path.join(dir_name, 'trace_{}.h5'.format(hash(paths_str)))
+                    self._all_paths.append(trace_h5_name)
 
-                # check if cache is older than traces
-                if os.path.exists(trace_h5_name):
-                    cache_mod_time = os.path.getmtime(trace_h5_name)
-                    regen_cache = False
-                    for trace_file in trace_paths:
-                        mod_time = os.path.getmtime(trace_file)
-                        if mod_time > cache_mod_time:
-                            regen_cache = True
-                    if regen_cache:
-                        os.remove(trace_h5_name)
+                    # check if cache is older than traces
+                    if os.path.exists(trace_h5_name):
+                        cache_mod_time = os.path.getmtime(trace_h5_name)
+                        regen_cache = False
+                        for trace_file in trace_paths:
+                            mod_time = os.path.getmtime(trace_file)
+                            if mod_time > cache_mod_time:
+                                regen_cache = True
+                        if regen_cache:
+                            os.remove(trace_h5_name)
 
-                try:
-                    self._traces_df = pandas.read_hdf(trace_h5_name, 'trace')
-                    if verbose:
-                        sys.stdout.write('Loaded traces from {}.\n'.format(trace_h5_name))
-                except IOError as err:
-                    sys.stderr.write('<geopmpy> Warning: trace HDF5 file not detected or older than traces.  Data will be saved to {}.\n'
-                                     .format(trace_h5_name))
-
-                    self.parse_traces(trace_paths, verbose)
-                    # Cache traces dataframe
                     try:
+                        self._traces_df = pandas.read_hdf(trace_h5_name, 'trace')
                         if verbose:
-                            sys.stdout.write('Generating HDF5 files... ')
-                        self._traces_df.to_hdf(trace_h5_name, 'trace')
-                    except ImportError as error:
-                        sys.stderr.write('<geopmpy> Warning: unable to write HDF5 file: {}\n'.format(str(error)))
+                            sys.stdout.write('Loaded traces from {}.\n'.format(trace_h5_name))
+                    except IOError as err:
+                        sys.stderr.write('<geopmpy> Warning: trace HDF5 file not detected or older than traces.  Data will be saved to {}.\n'
+                                         .format(trace_h5_name))
 
-                    if verbose:
-                        sys.stdout.write('Done.\n')
-                        sys.stdout.flush()
-            else:
-                self.parse_traces(trace_paths, verbose)
+                        self.parse_traces(trace_paths, verbose)
+                        # Cache traces dataframe
+                        try:
+                            if verbose:
+                                sys.stdout.write('Generating HDF5 files... ')
+                            self._traces_df.to_hdf(trace_h5_name, 'trace')
+                        except ImportError as error:
+                            sys.stderr.write('<geopmpy> Warning: unable to write HDF5 file: {}\n'.format(str(error)))
+
+                        if verbose:
+                            sys.stdout.write('Done.\n')
+                            sys.stdout.flush()
+                else:
+                    self.parse_traces(trace_paths, verbose)
 
     def parse_reports(self, report_paths, verbose):
         reports_df_list = []
