@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba46d5bc_8486cffc",
+        "filename": "README",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-05-09T17:43:36Z",
+      "side": 1,
+      "message": "You also need:\nautomake build-essential curl doxygen gfortran python\n\nAlso maybe:\nlibtool ruby",
+      "range": {
+        "startLine": 151,
+        "startChar": 4,
+        "endLine": 151,
+        "endChar": 43
+      },
+      "revId": "a67542c9e17dd02f027344180063a3a30ee03302",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
