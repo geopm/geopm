@@ -137,7 +137,8 @@ namespace geopm
         /// @todo better handling for signals provided by PlatformIOImp
         /// These depend on ENERGY signals and should not be available
         /// if ENERGY_PACKAGE and ENERGY_DRAM are not available.
-        std::set<std::string> result {"POWER_PACKAGE", "POWER_DRAM"};
+        std::set<std::string> result {"POWER_PACKAGE", "POWER_DRAM",
+                "TEMPERATURE_CORE", "TEMPERATURE_PACKAGE"};
         for (const auto &io_group : m_iogroup_list) {
             auto names = io_group->signal_names();
             result.insert(names.begin(), names.end());
@@ -628,11 +629,7 @@ namespace geopm
 
     std::function<double(const std::vector<double> &)> PlatformIOImp::agg_function(const std::string &signal_name) const
     {
-        // Special signals from PlatformIOImp
-        /// @todo: find a better way to track signals produced by PlatformIOImp itself
-        if (signal_name == "POWER_PACKAGE" || signal_name == "POWER_DRAM") {
-            return Agg::sum;
-        }
+        // Special signals from PlatformIOImp are aggregated by underlying signals
         auto iogroup = find_signal_iogroup(signal_name);
         if (iogroup == nullptr) {
             throw Exception("PlatformIOImp::agg_function(): unknown how to aggregate \"" + signal_name + "\"",
@@ -649,6 +646,12 @@ namespace geopm
         }
         else if (signal_name == "POWER_DRAM") {
             return "Average DRAM power in watts over the last 8 samples (usually 40 ms).";
+        }
+        else if (signal_name == "TEMPERATURE_CORE") {
+            return "Core temperaure in degrees C";
+        }
+        else if (signal_name == "TEMPERATURE_PACKAGE") {
+            return "Package temperature in degrees C";
         }
         auto iogroup = find_signal_iogroup(signal_name);
         if (iogroup == nullptr) {

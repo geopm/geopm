@@ -220,7 +220,9 @@ TEST_F(PlatformIOTest, signal_control_names)
         "TIME",
         "ENERGY_PACKAGE", "ENERGY_DRAM",
         "FREQ", "MODE",
-        "POWER_PACKAGE", "POWER_DRAM"  // provided by PlatformIO itself
+        // provided by PlatformIO itself
+        "POWER_PACKAGE", "POWER_DRAM",
+        "TEMPERATURE_CORE", "TEMPERATURE_PACKAGE"
     };
     std::set<std::string> result = m_platio->signal_names();
     EXPECT_EQ(expected_signals.size(), result.size());
