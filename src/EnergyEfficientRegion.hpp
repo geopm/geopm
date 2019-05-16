@@ -61,29 +61,25 @@ namespace geopm
             void update_freq_range(double freq_min, double freq_max, double freq_step) override;
             void update_exit(double curr_perf_metric) override;
         private:
+            static const int M_MIN_PERF_SAMPLE = 5;
             struct FreqContext {
                 FreqContext()
                     : num_increase(0)
-                    , perf(NAN)
+                    , perf(M_MIN_PERF_SAMPLE)
                 {
                 };
-
                 virtual ~FreqContext() = default;
                 size_t num_increase;
-                double perf;
+                CircularBuffer<double> perf;
             };
-
             const double M_PERF_MARGIN;
             const size_t M_MAX_INCREASE;
-
             bool m_is_learning;
             uint64_t m_max_step;
             double m_freq_step;
             int m_curr_step;
             double m_freq_min;
-            double m_last_perf;
             double m_target;
-
             std::vector<std::unique_ptr<FreqContext> > m_freq_ctx;
     };
 
