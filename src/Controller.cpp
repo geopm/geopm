@@ -81,8 +81,7 @@ extern "C"
     {
         int err = 0;
         try {
-            auto tmp_comm = geopm::comm_factory().make_plugin(geopm::environment().comm());
-            geopm::Controller ctl(std::move(tmp_comm));
+            geopm::Controller ctl;
             err = geopm_ctl_run((struct geopm_ctl_c *)&ctl);
         }
         catch (...) {
@@ -140,6 +139,11 @@ namespace geopm
             once = false;
         }
         return ret;
+    }
+
+    Controller::Controller()
+        : Controller(comm_factory().make_plugin(environment().comm()))
+    {
     }
 
     Controller::Controller(std::shared_ptr<Comm> ppn1_comm)
