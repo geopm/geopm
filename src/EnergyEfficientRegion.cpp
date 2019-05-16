@@ -52,7 +52,6 @@ namespace geopm
         , m_freq_step (freq_step)
         , m_curr_step(-1)
         , m_freq_min (freq_min)
-        , m_last_perf(NAN)
         , m_target(0.0)
     {
         /// @brief we are not clearing the m_freq_ctx vector once created, such that we
@@ -87,36 +86,39 @@ namespace geopm
     {
         if (m_is_learning) {
             auto &curr_freq_ctx = m_freq_ctx[m_curr_step];
-            if (!std::isnan(m_last_perf) && m_last_perf != 0.0) {
-                if (m_target == 0.0) {
-                    m_target = (1.0 + M_PERF_MARGIN) * m_last_perf;
-                }
-
-                bool do_increase = false;
-                if (m_target != 0.0) {
-                    // Performance is in range; lower frequency
-                    if (curr_perf_metric > m_target) {
-                        if (m_curr_step - 1 >= 0) {
-                            --m_curr_step;
+            if (!std::isnan(curr_perf_metric) && curr_perf_metric != 0.0) {
+                curr_freq_ctx->perf.insert(curr_perf_metric);
+            }
+            if (curr_freq_ctx->perf.size() >= M_MIN_PERF_SAMPLE) {
+                double median = Agg::median(curr_freq_ctx->perf.make_vector());
+                if (!std::isnan(median) && median != 0.0) {
+                    if (m_target == 0.0) {
+                        m_target = (1.0 + m_perf_margin) * median;
+                    }
+                    bool do_increase = false;
+                    if (m_target != 0.0) {
+                        // Performance is in range; lower frequency
+                        if (median > m_target) {
+                            if (m_curr_step - 1 >= 0) {
+                                --m_curr_step;
+                            }
+                        }
+                        else if ((uint64_t) m_curr_step + 1 < m_freq_ctx.size()) {
+                            do_increase = true;
                         }
                     }
-                    else if ((uint64_t) m_curr_step + 1 < m_freq_ctx.size()) {
-                        do_increase = true;
+                    if (do_increase) {
+                        // Performance degraded too far; increase freq
+                        ++curr_freq_ctx->num_increase;
+                        // If the frequency has been lowered too far too
+                        // many times, stop learning
+                        if (curr_freq_ctx->num_increase == M_MAX_INCREASE) {
+                            m_is_learning = false;
+                        }
+                        m_curr_step++;
                     }
-                }
-
-                if (do_increase) {
-                    // Performance degraded too far; increase freq
-                    ++curr_freq_ctx->num_increase;
-                    // If the frequency has been lowered too far too
-                    // many times, stop learning
-                    if (curr_freq_ctx->num_increase == M_MAX_INCREASE) {
-                        m_is_learning = false;
-                    }
-                    m_curr_step++;
                 }
             }
-            m_last_perf = curr_perf_metric;
         }
     }
 }
