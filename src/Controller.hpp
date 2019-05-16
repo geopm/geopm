@@ -54,6 +54,7 @@ namespace geopm
     class Controller
     {
         public:
+            Controller();
             /// @brief Standard contstructor for the Controller.
             ///
             /// @param [in] ppn1_comm The MPI communicator that supports
