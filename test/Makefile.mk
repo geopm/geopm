@@ -87,13 +87,9 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/EnergyEfficientAgentTest.split_policy_errors \
               test/gtest_links/EnergyEfficientAgentTest.split_policy_unchanged \
               test/gtest_links/EnergyEfficientAgentTest.static_methods \
-              test/gtest_links/EnergyEfficientAgentTest.validate_policy_default \
               test/gtest_links/EnergyEfficientAgentTest.validate_policy_clamp \
-              test/gtest_links/EnergyEfficientRegionTest.after_too_many_increase_freq_stays_at_higher \
-              test/gtest_links/EnergyEfficientRegionTest.freq_does_not_go_above_max \
-              test/gtest_links/EnergyEfficientRegionTest.freq_does_not_go_below_min \
+              test/gtest_links/EnergyEfficientAgentTest.validate_policy_default \
               test/gtest_links/EnergyEfficientRegionTest.freq_starts_at_maximum \
-              test/gtest_links/EnergyEfficientRegionTest.performance_decreases_freq_steps_back_up \
               test/gtest_links/EnergyEfficientRegionTest.update_ignores_nan_sample \
               test/gtest_links/EnvironmentTest.construction0 \
               test/gtest_links/EnvironmentTest.construction1 \
