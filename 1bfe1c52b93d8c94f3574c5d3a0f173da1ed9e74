@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c369c9d_7b9a0966",
+        "filename": "src/ProfileSampler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-20T19:00:07Z",
+      "side": 1,
+      "message": "repeated code is better than macro\n\nfigure out a name for 64 constant (this is cache line size: destructive interference from false sharing)",
+      "revId": "1bfe1c52b93d8c94f3574c5d3a0f173da1ed9e74",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7be44d84_09f767f4",
+        "filename": "src/ProfileSampler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-20T19:00:07Z",
+      "side": 1,
+      "message": "instead of passing in Environment, call environment() inside ctor\n\ncan this be merged with other test ctor below?",
+      "revId": "1bfe1c52b93d8c94f3574c5d3a0f173da1ed9e74",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
