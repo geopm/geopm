@@ -91,12 +91,14 @@ the system topology where signals and controls are applicable.  Each
 domain is defined by a type and an index.  The domain type is a value
 from the `geopm_domain_e` enum, and the domain index enumerates the
 devices of that type available on the system.  Refer to the list of
-domain types in **geopm_topo_c(3)**.  Each domain type is related
-to a set of Linux logical CPUs and this can be determined with the
-`PlatformTopo::domain_cpus()` method.  The CPUs associated with a
-domain are the set of CPUs that can most efficiently issue
-instructions to read signals from or write controls to that domain.
-
+domain types in **geopm_topo_c(3)**.  The domains are effectively
+hierarchical and the `PlatformTopo::domain_nested()` method can be
+used to explore which domains are nested within a specified outer
+domain.  Each domain, specified by pairing a domain type and a domain
+index, is related to a specific set of Linux logical CPUs which reside
+at the leaves of the hierarchy.  These are the set of CPUs that can
+most efficiently issue instructions to read signals from or write
+controls to the domain.
 
 ## SINGLETON ACCESSOR
 
@@ -139,7 +141,7 @@ instructions to read signals from or write controls to that domain.
     Returns the set of smaller domains of type _inner_domain_
     contained with a larger domain of type _outer_domain_ at
     _outer_idx_.  If the inner domain is not the same as or contained
-    within the outer domain, it throws an error.
+    within the outer domain, it throws an exception.
 
   * `domain_type_to_name`():
     Convert a _domain_type_ integer to a string.  These strings are
@@ -162,7 +164,7 @@ information of interest about the platform.
 using geopm::PlatformTopo;
 
 int main() {
-    PlatformTopo &topo = geopm::platform_topo();
+    const PlatformTopo &topo = geopm::platform_topo();
 
     int num_cores = topo.num_domain(GEOPM_DOMAIN_CORE);
     int num_cpus = topo.num_domain(GEOPM_DOMAIN_CPU);
@@ -198,7 +200,7 @@ This loop, inserted into the above program, prints the Linux CPUs on each packag
 ```
     for (int pkg_idx = 0; pkg_idx < num_pkgs; ++pkg_idx) {
         std::cout << "CPUs on package " << pkg_idx << ": ";
-        std::set<int> cpus = topo.domain_cpus(GEOPM_DOMAIN_PACKAGE, pkg_idx);
+        std::set<int> cpus = topo.domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, pkg_idx);
         for(auto pcpu : cpus) {
             std::cout << pcpu << " ";
         }
@@ -211,13 +213,13 @@ The output for the same system would be:
     CPUs on package 0: 0 1 2 3 8 9 10 11 16 17 18 19
     CPUs on package 1: 4 5 6 7 12 13 14 15 20 21 22 23
 
-To check which logical CPUs are on the same core as CPU 8:
+To check which logical CPUs are on the same core as CPU 1:
 
 ```
     int my_cpu = 8;
     int cpu_core = topo.domain_idx(GEOPM_DOMAIN_CORE, my_cpu);
-    std::set<int> socket_cpu_set = topo.domain_cpus(GEOPM_DOMAIN_CORE, cpu_core);
-    for (auto cpu : socket_cpu_set) {
+    std::set<int> core_cpu_set = topo.domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CORE, cpu_core);
+    for (auto cpu : core_cpu_set) {
         if (cpu != my_cpu) {
             std::cout << cpu << " ";
         }
