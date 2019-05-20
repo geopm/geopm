@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac63520f_b00bdfb1",
+        "filename": "src/DefaultProfile.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-20T19:14:05Z",
+      "side": 1,
+      "message": "try to debug as a group?",
+      "revId": "1974dceb9cffca0486a65ffc9b563209d2cb6c80",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a62d77db_91ea80d4",
+        "filename": "src/Profile.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-20T19:14:05Z",
+      "side": 1,
+      "message": "revert to left",
+      "revId": "1974dceb9cffca0486a65ffc9b563209d2cb6c80",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b169d1af_35c3e401",
+        "filename": "src/Profile.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-20T19:14:05Z",
+      "side": 1,
+      "message": "this one can be removed.",
+      "revId": "1974dceb9cffca0486a65ffc9b563209d2cb6c80",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
