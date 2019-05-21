@@ -175,7 +175,7 @@ namespace geopm
                                     GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
                 auto override_value = obj.second.string_value();
-                if (var_it != m_user_vars.end()) {
+                if (m_user_vars.find(var_name) != m_user_vars.end()) {
                     auto user_value = m_vars[var_name];
                     std::cerr << "Warning: <geopm> User provided environment variable \"" << var_name
                               << "\" with value <"  << user_value << ">"
