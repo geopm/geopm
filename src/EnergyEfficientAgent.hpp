@@ -99,15 +99,30 @@ namespace geopm
                 M_NUM_SIGNAL,
             };
 
+            class DomainContext {
+                public:
+                    DomainContext(std::shared_ptr<FrequencyGovernor> gov);
+                    virtual ~DomainContext() = default;
+                    double target_freq(uint64_t region_hash);
+                    void exit(uint64_t region_hash, double perf_metric);
+                    bool is_region_boundary(uint64_t region_hash);
+                    void last_frequency(uint64_t region_hash, double frequency);
+                    struct geopm_region_info_s last_region_info(void);
+                    void last_region_info(struct geopm_region_info_s region_info);
+                    //@todo move to private when I have a proper story for the usage of this
+                    std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > m_region_map;
+                private:
+                    std::shared_ptr<FrequencyGovernor> m_freq_governor;
+                    struct geopm_region_info_s  m_last_region;
+            };
+
             const int M_PRECISION;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
             std::shared_ptr<FrequencyGovernor> m_freq_governor;
             int m_freq_ctl_domain_type;
             int m_num_freq_ctl_domain;
-            std::vector<struct geopm_region_info_s>  m_last_region;
-            std::vector<std::map<uint64_t, double> > m_adapt_freq_map;
-            std::vector<std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > > m_region_map;
+            std::vector<DomainContext> m_domain_ctx;
             geopm_time_s m_last_wait;
             std::vector<std::vector<int> > m_signal_idx;
             int m_level;
