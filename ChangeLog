@@ -1,3 +1,23 @@
+* Tue May 21 2019 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v1.0.1
+- Hotfix for version 1.0.0.
+- Primary changes are fixes to functionality of the EnergyEfficientAgent.
+- Documentation has also been updated.
+- Bug Fixes:
+- Fix EE agent to be robust to cache warming issues and OS noise by adding max filter.
+- Fix mixed accounting in EE agent when there are multiple control domains.
+- Fix EE agent to ignore very short-running regions.
+- Fix FrequencyGovernor to use max turbo ratio limit for platform max frequency.
+- Fix Tracer handling of region hash and hint integers.
+- Fix Tracer handling of # signals region from environment.
+- Fix runtime warning message to be uniformly formatted.
+- Fix geopmread to display TEMPERATURE_* signals.
+- Fix paths for building tutorial from module environment.
+- Fix man page for PlatformTopo.
+- Fix CONTRIBUTING instruction for version detection.
+- Fix python package status for geopmpy, we are now 'production'.
+- Updates:
+- Adds version to geopm man pages.
+- Add unit tests for EnergyEfficientAgent.
 * Tue Apr 16 2019 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v1.0.0
 - Release overview:
 - The official 1.0 release of the GEOPM software!
