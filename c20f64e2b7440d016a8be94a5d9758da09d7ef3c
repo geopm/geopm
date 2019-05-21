@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2053f631_e2ca854d",
+        "filename": "ronn/GEOPM_CXX_MAN_PlatformTopo.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-21T21:28:51Z",
+      "side": 1,
+      "message": "pair of domain type and index?",
+      "range": {
+        "startLine": 97,
+        "startChar": 14,
+        "endLine": 97,
+        "endChar": 36
+      },
+      "revId": "c20f64e2b7440d016a8be94a5d9758da09d7ef3c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c9b4e85_6e29aa2c",
+        "filename": "ronn/GEOPM_CXX_MAN_PlatformTopo.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-21T21:28:51Z",
+      "side": 1,
+      "message": ",",
+      "range": {
+        "startLine": 98,
+        "startChar": 12,
+        "endLine": 98,
+        "endChar": 13
+      },
+      "revId": "c20f64e2b7440d016a8be94a5d9758da09d7ef3c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
