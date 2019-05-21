@@ -99,15 +99,19 @@ namespace geopm
                 M_NUM_SIGNAL,
             };
 
+            struct DomainContext {
+                struct geopm_region_info_s  last_region;
+                std::map<uint64_t, double> adapt_freq_map;
+                std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > region_map;
+            };
+
             const int M_PRECISION;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
             std::shared_ptr<FrequencyGovernor> m_freq_governor;
             int m_freq_ctl_domain_type;
             int m_num_freq_ctl_domain;
-            std::vector<struct geopm_region_info_s>  m_last_region;
-            std::vector<std::map<uint64_t, double> > m_adapt_freq_map;
-            std::vector<std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > > m_region_map;
+            std::vector<DomainContext> m_domain_ctx;
             geopm_time_s m_last_wait;
             std::vector<std::vector<int> > m_signal_idx;
             int m_level;
