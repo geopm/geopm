@@ -1130,10 +1130,14 @@ def generate_freq_plot(trace_df, config):
     if config.verbose:
         sys.stdout.write('Filtering data...\n')
         sys.stdout.flush()
-    trace_df = trace_df.loc[idx[config.tgt_version:config.tgt_version,
-                                config.tgt_profile_name:config.tgt_profile_name,
-                                config.min_drop:config.max_drop,
-                                config.tgt_plugin:config.tgt_plugin], ]
+    trace_df = trace_df.loc[idx[config.tgt_version:config.tgt_version,     # version
+                                :,                                         # start_time
+                                str(config.min_drop):str(config.max_drop), # name
+                                config.tgt_plugin:config.tgt_plugin,       # agent
+                                :,                                         # node_name
+                                :,                                         # iteration
+                                :]                                         # index
+                            , ]
 
     if len(trace_df) == 0:
         raise LookupError('No data remains after filtering.  Please check your datasets and filtering options.')
@@ -1141,10 +1145,10 @@ def generate_freq_plot(trace_df, config):
     if config.verbose:
         sys.stdout.write('Grouping data...\n')
         sys.stdout.flush()
-    for (version, name, power_budget, tree_decider, leaf_decider), df in \
-            trace_df.groupby(level=['version', 'name', 'power_budget', 'tree_decider', 'leaf_decider']):
+    for (version, power_budget, agent), df in \
+            trace_df.groupby(level=['version', 'name', 'agent']):
         # Get the diffed CLK counters, then determine the median iteration (if multiple runs)
-        median_df = geopmpy.io.Trace.get_median_df(df, 'clk', config)
+        median_df = geopmpy.io.Trace.get_median_df(df, 'cycles', config)
 
         # Begin plot setup
         node_names = df.index.get_level_values('node_name').unique().tolist()
@@ -1153,10 +1157,10 @@ def generate_freq_plot(trace_df, config):
         plt.rc('axes', prop_cycle=(cycler('color', colors)))
         f, ax = plt.subplots()
 
-        clk_unhalted_core_cols = [s for s in median_df.keys() if 'clk_unhalted_core' in s]
-        clk_unhalted_ref_cols = [s for s in median_df.keys() if 'clk_unhalted_ref' in s]
+        cycles_thread = [s for s in median_df.keys() if 'cycles_thread' in s]
+        cycles_reference = [s for s in median_df.keys() if 'cycles_reference' in s]
 
-        for c, r in zip(clk_unhalted_core_cols, clk_unhalted_ref_cols):  # Loop once per socket
+        for c, r in zip(cycles_thread, cycles_reference):  # Loop once per socket
             frequency_data = median_df[c] / median_df[r]
             if config.base_clock:
                 frequency_data *= config.base_clock
@@ -1164,7 +1168,7 @@ def generate_freq_plot(trace_df, config):
                 frequency_data *= 100  # Convert from fraction of sticker to % of sticker
 
             for node_name in natsorted(node_names):
-                node_data = frequency_data.loc[idx[:, :, :, :, :, node_name], ]
+                node_data = frequency_data.loc[idx[:, :, :, :, node_name], ]
 
                 if node_name == config.focus_node:
                     plt.plot(pandas.Series(numpy.arange(float(len(node_data))) / (len(node_data) - 1) * 100),
@@ -1189,11 +1193,13 @@ def generate_freq_plot(trace_df, config):
 
             plt.title('{} Iteration Frequency\n@ {}W{}'.format(config.profile_name, power_budget, config.misc_text), y=1.02)
 
-            legend = plt.legend(loc="lower center", bbox_to_anchor=[0.5, 0], ncol=4,
-                                shadow=True, fancybox=True, fontsize=config.legend_fontsize)
-            for l in legend.legendHandles:
-                l.set_linewidth(2.0)
-            legend.set_zorder(11)
+            if len(node_names) <= 20:
+                legend = plt.legend(loc="lower center", bbox_to_anchor=[0.5, 0], ncol=4,
+                                    shadow=True, fancybox=True, fontsize=config.legend_fontsize)
+                for l in legend.legendHandles:
+                    l.set_linewidth(2.0)
+                legend.set_zorder(11)
+
             plt.tight_layout()
 
             ax.set_ylim(0, ax.get_ylim()[1] * 1.1)
@@ -1201,8 +1207,8 @@ def generate_freq_plot(trace_df, config):
             # Write data/plot files
             region_desc = 'epoch_only' if config.epoch_only else 'all_samples'
             file_name = '{}_frequency_{}_{}_socket_{}_{}'.format(config.profile_name.lower().replace(' ', '_'),
-                                                                 power_budget, tree_decider,
-                                                                 clk_unhalted_core_cols.index(c), region_desc)
+                                                                 power_budget, agent,
+                                                                 cycles_thread.index(c), config.smooth)
             if config.verbose:
                 sys.stdout.write('Writing:\n')
 
