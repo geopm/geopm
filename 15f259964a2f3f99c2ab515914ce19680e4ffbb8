@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "56df938a_162c14e2",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-05-22T20:48:37Z",
+      "side": 1,
+      "message": "if fam \u003d\u003d 6 and mod \u003d\u003d 87:\n    # budget for KNL\n    power_budget \u003d 130\nelse:\n    power_budget \u003d 200",
+      "range": {
+        "startLine": 777,
+        "startChar": 0,
+        "endLine": 784,
+        "endChar": 30
+      },
+      "revId": "15f259964a2f3f99c2ab515914ce19680e4ffbb8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
