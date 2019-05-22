@@ -781,7 +781,7 @@ class TestIntegration(unittest.TestCase):
             # budget for KNL
             power_budget = 130
         else:
-            power_budget = 130
+            power_budget = 200
         self._options = {'power_budget': power_budget}
         gov_agent_conf_path = name + '_gov_agent.config'
         bal_agent_conf_path = name + '_bal_agent.config'
@@ -1054,6 +1054,7 @@ class TestIntegration(unittest.TestCase):
 
     @skip_unless_cpufreq()
     @skip_unless_slurm_batch()
+    @skip_unless_optimized()
     def test_agent_frequency_map(self):
         """
         Test of the FrequencyMapAgent.
@@ -1065,7 +1066,7 @@ class TestIntegration(unittest.TestCase):
         self._agent = "frequency_map"
         self._options = {'frequency_min': min_freq,
                          'frequency_max': max_freq}
-        name = 'test_frequency_map'
+        name = 'test_agent_frequency_map'
         report_path = name + '.report'
         trace_path = name + '.trace'
         num_node = 1
@@ -1133,7 +1134,7 @@ class TestIntegration(unittest.TestCase):
         self._agent = "energy_efficient"
         num_node = 1
         num_rank = 4
-        loop_count = 25
+        loop_count = 200
         dgemm_bigo = 20.25
         stream_bigo = 1.449
         dgemm_bigo_jlse = 35.647
