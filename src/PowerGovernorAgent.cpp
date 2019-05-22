@@ -158,7 +158,7 @@ namespace geopm
 
         if (per_package_budget_in > m_max_power_setting ||
             per_package_budget_in < m_min_power_setting) {
-            throw Exception("PowerGovernorAgent::descend(): "
+            throw Exception("PowerGovernorAgent::split_policy(): "
                             "invalid power budget.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
