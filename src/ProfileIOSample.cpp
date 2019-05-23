@@ -256,6 +256,7 @@ namespace geopm
     std::vector<double> ProfileIOSampleImp::per_cpu_runtime(uint64_t region_id) const
     {
         std::vector<double> result(m_cpu_rank.size(), 0.0);
+        region_id = geopm_region_id_unset_mpi(region_id); // signal should return runtime for outer region only
         const std::vector<double> &rank_runtimes = m_epoch_regulator.region_regulator(region_id).per_rank_last_runtime();
         int cpu_idx = 0;
         for (auto rank : m_cpu_rank) {
