@@ -43,7 +43,16 @@ export LD_LIBRARY_PATH=$GEOPM_LIB:$LD_LIBRARY_PATH
 # launch geopm controller as an MPI process
 # create a report file
 # create trace files
-if [ "$GEOPM_LAUNCHER" = "srun" ]; then
+if [ "$MPIEXEC" ]; then
+    # Use MPIEXEC and set GEOPM environment variables to launch the job
+    LD_DYNAMIC_WEAK=true \
+    GEOPM_CTL=process \
+    GEOPM_REPORT=tutorial_5_report \
+    GEOPM_TRACE=tutorial_5_trace \
+    $MPIEXEC \
+    ./tutorial_5
+    err=$?
+elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
     # Use GEOPM launcher wrapper script with SLURM's srun
     geopmlaunch srun \
                 -N 2 \
@@ -62,15 +71,6 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 --geopm-report=tutorial_5_report \
                 --geopm-trace=tutorial_5_trace \
                 -- ./tutorial_5
-    err=$?
-elif [ "$MPIEXEC" ]; then
-    # Use MPIEXEC and set GEOPM environment variables to launch the job
-    LD_DYNAMIC_WEAK=true \
-    GEOPM_CTL=process \
-    GEOPM_REPORT=tutorial_5_report \
-    GEOPM_TRACE=tutorial_5_trace \
-    $MPIEXEC \
-    ./tutorial_5
     err=$?
 else
     echo "Error: tutorial_5.sh: set GEOPM_LAUNCHER to 'srun' or 'aprun'." 2>&1
