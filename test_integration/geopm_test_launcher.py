@@ -125,9 +125,6 @@ class TestLauncher(object):
         with open(test_name + '.log', 'a') as outfile:
             outfile.write(str(datetime.datetime.now()) + '\n')
             outfile.flush()
-            source_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-            # Using libtool causes sporadic issues with the Intel toolchain.
-            exec_path = os.path.join(source_dir, '.libs', 'geopmbench')
             argv = ['dummy', detect_launcher(), '--geopm-ctl', self._pmpi_ctl,
                                                 '--geopm-agent', self._agent_conf.get_agent(),
                                                 '--geopm-policy', self._agent_conf.get_path(),
@@ -142,7 +139,10 @@ class TestLauncher(object):
             exec_wrapper = os.getenv('GEOPM_EXEC_WRAPPER', '')
             if exec_wrapper:
                 argv.extend(shlex.split(exec_wrapper))
-            argv.extend([exec_path, '--verbose', self._app_conf.get_path()])
+            # Use app config to get path and arguements
+            argv.append(self._app_conf.get_exec_path())
+            argv.extend(self._app_conf.get_exec_args())
+            argv.append('--verbose')
             launcher = geopmpy.launcher.Factory().create(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
                                                          self._time_limit, test_name, self._node_list, self._host_file)
             launcher.run(stdout=outfile, stderr=outfile)
@@ -200,4 +200,10 @@ class TestLauncher(object):
             rank_per_node = int(math.ceil(float(self._num_rank) / float(self._num_node)))
             self._cpu_per_rank = int(math.floor(self._num_cpu / rank_per_node))
         except (AttributeError, TypeError):
+            pass
+
+    def remove_files(self):
+        try:
+            os.remove(self._agent_conf.get_path())
+        except OSError:
             pass
