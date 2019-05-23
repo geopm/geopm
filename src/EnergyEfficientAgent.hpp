@@ -100,12 +100,15 @@ namespace geopm
             };
 
             const int M_PRECISION;
+            const double M_WAIT_SEC;
+            const double M_MIN_LEARNING_RUNTIME;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
             std::shared_ptr<FrequencyGovernor> m_freq_governor;
             int m_freq_ctl_domain_type;
             int m_num_freq_ctl_domain;
             std::vector<struct geopm_region_info_s>  m_last_region;
+            std::vector<double> m_target_freq;
             std::vector<std::map<uint64_t, double> > m_adapt_freq_map;
             std::vector<std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > > m_region_map;
             geopm_time_s m_last_wait;
