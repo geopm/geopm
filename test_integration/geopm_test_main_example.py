@@ -31,12 +31,40 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-"""The geopm python package: launcher, error, io, pio, plotter, topo,
-and version.
+import mpi4py.MPI
+import sys
+import geopmpy.bench
+import geopmpy.prof
 
-"""
+# Example test that runs a mixed region
+G_REPEAT = 50
+G_REGIONS = ['stream', 'dgemm', 'stream', 'all2all']
+G_BIG_O = [0.01, 0.01, 0.01, 0.01]
 
-__all__ = ['bench', 'error', 'io', 'launcher', 'pio', 'plotter', 'prof', 'topo', 'version']
+def root_print(msg):
+    rank = mpi4py.MPI.COMM_WORLD.Get_rank()
+    if rank == 0:
+        sys.stdout.write(msg)
 
-from geopmpy.version import __version__
+def main():
+    root_print('Comm size: {}\n\n'.format(mpi4py.MPI.COMM_WORLD.Get_size()))
+    is_verbose = '--verbose' in sys.argv or '-v' in sys.argv
+    model_region_list = []
+    for (region_name, big_o) in zip(G_REGIONS, G_BIG_O):
+        region_name += '-unmarked'
+        model_region_list.append(geopmpy.bench.model_region_factory(region_name, big_o, is_verbose))
 
+    root_print('Beginning loop of {} iterations.\n'.format(G_REPEAT))
+
+    region_id = geopmpy.prof.region('mixed', geopmpy.prof.REGION_HINT_UNKNOWN)
+    for iter in range(G_REPEAT):
+        geopmpy.prof.epoch()
+        geopmpy.prof.region_enter(region_id)
+        for model_region in model_region_list:
+            geopmpy.bench.model_region_run(model_region)
+        geopmpy.prof.region_exit(region_id)
+        root_print('Iteration: {}\r'.format(iter))
+    geopmpy.prof.shutdown()
+
+if __name__ == '__main__':
+    main()
