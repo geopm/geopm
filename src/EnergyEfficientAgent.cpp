@@ -66,6 +66,7 @@ namespace geopm
                                                std::shared_ptr<FrequencyGovernor> gov,
                                                std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > region_map)
         : M_PRECISION(16)
+        , M_WAIT_SEC(0.005)
         , m_platform_io(plat_io)
         , m_platform_topo(topo)
         , m_freq_governor(gov)
@@ -140,7 +141,6 @@ namespace geopm
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
         }
-
 #endif
         m_do_send_policy = update_freq_range(in_policy);
 
@@ -171,7 +171,9 @@ namespace geopm
         double freq_max = m_freq_governor->get_frequency_max();
         std::vector<double> target_freq(m_num_freq_ctl_domain, freq_max);
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
-            if (GEOPM_REGION_HASH_INVALID != m_last_region[ctl_idx].hash) {
+            // don't consider regions that run for fewer than 10 samples
+            if (GEOPM_REGION_HASH_INVALID != m_last_region[ctl_idx].hash ||
+                m_last_region[ctl_idx].runtime > (M_WAIT_SEC * 10)) {
                 auto it = m_adapt_freq_map[ctl_idx].find(m_last_region[ctl_idx].hash);
                 if (it != m_adapt_freq_map[ctl_idx].end()) {
                     target_freq[ctl_idx] = m_adapt_freq_map[ctl_idx][m_last_region[ctl_idx].hash];
@@ -233,7 +235,10 @@ namespace geopm
                         throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): region exit before entry detected.",
                                         GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                     }
-                    last_region_it->second->update_exit(last_region_perf_metric);
+                    // don't learn for regions that run for fewer than 10 samples
+                    if (m_last_region[ctl_idx].runtime > (M_WAIT_SEC * 10)) {
+                        last_region_it->second->update_exit(last_region_perf_metric);
+                    }
                 }
                 m_last_region[ctl_idx] = {current_region_hash, current_region_hint, 0, current_region_runtime};
             }
@@ -247,7 +252,6 @@ namespace geopm
 
     void EnergyEfficientAgent::wait(void)
     {
-        static double M_WAIT_SEC = 0.005;
         while(geopm_time_since(&m_last_wait) < M_WAIT_SEC) {
 
         }
