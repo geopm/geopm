@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation
 #
@@ -31,12 +30,29 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-"""The geopm python package: launcher, error, io, pio, plotter, topo,
-and version.
+import cffi
+import error
 
-"""
 
-__all__ = ['bench', 'error', 'io', 'launcher', 'pio', 'plotter', 'prof', 'topo', 'version']
+_ffi = cffi.FFI()
+_ffi.cdef("""
+    struct geopm_model_region_c;
+    int geopm_model_region_factory(const char *name, double big_o, int verbosity, struct geopm_model_region_c **result);
+    int geopm_model_region_run(struct geopm_model_region_c *model_region_c);
+""")
+_dl = _ffi.dlopen('libgeopm.so')
 
-from geopmpy.version import __version__
+def model_region_factory(region_name, big_o, verbosity):
+    region_name_cstr = _ffi.new("char[]", str(region_name))
+    result = _ffi.new("struct geopm_model_region_c**")
+    err = _dl.geopm_model_region_factory(region_name_cstr, big_o, verbosity, result)
+    if err:
+        raise RuntimeError("geopm_model_region_factory() failed: {}".format(
+            error.message(err)))
+    return result[0]
 
+def model_region_run(model_region):
+    err = _dl.geopm_model_region_run(model_region)
+    if err:
+        raise RuntimeError("geopm_model_region_run() failed: {}".format(
+            error.message(err)))

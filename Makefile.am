@@ -355,26 +355,29 @@ TUTORIAL_DIST = tutorial/Makefile \
                 tutorial/tutorial_region.h \
                 # end
 
-# EXTEND FLAGS FOR MPI TARGETS
-if ENABLE_MPI
-    libgeopm_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -version-info $(geopm_abi_version)
-    libgeopm_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
-    libgeopm_la_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
-
-    geopmctl_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS)
-    geopmctl_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
-    geopmctl_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
-
-if HAVE_ICPC
-    geopmbench_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -lm -mkl -xAVX
-    geopmbench_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c99 -xAVX
-    geopmbench_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11
+if HAVE_ICC
+    MATH_LDFLAGS = -lm -mkl
+    MATH_CFLAGS = -xAVX
+    MATH_LIB = -lm
 else
-    geopmbench_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -lm -mavx
-    geopmbench_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -std=gnu11 -mavx
-    geopmbench_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -std=gnu++11 -mavx
+    MATH_LDFLAGS = -mavx
+    MATH_CFLAGS = -mavx
+    MATH_LIB = -lm
 endif
 
+# EXTEND FLAGS FOR MPI TARGETS
+if ENABLE_MPI
+    libgeopm_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -version-info $(geopm_abi_version) $(MATH_LDFLAGS)
+    libgeopm_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) $(MATH_CFLAGS)
+    libgeopm_la_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) $(MATH_CFLAGS)
+
+    geopmctl_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) $(MATH_LDFLAGS)
+    geopmctl_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) $(MATH_CFLAGS)
+    geopmctl_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) $(MATH_CFLAGS)
+
+    geopmbench_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) $(MATH_LDFLAGS)
+    geopmbench_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c99 $(MATH_CFLAGS)
+    geopmbench_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
 if ENABLE_FORTRAN
     libgeopmfort_la_FCFLAGS = $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS)
     libgeopmfort_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
@@ -394,7 +397,7 @@ geopmagent_LDADD = libgeopmpolicy.la
 if ENABLE_MPI
     geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
     geopmbench_LDADD = libgeopm.la $(MPI_CLIBS)
-    libgeopm_la_LIBADD = $(MPI_CLIBS)
+    libgeopm_la_LIBADD = $(MPI_CLIBS) $(MATH_LIB)
 if ENABLE_FORTRAN
     libgeopmfort_la_LIBADD = libgeopm.la $(MPI_FLIBS)
 endif
@@ -555,6 +558,10 @@ if ENABLE_MPI
     # users to link to both libgeopm and libgeopmpolicy when calling
     # into application facing APIs.
     libgeopm_la_SOURCES = $(libgeopmpolicy_la_SOURCES) \
+                          src/ModelApplication.cpp \
+                          src/ModelApplication.hpp \
+                          src/ModelRegion.cpp \
+                          src/ModelRegion.hpp \
                           src/MPIComm.cpp \
                           src/MPIComm.hpp \
                           src/MPICommSplit.cpp \
@@ -576,13 +583,7 @@ endif
 endif
 
 if ENABLE_MPI
-    geopmbench_SOURCES = src/ModelApplication.cpp \
-                         src/ModelApplication.hpp \
-                         src/ModelParse.cpp \
-                         src/ModelParse.hpp \
-                         src/ModelRegion.cpp \
-                         src/ModelRegion.hpp \
-                         src/geopmbench_main.cpp \
+    geopmbench_SOURCES = src/geopmbench_main.cpp \
                          # end
 endif
 
