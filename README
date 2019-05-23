@@ -351,7 +351,7 @@ These tests require a system meeting all of the requirements discussed
 in the RUN REQUIREMENTS section above and can be executed as follows:
 
     cd test_integration
-    ./geopm_test_integration.py
+    python .
 
 These integration tests are based on pyunit and leverage the geopmpy
 python package to validate the runtime.  Please report failures of
