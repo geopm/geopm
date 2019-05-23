@@ -226,7 +226,7 @@ TEST_F(EnergyEfficientAgentTest, sample_adjust_platform)
     double max = 2.0e9;
     std::vector<double> in_policy {min, max};
 
-    uint64_t UM = GEOPM_REGION_HASH_UNMARKED;
+    uint64_t UM = 0x444;
     std::map<uint64_t, uint64_t> region_hints = {
         {0x12, GEOPM_REGION_HINT_MEMORY},
         {0x34, GEOPM_REGION_HINT_UNKNOWN},
@@ -317,15 +317,13 @@ TEST_F(EnergyEfficientAgentTest, sample_adjust_platform)
 
         EXPECT_CALL(*m_gov, get_frequency_min())
             .WillOnce(Return(min));
-        EXPECT_CALL(*m_gov, get_frequency_max())
-            .WillOnce(Return(max));
+        EXPECT_CALL(*m_gov, get_frequency_max()).Times(AtLeast(1))
+            .WillRepeatedly(Return(max));
         EXPECT_CALL(*m_gov, get_frequency_step())
             .WillOnce(Return(100e6));
         m_agent0->sample_platform(out_sample);
 
         EXPECT_CALL(*m_gov, set_frequency_bounds(min, max));
-        EXPECT_CALL(*m_gov, get_frequency_max())
-            .WillOnce(Return(max));
         EXPECT_CALL(*m_gov, adjust_platform(freqs));
         m_agent0->adjust_platform(in_policy);
     }
