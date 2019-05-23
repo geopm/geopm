@@ -73,6 +73,21 @@ void dgemm(const char *transa, const char *transb, const int *M,
 }
 #endif
 
+extern "C"
+{
+    struct geopm_model_region_c;
+    int geopm_model_region_factory(const char *name, double big_o, int verbosity, struct geopm_model_region_c **result)
+    {
+        *result = (struct geopm_model_region_c*) model_region_factory(name, big_o, verbosity)
+    }
+
+    int geopm_model_region_run(struct geopm_model_region_c *model_region_c)
+    {
+        ModelRegionBase *model_region = (ModelRegionBase *)model_region_c;
+        model_region->run();
+    }
+}
+
 
 namespace geopm
 {
