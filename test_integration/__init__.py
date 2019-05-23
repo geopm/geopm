@@ -1,3 +1,4 @@
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,23 +30,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += test_integration/geopm_context.py \
-              test_integration/geopm_test_integration.py \
-              test_integration/geopm_test_launcher.py \
-              test_integration/geopm_test_loop.sh \
-              test_integration/__init__.py \
-              test_integration/__main__.py \
-              test_integration/README.md \
-              test_integration/test_ee_stream_dgemm_mix.py \
-              # end
-
-noinst_PROGRAMS += test_integration/test_ee_stream_dgemm_mix \
-                   # end
-
-test_integration_test_ee_stream_dgemm_mix_SOURCES = test_integration/test_ee_stream_dgemm_mix.cpp \
-                                                    src/ModelRegion.cpp \
-                                                    src/ModelRegion.hpp \
-                                                    # end
-test_integration_test_ee_stream_dgemm_mix_LDADD = libgeopm.la $(MATH_LIB)
-test_integration_test_ee_stream_dgemm_mix_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
-test_integration_test_ee_stream_dgemm_mix_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
+import geopm_context
+from geopm_test_integration import *
+from test_monitor_sleep import *
+from test_ee_freq_sweep import *
+from geopmpy.version import __version__

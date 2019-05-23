@@ -355,30 +355,33 @@ TUTORIAL_DIST = tutorial/Makefile \
                 tutorial/tutorial_region.h \
                 # end
 
+if HAVE_ICC
+    MATH_CLDFLAGS = -lm -mkl
+    MATH_CFLAGS = -xAVX
+    MATH_LIB = -lm
+else
+    MATH_CLDFLAGS = -mavx
+    MATH_CFLAGS = -mavx
+    MATH_LIB = -lm
+endif
+
 # EXTEND FLAGS FOR MPI TARGETS
 if ENABLE_MPI
-    libgeopm_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -version-info $(geopm_abi_version)
+    libgeopm_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) -version-info $(geopm_abi_version)
     libgeopm_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     libgeopm_la_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
 
-    geopmctl_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS)
+    geopmctl_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS)
     geopmctl_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     geopmctl_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
 
-if HAVE_ICPC
-    geopmbench_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -lm -mkl -xAVX
-    geopmbench_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c99 -xAVX
-    geopmbench_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11
-else
-    geopmbench_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -lm -mavx
-    geopmbench_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -std=gnu11 -mavx
-    geopmbench_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -std=gnu++11 -mavx
-endif
-
+    geopmbench_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
+    geopmbench_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c99 $(MATH_CFLAGS)
+    geopmbench_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
 if ENABLE_FORTRAN
     libgeopmfort_la_FCFLAGS = $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS)
     libgeopmfort_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
-    libgeopmfort_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) -version-info $(geopm_abi_version)
+    libgeopmfort_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) -version-info $(geopm_abi_version)
 endif
 endif
 
@@ -578,8 +581,6 @@ endif
 if ENABLE_MPI
     geopmbench_SOURCES = src/ModelApplication.cpp \
                          src/ModelApplication.hpp \
-                         src/ModelParse.cpp \
-                         src/ModelParse.hpp \
                          src/ModelRegion.cpp \
                          src/ModelRegion.hpp \
                          src/geopmbench_main.cpp \
