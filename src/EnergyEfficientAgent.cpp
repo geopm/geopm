@@ -66,6 +66,7 @@ namespace geopm
                                                std::shared_ptr<FrequencyGovernor> gov,
                                                std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > region_map)
         : M_PRECISION(16)
+        , M_WAIT_SEC(0.005)
         , m_platform_io(plat_io)
         , m_platform_topo(topo)
         , m_freq_governor(gov)
@@ -171,7 +172,8 @@ namespace geopm
         double freq_max = m_freq_governor->get_frequency_max();
         std::vector<double> target_freq(m_num_freq_ctl_domain, freq_max);
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
-            if (GEOPM_REGION_HASH_INVALID != m_last_region[ctl_idx].hash) {
+            if (GEOPM_REGION_HASH_INVALID != m_last_region[ctl_idx].hash ||
+                m_last_region[ctl_idx].runtime > M_WAIT_SEC * 10) {
                 auto it = m_adapt_freq_map[ctl_idx].find(m_last_region[ctl_idx].hash);
                 if (it != m_adapt_freq_map[ctl_idx].end()) {
                     target_freq[ctl_idx] = m_adapt_freq_map[ctl_idx][m_last_region[ctl_idx].hash];
@@ -247,7 +249,6 @@ namespace geopm
 
     void EnergyEfficientAgent::wait(void)
     {
-        static double M_WAIT_SEC = 0.005;
         while(geopm_time_since(&m_last_wait) < M_WAIT_SEC) {
 
         }
