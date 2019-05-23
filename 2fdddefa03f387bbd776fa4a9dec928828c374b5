@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53562728_0946dac6",
+        "filename": "src/ProfileIOSample.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-05-23T17:47:29Z",
+      "side": 1,
+      "message": "use geopm_region_id_hash from geopm_internal.h",
+      "range": {
+        "startLine": 259,
+        "startChar": 20,
+        "endLine": 259,
+        "endChar": 45
+      },
+      "revId": "2fdddefa03f387bbd776fa4a9dec928828c374b5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
