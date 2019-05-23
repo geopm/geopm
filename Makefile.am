@@ -555,6 +555,10 @@ if ENABLE_MPI
     # users to link to both libgeopm and libgeopmpolicy when calling
     # into application facing APIs.
     libgeopm_la_SOURCES = $(libgeopmpolicy_la_SOURCES) \
+                          src/ModelApplication.cpp \
+                          src/ModelApplication.hpp \
+                          src/ModelRegion.cpp \
+                          src/ModelRegion.hpp \
                           src/MPIComm.cpp \
                           src/MPIComm.hpp \
                           src/MPICommSplit.cpp \
@@ -576,13 +580,7 @@ endif
 endif
 
 if ENABLE_MPI
-    geopmbench_SOURCES = src/ModelApplication.cpp \
-                         src/ModelApplication.hpp \
-                         src/ModelParse.cpp \
-                         src/ModelParse.hpp \
-                         src/ModelRegion.cpp \
-                         src/ModelRegion.hpp \
-                         src/geopmbench_main.cpp \
+    geopmbench_SOURCES = src/geopmbench_main.cpp \
                          # end
 endif
 

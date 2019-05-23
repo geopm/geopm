@@ -73,6 +73,38 @@ void dgemm(const char *transa, const char *transb, const int *M,
 }
 #endif
 
+extern "C"
+{
+    int geopm_model_region_factory(const char *name, double big_o, int verbosity, struct geopm_model_region_c **result);
+    int geopm_model_region_run(struct geopm_model_region_c *model_region_c);
+
+    struct geopm_model_region_c;
+    int geopm_model_region_factory(const char *name, double big_o, int verbosity, struct geopm_model_region_c **result)
+    {
+        int err = 0;
+        try {
+            *result = (struct geopm_model_region_c*)geopm::model_region_factory(name, big_o, verbosity);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+    }
+
+    int geopm_model_region_run(struct geopm_model_region_c *model_region_c)
+    {
+        int err = 0;
+        try {
+            geopm::ModelRegionBase *model_region = (geopm::ModelRegionBase *)model_region_c;
+            model_region->run();
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception());
+        }
+        return err;
+    }
+}
+
 
 namespace geopm
 {
