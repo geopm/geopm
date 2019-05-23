@@ -296,11 +296,16 @@ test_hw/geopm_time.h
 test_hw/rapl_pkg_limit_plot.py
 test_hw/rapl_pkg_limit_sweep.sh
 test_hw/rapl_pkg_limit_test.c
+test_integration/__init__.py
+test_integration/__main__.py
 test_integration/Makefile.mk
 test_integration/geopm_context.py
 test_integration/geopm_test_integration.py
 test_integration/geopm_test_launcher.py
 test_integration/geopm_test_loop.sh
+test_integration/test_ee_stream_dgemm_mix.cpp
+test_integration/test_ee_stream_dgemm_mix.py
+test_integration/test_ee_report_filter.sh
 travis_ci.sh
 tutorial/Makefile
 tutorial/agent/ExampleAgent.cpp
