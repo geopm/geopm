@@ -170,7 +170,7 @@ progress values recorded can be seen in the trace output.
 
 6. The model application
 ------------------------
-Tutoral 6 uses the geopmbench tool and configures it with the json
+Tutorial 6 uses the geopmbench tool and configures it with the json
 input file.  The geopmbench application is documented in the
 geopmbench(1) man page and can be use to to a wide range of
 experiments with GEOPM.  Note that geopmbench is used in most
