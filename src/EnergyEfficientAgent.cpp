@@ -171,10 +171,14 @@ namespace geopm
         double freq_max = m_freq_governor->get_frequency_max();
         std::vector<double> target_freq(m_num_freq_ctl_domain, freq_max);
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
-            if (GEOPM_REGION_HASH_INVALID != m_last_region[ctl_idx].hash) {
+            if (GEOPM_REGION_HASH_INVALID != m_last_region[ctl_idx].hash ||
+                m_last_region[ctl_idx].runtime > 0.050) {
                 auto it = m_adapt_freq_map[ctl_idx].find(m_last_region[ctl_idx].hash);
                 if (it != m_adapt_freq_map[ctl_idx].end()) {
                     target_freq[ctl_idx] = m_adapt_freq_map[ctl_idx][m_last_region[ctl_idx].hash];
+                }
+                else if (m_last_region[ctl_idx].runtime <= 0.050) {
+                    // todo: put report message that region is not setting frequency
                 }
                 else {
                     throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): unknown target frequency.",
