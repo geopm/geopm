@@ -43,7 +43,24 @@ export LD_LIBRARY_PATH=$GEOPM_LIB:$LD_LIBRARY_PATH
 # launch geopm controller as an MPI process
 # create a report file
 # create trace files
-if [ "$GEOPM_LAUNCHER" = "srun" ]; then
+if [ "$MPIEXEC" ]; then
+    GEOPM_AGENT="power_governor" \
+    LD_DYNAMIC_WEAK=true \
+    GEOPM_CTL=process \
+    GEOPM_REPORT=tutorial_3_governed_report \
+    GEOPM_TRACE=tutorial_3_governed_trace \
+    GEOPM_POLICY=tutorial_governed_policy.json \
+    $MPIEXEC ./tutorial_3 \
+    && \
+    GEOPM_AGENT="power_balancer" \
+    LD_DYNAMIC_WEAK=true \
+    GEOPM_CTL=process \
+    GEOPM_REPORT=tutorial_3_balanced_report \
+    GEOPM_TRACE=tutorial_3_balanced_trace \
+    GEOPM_POLICY=tutorial_balanced_policy.json \
+    $MPIEXEC ./tutorial_3
+    err=$?
+elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
     # Use GEOPM launcher wrapper script with SLURM's srun
     geopmlaunch srun \
                 -N 2 \
@@ -87,23 +104,6 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 --geopm-trace=tutorial_3_balanced_trace \
                 --geopm-policy=tutorial_balanced_policy.json \
                 -- ./tutorial_3
-    err=$?
-elif [ "$MPIEXEC" ]; then
-    GEOPM_AGENT="power_governor" \
-    LD_DYNAMIC_WEAK=true \
-    GEOPM_CTL=process \
-    GEOPM_REPORT=tutorial_3_governed_report \
-    GEOPM_TRACE=tutorial_3_governed_trace \
-    GEOPM_POLICY=tutorial_governed_policy.json \
-    $MPIEXEC ./tutorial_3 \
-    && \
-    GEOPM_AGENT="power_balancer" \
-    LD_DYNAMIC_WEAK=true \
-    GEOPM_CTL=process \
-    GEOPM_REPORT=tutorial_3_balanced_report \
-    GEOPM_TRACE=tutorial_3_balanced_trace \
-    GEOPM_POLICY=tutorial_balanced_policy.json \
-    $MPIEXEC ./tutorial_3
     err=$?
 else
     echo "Error: tutorial_3.sh: set GEOPM_LAUNCHER to 'srun' or 'aprun'." 2>&1
