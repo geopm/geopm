@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef376bec_c9ca0d7c",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 1179,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-24T19:24:56Z",
+      "side": 1,
+      "message": "also need doc for this class",
+      "range": {
+        "startLine": 1179,
+        "startChar": 58,
+        "endLine": 1179,
+        "endChar": 96
+      },
+      "revId": "b8bbe222dfb293e8e79d9bb3e8ee1edc27b58ef3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
