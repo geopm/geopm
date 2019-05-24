@@ -1,0 +1,164 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "624324b1_54348f76",
+        "filename": "scripts/geopmpy/__init__.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-24T19:13:39Z",
+      "side": 1,
+      "message": "abc order",
+      "revId": "a844b071f899e6ec329376099721e9c582ac7627",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfb79945_8628fb5c",
+        "filename": "scripts/geopmpy/agent.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-24T19:13:39Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "a844b071f899e6ec329376099721e9c582ac7627",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9751512_11a525cf",
+        "filename": "scripts/geopmpy/agent.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-24T19:13:39Z",
+      "side": 1,
+      "message": "global",
+      "range": {
+        "startLine": 108,
+        "startChar": 4,
+        "endLine": 108,
+        "endChar": 19
+      },
+      "revId": "a844b071f899e6ec329376099721e9c582ac7627",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c224fdf2_db7782f0",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1215,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-24T19:13:39Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "a844b071f899e6ec329376099721e9c582ac7627",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f94bc58_ebf90860",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1219,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-24T19:13:39Z",
+      "side": 1,
+      "message": "this is wrong",
+      "range": {
+        "startLine": 1219,
+        "startChar": 70,
+        "endLine": 1219,
+        "endChar": 74
+      },
+      "revId": "a844b071f899e6ec329376099721e9c582ac7627",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd49cc88_aee37798",
+        "filename": "scripts/setup.py.in",
+        "patchSetId": 5
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-24T19:13:39Z",
+      "side": 1,
+      "message": "create from requirements.txt",
+      "range": {
+        "startLine": 82,
+        "startChar": 20,
+        "endLine": 88,
+        "endChar": 26
+      },
+      "revId": "a844b071f899e6ec329376099721e9c582ac7627",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73c8877a_6c646991",
+        "filename": "scripts/test/TestAgent.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-24T19:13:39Z",
+      "side": 1,
+      "message": "have list of expected agents, check sets are equal",
+      "revId": "a844b071f899e6ec329376099721e9c582ac7627",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "448e40c7_4fb561f0",
+        "filename": "scripts/test/TestAgent.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-24T19:13:39Z",
+      "side": 1,
+      "message": "use python json parser and check resulting dictionary",
+      "range": {
+        "startLine": 71,
+        "startChar": 12,
+        "endLine": 72,
+        "endChar": 56
+      },
+      "revId": "a844b071f899e6ec329376099721e9c582ac7627",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
