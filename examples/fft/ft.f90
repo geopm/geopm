@@ -484,7 +484,7 @@
             close(2)
          endif
 
-!         open (unit=2,file='inputft.data',status='old', iostat=fstatus)
+         open (unit=2,file='inputft.data',status='old', iostat=fstatus)
 
          if (fstatus .eq. 0) then
             write(*,233)
