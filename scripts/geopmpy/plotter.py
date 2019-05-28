@@ -1295,7 +1295,7 @@ def generate_histogram(data, config, label, bin_size, xprecision):
     plt.title('{}\nMin-max Var.: {} {}; {}% Min-max Var.: {} {}; Mean: {} {}'
               .format(title, round(min_max_range, 3), title_units,
                       int((trim_pct)*100), round(trimmed_min_max, 3), title_units,
-                      round(mean, 3), title_units),
+                      round(mean*1000, 3), title_units),
               fontsize=config.fontsize)
     plt.xlabel('{} ({})'.format(label.title(), axis_units), fontsize=config.fontsize)
     plt.ylabel('Node Count', fontsize=config.fontsize)
