@@ -1287,7 +1287,7 @@ def generate_histogram(data, config, label, bin_size, xprecision):
                      horizontalalignment='center',
                      fontsize=config.fontsize-4)
     min_max_range = (max(data) - min(data)) * range_factor
-    mean = data.mean()
+    mean = data.mean() * range_factor
 
     n = len(data)
     trim_pct = 0.05
