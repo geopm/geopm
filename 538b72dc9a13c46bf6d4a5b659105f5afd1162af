@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3391b198_d48d75d2",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-05-29T22:35:39Z",
+      "side": 1,
+      "message": "Why is this check needed?",
+      "range": {
+        "startLine": 178,
+        "startChar": 21,
+        "endLine": 178,
+        "endChar": 44
+      },
+      "revId": "538b72dc9a13c46bf6d4a5b659105f5afd1162af",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
