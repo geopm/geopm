@@ -81,6 +81,7 @@ namespace geopm
                 M_SIGNAL_REGION_HASH,
                 M_SIGNAL_REGION_HINT,
                 M_SIGNAL_REGION_PROGRESS,
+                M_SIGNAL_REGION_COUNT,
                 M_SIGNAL_RUNTIME,
                 M_SIGNAL_THREAD_PROGRESS,
                 M_SIGNAL_EPOCH_RUNTIME,
@@ -106,6 +107,7 @@ namespace geopm
             std::vector<uint64_t> m_per_cpu_region_id;
             std::vector<double> m_per_cpu_progress;
             std::vector<double> m_per_cpu_runtime;
+            std::vector<uint64_t> m_per_cpu_count;
             std::vector<double> m_thread_progress;
             std::vector<double> m_epoch_runtime_mpi;
             std::vector<double> m_epoch_runtime_ignore;
