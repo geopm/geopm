@@ -241,6 +241,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/ReporterTest.generate \
               test/gtest_links/RuntimeRegulatorTest.all_in_and_out \
               test/gtest_links/RuntimeRegulatorTest.all_reenter \
+              test/gtest_links/RuntimeRegulatorTest.check_start_count \
               test/gtest_links/RuntimeRegulatorTest.config_rank_then_workers \
               test/gtest_links/RuntimeRegulatorTest.exceptions \
               test/gtest_links/RuntimeRegulatorTest.one_rank_reenter_and_exit \

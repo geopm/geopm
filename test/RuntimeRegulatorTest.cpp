@@ -80,10 +80,25 @@ void RuntimeRegulatorTest::TearDown()
 
 TEST_F(RuntimeRegulatorTest, exceptions)
 {
+#ifdef GEOPM_DEBUG
+    EXPECT_THROW(new RuntimeRegulatorImp(0, true), Exception);
     EXPECT_THROW(new RuntimeRegulatorImp(0), Exception);
+#endif
     RuntimeRegulatorImp rtr(M_NUM_RANKS);
     EXPECT_THROW(rtr.record_entry(-1, m_entry[0][0]), Exception);
     EXPECT_THROW(rtr.record_exit(-1, m_exit[0][0]), Exception);
+}
+
+TEST_F(RuntimeRegulatorTest, check_start_count)
+{
+    std::vector<double> exp_ertr(M_NUM_RANKS, -1.0);
+    std::vector<double> exp_rtr(M_NUM_RANKS, 0.0);
+    RuntimeRegulatorImp ertr(M_NUM_RANKS, true);
+    RuntimeRegulatorImp rtr(M_NUM_RANKS);
+    for (int idx = 0; idx < M_NUM_RANKS; ++idx) {
+        EXPECT_EQ(exp_ertr[idx], ertr.per_rank_count()[idx]);
+        EXPECT_EQ(exp_rtr[idx], rtr.per_rank_count()[idx]);
+    }
 }
 
 TEST_F(RuntimeRegulatorTest, all_in_and_out)
