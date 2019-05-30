@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7781b23_e38363ca",
+        "filename": "src/RuntimeRegulator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-30T22:34:08Z",
+      "side": 1,
+      "message": "can you also check if this breaks the behavior where the epoch count is -1 before the first geopm_prof_epoch()?",
+      "revId": "ac6bdc6e7551d030d5e05736daa7d16f41402d6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
