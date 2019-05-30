@@ -40,7 +40,7 @@
 !  in this directory. Do not modify it by hand.
 !
         integer nx, ny, nz, maxdim, niter_default, ntdivnp, np_min
-        parameter (nx=512, ny=512, nz=512, maxdim=512)
+        parameter (nx=2048, ny=1024, nz=1024, maxdim=2048)
         parameter (niter_default=200)
         parameter (np_min = 1)
         parameter (ntdivnp=((nx*ny)/np_min)*nz)
