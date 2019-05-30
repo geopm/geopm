@@ -39,8 +39,17 @@
 namespace geopm
 {
     RuntimeRegulatorImp::RuntimeRegulatorImp(int num_rank)
+        : RuntimeRegulatorImp(num_rank, false)
+    {
+        if (m_num_rank <= 0) {
+            throw Exception("RuntimeRegulatorImp::RuntimeRegulatorImp(): invalid max rank count",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+    }
+
+    RuntimeRegulatorImp::RuntimeRegulatorImp(int num_rank, bool is_epoch)
         : m_num_rank(num_rank)
-        , m_rank_log(m_num_rank, m_log_s {GEOPM_TIME_REF, 0.0, 0.0, -1})
+        , m_rank_log(m_num_rank, m_log_s {GEOPM_TIME_REF, 0.0, 0.0, is_epoch ? -1 : 0})
     {
         if (m_num_rank <= 0) {
             throw Exception("RuntimeRegulatorImp::RuntimeRegulatorImp(): invalid max rank count",

@@ -79,7 +79,7 @@ namespace geopm
         m_rid_regulator_map.emplace(std::piecewise_construct,
                                     std::make_tuple(GEOPM_REGION_ID_EPOCH),
                                     std::make_tuple(geopm::make_unique<RuntimeRegulatorImp>
-                                                    (m_rank_per_node)));
+                                                    (m_rank_per_node, true))); // epoch count starts at -1
         m_rid_regulator_map.emplace(std::piecewise_construct,
                                     std::make_tuple(GEOPM_REGION_HASH_UNMARKED),
                                     std::make_tuple(geopm::make_unique<RuntimeRegulatorImp>
