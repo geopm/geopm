@@ -365,6 +365,8 @@ namespace geopm
             rank_count = epoch_count();
         }
         else {
+            // @todo this filter needs to be applied in 1 single place,... where?
+            region_id = geopm_region_id_unset_mpi(region_id); // signal should return count for outer region only
             rank_count = region_regulator(region_id).per_rank_count();
         }
         if (rank_count.size() != 0) {
