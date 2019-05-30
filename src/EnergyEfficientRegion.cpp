@@ -90,15 +90,15 @@ namespace geopm
                 curr_freq_ctx->perf.insert(curr_perf_metric);
             }
             if (curr_freq_ctx->perf.size() >= M_MIN_PERF_SAMPLE) {
-                double median = Agg::median(curr_freq_ctx->perf.make_vector());
-                if (!std::isnan(median) && median != 0.0) {
+                double perf_max = Agg::max(curr_freq_ctx->perf.make_vector());
+                if (!std::isnan(perf_max) && perf_max != 0.0) {
                     if (m_target == 0.0) {
-                        m_target = (1.0 + M_PERF_MARGIN) * median;
+                        m_target = (1.0 + M_PERF_MARGIN) * perf_max;
                     }
                     bool do_increase = false;
                     if (m_target != 0.0) {
                         // Performance is in range; lower frequency
-                        if (median > m_target) {
+                        if (perf_max > m_target) {
                             if (m_curr_step - 1 >= 0) {
                                 --m_curr_step;
                             }
