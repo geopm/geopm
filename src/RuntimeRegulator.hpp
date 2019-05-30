@@ -80,6 +80,7 @@ namespace geopm
             RuntimeRegulatorImp() = delete;
             RuntimeRegulatorImp(const RuntimeRegulatorImp &other) = default;
             RuntimeRegulatorImp(int num_rank);
+            RuntimeRegulatorImp(int num_rank, bool is_epoch);
             virtual ~RuntimeRegulatorImp() = default;
             void record_entry(int rank, struct geopm_time_s entry_time) override;
             void record_exit(int rank, struct geopm_time_s exit_time) override;
