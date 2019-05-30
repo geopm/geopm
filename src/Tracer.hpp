@@ -127,6 +127,7 @@ namespace geopm
             std::vector<double> m_last_telemetry;
             int m_region_hash_idx = -1;
             int m_region_hint_idx = -1;
+            int m_region_count_idx = -1;
             int m_region_progress_idx = -1;
             int m_region_runtime_idx = -1;
     };

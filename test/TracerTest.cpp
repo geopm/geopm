@@ -84,6 +84,7 @@ void TracerTest::SetUp(void)
         {"REGION_HASH", GEOPM_DOMAIN_BOARD, 0},
         {"REGION_HINT", GEOPM_DOMAIN_BOARD, 0},
         {"REGION_PROGRESS", GEOPM_DOMAIN_BOARD, 0},
+        {"REGION_COUNT", GEOPM_DOMAIN_BOARD, 0},
         {"REGION_RUNTIME", GEOPM_DOMAIN_BOARD, 0},
         {"ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0},
         {"ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0},
@@ -136,7 +137,7 @@ TEST_F(TracerTest, columns)
                                   "# \"node_name\" : \"" + m_hostname + "\"\n" +
                                   "# \"agent\" : \"" + m_agent + "\"\n";
     std::string expected_str = expected_header +
-        "time|epoch_count|region_hash|region_hint|region_progress|region_runtime|energy_package|energy_dram|"
+        "time|epoch_count|region_hash|region_hint|region_progress|region_count|region_runtime|energy_package|energy_dram|"
         "power_package|power_dram|frequency|cycles_thread|cycles_reference|temperature_core|"
         "extra|extra_special-cpu-0|extra_special-cpu-1|"
         "col1|col2\n";
