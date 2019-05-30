@@ -268,6 +268,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/TimeIOGroupTest.read_signal \
               test/gtest_links/TimeIOGroupTest.read_signal_and_batch \
               test/gtest_links/TimeIOGroupTest.sample \
+              test/gtest_links/TracerTest.region_unknown_count \
               test/gtest_links/TracerTest.columns \
               test/gtest_links/TracerTest.region_entry_exit \
               test/gtest_links/TracerTest.update_samples \
