@@ -59,7 +59,7 @@ class FrequencyGovernorTest : public ::testing::Test
 
         const int M_CTL_DOMAIN = GEOPM_DOMAIN_CORE;
         const int M_NUM_CORE = 4;
-        const double M_PLAT_MAX_FREQ = 2.1e9;
+        const double M_PLAT_MAX_FREQ = 3.7e9;
         const double M_PLAT_STICKER_FREQ = 2.0e9;
         const double M_PLAT_MIN_FREQ = 1.0e9;
         const double M_PLAT_STEP_FREQ = 1e8;
@@ -73,7 +73,7 @@ void FrequencyGovernorTest::SetUp(void)
     ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU)).WillByDefault(Return(2*M_NUM_CORE));
     ON_CALL(m_platio, read_signal("CPUINFO::FREQ_STEP", _, _)).WillByDefault(Return(M_PLAT_STEP_FREQ));
     ON_CALL(m_platio, read_signal("CPUINFO::FREQ_MIN", _, _)).WillByDefault(Return(M_PLAT_MIN_FREQ));
-    ON_CALL(m_platio, read_signal("CPUINFO::FREQ_MAX", _, _)).WillByDefault(Return(M_PLAT_MAX_FREQ));
+    ON_CALL(m_platio, read_signal("FREQUENCY_MAX", _, _)).WillByDefault(Return(M_PLAT_MAX_FREQ));
 
     ASSERT_EQ(M_NUM_CORE, (int)M_FREQ_CTL_IDX.size());
     for (int idx = 0; idx < M_NUM_CORE; ++idx) {
@@ -122,7 +122,7 @@ TEST_F(FrequencyGovernorTest, adjust_platform_clamping)
     EXPECT_EQ(M_CTL_DOMAIN, domain);
     int num_domain = m_topo.num_domain(domain);
     EXPECT_EQ(M_NUM_CORE, num_domain);
-    request = {3.1e9, 1.2e9, 1.5e9, 0.7e9};
+    request = {4.1e9, 1.2e9, 1.5e9, 0.7e9};
     ASSERT_EQ(num_domain, (int)request.size());
     std::vector<double> expected = {M_PLAT_MAX_FREQ, 1.2e9, 1.5e9, M_PLAT_MIN_FREQ};
     // check that controls are actually applied
