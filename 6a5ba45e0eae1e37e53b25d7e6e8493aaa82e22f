@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9fa3c32f_8b862fb1",
+        "filename": "test_integration/test_ee_stream_dgemm_mix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-05-30T22:41:33Z",
+      "side": 1,
+      "message": "tab",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 1
+      },
+      "revId": "6a5ba45e0eae1e37e53b25d7e6e8493aaa82e22f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68fb5196_e9e3f266",
+        "filename": "test_integration/test_ee_stream_dgemm_mix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-05-30T22:41:33Z",
+      "side": 1,
+      "message": "idk why this has to be a different binary.  lets just implement this as a new model region type.  i proposed something like this before this \u0027stream-dgemm-mix\u0027 region will take a big O that ranges from -1.0 (1.0 stream 0.0 dgemm big O) to 1.0 (0.0 stream 1.0 dgemm big O) or some similar encoding.",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 74,
+        "endChar": 132
+      },
+      "revId": "6a5ba45e0eae1e37e53b25d7e6e8493aaa82e22f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
