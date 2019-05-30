@@ -52,6 +52,8 @@ class MockProfileIOSample : public geopm::ProfileIOSample {
                            std::vector<double>(void));
         MOCK_CONST_METHOD1(per_cpu_runtime,
                            std::vector<double>(uint64_t region_id));
+        MOCK_CONST_METHOD1(per_cpu_count,
+                           std::vector<double>(uint64_t region_id));
         MOCK_CONST_METHOD1(per_rank_runtime,
                            std::vector<double>(uint64_t region_id));
         MOCK_CONST_METHOD0(total_app_runtime,
