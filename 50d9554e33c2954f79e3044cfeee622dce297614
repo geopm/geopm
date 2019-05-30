@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "863faad4_7d9d8f2b",
+        "filename": "src/ProfileIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-05-30T22:48:12Z",
+      "side": 1,
+      "message": "Looking at this line and M_SIGNAL_RUNTIME below, it seems a little weird that we ask m_profile_sample for the region_id, then pass it back into per_cpu_count() or per_cpu_runtime().  Maybe the ProfileIOSample could do that lookup itself?",
+      "revId": "50d9554e33c2954f79e3044cfeee622dce297614",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
