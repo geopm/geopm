@@ -273,6 +273,26 @@ namespace geopm
         return result;
     }
 
+    std::vector<double> ProfileIOSampleImp::per_cpu_count(uint64_t region_id) const
+    {
+        std::vector<double> result(m_cpu_rank.size(), 0.0);
+        region_id = geopm_region_id_unset_mpi(region_id); // signal should return count for outer region only
+        const std::vector<double> &rank_counts = m_epoch_regulator.region_regulator(region_id).per_rank_count();
+        int cpu_idx = 0;
+        for (auto rank : m_cpu_rank) {
+#ifdef GEOPM_DEBUG
+            if (rank >= (int)rank_counts.size()) {
+                throw Exception("ProfileIOSampleImp::per_cpu_count: node-local rank "
+                                "for rank " + std::to_string(rank) + " not found in map.",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
+#endif
+            result[cpu_idx] = rank_counts[rank];
+            ++cpu_idx;
+        }
+        return result;
+    }
+
     double ProfileIOSampleImp::total_app_runtime(void) const
     {
         return geopm_time_since(&m_app_start_time);
