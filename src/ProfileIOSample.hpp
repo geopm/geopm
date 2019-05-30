@@ -70,6 +70,10 @@ namespace geopm
             ///        for the rank running on each CPU.
             /// @param [in] region_id Region ID for the region of interest.
             virtual std::vector<double> per_cpu_runtime(uint64_t region_id) const = 0;
+            /// @brief Return the count of the given region
+            ///        for the rank running on each CPU.
+            /// @param [in] region_id Region ID for the region of interest.
+            virtual std::vector<double> per_cpu_count(uint64_t region_id) const = 0;
             /// @brief Return the total time from the start of the
             ///        application until now.
             virtual double total_app_runtime(void) const = 0;
@@ -93,6 +97,7 @@ namespace geopm
             std::vector<double> per_cpu_progress(const struct geopm_time_s &extrapolation_time) const override;
             std::vector<double> per_cpu_thread_progress(void) const override;
             std::vector<double> per_cpu_runtime(uint64_t region_id) const override;
+            std::vector<double> per_cpu_count(uint64_t region_id) const override;
             double total_app_runtime(void) const override;
             std::vector<int> cpu_rank(void) const override;
         private:
