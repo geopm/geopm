@@ -121,6 +121,7 @@ namespace geopm
                     {"REGION_HASH", GEOPM_DOMAIN_BOARD, 0},
                     {"REGION_HINT", GEOPM_DOMAIN_BOARD, 0},
                     {"REGION_PROGRESS", GEOPM_DOMAIN_BOARD, 0},
+                    {"REGION_COUNT", GEOPM_DOMAIN_BOARD, 0},
                     {"REGION_RUNTIME", GEOPM_DOMAIN_BOARD, 0},
                     {"ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0},
                     {"ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0},
@@ -134,7 +135,8 @@ namespace geopm
             m_region_hash_idx = 2;
             m_region_hint_idx = 3;
             m_region_progress_idx = 4;
-            m_region_runtime_idx = 5;
+            m_region_count_idx = 5;
+            m_region_runtime_idx = 6;
 
             // extra columns from environment
             for (const auto &extra_signal : string_split(m_env_column, ",")) {
@@ -206,6 +208,13 @@ namespace geopm
                     m_buffer << geopm_signal_to_field(m_last_telemetry[idx]);
                 }
                 m_buffer << std::setfill('\0') << std::setw(0) << std::scientific;
+            }
+            else if ((int)idx == m_region_count_idx) {
+                if (GEOPM_REGION_HASH_UNMARKED == m_last_telemetry[m_region_hash_idx]) {
+                    m_buffer << 0.0;
+                } else {
+                    m_buffer << m_last_telemetry[idx];
+                }
             }
             else if ((int)idx == m_region_progress_idx) {
                 m_buffer << std::setprecision(1) << std::fixed
