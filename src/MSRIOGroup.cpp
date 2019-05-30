@@ -85,7 +85,7 @@ namespace geopm
         , m_per_cpu_restore(m_num_cpu)
         , m_is_fixed_enabled(false)
     {
-        m_msr_arr = init_msr_arr(cpuid);
+        m_msr_arr = init_msr_arr(m_cpuid);
         for (const auto &msr_ptr : m_msr_arr) {
             m_name_msr_map.insert(std::pair<std::string, const MSR &>(msr_ptr->name(), *msr_ptr));
             for (int idx = 0; idx < msr_ptr->num_signal(); idx++) {
@@ -119,6 +119,27 @@ namespace geopm
 
         register_msr_signal("TIMESTAMP_COUNTER", "MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT");
         register_msr_signal("FREQUENCY",         "MSR::PERF_STATUS:FREQ");
+
+        std::string max_turbo_name;
+        switch (m_cpuid) {
+            case MSRIOGroup::M_CPUID_KNL:
+                max_turbo_name = "MSR::TURBO_RATIO_LIMIT:GROUP_0_MAX_RATIO_LIMIT";
+                break;
+            case MSRIOGroup::M_CPUID_SNB:
+            case MSRIOGroup::M_CPUID_IVT:
+            case MSRIOGroup::M_CPUID_HSX:
+            case MSRIOGroup::M_CPUID_BDX:
+                max_turbo_name = "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_1CORE";
+                break;
+            case MSRIOGroup::M_CPUID_SKX:
+                max_turbo_name = "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0";
+                break;
+            default:
+                throw Exception("MSRIOGroup: Unsupported CPUID",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        register_msr_signal("FREQUENCY_MAX", max_turbo_name);
+
         register_msr_signal("ENERGY_PACKAGE",    "MSR::PKG_ENERGY_STATUS:ENERGY");
         register_msr_signal("ENERGY_DRAM",       "MSR::DRAM_ENERGY_STATUS:ENERGY");
         register_msr_signal("INSTRUCTIONS_RETIRED", "MSR::FIXED_CTR0:INST_RETIRED_ANY");

@@ -139,15 +139,24 @@ namespace geopm
         : m_signal_value_map({{"CPUINFO::FREQ_MIN", read_cpu_freq(cpu_freq_min_path)},
                               {"CPUINFO::FREQ_STICKER", read_cpu_freq_sticker(cpu_info_path)},
                               {"CPUINFO::FREQ_MAX", read_cpu_freq(cpu_freq_max_path)},
-                              {"CPUINFO::FREQ_STEP", 100e6}})
+                              {"CPUINFO::FREQ_STEP", 100e6},
+                              {"FREQUENCY_MIN", read_cpu_freq(cpu_freq_min_path)},
+                              {"FREQUENCY_STICKER", read_cpu_freq_sticker(cpu_info_path)},
+                              {"FREQUENCY_STEP", 100e6}})
         , m_func_map({{"CPUINFO::FREQ_MIN", Agg::expect_same},
                       {"CPUINFO::FREQ_STICKER", Agg::expect_same},
                       {"CPUINFO::FREQ_MAX", Agg::expect_same},
-                      {"CPUINFO::FREQ_STEP", Agg::expect_same}})
+                      {"CPUINFO::FREQ_STEP", Agg::expect_same},
+                      {"FREQUENCY_MIN", Agg::expect_same},
+                      {"FREQUENCY_STICKER", Agg::expect_same},
+                      {"FREQUENCY_STEP", Agg::expect_same}})
         , m_desc_map({{"CPUINFO::FREQ_MIN", "Minimum processor frequency in hertz"},
                       {"CPUINFO::FREQ_STICKER", "Processor base frequency in hertz"},
                       {"CPUINFO::FREQ_MAX", "Maximum processor frequency in hertz"},
-                      {"CPUINFO::FREQ_STEP", "Step size between process frequency settings in hertz"}})
+                      {"CPUINFO::FREQ_STEP", "Step size between process frequency settings in hertz"},
+                      {"FREQUENCY_MIN", "Minimum processor frequency in hertz"},
+                      {"FREQUENCY_STICKER", "Processor base frequency in hertz"},
+                      {"FREQUENCY_STEP", "Step size between process frequency settings in hertz"}})
     {
 
     }
