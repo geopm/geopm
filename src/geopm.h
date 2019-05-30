@@ -78,6 +78,7 @@ struct geopm_region_info_s
     uint64_t hint;
     double progress;
     double runtime;
+    uint64_t count;
 };
 
 /*************************/
