@@ -145,7 +145,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": true
+                    "writeable": false
                 },
                 "MAX_RATIO_LIMIT_2CORES": {
                     "begin_bit": 8,
@@ -153,7 +153,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": true
+                    "writeable": false
                 },
                 "MAX_RATIO_LIMIT_3CORES": {
                     "begin_bit": 16,
@@ -161,7 +161,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": true
+                    "writeable": false
                 },
                 "MAX_RATIO_LIMIT_4CORES": {
                     "begin_bit": 24,
@@ -169,7 +169,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": true
+                    "writeable": false
                 },
                 "MAX_RATIO_LIMIT_5CORES": {
                     "begin_bit": 32,
@@ -177,7 +177,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": true
+                    "writeable": false
                 },
                 "MAX_RATIO_LIMIT_6CORES": {
                     "begin_bit": 40,
@@ -185,7 +185,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": true
+                    "writeable": false
                 },
                 "MAX_RATIO_LIMIT_7CORES": {
                     "begin_bit": 48,
@@ -193,7 +193,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": true
+                    "writeable": false
                 },
                 "MAX_RATIO_LIMIT_8CORES": {
                     "begin_bit": 56,
@@ -201,7 +201,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": true
+                    "writeable": false
                 }
             }
         },
