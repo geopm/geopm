@@ -31,6 +31,7 @@ geopm.spec.in
 openmp.mk
 scripts/Makefile.mk
 scripts/geopmanalysis
+scripts/geopmconvertreport
 scripts/geopmlaunch
 scripts/geopmplotter
 scripts/geopmpy/__init__.py
