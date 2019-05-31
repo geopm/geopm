@@ -36,6 +36,7 @@ libexecdir ?= $(exec_prefix)/libexec
 
 EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmanalysis \
+              scripts/geopmconvertreport \
               scripts/geopmlaunch \
               scripts/geopmplotter \
               scripts/geopmpy/__init__.py \
