@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+#
+#  Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in
+#        the documentation and/or other materials provided with the
+#        distribution.
+#
+#      * Neither the name of Intel Corporation nor the names of its
+#        contributors may be used to endorse or promote products derived
+#        from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+import sys
+import yaml
+import json
+
+def convert_report_to_json(path):
+    yaml_path = path + '.yaml'
+    with open(path) as in_fid, open(yaml_path, 'w') as out_fid:
+        out_fid.write('GEOPM Meta Data:\n')
+        line = in_fid.readline()
+        version = line.split()[2]
+        out_fid.write('    GEOPM Version: {}\n'.format(version))
+        line = in_fid.readline()
+        line_split = [xx.strip() for xx in line.split(':')]
+        out_fid.write("    {}: '{}'\n".format(line_split[0], line_split[1]))
+        for idx in range(2):
+            line = in_fid.readline()
+            out_fid.write('    {}'.format(line))
+        in_fid.readline()
+        for line in in_fid.readlines():
+            line = line.replace('\t', '    ')
+            if len(line):
+                if line.startswith('Host:'):
+                    host = line.split(':')[1].strip()
+                    out_fid.write('{}:\n'.format(host))
+                else:
+                    line = line.replace(': ', '_TEMP_SUBS_VALUE_')
+                    line = line.replace(':', ': ')
+                    line = line.replace('_TEMP_SUBS_VALUE_', ': ')
+                    out_fid.write('    ' + line)
+    data = yaml.load(open(yaml_path), Loader=yaml.SafeLoader)
+    jdata = json.dumps(data)
+    with open(path + '.json', 'w') as fid:
+        fid.write(jdata)
+
+if __name__ == '__main__':
+    convert_report_to_json(sys.argv[1])
