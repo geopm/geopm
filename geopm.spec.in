@@ -233,6 +233,7 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 
 %files -n python-geopmpy
 %{python_sitelib}/*
+%{_bindir}/geopmconvertreport
 %{_bindir}/geopmlaunch
 %doc %{_mandir}/man1/geopmlaunch.1.gz
 %doc %{_mandir}/man7/geopmpy.7.gz
