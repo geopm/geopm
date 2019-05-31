@@ -153,7 +153,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": true
+                    "writeable": false
                 },
                 "MAX_RATIO_LIMIT_1": {
                     "begin_bit": 8,
@@ -161,7 +161,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": true
+                    "writeable": false
                 },
                 "MAX_RATIO_LIMIT_2": {
                     "begin_bit": 16,
@@ -169,7 +169,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": true
+                    "writeable": false
                 },
                 "MAX_RATIO_LIMIT_3": {
                     "begin_bit": 24,
@@ -177,7 +177,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": true
+                    "writeable": false
                 },
                 "MAX_RATIO_LIMIT_4": {
                     "begin_bit": 32,
@@ -185,7 +185,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": true
+                    "writeable": false
                 },
                 "MAX_RATIO_LIMIT_5": {
                     "begin_bit": 40,
@@ -193,7 +193,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": true
+                    "writeable": false
                 },
                 "MAX_RATIO_LIMIT_6": {
                     "begin_bit": 48,
@@ -201,7 +201,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": true
+                    "writeable": false
                 },
                 "MAX_RATIO_LIMIT_7": {
                     "begin_bit": 56,
@@ -209,7 +209,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": true
+                    "writeable": false
                 }
             }
         },
@@ -223,7 +223,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1,
-                    "writeable": true
+                    "writeable": false
                 },
                 "NUMCORE_1": {
                     "begin_bit": 8,
@@ -231,7 +231,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1,
-                    "writeable": true
+                    "writeable": false
                 },
                 "NUMCORE_2": {
                     "begin_bit": 16,
@@ -239,7 +239,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1e8,
-                    "writeable": true
+                    "writeable": false
                 },
                 "NUMCORE_3": {
                     "begin_bit": 24,
@@ -247,7 +247,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1,
-                    "writeable": true
+                    "writeable": false
                 },
                 "NUMCORE_4": {
                     "begin_bit": 32,
@@ -255,7 +255,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1,
-                    "writeable": true
+                    "writeable": false
                 },
                 "NUMCORE_5": {
                     "begin_bit": 40,
@@ -263,7 +263,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1,
-                    "writeable": true
+                    "writeable": false
                 },
                 "NUMCORE_6": {
                     "begin_bit": 48,
@@ -271,7 +271,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1,
-                    "writeable": true
+                    "writeable": false
                 },
                 "NUMCORE_7": {
                     "begin_bit": 56,
@@ -279,7 +279,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1,
-                    "writeable": true
+                    "writeable": false
                 }
             }
         },
