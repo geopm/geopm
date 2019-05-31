@@ -135,6 +135,124 @@ namespace geopm
                 }
             }
         },
+        "TURBO_RATIO_LIMIT": {
+            "offset": "0x1AD",
+            "domain": "package",
+            "fields": {
+                "GROUP_0_MAX_CORES": {
+                    "begin_bit": 1,
+                    "end_bit":   7,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": false
+                },
+                "GROUP_0_MAX_RATIO_LIMIT": {
+                    "begin_bit": 8,
+                    "end_bit":   15,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "writeable": false
+                },
+                "GROUP_1_INCREMENTAL_CORES": {
+                    "begin_bit": 16,
+                    "end_bit":   20,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": false
+                },
+                "GROUP_1_RATIO_LIMIT_DELTA": {
+                    "begin_bit": 21,
+                    "end_bit":   23,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "writeable": false
+                },
+                "GROUP_2_INCREMENTAL_CORES": {
+                    "begin_bit": 24,
+                    "end_bit":   28,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": false
+                },
+                "GROUP_2_RATIO_LIMIT_DELTA": {
+                    "begin_bit": 29,
+                    "end_bit":   31,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "writeable": false
+                },
+                "GROUP_3_INCREMENTAL_CORES": {
+                    "begin_bit": 32,
+                    "end_bit":   36,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": false
+                },
+                "GROUP_3_RATIO_LIMIT_DELTA": {
+                    "begin_bit": 37,
+                    "end_bit":   39,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "writeable": false
+                },
+                "GROUP_4_INCREMENTAL_CORES": {
+                    "begin_bit": 40,
+                    "end_bit":   44,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": false
+                },
+                "GROUP_4_RATIO_LIMIT_DELTA": {
+                    "begin_bit": 45,
+                    "end_bit":   47,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "writeable": false
+                },
+                "GROUP_5_INCREMENTAL_CORES": {
+                    "begin_bit": 48,
+                    "end_bit":   52,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": false
+                },
+                "GROUP_5_RATIO_LIMIT_DELTA": {
+                    "begin_bit": 53,
+                    "end_bit":   55,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "writeable": false
+                },
+                "GROUP_6_INCREMENTAL_CORES": {
+                    "begin_bit": 56,
+                    "end_bit":   60,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": false
+                },
+                "GROUP_6_RATIO_LIMIT_DELTA": {
+                    "begin_bit": 61,
+                    "end_bit":   63,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "writeable": false
+                }
+            }
+        },
         "RAPL_POWER_UNIT": {
             "offset": "0x606",
             "domain": "package",
