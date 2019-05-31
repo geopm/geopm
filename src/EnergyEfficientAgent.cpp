@@ -276,10 +276,10 @@ namespace geopm
         std::ostringstream oss;
         oss << std::setprecision(EnergyEfficientAgent::M_PRECISION) << std::scientific;
         for (const auto &region : region_freq_map) {
-            oss << "\n\t0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
+            oss << "\n    0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
             oss << region.first;
             oss << std::setfill('\0') << std::setw(0) << std::scientific;
-            oss << ":" << region.second[0].second;  // Only item in the vector is requested frequency
+            oss << ": " << region.second[0].second;  // Only item in the vector is requested frequency
         }
         oss << "\n";
         result.push_back({"Final online freq map", oss.str()});
