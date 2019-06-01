@@ -34,36 +34,10 @@
 import sys
 import yaml
 import json
+import geopmpy.io
 
 def convert_report_to_json(path):
-    yaml_path = path + '.yaml'
-    with open(path) as in_fid, open(yaml_path, 'w') as out_fid:
-        out_fid.write('GEOPM Meta Data:\n')
-        line = in_fid.readline()
-        version = line.split()[2]
-        out_fid.write('    GEOPM Version: {}\n'.format(version))
-        line = in_fid.readline()
-        line_split = [xx.strip() for xx in line.split(':')]
-        out_fid.write("    {}: '{}'\n".format(line_split[0], line_split[1]))
-        for idx in range(2):
-            line = in_fid.readline()
-            out_fid.write('    {}'.format(line))
-        in_fid.readline()
-        for line in in_fid.readlines():
-            line = line.replace('\t', '    ')
-            if len(line):
-                if line.startswith('Host:'):
-                    host = line.split(':')[1].strip()
-                    out_fid.write('{}:\n'.format(host))
-                else:
-                    line = line.replace(': ', '_TEMP_SUBS_VALUE_')
-                    line = line.replace(':', ': ')
-                    line = line.replace('_TEMP_SUBS_VALUE_', ': ')
-                    out_fid.write('    ' + line)
-    data = yaml.load(open(yaml_path), Loader=yaml.SafeLoader)
-    jdata = json.dumps(data)
-    with open(path + '.json', 'w') as fid:
-        fid.write(jdata)
+    geopmpy.io.RawReport(path).dump_json(path + '.json')
 
 if __name__ == '__main__':
     convert_report_to_json(sys.argv[1])

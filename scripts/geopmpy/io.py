@@ -42,6 +42,9 @@ import glob
 import sys
 import subprocess
 import psutil
+import copy
+import tempfile
+import yaml
 from distutils.spawn import find_executable
 from natsort import natsorted
 from geopmpy import __version__
@@ -1236,3 +1239,77 @@ class AgentConf(object):
             elif self._agent in ['energy_efficient', 'frequency_map']:
                     outfile.write("{{\"FREQ_MIN\" : {}, \"FREQ_MAX\" : {}}}\n"\
                                   .format(str(self._options['frequency_min']), str(self._options['frequency_max'])))
+
+class RawReport(object):
+    def __init__(self, path):
+        with open(path) as in_fid, tempfile.TemporaryFile() as out_fid:
+            out_fid.write('GEOPM Meta Data:\n')
+            line = in_fid.readline()
+            version = line.split()[2]
+            out_fid.write('    GEOPM Version: {}\n'.format(version))
+            line = in_fid.readline()
+            col_pos = line.find(': ')
+            out_fid.write("    {}: '{}'\n".format(line[:col_pos], line[col_pos+2:-1]))
+            for idx in range(2):
+                line = in_fid.readline()
+                out_fid.write('    {}'.format(line))
+            for line in in_fid.readlines():
+                if len(line) > 1:
+                    if line.startswith('Host:'):
+                        host = line.split(':')[1].strip()
+                        out_fid.write('{}:\n'.format(host))
+                    else:
+                        out_fid.write('    {}'.format(line))
+            out_fid.seek(0)
+            self._raw_dict = yaml.load(out_fid, Loader=yaml.SafeLoader)
+
+    def raw_report(self):
+        return copy.deepcopy(self._raw_dict)
+
+    def dump_json(self, path):
+        jdata = json.dumps(self._raw_dict)
+        with open(path, 'w') as fid:
+            fid.write(jdata)
+
+    def meta_data(self):
+        return copy.deepcopy(self._raw_dict['GEOPM Meta Data'])
+
+    def host_names(self):
+        return [xx for xx in self._raw_dict.keys() if xx != 'GEOPM Meta Data']
+
+    def region_names(self, host_name):
+        host_data = self._raw_dict[host_name]
+        result = [xx.split()[1] for xx in host_data.keys() if xx.startswith('Region ')]
+        return result
+
+    def region_hash(self, region_name):
+        for host_name in self.host_names():
+            host_data = self._raw_dict[host_name]
+            for xx in host_data.keys():
+                if xx.startswith('Region {}'.format(region_name)):
+                    return xx.split()[2][1:-1]
+        raise KeyError('Region not found: {}'.format(region_name))
+
+    def raw_region(self, host_name, region_name):
+        host_data = self._raw_dict[host_name]
+        region_hash = self.region_hash(region_name)
+        key = 'Region {} ({})'.format(region_name, region_hash)
+        return copy.deepcopy(host_data[key])
+
+    def raw_epoch(self, host_name):
+        host_data = self._raw_dict[host_name]
+        key = 'Epoch Totals'
+        return copy.deepcopy(host_data[key])
+
+    def raw_totals(self, host_name):
+        host_data = self._raw_dict[host_name]
+        key = 'Application Totals'
+        return copy.deepcopy(host_data[key])
+
+    def get_field(self, raw_data, key, units=''):
+        matches = [(len(kk), kk) for kk in raw_data.keys() if key in kk and units in kk]
+        if len(matches) == 0:
+            raise KeyError('Field not found: {}'.format(key))
+        match = sorted(matches)[0][1]
+        return copy.deepcopy(raw_data[match])
+
