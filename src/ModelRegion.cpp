@@ -576,6 +576,7 @@ namespace geopm
                 std::cout << "Executing " << m_num_send << " byte buffer all2all "
                           << m_num_progress_updates << " times."  << std::endl << std::flush;
             }
+            MPI_Barrier(MPI_COMM_WORLD);
             ModelRegionBase::region_enter();
             for (uint64_t i = 0; i < m_num_progress_updates; ++i) {
                 ModelRegionBase::loop_enter(i);
