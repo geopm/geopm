@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f72e7a2b_09badffb",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-03T20:44:15Z",
+      "side": 1,
+      "message": "M_MIN_LEARNING_RUNTIME",
+      "range": {
+        "startLine": 176,
+        "startChar": 50,
+        "endLine": 176,
+        "endChar": 65
+      },
+      "revId": "f4f109531c6a4a0a05d3d57f45aef7461244dba3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
