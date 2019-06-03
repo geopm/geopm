@@ -204,6 +204,9 @@ namespace geopm
                     /// Unmarked regions are assigned maximum frequency, no learning
                     target_freq = freq_max;
                 }
+                else if (current_region_hint == GEOPM_REGION_HINT_NETWORK) {
+                    target_freq = freq_min;
+                }
                 else if (!curr_region_is_invalid) {
                     /// set the freq for the current region (entry)
                     auto curr_region_it = m_region_map[ctl_idx].find(current_region_hash);
@@ -222,10 +225,12 @@ namespace geopm
 
                 /// update previous region (exit)
                 const uint64_t last_region_hash = m_last_region[ctl_idx].hash;
+                const uint64_t last_region_hint = m_last_region[ctl_idx].hint;
                 // Higher is better for performance, so negate
                 const double last_region_perf_metric = -1.0 * m_last_region[ctl_idx].runtime;
                 if (last_region_hash != GEOPM_REGION_HASH_INVALID &&
-                    last_region_hash != GEOPM_REGION_HASH_UNMARKED) {
+                    last_region_hash != GEOPM_REGION_HASH_UNMARKED &&
+                    last_region_hint != GEOPM_REGION_HINT_NETWORK) {
                     auto last_region_it = m_region_map[ctl_idx].find(last_region_hash);
                     if (last_region_it == m_region_map[ctl_idx].end()) {
                         throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): region exit before entry detected.",
