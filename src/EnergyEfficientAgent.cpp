@@ -200,7 +200,7 @@ namespace geopm
                 const bool curr_region_is_invalid = current_region_hash == GEOPM_REGION_HASH_INVALID;
                 double target_freq = NAN;
                 if (current_region_hint == GEOPM_REGION_HINT_COMPUTE ||
-                    current_region_hint == GEOPM_REGION_HASH_UNMARKED) {
+                    current_region_hash == GEOPM_REGION_HASH_UNMARKED) {
                     /// Compute regions are assigned maximum frequency, no learning
                     target_freq = freq_max;
                 }
