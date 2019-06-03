@@ -87,10 +87,13 @@ namespace geopm
         if (sig_name == "CPUINFO::FREQ_MIN") {
             result = m_platform_io.read_signal(sig_name, domain_type, 0);
         }
-        else if (sig_name == "FREQUENCY_MAX") {
+        else if (sig_name == "CPUINFO::FREQ_STICKER") {
             result = m_platform_io.read_signal(sig_name, domain_type, 0);
         }
         else if (sig_name == "CPUINFO::FREQ_STEP") {
+            result = m_platform_io.read_signal(sig_name, domain_type, 0);
+        }
+        else if (sig_name == "FREQUENCY_MAX") {
             result = m_platform_io.read_signal(sig_name, domain_type, 0);
         }
 #ifdef GEOPM_DEBUG
@@ -186,7 +189,7 @@ namespace geopm
     void FrequencyGovernorImp::validate_policy(double &freq_min, double &freq_max) const
     {
         double target_freq_min = std::isnan(freq_min) ? get_limit("CPUINFO::FREQ_MIN") : freq_min;
-        double target_freq_max = std::isnan(freq_max) ? get_limit("FREQUENCY_MAX") : freq_max;
+        double target_freq_max = std::isnan(freq_max) ? get_limit("CPUINFO::FREQ_STICKER") : freq_max;
         freq_min = target_freq_min;
         freq_max = target_freq_max;
     }
