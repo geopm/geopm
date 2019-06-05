@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "adb79cef_e10e035f",
+        "filename": "src/EnergyEfficientRegion.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-05T23:03:00Z",
+      "side": 1,
+      "message": "\u003d 0",
+      "range": {
+        "startLine": 53,
+        "startChar": 42,
+        "endLine": 53,
+        "endChar": 48
+      },
+      "revId": "bcad3713d68a1e8aa7b8ab9e2a8b88b9ffb5398b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
