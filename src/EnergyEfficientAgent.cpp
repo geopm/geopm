@@ -314,24 +314,28 @@ namespace geopm
     std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > EnergyEfficientAgent::report_region(void) const
     {
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > result;
-        std::map<uint64_t, double> totals;
-        for (int ctl_idx = 0; ctl_idx < m_num_freq_ctl_domain; ++ctl_idx) {
+        std::map<uint64_t, std::pair<double, double> > region_frequency_count_map;
+        for (const auto &region_map_it : m_region_map) {
             // If region is in this map, online learning was used to set frequency
-            for (const auto &region : m_region_map[ctl_idx]) {
-                auto total_it = totals.find(region.first);
-                if (total_it == totals.end()) {
-                    totals[region.first] = region.second->freq();
-                }
-                else {
-                    totals[region.first] += region.second->freq();
+            for (const auto &region : region_map_it) {
+                if (!region.second->is_learning()) {
+                    auto it = region_frequency_count_map.find(region.first);
+                    if (it == region_frequency_count_map.end()) {
+                        region_frequency_count_map[region.first] = std::make_pair(region.second->freq(), 1.0);
+                    }
+                    else {
+                        it->second.first += region.second->freq();
+                        it->second.second += 1.0;
+                    }
                 }
             }
         }
-        for (const auto &region : totals) {
+        for (const auto &it : region_frequency_count_map) {
             /// @todo re-implement with m_region_map and m_hash_freq_map keys as pair (hash + hint)
-            double requested_freq = region.second / m_num_freq_ctl_domain;
-            result[region.first].push_back(std::make_pair("requested-online-frequency",
-                                                          std::to_string(requested_freq)));
+            // Average frequencies for all domains that completed learning
+            double requested_freq = it.second.first / it.second.second;
+            result[it.first].push_back(std::make_pair("requested-online-frequency",
+                                                      std::to_string(requested_freq)));
         }
         return result;
     }
