@@ -51,6 +51,7 @@ namespace geopm
             virtual void update_freq_range(double freq_min, double freq_max, double freq_step) = 0;
             virtual void update_exit(double curr_perf_metric) = 0;
             virtual void disable(void) = 0;
+            virtual bool is_learning(void) const = 0;
     };
 
     class EnergyEfficientRegionImp : public EnergyEfficientRegion
@@ -62,6 +63,7 @@ namespace geopm
             void update_freq_range(double freq_min, double freq_max, double freq_step) override;
             void update_exit(double curr_perf_metric) override;
             void disable(void) override;
+            bool is_learning(void) const override;
         private:
             static const int M_MIN_PERF_SAMPLE = 5;
             struct FreqContext {

@@ -315,21 +315,26 @@ namespace geopm
     {
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > result;
         std::map<uint64_t, double> totals;
+        std::map<uint64_t, int> counts;
         for (int ctl_idx = 0; ctl_idx < m_num_freq_ctl_domain; ++ctl_idx) {
             // If region is in this map, online learning was used to set frequency
             for (const auto &region : m_region_map[ctl_idx]) {
                 auto total_it = totals.find(region.first);
-                if (total_it == totals.end()) {
-                    totals[region.first] = region.second->freq();
-                }
-                else {
-                    totals[region.first] += region.second->freq();
+                if (!region.second->is_learning()) {
+                    if (total_it == totals.end()) {
+                        totals[region.first] = region.second->freq();
+                        counts[region.first] = 1;
+                    }
+                    else {
+                        totals[region.first] += region.second->freq();
+                        ++counts[region.first];
+                    }
                 }
             }
         }
         for (const auto &region : totals) {
             /// @todo re-implement with m_region_map and m_hash_freq_map keys as pair (hash + hint)
-            double requested_freq = region.second / m_num_freq_ctl_domain;
+            double requested_freq = region.second / counts[region.first];
             result[region.first].push_back(std::make_pair("requested-online-frequency",
                                                           std::to_string(requested_freq)));
         }
