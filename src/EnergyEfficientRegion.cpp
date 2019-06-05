@@ -121,4 +121,9 @@ namespace geopm
             }
         }
     }
+
+    bool EnergyEfficientRegionImp::is_learning(void) const
+    {
+        return m_is_learning;
+    }
 }

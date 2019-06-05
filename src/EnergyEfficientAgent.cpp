@@ -295,11 +295,13 @@ namespace geopm
             // If region is in this map, online learning was used to set frequency
             for (const auto &region : m_region_map[ctl_idx]) {
                 auto total_it = totals.find(region.first);
-                if (total_it == totals.end()) {
-                    totals[region.first] = region.second->freq();
-                }
-                else {
-                    totals[region.first] += region.second->freq();
+                if (!region.second->is_learning()) {
+                    if (total_it == totals.end()) {
+                        totals[region.first] = region.second->freq();
+                    }
+                    else {
+                        totals[region.first] += region.second->freq();
+                    }
                 }
             }
         }
