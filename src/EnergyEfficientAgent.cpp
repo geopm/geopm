@@ -75,7 +75,7 @@ namespace geopm
         , m_freq_governor(gov)
         , m_freq_ctl_domain_type(m_freq_governor->frequency_domain_type())
         , m_num_freq_ctl_domain(m_platform_topo.num_domain(m_freq_ctl_domain_type))
-        , m_region_map(m_num_freq_ctl_domain, region_map)
+        , m_region_map(region_map)
         , m_samples_since_boundary(m_num_freq_ctl_domain)
         , m_last_wait(GEOPM_TIME_REF)
         , m_level(-1)
@@ -193,8 +193,8 @@ namespace geopm
                     }
                 }
                 else {
-                    auto region_it = m_region_map[ctl_idx].find(hash);
-                    if (region_it != m_region_map[ctl_idx].end()) {
+                    auto region_it = m_region_map.find(hash);
+                    if (region_it != m_region_map.end()) {
                         m_target_freq[ctl_idx] = region_it->second->freq();
                     }
                     else {
@@ -225,12 +225,10 @@ namespace geopm
                     current_region_hash != GEOPM_REGION_HASH_UNMARKED &&
                     current_region_hint != GEOPM_REGION_HINT_NETWORK) {
                     /// set the freq for the current region (entry)
-                    auto current_region_it = m_region_map[ctl_idx].find(current_region_hash);
-                    if (current_region_it == m_region_map[ctl_idx].end()) {
-                        auto tmp = m_region_map[ctl_idx].emplace(current_region_hash,
-                            std::make_shared<EnergyEfficientRegionImp>(freq_min, freq_max, freq_step));
-                        current_region_it = tmp.first;
-                    }
+                    auto current_region_it = m_region_map.emplace(std::piecewise_construct,
+                                                                  std::forward_as_tuple(current_region_hash),
+                                                                  std::forward_as_tuple(geopm::make_unique<EnergyEfficientRegionImp>
+                                                                                        (freq_min, freq_max, freq_step))).first;
                 }
                 /// update previous region (exit)
                 const uint64_t last_region_hash = m_last_region_info[ctl_idx].hash;
@@ -239,8 +237,8 @@ namespace geopm
                 if (last_region_hash != GEOPM_REGION_HASH_INVALID &&
                     last_region_hash != GEOPM_REGION_HASH_UNMARKED &&
                     last_region_hint != GEOPM_REGION_HINT_NETWORK) {
-                    auto last_region_it = m_region_map[ctl_idx].find(last_region_hash);
-                    if (last_region_it == m_region_map[ctl_idx].end()) {
+                    auto last_region_it = m_region_map.find(last_region_hash);
+                    if (last_region_it == m_region_map.end()) {
                         throw Exception("EnergyEfficientAgent::" + std::string(__func__) +
                                         "(): region exit before entry detected.",
                                         GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -312,28 +310,12 @@ namespace geopm
     std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > EnergyEfficientAgent::report_region(void) const
     {
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > result;
-        std::map<uint64_t, std::pair<double, double> > region_frequency_count_map;
-        for (const auto &region_map_it : m_region_map) {
-            // If region is in this map, online learning was used to set frequency
-            for (const auto &region : region_map_it) {
-                if (!region.second->is_learning()) {
-                    auto it = region_frequency_count_map.find(region.first);
-                    if (it == region_frequency_count_map.end()) {
-                        region_frequency_count_map[region.first] = std::make_pair(region.second->freq(), 1.0);
-                    }
-                    else {
-                        it->second.first += region.second->freq();
-                        it->second.second += 1.0;
-                    }
-                }
+        // If region is in this map, online learning was used to set frequency
+        for (const auto &region : m_region_map) {
+            if (!region.second->is_learning()) {
+                result[region.first].push_back(std::make_pair("requested-online-frequency",
+                                                              std::to_string(region.second->freq())));
             }
-        }
-        for (const auto &it : region_frequency_count_map) {
-            /// @todo re-implement with m_region_map and m_hash_freq_map keys as pair (hash + hint)
-            // Average frequencies for all domains that completed learning
-            double requested_freq = it.second.first / it.second.second;
-            result[it.first].push_back(std::make_pair("requested-online-frequency",
-                                                      std::to_string(requested_freq)));
         }
         return result;
     }
