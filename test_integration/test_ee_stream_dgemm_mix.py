@@ -135,6 +135,36 @@ class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
                     msg='Chosen frequency decreased with increasing dgemm fraction')
                 last_freq = freq
 
+    def test_skip_short_regions(self):
+        """Test that agent does not learn from short regions.
+
+        """
+        report = geopmpy.io.RawReport(self._report_path)
+        host_names = report.host_names()
+        for host_name in report.host_names():
+            found_short = False
+            for region_name in report.region_names(host_name):
+                if region_name == 'short_region':
+                    region = report.raw_region(host_name, region_name)
+                    self.assertTrue('requested-online-frequency' not in region)
+                    found_short = True
+            self.assertTrue(found_short)
+
+    def test_skip_network_regions(self):
+        """Test that agent does not learn from short regions.
+
+        """
+        report = geopmpy.io.RawReport(self._report_path)
+        host_names = report.host_names()
+        for host_name in report.host_names():
+            found_barrier = False
+            for region_name in report.region_names(host_name):
+                if region_name == 'MPI_Barrier':
+                    region = report.raw_region(host_name, region_name)
+                    self.assertTrue('requested-online-frequency' not in region)
+                    found_barrier = True
+            self.assertTrue(found_barrier)
+
 if __name__ == '__main__':
     try:
         sys.argv.remove('--skip-launch')

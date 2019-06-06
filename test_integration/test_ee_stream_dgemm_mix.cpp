@@ -59,7 +59,14 @@ int main(int argc, char **argv)
             }
         }
     }
-    std::unique_ptr<geopm::ModelRegionBase> spin_model(geopm::model_region_factory("spin", 0.05, is_verbose));
+    std::unique_ptr<geopm::ModelRegionBase> spin_model(geopm::model_region_factory("spin", 0.075, is_verbose));
+    std::unique_ptr<geopm::ModelRegionBase> short_model(geopm::model_region_factory("spin", 0.01, is_verbose));
+    uint64_t short_region_id = 0;
+    err = geopm_prof_region("short_region", GEOPM_REGION_HINT_UNKNOWN, &short_region_id);
+    if (err) {
+        throw geopm::Exception("test_ee_stream_dgemm_mix", err, __FILE__, __LINE__);
+    }
+
     int repeat = 300;
     double dgemm_factor = 17;
     double stream_factor = 1.0;
@@ -75,7 +82,7 @@ int main(int argc, char **argv)
         char region_name[NAME_MAX];
         region_name[NAME_MAX - 1] = '\0';
         snprintf(region_name, NAME_MAX - 1, "stream-%.2f-dgemm-%.2f", stream_big_o, dgemm_big_o);
-        uint64_t region_id;
+        uint64_t region_id = 0;
         err = geopm_prof_region(region_name, GEOPM_REGION_HINT_UNKNOWN, &region_id);
         if (err) {
             throw geopm::Exception("test_ee_stream_dgemm_mix", err, __FILE__, __LINE__);
@@ -92,6 +99,16 @@ int main(int argc, char **argv)
                 throw geopm::Exception("test_ee_stream_dgemm_mix", err, __FILE__, __LINE__);
             }
             spin_model->run();
+            err = geopm_prof_enter(short_region_id);
+            if (err) {
+                throw geopm::Exception("test_ee_stream_dgemm_mix", err, __FILE__, __LINE__);
+            }
+            short_model->run();
+            err = geopm_prof_exit(short_region_id);
+            if (err) {
+                throw geopm::Exception("test_ee_stream_dgemm_mix", err, __FILE__, __LINE__);
+            }
+            MPI_Barrier(MPI_COMM_WORLD);
         }
     }
     MPI_Finalize();
