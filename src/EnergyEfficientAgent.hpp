@@ -33,6 +33,7 @@
 #ifndef ENERGYEFFICIENTAGENT_HPP_INCLUDE
 #define ENERGYEFFICIENTAGENT_HPP_INCLUDE
 
+#include <set>
 #include <vector>
 #include <map>
 #include <string>
@@ -100,6 +101,15 @@ namespace geopm
                 M_NUM_SIGNAL,
             };
 
+            enum m_trace_e {
+                M_TRACE_EE_REGION_HASH,
+                M_TRACE_IS_LEARNING,
+                M_TRACE_CURR_FREQ,
+                M_TRACE_TARGET_PERF,
+                M_TRACE_PERF_MAX,
+                M_NUM_TRACE,
+            };
+
             const int M_PRECISION;
             const double M_WAIT_SEC;
             const double M_MIN_LEARNING_RUNTIME;
@@ -118,10 +128,12 @@ namespace geopm
             std::vector<int> m_samples_since_boundary;
             geopm_time_s m_last_wait;
             std::vector<std::vector<int> > m_signal_idx;
+            int m_trace_hash_idx;
             int m_level;
             int m_num_children;
             bool m_do_send_policy;
             double m_perf_margin;
+            mutable std::set<int> m_trace_cpu_idx;
     };
 }
 
