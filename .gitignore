@@ -52,7 +52,6 @@
 /examples/print_affinity
 /examples/simple_prof_c
 /examples/simple_prof_f
-/examples/synthetic_benchmark
 /examples/threaded_step
 /examples/timed_region
 /geopm*.spec
