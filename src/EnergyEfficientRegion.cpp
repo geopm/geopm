@@ -53,6 +53,7 @@ namespace geopm
         , m_freq_min(freq_min)
         , m_target(0.0)
         , m_is_disabled(false)
+        , m_perf_max(NAN)
     {
         update_freq_range(freq_min, freq_max, freq_step);
     }
@@ -121,5 +122,15 @@ namespace geopm
     bool EnergyEfficientRegionImp::is_learning(void) const
     {
         return m_is_learning;
+    }
+
+    std::vector<double> EnergyEfficientRegionImp::sample(void) const
+    {
+        return m_perf;
+    }
+
+    double EnergyEfficientRegionImp::target(void) const
+    {
+        return m_target;
     }
 }
