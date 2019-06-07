@@ -53,6 +53,8 @@ namespace geopm
             virtual void update_exit() = 0;
             virtual void disable(void) = 0;
             virtual bool is_learning(void) const = 0;
+            virtual std::vector<double> sample(void) const = 0;
+            virtual double target(void) const = 0;
     };
 
     class EnergyEfficientRegionImp : public EnergyEfficientRegion
@@ -66,6 +68,8 @@ namespace geopm
             void update_exit() override;
             void disable(void) override;
             bool is_learning(void) const override;
+            std::vector<double> sample(void) const;
+            double target(void) const;
         private:
             const double M_PERF_MARGIN;
             const int M_MIN_PERF_SAMPLE;
@@ -75,6 +79,7 @@ namespace geopm
             int m_curr_step;
             double m_freq_min;
             double m_target;
+            double m_perf_max;
             std::vector<std::unique_ptr<CircularBuffer<double> > > m_freq_perf;
             bool m_is_disabled;
     };
