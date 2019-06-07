@@ -1116,6 +1116,57 @@ class TestIntegration(unittest.TestCase):
                     msg = region_name + " frequency should be near assigned map frequency"
                     self.assertNear(region_data['frequency'].item(), data[region_name] / sticker_freq * 100, msg=msg)
 
+    def test_agent_energy_efficient_single_region(self):
+        """
+        Test of the EnergyEfficientAgent against single region loop.
+        """
+        name = 'test_energy_efficient_single_region'
+        min_freq = do_geopmread("CPUINFO::FREQ_MIN board 0")
+        max_freq = do_geopmread("CPUINFO::FREQ_MAX board 0")
+        sticker_freq = do_geopmread("CPUINFO::FREQ_STICKER board 0")
+        freq_step = do_geopmread("CPUINFO::FREQ_STEP board 0")
+        self._agent = "energy_efficient"
+        report_path = name + '.report'
+        trace_path = name + '.trace'
+        num_node = 1
+        num_rank = 4
+        loop_count = 100
+        stream_bigo = 1.449
+        stream_bigo_jlse = 1.6225
+        stream_bigo_quartz = 1.7941
+        hostname = socket.gethostname()
+        if hostname.endswith('.alcf.anl.gov'):
+            stream_bigo = stream_bigo_jlse
+        elif hostname.startswith('mcfly'):
+            stream_bigo = 1.75
+        else:
+            stream_bigo = stream_bigo_quartz
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.set_loop_count(loop_count)
+        app_conf.append_region('stream', stream_bigo)
+        self._options = {'frequency_min': min_freq,
+                         'frequency_max': sticker_freq}
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run(name)
+        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
+        node_names = self._output.get_node_names()
+        self.assertEqual(len(node_names), num_node)
+        regions = self._output.get_region_names()
+        for nn in node_names:
+            for region_name in regions:
+                region_data = self._output.get_report_data(node_name=nn, region=region_name)
+                if (region_name in ['stream']):
+                    #todo verify trace frequencies
+                    #todo verify agent report augment frequecies
+                    msg = region_name + " frequency should be near assigned map frequency"
+                    self.assertLess(region_data['frequency'].item(), sticker_freq, msg=msg)  # freq should reduce
+
+
     @skip_unless_run_long_tests()
     @skip_unless_cpufreq()
     @skip_unless_slurm_batch()
