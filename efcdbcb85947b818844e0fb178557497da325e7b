@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5f9c33c_db1c1ce6",
+        "filename": "scripts/geopmconvertreport",
+        "patchSetId": 11
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-06-07T18:03:10Z",
+      "side": 1,
+      "message": "Need some usage text and help.",
+      "range": {
+        "startLine": 42,
+        "startChar": 1,
+        "endLine": 43,
+        "endChar": 39
+      },
+      "revId": "efcdbcb85947b818844e0fb178557497da325e7b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16b57efd_71cd26f3",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-06-07T18:03:10Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "efcdbcb85947b818844e0fb178557497da325e7b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
