@@ -110,6 +110,15 @@ namespace geopm
                 uint64_t count;
             };
 
+            enum m_trace_e {
+                M_TRACE_EE_REGION_HASH,
+                M_TRACE_IS_LEARNING,
+                M_TRACE_CURR_FREQ,
+                M_TRACE_TARGET_PERF,
+                M_TRACE_PERF_MAX,
+                M_NUM_TRACE,
+            };
+
             const int M_PRECISION;
             const double M_WAIT_SEC;
             const double M_MIN_LEARNING_RUNTIME;

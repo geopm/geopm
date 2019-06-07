@@ -32,6 +32,7 @@
 
 #include "EnergyEfficientAgent.hpp"
 
+#include <algorithm>
 #include <sstream>
 #include <cmath>
 #include <iomanip>
@@ -364,7 +365,20 @@ namespace geopm
 
     std::vector<std::string> EnergyEfficientAgent::trace_names(void) const
     {
-        return {};
+        std::vector<std::string> cols = {"region_hash", "is_learning", "curr_freq", "target_perf", "perf_max"};
+#ifdef GEOPM_DEBUG
+        if (M_NUM_TRACE > cols.size()) {
+            throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): trace cols vector not correctly sized.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        std::vector<std::string> ret;
+        for (const auto &col : cols) {
+            for (int rank = 0; rank < m_platform_topo.num_domain(GEOPM_DOMAIN_MPI_RANK); ++rank) {
+                ret.push_back(col + "_" + std::to_string(rank));
+            }
+        }
+        return ret;
     }
 
     std::vector<std::function<std::string(double)> > EnergyEfficientAgent::trace_formats(void) const
@@ -374,7 +388,48 @@ namespace geopm
 
     void EnergyEfficientAgent::trace_values(std::vector<double> &values)
     {
-
+#ifdef GEOPM_DEBUG
+        if (trace_names().size() > values.size()) {
+            throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): values vector not correctly sized.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        int trace_idx = 0;
+        for (int col = 0; col < M_NUM_TRACE; ++col) {
+            for (int rank = 0; rank < m_platform_topo.num_domain(GEOPM_DOMAIN_MPI_RANK); ++rank) {
+                auto trace_hash = m_last_region_info[rank].hash;
+                auto trace_region_it = m_region_map.find(std::make_pair(trace_hash, rank));
+                if (trace_region_it == m_region_map.end()) {
+                    switch (trace_idx % M_NUM_TRACE) {
+                        case M_TRACE_EE_REGION_HASH:
+                            values[trace_idx] = GEOPM_REGION_HASH_UNMARKED;
+                            break;
+                        default:
+                            values[trace_idx] = NAN;
+                    }
+                }
+                else {
+                    switch (trace_idx % M_NUM_TRACE) {
+                        case M_TRACE_EE_REGION_HASH:
+                            values[trace_idx] = trace_hash;
+                            break;
+                        case M_TRACE_IS_LEARNING:
+                            values[trace_idx] = trace_region_it->second->is_learning();
+                            break;
+                        case M_TRACE_CURR_FREQ:
+                            values[trace_idx] = trace_region_it->second->freq();
+                            break;
+                        case M_TRACE_TARGET_PERF:
+                            values[trace_idx] = trace_region_it->second->target();
+                            break;
+                        case M_TRACE_PERF_MAX:
+                            values[trace_idx] = Agg::max(trace_region_it->second->sample());
+                            break;
+                    }
+                }
+                ++trace_idx;
+            }
+        }
     }
 
     void EnergyEfficientAgent::enforce_policy(const std::vector<double> &policy) const
