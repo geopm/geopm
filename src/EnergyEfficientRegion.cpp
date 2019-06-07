@@ -54,6 +54,7 @@ namespace geopm
         , m_freq_min(freq_min)
         , m_target(0.0)
         , m_is_disabled(false)
+        , m_perf_max(NAN)
     {
         /// @brief we are not clearing the m_freq_ctx vector once created, such that we
         ///        do not have to re-learn frequencies that were temporarily removed via
@@ -96,15 +97,15 @@ namespace geopm
         if (m_is_learning && !m_is_disabled) {
             auto &curr_freq_ctx = m_freq_ctx[m_curr_step];
             if (curr_freq_ctx->perf.size() >= M_MIN_PERF_SAMPLE) {
-                double perf_max = Agg::max(curr_freq_ctx->perf.make_vector());
-                if (!std::isnan(perf_max) && perf_max != 0.0) {
+                m_perf_max = Agg::max(curr_freq_ctx->perf.make_vector());
+                if (!std::isnan(m_perf_max) && m_perf_max != 0.0) {
                     if (m_target == 0.0) {
-                        m_target = (1.0 + M_PERF_MARGIN) * perf_max;
+                        m_target = (1.0 + M_PERF_MARGIN) * m_perf_max;
                     }
                     bool do_increase = false;
                     if (m_target != 0.0) {
                         // Performance is in range; lower frequency
-                        if (perf_max > m_target) {
+                        if (m_perf_max > m_target) {
                             if (m_curr_step - 1 >= 0) {
                                 --m_curr_step;
                             }

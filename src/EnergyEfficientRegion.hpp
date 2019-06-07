@@ -53,6 +53,8 @@ namespace geopm
             virtual void update_exit() = 0;
             virtual void disable(void) = 0;
             virtual bool is_learning(void) const = 0;
+            //@todo remove when done debugging
+            double m_perf_max;
     };
 
     class EnergyEfficientRegionImp : public EnergyEfficientRegion
@@ -66,7 +68,7 @@ namespace geopm
             void update_exit() override;
             void disable(void) override;
             bool is_learning(void) const override;
-        private:
+        //private:
             static const int M_MIN_PERF_SAMPLE = 5;//@todo make this dependent on number of freq domains, or even better ranks?
             struct FreqContext {
                 FreqContext()
@@ -86,6 +88,7 @@ namespace geopm
             int m_curr_step;
             double m_freq_min;
             double m_target;
+            double m_perf_max;
             std::vector<std::unique_ptr<FreqContext> > m_freq_ctx;
             bool m_is_disabled;
     };
