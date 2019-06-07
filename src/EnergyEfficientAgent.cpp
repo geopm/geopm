@@ -32,6 +32,7 @@
 
 #include "EnergyEfficientAgent.hpp"
 
+#include <algorithm>
 #include <sstream>
 #include <cmath>
 #include <iomanip>
@@ -347,12 +348,60 @@ namespace geopm
 
     std::vector<std::string> EnergyEfficientAgent::trace_names(void) const
     {
-        return {};
+        std::vector<std::string> cols = {"region_hash", "is_learning", "curr_freq", "target_perf", "perf_max"};
+        std::set<int> ranks;
+        std::vector<std::string> ret;
+        for (const auto &rank : m_rank_cpu) {
+            ranks.insert(rank);
+        }
+        for (const auto &rank : ranks) {
+            for (const auto &col : cols) {
+                auto trace_cpu_it = std::find(m_rank_cpu.begin(), m_rank_cpu.end(), rank);
+                m_trace_cpu_idx.insert(std::distance(m_rank_cpu.begin(), trace_cpu_it));
+                ret.push_back(col + "_" + std::to_string(rank));
+            }
+        }
+        return ret;
     }
 
     void EnergyEfficientAgent::trace_values(std::vector<double> &values)
     {
-
+        // @todo if values.size() != num_ranks (make a class member) * cols (also a member)
+        int rank = 0;
+        for (int idx = 0; idx < values.size(); ++idx) {
+            auto cpu_it = m_trace_cpu_idx.begin();
+            std::advance(cpu_it, rank);
+            auto trace_hash = m_last_region_info[*cpu_it].hash;
+            auto trace_region_it = m_region_map.find(std::make_pair(trace_hash, rank));
+            if (trace_region_it == m_region_map.end()) {
+                values[idx] = NAN;
+                values[idx] = NAN;
+                values[idx] = NAN;
+                values[idx] = NAN;
+            }
+            else {
+                switch (idx % M_NUM_TRACE) {
+                    case M_TRACE_EE_REGION_HASH:
+                        values[idx] = trace_hash;
+                        break;
+                    case M_TRACE_IS_LEARNING:
+                        values[idx] = trace_region_it->second->is_learning();
+                        break;
+                    case M_TRACE_CURR_FREQ:
+                        values[idx] = trace_region_it->second->freq();
+                        break;
+                    case M_TRACE_TARGET_PERF:
+                        values[idx] = trace_region_it->second->target();
+                        break;
+                    case M_TRACE_PERF_MAX:
+                        values[idx] = Agg::max(trace_region_it->second->sample());
+                        break;
+                }
+            }
+            if (idx % M_NUM_TRACE == 0 ) {// number of cols
+                rank++;
+            }
+        }
     }
 
     void EnergyEfficientAgent::enforce_policy(const std::vector<double> &policy) const
@@ -377,6 +426,7 @@ namespace geopm
                                                                          .runtime = 0});
         m_target_freq.resize(m_num_freq_ctl_domain, m_freq_governor->get_frequency_max());
         std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT", "REGION_RUNTIME"};
+        m_trace_hash_idx = m_platform_io.push_signal("REGION_HASH", GEOPM_DOMAIN_BOARD, 0);
 
         for (size_t sig_idx = 0; sig_idx < signal_names.size(); ++sig_idx) {
             m_signal_idx.push_back(std::vector<int>());
