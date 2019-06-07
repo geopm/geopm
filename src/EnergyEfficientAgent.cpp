@@ -329,12 +329,28 @@ namespace geopm
 
     std::vector<std::string> EnergyEfficientAgent::trace_names(void) const
     {
-        return {};
+        return {"IS_LEARNING", "CURR_FREQ", "PERF_MAX"};
     }
 
     void EnergyEfficientAgent::trace_values(std::vector<double> &values)
     {
-
+        const uint64_t trace_hash = m_platform_io.sample(m_trace_hash_idx);
+        if (GEOPM_REGION_HASH_UNMARKED == trace_hash) {
+            values[0] = NAN;
+            values[1] = NAN;
+            values[2] = NAN;
+        }
+        else {
+            auto trace_region_it = m_region_map.find(trace_hash);
+            if (trace_region_it == m_region_map.end()) {
+                throw Exception("EnergyEfficientAgent::" + std::string(__func__) +
+                                "(): wtf.",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            values[0] = trace_region_it->second->is_learning();
+            values[1] = trace_region_it->second->freq();
+            values[2] = trace_region_it->second->m_perf_max;
+        }
     }
 
     void EnergyEfficientAgent::enforce_policy(const std::vector<double> &policy) const
@@ -358,6 +374,7 @@ namespace geopm
                                                                          .count = 0});
         m_target_freq.resize(m_num_freq_ctl_domain, m_freq_governor->get_frequency_max());
         std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT", "REGION_RUNTIME", "REGION_COUNT"};
+        m_trace_hash_idx = m_platform_io.push_signal("REGION_HASH", GEOPM_DOMAIN_BOARD, 0);
 
         for (size_t sig_idx = 0; sig_idx < signal_names.size(); ++sig_idx) {
             m_signal_idx.push_back(std::vector<int>());

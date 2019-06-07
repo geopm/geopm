@@ -52,7 +52,6 @@
 /examples/print_affinity
 /examples/simple_prof_c
 /examples/simple_prof_f
-/examples/synthetic_benchmark
 /examples/threaded_step
 /examples/timed_region
 /geopm*.spec
@@ -144,6 +143,7 @@
 /test_integration/*.trace*
 /test_integration/geopm_test_integration
 /test_integration/geopm_test_integration.pyc
+/test_integration/test_ee_stream_dgemm_mix
 /tutorial/*.o
 /tutorial/Exception.hpp
 /tutorial/agent/*.so.*
