@@ -54,6 +54,7 @@ namespace geopm
         , m_freq_min(freq_min)
         , m_target(0.0)
         , m_is_disabled(false)
+        , m_perf_max(NAN)
     {
         /// @brief we are not clearing the m_freq_perf vector once created, such that we
         ///        do not have to re-learn frequencies that were temporarily removed via
@@ -99,12 +100,12 @@ namespace geopm
                 double perf_max = Agg::max(curr_perf_buffer->make_vector());
                 if (!std::isnan(perf_max) && perf_max != 0.0) {
                     if (m_target == 0.0) {
-                        m_target = (1.0 + M_PERF_MARGIN) * perf_max;
+                        m_target = (1.0 + M_PERF_MARGIN) * m_perf_max;
                     }
                     bool do_increase = false;
                     if (m_target != 0.0) {
                         // Performance is in range; lower frequency
-                        if (perf_max > m_target) {
+                        if (m_perf_max > m_target) {
                             if (m_curr_step - 1 >= 0) {
                                 --m_curr_step;
                             }
