@@ -51,6 +51,8 @@ namespace geopm
             virtual void update_exit() = 0;
             virtual void disable(void) = 0;
             virtual bool is_learning(void) const = 0;
+            virtual std::vector<double> sample(void) const = 0;
+            virtual double target(void) const = 0;
     };
 
     class EnergyEfficientRegionImp : public EnergyEfficientRegion
@@ -64,6 +66,8 @@ namespace geopm
             void update_exit() override;
             void disable(void) override;
             bool is_learning(void) const override;
+            std::vector<double> sample(void) const override;
+            double target(void) const override;
         private:
             const double M_PERF_MARGIN;
             bool m_is_learning;
