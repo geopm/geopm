@@ -48,6 +48,10 @@ class MockEnergyEfficientRegion : public geopm::EnergyEfficientRegion
         MOCK_METHOD0(disable, void(void));
         MOCK_CONST_METHOD0(is_learning,
                      bool(void));
+        MOCK_CONST_METHOD0(sample,
+                     std::vector<double>());
+        MOCK_CONST_METHOD0(target,
+                     double());
 };
 
 #endif
