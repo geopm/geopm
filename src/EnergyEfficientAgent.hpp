@@ -116,6 +116,7 @@ namespace geopm
             std::vector<int> m_samples_since_boundary;
             geopm_time_s m_last_wait;
             std::vector<std::vector<int> > m_signal_idx;
+            int m_trace_hash_idx;
             int m_level;
             int m_num_children;
             bool m_do_send_policy;
