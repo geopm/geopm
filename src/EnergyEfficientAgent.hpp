@@ -97,6 +97,7 @@ namespace geopm
                 M_SIGNAL_REGION_HASH,
                 M_SIGNAL_REGION_HINT,
                 M_SIGNAL_REGION_RUNTIME,
+                M_SIGNAL_REGION_COUNT,
                 M_NUM_SIGNAL,
             };
 

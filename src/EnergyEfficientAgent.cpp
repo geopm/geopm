@@ -227,7 +227,9 @@ namespace geopm
             const uint64_t current_region_hash = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH][ctl_idx]);
             const uint64_t current_region_hint = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HINT][ctl_idx]);
             const double current_region_runtime = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_RUNTIME][ctl_idx]);
-            const bool is_region_boundary = (m_last_region_info[ctl_idx].hash != current_region_hash);
+            const uint64_t  current_region_count = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_COUNT][ctl_idx]);
+            const bool is_region_boundary = (m_last_region_info[ctl_idx].hash != current_region_hash ||
+                                             m_last_region_info[ctl_idx].count != current_region_count);
             /// update current region (entry)
             if (is_region_boundary) {
                 m_samples_since_boundary[ctl_idx] = 0;
@@ -266,7 +268,8 @@ namespace geopm
                 m_last_region_info[ctl_idx] = {current_region_hash,
                                                current_region_hint,
                                                0,
-                                               current_region_runtime};
+                                               current_region_runtime,
+                                               current_region_count};
             }
             else {
                 ++m_samples_since_boundary[ctl_idx];
@@ -376,9 +379,10 @@ namespace geopm
                                                                          .hash = GEOPM_REGION_HASH_INVALID,
                                                                          .hint = GEOPM_REGION_HINT_UNKNOWN,
                                                                          .progress = 0,
-                                                                         .runtime = 0});
+                                                                         .runtime = 0,
+                                                                         .count = 0});
         m_target_freq.resize(m_num_freq_ctl_domain, m_freq_governor->get_frequency_max());
-        std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT", "REGION_RUNTIME"};
+        std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT", "REGION_RUNTIME", "REGION_COUNT"};
 
         for (size_t sig_idx = 0; sig_idx < signal_names.size(); ++sig_idx) {
             m_signal_idx.push_back(std::vector<int>());
