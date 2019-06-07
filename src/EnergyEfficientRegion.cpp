@@ -135,4 +135,14 @@ namespace geopm
     {
         return m_is_learning;
     }
+
+    std::vector<double> EnergyEfficientRegionImp::sample(void) const
+    {
+        return m_perf;
+    }
+
+    double EnergyEfficientRegionImp::target(void) const
+    {
+        return m_target;
+    }
 }

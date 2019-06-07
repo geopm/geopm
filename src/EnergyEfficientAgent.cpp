@@ -32,6 +32,7 @@
 
 #include "EnergyEfficientAgent.hpp"
 
+#include <algorithm>
 #include <sstream>
 #include <cmath>
 #include <iomanip>
@@ -352,12 +353,71 @@ namespace geopm
 
     std::vector<std::string> EnergyEfficientAgent::trace_names(void) const
     {
-        return {};
+        std::vector<std::string> cols = {"region_hash", "is_learning", "curr_freq", "target_perf", "perf_max"};
+#ifdef GEOPM_DEBUG
+        if (M_NUM_TRACE > cols.size()) {
+            throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): trace cols vector not correctly sized.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        std::vector<std::string> ret;
+        for (const auto &col : cols) {
+            for (const auto &rank : m_unique_ranks) {
+                ret.push_back(col + "_" + std::to_string(rank));
+            }
+        }
+        return ret;
     }
 
     void EnergyEfficientAgent::trace_values(std::vector<double> &values)
     {
-
+#ifdef GEOPM_DEBUG
+        if (trace_names().size() > values.size()) {
+            throw Exception("EnergyEfficientAgent::" + std::string(__func__) + "(): values vector not correctly sized.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        int trace_idx = 0;
+        int rank = -1;
+        int ctl_idx = -1;
+        for (const auto &col : trace_names()) {
+            if (trace_idx % m_unique_ranks.size() == 0) {
+                ++rank;
+                auto rank_ctl_idx_it = std::find(m_cpu_rank.begin(), m_cpu_rank.end(), rank);
+                ctl_idx = std::distance(m_cpu_rank.begin(), rank_ctl_idx_it);
+            }
+            auto trace_hash = m_last_region_info[ctl_idx].hash;
+            auto trace_region_it = m_region_map.find(std::make_pair(trace_hash, rank));
+            if (trace_region_it == m_region_map.end()) {
+                switch (trace_idx) {
+                    case M_TRACE_EE_REGION_HASH:
+                        values[trace_idx] = GEOPM_REGION_HASH_UNMARKED;
+                        break;
+                    default:
+                        values[trace_idx] = NAN;
+                }
+            }
+            else {
+                switch (trace_idx) {
+                    case M_TRACE_EE_REGION_HASH:
+                        values[trace_idx] = trace_hash;
+                        break;
+                    case M_TRACE_IS_LEARNING:
+                        values[trace_idx] = trace_region_it->second->is_learning();
+                        break;
+                    case M_TRACE_CURR_FREQ:
+                        values[trace_idx] = trace_region_it->second->freq();
+                        break;
+                    case M_TRACE_TARGET_PERF:
+                        values[trace_idx] = trace_region_it->second->target();
+                        break;
+                    case M_TRACE_PERF_MAX:
+                        values[trace_idx] = Agg::max(trace_region_it->second->sample());
+                        break;
+                }
+            }
+            ++trace_idx;
+        }
     }
 
     void EnergyEfficientAgent::enforce_policy(const std::vector<double> &policy) const
@@ -380,6 +440,7 @@ namespace geopm
                                                                          .runtime = 0});
         m_target_freq.resize(m_num_freq_ctl_domain, m_freq_governor->get_frequency_max());
         std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT", "REGION_RUNTIME"};
+        m_trace_hash_idx = m_platform_io.push_signal("REGION_HASH", GEOPM_DOMAIN_BOARD, 0);
 
         for (size_t sig_idx = 0; sig_idx < signal_names.size(); ++sig_idx) {
             m_signal_idx.push_back(std::vector<int>());
@@ -390,6 +451,9 @@ namespace geopm
                     m_cpu_rank.push_back(m_platform_topo.domain_idx(GEOPM_DOMAIN_MPI_RANK, ctl_idx));
                 }
             }
+        }
+        for (const auto &rank : m_cpu_rank) {
+            m_unique_ranks.insert(rank);
         }
     }
 }
