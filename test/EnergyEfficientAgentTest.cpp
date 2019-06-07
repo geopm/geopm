@@ -75,6 +75,7 @@ class EnergyEfficientAgentTest : public :: testing :: Test
         const int HASH_SIG = 1000;
         const int HINT_SIG = 2000;
         const int RUNTIME_SIG = 3000;
+        const int COUNT_SIG = 4000;
         std::map<uint64_t, std::shared_ptr<MockEnergyEfficientRegion> > m_region_map;
 };
 
@@ -101,6 +102,8 @@ void EnergyEfficientAgentTest::SetUp()
             .WillOnce(Return(HINT_SIG + idx));
         EXPECT_CALL(m_platio, push_signal("REGION_RUNTIME", M_FREQ_DOMAIN, idx))
             .WillOnce(Return(RUNTIME_SIG + idx));
+        EXPECT_CALL(m_platio, push_signal("REGION_COUNT", M_FREQ_DOMAIN, idx))
+            .WillOnce(Return(COUNT_SIG + idx));
     }
     std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > region_map;
     for (auto &kv : m_region_map) {
@@ -301,12 +304,13 @@ TEST_F(EnergyEfficientAgentTest, sample_adjust_platform)
             EXPECT_CALL(m_platio, sample(HINT_SIG + dom))
                 .WillOnce(Return(current_hint));
             EXPECT_CALL(m_platio, sample(RUNTIME_SIG + dom)).WillOnce(Return(runtime));
+            EXPECT_CALL(m_platio, sample(COUNT_SIG + dom)).WillOnce(Return(step));
             ++freq_call_count[current_region];
             if (m_region_map.find(current_region) != m_region_map.end()) {
                 ON_CALL(*m_region_map.at(current_region), freq())
                     .WillByDefault(Return(exp_freq[step][dom]));
+                freqs[dom] = exp_freq[step][dom];
             }
-            freqs[dom] = exp_freq[step][dom];
             if (do_exit[step][dom] != 0) {
                 ++update_call_count[do_exit[step][dom]];
             }
