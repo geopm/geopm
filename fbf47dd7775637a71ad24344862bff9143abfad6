@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "250f6c88_0aaf6bf7",
+        "filename": "src/EnergyEfficientRegion.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-08T00:53:47Z",
+      "side": 1,
+      "message": "why not initializer list?",
+      "range": {
+        "startLine": 42,
+        "startChar": 4,
+        "endLine": 42,
+        "endChar": 61
+      },
+      "revId": "fbf47dd7775637a71ad24344862bff9143abfad6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
