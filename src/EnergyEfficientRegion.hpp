@@ -65,26 +65,15 @@ namespace geopm
             void disable(void) override;
             bool is_learning(void) const override;
         private:
-            static const int M_MIN_PERF_SAMPLE = 5;
-            struct FreqContext {
-                FreqContext()
-                    : num_increase(0)
-                    , perf(M_MIN_PERF_SAMPLE)
-                {
-                };
-                virtual ~FreqContext() = default;
-                size_t num_increase;
-                CircularBuffer<double> perf;
-            };
             const double M_PERF_MARGIN;
-            const size_t M_MAX_INCREASE;
+            const int M_MIN_PERF_SAMPLE;
             bool m_is_learning;
             uint64_t m_max_step;
             double m_freq_step;
             int m_curr_step;
             double m_freq_min;
             double m_target;
-            std::vector<std::unique_ptr<FreqContext> > m_freq_ctx;
+            std::vector<std::unique_ptr<CircularBuffer<double> > > m_freq_perf;
             bool m_is_disabled;
     };
 
