@@ -22,6 +22,30 @@
       "revId": "fbf47dd7775637a71ad24344862bff9143abfad6",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4628ef5_368a82e8",
+        "filename": "src/EnergyEfficientRegion.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-06-09T16:19:00Z",
+      "side": 1,
+      "message": "For whatever reason it was declared static.  Static specifier could be removed.",
+      "parentUuid": "250f6c88_0aaf6bf7",
+      "range": {
+        "startLine": 42,
+        "startChar": 4,
+        "endLine": 42,
+        "endChar": 61
+      },
+      "revId": "fbf47dd7775637a71ad24344862bff9143abfad6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
