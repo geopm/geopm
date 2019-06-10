@@ -221,6 +221,7 @@ namespace geopm
         double freq_min = m_freq_governor->get_frequency_min();
         double freq_max = m_freq_governor->get_frequency_max();
         double freq_step = m_freq_governor->get_frequency_step();
+        std::set<std::pair<uint64_t, int> > exit_set;
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
             struct m_region_info_s current_region_info {
                 .hash = (uint64_t)m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH][ctl_idx]),
@@ -235,13 +236,12 @@ namespace geopm
                 if (current_region_info.hash != GEOPM_REGION_HASH_UNMARKED &&
                     current_region_info.hint != GEOPM_REGION_HINT_NETWORK) {
                     /// set the freq for the current region (entry)
-                    auto current_region_it = m_region_map[ctl_idx].find(current_region_info.hash);
-                    if (current_region_it == m_region_map[ctl_idx].end()) {
-                        auto tmp = m_region_map[ctl_idx].emplace(current_region_info.hash,
-                                                                 std::make_shared<EnergyEfficientRegionImp>
-                                                                 (freq_min, freq_max, freq_step, m_perf_margin));
-                        current_region_it = tmp.first;
-                    }
+                    auto current_region_it = m_region_map[ctl_idx].emplace(std::piecewise_construct,
+                                                                           std::forward_as_tuple(current_region_info.hash),
+                                                                           std::forward_as_tuple(geopm::make_unique<EnergyEfficientRegionImp>
+                                                                                                 (freq_min, freq_max, freq_step, m_perf_margin))).first;
+                    // Higher is better for performance, so negate
+                    current_region_it->second->sample(-1.0 * current_region_info.runtime);
                 }
                 /// update previous region (exit)
                 struct m_region_info_s last_region_info = m_last_region_info[ctl_idx];
@@ -257,14 +257,24 @@ namespace geopm
                         last_region_info.runtime < M_MIN_LEARNING_RUNTIME) {
                         last_region_it->second->disable();
                     }
-                    // Higher is better for performance, so negate
-                    last_region_it->second->update_exit(-1.0 * last_region_info.runtime);
+                    exit_set.insert(std::make_pair(last_region_info.hash, ctl_idx));
                 }
                 m_last_region_info[ctl_idx] = current_region_info;
             }
             else {
                 ++m_samples_since_boundary[ctl_idx];
             }
+        }
+        for (auto &exit_pair : exit_set) {
+            uint64_t exit_hash = exit_pair.first;
+            int ctl_idx = exit_pair.second;
+            auto it = m_region_map[ctl_idx].find(exit_hash);
+            if (it == m_region_map[ctl_idx].end()) {
+                throw Exception("EnergyEfficientAgent::" + std::string(__func__) +
+                                "(): region exit before entry detected.",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            it->second->calc_next_freq();
         }
     }
 
