@@ -32,6 +32,7 @@
 #include "EnergyEfficientRegion.hpp"
 
 #include <cmath>
+#include <iostream>
 
 #include "Agg.hpp"
 #include "Helper.hpp"
@@ -90,8 +91,60 @@ namespace geopm
         return m_freq_min + (m_curr_step * m_freq_step);
     }
 
+    void EnergyEfficientRegionImp::sample(double curr_perf_metric)
+    {
+        if (!std::isnan(curr_perf_metric) && curr_perf_metric != 0.0) {
+            m_freq_perf[m_curr_step]->insert(curr_perf_metric);
+        }
+    }
+
+    void EnergyEfficientRegionImp::calc_next_freq()
+    {
+        if (m_is_learning && !m_is_disabled) {
+            auto &curr_perf_buffer = m_freq_perf[m_curr_step];
+            if (curr_perf_buffer->size() >= M_MIN_PERF_SAMPLE) {
+                double perf_max = Agg::max(curr_perf_buffer->make_vector());
+                if (!std::isnan(perf_max) && perf_max != 0.0) {
+                    if (m_target == 0.0) {
+                        m_target = (1.0 + m_perf_margin) * perf_max;
+                    }
+                    bool do_increase = false;
+                    if (m_target != 0.0) {
+                        // Performance is in range; lower frequency
+                        if (perf_max > m_target) {
+                            if (m_curr_step - 1 >= 0) {
+                                --m_curr_step;
+                            }
+                            else {
+                                // stop learning at min frequency
+                                m_is_learning = false;
+                            }
+                        }
+                        else if ((uint64_t) m_curr_step + 1 <= m_max_step) {
+                            do_increase = true;
+                        }
+                        else {
+                            // stop learning at max frequency
+                            m_is_learning = false;
+                        }
+                    }
+                    if (do_increase) {
+                        m_is_learning = false;
+                        m_curr_step++;
+                    }
+                }
+            }
+        }
+    }
+
     void EnergyEfficientRegionImp::update_exit(double curr_perf_metric)
     {
+        static bool do_print = true;
+        if (!do_print) {
+            std::cerr << "Warning: <geopm> EnergyEfficientRegionImp::" << std::string(__func__)
+                      << "(double curr_perf_metric) is deprecated and will be removed in future major release.",
+            do_print = false;
+        }
         if (m_is_learning && !m_is_disabled) {
             auto &curr_perf_buffer = m_freq_perf[m_curr_step];
             if (!std::isnan(curr_perf_metric) && curr_perf_metric != 0.0) {
