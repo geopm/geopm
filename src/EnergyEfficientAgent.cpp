@@ -248,7 +248,9 @@ namespace geopm
                         last_region_it->second->disable();
                     }
                     // Higher is better for performance, so negate
-                    last_region_it->second->update_exit(-1.0 * last_region_runtime);
+                    last_region_it->second->sample(-1.0 * last_region_runtime);
+                    // @todo calling this more often than need be
+                    last_region_it->second->update_exit();
                 }
                 m_last_region_info[ctl_idx] = {current_region_hash,
                                                current_region_hint,
