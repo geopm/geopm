@@ -223,6 +223,7 @@ namespace geopm
         double freq_min = m_freq_governor->get_frequency_min();
         double freq_max = m_freq_governor->get_frequency_max();
         double freq_step = m_freq_governor->get_frequency_step();
+        std::set<uint64_t> exit_set;
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
             struct m_region_info_s current_region_info {
                 .hash = (uint64_t)m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH][ctl_idx]),
@@ -242,6 +243,8 @@ namespace geopm
                                                                   std::forward_as_tuple(current_region_info.hash),
                                                                   std::forward_as_tuple(geopm::make_unique<EnergyEfficientRegionImp>
                                                                                         (freq_min, freq_max, freq_step, m_perf_margin))).first;
+                    // Higher is better for performance, so negate
+                    current_region_it->second->sample(-1.0 * current_region_info.runtime);
                 }
                 /// update previous region (exit)
                 struct m_region_info_s last_region_info = m_last_region_info[ctl_idx];
@@ -258,14 +261,22 @@ namespace geopm
                         last_region_info.runtime < M_MIN_LEARNING_RUNTIME) {
                         last_region_it->second->disable();
                     }
-                    // Higher is better for performance, so negate
-                    last_region_it->second->update_exit(-1.0 * last_region_info.runtime);
+                    exit_set.insert(last_region_info.hash);
                 }
                 m_last_region_info[ctl_idx] = current_region_info;
             }
             else {
                 ++m_samples_since_boundary[ctl_idx];
             }
+        }
+        for (auto &exit_hash : exit_set) {
+            auto it = m_region_map.find(exit_hash);
+            if (it == m_region_map.end()) {
+                throw Exception("EnergyEfficientAgent::" + std::string(__func__) +
+                                "(): region exit before entry detected.",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            it->second->update_exit();
         }
     }
 
