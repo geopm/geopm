@@ -90,13 +90,18 @@ namespace geopm
         return m_freq_min + (m_curr_step * m_freq_step);
     }
 
-    void EnergyEfficientRegionImp::update_exit(double curr_perf_metric)
+    void EnergyEfficientRegionImp::sample(double curr_perf_metric)
+    {
+        if (!std::isnan(curr_perf_metric) && curr_perf_metric != 0.0) {
+            auto &curr_perf_buffer = m_freq_perf[m_curr_step];
+            curr_perf_buffer->insert(curr_perf_metric);
+        }
+    }
+
+    void EnergyEfficientRegionImp::calc_next_freq()
     {
         if (m_is_learning && !m_is_disabled) {
             auto &curr_perf_buffer = m_freq_perf[m_curr_step];
-            if (!std::isnan(curr_perf_metric) && curr_perf_metric != 0.0) {
-                curr_perf_buffer->insert(curr_perf_metric);
-            }
             if (curr_perf_buffer->size() >= M_MIN_PERF_SAMPLE) {
                 double perf_max = Agg::max(curr_perf_buffer->make_vector());
                 if (!std::isnan(perf_max) && perf_max != 0.0) {
@@ -130,6 +135,12 @@ namespace geopm
                 }
             }
         }
+    }
+
+    void EnergyEfficientRegionImp::update_exit(double curr_perf_metric)
+    {
+        throw Exception("EnergyEfficientRegionImp::" + std::string(__func__) + "(double curr_perf_metric).",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
 
     void EnergyEfficientRegionImp::disable(void)

@@ -256,7 +256,7 @@ TEST_F(EnergyEfficientAgentTest, sample_adjust_platform)
         {0x12,   UM, 0x12,   UM},
     };
 
-    // 0 if no leaving a region, or the region hash if update_exit() should be called
+    // 0 if no leaving a region, or the region hash if calc_next_freq() should be called
     uint64_t do_exit[NUM_STEPS][M_NUM_FREQ_DOMAIN] = {
         {   0,    0,    0,    0},
         {0x12, 0x34, 0x56,    0},
@@ -319,7 +319,9 @@ TEST_F(EnergyEfficientAgentTest, sample_adjust_platform)
         for (const auto &region : named_region) {
             if (m_region_map.find(region) != m_region_map.end() &&
                 region_hints.at(region) != GEOPM_REGION_HINT_COMPUTE) {
-                EXPECT_CALL(*m_region_map.at(region), update_exit(-runtime))
+                EXPECT_CALL(*m_region_map.at(region), sample(-runtime))
+                    .Times(update_call_count.at(region));
+                EXPECT_CALL(*m_region_map.at(region), calc_next_freq())
                     .Times(update_call_count.at(region));
             }
             // todo: number of times freq() is called depends on entry
