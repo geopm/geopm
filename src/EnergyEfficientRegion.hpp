@@ -49,7 +49,8 @@ namespace geopm
             virtual ~EnergyEfficientRegion() = default;
             virtual double freq(void) const = 0;
             virtual void update_freq_range(double freq_min, double freq_max, double freq_step) = 0;
-            virtual void update_exit(double curr_perf_metric) = 0;
+            virtual void sample(double curr_perf_metric) = 0;
+            virtual void update_exit() = 0;
             virtual void disable(void) = 0;
             virtual bool is_learning(void) const = 0;
     };
@@ -62,7 +63,8 @@ namespace geopm
             virtual ~EnergyEfficientRegionImp() = default;
             double freq(void) const override;
             void update_freq_range(double freq_min, double freq_max, double freq_step) override;
-            void update_exit(double curr_perf_metric) override;
+            void sample(double curr_perf_metric) override;
+            void update_exit() override;
             void disable(void) override;
             bool is_learning(void) const override;
         private:
