@@ -319,7 +319,9 @@ TEST_F(EnergyEfficientAgentTest, sample_adjust_platform)
         for (const auto &region : named_region) {
             if (m_region_map.find(region) != m_region_map.end() &&
                 region_hints.at(region) != GEOPM_REGION_HINT_COMPUTE) {
-                EXPECT_CALL(*m_region_map.at(region), update_exit(-runtime))
+                EXPECT_CALL(*m_region_map.at(region), sample(-runtime))
+                    .Times(update_call_count.at(region));
+                EXPECT_CALL(*m_region_map.at(region), update_exit())
                     .Times(update_call_count.at(region));
             }
             // todo: number of times freq() is called depends on entry
