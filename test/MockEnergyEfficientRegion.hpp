@@ -43,6 +43,10 @@ class MockEnergyEfficientRegion : public geopm::EnergyEfficientRegion
                      void(double freq_min, double freq_max, double freq_step));
         MOCK_METHOD1(update_exit,
                      void(double curr_perf_metric));
+        MOCK_METHOD1(sample,
+                     void(double curr_perf_metric));
+        MOCK_METHOD0(calc_next_freq,
+                     void(void));
         MOCK_METHOD0(disable, void(void));
         MOCK_CONST_METHOD0(is_learning,
                      bool(void));
