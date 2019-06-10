@@ -79,7 +79,8 @@ TEST_F(EnergyEfficientRegionTest, freq_starts_at_maximum)
 TEST_F(EnergyEfficientRegionTest, update_ignores_nan_sample)
 {
     double start = m_freq_region.freq();
-    m_freq_region.update_exit(NAN);
+    m_freq_region.sample(NAN);
+    m_freq_region.calc_next_freq();
 
     double end = m_freq_region.freq();
     ASSERT_EQ(start, end);
@@ -104,7 +105,8 @@ TEST_F(EnergyEfficientRegionTest, freq_does_not_go_below_min)
     for (size_t i = 0; i <= num_steps; ++i) {
         double curr_freq = m_freq_region.freq();
         check_step(i, curr_freq, start);
-        m_freq_region.update_exit(-1);
+        m_freq_region.sample(-1);
+        m_freq_region.calc_next_freq();
     }
 
     ASSERT_EQ(M_FREQ_MIN, m_freq_region.freq());
@@ -127,7 +129,8 @@ TEST_F(EnergyEfficientRegionTest, freq_does_not_go_above_max)
             /// update not implemented.
             break;
         }
-        m_freq_region.update_exit(perfs[i]);
+        m_freq_region.sample(perfs[i]);
+        m_freq_region.calc_next_freq();
         EXPECT_EQ(expected[i], m_freq_region.freq());
     }
 }
@@ -142,7 +145,8 @@ TEST_F(EnergyEfficientRegionTest, performance_decreases_freq_steps_back_up)
                                   M_FREQ_MAX - M_FREQ_STEP};
     for (size_t i = 0; i < perfs.size(); ++i) {
         EXPECT_EQ(expected[i], m_freq_region.freq());
-        m_freq_region.update_exit(perfs[i]);
+        m_freq_region.sample(perfs[i]);
+        m_freq_region.calc_next_freq();
     }
 }
 
@@ -152,26 +156,32 @@ TEST_F(EnergyEfficientRegionTest, after_too_many_increase_freq_stays_at_higher)
     double higher_freq = M_FREQ_MAX - M_FREQ_STEP;
     double lower_freq = M_FREQ_MAX - M_FREQ_STEP * 2;
     // run twice to step down from max
-    m_freq_region.update_exit(-3);
-    m_freq_region.update_exit(-3);
+    m_freq_region.sample(-3);
+    m_freq_region.calc_next_freq();
+    m_freq_region.sample(-3);
+    m_freq_region.calc_next_freq();
     EXPECT_EQ(higher_freq, m_freq_region.freq());
 
     // raise and lower bandwidth and alternate freq
     for (size_t i = 0; i < max_increase; ++i) {
         // lower freq
-        m_freq_region.update_exit(-3);
+        m_freq_region.sample(-3);
+        m_freq_region.calc_next_freq();
         EXPECT_EQ(lower_freq, m_freq_region.freq());
         // raise freq
-        m_freq_region.update_exit(-5);
+        m_freq_region.sample(-5);
+        m_freq_region.calc_next_freq();
         EXPECT_EQ(higher_freq, m_freq_region.freq());
     }
 
     // freq should stay at higher
     for (size_t i = 0; i < 3; ++i) {
-        m_freq_region.update_exit(-3);
+        m_freq_region.sample(-3);
+        m_freq_region.calc_next_freq();
         EXPECT_EQ(higher_freq, m_freq_region.freq());
 
-        m_freq_region.update_exit(-5);
+        m_freq_region.sample(-5);
+        m_freq_region.calc_next_freq();
         EXPECT_EQ(higher_freq, m_freq_region.freq());
     }
 }
