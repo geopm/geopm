@@ -235,13 +235,12 @@ namespace geopm
                 if (current_region_info.hash != GEOPM_REGION_HASH_UNMARKED &&
                     current_region_info.hint != GEOPM_REGION_HINT_NETWORK) {
                     /// set the freq for the current region (entry)
-                    auto current_region_it = m_region_map[ctl_idx].find(current_region_info.hash);
-                    if (current_region_it == m_region_map[ctl_idx].end()) {
-                        auto tmp = m_region_map[ctl_idx].emplace(current_region_info.hash,
-                                                                 std::make_shared<EnergyEfficientRegionImp>
-                                                                 (freq_min, freq_max, freq_step, m_perf_margin));
-                        current_region_it = tmp.first;
-                    }
+                    auto current_region_it = m_region_map[ctl_idx].emplace(std::piecewise_construct,
+                                                                           std::forward_as_tuple(current_region_info.hash),
+                                                                           std::forward_as_tuple(std::make_shared<EnergyEfficientRegionImp>
+                                                                                                 (freq_min, freq_max, freq_step, m_perf_margin))).first;
+                    // Higher is better for performance, so negate
+                    current_region_it->second->sample(-1.0 * current_region_info.runtime);
                 }
                 /// update previous region (exit)
                 struct m_region_info_s last_region_info = m_last_region_info[ctl_idx];
@@ -257,8 +256,7 @@ namespace geopm
                         last_region_info.runtime < M_MIN_LEARNING_RUNTIME) {
                         last_region_it->second->disable();
                     }
-                    // Higher is better for performance, so negate
-                    last_region_it->second->update_exit(-1.0 * last_region_info.runtime);
+                    last_region_it->second->calc_next_freq();
                 }
                 m_last_region_info[ctl_idx] = current_region_info;
             }
