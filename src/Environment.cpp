@@ -40,7 +40,6 @@ const char *program_invocation_name = "geopm_profile";
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
 #include <errno.h>
 #include <unistd.h>
 
@@ -80,10 +79,6 @@ namespace geopm
         bool result = false;
         char *check_string = getenv(name.c_str());
         if (check_string != NULL) {
-            if (strlen(check_string) > NAME_MAX) {
-                throw Exception("EnvironmentImp::EnvironmentImp(): Environment variable too long",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
             env_string = check_string;
             result = true;
         }
@@ -93,52 +88,49 @@ namespace geopm
     EnvironmentImp::EnvironmentImp()
         : EnvironmentImp(DEFAULT_SETTINGS_PATH, OVERRIDE_SETTINGS_PATH)
     {
+
     }
 
     EnvironmentImp::EnvironmentImp(const std::string &default_settings_path, const std::string &override_settings_path)
-        : m_known_vars({"GEOPM_CTL",
-                        "GEOPM_REPORT",
-                        "GEOPM_COMM",
-                        "GEOPM_POLICY",
-                        "GEOPM_AGENT",
-                        "GEOPM_SHMKEY",
-                        "GEOPM_TRACE",
-                        "GEOPM_PLUGIN_PATH",
-                        "GEOPM_REGION_BARRIER",
-                        "GEOPM_TIMEOUT",
-                        "GEOPM_DEBUG_ATTACH",
-                        "GEOPM_PROFILE",
-                        "GEOPM_FREQUENCY_MAP",
-                        "GEOPM_MAX_FAN_OUT",
-                        "GEOPM_TRACE_SIGNALS",
-                        "GEOPM_REPORT_SIGNALS",
-                       })
-        , m_require_runtime({"GEOPM_PROFILE",
-                             "GEOPM_REPORT",
-                             "GEOPM_TRACE",
-                             "GEOPM_CTL",
-                            })
-        , m_vars ({{"GEOPM_COMM" ,"MPIComm"},
-                  {"GEOPM_AGENT", "monitor"},
-                  {"GEOPM_SHMKEY", "/geopm-shm-" + std::to_string(geteuid())},
-                  {"GEOPM_MAX_FAN_OUT", "16"},
-                  {"GEOPM_TIMEOUT", "30"},
-                  {"GEOPM_DEBUG_ATTACH", "-1"},
-                  })
+        : m_all_names({"GEOPM_CTL",
+                       "GEOPM_REPORT",
+                       "GEOPM_COMM",
+                       "GEOPM_POLICY",
+                       "GEOPM_AGENT",
+                       "GEOPM_SHMKEY",
+                       "GEOPM_TRACE",
+                       "GEOPM_PLUGIN_PATH",
+                       "GEOPM_REGION_BARRIER",
+                       "GEOPM_TIMEOUT",
+                       "GEOPM_DEBUG_ATTACH",
+                       "GEOPM_PROFILE",
+                       "GEOPM_FREQUENCY_MAP",
+                       "GEOPM_MAX_FAN_OUT",
+                       "GEOPM_TRACE_SIGNALS",
+                       "GEOPM_REPORT_SIGNALS"})
+        , m_runtime_names({"GEOPM_PROFILE",
+                           "GEOPM_REPORT",
+                           "GEOPM_TRACE",
+                           "GEOPM_CTL"})
+        , m_name_value_map ({{"GEOPM_COMM" ,"MPIComm"},
+                             {"GEOPM_AGENT", "monitor"},
+                             {"GEOPM_SHMKEY", "/geopm-shm-" + std::to_string(geteuid())},
+                             {"GEOPM_MAX_FAN_OUT", "16"},
+                             {"GEOPM_TIMEOUT", "30"},
+                             {"GEOPM_DEBUG_ATTACH", "-1"}})
     {
         parse_environment_file(default_settings_path);
-        std::set<std::string> user_vars;
         parse_environment();
         parse_environment_file(override_settings_path);
     }
 
     void EnvironmentImp::parse_environment()
     {
-        for (const auto &env_var : m_known_vars) {
+        for (const auto &env_var : m_all_names) {
             std::string value;
             if(get_env(env_var, value)) {
-                m_vars[env_var] = value;
-                m_user_vars.insert(env_var);
+                m_name_value_map[env_var] = value;
+                m_user_defined_names.insert(env_var);
             }
         }
     }
@@ -156,46 +148,47 @@ namespace geopm
         }
         if (good_path) {
             std::string err;
-            Json root = Json::parse(json_str, err);
-            if (!err.empty() || !root.is_object()) {
-                throw Exception("EnvironmentImp::" + std::string(__func__) + "(): detected a malformed json config file: " + err,
+            Json json_root = Json::parse(json_str, err);
+            if (!err.empty() || !json_root.is_object()) {
+                throw Exception("EnvironmentImp::" + std::string(__func__) +
+                                "(): detected a malformed json config file: " + err,
                                 GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
             }
-            for (const auto &obj : root.object_items()) {
-                std::string var_name = obj.first;
-                auto var_it = m_known_vars.find(var_name);
-                if (var_it == m_known_vars.end()) {
+            for (const auto &json_obj : json_root.object_items()) {
+                std::string var_name = json_obj.first;
+                auto var_it = m_all_names.find(var_name);
+                if (var_it == m_all_names.end()) {
                     throw Exception("EnvironmentImp::" + std::string(__func__) +
                                     ": environment key " + var_name + " is unexpected",
                                     GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                else if (obj.second.type() != Json::STRING) {
+                else if (json_obj.second.type() != Json::STRING) {
                     throw Exception("EnvironmentImp::" + std::string(__func__) +
                                     ": value for " + var_name + " expected to be a string",
                                     GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
-                auto override_value = obj.second.string_value();
-                if (m_user_vars.find(var_name) != m_user_vars.end()) {
-                    auto user_value = m_vars[var_name];
+                auto override_value = json_obj.second.string_value();
+                if (m_user_defined_names.find(var_name) != m_user_defined_names.end()) {
+                    auto user_value = m_name_value_map[var_name];
                     std::cerr << "Warning: <geopm> User provided environment variable \"" << var_name
                               << "\" with value <"  << user_value << ">"
                               << " has been overriden with value <"  << override_value << ">" << std::endl;
                 }
-                m_vars[var_name] = override_value;
+                m_name_value_map[var_name] = override_value;
             }
         }
     }
 
     bool EnvironmentImp::is_set(const std::string &env_var) const
     {
-        return m_vars.find(env_var) != m_vars.end();
+        return m_name_value_map.find(env_var) != m_name_value_map.end();
     }
 
-    std::string EnvironmentImp::at_env(const std::string &env_var) const
+    std::string EnvironmentImp::lookup(const std::string &env_var) const
     {
         std::string ret;
-        auto it = m_vars.find(env_var);
-        if (it != m_vars.end()) {
+        auto it = m_name_value_map.find(env_var);
+        if (it != m_name_value_map.end()) {
             ret = it->second;
         }
         return ret;
@@ -203,27 +196,27 @@ namespace geopm
 
     std::string EnvironmentImp::report(void) const
     {
-        return at_env("GEOPM_REPORT");
+        return lookup("GEOPM_REPORT");
     }
 
     std::string EnvironmentImp::comm(void) const
     {
-        return at_env("GEOPM_COMM");
+        return lookup("GEOPM_COMM");
     }
 
     std::string EnvironmentImp::policy(void) const
     {
-        return at_env("GEOPM_POLICY");
+        return lookup("GEOPM_POLICY");
     }
 
     std::string EnvironmentImp::agent(void) const
     {
-        return at_env("GEOPM_AGENT");
+        return lookup("GEOPM_AGENT");
     }
 
     std::string EnvironmentImp::shmkey(void) const
     {
-        std::string ret = at_env("GEOPM_SHMKEY");
+        std::string ret = lookup("GEOPM_SHMKEY");
         if (ret[0] != '/') {
             ret.insert(0, "/");
         }
@@ -232,12 +225,12 @@ namespace geopm
 
     std::string EnvironmentImp::trace(void) const
     {
-        return at_env("GEOPM_TRACE");
+        return lookup("GEOPM_TRACE");
     }
 
     std::string EnvironmentImp::profile(void) const
     {
-        std::string ret = at_env("GEOPM_PROFILE");
+        std::string ret = lookup("GEOPM_PROFILE");
         if (do_profile() && ret.empty()) {
             ret = std::string(program_invocation_name);
         }
@@ -246,34 +239,34 @@ namespace geopm
 
     std::string EnvironmentImp::frequency_map(void) const
     {
-        return at_env("GEOPM_FREQUENCY_MAP");
+        return lookup("GEOPM_FREQUENCY_MAP");
     }
 
     std::string EnvironmentImp::plugin_path(void) const
     {
-        return at_env("GEOPM_PLUGIN_PATH");
+        return lookup("GEOPM_PLUGIN_PATH");
     }
 
     std::string EnvironmentImp::trace_signals(void) const
     {
-        return at_env("GEOPM_TRACE_SIGNALS");
+        return lookup("GEOPM_TRACE_SIGNALS");
     }
 
     std::string EnvironmentImp::report_signals(void) const
     {
-        return at_env("GEOPM_REPORT_SIGNALS");
+        return lookup("GEOPM_REPORT_SIGNALS");
     }
 
     int EnvironmentImp::max_fan_out(void) const
     {
-        return std::stoi(at_env("GEOPM_MAX_FAN_OUT"));
+        return std::stoi(lookup("GEOPM_MAX_FAN_OUT"));
     }
 
     int EnvironmentImp::pmpi_ctl(void) const
     {
         int ret = GEOPM_CTL_NONE;
-        auto it = m_vars.find("GEOPM_CTL");
-        if (it != m_vars.end()) {
+        auto it = m_name_value_map.find("GEOPM_CTL");
+        if (it != m_name_value_map.end()) {
             std::string pmpi_ctl_str = it->second;
             if (pmpi_ctl_str == "process") {
                 ret = GEOPM_CTL_PROCESS;
@@ -303,17 +296,17 @@ namespace geopm
     bool EnvironmentImp::do_profile(void) const
     {
 
-        return std::any_of(m_require_runtime.begin(), m_require_runtime.end(),
-                [this](std::string var) {return (is_set(var));});
+        return std::any_of(m_runtime_names.begin(), m_runtime_names.end(),
+                           [this](std::string var) {return (is_set(var));});
     }
 
     int EnvironmentImp::timeout(void) const
     {
-        return std::stoi(at_env("GEOPM_TIMEOUT"));
+        return std::stoi(lookup("GEOPM_TIMEOUT"));
     }
 
     int EnvironmentImp::debug_attach(void) const
     {
-        return std::stoi(at_env("GEOPM_DEBUG_ATTACH"));
+        return std::stoi(lookup("GEOPM_DEBUG_ATTACH"));
     }
 }
