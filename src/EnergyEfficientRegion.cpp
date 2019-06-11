@@ -35,6 +35,7 @@
 
 #include "Agg.hpp"
 #include "Helper.hpp"
+#include "Exception.hpp"
 #include "config.h"
 
 namespace geopm
@@ -108,8 +109,7 @@ namespace geopm
                     if (m_target == 0.0) {
                         m_target = (1.0 + m_perf_margin) * perf_max;
                     }
-                    bool do_increase = false;
-                    if (m_target != 0.0) {
+                    else {
                         // Performance is in range; lower frequency
                         if (perf_max > m_target) {
                             if (m_curr_step - 1 >= 0) {
@@ -120,17 +120,11 @@ namespace geopm
                                 m_is_learning = false;
                             }
                         }
+                        // increase frequency and stop learning when perf degrades
                         else if ((uint64_t) m_curr_step + 1 <= m_max_step) {
-                            do_increase = true;
-                        }
-                        else {
-                            // stop learning at max frequency
+                            m_curr_step++;
                             m_is_learning = false;
                         }
-                    }
-                    if (do_increase) {
-                        m_is_learning = false;
-                        m_curr_step++;
                     }
                 }
             }
