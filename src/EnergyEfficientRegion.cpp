@@ -102,8 +102,7 @@ namespace geopm
                     if (m_target == 0.0) {
                         m_target = (1.0 + M_PERF_MARGIN) * m_perf_max;
                     }
-                    bool do_increase = false;
-                    if (m_target != 0.0) {
+                    else {
                         // Performance is in range; lower frequency
                         if (m_perf_max > m_target) {
                             if (m_curr_step - 1 >= 0) {
@@ -113,13 +112,10 @@ namespace geopm
                                 m_is_learning = false;
                             }
                         }
-                        else if ((uint64_t) m_curr_step + 1 < m_max_step) {
-                            do_increase = true;
+                        else if ((uint64_t) m_curr_step + 1 <= m_max_step) {
+                            m_curr_step++;
+                            m_is_learning = false;
                         }
-                    }
-                    if (do_increase) {
-                        m_is_learning = false;
-                        m_curr_step++;
                     }
                 }
             }
