@@ -35,6 +35,7 @@
 
 #include "Agg.hpp"
 #include "Helper.hpp"
+#include "Exception.hpp"
 #include "config.h"
 
 namespace geopm
@@ -99,10 +100,11 @@ namespace geopm
                 double perf_max = Agg::max(curr_perf_buffer->make_vector());
                 if (!std::isnan(perf_max) && perf_max != 0.0) {
                     if (m_target == 0.0) {
+                        // @todo when dynamic freq ranges are enabled setting target
+                        // needs to be moved to a function and reused here and in update_freq_range
                         m_target = (1.0 + M_PERF_MARGIN) * perf_max;
                     }
-                    bool do_increase = false;
-                    if (m_target != 0.0) {
+                    else {
                         // Performance is in range; lower frequency
                         if (perf_max > m_target) {
                             if (m_curr_step - 1 >= 0) {
@@ -114,16 +116,10 @@ namespace geopm
                             }
                         }
                         else if ((uint64_t) m_curr_step + 1 <= m_max_step) {
-                            do_increase = true;
-                        }
-                        else {
+                            m_curr_step++;
                             // stop learning at max frequency
                             m_is_learning = false;
                         }
-                    }
-                    if (do_increase) {
-                        m_is_learning = false;
-                        m_curr_step++;
                     }
                 }
             }
