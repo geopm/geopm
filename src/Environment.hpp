@@ -94,11 +94,11 @@ namespace geopm
             void parse_environment();
             void parse_environment_file(const std::string &settings_path);
             bool is_set(const std::string &env_var) const;
-            std::string at_env(const std::string &env_var) const;
-            const std::set<std::string> m_known_vars;
-            const std::set<std::string> m_require_runtime;
-            std::set<std::string> m_user_vars;
-            std::map<std::string, std::string> m_vars;
+            std::string lookup(const std::string &env_var) const;
+            const std::set<std::string> m_all_names;
+            const std::set<std::string> m_runtime_names;
+            std::set<std::string> m_user_defined_names;
+            std::map<std::string, std::string> m_name_value_map;
     };
 
     const Environment &environment(void);
