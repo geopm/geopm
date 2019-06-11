@@ -104,11 +104,16 @@ namespace geopm
                                 --m_curr_step;
                             }
                             else {
+                                // stop learning at min frequency
                                 m_is_learning = false;
                             }
                         }
-                        else if ((uint64_t) m_curr_step + 1 < m_max_step) {
+                        else if ((uint64_t) m_curr_step + 1 <= m_max_step) {
                             do_increase = true;
+                        }
+                        else {
+                            // stop learning at max frequency
+                            m_is_learning = false;
                         }
                     }
                     if (do_increase) {
