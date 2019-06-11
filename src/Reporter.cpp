@@ -195,7 +195,7 @@ namespace geopm
         std::sort(region_ordered.begin(), region_ordered.end(),
                   [] (const region_info &a,
                       const region_info &b) -> bool {
-                      return a.per_rank_avg_runtime >= b.per_rank_avg_runtime;
+                      return a.per_rank_avg_runtime > b.per_rank_avg_runtime;
                   });
         // Add unmarked and epoch at the end
         // Note here we map the private region id notion of
