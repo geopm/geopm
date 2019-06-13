@@ -115,6 +115,7 @@ namespace geopm
             const int M_NETWORK_NUM_SAMPLE_DELAY;
             const int M_UNMARKED_NUM_SAMPLE_DELAY;
             const double M_POLICY_PERF_MARGIN_DEFAULT;
+            const int M_MIN_PERF_SAMPLE;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
             std::shared_ptr<FrequencyGovernor> m_freq_governor;
