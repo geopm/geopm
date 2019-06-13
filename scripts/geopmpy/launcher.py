@@ -1043,7 +1043,7 @@ class IMPIExecLauncher(Launcher):
                 mask = list(mask_zero)
                 for cpu in cpu_set:
                     mask[self.num_linux_cpu - 1 - cpu] = '1'
-                mask = '0x{:x}'.format(int(''.join(mask), 2))
+                mask = '{:x}'.format(int(''.join(mask), 2))
                 mask_list.append(mask)
             self.environ_ext['I_MPI_PIN_DOMAIN'] = '[{}]'.format(','.join(mask_list))
         return []
