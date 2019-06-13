@@ -71,6 +71,7 @@ namespace geopm
         , M_NETWORK_NUM_SAMPLE_DELAY(2)
         , M_UNMARKED_NUM_SAMPLE_DELAY(2)
         , M_POLICY_PERF_MARGIN_DEFAULT(0.10)  // max 10% performance degradation
+        , M_MIN_PERF_SAMPLE(5)
         , m_platform_io(plat_io)
         , m_platform_topo(topo)
         , m_freq_governor(gov)
@@ -257,7 +258,9 @@ namespace geopm
                         last_region_info.runtime < M_MIN_LEARNING_RUNTIME) {
                         last_region_it->second->disable();
                     }
-                    exit_set.insert(std::make_pair(last_region_info.hash, ctl_idx));
+                    if (last_region_info.count % M_MIN_PERF_SAMPLE == 0) {
+                        exit_set.insert(std::make_pair(last_region_info.hash, ctl_idx));
+                    }
                 }
                 m_last_region_info[ctl_idx] = current_region_info;
             }
