@@ -84,6 +84,7 @@ namespace geopm
             double m_freq_min;
             double m_target;
             std::vector<std::unique_ptr<CircularBuffer<double> > > m_freq_perf;
+            std::vector<double> m_perf_sample;
             bool m_is_disabled;
             double m_perf_margin;
     };
