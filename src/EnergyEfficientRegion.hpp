@@ -38,8 +38,6 @@
 #include <vector>
 #include <memory>
 
-#include "CircularBuffer.hpp"
-
 namespace geopm
 {
     /// @brief Holds the performance history of a Region.
@@ -76,14 +74,13 @@ namespace geopm
             void disable(void) override;
             bool is_learning(void) const override;
         private:
-            const int M_MIN_PERF_SAMPLE;
             bool m_is_learning;
             uint64_t m_max_step;
             double m_freq_step;
             int m_curr_step;
             double m_freq_min;
             double m_target;
-            std::vector<std::unique_ptr<CircularBuffer<double> > > m_freq_perf;
+            std::vector<double> m_perf;
             bool m_is_disabled;
             double m_perf_margin;
     };
