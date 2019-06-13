@@ -33,6 +33,7 @@
 
 import unittest
 import math
+import os
 import geopm_context
 import geopmpy.launcher
 
@@ -86,6 +87,8 @@ class TestAffinity(unittest.TestCase):
         self.quartz_topo = Topo(num_socket=2, core_per_socket=18, hthread_per_core=2)
         self.xeon_topo = Topo(num_socket=2, core_per_socket=22, hthread_per_core=2)
         self.knl_topo = Topo(num_socket=1, core_per_socket=64, hthread_per_core=4)
+        if os.getenv('OMP_NUM_THREADS') != None:
+            self.fail('ERROR: OMP_NUM_THREADS was set in the environment!')
         # TODO: machine with 1 core only, 2 cores, 1 thread per core
 
     def check_process_mode(self, geopm_cpus, app_cpus, launch_args):
