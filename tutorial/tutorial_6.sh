@@ -39,10 +39,15 @@ export PYTHONPATH=$GEOPMPY_PKGDIR:$PYTHONPATH
 export LD_LIBRARY_PATH=$GEOPM_LIB:$LD_LIBRARY_PATH
 
 # Run on 2 nodes
-# with 8 MPI ranks
+# with 8 total application MPI ranks
 # launch geopm controller as an MPI process
 # create a report file
 # create trace files
+
+NUM_NODES=2
+RANKS_PER_NODE=4
+TOTAL_RANKS=$((${RANKS_PER_NODE} * ${NUM_NODES}))
+
 if [ "$MPIEXEC" ]; then
     # Use MPIEXEC and set GEOPM environment variables to launch the job
     LD_DYNAMIC_WEAK=true \
@@ -55,8 +60,8 @@ if [ "$MPIEXEC" ]; then
 elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
     # Use GEOPM launcher wrapper script with SLURM's srun
     geopmlaunch srun \
-                -N 2 \
-                -n 8 \
+                -N ${NUM_NODES} \
+                -n ${TOTAL_RANKS} \
                 --geopm-ctl=process \
                 --geopm-report=tutorial_6_report \
                 --geopm-trace=tutorial_6_trace \
@@ -65,8 +70,18 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
 elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
     # Use GEOPM launcher wrapper script with ALPS's aprun
     geopmlaunch aprun \
-                -N 4 \
-                -n 8 \
+                -N ${RANKS_PER_NODE} \
+                -n ${TOTAL_RANKS} \
+                --geopm-ctl=process \
+                --geopm-report=tutorial_6_report \
+                --geopm-trace=tutorial_6_trace \
+                -- geopmbench tutorial_6_config.json
+    err=$?
+elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
+    # Use GEOPM launcher wrapper script with Intel MPI
+    geopmlaunch impi \
+                -ppn ${RANKS_PER_NODE} \
+                -n ${TOTAL_RANKS} \
                 --geopm-ctl=process \
                 --geopm-report=tutorial_6_report \
                 --geopm-trace=tutorial_6_trace \
