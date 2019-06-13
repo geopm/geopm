@@ -20,6 +20,11 @@ The build scripts use the GEOPM install location defined in
 environment variable "MPICC" must be set to the path of the user's MPI
 C compiler wrapper.
 
+Running the tutorials with Intel(R) MPI Library
+-----------------------------------------------
+When launching the tutorials with Intel(R) MPI Library but without SLURM, the
+desired hosts must be specified in the ./tutorial_hosts file.  This will be
+used with the '-f <hosts_file>' option to mpiexec.hydra.
 
 0. Profiling and Tracing an Unmodified Application
 --------------------------------------------------
