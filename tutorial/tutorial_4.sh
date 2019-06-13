@@ -47,10 +47,15 @@ if [ ! -e $IMBALANCER_CONFIG ]; then
 fi
 
 # Run on 2 nodes
-# with 8 MPI ranks
+# with 8 total application MPI ranks
 # launch geopm controller as an MPI process
 # create a report file
 # create trace files
+
+NUM_NODES=2
+RANKS_PER_NODE=4
+TOTAL_RANKS=$((${RANKS_PER_NODE} * ${NUM_NODES}))
+
 if [ "$MPIEXEC" ]; then
     GEOPM_AGENT="power_governor" \
     LD_DYNAMIC_WEAK=true \
@@ -71,8 +76,8 @@ if [ "$MPIEXEC" ]; then
 elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
     # Use GEOPM launcher wrapper script with SLURM's srun
     geopmlaunch srun \
-                -N 2 \
-                -n 8 \
+                -N ${NUM_NODES} \
+                -n ${TOTAL_RANKS} \
                 --geopm-ctl=process \
                 --geopm-agent=power_governor \
                 --geopm-report=tutorial_4_governed_report \
@@ -81,8 +86,8 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 -- ./tutorial_4 \
     && \
     geopmlaunch srun \
-                -N 2 \
-                -n 8 \
+                -N ${NUM_NODES} \
+                -n ${TOTAL_RANKS} \
                 --geopm-ctl=process \
                 --geopm-agent=power_balancer \
                 --geopm-report=tutorial_4_balanced_report \
@@ -93,8 +98,8 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
 elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
     # Use GEOPM launcher wrapper script with ALPS's aprun
     geopmlaunch aprun \
-                -N 4 \
-                -n 8 \
+                -N ${RANKS_PER_NODE} \
+                -n ${TOTAL_RANKS} \
                 --geopm-ctl=process \
                 --geopm-agent=power_governor \
                 --geopm-report=tutorial_4_governed_report \
@@ -103,8 +108,32 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 -- ./tutorial_4 \
     && \
     geopmlaunch aprun \
-                -N 4 \
-                -n 8 \
+                -N ${RANKS_PER_NODE} \
+                -n ${TOTAL_RANKS} \
+                --geopm-ctl=process \
+                --geopm-agent=power_balancer \
+                --geopm-report=tutorial_4_balanced_report \
+                --geopm-trace=tutorial_4_balanced_trace \
+                --geopm-policy=tutorial_balanced_policy.json \
+                -- ./tutorial_4
+    err=$?
+elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
+    # Use GEOPM launcher wrapper script with Intel MPI
+    geopmlaunch impi \
+                -ppn ${RANKS_PER_NODE} \
+                -n ${TOTAL_RANKS} \
+                -f tutorial_hosts \
+                --geopm-ctl=process \
+                --geopm-agent=power_governor \
+                --geopm-report=tutorial_4_governed_report \
+                --geopm-trace=tutorial_4_governed_trace \
+                --geopm-policy=tutorial_governed_policy.json \
+                -- ./tutorial_4 \
+    && \
+    geopmlaunch impi \
+                -ppn ${RANKS_PER_NODE} \
+                -n ${TOTAL_RANKS} \
+                -f tutorial_hosts \
                 --geopm-ctl=process \
                 --geopm-agent=power_balancer \
                 --geopm-report=tutorial_4_balanced_report \

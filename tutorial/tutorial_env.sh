@@ -40,10 +40,15 @@ if [ ! "$GEOPM_PREFIX" ]; then
 fi
 
 # GEOPM_LAUNCHER: The resource manager exe used to launch jobs.
-# Options are either 'aprun' or 'srun' for 'ALPS' or 'SLURM'
-# repectively.
+# See 'man geopmlaunch' for supported options.
 if [ ! "$GEOPM_LAUNCHER" ]; then
     GEOPM_LAUNCHER='srun'
+elif [[ "$GEOPM_LAUNCHER" = "impi" && "$SLURM_NODELIST" ]]; then
+    scontrol show hostnames > tutorial_hosts
+elif [[ "$GEOPM_LAUNCHER" = "impi" && ! -a tutorial_hosts ]]; then
+    echo "ERROR: When using IMPI without a resource manager, the hosts must be "
+    echo "       defined in ./tutorial_hosts."
+    exit 1
 fi
 
 # GEOPM_BIN: Directory containing geopm programs.
