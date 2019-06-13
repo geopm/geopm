@@ -47,8 +47,7 @@ namespace geopm
 
     EnergyEfficientRegionImp::EnergyEfficientRegionImp(double freq_min, double freq_max,
                                                        double freq_step, double perf_margin)
-        : M_MIN_PERF_SAMPLE(5)
-        , m_is_learning(true)
+        : m_is_learning(true)
         , m_max_step(calc_num_step(freq_min, freq_max, freq_step) - 1)
         , m_freq_step(freq_step)
         , m_curr_step(-1)
@@ -57,13 +56,6 @@ namespace geopm
         , m_is_disabled(false)
         , m_perf_margin(perf_margin)
     {
-        /// @brief we are not clearing the m_freq_perf vector once created, such that we
-        ///        do not have to re-learn frequencies that were temporarily removed via
-        ///        update_freq_range. so we are assuming that a region's min, max and step
-        ///        are whatever is available when it is first observed.  address later.
-        for (size_t step = 0; step <= m_max_step; ++step) {
-            m_freq_perf.push_back(geopm::make_unique<CircularBuffer<double> >(M_MIN_PERF_SAMPLE));
-        }
         update_freq_range(freq_min, freq_max, freq_step);
 #ifdef GEOPM_DEBUG
         if (perf_margin < 0.0 || perf_margin > 1.0) {
@@ -94,37 +86,40 @@ namespace geopm
     void EnergyEfficientRegionImp::sample(double curr_perf_metric)
     {
         if (!std::isnan(curr_perf_metric) && curr_perf_metric != 0.0) {
-            auto &curr_perf_buffer = m_freq_perf[m_curr_step];
-            curr_perf_buffer->insert(curr_perf_metric);
+            m_perf.push_back(curr_perf_metric);
         }
     }
 
     void EnergyEfficientRegionImp::calc_next_freq()
     {
         if (m_is_learning && !m_is_disabled) {
-            auto &curr_perf_buffer = m_freq_perf[m_curr_step];
-            if (curr_perf_buffer->size() >= M_MIN_PERF_SAMPLE) {
-                double perf_max = Agg::max(curr_perf_buffer->make_vector());
-                if (!std::isnan(perf_max) && perf_max != 0.0) {
-                    if (m_target == 0.0) {
-                        m_target = (1.0 + m_perf_margin) * perf_max;
-                    }
-                    else {
-                        // Performance is in range; lower frequency
-                        if (perf_max > m_target) {
-                            if (m_curr_step - 1 >= 0) {
-                                --m_curr_step;
-                            }
-                            else {
-                                // stop learning at min frequency
-                                m_is_learning = false;
-                            }
+            double perf_max = Agg::max(m_perf);
+            m_perf.clear();
+            if (!std::isnan(perf_max) && perf_max != 0.0) {
+                if (m_target == 0.0) {
+                    // @todo when dynamic policies for the agent are enabled setting target
+                    // needs to be moved to a function (update_perf_margin)
+                    // and reused here.
+                    // Note we will need to cache perf_max at each p-state
+                    // such that it can be used given an updated p-state
+                    // range as dictated by policy.
+                    m_target = (1.0 + m_perf_margin) * perf_max;
+                }
+                else {
+                    // Performance is in range; lower frequency
+                    if (perf_max > m_target) {
+                        if (m_curr_step - 1 >= 0) {
+                            --m_curr_step;
                         }
-                        // increase frequency and stop learning when perf degrades
-                        else if ((uint64_t) m_curr_step + 1 <= m_max_step) {
-                            m_curr_step++;
+                        else {
+                            // stop learning at min frequency
                             m_is_learning = false;
                         }
+                    }
+                    // increase frequency and stop learning when perf degrades
+                    else if ((uint64_t) m_curr_step + 1 <= m_max_step) {
+                        m_curr_step++;
+                        m_is_learning = false;
                     }
                 }
             }
