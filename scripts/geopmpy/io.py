@@ -190,7 +190,7 @@ class AppOutput(object):
                 try:
                     self._traces_df = pandas.read_hdf(trace_h5_name, 'trace')
                     if verbose:
-                        sys.stdout.write('Loaded reports from {}.\n'.format(report_h5_name))
+                        sys.stdout.write('Loaded traces from {}.\n'.format(trace_h5_name))
                 except IOError as err:
                     sys.stderr.write('<geopmpy> Warning: trace HDF5 file not detected or older than traces.  Data will be saved to {}.\n'
                                      .format(trace_h5_name))
