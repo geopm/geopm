@@ -355,7 +355,7 @@ namespace geopm
 
     std::vector<std::string> PowerGovernorAgent::policy_names(void)
     {
-        return {"POWER"};
+        return {"POWER_PACKAGE_LIMIT_TOTAL"};
     }
 
     std::vector<std::string> PowerGovernorAgent::sample_names(void)

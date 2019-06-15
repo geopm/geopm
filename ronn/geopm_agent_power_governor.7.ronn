@@ -51,13 +51,17 @@ reports and traces with additional Agent-specific information.
 
 * `Agent Policy Definitions`:
 
-  `POWER`: Sets the average power cap per compute node in units of
-           Watts.  If NAN is passed for the power cap, the value will
-           default to the thermal design power (TDP).
+  `POWER_PACKAGE_LIMIT_TOTAL`: Sets the average power cap per compute
+                               node in units of watts.  If NAN is
+                               passed for the power cap, the value
+                               will default to the thermal design
+                               power (TDP).  Each package on the node
+                               will be given an equal fraction of the
+                               total power.
 
 * `Agent Sample Definitions`:
 
-  `POWER`: Median total package and DRAM power for the node in Watts
+  `POWER`: Median total package and DRAM power for the node in watts
            measured over the last epoch.
 
   `IS_CONVERGED`: Will be 1.0 if the power policy has been
@@ -65,9 +69,11 @@ reports and traces with additional Agent-specific information.
                   within the assigned limits, otherwise it will be
                   0.0.
 
-  `POWER_AVERAGE_ENFORCED`: Enforced power limit averaged over all compute nodes.
-                  This value corresponds to the `POWER_AVERAGE` policy field and
-                  is expected to match unless the policy is unachievable.
+  `POWER_AVERAGE_ENFORCED`: Enforced power limit averaged over all
+                            compute nodes.  This value corresponds to
+                            the `POWER_PACKAGE_LIMIT_TOTAL` policy
+                            field and is expected to match unless the
+                            policy is unachievable.
 
 * `Trace Column Extensions`:
 
