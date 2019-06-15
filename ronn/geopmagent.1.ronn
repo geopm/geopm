@@ -91,7 +91,7 @@ Create policy for power_governor agent with 250 watts per node power
 budget:
 
     $ geopmagent -a power_governor -p 250
-    {"POWER" : 250}
+    {"POWER_PACKAGE_LIMIT_TOTAL" : 250}
 
 Create policy for power_balancer agent with 250 watts per node power
 budget and other policies set to default:

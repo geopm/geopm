@@ -60,9 +60,9 @@ namespace geopm
         , m_is_converged(false)
         , m_is_sample_stable(false)
         , m_do_send_sample(false)
-        , m_min_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_PACKAGE, 0))
-        , m_max_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0))
-        , m_tdp_power_setting(m_platform_io.read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_PACKAGE, 0))
+        , m_min_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_BOARD, 0))
+        , m_max_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_BOARD, 0))
+        , m_tdp_power_setting(m_platform_io.read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_BOARD, 0))
         , m_power_gov(std::move(power_gov))
         , m_pio_idx(M_PLAT_NUM_SIGNAL)
         , m_agg_func(M_NUM_SAMPLE)
@@ -74,7 +74,6 @@ namespace geopm
         , m_ascend_count(0)
         , m_ascend_period(10)
         , m_min_num_converged(15)
-        , m_num_pkg(m_platform_topo.num_domain(m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT")))
         , m_adjusted_power(0.0)
         , m_last_wait(GEOPM_TIME_REF)
         , M_WAIT_SEC(0.005)
@@ -153,10 +152,8 @@ namespace geopm
             power_budget_in = m_tdp_power_setting;
         }
 
-        double per_package_budget_in = power_budget_in / m_num_pkg;
-
-        if (per_package_budget_in > m_max_power_setting ||
-            per_package_budget_in < m_min_power_setting) {
+        if (power_budget_in > m_max_power_setting ||
+            power_budget_in < m_min_power_setting) {
             throw Exception("PowerGovernorAgent::split_policy(): "
                             "invalid power budget.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -355,7 +352,7 @@ namespace geopm
 
     std::vector<std::string> PowerGovernorAgent::policy_names(void)
     {
-        return {"POWER"};
+        return {"POWER_PACKAGE_LIMIT_TOTAL"};
     }
 
     std::vector<std::string> PowerGovernorAgent::sample_names(void)

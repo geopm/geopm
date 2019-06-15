@@ -120,7 +120,6 @@ namespace geopm
             int m_ascend_count;
             const int m_ascend_period;
             const int m_min_num_converged;
-            int m_num_pkg;
             double m_adjusted_power;
             geopm_time_s m_last_wait;
             const double M_WAIT_SEC;
