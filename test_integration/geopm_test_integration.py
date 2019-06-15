@@ -1530,7 +1530,8 @@ class TestIntegrationGeopmagent(unittest.TestCase):
         Check that geopmagent commandline arguments work.
         '''
         # no args
-        agent_names = ['monitor', 'power_balancer', 'power_governor', 'energy_efficient']
+        agent_names = ['monitor', 'power_balancer', 'power_governor',
+                       'energy_efficient', 'frequency_map']
         self.check_output([], agent_names)
 
         # help message
@@ -1548,18 +1549,18 @@ class TestIntegrationGeopmagent(unittest.TestCase):
         self.check_json_output(['--agent', 'monitor', '--policy', 'None'],
                                {})
         self.check_json_output(['--agent', 'power_governor', '--policy', '150'],
-                               {'POWER': 150})
+                               {'POWER_PACKAGE_LIMIT_TOTAL': 150})
         # default value policy
         self.check_json_output(['--agent', 'power_governor', '--policy', 'NAN'],
-                               {"POWER": "NAN"})
+                               {'POWER_PACKAGE_LIMIT_TOTAL': 'NAN'})
         self.check_json_output(['--agent', 'power_governor', '--policy', 'nan'],
-                               {"POWER": "NAN"})
+                               {'POWER_PACKAGE_LIMIT_TOTAL': 'NAN'})
         self.check_json_output(['--agent', 'energy_efficient', '--policy', 'nan,nan'],
-                               {"FREQ_MIN": "NAN", "FREQ_MAX": "NAN"})
+                               {'FREQ_MIN': 'NAN', 'FREQ_MAX': 'NAN'})
         self.check_json_output(['--agent', 'energy_efficient', '--policy', '1.2e9,nan'],
-                               {"FREQ_MIN": 1.2e9, "FREQ_MAX": "NAN"})
+                               {'FREQ_MIN': 1.2e9, 'FREQ_MAX': 'NAN'})
         self.check_json_output(['--agent', 'energy_efficient', '--policy', 'nan,1.3e9'],
-                               {"FREQ_MIN": "NAN", "FREQ_MAX": 1.3e9})
+                               {'FREQ_MIN': 'NAN', 'FREQ_MAX': 1.3e9})
         # unspecified policy values are accepted
         self.check_json_output(['--agent', 'power_balancer', '--policy', '150'],
                                {'POWER_CAP': 150})
