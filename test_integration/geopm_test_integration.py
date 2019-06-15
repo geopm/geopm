@@ -1553,13 +1553,16 @@ class TestIntegrationGeopmagent(unittest.TestCase):
                                {"FREQ_MIN": 1.2e9, "FREQ_MAX": "NAN"})
         self.check_json_output(['--agent', 'energy_efficient', '--policy', 'nan,1.3e9'],
                                {"FREQ_MIN": "NAN", "FREQ_MAX": 1.3e9})
+        # unspecified policy values are accepted
+        self.check_json_output(['--agent', 'power_balancer', '--policy', '150'],
+                               {'POWER_CAP': 150})
 
         # errors
         self.check_output(['--agent', 'power_governor', '--policy', 'None'],
                           ['not a valid floating-point number', 'Invalid argument'])
         self.check_output(['--agent', 'monitor', '--policy', '300'],
                           ['agent takes no parameters', 'Invalid argument'])
-        self.check_output(['--agent', 'energy_efficient', '--policy', '2.0e9'],
+        self.check_output(['--agent', 'energy_efficient', '--policy', '2.0e9,5.0e9,4.5e9'],
                           ['Number of policies', 'Invalid argument'])
 
 

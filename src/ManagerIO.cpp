@@ -263,7 +263,10 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        m_signals_down = std::vector<double>(m_data->values, m_data->values + m_data->count);
+        // Fill in missing policy values with NAN (default)
+        m_signals_down = std::vector<double>(m_signal_names.size(), NAN);
+        std::copy(m_data->values, m_data->values + m_data->count, m_signals_down.begin());
+
         m_data->is_updated = 0;
         (void) pthread_mutex_unlock(&m_data->lock);
 
@@ -288,12 +291,13 @@ namespace geopm
                 std::map<std::string, double> signal_value_map = parse_json();
                 m_signals_down.clear();
                 for (auto signal : m_signal_names) {
-                    try {
+                    auto it = signal_value_map.find(signal);
+                    if (it != signal_value_map.end()) {
                         m_signals_down.emplace_back(signal_value_map.at(signal));
                     }
-                    catch (const std::out_of_range&) {
-                        throw Exception("ManagerIOSamplerImp::" + std::string(__func__) + "(): Signal \"" + signal + "\" not found.",
-                                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                    else {
+                        // Fill in missing policy values with NAN (default)
+                        m_signals_down.emplace_back(NAN);
                     }
                 }
             }
