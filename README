@@ -224,6 +224,23 @@ SUSE:
 Alternatively the MPI requirement can be met by using OpenHPC
 packages.
 
+### USER ENVIRONMENT
+The libraries, binaries and python tools will not be installed into
+the standard system paths if GEOPM is built from source and configured
+with the `--prefix` option.  In this case, it is required that the
+user augment their environment to specify the installed location.  If
+the configure option is specified as above:
+
+    GEOPM_PREFIX=$HOME/build/geopm
+    ./configure --prefix=$GEOPM_PREFIX
+
+then the following modifications to the user's environment should be
+made prior to running any GEOPM tools:
+
+    export LD_LIBRARY_PATH=$GEOPM_PREFIX/lib:$LD_LIBRARY_PATH
+    export PATH=$GEOPM_PREFIX/bin:$PATH
+    export PYTHONPATH=$GEOPM_PREFIX/lib/python2.7/site-packages:$PYTHONPATH
+
 ### SYSTEMD CONFIGURATION
 In order for GEOPM to properly use shared memory to communicate
 between the Controller and the application, it may be necessary to
