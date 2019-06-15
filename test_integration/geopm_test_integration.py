@@ -1546,18 +1546,18 @@ class TestIntegrationGeopmagent(unittest.TestCase):
         self.check_json_output(['--agent', 'monitor', '--policy', 'None'],
                                {})
         self.check_json_output(['--agent', 'power_governor', '--policy', '150'],
-                               {'POWER': 150})
+                               {'POWER_CAP': 150})
         # default value policy
         self.check_json_output(['--agent', 'power_governor', '--policy', 'NAN'],
-                               {"POWER": "NAN"})
+                               {'POWER_CAP': 'NAN'})
         self.check_json_output(['--agent', 'power_governor', '--policy', 'nan'],
-                               {"POWER": "NAN"})
+                               {'POWER_CAP': 'NAN'})
         self.check_json_output(['--agent', 'energy_efficient', '--policy', 'nan,nan'],
-                               {"FREQ_MIN": "NAN", "FREQ_MAX": "NAN"})
+                               {'FREQ_MIN': 'NAN', 'FREQ_MAX': 'NAN'})
         self.check_json_output(['--agent', 'energy_efficient', '--policy', '1.2e9,nan'],
-                               {"FREQ_MIN": 1.2e9, "FREQ_MAX": "NAN"})
+                               {'FREQ_MIN': 1.2e9, 'FREQ_MAX': 'NAN'})
         self.check_json_output(['--agent', 'energy_efficient', '--policy', 'nan,1.3e9'],
-                               {"FREQ_MIN": "NAN", "FREQ_MAX": 1.3e9})
+                               {'FREQ_MIN': 'NAN', 'FREQ_MAX': 1.3e9})
         # unspecified policy values get nan
         self.check_json_output(['--agent', 'power_balancer', '--policy', '150'],
                                {'POWER_CAP': 150, 'MAX_EPOCH_RUNTIME': 'NAN',
