@@ -319,16 +319,33 @@ int geopm_agent_policy_json(const char *agent_name,
                             size_t json_string_max,
                             char *json_string)
 {
-    int num_policy;
+    int num_policy = 0;
     int err = geopm_agent_num_policy(agent_name, &num_policy);
+    if (!err) {
+        err = geopm_agent_policy_json_partial(agent_name, num_policy, policy_array,
+                                              json_string_max, json_string);
+    }
+    return err;
+}
 
+int geopm_agent_policy_json_partial(const char *agent_name,
+                                    size_t policy_array_size,
+                                    const double *policy_array,
+                                    size_t json_string_max,
+                                    char *json_string)
+{
     std::stringstream output_str;
     char policy_name[json_string_max];
     std::string policy_value;
+    int num_policy = 0;
+    int err = geopm_agent_num_policy(agent_name, &num_policy);
+    if (!err && (num_policy < 0 || policy_array_size > (size_t)num_policy)) {
+        err = GEOPM_ERROR_INVALID;
+    }
     try {
         if (!err) {
             output_str << "{";
-            for (int i = 0; !err && i < num_policy; ++i) {
+            for (size_t i = 0; !err && i < policy_array_size; ++i) {
                 if (i > 0) {
                     output_str << ", ";
                 }

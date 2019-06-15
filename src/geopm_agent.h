@@ -107,7 +107,33 @@ int geopm_agent_policy_json(const char *agent_name,
                             char *json_string);
 
 /*!
- *  @brief The number of sampled paramters provided by agent.
+ *  @brief Create a json file to control agent policy statically.
+ *
+ *  @param [in] agent_name Name of agent type.
+ *
+ *  @param [in] policy_array_size Number of policy parameters in the
+ *              array.  The number of policies passed must be less
+ *              than or equal to the number returned by the
+ *              geopm_agent_num_policy() function.
+ *
+ *  @param [in] policy_array Values for each of the policy parameters.
+ *
+ *  @param [in] json_string_max Number of bytes allocated for
+ *         json_string output.
+ *
+ *  @param [out] json_string Buffer that will be populated with JSON
+ *         that can be used to create a policy file.
+ *
+ *  @return Zero on success, error code on failure.
+ */
+int geopm_agent_policy_json_partial(const char *agent_name,
+                                    size_t policy_array_size,
+                                    const double *policy_array,
+                                    size_t json_string_max,
+                                    char *json_string);
+
+/*!
+ *  @brief The number of sampled parameters provided by agent.
  *
  *  @param [in] agent_name Name of agent type.
  *
