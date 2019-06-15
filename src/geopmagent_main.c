@@ -231,9 +231,14 @@ int main(int argc, char **argv)
                     }
                     tok = strtok(NULL, ",");
                 }
-                if (!err && num_policy != policy_count) {
-                    fprintf(stderr, "Error: Number of policies read from command line does not match agent.\n");
+                if (!err && num_policy < policy_count) {
+                    fprintf(stderr, "Error: Number of policies read from command line is greater than expected for agent.\n");
                     err = EINVAL;
+                }
+                // fill in remaining values if not specified
+                while (!err && policy_count < num_policy) {
+                    policy_vals[policy_count] = NAN;
+                    ++policy_count;
                 }
             }
             else if (strncmp(policy_vals_ptr, "none", 4) != 0 &&

@@ -33,7 +33,7 @@ geopmagent(1) -- query agent information and create static policies
 
 ## SYNOPSIS
 
-`geopmagent` [`-a` _AGENT_] [`-p` _POLICY0_,_POLICY1_,...]
+`geopmagent` [`-a` _AGENT_] [`-p` _POLICY0_[,_POLICY1_,...] ]
 
 ## DESCRIPTION
 
@@ -66,35 +66,38 @@ given but `-a` is not, an error is reported.
 
   * `-p` _POLICY0_,_POLICY1_,...:
     The values to be set for each policy in a comma-separated list.
-    If the agent does not require any policy values this option must
-    be specified as "None" or "none".
+    Values other than the first policy are optional and will be set to
+    NAN if not provided, indicating that the Agent should use a
+    default value.  If the agent does not require any policy values
+    this option must be specified as "None" or "none".
 
 ## EXAMPLES
 List all available agents on the system:
 
     $ geopmagent
     energy_efficient
+    frequency_map
     monitor
     power_balancer
     power_governor
 
-Get power_balancing agent policy and sample names:
+Get power_balancer agent policy and sample names:
 
     $ geopmagent -a power_balancer
-    Policy: POWER
-    Sample: POWER,IS_CONVERGED,EPOCH_RUNTIME
+    Policy: POWER_CAP,STEP_COUNT,MAX_EPOCH_RUNTIME,POWER_SLACK
+    Sample: STEP_COUNT,MAX_EPOCH_RUNTIME,SUM_POWER_SLACK,MIN_POWER_HEADROOM
 
-Create policy for power_governor agent with 250 Watts per node power
+Create policy for power_governor agent with 250 watts per node power
 budget:
 
     $ geopmagent -a power_governor -p 250
     {"POWER" : 250}
 
-Create policy for power_balancer agent with 250 Watts per node power
-budget:
+Create policy for power_balancer agent with 250 watts per node power
+budget and other policies set to default:
 
-    $ geopmagent -a power_balancer -p 250,0,0,0
-    {"POWER_CAP" : 250, "STEP_COUNT" : 0, "MAX_EPOCH_RUNTIME" : 0, "POWER_SLACK" : 0}
+    $ geopmagent -a power_balancer -p 250
+    {"POWER_CAP" : 250, "STEP_COUNT" : "NAN", "MAX_EPOCH_RUNTIME" : "NAN", "POWER_SLACK" : "NAN"}
 
 Create policy for energy_efficient agent with minimum frequency of 1.2
 GHz and maximum frequency of 2.4 GHz:
