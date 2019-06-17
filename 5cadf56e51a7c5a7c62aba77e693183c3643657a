@@ -22,6 +22,30 @@
       "revId": "5cadf56e51a7c5a7c62aba77e693183c3643657a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efbfb044_18d96e2c",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-17T23:40:51Z",
+      "side": 1,
+      "message": "note that the misalignment will cause runtime info from an out of context frequency step to be used in the dictated frequency decision.  doesn\u0027t appear to be the case with the synthetic benchmark.  seems like we should right an integration test with rank imbalance and design solution around that failing test.",
+      "parentUuid": "05479440_2d32474d",
+      "range": {
+        "startLine": 262,
+        "startChar": 0,
+        "endLine": 270,
+        "endChar": 9
+      },
+      "revId": "5cadf56e51a7c5a7c62aba77e693183c3643657a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
