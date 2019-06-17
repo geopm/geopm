@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8cc4855_3f1880e1",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-17T22:04:48Z",
+      "side": 1,
+      "message": "this is already handled in the trace_region_it \u003d\u003d end",
+      "range": {
+        "startLine": 343,
+        "startChar": 8,
+        "endLine": 348,
+        "endChar": 9
+      },
+      "revId": "2622d58e5c3d3106bc12317a945f003705cc1d18",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d275bf0_2b35accf",
+        "filename": "src/EnergyEfficientRegion.hpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-17T22:04:48Z",
+      "side": 1,
+      "message": "if we want trace debug addition... just have an api to return target and another to return samples vector",
+      "range": {
+        "startLine": 56,
+        "startChar": 12,
+        "endLine": 58,
+        "endChar": 28
+      },
+      "revId": "2622d58e5c3d3106bc12317a945f003705cc1d18",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
