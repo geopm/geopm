@@ -80,6 +80,10 @@ namespace geopm
             ///         M_DOMAIN_INVALID if the signal name is not
             ///         supported.
             virtual int control_domain_type(const std::string &control_name) const = 0;
+            // @brief Get the number of domains for a named control.
+            // @param [in] control_name Name of the control.
+            // @return The number of domains for the given control.
+            virtual int control_domain_count(const std::string &control_name) const = 0;
             /// @brief Push a signal onto the end of the vector that
             ///        can be sampled.
             /// @param [in] signal_name Name of the signal requested.

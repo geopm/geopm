@@ -89,6 +89,8 @@ void ApplicationIOTest::SetUp()
         .WillOnce(Return(m_num_package_domain));
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD_MEMORY))
         .WillOnce(Return(m_num_memory_domain));
+    EXPECT_CALL(m_platform_io, control_domain_count("POWER_PACKAGE_LIMIT"))
+        .WillRepeatedly(Return(m_num_package_domain));
     EXPECT_CALL(m_platform_io, read_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE, _))
         .Times(m_num_package_domain)
         .WillRepeatedly(Return(122.0/m_num_package_domain));

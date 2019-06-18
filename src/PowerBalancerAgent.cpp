@@ -542,7 +542,7 @@ namespace geopm
         }
         bool is_tree_root = (level == (int)fan_in.size());
         if (is_tree_root) {
-            int num_pkg = m_platform_topo.num_domain(m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT"));
+            int num_pkg = m_platform_io.control_domain_count("POWER_PACKAGE_LIMIT");
             double min_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_PACKAGE, 0);
             double max_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0);
             m_power_tdp = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_PACKAGE, 0);
@@ -643,8 +643,7 @@ namespace geopm
             throw Exception("PowerBalancerAgent::enforce_policy(): policy vector incorrectly sized.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        int control_domain = m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT");
-        double pkg_policy = policy[M_POLICY_POWER_CAP] / m_platform_topo.num_domain(control_domain);
+        double pkg_policy = policy[M_POLICY_POWER_CAP] / m_platform_io.control_domain_count("POWER_PACKAGE_LIMIT");
         m_platform_io.write_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_BOARD, 0, pkg_policy);
     }
 

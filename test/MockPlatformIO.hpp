@@ -49,6 +49,8 @@ class MockPlatformIO : public geopm::PlatformIO
                            int(const std::string &signal_name));
         MOCK_CONST_METHOD1(control_domain_type,
                            int(const std::string &control_name));
+        MOCK_CONST_METHOD1(control_domain_count,
+                           int(const std::string &control_name));
         MOCK_METHOD3(push_signal,
                      int(const std::string &signal_name, int domain_type, int domain_idx));
         MOCK_METHOD4(push_combined_signal,
