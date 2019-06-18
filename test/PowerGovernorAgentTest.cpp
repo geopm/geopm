@@ -82,10 +82,7 @@ class PowerGovernorAgentTest : public ::testing::Test
 
 void PowerGovernorAgentTest::SetUp(void)
 {
-    EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE_LIMIT"))
-        .Times(AtLeast(1))
-        .WillRepeatedly(Return(GEOPM_DOMAIN_PACKAGE));
-    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
+    EXPECT_CALL(m_platform_io, control_domain_count("POWER_PACKAGE_LIMIT"))
         .Times(AtLeast(1))
         .WillRepeatedly(Return(m_num_package));
     // Warning: if ENERGY_PACKAGE does not return updated values,

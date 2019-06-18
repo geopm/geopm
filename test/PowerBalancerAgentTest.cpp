@@ -112,9 +112,7 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
         .WillOnce(Return(200));
     EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_PACKAGE, 0))
         .WillOnce(Return(150));
-    EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE_LIMIT"))
-        .WillOnce(Return(GEOPM_DOMAIN_PACKAGE));
-    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
+    EXPECT_CALL(m_platform_io, control_domain_count("POWER_PACKAGE_LIMIT"))
         .WillOnce(Return(2));
 
     m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
@@ -559,9 +557,7 @@ TEST_F(PowerBalancerAgentTest, enforce_policy)
     const std::vector<double> policy{limit, NAN, NAN, NAN};
     const std::vector<double> bad_policy{100};
 
-    EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE_LIMIT"))
-        .WillOnce(Return(GEOPM_DOMAIN_PACKAGE));
-    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
+    EXPECT_CALL(m_platform_io, control_domain_count("POWER_PACKAGE_LIMIT"))
         .WillOnce(Return(M_NUM_PKGS));
     EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_BOARD,
                                              0, limit/M_NUM_PKGS));
