@@ -1073,6 +1073,13 @@ class IMPIExecLauncher(Launcher):
             result = ['-hosts', self.node_list]
         elif self.host_file is not None:
             result = ['-f', self.host_file]
+        else:
+            sys.stderr.write('<geopmpy.launcher> WARNING: Hosts not defined, GEOPM may fail to start.  ' \
+                             'Use "-f <host_file>" or "-hosts" to specify the hostnames of the compute nodes.\n')
+
+        if self.is_slurm_enabled:
+            result += ['-bootstrap', 'slurm']
+
         return result
 
     def get_idle_nodes(self):
