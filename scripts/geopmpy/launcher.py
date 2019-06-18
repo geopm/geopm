@@ -972,6 +972,7 @@ class IMPIExecLauncher(Launcher):
     Launcher derived object for use with the Intel(R) MPI Library job launch
     application mpiexec.hydra.
     """
+    _is_first_time = True
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None):
         """
@@ -1073,6 +1074,19 @@ class IMPIExecLauncher(Launcher):
             result = ['-hosts', self.node_list]
         elif self.host_file is not None:
             result = ['-f', self.host_file]
+        else:
+            # If this error is encountered, without the first_time check it will be displayed 3 times per run:
+            #     1. For the PlatformTopo cache creation.
+            #     2. For the call to 'lscpu --hex' used in the Launcher itself.
+            #     3. For actually running the app requested.
+            if IMPIExecLauncher._is_first_time:
+                sys.stderr.write('<geopmpy.launcher> Warning: Hosts not defined, GEOPM may fail to start.  '
+                                 'Use "-f <host_file>" or "-hosts" to specify the hostnames of the compute nodes.\n')
+                IMPIExecLauncher._is_first_time = False;
+
+        if self.is_slurm_enabled:
+            result += ['-bootstrap', 'slurm']
+
         return result
 
     def get_idle_nodes(self):
