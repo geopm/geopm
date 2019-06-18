@@ -207,6 +207,11 @@ namespace geopm
         return result;
     }
 
+    int PlatformIOImp::control_domain_count(const std::string &control_name) const
+    {
+        return m_platform_topo.num_domain(control_domain_type(control_name));
+    }
+
     int PlatformIOImp::push_signal(const std::string &signal_name,
                                    int domain_type,
                                    int domain_idx)
@@ -777,6 +782,19 @@ extern "C" {
         int result = 0;
         try {
             result = geopm::platform_io().control_domain_type(control_name);
+        }
+        catch (...) {
+            result = geopm::exception_handler(std::current_exception());
+            result = result < 0 ? result : GEOPM_ERROR_RUNTIME;
+        }
+        return result;
+    }
+
+    int geopm_pio_control_domain_count(const char *control_name)
+    {
+        int result = 0;
+        try {
+            result = geopm::platform_io().control_domain_count(control_name);
         }
         catch (...) {
             result = geopm::exception_handler(std::current_exception());

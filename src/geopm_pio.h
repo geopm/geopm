@@ -55,6 +55,8 @@ int geopm_pio_signal_domain_type(const char *signal_name);
 
 int geopm_pio_control_domain_type(const char *control_name);
 
+int geopm_pio_control_domain_count(const char *control_name);
+
 int geopm_pio_read_signal(const char *signal_name,
                           int domain_type,
                           int domain_idx,

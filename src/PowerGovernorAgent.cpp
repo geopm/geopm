@@ -74,7 +74,7 @@ namespace geopm
         , m_ascend_count(0)
         , m_ascend_period(10)
         , m_min_num_converged(15)
-        , m_num_pkg(m_platform_topo.num_domain(m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT")))
+        , m_num_pkg(m_platform_io.control_domain_count("POWER_PACKAGE_LIMIT"))
         , m_adjusted_power(0.0)
         , m_last_wait(GEOPM_TIME_REF)
         , M_WAIT_SEC(0.005)
@@ -334,8 +334,7 @@ namespace geopm
             throw Exception("PowerGovernorAgent::enforce_policy(): policy vector incorrectly sized.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        int control_domain = m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT");
-        double pkg_policy = policy[M_POLICY_POWER] / m_platform_topo.num_domain(control_domain);
+        double pkg_policy = policy[M_POLICY_POWER] / m_platform_io.control_domain_count("POWER_PACKAGE_LIMIT");
         m_platform_io.write_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_BOARD, 0, pkg_policy);
     }
 

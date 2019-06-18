@@ -69,6 +69,9 @@ geopm_pio_c(7) -- interfaces to query and modify platform
   * `int geopm_pio_control_domain_type(`:
     `const char *`_control_name_`);`
 
+  * `int geopm_pio_control_domain_count(`:
+    `const char *`_control_name_`);`
+
   * `int geopm_pio_read_signal(`:
     `const char *`_signal_name_, <br>
     `int` _domain_type_, <br>
@@ -194,6 +197,11 @@ is also a value from the `geopm_domain_e` enum.
     granularity at which the control can be adjusted.  Will return a
     negative error code if any error occurs, e.g. a request for a
     _control_name_ that is not supported by the platform.
+
+  * `geopm_pio_control_domain_count`():
+    Query the count of instances of the domain for the control with the name
+    _control_name_.  Will return a negative error code if any error occurs,
+    e.g. a request for a _control_name_ that is not supported by the platform.
 
 ## SERIAL FUNCTIONS
 

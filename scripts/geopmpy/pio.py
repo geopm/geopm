@@ -60,6 +60,8 @@ int geopm_pio_signal_domain_type(const char *signal_name);
 
 int geopm_pio_control_domain_type(const char *control_name);
 
+int geopm_pio_control_domain_count(const char *control_name);
+
 int geopm_pio_read_signal(const char *signal_name,
                           int domain_type,
                           int domain_idx,
@@ -186,6 +188,23 @@ def control_domain_type(control_name):
     Returns:
         int: One of the geopmpy.topo.DOMAIN_* integers corresponding
             to a domain type.  This can be converted into a domain
+            name with the geopmpy.topo.domain_name() function.
+
+    """
+    global _ffi
+    global _dl
+    control_name_cstr = _ffi.new("char[]", str(control_name))
+    return _dl.geopm_pio_control_domain_type(control_name_cstr)
+
+def control_domain_count(control_name):
+    """Get the count of domains for a control.
+
+    Args:
+        control_name (str): name of control to query
+
+    Returns:
+        int: The number of instances of the geopm domain associated
+            with the given control.  This can be converted into a domain
             name with the geopmpy.topo.domain_name() function.
 
     """
