@@ -671,9 +671,10 @@ class Launcher(object):
         return []
 
     def preload_option(self):
-        self.environ_ext['LD_PRELOAD'] = ':'.join((ll for ll in
-                                                   ('libgeopm.so', os.getenv('LD_PRELOAD'))
-                                                   if ll is not None))
+        if self.config and self.config.get_preload():
+            self.environ_ext['LD_PRELOAD'] = ':'.join((ll for ll in
+                                                       ('libgeopm.so', os.getenv('LD_PRELOAD'))
+                                                       if ll is not None))
         return []
 
     def timeout_option(self):
