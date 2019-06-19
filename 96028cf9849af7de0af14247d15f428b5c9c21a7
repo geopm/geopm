@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a3f5c07_d30bd7b4",
+        "filename": "scripts/geopmpy/agent.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-06-19T00:10:28Z",
+      "side": 1,
+      "message": "#define NAME_MAX 1024",
+      "revId": "96028cf9849af7de0af14247d15f428b5c9c21a7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
