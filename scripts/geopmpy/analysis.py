@@ -1363,21 +1363,21 @@ class StreamDgemmMixAnalysis(Analysis):
                                                                 max_freq=self._max_freq,
                                                                 enable_turbo=self._enable_turbo)
             # Analysis class that includes a full sweep plus the plugin run with freq map
-            self._offline_analysis[ratio_idx] = OfflineBaselineComparisonAnalysis(profile_prefix=profile_prefix,
-                                                                                  output_dir=self._output_dir,
-                                                                                  verbose=self._verbose,
-                                                                                  iterations=self._iterations,
-                                                                                  min_freq=self._min_freq,
-                                                                                  max_freq=self._max_freq,
-                                                                                  enable_turbo=self._enable_turbo)
+            self._offline_analysis[ratio_idx] = FrequencyMapBaselineComparisonAnalysis(profile_prefix=profile_prefix,
+                                                                                       output_dir=self._output_dir,
+                                                                                       verbose=self._verbose,
+                                                                                       iterations=self._iterations,
+                                                                                       min_freq=self._min_freq,
+                                                                                       max_freq=self._max_freq,
+                                                                                       enable_turbo=self._enable_turbo)
             # Analysis class that runs the online plugin
-            self._online_analysis[ratio_idx] = OnlineBaselineComparisonAnalysis(profile_prefix=profile_prefix,
-                                                                                output_dir=self._output_dir,
-                                                                                verbose=self._verbose,
-                                                                                iterations=self._iterations,
-                                                                                min_freq=self._min_freq,
-                                                                                max_freq=self._max_freq,
-                                                                                enable_turbo=self._enable_turbo)
+            self._online_analysis[ratio_idx] = EnergyEfficientAgentAnalysis(profile_prefix=profile_prefix,
+                                                                            output_dir=self._output_dir,
+                                                                            verbose=self._verbose,
+                                                                            iterations=self._iterations,
+                                                                            min_freq=self._min_freq,
+                                                                            max_freq=self._max_freq,
+                                                                            enable_turbo=self._enable_turbo)
 
     def launch(self, config):
         source_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

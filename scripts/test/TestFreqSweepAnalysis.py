@@ -196,8 +196,8 @@ class TestFreqSweepAnalysis(unittest.TestCase):
                   'enable_turbo': True}
         self._sweep_analysis = geopmpy.analysis.FreqSweepAnalysis(**config)
         config['enable_turbo'] = False
-        self._offline_analysis = geopmpy.analysis.OfflineBaselineComparisonAnalysis(**config)
-        self._online_analysis = geopmpy.analysis.OnlineBaselineComparisonAnalysis(**config)
+        self._offline_analysis = geopmpy.analysis.FrequencyMapBaselineComparisonAnalysis(**config)
+        self._online_analysis = geopmpy.analysis.EnergyEfficientAgentAnalysis(**config)
         self._mix_analysis = geopmpy.analysis.StreamDgemmMixAnalysis(**config)
         self._tmp_files = []
 
@@ -237,7 +237,7 @@ class TestFreqSweepAnalysis(unittest.TestCase):
                                                   'energy_pkg', best_fit_metric_perf,
                                                   baseline_freq, baseline_metric_perf)
 
-        prof_name = self._name_prefix + '_offline'
+        prof_name = self._name_prefix + '_map'
         single_run_report = make_mock_report_df(prof_name, 'energy_pkg', optimal_metric_perf)
         parse_out = sweep_reports.append(single_run_report)
         parse_out.sort_index(ascending=True, inplace=True)
@@ -268,7 +268,7 @@ class TestFreqSweepAnalysis(unittest.TestCase):
                                                   'energy_pkg', best_fit_metric_perf,
                                                   baseline_freq, baseline_metric_perf)
 
-        prof_name = self._name_prefix + '_online'
+        prof_name = self._name_prefix + '_efficient'
         single_run_report = make_mock_report_df(prof_name, 'energy_pkg', optimal_metric_perf)
         parse_out = sweep_reports.append(single_run_report)
         parse_out.sort_index(ascending=True, inplace=True)
