@@ -118,10 +118,14 @@ def signal_names():
 
     result = []
     num_signal = _dl.geopm_pio_num_signal_name()
+    if num_signal < 0:
+        raise RuntimeError('geopm_pio_num_signal_name() failed: {}'.format(error.message(num_signal)))
     name_max = 1024
     signal_name_cstr = _ffi.new("char[]", name_max)
     for signal_idx in range(num_signal):
-        _dl.geopm_pio_signal_name(signal_idx, name_max, signal_name_cstr)
+        err = _dl.geopm_pio_signal_name(signal_idx, name_max, signal_name_cstr)
+        if err < 0:
+            raise RuntimeError('geopm_pio_signal_name() failed: {}'.format(error.message(err)))
         result.append(_ffi.string(signal_name_cstr))
     return result
 
@@ -140,10 +144,14 @@ def control_names():
     global _dl
     result = []
     num_control = _dl.geopm_pio_num_control_name()
+    if num_control < 0:
+        raise RuntimeError('geopm_pio_num_control_name() failed: {}'.format(error.message(num_control)))
     name_max = 1024
     control_name_cstr = _ffi.new("char[]", name_max)
     for control_idx in range(num_control):
-        _dl.geopm_pio_control_name(control_idx, name_max, control_name_cstr)
+        err = _dl.geopm_pio_control_name(control_idx, name_max, control_name_cstr)
+        if err < 0:
+            raise RuntimeError('geopm_pio_control_name() failed: {}'.format(error.message(err)))
         result.append(_ffi.string(control_name_cstr))
     return result
 
@@ -169,7 +177,10 @@ def signal_domain_type(signal_name):
     global _ffi
     global _dl
     signal_name_cstr = _ffi.new("char[]", str(signal_name))
-    return _dl.geopm_pio_signal_domain_type(signal_name_cstr)
+    result = _dl.geopm_pio_signal_domain_type(signal_name_cstr)
+    if result < 0:
+        raise RuntimeError('geopm_pio_signal_domain_type() failed: {}'.format(error.message(result)))
+    return result
 
 def control_domain_type(control_name):
     """Get the domain type that is native for a control.
@@ -192,7 +203,10 @@ def control_domain_type(control_name):
     global _ffi
     global _dl
     control_name_cstr = _ffi.new("char[]", str(control_name))
-    return _dl.geopm_pio_control_domain_type(control_name_cstr)
+    result = _dl.geopm_pio_control_domain_type(control_name_cstr)
+    if result < 0:
+        raise RuntimeError('geopm_pio_control_domain_type() failed: {}'.format(error.message(result)))
+    return result
 
 def read_signal(signal_name, domain_type, domain_idx):
     """Read a signal value from platform.
