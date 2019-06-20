@@ -108,6 +108,19 @@ namespace geopm
         }
     }
 
+    void TracerImp::detect_format(const std::string &col_name, int telemetry_idx)
+    {
+        if (col_name.find("REGION_HASH") != std::string::npos ||
+            col_name.find("REGION_HINT") != std::string::npos ||
+            col_name.find("region_hash") != std::string::npos ||
+            col_name.find("region_hint") != std::string::npos) {
+            m_region_format_idx.insert(telemetry_idx);
+        }
+        else if (col_name.find("#") != std::string::npos) {
+            m_hex_format_idx.insert(telemetry_idx);
+        }
+    }
+
     void TracerImp::columns(const std::vector<std::string> &agent_cols)
     {
         if (m_is_trace_enabled) {
@@ -155,14 +168,12 @@ namespace geopm
             }
 
             // set up columns to be sampled by TracerImp
+            int telemetry_idx = 0;
             for (const auto &col : base_columns) {
                 m_column_idx.push_back(m_platform_io.push_signal(col.name,
                                                                  col.domain_type,
                                                                  col.domain_idx));
-                if (col.name.find("#") != std::string::npos ||
-                    col.name == "REGION_HASH" || col.name == "REGION_HINT") {
-                    m_hex_column.insert(m_column_idx.back());
-                }
+                detect_format(col.name, telemetry_idx);
                 if (first) {
                     m_buffer << pretty_name(col);
                     first = false;
@@ -170,11 +181,14 @@ namespace geopm
                 else {
                     m_buffer << "|" << pretty_name(col);
                 }
+                ++telemetry_idx;
             }
 
             // columns from agent; will be sampled by agent
             for (const auto &name : agent_cols) {
                 m_buffer << "|" << name;
+                detect_format(name, telemetry_idx);
+                ++telemetry_idx;
             }
             m_buffer << "\n";
 
@@ -189,21 +203,20 @@ namespace geopm
             if (idx != 0) {
                 m_buffer << "|";
             }
-            if (m_hex_column.find(m_column_idx[idx]) != m_hex_column.end()) {
-                m_buffer << "0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
-                if (((uint64_t) m_region_hash_idx == idx ||
-                     (uint64_t) m_region_hint_idx == idx)) {
+            if (m_region_format_idx.find(idx) != m_region_format_idx.end()) {
 #ifdef GEOPM_DEBUG
-                    if ((uint64_t) m_last_telemetry[idx] == GEOPM_REGION_HASH_INVALID) {
-                        throw Exception("TracerImp::write_line(): Invalid hash or hint value detected.",
-                                        GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-                    }
+                if ((uint64_t) m_last_telemetry[idx] == GEOPM_REGION_HASH_INVALID) {
+                    throw Exception("TracerImp::write_line(): Invalid hash or hint value detected.",
+                                    GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                }
 #endif
-                    m_buffer << (uint64_t)m_last_telemetry[idx];
-                }
-                else {
-                    m_buffer << geopm_signal_to_field(m_last_telemetry[idx]);
-                }
+                m_buffer << "0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
+                m_buffer << (uint64_t)m_last_telemetry[idx];
+                m_buffer << std::setfill('\0') << std::setw(0) << std::scientific;
+            }
+            else if (m_hex_format_idx.find(idx) != m_hex_format_idx.end()) {
+                m_buffer << "0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
+                m_buffer << geopm_signal_to_field(m_last_telemetry[idx]);
                 m_buffer << std::setfill('\0') << std::setw(0) << std::scientific;
             }
             else if ((int)idx == m_region_progress_idx) {
