@@ -102,6 +102,7 @@ namespace geopm
             void update(const std::vector<double> &agent_signals) override;
             void flush(void) override;
         private:
+            void detect_format(const std::string &col_name, int telemetry_idx);
             /// @brief Format and write the values in m_last_telemetry to the trace.
             void write_line(void);
             std::string m_file_path;
@@ -117,7 +118,8 @@ namespace geopm
             std::string m_env_column; // extra columns from environment
             int m_precision;
             std::vector<int> m_column_idx; // columns sampled by TracerImp
-            std::set<int> m_hex_column;
+            std::set<int> m_hex_format_idx;
+            std::set<int> m_region_format_idx;
             std::vector<double> m_last_telemetry;
             int m_region_hash_idx = -1;
             int m_region_hint_idx = -1;
