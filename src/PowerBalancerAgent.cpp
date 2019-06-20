@@ -660,7 +660,7 @@ namespace geopm
 
     std::vector<std::string> PowerBalancerAgent::policy_names(void)
     {
-        return {"POWER_CAP",
+        return {"POWER_PACKAGE_LIMIT_TOTAL",
                 "STEP_COUNT",
                 "MAX_EPOCH_RUNTIME",
                 "POWER_SLACK"};

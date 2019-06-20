@@ -70,7 +70,7 @@ TEST(AgentFactoryTest, static_info_balancing)
                                            "MAX_EPOCH_RUNTIME",
                                            "SUM_POWER_SLACK",
                                            "MIN_POWER_HEADROOM"};
-    std::vector<std::string> exp_policy = {"POWER_CAP",
+    std::vector<std::string> exp_policy = {"POWER_PACKAGE_LIMIT_TOTAL",
                                            "STEP_COUNT",
                                            "MAX_EPOCH_RUNTIME",
                                            "POWER_SLACK"};
