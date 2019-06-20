@@ -1519,7 +1519,7 @@ class TestIntegrationGeopmagent(unittest.TestCase):
                                {'FREQ_MIN': 'NAN', 'FREQ_MAX': 1.3e9})
         # unspecified policy values are accepted
         self.check_json_output(['--agent', 'power_balancer', '--policy', '150'],
-                               {'POWER_CAP': 150})
+                               {'POWER_PACKAGE_LIMIT_TOTAL': 150})
 
         # errors
         self.check_output(['--agent', 'power_governor', '--policy', 'None'],
