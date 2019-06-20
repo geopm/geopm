@@ -78,7 +78,7 @@ class PowerBalancerAgentTest : public ::testing::Test
 
 TEST_F(PowerBalancerAgentTest, power_balancer_agent)
 {
-    const std::vector<std::string> exp_pol_names = {"POWER_CAP",
+    const std::vector<std::string> exp_pol_names = {"POWER_PACKAGE_LIMIT_TOTAL",
                                                     "STEP_COUNT",
                                                     "MAX_EPOCH_RUNTIME",
                                                     "POWER_SLACK"};
@@ -453,6 +453,7 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
         .WillRepeatedly(Return(300.0));
     EXPECT_CALL(*m_power_bal, power_limit())
         .WillRepeatedly(Return(300.0));
+    EXPECT_CALL(*m_power_bal, power_slack());
     m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
                                                      std::move(m_power_gov), std::move(m_power_bal));
     m_agent->init(level, M_FAN_IN, IS_ROOT);

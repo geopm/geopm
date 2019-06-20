@@ -85,38 +85,42 @@ reports and traces with additional Agent-specific information.
 
 * `Agent Policy Definitions`:
 
-  `POWER_CAP`: Sets the average power cap per compute node in units of
-               Watts.  The power cap applied to any one compute node
-               may be higher or lower than this parameter, but the
-               average power cap in aggregate across all compute nodes
-               controlled by the policy will be equal to this value.
-               If NAN is passed for the power cap, the value will
-               default to the thermal design power (TDP).
+  `POWER_PACKAGE_LIMIT_TOTAL`: Sets the average power cap per compute
+               node in units of watts.  The power cap applied to any
+               one compute node may be higher or lower than this
+               parameter, but the average power cap in aggregate
+               across all compute nodes controlled by the policy will
+               be equal to this value.  If NAN is passed for the power
+               limit, the value will default to the thermal design power
+               (TDP).
 
   `STEP_COUNT`: Used as an inter-agent message passed from parent to
                 child agents in the balancer's tree-hierarchical
                 implementation.  This parameter is not used if the
-                `POWER_CAP` policy is non-zero.  When creating a
-                static policy file, the `POWER_CAP` should be
-                non-zero, and this value can be set to zero.  If set
-                to NAN, it will default to 0.
+                `POWER_PACKAGE_LIMIT_TOTAL` policy is non-zero.  When
+                creating a static policy file, the
+                `POWER_PACKAGE_LIMIT_TOTAL` should be non-zero, and
+                this value can be set to zero.  If set to NAN, it will
+                default to 0.
 
   `MAX_EPOCH_RUNTIME`: Used as an inter-agent message passed from
                        parent to child agents in the balancer's
                        tree-hierarchical implementation.  This
-                       parameter is not used if the `POWER_CAP` policy
-                       is non-zero.  When creating a static policy
-                       file, the `POWER_CAP` should be non-zero, and
-                       this value can be set to zero.  If set to NAN,
-                       it will default to 0.
+                       parameter is not used if the
+                       `POWER_PACKAGE_LIMIT_TOTAL` policy is non-zero.
+                       When creating a static policy file, the
+                       `POWER_PACKAGE_LIMIT_TOTAL` should be non-zero,
+                       and this value can be set to zero.  If set to
+                       NAN, it will default to 0.
 
   `POWER_SLACK`: Used as an inter-agent message passed from parent to
                  child agents in the balancer's tree-hierarchical
                  implementation.  This parameter is not used if the
-                 `POWER_CAP` policy is non-zero.  When creating a
-                 static policy file, the `POWER_CAP` should be
-                 non-zero, and this value can be set to zero.  If set
-                 to NAN, it will default to 0.
+                 `POWER_PACKAGE_LIMIT_TOTAL` policy is non-zero.  When
+                 creating a static policy file, the
+                 `POWER_PACKAGE_LIMIT_TOTAL` should be non-zero, and
+                 this value can be set to zero.  If set to NAN, it
+                 will default to 0.
 
 * `Agent Sample Definitions`:
 
