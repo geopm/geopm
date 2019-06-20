@@ -60,7 +60,7 @@ namespace geopm
                 ///        requested a new budget for the application,
                 ///        and thus, the algorithm must be restarted
                 ///        at step M_SEND_DOWN_LIMIT.
-                M_POLICY_POWER_CAP,
+                M_POLICY_POWER_PACKAGE_LIMIT_TOTAL,
                 /// @brief Step that the root is providing a policy
                 ///        for.  The parent has received a sample
                 ///        matching this step in the last walk up the
@@ -122,7 +122,7 @@ namespace geopm
             };
 
             enum m_trace_sample_e {
-                M_TRACE_SAMPLE_POLICY_POWER_CAP,
+                M_TRACE_SAMPLE_POLICY_POWER_PACKAGE_LIMIT_TOTAL,
                 M_TRACE_SAMPLE_POLICY_STEP_COUNT,
                 M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME,
                 M_TRACE_SAMPLE_POLICY_POWER_SLACK,
