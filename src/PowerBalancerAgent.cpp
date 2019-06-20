@@ -174,13 +174,13 @@ namespace geopm
     bool PowerBalancerAgent::LeafRole::adjust_platform(const std::vector<double> &in_policy)
     {
         m_policy = in_policy;
-        if (in_policy[M_POLICY_POWER_CAP] != 0.0) {
+        if (in_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] != 0.0) {
             // New power cap from resource manager, reset
             // algorithm.
             m_step_count = M_STEP_SEND_DOWN_LIMIT;
-            m_power_balancer->power_cap(in_policy[M_POLICY_POWER_CAP]);
-            if (in_policy[M_POLICY_POWER_CAP] > m_power_max) {
-                m_power_max = in_policy[M_POLICY_POWER_CAP];
+            m_power_balancer->power_cap(in_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL]);
+            if (in_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] > m_power_max) {
+                m_power_max = in_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL];
             }
             m_is_step_complete = true;
         }
@@ -237,7 +237,8 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        values[M_TRACE_SAMPLE_POLICY_POWER_CAP] = m_policy[M_POLICY_POWER_CAP];
+        values[M_TRACE_SAMPLE_POLICY_POWER_PACKAGE_LIMIT_TOTAL] =
+            m_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL];
         values[M_TRACE_SAMPLE_POLICY_STEP_COUNT] = m_policy[M_POLICY_STEP_COUNT];
         values[M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME] = m_policy[M_POLICY_MAX_EPOCH_RUNTIME];
         values[M_TRACE_SAMPLE_POLICY_POWER_SLACK] = m_policy[M_POLICY_POWER_SLACK];
@@ -377,13 +378,13 @@ namespace geopm
         }
 #endif
         bool result = false;
-        if (in_policy[M_POLICY_POWER_CAP] != m_root_cap) {
+        if (in_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] != m_root_cap) {
             m_step_count = M_STEP_SEND_DOWN_LIMIT;
-            m_policy[M_POLICY_POWER_CAP] = in_policy[M_POLICY_POWER_CAP];
+            m_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] = in_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL];
             m_policy[M_POLICY_STEP_COUNT] = M_STEP_SEND_DOWN_LIMIT;
             m_policy[M_POLICY_MAX_EPOCH_RUNTIME] = 0.0;
             m_policy[M_POLICY_POWER_SLACK] = 0.0;
-            m_root_cap = in_policy[M_POLICY_POWER_CAP];
+            m_root_cap = in_policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL];
             if (m_root_cap > M_MAX_PKG_POWER_SETTING ||
                 m_root_cap < M_MIN_PKG_POWER_SETTING) {
                 throw Exception("PowerBalancerAgent::descend(): invalid power budget: " + std::to_string(m_root_cap),
@@ -410,7 +411,7 @@ namespace geopm
 
     void PowerBalancerAgent::SendDownLimitStep::update_policy(PowerBalancerAgent::RootRole &role, const std::vector<double> &sample) const
     {
-        role.m_policy[PowerBalancerAgent::M_POLICY_POWER_CAP] = 0.0;
+        role.m_policy[PowerBalancerAgent::M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] = 0.0;
     }
 
     void PowerBalancerAgent::SendDownLimitStep::enter_step(PowerBalancerAgent::LeafRole &role, const std::vector<double> &in_policy) const
@@ -608,7 +609,7 @@ namespace geopm
 
     std::vector<std::string> PowerBalancerAgent::trace_names(void) const
     {
-        return {"POLICY_POWER_CAP",         // M_TRACE_SAMPLE_POLICY_POWER_CAP
+        return {"POLICY_POWER_PACKAGE_LIMIT_TOTAL", // M_TRACE_SAMPLE_POLICY_POWER_PACKAGE_LIMIT_TOTAL
                 "POLICY_STEP_COUNT",        // M_TRACE_SAMPLE_POLICY_STEP_COUNT
                 "POLICY_MAX_EPOCH_RUNTIME", // M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME
                 "POLICY_POWER_SLACK",       // M_TRACE_SAMPLE_POLICY_POWER_SLACK
@@ -620,7 +621,7 @@ namespace geopm
 
     std::vector<std::function<std::string(double)> > PowerBalancerAgent::trace_formats(void) const
     {
-        return {string_format_double,         // M_TRACE_SAMPLE_POLICY_POWER_CAP
+        return {string_format_double,         // M_TRACE_SAMPLE_POLICY_POWER_PACKAGE_LIMIT_TOTAL
                 format_step_count,            // M_TRACE_SAMPLE_POLICY_STEP_COUNT
                 string_format_double,         // M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME
                 string_format_double,         // M_TRACE_SAMPLE_POLICY_POWER_SLACK
@@ -642,7 +643,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         int control_domain = m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT");
-        double pkg_policy = policy[M_POLICY_POWER_CAP] / m_platform_topo.num_domain(control_domain);
+        double pkg_policy = policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] / m_platform_topo.num_domain(control_domain);
         m_platform_io.write_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_BOARD, 0, pkg_policy);
     }
 
@@ -658,7 +659,7 @@ namespace geopm
 
     std::vector<std::string> PowerBalancerAgent::policy_names(void)
     {
-        return {"POWER_CAP",
+        return {"POWER_PACKAGE_LIMIT_TOTAL",
                 "STEP_COUNT",
                 "MAX_EPOCH_RUNTIME",
                 "POWER_SLACK"};
@@ -699,8 +700,8 @@ namespace geopm
     void PowerBalancerAgent::validate_policy(std::vector<double> &policy) const
     {
         // If NAN, use default
-        if (std::isnan(policy[M_POLICY_POWER_CAP])) {
-            policy[M_POLICY_POWER_CAP] = m_power_tdp;
+        if (std::isnan(policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL])) {
+            policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] = m_power_tdp;
         }
         if (std::isnan(policy[M_POLICY_STEP_COUNT])) {
             policy[M_POLICY_STEP_COUNT] = 0.0;
