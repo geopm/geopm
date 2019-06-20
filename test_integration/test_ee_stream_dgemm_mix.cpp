@@ -39,6 +39,7 @@
 
 #include "geopm.h"
 #include "Exception.hpp"
+#include "Helper.hpp"
 #include "ModelRegion.hpp"
 
 
@@ -70,18 +71,25 @@ int main(int argc, char **argv)
     int repeat = 300;
     double dgemm_factor = 17;
     double stream_factor = 1.0;
-    int num_mix = 5;
+    int num_mix = 1;
     double mix_factor = 1.0 / (num_mix - 1);
     for (int mix_idx = 0; mix_idx != num_mix; ++mix_idx) {
         int stream_idx = num_mix - 1 - mix_idx;
         int dgemm_idx = mix_idx;
-        double stream_big_o = stream_factor * mix_factor * stream_idx;
-        double dgemm_big_o = dgemm_factor * mix_factor * dgemm_idx;
-	std::unique_ptr<geopm::ModelRegionBase> stream_model(geopm::model_region_factory("stream-unmarked", stream_big_o, is_verbose));
-        std::unique_ptr<geopm::ModelRegionBase> dgemm_model(geopm::model_region_factory("dgemm-unmarked", dgemm_big_o, is_verbose));
+        std::unique_ptr<geopm::ModelRegionBase> region;
+            switch (comm_rank % 2) {
+                case 0:
+                    double stream_big_o = stream_factor;// * mix_factor * stream_idx;
+                    region = geopm::make_unique<geopm::StreamModelRegion>(stream_big_o, is_verbose, false, false, true);
+                break;
+                case 1:
+                    double dgemm_big_o = dgemm_factor;// * mix_factor * dgemm_idx;
+                    region = geopm::make_unique<geopm::DGEMMModelRegion>(dgemm_big_o, is_verbose, false, false, true);
+                break;
+            }
         char region_name[NAME_MAX];
         region_name[NAME_MAX - 1] = '\0';
-        snprintf(region_name, NAME_MAX - 1, "stream-%.2f-dgemm-%.2f", stream_big_o, dgemm_big_o);
+        snprintf(region_name, NAME_MAX - 1, "stream-dgemm");
         uint64_t region_id = 0;
         err = geopm_prof_region(region_name, GEOPM_REGION_HINT_UNKNOWN, &region_id);
         if (err) {
@@ -92,8 +100,14 @@ int main(int argc, char **argv)
             if (err) {
                 throw geopm::Exception("test_ee_stream_dgemm_mix", err, __FILE__, __LINE__);
             }
-            stream_model->run();
-            dgemm_model->run();
+            switch (comm_rank % 2) {
+                case 0:
+                region->run();
+                break;
+                case 1:
+                region->run();
+                break;
+            }
             err = geopm_prof_exit(region_id);
             if (err) {
                 throw geopm::Exception("test_ee_stream_dgemm_mix", err, __FILE__, __LINE__);
