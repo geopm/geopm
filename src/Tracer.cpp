@@ -174,8 +174,13 @@ namespace geopm
             }
 
             // columns from agent; will be sampled by agent
+            int agent_col_idx = base_columns.size();
             for (const auto &name : agent_cols) {
                 m_buffer << "|" << name;
+                if (name.find("#") != std::string::npos) {
+                    m_hex_column.insert(agent_col_idx);
+                }
+                ++agent_col_idx;
             }
             m_buffer << "\n";
 
@@ -190,7 +195,7 @@ namespace geopm
             if (idx != 0) {
                 m_buffer << "|";
             }
-            if (m_hex_column.find(m_column_idx[idx]) != m_hex_column.end()) {
+            if (m_hex_column.find(idx) != m_hex_column.end()) {
                 m_buffer << "0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
                 if (((uint64_t) m_region_hash_idx == idx ||
                      (uint64_t) m_region_hint_idx == idx)) {
