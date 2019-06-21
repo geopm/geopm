@@ -77,6 +77,9 @@ namespace geopm
             /// @return The set of domain indices for the inner domain that are
             ///         within the indexed outer domain.
             virtual std::set<int> domain_nested(int inner_domain, int outer_domain, int outer_idx) const = 0;
+            /// @brief Get the number of MPI ranks running
+            ///        in the attached application.
+            virtual int num_mpi_rank(void) const = 0;
             /// @brief Convert a domain type enum to a string.
             /// @param [in] domain_type Domain type from the
             ///        m_domain_e enum.
