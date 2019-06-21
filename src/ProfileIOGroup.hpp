@@ -86,6 +86,7 @@ namespace geopm
                 M_SIGNAL_EPOCH_RUNTIME,
                 M_SIGNAL_EPOCH_RUNTIME_MPI,
                 M_SIGNAL_EPOCH_RUNTIME_IGNORE,
+                M_SIGNAL_TOPO_RANK_CPU_DOMAIN_IDX,
                 M_SIGNAL_MAX,
             };
             struct m_signal_config {
@@ -113,6 +114,7 @@ namespace geopm
             std::vector<double> m_epoch_count;
             std::map<int, int> m_rid_idx; // map from runtime signal index to the region id signal it uses
             std::vector<int> m_cpu_rank;
+            int m_topo_rank_cpu_domain_idx;
     };
 }
 

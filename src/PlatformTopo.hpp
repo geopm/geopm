@@ -83,6 +83,14 @@ namespace geopm
             /// @return Domain name which is the enum name in
             ///         lowercase with M_DOMAIN_ prefix removed.
             static std::string domain_type_to_name(int domain_type);
+            /// @brief Define a new domain type that is a group of
+            ///        Linux logical CPUs by assigning a domain index
+            ///        to each.
+            /// @param [in] cpu_domain_idx A vector over Linux logical
+            ///        CPUs assigning a domain index to each.
+            /// @return The domain type index reserved for the newly
+            ///         defined cpu group.
+            virtual int define_cpu_group(const std::vector<int> &cpu_domain_idx) const = 0;
             /// @brief Convert a domain name to its corresponding
             ///        enum.
             /// @param [in] name Domain name which is the enum
