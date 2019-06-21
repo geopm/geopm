@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a67c6d3_c07aa4aa",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-21T18:56:39Z",
+      "side": 1,
+      "message": "better name",
+      "range": {
+        "startLine": 302,
+        "startChar": 70,
+        "endLine": 302,
+        "endChar": 72
+      },
+      "revId": "788c9d45770264e9fdb8a49b8c7d4d728518556f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e6a1bef_c94916d6",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-21T18:56:39Z",
+      "side": 1,
+      "message": "update docstrings",
+      "revId": "788c9d45770264e9fdb8a49b8c7d4d728518556f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bbf3a33_a3b85acf",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-21T18:56:39Z",
+      "side": 1,
+      "message": "data_path",
+      "range": {
+        "startLine": 485,
+        "startChar": 43,
+        "endLine": 485,
+        "endChar": 45
+      },
+      "revId": "788c9d45770264e9fdb8a49b8c7d4d728518556f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50801161_0df55ad1",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-21T18:56:39Z",
+      "side": 1,
+      "message": "will this break for report filenames with -?",
+      "revId": "788c9d45770264e9fdb8a49b8c7d4d728518556f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
