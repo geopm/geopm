@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8cf3bacb_bb436455",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-21T01:32:54Z",
+      "side": 1,
+      "message": "this print is not useful for large rank count app runs.  user min, max, mean of observed selected frequencies to give user insight into potential rank imbalance",
+      "range": {
+        "startLine": 328,
+        "startChar": 16,
+        "endLine": 330,
+        "endChar": 108
+      },
+      "revId": "48fc477d60032ef0db4a6a1f3e2999b9804acb72",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1eaf1507_72418a99",
+        "filename": "src/EnergyEfficientAgent.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-21T01:32:54Z",
+      "side": 1,
+      "message": "will need work to port to mrf.  this vars should use topo domain discovery for frequency control and be based on that (cpu in mcf case though)",
+      "range": {
+        "startLine": 115,
+        "startChar": 29,
+        "endLine": 115,
+        "endChar": 39
+      },
+      "revId": "48fc477d60032ef0db4a6a1f3e2999b9804acb72",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
