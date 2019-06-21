@@ -43,7 +43,7 @@ namespace geopm
 {
     class EpochRuntimeRegulator;
     class ProfileIOSample;
-    class PlatformTopo;
+    class PlatformTopoImp;
 
     /// @brief IOGroup that provides signals from the application.
     class ProfileIOGroup : public IOGroup
@@ -53,7 +53,7 @@ namespace geopm
                            EpochRuntimeRegulator &epoch_regulator);
             ProfileIOGroup(std::shared_ptr<ProfileIOSample> profile_sample,
                            EpochRuntimeRegulator &epoch_regulator,
-                           const PlatformTopo &topo);
+                           PlatformTopoImp &topo);
             virtual ~ProfileIOGroup();
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
@@ -101,14 +101,15 @@ namespace geopm
             std::shared_ptr<ProfileIOSample> m_profile_sample;
             EpochRuntimeRegulator &m_epoch_regulator;
             std::map<std::string, int> m_signal_idx_map;
-            const PlatformTopo &m_platform_topo;
+            PlatformTopoImp &m_platform_topo;
             std::vector<bool> m_do_read;
             bool m_is_batch_read;
             std::vector<struct m_signal_config> m_active_signal;
-            std::vector<uint64_t> m_per_cpu_region_id;
-            std::vector<double> m_per_cpu_progress;
-            std::vector<double> m_per_cpu_runtime;
-            std::vector<int64_t> m_per_cpu_count;
+            const int M_NUM_RANK;
+            std::vector<uint64_t> m_per_rank_region_id;
+            std::vector<double> m_per_rank_progress;
+            std::vector<double> m_per_rank_runtime;
+            std::vector<int64_t> m_per_rank_count;
             std::vector<double> m_thread_progress;
             std::vector<double> m_epoch_runtime_mpi;
             std::vector<double> m_epoch_runtime_ignore;

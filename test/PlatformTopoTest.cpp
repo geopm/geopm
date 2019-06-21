@@ -289,12 +289,23 @@ TEST_F(PlatformTopoTest, bdx_num_domain)
 {
     write_lscpu(m_bdx_lscpu_str);
     PlatformTopoImp topo(m_lscpu_file_name);
+    int num_cpu = 72;
+    int num_rank = 4;
+    std::vector<int> cpu_rank {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
+                               1, 1, 1, 1, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3,
+                               3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+    topo.define_cpu_mpi_rank_map(cpu_rank);
+    EXPECT_THROW(topo.define_cpu_mpi_rank_map(cpu_rank), geopm::Exception);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(36, topo.num_domain(GEOPM_DOMAIN_CORE));
-    EXPECT_EQ(72, topo.num_domain(GEOPM_DOMAIN_CPU));
+    EXPECT_EQ(num_cpu, topo.num_domain(GEOPM_DOMAIN_CPU));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_BOARD_MEMORY));
     EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_MEMORY));
+    EXPECT_EQ(num_rank, topo.num_domain(GEOPM_DOMAIN_MPI_RANK));
 }
 
 TEST_F(PlatformTopoTest, ppc_num_domain)
@@ -330,6 +341,11 @@ TEST_F(PlatformTopoTest, construction)
     EXPECT_LT(0, topo.num_domain(GEOPM_DOMAIN_CPU));
     EXPECT_LT(0, topo.num_domain(GEOPM_DOMAIN_BOARD_MEMORY));
     EXPECT_LT(-1, topo.num_domain(GEOPM_DOMAIN_PACKAGE_MEMORY));
+
+    EXPECT_THROW(topo.num_domain(GEOPM_DOMAIN_MPI_RANK), geopm::Exception);
+    EXPECT_THROW(topo.define_cpu_mpi_rank_map(std::vector<int> {}), geopm::Exception);
+    EXPECT_THROW(topo.is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_MPI_RANK), geopm::Exception);
+    EXPECT_THROW(topo.is_nested_domain(GEOPM_DOMAIN_MPI_RANK, GEOPM_DOMAIN_BOARD), geopm::Exception);
 }
 
 TEST_F(PlatformTopoTest, singleton_construction)
@@ -347,6 +363,18 @@ TEST_F(PlatformTopoTest, bdx_domain_idx)
 {
     write_lscpu(m_bdx_lscpu_str);
     PlatformTopoImp topo(m_lscpu_file_name);
+    int num_cpu = 72;
+
+    std::vector<int> cpu_rank {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
+                               1, 1, 1, 1, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3,
+                               3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+    topo.define_cpu_mpi_rank_map(cpu_rank);
+    for (int cpu = 0; cpu < num_cpu; ++cpu) {
+        EXPECT_EQ(cpu_rank[cpu], topo.domain_idx(GEOPM_DOMAIN_MPI_RANK, cpu));
+    }
     EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_BOARD, 0));
     EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_PACKAGE, 0));
     EXPECT_EQ(1, topo.domain_idx(GEOPM_DOMAIN_PACKAGE, 18));
@@ -358,10 +386,10 @@ TEST_F(PlatformTopoTest, bdx_domain_idx)
     EXPECT_EQ(18, topo.domain_idx(GEOPM_DOMAIN_CORE, 18));
     EXPECT_EQ(18, topo.domain_idx(GEOPM_DOMAIN_CORE, 54));
     EXPECT_EQ(18, topo.domain_idx(GEOPM_DOMAIN_CORE, 54));
-    for (int cpu_idx = 0; cpu_idx < 72; ++cpu_idx) {
+    for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
         EXPECT_EQ(cpu_idx, topo.domain_idx(GEOPM_DOMAIN_CPU, cpu_idx));
     }
-    EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_CPU, 72), geopm::Exception);
+    EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_CPU, num_cpu), geopm::Exception);
     EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_CPU, 90), geopm::Exception);
     EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_CPU, -18), geopm::Exception);
     EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_INVALID, 0), geopm::Exception);
@@ -388,6 +416,34 @@ TEST_F(PlatformTopoTest, bdx_is_nested_domain)
 {
     write_lscpu(m_bdx_lscpu_str);
     PlatformTopoImp topo(m_lscpu_file_name);
+    std::vector<int> cpu_rank {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
+                               1, 1, 1, 1, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3,
+                               3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+    topo.define_cpu_mpi_rank_map(cpu_rank);
+
+    for (int domain = GEOPM_DOMAIN_BOARD; domain < GEOPM_DOMAIN_MPI_RANK; ++domain) {
+        switch (domain) {
+            //case GEOPM_DOMAIN_BOARD:
+            //case GEOPM_DOMAIN_PACKAGE:
+            case GEOPM_DOMAIN_CORE:
+            case GEOPM_DOMAIN_CPU:
+            //case GEOPM_DOMAIN_BOARD_MEMORY:
+            //case GEOPM_DOMAIN_PACKAGE_MEMORY:
+            //case GEOPM_DOMAIN_BOARD_NIC:
+            //case GEOPM_DOMAIN_PACKAGE_NIC:
+            //case GEOPM_DOMAIN_BOARD_ACCELERATOR:
+            //case GEOPM_DOMAIN_PACKAGE_ACCELERATOR:
+            case GEOPM_DOMAIN_MPI_RANK:
+                EXPECT_TRUE(topo.is_nested_domain(domain, GEOPM_DOMAIN_MPI_RANK)) << topo.domain_type_to_name(domain);
+                break;
+            default:
+                EXPECT_FALSE(topo.is_nested_domain(domain, GEOPM_DOMAIN_MPI_RANK)) << topo.domain_type_to_name(domain);
+                break;
+        }
+    }
 
     // domains containing CPUs
     EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD));
@@ -416,17 +472,17 @@ TEST_F(PlatformTopoTest, bdx_is_nested_domain)
     EXPECT_FALSE(topo.is_nested_domain(GEOPM_DOMAIN_BOARD, GEOPM_DOMAIN_CPU));
 
     // other domains in the board
-    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_BOARD_NIC, GEOPM_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR, GEOPM_DOMAIN_BOARD));
     EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_BOARD_MEMORY, GEOPM_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_NIC, GEOPM_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_ACCELERATOR, GEOPM_DOMAIN_BOARD));
-    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_MEMORY, GEOPM_DOMAIN_BOARD));
+    EXPECT_FALSE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_NIC, GEOPM_DOMAIN_BOARD));
+    EXPECT_FALSE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_ACCELERATOR, GEOPM_DOMAIN_BOARD));
+    EXPECT_FALSE(topo.is_nested_domain(GEOPM_DOMAIN_BOARD_NIC, GEOPM_DOMAIN_BOARD));
+    EXPECT_FALSE(topo.is_nested_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR, GEOPM_DOMAIN_BOARD));
+    EXPECT_FALSE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_MEMORY, GEOPM_DOMAIN_BOARD));
 
     // other domains in the package
-    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_NIC, GEOPM_DOMAIN_PACKAGE));
-    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_ACCELERATOR, GEOPM_DOMAIN_PACKAGE));
-    EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_MEMORY, GEOPM_DOMAIN_PACKAGE));
+    EXPECT_FALSE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_NIC, GEOPM_DOMAIN_PACKAGE));
+    EXPECT_FALSE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_ACCELERATOR, GEOPM_DOMAIN_PACKAGE));
+    EXPECT_FALSE(topo.is_nested_domain(GEOPM_DOMAIN_PACKAGE_MEMORY, GEOPM_DOMAIN_PACKAGE));
 }
 
 TEST_F(PlatformTopoTest, bdx_domain_nested)
@@ -448,6 +504,16 @@ TEST_F(PlatformTopoTest, bdx_domain_nested)
     cpu_set_board.insert(cpu_set_socket[1].begin(), cpu_set_socket[1].end());
     core_set_board = core_set_socket[0];
     core_set_board.insert(core_set_socket[1].begin(), core_set_socket[1].end());
+
+    std::vector<int> cpu_rank {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
+                               1, 1, 1, 1, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3,
+                               3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+    topo.define_cpu_mpi_rank_map(cpu_rank);
+
+    // todo GEOPM_DOMAIN_MPI_RANK
 
     // CPUs
     std::set<int> idx_set_expect;
