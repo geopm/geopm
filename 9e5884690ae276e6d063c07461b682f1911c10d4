@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c008f53_0be03fca",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-06-21T21:41:29Z",
+      "side": 1,
+      "message": "Does this indicate an error in the launcher.py?  Should init_topo() be consuming the output from \u0027geopmread --cache\u0027 instead of invoking \u0027lscpu --hex on it\u0027s own?\nhttp://kronos.ra.intel.com:8080/source/xref/geopm/scripts/geopmpy/launcher.py?r\u003d1d7ab744#491",
+      "range": {
+        "startLine": 1078,
+        "startChar": 18,
+        "endLine": 1079,
+        "endChar": 79
+      },
+      "revId": "9e5884690ae276e6d063c07461b682f1911c10d4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23073ef4_c03b8056",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1080,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-06-21T21:41:29Z",
+      "side": 1,
+      "message": "Would it be better if I put the error message below in an \u0027if first_time:\u0027 block?",
+      "range": {
+        "startLine": 1077,
+        "startChar": 12,
+        "endLine": 1080,
+        "endChar": 60
+      },
+      "revId": "9e5884690ae276e6d063c07461b682f1911c10d4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
