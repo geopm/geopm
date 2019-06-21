@@ -205,28 +205,26 @@ namespace geopm
             uint64_t hash = m_last_region_info[current_rank].hash;
             uint64_t hint = m_last_region_info[current_rank].hint;
             int samples = m_samples_since_boundary[current_rank];
-            if (GEOPM_REGION_HASH_INVALID != hash) {
-                if (GEOPM_REGION_HASH_UNMARKED == hash) {
-                    if (M_UNMARKED_NUM_SAMPLE_DELAY < samples) {
-                        rank_target_freq.push_back(m_freq_governor->get_frequency_max());
-                    }
+            if (GEOPM_REGION_HASH_UNMARKED == hash) {
+                if (M_UNMARKED_NUM_SAMPLE_DELAY < samples) {
+                    rank_target_freq.push_back(m_freq_governor->get_frequency_max());
                 }
-                else if (GEOPM_REGION_HINT_NETWORK == hint) {
-                    if (M_NETWORK_NUM_SAMPLE_DELAY < samples) {
-                        rank_target_freq.push_back(m_freq_governor->get_frequency_min());
-                    }
+            }
+            else if (GEOPM_REGION_HINT_NETWORK == hint) {
+                if (M_NETWORK_NUM_SAMPLE_DELAY < samples) {
+                    rank_target_freq.push_back(m_freq_governor->get_frequency_min());
+                }
+            }
+            else {
+                auto region_it = m_region_map.find(std::make_pair(hash, m_cpu_rank[current_rank]));
+                if (region_it != m_region_map.end()) {
+                    rank_target_freq.push_back(region_it->second->freq());
                 }
                 else {
-                    auto region_it = m_region_map.find(std::make_pair(hash, m_cpu_rank[current_rank]));
-                    if (region_it != m_region_map.end()) {
-                        rank_target_freq.push_back(region_it->second->freq());
-                    }
-                    else {
-                        throw Exception("EnergyEfficientAgent::" + std::string(__func__) +
-                                        "(): unknown target frequency for hash " + std::to_string(hash) +
-                                        " and rank " + std::to_string(current_rank) + ".",
-                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-                    }
+                    throw Exception("EnergyEfficientAgent::" + std::string(__func__) +
+                                    "(): unknown target frequency for hash " + std::to_string(hash) +
+                                    " and rank " + std::to_string(current_rank) + ".",
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
             }
         }
@@ -251,8 +249,7 @@ namespace geopm
             if (m_last_region_info[current_rank].hash != current_region_info.hash ||
                 m_last_region_info[current_rank].count != current_region_info.count) {
                 m_samples_since_boundary[current_rank] = 0;
-                if (current_region_info.hash != GEOPM_REGION_HASH_INVALID &&
-                    current_region_info.hash != GEOPM_REGION_HASH_UNMARKED &&
+                if (current_region_info.hash != GEOPM_REGION_HASH_UNMARKED &&
                     current_region_info.hint != GEOPM_REGION_HINT_NETWORK) {
                     /// set the freq for the current region (entry)
                     auto current_region_it = m_region_map.emplace(std::piecewise_construct,
@@ -264,8 +261,7 @@ namespace geopm
                 }
                 /// update previous region (exit)
                 struct m_region_info_s last_region_info = m_last_region_info[current_rank];
-                if (last_region_info.hash != GEOPM_REGION_HASH_INVALID &&
-                    last_region_info.hash != GEOPM_REGION_HASH_UNMARKED &&
+                if (last_region_info.hash != GEOPM_REGION_HASH_UNMARKED &&
                     last_region_info.hint != GEOPM_REGION_HINT_NETWORK) {
                     auto last_region_it = m_region_map.find(std::make_pair(last_region_info.hash, current_rank));
                     if (last_region_it == m_region_map.end()) {
@@ -394,7 +390,7 @@ namespace geopm
     {
         m_freq_governor->init_platform_io();
         struct m_region_info_s default_info {
-            .hash = GEOPM_REGION_HASH_INVALID,
+            .hash = GEOPM_REGION_HASH_UNMARKED,
             .hint = GEOPM_REGION_HINT_UNKNOWN,
             .runtime = 0.0,
             .count = 0};
