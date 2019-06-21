@@ -106,6 +106,41 @@ namespace geopm
         parse_lscpu_numa(lscpu_map, m_numa_map);
     }
 
+    int PlatformTopoImp::define_cpu_group(const std::vector<int> &cpu_domain_idx) const
+    {
+        m_cpu_group.push_back(cpu_domain_idx);
+        return M_DOMAIN_CPU_GROUP_BEGIN + m_cpu_group.size() - 1;
+    }
+
+    int PlatformTopoImp::cpu_group_num_domain(int cpu_group_idx) const
+    {
+        if (cpu_group_idx < 0 ||
+            cpu_group_idx > m_cpu_group.size()) {
+            throw Exception("PlatformTopoImp::cpu_group_num_domain(): invalid cpu_group_idx " +
+                            std::to_string(cpu_group_idx),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return m_cpu_group[cpu_group_idx].size();
+    }
+
+    std::set<int> PlatformTopoImp::cpu_group_domain_cpus(int cpu_group_idx, int domain_idx) const
+    {
+        std::set<int> cpus;
+        if (cpu_group_idx < 0 ||
+            cpu_group_idx > m_cpu_group.size()) {
+            throw Exception("PlatformTopoImp::cpu_group_num_domain(): invalid cpu_group_idx " +
+                            std::to_string(cpu_group_idx),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        const auto &cpu_group = m_cpu_group[cpu_group_idx];
+        for (size_t cpu = 0; cpu <  m_cpu_group[cpu_group_idx].size(); ++cpu) {
+            if (cpu_group[cpu] == cpu_group[domain_idx]) {
+                cpus.insert(cpu);
+            }
+        }
+        return cpus;
+    }
+
     int PlatformTopoImp::num_domain(int domain_type) const
     {
         int result = 0;
@@ -148,8 +183,13 @@ namespace geopm
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 break;
             default:
-                throw Exception("PlatformTopoImp::num_domain(): invalid domain specified",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                if(domain_type >= M_DOMAIN_CPU_GROUP_BEGIN) {
+                    result = cpu_group_num_domain(domain_type - M_DOMAIN_CPU_GROUP_BEGIN);
+                }
+                else {
+                    throw Exception("PlatformTopoImp::num_domain(): invalid domain specified",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
                 break;
         }
         return result;
@@ -200,10 +240,15 @@ namespace geopm
                 cpu_idx = m_numa_map[domain_idx];
                 break;
             default:
-                throw Exception("PlatformTopoImp::domain_cpus(domain_type=" +
-                                std::to_string(domain_type) +
-                                ") support not yet implemented",
-                                GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+                if(domain_type >= M_DOMAIN_CPU_GROUP_BEGIN) {
+                    cpu_idx = cpu_group_domain_cpus(domain_type - M_DOMAIN_CPU_GROUP_BEGIN, domain_idx);
+                }
+                else {
+                    throw Exception("PlatformTopoImp::domain_cpus(domain_type=" +
+                                    std::to_string(domain_type) +
+                                    ") support not yet implemented",
+                                    GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+                }
                 break;
         }
         return cpu_idx;

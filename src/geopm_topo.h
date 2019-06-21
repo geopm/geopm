@@ -65,6 +65,10 @@ enum geopm_domain_e {
     GEOPM_DOMAIN_PACKAGE_ACCELERATOR = 9,
     /// @brief Number of valid domains.
     GEOPM_NUM_DOMAIN = 10,
+    /// @brief Start of user defined collections of Linux
+    ///        logical CPUs
+    M_DOMAIN_CPU_GROUP_BEGIN = 4096,
+    M_DOMAIN_CPU_GROUP_END = 8191,
 };
 
 int geopm_topo_num_domain(int domain_type);
