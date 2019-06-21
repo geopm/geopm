@@ -213,9 +213,7 @@ namespace geopm
                         break;
                 }
             }
-            if (GEOPM_REGION_HASH_INVALID != m_last_region[ctl_idx].hash) {
-                m_hash_freq_map[m_last_region[ctl_idx].hash] = freq;
-            }
+            m_hash_freq_map[m_last_region[ctl_idx].hash] = freq;
             target_freq.push_back(freq);
         }
 
@@ -317,7 +315,7 @@ namespace geopm
         m_num_freq_ctl_domain = m_platform_topo.num_domain(freq_ctl_domain_type);
         m_last_region = std::vector<struct geopm_region_info_s>(m_num_freq_ctl_domain,
                                                                 (struct geopm_region_info_s) {
-                                                                    .hash = GEOPM_REGION_HASH_INVALID,
+                                                                    .hash = GEOPM_REGION_HASH_UNMARKED,
                                                                     .hint = GEOPM_REGION_HINT_UNKNOWN});
         std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT"};
         for (size_t sig_idx = 0; sig_idx < signal_names.size(); ++sig_idx) {
