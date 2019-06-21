@@ -84,10 +84,15 @@ namespace geopm
 {
     const std::string PlatformTopoImp::M_CACHE_FILE_NAME = "/tmp/geopm-topo-cache";
 
-    const PlatformTopo &platform_topo(void)
+    PlatformTopoImp &platform_topo_internal(void)
     {
         static PlatformTopoImp instance;
         return instance;
+    }
+
+    const PlatformTopo &platform_topo(void)
+    {
+        return platform_topo_internal();
     }
 
     PlatformTopoImp::PlatformTopoImp()
@@ -104,6 +109,20 @@ namespace geopm
         lscpu(lscpu_map);
         parse_lscpu(lscpu_map, m_num_package, m_core_per_package, m_thread_per_core);
         parse_lscpu_numa(lscpu_map, m_numa_map);
+    }
+
+    void PlatformTopoImp::define_mpi_rank_cpu_map(const std::vector<int> &cpu_domain_idx)
+    {
+        m_cpu_rank = cpu_domain_idx;
+    }
+
+    int PlatformTopoImp::num_mpi_ranks() const
+    {
+        std::set<int> ranks;
+        for (const auto &rank : m_cpu_rank) {
+            ranks.insert(rank);
+        }
+        return ranks.size();
     }
 
     int PlatformTopoImp::num_domain(int domain_type) const
@@ -146,6 +165,9 @@ namespace geopm
             case GEOPM_DOMAIN_INVALID:
                 throw Exception("PlatformTopoImp::num_domain(): invalid domain specified",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                break;
+            case GEOPM_DOMAIN_MPI_RANK:
+                result = num_mpi_ranks();
                 break;
             default:
                 throw Exception("PlatformTopoImp::num_domain(): invalid domain specified",
@@ -198,6 +220,13 @@ namespace geopm
                 break;
             case GEOPM_DOMAIN_BOARD_MEMORY:
                 cpu_idx = m_numa_map[domain_idx];
+                break;
+            case GEOPM_DOMAIN_MPI_RANK:
+                for (const auto &rank : m_cpu_rank) {
+                    if (domain_idx == rank) {
+                        cpu_idx.insert(m_cpu_rank[domain_idx]);
+                    }
+                }
                 break;
             default:
                 throw Exception("PlatformTopoImp::domain_cpus(domain_type=" +
@@ -266,6 +295,9 @@ namespace geopm
                     /// @todo Add support for package memory NIC and accelerators to domain_idx() method.
                     throw Exception("PlatformTopoImp::domain_idx() no support yet for PACKAGE_MEMORY, NIC, or ACCELERATOR",
                                     GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+                    break;
+                case GEOPM_DOMAIN_MPI_RANK:
+                    result = m_cpu_rank[cpu_idx];
                     break;
                 case GEOPM_DOMAIN_INVALID:
                 default:
