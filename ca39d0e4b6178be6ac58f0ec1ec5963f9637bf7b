@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e25e28cd_4c2f4dd8",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 1077,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-21T18:21:42Z",
+      "side": 1,
+      "message": "Warning",
+      "range": {
+        "startLine": 1077,
+        "startChar": 49,
+        "endLine": 1077,
+        "endChar": 56
+      },
+      "revId": "ca39d0e4b6178be6ac58f0ec1ec5963f9637bf7b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61a0563b_0061fc7e",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 1077,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-21T18:21:42Z",
+      "side": 1,
+      "message": "not needed if in parens",
+      "range": {
+        "startLine": 1077,
+        "startChar": 105,
+        "endLine": 1077,
+        "endChar": 106
+      },
+      "revId": "ca39d0e4b6178be6ac58f0ec1ec5963f9637bf7b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
