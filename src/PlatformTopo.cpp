@@ -85,10 +85,15 @@ namespace geopm
 {
     const std::string PlatformTopoImp::M_CACHE_FILE_NAME = "/tmp/geopm-topo-cache";
 
-    const PlatformTopo &platform_topo(void)
+    PlatformTopoImp &platform_topo_internal(void)
     {
         static PlatformTopoImp instance;
         return instance;
+    }
+
+    const PlatformTopo &platform_topo(void)
+    {
+        return platform_topo_internal();
     }
 
     PlatformTopoImp::PlatformTopoImp()
@@ -103,6 +108,7 @@ namespace geopm
         , m_has_package_memory(false)
         , m_is_domain_within(GEOPM_NUM_DOMAIN, std::vector<bool> {})
         , m_cpus_domains(GEOPM_NUM_DOMAIN, std::vector<std::set<int> > {})
+        , m_rank_map_set(false)
     {
         std::map<std::string, std::string> lscpu_map;
         lscpu(lscpu_map);
@@ -111,7 +117,7 @@ namespace geopm
         if (m_numa_map.size() > 1) {
             m_has_package_memory = m_numa_map[1].size() == 0;
         }
-        for (int domain = GEOPM_DOMAIN_BOARD; domain < GEOPM_NUM_DOMAIN; ++domain) {
+        for (int domain = GEOPM_DOMAIN_BOARD; domain < GEOPM_DOMAIN_MPI_RANK; ++domain) {
             std::vector<std::set<int> > cpus_domain;
             for (int domain_idx = 0; domain_idx < num_domain(domain); ++domain_idx) {
                 cpus_domain.push_back(domain_cpus(domain, domain_idx));
@@ -119,8 +125,8 @@ namespace geopm
             m_cpus_domains[domain] = cpus_domain;
         }
 
-        for (int inner = GEOPM_DOMAIN_BOARD; inner < GEOPM_NUM_DOMAIN; ++inner) {
-            for (int outer = GEOPM_DOMAIN_BOARD; outer < GEOPM_NUM_DOMAIN; ++outer) {
+        for (int inner = GEOPM_DOMAIN_BOARD; inner < GEOPM_DOMAIN_MPI_RANK; ++inner) {
+            for (int outer = GEOPM_DOMAIN_BOARD; outer < GEOPM_DOMAIN_MPI_RANK; ++outer) {
                 m_is_domain_within[inner][outer] = is_domain_within(inner, outer);
             }
         }
@@ -154,6 +160,49 @@ namespace geopm
         }
         return is_domain_within;
     }
+
+    void PlatformTopoImp::define_cpu_mpi_rank_map(const std::vector<int> &cpu_domain_idx)
+    {
+        if (m_rank_map_set) {
+            throw Exception("PlatformTopoImp::define_cpu_mpi_rank_map(): called multiple times",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        else if (cpu_domain_idx.size() < (size_t) num_domain(GEOPM_DOMAIN_CPU)) {
+            throw Exception("PlatformTopoImp::define_cpu_mpi_rank_map(): cpu_domain_idx incorrectly sized",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+
+        {
+            // it is important that these assignments happen together
+            // and before the code below as the flag update below will
+            // prevent pre-init Exception.
+            m_cpu_rank = cpu_domain_idx;
+            m_rank_map_set = true;
+        }
+
+        std::vector< std::set<int> > rank_domain_cpus;
+        for (int rank = 0; rank < num_domain(GEOPM_DOMAIN_MPI_RANK); ++rank) {
+            rank_domain_cpus.push_back(domain_cpus(GEOPM_DOMAIN_MPI_RANK, rank));
+        }
+        m_cpus_domains[GEOPM_DOMAIN_MPI_RANK] = rank_domain_cpus;
+        for (int outer = GEOPM_DOMAIN_BOARD; outer < GEOPM_NUM_DOMAIN; ++outer) {
+            m_is_domain_within[GEOPM_DOMAIN_MPI_RANK][outer] = is_domain_within(GEOPM_DOMAIN_MPI_RANK, outer);
+        }
+    }
+
+    int PlatformTopoImp::num_mpi_rank() const
+    {
+        if (!m_rank_map_set) {
+            throw Exception("PlatformTopoImp::num_mpi_rank(): called before rank map is defined",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        std::set<int> ranks;
+        for (const auto &rank : m_cpu_rank) {
+            ranks.insert(rank);
+        }
+        return ranks.size();
+    }
+
     int PlatformTopoImp::num_domain(int domain_type) const
     {
         int result = 0;
@@ -187,6 +236,9 @@ namespace geopm
             case GEOPM_DOMAIN_PACKAGE_ACCELERATOR:
                 /// @todo Add support for NIC and accelerators to PlatformTopo.
                 result = 0;
+                break;
+            case GEOPM_DOMAIN_MPI_RANK:
+                result = num_mpi_rank();
                 break;
             case GEOPM_DOMAIN_INVALID:
                 throw Exception("PlatformTopoImp::num_domain(): invalid domain specified",
@@ -247,6 +299,13 @@ namespace geopm
                 break;
             case GEOPM_DOMAIN_BOARD_MEMORY:
                 cpu_idx = m_numa_map[domain_idx];
+                break;
+            case GEOPM_DOMAIN_MPI_RANK:
+                for (size_t cpu = 0; cpu < m_cpu_rank.size(); ++cpu) {
+                    if (domain_idx == m_cpu_rank[cpu]) {
+                        cpu_idx.insert(cpu);
+                    }
+                }
                 break;
             default:
                 throw Exception("PlatformTopoImp::domain_cpus(domain_type=" +
@@ -319,6 +378,13 @@ namespace geopm
                     throw Exception("PlatformTopoImp::domain_idx() no support yet for PACKAGE_MEMORY, NIC, or ACCELERATOR",
                                     GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
                     break;
+                case GEOPM_DOMAIN_MPI_RANK:
+                    if (!m_rank_map_set) {
+                        throw Exception("PlatformTopoImp::domain_idx(): called before rank map is defined",
+                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                    }
+                    result = m_cpu_rank[cpu_idx];
+                    break;
                 case GEOPM_DOMAIN_INVALID:
                 default:
                     throw Exception("PlatformTopoImp::domain_idx() invalid domain specified",
@@ -335,6 +401,13 @@ namespace geopm
 
     bool PlatformTopoImp::is_nested_domain(int inner_domain, int outer_domain) const
     {
+        if (inner_domain == GEOPM_DOMAIN_MPI_RANK ||
+            outer_domain == GEOPM_DOMAIN_MPI_RANK) {
+            if (!m_rank_map_set) {
+                throw Exception("PlatformTopoImp::is_nested_domain(): called before rank map is defined",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+        }
         return m_is_domain_within[inner_domain][outer_domain];
     }
 
@@ -374,7 +447,8 @@ namespace geopm
             {"board_nic", GEOPM_DOMAIN_BOARD_NIC},
             {"package_nic", GEOPM_DOMAIN_PACKAGE_NIC},
             {"board_accelerator", GEOPM_DOMAIN_BOARD_ACCELERATOR},
-            {"package_accelerator", GEOPM_DOMAIN_PACKAGE_ACCELERATOR}
+            {"package_accelerator", GEOPM_DOMAIN_PACKAGE_ACCELERATOR},
+            {"mpi_rank", GEOPM_DOMAIN_MPI_RANK}
         };
     }
 
