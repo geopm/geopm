@@ -109,7 +109,7 @@ static inline int geopm_region_id_is_nested(uint64_t region_id)
 
 static inline uint64_t geopm_region_id_parent(uint64_t region_id)
 {
-    return (geopm_region_id_is_nested(region_id) ? geopm_region_id_hash(region_id) : GEOPM_REGION_HASH_INVALID);
+    return (geopm_region_id_is_nested(region_id) ? geopm_region_id_hash(region_id) : GEOPM_REGION_HASH_UNMARKED);
 }
 
 static inline uint64_t geopm_region_id_set_mpi(uint64_t region_id)
