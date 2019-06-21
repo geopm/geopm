@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07206e62_4ae85b67",
+        "filename": "scripts/geopmpy/plotter.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-21T18:45:15Z",
+      "side": 1,
+      "message": "could extend get_report_df in io.py",
+      "revId": "88fd178be76630e666cc646b4f4356b5995f5761",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
