@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "49b7f7ad_14d2e157",
+        "filename": "src/EnergyEfficientRegion.hpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-21T01:34:53Z",
+      "side": 1,
+      "message": "should the expected num_rank be passed to ctor such that we can throw if all ranks aren\u0027t seen?  what value add does that have?",
+      "range": {
+        "startLine": 75,
+        "startChar": 12,
+        "endLine": 75,
+        "endChar": 39
+      },
+      "revId": "d16a8dd896e443594fa2d8cc709eaec757932a42",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
