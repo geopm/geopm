@@ -191,27 +191,25 @@ namespace geopm
             uint64_t hash = m_last_region_info[ctl_idx].hash;
             uint64_t hint = m_last_region_info[ctl_idx].hint;
             int samples = m_samples_since_boundary[ctl_idx];
-            if (GEOPM_REGION_HASH_INVALID != hash) {
-                if (GEOPM_REGION_HASH_UNMARKED == hash) {
-                    if (M_UNMARKED_NUM_SAMPLE_DELAY < samples) {
-                        m_target_freq[ctl_idx] = m_freq_governor->get_frequency_max();
-                    }
+            if (GEOPM_REGION_HASH_UNMARKED == hash) {
+                if (M_UNMARKED_NUM_SAMPLE_DELAY < samples) {
+                    m_target_freq[ctl_idx] = m_freq_governor->get_frequency_max();
                 }
-                else if (GEOPM_REGION_HINT_NETWORK == hint) {
-                    if (M_NETWORK_NUM_SAMPLE_DELAY < samples) {
-                        m_target_freq[ctl_idx] = m_freq_governor->get_frequency_min();
-                    }
+            }
+            else if (GEOPM_REGION_HINT_NETWORK == hint) {
+                if (M_NETWORK_NUM_SAMPLE_DELAY < samples) {
+                    m_target_freq[ctl_idx] = m_freq_governor->get_frequency_min();
+                }
+            }
+            else {
+                auto region_it = m_region_map[ctl_idx].find(hash);
+                if (region_it != m_region_map[ctl_idx].end()) {
+                    m_target_freq[ctl_idx] = region_it->second->freq();
                 }
                 else {
-                    auto region_it = m_region_map[ctl_idx].find(hash);
-                    if (region_it != m_region_map[ctl_idx].end()) {
-                        m_target_freq[ctl_idx] = region_it->second->freq();
-                    }
-                    else {
-                        throw Exception("EnergyEfficientAgent::" + std::string(__func__) +
-                                        "(): unknown target frequency hash = " + std::to_string(hash),
-                                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-                    }
+                    throw Exception("EnergyEfficientAgent::" + std::string(__func__) +
+                                    "(): unknown target frequency hash = " + std::to_string(hash),
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
             }
         }
@@ -234,8 +232,7 @@ namespace geopm
             if (m_last_region_info[ctl_idx].hash != current_region_info.hash ||
                 m_last_region_info[ctl_idx].count != current_region_info.count) {
                 m_samples_since_boundary[ctl_idx] = 0;
-                if (current_region_info.hash != GEOPM_REGION_HASH_INVALID &&
-                    current_region_info.hash != GEOPM_REGION_HASH_UNMARKED &&
+                if (current_region_info.hash != GEOPM_REGION_HASH_UNMARKED &&
                     current_region_info.hint != GEOPM_REGION_HINT_NETWORK) {
                     /// set the freq for the current region (entry)
                     auto current_region_it = m_region_map[ctl_idx].find(current_region_info.hash);
@@ -248,8 +245,7 @@ namespace geopm
                 }
                 /// update previous region (exit)
                 struct m_region_info_s last_region_info = m_last_region_info[ctl_idx];
-                if (last_region_info.hash != GEOPM_REGION_HASH_INVALID &&
-                    last_region_info.hash != GEOPM_REGION_HASH_UNMARKED &&
+                if (last_region_info.hash != GEOPM_REGION_HASH_UNMARKED &&
                     last_region_info.hint != GEOPM_REGION_HINT_NETWORK) {
                     auto last_region_it = m_region_map[ctl_idx].find(last_region_info.hash);
                     if (last_region_it == m_region_map[ctl_idx].end()) {
@@ -375,7 +371,7 @@ namespace geopm
     {
         m_freq_governor->init_platform_io();
         struct m_region_info_s default_info {
-            .hash = GEOPM_REGION_HASH_INVALID,
+            .hash = GEOPM_REGION_HASH_UNMARKED,
             .hint = GEOPM_REGION_HINT_UNKNOWN,
             .runtime = 0.0,
             .count = 0};
