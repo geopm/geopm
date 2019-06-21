@@ -42,6 +42,7 @@
 #include "geopm.h"
 #include "geopm_hash.h"
 
+#include "Agg.hpp"
 #include "EnergyEfficientRegion.hpp"
 #include "FrequencyGovernor.hpp"
 #include "PlatformIO.hpp"
@@ -57,14 +58,14 @@ namespace geopm
     EnergyEfficientAgent::EnergyEfficientAgent()
         : EnergyEfficientAgent(platform_io(), platform_topo(),
                                FrequencyGovernor::make_shared(),
-                               std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> >())
+                               std::map<std::pair<uint64_t, int>, std::shared_ptr<EnergyEfficientRegion> >())
     {
 
     }
 
     EnergyEfficientAgent::EnergyEfficientAgent(PlatformIO &plat_io, const PlatformTopo &topo,
                                                std::shared_ptr<FrequencyGovernor> gov,
-                                               std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > region_map)
+                                               std::map<std::pair<uint64_t, int>, std::shared_ptr<EnergyEfficientRegion> > region_map)
         : M_PRECISION(16)
         , M_WAIT_SEC(0.005)
         , M_MIN_LEARNING_RUNTIME(M_WAIT_SEC * 10)
@@ -203,7 +204,7 @@ namespace geopm
                     }
                 }
                 else {
-                    auto region_it = m_region_map.find(hash);
+                    auto region_it = m_region_map.find(std::make_pair(hash, m_rank_cpu[ctl_idx]));
                     if (region_it != m_region_map.end()) {
                         m_target_freq[ctl_idx] = region_it->second->freq();
                     }
@@ -223,8 +224,9 @@ namespace geopm
         double freq_min = m_freq_governor->get_frequency_min();
         double freq_max = m_freq_governor->get_frequency_max();
         double freq_step = m_freq_governor->get_frequency_step();
-        std::set<uint64_t> exit_set;
+        std::set<std::pair<uint64_t, int> > exit_set;
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
+            const int current_rank = m_rank_cpu[ctl_idx];
             const uint64_t current_region_hash = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH][ctl_idx]);
             const uint64_t current_region_hint = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HINT][ctl_idx]);
             const double current_region_runtime = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_RUNTIME][ctl_idx]);
@@ -237,7 +239,7 @@ namespace geopm
                     current_region_hint != GEOPM_REGION_HINT_NETWORK) {
                     /// set the freq for the current region (entry)
                     auto current_region_it = m_region_map.emplace(std::piecewise_construct,
-                                                                  std::forward_as_tuple(current_region_hash),
+                                                                  std::forward_as_tuple(current_region_hash, current_rank),
                                                                   std::forward_as_tuple(geopm::make_unique<EnergyEfficientRegionImp>
                                                                                         (freq_min, freq_max, freq_step, m_perf_margin))).first;
                     // Higher is better for performance, so negate
@@ -250,7 +252,7 @@ namespace geopm
                 if (last_region_hash != GEOPM_REGION_HASH_INVALID &&
                     last_region_hash != GEOPM_REGION_HASH_UNMARKED &&
                     last_region_hint != GEOPM_REGION_HINT_NETWORK) {
-                    auto last_region_it = m_region_map.find(last_region_hash);
+                    auto last_region_it = m_region_map.find(std::make_pair(last_region_hash, current_rank));
                     if (last_region_it == m_region_map.end()) {
                         throw Exception("EnergyEfficientAgent::" + std::string(__func__) +
                                         "(): region exit before entry detected.",
@@ -260,7 +262,7 @@ namespace geopm
                         last_region_runtime < M_MIN_LEARNING_RUNTIME) {
                         last_region_it->second->disable();
                     }
-                    exit_set.insert(last_region_hash);
+                    exit_set.insert(std::make_pair(last_region_hash, current_rank));
                 }
                 m_last_region_info[ctl_idx] = {current_region_hash,
                                                current_region_hint,
@@ -271,8 +273,8 @@ namespace geopm
                 ++m_samples_since_boundary[ctl_idx];
             }
         }
-        for (auto &exit_hash : exit_set) {
-            auto it = m_region_map.find(exit_hash);
+        for (auto &exit_pair : exit_set) {
+            auto it = m_region_map.find(exit_pair);
             if (it == m_region_map.end()) {
                 throw Exception("EnergyEfficientAgent::" + std::string(__func__) +
                                 "(): region exit before entry detected.",
@@ -330,13 +332,24 @@ namespace geopm
 
     std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > EnergyEfficientAgent::report_region(void) const
     {
+        std::set<uint64_t> learned_region;
+        std::map<uint64_t, std::vector<double> > freq;
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > result;
         // If region is in this map, online learning was used to set frequency
         for (const auto &region : m_region_map) {
             if (!region.second->is_learning()) {
-                result[region.first].push_back(std::make_pair("requested-online-frequency",
-                                                              std::to_string(region.second->freq())));
+                uint64_t hash = region.first.first;
+                learned_region.insert(hash);
+                freq[hash].push_back(region.second->freq());
             }
+        }
+        for (const auto &hash : learned_region) {
+            result[hash].push_back(std::make_pair("requested-online-frequency-min",
+                                                                std::to_string(Agg::min(freq[hash]))));
+            result[hash].push_back(std::make_pair("requested-online-frequency-mean",
+                                                                std::to_string(Agg::average(freq[hash]))));
+            result[hash].push_back(std::make_pair("requested-online-frequency-max",
+                                                                std::to_string(Agg::max(freq[hash]))));
         }
         return result;
     }
@@ -377,6 +390,9 @@ namespace geopm
             for (int ctl_idx = 0; ctl_idx < m_num_freq_ctl_domain; ++ctl_idx) {
                 m_signal_idx[sig_idx].push_back(m_platform_io.push_signal(signal_names[sig_idx],
                             m_freq_ctl_domain_type, ctl_idx));
+                if (!sig_idx) {
+                    m_rank_cpu.push_back(m_platform_topo.domain_idx(GEOPM_DOMAIN_MPI_RANK, ctl_idx));
+                }
             }
         }
     }
