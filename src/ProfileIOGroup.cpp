@@ -32,7 +32,7 @@
 
 #include "ProfileIOGroup.hpp"
 
-#include "PlatformTopo.hpp"
+#include "PlatformTopoImp.hpp"
 #include "EpochRuntimeRegulator.hpp"
 #include "RuntimeRegulator.hpp"
 #include "ProfileIOSample.hpp"
@@ -49,14 +49,14 @@ namespace geopm
 {
     ProfileIOGroup::ProfileIOGroup(std::shared_ptr<ProfileIOSample> profile_sample,
                                    EpochRuntimeRegulator &epoch_regulator)
-        : ProfileIOGroup(profile_sample, epoch_regulator, platform_topo())
+        : ProfileIOGroup(profile_sample, epoch_regulator, platform_topo_internal())
     {
 
     }
 
     ProfileIOGroup::ProfileIOGroup(std::shared_ptr<ProfileIOSample> profile_sample,
                                    EpochRuntimeRegulator &epoch_regulator,
-                                   const PlatformTopo &topo)
+                                   PlatformTopoImp &topo)
         : m_profile_sample(profile_sample)
         , m_epoch_regulator(epoch_regulator)
         , m_signal_idx_map{{plugin_name() + "::REGION_HASH", M_SIGNAL_REGION_HASH},
@@ -89,7 +89,7 @@ namespace geopm
         , m_epoch_count(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
         , m_cpu_rank(m_profile_sample->cpu_rank())
     {
-
+        topo.define_mpi_rank_cpu_map(m_cpu_rank);
     }
 
     ProfileIOGroup::~ProfileIOGroup()
@@ -380,7 +380,7 @@ namespace geopm
             {"EPOCH_RUNTIME_MPI", Agg::max},
             {"PROFILE::EPOCH_RUNTIME_MPI", Agg::max},
             {"EPOCH_RUNTIME_IGNORE", Agg::max},
-            {"PROFILE::EPOCH_RUNTIME_IGNORE", Agg::max}
+            {"PROFILE::EPOCH_RUNTIME_IGNORE", Agg::max},
         };
         auto it = fn_map.find(signal_name);
         if (it == fn_map.end()) {
@@ -412,10 +412,12 @@ namespace geopm
             throw Exception("ProfileIOGroup::check_signal(): non-CPU domains are not supported",
                             GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         }
-        int cpu_idx = domain_idx;
-        if (cpu_idx < 0 || cpu_idx >= m_platform_topo.num_domain(GEOPM_DOMAIN_CPU)) {
-            throw Exception("ProfileIOGroup::check_signal(): domain index out of range",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        else {
+            int cpu_idx = domain_idx;
+            if (cpu_idx < 0 || cpu_idx >= m_platform_topo.num_domain(GEOPM_DOMAIN_CPU)) {
+                throw Exception("ProfileIOGroup::check_signal(): domain index out of range",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
         }
         int signal_type = -1;
         auto it = m_signal_idx_map.find(signal_name);
