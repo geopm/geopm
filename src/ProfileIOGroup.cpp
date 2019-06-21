@@ -30,9 +30,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <algorithm>
+
 #include "ProfileIOGroup.hpp"
 
-#include "PlatformTopo.hpp"
+#include "PlatformTopoImp.hpp"
 #include "Helper.hpp"
 #include "EpochRuntimeRegulator.hpp"
 #include "RuntimeRegulator.hpp"
@@ -50,14 +52,14 @@ namespace geopm
 {
     ProfileIOGroup::ProfileIOGroup(std::shared_ptr<ProfileIOSample> profile_sample,
                                    EpochRuntimeRegulator &epoch_regulator)
-        : ProfileIOGroup(profile_sample, epoch_regulator, platform_topo())
+        : ProfileIOGroup(profile_sample, epoch_regulator, platform_topo_internal())
     {
 
     }
 
     ProfileIOGroup::ProfileIOGroup(std::shared_ptr<ProfileIOSample> profile_sample,
                                    EpochRuntimeRegulator &epoch_regulator,
-                                   const PlatformTopo &topo)
+                                   PlatformTopoImp &topo)
         : m_profile_sample(profile_sample)
         , m_epoch_regulator(epoch_regulator)
         , m_signal_idx_map{{plugin_name() + "::REGION_HASH", M_SIGNAL_REGION_HASH},
@@ -93,7 +95,7 @@ namespace geopm
         , m_epoch_count(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
         , m_cpu_rank(m_profile_sample->cpu_rank())
     {
-
+        topo.define_cpu_mpi_rank_map(m_cpu_rank);
     }
 
     ProfileIOGroup::~ProfileIOGroup()
@@ -129,7 +131,7 @@ namespace geopm
     {
         int result = GEOPM_DOMAIN_INVALID;
         if (is_valid_signal(signal_name)) {
-            result = GEOPM_DOMAIN_CPU;
+            result = GEOPM_DOMAIN_MPI_RANK;
         }
         return result;
     }
@@ -255,7 +257,6 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        /// @todo support for non-cpu signal domains
         int cpu_idx = m_active_signal[signal_idx].domain_idx;
         switch (m_active_signal[signal_idx].signal_type) {
             case M_SIGNAL_REGION_HASH:
@@ -308,8 +309,8 @@ namespace geopm
     double ProfileIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
     {
         int signal_type = check_signal(signal_name, domain_type, domain_idx);
-        /// @todo Add support for non-cpu domains.
-        int cpu_idx = domain_idx;
+        auto rank_cpu_idx_it = std::find(m_cpu_rank.begin(), m_cpu_rank.end(), domain_idx);
+        int cpu_idx = std::distance(m_cpu_rank.begin(), rank_cpu_idx_it);
         struct geopm_time_s read_time;
         uint64_t region_id;
         double result = NAN;
@@ -458,14 +459,15 @@ namespace geopm
                             " not valid for ProfileIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_type != GEOPM_DOMAIN_CPU) {
-            /// @todo Add support for non-cpu domains.
-            throw Exception("ProfileIOGroup::check_signal(): non-CPU domains are not supported",
-                            GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        if (domain_type == GEOPM_DOMAIN_MPI_RANK) {
+            int rank_idx = domain_idx;
+            if (rank_idx < 0 || rank_idx >= m_platform_topo.num_domain(GEOPM_DOMAIN_MPI_RANK)) {
+                throw Exception("ProfileIOGroup::check_signal(): domain index out of range",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
         }
-        int cpu_idx = domain_idx;
-        if (cpu_idx < 0 || cpu_idx >= m_platform_topo.num_domain(GEOPM_DOMAIN_CPU)) {
-            throw Exception("ProfileIOGroup::check_signal(): domain index out of range",
+        else {
+            throw Exception("ProfileIOGroup::check_signal(): domain type invalid",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         int signal_type = -1;

@@ -63,8 +63,11 @@ enum geopm_domain_e {
     /// @brief Accelerator unit on the package (e.g
     ///        on-package graphics)
     GEOPM_DOMAIN_PACKAGE_ACCELERATOR = 9,
+    /// @brief Domain containing mapping of MPI ranks
+    ///        to Linux logical CPUs
+    GEOPM_DOMAIN_MPI_RANK = 10,
     /// @brief Number of valid domains.
-    GEOPM_NUM_DOMAIN = 10,
+    GEOPM_NUM_DOMAIN = 11,
 };
 
 int geopm_topo_num_domain(int domain_type);

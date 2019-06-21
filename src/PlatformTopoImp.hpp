@@ -49,10 +49,16 @@ namespace geopm
                            int cpu_idx) const override;
             bool is_nested_domain(int inner_domain, int outer_domain) const override;
             std::set<int> domain_nested(int inner_domain, int outer_domain, int outer_idx) const override;
+            /// @brief Define mapping of mpi rank to Linux logical CPUs.
+            /// @param [in] cpu_domain_idx A vector over Linux logical
+            ///        CPUs assigning an mpi rank to each.
+            void define_cpu_mpi_rank_map(const std::vector<int> &cpu_domain_idx);
             static void create_cache();
             static void create_cache(const std::string &cache_file_name);
         private:
+            int num_mpi_rank(void) const;
             static const std::string M_CACHE_FILE_NAME;
+            std::set<int> cpu_group_domain_cpus(int cpu_group_idx, int domain_idx) const;
             /// @brief Get the set of Linux logical CPUs associated
             ///        with the indexed domain.
             std::set<int> domain_cpus(int domain_type,
@@ -74,6 +80,9 @@ namespace geopm
             int m_core_per_package;
             int m_thread_per_core;
             std::vector<std::set<int> > m_numa_map;
+            std::vector<int> m_cpu_rank;
     };
+
+    PlatformTopoImp &platform_topo_internal(void);
 }
 #endif
