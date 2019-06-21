@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "35e5e59f_d54ecf2c",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 1024,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-21T18:42:21Z",
+      "side": 1,
+      "message": "todo comment if this is working around a bug, or open an issue",
+      "revId": "15e49ee67ae96d88b30647a7cb88695df9bb3450",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d115ebb_7bb7bfb6",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 1072,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-21T18:42:21Z",
+      "side": 1,
+      "message": "could be rolled into get_trace_data(), but that method might need to be changed to static (i.e. pass in df instead of using member)",
+      "revId": "15e49ee67ae96d88b30647a7cb88695df9bb3450",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a396af6_6b16b662",
+        "filename": "scripts/geopmpy/plotter.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-21T18:42:21Z",
+      "side": 1,
+      "message": "same, could use io.py get_trace_data()",
+      "revId": "15e49ee67ae96d88b30647a7cb88695df9bb3450",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb0f8be7_9a4a772a",
+        "filename": "scripts/geopmpy/plotter.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 823,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-21T18:42:21Z",
+      "side": 1,
+      "message": "comment: might not work for budgets \u003c 100 or \u003e 1000. abc order?",
+      "revId": "15e49ee67ae96d88b30647a7cb88695df9bb3450",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
