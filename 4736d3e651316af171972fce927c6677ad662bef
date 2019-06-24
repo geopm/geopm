@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0696eb5_65939f89",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-24T20:37:48Z",
+      "side": 1,
+      "message": "ends_with \"#\"",
+      "range": {
+        "startLine": 120,
+        "startChar": 17,
+        "endLine": 120,
+        "endChar": 35
+      },
+      "revId": "4736d3e651316af171972fce927c6677ad662bef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af62e02d_f8bf72cd",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-24T20:37:48Z",
+      "side": 1,
+      "message": "look at optimizing this lookup",
+      "range": {
+        "startLine": 207,
+        "startChar": 15,
+        "endLine": 207,
+        "endChar": 75
+      },
+      "revId": "4736d3e651316af171972fce927c6677ad662bef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
