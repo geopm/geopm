@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "482ce843_bde324da",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-24T21:28:03Z",
+      "side": 1,
+      "message": "mpi_rank_domain_type, rm signal addition from profileIOGroup",
+      "range": {
+        "startLine": 371,
+        "startChar": 55,
+        "endLine": 371,
+        "endChar": 95
+      },
+      "revId": "b87393d3e7ea97ad57c751209d80200a92428bf3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
