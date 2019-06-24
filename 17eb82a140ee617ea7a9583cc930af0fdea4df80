@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d79a2c38_73775c97",
+        "filename": "ronn/geopm_agent_energy_efficient.7.ronn",
+        "patchSetId": 18
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-24T22:09:16Z",
+      "side": 1,
+      "message": "in hertz",
+      "range": {
+        "startLine": 70,
+        "startChar": 26,
+        "endLine": 70,
+        "endChar": 36
+      },
+      "revId": "17eb82a140ee617ea7a9583cc930af0fdea4df80",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87585f58_73ae15ef",
+        "filename": "ronn/geopm_agent_energy_efficient.7.ronn",
+        "patchSetId": 18
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-24T22:09:16Z",
+      "side": 1,
+      "message": "document valid values: between 0.0 and 1.0\nincrease in runtime compared to runtime at FREQ_MAX",
+      "revId": "17eb82a140ee617ea7a9583cc930af0fdea4df80",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13f72fd5_9772b515",
+        "filename": "ronn/geopmagent.1.ronn",
+        "patchSetId": 18
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-24T22:09:16Z",
+      "side": 1,
+      "message": "move into additional example",
+      "range": {
+        "startLine": 106,
+        "startChar": 47,
+        "endLine": 106,
+        "endChar": 69
+      },
+      "revId": "17eb82a140ee617ea7a9583cc930af0fdea4df80",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
