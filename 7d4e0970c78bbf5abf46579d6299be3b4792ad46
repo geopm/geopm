@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9de3950d_10e3e4fb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-24T18:52:50Z",
+      "side": 1,
+      "message": "PowerBalancerAgent",
+      "range": {
+        "startLine": 7,
+        "startChar": 7,
+        "endLine": 7,
+        "endChar": 25
+      },
+      "revId": "7d4e0970c78bbf5abf46579d6299be3b4792ad46",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
