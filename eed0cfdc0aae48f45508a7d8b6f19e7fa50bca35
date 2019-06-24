@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b983376_e6214ecb",
+        "filename": "ronn/geopm_agent_power_governor.7.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-24T18:52:00Z",
+      "side": 1,
+      "message": "multiplied by the number of packages\nwith patch that fixes this",
+      "range": {
+        "startLine": 57,
+        "startChar": 51,
+        "endLine": 58,
+        "endChar": 42
+      },
+      "revId": "eed0cfdc0aae48f45508a7d8b6f19e7fa50bca35",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec0325fc_df30a131",
+        "filename": "ronn/geopm_agent_power_governor.7.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-24T18:52:00Z",
+      "side": 1,
+      "message": "rm with patch that fixes this",
+      "range": {
+        "startLine": 64,
+        "startChar": 32,
+        "endLine": 64,
+        "endChar": 47
+      },
+      "revId": "eed0cfdc0aae48f45508a7d8b6f19e7fa50bca35",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d14e27ec_69ae53c9",
+        "filename": "ronn/geopm_agent_power_governor.7.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-24T18:52:00Z",
+      "side": 1,
+      "message": "from last 5 samples\n\ncome up with what this should be, even if code doesn\u0027t match.  more useful would be max power consumption over a time window, or fraction of time spent at power cap.",
+      "range": {
+        "startLine": 65,
+        "startChar": 11,
+        "endLine": 65,
+        "endChar": 39
+      },
+      "revId": "eed0cfdc0aae48f45508a7d8b6f19e7fa50bca35",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
