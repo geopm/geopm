@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "099ed979_716a6c63",
+        "filename": "ronn/geopmagent.1.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-24T18:32:03Z",
+      "side": 1,
+      "message": "not correct",
+      "revId": "f6b94a54235b8e6622285abab21a6167da26c080",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "422c7bc9_d01162f7",
+        "filename": "src/Agent.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-24T18:32:03Z",
+      "side": 1,
+      "message": "indentation",
+      "revId": "f6b94a54235b8e6622285abab21a6167da26c080",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
