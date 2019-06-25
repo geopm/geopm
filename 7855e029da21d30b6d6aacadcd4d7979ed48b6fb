@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a61b8bd_ab5ed92a",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-25T19:57:08Z",
+      "side": 1,
+      "message": "check that the input is of size num_cpu",
+      "range": {
+        "startLine": 109,
+        "startChar": 66,
+        "endLine": 109,
+        "endChar": 80
+      },
+      "revId": "7855e029da21d30b6d6aacadcd4d7979ed48b6fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75a15166_8eccb612",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-25T19:57:08Z",
+      "side": 1,
+      "message": "check that m_cpu_group.size() !\u003d M_DOMAIN_CPU_GROUP_END",
+      "range": {
+        "startLine": 111,
+        "startChar": 8,
+        "endLine": 111,
+        "endChar": 46
+      },
+      "revId": "7855e029da21d30b6d6aacadcd4d7979ed48b6fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c630063b_46e6a1bd",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-25T19:57:08Z",
+      "side": 1,
+      "message": "unique values in m_cpu_group[cpu_group_idx]",
+      "range": {
+        "startLine": 123,
+        "startChar": 15,
+        "endLine": 123,
+        "endChar": 49
+      },
+      "revId": "7855e029da21d30b6d6aacadcd4d7979ed48b6fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e00aad65_74863dd3",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-25T19:57:08Z",
+      "side": 1,
+      "message": "less than END too",
+      "range": {
+        "startLine": 186,
+        "startChar": 34,
+        "endLine": 186,
+        "endChar": 58
+      },
+      "revId": "7855e029da21d30b6d6aacadcd4d7979ed48b6fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "758cb1b5_7c3d0e7f",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-25T19:57:08Z",
+      "side": 1,
+      "message": "move this subtraction to below API call",
+      "range": {
+        "startLine": 187,
+        "startChar": 50,
+        "endLine": 187,
+        "endChar": 88
+      },
+      "revId": "7855e029da21d30b6d6aacadcd4d7979ed48b6fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "645ca39c_d1c56da0",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-25T19:57:08Z",
+      "side": 1,
+      "message": "check END",
+      "range": {
+        "startLine": 243,
+        "startChar": 34,
+        "endLine": 243,
+        "endChar": 58
+      },
+      "revId": "7855e029da21d30b6d6aacadcd4d7979ed48b6fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e800155a_40dce295",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-25T19:57:08Z",
+      "side": 1,
+      "message": "move sub",
+      "range": {
+        "startLine": 244,
+        "startChar": 52,
+        "endLine": 244,
+        "endChar": 90
+      },
+      "revId": "7855e029da21d30b6d6aacadcd4d7979ed48b6fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcb2be36_ecbbfeda",
+        "filename": "src/PlatformTopo.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-25T19:57:08Z",
+      "side": 1,
+      "message": "move up, this def is with statics rn",
+      "range": {
+        "startLine": 86,
+        "startChar": 12,
+        "endLine": 93,
+        "endChar": 91
+      },
+      "revId": "7855e029da21d30b6d6aacadcd4d7979ed48b6fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e2d10da_6b950e61",
+        "filename": "src/geopm_topo.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-25T19:57:08Z",
+      "side": 1,
+      "message": "add GEOPM_DOMAIN_MPI_RANK \u003d 10",
+      "range": {
+        "startLine": 67,
+        "startChar": 4,
+        "endLine": 67,
+        "endChar": 26
+      },
+      "revId": "7855e029da21d30b6d6aacadcd4d7979ed48b6fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbe95bad_f49f7880",
+        "filename": "src/geopm_topo.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-25T19:57:08Z",
+      "side": 1,
+      "message": "rm",
+      "range": {
+        "startLine": 68,
+        "startChar": 4,
+        "endLine": 71,
+        "endChar": 34
+      },
+      "revId": "7855e029da21d30b6d6aacadcd4d7979ed48b6fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10a6270f_2f911887",
+        "filename": "src/geopm_topo.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-06-25T19:57:08Z",
+      "side": 1,
+      "message": "add C API for new topo C++ API",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 51
+      },
+      "revId": "7855e029da21d30b6d6aacadcd4d7979ed48b6fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
