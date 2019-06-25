@@ -77,6 +77,8 @@ src/Controller.cpp
 src/Controller.hpp
 src/CpuinfoIOGroup.cpp
 src/CpuinfoIOGroup.hpp
+src/CSV.cpp
+src/CSV.hpp
 src/DefaultProfile.cpp
 src/EnergyEfficientAgent.cpp
 src/EnergyEfficientAgent.hpp
