@@ -56,9 +56,9 @@
 namespace geopm
 {
     TracerImp::TracerImp(const std::string &start_time)
-        : TracerImp(start_time, environment().trace(), hostname(), environment().agent(),
-                    environment().profile(), environment().do_trace(), platform_io(), platform_topo(),
-                    environment().trace_signals(), 16)
+        : TracerImp(start_time, environment().trace(), hostname(),
+                    environment().do_trace(), platform_io(), platform_topo(),
+                    environment().trace_signals())
     {
 
     }
@@ -66,45 +66,18 @@ namespace geopm
     TracerImp::TracerImp(const std::string &start_time,
                          const std::string &file_path,
                          const std::string &hostname,
-                         const std::string &agent,
-                         const std::string &profile_name,
                          bool do_trace,
                          PlatformIO &platform_io,
                          const PlatformTopo &platform_topo,
-                         const std::string &env_column,
-                         int precision)
-        : m_file_path(file_path)
-        , m_hostname(hostname)
-        , m_is_trace_enabled(do_trace)
-        , m_buffer_limit(134217728) // 128 MiB
+                         const std::string &env_column)
+        : m_is_trace_enabled(do_trace)
         , m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
         , m_env_column(env_column)
-        , m_precision(precision)
+        , M_BUFFER_SIZE(134217728) // 128 MiB
     {
         if (m_is_trace_enabled) {
-            std::ostringstream output_path;
-            output_path << m_file_path << "-" << m_hostname;
-            m_stream.open(output_path.str());
-            if (!m_stream.good()) {
-                std::cerr << "Warning: <geopm> Unable to open trace file '" << output_path.str()
-                          << "': " << strerror(errno) << std::endl;
-                m_is_trace_enabled = false;
-            }
-
-            // Header
-            m_buffer << "# \"geopm_version\" : \"" << geopm_version() << "\",\n"
-                     << "# \"start_time\" : \"" << start_time << "\",\n"
-                     << "# \"profile_name\" : \"" << profile_name << "\",\n"
-                     << "# \"node_name\" : \"" << m_hostname << "\",\n"
-                     << "# \"agent\" : \"" << agent << "\"\n";
-        }
-    }
-
-    TracerImp::~TracerImp()
-    {
-        if (m_stream.good() && m_is_trace_enabled) {
-            m_stream << m_buffer.str();
+            m_csv = make_unique<CSVImp>(file_path, hostname, start_time, M_BUFFER_SIZE);
         }
     }
 
@@ -112,8 +85,11 @@ namespace geopm
                             const std::vector<std::function<std::string(double)> > &col_formats)
     {
         if (m_is_trace_enabled) {
-            bool first = true;
-
+            if (col_formats.size() != 0 &&
+                col_formats.size() != agent_cols.size()) {
+                throw Exception("TracerImp::columns(): input vectors not of equal size",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
             // default columns
             std::vector<struct m_request_s> base_columns({
                     {"TIME", GEOPM_DOMAIN_BOARD, 0, string_format_double},
@@ -154,71 +130,27 @@ namespace geopm
                     base_columns.push_back({env_sig.at(sig_idx), env_dom.at(sig_idx), dom_idx, env_form.at(sig_idx)});
                 }
             }
-
             // set up columns to be sampled by TracerImp
             for (const auto &col : base_columns) {
                 m_column_idx.push_back(m_platform_io.push_signal(col.name,
                                                                  col.domain_type,
                                                                  col.domain_idx));
-                if (col.name.find("#") != std::string::npos ||
-                    col.name == "REGION_HASH" || col.name == "REGION_HINT") {
-                    m_hex_column.insert(m_column_idx.back());
+                std::string column_name = col.name;
+                if (col.domain_type != GEOPM_DOMAIN_BOARD) {
+                    column_name += "-" + PlatformTopo::domain_type_to_name(col.domain_type);
+                    column_name += "-" + std::to_string(col.domain_idx);
                 }
-                if (first) {
-                    m_buffer << pretty_name(col);
-                    first = false;
-                }
-                else {
-                    m_buffer << "|" << pretty_name(col);
-                }
+                m_csv->add_column(column_name, col.format);
             }
-
             // columns from agent; will be sampled by agent
             size_t num_col = agent_cols.size();
             for (size_t col_idx = 0; col_idx != num_col; ++col_idx) {
                 std::function<std::string(double)> format = col_formats.size() ? col_formats.at(col_idx) : string_format_double;
                 m_csv->add_column(agent_cols.at(col_idx), format);
             }
-            m_buffer << "\n";
-
-            m_last_telemetry.resize(base_columns.size() + agent_cols.size());
+            m_csv->activate();
+            m_last_telemetry.resize(base_columns.size() + num_col);
         }
-    }
-
-    void TracerImp::write_line(void)
-    {
-        m_buffer << std::setprecision(m_precision) << std::scientific;
-        for (size_t idx = 0; idx < m_last_telemetry.size(); ++idx) {
-            if (idx != 0) {
-                m_buffer << "|";
-            }
-            if (m_hex_column.find(m_column_idx[idx]) != m_hex_column.end()) {
-                m_buffer << "0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
-                if (((uint64_t) m_region_hash_idx == idx ||
-                     (uint64_t) m_region_hint_idx == idx)) {
-#ifdef GEOPM_DEBUG
-                    if ((uint64_t) m_last_telemetry[idx] == GEOPM_REGION_HASH_INVALID) {
-                        throw Exception("TracerImp::write_line(): Invalid hash or hint value detected.",
-                                        GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-                    }
-#endif
-                    m_buffer << (uint64_t)m_last_telemetry[idx];
-                }
-                else {
-                    m_buffer << geopm_signal_to_field(m_last_telemetry[idx]);
-                }
-                m_buffer << std::setfill('\0') << std::setw(0) << std::scientific;
-            }
-            else if ((int)idx == m_region_progress_idx) {
-                m_buffer << std::setprecision(1) << std::fixed
-                         << m_last_telemetry[idx]
-                         << std::setprecision(m_precision) << std::scientific;
-            }
-            else {
-                m_buffer << m_last_telemetry[idx];
-            }
-        }
-        m_buffer << "\n";
     }
 
     void TracerImp::update(const std::vector<double> &agent_values,
@@ -264,7 +196,7 @@ namespace geopm
                     m_last_telemetry[m_region_hint_idx] = reg.hint;
                     m_last_telemetry[m_region_progress_idx] = reg.progress;
                     m_last_telemetry[m_region_runtime_idx] = reg.runtime;
-                    write_line();
+                    m_csv->update(m_last_telemetry);
                 }
                 ++idx;
             }
@@ -273,22 +205,25 @@ namespace geopm
             m_last_telemetry[m_region_hint_idx] = region_hint;
             m_last_telemetry[m_region_progress_idx] = region_progress;
             m_last_telemetry[m_region_runtime_idx] = region_runtime;
-            write_line();
-        }
-
-        // if buffer is full, flush to file
-        if (m_buffer.tellp() > m_buffer_limit) {
-            m_stream << m_buffer.str();
-            m_buffer.str("");
+            m_csv->update(m_last_telemetry);
         }
     }
 
     void TracerImp::flush(void)
     {
-        m_stream << m_buffer.str();
-        m_buffer.str("");
-        m_stream.close();
-        m_is_trace_enabled = false;
+        if (m_is_trace_enabled) {
+            m_csv->flush();
+        }
+    }
+
+    std::vector<std::string> TracerImp::env_signals(void)
+    {
+        std::vector<std::string> result;
+        for (const auto &extra_signal : string_split(m_env_column, ",")) {
+            std::vector<std::string> signal_domain = string_split(extra_signal, "@");
+            result.push_back(signal_domain[0]);
+        }
+        return result;
     }
 
     std::vector<int> TracerImp::env_domains(void)
@@ -318,6 +253,6 @@ namespace geopm
         for (const auto &it : env_signals()) {
             result.push_back(m_platform_io.format_function(it));
         }
-        return result.str();
+        return result;
     }
 }

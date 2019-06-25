@@ -80,6 +80,10 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/CpuinfoIOGroupTest.parse_sticker_without_at \
               test/gtest_links/CpuinfoIOGroupTest.plugin \
               test/gtest_links/CpuinfoIOGroupTest.valid_signals \
+              test/gtest_links/CSVTest.buffer \
+              test/gtest_links/CSVTest.columns \
+              test/gtest_links/CSVTest.header \
+              test/gtest_links/CSVTest.negative \
               test/gtest_links/EnergyEfficientAgentTest.aggregate_sample \
               test/gtest_links/EnergyEfficientAgentTest.do_write_batch \
               test/gtest_links/EnergyEfficientAgentTest.enforce_policy \
@@ -236,6 +240,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/ProfileTestIntegration.misconfig_ctl_shmem \
               test/gtest_links/ProfileTestIntegration.misconfig_table_shmem \
               test/gtest_links/ProfileTestIntegration.misconfig_tprof_shmem \
+              test/gtest_links/ProfileTracerTest.default \
               test/gtest_links/ProfileTracerTest.format \
               test/gtest_links/RegionAggregatorTest.epoch_total \
               test/gtest_links/RegionAggregatorTest.sample_total \
@@ -313,6 +318,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/ControlMessageTest.cpp \
                           test/ControllerTest.cpp \
                           test/CpuinfoIOGroupTest.cpp \
+                          test/CSVTest.cpp \
                           test/EnergyEfficientAgentTest.cpp \
                           test/EnergyEfficientRegionTest.cpp \
                           test/EnvironmentTest.cpp \
