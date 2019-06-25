@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ea85494f_6d2ca5b9",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-25T16:05:32Z",
+      "side": 1,
+      "message": "sp",
+      "range": {
+        "startLine": 85,
+        "startChar": 27,
+        "endLine": 85,
+        "endChar": 29
+      },
+      "revId": "e93f17b90aba93c923a3d96c6871e2c60dfe55ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f389c16_c21ed58d",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-25T16:05:32Z",
+      "side": 1,
+      "message": "just call \"EE::last_region_hash\"",
+      "revId": "e93f17b90aba93c923a3d96c6871e2c60dfe55ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ee9bf72_f38b0704",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-06-25T16:05:32Z",
+      "side": 1,
+      "message": "better in trace_values()",
+      "revId": "e93f17b90aba93c923a3d96c6871e2c60dfe55ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
