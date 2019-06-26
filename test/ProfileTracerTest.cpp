@@ -48,7 +48,7 @@ class ProfileTracerTest : public ::testing::Test
         void TearDown(void);
         MockPlatformIO m_platform_io;
         std::string m_path = "test.profiletrace";
-        std::string m_hostname = "myhost";
+        std::string m_host_name = "myhost";
 };
 
 void ProfileTracerTest::TearDown(void)
@@ -64,7 +64,7 @@ TEST_F(ProfileTracerTest, format)
     {
         struct geopm_time_s time_stamp;
         geopm_time(&time_stamp);
-        geopm::ProfileTracerImp tracer(2, true, m_path, m_platform_io, time_stamp);
+        geopm::ProfileTracerImp tracer(2, true, m_path, m_host_name, m_platform_io, time_stamp);
 
         std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > data;
 
@@ -85,23 +85,26 @@ TEST_F(ProfileTracerTest, format)
         }
         tracer.update(data.begin(), data.end());
     }
-    std::string output = geopm::read_file(m_path);
+    std::string output_path = m_path + "-" + m_host_name;
+    std::string output = geopm::read_file(output_path);
     std::vector<std::string> output_lines = geopm::string_split(output, "\n");
-    std::string expect = "rank|region_hash|region_hint|timestamp|progress\n"
-                         "0|0x00000000fa5920d6|0x0000000200000000|1.5000000000000000e+01|0.0000000000000000e+00\n"
-                         "1|0x00000000fa5920d6|0x0000000200000000|1.6000000000000000e+01|0.0000000000000000e+00\n"
-                         "2|0x00000000fa5920d6|0x0000000200000000|1.7000000000000000e+01|0.0000000000000000e+00\n"
-                         "3|0x00000000fa5920d6|0x0000000200000000|1.8000000000000000e+01|0.0000000000000000e+00\n"
-                         "3|0x00000000fa5920d6|0x0000000200000000|3.9000000000000000e+01|1.0000000000000000e+00\n"
-                         "2|0x00000000fa5920d6|0x0000000200000000|4.0000000000000000e+01|1.0000000000000000e+00\n"
-                         "1|0x00000000fa5920d6|0x0000000200000000|4.1000000000000000e+01|1.0000000000000000e+00\n"
-                         "0|0x00000000fa5920d6|0x0000000200000000|4.2000000000000000e+01|1.0000000000000000e+00\n";
-    std::vector<std::string> expect_lines = geopm::string_split(expect, "\n");
-    ASSERT_EQ(expect_lines.size(), output_lines.size());
-
-    auto output_it = output_lines.begin();
-    for (const auto &expect_it : expect_lines) {
-        EXPECT_EQ(expect_it, *output_it);
-        ++output_it;
+    std::vector<std::string> expect_lines = {
+        "rank|region_hash|region_hint|timestamp|progress",
+        "0|0x00000000fa5920d6|0x0000000200000000|1.5000000000000000e+01|0.000000",
+        "1|0x00000000fa5920d6|0x0000000200000000|1.6000000000000000e+01|0.000000",
+        "2|0x00000000fa5920d6|0x0000000200000000|1.7000000000000000e+01|0.000000",
+        "3|0x00000000fa5920d6|0x0000000200000000|1.8000000000000000e+01|0.000000",
+        "3|0x00000000fa5920d6|0x0000000200000000|3.9000000000000000e+01|1.000000",
+        "2|0x00000000fa5920d6|0x0000000200000000|4.0000000000000000e+01|1.000000",
+        "1|0x00000000fa5920d6|0x0000000200000000|4.1000000000000000e+01|1.000000",
+        "0|0x00000000fa5920d6|0x0000000200000000|4.2000000000000000e+01|1.000000"
+    };
+    auto expect_it = expect_lines.begin();
+    for (const auto &output_it : output_lines) {
+        if (output_it[0] != '#' && output_it.size()) {
+            EXPECT_EQ(*expect_it, output_it);
+            ++expect_it;
+        }
     }
+    unlink(output_path.c_str());
 }
