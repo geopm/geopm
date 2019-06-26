@@ -159,6 +159,7 @@ namespace geopm
             master_report << "Start Time: " << m_start_time << std::endl;
             master_report << "Profile: " << application_io.profile_name() << std::endl;
             master_report << "Agent: " << agent_name << std::endl;
+            master_report << "Policy: " << environment().policy() << std::endl;
             for (const auto &kv : agent_report_header) {
                 master_report << kv.first << ": " << kv.second << std::endl;
             }
