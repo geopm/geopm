@@ -34,6 +34,7 @@
 
 #include <math.h>
 #include <errno.h>
+#include <string.h>
 
 #ifndef __cplusplus
 #include <stdbool.h>
@@ -58,24 +59,6 @@ static inline double geopm_time_since(const struct geopm_time_s *begin);
 struct geopm_time_s {
     struct timespec t;
 };
-
-static inline int geopm_time_string(int buf_size, char *buf)
-{
-    struct tm tm;
-    struct timespec time;
-    int ret = clock_gettime(CLOCK_REALTIME, &time);
-    if (!ret) {
-        /// asctime_r takes a user allocated buffer and
-        /// requires the size to be at least 26 bytes.
-        if (buf_size >= 26) {
-            localtime_r(&time.tv_sec, &tm);
-            asctime_r(&tm, buf);
-        } else {
-            ret = EINVAL;
-        }
-    }
-    return ret;
-}
 
 static inline int geopm_time(struct geopm_time_s *time)
 {
@@ -117,24 +100,6 @@ struct geopm_time_s {
     struct timeval t;
 };
 
-static inline int geopm_time_string(int buf_size, char *buf)
-{
-    struct tm tm;
-    struct timeval time;
-    int ret = gettimeofday(&time, NULL);
-    if (!ret) {
-        /// asctime_r takes a user allocated buffer and
-        /// requires the size to be at least 26 bytes.
-        if (buf_size >= 26) {
-            localtime_r(&time.tv_sec, &tm);
-            asctime_r(&tm, buf);
-        } else {
-            ret = EINVAL;
-        }
-    }
-    return ret;
-}
-
 static inline int geopm_time(struct geopm_time_s *time)
 {
     return gettimeofday((struct timeval *)time, NULL);
@@ -164,6 +129,28 @@ static inline void geopm_time_add(const struct geopm_time_s *begin, double elaps
 }
 
 #endif
+
+static inline int geopm_time_to_string(const struct geopm_time_s *time, int buf_size, char *buf)
+{
+    int err = 0;
+    struct tm tm;
+    localtime_r(&(time->t.tv_sec), &tm);
+    size_t num_byte = strftime(buf, buf_size, "%a %b %d %H:%M:%S %Y", &tm);
+    if (!num_byte) {
+        err = EINVAL;
+    }
+    return err;
+}
+
+static inline int geopm_time_string(int buf_size, char *buf)
+{
+    struct geopm_time_s time;
+    int err = geopm_time(&time);
+    if (!err) {
+        err = geopm_time_to_string(&time, buf_size, buf);
+    }
+    return err;
+}
 
 const struct geopm_time_s GEOPM_TIME_REF = {{0, 0}};
 

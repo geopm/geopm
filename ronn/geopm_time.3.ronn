@@ -40,6 +40,11 @@ geopm_time.h(3) -- helper methods for time
     `int` _buf_size_, <br>
     `char *`_buf_`);`
 
+  * `int geopm_time_to_string(`:
+    `const struct geopm_time_s *`_time_, <br>
+    `int` _buf_size_, <br>
+    `char *`_buf_`);`
+
   * `int geopm_time(`:
     `struct geopm_time_s *`_time_`);`
 
@@ -68,6 +73,12 @@ structure is used to hold time values.
     Fills _buf_ with the current date and time as a string.  The
     string will be null-terminated and truncated to _buf_size_, which
     must be at least 26 characters as required by **asctime_r(3)**.
+
+  * `geopm_time_to_string`():
+    Fills _buf_ with the date and time indicated by the _time_
+    structure converted to a string.  The string will be
+    null-terminated and truncated to _buf_size_, which must be at
+    least 26 characters as required by **asctime_r(3)**.
 
   * `geopm_time`():
     Sets _time_ to the current time.
