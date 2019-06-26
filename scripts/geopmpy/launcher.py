@@ -68,11 +68,13 @@ class Factory(object):
                                            ('SrunTOSSLauncher', SrunTOSSLauncher)])
 
     def create(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
-               time_limit=None, job_name=None, node_list=None, host_file=None):
+               time_limit=None, job_name=None, node_list=None, host_file=None,
+               reservation=None):
         try:
             launcher_name = argv[1]
             return self._launcher_dict[launcher_name](argv[2:], num_rank, num_node, cpu_per_rank, timeout,
-                                                      time_limit, job_name, node_list, host_file)
+                                                      time_limit, job_name, node_list, host_file,
+                                                      reservation=reservation)
         except KeyError:
             raise LookupError('Unsupported launcher "{}" requested'.format(launcher_name))
 
@@ -305,7 +307,8 @@ class Launcher(object):
     Defines common methods used by all Launcher objects.
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
-                 time_limit=None, job_name=None, node_list=None, host_file=None, partition=None):
+                 time_limit=None, job_name=None, node_list=None, host_file=None, partition=None,
+                 reservation=None):
         """
         Constructor takes the command line options passed to the job
         launch application along with optional override values for
@@ -367,6 +370,9 @@ class Launcher(object):
         if partition is not None:
             self.is_override_enabled = True
             self.partition = partition
+        if reservation is not None:
+            self.is_override_enabled = True
+            self.reservation = reservation
 
         # Calculate derived values
         if self.rank_per_node is None and self.num_rank and self.num_node:
@@ -500,7 +506,10 @@ class Launcher(object):
         # Create the cache for the PlatformTopo on each compute node
         argv = shlex.split('dummy {} --geopm-ctl-disable -- geopmread --cache'.format(self.launcher_command()))
         factory = Factory()
-        launcher = factory.create(argv, self.num_node, self.num_node, host_file=self.host_file, node_list=self.node_list)
+        launcher = factory.create(argv, self.num_node, self.num_node,
+                                  host_file=self.host_file,
+                                  node_list=self.node_list,
+                                  reservation=self.reservation)
         launcher.run()
         # Query the topology for Launcher calculations by running lscpu on one node.
         # Note that a warning may be emitted by underlying launcher when main application uses more
@@ -508,7 +517,10 @@ class Launcher(object):
         # allocation and check that the node topology is uniform across all nodes used by the job
         # instead of just running on one node.
         argv = shlex.split('dummy {} --geopm-ctl-disable -- lscpu --hex'.format(self.launcher_command()))
-        launcher = factory.create(argv, 1, 1, host_file=self.host_file, node_list=self.node_list)
+        launcher = factory.create(argv, 1, 1,
+                                  host_file=self.host_file,
+                                  node_list=self.node_list,
+                                  reservation=self.reservation)
         ostream = StringIO.StringIO()
         launcher.run(stdout=ostream)
         out = ostream.getvalue()
@@ -642,6 +654,7 @@ class Launcher(object):
         result.extend(self.node_list_option())
         result.extend(self.host_file_option())
         result.extend(self.partition_option())
+        result.extend(self.reservation_option())
         result.extend(self.performance_governor_option())
         return result
 
@@ -724,6 +737,9 @@ class Launcher(object):
         """
         return []
 
+    def reservation_option(self):
+        return []
+
     def performance_governor_option(self):
         """
         Returns a list containing the command line options specifying
@@ -752,12 +768,14 @@ class SrunLauncher(Launcher):
     application srun.
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
-                 time_limit=None, job_name=None, node_list=None, host_file=None):
+                 time_limit=None, job_name=None, node_list=None, host_file=None,
+                 reservation=None):
         """
         Pass through to Launcher constructor.
         """
         super(SrunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
-                                           time_limit, job_name, node_list, host_file)
+                                           time_limit, job_name, node_list, host_file,
+                                           reservation=reservation)
 
         if (self.is_geopm_enabled and
             self.config.get_ctl() == 'application' and
@@ -788,6 +806,7 @@ class SrunLauncher(Launcher):
         parser.add_argument('-w', '--nodelist', dest='node_list', type=str)
         parser.add_argument('--ntasks-per-node', dest='rank_per_node', type=int)
         parser.add_argument('-p', '--partition', dest='partition', type=str)
+        parser.add_argument('--reservation', dest='reservation', type=str)
 
         opts, self.argv_unparsed = parser.parse_known_args(self.argv_unparsed)
 
@@ -809,6 +828,7 @@ class SrunLauncher(Launcher):
         self.node_list = opts.node_list  # Note this may also be the host file
         self.host_file = None
         self.partition = opts.partition
+        self.reservation = opts.reservation
 
         if (self.is_geopm_enabled and
             any(aa.startswith(('--cpu_bind', '--cpu-bind')) for aa in self.argv)):
@@ -920,6 +940,12 @@ class SrunLauncher(Launcher):
             result = ['-p', self.partition]
         return result
 
+    def reservation_option(self):
+        result = []
+        if self.reservation is not None:
+            result = ['--reservation', self.reservation]
+        return result
+
     def performance_governor_option(self):
         return ['--cpu-freq=Performance']
 
@@ -978,12 +1004,14 @@ class IMPIExecLauncher(Launcher):
     """
     _is_once = True
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
-                 time_limit=None, job_name=None, node_list=None, host_file=None):
+                 time_limit=None, job_name=None, node_list=None, host_file=None,
+                 reservation=None):
         """
         Pass through to Launcher constructor.
         """
         super(IMPIExecLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
-                                               time_limit, job_name, node_list, host_file)
+                                               time_limit, job_name, node_list, host_file,
+                                               reservation=reservation)
 
         self.is_slurm_enabled = False
         if os.getenv('SLURM_NNODES'):
@@ -1118,12 +1146,14 @@ class IMPIExecLauncher(Launcher):
 
 class AprunLauncher(Launcher):
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
-                 time_limit=None, job_name=None, node_list=None, host_file=None):
+                 time_limit=None, job_name=None, node_list=None, host_file=None,
+                 reservation=None):
         """
         Pass through to Launcher constructor.
         """
         super(AprunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
-                                            time_limit, job_name, node_list, host_file)
+                                            time_limit, job_name, node_list, host_file,
+                                            reservation=reservation)
 
         if self.is_geopm_enabled and self.config.get_ctl() == 'application':
             raise RuntimeError('When using aprun specifying --geopm-ctl=application is not allowed.')
