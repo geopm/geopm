@@ -642,6 +642,7 @@ class Launcher(object):
         result.extend(self.node_list_option())
         result.extend(self.host_file_option())
         result.extend(self.partition_option())
+        result.extend(self.reservation_option())
         result.extend(self.performance_governor_option())
         return result
 
@@ -724,6 +725,9 @@ class Launcher(object):
         """
         return []
 
+    def reservation_option(self):
+        return []
+
     def performance_governor_option(self):
         """
         Returns a list containing the command line options specifying
@@ -788,6 +792,7 @@ class SrunLauncher(Launcher):
         parser.add_argument('-w', '--nodelist', dest='node_list', type=str)
         parser.add_argument('--ntasks-per-node', dest='rank_per_node', type=int)
         parser.add_argument('-p', '--partition', dest='partition', type=str)
+        parser.add_argument('--reservation', dest='reservation', type=str)
 
         opts, self.argv_unparsed = parser.parse_known_args(self.argv_unparsed)
 
@@ -809,6 +814,7 @@ class SrunLauncher(Launcher):
         self.node_list = opts.node_list  # Note this may also be the host file
         self.host_file = None
         self.partition = opts.partition
+        self.reservation = opts.reservation
 
         if (self.is_geopm_enabled and
             any(aa.startswith(('--cpu_bind', '--cpu-bind')) for aa in self.argv)):
@@ -918,6 +924,12 @@ class SrunLauncher(Launcher):
         result = []
         if self.partition is not None:
             result = ['-p', self.partition]
+        return result
+
+    def reservation_option(self):
+        result = []
+        if self.reservation is not None:
+            result = ['--reservation', self.reservation]
         return result
 
     def performance_governor_option(self):
