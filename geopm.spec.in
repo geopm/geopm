@@ -29,7 +29,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 Summary: Global Extensible Open Power Manager
-Name: geopm
+Name: geopmpolicy
 Version: @VERSION@
 Release: 1
 License: BSD-3-Clause
@@ -40,7 +40,6 @@ Source0: geopm.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: gcc-c++
 BuildRequires: python
-BuildRequires: openmpi-devel
 BuildRequires: unzip
 BuildRequires: libtool
 
@@ -67,7 +66,7 @@ Prefix: %{_prefix}
 %package devel
 Summary: Global Extensible Open Power Manager - development
 Group: Development/Libraries
-Requires: geopm
+Requires: geopmpolicy
 
 %description devel
 Development package for GEOPM.
@@ -75,7 +74,7 @@ Development package for GEOPM.
 %package -n python-geopmpy
 Summary: Global Extensible Open Power Manager - python
 Group: System Environment/Libraries
-Requires: geopm
+Requires: geopmpolicy
 %{?python_provide:%python_provide python-geopmpy}
 
 %description -n python-geopmpy
@@ -88,31 +87,19 @@ test -f configure || ./autogen.sh
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
-            --with-mpi-bin=%{_libdir}/mpi/gcc/openmpi/bin \
+            --disable-mpi --disable-openmp \
             --disable-fortran --disable-doc \
             || ( cat config.log && false )
 %else
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
-            --with-mpi-bin=%{_libdir}/openmpi/bin \
+            --disable-mpi \
             --disable-fortran --disable-doc \
             || ( cat config.log && false )
 %endif
 
 %{__make}
-
-%check
-
-%if %{defined suse_version}
-LD_LIBRARY_PATH=/usr/lib64/mpi/gcc/openmpi/lib \
-%{__make} check PYTEST_TESTS='' || \
-( cat test/gtest_links/*.log && cat scripts/test/pytest_links/*.log && false )
-%else
-LD_LIBRARY_PATH=/usr/lib64/openmpi/lib \
-%{__make} check PYTEST_TESTS='' || \
-( cat test/gtest_links/*.log && cat scripts/test/pytest_links/*.log && false )
-%endif
 
 %install
 %{__make} DESTDIR=%{buildroot} install
@@ -134,13 +121,8 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 %{_libdir}/libgeopmpolicy.so.0.0.0
 %{_libdir}/libgeopmpolicy.so.0
 %{_libdir}/libgeopmpolicy.so
-%{_libdir}/libgeopm.so.0.0.0
-%{_libdir}/libgeopm.so.0
-%{_libdir}/libgeopm.so
 %dir %{_libdir}/geopm
 %{_bindir}/geopmagent
-%{_bindir}/geopmbench
-%{_bindir}/geopmctl
 %{_bindir}/geopmread
 %{_bindir}/geopmwrite
 %dir %{docdir}
