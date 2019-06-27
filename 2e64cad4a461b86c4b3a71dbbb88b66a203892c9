@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "88df5381_c02c94cd",
+        "filename": "geopm.spec.in",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-06-27T21:07:58Z",
+      "side": 1,
+      "message": "Probably want to remove the man pages for things we aren\u0027t installing.",
+      "revId": "2e64cad4a461b86c4b3a71dbbb88b66a203892c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3b0e2c37_870f759b",
         "filename": "src/Reporter.cpp",
         "patchSetId": 1
