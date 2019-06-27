@@ -214,6 +214,7 @@ rm -f %{buildroot}/%{_includedir}/geopm_ctl.h
 %{_includedir}/geopm_error.h
 %{_includedir}/geopm_hash.h
 %{_includedir}/geopm_imbalancer.h
+%{_includedir}/geopm_manager.h
 %{_includedir}/geopm_pio.h
 %{_includedir}/geopm_sched.h
 %{_includedir}/geopm_time.h
