@@ -159,7 +159,13 @@ namespace geopm
             master_report << "Start Time: " << m_start_time << std::endl;
             master_report << "Profile: " << application_io.profile_name() << std::endl;
             master_report << "Agent: " << agent_name << std::endl;
-            master_report << "Policy: " << environment().policy() << std::endl;
+            master_report << "Policy: " << std::endl;
+            // @todo: this won't work for shared memory.  We could use ManagerIO to handle,
+            // but for now it's useful to see the exact contents passed to geopm
+            std::string policy_file = read_file(environment().policy());
+            master_report << policy_file << std::endl;
+
+            // @todo: might want a section header to separate this
             for (const auto &kv : agent_report_header) {
                 master_report << kv.first << ": " << kv.second << std::endl;
             }
