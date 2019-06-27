@@ -52,7 +52,13 @@ namespace geopm
     /// @brief Reads the specified file and returns the contents in a string.
     /// @param [in] path The path of the file to read.
     /// @return The contents of the file at path.
-    std::string read_file(const std::string& path);
+    std::string read_file(const std::string &path);
+
+    /// @brief Writes a string to a file.  This will replace the file
+    ///        if it exists or create it if it does not exist.
+    /// @param [in] path The path to the file to write to.
+    /// @param [in] contents The string to write to the file.
+    void write_file(const std::string &path, const std::string &contents);
 
     /// @brief Splits a string according to a delimiter.
     /// @param [in] str The string to be split.

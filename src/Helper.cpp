@@ -44,7 +44,7 @@
 
 namespace geopm
 {
-    std::string read_file(const std::string& path)
+    std::string read_file(const std::string &path)
     {
         std::string contents;
         std::ifstream input_file(path, std::ifstream::in);
@@ -65,6 +65,19 @@ namespace geopm
         input_file.close();
 
         return contents;
+    }
+
+    void write_file(const std::string &path, const std::string &contents)
+    {
+        std::ofstream output_file(path, std::ofstream::out);
+        if (!output_file.is_open()) {
+            throw Exception("Helper::" + std::string(__func__) + "(): file \"" + path +
+                            "\" could not be opened for writing",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        output_file.seekf(0, std::ios::beg);
+        output_file.write(contents.c_str(), contents.size());
+        output_file.close();
     }
 
     std::vector<std::string> string_split(const std::string &str,
