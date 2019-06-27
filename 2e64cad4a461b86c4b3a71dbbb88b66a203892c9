@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "02778e31_67474f68",
+        "filename": "geopm.spec.in",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-06-27T23:18:38Z",
+      "side": 1,
+      "message": "Yep, this does it:\n%setup -n geopm-%{version}",
+      "revId": "2e64cad4a461b86c4b3a71dbbb88b66a203892c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9328c0a8_47e2507a",
         "filename": "geopm.spec.in",
         "patchSetId": 1
