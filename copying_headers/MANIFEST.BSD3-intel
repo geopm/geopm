@@ -82,6 +82,7 @@ src/Controller.cpp
 src/Controller.hpp
 src/CpuinfoIOGroup.cpp
 src/CpuinfoIOGroup.hpp
+src/Daemon.cpp
 src/DefaultProfile.cpp
 src/EnergyEfficientAgent.cpp
 src/EnergyEfficientAgent.hpp
@@ -193,6 +194,7 @@ src/geopm.f90
 src/geopm.h
 src/geopm_agent.h
 src/geopm_ctl.h
+src/geopm_daemon.h
 src/geopm_endpoint.h
 src/geopm_error.h
 src/geopm_hash.c
@@ -233,6 +235,7 @@ test/CommMPIImpTest.cpp
 test/ControlMessageTest.cpp
 test/ControllerTest.cpp
 test/CpuinfoIOGroupTest.cpp
+test/DaemonTest.cpp
 test/EnergyEfficientAgentTest.cpp
 test/EnergyEfficientRegionTest.cpp
 test/EnvironmentTest.cpp
