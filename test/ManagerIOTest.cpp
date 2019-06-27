@@ -393,3 +393,22 @@ TEST_F(ManagerIOSamplerTestIntegration, parse_shm)
     EXPECT_EQ(4.4, gp.sample("FOUR"));
     EXPECT_EQ(5.5, gp.sample("FIVE"));
 }
+
+// todo: moveme
+#include "geopm_manager.h"
+
+TEST(ManagerTest, geopm_manager_set_host_policy)
+{
+    std::string testjson = "{ \"TEST\": 80, \"POLICY\": 100 }";
+    std::string hostname = geopm::hostname();
+    std::string node_policy = "./node_policy.json";
+    int err = geopm_manager_set_host_policy(hostname.c_str(),
+                                  node_policy.c_str(),
+                                  testjson.c_str());
+    std::string result = geopm::read_file(node_policy);
+    EXPECT_EQ(0, err);
+    EXPECT_EQ(testjson, result);
+
+    // not yet implemented
+    EXPECT_NE(0, geopm_manager_set_host_policy("myhost", node_policy.c_str(), testjson.c_str()));
+}
