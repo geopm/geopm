@@ -71,6 +71,7 @@ include_HEADERS = src/geopm.h \
                   src/geopm_error.h \
                   src/geopm_hash.h \
                   src/geopm_imbalancer.h \
+                  src/geopm_daemon.h \
                   src/geopm_pio.h \
                   src/geopm_policystore.h \
                   src/geopm_sched.h \
@@ -425,6 +426,7 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/Controller.hpp \
                             src/CpuinfoIOGroup.cpp \
                             src/CpuinfoIOGroup.hpp \
+                            src/Daemon.cpp \
                             src/DefaultProfile.cpp \
                             src/EnergyEfficientAgent.cpp \
                             src/EnergyEfficientAgent.hpp \
@@ -533,6 +535,7 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/geopm_hash.h \
                             src/geopm_imbalancer.h \
                             src/geopm_internal.h \
+                            src/geopm_daemon.h \
                             src/geopm_pio.h \
                             src/geopm_policystore.h \
                             src/geopm_plugin.cpp \
