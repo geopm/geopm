@@ -269,6 +269,7 @@ TEST_F(ReporterTest, generate)
         "Start Time: " + m_start_time + "\n"
         "Profile: " + m_profile_name + "\n"
         "Agent: my_agent\n"
+        "Policy: \n"
         "one: 1\n"
         "two: 2\n"
         "\n"
