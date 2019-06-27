@@ -51,6 +51,64 @@
 
 using json11::Json;
 
+extern "C" {
+
+int geopm_env_agent(size_t size, char *agent)
+{
+    int err = 0;
+    try {
+        strncpy(agent, geopm::environment().agent().c_str(), size);
+    }
+    catch(...) {
+        err = geopm::exception_handler(std::current_exception(), false);
+    }
+    return err;
+}
+
+int geopm_manager_get_best_policy(const char *profile, const char *agent,
+                                  size_t policy_json_size, char *policy_json)
+{
+    int err = 0;
+    try {
+        // 0. figure out best policy for agent (in environment) given the profile
+        // todo: might need user and group id later
+        strncpy(policy_json, "{\"POWER_CAP\": 150\"}", policy_json_size);
+    }
+    catch(...) {
+        err = geopm::exception_handler(std::current_exception(), false);
+    }
+    return err;
+
+}
+
+int geopm_manager_set_host_policy(const char *hostname, const char *policy_json,
+                                  int job_id, int step_id)
+{
+    // @todo: these should be configurable
+    const std::string host_policy_link_location = "/home/drguttma/sharedfs/geopm/per_node_policy/";
+    const std::string policy_file_location = "/home/drguttma/sharedfs/geopm/policy_files/";
+
+    int err = 0;
+    try {
+        // 1. write policy json value into policy_files/{jobid}_{stepid}_policy.json
+        std::string policy_file_target = policy_file_location + std::to_string(job_id) + "_" +
+                                         std::to_string(step_id) + "_policy.json";
+        geopm::write_file(policy_file_target, policy_json);
+
+        // 2. update link (per_node_policy/{hostname}_policy.json to point to file for the job
+        std::string host_policy_link = host_policy_link_location + hostname + "_policy.json";
+        unlink(host_policy_link);
+        err = symlink(policy_file_target, host_policy_link);
+    }
+    catch(...) {
+        err = geopm::exception_handler(std::current_exception(), false);
+    }
+    return err;
+
+}
+
+}
+
 namespace geopm
 {
     ManagerIOImp::ManagerIOImp(const std::string &data_path, bool is_policy)
