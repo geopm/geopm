@@ -298,6 +298,8 @@ class Config(object):
         """
         return self.preload
 
+    def get_profile(self):
+        return self.profile
 
 class Launcher(object):
     """
@@ -334,6 +336,10 @@ class Launcher(object):
 
         self.cpu_per_rank = None
         is_cpu_per_rank_override = False
+
+        self.profile = None
+        if self.config:
+            self.profile = self.config.get_profile()
 
         # Override values if they are passed in construction call
         if num_rank is not None:
@@ -643,6 +649,7 @@ class Launcher(object):
         result.extend(self.host_file_option())
         result.extend(self.partition_option())
         result.extend(self.reservation_option())
+        result.extend(self.profile_option())
         result.extend(self.performance_governor_option())
         return result
 
@@ -726,6 +733,9 @@ class Launcher(object):
         return []
 
     def reservation_option(self):
+        return []
+
+    def profile_option(self):
         return []
 
     def performance_governor_option(self):
@@ -930,6 +940,12 @@ class SrunLauncher(Launcher):
         result = []
         if self.reservation is not None:
             result = ['--reservation', self.reservation]
+        return result
+
+    def profile_option(self):
+        result = []
+        if self.profile is not None:
+            result = ['--geopm-profile', self.profile]
         return result
 
     def performance_governor_option(self):
