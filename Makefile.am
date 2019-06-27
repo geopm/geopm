@@ -71,6 +71,7 @@ include_HEADERS = src/geopm.h \
                   src/geopm_error.h \
                   src/geopm_hash.h \
                   src/geopm_imbalancer.h \
+                  src/geopm_manager.h \
                   src/geopm_pio.h \
                   src/geopm_sched.h \
                   src/geopm_time.h \
@@ -528,6 +529,7 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/geopm_hash.h \
                             src/geopm_imbalancer.h \
                             src/geopm_internal.h \
+                            src/geopm_manager.h \
                             src/geopm_pio.h \
                             src/geopm_plugin.cpp \
                             src/geopm_sched.c \
