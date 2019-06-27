@@ -34,6 +34,7 @@
 
 #include <cmath>
 #include <string.h>
+
 #include <fstream>
 #include <sstream>
 #include <algorithm>
@@ -50,6 +51,64 @@
 #include "config.h"
 
 using json11::Json;
+
+extern "C"
+{
+
+int geopm_env_agent(size_t size, char *agent)
+{
+    int err = 0;
+    try {
+        strncpy(agent, geopm::environment().agent().c_str(), size);
+    }
+    catch(...) {
+        err = geopm::exception_handler(std::current_exception(), false);
+    }
+    return err;
+}
+
+int geopm_manager_get_best_policy(const char *profile, const char *agent,
+                                  size_t policy_json_size, char *policy_json)
+{
+    int err = 0;
+    try {
+        // 0. figure out best policy for agent (in environment) given the profile
+        // todo: might need user and group id later
+        std::string profile_str {profile};
+        std::string policy_str = "{\"POWER_CAP\": 150}";
+        if (geopm::string_begins_with(profile_str, "power_")) {
+            auto pieces = geopm::string_split(profile_str, "_");
+            policy_str = "{\"POWER_CAP\": " + pieces[1] + "}";
+        }
+        strncpy(policy_json, policy_str.c_str(), policy_json_size);
+    }
+    catch(...) {
+        err = geopm::exception_handler(std::current_exception(), false);
+    }
+    return err;
+}
+
+int geopm_manager_set_host_policy(const char *hostname,
+                                  const char *policy_file_path,
+                                  const char *policy_json)
+{
+    int err = 0;
+    try {
+        const std::string policy_file {policy_file_path};
+        // @todo: only works when run on the local host
+        if (geopm::hostname() != std::string(hostname)) {
+            throw geopm::Exception("Setting host policy for remote host not yet supported.",
+                                   GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        }
+        geopm::write_file(policy_file, policy_json);
+    }
+    catch(...) {
+        err = geopm::exception_handler(std::current_exception(), false);
+    }
+    return err;
+}
+
+}
 
 namespace geopm
 {
