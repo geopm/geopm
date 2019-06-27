@@ -393,3 +393,18 @@ TEST_F(ManagerIOSamplerTestIntegration, parse_shm)
     EXPECT_EQ(4.4, gp.sample("FOUR"));
     EXPECT_EQ(5.5, gp.sample("FIVE"));
 }
+
+// todo: moveme
+#include "geopm_manager.h"
+
+TEST(ManagerTest, geopm_manager_get_best_policy)
+{
+    char policy_json[NAME_MAX];
+    //geopm_manager_get_best_policy("myprofile", "myagent", NAME_MAX, policy_json);
+    std::cout << "produced json: " << policy_json << std::endl;
+}
+
+TEST(ManagerTest, geopm_manager_set_host_policy)
+{
+
+}
