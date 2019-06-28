@@ -516,7 +516,7 @@ namespace geopm
                 }
                 catch (const Exception &e) {
                     if (!do_skip) {
-                        std::cerr << e.what() << std::endl;
+                        std::cerr << "Warning: " << e.what() << std::endl;
                     }
                     do_skip = true;
                 }
@@ -540,7 +540,7 @@ namespace geopm
                                        pair_it.second.mask);
                 }
                 catch (const Exception &e) {
-                    std::cerr << e.what() << std::endl;
+                    std::cerr << "Warning: " << e.what() << std::endl;
                 }
             }
             ++cpu_idx;
