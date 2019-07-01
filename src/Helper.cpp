@@ -80,7 +80,7 @@ namespace geopm
             size_t del_pos = str.find(delim);
             while (del_pos != std::string::npos) {
                 pieces.push_back(str.substr(start_pos, del_pos-start_pos));
-                start_pos = del_pos + 1;
+                start_pos = del_pos + delim.size();
                 del_pos = str.find(delim, start_pos);
             }
             /// add the last piece
