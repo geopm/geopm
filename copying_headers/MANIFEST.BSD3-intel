@@ -227,6 +227,7 @@ test/CommMPIImpTest.cpp
 test/ControlMessageTest.cpp
 test/ControllerTest.cpp
 test/CpuinfoIOGroupTest.cpp
+test/CSVTest.cpp
 test/EnergyEfficientAgentTest.cpp
 test/EnergyEfficientRegionTest.cpp
 test/EnvironmentTest.cpp
