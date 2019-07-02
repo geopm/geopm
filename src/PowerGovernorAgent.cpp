@@ -317,6 +317,11 @@ namespace geopm
         return {"power_budget"};
     }
 
+    std::vector<std::function<std::string(double)> > PowerGovernorAgent::trace_formats(void) const
+    {
+        return {string_format_double};
+    }
+
     void PowerGovernorAgent::trace_values(std::vector<double> &values)
     {
 #ifdef GEOPM_DEBUG

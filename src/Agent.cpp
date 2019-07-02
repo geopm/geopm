@@ -89,6 +89,18 @@ namespace geopm
     const std::string Agent::m_sample_prefix = "SAMPLE_";
     const std::string Agent::m_policy_prefix = "POLICY_";
 
+    std::vector<std::function<std::string(double)> > Agent::trace_formats(void) const
+    {
+#ifdef GEOPM_DEBUG
+        static bool is_once = true;
+        if (is_once) {
+            is_once = false;
+            std::cerr << "Warning: <geopm> Use of geopm::Agent::trace_formats() is deprecated, each Agent will be required implement this method in the future.\n";
+        }
+#endif
+        return {};
+    }
+
     int Agent::num_sample(const std::map<std::string, std::string> &dictionary)
     {
         auto it = dictionary.find(m_num_sample_string);
