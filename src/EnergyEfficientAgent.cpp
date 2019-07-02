@@ -354,6 +354,11 @@ namespace geopm
         return {};
     }
 
+    std::vector<std::function<std::string(double)> > EnergyEfficientAgent::trace_formats(void) const
+    {
+        return {};
+    }
+
     void EnergyEfficientAgent::trace_values(std::vector<double> &values)
     {
 
