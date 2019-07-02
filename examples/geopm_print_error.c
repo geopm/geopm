@@ -58,6 +58,7 @@ int main(int argc, char **argv)
         GEOPM_ERROR_AGENT_UNSUPPORTED,
         GEOPM_ERROR_AFFINITY,
         GEOPM_ERROR_NO_AGENT,
+        GEOPM_ERROR_DATA_STORE,
     };
 
     const char *error_names[] = {
@@ -74,6 +75,7 @@ int main(int argc, char **argv)
         "GEOPM_ERROR_AGENT_UNSUPPORTED",
         "GEOPM_ERROR_AFFINITY",
         "GEOPM_ERROR_NO_AGENT",
+        "GEOPM_ERROR_DATA_STORE",
     };
 
     enum format_type_e {
