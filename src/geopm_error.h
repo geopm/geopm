@@ -53,6 +53,7 @@ enum geopm_error_e {
     GEOPM_ERROR_AGENT_UNSUPPORTED = -11,
     GEOPM_ERROR_AFFINITY = -12,
     GEOPM_ERROR_NO_AGENT = -13,
+    GEOPM_ERROR_DATA_STORE = -14,
 };
 
 /* Convert error number into an error message */
