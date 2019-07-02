@@ -49,6 +49,7 @@ geopm_sched(3)                   geopm_sched.3
 geopm_time(3)                    geopm_time.3
 geopm_topo_c(3)                  geopm_topo_c.3
 geopm_pio_c(3)                   geopm_pio_c.3
+geopm_policystore_c(3)           geopm_policystore_c.3
 geopm_version(3)                 geopm_version.3
 geopmagent(1)                    geopmagent.1
 geopmbench(1)                    geopmbench.1
