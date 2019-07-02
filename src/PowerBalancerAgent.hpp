@@ -154,6 +154,7 @@ namespace geopm
             std::vector<std::pair<std::string, std::string> > report_host(void) const override;
             std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(void) const override;
             std::vector<std::string> trace_names(void) const override;
+            std::vector<std::function<std::string(double)> > trace_formats(void) const override;
             void trace_values(std::vector<double> &values) override;
             void enforce_policy(const std::vector<double> &policy) const override;
 
@@ -173,7 +174,9 @@ namespace geopm
                     virtual bool adjust_platform(const std::vector<double> &in_policy);
                     virtual bool sample_platform(std::vector<double> &out_sample);
                     virtual std::vector<std::string> trace_names(void) const;
+                    virtual std::vector<std::function<std::string(double)> > trace_formats(void) const;
                     virtual void trace_values(std::vector<double> &values);
+                    static std::string format_step_count(double step);
                 protected:
                     int step(size_t step_count) const;
                     int step(void) const;
@@ -309,6 +312,7 @@ namespace geopm
                     bool adjust_platform(const std::vector<double> &in_policy) override;
                     bool sample_platform(std::vector<double> &out_sample) override;
                     std::vector<std::string> trace_names(void) const override;
+                    std::vector<std::function<std::string(double)> > trace_formats(void) const override;
                     void trace_values(std::vector<double> &values) override;
                 private:
                     void init_platform_io(void);
