@@ -1,4 +1,4 @@
-geopm_pio_c(7) -- interfaces to query and modify platform
+geopm_pio_c(3) -- interfaces to query and modify platform
 =========================================================
 
 [//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
