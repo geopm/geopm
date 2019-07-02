@@ -291,8 +291,14 @@ namespace geopm
         return {};
     }
 
+    std::vector<std::function<std::string(double)> > FrequencyMapAgent::trace_formats(void) const
+    {
+        return {};
+    }
+
     void FrequencyMapAgent::trace_values(std::vector<double> &values)
     {
+
     }
 
     void FrequencyMapAgent::enforce_policy(const std::vector<double> &policy) const

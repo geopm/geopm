@@ -106,15 +106,6 @@ namespace geopm
         return false;
     }
 
-    std::vector<std::string> PowerBalancerAgent::Role::trace_names(void) const
-    {
-#ifdef GEOPM_DEBUG
-        throw Exception("PowerBalancerAgent::Role::" + std::string(__func__) + "(): was called on non-leaf agent",
-                        GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-#endif
-        return {};
-    }
-
     void PowerBalancerAgent::Role::trace_values(std::vector<double> &values)
     {
 #ifdef GEOPM_DEBUG
@@ -236,18 +227,6 @@ namespace geopm
         out_sample[M_SAMPLE_SUM_POWER_SLACK] = m_power_slack;
         out_sample[M_SAMPLE_MIN_POWER_HEADROOM] = m_power_headroom;
         return m_is_step_complete;
-    }
-
-    std::vector<std::string> PowerBalancerAgent::LeafRole::trace_names(void) const
-    {
-        return {"policy_power_cap",         // M_TRACE_SAMPLE_POLICY_POWER_CAP
-                "policy_step_count",        // M_TRACE_SAMPLE_POLICY_STEP_COUNT
-                "policy_max_epoch_runtime", // M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME
-                "policy_power_slack",       // M_TRACE_SAMPLE_POLICY_POWER_SLACK
-                "epoch_runtime",            // M_TRACE_SAMPLE_EPOCH_RUNTIME
-                "power_limit",              // M_TRACE_SAMPLE_POWER_LIMIT
-                "enforced_power_limit"      // M_TRACE_SAMPLE_ENFORCED_POWER_LIMIT
-               };
     }
 
     void PowerBalancerAgent::LeafRole::trace_values(std::vector<double> &values)
@@ -629,7 +608,26 @@ namespace geopm
 
     std::vector<std::string> PowerBalancerAgent::trace_names(void) const
     {
-        return m_role->trace_names();
+        return {"policy_power_cap",         // M_TRACE_SAMPLE_POLICY_POWER_CAP
+                "policy_step_count",        // M_TRACE_SAMPLE_POLICY_STEP_COUNT
+                "policy_max_epoch_runtime", // M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME
+                "policy_power_slack",       // M_TRACE_SAMPLE_POLICY_POWER_SLACK
+                "epoch_runtime",            // M_TRACE_SAMPLE_EPOCH_RUNTIME
+                "power_limit",              // M_TRACE_SAMPLE_POWER_LIMIT
+                "enforced_power_limit",     // M_TRACE_SAMPLE_ENFORCED_POWER_LIMIT
+               };
+    }
+
+    std::vector<std::function<std::string(double)> > PowerBalancerAgent::trace_formats(void) const
+    {
+        return {string_format_double,         // M_TRACE_SAMPLE_POLICY_POWER_CAP
+                format_step_count,            // M_TRACE_SAMPLE_POLICY_STEP_COUNT
+                string_format_double,         // M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME
+                string_format_double,         // M_TRACE_SAMPLE_POLICY_POWER_SLACK
+                string_format_double,         // M_TRACE_SAMPLE_EPOCH_RUNTIME
+                string_format_double,         // M_TRACE_SAMPLE_POWER_LIMIT
+                string_format_double,         // M_TRACE_SAMPLE_ENFORCED_POWER_LIMIT
+               };
     }
 
     void PowerBalancerAgent::trace_values(std::vector<double> &values)
@@ -672,6 +670,30 @@ namespace geopm
                 "MAX_EPOCH_RUNTIME",
                 "SUM_POWER_SLACK",
                 "MIN_POWER_HEADROOM"};
+    }
+
+    std::string PowerBalancerAgent::format_step_count(double step)
+    {
+        int step_count = step;
+        int step_type = step_count % M_NUM_STEP;
+        int loop_count = step_count / M_NUM_STEP;
+        std::string result(std::to_string(loop_count));
+        switch (step_type) {
+            case M_STEP_SEND_DOWN_LIMIT:
+                result += "-STEP_SEND_DOWN_LIMIT";
+                break;
+            case M_STEP_MEASURE_RUNTIME:
+                result += "-STEP_MEASURE_RUNTIME";
+                break;
+            case M_STEP_REDUCE_LIMIT:
+                result += "-STEP_REDUCE_LIMIT";
+                break;
+            default:
+                throw Exception("PowerBalancerAgent::format_step_count() step count signal is negative: " + std::to_string(step),
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                break;
+        }
+        return result;
     }
 
     void PowerBalancerAgent::validate_policy(std::vector<double> &policy) const
