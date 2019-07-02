@@ -112,6 +112,9 @@ namespace geopm
         private:
             /// @brief Format and write the values in m_last_telemetry to the trace.
             void write_line(void);
+            std::vector<std::string> env_signals(void);
+            std::vector<int> env_domains(void);
+            std::vector<std::string> env_formats(void);
             std::string m_file_path;
             std::string m_header;
             std::string m_hostname;
