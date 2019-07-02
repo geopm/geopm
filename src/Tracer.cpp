@@ -289,6 +289,55 @@ namespace geopm
         m_is_trace_enabled = false;
     }
 
+    std::vector<std::string> TracerImp::env_signals(void)
+    {
+        std::vector<std::string> result;
+        for (const auto &extra_signal : string_split(m_env_column, ",")) {
+            std::vector<std::string> signal_domain = string_split(extra_signal, "@");
+            result.push_back(signal_domain[0]);
+        }
+        return result;
+    }
+
+    std::vector<int> TracerImp::env_domains(void)
+    {
+        std::vector<int> result;
+        for (const auto &extra_signal : string_split(m_env_column, ",")) {
+            std::vector<std::string> signal_domain = string_split(extra_signal, "@");
+            if (signal_domain.size() == 2) {
+                std::vector<std::string> domain_format = string_split(signal_domain[1], "%");
+                result.push_back(PlatformTopo::domain_name_to_type(domain_format[0]));
+            }
+            else if (signal_domain.size() == 1) {
+                result.push_back(GEOPM_DOMAIN_BOARD);
+            }
+            else {
+                throw Exception("TracerImp::columns(): Environment trace extension contains signals with multiple \"@\" characters.",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+        return result;
+    }
+
+    std::vector<std::string> TracerImp::env_formats(void)
+    {
+        std::vector<std::string> result;
+        for (const auto &extra_signal : string_split(m_env_column, ",")) {
+            std::vector<std::string> signal_format = string_split(extra_signal, "%");
+            if (signal_format.size() == 2) {
+                result.push_back(signal_format[1]);
+            }
+            else if (signal_format.size() == 1) {
+                result.push_back("double");
+            }
+            else {
+                throw Exception("TracerImp::columns(): Environment trace extension contains signals with multiple \"%\" characters.",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+        return result;
+    }
+
     std::string Tracer::pretty_name(const PlatformIO::m_request_s &col) {
         std::ostringstream result;
         std::string name = col.name;
