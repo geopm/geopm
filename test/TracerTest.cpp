@@ -127,7 +127,7 @@ TEST_F(TracerTest, columns)
     // columns from agent will be printed as-is
     std::vector<std::string> agent_cols {"col1", "col2"};
 
-    tracer.columns(agent_cols);
+    tracer.columns(agent_cols, {});
     tracer.flush();
 
     std::string expected_header = "# \"geopm_version\"\n"
@@ -165,7 +165,7 @@ TEST_F(TracerTest, update_samples)
     std::vector<std::string> agent_cols {"col1", "col2"};
     std::vector<double> agent_vals {88.8, 77.7};
 
-    tracer.columns(agent_cols);
+    tracer.columns(agent_cols, {});
     tracer.update(agent_vals, {});
     tracer.flush();
     tracer.update(agent_vals, {}); // no additional samples after flush
@@ -199,7 +199,7 @@ TEST_F(TracerTest, region_entry_exit)
         {0x456, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2},
         {0x345, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2},
     };
-    tracer.columns(agent_cols);
+    tracer.columns(agent_cols, {});
     tracer.update(agent_vals, short_regions);
     tracer.flush();
     tracer.update(agent_vals, short_regions); // no additional samples after flush
