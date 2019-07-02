@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1362492b_8e1137ac",
+        "filename": "ronn/geopm_policy_database_c.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-02T21:00:45Z",
+      "side": 1,
+      "message": "int geopm_policy_create(const char *database_path, struct geopm_policy_c *policy);",
+      "range": {
+        "startLine": 40,
+        "startChar": 41,
+        "endLine": 40,
+        "endChar": 56
+      },
+      "revId": "ff58e497ce6e644bd4f2c6d8381519a65c89a8f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6642ea16_ae085333",
+        "filename": "ronn/geopm_policy_database_c.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-02T21:00:45Z",
+      "side": 1,
+      "message": "int geopm_policy_destroy(struct geopm_policy_c *policy);",
+      "revId": "ff58e497ce6e644bd4f2c6d8381519a65c89a8f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68406e5c_ef5ce781",
+        "filename": "ronn/geopm_policy_database_c.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-02T21:00:45Z",
+      "side": 1,
+      "message": "int geopm_policy_get_best(struct geopm_policy_c *policy, const char *profile_name, const char *agent_name, size_t num_policy_val, double *policy_val);",
+      "revId": "ff58e497ce6e644bd4f2c6d8381519a65c89a8f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5f33f78_c0046d5f",
+        "filename": "ronn/geopm_policy_database_c.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-02T21:00:45Z",
+      "side": 1,
+      "message": "Not sure we want this interface in C.",
+      "revId": "ff58e497ce6e644bd4f2c6d8381519a65c89a8f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "761581d4_c77b5bb0",
+        "filename": "ronn/geopm_policy_database_c.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-02T21:00:45Z",
+      "side": 1,
+      "message": "int geopm_policy_set_best(struct geopm_policy_c *policy, const char *profile_name, const char *agent_name, size_t num_policy_val, const double *policy_val);",
+      "revId": "ff58e497ce6e644bd4f2c6d8381519a65c89a8f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4dbae6e6_c5a27174",
+        "filename": "ronn/geopm_policy_database_c.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-02T21:00:45Z",
+      "side": 1,
+      "message": "int geopm_policy_set_default(struct geopm_policy_c *policy, const char *agent_anem, size_t num_policy_val, const double *policy_val);",
+      "revId": "ff58e497ce6e644bd4f2c6d8381519a65c89a8f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
