@@ -49,6 +49,7 @@ geopm_sched(3)                   geopm_sched.3
 geopm_time(3)                    geopm_time.3
 geopm_topo_c(3)                  geopm_topo_c.3
 geopm_pio_c(3)                   geopm_pio_c.3
+geopm_policy_database_c(3)       geopm_policy_database_c.3
 geopm_version(3)                 geopm_version.3
 geopmagent(1)                    geopmagent.1
 geopmbench(1)                    geopmbench.1
@@ -75,6 +76,7 @@ geopm::MonitorAgent(3)           GEOPM_CXX_MAN_MonitorAgent.3
 geopm::PlatformIO(3)             GEOPM_CXX_MAN_PlatformIO.3
 geopm::PlatformTopo(3)           GEOPM_CXX_MAN_PlatformTopo.3
 geopm::PluginFactory(3)          GEOPM_CXX_MAN_PluginFactory.3
+geopm::PolicyDatabase(3)         GEOPM_CXX_MAN_PolicyDatabase.3
 geopm::PowerBalancer(3)          GEOPM_CXX_MAN_PowerBalancer.3
 geopm::PowerBalancerAgent(3)     GEOPM_CXX_MAN_PowerBalancerAgent.3
 geopm::PowerGovernor(3)          GEOPM_CXX_MAN_PowerGovernor.3

@@ -1,0 +1,121 @@
+geopm_policy_database_c(3) -- geopm agent policy database
+==============================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## SYNOPSIS
+
+**\#include [<geopm_policy_database.h>](https://github.com/geopm/geopm/blob/dev/src/geopm_policy_database.h)**
+
+`Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
+
+  * `struct geopm_policy_database* geopm_policy_database_connect(`:
+    `const char *`_database_path_`);`
+
+  * `void geopm_policy_database_disconnect(`:
+    `struct geopm_policy_database *`_database_`);`
+
+  * `int geopm_policy_database_get_best_policy(`:
+    `const struct geopm_policy_database *`_database_`,`<br>
+    `const char *`_profile_name_`,`<br>
+    `const char *`_agent_name_`,`<br>
+    `size_t` _policy_size_`,`<br>
+    `char *`_policy_`);`
+
+  * `int geopm_policy_database_get_best_report(`:
+    `const struct geopm_policy_database *`_database_`,`<br>
+    `const char *`_profile_name_`,`<br>
+    `const char *`_agent_name_`,`<br>
+    `size_t` _report_size_`,`<br>
+    `char *`_report_`);`
+
+  * `int geopm_policy_database_set_best_policy(`:
+    `struct geopm_policy_database *`_database_`,`<br>
+    `const char *`_profile_name_`,`<br>
+    `const char *`_agent_name_`,`<br>
+    `const char *`_policy_`,`<br>
+    `const char *`_report_`);`
+
+  * `int geopm_policy_database_set_default_policy(`:
+    `struct geopm_policy_database *`_database_`,`<br>
+    `const char *`_agent_name_`,`<br>
+    `const char *`_policy_`);`
+
+## DESCRIPTION
+The interfaces described in this man page are the C language bindings for the
+**geopm::PolicyDatabase(3)** C++ class.  Please refer to the
+**geopm::PolicyDatabase(3)** man page for additional information about this
+interface.
+
+  * `geopm_policy_database_connect`():
+    Opens a connection to a database at the path specified in _database_path_,
+    and ensures necessary tables exist. Returns a pointer to the connection,
+    which should be provided as an input to other functions in this interface.
+    Returns NULL if it is unable to connect.
+
+  * `geopm_policy_database_disconnect`():
+    Closes the connection to _database_.
+
+  * `geopm_policy_database_get_best_policy`():
+    Gets the best known policy for a given _profile_name_ and _agent_name_
+    in _database_.  Gets the agent's default policy if no best policy has
+    been reported.  Returns GEOPM_ERROR_INVALID if _database_ is NULL or
+    _policy_ would be truncated.  Returns GEOPM_ERROR_DATABASE if no applicable
+    policy exists in the database, or if any database errors occur.  Returns
+    zero on success, and up to _policy_size_ bytes of the found policy are
+    written to _policy_.
+
+  * `geopm_policy_database_get_best_report`():
+    Gets the report associated with the best known policy for a given
+    _profile_name_ and _agent_name_ in _database_.  Returns GEOPM_ERROR_INVALID
+    if _database_ is NULL or _policy_ would be truncated.  Returns
+    GEOPM_ERROR_DATABASE if no such report exists, or if any database errors
+    occur.  Returns zero on success, and up to _report_size_ bytes of the found
+    report are written to _report_.
+
+  * `geopm_policy_database_set_best_policy`():
+    Sets the best known policy for a given _profile_name_ and _agent_name_ to
+    _policy_ in _database_.  Records the associated _report_ as well.  Returns
+    GEOPM_ERROR_INVALID if _database_ is NULL. Returns GEOPM_ERROR_DATABASE if
+    any database errors occur. Returns zero on success.
+
+  * `geopm_policy_database_set_default_policy`():
+    Sets the default policy for a given _agent_name_ to _policy_ in _database_.
+    Returns GEOPM_ERROR_INVALID if _database_ is NULL. Returns
+    GEOPM_ERROR_DATABASE if any database errors occur. Returns zero on success.
+
+## COPYRIGHT
+Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopm_error(3)**,
+**geopm::PolicyDatabase(3)**

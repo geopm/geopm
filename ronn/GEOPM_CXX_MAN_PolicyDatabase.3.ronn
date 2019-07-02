@@ -1,0 +1,103 @@
+geopm::PolicyDatabase(3) -- geopm agent policy database
+==============================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## SYNOPSIS
+
+**\#include [<geopm/PolicyDatabase.hpp>](https://github.com/geopm/geopm/blob/dev/src/PolicyDatabase.hpp)**
+
+`Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
+
+  * `PolicyDatabase(`:
+    `const std::string &`_database_path_`);`
+
+  * `~PolicyDatabase(`:
+    `void);`
+
+  * `std::string GetBestPolicy(`:
+    `const std::string &`_profile_name_`,`<br>
+    `const std::string &`_agent_name_`) const;`
+
+  * `std::string GetBestReport(`:
+    `const std::string &`_profile_name_`,`<br>
+    `const std::string &`_agent_name_`) const;`
+
+  * `std::string SetBestPolicy(`:
+    `const std::string &`_profile_name_`,`<br>
+    `const std::string &`_agent_name_`,`<br>
+    `const std::string &`_policy_`,`<br>
+    `const std::string &`_report_`);`
+
+  * `std::string SetDefaultPolicy(`:
+    `const std::string &`_agent_name_`,`<br>
+    `const std::string &`_policy_`);`
+
+## DESCRIPTION
+This class manages a database of best known policies for profiles used with
+agents.  The database includes the policy strings, the reports associated with
+the best known policies, and default policies to apply when a best run has not
+yet been recorded.
+
+## CLASS METHODS
+
+  * `PolicyDatabase`():
+    Opens a connection to a database at the path specified in _database_path_,
+    and ensures necessary tables exist.
+
+  * `~PolicyDatabase`():
+    Closes the associated database connection.
+
+  * `GetBestPolicy`():
+    Returns the best known policy for a given _profile_name_ and _agent_name_,
+    or the agent's default policy if no best policy has been reported.  An
+    exception is thrown if no default exists, or if any database errors occur.
+
+  * `GetBestReport`():
+    Returns the report associated with the best known policy for a given
+    _profile_name_ and _agent_name_.  An exception is thrown if no such report
+    exists, or if any database errors occur.
+
+  * `SetBestPolicy`():
+    Sets the best known policy for a given _profile_name_ and _agent_name_ to
+    _policy_, and records the associated _report_.  An exception is thrown if
+    any database errors occur.
+
+  * `SetDefaultPolicy`():
+    Sets the default policy for a given _agent_name_ to _policy_.  An exception
+    is thrown if any database errors occur.
+
+## COPYRIGHT
+Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopm_policy_database_c(3)**

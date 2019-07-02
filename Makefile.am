@@ -145,6 +145,7 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/GEOPM_CXX_MAN_PlatformIO.3 \
                 man/GEOPM_CXX_MAN_PlatformTopo.3 \
                 man/GEOPM_CXX_MAN_PluginFactory.3 \
+                man/GEOPM_CXX_MAN_PolicyDatabase.3 \
                 man/GEOPM_CXX_MAN_PowerBalancer.3 \
                 man/GEOPM_CXX_MAN_PowerGovernor.3 \
                 man/GEOPM_CXX_MAN_RegionAggregator.3 \
@@ -163,6 +164,7 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/geopm_hash.3 \
                 man/geopm_imbalancer.3 \
                 man/geopm_pio_c.3 \
+                man/geopm_policy_database_c.3 \
                 man/geopm_prof_c.3 \
                 man/geopm_sched.3 \
                 man/geopm_time.3 \
@@ -265,6 +267,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/GEOPM_CXX_MAN_PlatformIO.3.ronn \
              ronn/GEOPM_CXX_MAN_PlatformTopo.3.ronn \
              ronn/GEOPM_CXX_MAN_PluginFactory.3.ronn \
+             ronn/GEOPM_CXX_MAN_PolicyDatabase.3.ronn \
              ronn/GEOPM_CXX_MAN_PowerBalancer.3.ronn \
              ronn/GEOPM_CXX_MAN_PowerBalancerAgent.3.ronn \
              ronn/GEOPM_CXX_MAN_PowerGovernor.3.ronn \
@@ -288,6 +291,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/geopm_hash.3.ronn \
              ronn/geopm_imbalancer.3.ronn \
              ronn/geopm_pio_c.3.ronn \
+             ronn/geopm_policy_database_c.3.ronn \
              ronn/geopm_prof_c.3.ronn \
              ronn/geopm_sched.3.ronn \
              ronn/geopm_time.3.ronn \
@@ -469,6 +473,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/PlatformTopo.hpp \
                             src/PlatformTopoImp.hpp \
                             src/PluginFactory.hpp \
+                            src/PolicyDatabase.cpp \
+                            src/PolicyDatabase.hpp \
                             src/PowerBalancer.cpp \
                             src/PowerBalancer.hpp \
                             src/PowerBalancerImp.hpp \
