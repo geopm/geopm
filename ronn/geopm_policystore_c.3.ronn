@@ -1,0 +1,105 @@
+geopm_policystore_c(3) -- geopm resource policy store interface
+===============================================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## SYNOPSIS
+
+**\#include [<geopm_policystore.h>](https://github.com/geopm/geopm/blob/dev/src/geopm_policystore.h)**
+
+`Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
+
+  * `int geopm_policystore_connect(`:
+    `const char *`_data_path_`);`
+
+  * `int geopm_policystore_disconnect();`
+
+  * `int geopm_policystore_get_best(`:
+    `const char *`_profile_name_`,`<br>
+    `const char *`_agent_name_`,`<br>
+    `size_t` _max_policy_vals_`,`<br>
+    `double *`_policy_vals_`);`
+
+  * `int geopm_policystore_set_best(`:
+    `const char *`_profile_name_`,`<br>
+    `const char *`_agent_name_`,`<br>
+    `size_t `_num_policy_vals_`,`<br>
+    `const double *`_policy_vals_`);`
+
+  * `int geopm_policystore_set_default(`:
+    `const char *`_agent_name_`,`<br>
+    `size_t `_num_policy_vals_`,`<br>
+    `const double *`_policy_vals_`);`
+
+## DESCRIPTION
+These interfaces expose records of best known policies for profiles used with agents.
+The records include the best reported policies, as well as the default policies
+to apply when a best run has not yet been recorded.  Policies are shared as
+arrays of doubles.  See `geopm_agent_policy_json_partial()` in **geopm_agent(3)**
+for information about interpreting them as json strings.
+
+  * `geopm_policystore_connect`():
+    Connects to a data store at the path specified in _data_path_, creating a
+    new one if necessary.  Returns zero on success, or an error code on failure.
+
+  * `geopm_policystore_disconnect`():
+    Disconnects the data store if one is connected.
+
+  * `geopm_policystore_get_best`():
+    Gets the best known policy for a given _profile_name_ and _agent_name_ in
+    the policy store.  Gets the agent's default policy if no best policy has
+    been reported.  Returns GEOPM_ERROR_INVALID if not connected to a store, or
+    if _policy_vals_ would be truncated.  Returns GEOPM_ERROR_DATA_STORE if no
+    applicable policy exists in the data store, or if any data store errors
+    occur.  Returns zero on success, and up to _max_policy_vals_ values of the
+    found policy are written to _policy_vals_.
+
+  * `geopm_policystore_set_best`():
+    Sets the best known policy for a given _profile_name_ and _agent_name_ to
+    _policy_vals_ in the store.  _num_policy_vals_ specifies how many values to
+    store.  Returns GEOPM_ERROR_INVALID if not connected to a store. Returns
+    GEOPM_ERROR_DATA_STORE if any data store errors occur. Returns zero on
+    success.
+
+  * `geopm_policystore_set_default`():
+    Sets the default policy for a given _agent_name_ to _policy_vals_ in
+    the store.  _num_policy_vals specifies how many values to store. Returns
+    GEOPM_ERROR_INVALID if not connected to a store.  Returns
+    GEOPM_ERROR_DATA_STORE if any data store errors occur.  Returns zero on
+    success.
+
+## COPYRIGHT
+Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopm_agent(3)**,
+**geopm_error(3)**

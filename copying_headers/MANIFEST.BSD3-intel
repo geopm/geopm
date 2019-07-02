@@ -42,6 +42,7 @@ scripts/geopmpy/io.py
 scripts/geopmpy/launcher.py
 scripts/geopmpy/pio.py
 scripts/geopmpy/plotter.py
+scripts/geopmpy/policy_store.py
 scripts/geopmpy/topo.py
 scripts/geopmpy/version.py.in
 scripts/outlier/outlier_detection.py
@@ -142,6 +143,10 @@ src/PlatformTopo.cpp
 src/PlatformTopo.hpp
 src/PlatformTopoImp.hpp
 src/PluginFactory.hpp
+src/PolicyStore.cpp
+src/PolicyStore.hpp
+src/PolicyStoreImp.cpp
+src/PolicyStoreImp.hpp
 src/PowerBalancer.cpp
 src/PowerBalancer.hpp
 src/PowerBalancerImp.hpp
@@ -209,6 +214,7 @@ src/geopm_pmpi.c
 src/geopm_pmpi.h
 src/geopm_pmpi_fortran.c
 src/geopm_pmpi_helper.cpp
+src/geopm_policystore.h
 src/geopm_sched.c
 src/geopm_sched.h
 src/geopm_signal_handler.h
