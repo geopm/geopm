@@ -31,11 +31,49 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-"""The geopm python package: launcher, error, io, pio, plotter, policy_store,
-topo, agent, and version.
+def connect(database_path):
+    """Connect to the database at the given location.  Creates a new
+    database if one does not yet exist at the given location.
 
-"""
+    Args:
+        database_path (str): Path to the database.
+    """
+    pass
 
-__all__ = ['agent', 'error', 'io', 'launcher', 'pio', 'plotter', 'policy_store', 'topo', 'version']
+def disconnect():
+    """Disconnect the associated database.  No-op if the database has already
+    been disconnected.
+    """
+    pass
 
-from geopmpy.version import __version__
+def get_best(profile_name, agent_name):
+    """Get the best known policy for a given agent/profile pair. If no best
+    has been recorded, the default for the agent is returned.
+
+    Args:
+        profile_name (str): Name of the profile.
+        agent_name (str): Name of the agent.
+
+    Returns:
+        list of float: Best known policy for the profile and agent.
+    """
+    pass
+
+def set_best(profile_name, agent_name, policy):
+    """ Set the record for the best policy for a profile with an agent.
+
+    Args:
+        profile_name (str): Name of the profile.
+        agent_name (str): Name of the agent.
+        policy (list of double): New policy to use.
+    """
+    pass
+
+def set_default(agent_name, policy):
+    """ Set the default policy to use with an agent.
+
+    Args:
+        agent_name (str): Name of the agent.
+        policy (list of double): Default policy to use with the agent.
+    """
+    pass
