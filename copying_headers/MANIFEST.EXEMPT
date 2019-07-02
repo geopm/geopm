@@ -75,6 +75,7 @@ ronn/geopm_fortran.3.ronn
 ronn/geopm_hash.3.ronn
 ronn/geopm_imbalancer.3.ronn
 ronn/geopm_pio_c.3.ronn
+ronn/geopm_policystore_c.3.ronn
 ronn/geopm_prof_c.3.ronn
 ronn/geopm_sched.3.ronn
 ronn/geopm_time.3.ronn

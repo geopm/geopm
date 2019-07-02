@@ -47,6 +47,7 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/geopmpy/launcher.py \
               scripts/geopmpy/pio.py \
               scripts/geopmpy/plotter.py \
+              scripts/geopmpy/policy_store.py \
               scripts/geopmpy/topo.py \
               scripts/geopmpy/version.py \
               scripts/requirements.txt \
