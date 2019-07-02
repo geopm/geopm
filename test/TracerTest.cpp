@@ -32,6 +32,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <memory>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -56,6 +57,11 @@ using testing::HasSubstr;
 class TracerTest : public ::testing::Test
 {
     protected:
+        struct m_request_s {
+            std::string name;
+            int domain_type;
+            int domain_idx;
+        };
         void SetUp(void);
         void TearDown(void);
         MockPlatformIO m_platform_io;
@@ -65,10 +71,11 @@ class TracerTest : public ::testing::Test
         std::string m_agent = "myagent";
         std::string m_profile = "myprofile";
         std::string m_start_time = "Tue Nov  6 08:00:00 2018";
-        std::vector<PlatformIO::m_request_s> m_default_cols;
+        std::vector<struct m_request_s> m_default_cols;
         std::vector<std::string> m_extra_cols;
         std::string m_extra_cols_str;
         const int m_num_extra_cols = 3;
+        std::unique_ptr<geopm::TracerImp> m_tracer;
 };
 
 void TracerTest::SetUp(void)
@@ -111,6 +118,9 @@ void TracerTest::SetUp(void)
     ++idx;
     EXPECT_CALL(m_platform_io, push_signal("EXTRA_SPECIAL", GEOPM_DOMAIN_CPU, 1))
         .WillOnce(Return(idx));
+
+    m_tracer = geopm::make_unique<TracerImp>(m_start_time, m_path, m_hostname, true,
+                                             m_platform_io, m_platform_topo, m_extra_cols_str);
 }
 
 void TracerTest::TearDown(void)
@@ -122,13 +132,11 @@ void check_trace(std::istream &expected, std::istream &result);
 
 TEST_F(TracerTest, columns)
 {
-    TracerImp tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_platform_topo, m_extra_cols_str, 1);
-
     // columns from agent will be printed as-is
     std::vector<std::string> agent_cols {"col1", "col2"};
 
-    tracer.columns(agent_cols, {});
-    tracer.flush();
+    m_tracer->columns(agent_cols, {});
+    m_tracer->flush();
 
     std::string expected_header = "# \"geopm_version\"\n"
                                   "# \"start_time\" : \"" + m_start_time + "\"\n" +
@@ -148,7 +156,6 @@ TEST_F(TracerTest, columns)
 
 TEST_F(TracerTest, update_samples)
 {
-    TracerImp tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_platform_topo, m_extra_cols_str, 1);
     int idx = 0;
     for (auto cc : m_default_cols) {
         EXPECT_CALL(m_platform_io, sample(idx))
@@ -165,10 +172,10 @@ TEST_F(TracerTest, update_samples)
     std::vector<std::string> agent_cols {"col1", "col2"};
     std::vector<double> agent_vals {88.8, 77.7};
 
-    tracer.columns(agent_cols, {});
-    tracer.update(agent_vals, {});
-    tracer.flush();
-    tracer.update(agent_vals, {}); // no additional samples after flush
+    m_tracer->columns(agent_cols, {});
+    m_tracer->update(agent_vals, {});
+    m_tracer->flush();
+    m_tracer->update(agent_vals, {}); // no additional samples after flush
 
     std::string expected_str = "\n\n\n\n\n\n"
         "5.0e-01|1.5e+00|0x0000000000000002|0x0000000000000003|4.5|5.5e+00|6.5e+00|7.5e+00|8.5e+00|9.5e+00|1.0e+01|1.2e+01|1.2e+01|1.4e+01|1.5e+01|1.6e+01|1.7e+01|8.9e+01|7.8e+0\n";
@@ -180,7 +187,6 @@ TEST_F(TracerTest, update_samples)
 
 TEST_F(TracerTest, region_entry_exit)
 {
-    TracerImp tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_platform_topo, m_extra_cols_str, 1);
     EXPECT_CALL(m_platform_io, sample(_)).Times(m_default_cols.size() + m_num_extra_cols)
         .WillOnce(Return(2.2))                        // time
         .WillOnce(Return(0.0))                        // epoch_count
@@ -199,10 +205,10 @@ TEST_F(TracerTest, region_entry_exit)
         {0x456, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2},
         {0x345, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2},
     };
-    tracer.columns(agent_cols, {});
-    tracer.update(agent_vals, short_regions);
-    tracer.flush();
-    tracer.update(agent_vals, short_regions); // no additional samples after flush
+    m_tracer->columns(agent_cols, {});
+    m_tracer->update(agent_vals, short_regions);
+    m_tracer->flush();
+    m_tracer->update(agent_vals, short_regions); // no additional samples after flush
     std::string expected_str ="\n\n\n\n\n"
         "\n" // header
         "2.2e+00|0.0e+00|0x0000000000000123|0x0000000100000000|0.0|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
