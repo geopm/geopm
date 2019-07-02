@@ -67,7 +67,7 @@ class TestPIO(unittest.TestCase):
         actual_t1 = geopmpy.pio.read_signal('TIME', geopmpy.topo.DOMAIN_CPU, 0)
         expect_tt = expect_t1 - expect_t0
         actual_tt = actual_t1 - actual_t0
-        self.assertAlmostEqual(expect_tt, actual_tt, delta=0.05)
+        self.assertAlmostEqual(expect_tt, actual_tt, delta=0.1)
         try:
             power = geopmpy.pio.read_signal('POWER_PACKAGE', 'cpu', 0)
         except RuntimeError:
