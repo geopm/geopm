@@ -54,7 +54,8 @@ namespace geopm
             virtual ~Tracer() = default;
             /// @brief Set up default columns and add columns to be
             //         provided by the Agent.
-            virtual void columns(const std::vector<std::string> &agent_cols) = 0;
+            virtual void columns(const std::vector<std::string> &agent_cols,
+                                 const std::vector<std::string> &agent_formats) = 0;
             /// @brief Update the trace with telemetry samples and
             ///        region info.  The Tracer samples values for
             ///        default and environment columns and the
@@ -103,7 +104,8 @@ namespace geopm
                       int precision);
             /// @brief TracerImp destructor, virtual.
             virtual ~TracerImp();
-            void columns(const std::vector<std::string> &agent_cols) override;
+            void columns(const std::vector<std::string> &agent_cols,
+                         const std::vector<std::string> &agent_formats) override;
             void update(const std::vector<double> &agent_signals,
                         std::list<geopm_region_info_s> region_entry_exit) override;
             void flush(void) override;

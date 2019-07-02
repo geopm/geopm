@@ -160,7 +160,7 @@ TEST_F(ControllerTest, single_node)
     // setup trace
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     EXPECT_CALL(*agent, trace_names()).WillOnce(Return(trace_names));
-    EXPECT_CALL(*m_tracer, columns(_));
+    EXPECT_CALL(*m_tracer, columns(_, _));
     controller.setup_trace();
 
     // step
@@ -229,7 +229,7 @@ TEST_F(ControllerTest, two_level_controller_1)
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     EXPECT_CALL(*agent, trace_names()).WillOnce(Return(trace_names));
-    EXPECT_CALL(*m_tracer, columns(_));
+    EXPECT_CALL(*m_tracer, columns(_, _));
     controller.setup_trace();
 
     // mock parent sending to this child
@@ -319,7 +319,7 @@ TEST_F(ControllerTest, two_level_controller_2)
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     EXPECT_CALL(*m_level_agent[0], trace_names()).WillOnce(Return(trace_names));
-    EXPECT_CALL(*m_tracer, columns(_));
+    EXPECT_CALL(*m_tracer, columns(_, _));
     controller.setup_trace();
 
     // mock parent sending to this child
@@ -413,7 +413,7 @@ TEST_F(ControllerTest, two_level_controller_0)
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     EXPECT_CALL(*m_level_agent[0], trace_names()).WillOnce(Return(trace_names));
-    EXPECT_CALL(*m_tracer, columns(_));
+    EXPECT_CALL(*m_tracer, columns(_, _));
     controller.setup_trace();
 
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
