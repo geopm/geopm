@@ -105,13 +105,22 @@ void TracerTest::SetUp(void)
         ++idx;
     }
     EXPECT_CALL(m_platform_io, push_signal("EXTRA", GEOPM_DOMAIN_BOARD, 0))
-            .WillOnce(Return(idx));
+        .WillOnce(Return(idx));
     ++idx;
     EXPECT_CALL(m_platform_io, push_signal("EXTRA_SPECIAL", GEOPM_DOMAIN_CPU, 0))
         .WillOnce(Return(idx));
     ++idx;
     EXPECT_CALL(m_platform_io, push_signal("EXTRA_SPECIAL", GEOPM_DOMAIN_CPU, 1))
         .WillOnce(Return(idx));
+
+    EXPECT_CALL(m_platform_io, format_function("EXTRA"))
+        .WillOnce(Return(geopm::string_format_double));
+
+    EXPECT_CALL(m_platform_io, format_function("EXTRA_SPECIAL"))
+        .WillOnce(Return(geopm::string_format_double));
+
+    m_tracer = geopm::make_unique<TracerImp>(m_start_time, m_path, m_hostname, true,
+                                             m_platform_io, m_platform_topo, m_extra_cols_str);
 }
 
 void TracerTest::TearDown(void)
@@ -128,7 +137,7 @@ TEST_F(TracerTest, columns)
     // columns from agent will be printed as-is
     std::vector<std::string> agent_cols {"col1", "col2"};
 
-    tracer.columns(agent_cols);
+    tracer.columns(agent_cols, {});
     tracer.flush();
 
     std::string expected_header = "# \"geopm_version\"\n"
@@ -166,7 +175,7 @@ TEST_F(TracerTest, update_samples)
     std::vector<std::string> agent_cols {"col1", "col2"};
     std::vector<double> agent_vals {88.8, 77.7};
 
-    tracer.columns(agent_cols);
+    tracer.columns(agent_cols, {});
     tracer.update(agent_vals, {});
     tracer.flush();
     tracer.update(agent_vals, {}); // no additional samples after flush
@@ -253,10 +262,10 @@ TEST_F(TracerTest, region_entry_exit)
         {0x456, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2, 1},
         {0x345, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2, 1},
     };
-    tracer.columns(agent_cols);
-    tracer.update(agent_vals, short_regions);
-    tracer.flush();
-    tracer.update(agent_vals, short_regions); // no additional samples after flush
+    m_tracer->columns(agent_cols, {geopm::string_format_integer,
+                                   geopm::string_format_integer});
+    m_tracer->update(agent_vals, short_regions);
+    m_tracer->flush();
     std::string expected_str ="\n\n\n\n\n"
         "\n" // header
         "2.2e+00|0.0e+00|0x0000000000000123|0x0000000100000000|0.0|0.0e+00|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"

@@ -108,29 +108,30 @@ namespace geopm
         }
     }
 
-    void TracerImp::columns(const std::vector<std::string> &agent_cols)
+    void TracerImp::columns(const std::vector<std::string> &agent_cols,
+                            const std::vector<std::function<std::string(double)> > &col_formats)
     {
         if (m_is_trace_enabled) {
             bool first = true;
 
             // default columns
-            std::vector<PlatformIO::m_request_s> base_columns({
-                    {"TIME", GEOPM_DOMAIN_BOARD, 0},
-                    {"EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0},
-                    {"REGION_HASH", GEOPM_DOMAIN_BOARD, 0},
-                    {"REGION_HINT", GEOPM_DOMAIN_BOARD, 0},
-                    {"REGION_PROGRESS", GEOPM_DOMAIN_BOARD, 0},
-                    {"REGION_COUNT", GEOPM_DOMAIN_BOARD, 0},
-                    {"REGION_RUNTIME", GEOPM_DOMAIN_BOARD, 0},
-                    {"ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0},
-                    {"ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0},
-                    {"POWER_PACKAGE", GEOPM_DOMAIN_BOARD, 0},
-                    {"POWER_DRAM", GEOPM_DOMAIN_BOARD, 0},
-                    {"FREQUENCY", GEOPM_DOMAIN_BOARD, 0},
-                    {"CYCLES_THREAD", GEOPM_DOMAIN_BOARD, 0},
-                    {"CYCLES_REFERENCE", GEOPM_DOMAIN_BOARD, 0},
-                    {"TEMPERATURE_CORE", GEOPM_DOMAIN_BOARD, 0}});
-            // for region entry/exit, make sure region index is known
+            std::vector<struct m_request_s> base_columns({
+                    {"TIME", GEOPM_DOMAIN_BOARD, 0, string_format_double},
+                    {"EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0, string_format_integer},
+                    {"REGION_HASH", GEOPM_DOMAIN_BOARD, 0, string_format_hex},
+                    {"REGION_HINT", GEOPM_DOMAIN_BOARD, 0, string_format_hex},
+                    {"REGION_PROGRESS", GEOPM_DOMAIN_BOARD, 0, string_format_float},
+                    {"REGION_COUNT", GEOPM_DOMAIN_BOARD, 0, string_format_integer},
+                    {"REGION_RUNTIME", GEOPM_DOMAIN_BOARD, 0, string_format_double},
+                    {"ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0, string_format_double},
+                    {"ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0, string_format_double},
+                    {"POWER_PACKAGE", GEOPM_DOMAIN_BOARD, 0, string_format_double},
+                    {"POWER_DRAM", GEOPM_DOMAIN_BOARD, 0, string_format_double},
+                    {"FREQUENCY", GEOPM_DOMAIN_BOARD, 0, string_format_double},
+                    {"CYCLES_THREAD", GEOPM_DOMAIN_BOARD, 0, string_format_double},
+                    {"CYCLES_REFERENCE", GEOPM_DOMAIN_BOARD, 0, string_format_double},
+                    {"TEMPERATURE_CORE", GEOPM_DOMAIN_BOARD, 0, string_format_double}});
+
             m_region_hash_idx = 2;
             m_region_hint_idx = 3;
             m_region_progress_idx = 4;
@@ -138,21 +139,21 @@ namespace geopm
             m_region_runtime_idx = 6;
 
             // extra columns from environment
-            for (const auto &extra_signal : string_split(m_env_column, ",")) {
-                std::vector<std::string> signal_domain = string_split(extra_signal, "@");
-                if (signal_domain.size() == 2) {
-                    int domain_type = m_platform_topo.domain_name_to_type(signal_domain[1]);
-                    int num_domain = m_platform_topo.num_domain(domain_type);
-                    for (int domain_idx = 0; domain_idx != num_domain; ++domain_idx) {
-                        base_columns.push_back({signal_domain[0], domain_type, domain_idx});
-                    }
-                }
-                else if (signal_domain.size() == 1) {
-                    base_columns.push_back({extra_signal, GEOPM_DOMAIN_BOARD, 0});
-                }
-                else {
-                    throw Exception("TracerImp::columns(): Environment trace extension contains signals with multiple \"@\" characters.",
-                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            std::vector<std::string> env_sig = env_signals();
+            std::vector<int> env_dom = env_domains();
+            std::vector<std::function<std::string(double)> > env_form = env_formats();
+#ifdef GEOPM_DEBUG
+            if (env_sig.size() != env_dom.size() ||
+                env_sig.size() != env_form.size()) {
+                throw Exception("Tracer::columns(): private functions returned different size vectors",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
+#endif
+            size_t num_sig = env_sig.size();
+            for (size_t sig_idx = 0; sig_idx != num_sig; ++sig_idx) {
+                int num_dom = m_platform_topo.num_domain(env_dom.at(sig_idx));
+                for (int dom_idx = 0; dom_idx != num_dom; ++dom_idx) {
+                    base_columns.push_back({env_sig.at(sig_idx), env_dom.at(sig_idx), dom_idx, env_form.at(sig_idx)});
                 }
             }
 
@@ -175,8 +176,10 @@ namespace geopm
             }
 
             // columns from agent; will be sampled by agent
-            for (const auto &name : agent_cols) {
-                m_buffer << "|" << name;
+            size_t num_col = agent_cols.size();
+            for (size_t col_idx = 0; col_idx != num_col; ++col_idx) {
+                std::function<std::string(double)> format = col_formats.size() ? col_formats.at(col_idx) : string_format_double;
+                m_csv->add_column(agent_cols.at(col_idx), format);
             }
             m_buffer << "\n";
 
@@ -302,18 +305,32 @@ namespace geopm
         m_is_trace_enabled = false;
     }
 
-    std::string Tracer::pretty_name(const PlatformIO::m_request_s &col) {
-        std::ostringstream result;
-        std::string name = col.name;
-        if (name.find("#") == name.length() - 1) {
-            name = name.substr(0, name.length() - 1);
+    std::vector<int> TracerImp::env_domains(void)
+    {
+        std::vector<int> result;
+        for (const auto &extra_signal : string_split(m_env_column, ",")) {
+            std::vector<std::string> signal_domain = string_split(extra_signal, "@");
+            if (signal_domain.size() == 2) {
+                std::vector<std::string> domain_format = string_split(signal_domain[1], "%");
+                result.push_back(PlatformTopo::domain_name_to_type(domain_format[0]));
+            }
+            else if (signal_domain.size() == 1) {
+                result.push_back(GEOPM_DOMAIN_BOARD);
+            }
+            else {
+                throw Exception("TracerImp::columns(): Environment trace extension contains signals with multiple \"@\" characters.",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
         }
-        std::transform(name.begin(), name.end(), name.begin(),
-                       [](unsigned char c){ return std::tolower(c); });
-        result << name;
-        if (col.domain_type != GEOPM_DOMAIN_BOARD) {
-            result << "-" << PlatformTopo::domain_type_to_name(col.domain_type)
-                   << "-" << col.domain_idx;
+        return result;
+    }
+
+    std::vector<std::function<std::string(double)> > TracerImp::env_formats(void)
+    {
+        std::vector<std::function<std::string(double)> > result;
+        std::vector<std::string> signals = env_signals();
+        for (const auto &it : env_signals()) {
+            result.push_back(m_platform_io.format_function(it));
         }
         return result.str();
     }
