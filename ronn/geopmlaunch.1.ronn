@@ -204,8 +204,23 @@ listed below.
   signals and domains available on your system.  The signal names and
   domain names given for this parameter are specified as in the
   **geopmread(1)** command line interface.  This option is used by the
-  launcher to set the GEOPM_TRACE_SIGNALS environment variable.  The
-  command line option will override any value currently set in the
+  launcher to set the GEOPM_TRACE_SIGNALS environment variable.
+
+  The format for a signal can be specified by appending the signal
+  name (or domain name if given) with the "%" character and then
+  specifying one of the following format options: "double", "float",
+  "integer", "hex", or "raw64".  These will control the text
+  formatting of the signal in the trace.  Note that the default
+  formatting for signals ending in the "#" character is "raw64".  All
+  other signals will be printed in "double" format if no format is
+  specified.  The following example:
+
+  `--geopm-trace-signals=REGION_HASH@cpu%hex`
+
+  will append the region hash reported by every Linux logical CPU and
+  format the hash in hexadecimal notation.
+
+  The command line option will override any value currently set in the
   environment.  See the ENVIRONMENT section of **geopm(7)**.
 
 * `--geopm-trace-profile` path:
