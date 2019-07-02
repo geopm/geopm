@@ -108,7 +108,8 @@ namespace geopm
         }
     }
 
-    void TracerImp::columns(const std::vector<std::string> &agent_cols)
+    void TracerImp::columns(const std::vector<std::string> &agent_cols,
+                            const std::vector<std::string> &col_formats)
     {
         if (m_is_trace_enabled) {
             bool first = true;
