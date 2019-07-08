@@ -1209,7 +1209,7 @@ class AgentConf(object):
     def write(self):
         """Write the current config to a file."""
         policy_values = [float('nan')] * len(agent.policy_names(self._agent))
-        if self.agent in ['power_governor', 'power_balancer']:
+        if self._agent in ['power_governor', 'power_balancer']:
             policy_values[0] = self._options['power_budget']
         elif self._agent in ['frequency_map', 'energy_efficient']:
             policy_values[0] = self._options['frequency_min']
