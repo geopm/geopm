@@ -167,9 +167,9 @@ TEST_F(TracerTest, update_samples)
     std::vector<double> agent_vals {88.8, 77.7};
 
     tracer.columns(agent_cols);
-    tracer.update(agent_vals, {});
+    tracer.update(agent_vals);
     tracer.flush();
-    tracer.update(agent_vals, {}); // no additional samples after flush
+    tracer.update(agent_vals); // no additional samples after flush
 
     std::string expected_str = "\n\n\n\n\n\n"
         "5.0e-01|1.5e+00|0x0000000000000002|0x0000000000000003|4.5|5.5e+00|6.5e+00|7.5e+00|8.5e+00|9.5e+00|1.0e+01|1.2e+01|1.2e+01|1.4e+01|1.4e+01|1.6e+01|1.7e+01|1.8e+01|8.9e+01|7.8e+01\n";
@@ -187,6 +187,7 @@ TEST_F(TracerTest, region_entry_exit)
         .WillOnce(Return(0.0))                        // epoch_count
         .WillOnce(Return(0x123))                      // region hash
         .WillOnce(Return(GEOPM_REGION_HINT_UNKNOWN))  // region hint
+        .WillOnce(Return(1.0))  // count
         .WillOnce(Return(0.0))  // progress; should cause one region entry to be skipped
         .WillOnce(Return(0))                          // count
         .WillRepeatedly(Return(2.2));
@@ -194,25 +195,13 @@ TEST_F(TracerTest, region_entry_exit)
     std::vector<std::string> agent_cols {"col1", "col2"};
     std::vector<double> agent_vals {88.8, 77.7};
 
-    std::list<geopm_region_info_s> short_regions = {
-        {0x123, GEOPM_REGION_HINT_UNKNOWN, 0.0, 3.2, 0},
-        {0x123, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2, 1},
-        {0x345, GEOPM_REGION_HINT_UNKNOWN, 0.0, 3.2, 0},
-        {0x456, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2, 1},
-        {0x345, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2, 1},
-    };
     tracer.columns(agent_cols);
-    tracer.update(agent_vals, short_regions);
+    tracer.update(agent_vals);
     tracer.flush();
-    tracer.update(agent_vals, short_regions); // no additional samples after flush
+    tracer.update(agent_vals); // no additional samples after flush
     std::string expected_str ="\n\n\n\n\n"
         "\n" // header
-        "2.2e+00|0.0e+00|0x0000000000000123|0x0000000100000000|0.0|0.0e+00|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0.0e+00|0x0000000000000123|0x0000000100000000|1.0|1.0e+00|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0.0e+00|0x0000000000000345|0x0000000100000000|0.0|0.0e+00|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0.0e+00|0x0000000000000456|0x0000000100000000|1.0|1.0e+00|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0.0e+00|0x0000000000000345|0x0000000100000000|1.0|1.0e+00|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "\n"; // sample
+        "2.2e+00|0.0e+00|0x0000000000000123|0x0000000100000000|1.0|0.0e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"; // sample
 
      std::istringstream expected(expected_str);
      std::ifstream result(m_path + "-" + m_hostname);
