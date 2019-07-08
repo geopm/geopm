@@ -141,26 +141,4 @@ TEST_F(ApplicationIOTest, passthrough)
     EXPECT_CALL(*m_epoch_regulator, total_count(rid))
         .WillOnce(Return(77));
     EXPECT_EQ(77, m_app_io->total_count(rid));
-
-    std::list<geopm_region_info_s> expected, result;
-    expected = { {0x123, GEOPM_REGION_HINT_UNKNOWN, 0.0, 3.2},
-                 {0x123, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2},
-                 {0x345, GEOPM_REGION_HINT_UNKNOWN, 0.0, 3.2} };
-
-    EXPECT_CALL(*m_epoch_regulator, region_info())
-        .WillOnce(Return(expected));
-    result = m_app_io->region_info();
-    EXPECT_EQ(expected.size(), result.size());
-    auto exp_it = expected.cbegin();
-    for (auto res_it = result.cbegin(); (res_it != result.end()) &&(exp_it != expected.end());) {
-        EXPECT_EQ(exp_it->hash, res_it->hash);
-        EXPECT_EQ(exp_it->hint, res_it->hint);
-        EXPECT_EQ(exp_it->progress, res_it->progress);
-        EXPECT_EQ(exp_it->runtime, res_it->runtime);
-        ++res_it;
-        ++exp_it;
-    }
-
-    EXPECT_CALL(*m_epoch_regulator, clear_region_info());
-    m_app_io->clear_region_info();
 }
