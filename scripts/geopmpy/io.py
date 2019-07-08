@@ -87,7 +87,7 @@ class AppOutput(object):
 
     """
 
-    def __init__(self, reports=None, traces=None, dir_name='.', verbose=False, do_cache=True):
+    def __init__(self, reports=None, traces=None, dir_name='.', verbose=False, do_cache=True, profile_traces=None):
         self._reports = {}
         self._reports_df = pandas.DataFrame()
         self._traces = {}
@@ -96,6 +96,8 @@ class AppOutput(object):
         self._index_tracker = IndexTracker()
         self._node_names = None
         self._region_names = None
+        self._profile_traces = {}
+        self._profile_traces_df = pandas.DataFrame()
 
         if reports:
             if type(reports) is str:
@@ -206,6 +208,61 @@ class AppOutput(object):
             else:
                 self.parse_traces(trace_paths, verbose)
 
+        # todo copied code from above for traces, make a CSV abstraction and reuse code?
+        if profile_traces:
+            if type(profile_traces) is str:
+                profile_trace_glob = os.path.join(dir_name, profile_traces)
+                profile_trace_paths = natsorted(glob.glob(profile_trace_glob))
+                if len(profile_trace_paths) == 0:
+                    raise RuntimeError('No profile trace files found with pattern {}.'.format(profile_trace_glob))
+            elif type(profile_traces) is list:
+                profile_trace_paths = [os.path.join(dir_name, path) for path in profile_traces]
+            else:
+                raise TypeError('AppOutput: profile traces must be a list of paths or a glob pattern')
+
+            self._all_paths.extend(profile_trace_paths)
+            self._index_tracker.reset()
+
+            if do_cache:
+                # unique cache name based on profile trace files in this list
+                paths_str = str(profile_trace_paths)
+                profile_trace_h5_name = 'trace_{}.h5'.format(hash(paths_str))
+                self._all_paths.append(profile_trace_h5_name)
+
+                # check if cache is older than traces
+                if os.path.exists(profile_trace_h5_name):
+                    cache_mod_time = os.path.getmtime(profile_trace_h5_name)
+                    regen_cache = False
+                    for profile_trace_file in profile_trace_paths:
+                        mod_time = os.path.getmtime(profile_trace_file)
+                        if mod_time > cache_mod_time:
+                            regen_cache = True
+                    if regen_cache:
+                        os.remove(profile_trace_h5_name)
+
+                try:
+                    self._profile_traces_df = pandas.read_hdf(profile_trace_h5_name, 'trace')
+                    if verbose:
+                        sys.stdout.write('Loaded profile traces from {}.\n'.format(profile_trace_h5_name))
+                except IOError as err:
+                    sys.stderr.write('<geopmpy> Warning: profile trace HDF5 file not detected or older than traces.  Data will be saved to {}.\n'
+                                     .format(profile_trace_h5_name))
+
+                    self.parse_profile_traces(profile_trace_paths, verbose)
+                    # Cache profile_traces dataframe
+                    try:
+                        if verbose:
+                            sys.stdout.write('Generating HDF5 files... ')
+                        self._profile_traces_df.to_hdf(profile_trace_h5_name, 'trace')
+                    except ImportError as error:
+                        sys.stderr.write('<geopmpy> Warning: unable to write HDF5 file: {}\n'.format(str(error)))
+
+                    if verbose:
+                        sys.stdout.write('Done.\n')
+                        sys.stdout.flush()
+            else:
+                self.parse_profile_traces(profile_trace_paths, verbose)
+
     def parse_reports(self, report_paths, verbose):
         reports_df_list = []
         reports_app_df_list = []
@@ -283,6 +340,40 @@ class AppOutput(object):
             sys.stdout.flush()
         self._traces_df = pandas.concat(traces_df_list)
         self._traces_df = self._traces_df.sort_index(ascending=True)
+        if verbose:
+            sys.stdout.write('Done.\n')
+            sys.stdout.flush()
+
+    # todo copied code from above for traces, make a CSV abstraction and reuse code?
+    def parse_profile_traces(self, profile_trace_paths, verbose):
+        profile_traces_df_list = []
+        fileno = 1
+        filesize = 0
+        for tp in profile_trace_paths:  # Get size of all trace files
+            filesize += os.stat(tp).st_size
+        # Abort if traces are too large
+        avail_mem = psutil.virtual_memory().available
+        if filesize > avail_mem / 2:
+            sys.stderr.write('<geopmpy> Warning: Total size of traces is greater than 50% of available memory. Parsing traces will be skipped.\n')
+            return
+
+        filesize = '{}MiB'.format(filesize/1024/1024)
+
+        for tp in profile_trace_paths:
+            if verbose:
+                sys.stdout.write('\rParsing trace file {} of {} ({})... '.format(fileno, len(profile_trace_paths), filesize))
+                sys.stdout.flush()
+            fileno += 1
+            tt = Trace(tp)
+            self.add_trace_df(tt, profile_traces_df_list)  # Handles multiple traces per node
+        if verbose:
+            sys.stdout.write('Done.\n')
+            sys.stdout.flush()
+        if verbose:
+            sys.stdout.write('Creating combined traces DF... ')
+            sys.stdout.flush()
+        self._profile_traces_df = pandas.concat(profile_traces_df_list)
+        self._profile_traces_df = self._profile_traces_df.sort_index(ascending=True)
         if verbose:
             sys.stdout.write('Done.\n')
             sys.stdout.flush()
@@ -399,6 +490,14 @@ class AppOutput(object):
     def get_trace_data(self, node_name=None):
         idx = pandas.IndexSlice
         df = self._traces_df
+        if node_name is not None:
+            df = df.loc[idx[:, :, :, :, node_name, :, :], ]
+        return df
+
+    # todo copied code from above for traces, make a CSV abstraction and reuse code?
+    def get_profile_trace_data(self, node_name=None):
+        idx = pandas.IndexSlice
+        df = self._profile_traces_df
         if node_name is not None:
             df = df.loc[idx[:, :, :, :, node_name, :, :], ]
         return df
@@ -546,7 +645,7 @@ class IndexTracker(object):
             index_names.append('region')
             for region in sorted(run_output.keys()):  # Pandas sorts the keys when a DF is created
                 itl.append(self._get_base_index(run_output) + (region, ))  # Append region to the existing tuple
-        else:  # Trace file index
+        else:  # Trace and Profile Trace file index
             index_names.append('index')
             for ii in range(len(run_output.get_df())):  # Append the integer index to the DataFrame index
                 itl.append(self._get_base_index(run_output) + (ii, ))

@@ -114,28 +114,15 @@ TEST_F(EpochRuntimeRegulatorTest, rank_enter_exit_trace)
     m_regulator.record_entry(region_id, 1, start1);
     m_regulator.record_exit(region_id, 0, end0);
     m_regulator.record_exit(region_id, 1, end1);
-    auto region_info = m_regulator.region_info();
-    ASSERT_EQ(2u, region_info.size());
     std::vector<double> expected_progress = {0.0, 1.0};
     std::vector<double> expected_runtime = {0.0, 10.0};
-    size_t idx = 0;
     // region info should be based on last entry and first exit
     // for time all the ranks were in the region
-    for (const auto &info : region_info) {
-        EXPECT_EQ(geopm_region_id_hash(region_id), info.hash);
-        EXPECT_EQ(geopm_region_id_hint(region_id), info.hint);
-        EXPECT_EQ(expected_progress[idx], info.progress);
-        EXPECT_EQ(expected_runtime[idx], info.runtime);
-        ++idx;
-    }
     EXPECT_EQ(1, m_regulator.total_count(region_id));
 
-    m_regulator.clear_region_info();
     // single ranks do not change region info list
     m_regulator.record_entry(region_id, 0, start0);
     m_regulator.record_exit(region_id, 0, end0);
-    region_info = m_regulator.region_info();
-    EXPECT_EQ(0u, region_info.size());
 }
 
 TEST_F(EpochRuntimeRegulatorTest, all_ranks_enter_exit)

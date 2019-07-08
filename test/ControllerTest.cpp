@@ -152,7 +152,6 @@ class ControllerTest : public ::testing::Test
         MockEndpointUser *m_endpoint;
 
         int m_num_step = 3;
-        std::list<geopm_region_info_s> m_region_info;
         std::vector<std::pair<std::string, std::string> > m_agent_report;
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > m_region_names;
 };
@@ -255,15 +254,12 @@ TEST_F(ControllerTest, single_node)
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
-    EXPECT_CALL(*m_application_io, region_info()).Times(m_num_step)
-        .WillRepeatedly(Return(m_region_info));
-    EXPECT_CALL(*m_application_io, clear_region_info()).Times(m_num_step);
     std::vector<double> endpoint_policy = {8.8, 9.9};
     ASSERT_EQ(m_num_send_down, (int)endpoint_policy.size());
     EXPECT_CALL(*m_endpoint, read_policy(_)).Times(m_num_step)
         .WillRepeatedly(SetArgReferee<0>(endpoint_policy));
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
-    EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
+    EXPECT_CALL(*m_tracer, update(_)).Times(m_num_step);
     EXPECT_CALL(*agent, trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*agent, validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step);
@@ -340,11 +336,8 @@ TEST_F(ControllerTest, two_level_controller_1)
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
-    EXPECT_CALL(*m_application_io, region_info()).Times(m_num_step)
-        .WillRepeatedly(Return(m_region_info));
-    EXPECT_CALL(*m_application_io, clear_region_info()).Times(m_num_step);
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
-    EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
+    EXPECT_CALL(*m_tracer, update(_)).Times(m_num_step);
     EXPECT_CALL(*agent, trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*agent, validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step);
@@ -437,11 +430,8 @@ TEST_F(ControllerTest, two_level_controller_2)
 
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
-    EXPECT_CALL(*m_application_io, region_info()).Times(m_num_step)
-        .WillRepeatedly(Return(m_region_info));
-    EXPECT_CALL(*m_application_io, clear_region_info()).Times(m_num_step);
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
-    EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
+    EXPECT_CALL(*m_tracer, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], adjust_platform(_)).Times(m_num_step);
@@ -535,15 +525,12 @@ TEST_F(ControllerTest, two_level_controller_0)
 
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
-    EXPECT_CALL(*m_application_io, region_info()).Times(m_num_step)
-        .WillRepeatedly(Return(m_region_info));
-    EXPECT_CALL(*m_application_io, clear_region_info()).Times(m_num_step);
     std::vector<double> endpoint_policy = {8.8, 9.9};
     ASSERT_EQ(m_num_send_down, (int)endpoint_policy.size());
     EXPECT_CALL(*m_endpoint, read_policy(_)).Times(m_num_step)
         .WillRepeatedly(SetArgReferee<0>(endpoint_policy));
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
-    EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
+    EXPECT_CALL(*m_tracer, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], adjust_platform(_)).Times(m_num_step);

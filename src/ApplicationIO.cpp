@@ -385,23 +385,6 @@ namespace geopm
         m_profile_io_sample->update_thread(m_thread_progress);
     }
 
-    std::list<geopm_region_info_s> ApplicationIOImp::region_info(void) const
-    {
-#ifdef GEOPM_DEBUG
-        if (!m_is_connected) {
-            throw Exception("ApplicationIOImp::" + std::string(__func__) +
-                            " called before connect().",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        return m_epoch_regulator->region_info();
-    }
-
-    void ApplicationIOImp::clear_region_info(void)
-    {
-        m_epoch_regulator->clear_region_info();
-    }
-
     void ApplicationIOImp::abort(void)
     {
         m_sampler->abort();

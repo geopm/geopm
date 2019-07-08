@@ -131,15 +131,6 @@ namespace geopm
             ///        entered and exited.
             /// @param [in] region_id The ID of the region.
             virtual int total_count(uint64_t region_id) const = 0;
-            /// @todo this level of pass through will go away once
-            ///       this class is merged with ApplicationIO
-            /// @brief Returns the list of all regions entered or
-            ///        exited since the last call to
-            ///        clear_region_info().
-            virtual std::list<geopm_region_info_s> region_info(void) const = 0;
-            /// @brief Resets the internal list of region entries and
-            ///        exits.
-            virtual void clear_region_info(void) = 0;
     };
 
     class PlatformIO;
@@ -173,8 +164,6 @@ namespace geopm
             double total_app_runtime_mpi(void) const override;
             double total_app_runtime_ignore(void) const override;
             int total_count(uint64_t region_id) const override;
-            std::list<geopm_region_info_s> region_info(void) const override;
-            void clear_region_info(void) override;
         private:
             std::vector<double> per_rank_last_runtime(uint64_t region_id) const;
             double current_energy_pkg(void) const;
