@@ -79,18 +79,30 @@ class TestIntegration(unittest.TestCase):
         if abs((a - b) / denom) >= epsilon:
             self.fail('The fractional difference between {a} and {b} is greater than {epsilon}.  {msg}'.format(a=a, b=b, epsilon=epsilon, msg=msg))
 
+    #todo create and insert a runtime col based on max of all rank runtimes (timestamp at exit vs timestamp and entry)
     def create_progress_df(self, df):
+        # todo do I still want to drop here?  we want to look at all ranks and take max
         # Build a df with only the first region entry and the exit.
         df = df.reset_index(drop=True)
         last_index = 0
         filtered_df = pandas.DataFrame()
         row_list = []
-        progress_1s = df['REGION_PROGRESS'].loc[df['REGION_PROGRESS'] == 1]
+        #sort by region somehow (df.groupby?)
+        #sort by rank somehow
+        #for each region
+        #for each rank find 0s and 1s
+        #take delta of each 0/1 pair row's timestamp to get runtime
+        #max across ranks (to match REGION_RUNTIME signal default Agg:max)
+        #use timestamp of last rank to exit in new row
+        progress_0s = df['progress'].loc[df['progress'] == 0]
+        progress_1s = df['progress'].loc[df['progress'] == 1]
+        import code
+        code.interact(local=dict(globals(), **locals()))
         for index, _ in progress_1s.iteritems():
             row = df.loc[last_index:index].head(1)
-            row_list += [row[['TIME', 'REGION_PROGRESS', 'REGION_RUNTIME']]]
+            row_list += [row[['timestamp', 'progress', 'runtime']]]
             row = df.loc[last_index:index].tail(1)
-            row_list += [row[['TIME', 'REGION_PROGRESS', 'REGION_RUNTIME']]]
+            row_list += [row[['timestamp', 'progress', 'runtime']]]
             last_index = index + 1  # Set the next starting index to be one past where we are
         filtered_df = pandas.concat(row_list)
         return filtered_df
@@ -435,6 +447,7 @@ class TestIntegration(unittest.TestCase):
         name = 'test_runtime_regulator'
         report_path = name + '.report'
         trace_path = name + '.trace'
+        ptrace_path = name + '.ptrace'
         num_node = 1
         num_rank = 4
         loop_count = 20
@@ -448,40 +461,46 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('spin', spin_big_o)
         agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path, region_barrier=True)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path, region_barrier=True, profile_trace_path=ptrace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
-        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
+        self._output = geopmpy.io.AppOutput(report_path, trace_path + '*', profile_traces=ptrace_path + '*')
         node_names = self._output.get_node_names()
         self.assertEqual(len(node_names), num_node)
         regions = self._output.get_region_names()
         for nn in node_names:
             app_totals = self._output.get_app_total_data(node_name=nn)
             trace = self._output.get_trace_data(node_name=nn)
+            profile_trace = self._output.get_profile_trace_data(node_name=nn)
             self.assertNear(trace.iloc[-1]['TIME'], app_totals['runtime'].item())
+            #todo asssert on prof_trace?
+            #self.assertNear(profile_trace.iloc[-1]['TIME'], app_totals['runtime'].item())
             tt = trace.set_index(['REGION_HASH'], append=True)
             tt = tt.groupby(level=['REGION_HASH'])
+            pt = profile_trace.set_index(['REGION_HASH'], append=True) #todo why does lowering case f*** this up?
+            pt = pt.groupby(level=['REGION_HASH']) #todo why does lowering case f*** this up?
             for region_name in regions:
                 region_data = self._output.get_report_data(node_name=nn, region=region_name)
                 if region_name not in ['unmarked-region', 'model-init', 'epoch'] and not region_name.startswith('MPI_') and region_data['runtime'].item() != 0:
-                    trace_data = tt.get_group(region_data['id'].item())
+                    trace_data = pt.get_group(region_data['id'].item())
                     filtered_df = self.create_progress_df(trace_data)
                     first_time = False
                     epsilon = 0.001 if region_name != 'sleep' else 0.05
                     for index, df in filtered_df.iterrows():
-                        if df['REGION_PROGRESS'] == 1:
-                            self.assertNear(df['REGION_RUNTIME'], expected_region_runtime[region_name], epsilon=epsilon)
+                        if df['progress'] == 1:
+                            self.assertNear(df['runtime'], expected_region_runtime[region_name], epsilon=epsilon)
                             first_time = True
-                        if first_time is True and df['REGION_PROGRESS'] == 0:
-                            self.assertNear(df['REGION_RUNTIME'], expected_region_runtime[region_name], epsilon=epsilon)
+                        if first_time is True and df['progress'] == 0:
+                            self.assertNear(df['runtime'], expected_region_runtime[region_name], epsilon=epsilon)
 
     @util.skip_unless_run_long_tests()
     def test_region_runtimes(self):
         name = 'test_region_runtimes'
         report_path = name + '.report'
         trace_path = name + '.trace'
+        profile_trace_path = name + '.profile_trace'
         num_node = 4
         num_rank = 16
         loop_count = 500
@@ -491,7 +510,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.set_loop_count(loop_count)
         agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path, time_limit=900)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path, time_limit=900, profile_trace_path=profile_trace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
