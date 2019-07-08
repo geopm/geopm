@@ -80,10 +80,6 @@ class MockApplicationIO : public geopm::ApplicationIO
                      void(std::shared_ptr<geopm::Comm> comm));
         MOCK_METHOD0(profile_io_group,
                      std::shared_ptr<geopm::IOGroup>(void));
-        MOCK_CONST_METHOD0(region_info,
-                           std::list<geopm_region_info_s>(void));
-        MOCK_METHOD0(clear_region_info,
-                     void(void));
         MOCK_METHOD0(controller_ready,
                      void(void));
         MOCK_METHOD0(abort,

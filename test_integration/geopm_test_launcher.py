@@ -126,7 +126,7 @@ def get_platform():
 
 class TestLauncher(object):
     def __init__(self, app_conf, agent_conf, report_path=None,
-                 trace_path=None, host_file=None, time_limit=600, region_barrier=False, performance=False):
+                 trace_path=None, host_file=None, time_limit=600, region_barrier=False, performance=False, profile_trace_path=None):
         self._app_conf = app_conf
         self._agent_conf = agent_conf
         self._report_path = report_path
@@ -142,6 +142,7 @@ class TestLauncher(object):
         self.set_num_cpu()
         self.set_num_rank(16)
         self.set_num_node(4)
+        self._profile_trace_path = profile_trace_path
 
     def set_node_list(self, node_list):
         self._node_list = node_list
@@ -182,6 +183,8 @@ class TestLauncher(object):
                 argv.extend(['--geopm-trace', self._trace_path])
             if self._region_barrier:
                 argv.append('--geopm-region-barrier')
+            if self._profile_trace_path is not None:
+                argv.extend(['--geopm-trace-profile', self._profile_trace_path])
             argv.extend(['--'])
             exec_wrapper = os.getenv('GEOPM_EXEC_WRAPPER', '')
             if exec_wrapper:
