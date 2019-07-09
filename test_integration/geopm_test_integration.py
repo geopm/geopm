@@ -1562,7 +1562,7 @@ class TestIntegrationGeopmagent(unittest.TestCase):
                           ['not a valid floating-point number', 'Invalid argument'])
         self.check_output(['--agent', 'monitor', '--policy', '300'],
                           ['agent takes no parameters', 'Invalid argument'])
-        self.check_output(['--agent', 'energy_efficient', '--policy', '2.0e9,5.0e9,4.5e9'],
+        self.check_output(['--agent', 'energy_efficient', '--policy', '2.0e9,5.0e9,4.5e9,6.7'],
                           ['Number of policies', 'Invalid argument'])
 
 
