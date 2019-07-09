@@ -638,6 +638,17 @@ namespace geopm
         return iogroup->agg_function(signal_name);
     }
 
+    std::function<std::string(double)> PlatformIOImp::format_function(const std::string &signal_name) const
+    {
+        // PlatformIOImp forwards formatting request to underlying IOGroup
+        auto iogroup = find_signal_iogroup(signal_name);
+        if (iogroup == nullptr) {
+            throw Exception("PlatformIOImp::agg_function(): unknown how to aggregate \"" + signal_name + "\"",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return iogroup->format_function(signal_name);
+    }
+
     std::string PlatformIOImp::signal_description(const std::string &signal_name) const
     {
         /// @todo: find a better way to track signals produced by PlatformIOImp itself
