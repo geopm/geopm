@@ -38,6 +38,7 @@
 #include <fstream>
 #include <algorithm>
 #include <iterator>
+#include "Helper.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
 #include "Agg.hpp"
@@ -294,6 +295,16 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return it->second;
+    }
+
+    std::function<std::string(double)> CpuinfoIOGroup::format_function(const std::string &signal_name) const
+    {
+        auto it = m_func_map.find(signal_name);
+        if (it == m_func_map.end()) {
+            throw Exception("CpuinfoIOGroup::format_function(): unknown how to format \"" + signal_name + "\"",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return string_format_double;
     }
 
     std::string CpuinfoIOGroup::signal_description(const std::string &signal_name) const
