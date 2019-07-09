@@ -76,7 +76,8 @@ class EnergyEfficientAgentTest : public :: testing :: Test
         const int HINT_SIG = 2000;
         const int RUNTIME_SIG = 3000;
         const int COUNT_SIG = 4000;
-        std::map<uint64_t, std::shared_ptr<MockEnergyEfficientRegion> > m_region_map;
+        std::vector<uint64_t> m_named_region = {0x12, 0x34, 0x56};
+        std::map<std::pair<uint64_t, int>, std::shared_ptr<MockEnergyEfficientRegion> > m_region_map;
 };
 
 void EnergyEfficientAgentTest::SetUp()
@@ -88,33 +89,34 @@ void EnergyEfficientAgentTest::SetUp()
     ON_CALL(m_topo, num_domain(M_FREQ_DOMAIN))
         .WillByDefault(Return(M_NUM_FREQ_DOMAIN));
 
-    std::vector<int> fan_in {M_NUM_CHILDREN};
-    m_region_map[0x12] = std::make_shared<MockEnergyEfficientRegion>();
-    m_region_map[0x34] = std::make_shared<MockEnergyEfficientRegion>();
-    m_region_map[0x56] = std::make_shared<MockEnergyEfficientRegion>();
     // expectations for constructor
     EXPECT_CALL(m_topo, num_domain(M_FREQ_DOMAIN)).Times(2);
     EXPECT_CALL(*m_gov, frequency_domain_type()).Times(2);
-    for (int idx = 0; idx < M_NUM_FREQ_DOMAIN; ++idx) {
-        EXPECT_CALL(m_platio, push_signal("REGION_HASH", M_FREQ_DOMAIN, idx))
-            .WillOnce(Return(HASH_SIG + idx));
-        EXPECT_CALL(m_platio, push_signal("REGION_HINT", M_FREQ_DOMAIN, idx))
-            .WillOnce(Return(HINT_SIG + idx));
-        EXPECT_CALL(m_platio, push_signal("REGION_RUNTIME", M_FREQ_DOMAIN, idx))
-            .WillOnce(Return(RUNTIME_SIG + idx));
-        EXPECT_CALL(m_platio, push_signal("REGION_COUNT", M_FREQ_DOMAIN, idx))
-            .WillOnce(Return(COUNT_SIG + idx));
+    for (int freq_ctl_idx = 0; freq_ctl_idx < M_NUM_FREQ_DOMAIN; ++freq_ctl_idx) {
+        for (const auto &hash : m_named_region) {
+            auto reg_freq_ctl_pair = std::make_pair(hash, freq_ctl_idx);
+            m_region_map[reg_freq_ctl_pair] = std::make_shared<MockEnergyEfficientRegion>();
+        }
+        EXPECT_CALL(m_platio, push_signal("REGION_HASH", M_FREQ_DOMAIN, freq_ctl_idx))
+            .WillOnce(Return(HASH_SIG + freq_ctl_idx));
+        EXPECT_CALL(m_platio, push_signal("REGION_HINT", M_FREQ_DOMAIN, freq_ctl_idx))
+            .WillOnce(Return(HINT_SIG + freq_ctl_idx));
+        EXPECT_CALL(m_platio, push_signal("REGION_RUNTIME", M_FREQ_DOMAIN, freq_ctl_idx))
+            .WillOnce(Return(RUNTIME_SIG + freq_ctl_idx));
+        EXPECT_CALL(m_platio, push_signal("REGION_COUNT", M_FREQ_DOMAIN, freq_ctl_idx))
+            .WillOnce(Return(COUNT_SIG + freq_ctl_idx));
     }
-    std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > region_map;
+    std::map<std::pair<uint64_t, int>, std::shared_ptr<EnergyEfficientRegion> > region_map;
     for (auto &kv : m_region_map) {
         region_map[kv.first] = kv.second;
     }
     m_agent0 = geopm::make_unique<EnergyEfficientAgent>(m_platio, m_topo, m_gov, region_map);
     m_agent1 = geopm::make_unique<EnergyEfficientAgent>(m_platio, m_topo, m_gov,
-                                                        std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> >());
+                                                        std::map<std::pair<uint64_t, int>, std::shared_ptr<EnergyEfficientRegion> >());
 
     // expectations for init
     EXPECT_CALL(*m_gov, init_platform_io()).Times(1);
+    std::vector<int> fan_in {M_NUM_CHILDREN};
     m_agent0->init(0, fan_in, false);
     m_agent1->init(1, fan_in, false);
 }
@@ -284,7 +286,6 @@ TEST_F(EnergyEfficientAgentTest, sample_adjust_platform)
     std::vector<double> out_sample;
     for (int step = 0; step < NUM_STEPS; ++step) {
         std::vector<double> freqs(M_NUM_FREQ_DOMAIN);
-        std::vector<uint64_t> named_region = {0x12, 0x34, 0x56};
         std::map<uint64_t, int> freq_call_count = {
             {0x12, 0},
             {0x34, 0},
@@ -296,37 +297,40 @@ TEST_F(EnergyEfficientAgentTest, sample_adjust_platform)
             {0x56, 0}
         };
 
-        for (int dom = 0; dom < M_NUM_FREQ_DOMAIN; ++dom) {
-            uint64_t current_region = step_region[step][dom];
+        for (int freq_ctl_idx = 0; freq_ctl_idx < M_NUM_FREQ_DOMAIN; ++freq_ctl_idx) {
+            uint64_t current_region = step_region[step][freq_ctl_idx];
             uint64_t current_hint = region_hints.at(current_region);
-            EXPECT_CALL(m_platio, sample(HASH_SIG + dom))
+            EXPECT_CALL(m_platio, sample(HASH_SIG + freq_ctl_idx))
                 .WillOnce(Return(current_region));
-            EXPECT_CALL(m_platio, sample(HINT_SIG + dom))
+            EXPECT_CALL(m_platio, sample(HINT_SIG + freq_ctl_idx))
                 .WillOnce(Return(current_hint));
-            EXPECT_CALL(m_platio, sample(RUNTIME_SIG + dom)).WillOnce(Return(runtime));
-            EXPECT_CALL(m_platio, sample(COUNT_SIG + dom)).WillOnce(Return(step));
+            EXPECT_CALL(m_platio, sample(RUNTIME_SIG + freq_ctl_idx)).WillOnce(Return(runtime));
+            EXPECT_CALL(m_platio, sample(COUNT_SIG + freq_ctl_idx)).WillOnce(Return(step));
             ++freq_call_count[current_region];
-            if (m_region_map.find(current_region) != m_region_map.end()) {
-                ON_CALL(*m_region_map.at(current_region), freq())
-                    .WillByDefault(Return(exp_freq[step][dom]));
-                freqs[dom] = exp_freq[step][dom];
+            if (m_region_map.find(std::make_pair(current_region, freq_ctl_idx)) != m_region_map.end()) {
+                ON_CALL(*m_region_map.at(std::make_pair(current_region, freq_ctl_idx)), freq())
+                    .WillByDefault(Return(exp_freq[step][freq_ctl_idx]));
+                freqs[freq_ctl_idx] = exp_freq[step][freq_ctl_idx];
             }
-            if (do_exit[step][dom] != 0) {
-                ++update_call_count[do_exit[step][dom]];
+            if (do_exit[step][freq_ctl_idx] != 0) {
+                ++update_call_count[do_exit[step][freq_ctl_idx]];
             }
         }
         // check that EnergyEfficientRegion::freq() was called for the regions in this step
-        for (const auto &region : named_region) {
-            if (m_region_map.find(region) != m_region_map.end() &&
-                region_hints.at(region) != GEOPM_REGION_HINT_COMPUTE) {
-                EXPECT_CALL(*m_region_map.at(region), sample(-runtime))
-                    .Times(update_call_count.at(region));
-                EXPECT_CALL(*m_region_map.at(region), update_exit()
-                    .Times(update_call_count.at(region));
+        for (int freq_ctl_idx = 0; freq_ctl_idx < M_NUM_FREQ_DOMAIN; ++freq_ctl_idx) {
+            for (const auto &region : m_named_region) {
+                auto curr_reg_ctl_pair = std::make_pair(region, freq_ctl_idx);
+                if (m_region_map.find(curr_reg_ctl_pair) != m_region_map.end() &&
+                    region_hints.at(region) != GEOPM_REGION_HINT_COMPUTE) {
+                    EXPECT_CALL(*m_region_map.at(curr_reg_ctl_pair), sample(-runtime))
+                        .Times(update_call_count.at(region));
+                    EXPECT_CALL(*m_region_map.at(curr_reg_ctl_pair), update_exit())
+                        .Times(update_call_count.at(region));
+                }
+                // todo: number of times freq() is called depends on entry
+                EXPECT_CALL(*m_region_map.at(curr_reg_ctl_pair), freq())
+                    .Times(AtLeast(0));
             }
-            // todo: number of times freq() is called depends on entry
-            EXPECT_CALL(*m_region_map.at(region), freq())
-                .Times(AtLeast(0));
         }
 
         EXPECT_CALL(*m_gov, get_frequency_min())
