@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9758c0e7_f8c6eafa",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-07-09T21:28:53Z",
+      "side": 1,
+      "message": "(m_last_region_info[ctl_idx].hash !\u003d current_region_hash ||\n (m_last_region_info[ctl_idx].hash \u003d\u003d current_region_hash \u0026\u0026\n  m_last_region_info[ctl_idx].count !\u003d current_region_count))",
+      "range": {
+        "startLine": 232,
+        "startChar": 45,
+        "endLine": 232,
+        "endChar": 102
+      },
+      "revId": "0fa608920613dd9464d733618c5dc6090e6045ea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
