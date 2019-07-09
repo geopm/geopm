@@ -165,6 +165,11 @@ namespace geopm
             ///        the given signal.
             /// @param [in] signal_name Name of the signal.
             virtual std::function<double(const std::vector<double> &)> agg_function(const std::string &signal_name) const = 0;
+            /// @brief Returns a function that can be used to convert
+            ///        a signal of the given name into a printable
+            ///        string.  May be one of the IOGroup::format_*()
+            ///        static methods, or another function.
+            virtual std::function<std::string(double)> format_function(const std::string &signal_name) const;
             /// @brief Returns a description of the signal.  This
             ///        string can be used by tools to generate help
             ///        text for users of the IOGroup.

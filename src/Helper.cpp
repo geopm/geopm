@@ -37,8 +37,11 @@
 #include <dirent.h>
 #include <string.h>
 
+#include <climits>
+#include <cinttypes>
 #include <fstream>
 #include <algorithm>
+#include "geopm_hash.h"
 #include "Exception.hpp"
 #include "config.h"
 
@@ -130,5 +133,45 @@ namespace geopm
         std::reverse(str.begin(), str.end());
         std::reverse(key.begin(), key.end());
         return string_begins_with(str, key);
+    }
+
+    std::string string_format_double(double signal)
+    {
+        char result[NAME_MAX];
+        result[NAME_MAX - 1] = '\0';
+        snprintf(result, NAME_MAX - 1, "%.16g", signal);
+        return result;
+    }
+
+    std::string string_format_float(double signal)
+    {
+        char result[NAME_MAX];
+        result[NAME_MAX - 1] = '\0';
+        snprintf(result, NAME_MAX - 1, "%g", signal);
+        return result;
+    }
+
+    std::string string_format_integer(double signal)
+    {
+        char result[NAME_MAX];
+        result[NAME_MAX - 1] = '\0';
+        snprintf(result, NAME_MAX - 1, "%lld", (long long)signal);
+        return result;
+    }
+
+    std::string string_format_hex(double signal)
+    {
+        char result[NAME_MAX];
+        result[NAME_MAX - 1] = '\0';
+        snprintf(result, NAME_MAX - 1, "0x%016" PRIx64, (uint64_t)signal);
+        return result;
+    }
+
+    std::string string_format_raw64(double signal)
+    {
+        char result[NAME_MAX];
+        result[NAME_MAX - 1] = '\0';
+        snprintf(result, NAME_MAX - 1, "0x%016" PRIx64, geopm_signal_to_field(signal));
+        return result;
     }
 }

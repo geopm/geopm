@@ -74,6 +74,43 @@ namespace geopm
 
     /// @brief Returns whether one string ends with another.
     bool string_ends_with(std::string str, std::string key);
+
+    /// @brief Format a string to best represent a signal encoding a
+    ///        double precision floating point number.
+    /// @param signal A real number that requires many significant
+    ///        digits to accurately represent.
+    /// @return A well formatted string representation of the signal.
+    std::string string_format_double(double signal);
+
+    /// @brief Format a string to best represent a signal encoding a
+    ///        single precision floating point number.
+    /// @param signal A real number that requires a few significant
+    ///        digits to accuretly represent.
+    /// @return A well formatted string representation of the signal.
+
+    std::string string_format_float(double signal);
+    /// @brief Format a string to best represent a signal encoding a
+    ///        decimal integer.
+    /// @param signal An integer that is best represented as a decimal
+    ///        number.
+    /// @return A well formatted string representation of the signal.
+
+    std::string string_format_integer(double signal);
+    /// @brief Format a string to best represent a signal encoding an
+    ///        unsigned hexadecimal integer.
+    /// @param signal An unsigned integer that is best represented as
+    ///        a hexdecimal number and has been assigned to a double
+    ///        precision number
+    /// @return A well formatted string representation of the signal.
+
+    std::string string_format_hex(double signal);
+
+    /// @brief Format a string to represent the raw memory supporting
+    ///        a signal as an unsigned hexadecimal integer.
+    /// @param signal A 64-bit unsigned integer that has been bytewise
+    ///        copied into the memory of signal.
+    /// @return A well formatted string representation of the signal.
+    std::string string_format_raw64(double signal);
 }
 
 #endif
