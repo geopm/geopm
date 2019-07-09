@@ -685,6 +685,9 @@ namespace geopm
             cpu_signal[cpu_idx] = std::make_shared<MSRSignalImp>(msr_obj, msr_obj.domain_type(), cpu_idx, signal_idx);
         }
 
+        // Record the units in the map
+        m_signal_units_map[signal_name] = msr_obj.units(signal_idx);
+
         // Set up aggregation for the alias
         auto func = agg_function(msr_name_field);
         m_func_map[signal_name] = func;
@@ -798,6 +801,35 @@ namespace geopm
         auto it = m_func_map.find(signal_name);
         if (it != m_func_map.end()) {
             result = it->second;
+        }
+        return result;
+    }
+
+    std::function<std::string(double)> MSRIOGroup::format_function(const std::string &signal_name) const
+    {
+        if (!is_valid_signal(signal_name)) {
+            throw Exception("MSRIOGroup::format_function(): signal_name " + signal_name +
+                            " not valid for MSRIOGroup",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::function<std::string(double)> result = string_format_double;
+        if (string_ends_with(signal_name, "#")) {
+            result = string_format_raw64;
+        }
+        else {
+            auto it = m_signal_units_map.find(signal_name);
+            if (it != m_signal_units_map.end()) {
+                int units = it->second;
+                if (MSR::M_UNITS_NONE == units) {
+                    result = string_format_integer;
+                }
+            }
+#ifdef GEOPM_DEBUG
+            else {
+                throw Exception("MSRIOGroup::format_function(): signal valid but not found in map",
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
+#endif
         }
         return result;
     }
