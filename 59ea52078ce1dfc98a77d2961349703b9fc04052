@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d9a2bad_ec51c944",
+        "filename": "ronn/geopm.7.ronn.in",
+        "patchSetId": 4
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-10T22:09:05Z",
+      "side": 1,
+      "message": "I don\u0027t think this still exists",
+      "revId": "59ea52078ce1dfc98a77d2961349703b9fc04052",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
