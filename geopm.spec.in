@@ -43,6 +43,7 @@ BuildRequires: python
 BuildRequires: openmpi-devel
 BuildRequires: unzip
 BuildRequires: libtool
+BuildRequires: sqlite-devel
 
 %if 0%{?suse_version} >= 1320
 BuildRequires: openssh
