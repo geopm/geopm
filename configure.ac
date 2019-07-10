@@ -159,6 +159,25 @@ if test "x$enable_msrsafe_ioctl_write" = "x1" ; then
 fi
 AC_SUBST([enable_msrsafe_ioctl_write])
 
+AC_ARG_WITH([sqlite3], [AS_HELP_STRING([--with-sqlite3=PATH],
+            [specify directory for installed sqlite3 package.])])
+if test "x$with_sqlite3" != x; then
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_sqlite3/include"
+  LD_LIBRARY_PATH="$with_sqlite3/lib:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_sqlite3/lib"
+fi
+AC_ARG_WITH([sqlite3-include], [AS_HELP_STRING([--with-sqlite3-include=PATH],
+            [specify directory for the installed sqlite3 include files.])])
+if test "x$with_sqlite3_include" != x; then
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_sqlite3_include"
+fi
+AC_ARG_WITH([sqlite3-lib], [AS_HELP_STRING([--with-sqlite3-lib=PATH],
+            [specify directory for installed sqlite3 library])])
+if test "x$with_sqlite3_lib" != x; then
+  LD_LIBRARY_PATH="$with_sqlite3_lib:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_sqlite3_lib"
+fi
+
 AC_ARG_WITH([mpi-bin], [AS_HELP_STRING([--with-mpi-bin=PATH],
             [specify directory for mpi compiler wrapper binaries])])
 if test "x$with_mpi_bin" != x; then
@@ -336,6 +355,12 @@ AC_CHECK_LIB([pthread], [pthread_mutex_init], [], [
 AC_CHECK_HEADER([pthread.h], [], [
     echo "missing pthread.h: POSIX thread interface is required"
     exit -1])
+AC_CHECK_LIB([sqlite3], [sqlite3_open], [], [
+    echo "missing libsqlite3: <https://www.sqlite.org> use --with-sqlite3 or --with-sqlite3-lib"
+    exit -1])
+AC_CHECK_HEADER([sqlite3.h], [], [
+    echo "missing sqlite3.h: <https://www.sqlite.org> use --with-sqlite3 or --with-sqlite3-include"
+exit -1]):
 
 AC_CHECK_HEADER([xmmintrin.h], [AC_DEFINE([GEOPM_HAS_XMMINTRIN], [1], [xmmintrin.h is available])], [])
 AC_CHECK_HEADER([ompt.h], [AC_DEFINE([GEOPM_HAS_OMPT], [1], [ompt.h is available]) [has_ompt="1"]], [has_ompt="0"])

@@ -42,9 +42,9 @@ struct sqlite3;
 
 namespace geopm
 {
-    /// Manages a data store of best known policies for profiles used with agents.
-    /// The data store includes records of best known policies and default
-    /// policies to apply when a best run has not yet been recorded.
+    /// Manages a data store of best known policies for profiles used with
+    /// agents. The data store includes records of best known policies and
+    /// default policies to apply when a best run has not yet been recorded.
     class PolicyStoreImp : public PolicyStore
     {
         public:

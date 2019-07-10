@@ -178,6 +178,9 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/MSRTest.msr_signal \
               test/gtest_links/MSRTest.string_to_function \
               test/gtest_links/MSRTest.string_to_units \
+              test/gtest_links/PolicyStoreImpTest.self_consistent \
+              test/gtest_links/PolicyStoreImpTest.update_policy \
+              test/gtest_links/PolicyStoreImpTest.table_precedence \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \
@@ -341,6 +344,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/MSRIOGroupTest.cpp \
                           test/MSRIOTest.cpp \
                           test/MSRTest.cpp \
+                          test/PolicyStoreImpTest.cpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \
                           test/MockComm.hpp \
