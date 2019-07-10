@@ -63,6 +63,8 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/test/TestNodeEfficiencyAnalysis.py \
               scripts/test/TestNodePowerAnalysis.py \
               scripts/test/TestPIO.py \
+              scripts/test/TestPolicyStore.py \
+              scripts/test/TestPolicyStoreIntegration.py \
               scripts/test/TestPowerSweepAnalysis.py \
               scripts/test/TestTopo.py \
               scripts/test/__init__.py \
@@ -123,6 +125,12 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestPIO.test_control_names \
                scripts/test/pytest_links/TestPIO.test_read_signal \
                scripts/test/pytest_links/TestPIO.test_write_control \
+               scripts/test/pytest_links/TestPolicyStore.test_connect \
+               scripts/test/pytest_links/TestPolicyStore.test_disconnect \
+               scripts/test/pytest_links/TestPolicyStore.test_get_best \
+               scripts/test/pytest_links/TestPolicyStore.test_set_best \
+               scripts/test/pytest_links/TestPolicyStore.test_set_default \
+               scripts/test/pytest_links/TestPolicyStoreIntegration.test_all_interfaces \
                scripts/test/pytest_links/TestTopo.test_num_domain \
                scripts/test/pytest_links/TestTopo.test_domain_domain_nested \
                scripts/test/pytest_links/TestTopo.test_domain_name_type \
