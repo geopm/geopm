@@ -157,6 +157,9 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/MSRTest.msr_signal \
               test/gtest_links/MSRTest.string_to_function \
               test/gtest_links/MSRTest.string_to_units \
+              test/gtest_links/PolicyStoreTest.self_consistent \
+              test/gtest_links/PolicyStoreTest.update_policy \
+              test/gtest_links/PolicyStoreTest.table_precedence \
               test/gtest_links/ManagerIOSamplerTest.negative_bad_files \
               test/gtest_links/ManagerIOSamplerTest.negative_parse_json_file \
               test/gtest_links/ManagerIOSamplerTest.negative_parse_shm \
@@ -323,6 +326,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/MSRIOGroupTest.cpp \
                           test/MSRIOTest.cpp \
                           test/MSRTest.cpp \
+                          test/PolicyStoreTest.cpp \
                           test/ManagerIOTest.cpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \
