@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c43024ab_cffbf26a",
+        "filename": "src/Helper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-10T22:10:33Z",
+      "side": 1,
+      "message": "remove, and above",
+      "revId": "9cb9b75453de8ad7b0473ba95eb79e3e8b78817d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
