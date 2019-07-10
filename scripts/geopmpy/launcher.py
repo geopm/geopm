@@ -303,6 +303,10 @@ class Config(object):
     def get_profile(self):
         return self.profile
 
+    def get_agent(self):
+        return self.agent
+
+
 class Launcher(object):
     """
     Abstract base class for MPI job launch application abstraction.
@@ -343,6 +347,9 @@ class Launcher(object):
         self.profile = None
         if self.config:
             self.profile = self.config.get_profile()
+        self.agent = None
+        if self.config:
+            self.agent = self.config.get_agent()
 
         # Override values if they are passed in construction call
         if num_rank is not None:
@@ -662,6 +669,7 @@ class Launcher(object):
         result.extend(self.partition_option())
         result.extend(self.reservation_option())
         result.extend(self.profile_option())
+        result.extend(self.agent_option())
         result.extend(self.performance_governor_option())
         return result
 
@@ -748,6 +756,9 @@ class Launcher(object):
         return []
 
     def profile_option(self):
+        return []
+
+    def agent_option(self):
         return []
 
     def performance_governor_option(self):
@@ -960,6 +971,12 @@ class SrunLauncher(Launcher):
         result = []
         if self.profile is not None:
             result = ['--geopm-profile', self.profile]
+        return result
+
+    def agent_option(self):
+        result = []
+        if self.agent is not None:
+            result = ['--geopm-agent', self.agent]
         return result
 
     def performance_governor_option(self):
