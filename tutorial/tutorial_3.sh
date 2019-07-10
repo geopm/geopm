@@ -111,7 +111,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 -- ./tutorial_3
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
-    # Use GEOPM launcher wrapper script with Intel MPI
+    # Use GEOPM launcher wrapper script with Intel(R) MPI
     geopmlaunch impi \
                 -ppn ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
