@@ -43,6 +43,7 @@ BuildRequires: python
 BuildRequires: openmpi-devel
 BuildRequires: unzip
 BuildRequires: libtool
+BuildRequires: sqlite-devel
 
 %if 0%{?suse_version} >= 1320
 BuildRequires: openssh
@@ -220,6 +221,7 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 %{_includedir}/geopm/SharedMemoryUser.hpp
 %{_includedir}/geopm/TimeIOGroup.hpp
 %{_includedir}/geopm/json11.hpp
+%{_includedir}/geopm/sqlite3.h
 %{_includedir}/geopm_agent.h
 %{_includedir}/geopm_ctl.h
 %{_includedir}/geopm_error.h
