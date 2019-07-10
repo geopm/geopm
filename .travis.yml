@@ -103,6 +103,7 @@ addons:
     - rpm
     - osc
     - python-pip
+    - libsqlite3-dev
 
 notifications:
   slack:
