@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "857786eb_86872cc6",
+        "filename": "src/Reporter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-10T00:13:16Z",
+      "side": 1,
+      "message": "rm",
+      "range": {
+        "startLine": 162,
+        "startChar": 43,
+        "endLine": 162,
+        "endChar": 53
+      },
+      "revId": "f4e0b7eca50f3d026c2c3f1660e3ee8abd76e272",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
