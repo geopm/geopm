@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06deda1e_625b3a80",
+        "filename": "src/ProfileTracer.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-10T00:37:27Z",
+      "side": 1,
+      "message": "move check into controller?",
+      "range": {
+        "startLine": 69,
+        "startChar": 39,
+        "endLine": 69,
+        "endChar": 61
+      },
+      "revId": "5149c78eae62ddb7ec571166453d0f32a4fb5aee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f676304_0d69791b",
+        "filename": "test/ProfileTracerTest.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-10T00:37:27Z",
+      "side": 1,
+      "message": "keyword",
+      "range": {
+        "startLine": 79,
+        "startChar": 26,
+        "endLine": 79,
+        "endChar": 33
+      },
+      "revId": "5149c78eae62ddb7ec571166453d0f32a4fb5aee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
