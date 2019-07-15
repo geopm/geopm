@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b2aea15b_083f3d90",
+        "filename": "src/ProfileIOGroup.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-15T18:28:58Z",
+      "side": 1,
+      "message": "If per_cpu_count() returns a std::vector\u003cint64_t\u003e then do an assignment, not a loop",
+      "revId": "5c929316e1d252c50c1fb6a32d9c52b7baed2981",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f428249b_3eb5333b",
+        "filename": "src/ProfileIOGroup.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-15T18:28:58Z",
+      "side": 1,
+      "message": "Agg::min",
+      "range": {
+        "startLine": 389,
+        "startChar": 29,
+        "endLine": 389,
+        "endChar": 37
+      },
+      "revId": "5c929316e1d252c50c1fb6a32d9c52b7baed2981",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39747aa0_946578d4",
+        "filename": "src/ProfileIOGroup.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-15T18:28:58Z",
+      "side": 1,
+      "message": "Agg:min",
+      "range": {
+        "startLine": 390,
+        "startChar": 38,
+        "endLine": 390,
+        "endChar": 46
+      },
+      "revId": "5c929316e1d252c50c1fb6a32d9c52b7baed2981",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff769286_220f6c5b",
+        "filename": "src/ProfileIOSample.hpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-15T18:28:58Z",
+      "side": 1,
+      "message": "int64_t",
+      "range": {
+        "startLine": 75,
+        "startChar": 32,
+        "endLine": 75,
+        "endChar": 38
+      },
+      "revId": "5c929316e1d252c50c1fb6a32d9c52b7baed2981",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91d2bc08_ed43931a",
+        "filename": "src/ProfileIOSample.hpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-15T18:28:58Z",
+      "side": 1,
+      "message": "int64_t",
+      "range": {
+        "startLine": 100,
+        "startChar": 24,
+        "endLine": 100,
+        "endChar": 30
+      },
+      "revId": "5c929316e1d252c50c1fb6a32d9c52b7baed2981",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
