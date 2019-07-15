@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "464447f3_13f1b799",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 1141,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-15T19:00:43Z",
+      "side": 1,
+      "message": "Get rid of the per host tuning, use spin region and set big o to 0.1.",
+      "range": {
+        "startLine": 1134,
+        "startChar": 8,
+        "endLine": 1141,
+        "endChar": 30
+      },
+      "revId": "cb2be74202ad6fc995f839b5c8cf78635c390b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d783f392_62b29093",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 1167,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-15T19:00:43Z",
+      "side": 1,
+      "message": "Use RawReport object to get access to the \u0027requested-online-frequency\u0027 field as is done here:\n\nhttps://github.com/geopm/geopm/blob/dev/test_integration/test_ee_stream_dgemm_mix.py#L167-L168",
+      "revId": "cb2be74202ad6fc995f839b5c8cf78635c390b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
