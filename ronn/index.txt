@@ -60,6 +60,7 @@ geopmwrite(1)                    geopmwrite.1
 geopm::Agent(3)                  GEOPM_CXX_MAN_Agent.3
 geopm::Agg(3)                    GEOPM_CXX_MAN_Agg.3
 geopm::CircularBuffer(3)         GEOPM_CXX_MAN_CircularBuffer.3
+geopm::CNLIOGroup(3)             GEOPM_CXX_MAN_CNLIOGroup.3
 geopm::CpuinfoIOGroup(3)         GEOPM_CXX_MAN_CpuinfoIOGroup.3
 geopm::EnergyEfficientAgent(3)   GEOPM_CXX_MAN_EnergyEfficientAgent.3
 geopm::EnergyEfficientRegion(3)  GEOPM_CXX_MAN_EnergyEfficientRegion.3
