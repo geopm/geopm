@@ -74,6 +74,8 @@ src/Agg.hpp
 src/ApplicationIO.cpp
 src/ApplicationIO.hpp
 src/CircularBuffer.hpp
+src/CNLIOGroup.cpp
+src/CNLIOGroup.hpp
 src/CombinedSignal.cpp
 src/CombinedSignal.hpp
 src/Comm.cpp
@@ -240,6 +242,7 @@ test/AgentFactoryTest.cpp
 test/AggTest.cpp
 test/ApplicationIOTest.cpp
 test/CircularBufferTest.cpp
+test/CNLIOGroupTest.cpp
 test/CombinedSignalTest.cpp
 test/CommMPIImpTest.cpp
 test/ControlMessageTest.cpp
