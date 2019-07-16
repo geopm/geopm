@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1027ff84_dd8745fd",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-16T22:14:09Z",
+      "side": 1,
+      "message": "Add unit test that check that if two ranks are in different regions, the trace shows count of zero and region id UNMARKED.",
+      "revId": "cd65b0574142909d8e78062540e0711392a1b03c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "686e3250_8a07f458",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-16T22:14:09Z",
+      "side": 1,
+      "message": "Missing \\n",
+      "range": {
+        "startLine": 214,
+        "startChar": 18,
+        "endLine": 214,
+        "endChar": 22
+      },
+      "revId": "cd65b0574142909d8e78062540e0711392a1b03c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
