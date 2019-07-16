@@ -37,6 +37,7 @@ EXTRA_DIST += test_integration/geopm_context.py \
               test_integration/__main__.py \
               test_integration/README.md \
               test_integration/test_ee_stream_dgemm_mix.py \
+              test_integration/test_profile_policy.py \
               test_integration/util.py \
               # end
 
