@@ -54,6 +54,17 @@ namespace geopm
     /// @return The contents of the file at path.
     std::string read_file(const std::string &path);
 
+    /// @brief Read a file and return a double read from the file.
+    /// @details If a double cannot be read from the file or the units reported
+    ///          in the file do not match the expected units, an exception is
+    ///          thrown.
+    /// @param [in] path The path of the file to read.
+    /// @param [in] expected_units Expected units to follow the double. Provide
+    ///             an empty string if no units are expected.
+    /// @return The value read from the file.
+    double read_double_from_file(const std::string &path,
+                                 const std::string &expected_units);
+
     /// @brief Writes a string to a file.  This will replace the file
     ///        if it exists or create it if it does not exist.
     /// @param [in] path The path to the file to write to.

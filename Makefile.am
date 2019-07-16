@@ -136,6 +136,7 @@ transform='s/GEOPM_CXX_MAN_/geopm::/'
 ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/GEOPM_CXX_MAN_Agg.3 \
                 man/GEOPM_CXX_MAN_CircularBuffer.3 \
+                man/GEOPM_CXX_MAN_CNLIOGroup.3 \
                 man/GEOPM_CXX_MAN_CpuinfoIOGroup.3 \
                 man/GEOPM_CXX_MAN_EnergyEfficientRegion.3 \
                 man/GEOPM_CXX_MAN_Exception.3 \
@@ -253,6 +254,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/GEOPM_CXX_MAN_Agent.3.ronn \
              ronn/GEOPM_CXX_MAN_Agg.3.ronn \
              ronn/GEOPM_CXX_MAN_CircularBuffer.3.ronn \
+             ronn/GEOPM_CXX_MAN_CNLIOGroup.3.ronn \
              ronn/GEOPM_CXX_MAN_Comm.3.ronn \
              ronn/GEOPM_CXX_MAN_CpuinfoIOGroup.3.ronn \
              ronn/GEOPM_CXX_MAN_EnergyEfficientAgent.3.ronn \
@@ -417,6 +419,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/ApplicationIO.cpp \
                             src/ApplicationIO.hpp \
                             src/CircularBuffer.hpp \
+                            src/CNLIOGroup.cpp \
+                            src/CNLIOGroup.hpp \
                             src/CombinedSignal.cpp \
                             src/CombinedSignal.hpp \
                             src/Comm.cpp \

@@ -70,6 +70,30 @@ namespace geopm
         return contents;
     }
 
+    double read_double_from_file(const std::string &path, const std::string &expected_units)
+    {
+        const std::string separators(" \t\n\0", 4);
+        auto file_contents = read_file(path);
+        size_t value_length = 0;
+        auto value = std::stod(file_contents, &value_length);
+        auto units_offset = file_contents.find_first_not_of(separators, value_length);
+        auto units_end = file_contents.find_last_not_of(separators);
+        auto units_length = units_end == std::string::npos
+                                ? std::string::npos
+                                : units_end - units_offset + 1;
+        bool units_exist = units_offset != std::string::npos;
+        bool units_are_expected = !expected_units.empty();
+
+        if ((units_exist != units_are_expected) ||
+            (units_exist &&
+             (units_offset == value_length ||
+              file_contents.substr(units_offset, units_length) != expected_units))) {
+            throw Exception("Unexpected format in " + path, GEOPM_ERROR_RUNTIME,
+                            __FILE__, __LINE__);
+        }
+        return value;
+    }
+
     void write_file(const std::string &path, const std::string &contents)
     {
         std::ofstream output_file(path, std::ofstream::out);
