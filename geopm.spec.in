@@ -155,6 +155,7 @@ rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
 %doc %{_mandir}/man3/geopm::Agent.3.gz
 %doc %{_mandir}/man3/geopm::Agg.3.gz
 %doc %{_mandir}/man3/geopm::CircularBuffer.3.gz
+%doc %{_mandir}/man3/geopm::CNLIOGroup.3.gz
 %doc %{_mandir}/man3/geopm::CpuinfoIOGroup.3.gz
 %doc %{_mandir}/man3/geopm::EnergyEfficientRegion.3.gz
 %doc %{_mandir}/man3/geopm::Exception.3.gz

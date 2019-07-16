@@ -128,6 +128,17 @@ fi
 [enable_msrsafe_ioctl_write="0"]
 )
 
+AC_ARG_ENABLE([cnl-iogroup],
+  [AS_HELP_STRING([--enable-cnl-iogroup], [Enable the CNL IOGroup])],
+[if test "x$enable_cnl_iogroup" = "xno" ; then
+  enable_cnl_iogroup="0"
+else
+  enable_cnl_iogroup="1"
+fi
+],
+[enable_cnl_iogroup="0"]
+)
+
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
   CFLAGS="$CFLAGS -O0 -g"
@@ -158,6 +169,11 @@ if test "x$enable_msrsafe_ioctl_write" = "x1" ; then
   AC_DEFINE([GEOPM_MSRSAFE_IOCTL_WRITE], [ ], [Enables use of msr-safe ioctl feature for writing (broken as of msr-safe version 1.2.0)])
 fi
 AC_SUBST([enable_msrsafe_ioctl_write])
+
+if test "x$enable_cnl_iogroup" = "x1" ; then
+  AC_DEFINE([GEOPM_CNL_IOGROUP], [ ], [Enables the CNL IOGroup])
+fi
+AC_SUBST([enable_cnl_iogroup])
 
 AC_ARG_WITH([mpi-bin], [AS_HELP_STRING([--with-mpi-bin=PATH],
             [specify directory for mpi compiler wrapper binaries])])
