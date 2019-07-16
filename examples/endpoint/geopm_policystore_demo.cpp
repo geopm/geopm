@@ -144,12 +144,14 @@ int main(int argc, char **argv)
 
     geopm::ShmemEndpoint endpoint(shmem_prefix);
     endpoint.open();
+
     try {
         // wait for attach
         std::string agent = "";
         while (g_continue && agent == "") {
             agent = endpoint.get_agent();
         }
+        std::cout << "agent = " << agent << std::endl;
         if (agent != "") {
             // apply policy from the policy store
             auto policy_store = geopm::PolicyStore::make_unique(policystore_path);
