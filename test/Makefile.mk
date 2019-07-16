@@ -56,6 +56,11 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/CommMPIImpTest.mpi_mem_ops \
               test/gtest_links/CommMPIImpTest.mpi_reduce \
               test/gtest_links/CommMPIImpTest.mpi_win_ops \
+              test/gtest_links/CNLIOGroupTest.valid_signals \
+              test/gtest_links/CNLIOGroupTest.read_signal \
+              test/gtest_links/CNLIOGroupTest.push_signal \
+              test/gtest_links/CNLIOGroupTest.parse_energy \
+              test/gtest_links/CNLIOGroupTest.parse_power \
               test/gtest_links/ControlMessageTest.cpu_rank \
               test/gtest_links/ControlMessageTest.is_name_begin \
               test/gtest_links/ControlMessageTest.is_sample_begin \
@@ -321,6 +326,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/AggTest.cpp \
                           test/ApplicationIOTest.cpp \
                           test/CircularBufferTest.cpp \
+                          test/CNLIOGroupTest.cpp \
                           test/CombinedSignalTest.cpp \
                           test/CommMPIImpTest.cpp \
                           test/ControlMessageTest.cpp \

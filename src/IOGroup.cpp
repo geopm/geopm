@@ -39,6 +39,9 @@
 #include "TimeIOGroup.hpp"
 #include "Helper.hpp"
 #include "config.h"
+#ifdef GEOPM_CNL_IOGROUP
+#include "CNLIOGroup.hpp"
+#endif
 #ifdef GEOPM_DEBUG
 #include <iostream>
 #endif
@@ -56,6 +59,10 @@ namespace geopm
                                           TimeIOGroup::make_plugin);
         g_plugin_factory->register_plugin(CpuinfoIOGroup::plugin_name(),
                                           CpuinfoIOGroup::make_plugin);
+#ifdef GEOPM_CNL_IOGROUP
+        g_plugin_factory->register_plugin(CNLIOGroup::plugin_name(),
+                                          CNLIOGroup::make_plugin);
+#endif
     }
 
     std::function<std::string(double)> IOGroup::format_function(const std::string &signal_name) const
