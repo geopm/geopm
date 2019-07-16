@@ -35,6 +35,7 @@
 #include "MSRIOGroup.hpp"
 #include "CpuinfoIOGroup.hpp"
 #include "TimeIOGroup.hpp"
+#include "CNLIOGroup.hpp"
 #include "config.h"
 
 namespace geopm
@@ -49,6 +50,8 @@ namespace geopm
                                           TimeIOGroup::make_plugin);
         g_plugin_factory->register_plugin(CpuinfoIOGroup::plugin_name(),
                                           CpuinfoIOGroup::make_plugin);
+        g_plugin_factory->register_plugin(CNLIOGroup::plugin_name(),
+                                          CNLIOGroup::make_plugin);
     }
 
     PluginFactory<IOGroup> &iogroup_factory(void)
