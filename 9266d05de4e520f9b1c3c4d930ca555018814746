@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e199108f_7e84befe",
+        "filename": "src/CSV.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-18T14:41:19Z",
+      "side": 1,
+      "message": "update",
+      "range": {
+        "startLine": 81,
+        "startChar": 73,
+        "endLine": 81,
+        "endChar": 78
+      },
+      "revId": "9266d05de4e520f9b1c3c4d930ca555018814746",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "832970ab_84296696",
+        "filename": "src/CSV.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-18T14:41:19Z",
+      "side": 1,
+      "message": "needed?  where does this get called?",
+      "revId": "9266d05de4e520f9b1c3c4d930ca555018814746",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
