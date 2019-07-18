@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4120e168_1c47e5cb",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-07-18T20:38:59Z",
+      "side": 1,
+      "message": "A comment about why the behavior for the unmarked region is special would be nice.",
+      "range": {
+        "startLine": 212,
+        "startChar": 16,
+        "endLine": 212,
+        "endChar": 88
+      },
+      "revId": "9ea76beed92fdbf7e12485d0cc1f65fd4b3d08dc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
