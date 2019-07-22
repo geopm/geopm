@@ -114,6 +114,52 @@
       "revId": "932165645aa1d627b02318879a54fef851d4c8ad",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdc11635_09e354e6",
+        "filename": "src/PolicyStore.hpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-07-22T20:23:14Z",
+      "side": 1,
+      "message": "we usually have a pure virtual base class and then and implementor class (PolicyStoreImp)",
+      "range": {
+        "startLine": 46,
+        "startChar": 10,
+        "endLine": 46,
+        "endChar": 22
+      },
+      "revId": "932165645aa1d627b02318879a54fef851d4c8ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fce7b7f8_11f60aec",
+        "filename": "src/PolicyStore.hpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-07-22T20:23:14Z",
+      "side": 1,
+      "message": "first occurrence in code base...",
+      "range": {
+        "startLine": 46,
+        "startChar": 22,
+        "endLine": 46,
+        "endChar": 27
+      },
+      "revId": "932165645aa1d627b02318879a54fef851d4c8ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
