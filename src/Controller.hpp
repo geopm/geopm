@@ -127,6 +127,12 @@ namespace geopm
             ///        of the Controller and notify application.
             void abort(void);
         private:
+            /// @brief Construct Agents for every level.  Agents can
+            ///        register new IOGroups, signals, and controls
+            ///        but not push them.
+            void create_agents(void);
+            /// @brief Call init() on every agent.  Agents can push
+            ///        signals and controls.
             void init_agents(void);
 
             std::shared_ptr<Comm> m_comm;
