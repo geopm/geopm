@@ -50,6 +50,30 @@
     },
     {
       "key": {
+        "uuid": "cd1ee50b_a72606aa",
+        "filename": "ronn/geopm_policy_database_c.3.ronn",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-22T19:02:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1362492b_8e1137ac",
+      "range": {
+        "startLine": 40,
+        "startChar": 41,
+        "endLine": 40,
+        "endChar": 56
+      },
+      "revId": "ff58e497ce6e644bd4f2c6d8381519a65c89a8f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6642ea16_ae085333",
         "filename": "ronn/geopm_policy_database_c.3.ronn",
         "patchSetId": 1
