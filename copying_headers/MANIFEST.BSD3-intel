@@ -81,6 +81,8 @@ src/CpuinfoIOGroup.cpp
 src/CpuinfoIOGroup.hpp
 src/CSV.cpp
 src/CSV.hpp
+src/DebugIOGroup.cpp
+src/DebugIOGroup.hpp
 src/DefaultProfile.cpp
 src/EnergyEfficientAgent.cpp
 src/EnergyEfficientAgent.hpp
@@ -230,6 +232,7 @@ test/ControlMessageTest.cpp
 test/ControllerTest.cpp
 test/CpuinfoIOGroupTest.cpp
 test/CSVTest.cpp
+test/DebugIOGroupTest.cpp
 test/EnergyEfficientAgentTest.cpp
 test/EnergyEfficientRegionTest.cpp
 test/EnvironmentTest.cpp

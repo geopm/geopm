@@ -84,6 +84,11 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/CSVTest.columns \
               test/gtest_links/CSVTest.header \
               test/gtest_links/CSVTest.negative \
+              test/gtest_links/DebugIOGroupTest.is_valid \
+              test/gtest_links/DebugIOGroupTest.push \
+              test/gtest_links/DebugIOGroupTest.read_signal \
+              test/gtest_links/DebugIOGroupTest.register_signal_error \
+              test/gtest_links/DebugIOGroupTest.sample \
               test/gtest_links/EnergyEfficientAgentTest.aggregate_sample \
               test/gtest_links/EnergyEfficientAgentTest.do_write_batch \
               test/gtest_links/EnergyEfficientAgentTest.enforce_policy \
@@ -321,6 +326,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/ControllerTest.cpp \
                           test/CpuinfoIOGroupTest.cpp \
                           test/CSVTest.cpp \
+                          test/DebugIOGroupTest.cpp \
                           test/EnergyEfficientAgentTest.cpp \
                           test/EnergyEfficientRegionTest.cpp \
                           test/EnvironmentTest.cpp \
