@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a0d0bf8_333438f2",
+        "filename": "src/PolicyStore.hpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-07-23T16:02:00Z",
+      "side": 1,
+      "message": "Latest revision has this as an abstract base class. \n\nThis could be taken a little further by adding a factory method (which can only return sqlite policy store as of now). We could conditionally compile the SQLitePolicyStore implementation and its section of the factory method if there\u0027s value in not requiring SQLite in all builds.",
+      "revId": "1adb3e0bd7452987212a8dc16e7ef845e70e6862",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
