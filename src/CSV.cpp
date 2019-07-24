@@ -34,6 +34,7 @@
 
 #include "geopm_version.h"
 #include "geopm_hash.h"
+#include "Helper.hpp"
 #include "CSV.hpp"
 #include "Exception.hpp"
 #include "Environment.hpp"
@@ -44,11 +45,11 @@ namespace geopm
                    const std::string &host_name,
                    const std::string &start_time,
                    size_t buffer_size)
-        : M_NAME_FORMAT_MAP {{"double", M_FORMAT_DOUBLE},
-                             {"float", M_FORMAT_FLOAT},
-                             {"integer", M_FORMAT_INTEGER},
-                             {"hex", M_FORMAT_HEX},
-                             {"raw64", M_FORMAT_RAW64}}
+        : M_NAME_FORMAT_MAP {{"double", string_format_double},
+                             {"float", string_format_float},
+                             {"integer", string_format_integer},
+                             {"hex", string_format_hex},
+                             {"raw64", string_format_raw64}}
         , M_SEPARATOR('|')
         , m_file_path(file_path)
         , m_buffer_limit(buffer_size)
@@ -90,6 +91,16 @@ namespace geopm
         m_column_format.push_back(it->second);
     }
 
+    void CSVImp::add_column(const std::string &name, std::function<std::string(double)> format)
+    {
+        if (m_is_active) {
+            throw Exception("CSVImp::add_column() cannot be called after update()",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        m_column_name.push_back(name);
+        m_column_format.push_back(format);
+    }
+
     void CSVImp::update(const std::vector<double> &sample)
     {
         if (!m_is_active) {
@@ -100,40 +111,11 @@ namespace geopm
             throw Exception("CSVImp::update(): Input vector incorrectly sized",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        char sample_str[NAME_MAX];
-        sample_str[NAME_MAX - 1] = '\0';
         for (size_t sample_idx = 0; sample_idx != sample.size(); ++sample_idx) {
-            switch (m_column_format[sample_idx]) {
-                case M_FORMAT_DOUBLE:
-                    snprintf(sample_str, NAME_MAX - 1,
-                             "%.16g",
-                             sample[sample_idx]);
-                    break;
-                case M_FORMAT_FLOAT:
-                    snprintf(sample_str, NAME_MAX - 1,
-                             "%g",
-                             sample[sample_idx]);
-                    break;
-                case M_FORMAT_INTEGER:
-                    snprintf(sample_str, NAME_MAX - 1,
-                             "%lld",
-                             (long long)sample[sample_idx]);
-                    break;
-                case M_FORMAT_HEX:
-                    snprintf(sample_str, NAME_MAX - 1,
-                             "0x%016" PRIx64,
-                             (uint64_t)sample[sample_idx]);
-                    break;
-                case M_FORMAT_RAW64:
-                    snprintf(sample_str, NAME_MAX - 1,
-                             "0x%016" PRIx64,
-                             geopm_signal_to_field(sample[sample_idx]));
-                    break;
-            }
             if (sample_idx) {
                 m_buffer << M_SEPARATOR;
             }
-            m_buffer << sample_str;
+            m_buffer << m_column_format[sample_idx](sample[sample_idx]);
         }
         m_buffer << "\n";
 

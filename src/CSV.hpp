@@ -31,6 +31,7 @@
  */
 
 #include <vector>
+#include <functional>
 #include <map>
 #include <string>
 #include <fstream>
@@ -46,6 +47,8 @@ namespace geopm
             virtual void add_column(const std::string &name) = 0;
             virtual void add_column(const std::string &name,
                                     const std::string &format) = 0;
+            virtual void add_column(const std::string &name,
+                                    std::function<std::string(double)> format) = 0;
             virtual void activate(void) = 0;
             virtual void update(const std::vector<double> &sample) = 0;
             virtual void flush(void) = 0;
@@ -62,27 +65,20 @@ namespace geopm
             void add_column(const std::string &name) override;
             void add_column(const std::string &name,
                             const std::string &format) override;
+            void add_column(const std::string &name,
+                            std::function<std::string(double)> format) override;
             void activate(void) override;
             void update(const std::vector<double> &sample) override;
             void flush(void) override;
         private:
-            enum m_format_e {
-                M_FORMAT_DOUBLE,
-                M_FORMAT_FLOAT,
-                M_FORMAT_INTEGER,
-                M_FORMAT_HEX,
-                M_FORMAT_RAW64,
-                M_NUM_FORMAT
-            };
-
             void write_header(const std::string &host_name, const std::string &start_time);
             void write_names(void);
 
-            const std::map<std::string, int> M_NAME_FORMAT_MAP;
+            const std::map<std::string, std::function<std::string(double)> > M_NAME_FORMAT_MAP;
             const char M_SEPARATOR;
             std::string m_file_path;
             std::vector<std::string> m_column_name;
-            std::vector<int> m_column_format;
+            std::vector<std::function<std::string(double)> > m_column_format;
             std::ofstream m_stream;
             std::ostringstream m_buffer;
             off_t m_buffer_limit;
