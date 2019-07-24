@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "332aac6c_45158ef6",
+        "filename": "src/Helper.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-07-24T21:43:35Z",
+      "side": 1,
+      "message": "errno ? errno : GEOPM_ERROR_INVALID",
+      "range": {
+        "startLine": 74,
+        "startChar": 28,
+        "endLine": 74,
+        "endChar": 47
+      },
+      "revId": "1df576e4e96cfacd1667a35784459c28c1193eee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
