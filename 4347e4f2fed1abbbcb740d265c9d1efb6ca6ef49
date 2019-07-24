@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3779dde5_c6f9f1f3",
+        "filename": "geopm.spec.in",
+        "patchSetId": 13
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-07-24T22:31:44Z",
+      "side": 1,
+      "message": "rm this and the corresponding man page",
+      "range": {
+        "startLine": 229,
+        "startChar": 0,
+        "endLine": 229,
+        "endChar": 22
+      },
+      "revId": "4347e4f2fed1abbbcb740d265c9d1efb6ca6ef49",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
