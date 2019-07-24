@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3484c0d7_b9f0e72e",
+        "filename": "src/ProfileIOSample.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-07-24T20:41:46Z",
+      "side": 1,
+      "message": "Should be 0.",
+      "range": {
+        "startLine": 281,
+        "startChar": 55,
+        "endLine": 281,
+        "endChar": 58
+      },
+      "revId": "4552a7a1b5f08b34df16991c0d7885eb283e2c8f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
