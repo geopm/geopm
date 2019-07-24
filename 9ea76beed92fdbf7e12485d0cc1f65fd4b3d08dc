@@ -22,6 +22,23 @@
       "revId": "9ea76beed92fdbf7e12485d0cc1f65fd4b3d08dc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6af53b85_35fa772b",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-07-24T21:22:19Z",
+      "side": 1,
+      "message": "I just opened an issue to refactor/clean-up some of this code.\nhttps://github.com/geopm/geopm/issues/682",
+      "revId": "9ea76beed92fdbf7e12485d0cc1f65fd4b3d08dc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
