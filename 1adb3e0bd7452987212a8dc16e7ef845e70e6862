@@ -16,6 +16,29 @@
       "revId": "1adb3e0bd7452987212a8dc16e7ef845e70e6862",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a72b9a75_a74765e2",
+        "filename": "src/PolicyStore.hpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-07-24T22:39:27Z",
+      "side": 1,
+      "message": "boo datatypes and variable names and ampersands...",
+      "range": {
+        "startLine": 58,
+        "startChar": 55,
+        "endLine": 58,
+        "endChar": 81
+      },
+      "revId": "1adb3e0bd7452987212a8dc16e7ef845e70e6862",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
