@@ -36,6 +36,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <errno.h>
+
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -348,7 +350,7 @@ TEST_F(ManagerIOSamplerTest, negative_bad_files)
                                GEOPM_ERROR_INVALID, "input file invalid");
     chmod(path.c_str(), 0);
     GEOPM_EXPECT_THROW_MESSAGE(new ManagerIOSamplerImp(path, nullptr, signal_names),
-                               GEOPM_ERROR_INVALID, "file \"" + path + "\" could not be opened");
+                               EACCES, "file \"" + path + "\" could not be opened");
     std::remove(path.c_str());
 }
 
