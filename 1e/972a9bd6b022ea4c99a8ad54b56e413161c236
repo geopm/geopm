@@ -1,0 +1,9 @@
+Verified+1: Brandon Baker <brandon.baker@intel.com>
+Code-Review+1: Brandon Baker <brandon.baker@intel.com>
+Code-Review+2: Brad Geltz <brad.geltz@intel.com>
+Klocwork+1: <fsp@intel.com>
+Submitted-by: Brad Geltz <brad.geltz@intel.com>
+Submitted-at: Wed, 24 Jul 2019 20:36:44 +0000
+Reviewed-on: https://review.gerrithub.io/c/geopm/geopm/+/457651
+Project: geopm/geopm
+Branch: refs/heads/dev
