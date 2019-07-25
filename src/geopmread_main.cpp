@@ -205,14 +205,7 @@ int main(int argc, char **argv)
                         usleep(5000);
                     }
                     double result = platform_io.sample(idx);
-                    if (signal_name.find("#") == std::string::npos) {
-                        std::cout << result << std::endl;
-                    }
-                    else {
-                        // signals with # in the name are hex fields
-                        std::cout << "0x" << std::hex << std::setfill('0') << std::setw(16)
-                                  << geopm_signal_to_field(result) << std::endl;
-                    }
+                    std::cout << platform_io.format_function(signal_name)(result) << std::endl;
                 }
                 catch (const geopm::Exception &ex) {
                     std::cerr << "Error: cannot read signal: " << ex.what() << std::endl;
