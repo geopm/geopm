@@ -57,7 +57,7 @@ namespace geopm
             /// @brief Set up default columns and add columns to be
             //         provided by the Agent.
             virtual void columns(const std::vector<std::string> &agent_cols,
-                                 const std::vector<std::string> &agent_formats) = 0;
+                                 const std::vector<std::function<std::string(double)> > &agent_formats) = 0;
             /// @brief Update the trace with telemetry samples and
             ///        region info.  The Tracer samples values for
             ///        default and environment columns and the
@@ -96,7 +96,7 @@ namespace geopm
             /// @brief TracerImp destructor, virtual.
             virtual ~TracerImp() = default;
             void columns(const std::vector<std::string> &agent_cols,
-                         const std::vector<std::string> &agent_formats) override;
+                         const std::vector<std::function<std::string(double)> > &agent_formats) override;
             void update(const std::vector<double> &agent_signals,
                         std::list<geopm_region_info_s> region_entry_exit) override;
             void flush(void) override;
@@ -105,12 +105,12 @@ namespace geopm
                 std::string name;
                 int domain_type;
                 int domain_idx;
-                std::string format;
+                std::function<std::string(double)> format;
             };
 
             std::vector<std::string> env_signals(void);
             std::vector<int> env_domains(void);
-            std::vector<std::string> env_formats(void);
+            std::vector<std::function<std::string(double)> > env_formats(void);
 
             std::string m_file_path;
             std::string m_header;

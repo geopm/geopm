@@ -120,7 +120,7 @@ namespace geopm
             /// @brief Column headers to be added to the trace.
             virtual std::vector<std::string> trace_names(void) const = 0;
             /// @brief Returns format string for each column added to the trace
-            virtual std::vector<std::string> trace_formats(void) const {return {};}
+            virtual std::vector<std::function<std::string(double)> > trace_formats(void) const {return {};}
             /// @brief Called by Controller to get latest values to be
             ///        added to the trace.
             virtual void trace_values(std::vector<double> &values) = 0;

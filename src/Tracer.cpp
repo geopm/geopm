@@ -82,7 +82,7 @@ namespace geopm
     }
 
     void TracerImp::columns(const std::vector<std::string> &agent_cols,
-                            const std::vector<std::string> &col_formats)
+                            const std::vector<std::function<std::string(double)> > &col_formats)
     {
         if (m_is_trace_enabled) {
             if (col_formats.size() != 0 &&
@@ -92,20 +92,20 @@ namespace geopm
             }
             // default columns
             std::vector<struct m_request_s> base_columns({
-                    {"TIME", GEOPM_DOMAIN_BOARD, 0, "double"},
-                    {"EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0, "integer"},
-                    {"REGION_HASH", GEOPM_DOMAIN_BOARD, 0, "hex"},
-                    {"REGION_HINT", GEOPM_DOMAIN_BOARD, 0, "hex"},
-                    {"REGION_PROGRESS", GEOPM_DOMAIN_BOARD, 0, "float"},
-                    {"REGION_RUNTIME", GEOPM_DOMAIN_BOARD, 0, "double"},
-                    {"ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0, "double"},
-                    {"ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0, "double"},
-                    {"POWER_PACKAGE", GEOPM_DOMAIN_BOARD, 0, "double"},
-                    {"POWER_DRAM", GEOPM_DOMAIN_BOARD, 0, "double"},
-                    {"FREQUENCY", GEOPM_DOMAIN_BOARD, 0, "double"},
-                    {"CYCLES_THREAD", GEOPM_DOMAIN_BOARD, 0, "double"},
-                    {"CYCLES_REFERENCE", GEOPM_DOMAIN_BOARD, 0, "double"},
-                    {"TEMPERATURE_CORE", GEOPM_DOMAIN_BOARD, 0, "double"}});
+                    {"TIME", GEOPM_DOMAIN_BOARD, 0, string_format_double},
+                    {"EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0, string_format_integer},
+                    {"REGION_HASH", GEOPM_DOMAIN_BOARD, 0, string_format_hex},
+                    {"REGION_HINT", GEOPM_DOMAIN_BOARD, 0, string_format_hex},
+                    {"REGION_PROGRESS", GEOPM_DOMAIN_BOARD, 0, string_format_float},
+                    {"REGION_RUNTIME", GEOPM_DOMAIN_BOARD, 0, string_format_double},
+                    {"ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0, string_format_double},
+                    {"ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0, string_format_double},
+                    {"POWER_PACKAGE", GEOPM_DOMAIN_BOARD, 0, string_format_double},
+                    {"POWER_DRAM", GEOPM_DOMAIN_BOARD, 0, string_format_double},
+                    {"FREQUENCY", GEOPM_DOMAIN_BOARD, 0, string_format_double},
+                    {"CYCLES_THREAD", GEOPM_DOMAIN_BOARD, 0, string_format_double},
+                    {"CYCLES_REFERENCE", GEOPM_DOMAIN_BOARD, 0, string_format_double},
+                    {"TEMPERATURE_CORE", GEOPM_DOMAIN_BOARD, 0, string_format_double}});
             m_region_hash_idx = 2;
             m_region_hint_idx = 3;
             m_region_progress_idx = 4;
@@ -114,7 +114,7 @@ namespace geopm
             // extra columns from environment
             std::vector<std::string> env_sig = env_signals();
             std::vector<int> env_dom = env_domains();
-            std::vector<std::string> env_form = env_formats();
+            std::vector<std::function<std::string(double)> > env_form = env_formats();
 #ifdef GEOPM_DEBUG
             if (env_sig.size() != env_dom.size() ||
                 env_sig.size() != env_form.size()) {
@@ -144,7 +144,7 @@ namespace geopm
             // columns from agent; will be sampled by agent
             size_t num_col = agent_cols.size();
             for (size_t col_idx = 0; col_idx != num_col; ++col_idx) {
-                std::string format = col_formats.size() ? col_formats.at(col_idx) : "double";
+                std::function<std::string(double)> format = col_formats.size() ? col_formats.at(col_idx) : string_format_double;
                 m_csv->add_column(agent_cols.at(col_idx), format);
             }
             m_csv->activate();
@@ -239,27 +239,18 @@ namespace geopm
             }
             else {
                 throw Exception("TracerImp::columns(): Environment trace extension contains signals with multiple \"@\" characters.",
-                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
         return result;
     }
 
-    std::vector<std::string> TracerImp::env_formats(void)
+    std::vector<std::function<std::string(double)> > TracerImp::env_formats(void)
     {
-        std::vector<std::string> result;
-        for (const auto &extra_signal : string_split(m_env_column, ",")) {
-            std::vector<std::string> signal_format = string_split(extra_signal, "%");
-            if (signal_format.size() == 2) {
-                result.push_back(signal_format[1]);
-            }
-            else if (signal_format.size() == 1) {
-                result.push_back("double");
-            }
-            else {
-                throw Exception("TracerImp::columns(): Environment trace extension contains signals with multiple \"%\" characters.",
-                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
+        std::vector<std::function<std::string(double)> > result;
+        std::vector<std::string> signals = env_signals();
+        for (const auto &it : env_signals()) {
+            result.push_back(m_platform_io.format_function(it));
         }
         return result;
     }

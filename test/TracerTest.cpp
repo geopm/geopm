@@ -118,13 +118,19 @@ void TracerTest::SetUp(void)
         ++idx;
     }
     EXPECT_CALL(m_platform_io, push_signal("EXTRA", GEOPM_DOMAIN_BOARD, 0))
-            .WillOnce(Return(idx));
+        .WillOnce(Return(idx));
     ++idx;
     EXPECT_CALL(m_platform_io, push_signal("EXTRA_SPECIAL", GEOPM_DOMAIN_CPU, 0))
         .WillOnce(Return(idx));
     ++idx;
     EXPECT_CALL(m_platform_io, push_signal("EXTRA_SPECIAL", GEOPM_DOMAIN_CPU, 1))
         .WillOnce(Return(idx));
+
+    EXPECT_CALL(m_platform_io, format_function("EXTRA"))
+        .WillOnce(Return(geopm::string_format_double));
+
+    EXPECT_CALL(m_platform_io, format_function("EXTRA_SPECIAL"))
+        .WillOnce(Return(geopm::string_format_double));
 
     m_tracer = geopm::make_unique<TracerImp>(m_start_time, m_path, m_hostname, true,
                                              m_platform_io, m_platform_topo, m_extra_cols_str);
@@ -211,7 +217,8 @@ TEST_F(TracerTest, region_entry_exit)
         {0x456, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2},
         {0x345, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2},
     };
-    m_tracer->columns(agent_cols, {"integer", "integer"});
+    m_tracer->columns(agent_cols, {geopm::string_format_integer,
+                                   geopm::string_format_integer});
     m_tracer->update(agent_vals, short_regions);
     m_tracer->flush();
     std::string expected_str ="\n\n\n\n\n"

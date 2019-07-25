@@ -70,7 +70,7 @@ class MockAgent : public geopm::Agent
         MOCK_CONST_METHOD0(trace_names,
                            std::vector<std::string>(void));
         MOCK_CONST_METHOD0(trace_formats,
-                           std::vector<std::string>(void));
+                           std::vector<std::function<std::string(double)> >(void));
         MOCK_METHOD1(trace_values,
                      void(std::vector<double> &values));
 };
