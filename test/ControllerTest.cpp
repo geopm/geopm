@@ -77,13 +77,16 @@ class ControllerTestMockPlatformIO : public MockPlatformIO
             ON_CALL(*this, sample(-1))
                 .WillByDefault(Return(NAN));
         }
-        void add_supported_signal(PlatformIO::m_request_s signal, double default_value)
+        void add_supported_signal(const std::string &signal_name,
+                                  int signal_domain_type,
+                                  int signal_domain_idx,
+                                  double default_value)
         {
-            ON_CALL(*this, push_signal(signal.name, signal.domain_type, signal.domain_idx))
+            ON_CALL(*this, push_signal(signal_name, signal_domain_type, signal_domain_idx))
                 .WillByDefault(Return(m_index));
             ON_CALL(*this, sample(m_index))
                 .WillByDefault(Return(default_value));
-            ON_CALL(*this, read_signal(signal.name, signal.domain_type, signal.domain_idx))
+            ON_CALL(*this, read_signal(signal_name, signal_domain_type, signal_domain_idx))
                 .WillByDefault(Return(default_value));
             ++m_index;
         }
@@ -120,10 +123,10 @@ class ControllerTest : public ::testing::Test
 
 void ControllerTest::SetUp()
 {
-    m_platform_io.add_supported_signal({"TIME", GEOPM_DOMAIN_BOARD, 0}, 99);
-    m_platform_io.add_supported_signal({"POWER_PACKAGE", GEOPM_DOMAIN_BOARD, 0}, 4545);
-    m_platform_io.add_supported_signal({"FREQUENCY", GEOPM_DOMAIN_BOARD, 0}, 333);
-    m_platform_io.add_supported_signal({"REGION_PROGRESS", GEOPM_DOMAIN_BOARD, 0}, 0.5);
+    m_platform_io.add_supported_signal("TIME", GEOPM_DOMAIN_BOARD, 0, 99);
+    m_platform_io.add_supported_signal("POWER_PACKAGE", GEOPM_DOMAIN_BOARD, 0, 4545);
+    m_platform_io.add_supported_signal("FREQUENCY", GEOPM_DOMAIN_BOARD, 0, 333);
+    m_platform_io.add_supported_signal("REGION_PROGRESS", GEOPM_DOMAIN_BOARD, 0, 0.5);
 
     m_comm = std::make_shared<MockComm>();
     m_application_io = std::make_shared<MockApplicationIO>();
