@@ -97,6 +97,7 @@ namespace geopm
                     {"REGION_HASH", GEOPM_DOMAIN_BOARD, 0, string_format_hex},
                     {"REGION_HINT", GEOPM_DOMAIN_BOARD, 0, string_format_hex},
                     {"REGION_PROGRESS", GEOPM_DOMAIN_BOARD, 0, string_format_float},
+                    {"REGION_COUNT", GEOPM_DOMAIN_BOARD, 0, string_format_integer},
                     {"REGION_RUNTIME", GEOPM_DOMAIN_BOARD, 0, string_format_double},
                     {"ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0, string_format_double},
                     {"ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0, string_format_double},
@@ -109,7 +110,7 @@ namespace geopm
             m_region_hash_idx = 2;
             m_region_hint_idx = 3;
             m_region_progress_idx = 4;
-            m_region_runtime_idx = 5;
+            m_region_runtime_idx = 6;
 
             // extra columns from environment
             std::vector<std::string> env_sig = env_signals();
@@ -190,7 +191,7 @@ namespace geopm
                       region_progress == reg.progress &&
                       region_progress == 0.0 &&
                       region_hash == reg.hash &&
-                      region_hint == reg.hint )) {
+                      region_hint == reg.hint)) {
                     m_last_telemetry[m_region_hash_idx] = reg.hash;
                     m_last_telemetry[m_region_hint_idx] = reg.hint;
                     m_last_telemetry[m_region_progress_idx] = reg.progress;
