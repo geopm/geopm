@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f710cd07_e996c4f4",
+        "filename": "src/Helper.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-30T01:19:35Z",
+      "side": 1,
+      "message": "well-formatted",
+      "range": {
+        "startLine": 88,
+        "startChar": 18,
+        "endLine": 88,
+        "endChar": 32
+      },
+      "revId": "035ffdc8f66541db5cc521810b80f33fb93b6ad6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a2bece5_0536c4cc",
+        "filename": "src/Helper.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-30T01:19:35Z",
+      "side": 1,
+      "message": "accurately",
+      "range": {
+        "startLine": 94,
+        "startChar": 25,
+        "endLine": 94,
+        "endChar": 35
+      },
+      "revId": "035ffdc8f66541db5cc521810b80f33fb93b6ad6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acfd0c13_29815642",
+        "filename": "src/Helper.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-30T01:19:35Z",
+      "side": 1,
+      "message": "some extra blank lines",
+      "revId": "035ffdc8f66541db5cc521810b80f33fb93b6ad6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bdb5610_89dade14",
+        "filename": "src/MSR.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-30T01:19:35Z",
+      "side": 1,
+      "message": "can remove?",
+      "range": {
+        "startLine": 161,
+        "startChar": 12,
+        "endLine": 161,
+        "endChar": 88
+      },
+      "revId": "035ffdc8f66541db5cc521810b80f33fb93b6ad6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c7de21b_9025519b",
+        "filename": "src/PlatformIO.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-30T01:19:35Z",
+      "side": 1,
+      "message": "format",
+      "range": {
+        "startLine": 646,
+        "startChar": 75,
+        "endLine": 646,
+        "endChar": 85
+      },
+      "revId": "035ffdc8f66541db5cc521810b80f33fb93b6ad6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
