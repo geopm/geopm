@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "559af1d7_e38ed2f5",
+        "filename": "src/Agent.hpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-30T01:42:45Z",
+      "side": 1,
+      "message": "might want a deprecation warning here also",
+      "revId": "018a05729bb64987d9fe9e126524d5215ba8a8a9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b74f5b4_16c15bb7",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-30T01:42:45Z",
+      "side": 1,
+      "message": "I don\u0027t like this pattern, but I can\u0027t think of how to fix it at the moment...\n\ndo *all* the Agent methods need to call through to Role, or could the Agent just implement this function and skip it in the Role interface?",
+      "range": {
+        "startLine": 118,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 5
+      },
+      "revId": "018a05729bb64987d9fe9e126524d5215ba8a8a9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "289e17bd_29f94fe1",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 706,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-30T01:42:45Z",
+      "side": 1,
+      "message": "I think this might come out in the trace as the raw count (not %M_NUM_STEP)",
+      "revId": "018a05729bb64987d9fe9e126524d5215ba8a8a9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fc4c082_90430a73",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-30T01:42:45Z",
+      "side": 1,
+      "message": "these can come from PlatformIO",
+      "revId": "018a05729bb64987d9fe9e126524d5215ba8a8a9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8ed0b46_7c17489e",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-30T01:42:45Z",
+      "side": 1,
+      "message": "is this still a feature?",
+      "range": {
+        "startLine": 300,
+        "startChar": 88,
+        "endLine": 300,
+        "endChar": 91
+      },
+      "revId": "018a05729bb64987d9fe9e126524d5215ba8a8a9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
