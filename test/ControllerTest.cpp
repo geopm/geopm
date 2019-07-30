@@ -178,7 +178,7 @@ TEST_F(ControllerTest, single_node)
     EXPECT_CALL(*m_manager_io, sample()).Times(m_num_step)
         .WillRepeatedly(Return(manager_sample));
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
-    EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
+    EXPECT_CALL(*m_tracer, update(_)).Times(m_num_step);
     EXPECT_CALL(*agent, trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step);
     EXPECT_CALL(*agent, do_write_batch())
@@ -250,7 +250,7 @@ TEST_F(ControllerTest, two_level_controller_1)
         .WillRepeatedly(Return(m_region_info));
     EXPECT_CALL(*m_application_io, clear_region_info()).Times(m_num_step);
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
-    EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
+    EXPECT_CALL(*m_tracer, update(_)).Times(m_num_step);
     EXPECT_CALL(*agent, trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step);
     EXPECT_CALL(*agent, do_write_batch())
@@ -339,7 +339,7 @@ TEST_F(ControllerTest, two_level_controller_2)
         .WillRepeatedly(Return(m_region_info));
     EXPECT_CALL(*m_application_io, clear_region_info()).Times(m_num_step);
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
-    EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
+    EXPECT_CALL(*m_tracer, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], sample_platform(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], do_send_sample()).Times(m_num_step)
@@ -429,7 +429,7 @@ TEST_F(ControllerTest, two_level_controller_0)
     EXPECT_CALL(*m_manager_io, sample()).Times(m_num_step)
         .WillRepeatedly(Return(manager_sample));
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
-    EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
+    EXPECT_CALL(*m_tracer, update(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], sample_platform(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], do_send_sample()).Times(m_num_step)

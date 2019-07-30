@@ -193,11 +193,11 @@ TEST_F(TracerTest, update_samples)
     std::vector<double> agent_vals {88.8, 77.7};
 
     m_tracer->columns(agent_cols, {});
-    m_tracer->update(agent_vals, {});
+    m_tracer->update(agent_vals);
     m_tracer->flush();
 
     std::string expected_str = "\n\n\n\n\n\n"
-        "0.5|1|0x0000000000000002|0x0000000000000003|4.5|5|6.5|7.5|8.5|9.5|10.5|11.5|12.5|13.5|14.5|15.7|16.7|17.7|88.8|77.7\n";
+        "0.5|1|0x0000000000000002|0x0000000000000003|4.5|5|6.5|7.5|8.5|9.5|10.5|11.5|12|13|14.5|15.7|16.7|17.7|88.8|77.7\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
     ASSERT_TRUE(result.good()) << strerror(errno);
@@ -218,24 +218,13 @@ TEST_F(TracerTest, region_entry_exit)
     std::vector<std::string> agent_cols {"col1", "col2"};
     std::vector<double> agent_vals {88.8, 77.7};
 
-    std::list<geopm_region_info_s> short_regions = {
-        {0x123, GEOPM_REGION_HINT_UNKNOWN, 0.0, 3.2},
-        {0x123, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2},
-        {0x345, GEOPM_REGION_HINT_UNKNOWN, 0.0, 3.2},
-        {0x456, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2},
-        {0x345, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2},
-    };
     m_tracer->columns(agent_cols, {geopm::string_format_integer,
                                    geopm::string_format_integer});
-    m_tracer->update(agent_vals, short_regions);
+    m_tracer->update(agent_vals);
     m_tracer->flush();
     std::string expected_str ="\n\n\n\n\n"
         "\n" // header
-        "2.2|0|0x0000000000000123|0x0000000100000000|0|0|3.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|88|77\n"
-        "2.2|0|0x0000000000000123|0x0000000100000000|1|0|3.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|88|77\n"
-        "2.2|0|0x0000000000000345|0x0000000100000000|0|0|3.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|88|77\n"
-        "2.2|0|0x0000000000000456|0x0000000100000000|1|0|3.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|88|77\n"
-        "2.2|0|0x0000000000000345|0x0000000100000000|1|0|3.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|2.2|88|77\n"
+        "2.2|0|0x0000000000000123|0x0000000100000000|0|0|2.2|2.2|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n"
         "\n"; // sample
 
     std::istringstream expected(expected_str);

@@ -264,7 +264,7 @@ namespace geopm
         geopm_signal_handler_check();
         m_platform_io.read_batch();
         geopm_signal_handler_check();
-        m_tracer->update(m_trace_sample, m_application_io->region_info());
+        m_tracer->update(m_trace_sample);
         geopm_signal_handler_check();
         m_application_io->clear_region_info();
 
@@ -275,7 +275,7 @@ namespace geopm
         geopm_signal_handler_check();
         m_platform_io.read_batch();
         geopm_signal_handler_check();
-        m_tracer->update(m_trace_sample, m_application_io->region_info());
+        m_tracer->update(m_trace_sample);
         geopm_signal_handler_check();
         m_application_io->clear_region_info();
         generate();
@@ -349,7 +349,7 @@ namespace geopm
         bool do_send = m_agent[0]->do_send_sample();
         m_reporter->update();
         m_agent[0]->trace_values(m_trace_sample);
-        m_tracer->update(m_trace_sample, m_application_io->region_info());
+        m_tracer->update(m_trace_sample);
         m_application_io->clear_region_info();
 
         for (int level = 0; level < m_num_level_ctl; ++level) {

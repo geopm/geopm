@@ -123,11 +123,6 @@ namespace geopm
                     {"TEMPERATURE_CORE", GEOPM_DOMAIN_BOARD, 0,
                      m_platform_io.format_function("TEMPERATURE_CORE")}});
 
-            m_region_hash_idx = 2;
-            m_region_hint_idx = 3;
-            m_region_progress_idx = 4;
-            m_region_runtime_idx = 6;
-
             // extra columns from environment
             std::vector<std::string> env_sig = env_signals();
             std::vector<int> env_dom = env_domains();
@@ -169,8 +164,7 @@ namespace geopm
         }
     }
 
-    void TracerImp::update(const std::vector<double> &agent_values,
-                           std::list<geopm_region_info_s> region_entry_exit)
+    void TracerImp::update(const std::vector<double> &agent_values)
     {
         if (m_is_trace_enabled) {
 #ifdef GEOPM_DEBUG
@@ -183,7 +177,6 @@ namespace geopm
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
 #endif
-            // save values to be reused for region entry/exit
             size_t col_idx = 0;
             for (; col_idx < m_column_idx.size(); ++col_idx) {
                 m_last_telemetry[col_idx] = m_platform_io.sample(m_column_idx[col_idx]);
@@ -192,38 +185,6 @@ namespace geopm
                 m_last_telemetry[col_idx] = val;
                 ++col_idx;
             }
-            // save region id and progress, which will get written over by entry/exit
-            double region_hash = m_last_telemetry[m_region_hash_idx];
-            double region_hint = m_last_telemetry[m_region_hint_idx];
-            double region_progress = m_last_telemetry[m_region_progress_idx];
-            double region_runtime = m_last_telemetry[m_region_runtime_idx];
-
-            // insert samples for region entry/exit
-            size_t idx = 0;
-            for (const auto &reg : region_entry_exit) {
-                // skip the last region entry if it matches the
-                // sampled telemetry region hash, hint, and progress
-                if (!((idx == region_entry_exit.size() - 1) &&
-                      region_progress == reg.progress &&
-                      region_progress == 0.0 &&
-                      region_hash == reg.hash &&
-                      region_hint == reg.hint)) {
-                    m_last_telemetry[m_region_hash_idx] = reg.hash;
-                    m_last_telemetry[m_region_hint_idx] = reg.hint;
-                    m_last_telemetry[m_region_progress_idx] = reg.progress;
-                    m_last_telemetry[m_region_runtime_idx] = reg.runtime;
-                    /// @todo There are no updates to the region count field.
-                    ///       Rather than fix this issue, will just remove
-                    ///       these inserted columns.
-                    m_csv->update(m_last_telemetry);
-                }
-                ++idx;
-            }
-            // print sampled data last
-            m_last_telemetry[m_region_hash_idx] = region_hash;
-            m_last_telemetry[m_region_hint_idx] = region_hint;
-            m_last_telemetry[m_region_progress_idx] = region_progress;
-            m_last_telemetry[m_region_runtime_idx] = region_runtime;
             m_csv->update(m_last_telemetry);
         }
     }
