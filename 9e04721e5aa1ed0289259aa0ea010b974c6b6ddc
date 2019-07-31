@@ -22,6 +22,30 @@
       "revId": "9e04721e5aa1ed0289259aa0ea010b974c6b6ddc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7ad45ab_9ea49e06",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-07-31T16:43:41Z",
+      "side": 1,
+      "message": "yeah I agree.  the first instance of this patch was implemented as such but I went with the current rev for readability. I don\u0027t believe the extra comparison is a huge performance issue but the I could add a comment and remove it.  we can talk in standup",
+      "parentUuid": "56b6a68a_50fdc33e",
+      "range": {
+        "startLine": 232,
+        "startChar": 45,
+        "endLine": 232,
+        "endChar": 104
+      },
+      "revId": "9e04721e5aa1ed0289259aa0ea010b974c6b6ddc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
