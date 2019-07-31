@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69837619_7adf83a1",
+        "filename": "src/CNLIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-31T19:11:04Z",
+      "side": 1,
+      "message": "Use geopm::string_read_file() and std::stod() while also using remainder to check units",
+      "range": {
+        "startLine": 54,
+        "startChar": 8,
+        "endLine": 54,
+        "endChar": 62
+      },
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bbd1c85_740d6ea8",
+        "filename": "src/CNLIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-31T19:11:04Z",
+      "side": 1,
+      "message": "okay, but lets be consistent with the other code\u0027s use of \u003ccmath\u003e NAN.",
+      "range": {
+        "startLine": 114,
+        "startChar": 25,
+        "endLine": 114,
+        "endChar": 64
+      },
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c66c6f69_fab9be58",
+        "filename": "src/CNLIOGroup.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-31T19:11:04Z",
+      "side": 1,
+      "message": "Add sample rate and age.",
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d10c036_f76ed157",
+        "filename": "src/CNLIOGroup.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-07-31T19:11:04Z",
+      "side": 1,
+      "message": "NUM_SIGNAL_TYPE",
+      "range": {
+        "startLine": 79,
+        "startChar": 16,
+        "endLine": 79,
+        "endChar": 33
+      },
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
