@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "23955a72_249f03a3",
+        "filename": "scripts/geopmpy/policy_store.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-07-31T16:39:58Z",
+      "side": 1,
+      "message": "global _ffi\nglobal _dl\n???",
+      "range": {
+        "startLine": 72,
+        "startChar": 10,
+        "endLine": 72,
+        "endChar": 13
+      },
+      "revId": "49275edf738e4c3d6f33529cdc3b808541b69445",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
