@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a846c8f_e9dd5f39",
+        "filename": "src/DebugIOGroup.hpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-31T18:16:03Z",
+      "side": 1,
+      "message": "not needed",
+      "revId": "b79bd805201b1cd26848297d1ac598068fbc5765",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd151db4_80c3287f",
+        "filename": "src/DebugIOGroup.hpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-07-31T18:16:03Z",
+      "side": 1,
+      "message": "better name? \nAgentIOGroup?",
+      "range": {
+        "startLine": 51,
+        "startChar": 10,
+        "endLine": 51,
+        "endChar": 22
+      },
+      "revId": "b79bd805201b1cd26848297d1ac598068fbc5765",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
