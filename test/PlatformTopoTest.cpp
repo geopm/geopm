@@ -242,6 +242,7 @@ void PlatformTopoTest::TearDown()
     }
     (void)unlink("lscpu");
     (void)setenv("PATH", m_path_env_save.c_str(), 1);
+    unsetenv("PLATFORM_TOPO_TEST_LSCPU_ERROR");
 }
 
 void PlatformTopoTest::write_lscpu(const std::string &lscpu_str)
