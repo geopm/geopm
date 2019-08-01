@@ -128,12 +128,6 @@ fi
 [enable_msrsafe_ioctl_write="0"]
 )
 
-if test "x$enable_openmp" = "xno" ; then
-  enable_openmp="0"
-else
-  enable_openmp="1"
-fi
-
 if test "x$enable_debug" = "x1" ; then
   AC_DEFINE([GEOPM_DEBUG], [ ], [Enables code for debugging])
   CFLAGS="$CFLAGS -O0 -g"
@@ -164,10 +158,6 @@ if test "x$enable_msrsafe_ioctl_write" = "x1" ; then
   AC_DEFINE([GEOPM_MSRSAFE_IOCTL_WRITE], [ ], [Enables use of msr-safe ioctl feature for writing (broken as of msr-safe version 1.2.0)])
 fi
 AC_SUBST([enable_msrsafe_ioctl_write])
-
-
-AC_SUBST([enable_openmp])
-AM_CONDITIONAL([ENABLE_OPENMP], [test "x$enable_openmp" = "x1"])
 
 AC_ARG_WITH([mpi-bin], [AS_HELP_STRING([--with-mpi-bin=PATH],
             [specify directory for mpi compiler wrapper binaries])])
@@ -274,9 +264,17 @@ fi
 fi
 
 AC_LANG_PUSH([C++])
-AC_OPENMP()
+AC_OPENMP
 AC_LANG_POP([C++])
 
+if test "x$enable_openmp" = "xno" ; then
+  enable_openmp="0"
+else
+  enable_openmp="1"
+fi
+
+AC_SUBST([enable_openmp])
+AM_CONDITIONAL([ENABLE_OPENMP], [test "x$enable_openmp" = "x1"])
 
 [MPI_FCFLAGS=$MPI_FFLAGS]
 [MPI_FFLAGS=$MPI_F77FLAGS]
@@ -349,13 +347,18 @@ AC_ARG_ENABLE([ompt],
 else
   if test "x$enable_openmp" = "x0"; then
       enable_ompt="0"
-      echo "Warning: opmt requested, but openmp not found"
+      echo "Warning: ompt requested, but openmp not found"
+  else
+      enable_ompt="1"
   fi
-  enable_ompt="1"
 fi
 ],
-[enable_ompt="$has_ompt"]
-)
+[if test "x$enable_openmp" = "x1"; then
+     enable_ompt="$has_ompt"
+ else
+     enable_ompt="0"
+ fi
+])
 
 if test "x$enable_ompt" = "x1" ; then
   AC_DEFINE([GEOPM_ENABLE_OMPT], [ ], [Enables OpenMP Tool callbacks.])
