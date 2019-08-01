@@ -134,7 +134,22 @@ TEST_F(IOGroupTest, signals_have_agg_functions)
     for (const auto &group : m_plugins) {
         auto signal_names = group->signal_names();
         for (auto name : signal_names) {
-            EXPECT_NO_THROW(group->agg_function(name)) << name;
+            std::function<double(std::vector<double>)> func;
+            EXPECT_NO_THROW(func = group->agg_function(name)) << name;
+            EXPECT_NO_THROW(func(data)) << name;
+        }
+    }
+}
+
+TEST_F(IOGroupTest, signals_have_format_functions)
+{
+    double signal = 1.0;
+    for (const auto &group : m_plugins) {
+        auto signal_names = group->signal_names();
+        for (auto name : signal_names) {
+            std::function<std::string(double)> func;
+            EXPECT_NO_THROW(func = group->format_function(name)) << name;
+            EXPECT_NO_THROW(func(signal)) << name;
         }
     }
 }

@@ -638,6 +638,34 @@ namespace geopm
         return iogroup->agg_function(signal_name);
     }
 
+    std::function<std::string(double)> PlatformIOImp::format_function(const std::string &signal_name) const
+    {
+        std::function<std::string(double)> result;
+        /// @todo: find a better way to track signals produced by PlatformIOImp itself
+        if (signal_name == "POWER_PACKAGE") {
+            result = string_format_double;
+        }
+        else if (signal_name == "POWER_DRAM") {
+            result = string_format_double;
+        }
+        else if (signal_name == "TEMPERATURE_CORE") {
+            result = string_format_double;
+        }
+        else if (signal_name == "TEMPERATURE_PACKAGE") {
+            result = string_format_double;
+        }
+        else {
+            // PlatformIOImp forwards formatting request to underlying IOGroup
+            auto iogroup = find_signal_iogroup(signal_name);
+            if (iogroup == nullptr) {
+               throw Exception("PlatformIOImp::format_function(): unknown how to format \"" + signal_name + "\"",
+                               GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            result = iogroup->format_function(signal_name);
+        }
+        return result;
+    }
+
     std::string PlatformIOImp::signal_description(const std::string &signal_name) const
     {
         /// @todo: find a better way to track signals produced by PlatformIOImp itself
