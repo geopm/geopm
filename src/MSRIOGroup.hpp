@@ -91,6 +91,7 @@ namespace geopm
             void save_control(void) override;
             void restore_control(void) override;
             std::function<double(const std::vector<double> &)> agg_function(const std::string &signal_name) const override;
+            std::function<std::string(double)> format_function(const std::string &signal_name) const override;
             std::string signal_description(const std::string &signal_name) const override;
             std::string control_description(const std::string &control_name) const override;
             /// @brief Fill string with the msr-safe whitelist file contents
@@ -168,6 +169,7 @@ namespace geopm
             std::map<std::string, std::function<double(const std::vector<double> &)> > m_func_map;
             std::map<std::string, std::string> m_signal_desc_map;
             std::map<std::string, std::string> m_control_desc_map;
+            std::map<std::string, int> m_signal_units_map;
     };
 }
 
