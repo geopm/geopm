@@ -80,6 +80,10 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/CpuinfoIOGroupTest.parse_sticker_without_at \
               test/gtest_links/CpuinfoIOGroupTest.plugin \
               test/gtest_links/CpuinfoIOGroupTest.valid_signals \
+              test/gtest_links/CSVTest.buffer \
+              test/gtest_links/CSVTest.columns \
+              test/gtest_links/CSVTest.header \
+              test/gtest_links/CSVTest.negative \
               test/gtest_links/EnergyEfficientAgentTest.aggregate_sample \
               test/gtest_links/EnergyEfficientAgentTest.do_write_batch \
               test/gtest_links/EnergyEfficientAgentTest.enforce_policy \
@@ -269,9 +273,9 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/TimeIOGroupTest.read_signal \
               test/gtest_links/TimeIOGroupTest.read_signal_and_batch \
               test/gtest_links/TimeIOGroupTest.sample \
-              test/gtest_links/TracerTest.region_unknown_count \
               test/gtest_links/TracerTest.columns \
               test/gtest_links/TracerTest.region_entry_exit \
+              test/gtest_links/TracerTest.region_unknown_count \
               test/gtest_links/TracerTest.update_samples \
               test/gtest_links/TreeCommLevelTest.level_rank \
               test/gtest_links/TreeCommLevelTest.receive_down_complete \
@@ -314,6 +318,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/ControlMessageTest.cpp \
                           test/ControllerTest.cpp \
                           test/CpuinfoIOGroupTest.cpp \
+                          test/CSVTest.cpp \
                           test/EnergyEfficientAgentTest.cpp \
                           test/EnergyEfficientRegionTest.cpp \
                           test/EnvironmentTest.cpp \
