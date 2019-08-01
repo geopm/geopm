@@ -131,6 +131,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/MSRIOGroupTest.control_alias \
               test/gtest_links/MSRIOGroupTest.control_error \
               test/gtest_links/MSRIOGroupTest.cpuid \
+              test/gtest_links/MSRIOGroupTest.format_function \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs_error_fields \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs_error_msrs \
