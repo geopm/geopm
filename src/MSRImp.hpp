@@ -77,6 +77,7 @@ namespace geopm
             uint64_t mask(int control_idx) const override;
             int domain_type(void) const override;
             int decode_function(int signal_idx) const override;
+            int units(int signal_idx) const override;
         private:
             void init(const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &signal,
                       const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &control);
