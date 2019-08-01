@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85de06f5_b753e371",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-01T02:00:38Z",
+      "side": 1,
+      "message": "Doesn\u0027t CSV patch need to come first?",
+      "revId": "6b0bfd14fe80bdc8bc70af42249e49913ecfc44a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
