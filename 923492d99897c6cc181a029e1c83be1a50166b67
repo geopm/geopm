@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "458d10b0_12c96342",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-01T01:11:50Z",
+      "side": 1,
+      "message": "if this needs a comment, maybe write it out for the whole condition, e.g. region hash has changed, or region count changed for the same region",
+      "range": {
+        "startLine": 232,
+        "startChar": 105,
+        "endLine": 232,
+        "endChar": 147
+      },
+      "revId": "923492d99897c6cc181a029e1c83be1a50166b67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a56c997f_04a725c5",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 1119,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-01T01:11:50Z",
+      "side": 1,
+      "message": "just curious, does this fail with the current agent (without the count)?  It\u0027s still good to have either way",
+      "revId": "923492d99897c6cc181a029e1c83be1a50166b67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17c7e902_9ff51771",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 1152,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-01T01:11:50Z",
+      "side": 1,
+      "message": "spin?",
+      "range": {
+        "startLine": 1152,
+        "startChar": 37,
+        "endLine": 1152,
+        "endChar": 43
+      },
+      "revId": "923492d99897c6cc181a029e1c83be1a50166b67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
