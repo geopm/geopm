@@ -92,23 +92,7 @@ namespace geopm
     }
 
     EnvironmentImp::EnvironmentImp(const std::string &default_settings_path, const std::string &override_settings_path)
-        : m_all_names({"GEOPM_CTL",
-                       "GEOPM_REPORT",
-                       "GEOPM_COMM",
-                       "GEOPM_POLICY",
-                       "GEOPM_AGENT",
-                       "GEOPM_SHMKEY",
-                       "GEOPM_TRACE",
-                       "GEOPM_TRACE_PROFILE",
-                       "GEOPM_PLUGIN_PATH",
-                       "GEOPM_REGION_BARRIER",
-                       "GEOPM_TIMEOUT",
-                       "GEOPM_DEBUG_ATTACH",
-                       "GEOPM_PROFILE",
-                       "GEOPM_FREQUENCY_MAP",
-                       "GEOPM_MAX_FAN_OUT",
-                       "GEOPM_TRACE_SIGNALS",
-                       "GEOPM_REPORT_SIGNALS"})
+        : m_all_names(get_all_vars())
         , m_runtime_names({"GEOPM_PROFILE",
                            "GEOPM_REPORT",
                            "GEOPM_TRACE",
@@ -124,6 +108,27 @@ namespace geopm
         parse_environment_file(default_settings_path);
         parse_environment();
         parse_environment_file(override_settings_path);
+    }
+
+    std::set<std::string> EnvironmentImp::get_all_vars()
+    {
+        return {"GEOPM_CTL",
+                "GEOPM_REPORT",
+                "GEOPM_COMM",
+                "GEOPM_POLICY",
+                "GEOPM_AGENT",
+                "GEOPM_SHMKEY",
+                "GEOPM_TRACE",
+                "GEOPM_TRACE_PROFILE",
+                "GEOPM_PLUGIN_PATH",
+                "GEOPM_REGION_BARRIER",
+                "GEOPM_TIMEOUT",
+                "GEOPM_DEBUG_ATTACH",
+                "GEOPM_PROFILE",
+                "GEOPM_FREQUENCY_MAP",
+                "GEOPM_MAX_FAN_OUT",
+                "GEOPM_TRACE_SIGNALS",
+                "GEOPM_REPORT_SIGNALS"};
     }
 
     void EnvironmentImp::parse_environment()

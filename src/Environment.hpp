@@ -94,6 +94,7 @@ namespace geopm
             bool do_profile() const override;
             int timeout(void) const override;
             int debug_attach(void) const override;
+            static std::set<std::string> get_all_vars();
         protected:
             void parse_environment();
             void parse_environment_file(const std::string &settings_path);

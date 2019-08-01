@@ -53,6 +53,17 @@ using json11::Json;
 using geopm::Environment;
 using geopm::EnvironmentImp;
 
+static bool get_env(const std::string &name, std::string &env_string)
+{
+    bool result = false;
+    char *check_string = getenv(name.c_str());
+    if (check_string != NULL) {
+        env_string = check_string;
+        result = true;
+    }
+    return result;
+}
+
 class EnvironmentTest: public :: testing :: Test
 {
     protected:
@@ -60,10 +71,12 @@ class EnvironmentTest: public :: testing :: Test
         void TearDown();
         static void vars_to_json(std::map<std::string, std::string> vars, const std::string &path);
         void expect_vars(std::map<std::string, std::string> exp_vars) const;
+        void cache_env_value(const std::string &key);
         const std::string M_DEFAULT_PATH = "env_test_default.json";
         const std::string M_OVERRIDE_PATH = "env_test_override.json";
         std::map<std::string, std::string> m_user;
         std::map<std::string, int> m_pmpi_ctl_map;
+        std::map<std::string, std::string> m_env_restore;
         std::unique_ptr<Environment> m_env;
 };
 
@@ -72,6 +85,14 @@ void EnvironmentTest::vars_to_json(std::map<std::string, std::string> vars, cons
     std::ofstream json_file_out(path, std::ifstream::out);
     json_file_out << Json(vars).dump();
     json_file_out.close();
+}
+
+void EnvironmentTest::cache_env_value(const std::string &env_key)
+{
+    std::string env_val;
+    if (get_env(env_key, env_val)) {
+        m_env_restore[env_key] = env_val;
+    }
 }
 
 void EnvironmentTest::expect_vars(std::map<std::string, std::string> exp_vars) const
@@ -107,6 +128,10 @@ void EnvironmentTest::expect_vars(std::map<std::string, std::string> exp_vars) c
 
 void EnvironmentTest::SetUp()
 {
+    // detect user vars that are present at setup
+    for (const auto &key : EnvironmentImp::get_all_vars()) {
+        cache_env_value(key);
+    }
     m_user = {
               {"GEOPM_REPORT", "report-test_value"},
               {"GEOPM_COMM", "comm-test_value"},
@@ -129,23 +154,14 @@ void EnvironmentTest::SetUp()
 
 void EnvironmentTest::TearDown()
 {
-    unsetenv("GEOPM_REPORT");
-    unsetenv("GEOPM_COMM");
-    unsetenv("GEOPM_POLICY");
-    unsetenv("GEOPM_AGENT");
-    unsetenv("GEOPM_SHMKEY");
-    unsetenv("GEOPM_TRACE");
-    unsetenv("GEOPM_TRACE_PROFILE");
-    unsetenv("GEOPM_PLUGIN_PATH");
-    unsetenv("GEOPM_PROFILE");
-    unsetenv("GEOPM_FREQUENCY_MAP");
-    unsetenv("GEOPM_CTL");
-    unsetenv("GEOPM_MAX_FAN_OUT");
-    unsetenv("GEOPM_TIMEOUT");
-    unsetenv("GEOPM_DEBUG_ATTACH");
-    unsetenv("GEOPM_TRACE_SIGNALS");
-    unsetenv("GEOPM_REPORT_SIGNALS");
-    unsetenv("GEOPM_REGION_BARRIER");
+    // unset all vars that could have been touched by test
+    for (const auto &key : EnvironmentImp::get_all_vars()) {
+        unsetenv(key.c_str());
+    }
+    // restore vars that were present in user env at setup
+    for (const auto &kv : m_env_restore) {
+        setenv(kv.first.c_str(), kv.second.c_str(), 1);
+    }
 
     (void)unlink(M_DEFAULT_PATH.c_str());
     (void)unlink(M_OVERRIDE_PATH.c_str());
