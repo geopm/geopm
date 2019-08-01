@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "52d0a71e_6a1f2cb9",
+        "filename": "src/CNLIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-01T18:38:13Z",
+      "side": 1,
+      "message": "Oops. It was being used in std::bind, but I removed it in a later revision. It lets you bind inputs from the wrapper function to inputs in the wrapped function. The current revision binds all wrapped inputs so the wrapper takes no arguments. My next revision will probably drop std::bind, anyways.",
+      "parentUuid": "9b1c2c26_2a2fdbf5",
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "69837619_7adf83a1",
         "filename": "src/CNLIOGroup.cpp",
         "patchSetId": 1
@@ -82,6 +100,24 @@
     },
     {
       "key": {
+        "uuid": "9a1e6739_3b6b6dbb",
+        "filename": "src/CNLIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-01T18:38:13Z",
+      "side": 1,
+      "message": "I\u0027ll replace the std::function struct member with 2 strings: file name and the units suffix.",
+      "parentUuid": "64c66955_cda3eb8c",
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a2af0187_25370a11",
         "filename": "src/CNLIOGroup.cpp",
         "patchSetId": 1
@@ -128,6 +164,30 @@
     },
     {
       "key": {
+        "uuid": "12aa275c_1931512a",
+        "filename": "src/CNLIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-01T18:38:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0bbd1c85_740d6ea8",
+      "range": {
+        "startLine": 114,
+        "startChar": 25,
+        "endLine": 114,
+        "endChar": 64
+      },
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f6f62c95_f74d2879",
         "filename": "src/CNLIOGroup.cpp",
         "patchSetId": 1
@@ -151,6 +211,30 @@
     },
     {
       "key": {
+        "uuid": "4d919125_308bab48",
+        "filename": "src/CNLIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-01T18:38:13Z",
+      "side": 1,
+      "message": "Doubtful. The next revision will directly call read_double_from_file, with arguments derived from the signal struct.",
+      "parentUuid": "f6f62c95_f74d2879",
+      "range": {
+        "startLine": 252,
+        "startChar": 44,
+        "endLine": 252,
+        "endChar": 61
+      },
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a05a8434_5cbdedd9",
         "filename": "src/CNLIOGroup.cpp",
         "patchSetId": 1
@@ -162,6 +246,24 @@
       "writtenOn": "2019-08-01T01:47:58Z",
       "side": 1,
       "message": "could also be geopm::make_unique.  I see that some of the other IOGroups are using new also.",
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6740954c_bf13b710",
+        "filename": "src/CNLIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-01T18:38:13Z",
+      "side": 1,
+      "message": "I\u0027ll switch to geopm::make_unique. Hopefully that will simplify migration to std::make_unique if there\u0027s a C++14 move in the future.",
+      "parentUuid": "a05a8434_5cbdedd9",
       "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
@@ -205,6 +307,30 @@
       "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c84731d_f734a8fb",
+        "filename": "src/CNLIOGroup.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-01T18:38:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d10c036_f76ed157",
+      "range": {
+        "startLine": 79,
+        "startChar": 16,
+        "endLine": 79,
+        "endChar": 33
+      },
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     },
     {
       "key": {
