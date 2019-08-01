@@ -33,6 +33,7 @@
 #include "TimeIOGroup.hpp"
 
 #include "PlatformTopo.hpp"
+#include "Helper.hpp"
 #include "Exception.hpp"
 #include "Agg.hpp"
 #include "config.h"
@@ -195,6 +196,16 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return Agg::select_first;
+    }
+
+    std::function<std::string(double)> TimeIOGroup::format_function(const std::string &signal_name) const
+    {
+        if (!is_valid_signal(signal_name)) {
+            throw Exception("TimeIOGroup::format_function(): " + signal_name +
+                            "not valid for TimeIOGroup",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return string_format_double;
     }
 
     std::string TimeIOGroup::signal_description(const std::string &signal_name) const
