@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "9b1c2c26_2a2fdbf5",
+        "filename": "src/CNLIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-01T01:47:58Z",
+      "side": 1,
+      "message": "Just have \"using std::placeholders::thing;\".  I don\u0027t see what\u0027s being used though.",
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "69837619_7adf83a1",
         "filename": "src/CNLIOGroup.cpp",
         "patchSetId": 1
@@ -18,6 +35,69 @@
         "startChar": 8,
         "endLine": 54,
         "endChar": 62
+      },
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df283090_2c7f5a8f",
+        "filename": "src/CNLIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-01T01:47:58Z",
+      "side": 1,
+      "message": "ws",
+      "range": {
+        "startLine": 80,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 9
+      },
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64c66955_cda3eb8c",
+        "filename": "src/CNLIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-01T01:47:58Z",
+      "side": 1,
+      "message": "There\u0027s a lot of repeated code in here.  Could this be done in a loop with emplace, or does it need to be in the initializer list?",
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2af0187_25370a11",
+        "filename": "src/CNLIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-01T01:47:58Z",
+      "side": 1,
+      "message": "I prefer this on the next line",
+      "range": {
+        "startLine": 103,
+        "startChar": 22,
+        "endLine": 103,
+        "endChar": 24
       },
       "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
@@ -42,6 +122,46 @@
         "endLine": 114,
         "endChar": 64
       },
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6f62c95_f74d2879",
+        "filename": "src/CNLIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-01T01:47:58Z",
+      "side": 1,
+      "message": "In the future, will this ever be something other than read_double_from_file() ?",
+      "range": {
+        "startLine": 252,
+        "startChar": 44,
+        "endLine": 252,
+        "endChar": 61
+      },
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a05a8434_5cbdedd9",
+        "filename": "src/CNLIOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-01T01:47:58Z",
+      "side": 1,
+      "message": "could also be geopm::make_unique.  I see that some of the other IOGroups are using new also.",
       "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
@@ -81,6 +201,120 @@
         "startChar": 16,
         "endLine": 79,
         "endChar": 33
+      },
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe104d35_45ffe225",
+        "filename": "src/IOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-01T01:47:58Z",
+      "side": 1,
+      "message": "commenting here to add a reminder to discuss whether we want this as a built-in IOGroup.  It shouldn\u0027t break anything. but on non-CNL systems, the Controller will always print the warning about the IOGroup failing to load.",
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46dfb996_7bc92bed",
+        "filename": "test/CNLIOGroupTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-01T01:47:58Z",
+      "side": 1,
+      "message": "I think we usually use unlink.. this is confusingly overloaded by std algorithm",
+      "range": {
+        "startLine": 83,
+        "startChar": 4,
+        "endLine": 83,
+        "endChar": 15
+      },
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc2ba931_20d7b954",
+        "filename": "test/CNLIOGroupTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-01T01:47:58Z",
+      "side": 1,
+      "message": "test that writing a different value changes the value returned by read_signal()",
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aff5f019_7a158800",
+        "filename": "test/CNLIOGroupTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-01T01:47:58Z",
+      "side": 1,
+      "message": "same comment for this test",
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a49d11d_228ee218",
+        "filename": "test/CNLIOGroupTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-01T01:47:58Z",
+      "side": 1,
+      "message": "some other bad strings: invalid number, \"85W\", extra whitespace and characters",
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6834c440_1ed7e589",
+        "filename": "test/CNLIOGroupTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-01T01:47:58Z",
+      "side": 1,
+      "message": "looks like this can go in the test setup",
+      "range": {
+        "startLine": 168,
+        "startChar": 0,
+        "endLine": 176,
+        "endChar": 31
       },
       "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
