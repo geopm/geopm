@@ -126,6 +126,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/IOGroupTest.signal_names_are_valid \
               test/gtest_links/IOGroupTest.signals_have_agg_functions \
               test/gtest_links/IOGroupTest.signals_have_descriptions \
+              test/gtest_links/IOGroupTest.signals_have_format_functions \
               test/gtest_links/MSRIOGroupTest.adjust \
               test/gtest_links/MSRIOGroupTest.control_alias \
               test/gtest_links/MSRIOGroupTest.control_error \
