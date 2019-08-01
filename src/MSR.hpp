@@ -150,11 +150,14 @@ namespace geopm
             /// @brief The function used to decode the MSR value as defined
             ///        in the m_function_e enum.
             virtual int decode_function(int signal_idx) const = 0;
-
+            /// @brief The units for the indexed signal.
+            /// @param signal_idx The index of the signal within the MSR.
+            /// @return One of the MSR::m_units_e enums representing
+            ///         the units of the signal
+            virtual int units(int signal_idx) const = 0;
             /// @brief Convert a string to the corresponding m_function_e value
             static m_function_e string_to_function(const std::string &str);
-            /// @brief Convert a string to the corresponding m_function_e value
-            /// @todo Consider leaving units field as a string.  enum is not being used.
+            /// @brief Convert a string to the corresponding m_units_e value
             static m_units_e string_to_units(const std::string &str);
             static std::shared_ptr<MSR> make_shared(const std::string &msr_name,
                                                     uint64_t offset,
