@@ -81,14 +81,16 @@ namespace geopm
     {
         public:
             MSREncode(const struct MSR::m_encode_s &msre);
-            MSREncode(int begin_bit, int end_bit, int function, double scalar);
+            MSREncode(int begin_bit, int end_bit, int function, int units, double scalar);
             virtual ~MSREncode() = default;
             double decode(uint64_t field, uint64_t &last_field, uint64_t &num_overflow);
             uint64_t encode(double value);
             uint64_t mask(void);
             int decode_function(void);
+            int units(void);
         private:
             const int m_function;
+            int m_units;
             int m_shift;
             int m_num_bit;
             uint64_t m_mask;
@@ -99,13 +101,14 @@ namespace geopm
 
 
     MSREncode::MSREncode(const struct MSR::m_encode_s &msre)
-        : MSREncode(msre.begin_bit, msre.end_bit, msre.function, msre.scalar)
+        : MSREncode(msre.begin_bit, msre.end_bit, msre.function, msre.units, msre.scalar)
     {
 
     }
 
-    MSREncode::MSREncode(int begin_bit, int end_bit, int function, double scalar)
+    MSREncode::MSREncode(int begin_bit, int end_bit, int function, int units, double scalar)
         : m_function(function)
+        , m_units(units)
         , m_shift(begin_bit)
         , m_num_bit(end_bit - begin_bit + 1)
         , m_mask(((1ULL << m_num_bit) - 1) << begin_bit)
@@ -214,6 +217,11 @@ namespace geopm
     int MSREncode::decode_function(void)
     {
         return m_function;
+    }
+
+    int MSREncode::units(void)
+    {
+        return m_units;
     }
 
     MSRImp::MSRImp(const std::string &msr_name,
@@ -377,6 +385,11 @@ namespace geopm
     int MSRImp::decode_function(int signal_idx) const
     {
         return m_signal_encode[signal_idx]->decode_function();
+    }
+
+    int MSRImp::units(int signal_idx) const
+    {
+        return m_signal_encode[signal_idx]->units();
     }
 
     MSR::m_function_e MSR::string_to_function(const std::string &str)

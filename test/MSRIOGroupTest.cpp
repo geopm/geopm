@@ -47,6 +47,7 @@
 
 #include "geopm_sched.h"
 #include "geopm_hash.h"
+#include "Helper.hpp"
 #include "PlatformTopo.hpp"
 #include "MSRIOImp.hpp"
 #include "MSR.hpp"
@@ -639,6 +640,27 @@ TEST_F(MSRIOGroupTest, cpuid)
    else {
        std::cerr << "Warning: skipping MSRIOGroupTest.cpuid because non-intel architecture detected" << std::endl;
    }
+}
+
+TEST_F(MSRIOGroupTest, format_function)
+{
+    double value = (double)0x3FF00000000000ULL;
+    std::function<std::string(double)> func = m_msrio_group->format_function("MSR::PERF_STATUS:FREQ");
+    std::string expected = "1.799680632343757e+16";
+    std::string actual = func(value);
+    EXPECT_EQ(expected, actual);
+    func = m_msrio_group->format_function("MSR::FIXED_CTR0:INST_RETIRED_ANY");
+    expected = "17996806323437568";
+    actual = func(value);
+    EXPECT_EQ(expected, actual);
+    func = m_msrio_group->format_function("MSR::PERF_STATUS#");
+    uint64_t raw = 0x3FF00000000000ULL;
+    value = geopm_field_to_signal(raw);
+    expected = "0x003ff00000000000";
+    actual = func(value);
+    EXPECT_EQ(expected, actual);
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->format_function("INVALID"),
+                               GEOPM_ERROR_INVALID, "not valid for MSRIOGroup");
 }
 
 TEST_F(MSRIOGroupTest, register_msr_signal)
