@@ -33,6 +33,7 @@
 #include "ProfileIOGroup.hpp"
 
 #include "PlatformTopo.hpp"
+#include "Helper.hpp"
 #include "EpochRuntimeRegulator.hpp"
 #include "RuntimeRegulator.hpp"
 #include "ProfileIOSample.hpp"
@@ -404,6 +405,39 @@ namespace geopm
         }
         return it->second;
     }
+
+    std::function<std::string(double)> ProfileIOGroup::format_function(const std::string &signal_name) const
+    {
+       static const std::map<std::string, std::function<std::string(double)> > fmt_map {
+            {"REGION_RUNTIME", string_format_double},
+            {"PROFILE::REGION_RUNTIME", string_format_double},
+            {"REGION_PROGRESS", string_format_float},
+            {"PROFILE::REGION_PROGRESS", string_format_float},
+            {"REGION_THREAD_PROGRESS", string_format_float},
+            {"PROFILE::REGION_THREAD_PROGRESS", string_format_float},
+            {"REGION_HASH", string_format_hex},
+            {"PROFILE::REGION_HASH", string_format_hex},
+            {"REGION_HINT", string_format_hex},
+            {"PROFILE::REGION_HINT", string_format_hex},
+            {"EPOCH_RUNTIME", string_format_double},
+            {"PROFILE::EPOCH_RUNTIME", string_format_double},
+            {"EPOCH_ENERGY", string_format_double},
+            {"PROFILE::EPOCH_ENERGY", string_format_double},
+            {"EPOCH_COUNT", string_format_integer},
+            {"PROFILE::EPOCH_COUNT", string_format_integer},
+            {"EPOCH_RUNTIME_MPI", string_format_double},
+            {"PROFILE::EPOCH_RUNTIME_MPI", string_format_double},
+            {"EPOCH_RUNTIME_IGNORE", string_format_double},
+            {"PROFILE::EPOCH_RUNTIME_IGNORE", string_format_double}
+        };
+        auto it = fmt_map.find(signal_name);
+        if (it == fmt_map.end()) {
+            throw Exception("ProfileIOGroup::format_function(): unknown how to format \"" + signal_name + "\"",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
+    }
+
 
     std::string ProfileIOGroup::signal_description(const std::string &signal_name) const
     {
