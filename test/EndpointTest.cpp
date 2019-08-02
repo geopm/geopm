@@ -54,7 +54,7 @@
 
 #include "Helper.hpp"
 #include "Exception.hpp"
-#include "ManagerIO.hpp"
+#include "Endpoint.hpp"
 #include "SharedMemoryImp.hpp"
 
 using geopm::ManagerIOImp;
