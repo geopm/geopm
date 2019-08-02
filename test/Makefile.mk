@@ -222,6 +222,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/PowerGovernorAgentTest.enforce_policy \
               test/gtest_links/PowerGovernorAgentTest.split_policy \
               test/gtest_links/PowerGovernorAgentTest.sample_platform \
+              test/gtest_links/PowerGovernorAgentTest.trace \
               test/gtest_links/PowerGovernorAgentTest.wait \
               test/gtest_links/PowerGovernorTest.govern \
               test/gtest_links/PowerGovernorTest.govern_max \
