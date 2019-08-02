@@ -401,8 +401,9 @@ namespace geopm
         if (m_tracer == nullptr) {
             m_tracer = geopm::make_unique<TracerImp>(get_start_time());
         }
-        auto agent_cols = m_agent[0]->trace_names();
-        m_tracer->columns(agent_cols);
+        std::vector<std::string> agent_cols = m_agent[0]->trace_names();
+        std::vector<std::function<std::string(double)> > agent_formats = m_agent[0]->trace_formats();
+        m_tracer->columns(agent_cols, agent_formats);
         m_trace_sample.resize(agent_cols.size());
     }
 

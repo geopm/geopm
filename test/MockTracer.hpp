@@ -40,8 +40,9 @@
 class MockTracer : public geopm::Tracer
 {
     public:
-        MOCK_METHOD1(columns,
-                     void(const std::vector<std::string> &agent_cols));
+        MOCK_METHOD2(columns,
+                     void(const std::vector<std::string> &agent_cols,
+                          const std::vector<std::function<std::string(double)> > &agent_formats));
         MOCK_METHOD2(update,
                      void(const std::vector<double> &agent_vals,
                           std::list<geopm_region_info_s> region_entry_exit));
