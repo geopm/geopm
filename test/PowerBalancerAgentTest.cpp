@@ -151,7 +151,6 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
 #ifdef GEOPM_DEBUG
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->adjust_platform(in_policy), GEOPM_ERROR_LOGIC, "was called on non-leaf agent");
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->sample_platform(out_sample), GEOPM_ERROR_LOGIC, "was called on non-leaf agent");
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->trace_names(), GEOPM_ERROR_LOGIC, "was called on non-leaf agent");
     std::vector<double> trace_data;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->trace_values(trace_data), GEOPM_ERROR_LOGIC, "was called on non-leaf agent");
 #endif
@@ -278,7 +277,6 @@ TEST_F(PowerBalancerAgentTest, tree_agent)
 #ifdef GEOPM_DEBUG
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->adjust_platform(in_policy), GEOPM_ERROR_LOGIC, "was called on non-leaf agent");
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->sample_platform(out_sample), GEOPM_ERROR_LOGIC, "was called on non-leaf agent");
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->trace_names(), GEOPM_ERROR_LOGIC, "was called on non-leaf agent");
     std::vector<double> trace_data;
     GEOPM_EXPECT_THROW_MESSAGE(m_agent->trace_values(trace_data), GEOPM_ERROR_LOGIC, "was called on non-leaf agent");
 #endif
