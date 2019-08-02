@@ -33,6 +33,7 @@
 #include <vector>
 #include <utility>
 #include <fstream>
+#include <memory>
 #include "geopm_time.h"
 
 struct geopm_prof_message_s;
@@ -41,6 +42,7 @@ struct geopm_prof_message_s;
 namespace geopm
 {
     class PlatformIO;
+    class CSV;
 
     class ProfileTracer
     {
@@ -55,18 +57,26 @@ namespace geopm
     {
         public:
             ProfileTracerImp();
-            ProfileTracerImp(size_t buffer_size, bool is_trace_enabled, const std::string &file_name, PlatformIO &platform_io, const struct geopm_time_s &time_zero);
+            ProfileTracerImp(size_t buffer_size,
+                             bool is_trace_enabled,
+                             const std::string &file_name,
+                             const std::string &host_name,
+                             PlatformIO &platform_io,
+                             const struct geopm_time_s &time_zero);
             virtual ~ProfileTracerImp();
             void update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                         std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end) override;
         private:
-            void flush_buffer(void);
-
-            const size_t m_buffer_size;
+            enum m_column_e {
+                M_COLUMN_RANK,
+                M_COLUMN_REGION_HASH,
+                M_COLUMN_REGION_HINT,
+                M_COLUMN_TIME,
+                M_COLUMN_PROGRESS,
+                M_NUM_COLUMN
+            };
             bool m_is_trace_enabled;
-            std::ofstream m_stream;
-            std::vector<struct geopm_prof_message_s> m_buffer;
-            size_t m_num_message;
+            std::unique_ptr<CSV> m_csv;
             PlatformIO &m_platform_io;
             struct geopm_time_s m_time_zero;
     };
