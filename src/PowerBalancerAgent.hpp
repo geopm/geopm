@@ -132,6 +132,29 @@ namespace geopm
                 M_TRACE_NUM_SAMPLE,
             };
 
+            enum m_step_e {
+                /// @brief On first iteration send down resource
+                ///        manager average limit requested, otherwise
+                ///        send down average excess power.
+                M_STEP_SEND_DOWN_LIMIT = 0L,
+                /// @brief Measure epoch runtime several times and
+                ///        apply median filter.  Aggregate epoch
+                ///        runtime up tree by applying maximum filter
+                ///        to measured values.  Propagate down from
+                ///        root the longest recorded runtime from any
+                ///        node.
+                M_STEP_MEASURE_RUNTIME,
+                /// @brief Decrease power limit on all nodes (other
+                ///        than the slowest) until epoch runtime
+                ///        matches the slowest.  Aggregate amount
+                ///        power limit was reduced in last step up the
+                ///        tree with sum filter.  (Go to
+                ///        M_STEP_SEND_DOWN_LIMIT next).
+                M_STEP_REDUCE_LIMIT,
+                /// @brief Number of steps in process.
+                M_NUM_STEP,
+            };
+
             PowerBalancerAgent(PlatformIO &platform_io,
                                const PlatformTopo &platform_topo,
                                std::unique_ptr<PowerGovernor> power_governor,
@@ -154,6 +177,7 @@ namespace geopm
             std::vector<std::pair<std::string, std::string> > report_host(void) const override;
             std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > report_region(void) const override;
             std::vector<std::string> trace_names(void) const override;
+            std::vector<std::function<std::string(double)> > trace_formats(void) const override;
             void trace_values(std::vector<double> &values) override;
             void enforce_policy(const std::vector<double> &policy) const override;
 
@@ -161,7 +185,7 @@ namespace geopm
             static std::unique_ptr<Agent> make_plugin(void);
             static std::vector<std::string> policy_names(void);
             static std::vector<std::string> sample_names(void);
-
+            static std::string format_step_count(double step);
         protected:
             class Step;
             class Role {
@@ -172,36 +196,11 @@ namespace geopm
                                         std::vector<double> &out_sample);
                     virtual bool adjust_platform(const std::vector<double> &in_policy);
                     virtual bool sample_platform(std::vector<double> &out_sample);
-                    virtual std::vector<std::string> trace_names(void) const;
                     virtual void trace_values(std::vector<double> &values);
                 protected:
                     int step(size_t step_count) const;
                     int step(void) const;
                     const Step& step_imp();
-
-                    enum m_step_e {
-                        /// @brief On first iteration send down resource
-                        ///        manager average limit requested, otherwise
-                        ///        send down average excess power.
-                        M_STEP_SEND_DOWN_LIMIT = 0L,
-                        /// @brief Measure epoch runtime several times and
-                        ///        apply median filter.  Aggregate epoch
-                        ///        runtime up tree by applying maximum filter
-                        ///        to measured values.  Propagate down from
-                        ///        root the longest recorded runtime from any
-                        ///        node.
-                        M_STEP_MEASURE_RUNTIME,
-                        /// @brief Decrease power limit on all nodes (other
-                        ///        than the slowest) until epoch runtime
-                        ///        matches the slowest.  Aggregate amount
-                        ///        power limit was reduced in last step up the
-                        ///        tree with sum filter.  (Go to
-                        ///        M_STEP_SEND_DOWN_LIMIT next).
-                        M_STEP_REDUCE_LIMIT,
-                        /// @brief Number of steps in process.
-                        M_NUM_STEP,
-                    };
-
                     Role();
                     virtual ~Role();
                     const std::vector<std::shared_ptr<const Step> > M_STEP_IMP;
@@ -308,7 +307,6 @@ namespace geopm
                     virtual ~LeafRole();
                     bool adjust_platform(const std::vector<double> &in_policy) override;
                     bool sample_platform(std::vector<double> &out_sample) override;
-                    std::vector<std::string> trace_names(void) const override;
                     void trace_values(std::vector<double> &values) override;
                 private:
                     void init_platform_io(void);
