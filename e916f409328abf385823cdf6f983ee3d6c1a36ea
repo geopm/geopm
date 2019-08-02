@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03247703_aca059bb",
+        "filename": "src/DefaultProfile.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-02T02:08:44Z",
+      "side": 0,
+      "message": "nice seeing all these go away",
+      "revId": "e916f409328abf385823cdf6f983ee3d6c1a36ea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
