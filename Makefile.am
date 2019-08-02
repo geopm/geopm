@@ -428,6 +428,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/DebugIOGroup.cpp \
                             src/DebugIOGroup.hpp \
                             src/DefaultProfile.cpp \
+                            src/Endpoint.cpp \
+                            src/Endpoint.hpp \
                             src/EnergyEfficientAgent.cpp \
                             src/EnergyEfficientAgent.hpp \
                             src/EnergyEfficientRegion.cpp \
@@ -464,8 +466,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/MSRSignal.cpp \
                             src/MSRSignal.hpp \
                             src/MSRSignalImp.hpp \
-                            src/ManagerIO.cpp \
-                            src/ManagerIO.hpp \
                             src/MonitorAgent.cpp \
                             src/MonitorAgent.hpp \
                             src/OMPT.cpp \
