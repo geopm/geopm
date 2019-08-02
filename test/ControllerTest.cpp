@@ -44,7 +44,7 @@
 #include "MockPlatformIO.hpp"
 #include "MockComm.hpp"
 #include "MockApplicationIO.hpp"
-#include "MockManagerIOSampler.hpp"
+#include "MockEndpointUser.hpp"
 #include "MockAgent.hpp"
 #include "MockTreeComm.hpp"
 #include "MockReporter.hpp"
