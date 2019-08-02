@@ -80,6 +80,17 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/CpuinfoIOGroupTest.parse_sticker_without_at \
               test/gtest_links/CpuinfoIOGroupTest.plugin \
               test/gtest_links/CpuinfoIOGroupTest.valid_signals \
+              test/gtest_links/EndpointTest.negative_write_json_file \
+              test/gtest_links/EndpointTest.write_json_file \
+              test/gtest_links/EndpointTest.write_shm \
+              test/gtest_links/EndpointTestIntegration.write_shm \
+              test/gtest_links/EndpointUserTest.negative_bad_files \
+              test/gtest_links/EndpointUserTest.negative_parse_json_file \
+              test/gtest_links/EndpointUserTest.negative_parse_shm \
+              test/gtest_links/EndpointUserTest.negative_shm_setup_mutex \
+              test/gtest_links/EndpointUserTest.parse_json_file \
+              test/gtest_links/EndpointUserTest.parse_shm \
+              test/gtest_links/EndpointUserTestIntegration.parse_shm \
               test/gtest_links/EnergyEfficientAgentTest.aggregate_sample \
               test/gtest_links/EnergyEfficientAgentTest.do_write_batch \
               test/gtest_links/EnergyEfficientAgentTest.enforce_policy \
@@ -157,17 +168,6 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/MSRTest.msr_signal \
               test/gtest_links/MSRTest.string_to_function \
               test/gtest_links/MSRTest.string_to_units \
-              test/gtest_links/ManagerIOSamplerTest.negative_bad_files \
-              test/gtest_links/ManagerIOSamplerTest.negative_parse_json_file \
-              test/gtest_links/ManagerIOSamplerTest.negative_parse_shm \
-              test/gtest_links/ManagerIOSamplerTest.negative_shm_setup_mutex \
-              test/gtest_links/ManagerIOSamplerTest.parse_json_file \
-              test/gtest_links/ManagerIOSamplerTest.parse_shm \
-              test/gtest_links/ManagerIOSamplerTestIntegration.parse_shm \
-              test/gtest_links/ManagerIOTest.negative_write_json_file \
-              test/gtest_links/ManagerIOTest.write_json_file \
-              test/gtest_links/ManagerIOTest.write_shm \
-              test/gtest_links/ManagerIOTestIntegration.write_shm \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \
@@ -330,7 +330,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/MockApplicationIO.hpp \
                           test/MockComm.hpp \
                           test/MockControlMessage.hpp \
-                          test/MockEndpointClient.hpp \
+                          test/MockEndpointUser.hpp \
                           test/MockEnergyEfficientRegion.hpp \
                           test/MockEpochRuntimeRegulator.hpp \
                           test/MockFrequencyGovernor.hpp \

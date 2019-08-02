@@ -415,8 +415,9 @@ int geopm_agent_enforce_policy(void)
 {
     int err = 0;
     try {
+        /// @todo: needs to use endpoint factory
         std::vector<double> policy(
-            geopm::make_unique<geopm::ManagerIOSamplerImp>(
+            geopm::make_unique<geopm::ShmemEndpointUser>(
                 geopm::environment().policy(), true)->sample());
         std::shared_ptr<geopm::Agent> agent(
             geopm::agent_factory().make_plugin(
