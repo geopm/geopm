@@ -44,7 +44,7 @@ namespace geopm
 {
     class Comm;
     class PlatformIO;
-    class ManagerIOSampler;
+    class EndpointUser;
     class ApplicationIO;
     class Reporter;
     class Tracer;
@@ -72,7 +72,7 @@ namespace geopm
                        std::unique_ptr<Reporter> reporter,
                        std::unique_ptr<Tracer> tracer,
                        std::vector<std::unique_ptr<Agent> > level_agent,
-                       std::unique_ptr<ManagerIOSampler> manager_io_sampler);
+                       std::unique_ptr<EndpointUser> endpoint);
             virtual ~Controller();
             /// @brief Run control algorithm.
             ///
@@ -155,7 +155,7 @@ namespace geopm
             std::vector<double> m_out_sample;
             std::vector<double> m_trace_sample;
 
-            std::unique_ptr<ManagerIOSampler> m_manager_io_sampler;
+            std::unique_ptr<EndpointUser> m_endpoint;
 
             std::vector<std::string> m_agent_policy_names;
             std::vector<std::string> m_agent_sample_names;

@@ -163,7 +163,8 @@ namespace geopm
                                                                 ppn1_comm->rank())),
                      nullptr,
                      std::vector<std::unique_ptr<Agent> >{},
-                     std::unique_ptr<ManagerIOSampler>(new ManagerIOSamplerImp(environment().policy(), true)))
+                     /// @todo: needs to use endpoint factory
+                     std::unique_ptr<EndpointUser>(new ShmemEndpointUser(environment().policy(), true)))
     {
 
     }
@@ -178,7 +179,7 @@ namespace geopm
                            std::unique_ptr<Reporter> reporter,
                            std::unique_ptr<Tracer> tracer,
                            std::vector<std::unique_ptr<Agent> > level_agent,
-                           std::unique_ptr<ManagerIOSampler> manager_io_sampler)
+                           std::unique_ptr<EndpointUser> endpoint)
         : m_comm(comm)
         , m_platform_io(plat_io)
         , m_agent_name(agent_name)
@@ -197,7 +198,7 @@ namespace geopm
         , m_out_policy(m_num_level_ctl)
         , m_in_sample(m_num_level_ctl)
         , m_out_sample(m_num_send_up, NAN)
-        , m_manager_io_sampler(std::move(manager_io_sampler))
+        , m_endpoint(std::move(endpoint))
     {
         // Three dimensional vector over levels, children, and message
         // index.  These are used as temporary storage when passing
@@ -330,7 +331,7 @@ namespace geopm
         bool do_send = false;
         if (m_is_root) {
             /// @todo Pass m_in_policy by reference into the sampler, and return an is_updated bool.
-            m_in_policy = m_manager_io_sampler->sample();
+            m_in_policy = m_endpoint->sample();
             do_send = true;
         }
         else {
