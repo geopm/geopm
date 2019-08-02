@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ManagerIO.hpp"
+#include "Endpoint.hpp"
 
 #include <cmath>
 #include <string.h>

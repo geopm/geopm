@@ -82,6 +82,8 @@ src/CpuinfoIOGroup.hpp
 src/CSV.cpp
 src/CSV.hpp
 src/DefaultProfile.cpp
+src/Endpoint.cpp
+src/Endpoint.hpp
 src/EnergyEfficientAgent.cpp
 src/EnergyEfficientAgent.hpp
 src/EnergyEfficientRegion.cpp
@@ -119,8 +121,6 @@ src/MSRIOGroup.hpp
 src/MSRSignal.cpp
 src/MSRSignal.hpp
 src/MSRSignalImp.hpp
-src/ManagerIO.cpp
-src/ManagerIO.hpp
 src/ModelApplication.cpp
 src/ModelApplication.hpp
 src/ModelParse.cpp
@@ -232,6 +232,7 @@ test/ControlMessageTest.cpp
 test/ControllerTest.cpp
 test/CpuinfoIOGroupTest.cpp
 test/CSVTest.cpp
+test/EndpointTest.cpp
 test/EnergyEfficientAgentTest.cpp
 test/EnergyEfficientRegionTest.cpp
 test/EnvironmentTest.cpp
@@ -248,16 +249,15 @@ test/MSRIOGroupTest.cpp
 test/MSRIOTest.cpp
 test/MSRTest.cpp
 test/Makefile.mk
-test/ManagerIOTest.cpp
 test/MockAgent.hpp
 test/MockApplicationIO.hpp
 test/MockComm.hpp
 test/MockControlMessage.hpp
+test/MockEndpointUser.hpp
 test/MockEnergyEfficientRegion.hpp
 test/MockEpochRuntimeRegulator.hpp
 test/MockFrequencyGovernor.hpp
 test/MockIOGroup.hpp
-test/MockManagerIOSampler.hpp
 test/MockPlatformIO.hpp
 test/MockPlatformTopo.hpp
 test/MockPowerBalancer.hpp

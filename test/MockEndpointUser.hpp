@@ -30,10 +30,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKMANAGERIOSAMPLER_HPP_INCLUDE
-#define MOCKMANAGERIOSAMPLER_HPP_INCLUDE
+#ifndef MOCKENDPOINTUSER_HPP_INCLUDE
+#define MOCKENDPOINTUSER_HPP_INCLUDE
 
-#include "ManagerIO.hpp"
+#include "Endpoint.hpp"
 
 class MockManagerIOSampler : public geopm::ManagerIOSampler
 {
