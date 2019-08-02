@@ -32,6 +32,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <memory>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -44,6 +45,7 @@
 #include "MockPlatformTopo.hpp"
 #include "geopm_internal.h"
 #include "geopm_hash.h"
+#include "geopm_version.h"
 #include "geopm_test.hpp"
 
 using geopm::TracerImp;
@@ -56,44 +58,57 @@ using testing::HasSubstr;
 class TracerTest : public ::testing::Test
 {
     protected:
+        struct m_request_s {
+            std::string name;
+            int domain_type;
+            int domain_idx;
+            std::function<std::string(double)> format;
+        };
         void SetUp(void);
         void TearDown(void);
+        void remove_files(void);
         MockPlatformIO m_platform_io;
         MockPlatformTopo m_platform_topo;
         std::string m_path = "test.trace";
         std::string m_hostname = "myhost";
-        std::string m_agent = "myagent";
-        std::string m_profile = "myprofile";
         std::string m_start_time = "Tue Nov  6 08:00:00 2018";
-        std::vector<PlatformIO::m_request_s> m_default_cols;
+        std::vector<struct m_request_s> m_default_cols;
         std::vector<std::string> m_extra_cols;
         std::string m_extra_cols_str;
         const int m_num_extra_cols = 3;
+        std::unique_ptr<geopm::TracerImp> m_tracer;
 };
+
+void TracerTest::remove_files(void)
+{
+    std::remove(m_path.c_str());
+    std::remove((m_path + "-" + m_hostname).c_str());
+}
 
 void TracerTest::SetUp(void)
 {
-    std::remove(m_path.c_str());
-
+    remove_files();
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_CPU))
         .WillOnce(Return(2));
+    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD))
+        .WillRepeatedly(Return(1));
 
     m_default_cols = {
-        {"TIME", GEOPM_DOMAIN_BOARD, 0},
-        {"EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0},
-        {"REGION_HASH", GEOPM_DOMAIN_BOARD, 0},
-        {"REGION_HINT", GEOPM_DOMAIN_BOARD, 0},
-        {"REGION_PROGRESS", GEOPM_DOMAIN_BOARD, 0},
-        {"REGION_COUNT", GEOPM_DOMAIN_BOARD, 0},
-        {"REGION_RUNTIME", GEOPM_DOMAIN_BOARD, 0},
-        {"ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0},
-        {"ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0},
-        {"POWER_PACKAGE", GEOPM_DOMAIN_BOARD, 0},
-        {"POWER_DRAM", GEOPM_DOMAIN_BOARD, 0},
-        {"FREQUENCY", GEOPM_DOMAIN_BOARD, 0},
-        {"CYCLES_THREAD", GEOPM_DOMAIN_BOARD, 0},
-        {"CYCLES_REFERENCE", GEOPM_DOMAIN_BOARD, 0},
-        {"TEMPERATURE_CORE", GEOPM_DOMAIN_BOARD, 0}
+        {"TIME", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
+        {"EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_integer},
+        {"REGION_HASH", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_hex},
+        {"REGION_HINT", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_hex},
+        {"REGION_PROGRESS", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_float},
+        {"REGION_COUNT", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_integer},
+        {"REGION_RUNTIME", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
+        {"ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
+        {"ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
+        {"POWER_PACKAGE", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
+        {"POWER_DRAM", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
+        {"FREQUENCY", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
+        {"CYCLES_THREAD", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_integer},
+        {"CYCLES_REFERENCE", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_integer},
+        {"TEMPERATURE_CORE", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
     };
     m_extra_cols_str = "EXTRA,EXTRA_SPECIAL@cpu";
     m_extra_cols = geopm::string_split(m_extra_cols_str, ",");
@@ -105,41 +120,53 @@ void TracerTest::SetUp(void)
         ++idx;
     }
     EXPECT_CALL(m_platform_io, push_signal("EXTRA", GEOPM_DOMAIN_BOARD, 0))
-            .WillOnce(Return(idx));
+        .WillOnce(Return(idx));
     ++idx;
     EXPECT_CALL(m_platform_io, push_signal("EXTRA_SPECIAL", GEOPM_DOMAIN_CPU, 0))
         .WillOnce(Return(idx));
     ++idx;
     EXPECT_CALL(m_platform_io, push_signal("EXTRA_SPECIAL", GEOPM_DOMAIN_CPU, 1))
         .WillOnce(Return(idx));
+
+    EXPECT_CALL(m_platform_io, format_function("EXTRA"))
+        .WillOnce(Return(geopm::string_format_double));
+
+    EXPECT_CALL(m_platform_io, format_function("EXTRA_SPECIAL"))
+        .WillOnce(Return(geopm::string_format_double));
+
+    for (auto column : m_default_cols) {
+        EXPECT_CALL(m_platform_io, format_function(column.name))
+            .WillOnce(Return(column.format));
+    }
+
+    m_tracer = geopm::make_unique<TracerImp>(m_start_time, m_path, m_hostname, true,
+                                             m_platform_io, m_platform_topo, m_extra_cols_str);
 }
 
 void TracerTest::TearDown(void)
 {
-    std::remove((m_path + "-" + m_hostname).c_str());
+    remove_files();
 }
 
 void check_trace(std::istream &expected, std::istream &result);
 
 TEST_F(TracerTest, columns)
 {
-    TracerImp tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_platform_topo, m_extra_cols_str, 1);
-
     // columns from agent will be printed as-is
     std::vector<std::string> agent_cols {"col1", "col2"};
 
-    tracer.columns(agent_cols);
-    tracer.flush();
-
-    std::string expected_header = "# \"geopm_version\"\n"
-                                  "# \"start_time\" : \"" + m_start_time + "\"\n" +
-                                  "# \"profile_name\" : \"" + m_profile + "\"\n" +
-                                  "# \"node_name\" : \"" + m_hostname + "\"\n" +
-                                  "# \"agent\" : \"" + m_agent + "\"\n";
+    m_tracer->columns(agent_cols, {});
+    m_tracer->flush();
+    std::string version(geopm_version());
+    std::string expected_header = "# geopm_version:\n"
+                                  "# start_time: " + m_start_time + "\n"
+                                  "# profile_name:\n"
+                                  "# node_name: " + m_hostname + "\n"
+                                  "# agent:\n";
     std::string expected_str = expected_header +
-        "time|epoch_count|region_hash|region_hint|region_progress|region_count|region_runtime|energy_package|energy_dram|"
-        "power_package|power_dram|frequency|cycles_thread|cycles_reference|temperature_core|"
-        "extra|extra_special-cpu-0|extra_special-cpu-1|"
+        "TIME|EPOCH_COUNT|REGION_HASH|REGION_HINT|REGION_PROGRESS|REGION_COUNT|REGION_RUNTIME|ENERGY_PACKAGE|ENERGY_DRAM|"
+        "POWER_PACKAGE|POWER_DRAM|FREQUENCY|CYCLES_THREAD|CYCLES_REFERENCE|TEMPERATURE_CORE|"
+        "EXTRA|EXTRA_SPECIAL-cpu-0|EXTRA_SPECIAL-cpu-1|"
         "col1|col2\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
@@ -149,7 +176,6 @@ TEST_F(TracerTest, columns)
 
 TEST_F(TracerTest, update_samples)
 {
-    TracerImp tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_platform_topo, m_extra_cols_str, 1);
     int idx = 0;
     for (auto cc : m_default_cols) {
         EXPECT_CALL(m_platform_io, sample(idx))
@@ -166,110 +192,56 @@ TEST_F(TracerTest, update_samples)
     std::vector<std::string> agent_cols {"col1", "col2"};
     std::vector<double> agent_vals {88.8, 77.7};
 
-    tracer.columns(agent_cols);
-    tracer.update(agent_vals, {});
-    tracer.flush();
-    tracer.update(agent_vals, {}); // no additional samples after flush
+    m_tracer->columns(agent_cols, {});
+    m_tracer->update(agent_vals, {});
+    m_tracer->flush();
 
     std::string expected_str = "\n\n\n\n\n\n"
-        "5.0e-01|1.5e+00|0x0000000000000002|0x0000000000000003|4.5|5.5e+00|6.5e+00|7.5e+00|8.5e+00|9.5e+00|1.0e+01|1.2e+01|1.2e+01|1.4e+01|1.4e+01|1.6e+01|1.7e+01|1.8e+01|8.9e+01|7.8e+01\n";
+        "0.5|1|0x0000000000000002|0x0000000000000003|4.5|5|6.5|7.5|8.5|9.5|10.5|11.5|12|13|14.5|15.7|16.7|17.7|88.8|77.7\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
     ASSERT_TRUE(result.good()) << strerror(errno);
     check_trace(expected, result);
 }
 
-TEST_F(TracerTest, region_unknown_count)
-{
-    TracerImp tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_platform_topo, m_extra_cols_str, 1);
-    int count = 3;
-    int x;
-    EXPECT_CALL(m_platform_io, sample(_))
-        .Times(testing::AtLeast(1))
-        .WillRepeatedly(testing::Invoke(
-                    [&x] (int signal_idx)
-                    {
-                        double result = NAN;
-                        switch (signal_idx) {
-                            case 0: // time
-                                result = x;
-                                break;
-                            case 1: // epoch_count
-                                result = 0.0;
-                                break;
-                            case 2: // region_hash
-                                result = GEOPM_REGION_HASH_UNMARKED;
-                                break;
-                            case 3: // region_hint
-                                result = GEOPM_REGION_HINT_UNKNOWN;
-                                break;
-                            case 4: // progress
-                                result = 0.0;
-                                break;
-                            case 5: // count
-                                result = x;
-                                break;
-                            default:
-                                result = 0.0;
-                        }
-                        return result;
-                    }));
-    tracer.columns({});
-    for (x = 0; x < count; x++) {
-        tracer.update({}, {});
-    }
-
-    tracer.flush();
-    std::string expected_str = "\n\n\n\n\n\n"
-        "0.0e+00|0.0e+00|0x00000000725e8066|0x0000000100000000|0.0|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00\n"
-        "1.0e+00|0.0e+00|0x00000000725e8066|0x0000000100000000|0.0|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00\n"
-        "2.0e+00|0.0e+00|0x00000000725e8066|0x0000000100000000|0.0|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00|0.0e+00\n";
-
-     std::istringstream expected(expected_str);
-     std::ifstream result(m_path + "-" + m_hostname);
-     ASSERT_TRUE(result.good()) << strerror(errno);
-     check_trace(expected, result);
-}
-
 TEST_F(TracerTest, region_entry_exit)
 {
-    TracerImp tracer(m_start_time, m_path, m_hostname, m_agent, m_profile, true, m_platform_io, m_platform_topo, m_extra_cols_str, 1);
     EXPECT_CALL(m_platform_io, sample(_)).Times(m_default_cols.size() + m_num_extra_cols)
         .WillOnce(Return(2.2))                        // time
         .WillOnce(Return(0.0))                        // epoch_count
         .WillOnce(Return(0x123))                      // region hash
         .WillOnce(Return(GEOPM_REGION_HINT_UNKNOWN))  // region hint
         .WillOnce(Return(0.0))  // progress; should cause one region entry to be skipped
-        .WillOnce(Return(0))                          // count
+        .WillOnce(Return(0.0))
         .WillRepeatedly(Return(2.2));
 
     std::vector<std::string> agent_cols {"col1", "col2"};
     std::vector<double> agent_vals {88.8, 77.7};
 
     std::list<geopm_region_info_s> short_regions = {
-        {0x123, GEOPM_REGION_HINT_UNKNOWN, 0.0, 3.2, 0},
-        {0x123, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2, 1},
-        {0x345, GEOPM_REGION_HINT_UNKNOWN, 0.0, 3.2, 0},
-        {0x456, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2, 1},
-        {0x345, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2, 1},
+        {0x123, GEOPM_REGION_HINT_UNKNOWN, 0.0, 3.2},
+        {0x123, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2},
+        {0x345, GEOPM_REGION_HINT_UNKNOWN, 0.0, 3.2},
+        {0x456, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2},
+        {0x345, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2},
     };
-    tracer.columns(agent_cols);
-    tracer.update(agent_vals, short_regions);
-    tracer.flush();
-    tracer.update(agent_vals, short_regions); // no additional samples after flush
+    m_tracer->columns(agent_cols, {geopm::string_format_integer,
+                                   geopm::string_format_integer});
+    m_tracer->update(agent_vals, short_regions);
+    m_tracer->flush();
     std::string expected_str ="\n\n\n\n\n"
         "\n" // header
-        "2.2e+00|0.0e+00|0x0000000000000123|0x0000000100000000|0.0|0.0e+00|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0.0e+00|0x0000000000000123|0x0000000100000000|1.0|1.0e+00|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0.0e+00|0x0000000000000345|0x0000000100000000|0.0|0.0e+00|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0.0e+00|0x0000000000000456|0x0000000100000000|1.0|1.0e+00|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
-        "2.2e+00|0.0e+00|0x0000000000000345|0x0000000100000000|1.0|1.0e+00|3.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|2.2e+00|8.9e+01|7.8e+01\n"
+        "2.2|0|0x0000000000000123|0x0000000100000000|0|0|3.2|2.2|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n"
+        "2.2|0|0x0000000000000123|0x0000000100000000|1|0|3.2|2.2|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n"
+        "2.2|0|0x0000000000000345|0x0000000100000000|0|0|3.2|2.2|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n"
+        "2.2|0|0x0000000000000456|0x0000000100000000|1|0|3.2|2.2|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n"
+        "2.2|0|0x0000000000000345|0x0000000100000000|1|0|3.2|2.2|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n"
         "\n"; // sample
 
-     std::istringstream expected(expected_str);
-     std::ifstream result(m_path + "-" + m_hostname);
-     ASSERT_TRUE(result.good()) << strerror(errno);
-     check_trace(expected, result);
+    std::istringstream expected(expected_str);
+    std::ifstream result(m_path + "-" + m_hostname);
+    ASSERT_TRUE(result.good()) << strerror(errno);
+    check_trace(expected, result);
 }
 
 /// @todo This is shared with ReporterTest; can be put in common file
