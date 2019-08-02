@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "059dc6e6_0a2c60f6",
+        "filename": "src/DebugIOGroup.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-02T18:38:34Z",
+      "side": 1,
+      "message": "Is this in bounds?  The exception that would be generated if it is not will be gross.",
+      "range": {
+        "startLine": 119,
+        "startChar": 45,
+        "endLine": 119,
+        "endChar": 55
+      },
+      "revId": "b79bd805201b1cd26848297d1ac598068fbc5765",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cc78402_c893cc4e",
+        "filename": "src/DebugIOGroup.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-02T18:38:34Z",
+      "side": 1,
+      "message": "Same as above here.",
+      "range": {
+        "startLine": 165,
+        "startChar": 63,
+        "endLine": 165,
+        "endChar": 73
+      },
+      "revId": "b79bd805201b1cd26848297d1ac598068fbc5765",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e06fd13f_0b88d195",
+        "filename": "src/DebugIOGroup.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-02T18:38:34Z",
+      "side": 1,
+      "message": "Populate the string on why this is not expected.",
+      "range": {
+        "startLine": 212,
+        "startChar": 8,
+        "endLine": 212,
+        "endChar": 18
+      },
+      "revId": "b79bd805201b1cd26848297d1ac598068fbc5765",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0a846c8f_e9dd5f39",
         "filename": "src/DebugIOGroup.hpp",
         "patchSetId": 12
@@ -35,6 +104,29 @@
         "startChar": 10,
         "endLine": 51,
         "endChar": 22
+      },
+      "revId": "b79bd805201b1cd26848297d1ac598068fbc5765",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6be3f31_711b187f",
+        "filename": "test/DebugIOGroupTest.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-02T18:38:34Z",
+      "side": 1,
+      "message": ":(",
+      "range": {
+        "startLine": 93,
+        "startChar": 22,
+        "endLine": 93,
+        "endChar": 23
       },
       "revId": "b79bd805201b1cd26848297d1ac598068fbc5765",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
