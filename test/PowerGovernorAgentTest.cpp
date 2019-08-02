@@ -51,6 +51,8 @@ using ::testing::DoAll;
 using ::testing::SaveArg;
 using ::testing::SetArgReferee;
 
+bool is_format_double(std::function<std::string(double)> func);
+
 class PowerGovernorAgentTest : public ::testing::Test
 {
     protected:
@@ -292,4 +294,12 @@ TEST_F(PowerGovernorAgentTest, enforce_policy)
     m_agent->enforce_policy(policy);
 
     EXPECT_THROW(m_agent->enforce_policy(bad_policy), geopm::Exception);
+}
+
+TEST_F(PowerGovernorAgentTest, trace)
+{
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
+    std::vector<std::string> expect_names{"power_budget"};
+    EXPECT_EQ(expect_names, m_agent->trace_names());
+    EXPECT_TRUE(is_format_double(m_agent->trace_formats().at(0)));
 }
