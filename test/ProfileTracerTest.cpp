@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <memory>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "ProfileTracer.hpp"
@@ -45,63 +46,80 @@ using testing::Return;
 class ProfileTracerTest : public ::testing::Test
 {
     protected:
-        void TearDown(void);
+        void SetUp(void);
         MockPlatformIO m_platform_io;
+        struct geopm_time_s m_time_stamp;
         std::string m_path = "test.profiletrace";
-        std::string m_hostname = "myhost";
+        std::string m_host_name = "myhost";
+        std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > m_data;
 };
 
-void ProfileTracerTest::TearDown(void)
+void ProfileTracerTest::SetUp(void)
 {
-    unlink(m_path.c_str());
+    uint64_t region_id = 0x00000000fa5920d6ULL | GEOPM_REGION_HINT_COMPUTE;
+    double progress = 0.0;
+
+    struct geopm_time_s time_stamp;
+    geopm_time(&m_time_stamp);
+    time_stamp = m_time_stamp;
+    geopm_time_add(&time_stamp, 10, &time_stamp);
+    for (int rank = 0; rank != 4; ++rank) {
+        m_data.push_back({region_id, {rank, region_id, time_stamp, progress}});
+        geopm_time_add(&time_stamp, 1, &time_stamp);
+    }
+
+    geopm_time_add(&time_stamp, 20, &time_stamp);
+    progress = 1.0;
+    for (int rank = 3; rank != -1; --rank) {
+        m_data.push_back({region_id, {rank, region_id, time_stamp, progress}});
+        geopm_time_add(&time_stamp, 1, &time_stamp);
+    }
+}
+
+TEST_F(ProfileTracerTest, construct_update_destruct)
+{
+    // Test that the tracer samples time
+    EXPECT_CALL(m_platform_io, read_signal("TIME", GEOPM_DOMAIN_BOARD, 0))
+            .WillOnce(Return(5.0));
+    {
+        // Test that the constructor and update methods do not throw
+        std::unique_ptr<geopm::ProfileTracer> tracer = geopm::make_unique<geopm::ProfileTracerImp>(2, true, m_path, "", m_platform_io, GEOPM_TIME_REF);
+        tracer->update(m_data.begin(), m_data.end());
+    }
+    // Test that a file was created by deleting it without error
+    int err = unlink(m_path.c_str());
+    EXPECT_EQ(0, err);
 }
 
 TEST_F(ProfileTracerTest, format)
 {
     EXPECT_CALL(m_platform_io, read_signal("TIME", GEOPM_DOMAIN_BOARD, 0))
             .WillOnce(Return(5.0));
-
     {
-        struct geopm_time_s time_stamp;
-        geopm_time(&time_stamp);
-        geopm::ProfileTracerImp tracer(2, true, m_path, m_platform_io, time_stamp);
-
-        std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > data;
-
-        uint64_t region_id = 0x00000000fa5920d6ULL | GEOPM_REGION_HINT_COMPUTE;
-        double progress = 0.0;
-
-        geopm_time_add(&time_stamp, 10, &time_stamp);
-        for (int rank = 0; rank != 4; ++rank) {
-            data.push_back({region_id, {rank, region_id, time_stamp, progress}});
-            geopm_time_add(&time_stamp, 1, &time_stamp);
-        }
-
-        geopm_time_add(&time_stamp, 20, &time_stamp);
-        progress = 1.0;
-        for (int rank = 3; rank != -1; --rank) {
-            data.push_back({region_id, {rank, region_id, time_stamp, progress}});
-            geopm_time_add(&time_stamp, 1, &time_stamp);
-        }
-        tracer.update(data.begin(), data.end());
+        geopm::ProfileTracerImp tracer(2, true, m_path, m_host_name, m_platform_io, m_time_stamp);
+        tracer.update(m_data.begin(), m_data.end());
     }
-    std::string output = geopm::read_file(m_path);
+    std::string output_path = m_path + "-" + m_host_name;
+    std::string output = geopm::read_file(output_path);
     std::vector<std::string> output_lines = geopm::string_split(output, "\n");
-    std::string expect = "rank|region_hash|region_hint|timestamp|progress\n"
-                         "0|0x00000000fa5920d6|0x0000000200000000|1.5000000000000000e+01|0.0000000000000000e+00\n"
-                         "1|0x00000000fa5920d6|0x0000000200000000|1.6000000000000000e+01|0.0000000000000000e+00\n"
-                         "2|0x00000000fa5920d6|0x0000000200000000|1.7000000000000000e+01|0.0000000000000000e+00\n"
-                         "3|0x00000000fa5920d6|0x0000000200000000|1.8000000000000000e+01|0.0000000000000000e+00\n"
-                         "3|0x00000000fa5920d6|0x0000000200000000|3.9000000000000000e+01|1.0000000000000000e+00\n"
-                         "2|0x00000000fa5920d6|0x0000000200000000|4.0000000000000000e+01|1.0000000000000000e+00\n"
-                         "1|0x00000000fa5920d6|0x0000000200000000|4.1000000000000000e+01|1.0000000000000000e+00\n"
-                         "0|0x00000000fa5920d6|0x0000000200000000|4.2000000000000000e+01|1.0000000000000000e+00\n";
-    std::vector<std::string> expect_lines = geopm::string_split(expect, "\n");
-    ASSERT_EQ(expect_lines.size(), output_lines.size());
-
-    auto output_it = output_lines.begin();
-    for (const auto &expect_it : expect_lines) {
-        EXPECT_EQ(expect_it, *output_it);
-        ++output_it;
+    std::vector<std::string> expect_lines = {
+        "rank|region_hash|region_hint|timestamp|progress",
+        "0|0x00000000fa5920d6|0x0000000200000000|15|0",
+        "1|0x00000000fa5920d6|0x0000000200000000|16|0",
+        "2|0x00000000fa5920d6|0x0000000200000000|17|0",
+        "3|0x00000000fa5920d6|0x0000000200000000|18|0",
+        "3|0x00000000fa5920d6|0x0000000200000000|39|1",
+        "2|0x00000000fa5920d6|0x0000000200000000|40|1",
+        "1|0x00000000fa5920d6|0x0000000200000000|41|1",
+        "0|0x00000000fa5920d6|0x0000000200000000|42|1"
+    };
+    auto expect_it = expect_lines.begin();
+    for (const auto &output_it : output_lines) {
+        if (output_it[0] != '#' && output_it.size()) {
+            EXPECT_EQ(*expect_it, output_it);
+            ++expect_it;
+        }
     }
+    int err = unlink(output_path.c_str());
+    EXPECT_EQ(0, err);
 }

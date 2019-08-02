@@ -30,88 +30,82 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-#include <iomanip>
 #include <string.h>
 #include <errno.h>
+#include <limits.h>
+#include <iostream>
+#include <iomanip>
 #include "ProfileTracer.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Helper.hpp"
 #include "geopm_internal.h"
 #include "Environment.hpp"
+#include "Exception.hpp"
+#include "CSV.hpp"
 
 namespace geopm
 {
     ProfileTracerImp::ProfileTracerImp()
-        : ProfileTracerImp(1024 * 1024, environment().do_trace_profile(),
-                           std::string(environment().trace_profile()) + "-" + hostname(),
-                           platform_io(), GEOPM_TIME_REF)
+        : ProfileTracerImp(1024 * 1024,
+                           environment().do_trace_profile(),
+                           environment().trace_profile(),
+                           hostname(),
+                           platform_io(),
+                           GEOPM_TIME_REF)
     {
 
     }
 
-    ProfileTracerImp::~ProfileTracerImp()
-    {
-        flush_buffer();
-    }
-
-
-    ProfileTracerImp::ProfileTracerImp(size_t buffer_size, bool is_trace_enabled, const std::string &file_name, PlatformIO &platform_io, const struct geopm_time_s &time_zero)
-        : m_buffer_size(buffer_size)
-        , m_is_trace_enabled(is_trace_enabled)
-        , m_buffer(m_buffer_size)
-        , m_num_message(0)
+    ProfileTracerImp::ProfileTracerImp(size_t buffer_size,
+                                       bool is_trace_enabled,
+                                       const std::string &file_name,
+                                       const std::string &host_name,
+                                       PlatformIO &platform_io,
+                                       const struct geopm_time_s &time_zero)
+        : m_is_trace_enabled(is_trace_enabled)
         , m_platform_io(platform_io)
         , m_time_zero(time_zero)
     {
         if (m_is_trace_enabled) {
+            char time_cstr[NAME_MAX];
+            int err = geopm_time_to_string(&time_zero, NAME_MAX, time_cstr);
+            if (err) {
+                throw Exception("geopm_time_to_string() failed",
+                                err, __FILE__, __LINE__);
+            }
+            m_csv = geopm::make_unique<CSVImp>(file_name, host_name, time_cstr, buffer_size);
+
             if (geopm_time_diff(&m_time_zero, &GEOPM_TIME_REF) == 0.0) {
                 geopm_time(&m_time_zero);
             }
+            m_csv->add_column("rank", "integer");
+            m_csv->add_column("region_hash", "hex");
+            m_csv->add_column("region_hint", "hex");
+            m_csv->add_column("timestamp", "double");
+            m_csv->add_column("progress", "float");
+            m_csv->activate();
+
             double rel_time = m_platform_io.read_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
             geopm_time_add(&m_time_zero, -rel_time, &m_time_zero);
-            m_stream.open(file_name);
-            if (!m_stream.good()) {
-                std::cerr << "Warning: unable to open trace file '" << file_name
-                          << "': " << strerror(errno) << std::endl;
-                m_is_trace_enabled = false;
-            }
-            else {
-                m_stream << std::scientific;
-                m_stream << "rank|region_hash|region_hint|timestamp|progress\n";
-            }
         }
     }
+
+    ProfileTracerImp::~ProfileTracerImp() = default;
 
     void ProfileTracerImp::update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                                   std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end)
     {
         if (m_is_trace_enabled) {
+            std::vector<double> sample(M_NUM_COLUMN);
             for (auto it = prof_sample_begin; it != prof_sample_end; ++it) {
-                if (m_num_message == m_buffer_size) {
-                    flush_buffer();
-                }
-                m_buffer[m_num_message] = it->second;
-                ++m_num_message;
+                sample[M_COLUMN_RANK] = it->second.rank;
+                sample[M_COLUMN_REGION_HASH] = geopm_region_id_hash(it->second.region_id);
+                sample[M_COLUMN_REGION_HINT] = geopm_region_id_hint(it->second.region_id);
+                sample[M_COLUMN_TIME] = geopm_time_diff(&m_time_zero, &(it->second.timestamp));
+                sample[M_COLUMN_PROGRESS] = it->second.progress;
+                m_csv->update(sample);
             }
-        }
-    }
-
-    void ProfileTracerImp::flush_buffer(void)
-    {
-        if (m_is_trace_enabled) {
-            for (size_t msg_idx = 0; msg_idx != m_num_message; ++msg_idx) {
-                m_stream << m_buffer[msg_idx].rank << "|"
-                         << "0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed
-                         << geopm_region_id_hash(m_buffer[msg_idx].region_id) << "|"
-                         << "0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed
-                         << geopm_region_id_hint(m_buffer[msg_idx].region_id) << "|"
-                         << std::setprecision(16) << std::scientific << std::dec
-                         << geopm_time_diff(&m_time_zero, &(m_buffer[msg_idx].timestamp)) << "|"
-                         << m_buffer[msg_idx].progress << "\n";
-            }
-            m_num_message = 0;
         }
     }
 }
