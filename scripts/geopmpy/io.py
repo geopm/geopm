@@ -45,6 +45,7 @@ import psutil
 import copy
 import tempfile
 import yaml
+import StringIO
 
 from distutils.spawn import find_executable
 from natsort import natsorted
@@ -967,10 +968,14 @@ class Trace(object):
                     out.append(ll[1:])
                 else:
                     done = True
-        out.insert(0, '{')
-        out.append('}')
-        json_str = ''.join(out)
-        dd = json.loads(json_str)
+        try:
+            yaml_fd = StringIO.StringIO(''.join(out))
+            dd = yaml.load(yaml_fd, Loader=yaml.SafeLoader)
+        except yaml.parser.ParserError:
+            out.insert(0, '{')
+            out.append('}')
+            json_str = ''.join(out)
+            dd = json.loads(json_str)
         try:
             self._version = dd['geopm_version']
             self._start_time = dd['start_time']
