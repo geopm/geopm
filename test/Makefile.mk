@@ -89,16 +89,6 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/DebugIOGroupTest.read_signal \
               test/gtest_links/DebugIOGroupTest.register_signal_error \
               test/gtest_links/DebugIOGroupTest.sample \
-              test/gtest_links/EndpointTest.negative_write_json_file \
-              test/gtest_links/EndpointTest.write_json_file \
-              test/gtest_links/EndpointTest.write_shm \
-              test/gtest_links/EndpointTestIntegration.write_shm \
-              test/gtest_links/EndpointUserTest.negative_bad_files \
-              test/gtest_links/EndpointUserTest.negative_parse_json_file \
-              test/gtest_links/EndpointUserTest.negative_parse_shm \
-              test/gtest_links/EndpointUserTest.parse_json_file \
-              test/gtest_links/EndpointUserTest.parse_shm \
-              test/gtest_links/EndpointUserTestIntegration.parse_shm \
               test/gtest_links/EnergyEfficientAgentTest.aggregate_sample \
               test/gtest_links/EnergyEfficientAgentTest.do_write_batch \
               test/gtest_links/EnergyEfficientAgentTest.enforce_policy \
@@ -126,6 +116,9 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/EpochRuntimeRegulatorTest.rank_enter_exit_trace \
               test/gtest_links/EpochRuntimeRegulatorTest.unknown_region \
               test/gtest_links/ExceptionTest.hello \
+              test/gtest_links/FilePolicyTest.parse_json_file \
+              test/gtest_links/FilePolicyTest.negative_bad_files \
+              test/gtest_links/FilePolicyTest.negative_parse_json_file \
               test/gtest_links/FrequencyGovernorTest.frequency_control_domain_default \
               test/gtest_links/FrequencyGovernorTest.adjust_platform \
               test/gtest_links/FrequencyGovernorTest.adjust_platform_clamping \
@@ -275,6 +268,15 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/SharedMemoryTest.lock_shmem_u \
               test/gtest_links/SharedMemoryTest.share_data \
               test/gtest_links/SharedMemoryTest.share_data_ipc \
+              test/gtest_links/ShmemEndpointTest.write_shm_policy \
+              test/gtest_links/ShmemEndpointTest.parse_shm_sample \
+              test/gtest_links/ShmemEndpointTest.get_agent \
+              test/gtest_links/ShmemEndpointTestIntegration.write_shm \
+              test/gtest_links/ShmemEndpointTestIntegration.write_read_policy \
+              test/gtest_links/ShmemEndpointTestIntegration.write_read_sample \
+              test/gtest_links/ShmemEndpointUserTest.parse_shm_policy \
+              test/gtest_links/ShmemEndpointUserTest.write_shm_sample \
+              test/gtest_links/ShmemEndpointUserTestIntegration.parse_shm \
               test/gtest_links/TimeIOGroupTest.adjust \
               test/gtest_links/TimeIOGroupTest.is_valid \
               test/gtest_links/TimeIOGroupTest.push \

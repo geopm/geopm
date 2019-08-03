@@ -38,16 +38,10 @@
 class MockEndpointUser : public geopm::EndpointUser
 {
     public:
-        MOCK_METHOD0(read_batch,
-                     void(void));
-        MOCK_CONST_METHOD1(sample,
-                     double(const std::string &signal_name));
-        MOCK_CONST_METHOD0(sample,
-                     std::vector<double>(void));
-        MOCK_METHOD0(is_update_available,
-                     bool(void));
-        MOCK_CONST_METHOD0(signal_names,
-                     std::vector<std::string>(void));
+        MOCK_METHOD1(read_policy,
+                     void(std::vector<double> &policy));
+        MOCK_METHOD1(write_sample,
+                     void(const std::vector<double> &sample));
 };
 
 #endif
