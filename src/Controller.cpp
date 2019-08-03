@@ -49,8 +49,17 @@
 #include "Agent.hpp"
 #include "TreeComm.hpp"
 #include "Endpoint.hpp"
+#include "FilePolicy.hpp"
 #include "Helper.hpp"
 #include "config.h"
+
+namespace geopm
+{
+    static bool is_shmem_policy_path(const std::string &policy_path)
+    {
+        return policy_path[0] == '/' && policy_path.find_last_of('/') == 0;
+    }
+}
 
 extern "C"
 {
@@ -122,6 +131,29 @@ extern "C"
     {
         return geopm_run_imp(ctl);
     }
+
+    int geopm_agent_enforce_policy(void)
+    {
+        int err = 0;
+        try {
+            std::string agent_name = geopm::environment().agent();
+            std::shared_ptr<geopm::Agent> agent(geopm::agent_factory().make_plugin(agent_name));
+            std::vector<double> policy(geopm::Agent::num_policy(geopm::agent_factory().dictionary(agent_name)));
+            std::string policy_path = geopm::environment().policy();
+            if (geopm::is_shmem_policy_path(policy_path)) {
+                geopm::EndpointUser::make_unique(policy_path, {})->read_policy(policy);
+            }
+            else {
+                geopm::FilePolicy::read_policy(policy_path, geopm::Agent::policy_names(geopm::agent_factory().dictionary(agent_name)));
+            }
+            agent->validate_policy(policy);
+            agent->enforce_policy(policy);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception(), false);
+        }
+        return err;
+    }
 }
 
 namespace geopm
@@ -146,6 +178,7 @@ namespace geopm
     Controller::Controller()
         : Controller(comm_factory().make_plugin(environment().comm()))
     {
+
     }
 
     Controller::Controller(std::shared_ptr<Comm> ppn1_comm)
@@ -165,8 +198,9 @@ namespace geopm
                                                                 ppn1_comm->rank())),
                      nullptr,
                      std::vector<std::unique_ptr<Agent> >{},
-                     /// @todo: needs to use endpoint factory
-                     std::unique_ptr<EndpointUser>(new ShmemEndpointUser(environment().policy(), true)))
+                     Agent::policy_names(agent_factory().dictionary(environment().agent())),
+                     nullptr,
+                     environment().policy())
     {
 
     }
@@ -181,7 +215,9 @@ namespace geopm
                            std::unique_ptr<Reporter> reporter,
                            std::unique_ptr<Tracer> tracer,
                            std::vector<std::unique_ptr<Agent> > level_agent,
-                           std::unique_ptr<EndpointUser> endpoint)
+                           std::vector<std::string> policy_names,
+                           std::unique_ptr<EndpointUser> endpoint,
+                           const std::string &policy_path)
         : m_comm(comm)
         , m_platform_io(plat_io)
         , m_agent_name(agent_name)
@@ -201,6 +237,8 @@ namespace geopm
         , m_in_sample(m_num_level_ctl)
         , m_out_sample(m_num_send_up, NAN)
         , m_endpoint(std::move(endpoint))
+        , m_policy_path(policy_path)
+        , m_is_dynamic_policy(is_shmem_policy_path(policy_path))
     {
         // Three dimensional vector over levels, children, and message
         // index.  These are used as temporary storage when passing
@@ -211,6 +249,12 @@ namespace geopm
                                                                     std::vector<double>(m_num_send_down, NAN));
             m_in_sample[level] = std::vector<std::vector<double> >(num_children,
                                                                    std::vector<double>(m_num_send_up, NAN));
+        }
+        if (m_is_dynamic_policy && m_endpoint == nullptr) {
+            m_endpoint = EndpointUser::make_unique(m_policy_path, get_hostnames(m_comm));
+        }
+        else if (!m_is_dynamic_policy) {
+            m_in_policy = FilePolicy::read_policy(m_policy_path, policy_names);
         }
     }
 
@@ -353,9 +397,12 @@ namespace geopm
     {
         bool do_send = false;
         if (m_is_root) {
-            /// @todo Pass m_in_policy by reference into the sampler, and return an is_updated bool.
-            m_in_policy = m_endpoint->sample();
-            do_send = true;
+            /// @todo Return an is_updated bool.
+            if (m_is_dynamic_policy) {
+                m_endpoint->read_policy(m_in_policy);
+
+                do_send = true;
+            }
         }
         else {
             do_send = m_tree_comm->receive_down(m_num_level_ctl, m_in_policy);
@@ -404,8 +451,9 @@ namespace geopm
                 m_tree_comm->send_up(m_num_level_ctl, m_out_sample);
             }
             else {
-                /// @todo At the root of the tree, send signals up to the
-                /// resource manager.
+                if (m_is_dynamic_policy) {
+                    m_endpoint->write_sample(m_out_sample);
+                }
             }
         }
     }
