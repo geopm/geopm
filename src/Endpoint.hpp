@@ -33,46 +33,91 @@
 #ifndef ENDPOINT_HPP_INCLUDE
 #define ENDPOINT_HPP_INCLUDE
 
+#include <cstddef>
+#include <pthread.h>
+#include <limits.h>
+
 #include <memory>
 #include <string>
 #include <vector>
 #include <map>
-#include <cstddef>
+
+#include "geopm_time.h"
+
+const size_t GEOPM_ENDPOINT_AGENT_NAME_MAX = 256;
+const size_t GEOPM_ENDPOINT_PROFILE_NAME_MAX = 256;
+const size_t GEOPM_ENDPOINT_HOSTFILE_PATH_MAX = 512;
 
 namespace geopm
 {
-    struct geopm_endpoint_shmem_header {
-        uint8_t is_updated;   // 1 byte + 7 bytes of padding
+    struct geopm_endpoint_policy_shmem_header {
         size_t count;         // 8 bytes
         double values;        // 8 bytes
     };
 
-    struct geopm_endpoint_shmem_s {
-        /// @brief Enables notification of updates to GEOPM.
-        uint8_t is_updated;
+    struct geopm_endpoint_sample_shmem_header {
+        geopm_time_s timestamp;   // 8 bytes
+        char agent[GEOPM_ENDPOINT_AGENT_NAME_MAX]; // 256 bytes
+        char profile_name[GEOPM_ENDPOINT_PROFILE_NAME_MAX];   // 256 bytes
+        char hostlist_path[GEOPM_ENDPOINT_HOSTFILE_PATH_MAX];  // 512 bytes
+        size_t count;             // 8 bytes
+        double values;            // 8 bytes
+    };
+
+    struct geopm_endpoint_policy_shmem_s {
         /// @brief Specifies the size of the following array.
         size_t count;
         /// @brief Holds resource manager data.
-        double values[(4096 - offsetof(struct geopm_endpoint_shmem_header, values)) / sizeof(double)];
+        double values[(4096 - offsetof(struct geopm_endpoint_policy_shmem_header, values)) / sizeof(double)];
     };
 
-    static_assert(sizeof(struct geopm_endpoint_shmem_s) == 4096, "Alignment issue with geopm_endpoint_shmem_s.");
+    struct geopm_endpoint_sample_shmem_s {
+        /// @brief Time that the memory was last updated.
+        geopm_time_s timestamp;
+        /// @brief Holds the name of the Agent attached, if any.
+        char agent[GEOPM_ENDPOINT_AGENT_NAME_MAX];
+        /// @brief Holds the profile name associated with the
+        ///        attached job.
+        char profile_name[GEOPM_ENDPOINT_PROFILE_NAME_MAX];
+        /// @brief Path to a file containing the list of hostnames
+        ///        in the attached job.
+        char hostlist_path[GEOPM_ENDPOINT_HOSTFILE_PATH_MAX];
+        /// @brief Specifies the size of the following array.
+        size_t count;
+        /// @brief Holds resource manager data.
+        double values[(4096 - offsetof(struct geopm_endpoint_sample_shmem_header, values)) / sizeof(double)];
+    };
+
+    static_assert(sizeof(struct geopm_endpoint_policy_shmem_s) == 4096, "Alignment issue with geopm_endpoint_policy_shmem_s.");
+    static_assert(sizeof(struct geopm_endpoint_sample_shmem_s) == 4096, "Alignment issue with geopm_endpoint_sample_shmem_s.");
 
     class Endpoint
     {
         public:
             Endpoint() = default;
             virtual ~Endpoint() = default;
-            /// @brief Set values for all signals or policies to be
-            ///        written.
-            /// @param [in] settings Vector of values for each signal
-            ///        or policy, in the expected order.
-            virtual void adjust(const std::vector<double> &settings) = 0;
-            /// @brief Write updated values.
-            virtual void write_batch(void) = 0;
-            /// @brief Returns the expected signal or policy names.
-            /// @return Vector of signal or policy names.
-            virtual std::vector<std::string> signal_names(void) const = 0;
+            virtual void open(void) = 0;
+            virtual void close(void) = 0;
+            /// @brief Write a set of policy values for the Agent.
+            /// @param [in] policy The policy values.  The order is
+            ///        specified by the Agent.
+            virtual void write_policy(const std::vector<double> &policy) = 0;
+            /// @brief Read a set of samples from the Agent.
+            /// @param [in] sample The sample values.  The order is
+            ///        specified by the Agent.
+            /// @return The sample timestamp.
+            virtual geopm_time_s read_sample(std::vector<double> &sample) = 0;
+            /// @brief Returns the Agent name, or empty string if no
+            ///        Agent is attached.
+            virtual std::string get_agent(void) = 0;
+            /// @brief Returns the profile name associated with the
+            ///        attached application, or empty if no controller
+            ///        is attached.
+            virtual std::string get_profile_name(void) = 0;
+            /// @brief Returns the list of hostnames used by the
+            ///        attached application, or empty if no controller
+            ///        is attached.
+            virtual std::vector<std::string> get_hostnames(void) = 0;
     };
 
     class SharedMemory;
@@ -83,26 +128,53 @@ namespace geopm
             ShmemEndpoint() = delete;
             ShmemEndpoint(const ShmemEndpoint &other) = delete;
 
-            ShmemEndpoint(const std::string &data_path, bool is_policy);
-            ShmemEndpoint(const std::string &data_path, bool is_policy, const std::string &agent_name);
+            ShmemEndpoint(const std::string &data_path);
             ShmemEndpoint(const std::string &data_path,
-                         std::unique_ptr<SharedMemory> shmem,
-                         const std::vector<std::string> &signal_names);
+                          std::unique_ptr<SharedMemory> policy_shmem,
+                          std::unique_ptr<SharedMemory> sample_shmem,
+                          size_t num_policy,
+                          size_t num_sample);
             ~ShmemEndpoint();
-            void adjust(const std::vector<double> &settings) override;
-            void write_batch(void) override;
-            std::vector<std::string> signal_names(void) const override;
 
+            void open(void) override;
+            void close(void) override;
+            void write_policy(const std::vector<double> &policy) override;
+            geopm_time_s read_sample(std::vector<double> &sample) override;
+            std::string get_agent(void) override;
+            std::string get_profile_name(void) override;
+            std::vector<std::string> get_hostnames(void) override;
         private:
-            void write_file();
-            void write_shmem();
+            std::string m_path;
+            std::unique_ptr<SharedMemory> m_policy_shmem;
+            std::unique_ptr<SharedMemory> m_sample_shmem;
+            size_t m_num_policy;
+            size_t m_num_sample;
+            bool m_is_open;
+    };
+
+    class FileEndpoint : public Endpoint
+    {
+        public:
+            FileEndpoint() = delete;
+            FileEndpoint(const FileEndpoint &other) = delete;
+
+            FileEndpoint(const std::string &data_path, const std::string &agent_name);
+            FileEndpoint(const std::string &data_path,
+                         const std::vector<std::string> &policy_names);
+
+            ~FileEndpoint() = default;
+            void open(void) override;
+            void close(void) override;
+            void write_policy(const std::vector<double> &policy) override;
+            geopm_time_s read_sample(std::vector<double> &sample) override;
+            std::string get_agent(void) override;
+            std::string get_profile_name(void) override;
+            std::vector<std::string> get_hostnames(void) override;
+        private:
+            void write_file(const std::vector<double> &values);
 
             std::string m_path;
-            std::vector<std::string> m_signal_names;
-            std::unique_ptr<SharedMemory> m_shmem;
-            struct geopm_endpoint_shmem_s *m_data;
-            std::vector<double> m_samples_up;
-            bool m_is_shm_data;
+            std::vector<std::string> m_policy_names;
     };
 
     class EndpointUser
@@ -110,18 +182,21 @@ namespace geopm
         public:
             EndpointUser() = default;
             virtual ~EndpointUser() = default;
-            /// @brief Read values from the resource manager.
-            virtual void read_batch(void) = 0;
-            /// @brief Returns all the latest values.
-            /// @return Vector of signal or policy values.
-            virtual std::vector<double> sample(void) const = 0;
-            /// @brief Indicates whether or not the values have been
-            ///        updated.
-            virtual bool is_update_available(void) = 0;
-            /// @brief Returns the signal or policy names expected by
-            ///        the resource manager.
-            /// @return Vector of signal or policy names.
-            virtual std::vector<std::string> signal_names(void) const = 0;
+            /// @brief Read the latest policy values.  All NAN indicates
+            ///        that a policy has not been written yet.
+            /// @param [out] policy The policy values read. The order
+            ///        is specified by the Agent.
+            virtual void read_policy(std::vector<double> &policy) = 0;
+            /// @brief Write sample values and update the sample age.
+            /// @param [in] sample The values to write.  The order is
+            ///        specified by the Agent.
+            virtual void write_sample(const std::vector<double> &sample) = 0;
+            /// @brief Factory method for the EndpointUser receiving
+            ///        the policy.  If the policy path contains
+            ///        exactly one / as the first character, a shared
+            ///        memory endpoint will be used.  Otherwise, the
+            ///        policy will be loaded from a file.
+            static std::unique_ptr<EndpointUser> create_endpoint_user(const std::string &policy_path);
     };
 
     class SharedMemoryUser;
@@ -131,28 +206,43 @@ namespace geopm
         public:
             ShmemEndpointUser() = delete;
             ShmemEndpointUser(const ShmemEndpointUser &other) = delete;
-            ShmemEndpointUser(const std::string &data_path, bool is_policy);
-            ShmemEndpointUser(const std::string &data_path, bool is_policy,
-                                const std::string &agent_name);
+            ShmemEndpointUser(const std::string &data_path);
             ShmemEndpointUser(const std::string &data_path,
-                                std::unique_ptr<SharedMemoryUser> shmem,
-                                const std::vector<std::string> &signal_names);
-            ~ShmemEndpointUser() = default;
-            void read_batch(void) override;
-            std::vector<double> sample(void) const override;
-            bool is_update_available(void) override;
-            std::vector<std::string> signal_names(void) const override;
+                              std::unique_ptr<SharedMemoryUser> policy_shmem,
+                              std::unique_ptr<SharedMemoryUser> sample_shmem,
+                              const std::string &agent_name);
+            ~ShmemEndpointUser();
+
+            void read_policy(std::vector<double> &policy) override;
+            void write_sample(const std::vector<double> &sample) override;
+
+            // Shmem only; used by geopmendpoint
+            geopm_time_s read_sample(std::vector<double> &sample);
+            std::string get_agent(void);
         private:
-            bool is_valid_signal(const std::string &signal_name) const;
+            std::string m_path;
+            std::unique_ptr<SharedMemoryUser> m_policy_shmem;
+            std::unique_ptr<SharedMemoryUser> m_sample_shmem;
+            size_t m_num_policy;
+            size_t m_num_sample;
+    };
+
+    class FileEndpointUser : public EndpointUser
+    {
+        public:
+            FileEndpointUser() = delete;
+            FileEndpointUser(const FileEndpointUser &other) = delete;
+            FileEndpointUser(const std::string &data_path);
+            FileEndpointUser(const std::string &data_path,
+                             const std::vector<std::string> &policy_names);
+            ~FileEndpointUser() = default;
+            void read_policy(std::vector<double> &policy) override;
+            void write_sample(const std::vector<double> &sample) override;
+        private:
             std::map<std::string, double> parse_json(void);
-            void read_shmem(void);
 
             std::string m_path;
-            std::vector<std::string> m_signal_names;
-            std::unique_ptr<SharedMemoryUser> m_shmem;
-            struct geopm_endpoint_shmem_s *m_data;
-            std::vector<double> m_signals_down;
-            const bool m_is_shm_data;
+            std::vector<std::string> m_policy_names;
     };
 }
 

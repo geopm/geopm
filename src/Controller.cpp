@@ -120,6 +120,23 @@ extern "C"
     {
         return geopm_run_imp(ctl);
     }
+
+    int geopm_agent_enforce_policy(void)
+    {
+        int err = 0;
+        try {
+            std::string agent_name = geopm::environment().agent();
+            std::shared_ptr<geopm::Agent> agent(geopm::agent_factory().make_plugin(agent_name));
+            std::vector<double> policy(geopm::Agent::num_policy(geopm::agent_factory().dictionary(agent_name)));
+            geopm::EndpointUser::create_endpoint_user(geopm::environment().policy())->read_policy(policy);
+            agent->validate_policy(policy);
+            agent->enforce_policy(policy);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception(), false);
+        }
+        return err;
+    }
 }
 
 namespace geopm
@@ -144,6 +161,7 @@ namespace geopm
     Controller::Controller()
         : Controller(comm_factory().make_plugin(environment().comm()))
     {
+
     }
 
     Controller::Controller(std::shared_ptr<Comm> ppn1_comm)
@@ -163,8 +181,7 @@ namespace geopm
                                                                 ppn1_comm->rank())),
                      nullptr,
                      std::vector<std::unique_ptr<Agent> >{},
-                     /// @todo: needs to use endpoint factory
-                     std::unique_ptr<EndpointUser>(new ShmemEndpointUser(environment().policy(), true)))
+                     EndpointUser::create_endpoint_user(environment().policy()))
     {
 
     }
@@ -330,8 +347,8 @@ namespace geopm
     {
         bool do_send = false;
         if (m_is_root) {
-            /// @todo Pass m_in_policy by reference into the sampler, and return an is_updated bool.
-            m_in_policy = m_endpoint->sample();
+            /// @todo Return an is_updated bool.
+            m_endpoint->read_policy(m_in_policy);
             do_send = true;
         }
         else {
@@ -383,6 +400,7 @@ namespace geopm
             else {
                 /// @todo At the root of the tree, send signals up to the
                 /// resource manager.
+                m_endpoint->write_sample(m_out_sample);
             }
         }
     }
