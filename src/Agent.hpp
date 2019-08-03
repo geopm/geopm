@@ -42,6 +42,8 @@
 
 namespace geopm
 {
+    class EndpointUser;
+
     class Agent
     {
         public:
