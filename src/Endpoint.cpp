@@ -96,22 +96,6 @@ namespace geopm
         m_samples_up = settings;
     }
 
-    void ManagerIOImp::adjust(const std::string &signal_name, double setting)
-    {
-        // TODO : The next line does a linear search.  This may need optimized in the future.
-        auto signal_it = std::find(m_signal_names.begin(), m_signal_names.end(), signal_name);
-
-        if (signal_it != m_signal_names.end()) {
-            size_t signal_idx = std::distance(m_signal_names.begin(), signal_it);
-            m_samples_up[signal_idx] = setting;
-        }
-        else {
-            throw Exception("ManagerIOImp::" + std::string(__func__)  + "(): requested signal \"" + signal_name
-                            + "\" does not exist in m_signal_names.  Was it passed to the constructor?",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-    }
-
     void ManagerIOImp::write_batch(void)
     {
         if (m_is_shm_data) {
@@ -274,18 +258,6 @@ namespace geopm
     std::vector<double> ManagerIOSamplerImp::sample(void) const
     {
         return m_signals_down;
-    }
-
-    double ManagerIOSamplerImp::sample(const std::string &signal_name) const
-    {
-        if (!is_valid_signal(signal_name)) {
-            throw Exception("ManagerIOGroup::" + std::string(__func__) + "(): " + signal_name + " not valid for ManagerIOGroup.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        auto it = std::distance(m_signal_names.begin(), std::find(m_signal_names.begin(), m_signal_names.end(), signal_name));
-
-        return m_signals_down.at(it);
     }
 
     bool ManagerIOSamplerImp::is_update_available(void)
