@@ -42,6 +42,8 @@
 
 namespace geopm
 {
+    class EndpointUser;
+
     class Agent
     {
         public:
@@ -177,6 +179,12 @@ namespace geopm
             static void aggregate_sample(const std::vector<std::vector<double> > &in_sample,
                                          const std::vector<std::function<double(const std::vector<double>&)> > &agg_func,
                                          std::vector<double> &out_sample);
+            /// @brief Factory method for the EndpointUser receiving
+            ///        the policy.  If the policy path contains
+            ///        exactly one / as the first character, a shared
+            ///        memory endpoint will be used.  Otherwise, the
+            ///        policy will be loaded from a file.
+            static std::unique_ptr<EndpointUser> create_endpoint_user(const std::string &policy_path);
         private:
             static const std::string m_num_sample_string;
             static const std::string m_num_policy_string;
