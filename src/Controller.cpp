@@ -120,6 +120,23 @@ extern "C"
     {
         return geopm_run_imp(ctl);
     }
+
+    int geopm_agent_enforce_policy(void)
+    {
+        int err = 0;
+        try {
+            std::vector<double> policy(geopm::EndpointUser::create_endpoint_user(geopm::environment().policy())->sample());
+            std::shared_ptr<geopm::Agent> agent(
+                geopm::agent_factory().make_plugin(
+                    geopm::environment().agent()));
+            agent->validate_policy(policy);
+            agent->enforce_policy(policy);
+        }
+        catch (...) {
+            err = geopm::exception_handler(std::current_exception(), false);
+        }
+        return err;
+    }
 }
 
 namespace geopm
@@ -144,6 +161,7 @@ namespace geopm
     Controller::Controller()
         : Controller(comm_factory().make_plugin(environment().comm()))
     {
+
     }
 
     Controller::Controller(std::shared_ptr<Comm> ppn1_comm)
@@ -163,8 +181,7 @@ namespace geopm
                                                                 ppn1_comm->rank())),
                      nullptr,
                      std::vector<std::unique_ptr<Agent> >{},
-                     /// @todo: needs to use endpoint factory
-                     std::unique_ptr<EndpointUser>(new ShmemEndpointUser(environment().policy(), true)))
+                     EndpointUser::create_endpoint_user(environment().policy()))
     {
 
     }
