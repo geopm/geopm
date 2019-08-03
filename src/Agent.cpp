@@ -186,7 +186,6 @@ namespace geopm
             out_sample[sig_idx] = agg_func[sig_idx](child_sample);
         }
     }
-
 }
 
 int geopm_agent_supported(const char *agent_name)
@@ -424,22 +423,4 @@ int geopm_agent_num_avail(int* num_agent)
     return err;
 }
 
-int geopm_agent_enforce_policy(void)
-{
-    int err = 0;
-    try {
-        /// @todo: needs to use endpoint factory
-        std::vector<double> policy(
-            geopm::make_unique<geopm::ShmemEndpointUser>(
-                geopm::environment().policy(), true)->sample());
-        std::shared_ptr<geopm::Agent> agent(
-            geopm::agent_factory().make_plugin(
-                geopm::environment().agent()));
-        agent->validate_policy(policy);
-        agent->enforce_policy(policy);
-    }
-    catch (...) {
-        err = geopm::exception_handler(std::current_exception(), false);
-    }
-    return err;
-}
+// geopm_agent_enforce_policy is defined in Controller.cpp
