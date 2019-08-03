@@ -94,7 +94,6 @@ namespace geopm
             std::vector<std::string> signal_names(void) const override;
 
         private:
-            void write_file();
             void write_shmem();
 
             std::string m_path;
@@ -102,7 +101,29 @@ namespace geopm
             std::unique_ptr<SharedMemory> m_shmem;
             struct geopm_endpoint_shmem_s *m_data;
             std::vector<double> m_samples_up;
-            bool m_is_shm_data;
+    };
+
+    class FileEndpoint : public Endpoint
+    {
+        public:
+            FileEndpoint() = delete;
+            FileEndpoint(const FileEndpoint &other) = delete;
+
+            FileEndpoint(const std::string &data_path, bool is_policy);
+            FileEndpoint(const std::string &data_path, bool is_policy, const std::string &agent_name);
+            FileEndpoint(const std::string &data_path,
+                         const std::vector<std::string> &signal_names);
+
+            ~FileEndpoint() = default;
+            void adjust(const std::vector<double> &settings) override;
+            void write_batch(void) override;
+            std::vector<std::string> signal_names(void) const override;
+        private:
+            void write_file();
+
+            std::string m_path;
+            std::vector<std::string> m_signal_names;
+            std::vector<double> m_samples_up;
     };
 
     class EndpointUser
@@ -144,7 +165,6 @@ namespace geopm
             std::vector<std::string> signal_names(void) const override;
         private:
             bool is_valid_signal(const std::string &signal_name) const;
-            std::map<std::string, double> parse_json(void);
             void read_shmem(void);
 
             std::string m_path;
@@ -152,7 +172,29 @@ namespace geopm
             std::unique_ptr<SharedMemoryUser> m_shmem;
             struct geopm_endpoint_shmem_s *m_data;
             std::vector<double> m_signals_down;
-            const bool m_is_shm_data;
+    };
+
+    class FileEndpointUser : public EndpointUser
+    {
+        public:
+            FileEndpointUser() = delete;
+            FileEndpointUser(const FileEndpointUser &other) = delete;
+            FileEndpointUser(const std::string &data_path, bool is_policy);
+            FileEndpointUser(const std::string &data_path, bool is_policy,
+                                const std::string &agent_name);
+            FileEndpointUser(const std::string &data_path,
+                               const std::vector<std::string> &signal_names);
+            ~FileEndpointUser() = default;
+            void read_batch(void) override;
+            std::vector<double> sample(void) const override;
+            bool is_update_available(void) override;
+            std::vector<std::string> signal_names(void) const override;
+        private:
+            std::map<std::string, double> parse_json(void);
+
+            std::string m_path;
+            std::vector<std::string> m_signal_names;
+            std::vector<double> m_signals_down;
     };
 }
 
