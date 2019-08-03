@@ -101,16 +101,14 @@ TEST_F(ManagerIOTest, write_json_file)
     std::vector<std::string> signal_names = {"POWER_CONSUMED", "RUNTIME", "GHZ"};
     ManagerIOImp jio(m_json_file_path, nullptr, signal_names);
 
-    jio.adjust("GHZ", 2.3e9);
-    jio.adjust("RUNTIME", 12.3456);
-    jio.adjust("POWER_CONSUMED", 777);
+    std::vector<double> values = {2.3e9, 12.3456, 777};
+    jio.adjust(values);
     jio.write_batch();
 
     ManagerIOSamplerImp jios(m_json_file_path, nullptr, signal_names);
 
-    EXPECT_EQ(777, jios.sample("POWER_CONSUMED"));
-    EXPECT_EQ(12.3456, jios.sample("RUNTIME"));
-    EXPECT_EQ(2.3e9, jios.sample("GHZ"));
+    std::vector<double> result = jios.sample();
+    EXPECT_EQ(values, result);
 
     std::remove(m_json_file_path.c_str());
 }
@@ -124,16 +122,13 @@ TEST_F(ManagerIOTest, write_shm)
     std::vector<std::string> signal_names = {"POWER_CONSUMED", "RUNTIME", "GHZ"};
     ManagerIOImp jio(m_shm_path, std::move(shmem), signal_names);
 
-    jio.adjust("POWER_CONSUMED", 777);
-    jio.adjust("RUNTIME", 12.3456);
-    jio.adjust("GHZ", 2.3e9);
+    std::vector<double> values = {777, 12.3456, 2.3e9};
+    jio.adjust(values);
     jio.write_batch();
 
     std::vector<double> test = std::vector<double>(data->values, data->values + signal_names.size());
 
-    EXPECT_EQ(777, test[0]);
-    EXPECT_EQ(12.3456, test[1]);
-    EXPECT_EQ(2.3e9, test[2]);
+    EXPECT_EQ(values, test);
 }
 
 TEST_F(ManagerIOTest, negative_write_json_file)
@@ -157,30 +152,15 @@ TEST_F(ManagerIOTestIntegration, write_shm)
                                              "GHZ7", "GHZ8"};
     ManagerIOImp mio(m_shm_path, nullptr, signal_names);
 
-    mio.adjust("POWER_CONSUMED", 777);
-    mio.adjust("RUNTIME", 12.3456);
-    mio.adjust("GHZ1", 2.1e9);
-    mio.adjust("GHZ3", 2.3e9);
-    mio.adjust("GHZ5", 2.5e9);
-    mio.adjust("GHZ6", 2.6e9);
-    mio.adjust("GHZ7", 2.7e9);
-    mio.adjust("GHZ8", 2.8e9);
-    mio.adjust("GHZ4", 2.4e9);
-    mio.adjust("GHZ2", 2.2e9);
+    std::vector<double> values = {777, 12.3456, 2.1e9, 2.3e9, 2.5e9,
+                                  2.6e9, 2.7e9, 2.8e9, 2.4e9, 2.2e9};
+    mio.adjust(values);
     mio.write_batch();
 
     ManagerIOSamplerImp mios(m_shm_path, nullptr, signal_names);
 
-    EXPECT_EQ(777, mios.sample("POWER_CONSUMED"));
-    EXPECT_EQ(12.3456, mios.sample("RUNTIME"));
-    EXPECT_EQ(2.1e9, mios.sample("GHZ1"));
-    EXPECT_EQ(2.2e9, mios.sample("GHZ2"));
-    EXPECT_EQ(2.3e9, mios.sample("GHZ3"));
-    EXPECT_EQ(2.4e9, mios.sample("GHZ4"));
-    EXPECT_EQ(2.5e9, mios.sample("GHZ5"));
-    EXPECT_EQ(2.8e9, mios.sample("GHZ8"));
-    EXPECT_EQ(2.7e9, mios.sample("GHZ7"));
-    EXPECT_EQ(2.6e9, mios.sample("GHZ6"));
+    std::vector<double> result = mios.sample();
+    EXPECT_EQ(values, result);
 }
 
 
@@ -260,13 +240,14 @@ TEST_F(ManagerIOSamplerTest, parse_json_file)
                                              "DEFAULT1", "DEFAULT2", "DEFAULT3"};
     ManagerIOSamplerImp gp(m_json_file_path, nullptr, signal_names);
 
-    EXPECT_EQ(400, gp.sample("POWER_MAX"));
-    EXPECT_EQ(2.3e9, gp.sample("FREQUENCY_MAX"));
-    EXPECT_EQ(1.2e9, gp.sample("FREQUENCY_MIN"));
-    EXPECT_EQ(3.14159265, gp.sample("PI"));
-    EXPECT_TRUE(std::isnan(gp.sample("DEFAULT1")));
-    EXPECT_TRUE(std::isnan(gp.sample("DEFAULT2")));
-    EXPECT_TRUE(std::isnan(gp.sample("DEFAULT3")));
+    std::vector<double> result = gp.sample();
+    EXPECT_EQ(400, result[0]);
+    EXPECT_EQ(2.3e9, result[1]);
+    EXPECT_EQ(1.2e9, result[2]);
+    EXPECT_EQ(3.14159265, result[3]);
+    EXPECT_TRUE(std::isnan(result[4]));
+    EXPECT_TRUE(std::isnan(result[5]));
+    EXPECT_TRUE(std::isnan(result[6]));
 }
 
 TEST_F(ManagerIOSamplerTest, negative_parse_json_file)
@@ -297,11 +278,9 @@ TEST_F(ManagerIOSamplerTest, parse_shm)
     ManagerIOSamplerImp gp("/FAKE_PATH", std::move(shmem), signal_names);
 
     EXPECT_FALSE(gp.is_update_available());
-    EXPECT_EQ(1.1, gp.sample("ONE"));
-    EXPECT_EQ(2.2, gp.sample("TWO"));
-    EXPECT_EQ(3.3, gp.sample("THREE"));
-    EXPECT_EQ(4.4, gp.sample("FOUR"));
-    EXPECT_EQ(5.5, gp.sample("FIVE"));
+    std::vector<double> result = gp.sample();
+    std::vector<double> expected {tmp, tmp + signal_names.size()};
+    EXPECT_EQ(expected, result);
 }
 
 TEST_F(ManagerIOSamplerTest, negative_parse_shm)
@@ -374,11 +353,9 @@ TEST_F(ManagerIOSamplerTestIntegration, parse_shm)
     ManagerIOSamplerImp gp(m_shm_path, nullptr, signal_names);
 
     EXPECT_FALSE(gp.is_update_available());
-    EXPECT_EQ(1.1, gp.sample("ONE"));
-    EXPECT_EQ(2.2, gp.sample("TWO"));
-    EXPECT_EQ(3.3, gp.sample("THREE"));
-    EXPECT_EQ(4.4, gp.sample("FOUR"));
-    EXPECT_EQ(5.5, gp.sample("FIVE"));
+    std::vector<double> result = gp.sample();
+    std::vector<double> expected {tmp, tmp + signal_names.size()};
+    EXPECT_EQ(expected, result);
 
     tmp[0] = 1.5;
     pthread_mutex_lock(&data->lock);
@@ -389,9 +366,9 @@ TEST_F(ManagerIOSamplerTestIntegration, parse_shm)
     gp.read_batch();
 
     EXPECT_FALSE(gp.is_update_available());
-    EXPECT_EQ(1.5, gp.sample("ONE"));
-    EXPECT_EQ(2.2, gp.sample("TWO"));
-    EXPECT_EQ(3.3, gp.sample("THREE"));
-    EXPECT_EQ(4.4, gp.sample("FOUR"));
-    EXPECT_EQ(5.5, gp.sample("FIVE"));
+    result = gp.sample();
+    expected = {tmp, tmp + signal_names.size()};
+    EXPECT_EQ(expected, result);
+
+    std::remove(full_path.c_str());
 }
