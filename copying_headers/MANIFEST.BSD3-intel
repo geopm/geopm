@@ -101,6 +101,8 @@ src/EpochRuntimeRegulator.cpp
 src/EpochRuntimeRegulator.hpp
 src/Exception.cpp
 src/Exception.hpp
+src/FilePolicy.cpp
+src/FilePolicy.hpp
 src/FrequencyGovernor.cpp
 src/FrequencyGovernor.hpp
 src/FrequencyGovernorImp.hpp
@@ -251,6 +253,7 @@ test/EnergyEfficientRegionTest.cpp
 test/EnvironmentTest.cpp
 test/EpochRuntimeRegulatorTest.cpp
 test/ExceptionTest.cpp
+test/FilePolicyTest.cpp
 test/FrequencyGovernorTest.cpp
 test/FrequencyMapAgentTest.cpp
 test/HelperTest.cpp

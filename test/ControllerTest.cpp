@@ -63,6 +63,7 @@ using testing::_;
 using testing::Return;
 using testing::AtLeast;
 using testing::ContainerEq;
+using testing::SetArgReferee;
 
 class ControllerTestMockPlatformIO : public MockPlatformIO
 {
@@ -208,7 +209,9 @@ TEST_F(ControllerTest, get_hostnames)
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::move(m_agents),
-                          std::unique_ptr<MockEndpointUser>(m_endpoint));
+                          {},
+                          std::unique_ptr<MockEndpointUser>(m_endpoint),
+                          "/test_policy");
 
     EXPECT_CALL(*multi_node_comm, rank());
     std::set<std::string> result = controller.get_hostnames("node4");
@@ -234,11 +237,17 @@ TEST_F(ControllerTest, single_node)
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::move(m_agents),
-                          std::unique_ptr<MockEndpointUser>(m_endpoint));
+                          {},
+                          std::unique_ptr<MockEndpointUser>(m_endpoint),
+                          "/test_policy");
 
     // setup trace
     std::vector<std::string> trace_names = {"COL1", "COL2"};
+    std::vector<std::function<std::string(double)> > trace_formats = {
+        geopm::string_format_double, geopm::string_format_float
+    };
     EXPECT_CALL(*agent, trace_names()).WillOnce(Return(trace_names));
+    EXPECT_CALL(*agent, trace_formats()).WillOnce(Return(trace_formats));
     EXPECT_CALL(*m_tracer, columns(_, _));
     controller.setup_trace();
 
@@ -249,19 +258,21 @@ TEST_F(ControllerTest, single_node)
     EXPECT_CALL(*m_application_io, region_info()).Times(m_num_step)
         .WillRepeatedly(Return(m_region_info));
     EXPECT_CALL(*m_application_io, clear_region_info()).Times(m_num_step);
-    std::vector<double> endpoint_sample = {8.8, 9.9};
-    ASSERT_EQ(m_num_send_down, (int)endpoint_sample.size());
-    EXPECT_CALL(*m_endpoint, sample()).Times(m_num_step)
-        .WillRepeatedly(Return(endpoint_sample));
+    std::vector<double> endpoint_policy = {8.8, 9.9};
+    ASSERT_EQ(m_num_send_down, (int)endpoint_policy.size());
+    EXPECT_CALL(*m_endpoint, read_policy(_)).Times(m_num_step)
+        .WillRepeatedly(SetArgReferee<0>(endpoint_policy));
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
     EXPECT_CALL(*agent, trace_values(_)).Times(m_num_step);
+    EXPECT_CALL(*agent, validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step);
     EXPECT_CALL(*agent, do_write_batch())
         .WillRepeatedly(Return(true));
     EXPECT_CALL(*agent, sample_platform(_)).Times(m_num_step);
     EXPECT_CALL(*agent, do_send_sample()).Times(m_num_step)
         .WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_endpoint, write_sample(_)).Times(m_num_step);
     EXPECT_CALL(*agent, wait()).Times(m_num_step);
     // should not call aggregate_sample/split_policy
     EXPECT_CALL(*agent, aggregate_sample(_, _)).Times(0);
@@ -304,10 +315,16 @@ TEST_F(ControllerTest, two_level_controller_1)
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::move(m_agents),
-                          std::unique_ptr<MockEndpointUser>(m_endpoint));
+                          {},
+                          std::unique_ptr<MockEndpointUser>(m_endpoint),
+                          "/test_policy");
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
+    std::vector<std::function<std::string(double)> > trace_formats = {
+        geopm::string_format_double, geopm::string_format_float
+    };
     EXPECT_CALL(*agent, trace_names()).WillOnce(Return(trace_names));
+    EXPECT_CALL(*agent, trace_formats()).WillOnce(Return(trace_formats));
     EXPECT_CALL(*m_tracer, columns(_, _));
     controller.setup_trace();
 
@@ -317,7 +334,8 @@ TEST_F(ControllerTest, two_level_controller_1)
     m_tree_comm->reset_spy();
 
     // should not interact with endpoint
-    EXPECT_CALL(*m_endpoint, sample()).Times(0);
+    EXPECT_CALL(*m_endpoint, read_policy(_)).Times(0);
+    EXPECT_CALL(*m_endpoint, write_sample(_)).Times(0);
 
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
@@ -328,6 +346,7 @@ TEST_F(ControllerTest, two_level_controller_1)
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
     EXPECT_CALL(*agent, trace_values(_)).Times(m_num_step);
+    EXPECT_CALL(*agent, validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step);
     EXPECT_CALL(*agent, do_write_batch())
         .WillRepeatedly(Return(true));
@@ -394,10 +413,16 @@ TEST_F(ControllerTest, two_level_controller_2)
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::move(m_agents),
-                          std::unique_ptr<MockEndpointUser>(m_endpoint));
+                          {},
+                          std::unique_ptr<MockEndpointUser>(m_endpoint),
+                          "/test_policy");
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
+    std::vector<std::function<std::string(double)> > trace_formats = {
+        geopm::string_format_double, geopm::string_format_float
+    };
     EXPECT_CALL(*m_level_agent[0], trace_names()).WillOnce(Return(trace_names));
+    EXPECT_CALL(*m_level_agent[0], trace_formats()).WillOnce(Return(trace_formats));
     EXPECT_CALL(*m_tracer, columns(_, _));
     controller.setup_trace();
 
@@ -407,7 +432,8 @@ TEST_F(ControllerTest, two_level_controller_2)
     m_tree_comm->reset_spy();
 
     // should not interact with endpoint
-    EXPECT_CALL(*m_endpoint, sample()).Times(0);
+    EXPECT_CALL(*m_endpoint, read_policy(_)).Times(0);
+    EXPECT_CALL(*m_endpoint, write_sample(_)).Times(0);
 
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
@@ -417,6 +443,11 @@ TEST_F(ControllerTest, two_level_controller_2)
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
+    EXPECT_CALL(*m_level_agent[0], validate_policy(_)).Times(m_num_step);
+    EXPECT_CALL(*m_level_agent[0], adjust_platform(_)).Times(m_num_step);
+    EXPECT_CALL(*m_level_agent[0], do_write_batch())
+        .WillRepeatedly(Return(true));
+    EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], sample_platform(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], do_send_sample()).Times(m_num_step)
         .WillRepeatedly(Return(true));
@@ -425,6 +456,7 @@ TEST_F(ControllerTest, two_level_controller_2)
     EXPECT_CALL(*m_level_agent[0], aggregate_sample(_, _)).Times(0);
     EXPECT_CALL(*m_level_agent[0], split_policy(_, _)).Times(0);
 
+    EXPECT_CALL(*m_level_agent[1], validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[1], split_policy(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[1], do_send_policy())
         .WillRepeatedly(Return(true));
@@ -488,10 +520,16 @@ TEST_F(ControllerTest, two_level_controller_0)
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::move(m_agents),
-                          std::unique_ptr<MockEndpointUser>(m_endpoint));
+                          {},
+                          std::unique_ptr<MockEndpointUser>(m_endpoint),
+                          "/test_policy");
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
+    std::vector<std::function<std::string(double)> > trace_formats = {
+        geopm::string_format_double, geopm::string_format_float
+    };
     EXPECT_CALL(*m_level_agent[0], trace_names()).WillOnce(Return(trace_names));
+    EXPECT_CALL(*m_level_agent[0], trace_formats()).WillOnce(Return(trace_formats));
     EXPECT_CALL(*m_tracer, columns(_, _));
     controller.setup_trace();
 
@@ -500,13 +538,18 @@ TEST_F(ControllerTest, two_level_controller_0)
     EXPECT_CALL(*m_application_io, region_info()).Times(m_num_step)
         .WillRepeatedly(Return(m_region_info));
     EXPECT_CALL(*m_application_io, clear_region_info()).Times(m_num_step);
-    std::vector<double> endpoint_sample = {8.8, 9.9};
-    ASSERT_EQ(m_num_send_down, (int)endpoint_sample.size());
-    EXPECT_CALL(*m_endpoint, sample()).Times(m_num_step)
-        .WillRepeatedly(Return(endpoint_sample));
+    std::vector<double> endpoint_policy = {8.8, 9.9};
+    ASSERT_EQ(m_num_send_down, (int)endpoint_policy.size());
+    EXPECT_CALL(*m_endpoint, read_policy(_)).Times(m_num_step)
+        .WillRepeatedly(SetArgReferee<0>(endpoint_policy));
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
+    EXPECT_CALL(*m_level_agent[0], validate_policy(_)).Times(m_num_step);
+    EXPECT_CALL(*m_level_agent[0], adjust_platform(_)).Times(m_num_step);
+    EXPECT_CALL(*m_level_agent[0], do_write_batch())
+        .WillRepeatedly(Return(true));
+    EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], sample_platform(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], do_send_sample()).Times(m_num_step)
         .WillRepeatedly(Return(true));
@@ -515,9 +558,11 @@ TEST_F(ControllerTest, two_level_controller_0)
     EXPECT_CALL(*m_level_agent[0], aggregate_sample(_, _)).Times(0);
     EXPECT_CALL(*m_level_agent[0], split_policy(_, _)).Times(0);
 
+    EXPECT_CALL(*m_level_agent[2], validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[2], split_policy(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[2], do_send_policy())
         .WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_level_agent[1], validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[1], split_policy(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[1], do_send_policy())
         .WillRepeatedly(Return(true));
@@ -527,6 +572,7 @@ TEST_F(ControllerTest, two_level_controller_0)
     EXPECT_CALL(*m_level_agent[2], aggregate_sample(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[2], do_send_sample())
         .WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_endpoint, write_sample(_)).Times(m_num_step);
 
     for (int step = 0; step < m_num_step; ++step) {
         controller.step();
