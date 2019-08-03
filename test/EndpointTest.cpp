@@ -59,32 +59,34 @@
 
 using geopm::ShmemEndpoint;
 using geopm::ShmemEndpointUser;
+using geopm::FileEndpoint;
+using geopm::FileEndpointUser;
 using geopm::SharedMemoryImp;
 using geopm::geopm_endpoint_shmem_s;
 using geopm::Exception;
 
 using json11::Json;
 
-class EndpointTest: public :: testing :: Test
+class FileEndpointTest : public ::testing::Test
 {
-    public:
-        EndpointTest();
-        ~EndpointTest() = default;
-
     protected:
-        const std::string m_json_file_path = "EndpointTest_data";
-        const std::string m_shm_path = "/EndpointTest_data_" + std::to_string(geteuid());
+        void SetUp();
+        const std::string m_json_file_path = "FileEndpointTest_data";
         std::string m_valid_json;
 };
 
-class EndpointTestIntegration : public EndpointTest
+class ShmemEndpointTest : public ::testing::Test
 {
-    public:
-        EndpointTestIntegration() : EndpointTest() {}
-        ~EndpointTestIntegration() = default;
+    protected:
+        const std::string m_shm_path = "/ShmemEndpointTest_data_" + std::to_string(geteuid());
 };
 
-EndpointTest::EndpointTest()
+class ShmemEndpointTestIntegration : public ShmemEndpointTest
+{
+
+};
+
+void FileEndpointTest::SetUp()
 {
     std::string tab = std::string(4, ' ');
     std::ostringstream valid_json;
@@ -96,16 +98,16 @@ EndpointTest::EndpointTest()
     m_valid_json = valid_json.str();
 }
 
-TEST_F(EndpointTest, write_json_file)
+TEST_F(FileEndpointTest, write_json_file)
 {
     std::vector<std::string> signal_names = {"POWER_CONSUMED", "RUNTIME", "GHZ"};
-    ShmemEndpoint jio(m_json_file_path, nullptr, signal_names);
+    FileEndpoint jio(m_json_file_path, signal_names);
 
     std::vector<double> values = {2.3e9, 12.3456, 777};
     jio.adjust(values);
     jio.write_batch();
 
-    ShmemEndpointUser jios(m_json_file_path, nullptr, signal_names);
+    FileEndpointUser jios(m_json_file_path, signal_names);
 
     std::vector<double> result = jios.sample();
     EXPECT_EQ(values, result);
@@ -113,7 +115,7 @@ TEST_F(EndpointTest, write_json_file)
     std::remove(m_json_file_path.c_str());
 }
 
-TEST_F(EndpointTest, write_shm)
+TEST_F(ShmemEndpointTest, write_shm)
 {
     size_t shmem_size = sizeof(struct geopm_endpoint_shmem_s);
     std::unique_ptr<MockSharedMemory> shmem(new MockSharedMemory(shmem_size));
@@ -131,7 +133,7 @@ TEST_F(EndpointTest, write_shm)
     EXPECT_EQ(values, test);
 }
 
-TEST_F(EndpointTest, negative_write_json_file)
+TEST_F(FileEndpointTest, negative_write_json_file)
 {
     std::string path ("EndpointTest_empty");
     std::ofstream empty_file(path, std::ofstream::out);
@@ -139,14 +141,14 @@ TEST_F(EndpointTest, negative_write_json_file)
     chmod(path.c_str(), 0);
 
     const std::vector<std::string> signal_names = {"FAKE_SIGNAL"};
-    ShmemEndpoint jio (path, nullptr, signal_names);
+    FileEndpoint jio (path, signal_names);
 
     GEOPM_EXPECT_THROW_MESSAGE(jio.write_batch(),
                                GEOPM_ERROR_INVALID, "output file \"" + path + "\" could not be opened");
     std::remove(path.c_str());
 }
 
-TEST_F(EndpointTestIntegration, write_shm)
+TEST_F(ShmemEndpointTestIntegration, write_shm)
 {
     std::vector<std::string> signal_names = {"POWER_CONSUMED", "RUNTIME", "GHZ1", "GHZ2", "GHZ3", "GHZ4", "GHZ5", "GHZ6",
                                              "GHZ7", "GHZ8"};
@@ -166,29 +168,30 @@ TEST_F(EndpointTestIntegration, write_shm)
 
 /*************************************************************************************************/
 
-class EndpointUserTest: public :: testing :: Test
+class FileEndpointUserTest: public ::testing::Test
 {
-    public:
-        EndpointUserTest();
-
     protected:
         void SetUp();
         void TearDown();
-        const std::string m_json_file_path = "EndpointUserTest_data";
-        const std::string m_json_file_path_bad = "EndpointUserTest_data_bad";
-        const std::string m_shm_path = "/EndpointUserTest_data_" + std::to_string(geteuid());
+        const std::string m_json_file_path = "ShmemEndpointUserTest_data";
+        const std::string m_json_file_path_bad = "ShmemEndpointUserTest_data_bad";
+
         std::string m_valid_json;
         std::string m_valid_json_bad_type;
 };
 
-class EndpointUserTestIntegration : public EndpointUserTest
+class ShmemEndpointUserTest: public ::testing::Test
 {
-    public:
-        EndpointUserTestIntegration() : EndpointUserTest() {}
-        ~EndpointUserTestIntegration() = default;
+    protected:
+        const std::string m_shm_path = "/ShmemEndpointUserTest_data_" + std::to_string(geteuid());
 };
 
-EndpointUserTest::EndpointUserTest()
+class ShmemEndpointUserTestIntegration : public ShmemEndpointUserTest
+{
+
+};
+
+void FileEndpointUserTest::SetUp()
 {
     std::string tab = std::string(4, ' ');
     std::ostringstream valid_json;
@@ -214,10 +217,7 @@ EndpointUserTest::EndpointUserTest()
                << tab << "\"GHZ\" : 2.3e9" << std::endl
                << "}" << std::endl;
     m_valid_json_bad_type = bad_json.str();
-}
 
-void EndpointUserTest::SetUp()
-{
     std::ofstream json_stream(m_json_file_path);
     std::ofstream json_stream_bad(m_json_file_path_bad);
 
@@ -228,17 +228,17 @@ void EndpointUserTest::SetUp()
     json_stream_bad.close();
 }
 
-void EndpointUserTest::TearDown()
+void FileEndpointUserTest::TearDown()
 {
     std::remove(m_json_file_path.c_str());
     std::remove(m_json_file_path_bad.c_str());
 }
 
-TEST_F(EndpointUserTest, parse_json_file)
+TEST_F(FileEndpointUserTest, parse_json_file)
 {
     std::vector<std::string> signal_names = {"POWER_MAX", "FREQUENCY_MAX", "FREQUENCY_MIN", "PI",
                                              "DEFAULT1", "DEFAULT2", "DEFAULT3"};
-    ShmemEndpointUser gp(m_json_file_path, nullptr, signal_names);
+    FileEndpointUser gp(m_json_file_path, signal_names);
 
     std::vector<double> result = gp.sample();
     ASSERT_EQ(7u, result.size());
@@ -251,18 +251,18 @@ TEST_F(EndpointUserTest, parse_json_file)
     EXPECT_TRUE(std::isnan(result[6]));
 }
 
-TEST_F(EndpointUserTest, negative_parse_json_file)
+TEST_F(FileEndpointUserTest, negative_parse_json_file)
 {
     const std::vector<std::string> signal_names = {"FAKE_SIGNAL"};
-    GEOPM_EXPECT_THROW_MESSAGE(new ShmemEndpointUser(m_json_file_path_bad, nullptr, signal_names),
+    GEOPM_EXPECT_THROW_MESSAGE(new FileEndpointUser(m_json_file_path_bad, signal_names),
                                GEOPM_ERROR_FILE_PARSE, "unsupported type or malformed json config file");
 
     // Don't parse if Agent doesn't require any policies
     const std::vector<std::string> signal_names_empty;
-    ShmemEndpointUser("", nullptr, signal_names_empty);
+    FileEndpointUser("", signal_names_empty);
 }
 
-TEST_F(EndpointUserTest, parse_shm)
+TEST_F(ShmemEndpointUserTest, parse_shm)
 {
     size_t shmem_size = sizeof(struct geopm_endpoint_shmem_s);
     std::unique_ptr<MockSharedMemoryUser> shmem(new MockSharedMemoryUser(shmem_size));
@@ -283,7 +283,7 @@ TEST_F(EndpointUserTest, parse_shm)
     EXPECT_EQ(expected, result);
 }
 
-TEST_F(EndpointUserTest, negative_parse_shm)
+TEST_F(ShmemEndpointUserTest, negative_parse_shm)
 {
     size_t shmem_size = sizeof(struct geopm_endpoint_shmem_s);
     std::unique_ptr<MockSharedMemoryUser> shmem(new MockSharedMemoryUser(shmem_size));
@@ -301,21 +301,21 @@ TEST_F(EndpointUserTest, negative_parse_shm)
                                GEOPM_ERROR_INVALID, "reread of shm region requested before update");
 }
 
-TEST_F(EndpointUserTest, negative_bad_files)
+TEST_F(FileEndpointUserTest, negative_bad_files)
 {
-    std::string path ("EndpointUserTest_empty");
+    std::string path ("FileEndpointUserTest_empty");
     std::ofstream empty_file(path, std::ofstream::out);
     empty_file.close();
     const std::vector<std::string> signal_names = {"FAKE_SIGNAL"};
-    GEOPM_EXPECT_THROW_MESSAGE(new ShmemEndpointUser(path, nullptr, signal_names),
+    GEOPM_EXPECT_THROW_MESSAGE(new FileEndpointUser(path, signal_names),
                                GEOPM_ERROR_INVALID, "input file invalid");
     chmod(path.c_str(), 0);
-    GEOPM_EXPECT_THROW_MESSAGE(new ShmemEndpointUser(path, nullptr, signal_names),
+    GEOPM_EXPECT_THROW_MESSAGE(new FileEndpointUser(path, signal_names),
                                EACCES, "file \"" + path + "\" could not be opened");
     std::remove(path.c_str());
 }
 
-TEST_F(EndpointUserTestIntegration, parse_shm)
+TEST_F(ShmemEndpointUserTestIntegration, parse_shm)
 {
     std::string full_path("/dev/shm" + m_shm_path);
     std::remove(full_path.c_str());
