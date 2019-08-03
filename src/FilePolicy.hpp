@@ -30,18 +30,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKENDPOINTUSER_HPP_INCLUDE
-#define MOCKENDPOINTUSER_HPP_INCLUDE
+#ifndef FILEPOLICY_HPP_INCLUDE
+#define FILEPOLICY_HPP_INCLUDE
 
-#include "Endpoint.hpp"
+#include <vector>
+#include <map>
+#include <string>
 
-class MockEndpointUser : public geopm::EndpointUser
+namespace geopm
 {
-    public:
-        MOCK_METHOD1(read_policy,
-                     void(std::vector<double> &policy));
-        MOCK_METHOD1(write_sample,
-                     void(const std::vector<double> &sample));
-};
+    class FilePolicy
+    {
+        public:
+            FilePolicy() = delete;
+            FilePolicy(const FilePolicy &other) = delete;
+            virtual ~FilePolicy() = default;
+            /// @brief Read policy values from a JSON file.
+            /// @param [in] policy_path Location of the policy JSON file.
+            /// @param [in] policy_names Expected policy field names
+            ///             as determined by the Agent.
+            /// @return The policy values read.
+            static std::vector<double> read_policy(const std::string &policy_path,
+                                                   const std::vector<std::string> &policy_names);
+        private:
+            static std::map<std::string, double> parse_json(const std::string &path);
+    };
+}
 
 #endif
