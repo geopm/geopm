@@ -72,7 +72,9 @@ namespace geopm
                        std::unique_ptr<Reporter> reporter,
                        std::unique_ptr<Tracer> tracer,
                        std::vector<std::unique_ptr<Agent> > level_agent,
-                       std::unique_ptr<EndpointUser> endpoint);
+                       std::vector<std::string> policy_names,
+                       std::unique_ptr<EndpointUser> endpoint,
+                       const std::string &policy_path);
             virtual ~Controller();
             /// @brief Run control algorithm.
             ///
@@ -156,6 +158,8 @@ namespace geopm
             std::vector<double> m_trace_sample;
 
             std::unique_ptr<EndpointUser> m_endpoint;
+            std::string m_policy_path;
+            bool m_is_dynamic_policy;
 
             std::vector<std::string> m_agent_policy_names;
             std::vector<std::string> m_agent_sample_names;
