@@ -122,6 +122,29 @@ int geopm_endpoint_agent(struct geopm_endpoint_c *endpoint,
                          char *agent_name);
 
 /*!
+ *  @brief Check profile name for an attached job.
+ *
+ *  @param [in] endpoint Object created by call to
+ *         geopm_endpoint_create().
+ *
+ *  @param [in] profile_name_max Number of bytes allocated for the
+ *         profile_name string.
+ *
+ *  @param [out] profile_name Profile name of the job if one has
+ *         attached to the endpoint.  If no agent has attached string
+ *         is unaltered.
+ *
+ *  @return Zero if endpoint has an agent attached and profile name can
+ *          be stored in provided buffer, error code otherwise.  If no
+ *          agent has attached, error code GEOPM_ERROR_NO_AGENT is
+ *          returned.
+ *
+ */
+int geopm_endpoint_profile_name(struct geopm_endpoint_c *endpoint,
+                                size_t profile_name_max,
+                                char *profile_name);
+
+/*!
  *  @brief Get the number of nodes managed by the agent.
  *
  *  @param [in] endpoint Object created by call to
