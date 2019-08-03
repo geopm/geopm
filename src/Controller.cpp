@@ -163,8 +163,7 @@ namespace geopm
                                                                 ppn1_comm->rank())),
                      nullptr,
                      std::vector<std::unique_ptr<Agent> >{},
-                     /// @todo: needs to use endpoint factory
-                     std::unique_ptr<EndpointUser>(new ShmemEndpointUser(environment().policy(), true)))
+                     Agent::create_endpoint_user(environment().policy()))
     {
 
     }
