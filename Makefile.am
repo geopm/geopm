@@ -443,6 +443,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/EpochRuntimeRegulator.hpp \
                             src/Exception.cpp \
                             src/Exception.hpp \
+                            src/FilePolicy.cpp \
+                            src/FilePolicy.hpp \
                             src/FrequencyGovernor.cpp \
                             src/FrequencyGovernor.hpp \
                             src/FrequencyGovernorImp.hpp \
