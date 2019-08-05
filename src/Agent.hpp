@@ -186,7 +186,8 @@ namespace geopm
             ///        exactly one / as the first character, a shared
             ///        memory endpoint will be used.  Otherwise, the
             ///        policy will be loaded from a file.
-            static std::unique_ptr<EndpointUser> create_endpoint_user(const std::string &policy_path);
+            static std::unique_ptr<EndpointUser> create_endpoint_user(const std::string &policy_path,
+                                                                      const std::string &agent);
         private:
             static const std::string m_num_sample_string;
             static const std::string m_num_policy_string;

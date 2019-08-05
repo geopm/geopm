@@ -187,14 +187,15 @@ namespace geopm
         }
     }
 
-    std::unique_ptr<EndpointUser> Agent::create_endpoint_user(const std::string &policy_path)
+    std::unique_ptr<EndpointUser> Agent::create_endpoint_user(const std::string &policy_path,
+                                                              const std::string &agent)
     {
         std::unique_ptr<EndpointUser> endpoint;
         if (policy_path[0] == '/' && policy_path.find_last_of('/') == 0) {
-            endpoint = geopm::make_unique<ShmemEndpointUser>(policy_path, true);
+            endpoint = geopm::make_unique<ShmemEndpointUser>(policy_path, agent);
         }
         else {
-            endpoint = geopm::make_unique<FileEndpointUser>(policy_path, true);
+            endpoint = geopm::make_unique<FileEndpointUser>(policy_path, agent);
         }
         return endpoint;
     }
@@ -439,10 +440,10 @@ int geopm_agent_enforce_policy(void)
 {
     int err = 0;
     try {
-        std::vector<double> policy(geopm::Agent::create_endpoint_user(geopm::environment().policy())->sample());
-        std::shared_ptr<geopm::Agent> agent(
-            geopm::agent_factory().make_plugin(
-                geopm::environment().agent()));
+        std::string agent_name = geopm::environment().agent();
+        std::shared_ptr<geopm::Agent> agent(geopm::agent_factory().make_plugin(agent_name));
+        std::vector<double> policy(geopm::Agent::num_policy(geopm::agent_factory().dictionary(agent_name)));
+        geopm::Agent::create_endpoint_user(geopm::environment().policy(), agent_name)->read_policy(policy);
         agent->validate_policy(policy);
         agent->enforce_policy(policy);
     }
