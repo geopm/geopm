@@ -56,29 +56,42 @@ namespace geopm
     const std::string SHM_POLICY_POSTFIX = "-policy";
     const std::string SHM_SAMPLE_POSTFIX = "-sample";
 
-    ShmemEndpoint::ShmemEndpoint(const std::string &data_path, const std::string &agent_name)
+    ShmemEndpoint::ShmemEndpoint(const std::string &data_path)
         : ShmemEndpoint(data_path,
                         nullptr,
-                        Agent::num_policy(agent_factory().dictionary(agent_name)))
+                        nullptr,
+                        0)
     {
 
     }
 
     ShmemEndpoint::ShmemEndpoint(const std::string &path,
                                  std::unique_ptr<SharedMemory> policy_shmem,
+                                 std::unique_ptr<SharedMemory> sample_shmem,
                                  size_t num_policy)
         : m_path(path)
         , m_policy_shmem(std::move(policy_shmem))
+        , m_sample_shmem(std::move(sample_shmem))
         , m_num_policy(num_policy)
     {
         if (m_policy_shmem == nullptr) {
             size_t shmem_size = sizeof(struct geopm_endpoint_policy_shmem_s);
             m_policy_shmem = geopm::make_unique<SharedMemoryImp>(m_path + SHM_POLICY_POSTFIX, shmem_size);
         }
-
-        auto lock = m_policy_shmem->get_scoped_lock();
-        auto data = (struct geopm_endpoint_policy_shmem_s *) m_policy_shmem->pointer();
-        *data = {};
+        if (m_sample_shmem == nullptr) {
+            size_t shmem_size = sizeof(struct geopm_endpoint_sample_shmem_s);
+            m_sample_shmem = geopm::make_unique<SharedMemoryImp>(m_path + SHM_SAMPLE_POSTFIX, shmem_size);
+        }
+        {
+            auto lock = m_policy_shmem->get_scoped_lock();
+            struct geopm_endpoint_policy_shmem_s *data = (struct geopm_endpoint_policy_shmem_s*)m_policy_shmem->pointer();
+            *data = {};
+        }
+        {
+            auto lock = m_sample_shmem->get_scoped_lock();
+            struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s*)m_sample_shmem->pointer();
+            *data = {};
+        }
     }
 
     FileEndpoint::FileEndpoint(const std::string &data_path, const std::string &agent_name)
@@ -122,21 +135,73 @@ namespace geopm
         geopm::write_file(m_path, root.dump());
     }
 
+    geopm_time_s ShmemEndpoint::read_sample(std::vector<double> &sample)
+    {
+        /// @todo: logic error if sample is the wrong size
+
+        auto lock = m_sample_shmem->get_scoped_lock();
+        struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer(); // Managed by shmem subsystem.
+
+        // Fill in missing sample values with NAN (default)
+        int num_sample = data->count;
+        sample = std::vector<double>(num_sample, NAN);
+        std::copy(data->values, data->values + data->count, sample.begin());
+        geopm_time_s result = data->timestamp;
+
+        if (sample.size() != (size_t)num_sample) {
+            throw Exception("ShmemEndpointUser::" + std::string(__func__) + "(): Data read from shmem does not match number of samples.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return result;
+    }
+
+    std::string ShmemEndpoint::get_agent(void)
+    {
+        auto lock = m_sample_shmem->get_scoped_lock();
+        struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer(); // Managed by shmem subsystem.
+
+        char agent_name[NAME_MAX];
+        std::copy(data->agent, data->agent + NAME_MAX, agent_name);
+        std::string agent {agent_name};
+        if (agent != "") {
+            m_num_policy = Agent::num_policy(agent_factory().dictionary(agent_name));
+        }
+        return agent;
+    }
+
+    geopm_time_s FileEndpoint::read_sample(std::vector<double> &sample)
+    {
+        throw Exception("FileEndpoint::" + std::string(__func__) + "(): sending samples via file not yet supported",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        return {};
+    }
+
+    std::string FileEndpoint::get_agent(void)
+    {
+        throw Exception("FileEndpoint::" + std::string(__func__) + "(): get_agent via file not yet supported",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        return "";
+    }
+
     /*********************************************************************************************************/
 
     ShmemEndpointUser::ShmemEndpointUser(const std::string &data_path, const std::string &agent_name)
-        : ShmemEndpointUser(data_path,
-                            nullptr,
-                            agent_name)
+        : ShmemEndpointUser(data_path, nullptr, nullptr, agent_name,
+                            Agent::num_sample(agent_factory().dictionary(agent_name)))
     {
 
     }
 
     ShmemEndpointUser::ShmemEndpointUser(const std::string &path,
                                          std::unique_ptr<SharedMemoryUser> policy_shmem,
-                                         const std::string &agent)
+                                         std::unique_ptr<SharedMemoryUser> sample_shmem,
+                                         const std::string &agent,
+                                         size_t num_sample)
         : m_path(path)
         , m_policy_shmem(std::move(policy_shmem))
+        , m_sample_shmem(std::move(sample_shmem))
+        , m_num_sample(num_sample)
+
     {
         // attach to shared memory here and write agent
         /// @todo: use cases for separate attach method()?
@@ -146,6 +211,25 @@ namespace geopm
             m_policy_shmem = geopm::make_unique<SharedMemoryUserImp>(m_path + SHM_POLICY_POSTFIX,
                                                                      environment().timeout());
         }
+        if (m_sample_shmem == nullptr) {
+            m_sample_shmem = geopm::make_unique<SharedMemoryUserImp>(m_path + SHM_SAMPLE_POSTFIX,
+                                                                     environment().timeout());
+        }
+        auto lock = m_sample_shmem->get_scoped_lock();
+        auto data = (struct geopm_endpoint_sample_shmem_s *)m_sample_shmem->pointer();
+        strncpy(data->agent, agent.c_str(), NAME_MAX);
+
+        // todo moveme
+        m_num_policy = Agent::num_policy(agent_factory().dictionary(agent));
+    }
+
+    ShmemEndpointUser::~ShmemEndpointUser()
+    {
+        // detach from shared memory
+        /// @todo: need for explict detach()?
+        auto lock = m_sample_shmem->get_scoped_lock();
+        auto data = (struct geopm_endpoint_sample_shmem_s *)m_sample_shmem->pointer();
+        strncpy(data->agent, "", NAME_MAX);
     }
 
     FileEndpointUser::FileEndpointUser(const std::string &data_path, const std::string &agent_name)
@@ -155,7 +239,8 @@ namespace geopm
 
     }
 
-    FileEndpointUser::FileEndpointUser(const std::string &path, const std::vector<std::string> &policy_names)
+    FileEndpointUser::FileEndpointUser(const std::string &path,
+                                       const std::vector<std::string> &policy_names)
         : m_path(path)
         , m_policy_names(policy_names)
     {
@@ -202,18 +287,26 @@ namespace geopm
 
     void ShmemEndpointUser::read_policy(std::vector<double> &policy)
     {
+#ifdef GEOPM_DEBUG
+        if (policy.size() != m_num_policy) {
+            throw Exception("ShmemEndpointUser::" + std::string(__func__) + "(): output policy vector is incorrect size.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+#endif
         auto lock = m_policy_shmem->get_scoped_lock();
         auto data = (struct geopm_endpoint_policy_shmem_s *) m_policy_shmem->pointer(); // Managed by shmem subsystem.
 
-        // Fill in missing policy values with NAN (default)
-        int num_policy = data->count;
-        policy = std::vector<double>(num_policy, NAN);
-        std::copy(data->values, data->values + data->count, policy.begin());
-
-        if (policy.size() != (size_t)num_policy) {
+        if (data->count == policy.size()) {
+            // Fill in missing policy values with NAN (default)
+            std::fill(policy.begin(), policy.end(), NAN);
+            std::copy(data->values, data->values + data->count, policy.begin());
+        }
+        else if (data->count != 0) {
+            // wrong size policy was written
             throw Exception("ShmemEndpointUser::" + std::string(__func__) + "(): Data read from shmem does not match number of policies.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        // else empty policy indicates no policy written yet
     }
 
     void FileEndpointUser::read_policy(std::vector<double> &policy)
@@ -232,5 +325,26 @@ namespace geopm
                 }
             }
         }
+    }
+
+    void ShmemEndpointUser::write_sample(const std::vector<double> &sample)
+    {
+        // @todo: timeout is not an error; just throw out the sample
+        if (sample.size() != m_num_sample) {
+            throw Exception("ShmemEndpoint::" + std::string(__func__) + "(): size of policy does not match expected.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        auto lock = m_sample_shmem->get_scoped_lock();
+        auto data = (struct geopm_endpoint_sample_shmem_s *)m_sample_shmem->pointer();
+        data->count = sample.size();
+        std::copy(sample.begin(), sample.end(), data->values);
+        // also update timestamp
+        geopm_time(&data->timestamp);
+    }
+
+    void FileEndpointUser::write_sample(const std::vector<double> &sample)
+    {
+        // Does nothing, but should not throw when Controller is using a
+        // FileEndpointUser to get the policy
     }
 }
