@@ -153,21 +153,13 @@ namespace geopm
 
     void FileEndpoint::write_file(void)
     {
-        std::ofstream json_file_out(m_path, std::ifstream::out);
         std::map<std::string, double> signal_value_map;
-
-        if (!json_file_out.is_open()) {
-            throw Exception("FileEndpoint::" + std::string(__func__) + "(): output file \"" + m_path +
-                            "\" could not be opened", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
         for(size_t i = 0; i < m_signal_names.size(); ++i) {
             signal_value_map[m_signal_names[i]] = m_samples_up[i];
         }
 
         Json root (signal_value_map);
-        json_file_out << root.dump();
-        json_file_out.close();
+        geopm::write_file(m_path, root.dump());
     }
 
     void ShmemEndpoint::write_shmem(void)
