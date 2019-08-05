@@ -124,9 +124,13 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/ExceptionTest.hello \
               test/gtest_links/FileEndpointTest.negative_write_json_file \
               test/gtest_links/FileEndpointTest.write_json_file \
+              test/gtest_links/FileEndpointTest.get_agent \
+              test/gtest_links/FileEndpointTest.read_sample_not_implemented \
+              test/gtest_links/FileEndpointTest.negative_write_json_file \
               test/gtest_links/FileEndpointUserTest.parse_json_file \
               test/gtest_links/FileEndpointUserTest.negative_bad_files \
               test/gtest_links/FileEndpointUserTest.negative_parse_json_file \
+              test/gtest_links/FileEndpointUserTest.write_sample_not_implemented \
               test/gtest_links/FrequencyGovernorTest.frequency_control_domain_default \
               test/gtest_links/FrequencyGovernorTest.adjust_platform \
               test/gtest_links/FrequencyGovernorTest.adjust_platform_clamping \
@@ -273,11 +277,12 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/SharedMemoryTest.invalid_construction \
               test/gtest_links/SharedMemoryTest.share_data \
               test/gtest_links/SharedMemoryTest.share_data_ipc \
-              test/gtest_links/ShmemEndpointTest.write_shm \
+              test/gtest_links/ShmemEndpointTest.write_shm_policy \
+              test/gtest_links/ShmemEndpointTest.parse_shm_sample \
+              test/gtest_links/ShmemEndpointTest.get_agent \
               test/gtest_links/ShmemEndpointTestIntegration.write_shm \
-              test/gtest_links/ShmemEndpointUserTest.negative_parse_shm \
-              test/gtest_links/ShmemEndpointUserTest.negative_shm_setup_mutex \
-              test/gtest_links/ShmemEndpointUserTest.parse_shm \
+              test/gtest_links/ShmemEndpointUserTest.parse_shm_policy \
+              test/gtest_links/ShmemEndpointUserTest.write_shm_sample \
               test/gtest_links/ShmemEndpointUserTestIntegration.parse_shm \
               test/gtest_links/TimeIOGroupTest.adjust \
               test/gtest_links/TimeIOGroupTest.is_valid \
