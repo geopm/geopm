@@ -144,7 +144,7 @@ TEST_F(FileEndpointTest, negative_write_json_file)
     FileEndpoint jio (path, signal_names);
 
     GEOPM_EXPECT_THROW_MESSAGE(jio.write_batch(),
-                               GEOPM_ERROR_INVALID, "output file \"" + path + "\" could not be opened");
+                               EACCES, "file \"" + path + "\" could not be opened");
     std::remove(path.c_str());
 }
 
