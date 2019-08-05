@@ -240,6 +240,7 @@ TEST_F(ControllerTest, two_level_controller_1)
 
     // should not interact with endpoint
     EXPECT_CALL(*m_endpoint, read_policy(_)).Times(0);
+    EXPECT_CALL(*m_endpoint, write_sample(_)).Times(0);
 
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
@@ -330,6 +331,7 @@ TEST_F(ControllerTest, two_level_controller_2)
 
     // should not interact with endpoint
     EXPECT_CALL(*m_endpoint, read_policy(_)).Times(0);
+    EXPECT_CALL(*m_endpoint, write_sample(_)).Times(0);
 
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
