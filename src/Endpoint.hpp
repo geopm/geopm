@@ -33,17 +33,29 @@
 #ifndef ENDPOINT_HPP_INCLUDE
 #define ENDPOINT_HPP_INCLUDE
 
+#include <cstddef>
+#include <pthread.h>
+#include <limits.h>
+
 #include <memory>
 #include <string>
 #include <vector>
 #include <map>
-#include <cstddef>
+
+#include "geopm_time.h"
 
 namespace geopm
 {
     struct geopm_endpoint_policy_shmem_header {
         size_t count;         // 8 bytes
         double values;        // 8 bytes
+    };
+
+    struct geopm_endpoint_sample_shmem_header {
+        geopm_time_s timestamp;   // 8 bytes
+        char agent[256];          // 256 bytes
+        size_t count;             // 8 bytes
+        double values;            // 8 bytes
     };
 
     struct geopm_endpoint_policy_shmem_s {
@@ -53,7 +65,19 @@ namespace geopm
         double values[(4096 - offsetof(struct geopm_endpoint_policy_shmem_header, values)) / sizeof(double)];
     };
 
+    struct geopm_endpoint_sample_shmem_s {
+        /// @brief Time that the memory was last updated.
+        geopm_time_s timestamp;
+        /// @brief Holds the name of the Agent attached, if any.
+        char agent[256];
+        /// @brief Specifies the size of the following array.
+        size_t count;
+        /// @brief Holds resource manager data.
+        double values[(4096 - offsetof(struct geopm_endpoint_sample_shmem_header, values)) / sizeof(double)];
+    };
+
     static_assert(sizeof(struct geopm_endpoint_policy_shmem_s) == 4096, "Alignment issue with geopm_endpoint_policy_shmem_s.");
+    static_assert(sizeof(struct geopm_endpoint_sample_shmem_s) == 4096, "Alignment issue with geopm_endpoint_sample_shmem_s.");
 
     class Endpoint
     {
@@ -64,6 +88,14 @@ namespace geopm
             /// @param [in] policy The policy values.  The order is
             ///        specified by the Agent.
             virtual void write_policy(const std::vector<double> &policy) = 0;
+            /// @brief Read a set of samples from the Agent.
+            /// @param [in] sample The sample values.  The order is
+            ///        specified by the Agent.
+            /// @return The sample timestamp.
+            virtual geopm_time_s read_sample(std::vector<double> &sample) = 0;
+            /// @brief Returns the Agent name, or empty string if no
+            ///        Agent is attached.
+            virtual std::string get_agent(void) = 0;
             /// @brief Factory method for the Endpoint writing the
             ///        policy.  If the policy path contains exactly
             ///        one / as the first character, a shared memory
@@ -85,14 +117,21 @@ namespace geopm
 
             ShmemEndpoint(const std::string &data_path, const std::string &agent_name);
             ShmemEndpoint(const std::string &data_path,
-                         std::unique_ptr<SharedMemory> policy_shmem,
-                         size_t num_policy);
+                          std::unique_ptr<SharedMemory> policy_shmem,
+                          std::unique_ptr<SharedMemory> sample_shmem,
+                          size_t num_policy,
+                          size_t num_sample);
             ~ShmemEndpoint();
+
             void write_policy(const std::vector<double> &policy) override;
+            geopm_time_s read_sample(std::vector<double> &sample) override;
+            std::string get_agent(void) override;
         private:
             std::string m_path;
             std::unique_ptr<SharedMemory> m_policy_shmem;
+            std::unique_ptr<SharedMemory> m_sample_shmem;
             size_t m_num_policy;
+            size_t m_num_sample;
     };
 
     class FileEndpoint : public Endpoint
@@ -106,8 +145,13 @@ namespace geopm
                          const std::vector<std::string> &policy_names);
 
             ~FileEndpoint() = default;
+
             void write_policy(const std::vector<double> &policy) override;
+            geopm_time_s read_sample(std::vector<double> &sample) override;
+            std::string get_agent(void) override;
         private:
+            void write_file(const std::vector<double> &values);
+
             std::string m_path;
             std::vector<std::string> m_policy_names;
     };
@@ -122,6 +166,10 @@ namespace geopm
             /// @param [out] policy The policy values read. The order
             ///        is specified by the Agent.
             virtual void read_policy(std::vector<double> &policy) = 0;
+            /// @brief Write sample values and update the sample age.
+            /// @param [in] sample The values to write.  The order is
+            ///        specified by the Agent.
+            virtual void write_sample(const std::vector<double> &sample) = 0;
             /// @brief Factory method for the EndpointUser receiving
             ///        the policy.  If the policy path contains
             ///        exactly one / as the first character, a shared
@@ -139,14 +187,19 @@ namespace geopm
             ShmemEndpointUser(const ShmemEndpointUser &other) = delete;
             ShmemEndpointUser(const std::string &data_path);
             ShmemEndpointUser(const std::string &data_path,
-                              std::unique_ptr<SharedMemoryUser> policy_shmem);
+                              std::unique_ptr<SharedMemoryUser> policy_shmem,
+                              std::unique_ptr<SharedMemoryUser> sample_shmem,
+                              const std::string &agent_name);
             ~ShmemEndpointUser();
-            void read_policy(std::vector<double> &policy) override;
-        private:
-            bool is_valid_signal(const std::string &signal_name) const;
 
+            void read_policy(std::vector<double> &policy) override;
+            void write_sample(const std::vector<double> &sample) override;
+        private:
             std::string m_path;
             std::unique_ptr<SharedMemoryUser> m_policy_shmem;
+            std::unique_ptr<SharedMemoryUser> m_sample_shmem;
+            size_t m_num_policy;
+            size_t m_num_sample;
     };
 
     class FileEndpointUser : public EndpointUser
@@ -159,6 +212,7 @@ namespace geopm
                              const std::vector<std::string> &policy_names);
             ~FileEndpointUser() = default;
             void read_policy(std::vector<double> &policy) override;
+            void write_sample(const std::vector<double> &sample) override;
         private:
             std::map<std::string, double> parse_json(void);
 
