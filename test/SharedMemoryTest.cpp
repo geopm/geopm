@@ -157,3 +157,22 @@ TEST_F(SharedMemoryTest, share_data_ipc)
         exit(0);
     }
 }
+
+/*
+TEST_F(ShmemEndpointUserTest, negative_shm_setup_mutex)
+{
+    // This test requires PTHREAD_MUTEX_ERRORCHECK
+    size_t shmem_size = sizeof(struct geopm_endpoint_shmem_s);
+    std::unique_ptr<MockSharedMemoryUser> shmem(new MockSharedMemoryUser(shmem_size));
+    struct geopm_endpoint_shmem_s *data = (struct geopm_endpoint_shmem_s *) shmem->pointer();
+    *data = {};
+
+    // Build the data
+    ShmemEndpoint::setup_mutex(data->lock);
+    (void) pthread_mutex_lock(&data->lock); // Force pthread_mutex_lock to puke by trying to lock a locked mutex.
+
+    GEOPM_EXPECT_THROW_MESSAGE(new ShmemEndpointUser("/FAKE_PATH", std::move(shmem)),
+                               EDEADLK, "Resource deadlock avoided");
+}
+
+ */
