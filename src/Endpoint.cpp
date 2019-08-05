@@ -53,157 +53,198 @@ using json11::Json;
 
 namespace geopm
 {
-    ShmemEndpoint::ShmemEndpoint(const std::string &data_path, bool is_policy)
-        : ShmemEndpoint(data_path, is_policy, environment().agent())
-    {
-    }
+    // todo: move me
+    const std::string SHM_POLICY_POSTFIX = "-policy";
+    const std::string SHM_SAMPLE_POSTFIX = "-sample";
 
-    ShmemEndpoint::ShmemEndpoint(const std::string &data_path, bool is_policy, const std::string &agent_name)
+    ShmemEndpoint::ShmemEndpoint(const std::string &data_path, const std::string &agent_name)
         : ShmemEndpoint(data_path,
-                       nullptr,
-                       is_policy ? Agent::policy_names(agent_factory().dictionary(agent_name)) :
-                                   Agent::sample_names(agent_factory().dictionary(agent_name)))
+                        nullptr,
+                        nullptr,
+                        Agent::num_policy(agent_factory().dictionary(agent_name)))
     {
+
     }
 
-    ShmemEndpoint::ShmemEndpoint(const std::string &path, std::unique_ptr<SharedMemory> shmem,
-                                 const std::vector<std::string> &signal_names)
+    ShmemEndpoint::ShmemEndpoint(const std::string &path,
+                                 std::unique_ptr<SharedMemory> policy_shmem,
+                                 std::unique_ptr<SharedMemory> sample_shmem,
+                                 size_t num_policy)
         : m_path(path)
-        , m_signal_names(signal_names)
-        , m_shmem(std::move(shmem))
-        , m_data(nullptr)
-        , m_samples_up(signal_names.size())
+        , m_policy_shmem(std::move(policy_shmem))
+        , m_sample_shmem(std::move(sample_shmem))
+        , m_num_policy(num_policy)
     {
-        if (m_shmem == nullptr) {
-            size_t shmem_size = sizeof(struct geopm_endpoint_shmem_s);
-            m_shmem = geopm::make_unique<SharedMemoryImp>(m_path, shmem_size);
+        if (m_policy_shmem == nullptr) {
+            size_t shmem_size = sizeof(struct geopm_endpoint_policy_shmem_s);
+            m_policy_shmem = geopm::make_unique<SharedMemoryImp>(m_path + SHM_POLICY_POSTFIX, shmem_size);
         }
-
-        auto lock = m_shmem->get_scoped_lock();
-        m_data = (struct geopm_endpoint_shmem_s *) m_shmem->pointer();
-        *m_data = {};
+        if (m_sample_shmem == nullptr) {
+            size_t shmem_size = sizeof(struct geopm_endpoint_sample_shmem_s);
+            m_sample_shmem = geopm::make_unique<SharedMemoryImp>(m_path + SHM_SAMPLE_POSTFIX, shmem_size);
+        }
+        {
+            auto lock = m_policy_shmem->get_scoped_lock();
+            //auto data = (struct geopm_endpoint_policy_shmem*)m_policy_shmem->pointer();
+            struct geopm_endpoint_policy_shmem_s *data = (struct geopm_endpoint_policy_shmem_s*)m_policy_shmem->pointer();
+            //memset(data, 0, sizeof(struct geopm_endpoint_policy_shmem));
+            *data = {};
+        }
+        {
+            auto lock = m_sample_shmem->get_scoped_lock();
+            struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s*)m_sample_shmem->pointer();
+            //memset(data, 0, sizeof(struct geopm_endpoint_sample_shmem));
+            *data = {};
+        }
     }
 
-    FileEndpoint::FileEndpoint(const std::string &data_path, bool is_policy)
-        : FileEndpoint(data_path, is_policy, environment().agent())
-    {
-    }
-
-    FileEndpoint::FileEndpoint(const std::string &data_path, bool is_policy, const std::string &agent_name)
+    FileEndpoint::FileEndpoint(const std::string &data_path, const std::string &agent_name)
         : FileEndpoint(data_path,
-                       is_policy ? Agent::policy_names(agent_factory().dictionary(agent_name)) :
-                                   Agent::sample_names(agent_factory().dictionary(agent_name)))
+                       Agent::policy_names(agent_factory().dictionary(agent_name)))
     {
 
     }
 
     FileEndpoint::FileEndpoint(const std::string &path,
-                               const std::vector<std::string> &signal_names)
+                               const std::vector<std::string> &policy_names)
         : m_path(path)
-        , m_signal_names(signal_names)
-        , m_samples_up(signal_names.size())
+        , m_policy_names(policy_names)
     {
 
     }
 
-    void ShmemEndpoint::adjust(const std::vector<double> &settings)
+    void ShmemEndpoint::write_policy(const std::vector<double> &policy)
     {
-        if (settings.size() != m_signal_names.size()) {
-            throw Exception("ShmemEndpoint::" + std::string(__func__) + "(): size of settings does not match signal names.",
+        if (policy.size() != m_num_policy) {
+            throw Exception("ShmemEndpoint::" + std::string(__func__) + "(): size of policy does not match expected.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        m_samples_up = settings;
+        auto lock = m_policy_shmem->get_scoped_lock();
+        auto data = (struct geopm_endpoint_policy_shmem_s *)m_policy_shmem->pointer();
+        data->count = policy.size();
+        std::copy(policy.begin(), policy.end(), data->values);
     }
 
-    void ShmemEndpoint::write_batch(void)
+    void FileEndpoint::write_policy(const std::vector<double> &policy)
     {
-        write_shmem();
-    }
-
-    void FileEndpoint::adjust(const std::vector<double> &settings)
-    {
-        if (settings.size() != m_signal_names.size()) {
-            throw Exception("FileEndpoint::" + std::string(__func__) + "(): size of settings does not match signal names.",
+        if (policy.size() != m_policy_names.size()) {
+            throw Exception("FileEndpoint::" + std::string(__func__) + "(): size of policy does not match policy names.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        m_samples_up = settings;
+        write_file(policy);
     }
 
-    void FileEndpoint::write_batch(void)
-    {
-        write_file();
-    }
-
-    std::vector<std::string> ShmemEndpoint::signal_names(void) const
-    {
-        return m_signal_names;
-    }
-
-    std::vector<std::string> FileEndpoint::signal_names(void) const
-    {
-        return m_signal_names;
-    }
-
-    void FileEndpoint::write_file(void)
+    void FileEndpoint::write_file(const std::vector<double> &values)
     {
         std::map<std::string, double> signal_value_map;
-        for(size_t i = 0; i < m_signal_names.size(); ++i) {
-            signal_value_map[m_signal_names[i]] = m_samples_up[i];
+        for(size_t i = 0; i < m_policy_names.size(); ++i) {
+            signal_value_map[m_policy_names[i]] = values[i];
         }
 
-        Json root (signal_value_map);
+        Json root(signal_value_map);
         geopm::write_file(m_path, root.dump());
     }
 
-    void ShmemEndpoint::write_shmem(void)
+    geopm_time_s ShmemEndpoint::read_sample(std::vector<double> &sample)
     {
-        auto lock = m_shmem->get_scoped_lock();
-        m_data->is_updated = true;
-        m_data->count = m_samples_up.size();
-        std::copy(m_samples_up.begin(), m_samples_up.end(), m_data->values);
+        auto lock = m_sample_shmem->get_scoped_lock();
+        struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer(); // Managed by shmem subsystem.
+
+        // Fill in missing sample values with NAN (default)
+        int num_sample = data->count;
+        sample = std::vector<double>(num_sample, NAN);
+        std::copy(data->values, data->values + data->count, sample.begin());
+        geopm_time_s result = data->timestamp;
+
+        if (sample.size() != (size_t)num_sample) {
+            throw Exception("ShmemEndpointUser::" + std::string(__func__) + "(): Data read from shmem does not match number of samples.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return result;
+    }
+
+    std::string ShmemEndpoint::get_agent(void)
+    {
+        auto lock = m_sample_shmem->get_scoped_lock();
+        struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer(); // Managed by shmem subsystem.
+
+        char agent_name[NAME_MAX];
+        std::copy(data->agent, data->agent + NAME_MAX, agent_name);
+        return std::string(agent_name);
+    }
+
+    geopm_time_s FileEndpoint::read_sample(std::vector<double> &sample)
+    {
+        throw Exception("FileEndpoint::" + std::string(__func__) + "(): sending samples via file not yet supported",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        return {};
+    }
+
+    std::string FileEndpoint::get_agent(void)
+    {
+        throw Exception("FileEndpoint::" + std::string(__func__) + "(): get_agent via file not yet supported",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        return "";
     }
 
     /*********************************************************************************************************/
 
-    ShmemEndpointUser::ShmemEndpointUser(const std::string &data_path, bool is_policy)
-        : ShmemEndpointUser(data_path, is_policy, environment().agent())
+    ShmemEndpointUser::ShmemEndpointUser(const std::string &data_path, const std::string &agent_name)
+        : ShmemEndpointUser(data_path, nullptr, nullptr, agent_name,
+                            Agent::num_sample(agent_factory().dictionary(agent_name)))
     {
+
     }
 
-    ShmemEndpointUser::ShmemEndpointUser(const std::string &data_path, bool is_policy, const std::string &agent_name)
-        : ShmemEndpointUser(data_path,
-                            nullptr,
-                            is_policy ? Agent::policy_names(agent_factory().dictionary(agent_name)) :
-                                        Agent::sample_names(agent_factory().dictionary(agent_name)))
-    {
-    }
-
-    ShmemEndpointUser::ShmemEndpointUser(const std::string &path, std::unique_ptr<SharedMemoryUser> shmem, const std::vector<std::string> &signal_names)
+    ShmemEndpointUser::ShmemEndpointUser(const std::string &path,
+                                         std::unique_ptr<SharedMemoryUser> policy_shmem,
+                                         std::unique_ptr<SharedMemoryUser> sample_shmem,
+                                         const std::string &agent,
+                                         size_t num_sample)
         : m_path(path)
-        , m_signal_names(signal_names)
-        , m_shmem(std::move(shmem))
-        , m_data(nullptr)
+        , m_policy_shmem(std::move(policy_shmem))
+        , m_sample_shmem(std::move(sample_shmem))
+        , m_num_sample(num_sample)
+
     {
-        read_batch();
+        // attach to shared memory here and write agent
+        /// @todo: use cases for separate attach method()?
+        // Attach to policy shmem first; no agent will be written.  Once user attaches
+        // to sample shmem, RM knows it has attached to both.
+        if (m_policy_shmem == nullptr) {
+            m_policy_shmem = geopm::make_unique<SharedMemoryUserImp>(m_path + SHM_POLICY_POSTFIX,
+                                                                     environment().timeout());
+        }
+        if (m_sample_shmem == nullptr) {
+            m_sample_shmem = geopm::make_unique<SharedMemoryUserImp>(m_path + SHM_SAMPLE_POSTFIX,
+                                                                     environment().timeout());
+        }
+        auto lock = m_sample_shmem->get_scoped_lock();
+        auto data = (struct geopm_endpoint_sample_shmem_s *)m_sample_shmem->pointer();
+        strncpy(data->agent, agent.c_str(), NAME_MAX);
     }
 
-    FileEndpointUser::FileEndpointUser(const std::string &data_path, bool is_policy)
-        : FileEndpointUser(data_path, is_policy, environment().agent())
+    ShmemEndpointUser::~ShmemEndpointUser()
     {
+        // detach from shared memory
+        /// @todo: need for explict detach()?
+        auto lock = m_sample_shmem->get_scoped_lock();
+        auto data = (struct geopm_endpoint_sample_shmem_s *)m_sample_shmem->pointer();
+        strncpy(data->agent, "", NAME_MAX);
     }
 
-    FileEndpointUser::FileEndpointUser(const std::string &data_path, bool is_policy, const std::string &agent_name)
+    FileEndpointUser::FileEndpointUser(const std::string &data_path, const std::string &agent_name)
         : FileEndpointUser(data_path,
-                           is_policy ? Agent::policy_names(agent_factory().dictionary(agent_name)) :
-                                       Agent::sample_names(agent_factory().dictionary(agent_name)))
+                           Agent::policy_names(agent_factory().dictionary(agent_name)))
     {
     }
 
-    FileEndpointUser::FileEndpointUser(const std::string &path, const std::vector<std::string> &signal_names)
+    FileEndpointUser::FileEndpointUser(const std::string &path,
+                                       const std::vector<std::string> &policy_names)
         : m_path(path)
-        , m_signal_names(signal_names)
+        , m_policy_names(policy_names)
     {
-        read_batch();
+
     }
 
     std::map<std::string, double> FileEndpointUser::parse_json(void)
@@ -244,87 +285,58 @@ namespace geopm
         return signal_value_map;
     }
 
-    void ShmemEndpointUser::read_shmem(void)
+    void ShmemEndpointUser::read_policy(std::vector<double> &policy)
     {
-        if (m_shmem == nullptr) {
-            m_shmem = geopm::make_unique<SharedMemoryUserImp>(m_path, environment().timeout());
-        }
-
-        auto lock = m_shmem->get_scoped_lock();
-        m_data = (struct geopm_endpoint_shmem_s *) m_shmem->pointer(); // Managed by shmem subsystem.
-
-        if (m_data->is_updated == 0) {
-            throw Exception("ShmemEndpointUser::" + std::string(__func__) + "(): reread of shm region requested before update.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
+        auto lock = m_policy_shmem->get_scoped_lock();
+        auto data = (struct geopm_endpoint_policy_shmem_s *) m_policy_shmem->pointer(); // Managed by shmem subsystem.
 
         // Fill in missing policy values with NAN (default)
-        m_signals_down = std::vector<double>(m_signal_names.size(), NAN);
-        std::copy(m_data->values, m_data->values + m_data->count, m_signals_down.begin());
+        int num_policy = data->count;
+        policy = std::vector<double>(num_policy, NAN);
+        std::copy(data->values, data->values + data->count, policy.begin());
 
-        m_data->is_updated = 0;
-
-        if (m_signals_down.size() != m_signal_names.size()) {
-            throw Exception("ShmemEndpointUser::" + std::string(__func__) + "(): Data read from shmem does not match size of signal names.",
+        if (policy.size() != (size_t)num_policy) {
+            throw Exception("ShmemEndpointUser::" + std::string(__func__) + "(): Data read from shmem does not match number of policies.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
 
-    void ShmemEndpointUser::read_batch(void)
+    void FileEndpointUser::read_policy(std::vector<double> &policy)
     {
-        read_shmem();
-    }
-
-    std::vector<double> ShmemEndpointUser::sample(void) const
-    {
-        return m_signals_down;
-    }
-
-    void FileEndpointUser::read_batch(void)
-    {
-        if (m_signal_names.size() > 0) {
+        if (m_policy_names.size() > 0) {
             std::map<std::string, double> signal_value_map = parse_json();
-            m_signals_down.clear();
-            for (auto signal : m_signal_names) {
+            policy.clear();
+            for (auto signal : m_policy_names) {
                 auto it = signal_value_map.find(signal);
                 if (it != signal_value_map.end()) {
-                    m_signals_down.emplace_back(signal_value_map.at(signal));
+                    policy.emplace_back(signal_value_map.at(signal));
                 }
                 else {
                     // Fill in missing policy values with NAN (default)
-                    m_signals_down.emplace_back(NAN);
+                    policy.emplace_back(NAN);
                 }
             }
         }
     }
 
-    std::vector<double> FileEndpointUser::sample(void) const
+    void ShmemEndpointUser::write_sample(const std::vector<double> &sample)
     {
-        return m_signals_down;
-    }
-
-    bool ShmemEndpointUser::is_update_available(void)
-    {
-        if(m_data == nullptr) {
-            throw Exception("ShmemEndpointUser::" + std::string(__func__) + "(): m_data is null", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        // @todo: timeout is not an error; just throw out the sample
+        if (sample.size() != m_num_sample) {
+            throw Exception("ShmemEndpoint::" + std::string(__func__) + "(): size of policy does not match expected.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return m_data->is_updated != 0;
+        auto lock = m_sample_shmem->get_scoped_lock();
+        auto data = (struct geopm_endpoint_sample_shmem_s *)m_sample_shmem->pointer();
+        data->count = sample.size();
+        std::copy(sample.begin(), sample.end(), data->values);
+        // also update timestamp
+        geopm_time(&data->timestamp);
     }
 
-    bool FileEndpointUser::is_update_available(void)
+    void FileEndpointUser::write_sample(const std::vector<double> &sample)
     {
-        /// @todo: this method may be more useful as private method in shmem only
-        return false;
+        throw Exception("FileEndpoint::" + std::string(__func__) + "(): sending samples via file not yet supported",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
     }
-
-    std::vector<std::string> ShmemEndpointUser::signal_names(void) const
-    {
-        return m_signal_names;
-    }
-
-    std::vector<std::string> FileEndpointUser::signal_names(void) const
-    {
-        return m_signal_names;
-    }
-
 }
