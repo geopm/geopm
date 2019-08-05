@@ -62,6 +62,7 @@ using geopm::FileEndpoint;
 using geopm::FileEndpointUser;
 using geopm::SharedMemoryImp;
 using geopm::geopm_endpoint_policy_shmem_s;
+using geopm::geopm_endpoint_sample_shmem_s;
 using geopm::Exception;
 using testing::AtLeast;
 using json11::Json;
@@ -81,6 +82,7 @@ class ShmemEndpointTest : public ::testing::Test
         void SetUp();
         const std::string m_shm_path = "/ShmemEndpointTest_data_" + std::to_string(geteuid());
         std::unique_ptr<MockSharedMemory> m_policy_shmem;
+        std::unique_ptr<MockSharedMemory> m_sample_shmem;
 };
 
 class ShmemEndpointTestIntegration : public ShmemEndpointTest
@@ -109,10 +111,12 @@ void ShmemEndpointTest::SetUp()
 {
     size_t policy_shmem_size = sizeof(struct geopm_endpoint_policy_shmem_s);
     m_policy_shmem = geopm::make_unique<MockSharedMemory>(policy_shmem_size);
+    size_t sample_shmem_size = sizeof(struct geopm_endpoint_sample_shmem_s);
+    m_sample_shmem = geopm::make_unique<MockSharedMemory>(sample_shmem_size);
 
     EXPECT_CALL(*m_policy_shmem, get_scoped_lock()).Times(AtLeast(0));
+    EXPECT_CALL(*m_sample_shmem, get_scoped_lock()).Times(AtLeast(0));
 }
-
 
 TEST_F(FileEndpointTest, write_json_file)
 {
@@ -122,25 +126,44 @@ TEST_F(FileEndpointTest, write_json_file)
     std::vector<double> values = {2.3e9, 12.3456, 777};
     jio.write_policy(values);
 
+    /// @todo: not total independent test
     FileEndpointUser jios(m_json_file_path, signal_names);
 
     std::vector<double> result(signal_names.size());
     jios.read_policy(result);
     EXPECT_EQ(values, result);
-
-    std::remove(m_json_file_path.c_str());
 }
 
 TEST_F(ShmemEndpointTest, write_shm_policy)
 {
     std::vector<double> values = {777, 12.3456, 2.3e9};
     struct geopm_endpoint_policy_shmem_s *data = (struct geopm_endpoint_policy_shmem_s *) m_policy_shmem->pointer();
-    ShmemEndpoint jio(m_shm_path, std::move(m_policy_shmem), values.size());
+    ShmemEndpoint jio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), values.size(), 0);
 
     jio.write_policy(values);
 
     std::vector<double> test = std::vector<double>(data->values, data->values + data->count);
     EXPECT_EQ(values, test);
+}
+
+TEST_F(ShmemEndpointTest, parse_shm_sample)
+{
+    double tmp[] = { 1.1, 2.2, 3.3, 4.4, 5.5 };
+    int num_sample = sizeof(tmp) / sizeof(tmp[0]);
+    struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
+    ShmemEndpoint gp(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, num_sample);
+    // Build the data
+    data->count = num_sample;
+    memcpy(data->values, tmp, sizeof(tmp));
+    geopm_time_s now;
+    geopm_time(&now);
+    data->timestamp = now;
+
+    std::vector<double> result(num_sample);
+    geopm_time_s ts = gp.read_sample(result);
+    std::vector<double> expected {tmp, tmp + num_sample};
+    EXPECT_EQ(expected, result);
+    EXPECT_DOUBLE_EQ(0.0, geopm_time_diff(&now, &ts));
 }
 
 TEST_F(FileEndpointTest, negative_write_json_file)
@@ -155,23 +178,44 @@ TEST_F(FileEndpointTest, negative_write_json_file)
 
     GEOPM_EXPECT_THROW_MESSAGE(jio.write_policy({10.0}),
                                EACCES, "file \"" + path + "\" could not be opened");
-    std::remove(path.c_str());
+    unlink(path.c_str());
 }
 
 TEST_F(ShmemEndpointTestIntegration, write_shm)
 {
-    std::vector<double> values = {777, 12.3456, 2.1e9, 2.3e9, 2.5e9,
-                                  2.6e9, 2.7e9, 2.8e9, 2.4e9, 2.2e9};
-    ShmemEndpoint mio(m_shm_path, nullptr, values.size());
+    std::vector<double> values = {777, 12.3456, 2.1e9};
+    ShmemEndpoint mio(m_shm_path, nullptr, nullptr, values.size(), 0);
     mio.write_policy(values);
 
-    ShmemEndpointUser mios(m_shm_path, nullptr, "monitor");
+    ShmemEndpointUser mios(m_shm_path, nullptr, nullptr, "energy_efficient", 0);
 
     std::vector<double> result(values.size());
     mios.read_policy(result);
     EXPECT_EQ(values, result);
 }
 
+TEST_F(FileEndpointTest, read_sample_not_implemented)
+{
+    std::vector<std::string> signal_names = {"POWER_CONSUMED", "RUNTIME", "GHZ"};
+    FileEndpoint jio(m_json_file_path, signal_names);
+    std::vector<double> sample(signal_names.size());
+    GEOPM_EXPECT_THROW_MESSAGE(jio.read_sample(sample), GEOPM_ERROR_NOT_IMPLEMENTED, "");
+}
+
+TEST_F(FileEndpointTest, get_agent)
+{
+    std::vector<std::string> signal_names = {"POWER_CONSUMED", "RUNTIME", "GHZ"};
+    FileEndpoint jio(m_json_file_path, signal_names);
+    GEOPM_EXPECT_THROW_MESSAGE(jio.get_agent(), GEOPM_ERROR_NOT_IMPLEMENTED, "");
+}
+
+TEST_F(ShmemEndpointTest, get_agent)
+{
+    struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
+    ShmemEndpoint mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    strncpy(data->agent, "monitor", NAME_MAX);
+    EXPECT_EQ("monitor", mio.get_agent());
+}
 
 /*************************************************************************************************/
 
@@ -193,6 +237,7 @@ class ShmemEndpointUserTest: public ::testing::Test
         void SetUp();
         const std::string m_shm_path = "/ShmemEndpointUserTest_data_" + std::to_string(geteuid());
         std::unique_ptr<MockSharedMemoryUser> m_policy_shmem_user;
+        std::unique_ptr<MockSharedMemoryUser> m_sample_shmem_user;
 };
 
 class ShmemEndpointUserTestIntegration : public ShmemEndpointUserTest
@@ -239,16 +284,19 @@ void FileEndpointUserTest::SetUp()
 
 void FileEndpointUserTest::TearDown()
 {
-    std::remove(m_json_file_path.c_str());
-    std::remove(m_json_file_path_bad.c_str());
+    unlink(m_json_file_path.c_str());
+    unlink(m_json_file_path_bad.c_str());
 }
 
 void ShmemEndpointUserTest::SetUp()
 {
     size_t policy_shmem_size = sizeof(struct geopm_endpoint_policy_shmem_s);
     m_policy_shmem_user = geopm::make_unique<MockSharedMemoryUser>(policy_shmem_size);
+    size_t sample_shmem_size = sizeof(struct geopm_endpoint_sample_shmem_s);
+    m_sample_shmem_user = geopm::make_unique<MockSharedMemoryUser>(sample_shmem_size);
 
     EXPECT_CALL(*m_policy_shmem_user, get_scoped_lock()).Times(AtLeast(0));
+    EXPECT_CALL(*m_sample_shmem_user, get_scoped_lock()).Times(AtLeast(0));
 }
 
 TEST_F(FileEndpointUserTest, parse_json_file)
@@ -284,19 +332,30 @@ TEST_F(FileEndpointUserTest, negative_parse_json_file)
 
 TEST_F(ShmemEndpointUserTest, parse_shm_policy)
 {
-    double tmp[] = { 1.1, 2.2, 3.3, 4.4, 5.5 };
+    double tmp[] = { 1.1, 2.2, 3.3 };
     int num_policy = sizeof(tmp) / sizeof(tmp[0]);
     // Build the data
     struct geopm_endpoint_policy_shmem_s *data = (struct geopm_endpoint_policy_shmem_s *) m_policy_shmem_user->pointer();
     data->count = num_policy;
     memcpy(data->values, tmp, sizeof(tmp));
 
-    ShmemEndpointUser gp("/FAKE_PATH", std::move(m_policy_shmem_user), "monitor");
+    ShmemEndpointUser gp("/FAKE_PATH", std::move(m_policy_shmem_user), std::move(m_sample_shmem_user), "energy_efficient", 0);
 
     std::vector<double> result(num_policy);
     gp.read_policy(result);
     std::vector<double> expected {tmp, tmp + num_policy};
     EXPECT_EQ(expected, result);
+}
+
+TEST_F(ShmemEndpointUserTest, write_shm_sample)
+{
+    struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem_user->pointer();
+    std::vector<double> values = {777, 12.3456, 2.3e9};
+    ShmemEndpointUser jio("/FAKE_PATH", std::move(m_policy_shmem_user), std::move(m_sample_shmem_user), "power_governor", values.size());
+    jio.write_sample(values);
+
+    std::vector<double> test = std::vector<double>(data->values, data->values + data->count);
+    EXPECT_EQ(values, test);
 }
 
 TEST_F(FileEndpointUserTest, negative_bad_files)
@@ -312,7 +371,7 @@ TEST_F(FileEndpointUserTest, negative_bad_files)
     chmod(path.c_str(), 0);
     GEOPM_EXPECT_THROW_MESSAGE(user.read_policy(policy),
                                EACCES, "file \"" + path + "\" could not be opened");
-    std::remove(path.c_str());
+    unlink(path.c_str());
 }
 
 TEST_F(ShmemEndpointUserTestIntegration, parse_shm)
@@ -323,14 +382,17 @@ TEST_F(ShmemEndpointUserTestIntegration, parse_shm)
     size_t shmem_size = sizeof(struct geopm_endpoint_policy_shmem_s);
     SharedMemoryImp smp(m_shm_path + "-policy", shmem_size);
     struct geopm_endpoint_policy_shmem_s *data = (struct geopm_endpoint_policy_shmem_s *) smp.pointer();
+    SharedMemoryImp sms(m_shm_path + "-sample", sizeof(struct geopm_endpoint_sample_shmem_s));
 
-    double tmp[] = { 1.1, 2.2, 3.3, 4.4, 5.5 };
+    double tmp[] = { 1.1, 2.2, 3.3 };
     int num_policy = sizeof(tmp) / sizeof(tmp[0]);
     data->count = num_policy;
     // Build the data
     memcpy(data->values, tmp, sizeof(tmp));
 
-    ShmemEndpointUser gp(m_shm_path, nullptr, "monitor");
+    ShmemEndpointUser gp(m_shm_path, nullptr, nullptr, "energy_efficient", 0);
+    struct geopm_endpoint_sample_shmem_s *sample_data = (struct geopm_endpoint_sample_shmem_s *) sms.pointer();
+    EXPECT_STREQ("energy_efficient", sample_data->agent);
 
     std::vector<double> result(num_policy);
     gp.read_policy(result);
