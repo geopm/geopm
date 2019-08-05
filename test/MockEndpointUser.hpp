@@ -40,6 +40,8 @@ class MockEndpointUser : public geopm::EndpointUser
     public:
         MOCK_METHOD1(read_policy,
                      void(std::vector<double> &policy));
+        MOCK_METHOD1(write_sample,
+                     void(const std::vector<double> &sample));
 };
 
 #endif
