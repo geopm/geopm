@@ -39,6 +39,8 @@
 
 using geopm::SharedMemory;
 using geopm::SharedMemoryImp;
+using geopm::SharedMemoryUser;
+using geopm::SharedMemoryUserImp;
 
 class SharedMemoryTest : public :: testing :: Test
 {
@@ -47,12 +49,10 @@ class SharedMemoryTest : public :: testing :: Test
         void TearDown();
         void config_shmem();
         void config_shmem_u();
-        void cleanup_shmem();
-        void cleanup_shmem_u();
         std::string m_shm_key;
         size_t m_size;
-        geopm::SharedMemory *m_shmem;
-        geopm::SharedMemoryUser *m_shmem_u;
+        std::unique_ptr<SharedMemory> m_shmem;
+        std::unique_ptr<SharedMemoryUser> m_shmem_u;
 };
 
 void SharedMemoryTest::SetUp()
@@ -65,35 +65,19 @@ void SharedMemoryTest::SetUp()
 
 void SharedMemoryTest::TearDown()
 {
-    cleanup_shmem_u();
-    cleanup_shmem();
+    if (m_shmem_u) {
+        m_shmem_u->unlink();
+    }
 }
 
 void SharedMemoryTest::config_shmem()
 {
-    m_shmem = new geopm::SharedMemoryImp(m_shm_key, m_size);
+    m_shmem.reset(new geopm::SharedMemoryImp(m_shm_key, m_size));
 }
 
 void SharedMemoryTest::config_shmem_u()
 {
-    m_shmem_u = new geopm::SharedMemoryUserImp(m_shm_key, 1); // 1 second timeout
-}
-
-void SharedMemoryTest::cleanup_shmem()
-{
-    if (m_shmem) {
-        delete m_shmem;
-        m_shmem = NULL;
-    }
-}
-
-void SharedMemoryTest::cleanup_shmem_u()
-{
-    if (m_shmem_u) {
-        m_shmem_u->unlink();
-        delete m_shmem_u;
-        m_shmem_u = NULL;
-    }
+    m_shmem_u.reset(new geopm::SharedMemoryUserImp(m_shm_key, 1)); // 1 second timeout
 }
 
 TEST_F(SharedMemoryTest, fd_check)
@@ -108,8 +92,8 @@ TEST_F(SharedMemoryTest, fd_check)
     EXPECT_EQ(stat(key_path.c_str(), &buf), 0) << "Something (likely systemd) is removing shmem entries after creation.\n"
                                                << "See https://superuser.com/a/1179962 for more information.";
     config_shmem_u();
-    cleanup_shmem_u();
-    cleanup_shmem();
+    ASSERT_NE(nullptr, m_shmem_u);
+    m_shmem_u->unlink();
     EXPECT_EQ(stat(key_path.c_str(), &buf), -1);
     EXPECT_EQ(errno, ENOENT);
 }
@@ -117,10 +101,10 @@ TEST_F(SharedMemoryTest, fd_check)
 TEST_F(SharedMemoryTest, invalid_construction)
 {
     m_shm_key += "-invalid_construction";
-    EXPECT_THROW((new geopm::SharedMemoryImp(m_shm_key, 0)), geopm::Exception);  // invalid memory region size
-    EXPECT_THROW((new geopm::SharedMemoryUserImp(m_shm_key, 1)), geopm::Exception);
-    EXPECT_THROW((new geopm::SharedMemoryImp("", m_size)), geopm::Exception);  // invalid key
-    EXPECT_THROW((new geopm::SharedMemoryUserImp("", 1)), geopm::Exception);
+    EXPECT_THROW((SharedMemoryImp(m_shm_key, 0)), geopm::Exception);  // invalid memory region size
+    EXPECT_THROW((SharedMemoryUserImp(m_shm_key, 1)), geopm::Exception);
+    EXPECT_THROW((SharedMemoryImp("", m_size)), geopm::Exception);  // invalid key
+    EXPECT_THROW((SharedMemoryUserImp("", 1)), geopm::Exception);
 }
 
 TEST_F(SharedMemoryTest, share_data)
@@ -147,13 +131,59 @@ TEST_F(SharedMemoryTest, share_data_ipc)
         config_shmem_u();
         sleep(1);
         EXPECT_EQ(memcmp(m_shmem_u->pointer(), &shared_data, m_size), 0);
-        cleanup_shmem_u();
     } else {
         // child process
         config_shmem();
         memcpy(m_shmem->pointer(), &shared_data, m_size);
         sleep(2);
-        cleanup_shmem();
         exit(0);
     }
+}
+
+TEST_F(SharedMemoryTest, lock_shmem)
+{
+    config_shmem();
+    config_shmem_u();
+
+    // mutex is hidden before the user region
+    pthread_mutex_t *mutex = (pthread_mutex_t*)m_shmem->pointer() - 1;
+    EXPECT_EQ(0, pthread_mutex_trylock(mutex));
+    pthread_mutex_unlock(mutex);
+
+    auto lock = m_shmem->get_scoped_lock();
+    // should not be able to lock
+    EXPECT_NE(0, pthread_mutex_trylock(mutex));
+
+    // destroy the lock
+    lock.reset();
+
+    EXPECT_EQ(0, pthread_mutex_trylock(mutex));
+    pthread_mutex_unlock(mutex);
+}
+
+TEST_F(SharedMemoryTest, lock_shmem_u)
+{
+    config_shmem();
+    config_shmem_u();
+
+    // mutex is hidden at address before the user memory region
+    // normally, this mutex should not be accessed directly.  This test
+    // checks that get_scoped_lock() has the expected side effects on the
+    // mutex.
+    pthread_mutex_t *mutex = (char*)m_shmem_u->pointer() - sizeof(pthread_mutex_t);
+
+    // mutex starts out lockable
+    EXPECT_EQ(0, pthread_mutex_trylock(mutex));
+    pthread_mutex_unlock(mutex);
+
+    auto lock = m_shmem_u->get_scoped_lock();
+    // should not be able to lock
+    EXPECT_NE(0, pthread_mutex_trylock(mutex));
+
+    // destroy the lock
+    lock.reset();
+
+    // mutex should be lockable again
+    EXPECT_EQ(0, pthread_mutex_trylock(mutex));
+    EXPECT_EQ(0, pthread_mutex_unlock(mutex));
 }
