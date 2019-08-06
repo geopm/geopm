@@ -39,6 +39,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <string.h>
+
 #include <iostream>
 #include <sstream>
 
@@ -50,6 +51,30 @@
 
 namespace geopm
 {
+    /// @brief Size of the lock in memory.
+    static constexpr size_t M_LOCK_SIZE = sizeof(pthread_mutex_t);
+
+    void SharedMemoryImp::setup_mutex(pthread_mutex_t *lock)
+    {
+        pthread_mutexattr_t lock_attr;
+        int err = pthread_mutexattr_init(&lock_attr);
+        if (err) {
+            throw Exception("SharedMemory::setup_mutex(): pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        err = pthread_mutexattr_settype(&lock_attr, PTHREAD_MUTEX_ERRORCHECK);
+        if (err) {
+            throw Exception("SharedMemory::setup_mutex(): pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        err = pthread_mutexattr_setpshared(&lock_attr, PTHREAD_PROCESS_SHARED);
+        if (err) {
+            throw Exception("SharedMemory::setup_mutex(): pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        err = pthread_mutex_init(lock, &lock_attr);
+        if (err) {
+            throw Exception("SharedMemory::setup_mutex(): pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+    }
+
     std::unique_ptr<SharedMemory> SharedMemory::make_unique(const std::string &shm_key, size_t size)
     {
         return geopm::make_unique<SharedMemoryImp>(shm_key, size);
@@ -72,10 +97,10 @@ namespace geopm
 
     SharedMemoryImp::SharedMemoryImp(const std::string &shm_key, size_t size)
         : m_shm_key(shm_key)
-        , m_size(size)
+        , m_size(size + M_LOCK_SIZE)
     {
         if (!size) {
-            throw Exception("SharedMemoryImp: Cannot create shared memory region of zero size",  GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("SharedMemoryImp: Cannot create shared memory region of zero size", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         mode_t old_mask = umask(0);
         int shm_id = shm_open(m_shm_key.c_str(), O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP| S_IWGRP | S_IROTH| S_IWOTH);
@@ -84,16 +109,16 @@ namespace geopm
             ex_str << "SharedMemoryImp: Could not open shared memory with key " << m_shm_key;
             throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        int err = ftruncate(shm_id, size);
+        int err = ftruncate(shm_id, m_size);
         if (err) {
             (void) close(shm_id);
             (void) shm_unlink(m_shm_key.c_str());
             (void) umask(old_mask);
             std::ostringstream ex_str;
-            ex_str << "SharedMemoryImp: Could not extend shared memory to size "  << size;
+            ex_str << "SharedMemoryImp: Could not extend shared memory to size " << m_size;
             throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        m_ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
+        m_ptr = mmap(NULL, m_size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
         if (m_ptr == MAP_FAILED) {
             (void) close(shm_id);
             (void) shm_unlink(m_shm_key.c_str());
@@ -106,6 +131,8 @@ namespace geopm
             throw Exception("SharedMemoryImp: Could not close shared memory file", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         umask(old_mask);
+
+        setup_mutex((pthread_mutex_t*)m_ptr);
     }
 
     SharedMemoryImp::~SharedMemoryImp()
@@ -120,7 +147,7 @@ namespace geopm
 
     void *SharedMemoryImp::pointer(void) const
     {
-        return m_ptr;
+        return m_ptr + M_LOCK_SIZE;
     }
 
     std::string SharedMemoryImp::key(void) const
@@ -132,6 +159,12 @@ namespace geopm
     {
         return m_size;
     }
+
+    std::unique_ptr<SharedMemoryScopedLock> SharedMemoryImp::get_scoped_lock(void)
+    {
+        return geopm::make_unique<SharedMemoryScopedLock>((pthread_mutex_t*)m_ptr);
+    }
+
 
     SharedMemoryUserImp::SharedMemoryUserImp(const std::string &shm_key, unsigned int timeout)
         : m_shm_key(shm_key)
@@ -213,7 +246,7 @@ namespace geopm
 
     void *SharedMemoryUserImp::pointer(void) const
     {
-        return m_ptr;
+        return m_ptr + M_LOCK_SIZE;
     }
 
     std::string SharedMemoryUserImp::key(void) const
@@ -237,5 +270,10 @@ namespace geopm
             }
             m_is_linked = false;
         }
+    }
+
+    std::unique_ptr<SharedMemoryScopedLock> SharedMemoryUserImp::get_scoped_lock(void)
+    {
+        return geopm::make_unique<SharedMemoryScopedLock>((pthread_mutex_t*)m_ptr);
     }
 }
