@@ -22,6 +22,30 @@
       "revId": "1a023c3b1d590e374100a7f01c1c22ba963ab20b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c0c9111_45d848ea",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-08-06T23:38:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61479f94_417d7a94",
+      "range": {
+        "startLine": 675,
+        "startChar": 16,
+        "endLine": 675,
+        "endChar": 53
+      },
+      "revId": "1a023c3b1d590e374100a7f01c1c22ba963ab20b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
