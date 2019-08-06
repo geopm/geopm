@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e634fb6f_a1daa0bc",
+        "filename": "src/CpuinfoIOGroup.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-06T01:10:40Z",
+      "side": 1,
+      "message": "still needed?  I noticed this is in the next patch too",
+      "revId": "4839bc5aeaea0fc3488260677c04b11ac67a59b4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
