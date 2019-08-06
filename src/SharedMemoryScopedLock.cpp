@@ -30,42 +30,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKSHAREDMEMORYUSER_HPP_INCLUDE
-#define MOCKSHAREDMEMORYUSER_HPP_INCLUDE
-
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include <vector>
-#include "SharedMemoryUser.hpp"
 #include "SharedMemoryScopedLock.hpp"
 
-class MockSharedMemoryUser : public geopm::SharedMemoryUser
+#include "Exception.hpp"
+
+namespace geopm
 {
-    public:
-        MockSharedMemoryUser() = delete;
-        MockSharedMemoryUser(size_t size) {
-            m_buffer = std::vector<char>(size);
-            EXPECT_CALL(*this, size())
-                .WillRepeatedly(testing::Return(size));
-            EXPECT_CALL(*this, pointer())
-                .WillRepeatedly(testing::Return(m_buffer.data()));
-            EXPECT_CALL(*this, unlink())
-                .WillRepeatedly(testing::Return());
-        };
+    SharedMemoryScopedLock::SharedMemoryScopedLock(pthread_mutex_t *mutex)
+        : m_mutex(mutex)
+    {
+        if (m_mutex == nullptr) {
+            throw Exception("SharedMemoryScopedLock(): mutex cannot be NULL",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        int err = pthread_mutex_lock(m_mutex); // Default mutex will block until this completes.
+        if (err) {
+            throw Exception("SharedMemoryScopedLock(): pthread_mutex_lock() failed:", err, __FILE__, __LINE__);
+        }
+    }
 
-        virtual ~MockSharedMemoryUser() = default;
-
-        MOCK_CONST_METHOD0(pointer,
-                           void *(void));
-        MOCK_CONST_METHOD0(key,
-                           std::string (void));
-        MOCK_CONST_METHOD0(size,
-                           size_t (void));
-        MOCK_METHOD0(unlink,
-                     void (void));
-        MOCK_METHOD0(get_scoped_lock,
-                     std::unique_ptr<geopm::SharedMemoryScopedLock>(void));
-    protected:
-        std::vector<char> m_buffer;
-};
-#endif
+    SharedMemoryScopedLock::~SharedMemoryScopedLock()
+    {
+        pthread_mutex_unlock(m_mutex);
+    }
+}
