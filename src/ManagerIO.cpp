@@ -81,30 +81,9 @@ namespace geopm
         }
 
         if (m_is_shm_data) {
+            auto lock = m_shmem->get_scoped_lock();
             m_data = (struct geopm_manager_shmem_s *) m_shmem->pointer();
             *m_data = {};
-            setup_mutex(m_data->lock);
-        }
-    }
-
-    void ManagerIOImp::setup_mutex(pthread_mutex_t &lock)
-    {
-        pthread_mutexattr_t lock_attr;
-        int err = pthread_mutexattr_init(&lock_attr);
-        if (err) {
-            throw Exception("ProfileTable: pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        err = pthread_mutexattr_settype(&lock_attr, PTHREAD_MUTEX_ERRORCHECK);
-        if (err) {
-            throw Exception("ProfileTable: pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        err = pthread_mutexattr_setpshared(&lock_attr, PTHREAD_PROCESS_SHARED);
-        if (err) {
-            throw Exception("ProfileTable: pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        err = pthread_mutex_init(&lock, &lock_attr);
-        if (err) {
-            throw Exception("ProfileTable: pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
     }
 
@@ -169,16 +148,10 @@ namespace geopm
 
     void ManagerIOImp::write_shmem(void)
     {
-        int err = pthread_mutex_lock(&m_data->lock); // Default mutex will block until this completes.
-        if (err) {
-            throw Exception("ManagerIOImp::pthread_mutex_lock()", err, __FILE__, __LINE__);
-        }
-
+        auto lock = m_shmem->get_scoped_lock();
         m_data->is_updated = true;
         m_data->count = m_samples_up.size();
         std::copy(m_samples_up.begin(), m_samples_up.end(), m_data->values);
-
-        pthread_mutex_unlock(&m_data->lock);
     }
 
     /*********************************************************************************************************/
@@ -250,15 +223,10 @@ namespace geopm
             m_shmem = geopm::make_unique<SharedMemoryUserImp>(m_path, environment().timeout());
         }
 
+        auto lock = m_shmem->get_scoped_lock();
         m_data = (struct geopm_manager_shmem_s *) m_shmem->pointer(); // Managed by shmem subsystem.
 
-        int err = pthread_mutex_lock(&m_data->lock); // Default mutex will block until this completes.
-        if (err) {
-            throw Exception("ManagerIOSamplerImp::pthread_mutex_lock()", err, __FILE__, __LINE__);
-        }
-
         if (m_data->is_updated == 0) {
-            (void) pthread_mutex_unlock(&m_data->lock);
             throw Exception("ManagerIOSamplerImp::" + std::string(__func__) + "(): reread of shm region requested before update.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -268,7 +236,6 @@ namespace geopm
         std::copy(m_data->values, m_data->values + m_data->count, m_signals_down.begin());
 
         m_data->is_updated = 0;
-        (void) pthread_mutex_unlock(&m_data->lock);
 
         if (m_signals_down.size() != m_signal_names.size()) {
             throw Exception("ManagerIOSamplerImp::" + std::string(__func__) + "(): Data read from shmem does not match size of signal names.",

@@ -166,7 +166,6 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/ManagerIOSamplerTest.negative_bad_files \
               test/gtest_links/ManagerIOSamplerTest.negative_parse_json_file \
               test/gtest_links/ManagerIOSamplerTest.negative_parse_shm \
-              test/gtest_links/ManagerIOSamplerTest.negative_shm_setup_mutex \
               test/gtest_links/ManagerIOSamplerTest.parse_json_file \
               test/gtest_links/ManagerIOSamplerTest.parse_shm \
               test/gtest_links/ManagerIOSamplerTestIntegration.parse_shm \
