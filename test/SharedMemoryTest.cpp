@@ -36,6 +36,7 @@
 #include "geopm_error.h"
 #include "Exception.hpp"
 #include "SharedMemoryImp.hpp"
+#include "geopm_test.hpp"
 
 using geopm::SharedMemory;
 using geopm::SharedMemoryImp;
@@ -145,20 +146,28 @@ TEST_F(SharedMemoryTest, lock_shmem)
     config_shmem();
     config_shmem_u();
 
-    // mutex is hidden before the user region
-    pthread_mutex_t *mutex = (pthread_mutex_t*)m_shmem->pointer() - 1;
+    // mutex is hidden at address before the user memory region
+    // normally, this mutex should not be accessed directly.  This test
+    // checks that get_scoped_lock() has the expected side effects on the
+    // mutex.
+    pthread_mutex_t *mutex = (pthread_mutex_t*)((char*)m_shmem->pointer() - sizeof(pthread_mutex_t));
+
+    // mutex starts out lockable
     EXPECT_EQ(0, pthread_mutex_trylock(mutex));
-    pthread_mutex_unlock(mutex);
+    EXPECT_EQ(0, pthread_mutex_unlock(mutex));
 
     auto lock = m_shmem->get_scoped_lock();
     // should not be able to lock
     EXPECT_NE(0, pthread_mutex_trylock(mutex));
+    GEOPM_EXPECT_THROW_MESSAGE(m_shmem->get_scoped_lock(),
+                               EDEADLK, "Resource deadlock avoided");
 
     // destroy the lock
     lock.reset();
 
+    // mutex should be lockable again
     EXPECT_EQ(0, pthread_mutex_trylock(mutex));
-    pthread_mutex_unlock(mutex);
+    EXPECT_EQ(0, pthread_mutex_unlock(mutex));
 }
 
 TEST_F(SharedMemoryTest, lock_shmem_u)
@@ -174,11 +183,13 @@ TEST_F(SharedMemoryTest, lock_shmem_u)
 
     // mutex starts out lockable
     EXPECT_EQ(0, pthread_mutex_trylock(mutex));
-    pthread_mutex_unlock(mutex);
+    EXPECT_EQ(0, pthread_mutex_unlock(mutex));
 
     auto lock = m_shmem_u->get_scoped_lock();
     // should not be able to lock
     EXPECT_NE(0, pthread_mutex_trylock(mutex));
+    GEOPM_EXPECT_THROW_MESSAGE(m_shmem_u->get_scoped_lock(),
+                               EDEADLK, "Resource deadlock avoided");
 
     // destroy the lock
     lock.reset();
