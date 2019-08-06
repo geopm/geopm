@@ -224,53 +224,47 @@ namespace geopm
         double freq_max = m_freq_governor->get_frequency_max();
         double freq_step = m_freq_governor->get_frequency_step();
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
-            const uint64_t current_region_hash = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH][ctl_idx]);
-            const uint64_t current_region_hint = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HINT][ctl_idx]);
-            const double current_region_runtime = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_RUNTIME][ctl_idx]);
-            const uint64_t  current_region_count = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_COUNT][ctl_idx]);
-            // region hash has changed, or region count changed for the same region
-            const bool is_region_boundary = (m_last_region_info[ctl_idx].hash != current_region_hash ||
-                                             m_last_region_info[ctl_idx].count != current_region_count);
-            /// update current region (entry)
-            if (is_region_boundary) {
+            struct m_region_info_s current_region_info {
+                .hash = (uint64_t)m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH][ctl_idx]),
+                .hint = (uint64_t)m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HINT][ctl_idx]),
+                .runtime = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_RUNTIME][ctl_idx]),
+                .count = (uint64_t)m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_COUNT][ctl_idx])};
+            // If region hash has changed, or region count changed for the same region
+            // update current region (entry)
+            if (m_last_region_info[ctl_idx].hash != current_region_info.hash ||
+                m_last_region_info[ctl_idx].count != current_region_info.count) {
                 m_samples_since_boundary[ctl_idx] = 0;
-                if (current_region_hash != GEOPM_REGION_HASH_INVALID &&
-                    current_region_hash != GEOPM_REGION_HASH_UNMARKED &&
-                    current_region_hint != GEOPM_REGION_HINT_NETWORK) {
+                if (current_region_info.hash != GEOPM_REGION_HASH_INVALID &&
+                    current_region_info.hash != GEOPM_REGION_HASH_UNMARKED &&
+                    current_region_info.hint != GEOPM_REGION_HINT_NETWORK) {
                     /// set the freq for the current region (entry)
-                    auto current_region_it = m_region_map[ctl_idx].find(current_region_hash);
+                    auto current_region_it = m_region_map[ctl_idx].find(current_region_info.hash);
                     if (current_region_it == m_region_map[ctl_idx].end()) {
-                        auto tmp = m_region_map[ctl_idx].emplace(current_region_hash,
+                        auto tmp = m_region_map[ctl_idx].emplace(current_region_info.hash,
                                                                  std::make_shared<EnergyEfficientRegionImp>
                                                                  (freq_min, freq_max, freq_step, m_perf_margin));
                         current_region_it = tmp.first;
                     }
                 }
                 /// update previous region (exit)
-                const uint64_t last_region_hash = m_last_region_info[ctl_idx].hash;
-                const uint64_t last_region_hint = m_last_region_info[ctl_idx].hint;
-                const double last_region_runtime = m_last_region_info[ctl_idx].runtime;
-                if (last_region_hash != GEOPM_REGION_HASH_INVALID &&
-                    last_region_hash != GEOPM_REGION_HASH_UNMARKED &&
-                    last_region_hint != GEOPM_REGION_HINT_NETWORK) {
-                    auto last_region_it = m_region_map[ctl_idx].find(last_region_hash);
+                struct m_region_info_s last_region_info = m_last_region_info[ctl_idx];
+                if (last_region_info.hash != GEOPM_REGION_HASH_INVALID &&
+                    last_region_info.hash != GEOPM_REGION_HASH_UNMARKED &&
+                    last_region_info.hint != GEOPM_REGION_HINT_NETWORK) {
+                    auto last_region_it = m_region_map[ctl_idx].find(last_region_info.hash);
                     if (last_region_it == m_region_map[ctl_idx].end()) {
                         throw Exception("EnergyEfficientAgent::" + std::string(__func__) +
                                         "(): region exit before entry detected.",
                                         GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                     }
-                    if (last_region_runtime != 0.0 &&
-                        last_region_runtime < M_MIN_LEARNING_RUNTIME) {
+                    if (last_region_info.runtime != 0.0 &&
+                        last_region_info.runtime < M_MIN_LEARNING_RUNTIME) {
                         last_region_it->second->disable();
                     }
                     // Higher is better for performance, so negate
-                    last_region_it->second->update_exit(-1.0 * last_region_runtime);
+                    last_region_it->second->update_exit(-1.0 * last_region_info.runtime);
                 }
-                m_last_region_info[ctl_idx] = {current_region_hash,
-                                               current_region_hint,
-                                               0,
-                                               current_region_runtime,
-                                               current_region_count};
+                m_last_region_info[ctl_idx] = current_region_info;
             }
             else {
                 ++m_samples_since_boundary[ctl_idx];
@@ -375,13 +369,12 @@ namespace geopm
     void EnergyEfficientAgent::init_platform_io(void)
     {
         m_freq_governor->init_platform_io();
-        m_last_region_info = std::vector<struct geopm_region_info_s>(m_num_freq_ctl_domain,
-                                                                     (struct geopm_region_info_s) {
-                                                                         .hash = GEOPM_REGION_HASH_INVALID,
-                                                                         .hint = GEOPM_REGION_HINT_UNKNOWN,
-                                                                         .progress = 0,
-                                                                         .runtime = 0,
-                                                                         .count = 0});
+        struct m_region_info_s default_info {
+            .hash = GEOPM_REGION_HASH_INVALID,
+            .hint = GEOPM_REGION_HINT_UNKNOWN,
+            .runtime = 0.0,
+            .count = 0};
+        m_last_region_info = std::vector<struct m_region_info_s>(m_num_freq_ctl_domain, default_info);
         m_target_freq.resize(m_num_freq_ctl_domain, m_freq_governor->get_frequency_max());
         std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT", "REGION_RUNTIME", "REGION_COUNT"};
 

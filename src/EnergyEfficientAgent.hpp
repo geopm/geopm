@@ -101,6 +101,13 @@ namespace geopm
                 M_NUM_SIGNAL,
             };
 
+            struct m_region_info_s {
+                uint64_t hash;
+                uint64_t hint;
+                double runtime;
+                uint64_t count;
+            };
+
             const int M_PRECISION;
             const double M_WAIT_SEC;
             const double M_MIN_LEARNING_RUNTIME;
@@ -112,7 +119,7 @@ namespace geopm
             std::shared_ptr<FrequencyGovernor> m_freq_governor;
             int m_freq_ctl_domain_type;
             int m_num_freq_ctl_domain;
-            std::vector<struct geopm_region_info_s> m_last_region_info;
+            std::vector<struct m_region_info_s> m_last_region_info;
             std::vector<double> m_target_freq;
             std::vector<std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > > m_region_map;
             std::vector<int> m_samples_since_boundary;
