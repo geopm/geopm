@@ -37,6 +37,8 @@
 #include <string>
 #include <memory>
 
+#include "SharedMemoryScopedLock.hpp"
+
 namespace geopm
 {
     /// @brief This class encapsulates attaching to inter-process shared memory.
@@ -57,6 +59,10 @@ namespace geopm
             virtual size_t size(void) const = 0;
             /// @brief Unlink the shared memory region.
             virtual void unlink(void) = 0;
+            /// @brief Attempt to lock the mutex for the shared memory region
+            ///        and return a scoped mutex object that will unlock the
+            ///        mutex when it goes out of scope.
+            virtual std::unique_ptr<SharedMemoryScopedLock> get_scoped_lock(void) = 0;
             /// @brief Returns a unique_ptr to a concrete object
             ///        constructed using the underlying implementation
             static std::unique_ptr<SharedMemoryUser> make_unique(const std::string &shm_key, unsigned int timeout);

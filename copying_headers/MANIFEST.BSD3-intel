@@ -176,6 +176,8 @@ src/SampleScheduler.hpp
 src/SharedMemory.cpp
 src/SharedMemory.hpp
 src/SharedMemoryImp.hpp
+src/SharedMemoryScopedLock.hpp
+src/SharedMemoryScopedLock.cpp
 src/SharedMemoryUser.hpp
 src/SignalHandler.cpp
 src/TimeIOGroup.cpp
