@@ -288,7 +288,6 @@ TEST_F(ManagerIOSamplerTest, parse_shm)
 
     // Build the data
     data->is_updated = true;
-    ManagerIOImp::setup_mutex(data->lock);
     double tmp[] = { 1.1, 2.2, 3.3, 4.4, 5.5 };
     data->count = sizeof(tmp) / sizeof(tmp[0]);
     memcpy(data->values, tmp, sizeof(tmp));
@@ -312,7 +311,6 @@ TEST_F(ManagerIOSamplerTest, negative_parse_shm)
 
     // Build the data
     data->is_updated = false; // This will force the parsing logic to throw since the structure is "not updated".
-    ManagerIOImp::setup_mutex(data->lock);
 
     double tmp[] = { 1.1, 2.2, 3.3, 4.4, 5.5 };
     data->count = sizeof(tmp) / sizeof(tmp[0]);
@@ -321,23 +319,6 @@ TEST_F(ManagerIOSamplerTest, negative_parse_shm)
     std::vector<std::string> signal_names = {"ONE", "TWO", "THREE", "FOUR", "FIVE"};
     GEOPM_EXPECT_THROW_MESSAGE(new ManagerIOSamplerImp("/FAKE_PATH", std::move(shmem), signal_names),
                                GEOPM_ERROR_INVALID, "reread of shm region requested before update");
-}
-
-TEST_F(ManagerIOSamplerTest, negative_shm_setup_mutex)
-{
-    // This test requires PTHREAD_MUTEX_ERRORCHECK
-    size_t shmem_size = sizeof(struct geopm_manager_shmem_s);
-    std::unique_ptr<MockSharedMemoryUser> shmem(new MockSharedMemoryUser(shmem_size));
-    struct geopm_manager_shmem_s *data = (struct geopm_manager_shmem_s *) shmem->pointer();
-    *data = {};
-
-    // Build the data
-    data->is_updated = true;
-    ManagerIOImp::setup_mutex(data->lock);
-    (void) pthread_mutex_lock(&data->lock); // Force pthread_mutex_lock to puke by trying to lock a locked mutex.
-
-    GEOPM_EXPECT_THROW_MESSAGE(new ManagerIOSamplerImp("/FAKE_PATH", std::move(shmem), {""}),
-                               EDEADLK, "Resource deadlock avoided");
 }
 
 TEST_F(ManagerIOSamplerTest, negative_bad_files)
@@ -365,7 +346,6 @@ TEST_F(ManagerIOSamplerTestIntegration, parse_shm)
 
     // Build the data
     data->is_updated = true;
-    ManagerIOImp::setup_mutex(data->lock);
     double tmp[] = { 1.1, 2.2, 3.3, 4.4, 5.5 };
     data->count = sizeof(tmp) / sizeof(tmp[0]);
     memcpy(data->values, tmp, sizeof(tmp));
@@ -381,10 +361,8 @@ TEST_F(ManagerIOSamplerTestIntegration, parse_shm)
     EXPECT_EQ(5.5, gp.sample("FIVE"));
 
     tmp[0] = 1.5;
-    pthread_mutex_lock(&data->lock);
     memcpy(data->values, tmp, sizeof(tmp));
     data->is_updated = true;
-    pthread_mutex_unlock(&data->lock);
 
     gp.read_batch();
 
