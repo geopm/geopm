@@ -36,6 +36,7 @@
 #include "geopm_error.h"
 #include "Exception.hpp"
 #include "SharedMemoryImp.hpp"
+#include "geopm_test.hpp"
 
 using geopm::SharedMemory;
 using geopm::SharedMemoryImp;
@@ -153,6 +154,8 @@ TEST_F(SharedMemoryTest, lock_shmem)
     auto lock = m_shmem->get_scoped_lock();
     // should not be able to lock
     EXPECT_NE(0, pthread_mutex_trylock(mutex));
+    GEOPM_EXPECT_THROW_MESSAGE(m_shmem->get_scoped_lock(),
+                               EDEADLK, "Resource deadlock avoided");
 
     // destroy the lock
     lock.reset();
@@ -179,6 +182,8 @@ TEST_F(SharedMemoryTest, lock_shmem_u)
     auto lock = m_shmem_u->get_scoped_lock();
     // should not be able to lock
     EXPECT_NE(0, pthread_mutex_trylock(mutex));
+    GEOPM_EXPECT_THROW_MESSAGE(m_shmem_u->get_scoped_lock(),
+                               EDEADLK, "Resource deadlock avoided");
 
     // destroy the lock
     lock.reset();
