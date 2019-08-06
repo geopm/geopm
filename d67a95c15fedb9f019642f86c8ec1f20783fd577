@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0678872c_d475e48a",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-06T01:33:20Z",
+      "side": 1,
+      "message": "a lot of repeated code.. maybe build in loop",
+      "range": {
+        "startLine": 94,
+        "startChar": 0,
+        "endLine": 124,
+        "endChar": 74
+      },
+      "revId": "d67a95c15fedb9f019642f86c8ec1f20783fd577",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc19ca14_cd98b7d2",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-06T01:33:20Z",
+      "side": 1,
+      "message": "what\u0027s wrong with the region count?",
+      "revId": "d67a95c15fedb9f019642f86c8ec1f20783fd577",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc7d3da5_9f81915a",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-06T01:33:20Z",
+      "side": 1,
+      "message": "There might be some shared logic with the parsing for GEOPM_REPORT_SIGNALS",
+      "revId": "d67a95c15fedb9f019642f86c8ec1f20783fd577",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
