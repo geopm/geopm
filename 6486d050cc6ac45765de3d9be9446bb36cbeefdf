@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b6d03d0_b48b7590",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-06T18:27:15Z",
+      "side": 1,
+      "message": "The issue described here is not clear to me.",
+      "range": {
+        "startLine": 215,
+        "startChar": 30,
+        "endLine": 215,
+        "endChar": 77
+      },
+      "revId": "6486d050cc6ac45765de3d9be9446bb36cbeefdf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
