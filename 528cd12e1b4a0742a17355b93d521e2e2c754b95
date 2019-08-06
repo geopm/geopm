@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e9d5060_0c957871",
+        "filename": "src/SharedMemory.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-06T21:20:45Z",
+      "side": 1,
+      "message": "Existing callers expect that size() returns the usable size. This returns usable+lock size.",
+      "revId": "528cd12e1b4a0742a17355b93d521e2e2c754b95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
