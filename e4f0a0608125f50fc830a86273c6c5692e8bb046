@@ -16,6 +16,24 @@
       "revId": "e4f0a0608125f50fc830a86273c6c5692e8bb046",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdaeb9a8_c269b036",
+        "filename": "test/MockAgent.hpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-08-06T23:26:03Z",
+      "side": 1,
+      "message": "Tests for non-empty trace_formats() implementations have been added.",
+      "parentUuid": "cff82d13_90c20549",
+      "revId": "e4f0a0608125f50fc830a86273c6c5692e8bb046",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
