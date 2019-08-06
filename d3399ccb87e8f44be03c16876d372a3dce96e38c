@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52b2b1d3_23a94adc",
+        "filename": "src/CSV.hpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-06T18:06:11Z",
+      "side": 1,
+      "message": "This class has no docstrings.  More comments please.",
+      "range": {
+        "startLine": 42,
+        "startChar": 4,
+        "endLine": 42,
+        "endChar": 13
+      },
+      "revId": "d3399ccb87e8f44be03c16876d372a3dce96e38c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
