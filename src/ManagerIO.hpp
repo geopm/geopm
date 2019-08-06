@@ -38,20 +38,16 @@
 #include <vector>
 #include <map>
 #include <cstddef>
-#include <pthread.h>
 
 namespace geopm
 {
     struct geopm_manager_shmem_header {
-        pthread_mutex_t lock; // 40 bytes
         uint8_t is_updated;   // 1 byte + 7 bytes of padding
         size_t count;         // 8 bytes
         double values;        // 8 bytes
     };
 
     struct geopm_manager_shmem_s {
-        /// @brief Lock to ensure r/w consistency between GEOPM and the resource manager.
-        pthread_mutex_t lock;
         /// @brief Enables notification of updates to GEOPM.
         uint8_t is_updated;
         /// @brief Specifies the size of the following array.
