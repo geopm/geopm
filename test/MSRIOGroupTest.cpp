@@ -68,6 +68,10 @@ using testing::WithArg;
 using testing::NiceMock;
 using json11::Json;
 
+bool is_format_double(std::function<std::string(double)> func);
+bool is_format_integer(std::function<std::string(double)> func);
+bool is_format_raw64(std::function<std::string(double)> func);
+
 class MSRIOGroupTest : public :: testing :: Test
 {
     protected:
@@ -644,21 +648,13 @@ TEST_F(MSRIOGroupTest, cpuid)
 
 TEST_F(MSRIOGroupTest, format_function)
 {
-    double value = (double)0x3FF00000000000ULL;
-    std::function<std::string(double)> func = m_msrio_group->format_function("MSR::PERF_STATUS:FREQ");
-    std::string expected = "1.799680632343757e+16";
-    std::string actual = func(value);
-    EXPECT_EQ(expected, actual);
+    std::function<std::string(double)> func;
+    func = m_msrio_group->format_function("MSR::PERF_STATUS:FREQ");
+    EXPECT_TRUE(is_format_double(func));
     func = m_msrio_group->format_function("MSR::FIXED_CTR0:INST_RETIRED_ANY");
-    expected = "17996806323437568";
-    actual = func(value);
-    EXPECT_EQ(expected, actual);
+    EXPECT_TRUE(is_format_integer(func));
     func = m_msrio_group->format_function("MSR::PERF_STATUS#");
-    uint64_t raw = 0x3FF00000000000ULL;
-    value = geopm_field_to_signal(raw);
-    expected = "0x003ff00000000000";
-    actual = func(value);
-    EXPECT_EQ(expected, actual);
+    EXPECT_TRUE(is_format_raw64(func));
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->format_function("INVALID"),
                                GEOPM_ERROR_INVALID, "not valid for MSRIOGroup");
 }
