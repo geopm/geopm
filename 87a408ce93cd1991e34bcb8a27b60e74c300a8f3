@@ -16,6 +16,24 @@
       "revId": "87a408ce93cd1991e34bcb8a27b60e74c300a8f3",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "446eed0f_79feb3d0",
+        "filename": "src/TimeIOGroup.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-08-06T19:11:36Z",
+      "side": 1,
+      "message": "for the string_format_double reference",
+      "parentUuid": "75a87302_1dd628cf",
+      "revId": "87a408ce93cd1991e34bcb8a27b60e74c300a8f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
