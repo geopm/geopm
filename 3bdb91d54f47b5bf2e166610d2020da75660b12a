@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db178e0f_d10feb1e",
+        "filename": "src/Helper.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-06T22:33:10Z",
+      "side": 1,
+      "message": "Space for the terminator is being counted twice since snprintf handles termination, though it doesn\u0027t make a difference in output since these numbers are much shorter than NAME_MAX.",
+      "revId": "3bdb91d54f47b5bf2e166610d2020da75660b12a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
