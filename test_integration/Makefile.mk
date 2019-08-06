@@ -37,16 +37,28 @@ EXTRA_DIST += test_integration/geopm_context.py \
               test_integration/__main__.py \
               test_integration/README.md \
               test_integration/test_ee_stream_dgemm_mix.py \
+              test_integration/test_ee_per_rank_role.py \
               # end
 
 if ENABLE_MPI
 noinst_PROGRAMS += test_integration/test_ee_stream_dgemm_mix \
+                   test_integration/test_ee_per_rank_role \
                    # end
+
+test_integration_test_ee_per_rank_role_SOURCES = test_integration/test_ee_per_rank_role.cpp \
+                                                 src/ModelRegion.cpp \
+                                                 src/ModelRegion.hpp \
+                                                 # end
 
 test_integration_test_ee_stream_dgemm_mix_SOURCES = test_integration/test_ee_stream_dgemm_mix.cpp \
                                                     src/ModelRegion.cpp \
                                                     src/ModelRegion.hpp \
                                                     # end
+
+test_integration_test_ee_per_rank_role_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
+test_integration_test_ee_per_rank_role_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
+test_integration_test_ee_per_rank_role_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
+
 test_integration_test_ee_stream_dgemm_mix_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
 test_integration_test_ee_stream_dgemm_mix_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
 test_integration_test_ee_stream_dgemm_mix_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
