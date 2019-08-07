@@ -34,6 +34,7 @@
 import os
 import unittest
 from analysis_helper import *
+import mock_report
 
 
 @unittest.skipIf(g_skip_analysis_test, g_skip_analysis_ex)
@@ -75,38 +76,6 @@ class TestBalancerAnalysis(unittest.TestCase):
             except OSError:
                 pass
 
-    def make_mock_report_df(self):
-        # for input data frame
-        version = '0.3.0'
-        node_name = 'mynode'
-        region_id = {
-            'epoch':  '9223372036854775808',
-            'dgemm':  '11396693813',
-            'stream': '20779751936'
-        }
-        index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
-        numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'mpi_runtime', 'runtime', 'id']
-        regions = ['epoch', 'dgemm', 'stream']
-        iterations = range(1, 4)
-        start_time = 'Tue Nov  6 08:00:00 2018'
-
-        input_data = {}
-        for col in numeric_cols:
-            input_data[col] = {}
-            for pp in self._powers:
-                prof_name = '{}_{}'.format(self._name_prefix, pp)
-                for it in iterations:
-                    for agent in ['power_governor', 'power_balancer']:
-                        for region in regions:
-                            self._gen_val['id'] = lambda pow, agent: region_id[region]
-                            index = (version, start_time, prof_name, agent, node_name, it, region)
-                            value = self._gen_val[col](pp, agent)
-                            input_data[col][index] = value
-
-        df = pandas.DataFrame.from_dict(input_data)
-        df.index.rename(index_names, inplace=True)
-        return df
-
     def make_expected_summary_df(self, metric):
         ref_val_cols = ['reference_mean', 'reference_max', 'reference_min']
         tar_val_cols = ['target_mean', 'target_max', 'target_min']
@@ -126,7 +95,7 @@ class TestBalancerAnalysis(unittest.TestCase):
 
     def test_balancer_plot_process_runtime(self):
         metric = 'runtime'
-        report_df = self.make_mock_report_df()
+        report_df = mock_report.tba_make_mock_report_df(self)
         mock_parse_data = MockAppOutput(report_df)
         analysis = geopmpy.analysis.BalancerAnalysis(metric=metric, normalize=False, speedup=False,
                                                      **self._config)
@@ -136,7 +105,7 @@ class TestBalancerAnalysis(unittest.TestCase):
         compare_dataframe(self, expected_df, result)
 
     def test_balancer_plot_process_energy(self):
-        report_df = self.make_mock_report_df()
+        report_df = mock_report.tba_make_mock_report_df(self)
         mock_parse_data = MockAppOutput(report_df)
         analysis = geopmpy.analysis.BalancerAnalysis(metric='energy', normalize=False, speedup=False,
                                                      **self._config)
@@ -147,7 +116,7 @@ class TestBalancerAnalysis(unittest.TestCase):
 
     def test_balancer_plot_process_power(self):
         metric = 'power'
-        report_df = self.make_mock_report_df()
+        report_df = mock_report.tba_make_mock_report_df(self)
         mock_parse_data = MockAppOutput(report_df)
         analysis = geopmpy.analysis.BalancerAnalysis(metric=metric, normalize=False, speedup=False,
                                                      **self._config)

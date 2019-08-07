@@ -33,6 +33,7 @@
 
 import unittest
 from analysis_helper import *
+import mock_report
 
 
 @unittest.skipIf(g_skip_analysis_test, g_skip_analysis_ex)
@@ -72,36 +73,6 @@ class TestNodePowerAnalysis(unittest.TestCase):
             except OSError:
                 pass
 
-    def make_mock_report_df(self):
-        # for input data frame
-        version = '0.3.0'
-        region_id = {
-            'epoch':  '9223372036854775808',
-            'dgemm':  '11396693813',
-            'stream': '20779751936'
-        }
-        start_time = 'Tue Nov  6 08:00:00 2018'
-        index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
-        numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'mpi_runtime', 'runtime', 'id']
-        iterations = range(1, 4)
-        input_data = {}
-        prof_name = '{}_nocap'.format(self._name_prefix)
-        agent = 'monitor'
-        for col in numeric_cols:
-            input_data[col] = {}
-            for node in range(self._num_nodes):
-                node_name = 'node{}'.format(node)
-                for it in iterations:
-                    for region in region_id.keys():
-                        self._gen_val['id'] = lambda node: region_id[region]
-                        index = (version, start_time, prof_name, agent, node_name, it, region)
-                        value = self._gen_val[col](node)
-                        input_data[col][index] = value
-
-        df = pandas.DataFrame.from_dict(input_data)
-        df.index.rename(index_names, inplace=True)
-        return df
-
     def make_expected_summary_df(self):
         cols = ['power']
         expected_data = []
@@ -114,7 +85,7 @@ class TestNodePowerAnalysis(unittest.TestCase):
 
     def test_node_power_process(self):
         analysis = geopmpy.analysis.NodePowerAnalysis(**self._config)
-        report_df = self.make_mock_report_df()
+        report_df = mock_report.tnpa_make_mock_report_df(self)
         mock_parse_data = MockAppOutput(report_df)
         result = analysis.plot_process(mock_parse_data)
         expected_df = self.make_expected_summary_df()
