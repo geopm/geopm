@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f47c4ae_5351b597",
+        "filename": "test/PowerGovernorAgentTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-07T00:58:59Z",
+      "side": 1,
+      "message": "What magic is this?",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 63
+      },
+      "revId": "2e5aa3d55845a22f2396e8f30da84c72204ea0fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
