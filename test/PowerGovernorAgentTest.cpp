@@ -299,7 +299,7 @@ TEST_F(PowerGovernorAgentTest, enforce_policy)
 TEST_F(PowerGovernorAgentTest, trace)
 {
     m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
-    std::vector<std::string> expect_names{"power_budget"};
+    std::vector<std::string> expect_names{"POWER_BUDGET"};
     EXPECT_EQ(expect_names, m_agent->trace_names());
     EXPECT_TRUE(is_format_double(m_agent->trace_formats().at(0)));
 }

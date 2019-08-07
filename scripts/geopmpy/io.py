@@ -905,11 +905,10 @@ class Trace(object):
         trace_path: The path to the trace file to parse.
     """
     def __init__(self, trace_path, use_agent=True):
+        # TODO Backwards compatability for old trace file column headers
         self._path = trace_path
-        self._df = pandas.read_csv(trace_path, sep='|', comment='#', dtype={'region_hash': str, 'region_hint': str})  # region_hash and region_hint must be a string because pandas can't handle 64-bit integers
-        self._df.columns = list(map(str.strip, self._df[:0]))  # Strip whitespace from column names
-        self._df['region_hash'] = self._df['region_hash'].astype(str).map(str.strip)  # Strip whitespace from region hashes
-        self._df['region_hint'] = self._df['region_hint'].astype(str).map(str.strip)  # Strip whitespace from region hints
+        self._df = pandas.read_csv(trace_path, sep='|', comment='#')
+        self._df.columns = list(map(str.strip, self._df[:0]))  # LEGACY SUPPORT: Strip whitespace from column names
         self._version = None
         self._start_time = None
         self._profile_name = None
