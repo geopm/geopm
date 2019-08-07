@@ -46,6 +46,30 @@
       "revId": "08b61e78c5139a3701a5d11f46e7239e880b916a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92a607db_9cac6975",
+        "filename": "src/IOGroup.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-07T15:02:02Z",
+      "side": 1,
+      "message": "We can make individual warnings bypass the Werror setting, but it depends on the compiler.\n\nclang, gcc:\n  -Wno-error\u003ddeprecated-declarations\n\nicc (#1478 from the diagnostic ID it prints when the warning is emitted):\n  -diag-warning\u003d1478",
+      "parentUuid": "c3b3bef7_3cfd9c9f",
+      "range": {
+        "startLine": 61,
+        "startChar": 4,
+        "endLine": 61,
+        "endChar": 101
+      },
+      "revId": "08b61e78c5139a3701a5d11f46e7239e880b916a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
