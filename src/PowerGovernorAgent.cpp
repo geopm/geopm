@@ -314,7 +314,7 @@ namespace geopm
 
     std::vector<std::string> PowerGovernorAgent::trace_names(void) const
     {
-        return {"power_budget"};
+        return {"POWER_BUDGET"};
     }
 
     std::vector<std::function<std::string(double)> > PowerGovernorAgent::trace_formats(void) const

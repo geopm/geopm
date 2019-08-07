@@ -608,13 +608,13 @@ namespace geopm
 
     std::vector<std::string> PowerBalancerAgent::trace_names(void) const
     {
-        return {"policy_power_cap",         // M_TRACE_SAMPLE_POLICY_POWER_CAP
-                "policy_step_count",        // M_TRACE_SAMPLE_POLICY_STEP_COUNT
-                "policy_max_epoch_runtime", // M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME
-                "policy_power_slack",       // M_TRACE_SAMPLE_POLICY_POWER_SLACK
-                "epoch_runtime",            // M_TRACE_SAMPLE_EPOCH_RUNTIME
-                "power_limit",              // M_TRACE_SAMPLE_POWER_LIMIT
-                "enforced_power_limit",     // M_TRACE_SAMPLE_ENFORCED_POWER_LIMIT
+        return {"POLICY_POWER_CAP",         // M_TRACE_SAMPLE_POLICY_POWER_CAP
+                "POLICY_STEP_COUNT",        // M_TRACE_SAMPLE_POLICY_STEP_COUNT
+                "POLICY_MAX_EPOCH_RUNTIME", // M_TRACE_SAMPLE_POLICY_MAX_EPOCH_RUNTIME
+                "POLICY_POWER_SLACK",       // M_TRACE_SAMPLE_POLICY_POWER_SLACK
+                "EPOCH_RUNTIME",            // M_TRACE_SAMPLE_EPOCH_RUNTIME
+                "POWER_LIMIT",              // M_TRACE_SAMPLE_POWER_LIMIT
+                "ENFORCED_POWER_LIMIT",     // M_TRACE_SAMPLE_ENFORCED_POWER_LIMIT
                };
     }
 
