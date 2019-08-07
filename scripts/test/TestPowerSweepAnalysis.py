@@ -37,6 +37,7 @@ import unittest
 from collections import defaultdict
 from StringIO import StringIO
 from analysis_helper import *
+import mock_report
 
 
 @unittest.skipIf(g_skip_analysis_test, g_skip_analysis_ex)
@@ -73,40 +74,6 @@ class TestPowerSweepAnalysis(unittest.TestCase):
             except OSError:
                 pass
 
-    def make_mock_report_df(self, powers):
-        version = '0.3.0'
-        agent = 'power_governor'
-        node_name = 'mynode'
-        region_id = {
-            'epoch':  '9223372036854775808',
-            'dgemm':  '11396693813',
-            'stream': '20779751936'
-        }
-        start_time = 'Tue Nov  6 08:00:00 2018'
-
-        # for input data frame
-        index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
-        numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'mpi_runtime', 'runtime', 'id']
-
-        regions = ['epoch', 'dgemm', 'stream']
-        iterations = range(1, 4)
-
-        input_data = {}
-        for col in numeric_cols:
-            input_data[col] = {}
-            for pp in powers:
-                prof_name = '{}_{}'.format(self._name_prefix, pp)
-                for it in iterations:
-                    for region in regions:
-                        self._gen_val['id'] = lambda pow: region_id[region]
-                        index = (version, start_time, prof_name, agent, node_name, it, region)
-                        value = self._gen_val[col](pp)
-                        input_data[col][index] = value
-
-        df = pandas.DataFrame.from_dict(input_data)
-        df.index.rename(index_names, inplace=True)
-        return df
-
     def make_expected_summary_df(self, powers):
         expected_data = []
         cols = ['count', 'runtime', 'mpi_runtime', 'energy_pkg', 'energy_dram',
@@ -119,7 +86,7 @@ class TestPowerSweepAnalysis(unittest.TestCase):
 
     def test_power_sweep_summary(self):
         sweep_analysis = geopmpy.analysis.PowerSweepAnalysis(**self._config)
-        report_df = self.make_mock_report_df(self._powers)
+        report_df = mock_report.tpsa_make_mock_report_df(self, self._powers)
         parse_output = MockAppOutput(report_df)
         result = sweep_analysis.summary_process(parse_output)
         expected_df = self.make_expected_summary_df(self._powers)

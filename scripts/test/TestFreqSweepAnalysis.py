@@ -36,88 +36,12 @@ import sys
 import unittest
 from collections import defaultdict
 from analysis_helper import *
+import mock_report
 
 
-region_id = {
-    'epoch':  '9223372036854775808',
-    'dgemm':  '11396693813',
-    'stream': '20779751936'
-}
-version = '0.3.0'
-start_time = 'Tue Nov  6 08:00:00 2018'
 power_budget = 400
-agent = 'energy_efficient'
-node_name = 'mynode'
 
-# for input data frame
-index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
-numeric_cols = ['count', 'energy_pkg', 'frequency', 'mpi_runtime', 'runtime', 'id']
-gen_val = {
-    'count': 1,
-    'energy_pkg': 14000.0,
-    'frequency': 1e9,
-    'mpi_runtime': 10,
-    'runtime': 50,
-    'id': 'bad'
-}
 ratio_inds = [0, 1, 2, 3, 6, 5, 4]
-regions = ['epoch', 'dgemm', 'stream']
-iterations = range(1, 4)
-
-
-# TODO: profile name should affect performance. it can hide bugs if all the numbers are the same
-# however the functions that generate expected output need to also take this into account
-def make_mock_sweep_report_df(name_prefix, freqs, best_fit_freq, best_fit_perf,
-                              metric_of_interest=None, best_fit_metric_perf=None,
-                              baseline_freq=None, baseline_metric_perf=None):
-    ''' Make a mock report dataframe for the fixed frequency sweeps.'''
-    input_data = {}
-    for col in numeric_cols:
-        input_data[col] = {}
-        for freq in freqs:
-            prof_name = '{}_freq_{}'.format(name_prefix, freq)
-            for it in iterations:
-                for region in regions:
-                    gen_val['id'] = region_id[region]  # return unique region id
-                    index = (version, start_time, prof_name, agent, node_name, it, region)
-                    value = gen_val[col]
-                    # force best performance for requested best fit freq
-                    if col == 'runtime':
-                        if freq == best_fit_freq[region]:
-                            value = best_fit_perf[region]
-                        else:
-                            # make other frequencies have worse performance
-                            value = best_fit_perf[region] * 2.0
-                    elif metric_of_interest == col:
-                        if freq == best_fit_freq[region]:
-                            value = best_fit_metric_perf[region]
-                        elif baseline_freq and baseline_metric_perf and freq == baseline_freq:
-                            value = baseline_metric_perf[region]
-                    input_data[col][index] = value
-
-    df = pandas.DataFrame.from_dict(input_data)
-    df.index.rename(index_names, inplace=True)
-    return df
-
-
-def make_mock_report_df(name_prefix, metric, metric_perf):
-    ''' Make a mock report dataframe for a single run.'''
-    input_data = {}
-    for col in numeric_cols:
-        input_data[col] = {}
-        for it in iterations:
-            for region in regions:
-                gen_val['id'] = region_id[region]  # return unique region id
-                index = (version, start_time, name_prefix, agent, node_name, it, region)
-                value = gen_val[col]
-                if col == metric:
-                    value = metric_perf[region]
-                input_data[col][index] = value
-
-    df = pandas.DataFrame.from_dict(input_data)
-    df.index.rename(index_names, inplace=True)
-    return df
-
 
 def get_expected_baseline_output_df(profile_names, column,
                                     baseline_metric_perf, profile_metric_perf):
@@ -212,7 +136,7 @@ class TestFreqSweepAnalysis(unittest.TestCase):
         best_fit_freq = {'dgemm': self._max_freq, 'stream': self._min_freq, 'epoch': self._mid_freq}
         best_fit_perf = {'dgemm': 23.0, 'stream': 34.0, 'epoch': 45.0}
 
-        parse_out = make_mock_sweep_report_df(self._name_prefix, self._freqs,
+        parse_out = mock_report.make_mock_sweep_report_df(self._name_prefix, self._freqs,
                                               best_fit_freq, best_fit_perf)
 
         parse_out = MockAppOutput(parse_out)
@@ -232,13 +156,13 @@ class TestFreqSweepAnalysis(unittest.TestCase):
         best_fit_metric_perf = {'dgemm': 23000.0, 'stream': 34000.0, 'epoch': 45000.0}
         optimal_metric_perf = {'dgemm': 22345.0, 'stream': 33456.0, 'epoch': 44567.0}
 
-        sweep_reports = make_mock_sweep_report_df(self._name_prefix, self._freqs,
+        sweep_reports = mock_report.make_mock_sweep_report_df(self._name_prefix, self._freqs,
                                                   best_fit_freq, best_fit_perf,
                                                   'energy_pkg', best_fit_metric_perf,
                                                   baseline_freq, baseline_metric_perf)
 
         prof_name = self._name_prefix + '_map'
-        single_run_report = make_mock_report_df(prof_name, 'energy_pkg', optimal_metric_perf)
+        single_run_report = mock_report.tfsa_make_mock_report_df(prof_name, 'energy_pkg', optimal_metric_perf)
         parse_out = sweep_reports.append(single_run_report)
         parse_out.sort_index(ascending=True, inplace=True)
         parse_out = MockAppOutput(sweep_reports), MockAppOutput(parse_out)
@@ -263,13 +187,13 @@ class TestFreqSweepAnalysis(unittest.TestCase):
         best_fit_metric_perf = {'dgemm': 23000.0, 'stream': 34000.0, 'epoch': 45000.0}
         optimal_metric_perf = {'dgemm': 22345.0, 'stream': 33456.0, 'epoch': 44567.0}
 
-        sweep_reports = make_mock_sweep_report_df(self._name_prefix, self._freqs,
+        sweep_reports = mock_report.make_mock_sweep_report_df(self._name_prefix, self._freqs,
                                                   best_fit_freq, best_fit_perf,
                                                   'energy_pkg', best_fit_metric_perf,
                                                   baseline_freq, baseline_metric_perf)
 
         prof_name = self._name_prefix + '_efficient'
-        single_run_report = make_mock_report_df(prof_name, 'energy_pkg', optimal_metric_perf)
+        single_run_report = mock_report.tfsa_make_mock_report_df(prof_name, 'energy_pkg', optimal_metric_perf)
         parse_out = sweep_reports.append(single_run_report)
         parse_out.sort_index(ascending=True, inplace=True)
         parse_out = MockAppOutput(sweep_reports), MockAppOutput(parse_out)
@@ -302,14 +226,14 @@ class TestFreqSweepAnalysis(unittest.TestCase):
         for mix_idx in ratio_inds:
             name = self._name_prefix + '_mix_{}'.format(mix_idx)
             self._tmp_files.append(name + '_app.config')
-            sweep_df = make_mock_sweep_report_df(name, self._freqs,
+            sweep_df = mock_report.make_mock_sweep_report_df(name, self._freqs,
                                                                best_fit_freq, best_fit_perf,
                                                                'energy_pkg', best_fit_metric_perf,
                                                                baseline_freq, baseline_metric_perf)
             sweep_reports[mix_idx] = MockAppOutput(sweep_df)
-            offline_df = make_mock_report_df(name+'_offline', 'energy_pkg', offline_metric_perf)
+            offline_df = mock_report.tfsa_make_mock_report_df(name+'_offline', 'energy_pkg', offline_metric_perf)
             offline_reports[mix_idx] = MockAppOutput(offline_df)
-            online_df = make_mock_report_df(name+'_online', 'energy_pkg', online_metric_perf)
+            online_df = mock_report.tfsa_make_mock_report_df(name+'_online', 'energy_pkg', online_metric_perf)
             online_reports[mix_idx] = MockAppOutput(online_df)
 
             profiles = ['freq_'+str(best_fit_freq['epoch']), 'offline', 'online']

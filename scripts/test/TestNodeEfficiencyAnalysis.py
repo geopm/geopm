@@ -33,6 +33,7 @@
 
 import unittest
 from analysis_helper import *
+import mock_report
 
 
 @unittest.skipIf(g_skip_analysis_test, g_skip_analysis_ex)
@@ -75,37 +76,6 @@ class TestNodeEfficiencyAnalysis(unittest.TestCase):
             except OSError:
                 pass
 
-    def make_mock_report_df(self):
-        # for input data frame
-        version = '0.3.0'
-        region_id = {
-            'epoch':  '9223372036854775808',
-            'dgemm':  '11396693813',
-            'stream': '20779751936'
-        }
-        start_time = 'Tue Nov  6 08:00:00 2018'
-        index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
-        numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'mpi_runtime', 'runtime', 'id']
-        iterations = range(1, 4)
-        input_data = {}
-        for col in numeric_cols:
-            input_data[col] = {}
-            for agent in ['power_balancer', 'power_governor']:
-                for power_cap in self._powers:
-                    prof_name = '{}_{}'.format(self._name_prefix, power_cap)
-                    for node in range(self._num_nodes):
-                        node_name = 'node{}'.format(node)
-                        for it in iterations:
-                            for region in region_id.keys():
-                                self._gen_val['id'] = lambda node, power_cap: region_id[region]
-                                index = (version, start_time, prof_name, agent, node_name, it, region)
-                                value = self._gen_val[col](node, power_cap)
-                                input_data[col][index] = value
-
-        df = pandas.DataFrame.from_dict(input_data)
-        df.index.rename(index_names, inplace=True)
-        return df
-
     def make_expected_summary_df(self, power_cap, agent):
         cols = ['frequency']
         expected_data = []
@@ -119,7 +89,7 @@ class TestNodeEfficiencyAnalysis(unittest.TestCase):
 
     def test_node_efficiency_process(self):
         analysis = geopmpy.analysis.NodeEfficiencyAnalysis(**self._config)
-        report_df = self.make_mock_report_df()
+        report_df = mock_report.tnea_make_mock_report_df(self)
         mock_parse_data = MockAppOutput(report_df)
         gov_result, bal_result = analysis.plot_process(mock_parse_data)
         for pow in self._powers:
