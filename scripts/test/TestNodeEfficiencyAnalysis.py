@@ -89,7 +89,8 @@ class TestNodeEfficiencyAnalysis(unittest.TestCase):
 
     def test_node_efficiency_process(self):
         analysis = geopmpy.analysis.NodeEfficiencyAnalysis(**self._config)
-        report_df = mock_report.tnea_make_mock_report_df(self)
+        report_df = mock_report.tnea_make_mock_report_df(self._name_prefix, self._gen_val,
+                                                         self._powers, self._num_nodes)
         mock_parse_data = MockAppOutput(report_df)
         gov_result, bal_result = analysis.plot_process(mock_parse_data)
         for pow in self._powers:

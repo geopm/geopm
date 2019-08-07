@@ -86,7 +86,7 @@ class TestPowerSweepAnalysis(unittest.TestCase):
 
     def test_power_sweep_summary(self):
         sweep_analysis = geopmpy.analysis.PowerSweepAnalysis(**self._config)
-        report_df = mock_report.tpsa_make_mock_report_df(self, self._powers)
+        report_df = mock_report.tpsa_make_mock_report_df(self._name_prefix, self._gen_val, self._powers)
         parse_output = MockAppOutput(report_df)
         result = sweep_analysis.summary_process(parse_output)
         expected_df = self.make_expected_summary_df(self._powers)
