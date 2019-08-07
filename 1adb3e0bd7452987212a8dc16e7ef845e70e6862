@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6d2d23f9_5faa5803",
+        "filename": "src/PolicyStore.hpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-07T17:31:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a0d0bf8_333438f2",
+      "revId": "1adb3e0bd7452987212a8dc16e7ef845e70e6862",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a72b9a75_a74765e2",
         "filename": "src/PolicyStore.hpp",
         "patchSetId": 12
@@ -39,6 +57,30 @@
       "revId": "1adb3e0bd7452987212a8dc16e7ef845e70e6862",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0841f7a0_c29358cf",
+        "filename": "src/PolicyStore.hpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-07T17:31:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a72b9a75_a74765e2",
+      "range": {
+        "startLine": 58,
+        "startChar": 55,
+        "endLine": 58,
+        "endChar": 81
+      },
+      "revId": "1adb3e0bd7452987212a8dc16e7ef845e70e6862",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
