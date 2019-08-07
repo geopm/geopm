@@ -33,7 +33,7 @@
 import pandas
 
 # TestPowerSweepAnalysis.py
-def tpsa_make_mock_report_df(self, powers):
+def tpsa_make_mock_report_df(name_prefix, gen_val, powers):
     version = '0.3.0'
     agent = 'power_governor'
     node_name = 'mynode'
@@ -55,12 +55,12 @@ def tpsa_make_mock_report_df(self, powers):
     for col in numeric_cols:
         input_data[col] = {}
         for pp in powers:
-            prof_name = '{}_{}'.format(self._name_prefix, pp)
+            prof_name = '{}_{}'.format(name_prefix, pp)
             for it in iterations:
                 for region in regions:
-                    self._gen_val['id'] = lambda pow: region_id[region]
+                    gen_val['id'] = lambda pow: region_id[region]
                     index = (version, start_time, prof_name, agent, node_name, it, region)
-                    value = self._gen_val[col](pp)
+                    value = gen_val[col](pp)
                     input_data[col][index] = value
 
     df = pandas.DataFrame.from_dict(input_data)
@@ -69,7 +69,7 @@ def tpsa_make_mock_report_df(self, powers):
 
 
 # TestNodeEfficiencyAnalysis.py
-def tnea_make_mock_report_df(self):
+def tnea_make_mock_report_df(name_prefix, gen_val, powers, num_nodes):
     # for input data frame
     version = '0.3.0'
     region_id = {
@@ -85,15 +85,15 @@ def tnea_make_mock_report_df(self):
     for col in numeric_cols:
         input_data[col] = {}
         for agent in ['power_balancer', 'power_governor']:
-            for power_cap in self._powers:
-                prof_name = '{}_{}'.format(self._name_prefix, power_cap)
-                for node in range(self._num_nodes):
+            for power_cap in powers:
+                prof_name = '{}_{}'.format(name_prefix, power_cap)
+                for node in range(num_nodes):
                     node_name = 'node{}'.format(node)
                     for it in iterations:
                         for region in region_id.keys():
-                            self._gen_val['id'] = lambda node, power_cap: region_id[region]
+                            gen_val['id'] = lambda node, power_cap: region_id[region]
                             index = (version, start_time, prof_name, agent, node_name, it, region)
-                            value = self._gen_val[col](node, power_cap)
+                            value = gen_val[col](node, power_cap)
                             input_data[col][index] = value
 
     df = pandas.DataFrame.from_dict(input_data)
@@ -101,7 +101,7 @@ def tnea_make_mock_report_df(self):
     return df
 
 # TestNodePowerAnalysis.py
-def tnpa_make_mock_report_df(self):
+def tnpa_make_mock_report_df(name_prefix, gen_val, num_nodes):
     # for input data frame
     version = '0.3.0'
     region_id = {
@@ -114,17 +114,17 @@ def tnpa_make_mock_report_df(self):
     numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'mpi_runtime', 'runtime', 'id']
     iterations = range(1, 4)
     input_data = {}
-    prof_name = '{}_nocap'.format(self._name_prefix)
+    prof_name = '{}_nocap'.format(name_prefix)
     agent = 'monitor'
     for col in numeric_cols:
         input_data[col] = {}
-        for node in range(self._num_nodes):
+        for node in range(num_nodes):
             node_name = 'node{}'.format(node)
             for it in iterations:
                 for region in region_id.keys():
-                    self._gen_val['id'] = lambda node: region_id[region]
+                    gen_val['id'] = lambda node: region_id[region]
                     index = (version, start_time, prof_name, agent, node_name, it, region)
-                    value = self._gen_val[col](node)
+                    value = gen_val[col](node)
                     input_data[col][index] = value
 
     df = pandas.DataFrame.from_dict(input_data)
@@ -132,7 +132,7 @@ def tnpa_make_mock_report_df(self):
     return df
 
 # TestBalancerAnalysis.py
-def tba_make_mock_report_df(self):
+def tba_make_mock_report_df(name_prefix, gen_val, powers):
     # for input data frame
     version = '0.3.0'
     node_name = 'mynode'
@@ -150,14 +150,14 @@ def tba_make_mock_report_df(self):
     input_data = {}
     for col in numeric_cols:
         input_data[col] = {}
-        for pp in self._powers:
-            prof_name = '{}_{}'.format(self._name_prefix, pp)
+        for pp in powers:
+            prof_name = '{}_{}'.format(name_prefix, pp)
             for it in iterations:
                 for agent in ['power_governor', 'power_balancer']:
                     for region in regions:
-                        self._gen_val['id'] = lambda pow, agent: region_id[region]
+                        gen_val['id'] = lambda pow, agent: region_id[region]
                         index = (version, start_time, prof_name, agent, node_name, it, region)
-                        value = self._gen_val[col](pp, agent)
+                        value = gen_val[col](pp, agent)
                         input_data[col][index] = value
 
     df = pandas.DataFrame.from_dict(input_data)

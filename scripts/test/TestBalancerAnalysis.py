@@ -95,7 +95,8 @@ class TestBalancerAnalysis(unittest.TestCase):
 
     def test_balancer_plot_process_runtime(self):
         metric = 'runtime'
-        report_df = mock_report.tba_make_mock_report_df(self)
+        report_df = mock_report.tba_make_mock_report_df(self._name_prefix, self._gen_val,
+                                                        self._powers)
         mock_parse_data = MockAppOutput(report_df)
         analysis = geopmpy.analysis.BalancerAnalysis(metric=metric, normalize=False, speedup=False,
                                                      **self._config)
@@ -105,7 +106,8 @@ class TestBalancerAnalysis(unittest.TestCase):
         compare_dataframe(self, expected_df, result)
 
     def test_balancer_plot_process_energy(self):
-        report_df = mock_report.tba_make_mock_report_df(self)
+        report_df = mock_report.tba_make_mock_report_df(self._name_prefix, self._gen_val,
+                                                        self._powers)
         mock_parse_data = MockAppOutput(report_df)
         analysis = geopmpy.analysis.BalancerAnalysis(metric='energy', normalize=False, speedup=False,
                                                      **self._config)
@@ -116,7 +118,8 @@ class TestBalancerAnalysis(unittest.TestCase):
 
     def test_balancer_plot_process_power(self):
         metric = 'power'
-        report_df = mock_report.tba_make_mock_report_df(self)
+        report_df = mock_report.tba_make_mock_report_df(self._name_prefix, self._gen_val,
+                                                        self._powers)
         mock_parse_data = MockAppOutput(report_df)
         analysis = geopmpy.analysis.BalancerAnalysis(metric=metric, normalize=False, speedup=False,
                                                      **self._config)
