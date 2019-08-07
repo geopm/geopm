@@ -61,7 +61,7 @@ namespace geopm
             /// @brief Attempt to lock the mutex for the shared memory region
             ///        and return a scoped mutex object that will unlock the
             ///        mutex when it goes out of scope.
-            virtual std::shared_ptr<SharedMemoryScopedLock> get_scoped_lock(void) = 0;
+            virtual std::unique_ptr<SharedMemoryScopedLock> get_scoped_lock(void) = 0;
             /// @brief Returns a unique_ptr to a concrete object
             ///        constructed using the underlying implementation
             static std::unique_ptr<SharedMemory> make_unique(const std::string &shm_key, size_t size);

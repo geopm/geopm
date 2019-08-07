@@ -191,9 +191,9 @@ namespace geopm
         return m_size;
     }
 
-    std::shared_ptr<SharedMemoryScopedLock> SharedMemoryImp::get_scoped_lock(void)
+    std::unique_ptr<SharedMemoryScopedLock> SharedMemoryImp::get_scoped_lock(void)
     {
-        return std::make_shared<SharedMemoryScopedLock>((pthread_mutex_t*)m_ptr);
+        return geopm::make_unique<SharedMemoryScopedLock>((pthread_mutex_t*)m_ptr);
     }
 
 
@@ -303,8 +303,8 @@ namespace geopm
         }
     }
 
-    std::shared_ptr<SharedMemoryScopedLock> SharedMemoryUserImp::get_scoped_lock(void)
+    std::unique_ptr<SharedMemoryScopedLock> SharedMemoryUserImp::get_scoped_lock(void)
     {
-        return std::make_shared<SharedMemoryScopedLock>((pthread_mutex_t*)m_ptr);
+        return geopm::make_unique<SharedMemoryScopedLock>((pthread_mutex_t*)m_ptr);
     }
 }
