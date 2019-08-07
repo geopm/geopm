@@ -398,13 +398,13 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
     std::vector<double> trace_vals(7, NAN);
     std::vector<double> exp_trace_vals(7, NAN);
     const std::vector<std::string> trace_cols {
-        "policy_power_cap",
-        "policy_step_count",
-        "policy_max_epoch_runtime",
-        "policy_power_slack",
-        "epoch_runtime",
-        "power_limit",
-        "enforced_power_limit"};
+        "POLICY_POWER_CAP",
+        "POLICY_STEP_COUNT",
+        "POLICY_MAX_EPOCH_RUNTIME",
+        "POLICY_POWER_SLACK",
+        "EPOCH_RUNTIME",
+        "POWER_LIMIT",
+        "ENFORCED_POWER_LIMIT"};
     const std::vector<std::function<std::string(double)> > trace_formats {
         geopm::string_format_double,
         PowerBalancerAgent::format_step_count,

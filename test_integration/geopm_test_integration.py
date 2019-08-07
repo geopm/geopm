@@ -184,12 +184,12 @@ class TestIntegration(unittest.TestCase):
         last_index = 0
         filtered_df = pandas.DataFrame()
         row_list = []
-        progress_1s = df['region_progress'].loc[df['region_progress'] == 1]
+        progress_1s = df['REGION_PROGRESS'].loc[df['REGION_PROGRESS'] == 1]
         for index, _ in progress_1s.iteritems():
             row = df.loc[last_index:index].head(1)
-            row_list += [row[['time', 'region_progress', 'region_runtime']]]
+            row_list += [row[['TIME', 'REGION_PROGRESS', 'REGION_RUNTIME']]]
             row = df.loc[last_index:index].tail(1)
-            row_list += [row[['time', 'region_progress', 'region_runtime']]]
+            row_list += [row[['TIME', 'REGION_PROGRESS', 'REGION_RUNTIME']]]
             last_index = index + 1  # Set the next starting index to be one past where we are
         filtered_df = pandas.concat(row_list)
         return filtered_df
@@ -441,11 +441,11 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             trace = self._output.get_trace_data(node_name=nn)
             app_totals = self._output.get_app_total_data(node_name=nn)
-            self.assertNear(trace.iloc[-1]['time'], app_totals['runtime'].item(), 'Application runtime failure, node_name={}.'.format(nn))
+            self.assertNear(trace.iloc[-1]['TIME'], app_totals['runtime'].item(), 'Application runtime failure, node_name={}.'.format(nn))
             # Calculate runtime totals for each region in each trace, compare to report
             tt = trace.reset_index(level='index')  # move 'index' field from multiindex to columns
-            tt = tt.set_index(['region_hash'], append=True)  # add region_hash column to multiindex
-            tt_reg = tt.groupby(level=['region_hash'])
+            tt = tt.set_index(['REGION_HASH'], append=True)  # add region_hash column to multiindex
+            tt_reg = tt.groupby(level=['REGION_HASH'])
             for region_name in regions:
                 region_data = self._output.get_report_data(node_name=nn, region=region_name)
                 if (region_name not in ['unmarked-region', 'model-init', 'epoch'] and
@@ -455,15 +455,15 @@ class TestIntegration(unittest.TestCase):
                     trace_data = tt_reg.get_group(region_hash)
                     start_idx = trace_data.iloc[0]['index']
                     end_idx = trace_data.iloc[-1]['index'] + 1  # use time from sample after exiting region
-                    start_time = tt.loc[tt['index'] == start_idx]['time'].item()
-                    end_time = tt.loc[tt['index'] == end_idx]['time'].item()
+                    start_time = tt.loc[tt['index'] == start_idx]['TIME'].item()
+                    end_time = tt.loc[tt['index'] == end_idx]['TIME'].item()
                     trace_elapsed_time = end_time - start_time
-                    trace_elapsed_time = trace_data.iloc[-1]['time'] - trace_data.iloc[0]['time']
+                    trace_elapsed_time = trace_data.iloc[-1]['TIME'] - trace_data.iloc[0]['TIME']
                     msg = 'for region {rn} on node {nn}'.format(rn=region_name, nn=nn)
                     self.assertNear(trace_elapsed_time, region_data['sync_runtime'].item(), msg=msg)
             #epoch
             region_data = self._output.get_report_data(node_name=nn, region='epoch')
-            trace_elapsed_time = trace.iloc[-1]['time'] - trace['time'].loc[trace['epoch_count'] == 0].iloc[0]
+            trace_elapsed_time = trace.iloc[-1]['TIME'] - trace['TIME'].loc[trace['EPOCH_COUNT'] == 0].iloc[0]
             msg = 'for epoch on node {nn}'.format(nn=nn)
             self.assertNear(trace_elapsed_time, region_data['runtime'].item(), msg=msg)
 
@@ -496,9 +496,9 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             app_totals = self._output.get_app_total_data(node_name=nn)
             trace = self._output.get_trace_data(node_name=nn)
-            self.assertNear(trace.iloc[-1]['time'], app_totals['runtime'].item())
-            tt = trace.set_index(['region_hash'], append=True)
-            tt = tt.groupby(level=['region_hash'])
+            self.assertNear(trace.iloc[-1]['TIME'], app_totals['runtime'].item())
+            tt = trace.set_index(['REGION_HASH'], append=True)
+            tt = tt.groupby(level=['REGION_HASH'])
             for region_name in regions:
                 region_data = self._output.get_report_data(node_name=nn, region=region_name)
                 if region_name not in ['unmarked-region', 'model-init', 'epoch'] and not region_name.startswith('MPI_') and region_data['runtime'].item() != 0:
@@ -507,11 +507,11 @@ class TestIntegration(unittest.TestCase):
                     first_time = False
                     epsilon = 0.001 if region_name != 'sleep' else 0.05
                     for index, df in filtered_df.iterrows():
-                        if df['region_progress'] == 1:
-                            self.assertNear(df['region_runtime'], expected_region_runtime[region_name], epsilon=epsilon)
+                        if df['REGION_PROGRESS'] == 1:
+                            self.assertNear(df['REGION_RUNTIME'], expected_region_runtime[region_name], epsilon=epsilon)
                             first_time = True
-                        if first_time is True and df['region_progress'] == 0:
-                            self.assertNear(df['region_runtime'], expected_region_runtime[region_name], epsilon=epsilon)
+                        if first_time is True and df['REGION_PROGRESS'] == 0:
+                            self.assertNear(df['REGION_RUNTIME'], expected_region_runtime[region_name], epsilon=epsilon)
 
     @skip_unless_run_long_tests()
     def test_region_runtimes(self):
@@ -539,19 +539,19 @@ class TestIntegration(unittest.TestCase):
         # Calculate region times from traces
         region_times = collections.defaultdict(lambda: collections.defaultdict(dict))
         for nn in node_names:
-            tt = self._output.get_trace_data(node_name=nn).set_index(['region_hash'], append=True).groupby(level=['region_hash'])
+            tt = self._output.get_trace_data(node_name=nn).set_index(['REGION_HASH'], append=True).groupby(level=['REGION_HASH'])
 
             for region_hash, data in tt:
                 filtered_df = self.create_progress_df(data)
                 filtered_df = filtered_df.diff()
                 # Since I'm not separating out the progress 0's from 1's, when I do the diff I only care about the
                 # case where 1 - 0 = 1 for the progress column.
-                filtered_df = filtered_df.loc[filtered_df['region_progress'] == 1]
+                filtered_df = filtered_df.loc[filtered_df['REGION_PROGRESS'] == 1]
 
                 if len(filtered_df) > 1:
                     launcher.write_log(name, 'Region elapsed time stats from {} - {} :\n{}'\
-                                       .format(nn, region_hash, filtered_df['time'].describe()))
-                    filtered_df['time'].describe()
+                                       .format(nn, region_hash, filtered_df['TIME'].describe()))
+                    filtered_df['TIME'].describe()
                     region_times[nn][region_hash] = filtered_df
 
             launcher.write_log(name, '{}'.format('-' * 80))
@@ -569,7 +569,7 @@ class TestIntegration(unittest.TestCase):
                         launcher.write_log(name, 'Region {} is {}.'.format(rr['id'].item(), region_name))
                     runtime = rr['sync_runtime'].item()
                     self.assertNear(runtime,
-                                    region_times[nn][rr['id'].item()]['time'].sum())
+                                    region_times[nn][rr['id'].item()]['TIME'].sum())
             write_regions = False
 
         # Test to ensure every region detected in the trace is captured in the report.
@@ -634,7 +634,7 @@ class TestIntegration(unittest.TestCase):
             self.assertNear(delay * loop_count, spin_data['runtime'].item())
             self.assertEqual(loop_count, spin_data['count'].item())
             self.assertEqual(loop_count, epoch_data['count'].item())
-            self.assertEqual(loop_count, trace_data['epoch_count'][-1])
+            self.assertEqual(loop_count, trace_data['EPOCH_COUNT'][-1])
 
     @skip_unless_run_long_tests()
     def test_scaling(self):
@@ -726,20 +726,20 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             tt = self._output.get_trace_data(node_name=nn)
 
-            first_epoch_index = tt.loc[tt['epoch_count'] == 0][:1].index[0]
+            first_epoch_index = tt.loc[tt['EPOCH_COUNT'] == 0][:1].index[0]
             epoch_dropped_data = tt[first_epoch_index:]  # Drop all startup data
 
-            power_data = epoch_dropped_data.filter(regex='energy')
-            power_data['time'] = epoch_dropped_data['time']
+            power_data = epoch_dropped_data.filter(regex='ENERGY')
+            power_data['TIME'] = epoch_dropped_data['TIME']
             power_data = power_data.diff().dropna()
-            power_data.rename(columns={'time': 'elapsed_time'}, inplace=True)
+            power_data.rename(columns={'TIME': 'ELAPSED_TIME'}, inplace=True)
             power_data = power_data.loc[(power_data != 0).all(axis=1)]  # Will drop any row that is all 0's
 
-            pkg_energy_cols = [s for s in power_data.keys() if 'energy_package' in s]
-            dram_energy_cols = [s for s in power_data.keys() if 'energy_dram' in s]
-            power_data['socket_power'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['elapsed_time']
-            power_data['dram_power'] = power_data[dram_energy_cols].sum(axis=1) / power_data['elapsed_time']
-            power_data['combined_power'] = power_data['socket_power'] + power_data['dram_power']
+            pkg_energy_cols = [s for s in power_data.keys() if 'ENERGY_PACKAGE' in s]
+            dram_energy_cols = [s for s in power_data.keys() if 'ENERGY_DRAM' in s]
+            power_data['SOCKET_POWER'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
+            power_data['DRAM_POWER'] = power_data[dram_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
+            power_data['COMBINED_POWER'] = power_data['SOCKET_POWER'] + power_data['DRAM_POWER']
 
             pandas.set_option('display.width', 100)
             launcher.write_log(name, 'Power stats from {} :\n{}'.format(nn, power_data.describe()))
@@ -748,7 +748,7 @@ class TestIntegration(unittest.TestCase):
 
         for node_name, power_data in all_power_data.iteritems():
             # Allow for overages of 2% at the 75th percentile.
-            self.assertGreater(self._options['power_budget'] * 1.02, power_data['socket_power'].quantile(.75))
+            self.assertGreater(self._options['power_budget'] * 1.02, power_data['SOCKET_POWER'].quantile(.75))
 
             # TODO Checks on the maximum power computed during the run?
             # TODO Checks to see how much power was left on the table?
@@ -806,27 +806,27 @@ class TestIntegration(unittest.TestCase):
             for nn in node_names:
                 tt = self._output.get_trace_data(node_name=nn)
 
-                first_epoch_index = tt.loc[tt['epoch_count'] == 0][:1].index[0]
+                first_epoch_index = tt.loc[tt['EPOCH_COUNT'] == 0][:1].index[0]
                 epoch_dropped_data = tt[first_epoch_index:]  # Drop all startup data
 
-                power_data = epoch_dropped_data.filter(regex='energy')
-                power_data['time'] = epoch_dropped_data['time']
+                power_data = epoch_dropped_data.filter(regex='ENERGY')
+                power_data['TIME'] = epoch_dropped_data['TIME']
                 power_data = power_data.diff().dropna()
-                power_data.rename(columns={'time': 'elapsed_time'}, inplace=True)
+                power_data.rename(columns={'TIME': 'ELAPSED_TIME'}, inplace=True)
                 power_data = power_data.loc[(power_data != 0).all(axis=1)]  # Will drop any row that is all 0's
 
-                pkg_energy_cols = [s for s in power_data.keys() if 'energy_package' in s]
-                dram_energy_cols = [s for s in power_data.keys() if 'energy_dram' in s]
-                power_data['socket_power'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['elapsed_time']
-                power_data['dram_power'] = power_data[dram_energy_cols].sum(axis=1) / power_data['elapsed_time']
-                power_data['combined_power'] = power_data['socket_power'] + power_data['dram_power']
+                pkg_energy_cols = [s for s in power_data.keys() if 'ENERGY_PACKAGE' in s]
+                dram_energy_cols = [s for s in power_data.keys() if 'ENERGY_DRAM' in s]
+                power_data['SOCKET_POWER'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
+                power_data['DRAM_POWER'] = power_data[dram_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
+                power_data['COMBINED_POWER'] = power_data['SOCKET_POWER'] + power_data['DRAM_POWER']
 
                 pandas.set_option('display.width', 100)
                 launcher.write_log(name, 'Power stats from {} {} :\n{}'.format(agent, nn, power_data.describe()))
 
                 # Get final power limit set on the node
                 if agent == 'power_balancer':
-                    power_limits.append(epoch_dropped_data['power_limit'][-1])
+                    power_limits.append(epoch_dropped_data['POWER_LIMIT'][-1])
 
             if agent == 'power_balancer':
                 avg_power_limit = sum(power_limits) / len(power_limits)
@@ -881,10 +881,10 @@ class TestIntegration(unittest.TestCase):
 
         for nn in node_names:
             tt = self._output.get_trace_data(node_name=nn)
-            tt = tt.set_index(['region_hash'], append=True)
-            tt = tt.groupby(level=['region_hash'])
+            tt = tt.set_index(['REGION_HASH'], append=True)
+            tt = tt.groupby(level=['REGION_HASH'])
             for region_hash, data in tt:
-                tmp = data['region_progress'].diff()
+                tmp = data['REGION_PROGRESS'].diff()
                 #@todo legacy branch?
                 # Look for changes in progress that are more negative
                 # than can be expected due to extrapolation error.
@@ -925,7 +925,7 @@ class TestIntegration(unittest.TestCase):
 
         for nn in node_names:
             tt = self._output.get_trace_data(node_name=nn)
-            delta_t = tt['time'].diff()
+            delta_t = tt['TIME'].diff()
             delta_t = delta_t.loc[delta_t != 0]
             self.assertGreater(max_mean, delta_t.mean())
             # WARNING : The following line may mask issues in the sampling rate. To do a fine grained analysis, comment
@@ -1362,6 +1362,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_output(['--domain', 'INVALID'], ['unable to determine signal type'])
         self.check_output(['--domain', '--info'], ['info about domain not implemented'])
 
+    @skip_unless_slurm_batch()
     def test_geopmread_all_signal_agg(self):
         '''
         Check that all reported signals can be read for board, aggregating if necessary.
@@ -1379,6 +1380,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         for sig in all_signals:
             self.check_no_error([sig, 'board', '0'])
 
+    @skip_unless_slurm_batch()
     def test_geopmread_signal_value(self):
         '''
         Check that some specific signals give a sane value.
