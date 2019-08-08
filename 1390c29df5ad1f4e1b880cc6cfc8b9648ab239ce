@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a45f1003_56a4e339",
+        "filename": "src/PolicyStoreImp.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T00:18:40Z",
+      "side": 1,
+      "message": "indentation",
+      "range": {
+        "startLine": 54,
+        "startChar": 29,
+        "endLine": 54,
+        "endChar": 31
+      },
+      "revId": "1390c29df5ad1f4e1b880cc6cfc8b9648ab239ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26cc07ad_bc9f7424",
+        "filename": "src/PolicyStoreImp.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T00:18:40Z",
+      "side": 1,
+      "message": "indentation",
+      "range": {
+        "startLine": 60,
+        "startChar": 37,
+        "endLine": 60,
+        "endChar": 40
+      },
+      "revId": "1390c29df5ad1f4e1b880cc6cfc8b9648ab239ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
