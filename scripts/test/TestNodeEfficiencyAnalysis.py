@@ -89,7 +89,7 @@ class TestNodeEfficiencyAnalysis(unittest.TestCase):
 
     def test_node_efficiency_process(self):
         analysis = geopmpy.analysis.NodeEfficiencyAnalysis(**self._config)
-        report_df = mock_report.tnea_make_mock_report_df(
+        report_df = mock_report.make_mock_report_df(
                 self._name_prefix, self._node_names,
                 {'power_balancer': (self._gen_val, self._powers),
                  'power_governor': (self._gen_val, self._powers)})
