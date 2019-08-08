@@ -71,7 +71,7 @@ class FrequencyMapAgentTest : public :: testing :: Test
 
         void SetUp();
         void TearDown();
-        static const int M_NUM_CPU = 1;
+        static const int M_NUM_RANK = 1;
         static const size_t M_NUM_REGIONS = 5;
         std::vector<double> m_expected_freqs;
         std::unique_ptr<FrequencyMapAgent> m_agent;
@@ -93,8 +93,8 @@ void FrequencyMapAgentTest::SetUp()
     m_platform_io = geopm::make_unique<MockPlatformIO>();
     m_platform_topo = geopm::make_unique<MockPlatformTopo>();
     m_governor = std::make_shared<MockFrequencyGovernor>();
-    ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD))
-        .WillByDefault(Return(1));
+    ON_CALL(*m_platform_topo, num_domain(GEOPM_DOMAIN_MPI_RANK))
+        .WillByDefault(Return(M_NUM_RANK));
     ON_CALL(*m_platform_io, push_signal("REGION_HASH", _, _))
         .WillByDefault(Return(REGION_HASH_IDX));
     ON_CALL(*m_platform_io, push_signal("REGION_HINT", _, _))
@@ -105,8 +105,6 @@ void FrequencyMapAgentTest::SetUp()
     m_freq_min = 1800000000.0;
     m_freq_max = 2200000000.0;
     m_freq_step = 100000000.0;
-    ON_CALL(*m_governor, frequency_domain_type())
-        .WillByDefault(Return(GEOPM_DOMAIN_BOARD));
     ON_CALL(*m_governor, get_frequency_min())
         .WillByDefault(Return(m_freq_min));
     ON_CALL(*m_governor, get_frequency_max())
@@ -143,7 +141,6 @@ void FrequencyMapAgentTest::SetUp()
     m_agent = geopm::make_unique<FrequencyMapAgent>(*m_platform_io, *m_platform_topo, m_governor, frequency_map);
     // todo: this test assumes board domain is used for control
     EXPECT_CALL(*m_governor, init_platform_io());
-    EXPECT_CALL(*m_governor, frequency_domain_type());
     m_agent->init(0, {}, false);
 }
 
@@ -156,9 +153,11 @@ TEST_F(FrequencyMapAgentTest, map)
 {
     for (size_t x = 0; x < M_NUM_REGIONS; x++) {
         EXPECT_CALL(*m_platform_io, sample(REGION_HASH_IDX))
-            .WillOnce(Return(m_region_hash[x]));
+            .Times(M_NUM_RANK)
+            .WillRepeatedly(Return(m_region_hash[x]));
         EXPECT_CALL(*m_platform_io, sample(REGION_HINT_IDX))
-            .WillOnce(Return(m_region_hint[x]));
+            .Times(M_NUM_RANK)
+            .WillRepeatedly(Return(m_region_hint[x]));
         std::vector<double> adjust_vals = {m_mapped_freqs[x]};
         EXPECT_CALL(*m_governor, set_frequency_bounds(m_freq_min, m_freq_max));
         EXPECT_CALL(*m_governor, adjust_platform(adjust_vals));
@@ -181,9 +180,11 @@ TEST_F(FrequencyMapAgentTest, hint)
 {
     for (size_t x = 0; x < m_region_hint.size(); x++) {
         EXPECT_CALL(*m_platform_io, sample(REGION_HASH_IDX))
-            .WillOnce(Return(0x1234 + x));
+            .Times(M_NUM_RANK)
+            .WillRepeatedly(Return(0x1234 + x));
         EXPECT_CALL(*m_platform_io, sample(REGION_HINT_IDX))
-            .WillOnce(Return(m_region_hint[x]));
+            .Times(M_NUM_RANK)
+            .WillRepeatedly(Return(m_region_hint[x]));
         double expected_freq = NAN;
         switch(m_region_hint[x]) {
             // Hints for low CPU frequency

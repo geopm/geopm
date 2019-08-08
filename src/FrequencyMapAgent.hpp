@@ -82,6 +82,7 @@ namespace geopm
             static std::vector<std::string> policy_names(void);
             static std::vector<std::string> sample_names(void);
         private:
+            void rank_target_to_freq_ctl_domain(std::vector<double> rank_target);
             void update_policy(const std::vector<double> &policy);
             void init_platform_io(void);
 
@@ -108,7 +109,7 @@ namespace geopm
             int m_level;
             int m_num_children;
             bool m_is_policy_updated;
-            int m_num_freq_ctl_domain;
+            int m_num_rank;
     };
 }
 
