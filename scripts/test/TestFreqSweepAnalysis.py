@@ -177,7 +177,7 @@ class TestFreqSweepAnalysis(unittest.TestCase):
         sweep_gen_val = self._gen_val.copy()
         self.set_runtime_best_fit(sweep_gen_val, best_fit_freq, best_fit_perf)
         sweep_params = {'energy_efficient': (sweep_gen_val, self._freqs)}
-        parse_out = mock_report.make_mock_sweep_report_df(
+        parse_out = mock_report.make_mock_report_df(
                 self._name_prefix + '_freq', self._node_names, sweep_params)
 
         parse_out = MockAppOutput(parse_out)
@@ -195,12 +195,12 @@ class TestFreqSweepAnalysis(unittest.TestCase):
         self.set_runtime_best_fit(sweep_gen_val, best_fit_freq, best_fit_perf)
         self.set_energy_pkg_best_fit(sweep_gen_val, best_fit_freq)
         sweep_params = {'energy_efficient': (sweep_gen_val, self._freqs)}
-        sweep_reports = mock_report.make_mock_sweep_report_df(
+        sweep_reports = mock_report.make_mock_report_df(
                 self._name_prefix + '_freq', self._node_names, sweep_params)
 
         prof_name = self._name_prefix + '_map'
         self._gen_val['energy_pkg'] = lambda node, region, param: self._optimal_metric_perf[region]
-        single_run_report = mock_report.tfsa_make_mock_report_df(
+        single_run_report = mock_report.make_mock_report_df(
                 prof_name, self._node_names, self._agent_params)
         parse_out = sweep_reports.append(single_run_report)
         parse_out.sort_index(ascending=True, inplace=True)
@@ -224,12 +224,12 @@ class TestFreqSweepAnalysis(unittest.TestCase):
         self.set_runtime_best_fit(sweep_gen_val, best_fit_freq, best_fit_perf)
         self.set_energy_pkg_best_fit(sweep_gen_val, best_fit_freq)
         sweep_params = {'energy_efficient': (sweep_gen_val, self._freqs)}
-        sweep_reports = mock_report.make_mock_sweep_report_df(
+        sweep_reports = mock_report.make_mock_report_df(
                 self._name_prefix + '_freq', self._node_names, sweep_params)
 
         prof_name = self._name_prefix + '_efficient'
         self._gen_val['energy_pkg'] = lambda node, region, param: self._optimal_metric_perf[region]
-        single_run_report = mock_report.tfsa_make_mock_report_df(
+        single_run_report = mock_report.make_mock_report_df(
                 prof_name, self._node_names, self._agent_params)
         parse_out = sweep_reports.append(single_run_report)
         parse_out.sort_index(ascending=True, inplace=True)
@@ -262,15 +262,15 @@ class TestFreqSweepAnalysis(unittest.TestCase):
             self.set_runtime_best_fit(sweep_gen_val, best_fit_freq, best_fit_perf)
             self.set_energy_pkg_best_fit(sweep_gen_val, best_fit_freq)
             sweep_params = {'energy_efficient': (sweep_gen_val, self._freqs)}
-            sweep_df = mock_report.make_mock_sweep_report_df(
+            sweep_df = mock_report.make_mock_report_df(
                     name + '_freq', self._node_names, sweep_params)
             sweep_reports[mix_idx] = MockAppOutput(sweep_df)
             self._gen_val['energy_pkg'] = lambda node, region, param: self._offline_metric_perf[region]
-            offline_df = mock_report.tfsa_make_mock_report_df(
+            offline_df = mock_report.make_mock_report_df(
                     name+'_offline', self._node_names, self._agent_params)
             offline_reports[mix_idx] = MockAppOutput(offline_df)
             self._gen_val['energy_pkg'] = lambda node, region, param: self._online_metric_perf[region]
-            online_df = mock_report.tfsa_make_mock_report_df(
+            online_df = mock_report.make_mock_report_df(
                     name+'_online', self._node_names, self._agent_params)
             online_reports[mix_idx] = MockAppOutput(online_df)
 

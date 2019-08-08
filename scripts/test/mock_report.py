@@ -32,176 +32,19 @@
 #
 import pandas
 
-# TestPowerSweepAnalysis.py
-def tpsa_make_mock_report_df(name_prefix, node_names, agent_params):
+def make_mock_report_df(name_prefix, node_names, agent_params):
+    """ Create a mock report dataframe.
+    Arguments:
+    name_prefix (str)
+        Prefix for the profile name
+    node_names (list(str))
+        List of nodes to include in the report
+    agent_params (dict(dict(lambda)))
+        Dictionary with agents as keys and dictionaries as values.  The nested
+        dictionaries map reported value names to lambda functions
+        (node, region, agent_param)->value.
+    """
     version = '0.3.0'
-    region_id = {
-        'epoch':  '9223372036854775808',
-        'dgemm':  '11396693813',
-        'stream': '20779751936'
-    }
-    start_time = 'Tue Nov  6 08:00:00 2018'
-    index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
-    iterations = range(1, 4)
-
-    input_data = {}
-    for agent in agent_params:
-        gen_val, params = agent_params[agent]
-        for col in gen_val:
-            if col not in input_data:
-                input_data[col] = {}
-            for param in params:
-                prof_name = name_prefix if params == [None] else '{}_{}'.format(name_prefix, param)
-                for node_name in node_names:
-                    for it in iterations:
-                        for region in region_id:
-                            gen_val['id'] = lambda node, region, param: region_id[region]
-                            index = (version, start_time, prof_name, agent, node_name, it, region)
-                            value = gen_val[col](node_name, region, param)
-                            input_data[col][index] = value
-
-    df = pandas.DataFrame.from_dict(input_data)
-    df.index.rename(index_names, inplace=True)
-    return df
-
-
-# TestNodeEfficiencyAnalysis.py
-def tnea_make_mock_report_df(name_prefix, node_names, agent_params):
-    # for input data frame
-    version = '0.3.0'
-    region_id = {
-        'epoch':  '9223372036854775808',
-        'dgemm':  '11396693813',
-        'stream': '20779751936'
-    }
-    start_time = 'Tue Nov  6 08:00:00 2018'
-    index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
-    iterations = range(1, 4)
-
-    input_data = {}
-    for agent in agent_params:
-        gen_val, params = agent_params[agent]
-        for col in gen_val:
-            if col not in input_data:
-                input_data[col] = {}
-            for param in params:
-                prof_name = name_prefix if params == [None] else '{}_{}'.format(name_prefix, param)
-                for node_name in node_names:
-                    for it in iterations:
-                        for region in region_id:
-                            gen_val['id'] = lambda node, region, param: region_id[region]
-                            index = (version, start_time, prof_name, agent, node_name, it, region)
-                            value = gen_val[col](node_name, region, param)
-                            input_data[col][index] = value
-
-    df = pandas.DataFrame.from_dict(input_data)
-    df.index.rename(index_names, inplace=True)
-    return df
-
-# TestNodePowerAnalysis.py
-def tnpa_make_mock_report_df(name_prefix, node_names, agent_params):
-    version = '0.3.0'
-    region_id = {
-        'epoch':  '9223372036854775808',
-        'dgemm':  '11396693813',
-        'stream': '20779751936'
-    }
-    start_time = 'Tue Nov  6 08:00:00 2018'
-    index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
-    iterations = range(1, 4)
-
-    input_data = {}
-    for agent in agent_params:
-        gen_val, params = agent_params[agent]
-        for col in gen_val:
-            if col not in input_data:
-                input_data[col] = {}
-            for param in params:
-                prof_name = name_prefix if params == [None] else '{}_{}'.format(name_prefix, param)
-                for node_name in node_names:
-                    for it in iterations:
-                        for region in region_id:
-                            gen_val['id'] = lambda node, region, param: region_id[region]
-                            index = (version, start_time, prof_name, agent, node_name, it, region)
-                            value = gen_val[col](node_name, region, param)
-                            input_data[col][index] = value
-
-    df = pandas.DataFrame.from_dict(input_data)
-    df.index.rename(index_names, inplace=True)
-    return df
-
-# TestBalancerAnalysis.py
-def tba_make_mock_report_df(name_prefix, node_names, agent_params):
-    version = '0.3.0'
-    region_id = {
-        'epoch':  '9223372036854775808',
-        'dgemm':  '11396693813',
-        'stream': '20779751936'
-    }
-    start_time = 'Tue Nov  6 08:00:00 2018'
-    index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
-    iterations = range(1, 4)
-
-    input_data = {}
-    for agent in agent_params:
-        gen_val, params = agent_params[agent]
-        for col in gen_val:
-            if col not in input_data:
-                input_data[col] = {}
-            for param in params:
-                prof_name = name_prefix if params == [None] else '{}_{}'.format(name_prefix, param)
-                for node_name in node_names:
-                    for it in iterations:
-                        for region in region_id:
-                            gen_val['id'] = lambda node, region, param: region_id[region]
-                            index = (version, start_time, prof_name, agent, node_name, it, region)
-                            value = gen_val[col](node_name, region, param)
-                            input_data[col][index] = value
-
-    df = pandas.DataFrame.from_dict(input_data)
-    df.index.rename(index_names, inplace=True)
-    return df
-
-# TestFreqSweepAnalysis.py
-# TODO: profile name should affect performance. it can hide bugs if all the numbers are the same
-# however the functions that generate expected output need to also take this into account
-def make_mock_sweep_report_df(name_prefix, node_names, agent_params):
-    ''' Make a mock report dataframe for the fixed frequency sweeps.'''
-    version = '0.3.0'
-    region_id = {
-        'epoch':  '9223372036854775808',
-        'dgemm':  '11396693813',
-        'stream': '20779751936'
-    }
-    start_time = 'Tue Nov  6 08:00:00 2018'
-    index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
-    iterations = range(1, 4)
-
-    input_data = {}
-    for agent in agent_params:
-        gen_val, params = agent_params[agent]
-        for col in gen_val:
-            if col not in input_data:
-                input_data[col] = {}
-            for param in params:
-                prof_name = name_prefix if params == [None] else '{}_{}'.format(name_prefix, param)
-                for node_name in node_names:
-                    for it in iterations:
-                        for region in region_id:
-                            gen_val['id'] = lambda node, region, param: region_id[region]
-                            index = (version, start_time, prof_name, agent, node_name, it, region)
-                            value = gen_val[col](node_name, region, param)
-                            input_data[col][index] = value
-
-    df = pandas.DataFrame.from_dict(input_data)
-    df.index.rename(index_names, inplace=True)
-    return df
-
-# TestFreqSweepAnalysis.py
-def tfsa_make_mock_report_df(name_prefix, node_names, agent_params):
-    ''' Make a mock report dataframe for a single run.'''
-    version = '0.3.0'
-    # for input data frame
     region_id = {
         'epoch':  '9223372036854775808',
         'dgemm':  '11396693813',
