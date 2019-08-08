@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb61b444_4e43c172",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-08-08T16:47:04Z",
+      "side": 1,
+      "message": "m_tracer-\u003ecolumns(m_agent[0]-\u003etrace_names(),\n                          m_agent[0]-\u003etrace_formats());\n// no intermediates needed (neither no auto that you still can\u0027t seem to love)",
+      "range": {
+        "startLine": 405,
+        "startChar": 8,
+        "endLine": 405,
+        "endChar": 53
+      },
+      "revId": "c97b3937f57000336296ea6c82d095f87dc50a3e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
