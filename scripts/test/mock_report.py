@@ -33,35 +33,32 @@
 import pandas
 
 # TestPowerSweepAnalysis.py
-def tpsa_make_mock_report_df(name_prefix, gen_val, powers):
+def tpsa_make_mock_report_df(name_prefix, node_names, agent_params):
     version = '0.3.0'
-    agent = 'power_governor'
-    node_name = 'mynode'
     region_id = {
         'epoch':  '9223372036854775808',
         'dgemm':  '11396693813',
         'stream': '20779751936'
     }
     start_time = 'Tue Nov  6 08:00:00 2018'
-
-    # for input data frame
     index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
-    numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'mpi_runtime', 'runtime', 'id']
-
-    regions = ['epoch', 'dgemm', 'stream']
     iterations = range(1, 4)
 
     input_data = {}
-    for col in numeric_cols:
-        input_data[col] = {}
-        for pp in powers:
-            prof_name = '{}_{}'.format(name_prefix, pp)
-            for it in iterations:
-                for region in regions:
-                    gen_val['id'] = lambda pow: region_id[region]
-                    index = (version, start_time, prof_name, agent, node_name, it, region)
-                    value = gen_val[col](pp)
-                    input_data[col][index] = value
+    for agent in agent_params:
+        gen_val, params = agent_params[agent]
+        for col in gen_val:
+            if col not in input_data:
+                input_data[col] = {}
+            for param in params:
+                prof_name = name_prefix if params == [None] else '{}_{}'.format(name_prefix, param)
+                for node_name in node_names:
+                    for it in iterations:
+                        for region in region_id:
+                            gen_val['id'] = lambda node, region, param: region_id[region]
+                            index = (version, start_time, prof_name, agent, node_name, it, region)
+                            value = gen_val[col](node_name, region, param)
+                            input_data[col][index] = value
 
     df = pandas.DataFrame.from_dict(input_data)
     df.index.rename(index_names, inplace=True)
@@ -69,7 +66,7 @@ def tpsa_make_mock_report_df(name_prefix, gen_val, powers):
 
 
 # TestNodeEfficiencyAnalysis.py
-def tnea_make_mock_report_df(name_prefix, gen_val, powers, num_nodes):
+def tnea_make_mock_report_df(name_prefix, node_names, agent_params):
     # for input data frame
     version = '0.3.0'
     region_id = {
@@ -79,21 +76,22 @@ def tnea_make_mock_report_df(name_prefix, gen_val, powers, num_nodes):
     }
     start_time = 'Tue Nov  6 08:00:00 2018'
     index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
-    numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'mpi_runtime', 'runtime', 'id']
     iterations = range(1, 4)
+
     input_data = {}
-    for col in numeric_cols:
-        input_data[col] = {}
-        for agent in ['power_balancer', 'power_governor']:
-            for power_cap in powers:
-                prof_name = '{}_{}'.format(name_prefix, power_cap)
-                for node in range(num_nodes):
-                    node_name = 'node{}'.format(node)
+    for agent in agent_params:
+        gen_val, params = agent_params[agent]
+        for col in gen_val:
+            if col not in input_data:
+                input_data[col] = {}
+            for param in params:
+                prof_name = name_prefix if params == [None] else '{}_{}'.format(name_prefix, param)
+                for node_name in node_names:
                     for it in iterations:
-                        for region in region_id.keys():
-                            gen_val['id'] = lambda node, power_cap: region_id[region]
+                        for region in region_id:
+                            gen_val['id'] = lambda node, region, param: region_id[region]
                             index = (version, start_time, prof_name, agent, node_name, it, region)
-                            value = gen_val[col](node, power_cap)
+                            value = gen_val[col](node_name, region, param)
                             input_data[col][index] = value
 
     df = pandas.DataFrame.from_dict(input_data)
@@ -101,8 +99,7 @@ def tnea_make_mock_report_df(name_prefix, gen_val, powers, num_nodes):
     return df
 
 # TestNodePowerAnalysis.py
-def tnpa_make_mock_report_df(name_prefix, gen_val, num_nodes):
-    # for input data frame
+def tnpa_make_mock_report_df(name_prefix, node_names, agent_params):
     version = '0.3.0'
     region_id = {
         'epoch':  '9223372036854775808',
@@ -111,54 +108,55 @@ def tnpa_make_mock_report_df(name_prefix, gen_val, num_nodes):
     }
     start_time = 'Tue Nov  6 08:00:00 2018'
     index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
-    numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'mpi_runtime', 'runtime', 'id']
     iterations = range(1, 4)
+
     input_data = {}
-    prof_name = '{}_nocap'.format(name_prefix)
-    agent = 'monitor'
-    for col in numeric_cols:
-        input_data[col] = {}
-        for node in range(num_nodes):
-            node_name = 'node{}'.format(node)
-            for it in iterations:
-                for region in region_id.keys():
-                    gen_val['id'] = lambda node: region_id[region]
-                    index = (version, start_time, prof_name, agent, node_name, it, region)
-                    value = gen_val[col](node)
-                    input_data[col][index] = value
+    for agent in agent_params:
+        gen_val, params = agent_params[agent]
+        for col in gen_val:
+            if col not in input_data:
+                input_data[col] = {}
+            for param in params:
+                prof_name = name_prefix if params == [None] else '{}_{}'.format(name_prefix, param)
+                for node_name in node_names:
+                    for it in iterations:
+                        for region in region_id:
+                            gen_val['id'] = lambda node, region, param: region_id[region]
+                            index = (version, start_time, prof_name, agent, node_name, it, region)
+                            value = gen_val[col](node_name, region, param)
+                            input_data[col][index] = value
 
     df = pandas.DataFrame.from_dict(input_data)
     df.index.rename(index_names, inplace=True)
     return df
 
 # TestBalancerAnalysis.py
-def tba_make_mock_report_df(name_prefix, gen_val, powers):
-    # for input data frame
+def tba_make_mock_report_df(name_prefix, node_names, agent_params):
     version = '0.3.0'
-    node_name = 'mynode'
     region_id = {
         'epoch':  '9223372036854775808',
         'dgemm':  '11396693813',
         'stream': '20779751936'
     }
-    index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
-    numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'mpi_runtime', 'runtime', 'id']
-    regions = ['epoch', 'dgemm', 'stream']
-    iterations = range(1, 4)
     start_time = 'Tue Nov  6 08:00:00 2018'
+    index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
+    iterations = range(1, 4)
 
     input_data = {}
-    for col in numeric_cols:
-        input_data[col] = {}
-        for pp in powers:
-            prof_name = '{}_{}'.format(name_prefix, pp)
-            for it in iterations:
-                for agent in ['power_governor', 'power_balancer']:
-                    for region in regions:
-                        gen_val['id'] = lambda pow, agent: region_id[region]
-                        index = (version, start_time, prof_name, agent, node_name, it, region)
-                        value = gen_val[col](pp, agent)
-                        input_data[col][index] = value
+    for agent in agent_params:
+        gen_val, params = agent_params[agent]
+        for col in gen_val:
+            if col not in input_data:
+                input_data[col] = {}
+            for param in params:
+                prof_name = name_prefix if params == [None] else '{}_{}'.format(name_prefix, param)
+                for node_name in node_names:
+                    for it in iterations:
+                        for region in region_id:
+                            gen_val['id'] = lambda node, region, param: region_id[region]
+                            index = (version, start_time, prof_name, agent, node_name, it, region)
+                            value = gen_val[col](node_name, region, param)
+                            input_data[col][index] = value
 
     df = pandas.DataFrame.from_dict(input_data)
     df.index.rename(index_names, inplace=True)
@@ -167,99 +165,68 @@ def tba_make_mock_report_df(name_prefix, gen_val, powers):
 # TestFreqSweepAnalysis.py
 # TODO: profile name should affect performance. it can hide bugs if all the numbers are the same
 # however the functions that generate expected output need to also take this into account
-def make_mock_sweep_report_df(name_prefix, freqs, best_fit_freq, best_fit_perf,
-                              metric_of_interest=None, best_fit_metric_perf=None,
-                              baseline_freq=None, baseline_metric_perf=None):
+def make_mock_sweep_report_df(name_prefix, node_names, agent_params):
     ''' Make a mock report dataframe for the fixed frequency sweeps.'''
     version = '0.3.0'
-    agent = 'energy_efficient'
-    node_name = 'mynode'
     region_id = {
         'epoch':  '9223372036854775808',
         'dgemm':  '11396693813',
         'stream': '20779751936'
     }
-    index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
-    numeric_cols = ['count', 'energy_pkg', 'frequency', 'mpi_runtime', 'runtime', 'id']
-    regions = ['epoch', 'dgemm', 'stream']
-    iterations = range(1, 4)
     start_time = 'Tue Nov  6 08:00:00 2018'
+    index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
+    iterations = range(1, 4)
+
     input_data = {}
-    # for input data frame
-    gen_val = {
-        'count': 1,
-        'energy_pkg': 14000.0,
-        'frequency': 1e9,
-        'mpi_runtime': 10,
-        'runtime': 50,
-        'id': 'bad'
-    }
-    for col in numeric_cols:
-        input_data[col] = {}
-        for freq in freqs:
-            prof_name = '{}_freq_{}'.format(name_prefix, freq)
-            for it in iterations:
-                for region in regions:
-                    gen_val['id'] = region_id[region]  # return unique region id
-                    index = (version, start_time, prof_name, agent, node_name, it, region)
-                    value = gen_val[col]
-                    # force best performance for requested best fit freq
-                    if col == 'runtime':
-                        if freq == best_fit_freq[region]:
-                            value = best_fit_perf[region]
-                        else:
-                            # make other frequencies have worse performance
-                            value = best_fit_perf[region] * 2.0
-                    elif metric_of_interest == col:
-                        if freq == best_fit_freq[region]:
-                            value = best_fit_metric_perf[region]
-                        elif baseline_freq and baseline_metric_perf and freq == baseline_freq:
-                            value = baseline_metric_perf[region]
-                    input_data[col][index] = value
+    for agent in agent_params:
+        gen_val, params = agent_params[agent]
+        for col in gen_val:
+            if col not in input_data:
+                input_data[col] = {}
+            for param in params:
+                prof_name = name_prefix if params == [None] else '{}_{}'.format(name_prefix, param)
+                for node_name in node_names:
+                    for it in iterations:
+                        for region in region_id:
+                            gen_val['id'] = lambda node, region, param: region_id[region]
+                            index = (version, start_time, prof_name, agent, node_name, it, region)
+                            value = gen_val[col](node_name, region, param)
+                            input_data[col][index] = value
 
     df = pandas.DataFrame.from_dict(input_data)
     df.index.rename(index_names, inplace=True)
     return df
 
 # TestFreqSweepAnalysis.py
-def tfsa_make_mock_report_df(name_prefix, metric, metric_perf):
+def tfsa_make_mock_report_df(name_prefix, node_names, agent_params):
     ''' Make a mock report dataframe for a single run.'''
     version = '0.3.0'
-    agent = 'energy_efficient'
-    node_name = 'mynode'
+    # for input data frame
     region_id = {
         'epoch':  '9223372036854775808',
         'dgemm':  '11396693813',
         'stream': '20779751936'
     }
-    index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
-    numeric_cols = ['count', 'energy_pkg', 'frequency', 'mpi_runtime', 'runtime', 'id']
-    regions = ['epoch', 'dgemm', 'stream']
-    iterations = range(1, 4)
     start_time = 'Tue Nov  6 08:00:00 2018'
+    index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
+    iterations = range(1, 4)
 
     input_data = {}
-    # for input data frame
-    gen_val = {
-        'count': 1,
-        'energy_pkg': 14000.0,
-        'frequency': 1e9,
-        'mpi_runtime': 10,
-        'runtime': 50,
-        'id': 'bad'
-    }
-    for col in numeric_cols:
-        input_data[col] = {}
-        for it in iterations:
-            for region in regions:
-                gen_val['id'] = region_id[region]  # return unique region id
-                index = (version, start_time, name_prefix, agent, node_name, it, region)
-                value = gen_val[col]
-                if col == metric:
-                    value = metric_perf[region]
-                input_data[col][index] = value
+    for agent in agent_params:
+        gen_val, params = agent_params[agent]
+        for col in gen_val:
+            if col not in input_data:
+                input_data[col] = {}
+            for param in params:
+                prof_name = name_prefix if params == [None] else '{}_{}'.format(name_prefix, param)
+                for node_name in node_names:
+                    for it in iterations:
+                        for region in region_id:
+                            gen_val['id'] = lambda node, region, param: region_id[region]
+                            index = (version, start_time, prof_name, agent, node_name, it, region)
+                            value = gen_val[col](node_name, region, param)
+                            input_data[col][index] = value
 
     df = pandas.DataFrame.from_dict(input_data)
     df.index.rename(index_names, inplace=True)
     return df
-

@@ -58,15 +58,16 @@ class TestNodeEfficiencyAnalysis(unittest.TestCase):
                         }
         self._tmp_files = []
         self._num_nodes = 8
+        self._node_names = ['node{}'.format(node) for node in range(self._num_nodes)]
         # default mocked data for each column given node id
         self._gen_val = {
-            'count': (lambda node, pow: 1),
-            'energy_pkg': (lambda node, pow: 14000.0),
-            'energy_dram': (lambda node, pow: 2000.0),
-            'frequency': (lambda node, pow: 50.0 + (float(pow)/self._max_power)*(float(node)/self._num_nodes)),
-            'mpi_runtime': (lambda node, pow: 10),
-            'runtime': (lambda node, pow: 50.0),
-            'id': (lambda node, pow: 'bad'),
+            'count': (lambda node, region, pow: 1),
+            'energy_pkg': (lambda node, region, pow: 14000.0),
+            'energy_dram': (lambda node, region, pow: 2000.0),
+            'frequency': (lambda node, region, pow: 50.0 + (float(pow)/self._max_power)*(float(self._node_names.index(node))/self._num_nodes)),
+            'mpi_runtime': (lambda node, region, pow: 10),
+            'runtime': (lambda node, region, pow: 50.0),
+            'id': (lambda node, region, pow: 'bad'),
         }
 
     def tearDown(self):
@@ -79,18 +80,19 @@ class TestNodeEfficiencyAnalysis(unittest.TestCase):
     def make_expected_summary_df(self, power_cap, agent):
         cols = ['frequency']
         expected_data = []
-        for node in range(self._num_nodes):
-            val = self._gen_val['frequency'](node, power_cap)
+        for node_name in self._node_names:
+            val = self._gen_val['frequency'](node_name, None, power_cap)
             val *= 0.01 * self._sticker_freq / 1e9
             expected_data.append(val)
-        nodes = ['node{}'.format(n) for n in range(self._num_nodes)]
-        index = pandas.Index(nodes, name='node_name')
+        index = pandas.Index(self._node_names, name='node_name')
         return pandas.DataFrame(expected_data, index=index, columns=cols)
 
     def test_node_efficiency_process(self):
         analysis = geopmpy.analysis.NodeEfficiencyAnalysis(**self._config)
-        report_df = mock_report.tnea_make_mock_report_df(self._name_prefix, self._gen_val,
-                                                         self._powers, self._num_nodes)
+        report_df = mock_report.tnea_make_mock_report_df(
+                self._name_prefix, self._node_names,
+                {'power_balancer': (self._gen_val, self._powers),
+                 'power_governor': (self._gen_val, self._powers)})
         mock_parse_data = MockAppOutput(report_df)
         gov_result, bal_result = analysis.plot_process(mock_parse_data)
         for pow in self._powers:
