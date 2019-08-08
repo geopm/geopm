@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cea853d5_846e6a76",
+        "filename": "src/PowerBalancerAgent.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T01:14:58Z",
+      "side": 1,
+      "message": "Yes, it will be useful to see both",
+      "range": {
+        "startLine": 678,
+        "startChar": 0,
+        "endLine": 679,
+        "endChar": 53
+      },
+      "revId": "b8ed32a8ef52470e092a9e4c475a73f1034884fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d2f22f3_a5733dcc",
+        "filename": "test/PowerBalancerAgentTest.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T01:14:58Z",
+      "side": 1,
+      "message": "You might want to assert these are the same length",
+      "range": {
+        "startLine": 497,
+        "startChar": 0,
+        "endLine": 498,
+        "endChar": 60
+      },
+      "revId": "b8ed32a8ef52470e092a9e4c475a73f1034884fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
