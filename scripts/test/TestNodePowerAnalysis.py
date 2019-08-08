@@ -54,16 +54,20 @@ class TestNodePowerAnalysis(unittest.TestCase):
                         }
         self._tmp_files = []
         self._num_nodes = 8
+        self._node_names = ['node{}'.format(node) for node in range(self._num_nodes)]
         # default mocked data for each column given power budget and agent
         self._gen_val = {
-            'count': (lambda node: 1),
-            'energy_pkg': (lambda node: 44000.0 + 1000*node),
-            'energy_dram': (lambda node: 2000.0),
-            'frequency': (lambda node: 1.0e9 + (node/float(self._num_nodes))*1.0e9),
-            'mpi_runtime': (lambda node: 10),
-            'runtime': (lambda node: 500.0 + node),
-            'id': (lambda node: 'bad'),
-            'power': (lambda node: self._gen_val['energy_pkg'](node) / self._gen_val['runtime'](node)),
+            'count': (lambda node, region, param: 1),
+            'energy_pkg': (lambda node, region, param: 44000.0 + 1000*self._node_names.index(node)),
+            'energy_dram': (lambda node, region, param: 2000.0),
+            'frequency': (lambda node, region, param:
+                1.0e9 + (self._node_names.index(node)/float(self._num_nodes))*1.0e9),
+            'mpi_runtime': (lambda node, region, param: 10),
+            'runtime': (lambda node, region, param: 500.0 + self._node_names.index(node)),
+            'id': (lambda node, region, param: 'bad'),
+            'power': (lambda node, region, param:
+                self._gen_val['energy_pkg'](node, region, param) /
+                self._gen_val['runtime'](node, region, param)),
         }
 
     def tearDown(self):
@@ -76,17 +80,17 @@ class TestNodePowerAnalysis(unittest.TestCase):
     def make_expected_summary_df(self):
         cols = ['power']
         expected_data = []
-        for node in range(self._num_nodes):
-            val = self._gen_val['power'](node)
+        for node in self._node_names:
+            val = self._gen_val['power'](node, None, None)
             expected_data.append(val)
-        nodes = ['node{}'.format(n) for n in range(self._num_nodes)]
-        index = pandas.Index(nodes, name='node_name')
+        index = pandas.Index(self._node_names, name='node_name')
         return pandas.DataFrame(expected_data, index=index, columns=cols)
 
     def test_node_power_process(self):
         analysis = geopmpy.analysis.NodePowerAnalysis(**self._config)
-        report_df = mock_report.tnpa_make_mock_report_df(self._name_prefix,
-                                                         self._gen_val, self._num_nodes)
+        report_df = mock_report.tnpa_make_mock_report_df(
+                self._name_prefix, self._node_names,
+                {'monitor': (self._gen_val, ['nocap'])})
         mock_parse_data = MockAppOutput(report_df)
         result = analysis.plot_process(mock_parse_data)
         expected_df = self.make_expected_summary_df()
