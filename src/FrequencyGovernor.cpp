@@ -114,6 +114,10 @@ namespace geopm
                                                                m_freq_ctl_domain_type,
                                                                ctl_dom_idx));
         }
+
+        for (size_t ctl_idx = 0; ctl_idx < num_freq_ctl_domain; ++ctl_idx) {
+            m_cpu_rank.push_back(m_platform_topo.domain_idx(GEOPM_DOMAIN_MPI_RANK, ctl_idx));
+        }
     }
 
     int FrequencyGovernorImp::frequency_domain_type(void) const
@@ -121,26 +125,37 @@ namespace geopm
         return m_freq_ctl_domain_type;
     }
 
+    std::vector<double> FrequencyGovernorImp::rank_target_to_freq_ctl_domain(std::vector<double> rank_target) const
+    {
+#ifdef GEOPM_DEBUG
+        if (rank_target.size() != m_num_rank) {
+            throw Exception("FrequencyGovernorImp::" + std::string(__func__) +
+                            "(): rank_target vector not correctly sized.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        std::vector<double> ret;
+        for (size_t ctl_idx = 0; ctl_idx < m_last_freq.size(); ++ctl_idx) {
+            ret.push_back(rank_target[m_cpu_rank[ctl_idx]]);
+        }
+        return ret;
+    }
+
     void FrequencyGovernorImp::adjust_platform(const std::vector<double> &frequency_request)
     {
-        if (frequency_request.size() != m_control_idx.size()) {
-            throw Exception("FrequencyGovernorImp::" + std::string(__func__) +
-                            "(): size of request vector does not match size of control domain.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        m_do_write_batch = !std::equal(m_last_freq.begin(), m_last_freq.end(), frequency_request.begin());
+        std::vector<double> freq_ctl_target = rank_target_to_freq_ctl_domain(frequency_request);
+        m_do_write_batch = !std::equal(m_last_freq.begin(), m_last_freq.end(), freq_ctl_target.begin());
         std::vector<double> frequency_actual;
         for (size_t idx = 0; idx < m_control_idx.size(); ++idx) {
             double clamp_freq = NAN;
-            if (frequency_request[idx] > m_freq_max) {
+            if (freq_ctl_target[idx] > m_freq_max) {
                 clamp_freq = m_freq_max;
             }
-            else if (frequency_request[idx] < m_freq_min) {
+            else if (freq_ctl_target[idx] < m_freq_min) {
                 clamp_freq = m_freq_min;
             }
             else {
-                clamp_freq = frequency_request[idx];
+                clamp_freq = freq_ctl_target[idx];
             }
             frequency_actual.push_back(clamp_freq);
             m_platform_io.adjust(m_control_idx[idx], frequency_actual[idx]);

@@ -182,10 +182,10 @@ namespace geopm
         double freq = NAN;
         double freq_min = m_freq_governor->get_frequency_min();
         double freq_max = m_freq_governor->get_frequency_max();
-        std::vector<double> target_freq;
-        for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
-            const uint64_t curr_hash = m_last_region[ctl_idx].hash;
-            const uint64_t curr_hint = m_last_region[ctl_idx].hint;
+        std::vector<double> rank_target_freq;
+        for (int rank = 0; rank < m_num_rank; ++rank) {
+            const uint64_t curr_hash = m_last_region[rank].hash;
+            const uint64_t curr_hint = m_last_region[rank].hint;
             auto it = m_hash_freq_map.find(curr_hash);
             if (it != m_hash_freq_map.end()) {
                 freq = it->second;
@@ -213,11 +213,10 @@ namespace geopm
                         break;
                 }
             }
-            m_hash_freq_map[m_last_region[ctl_idx].hash] = freq;
-            target_freq.push_back(freq);
+            m_hash_freq_map[m_last_region[rank].hash] = freq;
+            rank_target_freq.push_back(freq);
         }
-
-        m_freq_governor->adjust_platform(target_freq);
+        m_freq_governor->adjust_platform(rank_target_freq);
     }
 
     bool FrequencyMapAgent::do_write_batch(void) const
@@ -227,9 +226,9 @@ namespace geopm
 
     void FrequencyMapAgent::sample_platform(std::vector<double> &out_sample)
     {
-        for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
-            m_last_region[ctl_idx].hash = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH][ctl_idx]);
-            m_last_region[ctl_idx].hint = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HINT][ctl_idx]);
+        for (int rank = 0; rank < m_num_rank; ++rank) {
+            m_last_region[rank].hash = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH][rank]);
+            m_last_region[rank].hint = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HINT][rank]);
         }
     }
 
@@ -311,19 +310,18 @@ namespace geopm
     void FrequencyMapAgent::init_platform_io(void)
     {
         m_freq_governor->init_platform_io();
-        const int freq_ctl_domain_type = m_freq_governor->frequency_domain_type();
-        m_num_freq_ctl_domain = m_platform_topo.num_domain(freq_ctl_domain_type);
-        m_last_region = std::vector<struct geopm_region_info_s>(m_num_freq_ctl_domain,
+        m_num_rank = m_platform_topo.num_domain(GEOPM_DOMAIN_MPI_RANK);
+        m_last_region = std::vector<struct geopm_region_info_s>(m_num_rank,
                                                                 (struct geopm_region_info_s) {
                                                                     .hash = GEOPM_REGION_HASH_UNMARKED,
                                                                     .hint = GEOPM_REGION_HINT_UNKNOWN});
         std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT"};
         for (size_t sig_idx = 0; sig_idx < signal_names.size(); ++sig_idx) {
             m_signal_idx.push_back(std::vector<int>());
-            for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
+            for (int rank = 0; rank < m_num_rank; ++rank) {
                 m_signal_idx[sig_idx].push_back(m_platform_io.push_signal(signal_names[sig_idx],
-                                                                          freq_ctl_domain_type,
-                                                                          ctl_idx));
+                                                                          GEOPM_DOMAIN_MPI_RANK,
+                                                                          rank));
             }
         }
     }

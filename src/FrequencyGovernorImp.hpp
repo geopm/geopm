@@ -58,6 +58,7 @@ namespace geopm
             void validate_policy(double &freq_min, double &freq_max) const override;
         private:
             double get_limit(const std::string &sig_name) const;
+            std::vector<double> rank_target_to_freq_ctl_domain(std::vector<double> rank_target) const;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
             const double M_FREQ_STEP;
@@ -69,6 +70,7 @@ namespace geopm
             int m_freq_ctl_domain_type;
             std::vector<int> m_control_idx;
             std::vector<double> m_last_freq;
+            std::vector<int> m_cpu_rank;
     };
 }
 
