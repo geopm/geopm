@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55837569_b4c4ed75",
+        "filename": "src/CNLIOGroup.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T19:11:55Z",
+      "side": 1,
+      "message": "might be confusing.  SAMPLE_RATE or SAMPLE_CADENCE?",
+      "range": {
+        "startLine": 80,
+        "startChar": 35,
+        "endLine": 80,
+        "endChar": 44
+      },
+      "revId": "2ae99ea27e8589c363bcd42dd3e09319a3621ce4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e170db6f_061ffda3",
+        "filename": "test/CNLIOGroupTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T19:11:55Z",
+      "side": 1,
+      "message": "ha",
+      "range": {
+        "startLine": 187,
+        "startChar": 43,
+        "endLine": 187,
+        "endChar": 45
+      },
+      "revId": "2ae99ea27e8589c363bcd42dd3e09319a3621ce4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
