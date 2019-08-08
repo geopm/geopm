@@ -88,7 +88,7 @@ class TestNodePowerAnalysis(unittest.TestCase):
 
     def test_node_power_process(self):
         analysis = geopmpy.analysis.NodePowerAnalysis(**self._config)
-        report_df = mock_report.tnpa_make_mock_report_df(
+        report_df = mock_report.make_mock_report_df(
                 self._name_prefix, self._node_names,
                 {'monitor': (self._gen_val, ['nocap'])})
         mock_parse_data = MockAppOutput(report_df)
