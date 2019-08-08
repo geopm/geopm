@@ -56,15 +56,16 @@ class TestPowerSweepAnalysis(unittest.TestCase):
                         'min_power': self._min_power, 'max_power': self._max_power,
                         'step_power': self._step_power}
         self._tmp_files = []
+        self._node_names = ['mynode']
         # default mocked data for each column given power budget
         self._gen_val = {
-            'count': (lambda pow: 1),
-            'energy_pkg': (lambda pow: 14000.0 + pow),
-            'energy_dram': (lambda pow: 2000.0),
-            'frequency': (lambda pow: 1.0e9 + (self._max_power/float(pow))*1.0e9),
-            'mpi_runtime': (lambda pow: 10),
-            'runtime': (lambda pow: 500.0 * (1.0/pow)),
-            'id': (lambda pow: 'bad')
+            'count': (lambda node, region, pow: 1),
+            'energy_pkg': (lambda node, region, pow: 14000.0 + pow),
+            'energy_dram': (lambda node, region, pow: 2000.0),
+            'frequency': (lambda node, region, pow: 1.0e9 + (self._max_power/float(pow))*1.0e9),
+            'mpi_runtime': (lambda node, region, pow: 10),
+            'runtime': (lambda node, region, pow: 500.0 * (1.0/pow)),
+            'id': (lambda node, region, pow: 'bad')
         }
 
     def tearDown(self):
@@ -78,15 +79,18 @@ class TestPowerSweepAnalysis(unittest.TestCase):
         expected_data = []
         cols = ['count', 'runtime', 'mpi_runtime', 'energy_pkg', 'energy_dram',
                 'frequency']
-        for pp in powers:
-            row = [self._gen_val[col](pp) for col in cols]
-            expected_data.append(row)
+        for node_name in self._node_names:
+            for pp in powers:
+                row = [self._gen_val[col](node_name, None, pp) for col in cols]
+                expected_data.append(row)
         index = pandas.Index(powers, name='power cap')
         return pandas.DataFrame(expected_data, index=index, columns=cols)
 
     def test_power_sweep_summary(self):
         sweep_analysis = geopmpy.analysis.PowerSweepAnalysis(**self._config)
-        report_df = mock_report.tpsa_make_mock_report_df(self._name_prefix, self._gen_val, self._powers)
+        report_df = mock_report.tpsa_make_mock_report_df(
+                self._name_prefix, self._node_names,
+                {'power_governor': (self._gen_val, self._powers)})
         parse_output = MockAppOutput(report_df)
         result = sweep_analysis.summary_process(parse_output)
         expected_df = self.make_expected_summary_df(self._powers)
