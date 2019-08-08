@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cac7ddad_273f764c",
+        "filename": "test/HelperTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T01:02:38Z",
+      "side": 1,
+      "message": "I think maybe these were supposed to go in geopm_test.cpp, which has all the test helpers.  This file is unit tests of Helper.hpp functions.",
+      "revId": "318ff5386b8f87a29cb7335b23c149ec0b9c1df6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
