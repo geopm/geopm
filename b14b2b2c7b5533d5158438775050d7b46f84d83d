@@ -1,0 +1,268 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b98a0142_6cc43062",
+        "filename": "scripts/test/TestPolicyStore.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T00:51:23Z",
+      "side": 1,
+      "message": "I don\u0027t understand this one",
+      "revId": "b14b2b2c7b5533d5158438775050d7b46f84d83d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fff740a0_260c8929",
+        "filename": "src/PolicyStore.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T00:51:23Z",
+      "side": 1,
+      "message": "We try to order these as follows:\n-header file for the definitions in this file\n-C standard headers\n-C++ standard headers\n-third-party headers\n-GEOPM headers\nSee https://google.github.io/styleguide/cppguide.html#Names_and_Order_of_Includes\n\nSame comment for the other cpp files in this patch.",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 17
+      },
+      "revId": "b14b2b2c7b5533d5158438775050d7b46f84d83d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcc83f22_f7f77268",
+        "filename": "src/PolicyStoreImp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T00:51:23Z",
+      "side": 1,
+      "message": "We will probably want these in a header later for the ReportStore implementation",
+      "revId": "b14b2b2c7b5533d5158438775050d7b46f84d83d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b35fd8f_4bed2c3b",
+        "filename": "src/PolicyStoreImp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T00:51:23Z",
+      "side": 1,
+      "message": "there are a few places in this file with the * on the wrong side",
+      "range": {
+        "startLine": 76,
+        "startChar": 70,
+        "endLine": 76,
+        "endChar": 72
+      },
+      "revId": "b14b2b2c7b5533d5158438775050d7b46f84d83d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b890ccec_7477f7a7",
+        "filename": "src/PolicyStoreImp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T00:51:23Z",
+      "side": 1,
+      "message": "leave as \"\u003e \u003e\" for old compilers",
+      "range": {
+        "startLine": 102,
+        "startChar": 75,
+        "endLine": 102,
+        "endChar": 77
+      },
+      "revId": "b14b2b2c7b5533d5158438775050d7b46f84d83d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "931d3085_a90167e1",
+        "filename": "src/PolicyStoreImp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T00:51:23Z",
+      "side": 1,
+      "message": "ws?",
+      "range": {
+        "startLine": 149,
+        "startChar": 63,
+        "endLine": 149,
+        "endChar": 64
+      },
+      "revId": "b14b2b2c7b5533d5158438775050d7b46f84d83d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83ff2e2a_43c9d373",
+        "filename": "src/PolicyStoreImp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T00:51:23Z",
+      "side": 1,
+      "message": "align with \u003c\u003c on previous line",
+      "range": {
+        "startLine": 254,
+        "startChar": 12,
+        "endLine": 254,
+        "endChar": 16
+      },
+      "revId": "b14b2b2c7b5533d5158438775050d7b46f84d83d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5e76e93_eeb61f16",
+        "filename": "src/PolicyStoreImp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T00:51:23Z",
+      "side": 1,
+      "message": "It seems like the schema requires a policy to have at least one value in it.  That seems fine to me as long as we document it and check below.  If a user wants an all-NAN policy (meaning use the hardware defaults) they have to provide at least one NAN.",
+      "range": {
+        "startLine": 262,
+        "startChar": 0,
+        "endLine": 264,
+        "endChar": 9
+      },
+      "revId": "b14b2b2c7b5533d5158438775050d7b46f84d83d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e1f5976_f0026471",
+        "filename": "src/PolicyStoreImp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T00:51:23Z",
+      "side": 1,
+      "message": "indentation",
+      "range": {
+        "startLine": 278,
+        "startChar": 29,
+        "endLine": 278,
+        "endChar": 31
+      },
+      "revId": "b14b2b2c7b5533d5158438775050d7b46f84d83d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06a1aa56_499f937c",
+        "filename": "src/PolicyStoreImp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T00:51:23Z",
+      "side": 1,
+      "message": "check that this is not empty",
+      "range": {
+        "startLine": 279,
+        "startChar": 58,
+        "endLine": 279,
+        "endChar": 64
+      },
+      "revId": "b14b2b2c7b5533d5158438775050d7b46f84d83d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f34cd072_5108e589",
+        "filename": "src/PolicyStoreImp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T00:51:23Z",
+      "side": 1,
+      "message": "similarly this policy can\u0027t be empty",
+      "range": {
+        "startLine": 319,
+        "startChar": 67,
+        "endLine": 319,
+        "endChar": 73
+      },
+      "revId": "b14b2b2c7b5533d5158438775050d7b46f84d83d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb316e64_4af4d54c",
+        "filename": "src/PolicyStoreImp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-08T00:51:23Z",
+      "side": 1,
+      "message": "indentation",
+      "range": {
+        "startLine": 319,
+        "startChar": 37,
+        "endLine": 319,
+        "endChar": 40
+      },
+      "revId": "b14b2b2c7b5533d5158438775050d7b46f84d83d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
