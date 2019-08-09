@@ -161,7 +161,12 @@ namespace geopm
             master_report << "Agent: " << agent_name << std::endl;
             std::string policy_str = "{}";
             if (environment().policy().size() > 0) {
-                policy_str = read_file(environment().policy());
+                try {
+                    policy_str = read_file(environment().policy());
+                }
+                catch(...) {
+                    policy_str = "DYNAMIC";
+                }
             }
             master_report << "Policy: " << policy_str << std::endl;
             for (const auto &kv : agent_report_header) {
