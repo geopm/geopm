@@ -63,6 +63,7 @@
 /geopm.o
 /geopmagent
 /geopmbench
+/geopmcd
 /geopmctl
 /geopmpolicy
 /geopmread

@@ -42,6 +42,7 @@ bin_PROGRAMS = geopmagent \
                geopmread \
                geopmwrite \
                #end
+
 pkglib_LTLIBRARIES =
 nodist_include_HEADERS =
 
