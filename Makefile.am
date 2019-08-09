@@ -43,6 +43,10 @@ bin_PROGRAMS = geopmadmin \
                geopmread \
                geopmwrite \
                #end
+if ENABLE_BETA
+    bin_PROGRAMS += geopmcd
+endif
+
 pkglib_LTLIBRARIES =
 nodist_include_HEADERS =
 
@@ -427,12 +431,15 @@ endif
 libgeopmpolicy_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 geopmread_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
 geopmwrite_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
+geopmcd_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
 
 # ADD LIBRARY DEPENDENCIES FOR EXECUTABLES
 geopmread_LDADD = libgeopmpolicy.la
 geopmwrite_LDADD = libgeopmpolicy.la
 geopmagent_LDADD = libgeopmpolicy.la
 geopmadmin_LDADD = libgeopmpolicy.la
+geopmcd_LDADD = libgeopmpolicy.la
+
 if ENABLE_MPI
     geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
     geopmbench_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
@@ -670,6 +677,8 @@ geopmread_SOURCES = src/geopmread_main.cpp
 geopmwrite_SOURCES = src/geopmwrite_main.cpp
 geopmagent_SOURCES = src/geopmagent_main.cpp
 geopmadmin_SOURCES = src/geopmadmin_main.cpp
+geopmcd_SOURCES = src/geopmcd_main.cpp \
+                  #end
 
 mpi_source_files = src/DefaultProfile.cpp \
                    src/MPIComm.cpp \
