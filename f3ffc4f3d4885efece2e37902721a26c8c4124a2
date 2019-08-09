@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "206a1794_5a15a7c8",
+        "filename": "src/Endpoint.hpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-09T21:57:28Z",
+      "side": 1,
+      "message": "not needed; can get it from sampling",
+      "range": {
+        "startLine": 109,
+        "startChar": 54,
+        "endLine": 109,
+        "endChar": 85
+      },
+      "revId": "f3ffc4f3d4885efece2e37902721a26c8c4124a2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
