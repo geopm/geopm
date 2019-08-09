@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc563adc_26e9c3c8",
+        "filename": "test/EndpointTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-09T21:03:36Z",
+      "side": 1,
+      "message": "Could assert size",
+      "revId": "f41ec2c09eccc5e0188c30fc673a2cff9e56fdc2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
