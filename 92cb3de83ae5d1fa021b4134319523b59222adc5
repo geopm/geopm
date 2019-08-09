@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "101ff339_1d063408",
+        "filename": "src/SharedMemory.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-09T22:07:58Z",
+      "side": 1,
+      "message": "This could be made a file-static function since it doesn\u0027t access anything private to SharedMemoryImp. Then it wouldn\u0027t need to be in the header.",
+      "range": {
+        "startLine": 57,
+        "startChar": 26,
+        "endLine": 57,
+        "endChar": 37
+      },
+      "revId": "92cb3de83ae5d1fa021b4134319523b59222adc5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "247d38cc_9ce73418",
+        "filename": "src/SharedMemory.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-09T22:07:58Z",
+      "side": 1,
+      "message": "This one needs to be updated, too.",
+      "range": {
+        "startLine": 259,
+        "startChar": 8,
+        "endLine": 259,
+        "endChar": 22
+      },
+      "revId": "92cb3de83ae5d1fa021b4134319523b59222adc5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
