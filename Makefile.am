@@ -42,6 +42,10 @@ bin_PROGRAMS = geopmagent \
                geopmread \
                geopmwrite \
                #end
+if ENABLE_BETA
+    bin_PROGRAMS += geopmcd
+endif
+
 pkglib_LTLIBRARIES =
 nodist_include_HEADERS =
 
@@ -390,11 +394,13 @@ endif
 libgeopmpolicy_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 geopmread_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
 geopmwrite_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
+geopmcd_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
 
 # ADD LIBRARY DEPENDENCIES FOR EXECUTABLES
 geopmread_LDADD = libgeopmpolicy.la
 geopmwrite_LDADD = libgeopmpolicy.la
 geopmagent_LDADD = libgeopmpolicy.la
+geopmcd_LDADD = libgeopmpolicy.la
 if ENABLE_MPI
     geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
     geopmbench_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
@@ -560,6 +566,8 @@ geopmagent_SOURCES = src/geopm_agent.h \
                      src/geopm_version.h \
                      src/geopmagent_main.c \
                      # end
+geopmcd_SOURCES = src/geopmcd_main.cpp \
+                 #end
 
 if ENABLE_MPI
     # All source files that are compiled into libgeopmpolicy are also
