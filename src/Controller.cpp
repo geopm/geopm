@@ -400,6 +400,7 @@ namespace geopm
             else {
                 /// @todo At the root of the tree, send signals up to the
                 /// resource manager.
+                m_endpoint->write_sample(m_out_sample);
             }
         }
     }
