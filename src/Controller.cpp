@@ -125,10 +125,10 @@ extern "C"
     {
         int err = 0;
         try {
-            std::vector<double> policy(geopm::EndpointUser::create_endpoint_user(geopm::environment().policy())->sample());
-            std::shared_ptr<geopm::Agent> agent(
-                geopm::agent_factory().make_plugin(
-                    geopm::environment().agent()));
+            std::string agent_name = geopm::environment().agent();
+            std::shared_ptr<geopm::Agent> agent(geopm::agent_factory().make_plugin(agent_name));
+            std::vector<double> policy(geopm::Agent::num_policy(geopm::agent_factory().dictionary(agent_name)));
+            geopm::EndpointUser::create_endpoint_user(geopm::environment().policy())->read_policy(policy);
             agent->validate_policy(policy);
             agent->enforce_policy(policy);
         }
@@ -347,8 +347,8 @@ namespace geopm
     {
         bool do_send = false;
         if (m_is_root) {
-            /// @todo Pass m_in_policy by reference into the sampler, and return an is_updated bool.
-            m_in_policy = m_endpoint->sample();
+            /// @todo Return an is_updated bool.
+            m_endpoint->read_policy(m_in_policy);
             do_send = true;
         }
         else {

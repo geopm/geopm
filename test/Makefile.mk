@@ -270,10 +270,10 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/SharedMemoryTest.lock_shmem_u \
               test/gtest_links/SharedMemoryTest.share_data \
               test/gtest_links/SharedMemoryTest.share_data_ipc \
-              test/gtest_links/ShmemEndpointTest.write_shm \
+              test/gtest_links/ShmemEndpointTest.write_shm_policy \
               test/gtest_links/ShmemEndpointTestIntegration.write_shm \
-              test/gtest_links/ShmemEndpointUserTest.negative_parse_shm \
-              test/gtest_links/ShmemEndpointUserTest.parse_shm \
+              test/gtest_links/ShmemEndpointTestIntegration.write_read_policy \
+              test/gtest_links/ShmemEndpointUserTest.parse_shm_policy \
               test/gtest_links/ShmemEndpointUserTestIntegration.parse_shm \
               test/gtest_links/TimeIOGroupTest.adjust \
               test/gtest_links/TimeIOGroupTest.is_valid \
