@@ -61,7 +61,6 @@ namespace geopm
 
     RegionAggregatorImp::RegionAggregatorImp(PlatformIO &platio)
         : m_platform_io(platio)
-        , m_last_epoch_count(-1)
     {
 
     }
@@ -98,13 +97,18 @@ namespace geopm
         auto idx = std::make_pair(signal_idx, region_hash);
         auto data_it = m_region_sample_data.find(idx);
         if (data_it != m_region_sample_data.end()) {
-            const auto &data = data_it->second;
-            current_value += data.total;
-            // if currently in this region, add current value to total
-            if (region_hash == curr_hash &&
-                !std::isnan(data.last_entry_value)) {
-                current_value += m_platform_io.sample(signal_idx) - data.last_entry_value;
+            auto &data = data_it->second;
+            if(!std::isnan(data.last_entry_value)) {
+                // if the region is Epoch, calculate the total now
+                if(region_hash == GEOPM_REGION_HASH_EPOCH) {
+                    data.total = m_platform_io.sample(signal_idx) - data.last_entry_value;
+                }
+                // if currently in this region, add current value to total
+                else if (region_hash == curr_hash) {
+                    current_value += m_platform_io.sample(signal_idx) - data.last_entry_value;
+                }
             }
+            current_value += data.total;
         }
         return current_value;
     }
@@ -115,6 +119,15 @@ namespace geopm
             double value = m_platform_io.sample(it.first);
             const uint64_t region_hash = m_platform_io.sample(it.second);
             m_tracked_region_hash.insert(region_hash);
+
+            // Wait for the first Epoch and insert 1 sample at the beginning of time
+            auto epoch_idx = std::make_pair(it.first, GEOPM_REGION_HASH_EPOCH);
+            double curr_epoch_count = m_platform_io.sample(m_epoch_count_idx);
+            if (m_region_sample_data.find(epoch_idx) == m_region_sample_data.end() &&
+                curr_epoch_count > -1) {
+                m_region_sample_data[epoch_idx].last_entry_value = value;
+            }
+
             // first time sampling this signal
             if (m_last_region_hash.find(it.first) == m_last_region_hash.end()) {
                 m_last_region_hash[it.first] = region_hash;
@@ -130,11 +143,6 @@ namespace geopm
                     // update total for previous region
                     double prev_total = value - m_region_sample_data.at(std::make_pair(it.first, last_hash)).last_entry_value;
                     m_region_sample_data[std::make_pair(it.first, last_hash)].total += prev_total;
-                    // update epoch
-                    double curr_epoch_count = m_platform_io.sample(m_epoch_count_idx);
-                    if (curr_epoch_count != m_last_epoch_count) {
-                        m_region_sample_data[std::make_pair(it.first, GEOPM_REGION_HASH_EPOCH)].total += prev_total;
-                    }
                     m_last_region_hash[it.first] = region_hash;
                 }
             }
