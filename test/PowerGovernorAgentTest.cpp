@@ -58,7 +58,6 @@ class PowerGovernorAgentTest : public ::testing::Test
     protected:
         enum {
             M_SIGNAL_POWER_PACKAGE,
-            M_SIGNAL_POWER_DRAM,
         };
         void SetUp(void);
         void set_up_leaf(void);
@@ -113,8 +112,6 @@ void PowerGovernorAgentTest::set_up_leaf(void)
 {
     EXPECT_CALL(m_platform_io, push_signal("POWER_PACKAGE", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_SIGNAL_POWER_PACKAGE));
-    EXPECT_CALL(m_platform_io, push_signal("POWER_DRAM", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Return(M_SIGNAL_POWER_DRAM));
     EXPECT_CALL(*m_power_gov, init_platform_io());
     EXPECT_CALL(*m_power_gov, sample_platform())
         .Times(AtLeast(0));
@@ -166,8 +163,6 @@ TEST_F(PowerGovernorAgentTest, sample_platform)
 
     EXPECT_CALL(m_platform_io, sample(M_SIGNAL_POWER_PACKAGE)).Times(m_min_num_converged + 1)
         .WillRepeatedly(Return(50.5));
-    EXPECT_CALL(m_platform_io, sample(M_SIGNAL_POWER_DRAM)).Times(m_min_num_converged + 1)
-        .WillRepeatedly(Return(30.2));
     std::vector<double> out_sample {NAN, NAN, NAN};
     std::vector<double> expected {NAN, NAN, NAN};
 
@@ -176,7 +171,7 @@ TEST_F(PowerGovernorAgentTest, sample_platform)
         check_result(expected, out_sample);
     }
 
-    expected = {80.7, true, 0.0};
+    expected = {50.5, true, 0.0};
     m_agent->sample_platform(out_sample);
     check_result(expected, out_sample);
 }
@@ -187,14 +182,10 @@ TEST_F(PowerGovernorAgentTest, adjust_platform)
     m_agent->init(0, m_fan_in, false);
 
     double power_budget = 123;
-    double dram_power = 14;
     std::vector<double> policy = {power_budget};
 
-    // sample once to get dram power
     EXPECT_CALL(m_platform_io, sample(M_SIGNAL_POWER_PACKAGE)).Times(1)
         .WillRepeatedly(Return(5.5));
-    EXPECT_CALL(m_platform_io, sample(M_SIGNAL_POWER_DRAM)).Times(1)
-        .WillRepeatedly(Return(dram_power));
     std::vector<double> out_sample {NAN, NAN, NAN};
     m_agent->sample_platform(out_sample);
 

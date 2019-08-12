@@ -116,7 +116,6 @@ namespace geopm
         m_power_gov->init_platform_io();
         // Setup signals
         m_pio_idx[M_PLAT_SIGNAL_PKG_POWER] = m_platform_io.push_signal("POWER_PACKAGE", GEOPM_DOMAIN_BOARD, 0);
-        m_pio_idx[M_PLAT_SIGNAL_DRAM_POWER] = m_platform_io.push_signal("POWER_DRAM", GEOPM_DOMAIN_BOARD, 0);
 
         // Setup controls
         int pkg_pwr_domain_type = m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT");
@@ -272,8 +271,8 @@ namespace geopm
         }
 
         /// @todo should use EPOCH_ENERGY signal which doesn't currently exist
-        if (!std::isnan(m_sample[M_PLAT_SIGNAL_PKG_POWER]) && !std::isnan(m_sample[M_PLAT_SIGNAL_DRAM_POWER])) {
-            m_epoch_power_buf->insert(m_sample[M_PLAT_SIGNAL_PKG_POWER] + m_sample[M_PLAT_SIGNAL_DRAM_POWER]);
+        if (!std::isnan(m_sample[M_PLAT_SIGNAL_PKG_POWER])) {
+            m_epoch_power_buf->insert(m_sample[M_PLAT_SIGNAL_PKG_POWER]);
         }
         // If we have observed more than m_min_num_converged epoch
         // calls then send median filtered power values up the tree.
