@@ -163,7 +163,7 @@ namespace geopm
                                                                 ppn1_comm->rank())),
                      nullptr,
                      std::vector<std::unique_ptr<Agent> >{},
-                     Agent::create_endpoint_user(environment().policy()))
+                     Agent::create_endpoint_user(environment().policy(), environment().agent()))
     {
 
     }
@@ -329,8 +329,8 @@ namespace geopm
     {
         bool do_send = false;
         if (m_is_root) {
-            /// @todo Pass m_in_policy by reference into the sampler, and return an is_updated bool.
-            m_in_policy = m_endpoint->sample();
+            /// @todo Return an is_updated bool.
+            m_endpoint->read_policy(m_in_policy);
             do_send = true;
         }
         else {
