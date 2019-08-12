@@ -325,6 +325,6 @@ TEST_F(RegionAggregatorTest, epoch_total)
 
     EXPECT_DOUBLE_EQ(2.0, m_agg->sample_total(M_SIGNAL_TIME, reg_normal));
     EXPECT_DOUBLE_EQ(2.0, m_agg->sample_total(M_SIGNAL_TIME, GEOPM_REGION_HASH_UNMARKED));
-    // should have 1 from reg_normal, 2 from unmarked
-    EXPECT_DOUBLE_EQ(3.0, m_agg->sample_total(M_SIGNAL_TIME, GEOPM_REGION_HASH_EPOCH));
+    // First epoch observed at step == 2, app finished at step == 4.  4 - 2 = 2
+    EXPECT_DOUBLE_EQ(2.0, m_agg->sample_total(M_SIGNAL_TIME, GEOPM_REGION_HASH_EPOCH));
 }
