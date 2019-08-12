@@ -79,8 +79,6 @@ namespace geopm
             static std::vector<std::string> policy_names(void);
             static std::vector<std::string> sample_names(void);
         private:
-            PlatformIO &m_platform_io;
-            const PlatformTopo &m_platform_topo;
             geopm_time_s m_last_wait;
             const double M_WAIT_SEC;
     };
