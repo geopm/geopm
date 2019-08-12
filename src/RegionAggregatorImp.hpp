@@ -66,7 +66,6 @@ namespace geopm
             // Data for each combination of signal index and region hash
             std::map<std::pair<int, uint64_t>, m_region_data_s> m_region_sample_data;
             std::map<int, uint64_t> m_last_region_hash;
-            double m_last_epoch_count;
             int m_epoch_count_idx;
             std::set<uint64_t> m_tracked_region_hash;
     };
