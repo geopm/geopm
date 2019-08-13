@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97ee65d3_4cd98de6",
+        "filename": "src/Endpoint.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-13T18:00:54Z",
+      "side": 1,
+      "message": "rm",
+      "revId": "6db81baf06ca6a45476738c8ffb7b3288487885b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
