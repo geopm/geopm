@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f682b067_3d31d22d",
+        "filename": "test/SharedMemoryTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-13T20:35:37Z",
+      "side": 1,
+      "message": "(char*) ptr - sizeof(pthread_mutex_t)",
+      "range": {
+        "startLine": 170,
+        "startChar": 29,
+        "endLine": 170,
+        "endChar": 71
+      },
+      "revId": "6a2482c58388e1307a5a4fa58a85393ba20ae23f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13d5beaa_8277a6b0",
+        "filename": "test/SharedMemoryTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-13T20:35:37Z",
+      "side": 1,
+      "message": "EXPECT_EQ if it makes sense.",
+      "range": {
+        "startLine": 182,
+        "startChar": 4,
+        "endLine": 182,
+        "endChar": 32
+      },
+      "revId": "6a2482c58388e1307a5a4fa58a85393ba20ae23f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
