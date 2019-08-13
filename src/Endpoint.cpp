@@ -71,7 +71,7 @@ namespace geopm
         , m_policy_shmem(std::move(policy_shmem))
         , m_sample_shmem(std::move(sample_shmem))
         , m_num_policy(num_policy)
-        , m_num_sample(num_policy)
+        , m_num_sample(num_sample)
     {
         if (m_policy_shmem == nullptr) {
             size_t shmem_size = sizeof(struct geopm_endpoint_policy_shmem_s);
@@ -166,6 +166,7 @@ namespace geopm
         std::string agent {agent_name};
         if (agent != "") {
             m_num_policy = Agent::num_policy(agent_factory().dictionary(agent_name));
+            m_num_sample = Agent::num_sample(agent_factory().dictionary(agent_name));
         }
         return agent;
     }
@@ -310,6 +311,10 @@ namespace geopm
 
     void FileEndpointUser::read_policy(std::vector<double> &policy)
     {
+        if (policy.size() != m_policy_names.size()) {
+            throw Exception("FileEndpointUser::" + std::string(__func__) + "(): output policy vector is incorrect size.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         if (m_policy_names.size() > 0) {
             std::map<std::string, double> policy_value_map = parse_json();
             policy.clear();
@@ -330,7 +335,7 @@ namespace geopm
     {
         // @todo: timeout is not an error; just throw out the sample
         if (sample.size() != m_num_sample) {
-            throw Exception("ShmemEndpoint::" + std::string(__func__) + "(): size of policy does not match expected.",
+            throw Exception("ShmemEndpoint::" + std::string(__func__) + "(): size of sample does not match expected.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         auto lock = m_sample_shmem->get_scoped_lock();
