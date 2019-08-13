@@ -53,6 +53,7 @@ scripts/test/TestBalancerAnalysis.py
 scripts/test/TestError.py
 scripts/test/TestFreqSweepAnalysis.py
 scripts/test/TestIO.py
+scripts/test/TestLauncher.py
 scripts/test/TestNodeEfficiencyAnalysis.py
 scripts/test/TestNodePowerAnalysis.py
 scripts/test/TestPowerSweepAnalysis.py

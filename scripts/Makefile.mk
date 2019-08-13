@@ -59,6 +59,7 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/test/TestError.py \
               scripts/test/TestFreqSweepAnalysis.py \
               scripts/test/TestIO.py \
+              scripts/test/TestLauncher.py \
               scripts/test/TestNodeEfficiencyAnalysis.py \
               scripts/test/TestNodePowerAnalysis.py \
               scripts/test/TestPIO.py \
@@ -115,6 +116,9 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_online_baseline_comparison_report \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_region_freq_map \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_stream_dgemm_mix_report \
+               scripts/test/pytest_links/TestLauncher.test_process_count \
+               scripts/test/pytest_links/TestLauncher.test_non_file_output \
+               scripts/test/pytest_links/TestLauncher.test_main \
                scripts/test/pytest_links/TestNodeEfficiencyAnalysis.test_node_efficiency_process \
                scripts/test/pytest_links/TestNodePowerAnalysis.test_node_power_process \
                scripts/test/pytest_links/TestPowerSweepAnalysis.test_power_sweep_summary \
