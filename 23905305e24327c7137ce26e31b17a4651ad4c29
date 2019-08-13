@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c47799eb_3f0137d7",
+        "filename": "test/SharedMemoryTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-13T18:29:12Z",
+      "side": 1,
+      "message": "Where does this come from?",
+      "range": {
+        "startLine": 158,
+        "startChar": 41,
+        "endLine": 158,
+        "endChar": 66
+      },
+      "revId": "23905305e24327c7137ce26e31b17a4651ad4c29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e49111db_103ca4f3",
+        "filename": "test/SharedMemoryTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-13T18:29:12Z",
+      "side": 1,
+      "message": "Magic number.  Explain in comment please.\nsizeof(pthread_mutex_t)?",
+      "range": {
+        "startLine": 173,
+        "startChar": 70,
+        "endLine": 173,
+        "endChar": 71
+      },
+      "revId": "23905305e24327c7137ce26e31b17a4651ad4c29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
