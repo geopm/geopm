@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "62c2e0be_1d748c86",
+        "filename": "src/Endpoint.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-13T21:32:28Z",
+      "side": 1,
+      "message": "Will be removed in a future patch.",
+      "parentUuid": "30f85628_1108563e",
+      "range": {
+        "startLine": 142,
+        "startChar": 4,
+        "endLine": 142,
+        "endChar": 28
+      },
+      "revId": "48e3ae4c4d9e11e3f4bb7cd746d9b47da42fd054",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c133c3e3_e78a9ebb",
         "filename": "src/Endpoint.cpp",
         "patchSetId": 8
