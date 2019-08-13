@@ -45,6 +45,30 @@
       "revId": "23905305e24327c7137ce26e31b17a4651ad4c29",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1bd8446_349c416a",
+        "filename": "test/SharedMemoryTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-13T18:53:58Z",
+      "side": 1,
+      "message": "Could probably avoid internal implementation details in the UT by holding the result from m_shmem_u-\u003eget_scoped_lock(), then calling it again while the first lock is still in scope. Then we wouldn\u0027t need the location of the pthread mutex, and we wouldn\u0027t need to call into pthread libs directly here.",
+      "parentUuid": "e49111db_103ca4f3",
+      "range": {
+        "startLine": 173,
+        "startChar": 70,
+        "endLine": 173,
+        "endChar": 71
+      },
+      "revId": "23905305e24327c7137ce26e31b17a4651ad4c29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
