@@ -112,11 +112,11 @@ class AppOutput(object):
                 # if all reports share a directory, put cache there
                 dirs = set()
                 for rr in report_paths:
-                    dirs.add(rr)
+                    dirs.add(os.path.dirname(rr))
                 dirs = list(dirs)
                 h5_dir = dirs[0] if len(dirs) == 1 else '.'
                 paths_str = str(report_paths)
-                report_h5_name = os.path.join(dir_name, 'report_{}.h5'.format(hash(paths_str)))
+                report_h5_name = os.path.join(h5_dir, 'report_{}.h5'.format(hash(paths_str)))
                 self._all_paths.append(report_h5_name)
 
                 # check if cache is older than reports
@@ -145,8 +145,8 @@ class AppOutput(object):
                     try:
                         if verbose:
                             sys.stdout.write('Generating HDF5 files... ')
-                            self._reports_df.to_hdf(report_h5_name, 'report', format='table')
-                            self._app_reports_df.to_hdf(report_h5_name, 'app_report', format='table', append=True)
+                        self._reports_df.to_hdf(report_h5_name, 'report', format='table')
+                        self._app_reports_df.to_hdf(report_h5_name, 'app_report', format='table', append=True)
                     except ImportError as error:
                         sys.stderr.write('<geopmy> Warning: unable to write HDF5 file: {}\n'.format(str(error)))
 
@@ -174,11 +174,11 @@ class AppOutput(object):
                 # unique cache name based on trace files in this list
                 dirs = set()
                 for rr in trace_paths:
-                    dirs.add(rr)
+                    dirs.add(os.path.dirname(rr))
                 dirs = list(dirs)
                 h5_dir = dirs[0] if len(dirs) == 1 else '.'
                 paths_str = str(trace_paths)
-                trace_h5_name = os.path.join(dir_name, 'trace_{}.h5'.format(hash(paths_str)))
+                trace_h5_name = os.path.join(h5_dir, 'trace_{}.h5'.format(hash(paths_str)))
                 self._all_paths.append(trace_h5_name)
 
                 # check if cache is older than traces
@@ -599,6 +599,7 @@ class Report(dict):
     _version = None
     _name = None
     _agent = None
+    _start_time = None
 
     @staticmethod
     def reset_vars():
@@ -607,8 +608,8 @@ class Report(dict):
         these fields may change.
 
         """
-        (Report._version, Report._name, Report._agent) = \
-            None, None, None
+        (Report._version, Report._name, Report._agent, Report._start_time) = \
+            None, None, None, None
 
     def __init__(self, report_path, offset=0):
         super(Report, self).__init__()
@@ -640,7 +641,7 @@ class Report(dict):
                     if match is not None:
                         self._version = match.group(1)
                 if self._start_time is None:
-                    match = re.search(r'^Start Time: (\S+)$', line)
+                    match = re.search(r'^Start Time: (.+)$', line)
                     if match is not None:
                         self._start_time = match.group(1)
                 if self._profile_name is None:
@@ -755,6 +756,12 @@ class Report(dict):
             Report._agent = self._agent
         else:
             raise SyntaxError('Unable to parse agent information from report!')
+        if self._start_time is None and Report._start_time:
+            self._start_time = Report._start_time
+        elif self._start_time:
+            Report._start_time = self._start_time
+        else:
+            raise SyntaxError('Unable to parse start time from report!')
 
         # TODO: temporary hack to use old data
         if self._total_energy_dram is None:
