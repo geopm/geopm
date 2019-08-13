@@ -116,6 +116,9 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_online_baseline_comparison_report \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_region_freq_map \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_stream_dgemm_mix_report \
+               scripts/test/pytest_links/TestIO.test_requested_online_frequency \
+               scripts/test/pytest_links/TestIO.test_report \
+               scripts/test/pytest_links/TestIO.test_report_cache \
                scripts/test/pytest_links/TestLauncher.test_process_count \
                scripts/test/pytest_links/TestLauncher.test_non_file_output \
                scripts/test/pytest_links/TestLauncher.test_main \
