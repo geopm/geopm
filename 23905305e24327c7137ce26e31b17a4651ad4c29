@@ -69,6 +69,29 @@
       "revId": "23905305e24327c7137ce26e31b17a4651ad4c29",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef941d06_22c1655d",
+        "filename": "test/SharedMemoryTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-13T20:34:08Z",
+      "side": 1,
+      "message": "EXPECT_EQ on the return code?",
+      "range": {
+        "startLine": 187,
+        "startChar": 4,
+        "endLine": 187,
+        "endChar": 32
+      },
+      "revId": "23905305e24327c7137ce26e31b17a4651ad4c29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
