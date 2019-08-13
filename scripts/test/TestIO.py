@@ -33,9 +33,32 @@
 
 import unittest
 import os
+import tempfile
+import shutil
+import mock
+from collections import Counter
+from contextlib import contextmanager
 
 import geopm_context
 import geopmpy.io
+
+def touch_file(file_path):
+    """ Set a file's last-modified time to now.
+    Create the file if it doesn't exist.
+    """
+    with open(file_path, 'a'):
+        os.utime(file_path, None)
+
+@contextmanager
+def self_cleaning_app_output(*args, **kwargs):
+    """ Create an AppOutput that cleans up its cache files when it goes out of
+    scope.
+    """
+    app_output = geopmpy.io.AppOutput(*args, **kwargs)
+    try:
+        yield app_output
+    finally:
+        app_output.remove_files()
 
 test_data = """##### geopm 1.0.0+dev30g4cccfda #####
 Start Time: Thu May 30 14:38:17 2019
@@ -404,11 +427,17 @@ Application Totals:
 """
 
 class TestIO(unittest.TestCase):
-    def test_requested_online_frequency(self):
-        tmp_path = 'geopmpy-io-test-raw-report'
-        with open(tmp_path, 'w') as fid:
+    def setUp(self):
+        self._test_directory = tempfile.mkdtemp()
+        self._report_path = os.path.join(self._test_directory, 'geopmpy-io-test-raw-report')
+        with open(self._report_path, 'w') as fid:
             fid.write(test_data)
-        report = geopmpy.io.RawReport(tmp_path)
+
+    def tearDown(self):
+        shutil.rmtree(self._test_directory)
+
+    def test_requested_online_frequency(self):
+        report = geopmpy.io.RawReport(self._report_path)
         host_names = report.host_names()
         for nn in report.region_names(host_names[0]):
             if 'dgemm-0.00' in nn:
@@ -420,7 +449,7 @@ class TestIO(unittest.TestCase):
         self.assertLess(stream_region['requested-online-frequency'], dgemm_region['requested-online-frequency'])
 
         raw = report.raw_report()
-        json_path = tmp_path + '.json'
+        json_path = self._report_path + '.json'
         report.dump_json(json_path)
         meta = report.meta_data()
         hosts = report.host_names()
@@ -437,8 +466,39 @@ class TestIO(unittest.TestCase):
         self.assertLess(region_runtime, total_runtime)
         field_runtime = report.get_field(epoch, 'runtime')
         self.assertEqual(runtime, field_runtime)
-        os.unlink(json_path)
-        os.unlink(tmp_path)
+
+    def test_report(self):
+        """ Test that a file of concatenated reports can be extracted to
+        a dataframe.
+        """
+        with self_cleaning_app_output(reports=self._report_path) as app_output:
+            self.assertItemsEqual(['mcfly11', 'mcfly12'], app_output.get_node_names())
+            start_time = app_output.get_report_data().index.get_level_values('start_time').unique()
+            self.assertEqual(1, len(start_time))
+            self.assertEqual('Thu May 30 14:38:17 2019', start_time[0])
+            self.assertEqual(27.1528, app_output.get_report_data(node_name='mcfly11', region='stream-0.45-dgemm-0.60').iloc[0]['runtime'])
+            self.assertEqual(27.2367, app_output.get_report_data(node_name='mcfly12', region='stream-0.45-dgemm-0.60').iloc[0]['runtime'])
+
+    def test_report_cache(self):
+        """ Test that a report is not read when it is cached.
+        """
+        import time
+        time.sleep(1)
+        spy_open = mock.Mock(wraps=open)
+        def count_open(path):
+            """ Count the number of times spy_open() has been called with path
+            """
+            return Counter([c[0][0] for c in spy_open.call_args_list])[path]
+
+        with mock.patch('geopmpy.io.open', spy_open), self_cleaning_app_output(reports=self._report_path):
+            initial_call_count = count_open(self._report_path)
+
+            geopmpy.io.AppOutput(reports=self._report_path)
+            self.assertEqual(initial_call_count, count_open(self._report_path))
+
+            touch_file(self._report_path)
+            geopmpy.io.AppOutput(reports=self._report_path)
+            self.assertEqual(initial_call_count * 2, count_open(self._report_path))
 
 if __name__ == '__main__':
     unittest.main()
