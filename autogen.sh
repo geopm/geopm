@@ -50,7 +50,7 @@ fi
 # Grab the first paragraph from the README to use in other files.
 grep -A4096 '^SUMMARY$' README | tail -n+3 | grep -m1 '^$' -B4096 | head -n-1 > BLURB
 
-if [ -f .git/config ]; then
+if [ -f .git/config ] || git rev-parse --git-dir; then
     git ls-tree --full-tree -r HEAD | awk '{print $4}' | sort > MANIFEST
 fi
 if [ ! -f MANIFEST ]; then
