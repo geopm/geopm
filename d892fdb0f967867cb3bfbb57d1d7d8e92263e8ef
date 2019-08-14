@@ -571,6 +571,24 @@
     },
     {
       "key": {
+        "uuid": "af555ec1_d22865b4",
+        "filename": "src/IOGroup.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-14T19:07:06Z",
+      "side": 1,
+      "message": "Discussed in a review meeting today. Plan for now is to keep it as a built-in IOGroup, but to put it behind a configure flag. E.g. --enable-cnl-iogroup\n\nIt was also noted that the intended use case for those warnings may be better addressed by agents. That may require a way for agents to check whether all of the signals/controls they need are available.",
+      "parentUuid": "fe104d35_45ffe225",
+      "revId": "d892fdb0f967867cb3bfbb57d1d7d8e92263e8ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "46dfb996_7bc92bed",
         "filename": "test/CNLIOGroupTest.cpp",
         "patchSetId": 1
