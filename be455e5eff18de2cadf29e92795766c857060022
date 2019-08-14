@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98ab1933_054aea43",
+        "filename": "geopm.spec.in",
+        "patchSetId": 18
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-14T22:58:13Z",
+      "side": 1,
+      "message": "Do we need an obsoletes or conflict tag against the \"geopm\" package?",
+      "revId": "be455e5eff18de2cadf29e92795766c857060022",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
