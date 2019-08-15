@@ -33,6 +33,7 @@
 
 from __future__ import absolute_import
 
+from builtins import range
 import pandas
 
 def make_mock_report_df(name_prefix, node_names, agent_params):
@@ -55,7 +56,7 @@ def make_mock_report_df(name_prefix, node_names, agent_params):
     }
     start_time = 'Tue Nov  6 08:00:00 2018'
     index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration', 'region']
-    iterations = range(1, 4)
+    iterations = list(range(1, 4))
 
     input_data = {}
     for agent in agent_params:

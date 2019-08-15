@@ -33,12 +33,16 @@
 
 # python 2 compatibility
 from __future__ import print_function
+from __future__ import division
 
+from builtins import zip
+from builtins import map
+from past.utils import old_div
 import math
 import numpy as np
 import sys
 
-nid_pos_dict = {int(ll[0]): dict(zip(("column", "row", "chassis", "slot", "node"), tuple(map(int, ll[1:])))) for ll in map(lambda l: l.strip().split(), open('theta_nodelist_broken.txt').readlines())}
+nid_pos_dict = {int(ll[0]): dict(list(zip(("column", "row", "chassis", "slot", "node"), tuple(map(int, ll[1:]))))) for ll in [l.strip().split() for l in open('theta_nodelist_broken.txt').readlines()]}
 
 # dealing with the deprecated column names in the nekbone traces
 keymap = {"seconds": "time",
@@ -106,11 +110,11 @@ def power_and_temperature_stats(nids, traces):
     global_stats = {'power': 0, 'temperature': 0} ; global_Z = 0
     per_node_stats = {}
 
-    for nid, trace_file in progress(zip(nids, traces), message=lambda n__: "Computing Stats [Node %5d]" % n__[0]):
+    for nid, trace_file in progress(list(zip(nids, traces)), message=lambda n__: "Computing Stats [Node %5d]" % n__[0]):
         Z = 0
         per_node_stats[nid] = {'power': 0, 'temperature': 0}
         for ldict in trace_iterate(trace_file):
-            per_node_stats[nid]['power'] += ldict['energy_package_delta']/ldict['time_delta']
+            per_node_stats[nid]['power'] += old_div(ldict['energy_package_delta'],ldict['time_delta'])
             per_node_stats[nid]['temperature'] += (ldict['temperature_core_i'] + ldict['temperature_core_f'])*0.5
             Z += 1.
         global_stats['power'] += per_node_stats[nid]['power']
@@ -127,7 +131,7 @@ def power_and_temperature_stats(nids, traces):
 
 def global_fit(nids, traces, dict_to_signal):
     mu = None ; sigma = None ; N = 0
-    for nid, trace_file in progress(zip(nids, traces), message=lambda n__1: "Global Fit [Node %5d]" % n__1[0]):
+    for nid, trace_file in progress(list(zip(nids, traces)), message=lambda n__1: "Global Fit [Node %5d]" % n__1[0]):
         allsignals = []
         for ldict in trace_iterate(trace_file):
             ldict.update(nid_pos_dict[nid])
@@ -155,7 +159,7 @@ def compute_likelihood(nids, traces, mu, sigma, dict_to_signal):
     siginv = sigma.I
 
     # TODO compute mean power and temperature
-    for nid, trace_file in progress(zip(nids, traces), message=lambda n__2: "Computing Likelihood [Node %5d]" % n__2[0]):
+    for nid, trace_file in progress(list(zip(nids, traces)), message=lambda n__2: "Computing Likelihood [Node %5d]" % n__2[0]):
         allsignals = []
         for ldict in trace_iterate(trace_file):
             ldict.update(nid_pos_dict[nid])
@@ -166,7 +170,7 @@ def compute_likelihood(nids, traces, mu, sigma, dict_to_signal):
             dist = ((signal - mu) * siginv * (signal - mu).T).item(0)
             likelihood += ldict['time_delta'] * dist
             duration += ldict['time_delta']
-        logltable[nid] = likelihood/duration
+        logltable[nid] = old_div(likelihood,duration)
 
     return logltable
 
@@ -195,8 +199,8 @@ if __name__ == '__main__':
     nids = [int(trf[-5:]) for trf in traces]
 
     dict_to_signal = lambda ldict: np.matrix([
-        math.log(ldict['energy_package_delta']/ldict['time_delta']),
-        math.log(ldict['cycles_thread_delta']/ldict['cycles_reference_delta']),
+        math.log(old_div(ldict['energy_package_delta'],ldict['time_delta'])),
+        math.log(old_div(ldict['cycles_thread_delta'],ldict['cycles_reference_delta'])),
         (ldict['temperature_core_i'] + ldict['temperature_core_f'])*0.5,
         ldict['row'],
     ])
@@ -215,6 +219,6 @@ if __name__ == '__main__':
         print("OUTLIERS IDENTIFIED:")
         outliers.sort()
         for outlier_prob, nid in outliers:
-            delta = {k: node_stats[nid][k] - global_avg[k] for k in global_avg.keys()}
+            delta = {k: node_stats[nid][k] - global_avg[k] for k in list(global_avg.keys())}
             status = {True: "Runt", False: "Pick"}[delta['power'] >= 0]
             print("Node %5d, %5.2f%%, %s, %5.1fW, %5.1fC" % (nid, 100*outlier_prob, status, delta['power'], delta['temperature']))
