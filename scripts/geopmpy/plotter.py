@@ -35,12 +35,20 @@ GEOPM Plotter - Used to produce plots and other analysis files from report and/o
 
 from __future__ import absolute_import
 from __future__ import print_function
+from __future__ import division
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import zip
+from builtins import str
+from builtins import range
+from past.utils import old_div
+from builtins import object
 import sys
 import os
 import subprocess
 import argparse
-import cPickle as pickle
+import pickle as pickle
 import math
 from pkg_resources import parse_version
 
@@ -388,9 +396,9 @@ def generate_bar_plot(report_df, config):
 
     if config.speedup:  # Plot the inverse of the target data to show speedup as a positive change
         df = df.div(df['reference_mean'], axis='rows')
-        df['target_mean'] = 1 / df['target_mean']
-        df['target_max'] = 1 / df['target_max']
-        df['target_min'] = 1 / df['target_min']
+        df['target_mean'] = old_div(1, df['target_mean'])
+        df['target_max'] = old_div(1, df['target_max'])
+        df['target_min'] = old_div(1, df['target_min'])
 
     # Convert the maxes and mins to be deltas from the mean; required for the errorbar API
     df['reference_max_delta'] = df['reference_max'] - df['reference_mean']
@@ -403,7 +411,7 @@ def generate_bar_plot(report_df, config):
     bar_width = 0.35
     index = numpy.arange(min(len(df['target_mean']), len(df['reference_mean'])))
 
-    plt.bar(index - bar_width / 2,
+    plt.bar(index - old_div(bar_width, 2),
             df['reference_mean'],
             width=bar_width,
             color='blue',
@@ -411,7 +419,7 @@ def generate_bar_plot(report_df, config):
             label=config.ref_plugin.replace('_', ' ').title(),
             zorder=3)
 
-    ax.errorbar(index - bar_width / 2,
+    ax.errorbar(index - old_div(bar_width, 2),
                 df['reference_mean'],
                 xerr=None,
                 yerr=(df['reference_min_delta'], df['reference_max_delta']),
@@ -422,7 +430,7 @@ def generate_bar_plot(report_df, config):
                 capthick=2,
                 zorder=10)
 
-    plt.bar(index + bar_width / 2,
+    plt.bar(index + old_div(bar_width, 2),
             df['target_mean'],
             width=bar_width,
             color='cyan',
@@ -430,7 +438,7 @@ def generate_bar_plot(report_df, config):
             label=config.tgt_plugin.replace('_', ' ').title(),
             zorder=3)  # Forces grid lines to be drawn behind the bar
 
-    ax.errorbar(index + bar_width / 2,
+    ax.errorbar(index + old_div(bar_width, 2),
                 df['target_mean'],
                 xerr=None,
                 yerr=(df['target_min_delta'], df['target_max_delta']),
@@ -525,7 +533,7 @@ def generate_bar_plot_comparison(df, config):
     bar_width = 0.35
     index = numpy.arange(min(len(df['target_mean']), len(df['reference_mean'])))
 
-    plt.bar(index - bar_width / 2,
+    plt.bar(index - old_div(bar_width, 2),
             df['reference_mean'],
             width=bar_width,
             color='blue',
@@ -533,7 +541,7 @@ def generate_bar_plot_comparison(df, config):
             label=config.ref_plugin.replace('_', ' ').title(),
             zorder=3)
 
-    ax.errorbar(index - bar_width / 2,
+    ax.errorbar(index - old_div(bar_width, 2),
                 df['reference_mean'],
                 xerr=None,
                 yerr=(df['reference_min_delta'], df['reference_max_delta']),
@@ -544,7 +552,7 @@ def generate_bar_plot_comparison(df, config):
                 capthick=2,
                 zorder=10)
 
-    plt.bar(index + bar_width / 2,
+    plt.bar(index + old_div(bar_width, 2),
             df['target_mean'],
             width=bar_width,
             color='cyan',
@@ -552,7 +560,7 @@ def generate_bar_plot_comparison(df, config):
             label=config.tgt_plugin.replace('_', ' ').title(),
             zorder=3)  # Forces grid lines to be drawn behind the bar
 
-    ax.errorbar(index + bar_width / 2,
+    ax.errorbar(index + old_div(bar_width, 2),
                 df['target_mean'],
                 xerr=None,
                 yerr=(df['target_min_delta'], df['target_max_delta']),
@@ -704,7 +712,7 @@ def generate_best_freq_plot_sc17(data, name, output_dir):
     for i in range(num_series):
         shift = start_shift + (i * bar_width)
         series_data = data[cols[i]]
-        bottom, top = zip(*series_data)
+        bottom, top = list(zip(*series_data))
         bottom = numpy.asarray(bottom)
         top = numpy.asarray(top)
         top = (top - bottom) + 5e6
@@ -857,10 +865,10 @@ def generate_power_plot(trace_df, config):
         # Diff the energy counters and determine the median iteration (if multiple runs)
         median_df = geopmpy.io.Trace.get_median_df(df, 'energy', config)
         # Calculate power from the diffed counters
-        pkg_energy_cols = [s for s in median_df.keys() if 'energy_package' in s]
-        dram_energy_cols = [s for s in median_df.keys() if 'energy_dram' in s]
-        median_df['socket_power'] = median_df[pkg_energy_cols].sum(axis=1) / median_df['elapsed_time']
-        median_df['dram_power'] = median_df[dram_energy_cols].sum(axis=1) / median_df['elapsed_time']
+        pkg_energy_cols = [s for s in list(median_df.keys()) if 'energy_package' in s]
+        dram_energy_cols = [s for s in list(median_df.keys()) if 'energy_dram' in s]
+        median_df['socket_power'] = old_div(median_df[pkg_energy_cols].sum(axis=1), median_df['elapsed_time'])
+        median_df['dram_power'] = old_div(median_df[dram_energy_cols].sum(axis=1), median_df['elapsed_time'])
         median_df['combined_power'] = median_df['socket_power']
 
         # Begin plot setup
@@ -874,19 +882,19 @@ def generate_power_plot(trace_df, config):
             node_df = median_df.loc[idx[:, :, :, :, node_name], ]
 
             if node_name == config.focus_node:
-                plt.plot(pandas.Series(numpy.arange(float(len(node_df))) / (len(node_df) - 1) * 100),
+                plt.plot(pandas.Series(old_div(numpy.arange(float(len(node_df))), (len(node_df) - 1) * 100)),
                          node_df['combined_power'].rolling(window=config.smooth, center=True).mean(),
                          label=node_dict[node_name],
                          color='red',
                          path_effects=[pe.Stroke(linewidth=3, foreground='black'), pe.Normal()],
                          zorder=10)
             else:
-                plt.plot(pandas.Series(numpy.arange(float(len(node_df))) / (len(node_df) - 1) * 100),
+                plt.plot(pandas.Series(old_div(numpy.arange(float(len(node_df))), (len(node_df) - 1) * 100)),
                          node_df['combined_power'].rolling(window=config.smooth, center=True).mean(),
                          label=node_dict[node_name])
 
         if config.analyze:
-            plt.plot(pandas.Series(numpy.arange(float(len(node_df))) / (len(node_df) - 1) * 100),
+            plt.plot(pandas.Series(old_div(numpy.arange(float(len(node_df))), (len(node_df) - 1) * 100)),
                      median_df['combined_power'].unstack(level=['node_name']).mean(axis=1),
                      label='Combined Average',
                      color='aqua',
@@ -1024,14 +1032,14 @@ def generate_epoch_plot(trace_df, config):
             target_max_time_df /= normalization_factor
 
         f, ax = plt.subplots()
-        plt.plot(numpy.arange(float(len(reference_max_time_df))) / len(reference_max_time_df) * 100,
+        plt.plot(old_div(numpy.arange(float(len(reference_max_time_df))), len(reference_max_time_df) * 100),
                  reference_max_time_df.rolling(window=config.smooth, center=True).mean(),
                  label=ref_plugin.replace('_', ' ').title(),
                  color='blue',
                  linewidth=1.5)
 
         if ref_plugin != tgt_plugin:  # Do not plot the second line if there is no second plugin
-            plt.plot(numpy.arange(float(len(target_max_time_df))) / len(target_max_time_df) * 100,
+            plt.plot(old_div(numpy.arange(float(len(target_max_time_df))), len(target_max_time_df) * 100),
                      target_max_time_df.rolling(window=config.smooth, center=True).mean(),
                      label=tgt_plugin.replace('_', ' ').title(),
                      color='cyan',
@@ -1161,11 +1169,11 @@ def generate_freq_plot(trace_df, config):
         plt.rc('axes', prop_cycle=(cycler('color', colors)))
         f, ax = plt.subplots()
 
-        cycles_thread = [s for s in median_df.keys() if 'cycles_thread' in s]
-        cycles_reference = [s for s in median_df.keys() if 'cycles_reference' in s]
+        cycles_thread = [s for s in list(median_df.keys()) if 'cycles_thread' in s]
+        cycles_reference = [s for s in list(median_df.keys()) if 'cycles_reference' in s]
 
         for c, r in zip(cycles_thread, cycles_reference):  # Loop once per socket
-            frequency_data = median_df[c] / median_df[r]
+            frequency_data = old_div(median_df[c], median_df[r])
             if config.base_clock:
                 frequency_data *= config.base_clock
             else:
@@ -1175,14 +1183,14 @@ def generate_freq_plot(trace_df, config):
                 node_data = frequency_data.loc[idx[:, :, :, :, node_name], ]
 
                 if node_name == config.focus_node:
-                    plt.plot(pandas.Series(numpy.arange(float(len(node_data))) / (len(node_data) - 1) * 100),
+                    plt.plot(pandas.Series(old_div(numpy.arange(float(len(node_data))), (len(node_data) - 1) * 100)),
                              node_data.rolling(window=config.smooth, center=True).mean(),
                              label=node_dict[node_name],
                              color='red',
                              path_effects=[pe.Stroke(linewidth=3, foreground='black'), pe.Normal()],
                              zorder=10)
                 else:
-                    plt.plot(pandas.Series(numpy.arange(float(len(node_data))) / (len(node_data) - 1) * 100),
+                    plt.plot(pandas.Series(old_div(numpy.arange(float(len(node_data))), (len(node_data) - 1) * 100)),
                              node_data.rolling(window=config.smooth, center=True).mean(),
                              label=node_dict[node_name])
 
@@ -1283,7 +1291,7 @@ def generate_histogram(data, config, label, bin_size, xprecision):
         raise RuntimeError("<geopmpy>: Unknown type for histogram: {}".format(label))
 
     plt.figure(figsize=config.fig_size)
-    bins = [round(bb*bin_size, 3) for bb in range(int(config.min_drop/bin_size), int(config.max_drop/bin_size)+2)]
+    bins = [round(bb*bin_size, 3) for bb in range(int(old_div(config.min_drop,bin_size)), int(old_div(config.max_drop,bin_size))+2)]
     n, bins, patches = plt.hist(data, rwidth=0.8, bins=bins, color=bar_color)
     for n, b in zip(n, bins):
         plt.annotate(int(n) if int(n) != 0 else "", xy=(b+bin_size/2.0, n+2.5),
