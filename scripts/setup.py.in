@@ -77,7 +77,9 @@ classifiers = ['Development Status :: 5 - Production/Stable',
                'Topic :: Software Development :: Libraries :: Application Frameworks',
                'Topic :: System :: Distributed Computing',
                'Topic :: System :: Hardware :: Symmetric Multi-processing',
-               'Topic :: System :: Power (UPS)']
+               'Topic :: System :: Power (UPS)',
+               'Programming Language :: Python :: 2 :: Only',
+               'Programming Language :: Python :: 2.7']
 
 install_requires = ['pandas>=0.19.2',
                     'natsort',
