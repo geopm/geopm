@@ -42,6 +42,11 @@ page for details about the command line interface.
 
 from __future__ import absolute_import
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
 import sys
 import os
 import argparse
@@ -82,7 +87,7 @@ class Factory(object):
             raise LookupError('Unsupported launcher "{}" requested'.format(launcher_name))
 
     def get_launcher_names(self):
-        return self._launcher_dict.keys()
+        return list(self._launcher_dict.keys())
 
 
 class PassThroughError(Exception):
@@ -195,7 +200,7 @@ class Config(object):
         configuration object.
         """
         return ' '.join(['{kk}={vv}'.format(kk=kk, vv=vv)
-                         for (kk, vv) in self.environ().iteritems()])
+                         for (kk, vv) in list(self.environ().items())])
 
     def __str__(self):
         """
@@ -448,7 +453,7 @@ class Launcher(object):
         echo = []
         if self.is_geopm_enabled:
             echo.append(str(self.config))
-            for it in self.environ_ext.iteritems():
+            for it in list(self.environ_ext.items()):
                 echo.append('{}={}'.format(it[0], it[1]))
         echo.extend(argv_mod)
         echo = u'\n' + u' '.join(echo) + u'\n\n'
@@ -614,7 +619,7 @@ class Launcher(object):
             socket_boundary = self.core_per_socket * (self.num_socket - 1)
             for socket in range(self.num_socket - 1, -1, -1):
                 for rank in range(rank_per_socket - 1, -1, -1):  # Start assigning ranks to cores from the highest rank/core backwards
-                    base_cores = range(core_index, core_index - app_core_per_rank, -1)
+                    base_cores = list(range(core_index, core_index - app_core_per_rank, -1))
                     cpu_range = set()
                     for ht in range(app_thread_per_core):
                         cpu_range.update({bc + ht * core_per_node for bc in base_cores})
@@ -630,7 +635,7 @@ class Launcher(object):
                 socket_boundary -= self.core_per_socket
         else:
             for rank in range(app_rank_per_node - 1, -1, -1):  # Start assigning ranks to cores from the highest rank/core backwards
-                base_cores = range(core_index, core_index - app_core_per_rank, -1)
+                base_cores = list(range(core_index, core_index - app_core_per_rank, -1))
                 cpu_range = set()
                 for ht in range(app_thread_per_core):
                     cpu_range.update({bc + ht * core_per_node for bc in base_cores})
