@@ -34,7 +34,15 @@ GEOPM IO - Helper module for parsing/processing report and trace files.
 """
 
 from __future__ import absolute_import
+from __future__ import division
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import map
+from builtins import str
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import os
 import json
 import re
@@ -222,7 +230,7 @@ class AppOutput(object):
                     if re.findall(r'Host:', line):
                         files += 1
 
-        filesize = '{}KiB'.format(filesize/1024)
+        filesize = '{}KiB'.format(old_div(filesize,1024))
         fileno = 1
         for rp in report_paths:
             # Parse the first report
@@ -266,11 +274,11 @@ class AppOutput(object):
             filesize += os.stat(tp).st_size
         # Abort if traces are too large
         avail_mem = psutil.virtual_memory().available
-        if filesize > avail_mem / 2:
+        if filesize > old_div(avail_mem, 2):
             sys.stderr.write('<geopmpy> Warning: Total size of traces is greater than 50% of available memory. Parsing traces will be skipped.\n')
             return
 
-        filesize = '{}MiB'.format(filesize/1024/1024)
+        filesize = '{}MiB'.format(old_div(filesize,1024/1024))
 
         for tp in trace_paths:
             if verbose:
@@ -331,7 +339,7 @@ class AppOutput(object):
               }
         index = index.droplevel('region').drop_duplicates()
         app_df = pandas.DataFrame(app, index=index)
-        numeric_cols = app.keys()
+        numeric_cols = list(app.keys())
         app_df[numeric_cols] = app_df[numeric_cols].apply(pandas.to_numeric)
         reports_app_df_list.append(app_df)
 
@@ -490,7 +498,7 @@ class IndexTracker(object):
         index = (run_output.get_version(), run_output.get_start_time(),
                  os.path.basename(run_output.get_profile_name()),
                  run_output.get_agent(), run_output.get_node_name())
-        if index not in self._run_outputs.keys():
+        if index not in list(self._run_outputs.keys()):
             self._run_outputs[index] = 1
         else:
             self._run_outputs[index] += 1
@@ -1329,17 +1337,17 @@ class RawReport(object):
         return copy.deepcopy(self._raw_dict['GEOPM Meta Data'])
 
     def host_names(self):
-        return [xx for xx in self._raw_dict.keys() if xx != 'GEOPM Meta Data']
+        return [xx for xx in list(self._raw_dict.keys()) if xx != 'GEOPM Meta Data']
 
     def region_names(self, host_name):
         host_data = self._raw_dict[host_name]
-        result = [xx.split()[1] for xx in host_data.keys() if xx.startswith('Region ')]
+        result = [xx.split()[1] for xx in list(host_data.keys()) if xx.startswith('Region ')]
         return result
 
     def region_hash(self, region_name):
         for host_name in self.host_names():
             host_data = self._raw_dict[host_name]
-            for xx in host_data.keys():
+            for xx in list(host_data.keys()):
                 if xx.startswith('Region {}'.format(region_name)):
                     return xx.split()[2][1:-1]
         raise KeyError('Region not found: {}'.format(region_name))
@@ -1361,7 +1369,7 @@ class RawReport(object):
         return copy.deepcopy(host_data[key])
 
     def get_field(self, raw_data, key, units=''):
-        matches = [(len(kk), kk) for kk in raw_data.keys() if key in kk and units in kk]
+        matches = [(len(kk), kk) for kk in list(raw_data.keys()) if key in kk and units in kk]
         if len(matches) == 0:
             raise KeyError('Field not found: {}'.format(key))
         match = sorted(matches)[0][1]
