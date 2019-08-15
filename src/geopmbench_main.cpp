@@ -48,6 +48,7 @@ int main(int argc, char **argv)
     int err = 0;
     int rank;
     int verbosity = 0;
+    int no_init = 0;
     uint64_t init_rid;
     char *config_path = NULL;
     const char *usage = "\n"
@@ -119,29 +120,39 @@ int main(int argc, char **argv)
     }
 
     if (!err && argc > 1) {
-        if (strncmp(argv[1], "--help", strlen("--help")) == 0 ||
-            strncmp(argv[1], "-h", strlen("-h")) == 0) {
-            if (!rank) {
-                printf(usage, argv[0], argv[0]);
-            }
-            err = ERROR_HELP;
-        }
         int offset = 1;
-        if (strncmp(argv[1], "--verbose", strlen("--verbose")) == 0) {
-            if (!rank) {
-                verbosity = 1;
+        for(int i = 1; i < argc; ++i){
+            if (strncmp(argv[i], "--help", strlen("--help")) == 0 ||
+                strncmp(argv[i], "-h", strlen("-h")) == 0) {
+                if (!rank) {
+                    printf(usage, argv[0], argv[0]);
+                }
+                err = ERROR_HELP;
+                break;
             }
-            ++offset;
+            if (!err && strncmp(argv[i], "--verbose", strlen("--verbose")) == 0) {
+                if (!rank) {
+                    verbosity = 1;
+                }
+                ++offset;
+            }
+            if (!err && strncmp(argv[i], "--no-init", strlen("--no-init")) == 0) {
+                if (!rank) {
+                    no_init = 1;
+                }
+                ++offset;
+            }
         }
-        if (argc > offset) {
+
+        if (!err && argc > offset) {
             config_path = argv[offset];
         }
     }
 
-    if (!err) {
+    if (!err && no_init == 0) {
         err = geopm_prof_region("model-init", GEOPM_REGION_HINT_UNKNOWN, &init_rid);
     }
-    if (!err) {
+    if (!err && no_init == 0) {
         err = geopm_prof_enter(init_rid);
     }
     if (!err) {
@@ -159,7 +170,9 @@ int main(int argc, char **argv)
             big_o_sequence = {1.0, 1.0, 1.0, 1.0, 1.0};
         }
         geopm::ModelApplication app(loop_count, region_sequence, big_o_sequence, verbosity, rank);
-        err = geopm_prof_exit(init_rid);
+        if (!err && no_init == 0) {
+            err = geopm_prof_exit(init_rid);
+        }
         if (!err) {
             // Run application
             app.run();
