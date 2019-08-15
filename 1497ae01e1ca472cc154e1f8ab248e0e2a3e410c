@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e3ad0f33_68f1b0dd",
+        "filename": "src/Endpoint.hpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-15T16:54:15Z",
+      "side": 1,
+      "message": "It will be implicitly deleted because of the unique_ptr member but I think the error message will be nicer if we explictly delete.\n\nFor consistency we should probably delete copies for FileEndpoint too (in the next patch)",
+      "parentUuid": "626e932a_9e151a4d",
+      "revId": "1497ae01e1ca472cc154e1f8ab248e0e2a3e410c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3f66fc70_031ab71c",
         "filename": "src/Endpoint.hpp",
         "patchSetId": 11
