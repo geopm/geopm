@@ -384,6 +384,69 @@ class TestIntegration(unittest.TestCase):
             total_runtime = sleep_data['runtime'].item() + spin_data['runtime'].item()
             self.assertNear(total_runtime, epoch_data['runtime'].item())
 
+    def test_epoch_data_valid(self):
+        name = 'test_epoch_data_valid'
+        report_path = name + '.report'
+        num_node = 1
+        num_rank = 1
+        big_o = 80.0
+        loop_count = 100
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.set_loop_count(loop_count)
+        app_conf.append_region('dgemm-unmarked', big_o)
+        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
+        self._tmp_files.append(agent_conf.get_path())
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
+        launcher.set_num_node(num_node)
+        launcher.set_num_rank(num_rank)
+        launcher.run(name)
+
+        report = geopmpy.io.RawReport(report_path)
+        node_names = report.host_names()
+        self.assertEqual(num_node, len(node_names))
+        for nn in node_names:
+            regions = report.region_names(nn)
+            self.assertTrue('model-init' not in regions)
+            totals = report.raw_totals(nn)
+            unmarked = report.raw_region(nn, 'unmarked-region')
+            epoch = report.raw_epoch(nn)
+
+            # Epoch has valid data
+            self.assertGreater(epoch['runtime (sec)'], 0)
+            self.assertGreater(epoch['sync-runtime (sec)'], 0)
+            self.assertGreater(epoch['package-energy (joules)'], 0)
+            self.assertGreater(epoch['dram-energy (joules)'], 0)
+            self.assertGreater(epoch['power (watts)'], 0)
+            self.assertGreater(epoch['frequency (%)'], 0)
+            self.assertGreater(epoch['frequency (Hz)'], 0)
+            self.assertEqual(epoch['count'], loop_count)
+
+            # Runtime
+            self.assertTrue(totals['runtime (sec)'] > unmarked['runtime (sec)'] >= epoch['runtime (sec)'],
+                            '''The total runtime is NOT > the unmarked runtime or the unmarked runtime is NOT
+                               >= the Epoch runtime.''')
+
+            # Package Energy (joules)
+            self.assertTrue(totals['package-energy (joules)'] >
+                            unmarked['package-energy (joules)'] >=
+                            epoch['package-energy (joules)'],
+                            '''The total package energy (joules) is NOT > the unmarked package energy (joules)
+                               or the unmarked package energy (joules) is NOT >= the Epoch package
+                               energy (joules).''')
+
+            # DRAM Energy
+            self.assertTrue(totals['dram-energy (joules)'] >
+                            unmarked['dram-energy (joules)'] >=
+                            epoch['dram-energy (joules)'],
+                            '''The total dram energy is NOT > the unmarked dram energy or the unmarked
+                               dram energy is NOT >= the Epoch dram energy.''')
+
+            # Sync-runtime
+            self.assertTrue(unmarked['sync-runtime (sec)'] >= epoch['sync-runtime (sec)'],
+                            '''The sync-runtime for the unmarked region is NOT >= the Epoch sync-runtime.''')
+
+
     def test_runtime_nested(self):
         name = 'test_runtime_nested'
         report_path = name + '.report'
