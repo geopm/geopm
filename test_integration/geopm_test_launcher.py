@@ -119,7 +119,7 @@ class TestLauncher(object):
                                                          self._node_list, self._host_file)
             launcher.run(stdout=outfile, stderr=outfile)
 
-    def run(self, test_name):
+    def run(self, test_name, no_init=False):
         self._app_conf.write()
         self._agent_conf.write()
         with open(test_name + '.log', 'a') as outfile:
@@ -142,6 +142,8 @@ class TestLauncher(object):
             # Use app config to get path and arguements
             argv.append(self._app_conf.get_exec_path())
             argv.append('--verbose')
+            if no_init:
+                argv.append('--no-init')
             argv.extend(self._app_conf.get_exec_args())
             launcher = geopmpy.launcher.Factory().create(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
                                                          self._time_limit, test_name, self._node_list, self._host_file)
