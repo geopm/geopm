@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d02b356_61d8e505",
+        "filename": "src/EnergyEfficientRegion.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-15T22:30:11Z",
+      "side": 1,
+      "message": "This comment no longer describes the behavior",
+      "range": {
+        "startLine": 123,
+        "startChar": 24,
+        "endLine": 127,
+        "endChar": 25
+      },
+      "revId": "8488d65dfcc11c500e9f450d58e98f6612bf2f91",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
