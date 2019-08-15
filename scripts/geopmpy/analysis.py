@@ -36,6 +36,10 @@ GEOPM Analysis - Used to run applications and analyze results for specific GEOPM
 from __future__ import absolute_import
 from __future__ import division
 
+from builtins import zip
+from builtins import str
+from builtins import range
+from builtins import object
 import argparse
 import sys
 import os
@@ -260,7 +264,7 @@ class PowerSweepAnalysis(Analysis):
             self._max_power = sys_tdp
             sys.stderr.write("<geopmpy>: Warning: Invalid or unspecified max_power; using system TDP: {}.\n".format(self._max_power))
 
-        power_caps = range(self._min_power, self._max_power+1, self._step_power)
+        power_caps = list(range(self._min_power, self._max_power+1, self._step_power))
         for power_cap in power_caps:
             # governor runs
             options = {'power_budget': power_cap}
@@ -600,7 +604,7 @@ class NodeEfficiencyAnalysis(Analysis):
         if not self._max_power:
             self._max_power = max(profiles)
 
-        self._power_caps = range(self._min_power, self._max_power+1, self._step_power)
+        self._power_caps = list(range(self._min_power, self._max_power+1, self._step_power))
         gov_freq_data = {}
         bal_freq_data = {}
 
@@ -855,7 +859,7 @@ class FreqSweepAnalysis(Analysis):
                 for region in regions}
 
     def plot(self, process_output):
-        for region, df in process_output.iteritems():
+        for region, df in list(process_output.items()):
             geopmpy.plotter.generate_runtime_energy_plot(df, region, self._output_dir)
 
     def _region_freq_map(self, parse_output):
@@ -900,7 +904,7 @@ class FreqSweepAnalysis(Analysis):
 
     def _region_freq_str_pretty(self, region_freq_map):
         s = '\nRegion frequency map: \n'
-        for k, v in region_freq_map.iteritems():
+        for k, v in list(region_freq_map.items()):
             s += '    {}: {}\n'.format(k, v)
         return s
 
@@ -986,7 +990,7 @@ class FreqSweepAnalysis(Analysis):
         freq_list = [float(pn.split('_freq_')[-1].split('_')[0])
                      for pn in profile_name_list
                      if prefix in pn and '_freq_' in pn.split(prefix)[1]]
-        freq_pname = zip(freq_list, profile_name_list)
+        freq_pname = list(zip(freq_list, profile_name_list))
         freq_pname.sort(reverse=True)
         return freq_pname
 
@@ -1543,7 +1547,7 @@ geopmanalysis - Used to run applications and analyze results for specific
   --geopm-analysis-iterations      number of experiments to run per analysis type
   --version                        show the GEOPM version number and exit
 
-""".format(analysis_types=textwrap.fill(', '.join(analysis_type_map.keys()), subsequent_indent=' '*24))
+""".format(analysis_types=textwrap.fill(', '.join(list(analysis_type_map.keys())), subsequent_indent=' '*24))
 
     version_str = """\
 GEOPM version {version}
@@ -1567,7 +1571,7 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
     argv = argv[1:]
 
     if analysis_type not in analysis_type_map:
-        raise RuntimeError('Analysis type "{}" unrecognized. Available types: {}'.format(analysis_type, ' '.join(analysis_type_map.keys())))
+        raise RuntimeError('Analysis type "{}" unrecognized. Available types: {}'.format(analysis_type, ' '.join(list(analysis_type_map.keys()))))
 
     # Common arguments
     parser = argparse.ArgumentParser(description=__doc__,

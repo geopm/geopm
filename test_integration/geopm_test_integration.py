@@ -46,6 +46,7 @@ import pandas
 import collections
 import socket
 import shlex
+import io
 import json
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -79,7 +80,7 @@ class TestIntegration(unittest.TestCase):
 
     def assertNear(self, a, b, epsilon=0.05, msg=''):
         denom = a if a != 0 else 1
-        if abs((a - b) / denom) >= epsilon:
+        if abs(old_div((a - b), denom)) >= epsilon:
             self.fail('The fractional difference between {a} and {b} is greater than {epsilon}.  {msg}'.format(a=a, b=b, epsilon=epsilon, msg=msg))
 
     def create_progress_df(self, df):
@@ -89,7 +90,7 @@ class TestIntegration(unittest.TestCase):
         filtered_df = pandas.DataFrame()
         row_list = []
         progress_1s = df['REGION_PROGRESS'].loc[df['REGION_PROGRESS'] == 1]
-        for index, _ in progress_1s.iteritems():
+        for index, _ in list(progress_1s.items()):
             row = df.loc[last_index:index].head(1)
             row_list += [row[['TIME', 'REGION_PROGRESS', 'REGION_RUNTIME']]]
             row = df.loc[last_index:index].tail(1)
@@ -545,7 +546,7 @@ class TestIntegration(unittest.TestCase):
             for region_name in regions:
                 rr = self._output.get_report_data(node_name=nn, region=region_name)
                 report_ids.append(rr['id'].item())
-            for region_hash in region_times[nn].keys():
+            for region_hash in list(region_times[nn].keys()):
                 self.assertTrue(region_hash in report_ids, msg='Report from {} missing region_hash {}'.format(nn, region_hash))
 
     def test_progress(self):
@@ -702,10 +703,10 @@ class TestIntegration(unittest.TestCase):
             power_data.rename(columns={'TIME': 'ELAPSED_TIME'}, inplace=True)
             power_data = power_data.loc[(power_data != 0).all(axis=1)]  # Will drop any row that is all 0's
 
-            pkg_energy_cols = [s for s in power_data.keys() if 'ENERGY_PACKAGE' in s]
-            dram_energy_cols = [s for s in power_data.keys() if 'ENERGY_DRAM' in s]
-            power_data['SOCKET_POWER'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
-            power_data['DRAM_POWER'] = power_data[dram_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
+            pkg_energy_cols = [s for s in list(power_data.keys()) if 'ENERGY_PACKAGE' in s]
+            dram_energy_cols = [s for s in list(power_data.keys()) if 'ENERGY_DRAM' in s]
+            power_data['SOCKET_POWER'] = old_div(power_data[pkg_energy_cols].sum(axis=1), power_data['ELAPSED_TIME'])
+            power_data['DRAM_POWER'] = old_div(power_data[dram_energy_cols].sum(axis=1), power_data['ELAPSED_TIME'])
             power_data['COMBINED_POWER'] = power_data['SOCKET_POWER'] + power_data['DRAM_POWER']
 
             pandas.set_option('display.width', 100)
@@ -713,7 +714,7 @@ class TestIntegration(unittest.TestCase):
 
             all_power_data[nn] = power_data
 
-        for node_name, power_data in all_power_data.iteritems():
+        for node_name, power_data in list(all_power_data.items()):
             # Allow for overages of 2% at the 75th percentile.
             self.assertGreater(self._options['power_budget'] * 1.02, power_data['SOCKET_POWER'].quantile(.75))
 
@@ -787,10 +788,10 @@ class TestIntegration(unittest.TestCase):
                 power_data.rename(columns={'TIME': 'ELAPSED_TIME'}, inplace=True)
                 power_data = power_data.loc[(power_data != 0).all(axis=1)]  # Will drop any row that is all 0's
 
-                pkg_energy_cols = [s for s in power_data.keys() if 'ENERGY_PACKAGE' in s]
-                dram_energy_cols = [s for s in power_data.keys() if 'ENERGY_DRAM' in s]
-                power_data['SOCKET_POWER'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
-                power_data['DRAM_POWER'] = power_data[dram_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
+                pkg_energy_cols = [s for s in list(power_data.keys()) if 'ENERGY_PACKAGE' in s]
+                dram_energy_cols = [s for s in list(power_data.keys()) if 'ENERGY_DRAM' in s]
+                power_data['SOCKET_POWER'] = old_div(power_data[pkg_energy_cols].sum(axis=1), power_data['ELAPSED_TIME'])
+                power_data['DRAM_POWER'] = old_div(power_data[dram_energy_cols].sum(axis=1), power_data['ELAPSED_TIME'])
                 power_data['COMBINED_POWER'] = power_data['SOCKET_POWER'] + power_data['DRAM_POWER']
 
                 pandas.set_option('display.width', 100)
@@ -801,7 +802,7 @@ class TestIntegration(unittest.TestCase):
                     power_limits.append(epoch_dropped_data['POWER_LIMIT'][-1])
 
             if agent == 'power_balancer':
-                avg_power_limit = sum(power_limits) / len(power_limits)
+                avg_power_limit = old_div(sum(power_limits), len(power_limits))
                 self.assertTrue(avg_power_limit <= power_budget)
 
             min_runtime = float('nan')
@@ -812,7 +813,7 @@ class TestIntegration(unittest.TestCase):
                 epoch_data = self._output.get_report_data(node_name=node_name, region='dgemm')
                 runtime_list.append(epoch_data['runtime'].item())
             if agent == 'power_governor':
-                mean_runtime = sum(runtime_list) / len(runtime_list)
+                mean_runtime = old_div(sum(runtime_list), len(runtime_list))
                 max_runtime = max(runtime_list)
                 margin = margin_factor * (max_runtime - mean_runtime)
 
@@ -905,7 +906,7 @@ class TestIntegration(unittest.TestCase):
             size_orig = len(delta_t)
             delta_t = delta_t[(delta_t - delta_t.mean()) < 3*delta_t.std()]  # Only keep samples within 3 stds of the mean
             self.assertGreater(0.06, 1 - (float(len(delta_t)) / size_orig))
-            self.assertGreater(max_nstd, delta_t.std() / delta_t.mean())
+            self.assertGreater(max_nstd, old_div(delta_t.std(), delta_t.mean()))
 
     def test_mpi_runtimes(self):
         name = 'test_mpi_runtimes'
@@ -941,7 +942,7 @@ class TestIntegration(unittest.TestCase):
             # ranks on a node are in a region, we must use the
             # unmarked-region time as our error term when comparing
             # MPI time and all2all time.
-            mpi_epsilon = max(unmarked_data['runtime'].item() / all2all_data['mpi_runtime'].item(), 0.05)
+            mpi_epsilon = max(old_div(unmarked_data['runtime'].item(), all2all_data['mpi_runtime'].item()), 0.05)
             self.assertNear(all2all_data['mpi_runtime'].item(), all2all_data['runtime'].item(), mpi_epsilon)
             self.assertNear(all2all_data['mpi_runtime'].item(), epoch_data['mpi_runtime'].item())
             # TODO: inconsistent; can we just use _ everywhere?
@@ -1086,7 +1087,7 @@ class TestIntegration(unittest.TestCase):
                     #todo verify trace frequencies
                     #todo verify agent report augment frequecies
                     msg = region_name + " frequency should be near assigned map frequency"
-                    self.assertNear(region_data['frequency'].item(), data[region_name] / sticker_freq * 100, msg=msg)
+                    self.assertNear(region_data['frequency'].item(), old_div(data[region_name], sticker_freq * 100), msg=msg)
 
     def test_agent_energy_efficient_single_region(self):
         """
@@ -1195,8 +1196,8 @@ class TestIntegration(unittest.TestCase):
         for nn in nan_out.get_node_names():
             sticker_app_total = sticker_out.get_app_total_data(node_name=nn)
             nan_app_total = nan_out.get_app_total_data(node_name=nn)
-            runtime_savings_epoch = (sticker_app_total['runtime'].item() - nan_app_total['runtime'].item()) / sticker_app_total['runtime'].item()
-            energy_savings_epoch = (sticker_app_total['energy-package'].item() - nan_app_total['energy-package'].item()) / sticker_app_total['energy-package'].item()
+            runtime_savings_epoch = old_div((sticker_app_total['runtime'].item() - nan_app_total['runtime'].item()), sticker_app_total['runtime'].item())
+            energy_savings_epoch = old_div((sticker_app_total['energy-package'].item() - nan_app_total['energy-package'].item()), sticker_app_total['energy-package'].item())
             self.assertLess(-0.1, runtime_savings_epoch)  # want -10% or better
             self.assertLess(0.0, energy_savings_epoch)
 
@@ -1365,7 +1366,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
             "TEMPERATURE_CORE": (0, 100)
         }
 
-        for signal, val_range in signal_range.iteritems():
+        for signal, val_range in list(signal_range.items()):
             try:
                 self.check_no_error([signal, "board", "0"])
             except:

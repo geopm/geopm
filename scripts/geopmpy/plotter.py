@@ -36,11 +36,17 @@ GEOPM Plotter - Used to produce plots and other analysis files from report and/o
 from __future__ import absolute_import
 from __future__ import division
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import zip
+from builtins import str
+from builtins import range
+from builtins import object
 import sys
 import os
 import subprocess
 import argparse
-import cPickle as pickle
+import pickle as pickle
 import math
 from pkg_resources import parse_version
 
@@ -704,7 +710,7 @@ def generate_best_freq_plot_sc17(data, name, output_dir):
     for i in range(num_series):
         shift = start_shift + (i * bar_width)
         series_data = data[cols[i]]
-        bottom, top = zip(*series_data)
+        bottom, top = list(zip(*series_data))
         bottom = numpy.asarray(bottom)
         top = numpy.asarray(top)
         top = (top - bottom) + 5e6
@@ -1161,8 +1167,8 @@ def generate_freq_plot(trace_df, config):
         plt.rc('axes', prop_cycle=(cycler('color', colors)))
         f, ax = plt.subplots()
 
-        cycles_thread = [s for s in median_df.keys() if 'cycles_thread' in s]
-        cycles_reference = [s for s in median_df.keys() if 'cycles_reference' in s]
+        cycles_thread = [s for s in list(median_df.keys()) if 'cycles_thread' in s]
+        cycles_reference = [s for s in list(median_df.keys()) if 'cycles_reference' in s]
 
         for c, r in zip(cycles_thread, cycles_reference):  # Loop once per socket
             frequency_data = median_df[c] / median_df[r]

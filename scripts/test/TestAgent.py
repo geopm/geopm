@@ -33,6 +33,7 @@
 
 from __future__ import absolute_import
 
+from builtins import str
 import unittest
 import json
 import geopmpy.agent
@@ -60,7 +61,7 @@ class TestAgent(unittest.TestCase):
             policy_names = geopmpy.agent.policy_names(agent)
             exp_policy = {}
             for pp in policy_names:
-                exp_policy[unicode(pp)] = u'NAN'
+                exp_policy[str(pp)] = u'NAN'
             policy_val = [float('nan')] * len(policy_names)
             json_str = geopmpy.agent.policy_json(agent, policy_val)
             res_policy = json.loads(json_str)
