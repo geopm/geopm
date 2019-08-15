@@ -112,7 +112,7 @@ def range_str(values):
     values.sort()
     # Group values with equal delta compared the sequence from zero to
     # N, these are sequential.
-    for aa, bb in itertools.groupby(enumerate(values), lambda(xx, yy): yy - xx):
+    for aa, bb in itertools.groupby(enumerate(values), lambda xx_yy: xx_yy[1] - xx_yy[0]):
         bb = list(bb)
         # The range is from the smallest to the largest in the group.
         begin = bb[0][1]
