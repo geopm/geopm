@@ -106,7 +106,7 @@ def power_and_temperature_stats(nids, traces):
     global_stats = {'power': 0, 'temperature': 0} ; global_Z = 0
     per_node_stats = {}
 
-    for nid, trace_file in progress(zip(nids, traces), message=lambda (n,_): "Computing Stats [Node %5d]" % n):
+    for nid, trace_file in progress(zip(nids, traces), message=lambda n__: "Computing Stats [Node %5d]" % n__[0]):
         Z = 0
         per_node_stats[nid] = {'power': 0, 'temperature': 0}
         for ldict in trace_iterate(trace_file):
@@ -127,7 +127,7 @@ def power_and_temperature_stats(nids, traces):
 
 def global_fit(nids, traces, dict_to_signal):
     mu = None ; sigma = None ; N = 0
-    for nid, trace_file in progress(zip(nids, traces), message=lambda (n,_): "Global Fit [Node %5d]" % n):
+    for nid, trace_file in progress(zip(nids, traces), message=lambda n__1: "Global Fit [Node %5d]" % n__1[0]):
         allsignals = []
         for ldict in trace_iterate(trace_file):
             ldict.update(nid_pos_dict[nid])
@@ -155,7 +155,7 @@ def compute_likelihood(nids, traces, mu, sigma, dict_to_signal):
     siginv = sigma.I
 
     # TODO compute mean power and temperature
-    for nid, trace_file in progress(zip(nids, traces), message=lambda (n,_): "Computing Likelihood [Node %5d]" % n):
+    for nid, trace_file in progress(zip(nids, traces), message=lambda n__2: "Computing Likelihood [Node %5d]" % n__2[0]):
         allsignals = []
         for ldict in trace_iterate(trace_file):
             ldict.update(nid_pos_dict[nid])
