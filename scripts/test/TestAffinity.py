@@ -32,14 +32,18 @@
 #
 
 from __future__ import absolute_import
+from __future__ import division
 
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import unittest
 import math
 import os
 import geopmpy.launcher
 
 
-class Topo():
+class Topo(object):
     def __init__(self, num_socket, core_per_socket, hthread_per_core):
         self._hthread_per_core = hthread_per_core
         self._core_per_socket = core_per_socket
@@ -47,11 +51,11 @@ class Topo():
         self._num_core = self._core_per_socket * self._num_socket
         self._num_linux_cpu = self._hthread_per_core * self._num_core
         # used by tests
-        self.core_list = range(self._num_core)
+        self.core_list = list(range(self._num_core))
         self.hyperthreads = {}
         for core in self.core_list:
             self.hyperthreads[core] = [core + ht*self._num_core for ht in range(1, self._hthread_per_core)]
-        assert math.ceil(self._num_core / self._num_socket) == (self._num_core // self._num_socket)
+        assert math.ceil(old_div(self._num_core, self._num_socket)) == (self._num_core // self._num_socket)
         self.socket_cores = {}
         for sock in range(self._num_socket):
             self.socket_cores[sock] = [sock*self._core_per_socket + cc for cc in range(self._core_per_socket)]

@@ -32,7 +32,10 @@
 #
 
 from __future__ import absolute_import
+from __future__ import division
 
+from builtins import range
+from past.utils import old_div
 import os
 import unittest
 from test.analysis_helper import *
@@ -47,7 +50,7 @@ class TestBalancerAnalysis(unittest.TestCase):
         self._min_power = 160
         self._max_power = 200
         self._step_power = 10
-        self._powers = range(self._min_power, self._max_power+self._step_power, self._step_power)
+        self._powers = list(range(self._min_power, self._max_power+self._step_power, self._step_power))
         self._node_names = ['mynode']
         self._config = {'profile_prefix': self._name_prefix,
                         'output_dir': '.',
@@ -66,16 +69,16 @@ class TestBalancerAnalysis(unittest.TestCase):
             'runtime': (lambda node, region, pow: (500.0 * (1.0/pow))),
             'id': (lambda node, region, pow: 'bad'),
             'power': (lambda node, region, pow:
-                self._gen_val_governor['energy_pkg'](node, region, pow) /
-                self._gen_val_governor['runtime'](node, region, pow)),
+                old_div(self._gen_val_governor['energy_pkg'](node, region, pow),
+                self._gen_val_governor['runtime'](node, region, pow))),
         }
         self._gen_val_balancer = self._gen_val_governor.copy()
         for metric in ['energy_pkg', 'runtime']:
             self._gen_val_balancer[metric] = lambda node, region, power: (
                 self._gen_val_governor[metric](node, region, power) * 0.9)
         self._gen_val_balancer['power'] = lambda node, region, power: (
-                self._gen_val_balancer['energy_pkg'](node, region, power) /
-                self._gen_val_balancer['runtime'](node, region, power) )
+                old_div(self._gen_val_balancer['energy_pkg'](node, region, power),
+                self._gen_val_balancer['runtime'](node, region, power)) )
 
         self._agent_params = {
                 'power_governor': (self._gen_val_governor, self._powers),
