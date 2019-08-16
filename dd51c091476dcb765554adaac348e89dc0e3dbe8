@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04d96850_ef503d46",
+        "filename": "src/PolicyStore.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-08-16T20:36:09Z",
+      "side": 1,
+      "message": "we usually use best.begin() and best.end() elsewhere.  is there a specific reason for the style change?",
+      "range": {
+        "startLine": 91,
+        "startChar": 30,
+        "endLine": 91,
+        "endChar": 62
+      },
+      "revId": "dd51c091476dcb765554adaac348e89dc0e3dbe8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e4f31a4_3457b231",
+        "filename": "src/PolicyStoreImp.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-08-16T20:36:09Z",
+      "side": 1,
+      "message": "if (policy.empty() \u0026\u0026 policy_value_count !\u003d 0) {\n}\n\nsave an indentation?",
+      "range": {
+        "startLine": 282,
+        "startChar": 9,
+        "endLine": 283,
+        "endChar": 42
+      },
+      "revId": "dd51c091476dcb765554adaac348e89dc0e3dbe8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
