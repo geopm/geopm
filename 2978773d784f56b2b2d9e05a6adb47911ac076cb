@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "246b5f52_6d2fcf35",
+        "filename": "src/PolicyStoreImp.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-08-16T20:14:39Z",
+      "side": 1,
+      "message": "fighting unused var with gnu toolchain?",
+      "range": {
+        "startLine": 41,
+        "startChar": 8,
+        "endLine": 41,
+        "endChar": 38
+      },
+      "revId": "2978773d784f56b2b2d9e05a6adb47911ac076cb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b201c1a_73f68676",
+        "filename": "src/PolicyStoreImp.hpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-08-16T20:14:39Z",
+      "side": 1,
+      "message": "SQLPolicyStore?",
+      "range": {
+        "startLine": 48,
+        "startChar": 10,
+        "endLine": 48,
+        "endChar": 25
+      },
+      "revId": "2978773d784f56b2b2d9e05a6adb47911ac076cb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c91fa0d_fcb1a4be",
+        "filename": "src/PolicyStoreImp.hpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-08-16T20:14:39Z",
+      "side": 1,
+      "message": "dupe dox not needed",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 67
+      },
+      "revId": "2978773d784f56b2b2d9e05a6adb47911ac076cb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
