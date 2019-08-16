@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0001da12_ee6780a1",
+        "filename": "src/Endpoint.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-16T18:50:55Z",
+      "side": 1,
+      "message": "? Why the { ?",
+      "range": {
+        "startLine": 84,
+        "startChar": 8,
+        "endLine": 84,
+        "endChar": 9
+      },
+      "revId": "2cb1812ef36f47ecb924bd92f66c9c3059cd2898",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57df1ad1_d56c75fb",
+        "filename": "src/Endpoint.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-16T18:50:55Z",
+      "side": 1,
+      "message": "Why?",
+      "range": {
+        "startLine": 88,
+        "startChar": 8,
+        "endLine": 89,
+        "endChar": 9
+      },
+      "revId": "2cb1812ef36f47ecb924bd92f66c9c3059cd2898",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ce69ced_451be377",
+        "filename": "src/Endpoint.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-16T18:50:55Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 93,
+        "startChar": 8,
+        "endLine": 93,
+        "endChar": 9
+      },
+      "revId": "2cb1812ef36f47ecb924bd92f66c9c3059cd2898",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ff3a630_0397a180",
+        "filename": "src/Endpoint.hpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-16T18:50:55Z",
+      "side": 1,
+      "message": "Please list the size in bytes in a comment to the right.  This was originally done to keep track of exactly how much memory we\u0027re using with shmem.",
+      "range": {
+        "startLine": 56,
+        "startChar": 8,
+        "endLine": 56,
+        "endChar": 29
+      },
+      "revId": "2cb1812ef36f47ecb924bd92f66c9c3059cd2898",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
