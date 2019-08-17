@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "110a4034_e01d25f7",
+        "filename": "scripts/test/TestBalancerAnalysis.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-17T01:16:05Z",
+      "side": 1,
+      "message": "it might be nice to extract this \"agent region performance simulator\" blob somewhere common too.",
+      "range": {
+        "startLine": 58,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 74
+      },
+      "revId": "3b26a14af597cb82ec7737e1b4ff622d7fe9fdff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
