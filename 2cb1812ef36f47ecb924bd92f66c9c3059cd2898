@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f96ab200_c7acec19",
+        "filename": "src/Endpoint.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-17T01:38:04Z",
+      "side": 1,
+      "message": "Just to force scope for the lock.  This could also be achieved by reusing the lock variable but I think this is a little more explicit about exactly where it\u0027s safe to modify the shared memory.",
+      "parentUuid": "0001da12_ee6780a1",
+      "range": {
+        "startLine": 84,
+        "startChar": 8,
+        "endLine": 84,
+        "endChar": 9
+      },
+      "revId": "2cb1812ef36f47ecb924bd92f66c9c3059cd2898",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "57df1ad1_d56c75fb",
         "filename": "src/Endpoint.cpp",
         "patchSetId": 13
@@ -88,6 +112,47 @@
         "endLine": 56,
         "endChar": 29
       },
+      "revId": "2cb1812ef36f47ecb924bd92f66c9c3059cd2898",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bf544e2_915ee6f5",
+        "filename": "src/Endpoint.hpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-17T01:38:04Z",
+      "side": 1,
+      "message": "isn\u0027t NAME_MAX implementation defined?  Should we pick an exact value for this?  If the header size is greater than 4096 the size of the values array below would be negative.    Maybe it would also be good to add a static assert that we have room for at least some number of values (say 10).",
+      "parentUuid": "1ff3a630_0397a180",
+      "range": {
+        "startLine": 56,
+        "startChar": 8,
+        "endLine": 56,
+        "endChar": 29
+      },
+      "revId": "2cb1812ef36f47ecb924bd92f66c9c3059cd2898",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d32444e_99b7db46",
+        "filename": "src/Endpoint.hpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-17T01:38:04Z",
+      "side": 1,
+      "message": "the size of this might also depend on mac vs. Linux, but I think they are actually the same size.",
       "revId": "2cb1812ef36f47ecb924bd92f66c9c3059cd2898",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
