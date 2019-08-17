@@ -22,6 +22,30 @@
       "revId": "fc3f43f30a1efa9035e0323965a04c56232ebc1f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdf75114_827ba13b",
+        "filename": "src/Agent.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-17T01:19:38Z",
+      "side": 1,
+      "message": "here is probably the wrong place.  I need to think about where to put it.  Right now there is a circular dependency between Agent and Endpoint.",
+      "parentUuid": "0807826c_a9675b77",
+      "range": {
+        "startLine": 190,
+        "startChar": 4,
+        "endLine": 200,
+        "endChar": 5
+      },
+      "revId": "fc3f43f30a1efa9035e0323965a04c56232ebc1f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
