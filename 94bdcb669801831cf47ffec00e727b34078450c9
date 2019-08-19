@@ -22,6 +22,30 @@
       "revId": "94bdcb669801831cf47ffec00e727b34078450c9",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1456ada5_cc3ac257",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 947,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-19T21:22:05Z",
+      "side": 1,
+      "message": "Probably, but I don\u0027t have root access to a system with aprun to test it.  Also this option doesn\u0027t really make sense for mpiexec launch.",
+      "parentUuid": "16c9612c_550cb31c",
+      "range": {
+        "startLine": 942,
+        "startChar": 0,
+        "endLine": 947,
+        "endChar": 21
+      },
+      "revId": "94bdcb669801831cf47ffec00e727b34078450c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
