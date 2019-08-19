@@ -87,6 +87,13 @@ namespace geopm
         }
     }
 
+    ShmemEndpoint::~ShmemEndpoint()
+    {
+        if (m_shmem) {
+            m_shmem->unlink();
+        }
+    }
+
     void ShmemEndpoint::adjust(const std::vector<double> &settings)
     {
         if (settings.size() != m_signal_names.size()) {
