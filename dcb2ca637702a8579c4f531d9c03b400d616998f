@@ -46,6 +46,30 @@
       "revId": "dcb2ca637702a8579c4f531d9c03b400d616998f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba0708c0_d242a237",
+        "filename": "src/CNLIOGroup.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-08-19T17:33:14Z",
+      "side": 1,
+      "message": "that all makes total sense but my comment was wrt to the include of config.h in nearly all other .cpp files in the repo.  almost always last and given your description above we probably want to file a bug or throw up a patch to remedy the scenario you detailed.  seems as if we have either worked really hard or got really lucky as no .h or .hpp files in the repo use the #if GEOPM_DEBUG macro",
+      "parentUuid": "e0bd6e27_ffad9936",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 19
+      },
+      "revId": "dcb2ca637702a8579c4f531d9c03b400d616998f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
