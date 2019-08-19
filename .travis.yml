@@ -49,9 +49,12 @@ before_install:
     - git fetch origin --tags
     - git fetch origin $TRAVIS_BRANCH
     - ./autogen.sh
-    - pip install --user -r ./scripts/requirements.txt
+    - pyenv install -s 2.7
+    - pyenv install -s 3.6
 
 install:
+    - PYENV_VERSION=2.7 pip install --user -r ./scripts/requirements.txt
+    - PYENV_VERSION=3.6 pip install --user -r ./scripts/requirements.txt
     - ./configure --disable-fortran --enable-debug --prefix=$GEOPM_INSTALL_ROOT
 
 cache:
@@ -89,6 +92,8 @@ after_success:
 after_failure:
     - cat scripts/test/pytest_links/*.log
     - cat test/gtest_links/*.log
+    - cat scripts/py2_ut.log
+    - cat scripts/py3_ut.log
 
 addons:
   apt:
