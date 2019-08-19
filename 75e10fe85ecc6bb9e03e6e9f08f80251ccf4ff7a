@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24680f10_cd2d5ffa",
+        "filename": "scripts/test/TestIO.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-19T23:44:09Z",
+      "side": 1,
+      "message": "To me, this indicates a bug in the parser and is a valid failure that should not be worked around.",
+      "range": {
+        "startLine": 465,
+        "startChar": 8,
+        "endLine": 467,
+        "endChar": 38
+      },
+      "revId": "75e10fe85ecc6bb9e03e6e9f08f80251ccf4ff7a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
