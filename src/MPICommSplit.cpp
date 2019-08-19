@@ -134,6 +134,9 @@ extern "C"
                 color = *((int*)(shmem_user->pointer()));
             }
             err = MPI_Comm_split(comm, color, rank, split_comm);
+            if (shmem) {
+                shmem->unlink();
+            }
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
