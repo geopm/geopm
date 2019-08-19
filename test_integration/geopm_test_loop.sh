@@ -37,7 +37,7 @@ while [ $? -eq 0 -a ${COUNT} -lt 10 ];
 do
     COUNT=$((COUNT+1))
     echo "Beginning loop ${COUNT}..." > >(tee -a ${LOG_FILE})
-    GEOPM_RUN_LONG_TESTS=true ./geopm_test_integration.py -v $1 > >(tee -a ${LOG_FILE}) 2>&1
+    GEOPM_RUN_LONG_TESTS=true python . -v $1 > >(tee -a ${LOG_FILE}) 2>&1
 done
 TEST_RETURN_CODE=$?
 
