@@ -30,15 +30,50 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-make
+ret=0
+if ! make && make checkprogs; then
+    echo "Build failed"
+    exit 1
+fi
+
 if [ $CI_MODE == "unit" ]; then
-    if [ $CC != "clang" ]; then
-        make check && ./copying_headers/test-dist
-    else
-        LD_LIBRARY_PATH=/usr/local/clang/lib:$LD_LIBRARY_PATH make check \
-            && ./copying_headers/test-dist
+    if [ $CC == "clang" ]; then
+        export LD_LIBRARY_PATH="/usr/local/clang/lib:$LD_LIBRARY_PATH"
     fi
-    exit $?
+
+    echo "Running main unit tests..."
+    if ! make check; then
+        echo "Main unit tests failed."
+        ret=1
+    fi
+
+    pushd "$TRAVIS_BUILD_DIR/scripts"
+    export LD_LIBRARY_PATH="$TRAVIS_BUILD_DIR/.libs:$LD_LIBRARY_PATH"
+
+    export PYENV_VERSION=2.7
+    echo "Running Python 2 unit tests..."
+    if ! python setup.py test > py2_ut.log 2>&1; then
+        echo "Python 2 unit tests failed."
+        ret=1
+    fi
+
+    export PYENV_VERSION=3.6
+    echo "Running Python 3 unit tests..."
+    if ! python setup.py test > py3_ut.log 2>&1; then
+        echo "Python 3 unit tests failed."
+        ret=1
+    fi
+
+    unset PYENV_VERSION
+    popd
+
+    echo "Running test-dist..."
+    if ! ./copying_headers/test-dist; then
+        echo "test-dist failed."
+        ret=1
+    fi
+
+    exit $ret
 else
     echo "Unsupported CI_MODE."
     exit 1
