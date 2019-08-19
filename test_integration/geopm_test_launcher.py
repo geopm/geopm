@@ -39,6 +39,7 @@ import signal
 import StringIO
 import math
 import shlex
+import unittest
 
 import geopm_context
 import geopmpy.launcher
@@ -75,6 +76,108 @@ def detect_launcher():
             except subprocess.CalledProcessError:
                 raise LookupError('Unable to determine resource manager')
     return result
+
+def allocation_node_test(test_exec, stdout, stderr):
+    argv = shlex.split(test_exec)
+    argv.insert(1, detect_launcher())
+    argv.insert(2, '--geopm-ctl-disable')
+    launcher = geopmpy.launcher.Factory().create(argv, num_rank=1, num_node=1, job_name="geopm_allocation_test")
+    launcher.run(stdout, stderr)
+
+def geopmwrite(write_str):
+    test_exec = "dummy -- geopmwrite " + write_str
+    stdout = StringIO.StringIO()
+    stderr = StringIO.StringIO()
+    try:
+        allocation_node_test(test_exec, stdout, stderr)
+    except subprocess.CalledProcessError as err:
+        sys.stderr.write(stderr.getvalue())
+        raise err
+
+def geopmread(read_str):
+    test_exec = "dummy -- geopmread " + read_str
+    stdout = StringIO.StringIO()
+    stderr = StringIO.StringIO()
+    try:
+        allocation_node_test(test_exec, stdout, stderr)
+    except subprocess.CalledProcessError as err:
+        sys.stderr.write(stderr.getvalue())
+        raise err
+    return float(stdout.getvalue().splitlines()[-1])
+
+def skip_unless_run_long_tests():
+    if 'GEOPM_RUN_LONG_TESTS' not in os.environ:
+        return unittest.skip("Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
+    return lambda func: func
+
+
+def skip_unless_cpufreq():
+    try:
+        test_exec = "dummy -- stat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq \
+                     && stat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
+        dev_null = open('/dev/null', 'w')
+        allocation_node_test(test_exec, dev_null, dev_null)
+        dev_null.close()
+    except subprocess.CalledProcessError:
+        return unittest.skip("Could not determine min and max frequency, enable cpufreq driver to run this test.")
+    return lambda func: func
+
+def get_platform():
+    test_exec = "dummy -- cat /proc/cpuinfo"
+    ostream = StringIO.StringIO()
+    dev_null = open('/dev/null', 'w')
+    allocation_node_test(test_exec, ostream, dev_null)
+    dev_null.close()
+    output = ostream.getvalue()
+
+    for line in output.splitlines():
+        if line.startswith('cpu family\t:'):
+            fam = int(line.split(':')[1])
+        if line.startswith('model\t\t:'):
+            mod = int(line.split(':')[1])
+    return fam, mod
+
+
+def skip_unless_platform_bdx():
+    fam, mod = get_platform()
+    if fam != 6 or mod not in (45, 47, 79):
+        return unittest.skip("Performance test is tuned for BDX server, The family {}, model {} is not supported.".format(fam, mod))
+    return lambda func: func
+
+
+def skip_unless_config_enable(feature):
+    path = os.path.join(
+           os.path.dirname(
+            os.path.dirname(
+             os.path.realpath(__file__))),
+           'config.log')
+    with open(path) as fid:
+        for line in fid.readlines():
+            if line.startswith("enable_{}='0'".format(feature)):
+                return unittest.skip("Feature: {feature} is not enabled, configure with --enable-{feature} to run this test.".format(feature=feature))
+            elif line.startswith("enable_{}='1'".format(feature)):
+                break
+    return lambda func: func
+
+
+def skip_unless_optimized():
+    path = os.path.join(
+           os.path.dirname(
+            os.path.dirname(
+             os.path.realpath(__file__))),
+           'config.log')
+    with open(path) as fid:
+        for line in fid.readlines():
+            if line.startswith("enable_debug='1'"):
+                return unittest.skip("This performance test cannot be run when GEOPM is configured with --enable-debug")
+    return lambda func: func
+
+
+def skip_unless_slurm_batch():
+    if 'SLURM_NODELIST' not in os.environ:
+        return unittest.skip('Requires SLURM batch session.')
+    return lambda func: func
+
 
 
 class TestLauncher(object):

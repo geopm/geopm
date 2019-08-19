@@ -48,109 +48,6 @@ import geopmpy.io
 import geopmpy.launcher
 
 
-def skip_unless_run_long_tests():
-    if 'GEOPM_RUN_LONG_TESTS' not in os.environ:
-        return unittest.skip("Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
-    return lambda func: func
-
-
-def allocation_node_test(test_exec, stdout, stderr):
-    argv = shlex.split(test_exec)
-    argv.insert(1, geopm_test_launcher.detect_launcher())
-    argv.insert(2, '--geopm-ctl-disable')
-    launcher = geopmpy.launcher.Factory().create(argv, num_rank=1, num_node=1, job_name="geopm_allocation_test")
-    launcher.run(stdout, stderr)
-
-def skip_unless_cpufreq():
-    try:
-        test_exec = "dummy -- stat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq \
-                     && stat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
-        dev_null = open('/dev/null', 'w')
-        allocation_node_test(test_exec, dev_null, dev_null)
-        dev_null.close()
-    except subprocess.CalledProcessError:
-        return unittest.skip("Could not determine min and max frequency, enable cpufreq driver to run this test.")
-    return lambda func: func
-
-def do_geopmwrite(write_str):
-    test_exec = "dummy -- geopmwrite " + write_str
-    stdout = StringIO.StringIO()
-    stderr = StringIO.StringIO()
-    try:
-        allocation_node_test(test_exec, stdout, stderr)
-    except subprocess.CalledProcessError as err:
-        sys.stderr.write(stderr.getvalue())
-        raise err
-
-
-def do_geopmread(read_str):
-    test_exec = "dummy -- geopmread " + read_str
-    stdout = StringIO.StringIO()
-    stderr = StringIO.StringIO()
-    try:
-        allocation_node_test(test_exec, stdout, stderr)
-    except subprocess.CalledProcessError as err:
-        sys.stderr.write(stderr.getvalue())
-        raise err
-    return float(stdout.getvalue().splitlines()[-1])
-
-def get_platform():
-    test_exec = "dummy -- cat /proc/cpuinfo"
-    ostream = StringIO.StringIO()
-    dev_null = open('/dev/null', 'w')
-    allocation_node_test(test_exec, ostream, dev_null)
-    dev_null.close()
-    output = ostream.getvalue()
-
-    for line in output.splitlines():
-        if line.startswith('cpu family\t:'):
-            fam = int(line.split(':')[1])
-        if line.startswith('model\t\t:'):
-            mod = int(line.split(':')[1])
-    return fam, mod
-
-
-def skip_unless_platform_bdx():
-    fam, mod = get_platform()
-    if fam != 6 or mod not in (45, 47, 79):
-        return unittest.skip("Performance test is tuned for BDX server, The family {}, model {} is not supported.".format(fam, mod))
-    return lambda func: func
-
-
-def skip_unless_config_enable(feature):
-    path = os.path.join(
-           os.path.dirname(
-            os.path.dirname(
-             os.path.realpath(__file__))),
-           'config.log')
-    with open(path) as fid:
-        for line in fid.readlines():
-            if line.startswith("enable_{}='0'".format(feature)):
-                return unittest.skip("Feature: {feature} is not enabled, configure with --enable-{feature} to run this test.".format(feature=feature))
-            elif line.startswith("enable_{}='1'".format(feature)):
-                break
-    return lambda func: func
-
-
-def skip_unless_optimized():
-    path = os.path.join(
-           os.path.dirname(
-            os.path.dirname(
-             os.path.realpath(__file__))),
-           'config.log')
-    with open(path) as fid:
-        for line in fid.readlines():
-            if line.startswith("enable_debug='1'"):
-                return unittest.skip("This performance test cannot be run when GEOPM is configured with --enable-debug")
-    return lambda func: func
-
-
-def skip_unless_slurm_batch():
-    if 'SLURM_NODELIST' not in os.environ:
-        return unittest.skip('Requires SLURM batch session.')
-    return lambda func: func
-
-
 class TestIntegration(unittest.TestCase):
     def setUp(self):
         self.longMessage = True
@@ -158,12 +55,12 @@ class TestIntegration(unittest.TestCase):
         self._options = {'power_budget': 150}
         self._tmp_files = []
         self._output = None
-        self._power_limit = do_geopmread("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0")
-        self._frequency = do_geopmread("MSR::PERF_CTL:FREQ board 0")
+        self._power_limit = geopm_test_launcher.geopmread("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0")
+        self._frequency = geopm_test_launcher.geopmread("MSR::PERF_CTL:FREQ board 0")
 
     def tearDown(self):
-        do_geopmwrite("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0 " + str(self._power_limit))
-        do_geopmwrite("MSR::PERF_CTL:FREQ board 0 " + str(self._frequency))
+        geopm_test_launcher.geopmwrite("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0 " + str(self._power_limit))
+        geopm_test_launcher.geopmwrite("MSR::PERF_CTL:FREQ board 0 " + str(self._frequency))
         if sys.exc_info() == (None, None, None) and os.getenv('GEOPM_KEEP_FILES') is None:
             if self._output is not None:
                 self._output.remove_files()
@@ -262,7 +159,7 @@ class TestIntegration(unittest.TestCase):
 
     @unittest.skipUnless(geopm_test_launcher.detect_launcher() != "aprun",
                          'ALPS does not support multi-application launch on the same nodes.')
-    @skip_unless_slurm_batch()
+    @geopm_test_launcher.skip_unless_slurm_batch()
     def test_report_and_trace_generation_application(self):
         name = 'test_report_and_trace_generation_application'
         report_path = name + '.report'
@@ -513,7 +410,7 @@ class TestIntegration(unittest.TestCase):
                         if first_time is True and df['region_progress'] == 0:
                             self.assertNear(df['region_runtime'], expected_region_runtime[region_name], epsilon=epsilon)
 
-    @skip_unless_run_long_tests()
+    @geopm_test_launcher.skip_unless_run_long_tests()
     def test_region_runtimes(self):
         name = 'test_region_runtimes'
         report_path = name + '.report'
@@ -636,7 +533,7 @@ class TestIntegration(unittest.TestCase):
             self.assertEqual(loop_count, epoch_data['count'].item())
             self.assertEqual(loop_count, trace_data['epoch_count'][-1])
 
-    @skip_unless_run_long_tests()
+    @geopm_test_launcher.skip_unless_run_long_tests()
     def test_scaling(self):
         """
         This test will start at ${num_node} nodes and ranks.  It will then calls check_run() to
@@ -689,7 +586,7 @@ class TestIntegration(unittest.TestCase):
                 num_node *= 2
                 self._output.remove_files()
 
-    @skip_unless_run_long_tests()
+    @geopm_test_launcher.skip_unless_run_long_tests()
     def test_power_consumption(self):
         name = 'test_power_consumption'
         report_path = name + '.report'
@@ -702,7 +599,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('dgemm', 8.0)
         app_conf.set_loop_count(loop_count)
 
-        fam, mod = get_platform()
+        fam, mod = geopm_test_launcher.get_platform()
         if fam == 6 and mod == 87:
             # budget for KNL
             self._options['power_budget'] = 130
@@ -753,8 +650,8 @@ class TestIntegration(unittest.TestCase):
             # TODO Checks on the maximum power computed during the run?
             # TODO Checks to see how much power was left on the table?
 
-    @skip_unless_run_long_tests()
-    @skip_unless_slurm_batch()
+    @geopm_test_launcher.skip_unless_run_long_tests()
+    @geopm_test_launcher.skip_unless_slurm_batch()
     def test_power_balancer(self):
         name = 'test_power_balancer'
         num_node = 4
@@ -770,7 +667,7 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('all2all', 0.05)
         app_conf.set_loop_count(loop_count)
 
-        fam, mod = get_platform()
+        fam, mod = geopm_test_launcher.get_platform()
         if fam == 6 and mod == 87:
             # budget for KNL
             power_budget = 130
@@ -893,8 +790,8 @@ class TestIntegration(unittest.TestCase):
                     launcher.write_log(name, '{}'.format(negative_progress))
                     self.assertEqual(0, len(negative_progress))
 
-    @skip_unless_run_long_tests()
-    @skip_unless_optimized()
+    @geopm_test_launcher.skip_unless_run_long_tests()
+    @geopm_test_launcher.skip_unless_optimized()
     def test_sample_rate(self):
         """
         Check that sample rate is regular and fast.
@@ -1007,7 +904,7 @@ class TestIntegration(unittest.TestCase):
             self.assertNear(ignore_data['runtime'].item() + mpi_data['runtime'].item(),
                             app_data['ignore-runtime'].item(), 0.00005)
 
-    @skip_unless_config_enable('ompt')
+    @geopm_test_launcher.skip_unless_config_enable('ompt')
     def test_unmarked_ompt(self):
         name = 'test_unmarked_ompt'
         report_path = name + '.report'
@@ -1049,17 +946,17 @@ class TestIntegration(unittest.TestCase):
             gemm_region = [key for key in region_names if key.lower().find('gemm') != -1]
             self.assertLessEqual(1, len(gemm_region))
 
-    @skip_unless_cpufreq()
-    @skip_unless_slurm_batch()
-    @skip_unless_optimized()
+    @geopm_test_launcher.skip_unless_cpufreq()
+    @geopm_test_launcher.skip_unless_slurm_batch()
+    @geopm_test_launcher.skip_unless_optimized()
     def test_agent_frequency_map(self):
         """
         Test of the FrequencyMapAgent.
         """
-        min_freq = do_geopmread("CPUINFO::FREQ_MIN board 0")
-        max_freq = do_geopmread("CPUINFO::FREQ_MAX board 0")
-        sticker_freq = do_geopmread("CPUINFO::FREQ_STICKER board 0")
-        freq_step = do_geopmread("CPUINFO::FREQ_STEP board 0")
+        min_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
+        max_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_MAX board 0")
+        sticker_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
+        freq_step = geopm_test_launcher.geopmread("CPUINFO::FREQ_STEP board 0")
         self._agent = "frequency_map"
         self._options = {'frequency_min': min_freq,
                          'frequency_max': max_freq}
@@ -1121,9 +1018,9 @@ class TestIntegration(unittest.TestCase):
         Test of the EnergyEfficientAgent against single region loop.
         """
         name = 'test_energy_efficient_single_region'
-        min_freq = do_geopmread("CPUINFO::FREQ_MIN board 0")
-        sticker_freq = do_geopmread("CPUINFO::FREQ_STICKER board 0")
-        freq_step = do_geopmread("CPUINFO::FREQ_STEP board 0")
+        min_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
+        sticker_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
+        freq_step = geopm_test_launcher.geopmread("CPUINFO::FREQ_STEP board 0")
         self._agent = "energy_efficient"
         report_path = name + '.report'
         trace_path = name + '.trace'
@@ -1155,18 +1052,18 @@ class TestIntegration(unittest.TestCase):
                     self.assertEqual(region['requested-online-frequency'], min_freq, msg=msg)  # freq should reduce
 
 
-    @skip_unless_run_long_tests()
-    @skip_unless_cpufreq()
-    @skip_unless_slurm_batch()
+    @geopm_test_launcher.skip_unless_run_long_tests()
+    @geopm_test_launcher.skip_unless_cpufreq()
+    @geopm_test_launcher.skip_unless_slurm_batch()
     def test_agent_energy_efficient(self):
         """
         Test of the EnergyEfficientAgent.
         """
         name = 'test_energy_efficient_sticker'
-        min_freq = do_geopmread("CPUINFO::FREQ_MIN board 0")
-        max_freq = do_geopmread("CPUINFO::FREQ_MAX board 0")
-        sticker_freq = do_geopmread("CPUINFO::FREQ_STICKER board 0")
-        freq_step = do_geopmread("CPUINFO::FREQ_STEP board 0")
+        min_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
+        max_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_MAX board 0")
+        sticker_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
+        freq_step = geopm_test_launcher.geopmread("CPUINFO::FREQ_STEP board 0")
         self._agent = "energy_efficient"
         num_node = 1
         num_rank = 4
@@ -1228,7 +1125,7 @@ class TestIntegration(unittest.TestCase):
             self.assertLess(-0.1, runtime_savings_epoch)  # want -10% or better
             self.assertLess(0.0, energy_savings_epoch)
 
-    @skip_unless_slurm_batch()
+    @geopm_test_launcher.skip_unless_slurm_batch()
     def test_controller_signal_handling(self):
         """
         Check that Controller handles signals and cleans up.
@@ -1456,7 +1353,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_output(['--domain', 'INVALID'], ['unable to determine control type'])
         self.check_output(['--domain', '--info'], ['info about domain not implemented'])
 
-    @skip_unless_slurm_batch()
+    @geopm_test_launcher.skip_unless_slurm_batch()
     def test_geopmwrite_set_freq(self):
         '''
         Check that geopmwrite can be used to set frequency.
