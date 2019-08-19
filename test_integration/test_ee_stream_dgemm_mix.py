@@ -68,6 +68,8 @@ class AppConf(object):
         return []
 
 
+@geopm_test_launcher.skip_unless_cpufreq()
+@geopm_test_launcher.skip_unless_optimized()
 class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -83,10 +85,12 @@ class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
         if  not cls._skip_launch:
             num_node = 2
             num_rank = 2
+            min_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
+            sticker_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
             agent_conf = geopmpy.io.AgentConf(cls._agent_conf_path,
                                               'energy_efficient',
-                                              {'frequency_min':1.0e9,
-                                               'frequency_max':2.1e9})
+                                              {'frequency_min':min_freq,
+                                               'frequency_max':sticker_freq})
             launcher = geopm_test_launcher.TestLauncher(AppConf(),
                                                         agent_conf,
                                                         cls._report_path,
@@ -109,6 +113,7 @@ class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
             for ff in glob.glob(cls._trace_path + '*'):
                 os.unlink(ff)
 
+    @geopm_test_launcher.skip_unless_run_long_tests()
     def test_monotone_frequency(self):
         """Test that agent selects lower frequencies for regions with more
         stream.
