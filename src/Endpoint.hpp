@@ -88,7 +88,7 @@ namespace geopm
             ShmemEndpoint(const std::string &data_path,
                          std::unique_ptr<SharedMemory> shmem,
                          const std::vector<std::string> &signal_names);
-            ~ShmemEndpoint() = default;
+            ~ShmemEndpoint();
             void adjust(const std::vector<double> &settings) override;
             void write_batch(void) override;
             std::vector<std::string> signal_names(void) const override;

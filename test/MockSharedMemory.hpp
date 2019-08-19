@@ -61,6 +61,8 @@ class MockSharedMemory : public geopm::SharedMemory
                            size_t (void));
         MOCK_METHOD0(get_scoped_lock,
                      std::unique_ptr<geopm::SharedMemoryScopedLock>(void));
+        MOCK_METHOD0(unlink,
+                     void(void));
     protected:
         std::vector<char> m_buffer;
 };

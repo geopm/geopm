@@ -57,6 +57,7 @@ namespace geopm
             /// @return Key to the shared memory region.
             std::string key(void) const override;
             size_t size(void) const override;
+            void unlink(void) override;
             std::unique_ptr<SharedMemoryScopedLock> get_scoped_lock(void) override;
         private:
             /// @brief Shared memory key for the region.

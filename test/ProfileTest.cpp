@@ -476,8 +476,10 @@ TEST_F(ProfileTestIntegration, config)
             m_profile = geopm::make_unique<ProfileImp>(M_PROF_NAME, M_SHM_KEY, M_REPORT, M_TIMEOUT, M_DO_REGION_BARRIER,
                                                        std::move(m_world_comm),
                                                        std::move(m_ctl_msg), m_topo, nullptr, nullptr, nullptr, m_comm);
-            tprof_shm.reset();
+            table_shm->unlink();
+            tprof_shm->unlink();
             table_shm.reset();
+            tprof_shm.reset();
         }
     }
 }

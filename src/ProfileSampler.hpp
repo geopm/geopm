@@ -194,7 +194,7 @@ namespace geopm
             /// @brief ProfileRankSamplerImp destructor.
             ///
             /// Cleans up the hash table and shared memory region.
-            virtual ~ProfileRankSamplerImp() = default;
+            virtual ~ProfileRankSamplerImp();
             /// @brief Returns the samples present in the hash table.
             ///
             /// Fills in a portion of a vector specified by a vector iterator.
