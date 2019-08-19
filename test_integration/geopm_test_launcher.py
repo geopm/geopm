@@ -76,6 +76,34 @@ def detect_launcher():
                 raise LookupError('Unable to determine resource manager')
     return result
 
+def allocation_node_test(test_exec, stdout, stderr):
+    argv = shlex.split(test_exec)
+    argv.insert(1, detect_launcher())
+    argv.insert(2, '--geopm-ctl-disable')
+    launcher = geopmpy.launcher.Factory().create(argv, num_rank=1, num_node=1, job_name="geopm_allocation_test")
+    launcher.run(stdout, stderr)
+
+def do_geopmwrite(write_str):
+    test_exec = "dummy -- geopmwrite " + write_str
+    stdout = StringIO.StringIO()
+    stderr = StringIO.StringIO()
+    try:
+        allocation_node_test(test_exec, stdout, stderr)
+    except subprocess.CalledProcessError as err:
+        sys.stderr.write(stderr.getvalue())
+        raise err
+
+def do_geopmread(read_str):
+    test_exec = "dummy -- geopmread " + read_str
+    stdout = StringIO.StringIO()
+    stderr = StringIO.StringIO()
+    try:
+        allocation_node_test(test_exec, stdout, stderr)
+    except subprocess.CalledProcessError as err:
+        sys.stderr.write(stderr.getvalue())
+        raise err
+    return float(stdout.getvalue().splitlines()[-1])
+
 
 class TestLauncher(object):
     def __init__(self, app_conf, agent_conf, report_path=None,

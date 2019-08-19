@@ -54,51 +54,22 @@ def skip_unless_run_long_tests():
     return lambda func: func
 
 
-def allocation_node_test(test_exec, stdout, stderr):
-    argv = shlex.split(test_exec)
-    argv.insert(1, geopm_test_launcher.detect_launcher())
-    argv.insert(2, '--geopm-ctl-disable')
-    launcher = geopmpy.launcher.Factory().create(argv, num_rank=1, num_node=1, job_name="geopm_allocation_test")
-    launcher.run(stdout, stderr)
-
 def skip_unless_cpufreq():
     try:
         test_exec = "dummy -- stat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq \
                      && stat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
         dev_null = open('/dev/null', 'w')
-        allocation_node_test(test_exec, dev_null, dev_null)
+        geopm_test_launcher.allocation_node_test(test_exec, dev_null, dev_null)
         dev_null.close()
     except subprocess.CalledProcessError:
         return unittest.skip("Could not determine min and max frequency, enable cpufreq driver to run this test.")
     return lambda func: func
 
-def do_geopmwrite(write_str):
-    test_exec = "dummy -- geopmwrite " + write_str
-    stdout = StringIO.StringIO()
-    stderr = StringIO.StringIO()
-    try:
-        allocation_node_test(test_exec, stdout, stderr)
-    except subprocess.CalledProcessError as err:
-        sys.stderr.write(stderr.getvalue())
-        raise err
-
-
-def do_geopmread(read_str):
-    test_exec = "dummy -- geopmread " + read_str
-    stdout = StringIO.StringIO()
-    stderr = StringIO.StringIO()
-    try:
-        allocation_node_test(test_exec, stdout, stderr)
-    except subprocess.CalledProcessError as err:
-        sys.stderr.write(stderr.getvalue())
-        raise err
-    return float(stdout.getvalue().splitlines()[-1])
-
 def get_platform():
     test_exec = "dummy -- cat /proc/cpuinfo"
     ostream = StringIO.StringIO()
     dev_null = open('/dev/null', 'w')
-    allocation_node_test(test_exec, ostream, dev_null)
+    geopm_test_launcher.allocation_node_test(test_exec, ostream, dev_null)
     dev_null.close()
     output = ostream.getvalue()
 
@@ -158,12 +129,12 @@ class TestIntegration(unittest.TestCase):
         self._options = {'power_budget': 150}
         self._tmp_files = []
         self._output = None
-        self._power_limit = do_geopmread("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0")
-        self._frequency = do_geopmread("MSR::PERF_CTL:FREQ board 0")
+        self._power_limit = geopm_test_launcher.do_geopmread("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0")
+        self._frequency = geopm_test_launcher.do_geopmread("MSR::PERF_CTL:FREQ board 0")
 
     def tearDown(self):
-        do_geopmwrite("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0 " + str(self._power_limit))
-        do_geopmwrite("MSR::PERF_CTL:FREQ board 0 " + str(self._frequency))
+        geopm_test_launcher.do_geopmwrite("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0 " + str(self._power_limit))
+        geopm_test_launcher.do_geopmwrite("MSR::PERF_CTL:FREQ board 0 " + str(self._frequency))
         if sys.exc_info() == (None, None, None) and os.getenv('GEOPM_KEEP_FILES') is None:
             if self._output is not None:
                 self._output.remove_files()
@@ -1056,10 +1027,10 @@ class TestIntegration(unittest.TestCase):
         """
         Test of the FrequencyMapAgent.
         """
-        min_freq = do_geopmread("CPUINFO::FREQ_MIN board 0")
-        max_freq = do_geopmread("CPUINFO::FREQ_MAX board 0")
-        sticker_freq = do_geopmread("CPUINFO::FREQ_STICKER board 0")
-        freq_step = do_geopmread("CPUINFO::FREQ_STEP board 0")
+        min_freq = geopm_test_launcher.do_geopmread("CPUINFO::FREQ_MIN board 0")
+        max_freq = geopm_test_launcher.do_geopmread("CPUINFO::FREQ_MAX board 0")
+        sticker_freq = geopm_test_launcher.do_geopmread("CPUINFO::FREQ_STICKER board 0")
+        freq_step = geopm_test_launcher.do_geopmread("CPUINFO::FREQ_STEP board 0")
         self._agent = "frequency_map"
         self._options = {'frequency_min': min_freq,
                          'frequency_max': max_freq}
@@ -1121,9 +1092,9 @@ class TestIntegration(unittest.TestCase):
         Test of the EnergyEfficientAgent against single region loop.
         """
         name = 'test_energy_efficient_single_region'
-        min_freq = do_geopmread("CPUINFO::FREQ_MIN board 0")
-        sticker_freq = do_geopmread("CPUINFO::FREQ_STICKER board 0")
-        freq_step = do_geopmread("CPUINFO::FREQ_STEP board 0")
+        min_freq = geopm_test_launcher.do_geopmread("CPUINFO::FREQ_MIN board 0")
+        sticker_freq = geopm_test_launcher.do_geopmread("CPUINFO::FREQ_STICKER board 0")
+        freq_step = geopm_test_launcher.do_geopmread("CPUINFO::FREQ_STEP board 0")
         self._agent = "energy_efficient"
         report_path = name + '.report'
         trace_path = name + '.trace'
@@ -1163,10 +1134,10 @@ class TestIntegration(unittest.TestCase):
         Test of the EnergyEfficientAgent.
         """
         name = 'test_energy_efficient_sticker'
-        min_freq = do_geopmread("CPUINFO::FREQ_MIN board 0")
-        max_freq = do_geopmread("CPUINFO::FREQ_MAX board 0")
-        sticker_freq = do_geopmread("CPUINFO::FREQ_STICKER board 0")
-        freq_step = do_geopmread("CPUINFO::FREQ_STEP board 0")
+        min_freq = geopm_test_launcher.do_geopmread("CPUINFO::FREQ_MIN board 0")
+        max_freq = geopm_test_launcher.do_geopmread("CPUINFO::FREQ_MAX board 0")
+        sticker_freq = geopm_test_launcher.do_geopmread("CPUINFO::FREQ_STICKER board 0")
+        freq_step = geopm_test_launcher.do_geopmread("CPUINFO::FREQ_STEP board 0")
         self._agent = "energy_efficient"
         num_node = 1
         num_rank = 4
