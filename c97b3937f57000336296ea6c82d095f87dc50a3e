@@ -22,6 +22,30 @@
       "revId": "c97b3937f57000336296ea6c82d095f87dc50a3e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "219ca213_fc9394d7",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-08-19T22:15:34Z",
+      "side": 1,
+      "message": "intermediate used in line below...",
+      "parentUuid": "fb61b444_4e43c172",
+      "range": {
+        "startLine": 405,
+        "startChar": 8,
+        "endLine": 405,
+        "endChar": 53
+      },
+      "revId": "c97b3937f57000336296ea6c82d095f87dc50a3e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
