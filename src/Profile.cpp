@@ -120,6 +120,7 @@ namespace geopm
         std::string tprof_key(key_base + "-tprof");
         int shm_num_rank = 0;
 
+        // TODO: why not in try catch?
         init_prof_comm(std::move(comm), shm_num_rank);
         try {
             init_ctl_msg(sample_key);

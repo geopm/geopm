@@ -102,7 +102,15 @@ namespace geopm
         errno = 0; // Ignore errors from the unlink calls.
     }
 
-    ProfileSamplerImp::~ProfileSamplerImp() = default;
+    ProfileSamplerImp::~ProfileSamplerImp()
+    {
+        if (m_tprof_shmem) {
+            m_tprof_shmem->unlink();
+        }
+        if (m_ctl_shmem) {
+            m_ctl_shmem->unlink();
+        }
+    }
 
     void ProfileSamplerImp::initialize(void)
     {
@@ -274,6 +282,11 @@ namespace geopm
         errno = 0; // Ignore errors from the unlink call.
         m_table_shmem = geopm::make_unique<SharedMemoryImp>(shm_key, table_size);
         m_table = geopm::make_unique<ProfileTableImp>(m_table_shmem->size(), m_table_shmem->pointer());
+    }
+
+    ProfileRankSamplerImp::~ProfileRankSamplerImp()
+    {
+        // @todo: unlink m_table_shmem?
     }
 
     size_t ProfileRankSamplerImp::capacity(void) const

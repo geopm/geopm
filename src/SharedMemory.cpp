@@ -137,6 +137,11 @@ namespace geopm
 
     SharedMemoryImp::~SharedMemoryImp()
     {
+
+    }
+
+    void SharedMemoryImp::unlink(void)
+    {
         if (munmap(m_ptr, m_size)) {
 #ifdef GEOPM_DEBUG
             std::cerr << "Warning: <geopm> SharedMemoryImp: Could not unmap pointer" << std::endl;
