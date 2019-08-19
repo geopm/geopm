@@ -44,6 +44,9 @@
 
 #include "geopm_time.h"
 
+//#include "SharedMemory.hpp"
+//#include "SharedMemoryUser.hpp"
+
 namespace geopm
 {
     struct geopm_endpoint_policy_shmem_header {
@@ -84,6 +87,8 @@ namespace geopm
         public:
             Endpoint() = default;
             virtual ~Endpoint() = default;
+            virtual void open(void) = 0;
+            virtual void close(void) = 0;
             /// @brief Write a set of policy values for the Agent.
             /// @param [in] policy The policy values.  The order is
             ///        specified by the Agent.
@@ -123,6 +128,8 @@ namespace geopm
                           size_t num_sample);
             ~ShmemEndpoint();
 
+            void open(void) override;
+            void close(void) override;
             void write_policy(const std::vector<double> &policy) override;
             geopm_time_s read_sample(std::vector<double> &sample) override;
             std::string get_agent(void) override;
@@ -132,6 +139,7 @@ namespace geopm
             std::unique_ptr<SharedMemory> m_sample_shmem;
             size_t m_num_policy;
             size_t m_num_sample;
+            bool m_is_open;
     };
 
     class FileEndpoint : public Endpoint
@@ -145,7 +153,8 @@ namespace geopm
                          const std::vector<std::string> &policy_names);
 
             ~FileEndpoint() = default;
-
+            void open(void) override;
+            void close(void) override;
             void write_policy(const std::vector<double> &policy) override;
             geopm_time_s read_sample(std::vector<double> &sample) override;
             std::string get_agent(void) override;
@@ -194,6 +203,10 @@ namespace geopm
 
             void read_policy(std::vector<double> &policy) override;
             void write_sample(const std::vector<double> &sample) override;
+
+            // Shmem only; used by geopmendpoint
+            geopm_time_s read_sample(std::vector<double> &sample);
+            std::string get_agent(void);
         private:
             std::string m_path;
             std::unique_ptr<SharedMemoryUser> m_policy_shmem;

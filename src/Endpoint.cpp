@@ -75,6 +75,17 @@ namespace geopm
         , m_sample_shmem(std::move(sample_shmem))
         , m_num_policy(num_policy)
         , m_num_sample(num_sample)
+        , m_is_open(false)
+    {
+
+    }
+
+    ShmemEndpoint::~ShmemEndpoint()
+    {
+
+    }
+
+    void ShmemEndpoint::open(void)
     {
         if (m_policy_shmem == nullptr) {
             size_t shmem_size = sizeof(struct geopm_endpoint_policy_shmem_s);
@@ -91,6 +102,16 @@ namespace geopm
         auto lock_s = m_sample_shmem->get_scoped_lock();
         struct geopm_endpoint_sample_shmem_s *data_s = (struct geopm_endpoint_sample_shmem_s*)m_sample_shmem->pointer();
         *data_s = {};
+        m_is_open = true;
+    }
+
+    void ShmemEndpoint::close(void)
+    {
+        m_sample_shmem->unlink();
+        m_policy_shmem->unlink();
+        m_sample_shmem.reset();
+        m_policy_shmem.reset();
+        m_is_open = false;
     }
 
     ShmemEndpoint::~ShmemEndpoint()
@@ -114,6 +135,16 @@ namespace geopm
                                const std::vector<std::string> &policy_names)
         : m_path(path)
         , m_policy_names(policy_names)
+    {
+
+    }
+
+    void FileEndpoint::open(void)
+    {
+
+    }
+
+    void FileEndpoint::close(void)
     {
 
     }
@@ -373,4 +404,168 @@ namespace geopm
         }
         return endpoint;
     }
+
+    geopm_time_s ShmemEndpointUser::read_sample(std::vector<double> &sample)
+    {
+        if (sample.size() != m_num_sample) {
+            throw Exception("ShmemEndpointUser::" + std::string(__func__) + "(): output sample vector is incorrect size.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        auto lock = m_sample_shmem->get_scoped_lock();
+        auto data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer(); // Managed by shmem subsystem.
+
+        if (data->count == sample.size()) {
+            std::copy(data->values, data->values + data->count, sample.begin());
+        }
+        else if (data->count != 0) {
+            // wrong size sample was written
+            throw Exception("ShmemEndpointUser::" + std::string(__func__) + "(): Data read from shmem does not match number of samples.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return data->timestamp;
+    }
+
+    std::string ShmemEndpointUser::get_agent(void)
+    {
+        return "";
+    }
 }
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int geopm_endpoint_create(const char *endpoint_name,
+                          geopm_endpoint_c **endpoint)
+{
+    int err = 0;
+    // todo: need to support files?
+    try {
+        *endpoint = (struct geopm_endpoint_c*)(new geopm::ShmemEndpoint(endpoint_name));
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+int geopm_endpoint_destroy(struct geopm_endpoint_c *endpoint)
+{
+    try {
+        delete (geopm::ShmemEndpoint*)endpoint;
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+int geopm_endpoint_shmem_create(struct geopm_endpoint_c *endpoint)
+{
+    int err = 0;
+    geopm::Endpoint *endpoint = (geopm::Endpoint*)endpoint;
+    try {
+        endpoint->open();
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+int geopm_endpoint_shmem_destroy(struct geopm_endpoint_c *endpoint)
+{
+    int err = 0;
+    geopm::Endpoint *endpoint = (geopm::Endpoint*)endpoint;
+    try {
+        endpoint->close();
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+int geopm_endpoint_agent(struct geopm_endpoint_c *endpoint,
+                         size_t agent_name_max,
+                         char *agent_name)
+{
+    int err = 0;
+    geopm::Endpoint *endpoint = (geopm::Endpoint*)endpoint;
+    //TODO: null check, catch exceptions
+    try {
+        std::string agent = endpoint->get_agent();
+        strncpy(agent_name, agent.c_str(), agent_name_max);
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+int geopm_endpoint_num_node(struct geopm_endpoint_c *endpoint,
+                            int *num_node)
+{
+    int err = 0;
+    geopm::Endpoint *endpoint = (geopm::Endpoint*)endpoint;
+    try {
+        err = -1;
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+int geopm_endpoint_node_name(geopm_endpoint_c *endpoint,
+                             int node_idx,
+                             size_t node_name_max,
+                             char *node_name)
+{
+    int err = 0;
+    geopm::Endpoint *endpoint = (geopm::Endpoint*)endpoint;
+    try {
+        err = -1;
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+int geopm_endpoint_write_policy(geopm_endpoint_c *endpoint,
+                                size_t agent_num_policy,
+                                const double *policy_array)
+{
+    int err = 0;
+    geopm::Endpoint *endpoint = (geopm::Endpoint*)endpoint;
+    try {
+        std::vector<double> policy {policy_array, policy_array + agent_num_policy};
+        endpoint->write_policy(policy);
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+int geopm_endpoint_read_sample(geopm_endpoint_c *endpoint,
+                               size_t agent_num_sample,
+                               double *sample_array,
+                               double *sample_age_sec)
+{
+    int err = 0;
+    geopm::Endpoint *endpoint = (geopm::Endpoint*)endpoint;
+    try {
+        std::vector<double> sample(agent_num_sample);
+        endpoint->read_sample(sample);
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+#ifdef __cplusplus
+}
+#endif

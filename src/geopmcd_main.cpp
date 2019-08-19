@@ -73,7 +73,6 @@ int main(int argc, char *argv[])
     while (true) {
 
         // check for agent
-        bool is_attached = false;
         std::string agent = "";
         while (agent == "") {
             agent = endpoint.get_agent();
