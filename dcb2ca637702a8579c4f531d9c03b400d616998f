@@ -22,6 +22,30 @@
       "revId": "dcb2ca637702a8579c4f531d9c03b400d616998f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0bd6e27_ffad9936",
+        "filename": "src/CNLIOGroup.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-19T17:16:38Z",
+      "side": 1,
+      "message": "Autotools documentation says it should be first since config.h is intended to provide project-global macros (https://www.gnu.org/software/autoconf/manual/autoconf-2.66/html_node/Configuration-Headers.html).  As an example problem scenario, including config.h last may cause an included header to act like this is a non-debug build, but the rest of the .cpp file acts like it is a debug build.",
+      "parentUuid": "4b796f99_fb3f5b9d",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 19
+      },
+      "revId": "dcb2ca637702a8579c4f531d9c03b400d616998f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
