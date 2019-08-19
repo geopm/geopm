@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9bca36e1_abd4c284",
+        "filename": "scripts/test/mock_report.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-19T23:27:10Z",
+      "side": 1,
+      "message": "The region_id for the Epoch should not exist anymore.  If the tests were making use of this then we need to rework that logic as well.\n\nReports have an \"Epoch Totals\" section now, but there is no region_id associated with it.\n\nIf the intention here is to just refactor the code and make logic changes in a future patch I\u0027ll remove my -1.",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 40
+      },
+      "revId": "ed42b9ea123e10d7c605980ca7b085022c5b2160",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
