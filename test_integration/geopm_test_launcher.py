@@ -39,6 +39,7 @@ import signal
 import StringIO
 import math
 import shlex
+import unittest
 
 import geopm_context
 import geopmpy.launcher
@@ -75,6 +76,49 @@ def detect_launcher():
             except subprocess.CalledProcessError:
                 raise LookupError('Unable to determine resource manager')
     return result
+
+def allocation_node_test(test_exec, stdout, stderr):
+    argv = shlex.split(test_exec)
+    argv.insert(1, detect_launcher())
+    argv.insert(2, '--geopm-ctl-disable')
+    launcher = geopmpy.launcher.Factory().create(argv, num_rank=1, num_node=1, job_name="geopm_allocation_test")
+    launcher.run(stdout, stderr)
+
+def geopmwrite(write_str):
+    test_exec = "dummy -- geopmwrite " + write_str
+    stdout = StringIO.StringIO()
+    stderr = StringIO.StringIO()
+    try:
+        allocation_node_test(test_exec, stdout, stderr)
+    except subprocess.CalledProcessError as err:
+        sys.stderr.write(stderr.getvalue())
+        raise err
+
+def geopmread(read_str):
+    test_exec = "dummy -- geopmread " + read_str
+    stdout = StringIO.StringIO()
+    stderr = StringIO.StringIO()
+    try:
+        allocation_node_test(test_exec, stdout, stderr)
+    except subprocess.CalledProcessError as err:
+        sys.stderr.write(stderr.getvalue())
+        raise err
+    return float(stdout.getvalue().splitlines()[-1])
+
+def get_platform():
+    test_exec = "dummy -- cat /proc/cpuinfo"
+    ostream = StringIO.StringIO()
+    dev_null = open('/dev/null', 'w')
+    allocation_node_test(test_exec, ostream, dev_null)
+    dev_null.close()
+    output = ostream.getvalue()
+
+    for line in output.splitlines():
+        if line.startswith('cpu family\t:'):
+            fam = int(line.split(':')[1])
+        if line.startswith('model\t\t:'):
+            mod = int(line.split(':')[1])
+    return fam, mod
 
 
 class TestLauncher(object):
