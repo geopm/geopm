@@ -103,6 +103,7 @@ addons:
     - rpm
     - osc
     - python-pip
+    - libelf-dev
 
 notifications:
   slack:
