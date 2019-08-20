@@ -43,6 +43,7 @@ BuildRequires: python
 BuildRequires: unzip
 BuildRequires: libtool
 BuildRequires: sqlite-devel
+BuildRequires: elfutils-libelf-devel
 
 %if 0%{?suse_version} >= 1320
 BuildRequires: openssh
