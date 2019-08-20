@@ -905,14 +905,21 @@ class Trace(object):
         trace_path: The path to the trace file to parse.
     """
     def __init__(self, trace_path, use_agent=True):
-        # TODO Backwards compatability for old trace file column headers
         self._path = trace_path
+
+        column_headers = pandas.read_csv(trace_path, sep='|', comment='#', nrows=0).columns.tolist()
+        for header in column_headers:
+            if not header.isupper(): # If one lowercase header is detected, force them all to uppercase
+                sys.stderr.write('<geopmpy>: Warning: Old trace file format detected. Column headers will be forced to UPPERCASE.\n')
+                column_headers = [hh.upper() for hh in column_headers]
+                break
 
         # region_hash and region_hint must be a string for pretty printing pandas DataFrames
         # You can force them to int64 by setting up a converter function then passing the hex string through it
         # with the read_csv call, but the number will be displayed as an integer from then on.  You'd have to convert
         # it back to a hex string to compare it with the data in the reports.
-        self._df = pandas.read_csv(trace_path, sep='|', comment='#', dtype={'REGION_HASH': str, 'REGION_HINT': str})
+        self._df = pandas.read_csv(trace_path, sep='|', comment='#', header=0, names=column_headers,
+                                   dtype={'REGION_HASH': str, 'REGION_HINT': str})
         self._df.columns = list(map(str.strip, self._df[:0]))  # Strip whitespace from column names
         self._df['REGION_HASH'] = self._df['REGION_HASH'].astype(str).map(str.strip)  # Strip whitespace from region hashes
         self._df['REGION_HINT'] = self._df['REGION_HINT'].astype(str).map(str.strip)  # Strip whitespace from region hints
