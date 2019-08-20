@@ -84,6 +84,8 @@ src/CSV.hpp
 src/DebugIOGroup.cpp
 src/DebugIOGroup.hpp
 src/DefaultProfile.cpp
+src/ELF.cpp
+src/ELF.hpp
 src/Endpoint.cpp
 src/Endpoint.hpp
 src/EnergyEfficientAgent.cpp
