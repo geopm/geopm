@@ -16,6 +16,29 @@
       "revId": "d2ff1a78bae2127b944fc85c6d2a58ae3749629c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "637d023b_021e9340",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-08-20T15:24:19Z",
+      "side": 1,
+      "message": "This is checking if exit is found before *any* entry to the region.  Should the test should be stronger and show that to exits do not occur in a row even if one entry previously occurred.  Not sure what will happen if this condition is violated.",
+      "range": {
+        "startLine": 272,
+        "startChar": 0,
+        "endLine": 281,
+        "endChar": 38
+      },
+      "revId": "d2ff1a78bae2127b944fc85c6d2a58ae3749629c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
