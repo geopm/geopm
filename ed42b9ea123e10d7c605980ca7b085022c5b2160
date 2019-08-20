@@ -22,6 +22,30 @@
       "revId": "ed42b9ea123e10d7c605980ca7b085022c5b2160",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0068d85e_aaa245ec",
+        "filename": "scripts/test/mock_report.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-20T18:04:24Z",
+      "side": 1,
+      "message": "Yeah, the intent is to just refactor here.",
+      "parentUuid": "9bca36e1_abd4c284",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 40
+      },
+      "revId": "ed42b9ea123e10d7c605980ca7b085022c5b2160",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
