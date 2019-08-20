@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6aad1ddb_64a3d75c",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 915,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-20T21:28:47Z",
+      "side": 1,
+      "message": "I don\u0027t think it\u0027s a good idea to redefine the list you\u0027re iterating over inside the loop. Maybe just build a new list since you already need to loop over the whole list.",
+      "range": {
+        "startLine": 914,
+        "startChar": 0,
+        "endLine": 915,
+        "endChar": 21
+      },
+      "revId": "55b56cdcd65912eaf8eb487633ad2039b2cbb38f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
