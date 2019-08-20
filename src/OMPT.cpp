@@ -30,36 +30,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "OMPT.hpp"
-
 #include <cstdint>
 #include <string>
 #include <limits.h>
 #include <map>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
-#include <iomanip>
-#include <sys/wait.h>
+
 
 #include "geopm.h"
 #include "geopm_sched.h"
 #include "geopm_error.h"
+#include "ELF.hpp"
 #include "Exception.hpp"
 #include "config.h"
 
-#ifndef GEOPM_ENABLE_OMPT
-
-namespace geopm
-{
-    // If OMPT is not enabled, ompt_pretty_name is a pass through.
-    void ompt_pretty_name(std::string &name)
-    {
-
-    }
-}
-
-#else // GEOPM_ENABLE_OMPT defined
+#ifdef GEOPM_ENABLE_OMPT
 
 #include <ompt.h>
 
@@ -73,17 +61,11 @@ namespace geopm
     class OMPT
     {
         public:
-            OMPT();
-            OMPT(const std::string &map_path);
+            OMPT() = default;
             virtual ~OMPT() = default;
             uint64_t region_id(void *parallel_function);
             void region_name(void *parallel_function, std::string &name);
-            void region_name_pretty(std::string &name);
         private:
-            /// Map from <virtual_address, is_end> pair representing
-            /// half of a virtual address range to the object file
-            /// asigned to the address range.
-            std::map<std::pair<size_t, bool>, std::string> m_range_object_map;
             /// Map from function address to geopm region ID
             std::map<size_t, uint64_t> m_function_region_id_map;
     };
@@ -92,50 +74,6 @@ namespace geopm
     {
         static OMPT instance;
         return instance;
-    }
-
-    OMPT::OMPT()
-        : OMPT("/proc/self/maps")
-    {
-
-    }
-
-    OMPT::OMPT(const std::string &map_path)
-    {
-        std::ifstream maps_stream(map_path);
-        while (maps_stream.good()) {
-            std::string line;
-            std::getline(maps_stream, line);
-            if (line.length() == 0) {
-                continue;
-            }
-            size_t addr_begin, addr_end;
-            int n_scan = sscanf(line.c_str(), "%zx-%zx", &addr_begin, &addr_end);
-            if (n_scan != 2) {
-                continue;
-            }
-
-            std::string object;
-            size_t object_loc = line.rfind(' ') + 1;
-            if (object_loc == std::string::npos) {
-                continue;
-            }
-            object = line.substr(object_loc);
-            if (line.find(" r-xp ") != line.find(' ')) {
-                continue;
-            }
-            std::pair<size_t, bool> aa(addr_begin, false);
-            std::pair<size_t, bool> bb(addr_end, true);
-            std::pair<std::pair<size_t, bool>, std::string> cc(aa, object);
-            std::pair<std::pair<size_t, bool>, std::string> dd(bb, object);
-            auto it0 = m_range_object_map.insert(m_range_object_map.begin(), cc);
-            auto it1 = m_range_object_map.insert(it0, dd);
-            ++it0;
-            if (it0 != it1) {
-                throw Exception("Error parsing /proc/self/maps, overlapping address ranges.",
-                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-            }
-        }
     }
 
     uint64_t OMPT::region_id(void *parallel_function)
@@ -161,74 +99,20 @@ namespace geopm
 
     void OMPT::region_name(void *parallel_function, std::string &name)
     {
-        name.clear();
-        auto it_max = m_range_object_map.upper_bound(std::pair<size_t, bool>((size_t)parallel_function, false));
-        auto it_min = it_max;
-        --it_min;
-        if (it_max != m_range_object_map.end() &&
-            it_max != m_range_object_map.begin() &&
-            false == it_min->first.second &&
-            true == it_max->first.second) {
-            size_t offset = (size_t)parallel_function - (size_t)(it_min->first.first);
-            std::ostringstream name_stream;
-            name_stream << "[OMPT]" << it_min->second << ":0x" << std::setfill('0') << std::setw(16) << std::hex << offset;
-            name = name_stream.str();
+        size_t target = (size_t) parallel_function;
+        std::ostringstream name_stream;
+        std::string symbol_name;
+        name_stream << "[OMPT] ";
+        std::pair<size_t, std::string> symbol = symbol_lookup(parallel_function);
+        if (symbol.second.size()) {
+            name_stream << symbol.second << "+" << target - symbol.first;
         }
-    }
-
-    void OMPT::region_name_pretty(std::string &name)
-    {
-        const std::string left_tok = "[OMPT]";
-        const std::string right_tok = ":0x";
-        size_t obj_off = name.find(left_tok);
-        size_t addr_off = name.rfind(right_tok);
-        if (obj_off == 0 && addr_off != std::string::npos) {
-            std::string obj_name = name.substr(left_tok.length(), addr_off - left_tok.length());
-            std::string addr_str = name.substr(addr_off + right_tok.length());
-            size_t addr;
-            int num_scan = sscanf(addr_str.c_str(), "%zx", &addr);
-            if (num_scan == 1) {
-                std::ostringstream cmd_str;
-                cmd_str << "exec bash -c '"
-                        << "object=" << obj_name << "; "
-                        << "addr=" << addr << "; "
-                        << "tmp_file=/tmp/geopm-$$; "
-                        << "readelf -h $object | grep \"Type:\" | grep -q EXEC; "
-                        << "if [ $? -eq 0 ]; then "
-                        << "    offset=$(readelf -l $object | grep \"LOAD           0x0000000000000000\" | awk \"{print \\$3}\"); "
-                        << "else "
-                        << "    offset=0x0; "
-                        << "fi; "
-                        << "offset=$(($offset + $addr)); "
-                        << "offset=$(printf \"%016zx\" $offset); "
-                        << "nm --demangle $object | egrep \" t | T \" | awk \"{print \\$1, \\$3}\"> $tmp_file; "
-                        << "echo $offset \"ZZZZZZZZZZ_FUNC_OFFSET\" >> $tmp_file; "
-                        << "sort $tmp_file | grep -B 1 \"ZZZZZZZZZZ_FUNC_OFFSET\" | head -n 1 | sed \"s|^[0-9a-f]* ||\"; "
-                        << "rm $tmp_file"
-                        << "'";
-
-                char buffer[NAME_MAX] = "FUNCTION_UNKNOWN";
-                FILE *pid;
-                int err = geopm_sched_popen(cmd_str.str().c_str(), &pid);
-                if (!err) {
-                    size_t num_read = fread(buffer, 1, NAME_MAX - 1, pid);
-                    if (num_read) {
-                        buffer[num_read -1] = '\0'; // Replace new line with null terminator
-                    }
-                    (void)pclose(pid);
-                    size_t last_slash = obj_name.rfind('/');
-                    if (last_slash != std::string::npos) {
-                        obj_name = obj_name.substr(last_slash + 1);
-                    }
-                }
-                name = "[OMPT]" + obj_name + ":" + std::string(buffer) + "_" + std::to_string(addr);
-            }
+        else {
+            // Set the name to the address if lookup failed
+            name_stream << "0x" << std::setfill('0') << std::setw(16) << std::hex
+                        << target;
         }
-    }
-
-    void ompt_pretty_name(std::string &name)
-    {
-        ompt().region_name_pretty(name);
+        name = name_stream.str();
     }
 }
 
