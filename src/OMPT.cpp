@@ -41,6 +41,13 @@
 #include <sstream>
 #include <iomanip>
 #include <sys/wait.h>
+#include <dlfcn.h>
+#include <cxxabi.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <libelf.h>
+#include <gelf.h>
 
 #include "geopm.h"
 #include "geopm_sched.h"
@@ -48,18 +55,7 @@
 #include "Exception.hpp"
 #include "config.h"
 
-#ifndef GEOPM_ENABLE_OMPT
-
-namespace geopm
-{
-    // If OMPT is not enabled, ompt_pretty_name is a pass through.
-    void ompt_pretty_name(std::string &name)
-    {
-
-    }
-}
-
-#else // GEOPM_ENABLE_OMPT defined
+#ifdef GEOPM_ENABLE_OMPT
 
 #include <ompt.h>
 
@@ -161,74 +157,119 @@ namespace geopm
 
     void OMPT::region_name(void *parallel_function, std::string &name)
     {
-        name.clear();
-        auto it_max = m_range_object_map.upper_bound(std::pair<size_t, bool>((size_t)parallel_function, false));
-        auto it_min = it_max;
-        --it_min;
-        if (it_max != m_range_object_map.end() &&
-            it_max != m_range_object_map.begin() &&
-            false == it_min->first.second &&
-            true == it_max->first.second) {
-            size_t offset = (size_t)parallel_function - (size_t)(it_min->first.first);
-            std::ostringstream name_stream;
-            name_stream << "[OMPT]" << it_min->second << ":0x" << std::setfill('0') << std::setw(16) << std::hex << offset;
-            name = name_stream.str();
-        }
-    }
-
-    void OMPT::region_name_pretty(std::string &name)
-    {
-        const std::string left_tok = "[OMPT]";
-        const std::string right_tok = ":0x";
-        size_t obj_off = name.find(left_tok);
-        size_t addr_off = name.rfind(right_tok);
-        if (obj_off == 0 && addr_off != std::string::npos) {
-            std::string obj_name = name.substr(left_tok.length(), addr_off - left_tok.length());
-            std::string addr_str = name.substr(addr_off + right_tok.length());
-            size_t addr;
-            int num_scan = sscanf(addr_str.c_str(), "%zx", &addr);
-            if (num_scan == 1) {
-                std::ostringstream cmd_str;
-                cmd_str << "exec bash -c '"
-                        << "object=" << obj_name << "; "
-                        << "addr=" << addr << "; "
-                        << "tmp_file=/tmp/geopm-$$; "
-                        << "readelf -h $object | grep \"Type:\" | grep -q EXEC; "
-                        << "if [ $? -eq 0 ]; then "
-                        << "    offset=$(readelf -l $object | grep \"LOAD           0x0000000000000000\" | awk \"{print \\$3}\"); "
-                        << "else "
-                        << "    offset=0x0; "
-                        << "fi; "
-                        << "offset=$(($offset + $addr)); "
-                        << "offset=$(printf \"%016zx\" $offset); "
-                        << "nm --demangle $object | egrep \" t | T \" | awk \"{print \\$1, \\$3}\"> $tmp_file; "
-                        << "echo $offset \"ZZZZZZZZZZ_FUNC_OFFSET\" >> $tmp_file; "
-                        << "sort $tmp_file | grep -B 1 \"ZZZZZZZZZZ_FUNC_OFFSET\" | head -n 1 | sed \"s|^[0-9a-f]* ||\"; "
-                        << "rm $tmp_file"
-                        << "'";
-
-                char buffer[NAME_MAX] = "FUNCTION_UNKNOWN";
-                FILE *pid;
-                int err = geopm_sched_popen(cmd_str.str().c_str(), &pid);
+        Dl_info info;
+        std::stringstream name_stream;
+        const char *symbol_name = NULL;
+        size_t min_distance = ~0ULL;
+        name_stream << "[OMPT] ";
+        bool is_found = false;
+        bool dladdr_success = dladdr(parallel_function, &info);
+        // "dladdr() returns 0 on error, and nonzero on success."
+        if (dladdr_success != 0) {
+            // dladdr() found the file
+            if (info.dli_sname) {
+                // dladdr() found the symbol
+                min_distance = (uint64_t)parallel_function - (uint64_t)info.dli_saddr;
+                symbol_name = info.dli_sname;
+                is_found = true;
+            }
+            else {
+                // dladdr() did not find the symbol, use libelf
+                int err = 0;
+                int fd = -1;
+                Elf *elf_handle = NULL;
+                size_t num_header = 0;
+                size_t target = (size_t)parallel_function;
+                // Initialize libelf
+                if (elf_version(EV_CURRENT) == EV_NONE) {
+                    err = -1;
+                }
+                // Open file identified by dladdr
                 if (!err) {
-                    size_t num_read = fread(buffer, 1, NAME_MAX - 1, pid);
-                    if (num_read) {
-                        buffer[num_read -1] = '\0'; // Replace new line with null terminator
-                    }
-                    (void)pclose(pid);
-                    size_t last_slash = obj_name.rfind('/');
-                    if (last_slash != std::string::npos) {
-                        obj_name = obj_name.substr(last_slash + 1);
+                    fd = open(info.dli_fname, O_RDONLY, 0);
+                    if (fd < 0) {
+                        err = -1;
                     }
                 }
-                name = "[OMPT]" + obj_name + ":" + std::string(buffer) + "_" + std::to_string(addr);
+                // Create elf handle
+                if (!err) {
+                    elf_handle = elf_begin(fd, ELF_C_READ, NULL);
+                    if (!elf_handle) {
+                       err = -1;
+                    }
+                }
+                // Iterate through the headers
+                if (!err) {
+                   err = elf_getphdrnum(elf_handle, &num_header);
+                }
+                for (size_t header_idx = 0;
+                     !err && header_idx != num_header;
+                     ++header_idx) {
+                    // Iterate through sections
+                    size_t section_idx = 0;
+                    for (Elf_Scn *section = elf_nextscn(elf_handle, NULL);
+                         !err && section != NULL;
+                         section = elf_nextscn(elf_handle, section)) {
+                        // If the section is a symbol table look for symbols
+                        GElf_Shdr section_header;
+                        err = (gelf_getshdr(section, &section_header) == NULL);
+                        if (!err && section_header.sh_type == SHT_SYMTAB) {
+                            // Iterate over the data segments
+                            for (Elf_Data *data = elf_getdata(section, NULL);
+                                 !err && data != NULL;
+                                 data = elf_getdata(section, data)) {
+                                // Iterate over the symbols
+                                size_t num_symbol = 0;
+                                if (section_header.sh_entsize == 0) {
+                                    err = -1;
+                                }
+                                else {
+                                    num_symbol = section_header.sh_size / section_header.sh_entsize;
+                                }
+                                for (size_t symbol_idx = 0;
+                                     !err && symbol_idx != num_symbol;
+                                     ++symbol_idx) {
+                                    GElf_Sym symbol;
+                                    err = (gelf_getsym(data, symbol_idx, &symbol) == NULL);
+                                    if (!err) {
+                                        // Check if the symbol is before the target
+                                        size_t offset = symbol.st_value;
+                                        size_t distance = target - offset;
+                                        if (target > offset &&
+                                            distance < min_distance) {
+                                            min_distance = distance;
+                                            // Store the closest symbol before the target
+                                            symbol_name = elf_strptr(elf_handle, section_header.sh_link, symbol.st_name);
+                                            if (symbol_name) {
+                                                is_found = true;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                // Destroy the elf handle
+                if (elf_handle) {
+                    elf_end(elf_handle);
+                }
             }
         }
-    }
-
-    void ompt_pretty_name(std::string &name)
-    {
-        ompt().region_name_pretty(name);
+        if (is_found) {
+            // Check for C++ mangling
+            const char *demangled_name = abi::__cxa_demangle(symbol_name, NULL, NULL, NULL);
+            if (demangled_name != NULL) {
+                symbol_name = demangled_name;
+            }
+            name_stream << symbol_name << "+" << min_distance;
+        }
+        else {
+            // Set the name to the address if lookup failed
+            name_stream << "0x" << std::setfill('0') << std::setw(16) << std::hex
+                        << (size_t)parallel_function;
+        }
+        name = name_stream.str();
     }
 }
 
