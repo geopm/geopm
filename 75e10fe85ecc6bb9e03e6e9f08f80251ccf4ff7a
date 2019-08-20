@@ -22,6 +22,30 @@
       "revId": "75e10fe85ecc6bb9e03e6e9f08f80251ccf4ff7a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5a838b3_f7b0d35e",
+        "filename": "scripts/test/TestIO.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-20T18:31:40Z",
+      "side": 1,
+      "message": "Agreed. I\u0027ve added a note about this to https://github.com/geopm/geopm/issues/698",
+      "parentUuid": "24680f10_cd2d5ffa",
+      "range": {
+        "startLine": 465,
+        "startChar": 8,
+        "endLine": 467,
+        "endChar": 38
+      },
+      "revId": "75e10fe85ecc6bb9e03e6e9f08f80251ccf4ff7a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
