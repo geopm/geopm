@@ -104,6 +104,7 @@ addons:
     - osc
     - python-pip
     - libsqlite3-dev
+    - libelf-dev
 
 notifications:
   slack:
