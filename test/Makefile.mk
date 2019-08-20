@@ -89,6 +89,8 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/DebugIOGroupTest.read_signal \
               test/gtest_links/DebugIOGroupTest.register_signal_error \
               test/gtest_links/DebugIOGroupTest.sample \
+              test/gtest_links/ELFTest.symbols_exist \
+              test/gtest_links/ELFTest.symbol_lookup \
               test/gtest_links/EndpointTest.negative_write_json_file \
               test/gtest_links/EndpointTest.write_json_file \
               test/gtest_links/EndpointTest.write_shm \
@@ -328,6 +330,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/CpuinfoIOGroupTest.cpp \
                           test/CSVTest.cpp \
                           test/DebugIOGroupTest.cpp \
+                          test/ELFTest.cpp \
                           test/EndpointTest.cpp \
                           test/EnergyEfficientAgentTest.cpp \
                           test/EnergyEfficientRegionTest.cpp \
