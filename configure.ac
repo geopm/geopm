@@ -362,6 +362,16 @@ fi
 
 if test "x$enable_ompt" = "x1" ; then
   AC_DEFINE([GEOPM_ENABLE_OMPT], [ ], [Enables OpenMP Tool callbacks.])
+  AC_SEARCH_LIBS([elf_begin], [elf])
+  AC_CHECK_LIB([elf], [elf_begin], [], [
+    echo "missing libelf: ELF library is required for OMPT support"
+    exit -1])
+  AC_CHECK_HEADER([libelf.h], [], [
+    echo "missing libelf.h: ELF library is required for OMPT support"
+    exit -1])
+  AC_CHECK_HEADER([gelf.h], [], [
+    echo "missing gelf.h: ELF library is required for OMPT support"
+    exit -1])
 fi
 AC_SUBST([enable_ompt])
 AM_CONDITIONAL([ENABLE_OMPT], [test "x$enable_ompt" = "x1"])
