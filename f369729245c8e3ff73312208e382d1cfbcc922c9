@@ -22,6 +22,23 @@
       "revId": "f369729245c8e3ff73312208e382d1cfbcc922c9",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48f1acab_b8d31b80",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-20T18:45:38Z",
+      "side": 1,
+      "message": "looks larger than what we\u0027ve used for dgemm before.",
+      "revId": "f369729245c8e3ff73312208e382d1cfbcc922c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
