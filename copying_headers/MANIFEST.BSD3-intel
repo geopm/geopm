@@ -87,6 +87,8 @@ src/CSV.hpp
 src/DebugIOGroup.cpp
 src/DebugIOGroup.hpp
 src/DefaultProfile.cpp
+src/ELF.cpp
+src/ELF.hpp
 src/Endpoint.cpp
 src/Endpoint.hpp
 src/EnergyEfficientAgent.cpp
@@ -135,7 +137,6 @@ src/ModelRegion.hpp
 src/MonitorAgent.cpp
 src/MonitorAgent.hpp
 src/OMPT.cpp
-src/OMPT.hpp
 src/PlatformIO.cpp
 src/PlatformIO.hpp
 src/PlatformIOImp.hpp
@@ -243,6 +244,7 @@ test/ControllerTest.cpp
 test/CpuinfoIOGroupTest.cpp
 test/CSVTest.cpp
 test/DebugIOGroupTest.cpp
+test/ELFTest.cpp
 test/EndpointTest.cpp
 test/EnergyEfficientAgentTest.cpp
 test/EnergyEfficientRegionTest.cpp
