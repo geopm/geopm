@@ -30,17 +30,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef OMPT_HPP_INCLUDE
-#define OMPT_HPP_INCLUDE
+#ifndef ELF_HPP_INCLUDE
+#define ELF_HPP_INCLUDE
 
 #include <string>
+#include <memory>
+#include <map>
 
 namespace geopm
 {
-    /// Convert function-address into function-name in region name
-    /// reported by OMPT.  If OMPT is not enabled, this function is a
-    /// pass through.
-    void ompt_pretty_name(std::string &name);
+    class ELF
+    {
+        public:
+            ELF() = default;
+            virtual ~ELF() = default;
+            virtual size_t num_symbol(void) = 0;
+            virtual std::string symbol_name(void) = 0;
+            virtual size_t symbol_offset(void) = 0;
+            virtual bool next_section(void) = 0;
+            virtual bool next_data(void) = 0;
+            virtual bool next_symbol(void) = 0;
+    };
+
+    std::shared_ptr<ELF> elf(const std::string &file_path);
+    std::map<size_t, std::string> elf_symbol_map(const std::string &file_path);
+    std::pair<size_t, std::string> symbol_lookup(void *instruction_ptr);
 }
 
 #endif

@@ -395,10 +395,11 @@ geopmwrite_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
 geopmread_LDADD = libgeopmpolicy.la
 geopmwrite_LDADD = libgeopmpolicy.la
 geopmagent_LDADD = libgeopmpolicy.la
+libgeopmpolicy_la_LIBADD = -lelf
 if ENABLE_MPI
     geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
     geopmbench_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
-    libgeopm_la_LIBADD = $(MPI_CLIBS)
+    libgeopm_la_LIBADD = $(MPI_CLIBS) -lelf
 if ENABLE_FORTRAN
     libgeopmfort_la_LIBADD = libgeopm.la $(MPI_FLIBS)
 endif
@@ -428,6 +429,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/DebugIOGroup.cpp \
                             src/DebugIOGroup.hpp \
                             src/DefaultProfile.cpp \
+                            src/ELF.cpp \
+                            src/ELF.hpp \
                             src/Endpoint.cpp \
                             src/Endpoint.hpp \
                             src/EnergyEfficientAgent.cpp \
@@ -469,7 +472,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/MonitorAgent.cpp \
                             src/MonitorAgent.hpp \
                             src/OMPT.cpp \
-                            src/OMPT.hpp \
                             src/PlatformIO.cpp \
                             src/PlatformIO.hpp \
                             src/PlatformIOImp.hpp \
