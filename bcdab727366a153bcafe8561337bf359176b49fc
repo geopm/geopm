@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "85a5a3f1_8efaa228",
+        "filename": "src/RegionAggregator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-20T23:54:51Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5a1d8114_5906ceac",
+      "revId": "bcdab727366a153bcafe8561337bf359176b49fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d941f661_267799e7",
         "filename": "src/RegionAggregator.cpp",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "114c7374_26c5296c",
+        "filename": "src/RegionAggregator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-20T23:54:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d941f661_267799e7",
+      "revId": "bcdab727366a153bcafe8561337bf359176b49fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26b6c342_491138f6",
         "filename": "test/RegionAggregatorTest.cpp",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2019-08-20T18:42:18Z",
       "side": 1,
       "message": "this doesn\u0027t seem quite right.  what\u0027s the expected value for sample(M_SIGNAL_TIME) when it gets called inside sample_total()",
+      "revId": "bcdab727366a153bcafe8561337bf359176b49fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "962c74fe_7323632e",
+        "filename": "test/RegionAggregatorTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-20T23:54:51Z",
+      "side": 1,
+      "message": "My understanding of this test it that there should be 5 ticks of time (handled by step) during which we observe the following regions:\nStep | Region\n0 reg_normal\n1 UNMARKED\n2 UNMARKED (Epoch observed for first time)\n3 reg_normal\n4 UNMARKED\n\nreg_normal occurs for 2 ticks of step, 1 inside the epoch, and 1 outside the epoch.\n\nUNMARKED occurs for 2 ticks of step, 1 inside the epoch, and 1 outside.  The app ends on step \u003d 4, so the fact that we\u0027re in the UNMARKED region on step 4 is not included in the any of the totals.\n\nWe are within the Epoch for steps 2 and 3 (2 to 3 and 3 to 4).  The app ends on step \u003d\u003d 4.\n\n----\n\nWhen sample(M_SIGNAL_TIME) is called within sample_total() for HASH_EPOCH on 329, it returns 4.  data.last_entry_value at this time is 2.  4 - 2 \u003d 2.",
+      "parentUuid": "26b6c342_491138f6",
       "revId": "bcdab727366a153bcafe8561337bf359176b49fc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
