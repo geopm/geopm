@@ -42,6 +42,7 @@ BuildRequires: gcc-c++
 BuildRequires: python
 BuildRequires: unzip
 BuildRequires: libtool
+BuildRequires: elfutils-libelf-devel
 
 %if 0%{?suse_version} >= 1320
 BuildRequires: openssh
