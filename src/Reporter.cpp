@@ -185,12 +185,9 @@ namespace geopm
         auto region_name_set = application_io.region_name_set();
         for (const auto &region : region_name_set) {
             uint64_t region_hash = geopm_crc32_str(region.c_str());
-            std::string region_name = region;
-            ompt_pretty_name(region_name);
-
             int count = application_io.total_count(region_hash);
             if (count > 0) {
-                region_ordered.push_back({region_name,
+                region_ordered.push_back({region,
                                           region_hash,
                                           application_io.total_region_runtime(region_hash),
                                           count});

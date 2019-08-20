@@ -1,0 +1,91 @@
+/*
+ * Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in
+ *       the documentation and/or other materials provided with the
+ *       distribution.
+ *
+ *     * Neither the name of Intel Corporation nor the names of its
+ *       contributors may be used to endorse or promote products derived
+ *       from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#ifndef ELF_HPP_INCLUDE
+#define ELF_HPP_INCLUDE
+
+#include <string>
+#include <memory>
+
+#include <libelf.h>
+#include <gelf.h>
+
+/* FIXME: Can't figure out how to forward declare the structures below
+   instead of including the headers above.  The problem is they are typedefs.
+
+struct Elf;
+struct Elf_Scn;
+struct GElf_Shdr;
+struct Elf_Data;
+struct GElf_Sym;
+*/
+
+namespace geopm
+{
+    class ELF
+    {
+        public:
+            ELF() = default;
+            virtual ~ELF() = default;
+            virtual size_t num_symbol(void) = 0;
+            virtual std::string symbol_name(void) = 0;
+            virtual size_t symbol_offset(void) = 0;
+            virtual bool next_section(void) = 0;
+            virtual bool next_data(void) = 0;
+            virtual bool next_symbol(void) = 0;
+    };
+
+    class ELFImp : public ELF
+    {
+        public:
+            ELFImp() = delete;
+            ELFImp(const std::string &file_path);
+            virtual ~ELFImp();
+            size_t num_symbol(void) override;
+            std::string symbol_name(void) override;
+            size_t symbol_offset(void) override;
+            bool next_section(void) override;
+            bool next_data(void) override;
+            bool next_symbol(void) override;
+        private:
+            int m_file_desc;
+            struct Elf *m_elf_handle;
+            struct Elf_Scn *m_section;
+            std::unique_ptr<GElf_Shdr> m_section_header;
+            Elf_Data *m_data;
+            size_t m_num_symbol;
+            size_t m_symbol_idx;
+            std::unique_ptr<GElf_Sym> m_symbol;
+    };
+}
+
+#endif
