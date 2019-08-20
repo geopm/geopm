@@ -251,6 +251,24 @@ fi
 AC_SUBST([enable_doc])
 AM_CONDITIONAL([ENABLE_DOC], [test "x$enable_doc" = "x1"])
 
+AC_ARG_WITH([libelf], [AS_HELP_STRING([--with-libelf=PATH],
+            [specify directory for installed libelf package.])])
+if test "x$with_libelf" != x; then
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_libelf/include"
+  LD_LIBRARY_PATH="$with_libelf/lib:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_libelf/lib"
+fi
+AC_ARG_WITH([libelf-include], [AS_HELP_STRING([--with-libelf-include=PATH],
+            [specify directory for the installed libelf include files.])])
+if test "x$with_libelf_include" != x; then
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_libelf_include"
+fi
+AC_ARG_WITH([libelf-lib], [AS_HELP_STRING([--with-libelf-lib=PATH],
+            [specify directory for installed libelf library.])])
+if test "x$with_libelf_lib" != x; then
+  LD_LIBRARY_PATH="$with_libelf_lib:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_libelf_lib"
+fi
 
 m4_include([m4/lx_find_mpi.m4])
 LX_FIND_MPI()
@@ -388,6 +406,18 @@ fi
 if test "x$enable_ompt" = "x1" ; then
   AC_DEFINE([GEOPM_ENABLE_OMPT], [ ], [Enables OpenMP Tool callbacks.])
 fi
+
+AC_SEARCH_LIBS([elf_begin], [elf])
+AC_CHECK_LIB([elf], [elf_begin], [], [
+  echo "missing libelf: ELF library is required, use --with-libelf or --with-libelf-lib to specify location"
+  exit -1])
+AC_CHECK_HEADER([libelf.h], [], [
+  echo "missing libelf.h: ELF library is required, use --with-libelf or --with-libelf-include to specify location"
+  exit -1])
+AC_CHECK_HEADER([gelf.h], [], [
+  echo "missing gelf.h: ELF library is required, use --with-libelf or --with-libelf-include to specify location"
+  exit -1])
+
 AC_SUBST([enable_ompt])
 AM_CONDITIONAL([ENABLE_OMPT], [test "x$enable_ompt" = "x1"])
 AM_CONDITIONAL([HAS_OMPT], [test "x$has_ompt" = "x1"])
