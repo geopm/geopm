@@ -398,7 +398,7 @@ geopmagent_LDADD = libgeopmpolicy.la
 if ENABLE_MPI
     geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
     geopmbench_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
-    libgeopm_la_LIBADD = $(MPI_CLIBS)
+    libgeopm_la_LIBADD = $(MPI_CLIBS) -lelf
 if ENABLE_FORTRAN
     libgeopmfort_la_LIBADD = libgeopm.la $(MPI_FLIBS)
 endif
