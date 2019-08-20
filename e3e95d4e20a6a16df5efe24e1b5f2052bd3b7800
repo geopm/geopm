@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01f1cf03_46f64726",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-08-20T14:24:54Z",
+      "side": 0,
+      "message": "Why are hash and hint no longer stored as strings?",
+      "revId": "e3e95d4e20a6a16df5efe24e1b5f2052bd3b7800",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
