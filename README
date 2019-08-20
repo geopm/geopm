@@ -139,11 +139,11 @@ package.
 
 RHEL:
 
-    yum install openmpi-devel ruby-devel rubygems
+    yum install openmpi-devel libelf-devel ruby-devel rubygems
 
 SUSE:
 
-    zypper install openmpi-devel ruby-devel rubygems
+    zypper install openmpi-devel libelf-devel ruby-devel rubygems
 
 Alternatively these can be installed from source, and an alternate MPI
 implementation to OpenMPI can be selected (e.g. one provided by
