@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a1d8114_5906ceac",
+        "filename": "src/RegionAggregator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-20T18:42:18Z",
+      "side": 1,
+      "message": "this might need to move into push_signal_total if epoch is counted separately per rank.  Probably a problem for a different patch.",
+      "revId": "bcdab727366a153bcafe8561337bf359176b49fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d941f661_267799e7",
+        "filename": "src/RegionAggregator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-20T18:42:18Z",
+      "side": 1,
+      "message": "this could move below 111 and then the if on 108 could be explicitly \u0027else if\u0027 for the epoch check.  You could also factor out the isnan check",
+      "revId": "bcdab727366a153bcafe8561337bf359176b49fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26b6c342_491138f6",
+        "filename": "test/RegionAggregatorTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-20T18:42:18Z",
+      "side": 1,
+      "message": "this doesn\u0027t seem quite right.  what\u0027s the expected value for sample(M_SIGNAL_TIME) when it gets called inside sample_total()",
+      "revId": "bcdab727366a153bcafe8561337bf359176b49fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
