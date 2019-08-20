@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc743cf2_704c062a",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-08-20T14:57:08Z",
+      "side": 1,
+      "message": "Can we drop the \"do_\" please?  Makes me think it returns a bool determining if geopmread should be done or not.",
+      "range": {
+        "startLine": 132,
+        "startChar": 48,
+        "endLine": 132,
+        "endChar": 51
+      },
+      "revId": "e6703075418681f39b0be2fbbdb2146fca944e61",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
