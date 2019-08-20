@@ -46,6 +46,30 @@
       "revId": "87350060ba3bdd56f6b47b59a6d4f03061195e25",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "342b72f4_5a641cb0",
+        "filename": "src/Endpoint.hpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-20T21:36:37Z",
+      "side": 1,
+      "message": "I think agent_name can be removed entirely, and have the test constructor just take in the details it needs.",
+      "parentUuid": "ac2e6b23_a048d306",
+      "range": {
+        "startLine": 129,
+        "startChar": 30,
+        "endLine": 129,
+        "endChar": 61
+      },
+      "revId": "87350060ba3bdd56f6b47b59a6d4f03061195e25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
