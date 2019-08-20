@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "123f25d0_b035ddbd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-20T17:47:54Z",
+      "side": 1,
+      "message": "Please mention why this change is needed. Is this refactoring in preparation for a future patch? (haven\u0027t gotten to all of them yet)",
+      "revId": "ddd747fb0bbde85bd31c6cf0ed0967b8d0c81881",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eb447ec8_ea51f134",
         "filename": "src/EnergyEfficientRegion.cpp",
         "patchSetId": 17

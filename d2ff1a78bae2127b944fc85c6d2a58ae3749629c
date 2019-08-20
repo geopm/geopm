@@ -39,6 +39,30 @@
       "revId": "d2ff1a78bae2127b944fc85c6d2a58ae3749629c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "117b18a1_05d31455",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-20T17:47:54Z",
+      "side": 1,
+      "message": "I think that\u0027s a behavior we want to enforce.  Lots of things can go wrong if we don\u0027t have this strict ordering of one exit per enter",
+      "parentUuid": "637d023b_021e9340",
+      "range": {
+        "startLine": 272,
+        "startChar": 0,
+        "endLine": 281,
+        "endChar": 38
+      },
+      "revId": "d2ff1a78bae2127b944fc85c6d2a58ae3749629c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
