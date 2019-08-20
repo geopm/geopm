@@ -440,7 +440,7 @@ class AppOutput(object):
         for name in names_list:
             # The profile name is currently set to: ${NAME}_${POWER_BUDGET}
             profile_name_map.update({name: int(name.split('_')[-1])})
-        df = self._reports_df.rename(profile_name_map)
+        df = self._reports_df.rename(index=profile_name_map).sort_index(ascending=True)
         if inplace:
             self._reports_df = df
         return df
