@@ -89,6 +89,18 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/DebugIOGroupTest.read_signal \
               test/gtest_links/DebugIOGroupTest.register_signal_error \
               test/gtest_links/DebugIOGroupTest.sample \
+              test/gtest_links/ELFTest.symbols_exist \
+              test/gtest_links/ELFTest.symbol_lookup \
+              test/gtest_links/EndpointTest.negative_write_json_file \
+              test/gtest_links/EndpointTest.write_json_file \
+              test/gtest_links/EndpointTest.write_shm \
+              test/gtest_links/EndpointTestIntegration.write_shm \
+              test/gtest_links/EndpointUserTest.negative_bad_files \
+              test/gtest_links/EndpointUserTest.negative_parse_json_file \
+              test/gtest_links/EndpointUserTest.negative_parse_shm \
+              test/gtest_links/EndpointUserTest.parse_json_file \
+              test/gtest_links/EndpointUserTest.parse_shm \
+              test/gtest_links/EndpointUserTestIntegration.parse_shm \
               test/gtest_links/EnergyEfficientAgentTest.aggregate_sample \
               test/gtest_links/EnergyEfficientAgentTest.do_write_batch \
               test/gtest_links/EnergyEfficientAgentTest.enforce_policy \
@@ -333,6 +345,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/CpuinfoIOGroupTest.cpp \
                           test/CSVTest.cpp \
                           test/DebugIOGroupTest.cpp \
+                          test/ELFTest.cpp \
                           test/EndpointTest.cpp \
                           test/EnergyEfficientAgentTest.cpp \
                           test/EnergyEfficientRegionTest.cpp \
