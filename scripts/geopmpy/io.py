@@ -905,14 +905,51 @@ class Trace(object):
         trace_path: The path to the trace file to parse.
     """
     def __init__(self, trace_path, use_agent=True):
-        # TODO Backwards compatability for old trace file column headers
         self._path = trace_path
+
+        old_headers = {'time': 'TIME',
+                       'epoch_count': 'EPOCH_COUNT',
+                       'region_hash': 'REGION_HASH',
+                       'region_hint': 'REGION_HINT',
+                       'region_progress': 'REGION_PROGRESS',
+                       'region_count': 'REGION_COUNT',
+                       'region_runtime': 'REGION_RUNTIME',
+                       'energy_package': 'ENERGY_PACKAGE',
+                       'energy_dram': 'ENERGY_DRAM',
+                       'power_package': 'POWER_PACKAGE',
+                       'power_dram': 'POWER_DRAM',
+                       'frequency': 'FREQUENCY',
+                       'cycles_thread': 'CYCLES_THREAD',
+                       'cycles_reference': 'CYCLES_REFERENCE',
+                       'temperature_core': 'TEMPERATURE_CORE'}
+
+        old_balancer_headers = {'policy_power_cap': 'POLICY_POWER_CAP',
+                                'policy_step_count': 'POLICY_STEP_COUNT',
+                                'policy_max_epoch_runtime': 'POLICY_MAX_EPOCH_RUNTIME',
+                                'policy_power_slack': 'POLICY_POWER_SLACK',
+                                'epoch_runtime': 'EPOCH_RUNTIME',
+                                'power_limit': 'POWER_LIMIT',
+                                'enforced_power_limit': 'ENFORCED_POWER_LIMIT'}
+        old_headers.update(old_balancer_headers)
+
+        old_governor_headers = {'power_budget': 'POWER_BUDGET'}
+        old_headers.update(old_governor_headers)
+
+        column_headers = pandas.read_csv(trace_path, sep='|', comment='#', nrows=0).columns.tolist()
+        original_headers = copy.deepcopy(column_headers)
+
+        column_headers = [old_headers.get(ii, ii) for ii in column_headers]
+
+        if column_headers != original_headers:
+            sys.stderr.write('<geopmpy>: Warning: Old trace file format detected. Old column headers will be forced ' \
+                             'to UPPERCASE.\n')
 
         # region_hash and region_hint must be a string for pretty printing pandas DataFrames
         # You can force them to int64 by setting up a converter function then passing the hex string through it
         # with the read_csv call, but the number will be displayed as an integer from then on.  You'd have to convert
         # it back to a hex string to compare it with the data in the reports.
-        self._df = pandas.read_csv(trace_path, sep='|', comment='#', dtype={'REGION_HASH': str, 'REGION_HINT': str})
+        self._df = pandas.read_csv(trace_path, sep='|', comment='#', header=0, names=column_headers,
+                                   dtype={'REGION_HASH': str, 'REGION_HINT': str})
         self._df.columns = list(map(str.strip, self._df[:0]))  # Strip whitespace from column names
         self._df['REGION_HASH'] = self._df['REGION_HASH'].astype(str).map(str.strip)  # Strip whitespace from region hashes
         self._df['REGION_HINT'] = self._df['REGION_HINT'].astype(str).map(str.strip)  # Strip whitespace from region hints
