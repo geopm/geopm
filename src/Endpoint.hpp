@@ -45,6 +45,8 @@
 #include "geopm_time.h"
 
 const size_t GEOPM_ENDPOINT_AGENT_NAME_MAX = 256;
+const size_t GEOPM_ENDPOINT_PROFILE_NAME_MAX = 256;
+const size_t GEOPM_ENDPOINT_HOSTFILE_PATH_MAX = 512;
 
 namespace geopm
 {
@@ -56,6 +58,8 @@ namespace geopm
     struct geopm_endpoint_sample_shmem_header {
         geopm_time_s timestamp;   // 8 bytes
         char agent[GEOPM_ENDPOINT_AGENT_NAME_MAX]; // 256 bytes
+        char profile_name[GEOPM_ENDPOINT_PROFILE_NAME_MAX];   // 256 bytes
+        char hostlist_path[GEOPM_ENDPOINT_HOSTFILE_PATH_MAX];  // 512 bytes
         size_t count;             // 8 bytes
         double values;            // 8 bytes
     };
@@ -72,6 +76,12 @@ namespace geopm
         geopm_time_s timestamp;
         /// @brief Holds the name of the Agent attached, if any.
         char agent[GEOPM_ENDPOINT_AGENT_NAME_MAX];
+        /// @brief Holds the profile name associated with the
+        ///        attached job.
+        char profile_name[GEOPM_ENDPOINT_PROFILE_NAME_MAX];
+        /// @brief Path to a file containing the list of hostnames
+        ///        in the attached job.
+        char hostlist_path[GEOPM_ENDPOINT_HOSTFILE_PATH_MAX];
         /// @brief Specifies the size of the following array.
         size_t count;
         /// @brief Holds resource manager data.
@@ -100,6 +110,14 @@ namespace geopm
             /// @brief Returns the Agent name, or empty string if no
             ///        Agent is attached.
             virtual std::string get_agent(void) = 0;
+            /// @brief Returns the profile name associated with the
+            ///        attached application, or empty if no controller
+            ///        is attached.
+            virtual std::string get_profile_name(void) = 0;
+            /// @brief Returns the list of hostnames used by the
+            ///        attached application, or empty if no controller
+            ///        is attached.
+            virtual std::vector<std::string> get_hostnames(void) = 0;
     };
 
     class SharedMemory;
@@ -123,6 +141,8 @@ namespace geopm
             void write_policy(const std::vector<double> &policy) override;
             geopm_time_s read_sample(std::vector<double> &sample) override;
             std::string get_agent(void) override;
+            std::string get_profile_name(void) override;
+            std::vector<std::string> get_hostnames(void) override;
         private:
             std::string m_path;
             std::unique_ptr<SharedMemory> m_policy_shmem;
@@ -148,6 +168,8 @@ namespace geopm
             void write_policy(const std::vector<double> &policy) override;
             geopm_time_s read_sample(std::vector<double> &sample) override;
             std::string get_agent(void) override;
+            std::string get_profile_name(void) override;
+            std::vector<std::string> get_hostnames(void) override;
         private:
             void write_file(const std::vector<double> &values);
 
