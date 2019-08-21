@@ -272,6 +272,20 @@ TEST_F(FileEndpointTest, get_agent)
     GEOPM_EXPECT_THROW_MESSAGE(jio.get_agent(), GEOPM_ERROR_NOT_IMPLEMENTED, "");
 }
 
+TEST_F(FileEndpointTest, get_profile_name)
+{
+    std::vector<std::string> signal_names = {"POWER_CONSUMED", "RUNTIME", "GHZ"};
+    FileEndpoint jio(m_json_file_path, signal_names);
+    GEOPM_EXPECT_THROW_MESSAGE(jio.get_profile_name(), GEOPM_ERROR_NOT_IMPLEMENTED, "");
+}
+
+TEST_F(FileEndpointTest, get_hostnames)
+{
+    std::vector<std::string> signal_names = {"POWER_CONSUMED", "RUNTIME", "GHZ"};
+    FileEndpoint jio(m_json_file_path, signal_names);
+    GEOPM_EXPECT_THROW_MESSAGE(jio.get_hostnames(), GEOPM_ERROR_NOT_IMPLEMENTED, "");
+}
+
 TEST_F(ShmemEndpointTest, get_agent)
 {
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
@@ -280,6 +294,35 @@ TEST_F(ShmemEndpointTest, get_agent)
     strncpy(data->agent, "monitor", GEOPM_ENDPOINT_AGENT_NAME_MAX);
     EXPECT_EQ("monitor", mio.get_agent());
     mio.close();
+}
+
+TEST_F(ShmemEndpointTest, get_profile_name)
+{
+    struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
+    ShmemEndpoint mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    mio.open();
+    strncpy(data->profile_name, "my_prof", GEOPM_ENDPOINT_PROFILE_NAME_MAX);
+    EXPECT_EQ("my_prof", mio.get_profile_name());
+    mio.close();
+}
+
+TEST_F(ShmemEndpointTest, get_hostnames)
+{
+    std::vector<std::string> hosts = {"node0", "node1", "node2", "node3", "node4"};
+    struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
+    ShmemEndpoint mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    mio.open();
+    std::string hostfile_path = "ShmemEndpointTest_hostlist";
+    std::ofstream hostfile(hostfile_path);
+    for (auto host : hosts) {
+        hostfile << host << "\n";
+    }
+    hostfile.close();
+    strncpy(data->hostlist_path, hostfile_path.c_str(), GEOPM_ENDPOINT_HOSTFILE_PATH_MAX);
+    strncpy(data->agent, "monitor", GEOPM_ENDPOINT_AGENT_NAME_MAX);
+    EXPECT_EQ(hosts, mio.get_hostnames());
+    mio.close();
+    unlink(hostfile_path.c_str());
 }
 
 /*************************************************************************************************/
