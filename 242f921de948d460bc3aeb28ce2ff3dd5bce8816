@@ -46,6 +46,30 @@
       "revId": "242f921de948d460bc3aeb28ce2ff3dd5bce8816",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88822e8b_b5cfdbfc",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-21T00:18:19Z",
+      "side": 0,
+      "message": "I think I did that on purpose.  The cache file should be created in the CWD even if the reports are in subdirs or elsewhere.  I was trying to keep the directory with the data in it \"holy\".",
+      "parentUuid": "ac9c8732_5c475e70",
+      "range": {
+        "startLine": 115,
+        "startChar": 29,
+        "endLine": 115,
+        "endChar": 31
+      },
+      "revId": "242f921de948d460bc3aeb28ce2ff3dd5bce8816",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
