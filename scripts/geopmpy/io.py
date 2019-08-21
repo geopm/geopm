@@ -42,6 +42,7 @@ from builtins import map
 from builtins import range
 from builtins import object
 from builtins import str
+from collections import OrderedDict
 import os
 import json
 import re
@@ -555,7 +556,7 @@ class IndexTracker(object):
 
         if type(run_output) is Report:
             index_names.append('region')
-            for region in sorted(run_output.keys()):  # Pandas sorts the keys when a DF is created
+            for region in run_output.keys():
                 itl.append(self._get_base_index(run_output) + (region, ))  # Append region to the existing tuple
         else:  # Trace file index
             index_names.append('index')
@@ -576,7 +577,7 @@ class IndexTracker(object):
         self._run_outputs = {}
 
 
-class Report(dict):
+class Report(OrderedDict):
     """An object to parse and encapsulate the data from a report file.
 
     Reports from the GEOPM runtime are currently coalesced into a
@@ -814,7 +815,7 @@ class Report(dict):
         return self._total_network_bw
 
 
-class Region(dict):
+class Region(OrderedDict):
     """Encapsulates all data related to a region from a report file.
 
     Attributes:
