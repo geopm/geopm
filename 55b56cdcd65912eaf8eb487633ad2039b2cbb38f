@@ -22,6 +22,30 @@
       "revId": "55b56cdcd65912eaf8eb487633ad2039b2cbb38f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6c4488f_27186384",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 915,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-21T22:40:45Z",
+      "side": 1,
+      "message": "You don\u0027t have to loop over the whole list.  That\u0027s why the break is there.  If one of the elements has a lowercase char, they all get converted (once) with the list comprehension, then it\u0027s assigned to column_headers, then the break is hit and we\u0027re out of the for().",
+      "parentUuid": "6aad1ddb_64a3d75c",
+      "range": {
+        "startLine": 914,
+        "startChar": 0,
+        "endLine": 915,
+        "endChar": 21
+      },
+      "revId": "55b56cdcd65912eaf8eb487633ad2039b2cbb38f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
