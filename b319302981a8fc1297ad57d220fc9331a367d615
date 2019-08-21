@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3f307b8_cc2e928d",
+        "filename": "src/OMPT.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-21T16:46:52Z",
+      "side": 1,
+      "message": "Never used as an istream. Could be an ostringstream",
+      "range": {
+        "startLine": 161,
+        "startChar": 8,
+        "endLine": 161,
+        "endChar": 25
+      },
+      "revId": "b319302981a8fc1297ad57d220fc9331a367d615",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b404b96f_4b8e1f09",
+        "filename": "src/OMPT.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-21T16:46:52Z",
+      "side": 1,
+      "message": "I think this may cause use-after-free issues with symbol_name in 259-265.",
+      "revId": "b319302981a8fc1297ad57d220fc9331a367d615",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83b4cfe4_15846a73",
+        "filename": "src/OMPT.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-21T16:46:52Z",
+      "side": 1,
+      "message": "After adding to the stream, we need free(symbol_name) if it came from __cxa_demangle(...NULL...), but not if it came from elf_strptr().",
+      "revId": "b319302981a8fc1297ad57d220fc9331a367d615",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
