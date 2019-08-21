@@ -46,6 +46,29 @@
       "revId": "75e10fe85ecc6bb9e03e6e9f08f80251ccf4ff7a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a303cea9_a4511d3a",
+        "filename": "scripts/test/TestIO.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-21T00:19:11Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 468,
+        "startChar": 8,
+        "endLine": 468,
+        "endChar": 46
+      },
+      "revId": "75e10fe85ecc6bb9e03e6e9f08f80251ccf4ff7a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
