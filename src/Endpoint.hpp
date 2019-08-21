@@ -42,10 +42,7 @@
 #include <vector>
 
 #include "geopm_time.h"
-
-const size_t GEOPM_ENDPOINT_AGENT_NAME_MAX = 256;
-const size_t GEOPM_ENDPOINT_PROFILE_NAME_MAX = 256;
-const size_t GEOPM_ENDPOINT_HOSTLIST_PATH_MAX = 512;
+#include "geopm_endpoint.h"
 
 namespace geopm
 {
