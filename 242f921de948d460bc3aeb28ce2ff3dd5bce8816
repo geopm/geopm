@@ -70,6 +70,30 @@
       "revId": "242f921de948d460bc3aeb28ce2ff3dd5bce8816",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80cd8739_74d4d64e",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-21T21:43:07Z",
+      "side": 0,
+      "message": "Yeah, that makes sense. I\u0027ll update the comment instead.",
+      "parentUuid": "88822e8b_b5cfdbfc",
+      "range": {
+        "startLine": 115,
+        "startChar": 29,
+        "endLine": 115,
+        "endChar": 31
+      },
+      "revId": "242f921de948d460bc3aeb28ce2ff3dd5bce8816",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
