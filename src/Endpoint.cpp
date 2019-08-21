@@ -437,3 +437,134 @@ namespace geopm
         return "";
     }
 }
+
+int geopm_endpoint_create(const char *endpoint_name,
+                          geopm_endpoint_c **endpoint)
+{
+    int err = 0;
+    // todo: need to support files?
+    try {
+        *endpoint = (struct geopm_endpoint_c*)(new geopm::ShmemEndpoint(endpoint_name));
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+int geopm_endpoint_destroy(struct geopm_endpoint_c *endpoint)
+{
+    try {
+        delete (geopm::ShmemEndpoint*)endpoint;
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+int geopm_endpoint_shmem_create(struct geopm_endpoint_c *endpoint)
+{
+    int err = 0;
+    geopm::Endpoint *endpoint = (geopm::Endpoint*)endpoint;
+    try {
+        endpoint->open();
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+int geopm_endpoint_shmem_destroy(struct geopm_endpoint_c *endpoint)
+{
+    int err = 0;
+    geopm::Endpoint *endpoint = (geopm::Endpoint*)endpoint;
+    try {
+        endpoint->close();
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+int geopm_endpoint_agent(struct geopm_endpoint_c *endpoint,
+                         size_t agent_name_max,
+                         char *agent_name)
+{
+    int err = 0;
+    geopm::Endpoint *endpoint = (geopm::Endpoint*)endpoint;
+    //TODO: null check, catch exceptions
+    try {
+        std::string agent = endpoint->get_agent();
+        strncpy(agent_name, agent.c_str(), agent_name_max);
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+int geopm_endpoint_num_node(struct geopm_endpoint_c *endpoint,
+                            int *num_node)
+{
+    int err = 0;
+    geopm::Endpoint *endpoint = (geopm::Endpoint*)endpoint;
+    try {
+        err = -1;
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+int geopm_endpoint_node_name(geopm_endpoint_c *endpoint,
+                             int node_idx,
+                             size_t node_name_max,
+                             char *node_name)
+{
+    int err = 0;
+    geopm::Endpoint *endpoint = (geopm::Endpoint*)endpoint;
+    try {
+        err = -1;
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+int geopm_endpoint_write_policy(geopm_endpoint_c *endpoint,
+                                size_t agent_num_policy,
+                                const double *policy_array)
+{
+    int err = 0;
+    geopm::Endpoint *endpoint = (geopm::Endpoint*)endpoint;
+    try {
+        std::vector<double> policy {policy_array, policy_array + agent_num_policy};
+        endpoint->write_policy(policy);
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+int geopm_endpoint_read_sample(geopm_endpoint_c *endpoint,
+                               size_t agent_num_sample,
+                               double *sample_array,
+                               double *sample_age_sec)
+{
+    int err = 0;
+    geopm::Endpoint *endpoint = (geopm::Endpoint*)endpoint;
+    try {
+        std::vector<double> sample(agent_num_sample);
+        endpoint->read_sample(sample);
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
