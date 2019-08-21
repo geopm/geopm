@@ -37,17 +37,24 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <errno.h>
-
 #include <sys/types.h>
-#include <dirent.h>
+
+#include <vector>
+#include <string>
+#include <iostream>
 
 #include "geopm_agent.h"
-#include "geopm_endpoint.h"
+//#include "geopm_endpoint.h"
 #include "geopm_version.h"
 #include "geopm_error.h"
-#include "geopm_env.h"
+
+#include "Endpoint.hpp"
+#include "Helper.hpp"
 
 #include "config.h"
+
+using geopm::ShmemEndpoint;
+using geopm::ShmemEndpointUser;
 
 enum geopmendpoint_const {
     GEOPMENDPOINT_STRING_LENGTH = 128,
@@ -58,21 +65,21 @@ int main(int argc, char **argv)
 {
     int opt;
     int err = 0;
-    double sample_age_sec = 0;
+    //double sample_age_sec = 0;
     bool create = false;
     bool destroy = false;
     bool attached = false;
     bool sample = false;
 
-    double policy_vals[GEOPMENDPOINT_DOUBLE_LENGTH] = {0};
-    double sample_vals[GEOPMENDPOINT_DOUBLE_LENGTH] = {0};
+    //double policy_vals[GEOPMENDPOINT_DOUBLE_LENGTH] = {0};
+    //double sample_vals[GEOPMENDPOINT_DOUBLE_LENGTH] = {0};
     char error_str[GEOPMENDPOINT_STRING_LENGTH] = {0};
     char endpoint_str[GEOPMENDPOINT_STRING_LENGTH] = {0};
-    char agent_name_str[GEOPMENDPOINT_STRING_LENGTH] = {0};
+    //char agent_name_str[GEOPMENDPOINT_STRING_LENGTH] = {0};
     char policy_vals_str[GEOPMENDPOINT_STRING_LENGTH] = {0};
     char *policy_vals_ptr = NULL;
 
-    struct geopm_endpoint_c *endpoint = NULL;
+    //struct geopm_endpoint_c *endpoint = NULL;
 
     char *arg_ptr = NULL;
     const char *usage = "\n"
@@ -196,26 +203,39 @@ int main(int argc, char **argv)
     //  $ geopmendpoint
     //
     if (!err && strnlen(endpoint_str, GEOPMENDPOINT_STRING_LENGTH) == 0) {
-        DIR *did = opendir("/dev/shm");
-        if (did &&
-            strlen(geopm_env_shmkey()) &&
-            *(geopm_env_shmkey()) == '/' &&
-            strchr(geopm_env_shmkey(), ' ') == NULL &&
-            strchr(geopm_env_shmkey() + 1, '/') == NULL) {
-
-            bool files_found = false;
-            struct dirent *entry;
-            while ((entry = readdir(did))) {
-                if (strstr(entry->d_name, "geopm-shm") == entry->d_name) {
-                    printf("%s\n", entry->d_name);
-                    files_found = true;
-                }
-            }
-            if (!files_found) {
-                printf("No endpoints found.\n");
+        bool files_found = false;
+        std::vector<std::string> files = geopm::list_directory_files("/dev/shm");
+        for (auto name : files) {
+            if (geopm::string_begins_with(name, "geopm-shm")) {
+                std::cout << name << std::endl;
+                files_found = true;
             }
         }
+        if (!files_found) {
+            std::cout << "No endpoints found.\n" << std::endl;
+        }
     }
+    // if (!err && strnlen(endpoint_str, GEOPMENDPOINT_STRING_LENGTH) == 0) {
+    //     DIR *did = opendir("/dev/shm");
+    //     if (did &&
+    //         strlen(geopm_env_shmkey()) &&
+    //         *(geopm_env_shmkey()) == '/' &&
+    //         strchr(geopm_env_shmkey(), ' ') == NULL &&
+    //         strchr(geopm_env_shmkey() + 1, '/') == NULL) {
+
+    //         bool files_found = false;
+    //         struct dirent *entry;
+    //         while ((entry = readdir(did))) {
+    //             if (strstr(entry->d_name, "geopm-shm") == entry->d_name) {
+    //                 printf("%s\n", entry->d_name);
+    //                 files_found = true;
+    //             }
+    //         }
+    //         if (!files_found) {
+    //             printf("No endpoints found.\n");
+    //         }
+    //     }
+    // }
     //#######################################################################
     // Create two endpoints called "job-123" and "job-321" for agents to attach:
     //
@@ -228,14 +248,19 @@ int main(int argc, char **argv)
     //  job-321
     //
     else if (!err && create == true) {
-        printf("Creating endpoint : %s\n", endpoint_str);
-        err = geopm_endpoint_create(endpoint_str, &endpoint);
-        if (!err) {
-            err = geopm_endpoint_shmem_create(endpoint);
-        } if (!err) {
-            err = geopm_endpoint_destroy(endpoint);
-        }
+        ShmemEndpoint endpoint(endpoint_str);
     }
+
+
+    //     printf("Creating endpoint : %s\n", endpoint_str);
+    //     err = geopm_endpoint_create(endpoint_str, &endpoint);
+    //     if (!err) {
+    //         err = geopm_endpoint_shmem_create(endpoint);
+    //     }
+    //     if (!err) {
+    //         err = geopm_endpoint_destroy(endpoint);
+    //     }
+    // }
     //#######################################################################
     // Check if agent has attached to endpoint "job-123", but no agent has yet attached:
     //
@@ -249,15 +274,24 @@ int main(int argc, char **argv)
     //  Nodes: compute-node-4,compute-node-5,compute-node-7,compute-node-8
     //
     else if (!err && attached == true) {
-        printf("Is an agent attached to : %s\n", endpoint_str);
-        err = geopm_endpoint_create(endpoint_str, &endpoint);
-        if (!err) {
-            err = geopm_endpoint_shmem_attach(endpoint);
-        } if (!err) {
-            err = geopm_endpoint_agent(endpoint, GEOPMENDPOINT_STRING_LENGTH, agent_name_str);
-        } if (!err) {
-            err = geopm_endpoint_destroy(endpoint);
+        // TODO: problem here
+        ShmemEndpointUser endpoint(endpoint_str, "monitor");
+        std::string agent = endpoint.get_agent();
+        if (agent == "") {
+            std::cout << "Error: <geopm> No agent has attached to endpoint." << std::endl;
         }
+        else {
+            std::cout << "Agent: " << agent << std::endl;
+        }
+        // printf("Is an agent attached to : %s\n", endpoint_str);
+        // err = geopm_endpoint_create(endpoint_str, &endpoint);
+        // if (!err) {
+        //     err = geopm_endpoint_shmem_attach(endpoint);
+        // } if (!err) {
+        //     err = geopm_endpoint_agent(endpoint, GEOPMENDPOINT_STRING_LENGTH, agent_name_str);
+        // } if (!err) {
+        //     err = geopm_endpoint_destroy(endpoint);
+        // }
     }
     //#######################################################################
     // Set policy at endpoint for power_balancing agent with 250 Watt per node power budget:
@@ -265,24 +299,27 @@ int main(int argc, char **argv)
     //  $ geopmendpoint -p 250 job-321
     //
     else if (!err && policy_vals_ptr != NULL) {
-        printf("New policy for %s : %s\n", endpoint_str, policy_vals_ptr);
+        ShmemEndpoint endpoint(endpoint_str);
 
-        // Parse the policy
-        int policy_count = 0;
-        char *tok = strtok(policy_vals_ptr, ",");
-        while (tok != NULL) {
-            policy_vals[policy_count++] = atof(tok);
-            tok = strtok(NULL, ",");
-        }
 
-        /// @todo Throw when the number of parsed policies doesn't match
-        //        what the agent needs.
-        err = geopm_endpoint_create(endpoint_str, &endpoint);
-        if (!err) {
-            err = geopm_endpoint_shmem_attach(endpoint);
-        } if (!err) {
-            err = geopm_endpoint_agent_policy(endpoint, policy_vals);
-        }
+        // printf("New policy for %s : %s\n", endpoint_str, policy_vals_ptr);
+
+        // // Parse the policy
+        // int policy_count = 0;
+        // char *tok = strtok(policy_vals_ptr, ",");
+        // while (tok != NULL) {
+        //     policy_vals[policy_count++] = atof(tok);
+        //     tok = strtok(NULL, ",");
+        // }
+
+        // /// @todo Throw when the number of parsed policies doesn't match
+        // //        what the agent needs.
+        // err = geopm_endpoint_create(endpoint_str, &endpoint);
+        // if (!err) {
+        //     err = geopm_endpoint_shmem_attach(endpoint);
+        // } if (!err) {
+        //     err = geopm_endpoint_agent_policy(endpoint, policy_vals);
+        // }
     }
     //#######################################################################
     // Sample from balancing agent with endpoint "job-321":
@@ -294,28 +331,28 @@ int main(int argc, char **argv)
     //  SAMPLE_AGE: 1.234E-4
     //
     else if (!err && sample == true) {
-        printf("Sampling from : %s\n", endpoint_str);
+        // printf("Sampling from : %s\n", endpoint_str);
 
-        int num_sample = 0;
-        err = geopm_endpoint_create(endpoint_str, &endpoint);
-        if (!err) {
-            err = geopm_endpoint_shmem_attach(endpoint);
-        } if (!err) {
-            err = geopm_endpoint_agent(endpoint, GEOPMENDPOINT_STRING_LENGTH, agent_name_str);
-        } if (!err) {
-            err = geopm_agent_num_sample(agent_name_str, &num_sample);
-        } if (!err) {
-            err = geopm_endpoint_agent_sample(endpoint, sample_vals, &sample_age_sec);
-        } if (!err) {
-            char name_str[GEOPMENDPOINT_STRING_LENGTH] = {0};
-            if (!err) {
-                for (int i = 0; !err && i < num_sample; ++i) {
-                    err = geopm_agent_sample_name(agent_name_str, i, GEOPMENDPOINT_STRING_LENGTH, name_str);
+        // int num_sample = 0;
+        // err = geopm_endpoint_create(endpoint_str, &endpoint);
+        // if (!err) {
+        //     err = geopm_endpoint_shmem_attach(endpoint);
+        // } if (!err) {
+        //     err = geopm_endpoint_agent(endpoint, GEOPMENDPOINT_STRING_LENGTH, agent_name_str);
+        // } if (!err) {
+        //     err = geopm_agent_num_sample(agent_name_str, &num_sample);
+        // } if (!err) {
+        //     err = geopm_endpoint_agent_sample(endpoint, sample_vals, &sample_age_sec);
+        // } if (!err) {
+        //     char name_str[GEOPMENDPOINT_STRING_LENGTH] = {0};
+        //     if (!err) {
+        //         for (int i = 0; !err && i < num_sample; ++i) {
+        //             err = geopm_agent_sample_name(agent_name_str, i, GEOPMENDPOINT_STRING_LENGTH, name_str);
 
-                    printf("%s: %f\n", name_str, sample_vals[i]);
-                }
-            }
-        }
+        //             printf("%s: %f\n", name_str, sample_vals[i]);
+        //         }
+        //     }
+        // }
     }
     //#######################################################################
     // Destroy endpoints "job-123" and "job-321":
@@ -328,14 +365,17 @@ int main(int argc, char **argv)
     //
     //#######################################################################
     else if (!err && destroy == true) {
-        printf("Destroying : %s\n", endpoint_str);
-        if (!err) {
-            err = geopm_endpoint_create(endpoint_str, &endpoint);
-        } if (!err) {
-            err = geopm_endpoint_shmem_destroy(endpoint);
-        } if (!err) {
-            err = geopm_endpoint_destroy(endpoint);
-        }
+        /// TODO: no support
+
+
+        // printf("Destroying : %s\n", endpoint_str);
+        // if (!err) {
+        //     err = geopm_endpoint_create(endpoint_str, &endpoint);
+        // } if (!err) {
+        //     err = geopm_endpoint_shmem_destroy(endpoint);
+        // } if (!err) {
+        //     err = geopm_endpoint_destroy(endpoint);
+        // }
     }
 
     if (err) {
