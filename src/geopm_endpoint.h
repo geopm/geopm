@@ -39,7 +39,12 @@
 extern "C" {
 #endif
 
+static const size_t GEOPM_ENDPOINT_AGENT_NAME_MAX = 256;
+static const size_t GEOPM_ENDPOINT_PROFILE_NAME_MAX = 256;
+static const size_t GEOPM_ENDPOINT_HOSTLIST_PATH_MAX = 512;
+
 struct geopm_endpoint_c;
+struct geopm_time_s;
 
 /*!
  *  @brief Create an endpoint object for other API functions.
@@ -77,7 +82,7 @@ int geopm_endpoint_destroy(struct geopm_endpoint_c *endpoint);
  *
  *  @return Zero on success, error code on failure.
  */
-int geopm_endpoint_shmem_create(struct geopm_endpoint_c *endpoint);
+int geopm_endpoint_open(struct geopm_endpoint_c *endpoint);
 
 /*!
  *  @brief Destroy shmem regions within the endpoint.
@@ -87,17 +92,7 @@ int geopm_endpoint_shmem_create(struct geopm_endpoint_c *endpoint);
  *
  *  @return Zero on success, error code on failure.
  */
-int geopm_endpoint_shmem_destroy(struct geopm_endpoint_c *endpoint);
-
-/*!
- *  @brief Attach an endpoint to existing shmem regions.
- *
- *  @param [in] endpoint Object created by call to
- *         geopm_endpoint_create().
- *
- *  @return Zero on success, error code on failure.
- */
-int geopm_endpoint_shmem_attach(struct geopm_endpoint_c *endpoint);
+int geopm_endpoint_close(struct geopm_endpoint_c *endpoint);
 
 /*!
  *  @brief Check if an agent has attached.
@@ -194,7 +189,8 @@ int geopm_endpoint_node_name(struct geopm_endpoint_c *endpoint,
  *
  *  @return Zero on success, error code on failure
  */
-int geopm_endpoint_agent_policy(struct geopm_endpoint_c *endpoint,
+int geopm_endpoint_write_policy(struct geopm_endpoint_c *endpoint,
+                                size_t num_policy,
                                 const double *policy_array);
 
 
@@ -216,9 +212,10 @@ int geopm_endpoint_agent_policy(struct geopm_endpoint_c *endpoint,
  *
  *  @return Zero on success, error code on failure
  */
-int geopm_endpoint_agent_sample(struct geopm_endpoint_c *endpoint,
-                                double *sample_array,
-                                double *sample_age_sec);
+int geopm_endpoint_read_sample(struct geopm_endpoint_c *endpoint,
+                               size_t num_sample,
+                               double *sample_array,
+                               struct geopm_time_s *sample_age_sec);
 
 #ifdef __cplusplus
 }
