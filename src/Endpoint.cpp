@@ -214,6 +214,47 @@ namespace geopm
         return agent;
     }
 
+    std::string ShmemEndpoint::get_profile_name(void)
+    {
+        if (!m_is_open) {
+            throw Exception("ShmemEndpoint::" + std::string(__func__) + "(): cannot use shmem before calling open()",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        auto lock = m_sample_shmem->get_scoped_lock();
+        struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer(); // Managed by shmem subsystem.
+
+        char profile_name[GEOPM_ENDPOINT_PROFILE_NAME_MAX];
+        std::copy(data->profile_name, data->profile_name + GEOPM_ENDPOINT_PROFILE_NAME_MAX, profile_name);
+        std::string profile {profile_name};
+        return profile;
+    }
+
+    std::vector<std::string> ShmemEndpoint::get_hostnames(void)
+    {
+        if (!m_is_open) {
+            throw Exception("ShmemEndpoint::" + std::string(__func__) + "(): cannot use shmem before calling open()",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        auto lock = m_sample_shmem->get_scoped_lock();
+        struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer(); // Managed by shmem subsystem.
+
+        // check for agent
+        char agent_name[GEOPM_ENDPOINT_AGENT_NAME_MAX];
+        std::copy(data->agent, data->agent + GEOPM_ENDPOINT_AGENT_NAME_MAX, agent_name);
+        std::string agent {agent_name};
+        std::vector<std::string> result;
+        if (agent != "") {
+            char hostfile_path[GEOPM_ENDPOINT_HOSTFILE_PATH_MAX];
+            std::copy(data->hostlist_path, data->hostlist_path + GEOPM_ENDPOINT_HOSTFILE_PATH_MAX, hostfile_path);
+            std::string hostlist = read_file(hostfile_path);
+            result = string_split(hostlist, "\n");
+            // remove any blank lines
+            auto end = std::remove(result.begin(), result.end(), "");
+            result.erase(end, result.end());
+        }
+        return result;
+    }
+
     geopm_time_s FileEndpoint::read_sample(std::vector<double> &sample)
     {
         throw Exception("FileEndpoint::" + std::string(__func__) + "(): sending samples via file not yet supported",
@@ -226,6 +267,20 @@ namespace geopm
         throw Exception("FileEndpoint::" + std::string(__func__) + "(): get_agent via file not yet supported",
                         GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         return "";
+    }
+
+    std::string FileEndpoint::get_profile_name(void)
+    {
+        throw Exception("FileEndpoint::" + std::string(__func__) + "(): get_profile_name via file not yet supported",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        return "";
+    }
+
+    std::vector<std::string> FileEndpoint::get_hostnames(void)
+    {
+        throw Exception("FileEndpoint::" + std::string(__func__) + "(): get_hostnames via file not yet supported",
+                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+        return {};
     }
 
     /*********************************************************************************************************/
