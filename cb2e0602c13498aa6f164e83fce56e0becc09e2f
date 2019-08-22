@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a8276d4_e4d13552",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-08-22T17:34:54Z",
+      "side": 1,
+      "message": "great question.  at a quick glance almost definitely be in the try/catch.  took a quick look at the history and patches of mine and chris are nearest the offending line.  think it was just a slight miss when add 84b965f7",
+      "range": {
+        "startLine": 123,
+        "startChar": 8,
+        "endLine": 123,
+        "endChar": 38
+      },
+      "revId": "cb2e0602c13498aa6f164e83fce56e0becc09e2f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
