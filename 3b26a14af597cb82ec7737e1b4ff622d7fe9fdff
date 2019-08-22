@@ -22,6 +22,30 @@
       "revId": "3b26a14af597cb82ec7737e1b4ff622d7fe9fdff",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c8599f4_ff7c7b1a",
+        "filename": "scripts/test/TestBalancerAnalysis.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-22T18:09:08Z",
+      "side": 1,
+      "message": "That sounds like a good next step. It could be helpful to add builder functions so the test doesn\u0027t need to know the internal structure of these dictionaries. For now I think I\u0027m going to leave it as-is until I return to developing a test that adds another case.",
+      "parentUuid": "110a4034_e01d25f7",
+      "range": {
+        "startLine": 58,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 74
+      },
+      "revId": "3b26a14af597cb82ec7737e1b4ff622d7fe9fdff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
