@@ -428,6 +428,29 @@
     },
     {
       "key": {
+        "uuid": "7ff85ca8_e78f04f7",
+        "filename": "src/PolicyStoreImp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-22T17:27:40Z",
+      "side": 1,
+      "message": "Relax this exception for agents with no policy (i.e. the monitor).",
+      "range": {
+        "startLine": 266,
+        "startChar": 8,
+        "endLine": 272,
+        "endChar": 9
+      },
+      "revId": "b14b2b2c7b5533d5158438775050d7b46f84d83d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8e1f5976_f0026471",
         "filename": "src/PolicyStoreImp.cpp",
         "patchSetId": 10
