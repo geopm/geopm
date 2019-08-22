@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "5996ce24_c2c4c576",
+        "filename": "src/CNLIOGroup.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-22T20:44:15Z",
+      "side": 1,
+      "message": "https://github.com/geopm/geopm/issues/705 has been opened for the CPU info changes.",
+      "parentUuid": "8aa02019_4cac5d75",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 39
+      },
+      "revId": "64c4c883fca94ad7d91d112070a7bffe528bb86f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a5dc6119_8e566d51",
         "filename": "src/CNLIOGroup.hpp",
         "patchSetId": 7
