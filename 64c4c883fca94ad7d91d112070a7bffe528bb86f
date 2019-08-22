@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f4fd2ef_635e2420",
+        "filename": "src/CNLIOGroup.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-22T17:27:10Z",
+      "side": 1,
+      "message": "Potential refactor here would be to put it in the Helper.cpp.  Then the CPU info IOGroup could be modified to use this method without expecting units.  This is future patch work.  Making a note so we create an issue.",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 39
+      },
+      "revId": "64c4c883fca94ad7d91d112070a7bffe528bb86f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5dc6119_8e566d51",
+        "filename": "src/CNLIOGroup.hpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-22T17:27:10Z",
+      "side": 1,
+      "message": "? some indentation or just leaving it all on one line would be better please.",
+      "range": {
+        "startLine": 70,
+        "startChar": 11,
+        "endLine": 71,
+        "endChar": 72
+      },
+      "revId": "64c4c883fca94ad7d91d112070a7bffe528bb86f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
