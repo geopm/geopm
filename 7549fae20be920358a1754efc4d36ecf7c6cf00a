@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "35341eaf_5f933d97",
+        "filename": "src/ELF.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-08-23T00:28:54Z",
+      "side": 1,
+      "message": "Any help with this issue is appreciated.  Not sure how to forward declare structures that are typedefed in the upstream header.",
+      "revId": "7549fae20be920358a1754efc4d36ecf7c6cf00a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
