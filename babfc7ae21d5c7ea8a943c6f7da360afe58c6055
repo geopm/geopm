@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d41b27f_1383ad71",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-23T23:12:53Z",
+      "side": 1,
+      "message": "Redundant since I already check energy.",
+      "range": {
+        "startLine": 445,
+        "startChar": 12,
+        "endLine": 451,
+        "endChar": 95
+      },
+      "revId": "babfc7ae21d5c7ea8a943c6f7da360afe58c6055",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a0c671b_d6d921d5",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-23T23:12:53Z",
+      "side": 1,
+      "message": "This too.",
+      "range": {
+        "startLine": 453,
+        "startChar": 12,
+        "endLine": 455,
+        "endChar": 108
+      },
+      "revId": "babfc7ae21d5c7ea8a943c6f7da360afe58c6055",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
