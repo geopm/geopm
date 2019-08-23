@@ -70,6 +70,30 @@
       "revId": "55b56cdcd65912eaf8eb487633ad2039b2cbb38f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "957c9482_56f30fb6",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 915,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-23T22:28:25Z",
+      "side": 1,
+      "message": "Chris doesn\u0027t like this and would prefer that I put a map in here from the old signals to the new ones.",
+      "parentUuid": "4801c970_00b9c500",
+      "range": {
+        "startLine": 914,
+        "startChar": 0,
+        "endLine": 915,
+        "endChar": 21
+      },
+      "revId": "55b56cdcd65912eaf8eb487633ad2039b2cbb38f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
