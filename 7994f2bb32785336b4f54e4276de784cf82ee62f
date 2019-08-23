@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c35aea7b_cf9b35b6",
+        "filename": "src/geopmbench_main.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-23T22:38:35Z",
+      "side": 1,
+      "message": "Remove this.  If running this multi-rank, no_init should be set for every rank.",
+      "range": {
+        "startLine": 140,
+        "startChar": 16,
+        "endLine": 140,
+        "endChar": 28
+      },
+      "revId": "7994f2bb32785336b4f54e4276de784cf82ee62f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
