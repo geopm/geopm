@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "af827407_566d05bf",
+        "filename": "src/ELF.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-23T15:34:46Z",
+      "side": 1,
+      "message": "m_file_desc doesn\u0027t get closed in this or the next constructor exception. Same for m_elf_handle.",
+      "range": {
+        "startLine": 72,
+        "startChar": 16,
+        "endLine": 73,
+        "endChar": 73
+      },
+      "revId": "7549fae20be920358a1754efc4d36ecf7c6cf00a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "35341eaf_5f933d97",
         "filename": "src/ELF.hpp",
         "patchSetId": 5
@@ -13,6 +36,24 @@
       "writtenOn": "2019-08-23T00:28:54Z",
       "side": 1,
       "message": "Any help with this issue is appreciated.  Not sure how to forward declare structures that are typedefed in the upstream header.",
+      "revId": "7549fae20be920358a1754efc4d36ecf7c6cf00a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a7dd647_9c53a047",
+        "filename": "src/ELF.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-23T15:34:46Z",
+      "side": 1,
+      "message": "I think #include is the only option gelf leaves for you.\n\nYour approach used with `m_elf_handle` is typical for using forward-declared typedef\u0027d structs. But it looks like you can\u0027t do that with gelf since their typedefs map to unnamed structs (typedef struct {...} Elf64_Shdr).\n\nIt\u0027s probably not a big deal for something like libelf.h and gelf.h that won\u0027t change frequently.\n\nPIMPL is probably the next most readable/predictable pattern to keep these out of the header. If it\u0027s important to keep the header dependencies short, you could probably go the rest of the way by moving ELFImp to the .cpp file. Things might start looking weird if you want the impl to be injectable for gmock (I think you mentioned mocking in an offline discussion).",
+      "parentUuid": "35341eaf_5f933d97",
       "revId": "7549fae20be920358a1754efc4d36ecf7c6cf00a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
