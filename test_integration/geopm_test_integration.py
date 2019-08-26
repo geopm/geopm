@@ -31,6 +31,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+from __future__ import absolute_import
 import os
 import sys
 import unittest
@@ -43,8 +44,8 @@ import shlex
 import StringIO
 import json
 
-import util
-import geopm_test_launcher
+from . import util
+from . import geopm_test_launcher
 import geopmpy.io
 import geopmpy.launcher
 

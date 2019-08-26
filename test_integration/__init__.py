@@ -30,7 +30,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import geopm_context
-from geopm_test_integration import *
-from test_ee_stream_dgemm_mix import *
+from __future__ import absolute_import
+from . import geopm_context
+from .geopm_test_integration import *
+from .test_ee_stream_dgemm_mix import *
 from geopmpy.version import __version__

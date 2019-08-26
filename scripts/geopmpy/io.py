@@ -32,6 +32,7 @@
 """
 GEOPM IO - Helper module for parsing/processing report and trace files.
 """
+from __future__ import absolute_import
 
 import os
 import json
