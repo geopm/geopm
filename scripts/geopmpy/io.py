@@ -146,8 +146,8 @@ class AppOutput(object):
                     try:
                         if verbose:
                             sys.stdout.write('Generating HDF5 files... ')
-                            self._reports_df.to_hdf(report_h5_name, 'report', format='table')
-                            self._app_reports_df.to_hdf(report_h5_name, 'app_report', format='table', append=True)
+                        self._reports_df.to_hdf(report_h5_name, 'report', format='table')
+                        self._app_reports_df.to_hdf(report_h5_name, 'app_report', format='table', append=True)
                     except ImportError as error:
                         sys.stderr.write('<geopmy> Warning: unable to write HDF5 file: {}\n'.format(str(error)))
 
