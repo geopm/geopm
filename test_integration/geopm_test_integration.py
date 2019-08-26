@@ -770,6 +770,11 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('all2all', 0.05)
         app_conf.set_loop_count(loop_count)
 
+        # Update app config with imbalance
+        alloc_nodes = geopm_test_launcher.TestLauncher.get_alloc_nodes()
+        for nn in range(len(alloc_nodes) / 2):
+            app_conf.append_imbalance(alloc_nodes[nn], 0.5)
+
         fam, mod = get_platform()
         if fam == 6 and mod == 87:
             # budget for KNL
