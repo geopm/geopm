@@ -33,6 +33,8 @@
 GEOPM Analysis - Used to run applications and analyze results for specific GEOPM use cases.
 """
 
+from __future__ import absolute_import
+
 import argparse
 import sys
 import os

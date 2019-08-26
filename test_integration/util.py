@@ -30,11 +30,13 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+from __future__ import absolute_import
+
 import os
 import unittest
 import subprocess
 
-import geopm_test_launcher
+from . import geopm_test_launcher
 
 def skip_unless_platform_bdx():
     fam, mod = geopm_test_launcher.get_platform()
