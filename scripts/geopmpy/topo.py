@@ -194,7 +194,7 @@ def domain_name(domain):
     if err < 0:
         raise RuntimeError("geopm_topo_domain_name() failed: {}".format(
                            error.message(err)))
-    return _ffi.string(result_cstr)
+    return _ffi.string(result_cstr).decode()
 
 def domain_type(domain):
     """Returns the domain type that is associated with the provided domain
@@ -220,7 +220,7 @@ def domain_type(domain):
             raise RuntimeError("domain_type is out of range: {}".format(domain))
     else:
         global _dl
-        domain_cstr = _ffi.new("char[]", str(domain))
+        domain_cstr = _ffi.new("char[]", domain.encode())
         result = _dl.geopm_topo_domain_type(domain_cstr)
         if result < 0:
             raise RuntimeError("geopm_topo_domain_type() failed: {}".format(
