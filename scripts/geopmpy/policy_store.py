@@ -59,7 +59,7 @@ def connect(database_path):
     Args:
         database_path (str): Path to the database.
     """
-    database_path_cstr = _ffi.new("char[]", database_path)
+    database_path_cstr = _ffi.new("char[]", database_path.encode())
     err = _dl.geopm_policystore_connect(database_path_cstr)
     if err < 0:
         raise RuntimeError('geopm_policystore_connect() failed: {}'.format(error.message(err)))
@@ -83,8 +83,8 @@ def get_best(profile_name, agent_name):
     Returns:
         list of float: Best known policy for the profile and agent.
     """
-    profile_name_cstr = _ffi.new("char[]", profile_name)
-    agent_name_cstr = _ffi.new("char[]", agent_name)
+    profile_name_cstr = _ffi.new("char[]", profile_name.encode())
+    agent_name_cstr = _ffi.new("char[]", agent_name.encode())
     policy_max = 1024
     policy_array = _ffi.new("double[]", policy_max)
     err = _dl.geopm_policystore_get_best(profile_name_cstr, agent_name_cstr,
@@ -102,8 +102,8 @@ def set_best(profile_name, agent_name, policy):
         agent_name (str): Name of the agent.
         policy (list of double): New policy to use.
     """
-    profile_name_cstr = _ffi.new("char[]", profile_name)
-    agent_name_cstr = _ffi.new("char[]", agent_name)
+    profile_name_cstr = _ffi.new("char[]", profile_name.encode())
+    agent_name_cstr = _ffi.new("char[]", agent_name.encode())
     policy_array = _ffi.new("double[]", policy)
     err = _dl.geopm_policystore_set_best(profile_name_cstr, agent_name_cstr,
                                          len(policy), policy_array)
@@ -117,7 +117,7 @@ def set_default(agent_name, policy):
         agent_name (str): Name of the agent.
         policy (list of double): Default policy to use with the agent.
     """
-    agent_name_cstr = _ffi.new("char[]", agent_name)
+    agent_name_cstr = _ffi.new("char[]", agent_name.encode())
     policy_array = _ffi.new("double[]", policy)
     err = _dl.geopm_policystore_set_default(agent_name_cstr, len(policy), policy_array)
     if err < 0:

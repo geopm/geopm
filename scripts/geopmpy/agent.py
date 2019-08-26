@@ -82,7 +82,7 @@ def policy_names(agent_name):
         list of str: Policy names required for the agent configuration.
 
     """
-    agent_name_cstr = _ffi.new("char[]", str(agent_name))
+    agent_name_cstr = _ffi.new("char[]", agent_name.encode())
     num_policy = _ffi.new("int *")
     err = _dl.geopm_agent_num_policy(agent_name_cstr, num_policy)
     if err < 0:
@@ -95,7 +95,7 @@ def policy_names(agent_name):
         if err < 0:
             raise RuntimeError("geopm_agent_policy_name() failed: {}".format(
                 error.message(err)))
-        result.append(_ffi.string(buff))
+        result.append(_ffi.string(buff).decode())
     return result
 
 
@@ -115,11 +115,11 @@ def policy_json(agent_name, policy_values):
     """
     policy_array = _ffi.new("double[]", policy_values)
     json_string = _ffi.new("char[]", _name_max)
-    err = _dl.geopm_agent_policy_json(agent_name, policy_array, _name_max, json_string)
+    err = _dl.geopm_agent_policy_json(agent_name.encode(), policy_array, _name_max, json_string)
     if err < 0:
         raise RuntimeError("geopm_agent_policy_json() failed: {}".format(
             error.message(err)))
-    return _ffi.string(json_string)
+    return _ffi.string(json_string).decode()
 
 
 def sample_names(agent_name):
@@ -131,7 +131,7 @@ def sample_names(agent_name):
     Returns:
         list of str: List of sample names.
     """
-    agent_name_cstr = _ffi.new("char[]", str(agent_name))
+    agent_name_cstr = _ffi.new("char[]", agent_name.encode())
     num_sample = _ffi.new("int *")
     err = _dl.geopm_agent_num_sample(agent_name_cstr, num_sample)
     if err < 0:
@@ -144,7 +144,7 @@ def sample_names(agent_name):
         if err < 0:
             raise RuntimeError("geopm_agent_sample_name() failed: {}".format(
                 error.message(err)))
-        result.append(_ffi.string(buff))
+        result.append(_ffi.string(buff).decode())
     return result
 
 
@@ -166,5 +166,5 @@ def names():
         if err < 0:
             raise RuntimeError("geopm_agent_name() failed: {}".format(
                 error.message(err)))
-        result.append(_ffi.string(buff))
+        result.append(_ffi.string(buff).decode())
     return result

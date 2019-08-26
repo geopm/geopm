@@ -89,4 +89,4 @@ def message(err_number):
     name_max = 1024
     result_cstr = _ffi.new("char[]", name_max)
     _dl.geopm_error_message(err_number, result_cstr, name_max)
-    return _ffi.string(result_cstr)
+    return _ffi.string(result_cstr).decode()

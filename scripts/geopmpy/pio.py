@@ -127,7 +127,7 @@ def signal_names():
         err = _dl.geopm_pio_signal_name(signal_idx, name_max, signal_name_cstr)
         if err < 0:
             raise RuntimeError('geopm_pio_signal_name() failed: {}'.format(error.message(err)))
-        result.append(_ffi.string(signal_name_cstr))
+        result.append(_ffi.string(signal_name_cstr).decode())
     return result
 
 def control_names():
@@ -153,7 +153,7 @@ def control_names():
         err = _dl.geopm_pio_control_name(control_idx, name_max, control_name_cstr)
         if err < 0:
             raise RuntimeError('geopm_pio_control_name() failed: {}'.format(error.message(err)))
-        result.append(_ffi.string(control_name_cstr))
+        result.append(_ffi.string(control_name_cstr).decode())
     return result
 
 def signal_domain_type(signal_name):
@@ -177,7 +177,7 @@ def signal_domain_type(signal_name):
     """
     global _ffi
     global _dl
-    signal_name_cstr = _ffi.new("char[]", str(signal_name))
+    signal_name_cstr = _ffi.new("char[]", signal_name.encode())
     result = _dl.geopm_pio_signal_domain_type(signal_name_cstr)
     if result < 0:
         raise RuntimeError('geopm_pio_signal_domain_type() failed: {}'.format(error.message(result)))
@@ -203,7 +203,7 @@ def control_domain_type(control_name):
     """
     global _ffi
     global _dl
-    control_name_cstr = _ffi.new("char[]", str(control_name))
+    control_name_cstr = _ffi.new("char[]", control_name.encode())
     result = _dl.geopm_pio_control_domain_type(control_name_cstr)
     if result < 0:
         raise RuntimeError('geopm_pio_control_domain_type() failed: {}'.format(error.message(result)))
@@ -231,7 +231,7 @@ def read_signal(signal_name, domain_type, domain_idx):
     global _ffi
     global _dl
     result_cdbl = _ffi.new("double*")
-    signal_name_cstr = _ffi.new("char[]", str(signal_name))
+    signal_name_cstr = _ffi.new("char[]", signal_name.encode())
     domain_type = topo.domain_type(domain_type)
     err = _dl.geopm_pio_read_signal(signal_name_cstr, domain_type, domain_idx, result_cdbl)
     if err < 0:
@@ -257,7 +257,7 @@ def write_control(control_name, domain_type, domain_idx, setting):
     """
     global _ffi
     global _dl
-    control_name_cstr = _ffi.new("char[]", str(control_name))
+    control_name_cstr = _ffi.new("char[]", control_name.encode())
     domain_type = topo.domain_type(domain_type)
     err = _dl.geopm_pio_write_control(control_name_cstr, domain_type, domain_idx, setting)
     if err < 0:
@@ -291,7 +291,7 @@ def push_signal(signal_name, domain_type, domain_idx):
     """
     global _ffi
     global _dl
-    signal_name_cstr = _ffi.new("char[]", str(signal_name))
+    signal_name_cstr = _ffi.new("char[]", signal_name.encode())
     domain_type = topo.domain_type(domain_type)
     result = _dl.geopm_pio_push_signal(signal_name_cstr, domain_type, domain_idx)
     if result < 0:
@@ -327,9 +327,8 @@ def push_control(control_name, domain_type, domain_idx):
     """
     global _ffi
     global _dl
-    control_name_cstr = _ffi.new("char[]", str(control_name))
-    if type(domain_type) is str:
-        domain_type = topo.domain_type(domain_type)
+    control_name_cstr = _ffi.new("char[]", control_name.encode())
+    domain_type = topo.domain_type(domain_type)
     result = _dl.geopm_pio_push_control(control_name_cstr, domain_type, domain_idx)
     if result < 0:
         raise RuntimeError('geopm_pio_push_control() failed: {}'.format(error.message(result)))
@@ -434,12 +433,12 @@ def signal_description(signal_name):
     global _ffi
     global _dl
     name_max = 1024
-    signal_name_cstr = _ffi.new("char[]", str(signal_name))
+    signal_name_cstr = _ffi.new("char[]", signal_name.encode())
     result_cstr = _ffi.new("char[]", name_max)
     err = _dl.geopm_pio_signal_description(signal_name_cstr, name_max, result_cstr)
     if err < 0:
         raise RuntimeError('geopm_pio_signal_description() failed: {}'.format(error.message(err)))
-    return _ffi.string(result_cstr)
+    return _ffi.string(result_cstr).decode()
 
 def control_description(control_name):
     """Get a description of a control.  A description should include the
@@ -456,9 +455,9 @@ def control_description(control_name):
     global _ffi
     global _dl
     name_max = 1024
-    control_name_cstr = _ffi.new("char[]", str(control_name))
+    control_name_cstr = _ffi.new("char[]", control_name.encode())
     result_cstr = _ffi.new("char[]", name_max)
     err = _dl.geopm_pio_control_description(control_name_cstr, name_max, result_cstr)
     if err < 0:
         raise RuntimeError('geopm_pio_control_description() failed: {}'.format(error.message(err)))
-    return _ffi.string(result_cstr)
+    return _ffi.string(result_cstr).decode()
