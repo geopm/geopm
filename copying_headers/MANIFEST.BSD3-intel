@@ -65,6 +65,7 @@ scripts/test/analysis_helper.py
 scripts/test/mock_report.py
 scripts/test/geopm_context.py
 scripts/test/geopmpy_test.sh
+scripts/test/check_python3_compatibility.sh
 src/Agent.cpp
 src/Agent.hpp
 src/Agg.cpp
