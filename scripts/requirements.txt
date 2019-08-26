@@ -10,3 +10,9 @@ cffi>=1.6.0
 pyyaml>=5.1.0
 mock>=3.0.0
 future>=0.17.1
+# Astroid is a dependency for pylint. Versions less than 2.x.x are compatible
+# with python 2. 1.6.2 through 1.6.5 have a performance regression that makes
+# pylint take a long time to run on our files with Pandas dependencies. So
+# for python 2 installations, pin astroid to a version without the regression.
+astroid==1.6.1; python_version=='2.7'
+pylint>=1.9.5
