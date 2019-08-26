@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41b67d32_49623b68",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-08-26T18:48:22Z",
+      "side": 0,
+      "message": "skip decorators in different.",
+      "range": {
+        "startLine": 113,
+        "startChar": 1,
+        "endLine": 113,
+        "endChar": 31
+      },
+      "revId": "1497ae01e1ca472cc154e1f8ab248e0e2a3e410c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
