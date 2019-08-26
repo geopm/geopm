@@ -31,12 +31,13 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+from __future__ import absolute_import
 import os
 import sys
 import unittest
 from collections import defaultdict
-from analysis_helper import *
-import mock_report
+from .analysis_helper import *
+from . import mock_report
 
 
 power_budget = 400

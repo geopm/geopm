@@ -32,6 +32,7 @@
 """
 GEOPM Plotter - Used to produce plots and other analysis files from report and/or trace files.
 """
+from __future__ import absolute_import
 
 import sys
 import os
