@@ -98,15 +98,17 @@ class AppOutput(object):
         self._region_names = None
 
         if reports:
-            if type(reports) is str:
-                report_glob = os.path.join(dir_name, reports)
-                report_paths = natsorted(glob.glob(report_glob))
-                if len(report_paths) == 0:
-                    raise RuntimeError('No report files found with pattern {}.'.format(report_glob))
-            elif type(reports) is list:
+            if type(reports) is list:
                 report_paths = [os.path.join(dir_name, path) for path in reports]
             else:
-                raise TypeError('AppOutput: reports must be a list of paths or a glob pattern')
+                report_glob = os.path.join(dir_name, reports)
+                try:
+                    report_paths = glob.glob(report_glob)
+                except TypeError:
+                    raise TypeError('AppOutput: reports must be a list of paths or a glob pattern')
+                report_paths = natsorted(report_paths)
+                if len(report_paths) == 0:
+                    raise RuntimeError('No report files found with pattern {}.'.format(report_glob))
 
             self._all_paths.extend(report_paths)
 
@@ -153,15 +155,17 @@ class AppOutput(object):
                 self.parse_reports(report_paths, verbose)
 
         if traces:
-            if type(traces) is str:
-                trace_glob = os.path.join(dir_name, traces)
-                trace_paths = natsorted(glob.glob(trace_glob))
-                if len(trace_paths) == 0:
-                    raise RuntimeError('No trace files found with pattern {}.'.format(trace_glob))
-            elif type(traces) is list:
+            if type(traces) is list:
                 trace_paths = [os.path.join(dir_name, path) for path in traces]
             else:
-                raise TypeError('AppOutput: traces must be a list of paths or a glob pattern')
+                trace_glob = os.path.join(dir_name, traces)
+                try:
+                    trace_paths = glob.glob(trace_glob)
+                except TypeError:
+                    raise TypeError('AppOutput: traces must be a list of paths or a glob pattern')
+                trace_paths = natsorted(trace_paths)
+                if len(trace_paths) == 0:
+                    raise RuntimeError('No trace files found with pattern {}.'.format(trace_glob))
 
             self._all_paths.extend(trace_paths)
             self._index_tracker.reset()
@@ -1292,7 +1296,7 @@ class AgentConf(object):
 
 class RawReport(object):
     def __init__(self, path):
-        with open(path) as in_fid, tempfile.TemporaryFile() as out_fid:
+        with open(path) as in_fid, tempfile.TemporaryFile(mode='w+t') as out_fid:
             out_fid.write('GEOPM Meta Data:\n')
             line = in_fid.readline()
             version = line.split()[2]
