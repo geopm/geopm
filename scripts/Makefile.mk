@@ -72,6 +72,7 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/test/analysis_helper.py \
               scripts/test/mock_report.py \
               scripts/test/geopmpy_test.sh \
+              scripts/test/check_python3_compatibility.sh \
               # end
 
 PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
@@ -143,7 +144,8 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestTopo.test_domain_name_type \
                # end
 
-TESTS += $(PYTEST_TESTS)
+TESTS += scripts/test/check_python3_compatibility.sh \
+	 $(PYTEST_TESTS)
 
 pytest-checkprogs: $(PYTEST_TESTS)
 
