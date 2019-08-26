@@ -22,6 +22,30 @@
       "revId": "1bd3bff4e617b850a010b9c75b9eb387ba6e63ca",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "917e9b05_e63ca805",
+        "filename": "src/Endpoint.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-26T21:00:47Z",
+      "side": 1,
+      "message": "The unit tests use mocks, but I\u0027m in favor of moving all the environment calls out if possible.",
+      "parentUuid": "b1c2c749_ae71f4c0",
+      "range": {
+        "startLine": 153,
+        "startChar": 59,
+        "endLine": 153,
+        "endChar": 82
+      },
+      "revId": "1bd3bff4e617b850a010b9c75b9eb387ba6e63ca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
