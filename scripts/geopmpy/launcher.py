@@ -54,6 +54,7 @@ import glob
 import shlex
 import stat
 import textwrap
+import io
 
 from collections import OrderedDict
 from geopmpy import __version__
@@ -443,35 +444,45 @@ class Launcher(object):
         else:
             is_geopmctl = False
 
-        if 'fileno' in dir(stdout) and 'fileno' in dir(stderr):
+        # Popen stream redirection only works with things that can be written
+        # through file descriptors. The launcher may be given a StringIO or some
+        # other writable object without a file descriptor. Use PIPE and
+        # communicate() so we can work in those cases.
+        #
+        # Why not just always use PIPE? It buffers all output until the process
+        # terminates, which could be unwanted when live output is desired, and
+        # can consume memory unnecessarily.
+        try:
+            popen_stdout = stdout.fileno()
+            popen_stderr = stderr.fileno()
             if is_geopmctl:
-                # Need to set OMP_NUM_THREADS to 1 in the env before the run
                 stdout.write("Controller launch config: {}\n".format(geopm_argv))
                 stdout.flush()
-                self.config.set_omp_num_threads(1)
-                geopm_pid = subprocess.Popen(geopm_argv, env=self.environ(),
-                                             stdout=stdout, stderr=stderr, shell=True)
-            if self.is_geopm_enabled:
-                self.config.set_omp_num_threads(self.cpu_per_rank)
-            pid = subprocess.Popen(argv_mod, env=self.environ(),
-                                   stdout=stdout, stderr=stderr, shell=True)
-            pid.communicate()
-            if is_geopmctl:
-                geopm_pid.communicate()
-        else:
-            if is_geopmctl:
-                self.config.set_omp_num_threads(1)
-                geopm_pid = subprocess.Popen(geopm_argv, env=self.environ(),
-                                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-            if self.is_geopm_enabled:
-                self.config.set_omp_num_threads(self.cpu_per_rank)
-            pid = subprocess.Popen(argv_mod, env=self.environ(),
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-            stdout_str, stderr_str = pid.communicate()
+        except (io.UnsupportedOperation, AttributeError):
+            # StringIO.StringIO objects raise UnsupportedOperation, but
+            # io.StringIO objects have no fileno() member.
+            popen_stdout = subprocess.PIPE
+            popen_stderr = subprocess.PIPE
+
+        if is_geopmctl:
+            # Need to set OMP_NUM_THREADS to 1 in the env before the run
+            self.config.set_omp_num_threads(1)
+            geopm_pid = subprocess.Popen(geopm_argv, env=self.environ(),
+                                         stdout=popen_stdout, stderr=popen_stderr,
+                                         shell=True)
+        if self.is_geopm_enabled:
+            self.config.set_omp_num_threads(self.cpu_per_rank)
+        pid = subprocess.Popen(argv_mod, env=self.environ(),
+                               stdout=popen_stdout, stderr=popen_stderr,
+                               shell=True)
+        stdout_str, stderr_str = pid.communicate()
+        if subprocess.PIPE in (popen_stdout, popen_stderr):
             stdout.write(stdout_str)
             stderr.write(stderr_str)
-            if is_geopmctl:
-                stdout_str, stderr_str = geopm_pid.communicate()
+
+        if is_geopmctl:
+            stdout_str, stderr_str = geopm_pid.communicate()
+            if subprocess.PIPE in (popen_stdout, popen_stderr):
                 stdout.write(stdout_str)
                 stderr.write(stderr_str)
 
