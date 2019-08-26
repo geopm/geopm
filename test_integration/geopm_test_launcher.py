@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation
 #
@@ -41,7 +42,7 @@ import math
 import shlex
 import unittest
 
-import geopm_context
+from . import geopm_context
 import geopmpy.launcher
 
 

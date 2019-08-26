@@ -31,12 +31,13 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+from __future__ import absolute_import
 import os
 import sys
 import unittest
 from collections import defaultdict
 from StringIO import StringIO
-from analysis_helper import *
+from .analysis_helper import *
 
 try:
     class MockAnalysis(geopmpy.analysis.Analysis):

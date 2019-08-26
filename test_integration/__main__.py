@@ -31,8 +31,9 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+from __future__ import absolute_import
 import unittest
-from __init__ import *
+from .__init__ import *
 
 if __name__ == '__main__':
     unittest.main()

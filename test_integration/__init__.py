@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation
 #
@@ -30,7 +31,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import geopm_context
-from geopm_test_integration import *
-from test_ee_stream_dgemm_mix import *
+from . import geopm_context
+from .geopm_test_integration import *
+from .test_ee_stream_dgemm_mix import *
 from geopmpy.version import __version__

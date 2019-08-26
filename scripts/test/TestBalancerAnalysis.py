@@ -31,10 +31,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+from __future__ import absolute_import
 import os
 import unittest
-from analysis_helper import *
-import mock_report
+from .analysis_helper import *
+from . import mock_report
 
 
 @unittest.skipIf(g_skip_analysis_test, g_skip_analysis_ex)

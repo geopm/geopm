@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation
 #
@@ -33,7 +34,7 @@
 import os
 import unittest
 
-import geopm_test_launcher
+from . import geopm_test_launcher
 
 def skip_unless_platform_bdx():
     fam, mod = geopm_test_launcher.get_platform()
