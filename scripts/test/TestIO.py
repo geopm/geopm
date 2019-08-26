@@ -31,6 +31,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+from __future__ import absolute_import
+
 import unittest
 import os
 import tempfile
@@ -39,7 +41,7 @@ import mock
 from collections import Counter
 from contextlib import contextmanager
 
-import geopm_context
+from . import geopm_context
 import geopmpy.io
 
 def touch_file(file_path):

@@ -37,9 +37,11 @@ signals and writing controls from system components.
 
 """
 
+from __future__ import absolute_import
+
 import cffi
-import topo
-import error
+from . import topo
+from . import error
 
 
 _ffi = cffi.FFI()

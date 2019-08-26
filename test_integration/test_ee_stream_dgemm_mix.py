@@ -35,15 +35,17 @@
 
 """
 
+from __future__ import absolute_import
+
 import sys
 import re
 import unittest
 import os
 import glob
-import geopm_context
+from . import geopm_context
 import geopmpy.io
-import geopm_test_launcher
-import util
+from . import geopm_test_launcher
+from . import util
 
 _g_skip_launch = False
 

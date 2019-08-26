@@ -40,6 +40,8 @@ the geopmpy.launcher.main() function.  See the geopmlauncher(1) man
 page for details about the command line interface.
 """
 
+from __future__ import absolute_import
+
 import sys
 import os
 import argparse

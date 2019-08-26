@@ -31,11 +31,13 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+from __future__ import absolute_import
+
 import sys
 
 try:
     import pandas
-    import geopm_context
+    from . import geopm_context
     import geopmpy.analysis
     import geopmpy.io
     g_skip_analysis_test = False
