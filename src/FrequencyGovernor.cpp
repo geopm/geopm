@@ -107,8 +107,8 @@ namespace geopm
 
     void FrequencyGovernorImp::init_platform_io(void)
     {
-        m_last_freq = std::vector<double>(m_freq_ctl_domain_type, NAN);
         const int num_freq_ctl_domain = m_platform_topo.num_domain(m_freq_ctl_domain_type);
+        m_last_freq = std::vector<double>(num_freq_ctl_domain, NAN);
         for (int ctl_dom_idx = 0; ctl_dom_idx != num_freq_ctl_domain; ++ctl_dom_idx) {
             m_control_idx.push_back(m_platform_io.push_control("FREQUENCY",
                                                                m_freq_ctl_domain_type,
