@@ -22,6 +22,30 @@
       "revId": "343463299e0ac4e8c64cab0c91690f7cbb68398a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75e31fb3_33a0f0eb",
+        "filename": "src/Agent.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-26T20:33:14Z",
+      "side": 1,
+      "message": "it needs to include Endpoint.hpp for the factory function, but the Endpoint implementation depends on Agent",
+      "parentUuid": "a27448da_f3c0efa4",
+      "range": {
+        "startLine": 426,
+        "startChar": 0,
+        "endLine": 426,
+        "endChar": 58
+      },
+      "revId": "343463299e0ac4e8c64cab0c91690f7cbb68398a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
