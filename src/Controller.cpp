@@ -40,6 +40,7 @@
 #include "Environment.hpp"
 #include "Reporter.hpp"
 #include "Tracer.hpp"
+#include "PolicyTracer.hpp"
 #include "Exception.hpp"
 #include "Comm.hpp"
 #include "PlatformTopo.hpp"
@@ -180,6 +181,7 @@ namespace geopm
                                                                 platform_topo(),
                                                                 ppn1_comm->rank())),
                      nullptr,
+                     std::unique_ptr<PolicyTracer>(new PolicyTracerImp()),
                      std::vector<std::unique_ptr<Agent> >{},
                      EndpointUser::create_endpoint_user(environment().policy()))
     {
@@ -195,6 +197,7 @@ namespace geopm
                            std::shared_ptr<ApplicationIO> application_io,
                            std::unique_ptr<Reporter> reporter,
                            std::unique_ptr<Tracer> tracer,
+                           std::unique_ptr<PolicyTracer> policy_tracer,
                            std::vector<std::unique_ptr<Agent> > level_agent,
                            std::unique_ptr<EndpointUser> endpoint)
         : m_comm(comm)
@@ -209,9 +212,11 @@ namespace geopm
         , m_application_io(std::move(application_io))
         , m_reporter(std::move(reporter))
         , m_tracer(std::move(tracer))
+        , m_policy_tracer(std::move(policy_tracer))
         , m_agent(std::move(level_agent))
         , m_is_root(m_num_level_ctl == m_root_level)
         , m_in_policy(m_num_send_down, NAN)
+        , m_last_policy(m_num_send_down, 0.0)
         , m_out_policy(m_num_level_ctl)
         , m_in_sample(m_num_level_ctl)
         , m_out_sample(m_num_send_up, NAN)
@@ -347,8 +352,12 @@ namespace geopm
     {
         bool do_send = false;
         if (m_is_root) {
-            /// @todo Return an is_updated bool.
             m_endpoint->read_policy(m_in_policy);
+
+            if (m_in_policy != m_last_policy) {
+                m_policy_tracer->update(m_in_policy);
+                m_last_policy = m_in_policy;
+            }
             do_send = true;
         }
         else {

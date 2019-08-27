@@ -48,6 +48,7 @@ namespace geopm
     class ApplicationIO;
     class Reporter;
     class Tracer;
+    class PolicyTracer;
     class TreeComm;
     class Agent;
 
@@ -71,6 +72,7 @@ namespace geopm
                        std::shared_ptr<ApplicationIO> application_io,
                        std::unique_ptr<Reporter> reporter,
                        std::unique_ptr<Tracer> tracer,
+                       std::unique_ptr<PolicyTracer> policy_tracer,
                        std::vector<std::unique_ptr<Agent> > level_agent,
                        std::unique_ptr<EndpointUser> endpoint);
             virtual ~Controller();
@@ -147,9 +149,11 @@ namespace geopm
             std::shared_ptr<ApplicationIO> m_application_io;
             std::unique_ptr<Reporter> m_reporter;
             std::unique_ptr<Tracer> m_tracer;
+            std::unique_ptr<PolicyTracer> m_policy_tracer;
             std::vector<std::unique_ptr<Agent> > m_agent;
             const bool m_is_root;
             std::vector<double> m_in_policy;
+            std::vector<double> m_last_policy;
             std::vector<std::vector<std::vector<double> > > m_out_policy;
             std::vector<std::vector<std::vector<double> > > m_in_sample;
             std::vector<double> m_out_sample;
