@@ -37,7 +37,6 @@ from future import standard_library
 standard_library.install_aliases()
 from builtins import str
 from builtins import object
-from past.utils import old_div
 import os
 import sys
 import socket
@@ -257,7 +256,7 @@ class TestLauncher(object):
     def set_cpu_per_rank(self):
         try:
             rank_per_node = int(math.ceil(float(self._num_rank) / float(self._num_node)))
-            self._cpu_per_rank = int(math.floor(old_div(self._num_cpu, rank_per_node)))
+            self._cpu_per_rank = int(self._num_cpu // rank_per_node)
         except (AttributeError, TypeError):
             pass
 

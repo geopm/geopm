@@ -39,7 +39,6 @@ from __future__ import division
 from builtins import zip
 from builtins import str
 from builtins import range
-from past.utils import old_div
 from builtins import object
 import argparse
 import sys
@@ -381,7 +380,7 @@ class BalancerAnalysis(Analysis):
 
     def summary_process(self, parse_output):
         report_df = parse_output.extract_index_from_profile()
-        report_df['power'] = old_div(report_df['energy_pkg'], report_df['runtime'])
+        report_df['power'] = report_df['energy_pkg'] / report_df['runtime']
         report_df.index = report_df.index.set_names('power_budget', level='name')
 
         # Data reduction - mean (if running more than 1 iteration, noop otherwise)
@@ -416,7 +415,7 @@ class BalancerAnalysis(Analysis):
             # Calculate percentage improvements
             a = epoch_report.loc[idx[:, 'power_governor', :], ['runtime', 'energy_pkg']].reset_index(level='agent', drop=True)
             b = epoch_report.loc[idx[:, 'power_balancer', :], ['runtime', 'energy_pkg']].reset_index(level='agent', drop=True)
-            improvement = old_div((a - b), a)  # Result * 100 is percentage
+            improvement = (a - b) / a  # Result * 100 is percentage
 
             out_file.write('Balancer vs. Governor Improvement:\n\n{}\n\n'.format(improvement))
         if self._verbose:
@@ -467,7 +466,7 @@ class BalancerAnalysis(Analysis):
         if self._metric == 'power':
             rge = ref_epoch_data['energy_pkg']
             rgr = ref_epoch_data['runtime']
-            reference_g = (old_div(rge, rgr)).groupby(level='name')
+            reference_g = (rge / rgr).groupby(level='name')
         else:
             reference_g = ref_epoch_data[self._metric].groupby(level='name')
 
@@ -481,7 +480,7 @@ class BalancerAnalysis(Analysis):
         if self._metric == 'power':
             tge = tar_epoch_data['energy_pkg']
             tgr = tar_epoch_data['runtime']
-            target_g = (old_div(tge, tgr)).groupby(level='name')
+            target_g = (tge / tgr).groupby(level='name')
         else:
             target_g = tar_epoch_data[self._metric].groupby(level='name')
 
@@ -494,9 +493,9 @@ class BalancerAnalysis(Analysis):
 
         if self._speedup:  # Plot the inverse of the target data to show speedup as a positive change
             df = df.div(df['reference_mean'], axis='rows')
-            df['target_mean'] = old_div(1, df['target_mean'])
-            df['target_max'] = old_div(1, df['target_max'])
-            df['target_min'] = old_div(1, df['target_min'])
+            df['target_mean'] = 1 / df['target_mean']
+            df['target_max'] = 1 / df['target_max']
+            df['target_min'] = 1 / df['target_min']
 
         # Convert the maxes and mins to be deltas from the mean; required for the errorbar API
         df['reference_max_delta'] = df['reference_max'] - df['reference_mean']
@@ -649,9 +648,9 @@ class NodeEfficiencyAnalysis(Analysis):
         config = geopmpy.plotter.ReportConfig(output_dir=os.path.join(self._output_dir, 'figures'))
         config.output_types = ['png']
         config.verbose = True
-        config.min_drop = old_div(self._min_freq, 1e9)
-        config.max_drop = old_div((self._max_freq - self._step_freq), 1e9)
-        bin_size = old_div(self._step_freq, 1e9)
+        config.min_drop = self._min_freq / 1e9
+        config.max_drop = (self._max_freq - self._step_freq) / 1e9
+        bin_size = self._step_freq / 1e9
 
         for target_power in self._power_caps:
             gov_data = all_gov_data[target_power]
@@ -748,7 +747,7 @@ class NodePowerAnalysis(Analysis):
         region_data = parse_output.get_report_data(profile=profile, region='epoch')
         energy_data = region_data.groupby('node_name').mean()['energy_pkg'].sort_values()
         runtime_data = region_data.groupby('node_name').mean()['runtime'].sort_values()
-        power_data = old_div(energy_data, runtime_data)
+        power_data = energy_data / runtime_data
         power_data = power_data.sort_values()
         power_data = pandas.DataFrame(power_data, columns=['power'])
         return power_data
@@ -943,18 +942,18 @@ class FreqSweepAnalysis(Analysis):
 
         # Calculate the energy/runtime comparisons against the ref_freq
         ref_energy = means_df.loc[idx[:, ref_freq], ]['energy_pkg'].reset_index(level='freq_mhz', drop=True)
-        es = pandas.Series(old_div((means_df['energy_pkg'] - ref_energy), ref_energy), name='DCEngVar_%')
+        es = pandas.Series((means_df['energy_pkg'] - ref_energy) / ref_energy, name='DCEngVar_%')
         means_df = pandas.concat([means_df, es], axis=1)
 
         ref_runtime = means_df.loc[idx[:, ref_freq], ]['runtime'].reset_index(level='freq_mhz', drop=True)
-        rs = pandas.Series(old_div((means_df['runtime'] - ref_runtime), ref_runtime), name='TimeVar_%')
+        rs = pandas.Series((means_df['runtime'] - ref_runtime) / ref_runtime, name='TimeVar_%')
         means_df = pandas.concat([means_df, rs], axis=1)
 
         bs = pandas.Series(means_df['runtime'] * (1.0 + self._perf_margin), name='runtime_bound')
         means_df = pandas.concat([means_df, bs], axis=1)
 
         # Calculate power and kwh
-        p = pandas.Series(old_div(means_df['energy_pkg'], means_df['runtime']), name='power')
+        p = pandas.Series(means_df['energy_pkg'] / means_df['runtime'], name='power')
         means_df = pandas.concat([means_df, p], axis=1)
 
         # Modify column order so that runtime bound occurs just after runtime
@@ -1028,17 +1027,17 @@ def baseline_comparison(parse_output, comp_name, sweep_output):
     comp_means_df = comp_df.groupby(['region', 'name'])[cols].mean()
 
     # Add power column
-    p = pandas.Series(old_div(baseline_means_df['energy_pkg'], baseline_means_df['runtime']), name='power')
+    p = pandas.Series(baseline_means_df['energy_pkg'] / baseline_means_df['runtime'], name='power')
     baseline_means_df = pandas.concat([baseline_means_df, p], axis=1)
-    p = pandas.Series(old_div(comp_means_df['energy_pkg'], comp_means_df['runtime']), name='power')
+    p = pandas.Series(comp_means_df['energy_pkg'] / comp_means_df['runtime'], name='power')
     comp_means_df = pandas.concat([comp_means_df, p], axis=1)
 
     # Calculate energy savings
-    es = pandas.Series(old_div((baseline_means_df['energy_pkg'] - comp_means_df['energy_pkg'].reset_index('name', drop=True)), baseline_means_df['energy_pkg']), name='energy_savings') * 100
+    es = pandas.Series((baseline_means_df['energy_pkg'] - comp_means_df['energy_pkg'].reset_index('name', drop=True)) / baseline_means_df['energy_pkg'], name='energy_savings') * 100
     baseline_means_df = pandas.concat([baseline_means_df, es], axis=1)
 
     # Calculate runtime savings
-    rs = pandas.Series(old_div((baseline_means_df['runtime'] - comp_means_df['runtime'].reset_index('name', drop=True)), baseline_means_df['runtime']), name='runtime_savings') * 100
+    rs = pandas.Series((baseline_means_df['runtime'] - comp_means_df['runtime'].reset_index('name', drop=True)) / baseline_means_df['runtime'], name='runtime_savings') * 100
     baseline_means_df = pandas.concat([baseline_means_df, rs], axis=1)
 
     return baseline_means_df

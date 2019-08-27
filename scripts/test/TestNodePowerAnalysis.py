@@ -35,7 +35,6 @@ from __future__ import absolute_import
 from __future__ import division
 
 from builtins import range
-from past.utils import old_div
 import unittest
 from test.analysis_helper import *
 from test import mock_report
@@ -71,8 +70,8 @@ class TestNodePowerAnalysis(unittest.TestCase):
             'runtime': (lambda node, region, param: 500.0 + self._node_names.index(node)),
             'id': (lambda node, region, param: 'bad'),
             'power': (lambda node, region, param:
-                old_div(self._gen_val['energy_pkg'](node, region, param),
-                self._gen_val['runtime'](node, region, param))),
+                self._gen_val['energy_pkg'](node, region, param) /
+                self._gen_val['runtime'](node, region, param)),
         }
 
     def tearDown(self):

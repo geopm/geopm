@@ -37,7 +37,6 @@ from __future__ import division
 
 from builtins import zip
 from builtins import map
-from past.utils import old_div
 import math
 import numpy as np
 import sys
@@ -114,7 +113,7 @@ def power_and_temperature_stats(nids, traces):
         Z = 0
         per_node_stats[nid] = {'power': 0, 'temperature': 0}
         for ldict in trace_iterate(trace_file):
-            per_node_stats[nid]['power'] += old_div(ldict['energy_package_delta'],ldict['time_delta'])
+            per_node_stats[nid]['power'] += ldict['energy_package_delta'] / ldict['time_delta']
             per_node_stats[nid]['temperature'] += (ldict['temperature_core_i'] + ldict['temperature_core_f'])*0.5
             Z += 1.
         global_stats['power'] += per_node_stats[nid]['power']
@@ -170,7 +169,7 @@ def compute_likelihood(nids, traces, mu, sigma, dict_to_signal):
             dist = ((signal - mu) * siginv * (signal - mu).T).item(0)
             likelihood += ldict['time_delta'] * dist
             duration += ldict['time_delta']
-        logltable[nid] = old_div(likelihood,duration)
+        logltable[nid] = likelihood / duration
 
     return logltable
 
@@ -199,8 +198,8 @@ if __name__ == '__main__':
     nids = [int(trf[-5:]) for trf in traces]
 
     dict_to_signal = lambda ldict: np.matrix([
-        math.log(old_div(ldict['energy_package_delta'],ldict['time_delta'])),
-        math.log(old_div(ldict['cycles_thread_delta'],ldict['cycles_reference_delta'])),
+        math.log(ldict['energy_package_delta'] / ldict['time_delta']),
+        math.log(ldict['cycles_thread_delta'] / ldict['cycles_reference_delta']),
         (ldict['temperature_core_i'] + ldict['temperature_core_f'])*0.5,
         ldict['row'],
     ])
