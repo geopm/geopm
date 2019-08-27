@@ -429,6 +429,9 @@ Application Totals:
 
 class TestIO(unittest.TestCase):
     def setUp(self):
+        if 'assertCountEqual' not in dir(self):
+            # Python 3 replaces assertItemsEqual with assertCountEqual
+            self.assertCountEqual = self.assertItemsEqual
         self._test_directory = tempfile.mkdtemp()
         self._report_path = os.path.join(self._test_directory, 'geopmpy-io-test-raw-report')
         with open(self._report_path, 'w') as fid:
@@ -473,7 +476,7 @@ class TestIO(unittest.TestCase):
         a dataframe.
         """
         with self_cleaning_app_output(reports=self._report_path) as app_output:
-            self.assertItemsEqual(['mcfly11', 'mcfly12'], app_output.get_node_names())
+            self.assertCountEqual(['mcfly11', 'mcfly12'], app_output.get_node_names())
             start_time = app_output.get_report_data().index.get_level_values('start_time').unique()
             self.assertEqual(1, len(start_time))
             self.assertEqual('Thu May 30 14:38:17 2019', start_time[0])
