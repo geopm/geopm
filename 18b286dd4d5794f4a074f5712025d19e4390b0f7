@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dba5114a_1cbc2981",
+        "filename": "ronn/geopm_policystore_c.3.ronn",
+        "patchSetId": 17
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-08-27T19:37:27Z",
+      "side": 1,
+      "message": "so if user provides a buffer larger than required for the agent, we error?  this is because we aren\u0027t returning (by reference) the number of slots we filled?  nan or similar isn\u0027t enough for the extra slots?  i\u0027m sure you guys had conversations about this that i missed.",
+      "range": {
+        "startLine": 80,
+        "startChar": 7,
+        "endLine": 80,
+        "endChar": 39
+      },
+      "revId": "18b286dd4d5794f4a074f5712025d19e4390b0f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6cb0eb95_bb6dca54",
+        "filename": "ronn/geopm_policystore_c.3.ronn",
+        "patchSetId": 17
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-08-27T19:37:27Z",
+      "side": 1,
+      "message": "such as too many or too few policy vals for a particular agent and connection issues?",
+      "range": {
+        "startLine": 89,
+        "startChar": 30,
+        "endLine": 89,
+        "endChar": 57
+      },
+      "revId": "18b286dd4d5794f4a074f5712025d19e4390b0f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b1251b6_8d3a8035",
+        "filename": "scripts/geopmpy/policy_store.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-08-27T19:37:27Z",
+      "side": 1,
+      "message": "interesting that we pass instead of throwing \u0027unimplemented\u0027 but no need to rev patch for this",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 41,
+        "endChar": 8
+      },
+      "revId": "18b286dd4d5794f4a074f5712025d19e4390b0f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
