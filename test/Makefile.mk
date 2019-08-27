@@ -225,6 +225,8 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/PlatformTopoTest.ppc_num_domain \
               test/gtest_links/PlatformTopoTest.singleton_construction \
               test/gtest_links/PlatformTopoTest.call_c_wrappers \
+              test/gtest_links/PolicyTracerTest.construct_update_destruct \
+              test/gtest_links/PolicyTracerTest.format \
               test/gtest_links/PowerBalancerAgentTest.leaf_agent \
               test/gtest_links/PowerBalancerAgentTest.power_balancer_agent \
               test/gtest_links/PowerBalancerAgentTest.tree_agent \
@@ -389,6 +391,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/MonitorAgentTest.cpp \
                           test/PlatformIOTest.cpp \
                           test/PlatformTopoTest.cpp \
+                          test/PolicyTracerTest.cpp \
                           test/PowerBalancerAgentTest.cpp \
                           test/PowerBalancerTest.cpp \
                           test/PowerGovernorAgentTest.cpp \

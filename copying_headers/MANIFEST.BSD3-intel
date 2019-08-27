@@ -156,6 +156,8 @@ src/PolicyStore.cpp
 src/PolicyStore.hpp
 src/PolicyStoreImp.cpp
 src/PolicyStoreImp.hpp
+src/PolicyTracer.cpp
+src/PolicyTracer.hpp
 src/PowerBalancer.cpp
 src/PowerBalancer.hpp
 src/PowerBalancerImp.hpp
@@ -304,6 +306,7 @@ test/ModelApplicationTest.cpp
 test/MonitorAgentTest.cpp
 test/PlatformIOTest.cpp
 test/PlatformTopoTest.cpp
+test/PolicyTracerTest.cpp
 test/PowerBalancerAgentTest.cpp
 test/PowerBalancerTest.cpp
 test/PowerGovernorAgentTest.cpp
