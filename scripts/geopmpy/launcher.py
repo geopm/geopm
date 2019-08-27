@@ -52,13 +52,13 @@ import signal
 import itertools
 import glob
 import shlex
-import stat
 import textwrap
 import io
 import locale
 
 from collections import OrderedDict
 from geopmpy import __version__
+
 
 class Factory(object):
     def __init__(self):
@@ -153,13 +153,13 @@ class Config(object):
         parser.add_argument('--geopm-trace', dest='trace', type=str)
         parser.add_argument('--geopm-trace-signals', dest='trace_signals', type=str)
         parser.add_argument('--geopm-trace-profile', dest='trace_profile', type=str)
+        parser.add_argument('--geopm-trace-endpoint-policy', dest='trace_endpoint_policy', type=str)
         parser.add_argument('--geopm-profile', dest='profile', type=str)
         parser.add_argument('--geopm-ctl', dest='ctl', type=str, default='process')
         parser.add_argument('--geopm-agent', dest='agent', type=str)
         parser.add_argument('--geopm-policy', dest='policy', type=str)
         parser.add_argument('--geopm-shmkey', dest='shmkey', type=str)
         parser.add_argument('--geopm-timeout', dest='timeout', type=str)
-        parser.add_argument('--geopm-endpoint', dest='endpoint', type=str)
         parser.add_argument('--geopm-plugin-path', dest='plugin', type=str)
         parser.add_argument('--geopm-debug-attach', dest='debug_attach', type=str)
         parser.add_argument('--geopm-region-barrier', dest='barrier', action='store_true', default=False)
@@ -173,12 +173,12 @@ class Config(object):
         # copy opts object into self
         self.ctl = opts.ctl
         self.policy = opts.policy
-        self.endpoint = opts.endpoint
         self.report = opts.report
-        self.trace = opts.trace
-        self.trace_profile = opts.trace_profile
-        self.trace_signals = opts.trace_signals
         self.report_signals = opts.report_signals
+        self.trace = opts.trace
+        self.trace_signals = opts.trace_signals
+        self.trace_profile = opts.trace_profile
+        self.trace_endpoint_policy = opts.trace_endpoint_policy
         self.agent = opts.agent
         self.profile = opts.profile
         self.shmkey = opts.shmkey
@@ -224,18 +224,18 @@ class Config(object):
             result['GEOPM_AGENT'] = self.agent
         if self.policy:
             result['GEOPM_POLICY'] = self.policy
-        if self.endpoint:
-            result['GEOPM_ENDPOINT'] = self.endpoint
         if self.report:
             result['GEOPM_REPORT'] = self.report
-        if self.trace:
-            result['GEOPM_TRACE'] = self.trace
-        if self.trace_profile:
-            result['GEOPM_TRACE_PROFILE'] = self.trace_profile
-        if self.trace_signals:
-            result['GEOPM_TRACE_SIGNALS'] = self.trace_signals
         if self.report_signals:
             result['GEOPM_REPORT_SIGNALS'] = self.report_signals
+        if self.trace:
+            result['GEOPM_TRACE'] = self.trace
+        if self.trace_signals:
+            result['GEOPM_TRACE_SIGNALS'] = self.trace_signals
+        if self.trace_profile:
+            result['GEOPM_TRACE_PROFILE'] = self.trace_profile
+        if self.trace_endpoint_policy:
+            result['GEOPM_TRACE_ENDPOINT_POLICY'] = self.trace_endpoint_policy
         if self.shmkey:
             result['GEOPM_SHMKEY'] = self.shmkey
         if self.timeout:
@@ -1038,6 +1038,7 @@ class IMPIExecLauncher(Launcher):
     application mpiexec.hydra.
     """
     _is_once = True
+
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None,
                  reservation=None):
@@ -1106,7 +1107,6 @@ class IMPIExecLauncher(Launcher):
             self.environ_ext['KMP_WARNINGS'] = 'FALSE'
 
             aff_list = self.affinity_list(is_geopmctl)
-            num_mask = len(aff_list)
             mask_zero = ['0' for ii in range(self.num_linux_cpu)]
             mask_list = []
             for cpu_set in aff_list:
@@ -1150,7 +1150,7 @@ class IMPIExecLauncher(Launcher):
             if IMPIExecLauncher._is_once:
                 sys.stderr.write('<geopmpy.launcher> Warning: Hosts not defined, GEOPM may fail to start.  '
                                  'Use "-f <host_file>" or "-hosts" to specify the hostnames of the compute nodes.\n')
-                IMPIExecLauncher._is_once = False;
+                IMPIExecLauncher._is_once = False
 
         if self.is_slurm_enabled:
             result += ['-bootstrap', 'slurm']
@@ -1334,6 +1334,8 @@ GEOPM_OPTIONS:
       --geopm-trace=path       create geopm trace files with base name "path"
       --geopm-trace-profile=path
                                create geopm profile trace files with base name "path"
+      --geopm-trace-endpoint-policy=path
+                               create geopm policy trace files with base name "path"
       --geopm-trace-signals=signals
                                comma-separated list of signals to add as columns
                                in the trace
@@ -1363,7 +1365,6 @@ GEOPM_OPTIONS:
 {}
 
 """.format(wrapper.fill(launchers))
-    indent_str = '      '
 
     try:
         # Print geopm help or version if it appears that documentation was requested
@@ -1385,6 +1386,7 @@ GEOPM_OPTIONS:
         sys.stderr.write("<geopmpy.launcher> {err}\n".format(err=e))
         err = -1
     return err
+
 
 if __name__ == '__main__':
     err = main()

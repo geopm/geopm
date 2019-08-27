@@ -248,6 +248,14 @@ of the values set in the calling environment.
     See documentation for equivalent command line option to
     **geopmlaunch(1)** called `--geopm-trace-signals`.
 
+  * `GEOPM_TRACE_PROFILE`:
+    See documentation for equivalent command line option to
+    **geopmlaunch(1)** called `--geopm-trace-signals`.
+
+  * `GEOPM_TRACE_POLICY`:
+    See documentation for equivalent command line option to
+    **geopmlaunch(1)** called `--geopm-trace-signals`.
+
   * `GEOPM_PROFILE`:
     See documentation for equivalent command line option to
     **geopmlaunch(1)** called `--geopm-profile`.
@@ -263,10 +271,6 @@ of the values set in the calling environment.
   * `GEOPM_POLICY`:
     See documentation for equivalent command line option to
     **geopmlaunch(1)** called `--geopm-policy`.
-
-  * `GEOPM_ENDPOINT`:
-    See documentation for equivalent command line option to
-    **geopmlaunch(1)** called `--geopm-endpoint`.
 
   * `GEOPM_SHMKEY`:
     See documentation for equivalent command line option to

@@ -97,6 +97,7 @@ namespace geopm
                            "GEOPM_REPORT",
                            "GEOPM_TRACE",
                            "GEOPM_TRACE_PROFILE",
+                           "GEOPM_TRACE_ENDPOINT_POLICY",
                            "GEOPM_CTL"})
         , m_name_value_map ({{"GEOPM_COMM" ,"MPIComm"},
                              {"GEOPM_AGENT", "monitor"},
@@ -114,21 +115,22 @@ namespace geopm
     {
         return {"GEOPM_CTL",
                 "GEOPM_REPORT",
+                "GEOPM_REPORT_SIGNALS",
                 "GEOPM_COMM",
                 "GEOPM_POLICY",
                 "GEOPM_AGENT",
                 "GEOPM_SHMKEY",
                 "GEOPM_TRACE",
+                "GEOPM_TRACE_SIGNALS",
                 "GEOPM_TRACE_PROFILE",
+                "GEOPM_TRACE_ENDPOINT_POLICY",
                 "GEOPM_PLUGIN_PATH",
                 "GEOPM_REGION_BARRIER",
                 "GEOPM_TIMEOUT",
                 "GEOPM_DEBUG_ATTACH",
                 "GEOPM_PROFILE",
                 "GEOPM_FREQUENCY_MAP",
-                "GEOPM_MAX_FAN_OUT",
-                "GEOPM_TRACE_SIGNALS",
-                "GEOPM_REPORT_SIGNALS"};
+                "GEOPM_MAX_FAN_OUT"};
     }
 
     void EnvironmentImp::parse_environment()
@@ -240,6 +242,11 @@ namespace geopm
         return lookup("GEOPM_TRACE_PROFILE");
     }
 
+    std::string EnvironmentImp::trace_endpoint_policy(void) const
+    {
+        return lookup("GEOPM_TRACE_ENDPOINT_POLICY");
+    }
+
     std::string EnvironmentImp::profile(void) const
     {
         std::string ret = lookup("GEOPM_PROFILE");
@@ -308,6 +315,11 @@ namespace geopm
     bool EnvironmentImp::do_trace_profile(void) const
     {
         return is_set("GEOPM_TRACE_PROFILE");
+    }
+
+    bool EnvironmentImp::do_trace_endpoint_policy(void) const
+    {
+        return is_set("GEOPM_TRACE_ENDPOINT_POLICY");
     }
 
     bool EnvironmentImp::do_profile(void) const
