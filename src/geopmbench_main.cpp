@@ -37,6 +37,7 @@
 #include <string.h>
 #include <mpi.h>
 #include <limits.h>
+#include <algorithm>
 
 #include "geopm.h"
 #include "geopm_error.h"
@@ -48,6 +49,7 @@ int main(int argc, char **argv)
     int err = 0;
     int rank;
     int verbosity = 0;
+    int do_markup_init = 1;
     uint64_t init_rid;
     char *config_path = NULL;
     const char *usage = "\n"
@@ -138,17 +140,11 @@ int main(int argc, char **argv)
         }
     }
 
+    uint64_t loop_count = 0;
+    std::vector<std::string> region_sequence;
+    std::vector<double> big_o_sequence;
+
     if (!err) {
-        err = geopm_prof_region("model-init", GEOPM_REGION_HINT_UNKNOWN, &init_rid);
-    }
-    if (!err) {
-        err = geopm_prof_enter(init_rid);
-    }
-    if (!err) {
-        // Do application initialization
-        uint64_t loop_count = 0;
-        std::vector<std::string> region_sequence;
-        std::vector<double> big_o_sequence;
         if (config_path) {
             geopm::model_parse_config(config_path, loop_count, region_sequence, big_o_sequence);
         }
@@ -158,8 +154,28 @@ int main(int argc, char **argv)
             region_sequence = {"sleep", "stream", "dgemm", "stream", "all2all"};
             big_o_sequence = {1.0, 1.0, 1.0, 1.0, 1.0};
         }
+
+        if (region_sequence.size() > 0 &&
+            std::all_of(region_sequence.cbegin(), region_sequence.cend(),
+                        [](const std::string &region) {
+                            return (region.find("-unmarked") != std::string::npos);
+                        })) {
+            do_markup_init = 0;
+        }
+    }
+
+    if (!err && do_markup_init == 1) {
+        err = geopm_prof_region("model-init", GEOPM_REGION_HINT_UNKNOWN, &init_rid);
+    }
+    if (!err && do_markup_init == 1) {
+        err = geopm_prof_enter(init_rid);
+    }
+    if (!err) {
+        // Do application initialization
         geopm::ModelApplication app(loop_count, region_sequence, big_o_sequence, verbosity, rank);
-        err = geopm_prof_exit(init_rid);
+        if (do_markup_init == 1) {
+            err = geopm_prof_exit(init_rid);
+        }
         if (!err) {
             // Run application
             app.run();
