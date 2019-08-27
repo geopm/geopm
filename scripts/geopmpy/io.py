@@ -54,9 +54,7 @@ from geopmpy import __version__
 from geopmpy import agent
 
 try:
-    # universal_newlines opens the output stream in text mode.  os.environ
-    # requires that its data is text.
-    _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size'], universal_newlines=True).split()
+    _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).decode().split()
 except subprocess.CalledProcessError:
     os.environ['COLUMNS'] = "200"
 
