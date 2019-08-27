@@ -54,7 +54,7 @@ from geopmpy import __version__
 from geopmpy import agent
 
 try:
-    _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).split()
+    _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).decode().split()
 except subprocess.CalledProcessError:
     os.environ['COLUMNS'] = "200"
 

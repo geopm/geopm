@@ -54,6 +54,7 @@ import shlex
 import stat
 import textwrap
 import io
+import locale
 
 from collections import OrderedDict
 from geopmpy import __version__
@@ -416,7 +417,28 @@ class Launcher(object):
         """
         Execute the command given to constructor with modified command
         line options and environment variables.
+
+        Args:
+            stdout (writable object): Destination for standard output
+            stderr (writable object): Destination for standard error
         """
+        # Output encodings may not be set, or may not be available through the
+        # provided output object. Try to match the encoding if it is given,
+        # otherwise use the current configured locale's encoding.
+        try:
+            stdout_encoding = stdout.encoding
+        except AttributeError:
+            stdout_encoding = None
+        if stdout_encoding is None:
+            stdout_encoding = locale.getpreferredencoding()
+
+        try:
+            stderr_encoding = stderr.encoding
+        except AttributeError:
+            stderr_encoding = None
+        if stderr_encoding is None:
+            stderr_encoding = locale.getpreferredencoding()
+
         argv_mod = [self.launcher_command()]
         if self.is_override_enabled:
             argv_mod.extend(self.launcher_argv(False))
@@ -474,16 +496,16 @@ class Launcher(object):
         pid = subprocess.Popen(argv_mod, env=self.environ(),
                                stdout=popen_stdout, stderr=popen_stderr,
                                shell=True)
-        stdout_str, stderr_str = pid.communicate()
+        stdout_bytes, stderr_bytes = pid.communicate()
         if subprocess.PIPE in (popen_stdout, popen_stderr):
-            stdout.write(stdout_str)
-            stderr.write(stderr_str)
+            stdout.write(stdout_bytes.decode(encoding=stdout_encoding))
+            stderr.write(stderr_bytes.decode(encoding=stderr_encoding))
 
         if is_geopmctl:
-            stdout_str, stderr_str = geopm_pid.communicate()
+            stdout_bytes, stderr_bytes = geopm_pid.communicate()
             if subprocess.PIPE in (popen_stdout, popen_stderr):
-                stdout.write(stdout_str)
-                stderr.write(stderr_str)
+                stdout.write(stdout_bytes.decode(encoding=stdout_encoding))
+                stderr.write(stderr_bytes.decode(encoding=stderr_encoding))
 
         signal.signal(signal.SIGINT, self.default_handler)
         if pid.returncode:
@@ -875,11 +897,11 @@ class SrunLauncher(Launcher):
             aff_list = self.affinity_list(is_geopmctl)
             pid = subprocess.Popen(['srun', '--help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             help_msg, err = pid.communicate()
-            if help_msg.find('--mpibind') != -1:
+            if help_msg.find(b'--mpibind') != -1:
                 result.append('--mpibind=off')
-            if help_msg.find('--cpu_bind') != -1:
+            if help_msg.find(b'--cpu_bind') != -1:
                 bind_cmd = '--cpu_bind'
-            elif help_msg.find('--cpu-bind') != -1:
+            elif help_msg.find(b'--cpu-bind') != -1:
                 bind_cmd = '--cpu-bind'
             else:
                 raise RuntimeError('SLURM\'s cpubind plugin was not detected.  Unable to affinitize ranks.')
@@ -966,7 +988,7 @@ class SrunLauncher(Launcher):
         Returns a list of the names of compute nodes that are currently
         available to run jobs using the sinfo command.
         """
-        return list(set(subprocess.check_output('sinfo -t idle -hNo %N', shell=True).splitlines()))
+        return list(set(subprocess.check_output('sinfo -t idle -hNo %N', shell=True).decode().splitlines()))
 
     def get_alloc_nodes(self):
         """
@@ -975,7 +997,7 @@ class SrunLauncher(Launcher):
         sinfo command.
 
         """
-        return list(set(subprocess.check_output('scontrol show hostname', shell=True).splitlines()))
+        return list(set(subprocess.check_output('scontrol show hostname', shell=True).decode().splitlines()))
 
     def preload_option(self):
         result = []
@@ -1140,7 +1162,7 @@ class IMPIExecLauncher(Launcher):
         available to run jobs using the sinfo command.
         """
         if self.is_slurm_enabled:
-            return subprocess.check_output('sinfo -t idle -hNo %N | uniq', shell=True).splitlines()
+            return subprocess.check_output('sinfo -t idle -hNo %N | uniq', shell=True).decode().splitlines()
         else:
             raise NotImplementedError('Idle nodes feature requires use with SLURM')
 
@@ -1152,7 +1174,7 @@ class IMPIExecLauncher(Launcher):
 
         """
         if self.is_slurm_enabled:
-            return subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).splitlines()
+            return subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).decode().splitlines()
         else:
             raise NotImplementedError('Idle nodes feature requires use with SLURM')
 
