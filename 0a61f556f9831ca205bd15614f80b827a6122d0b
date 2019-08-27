@@ -16,6 +16,24 @@
       "revId": "0a61f556f9831ca205bd15614f80b827a6122d0b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92c762c1_40e8e257",
+        "filename": "test_integration/test_profile_policy.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-08-27T23:11:42Z",
+      "side": 1,
+      "message": "which one?",
+      "parentUuid": "45fab4d6_118cc492",
+      "revId": "0a61f556f9831ca205bd15614f80b827a6122d0b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
