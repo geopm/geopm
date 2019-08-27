@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6aeda5d8_2c486cca",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 936,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-27T00:04:01Z",
+      "side": 1,
+      "message": "do we need another patch to update the agents to follow this pattern?",
+      "range": {
+        "startLine": 925,
+        "startChar": 0,
+        "endLine": 936,
+        "endChar": 47
+      },
+      "revId": "52580b5e1b47ebce594223975e9449a16f2b8c9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
