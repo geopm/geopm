@@ -41,6 +41,7 @@ page for details about the command line interface.
 """
 
 from __future__ import absolute_import
+from __future__ import division
 
 from future import standard_library
 standard_library.install_aliases()
@@ -100,7 +101,7 @@ def int_ceil_div(aa, bb):
     """
     Shortcut for the ceiling of the ratio of two integers.
     """
-    return int(math.ceil(float(aa) / float(bb)))
+    return int(math.ceil(aa / bb))
 
 
 def range_str(values):
