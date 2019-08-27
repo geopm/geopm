@@ -36,7 +36,6 @@ from __future__ import division
 from future import standard_library
 standard_library.install_aliases()
 from builtins import str
-from past.utils import old_div
 import os
 import sys
 import unittest
@@ -79,7 +78,7 @@ class TestIntegration(unittest.TestCase):
 
     def assertNear(self, a, b, epsilon=0.05, msg=''):
         denom = a if a != 0 else 1
-        if abs(old_div((a - b), denom)) >= epsilon:
+        if abs((a - b) / denom) >= epsilon:
             self.fail('The fractional difference between {a} and {b} is greater than {epsilon}.  {msg}'.format(a=a, b=b, epsilon=epsilon, msg=msg))
 
     def create_progress_df(self, df):
@@ -641,8 +640,8 @@ class TestIntegration(unittest.TestCase):
 
             pkg_energy_cols = [s for s in list(power_data.keys()) if 'ENERGY_PACKAGE' in s]
             dram_energy_cols = [s for s in list(power_data.keys()) if 'ENERGY_DRAM' in s]
-            power_data['SOCKET_POWER'] = old_div(power_data[pkg_energy_cols].sum(axis=1), power_data['ELAPSED_TIME'])
-            power_data['DRAM_POWER'] = old_div(power_data[dram_energy_cols].sum(axis=1), power_data['ELAPSED_TIME'])
+            power_data['SOCKET_POWER'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
+            power_data['DRAM_POWER'] = power_data[dram_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
             power_data['COMBINED_POWER'] = power_data['SOCKET_POWER'] + power_data['DRAM_POWER']
 
             pandas.set_option('display.width', 100)
@@ -726,8 +725,8 @@ class TestIntegration(unittest.TestCase):
 
                 pkg_energy_cols = [s for s in list(power_data.keys()) if 'ENERGY_PACKAGE' in s]
                 dram_energy_cols = [s for s in list(power_data.keys()) if 'ENERGY_DRAM' in s]
-                power_data['SOCKET_POWER'] = old_div(power_data[pkg_energy_cols].sum(axis=1), power_data['ELAPSED_TIME'])
-                power_data['DRAM_POWER'] = old_div(power_data[dram_energy_cols].sum(axis=1), power_data['ELAPSED_TIME'])
+                power_data['SOCKET_POWER'] = power_data[pkg_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
+                power_data['DRAM_POWER'] = power_data[dram_energy_cols].sum(axis=1) / power_data['ELAPSED_TIME']
                 power_data['COMBINED_POWER'] = power_data['SOCKET_POWER'] + power_data['DRAM_POWER']
 
                 pandas.set_option('display.width', 100)
@@ -738,7 +737,7 @@ class TestIntegration(unittest.TestCase):
                     power_limits.append(epoch_dropped_data['POWER_LIMIT'][-1])
 
             if agent == 'power_balancer':
-                avg_power_limit = old_div(sum(power_limits), len(power_limits))
+                avg_power_limit = sum(power_limits) / len(power_limits)
                 self.assertTrue(avg_power_limit <= power_budget)
 
             min_runtime = float('nan')
@@ -749,7 +748,7 @@ class TestIntegration(unittest.TestCase):
                 epoch_data = self._output.get_report_data(node_name=node_name, region='dgemm')
                 runtime_list.append(epoch_data['runtime'].item())
             if agent == 'power_governor':
-                mean_runtime = old_div(sum(runtime_list), len(runtime_list))
+                mean_runtime = sum(runtime_list) / len(runtime_list)
                 max_runtime = max(runtime_list)
                 margin = margin_factor * (max_runtime - mean_runtime)
 
@@ -842,7 +841,7 @@ class TestIntegration(unittest.TestCase):
             size_orig = len(delta_t)
             delta_t = delta_t[(delta_t - delta_t.mean()) < 3*delta_t.std()]  # Only keep samples within 3 stds of the mean
             self.assertGreater(0.06, 1 - (float(len(delta_t)) / size_orig))
-            self.assertGreater(max_nstd, old_div(delta_t.std(), delta_t.mean()))
+            self.assertGreater(max_nstd, delta_t.std() / delta_t.mean())
 
     def test_mpi_runtimes(self):
         name = 'test_mpi_runtimes'
@@ -878,7 +877,7 @@ class TestIntegration(unittest.TestCase):
             # ranks on a node are in a region, we must use the
             # unmarked-region time as our error term when comparing
             # MPI time and all2all time.
-            mpi_epsilon = max(old_div(unmarked_data['runtime'].item(), all2all_data['mpi_runtime'].item()), 0.05)
+            mpi_epsilon = max(unmarked_data['runtime'].item() / all2all_data['mpi_runtime'].item(), 0.05)
             self.assertNear(all2all_data['mpi_runtime'].item(), all2all_data['runtime'].item(), mpi_epsilon)
             self.assertNear(all2all_data['mpi_runtime'].item(), epoch_data['mpi_runtime'].item())
             # TODO: inconsistent; can we just use _ everywhere?
@@ -1023,7 +1022,7 @@ class TestIntegration(unittest.TestCase):
                     #todo verify trace frequencies
                     #todo verify agent report augment frequecies
                     msg = region_name + " frequency should be near assigned map frequency"
-                    self.assertNear(region_data['frequency'].item(), old_div(data[region_name], sticker_freq * 100), msg=msg)
+                    self.assertNear(region_data['frequency'].item(), data[region_name] / sticker_freq * 100, msg=msg)
 
     def test_agent_energy_efficient_single_region(self):
         """
@@ -1132,8 +1131,8 @@ class TestIntegration(unittest.TestCase):
         for nn in nan_out.get_node_names():
             sticker_app_total = sticker_out.get_app_total_data(node_name=nn)
             nan_app_total = nan_out.get_app_total_data(node_name=nn)
-            runtime_savings_epoch = old_div((sticker_app_total['runtime'].item() - nan_app_total['runtime'].item()), sticker_app_total['runtime'].item())
-            energy_savings_epoch = old_div((sticker_app_total['energy-package'].item() - nan_app_total['energy-package'].item()), sticker_app_total['energy-package'].item())
+            runtime_savings_epoch = (sticker_app_total['runtime'].item() - nan_app_total['runtime'].item()) / sticker_app_total['runtime'].item()
+            energy_savings_epoch = (sticker_app_total['energy-package'].item() - nan_app_total['energy-package'].item()) / sticker_app_total['energy-package'].item()
             self.assertLess(-0.1, runtime_savings_epoch)  # want -10% or better
             self.assertLess(0.0, energy_savings_epoch)
 
