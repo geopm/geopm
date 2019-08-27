@@ -42,6 +42,7 @@
 #include "Environment.hpp"
 #include "Reporter.hpp"
 #include "Tracer.hpp"
+#include "EndpointPolicyTracer.hpp"
 #include "Exception.hpp"
 #include "Comm.hpp"
 #include "PlatformTopo.hpp"
@@ -199,6 +200,7 @@ namespace geopm
                                                                platform_topo(),
                                                                ppn1_comm->rank())),
                      nullptr,
+                     std::unique_ptr<EndpointPolicyTracer>(nullptr),
                      std::vector<std::unique_ptr<Agent> >{},
                      Agent::policy_names(agent_factory().dictionary(environment().agent())),
                      nullptr,
@@ -216,6 +218,7 @@ namespace geopm
                            std::shared_ptr<ApplicationIO> application_io,
                            std::unique_ptr<Reporter> reporter,
                            std::unique_ptr<Tracer> tracer,
+                           std::unique_ptr<EndpointPolicyTracer> policy_tracer,
                            std::vector<std::unique_ptr<Agent> > level_agent,
                            std::vector<std::string> policy_names,
                            std::unique_ptr<EndpointUser> endpoint,
@@ -232,9 +235,11 @@ namespace geopm
         , m_application_io(std::move(application_io))
         , m_reporter(std::move(reporter))
         , m_tracer(std::move(tracer))
+        , m_policy_tracer(std::move(policy_tracer))
         , m_agent(std::move(level_agent))
         , m_is_root(m_num_level_ctl == m_root_level)
         , m_in_policy(m_num_send_down, NAN)
+        , m_last_policy(m_num_send_down, NAN)
         , m_out_policy(m_num_level_ctl)
         , m_in_sample(m_num_level_ctl)
         , m_out_sample(m_num_send_up, NAN)
@@ -258,6 +263,9 @@ namespace geopm
         else if (!m_is_dynamic_policy) {
             m_file_policy = geopm::make_unique<FilePolicy>(m_policy_path, policy_names);
             m_in_policy = m_file_policy->get_policy();
+        }
+        if (m_is_dynamic_policy && m_policy_tracer == nullptr) {
+            m_policy_tracer = EndpointPolicyTracer::make_unique();
         }
     }
 
@@ -402,10 +410,30 @@ namespace geopm
     {
         bool do_send = false;
         if (m_is_root) {
-            /// @todo Return an is_updated bool.
             if (m_is_dynamic_policy) {
-                m_endpoint->read_policy(m_in_policy);
-                do_send = true;
+                // Only send down the policy if it has changed within the last timeout period
+                double age = m_endpoint->read_policy(m_in_policy);
+                /// @todo: might want an independent timeout for endpoint
+                bool fresh_policy = age < environment().timeout();
+                bool equal = true;
+                if (fresh_policy) {
+                    equal = std::equal(m_in_policy.begin(), m_in_policy.end(),
+                                       m_last_policy.begin(),
+                                       [] (double a, double b) -> bool {
+                                           if (std::isnan(a) && std::isnan(b)) {
+                                               return true;
+                                           }
+                                           return a == b;
+                                       });
+                }
+                if (fresh_policy && !equal) {
+                    m_policy_tracer->update(m_in_policy);
+                    m_last_policy = m_in_policy;
+                    do_send = true;
+                }
+                else {
+                    do_send = false;
+                }
             }
             else {
                 m_in_policy = m_file_policy->get_policy();
