@@ -373,6 +373,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/MockIOGroup.hpp \
                           test/MockPlatformIO.hpp \
                           test/MockPlatformTopo.hpp \
+                          test/MockPolicyTracer.hpp \
                           test/MockPowerBalancer.hpp \
                           test/MockPowerGovernor.hpp \
                           test/MockProfileIOSample.hpp \
