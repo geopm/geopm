@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a09160c6_72688608",
+        "filename": "src/ELF.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-27T21:29:27Z",
+      "side": 1,
+      "message": "I think you\u0027re leaking m_section and m_data.  I don\u0027t see free()\u0027s for those.",
+      "range": {
+        "startLine": 172,
+        "startChar": 4,
+        "endLine": 172,
+        "endChar": 21
+      },
+      "revId": "58434f9e6ff39ac030dd1ede823d023a35f062ff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f8e54ef_3806f982",
+        "filename": "src/ELF.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-27T21:29:27Z",
+      "side": 1,
+      "message": "Error checks?\n\nPer the man page: \nA call to elf_end() decrements the activation count for descriptor elf by one.  The resources associated with the descriptor are only released with its activation count goes to zero.\n\nOnce function elf_end() returns zero, the ELF descriptor elf will no longer be valid and should not be used further.",
+      "range": {
+        "startLine": 175,
+        "startChar": 12,
+        "endLine": 175,
+        "endChar": 40
+      },
+      "revId": "58434f9e6ff39ac030dd1ede823d023a35f062ff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a8f4a39_ea8331a8",
+        "filename": "src/ELF.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-27T21:29:27Z",
+      "side": 1,
+      "message": "Error checks?",
+      "range": {
+        "startLine": 178,
+        "startChar": 12,
+        "endLine": 178,
+        "endChar": 37
+      },
+      "revId": "58434f9e6ff39ac030dd1ede823d023a35f062ff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8061119d_6a910be5",
+        "filename": "test/ELFTest.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-27T21:29:27Z",
+      "side": 1,
+      "message": "Nice test.  This is super clean now.",
+      "range": {
+        "startLine": 84,
+        "startChar": 4,
+        "endLine": 84,
+        "endChar": 60
+      },
+      "revId": "58434f9e6ff39ac030dd1ede823d023a35f062ff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
