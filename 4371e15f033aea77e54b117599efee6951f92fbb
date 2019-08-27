@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "9da4f3e6_e805f0b1",
+        "filename": "scripts/geopmpy/policy_store.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-08-27T23:04:40Z",
+      "side": 1,
+      "message": "worth getting rid of these repeated lines?  class member?",
+      "range": {
+        "startLine": 61,
+        "startChar": 4,
+        "endLine": 62,
+        "endChar": 14
+      },
+      "revId": "4371e15f033aea77e54b117599efee6951f92fbb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5c6930d_db664115",
+        "filename": "src/PolicyStoreImp.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-08-27T23:04:40Z",
+      "side": 1,
+      "message": "why is this needed?",
+      "range": {
+        "startLine": 71,
+        "startChar": 4,
+        "endLine": 71,
+        "endChar": 16
+      },
+      "revId": "4371e15f033aea77e54b117599efee6951f92fbb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "448597d1_4f5effd7",
         "filename": "test/PolicyStoreImpTest.cpp",
         "patchSetId": 14
