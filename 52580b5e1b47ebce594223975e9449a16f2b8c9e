@@ -22,6 +22,30 @@
       "revId": "52580b5e1b47ebce594223975e9449a16f2b8c9e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e56bd95b_d0b19608",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 936,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-08-27T18:16:46Z",
+      "side": 1,
+      "message": "It has already been merged with 31d557b.",
+      "parentUuid": "6aeda5d8_2c486cca",
+      "range": {
+        "startLine": 925,
+        "startChar": 0,
+        "endLine": 936,
+        "endChar": 47
+      },
+      "revId": "52580b5e1b47ebce594223975e9449a16f2b8c9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
