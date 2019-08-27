@@ -223,6 +223,15 @@ listed below.
   set in the environment.  See the ENVIRONMENT section of
   **geopm(7)**.
 
+* `--geopm-trace-policy` path:
+  Specifies the path to a trace file containing all the changes in
+  policy received from the Endpoint.  If the policy was loaded from a
+  file, this trace will not contain any samples and the policy will be
+  printed in the report.  If GEOPM connects to the endpoint, the
+  policy in the report will be listed as "DYNAMIC", and if a path is
+  set for this option, any policies received will be logged with a
+  timestamp.
+
 * `--geopm-profile` name:
   The name of the profile which is printed in the report and trace
   files.  This name can be used to index the data in post-processing.
