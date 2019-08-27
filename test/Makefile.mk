@@ -102,6 +102,8 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/EndpointTestIntegration.write_shm \
               test/gtest_links/EndpointTestIntegration.write_read_policy \
               test/gtest_links/EndpointTestIntegration.write_read_sample \
+              test/gtest_links/EndpointPolicyTracerTest.construct_update_destruct \
+              test/gtest_links/EndpointPolicyTracerTest.format \
               test/gtest_links/EndpointUserTest.agent_name_too_long \
               test/gtest_links/EndpointUserTest.parse_shm_policy \
               test/gtest_links/EndpointUserTest.profile_name_too_long \
@@ -351,6 +353,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/DebugIOGroupTest.cpp \
                           test/ELFTest.cpp \
                           test/EndpointTest.cpp \
+                          test/EndpointPolicyTracerTest.cpp \
                           test/EndpointUserTest.cpp \
                           test/EnergyEfficientAgentTest.cpp \
                           test/EnergyEfficientRegionTest.cpp \
