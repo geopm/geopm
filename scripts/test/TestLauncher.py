@@ -46,7 +46,7 @@ except ModuleNotFoundError:
 
 import geopmpy.launcher
 
-LSCPU_OUTPUT = '''Architecture:          x86_64
+LSCPU_OUTPUT = b'''Architecture:          x86_64
 CPU op-mode(s):        32-bit, 64-bit
 Byte Order:            Little Endian
 CPU(s):                88
@@ -73,31 +73,34 @@ NUMA node0 CPU(s):     0-21,44-65
 NUMA node1 CPU(s):     22-43,66-87
 Flags:                 fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch epb cat_l3 cdp_l3 intel_pt ssbd mba ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm cqm mpx rdt_a avx512f avx512dq rdseed adx smap clflushopt clwb avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local dtherm ida arat pln pts hwp hwp_act_window hwp_epp hwp_pkg_req pku ospke spec_ctrl intel_stibp flush_l1d
 '''
+LSCPU_STDERR=b'unittest lscpu stderr\n'
 
-SRUN_HELP = '''Usage: srun [OPTIONS...] executable [args...]
+SRUN_HELP = b'''Usage: srun [OPTIONS...] executable [args...]
 
 Affinity/Multi-core options: (when the task/affinity plugin is enabled)
       --cpu-bind=             Bind tasks to CPUs
                               (see "--cpu-bind=help" for options)
 '''
+SRUN_STDERR=b'unittest srun stderr\n'
 
-UNITTEST_WORKLOAD_STDOUT = 'Testing, testing, 123'
-UNITTEST_WORKLOAD_STDERR = 'Can you hear this? Do, re, mi'
+UNITTEST_WORKLOAD_STDOUT = b'Testing, testing, 123\n'
+UNITTEST_WORKLOAD_STDERR = b'Can you hear this? Do, re, mi\n'
 
 def mock_popen_srun(*args, **kwargs):
     arg_list = shlex.split(args[0]) if kwargs.get('shell', False) else args[0]
     if arg_list[0] == 'srun':
         mock_pid = mock.Mock(returncode=0)
         if '--help' in arg_list:
-            mock_pid.communicate.return_value = (SRUN_HELP, 'unittest srun stderr')
+            mock_pid.communicate.return_value = (SRUN_HELP, SRUN_STDERR)
         elif 'lscpu' in arg_list:
-            mock_pid.communicate.return_value = (LSCPU_OUTPUT, 'unittest lscpu stderr')
+            mock_pid.communicate.return_value = (LSCPU_OUTPUT, LSCPU_STDERR)
         elif 'unittest_workload' in arg_list:
             mock_pid.communicate.return_value = (UNITTEST_WORKLOAD_STDOUT, UNITTEST_WORKLOAD_STDERR)
         else:
             arg_string = ' '.join(arg_list)
-            mock_pid.communicate.return_value = ('stdout for {}'.format(arg_string),
-                                                 'stderr for {}'.format(arg_string))
+            stdout_text = 'stdout for {}\n'.format(arg_string)
+            stderr_text = 'stderr for {}\n'.format(arg_string)
+            mock_pid.communicate.return_value = (stdout_text.encode(), stderr_text.encode())
         return mock_pid
     else:
         raise NotImplementedError('Popen has not been mocked for {}'.format(' '.join(arg_list)))
@@ -135,8 +138,8 @@ class TestLauncher(unittest.TestCase):
                 num_rank = 2, num_node = 1)
         launcher.run(stdout=out_stream, stderr=error_stream)
 
-        self.assertIn(UNITTEST_WORKLOAD_STDOUT, out_stream.getvalue())
-        self.assertIn(UNITTEST_WORKLOAD_STDERR, error_stream.getvalue())
+        self.assertIn(UNITTEST_WORKLOAD_STDOUT.decode(), out_stream.getvalue())
+        self.assertIn(UNITTEST_WORKLOAD_STDERR.decode(), error_stream.getvalue())
 
     @mock.patch('subprocess.Popen', side_effect=mock_popen_srun)
     def test_main(self, mock_popen):

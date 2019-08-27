@@ -33,6 +33,11 @@
 
 from __future__ import absolute_import
 
+from __future__ import division
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from past.utils import old_div
 import os
 import sys
 import unittest
@@ -1235,8 +1240,8 @@ class TestIntegration(unittest.TestCase):
             err = kp.returncode
             if err != 0:
                 launcher.write_log(name, "Output from SSH:")
-                launcher.write_log(name, str(stdout))
-                launcher.write_log(name, str(stderr))
+                launcher.write_log(name, stdout.decode())
+                launcher.write_log(name, stderr.decode())
                 self.skipTest(name + ' requires passwordless SSH between allocated nodes.')
 
         message = "Error: <geopm> Runtime error: Signal 15"
@@ -1261,12 +1266,12 @@ class TestIntegrationGeopmio(unittest.TestCase):
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for exp in expected:
                 line = proc.stdout.readline()
-                while self.skip_warning_string in line:
+                while self.skip_warning_string.encode() in line:
                     line = proc.stdout.readline()
-                self.assertIn(exp, line)
+                self.assertIn(exp.encode(), line)
             for line in proc.stdout:
-                if self.skip_warning_string not in line:
-                    self.assertNotIn('Error', line)
+                if self.skip_warning_string.encode() not in line:
+                    self.assertNotIn(b'Error', line)
         except subprocess.CalledProcessError as ex:
             sys.stderr.write('{}\n'.format(ex.output))
 
@@ -1275,9 +1280,9 @@ class TestIntegrationGeopmio(unittest.TestCase):
             proc = subprocess.Popen([self.exec_name] + args,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for line in proc.stdout:
-                if self.skip_warning_string in line:
+                if self.skip_warning_string.encode() in line:
                     continue
-                if line.startswith('0x'):
+                if line.startswith(b'0x'):
                     value = int(line)
                 else:
                     value = float(line)
@@ -1291,8 +1296,8 @@ class TestIntegrationGeopmio(unittest.TestCase):
             proc = subprocess.Popen([self.exec_name] + args,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for line in proc.stdout:
-                if self.skip_warning_string not in line:
-                    self.assertNotIn('Error', line)
+                if self.skip_warning_string.encode() not in line:
+                    self.assertNotIn(b'Error', line)
         except subprocess.CalledProcessError as ex:
             sys.stderr.write('{}\n'.format(ex.output))
 
@@ -1341,12 +1346,12 @@ class TestIntegrationGeopmio(unittest.TestCase):
             proc = subprocess.Popen([self.exec_name],
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for line in proc.stdout:
-                if self.skip_warning_string not in line:
+                if self.skip_warning_string.encode() not in line:
                     all_signals.append(line.strip())
         except subprocess.CalledProcessError as ex:
             sys.stderr.write('{}\n'.format(ex.output))
         for sig in all_signals:
-            self.check_no_error([sig, 'board', '0'])
+            self.check_no_error([sig.decode(), 'board', '0'])
 
     @util.skip_unless_slurm_batch()
     def test_geopmread_signal_value(self):
@@ -1387,11 +1392,11 @@ class TestIntegrationGeopmio(unittest.TestCase):
             proc = subprocess.Popen([self.exec_name], env=custom_env,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for line in proc.stdout:
-                if self.skip_warning_string not in line:
+                if self.skip_warning_string.encode() not in line:
                     all_signals.append(line.strip())
         except subprocess.CalledProcessError as ex:
             sys.stderr.write('{}\n'.format(ex.output))
-        self.assertIn('MSR::CORE_PERF_LIMIT_REASONS#', all_signals)
+        self.assertIn(b'MSR::CORE_PERF_LIMIT_REASONS#', all_signals)
 
     def test_geopmwrite_command_line(self):
         '''
@@ -1433,7 +1438,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         '''
         def read_stdout_line(stdout):
             line = stdout.readline()
-            while self.skip_warning_string in line:
+            while self.skip_warning_string.encode() in line:
                 line = stdout.readline()
             return line.strip()
 
@@ -1459,10 +1464,10 @@ class TestIntegrationGeopmio(unittest.TestCase):
 
         read_proc = subprocess.Popen(['geopmread', '--domain', 'FREQUENCY'],
                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        read_domain = read_stdout_line(read_proc.stdout)
+        read_domain = read_stdout_line(read_proc.stdout).decode()
         write_proc = subprocess.Popen([self.exec_name, '--domain', 'FREQUENCY'],
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        write_domain = read_stdout_line(write_proc.stdout)
+        write_domain = read_stdout_line(write_proc.stdout).decode()
         min_freq, max_freq = read_min_max_freq()
 
         old_freq = read_current_freq(write_domain, 'MSR::PERF_CTL:FREQ')
@@ -1493,12 +1498,12 @@ class TestIntegrationGeopmagent(unittest.TestCase):
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for exp in expected:
                 line = proc.stdout.readline()
-                while self.skip_warning_string in line or line == '\n':
+                while self.skip_warning_string.encode() in line or line == b'\n':
                     line = proc.stdout.readline()
-                self.assertIn(exp, line)
+                self.assertIn(exp.encode(), line)
             for line in proc.stdout:
-                if self.skip_warning_string not in line:
-                    self.assertNotIn('Error', line)
+                if self.skip_warning_string.encode() not in line:
+                    self.assertNotIn(b'Error', line)
         except subprocess.CalledProcessError as ex:
             sys.stderr.write('{}\n'.format(ex.output))
 
@@ -1509,24 +1514,24 @@ class TestIntegrationGeopmagent(unittest.TestCase):
         except subprocess.CalledProcessError as ex:
             sys.stderr.write('{}\n'.format(ex.output))
         line = proc.stdout.readline()
-        while self.skip_warning_string in line or line == '\n':
+        while self.skip_warning_string.encode() in line or line == b'\n':
             line = proc.stdout.readline()
         try:
-            out_json = json.loads(line)
+            out_json = json.loads(line.decode())
         except ValueError:
             self.fail('Could not convert json string: {}\n'.format(line))
         self.assertEqual(expected, out_json)
         for line in proc.stdout:
-            if self.skip_warning_string not in line:
-                self.assertNotIn('Error', line)
+            if self.skip_warning_string.encode() not in line:
+                self.assertNotIn(b'Error', line)
 
     def check_no_error(self, args):
         try:
             proc = subprocess.Popen([self.exec_name] + args,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for line in proc.stdout:
-                if self.skip_warning_string not in line:
-                    self.assertNotIn('Error', line)
+                if self.skip_warning_string.encode() not in line:
+                    self.assertNotIn(b'Error', line)
         except subprocess.CalledProcessError as ex:
             sys.stderr.write('{}\n'.format(ex.output))
 
