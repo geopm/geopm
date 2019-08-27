@@ -497,6 +497,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/PolicyStore.hpp \
                             src/PolicyStoreImp.cpp \
                             src/PolicyStoreImp.hpp \
+                            src/PolicyTracer.cpp \
+                            src/PolicyTracer.hpp \
                             src/PowerBalancer.cpp \
                             src/PowerBalancer.hpp \
                             src/PowerBalancerImp.hpp \
