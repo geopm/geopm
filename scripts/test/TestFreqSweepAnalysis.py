@@ -35,7 +35,6 @@ from __future__ import absolute_import
 from __future__ import division
 
 from builtins import str
-from past.utils import old_div
 import os
 import sys
 import unittest
@@ -57,7 +56,7 @@ def get_expected_baseline_output_df(profile_names, column,
     for prof in profile_names:
         baseline_perf = baseline_metric_perf['epoch']
         optimal_perf = profile_metric_perf[prof]['epoch']
-        metric_change[prof] = (old_div((baseline_perf - optimal_perf), baseline_perf)) * 100
+        metric_change[prof] = ((baseline_perf - optimal_perf) / baseline_perf) * 100
 
     # arrange into list of lists for DataFrame constructor
     expected_data = []
@@ -77,7 +76,7 @@ def get_expected_mix_output_df(profile_names, column, baseline_metric_perf,
     for prof in profile_names:
         baseline_perf = baseline_metric_perf['epoch']
         optimal_perf = profile_metric_perf[prof]['epoch']
-        metric_change[prof] = (old_div((baseline_perf - optimal_perf), baseline_perf)) * 100
+        metric_change[prof] = ((baseline_perf - optimal_perf) / baseline_perf) * 100
 
     # arrange into list of lists for DataFrame constructor
     expected_data = []
