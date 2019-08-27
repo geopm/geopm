@@ -52,6 +52,7 @@ namespace geopm
             virtual std::string shmkey(void) const = 0;
             virtual std::string trace(void) const = 0;
             virtual std::string trace_profile(void) const = 0;
+            virtual std::string trace_policy(void) const = 0;
             virtual std::string plugin_path(void) const = 0;
             virtual std::string profile(void) const = 0;
             virtual std::string frequency_map(void) const = 0;
@@ -63,6 +64,7 @@ namespace geopm
             virtual bool do_region_barrier(void) const = 0;
             virtual bool do_trace(void) const = 0;
             virtual bool do_trace_profile(void) const = 0;
+            virtual bool do_trace_policy(void) const = 0;
             virtual bool do_profile() const = 0;
             virtual int timeout(void) const = 0;
             virtual int debug_attach(void) const = 0;
@@ -80,6 +82,7 @@ namespace geopm
             std::string shmkey(void) const override;
             std::string trace(void) const override;
             std::string trace_profile(void) const override;
+            std::string trace_policy(void) const override;
             std::string plugin_path(void) const override;
             std::string profile(void) const override;
             std::string frequency_map(void) const override;
@@ -91,6 +94,7 @@ namespace geopm
             bool do_region_barrier(void) const override;
             bool do_trace(void) const override;
             bool do_trace_profile(void) const override;
+            bool do_trace_policy(void) const override;
             bool do_profile() const override;
             int timeout(void) const override;
             int debug_attach(void) const override;
