@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6e44679a_ea51e906",
+        "filename": "ronn/geopm_policystore_c.3.ronn",
+        "patchSetId": 17
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-27T20:44:46Z",
+      "side": 1,
+      "message": "It\u0027s the other way around. The data is truncated when the provided container is not large enough to contain all of the data that would be returned.",
+      "parentUuid": "dba5114a_1cbc2981",
+      "range": {
+        "startLine": 80,
+        "startChar": 7,
+        "endLine": 80,
+        "endChar": 39
+      },
+      "revId": "18b286dd4d5794f4a074f5712025d19e4390b0f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6cb0eb95_bb6dca54",
         "filename": "ronn/geopm_policystore_c.3.ronn",
         "patchSetId": 17
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "2a15b4c8_8a636401",
+        "filename": "ronn/geopm_policystore_c.3.ronn",
+        "patchSetId": 17
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-27T20:44:46Z",
+      "side": 1,
+      "message": "Yeah, connection issues are a good example. Through previous review discussions, we are avoiding phrasing that would tie us to a specific data store implementation.",
+      "parentUuid": "6cb0eb95_bb6dca54",
+      "range": {
+        "startLine": 89,
+        "startChar": 30,
+        "endLine": 89,
+        "endChar": 57
+      },
+      "revId": "18b286dd4d5794f4a074f5712025d19e4390b0f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1b1251b6_8d3a8035",
         "filename": "scripts/geopmpy/policy_store.py",
         "patchSetId": 17
@@ -68,6 +116,30 @@
       "revId": "18b286dd4d5794f4a074f5712025d19e4390b0f7",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24068333_604ea844",
+        "filename": "scripts/geopmpy/policy_store.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-27T20:44:46Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1b1251b6_8d3a8035",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 41,
+        "endChar": 8
+      },
+      "revId": "18b286dd4d5794f4a074f5712025d19e4390b0f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
