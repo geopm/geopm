@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "448597d1_4f5effd7",
+        "filename": "test/PolicyStoreImpTest.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-27T00:34:21Z",
+      "side": 1,
+      "message": "An alternative would be to change the agent factory be a member and inject a new one in the test constructor.",
+      "revId": "4371e15f033aea77e54b117599efee6951f92fbb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
