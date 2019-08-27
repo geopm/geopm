@@ -16,6 +16,24 @@
       "revId": "4371e15f033aea77e54b117599efee6951f92fbb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "440d66ff_cd8a58a8",
+        "filename": "test/PolicyStoreImpTest.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-27T21:03:03Z",
+      "side": 1,
+      "message": "I\u0027d prefer to keep it this way since it\u0027s a mild, test-only inconvenience. Plugin factories are treated like singletons everywhere else in the project, so it would feel out of place to make PolicyStoreImp hold on to one.",
+      "parentUuid": "448597d1_4f5effd7",
+      "revId": "4371e15f033aea77e54b117599efee6951f92fbb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
