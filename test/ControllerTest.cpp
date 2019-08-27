@@ -50,6 +50,7 @@
 #include "MockTreeComm.hpp"
 #include "MockReporter.hpp"
 #include "MockTracer.hpp"
+#include "MockPolicyTracer.hpp"
 #include "Helper.hpp"
 #include "Agg.hpp"
 
@@ -147,6 +148,7 @@ class ControllerTest : public ::testing::Test
         MockTreeComm *m_tree_comm;
         MockReporter *m_reporter;
         MockTracer *m_tracer;
+        MockPolicyTracer *m_policy_tracer;
         std::vector<MockAgent*> m_level_agent;
         std::vector<std::unique_ptr<Agent> > m_agents;
         MockEndpointUser *m_endpoint;
@@ -170,6 +172,7 @@ void ControllerTest::SetUp()
     m_endpoint = new MockEndpointUser();
     m_reporter = new MockReporter();
     m_tracer = new MockTracer();
+    m_policy_tracer = new MockPolicyTracer();
 
     // called during clean up
     EXPECT_CALL(m_platform_io, restore_control());
@@ -208,6 +211,7 @@ TEST_F(ControllerTest, get_hostnames)
                           m_application_io,
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
+                          std::unique_ptr<MockPolicyTracer>(m_policy_tracer),
                           std::move(m_agents),
                           {},
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
@@ -236,6 +240,7 @@ TEST_F(ControllerTest, single_node)
                           m_application_io,
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
+                          std::unique_ptr<MockPolicyTracer>(m_policy_tracer),
                           std::move(m_agents),
                           {},
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
@@ -264,6 +269,7 @@ TEST_F(ControllerTest, single_node)
         .WillRepeatedly(SetArgReferee<0>(endpoint_policy));
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
+    EXPECT_CALL(*m_policy_tracer, update(_)).Times(1);
     EXPECT_CALL(*agent, trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*agent, validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*agent, adjust_platform(_)).Times(m_num_step);
@@ -314,6 +320,7 @@ TEST_F(ControllerTest, two_level_controller_1)
                           m_application_io,
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
+                          std::unique_ptr<MockPolicyTracer>(m_policy_tracer),
                           std::move(m_agents),
                           {},
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
@@ -336,6 +343,7 @@ TEST_F(ControllerTest, two_level_controller_1)
     // should not interact with endpoint
     EXPECT_CALL(*m_endpoint, read_policy(_)).Times(0);
     EXPECT_CALL(*m_endpoint, write_sample(_)).Times(0);
+    EXPECT_CALL(*m_policy_tracer, update(_)).Times(0);
 
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(m_platform_io, write_batch()).Times(m_num_step);
@@ -412,6 +420,7 @@ TEST_F(ControllerTest, two_level_controller_2)
                           m_application_io,
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
+                          std::unique_ptr<MockPolicyTracer>(m_policy_tracer),
                           std::move(m_agents),
                           {},
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
@@ -434,6 +443,7 @@ TEST_F(ControllerTest, two_level_controller_2)
     // should not interact with endpoint
     EXPECT_CALL(*m_endpoint, read_policy(_)).Times(0);
     EXPECT_CALL(*m_endpoint, write_sample(_)).Times(0);
+    EXPECT_CALL(*m_policy_tracer, update(_)).Times(0);
 
     EXPECT_CALL(m_platform_io, read_batch()).Times(m_num_step);
     EXPECT_CALL(*m_application_io, update(_)).Times(m_num_step);
@@ -519,6 +529,7 @@ TEST_F(ControllerTest, two_level_controller_0)
                           m_application_io,
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
+                          std::unique_ptr<MockPolicyTracer>(m_policy_tracer),
                           std::move(m_agents),
                           {},
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
@@ -544,6 +555,7 @@ TEST_F(ControllerTest, two_level_controller_0)
         .WillRepeatedly(SetArgReferee<0>(endpoint_policy));
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
+    EXPECT_CALL(*m_policy_tracer, update(_)).Times(1);
     EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], validate_policy(_)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], adjust_platform(_)).Times(m_num_step);
@@ -557,9 +569,9 @@ TEST_F(ControllerTest, two_level_controller_0)
     // agent 0 should not call aggregate_sample/split_policy
     EXPECT_CALL(*m_level_agent[0], aggregate_sample(_, _)).Times(0);
     EXPECT_CALL(*m_level_agent[0], split_policy(_, _)).Times(0);
-
-    EXPECT_CALL(*m_level_agent[2], validate_policy(_)).Times(m_num_step);
-    EXPECT_CALL(*m_level_agent[2], split_policy(_, _)).Times(m_num_step);
+    // policy is sent down once and doesn't change
+    EXPECT_CALL(*m_level_agent[2], validate_policy(_)).Times(1);
+    EXPECT_CALL(*m_level_agent[2], split_policy(_, _)).Times(1);
     EXPECT_CALL(*m_level_agent[2], do_send_policy())
         .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_level_agent[1], validate_policy(_)).Times(m_num_step);
