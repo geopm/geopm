@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1edc6f47_b3140d17",
+        "filename": "scripts/test/TestIO.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-27T00:15:00Z",
+      "side": 1,
+      "message": "is this still needed for these tests with the test directory clean up for the test?  I do think we might want to use this pattern for the AppOutput, agent config, bench config, and other files in the integration tests.",
+      "revId": "50573a74b0077e0bba57fd202c39e32ddadbcd57",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d5e855c_1fc407cf",
+        "filename": "scripts/test/TestIO.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-27T00:15:00Z",
+      "side": 1,
+      "message": "needed?",
+      "revId": "50573a74b0077e0bba57fd202c39e32ddadbcd57",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}

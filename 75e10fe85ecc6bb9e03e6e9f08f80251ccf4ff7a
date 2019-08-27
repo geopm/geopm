@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "30ad4939_928483ba",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-27T00:15:00Z",
+      "side": 1,
+      "message": "I don\u0027t remember exactly what we wanted with this, but it looks like a hack just to get it working.  In practice we rarely combine reports from different folders.",
+      "range": {
+        "startLine": 117,
+        "startChar": 16,
+        "endLine": 117,
+        "endChar": 59
+      },
+      "revId": "75e10fe85ecc6bb9e03e6e9f08f80251ccf4ff7a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "24680f10_cd2d5ffa",
         "filename": "scripts/test/TestIO.py",
         "patchSetId": 1
