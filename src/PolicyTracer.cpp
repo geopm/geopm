@@ -48,8 +48,8 @@ namespace geopm
 {
     PolicyTracerImp::PolicyTracerImp()
         : PolicyTracerImp(1024 * 1024 * sizeof(char),
-                          environment().do_trace_profile(),
-                          environment().trace_profile() + "-policy",
+                          environment().do_trace_policy(),
+                          environment().trace_policy(),
                           platform_io(),
                           Agent::policy_names(agent_factory().dictionary(environment().agent())))
     {
