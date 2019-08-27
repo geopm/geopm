@@ -30,6 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef PROFILETRACER_HPP_INCLUDE
+#define PROFILETRACER_HPP_INCLUDE
+
 #include <vector>
 #include <utility>
 #include <fstream>
@@ -81,3 +84,5 @@ namespace geopm
             struct geopm_time_s m_time_zero;
     };
 }
+
+#endif
