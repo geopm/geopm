@@ -35,6 +35,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace geopm
 {
@@ -72,6 +73,12 @@ namespace geopm
             /// @param [in] policy Policy string to use with the given agent.
             virtual void set_default(const std::string &agent_name,
                                      const std::vector<double> &policy) = 0;
+            /// @brief Returns a unique_ptr to a concrete object
+            ///        constructed using the underlying implementation
+            static std::unique_ptr<PolicyStore> make_unique(const std::string &data_path);
+            /// @brief Returns a shared_ptr to a concrete object
+            ///        constructed using the underlying implementation
+            static std::shared_ptr<PolicyStore> make_shared(const std::string &data_path);
     };
 }
 
