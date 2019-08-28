@@ -115,8 +115,9 @@ namespace geopm
                                                                ctl_dom_idx));
         }
 
-        for (size_t ctl_idx = 0; ctl_idx < num_freq_ctl_domain; ++ctl_idx) {
-            m_cpu_rank.push_back(m_platform_topo.domain_idx(GEOPM_DOMAIN_MPI_RANK, ctl_idx));
+        m_num_rank = m_platform_topo.num_domain(GEOPM_DOMAIN_MPI_RANK);
+        for (int cpu = 0; cpu < m_platform_topo.num_domain(GEOPM_DOMAIN_CPU); ++cpu) {
+            m_cpu_rank.push_back(m_platform_topo.domain_idx(GEOPM_DOMAIN_MPI_RANK, cpu));
         }
     }
 
@@ -135,8 +136,9 @@ namespace geopm
         }
 #endif
         std::vector<double> ret;
-        for (size_t ctl_idx = 0; ctl_idx < m_last_freq.size(); ++ctl_idx) {
-            ret.push_back(rank_target[m_cpu_rank[ctl_idx]]);
+        // @todo this needs to be frequency control domain dependent
+        for (int cpu = 0; cpu < m_platform_topo.num_domain(GEOPM_DOMAIN_CPU); ++cpu) {
+            ret.push_back(rank_target[m_cpu_rank[cpu]]);
         }
         return ret;
     }

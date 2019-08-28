@@ -71,6 +71,7 @@ namespace geopm
             std::vector<int> m_control_idx;
             std::vector<double> m_last_freq;
             std::vector<int> m_cpu_rank;
+            int m_num_rank;
     };
 }
 
