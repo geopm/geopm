@@ -635,11 +635,11 @@ TEST_F(CommMPIImpTest, mpi_gatherv)
 
     g_sizes.push_back(sizeof(size_t));
     g_params.push_back(malloc(g_sizes[0]));
-    g_sizes.push_back(sizeof(size_t));
+    g_sizes.push_back(sizeof(int));
     g_params.push_back(malloc(g_sizes[1]));
     g_sizes.push_back(sizeof(MPI_Datatype));
     g_params.push_back(malloc(g_sizes[2]));
-    g_sizes.push_back(sizeof(size_t));
+    g_sizes.push_back(sizeof(void *));
     g_params.push_back(malloc(g_sizes[3]));
     g_sizes.push_back(sizeof(int));
     g_params.push_back(malloc(g_sizes[4]));
