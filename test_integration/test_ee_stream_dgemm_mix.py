@@ -72,6 +72,14 @@ class AppConf(object):
 @util.skip_unless_cpufreq()
 @util.skip_unless_optimized()
 class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
+    def setUp(self):
+        self._frequency = geopm_test_launcher.geopmread("MSR::PERF_CTL:FREQ board 0")
+
+    def tearDown(self):
+        geopm_test_launcher.geopmwrite("MSR::PERF_CTL:FREQ board 0 " + str(self._frequency))
+        #todo file cleanup, but in a reusable fashion
+
+
     @classmethod
     def setUpClass(cls):
         """Create launcher, execute benchmark and set up class variables.
