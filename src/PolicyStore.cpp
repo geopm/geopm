@@ -36,8 +36,22 @@
 
 #include "Exception.hpp"
 #include "PolicyStoreImp.hpp"
+#include "Helper.hpp"
 #include "geopm_error.h"
 #include "geopm_policystore.h"
+
+namespace geopm
+{
+    std::unique_ptr<PolicyStore> PolicyStore::make_unique(const std::string &data_path)
+    {
+        return geopm::make_unique<PolicyStoreImp>(data_path);
+    }
+
+    std::shared_ptr<PolicyStore> PolicyStore::make_shared(const std::string &data_path)
+    {
+        return std::make_shared<PolicyStoreImp>(data_path);
+    }
+}
 
 extern "C"
 {
