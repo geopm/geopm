@@ -313,8 +313,8 @@ namespace geopm
         m_freq_governor->init_platform_io();
         const int freq_ctl_domain_type = m_freq_governor->frequency_domain_type();
         m_num_freq_ctl_domain = m_platform_topo.num_domain(freq_ctl_domain_type);
-        m_last_region = std::vector<struct geopm_region_info_s>(m_num_freq_ctl_domain,
-                                                                (struct geopm_region_info_s) {
+        m_last_region = std::vector<struct m_region_info_s>(m_num_freq_ctl_domain,
+                                                                (struct m_region_info_s) {
                                                                     .hash = GEOPM_REGION_HASH_UNMARKED,
                                                                     .hint = GEOPM_REGION_HINT_UNKNOWN});
         std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT"};
