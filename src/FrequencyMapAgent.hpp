@@ -39,7 +39,6 @@
 #include <memory>
 #include <functional>
 
-#include "geopm.h"
 #include "geopm_time.h"
 
 #include "Agent.hpp"
@@ -97,11 +96,18 @@ namespace geopm
                 M_NUM_SIGNAL,
             };
 
+            struct m_region_info_s {
+                uint64_t hash;
+                uint64_t hint;
+                double runtime;
+                uint64_t count;
+            };
+
             const int M_PRECISION;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
             std::shared_ptr<FrequencyGovernor> m_freq_governor;
-            std::vector<struct geopm_region_info_s>  m_last_region;
+            std::vector<struct m_region_info_s>  m_last_region;
             std::map<uint64_t, double> m_hash_freq_map;
             geopm_time_s m_last_wait;
             std::vector<std::vector<int> > m_signal_idx;
