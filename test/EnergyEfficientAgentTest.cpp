@@ -68,8 +68,7 @@ class EnergyEfficientAgentTest : public :: testing :: Test
         std::unique_ptr<EnergyEfficientAgent> m_agent0;
         std::unique_ptr<EnergyEfficientAgent> m_agent1;
         static constexpr int M_NUM_CHILDREN = 3;
-        static constexpr int M_FREQ_DOMAIN = GEOPM_DOMAIN_CORE;
-        static constexpr int M_NUM_FREQ_DOMAIN = 4;
+        static constexpr int M_NUM_RANK = 4;
         static constexpr double M_PERF_MARGIN = 0.10;
         // offsets for PlatformIO signal indices
         const int HASH_SIG = 1000;
@@ -83,26 +82,23 @@ void EnergyEfficientAgentTest::SetUp()
 {
     m_gov = std::make_shared<MockFrequencyGovernor>();
 
-    ON_CALL(*m_gov, frequency_domain_type())
-        .WillByDefault(Return(M_FREQ_DOMAIN));
-    ON_CALL(m_topo, num_domain(M_FREQ_DOMAIN))
-        .WillByDefault(Return(M_NUM_FREQ_DOMAIN));
+    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_MPI_RANK))
+        .WillByDefault(Return(M_NUM_RANK));
 
     std::vector<int> fan_in {M_NUM_CHILDREN};
     m_region_map[0x12] = std::make_shared<MockEnergyEfficientRegion>();
     m_region_map[0x34] = std::make_shared<MockEnergyEfficientRegion>();
     m_region_map[0x56] = std::make_shared<MockEnergyEfficientRegion>();
     // expectations for constructor
-    EXPECT_CALL(m_topo, num_domain(M_FREQ_DOMAIN)).Times(2);
-    EXPECT_CALL(*m_gov, frequency_domain_type()).Times(2);
-    for (int idx = 0; idx < M_NUM_FREQ_DOMAIN; ++idx) {
-        EXPECT_CALL(m_platio, push_signal("REGION_HASH", M_FREQ_DOMAIN, idx))
+    EXPECT_CALL(m_topo, num_domain(GEOPM_DOMAIN_MPI_RANK)).Times(2);
+    for (int idx = 0; idx < M_NUM_RANK; ++idx) {
+        EXPECT_CALL(m_platio, push_signal("REGION_HASH", GEOPM_DOMAIN_MPI_RANK, idx))
             .WillOnce(Return(HASH_SIG + idx));
-        EXPECT_CALL(m_platio, push_signal("REGION_HINT", M_FREQ_DOMAIN, idx))
+        EXPECT_CALL(m_platio, push_signal("REGION_HINT", GEOPM_DOMAIN_MPI_RANK, idx))
             .WillOnce(Return(HINT_SIG + idx));
-        EXPECT_CALL(m_platio, push_signal("REGION_RUNTIME", M_FREQ_DOMAIN, idx))
+        EXPECT_CALL(m_platio, push_signal("REGION_RUNTIME", GEOPM_DOMAIN_MPI_RANK, idx))
             .WillOnce(Return(RUNTIME_SIG + idx));
-        EXPECT_CALL(m_platio, push_signal("REGION_COUNT", M_FREQ_DOMAIN, idx))
+        EXPECT_CALL(m_platio, push_signal("REGION_COUNT", GEOPM_DOMAIN_MPI_RANK, idx))
             .WillOnce(Return(COUNT_SIG + idx));
     }
     std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > region_map;
@@ -245,7 +241,7 @@ TEST_F(EnergyEfficientAgentTest, sample_adjust_platform)
         {  UM, GEOPM_REGION_HINT_UNKNOWN}
     };
     // which region will be returned by pio sample
-    uint64_t step_region[NUM_STEPS][M_NUM_FREQ_DOMAIN] = {
+    uint64_t step_region[NUM_STEPS][M_NUM_RANK] = {
         {0x12, 0x34, 0x56,   UM},  // make sure all regions are entered once
         {  UM,   UM,   UM, 0x56},
         {0x12, 0x12, 0x12, 0x12},
@@ -257,7 +253,7 @@ TEST_F(EnergyEfficientAgentTest, sample_adjust_platform)
     };
 
     // 0 if no leaving a region, or the region hash if update_exit() should be called
-    uint64_t do_exit[NUM_STEPS][M_NUM_FREQ_DOMAIN] = {
+    uint64_t do_exit[NUM_STEPS][M_NUM_RANK] = {
         {   0,    0,    0,    0},
         {0x12, 0x34, 0x56,    0},
         {   0,    0,    0, 0x56},
@@ -270,7 +266,7 @@ TEST_F(EnergyEfficientAgentTest, sample_adjust_platform)
     // expected frequency setting for each core given the above
     // pattern of regions and the hint.  region 0x12 changes to a
     // lower frequency after the second entry
-    double exp_freq[NUM_STEPS][M_NUM_FREQ_DOMAIN] = {
+    double exp_freq[NUM_STEPS][M_NUM_RANK] = {
         {max, max, max, max},  // default before first region boundary
         {max, max, max, max},
         {lo2, lo2, lo2, lo2},
@@ -283,7 +279,7 @@ TEST_F(EnergyEfficientAgentTest, sample_adjust_platform)
 
     std::vector<double> out_sample;
     for (int step = 0; step < NUM_STEPS; ++step) {
-        std::vector<double> freqs(M_NUM_FREQ_DOMAIN);
+        std::vector<double> freqs(M_NUM_RANK);
         std::vector<uint64_t> named_region = {0x12, 0x34, 0x56};
         std::map<uint64_t, int> freq_call_count = {
             {0x12, 0},
@@ -296,7 +292,7 @@ TEST_F(EnergyEfficientAgentTest, sample_adjust_platform)
             {0x56, 0}
         };
 
-        for (int dom = 0; dom < M_NUM_FREQ_DOMAIN; ++dom) {
+        for (int dom = 0; dom < M_NUM_RANK; ++dom) {
             uint64_t current_region = step_region[step][dom];
             uint64_t current_hint = region_hints.at(current_region);
             EXPECT_CALL(m_platio, sample(HASH_SIG + dom))
