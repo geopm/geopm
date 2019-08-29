@@ -204,7 +204,17 @@ static void geopm_proc_cpuset_once(void)
         fclose(fid);
     }
     if (!err) {
-        memcpy(g_proc_cpuset, proc_cpuset, g_proc_cpuset_size);
+        /* cpu_set_t is managed in units of unsigned long, and may have extra
+         * bits at the end with undefined values. If that happens,
+         * g_proc_cpuset_size may be greater than the size of proc_cpuset,
+         * resulting in reading past the end of proc_cpuset. Avoid this by
+         * only copying the number of bytes needed to contain the mask. Zero
+         * the destination first, since it may not be fully overwritten.
+         *
+         * See the CPU_SET(3) man page for more details about cpu_set_t.
+         */
+        CPU_ZERO_S(g_proc_cpuset_size, g_proc_cpuset);
+        memcpy(g_proc_cpuset, proc_cpuset, num_read * sizeof(*proc_cpuset));
     }
     else if (g_proc_cpuset) {
         for (int i = 0; i < num_cpu; ++i) {
@@ -283,6 +293,10 @@ int geopm_sched_proc_cpuset(int num_cpu, cpu_set_t *proc_cpuset)
         err = GEOPM_ERROR_INVALID;
     }
     if (!err) {
+        /* Copy up to the smaller of the sizes to avoid buffer overruns. Zero
+         * the destination set first, since it may not be fully overwritten
+         */
+        CPU_ZERO_S(cpuset_size, proc_cpuset);
         memcpy(proc_cpuset, g_proc_cpuset, g_proc_cpuset_size);
         for (int i = sched_num_cpu; i < num_cpu; ++i) {
             CPU_CLR_S(i, cpuset_size, proc_cpuset);
@@ -311,6 +325,7 @@ int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
     }
     if (!err) {
         /* Copy the process CPU mask into the output. */
+        CPU_ZERO_S(req_alloc_size, woomp);
         memcpy(woomp, g_proc_cpuset, g_proc_cpuset_size);
         /* Start an OpenMP parallel region and have each thread clear
            its bit from the mask. */
