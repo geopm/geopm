@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7dfd02e6_3a0bd8ad",
+        "filename": "src/ELF.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-29T21:42:46Z",
+      "side": 1,
+      "message": "is the new rule to list this first?",
+      "revId": "0fc1be145ce20b9afaca5e0ac3b62241c076cbac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0ef5171_09edd4bf",
+        "filename": "src/ELF.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-29T21:42:46Z",
+      "side": 1,
+      "message": "new line?",
+      "range": {
+        "startLine": 57,
+        "startChar": 17,
+        "endLine": 57,
+        "endChar": 24
+      },
+      "revId": "0fc1be145ce20b9afaca5e0ac3b62241c076cbac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2c14197_660d6972",
+        "filename": "src/ELF.hpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-29T21:42:46Z",
+      "side": 1,
+      "message": "[in]",
+      "range": {
+        "startLine": 44,
+        "startChar": 14,
+        "endLine": 44,
+        "endChar": 15
+      },
+      "revId": "0fc1be145ce20b9afaca5e0ac3b62241c076cbac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "baed7cfc_34428995",
+        "filename": "src/ELF.hpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-29T21:42:46Z",
+      "side": 1,
+      "message": "[in]",
+      "range": {
+        "startLine": 52,
+        "startChar": 14,
+        "endLine": 52,
+        "endChar": 15
+      },
+      "revId": "0fc1be145ce20b9afaca5e0ac3b62241c076cbac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e3e5337_ca12e59f",
+        "filename": "src/ELF.hpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-29T21:42:46Z",
+      "side": 1,
+      "message": "Is this needed as public interface?  It seems like we are only using the symbol lookup.\n\nI was going to suggest that this interface might make sense as an iterator (i.e. begin() and end()) but this looks more testable the way it is now.  However I don\u0027t see tests of these methods anyway.  If these are only used in the implementation of symbol_lookup, I don\u0027t think it matters that much.",
+      "revId": "0fc1be145ce20b9afaca5e0ac3b62241c076cbac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
