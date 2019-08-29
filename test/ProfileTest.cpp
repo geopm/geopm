@@ -30,29 +30,56 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <functional>
-
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include "geopm_test.hpp"
-#include "geopm_internal.h"
-#include "Helper.hpp"
 #include "Profile.hpp"
+
+#include <bitset>
+#include <functional>
+#include <fstream>
+#include <cstring>
+
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
 #include "Exception.hpp"
-#include "SharedMemoryImp.hpp"
+#include "Helper.hpp"
 #include "MockComm.hpp"
+#include "MockControlMessage.hpp"
 #include "MockPlatformTopo.hpp"
 #include "MockProfileTable.hpp"
 #include "MockProfileThreadTable.hpp"
 #include "MockSampleScheduler.hpp"
-#include "MockControlMessage.hpp"
-#include "MockComm.hpp"
+#include "SharedMemoryImp.hpp"
+#include "geopm_internal.h"
+#include "geopm_test.hpp"
 
 using geopm::Exception;
 using geopm::Profile;
 using geopm::ProfileImp;
 using geopm::SharedMemoryImp;
 using geopm::PlatformTopo;
+
+// Get the number of CPUs in the cpuset of the test process
+static size_t num_cpus_allowed() {
+    std::ifstream proc_status("/proc/self/status");
+    static const std::string line_identifier = "Cpus_allowed:";
+    size_t count = 0;
+
+    for (std::string line; std::getline(proc_status, line);) {
+        if (line.find(line_identifier) == 0) {
+            auto first_non_space = line.find_first_not_of(
+                " \t", line_identifier.length());
+            auto cpu_set_strings = geopm::string_split(
+                line.substr(first_non_space), ",");
+            for (const auto& cpu_set_string : cpu_set_strings) {
+                std::bitset<32> cpu_set(std::stoul(cpu_set_string, 0, 16));
+                count += cpu_set.count();
+            }
+            break;
+        }
+    }
+
+    return count;
+}
 
 class ProfileTestControlMessage : public MockControlMessage
 {
@@ -184,6 +211,8 @@ class ProfileTestIntegration : public ProfileTest
         {
         }
         ~ProfileTestIntegration() = default;
+    protected:
+        void test_all_cpus_are_assigned_a_rank(size_t cpu_count, size_t cpu_set_size);
 };
 
 ProfileTest::ProfileTest()
@@ -580,4 +609,30 @@ TEST_F(ProfileTestIntegration, misconfig_affinity)
     table_shm->unlink();
     tprof_shm->unlink();
     ctl_shm->unlink();
+}
+
+void ProfileTestIntegration::test_all_cpus_are_assigned_a_rank(size_t cpu_count, size_t cpu_set_size)
+{
+    const int world_rank = 0;
+    const int shm_rank = 0;
+    ProfileTestPlatformTopo test_topo(cpu_count);
+    m_shm_comm = std::make_shared<ProfileTestComm>(shm_rank, M_SHM_COMM_SIZE);
+    m_world_comm = geopm::make_unique<ProfileTestComm>(world_rank, m_shm_comm);
+    m_ctl_msg = geopm::make_unique<ProfileTestControlMessage>();
+    EXPECT_CALL(*m_ctl_msg, cpu_rank(testing::_, world_rank)).Times(cpu_count);
+    ProfileImp(M_PROF_NAME, M_SHM_KEY, M_REPORT, M_TIMEOUT, M_DO_REGION_BARRIER,
+               std::move(m_world_comm), std::move(m_ctl_msg), test_topo,
+               nullptr, nullptr, nullptr, m_comm);
+}
+
+TEST_F(ProfileTestIntegration, cpu_set_size)
+{
+    size_t cpu_count = num_cpus_allowed();
+
+    // Test that all allowed CPUs have been assigned a rank.
+    test_all_cpus_are_assigned_a_rank(cpu_count, cpu_count);
+
+    // Test again with a larger cpuset size to demonstrate that the cpu_rank
+    // calls don't simply happen once per allocated set entry.
+    test_all_cpus_are_assigned_a_rank(cpu_count, cpu_count + 32);
 }
