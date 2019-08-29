@@ -245,6 +245,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/ProfileTest.shutdown \
               test/gtest_links/ProfileTest.tprof_table \
               test/gtest_links/ProfileTestIntegration.config \
+              test/gtest_links/ProfileTestIntegration.cpu_set_size \
               test/gtest_links/ProfileTestIntegration.misconfig_affinity \
               test/gtest_links/ProfileTestIntegration.misconfig_ctl_shmem \
               test/gtest_links/ProfileTestIntegration.misconfig_table_shmem \
