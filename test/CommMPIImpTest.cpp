@@ -392,6 +392,16 @@ extern "C"
 
 #define MPI_Bcast(p0, p1, p2, p3, p4) mock_bcast(p0, p1, p2, p3, p4)
 #define PMPI_Bcast(p0, p1, p2, p3, p4) mock_bcast(p0, p1, p2, p3, p4)
+
+    static int mock_finalized(int *param0)
+    {
+        *param0 = 0;
+        return 0;
+    }
+
+#define MPI_Finalized(p0) mock_finalized(p0)
+#define PMPI_Finalized(p0) mock_finalized(p0)
+
 }
 
 #include "gtest/gtest.h"
