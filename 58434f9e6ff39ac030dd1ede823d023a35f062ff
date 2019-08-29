@@ -98,6 +98,30 @@
     },
     {
       "key": {
+        "uuid": "6dc43234_c4d48a5c",
+        "filename": "src/ELF.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-08-29T23:58:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50742a26_45139566",
+      "range": {
+        "startLine": 175,
+        "startChar": 12,
+        "endLine": 175,
+        "endChar": 40
+      },
+      "revId": "58434f9e6ff39ac030dd1ede823d023a35f062ff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4a8f4a39_ea8331a8",
         "filename": "src/ELF.cpp",
         "patchSetId": 16
@@ -143,6 +167,30 @@
       "revId": "58434f9e6ff39ac030dd1ede823d023a35f062ff",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0f16081_51ac9743",
+        "filename": "src/ELF.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-08-29T23:58:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a387f21_8da7fa14",
+      "range": {
+        "startLine": 178,
+        "startChar": 12,
+        "endLine": 178,
+        "endChar": 37
+      },
+      "revId": "58434f9e6ff39ac030dd1ede823d023a35f062ff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     },
     {
       "key": {
