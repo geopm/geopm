@@ -38,6 +38,24 @@
     },
     {
       "key": {
+        "uuid": "cdd6275f_1f94d20a",
+        "filename": "src/ELF.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-08-29T22:04:30Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "fc16c5b1_e2be7930",
+      "revId": "0fc1be145ce20b9afaca5e0ac3b62241c076cbac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d0ef5171_09edd4bf",
         "filename": "src/ELF.cpp",
         "patchSetId": 21
@@ -83,6 +101,30 @@
       "revId": "0fc1be145ce20b9afaca5e0ac3b62241c076cbac",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d420d14c_55100725",
+        "filename": "src/ELF.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-08-29T22:04:30Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3bca2e12_4a09c16a",
+      "range": {
+        "startLine": 57,
+        "startChar": 17,
+        "endLine": 57,
+        "endChar": 24
+      },
+      "revId": "0fc1be145ce20b9afaca5e0ac3b62241c076cbac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     },
     {
       "key": {
@@ -215,6 +257,24 @@
       "revId": "0fc1be145ce20b9afaca5e0ac3b62241c076cbac",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3aedc262_698a82e2",
+        "filename": "src/ELF.hpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-08-29T22:04:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e663f09c_3267e007",
+      "revId": "0fc1be145ce20b9afaca5e0ac3b62241c076cbac",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
