@@ -200,7 +200,9 @@ namespace geopm
             for (auto it = m_windows.begin(); it != m_windows.end(); ++it) {
                 delete (CommWindow *) *it;
             }
-            if (is_valid() && m_comm != MPI_COMM_WORLD) {
+            int is_finalized;
+            PMPI_Finalized(&is_finalized);
+            if (is_finalized == 0 && is_valid() && m_comm != MPI_COMM_WORLD) {
                 PMPI_Comm_free(&m_comm);
             }
             m_is_torn_down = true;
