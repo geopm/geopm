@@ -1315,6 +1315,10 @@ class TestIntegrationGeopmio(unittest.TestCase):
 
         # read signal
         self.check_no_error(['TIME', 'board', '0'])
+        self.check_no_error(['ENERGY_PACKAGE', 'cpu', '0'])
+
+        # todo read ENERGY_PACKAGE package 0, then ENERGY_PACKAGE cpu 0
+        #      expect energy_cpu > energy_package
 
         # info
         self.check_no_error(['--info'])
@@ -1326,7 +1330,6 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_output(['TIME', 'board'], [read_err])
         self.check_output(['TIME', 'board', 'bad'], ['invalid domain index'])
         self.check_output(['FREQUENCY', 'package', '111'], ['cannot read signal'])
-        self.check_output(['ENERGY_PACKAGE', 'cpu', '0'], ['cannot read signal'])
         self.check_output(['INVALID', 'board', '0'], ['cannot read signal'])
         self.check_output(['--domain', 'INVALID'], ['unable to determine signal type'])
         self.check_output(['--domain', '--info'], ['info about domain not implemented'])
