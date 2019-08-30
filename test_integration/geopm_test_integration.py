@@ -47,7 +47,6 @@ import pandas
 import collections
 import socket
 import shlex
-import StringIO
 import json
 
 from . import util
