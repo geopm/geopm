@@ -36,7 +36,7 @@ import os
 import sys
 import unittest
 from collections import defaultdict
-from StringIO import StringIO
+from io import StringIO
 from .analysis_helper import *
 from . import mock_report
 
