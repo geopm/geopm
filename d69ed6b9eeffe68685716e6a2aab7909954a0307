@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a304fd4b_f36cb6ca",
+        "filename": "src/Profile.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-30T20:04:36Z",
+      "side": 1,
+      "message": "this is not part of the handshake with Controller",
+      "revId": "d69ed6b9eeffe68685716e6a2aab7909954a0307",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbe3b8eb_5018f2fa",
+        "filename": "src/ProfileSampler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-30T20:04:36Z",
+      "side": 1,
+      "message": "yes, do unlink here",
+      "revId": "d69ed6b9eeffe68685716e6a2aab7909954a0307",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8fc4c29_a73e442d",
+        "filename": "src/SharedMemory.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-30T20:04:36Z",
+      "side": 1,
+      "message": "could check m_ptr !\u003d nullptr",
+      "revId": "d69ed6b9eeffe68685716e6a2aab7909954a0307",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
