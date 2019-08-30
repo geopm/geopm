@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a07a5c2_4b1502ba",
+        "filename": "src/Endpoint.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-30T22:33:57Z",
+      "side": 1,
+      "message": "safer to use parens",
+      "range": {
+        "startLine": 617,
+        "startChar": 34,
+        "endLine": 617,
+        "endChar": 36
+      },
+      "revId": "50a26b9dcef05436599a88016378479a72cb6374",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
