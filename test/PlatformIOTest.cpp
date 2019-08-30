@@ -509,7 +509,8 @@ TEST_F(PlatformIOTest, adjust_agg)
 
 TEST_F(PlatformIOTest, read_signal)
 {
-    EXPECT_CALL(m_topo, is_nested_domain(_, _));
+    EXPECT_CALL(m_topo, is_nested_domain(_, _))
+        .Times(2);
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("FREQ"));
     EXPECT_CALL(*m_control_iogroup, read_signal("FREQ", GEOPM_DOMAIN_CPU, 0))
         .WillOnce(Return(4e9));
@@ -584,7 +585,8 @@ TEST_F(PlatformIOTest, read_signal_override)
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("MODE")).Times(0);
     EXPECT_CALL(*m_control_iogroup, read_signal(_, _, _)).Times(0);
 
-    EXPECT_CALL(m_topo, is_nested_domain(_, _));
+    EXPECT_CALL(m_topo, is_nested_domain(_, _))
+        .Times(2);
     EXPECT_CALL(*m_override_iogroup, signal_domain_type("MODE")).Times(AtLeast(1));
     EXPECT_CALL(*m_override_iogroup, read_signal("MODE", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(5e9));
