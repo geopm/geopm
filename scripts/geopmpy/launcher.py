@@ -48,7 +48,6 @@ import argparse
 import subprocess
 import math
 import signal
-import StringIO
 import itertools
 import glob
 import shlex
@@ -452,7 +451,7 @@ class Launcher(object):
             for it in self.environ_ext.iteritems():
                 echo.append('{}={}'.format(it[0], it[1]))
         echo.extend(argv_mod)
-        echo = '\n' + ' '.join(echo) + '\n\n'
+        echo = u'\n' + u' '.join(echo) + u'\n\n'
         stdout.write(echo)
         stdout.flush()
         signal.signal(signal.SIGINT, self.int_handler)
@@ -556,7 +555,7 @@ class Launcher(object):
                                   host_file=self.host_file,
                                   node_list=self.node_list,
                                   reservation=self.reservation)
-        ostream = StringIO.StringIO()
+        ostream = io.StringIO()
         launcher.run(stdout=ostream)
         out = ostream.getvalue()
         cpu_tpc_core_socket = [int(line.split(':')[1])

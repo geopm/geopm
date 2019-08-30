@@ -38,7 +38,7 @@ import socket
 import subprocess
 import datetime
 import signal
-import StringIO
+import io
 import math
 import shlex
 import unittest
@@ -90,8 +90,8 @@ def allocation_node_test(test_exec, stdout, stderr):
 
 def geopmwrite(write_str):
     test_exec = "dummy -- geopmwrite " + write_str
-    stdout = StringIO.StringIO()
-    stderr = StringIO.StringIO()
+    stdout = io.StringIO()
+    stderr = io.StringIO()
     try:
         allocation_node_test(test_exec, stdout, stderr)
     except subprocess.CalledProcessError as err:
@@ -100,8 +100,8 @@ def geopmwrite(write_str):
 
 def geopmread(read_str):
     test_exec = "dummy -- geopmread " + read_str
-    stdout = StringIO.StringIO()
-    stderr = StringIO.StringIO()
+    stdout = io.StringIO()
+    stderr = io.StringIO()
     try:
         allocation_node_test(test_exec, stdout, stderr)
     except subprocess.CalledProcessError as err:
@@ -111,7 +111,7 @@ def geopmread(read_str):
 
 def get_platform():
     test_exec = "dummy -- cat /proc/cpuinfo"
-    ostream = StringIO.StringIO()
+    ostream = io.StringIO()
     dev_null = open('/dev/null', 'w')
     allocation_node_test(test_exec, ostream, dev_null)
     dev_null.close()
@@ -228,7 +228,7 @@ class TestLauncher(object):
         # for the controller.
         argv = ['dummy', detect_launcher(), '--geopm-ctl-disable', 'lscpu']
         launcher = geopmpy.launcher.Factory().create(argv, 1, 1)
-        ostream = StringIO.StringIO()
+        ostream = io.StringIO()
         launcher.run(stdout=ostream)
         out = ostream.getvalue()
         cpu_thread_core_socket = [int(line.split(':')[1])

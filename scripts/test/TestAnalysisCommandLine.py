@@ -37,7 +37,11 @@ import os
 import sys
 import unittest
 from collections import defaultdict
-from StringIO import StringIO
+try:
+    # Test with str StringIO where available, and with unicode StringIO elsewhere
+    from StringIO import StringIO
+except ModuleNotFoundError:
+    from io import StringIO
 from test.analysis_helper import *
 
 try:

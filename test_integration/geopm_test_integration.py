@@ -47,7 +47,6 @@ import pandas
 import collections
 import socket
 import shlex
-import StringIO
 import json
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
