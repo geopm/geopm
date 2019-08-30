@@ -53,6 +53,8 @@ namespace geopm
             static void create_cache(const std::string &cache_file_name);
         private:
             static const std::string M_CACHE_FILE_NAME;
+            /// @brief Test domain hierarchy using set logic.
+            bool is_domain_within(int inner, int outer) const;
             /// @brief Get the set of Linux logical CPUs associated
             ///        with the indexed domain.
             std::set<int> domain_cpus(int domain_type,
@@ -74,6 +76,8 @@ namespace geopm
             int m_core_per_package;
             int m_thread_per_core;
             std::vector<std::set<int> > m_numa_map;
+            std::vector<std::vector<bool> > m_is_domain_within;
+            std::vector<std::vector<std::set<int> > > m_cpus_domains;
     };
 }
 #endif
