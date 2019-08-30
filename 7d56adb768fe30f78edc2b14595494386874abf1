@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79c237ba_e2ac9771",
+        "filename": "src/PolicyTracer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-08-30T22:22:04Z",
+      "side": 1,
+      "message": "\u0026\u0026 policy_names.size() \u003e 0",
+      "revId": "7d56adb768fe30f78edc2b14595494386874abf1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
