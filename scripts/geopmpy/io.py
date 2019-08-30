@@ -47,7 +47,7 @@ import psutil
 import copy
 import tempfile
 import yaml
-import StringIO
+import io
 
 from distutils.spawn import find_executable
 from natsort import natsorted
@@ -1014,7 +1014,7 @@ class Trace(object):
                 else:
                     done = True
         try:
-            yaml_fd = StringIO.StringIO(''.join(out))
+            yaml_fd = io.StringIO(u''.join(out))
             dd = yaml.load(yaml_fd, Loader=yaml.SafeLoader)
         except yaml.parser.ParserError:
             out.insert(0, '{')

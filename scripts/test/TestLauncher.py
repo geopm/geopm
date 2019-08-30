@@ -38,7 +38,11 @@ import os
 import mock
 import subprocess
 import shlex
-import StringIO
+try:
+    # Test with str StringIO where available, and with unicode StringIO elsewhere
+    from StringIO import StringIO
+except ModuleNotFoundError:
+    from io import StringIO
 
 import geopmpy.launcher
 
@@ -123,8 +127,8 @@ class TestLauncher(unittest.TestCase):
     def test_non_file_output(self, mock_popen):
         """ Test that the launcher can redirect stdout and stderr to a non-file writable object.
         """
-        out_stream = StringIO.StringIO()
-        error_stream = StringIO.StringIO()
+        out_stream = StringIO()
+        error_stream = StringIO()
 
         launcher = geopmpy.launcher.Factory().create(
                 ['unittest_geopm_launcher', 'srun', 'unittest_workload'],
