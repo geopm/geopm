@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5696b2b1_9f8b0570",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-08-30T16:48:42Z",
+      "side": 1,
+      "message": "until the app is connected and map is set vector size and therefore num_mpi_rank will both be 0",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 5
+      },
+      "revId": "fa21a4f6208ed17f97152241b1a7bd603be35264",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1c96ad6_85e50699",
+        "filename": "src/ProfileIOGroup.hpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-08-30T16:48:42Z",
+      "side": 1,
+      "message": "rm",
+      "range": {
+        "startLine": 91,
+        "startChar": 16,
+        "endLine": 91,
+        "endChar": 49
+      },
+      "revId": "fa21a4f6208ed17f97152241b1a7bd603be35264",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9c71761_0da61d71",
+        "filename": "src/ProfileIOGroup.hpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-08-30T16:48:42Z",
+      "side": 1,
+      "message": "move back south where it was originally?",
+      "range": {
+        "startLine": 109,
+        "startChar": 12,
+        "endLine": 109,
+        "endChar": 40
+      },
+      "revId": "fa21a4f6208ed17f97152241b1a7bd603be35264",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e6fdb55_84781bfc",
+        "filename": "src/ProfileIOGroup.hpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-08-30T16:48:42Z",
+      "side": 1,
+      "message": "move const further north?",
+      "range": {
+        "startLine": 110,
+        "startChar": 12,
+        "endLine": 110,
+        "endChar": 33
+      },
+      "revId": "fa21a4f6208ed17f97152241b1a7bd603be35264",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
