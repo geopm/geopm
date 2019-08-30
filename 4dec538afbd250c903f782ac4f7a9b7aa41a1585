@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe8ed80b_1d172877",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-08-30T16:25:36Z",
+      "side": 1,
+      "message": "This is being constructed as a unique_ptr, and immediately moved to a shared_ptr in m_region_map. Should be safe the way it is handled here, but the type mismatch may be unintentional.",
+      "range": {
+        "startLine": 244,
+        "startChar": 103,
+        "endLine": 244,
+        "endChar": 141
+      },
+      "revId": "4dec538afbd250c903f782ac4f7a9b7aa41a1585",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
