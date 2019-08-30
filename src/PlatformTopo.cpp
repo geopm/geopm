@@ -39,6 +39,7 @@
 #include <cpuid.h>
 #include <string.h>
 
+#include <algorithm>
 #include <map>
 #include <sstream>
 #include <string>
@@ -99,13 +100,85 @@ namespace geopm
     PlatformTopoImp::PlatformTopoImp(const std::string &test_cache_file_name)
         : M_TEST_CACHE_FILE_NAME(test_cache_file_name)
         , m_do_fclose(true)
+        , m_is_domain_within(GEOPM_NUM_DOMAIN, std::vector<bool> {})
+        , m_cpus_domains(GEOPM_NUM_DOMAIN, std::vector<std::set<int> > {})
     {
         std::map<std::string, std::string> lscpu_map;
         lscpu(lscpu_map);
         parse_lscpu(lscpu_map, m_num_package, m_core_per_package, m_thread_per_core);
         parse_lscpu_numa(lscpu_map, m_numa_map);
+
+        for (int domain = GEOPM_DOMAIN_BOARD; domain < GEOPM_NUM_DOMAIN; ++domain) {
+            std::vector<std::set<int> > cpus_domain;
+            for (int domain_idx = 0; domain_idx < num_domain(domain); ++domain_idx) {
+                cpus_domain.push_back(domain_cpus(domain, domain_idx));
+            }
+            m_cpus_domains[domain] = cpus_domain;
+        }
+
+        for (int inner = GEOPM_DOMAIN_BOARD; inner < GEOPM_NUM_DOMAIN; ++inner) {
+            for (int outer = GEOPM_DOMAIN_BOARD; outer < GEOPM_NUM_DOMAIN; ++outer) {
+                m_is_domain_within[inner][outer] = is_domain_within(inner, outer);
+            }
+        }
     }
 
+    bool PlatformTopoImp::is_domain_within(int inner, int outer) const
+    {
+        std::vector<std::set<int> > inner_cpu_domains = m_cpus_domains[inner];
+        std::vector<std::set<int> > outer_cpu_domains = m_cpus_domains[outer];
+        bool is_domain_within = true;
+
+        if (inner_cpu_domains.size() == 0 ||
+            outer_cpu_domains.size() == 0) {
+            is_domain_within = false;
+        }
+        // todo, update everything in board logic.  test that inner_cpu_domains.size() != 0
+        else if (outer != GEOPM_DOMAIN_BOARD && // everything is on the board
+                 inner != outer) {
+            for (const auto &inner_cpu_set : inner_cpu_domains) {
+                bool is_isec_found = false;
+                for (const auto &outer_cpu_set : outer_cpu_domains) {
+                    if (is_domain_within) {
+                        std::set<int> isec;
+                        std::set<int> idiff;
+                        std::set<int> odiff;
+
+                        std::set_intersection(inner_cpu_set.begin(), inner_cpu_set.end(),
+                                              outer_cpu_set.begin(), outer_cpu_set.end(),
+                                              std::inserter(isec, isec.begin()));
+                        std::set_difference(inner_cpu_set.begin(), inner_cpu_set.end(),
+                                            outer_cpu_set.begin(), outer_cpu_set.end(),
+                                            std::inserter(idiff, idiff.begin()));
+                        std::set_difference(outer_cpu_set.begin(), outer_cpu_set.end(),
+                                            inner_cpu_set.begin(), inner_cpu_set.end(),
+                                            std::inserter(odiff, odiff.begin()));
+                        // inner_cpu_set intersection outter_cpu_set != {}
+                        // AND
+                        // inner_cpu_set is a super set of outer_cpu_set
+                        if (isec.size() != 0 &&
+                            odiff.size() == 0) {
+                            is_domain_within = false;
+                        }
+                        // todo env var to switch here
+                        //if (isec.size() != 0 &&
+                            //idiff.size() != 0) {
+                            //is_domain_within = false;
+                        //}
+                        // inner_cpu_set intersection outter_cpu_set != {}
+                        if (isec.size() != 0) {
+                            is_isec_found = true;
+                        }
+                    }
+                }
+                // no combination of inner_cpu_set:outter_cpu_set intersect
+                if (!is_isec_found) {
+                    is_domain_within = false;
+                }
+            }
+        }
+        return is_domain_within;
+    }
     int PlatformTopoImp::num_domain(int domain_type) const
     {
         int result = 0;
@@ -278,37 +351,7 @@ namespace geopm
 
     bool PlatformTopoImp::is_nested_domain(int inner_domain, int outer_domain) const
     {
-        bool result = false;
-        static const std::set<int> package_domain = {
-            GEOPM_DOMAIN_CPU,
-            GEOPM_DOMAIN_CORE,
-            GEOPM_DOMAIN_PACKAGE_MEMORY,
-            GEOPM_DOMAIN_PACKAGE_NIC,
-            GEOPM_DOMAIN_PACKAGE_ACCELERATOR,
-        };
-        if (inner_domain == outer_domain) {
-            result = true;
-        }
-        else if (outer_domain == GEOPM_DOMAIN_BOARD) {
-            // All domains are within the board domain
-            result = true;
-        }
-        else if (outer_domain == GEOPM_DOMAIN_CORE &&
-                 inner_domain == GEOPM_DOMAIN_CPU) {
-            // Only the CPU domain is within the core.
-            result = true;
-        }
-        else if (outer_domain == GEOPM_DOMAIN_PACKAGE &&
-                 package_domain.find(inner_domain) != package_domain.end()) {
-            // Everything under the package scope is in the package_domain set.
-            result = true;
-        }
-        else if (outer_domain == GEOPM_DOMAIN_BOARD_MEMORY &&
-                 inner_domain == GEOPM_DOMAIN_CPU) {
-            // To support mapping CPU signals to DRAM domain (e.g. power)
-            result = true;
-        }
-        return result;
+        return m_is_domain_within[inner_domain][outer_domain];
     }
 
     std::set<int> PlatformTopoImp::domain_nested(int inner_domain, int outer_domain, int outer_idx) const
