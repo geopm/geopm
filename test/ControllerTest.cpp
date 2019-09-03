@@ -34,6 +34,7 @@
 #include <memory>
 #include <sstream>
 #include <list>
+#include <set>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -95,7 +96,41 @@ class ControllerTestMockPlatformIO : public MockPlatformIO
         int m_index = 0;
 };
 
+class ControllerTestMockComm : public MockComm
+{
+    public:
+        ControllerTestMockComm(const std::set<std::string> &hostnames);
+        int num_rank(void) const override;
+        void gather(const void *send_buf, size_t send_size, void *recv_buf,
+                    size_t recv_size, int root) const override;
+    private:
+        std::set<std::string> m_hostlist;
+};
 
+ControllerTestMockComm::ControllerTestMockComm(const std::set<std::string> &hostnames)
+    : m_hostlist(hostnames)
+{
+
+}
+
+int ControllerTestMockComm::num_rank(void) const
+{
+    return m_hostlist.size();
+}
+
+void ControllerTestMockComm::gather(const void *send_buf, size_t send_size, void *recv_buf,
+                                    size_t recv_size, int root) const
+{
+    std::string sent_host((char*)send_buf);
+    if (std::find(m_hostlist.begin(), m_hostlist.end(), sent_host) == m_hostlist.end()) {
+        FAIL() << "Controller did not send own host.";
+    }
+    int rank_offset = 0;
+    for (auto host : m_hostlist) {
+        strncpy((char*)recv_buf + rank_offset, host.c_str(), recv_size);
+        rank_offset += recv_size;
+    }
+}
 
 class ControllerTest : public ::testing::Test
 {
@@ -137,6 +172,47 @@ void ControllerTest::SetUp()
 
     // called during clean up
     EXPECT_CALL(m_platform_io, restore_control());
+}
+
+TEST_F(ControllerTest, get_hostnames)
+{
+    int num_level_ctl = 2;
+    int root_level = 2;
+    std::vector<int> fan_out = {2, 2};
+    ASSERT_EQ(root_level, (int)fan_out.size());
+
+    EXPECT_CALL(*m_tree_comm, num_level_controlled())
+        .WillOnce(Return(num_level_ctl));
+    EXPECT_CALL(*m_tree_comm, root_level())
+        .WillOnce(Return(root_level));
+    for (int level = 0; level < num_level_ctl; ++level) {
+        EXPECT_CALL(*m_tree_comm, level_size(level)).WillOnce(Return(fan_out[level]));
+    }
+    for (int level = 0; level < num_level_ctl + 1; ++level) {
+        auto tmp = new MockAgent();
+        EXPECT_CALL(*tmp, init(level, fan_out, true));
+        tmp->init(level, fan_out, true);
+        m_level_agent.push_back(tmp);
+
+        m_agents.emplace_back(m_level_agent[level]);
+    }
+    ASSERT_EQ(3u, m_level_agent.size());
+
+    std::set<std::string> multi_node_list = {"node4", "node6", "node8", "node9"};
+    auto multi_node_comm = std::make_shared<ControllerTestMockComm>(multi_node_list);
+
+    Controller controller(multi_node_comm, m_platform_io,
+                          m_agent_name, m_num_send_down, m_num_send_up,
+                          std::unique_ptr<MockTreeComm>(m_tree_comm),
+                          m_application_io,
+                          std::unique_ptr<MockReporter>(m_reporter),
+                          std::unique_ptr<MockTracer>(m_tracer),
+                          std::move(m_agents),
+                          std::unique_ptr<MockEndpointUser>(m_endpoint));
+
+    EXPECT_CALL(*multi_node_comm, rank());
+    std::set<std::string> result = controller.get_hostnames("node4");
+    EXPECT_EQ(multi_node_list, result);
 }
 
 TEST_F(ControllerTest, single_node)

@@ -39,6 +39,7 @@
 #include <memory>
 #include <vector>
 #include <map>
+#include <set>
 
 namespace geopm
 {
@@ -126,6 +127,10 @@ namespace geopm
             /// @brief Called upon failure to facilitate graceful destruction
             ///        of the Controller and notify application.
             void abort(void);
+            /// @brief Return the names of hosts active in the current
+            ///        job.
+            /// @param [in] hostname Hostname of the calling Controller.
+            std::set<std::string> get_hostnames(const std::string &hostname);
         private:
             /// @brief Construct Agents for every level.  Agents can
             ///        register new IOGroups, signals, and controls
