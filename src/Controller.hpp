@@ -134,6 +134,9 @@ namespace geopm
             /// @brief Call init() on every agent.  Agents can push
             ///        signals and controls.
             void init_agents(void);
+            /// @brief Return the list of hosts active in the current
+            ///        job.
+            std::vector<std::string> get_hostnames(std::shared_ptr<Comm> comm);
 
             std::shared_ptr<Comm> m_comm;
             PlatformIO &m_platform_io;
