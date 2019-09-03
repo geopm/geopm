@@ -339,7 +339,7 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             trace = self._output.get_trace_data(node_name=nn)
             app_totals = self._output.get_app_total_data(node_name=nn)
-            self.assertNear(trace.iloc[-1]['TIME'], app_totals['runtime'].item(), 'Application runtime failure, node_name={}.'.format(nn))
+            self.assertNear(trace.iloc[-1]['TIME'], app_totals['runtime'].item(), msg='Application runtime failure, node_name={}.'.format(nn))
             # Calculate runtime totals for each region in each trace, compare to report
             tt = trace.reset_index(level='index')  # move 'index' field from multiindex to columns
             tt = tt.set_index(['REGION_HASH'], append=True)  # add region_hash column to multiindex
