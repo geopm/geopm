@@ -738,7 +738,7 @@ def generate_app_best_freq_plot_sc17(data, name, output_dir):
     index = numpy.arange(len(data))
 
     series_data = data['epoch']
-    print series_data
+    sys.stdout.write(series_data + '\n')
     ax.bar(index,
            series_data,
            width=bar_width,
