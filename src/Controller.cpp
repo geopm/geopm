@@ -32,8 +32,10 @@
 
 #include "Controller.hpp"
 
-#include <algorithm>
 #include <cmath>
+#include <climits>
+
+#include <algorithm>
 
 #include "geopm_signal_handler.h"
 #include "ApplicationIO.hpp"
@@ -255,6 +257,27 @@ namespace geopm
         for (level = 0; level < m_max_level; ++level) {
             m_agent[level]->init(level, fan_in, (level < m_tree_comm->num_level_controlled()));
         }
+    }
+
+    std::vector<std::string> Controller::get_hostnames(std::shared_ptr<Comm> comm)
+    {
+        std::vector<std::string> hostnames;
+        int num_rank = comm->num_rank();
+        int rank = comm->rank();
+        std::string hostname = geopm::hostname();
+        hostname.resize(NAME_MAX, 0);
+        std::vector<char> name_buffer(num_rank * NAME_MAX, 0);
+        comm->gather((void*)hostname.c_str(), NAME_MAX,
+                     (void*)name_buffer.data(), NAME_MAX, 0);
+        if (rank == 0) {
+            auto ind = name_buffer.begin();
+            for (int rr = 0; rr < num_rank; ++rr) {
+                std::string host(ind, ind + NAME_MAX);
+                hostnames.push_back(host);
+                ind += NAME_MAX;
+            }
+        }
+        return hostnames;
     }
 
     void Controller::run(void)
