@@ -482,8 +482,6 @@ class TestIO(unittest.TestCase):
     def test_report_cache(self):
         """ Test that a report is not read when it is cached.
         """
-        import time
-        time.sleep(1)
         spy_open = mock.Mock(wraps=open)
         def count_open(path):
             """ Count the number of times spy_open() has been called with path
