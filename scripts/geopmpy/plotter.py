@@ -34,6 +34,7 @@ GEOPM Plotter - Used to produce plots and other analysis files from report and/o
 """
 
 from __future__ import absolute_import
+from __future__ import print_function
 
 import sys
 import os
@@ -738,7 +739,7 @@ def generate_app_best_freq_plot_sc17(data, name, output_dir):
     index = numpy.arange(len(data))
 
     series_data = data['epoch']
-    print series_data
+    print(series_data)
     ax.bar(index,
            series_data,
            width=bar_width,
