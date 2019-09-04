@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12366d92_69b7b0c0",
+        "filename": "src/FrequencyMapAgent.hpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-04T22:31:56Z",
+      "side": 1,
+      "message": "Is this able to be removed now?",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 18
+      },
+      "revId": "9c7759d4de7210d8522f49a1b65b77d99f70d0cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
