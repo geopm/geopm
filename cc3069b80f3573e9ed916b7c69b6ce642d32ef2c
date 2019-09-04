@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "075d0491_8940f120",
+        "filename": "scripts/test/TestIO.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-04T16:12:51Z",
+      "side": 1,
+      "message": "Trailing whitespace",
+      "range": {
+        "startLine": 433,
+        "startChar": 70,
+        "endLine": 433,
+        "endChar": 71
+      },
+      "revId": "cc3069b80f3573e9ed916b7c69b6ce642d32ef2c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
