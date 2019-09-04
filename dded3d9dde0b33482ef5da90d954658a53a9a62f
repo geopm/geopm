@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f0cc127_a948449a",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-04T23:54:28Z",
+      "side": 1,
+      "message": "Would you also want to rethrow errors other than NOT_IMPLEMENTED? If so, you might need something like: value !\u003d not_implemented || domain !\u003d package_memory",
+      "range": {
+        "startLine": 119,
+        "startChar": 24,
+        "endLine": 120,
+        "endChar": 61
+      },
+      "revId": "dded3d9dde0b33482ef5da90d954658a53a9a62f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "908e5c0b_37770355",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-04T23:54:28Z",
+      "side": 1,
+      "message": "Should just be `throw;`",
+      "range": {
+        "startLine": 121,
+        "startChar": 24,
+        "endLine": 121,
+        "endChar": 33
+      },
+      "revId": "dded3d9dde0b33482ef5da90d954658a53a9a62f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17ed3011_cf1c35f1",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-04T23:54:28Z",
+      "side": 1,
+      "message": "Could this be done with std::includes since we only populate `diff` to check whether it is empty?",
+      "range": {
+        "startLine": 151,
+        "startChar": 24,
+        "endLine": 153,
+        "endChar": 79
+      },
+      "revId": "dded3d9dde0b33482ef5da90d954658a53a9a62f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6c6b49d_b56d7c4e",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-04T23:54:28Z",
+      "side": 1,
+      "message": "Could immediately return false or break out of the loop the first time this evaluates false.",
+      "range": {
+        "startLine": 155,
+        "startChar": 28,
+        "endLine": 155,
+        "endChar": 64
+      },
+      "revId": "dded3d9dde0b33482ef5da90d954658a53a9a62f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
