@@ -34,6 +34,24 @@
       "revId": "0a61f556f9831ca205bd15614f80b827a6122d0b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1a1a115_defe98fa",
+        "filename": "test_integration/test_profile_policy.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-04T17:27:36Z",
+      "side": 1,
+      "message": "I\u0027m guessing the one about running in an allocation.  Also need decorate to detect --enable-beta, maybe need a decorator to detect the slurm plugin.",
+      "parentUuid": "92c762c1_40e8e257",
+      "revId": "0a61f556f9831ca205bd15614f80b827a6122d0b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
