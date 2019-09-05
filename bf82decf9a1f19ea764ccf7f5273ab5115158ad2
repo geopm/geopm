@@ -16,6 +16,24 @@
       "revId": "bf82decf9a1f19ea764ccf7f5273ab5115158ad2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "312f42c9_bfd9a542",
+        "filename": "src/SharedMemory.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-05T22:14:04Z",
+      "side": 1,
+      "message": "This method was added for the cases where the SharedMemoryImp goes out of scope, but we don\u0027t want to unlink the shared memory yet. Another suggestion (which I\u0027m not crazy about) is to have a bool in the constructor for whether the dtor should call shm_unlink.",
+      "parentUuid": "e6de39fa_703bc4cc",
+      "revId": "bf82decf9a1f19ea764ccf7f5273ab5115158ad2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
