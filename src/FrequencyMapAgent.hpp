@@ -83,11 +83,16 @@ namespace geopm
         private:
             void update_policy(const std::vector<double> &policy);
             void init_platform_io(void);
+            bool is_valid_policy_size(const std::vector<double> &policy) const;
 
             enum m_policy_e {
                 M_POLICY_FREQ_MIN,
                 M_POLICY_FREQ_MAX,
-                M_NUM_POLICY,
+                M_POLICY_FIRST_HASH,
+                M_POLICY_FIRST_FREQUENCY,
+                // The remainder of policy values can be additional pairs of
+                // (hash, frequency)
+                M_NUM_POLICY = 64,
             };
 
             enum m_signal_e {
@@ -115,6 +120,7 @@ namespace geopm
             int m_num_children;
             bool m_is_policy_updated;
             int m_num_freq_ctl_domain;
+            bool m_is_initialized_with_map;
     };
 }
 
