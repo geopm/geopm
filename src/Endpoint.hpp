@@ -104,7 +104,7 @@ namespace geopm
                           std::unique_ptr<SharedMemory> sample_shmem,
                           size_t num_policy,
                           size_t num_sample);
-            ~ShmemEndpoint();
+            virtual ~ShmemEndpoint();
 
             void open(void);
             void close(void);
@@ -176,7 +176,7 @@ namespace geopm
                               const std::string &profile_name,
                               const std::string &hostlist_path,
                               const std::vector<std::string> &hosts);
-            ~ShmemEndpointUser();
+            virtual ~ShmemEndpointUser();
             /// @brief Read the latest policy values.  All NAN indicates
             ///        that a policy has not been written yet.
             /// @param [out] policy The policy values read. The order
