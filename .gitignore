@@ -49,6 +49,7 @@
 /examples/geopm_dynamic_power_demo
 /examples/geopm_platform_supported
 /examples/geopm_print_error
+/examples/geopm_static_policy_demo
 /examples/geopmhash
 /examples/print_affinity
 /examples/simple_prof_c

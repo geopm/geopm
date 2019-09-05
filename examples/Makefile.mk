@@ -66,6 +66,10 @@ noinst_PROGRAMS += examples/geopm_dynamic_power_demo
 examples_geopm_dynamic_power_demo_SOURCES = examples/geopm_dynamic_power_demo.cpp
 examples_geopm_dynamic_power_demo_LDADD = libgeopmpolicy.la
 
+noinst_PROGRAMS += examples/geopm_static_policy_demo
+examples_geopm_static_policy_demo_SOURCES = examples/geopm_static_policy_demo.cpp
+examples_geopm_static_policy_demo_LDADD = libgeopmpolicy.la
+
 
 if ENABLE_MPI
     noinst_PROGRAMS += examples/timed_region
