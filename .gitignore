@@ -46,6 +46,7 @@
 /examples/fft/*.o
 /examples/fft/nas_ft
 /examples/geopm_ctl_single
+/examples/geopm_dynamic_power_demo
 /examples/geopm_platform_supported
 /examples/geopm_print_error
 /examples/geopmhash

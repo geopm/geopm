@@ -62,6 +62,11 @@ noinst_PROGRAMS += examples/geopmhash
 examples_geopmhash_SOURCES = examples/geopmhash.c
 examples_geopmhash_LDADD = libgeopmpolicy.la
 
+noinst_PROGRAMS += examples/geopm_dynamic_power_demo
+examples_geopm_dynamic_power_demo_SOURCES = examples/geopm_dynamic_power_demo.cpp
+examples_geopm_dynamic_power_demo_LDADD = libgeopmpolicy.la
+
+
 if ENABLE_MPI
     noinst_PROGRAMS += examples/timed_region
     examples_timed_region_SOURCES = examples/timed_region.cpp
