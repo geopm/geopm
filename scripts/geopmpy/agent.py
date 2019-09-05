@@ -72,6 +72,7 @@ int geopm_agent_name(int agent_idx,
 """)
 _dl = _ffi.dlopen('libgeopmpolicy.so')
 _name_max = 1024
+_policy_max = 8192
 
 def policy_names(agent_name):
     """Get the names of the policies for a given agent.
@@ -114,9 +115,18 @@ def policy_json(agent_name, policy_values):
         str: JSON str containing a valid policy using the given values.
 
     """
+    agent_name_cstr = _ffi.new("char[]", agent_name.encode())
     policy_array = _ffi.new("double[]", policy_values)
-    json_string = _ffi.new("char[]", _name_max)
-    err = _dl.geopm_agent_policy_json(agent_name.encode(), policy_array, _name_max, json_string)
+
+    all_names = policy_names(agent_name)
+    total_name_length = sum([len(name) for name in all_names])
+
+    # Account for quotation marks, key/value separator, record separator,
+    # root json node, and terminator
+    json_string = _ffi.new("char[]", _policy_max)
+    err = _dl.geopm_agent_policy_json(agent_name_cstr, policy_array,
+                                      _policy_max, json_string)
+
     if err < 0:
         raise RuntimeError("geopm_agent_policy_json() failed: {}".format(
             error.message(err)))
