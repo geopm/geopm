@@ -69,7 +69,7 @@ int geopm_agent_name(int agent_idx,
                      char *agent_name);
 """)
 _dl = _ffi.dlopen('libgeopmpolicy.so')
-_name_max = 1024
+_name_max = 4096
 
 def policy_names(agent_name):
     """Get the names of the policies for a given agent.

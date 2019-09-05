@@ -85,12 +85,6 @@ namespace geopm
             void update_policy(const std::vector<double> &policy);
             void init_platform_io(void);
 
-            enum m_policy_e {
-                M_POLICY_FREQ_MIN,
-                M_POLICY_FREQ_MAX,
-                M_NUM_POLICY,
-            };
-
             enum m_signal_e {
                 M_SIGNAL_REGION_HASH,
                 M_SIGNAL_REGION_HINT,
@@ -109,6 +103,7 @@ namespace geopm
             int m_num_children;
             bool m_is_policy_updated;
             int m_num_freq_ctl_domain;
+            bool m_is_initialized_with_map;
     };
 }
 
