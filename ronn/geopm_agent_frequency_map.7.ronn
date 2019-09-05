@@ -69,6 +69,26 @@ reports and traces with additional Agent-specific information.
               choose for any region.  If NAN is passed, it will use
               the maximum available frequency by default.
 
+  The rest of the policy consists of the map of per-region frequencies,
+  in pairs of region hash and region frequency. For example, to set a policy
+  with FREQ_MIN = 1 GHz, FREQ_MAX = 3 GHz, a mapped frequency of 2 GHz to
+  region hash 0x1234abcd, and 2.5 GHz to 0x2468cdef, the following policy could
+  be set: 1e9, 3e9, 0x1234abcd, 2e9, 0x2468cdef, 2.5e9
+
+  To encode as a json string, include a series of HASH_{index}, FREQ_{index}
+  pairs in the policy. For example, the above policy would look like:
+  { FREQ_MIN: 1e9, FREQ_MAX: 3e9, HASH_0: 0x1234abcd, FREQ_0: 2e9,
+    HASH_1: 0x2468cdef, FREQ_1: 2.5e9 }
+
+  The index values can be in the range of 0 to 30, inclusive. The order of
+  index values does not matter, and gaps in index values are permitted. Multiple
+  definitions of an index are not permitted, and multiple mappings of a region
+  are not permitted.
+
+  If the GEOPM_FREQUENCY_MAP environment variable specifies a frequency map,
+  the policy only consists of FREQ_MIN and FREQ_MAX. GEOPM_FREQUENCY_MAP is
+  deprecated and will no longer be used in a future release.
+
 
 * `Agent Sample Definitions`:
   N/A
