@@ -54,6 +54,39 @@ from test_integration import geopm_test_launcher
 import geopmpy.io
 import geopmpy.launcher
 
+def create_frequency_map_policy(min_freq, max_freq, frequency_map, use_env=False):
+    """Create a frequency map to be consumed by the frequency map agent.
+
+    Arguments:
+    min_freq: Floor frequency for the agent
+    max_freq: Ceiling frequency for the agent
+    frequency_map: Dictionary mapping region names to frequencies
+    use_env: If true, apply the map to an environment variable, and return
+             the policy needed when the environment variable is in use.
+             Otherwise, clear the environment variable and return the policy
+             needed when the variable is not in use.
+    """
+    policy = {'frequency_min': min_freq, 'frequency_max': max_freq}
+    known_hashes = {
+            'dgemm': 0x00000000a74bbf35,
+            'all2all': 0x000000003ddc81bf,
+            'stream': 0x00000000d691da00,
+            'sleep': 0x00000000536c798f,
+            'MPI_Barrier': 0x000000007b561f45,
+            'model-init': 0x00000000644f9787,
+            'unmarked-region': 0x00000000725e8066 }
+
+    if use_env:
+        os.environ['GEOPM_FREQUENCY_MAP'] = json.dumps(frequency_map)
+    else:
+        if 'GEOPM_FREQUENCY_MAP' in os.environ:
+            os.environ.pop('GEOPM_FREQUENCY_MAP')
+        for i, (region_name, frequency) in enumerate(frequency_map.items()):
+            region_hash = known_hashes[region_name]
+            policy['HASH_{}'.format(i)] = int(region_hash)
+            policy['FREQ_{}'.format(i)] = frequency
+
+    return policy
 
 class TestIntegration(unittest.TestCase):
     def setUp(self):
@@ -64,6 +97,7 @@ class TestIntegration(unittest.TestCase):
         self._output = None
         self._power_limit = geopm_test_launcher.geopmread("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0")
         self._frequency = geopm_test_launcher.geopmread("MSR::PERF_CTL:FREQ board 0")
+        self._original_freq_map_env = os.environ.get('GEOPM_FREQUENCY_MAP')
 
     def tearDown(self):
         geopm_test_launcher.geopmwrite("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0 " + str(self._power_limit))
@@ -76,6 +110,13 @@ class TestIntegration(unittest.TestCase):
                     os.remove(ff)
                 except OSError:
                     pass
+        if self._original_freq_map_env is None:
+            if 'GEOPM_FREQUENCY_MAP' in os.environ:
+                os.environ.pop('GEOPM_FREQUENCY_MAP')
+        else:
+            os.environ['GEOPM_FREQUENCY_MAP'] = self._original_freq_map_env
+
+
 
     def assertNear(self, a, b, epsilon=0.05, msg=''):
         denom = a if a != 0 else 1
@@ -1021,21 +1062,12 @@ class TestIntegration(unittest.TestCase):
             gemm_region = [key for key in region_names if key.lower().find('gemm') != -1]
             self.assertLessEqual(1, len(gemm_region))
 
-    @util.skip_unless_cpufreq()
-    @util.skip_unless_slurm_batch()
-    @util.skip_unless_optimized()
-    def test_agent_frequency_map(self):
-        """
-        Test of the FrequencyMapAgent.
-        """
+    def _test_agent_frequency_map(self, name, use_env=False):
         min_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
         max_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_MAX board 0")
         sticker_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
         freq_step = geopm_test_launcher.geopmread("CPUINFO::FREQ_STEP board 0")
         self._agent = "frequency_map"
-        self._options = {'frequency_min': min_freq,
-                         'frequency_max': max_freq}
-        name = 'test_agent_frequency_map'
         report_path = name + '.report'
         trace_path = name + '.trace'
         num_node = 1
@@ -1062,13 +1094,13 @@ class TestIntegration(unittest.TestCase):
         app_conf.append_region('stream', stream_bigo)
         app_conf.append_region('all2all', 1.0)
         app_conf.write()
+        freq_map = {}
+        freq_map['dgemm'] = sticker_freq
+        freq_map['stream'] = sticker_freq - 2 * freq_step
+        freq_map['all2all'] = min_freq
+        self._options = create_frequency_map_policy(min_freq, max_freq, freq_map, use_env)
         agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
-        data = {}
-        data['dgemm'] = sticker_freq
-        data['stream'] = sticker_freq - 2 * freq_step
-        data['all2all'] = min_freq
-        os.environ['GEOPM_FREQUENCY_MAP'] = json.dumps(data)
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path,
                                                     trace_path, region_barrier=True, time_limit=900)
         launcher.set_num_node(num_node)
@@ -1086,7 +1118,19 @@ class TestIntegration(unittest.TestCase):
                     #todo verify trace frequencies
                     #todo verify agent report augment frequecies
                     msg = region_name + " frequency should be near assigned map frequency"
-                    self.assertNear(region_data['frequency'].item(), data[region_name] / sticker_freq * 100, msg=msg)
+                    self.assertNear(region_data['frequency'].item(), freq_map[region_name] / sticker_freq * 100, msg=msg)
+
+    def test_agent_frequency_map_env(self):
+        """
+        Test of the FrequencyMapAgent, setting a map through GEOPM_FREQUENCY_MAP.
+        """
+        self._test_agent_frequency_map('test_agent_frequency_map_env', use_env=True)
+
+    def test_agent_frequency_map_policy(self):
+        """
+        Test of the FrequencyMapAgent, setting a map through the policy.
+        """
+        self._test_agent_frequency_map('test_agent_frequency_map_policy', use_env=False)
 
     def test_agent_energy_efficient_single_region(self):
         """
