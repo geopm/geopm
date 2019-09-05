@@ -53,6 +53,7 @@
 #include "MockFrequencyGovernor.hpp"
 #include "PlatformTopo.hpp"
 #include "geopm.h"
+#include "geopm_test.hpp"
 
 using ::testing::_;
 using ::testing::Invoke;
@@ -126,6 +127,11 @@ void FrequencyMapAgentTest::SetUp()
     m_mapped_freqs = {m_freq_max, 2100000000.0, 2000000000.0, 1900000000.0, m_freq_min};
     m_default_policy = {m_freq_min, m_freq_max};
 
+    for (size_t i = 0; i < M_NUM_REGIONS; ++i) {
+        m_default_policy.push_back(static_cast<double>(m_region_hash[i]));
+        m_default_policy.push_back(m_mapped_freqs[i]);
+    }
+
     // order of hints should alternate between min and max expected frequency
     m_region_hint = {GEOPM_REGION_HINT_COMPUTE, GEOPM_REGION_HINT_MEMORY,
                      GEOPM_REGION_HINT_SERIAL, GEOPM_REGION_HINT_NETWORK,
@@ -143,7 +149,8 @@ void FrequencyMapAgentTest::SetUp()
         frequency_map[m_region_hash[x]] = m_mapped_freqs[x];
     }
 
-    m_agent = geopm::make_unique<FrequencyMapAgent>(*m_platform_io, *m_platform_topo, m_governor, frequency_map);
+    m_agent = geopm::make_unique<FrequencyMapAgent>(
+        *m_platform_io, *m_platform_topo, m_governor, std::map<uint64_t, double>{});
     // todo: this test assumes board domain is used for control
     EXPECT_CALL(*m_governor, init_platform_io());
     EXPECT_CALL(*m_governor, frequency_domain_type());
@@ -224,7 +231,7 @@ TEST_F(FrequencyMapAgentTest, enforce_policy)
 {
     const double limit = 1e9;
     const std::vector<double> policy{0, limit};
-    const std::vector<double> bad_policy{100, 200, 300};
+    const std::vector<double> bad_policy(123, 100);
 
     EXPECT_CALL(*m_platform_io, write_control("FREQUENCY", GEOPM_DOMAIN_BOARD, 0, limit));
 
@@ -251,4 +258,34 @@ TEST_F(FrequencyMapAgentTest, policy_to_json)
               get_freq_map_json_from_policy({ 0, 1e40 }));
     EXPECT_EQ(Json(Json::object{ { "FREQ_MIN", 0 }, { "FREQ_MAX", 1e-40 } }),
               get_freq_map_json_from_policy({ 0, 1e-40 }));
+}
+
+TEST_F(FrequencyMapAgentTest, validate_policy)
+{
+    using ::testing::Pointwise;
+    using ::testing::NanSensitiveDoubleEq;
+
+    std::vector<double> policy{400, 500, 123, 456, NAN, NAN};
+    m_agent->validate_policy(policy);
+    EXPECT_THAT(policy, Pointwise(NanSensitiveDoubleEq(), std::vector<double>{400, 500, 123, 456, NAN, NAN}));
+
+    policy = {400, 500, 123, 456, 123, 450};
+    EXPECT_THROW(m_agent->validate_policy(policy), geopm::Exception)
+        << "Region with multiple mapped frequencies";
+
+    policy = {400, 500, 123, NAN};
+    m_agent->validate_policy(policy);
+    EXPECT_EQ(400, policy[0]);
+    EXPECT_EQ(500, policy[1]);
+    EXPECT_EQ(123, policy[2]);
+    EXPECT_TRUE(std::isnan(policy[3]));
+
+    policy = {400, 500, NAN, NAN, 0x123, 2e9};
+    m_agent->validate_policy(policy);
+    EXPECT_THAT(policy, Pointwise(NanSensitiveDoubleEq(), std::vector<double>{400, 500, NAN, NAN, 0x123, 2e9}))
+        << "Gap in policy";
+
+    policy = {400, 500, NAN, 456};
+    EXPECT_THROW(m_agent->validate_policy(policy), geopm::Exception)
+        << "Frequency without region";
 }
