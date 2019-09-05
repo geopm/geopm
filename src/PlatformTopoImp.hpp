@@ -74,6 +74,7 @@ namespace geopm
             int m_core_per_package;
             int m_thread_per_core;
             std::vector<std::set<int> > m_numa_map;
+            bool m_has_package_memory;
     };
 }
 #endif

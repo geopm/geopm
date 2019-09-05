@@ -99,11 +99,15 @@ namespace geopm
     PlatformTopoImp::PlatformTopoImp(const std::string &test_cache_file_name)
         : M_TEST_CACHE_FILE_NAME(test_cache_file_name)
         , m_do_fclose(true)
+        , m_has_package_memory(false)
     {
         std::map<std::string, std::string> lscpu_map;
         lscpu(lscpu_map);
         parse_lscpu(lscpu_map, m_num_package, m_core_per_package, m_thread_per_core);
         parse_lscpu_numa(lscpu_map, m_numa_map);
+        if (m_numa_map.size() > 1) {
+            m_has_package_memory = m_numa_map[1].size() == 0;
+        }
     }
 
     int PlatformTopoImp::num_domain(int domain_type) const
@@ -122,16 +126,13 @@ namespace geopm
             case GEOPM_DOMAIN_CPU:
                 result = m_num_package * m_core_per_package * m_thread_per_core;
                 break;
+            case GEOPM_DOMAIN_PACKAGE_MEMORY:
+                if (!m_has_package_memory) {
+                    break;
+                }
             case GEOPM_DOMAIN_BOARD_MEMORY:
                 for (const auto &it : m_numa_map) {
                     if (it.size()) {
-                        ++result;
-                    }
-                }
-                break;
-            case GEOPM_DOMAIN_PACKAGE_MEMORY:
-                for (const auto &it : m_numa_map) {
-                    if (!it.size()) {
                         ++result;
                     }
                 }
@@ -175,6 +176,10 @@ namespace geopm
                     cpu_idx.insert(numa_cpus.begin(), numa_cpus.end());
                 }
                 break;
+            case GEOPM_DOMAIN_PACKAGE_MEMORY:
+                if (!m_has_package_memory) {
+                    break;
+                }
             case GEOPM_DOMAIN_PACKAGE:
                 for (int thread_idx = 0;
                      thread_idx != m_thread_per_core;
@@ -231,6 +236,10 @@ namespace geopm
                 case GEOPM_DOMAIN_BOARD:
                     result = 0;
                     break;
+                case GEOPM_DOMAIN_PACKAGE_MEMORY:
+                    if (!m_has_package_memory) {
+                        break;
+                    }
                 case GEOPM_DOMAIN_PACKAGE:
                     core_idx = cpu_idx % (m_num_package * m_core_per_package);
                     result = core_idx / m_core_per_package;
@@ -258,7 +267,6 @@ namespace geopm
                         ++numa_idx;
                     }
                     break;
-                case GEOPM_DOMAIN_PACKAGE_MEMORY:
                 case GEOPM_DOMAIN_BOARD_NIC:
                 case GEOPM_DOMAIN_PACKAGE_NIC:
                 case GEOPM_DOMAIN_BOARD_ACCELERATOR:
