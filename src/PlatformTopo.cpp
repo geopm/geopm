@@ -199,12 +199,6 @@ namespace geopm
             case GEOPM_DOMAIN_BOARD_MEMORY:
                 cpu_idx = m_numa_map[domain_idx];
                 break;
-            default:
-                throw Exception("PlatformTopoImp::domain_cpus(domain_type=" +
-                                std::to_string(domain_type) +
-                                ") support not yet implemented",
-                                GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-                break;
         }
         return cpu_idx;
     }
@@ -259,6 +253,7 @@ namespace geopm
                     }
                     break;
                 case GEOPM_DOMAIN_PACKAGE_MEMORY:
+                    break;
                 case GEOPM_DOMAIN_BOARD_NIC:
                 case GEOPM_DOMAIN_PACKAGE_NIC:
                 case GEOPM_DOMAIN_BOARD_ACCELERATOR:
