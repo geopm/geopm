@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9dd6fee4_db2430fa",
+        "filename": "src/Endpoint.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-05T16:20:44Z",
+      "side": 1,
+      "message": "rm",
+      "revId": "40bfad7dd3443e859e55d9babb4eb5b216b92e05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c63a9486_d9f82401",
+        "filename": "src/Endpoint.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-05T16:20:44Z",
+      "side": 1,
+      "message": "this can be stricter; check m_num_sample from agent",
+      "revId": "40bfad7dd3443e859e55d9babb4eb5b216b92e05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc95d421_5603478d",
+        "filename": "src/Endpoint.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-05T16:20:44Z",
+      "side": 1,
+      "message": "create hostfile here.  put in /tmp, mkfstmp is safest",
+      "revId": "40bfad7dd3443e859e55d9babb4eb5b216b92e05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcb42426_cccf071e",
+        "filename": "src/Endpoint.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-05T16:20:44Z",
+      "side": 1,
+      "message": "not now",
+      "range": {
+        "startLine": 323,
+        "startChar": 7,
+        "endLine": 323,
+        "endChar": 45
+      },
+      "revId": "40bfad7dd3443e859e55d9babb4eb5b216b92e05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10dca39c_207847a4",
+        "filename": "src/Endpoint.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-05T16:20:44Z",
+      "side": 1,
+      "message": "rm, different patch?",
+      "range": {
+        "startLine": 452,
+        "startChar": 3,
+        "endLine": 475,
+        "endChar": 5
+      },
+      "revId": "40bfad7dd3443e859e55d9babb4eb5b216b92e05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69ea7458_f633aa34",
+        "filename": "src/Endpoint.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-05T16:20:44Z",
+      "side": 1,
+      "message": "16 bytes",
+      "range": {
+        "startLine": 59,
+        "startChar": 37,
+        "endLine": 59,
+        "endChar": 44
+      },
+      "revId": "40bfad7dd3443e859e55d9babb4eb5b216b92e05",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
