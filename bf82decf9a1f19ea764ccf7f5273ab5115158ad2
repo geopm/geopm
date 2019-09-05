@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6de39fa_703bc4cc",
+        "filename": "src/SharedMemory.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-05T21:39:52Z",
+      "side": 1,
+      "message": "SharedMemoryImp::unlink() is being manually called in a lot of places where SharedMemoryImp goes out of scope. Could that be avoided for most or all cases? e.g. call unlink on descruction, but make unlink do nothing if it has already been done on this instance.",
+      "revId": "bf82decf9a1f19ea764ccf7f5273ab5115158ad2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
