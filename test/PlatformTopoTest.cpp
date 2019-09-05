@@ -372,11 +372,12 @@ TEST_F(PlatformTopoTest, bdx_domain_idx)
                                    54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71};
     for (auto cpu_idx : cpu_set_node0) {
         EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_BOARD_MEMORY, cpu_idx));
+        EXPECT_EQ(-1, topo.domain_idx(GEOPM_DOMAIN_PACKAGE_MEMORY, cpu_idx));
     }
     for (auto cpu_idx : cpu_set_node1) {
         EXPECT_EQ(1, topo.domain_idx(GEOPM_DOMAIN_BOARD_MEMORY, cpu_idx));
+        EXPECT_EQ(-1, topo.domain_idx(GEOPM_DOMAIN_PACKAGE_MEMORY, cpu_idx));
     }
-    EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_PACKAGE_MEMORY, 0), geopm::Exception);
     EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_BOARD_NIC, 0), geopm::Exception);
     EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_PACKAGE_NIC, 0), geopm::Exception);
     EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR, 0), geopm::Exception);
