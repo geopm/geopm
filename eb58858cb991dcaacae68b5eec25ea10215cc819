@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b01a39f_b6c04c32",
+        "filename": "travis_ci.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-06T21:18:28Z",
+      "side": 1,
+      "message": "make check also runs the python unit tests",
+      "revId": "eb58858cb991dcaacae68b5eec25ea10215cc819",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
