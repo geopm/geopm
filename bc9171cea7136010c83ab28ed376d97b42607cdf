@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be864233_5059e2e7",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-09-06T19:04:18Z",
+      "side": 1,
+      "message": "don\u0027t need member",
+      "revId": "bc9171cea7136010c83ab28ed376d97b42607cdf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb8fb679_52454865",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-09-06T19:04:18Z",
+      "side": 1,
+      "message": "Correct logic (though not needed) would be to look to see if *any* numa node has zero cpus associated with it",
+      "revId": "bc9171cea7136010c83ab28ed376d97b42607cdf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6478a4da_8ecc2e3e",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-09-06T19:04:18Z",
+      "side": 1,
+      "message": "old logic was correct (note !)",
+      "revId": "bc9171cea7136010c83ab28ed376d97b42607cdf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f78d4cd_7203d30a",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-09-06T19:04:18Z",
+      "side": 1,
+      "message": "return empty set for all domains in range, don\u0027t throw.",
+      "revId": "bc9171cea7136010c83ab28ed376d97b42607cdf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccba73f5_6f31d4aa",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-09-06T19:04:18Z",
+      "side": 1,
+      "message": "return -1",
+      "revId": "bc9171cea7136010c83ab28ed376d97b42607cdf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
