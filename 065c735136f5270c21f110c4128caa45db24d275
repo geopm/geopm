@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ddff9ad_8b5e1ef3",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-06T20:26:05Z",
+      "side": 0,
+      "message": "should previous patch that adds this be revised?",
+      "revId": "065c735136f5270c21f110c4128caa45db24d275",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
