@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "95798af3_52b23767",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1145,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-06T20:53:35Z",
+      "side": 1,
+      "message": "these should use sys.stdout.write instead of print",
+      "revId": "58a76a0b628ebd596c6a742a0091f5802b173986",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
