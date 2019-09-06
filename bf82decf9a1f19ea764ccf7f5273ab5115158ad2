@@ -52,6 +52,24 @@
       "revId": "bf82decf9a1f19ea764ccf7f5273ab5115158ad2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b0a6edb6_60fb7179",
+        "filename": "src/SharedMemory.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-06T21:43:24Z",
+      "side": 1,
+      "message": "I think we can use SharedMemoryUser to unlink shared memory regions whose original creator\u0027s process has ended.  The \"owner\" is a little unclear because both sides can unlink.\n\nThe intended use case is:\n\u003e geopmendpoint --create ep1\n# /dev/shm/ep1 is created\n# geopmendpoint process ends\n# controller comes up reads from /dev/shm/ep1\n# .. some time later\n\u003e geopmendpoint --destroy ep2\n# /dev/shm/ep1 is gone",
+      "parentUuid": "abf34b5a_69d94691",
+      "revId": "bf82decf9a1f19ea764ccf7f5273ab5115158ad2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
