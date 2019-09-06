@@ -1058,6 +1058,7 @@ class IMPIExecLauncher(Launcher):
         self.timeout = None
         self.time_limit = None
         self.job_name = None
+        self.reservation = None
 
     def num_node_option(self):
         return ['-ppn', str(self.rank_per_node)]
