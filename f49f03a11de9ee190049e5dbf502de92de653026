@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fdf18c85_6ae3c75b",
+        "filename": "test/ProfileTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-09-06T21:10:13Z",
+      "side": 1,
+      "message": "this could be the parameter passed to a function implemented with this block as it\u0027s body.  get\u0027s rid of dupe\u0027d code",
+      "range": {
+        "startLine": 624,
+        "startChar": 42,
+        "endLine": 624,
+        "endChar": 56
+      },
+      "revId": "f49f03a11de9ee190049e5dbf502de92de653026",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
