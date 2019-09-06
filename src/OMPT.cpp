@@ -49,7 +49,7 @@
 
 #ifdef GEOPM_ENABLE_OMPT
 
-#include <ompt.h>
+#include <omp-tools.h>
 
 extern "C"
 {
@@ -63,8 +63,8 @@ namespace geopm
         public:
             OMPT() = default;
             virtual ~OMPT() = default;
-            uint64_t region_id(void *parallel_function);
-            void region_name(void *parallel_function, std::string &name);
+            uint64_t region_id(const void *parallel_function);
+            void region_name(const void *parallel_function, std::string &name);
         private:
             /// Map from function address to geopm region ID
             std::map<size_t, uint64_t> m_function_region_id_map;
@@ -76,7 +76,7 @@ namespace geopm
         return instance;
     }
 
-    uint64_t OMPT::region_id(void *parallel_function)
+    uint64_t OMPT::region_id(const void *parallel_function)
     {
         uint64_t result = GEOPM_REGION_HASH_UNMARKED;
         auto it = m_function_region_id_map.find((size_t)parallel_function);
@@ -97,15 +97,15 @@ namespace geopm
         return result;
     }
 
-    void OMPT::region_name(void *parallel_function, std::string &name)
+    void OMPT::region_name(const void *parallel_function, std::string &name)
     {
         size_t target = (size_t) parallel_function;
         std::ostringstream name_stream;
         std::string symbol_name;
-        name_stream << "[OMPT] ";
+        name_stream << "[OMPT]";
         std::pair<size_t, std::string> symbol = symbol_lookup(parallel_function);
         if (symbol.second.size()) {
-            name_stream << symbol.second << "+" << target - symbol.first;
+            name_stream << symbol.second << "+0x" << std::hex << target - symbol.first;
         }
         else {
             // Set the name to the address if lookup failed
@@ -119,21 +119,20 @@ namespace geopm
 
 extern "C"
 {
-    static void *g_curr_parallel_function = NULL;
-    static ompt_parallel_id_t g_curr_parallel_id;
+
+    static const void *g_curr_parallel_function = NULL;
     static uint64_t g_curr_region_id = GEOPM_REGION_HASH_UNMARKED;
 
-    static void on_ompt_event_parallel_begin(ompt_task_id_t parent_task_id,
-                                             ompt_frame_t *parent_task_frame,
-                                             ompt_parallel_id_t parallel_id,
-                                             uint32_t requested_team_size,
-                                             void *parallel_function,
-                                             ompt_invoker_t invoker)
+    static void on_ompt_event_parallel_begin(ompt_data_t *encountering_task_data,
+                                             const ompt_frame_t *encountering_task_frame,
+                                             ompt_data_t *parallel_data,
+                                             unsigned int requested_parallelism,
+                                             int flags,
+                                             const void *parallel_function)
     {
         if (geopm_is_pmpi_prof_enabled() &&
             g_curr_parallel_function != parallel_function) {
             g_curr_parallel_function = parallel_function;
-            g_curr_parallel_id = parallel_id;
             g_curr_region_id = geopm::ompt().region_id(parallel_function);
         }
         if (g_curr_region_id != GEOPM_REGION_HASH_UNMARKED) {
@@ -141,31 +140,40 @@ extern "C"
         }
     }
 
-    static void on_ompt_event_parallel_end(ompt_parallel_id_t parallel_id,
-                                           ompt_task_id_t task_id,
-                                           ompt_invoker_t invoker)
+    static void on_ompt_event_parallel_end(ompt_data_t *parallel_data,
+                                           ompt_data_t *encountering_task_data,
+                                           int flags,
+                                           const void *parallel_function)
     {
         if (geopm_is_pmpi_prof_enabled() &&
             g_curr_region_id != GEOPM_REGION_HASH_UNMARKED &&
-            g_curr_parallel_id == parallel_id) {
+            g_curr_parallel_function == parallel_function) {
             geopm_prof_exit(g_curr_region_id);
         }
     }
 
-
-    void ompt_initialize(ompt_function_lookup_t lookup,
-                         const char *runtime_version,
-                         unsigned int ompt_version)
+    int ompt_initialize(ompt_function_lookup_t lookup,
+                        int initial_device_num,
+                        ompt_data_t *tool_data)
     {
         ompt_set_callback_t ompt_set_callback = (ompt_set_callback_t) lookup("ompt_set_callback");
-        ompt_set_callback(ompt_event_parallel_begin, (ompt_callback_t) &on_ompt_event_parallel_begin);
-        ompt_set_callback(ompt_event_parallel_end, (ompt_callback_t) &on_ompt_event_parallel_end);
+        ompt_set_callback(ompt_callback_parallel_begin, (ompt_callback_t) &on_ompt_event_parallel_begin);
+        ompt_set_callback(ompt_callback_parallel_end, (ompt_callback_t) &on_ompt_event_parallel_end);
+        // OpenMP 5.0 standard says return non-zero on success!?!?!
+        return 1;
+    }
+
+    void ompt_finalize(ompt_data_t *data)
+    {
 
     }
 
-    ompt_initialize_t ompt_tool()
+    ompt_start_tool_result_t *ompt_start_tool(unsigned int omp_version, const char *runtime_version)
     {
-        return &ompt_initialize;
+        static ompt_start_tool_result_t ompt_start_tool_result = {&ompt_initialize,
+                                                                  &ompt_finalize,
+                                                                  {}};
+        return &ompt_start_tool_result;
     }
 }
 
