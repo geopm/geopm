@@ -381,7 +381,7 @@ AC_CHECK_HEADER([sqlite3.h], [], [
 exit -1]):
 
 AC_CHECK_HEADER([xmmintrin.h], [AC_DEFINE([GEOPM_HAS_XMMINTRIN], [1], [xmmintrin.h is available])], [])
-AC_CHECK_HEADER([ompt.h], [AC_DEFINE([GEOPM_HAS_OMPT], [1], [ompt.h is available]) [has_ompt="1"]], [has_ompt="0"])
+AC_CHECK_HEADER([omp-tools.h], [AC_DEFINE([GEOPM_HAS_OMPT], [1], [omp-tools.h is available]) [has_ompt="1"]], [has_ompt="0"])
 
 AC_ARG_ENABLE([ompt],
   [AS_HELP_STRING([--enable-ompt], [Use OpenMP Tool interface])],
