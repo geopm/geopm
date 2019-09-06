@@ -16,6 +16,24 @@
       "revId": "eb58858cb991dcaacae68b5eec25ea10215cc819",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd916d8c_5c9131ef",
+        "filename": "travis_ci.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-06T23:29:59Z",
+      "side": 1,
+      "message": "Yeah. The main difference is that make check individually invokes each test case as a separate process. The other tests in this file use explicit python versions and invoke the tests the same way setuptools would invoke them.\n\nIf those cases are too similar to be worth re-running, I can look into adding a flag to bypass the python tests in make check. Any preference?",
+      "parentUuid": "9b01a39f_b6c04c32",
+      "revId": "eb58858cb991dcaacae68b5eec25ea10215cc819",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
