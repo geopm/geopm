@@ -39,19 +39,22 @@ class TestPolicyStoreIntegration(unittest.TestCase):
     def test_all_interfaces(self):
         geopmpy.policy_store.connect(':memory:')
 
-        geopmpy.policy_store.set_best('p1', 'a1', [0.5, 1])
-        geopmpy.policy_store.set_default('a1', [2, 4])
-        self.assertEqual([0.5, 1], geopmpy.policy_store.get_best('p1', 'a1'))
-        self.assertEqual([2, 4], geopmpy.policy_store.get_best('p2', 'a1'))
+        geopmpy.policy_store.set_best('p1', 'frequency_map', [0.5, 1])
+        geopmpy.policy_store.set_default('frequency_map', [2, 4])
+        self.assertEqual([0.5, 1], geopmpy.policy_store.get_best('p1', 'frequency_map'))
+        self.assertEqual([2, 4], geopmpy.policy_store.get_best('p2', 'frequency_map'))
         with self.assertRaises(RuntimeError):
-            geopmpy.policy_store.get_best('p2', 'a2')
+            geopmpy.policy_store.get_best('p2', 'power_balancer')
 
         geopmpy.policy_store.disconnect()
 
         # Attempt accesses to a closed connection
         with self.assertRaises(RuntimeError):
-            geopmpy.policy_store.set_best('p1', 'a1', [0.5, 1])
+            geopmpy.policy_store.set_best('p1', 'frequency_map', [0.5, 1])
         with self.assertRaises(RuntimeError):
-            geopmpy.policy_store.set_default('a1', [2, 4])
+            geopmpy.policy_store.set_default('frequency_map', [2, 4])
         with self.assertRaises(RuntimeError):
-            self.assertEqual([0.5, 1], geopmpy.policy_store.get_best('p1', 'a1'))
+            self.assertEqual([0.5, 1], geopmpy.policy_store.get_best('p1', 'frequency_map'))
+
+if __name__ == '__main__':
+    unittest.main()
