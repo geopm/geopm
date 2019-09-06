@@ -16,6 +16,24 @@
       "revId": "065c735136f5270c21f110c4128caa45db24d275",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40f5b14f_531abc9a",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-06T20:32:31Z",
+      "side": 1,
+      "message": "Oops. Yeah. I\u0027ll remove it from this patch.\n\nThe approach taken in the next patch is more direct than the approach taken here.",
+      "parentUuid": "fc546810_5ccb6a5f",
+      "revId": "065c735136f5270c21f110c4128caa45db24d275",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
