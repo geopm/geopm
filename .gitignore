@@ -82,8 +82,8 @@
 /m4/lt~obsolete.m4
 /man/*
 /missing
-/openmp-4.0.0.src.tar.xz
-/openmp-4.0.0.src/*
+/openmp-*.src.tar.xz
+/openmp-*.src/*
 /openmp/*
 /plugin/*.lo
 /plugin/*.o
