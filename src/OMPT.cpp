@@ -49,7 +49,7 @@
 
 #ifdef GEOPM_ENABLE_OMPT
 
-#include <ompt.h>
+#include <omp-tools.h>
 
 extern "C"
 {
@@ -119,16 +119,17 @@ namespace geopm
 
 extern "C"
 {
+
     static void *g_curr_parallel_function = NULL;
     static ompt_parallel_id_t g_curr_parallel_id;
     static uint64_t g_curr_region_id = GEOPM_REGION_HASH_UNMARKED;
 
-    static void on_ompt_event_parallel_begin(ompt_task_id_t parent_task_id,
-                                             ompt_frame_t *parent_task_frame,
-                                             ompt_parallel_id_t parallel_id,
-                                             uint32_t requested_team_size,
-                                             void *parallel_function,
-                                             ompt_invoker_t invoker)
+    static void on_ompt_event_parallel_begin(ompt_data_t *encountering_task_data,
+                                             const ompt_frame_t *encountering_task_frame,
+                                             ompt_data_t *parallel_data,
+                                             unsigned int requested_parallelism,
+                                             int flags,
+                                             const void *codeptr_ra)
     {
         if (geopm_is_pmpi_prof_enabled() &&
             g_curr_parallel_function != parallel_function) {
@@ -141,9 +142,10 @@ extern "C"
         }
     }
 
-    static void on_ompt_event_parallel_end(ompt_parallel_id_t parallel_id,
-                                           ompt_task_id_t task_id,
-                                           ompt_invoker_t invoker)
+    static void on_ompt_event_parallel_end(ompt_data_t *parallel_data,
+                                           ompt_data_t *encountering_task_data,
+                                           int flags,
+                                           const void *codeptr_ra)
     {
         if (geopm_is_pmpi_prof_enabled() &&
             g_curr_region_id != GEOPM_REGION_HASH_UNMARKED &&
@@ -153,19 +155,62 @@ extern "C"
     }
 
 
-    void ompt_initialize(ompt_function_lookup_t lookup,
-                         const char *runtime_version,
-                         unsigned int ompt_version)
+    static void on_ompt_event_work(ompt_work_t wstype,
+                                   ompt_scope_endpoint_t endpoint,
+                                   ompt_data_t *parallel_data,
+                                   ompt_data_t *task_data,
+                                   uint64_t count,
+                                   const void *codeptr_ra)
+    {
+        if (count) {
+        // When CLANG supports ompt_callback_dispatch we can use that
+        // interface to call into the thread progress APIs of GEOPM.
+        // We will use opmt_callback_work to initialize the loop
+        // counter.
+        //
+        // geopm_tprof_init_loop(num_thread,
+        //                       thread_idx,
+        //                       count,
+        //                       chunk_size);
+        }
+    }
+
+
+    static void on_ompt_event_dispatch(ompt_data_t *parallel_data,
+                                       ompt_data_t *task_data,
+                                       ompt_dispatch_t kind,
+                                       ompt_data_t instance)
+    {
+        // When CLANG supports ompt_callback_dispatch we can use that
+        // interface to call into the thread progress APIs of GEOPM.
+        //
+        // geopm_tprof_post()
+    }
+
+    int ompt_initialize(ompt_function_lookup_t lookup,
+                        int initial_device_num,
+                        ompt_data_t *tool_data)
     {
         ompt_set_callback_t ompt_set_callback = (ompt_set_callback_t) lookup("ompt_set_callback");
-        ompt_set_callback(ompt_event_parallel_begin, (ompt_callback_t) &on_ompt_event_parallel_begin);
-        ompt_set_callback(ompt_event_parallel_end, (ompt_callback_t) &on_ompt_event_parallel_end);
+        ompt_set_callback(ompt_callback_parallel_begin, (ompt_callback_t) &on_ompt_event_parallel_begin);
+        ompt_set_callback(ompt_callback_parallel_end, (ompt_callback_t) &on_ompt_event_parallel_end);
+        ompt_set_callback(ompt_callback_work, (ompt_callback_t) &on_ompt_event_work);
+        ompt_set_callback(ompt_callback_dispatch, (ompt_callback_t) &on_ompt_event_dispatch);
+    }
+
+    void ompt_finalize(ompt_data_t *data)
+    {
 
     }
 
-    ompt_initialize_t ompt_tool()
+    ompt_start_tool_result_t *ompt_start_tool(unsigned int omp_version, const char *runtime_version)
     {
-        return &ompt_initialize;
+        static double time = 0;
+        time = omp_get_wtime();
+        static ompt_start_tool_result_t ompt_start_tool_result = {&ompt_initialize,
+                                                                  &ompt_finalize,
+                                                                  {.ptr=&time}};
+        return &ompt_start_tool_result;
     }
 }
 
