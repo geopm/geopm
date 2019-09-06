@@ -16,6 +16,24 @@
       "revId": "fa456714e01af433c7f39eef2a608a688926b0a6",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ec4ae89_12bf33e2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-06T23:10:36Z",
+      "side": 1,
+      "message": "All 3 are slightly different, but io.StringIO in Python 2 behaves most similar to io.StringIO in Python 3.\n\n- StringIO.StringIO works with Python 2\u0027s str type (for both text and binary data).\n- Python 2\u0027s io.StringIO works with the unicode type (text data, defaulting to utf-8 encoding)\n- Python 3\u0027s io.StringIO works with the str type (text data, defaulting to utf-8 encoding)",
+      "parentUuid": "9d30e9a9_ba089a89",
+      "revId": "fa456714e01af433c7f39eef2a608a688926b0a6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
