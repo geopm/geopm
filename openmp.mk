@@ -39,7 +39,7 @@ AM_LDFLAGS += -Lopenmp/lib
 
 BUILT_SOURCES += openmp/lib/libiomp5.so \
                  openmp/include/omp.h \
-                 openmp/include/ompt.h \
+                 openmp/include/omp-tools.h \
                  # end
 
 EXTRA_DIST += $(openmp_archive)
@@ -49,12 +49,12 @@ DISTCLEANFILES += openmp/VERSION \
 
 dist-openmp: openmp_archive_check
 
-openmp_src = openmp-$(openmp_version).src/runtime
-openmp_version = 4.0.0
+openmp_src = openmp-$(openmp_version).src/runtime/runtime/src
+openmp_version = 8.0.1
 openmp_archive = openmp-$(openmp_version).src.tar.xz
-openmp_url = http://releases.llvm.org/$(openmp_version)/openmp-$(openmp_version).src.tar.xz
-openmp_sha1 = 827a825f29b98e19a12e9b714681e61643636bb4
-openmp_so = openmp-$(openmp_version).src/runtime/src/libomp.so
+openmp_url = https://github.com/llvm/llvm-project/releases/download/llvmorg-$(openmp_version)/openmp-$(openmp_version).src.tar.xz
+openmp_sha1 = 64fc83d7ba5be944835961827acad93fd36a9c0c
+openmp_so = $(openmp_src)/libomp.so
 
 $(openmp_archive):
 	wget --timeout=20 $(openmp_url) || \
@@ -93,7 +93,7 @@ $(openmp_so): openmp/VERSION
 	    exit -1; \
 	fi
 	cd openmp-$(openmp_version).src/runtime && \
-	cmake -DLIBOMP_OMPT_SUPPORT=on -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX) && \
+	cmake -DLIBOMP_OMPT_SUPPORT=on -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX) -Wno-dev .. && \
 	make
 
 openmp/lib/libiomp5.so: $(openmp_so)
@@ -103,10 +103,10 @@ openmp/lib/libiomp5.so: $(openmp_so)
 	mkdir -p openmp/include
 
 openmp/include/omp.h: openmp/lib/libiomp5.so
-	cp openmp-$(openmp_version).src/runtime/exports/common.ompt/include/omp.h openmp/include/omp.h
+	cp $(openmp_src)/omp.h openmp/include/omp.h
 
-openmp/include/ompt.h: openmp/lib/libiomp5.so
-	cp openmp-$(openmp_version).src/runtime/exports/common.ompt/include/ompt.h openmp/include/ompt.h
+openmp/include/omp-tools.h: openmp/lib/libiomp5.so
+	cp $(openmp_src)/omp-tools.h openmp/include/omp-tools.h
 
 install-openmp: openmp/lib/libiomp5.so
 	$(INSTALL) -d $(DESTDIR)/$(pkglibdir)/openmp/lib
