@@ -34,14 +34,24 @@
 import unittest
 import mock
 import geopm_context
+try:
+    from importlib import reload
+except ImportError:
+    # reload is built-in in python 2, and is part of importlib in Python 3.4+
+    pass
 
 mock_c = mock.MagicMock()
-with mock.patch('cffi.FFI.dlopen', return_value=mock_c):
-    import geopmpy.policy_store
+import geopmpy.policy_store
 
 class TestPolicyStore(unittest.TestCase):
     def setUp(self):
         mock_c.reset_mock()
+        with mock.patch('cffi.FFI.dlopen', return_value=mock_c):
+            reload(geopmpy.policy_store)
+
+    def tearDown(self):
+        # Reset the mocked interface for other tests
+        reload(geopmpy.policy_store)
 
     def test_connect(self):
         mock_c.geopm_policystore_connect.return_value = 0
@@ -98,3 +108,6 @@ class TestPolicyStore(unittest.TestCase):
         mock_c.geopm_policystore_set_default.return_value = -1
         with self.assertRaises(RuntimeError):
             geopmpy.policy_store.set_default('a1', [1., 2.])
+
+if __name__ == '__main__':
+    unittest.main()
