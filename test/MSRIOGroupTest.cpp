@@ -91,7 +91,7 @@ class MockMSRIO : public geopm::MSRIOImp
         std::vector<std::string> test_dev_paths();
     protected:
         void msr_path(int cpu_idx,
-                      bool is_fallback,
+                      int is_fallback,
                       std::string &path) override;
         void msr_batch_path(std::string &path) override;
 
@@ -155,7 +155,7 @@ std::vector<std::string> MockMSRIO::test_dev_paths()
 }
 
 void MockMSRIO::msr_path(int cpu_idx,
-                         bool is_fallback,
+                         int is_fallback,
                          std::string &path)
 {
     path = m_test_dev_path[cpu_idx];

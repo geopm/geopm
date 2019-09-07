@@ -73,6 +73,12 @@ namespace geopm
                 struct m_msr_batch_op_s *ops;  /// @brief In: Array[numops] of operations
             };
 
+            enum m_fallback_e {
+                M_FALLBACK_MSRSAFE,
+                M_FALLBACK_MSR,
+                M_NUM_FALLBACK,
+            };
+
             void open_msr(int cpu_idx);
             void open_msr_batch(void);
             void close_msr(int cpu_idx);
@@ -81,7 +87,7 @@ namespace geopm
             int msr_batch_desc(void);
             void msr_ioctl(bool is_read);
             virtual void msr_path(int cpu_idx,
-                                  bool is_fallback,
+                                  int fallback_idx,
                                   std::string &path);
             virtual void msr_batch_path(std::string &path);
 
