@@ -54,7 +54,7 @@ class TestMSRIO : public geopm::MSRIOImp
         char *msr_space_ptr(int cpu_idx, off_t offset);
     protected:
         void msr_path(int cpu_idx,
-                      bool is_fallback,
+                      int is_fallback,
                       std::string &path) override;
         void msr_batch_path(std::string &path) override;
         const char **msr_words(void) const;
@@ -110,7 +110,7 @@ TestMSRIO::~TestMSRIO()
 }
 
 void TestMSRIO::msr_path(int cpu_idx,
-                         bool is_fallback,
+                         int is_fallback,
                          std::string &path)
 {
     path = m_test_dev_path[cpu_idx];
