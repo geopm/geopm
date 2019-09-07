@@ -269,18 +269,27 @@ namespace geopm
     }
 
     void MSRIOImp::msr_path(int cpu_idx,
-                            bool is_fallback,
+                            int fallback_idx,
                             std::string &path)
     {
-        std::ostringstream msr_path;
-        msr_path << "/dev/cpu/" << cpu_idx;
-        if (!is_fallback) {
-            msr_path << "/msr_safe";
+        std::ostringstream path_ss;
+        path_ss << "/dev/cpu/" << cpu_idx;
+        switch (fallback_idx) {
+            case M_FALLBACK_MSRSAFE:
+                path_ss << "/msr_safe";
+                break;
+            case M_FALLBACK_MSR:
+                path_ss << "/msr";
+                break;
+            case M_FALLBACK_MSRCRT:
+                path_ss << "/msrcrt";
+                break;
+            default:
+                throw Exception("MSRIOImp::msr_path(): Failed to open any of the options for reading msr values",
+                                GEOPM_ERROR_MSR_OPEN, __FILE__, __LINE__);
+                break;
         }
-        else {
-            msr_path << "/msr";
-        }
-        path = msr_path.str();
+        path = path_ss.str();
     }
 
     void MSRIOImp::msr_batch_path(std::string &path)
@@ -290,20 +299,12 @@ namespace geopm
 
     void MSRIOImp::open_msr(int cpu_idx)
     {
-        if (m_file_desc[cpu_idx] == -1) {
+        for (int fallback_idx = 0;
+             m_file_desc[cpu_idx] == -1;
+             ++fallback_idx) {
             std::string path;
-            msr_path(cpu_idx, false, path);
+            msr_path(cpu_idx, fallback_idx, path);
             m_file_desc[cpu_idx] = open(path.c_str(), O_RDWR);
-            if (m_file_desc[cpu_idx] == -1) {
-                errno = 0;
-                msr_path(cpu_idx, true, path);
-                m_file_desc[cpu_idx] = open(path.c_str(), O_RDWR);
-                if (m_file_desc[cpu_idx] == -1) {
-                    throw Exception("MSRIOImp::open_msr(): Failed to open \"" + path + "\": " +
-                                    "system error: " + strerror(errno),
-                                    GEOPM_ERROR_MSR_OPEN, __FILE__, __LINE__);
-                }
-            }
         }
         struct stat stat_buffer;
         int err = fstat(m_file_desc[cpu_idx], &stat_buffer);
