@@ -95,7 +95,7 @@ namespace geopm
             std::ostringstream err_str;
             err_str << "MSRIOImp::read_msr(): pread() failed at offset 0x" << std::hex << offset
                     << " system error: " << strerror(errno);
-            throw Exception(err_str.str(), GEOPM_ERROR_MSR_WRITE, __FILE__, __LINE__);
+            throw Exception(err_str.str(), GEOPM_ERROR_MSR_READ, __FILE__, __LINE__);
         }
         return result;
     }
