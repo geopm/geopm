@@ -32,6 +32,7 @@
 
 import os
 import unittest
+import subprocess
 
 import geopm_test_launcher
 
