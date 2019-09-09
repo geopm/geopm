@@ -16,6 +16,24 @@
       "revId": "065c735136f5270c21f110c4128caa45db24d275",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b411f3e1_343ad4b5",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-09T15:00:44Z",
+      "side": 0,
+      "message": "Removed the parent patch\u0027s change. This patch\u0027s change takes a more direct approach.",
+      "parentUuid": "5ddff9ad_8b5e1ef3",
+      "revId": "065c735136f5270c21f110c4128caa45db24d275",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
