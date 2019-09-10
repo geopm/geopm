@@ -146,6 +146,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/FrequencyMapAgentTest.map \
               test/gtest_links/FrequencyMapAgentTest.name \
               test/gtest_links/FrequencyMapAgentTest.enforce_policy \
+              test/gtest_links/FrequencyMapAgentTest.policy_to_json \
               test/gtest_links/HelperTest.string_begins_with \
               test/gtest_links/HelperTest.string_ends_with \
               test/gtest_links/HelperTest.string_split \

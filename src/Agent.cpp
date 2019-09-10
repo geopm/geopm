@@ -34,7 +34,9 @@
 
 #include <cmath>
 #include <sstream>
+#include <iomanip>
 #include <iostream>
+#include <limits>
 
 #include "geopm_agent.h"
 #include "string.h"
@@ -366,7 +368,9 @@ int geopm_agent_policy_json_partial(const char *agent_name,
                     policy_value = "\"NAN\"";
                 }
                 else {
-                    policy_value = std::to_string(policy_array[i]);
+                    std::ostringstream oss;
+                    oss << std::setprecision(std::numeric_limits<double>::max_digits10) << policy_array[i];
+                    policy_value = oss.str();
                 }
                 output_str << "\"" << policy_name << "\": " << policy_value;
             }
