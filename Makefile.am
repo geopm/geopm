@@ -41,6 +41,7 @@ lib_LTLIBRARIES = libgeopmpolicy.la
 bin_PROGRAMS = geopmagent \
                geopmread \
                geopmwrite \
+               geopmmsrwl \
                #end
 pkglib_LTLIBRARIES =
 nodist_include_HEADERS =
@@ -393,10 +394,12 @@ endif
 libgeopmpolicy_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 geopmread_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
 geopmwrite_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
+geopmmsrwl_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
 
 # ADD LIBRARY DEPENDENCIES FOR EXECUTABLES
 geopmread_LDADD = libgeopmpolicy.la
 geopmwrite_LDADD = libgeopmpolicy.la
+geopmmsrwl_LDADD = libgeopmpolicy.la
 geopmagent_LDADD = libgeopmpolicy.la
 libgeopmpolicy_la_LIBADD = -lelf
 if ENABLE_MPI
@@ -564,6 +567,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
 geopmread_SOURCES = src/geopmread_main.cpp \
                     #end
 geopmwrite_SOURCES = src/geopmwrite_main.cpp \
+                     #end
+geopmmsrwl_SOURCES = src/geopmmsrwl_main.cpp \
                      #end
 geopmagent_SOURCES = src/geopm_agent.h \
                      src/geopm_error.h \
