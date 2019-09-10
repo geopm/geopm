@@ -87,6 +87,7 @@ ronn/geopmbench.1.ronn
 ronn/geopmctl.1.ronn
 ronn/geopmendpoint.1.ronn
 ronn/geopmlaunch.1.ronn
+ronn/geopmmsrwl.1.ronn
 ronn/geopmplotter.1.ronn
 ronn/geopmpy.7.ronn
 ronn/geopmread.1.ronn
