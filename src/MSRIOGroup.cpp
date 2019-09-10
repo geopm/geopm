@@ -549,15 +549,19 @@ namespace geopm
 
     std::string MSRIOGroup::msr_whitelist(void) const
     {
-        return msr_whitelist(m_cpuid);
+        return msr_whitelist(m_msr_arr);
     }
 
-    std::string MSRIOGroup::msr_whitelist(int cpuid) const
+    std::string MSRIOGroup::msr_whitelist(int cpuid)
     {
-        std::ostringstream whitelist;
-        whitelist << "# MSR        Write Mask           # Comment" << std::endl;
-        whitelist << std::setfill('0') << std::hex;
-        for (const auto &msr : m_msr_arr) {
+        return msr_whitelist(init_msr_arr(cpuid));
+    }
+
+    std::string MSRIOGroup::msr_whitelist(const std::vector<std::unique_ptr<MSR> > &msr_arr)
+    {
+        std::map<uint64_t, std::string> offset_result_map;
+        for (const auto &msr : msr_arr) {
+            std::ostringstream line;
             std::string msr_name = msr->name();
             uint64_t msr_offset = msr->offset();
             size_t num_signals = msr->num_signal();
@@ -576,9 +580,16 @@ namespace geopm
                     write_mask |= idx_mask;
                 }
             }
-            whitelist << "0x" << std::setw(8) << msr_offset << "   0x" << std::setw(16) << write_mask << "   # \"" << msr_name << "\"" << std::endl;
+            line << "0x" << std::setw(8) << msr_offset << "   0x" << std::setw(16) << write_mask << "   # \"" << msr_name << "\"" << std::endl;
+            offset_result_map[msr_offset] = line.str();
         }
-        return whitelist.str();
+        std::ostringstream result;
+        result << std::setfill('0') << std::hex;
+        result << "# MSR        Write Mask           # Comment";
+        for (const auto &it : offset_result_map) {
+            result << it.second;
+        }
+        return result.str();
     }
 
     int MSRIOGroup::cpuid(void) const
