@@ -366,7 +366,7 @@ int geopm_agent_policy_json_partial(const char *agent_name,
                     policy_value = "\"NAN\"";
                 }
                 else {
-                    policy_value = std::to_string(policy_array[i]);
+                    policy_value = geopm::string_format_double(policy_array[i]);
                 }
                 output_str << "\"" << policy_name << "\": " << policy_value;
             }
