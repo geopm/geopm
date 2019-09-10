@@ -38,6 +38,7 @@ scripts/geopmpy/__init__.py
 scripts/geopmpy/agent.py
 scripts/geopmpy/analysis.py
 scripts/geopmpy/error.py
+scripts/geopmpy/hash.py
 scripts/geopmpy/io.py
 scripts/geopmpy/launcher.py
 scripts/geopmpy/pio.py
@@ -53,6 +54,7 @@ scripts/test/TestAnalysisCommandLine.py
 scripts/test/TestBalancerAnalysis.py
 scripts/test/TestError.py
 scripts/test/TestFreqSweepAnalysis.py
+scripts/test/TestHash.py
 scripts/test/TestIO.py
 scripts/test/TestLauncher.py
 scripts/test/TestNodeEfficiencyAnalysis.py
