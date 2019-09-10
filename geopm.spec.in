@@ -142,11 +142,13 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 %{_bindir}/geopmagent
 %{_bindir}/geopmread
 %{_bindir}/geopmwrite
+%{_bindir}/geopmmsrwl
 %dir %{docdir}
 %doc %{docdir}/COPYING
 %doc %{docdir}/README
 %doc %{docdir}/VERSION
 %doc %{_mandir}/man1/geopmagent.1.gz
+%doc %{_mandir}/man1/geopmmsrwl.1.gz
 %doc %{_mandir}/man1/geopmread.1.gz
 %doc %{_mandir}/man1/geopmwrite.1.gz
 %doc %{_mandir}/man3/geopm::Agent.3.gz
