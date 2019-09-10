@@ -36,8 +36,10 @@
 #include <map>
 #include <memory>
 
+#include "contrib/json11/json11.hpp"
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "geopm_agent.h"
 #include "geopm_internal.h"
 #include "geopm_hash.h"
 
@@ -59,6 +61,7 @@ using ::testing::Return;
 using ::testing::AtLeast;
 using geopm::FrequencyMapAgent;
 using geopm::PlatformTopo;
+using json11::Json;
 
 class FrequencyMapAgentTest : public :: testing :: Test
 {
@@ -228,4 +231,24 @@ TEST_F(FrequencyMapAgentTest, enforce_policy)
     m_agent->enforce_policy(policy);
 
     EXPECT_THROW(m_agent->enforce_policy(bad_policy), geopm::Exception);
+}
+
+static Json get_freq_map_json_from_policy(const std::vector<double> &policy)
+{
+    std::array<char, 4096> policy_buf;
+    EXPECT_EQ(0, geopm_agent_policy_json_partial("frequency_map", policy.size(),
+                                                 policy.data(), policy_buf.size(),
+                                                 policy_buf.data()));
+    std::string parse_error;
+    return Json::parse(policy_buf.data(), parse_error);
+}
+
+TEST_F(FrequencyMapAgentTest, policy_to_json)
+{
+    EXPECT_EQ(Json(Json::object{ { "FREQ_MIN", 0 }, { "FREQ_MAX", 3e9 } }),
+              get_freq_map_json_from_policy({ 0, 3e9 }));
+    EXPECT_EQ(Json(Json::object{ { "FREQ_MIN", 0 }, { "FREQ_MAX", 1e40 } }),
+              get_freq_map_json_from_policy({ 0, 1e40 }));
+    EXPECT_EQ(Json(Json::object{ { "FREQ_MIN", 0 }, { "FREQ_MAX", 1e-40 } }),
+              get_freq_map_json_from_policy({ 0, 1e-40 }));
 }
