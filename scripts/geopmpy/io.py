@@ -1288,12 +1288,29 @@ class AgentConf(object):
 
     def write(self):
         """Write the current config to a file."""
-        policy_values = [float('nan')] * len(agent.policy_names(self._agent))
+        policy_names = agent.policy_names(self._agent)
+        name_offsets = { name: offset for offset, name in enumerate(policy_names)}
+        policy_values = [float('nan')] * len(name_offsets)
+
+        # Earlier versions of this function had special handling per agent instead
+        # of using the agent's policy names. Translate the old-style inputs to
+        # use the new style for backward compatibility.
+        old_names = []
         if self._agent in ['power_governor', 'power_balancer']:
-            policy_values[0] = self._options['power_budget']
+            old_names = ['power_budget']
         elif self._agent in ['frequency_map', 'energy_efficient']:
-            policy_values[0] = self._options['frequency_min']
-            policy_values[1] = self._options['frequency_max']
+            old_names = ['frequency_min', 'frequency_max']
+        policy_dict = self._options.copy()
+        for offset, name in enumerate(old_names):
+            if name in policy_dict:
+                policy_dict[policy_names[offset]] = policy_dict.pop(name)
+
+        for (policy_name, policy_value) in policy_dict.items():
+            if policy_name not in name_offsets:
+                raise KeyError('Policy "{}" does not exist in agent "{}"'.format(policy_name, self._agent))
+            policy_offset = name_offsets[policy_name]
+            policy_values[policy_offset] = policy_value
+
         with open(self._path, "w") as outfile:
             outfile.write(agent.policy_json(self._agent, policy_values))
 
