@@ -1288,12 +1288,28 @@ class AgentConf(object):
 
     def write(self):
         """Write the current config to a file."""
-        policy_values = [float('nan')] * len(agent.policy_names(self._agent))
+        policy_names = agent.policy_names(self._agent)
+        name_offsets = { name: offset for offset, name in enumerate(policy_names)}
+        policy_values = [float('nan')] * len(name_offsets)
+
+        # Earlier versions had special handling per agent. Map the special handling to the
+        # generic handler's inputs for backward compatibility.
+        policy_dict = self._options.copy()
         if self._agent in ['power_governor', 'power_balancer']:
-            policy_values[0] = self._options['power_budget']
+            if 'power_budget' in policy_dict:
+                policy_dict[policy_names[0]] = policy_dict.pop('power_budget')
         elif self._agent in ['frequency_map', 'energy_efficient']:
-            policy_values[0] = self._options['frequency_min']
-            policy_values[1] = self._options['frequency_max']
+            if 'frequency_min' in policy_dict:
+                policy_dict[policy_names[0]] = policy_dict.pop('frequency_min')
+            if 'frequency_max' in policy_dict:
+                policy_dict[policy_names[1]] = policy_dict.pop('frequency_max')
+
+        for (policy_name, policy_value) in policy_dict.items():
+            if policy_name not in name_offsets:
+                raise KeyError('Policy "{}" does not exist in agent "{}"'.format(policy_name, self._agent))
+            policy_offset = name_offsets[policy_name]
+            policy_values[policy_offset] = policy_value
+
         with open(self._path, "w") as outfile:
             outfile.write(agent.policy_json(self._agent, policy_values))
 
