@@ -65,6 +65,20 @@ uint64_t geopm_crc32_str(const char *key)
     return result;
 }
 
+uint64_t geopm_signal_to_field(double signal)
+{
+    uint64_t result;
+    memcpy(&result, &signal, sizeof(result));
+    return result;
+}
+
+double geopm_field_to_signal(uint64_t field)
+{
+    double result;
+    memcpy(&result, &field, sizeof(result));
+    return result;
+}
+
 #ifdef __cplusplus
 }
 #endif
