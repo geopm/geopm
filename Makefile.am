@@ -41,6 +41,7 @@ lib_LTLIBRARIES = libgeopmpolicy.la
 bin_PROGRAMS = geopmagent \
                geopmread \
                geopmwrite \
+               geopmmsrwl \
                #end
 pkglib_LTLIBRARIES =
 nodist_include_HEADERS =
@@ -176,6 +177,7 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/geopmctl.1 \
                 man/geopmlaunch.1 \
                 man/geopmpy.7 \
+                man/geopmmsrwl.1 \
                 man/geopmread.1 \
                 man/geopmwrite.1 \
                 # end
@@ -305,6 +307,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/geopmlaunch.1.ronn \
              ronn/geopmplotter.1.ronn \
              ronn/geopmpy.7.ronn \
+             ronn/geopmmsrwl.1.ronn \
              ronn/geopmread.1.ronn \
              ronn/geopmwrite.1.ronn \
              ronn/header.txt \
@@ -393,10 +396,12 @@ endif
 libgeopmpolicy_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(geopm_abi_version)
 geopmread_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
 geopmwrite_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
+geopmmsrwl_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
 
 # ADD LIBRARY DEPENDENCIES FOR EXECUTABLES
 geopmread_LDADD = libgeopmpolicy.la
 geopmwrite_LDADD = libgeopmpolicy.la
+geopmmsrwl_LDADD = libgeopmpolicy.la
 geopmagent_LDADD = libgeopmpolicy.la
 libgeopmpolicy_la_LIBADD = -lelf
 if ENABLE_MPI
@@ -566,6 +571,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
 geopmread_SOURCES = src/geopmread_main.cpp \
                     #end
 geopmwrite_SOURCES = src/geopmwrite_main.cpp \
+                     #end
+geopmmsrwl_SOURCES = src/geopmmsrwl_main.cpp \
                      #end
 geopmagent_SOURCES = src/geopm_agent.h \
                      src/geopm_error.h \
