@@ -549,15 +549,21 @@ namespace geopm
 
     std::string MSRIOGroup::msr_whitelist(void) const
     {
-        return msr_whitelist(m_cpuid);
+        return msr_whitelist(m_msr_arr);
     }
 
-    std::string MSRIOGroup::msr_whitelist(int cpuid) const
+    std::string MSRIOGroup::msr_whitelist(int cpuid)
+    {
+        return msr_whitelist(init_msr_arr(cpuid));
+    }
+
+    std::string MSRIOGroup::msr_whitelist(const std::vector<std::unique_ptr<MSR> > &msr_arr)
     {
         std::ostringstream whitelist;
         whitelist << "# MSR        Write Mask           # Comment" << std::endl;
         whitelist << std::setfill('0') << std::hex;
-        for (const auto &msr : m_msr_arr) {
+
+        for (const auto &msr : msr_arr) {
             std::string msr_name = msr->name();
             uint64_t msr_offset = msr->offset();
             size_t num_signals = msr->num_signal();
