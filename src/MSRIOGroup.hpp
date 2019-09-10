@@ -105,7 +105,7 @@ namespace geopm
             /// @param cpuid [in] The CPUID of the platform.
             /// @return String formatted to be written to an msr-safe
             ///         whitelist file.
-            std::string msr_whitelist(int cpuid) const;
+            static std::string msr_whitelist(int cpuid);
             /// @brief Get the cpuid of the current platform.
             int cpuid(void) const;
             /// @brief Register a single MSR field as a signal. This
@@ -135,6 +135,7 @@ namespace geopm
             void register_raw_msr_signal(const std::string &msr_name, const MSR &msr_ptr);
             void enable_fixed_counters(void);
             void check_control(const std::string &control_name);
+            static std::string msr_whitelist(const std::vector<std::unique_ptr<MSR> > &msr_arr);
 
             /// @brief Configure memory for all pushed signals and controls.
             void activate(void);
