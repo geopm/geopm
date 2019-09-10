@@ -327,15 +327,20 @@ namespace geopm
                                                   int domain_idx)
     {
         int result = -1;
-        int base_domain_type = signal_domain_type(signal_name);
-        if (m_platform_topo.is_nested_domain(base_domain_type, domain_type)) {
-            std::set<int> base_domain_idx = m_platform_topo.domain_nested(base_domain_type,
+        int native_signal_domain = signal_domain_type(signal_name);
+        if (m_platform_topo.is_nested_domain(native_signal_domain, domain_type)) {
+            std::set<int> base_domain_idx = m_platform_topo.domain_nested(native_signal_domain,
                                                                           domain_type, domain_idx);
             std::vector<int> signal_idx;
             for (auto it : base_domain_idx) {
-                signal_idx.push_back(push_signal(signal_name, base_domain_type, it));
+                signal_idx.push_back(push_signal(signal_name, native_signal_domain, it));
             }
             result = push_combined_signal(signal_name, domain_type, domain_idx, signal_idx);
+        }
+        if (result == -1 &&
+            m_platform_topo.is_nested_domain(domain_type, native_signal_domain)) {
+            int native_dom_idx = m_platform_topo.get_outer_domain_idx(domain_type, domain_idx, native_signal_domain);
+            result = push_signal(signal_name, native_signal_domain, native_dom_idx);
         }
         return result;
     }
@@ -554,6 +559,10 @@ namespace geopm
                 values.push_back(read_signal(signal_name, base_domain_type, idx));
             }
             result = agg_function(signal_name)(values);
+        }
+        else if (m_platform_topo.is_nested_domain(domain_type, base_domain_type)) {
+            int base_domain_idx = m_platform_topo.get_outer_domain_idx(domain_type, domain_idx, base_domain_type);
+            result = read_signal(signal_name, base_domain_type, base_domain_idx);
         }
         else {
             throw Exception("PlatformIOImp::read_signal(): domain " + std::to_string(domain_type) +
