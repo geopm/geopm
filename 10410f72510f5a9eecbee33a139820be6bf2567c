@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a5b007b3_ede08b79",
+        "filename": "scripts/geopmpy/agent.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-11T20:54:49Z",
+      "side": 1,
+      "message": "It needs to be bigger to support the longer policy json strings. Alternatively, I think I can figure out an appropriate buffer size dynamically. I\u0027ll look into that.",
+      "parentUuid": "3229b9f0_2de4416e",
+      "range": {
+        "startLine": 72,
+        "startChar": 12,
+        "endLine": 72,
+        "endChar": 16
+      },
+      "revId": "10410f72510f5a9eecbee33a139820be6bf2567c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "049116af_24177c49",
         "filename": "src/FrequencyMapAgent.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2019-09-11T20:34:36Z",
       "side": 1,
       "message": "rationale for moving from header?  also, reserve some space, say 8 to 16 for addition (future) non-map (header) policies?",
+      "range": {
+        "startLine": 58,
+        "startChar": 4,
+        "endLine": 67,
+        "endChar": 6
+      },
+      "revId": "10410f72510f5a9eecbee33a139820be6bf2567c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37c72e2d_9054af07",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-11T20:54:49Z",
+      "side": 1,
+      "message": "It isn\u0027t needed in the header. I originally moved it because I had some new helper functions that depended on it and I didn\u0027t want to add them to the header.\n\nSince those helpers are no longer present, I can leave this in the header for less churn.\n\nDo serialized vector\u003cdouble\u003e policies persist anywhere, or do we want to support geopm endpoints that are running different versions of the agent? If yes, then definitely some kind of version field and/or header padding is necessary. If no, I don\u0027t think it\u0027s necessary.",
+      "parentUuid": "049116af_24177c49",
       "range": {
         "startLine": 58,
         "startChar": 4,
