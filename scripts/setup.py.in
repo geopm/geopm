@@ -35,8 +35,10 @@ import sys
 import shutil
 try:
     from setuptools import setup
+    from setuptools.command.build_py import build_py
 except ImportError:
     from distutils.core import setup
+    from distutils.command.build_py import build_py
 
 if os.getcwd() != os.path.dirname(os.path.abspath(__file__)):
     sys.stderr.write('ERROR:  script must be run in the directory that contains it\n')
@@ -68,6 +70,20 @@ scripts = ["geopmlaunch", "geopmconvertreport"]
 add_beta_tools = @ENABLE_BETA@
 if add_beta_tools:
     scripts += ["geopmanalysis", "geopmplotter"]
+    excluded_files = []
+else:
+    excluded_files = ['geopmpy/policy_store.py']
+
+class GeopmpyPackageBuilder(build_py, object):
+    """An override for the build command that excludes some source files from
+    the build.
+    """
+    def find_package_modules(self, package, package_dir):
+        all_modules = super(GeopmpyPackageBuilder, self).find_package_modules(package, package_dir)
+        return [ (package_name, module_name, file_name)
+                 for (package_name, module_name, file_name) in all_modules
+                 if file_name not in excluded_files ]
+        return found_mods
 
 classifiers = ['Development Status :: 5 - Production/Stable',
                'License :: OSI Approved :: BSD License',
@@ -100,4 +116,5 @@ setup(name='geopmpy',
       test_suite='test',
       classifiers=classifiers,
       install_requires=install_requires,
-      python_requires='>=2.7,<3')
+      python_requires='>=2.7,<3',
+      cmdclass={'build_py': GeopmpyPackageBuilder})
