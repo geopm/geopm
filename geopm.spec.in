@@ -171,7 +171,6 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 %doc %{_mandir}/man3/geopm_hash.3.gz
 %doc %{_mandir}/man3/geopm_imbalancer.3.gz
 %doc %{_mandir}/man3/geopm_pio_c.3.gz
-%doc %{_mandir}/man3/geopm_policystore_c.3.gz
 %doc %{_mandir}/man3/geopm_prof_c.3.gz
 %doc %{_mandir}/man3/geopm_sched.3.gz
 %doc %{_mandir}/man3/geopm_time.3.gz
@@ -218,7 +217,6 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 %{_includedir}/geopm_hash.h
 %{_includedir}/geopm_imbalancer.h
 %{_includedir}/geopm_pio.h
-%{_includedir}/geopm_policystore.h
 %{_includedir}/geopm_sched.h
 %{_includedir}/geopm_time.h
 %{_includedir}/geopm_topo.h
