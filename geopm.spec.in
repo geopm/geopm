@@ -221,7 +221,6 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 %{_includedir}/geopm_hash.h
 %{_includedir}/geopm_imbalancer.h
 %{_includedir}/geopm_pio.h
-%{_includedir}/geopm_policystore.h
 %{_includedir}/geopm_sched.h
 %{_includedir}/geopm_time.h
 %{_includedir}/geopm_topo.h
