@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3229b9f0_2de4416e",
+        "filename": "scripts/geopmpy/agent.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-09-11T20:34:36Z",
+      "side": 1,
+      "message": "why",
+      "range": {
+        "startLine": 72,
+        "startChar": 12,
+        "endLine": 72,
+        "endChar": 16
+      },
+      "revId": "10410f72510f5a9eecbee33a139820be6bf2567c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "049116af_24177c49",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-09-11T20:34:36Z",
+      "side": 1,
+      "message": "rationale for moving from header?  also, reserve some space, say 8 to 16 for addition (future) non-map (header) policies?",
+      "range": {
+        "startLine": 58,
+        "startChar": 4,
+        "endLine": 67,
+        "endChar": 6
+      },
+      "revId": "10410f72510f5a9eecbee33a139820be6bf2567c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de998e17_06f9dadd",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-09-11T20:34:36Z",
+      "side": 1,
+      "message": "no early returns.  bool ret local initialized to true and set to false in these conditions.  return ret",
+      "range": {
+        "startLine": 103,
+        "startChar": 16,
+        "endLine": 103,
+        "endChar": 29
+      },
+      "revId": "10410f72510f5a9eecbee33a139820be6bf2567c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb1fd2ed_cd1f6c08",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-09-11T20:34:36Z",
+      "side": 1,
+      "message": "need to add save and restore of this var to setUp and tearDown",
+      "range": {
+        "startLine": 70,
+        "startChar": 12,
+        "endLine": 70,
+        "endChar": 49
+      },
+      "revId": "10410f72510f5a9eecbee33a139820be6bf2567c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
