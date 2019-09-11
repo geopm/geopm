@@ -72,14 +72,15 @@ include_HEADERS = src/geopm.h \
                   src/geopm_hash.h \
                   src/geopm_imbalancer.h \
                   src/geopm_pio.h \
-                  src/geopm_policystore.h \
                   src/geopm_sched.h \
                   src/geopm_time.h \
                   src/geopm_topo.h \
                   src/geopm_version.h \
                   # end
 if ENABLE_BETA
-    include_HEADERS += src/geopm_endpoint.h
+    include_HEADERS += src/geopm_endpoint.h \
+                       src/geopm_policystore.h \
+                       # end
 endif
 
 pkginclude_HEADERS = contrib/json11/json11.hpp \
@@ -166,7 +167,6 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/geopm_hash.3 \
                 man/geopm_imbalancer.3 \
                 man/geopm_pio_c.3 \
-                man/geopm_policystore_c.3 \
                 man/geopm_prof_c.3 \
                 man/geopm_sched.3 \
                 man/geopm_time.3 \
@@ -195,12 +195,16 @@ if ENABLE_BETA
 ronn_man_inst += man/geopmanalysis.1 \
                  man/geopmendpoint.1 \
                  man/geopmplotter.1 \
-                 man/geopm_endpoint_c.3
+                 man/geopm_endpoint_c.3 \
+                 man/geopm_policystore_c.3 \
+                 # end
 else
 ronn_man_noinst += man/geopmanalysis.1 \
                    man/geopmendpoint.1 \
                    man/geopmplotter.1 \
-                   man/geopm_endpoint_c.3
+                   man/geopm_endpoint_c.3 \
+                   man/geopm_policystore_c.3 \
+                   # end
 endif
 
 ronn_man = $(ronn_man_inst) $(ronn_man_noinst)
