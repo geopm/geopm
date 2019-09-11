@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d646463_8da8b676",
+        "filename": "src/geopm_time.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-11T23:00:24Z",
+      "side": 1,
+      "message": "Think there\u0027s value in an integration test that sees if printing geopm_time() is within a few seconds of a wall clock for the same time (e.g. std::chrono::system_clock::now())?",
+      "revId": "6e7527d2052a5890a14b1bd49e9091ab0e1aa59b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
