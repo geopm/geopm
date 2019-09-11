@@ -72,14 +72,15 @@ include_HEADERS = src/geopm.h \
                   src/geopm_hash.h \
                   src/geopm_imbalancer.h \
                   src/geopm_pio.h \
-                  src/geopm_policystore.h \
                   src/geopm_sched.h \
                   src/geopm_time.h \
                   src/geopm_topo.h \
                   src/geopm_version.h \
                   # end
 if ENABLE_BETA
-    include_HEADERS += src/geopm_endpoint.h
+    include_HEADERS += src/geopm_endpoint.h \
+                       src/geopm_policystore.h \
+                       # end
 endif
 
 pkginclude_HEADERS = contrib/json11/json11.hpp \
