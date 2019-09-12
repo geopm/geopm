@@ -705,7 +705,7 @@ else
 
 $(ronn_man): man/%: ronn/%.ronn
 	mkdir -p man
-	sed 's|^\[//\]: #|.\\\"|' ronn/`basename $@`.ronn > $@
+	test -f $@ || sed 's|^\[//\]: #|.\\\"|' ronn/`basename $@`.ronn > $@
 
 endif
 
