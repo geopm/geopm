@@ -76,6 +76,7 @@ namespace geopm
             enum m_fallback_e {
                 M_FALLBACK_MSRSAFE,
                 M_FALLBACK_MSR,
+                M_FALLBACK_MSRCRT,
                 M_NUM_FALLBACK,
             };
 
