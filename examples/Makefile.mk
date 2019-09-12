@@ -113,3 +113,4 @@ endif
 endif
 
 include examples/fft/Makefile.mk
+include examples/endpoint/Makefile.mk
