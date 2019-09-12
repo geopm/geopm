@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba5d1830_03e7c54b",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-09-12T20:34:26Z",
+      "side": 1,
+      "message": "remove this comment and comment piece-wise inline below",
+      "range": {
+        "startLine": 130,
+        "startChar": 37,
+        "endLine": 131,
+        "endChar": 93
+      },
+      "revId": "9a0e4795833937636bfe6e70c86d8f9948fa0f82",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
