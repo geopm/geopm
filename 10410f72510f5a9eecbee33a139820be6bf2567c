@@ -121,6 +121,30 @@
     },
     {
       "key": {
+        "uuid": "34765be7_0152d762",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-12T00:58:05Z",
+      "side": 1,
+      "message": "I don\u0027t think we should support mixing versions, because on systems using the endpoint, people should be using the system installed version of geopm.  However we should be careful to following proper versioning if we change any agent policy names or number of policies.",
+      "parentUuid": "37c72e2d_9054af07",
+      "range": {
+        "startLine": 58,
+        "startChar": 4,
+        "endLine": 67,
+        "endChar": 6
+      },
+      "revId": "10410f72510f5a9eecbee33a139820be6bf2567c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "de998e17_06f9dadd",
         "filename": "src/FrequencyMapAgent.cpp",
         "patchSetId": 2

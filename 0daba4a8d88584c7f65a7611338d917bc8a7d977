@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "abfa3e52_760c2338",
+        "filename": "ronn/geopm_agent_frequency_map.7.ronn",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-12T00:58:05Z",
+      "side": 1,
+      "message": "Do we support gaps in the index?  For example, if I had a policy file like this, and then want to remove 0x1234abcd without renaming the other policy fields.",
+      "revId": "0daba4a8d88584c7f65a7611338d917bc8a7d977",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbf4d5a1_e6b2e623",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-12T00:58:05Z",
+      "side": 1,
+      "message": "OK, so region hashes with NAN frequency are ignored?  If so that answers my other question and can go in the man page.",
+      "revId": "0daba4a8d88584c7f65a7611338d917bc8a7d977",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
