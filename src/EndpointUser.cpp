@@ -99,6 +99,11 @@ namespace geopm
         data->profile_name[GEOPM_ENDPOINT_PROFILE_NAME_MAX - 1] = '\0';
         strncpy(data->agent, agent_name.c_str(), GEOPM_ENDPOINT_AGENT_NAME_MAX - 1);
         strncpy(data->profile_name, profile_name.c_str(), GEOPM_ENDPOINT_PROFILE_NAME_MAX - 1);
+
+        // TODO: agent is attached but no valid sample yet
+        // assume count of -1 means not ready
+        data->count = -1;
+
         /// write hostnames to file
         m_hostlist_path = hostlist_path;
         if (m_hostlist_path == "") {
