@@ -34,6 +34,8 @@
 #define DAEMON_HPP_INCLUDE
 
 #include <memory>
+#include <vector>
+#include <set>
 
 namespace geopm
 {
