@@ -465,10 +465,13 @@ namespace geopm
                 m_tree_comm->send_up(m_num_level_ctl, m_out_sample);
             }
             else {
-                if (m_do_endpoint) {
-                    m_endpoint->write_sample(m_out_sample);
-                }
+                // if (m_do_endpoint) {
+                //     m_endpoint->write_sample(m_out_sample);
+                // }
             }
+        }
+        if (m_do_endpoint) {
+            m_endpoint->write_sample(m_out_sample);
         }
     }
 

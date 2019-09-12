@@ -42,51 +42,6 @@
 
 namespace geopm
 {
-    struct geopm_endpoint_policy_shmem_header {
-        size_t count;         // 8 bytes
-        double values;        // 8 bytes
-    };
-
-    struct geopm_endpoint_sample_shmem_header {
-        geopm_time_s timestamp;   // 16 bytes
-        char agent[GEOPM_ENDPOINT_AGENT_NAME_MAX]; // 256 bytes
-        char profile_name[GEOPM_ENDPOINT_PROFILE_NAME_MAX];   // 256 bytes
-        char hostlist_path[GEOPM_ENDPOINT_HOSTLIST_PATH_MAX];  // 512 bytes
-        size_t count;             // 8 bytes
-        double values;            // 8 bytes
-    };
-
-    struct geopm_endpoint_policy_shmem_s {
-        /// @brief Specifies the size of the following array.
-        size_t count;
-        /// @brief Holds resource manager data.
-        double values[(4096 - offsetof(struct geopm_endpoint_policy_shmem_header, values)) / sizeof(double)];
-    };
-
-    struct geopm_endpoint_sample_shmem_s {
-        /// @brief Time that the memory was last updated.
-        geopm_time_s timestamp;
-        /// @brief Holds the name of the Agent attached, if any.
-        char agent[GEOPM_ENDPOINT_AGENT_NAME_MAX];
-        /// @brief Holds the profile name associated with the
-        ///        attached job.
-        char profile_name[GEOPM_ENDPOINT_PROFILE_NAME_MAX];
-        /// @brief Path to a file containing the list of hostnames
-        ///        in the attached job.
-        char hostlist_path[GEOPM_ENDPOINT_HOSTLIST_PATH_MAX];
-        /// @brief Specifies the size of the following array.
-        size_t count;
-        /// @brief Holds resource manager data.
-        double values[(4096 - offsetof(struct geopm_endpoint_sample_shmem_header, values)) / sizeof(double)];
-    };
-
-    static_assert(sizeof(struct geopm_endpoint_policy_shmem_s) == 4096, "Alignment issue with geopm_endpoint_policy_shmem_s.");
-    static_assert(sizeof(struct geopm_endpoint_sample_shmem_s) == 4096, "Alignment issue with geopm_endpoint_sample_shmem_s.");
-
-    class SharedMemory;
-    class SharedMemoryScopedLock;
-
-
     class Endpoint
     {
         public:

@@ -34,6 +34,8 @@
 #define DAEMON_HPP_INCLUDE
 
 #include <memory>
+#include <vector>
+#include <set>
 
 namespace geopm
 {
@@ -53,5 +55,42 @@ namespace geopm
 
     };
 }
+
+/// TODO: move to Helper.hpp
+/// Helpers for printing
+// this is why we need concepts
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::vector<T> &vec)
+{
+    os << "{";
+    for (auto it = vec.begin(); it != vec.end(); ++it) {
+        os << *it;
+        if (it + 1 != vec.end()) {
+            os << ", ";
+        }
+    }
+    os << "}";
+    return os;
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::set<T> &set)
+{
+    os << "(";
+    for (auto it = set.begin(); it != set.end(); ) {
+        os << *it;
+        ++it;
+        if (it != set.end()) {
+            os << ", ";
+        }
+    }
+    os << ")";
+    return os;
+}
+
+
+std::ostream& operator<<(std::ostream& os, struct geopm_time_s time);
+
 
 #endif
