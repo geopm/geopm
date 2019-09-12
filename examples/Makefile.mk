@@ -101,3 +101,5 @@ endif
 endif
 endif
 endif
+
+include examples/endpoint/Makefile.mk
