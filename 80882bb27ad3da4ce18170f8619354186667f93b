@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e07e2b7_c8347e5f",
+        "filename": "src/Controller.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-09-12T21:00:29Z",
+      "side": 1,
+      "message": "Must be called by all controllers in the tree or else hang will occur.",
+      "revId": "80882bb27ad3da4ce18170f8619354186667f93b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf347f7f_7eea714a",
+        "filename": "src/Controller.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-09-12T21:00:29Z",
+      "side": 1,
+      "message": "@return Returns set of hostnames of all connected controllers if\n        the calling controller is at the root of the tree, otherwise\n        returns an empty set.",
+      "revId": "80882bb27ad3da4ce18170f8619354186667f93b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
