@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca16a0b5_e4900bf3",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1290,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-12T00:32:15Z",
+      "side": 1,
+      "message": "Currently these are different names in the two agents.  We need to fix up and merge the changes to make these consistent: https://review.gerrithub.io/c/geopm/geopm/+/458146 which depends on https://github.com/geopm/geopm/issues/599",
+      "range": {
+        "startLine": 1290,
+        "startChar": 28,
+        "endLine": 1290,
+        "endChar": 35
+      },
+      "revId": "7532b41b7867e6f76f77f21ed65659d655e81b3a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
