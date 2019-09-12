@@ -37,3 +37,8 @@ noinst_PROGRAMS += examples/endpoint/geopm_policystore_demo
 examples_endpoint_geopm_policystore_demo_SOURCES = $(endpoint_common) \
                                                      examples/endpoint/geopm_policystore_demo.cpp
 examples_endpoint_geopm_policystore_demo_LDADD = libgeopmpolicy.la
+
+noinst_PROGRAMS += examples/endpoint/geopm_dynamic_power_demo
+examples_endpoint_geopm_dynamic_power_demo_SOURCES = $(endpoint_common) \
+                                                     examples/endpoint/geopm_dynamic_power_demo.cpp
+examples_endpoint_geopm_dynamic_power_demo_LDADD = libgeopmpolicy.la

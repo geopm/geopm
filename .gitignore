@@ -43,6 +43,7 @@
 /dox/html/
 /dox/latex/
 /examples/*.o
+/examples/endpoint/geopm_dynamic_power_demo
 /examples/endpoint/geopm_policystore_demo
 /examples/fft/*.o
 /examples/fft/nas_ft

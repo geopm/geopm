@@ -9,6 +9,7 @@ examples/Makefile.mk
 examples/amg/0001-Adding-geopm-markup-to-AMG.patch
 examples/amg/0001-Adding-geopm-markup-to-CORAL-2-AMG.patch
 examples/comd/0001-Marked-up-CoMD-code-for-use-with-GEOPM.patch
+examples/endpoint/geopm_dynamic_power_demo.cpp
 examples/endpoint/geopm_endpoint_demo.cpp
 examples/endpoint/geopm_endpoint_demo.hpp
 examples/endpoint/geopm_policystore_demo.cpp
