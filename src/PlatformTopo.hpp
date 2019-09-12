@@ -77,6 +77,15 @@ namespace geopm
             /// @return The set of domain indices for the inner domain that are
             ///         within the indexed outer domain.
             virtual std::set<int> domain_nested(int inner_domain, int outer_domain, int outer_idx) const = 0;
+            /// @brief  Get the domain index of domain type outer_domain
+            //          that contains inner_domain_idx of type inner_domain
+            //          if inner_domain is nested within outer_domain.
+            /// @param [in] inner_domain The contained domain type.
+            /// @param [in] innerr_idx The contained domain index.
+            /// @param [in] outer_domain The containing domain type.
+            /// @return The outer domain index that contains the inner_domain_idx
+            //          or -1 when the inner_domain is not within outer_domain.
+            virtual int get_outer_domain_idx(int inner_domain, int inner_domain_idx, int outer_domain) const = 0;
             /// @brief Convert a domain type enum to a string.
             /// @param [in] domain_type Domain type from the
             ///        m_domain_e enum.
