@@ -123,6 +123,25 @@ namespace geopm
         }
     }
 
+    int PlatformTopoImp::get_outer_domain_idx(int inner_domain, int inner_domain_idx, int outer_domain) const
+    {
+        int result = -1;
+        std::set<int> inner_domain_cpus = domain_nested(GEOPM_DOMAIN_CPU, inner_domain, inner_domain_idx);
+        if (inner_domain_cpus.size()) {
+            int target_cpu = *inner_domain_cpus.begin();
+            int num_outer_domain = num_domain(outer_domain);
+            for (int outer_domain_idx = 0; outer_domain_idx < num_outer_domain; ++outer_domain_idx) {
+                std::set<int> curr_outer_domain_idx_cpus = domain_nested(inner_domain,
+                                                                         outer_domain,
+                                                                         outer_domain_idx);
+                if (curr_outer_domain_idx_cpus.find(target_cpu) != curr_outer_domain_idx_cpus.end()) {
+                    result = outer_domain_idx;
+                }
+            }
+        }
+        return result;
+    }
+
     bool PlatformTopoImp::is_domain_within(int inner, int outer) const
     {
         std::vector<std::set<int> > inner_cpu_domains = m_cpus_domains[inner];

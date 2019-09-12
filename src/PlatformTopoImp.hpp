@@ -49,6 +49,7 @@ namespace geopm
                            int cpu_idx) const override;
             bool is_nested_domain(int inner_domain, int outer_domain) const override;
             std::set<int> domain_nested(int inner_domain, int outer_domain, int outer_idx) const override;
+            int get_outer_domain_idx(int inner_domain, int inner_domain_idx, int outer_domain) const override;
             static void create_cache();
             static void create_cache(const std::string &cache_file_name);
         private:
