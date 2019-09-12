@@ -450,7 +450,7 @@ class TestIntegration(unittest.TestCase):
             self.assertNear(trace.iloc[-1]['TIME'], app_totals['runtime'].item(), msg='Application runtime failure, node_name={}.'.format(nn))
             # Calculate runtime totals for each region in each trace, compare to report
             tt = trace.reset_index(level='index')  # move 'index' field from multiindex to columns
-            tt = tt.set_index(['REGION_HASH'], append=True)  # add region_hash column to multiindex
+            tt = tt.seto_index(['REGION_HASH'], append=True)  # add region_hash column to multiindex
             tt_reg = tt.groupby(level=['REGION_HASH'])
             for region_name in regions:
                 region_data = self._output.get_report_data(node_name=nn, region=region_name)

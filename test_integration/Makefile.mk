@@ -70,3 +70,11 @@ test_integration_test_profile_policy_SOURCES = test_integration/test_profile_pol
 test_integration_test_profile_policy_LDADD = libgeopmpolicy.la
 test_integration_test_profile_policy_LDFLAGS = $(AM_LDFLAGS)
 test_integration_test_profile_policy_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
+
+noinst_PROGRAMS += test_integration/test_dynamic_policy
+
+test_integration_test_dynamic_policy_SOURCES = test_integration/test_dynamic_policy.cpp \
+                                                    # end
+test_integration_test_dynamic_policy_LDADD = libgeopmpolicy.la
+test_integration_test_dynamic_policy_LDFLAGS = $(AM_LDFLAGS)
+test_integration_test_dynamic_policy_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
