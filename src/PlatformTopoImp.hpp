@@ -53,6 +53,7 @@ namespace geopm
             /// @param [in] cpu_domain_idx A vector over Linux logical
             ///        CPUs assigning an mpi rank to each.
             void define_cpu_mpi_rank_map(const std::vector<int> &cpu_domain_idx);
+            int get_outer_domain_idx(int inner_domain, int inner_domain_idx, int outer_domain) const override;
             static void create_cache();
             static void create_cache(const std::string &cache_file_name);
         private:
