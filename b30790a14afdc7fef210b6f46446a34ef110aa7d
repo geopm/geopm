@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6cc86e7c_27ec85c1",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-09-12T21:32:31Z",
+      "side": 1,
+      "message": "ws",
+      "range": {
+        "startLine": 317,
+        "startChar": 59,
+        "endLine": 319,
+        "endChar": 104
+      },
+      "revId": "b30790a14afdc7fef210b6f46446a34ef110aa7d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
