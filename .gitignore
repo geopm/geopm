@@ -139,6 +139,7 @@
 /test_integration/*.trace*
 /test_integration/geopm_test_integration
 /test_integration/geopm_test_integration.pyc
+/test_integration/test_dynamic_policy
 /test_integration/test_ee_stream_dgemm_mix
 /test_integration/test_profile_policy
 /test_integration/test_static_policy
