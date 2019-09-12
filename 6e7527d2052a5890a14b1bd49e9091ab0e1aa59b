@@ -34,6 +34,24 @@
       "revId": "6e7527d2052a5890a14b1bd49e9091ab0e1aa59b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f609f381_11b99eb6",
+        "filename": "src/geopm_time.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-12T23:20:34Z",
+      "side": 1,
+      "message": "This patch changes geopm_time_to_string() to print the string representation of the CLOCK_REALTIME equivalent to a given geopm_time_s (CLOCK_MONOTONIC_RAW). I\u0027m thinking of a test that verifies equality (or close proximity) between this function\u0027s raw-\u003erealtime mapping and a direct query for realtime. Basically a sanity test on the conversion in this function.",
+      "parentUuid": "d8be165f_fcfd6541",
+      "revId": "6e7527d2052a5890a14b1bd49e9091ab0e1aa59b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
