@@ -281,6 +281,9 @@ namespace geopm
             case M_FALLBACK_MSR:
                 path_ss << "/msr";
                 break;
+            case M_FALLBACK_MSRCRT:
+                path_ss << "/msrcrt";
+                break;
             default:
                 throw Exception("MSRIOImp::msr_path(): Failed to open any of the options for reading msr values",
                                 GEOPM_ERROR_MSR_OPEN, __FILE__, __LINE__);
