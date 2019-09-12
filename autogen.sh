@@ -32,19 +32,19 @@
 
 # If the VERSION file does not exist, then create it based on git
 # describe or if not in a git repo just set VERSION to 0.0.0.
-if [ ! -f VERSION ]; then
-    if git describe --long > /dev/null; then
-        sha=$(git describe --long | awk -F- '{print $(NF)}')
-        release=$(git describe --long | awk -F- '{print $(NF-1)}')
-        version=$(git describe --long | sed -e "s|\(.*\)-$release-$sha|\1|" -e "s|-|+|g" -e "s|^v||")
-        if [ "${release}" != "0" ]; then
-            version=${version}+dev${release}${sha}
-        fi
-    else
-        echo "WARNING:  VERSION file does not exist and git describe failed, setting verison to 0.0.0" 2>&1
-        version=0.0.0
+if [ -f VERSION_OVERRIDE ]; then
+    cp VERSION_OVERRIDE VERSION
+elif git describe --long > /dev/null; then
+    sha=$(git describe --long | awk -F- '{print $(NF)}')
+    release=$(git describe --long | awk -F- '{print $(NF-1)}')
+    version=$(git describe --long | sed -e "s|\(.*\)-$release-$sha|\1|" -e "s|-|+|g" -e "s|^v||")
+    if [ "${release}" != "0" ]; then
+        version=${version}+dev${release}${sha}
     fi
     echo $version > VERSION
+elif [ ! -f VERSION ]; then
+    echo "WARNING:  VERSION file does not exist and git describe failed, setting verison to 0.0.0" 2>&1
+    echo "0.0.0" > VERSION
 fi
 
 # Grab the first paragraph from the README to use in other files.
