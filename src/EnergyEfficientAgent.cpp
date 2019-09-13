@@ -370,12 +370,11 @@ namespace geopm
     void EnergyEfficientAgent::init_platform_io(void)
     {
         m_freq_governor->init_platform_io();
-        struct m_region_info_s default_info {
-            .hash = GEOPM_REGION_HASH_UNMARKED,
-            .hint = GEOPM_REGION_HINT_UNKNOWN,
-            .runtime = 0.0,
-            .count = 0};
-        m_last_region_info = std::vector<struct m_region_info_s>(m_num_freq_ctl_domain, default_info);
+        const struct m_region_info_s DEFAULT_REGION { .hash = GEOPM_REGION_HASH_UNMARKED,
+                                                      .hint = GEOPM_REGION_HINT_UNKNOWN,
+                                                      .runtime = 0.0,
+                                                      .count = 0};
+        m_last_region_info = std::vector<struct m_region_info_s>(m_num_freq_ctl_domain, DEFAULT_REGION);
         m_target_freq.resize(m_num_freq_ctl_domain, m_freq_governor->get_frequency_max());
         std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT", "REGION_RUNTIME", "REGION_COUNT"};
 
