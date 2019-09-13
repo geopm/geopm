@@ -130,6 +130,7 @@ extern "C"
                                              int flags,
                                              const void *parallel_function)
     {
+        printf("on_ompt_event_parallel_begin()\n");
         if (geopm_is_pmpi_prof_enabled() &&
             g_curr_parallel_function != parallel_function) {
             g_curr_parallel_function = parallel_function;
@@ -145,6 +146,7 @@ extern "C"
                                            int flags,
                                            const void *parallel_function)
     {
+        printf("on_ompt_event_parallel_end()\n");
         if (geopm_is_pmpi_prof_enabled() &&
             g_curr_region_id != GEOPM_REGION_HASH_UNMARKED &&
             g_curr_parallel_function == parallel_function) {
@@ -190,6 +192,7 @@ extern "C"
                         int initial_device_num,
                         ompt_data_t *tool_data)
     {
+        printf("ompt_initialize()\n");
         ompt_set_callback_t ompt_set_callback = (ompt_set_callback_t) lookup("ompt_set_callback");
         ompt_set_callback(ompt_callback_parallel_begin, (ompt_callback_t) &on_ompt_event_parallel_begin);
         ompt_set_callback(ompt_callback_parallel_end, (ompt_callback_t) &on_ompt_event_parallel_end);
@@ -203,11 +206,12 @@ extern "C"
 
     void ompt_finalize(ompt_data_t *data)
     {
-
+        printf("ompt_finalize()\n");
     }
 
     ompt_start_tool_result_t *ompt_start_tool(unsigned int omp_version, const char *runtime_version)
     {
+        printf("ompt_start_tool()\n");
         static ompt_start_tool_result_t ompt_start_tool_result = {&ompt_initialize,
                                                                   &ompt_finalize,
                                                                   {}};
