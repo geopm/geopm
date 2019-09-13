@@ -145,6 +145,30 @@
     },
     {
       "key": {
+        "uuid": "e1208af5_517b9c3d",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-13T16:28:45Z",
+      "side": 1,
+      "message": "How about something like {min freq, max freq, version, hash0, freq0, ...}?\n\nOr {negative magic number to ID the new header format, version, min, max, hash, freq, ...}?\n\nOr detect the new format by absence of the env var and the non-NAN field count \u003e 2, and  do {version, min, max, hash, freq, ...}?\n\nI think any of the 3 will work in this particular case, so it\u0027s just a matter of style preference.",
+      "parentUuid": "34765be7_0152d762",
+      "range": {
+        "startLine": 58,
+        "startChar": 4,
+        "endLine": 67,
+        "endChar": 6
+      },
+      "revId": "10410f72510f5a9eecbee33a139820be6bf2567c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "de998e17_06f9dadd",
         "filename": "src/FrequencyMapAgent.cpp",
         "patchSetId": 2

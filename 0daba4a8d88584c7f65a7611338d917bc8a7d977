@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e8a18f16_5588a016",
+        "filename": "ronn/geopm_agent_frequency_map.7.ronn",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-13T16:28:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "abfa3e52_760c2338",
+      "revId": "0daba4a8d88584c7f65a7611338d917bc8a7d977",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fbf4d5a1_e6b2e623",
         "filename": "src/FrequencyMapAgent.cpp",
         "patchSetId": 3
@@ -33,6 +51,24 @@
       "revId": "0daba4a8d88584c7f65a7611338d917bc8a7d977",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62042850_dbbe3eb7",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-13T16:28:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fbf4d5a1_e6b2e623",
+      "revId": "0daba4a8d88584c7f65a7611338d917bc8a7d977",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
