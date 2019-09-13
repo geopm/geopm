@@ -43,18 +43,18 @@ elif git describe --long > /dev/null; then
     fi
     echo $version > VERSION
 elif [ ! -f VERSION ]; then
-    echo "WARNING:  VERSION file does not exist and git describe failed, setting verison to 0.0.0" 2>&1
+    echo "WARNING:  VERSION file does not exist and git describe failed, setting verison to 0.0.0" 1>&2
     echo "0.0.0" > VERSION
 fi
 
 # Grab the first paragraph from the README to use in other files.
 grep -A4096 '^SUMMARY$' README | tail -n+3 | grep -m1 '^$' -B4096 | head -n-1 > BLURB
 
-if [ -f .git/config ] || git rev-parse --git-dir > /dev/null 2>&1; then
+if [ -f .git/config ] || git rev-parse --git-dir > /dev/null; then
     git ls-tree --full-tree -r HEAD | awk '{print $4}' | sort > MANIFEST
 fi
 if [ ! -f MANIFEST ]; then
-    echo "WARNING: MANIFEST file does not exist and working directory is not a git repository, creating with find" 2>&1
+    echo "WARNING: MANIFEST file does not exist and working directory is not a git repository, creating with find" 1>&2
     find . -type f | sed 's|^\./||' | sort > MANIFEST
 fi
 
