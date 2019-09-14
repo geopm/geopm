@@ -369,6 +369,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/MSRIOGroupTest.cpp \
                           test/MSRIOTest.cpp \
                           test/MSRTest.cpp \
+                          test/OptionParserTest.cpp \
                           test/PolicyStoreImpTest.cpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \
