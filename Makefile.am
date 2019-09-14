@@ -502,6 +502,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/MonitorAgent.hpp \
                             src/OMPT.cpp \
                             src/OMPT.hpp \
+                            src/OptionParser.cpp \
+                            src/OptionParser.hpp \
                             src/PlatformIO.cpp \
                             src/PlatformIO.hpp \
                             src/PlatformIOImp.hpp \

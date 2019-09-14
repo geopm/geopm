@@ -216,6 +216,19 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \
+              test/gtest_links/OptionParserTest.get_invalid \
+              test/gtest_links/OptionParserTest.parse_errors \
+              test/gtest_links/OptionParserTest.add_option_errors \
+              test/gtest_links/OptionParserTest.unset_bool_gets_default \
+              test/gtest_links/OptionParserTest.set_bool_flag \
+              test/gtest_links/OptionParserTest.unset_string_gets_default\
+              test/gtest_links/OptionParserTest.set_string_value \
+              test/gtest_links/OptionParserTest.positional_args \
+              test/gtest_links/OptionParserTest.help \
+              test/gtest_links/OptionParserTest.version \
+              test/gtest_links/OptionParserTest.complex \
+              test/gtest_links/OptionParserTest.compact_short_options \
+              test/gtest_links/OptionParserTest.format_help \
               test/gtest_links/PlatformIOTest.adjust \
               test/gtest_links/PlatformIOTest.adjust_agg \
               test/gtest_links/PlatformIOTest.domain_type \
@@ -430,6 +443,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/MockTreeCommLevel.hpp \
                           test/ModelApplicationTest.cpp \
                           test/MonitorAgentTest.cpp \
+                          test/OptionParserTest.cpp \
                           test/PlatformIOTest.cpp \
                           test/PlatformTopoTest.cpp \
                           test/PowerBalancerAgentTest.cpp \
