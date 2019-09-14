@@ -419,6 +419,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/MockTreeCommLevel.hpp \
                           test/ModelApplicationTest.cpp \
                           test/MonitorAgentTest.cpp \
+                          test/OptionParserTest.cpp \
                           test/PlatformIOTest.cpp \
                           test/PlatformTopoTest.cpp \
                           test/PowerBalancerAgentTest.cpp \
