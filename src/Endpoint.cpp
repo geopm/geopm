@@ -45,6 +45,7 @@
 
 #include "Environment.hpp"
 #include "SharedMemory.hpp"
+#include "SharedMemoryScopedLock.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
 #include "Agent.hpp"
@@ -85,6 +86,7 @@ namespace geopm
         , m_num_sample(num_sample)
         , m_is_open(false)
         , m_continue_loop(true)
+        , m_policy_lock(nullptr)
     {
 
     }
@@ -104,7 +106,7 @@ namespace geopm
             size_t shmem_size = sizeof(struct geopm_endpoint_sample_shmem_s);
             m_sample_shmem = SharedMemory::make_unique(m_path + shm_sample_postfix(), shmem_size);
         }
-        auto lock_p = m_policy_shmem->get_scoped_lock();
+        m_policy_lock = m_policy_shmem->get_scoped_lock();
         struct geopm_endpoint_policy_shmem_s *data_p = (struct geopm_endpoint_policy_shmem_s*)m_policy_shmem->pointer();
         *data_p = {};
 
@@ -137,11 +139,19 @@ namespace geopm
             throw Exception("EndpointImp::" + std::string(__func__) + "(): size of policy does not match expected.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        auto policy_lock = m_policy_shmem->get_scoped_lock();
+        // keep m_policy_lock locked from open() until first policy is written
+        // TODO: controller might hang if endpoint is created but no policy is ever written?
+        // need to check.
+        // need a try lock in read_policy for EndpointUser
+
+        if (!m_policy_lock) {
+            m_policy_lock = m_policy_shmem->get_scoped_lock();
+        }
         auto data = (struct geopm_endpoint_policy_shmem_s *)m_policy_shmem->pointer();
         data->count = policy.size();
         std::copy(policy.begin(), policy.end(), data->values);
         geopm_time(&data->timestamp);
+        m_policy_lock.reset();
     }
 
     double EndpointImp::read_sample(std::vector<double> &sample)
@@ -161,7 +171,7 @@ namespace geopm
         std::copy(data->values, data->values + data->count, sample.begin());
         geopm_time_s ts = data->timestamp;
         if (sample.size() != (size_t)num_sample) {
-            throw Exception("EndpointImpUser::" + std::string(__func__) + "(): Data read from shmem does not match number of samples.",
+            throw Exception("EndpointImp::" + std::string(__func__) + "(): Data read from shmem does not match number of samples.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return geopm_time_since(&ts);

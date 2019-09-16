@@ -190,8 +190,10 @@ TEST_F(EndpointTestIntegration, write_read_sample)
     std::string hostlist_path = "EndpointTestIntegration_hostlist";
     EndpointImp mio(m_shm_path, nullptr, nullptr, 0, values.size());
     mio.open();
+    mio.write_policy({});
+
     EndpointUserImp mios(m_shm_path, nullptr, nullptr, "power_balancer",
-                           values.size(), "myprofile", hostlist_path, hosts);
+                         values.size(), "myprofile", hostlist_path, hosts);
     EXPECT_EQ("power_balancer", mio.get_agent());
     EXPECT_EQ("myprofile", mio.get_profile_name());
     EXPECT_EQ(hosts, mio.get_hostnames());
