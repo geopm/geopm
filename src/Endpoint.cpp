@@ -45,11 +45,12 @@
 
 #include "Environment.hpp"
 #include "SharedMemory.hpp"
+#include "SharedMemoryScopedLock.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
 #include "Agent.hpp"
 #include "config.h"
-
+#include <iostream>
 namespace geopm
 {
     std::unique_ptr<Endpoint> Endpoint::make_unique(const std::string &data_path)
@@ -85,6 +86,7 @@ namespace geopm
         , m_num_sample(num_sample)
         , m_is_open(false)
         , m_continue_loop(true)
+        , m_policy_lock(nullptr)
     {
 
     }
@@ -104,7 +106,7 @@ namespace geopm
             size_t shmem_size = sizeof(struct geopm_endpoint_sample_shmem_s);
             m_sample_shmem = SharedMemory::make_unique_owner(m_path + shm_sample_postfix(), shmem_size);
         }
-        auto lock_p = m_policy_shmem->get_scoped_lock();
+        m_policy_lock = m_policy_shmem->get_scoped_lock();
         struct geopm_endpoint_policy_shmem_s *data_p = (struct geopm_endpoint_policy_shmem_s*)m_policy_shmem->pointer();
         *data_p = {};
 

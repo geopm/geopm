@@ -1,0 +1,2 @@
+optional /home/drguttma/build/geopm-slurm/lib/geopm_spank/libgeopm_spank.so
+optional /home/drguttma/build/geopm-slurm/lib/geopm_spank/libgeopm_profile_policy_spank.so

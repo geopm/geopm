@@ -148,8 +148,11 @@ int main(int argc, char **argv)
     try {
         // wait for attach
         std::string agent = "";
-        while (g_continue && agent == "") {
+        int count = 0;
+        while (g_continue && agent == "" && count < 10) {
             agent = endpoint.get_agent();
+            ++count;
+            sleep(1);
         }
         std::cout << "agent = " << agent << std::endl;
         if (agent != "") {
@@ -157,6 +160,7 @@ int main(int argc, char **argv)
             auto policy_store = geopm::PolicyStore::make_unique(policystore_path);
             std::string profile_name = endpoint.get_profile_name();
             std::cout << "profile = " << profile_name << std::endl;
+            std::cout << "nodes = " << endpoint.get_hostnames() << std::endl;
             auto policy = policy_store->get_best(profile_name, agent);
             std::cout << "Got policy: " << policy << std::endl;
             endpoint.write_policy(policy);
