@@ -1,0 +1,4 @@
+{
+    "GEOPM_AGENT": "frequency_map",
+    "GEOPM_POLICY": "/etc/geopm/node_policy.json"
+}
