@@ -397,13 +397,17 @@ namespace geopm
 
     void Controller::walk_down(void)
     {
+        static bool first_file_policy = true;
         bool do_send = false;
         if (m_is_root) {
             /// @todo Return an is_updated bool.
             if (m_is_dynamic_policy) {
                 m_endpoint->read_policy(m_in_policy);
-
                 do_send = true;
+            }
+            else if (first_file_policy) {
+                do_send = true;
+                first_file_policy = false;
             }
         }
         else {
