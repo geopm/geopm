@@ -1,0 +1,4 @@
+{
+    "GEOPM_POLICY": "/geopm_endpoint_test"",
+    "GEOPM_AGENT": "energy_efficient"
+}

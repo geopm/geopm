@@ -89,6 +89,7 @@ namespace geopm
     static_assert(sizeof(struct geopm_endpoint_sample_shmem_s) == 4096, "Alignment issue with geopm_endpoint_sample_shmem_s.");
 
     class SharedMemory;
+    class SharedMemoryScopedLock;
 
     class Endpoint
     {
@@ -152,6 +153,7 @@ namespace geopm
             size_t m_num_policy;
             size_t m_num_sample;
             bool m_is_open;
+            std::unique_ptr<SharedMemoryScopedLock> m_policy_lock;
     };
 
     class SharedMemoryUser;
