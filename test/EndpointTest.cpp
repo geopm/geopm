@@ -182,6 +182,7 @@ TEST_F(ShmemEndpointTestIntegration, write_read_sample)
     std::string hostlist_path = "ShmemEndpointTestIntegration_hostlist";
     ShmemEndpoint mio(m_shm_path, nullptr, nullptr, 0, values.size());
     mio.open();
+    mio.write_policy({});
     ShmemEndpointUser mios(m_shm_path, nullptr, nullptr, "power_balancer",
                            values.size(), "myprofile", hostlist_path, hosts);
     EXPECT_EQ("power_balancer", mio.get_agent());

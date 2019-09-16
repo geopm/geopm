@@ -44,12 +44,13 @@
 #include "Environment.hpp"
 #include "PlatformTopo.hpp"
 #include "SharedMemory.hpp"
+#include "SharedMemoryScopedLock.hpp"
 #include "SharedMemoryUser.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
 #include "Agent.hpp"
 #include "config.h"
-
+#include <iostream>
 namespace geopm
 {
     const std::string SHM_POLICY_POSTFIX = "-policy";
@@ -77,6 +78,7 @@ namespace geopm
         , m_num_policy(num_policy)
         , m_num_sample(num_sample)
         , m_is_open(false)
+        , m_policy_lock(nullptr)
     {
 
     }
@@ -96,7 +98,7 @@ namespace geopm
             size_t shmem_size = sizeof(struct geopm_endpoint_sample_shmem_s);
             m_sample_shmem = SharedMemory::make_unique(m_path + SHM_SAMPLE_POSTFIX, shmem_size);
         }
-        auto lock_p = m_policy_shmem->get_scoped_lock();
+        m_policy_lock = m_policy_shmem->get_scoped_lock();
         struct geopm_endpoint_policy_shmem_s *data_p = (struct geopm_endpoint_policy_shmem_s*)m_policy_shmem->pointer();
         *data_p = {};
 
@@ -129,10 +131,16 @@ namespace geopm
             throw Exception("ShmemEndpoint::" + std::string(__func__) + "(): size of policy does not match expected.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        auto lock = m_policy_shmem->get_scoped_lock();
+        // keep m_policy_lock locked from open() until first policy is written
+        // TODO: controller will hang if endpoint is created but no policy is ever written
+        // need a try lock in read_policy for EndpointUser
+        if (!m_policy_lock) {
+            m_policy_lock = m_policy_shmem->get_scoped_lock();
+        }
         auto data = (struct geopm_endpoint_policy_shmem_s *)m_policy_shmem->pointer();
         data->count = policy.size();
         std::copy(policy.begin(), policy.end(), data->values);
+        m_policy_lock.reset();
     }
 
     double ShmemEndpoint::read_sample(std::vector<double> &sample)
@@ -249,6 +257,7 @@ namespace geopm
         , m_sample_shmem(std::move(sample_shmem))
         , m_num_sample(num_sample)
     {
+        std::cout << "Trying to attach to Endpoint" << std::endl;
         // Attach to shared memory here and send across agent,
         // profile, hostname list.  Once user attaches to sample
         // shmem, RM knows it has attached to both policy and sample.
