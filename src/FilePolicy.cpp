@@ -43,6 +43,14 @@ using json11::Json;
 
 namespace geopm
 {
+    FilePolicy::FilePolicy(const std::string &policy_path,
+                           const std::vector<std::string> &policy_names)
+        : m_policy_path(policy_path)
+        , m_policy_names(policy_names)
+    {
+        get_policy();
+    }
+
     std::map<std::string, double> FilePolicy::parse_json(const std::string &path)
     {
         std::map<std::string, double> policy_value_map;
@@ -81,23 +89,21 @@ namespace geopm
         return policy_value_map;
     }
 
-    std::vector<double> FilePolicy::read_policy(const std::string &policy_path,
-                                                const std::vector<std::string> &policy_names)
+    std::vector<double> FilePolicy::get_policy(void)
     {
-        std::vector<double> policy;
-        if (policy_names.size() > 0) {
-            std::map<std::string, double> policy_value_map = parse_json(policy_path);
-            for (auto name : policy_names) {
+        if (m_policy_names.size() > 0 && m_policy.size() == 0) {
+            std::map<std::string, double> policy_value_map = parse_json(m_policy_path);
+            for (auto name : m_policy_names) {
                 auto it = policy_value_map.find(name);
                 if (it != policy_value_map.end()) {
-                    policy.emplace_back(policy_value_map.at(name));
+                    m_policy.emplace_back(policy_value_map.at(name));
                 }
                 else {
                     // Fill in missing policy values with NAN (default)
-                    policy.emplace_back(NAN);
+                    m_policy.emplace_back(NAN);
                 }
             }
         }
-        return policy;
+        return m_policy;
     }
 }
