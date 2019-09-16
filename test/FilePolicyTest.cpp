@@ -102,7 +102,8 @@ TEST_F(FilePolicyTest, parse_json_file)
 {
     std::vector<std::string> signal_names = {"POWER_MAX", "FREQUENCY_MAX", "FREQUENCY_MIN", "PI",
                                              "DEFAULT1", "DEFAULT2", "DEFAULT3"};
-    std::vector<double> result = FilePolicy::read_policy(m_json_file_path, signal_names);
+    FilePolicy file_policy(m_json_file_path, signal_names);
+    std::vector<double> result = file_policy.read_policy();
     ASSERT_EQ(7u, result.size());
     EXPECT_EQ(400, result[0]);
     EXPECT_EQ(2.3e9, result[1]);
@@ -117,12 +118,13 @@ TEST_F(FilePolicyTest, negative_parse_json_file)
 {
     const std::vector<std::string> signal_names = {"FAKE_SIGNAL"};
     std::vector<double> policy {NAN};
-    GEOPM_EXPECT_THROW_MESSAGE(FilePolicy::read_policy(m_json_file_path_bad, signal_names),
+    GEOPM_EXPECT_THROW_MESSAGE(FilePolicy(m_json_file_path_bad, signal_names),
                                GEOPM_ERROR_FILE_PARSE, "unsupported type or malformed json config file");
 
     // Don't parse if Agent doesn't require any policies
     const std::vector<std::string> signal_names_empty;
-    auto empty_result = FilePolicy::read_policy("", signal_names_empty);
+    FilePolicy file_policy("", signal_names_empty);
+    auto empty_result = file_policy.read_policy();
     EXPECT_EQ(0u, empty_result.size());
 }
 
@@ -133,10 +135,10 @@ TEST_F(FilePolicyTest, negative_bad_files)
     empty_file.close();
     const std::vector<std::string> signal_names = {"FAKE_SIGNAL"};
     std::vector<double> policy {NAN};
-    GEOPM_EXPECT_THROW_MESSAGE(FilePolicy::read_policy(path, signal_names),
+    GEOPM_EXPECT_THROW_MESSAGE(FilePolicy(path, signal_names),
                                GEOPM_ERROR_INVALID, "input file invalid");
     chmod(path.c_str(), 0);
-    GEOPM_EXPECT_THROW_MESSAGE(FilePolicy::read_policy(path, signal_names),
+    GEOPM_EXPECT_THROW_MESSAGE(FilePolicy(path, signal_names),
                                EACCES, "file \"" + path + "\" could not be opened");
     unlink(path.c_str());
 }
