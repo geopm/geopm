@@ -46,6 +46,7 @@ namespace geopm
     class Comm;
     class PlatformIO;
     class EndpointUser;
+    class FilePolicy;
     class ApplicationIO;
     class Reporter;
     class Tracer;
@@ -168,6 +169,7 @@ namespace geopm
             std::vector<double> m_trace_sample;
 
             std::unique_ptr<EndpointUser> m_endpoint;
+            std::unique_ptr<FilePolicy> m_file_policy;
             std::string m_policy_path;
             bool m_is_dynamic_policy;
 

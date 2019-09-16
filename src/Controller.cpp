@@ -144,7 +144,9 @@ extern "C"
                 geopm::EndpointUser::make_unique(policy_path, {})->read_policy(policy);
             }
             else {
-                geopm::FilePolicy::read_policy(policy_path, geopm::Agent::policy_names(geopm::agent_factory().dictionary(agent_name)));
+                geopm::FilePolicy file_policy(policy_path,
+                                              geopm::Agent::policy_names(geopm::agent_factory().dictionary(agent_name)));
+                policy = file_policy.read_policy();
             }
             agent->validate_policy(policy);
             agent->enforce_policy(policy);
@@ -254,7 +256,8 @@ namespace geopm
             m_endpoint = EndpointUser::make_unique(m_policy_path, get_hostnames(hostname()));
         }
         else if (!m_is_dynamic_policy) {
-            m_in_policy = FilePolicy::read_policy(m_policy_path, policy_names);
+            m_file_policy = geopm::make_unique<FilePolicy>(m_policy_path, policy_names);
+            m_in_policy = m_file_policy->read_policy();
         }
     }
 
@@ -402,7 +405,10 @@ namespace geopm
             /// @todo Return an is_updated bool.
             if (m_is_dynamic_policy) {
                 m_endpoint->read_policy(m_in_policy);
-
+                do_send = true;
+            }
+            else {
+                m_in_policy = m_file_policy->read_policy();
                 do_send = true;
             }
         }
