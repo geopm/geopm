@@ -44,16 +44,20 @@ namespace geopm
         public:
             FilePolicy() = delete;
             FilePolicy(const FilePolicy &other) = delete;
+            FilePolicy(const std::string &policy_path,
+                       const std::vector<std::string> &policy_names);
             virtual ~FilePolicy() = default;
             /// @brief Read policy values from a JSON file.
             /// @param [in] policy_path Location of the policy JSON file.
             /// @param [in] policy_names Expected policy field names
             ///             as determined by the Agent.
             /// @return The policy values read.
-            static std::vector<double> read_policy(const std::string &policy_path,
-                                                   const std::vector<std::string> &policy_names);
+            std::vector<double> get_policy(void);
         private:
-            static std::map<std::string, double> parse_json(const std::string &path);
+            std::map<std::string, double> parse_json(const std::string &path);
+            std::vector<double> m_policy;
+            const std::string m_policy_path;
+            const std::vector<std::string> m_policy_names;
     };
 }
 
