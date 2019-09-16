@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df683fa8_c85c6d60",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-16T15:54:41Z",
+      "side": 1,
+      "message": "doesn\u0027t work if any fields are NAN.  Also need to decide if different length policy is ok as long as extra fields are NAN",
+      "range": {
+        "startLine": 410,
+        "startChar": 19,
+        "endLine": 410,
+        "endChar": 49
+      },
+      "revId": "1b00fb5cdfabe7fd973b63805c5d2d0a06f330f5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
