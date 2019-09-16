@@ -402,9 +402,8 @@ namespace geopm
             /// @todo Return an is_updated bool.
             if (m_is_dynamic_policy) {
                 m_endpoint->read_policy(m_in_policy);
-
-                do_send = true;
             }
+            do_send = true;
         }
         else {
             do_send = m_tree_comm->receive_down(m_num_level_ctl, m_in_policy);
