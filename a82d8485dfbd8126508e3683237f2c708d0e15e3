@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "90c339f4_1472007b",
+        "filename": ".travis.yml",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-09-16T21:34:57Z",
+      "side": 1,
+      "message": "pyenv is shipped by default and we don\u0027t need to declare any addon (as we did with say pip)?",
+      "range": {
+        "startLine": 52,
+        "startChar": 6,
+        "endLine": 52,
+        "endChar": 12
+      },
+      "revId": "a82d8485dfbd8126508e3683237f2c708d0e15e3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
