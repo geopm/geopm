@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6ac10b0_665ec9b3",
+        "filename": "autogen.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-17T17:18:05Z",
+      "side": 1,
+      "message": "I think 2\u003e\u00261 should stay in this one, otherwise it will print the error message when not in a get repo. Line 57 prints a more user-friendly message when this happens.\n\n$ git rev-parse --git-dir \u003e /dev/null\nfatal: not a git repository (or any parent up to mount point /)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).",
+      "range": {
+        "startLine": 53,
+        "startChar": 51,
+        "endLine": 53,
+        "endChar": 61
+      },
+      "revId": "cf28e2b1303801c8e129e3b6d37c871906a8daf6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
