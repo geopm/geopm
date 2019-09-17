@@ -152,6 +152,40 @@ extern "C"
         }
     }
 
+
+#if 0
+    /// @todo When CLANG supports ompt_callback_dispatch we can use
+    ///       that interface to call into the thread progress APIs of
+    ///       GEOPM.  We will use opmt_callback_work to initialize the
+    ///       loop counter.
+
+    static void on_ompt_event_work(ompt_work_t wstype,
+                                   ompt_scope_endpoint_t endpoint,
+                                   ompt_data_t *parallel_data,
+                                   ompt_data_t *task_data,
+                                   uint64_t count,
+                                   const void *parallel_function)
+    {
+
+        if (count) {
+            geopm_tprof_init_loop(num_thread,
+                                  thread_idx,
+                                  count,
+                                  chunk_size);
+        }
+    }
+
+
+    static void on_ompt_event_dispatch(ompt_data_t *parallel_data,
+                                       ompt_data_t *task_data,
+                                       ompt_dispatch_t kind,
+                                       ompt_data_t instance)
+    {
+        geopm_tprof_post()
+    }
+
+#endif // end tprof functions
+
     int ompt_initialize(ompt_function_lookup_t lookup,
                         int initial_device_num,
                         ompt_data_t *tool_data)
@@ -159,6 +193,11 @@ extern "C"
         ompt_set_callback_t ompt_set_callback = (ompt_set_callback_t) lookup("ompt_set_callback");
         ompt_set_callback(ompt_callback_parallel_begin, (ompt_callback_t) &on_ompt_event_parallel_begin);
         ompt_set_callback(ompt_callback_parallel_end, (ompt_callback_t) &on_ompt_event_parallel_end);
+        // When CLANG supports ompt_callback_dispatch we can use that
+        // interface to call into the thread progress APIs of GEOPM.
+        //
+        // ompt_set_callback(ompt_callback_work, (ompt_callback_t) &on_ompt_event_work);
+        // ompt_set_callback(ompt_callback_dispatch, (ompt_callback_t) &on_ompt_event_dispatch);
         // OpenMP 5.0 standard says return non-zero on success!?!?!
         return 1;
     }
