@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47489ddb_a313ad9b",
+        "filename": "src/FilePolicy.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-09-18T00:31:30Z",
+      "side": 1,
+      "message": "get_policy?",
+      "range": {
+        "startLine": 55,
+        "startChar": 32,
+        "endLine": 55,
+        "endChar": 43
+      },
+      "revId": "7da6ee7f221158a4761a5dfa48c66bbdb9860ac3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
