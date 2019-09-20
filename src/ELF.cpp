@@ -119,6 +119,11 @@ namespace geopm
                 result.second = info.dli_sname;
             }
             else {
+                size_t base_addr = 0;
+                if ((size_t)info.dli_fbase != 0x400000ULL) {
+                    base_addr = (size_t)info.dli_fbase;
+                }
+                target -= base_addr;
                 std::map<size_t, std::string> symbol_map(elf_symbol_map(info.dli_fname));
                 auto symbol_it = symbol_map.upper_bound(target);
                 if (symbol_it != symbol_map.begin()) {
@@ -126,6 +131,7 @@ namespace geopm
                 }
                 if (symbol_it->first <= target) {
                     result = *symbol_it;
+                    result.first += base_addr;
                 }
             }
         }
