@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7c03335_f48f2aec",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-20T21:12:45Z",
+      "side": 1,
+      "message": "The summary says that this implements the descriptions, but the detailed description and the diff show that it leaves them unimplemented and changes the error/return state instead.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 9
+      },
+      "revId": "dcf708a68799d87d50a98cd8b9b2e957863eab12",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
