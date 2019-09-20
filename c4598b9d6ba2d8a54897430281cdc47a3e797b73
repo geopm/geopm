@@ -16,6 +16,24 @@
       "revId": "c4598b9d6ba2d8a54897430281cdc47a3e797b73",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de52e45c_aee7915c",
+        "filename": "scripts/setup.py.in",
+        "patchSetId": 4
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-20T21:56:49Z",
+      "side": 1,
+      "message": "Yeah. I don\u0027t know whether python3 compatibility will be completely checked-in by the next release. If we\u0027re close, but not quite ready, it might look to users like we\u0027ve implemented cross-version support. So hopefully explicitly tagging it might help reduce confusion.\n\nOnce we consider it ready to officially support, we can remove the trailing \" :: Only\", and add Python 3 and 3.6 tags (and whatever later versions we want to test and tag).\n\nThese are only classifiers to help users browsing the package index. The rule to prevent installation on the wrong python versions is applied via python_requires on line 105, so that will need to be modified at the end as well.",
+      "parentUuid": "5bb5e026_84ebc2c9",
+      "revId": "c4598b9d6ba2d8a54897430281cdc47a3e797b73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
