@@ -22,6 +22,30 @@
       "revId": "e42da536601f5bb79633ee9d81fa27dfd749b80c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a37bce06_ed8323b1",
+        "filename": "scripts/test/TestPolicyStoreIntegration.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-20T21:47:42Z",
+      "side": 1,
+      "message": "Yeah. Looks like this slipped through its initial check-in due to my workflow on that patch stack:\n1) Added the tests, and ran them with setup.py test during development. Switched to make check just before opening the review request.\n2) Put the code up for review. Got a review comment requesting an additional check that depends on the agent name being valid. Re-ran the tests via make check. Nothing failed because make check directly executes the test file, which didn\u0027t have the unittest.main() call.\n\nI\u0027ll be more careful not to make that mistake again in the future. A later change in this stack makes it so tests are executed both via make check (locally and in gerrit), and via setup.py (in travis 2+3 checks). That patch what allowed me to see this omission now.",
+      "parentUuid": "7bd9d32e_6b15280e",
+      "range": {
+        "startLine": 42,
+        "startChar": 45,
+        "endLine": 42,
+        "endChar": 58
+      },
+      "revId": "e42da536601f5bb79633ee9d81fa27dfd749b80c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
