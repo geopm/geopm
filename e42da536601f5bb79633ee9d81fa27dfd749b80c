@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7bd9d32e_6b15280e",
+        "filename": "scripts/test/TestPolicyStoreIntegration.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-20T21:30:24Z",
+      "side": 1,
+      "message": "does this have to be a valid agent name for the test to work?",
+      "range": {
+        "startLine": 42,
+        "startChar": 45,
+        "endLine": 42,
+        "endChar": 58
+      },
+      "revId": "e42da536601f5bb79633ee9d81fa27dfd749b80c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
