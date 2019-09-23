@@ -71,7 +71,6 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/test/__init__.py \
               scripts/test/analysis_helper.py \
               scripts/test/mock_report.py \
-              scripts/test/geopm_context.py \
               scripts/test/geopmpy_test.sh \
               # end
 
