@@ -30,4 +30,21 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-__all__ = ['geopm_context', 'TestAffinity', 'TestAnalysis']
+__all__ = ['TestAffinity',
+           'analysis_helper.py',
+           'mock_report.py',
+           'TestAffinity.py',
+           'TestAgent.py',
+           'TestAnalysisCommandLine.py',
+           'TestBalancerAnalysis.py',
+           'TestError.py',
+           'TestFreqSweepAnalysis.py',
+           'TestIO.py',
+           'TestLauncher.py',
+           'TestNodeEfficiencyAnalysis.py',
+           'TestNodePowerAnalysis.py',
+           'TestPIO.py',
+           'TestPolicyStoreIntegration.py',
+           'TestPolicyStore.py',
+           'TestPowerSweepAnalysis.py',
+           'TestTopo.py']

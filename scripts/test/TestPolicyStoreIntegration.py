@@ -34,7 +34,6 @@
 from __future__ import absolute_import
 
 import unittest
-from . import geopm_context
 import geopmpy.policy_store
 
 class TestPolicyStoreIntegration(unittest.TestCase):

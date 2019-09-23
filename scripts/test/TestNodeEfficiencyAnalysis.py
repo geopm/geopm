@@ -34,8 +34,8 @@
 from __future__ import absolute_import
 
 import unittest
-from .analysis_helper import *
-from . import mock_report
+from test.analysis_helper import *
+from test import mock_report
 
 
 @unittest.skipIf(g_skip_analysis_test, g_skip_analysis_ex)

@@ -40,7 +40,6 @@ import subprocess
 import shlex
 import StringIO
 
-from . import geopm_context
 import geopmpy.launcher
 
 LSCPU_OUTPUT = '''Architecture:          x86_64

@@ -37,7 +37,6 @@ import sys
 
 try:
     import pandas
-    from . import geopm_context
     import geopmpy.analysis
     import geopmpy.io
     g_skip_analysis_test = False

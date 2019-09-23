@@ -35,7 +35,6 @@ from __future__ import absolute_import
 
 import unittest
 import mock
-from . import geopm_context
 try:
     from importlib import reload
 except ImportError:

@@ -35,7 +35,6 @@ from __future__ import absolute_import
 
 import unittest
 import json
-from . import geopm_context
 import geopmpy.agent
 
 

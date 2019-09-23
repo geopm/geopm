@@ -36,7 +36,6 @@ from __future__ import absolute_import
 import unittest
 import math
 import os
-from . import geopm_context
 import geopmpy.launcher
 
 

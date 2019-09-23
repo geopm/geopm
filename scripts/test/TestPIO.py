@@ -36,7 +36,6 @@ from __future__ import absolute_import
 import unittest
 import sys
 import time
-from . import geopm_context
 import geopmpy.pio
 import geopmpy.topo
 

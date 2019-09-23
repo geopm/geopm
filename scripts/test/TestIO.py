@@ -41,7 +41,6 @@ import mock
 from collections import Counter
 from contextlib import contextmanager
 
-from . import geopm_context
 import geopmpy.io
 
 def touch_file(file_path):

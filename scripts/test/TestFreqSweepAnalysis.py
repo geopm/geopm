@@ -37,8 +37,8 @@ import os
 import sys
 import unittest
 from collections import defaultdict
-from .analysis_helper import *
-from . import mock_report
+from test.analysis_helper import *
+from test import mock_report
 
 
 power_budget = 400
