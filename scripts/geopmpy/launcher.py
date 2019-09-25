@@ -327,6 +327,7 @@ class Launcher(object):
         self.num_node = num_node
         self.argv = argv
         self.argv_unparsed = argv
+        self._msr_save = None
         try:
             self.config = Config(argv)
             self.is_geopm_enabled = True
@@ -397,6 +398,7 @@ class Launcher(object):
                 raise SyntaxError('Number of MPI ranks must be specified.')
             if self.num_node is None:
                 raise SyntaxError('Number of nodes must be specified.')
+            self.msr_save()
             self.init_topo()
             if not is_cpu_per_rank_override and 'OMP_NUM_THREADS' not in os.environ:
                 # exclude 2 cores for GEOPM and OS
@@ -487,6 +489,7 @@ class Launcher(object):
                 stderr.write(stderr_str)
 
         signal.signal(signal.SIGINT, self.default_handler)
+        self.msr_restore()
         if pid.returncode:
             raise subprocess.CalledProcessError(pid.returncode, argv_mod)
         if is_geopmctl and geopm_pid.returncode:
@@ -510,6 +513,32 @@ class Launcher(object):
         is used.
         """
         return self.default_handler(signum, frame)
+
+    def msr_save(self):
+        """
+        """
+        # Create the cache for the PlatformTopo on each compute node
+        self._msr_save = '/tmp/geopm-msr-save-$USER'
+        argv = shlex.split('dummy {} --geopm-ctl-disable -- msrsave /tmp/geopm-msr-save-$USER'.format(self.launcher_command()))
+        factory = Factory()
+        launcher = factory.create(argv, self.num_node, self.num_node,
+                                  host_file=self.host_file,
+                                  node_list=self.node_list,
+                                  reservation=self.reservation)
+        launcher.run()
+
+    def msr_restore(self):
+        """
+        """
+        # Create the cache for the PlatformTopo on each compute node
+        if self._msr_save is not None:
+            argv = shlex.split('dummy {} --geopm-ctl-disable -- msrsave -r /tmp/geopm-msr-save-$USER'.format(self.launcher_command()))
+            factory = Factory()
+            launcher = factory.create(argv, self.num_node, self.num_node,
+                                      host_file=self.host_file,
+                                      node_list=self.node_list,
+                                      reservation=self.reservation)
+            launcher.run()
 
     def init_topo(self):
         """
