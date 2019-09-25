@@ -42,6 +42,7 @@ import StringIO
 import math
 import shlex
 import unittest
+import getpass
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from test_integration import geopm_context
@@ -126,7 +127,7 @@ def get_platform():
 
 class TestLauncher(object):
     def __init__(self, app_conf, agent_conf, report_path=None,
-                 trace_path=None, host_file=None, time_limit=600, region_barrier=False, performance=False):
+                 trace_path=None, host_file=None, time_limit=600, region_barrier=False, performance=False, fatal_test=False):
         self._app_conf = app_conf
         self._agent_conf = agent_conf
         self._report_path = report_path
@@ -142,6 +143,8 @@ class TestLauncher(object):
         self.set_num_cpu()
         self.set_num_rank(16)
         self.set_num_node(4)
+        if fatal_test:
+            msr_save()
 
     def set_node_list(self, node_list):
         self._node_list = node_list
@@ -193,6 +196,8 @@ class TestLauncher(object):
             launcher = geopmpy.launcher.Factory().create(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
                                                          self._time_limit, test_name, self._node_list, self._host_file)
             launcher.run(stdout=outfile, stderr=outfile)
+            if self._msr_save_path is not None:
+                msr_restore()
 
     def get_report(self):
         return Report(self._report_path)
@@ -248,3 +253,33 @@ class TestLauncher(object):
             self._cpu_per_rank = int(math.floor(self._num_cpu / rank_per_node))
         except (AttributeError, TypeError):
             pass
+
+    def msr_save(self):
+        """
+        Snapshots all whitelisted MSRs using msrsave on all compute nodes
+        that the job will be launched on.
+        """
+        # Create the cache for the PlatformTopo on each compute node
+        self._msr_save_path = '/tmp/geopm-msr-save-' + getpass.getuser()
+        launch_command = 'msrsave ' + self._msr_save_path
+        argv = shlex.split('dummy {} --geopm-ctl-disable -- {}'
+                           .format(detect_launcher(), launch_command))
+        factory = Factory()
+        launcher = geopmpy.launcher.Factory().create(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
+                                                     self._time_limit, test_name, self._node_list, self._host_file)
+        launcher.run()
+
+    def msr_restore(self):
+        """
+        Restores all whitelisted MSRs using msrsave on all compute nodes
+        that the job was launched on.
+        """
+        # Create the cache for the PlatformTopo on each compute node
+        if self._msr_save_path is not None:
+            launch_command = 'msrsave -r ' + self._msr_save_path
+            argv = shlex.split('dummy {} --geopm-ctl-disable -- {}'
+                               .format(detect_launcher(), launch_command))
+            factory = Factory()
+            launcher = geopmpy.launcher.Factory().create(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
+                                                         self._time_limit, test_name, self._node_list, self._host_file)
+            launcher.run()

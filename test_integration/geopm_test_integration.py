@@ -1214,7 +1214,7 @@ class TestIntegration(unittest.TestCase):
         agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
 
-        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
+        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, fatal_test=True)
         launcher.set_pmpi_ctl("application")
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
