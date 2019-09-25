@@ -103,7 +103,7 @@ TEST_F(ProfileTracerTest, format)
     std::string output = geopm::read_file(output_path);
     std::vector<std::string> output_lines = geopm::string_split(output, "\n");
     std::vector<std::string> expect_lines = {
-        "rank|region_hash|region_hint|timestamp|progress",
+        "RANK|REGION_HASH|REGION_HINT|TIMESTAMP|PROGRESS",
         "0|0x00000000fa5920d6|0x0000000200000000|15|0",
         "1|0x00000000fa5920d6|0x0000000200000000|16|0",
         "2|0x00000000fa5920d6|0x0000000200000000|17|0",

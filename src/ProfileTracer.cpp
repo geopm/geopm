@@ -79,11 +79,11 @@ namespace geopm
             if (geopm_time_diff(&m_time_zero, &GEOPM_TIME_REF) == 0.0) {
                 geopm_time(&m_time_zero);
             }
-            m_csv->add_column("rank", "integer");
-            m_csv->add_column("region_hash", "hex");
-            m_csv->add_column("region_hint", "hex");
-            m_csv->add_column("timestamp", "double");
-            m_csv->add_column("progress", "float");
+            m_csv->add_column("RANK", "integer");
+            m_csv->add_column("REGION_HASH", "hex");
+            m_csv->add_column("REGION_HINT", "hex");
+            m_csv->add_column("TIMESTAMP", "double");
+            m_csv->add_column("PROGRESS", "float");
             m_csv->activate();
 
             double rel_time = m_platform_io.read_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
