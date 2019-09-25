@@ -206,16 +206,15 @@ int geopm_endpoint_write_policy(struct geopm_endpoint_c *endpoint,
  *  @param [out] sample_array Array of sampled values provide by the
  *         agent.
  *
- *  @param [out] sample_age_sec A single value of time elapsed in
- *         units of seconds between agent's last update to the sample
- *         and the time of call to geomp_endpoint_agent_sample().
+ *  @param [out] timestamp The timestamp of the agent's last update to
+ *         the sample.
  *
  *  @return Zero on success, error code on failure
  */
 int geopm_endpoint_read_sample(struct geopm_endpoint_c *endpoint,
                                size_t num_sample,
                                double *sample_array,
-                               struct geopm_time_s *sample_age_sec);
+                               struct geopm_time_s *timestamp);
 
 #ifdef __cplusplus
 }
