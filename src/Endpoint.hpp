@@ -90,7 +90,41 @@ namespace geopm
 
     class SharedMemory;
 
-    class ShmemEndpoint
+    class Endpoint
+    {
+        public:
+            virtual ~Endpoint() = default;
+            /// @brief Create the shared memory regions belonging to
+            ///        the Endpoint.
+            virtual void open(void) = 0;
+            /// @brief Unlink the shared memory regions belonging to
+            ///        the Endpoint.
+            virtual void close(void) = 0;
+            /// @brief Write a set of policy values for the Agent.
+            /// @param [in] policy The policy values.  The order is
+            ///        specified by the Agent.
+            virtual void write_policy(const std::vector<double> &policy) = 0;
+            /// @brief Read a set of samples from the Agent.
+            /// @param [out] sample The sample values.  The order is
+            ///        specified by the Agent.
+            /// @return The sample timestamp.
+            virtual geopm_time_s read_sample(std::vector<double> &sample) = 0;
+            /// @brief Returns the Agent name, or empty string if no
+            ///        Agent is attached.
+            virtual std::string get_agent(void) = 0;
+            /// @brief Returns the profile name associated with the
+            ///        attached application, or empty if no controller
+            ///        is attached.
+            virtual std::string get_profile_name(void) = 0;
+            /// @brief Returns the list of hostnames used by the
+            ///        attached application, or empty if no controller
+            ///        is attached.
+            virtual std::set<std::string> get_hostnames(void) = 0;
+            /// @brief Factory method for the Endpoint used to set the policy.
+            static std::unique_ptr<Endpoint> make_unique(const std::string &data_path);
+    };
+
+    class ShmemEndpoint : public Endpoint
     {
         public:
             ShmemEndpoint() = delete;
@@ -104,32 +138,13 @@ namespace geopm
                           size_t num_sample);
             virtual ~ShmemEndpoint();
 
-            /// @brief Create the shared memory regions belonging to
-            ///        the Endpoint.
-            void open(void);
-            /// @brief Unlink the shared memory regions belonging to
-            ///        the Endpoint.
-            void close(void);
-            /// @brief Write a set of policy values for the Agent.
-            /// @param [in] policy The policy values.  The order is
-            ///        specified by the Agent.
-            void write_policy(const std::vector<double> &policy);
-            /// @brief Read a set of samples from the Agent.
-            /// @param [out] sample The sample values.  The order is
-            ///        specified by the Agent.
-            /// @return The sample timestamp.
-            geopm_time_s read_sample(std::vector<double> &sample);
-            /// @brief Returns the Agent name, or empty string if no
-            ///        Agent is attached.
-            std::string get_agent(void);
-            /// @brief Returns the profile name associated with the
-            ///        attached application, or empty if no controller
-            ///        is attached.
-            std::string get_profile_name(void);
-            /// @brief Returns the list of hostnames used by the
-            ///        attached application, or empty if no controller
-            ///        is attached.
-            std::set<std::string> get_hostnames(void);
+            void open(void) override;
+            void close(void) override;
+            void write_policy(const std::vector<double> &policy) override;
+            geopm_time_s read_sample(std::vector<double> &sample) override;
+            std::string get_agent(void) override;
+            std::string get_profile_name(void) override;
+            std::set<std::string> get_hostnames(void) override;
         private:
             std::string m_path;
             std::unique_ptr<SharedMemory> m_policy_shmem;
