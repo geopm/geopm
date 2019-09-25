@@ -195,12 +195,16 @@ if ENABLE_BETA
 ronn_man_inst += man/geopmanalysis.1 \
                  man/geopmendpoint.1 \
                  man/geopmplotter.1 \
-                 man/geopm_endpoint_c.3
+                 man/geopm_endpoint_c.3 \
+                 man/GEOPM_CXX_MAN_Endpoint.3 \
+                 # end
 else
 ronn_man_noinst += man/geopmanalysis.1 \
                    man/geopmendpoint.1 \
                    man/geopmplotter.1 \
-                   man/geopm_endpoint_c.3
+                   man/geopm_endpoint_c.3 \
+                   man/GEOPM_CXX_MAN_Endpoint.3 \
+                   # end
 endif
 
 ronn_man = $(ronn_man_inst) $(ronn_man_noinst)
@@ -257,6 +261,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/GEOPM_CXX_MAN_CNLIOGroup.3.ronn \
              ronn/GEOPM_CXX_MAN_Comm.3.ronn \
              ronn/GEOPM_CXX_MAN_CpuinfoIOGroup.3.ronn \
+             ronn/GEOPM_CXX_MAN_Endpoint.3.ronn \
              ronn/GEOPM_CXX_MAN_EnergyEfficientAgent.3.ronn \
              ronn/GEOPM_CXX_MAN_EnergyEfficientRegion.3.ronn \
              ronn/GEOPM_CXX_MAN_Exception.3.ronn \
