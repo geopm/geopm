@@ -38,27 +38,27 @@ geopm_endpoint_c(3) -- dynamic policy control for resource management
 `Link with -lgeopmpolicy`
 
   * `int geopm_endpoint_create(`:
+    `const char *`_endpoint_name_, <br>
     `struct geopm_endpoint_c **`_endpoint_`);`
 
   * `int geopm_endpoint_destroy(`:
     `struct geopm_endpoint_c *`_endpoint_`);`
 
-  * `int geopm_endpoint_shmem_create(`:
-    `struct geopm_endpoint_c *`_endpoint_, <br>
-    `const char *`_endpoint_name_`);`
+  * `int geopm_endpoint_open(`:
+    `struct geopm_endpoint_c *`_endpoint_`);`
 
-  * `int geopm_endpoint_shmem_destroy(`:
-    `struct geopm_endpoint_c *`_endpoint_, <br>
-    `const char *`_endpoint_name_`);`
-
-  * `int geopm_endpoint_shmem_attach(`:
-    `struct geopm_endpoint_c *`_endpoint_, <br>
-    `const char *`_endpoint_name_`);`
+  * `int geopm_endpoint_close(`:
+    `struct geopm_endpoint_c *`_endpoint_`);`
 
   * `int geopm_endpoint_agent(`:
     `struct geopm_endpoint_c *`_endpoint_, <br>
     `size_t` _agent_name_max_, <br>
     `char *`_agent_name_`);`
+
+  * `int geopm_endpoint_profile_name(`:
+    `struct geopm_endpoint_c *`_endpoint_, <br>
+    `size_t` _profile_name_max_, <br>
+    `char *`_profile_name_`);`
 
   * `int geopm_endpoint_num_node(`:
     `struct geopm_endpoint_c *`_endpoint_, <br>
@@ -70,12 +70,14 @@ geopm_endpoint_c(3) -- dynamic policy control for resource management
     `size_t` _node_name_max_, <br>
     `char *`_node_name_`);`
 
-  * `int geopm_endpoint_agent_policy(`:
+  * `int geopm_endpoint_write_policy(`:
     `struct geopm_endpoint_c *`_endpoint_, <br>
+    `size_t` _num_policy_, <br>
     `const double *`_policy_array_`);`
 
-  * `int geopm_endpoint_agent_sample(`:
+  * `int geopm_endpoint_read_sample(`:
     `struct geopm_endpoint_c *`_endpoint_, <br>
+    `size_t` num_sample, <br>
     `double *`_sample_array_, <br>
     `double *`_sample_age_sec_`);`
 
@@ -102,64 +104,85 @@ zero upon success; see [ERRORS][] section below for details.
 
 
   * `geopm_endpoint_create`():
-    will create an endpoint object.  This object will hold the necessary state
-    for interfacing with the shmem regions.  The endpoint is stored in
-    _endpoint_ and will be used with other functions in this interface.  This
-    will return zero on success indicating that the _endpoint_ struct can now be
-    used.  It will return an error code of EEXIST if the shmem regions already
-    exist. _endpoint_ will also be NULL if an error occurs.
+    will create an endpoint object.  This object will hold the
+    necessary state for interfacing with the shmem regions.  The
+    endpoint is stored in _endpoint_ and will be used with other
+    functions in this interface.  The shared memory regions managed by
+    this endpoint will have a substring of the shmem key that matches
+    _endpoint_name_.  This will return zero on success indicating that
+    the _endpoint_ struct can now be used.  _endpoint_ will
+    be unmodified if an error occurs.
 
   * `geopm_endpoint_destroy`():
-    will release resources associated with _endpoint_.    This will return zero
+    will release resources associated with _endpoint_.  This will return zero
     on success indicating that the shmem regions were removed.  Otherwise an
     error code is returned.  This function will not delete any shmem regions.
 
-  * `geopm_endpoint_shmem_create`():
-    will create shmem regions for passing policies to the Agent, and reading
-    samples from the Agent.  These regions will have a substring of the shmem
-    key that matches _endpoint_name_.  These shmem regions are managed by the
-    endpoint.  This will return zero on success indicating that the shmem
-    regions were successfully created.  If the shmem key already exists, an
-    error code of EEXIST is returned.
+  * `geopm_endpoint_open`():
+    will create shared memory regions for passing policies to the
+    Agent, and reading samples from the Agent.  These shmem regions
+    are managed by the endpoint.  This will return zero on success
+    indicating that the shmem regions were successfully created.  If
+    the shmem key already exists, an error code of EEXIST is returned.
 
-  * `geopm_endpoint_shmem_destroy`():
-    will release shmem regions containing the substring _endpoint_name_.  This
-    will additionally send a signal to the agent that the manager is detaching
-    and no longer requires sample updates.  This will return zero on success
-    indicating that the shmem regions were removed.  Otherwise an error code is
+  * `geopm_endpoint_close`():
+    will release shmem regions containing the substring
+    _endpoint_name_.  This will return zero on success indicating that
+    the shmem regions were removed.  Otherwise an error code is
     returned.
 
   * `geopm_endpoint_agent`():
-    checks to see if an agent specified by _agent_name_ has attached to the
-    _endpoint_.  The number of bytes reserved for _agent_name_ is specified in
-    _agent_name_max_.  Returns zero if the endpoint has an agent attached and
-    the agent's name can be stored in the _agent_name_ buffer.  Otherwise an
-    error code is returned.  If no agent has attached, error code
-    GEOPM_ERROR_NO_AGENT is returned.  If no shmem region has been attached to
-    the endpoint an error code is returned.
+    checks to see if an agent specified by _agent_name_ has attached
+    to the _endpoint_.  The number of bytes reserved for _agent_name_
+    is specified in _agent_name_max_.  Returns zero if the endpoint
+    has an agent attached and the agent's name can be stored in the
+    _agent_name_ buffer, or if no agent has attached.  Otherwise an
+    error code is returned.  If no agent has attached, _agent_name_
+    will be an empty string.  If no shmem region has been created with
+    `geopm_endpoint_open()`, an error code is returned.
+
+  * `geopm_endpoint_profile_name`():
+    provides the profile name of the attached agent in _profile_name_.
+    The number of bytes reserved for _profile_name_ is specified in
+    _profile_name_max_.  Returns zero if the endpoint has an agent
+    attached and the profile name can be stored in the _profile_name_
+    buffer.  Otherwise an error code is returned.  If no agent has
+    attached, _profile_name_ will be an empty string.  If no shmem
+    region has been created with `geopm_endpoint_open()`, an error
+    code is returned.
 
   * `geopm_endpoint_num_node`():
-    provides the number of nodes contained within the _endpoint_ in _num_node_.
-    Returns zero on success, otherwise an error code is returned.
+    provides the number of nodes controlled by the agent attached to
+    the _endpoint_ in _num_node_.  Returns zero on success, otherwise
+    an error code is returned.  If no shmem region has been created
+    with `geopm_endpoint_open()`, an error code is returned.
 
   * `geopm_endpoint_node_name`():
     provides the hostname of the _endpoint_ managed compute node in
-    _node_name_.  The index is specified by _node_idx_.  The number of bytes
-    reserved for _node_name_ is specified in _node_name_max_.  Returns zero on
-    success, otherwise an error code is returned.
-
-  * `geopm_endpoint_agent_policy`():
-    sets the policy values for the agent within _endpoint_ to follow.  These
-    values provided in _policy_array_ will be consumed by the GEOPM runtime at
-    the next iteration of the control loop.  Returns zero on success, otherwise
-    an error code is returned.  Setting NAN for a policy value can be used to
-    to indicate that the Agent should use an appropriate default value.
-
-  * `geopm_endpoint_agent_sample`():
-    provides the sample telemetry from the _endpoint_'s agent in _sample_array_ and the
-    amount of time that has passed since the agent last provided an update in
-    _sample_age_sec_.  Returns zero on success, otherwise an error code is
+    _node_name_.  The index is specified by _node_idx_.  The number of
+    bytes reserved for _node_name_ is specified in _node_name_max_.
+    Returns zero if the node name can be stored in the _node_name_
+    buffer, otherwise an error code is returned.  If no shmem region
+    has been created with `geopm_endpoint_open()`, an error code is
     returned.
+
+  * `geopm_endpoint_write_policy`():
+    sets the policy values for the agent within _endpoint_ to follow.
+    These values provided in _policy_array_ will be consumed by the
+    GEOPM runtime at the next iteration of the control loop.  The size
+    of the _policy_array_ is given in _num_policy_.  Returns zero on
+    success, otherwise an error code is returned.  Setting NAN for a
+    policy value can be used to to indicate that the Agent should use
+    an appropriate default value.  If no shmem region has been created
+    with `geopm_endpoint_open()`, an error code is returned.
+
+  * `geopm_endpoint_read_sample`():
+    provides the sample telemetry from the _endpoint_'s agent in
+    _sample_array_ and the amount of time that has passed since the
+    agent last provided an update in _sample_age_sec_.  The number of
+    samples is given in _num_sample_.  Returns zero on success,
+    otherwise an error code is returned.  If no shmem region has been
+    created with `geopm_endpoint_open()`, an error code is returned.
 
 ## ERRORS
 All functions described on this man page return an error code.  See
