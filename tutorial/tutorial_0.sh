@@ -86,7 +86,6 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
     geopmlaunch impi \
                 -ppn ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
-                -f tutorial_hosts \
                 --geopm-preload \
                 --geopm-ctl=process \
                 --geopm-report=tutorial_0_report \

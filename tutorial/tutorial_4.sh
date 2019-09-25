@@ -122,7 +122,6 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
     geopmlaunch impi \
                 -ppn ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
-                -f tutorial_hosts \
                 --geopm-ctl=process \
                 --geopm-agent=power_governor \
                 --geopm-report=tutorial_4_governed_report \
@@ -133,7 +132,6 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
     geopmlaunch impi \
                 -ppn ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
-                -f tutorial_hosts \
                 --geopm-ctl=process \
                 --geopm-agent=power_balancer \
                 --geopm-report=tutorial_4_balanced_report \
