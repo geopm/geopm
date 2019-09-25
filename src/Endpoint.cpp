@@ -55,6 +55,11 @@ namespace geopm
     const std::string SHM_POLICY_POSTFIX = "-policy";
     const std::string SHM_SAMPLE_POSTFIX = "-sample";
 
+    std::unique_ptr<Endpoint> Endpoint::make_unique(const std::string &data_path)
+    {
+        return geopm::make_unique<ShmemEndpoint>(data_path);
+    }
+
     ShmemEndpoint::ShmemEndpoint(const std::string &data_path)
         : ShmemEndpoint(data_path, nullptr, nullptr, 0, 0)
     {
