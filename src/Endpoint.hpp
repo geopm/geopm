@@ -42,8 +42,8 @@
 #include <vector>
 #include <set>
 
-#include "geopm_time.h"
 #include "geopm_endpoint.h"
+#include "geopm_time.h"
 
 namespace geopm
 {
@@ -107,8 +107,8 @@ namespace geopm
             /// @brief Read a set of samples from the Agent.
             /// @param [out] sample The sample values.  The order is
             ///        specified by the Agent.
-            /// @return The sample timestamp.
-            virtual geopm_time_s read_sample(std::vector<double> &sample) = 0;
+            /// @return The age of the sample in seconds.
+            virtual double read_sample(std::vector<double> &sample) = 0;
             /// @brief Returns the Agent name, or empty string if no
             ///        Agent is attached.
             virtual std::string get_agent(void) = 0;
@@ -141,7 +141,7 @@ namespace geopm
             void open(void) override;
             void close(void) override;
             void write_policy(const std::vector<double> &policy) override;
-            geopm_time_s read_sample(std::vector<double> &sample) override;
+            double read_sample(std::vector<double> &sample) override;
             std::string get_agent(void) override;
             std::string get_profile_name(void) override;
             std::set<std::string> get_hostnames(void) override;
