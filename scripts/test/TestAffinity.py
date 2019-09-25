@@ -71,6 +71,12 @@ class TestAffinityLauncher(geopmpy.launcher.Launcher):
     def parse_launcher_argv(self):
         pass
 
+    def msr_save(self):
+        pass
+
+    def msr_restore(self):
+        pass
+
 
 class TestAffinity(unittest.TestCase):
     '''
