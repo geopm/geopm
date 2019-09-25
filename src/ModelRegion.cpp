@@ -308,14 +308,18 @@ namespace geopm
             for (uint64_t i = 0 ; i < m_num_progress_updates; ++i) {
                 ModelRegionBase::loop_enter(i);
 
-                double timeout = 0.0;
-                struct geopm_time_s start = {{0,0}};
-                struct geopm_time_s curr = {{0,0}};
-                (void)geopm_time(&start);
-                while (timeout < m_delay) {
-                    (void)geopm_time(&curr);
-                    timeout = geopm_time_diff(&start, &curr);
+                int x = 0;
+                for (int i = 0; i < m_big_o * 1000000000; ++i) {
+                    ++x;
                 }
+                // double timeout = 0.0;
+                // struct geopm_time_s start = {{0,0}};
+                // struct geopm_time_s curr = {{0,0}};
+                // (void)geopm_time(&start);
+                // while (timeout < m_delay) {
+                //     (void)geopm_time(&curr);
+                //     timeout = geopm_time_diff(&start, &curr);
+                // }
 
                 ModelRegionBase::loop_exit();
             }
