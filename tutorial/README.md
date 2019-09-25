@@ -26,6 +26,21 @@ When launching the tutorials with Intel(R) MPI Library but without SLURM, the
 desired hosts must be specified in the ./tutorial_hosts file.  This will be
 used with the '-f <hosts_file>' option to mpiexec.hydra.
 
+For certain configurations of SLURM, it may be necessary to populate the
+tutorial_hosts file and and use it with your "geopmlaunch impi ..." call.
+This can be accomplished by issuing:
+    scontrol show hostnames > tutorial_hosts
+Then add "-f tutorial_hosts" to your geopmlaunch call.
+
+To determine if tutorial_hosts is necessary, try the following:
+  1. Allocate 2 nodes:  salloc -N2
+  2. Issue the following: mpiexec.hydra -n 10 -ppn 10 hostname
+    a. You should observe the same hostname is printed 10 times.
+  3. Next issue: mpiexec.hydra -n 10 -ppn 5 hostname
+    a. You should observe 5 occurances of hostname A and 5 of B.
+If either 2.a or 3.a is not observed properly, you'll need to utilize
+the tutorial_hosts file.
+
 0. Profiling and Tracing an Unmodified Application
 --------------------------------------------------
 The first thing an HPC application user will want to do when

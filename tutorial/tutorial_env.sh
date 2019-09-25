@@ -43,11 +43,9 @@ fi
 # See 'man geopmlaunch' for supported options.
 if [ ! "$GEOPM_LAUNCHER" ]; then
     GEOPM_LAUNCHER='srun'
-elif [[ "$GEOPM_LAUNCHER" = "impi" && "$SLURM_NODELIST" ]]; then
-    scontrol show hostnames > tutorial_hosts
-elif [[ "$GEOPM_LAUNCHER" = "impi" && ! -a tutorial_hosts ]]; then
-    echo "ERROR: When using 'geopmlaunch impi' without a resource manager, the hosts"
-    echo "       must be defined in ./tutorial_hosts."
+elif [[ "$GEOPM_LAUNCHER" = "impi" && ! "$SLURM_NODELIST" && ! -e tutorial_hosts ]]; then
+    echo "WARNING: When using 'geopmlaunch impi' without a resource manager, the hosts"
+    echo "         must be defined in ./tutorial_hosts."
     exit 1
 fi
 
