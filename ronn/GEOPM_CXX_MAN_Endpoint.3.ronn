@@ -1,0 +1,130 @@
+geopm::Endpoint(3) -- geopm endpoint interface
+==============================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## NAMESPACES
+
+The `Endpoint` class is a member of the `namespace geopm`, but the
+full name, `geopm::Endpoint`, has been abbreviated in this manual.
+Similarly, the `std::` namespace specifier has been omitted from the
+interface definitions for the following standard types: `std::vector`,
+`std::string`, and `std::set`, to enable better rendering of this
+manual.
+
+Note that the `Endpoint` class is an abstract base class.  There is one
+concrete implementation, `ShmemEndpoint`, which uses shared memory to
+implement the Endpoint interface functionality.
+
+## SYNOPSIS
+
+**\#include [<geopm/Endpoint.hpp>](https://github.com/geopm/geopm/blob/dev/src/Endpoint.hpp)**
+
+`Link with -lgeopm`
+
+  * `static std::unique_ptr<Endpoint> Endpoint::make_unique(`:
+    `const string &`_data_path_`);`
+
+  * `virtual void Endpoint::open(`:
+     `void);`
+
+  * `virtual void Endpoint::close(`:
+    `void);`
+
+  * `virtual void Endpoint::write_policy(`:
+    `const vector<double> &`_policy_`);`
+
+  * `virtual double Endpoint::read_sample(`:
+    `vector<double> &`_sample_`);`
+
+  * `virtual string Endpoint::get_agent(`:
+    `void);`
+
+  * `virtual string Endpoint::get_profile_name(`:
+    `void);`
+
+  * `virtual set<string> Endpoint::get_hostnames(`:
+    `void);`
+
+## DESCRIPTION
+The `Endpoint` class is the underlying C++ implementation for the
+**geopm_endpoint_c(3)** C interface.  Please refer to the
+**geopm_endpoint_c(3)** man page for a general description of the
+purpose, goals, and use cases for this interface.
+
+## FACTORY METHOD
+  * `make_unique`():
+    This method returns a unique_ptr<Endpoint> to a concrete
+    ShmemEndpoint object.  The shared memory prefix should be given in
+    _data_path_.
+
+## CLASS METHODS
+  * `open`():
+    creates the underlying shared memory regions belonging to the
+    Endpoint.
+
+  * `close`():
+    unlinks the shared memory regions belonging to the Endpoint.
+
+  * `write_policy`():
+    writes a set of policy values given in _policy_ to the endpoint.
+    The order of the values is determined by the currently attached
+    agent; see **geopm::Agent(3)**.
+
+  * `read_sample`():
+    reads the most recent set of sample values from the endpoint into
+    the output vector, _sample_, and returns the sample age in seconds.
+    The order of the values is determined by the currently attached
+    agent; see **geopm::Agent(3)**.
+
+  * `get_agent`():
+    returns the agent name associated with the Controller attached to
+    this endpoint, or empty if no Controller is attached.
+
+  * `get_profile_name`():
+    returns the profile name associated with the attached job, or
+    empty if no Controller is attached.
+
+  * `get_hostnames`():
+    returns the set of hostnames used by the Controller attached to
+    this endpoint, or empty if no Controller is attached.
+
+
+## ERRORS
+All functions described on this man page throw **geopm::Exception(3)**
+on error.
+
+## COPYRIGHT
+Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopm_endpoint_c(3)**

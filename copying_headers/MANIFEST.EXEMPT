@@ -40,6 +40,7 @@ ronn/GEOPM_CXX_MAN_CircularBuffer.3.ronn
 ronn/GEOPM_CXX_MAN_CNLIOGroup.3.ronn
 ronn/GEOPM_CXX_MAN_Comm.3.ronn
 ronn/GEOPM_CXX_MAN_CpuinfoIOGroup.3.ronn
+ronn/GEOPM_CXX_MAN_Endpoint.3.ronn
 ronn/GEOPM_CXX_MAN_EnergyEfficientAgent.3.ronn
 ronn/GEOPM_CXX_MAN_EnergyEfficientRegion.3.ronn
 ronn/GEOPM_CXX_MAN_Exception.3.ronn
