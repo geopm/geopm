@@ -32,10 +32,13 @@
 
 #include "Profile.hpp"
 
-#include <bitset>
-#include <functional>
-#include <fstream>
+#include <sched.h>
+#include <unistd.h>
+
 #include <cstring>
+#include <fstream>
+#include <functional>
+#include <memory>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -58,27 +61,46 @@ using geopm::ProfileImp;
 using geopm::SharedMemoryImp;
 using geopm::PlatformTopo;
 
-// Get the number of CPUs in the cpuset of the test process
-static size_t num_cpus_allowed() {
-    std::ifstream proc_status("/proc/self/status");
-    static const std::string line_identifier = "Cpus_allowed:";
-    size_t count = 0;
+static size_t num_configured_cpus()
+{
+    ssize_t num_cpus = sysconf(_SC_NPROCESSORS_CONF);
+    if (num_cpus < 0) {
+        throw Exception("Unable to get cpu count for tests",
+                        errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+    }
+    return num_cpus;
+}
 
-    for (std::string line; std::getline(proc_status, line);) {
-        if (line.find(line_identifier) == 0) {
-            auto first_non_space = line.find_first_not_of(
-                " \t", line_identifier.length());
-            auto cpu_set_strings = geopm::string_split(
-                line.substr(first_non_space), ",");
-            for (const auto& cpu_set_string : cpu_set_strings) {
-                std::bitset<32> cpu_set(std::stoul(cpu_set_string, 0, 16));
-                count += cpu_set.count();
+// Get the number of CPUs in the cpuset of the test process
+static size_t num_affinitized_cpus()
+{
+    // The number of bits in the system's CPU set isn't known ahead of time.
+    // We need to repeatedly try with increasing set sizes until we stop
+    // seeing errors for sets that are too small, or until we give up.
+    int cpus_in_set = num_configured_cpus();
+    static const int MAX_CPUS = 1 << 30;
+    while (cpus_in_set < MAX_CPUS) {
+        auto cpu_set = std::unique_ptr<cpu_set_t, std::function<void(cpu_set_t *)> >(
+            CPU_ALLOC(cpus_in_set), [](cpu_set_t *cpu_set) { CPU_FREE(cpu_set); });
+        size_t cpu_set_size = CPU_ALLOC_SIZE(cpus_in_set);
+
+        if (sched_getaffinity(0, cpu_set_size, cpu_set.get()) == -1) {
+            if (errno != EINVAL) {
+                throw Exception("Unable to get affinity mask for tests",
+                                errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__,
+                                __LINE__);
             }
-            break;
+            // Otherwise, move on to the next-larger attempt
+            cpus_in_set *= 2;
+        }
+        else {
+            return CPU_COUNT_S(cpu_set_size, cpu_set.get());
         }
     }
 
-    return count;
+    throw Exception("Unable to get cpu count for tests. Gave up at cpu set size of " +
+                        std::to_string(cpus_in_set),
+                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
 }
 
 class ProfileTestControlMessage : public MockControlMessage
@@ -615,7 +637,7 @@ void ProfileTestIntegration::test_all_cpus_are_assigned_a_rank(size_t cpu_count,
 {
     const int world_rank = 0;
     const int shm_rank = 0;
-    ProfileTestPlatformTopo test_topo(cpu_count);
+    ProfileTestPlatformTopo test_topo(cpu_set_size);
     m_shm_comm = std::make_shared<ProfileTestComm>(shm_rank, M_SHM_COMM_SIZE);
     m_world_comm = geopm::make_unique<ProfileTestComm>(world_rank, m_shm_comm);
     m_ctl_msg = geopm::make_unique<ProfileTestControlMessage>();
@@ -627,12 +649,13 @@ void ProfileTestIntegration::test_all_cpus_are_assigned_a_rank(size_t cpu_count,
 
 TEST_F(ProfileTestIntegration, cpu_set_size)
 {
-    size_t cpu_count = num_cpus_allowed();
+    size_t configured_cpu_count = num_configured_cpus();
+    size_t affinitized_cpu_count = num_affinitized_cpus();
 
     // Test that all allowed CPUs have been assigned a rank.
-    test_all_cpus_are_assigned_a_rank(cpu_count, cpu_count);
+    test_all_cpus_are_assigned_a_rank(affinitized_cpu_count, configured_cpu_count);
 
     // Test again with a larger cpuset size to demonstrate that the cpu_rank
     // calls don't simply happen once per allocated set entry.
-    test_all_cpus_are_assigned_a_rank(cpu_count, cpu_count + 32);
+    test_all_cpus_are_assigned_a_rank(affinitized_cpu_count, configured_cpu_count + 32);
 }
