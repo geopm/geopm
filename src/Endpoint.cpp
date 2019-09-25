@@ -135,7 +135,7 @@ namespace geopm
         std::copy(policy.begin(), policy.end(), data->values);
     }
 
-    geopm_time_s ShmemEndpoint::read_sample(std::vector<double> &sample)
+    double ShmemEndpoint::read_sample(std::vector<double> &sample)
     {
         if (!m_is_open) {
             throw Exception("ShmemEndpoint::" + std::string(__func__) + "(): cannot use shmem before calling open()",
@@ -150,12 +150,12 @@ namespace geopm
 
         int num_sample = data->count;
         std::copy(data->values, data->values + data->count, sample.begin());
-        geopm_time_s result = data->timestamp;
+        geopm_time_s ts = data->timestamp;
         if (sample.size() != (size_t)num_sample) {
             throw Exception("ShmemEndpointUser::" + std::string(__func__) + "(): Data read from shmem does not match number of samples.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return result;
+        return geopm_time_since(&ts);
     }
 
     std::string ShmemEndpoint::get_agent(void)
@@ -464,13 +464,13 @@ int geopm_endpoint_write_policy(struct geopm_endpoint_c *endpoint,
 int geopm_endpoint_read_sample(struct geopm_endpoint_c *endpoint,
                                size_t agent_num_sample,
                                double *sample_array,
-                               struct geopm_time_s *sample_age_sec)
+                               double *sample_age_sec)
 {
     int err = 0;
     geopm::ShmemEndpoint *end = (geopm::ShmemEndpoint*)endpoint;
     try {
         std::vector<double> sample(agent_num_sample);
-        end->read_sample(sample);
+        *sample_age_sec = end->read_sample(sample);
     }
     catch (...) {
         err = geopm::exception_handler(std::current_exception(), true);
