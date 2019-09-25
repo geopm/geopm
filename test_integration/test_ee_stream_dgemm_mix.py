@@ -42,10 +42,12 @@ import re
 import unittest
 import os
 import glob
-from . import geopm_context
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from test_integration import geopm_context
 import geopmpy.io
-from . import geopm_test_launcher
-from . import util
+from test_integration import geopm_test_launcher
+from test_integration import util
 
 _g_skip_launch = False
 

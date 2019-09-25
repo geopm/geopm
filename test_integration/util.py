@@ -33,10 +33,12 @@
 from __future__ import absolute_import
 
 import os
+import sys
 import unittest
 import subprocess
 
-from . import geopm_test_launcher
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from test_integration import geopm_test_launcher
 
 def skip_unless_platform_bdx():
     fam, mod = geopm_test_launcher.get_platform()

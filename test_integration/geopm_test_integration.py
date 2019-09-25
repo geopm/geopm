@@ -45,8 +45,9 @@ import shlex
 import StringIO
 import json
 
-from . import util
-from . import geopm_test_launcher
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from test_integration import util
+from test_integration import geopm_test_launcher
 import geopmpy.io
 import geopmpy.launcher
 

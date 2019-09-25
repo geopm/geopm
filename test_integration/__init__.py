@@ -32,7 +32,11 @@
 
 from __future__ import absolute_import
 
-from . import geopm_context
-from .geopm_test_integration import *
-from .test_ee_stream_dgemm_mix import *
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from test_integration import geopm_context
+from test_integration.geopm_test_integration import *
+from test_integration.test_ee_stream_dgemm_mix import *
 from geopmpy.version import __version__

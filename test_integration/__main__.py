@@ -33,8 +33,12 @@
 
 from __future__ import absolute_import
 
+import sys
+import os
 import unittest
-from .__init__ import *
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from test_integration import *
 
 if __name__ == '__main__':
     unittest.main()

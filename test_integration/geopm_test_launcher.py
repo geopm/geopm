@@ -43,7 +43,8 @@ import math
 import shlex
 import unittest
 
-from . import geopm_context
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from test_integration import geopm_context
 import geopmpy.launcher
 
 
