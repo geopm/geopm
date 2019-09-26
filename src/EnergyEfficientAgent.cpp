@@ -191,7 +191,8 @@ namespace geopm
             uint64_t hash = m_last_region_info[ctl_idx].hash;
             uint64_t hint = m_last_region_info[ctl_idx].hint;
             int samples = m_samples_since_boundary[ctl_idx];
-            if (GEOPM_REGION_HASH_UNMARKED == hash) {
+            if (GEOPM_REGION_HASH_UNMARKED == hash ||
+                GEOPM_REGION_HINT_COMPUTE == hint) {
                 if (M_UNMARKED_NUM_SAMPLE_DELAY < samples) {
                     m_target_freq[ctl_idx] = m_freq_governor->get_frequency_max();
                 }
