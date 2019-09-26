@@ -40,6 +40,7 @@
 #include <gelf.h>
 #include <dlfcn.h>
 #include <cxxabi.h>
+#include <limits.h>
 #include <iostream>
 
 #include "ELF.hpp"
@@ -118,20 +119,51 @@ namespace geopm
                 result.first = (size_t)info.dli_saddr;
                 result.second = info.dli_sname;
             }
-            else {
+            else if (info.dli_fname) {
+                // If the base address for the mapped object is not
+                // the base address of the program, we need to
+                // subtract the random base address from the
+                // instruction pointer before looking it up.
                 size_t base_addr = 0;
                 if ((size_t)info.dli_fbase != 0x400000ULL) {
                     base_addr = (size_t)info.dli_fbase;
                 }
                 target -= base_addr;
-                std::map<size_t, std::string> symbol_map(elf_symbol_map(info.dli_fname));
-                auto symbol_it = symbol_map.upper_bound(target);
-                if (symbol_it != symbol_map.begin()) {
-                    --symbol_it;
+                // If dli_fname is not an absolute path nor a shared
+                // object, assume the file points to current
+                // executable (/proc/self/exe).
+                std::string file_name(info.dli_fname);
+                if (file_name.find('/') == std::string::npos &&
+                    file_name.find(".so") == std::string::npos) {
+                    file_name = "/proc/self/exe";
+                    char file_name_cstr[NAME_MAX];
+                    int name_len = readlink(file_name.c_str(), file_name_cstr, NAME_MAX - 1);
+                    if (name_len > 0 && name_len < NAME_MAX) {
+                        file_name_cstr[name_len] = '\0';
+                        file_name = file_name_cstr;
+                    }
                 }
-                if (symbol_it->first <= target) {
-                    result = *symbol_it;
-                    result.first += base_addr;
+                // Generate the symbol map from the object file and
+                // find the target address
+                try {
+                    std::map<size_t, std::string> symbol_map(elf_symbol_map(file_name));
+                    auto symbol_it = symbol_map.upper_bound(target);
+                    if (symbol_it != symbol_map.begin()) {
+                        --symbol_it;
+                    }
+                    if (symbol_it->first <= target) {
+                        result = *symbol_it;
+                        // Add back the random base address so it can be
+                        // compared with the input.
+                        result.first += base_addr;
+                    }
+                }
+                catch (const Exception &ex) {
+                   // If the ELF read fails, just swallow the exception
+                   std::string what(ex.what());
+                   if (what.find("ELFImp") == std::string::npos) {
+                       throw ex;
+                   }
                 }
             }
         }
@@ -193,13 +225,13 @@ namespace geopm
         }
         m_file_desc = open(file_path.c_str(), O_RDONLY, 0);
         if (m_file_desc < 0) {
-            throw Exception("ELFImp::ELFImp(): file_path invalid",
+            throw Exception("ELFImp::ELFImp(): file_path invalid: " + file_path,
                             errno ? errno : GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         m_elf_handle = elf_begin(m_file_desc, ELF_C_READ, nullptr);
         if (!m_elf_handle) {
             (void)close(m_file_desc);
-            throw Exception("ELFImp::ELFImp(): libelf init failed on file",
+            throw Exception("ELFImp::ELFImp(): libelf init failed on file: " + file_path,
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         m_section = elf_nextscn(m_elf_handle, nullptr);
@@ -212,7 +244,7 @@ namespace geopm
                     if (err) {
                         (void)close(m_file_desc);
                         (void)elf_end(m_elf_handle);
-                        throw Exception("ELFImp::ELFImp(): Error on first call to gelf_getsym()",
+                        throw Exception("ELFImp::ELFImp(): Error on first call to gelf_getsym(): " + file_path,
                                         GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                     }
                 }
