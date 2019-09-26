@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55c3b123_b363ab9f",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-09-26T20:35:31Z",
+      "side": 1,
+      "message": "this string literally is what is printed out in verbose mode.",
+      "range": {
+        "startLine": 522,
+        "startChar": 88,
+        "endLine": 522,
+        "endChar": 93
+      },
+      "revId": "68bef38af7ae7cc8be89d49d9d2f0f587fad2db7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
