@@ -94,10 +94,28 @@ class TestIntegration(unittest.TestCase):
         #take delta of each 0/1 pair row's timestamp to get runtime
         #max across ranks (to match REGION_RUNTIME signal default Agg:max)
         #use timestamp of last rank to exit in new row
-        progress_0s = df['progress'].loc[df['progress'] == 0]
-        progress_1s = df['progress'].loc[df['progress'] == 1]
+
+        # Calculating REGION_RUNTIME:
+        rrdf = df.sort_values(['RANK', 'TIMESTAMP']).reset_index(drop=True).set_index('RANK')[['TIMESTAMP', 'PROGRESS']].diff()
+        per_rank_p1s = rrdf.loc[rrdf['PROGRESS'] == 1]
+
+        all_rank_p1s = pandas.DataFrame()
+        # The code in the next block should be simplified via
+        # for group in all_rank_p1s.groupby('RANK') or similar
+        all_rank_p1s['rank-0'] = per_rank_p1s.groupby('RANK').get_group(0).reset_index()['TIMESTAMP']
+        all_rank_p1s['rank-1'] = per_rank_p1s.groupby('RANK').get_group(1).reset_index()['TIMESTAMP']
+        all_rank_p1s['rank-2'] = per_rank_p1s.groupby('RANK').get_group(2).reset_index()['TIMESTAMP']
+        all_rank_p1s['rank-3'] = per_rank_p1s.groupby('RANK').get_group(3).reset_index()['TIMESTAMP']
+
+        all_rank_p1s.idxmax(axis=1) # PROFIT!
+
         import code
         code.interact(local=dict(globals(), **locals()))
+
+        progress_0s = df['progress'].loc[df['progress'] == 0]
+        progress_1s = df['progress'].loc[df['progress'] == 1]
+
+
         for index, _ in progress_1s.iteritems():
             row = df.loc[last_index:index].head(1)
             row_list += [row[['timestamp', 'progress', 'runtime']]]
@@ -464,7 +482,7 @@ class TestIntegration(unittest.TestCase):
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path, region_barrier=True, profile_trace_path=ptrace_path)
         launcher.set_num_node(num_node)
         launcher.set_num_rank(num_rank)
-        launcher.run(name)
+        #  launcher.run(name)
 
         self._output = geopmpy.io.AppOutput(report_path, trace_path + '*', profile_traces=ptrace_path + '*')
         node_names = self._output.get_node_names()
@@ -479,12 +497,16 @@ class TestIntegration(unittest.TestCase):
             #self.assertNear(profile_trace.iloc[-1]['TIME'], app_totals['runtime'].item())
             tt = trace.set_index(['REGION_HASH'], append=True)
             tt = tt.groupby(level=['REGION_HASH'])
-            pt = profile_trace.set_index(['REGION_HASH'], append=True) #todo why does lowering case f*** this up?
-            pt = pt.groupby(level=['REGION_HASH']) #todo why does lowering case f*** this up?
+            pt = profile_trace.set_index(['REGION_HASH'], append=True)
+            pt = pt.groupby(level=['REGION_HASH'])
             for region_name in regions:
                 region_data = self._output.get_report_data(node_name=nn, region=region_name)
                 if region_name not in ['unmarked-region', 'model-init', 'epoch'] and not region_name.startswith('MPI_') and region_data['runtime'].item() != 0:
                     trace_data = pt.get_group(region_data['id'].item())
+
+                    import code
+                    code.interact(local=dict(globals(), **locals()))
+
                     filtered_df = self.create_progress_df(trace_data)
                     first_time = False
                     epsilon = 0.001 if region_name != 'sleep' else 0.05
