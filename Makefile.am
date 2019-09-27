@@ -445,6 +445,10 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/ELF.hpp \
                             src/Endpoint.cpp \
                             src/Endpoint.hpp \
+                            src/EndpointData.cpp \
+                            src/EndpointData.hpp \
+                            src/EndpointUser.cpp \
+                            src/EndpointUser.hpp \
                             src/EnergyEfficientAgent.cpp \
                             src/EnergyEfficientAgent.hpp \
                             src/EnergyEfficientRegion.cpp \

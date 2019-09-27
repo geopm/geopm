@@ -43,51 +43,10 @@
 #include <set>
 
 #include "geopm_endpoint.h"
-#include "geopm_time.h"
+#include "EndpointData.hpp"
 
 namespace geopm
 {
-    struct geopm_endpoint_policy_shmem_header {
-        size_t count;         // 8 bytes
-        double values;        // 8 bytes
-    };
-
-    struct geopm_endpoint_sample_shmem_header {
-        geopm_time_s timestamp;   // 16 bytes
-        char agent[GEOPM_ENDPOINT_AGENT_NAME_MAX]; // 256 bytes
-        char profile_name[GEOPM_ENDPOINT_PROFILE_NAME_MAX];   // 256 bytes
-        char hostlist_path[GEOPM_ENDPOINT_HOSTLIST_PATH_MAX];  // 512 bytes
-        size_t count;             // 8 bytes
-        double values;            // 8 bytes
-    };
-
-    struct geopm_endpoint_policy_shmem_s {
-        /// @brief Specifies the size of the following array.
-        size_t count;
-        /// @brief Holds resource manager data.
-        double values[(4096 - offsetof(struct geopm_endpoint_policy_shmem_header, values)) / sizeof(double)];
-    };
-
-    struct geopm_endpoint_sample_shmem_s {
-        /// @brief Time that the memory was last updated.
-        geopm_time_s timestamp;
-        /// @brief Holds the name of the Agent attached, if any.
-        char agent[GEOPM_ENDPOINT_AGENT_NAME_MAX];
-        /// @brief Holds the profile name associated with the
-        ///        attached job.
-        char profile_name[GEOPM_ENDPOINT_PROFILE_NAME_MAX];
-        /// @brief Path to a file containing the list of hostnames
-        ///        in the attached job.
-        char hostlist_path[GEOPM_ENDPOINT_HOSTLIST_PATH_MAX];
-        /// @brief Specifies the size of the following array.
-        size_t count;
-        /// @brief Holds resource manager data.
-        double values[(4096 - offsetof(struct geopm_endpoint_sample_shmem_header, values)) / sizeof(double)];
-    };
-
-    static_assert(sizeof(struct geopm_endpoint_policy_shmem_s) == 4096, "Alignment issue with geopm_endpoint_policy_shmem_s.");
-    static_assert(sizeof(struct geopm_endpoint_sample_shmem_s) == 4096, "Alignment issue with geopm_endpoint_sample_shmem_s.");
-
     class SharedMemory;
     class SharedMemoryScopedLock;
 
@@ -156,53 +115,6 @@ namespace geopm
             std::unique_ptr<SharedMemoryScopedLock> m_policy_lock;
     };
 
-    class SharedMemoryUser;
-
-    class EndpointUser
-    {
-        public:
-            EndpointUser() = default;
-            virtual ~EndpointUser() = default;
-            /// @brief Read the latest policy values.  All NAN indicates
-            ///        that a policy has not been written yet.
-            /// @param [out] policy The policy values read. The order
-            ///        is specified by the Agent.
-            virtual void read_policy(std::vector<double> &policy) = 0;
-            /// @brief Write sample values and update the sample age.
-            /// @param [in] sample The values to write.  The order is
-            ///        specified by the Agent.
-            virtual void write_sample(const std::vector<double> &sample) = 0;
-            /// @brief Factory method for the EndpointUser receiving
-            ///        the policy.
-            static std::unique_ptr<EndpointUser> make_unique(const std::string &policy_path,
-                                                             const std::set<std::string> &hosts);
-    };
-
-    class ShmemEndpointUser : public EndpointUser
-    {
-        public:
-            ShmemEndpointUser() = delete;
-            ShmemEndpointUser(const ShmemEndpointUser &other) = delete;
-            ShmemEndpointUser(const std::string &data_path,
-                              const std::set<std::string> &hosts);
-            ShmemEndpointUser(const std::string &data_path,
-                              std::unique_ptr<SharedMemoryUser> policy_shmem,
-                              std::unique_ptr<SharedMemoryUser> sample_shmem,
-                              const std::string &agent_name,
-                              int num_sample,
-                              const std::string &profile_name,
-                              const std::string &hostlist_path,
-                              const std::set<std::string> &hosts);
-            virtual ~ShmemEndpointUser();
-            void read_policy(std::vector<double> &policy) override;
-            void write_sample(const std::vector<double> &sample) override;
-        private:
-            std::string m_path;
-            std::unique_ptr<SharedMemoryUser> m_policy_shmem;
-            std::unique_ptr<SharedMemoryUser> m_sample_shmem;
-            std::string m_hostlist_path;
-            size_t m_num_sample;
-    };
 }
 
 #endif

@@ -346,6 +346,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/DebugIOGroupTest.cpp \
                           test/ELFTest.cpp \
                           test/EndpointTest.cpp \
+                          test/EndpointUserTest.cpp \
                           test/EnergyEfficientAgentTest.cpp \
                           test/EnergyEfficientRegionTest.cpp \
                           test/EnvironmentTest.cpp \

@@ -49,7 +49,7 @@
 #include "PlatformIO.hpp"
 #include "Agent.hpp"
 #include "TreeComm.hpp"
-#include "Endpoint.hpp"
+#include "EndpointUser.hpp"
 #include "FilePolicy.hpp"
 #include "Helper.hpp"
 #include "config.h"
