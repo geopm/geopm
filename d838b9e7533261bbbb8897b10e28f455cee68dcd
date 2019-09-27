@@ -16,6 +16,24 @@
       "revId": "d838b9e7533261bbbb8897b10e28f455cee68dcd",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2acf3940_1ec6e7c4",
+        "filename": "scripts/geopmpy/agent.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-09-27T22:08:29Z",
+      "side": 1,
+      "message": "Another approach could be to try something like 1024 bytes, then keep doubling and retrying every time it fails with an invalid argument error code. Maybe limit it to 10 tries (arbitrarily chosen), though I expect most would stop on iteration 1 or 2. How does that sound?",
+      "parentUuid": "3e0f5c55_723fc771",
+      "revId": "d838b9e7533261bbbb8897b10e28f455cee68dcd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
