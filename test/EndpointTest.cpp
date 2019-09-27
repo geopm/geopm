@@ -126,10 +126,10 @@ TEST_F(ShmemEndpointTest, parse_shm_sample)
     data->timestamp = now;
 
     std::vector<double> result(num_sample);
-    geopm_time_s ts = gp.read_sample(result);
+    double age = gp.read_sample(result);
     std::vector<double> expected {tmp, tmp + num_sample};
     EXPECT_EQ(expected, result);
-    EXPECT_DOUBLE_EQ(0.0, geopm_time_diff(&now, &ts));
+    EXPECT_LT(age, 0.01);
     gp.close();
 }
 

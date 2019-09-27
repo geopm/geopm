@@ -44,7 +44,6 @@ static const size_t GEOPM_ENDPOINT_PROFILE_NAME_MAX = 256;
 static const size_t GEOPM_ENDPOINT_HOSTLIST_PATH_MAX = 512;
 
 struct geopm_endpoint_c;
-struct geopm_time_s;
 
 /*!
  *  @brief Create an endpoint object for other API functions.
@@ -214,7 +213,7 @@ int geopm_endpoint_write_policy(struct geopm_endpoint_c *endpoint,
 int geopm_endpoint_read_sample(struct geopm_endpoint_c *endpoint,
                                size_t num_sample,
                                double *sample_array,
-                               struct geopm_time_s *timestamp);
+                               double *sample_age_sec);
 
 #ifdef __cplusplus
 }
