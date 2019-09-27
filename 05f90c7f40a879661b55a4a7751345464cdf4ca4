@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7b328c1_f1e46d10",
+        "filename": "scripts/test/TestHash.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-27T15:56:27Z",
+      "side": 1,
+      "message": "add a test with bits set in upper half",
+      "revId": "05f90c7f40a879661b55a4a7751345464cdf4ca4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
