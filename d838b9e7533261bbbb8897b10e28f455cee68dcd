@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e0f5c55_723fc771",
+        "filename": "scripts/geopmpy/agent.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-27T21:50:01Z",
+      "side": 1,
+      "message": "I\u0027m a little bothered that the caller needs to know so much detail about how the json string is formatted. Maybe we need another function to calculate this size, or change geopm_agent_policy_json to allocate the buffer itself (which would make it behave differently than all our other functions that return strings)",
+      "revId": "d838b9e7533261bbbb8897b10e28f455cee68dcd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
