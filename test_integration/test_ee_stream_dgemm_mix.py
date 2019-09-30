@@ -165,7 +165,7 @@ class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
             self.assertTrue(found_short)
 
     def test_skip_network_regions(self):
-        """Test that agent does not learn from short regions.
+        """Test that agent does not learn for regions declared with the network hint.
 
         """
         report = geopmpy.io.RawReport(self._report_path)
