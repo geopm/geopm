@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "427b4f78_c138dd51",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-30T19:06:52Z",
+      "side": 1,
+      "message": "don\u0027t need, just use sys.stdout.write",
+      "revId": "cdd74242e57597094b3f43a24592022c93aa9f01",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40724526_f76776b3",
+        "filename": "scripts/geopmpy/plotter.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 742,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-30T19:06:52Z",
+      "side": 1,
+      "message": "sys.stdout.write()",
+      "revId": "cdd74242e57597094b3f43a24592022c93aa9f01",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
