@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa405dc_741e5548",
+        "filename": "scripts/test/TestLauncher.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-30T23:19:07Z",
+      "side": 1,
+      "message": "why are these checks only needed for unit tests?",
+      "revId": "0f19e36ec8f02b6d8e4cea14a78d4e4e8941ecd0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "812149e7_0e8c3c2b",
+        "filename": "scripts/test/TestPowerSweepAnalysis.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-30T23:19:07Z",
+      "side": 1,
+      "message": "not used in this file?",
+      "revId": "0f19e36ec8f02b6d8e4cea14a78d4e4e8941ecd0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
