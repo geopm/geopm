@@ -38,6 +38,7 @@
 
 #include "geopm_time.h"
 #include "Agent.hpp"
+#include "Config.hpp"
 
 namespace geopm
 {
@@ -308,6 +309,7 @@ namespace geopm
                     bool sample_platform(std::vector<double> &out_sample) override;
                     std::vector<std::string> trace_names(void) const override;
                     void trace_values(std::vector<double> &values) override;
+                    void init_config(void);
                 private:
                     void init_platform_io(void);
                     PlatformIO &m_platform_io;
@@ -323,6 +325,7 @@ namespace geopm
                     double m_power_headroom;
                     const double M_STABILITY_FACTOR;
                     bool m_is_out_of_bounds;
+                    ConfigAgent *m_config;
             };
     };
 }

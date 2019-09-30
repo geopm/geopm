@@ -105,6 +105,7 @@ pkginclude_HEADERS = contrib/json11/json11.hpp \
                      src/SharedMemory.hpp \
                      src/SharedMemoryUser.hpp \
                      src/TimeIOGroup.hpp \
+                     src/Config.hpp \
                      # end
 
 if ENABLE_MPI
@@ -512,6 +513,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/TreeComm.hpp \
                             src/TreeCommLevel.cpp \
                             src/TreeCommLevel.hpp \
+                            src/Config.cpp \
+                            src/Config.hpp \
                             src/geopm.h \
                             src/geopm_agent.h \
                             src/geopm_endpoint.h \

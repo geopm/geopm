@@ -45,6 +45,7 @@
 #include "Agg.hpp"
 #include "Helper.hpp"
 #include "config.h"
+#include "Config.hpp"
 
 namespace geopm
 {
@@ -165,11 +166,23 @@ namespace geopm
             m_power_balancer = PowerBalancer::make_unique(M_STABILITY_FACTOR * m_power_governor->power_package_time_window());
         }
         init_platform_io();
+        init_config();
         m_is_step_complete = true;
     }
 
     PowerBalancerAgent::LeafRole::~LeafRole() = default;
 
+   void PowerBalancerAgent::LeafRole::init_config(void)
+   {
+        if(!m_config) {
+            m_config = new ConfigAgent();
+            if(m_config->init_shmem(geopm_env_shmkey())) {
+                throw Exception("PowerBalancerAgent::LeafRole::init_config() shared memory could not be initialized",
+                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            m_config->init_config();
+        }
+   }
     void PowerBalancerAgent::LeafRole::init_platform_io(void)
     {
         m_power_governor->init_platform_io();

@@ -47,6 +47,10 @@
 #include "geopm_error.h"
 #include "Exception.hpp"
 #include "config.h"
+#include "PlatformIO.hpp"
+#include "PlatformTopo.hpp"
+#include <omp.h>
+
 
 #ifndef GEOPM_ENABLE_OMPT
 
@@ -67,6 +71,7 @@ extern "C"
 {
     int geopm_is_pmpi_prof_enabled(void);
 }
+#include "Config.hpp"
 
 namespace geopm
 {
@@ -79,6 +84,7 @@ namespace geopm
             uint64_t region_id(void *parallel_function);
             void region_name(void *parallel_function, std::string &name);
             void region_name_pretty(std::string &name);
+            ConfigApp *m_config;
         private:
             /// Map from <virtual_address, is_end> pair representing
             /// half of a virtual address range to the object file
@@ -131,11 +137,14 @@ namespace geopm
             auto it0 = m_range_object_map.insert(m_range_object_map.begin(), cc);
             auto it1 = m_range_object_map.insert(it0, dd);
             ++it0;
-            if (it0 != it1) {
+            if (object != "[vdso]" && it0 != it1) {
                 throw Exception("Error parsing /proc/self/maps, overlapping address ranges.",
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
         }
+        m_config = new ConfigApp();
+        m_config->init_shmem(geopm_env_shmkey());
+        m_config->init_config();
     }
 
     uint64_t OMPT::region_id(void *parallel_function)
@@ -255,6 +264,14 @@ extern "C"
         if (g_curr_region_id != GEOPM_REGION_HASH_UNMARKED) {
             geopm_prof_enter(g_curr_region_id);
         }
+        if(!geopm::ompt().m_config->is_config_explored()) {
+            geopm::ompt().m_config->start_profile();
+            omp_set_num_threads(geopm::ompt().m_config->get_config_explore_num_threads());
+        } else {
+            //geopm::ompt().m_config->set_power_cap();
+            //omp_set_num_threads(geopm::ompt().m_config->get_config_explore_num_threads());
+        }
+
     }
 
     static void on_ompt_event_parallel_end(ompt_parallel_id_t parallel_id,
@@ -266,6 +283,13 @@ extern "C"
             g_curr_parallel_id == parallel_id) {
             geopm_prof_exit(g_curr_region_id);
         }
+        if(!geopm::ompt().m_config->is_config_explored()) {
+            geopm::ompt().m_config->stop_profile(g_curr_region_id);
+            /* Collect telemetry of runtime and power usage */
+        } else {
+
+        }
+
     }
 
 

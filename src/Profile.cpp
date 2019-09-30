@@ -134,6 +134,7 @@ namespace geopm
             init_cpu_affinity(shm_num_rank);
             init_tprof_table(tprof_key, topo);
             init_table(sample_key);
+            init_app_config();
         }
         catch (const Exception &ex) {
             if (!m_rank) {
@@ -148,6 +149,7 @@ namespace geopm
             }
             m_is_enabled = false;
         }
+
 #ifdef GEOPM_OVERHEAD
         m_overhead_time_startup = geopm_time_since(&overhead_entry);
 #endif
@@ -169,6 +171,19 @@ namespace geopm
             m_shm_rank = m_shm_comm->rank();
             shm_num_rank = m_shm_comm->num_rank();
             m_shm_comm->barrier();
+        }
+    }
+
+    void ProfileImp::init_app_config() {
+        if(!m_config) {
+            m_config = new ConfigApp();
+            if(m_config->init_shmem(geopm_env_shmkey())) {
+                throw Exception("ProfileImp: m_config shared memory could not be initialized", 
+                        GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            m_config->set_shm_rank(m_shm_rank);
+            m_config->set_app_pid();
+            m_config->set_power_cap();
         }
     }
 
@@ -483,6 +498,9 @@ namespace geopm
         (void) geopm_time(&(sample.timestamp));
         sample.progress = 0.0;
         m_table->insert(sample);
+    
+        m_config->signal_epoch();
+        m_config->set_power_cap();
 
 #ifdef GEOPM_OVERHEAD
         m_overhead_time += geopm_time_since(&overhead_entry);
