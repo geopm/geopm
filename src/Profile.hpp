@@ -38,6 +38,7 @@
 #include <string>
 #include <list>
 #include <memory>
+#include "Config.hpp"
 
 namespace geopm
 {
@@ -255,6 +256,7 @@ namespace geopm
             void init_cpu_affinity(int shm_num_rank);
             void init_tprof_table(const std::string &tprof_key, const PlatformTopo &topo);
             void init_table(const std::string &sample_key);
+            void init_app_config();
         protected:
             bool m_is_enabled;
         private:
@@ -323,6 +325,8 @@ namespace geopm
             double m_overhead_time;
             double m_overhead_time_startup;
             double m_overhead_time_shutdown;
+
+            ConfigApp *m_config;
     };
 }
 
