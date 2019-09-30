@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "edfb5958_c22994d7",
+        "filename": "ronn/geopmmsrwl.1.ronn",
+        "patchSetId": 22
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-09-30T19:22:13Z",
+      "side": 1,
+      "message": "0x not required",
+      "range": {
+        "startLine": 42,
+        "startChar": 13,
+        "endLine": 42,
+        "endChar": 33
+      },
+      "revId": "570711d48a9a1efcea366ce3d06da3c6e4df8cb9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
