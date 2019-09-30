@@ -44,6 +44,7 @@ namespace geopm
             int init_shmem(std::string );
             void init_config();
             bool is_config_explored();
+            void set_new_powercap(double);
 
     };
 
@@ -80,6 +81,7 @@ namespace geopm
             void stop_profile(uint64_t);
             void cleanup();
             void set_power_cap();
+            int efficient_thread_count();
             void construct_pareto_list();
 //            void set_config();
     };

@@ -196,39 +196,43 @@ namespace geopm
     bool PowerBalancerAgent::LeafRole::adjust_platform(const std::vector<double> &in_policy)
     {
         m_policy = in_policy;
-        if (in_policy[M_POLICY_POWER_CAP] != 0.0) {
-            // New power cap from resource manager, reset
-            // algorithm.
-            m_step_count = M_STEP_SEND_DOWN_LIMIT;
-            m_power_balancer->power_cap(in_policy[M_POLICY_POWER_CAP]);
-            if (in_policy[M_POLICY_POWER_CAP] > m_power_max) {
-                m_power_max = in_policy[M_POLICY_POWER_CAP];
+        bool result = true;
+        if(m_config->is_config_explored()) {
+            if (in_policy[M_POLICY_POWER_CAP] != 0.0) {
+                // New power cap from resource manager, reset
+                // algorithm.
+                m_step_count = M_STEP_SEND_DOWN_LIMIT;
+                m_power_balancer->power_cap(in_policy[M_POLICY_POWER_CAP]);
+                if (in_policy[M_POLICY_POWER_CAP] > m_power_max) {
+                    m_power_max = in_policy[M_POLICY_POWER_CAP];
+                }
+                m_is_step_complete = true;
             }
-            m_is_step_complete = true;
-        }
-        else if (in_policy[M_POLICY_STEP_COUNT] != m_step_count) {
-            // Advance a step
-            ++m_step_count;
-            m_is_step_complete = false;
-            if (m_step_count != in_policy[M_POLICY_STEP_COUNT]) {
-                throw Exception("PowerBalancerAgent::adjust_platform(): The policy step is out of sync "
-                                "with the agent step or first policy received had a zero power cap.",
-                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            else if (in_policy[M_POLICY_STEP_COUNT] != m_step_count) {
+                // Advance a step
+                ++m_step_count;
+                m_is_step_complete = false;
+                if (m_step_count != in_policy[M_POLICY_STEP_COUNT]) {
+                    throw Exception("PowerBalancerAgent::adjust_platform(): The policy step is out of sync "
+                                    "with the agent step or first policy received had a zero power cap.",
+                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                }
+                step_imp().enter_step(*this, in_policy);
             }
-            step_imp().enter_step(*this, in_policy);
-        }
 
-        bool result = false;
-        // Request the power limit from the balancer
-        double request_limit = m_power_balancer->power_limit();
-        if (!std::isnan(request_limit) && request_limit != 0.0) {
-            m_power_governor->adjust_platform(request_limit, m_actual_limit);
-            result = m_power_governor->do_write_batch();
-            if (request_limit < m_actual_limit) {
-                m_is_out_of_bounds = true;
-            }
-            if (result) {
-                m_power_balancer->power_limit_adjusted(m_actual_limit);
+            result = false;
+            // Request the power limit from the balancer
+            double request_limit = m_power_balancer->power_limit();
+            if (!std::isnan(request_limit) && request_limit != 0.0) {
+                m_power_governor->adjust_platform(request_limit, m_actual_limit);
+                result = m_power_governor->do_write_batch();
+                if (request_limit < m_actual_limit) {
+                    m_is_out_of_bounds = true;
+                }
+                if (result) {
+                    m_power_balancer->power_limit_adjusted(m_actual_limit);
+                }
+                m_config->set_new_powercap(m_actual_limit/2.0f);
             }
         }
         return result;

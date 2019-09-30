@@ -107,13 +107,16 @@ namespace geopm
             int procit;
             for(procit = 0; procit < MAX_PROCS_PER_NODE; procit++) {
                 if(m_conf->epochid[procit] <= m_conf->configepochs[procit]) {
-                    is_explored = false;
                     return is_explored;
                 }
             }
             is_explored = true;
         }
         return is_explored;
+    }
+
+    void ConfigAgent::set_new_powercap(double pcap) { 
+        m_conf->powercap = pcap;
     }
 
 /**********************************
@@ -198,18 +201,6 @@ namespace geopm
 
     void ConfigApp::signal_epoch() {
         m_conf->epochid[m_shm_rank]++;
-        /* If we've completed exploration of all configurations, generate a 
-         * Pareto-frontier of the configurations based on the observed
-         * power and execution time samples.
-         */
-    
-        if(m_conf->epochid[m_shm_rank] == 199) { 
-            std::cout << "constructing pareto list: regmap.size:" << regmap.size() << std::endl;
-            construct_pareto_list(); 
-        }
-//        if(m_conf->epochid[m_shm_rank] == m_conf->configepochs[m_shm_rank]) {
-//            construct_pareto_list();
-//        }
     }
 
     void ConfigApp::cleanup() {
@@ -223,33 +214,59 @@ namespace geopm
         }
     }
 
+    int ConfigApp::efficient_thread_count() {
+        for(std::pair<regionmapkey, regionprof> mapit : regmap) 
+        {
+            if(mapit.second.powerUsage <= m_conf->powercap) { 
+                return mapit.first.threads;
+            }
+        }
+
+        /* We're here which means that no optimal thread count 
+         * was found. Use the maximum threads.
+         */
+        return NUMTHREADS;
+    }
+
     void ConfigApp::start_profile() {
-        m_start_energy = m_platform_io.read_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0);
-        gettimeofday(&start_t, NULL);
+        /* If we've completed exploration of all configurations, generate a 
+         * Pareto-frontier of the configurations based on the observed
+         * power and execution time samples.
+         */
+    
+        if(m_conf->epochid[m_shm_rank] == m_conf->configepochs[m_shm_rank]) {
+            construct_pareto_list();
+        }
+        else if(m_conf->epochid[m_shm_rank] < m_conf->configepochs[m_shm_rank]) {
+            m_start_energy = m_platform_io.read_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0);
+            gettimeofday(&start_t, NULL);
+        } 
     }
 
     void ConfigApp::stop_profile(uint64_t regionid) {
-        struct regionmapkey rkey; 
-        rkey.regionid = regionid;
-        rkey.threads = m_conf->config[m_shm_rank].threads[m_conf->epochid[m_shm_rank]];
-        rkey.pcap = m_conf->config[m_shm_rank].pcap[m_conf->epochid[m_shm_rank]];
-        
-        struct regionprof rentry;
-        //Stop timer
-        gettimeofday(&end_t, NULL);
-        double elapsedTime = (end_t.tv_sec - start_t.tv_sec) * 1000.0;      // sec to ms
-        elapsedTime += (end_t.tv_usec - start_t.tv_usec) / 1000.0;
-        rentry.elapsedTime = elapsedTime;
-        m_end_energy = m_platform_io.read_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0);
-        rentry.powerUsage = 1000.0f * (m_end_energy - m_start_energy)/rentry.elapsedTime;
+        if(m_conf->epochid[m_shm_rank] < m_conf->configepochs[m_shm_rank]) { 
+            struct regionmapkey rkey; 
+            rkey.regionid = regionid;
+            rkey.threads = m_conf->config[m_shm_rank].threads[m_conf->epochid[m_shm_rank]];
+            rkey.pcap = m_conf->config[m_shm_rank].pcap[m_conf->epochid[m_shm_rank]];
+            
+            struct regionprof rentry;
+            //Stop timer
+            gettimeofday(&end_t, NULL);
+            double elapsedTime = (end_t.tv_sec - start_t.tv_sec) * 1000.0;      // sec to ms
+            elapsedTime += (end_t.tv_usec - start_t.tv_usec) / 1000.0;
+            rentry.elapsedTime = elapsedTime;
+            m_end_energy = m_platform_io.read_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0);
+            rentry.powerUsage = 1000.0f * (m_end_energy - m_start_energy)/rentry.elapsedTime;
 
-        regmap.insert(std::pair<regionmapkey, regionprof>(rkey, rentry));
-//        std::cout << "RegionID: " << (unsigned long)rkey.regionid <<
-//                " Thread: " << rkey.threads << 
-//                " Pcap: " << rkey.pcap <<
-//                "::: Time: " << rentry.elapsedTime <<
-//                " Power:%0.2f" << rentry.powerUsage <<
-//                std::endl; 
+            regmap.insert(std::pair<regionmapkey, regionprof>(rkey, rentry));
+//            std::cout << "RegionID: " << (unsigned long)rkey.regionid <<
+//                    " Thread: " << rkey.threads << 
+//                    " Pcap: " << rkey.pcap <<
+//                    "::: Time: " << rentry.elapsedTime <<
+//                    " Power:%0.2f" << rentry.powerUsage <<
+//                    std::endl; 
+        }              
     } 
 
     void ConfigApp::dump_configurations() {

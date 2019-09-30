@@ -20,6 +20,7 @@ struct app_interface {
     unsigned long configepochs[MAX_PROCS_PER_NODE];
 
     int balancer_pid;
+    double powercap;
 }; 
 
 struct regionmapkey {

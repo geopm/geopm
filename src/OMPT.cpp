@@ -268,8 +268,7 @@ extern "C"
             geopm::ompt().m_config->start_profile();
             omp_set_num_threads(geopm::ompt().m_config->get_config_explore_num_threads());
         } else {
-            //geopm::ompt().m_config->set_power_cap();
-            //omp_set_num_threads(geopm::ompt().m_config->get_config_explore_num_threads());
+            omp_set_num_threads(geopm::ompt().m_config->efficient_thread_count());
         }
 
     }
