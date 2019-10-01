@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "94a30baf_011cd75e",
+        "filename": "examples/endpoint/geopm_policystore_demo.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-10-01T23:12:31Z",
+      "side": 1,
+      "message": "not needed, just pass to geopm commandline",
+      "range": {
+        "startLine": 54,
+        "startChar": 10,
+        "endLine": 54,
+        "endChar": 66
+      },
+      "revId": "4dd7911a2882fd0737e91342e23d5d83f32a3a18",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
