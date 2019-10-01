@@ -51,7 +51,8 @@ namespace geopm
             ///        that a policy has not been written yet.
             /// @param [out] policy The policy values read. The order
             ///        is specified by the Agent.
-            virtual void read_policy(std::vector<double> &policy) = 0;
+            /// @return The age of the policy in seconds.
+            virtual double read_policy(std::vector<double> &policy) = 0;
             /// @brief Write sample values and update the sample age.
             /// @param [in] sample The values to write.  The order is
             ///        specified by the Agent.
@@ -80,7 +81,7 @@ namespace geopm
                             const std::string &hostlist_path,
                             const std::set<std::string> &hosts);
             virtual ~EndpointUserImp();
-            void read_policy(std::vector<double> &policy) override;
+            double read_policy(std::vector<double> &policy) override;
             void write_sample(const std::vector<double> &sample) override;
         private:
             std::string m_path;

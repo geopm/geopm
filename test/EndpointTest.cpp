@@ -129,6 +129,7 @@ TEST_F(EndpointTest, parse_shm_sample)
     double age = gp.read_sample(result);
     std::vector<double> expected {tmp, tmp + num_sample};
     EXPECT_EQ(expected, result);
+    EXPECT_LT(0.0, age);
     EXPECT_LT(age, 0.01);
     gp.close();
 }
@@ -170,8 +171,10 @@ TEST_F(EndpointTestIntegration, write_read_policy)
 
     values[0] = 888;
     mio.write_policy(values);
-    mios.read_policy(result);
+    double age = mios.read_policy(result);
     EXPECT_EQ(values, result);
+    EXPECT_LT(0.0, age);
+    EXPECT_LT(age, 0.01);
     mio.close();
 }
 
