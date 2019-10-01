@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d2d45ccb_3a70aff4",
+        "filename": "src/EndpointPolicyTracer.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-10-01T21:45:44Z",
+      "side": 1,
+      "message": "time_zero is uninitalized.  This is a critical klocwork issue, but the date string is also going to be garbage.",
+      "revId": "fae583adecb4e2bb03ff3f517cc09a6a272f9e92",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
