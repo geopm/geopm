@@ -111,7 +111,7 @@ class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
         environment variable is unset, clean up output.
 
         """
-        if (sys.exc_info() == (None, None, None) and
+        if (sys.exc_info() == (None, None, None) and not
             cls._keep_files and not cls._skip_launch):
             os.unlink(cls._agent_conf_path)
             os.unlink(cls._report_path)
