@@ -117,7 +117,7 @@ namespace geopm
         unlink(m_hostlist_path.c_str());
     }
 
-    void EndpointUserImp::read_policy(std::vector<double> &policy)
+    double EndpointUserImp::read_policy(std::vector<double> &policy)
     {
         auto lock = m_policy_shmem->get_scoped_lock();
         auto data = (struct geopm_endpoint_policy_shmem_s *) m_policy_shmem->pointer(); // Managed by shmem subsystem.
@@ -130,6 +130,8 @@ namespace geopm
         // Fill in missing policy values with NAN (default)
         std::fill(policy.begin(), policy.end(), NAN);
         std::copy(data->values, data->values + data->count, policy.begin());
+        geopm_time_s ts = data->timestamp;
+        return geopm_time_since(&ts);
     }
 
     void EndpointUserImp::write_sample(const std::vector<double> &sample)

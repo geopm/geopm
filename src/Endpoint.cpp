@@ -138,6 +138,7 @@ namespace geopm
         auto data = (struct geopm_endpoint_policy_shmem_s *)m_policy_shmem->pointer();
         data->count = policy.size();
         std::copy(policy.begin(), policy.end(), data->values);
+        geopm_time(&data->timestamp);
     }
 
     double EndpointImp::read_sample(std::vector<double> &sample)
