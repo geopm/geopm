@@ -81,6 +81,8 @@ class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
         """Create launcher, execute benchmark and set up class variables.
 
         """
+        sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
+                         '.' + cls.__name__ + ') ...')
         test_name = 'test_ee_stream_dgemm_mix'
         cls._report_path = test_name + '.report'
         cls._trace_path = test_name + '.trace'
