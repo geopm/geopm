@@ -261,7 +261,7 @@ TEST_F(ControllerTest, single_node)
     std::vector<double> endpoint_policy = {8.8, 9.9};
     ASSERT_EQ(m_num_send_down, (int)endpoint_policy.size());
     EXPECT_CALL(*m_endpoint, read_policy(_)).Times(m_num_step)
-        .WillRepeatedly(SetArgReferee<0>(endpoint_policy));
+        .WillRepeatedly(DoAll(SetArgReferee<0>(endpoint_policy), Return(0)));
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
     EXPECT_CALL(*agent, trace_values(_)).Times(m_num_step);
@@ -541,7 +541,7 @@ TEST_F(ControllerTest, two_level_controller_0)
     std::vector<double> endpoint_policy = {8.8, 9.9};
     ASSERT_EQ(m_num_send_down, (int)endpoint_policy.size());
     EXPECT_CALL(*m_endpoint, read_policy(_)).Times(m_num_step)
-        .WillRepeatedly(SetArgReferee<0>(endpoint_policy));
+        .WillRepeatedly(DoAll(SetArgReferee<0>(endpoint_policy), Return(0)));
     EXPECT_CALL(*m_reporter, update()).Times(m_num_step);
     EXPECT_CALL(*m_tracer, update(_, _)).Times(m_num_step);
     EXPECT_CALL(*m_level_agent[0], trace_values(_)).Times(m_num_step);

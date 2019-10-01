@@ -150,14 +150,19 @@ TEST_F(EndpointUserTestIntegration, parse_shm)
 
     double tmp[] = { 1.1, 2.2, 3.3 };
     int num_policy = sizeof(tmp) / sizeof(tmp[0]);
+    geopm_time_s now;
+    geopm_time(&now);
     data->count = num_policy;
     // Build the data
     memcpy(data->values, tmp, sizeof(tmp));
+    geopm_time(&data->timestamp);
 
     EndpointUserImp gp(m_shm_path, nullptr, nullptr, "myagent", 0, "myprofile", "", {});
 
     std::vector<double> result(num_policy);
-    gp.read_policy(result);
+    double age = gp.read_policy(result);
+    EXPECT_LT(0.0, age);
+    EXPECT_LT(age, 0.01);
     std::vector<double> expected {tmp, tmp + num_policy};
     EXPECT_EQ(expected, result);
 

@@ -43,6 +43,7 @@
 namespace geopm
 {
     struct geopm_endpoint_policy_shmem_header {
+        geopm_time_s timestamp;   // 16 bytes
         size_t count;         // 8 bytes
         double values;        // 8 bytes
     };
@@ -57,6 +58,8 @@ namespace geopm
     };
 
     struct geopm_endpoint_policy_shmem_s {
+        /// @brief Time that the memory was last updated.
+        geopm_time_s timestamp;
         /// @brief Specifies the size of the following array.
         size_t count;
         /// @brief Holds resource manager data.
