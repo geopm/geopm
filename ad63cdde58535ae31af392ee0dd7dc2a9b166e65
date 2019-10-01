@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e2b1688_d190b1d2",
+        "filename": "src/EndpointUser.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-10-01T21:38:23Z",
+      "side": 1,
+      "message": "Why not just:\n\nreturn geopm_time_since(\u0026(data-\u003etimestamp));\n\n?\nSeems fine either way.",
+      "revId": "ad63cdde58535ae31af392ee0dd7dc2a9b166e65",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
