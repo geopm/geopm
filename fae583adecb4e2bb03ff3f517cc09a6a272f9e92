@@ -16,6 +16,23 @@
       "revId": "fae583adecb4e2bb03ff3f517cc09a6a272f9e92",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd77f212_6506c0d3",
+        "filename": "src/EndpointPolicyTracer.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-10-01T21:51:21Z",
+      "side": 1,
+      "message": "Supposed it might be faster:\n\n    std::vector\u003cdouble\u003e values(policy.size() + 1);\n    values[0] \u003d m_platform_io.sample(m_time_signal);\n    std::copy(policy.begin(), policy.end(), values.begin() + 1);\n\nbut I\u0027m guessing the compiler will optimize them the same way",
+      "revId": "fae583adecb4e2bb03ff3f517cc09a6a272f9e92",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
