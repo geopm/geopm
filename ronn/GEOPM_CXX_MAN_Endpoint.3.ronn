@@ -41,7 +41,7 @@ interface definitions for the following standard types: `std::vector`,
 manual.
 
 Note that the `Endpoint` class is an abstract base class.  There is one
-concrete implementation, `ShmemEndpoint`, which uses shared memory to
+concrete implementation, `EndpointImp`, which uses shared memory to
 implement the Endpoint interface functionality.
 
 ## SYNOPSIS
@@ -83,7 +83,7 @@ purpose, goals, and use cases for this interface.
 ## FACTORY METHOD
   * `make_unique`():
     This method returns a unique_ptr<Endpoint> to a concrete
-    ShmemEndpoint object.  The shared memory prefix should be given in
+    EndpointImp object.  The shared memory prefix should be given in
     _data_path_.
 
 ## CLASS METHODS
