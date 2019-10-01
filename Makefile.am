@@ -79,7 +79,9 @@ include_HEADERS = src/geopm.h \
                   src/geopm_version.h \
                   # end
 if ENABLE_BETA
-    include_HEADERS += src/geopm_endpoint.h
+    include_HEADERS += src/geopm_endpoint.h \
+                       src/Endpoint.hpp \
+                       # end
 endif
 
 pkginclude_HEADERS = contrib/json11/json11.hpp \
@@ -445,6 +447,9 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/ELF.hpp \
                             src/Endpoint.cpp \
                             src/Endpoint.hpp \
+                            src/EndpointImp.hpp \
+                            src/EndpointUser.cpp \
+                            src/EndpointUser.hpp \
                             src/EnergyEfficientAgent.cpp \
                             src/EnergyEfficientAgent.hpp \
                             src/EnergyEfficientRegion.cpp \

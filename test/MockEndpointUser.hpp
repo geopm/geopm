@@ -33,7 +33,7 @@
 #ifndef MOCKENDPOINTUSER_HPP_INCLUDE
 #define MOCKENDPOINTUSER_HPP_INCLUDE
 
-#include "Endpoint.hpp"
+#include "EndpointUser.hpp"
 
 class MockEndpointUser : public geopm::EndpointUser
 {

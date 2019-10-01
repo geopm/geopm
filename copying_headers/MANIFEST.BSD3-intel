@@ -94,6 +94,9 @@ src/ELF.cpp
 src/ELF.hpp
 src/Endpoint.cpp
 src/Endpoint.hpp
+src/EndpointImp.hpp
+src/EndpointUser.cpp
+src/EndpointUser.hpp
 src/EnergyEfficientAgent.cpp
 src/EnergyEfficientAgent.hpp
 src/EnergyEfficientRegion.cpp
@@ -252,6 +255,7 @@ test/CSVTest.cpp
 test/DebugIOGroupTest.cpp
 test/ELFTest.cpp
 test/EndpointTest.cpp
+test/EndpointUserTest.cpp
 test/EnergyEfficientAgentTest.cpp
 test/EnergyEfficientRegionTest.cpp
 test/EnvironmentTest.cpp
