@@ -46,40 +46,40 @@
 #include "gmock/gmock.h"
 #include "geopm_test.hpp"
 
+#include "geopm_time.h"
+#include "geopm_endpoint.h"
 #include "MockSharedMemory.hpp"
-#include "MockSharedMemoryUser.hpp"
-
 #include "Helper.hpp"
 #include "Exception.hpp"
-#include "Endpoint.hpp"
+#include "EndpointImp.hpp"
+#include "EndpointUser.hpp"
 #include "SharedMemoryImp.hpp"
 
-using geopm::ShmemEndpoint;
-using geopm::ShmemEndpointUser;
-using geopm::SharedMemoryImp;
+using geopm::EndpointImp;
+using geopm::EndpointUserImp;
 using geopm::SharedMemoryUserImp;
 using geopm::geopm_endpoint_policy_shmem_s;
 using geopm::geopm_endpoint_sample_shmem_s;
 using geopm::Exception;
 using testing::AtLeast;
 
-class ShmemEndpointTest : public ::testing::Test
+class EndpointTest : public ::testing::Test
 {
     protected:
         void SetUp();
-        const std::string m_shm_path = "/ShmemEndpointTest_data_" + std::to_string(geteuid());
+        const std::string m_shm_path = "/EndpointTest_data_" + std::to_string(geteuid());
         std::unique_ptr<MockSharedMemory> m_policy_shmem;
         std::unique_ptr<MockSharedMemory> m_sample_shmem;
 };
 
-class ShmemEndpointTestIntegration : public ::testing::Test
+class EndpointTestIntegration : public ::testing::Test
 {
     protected:
         void TearDown();
-        const std::string m_shm_path = "/ShmemEndpointTestIntegration_data_" + std::to_string(geteuid());
+        const std::string m_shm_path = "/EndpointTestIntegration_data_" + std::to_string(geteuid());
 };
 
-void ShmemEndpointTest::SetUp()
+void EndpointTest::SetUp()
 {
     size_t policy_shmem_size = sizeof(struct geopm_endpoint_policy_shmem_s);
     m_policy_shmem = geopm::make_unique<MockSharedMemory>(policy_shmem_size);
@@ -92,17 +92,17 @@ void ShmemEndpointTest::SetUp()
     EXPECT_CALL(*m_sample_shmem, unlink());
 }
 
-void ShmemEndpointTestIntegration::TearDown()
+void EndpointTestIntegration::TearDown()
 {
     unlink(("/dev/shm/" + m_shm_path + "-policy").c_str());
     unlink(("/dev/shm/" + m_shm_path + "-sample").c_str());
 }
 
-TEST_F(ShmemEndpointTest, write_shm_policy)
+TEST_F(EndpointTest, write_shm_policy)
 {
     std::vector<double> values = {777, 12.3456, 2.3e9};
     struct geopm_endpoint_policy_shmem_s *data = (struct geopm_endpoint_policy_shmem_s *) m_policy_shmem->pointer();
-    ShmemEndpoint jio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), values.size(), 0);
+    EndpointImp jio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), values.size(), 0);
     jio.open();
     jio.write_policy(values);
 
@@ -111,12 +111,12 @@ TEST_F(ShmemEndpointTest, write_shm_policy)
     jio.close();
 }
 
-TEST_F(ShmemEndpointTest, parse_shm_sample)
+TEST_F(EndpointTest, parse_shm_sample)
 {
     double tmp[] = { 1.1, 2.2, 3.3, 4.4, 5.5 };
     int num_sample = sizeof(tmp) / sizeof(tmp[0]);
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
-    ShmemEndpoint gp(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, num_sample);
+    EndpointImp gp(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, num_sample);
     gp.open();
     // Build the data
     data->count = num_sample;
@@ -133,10 +133,10 @@ TEST_F(ShmemEndpointTest, parse_shm_sample)
     gp.close();
 }
 
-TEST_F(ShmemEndpointTestIntegration, write_shm)
+TEST_F(EndpointTestIntegration, write_shm)
 {
     std::vector<double> values = {777, 12.3456, 2.1e9};
-    ShmemEndpoint mio(m_shm_path, nullptr, nullptr, values.size(), 0);
+    EndpointImp mio(m_shm_path, nullptr, nullptr, values.size(), 0);
     mio.open();
     mio.write_policy(values);
 
@@ -156,13 +156,13 @@ TEST_F(ShmemEndpointTestIntegration, write_shm)
     mio.close();
 }
 
-TEST_F(ShmemEndpointTestIntegration, write_read_policy)
+TEST_F(EndpointTestIntegration, write_read_policy)
 {
     std::vector<double> values = {777, 12.3456, 2.1e9};
-    ShmemEndpoint mio(m_shm_path, nullptr, nullptr, values.size(), 0);
+    EndpointImp mio(m_shm_path, nullptr, nullptr, values.size(), 0);
     mio.open();
     mio.write_policy(values);
-    ShmemEndpointUser mios(m_shm_path, nullptr, nullptr, "myagent", 0, "", "", {});
+    EndpointUserImp mios(m_shm_path, nullptr, nullptr, "myagent", 0, "", "", {});
 
     std::vector<double> result(values.size());
     mios.read_policy(result);
@@ -175,14 +175,14 @@ TEST_F(ShmemEndpointTestIntegration, write_read_policy)
     mio.close();
 }
 
-TEST_F(ShmemEndpointTestIntegration, write_read_sample)
+TEST_F(EndpointTestIntegration, write_read_sample)
 {
     std::vector<double> values = {777, 12.3456, 2.1e9, 2.3e9};
     std::set<std::string> hosts = {"node5", "node6", "node8"};
-    std::string hostlist_path = "ShmemEndpointTestIntegration_hostlist";
-    ShmemEndpoint mio(m_shm_path, nullptr, nullptr, 0, values.size());
+    std::string hostlist_path = "EndpointTestIntegration_hostlist";
+    EndpointImp mio(m_shm_path, nullptr, nullptr, 0, values.size());
     mio.open();
-    ShmemEndpointUser mios(m_shm_path, nullptr, nullptr, "power_balancer",
+    EndpointUserImp mios(m_shm_path, nullptr, nullptr, "power_balancer",
                            values.size(), "myprofile", hostlist_path, hosts);
     EXPECT_EQ("power_balancer", mio.get_agent());
     EXPECT_EQ("myprofile", mio.get_profile_name());
@@ -201,33 +201,33 @@ TEST_F(ShmemEndpointTestIntegration, write_read_sample)
     unlink(hostlist_path.c_str());
 }
 
-TEST_F(ShmemEndpointTest, get_agent)
+TEST_F(EndpointTest, get_agent)
 {
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
-    ShmemEndpoint mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    EndpointImp mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
     mio.open();
     strncpy(data->agent, "monitor", GEOPM_ENDPOINT_AGENT_NAME_MAX);
     EXPECT_EQ("monitor", mio.get_agent());
     mio.close();
 }
 
-TEST_F(ShmemEndpointTest, get_profile_name)
+TEST_F(EndpointTest, get_profile_name)
 {
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
-    ShmemEndpoint mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    EndpointImp mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
     mio.open();
     strncpy(data->profile_name, "my_prof", GEOPM_ENDPOINT_PROFILE_NAME_MAX);
     EXPECT_EQ("my_prof", mio.get_profile_name());
     mio.close();
 }
 
-TEST_F(ShmemEndpointTest, get_hostnames)
+TEST_F(EndpointTest, get_hostnames)
 {
     std::set<std::string> hosts = {"node0", "node1", "node2", "node3", "node4"};
     struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
-    ShmemEndpoint mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    EndpointImp mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
     mio.open();
-    std::string hostlist_path = "ShmemEndpointTest_hostlist";
+    std::string hostlist_path = "EndpointTest_hostlist";
     std::ofstream hostlist(hostlist_path);
     for (auto host : hosts) {
         hostlist << host << "\n";
@@ -238,126 +238,4 @@ TEST_F(ShmemEndpointTest, get_hostnames)
     EXPECT_EQ(hosts, mio.get_hostnames());
     mio.close();
     unlink(hostlist_path.c_str());
-}
-
-/*************************************************************************************************/
-
-class ShmemEndpointUserTest : public ::testing::Test
-{
-    protected:
-        void SetUp();
-        void TearDown();
-        const std::string m_shm_path = "/ShmemEndpointUserTest_data_" + std::to_string(geteuid());
-        std::string m_hostlist_file = "ShmemEndpointUserTest_hosts";
-        std::unique_ptr<MockSharedMemoryUser> m_policy_shmem_user;
-        std::unique_ptr<MockSharedMemoryUser> m_sample_shmem_user;
-};
-
-class ShmemEndpointUserTestIntegration : public ::testing::Test
-{
-    protected:
-        void TearDown();
-        const std::string m_shm_path = "/ShmemEndpointUserTestIntegration_data_" + std::to_string(geteuid());
-};
-
-void ShmemEndpointUserTest::SetUp()
-{
-    size_t policy_shmem_size = sizeof(struct geopm_endpoint_policy_shmem_s);
-    m_policy_shmem_user = geopm::make_unique<MockSharedMemoryUser>(policy_shmem_size);
-    size_t sample_shmem_size = sizeof(struct geopm_endpoint_sample_shmem_s);
-    m_sample_shmem_user = geopm::make_unique<MockSharedMemoryUser>(sample_shmem_size);
-
-    EXPECT_CALL(*m_policy_shmem_user, get_scoped_lock()).Times(AtLeast(0));
-    EXPECT_CALL(*m_sample_shmem_user, get_scoped_lock()).Times(AtLeast(0));
-}
-
-void ShmemEndpointUserTest::TearDown()
-{
-    unlink(m_hostlist_file.c_str());
-}
-
-void ShmemEndpointUserTestIntegration::TearDown()
-{
-    unlink(("/dev/shm/" + m_shm_path + "-policy").c_str());
-    unlink(("/dev/shm/" + m_shm_path + "-sample").c_str());
-}
-
-TEST_F(ShmemEndpointUserTest, attach)
-{
-    struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem_user->pointer();
-    std::set<std::string> hosts {"node1", "node2", "node4"};
-    ShmemEndpointUser gp("/FAKE_PATH", std::move(m_policy_shmem_user),
-                         std::move(m_sample_shmem_user), "myagent", 0,
-                         "myprofile", m_hostlist_file, hosts);
-    EXPECT_STREQ("myagent", data->agent);
-    EXPECT_STREQ("myprofile", data->profile_name);
-    EXPECT_STREQ(m_hostlist_file.c_str(), data->hostlist_path);
-    std::ifstream hostlist_file(m_hostlist_file);
-    std::set<std::string> hostlist;
-    std::string host;
-    while (hostlist_file >> host) {
-        hostlist.insert(host);
-    }
-    EXPECT_EQ(hostlist, hosts);
-}
-
-TEST_F(ShmemEndpointUserTest, parse_shm_policy)
-{
-    double tmp[] = { 1.1, 2.2, 3.3 };
-    int num_policy = sizeof(tmp) / sizeof(tmp[0]);
-    // Build the data
-    struct geopm_endpoint_policy_shmem_s *data = (struct geopm_endpoint_policy_shmem_s *) m_policy_shmem_user->pointer();
-    data->count = num_policy;
-    memcpy(data->values, tmp, sizeof(tmp));
-
-    ShmemEndpointUser gp("/FAKE_PATH", std::move(m_policy_shmem_user),
-                         std::move(m_sample_shmem_user), "myagent", 0,
-                         "myprofile", m_hostlist_file, {});
-
-    std::vector<double> result(num_policy);
-    gp.read_policy(result);
-    std::vector<double> expected {tmp, tmp + num_policy};
-    EXPECT_EQ(expected, result);
-}
-
-TEST_F(ShmemEndpointUserTest, write_shm_sample)
-{
-    struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem_user->pointer();
-    std::vector<double> values = {777, 12.3456, 2.3e9};
-    ShmemEndpointUser jio("/FAKE_PATH", std::move(m_policy_shmem_user), std::move(m_sample_shmem_user),
-                          "myagent", values.size(), "myprofile", m_hostlist_file, {});
-    jio.write_sample(values);
-
-    std::vector<double> test = std::vector<double>(data->values, data->values + data->count);
-    EXPECT_EQ(values, test);
-}
-
-TEST_F(ShmemEndpointUserTestIntegration, parse_shm)
-{
-    std::string full_path("/dev/shm" + m_shm_path);
-
-    size_t shmem_size = sizeof(struct geopm_endpoint_policy_shmem_s);
-    SharedMemoryImp smp(m_shm_path + "-policy", shmem_size);
-    struct geopm_endpoint_policy_shmem_s *data = (struct geopm_endpoint_policy_shmem_s *) smp.pointer();
-    SharedMemoryImp sms(m_shm_path + "-sample", sizeof(struct geopm_endpoint_sample_shmem_s));
-
-    double tmp[] = { 1.1, 2.2, 3.3 };
-    int num_policy = sizeof(tmp) / sizeof(tmp[0]);
-    data->count = num_policy;
-    // Build the data
-    memcpy(data->values, tmp, sizeof(tmp));
-
-    ShmemEndpointUser gp(m_shm_path, nullptr, nullptr, "myagent", 0, "myprofile", "", {});
-
-    std::vector<double> result(num_policy);
-    gp.read_policy(result);
-    std::vector<double> expected {tmp, tmp + num_policy};
-    EXPECT_EQ(expected, result);
-
-    tmp[0] = 1.5;
-    memcpy(data->values, tmp, sizeof(tmp));
-
-    gp.read_policy(result);
-    expected = {tmp, tmp + num_policy};
-    EXPECT_EQ(expected, result);
 }
