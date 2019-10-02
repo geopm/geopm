@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "622eaad1_77f9141f",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-10-02T15:51:34Z",
+      "side": 1,
+      "message": "Probably need to call m_is_domain_within[inner].reserve() in the outer loop before assigning [outer] here, or use a different initializer at line 103.",
+      "range": {
+        "startLine": 121,
+        "startChar": 16,
+        "endLine": 121,
+        "endChar": 48
+      },
+      "revId": "c34b72337ac9d6c333c21965f9ab184d6b885b07",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
