@@ -143,6 +143,7 @@ class TestLauncher(object):
         self.set_num_cpu()
         self.set_num_rank(16)
         self.set_num_node(4)
+        self._msr_save_path = None
         if fatal_test:
             self.msr_save()
 
