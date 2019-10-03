@@ -713,7 +713,7 @@ class TestIntegration(unittest.TestCase):
 
             all_power_data[nn] = power_data
 
-        for node_name, power_data in all_power_data.iteritems():
+        for node_name, power_data in all_power_data.items():
             # Allow for overages of 2% at the 75th percentile.
             self.assertGreater(self._options['power_budget'] * 1.02, power_data['SOCKET_POWER'].quantile(.75))
 
@@ -1365,7 +1365,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
             "TEMPERATURE_CORE": (0, 100)
         }
 
-        for signal, val_range in signal_range.iteritems():
+        for signal, val_range in signal_range.items():
             try:
                 self.check_no_error([signal, "board", "0"])
             except:

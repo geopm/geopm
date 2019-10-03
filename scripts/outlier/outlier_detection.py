@@ -216,6 +216,6 @@ if __name__ == '__main__':
         print("OUTLIERS IDENTIFIED:")
         outliers.sort()
         for outlier_prob, nid in outliers:
-            delta = {k: node_stats[nid][k] - global_avg[k] for k in global_avg.keys()}
+            delta = {k: node_stats[nid][k] - global_avg[k] for k in global_avg}
             status = {True: "Runt", False: "Pick"}[delta['power'] >= 0]
             print("Node %5d, %5.2f%%, %s, %5.1fW, %5.1fC" % (nid, 100*outlier_prob, status, delta['power'], delta['temperature']))
