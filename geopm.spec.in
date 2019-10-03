@@ -103,11 +103,6 @@ test -f configure || ./autogen.sh
 
 %{__make} %{?_smp_mflags}
 
-%check
-%{__make} %{?_smp_mflags} checkprogs
-%{__make} check PYTEST_TESTS='' || \
-( cat test/gtest_links/*.log && false )
-
 %install
 %{__make} DESTDIR=%{buildroot} install
 rm -f $(find %{buildroot}/%{_libdir} -name '*.a'; \
