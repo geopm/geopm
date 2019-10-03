@@ -855,7 +855,7 @@ class FreqSweepAnalysis(Analysis):
                 for region in regions}
 
     def plot(self, process_output):
-        for region, df in process_output.iteritems():
+        for region, df in process_output.items():
             geopmpy.plotter.generate_runtime_energy_plot(df, region, self._output_dir)
 
     def _region_freq_map(self, parse_output):
@@ -900,7 +900,7 @@ class FreqSweepAnalysis(Analysis):
 
     def _region_freq_str_pretty(self, region_freq_map):
         s = '\nRegion frequency map: \n'
-        for k, v in region_freq_map.iteritems():
+        for k, v in region_freq_map.items():
             s += '    {}: {}\n'.format(k, v)
         return s
 
@@ -1545,7 +1545,7 @@ geopmanalysis - Used to run applications and analyze results for specific
   --geopm-analysis-iterations      number of experiments to run per analysis type
   --version                        show the GEOPM version number and exit
 
-""".format(analysis_types=textwrap.fill(', '.join(analysis_type_map.keys()), subsequent_indent=' '*24))
+""".format(analysis_types=textwrap.fill(', '.join(analysis_type_map), subsequent_indent=' '*24))
 
     version_str = """\
 GEOPM version {version}
@@ -1569,7 +1569,7 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
     argv = argv[1:]
 
     if analysis_type not in analysis_type_map:
-        raise RuntimeError('Analysis type "{}" unrecognized. Available types: {}'.format(analysis_type, ' '.join(analysis_type_map.keys())))
+        raise RuntimeError('Analysis type "{}" unrecognized. Available types: {}'.format(analysis_type, ' '.join(analysis_type_map)))
 
     # Common arguments
     parser = argparse.ArgumentParser(description=__doc__,

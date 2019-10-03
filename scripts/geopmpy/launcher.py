@@ -83,7 +83,7 @@ class Factory(object):
             raise LookupError('Unsupported launcher "{}" requested'.format(launcher_name))
 
     def get_launcher_names(self):
-        return self._launcher_dict.keys()
+        return list(self._launcher_dict)
 
 
 class PassThroughError(Exception):
@@ -196,7 +196,7 @@ class Config(object):
         configuration object.
         """
         return ' '.join(['{kk}={vv}'.format(kk=kk, vv=vv)
-                         for (kk, vv) in self.environ().iteritems()])
+                         for (kk, vv) in self.environ().items()])
 
     def __str__(self):
         """
@@ -449,7 +449,7 @@ class Launcher(object):
         echo = []
         if self.is_geopm_enabled:
             echo.append(str(self.config))
-            for it in self.environ_ext.iteritems():
+            for it in self.environ_ext.items():
                 echo.append('{}={}'.format(it[0], it[1]))
         echo.extend(argv_mod)
         echo = u'\n' + u' '.join(echo) + u'\n\n'
