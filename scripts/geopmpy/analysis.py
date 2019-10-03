@@ -34,6 +34,7 @@ GEOPM Analysis - Used to run applications and analyze results for specific GEOPM
 """
 
 from __future__ import absolute_import
+from __future__ import division
 
 import argparse
 import sys
@@ -1028,13 +1029,11 @@ def baseline_comparison(parse_output, comp_name, sweep_output):
     comp_means_df = pandas.concat([comp_means_df, p], axis=1)
 
     # Calculate energy savings
-    es = pandas.Series((baseline_means_df['energy_pkg'] - comp_means_df['energy_pkg'].reset_index('name', drop=True))\
-                       / baseline_means_df['energy_pkg'], name='energy_savings') * 100
+    es = pandas.Series((baseline_means_df['energy_pkg'] - comp_means_df['energy_pkg'].reset_index('name', drop=True)) / baseline_means_df['energy_pkg'], name='energy_savings') * 100
     baseline_means_df = pandas.concat([baseline_means_df, es], axis=1)
 
     # Calculate runtime savings
-    rs = pandas.Series((baseline_means_df['runtime'] - comp_means_df['runtime'].reset_index('name', drop=True))\
-                       / baseline_means_df['runtime'], name='runtime_savings') * 100
+    rs = pandas.Series((baseline_means_df['runtime'] - comp_means_df['runtime'].reset_index('name', drop=True)) / baseline_means_df['runtime'], name='runtime_savings') * 100
     baseline_means_df = pandas.concat([baseline_means_df, rs], axis=1)
 
     return baseline_means_df

@@ -34,6 +34,7 @@ GEOPM Plotter - Used to produce plots and other analysis files from report and/o
 """
 
 from __future__ import absolute_import
+from __future__ import division
 
 import sys
 import os
@@ -1282,7 +1283,7 @@ def generate_histogram(data, config, label, bin_size, xprecision):
         raise RuntimeError("<geopmpy>: Unknown type for histogram: {}".format(label))
 
     plt.figure(figsize=config.fig_size)
-    bins = [round(bb*bin_size, 3) for bb in range(int(config.min_drop/bin_size), int(config.max_drop/bin_size)+2)]
+    bins = [round(bb*bin_size, 3) for bb in range(int(config.min_drop / bin_size), int(config.max_drop / bin_size)+2)]
     n, bins, patches = plt.hist(data, rwidth=0.8, bins=bins, color=bar_color)
     for n, b in zip(n, bins):
         plt.annotate(int(n) if int(n) != 0 else "", xy=(b+bin_size/2.0, n+2.5),
