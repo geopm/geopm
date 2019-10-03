@@ -137,9 +137,10 @@ compatible with the LLVM OpenMP ABI for extending it in this way.
 ## LAUNCHING THE RUNTIME
 The recommended method for launching the GEOPM runtime is the job
 launch wrapper script **geopmlaunch(1)**.  See this man page for
-details about the command line interface.  If your system does not support
-`aprun` or `srun` for job launch, please make a change request for support
-of the job launch method used on your system at the github issues page:
+details about the command line interface.  If **geopmlaunch(1)** does
+not provide an application launcher supported by your system, please
+make a change request for support of the job launch method used on
+your system at the github issues page:
 
 https://github.com/geopm/geopm/issues
 
