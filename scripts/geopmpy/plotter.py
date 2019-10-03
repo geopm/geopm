@@ -41,7 +41,6 @@ import sys
 import os
 import subprocess
 import argparse
-import cPickle as pickle
 import math
 from pkg_resources import parse_version
 
