@@ -32,6 +32,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import division
 
 import os
 import sys
@@ -63,7 +64,7 @@ class TestPowerSweepAnalysis(unittest.TestCase):
             'count': (lambda node, region, pow: 1),
             'energy_pkg': (lambda node, region, pow: 14000.0 + pow),
             'energy_dram': (lambda node, region, pow: 2000.0),
-            'frequency': (lambda node, region, pow: 1.0e9 + (self._max_power/float(pow))*1.0e9),
+            'frequency': (lambda node, region, pow: 1.0e9 + (self._max_power/pow)*1.0e9),
             'mpi_runtime': (lambda node, region, pow: 10),
             'runtime': (lambda node, region, pow: 500.0 * (1.0/pow)),
             'id': (lambda node, region, pow: 'bad')
