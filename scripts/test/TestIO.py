@@ -61,7 +61,7 @@ def self_cleaning_app_output(*args, **kwargs):
     finally:
         app_output.remove_files()
 
-test_data = """##### geopm 1.0.0+dev30g4cccfda #####
+test_report_data = """##### geopm 1.0.0+dev30g4cccfda #####
 Start Time: Thu May 30 14:38:17 2019
 Profile: test_ee_stream_dgemm_mix
 Agent: energy_efficient
@@ -427,12 +427,36 @@ Application Totals:
     geopmctl network BW (B/sec): 0
 """
 
+# First lines from a test_trace_runtimes integration test run
+test_trace_data = """# geopm_version: 1.0.0+dev209g77e1ebb8
+# start_time: Thu Oct 03 08:19:34 2019
+# profile_name: test_trace_runtimes
+# node_name: mcfly1
+# agent: power_governor
+TIME|EPOCH_COUNT|REGION_HASH|REGION_HINT|REGION_PROGRESS|REGION_COUNT|REGION_RUNTIME|ENERGY_PACKAGE|ENERGY_DRAM|POWER_PACKAGE|POWER_DRAM|FREQUENCY|CYCLES_THREAD|CYCLES_REFERENCE|TEMPERATURE_CORE|POWER_BUDGET
+0.204296343|-1|0x00000000725e8066|0x0000000100000000|0|0|0|242598.262512207|31537.68629558909|nan|nan|2763636363.636364|44306314967139|44889410342036|60.18181818181818|0
+0.2223164129999999|-1|0x00000000644f9787|0x0000000100000000|0|0|0|242603.1904296875|31538.00337322582|273.4682762313778|17.59580494025078|2800000000|44310710666495|44892733038308|61.72727272727273|150
+0.2235088959999999|-1|0x00000000644f9787|0x0000000100000000|0|0|0|242603.6185302734|31538.02900799145|276.6301227683065|17.73233606304858|2800000000|44311004818789|44892952655048|61.77272727272727|150
+0.228532226|-1|0x00000000644f9787|0x0000000100000000|0|0|0|242604.9693603516|31538.11309917797|276.9201297420731|17.65826611195596|2100000000|44312147188306|44893868186252|61.43181818181818|150
+0.233763619|-1|0x00000000644f9787|0x0000000100000000|0|0|0|242605.6206665039|31538.18380840649|213.1977333899407|17.13213273088159|776136363.6363636|44312679661043|44894805921596|59.79545454545455|150
+0.238758759|-1|0x00000000644f9787|0x0000000100000000|0|0|0|242606.1339111328|31538.24949749341|160.7312347320962|16.51782487831938|800000000|44313012842482|44895724971644|59.13636363636363|150
+0.2436604579999999|-1|0x00000000644f9787|0x0000000100000000|0|0|0|242606.7144165039|31538.31727703442|114.1336448920131|16.01735740105445|1450000000|44313477045974|44896618887716|58.97727272727273|150
+0.248572409|-1|0x00000000644f9787|0x0000000100000000|0|0|0|242607.4743041992|31538.39257915845|124.4617940659552|15.71872562446383|1877272727.272727|44314215214920|44897517408080|59.15909090909091|150
+0.253558066|-1|0x00000000644f9787|0x0000000100000000|0|0|0|242608.3024291992|31538.46925457349|147.3800125521751|14.56509260230485|1850000000|44315033338888|44898435409136|59.29545454545455|150
+0.2585734129999999|-1|0x00000000644f9787|0x0000000100000000|0|0|0|242609.1127319336|31538.54991253248|161.3588539038742|14.57640738621386|1650000000|44315800167450|44899353800036|59.13636363636363|150
+0.263574746|-1|0x00000000644f9787|0x0000000100000000|0|0|0|242609.8388671875|31538.61998089185|158.0069444604364|14.60065683114463|1550000000|44316493094098|44900272907876|59.02272727272727|150
+0.268616921|-1|0x00000000644f9787|0x0000000100000000|0|0|0|242610.5656738281|31538.70031841627|149.7814626529688|14.94329910436242|1600000000|44317174126049|44901195205784|58.93181818181818|150
+"""
+
 class TestIO(unittest.TestCase):
     def setUp(self):
         self._test_directory = tempfile.mkdtemp()
         self._report_path = os.path.join(self._test_directory, 'geopmpy-io-test-raw-report')
         with open(self._report_path, 'w') as fid:
-            fid.write(test_data)
+            fid.write(test_report_data)
+        self._trace_path = os.path.join(self._test_directory, 'geopmpy-io-test-trace')
+        with open(self._trace_path, 'w') as fid:
+            fid.write(test_trace_data)
 
     def tearDown(self):
         shutil.rmtree(self._test_directory)
@@ -498,6 +522,19 @@ class TestIO(unittest.TestCase):
             touch_file(self._report_path)
             geopmpy.io.AppOutput(reports=self._report_path)
             self.assertEqual(initial_call_count * 2, count_open(self._report_path))
+
+    def test_trace(self):
+        """ Test that a trace file can be extracted to a dataframe.
+        """
+        with self_cleaning_app_output(traces=self._trace_path) as app_output:
+            trace_df = app_output.get_trace_data(node_name='mcfly1')
+            start_time = trace_df.index.get_level_values('start_time').unique()
+            self.assertEqual(1, len(start_time))
+            self.assertEqual('Thu Oct 03 08:19:34 2019', start_time[0])
+            self.assertAlmostEqual(0.204296343, trace_df.iloc[0]['TIME'])
+            self.assertAlmostEqual(242598.262512207, trace_df.iloc[0]['ENERGY_PACKAGE'])
+            self.assertAlmostEqual(0.268616921, trace_df.iloc[-1]['TIME'])
+            self.assertAlmostEqual(242610.5656738281, trace_df.iloc[-1]['ENERGY_PACKAGE'])
 
 if __name__ == '__main__':
     unittest.main()
