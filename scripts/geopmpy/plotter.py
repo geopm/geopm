@@ -858,8 +858,8 @@ def generate_power_plot(trace_df, config):
         # Diff the energy counters and determine the median iteration (if multiple runs)
         median_df = geopmpy.io.Trace.get_median_df(df, 'energy', config)
         # Calculate power from the diffed counters
-        pkg_energy_cols = [s for s in median_df.keys() if 'energy_package' in s]
-        dram_energy_cols = [s for s in median_df.keys() if 'energy_dram' in s]
+        pkg_energy_cols = [s for s in list(median_df.keys()) if 'energy_package' in s]
+        dram_energy_cols = [s for s in list(median_df.keys()) if 'energy_dram' in s]
         median_df['socket_power'] = median_df[pkg_energy_cols].sum(axis=1) / median_df['elapsed_time']
         median_df['dram_power'] = median_df[dram_energy_cols].sum(axis=1) / median_df['elapsed_time']
         median_df['combined_power'] = median_df['socket_power']
@@ -1162,8 +1162,8 @@ def generate_freq_plot(trace_df, config):
         plt.rc('axes', prop_cycle=(cycler('color', colors)))
         f, ax = plt.subplots()
 
-        cycles_thread = [s for s in median_df.keys() if 'cycles_thread' in s]
-        cycles_reference = [s for s in median_df.keys() if 'cycles_reference' in s]
+        cycles_thread = [s for s in list(median_df.keys()) if 'cycles_thread' in s]
+        cycles_reference = [s for s in list(median_df.keys()) if 'cycles_reference' in s]
 
         for c, r in zip(cycles_thread, cycles_reference):  # Loop once per socket
             frequency_data = median_df[c] / median_df[r]
