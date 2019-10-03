@@ -47,7 +47,7 @@ class TestNodePowerAnalysis(unittest.TestCase):
         self._min_power = 160
         self._max_power = 200
         self._step_power = 10
-        self._powers = range(self._min_power, self._max_power+self._step_power, self._step_power)
+        self._powers = list(range(self._min_power, self._max_power+self._step_power, self._step_power))
         self._config = {'profile_prefix': self._name_prefix,
                         'output_dir': '.',
                         'verbose': True,

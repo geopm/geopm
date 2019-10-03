@@ -48,7 +48,7 @@ class Topo():
         self._num_core = self._core_per_socket * self._num_socket
         self._num_linux_cpu = self._hthread_per_core * self._num_core
         # used by tests
-        self.core_list = range(self._num_core)
+        self.core_list = list(range(self._num_core))
         self.hyperthreads = {}
         for core in self.core_list:
             self.hyperthreads[core] = [core + ht*self._num_core for ht in range(1, self._hthread_per_core)]

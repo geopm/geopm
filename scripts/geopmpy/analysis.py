@@ -260,8 +260,7 @@ class PowerSweepAnalysis(Analysis):
             self._max_power = sys_tdp
             sys.stderr.write("<geopmpy>: Warning: Invalid or unspecified max_power; using system TDP: {}.\n".format(self._max_power))
 
-        power_caps = range(self._min_power, self._max_power+1, self._step_power)
-        for power_cap in power_caps:
+        for power_cap in range(self._min_power, self._max_power+1, self._step_power):
             # governor runs
             options = {'power_budget': power_cap}
             agent_conf = geopmpy.io.AgentConf(path=self._name + '_agent.config',
@@ -600,7 +599,7 @@ class NodeEfficiencyAnalysis(Analysis):
         if not self._max_power:
             self._max_power = max(profiles)
 
-        self._power_caps = range(self._min_power, self._max_power+1, self._step_power)
+        self._power_caps = list(range(self._min_power, self._max_power+1, self._step_power))
         gov_freq_data = {}
         bal_freq_data = {}
 
