@@ -986,7 +986,7 @@ class FreqSweepAnalysis(Analysis):
         freq_list = [float(pn.split('_freq_')[-1].split('_')[0])
                      for pn in profile_name_list
                      if prefix in pn and '_freq_' in pn.split(prefix)[1]]
-        freq_pname = zip(freq_list, profile_name_list)
+        freq_pname = list(zip(freq_list, profile_name_list))
         freq_pname.sort(reverse=True)
         return freq_pname
 
