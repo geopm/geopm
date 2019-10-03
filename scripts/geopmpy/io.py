@@ -34,6 +34,7 @@ GEOPM IO - Helper module for parsing/processing report and trace files.
 """
 
 from __future__ import absolute_import
+from __future__ import division
 
 from builtins import str
 import os
@@ -223,7 +224,7 @@ class AppOutput(object):
                     if re.findall(r'Host:', line):
                         files += 1
 
-        filesize = '{}KiB'.format(filesize/1024)
+        filesize = '{}KiB'.format(filesize // 1024)
         fileno = 1
         for rp in report_paths:
             # Parse the first report
@@ -267,11 +268,11 @@ class AppOutput(object):
             filesize += os.stat(tp).st_size
         # Abort if traces are too large
         avail_mem = psutil.virtual_memory().available
-        if filesize > avail_mem / 2:
+        if filesize > avail_mem // 2:
             sys.stderr.write('<geopmpy> Warning: Total size of traces is greater than 50% of available memory. Parsing traces will be skipped.\n')
             return
 
-        filesize = '{}MiB'.format(filesize/1024/1024)
+        filesize = '{}MiB'.format(filesize // 1024 // 1024)
 
         for tp in trace_paths:
             if verbose:

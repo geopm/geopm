@@ -32,6 +32,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import division
 
 import unittest
 from test.analysis_helper import *
@@ -66,7 +67,7 @@ class TestNodeEfficiencyAnalysis(unittest.TestCase):
             'count': (lambda node, region, pow: 1),
             'energy_pkg': (lambda node, region, pow: 14000.0),
             'energy_dram': (lambda node, region, pow: 2000.0),
-            'frequency': (lambda node, region, pow: 50.0 + (float(pow)/self._max_power)*(float(self._node_names.index(node))/self._num_nodes)),
+            'frequency': (lambda node, region, pow: 50.0 + (pow/self._max_power)*(self._node_names.index(node)/self._num_nodes)),
             'mpi_runtime': (lambda node, region, pow: 10),
             'runtime': (lambda node, region, pow: 50.0),
             'id': (lambda node, region, pow: 'bad'),

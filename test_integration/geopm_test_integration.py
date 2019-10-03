@@ -37,7 +37,6 @@ from __future__ import division
 from future import standard_library
 standard_library.install_aliases()
 from builtins import str
-from past.utils import old_div
 import os
 import sys
 import unittest
@@ -740,7 +739,7 @@ class TestIntegration(unittest.TestCase):
 
         # Update app config with imbalance
         alloc_nodes = geopm_test_launcher.TestLauncher.get_alloc_nodes()
-        for nn in range(len(alloc_nodes) / 2):
+        for nn in range(len(alloc_nodes) // 2):
             app_conf.append_imbalance(alloc_nodes[nn], 0.5)
 
         fam, mod = geopm_test_launcher.get_platform()

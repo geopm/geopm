@@ -31,6 +31,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import division
 
 import os
 import sys
@@ -250,8 +251,8 @@ class TestLauncher(object):
 
     def set_cpu_per_rank(self):
         try:
-            rank_per_node = int(math.ceil(float(self._num_rank) / float(self._num_node)))
-            self._cpu_per_rank = int(math.floor(self._num_cpu / rank_per_node))
+            rank_per_node = int(math.ceil(self._num_rank / self._num_node))
+            self._cpu_per_rank = int(self._num_cpu // rank_per_node)
         except (AttributeError, TypeError):
             pass
 

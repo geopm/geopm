@@ -33,6 +33,7 @@
 
 # python 2 compatibility
 from __future__ import print_function
+from __future__ import division
 
 import math
 import numpy as np
