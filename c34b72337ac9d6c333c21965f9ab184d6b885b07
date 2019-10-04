@@ -22,6 +22,64 @@
       "revId": "c34b72337ac9d6c333c21965f9ab184d6b885b07",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5350b405_1da0cefd",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-10-04T21:15:58Z",
+      "side": 1,
+      "message": "No probably, what is written above is a segmentation violation.",
+      "parentUuid": "622eaad1_77f9141f",
+      "range": {
+        "startLine": 121,
+        "startChar": 16,
+        "endLine": 121,
+        "endChar": 48
+      },
+      "revId": "c34b72337ac9d6c333c21965f9ab184d6b885b07",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9fb5b26_16a46f8b",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-10-04T21:15:58Z",
+      "side": 1,
+      "message": "idiff not used.",
+      "revId": "c34b72337ac9d6c333c21965f9ab184d6b885b07",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25e2d540_b9ecbcaa",
+        "filename": "src/PlatformTopo.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-10-04T21:15:58Z",
+      "side": 1,
+      "message": "odiff are all the CPU\u0027s in the \"outer\"domain that are not in the inner domain.  I would expect this should be\n\n    if (isec.size() !\u003d 0 \u0026\u0026 idiff.size() !\u003d 0) {\n        is_domain_within \u003d false;\n    }\n\nSeems likely that we should have a function that takes two sets and does this logic, we can then unit test the code in the innermost part of this for loop.",
+      "revId": "c34b72337ac9d6c333c21965f9ab184d6b885b07",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
