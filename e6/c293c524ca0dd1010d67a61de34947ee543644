@@ -1,0 +1,10 @@
+Code-Review+2: Diana Guttman <diana.r.guttman@intel.com>
+Code-Review+1: Daniel Wilson <daniel1.wilson@intel.com>
+Verified+1: <fsp@intel.com>
+Verified+1: Daniel Wilson <daniel1.wilson@intel.com>
+Klocwork+1: <fsp@intel.com>
+Submitted-by: Diana Guttman <diana.r.guttman@intel.com>
+Submitted-at: Mon, 07 Oct 2019 18:17:49 +0000
+Reviewed-on: https://review.gerrithub.io/c/geopm/geopm/+/470404
+Project: geopm/geopm
+Branch: refs/heads/dev
