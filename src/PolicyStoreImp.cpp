@@ -44,6 +44,7 @@
 #include "Exception.hpp"
 #include "Helper.hpp"
 #include "geopm_error.h"
+#include "config.h"
 
 namespace geopm
 {

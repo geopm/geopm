@@ -42,6 +42,8 @@
 #include "Environment.hpp"
 #include "SharedMemoryUser.hpp"
 
+#include "config.h"
+
 namespace geopm
 {
     std::unique_ptr<EndpointUser> EndpointUser::make_unique(const std::string &policy_path,

@@ -38,6 +38,7 @@
 
 #include "Helper.hpp"
 #include "Exception.hpp"
+#include "config.h"
 
 using json11::Json;
 

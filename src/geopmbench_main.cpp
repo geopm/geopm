@@ -43,6 +43,7 @@
 #include "geopm_error.h"
 #include "ModelApplication.hpp"
 #include "ModelParse.hpp"
+#include "config.h"
 
 int main(int argc, char **argv)
 {

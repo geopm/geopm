@@ -37,6 +37,7 @@
 #include "geopm_hash.h"
 #include "MSR.hpp"
 #include "Exception.hpp"
+#include "config.h"
 
 namespace geopm
 {

@@ -33,6 +33,7 @@
 #include "SharedMemoryScopedLock.hpp"
 
 #include "Exception.hpp"
+#include "config.h"
 
 namespace geopm
 {

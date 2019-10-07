@@ -43,6 +43,7 @@
 #include "Environment.hpp"
 #include "Exception.hpp"
 #include "CSV.hpp"
+#include "config.h"
 
 namespace geopm
 {
