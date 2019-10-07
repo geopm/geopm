@@ -55,6 +55,10 @@ if ENABLE_FORTRAN
 endif
 endif
 
+if ENABLE_BETA
+    bin_PROGRAMS += geopmpolicystore
+endif
+
 if !ENABLE_FORTRAN
 install-fortran:
 	-
@@ -194,18 +198,20 @@ ronn_man_noinst = man/GEOPM_CXX_MAN_Comm.3 \
                   # end
 
 if ENABLE_BETA
-ronn_man_inst += man/geopmanalysis.1 \
+ronn_man_inst += man/GEOPM_CXX_MAN_Endpoint.3 \
+                 man/geopm_endpoint_c.3 \
+                 man/geopmanalysis.1 \
                  man/geopmendpoint.1 \
                  man/geopmplotter.1 \
-                 man/geopm_endpoint_c.3 \
-                 man/GEOPM_CXX_MAN_Endpoint.3 \
+                 man/geopmpolicystore.1 \
                  # end
 else
-ronn_man_noinst += man/geopmanalysis.1 \
+ronn_man_noinst += man/GEOPM_CXX_MAN_Endpoint.3 \
+                   man/geopm_endpoint_c.3 \
+                   man/geopmanalysis.1 \
                    man/geopmendpoint.1 \
                    man/geopmplotter.1 \
-                   man/geopm_endpoint_c.3 \
-                   man/GEOPM_CXX_MAN_Endpoint.3 \
+                   man/geopmpolicystore.1 \
                    # end
 endif
 
@@ -313,6 +319,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/geopmendpoint.1.ronn \
              ronn/geopmlaunch.1.ronn \
              ronn/geopmplotter.1.ronn \
+             ronn/geopmpolicystore.1.ronn \
              ronn/geopmpy.7.ronn \
              ronn/geopmread.1.ronn \
              ronn/geopmwrite.1.ronn \
@@ -407,6 +414,7 @@ geopmwrite_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
 geopmread_LDADD = libgeopmpolicy.la
 geopmwrite_LDADD = libgeopmpolicy.la
 geopmagent_LDADD = libgeopmpolicy.la
+geopmpolicystore_LDADD = libgeopmpolicy.la
 libgeopmpolicy_la_LIBADD = -lelf
 if ENABLE_MPI
     geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
@@ -590,6 +598,10 @@ geopmagent_SOURCES = src/geopm_agent.h \
                      src/geopm_version.h \
                      src/geopmagent_main.c \
                      # end
+
+geopmpolicystore_SOURCES = src/geopmpolicystore_main.cpp \
+                           # end
+
 
 if ENABLE_MPI
     # All source files that are compiled into libgeopmpolicy are also
