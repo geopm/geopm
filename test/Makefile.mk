@@ -102,7 +102,9 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/EndpointTestIntegration.write_shm \
               test/gtest_links/EndpointTestIntegration.write_read_policy \
               test/gtest_links/EndpointTestIntegration.write_read_sample \
+              test/gtest_links/EndpointUserTest.agent_name_too_long \
               test/gtest_links/EndpointUserTest.parse_shm_policy \
+              test/gtest_links/EndpointUserTest.profile_name_too_long \
               test/gtest_links/EndpointUserTest.write_shm_sample \
               test/gtest_links/EndpointUserTestIntegration.parse_shm \
               test/gtest_links/EnergyEfficientAgentTest.aggregate_sample \
