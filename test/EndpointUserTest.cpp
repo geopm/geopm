@@ -139,6 +139,39 @@ TEST_F(EndpointUserTest, write_shm_sample)
     EXPECT_EQ(values, test);
 }
 
+TEST_F(EndpointUserTest, agent_name_too_long)
+{
+    std::string too_long(2048, 'X');
+    std::set<std::string> hosts;
+
+    GEOPM_EXPECT_THROW_MESSAGE(
+        geopm::make_unique<EndpointUserImp>("/FAKE_PATH",
+                                            std::move(m_policy_shmem_user),
+                                            std::move(m_sample_shmem_user),
+                                            too_long,
+                                            0,
+                                            "myprofile",
+                                            m_hostlist_file,
+                                            hosts),
+        GEOPM_ERROR_INVALID, "Agent name is too long");
+}
+
+TEST_F(EndpointUserTest, profile_name_too_long)
+{
+    std::string too_long(2048, 'X');
+    std::set<std::string> hosts;
+    GEOPM_EXPECT_THROW_MESSAGE(
+        geopm::make_unique<EndpointUserImp>("/FAKE_PATH",
+                                            std::move(m_policy_shmem_user),
+                                            std::move(m_sample_shmem_user),
+                                            "myagent",
+                                            0,
+                                            too_long,
+                                            m_hostlist_file,
+                                            hosts),
+        GEOPM_ERROR_INVALID, "Profile name is too long");
+}
+
 TEST_F(EndpointUserTestIntegration, parse_shm)
 {
     std::string full_path("/dev/shm" + m_shm_path);
