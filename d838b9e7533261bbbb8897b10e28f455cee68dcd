@@ -34,6 +34,98 @@
       "revId": "d838b9e7533261bbbb8897b10e28f455cee68dcd",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c9f5d43_a4326cd6",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-10-08T18:26:46Z",
+      "side": 1,
+      "message": "https://github.com/geopm/geopm/blob/dev/src/geopm_hash.h#L51",
+      "range": {
+        "startLine": 154,
+        "startChar": 30,
+        "endLine": 154,
+        "endChar": 56
+      },
+      "revId": "d838b9e7533261bbbb8897b10e28f455cee68dcd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c301f02f_d051cd6c",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-10-08T18:26:46Z",
+      "side": 1,
+      "message": "call this out in documentation?",
+      "range": {
+        "startLine": 156,
+        "startChar": 16,
+        "endLine": 156,
+        "endChar": 72
+      },
+      "revId": "d838b9e7533261bbbb8897b10e28f455cee68dcd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c62f4fc_a23ff855",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-10-08T18:26:46Z",
+      "side": 1,
+      "message": "https://github.com/geopm/geopm/blob/dev/src/geopm_hash.h#L51",
+      "range": {
+        "startLine": 184,
+        "startChar": 28,
+        "endLine": 184,
+        "endChar": 55
+      },
+      "revId": "d838b9e7533261bbbb8897b10e28f455cee68dcd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "186635de_bc34daf0",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1049,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-10-08T18:26:46Z",
+      "side": 1,
+      "message": "can remove these skips no?  or is it useful for test output?",
+      "range": {
+        "startLine": 1047,
+        "startChar": 4,
+        "endLine": 1049,
+        "endChar": 33
+      },
+      "revId": "d838b9e7533261bbbb8897b10e28f455cee68dcd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
