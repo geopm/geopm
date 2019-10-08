@@ -50,6 +50,7 @@ from test_integration import geopm_test_launcher
 from test_integration import util
 
 _g_skip_launch = False
+_g_keep_reports = False
 
 class AppConf(object):
     """Class that is used by the test launcher as a geopmpy.io.BenchConf
@@ -115,11 +116,18 @@ class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
 
         """
         if (sys.exc_info() == (None, None, None) and not
-            cls._keep_files and not cls._skip_launch):
+            cls._keep_files and not cls._skip_launch and not
+            _g_keep_reports):
             os.unlink(cls._agent_conf_path)
             os.unlink(cls._report_path)
             for ff in glob.glob(cls._trace_path + '*'):
                 os.unlink(ff)
+
+    def tearDown(self):
+        """Set keep_reports global for any failed test."""
+        if sys.exc_info() != (None, None, None):
+            global _g_keep_reports
+            _g_keep_reports = True
 
     def test_monotone_frequency(self):
         """Test that agent selects lower frequencies for regions with more
@@ -187,4 +195,5 @@ if __name__ == '__main__':
         _g_skip_launch = True
     except ValueError:
         pass
+    sys.exc_clear()
     unittest.main()
