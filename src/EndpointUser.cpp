@@ -85,8 +85,18 @@ namespace geopm
         }
         auto lock = m_sample_shmem->get_scoped_lock();
         auto data = (struct geopm_endpoint_sample_shmem_s *)m_sample_shmem->pointer();
-        strncpy(data->agent, agent_name.c_str(), GEOPM_ENDPOINT_AGENT_NAME_MAX);
-        strncpy(data->profile_name, profile_name.c_str(), GEOPM_ENDPOINT_PROFILE_NAME_MAX);
+        if (agent_name.size() >= GEOPM_ENDPOINT_AGENT_NAME_MAX) {
+            throw Exception("EndpointImp(): Agent name is too long for storage in shared memory structure",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (profile_name.size() >= GEOPM_ENDPOINT_PROFILE_NAME_MAX) {
+            throw Exception("EndpointImp(): Profile name is too long for storage in shared memory structure",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        data->agent[GEOPM_ENDPOINT_AGENT_NAME_MAX - 1] = '\0';
+        data->profile_name[GEOPM_ENDPOINT_PROFILE_NAME_MAX - 1] = '\0';
+        strncpy(data->agent, agent_name.c_str(), GEOPM_ENDPOINT_AGENT_NAME_MAX - 1);
+        strncpy(data->profile_name, profile_name.c_str(), GEOPM_ENDPOINT_PROFILE_NAME_MAX - 1);
         /// write hostnames to file
         m_hostlist_path = hostlist_path;
         if (m_hostlist_path == "") {
