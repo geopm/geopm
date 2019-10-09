@@ -31,6 +31,7 @@
  */
 
 #include <errno.h>
+#include <limits.h>
 #include <string>
 
 #include "gtest/gtest.h"
@@ -101,6 +102,53 @@ TEST_F(ExceptionTest, hello)
     EXPECT_TRUE(what_str.compare(0, geopm_tag.length(), geopm_tag) == 0);
     EXPECT_TRUE(what_str.find("untime") != std::string::npos);
     std::cerr << "Error: " << ex5.what() << std::endl;
+}
+
+TEST_F(ExceptionTest, last_message)
+{
+    char message_cstr[256];
+    std::string message;
+    std::string expect("<geopm> Invalid argument: ExceptionTest: Detail: at geopm/ExceptionTest.cpp:1234");
+    try {
+        throw geopm::Exception("ExceptionTest: Detail", GEOPM_ERROR_INVALID, "ExceptionTest.cpp", 1234);
+    }
+    catch (...) {
+        geopm::exception_handler(std::current_exception(), false);
+    }
+    geopm_error_message_last(message_cstr, 256);
+    message = message_cstr;
+    // Check basic use case
+    EXPECT_EQ(expect, message);
+
+    // Check that message truncation works
+    geopm_error_message_last(message_cstr, 8);
+    message = message_cstr;
+    EXPECT_EQ(expect.substr(0, 7), message);
+
+    // Make sure the message changes when a new exception is handled
+    try {
+        throw geopm::Exception("ExceptionTest: New message", GEOPM_ERROR_RUNTIME, "ExceptionTest.cpp", 1234);
+    }
+    catch (...) {
+        geopm::exception_handler(std::current_exception(), false);
+    }
+    geopm_error_message_last(message_cstr, 256);
+    message = message_cstr;
+    std::string expect_new("<geopm> Runtime error: ExceptionTest: New message: at geopm/ExceptionTest.cpp:1234");
+    EXPECT_EQ(expect_new, message);
+
+    // Make sure long exception messages are handled
+    std::string too_long(2 * NAME_MAX, 'X');
+    try {
+        throw geopm::Exception(too_long, GEOPM_ERROR_RUNTIME, "ExceptionTest.cpp", 1234);
+    }
+    catch (...) {
+        geopm::exception_handler(std::current_exception(), false);
+    }
+    geopm_error_message_last(message_cstr, 256);
+    message = message_cstr;
+    std::string expect_long("<geopm> Runtime error: " + too_long.substr(0, 230));
+    EXPECT_EQ(expect_long, message);
 }
 
 TEST_F(ExceptionTest, check_ronn)

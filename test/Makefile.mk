@@ -134,6 +134,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/EpochRuntimeRegulatorTest.rank_enter_exit_trace \
               test/gtest_links/EpochRuntimeRegulatorTest.unknown_region \
               test/gtest_links/ExceptionTest.hello \
+              test/gtest_links/ExceptionTest.last_message \
               test/gtest_links/FilePolicyTest.parse_json_file \
               test/gtest_links/FilePolicyTest.negative_bad_files \
               test/gtest_links/FilePolicyTest.negative_parse_json_file \
