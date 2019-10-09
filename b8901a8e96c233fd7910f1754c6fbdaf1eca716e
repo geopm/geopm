@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "76b3bb8f_6248a5fe",
+        "filename": "src/EnergyEfficientRegion.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-10-09T15:27:25Z",
+      "side": 1,
+      "message": "Since we\u0027re calling this deprecated, should it instead emit a warning while still performing the original behavior (e.g. by delegating to the new functions)?",
+      "range": {
+        "startLine": 139,
+        "startChar": 35,
+        "endLine": 139,
+        "endChar": 46
+      },
+      "revId": "b8901a8e96c233fd7910f1754c6fbdaf1eca716e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1e6e8b1_093ae24e",
+        "filename": "src/EnergyEfficientRegion.hpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-10-09T15:27:25Z",
+      "side": 1,
+      "message": "Can you add a brief doc to these functions? I think the main point of confusion on my first read-through of the EE agent was because I skipped over the line where we convert time to a perf metric, and I spent a while figuring out why everything seemed the exact opposite from my expectations. Hopefully a one- or two-liner here could help clarify that for future readers.",
+      "revId": "b8901a8e96c233fd7910f1754c6fbdaf1eca716e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
