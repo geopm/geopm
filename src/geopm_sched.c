@@ -33,12 +33,6 @@
 #define _GNU_SOURCE
 #endif
 
-#ifdef __APPLE__
-#define _DARWIN_C_SOURCE
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#endif
-
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -91,8 +85,6 @@ int geopm_sched_popen(const char *cmd, FILE **fid)
     return err;
 }
 
-
-#ifndef __APPLE__
 
 int geopm_sched_num_cpu(void)
 {
@@ -360,51 +352,3 @@ int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
     }
     return err;
 }
-
-#else /* __APPLE__ */
-
-void __cpuid(uint32_t*, int);
-
-int geopm_sched_num_cpu(void)
-{
-    uint32_t result = 1;
-    size_t len = sizeof(result);
-    sysctl((int[2]) {CTL_HW, HW_NCPU}, 2, &result, &len, NULL, 0);
-    return result;
-}
-
-
-int geopm_sched_get_cpu(void)
-{
-    int result = -1;
-    uint32_t cpu_info[4];
-    __cpuid(cpu_info, 1);
-    // Check APIC
-    if (cpu_info[3] & (1 << 9)) {
-        result = (int)(cpu_info[1] >> 24);
-    }
-    return result;
-}
-
-// On Mac OS just fill in all bits for the cpuset for both the process
-// mask and woomp to get the tests passing.
-static void geopm_cpuset_fill(int num_cpu, cpu_set_t *proc_cpuset)
-{
-    size_t cpuset_size = CPU_ALLOC_SIZE(num_cpu);
-    for (int i = 0; i < num_cpu; ++i) {
-        CPU_SET_S(i, cpuset_size, proc_cpuset);
-    }
-}
-int geopm_sched_proc_cpuset(int num_cpu, cpu_set_t *proc_cpuset)
-{
-    geopm_cpuset_fill(num_cpu, proc_cpuset);
-    return 0;
-}
-
-int geopm_sched_woomp(int num_cpu, cpu_set_t *woomp)
-{
-    geopm_cpuset_fill(num_cpu, woomp);
-    return 0;
-}
-
-#endif /* __APPLE__ */
