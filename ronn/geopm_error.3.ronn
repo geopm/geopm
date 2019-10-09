@@ -42,6 +42,10 @@ geopm_error(3) -- error code descriptions
     `char *`_msg_, <br>
     `size_t` _size_`);`
 
+  * `void geopm_error_message_last(`:
+    `char *`_msg_, <br>
+    `size_t` _size_`);`
+
 ## DESCRIPTION
 
 All **geopm(7)** C and Fortran APIs that can have an error condition
@@ -57,6 +61,14 @@ with the **geopm_error_message()** function.  The GEOPM specific error
 numbers are enumerated in the _geopm_error.h_ header file and they are
 described below.  The system error numbers are documented in the
 **errno(3)** man page.
+
+When a geopm C interface returns a non-zero value, then the
+**geopm_error_message_last()** can be used to print a more detailed
+description of the last error that occurred within any GEOPM C
+routine.  Note that in a multi-threaded context where GEOPM C
+interfaces have returned an error code from two functions called by
+two different threads, the message may be incorrect, but it will
+always be NULL terminated.
 
 ## ERROR NUMBERS
 
