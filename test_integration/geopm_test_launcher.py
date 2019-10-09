@@ -197,9 +197,13 @@ class TestLauncher(object):
             argv.extend(self._app_conf.get_exec_args())
             launcher = geopmpy.launcher.Factory().create(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
                                                          self._time_limit, test_name, self._node_list, self._host_file)
-            launcher.run(stdout=outfile, stderr=outfile)
-            if self._msr_save_path is not None:
-                msr_restore()
+
+            try:
+                launcher.run(stdout=outfile, stderr=outfile)
+            except (AttributeError, TypeError):
+                if self._msr_save_path is not None:
+                    self.msr_restore()
+                raise
 
     def get_report(self):
         return Report(self._report_path)
@@ -261,12 +265,15 @@ class TestLauncher(object):
         Snapshots all whitelisted MSRs using msrsave on all compute nodes
         that the job will be launched on.
         """
-        # Create the cache for the PlatformTopo on each compute node
         self._msr_save_path = '/tmp/geopm-msr-save-' + getpass.getuser()
         launch_command = 'msrsave ' + self._msr_save_path
         argv = shlex.split('dummy {} --geopm-ctl-disable -- {}'
                            .format(detect_launcher(), launch_command))
-        launcher = geopmpy.launcher.Factory().create(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
+        # We want to execute on every node so
+        # (argv, self._num_node, self._num_node, ...
+        # is intentional here and is the best we can do
+        # without a whitelist of node names
+        launcher = geopmpy.launcher.Factory().create(argv, self._num_node, self._num_node, self._cpu_per_rank, self._timeout,
                                                      self._time_limit, 'msr_save', self._node_list, self._host_file)
         launcher.run()
 
@@ -275,11 +282,14 @@ class TestLauncher(object):
         Restores all whitelisted MSRs using msrsave on all compute nodes
         that the job was launched on.
         """
-        # Create the cache for the PlatformTopo on each compute node
         if self._msr_save_path is not None:
             launch_command = 'msrsave -r ' + self._msr_save_path
             argv = shlex.split('dummy {} --geopm-ctl-disable -- {}'
                                .format(detect_launcher(), launch_command))
-            launcher = geopmpy.launcher.Factory().create(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
+            # We want to execute on every node so
+            # (argv, self._num_node, self._num_node, ...
+            # is intentional here and is the best we can do
+            # without a whitelist of node names
+            launcher = geopmpy.launcher.Factory().create(argv, self._num_node, self._num_node, self._cpu_per_rank, self._timeout,
                                                          self._time_limit, 'msr_save', self._node_list, self._host_file)
             launcher.run()
