@@ -247,6 +247,7 @@ src/geopm_version.h
 src/geopmagent_main.c
 src/geopmbench_main.cpp
 src/geopmctl_main.c
+src/geopmendpoint_main.cpp
 src/geopmpolicystore_main.cpp
 src/geopmread_main.cpp
 src/geopmwrite_main.cpp
