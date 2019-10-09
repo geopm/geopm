@@ -34,11 +34,6 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
-#ifdef __APPLE__
-#define _DARWIN_C_SOURCE
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#endif
 
 #include <algorithm>
 #include <iostream>
