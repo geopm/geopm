@@ -148,11 +148,7 @@ namespace geopm
 
     int ProfileThreadTableImp::cpu_idx(void)
     {
-#ifndef __APPLE__
         static thread_local int result = -1;
-#else
-        static __thread int result = -1;
-#endif
         if (result == -1) {
             result = geopm_sched_get_cpu();
             if (result >= geopm_sched_num_cpu()) {
