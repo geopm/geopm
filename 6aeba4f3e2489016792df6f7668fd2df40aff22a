@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd228569_7346e7de",
+        "filename": "src/Exception.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-10-09T16:58:26Z",
+      "side": 1,
+      "message": "afaik initialization here is thread safe",
+      "revId": "6aeba4f3e2489016792df6f7668fd2df40aff22a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
