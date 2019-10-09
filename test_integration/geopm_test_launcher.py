@@ -266,7 +266,11 @@ class TestLauncher(object):
         launch_command = 'msrsave ' + self._msr_save_path
         argv = shlex.split('dummy {} --geopm-ctl-disable -- {}'
                            .format(detect_launcher(), launch_command))
-        launcher = geopmpy.launcher.Factory().create(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
+        # We want to execute on every node so
+        # (argv, self._num_node, self._num_node, ...
+        # is intentional here and is the best we can do
+        # without a whitelist of node names
+        launcher = geopmpy.launcher.Factory().create(argv, self._num_node, self._num_node, self._cpu_per_rank, self._timeout,
                                                      self._time_limit, 'msr_save', self._node_list, self._host_file)
         launcher.run()
 
@@ -280,6 +284,10 @@ class TestLauncher(object):
             launch_command = 'msrsave -r ' + self._msr_save_path
             argv = shlex.split('dummy {} --geopm-ctl-disable -- {}'
                                .format(detect_launcher(), launch_command))
-            launcher = geopmpy.launcher.Factory().create(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
+            # We want to execute on every node so
+            # (argv, self._num_node, self._num_node, ...
+            # is intentional here and is the best we can do
+            # without a whitelist of node names
+            launcher = geopmpy.launcher.Factory().create(argv, self._num_node, self._num_node, self._cpu_per_rank, self._timeout,
                                                          self._time_limit, 'msr_save', self._node_list, self._host_file)
             launcher.run()
