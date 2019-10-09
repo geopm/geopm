@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71ac32d6_4e76b418",
+        "filename": "test_integration/geopm_test_launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-10-09T16:52:31Z",
+      "side": 1,
+      "message": "Don\u0027t we want these to only run once per node? Should we be using a list to map one rank per host?",
+      "revId": "5753cc8e264b0b5b9bf9a2ae9f250f9b4bc2fe33",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
