@@ -22,6 +22,30 @@
       "revId": "717e8b79f902a82aa1d7d54d43f83177a21b4280",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fec1c415_276611d9",
+        "filename": "test_integration/test_ee_stream_dgemm_mix.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-10-09T15:07:09Z",
+      "side": 1,
+      "message": "I see. That makes sense now. So we need to use it similar to checking errno? Checking for the state of a present exception is straight-forward. If we want to check for the absence of an error, we need to clear it before starting the operation we want to test.\n\nSo the issues we saw while using pdb were probably just left-over state from an earlier step in getting the debugger to that point the code?",
+      "parentUuid": "879473f0_6cb7f745",
+      "range": {
+        "startLine": 198,
+        "startChar": 4,
+        "endLine": 198,
+        "endChar": 19
+      },
+      "revId": "717e8b79f902a82aa1d7d54d43f83177a21b4280",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
