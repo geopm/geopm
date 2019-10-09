@@ -16,6 +16,24 @@
       "revId": "5753cc8e264b0b5b9bf9a2ae9f250f9b4bc2fe33",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0037097f_ff3cc975",
+        "filename": "test_integration/geopm_test_launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-10-09T16:57:21Z",
+      "side": 1,
+      "message": "yeah a node list would be the best solution and we\u0027ve discussed this but the feature doesn\u0027t exist presently and is to my knowledge not a priority",
+      "parentUuid": "71ac32d6_4e76b418",
+      "revId": "5753cc8e264b0b5b9bf9a2ae9f250f9b4bc2fe33",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
