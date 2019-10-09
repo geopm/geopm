@@ -70,6 +70,30 @@
       "revId": "717e8b79f902a82aa1d7d54d43f83177a21b4280",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "437e2308_8253f2c2",
+        "filename": "test_integration/test_ee_stream_dgemm_mix.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-10-09T23:49:53Z",
+      "side": 1,
+      "message": "https://cosmicpercolator.com/2016/01/13/exception-leaks-in-python-2-and-3/",
+      "parentUuid": "7e933518_bd181070",
+      "range": {
+        "startLine": 198,
+        "startChar": 4,
+        "endLine": 198,
+        "endChar": 19
+      },
+      "revId": "717e8b79f902a82aa1d7d54d43f83177a21b4280",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
