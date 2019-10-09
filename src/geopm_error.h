@@ -59,6 +59,9 @@ enum geopm_error_e {
 /* Convert error number into an error message */
 void geopm_error_message(int err, char *msg, size_t size);
 
+/* Get last error message from any GEOPM C API call */
+void geopm_error_message_last(char *msg_cstr, size_t size);
+
 #ifdef __cplusplus
 }
 #endif
