@@ -202,6 +202,14 @@ static int geopm_pmpi_init(const char *exec_name)
                 }
                 int err_final = MPI_Finalize();
                 err = err ? err : err_final;
+                if (err) {
+                    char err_msg[NAME_MAX];
+                    geopm_error_message_last(err_msg, NAME_MAX);
+                    if (strlen(err_msg) == 0) {
+                        geopm_error_message(err, err_msg, NAME_MAX);
+                    }
+                    fprintf(stderr, "Error: %s\n", err_msg);
+                }
                 exit(err);
             }
         }
@@ -266,13 +274,15 @@ static int geopm_pmpi_init(const char *exec_name)
             do_profile) {
             geopm_prof_init();
         }
-#ifdef GEOPM_DEBUG
+
         if (err) {
             char err_msg[NAME_MAX];
-            geopm_error_message(err, err_msg, NAME_MAX);
-            fprintf(stderr, "%s", err_msg);
+            geopm_error_message_last(err_msg, NAME_MAX);
+            if (strlen(err_msg) == 0) {
+                geopm_error_message(err, err_msg, NAME_MAX);
+            }
+            fprintf(stderr, "Error: %s\n", err_msg);
         }
-#endif
     }
     return err;
 }
