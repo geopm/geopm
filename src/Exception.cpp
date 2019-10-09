@@ -48,6 +48,15 @@
 
 extern "C"
 {
+    void geopm_error_message_last(char *msg_cstr, size_t size)
+    {
+       std::string msg(ErrorMessageLast::get().message());
+       strncpy(msg_cstr, msg.c_str(), size - 1);
+       if (msg.size() >= size) {
+           msg_cstr[size - 1] = '\0';
+       }
+    }
+
     void geopm_error_message(int err, char *msg, size_t size)
     {
         switch (err) {
@@ -172,40 +181,40 @@ namespace geopm
             const std::system_error *ex_sys = dynamic_cast<const std::system_error *>(&ex);
             const std::runtime_error *ex_rt = dynamic_cast<const std::runtime_error *>(&ex);
 
+            bool do_raise = false;
 #ifdef GEOPM_DEBUG
             do_print = true;
 #endif
+            std::string message;
             if (ex_geopm_signal) {
-                if (do_print) {
-                    std::cerr << "Error: " << ex_geopm_signal->what() << std::endl;
-                }
+                message = ex_geopm_signal->what();
                 err = ex_geopm->err_value();
-                raise(ex_geopm_signal->sig_value());
+                do_raise = true;
             }
             else if (ex_geopm) {
-                if (do_print) {
-                    std::cerr << "Error: " << ex_geopm->what() << std::endl;
-                }
+                message = ex_geopm->what();
                 err = ex_geopm->err_value();
             }
             else if (ex_sys) {
-                if (do_print) {
-                    std::cerr << "Error: " << ex_sys->what() << std::endl;
-                }
+                message = ex_sys->what();
                 err = ex_sys->code().value();
             }
             else if (ex_rt) {
-                if (do_print) {
-                    std::cerr << "Error: " << ex_rt->what() << std::endl;
-                }
+                message = ex_rt->what();
                 err = errno ? errno : GEOPM_ERROR_RUNTIME;
             }
             else {
-                if (do_print) {
-                    std::cerr << "Error: " << ex.what() << std::endl;
-                }
+                message = ex.what();
                 err = errno ? errno : GEOPM_ERROR_RUNTIME;
             }
+            ErrorMessageLast::get().update(message);
+            if (do_print) {
+                std::cerr << "Error: " << message << std::endl;
+            }
+            if (do_raise) {
+                raise(ex_geopm_signal->sig_value());
+            }
+
         }
 
         return err;
@@ -286,6 +295,35 @@ namespace geopm
     int SignalException::sig_value(void) const
     {
         return m_sig;
+    }
+
+    ErrorMessageLast &ErrorMessageLast::get(void)
+    {
+        static ErrorMessageLast instance;
+        return instance;
+    }
+
+    void ErrorMessageLast::update(const std::string &msg)
+    {
+        size_t num_copy = msg.size();
+        // Never touch last byte of member so string is always null
+        // terminated.
+        if (num_copy >= NAME_MAX - 1) {
+            num_copy = NAME_MAX - 2;
+        }
+        std::copy(msg.data(), msg.data() + num_copy, m_error_message);
+        m_error_message[num_copy] = '\0';
+    }
+
+    std::string ErrorMessageLast::message(void)
+    {
+        return m_error_message;
+
+    }
+
+    ErrorMessageLast::ErrorMessageLast()
+    {
+        std::fill(m_last_message, m_last_message + NAME_MAX, '\0');
     }
 
     static std::string error_message(int err)

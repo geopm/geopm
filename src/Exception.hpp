@@ -32,6 +32,7 @@
 #ifndef EXCEPTION_HPP_INCLUDE
 #define EXCEPTION_HPP_INCLUDE
 
+#include <limits.h>
 #include <string>
 #include <system_error>
 #include "geopm_error.h"
@@ -183,6 +184,21 @@ namespace geopm
             int sig_value(void) const;
         private:
             int m_sig;
+    };
+
+    class ErrorMessageLast
+    {
+        public:
+            static ErrorMessageLast &get(void);
+            void update(const std::string &msg);
+            std::string message(void);
+        private:
+            ErrorMessageLast();
+            virtual ~ErrorMessageLast() = default;
+            char m_last_message[NAME_MAX];
+        public:
+            ErrorMessageLast(const ErrorMessageLast &other) = delete;
+            void operator=(const ErrorMessageLast &other) = delete;
     };
 
 }
