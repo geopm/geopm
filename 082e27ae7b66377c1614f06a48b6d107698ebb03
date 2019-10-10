@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c2b2cba0_8fbff0ee",
+        "filename": "src/FrequencyMapAgent.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-10-10T16:29:19Z",
+      "side": 1,
+      "message": "I\u0027ve been thinking about this more while doing something similar for the EE agent. While shifting empty pairs so all NAN/NANs are at the end may make a dump easier to read, I think it might be surprising to potentially have data movement.\n\nI\u0027ll make the next revision just directly over policy and stop doing the reorders.",
+      "revId": "082e27ae7b66377c1614f06a48b6d107698ebb03",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
