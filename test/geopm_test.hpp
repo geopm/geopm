@@ -81,4 +81,25 @@
         GTEST_CONCAT_TOKEN_(geopm_expect_throw_message_fail, __LINE__):         \
             GTEST_NONFATAL_FAILURE_(GTEST_CONCAT_TOKEN_(throw_message, __LINE__).c_str())
 
+/// @brief Gtest matcher that checks whether a policy is equal to another
+class IsEqualToPolicyMatcher : public ::testing::MatcherInterface<std::vector<double> >
+{
+    public:
+        IsEqualToPolicyMatcher(const std::vector<double> &expected);
+
+        bool MatchAndExplain(std::vector<double> policy,
+                             ::testing::MatchResultListener *listener) const override;
+        void DescribeTo(std::ostream *os) const override;
+        void DescribeNegationTo(std::ostream *os) const override;
+
+    private:
+        std::vector<double> m_expected;
+};
+
+/// @brief Create a gtest matcher that checks for equality between two policies
+/// @details Policy vectors are equal if they are the same size, and all numeric
+///          values are equal across vectors. Two NAN values are considered equal.
+/// @param policy Policy to match against.
+::testing::Matcher<std::vector<double> > IsEqualToPolicy(const std::vector<double> &policy);
+
 #endif
