@@ -30,10 +30,63 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "geopm_test.hpp"
+
 #include "gtest/gtest.h"
 
 int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
+}
+
+IsEqualToPolicyMatcher::IsEqualToPolicyMatcher(const std::vector<double> &expected)
+    : m_expected(expected)
+{
+}
+
+bool IsEqualToPolicyMatcher::MatchAndExplain(std::vector<double> policy,
+                                             ::testing::MatchResultListener *listener) const
+{
+    bool is_match = true;
+    if (policy.size() != m_expected.size()) {
+        *listener << "expected size " << m_expected.size() << ", got size "
+                  << policy.size();
+        is_match = false;
+    }
+    else {
+        // Check for elementwise equality, allowing NANs to be equal to each other
+        for (size_t i = 0; i < policy.size(); ++i) {
+            if (std::isnan(policy[i]) != std::isnan(m_expected[i]) ||
+                (!std::isnan(policy[i]) && policy[i] != m_expected[i])) {
+                if (!is_match) {
+                    *listener << "; ";
+                }
+                *listener << "expected[" << i << "] = " << m_expected[i]
+                          << ", policy[" << i << "] = " << policy[i];
+                is_match = false;
+            }
+        }
+    }
+
+    return is_match;
+}
+
+// Describes the property of a value matching this matcher.
+// Example message: Expected: {...}
+void IsEqualToPolicyMatcher::DescribeTo(std::ostream *os) const
+{
+    *os << ::testing::PrintToString(m_expected);
+}
+
+// Describes the property of a value NOT matching this matcher.
+// Example message: Expected: not {...}
+void IsEqualToPolicyMatcher::DescribeNegationTo(std::ostream *os) const
+{
+    *os << "not " << ::testing::PrintToString(m_expected);
+}
+
+::testing::Matcher<std::vector<double> > IsEqualToPolicy(const std::vector<double> &policy)
+{
+    return MakeMatcher(new IsEqualToPolicyMatcher(policy));
 }
