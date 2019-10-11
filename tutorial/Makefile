@@ -54,58 +54,58 @@ MPICXX ?= mpicxx
 all: $(TUTORIAL_BIN) $(TUTORIAL_LIB)
 
 tutorial_0.o: tutorial_0.c
-	$(MPICC) -c $^ $(CFLAGS) -o $@
+	$(MPICC) $(CFLAGS) -c $^ -o $@
 
 tutorial_0: tutorial_0.o
-	$(MPICC) $^ $(LDFLAGS) -o $@
+	$(MPICC) $(LDFLAGS) $^ -o $@
 
 tutorial_1.o: tutorial_1.c
-	$(MPICC) -c $^ $(CFLAGS) -o $@
+	$(MPICC) $(CFLAGS) -c $^ -o $@
 
 tutorial_1: tutorial_1.o tutorial_region.o
-	$(MPICC) $^ $(LDFLAGS) -o $@
+	$(MPICC) $(LDFLAGS) $^ -o $@
 
 tutorial_2.o: tutorial_2.c
-	$(MPICC) -c $^ $(CFLAGS) -o $@
+	$(MPICC) $(CFLAGS) -c $^ -o $@
 
 tutorial_2: tutorial_2.o tutorial_region.o
-	$(MPICC) $^ $(LDFLAGS) -lgeopm -o $@
+	$(MPICC) $(LDFLAGS) -lgeopm $^ -o $@
 
 tutorial_3.o: tutorial_3.c
-	$(MPICC) -c $^ $(CFLAGS) -o $@
+	$(MPICC) $(CFLAGS) -c $^ -o $@
 
 tutorial_3: tutorial_3.o tutorial_region.o
-	$(MPICC) $^ $(LDFLAGS) -lgeopm -o $@
+	$(MPICC) $(LDFLAGS) -lgeopm $^ -o $@
 
 tutorial_4.o: tutorial_4.c
-	$(MPICC) -c $^ $(CFLAGS) -o $@
+	$(MPICC) $(CFLAGS) -c $^ -o $@
 
 tutorial_4: tutorial_4.o tutorial_region.o
-	$(MPICC) $^ $(LDFLAGS) -lgeopm -lstdc++ -o $@
+	$(MPICC) $(LDFLAGS) -lgeopm -lstdc++ $^ -o $@
 
 tutorial_5.o: tutorial_5.c
-	$(MPICC) -c $^ $(CFLAGS) -o $@
+	$(MPICC) $(CFLAGS) -c $^ -o $@
 
 tutorial_5: tutorial_5.o tutorial_region.o tutorial_region_prof.o
-	$(MPICC) $^ $(LDFLAGS) -lgeopm -lstdc++ -o $@
+	$(MPICC) $(LDFLAGS) -lgeopm -lstdc++ $^ -o $@
 
 tutorial_region.o: tutorial_region.c tutorial_region.h
-	$(MPICC) -c tutorial_region.c $(CFLAGS) -o $@
+	$(MPICC) $(CFLAGS) -c tutorial_region.c -o $@
 
 tutorial_region_prof.o: tutorial_region_prof.c tutorial_region.h
-	$(MPICC) -c tutorial_region_prof.c $(CFLAGS) -o $@
+	$(MPICC) $(CFLAGS) -c tutorial_region_prof.c -o $@
 
 agent/libgeopmagent_example_agent.so.0.0.0: agent/ExampleAgent.cpp agent/ExampleAgent.hpp
-	$(CXX) agent/ExampleAgent.cpp $(CXXFLAGS) -I ./agent $(GEOPM_PLUGIN_FLAGS) -o $@
+	$(CXX) $(CXXFLAGS) -I ./agent $(GEOPM_PLUGIN_FLAGS) agent/ExampleAgent.cpp -o $@
 
 iogroup/libgeopmiogroup_example_iogroup.so.0.0.0: iogroup/ExampleIOGroup.cpp iogroup/ExampleIOGroup.hpp
-	$(CXX) iogroup/ExampleIOGroup.cpp $(CXXFLAGS) -I ./iogroup $(GEOPM_PLUGIN_FLAGS) -o $@
+	$(CXX) $(CXXFLAGS) -I ./iogroup $(GEOPM_PLUGIN_FLAGS) iogroup/ExampleIOGroup.cpp -o $@
 
 plugin_load/alice/libgeopmiogroup_alice.so.0.0.0: plugin_load/alice/AliceIOGroup.cpp plugin_load/alice/AliceIOGroup.hpp
-	$(CXX) plugin_load/alice/AliceIOGroup.cpp $(CXXFLAGS) -I ./plugin_load/alice $(GEOPM_PLUGIN_FLAGS) -o $@
+	$(CXX) $(CXXFLAGS) -I ./plugin_load/alice $(GEOPM_PLUGIN_FLAGS) plugin_load/alice/AliceIOGroup.cpp -o $@
 
 plugin_load/bob/libgeopmiogroup_bob.so.0.0.0: plugin_load/bob/BobIOGroup.cpp plugin_load/bob/BobIOGroup.hpp
-	$(CXX) plugin_load/bob/BobIOGroup.cpp $(CXXFLAGS) -I ./plugin_load/bob $(GEOPM_PLUGIN_FLAGS) -o $@
+	$(CXX) $(CXXFLAGS) -I ./plugin_load/bob $(GEOPM_PLUGIN_FLAGS) plugin_load/bob/BobIOGroup.cpp -o $@
 
 clean:
 	rm -f $(TUTORIAL_BIN) $(TUTORIAL_LIB) *.o
