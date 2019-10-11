@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "64a2ba79_5204f2a4",
+        "filename": "ronn/geopm.7.ronn.in",
+        "patchSetId": 21
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-10-11T18:59:32Z",
+      "side": 1,
+      "message": "copy pasta error",
+      "range": {
+        "startLine": 257,
+        "startChar": 31,
+        "endLine": 257,
+        "endChar": 54
+      },
+      "revId": "54106c15e4768ca7377ad720ccf27ab7b7bf7347",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97297e1c_8cceb8cc",
+        "filename": "ronn/geopmlaunch.1.ronn",
+        "patchSetId": 21
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-10-11T18:59:32Z",
+      "side": 1,
+      "message": "rename coming",
+      "range": {
+        "startLine": 226,
+        "startChar": 3,
+        "endLine": 226,
+        "endChar": 23
+      },
+      "revId": "54106c15e4768ca7377ad720ccf27ab7b7bf7347",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
