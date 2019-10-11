@@ -1,0 +1,9 @@
+Verified+1: Daniel Wilson <daniel1.wilson@intel.com>
+Code-Review+2: Brad Geltz <brad.geltz@intel.com>
+Code-Review+1: Daniel Wilson <daniel1.wilson@intel.com>
+Klocwork+1: <fsp@intel.com>
+Submitted-by: Brad Geltz <brad.geltz@intel.com>
+Submitted-at: Fri, 11 Oct 2019 18:38:46 +0000
+Reviewed-on: https://review.gerrithub.io/c/geopm/geopm/+/468189
+Project: geopm/geopm
+Branch: refs/heads/dev
