@@ -1,0 +1,10 @@
+Verified+1: <fsp@intel.com>
+Verified+1: Daniel Wilson <daniel1.wilson@intel.com>
+Code-Review+2: Christopher Cantalupo <christopher.m.cantalupo@intel.com>
+Code-Review+1: Daniel Wilson <daniel1.wilson@intel.com>
+Klocwork+1: <fsp@intel.com>
+Submitted-by: Christopher Cantalupo <christopher.m.cantalupo@intel.com>
+Submitted-at: Mon, 14 Oct 2019 18:09:17 +0000
+Reviewed-on: https://review.gerrithub.io/c/geopm/geopm/+/470403
+Project: geopm/geopm
+Branch: refs/heads/dev
