@@ -50,6 +50,7 @@
 #include "MockTreeComm.hpp"
 #include "MockReporter.hpp"
 #include "MockTracer.hpp"
+#include "MockEnvironment.hpp"
 #include "Helper.hpp"
 #include "Agg.hpp"
 
@@ -137,12 +138,14 @@ class ControllerTest : public ::testing::Test
 {
     protected:
         void SetUp();
+        void TearDown();
 
         std::string m_agent_name = "temp";
         int m_num_send_up = 4;
         int m_num_send_down = 2;
         std::shared_ptr<MockComm> m_comm;
         ControllerTestMockPlatformIO m_platform_io;
+        MockEnvironment m_environment;
         std::shared_ptr<MockApplicationIO> m_application_io;
         MockTreeComm *m_tree_comm;
         MockReporter *m_reporter;
@@ -155,6 +158,7 @@ class ControllerTest : public ::testing::Test
         std::list<geopm_region_info_s> m_region_info;
         std::vector<std::pair<std::string, std::string> > m_agent_report;
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > m_region_names;
+        std::string m_file_policy_path = "ControllerTest_policy.json";
 };
 
 void ControllerTest::SetUp()
@@ -171,8 +175,59 @@ void ControllerTest::SetUp()
     m_reporter = new MockReporter();
     m_tracer = new MockTracer();
 
+    EXPECT_CALL(m_environment, do_policy()).WillRepeatedly(Return(false));
+
     // called during clean up
     EXPECT_CALL(m_platform_io, restore_control());
+}
+
+void ControllerTest::TearDown()
+{
+    unlink(m_file_policy_path.c_str());
+}
+
+TEST_F(ControllerTest, construct_with_file_policy)
+{
+    EXPECT_CALL(m_environment, policy()).WillOnce(Return(m_file_policy_path));
+    EXPECT_CALL(m_environment, do_policy()).WillRepeatedly(Return(true));
+    EXPECT_CALL(m_environment, agent())
+        .WillOnce(Return(m_agent_name));
+    EXPECT_CALL(m_environment, do_endpoint()).WillRepeatedly(Return(false));
+    std::ofstream file_policy(m_file_policy_path);
+    file_policy << "{}" << std::endl;
+    file_policy.close();
+
+    int num_level_ctl = 2;
+    int root_level = 2;
+    std::vector<int> fan_out = {2, 2};
+    ASSERT_EQ(root_level, (int)fan_out.size());
+
+    EXPECT_CALL(*m_tree_comm, num_level_controlled())
+        .WillOnce(Return(num_level_ctl));
+    EXPECT_CALL(*m_tree_comm, root_level())
+        .WillOnce(Return(root_level));
+    for (int level = 0; level < num_level_ctl; ++level) {
+        EXPECT_CALL(*m_tree_comm, level_size(level)).WillOnce(Return(fan_out[level]));
+    }
+    for (int level = 0; level < num_level_ctl + 1; ++level) {
+        auto tmp = new MockAgent();
+        EXPECT_CALL(*tmp, init(level, fan_out, true));
+        tmp->init(level, fan_out, true);
+        m_level_agent.push_back(tmp);
+
+        m_agents.emplace_back(m_level_agent[level]);
+    }
+    ASSERT_EQ(3u, m_level_agent.size());
+
+    Controller controller(m_comm, m_platform_io,
+                          m_environment, m_num_send_down, m_num_send_up,
+                          std::unique_ptr<MockTreeComm>(m_tree_comm),
+                          m_application_io,
+                          std::unique_ptr<MockReporter>(m_reporter),
+                          std::unique_ptr<MockTracer>(m_tracer),
+                          std::move(m_agents),
+                          {"A", "B"},
+                          nullptr);
 }
 
 TEST_F(ControllerTest, get_hostnames)
@@ -202,16 +257,19 @@ TEST_F(ControllerTest, get_hostnames)
     std::set<std::string> multi_node_list = {"node4", "node6", "node8", "node9"};
     auto multi_node_comm = std::make_shared<ControllerTestMockComm>(multi_node_list);
 
+    EXPECT_CALL(m_environment, agent())
+        .WillOnce(Return(m_agent_name));
+    EXPECT_CALL(m_environment, do_endpoint()).WillRepeatedly(Return(true));
+
     Controller controller(multi_node_comm, m_platform_io,
-                          m_agent_name, m_num_send_down, m_num_send_up,
+                          m_environment, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
                           m_application_io,
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::move(m_agents),
                           {},
-                          std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "/test_policy");
+                          std::unique_ptr<MockEndpointUser>(m_endpoint));
 
     EXPECT_CALL(*multi_node_comm, rank());
     std::set<std::string> result = controller.get_hostnames("node4");
@@ -230,16 +288,19 @@ TEST_F(ControllerTest, single_node)
         .WillOnce(Return(num_level_ctl));
     EXPECT_CALL(*m_tree_comm, root_level())
         .WillOnce(Return(root_level));
+    EXPECT_CALL(m_environment, agent())
+        .WillOnce(Return(m_agent_name));
+    EXPECT_CALL(m_environment, do_endpoint()).WillRepeatedly(Return(true));
+
     Controller controller(m_comm, m_platform_io,
-                          m_agent_name, m_num_send_down, m_num_send_up,
+                          m_environment, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
                           m_application_io,
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::move(m_agents),
                           {},
-                          std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "/test_policy");
+                          std::unique_ptr<MockEndpointUser>(m_endpoint));
 
     // setup trace
     std::vector<std::string> trace_names = {"COL1", "COL2"};
@@ -308,16 +369,19 @@ TEST_F(ControllerTest, two_level_controller_1)
     auto agent = new MockAgent();
     m_agents.emplace_back(agent);
 
+    EXPECT_CALL(m_environment, agent())
+        .WillOnce(Return(m_agent_name));
+    EXPECT_CALL(m_environment, do_endpoint()).WillRepeatedly(Return(true));
+
     Controller controller(m_comm, m_platform_io,
-                          m_agent_name, m_num_send_down, m_num_send_up,
+                          m_environment, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
                           m_application_io,
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::move(m_agents),
                           {},
-                          std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "/test_policy");
+                          std::unique_ptr<MockEndpointUser>(m_endpoint));
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     std::vector<std::function<std::string(double)> > trace_formats = {
@@ -406,16 +470,19 @@ TEST_F(ControllerTest, two_level_controller_2)
     }
     ASSERT_EQ(2u, m_level_agent.size());
 
+    EXPECT_CALL(m_environment, agent())
+        .WillOnce(Return(m_agent_name));
+    EXPECT_CALL(m_environment, do_endpoint()).WillRepeatedly(Return(true));
+
     Controller controller(m_comm, m_platform_io,
-                          m_agent_name, m_num_send_down, m_num_send_up,
+                          m_environment, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
                           m_application_io,
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::move(m_agents),
                           {},
-                          std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "/test_policy");
+                          std::unique_ptr<MockEndpointUser>(m_endpoint));
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     std::vector<std::function<std::string(double)> > trace_formats = {
@@ -513,16 +580,19 @@ TEST_F(ControllerTest, two_level_controller_0)
     }
     ASSERT_EQ(3u, m_level_agent.size());
 
+    EXPECT_CALL(m_environment, agent())
+        .WillOnce(Return(m_agent_name));
+    EXPECT_CALL(m_environment, do_endpoint()).WillRepeatedly(Return(true));
+
     Controller controller(m_comm, m_platform_io,
-                          m_agent_name, m_num_send_down, m_num_send_up,
+                          m_environment, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
                           m_application_io,
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::move(m_agents),
                           {},
-                          std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "/test_policy");
+                          std::unique_ptr<MockEndpointUser>(m_endpoint));
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     std::vector<std::function<std::string(double)> > trace_formats = {
