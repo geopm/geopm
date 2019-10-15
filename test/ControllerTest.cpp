@@ -137,6 +137,7 @@ class ControllerTest : public ::testing::Test
 {
     protected:
         void SetUp();
+        void TearDown();
 
         std::string m_agent_name = "temp";
         int m_num_send_up = 4;
@@ -155,6 +156,7 @@ class ControllerTest : public ::testing::Test
         std::list<geopm_region_info_s> m_region_info;
         std::vector<std::pair<std::string, std::string> > m_agent_report;
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > m_region_names;
+        std::string m_file_policy_path = "ControllerTest_policy.json";
 };
 
 void ControllerTest::SetUp()
@@ -173,6 +175,52 @@ void ControllerTest::SetUp()
 
     // called during clean up
     EXPECT_CALL(m_platform_io, restore_control());
+}
+
+void ControllerTest::TearDown()
+{
+    unlink(m_file_policy_path.c_str());
+}
+
+TEST_F(ControllerTest, construct_with_file_policy)
+{
+    std::ofstream file_policy(m_file_policy_path);
+    file_policy << "{}" << std::endl;
+    file_policy.close();
+
+    int num_level_ctl = 2;
+    int root_level = 2;
+    std::vector<int> fan_out = {2, 2};
+    ASSERT_EQ(root_level, (int)fan_out.size());
+
+    EXPECT_CALL(*m_tree_comm, num_level_controlled())
+        .WillOnce(Return(num_level_ctl));
+    EXPECT_CALL(*m_tree_comm, root_level())
+        .WillOnce(Return(root_level));
+    for (int level = 0; level < num_level_ctl; ++level) {
+        EXPECT_CALL(*m_tree_comm, level_size(level)).WillOnce(Return(fan_out[level]));
+    }
+    for (int level = 0; level < num_level_ctl + 1; ++level) {
+        auto tmp = new MockAgent();
+        EXPECT_CALL(*tmp, init(level, fan_out, true));
+        tmp->init(level, fan_out, true);
+        m_level_agent.push_back(tmp);
+
+        m_agents.emplace_back(m_level_agent[level]);
+    }
+    ASSERT_EQ(3u, m_level_agent.size());
+
+    Controller controller(m_comm, m_platform_io,
+                          m_agent_name, m_num_send_down, m_num_send_up,
+                          std::unique_ptr<MockTreeComm>(m_tree_comm),
+                          m_application_io,
+                          std::unique_ptr<MockReporter>(m_reporter),
+                          std::unique_ptr<MockTracer>(m_tracer),
+                          std::move(m_agents),
+                          {"A", "B"},
+                          m_file_policy_path, true,
+                          nullptr, "", false // endpoint
+                          );
 }
 
 TEST_F(ControllerTest, get_hostnames)
@@ -209,9 +257,10 @@ TEST_F(ControllerTest, get_hostnames)
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::move(m_agents),
-                          {},
+                          {}, "", false, // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "/test_policy");
+                          "", true  // endpoint
+                          );
 
     EXPECT_CALL(*multi_node_comm, rank());
     std::set<std::string> result = controller.get_hostnames("node4");
@@ -230,6 +279,7 @@ TEST_F(ControllerTest, single_node)
         .WillOnce(Return(num_level_ctl));
     EXPECT_CALL(*m_tree_comm, root_level())
         .WillOnce(Return(root_level));
+
     Controller controller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
@@ -237,9 +287,10 @@ TEST_F(ControllerTest, single_node)
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::move(m_agents),
-                          {},
+                          {}, "", false,  // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "/test_policy");
+                          "", true  // endpoint
+                          );
 
     // setup trace
     std::vector<std::string> trace_names = {"COL1", "COL2"};
@@ -315,9 +366,10 @@ TEST_F(ControllerTest, two_level_controller_1)
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::move(m_agents),
-                          {},
+                          {}, "", false, // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "/test_policy");
+                          "", true  // endpoint
+                          );
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     std::vector<std::function<std::string(double)> > trace_formats = {
@@ -413,9 +465,10 @@ TEST_F(ControllerTest, two_level_controller_2)
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::move(m_agents),
-                          {},
+                          {}, "", false, // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "/test_policy");
+                          "", true // endpoint
+                          );
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     std::vector<std::function<std::string(double)> > trace_formats = {
@@ -520,9 +573,10 @@ TEST_F(ControllerTest, two_level_controller_0)
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::move(m_agents),
-                          {},
+                          {}, "", false, // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "/test_policy");
+                          "", true // endpoint
+                          );
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     std::vector<std::function<std::string(double)> > trace_formats = {
