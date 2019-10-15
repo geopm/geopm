@@ -189,6 +189,11 @@ must be set prior to running configure:
     export MPICC=mpicc
     export MPICXX=mpicxx
 
+Python scripts are installed with distutils, which ensures the installed
+scripts refer to the same interpreter that was used by distutils. If you want
+the installed scripts to use a specific interpreter, make sure it is the
+default before starting installation.
+
 An RPM can be created on a RHEL or SUSE system with the
 
     make rpm
