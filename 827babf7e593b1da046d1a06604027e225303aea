@@ -47,6 +47,30 @@
       "revId": "827babf7e593b1da046d1a06604027e225303aea",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20983e16_25da5471",
+        "filename": "src/Exception.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-10-15T22:41:55Z",
+      "side": 1,
+      "message": "I was wondering that too, since it looks like we explicitly add -D_POSIX_C_SOURCE\u003d200809L to our CPPFLAGS, but only set _GNU_SOURCE for some files.\n\nRunning the compiler with -E -dM shows that the C++ compilers (verified on g++, icpc, and clang++) all automatically define _GNU_SOURCE. The C compilers (verivied gcc, icc, clang) do not.\n\nThis seems to be a work-around for some compatibility issues in libstdc++. https://gcc.gnu.org/onlinedocs/libstdc++/faq.html#faq.predefined",
+      "parentUuid": "0d657078_6ced279b",
+      "range": {
+        "startLine": 101,
+        "startChar": 57,
+        "endLine": 101,
+        "endChar": 60
+      },
+      "revId": "827babf7e593b1da046d1a06604027e225303aea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
