@@ -1079,11 +1079,6 @@ class FrequencyMapBaselineComparisonAnalysis(Analysis):
         """
         Run the frequency sweep, then run the desired comparison configuration.
         """
-        agent = 'frequency_map'
-        options = {'frequency_min': self._min_freq,
-                   'frequency_max': self._max_freq}
-        agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', agent, options)
-        agent_conf.write()
 
         # Run frequency sweep
         self._sweep_analysis.launch(launcher_name, args)
@@ -1091,6 +1086,12 @@ class FrequencyMapBaselineComparisonAnalysis(Analysis):
         # Set up min and max frequency
         self._min_freq = self._sweep_analysis._min_freq
         self._max_freq = self._sweep_analysis._max_freq
+
+        agent = 'frequency_map'
+        options = {'frequency_min': self._min_freq,
+                   'frequency_max': self._max_freq}
+        agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', agent, options)
+        agent_conf.write()
 
         # Set up environment variables
         self._setup_environment()
