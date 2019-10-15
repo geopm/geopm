@@ -48,91 +48,33 @@
 
 namespace geopm
 {
-    class ErrorMessageLast
+    class ErrorMessage
     {
         public:
-            static ErrorMessageLast &get(void);
-            void update(const std::string &msg);
-            std::string message(void);
+            static ErrorMessage &get(void);
+            void update(int error_value, const std::string &error_message);
+            std::string message_last(int error_value);
+            std::string message_fixed(int error_value);
         private:
-            ErrorMessageLast();
-            virtual ~ErrorMessageLast() = default;
+            ErrorMessage();
+            virtual ~ErrorMessage() = default;
+            const std::map<int, std::string> M_VALUE_MESSAGE_MAP;
+            int m_error_value;
             char m_error_message[NAME_MAX];
         public:
-            ErrorMessageLast(const ErrorMessageLast &other) = delete;
-            void operator=(const ErrorMessageLast &other) = delete;
+            ErrorMessage(const ErrorMessage &other) = delete;
+            void operator=(const ErrorMessage &other) = delete;
     };
 }
 
 extern "C"
 {
-    void geopm_error_message_last(char *msg_cstr, size_t size)
+    void geopm_error_message(int error_value, char *error_message, size_t message_size)
     {
-       std::string msg(geopm::ErrorMessageLast::get().message());
-       strncpy(msg_cstr, msg.c_str(), size - 1);
-       if (msg.size() >= size) {
-           msg_cstr[size - 1] = '\0';
-       }
-    }
-
-    void geopm_error_message(int err, char *msg, size_t size)
-    {
-        switch (err) {
-            case GEOPM_ERROR_RUNTIME:
-                strncpy(msg, "<geopm> Runtime error", size);
-                break;
-            case GEOPM_ERROR_LOGIC:
-                strncpy(msg, "<geopm> Logic error", size);
-                break;
-            case GEOPM_ERROR_INVALID:
-                strncpy(msg, "<geopm> Invalid argument", size);
-                break;
-            case GEOPM_ERROR_FILE_PARSE:
-                strncpy(msg, "<geopm> Unable to parse input file", size);
-                break;
-            case GEOPM_ERROR_LEVEL_RANGE:
-                strncpy(msg, "<geopm> Control hierarchy level is out of range", size);
-                break;
-            case GEOPM_ERROR_NOT_IMPLEMENTED:
-                strncpy(msg, "<geopm> Feature not yet implemented", size);
-                break;
-            case GEOPM_ERROR_PLATFORM_UNSUPPORTED:
-                strncpy(msg, "<geopm> Current platform not supported or unrecognized", size);
-                break;
-            case GEOPM_ERROR_MSR_OPEN:
-                strncpy(msg, "<geopm> Could not open MSR device", size);
-                break;
-            case GEOPM_ERROR_MSR_READ:
-                strncpy(msg, "<geopm> Could not read from MSR device", size);
-                break;
-            case GEOPM_ERROR_MSR_WRITE:
-                strncpy(msg, "<geopm> Could not write to MSR device", size);
-                break;
-            case GEOPM_ERROR_AGENT_UNSUPPORTED:
-                strncpy(msg, "<geopm> Specified Agent not supported or unrecognized", size);
-                break;
-            case GEOPM_ERROR_AFFINITY:
-                strncpy(msg, "<geopm> MPI ranks are not affinitized to distinct CPUs", size);
-                break;
-            case GEOPM_ERROR_NO_AGENT:
-                strncpy(msg, "<geopm> Requested agent is unavailable or invalid", size);
-                break;
-            case GEOPM_ERROR_DATA_STORE:
-                strncpy(msg, "<geopm> Encountered a data store error", size);
-                break;
-            default:
-#ifndef _GNU_SOURCE
-                int undef = strerror_r(err, msg, size);
-                if (undef && undef != ERANGE) {
-                    snprintf(msg, size, "<geopm> Unknown error: %i", err);
-                }
-#else
-                strncpy(msg, strerror_r(err, msg, size), size);
-#endif
-                break;
-        }
-        if (size > 0) {
-            msg[size-1] = '\0';
+        std::string msg(geopm::ErrorMessage::get().message_last(error_value));
+        strncpy(error_message, msg.c_str(), message_size - 1);
+        if (msg.size() >= message_size) {
+            error_message[message_size - 1] = '\0';
         }
     }
 
@@ -146,6 +88,25 @@ extern "C"
             err = GEOPM_ERROR_RUNTIME;
         }
         return err;
+    }
+
+    static std::string geopm_string_error(int error_value)
+    {
+        // Abstraction for GNU vs XSI definition of strerror_r()
+        std::string result;
+        char error_message[NAME_MAX];
+#ifndef _GNU_SOURCE
+        int undef = strerror_r(error_value, error_message, NAME_MAX);
+        if (undef && undef != ERANGE) {
+            result = "Unknown error: " +  std::to_string(err);
+        }
+        else {
+            result = error_message;
+        }
+#else
+        result = strerror_r(error_value, error_message, NAME_MAX);
+#endif
+        return result;
     }
 
     void geopm_error_destroy_shmem(void)
@@ -182,8 +143,6 @@ extern "C"
 
 namespace geopm
 {
-
-    static std::string error_message(int err);
 
     int exception_handler(std::exception_ptr eptr, bool do_print)
     {
@@ -223,21 +182,20 @@ namespace geopm
                 message = ex.what();
                 err = errno ? errno : GEOPM_ERROR_RUNTIME;
             }
-            ErrorMessageLast::get().update(message);
+            ErrorMessage::get().update(err, message);
             if (do_print) {
                 std::cerr << "Error: " << message << std::endl;
             }
             if (ex_geopm_signal) {
                 raise(ex_geopm_signal->sig_value());
             }
-
         }
 
         return err;
     }
 
     Exception::Exception(const std::string &what, int err, const char *file, int line)
-        : std::runtime_error(error_message(err) + (
+        : std::runtime_error(ErrorMessage::get().message_fixed(err) + (
                                  what.size() != 0 ? (std::string(": ") + what) : std::string("")) + (
                                  file != NULL ? (std::string(": at geopm/") + std::string(file) +
                                  std::string(":") + std::to_string(line)) : std::string("")))
@@ -313,40 +271,67 @@ namespace geopm
         return m_sig;
     }
 
-    ErrorMessageLast &ErrorMessageLast::get(void)
+    ErrorMessage::ErrorMessage()
+        : M_VALUE_MESSAGE_MAP{
+            {GEOPM_ERROR_RUNTIME, "Runtime error"},
+            {GEOPM_ERROR_LOGIC, "Logic error"},
+            {GEOPM_ERROR_INVALID, "Invalid argument"},
+            {GEOPM_ERROR_FILE_PARSE, "Unable to parse input file"},
+            {GEOPM_ERROR_LEVEL_RANGE, "Control hierarchy level is out of range"},
+            {GEOPM_ERROR_NOT_IMPLEMENTED, "Feature not yet implemented"},
+            {GEOPM_ERROR_PLATFORM_UNSUPPORTED, "Current platform not supported or unrecognized"},
+            {GEOPM_ERROR_MSR_OPEN, "Could not open MSR device"},
+            {GEOPM_ERROR_MSR_READ, "Could not read from MSR device"},
+            {GEOPM_ERROR_MSR_WRITE, "Could not write to MSR device"},
+            {GEOPM_ERROR_AGENT_UNSUPPORTED, "Specified Agent not supported or unrecognized"},
+            {GEOPM_ERROR_AFFINITY, "MPI ranks are not affinitized to distinct CPUs"},
+            {GEOPM_ERROR_NO_AGENT, "Requested agent is unavailable or invalid"},
+            {GEOPM_ERROR_DATA_STORE, "Encountered a data store error"}}
+        , m_error_value(0)
     {
-        static ErrorMessageLast instance;
+        std::fill(m_error_message, m_error_message + NAME_MAX, '\0');
+    }
+
+    ErrorMessage &ErrorMessage::get(void)
+    {
+        static ErrorMessage instance;
         return instance;
     }
 
-    void ErrorMessageLast::update(const std::string &msg)
+    void ErrorMessage::update(int error_value, const std::string &error_message)
     {
-        size_t num_copy = msg.size();
+        size_t num_copy = error_message.size();
         // Never touch last byte of member so string is always null
         // terminated.
         if (num_copy > NAME_MAX - 2) {
             num_copy = NAME_MAX - 2;
         }
-        std::copy(msg.data(), msg.data() + num_copy, m_error_message);
+        std::copy(error_message.data(), error_message.data() + num_copy, m_error_message);
         m_error_message[num_copy] = '\0';
+        m_error_value = error_value;
     }
 
-    std::string ErrorMessageLast::message(void)
+    std::string ErrorMessage::message_last(int error_value)
     {
-        return m_error_message;
+        if (error_value == m_error_value) {
+            return m_error_message;
+        }
+        else {
+            return message_fixed(error_value);
+        }
     }
 
-    ErrorMessageLast::ErrorMessageLast()
+    std::string ErrorMessage::message_fixed(int err)
     {
-        std::fill(m_error_message, m_error_message + NAME_MAX, '\0');
-    }
-
-    static std::string error_message(int err)
-    {
-        char tmp_msg[NAME_MAX];
         err = err ? err : GEOPM_ERROR_RUNTIME;
-        geopm_error_message(err, tmp_msg, sizeof(tmp_msg));
-        tmp_msg[NAME_MAX-1] = '\0';
-        return tmp_msg;
+        std::string result("<geopm> ");
+        auto it = M_VALUE_MESSAGE_MAP.find(err);
+        if (it != M_VALUE_MESSAGE_MAP.end()) {
+            result += it->second;
+        }
+        else {
+            result += geopm_string_error(err);
+        }
+        return result;
     }
 }
