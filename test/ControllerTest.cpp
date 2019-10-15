@@ -211,7 +211,7 @@ TEST_F(ControllerTest, get_hostnames)
                           std::move(m_agents),
                           {},
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "/test_policy");
+                          "", "/test_endpoint");
 
     EXPECT_CALL(*multi_node_comm, rank());
     std::set<std::string> result = controller.get_hostnames("node4");
@@ -239,7 +239,7 @@ TEST_F(ControllerTest, single_node)
                           std::move(m_agents),
                           {},
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "/test_policy");
+                          "", "/test_endpoint");
 
     // setup trace
     std::vector<std::string> trace_names = {"COL1", "COL2"};
@@ -317,7 +317,7 @@ TEST_F(ControllerTest, two_level_controller_1)
                           std::move(m_agents),
                           {},
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "/test_policy");
+                          "", "/test_endpoint");
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     std::vector<std::function<std::string(double)> > trace_formats = {
@@ -415,7 +415,7 @@ TEST_F(ControllerTest, two_level_controller_2)
                           std::move(m_agents),
                           {},
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "/test_policy");
+                          "", "/test_endpoint");
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     std::vector<std::function<std::string(double)> > trace_formats = {
@@ -522,7 +522,7 @@ TEST_F(ControllerTest, two_level_controller_0)
                           std::move(m_agents),
                           {},
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "/test_policy");
+                          "", "/test_endpoint");
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     std::vector<std::function<std::string(double)> > trace_formats = {
