@@ -1090,11 +1090,6 @@ class FrequencyMapBaselineComparisonAnalysis(Analysis):
         """
         Run the frequency sweep, then run the desired comparison configuration.
         """
-        agent = 'frequency_map'
-        options = {'frequency_min': self._min_freq,
-                   'frequency_max': self._max_freq}
-        agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', agent, options)
-        agent_conf.write()
 
         # Run frequency sweep
         self._sweep_analysis.launch(launcher_name, args)
@@ -1102,6 +1097,13 @@ class FrequencyMapBaselineComparisonAnalysis(Analysis):
         # Set up min and max frequency
         self._min_freq = self._sweep_analysis._min_freq
         self._max_freq = self._sweep_analysis._max_freq
+
+        agent = 'frequency_map'
+        options = {'frequency_min': self._min_freq,
+                   'frequency_max': self._max_freq}
+        agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', agent, options)
+        print agent_conf
+        agent_conf.write()
 
         # Set up environment variables
         self._setup_environment()
@@ -1142,7 +1144,7 @@ class FrequencyMapBaselineComparisonAnalysis(Analysis):
         sweep_summary_process, sweep_means_df, comp_df = process_output
         name = self._name + self._prefix_label()
         ref_freq_idx = 0 if self._enable_turbo else 1
-        sys.stdout.write(self._freq_pnames[ref_freq_idx][0] + '\n')
+        sys.stdout.write('{}\n'.format(self._freq_pnames[ref_freq_idx][0]))
         ref_freq = int(self._freq_pnames[ref_freq_idx][0] * 1e-6)
 
         rs = 'Summary for {}\n\n'.format(name)
@@ -1292,8 +1294,8 @@ class EnergyEfficientAgentAnalysis(Analysis):
         sweep_summary_process, sweep_means_df, comp_df = process_output
         name = self._name + '_' + self._mode
         ref_freq_idx = 0 #if self._enable_turbo else 1  # todo: does not work when min==max frequency
-        sys.stdout.write(self._freq_pnames + '\n')
-        sys.stdout.write(self._freq_pnames[ref_freq_idx][0] + '\n')
+        sys.stdout.write('{}\n'.format(self._freq_pnames))
+        sys.stdout.write('{}\n'.format(self._freq_pnames[ref_freq_idx][0]))
         ref_freq = int(self._freq_pnames[ref_freq_idx][0] * 1e-6)
 
         rs = 'Summary for {}\n\n'.format(name)
