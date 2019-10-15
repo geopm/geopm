@@ -52,13 +52,13 @@ import signal
 import itertools
 import glob
 import shlex
-import stat
 import textwrap
 import io
 import locale
 
 from collections import OrderedDict
 from geopmpy import __version__
+
 
 class Factory(object):
     def __init__(self):
@@ -153,6 +153,7 @@ class Config(object):
         parser.add_argument('--geopm-trace', dest='trace', type=str)
         parser.add_argument('--geopm-trace-signals', dest='trace_signals', type=str)
         parser.add_argument('--geopm-trace-profile', dest='trace_profile', type=str)
+        parser.add_argument('--geopm-trace-endpoint-policy', dest='trace_endpoint_policy', type=str)
         parser.add_argument('--geopm-profile', dest='profile', type=str)
         parser.add_argument('--geopm-ctl', dest='ctl', type=str, default='process')
         parser.add_argument('--geopm-agent', dest='agent', type=str)
@@ -177,6 +178,7 @@ class Config(object):
         self.report = opts.report
         self.trace = opts.trace
         self.trace_profile = opts.trace_profile
+        self.trace_endpoint_policy = opts.trace_endpoint_policy
         self.trace_signals = opts.trace_signals
         self.report_signals = opts.report_signals
         self.agent = opts.agent
@@ -232,6 +234,8 @@ class Config(object):
             result['GEOPM_TRACE'] = self.trace
         if self.trace_profile:
             result['GEOPM_TRACE_PROFILE'] = self.trace_profile
+        if self.trace_endpoint_policy:
+            result['GEOPM_TRACE_ENDPOINT_POLICY'] = self.trace_endpoint_policy
         if self.trace_signals:
             result['GEOPM_TRACE_SIGNALS'] = self.trace_signals
         if self.report_signals:
@@ -1038,6 +1042,7 @@ class IMPIExecLauncher(Launcher):
     application mpiexec.hydra.
     """
     _is_once = True
+
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None,
                  reservation=None):
@@ -1106,7 +1111,6 @@ class IMPIExecLauncher(Launcher):
             self.environ_ext['KMP_WARNINGS'] = 'FALSE'
 
             aff_list = self.affinity_list(is_geopmctl)
-            num_mask = len(aff_list)
             mask_zero = ['0' for ii in range(self.num_linux_cpu)]
             mask_list = []
             for cpu_set in aff_list:
@@ -1150,7 +1154,7 @@ class IMPIExecLauncher(Launcher):
             if IMPIExecLauncher._is_once:
                 sys.stderr.write('<geopmpy.launcher> Warning: Hosts not defined, GEOPM may fail to start.  '
                                  'Use "-f <host_file>" or "-hosts" to specify the hostnames of the compute nodes.\n')
-                IMPIExecLauncher._is_once = False;
+                IMPIExecLauncher._is_once = False
 
         if self.is_slurm_enabled:
             result += ['-bootstrap', 'slurm']
@@ -1333,7 +1337,11 @@ GEOPM_OPTIONS:
                                comma-separated list of signals to add to report
       --geopm-trace=path       create geopm trace files with base name "path"
       --geopm-trace-profile=path
-                               create geopm profile trace files with base name "path"
+                               create geopm profile trace files with base name
+                               "path"
+      --geopm-trace-endpoint-policy="path"
+                               create geopm endpoint policy trace files with
+                               base name "path"
       --geopm-trace-signals=signals
                                comma-separated list of signals to add as columns
                                in the trace
@@ -1345,8 +1353,11 @@ GEOPM_OPTIONS:
       --geopm-agent=agent      specify the agent to be used
       --geopm-policy=pol       use the geopm policy file or shared memory
                                region "pol"
-      --geopm-shmkey=key       use shared memory keys for geopm starting with
+      --geopm-endpoint=endpoint
+                               use shared memory keys for endpoint starting with
                                "key"
+      --geopm-shmkey=key       use shared memory keys for geopm profile interaction
+                               starting with "key"
       --geopm-timeout=sec      application waits "sec" seconds for handshake
                                with geopm
       --geopm-plugin-path=path look for geopm plugins in "path", a : separated
@@ -1363,7 +1374,6 @@ GEOPM_OPTIONS:
 {}
 
 """.format(wrapper.fill(launchers))
-    indent_str = '      '
 
     try:
         # Print geopm help or version if it appears that documentation was requested
@@ -1385,6 +1395,7 @@ GEOPM_OPTIONS:
         sys.stderr.write("<geopmpy.launcher> {err}\n".format(err=e))
         err = -1
     return err
+
 
 if __name__ == '__main__':
     err = main()

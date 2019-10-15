@@ -101,7 +101,22 @@ namespace geopm
                              {"GEOPM_DEBUG_ATTACH", "-1"}})
     {
         parse_environment_file(default_settings_path);
+        // Special handling for GEOPM_POLICY and
+        // GEOPM_ENDPOINT: If user provides GEOPM_POLICY
+        // through environment or command line args,
+        // GEOPM_ENDPOINT from the default environment only
+        // should be disabled.  GEOPM_ENDPOINT can still be
+        // overridden through later override settings.
+        std::string default_endpoint = endpoint();
+        bool have_default_endpoint = is_set("GEOPM_ENDPOINT");
+        if (have_default_endpoint) {
+            m_name_value_map.erase(m_name_value_map.find("GEOPM_ENDPOINT"));
+        }
         parse_environment();
+        if (have_default_endpoint && !is_set("GEOPM_ENDPOINT") && !is_set("GEOPM_POLICY")) {
+            // restore default endpoint only if user did not pass GEOPM_POLICY
+            m_name_value_map["GEOPM_ENDPOINT"] = default_endpoint;
+        }
         parse_environment_file(override_settings_path);
     }
 
@@ -111,10 +126,12 @@ namespace geopm
                 "GEOPM_REPORT",
                 "GEOPM_COMM",
                 "GEOPM_POLICY",
+                "GEOPM_ENDPOINT",
                 "GEOPM_AGENT",
                 "GEOPM_SHMKEY",
                 "GEOPM_TRACE",
                 "GEOPM_TRACE_PROFILE",
+                "GEOPM_TRACE_ENDPOINT_POLICY",
                 "GEOPM_PLUGIN_PATH",
                 "GEOPM_REGION_BARRIER",
                 "GEOPM_TIMEOUT",
@@ -211,6 +228,11 @@ namespace geopm
         return lookup("GEOPM_POLICY");
     }
 
+    std::string EnvironmentImp::endpoint(void) const
+    {
+        return lookup("GEOPM_ENDPOINT");
+    }
+
     std::string EnvironmentImp::agent(void) const
     {
         return lookup("GEOPM_AGENT");
@@ -233,6 +255,11 @@ namespace geopm
     std::string EnvironmentImp::trace_profile(void) const
     {
         return lookup("GEOPM_TRACE_PROFILE");
+    }
+
+    std::string EnvironmentImp::trace_endpoint_policy(void) const
+    {
+        return lookup("GEOPM_TRACE_ENDPOINT_POLICY");
     }
 
     std::string EnvironmentImp::profile(void) const
@@ -290,6 +317,16 @@ namespace geopm
         return ret;
     }
 
+    bool EnvironmentImp::do_policy(void) const
+    {
+        return is_set("GEOPM_POLICY");
+    }
+
+    bool EnvironmentImp::do_endpoint(void) const
+    {
+        return is_set("GEOPM_ENDPOINT");
+    }
+
     bool EnvironmentImp::do_region_barrier(void) const
     {
         return is_set("GEOPM_REGION_BARRIER");
@@ -303,6 +340,11 @@ namespace geopm
     bool EnvironmentImp::do_trace_profile(void) const
     {
         return is_set("GEOPM_TRACE_PROFILE");
+    }
+
+    bool EnvironmentImp::do_trace_endpoint_policy(void) const
+    {
+        return is_set("GEOPM_TRACE_ENDPOINT_POLICY");
     }
 
     bool EnvironmentImp::do_profile(void) const
