@@ -110,12 +110,14 @@ namespace geopm
     {
         return {"GEOPM_CTL",
                 "GEOPM_REPORT",
+                "GEOPM_REPORT_SIGNALS",
                 "GEOPM_COMM",
                 "GEOPM_POLICY",
                 "GEOPM_ENDPOINT",
                 "GEOPM_AGENT",
                 "GEOPM_SHMKEY",
                 "GEOPM_TRACE",
+                "GEOPM_TRACE_SIGNALS",
                 "GEOPM_TRACE_PROFILE",
                 "GEOPM_TRACE_ENDPOINT_POLICY",
                 "GEOPM_PLUGIN_PATH",
@@ -124,9 +126,7 @@ namespace geopm
                 "GEOPM_DEBUG_ATTACH",
                 "GEOPM_PROFILE",
                 "GEOPM_FREQUENCY_MAP",
-                "GEOPM_MAX_FAN_OUT",
-                "GEOPM_TRACE_SIGNALS",
-                "GEOPM_REPORT_SIGNALS"};
+                "GEOPM_MAX_FAN_OUT"};
     }
 
     void EnvironmentImp::parse_environment()
