@@ -540,7 +540,7 @@ class Launcher(object):
         launched on.  This is used to inform CPU affinity assignment.
         """
         # Create the cache for the PlatformTopo on each compute node
-        argv = shlex.split('dummy {} --geopm-ctl-disable -- geopmread --cache'.format(self.launcher_command()))
+        argv = shlex.split('dummy {} --geopm-ctl-disable -- geopmread --cache'.format(self.__class__.__name__))
         factory = Factory()
         launcher = factory.create(argv, self.num_node, self.num_node,
                                   host_file=self.host_file,
@@ -552,7 +552,7 @@ class Launcher(object):
         # than one node and the node list is passed.  We should run lscpu on all the nodes in the
         # allocation and check that the node topology is uniform across all nodes used by the job
         # instead of just running on one node.
-        argv = shlex.split('dummy {} --geopm-ctl-disable -- lscpu --hex'.format(self.launcher_command()))
+        argv = shlex.split('dummy {} --geopm-ctl-disable -- lscpu --hex'.format(self.__class__.__name__))
         launcher = factory.create(argv, 1, 1,
                                   host_file=self.host_file,
                                   node_list=self.node_list,
