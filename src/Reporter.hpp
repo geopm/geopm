@@ -102,11 +102,20 @@ namespace geopm
     class ReporterImp : public Reporter
     {
         public:
-            ReporterImp(const std::string &start_time, const std::string &report_name,
-                        PlatformIO &platform_io, const PlatformTopo &platform_topo, int rank);
-            ReporterImp(const std::string &start_time, const std::string &report_name,
-                        PlatformIO &platform_io, const PlatformTopo &platform_topo, int rank,
-                        std::unique_ptr<RegionAggregator> agg, const std::string &env_signal);
+            ReporterImp(const std::string &start_time,
+                        const std::string &report_name,
+                        PlatformIO &platform_io,
+                        const PlatformTopo &platform_topo,
+                        int rank);
+            ReporterImp(const std::string &start_time,
+                        const std::string &report_name,
+                        PlatformIO &platform_io,
+                        const PlatformTopo &platform_topo,
+                        int rank,
+                        std::unique_ptr<RegionAggregator> agg,
+                        const std::string &env_signal,
+                        const std::string &policy_path,
+                        bool do_endpoint);
             virtual ~ReporterImp() = default;
             void init(void) override;
             void update(void) override;
@@ -133,6 +142,8 @@ namespace geopm
             int m_clk_ref_idx;
             std::vector<std::pair<std::string, int> > m_env_signal_name_idx;
             const std::string m_env_signals;
+            const std::string m_policy_path;
+            bool m_do_endpoint;
     };
 }
 

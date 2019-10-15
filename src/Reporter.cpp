@@ -64,18 +64,33 @@
 
 namespace geopm
 {
-    ReporterImp::ReporterImp(const std::string &start_time, const std::string &report_name,
-                       PlatformIO &platform_io, const PlatformTopo &platform_topo, int rank)
-        : ReporterImp(start_time, report_name, platform_io, platform_topo, rank,
+    ReporterImp::ReporterImp(const std::string &start_time,
+                             const std::string &report_name,
+                             PlatformIO &platform_io,
+                             const PlatformTopo &platform_topo,
+                             int rank)
+        : ReporterImp(start_time,
+                      report_name,
+                      platform_io,
+                      platform_topo,
+                      rank,
                       std::unique_ptr<RegionAggregator>(new RegionAggregatorImp),
-                      environment().report_signals())
+                      environment().report_signals(),
+                      environment().policy(),
+                      environment().do_endpoint())
     {
 
     }
 
-    ReporterImp::ReporterImp(const std::string &start_time, const std::string &report_name,
-                             PlatformIO &platform_io, const PlatformTopo &platform_topo, int rank,
-                             std::unique_ptr<RegionAggregator> agg, const std::string &env_signals)
+    ReporterImp::ReporterImp(const std::string &start_time,
+                             const std::string &report_name,
+                             PlatformIO &platform_io,
+                             const PlatformTopo &platform_topo,
+                             int rank,
+                             std::unique_ptr<RegionAggregator> agg,
+                             const std::string &env_signals,
+                             const std::string &policy_path,
+                             bool do_endpoint)
         : m_start_time(start_time)
         , m_report_name(report_name)
         , m_platform_io(platform_io)
@@ -83,6 +98,8 @@ namespace geopm
         , m_region_agg(std::move(agg))
         , m_rank(rank)
         , m_env_signals(env_signals)
+        , m_policy_path(policy_path)
+        , m_do_endpoint(do_endpoint)
     {
 
     }
@@ -159,12 +176,15 @@ namespace geopm
             master_report << "Profile: " << application_io.profile_name() << std::endl;
             master_report << "Agent: " << agent_name << std::endl;
             std::string policy_str = "{}";
-            if (environment().policy().size() > 0) {
+            if (m_do_endpoint) {
+                policy_str = "DYNAMIC";
+            }
+            else if (m_policy_path.size() > 0) {
                 try {
-                    policy_str = read_file(environment().policy());
+                    policy_str = read_file(m_policy_path);
                 }
                 catch(...) {
-                    policy_str = "DYNAMIC";
+                    policy_str = m_policy_path;
                 }
             }
             master_report << "Policy: " << policy_str << std::endl;
