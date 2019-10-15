@@ -34,6 +34,24 @@
       "revId": "e1382b88748df2bf3b5585ae538d0e3e63ba02a2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "559632c0_15363918",
+        "filename": "src/Exception.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-10-15T22:34:12Z",
+      "side": 1,
+      "message": "just use a mutex bro",
+      "parentUuid": "c9f6b569_8266d530",
+      "revId": "e1382b88748df2bf3b5585ae538d0e3e63ba02a2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
