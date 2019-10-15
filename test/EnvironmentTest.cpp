@@ -416,3 +416,37 @@ TEST_F(EnvironmentTest, invalid_ctl)
 
     EXPECT_THROW(m_env->pmpi_ctl(), geopm::Exception);
 }
+
+TEST_F(EnvironmentTest, default_endpoint_user_policy)
+{
+    std::map<std::string, std::string> default_vars = {
+        {"GEOPM_ENDPOINT", "endpoint-default_value"}
+    };
+    setenv("GEOPM_POLICY", "policy-user_value", 1);
+    std::map<std::string, std::string> override_vars;
+    vars_to_json(default_vars, M_DEFAULT_PATH);
+    vars_to_json(override_vars, M_OVERRIDE_PATH);
+
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+
+    EXPECT_EQ("", m_env->endpoint());
+    EXPECT_EQ("policy-user_value", m_env->policy());
+}
+
+TEST_F(EnvironmentTest, default_endpoint_user_policy_override_endpoint)
+{
+    std::map<std::string, std::string> default_vars = {
+        {"GEOPM_ENDPOINT", "endpoint-default_value"}
+    };
+    setenv("GEOPM_POLICY", "policy-user_value", 1);
+    std::map<std::string, std::string> override_vars = {
+        {"GEOPM_ENDPOINT", "endpoint-override_value"}
+    };
+    vars_to_json(default_vars, M_DEFAULT_PATH);
+    vars_to_json(override_vars, M_OVERRIDE_PATH);
+
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+
+    EXPECT_EQ("endpoint-override_value", m_env->endpoint());
+    EXPECT_EQ("policy-user_value", m_env->policy());
+}

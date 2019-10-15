@@ -223,6 +223,17 @@ listed below.
   set in the environment.  See the ENVIRONMENT section of
   **geopm(7)**.
 
+* `--geopm-trace-endpoint-policy` path:
+  The path to the endpoint policy trace file generated if this option
+  is specified.  This file tracks only policies sent through the
+  endpoint at the root controller, not all policies within the
+  controller tree.  If `--geopm-endpoint` is not provided, or if the
+  agent does not have any policy values, this file will not be
+  created.  This option is used by the launcher to set the
+  GEOPM_TRACE_ENDPOINT_POLICY environment variable.  The command line
+  option will override any value currently set in the environment.
+  See the ENVIRONMENT section of **geopm(7)**.
+
 * `--geopm-profile` name:
   The name of the profile which is printed in the report and trace
   files.  This name can be used to index the data in post-processing.
@@ -285,6 +296,18 @@ listed below.
   **geopm_agent_c(3)** for more information about how to create this
   input file.  This option is used by the launcher to set the
   GEOPM_POLICY environment variable.  The command line option will
+  override any value currently set in the environment.  See the
+  ENVIRONMENT section of **geopm(7)**.
+
+* `--geopm-endpoint` endpoint:
+  Prefix for shared memory keys used by the endpoint.  The endpoint
+  will be used to receive policies dynamically from the resource
+  manager.  Refer to **geopm_endpoint_c(3)** for more detail.  If this
+  option is provided, the GEOPM controller will also send samples to
+  the endpoint at runtime, depending on the Agent selected.  This
+  option overrides the use of `--geopm-policy` to receive policy
+  values.  This option is used by the launcher to set the
+  GEOPM_ENDPOINT environment variable.  The command line option will
   override any value currently set in the environment.  See the
   ENVIRONMENT section of **geopm(7)**.
 

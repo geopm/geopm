@@ -128,6 +128,8 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/EnvironmentTest.default_and_override \
               test/gtest_links/EnvironmentTest.user_default_and_override \
               test/gtest_links/EnvironmentTest.invalid_ctl \
+              test/gtest_links/EnvironmentTest.default_endpoint_user_policy \
+              test/gtest_links/EnvironmentTest.default_endpoint_user_policy_override_endpoint \
               test/gtest_links/EpochRuntimeRegulatorTest.all_ranks_enter_exit \
               test/gtest_links/EpochRuntimeRegulatorTest.epoch_runtime \
               test/gtest_links/EpochRuntimeRegulatorTest.invalid_ranks \
