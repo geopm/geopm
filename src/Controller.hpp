@@ -76,7 +76,8 @@ namespace geopm
                        std::vector<std::unique_ptr<Agent> > level_agent,
                        std::vector<std::string> policy_names,
                        std::unique_ptr<EndpointUser> endpoint,
-                       const std::string &policy_path);
+                       const std::string &policy_path,
+                       const std::string &endpoint_key);
             virtual ~Controller();
             /// @brief Run control algorithm.
             ///
