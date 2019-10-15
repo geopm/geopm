@@ -52,6 +52,7 @@ namespace geopm
     class Tracer;
     class TreeComm;
     class Agent;
+    class Environment;
 
     class Controller
     {
@@ -66,7 +67,7 @@ namespace geopm
             ///        versions of internal objects.
             Controller(std::shared_ptr<Comm> comm,
                        PlatformIO &plat_io,
-                       const std::string &agent_name,
+                       const Environment &environment,
                        int num_send_up,
                        int num_send_down,
                        std::unique_ptr<TreeComm> tree_comm,
@@ -75,8 +76,7 @@ namespace geopm
                        std::unique_ptr<Tracer> tracer,
                        std::vector<std::unique_ptr<Agent> > level_agent,
                        std::vector<std::string> policy_names,
-                       std::unique_ptr<EndpointUser> endpoint,
-                       const std::string &policy_path);
+                       std::unique_ptr<EndpointUser> endpoint);
             virtual ~Controller();
             /// @brief Run control algorithm.
             ///
@@ -169,9 +169,8 @@ namespace geopm
             std::vector<double> m_trace_sample;
 
             std::unique_ptr<EndpointUser> m_endpoint;
+            bool m_do_endpoint;
             std::unique_ptr<FilePolicy> m_file_policy;
-            std::string m_policy_path;
-            bool m_is_dynamic_policy;
 
             std::vector<std::string> m_agent_policy_names;
             std::vector<std::string> m_agent_sample_names;
