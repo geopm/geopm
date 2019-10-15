@@ -55,8 +55,8 @@ namespace geopm
 
     EndpointPolicyTracerImp::EndpointPolicyTracerImp()
         : EndpointPolicyTracerImp(1024 * 1024 * sizeof(char),
-                                  environment().do_trace_profile(),
-                                  environment().trace_profile() + "-policy",
+                                  environment().do_trace_endpoint_policy(),
+                                  environment().trace_endpoint_policy(),
                                   platform_io(),
                                   Agent::policy_names(agent_factory().dictionary(environment().agent())))
     {
