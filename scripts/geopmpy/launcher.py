@@ -551,9 +551,11 @@ class Launcher(object):
         # Create the cache for the PlatformTopo on each compute node
         argv = shlex.split('dummy {} --geopm-ctl-disable -- geopmread --cache'.format(self.__class__.__name__))
         factory = Factory()
-        launcher = factory.create(argv, self.num_node, self.num_node,
-                                  host_file=self.host_file,
+        launcher = factory.create(argv, num_rank=self.num_node, num_node=self.num_node,
+                                  cpu_per_rank=1, timeout=self.timeout,
+                                  time_limit=self.time_limit, job_name='init_topo_geopmread_cache',
                                   node_list=self.node_list,
+                                  host_file=self.host_file,
                                   reservation=self.reservation)
         launcher.run()
         # Query the topology for Launcher calculations by running lscpu on one node.
@@ -563,8 +565,10 @@ class Launcher(object):
         # instead of just running on one node.
         argv = shlex.split('dummy {} --geopm-ctl-disable -- lscpu --hex'.format(self.__class__.__name__))
         launcher = factory.create(argv, 1, 1,
-                                  host_file=self.host_file,
+                                  cpu_per_rank=1, timeout=self.timeout,
+                                  time_limit=self.time_limit, job_name='init_topo_lscpu',
                                   node_list=self.node_list,
+                                  host_file=self.host_file,
                                   reservation=self.reservation)
         ostream = io.StringIO()
         launcher.run(stdout=ostream)
