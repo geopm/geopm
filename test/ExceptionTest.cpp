@@ -147,7 +147,7 @@ TEST_F(ExceptionTest, last_message)
     }
     geopm_error_message(GEOPM_ERROR_RUNTIME, message_cstr, 256);
     message = message_cstr;
-    std::string expect_long("<geopm> Runtime error: " + too_long.substr(0, 230));
+    std::string expect_long("<geopm> Runtime error: " + too_long.substr(0, 231));
     EXPECT_EQ(expect_long, message);
 
     // Check that we get the short message when no exception was thrown
