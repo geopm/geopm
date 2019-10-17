@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b21876d2_2de99eda",
+        "filename": "src/EnergyEfficientRegion.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-10-17T16:49:06Z",
+      "side": 1,
+      "message": "This revision has a big chunk of duplicate code. Maintenance between now and removal would be less risky if it just emitted the warning and called the new functions that serve this function\u0027s old purpose.",
+      "revId": "771a20591bdeba054b3b16341786eb60d8023697",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4afc9d0_2666e2ff",
+        "filename": "src/EnergyEfficientRegion.hpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-10-17T16:49:06Z",
+      "side": 1,
+      "message": "The thing that previously confused me on read-through was the sign change. I think mentioning that this is unitless and that a good metric evaluates greater than a bad metric might serve as an indicator that it is intended to map to any arbitrary metric for performance.",
+      "range": {
+        "startLine": 55,
+        "startChar": 45,
+        "endLine": 55,
+        "endChar": 80
+      },
+      "revId": "771a20591bdeba054b3b16341786eb60d8023697",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
