@@ -363,6 +363,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/ControllerTest.cpp \
                           test/CpuinfoIOGroupTest.cpp \
                           test/CSVTest.cpp \
+                          test/DaemonTest.cpp \
                           test/DebugIOGroupTest.cpp \
                           test/EndpointTest.cpp \
                           test/EndpointUserTest.cpp \
@@ -383,6 +384,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/MockApplicationIO.hpp \
                           test/MockComm.hpp \
                           test/MockControlMessage.hpp \
+                          test/MockEndpoint.hpp \
                           test/MockEndpointUser.hpp \
                           test/MockEnergyEfficientRegion.hpp \
                           test/MockEpochRuntimeRegulator.hpp \
@@ -390,6 +392,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/MockIOGroup.hpp \
                           test/MockPlatformIO.hpp \
                           test/MockPlatformTopo.hpp \
+                          test/MockPolicyStore.hpp \
                           test/MockPowerBalancer.hpp \
                           test/MockPowerGovernor.hpp \
                           test/MockProfileIOSample.hpp \
