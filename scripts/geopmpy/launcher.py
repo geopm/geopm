@@ -343,9 +343,19 @@ class Launcher(object):
             self.config = None
             self.is_geopm_enabled = False
             self.is_override_enabled = False
+        self.is_slurm_enabled = False
         self.parse_launcher_argv()
 
         self.cpu_per_rank = None
+        if os.getenv('SLURM_NNODES'):
+            self.is_slurm_enabled = True
+        if (self.is_geopm_enabled and
+            self.is_slurm_enabled and
+            self.config.get_ctl() == 'application' and
+            os.getenv('SLURM_NNODES') != str(self.num_node)):
+            raise RuntimeError('When using srun and specifying --geopm-ctl=application call must be made ' +
+                               'inside of an salloc or sbatch environment and application must run on all allocated nodes.')
+
         is_cpu_per_rank_override = False
 
         # Override values if they are passed in construction call
@@ -808,12 +818,18 @@ class Launcher(object):
         """
         raise NotImplementedError('Launcher.get_idle_nodes() undefined in the base class')
 
+
     def get_alloc_nodes(self):
         """
         Returns a list of the names of compute nodes that have been
-        reserved by a scheduler for current job context.
+        reserved by a scheduler for current job context using the
+        sinfo command.
+
         """
-        raise NotImplementedError('Launcher.get_alloc_nodes() undefined in the base class')
+        if self.is_slurm_enabled:
+            return subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).decode().splitlines()
+        else:
+            raise NotImplementedError('Idle nodes feature requires use with SLURM')
 
 
 class SrunLauncher(Launcher):
@@ -1345,18 +1361,6 @@ class IMPIExecLauncher(Launcher):
         """
         if self.is_slurm_enabled:
             return subprocess.check_output('sinfo -t idle -hNo %N | uniq', shell=True).decode().splitlines()
-        else:
-            raise NotImplementedError('Idle nodes feature requires use with SLURM')
-
-    def get_alloc_nodes(self):
-        """
-        Returns a list of the names of compute nodes that have been
-        reserved by a scheduler for current job context using the
-        sinfo command.
-
-        """
-        if self.is_slurm_enabled:
-            return subprocess.check_output('sinfo -t alloc -hNo %N', shell=True).decode().splitlines()
         else:
             raise NotImplementedError('Idle nodes feature requires use with SLURM')
 
