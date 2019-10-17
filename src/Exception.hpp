@@ -37,16 +37,6 @@
 #include "geopm_error.h"
 
 
-extern "C"
-{
-    /// @brief Unlinks all shared memory keys in case of error.
-    ///
-    /// Looks in /dev/shm for any keys starting with "/geopm-shm" or
-    /// the GEOPM_SHMKEY environment variable if set.  All matching
-    /// keys are unlinked with shm_unlink().
-    void geopm_error_destroy_shmem(void);
-}
-
 namespace geopm
 {
     /// @brief Handle a thrown exception and return an error value.

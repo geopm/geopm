@@ -36,7 +36,6 @@
 #include <unistd.h>
 #include <limits.h>
 
-#include "geopm_signal_handler.h"
 #include "geopm_time.h"
 #include "Exception.hpp"
 #include "Helper.hpp"
@@ -61,7 +60,6 @@ namespace geopm
             geopm_time_s start;
             geopm_time(&start);
             do {
-                geopm_signal_handler_check();
                 if (this_status() == M_STATUS_ABORT) {
                     throw Exception("ControlMessageImp::wait(): Abort sent through control message",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -97,7 +95,6 @@ namespace geopm
         geopm_time_s start;
         geopm_time(&start);
         while (this_status() != m_last_status && geopm_time_since(&start) < M_WAIT_SEC) {
-            geopm_signal_handler_check();
             if (this_status() == M_STATUS_ABORT) {
                 throw Exception("ControlMessageImp::wait(): Abort sent through control message",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -161,14 +158,14 @@ namespace geopm
     {
         if (m_is_ctl) {
             while (m_ctl_msg.app_status != M_STATUS_NAME_LOOP_BEGIN) {
-                geopm_signal_handler_check();
+
             }
             m_ctl_msg.ctl_status = M_STATUS_NAME_LOOP_BEGIN;
         }
         else {
             m_ctl_msg.app_status = M_STATUS_NAME_LOOP_BEGIN;
             while (m_ctl_msg.ctl_status != M_STATUS_NAME_LOOP_BEGIN) {
-                geopm_signal_handler_check();
+
             }
         }
         m_last_status = M_STATUS_NAME_LOOP_BEGIN;
