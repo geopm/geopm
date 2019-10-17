@@ -88,6 +88,9 @@ src/CpuinfoIOGroup.cpp
 src/CpuinfoIOGroup.hpp
 src/CSV.cpp
 src/CSV.hpp
+src/Daemon.cpp
+src/Daemon.hpp
+src/DaemonImp.hpp
 src/DebugIOGroup.cpp
 src/DebugIOGroup.hpp
 src/DefaultProfile.cpp
@@ -213,6 +216,7 @@ src/geopm.f90
 src/geopm.h
 src/geopm_agent.h
 src/geopm_ctl.h
+src/geopm_daemon.h
 src/geopm_endpoint.h
 src/geopm_error.h
 src/geopm_hash.c
@@ -255,6 +259,7 @@ test/ControlMessageTest.cpp
 test/ControllerTest.cpp
 test/CpuinfoIOGroupTest.cpp
 test/CSVTest.cpp
+test/DaemonTest.cpp
 test/DebugIOGroupTest.cpp
 test/ELFTest.cpp
 test/EndpointTest.cpp
@@ -282,6 +287,7 @@ test/MockAgent.hpp
 test/MockApplicationIO.hpp
 test/MockComm.hpp
 test/MockControlMessage.hpp
+test/MockEndpoint.hpp
 test/MockEndpointPolicyTracer.hpp
 test/MockEndpointUser.hpp
 test/MockEnergyEfficientRegion.hpp
@@ -290,6 +296,7 @@ test/MockFrequencyGovernor.hpp
 test/MockIOGroup.hpp
 test/MockPlatformIO.hpp
 test/MockPlatformTopo.hpp
+test/MockPolicyStore.hpp
 test/MockPowerBalancer.hpp
 test/MockPowerGovernor.hpp
 test/MockProfileIOSample.hpp
