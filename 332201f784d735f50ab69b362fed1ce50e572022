@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e5dc8e7_457f1024",
+        "filename": "src/EnergyEfficientRegion.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-10-17T17:33:42Z",
+      "side": 1,
+      "message": "Should we stop growing it at some point, or use a circular buffer? It seems like this would be unbounded in size by adding samples that never get removed them if learning has finished or disabled.",
+      "revId": "332201f784d735f50ab69b362fed1ce50e572022",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d44b2194_a9632c3f",
+        "filename": "src/EnergyEfficientRegion.hpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-10-17T17:33:42Z",
+      "side": 1,
+      "message": "Is this unused now?",
+      "range": {
+        "startLine": 86,
+        "startChar": 12,
+        "endLine": 86,
+        "endChar": 79
+      },
+      "revId": "332201f784d735f50ab69b362fed1ce50e572022",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
