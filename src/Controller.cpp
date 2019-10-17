@@ -37,7 +37,6 @@
 
 #include <algorithm>
 
-#include "geopm_signal_handler.h"
 #include "ApplicationIO.hpp"
 #include "Environment.hpp"
 #include "Reporter.hpp"
@@ -263,8 +262,6 @@ namespace geopm
 
     Controller::~Controller()
     {
-        geopm_signal_handler_check();
-        geopm_signal_handler_revert();
         m_platform_io.restore_control();
     }
 
@@ -332,37 +329,24 @@ namespace geopm
     void Controller::run(void)
     {
         m_application_io->connect();
-        geopm_signal_handler_check();
         create_agents();
-        geopm_signal_handler_check();
         m_platform_io.save_control();
-        geopm_signal_handler_check();
         init_agents();
-        geopm_signal_handler_check();
         m_reporter->init();
-        geopm_signal_handler_check();
         setup_trace();
-        geopm_signal_handler_check();
         m_application_io->controller_ready();
-        geopm_signal_handler_check();
 
         m_application_io->update(m_comm);
-        geopm_signal_handler_check();
         m_platform_io.read_batch();
-        geopm_signal_handler_check();
         m_tracer->update(m_trace_sample, m_application_io->region_info());
-        geopm_signal_handler_check();
         m_application_io->clear_region_info();
 
         while (!m_application_io->do_shutdown()) {
             step();
         }
         m_application_io->update(m_comm);
-        geopm_signal_handler_check();
         m_platform_io.read_batch();
-        geopm_signal_handler_check();
         m_tracer->update(m_trace_sample, m_application_io->region_info());
-        geopm_signal_handler_check();
         m_application_io->clear_region_info();
         generate();
         m_platform_io.restore_control();
@@ -390,12 +374,9 @@ namespace geopm
     void Controller::step(void)
     {
         walk_down();
-        geopm_signal_handler_check();
 
         walk_up();
-        geopm_signal_handler_check();
         m_agent[0]->wait();
-        geopm_signal_handler_check();
     }
 
     void Controller::walk_down(void)
