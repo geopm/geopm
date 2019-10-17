@@ -1200,59 +1200,6 @@ class TestIntegration(unittest.TestCase):
             self.assertLess(-0.1, runtime_savings_epoch)  # want -10% or better
             self.assertLess(0.0, energy_savings_epoch)
 
-    @util.skip_unless_slurm_batch()
-    def test_controller_signal_handling(self):
-        """
-        Check that Controller handles signals and cleans up.
-        """
-        name = 'test_controller_signal_handling'
-        report_path = name + '.report'
-        num_node = 4
-        num_rank = 8
-        app_conf = geopmpy.io.BenchConf(name + '_app.config')
-        self._tmp_files.append(app_conf.get_path())
-        app_conf.append_region('sleep', 30.0)
-        app_conf.write()
-
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
-        self._tmp_files.append(agent_conf.get_path())
-
-        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, fatal_test=True)
-        launcher.set_pmpi_ctl("application")
-        launcher.set_num_node(num_node)
-        launcher.set_num_rank(num_rank)
-
-        alloc_nodes = launcher.get_alloc_nodes()
-
-        kill_proc_list = [subprocess.Popen("ssh -vvv -o StrictHostKeyChecking=no -o BatchMode=yes {} ".format(nn) +
-                                           "'sleep 15; pkill --signal 15 geopmctl; sleep 5; pkill -9 geopmbench'",
-                                           shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                          for nn in alloc_nodes]
-
-        try:
-            launcher.run(name)
-        except subprocess.CalledProcessError:
-            pass
-
-        for kp in kill_proc_list:
-            stdout, stderr = kp.communicate()
-            err = kp.returncode
-            if err != 0:
-                launcher.write_log(name, "Output from SSH:")
-                launcher.write_log(name, stdout.decode())
-                launcher.write_log(name, stderr.decode())
-                self.skipTest(name + ' requires passwordless SSH between allocated nodes.')
-
-        message = "Error: <geopm> Runtime error: Signal 15"
-
-        logfile_name = name + '.log'
-        with open(logfile_name) as infile_fid:
-            found = False
-            for line in infile_fid:
-                if message in line:
-                    found = True
-        self.assertTrue(found, "runtime error message not found in log")
-
 
 class TestIntegrationGeopmio(unittest.TestCase):
     ''' Tests of geopmread and geopmwrite.'''

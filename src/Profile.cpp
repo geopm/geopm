@@ -47,7 +47,6 @@
 #include "geopm.h"
 #include "geopm_internal.h"
 #include "geopm_time.h"
-#include "geopm_signal_handler.h"
 #include "geopm_sched.h"
 #include "Environment.hpp"
 #include "PlatformTopo.hpp"

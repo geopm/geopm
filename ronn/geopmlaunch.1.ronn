@@ -294,11 +294,9 @@ listed below.
   collisions with keys that were not properly cleaned up.  The default
   key prefix is "geopm-shm".  A shared memory key must have no
   occurrences of the '/' character.  The base key is used as the
-  prefix for each shared memory region used by the runtime.  These
-  keys should be cleaned up by the exception handler in case of an
-  error or OS signal other than SIGKILL.  If the application is killed
-  with SIGKILL or the keys are left behind for any other reason, a
-  simple command to clean up after an aborted job is:
+  prefix for each shared memory region used by the runtime.  If the
+  keys are left behind, a simple command to clean up after an aborted
+  job is:
 
     `$ test -n "$GEOPM_SHMKEY" && rm -f /dev/shm${GEOPM_SHMKEY}* || rm -f /dev/shm/geopm-shm*`
 

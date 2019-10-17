@@ -37,9 +37,6 @@ geopm::Exception(3) -- custom geopm exceptions
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
-  * `void geopm_error_destroy_shmem(`:
-    `void);`
-
   * `int exception_handler(`:
     `std::exception_ptr `_eptr_`,`<br>
     `bool `_do_print_`);`
@@ -71,22 +68,7 @@ geopm::Exception(3) -- custom geopm exceptions
   * `~Exception(`:
     `void) = default;`
 
-  * `int err_value(`:
-    `void) const;`
-
-  * `SignalException(`:
-    `void);`
-
-  * `SignalException(`:
-    `int `_signum_`);`
-
-  * `SignalException(`:
-    `const SignalException &`_other_`);`
-
-  * `~SignalException(`:
-    `void);`
-
-  * `int sig_value(`:
+  * `int Exception::err_value(`:
     `void) const;`
 
 ## DESCRIPTION
@@ -96,13 +78,7 @@ according to the error code.  The list of errors is described in
 **errno(3)**), negative values are GEOPM errors.  If zero is specified
 for the error code, GEOPM_ERROR_RUNTIME (-1) is assumed.
 
-## CLASS METHODS
-
-  * `geopm_error_destroy_shmem`():
-    Unlinks all shared memory keys in case of error.  Looks in
-    /dev/shm for any keys starting with "/geopm-shm" or the
-    GEOPM_SHMKEY environment variable if set.  All matching keys are
-    unlinked with shm_unlink().
+## FUNCTIONS
 
   * `exception_handler`():
     Handle a thrown exception pointed to by _eptr_ and return an error
@@ -116,6 +92,8 @@ for the error code, GEOPM_ERROR_RUNTIME (-1) is assumed.
     the error message printed when debugging is enabled has more
     specific information than the message produced by
     geopm_error_message().
+
+## CLASS METHODS
 
   * `Exception`():
     Empty constructor.  Uses errno to determine the error code.
@@ -155,9 +133,6 @@ for the error code, GEOPM_ERROR_RUNTIME (-1) is assumed.
     documented in the system **errno(3)** man page.  A brief
     description of all error codes can be obtained with
     the geopm_error_message() interface.
-
-  * `sig_value`():
-    Returns the signal number associated with the SignalException.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
