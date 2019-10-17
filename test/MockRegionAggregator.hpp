@@ -33,6 +33,8 @@
 #ifndef MOCKREGIONAGGREGATOR_HPP_INCLUDE
 #define MOCKREGIONAGGREGATOR_HPP_INCLUDE
 
+#include "gmock/gmock.h"
+
 #include "RegionAggregator.hpp"
 
 class MockRegionAggregator : public geopm::RegionAggregator

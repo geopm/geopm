@@ -33,6 +33,8 @@
 #ifndef MOCKSAMPLESCHEDULER_HPP_INCLUDE
 #define MOCKSAMPLESCHEDULER_HPP_INCLUDE
 
+#include "gmock/gmock.h"
+
 #include "SampleScheduler.hpp"
 
 class MockSampleScheduler : public geopm::SampleScheduler

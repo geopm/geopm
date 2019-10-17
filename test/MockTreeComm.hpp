@@ -34,6 +34,10 @@
 #define MOCKTREECOMM_HPP_INCLUDE
 
 #include <set>
+#include <map>
+#include <vector>
+
+#include "gmock/gmock.h"
 
 #include "TreeComm.hpp"
 

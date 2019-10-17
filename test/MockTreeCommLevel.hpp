@@ -33,9 +33,6 @@
 #ifndef MOCKTREECOMMLEVEL_HPP_INCLUDE
 #define MOCKTREECOMMLEVEL_HPP_INCLUDE
 
-#include <vector>
-
-#include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
 #include "TreeCommLevel.hpp"

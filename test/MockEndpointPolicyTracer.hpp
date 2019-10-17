@@ -33,6 +33,8 @@
 #ifndef MOCKENDPOINTPOLICYTRACER_HPP_INCLUDE
 #define MOCKENDPOINTPOLICYTRACER_HPP_INCLUDE
 
+#include "gmock/gmock.h"
+
 #include "EndpointPolicyTracer.hpp"
 
 class MockEndpointPolicyTracer : public geopm::EndpointPolicyTracer

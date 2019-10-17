@@ -33,7 +33,6 @@
 #ifndef MOCKRUNTIMEREGULATOR_HPP_INCLUDE
 #define MOCKRUNTIMEREGULATOR_HPP_INCLUDE
 
-#include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
 #include "RuntimeRegulator.hpp"

@@ -33,7 +33,8 @@
 #ifndef MOCKPROFILEIOSAMPLE_HPP_INCLUDE
 #define MOCKPROFILEIOSAMPLE_HPP_INCLUDE
 
-#include "geopm.h"
+#include "gmock/gmock.h"
+
 #include "ProfileIOSample.hpp"
 
 class MockProfileIOSample : public geopm::ProfileIOSample {

@@ -33,9 +33,9 @@
 #ifndef MOCKTRACER_HPP_INCLUDE
 #define MOCKTRACER_HPP_INCLUDE
 
+#include "gmock/gmock.h"
+
 #include "Tracer.hpp"
-#include "PlatformIO.hpp"
-#include "geopm.h"
 
 class MockTracer : public geopm::Tracer
 {
