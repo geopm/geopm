@@ -38,14 +38,12 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <sys/mman.h>
-#include <signal.h>
 #include <limits.h>
 #include <iostream>
 #include <mutex>
 #include <algorithm>
 
 #include "Environment.hpp"
-#include "geopm_signal_handler.h"
 #include "config.h"
 
 namespace geopm
@@ -138,7 +136,6 @@ namespace geopm
             }
         }
         catch (const std::exception &ex) {
-            const geopm::SignalException *ex_geopm_signal = dynamic_cast<const geopm::SignalException *>(&ex);
             const geopm::Exception *ex_geopm = dynamic_cast<const geopm::Exception *>(&ex);
             const std::system_error *ex_sys = dynamic_cast<const std::system_error *>(&ex);
 
@@ -146,10 +143,7 @@ namespace geopm
             do_print = true;
 #endif
             std::string message(ex.what());
-            if (ex_geopm_signal) {
-                err = ex_geopm_signal->err_value();
-            }
-            else if (ex_geopm) {
+            if (ex_geopm) {
                 err = ex_geopm->err_value();
             }
             else if (ex_sys) {
@@ -158,9 +152,6 @@ namespace geopm
             ErrorMessage::get().update(err, message);
             if (do_print) {
                 std::cerr << "Error: " << message << std::endl;
-            }
-            if (ex_geopm_signal) {
-                raise(ex_geopm_signal->sig_value());
             }
         }
 
@@ -211,37 +202,6 @@ namespace geopm
     int Exception::err_value(void) const
     {
         return m_err;
-    }
-
-
-    SignalException::SignalException()
-        : SignalException(0)
-    {
-
-    }
-
-    SignalException::SignalException(const SignalException &other)
-        : Exception(other)
-        , m_sig(other.m_sig)
-    {
-
-    }
-
-    SignalException::SignalException(int signum)
-        : Exception(std::string("Signal ") + std::to_string(signum) + std::string(" raised"), errno ? errno : GEOPM_ERROR_RUNTIME)
-        , m_sig(signum)
-    {
-
-    }
-
-    SignalException::~SignalException()
-    {
-
-    }
-
-    int SignalException::sig_value(void) const
-    {
-        return m_sig;
     }
 
     ErrorMessage::ErrorMessage()

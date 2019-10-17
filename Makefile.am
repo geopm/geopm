@@ -544,7 +544,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/SharedMemoryScopedLock.cpp \
                             src/SharedMemoryScopedLock.hpp \
                             src/SharedMemoryUser.hpp \
-                            src/SignalHandler.cpp \
                             src/TimeIOGroup.cpp \
                             src/TimeIOGroup.hpp \
                             src/Tracer.cpp \
@@ -566,7 +565,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/geopm_plugin.cpp \
                             src/geopm_sched.c \
                             src/geopm_sched.h \
-                            src/geopm_signal_handler.h \
                             src/geopm_time.h \
                             src/geopm_topo.h \
                             src/geopm_version.c \

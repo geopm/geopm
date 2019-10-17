@@ -46,7 +46,6 @@
 
 #include "geopm_internal.h"
 #include "geopm_time.h"
-#include "geopm_signal_handler.h"
 #include "geopm_sched.h"
 #include "Environment.hpp"
 #include "Helper.hpp"
@@ -190,7 +189,7 @@ namespace geopm
                 m_ctl_msg->step();
                 while (!m_ctl_msg->is_name_begin() &&
                        !m_ctl_msg->is_shutdown()) {
-                    geopm_signal_handler_check();
+
                 }
                 if (m_ctl_msg->is_name_begin()) {  // M_STATUS_NAME_BEGIN
                     region_names();
