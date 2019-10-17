@@ -78,7 +78,8 @@ include_HEADERS = src/geopm.h \
                   src/geopm_version.h \
                   # end
 if ENABLE_BETA
-    include_HEADERS += src/geopm_endpoint.h \
+    include_HEADERS += src/geopm_daemon.h \
+                       src/geopm_endpoint.h \
                        src/geopm_policystore.h \
                        # end
 endif
@@ -111,7 +112,8 @@ pkginclude_HEADERS = contrib/json11/json11.hpp \
                      # end
 
 if ENABLE_BETA
-    pkginclude_HEADERS += src/Endpoint.hpp \
+    pkginclude_HEADERS += src/Daemon.hpp \
+                          src/Endpoint.hpp \
                           # end
 endif
 
@@ -199,8 +201,10 @@ ronn_man_noinst = man/GEOPM_CXX_MAN_Comm.3 \
 ronn_man_beta = man/geopmanalysis.1 \
                 man/geopmendpoint.1 \
                 man/geopmplotter.1 \
+                man/geopm_daemon_c.3 \
                 man/geopm_endpoint_c.3 \
                 man/geopm_policystore_c.3 \
+                man/GEOPM_CXX_MAN_Daemon.3 \
                 man/GEOPM_CXX_MAN_Endpoint.3 \
                 # end
 
@@ -264,6 +268,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/GEOPM_CXX_MAN_CNLIOGroup.3.ronn \
              ronn/GEOPM_CXX_MAN_Comm.3.ronn \
              ronn/GEOPM_CXX_MAN_CpuinfoIOGroup.3.ronn \
+             ronn/GEOPM_CXX_MAN_Daemon.3.ronn \
              ronn/GEOPM_CXX_MAN_Endpoint.3.ronn \
              ronn/GEOPM_CXX_MAN_EnergyEfficientAgent.3.ronn \
              ronn/GEOPM_CXX_MAN_EnergyEfficientRegion.3.ronn \
@@ -295,6 +300,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/geopm_agent_power_balancer.7.ronn \
              ronn/geopm_agent_power_governor.7.ronn \
              ronn/geopm_ctl_c.3.ronn \
+             ronn/geopm_daemon_c.3.ronn \
              ronn/geopm_endpoint_c.3.ronn \
              ronn/geopm_error.3.ronn \
              ronn/geopm_fortran.3.ronn \
@@ -584,18 +590,19 @@ else
                   #end
 endif
 
+beta_source_files = src/Daemon.cpp \
+                    src/Daemon.hpp \
+                    src/DaemonImp.hpp \
+                    src/PolicyStore.cpp \
+                    src/PolicyStore.hpp \
+                    src/PolicyStoreImp.cpp \
+                    src/PolicyStoreImp.hpp \
+                    #end
+
 if ENABLE_BETA
-    libgeopmpolicy_la_SOURCES += src/PolicyStore.cpp \
-                                 src/PolicyStore.hpp \
-                                 src/PolicyStoreImp.cpp \
-                                 src/PolicyStoreImp.hpp \
-                                 #end
+    libgeopmpolicy_la_SOURCES += $(beta_source_files)
 else
-    EXTRA_DIST += src/PolicyStore.cpp \
-                  src/PolicyStore.hpp \
-                  src/PolicyStoreImp.cpp \
-                  src/PolicyStoreImp.hpp \
-                  #end
+    EXTRA_DIST += $(beta_source_files)
 endif
 
 geopmread_SOURCES = src/geopmread_main.cpp \

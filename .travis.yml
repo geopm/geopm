@@ -56,7 +56,7 @@ before_install:
 install:
     - PYENV_VERSION=2.7 pip install --user -r ./scripts/requirements.txt
     - PYENV_VERSION=3.6 pip install --user -r ./scripts/requirements.txt
-    - ./configure --disable-fortran --enable-debug --prefix=$GEOPM_INSTALL_ROOT
+    - ./configure --disable-fortran --enable-debug --enable-beta --prefix=$GEOPM_INSTALL_ROOT
 
 cache:
     directories:

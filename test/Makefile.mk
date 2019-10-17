@@ -324,7 +324,9 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               # end
 
 if ENABLE_BETA
-    GTEST_TESTS += test/gtest_links/PolicyStoreImpTest.self_consistent \
+    GTEST_TESTS += test/gtest_links/DaemonTest.get_default_policy \
+                   test/gtest_links/DaemonTest.get_profile_policy \
+                   test/gtest_links/PolicyStoreImpTest.self_consistent \
                    test/gtest_links/PolicyStoreImpTest.update_policy \
                    test/gtest_links/PolicyStoreImpTest.table_precedence \
                    # end
@@ -389,6 +391,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/MockApplicationIO.hpp \
                           test/MockComm.hpp \
                           test/MockControlMessage.hpp \
+                          test/MockEndpoint.hpp \
                           test/MockEndpointPolicyTracer.hpp \
                           test/MockEndpointUser.hpp \
                           test/MockEnergyEfficientRegion.hpp \
@@ -436,10 +439,16 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/geopm_test.cpp \
                           test/geopm_test.hpp \
                           # end
+
+beta_test_sources = test/DaemonTest.cpp \
+                    test/MockPolicyStore.hpp \
+                    test/PolicyStoreImpTest.cpp \
+                    # end
+
 if ENABLE_BETA
-    test_geopm_test_SOURCES += test/PolicyStoreImpTest.cpp
+    test_geopm_test_SOURCES += $(beta_test_sources)
 else
-    EXTRA_DIST += test/PolicyStoreImpTest.cpp
+    EXTRA_DIST += $(beta_test_sources)
 endif
 
 if ENABLE_OMPT
