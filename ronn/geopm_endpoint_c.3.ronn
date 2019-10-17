@@ -33,7 +33,7 @@ geopm_endpoint_c(3) -- dynamic policy control for resource management
 
 ## SYNOPSIS
 
-**\#include [<geopm_endpoint.h>](https://github.com/geopm/geopm/blob/dev/src/geopm_agent.h)**
+**\#include [<geopm_endpoint.h>](https://github.com/geopm/geopm/blob/dev/src/geopm_endpoint.h)**
 
 `Link with -lgeopmpolicy`
 
@@ -194,11 +194,6 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
 
 ## SEE ALSO
 **geopm(7)**,
-**geopm_agent_energy_efficient(7)**,
-**geopm_agent_monitor(7)**,
-**geopm_agent_power_balancer(7)**,
-**geopm_agent_power_governor(7)**,
-**geopm_agent_c(3)**,
 **geopm_error(3)**,
-**geopmagent(1)**,
+**geopm::Endpoint(3)**,
 **geopmendpoint(1)**
