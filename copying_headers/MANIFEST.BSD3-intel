@@ -281,6 +281,7 @@ test/MockComm.hpp
 test/MockControlMessage.hpp
 test/MockEndpointUser.hpp
 test/MockEnergyEfficientRegion.hpp
+test/MockEnvironment.hpp
 test/MockEpochRuntimeRegulator.hpp
 test/MockFrequencyGovernor.hpp
 test/MockIOGroup.hpp

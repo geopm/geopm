@@ -369,6 +369,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/MockControlMessage.hpp \
                           test/MockEndpointUser.hpp \
                           test/MockEnergyEfficientRegion.hpp \
+                          test/MockEnvironment.hpp \
                           test/MockEpochRuntimeRegulator.hpp \
                           test/MockFrequencyGovernor.hpp \
                           test/MockIOGroup.hpp \
