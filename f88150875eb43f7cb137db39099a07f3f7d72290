@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8476bb95_e91f151f",
+        "filename": "src/Daemon.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-10-18T20:42:34Z",
+      "side": 1,
+      "message": "enforce_profile_policy?\nenforce_policy_for_profile",
+      "revId": "f88150875eb43f7cb137db39099a07f3f7d72290",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fedeb4d5_74c49003",
+        "filename": "src/Daemon.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-10-18T20:42:34Z",
+      "side": 1,
+      "message": "wait_for_agent_attach() -\u003e into Endpoint?\nis_agent_attached() -\u003e equivalent to get_agent()",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 9
+      },
+      "revId": "f88150875eb43f7cb137db39099a07f3f7d72290",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
