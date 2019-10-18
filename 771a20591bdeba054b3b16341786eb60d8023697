@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "d0994f0c_bd3eac64",
+        "filename": "src/EnergyEfficientAgent.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-10-18T02:39:38Z",
+      "side": 1,
+      "message": "does this need to go here in region entry?  The only behavior was to do this at region exit, so I\u0027m wondering about the reason for the change.",
+      "revId": "771a20591bdeba054b3b16341786eb60d8023697",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b21876d2_2de99eda",
         "filename": "src/EnergyEfficientRegion.cpp",
         "patchSetId": 25
