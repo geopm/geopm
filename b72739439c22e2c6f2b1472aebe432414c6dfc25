@@ -1,0 +1,141 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "daf41d42_ea0d3e1d",
+        "filename": "ronn/geopmlaunch.1.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-10-18T19:25:02Z",
+      "side": 1,
+      "message": "mention that this is not related to GEOPM_SHMKEY",
+      "revId": "b72739439c22e2c6f2b1472aebe432414c6dfc25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27b9f13a_c6d48319",
+        "filename": "ronn/geopmlaunch.1.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-10-18T19:25:02Z",
+      "side": 1,
+      "message": "except endpoint",
+      "range": {
+        "startLine": 315,
+        "startChar": 42,
+        "endLine": 315,
+        "endChar": 50
+      },
+      "revId": "b72739439c22e2c6f2b1472aebe432414c6dfc25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08ea0980_610f6b41",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 1359,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-10-18T19:25:02Z",
+      "side": 1,
+      "message": "geopm-application profile interaction only",
+      "range": {
+        "startLine": 1359,
+        "startChar": 58,
+        "endLine": 1359,
+        "endChar": 64
+      },
+      "revId": "b72739439c22e2c6f2b1472aebe432414c6dfc25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "653fea78_a389d71d",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-10-18T19:25:02Z",
+      "side": 1,
+      "message": "doesn\u0027t matter",
+      "revId": "b72739439c22e2c6f2b1472aebe432414c6dfc25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7333afc2_05c42017",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-10-18T19:25:02Z",
+      "side": 1,
+      "message": "move to ctor",
+      "revId": "b72739439c22e2c6f2b1472aebe432414c6dfc25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87305d80_74da4568",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-10-18T19:25:02Z",
+      "side": 1,
+      "message": "don\u0027t need",
+      "range": {
+        "startLine": 147,
+        "startChar": 46,
+        "endLine": 147,
+        "endChar": 60
+      },
+      "revId": "b72739439c22e2c6f2b1472aebe432414c6dfc25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73f953b0_37836311",
+        "filename": "src/Environment.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-10-18T19:25:02Z",
+      "side": 1,
+      "message": "add do_policy() and do_endpoint()",
+      "revId": "b72739439c22e2c6f2b1472aebe432414c6dfc25",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
