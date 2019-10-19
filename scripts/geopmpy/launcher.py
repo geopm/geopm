@@ -565,6 +565,9 @@ class Launcher(object):
                                   line.find('Thread(s) per core:') == 0 or
                                   line.find('Core(s) per socket:') == 0 or
                                   line.find('Socket(s):') == 0]
+        if len(cpu_tpc_core_socket) < 4:
+            raise RuntimeError('Unable to initialize platform topology with run command: '
+                               + str(argv))
         self.num_linux_cpu = cpu_tpc_core_socket[0]
         self.thread_per_core = cpu_tpc_core_socket[1]
         self.core_per_socket = cpu_tpc_core_socket[2]
