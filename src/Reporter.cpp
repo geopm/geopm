@@ -176,7 +176,7 @@ namespace geopm
         std::ostringstream report;
         report << "\nHost: " << hostname() << std::endl;
         for (const auto &kv : agent_host_report) {
-            report << kv.first << ": " << kv.second << std::endl;
+            report << "    " << kv.first << ": " << kv.second << std::endl;
         }
         // vector of region data, in descending order by runtime
         struct region_info {
@@ -227,27 +227,29 @@ namespace geopm
                                     GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
                 }
 #endif
-                report << "Region " << region.name << " (0x" << std::hex
+                report << "    Region " << region.name << " (0x" << std::hex
                        << std::setfill('0') << std::setw(16)
                        << region.hash << std::dec << "):"
                        << std::setfill('\0') << std::setw(0)
                        << std::endl;
             }
             else {
-                report << "Epoch Totals:"
+                report << "    Epoch Totals:"
                        << std::endl;
             }
             double sync_rt = m_region_agg->sample_total(m_region_bulk_runtime_idx, region.hash);
             double package_energy = m_region_agg->sample_total(m_energy_pkg_idx, region.hash);
             double power = sync_rt == 0 ? 0 : package_energy / sync_rt;
-            report << "    runtime (sec): " << region.per_rank_avg_runtime << std::endl;
-            report << "    sync-runtime (sec): " << sync_rt << std::endl;
-            report << "    package-energy (joules): " << package_energy << std::endl;
-            report << "    dram-energy (joules): " << m_region_agg->sample_total(m_energy_dram_idx, region.hash) << std::endl;
-            report << "    power (watts): " << power << std::endl;
+            report << "        runtime (sec): " << region.per_rank_avg_runtime << std::endl;
+            report << "        sync-runtime (sec): " << sync_rt << std::endl;
+            report << "        package-energy (joules): " << package_energy << std::endl;
+            report << "        dram-energy (joules): " << m_region_agg->sample_total(m_energy_dram_idx, region.hash) << std::endl;
+            report << "        power (watts): " << power << std::endl;
             double numer = m_region_agg->sample_total(m_clk_core_idx, region.hash);
             double denom = m_region_agg->sample_total(m_clk_ref_idx, region.hash);
             double freq = denom != 0 ? 100.0 * numer / denom : 0.0;
+            report << "        frequency (%): " << freq << std::endl;
+            report << "        frequency (Hz): " << freq / 100.0 * m_platform_io.read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0) << std::endl;
             double mpi_runtime = 0.0;
             if (GEOPM_REGION_HASH_EPOCH == region.hash ) {
                 mpi_runtime = application_io.total_epoch_runtime_mpi();
@@ -255,37 +257,35 @@ namespace geopm
             else {
                 mpi_runtime = application_io.total_region_runtime_mpi(region.hash);
             }
-            report << "    frequency (%): " << freq << std::endl;
-            report << "    frequency (Hz): " << freq / 100.0 * m_platform_io.read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0) << std::endl;
-            report << "    mpi-runtime (sec): " << mpi_runtime << std::endl;
-            report << "    count: " << region.count << std::endl;
+            report << "        mpi-runtime (sec): " << mpi_runtime << std::endl;
+            report << "        count: " << region.count << std::endl;
             for (const auto &env_it : m_env_signal_name_idx) {
-                report << "    " << env_it.first << ": " << m_region_agg->sample_total(env_it.second, region.hash) << std::endl;
+                report << "        " << env_it.first << ": " << m_region_agg->sample_total(env_it.second, region.hash) << std::endl;
             }
             const auto &it = agent_region_report.find(region.hash);
             if (it != agent_region_report.end()) {
                 for (const auto &kv : agent_region_report.at(region.hash)) {
-                    report << "    " << kv.first << ": " << kv.second << std::endl;
+                    report << "        " << kv.first << ": " << kv.second << std::endl;
                 }
             }
         }
         // extra runtimes for epoch region
-        report << "    epoch-runtime-ignore (sec): " << application_io.total_epoch_runtime_ignore() << std::endl;
+        report << "        epoch-runtime-ignore (sec): " << application_io.total_epoch_runtime_ignore() << std::endl;
 
         double total_runtime = application_io.total_app_runtime();
         double app_energy_pkg = application_io.total_app_energy_pkg();
         double avg_power = total_runtime == 0 ? 0 : app_energy_pkg / total_runtime;
-        report << "Application Totals:" << std::endl
-               << "    runtime (sec): " << total_runtime << std::endl
-               << "    package-energy (joules): " << app_energy_pkg << std::endl
-               << "    dram-energy (joules): " << application_io.total_app_energy_dram() << std::endl
-               << "    power (watts): " << avg_power << std::endl
-               << "    mpi-runtime (sec): " << application_io.total_app_runtime_mpi() << std::endl
-               << "    ignore-time (sec): " << application_io.total_app_runtime_ignore() << std::endl;
+        report << "    Application Totals:" << std::endl
+               << "        runtime (sec): " << total_runtime << std::endl
+               << "        package-energy (joules): " << app_energy_pkg << std::endl
+               << "        dram-energy (joules): " << application_io.total_app_energy_dram() << std::endl
+               << "        power (watts): " << avg_power << std::endl
+               << "        mpi-runtime (sec): " << application_io.total_app_runtime_mpi() << std::endl
+               << "        ignore-time (sec): " << application_io.total_app_runtime_ignore() << std::endl;
 
         std::string max_memory = get_max_memory();
-        report << "    geopmctl memory HWM: " << max_memory << std::endl;
-        report << "    geopmctl network BW (B/sec): " << tree_comm.overhead_send() / total_runtime << std::endl;
+        report << "        geopmctl memory HWM: " << max_memory << std::endl;
+        report << "        geopmctl network BW (B/sec): " << tree_comm.overhead_send() / total_runtime << std::endl;
 
         // aggregate reports from every node
         report.seekp(0, std::ios::end);
