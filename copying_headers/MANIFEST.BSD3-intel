@@ -22,6 +22,7 @@ examples/nekbone/0003-Increase-problem-size-for-Theta.patch
 examples/print_affinity.cpp
 examples/qbox/0001-Adding-geopm-markup-for-qbox.patch
 examples/qbox/0002-Fixing-run-scripts-and-adding-run-scipt-for-qbox.patch
+examples/simple_pio_example.c
 examples/simple_prof_c.c
 examples/simple_prof_f.f90
 examples/synthetic_benchmark.cpp
