@@ -1299,26 +1299,8 @@ class AgentConf(object):
 
 class RawReport(object):
     def __init__(self, path):
-        with open(path) as in_fid, tempfile.TemporaryFile(mode='w+t') as out_fid:
-            out_fid.write('GEOPM Meta Data:\n')
-            line = in_fid.readline()
-            version = line.split()[2]
-            out_fid.write('    GEOPM Version: {}\n'.format(version))
-            line = in_fid.readline()
-            col_pos = line.find(': ')
-            out_fid.write("    {}: '{}'\n".format(line[:col_pos], line[col_pos+2:-1]))
-            for idx in range(2):
-                line = in_fid.readline()
-                out_fid.write('    {}'.format(line))
-            for line in in_fid.readlines():
-                if len(line) > 1:
-                    if line.startswith('Host:'):
-                        host = line.split(':')[1].strip()
-                        out_fid.write('{}:\n'.format(host))
-                    else:
-                        out_fid.write('    {}'.format(line))
-            out_fid.seek(0)
-            self._raw_dict = yaml.load(out_fid, Loader=yaml.SafeLoader)
+        with open(path) as in_fid:
+            self._raw_dict = yaml.load(in_fid, Loader=yaml.SafeLoader)
 
     def raw_report(self):
         return copy.deepcopy(self._raw_dict)
