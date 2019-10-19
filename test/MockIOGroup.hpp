@@ -33,6 +33,8 @@
 #ifndef MOCKIOGROUP_HPP_INCLUDE
 #define MOCKIOGROUP_HPP_INCLUDE
 
+#include "gmock/gmock.h"
+
 #include "IOGroup.hpp"
 
 class MockIOGroup : public geopm::IOGroup

@@ -33,9 +33,12 @@
 #ifndef MOCKREPORTER_HPP_INCLUDE
 #define MOCKREPORTER_HPP_INCLUDE
 
+#include "gmock/gmock.h"
+
 #include "Reporter.hpp"
 #include "ApplicationIO.hpp"
 #include "Comm.hpp"
+#include "TreeComm.hpp"
 
 class MockReporter : public geopm::Reporter
 {

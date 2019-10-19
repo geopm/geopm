@@ -33,6 +33,8 @@
 #ifndef MOCKAGENT_HPP_INCLUDE
 #define MOCKAGENT_HPP_INCLUDE
 
+#include "gmock/gmock.h"
+
 #include "Agent.hpp"
 #include "PlatformIO.hpp"
 

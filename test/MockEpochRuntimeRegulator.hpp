@@ -33,8 +33,10 @@
 #ifndef MOCKEPOCHRUNTIMEREGULATOR_HPP_INCLUDE
 #define MOCKEPOCHRUNTIMEREGULATOR_HPP_INCLUDE
 
-#include "geopm_time.h"
+#include "gmock/gmock.h"
 
+#include "geopm.h"
+#include "geopm_time.h"
 #include "EpochRuntimeRegulator.hpp"
 #include "RuntimeRegulator.hpp"
 
