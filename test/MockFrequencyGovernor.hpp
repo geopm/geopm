@@ -33,6 +33,8 @@
 #ifndef MOCKFREQUENCYGOVERNOR_HPP_INCLUDE
 #define MOCKFREQUENCYGOVERNOR_HPP_INCLUDE
 
+#include "gmock/gmock.h"
+
 #include "FrequencyGovernor.hpp"
 
 class MockFrequencyGovernor : public geopm::FrequencyGovernor
