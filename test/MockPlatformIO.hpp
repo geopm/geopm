@@ -33,6 +33,8 @@
 #ifndef MOCKPLATFORMIO_HPP_INCLUDE
 #define MOCKPLATFORMIO_HPP_INCLUDE
 
+#include "gmock/gmock.h"
+
 #include "PlatformIO.hpp"
 #include "IOGroup.hpp"
 
