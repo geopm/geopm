@@ -34,6 +34,11 @@
 #define MOCKTREECOMM_HPP_INCLUDE
 
 #include <set>
+#include <map>
+#include <vector>
+
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
 #include "TreeComm.hpp"
 
@@ -100,7 +105,7 @@ class MockTreeComm : public geopm::TreeComm
             return true;
         }
         MOCK_CONST_METHOD0(overhead_send,
-                     size_t(void));
+                           size_t(void));
         MOCK_METHOD1(broadcast_string,
                      void(const std::string &str));
         MOCK_METHOD0(broadcast_string,

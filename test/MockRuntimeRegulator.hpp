@@ -33,7 +33,6 @@
 #ifndef MOCKRUNTIMEREGULATOR_HPP_INCLUDE
 #define MOCKRUNTIMEREGULATOR_HPP_INCLUDE
 
-#include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
 #include "RuntimeRegulator.hpp"
@@ -45,8 +44,6 @@ class MockRuntimeRegulator : public geopm::RuntimeRegulator
                      void(int rank, struct geopm_time_s entry_time));
         MOCK_METHOD2(record_exit,
                      void(int rank, struct geopm_time_s exit_time));
-        MOCK_METHOD1(insert_runtime_signal,
-                     void(std::vector<struct geopm_telemetry_message_s> &telemetry));
         MOCK_CONST_METHOD0(per_rank_last_runtime,
                      std::vector<double>());
         MOCK_CONST_METHOD0(per_rank_total_runtime,

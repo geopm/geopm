@@ -33,6 +33,8 @@
 #ifndef MOCKCOMM_HPP_INCLUDE
 #define MOCKCOMM_HPP_INCLUDE
 
+#include "gmock/gmock.h"
+
 #include "Comm.hpp"
 
 class MockComm : public geopm::Comm

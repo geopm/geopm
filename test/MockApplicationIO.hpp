@@ -33,6 +33,8 @@
 #ifndef MOCKAPPLICATIONIO_HPP_INCLUDE
 #define MOCKAPPLICATIONIO_HPP_INCLUDE
 
+#include "gmock/gmock.h"
+
 #include "ApplicationIO.hpp"
 
 class MockApplicationIO : public geopm::ApplicationIO

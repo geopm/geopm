@@ -33,6 +33,8 @@
 #ifndef MOCKENERGYEFFICIENTREGION_HPP_INCLUDE
 #define MOCKENERGYEFFICIENTREGION_HPP_INCLUDE
 
+#include "gmock/gmock.h"
+
 #include "EnergyEfficientRegion.hpp"
 
 class MockEnergyEfficientRegion : public geopm::EnergyEfficientRegion

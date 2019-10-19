@@ -33,6 +33,8 @@
 #ifndef MOCKPOWERBALANCER_HPP_INCLUDE
 #define MOCKPOWERBALANCER_HPP_INCLUDE
 
+#include "gmock/gmock.h"
+
 #include "PowerBalancer.hpp"
 
 class MockPowerBalancer : public geopm::PowerBalancer {

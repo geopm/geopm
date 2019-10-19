@@ -33,6 +33,8 @@
 #ifndef MOCKPROFILETABLE_HPP_INCLUDE
 #define MOCKPROFILETABLE_HPP_INCLUDE
 
+#include "gmock/gmock.h"
+
 #include "ProfileTable.hpp"
 
 class MockProfileTable : public geopm::ProfileTable

@@ -33,9 +33,11 @@
 #ifndef MOCKSHAREDMEMORY_HPP_INCLUDE
 #define MOCKSHAREDMEMORY_HPP_INCLUDE
 
+#include <vector>
+
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include <vector>
+
 #include "SharedMemory.hpp"
 #include "SharedMemoryScopedLock.hpp"
 

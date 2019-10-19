@@ -33,9 +33,6 @@
 #ifndef MOCKTREECOMMLEVEL_HPP_INCLUDE
 #define MOCKTREECOMMLEVEL_HPP_INCLUDE
 
-#include <vector>
-
-#include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
 #include "TreeCommLevel.hpp"
@@ -43,7 +40,7 @@
 class MockTreeCommLevel : public geopm::TreeCommLevel {
     public:
         MOCK_CONST_METHOD0(level_rank,
-                     int(void));
+                           int(void));
         MOCK_METHOD1(send_up,
                      void(const std::vector<double> &sample));
         MOCK_METHOD1(send_down,
@@ -53,7 +50,7 @@ class MockTreeCommLevel : public geopm::TreeCommLevel {
         MOCK_METHOD1(receive_down,
                      bool(std::vector<double> &policy));
         MOCK_CONST_METHOD0(overhead_send,
-                     size_t(void));
+                           size_t(void));
 };
 
 #endif

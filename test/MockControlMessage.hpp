@@ -33,6 +33,8 @@
 #ifndef MOCKCONTROLMESSAGE_HPP_INCLUDE
 #define MOCKCONTROLMESSAGE_HPP_INCLUDE
 
+#include "gmock/gmock.h"
+
 #include "ControlMessage.hpp"
 
 class MockControlMessage : public geopm::ControlMessage

@@ -33,6 +33,8 @@
 #ifndef MOCKPLATFORMTOPO_HPP_INCLUDE
 #define MOCKPLATFORMTOPO_HPP_INCLUDE
 
+#include "gmock/gmock.h"
+
 #include "PlatformTopo.hpp"
 
 class MockPlatformTopo : public geopm::PlatformTopo
