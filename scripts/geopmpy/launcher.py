@@ -371,7 +371,11 @@ class Launcher(object):
         if node_list is not None:
             self.is_override_enabled = True
             if type(node_list) is list:
-                self.node_list = ' '.join(node_list)
+                if 'OMPIExecLauncher' == self.__class__.__name__:
+                    #ompi requires comma delimited host list
+                    self.node_list = ','.join(node_list)
+                else:
+                    self.node_list = ' '.join(node_list)
             else:
                 self.node_list = node_list
         if host_file is not None:
