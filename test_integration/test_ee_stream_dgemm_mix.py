@@ -104,6 +104,7 @@ class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
                                                         cls._trace_path,
                                                         time_limit=6000)
             launcher.set_num_node(num_node)
+            launcher.set_node_list(None)
             launcher.set_num_rank(num_rank)
             launcher.run(test_name)
 

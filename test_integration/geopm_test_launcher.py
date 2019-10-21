@@ -150,6 +150,30 @@ class TestLauncher(object):
 
     def set_node_list(self, node_list):
         self._node_list = node_list
+        hostname = os.environ.get('SLURM_NODELIST')
+        if (self._node_list is None and
+            'ompi' == detect_launcher() and
+            hostname is not None):
+            start_idx = hostname.find("[")
+            mid_idx = hostname.find("-", start_idx)
+            end_idx = hostname.find("]", mid_idx)
+
+            hosts = []
+
+            if start_idx < 0 or mid_idx < 0 or end_idx < 0:
+                # there's no range in there!
+                hosts = [hostname]
+            else:
+                hosts = self.expand_hostname_range(hostname)
+
+            self._node_list = ",".join(hosts)
+            num_host = len(self._node_list.split(','))
+            if (num_host < self._num_node):
+                raise RuntimeError('Node list of size ' + str(num_host) +
+                                   ' expected ' + str(self._num_node))
+            else:
+                # allocation contains more nodes than requested test, truncate node list
+                self._node_list = self._node_list.split(',')[num_host - self._num_node:]
 
     def set_num_node(self, num_node):
         self._num_node = num_node
@@ -218,6 +242,26 @@ class TestLauncher(object):
         argv = ['dummy', detect_launcher(), '--geopm-ctl-disable', 'true']
         launcher = geopmpy.launcher.Factory().create(argv, 1, 1)
         return launcher.get_alloc_nodes()
+
+    @staticmethod
+    def expand_hostname_range(hostname_pattern):
+        start_idx = hostname_pattern.find("[")
+        end_idx = hostname_pattern.find("]", start_idx)
+        if start_idx < 0 or end_idx < 0:
+            # there's no range in there!
+            return [hostname_pattern]
+        host_prefix = hostname_pattern[:start_idx]
+        range_str = hostname_pattern[start_idx+1:end_idx]
+        host_suffix = hostname_pattern[end_idx+1:]
+        values = []
+        for sub_range in range_str.split(","):
+            if "-" in sub_range:
+                range_start,range_end = [int(idx) for idx in sub_range.split("-")]
+                values.extend(range(range_start,range_end+1))
+            else:
+                values.append(int(sub_range))
+        return [host for i in values for host in
+            TestLauncher.expand_hostname_range('{}{}{}'.format(host_prefix, i, host_suffix))]
 
     def write_log(self, test_name, message):
         with open(test_name + '.log', 'a') as outfile:
