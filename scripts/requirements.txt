@@ -16,3 +16,4 @@ future>=0.17.1
 # for python 2 installations, pin astroid to a version without the regression.
 astroid==1.6.1; python_version=='2.7'
 pylint>=1.9.5
+python-hostlist>=1.18

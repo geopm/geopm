@@ -44,6 +44,7 @@ import math
 import shlex
 import unittest
 import getpass
+import hostlist
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from test_integration import geopm_context
@@ -156,8 +157,22 @@ class TestLauncher(object):
         if fatal_test:
             self.msr_save()
 
-    def set_node_list(self, node_list):
+    def set_node_list(self, node_list=None):
         self._node_list = node_list
+        slurm_node_list = os.environ.get('SLURM_NODELIST')
+        if (self._node_list is None and
+            'ompi' == detect_launcher() and
+            slurm_node_list is not None):
+            slurm_hosts = hostlist.expand_hostlist(slurm_node_list)
+
+            self._node_list = ",".join(slurm_hosts)
+            num_host = len(self._node_list.split(','))
+            if (num_host < self._num_node):
+                raise RuntimeError('Node list of size ' + str(num_host) +
+                                   ' expected ' + str(self._num_node))
+            else:
+                # allocation contains more nodes than requested test, truncate node list
+                self._node_list = self._node_list.split(',')[num_host - self._num_node:]
 
     def set_num_node(self, num_node):
         self._num_node = num_node
