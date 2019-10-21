@@ -53,6 +53,7 @@ from test_integration import util
 from test_integration import geopm_test_launcher
 import geopmpy.io
 import geopmpy.launcher
+import io
 
 def create_frequency_map_policy(min_freq, max_freq, frequency_map, use_env=False):
     """Create a frequency map to be consumed by the frequency map agent.
@@ -152,6 +153,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
@@ -175,6 +177,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
@@ -192,6 +195,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.set_pmpi_ctl('pthread')
         launcher.run(name)
@@ -221,6 +225,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.set_pmpi_ctl('application')
         launcher.run(name)
@@ -292,6 +297,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
         self._output = geopmpy.io.AppOutput(report_path)
@@ -317,6 +323,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
         self._output = geopmpy.io.AppOutput(report_path)
@@ -344,6 +351,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
@@ -407,6 +415,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
         self._output = geopmpy.io.AppOutput(report_path)
@@ -439,6 +448,7 @@ class TestIntegration(unittest.TestCase):
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path,
                                                     trace_path, region_barrier=True)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
@@ -494,6 +504,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path, region_barrier=True)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
@@ -538,6 +549,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path, time_limit=900)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
@@ -603,6 +615,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
         self._output = geopmpy.io.AppOutput(report_path)
@@ -631,6 +644,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
         self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
@@ -673,6 +687,7 @@ class TestIntegration(unittest.TestCase):
         check_successful = True
         while check_successful:
             launcher.set_num_node(num_node)
+            launcher.set_node_list(None)
             launcher.set_num_rank(num_node)
             try:
                 launcher.check_run(name)
@@ -723,6 +738,7 @@ class TestIntegration(unittest.TestCase):
         launcher = geopm_test_launcher.TestLauncher(app_conf, gov_agent_conf, report_path,
                                                     trace_path, time_limit=900)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.write_log(name, 'Power cap = {}W'.format(self._options['power_budget']))
         launcher.run(name)
@@ -807,6 +823,7 @@ class TestIntegration(unittest.TestCase):
             launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path,
                                                         trace_path, time_limit=2700)
             launcher.set_num_node(num_node)
+            launcher.set_node_list(None)
             launcher.set_num_rank(num_rank)
             launcher.write_log(run_name, 'Power cap = {}W'.format(power_budget))
             launcher.run(run_name)
@@ -886,6 +903,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path, region_barrier=True)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
@@ -931,6 +949,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
         self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
@@ -964,6 +983,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
@@ -1010,6 +1030,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
@@ -1037,6 +1058,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
@@ -1106,6 +1128,7 @@ class TestIntegration(unittest.TestCase):
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path,
                                                     trace_path, region_barrier=True, time_limit=900)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
 
@@ -1158,6 +1181,7 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
         launcher.set_num_node(num_node)
+        launcher.set_node_list(None)
         launcher.set_num_rank(num_rank)
         launcher.run(name)
         self._output = geopmpy.io.AppOutput(report_path, trace_path + '*')
@@ -1228,6 +1252,7 @@ class TestIntegration(unittest.TestCase):
             launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path,
                                                         trace_path, region_barrier=True, time_limit=900)
             launcher.set_num_node(num_node)
+            launcher.set_node_list(None)
             launcher.set_num_rank(num_rank)
             launcher.run(name + rr)
 
