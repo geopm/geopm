@@ -365,7 +365,7 @@ class Launcher(object):
         if node_list is not None:
             self.is_override_enabled = True
             if type(node_list) is list:
-                self.node_list = ' '.join(node_list)
+                self.node_list = self.node_list_delim().join(node_list)
             else:
                 self.node_list = node_list
         if host_file is not None:
@@ -800,6 +800,13 @@ class Launcher(object):
         reserved by a scheduler for current job context.
         """
         raise NotImplementedError('Launcher.get_alloc_nodes() undefined in the base class')
+
+    def node_list_delim(self):
+        """
+        Returns the delimiter that is to be used when constructing
+        a node list string given a list of node names.
+        """
+        return ' '
 
 
 class SrunLauncher(Launcher):
