@@ -59,7 +59,7 @@ cd geopm/
 make -j10
 make install
 cd ..
-gcc -I$HOME/geopm/include -L$HOME/geopm/lib -lgeopmpolicy simple_pio_example.c
+gcc -I$HOME/build/geopm/include -L$HOME/build/geopm/lib -lgeopmpolicy simple_pio_example.c
 ./a.out
 # Total energy for package 0: 518.16 (Joules)
 # END SCRIPT
