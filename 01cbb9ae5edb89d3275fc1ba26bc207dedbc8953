@@ -22,6 +22,30 @@
       "revId": "01cbb9ae5edb89d3275fc1ba26bc207dedbc8953",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcb2e5cd_0473e982",
+        "filename": "examples/simple_pio_example.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-10-22T20:00:06Z",
+      "side": 1,
+      "message": "Perhaps true, and I will introduce a pio tutorial.  There is a lot of extra overhead with tutorials: update readme, define build system, make sure we have a complete introduction to platformio.  This simple example is intended to be a minimalist text file that can be handed to grumpy systems programmers who don\u0027t want to build the geopm runtime. Can we just push this fix so the example code currently in dev actually works?",
+      "parentUuid": "5c85ceef_b57319e8",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 14
+      },
+      "revId": "01cbb9ae5edb89d3275fc1ba26bc207dedbc8953",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
