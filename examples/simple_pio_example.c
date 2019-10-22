@@ -42,33 +42,37 @@
 # install that has autotools and a compiler.
 #
 # The program prints the amount of energy used by package 0 in units
-# of Joules.
+# of joules.
 #
 # BEGIN SCRIPT
 
-if [ ! -d geopm ]; then
-    git clone https://github.com/geopm/geopm.git
+if [ ! -e $HOME/build/geopm/lib/libgeopmpolicy.so ]; then
+    if [ ! -d geopm ]; then
+        git clone https://github.com/geopm/geopm.git
+    fi
+    cd geopm/
+    ./autogen.sh
+    ./configure --disable-mpi \
+                --disable-doc \
+                --disable-openmp \
+                --disable-fortran \
+                --prefix=$HOME/build/geopm
+    make -j10
+    make install
+    cd ..
 fi
-cd geopm/
-./autogen.sh
-./configure --disable-mpi \
-            --disable-doc \
-            --disable-openmp \
-            --disable-fortran \
-            --prefix=$HOME/build/geopm
-make -j10
-make install
-cd ..
-gcc -I$HOME/geopm/include -L$HOME/geopm/lib -lgeopmpolicy simple_pio_example.c
-./a.out
-# Total energy for package 0: 518.16 (Joules)
+gcc -I$HOME/build/geopm/include -L$HOME/build/geopm/lib -lgeopmpolicy simple_pio_example.c
+LD_LIBRARY_PATH=$HOME/build/geopm/lib:$LD_LIBRARY_PATH ./a.out
+# Total energy for package 0: 518.16 (joules)
 # END SCRIPT
 */
 
 #include <stdio.h>
 #include <limits.h>
+#include <unistd.h>
 #include "geopm_topo.h"
 #include "geopm_pio.h"
+#include "geopm_error.h"
 
 int main(int argc, char **argv)
 {
@@ -87,7 +91,7 @@ int main(int argc, char **argv)
     }
     if (!err) {
         total_energy = energy1 - energy0;
-        printf("Total energy for package 0: %0.2f (Joules)\n", total_energy);
+        printf("Total energy for package 0: %0.2f (joules)\n", total_energy);
     }
     if (err) {
         char error_string[NAME_MAX];
