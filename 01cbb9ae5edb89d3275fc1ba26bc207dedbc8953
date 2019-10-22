@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c85ceef_b57319e8",
+        "filename": "examples/simple_pio_example.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-10-22T18:25:46Z",
+      "side": 1,
+      "message": "Seems like this should have been a standalone file instead of a comment so it could be tested easier.  Why not just put all this stuff in a new subdirectory in /examples? \n\n/tutorials might have been a better spot for these files since the only things in /examples are \"real\" app examples.  The iogroup tutorials are in /tutorials in a subdir.",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 14
+      },
+      "revId": "01cbb9ae5edb89d3275fc1ba26bc207dedbc8953",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
