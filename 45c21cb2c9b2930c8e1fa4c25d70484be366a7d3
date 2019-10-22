@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6889ce5_c53f5f3b",
+        "filename": "src/Environment.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-10-22T15:31:55Z",
+      "side": 1,
+      "message": "Can directly .erase(\"GEOPM_ENDPOINT\")",
+      "range": {
+        "startLine": 113,
+        "startChar": 29,
+        "endLine": 113,
+        "endChar": 74
+      },
+      "revId": "45c21cb2c9b2930c8e1fa4c25d70484be366a7d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34811042_8241911d",
+        "filename": "src/Environment.hpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-10-22T15:31:55Z",
+      "side": 1,
+      "message": "I think the mock class changes are out of order from this change, but it shouldn\u0027t cause any actual problems since the mock functions aren\u0027t marked override.",
+      "revId": "45c21cb2c9b2930c8e1fa4c25d70484be366a7d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
