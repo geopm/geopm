@@ -396,11 +396,17 @@ class AppOutput(object):
         return df
 
     # TODO Call this from outside code to get totals
-    def get_app_total_data(self, node_name=None):
+    def get_app_total_data(self, profile=None, node_name=None):
         idx = pandas.IndexSlice
         df = self._app_reports_df
         if node_name is not None:
             df = df.loc[idx[:, :, :, :, node_name, :], ]
+        if profile is not None:
+            if type(profile) is tuple:
+                minp, maxp = profile
+                df = df.loc[idx[:, :, minp:maxp, :, :, :, :], ]
+            else:
+                df = df.loc[idx[:, :, profile, :, :, :, :], ]
         return df
 
     def get_trace_data(self, node_name=None):
@@ -1386,4 +1392,3 @@ class RawReport(object):
             raise KeyError('Field not found: {}'.format(key))
         match = sorted(matches)[0][1]
         return copy.deepcopy(raw_data[match])
-

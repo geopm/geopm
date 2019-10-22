@@ -1037,7 +1037,36 @@ def baseline_comparison(parse_output, comp_name, sweep_output):
                        / baseline_means_df['runtime'], name='runtime_savings') * 100
     baseline_means_df = pandas.concat([baseline_means_df, rs], axis=1)
 
-    return baseline_means_df
+    ###################
+    # TODO: clean up
+    comp_app = parse_output.get_app_total_data(profile=comp_name)
+    base_app = sweep_output.get_app_total_data()
+    base_app.sort_index(ascending=True, inplace=True)
+    base_app = base_app.loc[base_app.index.get_level_values('name') != comp_name]
+    base_app = FreqSweepAnalysis.profile_to_freq_mhz(base_app)
+
+    # Reduce the data
+    cols = ['energy-package', 'runtime', 'mpi-runtime'] # TODO: column names inconsistent with region - see issue
+    base_app_means_df = base_app.groupby('freq_mhz')[cols].mean()
+    comp_app_means_df = comp_app.groupby('name')[cols].mean()
+
+    # Add power column
+    p = pandas.Series(base_app_means_df['energy-package'] / base_app_means_df['runtime'], name='power')
+    base_app_means_df = pandas.concat([base_app_means_df, p], axis=1)
+    p = pandas.Series(comp_app_means_df['energy-package'] / comp_app_means_df['runtime'], name='power')
+    comp_app_means_df = pandas.concat([comp_app_means_df, p], axis=1)
+
+    # Calculate energy savings
+    es = pandas.Series((base_app_means_df['energy-package'] - comp_app_means_df['energy-package'].reset_index('name', drop=True)[0])\
+                       / base_app_means_df['energy-package'], name='energy_savings') * 100
+    base_app_means_df = pandas.concat([base_app_means_df, es], axis=1)
+
+    # Calculate runtime savings
+    rs = pandas.Series((base_app_means_df['runtime'] - comp_app_means_df['runtime'].reset_index('name', drop=True)[0])\
+                       / base_app_means_df['runtime'], name='runtime_savings') * 100
+    base_app_means_df = pandas.concat([base_app_means_df, rs], axis=1)
+
+    return baseline_means_df, base_app_means_df
 
 
 class FrequencyMapBaselineComparisonAnalysis(Analysis):
@@ -1134,7 +1163,8 @@ class FrequencyMapBaselineComparisonAnalysis(Analysis):
     def summary_process(self, parse_output):
         sweep_output, comp_output = parse_output
         comp_name = self._name + self._prefix_label()
-        baseline_comp_df = baseline_comparison(comp_output, comp_name, sweep_output)
+        # TODO: use app totals
+        baseline_comp_df, _ = baseline_comparison(comp_output, comp_name, sweep_output)
         sweep_summary_process = self._sweep_analysis.summary_process(sweep_output)
         sweep_means_df = self._sweep_analysis._region_means_df(sweep_output.get_report_df())
         return sweep_summary_process, sweep_means_df, baseline_comp_df
@@ -1284,13 +1314,13 @@ class EnergyEfficientAgentAnalysis(Analysis):
     def summary_process(self, parse_output):
         sweep_output, comp_output = parse_output
         comp_name = self._name + '_' + self._mode
-        baseline_comp_df = baseline_comparison(comp_output, comp_name, sweep_output)
+        baseline_comp_df, base_app_comp_df  = baseline_comparison(comp_output, comp_name, sweep_output)
         sweep_summary_process = self._sweep_analysis.summary_process(sweep_output)
         sweep_means_df = self._sweep_analysis._region_means_df(sweep_output.get_report_df())
-        return sweep_summary_process, sweep_means_df, baseline_comp_df
+        return sweep_summary_process, sweep_means_df, baseline_comp_df, base_app_comp_df
 
     def summary(self, process_output):
-        sweep_summary_process, sweep_means_df, comp_df = process_output
+        sweep_summary_process, sweep_means_df, comp_df, app_comp_df = process_output
         name = self._name + '_' + self._mode
         ref_freq_idx = 0 #if self._enable_turbo else 1  # todo: does not work when min==max frequency
         sys.stdout.write('{}\n'.format(self._freq_pnames))
@@ -1299,10 +1329,11 @@ class EnergyEfficientAgentAnalysis(Analysis):
 
         rs = 'Summary for {}\n\n'.format(name)
         rs += self._sweep_analysis._region_freq_str_pretty(sweep_summary_process['region_freq_map']) + '\n'
-        rs += 'Energy Decrease compared to {} MHz: {:.2f}%\n'.format(ref_freq, comp_df.loc[pandas.IndexSlice['epoch', ref_freq], 'energy_savings'])
-        rs += 'Runtime Decrease compared to {} MHz: {:.2f}%\n\n'.format(ref_freq, comp_df.loc[pandas.IndexSlice['epoch', ref_freq], 'runtime_savings'])
-        rs += 'Epoch data:\n'
-        rs += str(comp_df.loc[pandas.IndexSlice['epoch', :], ].sort_index(ascending=False)) + '\n'
+        rs += 'Energy Decrease compared to {} MHz: {:.2f}%\n'.format(ref_freq, app_comp_df.loc[pandas.IndexSlice[ref_freq], 'energy_savings'])
+        rs += 'Runtime Decrease compared to {} MHz: {:.2f}%\n\n'.format(ref_freq, app_comp_df.loc[pandas.IndexSlice[ref_freq], 'runtime_savings'])
+        #rs += 'Epoch data:\n'
+        rs += 'Application totals:\n'
+        rs += str(app_comp_df.loc[pandas.IndexSlice[:], ].sort_index(ascending=False)) + '\n'
         rs += '-' * 120 + '\n'
         sys.stdout.write(rs + '\n')
 
