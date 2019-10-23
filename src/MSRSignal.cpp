@@ -37,10 +37,19 @@
 #include "geopm_hash.h"
 #include "MSR.hpp"
 #include "Exception.hpp"
+#include "Helper.hpp"
 #include "config.h"
 
 namespace geopm
 {
+    std::unique_ptr<MSRSignal> MSRSignal::make_unique(const MSR &msr_obj,
+                                                      int domain_type,
+                                                      int cpu_idx,
+                                                      int signal_idx)
+    {
+        return geopm::make_unique<MSRSignalImp>(msr_obj, domain_type, cpu_idx, signal_idx);
+    }
+
     MSRSignalImp::MSRSignalImp(const MSR &msr_obj,
                                int domain_type,
                                int cpu_idx,

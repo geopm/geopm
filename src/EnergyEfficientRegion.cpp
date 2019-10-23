@@ -39,6 +39,13 @@
 
 namespace geopm
 {
+    std::unique_ptr<EnergyEfficientRegion> EnergyEfficientRegion::make_unique(double freq_min, double freq_max,
+                                                                              double freq_step, double perf_margin)
+    {
+        return geopm::make_unique<EnergyEfficientRegionImp>(freq_min, freq_max,
+                                                            freq_step, perf_margin);
+    }
+
     static size_t calc_num_step(double freq_min, double freq_max, double freq_step)
     {
         return 1 + (size_t)(ceil((freq_max - freq_min) / freq_step));

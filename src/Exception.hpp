@@ -36,7 +36,6 @@
 #include <system_error>
 #include "geopm_error.h"
 
-
 namespace geopm
 {
     /// @brief Handle a thrown exception and return an error value.
@@ -69,7 +68,7 @@ namespace geopm
     /// method called err_value() that returns the error code
     /// associated with the exception.  There are a number of
     /// different constructors.
-    class Exception: public std::runtime_error
+    class Exception : public std::runtime_error
     {
         public:
             /// @brief Empty constructor.

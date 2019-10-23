@@ -43,12 +43,12 @@
 
 namespace geopm
 {
-    std::unique_ptr<RegionAggregator> make_unique(void)
+    std::unique_ptr<RegionAggregator> RegionAggregator::make_unique(void)
     {
         return geopm::make_unique<RegionAggregatorImp>();
     }
 
-    std::shared_ptr<RegionAggregator> make_shared(void)
+    std::shared_ptr<RegionAggregator> RegionAggregator::make_shared(void)
     {
         return std::make_shared<RegionAggregatorImp>();
     }

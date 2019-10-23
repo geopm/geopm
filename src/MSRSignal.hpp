@@ -74,6 +74,12 @@ namespace geopm
             /// @param [in] field Pointer to the memory containing the raw
             ///        MSR value.
             virtual void map_field(const uint64_t *field) = 0;
+            /// @brief Returns a unique_ptr to a concrete object
+            ///        constructed using the underlying implementation
+            static std::unique_ptr<MSRSignal> make_unique(const MSR &msr_obj,
+                                                          int domain_type,
+                                                          int cpu_idx,
+                                                          int signal_idx);
     };
 }
 

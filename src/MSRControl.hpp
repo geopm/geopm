@@ -82,6 +82,12 @@ namespace geopm
             ///        writing value.
             virtual void map_field(uint64_t *field,
                                    uint64_t *mask) = 0;
+            /// @brief Returns a unique_ptr to a concrete object
+            ///        constructed using the underlying implementation
+            static std::unique_ptr<MSRControl> make_unique(const MSR &msr_obj,
+                                                           int domain_type,
+                                                           int cpu_idx,
+                                                           int control_idx);
     };
 }
 
