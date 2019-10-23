@@ -55,6 +55,16 @@ geopm_endpoint_c(3) -- dynamic policy control for resource management
     `size_t` _agent_name_max_, <br>
     `char *`_agent_name_`);`
 
+  * `int geopm_endpoint_wait_for_agent_attach(`:
+     `struct geopm_endpoint_c *`_endpoint_, <br>
+     `double` timeout`);`
+
+  * `int geopm_endpoint_stop_wait_loop(`:
+    `struct geopm_endpoint_c *`_endpoint_`);`
+
+  * `int geopm_endpoint_reset_wait_loop(`:
+    `struct geopm_endpoint_c *`_endpoint_`);`
+
   * `int geopm_endpoint_profile_name(`:
     `struct geopm_endpoint_c *`_endpoint_, <br>
     `size_t` _profile_name_max_, <br>
@@ -140,6 +150,21 @@ zero upon success; see [ERRORS][] section below for details.
     error code is returned.  If no agent has attached, _agent_name_
     will be an empty string.  If no shmem region has been created with
     `geopm_endpoint_open()`, an error code is returned.
+
+  * `geopm_endpoint_wait_for_agent_attach`():
+    blocks until an agent has attached to the _endpoint_ or the
+    _timeout_ in seconds is reached.  This will return zero on success
+    indicating that the agent attached or the wait was cancelled.
+    Otherwise an error code is returned.
+
+  * `geopm_endpoint_stop_wait_loop`():
+    stops any current wait loops the _endpoint_ is running.
+
+  * `geopm_endpoint_reset_wait_loop`():
+    resets the _endpoint_ to prepare for a subsequent call to
+    `geopm_endpoint_wait_for_agent_attach()`.  This only needs to be
+    called after calling `geopm_endpoint_stop_wait_loop()` once to reuse
+    the endpoint for another agent.
 
   * `geopm_endpoint_profile_name`():
     provides the profile name of the attached agent in _profile_name_.
