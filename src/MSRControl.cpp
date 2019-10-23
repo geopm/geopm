@@ -36,10 +36,19 @@
 
 #include "MSR.hpp"
 #include "Exception.hpp"
+#include "Helper.hpp"
 #include "config.h"
 
 namespace geopm
 {
+    std::unique_ptr<MSRControl> MSRControl::make_unique(const MSR &msr_obj,
+                                                        int domain_type,
+                                                        int cpu_idx,
+                                                        int control_idx)
+    {
+        return geopm::make_unique<MSRControlImp>(msr_obj, domain_type, cpu_idx, control_idx);
+    }
+
     MSRControlImp::MSRControlImp(const MSR &msr_obj,
                                  int domain_type,
                                  int cpu_idx,

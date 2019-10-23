@@ -36,7 +36,6 @@
 #include <system_error>
 #include "geopm_error.h"
 
-
 extern "C"
 {
     /// @brief Unlinks all shared memory keys in case of error.
@@ -79,7 +78,7 @@ namespace geopm
     /// method called err_value() that returns the error code
     /// associated with the exception.  There are a number of
     /// different constructors.
-    class Exception: public std::runtime_error
+    class Exception : public std::runtime_error
     {
         public:
             /// @brief Empty constructor.
@@ -173,7 +172,7 @@ namespace geopm
             int m_err;
     };
 
-    class SignalException: public Exception
+    class SignalException : public Exception
     {
         public:
             SignalException();
