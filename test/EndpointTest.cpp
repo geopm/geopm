@@ -41,6 +41,8 @@
 #include <fstream>
 #include <map>
 #include <vector>
+#include <future>
+#include <thread>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -70,6 +72,8 @@ class EndpointTest : public ::testing::Test
         const std::string m_shm_path = "/EndpointTest_data_" + std::to_string(geteuid());
         std::unique_ptr<MockSharedMemory> m_policy_shmem;
         std::unique_ptr<MockSharedMemory> m_sample_shmem;
+        bool m_cancel;
+        int m_timeout;
 };
 
 class EndpointTestIntegration : public ::testing::Test
@@ -85,6 +89,9 @@ void EndpointTest::SetUp()
     m_policy_shmem = geopm::make_unique<MockSharedMemory>(policy_shmem_size);
     size_t sample_shmem_size = sizeof(struct geopm_endpoint_sample_shmem_s);
     m_sample_shmem = geopm::make_unique<MockSharedMemory>(sample_shmem_size);
+
+    m_cancel = false;
+    m_timeout = 2;
 
     EXPECT_CALL(*m_policy_shmem, get_scoped_lock()).Times(AtLeast(0));
     EXPECT_CALL(*m_policy_shmem, unlink());
@@ -241,4 +248,60 @@ TEST_F(EndpointTest, get_hostnames)
     EXPECT_EQ(hosts, mio.get_hostnames());
     mio.close();
     unlink(hostlist_path.c_str());
+}
+
+TEST_F(EndpointTest, cancel_stops_wait_loop)
+{
+    EndpointImp mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    mio.open();
+
+    auto run_thread = std::async(std::launch::async,
+                                 [&mio, this] {
+                                     mio.wait_for_agent_attach(m_cancel, m_timeout);
+                                 });
+    m_cancel = true;
+    // wait for less than timeout; should exit before time limit without throwing
+    auto result = run_thread.wait_for(std::chrono::seconds(m_timeout - 1));
+    EXPECT_NE(result, std::future_status::timeout);
+    mio.close();
+}
+
+TEST_F(EndpointTest, wait_loop_timeout_throws)
+{
+    EndpointImp mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    mio.open();
+
+    geopm_time_s before;
+    geopm_time(&before);
+    auto run_thread = std::async(std::launch::async,
+                                 [&mio, this] {
+                                     mio.wait_for_agent_attach(m_cancel, m_timeout);
+                                 });
+    // throw from our timeout should happen before longer async timeout
+    std::future_status result = run_thread.wait_for(std::chrono::seconds(m_timeout + 1));
+    GEOPM_EXPECT_THROW_MESSAGE(run_thread.get(),
+                               GEOPM_ERROR_RUNTIME,
+                               "timed out");
+    EXPECT_NE(result, std::future_status::timeout);
+    double elapsed = geopm_time_since(&before);
+    EXPECT_NEAR(m_timeout, elapsed, 0.010);
+    mio.close();
+}
+
+TEST_F(EndpointTest, wait_stops_when_agent_attaches)
+{
+    struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
+    EndpointImp mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    mio.open();
+
+    auto run_thread = std::async(std::launch::async,
+                                 [&mio, this] {
+                                     mio.wait_for_agent_attach(m_cancel, m_timeout);
+                                 });
+    // simulate agent attach
+    strncpy(data->agent, "monitor", GEOPM_ENDPOINT_AGENT_NAME_MAX);
+    // wait for less than timeout; should exit before time limit without throwing
+    auto result = run_thread.wait_for(std::chrono::seconds(m_timeout - 1));
+    EXPECT_NE(result, std::future_status::timeout);
+    mio.close();
 }

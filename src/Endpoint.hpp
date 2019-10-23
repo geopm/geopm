@@ -64,6 +64,14 @@ namespace geopm
             /// @brief Returns the Agent name, or empty string if no
             ///        Agent is attached.
             virtual std::string get_agent(void) = 0;
+            /// @brief Blocks until an agent attaches to the endpoint,
+            ///        a timeout is reached, or the operation is
+            ///        canceled.  Throws an exception if the given
+            ///        timeout is reached before an agent attaches.
+            ///        The name of the attached agent can be read with
+            ///        get_agent().
+            virtual void wait_for_agent_attach(volatile bool &cancel,
+                                               double timeout) = 0;
             /// @brief Returns the profile name associated with the
             ///        attached application, or empty if no controller
             ///        is attached.

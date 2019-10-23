@@ -40,6 +40,8 @@
 #include <algorithm>
 #include <string>
 #include <fstream>
+#include <thread>
+#include <chrono>
 
 #include "Environment.hpp"
 #include "SharedMemory.hpp"
@@ -181,6 +183,23 @@ namespace geopm
             m_num_sample = Agent::num_sample(agent_factory().dictionary(agent_name));
         }
         return agent;
+    }
+
+    void EndpointImp::wait_for_agent_attach(volatile bool &cancel,
+                                            double timeout)
+    {
+        std::string agent = "";
+        geopm_time_s start;
+        geopm_time(&start);
+        while (!cancel && agent == "") {
+            agent = get_agent();
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            if (geopm_time_since(&start) >= timeout) {
+                throw Exception("EndpointImp::" + std::string(__func__) +
+                                "(): timed out waiting for controller.",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+        }
     }
 
     std::string EndpointImp::get_profile_name(void)
