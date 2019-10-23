@@ -97,6 +97,9 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/EndpointTest.write_shm_policy \
               test/gtest_links/EndpointTest.parse_shm_sample \
               test/gtest_links/EndpointTest.get_agent \
+              test/gtest_links/EndpointTest.cancel_stops_wait_loop \
+              test/gtest_links/EndpointTest.wait_loop_timeout_throws \
+              test/gtest_links/EndpointTest.wait_stops_when_agent_attaches \
               test/gtest_links/EndpointTestIntegration.write_shm \
               test/gtest_links/EndpointTestIntegration.write_read_policy \
               test/gtest_links/EndpointTestIntegration.write_read_sample \

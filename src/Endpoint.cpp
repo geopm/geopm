@@ -40,6 +40,8 @@
 #include <algorithm>
 #include <string>
 #include <fstream>
+#include <thread>
+#include <chrono>
 
 #include "Environment.hpp"
 #include "SharedMemory.hpp"
@@ -82,6 +84,7 @@ namespace geopm
         , m_num_policy(num_policy)
         , m_num_sample(num_sample)
         , m_is_open(false)
+        , m_continue_loop(true)
     {
 
     }
@@ -181,6 +184,32 @@ namespace geopm
             m_num_sample = Agent::num_sample(agent_factory().dictionary(agent_name));
         }
         return agent;
+    }
+
+    void EndpointImp::wait_for_agent_attach(double timeout)
+    {
+        std::string agent = "";
+        geopm_time_s start;
+        geopm_time(&start);
+        while (m_continue_loop && agent == "") {
+            agent = get_agent();
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            if (geopm_time_since(&start) >= timeout) {
+                throw Exception("EndpointImp::" + std::string(__func__) +
+                                "(): timed out waiting for controller.",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+        }
+    }
+
+    void EndpointImp::stop_wait_loop(void)
+    {
+        m_continue_loop = false;
+    }
+
+    void EndpointImp::reset_wait_loop(void)
+    {
+        m_continue_loop = true;
     }
 
     std::string EndpointImp::get_profile_name(void)
@@ -291,6 +320,47 @@ int geopm_endpoint_agent(struct geopm_endpoint_c *endpoint,
     }
     return err;
 }
+
+int geopm_endpoint_wait_for_agent_attach(struct geopm_endpoint_c *endpoint,
+                                         double timeout)
+{
+    int err = 0;
+    geopm::EndpointImp *end = (geopm::EndpointImp*)endpoint;
+    try {
+        end->wait_for_agent_attach(timeout);
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+int geopm_endpoint_stop_wait_loop(struct geopm_endpoint_c *endpoint)
+{
+    int err = 0;
+    geopm::EndpointImp *end = (geopm::EndpointImp*)endpoint;
+    try {
+        end->stop_wait_loop();
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
+int geopm_endpoint_reset_wait_loop(struct geopm_endpoint_c *endpoint)
+{
+    int err = 0;
+    geopm::EndpointImp *end = (geopm::EndpointImp*)endpoint;
+    try {
+        end->reset_wait_loop();
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), true);
+    }
+    return err;
+}
+
 
 int geopm_endpoint_profile_name(struct geopm_endpoint_c *endpoint,
                                 size_t profile_name_max,
