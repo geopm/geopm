@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d9241909_b5ab5006",
+        "filename": "src/Reporter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-10-23T19:13:25Z",
+      "side": 1,
+      "message": "agent_report_header and agent_host_report might contain newlines and their own leading indentation that are outside of the Reporter\u0027s control. I think the EE agent does that with the frequency map.\n\nUsing a YAML library would avoid the need for us to consider all escaping cases. Otherwise, we might need to require agents to do their own reporter-compatible indentation.",
+      "range": {
+        "startLine": 179,
+        "startChar": 30,
+        "endLine": 179,
+        "endChar": 47
+      },
+      "revId": "3427fc20c611eeaaf8a6f12dcfc3ea7e6540606f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
