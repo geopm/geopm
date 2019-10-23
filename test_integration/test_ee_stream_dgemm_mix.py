@@ -89,7 +89,7 @@ class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
         cls._skip_launch = _g_skip_launch
         cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
         cls._agent_conf_path = test_name + '-agent-config.json'
-        if  not cls._skip_launch:
+        if not cls._skip_launch:
             num_node = 2
             num_rank = 2
             min_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
