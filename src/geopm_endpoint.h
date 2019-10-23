@@ -116,6 +116,35 @@ int geopm_endpoint_agent(struct geopm_endpoint_c *endpoint,
                          char *agent_name);
 
 /*!
+ *  @brief Blocks until an agent has attached or the timeout is
+ *         reached.
+ *
+ *  @param [in] endpoint Object created by call to
+ *         geopm_endpoint_create().
+ *
+ *  @param [in] timeout Timeout in seconds.
+ */
+int geopm_endpoint_wait_for_agent_attach(struct geopm_endpoint_c *endpoint,
+                                         double timeout);
+
+/*!
+ * @brief Stops any current wait loops the endpoint is running.
+ *
+ *  @param [in] endpoint Object created by call to
+ *         geopm_endpoint_create().
+ */
+int geopm_endpoint_stop_wait_loop(struct geopm_endpoint_c *endpoint);
+
+/*!
+ * @brief Resets the endpoint to prepare for a subsequent call to
+ *        geopm_endpoint_wait_for_agent_attach().
+ *
+ *  @param [in] endpoint Object created by call to
+ *         geopm_endpoint_create().
+ */
+int geopm_endpoint_reset_wait_loop(struct geopm_endpoint_c *endpoint);
+
+/*!
  *  @brief Check profile name for an attached job.
  *
  *  @param [in] endpoint Object created by call to
