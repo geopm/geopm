@@ -107,6 +107,9 @@ namespace geopm
             void write_policy(const std::vector<double> &policy) override;
             double read_sample(std::vector<double> &sample) override;
             std::string get_agent(void) override;
+            void wait_for_agent_attach(double timeout) override;
+            void stop_wait_loop(void) override;
+            void reset_wait_loop(void) override;
             std::string get_profile_name(void) override;
             std::set<std::string> get_hostnames(void) override;
             static std::string shm_policy_postfix(void);
@@ -118,6 +121,7 @@ namespace geopm
             size_t m_num_policy;
             size_t m_num_sample;
             bool m_is_open;
+            volatile bool m_continue_loop;
     };
 }
 
