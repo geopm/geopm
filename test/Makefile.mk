@@ -94,8 +94,6 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/DebugIOGroupTest.read_signal \
               test/gtest_links/DebugIOGroupTest.register_signal_error \
               test/gtest_links/DebugIOGroupTest.sample \
-              test/gtest_links/ELFTest.symbols_exist \
-              test/gtest_links/ELFTest.symbol_lookup \
               test/gtest_links/EndpointTest.write_shm_policy \
               test/gtest_links/EndpointTest.parse_shm_sample \
               test/gtest_links/EndpointTest.get_agent \
@@ -191,9 +189,6 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/MSRTest.msr_signal \
               test/gtest_links/MSRTest.string_to_function \
               test/gtest_links/MSRTest.string_to_units \
-              test/gtest_links/PolicyStoreImpTest.self_consistent \
-              test/gtest_links/PolicyStoreImpTest.update_policy \
-              test/gtest_links/PolicyStoreImpTest.table_precedence \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \
@@ -315,10 +310,23 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/TreeCommTest.send_receive \
               # end
 
+if ENABLE_BETA
+    GTEST_TESTS += test/gtest_links/PolicyStoreImpTest.self_consistent \
+                   test/gtest_links/PolicyStoreImpTest.update_policy \
+                   test/gtest_links/PolicyStoreImpTest.table_precedence \
+                   # end
+endif
+
 if ENABLE_MPI
-GTEST_TESTS += test/gtest_links/MPIInterfaceTest.geopm_api \
-               test/gtest_links/MPIInterfaceTest.mpi_api \
-               # end
+    GTEST_TESTS += test/gtest_links/MPIInterfaceTest.geopm_api \
+                   test/gtest_links/MPIInterfaceTest.mpi_api \
+                   # end
+endif
+
+if ENABLE_OMPT
+    GTEST_TESTS += test/gtest_links/ELFTest.symbols_exist \
+                   test/gtest_links/ELFTest.symbol_lookup \
+                   # end
 endif
 
 TESTS += $(GTEST_TESTS) \
@@ -346,7 +354,6 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/CpuinfoIOGroupTest.cpp \
                           test/CSVTest.cpp \
                           test/DebugIOGroupTest.cpp \
-                          test/ELFTest.cpp \
                           test/EndpointTest.cpp \
                           test/EndpointUserTest.cpp \
                           test/EnergyEfficientAgentTest.cpp \
@@ -362,7 +369,6 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/MSRIOGroupTest.cpp \
                           test/MSRIOTest.cpp \
                           test/MSRTest.cpp \
-                          test/PolicyStoreImpTest.cpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \
                           test/MockComm.hpp \
@@ -413,6 +419,18 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/geopm_test.cpp \
                           test/geopm_test.hpp \
                           # end
+if ENABLE_BETA
+    test_geopm_test_SOURCES += test/PolicyStoreImpTest.cpp
+else
+    EXTRA_DIST += test/PolicyStoreImpTest.cpp
+endif
+
+if ENABLE_OMPT
+    test_geopm_test_SOURCES += test/ELFTest.cpp
+else
+    EXTRA_DIST += test/ELFTest.cpp
+endif
+
 
 test_geopm_test_LDADD = libgeopmpolicy.la \
                         libgmock.a \
@@ -441,6 +459,10 @@ if ENABLE_MPI
     test_geopm_mpi_test_api_LDFLAGS = $(AM_LDFLAGS)
     test_geopm_mpi_test_api_CFLAGS = $(AM_CFLAGS)
     test_geopm_mpi_test_api_CXXFLAGS= $(AM_CXXFLAGS)
+else
+    EXTRA_DIST += test/MPIInterfaceTest.cpp \
+                  test/geopm_test.cpp \
+                  # end
 endif
 
 # Target for building test programs.

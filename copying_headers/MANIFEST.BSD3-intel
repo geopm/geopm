@@ -47,7 +47,7 @@ scripts/geopmpy/policy_store.py
 scripts/geopmpy/topo.py
 scripts/geopmpy/version.py.in
 scripts/outlier/outlier_detection.py
-scripts/setup.py.in
+scripts/setup.py
 scripts/test/TestAffinity.py
 scripts/test/TestAgent.py
 scripts/test/TestAnalysisCommandLine.py

@@ -409,11 +409,10 @@ geopmwrite_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
 geopmread_LDADD = libgeopmpolicy.la
 geopmwrite_LDADD = libgeopmpolicy.la
 geopmagent_LDADD = libgeopmpolicy.la
-libgeopmpolicy_la_LIBADD = -lelf
 if ENABLE_MPI
     geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
     geopmbench_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
-    libgeopm_la_LIBADD = $(MPI_CLIBS) -lelf
+    libgeopm_la_LIBADD = $(MPI_CLIBS)
 if ENABLE_FORTRAN
     libgeopmfort_la_LIBADD = libgeopm.la $(MPI_FLIBS)
 endif
@@ -445,8 +444,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/DebugIOGroup.cpp \
                             src/DebugIOGroup.hpp \
                             src/DefaultProfile.cpp \
-                            src/ELF.cpp \
-                            src/ELF.hpp \
                             src/Endpoint.cpp \
                             src/Endpoint.hpp \
                             src/EndpointImp.hpp \
@@ -492,7 +489,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/MSRSignalImp.hpp \
                             src/MonitorAgent.cpp \
                             src/MonitorAgent.hpp \
-                            src/OMPT.cpp \
                             src/PlatformIO.cpp \
                             src/PlatformIO.hpp \
                             src/PlatformIOImp.hpp \
@@ -500,10 +496,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/PlatformTopo.hpp \
                             src/PlatformTopoImp.hpp \
                             src/PluginFactory.hpp \
-                            src/PolicyStore.cpp \
-                            src/PolicyStore.hpp \
-                            src/PolicyStoreImp.cpp \
-                            src/PolicyStoreImp.hpp \
                             src/PowerBalancer.cpp \
                             src/PowerBalancer.hpp \
                             src/PowerBalancerImp.hpp \
@@ -576,6 +568,32 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/msr_data_skx.cpp \
                             src/msr_data_snb.cpp \
                             # end
+
+if ENABLE_OMPT
+    libgeopmpolicy_la_SOURCES += src/OMPT.cpp \
+                                 src/ELF.cpp \
+                                 src/ELF.hpp \
+                                 #end
+else
+    EXTRA_DIST += src/OMPT.cpp \
+                  src/ELF.cpp \
+                  src/ELF.hpp \
+                  #end
+endif
+
+if ENABLE_BETA
+    libgeopmpolicy_la_SOURCES += src/PolicyStore.cpp \
+                                 src/PolicyStore.hpp \
+                                 src/PolicyStoreImp.cpp \
+                                 src/PolicyStoreImp.hpp \
+                                 #end
+else
+    EXTRA_DIST += src/PolicyStore.cpp \
+                  src/PolicyStore.hpp \
+                  src/PolicyStoreImp.cpp \
+                  src/PolicyStoreImp.hpp \
+                  #end
+endif
 
 geopmread_SOURCES = src/geopmread_main.cpp \
                     #end

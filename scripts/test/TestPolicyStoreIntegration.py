@@ -35,8 +35,10 @@ from __future__ import absolute_import
 
 import unittest
 import geopmpy.policy_store
+import geopmpy.version
 
 class TestPolicyStoreIntegration(unittest.TestCase):
+    @unittest.skipIf(geopmpy.version.__beta__ == False, "PolicyStoreIntegration requires beta features")
     def test_all_interfaces(self):
         geopmpy.policy_store.connect(':memory:')
 
