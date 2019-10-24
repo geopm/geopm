@@ -139,11 +139,14 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestPolicyStore.test_get_best \
                scripts/test/pytest_links/TestPolicyStore.test_set_best \
                scripts/test/pytest_links/TestPolicyStore.test_set_default \
-               scripts/test/pytest_links/TestPolicyStoreIntegration.test_all_interfaces \
                scripts/test/pytest_links/TestTopo.test_num_domain \
                scripts/test/pytest_links/TestTopo.test_domain_domain_nested \
                scripts/test/pytest_links/TestTopo.test_domain_name_type \
                # end
+
+if ENABLE_BETA
+    PYTEST_TESTS += scripts/test/pytest_links/TestPolicyStoreIntegration.test_all_interfaces
+endif
 
 TESTS += scripts/test/check_python3_compatibility.sh \
 	 $(PYTEST_TESTS)

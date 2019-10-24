@@ -389,12 +389,14 @@ AC_CHECK_LIB([pthread], [pthread_mutex_init], [], [
 AC_CHECK_HEADER([pthread.h], [], [
     echo "missing pthread.h: POSIX thread interface is required"
     exit -1])
-AC_CHECK_LIB([sqlite3], [sqlite3_open], [], [
-    echo "missing libsqlite3: <https://www.sqlite.org> use --with-sqlite3 or --with-sqlite3-lib"
-    exit -1])
-AC_CHECK_HEADER([sqlite3.h], [], [
-    echo "missing sqlite3.h: <https://www.sqlite.org> use --with-sqlite3 or --with-sqlite3-include"
-exit -1]):
+if test "x$enable_beta" = "x1" ; then
+  AC_CHECK_LIB([sqlite3], [sqlite3_open], [], [
+      echo "missing libsqlite3: <https://www.sqlite.org> use --with-sqlite3 or --with-sqlite3-lib"
+      exit -1])
+  AC_CHECK_HEADER([sqlite3.h], [], [
+      echo "missing sqlite3.h: <https://www.sqlite.org> use --with-sqlite3 or --with-sqlite3-include"
+      exit -1])
+fi
 
 AC_CHECK_HEADER([xmmintrin.h], [AC_DEFINE([GEOPM_HAS_XMMINTRIN], [1], [xmmintrin.h is available])], [])
 AC_CHECK_HEADER([omp-tools.h], [AC_DEFINE([GEOPM_HAS_OMPT], [1], [omp-tools.h is available]) [has_ompt="1"]], [has_ompt="0"])
@@ -421,18 +423,18 @@ fi
 
 if test "x$enable_ompt" = "x1" ; then
   AC_DEFINE([GEOPM_ENABLE_OMPT], [ ], [Enables OpenMP Tool callbacks.])
-fi
 
-AC_SEARCH_LIBS([elf_begin], [elf])
-AC_CHECK_LIB([elf], [elf_begin], [], [
-  echo "missing libelf: ELF library is required, use --with-libelf or --with-libelf-lib to specify location"
-  exit -1])
-AC_CHECK_HEADER([libelf.h], [], [
-  echo "missing libelf.h: ELF library is required, use --with-libelf or --with-libelf-include to specify location"
-  exit -1])
-AC_CHECK_HEADER([gelf.h], [], [
-  echo "missing gelf.h: ELF library is required, use --with-libelf or --with-libelf-include to specify location"
-  exit -1])
+  AC_SEARCH_LIBS([elf_begin], [elf])
+  AC_CHECK_LIB([elf], [elf_begin], [], [
+      echo "missing libelf: ELF library is required, use --with-libelf or --with-libelf-lib to specify location"
+      exit -1])
+  AC_CHECK_HEADER([libelf.h], [], [
+      echo "missing libelf.h: ELF library is required, use --with-libelf or --with-libelf-include to specify location"
+      exit -1])
+  AC_CHECK_HEADER([gelf.h], [], [
+      echo "missing gelf.h: ELF library is required, use --with-libelf or --with-libelf-include to specify location"
+      exit -1])
+fi
 
 AC_SUBST([enable_ompt])
 AM_CONDITIONAL([ENABLE_OMPT], [test "x$enable_ompt" = "x1"])
@@ -550,9 +552,10 @@ AC_SUBST_FILE([BLURB])
 BLURB=BLURB
 
 if test "x$enable_beta" = "x1"; then
-ENABLE_BETA=True
+  ENABLE_BETA=True
+  AC_DEFINE([GEOPM_ENABLE_BETA], [ ], [Enables beta feature implementations.])
 else
-ENABLE_BETA=False
+  ENABLE_BETA=False
 fi
 AC_SUBST([ENABLE_BETA])
 
