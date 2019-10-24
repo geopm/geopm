@@ -51,6 +51,7 @@ try:
 except IOError:
     sys.stderr.write('WARNING:  geopmpy/version.py not found, setting version to 0.0.0\n')
     __version__ = '0.0.0'
+    __beta__ = False
 
 if not os.path.exists('COPYING'):
     shutil.copyfile('../COPYING', 'COPYING')
@@ -65,8 +66,7 @@ launching the runtime and postprocessing the output data."""
 
 
 scripts = ["geopmlaunch", "geopmconvertreport"]
-add_beta_tools = @ENABLE_BETA@
-if add_beta_tools:
+if __beta__:
     scripts += ["geopmanalysis", "geopmplotter"]
 
 classifiers = ['Development Status :: 5 - Production/Stable',
