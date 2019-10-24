@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67d2ea56_4801b19a",
+        "filename": "ronn/geopm_agent_frequency_map.7.ronn",
+        "patchSetId": 12
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-10-24T23:18:37Z",
+      "side": 1,
+      "message": "It probably doesn\u0027t need to block this patch, but a nice future extension to the json parsing code would be to check for strings starting with \"0x\" and convert those to numbers.",
+      "revId": "70d701c110c62fd8f50c6a99f7275eb0e05a0a66",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
