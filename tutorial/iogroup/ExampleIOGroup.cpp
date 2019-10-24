@@ -42,6 +42,7 @@
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
+#include "geopm/Helper.hpp"
 
 using geopm::Exception;
 using geopm::PlatformTopo;
@@ -381,6 +382,17 @@ std::function<double(const std::vector<double> &)> ExampleIOGroup::agg_function(
     }
     // All signals will be aggregated as an average
     return geopm::Agg::average;
+}
+
+// Specifies how to print signals from this IOGroup
+std::function<std::string(double)> ExampleIOGroup::format_function(const std::string &signal_name) const
+{
+    if (!is_valid_signal(signal_name)) {
+        throw Exception("ExampleIOGroup::format_function(): " + signal_name +
+                        "not valid for TimeIOGroup",
+                        GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+    }
+    return geopm::string_format_double;
 }
 
 // A user-friendly description of each signal

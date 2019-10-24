@@ -243,6 +243,18 @@ void ExampleAgent::trace_values(std::vector<double> &values)
     values[M_TRACE_VAL_SIGNAL_NICE] = m_last_signal[M_PLAT_SIGNAL_NICE];
 }
 
+std::vector<std::function<std::string(double)> > ExampleAgent::trace_formats(void) const
+{
+    return {geopm::string_format_float,    // M_TRACE_VAL_USER_PCT
+            geopm::string_format_float,    // M_TRACE_VAL_SYSTEM_PCT
+            geopm::string_format_float,    // M_TRACE_VAL_IDLE_PCT
+            geopm::string_format_double,   // M_TRACE_VAL_SIGNAL_USER
+            geopm::string_format_double,   // M_TRACE_VAL_SIGNAL_SYSTEM
+            geopm::string_format_double,   // M_TRACE_VAL_SIGNAL_IDLE
+            geopm::string_format_double,   // M_TRACE_VAL_SIGNAL_NICE
+            };
+}
+
 // Name used for registration with the Agent factory
 std::string ExampleAgent::plugin_name(void)
 {
