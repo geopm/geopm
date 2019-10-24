@@ -228,10 +228,13 @@ encoded in this way.
     node.
 
   * `POWER_PACKAGE_MIN`:
-    Minimum setting for package power.
+    Minimum setting for package power over the given domain.
 
   * `POWER_PACKAGE_MAX`:
-    Maximum setting for package power.
+    Maximum setting for package power over the given domain.
+
+  * `POWER_PACKAGE_TDP`:
+    Maximum sustainable setting for package power over the given domain.
 
   * `CYCLES_THREAD`:
     Average over the domain of clock cycles executed by cores since

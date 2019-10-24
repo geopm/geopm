@@ -106,9 +106,9 @@ namespace geopm
         m_func_map["MSR::FIXED_CTR0:INST_RETIRED_ANY"] = Agg::sum;
         m_func_map["MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD"] = Agg::sum;
         m_func_map["MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC"] = Agg::sum;
-        m_func_map["MSR::PKG_POWER_INFO:MIN_POWER"] = Agg::expect_same;
-        m_func_map["MSR::PKG_POWER_INFO:MAX_POWER"] = Agg::expect_same;
-        m_func_map["MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER"] = Agg::expect_same;
+        m_func_map["MSR::PKG_POWER_INFO:MIN_POWER"] = Agg::sum;
+        m_func_map["MSR::PKG_POWER_INFO:MAX_POWER"] = Agg::sum;
+        m_func_map["MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER"] = Agg::sum;
         m_func_map["MSR::THERM_STATUS:DIGITAL_READOUT"] = Agg::average;
         m_func_map["MSR::TEMPERATURE_TARGET:PROCHOT_MIN"] = Agg::expect_same;
 
@@ -148,6 +148,7 @@ namespace geopm
         register_msr_signal("POWER_PACKAGE_MIN", "MSR::PKG_POWER_INFO:MIN_POWER");
         register_msr_signal("POWER_PACKAGE_MAX", "MSR::PKG_POWER_INFO:MAX_POWER");
         register_msr_signal("POWER_PACKAGE_TDP", "MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER");
+
         // @todo: have MSRIOGroup handle this combined signal instead of platformIO
         register_msr_signal("TEMPERATURE_CORE_UNDER", "MSR::THERM_STATUS:DIGITAL_READOUT");
         register_msr_signal("TEMPERATURE_PKG_UNDER", "MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT");
