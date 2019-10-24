@@ -45,7 +45,7 @@ export LD_LIBRARY_PATH=$GEOPM_LIB:$LD_LIBRARY_PATH
 # create trace files
 
 NUM_NODES=2
-RANKS_PER_NODE=4
+RANKS_PER_NODE=2
 TOTAL_RANKS=$((${RANKS_PER_NODE} * ${NUM_NODES}))
 
 if [ "$MPIEXEC" ]; then
@@ -88,7 +88,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 -- geopmbench tutorial_6_config.json
     err=$?
 else
-    echo "Error: tutorial_2.sh: set GEOPM_LAUNCHER to 'srun' or 'aprun'." 2>&1
+    echo "Error: tutorial_6.sh: set GEOPM_LAUNCHER to 'srun' or 'aprun'." 2>&1
     echo "       If SLURM or ALPS are not available, set MPIEXEC to" 2>&1
     echo "       a command that will launch an MPI job on your system" 2>&1
     echo "       using 2 nodes and 10 processes." 2>&1

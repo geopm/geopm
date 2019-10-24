@@ -37,6 +37,7 @@
 #include "geopm/PlatformTopo.hpp"
 #include "geopm/Exception.hpp"
 #include "geopm/Agg.hpp"
+#include "geopm/Helper.hpp"
 
 using geopm::Exception;
 using geopm::PlatformTopo;
@@ -188,6 +189,11 @@ void AliceIOGroup::restore_control(void)
 std::function<double(const std::vector<double> &)> AliceIOGroup::agg_function(const std::string &signal_name) const
 {
     return geopm::Agg::average;
+}
+
+std::function<std::string(double)> AliceIOGroup::format_function(const std::string &signal_name) const
+{
+    return geopm::string_format_double;
 }
 
 std::string AliceIOGroup::control_description(const std::string &control_name) const
