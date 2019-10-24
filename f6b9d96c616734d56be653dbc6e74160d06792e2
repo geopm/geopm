@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "edb3a608_ab3ccd87",
+        "filename": "ronn/geopmlaunch.1.ronn",
+        "patchSetId": 7
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-10-24T20:17:39Z",
+      "side": 1,
+      "message": "rm",
+      "range": {
+        "startLine": 297,
+        "startChar": 64,
+        "endLine": 297,
+        "endChar": 70
+      },
+      "revId": "f6b9d96c616734d56be653dbc6e74160d06792e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
