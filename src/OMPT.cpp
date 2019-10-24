@@ -38,18 +38,16 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
-
+#include <omp-tools.h>
 
 #include "geopm.h"
 #include "geopm_sched.h"
 #include "geopm_error.h"
 #include "ELF.hpp"
 #include "Exception.hpp"
+
 #include "config.h"
 
-#ifdef GEOPM_ENABLE_OMPT
-
-#include <omp-tools.h>
 
 extern "C"
 {
@@ -177,4 +175,3 @@ extern "C"
     }
 }
 
-#endif // GEOPM_ENABLE_OMPT defined
