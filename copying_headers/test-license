@@ -105,12 +105,12 @@ class LicenseHeaderFormatError(Exception):
     def __str__(self):
         return '{0}:\n{1}'.format(self.msg, self.path)
 
-class FilterBorg:
+class FilterBorg(object):
     _sharedState = {}
     def __init__(self):
         self.__dict__ = self._sharedState
 
-class Filter(object, FilterBorg):
+class Filter(FilterBorg):
     """
     Stores compiled regular expression for removing comment and
     white-space characters from beginning and ends of lines while
@@ -288,10 +288,10 @@ def main():
         if flag == '-u':
             update_dir = val
         elif flag in ('--help', '-h'):
-            print __doc__
+            sys.stdout.write('{}\n'.format(__doc__))
             return ''
         elif flag == '--version':
-            print __version__
+            sys.stdout.write('{}\n'.format(__version__))
             return ''
         else:
             raise CommandLineError('Parsing command line, unknown flag {0}\n'.format(flag))
@@ -310,7 +310,7 @@ def main():
 
 if __name__ == "__main__":
     try:
-        print main()
+        sys.stdout.write('{}\n'.format(main()))
     except (CommandLineError, ManifestIncompleteError, MissingHeaderError,
             BadRepoError, ManifestDoubleCountedError, LicenseHeaderFormatError) as err:
         sys.stderr.write('ERROR: {0}\n\n'.format(err))
