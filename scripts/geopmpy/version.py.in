@@ -30,3 +30,4 @@
 #
 
 __version__ = '@VERSION@'
+__beta__ = '@ENABLE_BETA@'
