@@ -115,7 +115,8 @@ namespace geopm
         for (const auto &host : hosts) {
             outfile << host << "\n";
         }
-        strncpy(data->hostlist_path, m_hostlist_path.c_str(), GEOPM_ENDPOINT_HOSTLIST_PATH_MAX);
+        data->hostlist_path[GEOPM_ENDPOINT_HOSTLIST_PATH_MAX -1] = '\0';
+        strncpy(data->hostlist_path, m_hostlist_path.c_str(), GEOPM_ENDPOINT_HOSTLIST_PATH_MAX - 1);
     }
 
     EndpointUserImp::~EndpointUserImp()
@@ -123,9 +124,9 @@ namespace geopm
         // detach from shared memory
         auto lock = m_sample_shmem->get_scoped_lock();
         auto data = (struct geopm_endpoint_sample_shmem_s *)m_sample_shmem->pointer();
-        strncpy(data->agent, "", GEOPM_ENDPOINT_AGENT_NAME_MAX);
-        strncpy(data->profile_name, "", GEOPM_ENDPOINT_PROFILE_NAME_MAX);
-        strncpy(data->hostlist_path, "", GEOPM_ENDPOINT_HOSTLIST_PATH_MAX);
+        data->agent[0] = '\0';
+        data->profile_name[0] = '\0';
+        data->hostlist_path[0] = '\0';
         unlink(m_hostlist_path.c_str());
     }
 
