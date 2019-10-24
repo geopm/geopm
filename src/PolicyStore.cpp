@@ -29,6 +29,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+#include "config.h"
+#ifdef GEOPM_ENABLE_BETA
+
 #include "PolicyStore.hpp"
 
 #include <cmath>
@@ -39,7 +43,6 @@
 #include "Helper.hpp"
 #include "geopm_error.h"
 #include "geopm_policystore.h"
-#include "config.h"
 
 namespace geopm
 {
@@ -157,3 +160,5 @@ extern "C"
         return err;
     }
 }
+
+#endif // GEOPM_ENABLE_BETA

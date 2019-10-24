@@ -31,6 +31,9 @@
  */
 
 #include "config.h"
+
+#ifdef GEOPM_ENABLE_OMPT
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -355,3 +358,5 @@ namespace geopm
         return result;
     }
 }
+
+#endif // GEOPM_ENABLE_OMPT
