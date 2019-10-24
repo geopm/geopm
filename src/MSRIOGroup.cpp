@@ -145,9 +145,19 @@ namespace geopm
         register_msr_signal("INSTRUCTIONS_RETIRED", "MSR::FIXED_CTR0:INST_RETIRED_ANY");
         register_msr_signal("CYCLES_THREAD",     "MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD");
         register_msr_signal("CYCLES_REFERENCE",  "MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC");
+
+        // power limit aliases
         register_msr_signal("POWER_PACKAGE_MIN", "MSR::PKG_POWER_INFO:MIN_POWER");
         register_msr_signal("POWER_PACKAGE_MAX", "MSR::PKG_POWER_INFO:MAX_POWER");
         register_msr_signal("POWER_PACKAGE_TDP", "MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER");
+        // power limits with sum as aggregation function
+        register_msr_signal("POWER_PACKAGE_MIN_TOTAL", "MSR::PKG_POWER_INFO:MIN_POWER");
+        register_msr_signal("POWER_PACKAGE_MAX_TOTAL", "MSR::PKG_POWER_INFO:MAX_POWER");
+        register_msr_signal("POWER_PACKAGE_TDP_TOTAL", "MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER");
+        m_func_map["POWER_PACKAGE_MIN_TOTAL"] = Agg::sum;
+        m_func_map["POWER_PACKAGE_MAX_TOTAL"] = Agg::sum;
+        m_func_map["POWER_PACKAGE_TDP_TOTAL"] = Agg::sum;
+
         // @todo: have MSRIOGroup handle this combined signal instead of platformIO
         register_msr_signal("TEMPERATURE_CORE_UNDER", "MSR::THERM_STATUS:DIGITAL_READOUT");
         register_msr_signal("TEMPERATURE_PKG_UNDER", "MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT");
