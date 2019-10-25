@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0642da9c_970d52a3",
+        "filename": "ronn/geopm_agent_power_governor.7.ronn",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-10-25T01:10:31Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 64,
+        "startChar": 31,
+        "endLine": 64,
+        "endChar": 41
+      },
+      "revId": "b7de6fd5b304a3a1023a2e613602d2b118129f8c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
