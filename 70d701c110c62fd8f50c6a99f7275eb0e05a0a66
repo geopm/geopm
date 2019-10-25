@@ -16,6 +16,24 @@
       "revId": "70d701c110c62fd8f50c6a99f7275eb0e05a0a66",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "325afd62_3cb78ef9",
+        "filename": "ronn/geopm_agent_frequency_map.7.ronn",
+        "patchSetId": 12
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-10-25T15:24:01Z",
+      "side": 1,
+      "message": "That would help usability a lot. I can start working on a patch to do that.\n\nIt might also be nice to convert any other string input to hashes so people could just put region names in here directly. But I guess that kind of limits us in what future changes we could make for special cases. Maybe just special handling for \"NAN\" and \"0x...\" will be easier to manage over time.",
+      "parentUuid": "67d2ea56_4801b19a",
+      "revId": "70d701c110c62fd8f50c6a99f7275eb0e05a0a66",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
