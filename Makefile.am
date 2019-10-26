@@ -708,9 +708,6 @@ doxygen: dox-public/Doxyfile
 # MAN TARGET
 BUILT_SOURCES += ruby/bin/ronn
 
-geopm-tutorial.tar.gz: $(TUTORIAL_DIST)
-	tar --transform='s|^|geopm-|' -zcf $@ $^
-
 ruby/bin/ronn:
 	mkdir -p ruby/bin; \
 	which ronn >& /dev/null && \
@@ -742,6 +739,9 @@ $(ronn_man): man/%: ronn/%.ronn
 	test -f $@ || sed 's|^\[//\]: #|.\\\"|' ronn/`basename $@`.ronn > $@
 
 endif
+
+geopm-tutorial.tar.gz: $(TUTORIAL_DIST)
+	tar --transform='s|^|geopm-|' -zcf $@ $^
 
 man/GEOPM_CXX_MAN_MSRSignal.3: man/GEOPM_CXX_MAN_MSR.3
 	cp $^ $@
