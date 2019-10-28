@@ -174,10 +174,6 @@ namespace geopm
                 result.second = demangled_name;
                 free(demangled_name);
             }
-            // End all C functions with ()
-            else if (!string_ends_with(result.second, ")")) {
-                result.second += "()";
-            }
         }
         return result;
     }
