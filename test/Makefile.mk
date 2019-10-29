@@ -330,6 +330,8 @@ if ENABLE_OMPT
                    # end
 endif
 
+TESTS_ENVIRONMENT = PYTHON='$(PYTHON)'
+
 TESTS += $(GTEST_TESTS) \
          copying_headers/test-license \
          # end

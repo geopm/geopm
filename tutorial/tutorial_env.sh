@@ -61,7 +61,18 @@ fi
 
 # GEOPMPY_PKGDIR: Directory containing geopmpy packages.
 if [ ! "$GEOPMPY_PKGDIR" ]; then
-    GEOPMPY_PKGDIR=$GEOPM_LIB/python2.7/site-packages
+    # Use whichever python version was used to build geopmpy
+    GEOPMPY_PKGDIR=$(ls -dv $GEOPM_LIB/python*/site-packages 2>/dev/null)
+    if [ 0 -eq $? ]; then
+        if [ 1 -ne $(echo "$GEOPMPY_PKGDIR" | wc -l) ]; then
+            GEOPMPY_PKGDIR=$(echo "$GEOPMPY_PKGDIR" | tail -n1)
+            echo 1>&2 "Warning: More than 1 python site-packages directory in $GEOPM_LIB"
+            echo 1>&2 "         Remove all except one, or manually set GEOPMPY_PKGDIR."
+            echo 1>&2 "         Assuming GEOPMPY_PKGDIR=${GEOPMPY_PKGDIR}."
+        fi
+    else
+        echo 1>&2 "Warning: Unable to find python site-packages in $GEOPM_LIB"
+    fi
 fi
 
 # GEOPM_INC: Directory containing geopm.h.
