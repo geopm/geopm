@@ -61,7 +61,15 @@ fi
 
 # GEOPMPY_PKGDIR: Directory containing geopmpy packages.
 if [ ! "$GEOPMPY_PKGDIR" ]; then
-    GEOPMPY_PKGDIR=$GEOPM_LIB/python2.7/site-packages
+    # Search for whichever python version was used to build geopmpy
+    for python_dir in $GEOPM_LIB/python*; do
+        GEOPMPY_PKGDIR=$python_dir/site-packages
+        break
+    done
+    if [ ! -d "$GEOPMPY_PKGDIR" ]; then
+    else
+        echo 2>&1 "Warning: Unable to set GEOPMPY_PKGDIR. No python found in '$GEOPM_LIB'"
+    fi
 fi
 
 # GEOPM_INC: Directory containing geopm.h.
