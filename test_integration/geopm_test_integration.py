@@ -419,8 +419,8 @@ class TestIntegration(unittest.TestCase):
             # The spin sections of this region sleep for 'delay' seconds twice per loop.
             self.assertNear(2 * loop_count * delay, spin_data['runtime'].item())
             self.assertNear(spin_data['runtime'].item(), epoch_data['runtime'].item(), epsilon=0.01)
-            self.assertGreater(app_totals['mpi-runtime'].item(), 0)
-            self.assertGreater(0.1, app_totals['mpi-runtime'].item())
+            self.assertGreater(app_totals['network-time'].item(), 0)
+            self.assertGreater(0.1, app_totals['network-time'].item())
             self.assertEqual(loop_count, spin_data['count'].item())
 
     def test_trace_runtimes(self):
@@ -986,7 +986,7 @@ class TestIntegration(unittest.TestCase):
             self.assertNear(all2all_data['mpi_runtime'].item(), all2all_data['runtime'].item(), mpi_epsilon)
             self.assertNear(all2all_data['mpi_runtime'].item(), epoch_data['mpi_runtime'].item())
             # TODO: inconsistent; can we just use _ everywhere?
-            self.assertNear(all2all_data['mpi_runtime'].item(), app_total['mpi-runtime'].item())
+            self.assertNear(all2all_data['mpi_runtime'].item(), app_total['network-time'].item())
             self.assertEqual(0, unmarked_data['mpi_runtime'].item())
             self.assertEqual(0, sleep_data['mpi_runtime'].item())
             self.assertEqual(0, dgemm_data['mpi_runtime'].item())
