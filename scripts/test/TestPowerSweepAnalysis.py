@@ -65,7 +65,7 @@ class TestPowerSweepAnalysis(unittest.TestCase):
             'energy_pkg': (lambda node, region, pow: 14000.0 + pow),
             'energy_dram': (lambda node, region, pow: 2000.0),
             'frequency': (lambda node, region, pow: 1.0e9 + (self._max_power/pow)*1.0e9),
-            'mpi_runtime': (lambda node, region, pow: 10),
+            'network_time': (lambda node, region, pow: 10),
             'runtime': (lambda node, region, pow: 500.0 * (1.0/pow)),
             'id': (lambda node, region, pow: 'bad')
         }
@@ -79,7 +79,7 @@ class TestPowerSweepAnalysis(unittest.TestCase):
 
     def make_expected_summary_df(self, powers):
         expected_data = []
-        cols = ['count', 'runtime', 'mpi_runtime', 'energy_pkg', 'energy_dram',
+        cols = ['count', 'runtime', 'network_time', 'energy_pkg', 'energy_dram',
                 'frequency']
         for node_name in self._node_names:
             for pp in powers:
