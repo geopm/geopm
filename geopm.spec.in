@@ -224,7 +224,6 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 
 %files -n python-geopmpy
 %{python_sitelib}/*
-%{_bindir}/geopmconvertreport
 %doc %{_mandir}/man7/geopmpy.7.gz
 %changelog
 @CHANGELOG@
