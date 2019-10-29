@@ -38,4 +38,6 @@ lib_dir=$dir_name/../../../.libs
 export PYTHONPATH=$scripts_dir:$PYTHONPATH
 export LD_LIBRARY_PATH=$lib_dir:$LD_LIBRARY_PATH
 
-python $dir_name/../$test_class.py --verbose $test_name >& $dir_name/$test_name.log
+# PYTHON is expected to be set when running make check. However, the default
+# value may be used when invoking this script directly from the command line.
+"${PYTHON-python3}" $dir_name/../$test_class.py --verbose $test_name >& $dir_name/$test_name.log

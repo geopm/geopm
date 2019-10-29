@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -78,8 +78,11 @@ classifiers = ['Development Status :: 5 - Production/Stable',
                'Topic :: System :: Distributed Computing',
                'Topic :: System :: Hardware :: Symmetric Multi-processing',
                'Topic :: System :: Power (UPS)',
-               'Programming Language :: Python :: 2 :: Only',
-               'Programming Language :: Python :: 2.7']
+               'Programming Language :: Python :: 2',
+               'Programming Language :: Python :: 3',
+               'Programming Language :: Python :: 2.7',
+               'Programming Language :: Python :: 3.6',
+]
 
 install_requires = ['pandas>=0.19.2',
                     'natsort',
@@ -102,4 +105,4 @@ setup(name='geopmpy',
       test_suite='test',
       classifiers=classifiers,
       install_requires=install_requires,
-      python_requires='>=2.7,<3')
+      python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*')
