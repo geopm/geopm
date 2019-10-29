@@ -76,9 +76,10 @@ extracting specific data.  See the in-file docstrings for more info.
   If you are installing GEOPM into the system's default paths for Python, etc.
   then there is nothing to be done here.  Otherwise, if you are using
   "--prefix=<PREFIX_PATH>" when you run configure then you must set your
-  `PYTHONPATH` to:
+  `PYTHONPATH` to the location of the built site-packages directory. For
+  example, the PYTHONPATH for a python 3.6 build may look like:
 
-    export PYTHONPATH=<PREFIX_PATH>/lib/python2.7/site-packages:${PYTHONPATH}
+    export PYTHONPATH=<PREFIX_PATH>/lib/python3.6/site-packages:${PYTHONPATH}
 
   You must also set your `PATH` variable to:
 
