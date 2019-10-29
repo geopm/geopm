@@ -248,16 +248,12 @@ namespace geopm
             double numer = m_region_agg->sample_total(m_clk_core_idx, region.hash);
             double denom = m_region_agg->sample_total(m_clk_ref_idx, region.hash);
             double freq = denom != 0 ? 100.0 * numer / denom : 0.0;
-            double mpi_runtime = 0.0;
-            if (GEOPM_REGION_HASH_EPOCH == region.hash ) {
-                mpi_runtime = application_io.total_epoch_runtime_mpi();
-            }
-            else {
-                mpi_runtime = application_io.total_region_runtime_mpi(region.hash);
-            }
             report << "    frequency (%): " << freq << std::endl;
             report << "    frequency (Hz): " << freq / 100.0 * m_platform_io.read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0) << std::endl;
-            report << "    mpi-runtime (sec): " << mpi_runtime << std::endl;
+            double network_time = (region.hash == GEOPM_REGION_HASH_EPOCH) ?
+                                   application_io.total_epoch_runtime_mpi() :
+                                   application_io.total_region_runtime_mpi(region.hash);
+            report << "    network-time (sec): " << network_time << std::endl;
             report << "    count: " << region.count << std::endl;
             for (const auto &env_it : m_env_signal_name_idx) {
                 report << "    " << env_it.first << ": " << m_region_agg->sample_total(env_it.second, region.hash) << std::endl;
@@ -280,7 +276,7 @@ namespace geopm
                << "    package-energy (joules): " << app_energy_pkg << std::endl
                << "    dram-energy (joules): " << application_io.total_app_energy_dram() << std::endl
                << "    power (watts): " << avg_power << std::endl
-               << "    mpi-runtime (sec): " << application_io.total_app_runtime_mpi() << std::endl
+               << "    network-time (sec): " << application_io.total_app_runtime_mpi() << std::endl
                << "    ignore-time (sec): " << application_io.total_app_runtime_ignore() << std::endl;
 
         std::string max_memory = get_max_memory();

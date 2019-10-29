@@ -63,7 +63,7 @@ class TestBalancerAnalysis(unittest.TestCase):
             'energy_pkg': (lambda node, region, pow: (14000.0 + pow)),
             'energy_dram': (lambda node, region, pow: 2000.0),
             'frequency': (lambda node, region, pow: 1.0e9 + (self._max_power/float(pow))*1.0e9),
-            'mpi_runtime': (lambda node, region, pow: 10),
+            'network_time': (lambda node, region, pow: 10),
             'runtime': (lambda node, region, pow: (500.0 * (1.0/pow))),
             'id': (lambda node, region, pow: 'bad'),
             'power': (lambda node, region, pow:
