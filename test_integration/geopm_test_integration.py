@@ -419,8 +419,8 @@ class TestIntegration(unittest.TestCase):
             # The spin sections of this region sleep for 'delay' seconds twice per loop.
             self.assertNear(2 * loop_count * delay, spin_data['runtime'].item())
             self.assertNear(spin_data['runtime'].item(), epoch_data['runtime'].item(), epsilon=0.01)
-            self.assertGreater(app_totals['mpi-runtime'].item(), 0)
-            self.assertGreater(0.1, app_totals['mpi-runtime'].item())
+            self.assertGreater(app_totals['network-time'].item(), 0)
+            self.assertGreater(0.1, app_totals['network-time'].item())
             self.assertEqual(loop_count, spin_data['count'].item())
 
     def test_trace_runtimes(self):
@@ -948,8 +948,8 @@ class TestIntegration(unittest.TestCase):
             self.assertGreater(0.06, 1 - (float(len(delta_t)) / size_orig))
             self.assertGreater(max_nstd, delta_t.std() / delta_t.mean())
 
-    def test_mpi_runtimes(self):
-        name = 'test_mpi_runtimes'
+    def test_network_times(self):
+        name = 'test_network_times'
         report_path = name + '.report'
         trace_path = name + '.trace'
         num_node = 4
@@ -982,14 +982,14 @@ class TestIntegration(unittest.TestCase):
             # ranks on a node are in a region, we must use the
             # unmarked-region time as our error term when comparing
             # MPI time and all2all time.
-            mpi_epsilon = max(unmarked_data['runtime'].item() / all2all_data['mpi_runtime'].item(), 0.05)
-            self.assertNear(all2all_data['mpi_runtime'].item(), all2all_data['runtime'].item(), mpi_epsilon)
-            self.assertNear(all2all_data['mpi_runtime'].item(), epoch_data['mpi_runtime'].item())
+            mpi_epsilon = max(unmarked_data['runtime'].item() / all2all_data['network_time'].item(), 0.05)
+            self.assertNear(all2all_data['network_time'].item(), all2all_data['runtime'].item(), mpi_epsilon)
+            self.assertNear(all2all_data['network_time'].item(), epoch_data['network_time'].item())
             # TODO: inconsistent; can we just use _ everywhere?
-            self.assertNear(all2all_data['mpi_runtime'].item(), app_total['mpi-runtime'].item())
-            self.assertEqual(0, unmarked_data['mpi_runtime'].item())
-            self.assertEqual(0, sleep_data['mpi_runtime'].item())
-            self.assertEqual(0, dgemm_data['mpi_runtime'].item())
+            self.assertNear(all2all_data['network_time'].item(), app_total['network-time'].item())
+            self.assertEqual(0, unmarked_data['network_time'].item())
+            self.assertEqual(0, sleep_data['network_time'].item())
+            self.assertEqual(0, dgemm_data['network_time'].item())
 
     def test_ignore_runtime(self):
         name = 'test_ignore_runtime'

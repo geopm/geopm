@@ -68,7 +68,7 @@ class TestNodeEfficiencyAnalysis(unittest.TestCase):
             'energy_pkg': (lambda node, region, pow: 14000.0),
             'energy_dram': (lambda node, region, pow: 2000.0),
             'frequency': (lambda node, region, pow: 50.0 + (pow/self._max_power)*(self._node_names.index(node)/self._num_nodes)),
-            'mpi_runtime': (lambda node, region, pow: 10),
+            'network_time': (lambda node, region, pow: 10),
             'runtime': (lambda node, region, pow: 50.0),
             'id': (lambda node, region, pow: 'bad'),
         }

@@ -203,6 +203,7 @@ namespace geopm
             double m_epoch_total_energy_pkg;
             double m_epoch_total_energy_dram;
             std::map<uint64_t, int> m_region_rank_count;
+            std::set<uint64_t> m_network_region_set;
     };
 }
 
