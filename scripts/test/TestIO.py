@@ -90,7 +90,7 @@ Region sleep (0x00000000536c798f):
     power (watts): 121.389
     frequency (%): 50.0846
     frequency (Hz): 1.05178e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 5500
     requested-online-frequency: 1000000000.000000
 Region stream-0.35-dgemm-1.80 (0x0000000076244144):
@@ -101,7 +101,7 @@ Region stream-0.35-dgemm-1.80 (0x0000000076244144):
     power (watts): 168.928
     frequency (%): 53.9602
     frequency (Hz): 1.13317e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1100000000.000000
 Region stream-0.40-dgemm-1.20 (0x000000000db5f27a):
@@ -112,7 +112,7 @@ Region stream-0.40-dgemm-1.20 (0x000000000db5f27a):
     power (watts): 162.132
     frequency (%): 50.303
     frequency (Hz): 1.05636e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1000000000.000000
 Region stream-0.45-dgemm-0.60 (0x000000009851de3f):
@@ -123,7 +123,7 @@ Region stream-0.45-dgemm-0.60 (0x000000009851de3f):
     power (watts): 163.382
     frequency (%): 50.5233
     frequency (Hz): 1.06099e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1000000000.000000
 Region stream-0.30-dgemm-2.40 (0x00000000ce08ae24):
@@ -134,7 +134,7 @@ Region stream-0.30-dgemm-2.40 (0x00000000ce08ae24):
     power (watts): 176.559
     frequency (%): 61.4774
     frequency (Hz): 1.29102e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1300000000.000000
 Region stream-0.50-dgemm-0.00 (0x000000003a6c47e3):
@@ -145,7 +145,7 @@ Region stream-0.50-dgemm-0.00 (0x000000003a6c47e3):
     power (watts): 170.477
     frequency (%): 50.8315
     frequency (Hz): 1.06746e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1000000000.000000
 Region stream-0.25-dgemm-3.00 (0x000000003c627f60):
@@ -156,7 +156,7 @@ Region stream-0.25-dgemm-3.00 (0x000000003c627f60):
     power (watts): 188.936
     frequency (%): 65.2223
     frequency (Hz): 1.36967e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1400000000.000000
 Region stream-0.20-dgemm-3.60 (0x00000000f9d11bbd):
@@ -167,7 +167,7 @@ Region stream-0.20-dgemm-3.60 (0x00000000f9d11bbd):
     power (watts): 197.826
     frequency (%): 68.9304
     frequency (Hz): 1.44754e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1500000000.000000
 Region stream-0.15-dgemm-4.20 (0x00000000addfa74f):
@@ -178,7 +178,7 @@ Region stream-0.15-dgemm-4.20 (0x00000000addfa74f):
     power (watts): 213.014
     frequency (%): 72.3136
     frequency (Hz): 1.51858e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1600000000.000000
 Region stream-0.10-dgemm-4.80 (0x00000000e50a9187):
@@ -189,7 +189,7 @@ Region stream-0.10-dgemm-4.80 (0x00000000e50a9187):
     power (watts): 224.242
     frequency (%): 72.2398
     frequency (Hz): 1.51704e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1600000000.000000
 Region stream-0.05-dgemm-5.40 (0x00000000e1242325):
@@ -200,7 +200,7 @@ Region stream-0.05-dgemm-5.40 (0x00000000e1242325):
     power (watts): 238.041
     frequency (%): 75.8382
     frequency (Hz): 1.5926e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1700000000.000000
 Region stream-0.00-dgemm-6.00 (0x00000000af4cafa3):
@@ -211,7 +211,7 @@ Region stream-0.00-dgemm-6.00 (0x00000000af4cafa3):
     power (watts): 244.914
     frequency (%): 75.7953
     frequency (Hz): 1.5917e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1700000000.000000
 Region unmarked-region (0x00000000725e8066):
@@ -222,7 +222,7 @@ Region unmarked-region (0x00000000725e8066):
     power (watts): 170.209
     frequency (%): 97.2362
     frequency (Hz): 2.04196e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 0
     requested-online-frequency: 2100000000.000000
 Epoch Totals:
@@ -233,7 +233,7 @@ Epoch Totals:
     power (watts): 0
     frequency (%): 0
     frequency (Hz): 0
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 0
     epoch-runtime-ignore (sec): 0
 Application Totals:
@@ -241,7 +241,7 @@ Application Totals:
     package-energy (joules): 83998.9
     dram-energy (joules): 8218.69
     power (watts): 155.121
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     ignore-time (sec): 0
     geopmctl memory HWM: 144472 kB
     geopmctl network BW (B/sec): 0.0443208
@@ -270,7 +270,7 @@ Region sleep (0x00000000536c798f):
     power (watts): 124.91
     frequency (%): 50.0117
     frequency (Hz): 1.05024e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 5500
     requested-online-frequency: 1000000000.000000
 Region stream-0.35-dgemm-1.80 (0x0000000076244144):
@@ -281,7 +281,7 @@ Region stream-0.35-dgemm-1.80 (0x0000000076244144):
     power (watts): 170.806
     frequency (%): 53.9922
     frequency (Hz): 1.13384e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1100000000.000000
 Region stream-0.40-dgemm-1.20 (0x000000000db5f27a):
@@ -292,7 +292,7 @@ Region stream-0.40-dgemm-1.20 (0x000000000db5f27a):
     power (watts): 165.476
     frequency (%): 50.3009
     frequency (Hz): 1.05632e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1000000000.000000
 Region stream-0.45-dgemm-0.60 (0x000000009851de3f):
@@ -303,7 +303,7 @@ Region stream-0.45-dgemm-0.60 (0x000000009851de3f):
     power (watts): 164.705
     frequency (%): 50.3711
     frequency (Hz): 1.05779e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1000000000.000000
 Region stream-0.30-dgemm-2.40 (0x00000000ce08ae24):
@@ -314,7 +314,7 @@ Region stream-0.30-dgemm-2.40 (0x00000000ce08ae24):
     power (watts): 181.05
     frequency (%): 61.493
     frequency (Hz): 1.29135e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1300000000.000000
 Region stream-0.50-dgemm-0.00 (0x000000003a6c47e3):
@@ -325,7 +325,7 @@ Region stream-0.50-dgemm-0.00 (0x000000003a6c47e3):
     power (watts): 174.75
     frequency (%): 50.9256
     frequency (Hz): 1.06944e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1000000000.000000
 Region stream-0.25-dgemm-3.00 (0x000000003c627f60):
@@ -336,7 +336,7 @@ Region stream-0.25-dgemm-3.00 (0x000000003c627f60):
     power (watts): 193.065
     frequency (%): 65.2297
     frequency (Hz): 1.36982e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1400000000.000000
 Region stream-0.20-dgemm-3.60 (0x00000000f9d11bbd):
@@ -347,7 +347,7 @@ Region stream-0.20-dgemm-3.60 (0x00000000f9d11bbd):
     power (watts): 202.228
     frequency (%): 68.9091
     frequency (Hz): 1.44709e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1500000000.000000
 Region stream-0.15-dgemm-4.20 (0x00000000addfa74f):
@@ -358,7 +358,7 @@ Region stream-0.15-dgemm-4.20 (0x00000000addfa74f):
     power (watts): 209.719
     frequency (%): 68.7558
     frequency (Hz): 1.44387e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1500000000.000000
 Region stream-0.10-dgemm-4.80 (0x00000000e50a9187):
@@ -369,7 +369,7 @@ Region stream-0.10-dgemm-4.80 (0x00000000e50a9187):
     power (watts): 228.767
     frequency (%): 72.2666
     frequency (Hz): 1.5176e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1600000000.000000
 Region stream-0.05-dgemm-5.40 (0x00000000e1242325):
@@ -380,7 +380,7 @@ Region stream-0.05-dgemm-5.40 (0x00000000e1242325):
     power (watts): 241.059
     frequency (%): 76.1363
     frequency (Hz): 1.59886e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1700000000.000000
 Region stream-0.00-dgemm-6.00 (0x00000000af4cafa3):
@@ -391,7 +391,7 @@ Region stream-0.00-dgemm-6.00 (0x00000000af4cafa3):
     power (watts): 246.185
     frequency (%): 75.8795
     frequency (Hz): 1.59347e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 500
     requested-online-frequency: 1700000000.000000
 Region unmarked-region (0x00000000725e8066):
@@ -402,7 +402,7 @@ Region unmarked-region (0x00000000725e8066):
     power (watts): 203.102
     frequency (%): 95.0914
     frequency (Hz): 1.99692e+09
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 0
     requested-online-frequency: 2200000000.000000
 Epoch Totals:
@@ -413,7 +413,7 @@ Epoch Totals:
     power (watts): 0
     frequency (%): 0
     frequency (Hz): 0
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     count: 0
     epoch-runtime-ignore (sec): 0
 Application Totals:
@@ -421,7 +421,7 @@ Application Totals:
     package-energy (joules): 85946.8
     dram-energy (joules): 10142.6
     power (watts): 158.718
-    mpi-runtime (sec): 0
+    network-time (sec): 0
     ignore-time (sec): 0
     geopmctl memory HWM: 142300 kB
     geopmctl network BW (B/sec): 0
