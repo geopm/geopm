@@ -315,7 +315,7 @@ class AppOutput(object):
         """
         # Build and index the DF
         rdf = pandas.DataFrame(rr).T.drop('name', 1)
-        numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'mpi_runtime', 'runtime', 'sync_runtime']
+        numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'network_time', 'runtime', 'sync_runtime']
         rdf[numeric_cols] = rdf[numeric_cols].apply(pandas.to_numeric)
 
         # Add extra index info
@@ -327,7 +327,7 @@ class AppOutput(object):
         app = {'runtime': rr.get_runtime(),
                'energy-package': rr.get_energy_pkg(),
                'energy-dram': rr.get_energy_dram(),
-               'mpi-runtime': rr.get_mpi_runtime(),
+               'network-time': rr.get_network_time(),
                'ignore-runtime': rr.get_ignore_runtime(),
                'memory-hwm': rr.get_memory_hwm(),
                'network-bw': rr.get_network_bw()
@@ -621,13 +621,13 @@ class Report(OrderedDict):
         self._total_energy_pkg = None
         self._total_energy_dram = None
         self._total_ignore_runtime = None
-        self._total_mpi_runtime = None
+        self._total_network_time = None
         self._total_memory_hwm = None
         self._total_network_bw = None
         self._node_name = None
 
         found_totals = False
-        (region_name, region_id, runtime, sync_runtime, energy_pkg, energy_dram, frequency, mpi_runtime, count) = None, None, None, None, None, None, None, None, None
+        (region_name, region_id, runtime, sync_runtime, energy_pkg, energy_dram, frequency, network_time, count) = None, None, None, None, None, None, None, None, None
         float_regex = r'([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)'
 
         with open(self._path, 'r') as fid:
@@ -686,16 +686,16 @@ class Report(OrderedDict):
                     match = re.search(r'^\s+frequency \(%\)+: ' + float_regex, line)
                     if match is not None:
                         frequency = float(match.group(1))
-                if mpi_runtime is None:
-                    match = re.search(r'^\s+mpi-runtime.+: ' + float_regex, line)
+                if network_time is None:
+                    match = re.search(r'^\s+network-time.+: ' + float_regex, line)
                     if match is not None:
-                        mpi_runtime = float(match.group(1))
+                        network_time = float(match.group(1))
                 if count is None:
                     match = re.search(r'^\s+count: ' + float_regex, line)
                     if match is not None:
                         count = float(match.group(1))
-                        self[region_name] = Region(region_name, region_id, runtime, sync_runtime, energy_pkg, energy_dram, frequency, mpi_runtime, count)
-                        (region_name, region_id, runtime, sync_runtime, energy_pkg, energy_dram, frequency, mpi_runtime, count) = \
+                        self[region_name] = Region(region_name, region_id, runtime, sync_runtime, energy_pkg, energy_dram, frequency, network_time, count)
+                        (region_name, region_id, runtime, sync_runtime, energy_pkg, energy_dram, frequency, network_time, count) = \
                             None, None, None, None, None, None, None, None, None
                 if not found_totals:
                     match = re.search(r'^Application Totals:$', line)
@@ -714,10 +714,10 @@ class Report(OrderedDict):
                         match = re.search(r'\s+dram-energy.+: ' + float_regex, line)
                         if match is not None:
                             self._total_energy_dram = float(match.group(1))
-                    if self._total_mpi_runtime is None:
-                        match = re.search(r'\s+mpi-runtime.+: ' + float_regex, line)
+                    if self._total_network_time is None:
+                        match = re.search(r'\s+network-time.+: ' + float_regex, line)
                         if match is not None:
-                            self._total_mpi_runtime = float(match.group(1))
+                            self._total_network_time = float(match.group(1))
                     if self._total_ignore_runtime is None:
                         match = re.search(r'\s+ignore-time.+: ' + float_regex, line)
                         if match is not None:
@@ -765,7 +765,7 @@ class Report(OrderedDict):
         if self._total_energy_dram is None:
             self._total_energy_dram = 0
         if (len(line) != 0 and (region_name is not None or not found_totals or
-            None in (self._total_runtime, self._total_energy_pkg, self._total_energy_dram, self._total_ignore_runtime, self._total_mpi_runtime))):
+            None in (self._total_runtime, self._total_energy_pkg, self._total_energy_dram, self._total_ignore_runtime, self._total_network_time))):
             raise SyntaxError('Unable to parse report {} before offset {}: '.format(self._path, self._offset))
 
     # Fields used for dataframe construction only
@@ -794,8 +794,8 @@ class Report(OrderedDict):
     def get_ignore_runtime(self):
         return self._total_ignore_runtime
 
-    def get_mpi_runtime(self):
-        return self._total_mpi_runtime
+    def get_network_time(self):
+        return self._total_network_time
 
     def get_energy_pkg(self):
         return self._total_energy_pkg
@@ -823,12 +823,12 @@ class Region(OrderedDict):
                      Joules.
         frequency: The average frequency achieved during this region
                    in terms of percent of sticker frequency.
-        mpi_runtime: The accumulated time in this region executing MPI
+        network_time: The accumulated time in this region executing MPI
                      calls in seconds.
         count: The number of times this region has been entered.
 
     """
-    def __init__(self, name, rid, runtime, sync_runtime, energy_pkg, energy_dram, frequency, mpi_runtime, count):
+    def __init__(self, name, rid, runtime, sync_runtime, energy_pkg, energy_dram, frequency, network_time, count):
         super(Region, self).__init__()
         self['name'] = name
         self['id'] = rid
@@ -837,7 +837,7 @@ class Region(OrderedDict):
         self['energy_pkg'] = float(energy_pkg)
         self['energy_dram'] = float(energy_dram) if energy_dram is not None else 0
         self['frequency'] = float(frequency)
-        self['mpi_runtime'] = float(mpi_runtime)
+        self['network_time'] = float(network_time)
         self['count'] = int(count)
 
     def __repr__(self):
@@ -848,7 +848,7 @@ class Region(OrderedDict):
   package-energy : {energy_pkg}
   dram-energy : {energy_dram}
   frequency   : {frequency}
-  mpi-runtime : {mpi_runtime}
+  network-time : {network_time}
   count       : {count}
 """
         return template.format(name=self['name'],
@@ -858,7 +858,7 @@ class Region(OrderedDict):
                                energy_pkg=self['energy_pkg'],
                                energy_dram=self['energy_dram'],
                                frequency=self['frequency'],
-                               mpi_runtime=self['mpi_runtime'],
+                               network_time=self['network_time'],
                                count=self['count'])
 
     def __str__(self):
@@ -885,8 +885,8 @@ class Region(OrderedDict):
     def get_frequency(self):
         return self['frequency']
 
-    def get_mpi_runtime(self):
-        return self['mpi_runtime']
+    def get_network_time(self):
+        return self['network_time']
 
     def get_count(self):
         return self['count']

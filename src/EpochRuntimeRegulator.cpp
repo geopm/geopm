@@ -148,7 +148,11 @@ namespace geopm
             throw Exception("EpochRuntimeRegulatorImp::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
+        bool is_network = geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_NETWORK, region_id);
         region_id = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id);
+        if (is_network) {
+            m_network_region_set.insert(region_id);
+        }
         if (!m_seen_first_epoch[rank]) {
             m_pre_epoch_region[rank].insert(region_id);
         }
@@ -300,7 +304,11 @@ namespace geopm
         if (region_id == GEOPM_REGION_ID_EPOCH) {
             result = total_epoch_runtime_mpi();
         }
-        else {
+        else if (m_network_region_set.find(region_id) != m_network_region_set.end()) {
+            result = total_region_runtime(region_id);
+        }
+        else
+        {
             try {
                 region_id = geopm_region_id_set_mpi(region_id);
                 result = total_region_runtime(region_id);

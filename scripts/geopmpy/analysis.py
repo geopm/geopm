@@ -298,7 +298,7 @@ class PowerSweepAnalysis(Analysis):
                                           agent=self._agent_type,
                                           region='epoch')
         summary = pandas.DataFrame()
-        for col in ['count', 'runtime', 'mpi_runtime', 'energy_pkg', 'energy_dram', 'frequency']:
+        for col in ['count', 'runtime', 'network_time', 'energy_pkg', 'energy_dram', 'frequency']:
             summary[col] = df[col].groupby(level='name').mean()
         summary.index.rename('power cap', inplace=True)
         return summary
@@ -380,7 +380,7 @@ class BalancerAnalysis(Analysis):
 
         # Data reduction - mean (if running more than 1 iteration, noop otherwise)
         mean_report_df = report_df.groupby(['power_budget', 'agent', 'node_name', 'region']).mean()
-        mean_report_df = mean_report_df[['frequency', 'power', 'runtime', 'mpi_runtime', 'energy_pkg', 'count']]
+        mean_report_df = mean_report_df[['frequency', 'power', 'runtime', 'network_time', 'energy_pkg', 'count']]
 
         summary_df = mean_report_df.groupby(['power_budget', 'agent', 'region']).mean()  # node_name not in group
 
@@ -925,7 +925,7 @@ class FreqSweepAnalysis(Analysis):
 
         report_df = FreqSweepAnalysis.profile_to_freq_mhz(report_df)
 
-        cols = ['energy_pkg', 'runtime', 'mpi_runtime', 'frequency', 'count']
+        cols = ['energy_pkg', 'runtime', 'network_time', 'frequency', 'count']
 
         means_df = report_df.groupby(['region', 'freq_mhz'])[cols].mean()
         # Define ref_freq to be three steps back from the end of the list.  The end of the list should always be
@@ -1017,7 +1017,7 @@ def baseline_comparison(parse_output, comp_name, sweep_output):
     baseline_df = FreqSweepAnalysis.profile_to_freq_mhz(baseline_df)
 
     # Reduce the data
-    cols = ['energy_pkg', 'runtime', 'mpi_runtime', 'frequency', 'count']
+    cols = ['energy_pkg', 'runtime', 'network_time', 'frequency', 'count']
     baseline_means_df = baseline_df.groupby(['region', 'freq_mhz'])[cols].mean()
     comp_means_df = comp_df.groupby(['region', 'name'])[cols].mean()
 
