@@ -104,7 +104,6 @@
 /scripts/geopm/version.py
 /scripts/geopmpy.egg-info/*
 /scripts/geopmpy/version.py
-/scripts/setup.py
 /scripts/test/pytest_links/*
 /src/*.lo
 /src/*.o
