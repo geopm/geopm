@@ -168,4 +168,4 @@ CLEAN_LOCAL_TARGETS += clean-local-pytest-script-links \
                        clean-local-python
 
 install-python: scripts/setup.py
-	cd scripts && ./setup.py install -O1 --root $(DESTDIR)/ --prefix $(prefix)
+	cd scripts && $(PYTHON) ./setup.py install -O1 --root $(DESTDIR)/ --prefix $(prefix)

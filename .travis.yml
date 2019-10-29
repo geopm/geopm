@@ -51,6 +51,7 @@ before_install:
     - ./autogen.sh
     - pyenv install -s 2.7
     - pyenv install -s 3.6
+    - pyenv global 3.6
 
 install:
     - PYENV_VERSION=2.7 pip install --user -r ./scripts/requirements.txt
@@ -71,7 +72,7 @@ env:
         - INSTALL_ROOT=$TRAVIS_BUILD_DIR/../tmp_install
         - GEOPM_INSTALL_ROOT=$INSTALL_ROOT/geopm
         - PATH="$GEOPM_INSTALL_ROOT/bin:$PATH"
-        - PYTHONPATH="$GEOPM_INSTALL_ROOT/lib/python2.7/site-packages/:$TRAVIS_BUILD_DIR/scripts/build/lib/:$PYTHONPATH"
+        - PYTHONPATH="$GEOPM_INSTALL_ROOT/lib/python3.6/site-packages/:$TRAVIS_BUILD_DIR/scripts/build/lib/:$PYTHONPATH"
         - MANPATH="$GEOPM_INSTALL_ROOT/share/man:$MANPATH"
         - MAKEFLAGS="-j 2"
         - MPLBACKEND='Agg'
