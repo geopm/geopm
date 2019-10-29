@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "719ac0ca_6d7bf0c2",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 1297,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-10-29T18:20:38Z",
+      "side": 1,
+      "message": "Maybe fewer lines and less confusing code to create a backwards compatibility dictionary that maps old style names to new style names.",
+      "revId": "b26b326d8b07c6ee0eb096e16db497f5ccf5b738",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
