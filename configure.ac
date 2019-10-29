@@ -286,6 +286,19 @@ if test "x$with_libelf_lib" != x; then
   EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_libelf_lib"
 fi
 
+AC_ARG_VAR([PYTHON],
+           [PYTHON the Python interpreter used to build Python modules])
+
+AC_ARG_WITH([python], [AS_HELP_STRING([--with-python=PATH],
+            [specify the path to the python interpreter])])
+if test "x$with_python" != x; then
+  PYTHON=$with_python
+else
+  # On success, sets PYTHON to a version >= the specified version
+  AM_PATH_PYTHON([3.6], ,
+                 AC_MSG_ERROR([Failed to find a python >= 3.6. Use --with-python to explicitly specify an interpreter]))
+fi
+
 m4_include([m4/lx_find_mpi.m4])
 LX_FIND_MPI()
 AC_LANG_PUSH([C++])
@@ -596,6 +609,7 @@ AC_MSG_RESULT([MPI_LIBS           : ${MPI_LIBS}])
 AC_MSG_RESULT([MPI_CXXLIBS        : ${MPI_CXXLIBS}])
 AC_MSG_RESULT([MPI_FLIBS          : ${MPI_FLIBS}])
 AC_MSG_RESULT([MPI_FCLIBS         : ${MPI_FCLIBS}])
+AC_MSG_RESULT([PYTHON             : ${PYTHON}])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([prefix             : ${prefix}])
 AC_MSG_RESULT([exec_prefix        : ${exec_prefix}])

@@ -245,7 +245,12 @@ made prior to running any GEOPM tools:
 
     export LD_LIBRARY_PATH=$GEOPM_PREFIX/lib:$LD_LIBRARY_PATH
     export PATH=$GEOPM_PREFIX/bin:$PATH
-    export PYTHONPATH=$GEOPM_PREFIX/lib/python2.7/site-packages:$PYTHONPATH
+    export PYTHONPATH=$GEOPM_PREFIX/lib/python*/site-packages:$PYTHONPATH
+
+Use a PYTHONPATH that points to the site-packages created by the geopm build.
+The version created is for whichever version of python 3 was used in the
+configure step.  If a different version of python is desired, override the
+default with the --with-python option in the configure script.
 
 ### SYSTEMD CONFIGURATION
 In order for GEOPM to properly use shared memory to communicate
