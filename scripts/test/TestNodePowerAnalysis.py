@@ -65,7 +65,7 @@ class TestNodePowerAnalysis(unittest.TestCase):
             'energy_dram': (lambda node, region, param: 2000.0),
             'frequency': (lambda node, region, param:
                 1.0e9 + (self._node_names.index(node)/float(self._num_nodes))*1.0e9),
-            'mpi_runtime': (lambda node, region, param: 10),
+            'network_time': (lambda node, region, param: 10),
             'runtime': (lambda node, region, param: 500.0 + self._node_names.index(node)),
             'id': (lambda node, region, param: 'bad'),
             'power': (lambda node, region, param:

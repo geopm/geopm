@@ -132,7 +132,7 @@ class TestFreqSweepAnalysis(unittest.TestCase):
             'count': lambda node, region, param: 1,
             'energy_pkg': lambda node, region, param: 14000.0,
             'frequency': lambda node, region, param: 1e9,
-            'mpi_runtime': lambda node, region, param: 10,
+            'network_time': lambda node, region, param: 10,
             'runtime': lambda node, region, param: 50,
             'id': lambda node, region, param: 'bad'
         }
