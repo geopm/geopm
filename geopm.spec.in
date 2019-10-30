@@ -39,16 +39,42 @@ URL: https://geopm.github.io
 Source0: geopm.tar.gz
 BuildRoot: %{_tmppath}/geopm-%{version}-%{release}-root
 BuildRequires: gcc-c++
-BuildRequires: python
 BuildRequires: unzip
 BuildRequires: libtool
-BuildRequires: sqlite-devel
-BuildRequires: elfutils-libelf-devel
+
+%if 0%{?rhel} >= 8
+# Needed to generate debuginfo packages
+BuildRequires: gdb-headless
+%endif
+
+%if ((%{defined suse_version}) && (0%{?suse_version} < 1500)) || ((%{defined rhel}) && (0%{?rhel} < 8))
+# The version of python 3 available in these versions is not supported for all
+# of our package dependencies, but they do support 2.7 and newer versions of 3
+# We originally released to these distributions with an implicit python 2
+# dependency, so keep it that way for existing compatibility.
+%define python_major_version %{nil}
+BuildRequires: python
+BuildRequires: python-devel
+%define python_bin /usr/bin/python
+%else
+%define python_major_version 3
+%if %{defined rhel}
+# We should depend on python36, but that package is implemented as a module.
+# The enterprise Linux repos on opensuse's OBS instance don't expose modules
+# at this time, so the build fails due to a seemingly invalid dependency.
+# For now, depend on platform-python instead, which is a bare package.
+BuildRequires: platform-python
+BuildRequires: platform-python-devel
+%else
+BuildRequires: python3
+BuildRequires: python3-devel
+%endif
+%define python_bin %{__python3}
+%endif
 
 %if 0%{?suse_version} >= 1320
 BuildRequires: openssh
 %endif
-BuildRequires: python-devel
 
 Prefix: %{_prefix}
 
@@ -73,14 +99,14 @@ Requires: geopmpolicy
 %description devel
 Development package for GEOPM.
 
-%package -n python-geopmpy
-Summary: Global Extensible Open Power Manager - python
+%package -n python%{python_major_version}-geopmpy
+Summary: Global Extensible Open Power Manager - python %{python_major_version}
 Group: System Environment/Libraries
 Requires: geopmpolicy
-%{?python_provide:%python_provide python-geopmpy}
+%{?python_provide:%python_provide python%{python_major_version}-geopmpy}
 
-%description -n python-geopmpy
-Python package for GEOPM.
+%description -n python%{python_major_version}-geopmpy
+Python %{python_major_version} package for GEOPM.
 
 %build
 test -f configure || ./autogen.sh
@@ -91,6 +117,7 @@ test -f configure || ./autogen.sh
             --mandir=%{_mandir} --docdir=%{docdir} \
             --disable-mpi --disable-openmp \
             --disable-fortran --disable-doc \
+            --with-python=%{python_bin} \
             || ( cat config.log && false )
 %else
 ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libexecdir} \
@@ -98,6 +125,7 @@ test -f configure || ./autogen.sh
             --mandir=%{_mandir} --docdir=%{docdir} \
             --disable-mpi --disable-openmp \
             --disable-fortran --disable-doc \
+            --with-python=%{python_bin} \
             || ( cat config.log && false )
 %endif
 
@@ -222,8 +250,8 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 %{_includedir}/geopm_topo.h
 %{_includedir}/geopm_version.h
 
-%files -n python-geopmpy
-%{python_sitelib}/*
+%files -n python%{python_major_version}-geopmpy
+%{expand:%{python%{python_major_version}_sitelib}}/*
 %doc %{_mandir}/man7/geopmpy.7.gz
 %changelog
 @CHANGELOG@
