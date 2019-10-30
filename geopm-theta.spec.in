@@ -17,8 +17,8 @@ BuildRequires: automake
 BuildRequires: hwloc-devel
 BuildRequires: libtool
 BuildRequires: libtool-ltdl-devel
-BuildRequires: python
-BuildRequires: python-devel
+BuildRequires: python2
+BuildRequires: python2-devel
 BuildRequires: unzip
 BuildRequires: openssh
 
@@ -42,6 +42,7 @@ CXXFLAGS='-xCORE-AVX2' \
 FCFLAGS='-dynamic -xCORE-AVX2' \
 FFLAGS='-dynamic -xCORE-AVX2' \
 ./configure --prefix=%{install_prefix} \
+            --with-python=python2 \
             || ( cat config.log && false )
 %{__make}
 

@@ -39,7 +39,7 @@ URL: https://geopm.github.io
 Source0: geopm.tar.gz
 BuildRoot: %{_tmppath}/geopm-%{version}-%{release}-root
 BuildRequires: gcc-c++
-BuildRequires: python
+BuildRequires: python3
 BuildRequires: unzip
 BuildRequires: libtool
 BuildRequires: sqlite-devel
@@ -48,7 +48,7 @@ BuildRequires: elfutils-libelf-devel
 %if 0%{?suse_version} >= 1320
 BuildRequires: openssh
 %endif
-BuildRequires: python-devel
+BuildRequires: python3-devel
 
 Prefix: %{_prefix}
 
@@ -73,14 +73,14 @@ Requires: geopmpolicy
 %description devel
 Development package for GEOPM.
 
-%package -n python-geopmpy
-Summary: Global Extensible Open Power Manager - python
+%package -n python3-geopmpy
+Summary: Global Extensible Open Power Manager - python 3
 Group: System Environment/Libraries
 Requires: geopmpolicy
-%{?python_provide:%python_provide python-geopmpy}
+%{?python_provide:%python_provide python3-geopmpy}
 
-%description -n python-geopmpy
-Python package for GEOPM.
+%description -n python3-geopmpy
+Python 3 package for GEOPM.
 
 %build
 test -f configure || ./autogen.sh
@@ -222,8 +222,8 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 %{_includedir}/geopm_topo.h
 %{_includedir}/geopm_version.h
 
-%files -n python-geopmpy
-%{python_sitelib}/*
+%files -n python3-geopmpy
+%{python3_sitelib}/*
 %doc %{_mandir}/man7/geopmpy.7.gz
 %changelog
 @CHANGELOG@

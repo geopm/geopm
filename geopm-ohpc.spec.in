@@ -32,8 +32,8 @@ BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: libtool
 BuildRequires: libtool-ltdl-devel
-BuildRequires: python
-BuildRequires: python-devel
+BuildRequires: python3
+BuildRequires: python3-devel
 BuildRequires: unzip
 BuildRequires: sqlite-devel
 BuildRequires: elfutils-libelf-devel
@@ -88,7 +88,7 @@ module-whatis "URL %{url}"
 set     version             %{version}
 
 prepend-path    PATH                %{install_path}/bin
-prepend-path    PYTHONPATH          %{install_path}/lib/python2.7/site-packages
+prepend-path    PYTHONPATH          %{install_path}/lib/python%{python3_version}/site-packages
 prepend-path    INCLUDE             %{install_path}/include
 prepend-path    LD_LIBRARY_PATH     %{install_path}/lib
 prepend-path    MANPATH             %{install_path}/share/man
