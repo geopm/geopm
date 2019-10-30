@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b4a95ad3_01e866ec",
+        "filename": "src/EpochRuntimeRegulator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-10-30T17:39:10Z",
+      "side": 1,
+      "message": "there is a function to do this calculation",
+      "range": {
+        "startLine": 151,
+        "startChar": 26,
+        "endLine": 151,
+        "endChar": 66
+      },
+      "revId": "4ec750e1a8c9175d09c85b3483bd488e04f9a9a1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
