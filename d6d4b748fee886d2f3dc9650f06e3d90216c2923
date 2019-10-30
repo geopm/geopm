@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb5468ea_375a3427",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-10-30T22:22:43Z",
+      "side": 1,
+      "message": "It\u0027s a little weird that this is in the base class instead of the srun launcher.  How do we get in a situation where SLURM_NNODES is set but the launcher is not srun and we aren\u0027t in an allocation?",
+      "revId": "d6d4b748fee886d2f3dc9650f06e3d90216c2923",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
