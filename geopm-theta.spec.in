@@ -42,13 +42,14 @@ CXXFLAGS='-xCORE-AVX2' \
 FCFLAGS='-dynamic -xCORE-AVX2' \
 FFLAGS='-dynamic -xCORE-AVX2' \
 ./configure --prefix=%{install_prefix} \
+            --with-python=%{__python2} \
             || ( cat config.log && false )
 %{__make}
 
 
 %install
-pip install --ignore-installed --target=%{buildroot}/%{install_prefix}/lib/python2.7/site-packages \
-            pandas natsort matplotlib cycler tables psutil
+pip install --ignore-installed --target=%{buildroot}/%{install_prefix}/lib/python%{python_version}/site-packages \
+            -r ./scripts/requirements.txt
 %{__make} DESTDIR=%{buildroot} install
 rm -f $(find %{buildroot}/%{install_prefix} -name '*.a'; \
         find %{buildroot}/%{install_prefix} -name '*.la'; \
@@ -81,7 +82,7 @@ conflict "darshan"
 set     version             %{version}
 
 prepend-path    PATH                %{install_prefix}/bin
-prepend-path    PYTHONPATH          %{install_prefix}/lib/python2.7/site-packages
+prepend-path    PYTHONPATH          %{install_prefix}/lib/python%{python_version}/site-packages
 prepend-path    INCLUDE             %{install_prefix}/include
 prepend-path    LD_LIBRARY_PATH     %{install_prefix}/lib
 prepend-path    MANPATH             %{install_prefix}/share/man
