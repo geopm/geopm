@@ -1142,7 +1142,7 @@ class FrequencyMapBaselineComparisonAnalysis(Analysis):
         sweep_summary_process, sweep_means_df, comp_df = process_output
         name = self._name + self._prefix_label()
         ref_freq_idx = 0 if self._enable_turbo else 1
-        sys.stdout.write(self._freq_pnames[ref_freq_idx][0] + '\n')
+        sys.stdout.write(str(self._freq_pnames[ref_freq_idx][0]) + '\n')
         ref_freq = int(self._freq_pnames[ref_freq_idx][0] * 1e-6)
 
         rs = 'Summary for {}\n\n'.format(name)
@@ -1292,8 +1292,8 @@ class EnergyEfficientAgentAnalysis(Analysis):
         sweep_summary_process, sweep_means_df, comp_df = process_output
         name = self._name + '_' + self._mode
         ref_freq_idx = 0 #if self._enable_turbo else 1  # todo: does not work when min==max frequency
-        sys.stdout.write(self._freq_pnames + '\n')
-        sys.stdout.write(self._freq_pnames[ref_freq_idx][0] + '\n')
+        sys.stdout.write(str(self._freq_pnames) + '\n')
+        sys.stdout.write(str(self._freq_pnames[ref_freq_idx][0]) + '\n')
         ref_freq = int(self._freq_pnames[ref_freq_idx][0] * 1e-6)
 
         rs = 'Summary for {}\n\n'.format(name)
