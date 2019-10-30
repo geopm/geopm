@@ -54,6 +54,7 @@ BuildRequires: openssh
 test -f configure || ./autogen.sh
 ./configure --prefix=%{install_path} \
             --disable-doc \
+            --with-python=python2 \
             || ( cat config.log && false )
 %{__make}
 
