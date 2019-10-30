@@ -41,7 +41,7 @@ import shlex
 try:
     # Test with str StringIO where available, and with unicode StringIO elsewhere
     from StringIO import StringIO
-except ModuleNotFoundError:
+except ImportError:
     from io import StringIO
 
 import geopmpy.launcher
