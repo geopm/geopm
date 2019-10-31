@@ -108,12 +108,14 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/EnergyEfficientAgentTest.aggregate_sample \
               test/gtest_links/EnergyEfficientAgentTest.do_write_batch \
               test/gtest_links/EnergyEfficientAgentTest.enforce_policy \
+              test/gtest_links/EnergyEfficientAgentTest.enforce_policy_nan \
               test/gtest_links/EnergyEfficientAgentTest.split_policy_changed \
               test/gtest_links/EnergyEfficientAgentTest.split_policy_errors \
               test/gtest_links/EnergyEfficientAgentTest.split_policy_unchanged \
               test/gtest_links/EnergyEfficientAgentTest.static_methods \
               test/gtest_links/EnergyEfficientAgentTest.validate_policy_clamp \
               test/gtest_links/EnergyEfficientAgentTest.validate_policy_default \
+              test/gtest_links/EnergyEfficientAgentTest.validate_policy_perf_margin \
               test/gtest_links/EnergyEfficientRegionTest.freq_starts_at_maximum \
               test/gtest_links/EnergyEfficientRegionTest.invalid_perf_margin \
               test/gtest_links/EnergyEfficientRegionTest.update_ignores_nan_sample \
