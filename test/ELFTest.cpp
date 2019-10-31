@@ -79,14 +79,14 @@ TEST_F(ELFTest, symbol_lookup)
     // Lookup a C symbol in the elf header
     symbol = geopm::symbol_lookup((void*)elf_test_function);
     EXPECT_EQ((size_t)&elf_test_function, symbol.first);
-    EXPECT_EQ("elf_test_function()", symbol.second);
+    EXPECT_EQ("elf_test_function", symbol.second);
 
     // Lookup a C symbol in the elf header offset by 8 bytes
     size_t fn_off = (size_t)(elf_test_function);
     fn_off += 8;
     symbol = geopm::symbol_lookup((void*)fn_off);
     EXPECT_EQ((size_t)&elf_test_function, symbol.first);
-    EXPECT_EQ("elf_test_function()", symbol.second);
+    EXPECT_EQ("elf_test_function", symbol.second);
 
     // Lookup a C++ symbol in the shared object table
     symbol = geopm::symbol_lookup((void*)geopm::string_format_double);
@@ -95,11 +95,11 @@ TEST_F(ELFTest, symbol_lookup)
 
     // Lookup a C symbol in the shared object table
     symbol = geopm::symbol_lookup((void*)geopm_crc32_str);
-    EXPECT_EQ("geopm_crc32_str()", symbol.second);
+    EXPECT_EQ("geopm_crc32_str", symbol.second);
 
     // Lookup a C symbol in the shared object table offset by 8 bytes
     fn_off = (size_t)geopm_crc32_str;
     fn_off += 8;
     symbol = geopm::symbol_lookup((void*)fn_off);
-    EXPECT_EQ("geopm_crc32_str()", symbol.second);
+    EXPECT_EQ("geopm_crc32_str", symbol.second);
 }
