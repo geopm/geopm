@@ -81,6 +81,12 @@ reports and traces with additional Agent-specific information.
                  1.0 (100%) of performance at FREQ_MAX. If NAN is
                  passed, it will use 0.10 (10%) by default.
 
+  `FREQ_FIXED`: The maximum frequency in hertz used for jobs without a
+                GEOPM controller.  This value is not used when the
+                Agent is running inside a Controller. If NAN is
+                passed, it will use the maximum available frequency by
+                default.
+
 * `Agent Sample Definitions`:
   N/A
 
