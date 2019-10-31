@@ -91,6 +91,7 @@ namespace geopm
                 M_POLICY_FREQ_MIN,
                 M_POLICY_FREQ_MAX,
                 M_POLICY_PERF_MARGIN,
+                M_POLICY_FREQ_FIXED,
                 M_NUM_POLICY,
             };
 
