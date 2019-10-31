@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c877e49_22c8b68b",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-10-31T00:03:38Z",
+      "side": 1,
+      "message": "Please put a comment above here indicating that we\u0027re purposefully setting num_rank to num_node to run this once on every node.",
+      "range": {
+        "startLine": 554,
+        "startChar": 8,
+        "endLine": 554,
+        "endChar": 86
+      },
+      "revId": "89b7f9f8f45fe2806f58d14241a0be7d2dd4bede",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29d4dc74_40f8234b",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-10-31T00:03:38Z",
+      "side": 1,
+      "message": "Why are these parameters needed?",
+      "range": {
+        "startLine": 555,
+        "startChar": 34,
+        "endLine": 556,
+        "endChar": 98
+      },
+      "revId": "89b7f9f8f45fe2806f58d14241a0be7d2dd4bede",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
