@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "de7fd2c5_99df01ae",
+        "filename": "configure.ac",
+        "patchSetId": 4
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-01T21:27:21Z",
+      "side": 1,
+      "message": "Not needed since whitespace is ignored outside of [], but I don\u0027t think it will hurt to add. I\u0027ll change to [].",
+      "parentUuid": "5b2eea89_4c3c7c19",
+      "range": {
+        "startLine": 298,
+        "startChar": 23,
+        "endLine": 298,
+        "endChar": 24
+      },
+      "revId": "8075ae463c4cef911a4e20581cad383ebee14318",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "50604fa3_8a183f0c",
         "filename": "scripts/test/geopmpy_test.sh",
         "patchSetId": 4
