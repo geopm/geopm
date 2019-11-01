@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ef2b7c3_1dbd8c10",
+        "filename": "geopm-theta.spec.in",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-01T20:52:15Z",
+      "side": 1,
+      "message": "Re-run the test to be sure this works",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 22
+      },
+      "revId": "f1b3a0deb2e45ca6c68f4c8a95cbfb10b5529279",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "770ee41e_2f207d74",
+        "filename": "geopm.spec.in",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-01T20:52:15Z",
+      "side": 1,
+      "message": "This can be removed. We aren\u0027t compiling with --enable-beta",
+      "revId": "f1b3a0deb2e45ca6c68f4c8a95cbfb10b5529279",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8ea2099_4ca39972",
+        "filename": "geopm.spec.in",
+        "patchSetId": 3
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-01T20:52:15Z",
+      "side": 1,
+      "message": "Trailing whitespace",
+      "range": {
+        "startLine": 60,
+        "startChar": 73,
+        "endLine": 60,
+        "endChar": 74
+      },
+      "revId": "f1b3a0deb2e45ca6c68f4c8a95cbfb10b5529279",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b8c4dc8_1b67f976",
+        "filename": "geopm.spec.in",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-01T20:52:15Z",
+      "side": 1,
+      "message": "Add a comment. Why? If not for python, move to a different block",
+      "range": {
+        "startLine": 62,
+        "startChar": 15,
+        "endLine": 62,
+        "endChar": 27
+      },
+      "revId": "f1b3a0deb2e45ca6c68f4c8a95cbfb10b5529279",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "274f9d3b_cb220d13",
+        "filename": "geopm.spec.in",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-01T20:52:15Z",
+      "side": 1,
+      "message": "Both of these can be removed. We aren\u0027t compiling with --enable-ompt",
+      "revId": "f1b3a0deb2e45ca6c68f4c8a95cbfb10b5529279",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
