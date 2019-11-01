@@ -89,6 +89,30 @@
     },
     {
       "key": {
+        "uuid": "37ea0514_4a8ceab2",
+        "filename": "scripts/test/geopmpy_test.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-01T21:30:20Z",
+      "side": 1,
+      "message": "I\u0027ll add a comment. Default to python3 here if PYTHON is not set, such as when manually executing from the command line. It gets set to whatever --with-python was set to by the change in test/Makefile.mk when running make check.",
+      "parentUuid": "50604fa3_8a183f0c",
+      "range": {
+        "startLine": 41,
+        "startChar": 3,
+        "endLine": 41,
+        "endChar": 17
+      },
+      "revId": "8075ae463c4cef911a4e20581cad383ebee14318",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bb646c83_9898faee",
         "filename": "tutorial/tutorial_env.sh",
         "patchSetId": 4
