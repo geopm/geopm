@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "840369a7_125045c0",
+        "filename": "ronn/geopm_agent_energy_efficient.7.ronn",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-01T15:09:31Z",
+      "side": 1,
+      "message": "I think the example output for `geopmagent -a energy_efficient` in ronn/geopmagent.1.ronn needs to be updated too",
+      "revId": "42c156feb8c16b17d049f74263e4627e8737d96e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
