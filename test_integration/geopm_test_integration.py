@@ -973,6 +973,7 @@ class TestIntegration(unittest.TestCase):
             all2all_data = self._output.get_report_data(node_name=nn, region='all2all')
             sleep_data = self._output.get_report_data(node_name=nn, region='sleep')
             dgemm_data = self._output.get_report_data(node_name=nn, region='dgemm')
+            barrier_data = self._output.get_report_data(node_name=nn, region='MPI_Barrier')
             unmarked_data = self._output.get_report_data(node_name=nn, region='unmarked-region')
             epoch_data = self._output.get_report_data(node_name=nn, region='epoch')
             app_total = self._output.get_app_total_data(node_name=nn)
@@ -984,9 +985,11 @@ class TestIntegration(unittest.TestCase):
             # MPI time and all2all time.
             mpi_epsilon = max(unmarked_data['runtime'].item() / all2all_data['network_time'].item(), 0.05)
             self.assertNear(all2all_data['network_time'].item(), all2all_data['runtime'].item(), mpi_epsilon)
-            self.assertNear(all2all_data['network_time'].item(), epoch_data['network_time'].item())
+            self.assertNear(all2all_data['network_time'].item() + barrier_data['network_time'].item(),
+                            epoch_data['network_time'].item())
             # TODO: inconsistent; can we just use _ everywhere?
-            self.assertNear(all2all_data['network_time'].item(), app_total['network-time'].item())
+            self.assertNear(all2all_data['network_time'].item() + barrier_data['network_time'].item(),
+                            app_total['network-time'].item())
             self.assertEqual(0, unmarked_data['network_time'].item())
             self.assertEqual(0, sleep_data['network_time'].item())
             self.assertEqual(0, dgemm_data['network_time'].item())
@@ -1015,9 +1018,7 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             ignore_data = self._output.get_report_data(node_name=nn, region='ignore')
             app_data = self._output.get_app_total_data(node_name=nn)
-            # ignore runtime includes MPI regions
-            mpi_data = self._output.get_report_data(node_name=nn, region='MPI_Barrier')
-            self.assertNear(ignore_data['runtime'].item() + mpi_data['runtime'].item(),
+            self.assertNear(ignore_data['runtime'].item(),
                             app_data['ignore-runtime'].item(), 0.00005)
 
     @util.skip_unless_config_enable('ompt')
