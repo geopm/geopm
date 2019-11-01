@@ -147,8 +147,8 @@ namespace geopm
         if (rank < 0 || rank >= m_rank_per_node) {
             throw Exception("EpochRuntimeRegulatorImp::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-
-        bool is_network = geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_NETWORK, region_id);
+        bool is_network = geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_NETWORK, region_id) ||
+                          geopm_region_id_is_mpi(region_id);
         region_id = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id);
         if (is_network) {
             m_network_region_set.insert(region_id);
@@ -183,8 +183,7 @@ namespace geopm
             throw Exception("EpochRuntimeRegulatorImp::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
-        bool is_ignore = geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, region_id) ||
-                         geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_NETWORK, region_id);
+        bool is_ignore = geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, region_id);
         region_id = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id);
         bool is_network = (m_network_region_set.find(region_id) != m_network_region_set.end());
         auto pre_epoch_it = m_pre_epoch_region[rank].find(region_id);
