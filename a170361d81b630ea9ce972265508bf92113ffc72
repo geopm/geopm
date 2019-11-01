@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7897c53_8257e783",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-01T21:08:05Z",
+      "side": 1,
+      "message": "Looks like this isn\u0027t being used anywhere. Should this change be part of https://review.gerrithub.io/c/geopm/geopm/+/434285 ?",
+      "revId": "a170361d81b630ea9ce972265508bf92113ffc72",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
