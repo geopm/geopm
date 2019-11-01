@@ -1,3 +1,156 @@
+* Thu Oct 31 2019 Diana Guttman <diana.r.guttman@intel.com> v1.1.0
+- Release overview:
+- Support for Python 3.6 has been added.
+- Support for Python 2.7 continues but will be removed in a future release.
+- New features targeting integration with resource managers.
+- Enhancements to EnergyEfficientAgent.
+- Improved support for automatic OpenMP region detection.
+** Support for launching with OpenMPI.
+- Bug fixes, new and updated tests, and updates to documentation.
+- New features:
+- GEOPM environment variables can now be initialized from a JSON file.
+- Add geopm_agent_enforce_policy() function and Agent::enforce_policy() to public interface.
+- Add tracing for the profile table log with GEOPM_TRACE_PROFILE.
+- Add REGION_COUNT signal to get number times a region has been seen.
+- Add REGION_COUNT signal to default trace columns.
+- Add python wrappers for geopm_pio_c, geopm_topo_c, geopm_error_c, and geopm_agent_c interfaces.
+- Add format_function() method to IOGroups to get a formatting function from a signal name.
+- Use format function in geopmread command line tool.
+- Python 3 is now supported in addition to Python 2.7.
+- Add IOGroup for Compute Node Linux PM counters.
+- Allow the FrequencyMapAgent to come from the agent's policy rather than deprecated the environment variable.
+** Add launcher for OpenMPI.
+- New beta features:
+- Add geopmconvertreport script to convert report file into yaml and json.
+- Add a new error type for data store errors.
+- Add PolicyStore class to map agents and profiles to policies.
+- Introduce new Endpoint API, which replaces and extends the ManagerIO.
+- Implement geopm_endpoint_c API.
+- Modified implementations and interfaces:
+- Add CSV class to support CSV files created by GEOPM.
+- Modify Tracer and ProfileTracer to use the CSV class.
+- Add trace_formats() method to Agents.
+- Change freq_sweep analysis to use system max frequency for default max.
+- Move geopmpy package to 'production' status.
+- Minimize set of functions in Environment C interface.
+- Change Environment class variable names for better readability.
+- Update FrequencyMapAgent to use Environment class for its environment variable.
+- Add TEMPERATURE_* signals to list shown by geopmread.
+- Change REGION_RUNTIME signal reflect time of outer region only.
+- Add MSR turbo ratio limit for KNL.
+- Use max turbo ratio limit for platform max frequency.
+- Remove ability to write turbo ratio limit.
+- Add MPI_Barrier before entering all2all model region.
+- Increase problem size of FFT to D class.
+- Add IMPI support to tutorials.
+- Add feature to geopmagent and Agent interface where partial policies will be completed with NANs.
+- Add SLURM -bootstrap option for IMPI.
+- Add geopm_time_to_string() to convert a time structure into a string.
+- Add write_file() helper function.
+- Add value of policy to report, or DYNAMIC when policy comes from an Endpoint.
+- Separate Agent creation time from init() in Controller.
+- Add DebugIOGroup for extending trace with internal Agent values.
+- Add pthread mutex to beginning of SharedMemory regions, with get_scoped_lock() as the only method to lock the mutex.
+- Remove pthread mutex from ManagerIO struct.
+- Use git ls-tree to generate the MANIFEST in any git repo.
+- Remove m_request_s from PlatformIO public interface.
+- Change RPM to build libgeopmpolicy only and remove check step.
+- Add get_hostnames() method to Controller.
+- Add unlink() method to SharedMemory.
+- Update VERSION with each call to autogen.sh.
+- Do not markup anything in geopmbench if all regions are suffixed with '-unmarked'.
+- Update OMPT interface to newest standard.
+- Use libdl and libelf to map instruction address to symbol name.
+- Remove hard requirement for hosts file usage in tutorials.
+- Remove MacOS portability.
+- Remove signal handling logic from Controller.
+- Change board power min/max/tdp to use sum aggregation.
+- Change power cap policy of PowerGovernorAgent and PowerBalancerAgent to POWER_PACKAGE_LIMIT_TOTAL.
+- Change "mpi-time" in report to "network-time" and change time to include all network time.
+- Move Environment class definition to header.
+- Split geopm_pmpi.c into C/C++ parts.
+- Clean up build and run scripts for tutorials.
+- Change MPI time in report to network time and include all network time in the total.
+- Improved error messages and warnings:
+- Make prefix of runtime warning strings consistently start with "Warning: <geopm>".
+- Improve error message when msr driver can't be loaded.
+- Print a proper message on failure to launch lscpu job.
+- Add more verbose geopm plugin load failure warning.
+- Add more detailed description to geopm_error_message() based on last exception thrown.
+- Change throw to warning for PowerBalancerAgent running on a single node.
+- Fix error message when MSR read fails.
+- Extensive changes to EnergyEfficientAgent algorithm:
+- Change EE Agent to learn separately for each control domain.
+- Add max filtering to EnergyEfficientRegion.
+- Use sticker when passing NaN in the policy.
+- Add PERF_MARGIN as a policy for EnergyEfficientAgent.
+- Do not set frequency for regions shorter than 50 ms or unmarked.
+- Have EE Agent always use min frequency for network regions.
+- Update EE agent to use region count to detect adjacent regions with same hash.
+- Add separate max frequency to use for static policy.
+- Bug fixes and refactoring in EnergyEfficientAgent.
+- Updates to integration tests:
+- Increase iterations for EnergyEfficientAgent test.
+- Decrease margin in test for geopm python wrapper measuring time.
+- Add a integration test checking that chosen frequencies increase monotonically with CPU-bound time in regions.
+- Update integration tests to use new trace file format.
+- Add imbalance to power_balancer integration test.
+- Refactor report mock functions in integration tests.
+- Move integration test helpers into util.py.
+- Add integration test for the epoch data in report.
+- Add msr save and restore calls to test launcher.
+- Updates to unit tests:
+- Add unit tests for EnergyEfficientAgent.
+- Cleanup environment variables in unit tests.
+- Add unit tests for the geopmpy.io module.
+- Add unit tests for the geopmpy.launcher module.
+- Make profile tests work with different task sets.
+- Fix TestAffinity to check for OMP_NUM_THREADS in test setup.
+- Fix ExceptionTest to account for extra char in error message.
+- Updates to documentation:
+- Add Daniel Wilson to the AUTHORS file.
+- Change CONTRIBUTING instructions on how to get version.
+- Add version to geopm man pages.
+- Update man pages and README to describe Environment changes and integration with resource managers.
+- Fix PlatformTopo C++ man page to match new interfaces.
+- Add section to README about user environment for non-standard install.
+- Modify frequency_map man page to use floating point frequencies.
+- Rename geopm_pio_c man page to show its section number.
+- Add man page for Endpoint class.
+- Update endpoint_c man page.
+- Remove references to uninstalled man pages from geopm.7.
+- Remove specific list of available launchers from geopm.7.
+- Add documentation to README for Ubuntu support.
+- Add example for systems programmers using PlatformIO.
+- Fix typos in documentation.
+- Bug fixes:
+- Fix paths for building tutorial from module environment.
+- Fix Tracer handling of # signals from environment.
+- Fix Tracer handling of region hash and hint integers.
+- Fix a bug where regions with the same name as the profile did not appear in the report.
+- Fix trace file cache loading print in io.py.
+- Rename and fix analysis for EE and frequency map agents.
+- Fix a bug where LD_PRELOAD was always set.
+- Update geopmplotter to sue agents and cosmetic fixes to plots.
+- Fix geopm::string_split() so it works with multi-character delimiters.
+- Fix build when using --disable-openmp.
+- Fix build when using --disable-mpi.
+- Fix a bug where launcher did not use srun reservation for geopmread cache.
+- Fix placement of verbose flag for geopmbench.
+- Fix epoch reporting when there are no regions.
+- Fix generation of report hdf5 cache.
+- Fix date generation in geopm_time.h.
+- Only overwrite roff pages with ronn if the roff page is missing.
+- Avoid a buffer overrun when copying cpusets.
+- Check if MPI has been finalized before freeing the comm.
+- Fix stderr piping in autogen.sh.
+- Fix build errors from gcc8.
+- Fixes to allow installed headers to be used out of source.
+- Fix a bug where tutorial tarball was not built when docs are disabled.
+- Remove DRAM power from PowerGovernorAgent samples.
+- Avoid loss of precision when converting policies to json strings.
+- Do not use GEOPM_REGION_HASH_INVALID in Agent implementations.
+- Remove '0x' from IMPI affinity mask.
 * Tue Apr 16 2019 Christopher M. Cantalupo <christopher.m.cantalupo@intel.com> v1.0.0
 - Release overview:
 - The official 1.0 release of the GEOPM software!
