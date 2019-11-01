@@ -56,6 +56,7 @@ import stat
 import textwrap
 import io
 import locale
+import socket
 
 from collections import OrderedDict
 from geopmpy import __version__
