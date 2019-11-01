@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c70a915f_18e66285",
+        "filename": "README",
+        "patchSetId": 4
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-01T20:39:25Z",
+      "side": 1,
+      "message": "export PYTHONPATH\u003d$(ls -d $GEOPM_PREFIX/lib/python*/site-packages | tail -n1):$PYTHONPATH",
+      "revId": "8075ae463c4cef911a4e20581cad383ebee14318",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb646c83_9898faee",
+        "filename": "tutorial/tutorial_env.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-01T20:39:25Z",
+      "side": 1,
+      "message": "Just replace the 2.7 with a *. Make the example easy to read",
+      "revId": "8075ae463c4cef911a4e20581cad383ebee14318",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
