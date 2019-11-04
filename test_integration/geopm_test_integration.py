@@ -475,6 +475,7 @@ class TestIntegration(unittest.TestCase):
             msg = 'for epoch on node {nn}'.format(nn=nn)
             self.assertNear(trace_elapsed_time, region_data['runtime'].item(), msg=msg)
 
+    @util.skip_unless_config_enable('bloat')
     def test_runtime_regulator(self):
         name = 'test_runtime_regulator'
         report_path = name + '.report'
@@ -522,6 +523,7 @@ class TestIntegration(unittest.TestCase):
                             self.assertNear(df['REGION_RUNTIME'], expected_region_runtime[region_name], epsilon=epsilon)
 
     @util.skip_unless_run_long_tests()
+    @util.skip_unless_config_enable('bloat')
     def test_region_runtimes(self):
         name = 'test_region_runtimes'
         report_path = name + '.report'

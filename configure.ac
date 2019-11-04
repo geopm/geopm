@@ -106,6 +106,23 @@ fi
 AC_SUBST([enable_beta])
 AM_CONDITIONAL([ENABLE_BETA], [test "x$enable_beta" = "x1"])
 
+AC_ARG_ENABLE([bloat],
+  [AS_HELP_STRING([--enable-bloat], [Insert data available through the application trace into the standard trace])],
+[if test "x$enable_bloat" = "xno" ; then
+  enable_bloat="0"
+else
+  enable_bloat="1"
+fi
+],
+[enable_bloat="0"]
+)
+
+if test "x$enable_bloat" = "x1" ; then
+  AC_DEFINE([GEOPM_TRACE_BLOAT], [ ], [Insert data available through the application trace into the standard trace])
+fi
+AC_SUBST([enable_bloat])
+
+
 AC_ARG_ENABLE([procfs],
   [AS_HELP_STRING([--disable-procfs], [Disable use of procfs for use on operating systems other than standard Linux])],
 [if test "x$enable_procfs" = "xno" ; then
