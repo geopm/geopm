@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc125d0b_709dc657",
+        "filename": "ChangeLog",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-04T23:57:42Z",
+      "side": 1,
+      "message": "Can drop. Duplicates lines 3+4",
+      "revId": "0358ad976685238a939f12cabaf572dfd20c30a9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d5a9930_0f86b55e",
+        "filename": "ChangeLog",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-04T23:57:42Z",
+      "side": 1,
+      "message": "swapped word order",
+      "range": {
+        "startLine": 21,
+        "startChar": 74,
+        "endLine": 21,
+        "endChar": 88
+      },
+      "revId": "0358ad976685238a939f12cabaf572dfd20c30a9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48640f6d_1583aae3",
+        "filename": "ChangeLog",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-04T23:57:42Z",
+      "side": 1,
+      "message": "Duplicates line 8. Not sure if the ** indicates a group of notes",
+      "revId": "0358ad976685238a939f12cabaf572dfd20c30a9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d44a245_bb4f1455",
+        "filename": "ChangeLog",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-04T23:57:42Z",
+      "side": 1,
+      "message": "Might help to indent this group by a space or two",
+      "revId": "0358ad976685238a939f12cabaf572dfd20c30a9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
