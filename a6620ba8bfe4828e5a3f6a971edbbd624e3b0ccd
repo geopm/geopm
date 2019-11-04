@@ -22,6 +22,30 @@
       "revId": "a6620ba8bfe4828e5a3f6a971edbbd624e3b0ccd",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0af9d225_04c1c049",
+        "filename": "src/EpochRuntimeRegulator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-04T22:32:07Z",
+      "side": 0,
+      "message": "I\u0027ve only tested the power_balancer integration test, and it is passing.  But looking at the code, it seems like the agent was already removing MPI time in addition to ignore time here: https://github.com/geopm/geopm/blob/2149c6f6d140a92acac2599e1c2cdb620742f4a9/src/PowerBalancerAgent.cpp#L477",
+      "parentUuid": "979518fc_ba196fe0",
+      "range": {
+        "startLine": 187,
+        "startChar": 25,
+        "endLine": 187,
+        "endChar": 92
+      },
+      "revId": "a6620ba8bfe4828e5a3f6a971edbbd624e3b0ccd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
