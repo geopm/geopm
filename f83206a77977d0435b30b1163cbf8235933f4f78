@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5fba48c1_9f08f125",
+        "filename": "geopm-theta.spec.in",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-11-04T19:09:07Z",
+      "side": 1,
+      "message": "change to just python2 if this is busted",
+      "range": {
+        "startLine": 45,
+        "startChar": 26,
+        "endLine": 45,
+        "endChar": 38
+      },
+      "revId": "f83206a77977d0435b30b1163cbf8235933f4f78",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
