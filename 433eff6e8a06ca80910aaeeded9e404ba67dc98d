@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f89e1988_900c7b59",
+        "filename": "tutorial/tutorial_env.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-11-04T18:58:26Z",
+      "side": 1,
+      "message": "Make this fancier.",
+      "range": {
+        "startLine": 65,
+        "startChar": 20,
+        "endLine": 65,
+        "endChar": 52
+      },
+      "revId": "433eff6e8a06ca80910aaeeded9e404ba67dc98d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
