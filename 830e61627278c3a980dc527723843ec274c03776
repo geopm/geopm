@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2d4e1d3_6f19e8ec",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 1095,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-04T17:22:27Z",
+      "side": 1,
+      "message": "Should this also alias --machinefile?",
+      "revId": "830e61627278c3a980dc527723843ec274c03776",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f6f31b9_7ff2da58",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 1153,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-04T17:22:27Z",
+      "side": 1,
+      "message": "I think the format is more complicated than this. Comments starting with \u0027#\u0027 and empty lines are possible.",
+      "revId": "830e61627278c3a980dc527723843ec274c03776",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28dbb768_7fbcaa5f",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 1154,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-04T17:22:27Z",
+      "side": 1,
+      "message": "It\u0027s also possible to specify both hostfile and a list of hostnames. In that case, --host would act as a filter over what\u0027s in the hostfile.",
+      "range": {
+        "startLine": 1154,
+        "startChar": 12,
+        "endLine": 1154,
+        "endChar": 16
+      },
+      "revId": "830e61627278c3a980dc527723843ec274c03776",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6764c40a_74f51905",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 1204,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-04T17:22:27Z",
+      "side": 1,
+      "message": "Should probably be an if, since both might be provided.",
+      "range": {
+        "startLine": 1204,
+        "startChar": 8,
+        "endLine": 1204,
+        "endChar": 13
+      },
+      "revId": "830e61627278c3a980dc527723843ec274c03776",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
