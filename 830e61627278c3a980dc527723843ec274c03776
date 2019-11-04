@@ -82,6 +82,24 @@
     },
     {
       "key": {
+        "uuid": "45230fe5_87a04edc",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 1153,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-11-04T19:48:14Z",
+      "side": 1,
+      "message": "skip empty or lines pre-pended with #",
+      "parentUuid": "3f6f31b9_7ff2da58",
+      "revId": "830e61627278c3a980dc527723843ec274c03776",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "28dbb768_7fbcaa5f",
         "filename": "scripts/geopmpy/launcher.py",
         "patchSetId": 23
@@ -98,6 +116,29 @@
         "startChar": 12,
         "endLine": 1154,
         "endChar": 16
+      },
+      "revId": "830e61627278c3a980dc527723843ec274c03776",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf704194_363eeeed",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 1175,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-11-04T19:48:14Z",
+      "side": 1,
+      "message": "warn \u0027your request may fail\u0027",
+      "range": {
+        "startLine": 1175,
+        "startChar": 34,
+        "endLine": 1175,
+        "endChar": 46
       },
       "revId": "830e61627278c3a980dc527723843ec274c03776",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
