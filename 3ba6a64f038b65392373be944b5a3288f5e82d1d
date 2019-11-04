@@ -22,6 +22,29 @@
       "revId": "3ba6a64f038b65392373be944b5a3288f5e82d1d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "244ea97f_c2ba43c3",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 24
+      },
+      "lineNbr": 1190,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-11-04T23:17:59Z",
+      "side": 1,
+      "message": "Do not use print.  Use sys.stdout.write or sys.stderr.write.",
+      "range": {
+        "startLine": 1190,
+        "startChar": 28,
+        "endLine": 1190,
+        "endChar": 34
+      },
+      "revId": "3ba6a64f038b65392373be944b5a3288f5e82d1d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
