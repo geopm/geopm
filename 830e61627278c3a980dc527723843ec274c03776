@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "eec85ecf_399efbb2",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-11-04T19:32:28Z",
+      "side": 1,
+      "message": "p",
+      "range": {
+        "startLine": 1047,
+        "startChar": 50,
+        "endLine": 1047,
+        "endChar": 51
+      },
+      "revId": "830e61627278c3a980dc527723843ec274c03776",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d310782_31ff92dc",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 1087,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-11-04T19:32:28Z",
+      "side": 1,
+      "message": "Detect non-POSIX compliant args in argv and raise an exception to tell the user to fix that ugliness.\n\nBased on the list of actual options we use below.",
+      "range": {
+        "startLine": 1087,
+        "startChar": 4,
+        "endLine": 1087,
+        "endChar": 33
+      },
+      "revId": "830e61627278c3a980dc527723843ec274c03776",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a2d4e1d3_6f19e8ec",
         "filename": "scripts/geopmpy/launcher.py",
         "patchSetId": 23
