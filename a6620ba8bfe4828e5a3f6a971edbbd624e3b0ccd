@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "979518fc_ba196fe0",
+        "filename": "src/EpochRuntimeRegulator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-11-04T22:09:00Z",
+      "side": 0,
+      "message": "Part of the motivation for including the network time in the ignore time (for the Epoch) was because the power balancer performs much better when network time is treated like ignore time.  In some cases, it is required for the power balancer in order to demonstrate any savings.\n\nHas the power balancer been tested with this change to understand if performance has been impacted?",
+      "range": {
+        "startLine": 187,
+        "startChar": 25,
+        "endLine": 187,
+        "endChar": 92
+      },
+      "revId": "a6620ba8bfe4828e5a3f6a971edbbd624e3b0ccd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
