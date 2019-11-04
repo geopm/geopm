@@ -67,7 +67,6 @@ class Factory(object):
                                            ('aprun', AprunLauncher),
                                            ('AprunLauncher', AprunLauncher),
                                            ('impi', IMPIExecLauncher),
-                                           ('mpiexec.hydra', IMPIExecLauncher),
                                            ('IMPIExecLauncher', IMPIExecLauncher),
                                            ('SrunTOSSLauncher', SrunTOSSLauncher)])
 
