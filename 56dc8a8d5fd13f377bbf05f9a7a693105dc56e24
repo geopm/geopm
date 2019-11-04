@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4582709_ad2c0e1f",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-11-04T19:53:17Z",
+      "side": 1,
+      "message": "add base class method called node_list_delim (base class implemented w return of \u0027 \u0027) ompi launcher override with \u0027,\u0027",
+      "range": {
+        "startLine": 375,
+        "startChar": 20,
+        "endLine": 376,
+        "endChar": 56
+      },
+      "revId": "56dc8a8d5fd13f377bbf05f9a7a693105dc56e24",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
