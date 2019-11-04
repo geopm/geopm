@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f3312b9_aabfb190",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 24
+      },
+      "lineNbr": 1108,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-04T23:00:35Z",
+      "side": 1,
+      "message": "don\u0027t these still have - on the front?",
+      "range": {
+        "startLine": 1108,
+        "startChar": 33,
+        "endLine": 1108,
+        "endChar": 51
+      },
+      "revId": "3ba6a64f038b65392373be944b5a3288f5e82d1d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
