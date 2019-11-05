@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "34e7c2b6_24598277",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 27
+      },
+      "lineNbr": 1229,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-11-05T20:52:38Z",
+      "side": 1,
+      "message": "could also strip off the values they provided after the colon and replace with what we need (this dictates processes per host)",
+      "range": {
+        "startLine": 1228,
+        "startChar": 20,
+        "endLine": 1229,
+        "endChar": 92
+      },
+      "revId": "d677159d75739c1a302c52a1be3f1e1d3302d583",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
