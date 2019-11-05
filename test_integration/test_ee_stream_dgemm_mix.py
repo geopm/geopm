@@ -51,6 +51,7 @@ from test_integration import util
 
 _g_skip_launch = False
 
+
 class AppConf(object):
     """Class that is used by the test launcher as a geopmpy.io.BenchConf
     when running the script as a benchmark.
@@ -180,6 +181,7 @@ class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
                     self.assertTrue('requested-online-frequency' not in region)
                     found_barrier = True
             self.assertTrue(found_barrier)
+
 
 if __name__ == '__main__':
     try:

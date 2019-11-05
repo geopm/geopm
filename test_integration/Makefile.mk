@@ -37,6 +37,7 @@ EXTRA_DIST += test_integration/geopm_context.py \
               test_integration/__main__.py \
               test_integration/README.md \
               test_integration/test_ee_stream_dgemm_mix.py \
+              test_integration/test_static_policy.py \
               test_integration/util.py \
               # end
 
@@ -52,3 +53,12 @@ test_integration_test_ee_stream_dgemm_mix_LDADD = libgeopm.la $(MATH_LIB) $(MPI_
 test_integration_test_ee_stream_dgemm_mix_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
 test_integration_test_ee_stream_dgemm_mix_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
 endif
+
+noinst_PROGRAMS += test_integration/test_static_policy \
+                   # end
+
+test_integration_test_static_policy_SOURCES = test_integration/test_static_policy.c \
+                                              # end
+test_integration_test_static_policy_LDADD = libgeopm.la $(MPI_CLIBS)
+test_integration_test_static_policy_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS)
+test_integration_test_static_policy_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE
