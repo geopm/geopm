@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "b7ae3e9b_368ad0c9",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 27
+      },
+      "lineNbr": 1201,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-11-05T21:25:21Z",
+      "side": 1,
+      "message": "I know there are some other inconsistencies in our python code, but I like all error messages to start with \"Error: \u003cgeopm\u003e\" and all warning messages to start with \"Warning: \u003cgeopm\u003e\"\n\n\"Warning: \u003cgeopm\u003e geopmpy.launcher: Due to a bug in OpenMPI, you may...",
+      "range": {
+        "startLine": 1201,
+        "startChar": 46,
+        "endLine": 1201,
+        "endChar": 74
+      },
+      "revId": "d677159d75739c1a302c52a1be3f1e1d3302d583",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "34e7c2b6_24598277",
         "filename": "scripts/geopmpy/launcher.py",
         "patchSetId": 27
