@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "0df9a885_ccaac0fb",
+        "filename": "ChangeLog",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-05T14:40:04Z",
+      "side": 1,
+      "message": "probably too much detail",
+      "revId": "0358ad976685238a939f12cabaf572dfd20c30a9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bc125d0b_709dc657",
         "filename": "ChangeLog",
         "patchSetId": 1
@@ -59,6 +76,24 @@
     },
     {
       "key": {
+        "uuid": "eaa2829a_443bfebe",
+        "filename": "ChangeLog",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-05T14:40:04Z",
+      "side": 1,
+      "message": "This is soon to be merged, not based on a commit in the log.  I\u0027ll remove the **",
+      "parentUuid": "48640f6d_1583aae3",
+      "revId": "0358ad976685238a939f12cabaf572dfd20c30a9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9d44a245_bb4f1455",
         "filename": "ChangeLog",
         "patchSetId": 1
@@ -70,6 +105,24 @@
       "writtenOn": "2019-11-04T23:57:42Z",
       "side": 1,
       "message": "Might help to indent this group by a space or two",
+      "revId": "0358ad976685238a939f12cabaf572dfd20c30a9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59dee4cb_a8b5c412",
+        "filename": "ChangeLog",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-05T14:40:04Z",
+      "side": 1,
+      "message": "Let\u0027s ask Chris if it\u0027s okay to deviate from the strict spec file format.",
+      "parentUuid": "9d44a245_bb4f1455",
       "revId": "0358ad976685238a939f12cabaf572dfd20c30a9",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
