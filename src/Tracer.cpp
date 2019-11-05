@@ -192,7 +192,7 @@ namespace geopm
                 m_last_telemetry[col_idx] = val;
                 ++col_idx;
             }
-#ifdef GEOPM_ENABLE_TRACE_BLOAT
+#ifdef GEOPM_TRACE_BLOAT
             // save region id and progress, which will get written over by entry/exit
             double region_hash = m_last_telemetry[m_region_hash_idx];
             double region_hint = m_last_telemetry[m_region_hint_idx];
