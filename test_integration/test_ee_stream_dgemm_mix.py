@@ -75,6 +75,7 @@ class AppConf(object):
 
 @util.skip_unless_cpufreq()
 @util.skip_unless_optimized()
+@util.skip_unless_run_long_tests()
 class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -120,7 +121,6 @@ class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
             for ff in glob.glob(cls._trace_path + '*'):
                 os.unlink(ff)
 
-    @util.skip_unless_run_long_tests()
     def test_monotone_frequency(self):
         """Test that agent selects lower frequencies for regions with more
         stream.
