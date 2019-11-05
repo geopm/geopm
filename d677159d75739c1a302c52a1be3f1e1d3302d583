@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "4d3f70a2_c906e970",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 27
+      },
+      "lineNbr": 1174,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-11-05T22:10:37Z",
+      "side": 1,
+      "message": "Put this back the way it was core_to_slot_map \u003d physical_cores + ht_cores\nand wrap the range calls above in list() so:\nlist(range(0, self.num_linux...))\n\nThat\u0027s py 2 and 3 compliant.",
+      "range": {
+        "startLine": 1170,
+        "startChar": 12,
+        "endLine": 1174,
+        "endChar": 45
+      },
+      "revId": "d677159d75739c1a302c52a1be3f1e1d3302d583",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b7ae3e9b_368ad0c9",
         "filename": "scripts/geopmpy/launcher.py",
         "patchSetId": 27
