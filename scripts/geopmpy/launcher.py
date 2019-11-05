@@ -85,7 +85,7 @@ class Factory(object):
                                                       time_limit, job_name, node_list, host_file,
                                                       reservation=reservation)
         except KeyError:
-            raise LookupError('Unsupported launcher "{}" requested'.format(launcher_name))
+            raise LookupError('<geopm> geopmpy.launcher: Unsupported launcher "{}" requested'.format(launcher_name))
 
     def get_launcher_names(self):
         return list(self._launcher_dict)
@@ -149,8 +149,8 @@ class Config(object):
         if any(aa.startswith('--geopm-ctl-disable') for aa in argv):
             argv.remove('--geopm-ctl-disable')
             if any(aa.startswith('--geopm-') for aa in argv):
-                raise RuntimeError('Some GEOPM options have been provided but --geopm-ctl-disable was also given.')
-            raise PassThroughError('--geopm-ctl-disable specified; disabling the controller...')
+                raise RuntimeError('<geopm> geopmpy.launcher: Some GEOPM options have been provided but --geopm-ctl-disable was also given.')
+            raise PassThroughError('<geopm> geopmpy.launcher: --geopm-ctl-disable specified; disabling the controller...')
         # Parse the subset of arguments used by geopm
         parser = argparse.ArgumentParser(add_help=False)
         parser.add_argument('--geopm-report', dest='report', type=str, default='geopm.report')
@@ -174,7 +174,7 @@ class Config(object):
         opts, self.argv_unparsed = parser.parse_known_args(argv)
         # Error check inputs
         if opts.ctl not in ('process', 'pthread', 'application'):
-            raise SyntaxError('--geopm-ctl must be one of: "process", "pthread", or "application"')
+            raise SyntaxError('<geopm> geopmpy.launcher: --geopm-ctl must be one of: "process", "pthread", or "application"')
         # copy opts object into self
         self.ctl = opts.ctl
         self.policy = opts.policy
@@ -410,9 +410,9 @@ class Launcher(object):
         if self.is_geopm_enabled:
             # Check required arguments
             if self.num_rank is None:
-                raise SyntaxError('Number of MPI ranks must be specified.')
+                raise SyntaxError('<geopm> geopmpy.launcher: Number of MPI ranks must be specified.')
             if self.num_node is None:
-                raise SyntaxError('Number of nodes must be specified.')
+                raise SyntaxError('<geopm> geopmpy.launcher: Number of nodes must be specified.')
             self.init_topo()
             if not is_cpu_per_rank_override and 'OMP_NUM_THREADS' not in os.environ:
                 # exclude 2 cores for GEOPM and OS
@@ -424,7 +424,7 @@ class Launcher(object):
                     self.cpu_per_rank = core_per_rank
                 if self.cpu_per_rank == 0:
                     self.cpu_per_rank = 1
-                sys.stderr.write('Warning: User did not provide OMP_NUM_THREADS, using {}\n'.format(self.cpu_per_rank))
+                sys.stderr.write('Warning: <geopm> geopmpy.launcher: User did not provide OMP_NUM_THREADS, using {}\n'.format(self.cpu_per_rank))
             if self.config.get_ctl() == 'process':
                 self.num_rank += self.num_node
                 self.rank_per_node += 1
@@ -583,7 +583,7 @@ class Launcher(object):
                                   line.find('Core(s) per socket:') == 0 or
                                   line.find('Socket(s):') == 0]
         if len(cpu_tpc_core_socket) < 4:
-            raise RuntimeError('Unable to initialize platform topology with run command: '
+            raise RuntimeError('<geopm> geopmpy.launcher: Unable to initialize platform topology with run command: '
                                + str(argv))
         self.num_linux_cpu = cpu_tpc_core_socket[0]
         self.thread_per_core = cpu_tpc_core_socket[1]
@@ -614,19 +614,19 @@ class Launcher(object):
             app_thread_per_core += 1
 
         if app_thread_per_core > self.thread_per_core or app_rank_per_node > core_per_node:
-            raise RuntimeError('Cores cannot be shared between MPI ranks')
+            raise RuntimeError('<geopm> geopmpy.launcher: Cores cannot be shared between MPI ranks')
         if not self.config.allow_ht_pinning and app_thread_per_core > 1:
-            raise RuntimeError('Hyperthreads needed to satisfy ranks/threads configuration, but forbidden by'
+            raise RuntimeError('<geopm> geopmpy.launcher: Hyperthreads needed to satisfy ranks/threads configuration, but forbidden by'
                                ' --geopm-hyperthreads-disable.')
         if app_cpu_per_node > self.num_linux_cpu:
-            raise RuntimeError('Requested more application threads per node than the number of Linux logical CPUs')
+            raise RuntimeError('<geopm> geopmpy.launcher: Requested more application threads per node than the number of Linux logical CPUs')
 
         app_core_per_rank = self.cpu_per_rank // app_thread_per_core
         if self.cpu_per_rank % app_thread_per_core > 0:
             app_core_per_rank += 1
 
         if app_core_per_rank * app_rank_per_node > core_per_node:
-            raise RuntimeError('Cores cannot be shared between MPI ranks')
+            raise RuntimeError('<geopm> geopmpy.launcher: Cores cannot be shared between MPI ranks')
 
         result = []
         core_index = core_per_node - 1
@@ -660,7 +660,7 @@ class Launcher(object):
                 core_index -= app_core_per_rank
 
         if core_index <= 0:
-            sys.stderr.write("Warning: User requested all cores for application. ")
+            sys.stderr.write("Warning: <geopm> geopmpy.launcher: User requested all cores for application. ")
             if self.config.allow_ht_pinning and core_per_node * app_thread_per_core < self.num_linux_cpu:
                 sys.stderr.write("GEOPM controller will share a core with the application.\n")
                 # Run controller on the lowest hyperthread that is not
@@ -685,13 +685,13 @@ class Launcher(object):
         Parse command line options accepted by the underlying job launch
         application.
         """
-        raise NotImplementedError('Launcher.parse_launcher_argv() undefined in the base class')
+        raise NotImplementedError('<geopm> geopmpy.launcher: Launcher.parse_launcher_argv() undefined in the base class')
 
     def launcher_command(self):
         """
         Returns the name/path to the job launch application.
         """
-        raise NotImplementedError('Launcher.launcher_command() undefined in the base class')
+        raise NotImplementedError('<geopm> geopmpy.launcher: Launcher.launcher_command() undefined in the base class')
 
     def launcher_argv(self, is_geopmctl):
         """
@@ -718,7 +718,7 @@ class Launcher(object):
         Returns a list containing the command line options specifying the
         number of compute nodes.
         """
-        raise NotImplementedError('Launcher.num_node_option() undefined in the base class')
+        raise NotImplementedError('<geopm> geopmpy.launcher: Launcher.num_node_option() undefined in the base class')
 
     def num_rank_option(self, is_geopmctl):
         """
@@ -807,7 +807,7 @@ class Launcher(object):
         Returns a list of the names of compute nodes that are currently
         available to run jobs.
         """
-        raise NotImplementedError('Launcher.get_idle_nodes() undefined in the base class')
+        raise NotImplementedError('<geopm> geopmpy.launcher: Launcher.get_idle_nodes() undefined in the base class')
 
 
     def get_alloc_nodes(self):
@@ -848,7 +848,7 @@ class SrunLauncher(Launcher):
         if (self.is_geopm_enabled and
             self.config.get_ctl() == 'application' and
             os.getenv('SLURM_NNODES') != str(self.num_node)):
-            raise RuntimeError('When using srun and specifying --geopm-ctl=application call must ' +
+            raise RuntimeError('<geopm> geopmpy.launcher: When using srun and specifying --geopm-ctl=application call must ' +
                                'be made inside of an salloc or sbatch environment and application must run on all allocated nodes.')
 
     def int_handler(self, signum, frame):
@@ -900,7 +900,7 @@ class SrunLauncher(Launcher):
 
         if (self.is_geopm_enabled and
             any(aa.startswith(('--cpu_bind', '--cpu-bind')) for aa in self.argv)):
-            raise SyntaxError('The option --cpu_bind or --cpu-bind  must not be specified, this is controlled by geopm_srun.')
+            raise SyntaxError('<geopm> geopmpy.launcher: The option --cpu_bind or --cpu-bind  must not be specified, this is controlled by geopm_srun.')
 
     def launcher_command(self):
         """
@@ -938,7 +938,7 @@ class SrunLauncher(Launcher):
             elif help_msg.find(b'--cpu-bind') != -1:
                 bind_cmd = '--cpu-bind'
             else:
-                raise RuntimeError('SLURM\'s cpubind plugin was not detected.  Unable to affinitize ranks.')
+                raise RuntimeError('<geopm> geopmpy.launcher: SLURM\'s cpubind plugin was not detected.  Unable to affinitize ranks.')
 
             mask_zero = ['0' for ii in range(self.num_linux_cpu)]
             mask_list = []
@@ -989,7 +989,7 @@ class SrunLauncher(Launcher):
         if (self.node_list is not None and
             self.host_file is not None and
             self.node_list != self.host_file):
-            raise SyntaxError('Node list and host name cannot both be specified.')
+            raise SyntaxError('<geopm> geopmpy.launcher: Node list and host name cannot both be specified.')
 
         result = []
         if self.node_list is not None:
@@ -1269,7 +1269,7 @@ class IMPIExecLauncher(Launcher):
             self.is_slurm_enabled and
             self.config.get_ctl() == 'application' and
             os.getenv('SLURM_NNODES') != str(self.num_node)):
-            raise RuntimeError('When using srun and specifying --geopm-ctl=application call must be made ' +
+            raise RuntimeError('<geopm> geopmpy.launcher: When using srun and specifying --geopm-ctl=application call must be made ' +
                                'inside of an salloc or sbatch environment and application must run on all allocated nodes.')
 
     def launcher_command(self):
@@ -1349,7 +1349,7 @@ class IMPIExecLauncher(Launcher):
         if (self.node_list is not None and
             self.host_file is not None and
             self.node_list != self.host_file):
-            raise SyntaxError('Node list and host name cannot both be specified.')
+            raise SyntaxError('<geopm> geopmpy.launcher: Node list and host name cannot both be specified.')
 
         result = []
         if self.node_list is not None:
@@ -1362,7 +1362,7 @@ class IMPIExecLauncher(Launcher):
             #     2. For the call to 'lscpu --hex' used in the Launcher itself.
             #     3. For actually running the app requested.
             if IMPIExecLauncher._is_once:
-                sys.stderr.write('<geopmpy.launcher> Warning: Hosts not defined, GEOPM may fail to start.  '
+                sys.stderr.write('Warning: <geopm> geopmpy.launcher: Hosts not defined, GEOPM may fail to start.  '
                                  'Use "-f <host_file>" or "-hosts" to specify the hostnames of the compute nodes.\n')
                 IMPIExecLauncher._is_once = False;
 
@@ -1379,7 +1379,7 @@ class IMPIExecLauncher(Launcher):
         if self.is_slurm_enabled:
             return subprocess.check_output('sinfo -t idle -hNo %N | uniq', shell=True).decode().splitlines()
         else:
-            raise NotImplementedError('Idle nodes feature requires use with SLURM')
+            raise NotImplementedError('<geopm> geopmpy.launcher: Idle nodes feature requires use with SLURM')
 
 
 class AprunLauncher(Launcher):
@@ -1394,7 +1394,7 @@ class AprunLauncher(Launcher):
                                             reservation=reservation)
 
         if self.is_geopm_enabled and self.config.get_ctl() == 'application':
-            raise RuntimeError('When using aprun specifying --geopm-ctl=application is not allowed.')
+            raise RuntimeError('<geopm> geopmpy.launcher: When using aprun specifying --geopm-ctl=application is not allowed.')
 
     def parse_launcher_argv(self):
         """
@@ -1428,7 +1428,7 @@ class AprunLauncher(Launcher):
         if (self.is_geopm_enabled and
             any(aa.startswith('--cpu-binding') or
             aa.startswith('-cc') for aa in self.argv)):
-            raise SyntaxError('The options --cpu-binding or -cc must not be specified, this is controlled by geopmpy.launcher.')
+            raise SyntaxError('<geopm> geopmpy.launcher: The options --cpu-binding or -cc must not be specified, this is controlled by geopmpy.launcher.')
 
     def launcher_command(self):
         """
