@@ -69,6 +69,8 @@ int geopm_agent_num_avail(int *num_agent);
 int geopm_agent_name(int agent_idx,
                      size_t agent_name_max,
                      char *agent_name);
+
+int geopm_agent_enforce_policy(void);
 """)
 _dl = _ffi.dlopen('libgeopmpolicy.so')
 _name_max = 1024
@@ -174,3 +176,14 @@ def names():
                 error.message(err)))
         result.append(_ffi.string(buff).decode())
     return result
+
+
+def enforce_policy():
+    """Enforce a static implementation of the agent's policy.  The agent
+       and the policy are chosen based on the GEOPM environment
+       variables and configuration files.
+    """
+    err = _dl.geopm_agent_enforce_policy()
+    if err < 0:
+        raise RuntimeError("geopm_agent_enforce_policy() failed: {}".format(
+            error.message(err)))
