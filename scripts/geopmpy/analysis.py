@@ -599,7 +599,7 @@ class NodeEfficiencyAnalysis(Analysis):
         if not self._max_power:
             self._max_power = max(profiles)
 
-        self._power_caps = list(range(self._min_power, self._max_power+1, self._step_power))
+        self._power_caps = range(self._min_power, self._max_power+1, self._step_power)
         gov_freq_data = {}
         bal_freq_data = {}
 
