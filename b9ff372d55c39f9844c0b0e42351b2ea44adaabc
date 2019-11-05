@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c86f334_edcc1cec",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-05T23:38:42Z",
+      "side": 1,
+      "message": "Should be geopmpy.analysis in this file",
+      "range": {
+        "startLine": 79,
+        "startChar": 51,
+        "endLine": 79,
+        "endChar": 59
+      },
+      "revId": "b9ff372d55c39f9844c0b0e42351b2ea44adaabc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91173c09_9e219885",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-05T23:38:42Z",
+      "side": 1,
+      "message": "should be geopmpy.io in this file",
+      "range": {
+        "startLine": 111,
+        "startChar": 53,
+        "endLine": 111,
+        "endChar": 61
+      },
+      "revId": "b9ff372d55c39f9844c0b0e42351b2ea44adaabc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
