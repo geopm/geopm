@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "abd09d45_111bc82a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-05T23:36:35Z",
+      "side": 1,
+      "message": "stray G",
+      "range": {
+        "startLine": 7,
+        "startChar": 60,
+        "endLine": 7,
+        "endChar": 61
+      },
+      "revId": "eace64941c906dba30dc08ce91ecde6b5057de63",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
