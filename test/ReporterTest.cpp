@@ -213,7 +213,7 @@ TEST_F(ReporterTest, generate)
     }
     for (auto rid : m_region_mpi_time) {
         if (GEOPM_REGION_HASH_EPOCH == rid.first) {
-            EXPECT_CALL(m_application_io, total_epoch_runtime_mpi())
+            EXPECT_CALL(m_application_io, total_epoch_runtime_network())
                 .WillOnce(Return(rid.second));
         }
         else {

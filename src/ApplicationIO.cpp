@@ -211,7 +211,7 @@ namespace geopm
         return m_epoch_regulator->total_epoch_runtime();
     }
 
-    double ApplicationIOImp::total_epoch_runtime_mpi(void) const
+    double ApplicationIOImp::total_epoch_runtime_network(void) const
     {
 #ifdef GEOPM_DEBUG
         if (!m_is_connected) {
@@ -220,7 +220,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        return m_epoch_regulator->total_epoch_runtime_mpi();
+        return m_epoch_regulator->total_epoch_runtime_network();
     }
 
     double ApplicationIOImp::total_epoch_energy_pkg(void) const

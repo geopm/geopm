@@ -66,7 +66,7 @@ class MockApplicationIO : public geopm::ApplicationIO
                            double(void));
         MOCK_CONST_METHOD0(total_epoch_runtime,
                            double(void));
-        MOCK_CONST_METHOD0(total_epoch_runtime_mpi,
+        MOCK_CONST_METHOD0(total_epoch_runtime_network,
                            double(void));
         MOCK_CONST_METHOD0(total_epoch_energy_pkg,
                            double(void));

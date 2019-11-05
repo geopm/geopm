@@ -251,7 +251,7 @@ namespace geopm
             report << "    frequency (%): " << freq << std::endl;
             report << "    frequency (Hz): " << freq / 100.0 * m_platform_io.read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0) << std::endl;
             double network_time = (region.hash == GEOPM_REGION_HASH_EPOCH) ?
-                                   application_io.total_epoch_runtime_mpi() :
+                                   application_io.total_epoch_runtime_network() :
                                    application_io.total_region_runtime_mpi(region.hash);
             report << "    network-time (sec): " << network_time << std::endl;
             report << "    count: " << region.count << std::endl;

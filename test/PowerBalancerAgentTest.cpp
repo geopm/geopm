@@ -71,7 +71,7 @@ class PowerBalancerAgentTest : public ::testing::Test
         enum {
             M_SIGNAL_EPOCH_COUNT,
             M_SIGNAL_EPOCH_RUNTIME,
-            M_SIGNAL_EPOCH_RUNTIME_MPI,
+            M_SIGNAL_EPOCH_RUNTIME_NETWORK,
             M_SIGNAL_EPOCH_RUNTIME_IGNORE,
         };
 
@@ -120,7 +120,7 @@ TEST_F(PowerBalancerAgentTest, power_balancer_agent)
     EXPECT_CALL(*power_gov_p, init_platform_io());
     EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME", _, _));
     EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", _, _));
-    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_MPI", _, _));
+    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_NETWORK", _, _));
     EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_IGNORE", _, _));
     m_agent->init(0, {}, false);
 }
@@ -431,8 +431,8 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
                 {
                     return (double) ++counter;
                 }));
-    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_MPI", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Return(M_SIGNAL_EPOCH_RUNTIME_MPI));
+    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_NETWORK", GEOPM_DOMAIN_BOARD, 0))
+        .WillOnce(Return(M_SIGNAL_EPOCH_RUNTIME_NETWORK));
     EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_IGNORE", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(M_SIGNAL_EPOCH_RUNTIME_IGNORE));
 
@@ -444,7 +444,7 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
     }
     Sequence mpi_rt_pio_seq;
     for (size_t x = 0; x < epoch_rt_mpi.size(); ++x) {
-        EXPECT_CALL(m_platform_io, sample(M_SIGNAL_EPOCH_RUNTIME_MPI))
+        EXPECT_CALL(m_platform_io, sample(M_SIGNAL_EPOCH_RUNTIME_NETWORK))
             .InSequence(mpi_rt_pio_seq)
             .WillOnce(Return(epoch_rt_mpi[x]));
     }
