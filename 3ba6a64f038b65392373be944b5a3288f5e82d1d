@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "e8c984c4_c8c9c841",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 24
+      },
+      "lineNbr": 1112,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-11-05T01:50:32Z",
+      "side": 1,
+      "message": "This will be a problem with -npersocket\u003d5 it will be replaced with just --npersocket and the value will be dropped.  Probably safest to just replace all parameters that *start with* \u0027-PARAM\u0027 with \u0027--param\u0027:\n\n```\n\u003e\u003e\u003e foo \u003d \u0027-foobar\u003dbiz\u0027\n\u003e\u003e\u003e if foo.startswith(\u0027-foo\u0027):\n...     foo \u003d foo.replace(\u0027-foo\u0027, \u0027--foo\u0027, 1)\n... \n\u003e\u003e\u003e foo\n\u0027--foobar\u003dbiz\u0027\n```\n\nSeems that the equals notation may not work for openmpi so this may in fact be moot.",
+      "range": {
+        "startLine": 1109,
+        "startChar": 0,
+        "endLine": 1112,
+        "endChar": 78
+      },
+      "revId": "3ba6a64f038b65392373be944b5a3288f5e82d1d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "244ea97f_c2ba43c3",
         "filename": "scripts/geopmpy/launcher.py",
         "patchSetId": 24
