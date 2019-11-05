@@ -95,7 +95,7 @@ namespace geopm
             virtual double total_epoch_runtime(void) const = 0;
             /// @brief Returns the total time spent in MPI after the
             ///        first epoch call.
-            virtual double total_epoch_runtime_mpi(void) const = 0;
+            virtual double total_epoch_runtime_network(void) const = 0;
             /// @brief Returns the total package energy since the
             ///        first epoch call.
             virtual double total_epoch_energy_pkg(void) const = 0;
@@ -158,7 +158,7 @@ namespace geopm
             int total_epoch_count(void) const override;
             double total_epoch_runtime_ignore(void) const override;
             double total_epoch_runtime(void) const override;
-            double total_epoch_runtime_mpi(void) const override;
+            double total_epoch_runtime_network(void) const override;
             double total_epoch_energy_pkg(void) const override;
             double total_epoch_energy_dram(void) const override;
             int total_count(uint64_t region_id) const override;

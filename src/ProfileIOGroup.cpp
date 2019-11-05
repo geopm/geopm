@@ -76,8 +76,8 @@ namespace geopm
                            {"EPOCH_COUNT", M_SIGNAL_EPOCH_COUNT},
                            {plugin_name() + "::REGION_RUNTIME", M_SIGNAL_RUNTIME},
                            {"REGION_RUNTIME", M_SIGNAL_RUNTIME},
-                           {plugin_name() + "::EPOCH_RUNTIME_MPI", M_SIGNAL_EPOCH_RUNTIME_MPI},
-                           {"EPOCH_RUNTIME_MPI", M_SIGNAL_EPOCH_RUNTIME_MPI},
+                           {plugin_name() + "::EPOCH_RUNTIME_NETWORK", M_SIGNAL_EPOCH_RUNTIME_NETWORK},
+                           {"EPOCH_RUNTIME_NETWORK", M_SIGNAL_EPOCH_RUNTIME_NETWORK},
                            {plugin_name() + "::EPOCH_RUNTIME_IGNORE", M_SIGNAL_EPOCH_RUNTIME_IGNORE},
                            {"EPOCH_RUNTIME_IGNORE", M_SIGNAL_EPOCH_RUNTIME_IGNORE}}
         , m_platform_topo(topo)
@@ -87,7 +87,7 @@ namespace geopm
         , m_per_cpu_runtime(topo.num_domain(GEOPM_DOMAIN_CPU), NAN)
         , m_per_cpu_count(topo.num_domain(GEOPM_DOMAIN_CPU), 0)
         , m_thread_progress(topo.num_domain(GEOPM_DOMAIN_CPU), NAN)
-        , m_epoch_runtime_mpi(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
+        , m_epoch_runtime_network(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
         , m_epoch_runtime_ignore(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
         , m_epoch_runtime(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
         , m_epoch_count(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
@@ -223,10 +223,10 @@ namespace geopm
                 m_per_cpu_runtime[cpu] = cache.at(m_per_cpu_region_id[cpu])[cpu];
             }
         }
-        if (m_do_read[M_SIGNAL_EPOCH_RUNTIME_MPI]) {
-            std::vector<double> per_rank_epoch_runtime_mpi = m_epoch_regulator.last_epoch_runtime_mpi();
+        if (m_do_read[M_SIGNAL_EPOCH_RUNTIME_NETWORK]) {
+            std::vector<double> per_rank_epoch_runtime_network = m_epoch_regulator.last_epoch_runtime_network();
             for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
-                m_epoch_runtime_mpi[cpu_idx] = per_rank_epoch_runtime_mpi[m_cpu_rank[cpu_idx]];
+                m_epoch_runtime_network[cpu_idx] = per_rank_epoch_runtime_network[m_cpu_rank[cpu_idx]];
             }
         }
         if (m_do_read[M_SIGNAL_EPOCH_RUNTIME_IGNORE]) {
@@ -282,8 +282,8 @@ namespace geopm
             case M_SIGNAL_RUNTIME:
                 result = m_per_cpu_runtime[cpu_idx];
                 break;
-            case M_SIGNAL_EPOCH_RUNTIME_MPI:
-                result = m_epoch_runtime_mpi[cpu_idx];
+            case M_SIGNAL_EPOCH_RUNTIME_NETWORK:
+                result = m_epoch_runtime_network[cpu_idx];
                 break;
             case M_SIGNAL_EPOCH_RUNTIME_IGNORE:
                 result = m_epoch_runtime_ignore[cpu_idx];
@@ -340,8 +340,8 @@ namespace geopm
                 region_id = m_profile_sample->per_cpu_region_id()[cpu_idx];
                 result = m_profile_sample->per_cpu_runtime(region_id)[cpu_idx];
                 break;
-            case M_SIGNAL_EPOCH_RUNTIME_MPI:
-                result = m_epoch_regulator.last_epoch_runtime_mpi()[cpu_idx];
+            case M_SIGNAL_EPOCH_RUNTIME_NETWORK:
+                result = m_epoch_regulator.last_epoch_runtime_network()[cpu_idx];
                 break;
             case M_SIGNAL_EPOCH_RUNTIME_IGNORE:
                 result = m_epoch_regulator.last_epoch_runtime_ignore()[cpu_idx];
@@ -393,8 +393,8 @@ namespace geopm
             {"PROFILE::EPOCH_ENERGY", Agg::sum},
             {"EPOCH_COUNT", Agg::min},
             {"PROFILE::EPOCH_COUNT", Agg::min},
-            {"EPOCH_RUNTIME_MPI", Agg::max},
-            {"PROFILE::EPOCH_RUNTIME_MPI", Agg::max},
+            {"EPOCH_RUNTIME_NETWORK", Agg::max},
+            {"PROFILE::EPOCH_RUNTIME_NETWORK", Agg::max},
             {"EPOCH_RUNTIME_IGNORE", Agg::max},
             {"PROFILE::EPOCH_RUNTIME_IGNORE", Agg::max}
         };
@@ -427,8 +427,8 @@ namespace geopm
             {"PROFILE::EPOCH_ENERGY", string_format_double},
             {"EPOCH_COUNT", string_format_integer},
             {"PROFILE::EPOCH_COUNT", string_format_integer},
-            {"EPOCH_RUNTIME_MPI", string_format_double},
-            {"PROFILE::EPOCH_RUNTIME_MPI", string_format_double},
+            {"EPOCH_RUNTIME_NETWORK", string_format_double},
+            {"PROFILE::EPOCH_RUNTIME_NETWORK", string_format_double},
             {"EPOCH_RUNTIME_IGNORE", string_format_double},
             {"PROFILE::EPOCH_RUNTIME_IGNORE", string_format_double}
         };

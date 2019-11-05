@@ -86,7 +86,7 @@ namespace geopm
             virtual std::vector<double> last_epoch_runtime() const = 0;
             /// @brief Returns the total mpi runtime of the last iteration
             ///        of the epoch for each rank.
-            virtual std::vector<double> last_epoch_runtime_mpi() const = 0;
+            virtual std::vector<double> last_epoch_runtime_network() const = 0;
             /// @brief Returns the total ignore runtime of the last iteration
             ///        of the epoch for each rank.
             virtual std::vector<double> last_epoch_runtime_ignore() const = 0;
@@ -110,7 +110,7 @@ namespace geopm
             virtual double total_epoch_runtime(void) const = 0;
             /// @brief Returns the total time spent in MPI after the
             ///        first epoch call.
-            virtual double total_epoch_runtime_mpi(void) const = 0;
+            virtual double total_epoch_runtime_network(void) const = 0;
             /// @brief Returns the total time spent in regions marked
             ///        with GEOPM_REGION_ID_HINT_IGNORE after the
             ///        first epoch call.
@@ -159,14 +159,14 @@ namespace geopm
             const RuntimeRegulator &region_regulator(uint64_t region_id) const override;
             bool is_regulated(uint64_t region_id) const override;
             std::vector<double> last_epoch_runtime() const override;
-            std::vector<double> last_epoch_runtime_mpi() const override;
+            std::vector<double> last_epoch_runtime_network() const override;
             std::vector<double> last_epoch_runtime_ignore() const override;
             std::vector<double> epoch_count() const override;
             double total_region_runtime(uint64_t region_id) const override;
             double total_region_runtime_mpi(uint64_t region_id) const override;
             int total_epoch_count() const override;
             double total_epoch_runtime(void) const override;
-            double total_epoch_runtime_mpi(void) const override;
+            double total_epoch_runtime_network(void) const override;
             double total_epoch_runtime_ignore(void) const override;
             double total_epoch_energy_pkg(void) const override;
             double total_epoch_energy_dram(void) const override;
@@ -188,13 +188,13 @@ namespace geopm
             std::vector<double> m_curr_runtime_ignore;
             std::vector<double> m_agg_epoch_runtime_ignore;
             std::vector<double> m_curr_runtime_mpi;
-            std::vector<double> m_agg_epoch_runtime_mpi;
+            std::vector<double> m_agg_epoch_runtime_network;
             std::vector<double> m_agg_runtime_mpi;
             std::vector<double> m_last_epoch_runtime;
-            std::vector<double> m_last_epoch_runtime_mpi;
+            std::vector<double> m_last_epoch_runtime_network;
             std::vector<double> m_last_epoch_runtime_ignore;
             std::vector<double> m_agg_epoch_runtime;
-            std::vector<double> m_agg_pre_epoch_runtime_mpi;
+            std::vector<double> m_agg_pre_epoch_runtime_network;
             std::vector<double> m_agg_pre_epoch_runtime_ignore;
             std::vector<std::set<uint64_t> > m_pre_epoch_region;
             std::list<geopm_region_info_s> m_region_info;

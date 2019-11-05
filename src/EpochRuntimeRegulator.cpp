@@ -58,13 +58,13 @@ namespace geopm
         , m_curr_runtime_ignore(m_rank_per_node, 0.0)
         , m_agg_epoch_runtime_ignore(m_rank_per_node, 0.0)
         , m_curr_runtime_mpi(m_rank_per_node, 0.0)
-        , m_agg_epoch_runtime_mpi(m_rank_per_node, 0.0)
+        , m_agg_epoch_runtime_network(m_rank_per_node, 0.0)
         , m_agg_runtime_mpi(m_rank_per_node, 0.0)
         , m_last_epoch_runtime(m_rank_per_node, 0.0)
-        , m_last_epoch_runtime_mpi(m_rank_per_node, 0.0)
+        , m_last_epoch_runtime_network(m_rank_per_node, 0.0)
         , m_last_epoch_runtime_ignore(m_rank_per_node, 0.0)
         , m_agg_epoch_runtime(m_rank_per_node, 0.0)
-        , m_agg_pre_epoch_runtime_mpi(m_rank_per_node, 0.0)
+        , m_agg_pre_epoch_runtime_network(m_rank_per_node, 0.0)
         , m_agg_pre_epoch_runtime_ignore(m_rank_per_node, 0.0)
         , m_pre_epoch_region(m_rank_per_node)
         , m_epoch_start_energy_pkg(NAN)
@@ -195,14 +195,14 @@ namespace geopm
         if (geopm_region_id_is_epoch(region_id)) {
             if (m_seen_first_epoch[rank]) {
                 m_last_epoch_runtime[rank] = reg_it->second->per_rank_last_runtime()[rank];
-                m_last_epoch_runtime_mpi[rank] = m_curr_runtime_mpi[rank];
+                m_last_epoch_runtime_network[rank] = m_curr_runtime_mpi[rank];
                 m_last_epoch_runtime_ignore[rank] = m_curr_runtime_ignore[rank];
                 m_agg_epoch_runtime[rank] += m_last_epoch_runtime[rank];
-                m_agg_epoch_runtime_mpi[rank] += m_curr_runtime_mpi[rank];
+                m_agg_epoch_runtime_network[rank] += m_curr_runtime_mpi[rank];
                 m_agg_epoch_runtime_ignore[rank] += m_curr_runtime_ignore[rank];
             }
             else {
-                m_agg_pre_epoch_runtime_mpi[rank] += m_curr_runtime_mpi[rank];
+                m_agg_pre_epoch_runtime_network[rank] += m_curr_runtime_mpi[rank];
                 m_agg_pre_epoch_runtime_ignore[rank] += m_curr_runtime_ignore[rank];
             }
             m_curr_runtime_mpi[rank] = 0.0;
@@ -255,9 +255,9 @@ namespace geopm
         return m_rid_regulator_map.find(region_id) != m_rid_regulator_map.end();
     }
 
-    std::vector<double> EpochRuntimeRegulatorImp::last_epoch_runtime_mpi() const
+    std::vector<double> EpochRuntimeRegulatorImp::last_epoch_runtime_network() const
     {
-        return m_last_epoch_runtime_mpi;
+        return m_last_epoch_runtime_network;
     }
 
     std::vector<double> EpochRuntimeRegulatorImp::last_epoch_runtime_ignore() const
@@ -301,7 +301,7 @@ namespace geopm
     {
         double result = 0.0;
         if (region_id == GEOPM_REGION_ID_EPOCH) {
-            result = total_epoch_runtime_mpi();
+            result = total_epoch_runtime_network();
         }
         else if (m_network_region_set.find(region_id) != m_network_region_set.end()) {
             result = total_region_runtime(region_id);
@@ -324,9 +324,9 @@ namespace geopm
         return total_region_runtime(GEOPM_REGION_ID_EPOCH);
     }
 
-    double EpochRuntimeRegulatorImp::total_epoch_runtime_mpi(void) const
+    double EpochRuntimeRegulatorImp::total_epoch_runtime_network(void) const
     {
-        return Agg::average(m_agg_epoch_runtime_mpi);
+        return Agg::average(m_agg_epoch_runtime_network);
     }
 
     double EpochRuntimeRegulatorImp::total_epoch_runtime_ignore(void) const
@@ -346,7 +346,7 @@ namespace geopm
 
     double EpochRuntimeRegulatorImp::total_app_runtime_mpi(void) const
     {
-        return Agg::average(m_agg_pre_epoch_runtime_mpi) + Agg::average(m_agg_runtime_mpi);
+        return Agg::average(m_agg_pre_epoch_runtime_network) + Agg::average(m_agg_runtime_mpi);
     }
 
     double EpochRuntimeRegulatorImp::total_app_runtime_ignore(void) const
