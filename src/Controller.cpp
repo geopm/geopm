@@ -51,7 +51,7 @@
 #include "FilePolicy.hpp"
 #include "Helper.hpp"
 #include "config.h"
-
+#include <iostream>
 namespace geopm
 {
     static bool is_shmem_policy_path(const std::string &policy_path)
@@ -136,9 +136,11 @@ extern "C"
         int err = 0;
         try {
             std::string agent_name = geopm::environment().agent();
+            std::cout << "got agent: " << agent_name << std::endl;
             std::shared_ptr<geopm::Agent> agent(geopm::agent_factory().make_plugin(agent_name));
             std::vector<double> policy(geopm::Agent::num_policy(geopm::agent_factory().dictionary(agent_name)));
             std::string policy_path = geopm::environment().policy();
+            std::cout << "got policy: " << policy_path << std::endl;
             if (geopm::is_shmem_policy_path(policy_path)) {
                 geopm::EndpointUser::make_unique(policy_path, {})->read_policy(policy);
             }
