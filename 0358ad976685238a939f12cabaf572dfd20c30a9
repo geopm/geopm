@@ -126,6 +126,24 @@
       "revId": "0358ad976685238a939f12cabaf572dfd20c30a9",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b783f3a_cf297633",
+        "filename": "ChangeLog",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-05T14:41:50Z",
+      "side": 1,
+      "message": "Looks like rpmbuild is still using this file",
+      "parentUuid": "59dee4cb_a8b5c412",
+      "revId": "0358ad976685238a939f12cabaf572dfd20c30a9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
