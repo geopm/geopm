@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9ef3bb1_53a08414",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 29
+      },
+      "lineNbr": 1201,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-11-05T22:56:19Z",
+      "side": 1,
+      "message": "Having the + in the middle of this string breaks the .format() call.  Presently this error appears as the following:\n\nWarning: \u003cgeopm\u003e geopmpy.launcher: Due to a bug in OpenMPI, you may need to request {} cores per rank or less.  Currently requesting cpus_per_rank\u003d18",
+      "range": {
+        "startLine": 1199,
+        "startChar": 45,
+        "endLine": 1201,
+        "endChar": 123
+      },
+      "revId": "ee4dbe78a2684a5a015288a0a240bdf60b5c6099",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
