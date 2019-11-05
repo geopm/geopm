@@ -76,14 +76,14 @@ class Analysis(object):
         """
         Set up options supported by the analysis type.
         """
-        raise NotImplementedError('Analysis base class does not implement the add_options() method')
+        raise NotImplementedError('<geopm> geopmpy.analysis: Analysis base class does not implement the add_options() method')
 
     @staticmethod
     def help_text():
         """
         Return the set of options supported by the analysis type.
         """
-        raise NotImplementedError('Analysis base class does not implement the help_text() method')
+        raise NotImplementedError('<geopm> geopmpy.analysis: Analysis base class does not implement the help_text() method')
 
     def __init__(self, profile_prefix, output_dir, verbose, iterations):
         self._name = profile_prefix
@@ -99,7 +99,7 @@ class Analysis(object):
         """
         Run experiment and set data paths corresponding to output.
         """
-        raise NotImplementedError('Analysis base class does not implement the launch() method')
+        raise NotImplementedError('<geopm> geopmpy.analysis: Analysis base class does not implement the launch() method')
 
     @staticmethod
     def try_launch(launcher_name, app_argv, report_path, trace_path, profile_name, agent_conf):
@@ -119,9 +119,9 @@ class Analysis(object):
             launcher = geopmpy.launcher.Factory().create(argv)
             launcher.run()
         elif os.path.exists(report_path):
-            sys.stderr.write('<geopmpy>: Warning: output file "{}" exists, skipping run.\n'.format(report_path))
+            sys.stderr.write('Warning: <geopm> geopmpy.analysis: Output file "{}" exists, skipping run.\n'.format(report_path))
         else:
-            raise RuntimeError('<geopmpy>: output file "{}" does not exist, but no application was specified.\n'.format(report_path))
+            raise RuntimeError('<geopm> geopmpy.analysis: Output file "{}" does not exist, but no application was specified.\n'.format(report_path))
 
     def find_files(self, search_pattern='*report'):
         """
@@ -155,25 +155,25 @@ class Analysis(object):
         """
         Process the parsed data into a form to be used for plotting (e.g. pandas dataframe).
         """
-        raise NotImplementedError('Analysis base class does not implement the plot_process() method')
+        raise NotImplementedError('<geopm> geopmpy.analysis: Analysis base class does not implement the plot_process() method')
 
     def summary_process(self, parse_output):
         """
         Process the parsed data into a form to be used for the text summary.
         """
-        raise NotImplementedError('Analysis base class does not implement the summary_process() method')
+        raise NotImplementedError('<geopm> geopmpy.analysis: Analysis base class does not implement the summary_process() method')
 
     def summary(self, process_output):
         """
         Print a text summary of the results.
         """
-        raise NotImplementedError('Analysis base class does not implement the summary() method')
+        raise NotImplementedError('<geopm> geopmpy.analysis: Analysis base class does not implement the summary() method')
 
     def plot(self, process_output):
         """
         Generate graphical plots of the results.
         """
-        raise NotImplementedError('Analysis base class does not implement the plot() method')
+        raise NotImplementedError('<geopm> geopmpy.analysis: Analysis base class does not implement the plot() method')
 
 
 class PowerSweepAnalysis(Analysis):
@@ -244,10 +244,10 @@ class PowerSweepAnalysis(Analysis):
             # system minimum is actually too low; use 50% of TDP or min rounded up to nearest step, whichever is larger
             self._min_power = max(int(0.5 * sys_tdp), sys_min)
             self._min_power = int(self._step_power * math.ceil(float(self._min_power)/self._step_power))
-            sys.stderr.write("<geopmpy>: Warning: Invalid or unspecified min_power; using default minimum: {}.\n".format(self._min_power))
+            sys.stderr.write("Warning: <geopm> geopmpy.analysis: Invalid or unspecified min_power; using default minimum: {}.\n".format(self._min_power))
         if self._max_power is None or self._max_power > sys_max:
             self._max_power = sys_tdp
-            sys.stderr.write("<geopmpy>: Warning: Invalid or unspecified max_power; using system TDP: {}.\n".format(self._max_power))
+            sys.stderr.write("Warning: <geopm> geopmpy.analysis: Invalid or unspecified max_power; using system TDP: {}.\n".format(self._max_power))
 
         for power_cap in range(self._min_power, self._max_power+1, self._step_power):
             # governor runs
@@ -298,7 +298,7 @@ class PowerSweepAnalysis(Analysis):
         sys.stdout.write(rs + '\n')
 
     def plot_process(self, parse_output):
-        sys.stdout.write("<geopmpy>: Warning: No plot implemented for this analysis type.\n")
+        sys.stdout.write("Warning: <geopm> geopmpy.analysis: No plot implemented for this analysis type.\n")
 
     def plot(self, process_output):
         pass
@@ -661,7 +661,7 @@ class NodeEfficiencyAnalysis(Analysis):
                     err += line
                 else:
                     cont = False
-            raise RuntimeError("Unable to determine sticker_freq: " + err)
+            raise RuntimeError("<geopm> geopmpy.analysis: Unable to determine sticker_freq: " + err)
         return float(proc.stdout.readline().strip())
 
 
@@ -721,7 +721,7 @@ class NodePowerAnalysis(Analysis):
         super(NodePowerAnalysis, self).find_files('*nocap*report')
 
     def summary_process(self, parse_output):
-        sys.stdout.write("<geopmpy>: Warning: No summary implemented for this analysis type.\n")
+        sys.stdout.write("Warning: <geopm> geopmpy.analysis: No summary implemented for this analysis type.\n")
 
     def summary(self, process_output):
         pass
@@ -797,11 +797,11 @@ class FreqSweepAnalysis(Analysis):
         sys_min, sys_max = FreqSweepAnalysis.sys_freq_avail()
         if self._min_freq is None or self._min_freq < sys_min:
             if self._verbose:
-                sys.stderr.write("<geopmpy>: Warning: Invalid or unspecified min_freq; using system minimum: {}.\n".format(sys_min))
+                sys.stderr.write("Warning: <geopm> geopmpy.analysis: Invalid or unspecified min_freq; using system minimum: {}.\n".format(sys_min))
             self._min_freq = sys_min
         if self._max_freq is None or self._max_freq > sys_max:
             if self._verbose:
-                sys.stderr.write("<geopmpy>: Warning: Invalid or unspecified max_freq; using system maximum: {}.\n".format(sys_max))
+                sys.stderr.write("Warning: <geopm> geopmpy.analysis: Invalid or unspecified max_freq; using system maximum: {}.\n".format(sys_max))
             self._max_freq = sys_max
         num_step = 1 + int((self._max_freq - self._min_freq) // FreqSweepAnalysis.step_freq)
         freqs = [FreqSweepAnalysis.step_freq * ss + self._min_freq for ss in range(num_step)]
@@ -1156,7 +1156,7 @@ class FrequencyMapBaselineComparisonAnalysis(Analysis):
             sys.stdout.write(rs + '\n')
 
     def plot_process(self, parse_output):
-        sys.stdout.write("<geopmpy>: Warning: No plot implemented for this analysis type.\n")
+        sys.stdout.write("Warning: <geopm> geopmpy.analysis: No plot implemented for this analysis type.\n")
 
     def plot(self, process_output):
         pass
@@ -1307,7 +1307,7 @@ class EnergyEfficientAgentAnalysis(Analysis):
             sys.stdout.write(rs + '\n')
 
     def plot_process(self, parse_output):
-        sys.stdout.write("<geopmpy>: Warning: No plot implemented for this analysis type.\n")
+        sys.stdout.write("Warning: <geopm> geopmpy.analysis: No plot implemented for this analysis type.\n")
 
     def plot(self, process_output):
         pass
@@ -1558,7 +1558,7 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
     argv = argv[1:]
 
     if analysis_type not in analysis_type_map:
-        raise RuntimeError('Analysis type "{}" unrecognized. Available types: {}'.format(analysis_type, ' '.join(analysis_type_map)))
+        raise RuntimeError('<geopm> geopmpy.analysis: Analysis type "{}" unrecognized. Available types: {}'.format(analysis_type, ' '.join(analysis_type_map)))
 
     # Common arguments
     parser = argparse.ArgumentParser(description=__doc__,
@@ -1601,7 +1601,7 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserv
 
     if not skip_launch:
         if launcher_name is None:
-            raise RuntimeError('Analysis without --geopm-analysis-skip-launch requires --geopm-analysis-launcher to be set')
+            raise RuntimeError('<geopm> geopmpy.analysis: Analysis without --geopm-analysis-skip-launch requires --geopm-analysis-launcher to be set')
         # @todo: if launching, must run within an allocation to make sure all runs use
         # the same set of nodes.  Checking this must be implemented with launcher methods.
         analysis.launch(launcher_name, args)
