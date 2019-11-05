@@ -116,8 +116,6 @@ class TestIntegration(unittest.TestCase):
         else:
             os.environ['GEOPM_FREQUENCY_MAP'] = self._original_freq_map_env
 
-
-
     def assertNear(self, a, b, epsilon=0.05, msg=''):
         denom = a if a != 0 else 1
         if abs((a - b) / denom) >= epsilon:
