@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "771b3615_d21fdb99",
+        "filename": "src/Tracer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-11-05T23:07:57Z",
+      "side": 1,
+      "message": "fixme",
+      "range": {
+        "startLine": 228,
+        "startChar": 7,
+        "endLine": 228,
+        "endChar": 34
+      },
+      "revId": "ec064f73fd8e1a548953e4b8ee87372ad9706e77",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
