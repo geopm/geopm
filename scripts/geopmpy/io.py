@@ -108,10 +108,10 @@ class AppOutput(object):
                 try:
                     report_paths = glob.glob(report_glob)
                 except TypeError:
-                    raise TypeError('AppOutput: reports must be a list of paths or a glob pattern')
+                    raise TypeError('<geopm> geopmpy.launcher: AppOutput: reports must be a list of paths or a glob pattern')
                 report_paths = natsorted(report_paths)
                 if len(report_paths) == 0:
-                    raise RuntimeError('No report files found with pattern {}.'.format(report_glob))
+                    raise RuntimeError('<geopm> geopmpy.launcher: No report files found with pattern {}.'.format(report_glob))
 
             self._all_paths.extend(report_paths)
 
@@ -138,7 +138,7 @@ class AppOutput(object):
                     if verbose:
                         sys.stdout.write('Loaded reports from {}.\n'.format(report_h5_name))
                 except IOError as err:
-                    sys.stderr.write('<geopmpy>: Warning: report HDF5 file not detected or older than reports.  Data will be saved to {}.\n'
+                    sys.stderr.write('Warning: <geopm> geopmpy.launcher: Report HDF5 file not detected or older than reports.  Data will be saved to {}.\n'
                                      .format(report_h5_name))
                     self.parse_reports(report_paths, verbose)
 
@@ -149,7 +149,7 @@ class AppOutput(object):
                         self._reports_df.to_hdf(report_h5_name, 'report', format='table')
                         self._app_reports_df.to_hdf(report_h5_name, 'app_report', format='table', append=True)
                     except ImportError as error:
-                        sys.stderr.write('<geopmy> Warning: unable to write HDF5 file: {}\n'.format(str(error)))
+                        sys.stderr.write('Warning: <geopm> geopmpy.launcher: Unable to write HDF5 file: {}\n'.format(str(error)))
 
                     if verbose:
                         sys.stdout.write('Done.\n')
@@ -165,10 +165,10 @@ class AppOutput(object):
                 try:
                     trace_paths = glob.glob(trace_glob)
                 except TypeError:
-                    raise TypeError('AppOutput: traces must be a list of paths or a glob pattern')
+                    raise TypeError('<geopm> geopmpy.launcher: AppOutput: traces must be a list of paths or a glob pattern')
                 trace_paths = natsorted(trace_paths)
                 if len(trace_paths) == 0:
-                    raise RuntimeError('No trace files found with pattern {}.'.format(trace_glob))
+                    raise RuntimeError('<geopm> geopmpy.launcher: No trace files found with pattern {}.'.format(trace_glob))
 
             self._all_paths.extend(trace_paths)
             self._index_tracker.reset()
@@ -195,7 +195,7 @@ class AppOutput(object):
                     if verbose:
                         sys.stdout.write('Loaded traces from {}.\n'.format(trace_h5_name))
                 except IOError as err:
-                    sys.stderr.write('<geopmpy> Warning: trace HDF5 file not detected or older than traces.  Data will be saved to {}.\n'
+                    sys.stderr.write('Warning: <geopm> geopmpy.launcher: Trace HDF5 file not detected or older than traces.  Data will be saved to {}.\n'
                                      .format(trace_h5_name))
 
                     self.parse_traces(trace_paths, verbose)
@@ -205,7 +205,7 @@ class AppOutput(object):
                             sys.stdout.write('Generating HDF5 files... ')
                         self._traces_df.to_hdf(trace_h5_name, 'trace')
                     except ImportError as error:
-                        sys.stderr.write('<geopmpy> Warning: unable to write HDF5 file: {}\n'.format(str(error)))
+                        sys.stderr.write('Warning: <geopm> geopmpy.launcher: Unable to write HDF5 file: {}\n'.format(str(error)))
 
                     if verbose:
                         sys.stdout.write('Done.\n')
@@ -270,7 +270,7 @@ class AppOutput(object):
         # Abort if traces are too large
         avail_mem = psutil.virtual_memory().available
         if filesize > avail_mem // 2:
-            sys.stderr.write('<geopmpy> Warning: Total size of traces is greater than 50% of available memory. Parsing traces will be skipped.\n')
+            sys.stderr.write('Warning: <geopm> geopmpy.launcher: Total size of traces is greater than 50% of available memory. Parsing traces will be skipped.\n')
             return
 
         filesize = '{}MiB'.format(filesize // 1024 // 1024)
@@ -741,32 +741,32 @@ class Report(OrderedDict):
         elif self._version:
             Report._version = self._version
         else:
-            raise SyntaxError('Unable to parse version information from report!')
+            raise SyntaxError('<geopm> geopmpy.launcher: Unable to parse version information from report!')
         if self._profile_name is None and Report._profile_name:
             self._profile_name = Report._profile_name
         elif self._profile_name:
             Report._profile_name = self._profile_name
         else:
-            raise SyntaxError('Unable to parse name information from report!')
+            raise SyntaxError('<geopm> geopmpy.launcher: Unable to parse name information from report!')
         if self._agent is None and Report._agent:
             self._agent = Report._agent
         elif self._agent:
             Report._agent = self._agent
         else:
-            raise SyntaxError('Unable to parse agent information from report!')
+            raise SyntaxError('<geopm> geopmpy.launcher: Unable to parse agent information from report!')
         if self._start_time is None and Report._start_time:
             self._start_time = Report._start_time
         elif self._start_time:
             Report._start_time = self._start_time
         else:
-            raise SyntaxError('Unable to parse start time from report!')
+            raise SyntaxError('<geopm> geopmpy.launcher: Unable to parse start time from report!')
 
         # TODO: temporary hack to use old data
         if self._total_energy_dram is None:
             self._total_energy_dram = 0
         if (len(line) != 0 and (region_name is not None or not found_totals or
             None in (self._total_runtime, self._total_energy_pkg, self._total_energy_dram, self._total_ignore_runtime, self._total_network_time))):
-            raise SyntaxError('Unable to parse report {} before offset {}: '.format(self._path, self._offset))
+            raise SyntaxError('<geopm> geopmpy.launcher: Unable to parse report {} before offset {}: '.format(self._path, self._offset))
 
     # Fields used for dataframe construction only
     def get_profile_name(self):
@@ -945,7 +945,7 @@ class Trace(object):
         column_headers = [old_headers.get(ii, ii) for ii in column_headers]
 
         if column_headers != original_headers:
-            sys.stderr.write('<geopmpy>: Warning: Old trace file format detected. Old column headers will be forced ' \
+            sys.stderr.write('Warning: <geopm> geopmpy.launcher: Old trace file format detected. Old column headers will be forced ' \
                              'to UPPERCASE.\n')
 
         # region_hash and region_hint must be a string for pretty printing pandas DataFrames
@@ -1032,7 +1032,7 @@ class Trace(object):
                 self._agent = dd['agent']
             self._node_name = dd['node_name']
         except KeyError:
-            raise SyntaxError('Trace file header could not be parsed!')
+            raise SyntaxError('<geopm> geopmpy.launcher: Trace file header could not be parsed!')
 
     def get_df(self):
         return self._df
@@ -1270,7 +1270,7 @@ class AgentConf(object):
                             'frequency_map'}
         self._path = path
         if agent not in supported_agents:
-            raise SyntaxError('AgentConf does not support agent type: ' + agent + '!')
+            raise SyntaxError('<geopm> geopmpy.launcher: AgentConf does not support agent type: ' + agent + '!')
         self._agent = agent
         self._options = options
 
@@ -1307,7 +1307,7 @@ class AgentConf(object):
 
         for (policy_name, policy_value) in policy_dict.items():
             if policy_name not in name_offsets:
-                raise KeyError('Policy "{}" does not exist in agent "{}"'.format(policy_name, self._agent))
+                raise KeyError('<geopm> geopmpy.launcher: Policy "{}" does not exist in agent "{}"'.format(policy_name, self._agent))
             policy_offset = name_offsets[policy_name]
             policy_values[policy_offset] = policy_value
 
@@ -1362,7 +1362,7 @@ class RawReport(object):
             for xx in host_data:
                 if xx.startswith('Region {}'.format(region_name)):
                     return xx.split()[2][1:-1]
-        raise KeyError('Region not found: {}'.format(region_name))
+        raise KeyError('<geopm> geopmpy.launcher: Region not found: {}'.format(region_name))
 
     def raw_region(self, host_name, region_name):
         host_data = self._raw_dict[host_name]
@@ -1383,7 +1383,7 @@ class RawReport(object):
     def get_field(self, raw_data, key, units=''):
         matches = [(len(kk), kk) for kk in raw_data if key in kk and units in kk]
         if len(matches) == 0:
-            raise KeyError('Field not found: {}'.format(key))
+            raise KeyError('<geopm> geopmpy.launcher: Field not found: {}'.format(key))
         match = sorted(matches)[0][1]
         return copy.deepcopy(raw_data[match])
 
