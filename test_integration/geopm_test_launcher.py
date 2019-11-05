@@ -86,7 +86,8 @@ def allocation_node_test(test_exec, stdout, stderr):
     argv = shlex.split(test_exec)
     argv.insert(1, detect_launcher())
     argv.insert(2, '--geopm-ctl-disable')
-    launcher = geopmpy.launcher.Factory().create(argv, num_rank=1, num_node=1, job_name="geopm_allocation_test")
+    launcher = geopmpy.launcher.Factory().create(argv, num_rank=1, num_node=1,
+                                                 job_name="geopm_allocation_test")
     launcher.run(stdout, stderr)
 
 def geopmwrite(write_str):
