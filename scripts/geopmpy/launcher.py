@@ -1165,6 +1165,7 @@ class OMPIExecLauncher(Launcher):
         return hostnames
 
     def affinity_option(self, is_geopmctl):
+        ret = []
         if self.is_geopm_enabled:
             # Disable other affinity mechanisms
             aff_list = self.affinity_list(is_geopmctl)
@@ -1209,15 +1210,16 @@ class OMPIExecLauncher(Launcher):
                     line = 'rank ' + str(rank) + '=' + host + ' slot=' + cpu_str
                     if os.getenv('GEOPM_DEBUG'):
                         sys.stdout.write(line + '\n')
+                        ret.extend(['--report-bindings'])
                     os.write(new_file, line)
                     os.write(new_file, '\n')
                     rank += 1
 
             os.close(new_file)
 
-            return ['--use-hwthread-cpus', '--rankfile', filename]
+            ret.extend(['--use-hwthread-cpus', '--rankfile', filename])
 
-        return []
+        return ret
 
     def node_list_option(self):
         """
