@@ -466,7 +466,6 @@ class TestIntegration(unittest.TestCase):
                     start_time = tt.loc[tt['index'] == start_idx]['TIME'].item()
                     end_time = tt.loc[tt['index'] == end_idx]['TIME'].item()
                     trace_elapsed_time = end_time - start_time
-                    trace_elapsed_time = trace_data.iloc[-1]['TIME'] - trace_data.iloc[0]['TIME']
                     msg = 'for region {rn} on node {nn}'.format(rn=region_name, nn=nn)
                     self.assertNear(trace_elapsed_time, region_data['sync_runtime'].item(), msg=msg)
             #epoch
