@@ -509,6 +509,7 @@ namespace geopm
         , m_do_write_batch(false)
     {
         geopm_time(&m_last_wait);
+        m_power_tdp = m_platform_io.read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_BOARD, 0);
     }
 
     PowerBalancerAgent::~PowerBalancerAgent() = default;
@@ -528,7 +529,6 @@ namespace geopm
             int num_pkg = m_platform_topo.num_domain(m_platform_io.control_domain_type("POWER_PACKAGE_LIMIT"));
             double min_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_PACKAGE, 0);
             double max_power = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0);
-            m_power_tdp = num_pkg * m_platform_io.read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_PACKAGE, 0);
             m_role = std::make_shared<RootRole>(level, fan_in, min_power, max_power);
         }
         else {
