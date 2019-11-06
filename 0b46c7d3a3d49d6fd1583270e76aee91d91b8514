@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e918a464_d9b14550",
+        "filename": "scripts/geopmpy/agent.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-11-06T02:17:22Z",
+      "side": 1,
+      "message": "copy paste error",
+      "range": {
+        "startLine": 188,
+        "startChar": 28,
+        "endLine": 188,
+        "endChar": 49
+      },
+      "revId": "0b46c7d3a3d49d6fd1583270e76aee91d91b8514",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
