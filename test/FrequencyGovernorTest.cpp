@@ -194,7 +194,8 @@ TEST_F(FrequencyGovernorTest, validate_policy)
 
     min = M_PLAT_MIN_FREQ - 1;
     max = M_PLAT_MAX_FREQ + 1;
-    m_gov->validate_policy(min, max); // should throw??
-    EXPECT_DOUBLE_EQ(M_PLAT_MIN_FREQ - 1, min);
-    EXPECT_DOUBLE_EQ(M_PLAT_MAX_FREQ + 1, max);
+    m_gov->validate_policy(min, max);
+    // clamp to min and max
+    EXPECT_DOUBLE_EQ(M_PLAT_MIN_FREQ, min);
+    EXPECT_DOUBLE_EQ(M_PLAT_MAX_FREQ, max);
 }
