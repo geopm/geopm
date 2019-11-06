@@ -81,6 +81,8 @@ class PowerBalancerAgentTest : public ::testing::Test
         std::unique_ptr<MockPowerBalancer> m_power_bal;
         std::unique_ptr<PowerBalancerAgent> m_agent;
 
+        const double M_POWER_PACKAGE_MIN = 50;
+        const double M_POWER_PACKAGE_TDP = 300;
         const double M_POWER_PACKAGE_MAX = 325;
         const int M_NUM_PKGS = 2;
         const std::vector<int> M_FAN_IN = {2, 2};
@@ -91,8 +93,15 @@ void PowerBalancerAgentTest::SetUp()
     m_power_gov = geopm::make_unique<MockPowerGovernor>();
     m_power_bal = geopm::make_unique<MockPowerBalancer>();
 
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Return(300));
+    ON_CALL(m_platform_io, read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_BOARD, 0))
+        .WillByDefault(Return(M_POWER_PACKAGE_TDP));
+    ON_CALL(m_platform_io, read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_BOARD, 0))
+        .WillByDefault(Return(M_POWER_PACKAGE_MIN));
+    ON_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_BOARD, 0))
+        .WillByDefault(Return(M_POWER_PACKAGE_MAX));
+    ON_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, _))
+        .WillByDefault(Return(M_POWER_PACKAGE_MAX/M_NUM_PKGS));
+
 }
 
 TEST_F(PowerBalancerAgentTest, power_balancer_agent)
@@ -119,7 +128,6 @@ TEST_F(PowerBalancerAgentTest, power_balancer_agent)
 
     // check that single-node balancer can be initialized
     EXPECT_CALL(m_platform_topo, num_domain(_)).Times(AtLeast(1));
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", _, _));
     EXPECT_CALL(*power_gov_p, init_platform_io());
     EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME", _, _));
     EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", _, _));
@@ -134,10 +142,11 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
     int level = 2;
     int num_children = M_FAN_IN[level - 1];
 
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_PACKAGE, 0))
-        .WillOnce(Return(50));
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0))
-        .WillOnce(Return(200));
+    ON_CALL(m_platform_io, read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_BOARD, 0))
+        .WillByDefault(Return(50));
+    ON_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_BOARD, 0))
+        .WillByDefault(Return(200));
+
     EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE_LIMIT"))
         .WillOnce(Return(GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
@@ -421,6 +430,7 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
 
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .WillOnce(Return(M_NUM_PKGS));
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_TDP", _, _));
     EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, _))
         .WillOnce(Return(M_POWER_PACKAGE_MAX));
     EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0))
@@ -553,7 +563,6 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
     EXPECT_EQ(exp_smp_plat_ret, smp_ret);
     EXPECT_EQ(out_sample, exp_out_sample);
     m_agent->trace_values(trace_vals);
-    //EXPECT_EQ(exp_trace_vals, trace_vals);
     }
 
     ctl_step = 1;
@@ -627,4 +636,33 @@ TEST_F(PowerBalancerAgentTest, enforce_policy)
     m_agent->enforce_policy(policy);
 
     EXPECT_THROW(m_agent->enforce_policy(bad_policy), geopm::Exception);
+}
+
+TEST_F(PowerBalancerAgentTest, validate_policy)
+{
+    m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
+                                                     std::move(m_power_gov), std::move(m_power_bal));
+
+    std::vector<double> policy;
+
+    // valid policy unchanged
+    policy = {100};
+    m_agent->validate_policy(policy);
+    EXPECT_EQ(100, policy[0]);
+
+    // NAN becomes default
+    policy = {NAN};
+    m_agent->validate_policy(policy);
+    EXPECT_EQ(M_POWER_PACKAGE_TDP, policy[0]);
+
+    // clamp to min
+    policy = {M_POWER_PACKAGE_MIN - 1};
+    m_agent->validate_policy(policy);
+    EXPECT_EQ(M_POWER_PACKAGE_MIN, policy[0]);
+
+    // clamp to max
+    policy = {M_POWER_PACKAGE_MAX + 1};
+    m_agent->validate_policy(policy);
+    EXPECT_EQ(M_POWER_PACKAGE_MAX, policy[0]);
+
 }
