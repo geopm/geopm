@@ -198,5 +198,12 @@ namespace geopm
                                 "(): freq_min must not be greater than freq_max.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+
+        if (freq_max > m_freq_max) {
+            freq_max = m_freq_max;
+        }
+        if (freq_min < m_freq_min) {
+            freq_min = m_freq_min;
+        }
     }
 }

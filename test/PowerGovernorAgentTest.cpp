@@ -96,7 +96,7 @@ void PowerGovernorAgentTest::SetUp(void)
     EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_BOARD, 0))
         .WillOnce(Return(m_power_max));
     EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Return(m_power_max));
+        .WillOnce(Return(m_power_tdp));
 
     m_fan_in = {2, 2};
     m_power_gov = std::unique_ptr<MockPowerGovernor>(new MockPowerGovernor());
@@ -294,4 +294,31 @@ TEST_F(PowerGovernorAgentTest, trace)
     std::vector<std::string> expect_names{"POWER_BUDGET"};
     EXPECT_EQ(expect_names, m_agent->trace_names());
     EXPECT_TRUE(is_format_double(m_agent->trace_formats().at(0)));
+}
+
+TEST_F(PowerGovernorAgentTest, validate_policy)
+{
+    m_agent = geopm::make_unique<PowerGovernorAgent>(m_platform_io, m_platform_topo, nullptr);
+
+    std::vector<double> policy;
+
+    // valid policy unchanged
+    policy = {100};
+    m_agent->validate_policy(policy);
+    EXPECT_EQ(100, policy[0]);
+
+    // NAN becomes default
+    policy = {NAN};
+    m_agent->validate_policy(policy);
+    EXPECT_EQ(m_power_tdp, policy[0]);
+
+    // clamp to min
+    policy = {m_power_min - 1};
+    m_agent->validate_policy(policy);
+    EXPECT_EQ(m_power_min, policy[0]);
+
+    // clamp to max
+    policy = {m_power_max + 1};
+    m_agent->validate_policy(policy);
+    EXPECT_EQ(m_power_max, policy[0]);
 }
