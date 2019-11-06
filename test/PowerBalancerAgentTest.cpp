@@ -90,6 +90,9 @@ void PowerBalancerAgentTest::SetUp()
 {
     m_power_gov = geopm::make_unique<MockPowerGovernor>();
     m_power_bal = geopm::make_unique<MockPowerBalancer>();
+
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_BOARD, 0))
+        .WillOnce(Return(300));
 }
 
 TEST_F(PowerBalancerAgentTest, power_balancer_agent)
@@ -135,8 +138,6 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
         .WillOnce(Return(50));
     EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0))
         .WillOnce(Return(200));
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_PACKAGE, 0))
-        .WillOnce(Return(150));
     EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE_LIMIT"))
         .WillOnce(Return(GEOPM_DOMAIN_PACKAGE));
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))

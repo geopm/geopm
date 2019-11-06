@@ -126,7 +126,10 @@ namespace geopm
 
     void PowerGovernorAgent::validate_policy(std::vector<double> &policy) const
     {
-
+        // If NAN, use default
+        if (std::isnan(policy[M_POLICY_POWER])) {
+            policy[M_POLICY_POWER] = m_tdp_power_setting;
+        }
     }
 
     void PowerGovernorAgent::split_policy(const std::vector<double> &in_policy,
@@ -147,10 +150,6 @@ namespace geopm
         }
 #endif
         double power_budget_in = in_policy[M_POLICY_POWER];
-        // If NAN, use default
-        if (std::isnan(power_budget_in)) {
-            power_budget_in = m_tdp_power_setting;
-        }
 
         if (power_budget_in > m_max_power_setting ||
             power_budget_in < m_min_power_setting) {
@@ -239,11 +238,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        // If NAN, use default
         double power_budget_in = in_policy[M_POLICY_POWER];
-        if (std::isnan(power_budget_in)) {
-            power_budget_in = m_tdp_power_setting;
-        }
         m_power_gov->adjust_platform(power_budget_in, m_adjusted_power);
         m_last_power_budget = power_budget_in;
     }
