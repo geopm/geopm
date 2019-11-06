@@ -346,15 +346,6 @@ class Launcher(object):
         self.parse_launcher_argv()
 
         self.cpu_per_rank = None
-        if os.getenv('SLURM_NNODES'):
-            self.is_slurm_enabled = True
-        if (self.is_geopm_enabled and
-            self.is_slurm_enabled and
-            self.config.get_ctl() == 'application' and
-            os.getenv('SLURM_NNODES') != str(self.num_node)):
-            raise RuntimeError('When using srun and specifying --geopm-ctl=application call must be made ' +
-                               'inside of an salloc or sbatch environment and application must run on all allocated nodes.')
-
         is_cpu_per_rank_override = False
 
         # Override values if they are passed in construction call
@@ -399,6 +390,15 @@ class Launcher(object):
 
         if self.num_node is None and self.num_rank and self.rank_per_node:
             self.num_node = int_ceil_div(self.num_rank, self.rank_per_node)
+
+        if os.getenv('SLURM_NNODES'):
+            self.is_slurm_enabled = True
+        if (self.is_geopm_enabled and
+            self.is_slurm_enabled and
+            self.config.get_ctl() == 'application' and
+            os.getenv('SLURM_NNODES') != str(self.num_node)):
+            raise RuntimeError('When using srun and specifying --geopm-ctl=application call must be made ' +
+                               'inside of an salloc or sbatch environment and application must run on all allocated nodes.')
 
         self.num_app_rank = self.num_rank
         self.num_app_mask = self.rank_per_node
