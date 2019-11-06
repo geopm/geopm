@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9aa3c84_136c5df3",
+        "filename": "scripts/geopmpy/analysis.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 1574,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-11-06T01:05:42Z",
+      "side": 1,
+      "message": "Think this is unintended?",
+      "range": {
+        "startLine": 1573,
+        "startChar": 0,
+        "endLine": 1574,
+        "endChar": 74
+      },
+      "revId": "b5f7f20c65d3f043dc08f5ea8285c12553826ed7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "129259ac_5709a945",
+        "filename": "scripts/geopmpy/launcher.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 629,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-11-06T01:05:42Z",
+      "side": 1,
+      "message": "I\u0027m thinking defining two me member variables defined in the class constructor:\n\nself.exception_fmt \u003d \u0027\u003cgeopm\u003e geopmpy.launcher: {}\u0027\nself.warning_fmt \u003d \u0027Warning: \u0027 + self.exception_format\n\nthen:\n\nraise RuntimeError(self.exception_fmt.format(\u0027Cores cannot be shared between MPI ranks\u0027)\n\nand\n\nsys.stderr.write(self.warning_fmt.format(\u0027User requested all cores for application. \u0027)",
+      "revId": "b5f7f20c65d3f043dc08f5ea8285c12553826ed7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
