@@ -712,6 +712,19 @@ namespace geopm
         if (std::isnan(policy[M_POLICY_POWER_SLACK])) {
             policy[M_POLICY_POWER_SLACK] = 0.0;
         }
+
+        // Clamp to min or max
+        if (policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] != 0) {
+            double min_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_BOARD, 0));
+            double max_power_setting(m_platform_io.read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_BOARD, 0));
+            if (policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] < min_power_setting) {
+                policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] = min_power_setting;
+            }
+            else if (policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] > max_power_setting) {
+                policy[M_POLICY_POWER_PACKAGE_LIMIT_TOTAL] = max_power_setting;
+            }
+        }
+
         // Policy of all zero is not valid
         if (std::all_of(policy.begin(), policy.end(),
                         [] (double x) { return x == 0.0; })) {

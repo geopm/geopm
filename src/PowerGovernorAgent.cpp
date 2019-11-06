@@ -130,6 +130,13 @@ namespace geopm
         if (std::isnan(policy[M_POLICY_POWER])) {
             policy[M_POLICY_POWER] = m_tdp_power_setting;
         }
+        // Clamp at min and max
+        if (policy[M_POLICY_POWER] < m_min_power_setting) {
+            policy[M_POLICY_POWER] = m_min_power_setting;
+        }
+        else if (policy[M_POLICY_POWER] > m_max_power_setting) {
+            policy[M_POLICY_POWER] = m_max_power_setting;
+        }
     }
 
     void PowerGovernorAgent::split_policy(const std::vector<double> &in_policy,
