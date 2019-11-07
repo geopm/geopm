@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee1d55f4_396fe16f",
+        "filename": "test_integration/geopm_test_launcher.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-07T21:08:31Z",
+      "side": 1,
+      "message": "The % formatter isn\u0027t available in python3. This should have been caught by the linter, but looks like I missed automating the linter over test_integration. You can use \u0027{}{}{}\u0027.format(...) instead\n\nI\u0027ll look into adding the automation. To manually run it over your file, you can do `python -m pylint --py3k test_integration/geopm_test_launcher.py`.\n\nNote: the python3 version runs faster, so you can launch through python3 instead, if you have pylint installed for it.",
+      "range": {
+        "startLine": 264,
+        "startChar": 55,
+        "endLine": 264,
+        "endChar": 58
+      },
+      "revId": "25d801c4583cb66593bdb35dcaf72e2cf957ed90",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
