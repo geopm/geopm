@@ -351,7 +351,7 @@ def sample(signal_idx):
     global _ffi
     global _dl
     result_cdbl = _ffi.new("double*")
-    err = _dl.geopm_pio_sample(signal_idx, signal_cdbl)
+    err = _dl.geopm_pio_sample(signal_idx, result_cdbl)
     if err < 0:
         raise RuntimeError('geopm_pio_sample() failed: {}'.format(error.message(err)))
     return result_cdbl[0]
