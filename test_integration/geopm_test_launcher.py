@@ -56,6 +56,10 @@ def detect_launcher():
     Returns name of resource manager or launcher, otherwise a
     LookupError is raised.
     """
+    launcher = os.environ.get('GEOPM_LAUNCHER', None)
+    if launcher:
+        return launcher
+
     slurm_hosts = ['mr-fusion']
     alps_hosts = ['theta']
 
