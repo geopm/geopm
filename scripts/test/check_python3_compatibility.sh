@@ -30,4 +30,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 scripts_dir=$(dirname "${BASH_SOURCE[0]}")/..
-"${PYTHON-python3}" -m pylint --py3k "$scripts_dir/geopmpy"
+"${PYTHON-python3}" -m pylint --py3k \
+        "$scripts_dir/geopmpy" \
+        "$scripts_dir/test" \
+        "$scripts_dir/../test_integration"

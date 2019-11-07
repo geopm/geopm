@@ -130,7 +130,7 @@ class TestIntegration(unittest.TestCase):
         filtered_df = pandas.DataFrame()
         row_list = []
         progress_1s = df['REGION_PROGRESS'].loc[df['REGION_PROGRESS'] == 1]
-        for index, _ in progress_1s.iteritems():
+        for index, _ in progress_1s.items():
             row = df.loc[last_index:index].head(1)
             row_list += [row[['TIME', 'REGION_PROGRESS', 'REGION_RUNTIME']]]
             row = df.loc[last_index:index].tail(1)
