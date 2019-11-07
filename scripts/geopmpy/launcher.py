@@ -1191,31 +1191,30 @@ class OMPIExecLauncher(Launcher):
             new_file, filename = tempfile.mkstemp()
             self._tmp_files.append(filename)
 
-            for host in hostnames:
-                for cpu_set in aff_list:
-                    cpu_str = ''
-                    if len(cpu_set) == 1:
-                        for cpu in cpu_set:
-                            cpu_str = str(core_to_slot_map[cpu])
-                    else:
-                        converted = [str(core_to_slot_map[ii]) for ii in cpu_set]
-                        cpu_str = ','.join(converted)
+            with os.fdopen(new_file, 'w') as f:
+                for host in hostnames:
+                    for cpu_set in aff_list:
+                        cpu_str = ''
+                        if len(cpu_set) == 1:
+                            for cpu in cpu_set:
+                                cpu_str = str(core_to_slot_map[cpu])
+                        else:
+                            converted = [str(core_to_slot_map[ii]) for ii in cpu_set]
+                            cpu_str = ','.join(converted)
 
-                        max_cores = 18
-                        if len(converted) > max_cores:
-                            sys.stderr.write('Warning: <geopm> geopmpy.launcher: Due to a bug in OpenMPI, you may ' +
-                                             'need to request {} cores per rank or less.'.format(max_cores) +
-                                             '  Currently requesting cpus_per_rank={}'.format(self.cpu_per_rank))
+                            max_cores = 18
+                            if len(converted) > max_cores:
+                                sys.stderr.write('Warning: <geopm> geopmpy.launcher: Due to a bug in OpenMPI, you may ' +
+                                                 'need to request {} cores per rank or less.'.format(max_cores) +
+                                                 '  Currently requesting cpus_per_rank={}'.format(self.cpu_per_rank))
 
-                    line = 'rank ' + str(rank) + '=' + host + ' slot=' + cpu_str
-                    if os.getenv('GEOPM_DEBUG'):
-                        sys.stdout.write(line + '\n')
-                        ret.extend(['--report-bindings'])
-                    os.write(new_file, line)
-                    os.write(new_file, '\n')
-                    rank += 1
-
-            os.close(new_file)
+                        line = 'rank ' + str(rank) + '=' + host + ' slot=' + cpu_str
+                        if os.getenv('GEOPM_DEBUG'):
+                            sys.stdout.write(line + '\n')
+                            ret.extend(['--report-bindings'])
+                        f.write(line)
+                        f.write('\n')
+                        rank += 1
 
             ret.extend(['--use-hwthread-cpus', '--rankfile', filename])
 
