@@ -56,30 +56,35 @@ def detect_launcher():
     Returns name of resource manager or launcher, otherwise a
     LookupError is raised.
     """
-    slurm_hosts = ['mr-fusion']
-    alps_hosts = ['theta']
-
-    result = None
-    hostname = socket.gethostname()
-
-    if any(hostname.startswith(word) for word in slurm_hosts):
-        result = 'srun'
-    elif any(hostname.startswith(word) for word in alps_hosts):
-        result = 'aprun'
-    else:
+    # Try the environment
+    result = os.environ.get('GEOPM_LAUNCHER', None)
+    if not result:
+        # Check for known host names
+        slurm_hosts = ['mr-fusion', 'mcfly']
+        alps_hosts = ['theta']
+        hostname = socket.gethostname()
+        if any(hostname.startswith(word) for word in slurm_hosts):
+            result = 'srun'
+        elif any(hostname.startswith(word) for word in alps_hosts):
+            result = 'aprun'
+    if not result:
         try:
             exec_str = 'srun --version'
             subprocess.check_call(exec_str, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE, shell=True)
+                                  stderr=subprocess.PIPE, shell=True)
             result = 'srun'
         except subprocess.CalledProcessError:
-            try:
-                exec_str = 'aprun --version'
-                subprocess.check_call(exec_str, stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE, shell=True)
-                result = 'aprun'
-            except subprocess.CalledProcessError:
-                raise LookupError('Unable to determine resource manager')
+            pass
+    if not result:
+        try:
+            exec_str = 'aprun --version'
+            subprocess.check_call(exec_str, stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE, shell=True)
+            result = 'aprun'
+        except subprocess.CalledProcessError:
+            pass
+    if not result:
+        raise LookupError('Unable to determine resource manager')
     return result
 
 def allocation_node_test(test_exec, stdout, stderr):
