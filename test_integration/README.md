@@ -12,6 +12,11 @@ features of the GEOPM runtime.
 ENVIRONMENT VARIABLES
 ---------------------
 
+### GEOPM_LAUNCHER
+Used to force the integration tests to target a specific Launcher
+implementation as supported by the Launcher factory.  See
+**geopmlaunch(1)** for more details.
+
 ### GEOPM_KEEP_FILES
 Normally, the test output is cleaned up (i.e. deleted) when a test is
 successful and is only preserved if the test were to fail.  If this
