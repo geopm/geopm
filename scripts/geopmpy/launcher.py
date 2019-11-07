@@ -1211,12 +1211,13 @@ class OMPIExecLauncher(Launcher):
                         line = 'rank ' + str(rank) + '=' + host + ' slot=' + cpu_str
                         if os.getenv('GEOPM_DEBUG'):
                             sys.stdout.write(line + '\n')
-                            ret.extend(['--report-bindings'])
                         f.write(line)
                         f.write('\n')
                         rank += 1
 
             ret.extend(['--use-hwthread-cpus', '--rankfile', filename])
+            if os.getenv('GEOPM_DEBUG'):
+                ret.extend(['--report-bindings'])
 
         return ret
 
