@@ -120,6 +120,7 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestFreqSweepAnalysis.test_stream_dgemm_mix_report \
                scripts/test/pytest_links/TestIO.test_requested_online_frequency \
                scripts/test/pytest_links/TestIO.test_report \
+               scripts/test/pytest_links/TestIO.test_multiple_report_files \
                scripts/test/pytest_links/TestIO.test_report_cache \
                scripts/test/pytest_links/TestIO.test_trace \
                scripts/test/pytest_links/TestLauncher.test_process_count \
