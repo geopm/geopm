@@ -328,6 +328,7 @@ class Launcher(object):
         """
         self.environ_ext = dict()
         self.rank_per_node = None
+        self.reservation = None
         self.default_handler = signal.getsignal(signal.SIGINT)
         self.num_rank = num_rank
         self.num_node = num_node
