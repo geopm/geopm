@@ -598,6 +598,7 @@ class Report(OrderedDict):
     _name = None
     _agent = None
     _start_time = None
+    _profile_name = None
 
     @staticmethod
     def reset_vars():
@@ -606,8 +607,8 @@ class Report(OrderedDict):
         these fields may change.
 
         """
-        (Report._version, Report._name, Report._agent, Report._start_time) = \
-            None, None, None, None
+        (Report._version, Report._name, Report._agent, Report._start_time, Report._profile_name) = \
+            None, None, None, None, None
 
     def __init__(self, report_path, offset=0):
         super(Report, self).__init__()
