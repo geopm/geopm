@@ -742,10 +742,10 @@ class Report(OrderedDict):
             Report._version = self._version
         else:
             raise SyntaxError('<geopm> geopmpy.io: Unable to parse version information from report!')
-        if self._profile_name is None and Report._profile_name:
-            self._profile_name = Report._profile_name
+        if self._profile_name is None and Report._name:
+            self._profile_name = Report._name
         elif self._profile_name:
-            Report._profile_name = self._profile_name
+            Report._name = self._profile_name
         else:
             raise SyntaxError('<geopm> geopmpy.io: Unable to parse name information from report!')
         if self._agent is None and Report._agent:

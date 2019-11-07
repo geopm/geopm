@@ -61,7 +61,7 @@ def self_cleaning_app_output(*args, **kwargs):
     finally:
         app_output.remove_files()
 
-test_report_data = """##### geopm 1.0.0+dev30g4cccfda #####
+test_energy_efficient_report_data = """##### geopm 1.0.0+dev30g4cccfda #####
 Start Time: Thu May 30 14:38:17 2019
 Profile: test_ee_stream_dgemm_mix
 Agent: energy_efficient
@@ -427,6 +427,533 @@ Application Totals:
     geopmctl network BW (B/sec): 0
 """
 
+test_freqmap_report_data = """##### geopm 1.0.0+dev236ga7a16e31 #####
+Start Time: Thu Oct 24 17:48:27 2019
+Profile: amg_nomarkup_freq_1800000000.0
+Agent: frequency_map
+Policy: {"FREQ_MIN": 1800000000, "FREQ_MAX": 1800000000}
+
+Host: mcfly1
+Frequency map:
+        0x00000000015bb7b5:1.8000000000000000e+09
+        0x00000000037fc0be:1.8000000000000000e+09
+        0x000000000d94e328:1.8000000000000000e+09
+        0x0000000018b3b488:1.8000000000000000e+09
+        0x000000001b7d972d:1.8000000000000000e+09
+        0x000000002409f50d:1.8000000000000000e+09
+        0x00000000418db81a:1.8000000000000000e+09
+        0x000000004291972c:1.8000000000000000e+09
+        0x000000004763e86e:1.8000000000000000e+09
+        0x000000004d571522:1.8000000000000000e+09
+        0x0000000057db5c3f:1.8000000000000000e+09
+        0x000000006a15f730:1.8000000000000000e+09
+        0x000000006ce94c1f:1.8000000000000000e+09
+        0x00000000725e8066:1.8000000000000000e+09
+        0x00000000778a737a:1.8000000000000000e+09
+        0x0000000081ff55b3:1.8000000000000000e+09
+        0x000000008208f411:1.8000000000000000e+09
+        0x00000000834f3a04:1.8000000000000000e+09
+        0x00000000846234f7:1.8000000000000000e+09
+        0x000000008ea14893:1.8000000000000000e+09
+        0x00000000923e915a:1.8000000000000000e+09
+        0x0000000099214204:1.8000000000000000e+09
+        0x000000009b88f62c:1.8000000000000000e+09
+        0x000000009c200236:1.8000000000000000e+09
+        0x00000000a9bd6cf0:1.8000000000000000e+09
+        0x00000000b818fb0e:1.8000000000000000e+09
+        0x00000000c4a28da8:1.8000000000000000e+09
+        0x00000000c5d73e1d:1.8000000000000000e+09
+        0x00000000ceb740f0:1.8000000000000000e+09
+        0x00000000d225b165:1.8000000000000000e+09
+        0x00000000d3f415d5:1.8000000000000000e+09
+        0x00000000d9bdd1a0:1.8000000000000000e+09
+        0x00000000eee1d5b4:1.8000000000000000e+09
+
+Region MPI_Waitall (0x000000009b88f62c):
+    runtime (sec): 177.239
+    sync-runtime (sec): 0.00979128
+    package-energy (joules): 1.66309
+    dram-energy (joules): 0.179199
+    power (watts): 169.854
+    frequency (%): 85.6285
+    frequency (Hz): 1.7982e+09
+    network-time (sec): 0
+    count: 5902
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_ParCSRRelax_L1()+0x1b8a (0x00000000c4a28da8):
+    runtime (sec): 114.306
+    sync-runtime (sec): 0.808259
+    package-energy (joules): 185.044
+    dram-energy (joules): 23.3722
+    power (watts): 228.941
+    frequency (%): 85.7203
+    frequency (Hz): 1.80013e+09
+    network-time (sec): 0
+    count: 2121
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_CSRMatrixMatvec()+0x3b8 (0x00000000846234f7):
+    runtime (sec): 62.9475
+    sync-runtime (sec): 20.5112
+    package-energy (joules): 4726.59
+    dram-energy (joules): 621.614
+    power (watts): 230.439
+    frequency (%): 85.7144
+    frequency (Hz): 1.8e+09
+    network-time (sec): 0
+    count: 4646
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_BoomerAMGBuildCoarseOperator()+0x2090 (0x000000006a15f730):
+    runtime (sec): 35.6945
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 10
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_BoomerAMGBuildCoarseOperator()+0x1826 (0x000000008208f411):
+    runtime (sec): 22.764
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 10
+    frequency-map: 1800000000.000000
+Region MPI_Recv (0x0000000081ff55b3):
+    runtime (sec): 15.073
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 1150
+    frequency-map: 1800000000.000000
+Region MPI_Allreduce (0x000000000d94e328):
+    runtime (sec): 14.374
+    sync-runtime (sec): 0.0104878
+    package-energy (joules): 1.74609
+    dram-energy (joules): 0.28801
+    power (watts): 166.489
+    frequency (%): 85.7797
+    frequency (Hz): 1.80137e+09
+    network-time (sec): 0
+    count: 712
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_SeqVectorAxpy()+0x8d (0x00000000a9bd6cf0):
+    runtime (sec): 6.21961
+    sync-runtime (sec): 5.88608
+    package-energy (joules): 1151.49
+    dram-energy (joules): 178.211
+    power (watts): 195.63
+    frequency (%): 85.7096
+    frequency (Hz): 1.7999e+09
+    network-time (sec): 0
+    count: 300
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_CSRMatrixMatvec()+0x179 (0x00000000d225b165):
+    runtime (sec): 4.58634
+    sync-runtime (sec): 1.29455
+    package-energy (joules): 258.451
+    dram-energy (joules): 37.2348
+    power (watts): 199.646
+    frequency (%): 85.7533
+    frequency (Hz): 1.80082e+09
+    network-time (sec): 0
+    count: 2224
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_SeqVectorCopy()+0x8a (0x00000000418db81a):
+    runtime (sec): 4.24413
+    sync-runtime (sec): 1.44831
+    package-energy (joules): 306.476
+    dram-energy (joules): 41.0658
+    power (watts): 211.609
+    frequency (%): 85.7161
+    frequency (Hz): 1.80004e+09
+    network-time (sec): 0
+    count: 1213
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_SeqVectorInnerProd()+0x91 (0x00000000037fc0be):
+    runtime (sec): 4.06139
+    sync-runtime (sec): 2.46822
+    package-energy (joules): 441.011
+    dram-energy (joules): 72.8732
+    power (watts): 178.676
+    frequency (%): 85.6934
+    frequency (Hz): 1.79956e+09
+    network-time (sec): 0
+    count: 605
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_BoomerAMGBuildExtPIInterp()+0xc6b (0x000000004291972c):
+    runtime (sec): 3.14097
+    sync-runtime (sec): 0.0448103
+    package-energy (joules): 6.64142
+    dram-energy (joules): 0.612579
+    power (watts): 148.212
+    frequency (%): 85.7401
+    frequency (Hz): 1.80054e+09
+    network-time (sec): 0
+    count: 9
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_ParCSRRelax_L1()+0x1ac6 (0x000000004763e86e):
+    runtime (sec): 2.70894
+    sync-runtime (sec): 0.0447321
+    package-energy (joules): 9.62665
+    dram-energy (joules): 1.32077
+    power (watts): 215.207
+    frequency (%): 85.7218
+    frequency (Hz): 1.80016e+09
+    network-time (sec): 0
+    count: 2121
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_CSRMatrixMatvec()+0x49b (0x000000001b7d972d):
+    runtime (sec): 2.1487
+    sync-runtime (sec): 0.00997954
+    package-energy (joules): 1.8598
+    dram-energy (joules): 0.275803
+    power (watts): 186.362
+    frequency (%): 85.7429
+    frequency (Hz): 1.8006e+09
+    network-time (sec): 0
+    count: 2022
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_SeqVectorSetConstantValues()+0x88 (0x000000009c200236):
+    runtime (sec): 1.92264
+    sync-runtime (sec): 1.25322
+    package-energy (joules): 244.12
+    dram-energy (joules): 35.9832
+    power (watts): 194.794
+    frequency (%): 85.7332
+    frequency (Hz): 1.8004e+09
+    network-time (sec): 0
+    count: 1111
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_SeqVectorScale()+0x88 (0x000000006ce94c1f):
+    runtime (sec): 1.60086
+    sync-runtime (sec): 1.53782
+    package-energy (joules): 257.539
+    dram-energy (joules): 44.7234
+    power (watts): 167.471
+    frequency (%): 85.7393
+    frequency (Hz): 1.80053e+09
+    network-time (sec): 0
+    count: 100
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_CSRMatrixMatvec()+0x1782 (0x00000000d9bdd1a0):
+    runtime (sec): 1.03899
+    sync-runtime (sec): 0.792141
+    package-energy (joules): 174.173
+    dram-energy (joules): 22.1016
+    power (watts): 219.877
+    frequency (%): 85.7501
+    frequency (Hz): 1.80075e+09
+    network-time (sec): 0
+    count: 100
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_BoomerAMGBuildExtPIInterp()+0x664 (0x0000000057db5c3f):
+    runtime (sec): 0.412439
+    sync-runtime (sec): 0.0396116
+    package-energy (joules): 5.64691
+    dram-energy (joules): 0.471664
+    power (watts): 142.557
+    frequency (%): 85.7055
+    frequency (Hz): 1.79982e+09
+    network-time (sec): 0
+    count: 9
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_BoomerAMGInterpTruncation()+0x252 (0x000000002409f50d):
+    runtime (sec): 0.336496
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 9
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_BoomerAMGCreateS()+0x2e2 (0x00000000eee1d5b4):
+    runtime (sec): 0.315148
+    sync-runtime (sec): 0.250021
+    package-energy (joules): 57.0515
+    dram-energy (joules): 7.13477
+    power (watts): 228.186
+    frequency (%): 85.7167
+    frequency (Hz): 1.80005e+09
+    network-time (sec): 0
+    count: 10
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_CSRMatrixMatvecT()+0x14ea (0x00000000778a737a):
+    runtime (sec): 0.217535
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 2020
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_BoomerAMGBuildCoarseOperator()+0xfa0 (0x000000004d571522):
+    runtime (sec): 0.199151
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 10
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_BoomerAMGCreate2ndS()+0x1939 (0x00000000834f3a04):
+    runtime (sec): 0.127014
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 1
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_BoomerAMGBuildMultipass()+0x673f (0x00000000015bb7b5):
+    runtime (sec): 0.117034
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 3
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_BoomerAMGBuildMultipass()+0x5f0c (0x00000000b818fb0e):
+    runtime (sec): 0.094506
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 1
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_BoomerAMGBuildCoarseOperator()+0xbd0 (0x000000008ea14893):
+    runtime (sec): 0.0922515
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 10
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_BoomerAMGCreate2ndS()+0x1578 (0x0000000099214204):
+    runtime (sec): 0.0810849
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 1
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_BoomerAMGBuildMultipass()+0x39e8 (0x0000000018b3b488):
+    runtime (sec): 0.0176926
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 1
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_NumThreads()+0x59 (0x00000000923e915a):
+    runtime (sec): 0.00856605
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 4172
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_BoomerAMGCreate2ndS()+0x115e (0x00000000ceb740f0):
+    runtime (sec): 0.00779412
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 1
+    frequency-map: 1800000000.000000
+Region MPI_Scan (0x0000000030c9a652):
+    runtime (sec): 0.00741516
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 11
+Region MPI_Send (0x000000006de37280):
+    runtime (sec): 0.00430272
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 1251
+Region MPI_Bcast (0x00000000c5d73e1d):
+    runtime (sec): 0.00338081
+    sync-runtime (sec): 0.0025726
+    package-energy (joules): 0.422729
+    dram-energy (joules): 0.0753326
+    power (watts): 164.32
+    frequency (%): 86.0133
+    frequency (Hz): 1.80628e+09
+    network-time (sec): 0
+    count: 21
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_BoomerAMGBuildMultipass()+0x3cf (0x000000000525f958):
+    runtime (sec): 0.0032345
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 1
+Region [OMPT]hypre_BoomerAMGBuildMultipass()+0x1b96 (0x00000000d3f415d5):
+    runtime (sec): 0.0023231
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 15
+    frequency-map: 1800000000.000000
+Region [OMPT]hypre_BoomerAMGBuildMultipass()+0x716d (0x000000001066d5e5):
+    runtime (sec): 0.0015878
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 1
+Region [OMPT]hypre_BoomerAMGBuildExtPIInterp()+0xa31 (0x0000000061a98110):
+    runtime (sec): 0.00112461
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 9
+Region MPI_Wait (0x00000000e22ce943):
+    runtime (sec): 0.000114497
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 64
+Region [OMPT]hypre_BoomerAMGBuildMultipass()+0x795 (0x00000000a64b8225):
+    runtime (sec): 0.000100618
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 1
+Region [OMPT]hypre_BoomerAMGBuildMultipass()+0x6f62 (0x000000008a478f02):
+    runtime (sec): 4.2696e-05
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 1
+Region [OMPT]hypre_BoomerAMGBuildMultipass()+0x6dd2 (0x000000004fc51d84):
+    runtime (sec): 3.74219e-05
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 1
+Region [OMPT]hypre_BoomerAMGBuildMultipass()+0x7220 (0x0000000042a02207):
+    runtime (sec): 3.03095e-05
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 1
+Region unmarked-region (0x00000000725e8066):
+    runtime (sec): 89.6318
+    sync-runtime (sec): 529.297
+    package-energy (joules): 96554.8
+    dram-energy (joules): 9877.78
+    power (watts): 182.421
+    frequency (%): 85.7142
+    frequency (Hz): 1.8e+09
+    network-time (sec): 0
+    count: 0
+    frequency-map: 1800000000.000000
+Epoch Totals:
+    runtime (sec): 0
+    sync-runtime (sec): 0
+    package-energy (joules): 0
+    dram-energy (joules): 0
+    power (watts): 0
+    frequency (%): 0
+    frequency (Hz): 0
+    network-time (sec): 0
+    count: 0
+    epoch-runtime-ignore (sec): 0
+Application Totals:
+    runtime (sec): 565.865
+    package-energy (joules): 104395
+    dram-energy (joules): 10965.8
+    power (watts): 184.487
+    network-time (sec): 0
+    ignore-time (sec): 0
+    geopmctl memory HWM: 254564 kB
+    geopmctl network BW (B/sec): 0
+"""
+
 # First lines from a test_trace_runtimes integration test run
 test_trace_data = """# geopm_version: 1.0.0+dev209g77e1ebb8
 # start_time: Thu Oct 03 08:19:34 2019
@@ -454,9 +981,15 @@ class TestIO(unittest.TestCase):
             # Python 3 replaces assertItemsEqual with assertCountEqual
             self.assertCountEqual = self.assertItemsEqual
         self._test_directory = tempfile.mkdtemp()
-        self._report_path = os.path.join(self._test_directory, 'geopmpy-io-test-raw-report')
-        with open(self._report_path, 'w') as fid:
-            fid.write(test_report_data)
+
+        self._ee_report_path = os.path.join(self._test_directory, 'geopmpy-io-test-ee.report')
+        with open(self._ee_report_path, 'w') as fid:
+            fid.write(test_energy_efficient_report_data)
+
+        self._fm_report_path = os.path.join(self._test_directory, 'geopmpy-io-test-fm.report')
+        with open(self._fm_report_path, 'w') as fid:
+            fid.write(test_freqmap_report_data)
+
         self._trace_path = os.path.join(self._test_directory, 'geopmpy-io-test-trace')
         with open(self._trace_path, 'w') as fid:
             fid.write(test_trace_data)
@@ -465,7 +998,7 @@ class TestIO(unittest.TestCase):
         shutil.rmtree(self._test_directory)
 
     def test_requested_online_frequency(self):
-        report = geopmpy.io.RawReport(self._report_path)
+        report = geopmpy.io.RawReport(self._ee_report_path)
         host_names = report.host_names()
         for nn in report.region_names(host_names[0]):
             if 'dgemm-0.00' in nn:
@@ -477,7 +1010,7 @@ class TestIO(unittest.TestCase):
         self.assertLess(stream_region['requested-online-frequency'], dgemm_region['requested-online-frequency'])
 
         raw = report.raw_report()
-        json_path = self._report_path + '.json'
+        json_path = self._ee_report_path + '.json'
         report.dump_json(json_path)
         meta = report.meta_data()
         hosts = report.host_names()
@@ -499,11 +1032,46 @@ class TestIO(unittest.TestCase):
         """ Test that a file of concatenated reports can be extracted to
         a dataframe.
         """
-        with self_cleaning_app_output(reports=self._report_path) as app_output:
+        with self_cleaning_app_output(reports=self._ee_report_path) as app_output:
             self.assertCountEqual(['mcfly11', 'mcfly12'], app_output.get_node_names())
+
             start_time = app_output.get_report_data().index.get_level_values('start_time').unique()
             self.assertEqual(1, len(start_time))
             self.assertEqual('Thu May 30 14:38:17 2019', start_time[0])
+
+            self.assertEqual(27.1528, app_output.get_report_data(node_name='mcfly11', region='stream-0.45-dgemm-0.60').iloc[0]['runtime'])
+            self.assertEqual(27.2367, app_output.get_report_data(node_name='mcfly12', region='stream-0.45-dgemm-0.60').iloc[0]['runtime'])
+
+    def test_multiple_report_files(self):
+        """ Test that multiple report files can be extracted to a dataframe.
+        """
+        with self_cleaning_app_output(reports=[self._ee_report_path, self._fm_report_path]) as app_output:
+            self.assertCountEqual(['mcfly1', 'mcfly11', 'mcfly12'], app_output.get_node_names())
+
+            # Check start times across reports
+            ee_start_time = app_output.get_report_data(
+                    agent='energy_efficient').index.get_level_values('start_time').unique()
+            self.assertEqual(1, len(ee_start_time))
+            self.assertEqual('Thu May 30 14:38:17 2019', ee_start_time[0])
+
+            fm_start_time = app_output.get_report_data(
+                    agent='frequency_map').index.get_level_values('start_time').unique()
+            self.assertEqual(1, len(fm_start_time))
+            self.assertEqual('Thu Oct 24 17:48:27 2019', fm_start_time[0])
+
+            # Check profile names across reports
+            ee_profile_name = app_output.get_report_data(
+                    agent='energy_efficient').index.get_level_values('name').unique()
+            self.assertEqual(1, len(ee_profile_name))
+            self.assertEqual('test_ee_stream_dgemm_mix', ee_profile_name[0])
+
+            fm_profile_name = app_output.get_report_data(
+                    agent='frequency_map').index.get_level_values('name').unique()
+            self.assertEqual(1, len(fm_profile_name))
+            self.assertEqual('amg_nomarkup_freq_1800000000.0', fm_profile_name[0])
+
+            # Check independent data from each node
+            self.assertEqual(177.239, app_output.get_report_data(node_name='mcfly1', region='MPI_Waitall').iloc[0]['runtime'])
             self.assertEqual(27.1528, app_output.get_report_data(node_name='mcfly11', region='stream-0.45-dgemm-0.60').iloc[0]['runtime'])
             self.assertEqual(27.2367, app_output.get_report_data(node_name='mcfly12', region='stream-0.45-dgemm-0.60').iloc[0]['runtime'])
 
@@ -516,15 +1084,15 @@ class TestIO(unittest.TestCase):
             """
             return Counter([c[0][0] for c in spy_open.call_args_list])[path]
 
-        with mock.patch('geopmpy.io.open', spy_open), self_cleaning_app_output(reports=self._report_path):
-            initial_call_count = count_open(self._report_path)
+        with mock.patch('geopmpy.io.open', spy_open), self_cleaning_app_output(reports=self._ee_report_path):
+            initial_call_count = count_open(self._ee_report_path)
 
-            geopmpy.io.AppOutput(reports=self._report_path)
-            self.assertEqual(initial_call_count, count_open(self._report_path))
+            geopmpy.io.AppOutput(reports=self._ee_report_path)
+            self.assertEqual(initial_call_count, count_open(self._ee_report_path))
 
-            touch_file(self._report_path)
-            geopmpy.io.AppOutput(reports=self._report_path)
-            self.assertEqual(initial_call_count * 2, count_open(self._report_path))
+            touch_file(self._ee_report_path)
+            geopmpy.io.AppOutput(reports=self._ee_report_path)
+            self.assertEqual(initial_call_count * 2, count_open(self._ee_report_path))
 
     def test_trace(self):
         """ Test that a trace file can be extracted to a dataframe.
