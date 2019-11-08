@@ -1075,8 +1075,8 @@ class TestIntegration(unittest.TestCase):
         num_node = 1
         num_rank = 4
         loop_count = 5
-        dgemm_bigo = 20.25
-        stream_bigo = 1.449
+        dgemm_bigo = 15.0
+        stream_bigo = 1.0
         dgemm_bigo_jlse = 35.647
         dgemm_bigo_quartz = 29.12
         stream_bigo_jlse = 1.6225
@@ -1085,7 +1085,10 @@ class TestIntegration(unittest.TestCase):
         if hostname.endswith('.alcf.anl.gov'):
             dgemm_bigo = dgemm_bigo_jlse
             stream_bigo = stream_bigo_jlse
-        else:
+        elif hostname.startswith('mcfly'):
+            dgemm_bigo = 42.0
+            stream_bigo = 1.75
+        elif hostname.startswith('quartz'):
             dgemm_bigo = dgemm_bigo_quartz
             stream_bigo = stream_bigo_quartz
 
@@ -1189,8 +1192,8 @@ class TestIntegration(unittest.TestCase):
         num_node = 1
         num_rank = 4
         loop_count = 200
-        dgemm_bigo = 20.25
-        stream_bigo = 1.449
+        dgemm_bigo = 15.0
+        stream_bigo = 1.0
         dgemm_bigo_jlse = 35.647
         dgemm_bigo_quartz = 29.12
         stream_bigo_jlse = 1.6225
@@ -1202,7 +1205,7 @@ class TestIntegration(unittest.TestCase):
         elif hostname.startswith('mcfly'):
             dgemm_bigo = 42.0
             stream_bigo = 1.75
-        else:
+        elif hostname.startswith('quartz'):
             dgemm_bigo = dgemm_bigo_quartz
             stream_bigo = stream_bigo_quartz
 
