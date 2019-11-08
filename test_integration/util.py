@@ -75,9 +75,10 @@ def skip_unless_optimized():
     return lambda func: func
 
 
-def skip_unless_slurm_batch():
-    if 'SLURM_NODELIST' not in os.environ:
-        return unittest.skip('Requires SLURM batch session.')
+def skip_unless_batch():
+    batch_env_vars = ['SLURM_NODELIST', 'COBALT_JOBID']
+    if not any(opt in batch_env_vars for opt in os.environ):
+        return unittest.skip('Requires batch session.')
     return lambda func: func
 
 
