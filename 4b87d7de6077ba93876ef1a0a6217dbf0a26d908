@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f588e347_eccb5331",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-11-08T01:45:33Z",
+      "side": 1,
+      "message": "If this is required for all tests, move it to the constructor for the launcher.  It seems weird to call a method on the class in every test just to set something to None.",
+      "range": {
+        "startLine": 156,
+        "startChar": 8,
+        "endLine": 156,
+        "endChar": 36
+      },
+      "revId": "4b87d7de6077ba93876ef1a0a6217dbf0a26d908",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
