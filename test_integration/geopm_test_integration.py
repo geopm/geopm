@@ -207,7 +207,7 @@ class TestIntegration(unittest.TestCase):
 
     @unittest.skipUnless(geopm_test_launcher.detect_launcher() != "aprun",
                          'ALPS does not support multi-application launch on the same nodes.')
-    @util.skip_unless_slurm_batch()
+    @util.skip_unless_batch()
     def test_report_and_trace_generation_application(self):
         name = 'test_report_and_trace_generation_application'
         report_path = name + '.report'
@@ -763,7 +763,7 @@ class TestIntegration(unittest.TestCase):
             # TODO Checks to see how much power was left on the table?
 
     @util.skip_unless_run_long_tests()
-    @util.skip_unless_slurm_batch()
+    @util.skip_unless_batch()
     def test_power_balancer(self):
         name = 'test_power_balancer'
         num_node = 4
@@ -1178,7 +1178,7 @@ class TestIntegration(unittest.TestCase):
 
     @util.skip_unless_run_long_tests()
     @util.skip_unless_cpufreq()
-    @util.skip_unless_slurm_batch()
+    @util.skip_unless_batch()
     def test_agent_energy_efficient(self):
         """
         Test of the EnergyEfficientAgent.
@@ -1330,7 +1330,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_output(['--domain', 'INVALID'], ['unable to determine signal type'])
         self.check_output(['--domain', '--info'], ['info about domain not implemented'])
 
-    @util.skip_unless_slurm_batch()
+    @util.skip_unless_batch()
     def test_geopmread_all_signal_agg(self):
         '''
         Check that all reported signals can be read for board, aggregating if necessary.
@@ -1348,7 +1348,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         for sig in all_signals:
             self.check_no_error([sig.decode(), 'board', '0'])
 
-    @util.skip_unless_slurm_batch()
+    @util.skip_unless_batch()
     def test_geopmread_signal_value(self):
         '''
         Check that some specific signals give a sane value.
@@ -1426,7 +1426,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_output(['--domain', 'INVALID'], ['unable to determine control type'])
         self.check_output(['--domain', '--info'], ['info about domain not implemented'])
 
-    @util.skip_unless_slurm_batch()
+    @util.skip_unless_batch()
     def test_geopmwrite_set_freq(self):
         '''
         Check that geopmwrite can be used to set frequency.
