@@ -106,6 +106,8 @@ def geopmwrite(write_str):
     except subprocess.CalledProcessError as err:
         sys.stderr.write(stderr.getvalue())
         raise err
+    last_line = stdout.getvalue().splitlines()[-1]
+    return last_line
 
 def geopmread(read_str):
     test_exec = "dummy -- geopmread " + read_str
@@ -116,7 +118,15 @@ def geopmread(read_str):
     except subprocess.CalledProcessError as err:
         sys.stderr.write(stderr.getvalue())
         raise err
-    return float(stdout.getvalue().splitlines()[-1])
+    last_line = stdout.getvalue().splitlines()[-1]
+
+    if last_line.startswith(b'0x'):
+        return int(last_line)
+    else:
+        try:
+            return float(last_line)
+        except ValueError:
+            return last_line
 
 def get_platform():
     test_exec = "dummy -- cat /proc/cpuinfo"
