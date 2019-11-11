@@ -95,6 +95,7 @@ after_failure:
     - cat test/gtest_links/*.log
     - cat scripts/py2_ut.log
     - cat scripts/py3_ut.log
+    - cat scripts/py3k_lint.log
 
 addons:
   apt:
