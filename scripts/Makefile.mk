@@ -147,8 +147,7 @@ if ENABLE_BETA
     PYTEST_TESTS += scripts/test/pytest_links/TestPolicyStoreIntegration.test_all_interfaces
 endif
 
-TESTS += scripts/test/check_python3_compatibility.sh \
-	 $(PYTEST_TESTS)
+TESTS += $(PYTEST_TESTS)
 
 pytest-checkprogs: $(PYTEST_TESTS)
 

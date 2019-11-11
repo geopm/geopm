@@ -41,6 +41,12 @@ if [ $CI_MODE == "unit" ]; then
         export LD_LIBRARY_PATH="/usr/local/clang/lib:$LD_LIBRARY_PATH"
     fi
 
+    echo "Running the Python 3 linter."
+    if ! scripts/test/check_python3_compatibility.sh > "$TRAVIS_BUILD_DIR/scripts/py3k_lint.log" 2>&1; then
+        echo "The Python 3 linter failed."
+        ret=1
+    fi
+
     echo "Running main unit tests..."
     if ! make check; then
         echo "Main unit tests failed."
