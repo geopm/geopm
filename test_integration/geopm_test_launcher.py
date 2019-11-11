@@ -95,7 +95,7 @@ def allocation_node_test(test_exec, stdout, stderr):
         argv.insert(2, '-q') # Use quiet flag with aprun to suppress end of job info string
     argv.insert(2, '--geopm-ctl-disable')
     launcher = geopmpy.launcher.Factory().create(argv, num_rank=1, num_node=1,
-                                                 job_name="geopm_allocation_test")
+                                                 job_name="geopm_allocation_test", quiet=True)
     launcher.run(stdout, stderr)
 
 def geopmwrite(write_str):
@@ -107,6 +107,11 @@ def geopmwrite(write_str):
     except subprocess.CalledProcessError as err:
         sys.stderr.write(stderr.getvalue())
         raise err
+    output = stdout.getvalue().splitlines()
+    last_line = None
+    if len(output) > 0:
+        last_line = output[-1]
+    return last_line
 
 def geopmread(read_str):
     test_exec = "dummy -- geopmread " + read_str
@@ -117,7 +122,15 @@ def geopmread(read_str):
     except subprocess.CalledProcessError as err:
         sys.stderr.write(stderr.getvalue())
         raise err
-    return float(stdout.getvalue().splitlines()[-1])
+    last_line = stdout.getvalue().splitlines()[-1]
+
+    if last_line.startswith(b'0x'):
+        return int(last_line)
+    else:
+        try:
+            return float(last_line)
+        except ValueError:
+            return last_line
 
 def get_platform():
     test_exec = "dummy -- cat /proc/cpuinfo"
