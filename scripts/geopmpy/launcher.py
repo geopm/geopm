@@ -78,12 +78,12 @@ class Factory(object):
 
     def create(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                time_limit=None, job_name=None, node_list=None, host_file=None,
-               reservation=None):
+               reservation=None, quiet=None):
         try:
             launcher_name = argv[1]
             return self._launcher_dict[launcher_name](argv[2:], num_rank, num_node, cpu_per_rank, timeout,
                                                       time_limit, job_name, node_list, host_file,
-                                                      reservation=reservation)
+                                                      reservation=reservation, quiet=quiet)
         except KeyError:
             raise LookupError('<geopm> geopmpy.launcher: Unsupported launcher "{}" requested'.format(launcher_name))
 
@@ -321,7 +321,7 @@ class Launcher(object):
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None, partition=None,
-                 reservation=None):
+                 reservation=None, quiet=None):
         """
         Constructor takes the command line options passed to the job
         launch application along with optional override values for
@@ -333,6 +333,7 @@ class Launcher(object):
         self.environ_ext = dict()
         self.rank_per_node = None
         self.reservation = None
+        self.quiet = quiet
         self.default_handler = signal.getsignal(signal.SIGINT)
         self.num_rank = num_rank
         self.num_node = num_node
@@ -473,8 +474,9 @@ class Launcher(object):
                 echo.append('{}={}'.format(it[0], it[1]))
         echo.extend(argv_mod)
         echo = u'\n' + u' '.join(echo) + u'\n\n'
-        stdout.write(echo)
-        stdout.flush()
+        if not self.quiet:
+            stdout.write(echo) # Echo the command that's about to be run
+            stdout.flush()
         signal.signal(signal.SIGINT, self.int_handler)
         argv_mod = ' '.join(argv_mod)
         if self.is_geopm_enabled and self.config.get_ctl() == 'application':
@@ -842,13 +844,13 @@ class SrunLauncher(Launcher):
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None,
-                 reservation=None):
+                 reservation=None, quiet=None):
         """
         Pass through to Launcher constructor.
         """
         super(SrunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                            time_limit, job_name, node_list, host_file,
-                                           reservation=reservation)
+                                           reservation=reservation, quiet=quiet)
 
         if (self.is_geopm_enabled and
             self.config.get_ctl() == 'application' and
@@ -1076,12 +1078,12 @@ class OMPIExecLauncher(Launcher):
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None,
-                 reservation=None):
+                 reservation=None, quiet=None):
         """
         Pass through to Launcher constructor.
         """
         super(OMPIExecLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
-                                              time_limit, job_name, node_list, host_file)
+                                              time_limit, job_name, node_list, host_file, quiet=quiet)
         self._tmp_files = []
 
     def run(self, stdout=sys.stdout, stderr=sys.stderr):
@@ -1263,13 +1265,13 @@ class IMPIExecLauncher(Launcher):
 
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None,
-                 reservation=None):
+                 reservation=None, quiet=None):
         """
         Pass through to Launcher constructor.
         """
         super(IMPIExecLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                                time_limit, job_name, node_list, host_file,
-                                               reservation=reservation)
+                                               reservation=reservation, quiet=quiet)
 
         self.is_slurm_enabled = False
         if os.getenv('SLURM_NNODES'):
@@ -1393,13 +1395,13 @@ class IMPIExecLauncher(Launcher):
 class AprunLauncher(Launcher):
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
                  time_limit=None, job_name=None, node_list=None, host_file=None,
-                 reservation=None):
+                 reservation=None, quiet=None):
         """
         Pass through to Launcher constructor.
         """
         super(AprunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
                                             time_limit, job_name, node_list, host_file,
-                                            reservation=reservation)
+                                            reservation=reservation, quiet=quiet)
 
         if self.is_geopm_enabled and self.config.get_ctl() == 'application':
             raise RuntimeError('<geopm> geopmpy.launcher: When using aprun specifying --geopm-ctl=application is not allowed.')
