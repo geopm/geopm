@@ -47,6 +47,7 @@ import collections
 import socket
 import shlex
 import json
+import io
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from test_integration import util
@@ -1268,33 +1269,26 @@ class TestIntegrationGeopmio(unittest.TestCase):
                 if self.skip_warning_string.encode() not in line:
                     self.assertNotIn(b'Error', line)
         except subprocess.CalledProcessError as ex:
-            sys.stderr.write('{}\n'.format(ex.output))
+            sys.stderr.write('{} {}\n'.format(str(ex), stderr.getvalue()))
 
     def check_output_range(self, args, min_exp, max_exp):
-        try:
-            proc = subprocess.Popen([self.exec_name] + args,
-                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            for line in proc.stdout:
-                if self.skip_warning_string.encode() in line:
-                    continue
-                if line.startswith(b'0x'):
-                    value = int(line)
-                else:
-                    value = float(line)
-                self.assertLessEqual(min_exp, value, msg="Value read for {} smaller than {}: {}.".format(args, min_exp, value))
-                self.assertGreaterEqual(max_exp, value, msg="Value read for {} larger than {}: {}.".format(args, max_exp, value))
-        except subprocess.CalledProcessError as ex:
-            sys.stderr.write('{}\n'.format(ex.output))
+        read_value = geopm_test_launcher.geopmread('{}'.format(' '.join(args)))
+
+        self.assertLessEqual(min_exp, read_value, msg="Value read for {} smaller than {}: {}.".format(args, min_exp, read_value))
+        self.assertGreaterEqual(max_exp, read_value, msg="Value read for {} larger than {}: {}.".format(args, max_exp, read_value))
 
     def check_no_error(self, args):
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        test_exec = 'dummy -- {} {}'.format(self.exec_name, ' '.join(args))
         try:
-            proc = subprocess.Popen([self.exec_name] + args,
-                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            for line in proc.stdout:
-                if self.skip_warning_string.encode() not in line:
-                    self.assertNotIn(b'Error', line)
+            geopm_test_launcher.allocation_node_test(test_exec, stdout, stderr)
         except subprocess.CalledProcessError as ex:
-            sys.stderr.write('{}\n'.format(ex.output))
+            sys.stderr.write('{} {}\n'.format(str(ex), stderr.getvalue()))
+
+        for line in stdout.getvalue().splitlines():
+            if self.skip_warning_string.encode() not in line:
+                self.assertNotIn(b'Error', line)
 
     def test_geopmread_command_line(self):
         '''
@@ -1336,15 +1330,19 @@ class TestIntegrationGeopmio(unittest.TestCase):
         Check that all reported signals can be read for board, aggregating if necessary.
         '''
         self.exec_name = "geopmread"
-        all_signals = []
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        test_exec = 'dummy -- {}'.format(self.exec_name)
         try:
-            proc = subprocess.Popen([self.exec_name],
-                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            for line in proc.stdout:
-                if self.skip_warning_string.encode() not in line:
-                    all_signals.append(line.strip())
+            geopm_test_launcher.allocation_node_test(test_exec, stdout, stderr)
         except subprocess.CalledProcessError as ex:
-            sys.stderr.write('{}\n'.format(ex.output))
+            sys.stderr.write('{} {}\n'.format(str(ex), stderr.getvalue()))
+            raise
+
+        all_signals = []
+        for line in stdout.getvalue().splitlines()[4:]: # Slice off only the returned data
+            if self.skip_warning_string.encode() not in line:
+                all_signals.append(line.strip())
         for sig in all_signals:
             self.check_no_error([sig.decode(), 'board', '0'])
 
@@ -1431,38 +1429,15 @@ class TestIntegrationGeopmio(unittest.TestCase):
         '''
         Check that geopmwrite can be used to set frequency.
         '''
-        def read_stdout_line(stdout):
-            line = stdout.readline()
-            while self.skip_warning_string.encode() in line:
-                line = stdout.readline()
-            return line.strip()
-
         def read_current_freq(domain, signal='FREQUENCY'):
-            read_proc = subprocess.Popen(['geopmread', signal, domain, '0'],
-                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            freq = read_stdout_line(read_proc.stdout)
-            freq = float(freq)
-            return freq
+            return geopm_test_launcher.geopmread('{} {} {}'.format(signal, domain, '0'))
 
         def read_min_max_freq():
-            read_proc = subprocess.Popen(['geopmread', 'CPUINFO::FREQ_MIN', 'board', '0'],
-                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            min_freq = read_stdout_line(read_proc.stdout)
-            min_freq = float(int(float(min_freq)/1e8)*1e8)  # convert to multiple of 1e8
-            read_proc = subprocess.Popen(['geopmread', 'CPUINFO::FREQ_MAX', 'board', '0'],
-                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            max_freq = read_stdout_line(read_proc.stdout)
-            max_freq = float(int(float(max_freq)/1e8)*1e8)
-            return min_freq, max_freq
+            return (geopm_test_launcher.geopmread('{} {} {}'.format('CPUINFO::FREQ_MIN', 'board', '0')),
+                   geopm_test_launcher.geopmread('{} {} {}'.format('FREQUENCY_MAX', 'board', '0')))
 
-        self.exec_name = "geopmwrite"
-
-        read_proc = subprocess.Popen(['geopmread', '--domain', 'FREQUENCY'],
-                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        read_domain = read_stdout_line(read_proc.stdout).decode()
-        write_proc = subprocess.Popen([self.exec_name, '--domain', 'FREQUENCY'],
-                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        write_domain = read_stdout_line(write_proc.stdout).decode()
+        read_domain = geopm_test_launcher.geopmread('{} {}'.format('--domain', 'FREQUENCY'))
+        write_domain = geopm_test_launcher.geopmwrite('{} {}'.format('--domain', 'FREQUENCY'))
         min_freq, max_freq = read_min_max_freq()
 
         old_freq = read_current_freq(write_domain, 'MSR::PERF_CTL:FREQ')
@@ -1470,15 +1445,15 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.assertGreater(old_freq, min_freq - 1e8)
 
         # set to min and check
-        self.check_no_error(['FREQUENCY', write_domain, '0', str(min_freq)])
+        geopm_test_launcher.geopmwrite('{} {} {} {}'.format('FREQUENCY', write_domain, '0', str(min_freq))),
         result = read_current_freq(read_domain)
         self.assertEqual(min_freq, result)
         # set to max and check
-        self.check_no_error(['FREQUENCY', write_domain, '0', str(max_freq)])
+        geopm_test_launcher.geopmwrite('{} {} {} {}'.format('FREQUENCY', write_domain, '0', str(max_freq))),
         result = read_current_freq(read_domain)
         self.assertEqual(max_freq, result)
 
-        self.check_no_error(['FREQUENCY', write_domain, '0', str(old_freq)])
+        geopm_test_launcher.geopmwrite('{} {} {} {}'.format('FREQUENCY', write_domain, '0', str(old_freq))),
 
 
 class TestIntegrationGeopmagent(unittest.TestCase):
