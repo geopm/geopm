@@ -98,3 +98,14 @@ def skip_unless_cpufreq():
     except subprocess.CalledProcessError:
         return unittest.skip("Could not determine min and max frequency, enable cpufreq driver to run this test.")
     return lambda func: func
+
+
+def skip_unless_stressng():
+    try:
+        test_exec = "dummy -- stress-ng -h"
+        dev_null = open('/dev/null', 'w')
+        geopm_test_launcher.allocation_node_test(test_exec, dev_null, dev_null)
+        dev_null.close()
+    except subprocess.CalledProcessError:
+        return unittest.skip("Missing stress-ng.  Please install in the compute image.")
+    return lambda func: func
