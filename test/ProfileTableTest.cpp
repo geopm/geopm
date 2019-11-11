@@ -144,7 +144,9 @@ TEST_F(ProfileTableTest, name_set_fill_short)
 }
 TEST_F(ProfileTableTest, name_set_fill_long)
 {
-    std::set<std::string> input_set = {
+    // Using c-style strings here because the large count of std::string objects
+    // can result in very slow compilation on optimized builds
+    const char* input_text[] = {
         "Global", "Extensible", "Open", "Power", "Manager", "GEOPM", "is", "an", "extensible", "power",
         "management", "framework", "targeting", "high", "performance", "computing", "The", "library", "can", "be",
         "extended", "to", "support", "new", "control", "algorithms", "and", "new", "hardware", "power", "management",
@@ -278,9 +280,10 @@ TEST_F(ProfileTableTest, name_set_fill_long)
         "protection", "of", "divine", "Providence,", "we", "mutually", "pledge", "to", "each", "other", "our", "Lives,", "our", "Fortunes",
         "and", "our", "sacred", "Honor."};
 
-
-    for (auto it = input_set.begin(); it != input_set.end(); ++it) {
-        m_table->key(*it);
+    std::set<std::string> input_set;
+    for (const auto word_cstr : input_text) {
+        m_table->key(word_cstr);
+        input_set.insert(word_cstr);
     }
     std::set<std::string> output_set;
     bool is_in_done = false;
