@@ -81,16 +81,19 @@ conflict "darshan"
 
 set     version             %{version}
 
-prepend-path    PATH                %{install_prefix}/bin
-prepend-path    PYTHONPATH          %{install_prefix}/lib/python%{python_version}/site-packages
-prepend-path    INCLUDE             %{install_prefix}/include
-prepend-path    LD_LIBRARY_PATH     %{install_prefix}/lib
-prepend-path    MANPATH             %{install_prefix}/share/man
+prepend-path    PATH                    %{install_prefix}/bin
+prepend-path    PYTHONPATH              %{install_prefix}/lib/python%{python_version}/site-packages
+prepend-path    INCLUDE                 %{install_prefix}/include
+prepend-path    LD_LIBRARY_PATH         %{install_prefix}/lib
+prepend-path    MANPATH                 %{install_prefix}/share/man
 
-setenv          %{PNAME}_DIR        %{install_prefix}
-setenv          %{PNAME}_BIN        %{install_prefix}/bin
-setenv          %{PNAME}_LIB        %{install_prefix}/lib
-setenv          %{PNAME}_INC        %{install_prefix}/include
+setenv          %{PNAME}_DIR            %{install_prefix}
+setenv          %{PNAME}_BIN            %{install_prefix}/bin
+setenv          %{PNAME}_LIB            %{install_prefix}/lib
+setenv          %{PNAME}_INC            %{install_prefix}/include
+
+setenv          PMI_NO_FORK             1
+setenv          PMI_NO_PREINITIALIZE    1
 
 EOF
 
