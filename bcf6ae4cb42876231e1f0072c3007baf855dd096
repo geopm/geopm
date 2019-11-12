@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e670927d_0f1fdd76",
+        "filename": "test_integration/test_static_policy.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-12T19:47:52Z",
+      "side": 1,
+      "message": "this could maybe use allocation_node_test but currently the Launcher sets a lot of environment variables we don\u0027t want",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 55
+      },
+      "revId": "bcf6ae4cb42876231e1f0072c3007baf855dd096",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
