@@ -1299,7 +1299,7 @@ class AgentConf(object):
         if self._agent in ['power_governor', 'power_balancer']:
             old_names = ['power_budget']
         elif self._agent in ['frequency_map', 'energy_efficient']:
-            old_names = ['frequency_min', 'frequency_max']
+            old_names = ['frequency_min', 'frequency_max', 'perf_margin', 'static_frequency_max']
         policy_dict = self._options.copy()
         for offset, name in enumerate(old_names):
             if name in policy_dict:
@@ -1313,6 +1313,7 @@ class AgentConf(object):
 
         with open(self._path, "w") as outfile:
             outfile.write(agent.policy_json(self._agent, policy_values))
+
 
 class RawReport(object):
     def __init__(self, path):
@@ -1386,4 +1387,3 @@ class RawReport(object):
             raise KeyError('<geopm> geopmpy.io: Field not found: {}'.format(key))
         match = sorted(matches)[0][1]
         return copy.deepcopy(raw_data[match])
-
