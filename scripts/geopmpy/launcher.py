@@ -1192,6 +1192,8 @@ class OMPIExecLauncher(Launcher):
             new_file, filename = tempfile.mkstemp()
             self._tmp_files.append(filename)
 
+            # only warn of OpenMPI shortcoming once
+            warned = False
             with os.fdopen(new_file, 'w') as f:
                 for host in hostnames:
                     for cpu_set in aff_list:
@@ -1204,10 +1206,11 @@ class OMPIExecLauncher(Launcher):
                             cpu_str = ','.join(converted)
 
                             max_cores = 18
-                            if len(converted) > max_cores:
+                            if len(converted) > max_cores and not warned:
                                 sys.stderr.write('Warning: <geopm> geopmpy.launcher: Due to a bug in OpenMPI, you may ' +
                                                  'need to request {} cores per rank or less.'.format(max_cores) +
-                                                 '  Currently requesting cpus_per_rank={}'.format(self.cpu_per_rank))
+                                                 '  Currently requesting cpus_per_rank={}\n'.format(self.cpu_per_rank))
+                                warned = True
 
                         line = 'rank ' + str(rank) + '=' + host + ' slot=' + cpu_str
                         if os.getenv('GEOPM_DEBUG'):
