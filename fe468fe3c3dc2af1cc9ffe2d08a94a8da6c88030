@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d142300f_467b0ebe",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1087,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-12T19:54:00Z",
+      "side": 1,
+      "message": "is theta not hitting this case?",
+      "range": {
+        "startLine": 1085,
+        "startChar": 0,
+        "endLine": 1087,
+        "endChar": 42
+      },
+      "revId": "fe468fe3c3dc2af1cc9ffe2d08a94a8da6c88030",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
