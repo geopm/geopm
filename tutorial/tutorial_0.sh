@@ -92,6 +92,18 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 --geopm-trace=tutorial_0_trace \
                 -- ./tutorial_0
     err=$?
+elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
+    # Use GEOPM launcher wrapper script with Open MPI
+    geopmlaunch ompi \
+                --npernode ${RANKS_PER_NODE} \
+                -n ${TOTAL_RANKS} \
+                --hostfile tutorial_hosts \
+                --geopm-preload \
+                --geopm-ctl=process \
+                --geopm-report=tutorial_0_report \
+                --geopm-trace=tutorial_0_trace \
+                -- ./tutorial_0
+    err=$?
 else
     echo "Error: tutorial_0.sh: set GEOPM_LAUNCHER to 'srun' or 'apun'." 2>&1
     echo "       If SLURM or ALPS are not available, set MPIEXEC to" 2>&1

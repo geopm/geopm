@@ -47,6 +47,9 @@ elif [[ "$GEOPM_LAUNCHER" = "impi" && ! "$SLURM_NODELIST" && ! -e tutorial_hosts
     echo "WARNING: When using 'geopmlaunch impi' without a resource manager, the hosts"
     echo "         must be defined in ./tutorial_hosts."
     exit 1
+elif [[ "$GEOPM_LAUNCHER" = "ompi" && ! -e tutorial_hosts ]]; then
+    echo "WARNING: When using 'geopmlaunch ompi' the hosts must be defined in ./tutorial_hosts."
+    exit 1
 fi
 
 # GEOPM_BIN: Directory containing geopm programs.
