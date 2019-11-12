@@ -139,6 +139,30 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 --geopm-policy=tutorial_balanced_policy.json \
                 -- ./tutorial_4
     err=$?
+elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
+    # Use GEOPM launcher wrapper script with Open MPI
+    geopmlaunch ompi \
+                --npernode ${RANKS_PER_NODE} \
+                -n ${TOTAL_RANKS} \
+                --hostfile tutorial_hosts \
+                --geopm-ctl=process \
+                --geopm-agent=power_governor \
+                --geopm-report=tutorial_4_governed_report \
+                --geopm-trace=tutorial_4_governed_trace \
+                --geopm-policy=tutorial_governed_policy.json \
+                -- ./tutorial_4 \
+    && \
+    geopmlaunch ompi \
+                --npernode ${RANKS_PER_NODE} \
+                -n ${TOTAL_RANKS} \
+                --hostfile tutorial_hosts \
+                --geopm-ctl=process \
+                --geopm-agent=power_balancer \
+                --geopm-report=tutorial_4_balanced_report \
+                --geopm-trace=tutorial_4_balanced_trace \
+                --geopm-policy=tutorial_balanced_policy.json \
+                -- ./tutorial_4
+    err=$?
 else
     echo "Error: tutorial_4.sh: set GEOPM_LAUNCHER to 'srun' or 'aprun'." 2>&1
     echo "       If SLURM or ALPS are not available, set MPIEXEC to" 2>&1
