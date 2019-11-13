@@ -79,7 +79,6 @@ include_HEADERS = src/geopm.h \
                   # end
 if ENABLE_BETA
     include_HEADERS += src/geopm_endpoint.h \
-                       src/Endpoint.hpp \
                        src/geopm_policystore.h \
                        # end
 endif
@@ -110,6 +109,11 @@ pkginclude_HEADERS = contrib/json11/json11.hpp \
                      src/SharedMemoryUser.hpp \
                      src/TimeIOGroup.hpp \
                      # end
+
+if ENABLE_BETA
+    pkginclude_HEADERS += src/Endpoint.hpp \
+                          # end
+endif
 
 if ENABLE_MPI
 if ENABLE_FORTRAN
@@ -192,22 +196,18 @@ ronn_man_noinst = man/GEOPM_CXX_MAN_Comm.3 \
                   man/GEOPM_CXX_MAN_ProfileIOSample.3 \
                   # end
 
+ronn_man_beta = man/geopmanalysis.1 \
+                man/geopmendpoint.1 \
+                man/geopmplotter.1 \
+                man/geopm_endpoint_c.3 \
+                man/geopm_policystore_c.3 \
+                man/GEOPM_CXX_MAN_Endpoint.3 \
+                # end
+
 if ENABLE_BETA
-ronn_man_inst += man/geopmanalysis.1 \
-                 man/geopmendpoint.1 \
-                 man/geopmplotter.1 \
-                 man/geopm_endpoint_c.3 \
-                 man/GEOPM_CXX_MAN_Endpoint.3 \
-                 man/geopm_policystore_c.3 \
-                 # end
+ronn_man_inst += $(ronn_man_beta)
 else
-ronn_man_noinst += man/geopmanalysis.1 \
-                   man/geopmendpoint.1 \
-                   man/geopmplotter.1 \
-                   man/geopm_endpoint_c.3 \
-                   man/GEOPM_CXX_MAN_Endpoint.3 \
-                   man/geopm_policystore_c.3 \
-                   # end
+ronn_man_noinst += $(ronn_man_beta)
 endif
 
 ronn_man = $(ronn_man_inst) $(ronn_man_noinst)
