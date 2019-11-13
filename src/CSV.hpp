@@ -30,6 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef CSV_HPP_INCLUDE
+#define CSV_HPP_INCLUDE
+
 #include <vector>
 #include <functional>
 #include <map>
@@ -128,3 +131,5 @@ namespace geopm
             bool m_is_active;
     };
 }
+
+#endif
