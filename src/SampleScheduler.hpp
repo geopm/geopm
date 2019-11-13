@@ -32,7 +32,6 @@
 
 #ifndef SAMPLESCHEDULER_HPP_INCLUDE
 #define SAMPLESCHEDULER_HPP_INCLUDE
-#endif
 
 #include "geopm_time.h"
 
@@ -73,3 +72,5 @@ namespace geopm
             size_t m_sample_count;
     };
 }
+
+#endif
