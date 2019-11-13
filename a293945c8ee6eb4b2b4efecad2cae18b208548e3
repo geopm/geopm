@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "b919db34_e703f617",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-11-13T02:20:25Z",
+      "side": 1,
+      "message": "Please move this call to the launcher constructor.  Do not add it to every test.  It does not belong here.",
+      "range": {
+        "startLine": 156,
+        "startChar": 8,
+        "endLine": 156,
+        "endChar": 32
+      },
+      "revId": "a293945c8ee6eb4b2b4efecad2cae18b208548e3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3e7fc2ea_b76c23be",
         "filename": "test_integration/geopm_test_launcher.py",
         "patchSetId": 6
