@@ -22,6 +22,30 @@
       "revId": "23c45ceb81aa3796980d6c2818a6519d554060a4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eee42fd1_c68014c7",
+        "filename": "test_integration/util.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-11-14T01:32:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6152468e_88f2de30",
+      "range": {
+        "startLine": 81,
+        "startChar": 39,
+        "endLine": 81,
+        "endChar": 45
+      },
+      "revId": "23c45ceb81aa3796980d6c2818a6519d554060a4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
