@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc379db5_6db42c15",
+        "filename": "src/SampleScheduler.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-14T17:21:07Z",
+      "side": 0,
+      "message": "wow super useful",
+      "revId": "c5bf17087ed33e0be3e656e9e9acf7bad92564cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
