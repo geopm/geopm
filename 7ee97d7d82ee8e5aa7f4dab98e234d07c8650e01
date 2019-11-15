@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ddbd5b08_71b0113d",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1302,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-15T17:20:17Z",
+      "side": 1,
+      "message": "Is something broken without this change? This function should not require changes with future additions to policies. If it does, I think the fixing change should be to address that gap so we don\u0027t need to manually maintain parity between individual agents and io.py.\n\nThe intent of this block is to maintain backward-compatibility from when our python code used different policy string naming conventions from our C++ code.",
+      "revId": "7ee97d7d82ee8e5aa7f4dab98e234d07c8650e01",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
