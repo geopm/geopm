@@ -79,12 +79,19 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestAffinity.test_affinity_10 \
                scripts/test/pytest_links/TestAffinity.test_affinity_11 \
                scripts/test/pytest_links/TestAffinity.test_affinity_12 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_13 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_14 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_15 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_16 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_17 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_18 \
                scripts/test/pytest_links/TestAffinity.test_affinity_4 \
                scripts/test/pytest_links/TestAffinity.test_affinity_5 \
                scripts/test/pytest_links/TestAffinity.test_affinity_6 \
                scripts/test/pytest_links/TestAffinity.test_affinity_7 \
                scripts/test/pytest_links/TestAffinity.test_affinity_8 \
                scripts/test/pytest_links/TestAffinity.test_affinity_9 \
+               scripts/test/pytest_links/TestAffinity.test_affinity_tutorial_knl \
                scripts/test/pytest_links/TestAffinity.test_1rank_1thread \
                scripts/test/pytest_links/TestAffinity.test_1rank_geopm_os_app_shared \
                scripts/test/pytest_links/TestAffinity.test_1rank_geopm_os_app_shared_noht \
@@ -110,6 +117,7 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_launch_only \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_launch_plot_summary \
                scripts/test/pytest_links/TestAnalysisCommandLine.test_no_args \
+               scripts/test/pytest_links/TestAnalysisCommandLine.test_skip_launch \
                scripts/test/pytest_links/TestBalancerAnalysis.test_balancer_plot_process_energy \
                scripts/test/pytest_links/TestBalancerAnalysis.test_balancer_plot_process_power \
                scripts/test/pytest_links/TestBalancerAnalysis.test_balancer_plot_process_runtime \
