@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f694cfe_99e9261c",
+        "filename": "src/EndpointPolicyTracer.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-11-15T21:59:00Z",
+      "side": 1,
+      "message": "check policy.size()?",
+      "range": {
+        "startLine": 105,
+        "startChar": 11,
+        "endLine": 105,
+        "endChar": 31
+      },
+      "revId": "8fba1411563c3de5ad217a9f4aec850d53c06386",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
