@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cdb2b060_f10560a4",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1257,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-11-15T20:23:26Z",
+      "side": 1,
+      "message": "This is about the governor.  Make a comment to that effect.\n\nAlso, add the support for this back to the functions below.",
+      "range": {
+        "startLine": 1257,
+        "startChar": 35,
+        "endLine": 1257,
+        "endChar": 53
+      },
+      "revId": "5c9986c1a998dd9331592d210ffcf0cdfa9a788a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7525420_3572f60d",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1343,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-11-15T20:23:26Z",
+      "side": 1,
+      "message": "See if there\u0027s a way to suppress the launcher\u0027s printing of the command that was run in stdout.",
+      "range": {
+        "startLine": 1343,
+        "startChar": 50,
+        "endLine": 1343,
+        "endChar": 90
+      },
+      "revId": "5c9986c1a998dd9331592d210ffcf0cdfa9a788a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d4cc6d9_a0e143bf",
+        "filename": "test_integration/geopm_test_launcher.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-11-15T20:23:26Z",
+      "side": 1,
+      "message": "Why was this important?",
+      "range": {
+        "startLine": 104,
+        "startChar": 4,
+        "endLine": 105,
+        "endChar": 20
+      },
+      "revId": "5c9986c1a998dd9331592d210ffcf0cdfa9a788a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
