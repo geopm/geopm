@@ -43,6 +43,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/CircularBufferTest.buffer_size \
               test/gtest_links/CircularBufferTest.buffer_values \
               test/gtest_links/CombinedSignalTest.sample_flat_derivative \
+              test/gtest_links/CombinedSignalTest.sample_max \
               test/gtest_links/CombinedSignalTest.sample_slope_derivative \
               test/gtest_links/CombinedSignalTest.sample_sum \
               test/gtest_links/CommMPIImpTest.mpi_allreduce \
@@ -87,6 +88,8 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/CpuinfoIOGroupTest.parse_sticker_with_ghz_space \
               test/gtest_links/CpuinfoIOGroupTest.parse_sticker_without_at \
               test/gtest_links/CpuinfoIOGroupTest.plugin \
+              test/gtest_links/CpuinfoIOGroupTest.push_signal \
+              test/gtest_links/CpuinfoIOGroupTest.read_signal \
               test/gtest_links/CpuinfoIOGroupTest.valid_signals \
               test/gtest_links/CSVTest.buffer \
               test/gtest_links/CSVTest.columns \
@@ -97,6 +100,8 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/DebugIOGroupTest.read_signal \
               test/gtest_links/DebugIOGroupTest.register_signal_error \
               test/gtest_links/DebugIOGroupTest.sample \
+              test/gtest_links/EndpointTest.get_hostnames \
+              test/gtest_links/EndpointTest.get_profile_name \
               test/gtest_links/EndpointTest.write_shm_policy \
               test/gtest_links/EndpointTest.parse_shm_sample \
               test/gtest_links/EndpointTest.get_agent \
@@ -109,6 +114,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/EndpointPolicyTracerTest.construct_update_destruct \
               test/gtest_links/EndpointPolicyTracerTest.format \
               test/gtest_links/EndpointUserTest.agent_name_too_long \
+              test/gtest_links/EndpointUserTest.attach \
               test/gtest_links/EndpointUserTest.parse_shm_policy \
               test/gtest_links/EndpointUserTest.profile_name_too_long \
               test/gtest_links/EndpointUserTest.write_shm_sample \
@@ -143,6 +149,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/EpochRuntimeRegulatorTest.invalid_ranks \
               test/gtest_links/EpochRuntimeRegulatorTest.rank_enter_exit_trace \
               test/gtest_links/EpochRuntimeRegulatorTest.unknown_region \
+              test/gtest_links/ExceptionTest.check_ronn \
               test/gtest_links/ExceptionTest.hello \
               test/gtest_links/ExceptionTest.last_message \
               test/gtest_links/FilePolicyTest.parse_json_file \
@@ -217,6 +224,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/PlatformIOTest.read_signal_override \
               test/gtest_links/PlatformIOTest.sample \
               test/gtest_links/PlatformIOTest.sample_agg \
+              test/gtest_links/PlatformIOTest.signal_control_description \
               test/gtest_links/PlatformIOTest.signal_control_names \
               test/gtest_links/PlatformIOTest.signal_power \
               test/gtest_links/PlatformIOTest.write_control \
@@ -242,6 +250,7 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/PowerBalancerAgentTest.tree_agent \
               test/gtest_links/PowerBalancerAgentTest.tree_root_agent \
               test/gtest_links/PowerBalancerAgentTest.enforce_policy \
+              test/gtest_links/PowerBalancerAgentTest.validate_policy \
               test/gtest_links/PowerBalancerTest.balance \
               test/gtest_links/PowerBalancerTest.is_runtime_stable \
               test/gtest_links/PowerBalancerTest.power_cap \
