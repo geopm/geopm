@@ -71,6 +71,30 @@
     },
     {
       "key": {
+        "uuid": "96d2a9e6_2762e89c",
+        "filename": "test_integration/test_static_policy.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-11-16T00:05:13Z",
+      "side": 1,
+      "message": "Or just try to read the JSON file and inspect it\u0027s contents.  One of the two.",
+      "parentUuid": "4fd9affa_4acafe44",
+      "range": {
+        "startLine": 94,
+        "startChar": 19,
+        "endLine": 94,
+        "endChar": 55
+      },
+      "revId": "bcf6ae4cb42876231e1f0072c3007baf855dd096",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e670927d_0f1fdd76",
         "filename": "test_integration/test_static_policy.py",
         "patchSetId": 5
