@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d34419e8_ba55a6b9",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-11-16T00:12:30Z",
+      "side": 1,
+      "message": "Is this detail captured in the docs somewhere?  That if you specify an endpoint policy AND a file policy that the endpoint policy wins?",
+      "range": {
+        "startLine": 243,
+        "startChar": 8,
+        "endLine": 247,
+        "endChar": 95
+      },
+      "revId": "656ce555b89ea110056de173bbffad3efa35d23f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
