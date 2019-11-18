@@ -22,6 +22,30 @@
       "revId": "46b07155ad83839d07ef2d8e5e083ac2cac1b1b8",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d62169c8_f077eccb",
+        "filename": "test/MockSharedMemory.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-18T18:39:30Z",
+      "side": 1,
+      "message": "Needed for the EXPECT_CALL",
+      "parentUuid": "73421ec9_aff0658a",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 24
+      },
+      "revId": "46b07155ad83839d07ef2d8e5e083ac2cac1b1b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
