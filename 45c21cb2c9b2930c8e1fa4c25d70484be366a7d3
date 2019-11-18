@@ -58,6 +58,24 @@
       "revId": "45c21cb2c9b2930c8e1fa4c25d70484be366a7d3",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2be6544b_8a65e089",
+        "filename": "src/Environment.hpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-18T19:43:44Z",
+      "side": 1,
+      "message": "reordered the patches so this should be better now",
+      "parentUuid": "0d666b3d_450b0715",
+      "revId": "45c21cb2c9b2930c8e1fa4c25d70484be366a7d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
