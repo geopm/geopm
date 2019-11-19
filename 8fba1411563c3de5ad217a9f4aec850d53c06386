@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8390da5b_09af1a8c",
+        "filename": "src/EndpointPolicyTracer.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-19T21:46:02Z",
+      "side": 1,
+      "message": "can\u0027t hurt to check.",
+      "parentUuid": "8f694cfe_99e9261c",
+      "range": {
+        "startLine": 105,
+        "startChar": 11,
+        "endLine": 105,
+        "endChar": 31
+      },
+      "revId": "8fba1411563c3de5ad217a9f4aec850d53c06386",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3719a65e_e5c79406",
         "filename": "src/EndpointPolicyTracer.hpp",
         "patchSetId": 26
@@ -36,6 +60,24 @@
       "writtenOn": "2019-11-15T22:41:25Z",
       "side": 1,
       "message": "Should the Imp be in EndpointPolicyTracer.cpp?\n\nThe only external user is the unit test suite. The tests can use EndpointPolicyTracer::make_unique if it has overloads for both constructors.",
+      "revId": "8fba1411563c3de5ad217a9f4aec850d53c06386",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8589d2e6_f08aa83d",
+        "filename": "src/EndpointPolicyTracer.hpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-19T21:46:02Z",
+      "side": 1,
+      "message": "we haven\u0027t done this for other classes.  I can move it into its own header so we don\u0027t have to do it later.",
+      "parentUuid": "3719a65e_e5c79406",
       "revId": "8fba1411563c3de5ad217a9f4aec850d53c06386",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
