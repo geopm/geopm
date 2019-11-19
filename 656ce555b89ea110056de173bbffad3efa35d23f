@@ -22,6 +22,30 @@
       "revId": "656ce555b89ea110056de173bbffad3efa35d23f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa3dd296_c2dfd16b",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-19T21:34:34Z",
+      "side": 1,
+      "message": "This is mentioned in the launcher docs, but I think this whole feature probably deserves more thorough documentation.  Let me add an issue and we can think about where to put it.",
+      "parentUuid": "d34419e8_ba55a6b9",
+      "range": {
+        "startLine": 243,
+        "startChar": 8,
+        "endLine": 247,
+        "endChar": 95
+      },
+      "revId": "656ce555b89ea110056de173bbffad3efa35d23f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
