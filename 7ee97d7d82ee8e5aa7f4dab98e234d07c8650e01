@@ -16,6 +16,24 @@
       "revId": "7ee97d7d82ee8e5aa7f4dab98e234d07c8650e01",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff460c6d_28b96417",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1302,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-19T22:20:09Z",
+      "side": 1,
+      "message": "This change is needed if I reuse this function to create a static policy for the EE agent, which uses a different max frequency policy field for static policies.  The other agents should still work fine because they reuse their regular policies for the static policy.",
+      "parentUuid": "ddbd5b08_71b0113d",
+      "revId": "7ee97d7d82ee8e5aa7f4dab98e234d07c8650e01",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
