@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "afb343a0_cacac0b8",
+        "filename": "test_integration/geopm_test_launcher.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-19T16:02:09Z",
+      "side": 1,
+      "message": "Nightly failures show an index out of range here due to empty stdout for geopmwrite. I guess it didn\u0027t throw before this change because it would echo the command by default.\n\nTraceback (most recent call last):\n  File \"/home/test/geopm/test_integration/geopm_test_integration.py\", line 105, in tearDown\n    geopm_test_launcher.geopmwrite(\"MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0 \" + str(self._power_limit))\n  File \"/home/test/geopm/test_integration/geopm_test_launcher.py\", line 109, in geopmwrite\n    last_line \u003d stdout.getvalue().splitlines()[-1]\nIndexError: list index out of range",
+      "revId": "89f8c80a468163722fbe38c4772e625c3cf677f5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
