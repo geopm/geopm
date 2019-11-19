@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "798e930e_93b4ff35",
+        "filename": "test_integration/test_static_policy.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-19T22:39:32Z",
+      "side": 1,
+      "message": "save in member and reuse",
+      "range": {
+        "startLine": 63,
+        "startChar": 7,
+        "endLine": 63,
+        "endChar": 18
+      },
+      "revId": "bcf6ae4cb42876231e1f0072c3007baf855dd096",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bf1b369f_88697aeb",
         "filename": "test_integration/test_static_policy.py",
         "patchSetId": 5
@@ -36,6 +59,30 @@
       "writtenOn": "2019-11-15T21:19:58Z",
       "side": 1,
       "message": "don\u0027t these need to be north of the writes above?",
+      "range": {
+        "startLine": 69,
+        "startChar": 8,
+        "endLine": 70,
+        "endChar": 107
+      },
+      "revId": "bcf6ae4cb42876231e1f0072c3007baf855dd096",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76f64b81_01716113",
+        "filename": "test_integration/test_static_policy.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-19T22:39:32Z",
+      "side": 1,
+      "message": "Probably.  I guess it depends if something running before this test has messed up the settings, or if the actual system default is not TDP/max freq",
+      "parentUuid": "bf1b369f_88697aeb",
       "range": {
         "startLine": 69,
         "startChar": 8,
@@ -130,6 +177,30 @@
       "side": 1,
       "message": "elaborate?  what env vars specifically are causing you trouble?",
       "parentUuid": "e670927d_0f1fdd76",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 55
+      },
+      "revId": "bcf6ae4cb42876231e1f0072c3007baf855dd096",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c345d32_d2876b78",
+        "filename": "test_integration/test_static_policy.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-19T22:39:32Z",
+      "side": 1,
+      "message": "For example the profile.  I don\u0027t think it will cause problems with this test, but it\u0027s not quite as strict as I want.  i.e. the goal is to test that just the environment from 98-99 causes the behavior, not the geopmlaunch options or any other environment variables.",
+      "parentUuid": "700ab182_7ae6331b",
       "range": {
         "startLine": 103,
         "startChar": 0,
