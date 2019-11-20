@@ -34,6 +34,24 @@
       "revId": "7ee97d7d82ee8e5aa7f4dab98e234d07c8650e01",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d934b21e_b9dae23e",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1302,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-20T00:34:07Z",
+      "side": 1,
+      "message": "There aren\u0027t any existing users of static_frequency_max, and new code could directly use FREQ_FIXED.",
+      "parentUuid": "ff460c6d_28b96417",
+      "revId": "7ee97d7d82ee8e5aa7f4dab98e234d07c8650e01",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
