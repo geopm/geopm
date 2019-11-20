@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb19af0a_2cc98b6c",
+        "filename": "test_integration/test_static_policy.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-20T15:38:12Z",
+      "side": 1,
+      "message": "Looks like the print was meant for temporary debugging since the GEOPM_AGENT check is a few lines down",
+      "revId": "247d038f1c21bec19070087498353c5f3e800ac2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
