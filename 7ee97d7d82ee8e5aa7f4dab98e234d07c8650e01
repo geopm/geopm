@@ -52,6 +52,24 @@
       "revId": "7ee97d7d82ee8e5aa7f4dab98e234d07c8650e01",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efc6d74e_023ec0f2",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1302,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-20T02:22:29Z",
+      "side": 1,
+      "message": "Okay, I will do that",
+      "parentUuid": "d934b21e_b9dae23e",
+      "revId": "7ee97d7d82ee8e5aa7f4dab98e234d07c8650e01",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
