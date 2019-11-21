@@ -16,6 +16,24 @@
       "revId": "247d038f1c21bec19070087498353c5f3e800ac2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d102341e_dea1d08d",
+        "filename": "test_integration/test_static_policy.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-21T21:13:04Z",
+      "side": 1,
+      "message": "yup, this should not be here",
+      "parentUuid": "bb19af0a_2cc98b6c",
+      "revId": "247d038f1c21bec19070087498353c5f3e800ac2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
