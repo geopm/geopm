@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a7f28e0_4b53dca3",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-22T19:41:34Z",
+      "side": 1,
+      "message": "should the fix be up here instead?  Where does this get used?",
+      "range": {
+        "startLine": 609,
+        "startChar": 26,
+        "endLine": 609,
+        "endChar": 38
+      },
+      "revId": "f3f1c5afeaaa6f7d640bb577a3bfea94609bb28a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
