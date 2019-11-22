@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff9ed49d_7b86c896",
+        "filename": "src/Reporter.hpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-11-22T21:48:22Z",
+      "side": 1,
+      "message": "Ugh just noticing this... the reporter shouldn\u0027t know or care about rank.  Should be delegated to the Controller and only root Controllers need to create this object, no?  Problem for another patch",
+      "range": {
+        "startLine": 109,
+        "startChar": 24,
+        "endLine": 109,
+        "endChar": 32
+      },
+      "revId": "0276c7a727ea89a22a851cfbbdd8a3949234fb32",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
