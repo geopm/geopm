@@ -22,6 +22,30 @@
       "revId": "f3f1c5afeaaa6f7d640bb577a3bfea94609bb28a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82290ca6_914dcbe6",
+        "filename": "scripts/geopmpy/io.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-11-22T21:21:19Z",
+      "side": 1,
+      "message": "The fix can go in either place, as long as the symbol name is the same. I opted to follow the existing name on #609 since that matches the column name that is eventually added to the dataframe.\n\nIt is only used at #745-#748. This line isn\u0027t really necessary since all places where it matters are short-circuited out in the only case where they would result in an exception (where the value they aim to cache is absent in the first report in a file).",
+      "parentUuid": "0a7f28e0_4b53dca3",
+      "range": {
+        "startLine": 609,
+        "startChar": 26,
+        "endLine": 609,
+        "endChar": 38
+      },
+      "revId": "f3f1c5afeaaa6f7d640bb577a3bfea94609bb28a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
