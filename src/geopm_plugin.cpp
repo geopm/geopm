@@ -30,11 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "geopm_plugin.h"
+
 #include <dlfcn.h>
 
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <mutex>
 
 #include "geopm_error.h"
 #include "Environment.hpp"
@@ -58,7 +61,7 @@ static int env_plugin_path(std::string &plugin_path)
     return err;
 }
 
-static void __attribute__((constructor)) geopmpolicy_load(void)
+static void geopmpolicy_load(void)
 {
     int err = 0;
     std::string env_plugin_path_str;
@@ -101,4 +104,29 @@ static void __attribute__((constructor)) geopmpolicy_load(void)
             }
         }
     }
+}
+
+int geopm_plugin_ensure_plugins_are_loaded(void)
+{
+    int err = 0;
+    try {
+        static std::recursive_mutex loading_mutex;
+        static bool load_already_started = false;
+
+        if (!load_already_started) {
+            // geopmpolicy_load may load plugins that call this function in
+            // their load procedure. Avoid nested calls which result in
+            // redundant plugin scans. Use a recursive lock to avoid deadlocks
+            // in that scenario.
+            const std::lock_guard<std::recursive_mutex> lock(loading_mutex);
+            if (!load_already_started) {
+                load_already_started = true;
+                geopmpolicy_load();
+            }
+        }
+    }
+    catch (...) {
+        err = geopm::exception_handler(std::current_exception(), false);
+    }
+    return err;
 }

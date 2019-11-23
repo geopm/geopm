@@ -37,6 +37,7 @@
 #include <iostream>
 
 #include "geopm_agent.h"
+#include "geopm_plugin.h"
 #include "string.h"
 #include "MonitorAgent.hpp"
 #include "PowerBalancerAgent.hpp"

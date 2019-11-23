@@ -220,6 +220,7 @@ src/geopm_internal.h
 src/geopm_mpi_comm_split.h
 src/geopm_pio.h
 src/geopm_plugin.cpp
+src/geopm_plugin.h
 src/geopm_pmpi.c
 src/geopm_pmpi.h
 src/geopm_pmpi_fortran.c

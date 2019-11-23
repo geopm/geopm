@@ -38,6 +38,7 @@
 #include "CpuinfoIOGroup.hpp"
 #include "TimeIOGroup.hpp"
 #include "Helper.hpp"
+#include "geopm_plugin.h"
 #include "config.h"
 #ifdef GEOPM_CNL_IOGROUP
 #include "CNLIOGroup.hpp"
