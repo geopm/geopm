@@ -30,24 +30,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Comm.hpp"
+#ifndef GEOPM_PLUGIN_H_INCLUDE
+#define GEOPM_PLUGIN_H_INCLUDE
 
-#include <inttypes.h>
-#include <cpuid.h>
-#include <string>
-#include <sstream>
-#include <dlfcn.h>
-#include <list>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#include "Exception.hpp"
+/**
+ * Load geopm plugins if they have not yet been loaded.
+ * @return Error code, or 0 for success.
+ */
+int geopm_plugin_ensure_plugins_are_loaded(void);
 
-#include "config.h"
-
-namespace geopm
-{
-    PluginFactory<Comm> &comm_factory(void)
-    {
-        static PluginFactory<Comm> instance;
-        return instance;
-    }
+#ifdef __cplusplus
 }
+#endif
+#endif
