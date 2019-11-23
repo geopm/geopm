@@ -76,7 +76,7 @@ int geopm_topo_domain_type(const char *domain_name);
 
 int geopm_topo_create_cache(void);
 """)
-_dl = _ffi.dlopen('libgeopmpolicy.so')
+_dl = _ffi.dlopen('libgeopmpolicy.so', _ffi.RTLD_GLOBAL)
 
 DOMAIN_INVALID = _dl.GEOPM_DOMAIN_INVALID
 DOMAIN_BOARD = _dl.GEOPM_DOMAIN_BOARD

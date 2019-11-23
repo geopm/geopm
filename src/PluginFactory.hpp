@@ -40,13 +40,17 @@
 #include <vector>
 
 #include "Exception.hpp"
+#include "geopm_plugin.h"
 
 namespace geopm
 {
     template<class T> class PluginFactory
     {
         public:
-            PluginFactory() = default;
+            PluginFactory()
+            {
+                geopm_plugin_ensure_plugins_are_loaded();
+            }
             virtual ~PluginFactory() = default;
             PluginFactory(const PluginFactory &other) = delete;
             PluginFactory &operator=(const PluginFactory &other) = delete;
