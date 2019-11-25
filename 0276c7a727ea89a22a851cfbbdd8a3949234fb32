@@ -22,6 +22,30 @@
       "revId": "0276c7a727ea89a22a851cfbbdd8a3949234fb32",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "029430c8_b2e22f14",
+        "filename": "src/Reporter.hpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-11-25T17:01:26Z",
+      "side": 1,
+      "message": "This is needed because all the controllers create their section of the report and call gather(); rank 0 is the one that actually writes the file.",
+      "parentUuid": "ff9ed49d_7b86c896",
+      "range": {
+        "startLine": 109,
+        "startChar": 24,
+        "endLine": 109,
+        "endChar": 32
+      },
+      "revId": "0276c7a727ea89a22a851cfbbdd8a3949234fb32",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
