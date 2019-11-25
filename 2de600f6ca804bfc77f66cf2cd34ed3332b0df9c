@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a1c2a351_09bfca86",
+        "filename": "src/Agent.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1011138
+      },
+      "writtenOn": "2019-11-25T23:08:32Z",
+      "side": 1,
+      "message": "What\u0027s the compiler error without this?",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 25
+      },
+      "revId": "2de600f6ca804bfc77f66cf2cd34ed3332b0df9c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
