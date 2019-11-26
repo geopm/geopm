@@ -1240,9 +1240,9 @@ class EnergyEfficientAgentAnalysis(Analysis):
         self._max_freq = self._sweep_analysis._max_freq
 
         agent = 'energy_efficient'
-        options = {'frequency_min': self._min_freq,
-                   'frequency_max': self._max_freq,
-                   'perf_margin': 0.10}
+        options = {'FREQ_MIN': self._min_freq,
+                   'FREQ_MAX': self._max_freq,
+                   'PERF_MARGIN': 0.10}
         agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', agent, options)
         agent_conf.write()
 
