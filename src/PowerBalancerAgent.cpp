@@ -46,6 +46,8 @@
 #include "Helper.hpp"
 #include "config.h"
 
+double geopm_agent_get_wait_env();
+
 namespace geopm
 {
     PowerBalancerAgent::Role::Role()
@@ -502,7 +504,7 @@ namespace geopm
         , m_power_governor(std::move(power_governor))
         , m_power_balancer(std::move(power_balancer))
         , m_last_wait(GEOPM_TIME_REF)
-        , M_WAIT_SEC(0.005)
+        , M_WAIT_SEC(geopm_agent_get_wait_env())
         , m_power_tdp(NAN)
         , m_do_send_sample(false)
         , m_do_send_policy(false)

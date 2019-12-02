@@ -53,6 +53,8 @@
 
 using json11::Json;
 
+double geopm_agent_get_wait_env();
+
 namespace geopm
 {
     static std::map<uint64_t, double> parse_env_map(void)
@@ -297,7 +299,7 @@ namespace geopm
 
     void FrequencyMapAgent::wait(void)
     {
-        static double M_WAIT_SEC = 0.005;
+        static double M_WAIT_SEC = geopm_agent_get_wait_env();
         while(geopm_time_since(&m_last_wait) < M_WAIT_SEC) {
 
         }

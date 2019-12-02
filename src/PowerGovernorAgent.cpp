@@ -45,6 +45,8 @@
 #include "Helper.hpp"
 #include "config.h"
 
+double geopm_agent_get_wait_env();
+
 namespace geopm
 {
     PowerGovernorAgent::PowerGovernorAgent()
@@ -76,7 +78,7 @@ namespace geopm
         , m_min_num_converged(15)
         , m_adjusted_power(0.0)
         , m_last_wait(GEOPM_TIME_REF)
-        , M_WAIT_SEC(0.005)
+        , M_WAIT_SEC(geopm_agent_get_wait_env())
     {
         geopm_time(&m_last_wait);
     }
