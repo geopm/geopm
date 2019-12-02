@@ -38,6 +38,17 @@
 #include "Exception.hpp"
 #include "config.h"
 
+static bool get_env(const std::string &name, std::string &env_string)
+{
+    bool result = false;
+    char *check_string = getenv(name.c_str());
+    if (check_string != NULL) {
+        env_string = check_string;
+        result = true;
+    }
+    return result;
+}
+
 namespace geopm
 {
     MonitorAgent::MonitorAgent()
@@ -48,7 +59,14 @@ namespace geopm
 
     MonitorAgent::MonitorAgent(PlatformIO &plat_io, const PlatformTopo &topo)
         : m_last_wait(GEOPM_TIME_REF)
-        , M_WAIT_SEC(0.005)
+        , M_WAIT_SEC([](void) {
+                                  std::string tmp_str;
+                                  double ret = 0.005;
+                                  if (get_env("GEOPM_AGENT_WAIT", tmp_str)) {
+                                      ret = std::stod(tmp_str);
+                                  }
+                                  return ret;
+                              }())
     {
         geopm_time(&m_last_wait);
     }
