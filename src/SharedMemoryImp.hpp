@@ -47,7 +47,7 @@ namespace geopm
             ///        an inter-process shared memory region.
             /// @param [in] shm_key Shared memory key to create the region.
             /// @param [in] size Size of the region to create.
-            SharedMemoryImp(const std::string &shm_key, size_t size);
+            SharedMemoryImp(const std::string &shm_key, size_t size, double timeout);
             /// @brief Destructor destroys and unlinks the shared memory region.
             virtual ~SharedMemoryImp();
             /// @brief Retrieve a pointer to the shared memory region.
@@ -66,6 +66,7 @@ namespace geopm
             size_t m_size;
             /// @brief Pointer to the region.
             void *m_ptr;
+            double m_timeout;
     };
 
     class SharedMemoryUserImp : public SharedMemoryUser

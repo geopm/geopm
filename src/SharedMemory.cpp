@@ -75,14 +75,14 @@ namespace geopm
         }
     }
 
-    std::unique_ptr<SharedMemory> SharedMemory::make_unique(const std::string &shm_key, size_t size)
+    std::unique_ptr<SharedMemory> SharedMemory::make_unique(const std::string &shm_key, size_t size, double timeout)
     {
-        return geopm::make_unique<SharedMemoryImp>(shm_key, size);
+        return geopm::make_unique<SharedMemoryImp>(shm_key, size, timeout);
     }
 
-    std::shared_ptr<SharedMemory> SharedMemory::make_shared(const std::string &shm_key, size_t size)
+    std::shared_ptr<SharedMemory> SharedMemory::make_shared(const std::string &shm_key, size_t size, double timeout)
     {
-        return std::make_shared<SharedMemoryImp>(shm_key, size);
+        return std::make_shared<SharedMemoryImp>(shm_key, size, timeout);
     }
 
     std::unique_ptr<SharedMemoryUser> SharedMemoryUser::make_unique(const std::string &shm_key, double timeout)
@@ -95,9 +95,10 @@ namespace geopm
         return std::make_shared<SharedMemoryUserImp>(shm_key, timeout);
     }
 
-    SharedMemoryImp::SharedMemoryImp(const std::string &shm_key, size_t size)
+    SharedMemoryImp::SharedMemoryImp(const std::string &shm_key, size_t size, double timeout)
         : m_shm_key(shm_key)
         , m_size(size + M_LOCK_SIZE)
+        , m_timeout(timeout)
     {
         if (!size) {
             throw Exception("SharedMemoryImp: Cannot create shared memory region of zero size", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -168,7 +169,7 @@ namespace geopm
 
     std::unique_ptr<SharedMemoryScopedLock> SharedMemoryImp::get_scoped_lock(void)
     {
-        return geopm::make_unique<SharedMemoryScopedLock>((pthread_mutex_t*)m_ptr);
+        return geopm::make_unique<SharedMemoryScopedLock>((pthread_mutex_t*)m_ptr, m_timeout);
     }
 
 
@@ -279,6 +280,6 @@ namespace geopm
 
     std::unique_ptr<SharedMemoryScopedLock> SharedMemoryUserImp::get_scoped_lock(void)
     {
-        return geopm::make_unique<SharedMemoryScopedLock>((pthread_mutex_t*)m_ptr);
+        return geopm::make_unique<SharedMemoryScopedLock>((pthread_mutex_t*)m_ptr, m_timeout);
     }
 }
