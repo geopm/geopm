@@ -66,10 +66,10 @@ namespace geopm
             virtual std::unique_ptr<SharedMemoryScopedLock> get_scoped_lock(void) = 0;
             /// @brief Returns a unique_ptr to a concrete object
             ///        constructed using the underlying implementation
-            static std::unique_ptr<SharedMemory> make_unique(const std::string &shm_key, size_t size);
+            static std::unique_ptr<SharedMemory> make_unique(const std::string &shm_key, size_t size, double timeout);
             /// @brief Returns a shared_ptr to a concrete object
             ///        constructed using the underlying implementation
-            static std::shared_ptr<SharedMemory> make_shared(const std::string &shm_key, size_t size);
+            static std::shared_ptr<SharedMemory> make_shared(const std::string &shm_key, size_t size, double timeout);
     };
 }
 
