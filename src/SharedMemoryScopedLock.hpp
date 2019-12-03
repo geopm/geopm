@@ -43,7 +43,7 @@ namespace geopm
     {
         public:
             SharedMemoryScopedLock() = delete;
-            SharedMemoryScopedLock(pthread_mutex_t *mutex);
+            SharedMemoryScopedLock(pthread_mutex_t *mutex, double timeout);
             virtual ~SharedMemoryScopedLock();
         private:
             pthread_mutex_t *m_mutex;
