@@ -115,7 +115,7 @@ extern "C"
             }
             MPI_Barrier(comm);
             try {
-                shmem = std::make_shared<geopm::SharedMemoryImp>(shmem_key.str(), sizeof(int));
+                shmem = std::make_shared<geopm::SharedMemoryImp>(shmem_key.str(), sizeof(int), geopm::environment().timeout());
             }
             catch (const geopm::Exception &ex) {
                 if (ex.err_value() != EEXIST) {

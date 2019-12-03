@@ -32,6 +32,9 @@
 
 #include <sys/stat.h>
 
+#include <future>
+#include <chrono>
+
 #include "gtest/gtest.h"
 #include "geopm_error.h"
 #include "Exception.hpp"
@@ -54,6 +57,7 @@ class SharedMemoryTest : public :: testing :: Test
         size_t m_size;
         std::unique_ptr<SharedMemory> m_shmem;
         std::unique_ptr<SharedMemoryUser> m_shmem_u;
+        int M_TIMEOUT;
 };
 
 void SharedMemoryTest::SetUp()
@@ -62,6 +66,7 @@ void SharedMemoryTest::SetUp()
     m_size = sizeof(size_t);
     m_shmem = NULL;
     m_shmem_u = NULL;
+    M_TIMEOUT = 1;
 }
 
 void SharedMemoryTest::TearDown()
@@ -73,12 +78,12 @@ void SharedMemoryTest::TearDown()
 
 void SharedMemoryTest::config_shmem()
 {
-    m_shmem.reset(new geopm::SharedMemoryImp(m_shm_key, m_size));
+    m_shmem.reset(new geopm::SharedMemoryImp(m_shm_key, m_size, M_TIMEOUT));
 }
 
 void SharedMemoryTest::config_shmem_u()
 {
-    m_shmem_u.reset(new geopm::SharedMemoryUserImp(m_shm_key, 1)); // 1 second timeout
+    m_shmem_u.reset(new geopm::SharedMemoryUserImp(m_shm_key, M_TIMEOUT));
 }
 
 TEST_F(SharedMemoryTest, fd_check)
@@ -102,10 +107,10 @@ TEST_F(SharedMemoryTest, fd_check)
 TEST_F(SharedMemoryTest, invalid_construction)
 {
     m_shm_key += "-invalid_construction";
-    EXPECT_THROW((SharedMemoryImp(m_shm_key, 0)), geopm::Exception);  // invalid memory region size
-    EXPECT_THROW((SharedMemoryUserImp(m_shm_key, 1)), geopm::Exception);
-    EXPECT_THROW((SharedMemoryImp("", m_size)), geopm::Exception);  // invalid key
-    EXPECT_THROW((SharedMemoryUserImp("", 1)), geopm::Exception);
+    EXPECT_THROW((SharedMemoryImp(m_shm_key, 0, M_TIMEOUT)), geopm::Exception);  // invalid memory region size
+    EXPECT_THROW((SharedMemoryUserImp(m_shm_key, M_TIMEOUT)), geopm::Exception);
+    EXPECT_THROW((SharedMemoryImp("", m_size, M_TIMEOUT)), geopm::Exception);  // invalid key
+    EXPECT_THROW((SharedMemoryUserImp("", M_TIMEOUT)), geopm::Exception);
 }
 
 TEST_F(SharedMemoryTest, share_data)
@@ -197,4 +202,52 @@ TEST_F(SharedMemoryTest, lock_shmem_u)
     // mutex should be lockable again
     EXPECT_EQ(0, pthread_mutex_trylock(mutex));
     EXPECT_EQ(0, pthread_mutex_unlock(mutex));
+}
+
+TEST_F(SharedMemoryTest, lock_shmem_timeout)
+{
+    config_shmem();
+    config_shmem_u();
+
+    // mutex is hidden at address before the user memory region
+    // normally, this mutex should not be accessed directly.  This test
+    // checks that get_scoped_lock() has the expected side effects on the
+    // mutex.
+    pthread_mutex_t *mutex = (pthread_mutex_t*)((char*)m_shmem->pointer() - sizeof(pthread_mutex_t));
+
+    // other side locks mutex and dies
+    //EXPECT_EQ(0, pthread_mutex_lock(mutex));
+    auto other = std::async(std::launch::async,
+                            [mutex] {
+                                EXPECT_EQ(0, pthread_mutex_lock(mutex));
+                            });
+    other.wait();
+
+    // get_scoped_lock should throw after timeout
+    GEOPM_EXPECT_THROW_MESSAGE(m_shmem->get_scoped_lock(),
+                               ETIMEDOUT, "timed out");
+}
+
+TEST_F(SharedMemoryTest, lock_shmem_u_timeout)
+{
+    config_shmem();
+    config_shmem_u();
+
+    // mutex is hidden at address before the user memory region
+    // normally, this mutex should not be accessed directly.  This test
+    // checks that get_scoped_lock() has the expected side effects on the
+    // mutex.
+    pthread_mutex_t *mutex = (pthread_mutex_t*)((char*)m_shmem_u->pointer() - sizeof(pthread_mutex_t));
+
+    // other side locks mutex and dies
+    //EXPECT_EQ(0, pthread_mutex_lock(mutex));
+    auto other = std::async(std::launch::async,
+                            [mutex] {
+                                EXPECT_EQ(0, pthread_mutex_lock(mutex));
+                            });
+    other.wait();
+
+    // get_scoped_lock should throw after timeout
+    GEOPM_EXPECT_THROW_MESSAGE(m_shmem_u->get_scoped_lock(),
+                               ETIMEDOUT, "timed out");
 }

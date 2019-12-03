@@ -63,8 +63,10 @@ class EndpointUserTest : public ::testing::Test
 class EndpointUserTestIntegration : public ::testing::Test
 {
     protected:
+        EndpointUserTestIntegration();
         void TearDown();
         const std::string m_shm_path = "/EndpointUserTestIntegration_data_" + std::to_string(geteuid());
+        const double M_TIMEOUT;
 };
 
 void EndpointUserTest::SetUp()
@@ -83,6 +85,12 @@ void EndpointUserTest::TearDown()
     unlink(m_hostlist_file.c_str());
 }
 
+
+EndpointUserTestIntegration::EndpointUserTestIntegration()
+    : M_TIMEOUT(1)
+{
+
+}
 void EndpointUserTestIntegration::TearDown()
 {
     unlink(("/dev/shm/" + m_shm_path + "-policy").c_str());
@@ -177,9 +185,9 @@ TEST_F(EndpointUserTestIntegration, parse_shm)
     std::string full_path("/dev/shm" + m_shm_path);
 
     size_t shmem_size = sizeof(struct geopm_endpoint_policy_shmem_s);
-    SharedMemoryImp smp(m_shm_path + "-policy", shmem_size);
+    SharedMemoryImp smp(m_shm_path + "-policy", shmem_size, M_TIMEOUT);
     struct geopm_endpoint_policy_shmem_s *data = (struct geopm_endpoint_policy_shmem_s *) smp.pointer();
-    SharedMemoryImp sms(m_shm_path + "-sample", sizeof(struct geopm_endpoint_sample_shmem_s));
+    SharedMemoryImp sms(m_shm_path + "-sample", sizeof(struct geopm_endpoint_sample_shmem_s), M_TIMEOUT);
 
     double tmp[] = { 1.1, 2.2, 3.3 };
     int num_policy = sizeof(tmp) / sizeof(tmp[0]);
