@@ -44,6 +44,7 @@
 #include <sstream>
 
 #include "geopm_time.h"
+#include "Environment.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
 #include "config.h"
@@ -84,12 +85,12 @@ namespace geopm
         return std::make_shared<SharedMemoryImp>(shm_key, size);
     }
 
-    std::unique_ptr<SharedMemoryUser> SharedMemoryUser::make_unique(const std::string &shm_key, unsigned int timeout)
+    std::unique_ptr<SharedMemoryUser> SharedMemoryUser::make_unique(const std::string &shm_key, double timeout)
     {
         return geopm::make_unique<SharedMemoryUserImp>(shm_key, timeout);
     }
 
-    std::shared_ptr<SharedMemoryUser> SharedMemoryUser::make_shared(const std::string &shm_key, unsigned int timeout)
+    std::shared_ptr<SharedMemoryUser> SharedMemoryUser::make_shared(const std::string &shm_key, double timeout)
     {
         return std::make_shared<SharedMemoryUserImp>(shm_key, timeout);
     }
@@ -171,16 +172,17 @@ namespace geopm
     }
 
 
-    SharedMemoryUserImp::SharedMemoryUserImp(const std::string &shm_key, unsigned int timeout)
+    SharedMemoryUserImp::SharedMemoryUserImp(const std::string &shm_key, double timeout)
         : m_shm_key(shm_key)
         , m_size(0)
         , m_is_linked(false)
+        , m_timeout(timeout)
     {
         int shm_id = -1;
         struct stat stat_struct;
         int err = 0;
 
-        if (!timeout) {
+        if (m_timeout == 0.0) {
             shm_id = shm_open(shm_key.c_str(), O_RDWR, 0);
             if (shm_id < 0) {
                 std::ostringstream ex_str;
@@ -204,7 +206,7 @@ namespace geopm
         else {
             struct geopm_time_s begin_time;
             geopm_time(&begin_time);
-            while (shm_id < 0 && geopm_time_since(&begin_time) < (double)timeout) {
+            while (shm_id < 0 && geopm_time_since(&begin_time) < m_timeout) {
                 shm_id = shm_open(shm_key.c_str(), O_RDWR, 0);
             }
             if (shm_id < 0) {
@@ -213,7 +215,7 @@ namespace geopm
                 throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
 
-            while (!m_size && geopm_time_since(&begin_time) < (double)timeout) {
+            while (!m_size && geopm_time_since(&begin_time) < m_timeout) {
                 err = fstat(shm_id, &stat_struct);
                 if (!err) {
                     m_size = stat_struct.st_size;
