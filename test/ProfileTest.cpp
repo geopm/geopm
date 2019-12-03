@@ -51,14 +51,14 @@
 #include "MockProfileTable.hpp"
 #include "MockProfileThreadTable.hpp"
 #include "MockSampleScheduler.hpp"
-#include "SharedMemoryImp.hpp"
+#include "SharedMemory.hpp"
 #include "geopm_internal.h"
 #include "geopm_test.hpp"
 
 using geopm::Exception;
 using geopm::Profile;
 using geopm::ProfileImp;
-using geopm::SharedMemoryImp;
+using geopm::SharedMemory;
 using geopm::PlatformTopo;
 
 static size_t num_configured_cpus()
@@ -521,9 +521,9 @@ TEST_F(ProfileTestIntegration, config)
             m_shm_comm = std::make_shared<ProfileTestComm>(shm_rank, M_SHM_COMM_SIZE);
             m_world_comm = geopm::make_unique<ProfileTestComm>(world_rank, m_shm_comm);
 
-            auto tprof_shm = geopm::make_unique<SharedMemoryImp>(M_SHM_KEY + "-tprof", M_NUM_CPU * 64);
+            auto tprof_shm = SharedMemory::make_unique(M_SHM_KEY + "-tprof", M_NUM_CPU * 64, 1);
             std::string table_shm_key = M_SHM_KEY + "-sample-" + std::to_string(world_rank);
-            auto table_shm = geopm::make_unique<SharedMemoryImp>(table_shm_key, M_SHMEM_REGION_SIZE);
+            auto table_shm = SharedMemory::make_unique(table_shm_key, M_SHMEM_REGION_SIZE, 1);
             m_profile = geopm::make_unique<ProfileImp>(M_PROF_NAME, M_SHM_KEY, M_REPORT, M_TIMEOUT, M_DO_REGION_BARRIER,
                                                        std::move(m_world_comm),
                                                        std::move(m_ctl_msg), m_topo, nullptr, nullptr, nullptr, m_comm);
@@ -550,7 +550,7 @@ TEST_F(ProfileTestIntegration, misconfig_ctl_shmem)
     // small ctl_shmem
     m_shm_comm = std::make_shared<ProfileTestComm>(shm_rank, M_SHM_COMM_SIZE);
     m_world_comm = geopm::make_unique<ProfileTestComm>(world_rank, m_shm_comm);
-    auto ctl_shm = geopm::make_unique<SharedMemoryImp>(M_SHM_KEY + "-sample", 1);
+    auto ctl_shm = SharedMemory::make_unique(M_SHM_KEY + "-sample", 1, 1);
     ProfileImp(M_PROF_NAME, M_SHM_KEY, M_REPORT, M_TIMEOUT, M_DO_REGION_BARRIER,
                std::move(m_world_comm),
                nullptr, m_topo, nullptr, nullptr, nullptr, m_comm);
@@ -575,7 +575,7 @@ TEST_F(ProfileTestIntegration, misconfig_tprof_shmem)
     m_world_comm = geopm::make_unique<ProfileTestComm>(world_rank, m_shm_comm);
 
     // small tprof_shmem
-    auto tprof_shm = geopm::make_unique<SharedMemoryImp>(M_SHM_KEY + "-tprof", (M_NUM_CPU * 64) - 1);
+    auto tprof_shm = SharedMemory::make_unique(M_SHM_KEY + "-tprof", (M_NUM_CPU * 64) - 1, 1);
     ProfileImp(M_PROF_NAME, M_SHM_KEY, M_REPORT, M_TIMEOUT, M_DO_REGION_BARRIER,
                std::move(m_world_comm),
                std::move(m_ctl_msg), m_topo, nullptr, nullptr, nullptr, m_comm);
@@ -601,7 +601,7 @@ TEST_F(ProfileTestIntegration, misconfig_table_shmem)
     m_world_comm = geopm::make_unique<ProfileTestComm>(world_rank, m_shm_comm);
     m_tprof = geopm::make_unique<ProfileTestProfileThreadTable>(M_NUM_CPU);
     std::string table_shm_key = M_SHM_KEY + "-sample-" + std::to_string(world_rank);
-    auto table_shm = geopm::make_unique<SharedMemoryImp>(table_shm_key, 1);
+    auto table_shm = SharedMemory::make_unique(table_shm_key, 1, 1);
 
     // small table_shmem
     ProfileImp(M_PROF_NAME, M_SHM_KEY, M_REPORT, M_TIMEOUT, M_DO_REGION_BARRIER,
@@ -621,10 +621,10 @@ TEST_F(ProfileTestIntegration, misconfig_affinity)
     m_shm_comm = std::make_shared<ProfileTestComm>(shm_rank, M_SHM_COMM_SIZE);
     m_world_comm = geopm::make_unique<ProfileTestComm>(world_rank, m_shm_comm);
 
-    auto ctl_shm = geopm::make_unique<SharedMemoryImp>(M_SHM_KEY + "-sample", M_SHMEM_REGION_SIZE);
-    auto tprof_shm = geopm::make_unique<SharedMemoryImp>(M_SHM_KEY + "-tprof", M_NUM_CPU * 64);
+    auto ctl_shm = SharedMemory::make_unique(M_SHM_KEY + "-sample", M_SHMEM_REGION_SIZE, 1);
+    auto tprof_shm = SharedMemory::make_unique(M_SHM_KEY + "-tprof", M_NUM_CPU * 64, 1);
     std::string table_shm_key = M_SHM_KEY + "-sample-" + std::to_string(world_rank);
-    auto table_shm = geopm::make_unique<SharedMemoryImp>(table_shm_key, M_SHMEM_REGION_SIZE);
+    auto table_shm = SharedMemory::make_unique(table_shm_key, M_SHMEM_REGION_SIZE, 1);
     ProfileImp(M_PROF_NAME, M_SHM_KEY, M_REPORT, M_TIMEOUT, M_DO_REGION_BARRIER,
                std::move(m_world_comm),
                std::move(m_ctl_msg), m_topo, nullptr, nullptr, nullptr, m_comm);
