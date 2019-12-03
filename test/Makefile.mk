@@ -297,7 +297,9 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/SharedMemoryTest.fd_check \
               test/gtest_links/SharedMemoryTest.invalid_construction \
               test/gtest_links/SharedMemoryTest.lock_shmem \
+              test/gtest_links/SharedMemoryTest.lock_shmem_timeout \
               test/gtest_links/SharedMemoryTest.lock_shmem_u \
+              test/gtest_links/SharedMemoryTest.lock_shmem_u_timeout \
               test/gtest_links/SharedMemoryTest.share_data \
               test/gtest_links/SharedMemoryTest.share_data_ipc \
               test/gtest_links/TimeIOGroupTest.adjust \
