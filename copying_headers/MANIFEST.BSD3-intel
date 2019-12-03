@@ -104,6 +104,8 @@ src/EndpointUser.cpp
 src/EndpointUser.hpp
 src/EnergyEfficientAgent.cpp
 src/EnergyEfficientAgent.hpp
+src/EnergyEfficientEpochAgent.cpp
+src/EnergyEfficientEpochAgent.hpp
 src/EnergyEfficientRegion.cpp
 src/EnergyEfficientRegion.hpp
 src/Environment.cpp
