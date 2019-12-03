@@ -78,7 +78,7 @@ namespace geopm
             /// @param [in] shm_key Shared memory key to attach to the region.
             /// @param [in] timeout Length in seconds to keep retrying the
             ///             attachment process to a shared memory region.
-            SharedMemoryUserImp(const std::string &shm_key, unsigned int timeout);
+            SharedMemoryUserImp(const std::string &shm_key, double timeout);
             /// Destructor detaches from shared memory region.
             virtual ~SharedMemoryUserImp();
             void *pointer(void) const override;
@@ -94,6 +94,7 @@ namespace geopm
             /// Pointer to the region.
             void *m_ptr;
             bool m_is_linked;
+            double m_timeout;
     };
 }
 
