@@ -32,19 +32,25 @@
 
 #include "SharedMemoryScopedLock.hpp"
 
+#include "geopm_time.h"
+#include "Environment.hpp"
 #include "Exception.hpp"
 #include "config.h"
 
 namespace geopm
 {
-    SharedMemoryScopedLock::SharedMemoryScopedLock(pthread_mutex_t *mutex)
+    SharedMemoryScopedLock::SharedMemoryScopedLock(pthread_mutex_t *mutex,
+                                                   double timeout)
         : m_mutex(mutex)
     {
         if (m_mutex == nullptr) {
             throw Exception("SharedMemoryScopedLock(): mutex cannot be NULL",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        int err = pthread_mutex_lock(m_mutex); // Default mutex will block until this completes.
+        geopm_time_s temp {{0, 0}};
+        geopm_time_add(&temp, timeout, &temp);
+        // Will block until this completes, or until timeout.
+        int err = pthread_mutex_timedlock(m_mutex, &temp.t);
         if (err) {
             throw Exception("SharedMemoryScopedLock(): pthread_mutex_lock() failed:", err, __FILE__, __LINE__);
         }

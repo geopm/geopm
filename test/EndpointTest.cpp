@@ -78,8 +78,10 @@ class EndpointTest : public ::testing::Test
 class EndpointTestIntegration : public ::testing::Test
 {
     protected:
+        EndpointTestIntegration();
         void TearDown();
         const std::string m_shm_path = "/EndpointTestIntegration_data_" + std::to_string(geteuid());
+        const double M_TIMEOUT;
 };
 
 void EndpointTest::SetUp()
@@ -95,6 +97,12 @@ void EndpointTest::SetUp()
     EXPECT_CALL(*m_policy_shmem, unlink());
     EXPECT_CALL(*m_sample_shmem, get_scoped_lock()).Times(AtLeast(0));
     EXPECT_CALL(*m_sample_shmem, unlink());
+}
+
+EndpointTestIntegration::EndpointTestIntegration()
+    : M_TIMEOUT(1)
+{
+
 }
 
 void EndpointTestIntegration::TearDown()
