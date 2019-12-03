@@ -114,7 +114,7 @@ void EnvironmentTest::expect_vars(std::map<std::string, std::string> exp_vars) c
         EXPECT_EQ(it->second, m_env->pmpi_ctl());
     }
     EXPECT_EQ(exp_vars["GEOPM_MAX_FAN_OUT"], std::to_string(m_env->max_fan_out()));
-    EXPECT_EQ(exp_vars["GEOPM_TIMEOUT"], std::to_string(m_env->timeout()));
+    EXPECT_EQ(std::stod(exp_vars["GEOPM_TIMEOUT"]), m_env->timeout());
     EXPECT_EQ(exp_vars["GEOPM_DEBUG_ATTACH"], std::to_string(m_env->debug_attach()));
     EXPECT_EQ(exp_vars["GEOPM_TRACE_SIGNALS"], m_env->trace_signals());
     EXPECT_EQ(exp_vars["GEOPM_REPORT_SIGNALS"], m_env->report_signals());

@@ -349,14 +349,13 @@ namespace geopm
 
     bool EnvironmentImp::do_profile(void) const
     {
-
         return std::any_of(m_runtime_names.begin(), m_runtime_names.end(),
                            [this](std::string var) {return (is_set(var));});
     }
 
-    int EnvironmentImp::timeout(void) const
+    double EnvironmentImp::timeout(void) const
     {
-        return std::stoi(lookup("GEOPM_TIMEOUT"));
+        return std::stod(lookup("GEOPM_TIMEOUT"));
     }
 
     int EnvironmentImp::debug_attach(void) const
