@@ -69,7 +69,7 @@ namespace geopm
             virtual bool do_trace_profile(void) const = 0;
             virtual bool do_trace_endpoint_policy(void) const = 0;
             virtual bool do_profile() const = 0;
-            virtual int timeout(void) const = 0;
+            virtual double timeout(void) const = 0;
             virtual int debug_attach(void) const = 0;
     };
 
@@ -102,7 +102,7 @@ namespace geopm
             bool do_trace_profile(void) const override;
             bool do_trace_endpoint_policy(void) const override;
             bool do_profile() const override;
-            int timeout(void) const override;
+            double timeout(void) const override;
             int debug_attach(void) const override;
             static std::set<std::string> get_all_vars();
         protected:
