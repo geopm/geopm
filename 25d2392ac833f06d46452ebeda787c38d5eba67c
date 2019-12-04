@@ -46,6 +46,30 @@
       "revId": "25d2392ac833f06d46452ebeda787c38d5eba67c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f933e3f_4592a805",
+        "filename": "src/Endpoint.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-12-04T23:46:20Z",
+      "side": 1,
+      "message": "Looking at this more, I\u0027m not sure even dynamic_cast will work.  Also, shouldn\u0027t this be a geopm::Endpoint*?  Will check.",
+      "parentUuid": "30b9f282_3ac42fb0",
+      "range": {
+        "startLine": 328,
+        "startChar": 3,
+        "endLine": 328,
+        "endChar": 60
+      },
+      "revId": "25d2392ac833f06d46452ebeda787c38d5eba67c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
