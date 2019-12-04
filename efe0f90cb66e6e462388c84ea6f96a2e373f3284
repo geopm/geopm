@@ -22,6 +22,30 @@
       "revId": "efe0f90cb66e6e462388c84ea6f96a2e373f3284",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07e4d272_82d5270b",
+        "filename": "src/Reporter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-12-04T20:50:02Z",
+      "side": 1,
+      "message": "If they are using the endpoint for policies, the report will just say \"DYNAMIC\".  To actually figure out what the policy values were, they would need to enable the endpoint policy trace (next two patches after this one).\n\nThis is documented in those patches, but I think we are still missing some kind of high level documentation for users who are running in this sort of environment.  They will need to know about this detail, as well as other things like the fact that they won\u0027t be able to use --geopm-policy or --geopm-agent.",
+      "parentUuid": "b3215c8e_a0e76f95",
+      "range": {
+        "startLine": 179,
+        "startChar": 12,
+        "endLine": 189,
+        "endChar": 13
+      },
+      "revId": "efe0f90cb66e6e462388c84ea6f96a2e373f3284",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
