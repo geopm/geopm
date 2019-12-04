@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b2b12c22_04278abf",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-12-04T23:11:18Z",
+      "side": 1,
+      "message": "I\u0027m not sure we care about the freshness of the policy.  This timeout check seems unnecessary.  Simply checking if the policy has changed seems sufficient.",
+      "revId": "47e396a7d80108b09909fe9975c31b5c384f38e7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
