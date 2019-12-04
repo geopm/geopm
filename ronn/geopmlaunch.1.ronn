@@ -122,7 +122,7 @@ listed below.
   mark up the user application or automatic inference of regions based
   on interposing on the MPI or OpenMP interfaces (interposing on
   OpenMP requires that the optional configuration parameter
-  --enable-ompt is provided at GEOMP compile time).  Note that the
+  --enable-ompt is provided at GEOPM compile time).  Note that the
   sampled values, like 'energy', are accumulated into the sum for a
   region only when all ranks on a compute node are concurrently
   executing the same region; otherwise statistics gathered are

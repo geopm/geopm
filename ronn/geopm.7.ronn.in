@@ -159,6 +159,40 @@ These are documented in **geopm_ctl_c(3)**, but are deprecated as an
 application-facing interface because their use within an application
 is incompatible with the GEOPM launcher script.
 
+## CHOOSING AN AGENT AND POLICY
+The Agent determines the core optimization algorithm performed by the
+runtime, and can be specified with the `--geopm-agent` option for the
+launcher.  If not specified, by default the **geopm_agent_monitor(7)**
+is used to collect runtime statistics only, which will be summarized
+in the report.
+
+The constraints for the Agent algorithm are determined by the policy.
+The policy can be provided as a file, through the `--geopm-policy`
+option for the launcher.  Policy files can be generated with the
+**geopmagent(1)** tool.  The values of the policy will be printed
+in the header of the report.
+
+If GEOPM has been configured with `--enable-beta`, policies can also
+be set through the endpoint, which should be manipulated by a system
+administrator through an authority such as the resource manager.  Use
+of the endpoint is described in **geopm_endpoint_c(3)**.  In this
+scenario, users launching GEOPM may not be required or allowed to
+specify the Agent or policy, if it has been set through the default
+environment as described in the `ENVIRONMENT` section below.  If not
+specified in the default environment, the location of the endpoint
+should be provided through `--geopm-endpoint`; this option supercedes
+the use of `--geopm-policy`.  When GEOPM receives the policy through
+the endpoint, the report will contain "DYNAMIC" for the value of the
+policy.  The specific values received over time can be viewed through
+use of the optional trace file enabled by
+`--geopm-trace-endpoint-policy`.
+
+Refer to **geopm::Agent** and the individual agent man pages for more
+details on the behavior of the agents and their policies.  See
+**geopmlaunch(1)** for more details on the `--geopm-agent`,
+`--geopm-policy`, `--geopm-endpoint`, and
+`--geopm-trace-endpoint-policy` options.
+
 ## INTERPRETING THE REPORT
 If the `GEOPM_REPORT` environment variable is set then a report will
 be generated.  There is one report file generated for each run.  This
