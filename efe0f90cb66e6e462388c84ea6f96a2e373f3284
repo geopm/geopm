@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3215c8e_a0e76f95",
+        "filename": "src/Reporter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-12-04T19:14:39Z",
+      "side": 1,
+      "message": "Doesn\u0027t this mean that the last policy that was set in the endpoint at the time the report was written is the one that will be captured in the report?\n\nIf yes, is there documentation somewhere to that effect?",
+      "range": {
+        "startLine": 179,
+        "startChar": 12,
+        "endLine": 189,
+        "endChar": 13
+      },
+      "revId": "efe0f90cb66e6e462388c84ea6f96a2e373f3284",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
