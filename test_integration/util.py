@@ -32,10 +32,15 @@
 
 from __future__ import absolute_import
 
+from contextlib import contextmanager
 import os
+import pipes
+import re
+import shutil
 import sys
 import unittest
 import subprocess
+from io import StringIO
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from test_integration import geopm_test_launcher
@@ -119,3 +124,82 @@ def skip_unless_stressng():
     except subprocess.CalledProcessError:
         return unittest.skip("Missing stress-ng.  Please install in the compute image.")
     return lambda func: func
+
+
+def skip_or_ensure_writable_file(path):
+    """Skip the test unless the given file can be created or modified on compute nodes.
+    """
+    stdout = StringIO()
+    created_directories = list()
+    try:
+        dirname = os.path.dirname(path)
+        with open('/dev/null', 'w') as dev_null:
+            # Ensure the parent directory exists
+            geopm_test_launcher.allocation_node_test('dummy -- mkdir -vp {}'.format(dirname), stdout, dev_null)
+            stdout.seek(0)
+            pattern = re.compile(r"mkdir: created directory '([^']+)'")
+            for line in stdout:
+                match = pattern.search(line)
+                if match:
+                    created_directories.append(match.group(1))
+
+            run_script_on_compute_nodes("test '(' '!' -e {path} -a -w {dirname} ')' -o -w {path}".format(
+                path=pipes.quote(path), dirname=pipes.quote(dirname)), sys.stdout, sys.stdout)
+    except subprocess.CalledProcessError as e:
+        return unittest.skip("Cannot write to path: {}".format(path))
+
+    def cleanup_decorator(func):
+        def cleanup_wrapper(*args, **kwargs):
+            try:
+                func(*args, **kwargs)
+            finally:
+                for directory in reversed(created_directories):
+                    shutil.rmtree(directory)
+        return cleanup_wrapper
+
+    return cleanup_decorator
+
+
+def skip_unless_library_in_ldconfig(library):
+    """Skip the test if the given library is not in ldconfig on the compute nodes.
+    """
+    try:
+        with open('/dev/null', 'w') as dev_null:
+            stdout = StringIO()
+            geopm_test_launcher.allocation_node_test('dummy -- ldconfig --print-cache', stdout, dev_null)
+            stdout.seek(0)
+            if not any(line.startswith('\t{}'.format(library)) for line in stdout):
+                return unittest.skip("Library '{}' not in ldconfig".format(library))
+    except subprocess.CalledProcessError:
+        return unittest.skip("Unable to run ldconfig")
+    return lambda func: func
+
+
+def run_script_on_compute_nodes(script, stdout, stderr, interpreter='sh'):
+    """Run an inline script on compute nodes.
+    """
+    geopm_test_launcher.allocation_node_test('dummy -- {}'.format(
+        '{} -c {}'.format(interpreter, pipes.quote(script))), stdout, stderr)
+
+
+@contextmanager
+def temporarily_remove_compute_node_file(path):
+    """Context manager to remove a file from compute nodes if it exists, by renaming
+    with a .backup suffix.  When exiting the context, the file is restored by moving
+    the backup file to its original path.
+    """
+    with open('/dev/null', 'w') as dev_null:
+        try:
+            run_script_on_compute_nodes("test '!' -e {path} || mv -f {path} {path}.backup".format(path=path),
+                                        dev_null, dev_null)
+            yield path
+        finally:
+            run_script_on_compute_nodes("rm -f {path} && test '!' -e {path}.backup || mv {path}.backup {path}".format(path=pipes.quote(path)),
+                                        dev_null, dev_null)
+
+
+def remove_file_on_compute_nodes(file_path):
+    """Remove a file from compute nodes.
+    """
+    with open('/dev/null', 'w') as dev_null:
+        geopm_test_launcher.allocation_node_test('dummy -- rm {}'.format(file_path), dev_null, dev_null)
