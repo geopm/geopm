@@ -179,7 +179,13 @@ class TestLauncher(object):
                                                          self._node_list, self._host_file)
             launcher.run(stdout=outfile, stderr=outfile)
 
-    def run(self, test_name):
+    def run(self, test_name, include_geopm_policy=True):
+        """ Run the test as configured at construction time.
+
+        Arguments:
+        test_name (str):  Name of the test run to use for log files and the policy name in reports.
+        include_geopm_policy (bool):  If True (default), provide --geopm-policy for the agent
+        """
         self._app_conf.write()
         self._agent_conf.write()
         with open(test_name + '.log', 'a') as outfile:
@@ -187,8 +193,11 @@ class TestLauncher(object):
             outfile.flush()
             argv = ['dummy', detect_launcher(), '--geopm-ctl', self._pmpi_ctl,
                                                 '--geopm-agent', self._agent_conf.get_agent(),
-                                                '--geopm-policy', self._agent_conf.get_path(),
                                                 '--geopm-profile', test_name]
+
+            if include_geopm_policy:
+                argv.extend(['--geopm-policy', self._agent_conf.get_path()])
+
             if self._report_path is not None:
                 argv.extend(['--geopm-report', self._report_path])
             if self._trace_path is not None:
