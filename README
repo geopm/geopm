@@ -476,14 +476,16 @@ path "/etc/geopm/environment-override.json":
     {"GEOPM_AGENT": "power_balancer",
      "GEOPM_POLICY": "/shared_fs/config/geopm_power_balancer.json"}
 
-Note that the "POWER_CAP" value controlling the limit is specified in
-a secondary JSON file "geopm_power_balancer.json" that may be located
-on a shared file system and can be created with the geopmagent(1)
-command line tool.  Locating the policy file on the shared file system
-enables the limit to be modified without changing the compute node
-boot image.  Changing the policy value will impact all subsequently
-launched GEOPM processes, but it will not change the behavior of
-already running GEOPM control processes.
+Note that the "POWER_PACKAGE_LIMIT_TOTAL" value controlling the limit
+is specified in a secondary JSON file "geopm_power_balancer.json" that
+may be located on a shared file system and can be created with the
+geopmagent(1) command line tool.  Locating the policy file on the
+shared file system enables the limit to be modified without changing
+the compute node boot image.  Changing the policy value will impact
+all subsequently launched GEOPM processes, but it will not change the
+behavior of already running GEOPM control processes.
+
+
 
 STATUS
 ------
