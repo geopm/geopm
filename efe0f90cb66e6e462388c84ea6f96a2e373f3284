@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "8871dfb9_cd35d474",
+        "filename": "src/Controller.hpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-12-04T21:07:05Z",
+      "side": 1,
+      "message": "Why is Environment class declared here?",
+      "revId": "efe0f90cb66e6e462388c84ea6f96a2e373f3284",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b3215c8e_a0e76f95",
         "filename": "src/Reporter.cpp",
         "patchSetId": 9
