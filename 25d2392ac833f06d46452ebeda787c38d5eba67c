@@ -22,6 +22,30 @@
       "revId": "25d2392ac833f06d46452ebeda787c38d5eba67c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30b9f282_3ac42fb0",
+        "filename": "src/Endpoint.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-12-04T20:41:36Z",
+      "side": 1,
+      "message": "This is slightly related to the story about checking for null pointers in these C functions.  We could try a dynamic_cast and see if it produces nullptr (meaning the pointer they passed in is not actually a valid EndpointImp).  static_cast would only work if an implicit cast (upcast to base type) would work anyway.  I\u0027m pretty sure reinterpret cast is too heavy handed for this since it basically means \"don\u0027t do any checks, just reinterpret the bits\".\n\nI\u0027ll add a note about checking results of dynamic_cast to that issue about the C APIs in general (#726)",
+      "parentUuid": "d14ee5fc_86af294a",
+      "range": {
+        "startLine": 328,
+        "startChar": 3,
+        "endLine": 328,
+        "endChar": 60
+      },
+      "revId": "25d2392ac833f06d46452ebeda787c38d5eba67c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
