@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d14ee5fc_86af294a",
+        "filename": "src/Endpoint.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2019-12-04T19:49:58Z",
+      "side": 1,
+      "message": "This is a comment for a later investigation:\n\nDo any of the C++11 pointer casting mechanisms buy us anything here?  I see this was a pattern that was copied from elseware in this file, but I was wondering if static or reinterpret_cast gets us any sort of type safety robustness?",
+      "range": {
+        "startLine": 328,
+        "startChar": 3,
+        "endLine": 328,
+        "endChar": 60
+      },
+      "revId": "25d2392ac833f06d46452ebeda787c38d5eba67c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
