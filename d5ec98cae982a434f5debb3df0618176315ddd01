@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f2ff6674_242b9eef",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 1129,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-12-04T16:26:33Z",
+      "side": 1,
+      "message": "Subtle. Your new version seems to be easier to reason about. I think this changes from \"requested frequency is within 5% of reported frequency\" to \"reported frequency is within 5% of requested frequency\", which matches the test\u0027s intention better.",
+      "revId": "d5ec98cae982a434f5debb3df0618176315ddd01",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "82709c24_b5ce57ac",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 1448,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-12-04T16:26:33Z",
+      "side": 1,
+      "message": "Might alternatively consider decorating try-start-yield/finally-stop with @contextmanager and wrapping parts under load in `with load_cpu():` blocks so you don\u0027t need to worry about cleaning up orphaned loads between tests if something goes wrong in this test case.",
+      "range": {
+        "startLine": 1448,
+        "startChar": 12,
+        "endLine": 1448,
+        "endChar": 25
+      },
+      "revId": "d5ec98cae982a434f5debb3df0618176315ddd01",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
