@@ -68,6 +68,30 @@
       "revId": "28d152403070213c04835d6441908254ab73cd10",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9257dc27_2ca065d3",
+        "filename": "test_integration/util.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-12-05T19:54:22Z",
+      "side": 1,
+      "message": "I think the cleanest way would be to query active plugins from SLURM, but I haven\u0027t been able to find anything that lets me do that.\n\nWe could also ask procfs what libraries are currently loaded in a dummy job. But I don\u0027t think that will be allowed since the parent process (slurmstepd) is the one that we would need to query.\n\nIf we do want to go the route of parsing the SLURM config, I think it generally follows these rules (from https://slurm.schedmd.com/spank.html):\n - The configuration file defaults to /etc/slurm/plugstack.conf, but can be overridden by PlugStackConfig in /etc/slurm/slurm.conf\n - The plugstack configuration may have include directives to additional files that may contain libraries we are searching for\n - Comment lines should be ignored\n - Libraries can be provided by name (which are searched in PluginDir locations from slurm.conf), or by path\n - If searching by name isn\u0027t sufficient, we\u0027ll likely need to find the instance of the plugin that would be used by slurm, then search for some",
+      "parentUuid": "1804e139_76c8a04d",
+      "range": {
+        "startLine": 167,
+        "startChar": 0,
+        "endLine": 169,
+        "endChar": 77
+      },
+      "revId": "28d152403070213c04835d6441908254ab73cd10",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
