@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77254b3d_a46197c3",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1286,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-12-05T16:57:57Z",
+      "side": 1,
+      "message": "This test that sets specific policy values is great.  It would also be nice to have a test the works off of existing environment and policy files that we could use to check that a system is set up correctly (and maybe some setup scripts to go with it).  That doesn\u0027t need to be part of the python integration tests.",
+      "range": {
+        "startLine": 1285,
+        "startChar": 1,
+        "endLine": 1286,
+        "endChar": 78
+      },
+      "revId": "28d152403070213c04835d6441908254ab73cd10",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8febfff3_0fd38d55",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1299,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-12-05T16:57:57Z",
+      "side": 1,
+      "message": "it would be good to also include GEOPM_AGENT here, since that\u0027s how we expect these systems to be set up.",
+      "range": {
+        "startLine": 1299,
+        "startChar": 28,
+        "endLine": 1299,
+        "endChar": 63
+      },
+      "revId": "28d152403070213c04835d6441908254ab73cd10",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1804e139_76c8a04d",
+        "filename": "test_integration/util.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-12-05T16:57:57Z",
+      "side": 1,
+      "message": "Seems brittle, and we will need a way to check for the other plugin(s) such as the one that reads from the policystore.  There\u0027s also the problem that even if we read plugstack.conf, the names of those plugins are owned by the geopm-slurm repo.  Something to think about when we discuss how to package the plugins.",
+      "range": {
+        "startLine": 167,
+        "startChar": 0,
+        "endLine": 169,
+        "endChar": 77
+      },
+      "revId": "28d152403070213c04835d6441908254ab73cd10",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
