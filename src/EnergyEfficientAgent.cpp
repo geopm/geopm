@@ -54,6 +54,27 @@ using json11::Json;
 
 double geopm_agent_get_wait_env();
 
+static bool get_env(const std::string &name, std::string &env_string)
+{
+    bool result = false;
+    char *check_string = getenv(name.c_str());
+    if (check_string != NULL) {
+        env_string = check_string;
+        result = true;
+    }
+    return result;
+}
+
+static int geopm_ee_agent_sample_delay()
+{
+    std::string tmp_str;
+    int ret = 2;
+    if (get_env("GEOPM_EE_AGENT_SAMPLE_DELAY", tmp_str)) {
+        ret = std::stod(tmp_str);
+    }
+    return ret;
+}
+
 namespace geopm
 {
     EnergyEfficientAgent::EnergyEfficientAgent()
@@ -70,8 +91,8 @@ namespace geopm
         : M_PRECISION(16)
         , M_WAIT_SEC(geopm_agent_get_wait_env())
         , M_MIN_LEARNING_RUNTIME(M_WAIT_SEC * 10)
-        , M_NETWORK_NUM_SAMPLE_DELAY(2)
-        , M_UNMARKED_NUM_SAMPLE_DELAY(2)
+        , M_NETWORK_NUM_SAMPLE_DELAY(geopm_ee_agent_sample_delay())
+        , M_UNMARKED_NUM_SAMPLE_DELAY(geopm_ee_agent_sample_delay())
         , M_POLICY_PERF_MARGIN_DEFAULT(0.10)  // max 10% performance degradation
         , m_platform_io(plat_io)
         , m_platform_topo(topo)
