@@ -16,6 +16,24 @@
       "revId": "47e396a7d80108b09909fe9975c31b5c384f38e7",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3dc0cbcd_4f1d784e",
+        "filename": "src/Controller.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-12-05T19:09:57Z",
+      "side": 1,
+      "message": "Thought of a case where this might be a problem, but I\u0027ll leave the check out of this patch, and we can address that issue with a separate patch (and a test)",
+      "parentUuid": "b2b12c22_04278abf",
+      "revId": "47e396a7d80108b09909fe9975c31b5c384f38e7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
