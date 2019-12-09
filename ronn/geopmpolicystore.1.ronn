@@ -1,0 +1,157 @@
+geopmpolicystore(1) -- query and update policystore information
+===============================================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## SYNOPSIS
+
+`geopmpolicystore` `-d` DATABASE [`-a` _AGENT_ [`-p` _PROFILE_] [-P _POLICY_]
+
+## DESCRIPTION
+
+Usage: geopmpolicystore -d DATABASE
+       geopmpolicystore -d DATABASE [-a AGENT [-p PROFILE] ]
+       geopmpolicystore -d DATABASE [-a AGENT [-p PROFILE] -P POLICY0,POLICY1,...]
+       geopmpolicystore -d DATABASE -D [-a AGENT [-p PROFILE] ]
+       geopmpolicystore [--help] [--version]
+
+Mandatory arguments to long options are mandatory for short options too.
+
+  -d, --database=DATABASE   location of the policystore database
+  -a, --agent=AGENT         name of the agent to read or write policies for
+  -p, --profile=PROFILE     name of the profile to read or write policies for
+  -P, --policy=POLICY       set the default policy for the given agent and
+                            optional profile as a comma-separated list of values
+  -D, --delete-policy       delete default or profile-specific policies for the
+                            given agent and profile.
+  -h, --help                print brief summary of the command line usage
+                            information, then exit
+  -v, --version             print version of GEOPM to standard output, then exit
+
+
+See Agent man page
+
+To create static policy JSON files, see the **geopmagent(1)** tool.
+
+If the agent does not require any policy values, the policy store is
+not needed and will be bypassed automatically by GEOPM.
+
+
+
+## OPTIONS
+  * `--help`:
+    Print brief summary of the command line usage information,
+    then exit.
+
+  * `--version`:
+    Print version of **geopm(7)** to standard output, then exit.
+
+  * `-a`, `--agent` _AGENT_:
+    Specify the name of the agent.  If provided without `-P` or `-D`,
+    the current stored policies for the agent will be displayed.
+
+  * `-p`, `--profile`  _PROFILE_:
+    Specify the name of the profile.  Providing a profile without a
+    corresponding agent will return an error.  If provided without
+    `-P` or `-D`, the current stored policy for the combination of
+    agent and profile will be displayed.  Otherwise, the policy for
+    the given profile will be updated or removed.
+
+  * `-P`, `--policy`  _POLICY0_,_POLICY1_,...:
+    Update the stored policy values to be set for as a comma-separated
+    list.  The policy will be applied as a default for the Agent
+    passed to `-a`, or for a specific profile for that Agent if `-p`
+    is also provided.  Values other than the first policy are optional
+    and will be set to NAN if not provided, indicating that the Agent
+    should use a default value.  If passed without `-a`, an error will
+    be returned.
+
+  * `-D`, `--delete`:
+    Remove the stored default policy for the given agent if `-a` only
+    is provided, or the stored policy for the given profile and agent
+    combination if both `-a` and `-p` are provided.  If passed without
+    `-a`, an error will be returned.
+
+## EXAMPLES
+
+Display a summary of all policies in the policystore:
+
+    $ geopmpolicystore --database=test.db
+    Default policies:
+      monitor          {}
+      power_balancer   {142, nan, nan, nan}
+      power_governor   {145}
+      energy_efficient {nan, 1.5e+09, nan}
+      frequency_map    {1.2e9, 1.8e9}
+
+Display the default and custom policies for a given agent:
+
+    $ geopmpolicystore --database=test.db --agent=power_governor
+    Default policy for power_governor agent:
+    {145}
+
+Display the custom policy for a given agent and profile:
+
+    $ geopmpolicystore -d test.db -a power_governor --profile=dgemm
+    Best policy for "dgemm" with power_governor agent:
+    {176}
+
+Create a default policy for the energy_efficient agent:
+
+    $ geopmpolicystore --database=test.db --agent=energy_efficient --policy=NAN,1.7e9,0.10
+    Default policy for energy_efficient agent:
+    {nan, 1.7e+09, 0.1}
+
+Create a custom policy for the energy_efficient agent for the "hi_perf" profile:
+
+    $ geopmpolicystore -d test.db -a energy_efficient --profile=hi_perf --policy=NAN,2.1e9,0.05
+    Best policy for "hi_perf" with energy_efficient agent:
+    {nan, 2.1e+09, 0.05}
+
+Create policy for monitor agent which does not require any policies.
+Note that GEOPM uses the monitor agent by default, in which case
+specifying `--geopm-agent` and `--geopm-policy` are optional.
+
+    $ geopmagent -a monitor -p None
+    {}
+
+
+## COPYRIGHT
+Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopm_agent_energy_efficient(7)**,
+**geopm_agent_frequency_map(7)**,
+**geopm_agent_monitor(7)**,
+**geopm_agent_power_balancer(7)**,
+**geopm_agent_power_governor(7)**,
+**geopm_agent_c(3)**
