@@ -65,6 +65,13 @@ endpoints available on the system is printed to standard output.
     of the agent if it has.  The return value will be non-zero if an
     agent has not yet attached to the endpoint.
 
+  * `-f`:
+    Read the profile name from the attached agent, if any.
+
+  * `-n`:
+    Read the list of hostnames of nodes active in the job for the
+    attached agent, if any.
+
   * `-s`:
     Read a sample from the attached agent, if any.  The output has one
     line per signal.  On each line is written the signal name and
