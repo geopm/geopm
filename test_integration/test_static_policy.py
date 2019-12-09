@@ -130,7 +130,10 @@ class TestIntegrationStaticPolicy(unittest.TestCase):
                                 env=environ,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
-        self._stdout, self._stderr = prog.communicate(timeout=10)
+        try:
+            self._stdout, self._stderr = prog.communicate(timeout=10)
+        except TypeError:
+            self._stdout, self._stderr = prog.communicate()
 
     def test_monitor_no_policy(self):
         # check that the monitor doesn't change anything
