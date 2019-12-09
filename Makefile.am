@@ -507,6 +507,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/PlatformTopo.hpp \
                             src/PlatformTopoImp.hpp \
                             src/PluginFactory.hpp \
+                            src/Policy.cpp \
+                            src/Policy.hpp \
                             src/PowerBalancer.cpp \
                             src/PowerBalancer.hpp \
                             src/PowerBalancerImp.hpp \
