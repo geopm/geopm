@@ -67,6 +67,7 @@ namespace geopm
     const std::string snb_msr_json(void);
     const std::string skx_msr_json(void);
     static std::vector<std::unique_ptr<MSR> > init_msr_arr(int cpu_id);
+    static std::map<std::string, std::function<std::string(double)> > g_json_msr_format;
 
     MSRIOGroup::MSRIOGroup()
         : MSRIOGroup(platform_topo(), std::unique_ptr<MSRIO>(new MSRIOImp), cpuid(), geopm_sched_num_cpu())
@@ -1011,11 +1012,14 @@ namespace geopm
         auto items = root.object_items();
         // check for extra keys
         for (const auto &obj : items) {
-            if (key_check_map.find(obj.first) == key_check_map.end()) {
+            if (key_check_map.find(obj.first) == key_check_map.end() &&
+                obj.first != "format") {
                 throw Exception("MSRIOGroup::" + std::string(__func__) + "(): unexpected key \"" + obj.first + "\" found " + loc_message,
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
+        // todo if root has format we need to validate is_hex_string
+        //{"format", {Json::STRING, is_hex_string, "must be a hex string"}},
         // check for required keys
         for (const auto &key_check : key_check_map) {
             std::string key = key_check.first;
@@ -1082,8 +1086,16 @@ namespace geopm
                 {"domain", {Json::STRING, is_valid_domain, "must be a valid domain string"}},
                 {"fields", {Json::OBJECT, null_func, "must be an object"}}
             };
+            auto format_it = msr_root.object_items().find("format");
+            if (format_it != msr_root.object_items().end()) {
+                Json obj = format_it->second;
+                if (obj.type() != Json::STRING) {
+                    throw Exception("MSRIOGroup::" + std::string(__func__) + "(): \"format\" must be a string",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
+                g_json_msr_format[msr_name] = get_format_function(obj.string_value());
+            }
             check_expected_key_values(msr_root, msr_keys, "in msr \"" + msr_name + "\"");
-
             std::vector<std::pair<std::string, struct MSR::m_encode_s> > signals;
             std::vector<std::pair<std::string, struct MSR::m_encode_s> > controls;
 

@@ -42,6 +42,7 @@
 #include <cinttypes>
 #include <fstream>
 #include <algorithm>
+#include <map>
 #include "geopm_hash.h"
 #include "Exception.hpp"
 #include "config.h"
@@ -204,5 +205,23 @@ namespace geopm
         char result[NAME_MAX];
         snprintf(result, NAME_MAX, "0x%016" PRIx64, geopm_signal_to_field(signal));
         return result;
+    }
+
+    std::function<std::string(double)>get_format_function(const std::string& format) {
+        static bool once = false;
+        static std::map<std::string, std::function<std::string(double)> > fmt_map;
+        if (!once) {
+            fmt_map.emplace("double", string_format_double);
+            fmt_map.emplace("float", string_format_float);
+            fmt_map.emplace("int", string_format_integer);
+            fmt_map.emplace("hex", string_format_hex);
+            fmt_map.emplace("raw64", string_format_raw64);
+        }
+        auto fmt_it = fmt_map.find(format);
+        if (fmt_map.end() == fmt_it) {
+               throw Exception("Helper:get_format_function(): unknown how to format \"" + format + " format type\"",
+                               GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return fmt_it->second;
     }
 }

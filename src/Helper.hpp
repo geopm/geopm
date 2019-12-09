@@ -127,6 +127,14 @@ namespace geopm
     ///        byte-wise copied into the memory of signal.
     /// @return A well formatted string representation of the signal.
     std::string string_format_raw64(double signal);
+
+    /// @brief Returns the format function given a format function
+    //         type in string form..
+    /// @param [in] format A string associated with the above defined
+    //         format functions..
+    /// @return A reference to a function that will do the requested
+    //          formatting.
+    std::function<std::string(double)>get_format_function(const std::string& format);
 }
 
 #endif
