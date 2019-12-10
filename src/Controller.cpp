@@ -238,7 +238,7 @@ namespace geopm
         , m_endpoint(std::move(endpoint))
         , m_do_endpoint(do_endpoint)
     {
-        if (!(do_policy || do_endpoint)) {
+        if (m_num_send_down > 0 && !(do_policy || do_endpoint)) {
             throw Exception("Controller(): at least one of policy or endpoint path"
                             " must be provided.", GEOPM_ERROR_INVALID,
                             __FILE__, __LINE__);
@@ -256,7 +256,7 @@ namespace geopm
         if (m_do_endpoint && m_endpoint == nullptr) {
             m_endpoint = EndpointUser::make_unique(endpoint_path, get_hostnames(hostname()));
         }
-        else if (!m_do_endpoint) {
+        else if (do_policy) {
             m_file_policy = geopm::make_unique<FilePolicy>(policy_path, policy_names);
             m_in_policy = m_file_policy->get_policy();
         }
