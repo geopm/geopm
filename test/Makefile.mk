@@ -70,6 +70,9 @@ GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/ControlMessageTest.loop_begin_1 \
               test/gtest_links/ControlMessageTest.step \
               test/gtest_links/ControlMessageTest.wait \
+              test/gtest_links/ControllerTest.construct_with_file_policy \
+              test/gtest_links/ControllerTest.get_hostnames \
+              test/gtest_links/ControllerTest.run_with_no_policy \
               test/gtest_links/ControllerTest.single_node \
               test/gtest_links/ControllerTest.two_level_controller_0 \
               test/gtest_links/ControllerTest.two_level_controller_1 \
