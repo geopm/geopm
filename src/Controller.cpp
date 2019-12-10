@@ -130,10 +130,10 @@ extern "C"
         try {
             std::string agent_name = geopm::environment().agent();
             std::shared_ptr<geopm::Agent> agent(geopm::agent_factory().make_plugin(agent_name));
-            std::vector<double> policy(geopm::Agent::num_policy(geopm::agent_factory().dictionary(agent_name)));
+            std::vector<double> policy(geopm::Agent::num_policy(agent_name));
             std::string policy_path = geopm::environment().policy();
             geopm::FilePolicy file_policy(policy_path,
-                                          geopm::Agent::policy_names(geopm::agent_factory().dictionary(agent_name)));
+                                          geopm::Agent::policy_names(agent_name));
             policy = file_policy.get_policy();
             agent->validate_policy(policy);
             agent->enforce_policy(policy);
@@ -174,11 +174,11 @@ namespace geopm
         : Controller(ppn1_comm,
                      platform_io(),
                      environment().agent(),
-                     Agent::num_policy(agent_factory().dictionary(environment().agent())),
-                     Agent::num_sample(agent_factory().dictionary(environment().agent())),
+                     Agent::num_policy(environment().agent()),
+                     Agent::num_sample(environment().agent()),
                      std::unique_ptr<TreeComm>(new TreeCommImp(ppn1_comm,
-                         Agent::num_policy(agent_factory().dictionary(environment().agent())),
-                         Agent::num_sample(agent_factory().dictionary(environment().agent())))),
+                         Agent::num_policy(environment().agent()),
+                         Agent::num_sample(environment().agent()))),
                      std::shared_ptr<ApplicationIO>(new ApplicationIOImp(environment().shmkey())),
                      std::unique_ptr<Reporter>(new ReporterImp(get_start_time(),
                                                                environment().report(),
@@ -188,7 +188,7 @@ namespace geopm
                      nullptr,
                      std::unique_ptr<EndpointPolicyTracer>(nullptr),
                      std::vector<std::unique_ptr<Agent> >{},
-                     Agent::policy_names(agent_factory().dictionary(environment().agent())),
+                     Agent::policy_names(environment().agent()),
                      environment().policy(),
                      environment().do_policy(),
                      nullptr,
