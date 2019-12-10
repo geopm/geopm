@@ -180,8 +180,8 @@ namespace geopm
         std::copy(data->agent, data->agent + GEOPM_ENDPOINT_AGENT_NAME_MAX, agent_name);
         std::string agent {agent_name};
         if (agent != "") {
-            m_num_policy = Agent::num_policy(agent_factory().dictionary(agent_name));
-            m_num_sample = Agent::num_sample(agent_factory().dictionary(agent_name));
+            m_num_policy = Agent::num_policy(agent_name);
+            m_num_sample = Agent::num_sample(agent_name);
         }
         return agent;
     }
