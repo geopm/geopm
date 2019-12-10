@@ -238,11 +238,6 @@ namespace geopm
         , m_endpoint(std::move(endpoint))
         , m_do_endpoint(do_endpoint)
     {
-        if (!(do_policy || do_endpoint)) {
-            throw Exception("Controller(): at least one of policy or endpoint path"
-                            " must be provided.", GEOPM_ERROR_INVALID,
-                            __FILE__, __LINE__);
-        }
         // Three dimensional vector over levels, children, and message
         // index.  These are used as temporary storage when passing
         // messages up and down the tree.
