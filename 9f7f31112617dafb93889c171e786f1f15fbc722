@@ -19,6 +19,41 @@
     },
     {
       "key": {
+        "uuid": "9fc12c14_77605b3e",
+        "filename": "ronn/GEOPM_CXX_MAN_Daemon.3.ronn",
+        "patchSetId": 12
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-12-10T20:31:05Z",
+      "side": 1,
+      "message": "Whoops, this is not supposed to be empty.",
+      "parentUuid": "e41e7f43_a4583eda",
+      "revId": "9f7f31112617dafb93889c171e786f1f15fbc722",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75204d93_2e75c385",
+        "filename": "ronn/GEOPM_CXX_MAN_Daemon.3.ronn",
+        "patchSetId": 12
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-12-10T20:31:05Z",
+      "side": 1,
+      "message": "Mention Endpoint and PolicyStore man pages",
+      "revId": "9f7f31112617dafb93889c171e786f1f15fbc722",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "46f24270_eb6afd5f",
         "filename": "ronn/geopm_daemon_c.3.ronn",
         "patchSetId": 12
@@ -30,6 +65,30 @@
       "writtenOn": "2019-12-10T16:26:47Z",
       "side": 1,
       "message": "These should probably be in comments instead of man pages.",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 75
+      },
+      "revId": "9f7f31112617dafb93889c171e786f1f15fbc722",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e562d96_fc424641",
+        "filename": "ronn/geopm_daemon_c.3.ronn",
+        "patchSetId": 12
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2019-12-10T20:31:05Z",
+      "side": 1,
+      "message": "The TODO is already pulled out as an issue.  These others comments can just go away.  I wrote this before the break when I was trying to decide if this class should even exist at all.",
+      "parentUuid": "46f24270_eb6afd5f",
       "range": {
         "startLine": 68,
         "startChar": 0,
