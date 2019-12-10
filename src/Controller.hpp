@@ -178,6 +178,7 @@ namespace geopm
             std::unique_ptr<EndpointUser> m_endpoint;
             bool m_do_endpoint;
             std::unique_ptr<FilePolicy> m_file_policy;
+            bool m_do_policy;
 
             std::vector<std::string> m_agent_policy_names;
             std::vector<std::string> m_agent_sample_names;
