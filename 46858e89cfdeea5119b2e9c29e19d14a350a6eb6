@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99fb28c4_03e507f3",
+        "filename": "test/Makefile.mk",
+        "patchSetId": 11
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-12-10T00:05:35Z",
+      "side": 1,
+      "message": "Similar comment here as in the top level Makefile, use of an intermediate variable will reduce repetition.",
+      "revId": "46858e89cfdeea5119b2e9c29e19d14a350a6eb6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}

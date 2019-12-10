@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "964d8106_814a7bd4",
+        "filename": "Makefile.am",
+        "patchSetId": 11
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-12-10T00:05:35Z",
+      "side": 0,
+      "message": "Cleaner solution would be to have\n\n    beta_source_files \u003d ....\n\n    if ENABLE_BETA\n        libgeopmpolicy_la_SOURCES +\u003d $(beta_source_files)\n    else\n        EXTRA_DIST +\u003d $(beta_source_files)\n    endif",
+      "revId": "4e627ff18d64f24195dd109b3dfc7602da882a78",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
