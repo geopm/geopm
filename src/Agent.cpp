@@ -112,6 +112,12 @@ namespace geopm
         }
         return atoi(it->second.c_str());
     }
+
+    int Agent::num_sample(const std::string &agent_name)
+    {
+        return Agent::num_sample(agent_factory().dictionary(agent_name));
+    }
+
     int Agent::num_policy(const std::map<std::string, std::string> &dictionary)
     {
         auto it = dictionary.find(m_num_policy_string);
@@ -121,6 +127,11 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
         return atoi(it->second.c_str());
+    }
+
+    int Agent::num_policy(const std::string &agent_name)
+    {
+        return Agent::num_policy(agent_factory().dictionary(agent_name));
     }
 
     std::vector<std::string> Agent::sample_names(const std::map<std::string, std::string> &dictionary)
@@ -139,6 +150,11 @@ namespace geopm
         return result;
     }
 
+    std::vector<std::string> Agent::sample_names(const std::string &agent_name)
+    {
+        return Agent::sample_names(agent_factory().dictionary(agent_name));
+    }
+
     std::vector<std::string> Agent::policy_names(const std::map<std::string, std::string> &dictionary)
     {
         size_t num_names = num_policy(dictionary);
@@ -153,6 +169,11 @@ namespace geopm
             result[name_idx] = it->second;
         }
         return result;
+    }
+
+    std::vector<std::string> Agent::policy_names(const std::string &agent_name)
+    {
+        return Agent::policy_names(agent_factory().dictionary(agent_name));
     }
 
     std::map<std::string, std::string> Agent::make_dictionary(const std::vector<std::string> &policy_names,
