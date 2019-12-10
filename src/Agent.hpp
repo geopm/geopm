@@ -134,28 +134,52 @@ namespace geopm
             ///        dictionary returned by
             ///        agent_factory().dictionary(agent_name) for the
             ///        Agent of interest.
+            /// @param [in] dictionary Factory dictionary for the agent.
             static int num_policy(const std::map<std::string, std::string> &dictionary);
+            /// @brief Used to look up the number of values in the
+            ///        policy vector sent down the tree for a specific
+            ///        Agent.
+            /// @param [in] agent_name Name of the agent.
+            static int num_policy(const std::string &agent_name);
             /// @brief Used to look up the number of values in the
             ///        sample vector sent up the tree for a specific
             ///        Agent.  This should be called with the
             ///        dictionary returned by
             ///        agent_factory().dictionary(agent_name) for the
             ///        Agent of interest.
+            /// @param [in] dictionary Factory dictionary for the agent.
             static int num_sample(const std::map<std::string, std::string> &dictionary);
+            /// @brief Used to look up the number of values in the
+            ///        sample vector sent up the tree for a specific
+            ///        Agent.
+            /// @param [in] agent_name Name of the agent.
+            static int num_sample(const std::string &agent_name);
             /// @brief Used to look up the names of values in the
             ///        policy vector sent down the tree for a specific
             ///        Agent.  This should be called with the
             ///        dictionary returned by
             ///        agent_factory().dictionary(agent_name) for the
             ///        Agent of interest.
+            /// @param [in] dictionary Factory dictionary for the agent.
             static std::vector<std::string> policy_names(const std::map<std::string, std::string> &dictionary);
+            /// @brief Used to look up the names of values in the
+            ///        policy vector sent down the tree for a specific
+            ///        Agent.
+            /// @param [in] agent_name Name of the agent.
+            static std::vector<std::string> policy_names(const std::string &agent_name);
             /// @brief Used to look up the names of values in the
             ///        sample vector sent up the tree for a specific
             ///        Agent.  This should be called with the
             ///        dictionary returned by
             ///        agent_factory().dictionary(agent_name) for the
             ///        Agent of interest.
+            /// @param [in] dictionary Factory dictionary for the agent.
             static std::vector<std::string> sample_names(const std::map<std::string, std::string> &dictionary);
+            /// @brief Used to look up the names of values in the
+            ///        sample vector sent up the tree for a specific
+            ///        Agent.
+            /// @param [in] agent_name Name of the agent.
+            static std::vector<std::string> sample_names(const std::string &agent_names);
             /// @brief Used to create a correctly-formatted dictionary
             ///        for an Agent at the time the Agent is
             ///        registered with the factory.  Concrete Agent
