@@ -55,7 +55,7 @@ namespace geopm
     EndpointUserImp::EndpointUserImp(const std::string &data_path,
                                      const std::set<std::string> &hosts)
         : EndpointUserImp(data_path, nullptr, nullptr, environment().agent(),
-                          Agent::num_sample(agent_factory().dictionary(environment().agent())),
+                          Agent::num_sample(environment().agent()),
                           environment().profile(), "", hosts)
     {
 

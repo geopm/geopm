@@ -59,7 +59,7 @@ namespace geopm
                                   environment().do_trace_endpoint_policy(),
                                   environment().trace_endpoint_policy(),
                                   platform_io(),
-                                  Agent::policy_names(agent_factory().dictionary(environment().agent())))
+                                  Agent::policy_names(environment().agent()))
     {
 
     }
