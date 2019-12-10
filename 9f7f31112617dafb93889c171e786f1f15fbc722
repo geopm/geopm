@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e41e7f43_a4583eda",
+        "filename": "ronn/GEOPM_CXX_MAN_Daemon.3.ronn",
+        "patchSetId": 12
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-12-10T16:26:47Z",
+      "side": 1,
+      "message": "Should probably remove this empty section, or note that the factory method is the only class method.",
+      "revId": "9f7f31112617dafb93889c171e786f1f15fbc722",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46f24270_eb6afd5f",
+        "filename": "ronn/geopm_daemon_c.3.ronn",
+        "patchSetId": 12
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-12-10T16:26:47Z",
+      "side": 1,
+      "message": "These should probably be in comments instead of man pages.",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 75
+      },
+      "revId": "9f7f31112617dafb93889c171e786f1f15fbc722",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
