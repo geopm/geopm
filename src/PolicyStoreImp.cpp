@@ -278,8 +278,7 @@ namespace geopm
             policy = get_default(m_database, agent_name);
         }
 
-        size_t policy_value_count =
-            Agent::num_policy(agent_factory().dictionary(agent_name));
+        size_t policy_value_count = Agent::num_policy(agent_name);
         if (policy.empty() && policy_value_count != 0) {
             std::ostringstream oss;
             oss << "No policy found for profile " << profile_name
