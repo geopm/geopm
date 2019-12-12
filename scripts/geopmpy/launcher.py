@@ -56,6 +56,7 @@ import shlex
 import textwrap
 import io
 import locale
+import pipes
 import socket
 import tempfile
 import traceback
@@ -476,12 +477,12 @@ class Launcher(object):
         stdout.write(echo)
         stdout.flush()
         signal.signal(signal.SIGINT, self.int_handler)
-        argv_mod = ' '.join(argv_mod)
+        argv_mod = ' '.join(pipes.quote(arg) for arg in argv_mod)
         if self.is_geopm_enabled and self.config.get_ctl() == 'application':
             geopm_argv = [self.launcher_command()]
             geopm_argv.extend(self.launcher_argv(True))
             geopm_argv.append('geopmctl')
-            geopm_argv = ' '.join(geopm_argv)
+            geopm_argv = ' '.join(pipes.quote(arg) for arg in geopm_argv)
             is_geopmctl = True
         else:
             is_geopmctl = False

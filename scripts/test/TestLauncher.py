@@ -161,5 +161,23 @@ class TestLauncher(unittest.TestCase):
         self.assertIn('-n', srun_args)
         self.assertEqual('6', srun_args[srun_args.index('-n') + 1])
 
+    @mock.patch('subprocess.Popen', side_effect=mock_popen_srun)
+    def test_quoted_args(self, mock_popen):
+        """ Test that the geopm CLI correctly passes through quoted args.
+        """
+        workload_command = "unittest_workload 'multiple words'"
+        with mock.patch('sys.argv', shlex.split(
+            'unittest_geopm_launcher srun --ntasks 4 --nodes 2 -- {}'.format(workload_command))):
+            geopmpy.launcher.main()
+
+        # [0][0] gets the first positional arg to Popen(), which is a string
+        # containing the entire srun command
+        srun_popen_args = mock_popen.call_args[0][0]
+
+        # GEOPM modified some of the launcher's args. Just make sure the
+        # launched command matches.
+        self.assertEqual(workload_command,
+                         srun_popen_args.split('-- ')[1])
+
 if __name__ == '__main__':
     unittest.main()
