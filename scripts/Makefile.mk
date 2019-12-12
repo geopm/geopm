@@ -133,6 +133,7 @@ PYTEST_TESTS = scripts/test/pytest_links/TestAffinity.test_affinity_0 \
                scripts/test/pytest_links/TestLauncher.test_process_count \
                scripts/test/pytest_links/TestLauncher.test_non_file_output \
                scripts/test/pytest_links/TestLauncher.test_main \
+               scripts/test/pytest_links/TestLauncher.test_quoted_args \
                scripts/test/pytest_links/TestNodeEfficiencyAnalysis.test_node_efficiency_process \
                scripts/test/pytest_links/TestNodePowerAnalysis.test_node_power_process \
                scripts/test/pytest_links/TestPowerSweepAnalysis.test_power_sweep_summary \
