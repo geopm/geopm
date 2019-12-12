@@ -245,7 +245,16 @@ int main(int argc, char **argv)
         if (!err) {
             err = geopm_agent_policy_json_partial(agent_ptr, policy_count, policy_vals,
                                                   sizeof(output_str), output_str);
-            printf("%s\n", output_str);
+            if (!err) {
+                printf("%s\n", output_str);
+            }
+
+            err = geopm_agent_policy_json(agent_ptr, policy_vals,
+                                          sizeof(output_str), output_str);
+            if (!err) {
+                printf("%s\n", output_str);
+            }
+
         }
     }
 

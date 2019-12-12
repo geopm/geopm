@@ -33,19 +33,18 @@
 #include "Agent.hpp"
 
 #include <cmath>
-#include <sstream>
+#include <string.h>
+
 #include <iostream>
 
 #include "geopm_agent.h"
-#include "string.h"
+
 #include "MonitorAgent.hpp"
 #include "PowerBalancerAgent.hpp"
 #include "PowerGovernorAgent.hpp"
 #include "EnergyEfficientAgent.hpp"
 #include "FrequencyMapAgent.hpp"
-#include "Environment.hpp"
-#include "Endpoint.hpp"
-#include "SharedMemoryUser.hpp"
+#include "Policy.hpp"
 #include "Helper.hpp"
 #include "config.h"
 
@@ -367,31 +366,23 @@ int geopm_agent_policy_json_partial(const char *agent_name,
                                     size_t json_string_max,
                                     char *json_string)
 {
-    std::stringstream output_str;
+    std::string output_str;
     char policy_name[json_string_max];
     std::string policy_value;
-    int num_policy = 0;
-    int err = geopm_agent_num_policy(agent_name, &num_policy);
-    if (!err && (num_policy < 0 || policy_array_size > (size_t)num_policy)) {
-        err = GEOPM_ERROR_INVALID;
-    }
+    int err = 0;
     try {
-        if (!err) {
-            output_str << "{";
-            for (size_t i = 0; !err && i < policy_array_size; ++i) {
-                if (i > 0) {
-                    output_str << ", ";
-                }
-                err = geopm_agent_policy_name(agent_name, i, json_string_max, policy_name);
-                if (std::isnan(policy_array[i])) {
-                    policy_value = "\"NAN\"";
-                }
-                else {
-                    policy_value = geopm::string_format_double(policy_array[i]);
-                }
-                output_str << "\"" << policy_name << "\": " << policy_value;
-            }
-            output_str << "}";
+        int max_num_policy = geopm::Agent::num_policy(agent_name);
+        if (policy_array_size < 0 || policy_array_size > (size_t)max_num_policy) {
+            throw geopm::Exception("Too many policy values for agent.",
+                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        std::vector<double> policy_vals(policy_array, policy_array + policy_array_size);
+        auto policy_names = geopm::Agent::policy_names(agent_name);
+        policy_names.resize(policy_array_size);
+        output_str = geopm::Policy(policy_vals).to_json(policy_names);
+        if (output_str.size() >= json_string_max) {
+            throw geopm::Exception("Output JSON string too large for buffer.",
+                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
     catch (...) {
@@ -399,13 +390,8 @@ int geopm_agent_policy_json_partial(const char *agent_name,
     }
 
     if (!err) {
-        if (output_str.str().size() >= json_string_max) {
-            err = GEOPM_ERROR_INVALID;
-        }
-        if (!err) {
-            strncpy(json_string, output_str.str().c_str(), json_string_max);
-            json_string[json_string_max - 1] = '\0';
-        }
+        strncpy(json_string, output_str.c_str(), json_string_max);
+        json_string[json_string_max - 1] = '\0';
     }
     return err;
 }

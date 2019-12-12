@@ -36,6 +36,7 @@
 
 #include "Exception.hpp"
 #include "PolicyStoreImp.hpp"
+#include "Policy.hpp"
 #include "Helper.hpp"
 #include "geopm_error.h"
 #include "geopm_policystore.h"
@@ -103,10 +104,9 @@ extern "C"
                     err = GEOPM_ERROR_INVALID;
                 }
                 else {
+                    geopm::Policy pol{best};
+                    pol.pad_nan_to(max_policy_vals);
                     std::copy(best.begin(), best.end(), policy_vals);
-                    // Policies treat NaN as a default value
-                    std::fill_n(policy_vals + best.size(),
-                                max_policy_vals - best.size(), NAN);
                 }
             }
             catch (...) {
