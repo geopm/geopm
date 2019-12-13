@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5064518d_ed5789f5",
+        "filename": "src/Agent.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-12-13T23:15:52Z",
+      "side": 1,
+      "message": "agent_names -\u003e agent_name",
+      "range": {
+        "startLine": 182,
+        "startChar": 86,
+        "endLine": 182,
+        "endChar": 87
+      },
+      "revId": "ad99ee297bf57511d2945e656f1f3a8ee9dc4313",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
