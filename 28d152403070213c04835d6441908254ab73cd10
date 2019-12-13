@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ddb8bc3b_fece00d0",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1286,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2019-12-13T22:08:18Z",
+      "side": 1,
+      "message": "Opened https://github.com/geopm/geopm/issues/847",
+      "parentUuid": "77254b3d_a46197c3",
+      "range": {
+        "startLine": 1285,
+        "startChar": 1,
+        "endLine": 1286,
+        "endChar": 78
+      },
+      "revId": "28d152403070213c04835d6441908254ab73cd10",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8febfff3_0fd38d55",
         "filename": "test_integration/geopm_test_integration.py",
         "patchSetId": 1
