@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40a716ac_824f6229",
+        "filename": "src/Daemon.hpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-12-14T00:09:06Z",
+      "side": 1,
+      "message": "delete",
+      "range": {
+        "startLine": 37,
+        "startChar": 1,
+        "endLine": 38,
+        "endChar": 14
+      },
+      "revId": "9df2bca57c81e7230e97d4798baa7c7344ffd0ed",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
