@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "764c9815_021d9ff7",
+        "filename": "ronn/geopmpolicystore.1.ronn",
+        "patchSetId": 7
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-12-14T00:32:45Z",
+      "side": 1,
+      "message": "required argument",
+      "range": {
+        "startLine": 43,
+        "startChar": 39,
+        "endLine": 43,
+        "endChar": 48
+      },
+      "revId": "4a8d67dbd05393fc3a7d7982203fb951d3cd57d4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0009eef_2c0dbbb1",
+        "filename": "src/geopmpolicystore_main.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-12-14T00:32:45Z",
+      "side": 1,
+      "message": "Take a json file, not a comma separated list.",
+      "range": {
+        "startLine": 72,
+        "startChar": 68,
+        "endLine": 72,
+        "endChar": 88
+      },
+      "revId": "4a8d67dbd05393fc3a7d7982203fb951d3cd57d4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec2a7717_406120f5",
+        "filename": "src/geopmpolicystore_main.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-12-14T00:32:45Z",
+      "side": 1,
+      "message": "-a required.",
+      "range": {
+        "startLine": 77,
+        "startChar": 45,
+        "endLine": 77,
+        "endChar": 54
+      },
+      "revId": "4a8d67dbd05393fc3a7d7982203fb951d3cd57d4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
