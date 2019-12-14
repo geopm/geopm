@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85afd571_f5277a85",
+        "filename": "src/Endpoint.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1002495
+      },
+      "writtenOn": "2019-12-14T00:24:31Z",
+      "side": 1,
+      "message": "Store in m_timeout in constructor to enable testing (perhaps change could be made when test requires the change?)",
+      "range": {
+        "startLine": 101,
+        "startChar": 98,
+        "endLine": 101,
+        "endChar": 121
+      },
+      "revId": "47251be3c26eb00eb2540520dd4494025a39729a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
