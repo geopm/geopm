@@ -115,6 +115,7 @@ class TestIntegrationProfilePolicy(unittest.TestCase):
             for file_name in self._files:
                 os.unlink(file_name)
 
+    @util.skip_unless_config_enable('beta')
     def test_policy_default(self):
         profile = 'unknown'
         report_path = profile + '.report'
@@ -137,6 +138,7 @@ class TestIntegrationProfilePolicy(unittest.TestCase):
         csv_data = pandas.read_csv(policy_trace, delimiter='|', comment='#')
         self.assertEqual(csv_data['POWER_PACKAGE_LIMIT_TOTAL'][0], self.default_power_cap)
 
+    @util.skip_unless_config_enable('beta')
     def test_policy_custom(self):
         profile = 'power_custom'
         report_path = profile + '.report'
