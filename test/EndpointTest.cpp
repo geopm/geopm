@@ -283,7 +283,7 @@ TEST_F(EndpointTest, wait_loop_timeout_throws)
                                "timed out");
     EXPECT_NE(result, std::future_status::timeout);
     double elapsed = geopm_time_since(&before);
-    EXPECT_NEAR(m_timeout, elapsed, 0.010);
+    EXPECT_NEAR(m_timeout, elapsed, 0.100);
     mio.close();
 }
 
