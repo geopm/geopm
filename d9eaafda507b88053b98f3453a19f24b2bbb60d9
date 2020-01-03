@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b05f4f90_d0259278",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 1283,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2020-01-03T20:21:58Z",
+      "side": 1,
+      "message": "can this be a configure-time option?",
+      "range": {
+        "startLine": 1283,
+        "startChar": 40,
+        "endLine": 1283,
+        "endChar": 50
+      },
+      "revId": "d9eaafda507b88053b98f3453a19f24b2bbb60d9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f956537f_757ac511",
+        "filename": "test_integration/util.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2020-01-03T20:21:58Z",
+      "side": 1,
+      "message": "Could skip if configure option not provided to use different etc path",
+      "range": {
+        "startLine": 107,
+        "startChar": 2,
+        "endLine": 107,
+        "endChar": 39
+      },
+      "revId": "d9eaafda507b88053b98f3453a19f24b2bbb60d9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6569074_ac764388",
+        "filename": "test_integration/util.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2020-01-03T20:21:58Z",
+      "side": 1,
+      "message": "Check whether this is necessary... Does it already do popen with a shell?",
+      "revId": "d9eaafda507b88053b98f3453a19f24b2bbb60d9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
