@@ -316,6 +316,13 @@ else
                  AC_MSG_ERROR([Failed to find a python >= 3.6. Use --with-python to explicitly specify an interpreter]))
 fi
 
+AC_ARG_VAR([GEOPM_CONFIG_PATH],
+           [GEOPM_CONFIG_PATH The prefix to the path where GEOPM config files are stored. Default: /etc/geopm])
+GEOPM_CONFIG_PATH=${GEOPM_CONFIG_PATH:=/etc/geopm}
+AC_DEFINE_UNQUOTED([GEOPM_CONFIG_PATH],
+          ["${GEOPM_CONFIG_PATH}"],
+          [The prefix to the path where GEOPM config files are stored])
+
 m4_include([m4/lx_find_mpi.m4])
 LX_FIND_MPI()
 AC_LANG_PUSH([C++])
@@ -636,6 +643,7 @@ AC_MSG_RESULT([libdir             : ${libdir}])
 AC_MSG_RESULT([datarootdir        : ${datarootdir}])
 AC_MSG_RESULT([datadir            : ${datadir}])
 AC_MSG_RESULT([mandir             : ${mandir}])
+AC_MSG_RESULT([GEOPM_CONFIG_PATH  : ${GEOPM_CONFIG_PATH}])
 AC_MSG_RESULT([])
 AC_MSG_RESULT([debug              : ${enable_debug}])
 AC_MSG_RESULT([coverage           : ${enable_coverage}])

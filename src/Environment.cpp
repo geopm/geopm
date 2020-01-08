@@ -55,8 +55,8 @@ using json11::Json;
 
 namespace geopm
 {
-    static const std::string DEFAULT_SETTINGS_PATH = "/etc/geopm/environment-default.json";
-    static const std::string OVERRIDE_SETTINGS_PATH = "/etc/geopm/environment-override.json";
+    static const std::string DEFAULT_SETTINGS_PATH = GEOPM_CONFIG_PATH "/environment-default.json";
+    static const std::string OVERRIDE_SETTINGS_PATH = GEOPM_CONFIG_PATH "/environment-override.json";
 
     static EnvironmentImp &test_environment(void)
     {
