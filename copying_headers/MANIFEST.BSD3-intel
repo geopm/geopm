@@ -240,7 +240,7 @@ src/geopm_time.h
 src/geopm_topo.h
 src/geopm_version.c
 src/geopm_version.h
-src/geopmagent_main.c
+src/geopmagent_main.cpp
 src/geopmbench_main.cpp
 src/geopmctl_main.c
 src/geopmread_main.cpp

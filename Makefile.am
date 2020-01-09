@@ -614,7 +614,7 @@ geopmwrite_SOURCES = src/geopmwrite_main.cpp \
 geopmagent_SOURCES = src/geopm_agent.h \
                      src/geopm_error.h \
                      src/geopm_version.h \
-                     src/geopmagent_main.c \
+                     src/geopmagent_main.cpp \
                      # end
 
 if ENABLE_MPI
