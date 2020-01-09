@@ -34,14 +34,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <getopt.h>
 #include <errno.h>
 #include <limits.h>
 #include <math.h>
 
+#include <iostream>
+
 #include "geopm_agent.h"
-#include "geopm_version.h"
 #include "geopm_error.h"
+#include "OptionParser.hpp"
 
 #include "config.h"
 
@@ -52,92 +53,49 @@ enum geopmagent_const {
 
 int main(int argc, char **argv)
 {
-    int opt;
-    int err = 0;
-    int output_num;
-    double policy_vals[GEOPMAGENT_DOUBLE_LENGTH] = {0};
-    char error_str[GEOPMAGENT_STRING_LENGTH] = {0};
-    char agent_str[GEOPMAGENT_STRING_LENGTH] = {0};
-    char policy_vals_str[GEOPMAGENT_STRING_LENGTH] = {0};
-    char output_str[NAME_MAX * GEOPMAGENT_DOUBLE_LENGTH];
-    char *agent_ptr = NULL;
-    char *policy_vals_ptr = NULL;
-    char *arg_ptr = NULL;
-    const char *usage = "\nUsage: geopmagent\n"
-                        "       geopmagent [-a AGENT] [-p POLICY0,POLICY1,...]\n"
-                        "       geopmagent [--help] [--version]\n"
-                        "\n"
-                        "Mandatory arguments to long options are mandatory for short options too.\n"
-                        "\n"
-                        "  -a, --agent=AGENT         specify the name of the agent\n"
-                        "  -p, --policy=POLICY0,...  values to be set for each policy in a\n"
-                        "                            comma-seperated list\n"
-                        "  -h, --help                print  brief summary of the command line\n"
-                        "                            usage information, then exit\n"
-                        "  -v, --version             print version of GEOPM to standard output,\n"
-                        "                            then exit\n"
-                        "\n"
-                        "Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.\n"
-                        "\n";
-
-    static struct option long_options[] = {
-        {"agent", required_argument, NULL, 'a'},
-        {"policy", required_argument, NULL, 'p'},
-        {"help", no_argument, NULL, 'h'},
-        {"version", no_argument, NULL, 'v'},
-        {NULL, 0, NULL, 0}
-    };
-
-    while (!err && (opt = getopt_long(argc, argv, "a:p:hv", long_options, NULL)) != -1) {
-        arg_ptr = NULL;
-        switch (opt) {
-            case 'a':
-                arg_ptr = agent_str;
-                break;
-            case 'p':
-                arg_ptr = policy_vals_str;
-                break;
-            case 'h':
-                printf("%s", usage);
-                return 0;
-            case 'v':
-                printf("%s\n", geopm_version());
-                printf("\n\nCopyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.\n\n");
-                return 0;
-            case '?': // opt is ? when an option required an arg but it was missing
-                fprintf(stderr, usage, argv[0]);
-                err = EINVAL;
-                break;
-            default:
-                fprintf(stderr, "Error: getopt returned character code \"0%o\"\n", opt);
-                err = EINVAL;
-                break;
-        }
-
-        if (!err) {
-            strncpy(arg_ptr, optarg, GEOPMAGENT_STRING_LENGTH);
-            if (arg_ptr[GEOPMAGENT_STRING_LENGTH - 1] != '\0') {
-                fprintf(stderr, "Error: config_file name too long\n");
-                err = EINVAL;
-            }
-        }
+    geopm::OptionParser parser{"geopmagent", std::cout, std::cerr, ""};
+    parser.add_option("agent", 'a', "agent", "", "specify the name of the agent");
+    parser.add_option("policy", 'p', "policy", "",
+                      "values to be set for each policy in a comma-separated list");
+    parser.add_example_usage("");
+    parser.add_example_usage("[-a AGENT] [-p POLICY0,POLICY1,...]");
+    bool early_exit = parser.parse(argc, argv);
+    if (early_exit) {
+        return 0;
     }
 
-    if (!err && optind != argc) {
-        fprintf(stderr, "Error: The following positional argument(s) are in error:\n");
-        while (optind < argc) {
-            fprintf(stderr, "%s\n", argv[optind++]);
+    int err = 0;
+    auto pos_args = parser.get_positional_args();
+    if (pos_args.size() > 0) {
+        std::cerr << "Error: The following positional argument(s) are in error:" << std::endl;
+        for (const std::string &arg : pos_args) {
+            std::cerr << arg << std::endl;
         }
         err = EINVAL;
     }
 
-    if (!err) {
-        if (strnlen(agent_str, GEOPMAGENT_STRING_LENGTH)) {
-            agent_ptr = agent_str;
+    int output_num;
+    double policy_vals[GEOPMAGENT_DOUBLE_LENGTH] = {0};
+    char error_str[GEOPMAGENT_STRING_LENGTH] = {0};
+    char policy_vals_str[GEOPMAGENT_STRING_LENGTH] = {0};
+    char output_str[NAME_MAX * GEOPMAGENT_DOUBLE_LENGTH];
+    const char *agent_ptr = NULL;
+    char *policy_vals_ptr = NULL;
+
+    try {
+        std::string agent = parser.get_value("agent");
+        if (agent != "") {
+            agent_ptr = agent.c_str();
         }
-        if (strnlen(policy_vals_str, GEOPMAGENT_STRING_LENGTH)) {
+        std::string policy = parser.get_value("policy");
+        if (parser.get_value("policy") != "") {
+            strncpy(policy_vals_str, policy.c_str(), GEOPMAGENT_STRING_LENGTH);
             policy_vals_ptr = policy_vals_str;
         }
+    }
+    catch (...)
+    {
+        err = geopm::exception_handler(std::current_exception(), false);
     }
 
     if (!err && argc == 1) {
