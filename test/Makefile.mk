@@ -465,6 +465,7 @@ test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
                           test/TreeCommTest.cpp \
                           test/geopm_test.cpp \
                           test/geopm_test.hpp \
+                          test/geopmagent_test.cpp \
                           # end
 
 beta_test_sources = test/DaemonTest.cpp \

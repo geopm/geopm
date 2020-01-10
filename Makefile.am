@@ -575,6 +575,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/geopm_topo.h \
                             src/geopm_version.c \
                             src/geopm_version.h \
+                            src/geopmagent_helper.cpp \
+                            src/geopmagent_helper.hpp \
                             src/msr_data_arch.cpp \
                             src/msr_data_hsx.cpp \
                             src/msr_data_knl.cpp \
@@ -616,6 +618,7 @@ geopmwrite_SOURCES = src/geopmwrite_main.cpp \
 geopmagent_SOURCES = src/geopm_agent.h \
                      src/geopm_error.h \
                      src/geopm_version.h \
+                     src/geopmagent_helper.hpp \
                      src/geopmagent_main.cpp \
                      # end
 
