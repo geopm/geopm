@@ -119,6 +119,15 @@ namespace geopm
             const size_t m_align;
     };
 
+    class TimedStreamModelRegion : public StreamModelRegion
+    {
+        public:
+            TimedStreamModelRegion(double big_o_in, int verbosity,
+                                   bool do_imbalance, bool do_progress,
+                                   bool do_unmarked);
+            virtual ~TimedStreamModelRegion();
+    };
+
     class All2allModelRegion : public ModelRegionBase
     {
         friend class NestedModelRegion;
