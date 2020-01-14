@@ -43,6 +43,7 @@
 #include "All2allModelRegion.hpp"
 #include "DGEMMModelRegion.hpp"
 #include "StreamModelRegion.hpp"
+#include "TimedStreamModelRegion.hpp"
 #include "SpinModelRegion.hpp"
 #include "IgnoreModelRegion.hpp"
 
@@ -83,6 +84,9 @@ namespace geopm
         }
         else if (name_check(name, "stream")) {
             return geopm::make_unique<StreamModelRegion>(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
+        }
+        else if (name_check(name, "timed_stream")) {
+            return geopm::make_unique<TimedStreamModelRegion>(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
         }
         else if (name_check(name, "all2all")) {
             return geopm::make_unique<All2allModelRegion>(big_o, verbosity, do_imbalance, do_progress, do_unmarked);

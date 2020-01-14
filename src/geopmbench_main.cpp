@@ -84,6 +84,8 @@ int main(int argc, char **argv)
 "                 stream: Executes stream \"triadd\" on a vector with\n"
 "                 length proportional to big-o.\n"
 "\n"
+"                 timed_stream: Executes stream for big-o seconds.\n"
+"\n"
 "                 dgemm: Dense matrix-matrix multiply with floating\n"
 "                 point operations proportional to big-o.\n"
 "\n"
