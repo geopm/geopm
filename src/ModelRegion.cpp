@@ -107,6 +107,11 @@ namespace geopm
                   name[strlen("stream")] == '-')) {
             result = new StreamModelRegion(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
         }
+        else if (name.find("timed_stream") == 0 &&
+                 (name[strlen("timed_stream")] == '\0' ||
+                  name[strlen("timed_stream")] == '-')) {
+            result = new TimedStreamModelRegion(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
+        }
         else if (name.find("all2all") == 0 &&
                  (name[strlen("all2all")] == '\0' ||
                   name[strlen("all2all")] == '-')) {
@@ -407,7 +412,11 @@ namespace geopm
         }
     }
 
-    StreamModelRegion::StreamModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked)
+    StreamModelRegion::StreamModelRegion(double big_o_in,
+                                         int verbosity,
+                                         bool do_imbalance,
+                                         bool do_progress,
+                                         bool do_unmarked)
         : ModelRegionBase(verbosity)
         , m_array_a(NULL)
         , m_array_b(NULL)
@@ -427,9 +436,73 @@ namespace geopm
         }
     }
 
+    TimedStreamModelRegion::TimedStreamModelRegion(double big_o_in,
+                                                   int verbosity,
+                                                   bool do_imbalance,
+                                                   bool do_progress,
+                                                   bool do_unmarked)
+        : StreamModelRegion(big_o_in, verbosity, do_imbalance, do_progress, do_unmarked)
+    {
+        m_name = "timed_stream";
+
+        if (big_o_in > 10.0) {
+            /// todo: adjust to reuse same buffer when big-o would exhaust system memory
+            std::cerr << "Warning: <geopm> timed_stream region may run out of memory for large big-o values." << std::endl;
+        }
+
+        if (m_verbosity) {
+            std::cout << "Calibrating timed_stream region to " << big_o_in << " seconds.  Please wait..." << std::endl;
+        }
+        double measured_time = 0;
+        bool done = false;
+        double new_big_o = big_o_in;
+        double lower = 0.0;
+        const double EPS = big_o_in / 100.0;
+        const int MAX_ITERATIONS = 20;
+        int iteration_count = 0;
+        while (!done) {
+            big_o(new_big_o);
+            // warm caches
+            run();
+            geopm_time_s start;
+            geopm_time(&start);
+            run();
+            measured_time = geopm_time_since(&start);
+
+            if (measured_time > big_o_in + EPS) {
+                // if too long, search between current big_o and lower bound
+                new_big_o = new_big_o - (new_big_o - lower) / 2.0;
+            }
+            else if (measured_time < big_o_in - EPS) {
+                // if too short, increase big_o
+                double increase = (new_big_o - lower) / 2.0;
+                lower = new_big_o;
+                new_big_o = new_big_o + increase;
+            }
+            else {
+                // measured time is close enough to requested big_o
+                done = true;
+            }
+            ++iteration_count;
+            if (!done && iteration_count == MAX_ITERATIONS) {
+                std::cout << "Warning: <geopm> could not find a big-o for requested runtime within " << MAX_ITERATIONS << " iterations. " << std::endl;
+                done = true;
+            }
+        }
+        if (m_verbosity) {
+            std::cout << "Calibration complete.  Using stream big-o of " << new_big_o << std::endl;
+        }
+        m_big_o = new_big_o;
+    }
+
     StreamModelRegion::~StreamModelRegion()
     {
         big_o(0);
+    }
+
+    TimedStreamModelRegion::~TimedStreamModelRegion()
+    {
+
     }
 
     void StreamModelRegion::big_o(double big_o_in)
