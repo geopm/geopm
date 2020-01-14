@@ -1582,6 +1582,7 @@ GEOPM_OPTIONS:
                                do not allow pinning to HTs
       --geopm-ctl-disable      do not launch geopm; pass through commands to
                                underlying launcher
+      --geopm-ompt-disable     disable automatic OpenMP region detection
 
 {}
 
