@@ -150,6 +150,7 @@ class TestLauncher(object):
         self._pmpi_ctl = 'process'
         self._job_name = 'geopm_int_test'
         self._timeout = 30
+        self._disable_ompt = False
         self.set_num_cpu()
         self.set_num_rank(16)
         self.set_num_node(4)
@@ -196,6 +197,8 @@ class TestLauncher(object):
                 argv.extend(['--geopm-trace', self._trace_path])
             if self._region_barrier:
                 argv.append('--geopm-region-barrier')
+            if self._disable_ompt:
+                argv.append('--geopm-ompt-disable')
             argv.extend(['--'])
             exec_wrapper = os.getenv('GEOPM_EXEC_WRAPPER', '')
             if exec_wrapper:
@@ -292,3 +295,6 @@ class TestLauncher(object):
             launcher = geopmpy.launcher.Factory().create(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
                                                          self._time_limit, 'msr_save', self._node_list, self._host_file)
             launcher.run()
+
+    def disable_ompt(self):
+        self._disable_ompt = True
