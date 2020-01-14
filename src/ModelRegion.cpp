@@ -92,6 +92,12 @@ namespace geopm
              name[strlen("sleep")] == '-')) {
             result = new SleepModelRegion(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
         }
+        else if (name.find("network_spin") == 0 &&
+                 (name[strlen("network_spin")] == '\0' ||
+                  name[strlen("network_spin")] == '-'))  {
+            result = new SpinModelRegion(big_o, verbosity, do_imbalance, do_progress, do_unmarked,
+                                         "network_spin", GEOPM_REGION_HINT_NETWORK);
+        }
         else if (name.find("spin") == 0 &&
                  (name[strlen("spin")] == '\0' ||
                   name[strlen("spin")] == '-'))  {
@@ -267,14 +273,22 @@ namespace geopm
     }
 
     SpinModelRegion::SpinModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked)
+        : SpinModelRegion(big_o_in, verbosity, do_imbalance, do_progress,
+                          do_unmarked, "spin", GEOPM_REGION_HASH_UNMARKED)
+    {
+    }
+
+    SpinModelRegion::SpinModelRegion(double big_o_in, int verbosity, bool do_imbalance,
+                                     bool do_progress, bool do_unmarked,
+                                     const std::string &name, uint64_t hint)
         : ModelRegionBase(verbosity)
     {
-        m_name = "spin";
+        m_name = name;
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
         big_o(big_o_in);
-        int err = ModelRegionBase::region();
+        int err = ModelRegionBase::region(hint);
         if (err) {
             throw Exception("SpinModelRegion::SpinModelRegion()",
                             err, __FILE__, __LINE__);

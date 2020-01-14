@@ -81,6 +81,11 @@ namespace geopm
     {
         friend class NestedModelRegion;
         public:
+            // Create a spin model region with a given hint and region name
+            SpinModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked,
+                            const std::string &name, uint64_t hint);
+
+            // Create a spin model region with no hint and "spin" as the region name
             SpinModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked);
             virtual ~SpinModelRegion();
             void big_o(double big_o);
