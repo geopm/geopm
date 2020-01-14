@@ -134,6 +134,10 @@ runtime configured to support OMPT if the default OpenMP runtime does
 not support the OMPT callbacks.  Note that your compiler must be
 compatible with the LLVM OpenMP ABI for extending it in this way.
 
+This feature can be disabled on a per-run basis by setting the
+`GEOPM_OMPT_DISABLE` environment variable, or by using the
+`--geopm-ompt-disable` option in **geopmlaunch(1)**
+
 ## LAUNCHING THE RUNTIME
 The recommended method for launching the GEOPM runtime is the job
 launch wrapper script **geopmlaunch(1)**.  See this man page for
@@ -333,6 +337,11 @@ of the values set in the calling environment.
   * `GEOPM_DISABLE_HYPERTHREADS`:
     See documentation for equivalent command line option to
     **geopmlaunch(1)** called `--geopm-hyperthreads-disable`.
+
+  * `GEOPM_OMPT_DISABLE`:
+    Disable OpenMP region detection as described in [INTEGRATION WITH OMPT][].
+    See documentation for equivalent command line option to **geopmlaunch(1)**
+    called `--geopm-ompt-disable`.
 
 `OTHER ENVIRONMENT VARIABLES`
 
