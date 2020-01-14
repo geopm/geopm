@@ -94,7 +94,7 @@ class TestIntegration(unittest.TestCase):
         self._agent = 'power_governor'
         self._options = {'power_budget': 150}
         self._tmp_files = []
-        self._output = None
+        self._output = []
         self._power_limit = geopm_test_launcher.geopmread("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0")
         self._frequency = geopm_test_launcher.geopmread("MSR::PERF_CTL:FREQ board 0")
         self._original_freq_map_env = os.environ.get('GEOPM_FREQUENCY_MAP')
@@ -103,8 +103,12 @@ class TestIntegration(unittest.TestCase):
         geopm_test_launcher.geopmwrite("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0 " + str(self._power_limit))
         geopm_test_launcher.geopmwrite("MSR::PERF_CTL:FREQ board 0 " + str(self._frequency))
         if sys.exc_info() == (None, None, None) and os.getenv('GEOPM_KEEP_FILES') is None:
-            if self._output is not None:
-                self._output.remove_files()
+            # Let self._output be a list of outputs or a single output
+            if not isinstance(self._output, list):
+                self._output = [self._output]
+
+            for output in self._output:
+                output.remove_files()
             for ff in self._tmp_files:
                 try:
                     os.remove(ff)
@@ -120,6 +124,12 @@ class TestIntegration(unittest.TestCase):
         denom = a if a != 0 else 1
         if abs((a - b) / denom) >= epsilon:
             self.fail('The fractional difference between {a} and {b} is greater than {epsilon}.  {msg}'.format(a=a, b=b, epsilon=epsilon, msg=msg))
+
+    def assertFar(self, a, b, epsilon=0.05, msg=''):
+        denom = a if a != 0 else 1
+        if abs((a - b) / denom) < epsilon:
+            self.fail('The fractional difference between {a} and {b} is less than {epsilon}.  {msg}'.format(
+                a=a, b=b, epsilon=epsilon, msg=msg))
 
     def create_progress_df(self, df):
         # Build a df with only the first region entry and the exit.
@@ -1247,6 +1257,62 @@ class TestIntegration(unittest.TestCase):
             self.assertLess(-0.1, runtime_savings_epoch)  # want -10% or better
             self.assertLess(0.0, energy_savings_epoch)
 
+    def test_agent_energy_efficient_short_region(self):
+        """
+        Test that the energy_efficient agent can save energy on short-running regions.
+        """
+        name = 'test_agent_energy_efficient_short_region'
+        min_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
+        sticker_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
+
+        app_conf = geopmpy.io.BenchConf(name + '_app.config')
+        self._tmp_files.append(app_conf.get_path())
+        app_conf.set_loop_count(100)
+
+        # Using a small stream size gives us the following properties:
+        #  - Short-running regions
+        #  - For stream, this keeps the memory footprint small. This should
+        #    stay in cache, resulting in a cpu-bound workload, where the EE
+        #    agent should stay near max frequency.
+        app_conf.append_region('timed_stream', 0.002)
+
+        # Our other short-running region should send the EE agent toward minimum
+        # frequency. For this, use a spin region with a network hint.
+        app_conf.append_region('network_spin', 0.002)
+
+        def get_agent_output(agent):
+            self._agent = agent
+            self._options = {'FREQ_MIN': min_freq,
+                             'FREQ_MAX': sticker_freq}
+            self._options = {}
+            subtest_name = '{}_{}'.format(name, agent)
+            report_path = subtest_name + '.report'
+            trace_path = subtest_name + '.trace'
+            agent_conf = geopmpy.io.AgentConf(subtest_name + '_agent.config', self._agent, self._options)
+            self._tmp_files.append(agent_conf.get_path())
+            launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path, trace_path)
+            launcher.set_num_node(1)
+            launcher.set_num_rank(1)
+            launcher.run(subtest_name)
+            self._output.append(geopmpy.io.AppOutput(report_path, trace_path + '*'))
+            return self._output[-1]
+
+        ee_output = get_agent_output('energy_efficient')
+        ee_stream_df = ee_output.get_report_data(region='stream')
+        ee_network_spin_df = ee_output.get_report_data(region='network_spin')
+        ee_network_spin_energy = ee_network_spin_df.iloc[0]['energy_pkg'] + ee_network_spin_df.iloc[0]['energy_dram']
+
+        fma_output = get_agent_output('frequency_map')
+        fma_network_spin_df = fma_output.get_report_data(region='network_spin')
+        fma_network_spin_energy = fma_network_spin_df.iloc[0]['energy_pkg'] + fma_network_spin_df.iloc[0]['energy_dram']
+
+        msg = 'Save energy on the network-hinted spin region'
+        self.assertLess(ee_network_spin_energy, fma_network_spin_energy, msg=msg)
+        self.assertFar(ee_network_spin_energy, fma_network_spin_energy, msg=msg)
+
+        # The small stream region should be compute-bound. Expect that it
+        # is near the sticker frequency, since that was given as FREQ_MAX.
+        self.assertNear(ee_stream_df['frequency'].item(), 100)
 
 class TestIntegrationGeopmio(unittest.TestCase):
     ''' Tests of geopmread and geopmwrite.'''
