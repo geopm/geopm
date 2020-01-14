@@ -63,6 +63,10 @@ Region names can be one of the following options:
   * _stream_:
     Executes stream "triad" on a vector with length proportional to big-o.
 
+  * _timed_stream_:
+    Finds a size for a _stream_ region that runs for big-o seconds.  The search for
+    the problem size takes place during the setup phase.
+
   * _all2all_:
     All processes send buffers to all other processes. The time of this operation is
  proportional to big-o.
