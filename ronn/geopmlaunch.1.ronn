@@ -122,8 +122,9 @@ listed below.
   mark up the user application or automatic inference of regions based
   on interposing on the MPI or OpenMP interfaces (interposing on
   OpenMP requires that the optional configuration parameter
-  --enable-ompt is provided at GEOPM compile time).  Note that the
-  sampled values, like 'energy', are accumulated into the sum for a
+  `--enable-ompt` is provided at GEOPM compile time, and the
+  `--geopm-ompt-disable` option is not provided to `geopmlaunch`). Note that
+  the sampled values, like 'energy', are accumulated into the sum for a
   region only when all ranks on a compute node are concurrently
   executing the same region; otherwise statistics gathered are
   accumulated within the 'unmarked-region'.  Also note that the
@@ -403,6 +404,10 @@ listed below.
   Used to allow passing the command through to the underlying launcher.
   By default, `geopmlaunch` will launch the GEOPM runtime in process mode.
   When this option is specified, the GEOPM runtime will not be launched.
+
+* `--geopm-ompt-disable`:
+  Disable OMPT detection of OpenMP regions.  See the INTEGRATION WITH OMPT
+  section of **geopm(7)** for more information about OpenMP region detection.
 
 ## EXAMPLES
 Use geopmlaunch to queue a job using geopmbench on a SLURM managed system
