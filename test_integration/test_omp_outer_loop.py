@@ -85,7 +85,7 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
                          '.' + cls.__name__ + ') ...')
         test_name = 'test_omp_outer_loop'
         test_config = ['_with_ompt', '_without_ompt']
-        cls._expected_regions = ['spin']
+        cls._expected_regions = ['spin', 'all2all']
         cls._report_path = []
         cls._trace_path = []
         cls._skip_launch = _g_skip_launch

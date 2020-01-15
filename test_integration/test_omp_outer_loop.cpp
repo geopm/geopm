@@ -58,6 +58,7 @@ int main(int argc, char **argv)
     }
 
     std::vector<std::unique_ptr<geopm::ModelRegionBase> > spin_models;
+    std::vector<std::unique_ptr<geopm::ModelRegionBase> > all2all_models;
     int num_threads = 0;
 # pragma omp parallel
 {
@@ -67,12 +68,15 @@ int main(int argc, char **argv)
 }
     for (int x = 0; x < num_threads; ++x) {
         spin_models.push_back(std::unique_ptr<geopm::ModelRegionBase>(geopm::model_region_factory("spin", 1.0, is_verbose)));
+        all2all_models.push_back(std::unique_ptr<geopm::ModelRegionBase>(geopm::model_region_factory("all2all", 1.0, is_verbose)));
     }
 
     int repeat = 50;
 #pragma omp parallel for
     for (int rep_idx = 0; rep_idx < repeat; ++rep_idx) {
-        spin_models[omp_get_thread_num()]->run();
+        int thread_id = omp_get_thread_num();
+        spin_models[thread_id]->run();
+        all2all_models[thread_id]->run();
     }
     MPI_Finalize();
     return err;
