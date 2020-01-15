@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f808ac31_5ea43f55",
+        "filename": "ronn/geopm.7.ronn.in",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 1012567
+      },
+      "writtenOn": "2020-01-15T19:01:48Z",
+      "side": 1,
+      "message": "At some point we will need a way for users to check this.  Not sure what the right mechanism is.",
+      "range": {
+        "startLine": 137,
+        "startChar": 7,
+        "endLine": 137,
+        "endChar": 69
+      },
+      "revId": "0bd10d6d9c71bde89803c1e13e93bcaad094cac2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
