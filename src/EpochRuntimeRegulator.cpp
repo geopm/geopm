@@ -146,7 +146,10 @@ namespace geopm
     {
         if (rank < 0 || rank >= m_rank_per_node) {
             throw Exception("EpochRuntimeRegulatorImp::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        } else if (region_id == GEOPM_REGION_HASH_INVALID) {
+            return;
         }
+
         bool is_network = geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_NETWORK, region_id) ||
                           geopm_region_id_is_mpi(region_id);
         region_id = geopm_region_id_unset_hint(GEOPM_MASK_REGION_HINT, region_id);
@@ -181,6 +184,8 @@ namespace geopm
     {
         if (rank < 0 || rank >= m_rank_per_node) {
             throw Exception("EpochRuntimeRegulatorImp::record_exit(): invalid rank value", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        } else if (region_id == GEOPM_REGION_HASH_INVALID) {
+            return;
         }
 
         bool is_ignore = geopm_region_id_hint_is_equal(GEOPM_REGION_HINT_IGNORE, region_id);
