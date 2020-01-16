@@ -137,11 +137,12 @@ def get_platform():
 
 class TestLauncher(object):
     def __init__(self, app_conf, agent_conf, report_path=None,
-                 trace_path=None, host_file=None, time_limit=600, region_barrier=False, performance=False, fatal_test=False):
+                 trace_path=None, host_file=None, time_limit=600, region_barrier=False, performance=False, fatal_test=False, ptrace_path=None):
         self._app_conf = app_conf
         self._agent_conf = agent_conf
         self._report_path = report_path
         self._trace_path = trace_path
+        self._ptrace_path = ptrace_path
         self._host_file = host_file
         self._time_limit = time_limit
         self._region_barrier = region_barrier
@@ -195,6 +196,8 @@ class TestLauncher(object):
                 argv.extend(['--geopm-report', self._report_path])
             if self._trace_path is not None:
                 argv.extend(['--geopm-trace', self._trace_path])
+            if self._ptrace_path is not None:
+                argv.extend(['--geopm-trace-profile', self._ptrace_path])
             if self._region_barrier:
                 argv.append('--geopm-region-barrier')
             if self._disable_ompt:
