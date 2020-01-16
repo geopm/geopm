@@ -47,19 +47,29 @@ def skip_unless_platform_bdx():
     return lambda func: func
 
 
-def skip_unless_config_enable(feature):
+def get_config_value(key):
+    """Get the value of an option from the build configuration, returning None
+    if no such key is present.
+    """
     path = os.path.join(
            os.path.dirname(
             os.path.dirname(
              os.path.realpath(__file__))),
            'config.log')
-    with open(path) as fid:
-        for line in fid.readlines():
-            if line.startswith("enable_{}='0'".format(feature)):
-                return unittest.skip("Feature: {feature} is not enabled, configure with --enable-{feature} to run this test.".format(feature=feature))
-            elif line.startswith("enable_{}='1'".format(feature)):
-                break
-    return lambda func: func
+    with open(path) as config_file:
+        for line in config_file:
+            line_start = "{}='".format(key)
+            line_end = "'\n"
+            if line.startswith(line_start) and line.endswith(line_end):
+                return line[len(line_start):-len(line_end)]
+    return None
+
+
+def skip_unless_config_enable(feature):
+    if get_config_value('enable_{}'.format(feature)) == '1':
+        return lambda func: func
+    else:
+        return unittest.skip("Feature: {feature} is not enabled, configure with --enable-{feature} to run this test.".format(feature=feature))
 
 
 def skip_unless_optimized():
