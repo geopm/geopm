@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98b447fa_1631ea7c",
+        "filename": "test_integration/util.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2020-01-16T01:39:33Z",
+      "side": 1,
+      "message": "Please start putting refactors like this in a separate patch.  Fine for this one.",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 142
+      },
+      "revId": "788baa52afa3353e286a02de12a81f7f67cc09ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c5ed40d_bf51d859",
+        "filename": "test_integration/util.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2020-01-16T01:39:33Z",
+      "side": 1,
+      "message": "Can this be converted to use run_script_on_compute_nodes()?",
+      "range": {
+        "startLine": 106,
+        "startChar": 12,
+        "endLine": 106,
+        "endChar": 111
+      },
+      "revId": "788baa52afa3353e286a02de12a81f7f67cc09ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97fc6bcb_89065dfb",
+        "filename": "test_integration/util.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2020-01-16T01:39:33Z",
+      "side": 1,
+      "message": "Can this be converted to use run_script_on_compute_nodes()?",
+      "range": {
+        "startLine": 136,
+        "startChar": 12,
+        "endLine": 136,
+        "endChar": 105
+      },
+      "revId": "788baa52afa3353e286a02de12a81f7f67cc09ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2b16e40_a4a3d660",
+        "filename": "test_integration/util.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2020-01-16T01:39:33Z",
+      "side": 1,
+      "message": "I\u0027m pretty sure these message that show up in the terminal when plugins load depends on the verbosity setting for SPANK plugins in the slurm.conf.  We may have to revisit this later if it becomes a problem somewhere.",
+      "range": {
+        "startLine": 155,
+        "startChar": 0,
+        "endLine": 156,
+        "endChar": 86
+      },
+      "revId": "788baa52afa3353e286a02de12a81f7f67cc09ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ce37208_cea0c570",
+        "filename": "test_integration/util.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 1009284
+      },
+      "writtenOn": "2020-01-16T01:39:33Z",
+      "side": 1,
+      "message": "Fancy.",
+      "range": {
+        "startLine": 167,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 15
+      },
+      "revId": "788baa52afa3353e286a02de12a81f7f67cc09ef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
