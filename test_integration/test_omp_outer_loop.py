@@ -88,6 +88,7 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
         cls._expected_regions = ['MPI_Barrier']
         cls._report_path = []
         cls._trace_path = []
+        cls._ptrace_path = []
         cls._skip_launch = _g_skip_launch
         cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
         num_node = 1
@@ -96,15 +97,18 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
             curr_run = test_name + config
             report_path = curr_run + '.report'
             trace_path = curr_run + '.trace'
+            ptrace_path = curr_run + '.ptrace'
             cls._report_path.append(report_path)
             cls._trace_path.append(trace_path)
+            cls._ptrace_path.append(ptrace_path)
             cls._agent_conf_path = test_name + '-agent-config.json'
             agent_conf = geopmpy.io.AgentConf(cls._agent_conf_path)
             launcher = geopm_test_launcher.TestLauncher(AppConf(),
                                                         agent_conf,
                                                         report_path,
                                                         trace_path,
-                                                        time_limit=6000)
+                                                        time_limit=6000,
+                                                        ptrace_path=ptrace_path)
             launcher.set_num_node(num_node)
             launcher.set_num_rank(num_rank)
             if config == '_without_ompt':
@@ -122,6 +126,8 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
             cls._keep_files and not cls._skip_launch):
             os.unlink(cls._report_path)
             for ff in glob.glob(cls._trace_path + '*'):
+                os.unlink(ff)
+            for ff in glob.glob(cls._ptrace_path + '*'):
                 os.unlink(ff)
 
     def test_user_defined_regions_absent(self):
