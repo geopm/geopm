@@ -21,6 +21,7 @@ BuildRequires: python
 BuildRequires: python-devel
 BuildRequires: unzip
 BuildRequires: openssh
+BuildRequires: elfutils-libelf-devel
 
 %description
 @BLURB@

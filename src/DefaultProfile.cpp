@@ -61,12 +61,13 @@ namespace geopm
     {
         g_pmpi_prof_enabled = 0;
     }
-}
 
-static geopm::DefaultProfile &geopm_default_prof(void)
-{
-    static geopm::DefaultProfile default_prof;
-    return default_prof;
+
+    Profile &Profile::default_profile(void)
+    {
+        static geopm::DefaultProfile instance;
+        return instance;
+    }
 }
 
 extern "C"
@@ -80,7 +81,7 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm_default_prof();
+            geopm::Profile::default_profile();
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -92,7 +93,7 @@ extern "C"
     {
         int err = 0;
         try {
-            *region_id = geopm_default_prof().region(std::string(region_name), hint);
+            *region_id = geopm::Profile::default_profile().region(std::string(region_name), hint);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -104,7 +105,7 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm_default_prof().enter(region_id);
+            geopm::Profile::default_profile().enter(region_id);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -116,7 +117,7 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm_default_prof().exit(region_id);
+            geopm::Profile::default_profile().exit(region_id);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -128,7 +129,7 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm_default_prof().progress(region_id, fraction);
+            geopm::Profile::default_profile().progress(region_id, fraction);
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -140,7 +141,7 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm_default_prof().epoch();
+            geopm::Profile::default_profile().epoch();
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -152,7 +153,7 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm_default_prof().shutdown();
+            geopm::Profile::default_profile().shutdown();
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
@@ -165,7 +166,7 @@ extern "C"
         int err = 0;
         if (g_pmpi_prof_enabled) {
             try {
-                geopm_default_prof().tprof_table()->init(num_work_unit);
+                geopm::Profile::default_profile().tprof_table()->init(num_work_unit);
             }
             catch (...) {
                 err = geopm::exception_handler(std::current_exception());
@@ -179,7 +180,7 @@ extern "C"
         int err = 0;
         if (g_pmpi_prof_enabled) {
             try {
-                std::shared_ptr<geopm::ProfileThreadTable> table_ptr = geopm_default_prof().tprof_table();
+                std::shared_ptr<geopm::ProfileThreadTable> table_ptr = geopm::Profile::default_profile().tprof_table();
                 if (chunk_size) {
                     table_ptr->init(num_thread, thread_idx, num_iter, chunk_size);
                 }
@@ -199,7 +200,7 @@ extern "C"
         int err = 0;
         if (g_pmpi_prof_enabled) {
             try {
-                geopm_default_prof().tprof_table()->post();
+                geopm::Profile::default_profile().tprof_table()->post();
             }
             catch (...) {
                 err = geopm::exception_handler(std::current_exception());
