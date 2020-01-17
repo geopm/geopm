@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0ee5847_c5a2d159",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2020-01-17T17:02:59Z",
+      "side": 1,
+      "message": "Should this also be marked to close #802 since you plan to use a new issue for test_power_balancer?",
+      "revId": "b9c0e704eea7f13bc97bf876f3f0e7e57b30c4c2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4afbea14_7f69eef2",
+        "filename": "test_integration/geopm_test_integration.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 1433,
+      "author": {
+        "id": 1016629
+      },
+      "writtenOn": "2020-01-17T17:02:59Z",
+      "side": 1,
+      "message": "Can you also note the relevance of the stress load for this test? I guess we are checking that PERF_CTL:FREQ is respected even when the CPUs are under 100% load.",
+      "range": {
+        "startLine": 1433,
+        "startChar": 8,
+        "endLine": 1433,
+        "endChar": 59
+      },
+      "revId": "b9c0e704eea7f13bc97bf876f3f0e7e57b30c4c2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
