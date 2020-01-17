@@ -84,6 +84,7 @@ namespace geopm
             Profile() = default;
             Profile(const Profile &other) = default;
             virtual ~Profile() = default;
+            static Profile &default_profile(void);
             /// @brief Register a region of code to be profiled.
             ///
             /// The statistics gathered for each region are aggregated
@@ -317,6 +318,8 @@ namespace geopm
             double m_overhead_time_startup;
             double m_overhead_time_shutdown;
     };
+
+    Profile &geopm_default_profile(void);
 }
 
 #endif
