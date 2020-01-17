@@ -68,9 +68,10 @@ namespace geopm
             virtual bool do_trace(void) const = 0;
             virtual bool do_trace_profile(void) const = 0;
             virtual bool do_trace_endpoint_policy(void) const = 0;
-            virtual bool do_profile() const = 0;
+            virtual bool do_profile(void) const = 0;
             virtual int timeout(void) const = 0;
             virtual int debug_attach(void) const = 0;
+            virtual bool do_ompt(void) const = 0;
     };
 
     class EnvironmentImp : public Environment
@@ -104,6 +105,7 @@ namespace geopm
             bool do_profile() const override;
             int timeout(void) const override;
             int debug_attach(void) const override;
+            bool do_ompt(void) const override;
             static std::set<std::string> get_all_vars();
         protected:
             void parse_environment();

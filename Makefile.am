@@ -450,6 +450,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/DebugIOGroup.cpp \
                             src/DebugIOGroup.hpp \
                             src/DefaultProfile.cpp \
+                            src/ELF.cpp \
+                            src/ELF.hpp \
                             src/Endpoint.cpp \
                             src/Endpoint.hpp \
                             src/EndpointImp.hpp \
@@ -498,6 +500,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/MSRSignalImp.hpp \
                             src/MonitorAgent.cpp \
                             src/MonitorAgent.hpp \
+                            src/OMPT.cpp \
+                            src/OMPT.hpp \
                             src/PlatformIO.cpp \
                             src/PlatformIO.hpp \
                             src/PlatformIOImp.hpp \
@@ -579,15 +583,9 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             # end
 
 if ENABLE_OMPT
-    libgeopmpolicy_la_SOURCES += src/OMPT.cpp \
-                                 src/ELF.cpp \
-                                 src/ELF.hpp \
-                                 #end
+    libgeopmpolicy_la_SOURCES += src/ompt_callback.cpp
 else
-    EXTRA_DIST += src/OMPT.cpp \
-                  src/ELF.cpp \
-                  src/ELF.hpp \
-                  #end
+    EXTRA_DIST += src/ompt_callback.cpp
 endif
 
 beta_source_files = src/Daemon.cpp \
