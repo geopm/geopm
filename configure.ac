@@ -460,22 +460,22 @@ fi
 
 if test "x$enable_ompt" = "x1" ; then
   AC_DEFINE([GEOPM_ENABLE_OMPT], [ ], [Enables OpenMP Tool callbacks.])
-
-  AC_SEARCH_LIBS([elf_begin], [elf])
-  AC_CHECK_LIB([elf], [elf_begin], [], [
-      echo "missing libelf: ELF library is required, use --with-libelf or --with-libelf-lib to specify location"
-      exit -1])
-  AC_CHECK_HEADER([libelf.h], [], [
-      echo "missing libelf.h: ELF library is required, use --with-libelf or --with-libelf-include to specify location"
-      exit -1])
-  AC_CHECK_HEADER([gelf.h], [], [
-      echo "missing gelf.h: ELF library is required, use --with-libelf or --with-libelf-include to specify location"
-      exit -1])
 fi
 
 AC_SUBST([enable_ompt])
 AM_CONDITIONAL([ENABLE_OMPT], [test "x$enable_ompt" = "x1"])
 AM_CONDITIONAL([HAS_OMPT], [test "x$has_ompt" = "x1"])
+
+AC_SEARCH_LIBS([elf_begin], [elf])
+AC_CHECK_LIB([elf], [elf_begin], [], [
+    echo "missing libelf: ELF library is required, use --with-libelf or --with-libelf-lib to specify location"
+    exit -1])
+AC_CHECK_HEADER([libelf.h], [], [
+    echo "missing libelf.h: ELF library is required, use --with-libelf or --with-libelf-include to specify location"
+    exit -1])
+AC_CHECK_HEADER([gelf.h], [], [
+    echo "missing gelf.h: ELF library is required, use --with-libelf or --with-libelf-include to specify location"
+    exit -1])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h float.h inttypes.h malloc.h netdb.h stddef.h stdint.h stdlib.h string.h sys/socket.h unistd.h])
