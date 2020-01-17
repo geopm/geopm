@@ -71,6 +71,7 @@ namespace geopm
             virtual bool do_profile(void) const = 0;
             virtual int timeout(void) const = 0;
             virtual int debug_attach(void) const = 0;
+            virtual bool do_ompt(void) const = 0;
     };
 
     class EnvironmentImp : public Environment
