@@ -172,6 +172,7 @@ class Config(object):
         parser.add_argument('--geopm-region-barrier', dest='barrier', action='store_true', default=False)
         parser.add_argument('--geopm-preload', dest='preload', action='store_true', default=False)
         parser.add_argument('--geopm-hyperthreads-disable', dest='allow_ht_pinning', action='store_false', default=True)
+        parser.add_argument('--geopm-ompt-disable', dest='ompt_disable', action='store_true', default=False)
 
         opts, self.argv_unparsed = parser.parse_known_args(argv)
         # Error check inputs
@@ -197,6 +198,7 @@ class Config(object):
         self.preload = opts.preload
         self.omp_num_threads = None
         self.allow_ht_pinning = opts.allow_ht_pinning and 'GEOPM_DISABLE_HYPERTHREADS' not in os.environ
+        self.ompt_disable = opts.ompt_disable
 
     def __repr__(self):
         """
@@ -258,6 +260,8 @@ class Config(object):
             result['GEOPM_REGION_BARRIER'] = 'true'
         if self.omp_num_threads:
             result['OMP_NUM_THREADS'] = self.omp_num_threads
+        if self.ompt_disable:
+            result['GEOPM_OMPT_DISABLE'] = 'true'
 
         # Add geopm installed OpenMP library to LD_LIBRARY_PATH if it
         # is present.
@@ -1580,6 +1584,7 @@ GEOPM_OPTIONS:
                                do not allow pinning to HTs
       --geopm-ctl-disable      do not launch geopm; pass through commands to
                                underlying launcher
+      --geopm-ompt-disable     do not auto detect OpenMP paralell regions
 
 {}
 
