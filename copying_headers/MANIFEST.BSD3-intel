@@ -153,6 +153,8 @@ src/ModelRegion.hpp
 src/MonitorAgent.cpp
 src/MonitorAgent.hpp
 src/OMPT.cpp
+src/OMPT.hpp
+src/ompt_callback.cpp
 src/PlatformIO.cpp
 src/PlatformIO.hpp
 src/PlatformIOImp.hpp

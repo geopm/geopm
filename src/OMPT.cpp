@@ -38,13 +38,15 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
-#include <omp-tools.h>
 
 #include "geopm.h"
 #include "geopm_sched.h"
 #include "geopm_error.h"
+#include "Profile.hpp"
 #include "ELF.hpp"
+#include "Environment.hpp"
 #include "Exception.hpp"
+#include "OMPT.hpp"
 
 #include "config.h"
 
@@ -56,46 +58,70 @@ extern "C"
 
 namespace geopm
 {
-    class OMPT
+    class OMPTImp : public OMPT
     {
         public:
-            OMPT() = default;
-            virtual ~OMPT() = default;
-            uint64_t region_id(const void *parallel_function);
-            void region_name(const void *parallel_function, std::string &name);
+            OMPTImp();
+            OMPTImp(bool do_ompt, Profile &prof);
+            virtual ~OMPTImp() = default;
+            bool is_enabled(void) override;
+            void region_enter(const void *function_ptr) override;
+            void region_exit(const void *function_ptr) override;
+            uint64_t region_id(const void *function_ptr);
+            std::string region_name(const void *function_ptr);
         private:
             /// Map from function address to geopm region ID
             std::map<size_t, uint64_t> m_function_region_id_map;
+            bool m_do_ompt;
+            Profile &m_prof;
     };
 
-    static OMPT &ompt(void)
+    OMPT &OMPT::ompt(void)
     {
-        static OMPT instance;
+        static OMPTImp instance;
         return instance;
     }
 
-    uint64_t OMPT::region_id(const void *parallel_function)
+    OMPTImp::OMPTImp()
+        : OMPTImp(environment().do_ompt(), Profile::default_profile())
     {
+
+    }
+
+    OMPTImp::OMPTImp(bool do_ompt, Profile &prof)
+        : m_do_ompt(do_ompt)
+        , m_prof(prof)
+    {
+
+    }
+
+    bool OMPTImp::is_enabled(void)
+    {
+        return m_do_ompt;
+    }
+
+    uint64_t OMPTImp::region_id(const void *parallel_function)
+    {
+        size_t target = (size_t) parallel_function;
         uint64_t result = GEOPM_REGION_HASH_UNMARKED;
-        auto it = m_function_region_id_map.find((size_t)parallel_function);
+        auto it = m_function_region_id_map.find(target);
         if (m_function_region_id_map.end() != it) {
             result = it->second;
         }
         else {
-            std::string rn;
-            region_name(parallel_function, rn);
+            std::string rn = region_name(parallel_function);
             int err = geopm_prof_region(rn.c_str(), GEOPM_REGION_HINT_UNKNOWN, &result);
             if (err) {
                 result = GEOPM_REGION_HASH_UNMARKED;
             }
             else {
-                m_function_region_id_map.insert(std::pair<size_t, uint64_t>((size_t)parallel_function, result));
+                m_function_region_id_map.insert(std::pair<size_t, uint64_t>(target, result));
             }
         }
         return result;
     }
 
-    void OMPT::region_name(const void *parallel_function, std::string &name)
+    std::string OMPTImp::region_name(const void *parallel_function)
     {
         size_t target = (size_t) parallel_function;
         std::ostringstream name_stream;
@@ -110,68 +136,32 @@ namespace geopm
             name_stream << "0x" << std::setfill('0') << std::setw(16) << std::hex
                         << target;
         }
-        name = name_stream.str();
+        return name_stream.str();
+    }
+
+    void OMPTImp::region_enter(const void *parallel_function)
+    {
+        uint64_t rid = region_id(parallel_function);
+        if (rid != GEOPM_REGION_HASH_UNMARKED) {
+            try {
+                m_prof.enter(rid);
+            }
+            catch (Exception) {
+
+            }
+        }
+    }
+
+    void OMPTImp::region_exit(const void *parallel_function)
+    {
+        uint64_t rid = region_id(parallel_function);
+        if (rid != GEOPM_REGION_HASH_UNMARKED) {
+            try {
+                m_prof.exit(rid);
+            }
+            catch (Exception) {
+
+            }
+        }
     }
 }
-
-
-extern "C"
-{
-
-    static const void *g_curr_parallel_function = NULL;
-    static uint64_t g_curr_region_id = GEOPM_REGION_HASH_UNMARKED;
-
-    static void on_ompt_event_parallel_begin(ompt_data_t *encountering_task_data,
-                                             const ompt_frame_t *encountering_task_frame,
-                                             ompt_data_t *parallel_data,
-                                             unsigned int requested_parallelism,
-                                             int flags,
-                                             const void *parallel_function)
-    {
-        if (geopm_is_pmpi_prof_enabled() &&
-            g_curr_parallel_function != parallel_function) {
-            g_curr_parallel_function = parallel_function;
-            g_curr_region_id = geopm::ompt().region_id(parallel_function);
-        }
-        if (g_curr_region_id != GEOPM_REGION_HASH_UNMARKED) {
-            geopm_prof_enter(g_curr_region_id);
-        }
-    }
-
-    static void on_ompt_event_parallel_end(ompt_data_t *parallel_data,
-                                           ompt_data_t *encountering_task_data,
-                                           int flags,
-                                           const void *parallel_function)
-    {
-        if (geopm_is_pmpi_prof_enabled() &&
-            g_curr_region_id != GEOPM_REGION_HASH_UNMARKED &&
-            g_curr_parallel_function == parallel_function) {
-            geopm_prof_exit(g_curr_region_id);
-        }
-    }
-
-    int ompt_initialize(ompt_function_lookup_t lookup,
-                        int initial_device_num,
-                        ompt_data_t *tool_data)
-    {
-        ompt_set_callback_t ompt_set_callback = (ompt_set_callback_t) lookup("ompt_set_callback");
-        ompt_set_callback(ompt_callback_parallel_begin, (ompt_callback_t) &on_ompt_event_parallel_begin);
-        ompt_set_callback(ompt_callback_parallel_end, (ompt_callback_t) &on_ompt_event_parallel_end);
-        // OpenMP 5.0 standard says return non-zero on success!?!?!
-        return 1;
-    }
-
-    void ompt_finalize(ompt_data_t *data)
-    {
-
-    }
-
-    ompt_start_tool_result_t *ompt_start_tool(unsigned int omp_version, const char *runtime_version)
-    {
-        static ompt_start_tool_result_t ompt_start_tool_result = {&ompt_initialize,
-                                                                  &ompt_finalize,
-                                                                  {}};
-        return &ompt_start_tool_result;
-    }
-}
-
