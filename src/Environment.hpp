@@ -71,6 +71,7 @@ namespace geopm
             virtual bool do_profile(void) const = 0;
             virtual int timeout(void) const = 0;
             virtual int debug_attach(void) const = 0;
+            virtual bool do_ompt(void) const = 0;
     };
 
     class EnvironmentImp : public Environment
@@ -105,6 +106,7 @@ namespace geopm
             int timeout(void) const override;
             int debug_attach(void) const override;
             static std::set<std::string> get_all_vars();
+            bool do_ompt(void) const override;
         protected:
             void parse_environment();
             void parse_environment_file(const std::string &settings_path);

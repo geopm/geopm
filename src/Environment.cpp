@@ -140,7 +140,8 @@ namespace geopm
                 "GEOPM_DEBUG_ATTACH",
                 "GEOPM_PROFILE",
                 "GEOPM_FREQUENCY_MAP",
-                "GEOPM_MAX_FAN_OUT"};
+                "GEOPM_MAX_FAN_OUT",
+                "GEOPM_OMPT_DISABLE"};
     }
 
     void EnvironmentImp::parse_environment()
@@ -362,5 +363,10 @@ namespace geopm
     int EnvironmentImp::debug_attach(void) const
     {
         return std::stoi(lookup("GEOPM_DEBUG_ATTACH"));
+    }
+
+    bool EnvironmentImp::do_ompt(void) const
+    {
+        return !is_set("GEOPM_OMPT_DISABLE");
     }
 }
