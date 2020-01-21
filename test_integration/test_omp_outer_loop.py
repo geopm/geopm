@@ -127,10 +127,21 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
         # self._report_path[0] maps to with-ompt config
         report = geopmpy.io.RawReport(self._report_path[0])
         host_names = report.host_names()
+        network_time_detected = False
         for host_name in report.host_names():
             for expected_region in self._expected_regions:
                 self.assertFalse(expected_region in report.region_names(host_name),
                                  msg='Region {} should not be present in report'.format(expected_region))
+            for detected_region in report.region_names(host_name):
+                # second omp parallel region should have some network-time associated with it
+                # so here we just assert that at least ONE of the regions has the consumed
+                # MPI_Barrier regions network-time
+                if detected_region.startswith('[OMPT]'):
+                    observed_region = report.raw_region(host_name, detected_region)
+                    if observed_region['network-time (sec)'] != 0:
+                        network_time_detected = True
+            self.assertTrue(network_time_detected,
+                            msg="There should be some network time assiciated with an OMPT detected region.")
 
     def test_regions_present(self):
         """Test that the second run's report DOES contain the
