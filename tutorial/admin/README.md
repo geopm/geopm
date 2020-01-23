@@ -12,7 +12,15 @@ The directory contains scripts that can be used to configure systems
 for use with the GEOPM runtime.  The scripts associated with each
 section are numbered accordingly.
 
-0. Set up a system to use the GEOPM static policy plugin for SLURM
+0. Verify that the required pre-requisites for running GEOPM are met
+--------------------------------------------------------------------
+Run ```./test_prereqs.sh``` on a compute node in the context of a regular user
+to ensure the GEOPM components are installed and functioning properly.
+In the event that something is misconfigured, an ERROR or WARNING message
+will be displayed reccomending a course of action to address the issue
+or refer the user back to the main GEOPM README for guidance.
+
+1. Set up a system to use the GEOPM static policy plugin for SLURM
 -------------------------------------------------------------------
 GEOPM provides two libraries: libgeopmpolicy contains tools for interacting
 with hardware signals and controls, such as geopmread, and the supporting
@@ -75,7 +83,7 @@ E.  Update the SLURM configuration (/etc/slurm/slurm.conf) as follows:
     https://openhpc.community/downloads/).  If this is not the case, copy
     slurm.conf to the same location on the compute nodes.
 
-1. Enable users to do research with the GEOPM runtime
+2. Enable users to do research with the GEOPM runtime
 -----------------------------------------------------
 
 Follow the instructions in "RUNTIME REQUIREMENTS" section of the
@@ -93,7 +101,7 @@ Test scripts to check the system requirements have been met can be found in XXXX
     - test
 
 
-2. Restrict CPU frequency for jobs that do not use the GEOPM runtime
+3. Restrict CPU frequency for jobs that do not use the GEOPM runtime
 ----------------------------------------------------------------------
 In this scenario, the CPU frequency of all nodes in the job will be set
 to a fixed value at the beginning of every job.  This setup can be used
@@ -107,7 +115,7 @@ of how to set up a system to run all jobs at 300 MHz below the sticker
 frequency.  The test script test_integration/test_plugin_static_policy.py
 can be used to check whether this setup is working.
 
-3. Set the energy efficient agent as the default agent
+4. Set the energy efficient agent as the default agent
 ------------------------------------------------------
 When users run jobs with GEOPM, the built-in default agent is the monitor
 (no controls, monitoring only).  To change this default to the energy
@@ -116,7 +124,7 @@ see the script "setup_default_energy_efficient.sh".  In this example, jobs
 not using GEOPM will run not have their frequency changed.  The test
 script XXXX can be used to check whether this setup is working.
 
-4. Restrict power limit for jobs that do not use the GEOPM runtime
+5. Restrict power limit for jobs that do not use the GEOPM runtime
 ------------------------------------------------------------------
 In this scenario, the package power limit of all nodes in the job will be set
 to a fixed value at the beginning of every job.  This setup can be used
@@ -127,7 +135,7 @@ how to set up a system to run all jobs at 50 watts below TDP.  The
 test script test_integration/test_plugin_static_policy.py can be used to
 check whether this setup is working.
 
-4. Set the power balancing agent as the default agent and power cap other jobs
+6. Set the power balancing agent as the default agent and power cap other jobs
 ------------------------------------------------------------------------------
 When users run jobs with GEOPM, the built-in default agent is the monitor
 (no controls, monitoring only).  To change this default to the power balancer
@@ -136,7 +144,7 @@ see the script "setup_default_power_balancer.sh".  In this example, jobs
 not using GEOPM will have their power cap set to a fixed cap across all nodes.
 The test script XXXX can be used to check whether this setup is working.
 
-5. Restrict CPU frequency or enforce energy efficient agent
+7. Restrict CPU frequency or enforce energy efficient agent
 -----------------------------------------------------------
 In this scenario, the CPU frequency of all jobs will be capped at a specified
 maximum, but users who request GEOPM using the `geopmlaunch` tool can be
@@ -147,7 +155,7 @@ such that all GEOPM users must use the energy efficient agent.
 See the test script "setup_override_energy_efficient.sh".
 The test script XXXX can be used to check whether this setup is working.
 
-6. Restrict power cap or enforce power balancing agent
+8. Restrict power cap or enforce power balancing agent
 ------------------------------------------------------
 In this scenario, the average power of all jobs will be constrained to
 a specified limit, but users who request GEOPM using the `geopmlaunch`
@@ -157,10 +165,10 @@ staying under the same average power cap.
 See the test script "setup_override_power_balancer.sh".
 The test script XXXX can be used to check whether this setup is working.
 
-7. Control location of report and trace file output
+9. Control location of report and trace file output
 ---------------------------------------------------
 Unsupported future feature.
 
-8. Restrict the maximum size of trace file generation
+10. Restrict the maximum size of trace file generation
 -----------------------------------------------------
 Unsupported future feature.
