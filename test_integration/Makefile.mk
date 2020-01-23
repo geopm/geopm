@@ -40,6 +40,7 @@ EXTRA_DIST += test_integration/geopm_context.py \
               test_integration/test_omp_outer_loop.py \
               test_integration/test_profile_policy.py \
               test_integration/test_static_policy.py \
+              test_integration/test_plugin_static_policy.py \
               test_integration/util.py \
               # end
 
