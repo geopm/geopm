@@ -103,6 +103,7 @@ scripts/outlier/theta_nodelist_broken.txt
 scripts/requirements.txt
 test_integration/README.md
 tutorial/README.md
+tutorial/admin/README.md
 tutorial/agent/README.md
 tutorial/agent/agent_tutorial_config.json
 tutorial/agent/example_policy.json
