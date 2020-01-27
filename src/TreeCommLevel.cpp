@@ -55,7 +55,7 @@ namespace geopm
         , m_num_send_down(num_send_down)
     {
         if (!m_rank) {
-            m_policy_last.resize(m_size, std::vector<double>(num_send_down, 0.0));
+            m_policy_last.resize(m_size, std::vector<double>(num_send_down, NAN));
         }
         create_window();
     }
