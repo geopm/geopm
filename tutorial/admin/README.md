@@ -10,7 +10,7 @@ energy, power, and performance.
 
 The directory contains scripts that can be used to configure systems
 for use with the GEOPM runtime.  The scripts associated with each
-section will be numbered accordingly.
+section are numbered accordingly.
 
 0. Enable users to do research with the GEOPM runtime
 -----------------------------------------------------
