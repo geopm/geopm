@@ -355,6 +355,7 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/TreeCommLevelTest.receive_up_complete \
               test/gtest_links/TreeCommLevelTest.receive_up_incomplete \
               test/gtest_links/TreeCommLevelTest.send_down \
+              test/gtest_links/TreeCommLevelTest.send_down_zero_value \
               test/gtest_links/TreeCommLevelTest.send_up \
               test/gtest_links/TreeCommTest.geometry \
               test/gtest_links/TreeCommTest.geometry_nonroot \

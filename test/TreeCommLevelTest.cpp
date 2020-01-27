@@ -220,6 +220,22 @@ TEST_F(TreeCommLevelTest, send_down)
                                GEOPM_ERROR_INVALID, "policy vector is not sized correctly");
 }
 
+TEST_F(TreeCommLevelTest, send_down_zero_value)
+{
+    std::vector<std::vector<double> > policy {{0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
+    ASSERT_EQ(m_num_rank, (int)policy.size());
+    size_t msg_size = sizeof(double) * m_num_down;
+
+    EXPECT_CALL(*m_comm_0, window_lock(_, _, _, _)).Times(m_num_rank - 1);
+    EXPECT_CALL(*m_comm_0, window_unlock(_, _)).Times(m_num_rank - 1);
+    EXPECT_CALL(*m_comm_0, window_put(_, sizeof(double), _, _, _)).Times(m_num_rank - 1);
+    EXPECT_CALL(*m_comm_0, window_put(_, msg_size, _, _, _)).Times(m_num_rank - 1);
+
+    EXPECT_EQ(0u, m_level_rank_0->overhead_send());
+    m_level_rank_0->send_down(policy);
+    EXPECT_EQ((sizeof(double) + msg_size) * (m_num_rank - 1), m_level_rank_0->overhead_send());
+}
+
 TEST_F(TreeCommLevelTest, receive_up_complete)
 {
     std::vector<std::vector<double> > sample {{44.4, 33.3, 22.2},
