@@ -68,6 +68,8 @@ scripts/test/analysis_helper.py
 scripts/test/mock_report.py
 scripts/test/geopmpy_test.sh
 scripts/test/check_python3_compatibility.sh
+src/Admin.cpp
+src/Admin.hpp
 src/Agent.cpp
 src/Agent.hpp
 src/Agg.cpp
@@ -242,6 +244,7 @@ src/geopm_time.h
 src/geopm_topo.h
 src/geopm_version.c
 src/geopm_version.h
+src/geopmadmin_main.cpp
 src/geopmagent_main.cpp
 src/geopmbench_main.cpp
 src/geopmctl_main.c

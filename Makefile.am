@@ -38,7 +38,8 @@ AM_CPPFLAGS += -I$(top_srcdir)/src \
 
 # THINGS THAT ARE INSTALLED
 lib_LTLIBRARIES = libgeopmpolicy.la
-bin_PROGRAMS = geopmagent \
+bin_PROGRAMS = geopmadmin \
+               geopmagent \
                geopmread \
                geopmwrite \
                #end
@@ -179,6 +180,7 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/geopm_time.3 \
                 man/geopm_topo_c.3 \
                 man/geopm_version.3 \
+                man/geopmadmin.1 \
                 man/geopmagent.1 \
                 man/geopmbench.1 \
                 man/geopmctl.1 \
@@ -313,6 +315,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/geopm_time.3.ronn \
              ronn/geopm_topo_c.3.ronn \
              ronn/geopm_version.3.ronn \
+             ronn/geopmadmin.1.ronn \
              ronn/geopmagent.1.ronn \
              ronn/geopmanalysis.1.ronn \
              ronn/geopmbench.1.ronn \
@@ -416,6 +419,7 @@ geopmwrite_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
 geopmread_LDADD = libgeopmpolicy.la
 geopmwrite_LDADD = libgeopmpolicy.la
 geopmagent_LDADD = libgeopmpolicy.la
+geopmadmin_LDADD = libgeopmpolicy.la
 if ENABLE_MPI
     geopmctl_LDADD = libgeopm.la $(MPI_CLIBS)
     geopmbench_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
@@ -427,6 +431,8 @@ endif
 
 libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             contrib/json11/json11.hpp \
+                            src/Admin.cpp \
+                            src/Admin.hpp \
                             src/Agent.cpp \
                             src/Agent.hpp \
                             src/Agg.cpp \
@@ -606,15 +612,10 @@ else
     EXTRA_DIST += $(beta_source_files)
 endif
 
-geopmread_SOURCES = src/geopmread_main.cpp \
-                    #end
-geopmwrite_SOURCES = src/geopmwrite_main.cpp \
-                     #end
-geopmagent_SOURCES = src/geopm_agent.h \
-                     src/geopm_error.h \
-                     src/geopm_version.h \
-                     src/geopmagent_main.cpp \
-                     # end
+geopmread_SOURCES = src/geopmread_main.cpp
+geopmwrite_SOURCES = src/geopmwrite_main.cpp
+geopmagent_SOURCES = src/geopmagent_main.cpp
+geopmadmin_SOURCES = src/geopmadmin_main.cpp
 
 if ENABLE_MPI
     # All source files that are compiled into libgeopmpolicy are also
