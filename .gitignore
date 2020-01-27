@@ -59,6 +59,7 @@
 /geopm*.tar.gz
 /geopm.mod
 /geopm.o
+/geopmadmin
 /geopmagent
 /geopmbench
 /geopmctl

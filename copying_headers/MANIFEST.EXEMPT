@@ -85,6 +85,7 @@ ronn/geopm_sched.3.ronn
 ronn/geopm_time.3.ronn
 ronn/geopm_topo_c.3.ronn
 ronn/geopm_version.3.ronn
+ronn/geopmadmin.1.ronn
 ronn/geopmagent.1.ronn
 ronn/geopmanalysis.1.ronn
 ronn/geopmbench.1.ronn

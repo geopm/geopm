@@ -1,0 +1,94 @@
+geopmadmin(1) -- tool for geopm system administrators
+=====================================================
+
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
+[//]: # ()
+[//]: # (Redistribution and use in source and binary forms, with or without)
+[//]: # (modification, are permitted provided that the following conditions)
+[//]: # (are met:)
+[//]: # ()
+[//]: # (    * Redistributions of source code must retain the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer.)
+[//]: # ()
+[//]: # (    * Redistributions in binary form must reproduce the above copyright)
+[//]: # (      notice, this list of conditions and the following disclaimer in)
+[//]: # (      the documentation and/or other materials provided with the)
+[//]: # (      distribution.)
+[//]: # ()
+[//]: # (    * Neither the name of Intel Corporation nor the names of its)
+[//]: # (      contributors may be used to endorse or promote products derived)
+[//]: # (      from this software without specific prior written permission.)
+[//]: # ()
+[//]: # (THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
+[//]: # ("AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR)
+[//]: # (A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT)
+[//]: # (OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,)
+[//]: # (SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT)
+[//]: # (LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,)
+[//]: # (DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY)
+[//]: # (THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT)
+[//]: # ((INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE)
+[//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+
+## SYNOPSIS
+
+`geopmadmin` [`--config-default`|`--config-override`|`--msr-whitelist`] [`--cpuid`]
+
+`geopmadmin` [`--help`|`--version`]
+
+## DESCRIPTION
+The `geopmadmin` command line tool facilitates the administration of
+systems that are using GEOPM.  It can be used to display the path to
+the GEOPM configuration files, or check the validity the contents of
+those files.  This tool can also be used to configure the `msr-safe`
+kernel driver to enable the white listing of all MSR access required
+by GEOPM.  When run with no arguments `geopmadmin` will parse the
+default and override configuration files on the system and print out
+in a human readable format the values determined by these files.
+
+## OPTIONS
+  * `--help`:
+    Print brief summary of the command line usage information,
+    then exit.
+
+  * `--version`:
+    Print version of **geopm(7)** to standard output, then exit.
+
+  * `-d`, `--config-default`:
+    Print the path to the GEOPM configuration file that controls the
+    default values for the system.
+
+  * `-o`, `--config-override`:
+    Print the path to the GEOPM configuration file that controls the
+    override values for the system.
+
+  * `-w`, `--msr-whitelist`:
+    Print the minimum required whitelist for the msr-safe driver to
+    enable all of the GEOPM features.
+
+  * `-c`, `--cpuid`:
+    Specify the cpuid in hexidecimal to select the architecture for
+    the msr-safe whitelist generation.  If this option is not
+    specified the architecture where the application is running will
+    be used.
+
+## EXAMPLES
+Set the msr-safe whitelist to enable GEOPM:
+
+    geopmadmin --whitelist > /dev/cpu/msr_whitelist
+
+Configure a system to force the use of the energy efficient agent:
+
+    geopmagent -a energy_efficient -p 1.2e9,1.7e9,0.1,1.5e9 > /etc/geopm/policy.json
+    agent='"GEOPM_AGENT":"energy_efficient"'
+    policy='"GEOPM_POLICY":"/etc/geopm/policy.json"'
+    echo "{$agent,$policy}" > $(geopmadmin --config-override)
+
+## COPYRIGHT
+Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
+
+## SEE ALSO
+**geopm(7)**,
+**geopmagent(1)**
+**geopmlaunch(1)**
