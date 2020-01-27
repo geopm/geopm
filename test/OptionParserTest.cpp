@@ -94,7 +94,7 @@ TEST_F(OptionParserTest, add_option_errors)
                                GEOPM_ERROR_INVALID, "already assigned");
     GEOPM_EXPECT_THROW_MESSAGE(m_opt.add_option("hello", 'h', "hello", false, ""),
                                GEOPM_ERROR_INVALID, "already assigned");
-    GEOPM_EXPECT_THROW_MESSAGE(m_opt.add_option("very", 'v', "very", false, ""),
+    GEOPM_EXPECT_THROW_MESSAGE(m_opt.add_option("very", 'V', "very", false, ""),
                                GEOPM_ERROR_INVALID, "already assigned");
     GEOPM_EXPECT_THROW_MESSAGE(m_opt.add_option("bad", '?', "bad", false, ""),
                                GEOPM_ERROR_INVALID, "cannot have ? as a short option");
@@ -209,7 +209,7 @@ TEST_F(OptionParserTest, version)
     m_err_out.str("");
 
     // short form
-    const char * const short_form[] = {"", "-v"};
+    const char * const short_form[] = {"", "-V"};
     result = m_opt.parse(2, short_form);
     EXPECT_TRUE(result);
 
@@ -284,7 +284,8 @@ TEST_F(OptionParserTest, format_help)
                         "                            still wraps\n"
                         "  -h, --help                print brief summary of the command line usage\n"
                         "                            information, then exit\n"
-                        "  -v, --version             print version of GEOPM to standard output, then exit\n"
+                        "  -V, --version             print version of GEOPM to standard output, then\n"
+                        "                            exit\n"
                         "\n"
                         "Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.\n"
                         "\n";
