@@ -47,14 +47,27 @@ namespace geopm
         public:
             OptionParser(const std::string &prog_name,
                          std::ostream &std_out,
+                         std::ostream &err_out);
+            OptionParser(const std::string &prog_name,
+                         std::ostream &std_out,
                          std::ostream &err_out,
                          const std::string &custom_help);
-            /// @brief Add an option.  Boolean types do not require an
-            ///        argument; all other types do.
-            template <typename T>
+            /// @brief Add an option with a string argument.
             void add_option(const std::string &name,
-                            char short_form, const std::string &long_form,
-                            T default_val,
+                            char short_form,
+                            const std::string &long_form,
+                            const std::string &default_val,
+                            const std::string &description);
+            void add_option(const std::string &name,
+                            char short_form,
+                            const std::string &long_form,
+                            const char *default_val,
+                            const std::string &description);
+            /// @brief Add a boolean flag option.
+            void add_option(const std::string &name,
+                            char short_form,
+                            const std::string &long_form,
+                            bool default_val,
                             const std::string &description);
             /// @brief Parse and save option values.  Returns whether program
             ///        should exit because -h or -v was passed.
@@ -72,8 +85,16 @@ namespace geopm
             ///        of all options.
             std::string format_help(void);
         private:
-            void check_add_option(const std::string &name, char short_form,
+            void check_add_option(const std::string &name,
+                                  char short_form,
                                   const std::string &long_form);
+            void format_option(std::ostream &tmp,
+                               const std::string &short_form,
+                               const std::string &long_form,
+                               std::string description);
+
+            static const std::string M_COPYRIGHT_TEXT;
+
             std::string m_prog_name;
             std::ostream &m_std_out;
             std::ostream &m_err_out;
@@ -95,63 +116,8 @@ namespace geopm
             std::map<char, std::string> m_bool_short_name;
             std::map<char, std::string> m_str_short_name;
 
-
             std::vector<std::string> m_positional_args;
     };
-
-    template <>
-    void OptionParser::add_option<const std::string &>(const std::string &name,
-                                                       char short_form, const std::string &long_form,
-                                                       const std::string &default_val,
-                                                       const std::string &description)
-    {
-        check_add_option(name, short_form, long_form);
-        m_str_opts[name] = {short_form, long_form, default_val, default_val, description};
-        m_str_short_name[short_form] = name;
-        m_option_order.push_back(name);
-    }
-
-    // force string literals to use string specialization
-    template <>
-    void OptionParser::add_option<const char *>(const std::string &name,
-                                                char short_form, const std::string &long_form,
-                                                const char *default_val,
-                                                const std::string &description)
-    {
-        add_option<const std::string &>(name, short_form, long_form, default_val, description);
-    }
-
-    template <>
-    void OptionParser::add_option<std::string>(const std::string &name,
-                                               char short_form, const std::string &long_form,
-                                               std::string default_val,
-                                               const std::string &description)
-    {
-        add_option<const std::string &>(name, short_form, long_form, default_val, description);
-    }
-
-    template <>
-    void OptionParser::add_option<bool>(const std::string &name,
-                                        char short_form, const std::string &long_form,
-                                        bool default_val,
-                                        const std::string &description)
-    {
-        check_add_option(name, short_form, long_form);
-        m_bool_opts[name] = {short_form, long_form, default_val, default_val, description};
-        m_bool_short_name[short_form] = name;
-        m_option_order.push_back(name);
-    }
-
-    // disable other types
-    template <typename T>
-    void OptionParser::add_option(const std::string &name,
-                                  char short_form, const std::string &long_form,
-                                  T default_val,
-                                  const std::string &description)
-    {
-        static_assert(std::is_same<T, bool>::value,  // always false with better error message
-                      "OptionParser::add_option<T>: option type not supported.");
-    }
 }
 
 #endif

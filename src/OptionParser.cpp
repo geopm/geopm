@@ -41,32 +41,68 @@
 #include "geopm_version.h"
 #include "config.h"
 
-#include <iostream>
 namespace geopm
 {
-    static const std::string COPYRIGHT_TEXT = "\nCopyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.\n\n";
+    const std::string OptionParser::M_COPYRIGHT_TEXT = "\nCopyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.\n\n";
+
+    OptionParser::OptionParser(const std::string &prog_name,
+                               std::ostream &std_out,
+                               std::ostream &err_out)
+        : OptionParser(prog_name, std_out, err_out, "")
+    {
+
+    }
 
     OptionParser::OptionParser(const std::string &prog_name,
                                std::ostream &std_out,
                                std::ostream &err_out,
-                               const std::string &custom_help="")
-        : m_prog_name(prog_name)
-        , m_std_out(std_out)
-        , m_err_out(err_out)
-        , m_custom_help(custom_help)
-    {
+                               const std::string &custom_help)
+        : m_prog_name(prog_name),
+          m_std_out(std_out),
+          m_err_out(err_out),
+          m_custom_help(custom_help) {
         // automatically support --help and --version
         add_option("help", 'h', "help", false,
                    "print brief summary of the command line usage information, then exit");
-        add_option("version", 'v', "version", false,
+        add_option("version", 'V', "version", false,
                    "print version of GEOPM to standard output, then exit");
+    }
+
+    void OptionParser::add_option(const std::string &name,
+                                  char short_form,
+                                  const std::string &long_form,
+                                  const std::string &default_val,
+                                  const std::string &description) {
+        check_add_option(name, short_form, long_form);
+        m_str_opts[name] = {short_form, long_form, default_val, default_val, description};
+        m_str_short_name[short_form] = name;
+        m_option_order.push_back(name);
+    }
+
+    void OptionParser::add_option(const std::string &name,
+                                  char short_form,
+                                  const std::string &long_form,
+                                  const char *default_val,
+                                  const std::string &description)
+    {
+        add_option(name, short_form, long_form, std::string(default_val), description);
+    }
+
+    void OptionParser::add_option(const std::string &name,
+                                  char short_form,
+                                  const std::string &long_form,
+                                  bool default_val,
+                                  const std::string &description) {
+        check_add_option(name, short_form, long_form);
+        m_bool_opts[name] = {short_form, long_form, default_val, default_val, description};
+        m_bool_short_name[short_form] = name;
+        m_option_order.push_back(name);
     }
 
     bool OptionParser::parse(int argc, const char * const argv[])
     {
         std::vector<struct option> long_options;
         std::string short_options;
-
 
         int idx = 0;
         for (const auto &conf : m_bool_opts) {
@@ -95,7 +131,7 @@ namespace geopm
             if (opt == 'h') {
                 do_help = true;
             }
-            else if (opt == 'v') {
+            else if (opt == 'V') {
                 do_version = true;
             }
             else {
@@ -135,7 +171,7 @@ namespace geopm
         }
         if (do_version) {
             m_std_out << geopm_version() << "\n";
-            m_std_out << COPYRIGHT_TEXT;
+            m_std_out << M_COPYRIGHT_TEXT;
             m_std_out.flush();
         }
         if (err) {
@@ -192,13 +228,6 @@ namespace geopm
         tmp << usage_start << " [--help] [--version]\n";
         tmp << "\nMandatory arguments to long options are mandatory for short options too.\n\n";
 
-        // The first column of options starts indented to col0.  The
-        // second column of descriptions starts at col1 and wraps if
-        // longer than col2.  If the first column is wider than col1,
-        // the description will start on the next line.
-        const int col0 = 2;
-        const int col1 = 28;
-        const int col2 = 80;
         for (const auto &name : m_option_order) {
             std::string short_form;
             std::string long_form;
@@ -224,27 +253,42 @@ namespace geopm
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
 #endif
             }
-            std::string left = std::string(col0, ' ')   + "-" + short_form + ", --" + long_form;
-            if (left.size() < col1) {
-                left.resize(col1, ' ');
-            }
-            else {
-                left += "\n";
-                tmp << left;
-                left = std::string(col1, ' ');
-            }
-            std::string right = "";
-            while (description.size() > col2 - col1) {
-                auto end = description.find_last_of(" ", col2-col1);
-                auto sub = description.substr(0, end);
-                tmp << left << sub << "\n";
-                left = std::string(col1, ' ');
-                description = description.substr(end+1, std::string::npos);
-            }
-            tmp << left << description << "\n";
+            format_option(tmp, short_form, long_form, description);
         }
-        tmp << COPYRIGHT_TEXT;
+        tmp << M_COPYRIGHT_TEXT;
         return tmp.str();
+    }
+
+    void OptionParser::format_option(std::ostream &tmp,
+                                     const std::string &short_form,
+                                     const std::string &long_form,
+                                     std::string description)
+    {
+        // The first column of options starts indented to col0.  The
+        // second column of descriptions starts at col1 and wraps if
+        // longer than col2.  If the first column is wider than col1,
+        // the description will start on the next line.
+        const int col0 = 2;
+        const int col1 = 28;
+        const int col2 = 79;
+        std::string left =
+            std::string(col0, ' ') + "-" + short_form + ", --" + long_form;
+        if (left.size() < col1) {
+            left.resize(col1, ' ');
+        } else {
+            left += "\n";
+            tmp << left;
+            left = std::string(col1, ' ');
+        }
+        std::string right = "";
+        while (description.size() > col2 - col1) {
+            auto end = description.find_last_of(" ", col2 - col1);
+            auto sub = description.substr(0, end);
+            tmp << left << sub << "\n";
+            left = std::string(col1, ' ');
+            description = description.substr(end + 1, std::string::npos);
+        }
+        tmp << left << description << "\n";
     }
 
     void OptionParser::check_add_option(const std::string &name, char short_form,
