@@ -72,6 +72,8 @@ namespace geopm
             virtual int timeout(void) const = 0;
             virtual int debug_attach(void) const = 0;
             virtual bool do_ompt(void) const = 0;
+            virtual std::string default_config_path(void) const = 0;
+            virtual std::string override_config_path(void) const = 0;
     };
 
     class EnvironmentImp : public Environment
@@ -107,6 +109,8 @@ namespace geopm
             int debug_attach(void) const override;
             static std::set<std::string> get_all_vars();
             bool do_ompt(void) const override;
+            std::string default_config_path(void) const override;
+            std::string override_config_path(void) const override;
         protected:
             void parse_environment();
             void parse_environment_file(const std::string &settings_path);
@@ -116,6 +120,8 @@ namespace geopm
             const std::set<std::string> m_runtime_names;
             std::set<std::string> m_user_defined_names;
             std::map<std::string, std::string> m_name_value_map;
+            const std::string m_default_config_path;
+            const std::string m_override_config_path;
     };
 
     const Environment &environment(void);
