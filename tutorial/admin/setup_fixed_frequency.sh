@@ -40,10 +40,13 @@
 # because these files are not expected to be writeable by non-admin users.
 #
 
-## TODO: not tested
+set -x
 
 # Calculate the desired fixed frequency
-FREQ_FIXED=$($(srun geopmread FREQ_STICKER board 0) - 300000000)
+FREQ_FIXED=$(($(geopmread FREQUENCY_STICKER board 0)-300000000))
+
+# Remove any existing configuration
+rm -rf /etc/geopm
 
 # Create the policy file in a location accessible to the compute node
 mkdir -p /etc/geopm
@@ -61,10 +64,20 @@ geopmagent -a energy_efficient -p NAN,NAN,NAN,$FREQ_FIXED > $POLICY_FILE_PATH
 
 # Set the GEOPM configuration to use this policy file and the
 # energy efficient agent.
-geopmadmin --magic > $(geopmagent --config-default)
+echo "{\"GEOPM_AGENT\": \"energy_efficient\", \"GEOPM_POLICY\": \"$POLICY_FILE_PATH\"}" > $(geopmadmin --config-default)
 
 # This file should look similar to the following:
 # {
 #    "GEOPM_AGENT": "energy_efficient",
 #    "GEOPM_POLICY": "/etc/geopm/fixed_freq_policy.json"
 # }
+
+# Example sanity checks of the configuration
+# TODO: refer to actual self-checking integration tests
+
+# Fixed frequency for non-GEOPM jobs enforced
+#   > srun --reservation=plugin_freq_cap geopmread MSR::PERF_CTL:FREQ board 0
+#   1800000000
+# GEOPM jobs use energy efficient agent with above policy (no restrictions on algorithm)
+#   > geopmlaunch srun -N1 -n1 --reservation=plugin_freq_cap --geopm-report=plugin_test.report -- geopmbench ~/short.conf > geopm_stdout 2>&1 && grep Policy plugin_test.report
+#   Policy: {"FREQ_MIN": "NAN", "FREQ_MAX": "NAN", "PERF_MARGIN": "NAN", "FREQ_FIXED": 1800000000}

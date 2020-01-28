@@ -347,6 +347,8 @@ TUTORIAL_DIST = tutorial/Makefile \
                 tutorial/admin/setup_default_power_balancer.sh \
                 tutorial/admin/setup_fixed_frequency.sh \
                 tutorial/admin/setup_fixed_power_cap.sh \
+                tutorial/admin/setup_override_energy_efficient.sh \
+                tutorial/admin/setup_override_power_balancer.sh \
                 tutorial/agent/ExampleAgent.cpp \
                 tutorial/agent/ExampleAgent.hpp \
                 tutorial/agent/README.md \

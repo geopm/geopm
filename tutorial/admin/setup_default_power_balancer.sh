@@ -42,15 +42,18 @@
 # because these files are not expected to be writeable by non-admin users.
 #
 
-## TODO: not tested
+set -x
 
 # Calculate the desired fixed power cap
-POWER_CAP=$($(srun geopmread POWER_PACKAGE_TDP board 0) - 50)
+POWER_CAP=$(($(geopmread POWER_PACKAGE_TDP board 0)-50))
+
+# Remove any existing configuration
+rm -rf /etc/geopm
 
 # Create the policy file in a location accessible to the compute node
 mkdir -p /etc/geopm
 POLICY_FILE_PATH="/etc/geopm/power_balancer_policy.json"
-geopmagent -a energy_efficient -p $POWER_CAP > $POLICY_FILE_PATH
+geopmagent -a power_balancer -p $POWER_CAP > $POLICY_FILE_PATH
 # This file should look similar to:
 #   {
 #     "POWER_PACKAGE_LIMIT_TOTAL": 230
@@ -59,10 +62,21 @@ geopmagent -a energy_efficient -p $POWER_CAP > $POLICY_FILE_PATH
 
 # Set the GEOPM configuration to use this policy file and the
 # energy efficient agent.
-geopmadmin --magic > $(geopmagent --config-default)
+echo "{\"GEOPM_AGENT\": \"power_balancer\", \"GEOPM_POLICY\": \"$POLICY_FILE_PATH\"}" > $(geopmadmin --config-default)
 
 # This file should look similar to the following:
 # {
 #    "GEOPM_AGENT": "power_balancer",
 #    "GEOPM_POLICY": "/etc/geopm/power_balancer_policy.json"
 # }
+
+# Example sanity checks of the configuration
+# TODO: refer to actual self-checking integration tests
+
+# Non-GEOPM jobs are power limited
+#   > srun --reservation=plugin_power_cap geopmread MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT package 0
+#   115
+# GEOPM jobs use the balancer and 230 W limit policy
+#   > geopmlaunch srun -N1 -n1 --reservation=plugin_power_cap --geopm-report=plugin_test.report -- geopmbench ~/short.conf > geopm_stdout 2>&1 && grep 'Policy\|Agent' plugin_test.report
+#   Agent: power_balancer
+#   Policy: {"POWER_PACKAGE_LIMIT_TOTAL": 230}

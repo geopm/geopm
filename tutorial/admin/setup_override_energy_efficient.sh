@@ -31,10 +31,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# This script sets up GEOPM configuration files to cause all jobs
-# to be started with a fixed power cap at 50 watts below TDP.
-# It should be run on every compute node for which this configuration
-# is desired.
+# This script sets up GEOPM configuration files to enforce a maximum
+# CPU frequency of 1.5 GHz for jobs that do not use GEOPM, and force jobs
+# that use GEOPM to use the energy efficient agent with a policy ranging
+# between 1.2 GHz and 1.7 GHz.  This script should be run on every compute
+# node for which this configuration is desired.
 #
 # This script modifies system files and typically requires root
 # because these files are not expected to be writeable by non-admin users.
@@ -42,36 +43,50 @@
 
 set -x
 
-# Calculate the desired fixed power cap
-POWER_CAP=$(($(geopmread POWER_PACKAGE_TDP board 0)-50))
+# Range of frequencies for agent to use
+FREQ_MIN=1200000000
+FREQ_MAX=1700000000
+# Maximum frequency for non-GEOPM jobs
+FREQ_FIXED=1500000000
 
 # Remove any existing configuration
 rm -rf /etc/geopm
 
 # Create the policy file in a location accessible to the compute node
 mkdir -p /etc/geopm
-POLICY_FILE_PATH="/etc/geopm/fixed_power_policy.json"
-geopmagent -a power_balancer -p $POWER_CAP > $POLICY_FILE_PATH
+POLICY_FILE_PATH="/etc/geopm/energy_efficient_policy.json"
+geopmagent -a energy_efficient -p $FREQ_MIN,$FREQ_MAX,NAN,$FREQ_FIXED > $POLICY_FILE_PATH
 # This file should look similar to:
 #   {
-#     "POWER_PACKAGE_LIMIT_TOTAL": 230
+#     "FREQ_MIN": 1200000000,
+#     "FREQ_MAX": 1700000000,
+#     "PWER_MARGIN": "NAN",
+#     "FREQ_FIXED": 1500000000
 #   }
-# for a system where the TDP is 140 W per package or 280 W total.
+
 
 # Set the GEOPM configuration to use this policy file and the
 # energy efficient agent.
-echo "{\"GEOPM_AGENT\": \"power_balancer\", \"GEOPM_POLICY\": \"$POLICY_FILE_PATH\"}" > $(geopmadmin --config-default)
+echo "{\"GEOPM_AGENT\": \"energy_efficient\", \"GEOPM_POLICY\": \"$POLICY_FILE_PATH\"}" > $(geopmadmin --config-override)
 
 # This file should look similar to the following:
 # {
-#    "GEOPM_AGENT": "power_balancer",
-#    "GEOPM_POLICY": "/etc/geopm/fixed_power_policy.json"
+#    "GEOPM_AGENT": "energy_efficient",
+#    "GEOPM_POLICY": "/etc/geopm/energy_efficient_policy.json"
 # }
 
-# Non-GEOPM jobs are power limited
-#   > srun --reservation=plugin_power_cap geopmread MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT package 0
-#   115
-# GEOPM jobs use the balancer and 230 W limit policy
-#   > geopmlaunch srun -N1 -n1 --reservation=plugin_power_cap --geopm-report=plugin_test.report -- geopmbench ~/short.conf > geopm_stdout 2>&1 && grep 'Policy\|Agent' plugin_test.report
-#   Agent: power_balancer
-#   Policy: {"POWER_PACKAGE_LIMIT_TOTAL": 230}
+# Example sanity checks of the configuration
+# TODO: refer to actual self-checking integration tests
+
+# Fixed frequency for non-GEOPM jobs enforced
+#   > srun --reservation=plugin_freq_cap geopmread MSR::PERF_CTL:FREQ board 0
+#   1500000000
+# GEOPM jobs use energy efficient agent with above policy (up to 1.7 GHz)
+#   > geopmlaunch srun -N1 -n1 --reservation=plugin_freq_cap --geopm-report=plugin_test.report -- geopmbench ~/short.conf > geopm_stdout 2>&1 && grep Policy plugin_test.report
+#   Policy: {"FREQ_MIN": 1200000000, "FREQ_MAX": 1700000000, "PERF_MARGIN": "NAN", "FREQ_FIXED": 1500000000}
+
+# GEOPM jobs cannot use a different agent
+#   > geopmlaunch srun -N1 -n1 --reservation=plugin_freq_cap --geopm-agent=monitor --geopm-report=plugin_test.report -- geopmbench ~/short.conf > geopm_stdout 2>&1 && grep Policy plugin_test.report
+#   Policy: {"FREQ_MIN": 1200000000, "FREQ_MAX": 1700000000, "PERF_MARGIN": "NAN", "FREQ_FIXED": 1500000000}
+#   > grep Warning geopm_stdout
+#   Warning: <geopm> User provided environment variable "GEOPM_AGENT" with value <monitor> has been overriden with value <energy_efficient>

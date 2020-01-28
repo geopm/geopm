@@ -33,7 +33,7 @@ Test scripts to check the system requirements have been met can be found in XXXX
 1. Restrict CPU frequency for jobs that do not use the GEOPM runtime
 ----------------------------------------------------------------------
 In this scenario, the CPU frequency of all nodes in the job will be set
-to a fixed value at the beginning of every job.  This set up can be used
+to a fixed value at the beginning of every job.  This setup can be used
 on system to save energy by reducing the processor frequency below the
 base frequency (also known as "sticker frequency").  This frequency
 can be obtained by running `geopmread FREQ_STICKER board 0` on a node
@@ -54,12 +54,9 @@ script XXXX can be used to check whether this setup is working.
 
 3. Restrict power limit for jobs that do not use the GEOPM runtime
 ------------------------------------------------------------------
-In this scenario, the CPU frequency of all nodes in the job will be set
-to a fixed value at the beginning of every job.  This set up can be used
-on system to save energy by reducing the processor frequency below the
-base frequency (also known as "sticker frequency").  This frequency
-can be obtained by running `geopmread FREQ_STICKER board 0` on a node
-of the target architecture for the configuration.
+In this scenario, the package power limit of all nodes in the job will be set
+to a fixed value at the beginning of every job.  This setup can be used
+on system to limit the total system power.
 
 See the script "setup_fixed_power_cap.sh" in this folder for an example of how to set up
 a system to run all jobs at 50 watts below TDP.  The
@@ -75,12 +72,26 @@ see the script "setup_default_power_balancer.sh".  In this example, jobs
 not using GEOPM will have their power cap set to a fixed cap across all nodes.
 The test script XXXX can be used to check whether this setup is working.
 
-
 5. Restrict CPU frequency or enforce energy efficient agent
 -----------------------------------------------------------
+In this scenario, the CPU frequency of all jobs will be capped at a specified
+maximum, but users who request GEOPM using the `geopmlaunch` tool can be
+allowed to run at higher maximum frequencies when their application is more
+efficient.  This is achieved by setting the override environment values
+such that all GEOPM users must use the energy efficient agent.
+
+See the test script "setup_override_energy_efficient.sh".
+The test script XXXX can be used to check whether this setup is working.
 
 6. Restrict power cap or enforce power balancing agent
 ------------------------------------------------------
+In this scenario, the average power of all jobs will be constrained to
+a specified limit, but users who request GEOPM using the `geopmlaunch`
+tool can achieve better performance using the power balancer agent while
+staying under the same average power cap.
+
+See the test script "setup_override_power_balancer.sh".
+The test script XXXX can be used to check whether this setup is working.
 
 7. Control location of report and trace file output
 ---------------------------------------------------
