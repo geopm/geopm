@@ -55,8 +55,8 @@ using json11::Json;
 
 namespace geopm
 {
-    static const std::string DEFAULT_SETTINGS_PATH = GEOPM_CONFIG_PATH "/environment-default.json";
-    static const std::string OVERRIDE_SETTINGS_PATH = GEOPM_CONFIG_PATH "/environment-override.json";
+    static const std::string DEFAULT_CONFIG_PATH = GEOPM_CONFIG_PATH "/environment-default.json";
+    static const std::string OVERRIDE_CONFIG_PATH = GEOPM_CONFIG_PATH "/environment-override.json";
 
     static EnvironmentImp &test_environment(void)
     {
@@ -81,12 +81,12 @@ namespace geopm
     }
 
     EnvironmentImp::EnvironmentImp()
-        : EnvironmentImp(DEFAULT_SETTINGS_PATH, OVERRIDE_SETTINGS_PATH)
+        : EnvironmentImp(DEFAULT_CONFIG_PATH, OVERRIDE_CONFIG_PATH)
     {
 
     }
 
-    EnvironmentImp::EnvironmentImp(const std::string &default_settings_path, const std::string &override_settings_path)
+    EnvironmentImp::EnvironmentImp(const std::string &default_config_path, const std::string &override_config_path)
         : m_all_names(get_all_vars())
         , m_runtime_names({"GEOPM_PROFILE",
                            "GEOPM_REPORT",
@@ -99,8 +99,10 @@ namespace geopm
                              {"GEOPM_MAX_FAN_OUT", "16"},
                              {"GEOPM_TIMEOUT", "30"},
                              {"GEOPM_DEBUG_ATTACH", "-1"}})
+        , m_default_config_path(default_config_path)
+        , m_override_config_path(override_config_path)
     {
-        parse_environment_file(default_settings_path);
+        parse_environment_file(m_default_config_path);
         // Special handling for GEOPM_POLICY and
         // GEOPM_ENDPOINT: If user provides GEOPM_POLICY
         // through environment or command line args,
@@ -117,7 +119,7 @@ namespace geopm
             // restore default endpoint only if user did not pass GEOPM_POLICY
             m_name_value_map["GEOPM_ENDPOINT"] = default_endpoint;
         }
-        parse_environment_file(override_settings_path);
+        parse_environment_file(m_override_config_path);
     }
 
     std::set<std::string> EnvironmentImp::get_all_vars()
@@ -368,5 +370,15 @@ namespace geopm
     bool EnvironmentImp::do_ompt(void) const
     {
         return !is_set("GEOPM_OMPT_DISABLE");
+    }
+
+    std::string EnvironmentImp::default_config_path(void) const
+    {
+        return m_default_config_path;
+    }
+
+    std::string EnvironmentImp::override_config_path(void) const
+    {
+        return m_override_config_path;
     }
 }
