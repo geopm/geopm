@@ -31,10 +31,12 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# This script sets up GEOPM configuration files to cause all jobs
-# to be started with a fixed power cap at 50 watts below TDP.
-# It should be run on every compute node for which this configuration
-# is desired.
+# This script sets up GEOPM configuration files to enforce an average power cap
+# for all jobs of 50 watts less than TDP.  Jobs that opt into using GEOPM
+# will be required to use the power_balancer agent, which will allow them
+# to achieve better performance if their apps have been annotated with
+# GEOPM epoch markup.
+# This script should be run on every compute node for which this configuration is desired.
 #
 # This script modifies system files and typically requires root
 # because these files are not expected to be writeable by non-admin users.
@@ -50,7 +52,7 @@ rm -rf /etc/geopm
 
 # Create the policy file in a location accessible to the compute node
 mkdir -p /etc/geopm
-POLICY_FILE_PATH="/etc/geopm/fixed_power_policy.json"
+POLICY_FILE_PATH="/etc/geopm/power_balancer_policy.json"
 geopmagent -a power_balancer -p $POWER_CAP > $POLICY_FILE_PATH
 # This file should look similar to:
 #   {
@@ -60,12 +62,12 @@ geopmagent -a power_balancer -p $POWER_CAP > $POLICY_FILE_PATH
 
 # Set the GEOPM configuration to use this policy file and the
 # energy efficient agent.
-echo "{\"GEOPM_AGENT\": \"power_balancer\", \"GEOPM_POLICY\": \"$POLICY_FILE_PATH\"}" > $(geopmadmin --config-default)
+echo "{\"GEOPM_AGENT\": \"power_balancer\", \"GEOPM_POLICY\": \"$POLICY_FILE_PATH\"}" > $(geopmadmin --config-override)
 
 # This file should look similar to the following:
 # {
 #    "GEOPM_AGENT": "power_balancer",
-#    "GEOPM_POLICY": "/etc/geopm/fixed_power_policy.json"
+#    "GEOPM_POLICY": "/etc/geopm/power_balancer_policy.json"
 # }
 
 # Non-GEOPM jobs are power limited
@@ -75,3 +77,10 @@ echo "{\"GEOPM_AGENT\": \"power_balancer\", \"GEOPM_POLICY\": \"$POLICY_FILE_PAT
 #   > geopmlaunch srun -N1 -n1 --reservation=plugin_power_cap --geopm-report=plugin_test.report -- geopmbench ~/short.conf > geopm_stdout 2>&1 && grep 'Policy\|Agent' plugin_test.report
 #   Agent: power_balancer
 #   Policy: {"POWER_PACKAGE_LIMIT_TOTAL": 230}
+
+# GEOPM jobs cannot use a different agent
+#   > geopmlaunch srun -N1 -n1 --reservation=plugin_power_cap --geopm-agent=monitor --geopm-report=plugin_test.report -- geopmbench ~/short.conf > geopm_stdout 2>&1 && grep 'Policy\|Agent' plugin_test.report
+#   Agent: power_balancer
+#   Policy: {"POWER_PACKAGE_LIMIT_TOTAL": 230}
+#   > grep Warning geopm_stdout
+#   Warning: <geopm> User provided environment variable "GEOPM_AGENT" with value <monitor> has been overriden with value <power_balancer>
