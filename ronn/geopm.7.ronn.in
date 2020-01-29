@@ -78,6 +78,8 @@ geopm(7) -- global extensible open power manager
 
 **geopmagent(1)**: Query agent information and create static policies
 
+**geopmadmin(1)**: Configure and check system wide GEOPM settings
+
 ## MISC
 
 **geopm_error(3)**: Error code descriptions
@@ -254,19 +256,22 @@ below must be set to the same values in the contexts where
 **geopmctl(1)** and the compute application are executed.
 
 In addition to the environment, there are two node-local configuration
-files that will impact the way the GEOPM behaves.  These are located
-in the following paths:
+files that will impact the way the GEOPM behaves.  The location of
+these files can be configured at compile time, but the default
+locations are:
 
     /etc/geopm/environment-default.json
     /etc/geopm/environment-override.json
 
-These files contain JSON objects that map GEOPM environment variables
-to default or override values.  The `environment-default.json` file
-will determine default values for the GEOPM runtime in the case where
-the values are not set in the calling environment.  The
-`environment-override.json` file will enforce that any GEOPM process
-running on the compute node will use the values specified regardless
-of the values set in the calling environment.
+The **geopmadmin(1)** tool can be used to display the location of
+these files for your installation of GEOPM or to check the validity of
+the system configuration.  These files contain JSON objects that map
+GEOPM environment variables to default or override values.  The
+`environment-default.json` file will determine default values for the
+GEOPM runtime in the case where the values are not set in the calling
+environment.  The `environment-override.json` file will enforce that
+any GEOPM process running on the compute node will use the values
+specified regardless of the values set in the calling environment.
 
 `GEOPM ENVIRONMENT VARIABLES`
 
