@@ -89,7 +89,7 @@ int main(int argc, char **argv)
         }
         std::string policy = parser.get_value("policy");
         if (parser.get_value("policy") != "") {
-            strncpy(policy_vals_str, policy.c_str(), GEOPMAGENT_STRING_LENGTH);
+            strncpy(policy_vals_str, policy.c_str(), GEOPMAGENT_STRING_LENGTH - 1);
             policy_vals_ptr = policy_vals_str;
         }
     }

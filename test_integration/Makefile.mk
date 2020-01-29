@@ -55,7 +55,6 @@ test_integration_test_ee_stream_dgemm_mix_SOURCES = test_integration/test_ee_str
 test_integration_test_ee_stream_dgemm_mix_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
 test_integration_test_ee_stream_dgemm_mix_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
 test_integration_test_ee_stream_dgemm_mix_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
-endif
 
 if ENABLE_OPENMP
 noinst_PROGRAMS += test_integration/test_omp_outer_loop \
@@ -68,6 +67,7 @@ test_integration_test_omp_outer_loop_SOURCES = test_integration/test_omp_outer_l
 test_integration_test_omp_outer_loop_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
 test_integration_test_omp_outer_loop_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
 test_integration_test_omp_outer_loop_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
+endif
 endif
 
 noinst_PROGRAMS += test_integration/test_static_policy \
