@@ -42,6 +42,7 @@
 #include <cinttypes>
 #include <fstream>
 #include <algorithm>
+#include <sstream>
 #include "geopm_hash.h"
 #include "Exception.hpp"
 #include "config.h"
@@ -126,6 +127,20 @@ namespace geopm
             pieces.push_back(str.substr(start_pos));
         }
         return pieces;
+    }
+
+    std::string string_join(const std::vector<std::string> &list,
+                            const std::string &delim)
+    {
+        std::ostringstream result;
+        if (list.size() > 0) {
+            auto back_it = list.end() - 1;
+            for (auto str_it = list.begin(); str_it != back_it; ++str_it) {
+                result << *str_it << delim;
+            }
+            result << *back_it;
+        }
+        return result.str();
     }
 
     std::string hostname(void)
