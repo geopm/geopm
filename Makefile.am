@@ -342,6 +342,11 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
 TUTORIAL_DIST = tutorial/Makefile \
                 tutorial/README.md \
                 tutorial/admin/README.md \
+                tutorial/admin/is_rapl_working.sh \
+                tutorial/admin/setup_default_energy_efficient.sh \
+                tutorial/admin/setup_default_power_balancer.sh \
+                tutorial/admin/setup_fixed_frequency.sh \
+                tutorial/admin/setup_fixed_power_cap.sh \
                 tutorial/agent/ExampleAgent.cpp \
                 tutorial/agent/ExampleAgent.hpp \
                 tutorial/agent/README.md \

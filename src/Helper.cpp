@@ -133,7 +133,7 @@ namespace geopm
                             const std::string &delim)
     {
         std::ostringstream result;
-        if (list.size() > 0) {
+        if (!list.empty()) {
             auto back_it = list.end() - 1;
             for (auto str_it = list.begin(); str_it != back_it; ++str_it) {
                 result << *str_it << delim;

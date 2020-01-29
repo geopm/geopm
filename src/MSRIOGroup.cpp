@@ -596,7 +596,7 @@ namespace geopm
         return result.str();
     }
 
-    int MSRIOGroup::cpuid(void) const
+    int MSRIOGroup::cpuid(void)
     {
         uint32_t key = 1; //processor features
         uint32_t proc_info = 0;

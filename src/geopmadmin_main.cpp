@@ -35,50 +35,19 @@
 #include <iostream>
 #include <sstream>
 
-#include "Exception.hpp"
-#include "OptionParser.hpp"
 #include "Admin.hpp"
+#include "Exception.hpp"
 
-int main(int argc, char **argv)
+int main(int argc, const char **argv)
 {
     int err = 0;
     try {
-        geopm::OptionParser parser{"geopmadmin", std::cout, std::cerr, ""};
-        parser.add_option("default", 'd', "config-default", false,
-                          "print the path of the GEOPM default configuration file");
-        parser.add_option("override", 'o', "config-override", false,
-                          "print the path of the GEOPM override configuration file");
-        parser.add_option("whitelist", 'w', "msr-whitelist", false,
-                          "print the minimum msr-safe whitelist required by GEOPM");
-        parser.add_option("cpuid", 'c', "cpuid", "-1",
-                          "cpuid in hexidecimal for whitelist (default is current platform)");
-        parser.add_example_usage("");
-        parser.add_example_usage("[--config-default|--config-override|--msr-whitelist] [--cpuid]");
-        bool early_exit = parser.parse(argc, argv);
-        if (early_exit) {
-            return 0;
-        }
-
-        auto pos_args = parser.get_positional_args();
-        if (pos_args.size() > 0) {
-            std::ostringstream err_msg;
-            err_msg << "The following positional argument(s) are in error: ";
-            for (const std::string &arg : pos_args) {
-                err_msg << arg << " ";
-            }
-            throw geopm::Exception(err_msg.str(), EINVAL, __FILE__, __LINE__);
-        }
-
-        bool do_default = parser.is_set("default");
-        bool do_override = parser.is_set("override");
-        bool do_whitelist = parser.is_set("whitelist");
-        int cpuid = std::stoi(parser.get_value("cpuid"), NULL, 16);
         geopm::Admin admin;
-        std::cout << admin.main(do_default, do_override, do_whitelist, cpuid);
+        admin.main(argc, argv, std::cout, std::cerr);
     }
     catch (...)
     {
-        err = geopm::exception_handler(std::current_exception(), false);
+        err = geopm::exception_handler(std::current_exception(), true);
     }
     return err;
 }

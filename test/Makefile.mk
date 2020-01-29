@@ -35,7 +35,17 @@ if ENABLE_MPI
     check_PROGRAMS += test/geopm_mpi_test_api
 endif
 
-GTEST_TESTS = test/gtest_links/AgentFactoryTest.static_info_monitor \
+GTEST_TESTS = test/gtest_links/AdminTest.help \
+              test/gtest_links/AdminTest.positional_args \
+              test/gtest_links/AdminTest.main \
+              test/gtest_links/AdminTest.two_actions \
+              test/gtest_links/AdminTest.config_default \
+              test/gtest_links/AdminTest.config_override \
+              test/gtest_links/AdminTest.whitelist \
+              test/gtest_links/AdminTest.no_options \
+              test/gtest_links/AdminTest.dup_keys \
+              test/gtest_links/AdminTest.dup_config \
+              test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/AgentFactoryTest.static_info_balancer \
               test/gtest_links/AgentFactoryTest.static_info_governor \
               test/gtest_links/AgentFactoryTest.static_info_energy_efficient \
@@ -385,7 +395,8 @@ EXTRA_DIST += test/InternalProfile.cpp \
               test/pmpi_mock.c \
               # end
 
-test_geopm_test_SOURCES = test/AgentFactoryTest.cpp \
+test_geopm_test_SOURCES = test/AdminTest.cpp \
+                          test/AgentFactoryTest.cpp \
                           test/AggTest.cpp \
                           test/ApplicationIOTest.cpp \
                           test/CircularBufferTest.cpp \
