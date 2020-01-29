@@ -107,7 +107,7 @@ namespace geopm
             ///         whitelist file.
             static std::string msr_whitelist(int cpuid);
             /// @brief Get the cpuid of the current platform.
-            int cpuid(void) const;
+            static int cpuid(void);
             /// @brief Register a single MSR field as a signal. This
             ///        is called by init_msr().
             /// @param [in] signal_name Compound signal name of form

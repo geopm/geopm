@@ -255,6 +255,7 @@ src/msr_data_hsx.cpp
 src/msr_data_knl.cpp
 src/msr_data_skx.cpp
 src/msr_data_snb.cpp
+test/AdminTest.cpp
 test/AgentFactoryTest.cpp
 test/AggTest.cpp
 test/ApplicationIOTest.cpp
