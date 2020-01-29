@@ -241,7 +241,7 @@ TEST_F(EndpointTest, get_hostnames)
         hostlist << host << "\n";
     }
     hostlist.close();
-    strncpy(data->hostlist_path, hostlist_path.c_str(), GEOPM_ENDPOINT_HOSTLIST_PATH_MAX);
+    strncpy(data->hostlist_path, hostlist_path.c_str(), GEOPM_ENDPOINT_HOSTLIST_PATH_MAX - 1);
     strncpy(data->agent, "monitor", GEOPM_ENDPOINT_AGENT_NAME_MAX);
     EXPECT_EQ(hosts, mio.get_hostnames());
     mio.close();
