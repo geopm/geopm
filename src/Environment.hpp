@@ -74,6 +74,7 @@ namespace geopm
             virtual bool do_ompt(void) const = 0;
             virtual std::string default_config_path(void) const = 0;
             virtual std::string override_config_path(void) const = 0;
+            static std::map<std::string, std::string> parse_environment_file(const std::string &env_file_path);
     };
 
     class EnvironmentImp : public Environment
@@ -107,13 +108,16 @@ namespace geopm
             bool do_profile() const override;
             int timeout(void) const override;
             int debug_attach(void) const override;
-            static std::set<std::string> get_all_vars();
+            static std::set<std::string> get_all_vars(void);
             bool do_ompt(void) const override;
             std::string default_config_path(void) const override;
             std::string override_config_path(void) const override;
+            static void parse_environment_file(const std::string &settings_path,
+                                               const std::set<std::string> &all_names,
+                                               const std::set<std::string> &user_defined_names,
+                                               std::map<std::string, std::string> &name_value_map);
         protected:
-            void parse_environment();
-            void parse_environment_file(const std::string &settings_path);
+            void parse_environment(void);
             bool is_set(const std::string &env_var) const;
             std::string lookup(const std::string &env_var) const;
             const std::set<std::string> m_all_names;

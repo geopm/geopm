@@ -80,6 +80,13 @@ namespace geopm
         return result;
     }
 
+    std::map<std::string, std::string> Environment::parse_environment_file(const std::string &env_file_path)
+    {
+        std::map<std::string, std::string> ret;
+        EnvironmentImp::parse_environment_file(env_file_path , EnvironmentImp::get_all_vars(), {}, ret);
+        return ret;
+    }
+
     EnvironmentImp::EnvironmentImp()
         : EnvironmentImp(DEFAULT_CONFIG_PATH, OVERRIDE_CONFIG_PATH)
     {
@@ -102,7 +109,7 @@ namespace geopm
         , m_default_config_path(default_config_path)
         , m_override_config_path(override_config_path)
     {
-        parse_environment_file(m_default_config_path);
+        parse_environment_file(m_default_config_path, m_all_names, m_user_defined_names, m_name_value_map);
         // Special handling for GEOPM_POLICY and
         // GEOPM_ENDPOINT: If user provides GEOPM_POLICY
         // through environment or command line args,
@@ -119,7 +126,7 @@ namespace geopm
             // restore default endpoint only if user did not pass GEOPM_POLICY
             m_name_value_map["GEOPM_ENDPOINT"] = default_endpoint;
         }
-        parse_environment_file(m_override_config_path);
+        parse_environment_file(m_override_config_path, m_all_names, m_user_defined_names, m_name_value_map);
     }
 
     std::set<std::string> EnvironmentImp::get_all_vars()
@@ -157,7 +164,10 @@ namespace geopm
         }
     }
 
-    void EnvironmentImp::parse_environment_file(const std::string &settings_path)
+    void EnvironmentImp::parse_environment_file(const std::string &settings_path,
+                                                const std::set<std::string> &all_names,
+                                                const std::set<std::string> &user_defined_names,
+                                                std::map<std::string, std::string> &name_value_map)
     {
         std::string json_str;
         bool good_path = true;
@@ -178,8 +188,8 @@ namespace geopm
             }
             for (const auto &json_obj : json_root.object_items()) {
                 std::string var_name = json_obj.first;
-                auto var_it = m_all_names.find(var_name);
-                if (var_it == m_all_names.end()) {
+                auto var_it = all_names.find(var_name);
+                if (var_it == all_names.end()) {
                     throw Exception("EnvironmentImp::" + std::string(__func__) +
                                     ": environment key " + var_name + " is unexpected",
                                     GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
@@ -190,13 +200,13 @@ namespace geopm
                                     GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
                 }
                 auto override_value = json_obj.second.string_value();
-                if (m_user_defined_names.find(var_name) != m_user_defined_names.end()) {
-                    auto user_value = m_name_value_map[var_name];
+                if (user_defined_names.find(var_name) != user_defined_names.end()) {
+                    auto user_value = name_value_map[var_name];
                     std::cerr << "Warning: <geopm> User provided environment variable \"" << var_name
                               << "\" with value <"  << user_value << ">"
                               << " has been overriden with value <"  << override_value << ">" << std::endl;
                 }
-                m_name_value_map[var_name] = override_value;
+                name_value_map[var_name] = override_value;
             }
         }
     }
