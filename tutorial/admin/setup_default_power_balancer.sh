@@ -71,12 +71,12 @@ echo "{\"GEOPM_AGENT\": \"power_balancer\", \"GEOPM_POLICY\": \"$POLICY_FILE_PAT
 # }
 
 # Example sanity checks of the configuration
-# TODO: refer to actual self-checking integration tests
-
+#
 # Non-GEOPM jobs are power limited
-#   > srun --reservation=plugin_power_cap geopmread MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT package 0
+#   > srun geopmread MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT package 0
 #   115
+#
 # GEOPM jobs use the balancer and 230 W limit policy
-#   > geopmlaunch srun -N1 -n1 --reservation=plugin_power_cap --geopm-report=plugin_test.report -- geopmbench ~/short.conf > geopm_stdout 2>&1 && grep 'Policy\|Agent' plugin_test.report
+#   > geopmlaunch srun -N1 -n1 --geopm-report=plugin_test.report -- geopmbench ~/short.conf > geopm_stdout 2>&1 && grep 'Policy\|Agent' plugin_test.report
 #   Agent: power_balancer
 #   Policy: {"POWER_PACKAGE_LIMIT_TOTAL": 230}
