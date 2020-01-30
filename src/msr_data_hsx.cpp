@@ -110,14 +110,6 @@ namespace geopm
                     "units":     "hertz",
                     "scalar":    1e8,
                     "writeable": true
-                },
-                "TURBO_DISENGAGE": {
-                    "begin_bit": 32,
-                    "end_bit":   32,
-                    "function":  "scale",
-                    "units":     "none",
-                    "scalar":    1.0,
-                    "writeable": true
                 }
             }
         },
