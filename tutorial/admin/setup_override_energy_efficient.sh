@@ -76,17 +76,17 @@ echo "{\"GEOPM_AGENT\": \"energy_efficient\", \"GEOPM_POLICY\": \"$POLICY_FILE_P
 # }
 
 # Example sanity checks of the configuration
-# TODO: refer to actual self-checking integration tests
-
+#
 # Fixed frequency for non-GEOPM jobs enforced
-#   > srun --reservation=plugin_freq_cap geopmread MSR::PERF_CTL:FREQ board 0
+#   > srun geopmread MSR::PERF_CTL:FREQ board 0
 #   1500000000
+#
 # GEOPM jobs use energy efficient agent with above policy (up to 1.7 GHz)
-#   > geopmlaunch srun -N1 -n1 --reservation=plugin_freq_cap --geopm-report=plugin_test.report -- geopmbench ~/short.conf > geopm_stdout 2>&1 && grep Policy plugin_test.report
+#   > geopmlaunch srun -N1 -n1 --geopm-report=plugin_test.report -- geopmbench ~/short.conf > geopm_stdout 2>&1 && grep Policy plugin_test.report
 #   Policy: {"FREQ_MIN": 1200000000, "FREQ_MAX": 1700000000, "PERF_MARGIN": "NAN", "FREQ_FIXED": 1500000000}
-
+#
 # GEOPM jobs cannot use a different agent
-#   > geopmlaunch srun -N1 -n1 --reservation=plugin_freq_cap --geopm-agent=monitor --geopm-report=plugin_test.report -- geopmbench ~/short.conf > geopm_stdout 2>&1 && grep Policy plugin_test.report
+#   > geopmlaunch srun -N1 -n1 --geopm-agent=monitor --geopm-report=plugin_test.report -- geopmbench ~/short.conf > geopm_stdout 2>&1 && grep Policy plugin_test.report
 #   Policy: {"FREQ_MIN": 1200000000, "FREQ_MAX": 1700000000, "PERF_MARGIN": "NAN", "FREQ_FIXED": 1500000000}
 #   > grep Warning geopm_stdout
 #   Warning: <geopm> User provided environment variable "GEOPM_AGENT" with value <monitor> has been overriden with value <energy_efficient>
