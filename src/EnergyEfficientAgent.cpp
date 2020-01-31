@@ -66,10 +66,8 @@ namespace geopm
                                                std::shared_ptr<FrequencyGovernor> gov,
                                                std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > region_map)
         : M_PRECISION(16)
-        , M_WAIT_SEC(0.005)
+        , M_WAIT_SEC(0.002)
         , M_MIN_LEARNING_RUNTIME(M_WAIT_SEC * 10)
-        , M_NETWORK_NUM_SAMPLE_DELAY(2)
-        , M_UNMARKED_NUM_SAMPLE_DELAY(2)
         , M_POLICY_PERF_MARGIN_DEFAULT(0.10)  // max 10% performance degradation
         , m_platform_io(plat_io)
         , m_platform_topo(topo)
@@ -77,7 +75,6 @@ namespace geopm
         , m_freq_ctl_domain_type(m_freq_governor->frequency_domain_type())
         , m_num_freq_ctl_domain(m_platform_topo.num_domain(m_freq_ctl_domain_type))
         , m_region_map(m_num_freq_ctl_domain, region_map)
-        , m_samples_since_boundary(m_num_freq_ctl_domain)
         , m_last_wait(GEOPM_TIME_REF)
         , m_level(-1)
         , m_num_children(0)
@@ -195,16 +192,11 @@ namespace geopm
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
             uint64_t hash = m_last_region_info[ctl_idx].hash;
             uint64_t hint = m_last_region_info[ctl_idx].hint;
-            int samples = m_samples_since_boundary[ctl_idx];
             if (GEOPM_REGION_HASH_UNMARKED == hash) {
-                if (M_UNMARKED_NUM_SAMPLE_DELAY < samples) {
-                    m_target_freq[ctl_idx] = m_freq_governor->get_frequency_max();
-                }
+                m_target_freq[ctl_idx] = m_freq_governor->get_frequency_max();
             }
             else if (GEOPM_REGION_HINT_NETWORK == hint) {
-                if (M_NETWORK_NUM_SAMPLE_DELAY < samples) {
-                    m_target_freq[ctl_idx] = m_freq_governor->get_frequency_min();
-                }
+                m_target_freq[ctl_idx] = m_freq_governor->get_frequency_min();
             }
             else {
                 auto region_it = m_region_map[ctl_idx].find(hash);
@@ -236,7 +228,6 @@ namespace geopm
             // update current region (entry)
             if (m_last_region_info[ctl_idx].hash != current_region_info.hash ||
                 m_last_region_info[ctl_idx].count != current_region_info.count) {
-                m_samples_since_boundary[ctl_idx] = 0;
                 if (current_region_info.hash != GEOPM_REGION_HASH_UNMARKED &&
                     current_region_info.hint != GEOPM_REGION_HINT_NETWORK) {
                     /// set the freq for the current region (entry)
@@ -266,9 +257,6 @@ namespace geopm
                     last_region_it->second->update_exit(-1.0 * last_region_info.runtime);
                 }
                 m_last_region_info[ctl_idx] = current_region_info;
-            }
-            else {
-                ++m_samples_since_boundary[ctl_idx];
             }
         }
     }
