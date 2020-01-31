@@ -113,8 +113,6 @@ namespace geopm
             const int M_PRECISION;
             const double M_WAIT_SEC;
             const double M_MIN_LEARNING_RUNTIME;
-            const int M_NETWORK_NUM_SAMPLE_DELAY;
-            const int M_UNMARKED_NUM_SAMPLE_DELAY;
             const double M_POLICY_PERF_MARGIN_DEFAULT;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
@@ -124,7 +122,6 @@ namespace geopm
             std::vector<struct m_region_info_s> m_last_region_info;
             std::vector<double> m_target_freq;
             std::vector<std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > > m_region_map;
-            std::vector<int> m_samples_since_boundary;
             geopm_time_s m_last_wait;
             std::vector<std::vector<int> > m_signal_idx;
             int m_level;
