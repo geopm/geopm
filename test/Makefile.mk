@@ -35,16 +35,17 @@ if ENABLE_MPI
     check_PROGRAMS += test/geopm_mpi_test_api
 endif
 
-GTEST_TESTS = test/gtest_links/AdminTest.help \
-              test/gtest_links/AdminTest.positional_args \
-              test/gtest_links/AdminTest.main \
-              test/gtest_links/AdminTest.two_actions \
+GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/AdminTest.config_default \
               test/gtest_links/AdminTest.config_override \
-              test/gtest_links/AdminTest.whitelist \
-              test/gtest_links/AdminTest.no_options \
-              test/gtest_links/AdminTest.dup_keys \
               test/gtest_links/AdminTest.dup_config \
+              test/gtest_links/AdminTest.dup_keys \
+              test/gtest_links/AdminTest.help \
+              test/gtest_links/AdminTest.main \
+              test/gtest_links/AdminTest.no_options \
+              test/gtest_links/AdminTest.positional_args \
+              test/gtest_links/AdminTest.two_actions \
+              test/gtest_links/AdminTest.whitelist \
               test/gtest_links/AgentFactoryTest.static_info_monitor \
               test/gtest_links/AgentFactoryTest.static_info_balancer \
               test/gtest_links/AgentFactoryTest.static_info_governor \
