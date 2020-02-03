@@ -233,7 +233,12 @@ namespace geopm
         std::ostringstream result;
         result << "GEOPM CONFIGURATION\n"
                << "===================\n\n";
-        for (const auto &config: config_map) {
+        // ensure all override vals are set
+        std::map<std::string, std::string> config_map_copy = config_map;
+        for (const auto &override_config: override_map) {
+            config_map_copy[override_config.first] = override_config.second;
+        }
+        for (const auto &config: config_map_copy) {
             result << "    " << config.first << "=" << config.second;
             if (override_map.find(config.first) != override_map.end()) {
                 result << " (override)\n";
