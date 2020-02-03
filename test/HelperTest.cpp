@@ -73,6 +73,19 @@ TEST(HelperTest, string_split)
                                "invalid delimiter");
 }
 
+TEST(HelperTest, string_join)
+{
+    std::string result;
+    result = geopm::string_join({}, ",");
+    EXPECT_EQ("", result);
+
+    result = geopm::string_join({"one"}, ":");
+    EXPECT_EQ("one", result);
+
+    result = geopm::string_join({"one", "two", "three"}, ", ");
+    EXPECT_EQ("one, two, three", result);
+}
+
 TEST(HelperTest, string_begins_with)
 {
     EXPECT_TRUE(geopm::string_begins_with("apple pie", "apple"));
