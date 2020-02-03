@@ -185,6 +185,26 @@ TEST_F(AdminTest, dup_config)
                                EINVAL, "defined in both the override and default");
 }
 
+TEST_F(AdminTest, print_config)
+{
+    std::map<std::string, std::string> default_map = {{"GEOPM_REPORT", "default_report"}};
+    std::map<std::string, std::string> override_map = {{"GEOPM_AGENT", "override_agent"},
+                                                       {"GEOPM_POLICY", m_policy_path}};
+    std::vector<std::string> pol_names = {"pol1", "pol2"};
+    std::vector<double> pol_vals = {0.1, 0.2};
+    std::string expected = "\
+GEOPM CONFIGURATION\n\
+===================\n\n\
+    GEOPM_AGENT=override_agent (override)\n\
+    GEOPM_POLICY=admin_test_policy.json (override)\n\
+    GEOPM_REPORT=default_report (default)\n\
+\nAGENT POLICY\n\
+============\n\n\
+    pol1=0.1\n\
+    pol2=0.2\n";
+    EXPECT_EQ(expected, m_admin->print_config(default_map, override_map, pol_names, pol_vals));
+}
+
 TEST_F(AdminTest, agent_no_policy)
 {
     std::ofstream override_fid(m_override_path);
