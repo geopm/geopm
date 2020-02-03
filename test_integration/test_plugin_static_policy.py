@@ -61,10 +61,8 @@ def getSystemConfig():
             proc = subprocess.Popen(shlex.split("geopmadmin {}".format(option)),
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             config_file = proc.stdout.readline()
-            proc = subprocess.Popen(shlex.split("cat {}".format(config_file)),
-                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            settings.update(json.loads(proc.communicate()[0]))
-        except ValueError:
+            settings.update(json.loads(open(config_file.strip(), "r").read()))
+        except IOError:
             # config_file may not exist and will cause Popen to fail
             pass
     return settings
