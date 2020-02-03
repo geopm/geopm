@@ -44,6 +44,7 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/AdminTest.main \
               test/gtest_links/AdminTest.no_options \
               test/gtest_links/AdminTest.positional_args \
+              test/gtest_links/AdminTest.print_config \
               test/gtest_links/AdminTest.two_actions \
               test/gtest_links/AdminTest.whitelist \
               test/gtest_links/AgentFactoryTest.static_info_monitor \
