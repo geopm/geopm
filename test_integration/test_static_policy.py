@@ -91,11 +91,6 @@ class TestIntegrationStaticPolicy(unittest.TestCase):
         self._stderr = None
 
     def tearDown(self):
-        if self._stdout:
-            sys.stdout.write('{}\n'.format(self._stdout))
-        if self._stderr:
-            sys.stderr.write('{}\n'.format(self._stderr))
-
         geopm_test_launcher.geopmwrite("MSR::PERF_CTL:FREQ board 0 {}".format(self._old_max_freq))
         geopm_test_launcher.geopmwrite("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0 {}".format(self._old_max_power))
 

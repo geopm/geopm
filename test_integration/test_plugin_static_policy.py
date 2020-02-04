@@ -47,25 +47,25 @@ import geopmpy.io
 from test_integration import util
 import geopmpy.topo
 import geopmpy.pio
+from test_integration import geopm_test_launcher
+
 
 def getSystemConfig():
-    try:
-        subprocess.check_call(shlex.split("geopmadmin"),
-                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError:
-        print("geopmadmin check failed, there is an issue with the site configuration.\n")
-        raise
     settings = {}
     for option in ["--config-default", "--config-override"]:
         try:
             proc = subprocess.Popen(shlex.split("geopmadmin {}".format(option)),
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            config_file = proc.stdout.readline()
-            settings.update(json.loads(open(config_file.strip(), "r").read()))
+            proc.wait()
+            with proc.stdout:
+                config_file = proc.stdout.readline().decode()
+            with open(config_file.strip(), "r") as infile:
+                settings.update(json.load(infile))
         except IOError:
             # config_file may not exist and will cause Popen to fail
             pass
     return settings
+
 
 def getSystemConfigAgent():
     ret = ''
@@ -75,13 +75,48 @@ def getSystemConfigAgent():
         pass
     return ret
 
+
 def getSystemConfigPolicy():
     geopm_system_config = getSystemConfig()
-    proc = subprocess.Popen(shlex.split("cat {}".format(geopm_system_config['GEOPM_POLICY'])),
-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    return json.loads(proc.communicate()[0])
+    policy = {}
+    with open(geopm_system_config['GEOPM_POLICY'], 'r') as infile:
+        policy = json.load(infile)
+    return policy
+
+
+def skip_if_geopmadmin_check_fails():
+    try:
+        subprocess.check_call(shlex.split("geopmadmin"),
+                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    except:
+        return unittest.skip("geopmadmin check failed, there is an issue with the site configuration.")
+    return lambda func: func
+
+
+def skip_unless_energy_agent():
+    agent = ''
+    try:
+        agent = getSystemConfigAgent()
+    except BaseException as ex:
+        return unittest.skip('geopmadmin check failed: {}'.format(ex))
+    if agent not in ['frequency_map', 'energy_efficient']:
+        return unittest.skip('Requires environment default/override to be configured to cap frequency.')
+    return lambda func: func
+
+
+def skip_unless_power_agent():
+    agent = ''
+    try:
+        agent = getSystemConfigAgent()
+    except BaseException as ex:
+        return unittest.skip('geopmadmin check failed: {}'.format(ex))
+    if agent not in ['power_governor', 'power_balancer']:
+        return unittest.skip('Requires environment default/override to be configured to cap power.')
+    return lambda func: func
+
 
 @util.skip_unless_batch()
+@skip_if_geopmadmin_check_fails()
 class TestIntegrationPluginStaticPolicy(unittest.TestCase):
     """Test the static policy enforcement feature of the currently
        configured RM plugin.
@@ -93,24 +128,31 @@ class TestIntegrationPluginStaticPolicy(unittest.TestCase):
         cls._geopmadminagent = getSystemConfigAgent()
         cls._geopmadminagentpolicy = getSystemConfigPolicy()
 
-    @unittest.skipUnless(getSystemConfigAgent() in ['frequency_map', 'energy_efficient'],
-                         'Requires environment default/override to be configured to cap frequency.')
+    @skip_unless_energy_agent()
     def test_frequency_cap_enforced(self):
+        policy_name = None
         if self._geopmadminagent == 'frequency_map':
-            test_freq = self._geopmadminagentpolicy['FREQ_MAX']
+            policy_name = 'FREQ_MAX'
         elif self._geopmadminagent == 'energy_efficient':
-            test_freq = self._geopmadminagentpolicy['FREQ_FIXED']
-        current_freq = geopmpy.pio.read_signal("MSR::PERF_CTL:FREQ", "board", 0)
-        self.assertEqual(test_freq, current_freq)
+            policy_name = 'FREQ_FIXED'
+        try:
+            test_freq = self._geopmadminagentpolicy[policy_name]
+            current_freq = geopmpy.pio.read_signal("MSR::PERF_CTL:FREQ", "board", 0)
+            self.assertEqual(test_freq, current_freq)
+        except KeyError:
+            self.skipTest('Expected frequency cap "{}" for agent missing from policy'.format(policy_name))
 
-    @unittest.skipUnless(getSystemConfigAgent() in ['power_governor','power_balancer'],
-                         'Requires environment default/override to be configured to cap power.')
+    @skip_unless_power_agent()
     def test_power_cap_enforced(self):
         num_pkg = geopmpy.topo.num_domain('package')
-        test_power = self._geopmadminagentpolicy['POWER_PACKAGE_LIMIT_TOTAL'] / num_pkg
-        for pkg in range(num_pkg):
-            current_power = geopmpy.pio.read_signal("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", "package", pkg)
-            self.assertEqual(test_power, current_power)
+        policy_name = 'POWER_PACKAGE_LIMIT_TOTAL'
+        try:
+            test_power = self._geopmadminagentpolicy[policy_name] / num_pkg
+            for pkg in range(num_pkg):
+                current_power = geopmpy.pio.read_signal("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", "package", pkg)
+                self.assertEqual(test_power, current_power)
+        except KeyError:
+            self.skipTest('Expected power cap "{}" for agent missing from policy'.format(policy_name))
 
 
 if __name__ == '__main__':
