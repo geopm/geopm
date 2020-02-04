@@ -38,7 +38,6 @@ import sys
 import unittest
 import shlex
 import subprocess
-import io
 import json
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
