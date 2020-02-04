@@ -49,14 +49,14 @@ import geopmpy.topo
 
 
 @util.skip_unless_batch()
-class TestIntegrationStaticPolicy(unittest.TestCase):
+class TestIntegrationEnforcePolicy(unittest.TestCase):
     """Test the static policy enforcement feature of the agent interface
 
     """
     @classmethod
     def setUpClass(cls):
         script_dir = os.path.dirname(os.path.realpath(__file__))
-        cls._app_exec_path = os.path.join(script_dir, '.libs', 'test_static_policy')
+        cls._app_exec_path = os.path.join(script_dir, '.libs', 'test_enforce_policy')
 
         # note: if /etc/geopm/environment-*.json sets the same variables, this
         # test will not work.
@@ -95,7 +95,7 @@ class TestIntegrationStaticPolicy(unittest.TestCase):
         geopm_test_launcher.geopmwrite("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT board 0 {}".format(self._old_max_power))
 
     def run_tool(self, agent_name, policy_setting):
-        test_name = 'test_static_policy'
+        test_name = 'test_enforce_policy'
         self._report_path = test_name + '.report'
         self._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
         self._agent_conf_path = test_name + '-agent-config.json'

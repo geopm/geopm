@@ -1,4 +1,3 @@
-#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -30,17 +29,12 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from __future__ import absolute_import
+EXTRA_DIST += test_integration/test_enforce_policy.py
 
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from test_integration import geopm_context
-from test_integration.geopm_test_integration import *
-from test_integration.test_omp_outer_loop import *
-from test_integration.test_ee_stream_dgemm_mix import *
-from test_integration.test_enforce_policy import *
-from test_integration.test_profile_policy import *
-from test_integration.test_plugin_static_policy import *
-from geopmpy.version import __version__
+noinst_PROGRAMS += test_integration/test_enforce_policy \
+                   # end
+test_integration_test_enforce_policy_SOURCES = test_integration/test_enforce_policy.c \
+                                              # end
+test_integration_test_enforce_policy_LDADD = libgeopmpolicy.la
+test_integration_test_enforce_policy_LDFLAGS = $(AM_LDFLAGS)
+test_integration_test_enforce_policy_CFLAGS = $(AM_CFLAGS)
