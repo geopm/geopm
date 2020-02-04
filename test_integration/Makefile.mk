@@ -39,21 +39,12 @@ EXTRA_DIST += test_integration/configure_test_template.sh \
               test_integration/README.md \
               test_integration/short_region/plot_margin_sweep.py \
               test_integration/test_profile_policy.py \
-              test_integration/test_static_policy.py \
               test_integration/test_plugin_static_policy.py \
               test_integration/test_template.cpp.in \
               test_integration/test_template.mk.in \
               test_integration/test_template.py.in \
               test_integration/util.py \
               # end
-
-noinst_PROGRAMS += test_integration/test_static_policy \
-                   # end
-test_integration_test_static_policy_SOURCES = test_integration/test_static_policy.c \
-                                              # end
-test_integration_test_static_policy_LDADD = libgeopmpolicy.la
-test_integration_test_static_policy_LDFLAGS = $(AM_LDFLAGS)
-test_integration_test_static_policy_CFLAGS = $(AM_CFLAGS)
 
 if ENABLE_BETA
 noinst_PROGRAMS += test_integration/test_profile_policy
@@ -64,8 +55,10 @@ test_integration_test_profile_policy_LDFLAGS = $(AM_LDFLAGS)
 test_integration_test_profile_policy_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
 
 endif
+
+include test_integration/test_ee_short_region_slop.mk
 include test_integration/test_ee_stream_dgemm_mix.mk
+include test_integration/test_enforce_policy.mk
+include test_integration/test_omp_outer_loop.mk
 include test_integration/test_scaling_region.mk
 include test_integration/test_timed_scaling_region.mk
-include test_integration/test_omp_outer_loop.mk
-include test_integration/test_ee_short_region_slop.mk
