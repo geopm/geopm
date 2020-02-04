@@ -140,7 +140,7 @@ if ! ${MSRSAVE} /tmp/msrsave_test; then
     RC=1
 fi
 
-./check_whitelist.sh # GEOPM required MSRs set properly in the msr-safe whitelist
+./00_check_whitelist.sh # GEOPM required MSRs set properly in the msr-safe whitelist
 if [ $? -eq 1 ]; then
     RC=1
 fi
