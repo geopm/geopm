@@ -25,7 +25,7 @@ Table of Contents
 10. [Restrict maximum trace file size (TBD)](#10-restrict-the-maximum-size-of-trace-files)
 
 ## 0. Verify GEOPM pre-requisites
-Run [`./test_prereqs.sh`](./test_prereqs.sh) on a compute node as an
+Run [`./00_test_prereqs.sh`](./00_test_prereqs.sh) on a compute node as an
 unprivileged user to ensure the GEOPM components are installed and functioning
 properly. In the event that something is misconfigured, an ERROR or WARNING
 message will be displayed recommending corrective action or referring the user
@@ -116,7 +116,7 @@ base frequency (also known as "sticker frequency"), which
 can be learned by running `geopmread FREQ_STICKER board 0` on a node
 of the target architecture for the configuration.
 
-See the script [`setup_fixed_frequency.sh`](setup_fixed_frequency.sh) in this
+See the script [`03_setup_fixed_frequency.sh`](03_setup_fixed_frequency.sh) in this
 folder for an example of how to set up a system to run all jobs at 300 MHz
 below the sticker frequency. The test script
 [`test_integration/test_plugin_static_policy.py`](../../test_integration/test_plugin_static_policy.py)
@@ -126,7 +126,7 @@ can be used to verify that this setup is working.
 When users run jobs with GEOPM, the default agent is the monitor (no controls,
 monitoring only). To change this default to the energy efficient agent so that
 jobs launched with GEOPM optimize energy efficiency, see the script
-[`setup_default_energy_efficient.sh`](setup_default_energy_efficient.sh). In
+[`04_setup_default_energy_efficient.sh`](04_setup_default_energy_efficient.sh). In
 this example, jobs not using GEOPM will run without having their frequency
 changed. The test script
 [`test_integration/test_plugin_static_policy.py`](../../test_integration/test_plugin_static_policy.py)
@@ -137,7 +137,7 @@ In this scenario, the package power limit of all nodes in the job will be set
 to a fixed value at the beginning of every job. This setup can be used on
 system to limit the total system power.
 
-See the script [`setup_fixed_power_cap.sh`](setup_fixed_power_cap.sh) in this
+See the script [`05_setup_fixed_power_cap.sh`](05_setup_fixed_power_cap.sh) in this
 folder for an example of how to set up a system to run all jobs at 50 watts
 below TDP. The test script
 [`test_integration/test_plugin_static_policy.py`](../../test_integration/test_plugin_static_policy.py)
@@ -147,8 +147,8 @@ can be used to verify that this setup is working.
 When users run jobs with GEOPM, the default agent is the monitor (no controls,
 monitoring only). To change this default to the power balancer agent so that
 jobs launched with GEOPM optimize performance under a power cap, see the script
-[`setup_default_power_balancer.sh`](setup_default_power_balancer.sh). In this
-example, jobs not using GEOPM will have their power cap set to a fixed cap
+[`06_setup_default_power_balancer.sh`](06_setup_default_power_balancer.sh). In
+this example, jobs not using GEOPM will have their power cap set to a fixed cap
 across all nodes. The test script
 [`test_integration/test_plugin_static_policy.py`](../../test_integration/test_plugin_static_policy.py)
 can be used to verify that this setup is working.
@@ -161,7 +161,7 @@ override environment values such that all GEOPM users must use the energy
 efficient agent.
 
 To make this change, refer to the script
-[`setup_override_energy_efficient.sh`](setup_override_energy_efficient.sh).
+[`07_setup_override_energy_efficient.sh`](07_setup_override_energy_efficient.sh).
 The test script
 [`test_integration/test_plugin_static_policy.py`](../../test_integration/test_plugin_static_policy.py)
 can be used to verify that this setup is working.
@@ -173,7 +173,7 @@ achieve better performance using the power balancer agent while staying under
 the same average power cap.
 
 To make this change, refer to the script
-[`setup_override_power_balancer.sh`](setup_override_power_balancer.sh).  The
+[`08_setup_override_power_balancer.sh`](08_setup_override_power_balancer.sh).  The
 test script
 [`test_integration/test_plugin_static_policy.py`](../../test_integration/test_plugin_static_policy.py)
 can be used to verify that this setup is working.
@@ -181,10 +181,10 @@ can be used to verify that this setup is working.
 ## 9. Control location of report and trace file output
 This is a planned feature of GEOPM that is not yet available. To be notified
 when this is completed or to participate in its development, please refer to
-the corresponding issue on github ([#912](https://github.com/geopm/geopm/issues/912)).
+the corresponding issue ([#912](https://github.com/geopm/geopm/issues/912)).
 
 ## 10. Restrict the maximum size of trace files
 This is a planned feature of GEOPM that is not yet available. To be notified
 when this is completed or to participate in its development, please refer to
-the corresponding issue on github ([#913](https://github.com/geopm/geopm/issues/913)).
+the corresponding issue ([#913](https://github.com/geopm/geopm/issues/913)).
 
