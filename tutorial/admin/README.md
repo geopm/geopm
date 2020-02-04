@@ -1,16 +1,14 @@
 GEOPM TUTORIAL FOR SYSTEM ADMINISTRATORS
 ========================================
-This README presents a tutorial for system administrators who
-would like to configure their HPC systems to enable the use of GEOPM.
-There are several different use cases that are broken out into
-numbered sections below.  The tutorial starts out with the least
-restrictive configuration of GEOPM.  The other sections show ways that
-system administrators can use GEOPM to achieve specific goals for
-energy, power, and performance.
+This README is a tutorial for system administrators who would like to configure
+their HPC systems to enable the use of GEOPM. Several different use cases are
+broken out into numbered sections below, beginning with the least restrictive
+configuration of GEOPM. Subsequent sections show how system administrators can
+use GEOPM to achieve specific goals for energy, power, and performance.
 
-The directory contains scripts that can be used to configure systems
-for use with the GEOPM runtime.  The scripts associated with each
-section are numbered accordingly.
+This directory contains scripts that can be used to configure systems for use
+with the GEOPM runtime. The scripts associated with each section are numbered
+accordingly.
 
 Table of Contents
 -----------------
@@ -27,29 +25,32 @@ Table of Contents
 10. [Restrict maximum trace file size (TBD)](#10-restrict-the-maximum-size-of-trace-files)
 
 ## 0. Verify GEOPM pre-requisites
-Run `./test_prereqs.sh` on a compute node in the context of a regular user
-to ensure the GEOPM components are installed and functioning properly.
-In the event that something is misconfigured, an ERROR or WARNING message
-will be displayed recommending a course of action to address the issue
-or refer the user back to the main GEOPM README for guidance.
+Run [`./test_prereqs.sh`](./test_prereqs.sh) on a compute node as an
+unprivileged user to ensure the GEOPM components are installed and functioning
+properly. In the event that something is misconfigured, an ERROR or WARNING
+message will be displayed recommending corrective action or referring the user
+back to the main GEOPM README for guidance.
 
 ## 1. GEOPM+SLURM static policy plugin
-To setup a system with the GEOPM+SLURM static policy plugin, the libgeopmpolicy
-must be available.  GEOPM provides two libraries. The first, libgeopmpolicy,
+GEOPM provides two libraries: `libgeopmpolicy` and `libgeopm`. `libgeopmpolicy`
 contains tools for interacting with hardware signals and controls, such as
-`geopmread`, and the supporting library functions.  The second, libgeopm,
-contains all the same functions and additionally provides tools for launching
-and interacting with MPI applications. The SLURM plugin requires libgeopmpolicy
-only; it does not use libgeopm or MPI.  If the GEOPM runtime will be installed
-(libgeopm and MPI launch tools), it should be installed in a different
-location, preferably using the module system.  The packages are available
-through OpenHPC (https://openhpc.community/downloads/).  See step 2 in this
-guide.
+`geopmread`, and the supporting library functions. `libgeopm` contains all of
+these functions and also provides tools for launching and interacting with MPI
+applications.
 
-A.  To build libgeopmpolicy and a compatible libgeopm_slurm.so:
-* Obtain the source code for geopm from https://github.com/geopm/geopm
-* Make sure no modules are loaded in the environment that will affect
-  compilation:
+The `libgeopmpolicy` library must be available in order to set up a system with
+the GEOPM+SLURM static policy plugin. The SLURM plugin requires
+`libgeopmpolicy` alone; it does not use `libgeopm` or MPI. If the GEOPM runtime
+will be installed (including `libgeopm` and MPI launch tools), it should be
+installed in a different location, preferably using the module system. The
+packages are available through OpenHPC
+(<https://openhpc.community/downloads/>). See the [GEOPM runtime
+capabilities](#2-geopm-runtime-capabilities) section in this guide.
+
+A.  To build `libgeopmpolicy` and a compatible `libgeopm_slurm.so`:
+* Obtain the source code for geopm from <https://github.com/geopm/geopm>
+* Make sure no modules that will affect compilation are loaded in the
+  environment:
 ```
 module purge
 ```
@@ -61,13 +62,13 @@ module purge
 ```
 make -j && make install
 ```
-* Build an RPM to be used to install libgeopmpolicy on the compute nodes.  The
-  output from this make command will indicate where the RPMs are located:
+* Build an RPM to be used to install `libgeopmpolicy` on the compute nodes.
+  The output from this make command will indicate where the RPMs are located:
 ```
 make rpm
 ```
-* Obtain the source code for the plugin from https://github.com/geopm/geopm-slurm
-* Configure using --with-geopm targeting the geopm install above:
+* Obtain the source code for the plugin from <https://github.com/geopm/geopm-slurm>
+* Configure using `--with-geopm` targeting the GEOPM install above:
 ```
 ./autogen.sh
 ./configure --with-geopm=$HOME/build/geopm-no-mpi --prefix=$HOME/build/geopm-slurm-plugin
@@ -76,99 +77,114 @@ make rpm
 ```
 make && make install
 ```
-B.  Install the libgeopmpolicy package in the compute nodes using the RPM.
-    The library must be accessible to the root user when the plugin runs,
-    for example in /usr/lib64, and this version of the library should be built
-    against a toolchain available in the system default paths.
+B.  Install the `libgeopmpolicy` package in the compute nodes using the RPM.
+The library must be in a directory that is in the root user's library search
+path when the plugin runs (such as `/usr/lib64`), and this version of the
+library should be built against a toolchain available in the system default
+paths.
 
-C.  Install libspank_geopm.so\* into /usr/lib64/slurm on the compute nodes.
+C.  Install `libspank_geopm.so*` into `/usr/lib64/slurm` on the compute nodes.
 
-D.  Create or update plugstack.conf in /etc/slurm on the compute nodes
-    to contain the following:
+D.  Create or update `plugstack.conf` in `/etc/slurm` on the compute nodes
+to contain the following:
 ```
 optional  libgeopm_spank.so
 ```
-The head node should not need plugstack.conf; or if present, it should not
-contain any reference to libgeopm_spank.so.
+The head node does not need `plugstack.conf`; if present, it should not
+contain any reference to `libgeopm_spank.so`.
 
-E.  Update the SLURM configuration (/etc/slurm/slurm.conf) as follows:
-* Update PluginDir to contain "/usr/lib64/slurm"
-* In a typical setup using Warewulf, slurm.conf will be synchronized
-between head and compute nodes (refer to the OpenHPC documentation at
-https://openhpc.community/downloads/).  If this is not the case, copy
-slurm.conf to the same location on the compute nodes.
+E.  Update the SLURM configuration (`/etc/slurm/slurm.conf`) by adding
+`/usr/lib64/slurm` to `PluginDir`.
+
+In a typical setup using Warewulf, `slurm.conf` will automatically be
+synchronized between head and compute nodes (refer to the OpenHPC documentation
+at <https://openhpc.community/downloads/>). If you are not using Warewulf, copy
+`slurm.conf` to the same location on the compute nodes.
 
 ## 2. GEOPM runtime capabilities
-To enable users to do research with the GEOPM runtime, follow the instructions
-in the "INSTALL" section for utilizing the pre-built RPMs or the "BUILD
-REQUIREMENTS, INSTRUCTIONS" sections if a source build is desired.  Finally
-follow the "RUN REQUIREMENTS" sections of the top level GEOPM README.md to
-ensure the runtime requirements are met for the users' context.
+To enable users to directly use the GEOPM runtime, follow the instructions in
+the "INSTALL" section for utilizing the pre-built RPMs or the "BUILD
+REQUIREMENTS" and "INSTRUCTIONS" sections if a source build is desired.
+Finally, follow the "RUN REQUIREMENTS" sections of the top level GEOPM README
+to ensure the runtime requirements are met for the users' context.
 
 ## 3. Limiting the frequency for non-GEOPM jobs
 In this scenario, the CPU frequency of all nodes in the job will be set
-to a fixed value at the beginning of every job.  This setup can be used
-on system to save energy by reducing the processor frequency below the
-base frequency (also known as "sticker frequency").  This frequency
-can be obtained by running `geopmread FREQ_STICKER board 0` on a node
+to a fixed value at the beginning of every job. This setup can be used
+to save energy by reducing the processor's frequency below the
+base frequency (also known as "sticker frequency"), which
+can be learned by running `geopmread FREQ_STICKER board 0` on a node
 of the target architecture for the configuration.
 
-See the script "setup_fixed_frequency.sh" in this folder for an example
-of how to set up a system to run all jobs at 300 MHz below the sticker
-frequency.  The test script test_integration/test_plugin_static_policy.py
-can be used to check whether this setup is working.
+See the script [`setup_fixed_frequency.sh`](setup_fixed_frequency.sh) in this
+folder for an example of how to set up a system to run all jobs at 300 MHz
+below the sticker frequency. The test script
+[`test_integration/test_plugin_static_policy.py`](../../test_integration/test_plugin_static_policy.py)
+can be used to verify that this setup is working.
 
 ## 4. Set the energy efficient agent as the default agent
-When users run jobs with GEOPM, the built-in default agent is the monitor
-(no controls, monitoring only).  To change this default to the energy
-efficient agent so that jobs launched with GEOPM optimize energy efficiency,
-see the script "setup_default_energy_efficient.sh".  In this example, jobs
-not using GEOPM will run not have their frequency changed.  The test
-script XXXX can be used to check whether this setup is working.
-### **TODO - Fix XXXX above**
+When users run jobs with GEOPM, the default agent is the monitor (no controls,
+monitoring only). To change this default to the energy efficient agent so that
+jobs launched with GEOPM optimize energy efficiency, see the script
+[`setup_default_energy_efficient.sh`](setup_default_energy_efficient.sh). In
+this example, jobs not using GEOPM will run without having their frequency
+changed. The test script
+[`test_integration/test_plugin_static_policy.py`](../../test_integration/test_plugin_static_policy.py)
+can be used to verify that this setup is working.
 
 ## 5. Limiting power for non-GEOPM jobs
 In this scenario, the package power limit of all nodes in the job will be set
-to a fixed value at the beginning of every job.  This setup can be used
-on system to limit the total system power.
+to a fixed value at the beginning of every job. This setup can be used on
+system to limit the total system power.
 
-See the script "setup_fixed_power_cap.sh" in this folder for an example of
-how to set up a system to run all jobs at 50 watts below TDP.  The
-test script test_integration/test_plugin_static_policy.py can be used to
-check whether this setup is working.
+See the script [`setup_fixed_power_cap.sh`](setup_fixed_power_cap.sh) in this
+folder for an example of how to set up a system to run all jobs at 50 watts
+below TDP. The test script
+[`test_integration/test_plugin_static_policy.py`](../../test_integration/test_plugin_static_policy.py)
+can be used to verify that this setup is working.
 
 ## 6. Set the power balancing agent as the default
-When users run jobs with GEOPM, the built-in default agent is the monitor
-(no controls, monitoring only).  To change this default to the power balancer
-agent so that jobs launched with GEOPM optimize performance under a power cap,
-see the script "setup_default_power_balancer.sh".  In this example, jobs
-not using GEOPM will have their power cap set to a fixed cap across all nodes.
-The test script XXXX can be used to check whether this setup is working.
-### **TODO - Fix XXXX above**
+When users run jobs with GEOPM, the default agent is the monitor (no controls,
+monitoring only). To change this default to the power balancer agent so that
+jobs launched with GEOPM optimize performance under a power cap, see the script
+[`setup_default_power_balancer.sh`](setup_default_power_balancer.sh). In this
+example, jobs not using GEOPM will have their power cap set to a fixed cap
+across all nodes. The test script
+[`test_integration/test_plugin_static_policy.py`](../../test_integration/test_plugin_static_policy.py)
+can be used to verify that this setup is working.
 
 ## 7. Restrict CPU frequency OR enforce energy efficient agent
-In this scenario, the CPU frequency of all jobs will be capped at a specified
-maximum, but users who request GEOPM using the `geopmlaunch` tool can be
-allowed to run at higher maximum frequencies when their application is more
-efficient.  This is achieved by setting the override environment values
-such that all GEOPM users must use the energy efficient agent.
+In this scenario, the CPU frequency of all jobs will be capped to a specified
+maximum, but jobs executed with GEOPM using the `geopmlaunch` tool will have a
+higher CPU frequency range available to them. This is achieved by setting the
+override environment values such that all GEOPM users must use the energy
+efficient agent.
 
-See the test script "setup_override_energy_efficient.sh".
-The test script XXXX can be used to check whether this setup is working.
-### **TODO - Fix XXXX above**
+To make this change, refer to the script
+[`setup_override_energy_efficient.sh`](setup_override_energy_efficient.sh).
+The test script
+[`test_integration/test_plugin_static_policy.py`](../../test_integration/test_plugin_static_policy.py)
+can be used to verify that this setup is working.
 
 ## 8. Restrict power cap or enforce power balancing agent
-In this scenario, the average power of all jobs will be constrained to
-a specified limit, but users who request GEOPM using the `geopmlaunch`
-tool can achieve better performance using the power balancer agent while
-staying under the same average power cap.
+In this scenario, the average power of all jobs will be constrained to a
+specified limit, but jobs executed with GEOPM using the `geopmlaunch` tool can
+achieve better performance using the power balancer agent while staying under
+the same average power cap.
 
-See the test script "setup_override_power_balancer.sh".
-The test script XXXX can be used to check whether this setup is working.
-### **TODO - Fix XXXX above**
+To make this change, refer to the script
+[`setup_override_power_balancer.sh`](setup_override_power_balancer.sh).  The
+test script
+[`test_integration/test_plugin_static_policy.py`](../../test_integration/test_plugin_static_policy.py)
+can be used to verify that this setup is working.
 
 ## 9. Control location of report and trace file output
-Unsupported future feature.
+This is a planned feature of GEOPM that is not yet available. To be notified
+when this is completed or to participate in its development, please refer to
+the corresponding issue on github ([#912](https://github.com/geopm/geopm/issues/912)).
 
 ## 10. Restrict the maximum size of trace files
-Unsupported future feature.
+This is a planned feature of GEOPM that is not yet available. To be notified
+when this is completed or to participate in its development, please refer to
+the corresponding issue on github ([#913](https://github.com/geopm/geopm/issues/913)).
+
