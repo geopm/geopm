@@ -60,7 +60,7 @@ geopmagent -a energy_efficient -p $FREQ_MIN,$FREQ_MAX,NAN,$FREQ_FIXED > $POLICY_
 #   {
 #     "FREQ_MIN": 1200000000,
 #     "FREQ_MAX": 1700000000,
-#     "PWER_MARGIN": "NAN",
+#     "PERF_MARGIN": "NAN",
 #     "FREQ_FIXED": 1500000000
 #   }
 
