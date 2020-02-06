@@ -124,7 +124,7 @@ def geopmread(read_str):
         raise err
     last_line = stdout.getvalue().splitlines()[-1]
 
-    if last_line.startswith(b'0x'):
+    if last_line.startswith('0x'):
         return int(last_line)
     else:
         try:
