@@ -112,7 +112,6 @@ namespace geopm
 
             const int M_PRECISION;
             const double M_WAIT_SEC;
-            const double M_MIN_LEARNING_RUNTIME;
             const double M_POLICY_PERF_MARGIN_DEFAULT;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
