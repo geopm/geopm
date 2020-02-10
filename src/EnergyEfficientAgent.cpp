@@ -67,7 +67,6 @@ namespace geopm
                                                std::map<uint64_t, std::shared_ptr<EnergyEfficientRegion> > region_map)
         : M_PRECISION(16)
         , M_WAIT_SEC(0.002)
-        , M_MIN_LEARNING_RUNTIME(M_WAIT_SEC * 10)
         , M_POLICY_PERF_MARGIN_DEFAULT(0.10)  // max 10% performance degradation
         , m_platform_io(plat_io)
         , m_platform_topo(topo)
@@ -248,10 +247,6 @@ namespace geopm
                         throw Exception("EnergyEfficientAgent::" + std::string(__func__) +
                                         "(): region exit before entry detected.",
                                         GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-                    }
-                    if (last_region_info.runtime != 0.0 &&
-                        last_region_info.runtime < M_MIN_LEARNING_RUNTIME) {
-                        last_region_it->second->disable();
                     }
                     // Higher is better for performance, so negate
                     last_region_it->second->update_exit(-1.0 * last_region_info.runtime);

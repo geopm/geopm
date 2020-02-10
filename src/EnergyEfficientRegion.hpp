@@ -50,7 +50,6 @@ namespace geopm
             virtual double freq(void) const = 0;
             virtual void update_freq_range(double freq_min, double freq_max, double freq_step) = 0;
             virtual void update_exit(double curr_perf_metric) = 0;
-            virtual void disable(void) = 0;
             virtual bool is_learning(void) const = 0;
             static std::unique_ptr<EnergyEfficientRegion> make_unique(double freq_min, double freq_max,
                                                                       double freq_step, double perf_margin);
@@ -65,7 +64,6 @@ namespace geopm
             double freq(void) const override;
             void update_freq_range(double freq_min, double freq_max, double freq_step) override;
             void update_exit(double curr_perf_metric) override;
-            void disable(void) override;
             bool is_learning(void) const override;
         private:
             const int M_MIN_PERF_SAMPLE;
@@ -76,7 +74,6 @@ namespace geopm
             double m_freq_min;
             double m_target;
             std::vector<std::unique_ptr<CircularBuffer<double> > > m_freq_perf;
-            bool m_is_disabled;
             double m_perf_margin;
     };
 

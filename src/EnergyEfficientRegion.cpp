@@ -60,7 +60,6 @@ namespace geopm
         , m_curr_step(-1)
         , m_freq_min(freq_min)
         , m_target(0.0)
-        , m_is_disabled(false)
         , m_perf_margin(perf_margin)
     {
         /// @brief we are not clearing the m_freq_perf vector once created, such that we
@@ -99,7 +98,7 @@ namespace geopm
 
     void EnergyEfficientRegionImp::update_exit(double curr_perf_metric)
     {
-        if (m_is_learning && !m_is_disabled) {
+        if (m_is_learning) {
             auto &curr_perf_buffer = m_freq_perf[m_curr_step];
             if (!std::isnan(curr_perf_metric) && curr_perf_metric != 0.0) {
                 curr_perf_buffer->insert(curr_perf_metric);
@@ -137,11 +136,6 @@ namespace geopm
                 }
             }
         }
-    }
-
-    void EnergyEfficientRegionImp::disable(void)
-    {
-        m_is_disabled = true;
     }
 
     bool EnergyEfficientRegionImp::is_learning(void) const
