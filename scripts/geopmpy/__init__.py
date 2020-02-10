@@ -38,6 +38,6 @@ topo, agent, and version.
 
 from __future__ import absolute_import
 
-__all__ = ['agent', 'error', 'io', 'launcher', 'pio', 'plotter', 'policy_store', 'topo', 'version']
+__all__ = ['analysis', 'agent', 'error', 'io', 'launcher', 'pio', 'plotter', 'policy_store', 'topo', 'version']
 
 from geopmpy.version import __version__

@@ -274,7 +274,8 @@ class PowerSweepAnalysis(Analysis):
         reports = []
         for report in report_files:
             try:
-                power = int(report.split('_')[1])
+                # finds the power number after the profile name; other reports will be skipped
+                power = int(report.replace(self._name, '', 1).split('_')[1])
                 reports.append(report)
             except:
                 pass
@@ -1242,7 +1243,7 @@ class EnergyEfficientAgentAnalysis(Analysis):
         agent = 'energy_efficient'
         options = {'frequency_min': self._min_freq,
                    'frequency_max': self._max_freq,
-                   'perf_margin': 0.10}
+                   'PERF_MARGIN': 0.10}
         agent_conf = geopmpy.io.AgentConf(self._name + '_agent.config', agent, options)
         agent_conf.write()
 
