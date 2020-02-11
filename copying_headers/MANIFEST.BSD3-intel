@@ -204,6 +204,8 @@ src/ProfileThread.cpp
 src/ProfileThread.hpp
 src/ProfileTracer.cpp
 src/ProfileTracer.hpp
+src/ReduceModelRegion.cpp
+src/ReduceModelRegion.hpp
 src/RegionAggregator.cpp
 src/RegionAggregator.hpp
 src/RegionAggregatorImp.hpp
