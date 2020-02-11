@@ -651,13 +651,34 @@ endif
                        # end
 endif
 
+model_source_files = src/All2allModelRegion.cpp \
+                     src/All2allModelRegion.hpp \
+                     src/DGEMMModelRegion.cpp \
+                     src/DGEMMModelRegion.hpp \
+                     src/IgnoreModelRegion.cpp \
+                     src/IgnoreModelRegion.hpp \
+                     src/ModelApplication.cpp \
+                     src/ModelApplication.hpp \
+                     src/ModelRegion.cpp \
+                     src/ModelRegion.hpp \
+                     src/NestedModelRegion.cpp \
+                     src/NestedModelRegion.hpp \
+                     src/SleepModelRegion.cpp \
+                     src/SleepModelRegion.hpp \
+                     src/SpinModelRegion.cpp \
+                     src/SpinModelRegion.hpp \
+                     src/StreamModelRegion.cpp \
+                     src/StreamModelRegion.hpp \
+                     # end
+
 if ENABLE_MPI
-    geopmbench_SOURCES = src/ModelApplication.cpp \
-                         src/ModelApplication.hpp \
-                         src/ModelRegion.cpp \
-                         src/ModelRegion.hpp \
+    geopmbench_SOURCES = $(model_source_files) \
                          src/geopmbench_main.cpp \
                          # end
+else
+    EXTRA_DIST += $(model_source_files) \
+                  src/geopmbench_main.cpp \
+                  # end
 endif
 
 # CLEAN TARGETS

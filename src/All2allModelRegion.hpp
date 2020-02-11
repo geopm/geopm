@@ -30,45 +30,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MODELREGION_HPP_INCLUDE
-#define MODELREGION_HPP_INCLUDE
+#ifndef ALL2ALLMODELREGION_HPP_INCLUDE
+#define ALL2ALLMODELREGION_HPP_INCLUDE
 
-#include <string>
-#include <cstdint>
-#include <memory>
+#include "ModelRegion.hpp"
 
 namespace geopm
 {
-    class ModelRegion
+    class All2allModelRegion : public ModelRegion
     {
+        friend class NestedModelRegion;
         public:
-            static std::unique_ptr<ModelRegion> model_region(const std::string &name,
-                                                             double big_o,
-                                                             int verbosity);
-            ModelRegion(int verbosity);
-            virtual ~ModelRegion();
-            std::string name(void);
-            double big_o(void);
-            virtual int region(void);
-            virtual int region(uint64_t hint);
-            virtual void region_enter(void);
-            virtual void region_exit(void);
-            virtual void loop_enter(uint64_t iteration);
-            virtual void loop_exit(void);
-            virtual void big_o(double big_o_in) = 0;
-            virtual void run(void) = 0;
+            All2allModelRegion(double big_o_in,
+                               int verbosity,
+                               bool do_imbalance,
+                               bool do_progress,
+                               bool do_unmarked);
+            virtual ~All2allModelRegion();
+            void big_o(double big_o);
+            void run(void);
         protected:
-            virtual void num_progress_updates(double big_o_in);
-            static bool name_check(const std::string &name, const std::string &key);
-            std::string m_name;
-            double m_big_o;
-            int m_verbosity;
-            uint64_t m_region_id;
-            bool m_do_imbalance;
-            bool m_do_progress;
-            bool m_do_unmarked;
-            uint64_t m_num_progress_updates;
-            double m_norm;
+            char *m_send_buffer;
+            char *m_recv_buffer;
+            size_t m_num_send;
+            int m_num_rank;
+            const size_t m_align;
+            int m_rank;
     };
 }
 

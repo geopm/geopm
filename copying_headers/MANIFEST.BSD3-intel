@@ -74,6 +74,8 @@ src/Agent.cpp
 src/Agent.hpp
 src/Agg.cpp
 src/Agg.hpp
+src/All2allModelRegion.cpp
+src/All2allModelRegion.hpp
 src/ApplicationIO.cpp
 src/ApplicationIO.hpp
 src/CircularBuffer.hpp
@@ -97,6 +99,8 @@ src/DaemonImp.hpp
 src/DebugIOGroup.cpp
 src/DebugIOGroup.hpp
 src/DefaultProfile.cpp
+src/DGEMMModelRegion.cpp
+src/DGEMMModelRegion.hpp
 src/ELF.cpp
 src/ELF.hpp
 src/Endpoint.cpp
@@ -126,6 +130,8 @@ src/FrequencyMapAgent.cpp
 src/FrequencyMapAgent.hpp
 src/Helper.cpp
 src/Helper.hpp
+src/IgnoreModelRegion.cpp
+src/IgnoreModelRegion.hpp
 src/IOGroup.cpp
 src/IOGroup.hpp
 src/Imbalancer.cpp
@@ -154,6 +160,8 @@ src/ModelRegion.cpp
 src/ModelRegion.hpp
 src/MonitorAgent.cpp
 src/MonitorAgent.hpp
+src/NestedModelRegion.cpp
+src/NestedModelRegion.hpp
 src/OMPT.cpp
 src/OMPT.hpp
 src/ompt_callback.cpp
@@ -211,6 +219,12 @@ src/SharedMemoryImp.hpp
 src/SharedMemoryScopedLock.hpp
 src/SharedMemoryScopedLock.cpp
 src/SharedMemoryUser.hpp
+src/SleepModelRegion.cpp
+src/SleepModelRegion.hpp
+src/SpinModelRegion.cpp
+src/SpinModelRegion.hpp
+src/StreamModelRegion.cpp
+src/StreamModelRegion.hpp
 src/TimeIOGroup.cpp
 src/TimeIOGroup.hpp
 src/Tracer.cpp
