@@ -59,8 +59,8 @@ int main(int argc, char **argv)
             }
         }
     }
-    std::unique_ptr<geopm::ModelRegionBase> spin_model(geopm::model_region_factory("spin", 0.075, is_verbose));
-    std::unique_ptr<geopm::ModelRegionBase> short_model(geopm::model_region_factory("spin", 0.01, is_verbose));
+    std::unique_ptr<geopm::ModelRegion> spin_model(geopm::ModelRegion::model_region("spin", 0.075, is_verbose));
+    std::unique_ptr<geopm::ModelRegion> short_model(geopm::ModelRegion::model_region("spin", 0.01, is_verbose));
     uint64_t short_region_id = 0;
     err = geopm_prof_region("short_region", GEOPM_REGION_HINT_UNKNOWN, &short_region_id);
     if (err) {
@@ -77,8 +77,8 @@ int main(int argc, char **argv)
         int dgemm_idx = mix_idx;
         double stream_big_o = stream_factor * mix_factor * stream_idx;
         double dgemm_big_o = dgemm_factor * mix_factor * dgemm_idx;
-	std::unique_ptr<geopm::ModelRegionBase> stream_model(geopm::model_region_factory("stream-unmarked", stream_big_o, is_verbose));
-        std::unique_ptr<geopm::ModelRegionBase> dgemm_model(geopm::model_region_factory("dgemm-unmarked", dgemm_big_o, is_verbose));
+        std::unique_ptr<geopm::ModelRegion> stream_model(geopm::ModelRegion::model_region("stream-unmarked", stream_big_o, is_verbose));
+        std::unique_ptr<geopm::ModelRegion> dgemm_model(geopm::ModelRegion::model_region("dgemm-unmarked", dgemm_big_o, is_verbose));
         char region_name[NAME_MAX];
         region_name[NAME_MAX - 1] = '\0';
         snprintf(region_name, NAME_MAX - 1, "stream-%.2f-dgemm-%.2f", stream_big_o, dgemm_big_o);

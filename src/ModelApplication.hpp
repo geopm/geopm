@@ -36,22 +36,23 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace geopm
 {
-    class ModelRegionBase;
+    class ModelRegion;
 
     class ModelApplication
     {
         public:
             ModelApplication(uint64_t loop_count, std::vector<std::string> region_name,
                              std::vector<double> big_o, int verbosity, int rank);
-            virtual ~ModelApplication();
+            virtual ~ModelApplication() = default;
             void run(void);
         protected:
             uint64_t m_repeat;
             int m_rank;
-            std::vector<ModelRegionBase *> m_region;
+            std::vector<std::shared_ptr<ModelRegion> > m_region;
     };
 
 }

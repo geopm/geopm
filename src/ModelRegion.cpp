@@ -46,6 +46,7 @@
 #include "geopm.h"
 #include "geopm_time.h"
 #include "Exception.hpp"
+#include "Helper.hpp"
 #include "geopm_imbalancer.h"
 #include "config.h"
 
@@ -76,7 +77,20 @@ void dgemm(const char *transa, const char *transb, const int *M,
 
 namespace geopm
 {
-    ModelRegionBase *model_region_factory(std::string name, double big_o, int verbosity)
+    bool ModelRegion::name_check(const std::string &name, const std::string &key)
+    {
+        bool result = false;
+        size_t key_size = key.size();
+        if (name.find(key) == 0 &&
+            (name[key_size] == '\0' ||
+             name[key_size] == '-')) {
+            result = true;
+        }
+        return result;
+    }
+
+
+    std::unique_ptr<ModelRegion> ModelRegion::model_region(const std::string &name, double big_o, int verbosity)
     {
         bool do_imbalance = (name.find("-imbalance") != std::string::npos);
         bool do_progress = (name.find("-progress") != std::string::npos);
@@ -86,50 +100,34 @@ namespace geopm
             do_progress = false;
         }
 
-        ModelRegionBase *result = NULL;
-        if (name.find("sleep") == 0 &&
-            (name[strlen("sleep")] == '\0' ||
-             name[strlen("sleep")] == '-')) {
-            result = new SleepModelRegion(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
+        if (name_check(name, "sleep")) {
+            return geopm::make_unique<SleepModelRegion>(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
         }
-        else if (name.find("spin") == 0 &&
-                 (name[strlen("spin")] == '\0' ||
-                  name[strlen("spin")] == '-'))  {
-            result = new SpinModelRegion(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
+        else if (name_check(name, "spin")) {
+            return geopm::make_unique<SpinModelRegion>(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
         }
-        else if (name.find("dgemm") == 0 &&
-                 (name[strlen("dgemm")] == '\0' ||
-                  name[strlen("dgemm")] == '-'))  {
-            result = new DGEMMModelRegion(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
+        else if (name_check(name, "dgemm")) {
+            return geopm::make_unique<DGEMMModelRegion>(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
         }
-        else if (name.find("stream") == 0 &&
-                 (name[strlen("stream")] == '\0' ||
-                  name[strlen("stream")] == '-')) {
-            result = new StreamModelRegion(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
+        else if (name_check(name, "stream")) {
+            return geopm::make_unique<StreamModelRegion>(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
         }
-        else if (name.find("all2all") == 0 &&
-                 (name[strlen("all2all")] == '\0' ||
-                  name[strlen("all2all")] == '-')) {
-            result = new All2allModelRegion(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
+        else if (name_check(name, "all2all")) {
+            return geopm::make_unique<All2allModelRegion>(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
         }
-        else if (name.find("nested") == 0 &&
-                 (name[strlen("nested")] == '\0' ||
-                  name[strlen("nested")] == '-')) {
-            result = new NestedModelRegion(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
+        else if (name_check(name, "nested")) {
+            return geopm::make_unique<NestedModelRegion>(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
         }
-        else if (name.find("ignore") == 0 &&
-            (name[strlen("ignore")] == '\0' ||
-             name[strlen("ignore")] == '-')) {
-            result = new IgnoreModelRegion(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
+        else if (name_check(name, "ignore")) {
+            return geopm::make_unique<IgnoreModelRegion>(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
         }
         else {
             throw Exception("model_region_factory: unknown name: " + name,
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return result;
     }
 
-    ModelRegionBase::ModelRegionBase(int verbosity)
+    ModelRegion::ModelRegion(int verbosity)
         : m_big_o(0.0)
         , m_verbosity(verbosity)
         , m_do_imbalance(false)
@@ -141,22 +139,22 @@ namespace geopm
 
     }
 
-    ModelRegionBase::~ModelRegionBase()
+    ModelRegion::~ModelRegion()
     {
 
     }
 
-    std::string ModelRegionBase::name(void)
+    std::string ModelRegion::name(void)
     {
         return m_name;
     }
 
-    double ModelRegionBase::big_o(void)
+    double ModelRegion::big_o(void)
     {
         return m_big_o;
     }
 
-    void ModelRegionBase::num_progress_updates(double big_o_in)
+    void ModelRegion::num_progress_updates(double big_o_in)
     {
         if (!m_do_progress) {
             m_num_progress_updates = 1;
@@ -170,7 +168,7 @@ namespace geopm
         m_norm = 1.0 / m_num_progress_updates;
     }
 
-    int ModelRegionBase::region(uint64_t hint)
+    int ModelRegion::region(uint64_t hint)
     {
         int err = 0;
         if (!m_do_unmarked) {
@@ -179,26 +177,26 @@ namespace geopm
         return err;
     }
 
-    int ModelRegionBase::region(void)
+    int ModelRegion::region(void)
     {
         return region(GEOPM_REGION_HINT_UNKNOWN);
     }
 
-    void ModelRegionBase::region_enter(void)
+    void ModelRegion::region_enter(void)
     {
         if (!m_do_unmarked) {
             (void)geopm_prof_enter(m_region_id);
         }
     }
 
-    void ModelRegionBase::region_exit(void)
+    void ModelRegion::region_exit(void)
     {
         if (!m_do_unmarked) {
             (void)geopm_prof_exit(m_region_id);
         }
     }
 
-    void ModelRegionBase::loop_enter(uint64_t iteration)
+    void ModelRegion::loop_enter(uint64_t iteration)
     {
         if (m_do_progress) {
             (void)geopm_prof_progress(m_region_id, iteration * m_norm);
@@ -208,7 +206,7 @@ namespace geopm
         }
     }
 
-    void ModelRegionBase::loop_exit(void)
+    void ModelRegion::loop_exit(void)
     {
         if (m_do_imbalance) {
             (void)geopm_imbalancer_exit();
@@ -216,14 +214,14 @@ namespace geopm
     }
 
     SleepModelRegion::SleepModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked)
-        : ModelRegionBase(verbosity)
+        : ModelRegion(verbosity)
     {
         m_name = "sleep";
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
         big_o(big_o_in);
-        int err = ModelRegionBase::region();
+        int err = ModelRegion::region();
         if (err) {
             throw Exception("SleepModelRegion::SleepModelRegion()",
                             err, __FILE__, __LINE__);
@@ -251,30 +249,30 @@ namespace geopm
             if (m_verbosity) {
                 std::cout << "Executing " << m_big_o << " second sleep."  << std::endl << std::flush;
             }
-            ModelRegionBase::region_enter();
+            ModelRegion::region_enter();
             for (uint64_t i = 0 ; i < m_num_progress_updates; ++i) {
-                ModelRegionBase::loop_enter(i);
+                ModelRegion::loop_enter(i);
                 int err;
                 err = clock_nanosleep(CLOCK_REALTIME, 0, &m_delay, NULL);
                 if (err) {
                     throw Exception("SleepModelRegion::run()",
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
-                ModelRegionBase::loop_exit();
+                ModelRegion::loop_exit();
             }
-            ModelRegionBase::region_exit();
+            ModelRegion::region_exit();
         }
     }
 
     SpinModelRegion::SpinModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked)
-        : ModelRegionBase(verbosity)
+        : ModelRegion(verbosity)
     {
         m_name = "spin";
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
         big_o(big_o_in);
-        int err = ModelRegionBase::region();
+        int err = ModelRegion::region();
         if (err) {
             throw Exception("SpinModelRegion::SpinModelRegion()",
                             err, __FILE__, __LINE__);
@@ -299,9 +297,9 @@ namespace geopm
             if (m_verbosity) {
                 std::cout << "Executing " << m_big_o << " second spin."  << std::endl << std::flush;
             }
-            ModelRegionBase::region_enter();
+            ModelRegion::region_enter();
             for (uint64_t i = 0 ; i < m_num_progress_updates; ++i) {
-                ModelRegionBase::loop_enter(i);
+                ModelRegion::loop_enter(i);
 
                 double timeout = 0.0;
                 struct geopm_time_s start = {{0,0}};
@@ -312,14 +310,14 @@ namespace geopm
                     timeout = geopm_time_diff(&start, &curr);
                 }
 
-                ModelRegionBase::loop_exit();
+                ModelRegion::loop_exit();
             }
-            ModelRegionBase::region_exit();
+            ModelRegion::region_exit();
         }
     }
 
     DGEMMModelRegion::DGEMMModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked)
-        : ModelRegionBase(verbosity)
+        : ModelRegion(verbosity)
         , m_matrix_a(NULL)
         , m_matrix_b(NULL)
         , m_matrix_c(NULL)
@@ -331,7 +329,7 @@ namespace geopm
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
         big_o(big_o_in);
-        int err = ModelRegionBase::region(GEOPM_REGION_HINT_COMPUTE);
+        int err = ModelRegion::region(GEOPM_REGION_HINT_COMPUTE);
         if (err) {
             throw Exception("DGEMMModelRegion::DGEMMModelRegion()",
                             err, __FILE__, __LINE__);
@@ -383,9 +381,9 @@ namespace geopm
                 std::cout << "Executing " << m_matrix_size << " x " << m_matrix_size << " DGEMM "
                           << m_num_progress_updates << " times." << std::endl << std::flush;
             }
-            ModelRegionBase::region_enter();
+            ModelRegion::region_enter();
             for (uint64_t i = 0; i < m_num_progress_updates; ++i) {
-                ModelRegionBase::loop_enter(i);
+                ModelRegion::loop_enter(i);
 
                 int M = m_matrix_size;
                 int N = m_matrix_size;
@@ -401,14 +399,14 @@ namespace geopm
                 dgemm(&transa, &transb, &M, &N, &K, &alpha,
                       m_matrix_a, &LDA, m_matrix_b, &LDB, &beta, m_matrix_c, &LDC);
 
-                ModelRegionBase::loop_exit();
+                ModelRegion::loop_exit();
             }
-            ModelRegionBase::region_exit();
+            ModelRegion::region_exit();
         }
     }
 
     StreamModelRegion::StreamModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked)
-        : ModelRegionBase(verbosity)
+        : ModelRegion(verbosity)
         , m_array_a(NULL)
         , m_array_b(NULL)
         , m_array_c(NULL)
@@ -420,7 +418,7 @@ namespace geopm
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
         big_o(big_o_in);
-        int err = ModelRegionBase::region(GEOPM_REGION_HINT_MEMORY);
+        int err = ModelRegion::region(GEOPM_REGION_HINT_MEMORY);
         if (err) {
             throw Exception("StreamModelRegion::StreamModelRegion()",
                             err, __FILE__, __LINE__);
@@ -471,17 +469,17 @@ namespace geopm
             if (m_verbosity) {
                 std::cout << "Executing " << m_array_len * m_num_progress_updates << " array length stream triadd."  << std::endl << std::flush;
             }
-            ModelRegionBase::region_enter();
+            ModelRegion::region_enter();
             size_t block_size = m_array_len / m_num_progress_updates;
             double scalar = 3.0;
             for (uint64_t i = 0; i < m_num_progress_updates; ++i) {
-                ModelRegionBase::loop_enter(i);
+                ModelRegion::loop_enter(i);
 #pragma omp parallel for
                 for (size_t j = 0; j < block_size; ++j) {
                     m_array_a[i * block_size + j] = m_array_b[i * block_size + j] + scalar * m_array_c[i * block_size + j];
                 }
 
-                ModelRegionBase::loop_exit();
+                ModelRegion::loop_exit();
             }
             size_t remainder = m_array_len;
             if (block_size != 0) {
@@ -490,12 +488,12 @@ namespace geopm
             for (uint64_t j = 0; j < remainder; ++j) {
                 m_array_a[m_num_progress_updates * block_size + j] = m_array_b[m_num_progress_updates * block_size + j] + scalar * m_array_c[m_num_progress_updates * block_size + j];
             }
-            ModelRegionBase::region_exit();
+            ModelRegion::region_exit();
         }
     }
 
     All2allModelRegion::All2allModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked)
-        : ModelRegionBase(verbosity)
+        : ModelRegion(verbosity)
         , m_send_buffer(NULL)
         , m_recv_buffer(NULL)
         , m_num_send(0)
@@ -508,7 +506,7 @@ namespace geopm
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
         big_o(big_o_in);
-        int err = ModelRegionBase::region(GEOPM_REGION_HINT_UNKNOWN);
+        int err = ModelRegion::region(GEOPM_REGION_HINT_UNKNOWN);
         if (!err) {
             err = MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
         }
@@ -572,9 +570,9 @@ namespace geopm
                           << m_num_progress_updates << " times."  << std::endl << std::flush;
             }
             MPI_Barrier(MPI_COMM_WORLD);
-            ModelRegionBase::region_enter();
+            ModelRegion::region_enter();
             for (uint64_t i = 0; i < m_num_progress_updates; ++i) {
-                ModelRegionBase::loop_enter(i);
+                ModelRegion::loop_enter(i);
 
                 double timeout = 0.0;
                 struct geopm_time_s start = {{0,0}};
@@ -602,14 +600,14 @@ namespace geopm
                     }
                 }
 
-                ModelRegionBase::loop_exit();
+                ModelRegion::loop_exit();
             }
-            ModelRegionBase::region_exit();
+            ModelRegion::region_exit();
         }
     }
 
     NestedModelRegion::NestedModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked)
-        : ModelRegionBase(verbosity)
+        : ModelRegion(verbosity)
         , m_spin_region(big_o_in, verbosity, do_imbalance, do_progress, do_unmarked)
         , m_all2all_region(big_o_in, verbosity, do_imbalance, do_progress, do_unmarked)
     {
@@ -712,14 +710,14 @@ namespace geopm
     }
 
     IgnoreModelRegion::IgnoreModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked)
-        : ModelRegionBase(verbosity)
+        : ModelRegion(verbosity)
     {
         m_name = "ignore";
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
         big_o(big_o_in);
-        int err = ModelRegionBase::region(GEOPM_REGION_HINT_IGNORE);
+        int err = ModelRegion::region(GEOPM_REGION_HINT_IGNORE);
         if (err) {
             throw Exception("IgnoreModelRegion::IgnoreModelRegion()",
                             err, __FILE__, __LINE__);
@@ -747,9 +745,9 @@ namespace geopm
             if (m_verbosity) {
                 std::cout << "Executing ignored " << m_big_o << " second sleep."  << std::endl << std::flush;
             }
-            ModelRegionBase::region_enter();
+            ModelRegion::region_enter();
             for (uint64_t i = 0 ; i < m_num_progress_updates; ++i) {
-                ModelRegionBase::loop_enter(i);
+                ModelRegion::loop_enter(i);
 
                 int err;
                 err = clock_nanosleep(CLOCK_REALTIME, 0, &m_delay, NULL);
@@ -758,9 +756,9 @@ namespace geopm
                                     GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
 
-                ModelRegionBase::loop_exit();
+                ModelRegion::loop_exit();
             }
-            ModelRegionBase::region_exit();
+            ModelRegion::region_exit();
         }
     }
 }

@@ -35,14 +35,16 @@
 
 #include <string>
 #include <cstdint>
+#include <memory>
 
 namespace geopm
 {
-    class ModelRegionBase
+    class ModelRegion
     {
         public:
-            ModelRegionBase(int verbosity);
-            virtual ~ModelRegionBase();
+            static std::unique_ptr<ModelRegion> model_region(const std::string &name, double big_o, int verbosity);
+            ModelRegion(int verbosity);
+            virtual ~ModelRegion();
             std::string name(void);
             double big_o(void);
             virtual int region(void);
@@ -55,6 +57,7 @@ namespace geopm
             virtual void run(void) = 0;
         protected:
             virtual void num_progress_updates(double big_o_in);
+            static bool name_check(const std::string &name, const std::string &key);
             std::string m_name;
             double m_big_o;
             int m_verbosity;
@@ -66,7 +69,7 @@ namespace geopm
             double m_norm;
     };
 
-    class SleepModelRegion : public ModelRegionBase
+    class SleepModelRegion : public ModelRegion
     {
         public:
             SleepModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked);
@@ -77,7 +80,7 @@ namespace geopm
             struct timespec m_delay;
     };
 
-    class SpinModelRegion : public ModelRegionBase
+    class SpinModelRegion : public ModelRegion
     {
         friend class NestedModelRegion;
         public:
@@ -89,7 +92,7 @@ namespace geopm
             double m_delay;
     };
 
-    class DGEMMModelRegion : public ModelRegionBase
+    class DGEMMModelRegion : public ModelRegion
     {
         public:
             DGEMMModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked);
@@ -104,7 +107,7 @@ namespace geopm
             const size_t m_pad_size;
     };
 
-    class StreamModelRegion : public ModelRegionBase
+    class StreamModelRegion : public ModelRegion
     {
         public:
             StreamModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked);
@@ -119,7 +122,7 @@ namespace geopm
             const size_t m_align;
     };
 
-    class All2allModelRegion : public ModelRegionBase
+    class All2allModelRegion : public ModelRegion
     {
         friend class NestedModelRegion;
         public:
@@ -136,7 +139,7 @@ namespace geopm
             int m_rank;
     };
 
-    class NestedModelRegion : public ModelRegionBase
+    class NestedModelRegion : public ModelRegion
     {
         public:
             NestedModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked);
@@ -148,7 +151,7 @@ namespace geopm
             All2allModelRegion m_all2all_region;
     };
 
-    class IgnoreModelRegion : public ModelRegionBase
+    class IgnoreModelRegion : public ModelRegion
     {
         public:
             IgnoreModelRegion(double big_o_in, int verbosity, bool do_imbalance, bool do_progress, bool do_unmarked);
@@ -158,8 +161,6 @@ namespace geopm
         protected:
             struct timespec m_delay;
     };
-
-    ModelRegionBase *model_region_factory(std::string name, double big_o, int verbosity);
 }
 
 #endif
