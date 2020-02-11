@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation
+ * Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -287,7 +287,7 @@ TEST_F(OptionParserTest, format_help)
                         "  -V, --version             print version of GEOPM to standard output, then\n"
                         "                            exit\n"
                         "\n"
-                        "Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.\n"
+                        "Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation. All rights reserved.\n"
                         "\n";
 
     std::string result = m_opt.format_help();

@@ -1,4 +1,4 @@
-#  Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation
+#  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
@@ -1538,7 +1538,7 @@ geopmanalysis - Used to run applications and analyze results for specific
 
     version_str = """\
 GEOPM version {version}
-Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
+Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation. All rights reserved.
 """.format(version=__version__)
 
     if '--help' in argv or '-h' in argv:

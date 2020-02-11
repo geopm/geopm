@@ -1,7 +1,7 @@
 geopm(7) -- global extensible open power manager
 ================================================
 
-[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -362,7 +362,7 @@ specified regardless of the values set in the calling environment.
     LD_DYNAMIC_WEAK environment variable is not required at runtime.
 
 ## COPYRIGHT
-Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
+Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopmpy(7)**,

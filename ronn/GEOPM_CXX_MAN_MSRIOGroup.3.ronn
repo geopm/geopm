@@ -1,7 +1,7 @@
 geopm::MSRIOGroup -- IOGroup providing MSR-based signals and controls
 =====================================================================
 
-[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -280,7 +280,7 @@ MSR definitions from any JSON file it finds.  Refer to the
 documentation for `--geopm-plugin-path` in **geopmlaunch(1)**.
 
 ## COPYRIGHT
-Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
+Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,
