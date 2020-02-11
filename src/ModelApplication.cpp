@@ -56,14 +56,7 @@ namespace geopm
         }
         auto name_it = region_name.begin();
         for (auto big_o_it = big_o.begin(); big_o_it != big_o.end(); ++big_o_it, ++name_it) {
-            m_region.push_back(model_region_factory(*name_it, *big_o_it, verbosity));
-        }
-    }
-
-    ModelApplication::~ModelApplication()
-    {
-        for (auto it = m_region.rbegin(); it != m_region.rend(); ++it) {
-            delete *it;
+            m_region.emplace_back(ModelRegion::model_region(*name_it, *big_o_it, verbosity));
         }
     }
 
