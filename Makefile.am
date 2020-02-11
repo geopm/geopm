@@ -665,6 +665,8 @@ model_source_files = src/All2allModelRegion.cpp \
                      src/ModelRegion.hpp \
                      src/NestedModelRegion.cpp \
                      src/NestedModelRegion.hpp \
+                     src/ReduceModelRegion.cpp \
+                     src/ReduceModelRegion.hpp \
                      src/ScalingModelRegion.cpp \
                      src/ScalingModelRegion.hpp \
                      src/SleepModelRegion.cpp \
