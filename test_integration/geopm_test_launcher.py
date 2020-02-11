@@ -287,12 +287,15 @@ class TestLauncher(object):
             # Don't use hyper-threads.
             self._num_cpu = cpu_thread_core_socket[2] * cpu_thread_core_socket[3] - 1
 
-    def set_cpu_per_rank(self):
-        try:
-            rank_per_node = int(math.ceil(self._num_rank / self._num_node))
-            self._cpu_per_rank = int(self._num_cpu // rank_per_node)
-        except (AttributeError, TypeError):
-            pass
+    def set_cpu_per_rank(self, cpu_per_rank=None):
+        if cpu_per_rank is not None:
+            self._cpu_per_rank = cpu_per_rank
+        else:
+            try:
+                rank_per_node = int(math.ceil(self._num_rank / self._num_node))
+                self._cpu_per_rank = int(self._num_cpu // rank_per_node)
+            except (AttributeError, TypeError):
+                pass
 
     def msr_save(self):
         """
