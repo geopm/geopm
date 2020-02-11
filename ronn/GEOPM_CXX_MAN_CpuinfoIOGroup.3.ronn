@@ -1,7 +1,7 @@
 geopm::CpuinfoIOGroup(3) -- IOGroup for CPU frequency limits
 ============================================================
 
-[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -196,7 +196,7 @@ signals.  These values are obtained through the **proc(5)** filesystem.
     **geopm::PluginFactory(3)** for more details.
 
 ## COPYRIGHT
-Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
+Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,

@@ -1,7 +1,7 @@
 geopm_agent_energy_efficient(7) -- agent for saving energy, also finds optimal region frequencies
 =================================================================================================
 
-[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation)
+[//]: # (Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation)
 [//]: # ()
 [//]: # (Redistribution and use in source and binary forms, with or without)
 [//]: # (modification, are permitted provided that the following conditions)
@@ -101,7 +101,7 @@ reports and traces with additional Agent-specific information.
   The agent gates the Controller's control loop to a cadence of 5ms.
 
 ## COPYRIGHT
-Copyright (c) 2015, 2016, 2017, 2018, 2019, Intel Corporation. All rights reserved.
+Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation. All rights reserved.
 
 ## SEE ALSO
 **geopm(7)**,
