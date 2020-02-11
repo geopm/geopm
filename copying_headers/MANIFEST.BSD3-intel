@@ -78,6 +78,8 @@ src/All2allModelRegion.cpp
 src/All2allModelRegion.hpp
 src/ApplicationIO.cpp
 src/ApplicationIO.hpp
+src/BarrierModelRegion.cpp
+src/BarrierModelRegion.hpp
 src/CircularBuffer.hpp
 src/CNLIOGroup.cpp
 src/CNLIOGroup.hpp
