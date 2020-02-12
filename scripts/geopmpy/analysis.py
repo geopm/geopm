@@ -50,6 +50,7 @@ import textwrap
 import geopmpy.io
 import geopmpy.launcher
 import geopmpy.plotter
+import geopmpy.pio
 from geopmpy import __version__
 
 
@@ -772,8 +773,6 @@ class FreqSweepAnalysis(Analysis):
                             type=float, **req_default)
         parser.add_argument('--geopm-analysis-max-freq', dest='max_freq',
                             type=float, **req_default)
-        parser.add_argument('--geopm-analysis-enable-turbo', dest='enable_turbo',
-                            action='store_true', default=False)
 
     # TODO : have this return left and right columns to be formatted by caller
     @staticmethod
@@ -783,13 +782,11 @@ class FreqSweepAnalysis(Analysis):
 
   --geopm-analysis-min-freq         Minimum frequency to use for sweep. Default uses system minimum or minimum found in parsed data.
   --geopm-analysis-max-freq         Maximum frequency to use for sweep. Default uses system maximum or maximum found in parsed data.
-  --geopm-analysis-enable-turbo     Allows turbo to be tested when determining best per-region frequencies. (default disables turbo)
 """.format(FreqSweepAnalysis.__doc__)
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
+    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq):
         super(FreqSweepAnalysis, self).__init__(profile_prefix, output_dir, verbose, iterations)
         self._perf_margin = 0.1
-        self._enable_turbo = enable_turbo
         self._min_freq = min_freq
         self._max_freq = max_freq
 
@@ -806,9 +803,6 @@ class FreqSweepAnalysis(Analysis):
 
         freqs = self._frequency_range()
 
-        # add turbo frequency if applicable
-        if self._max_freq not in freqs:
-            freqs.append(self._max_freq)
         agent = 'frequency_map'
         for iteration in range(self._iterations):
             for freq in freqs:
@@ -869,12 +863,6 @@ class FreqSweepAnalysis(Analysis):
 
         is_once = True
         for freq, profile_name in freq_pname:
-            # Since we are still attempting to perform a run in the turbo range, we need to skip this run when
-            # determining the best per region frequencies below.  The profile_name that corresponds to the
-            # turbo run is always the first in the list.
-            if not self._enable_turbo and (freq, profile_name) == freq_pname[0]:
-                continue
-
             prof_df = parse_output.get_report_data(profile=profile_name)
             region_mean_runtime = prof_df.groupby(level='region')
             for region, region_df in region_mean_runtime:
@@ -962,15 +950,11 @@ class FreqSweepAnalysis(Analysis):
         """
         Returns a list of the available frequencies on the current platform.
         """
-        with open('/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq') as fid:
-            min_freq = 1e3 * float(fid.readline())
-        with open('/proc/cpuinfo') as fid:
-            for line in fid.readlines():
-                if line.startswith('model name\t:'):
-                    sticker_freq = float(line.split('@')[1].split('GHz')[0]) * 1e9
-                    break
-        with open('/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq') as fid:
-            max_freq = 1e3 * float(fid.readline())
+        # TODO: should be run on compute nodes; this will be wrong when geopmanalysis
+        # is launched from a non-compute node and is has different min/max frequencies
+        # from the compute nodes for the job.  See issue #503
+        min_freq = geopmpy.pio.read_signal('FREQUENCY_MIN', 'board', 0)
+        max_freq = geopmpy.pio.read_signal('FREQUENCY_MAX', 'board', 0)
         return min_freq, max_freq
 
     @staticmethod
@@ -1058,7 +1042,7 @@ class FrequencyMapBaselineComparisonAnalysis(Analysis):
     def _prefix_label():
         return '_map'
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
+    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq):
         super(FrequencyMapBaselineComparisonAnalysis, self).__init__(profile_prefix=profile_prefix,
                                                                      output_dir=output_dir,
                                                                      verbose=verbose,
@@ -1069,9 +1053,7 @@ class FrequencyMapBaselineComparisonAnalysis(Analysis):
                                                  verbose=verbose,
                                                  iterations=iterations,
                                                  min_freq=min_freq,
-                                                 max_freq=max_freq,
-                                                 enable_turbo=enable_turbo)
-        self._enable_turbo = enable_turbo
+                                                 max_freq=max_freq)
         self._freq_pnames = []
         self._min_freq = min_freq
         self._max_freq = max_freq
@@ -1141,7 +1123,7 @@ class FrequencyMapBaselineComparisonAnalysis(Analysis):
     def summary(self, process_output):
         sweep_summary_process, sweep_means_df, comp_df = process_output
         name = self._name + self._prefix_label()
-        ref_freq_idx = 0 if self._enable_turbo else 1
+        ref_freq_idx = 0
         sys.stdout.write(str(self._freq_pnames[ref_freq_idx][0]) + '\n')
         ref_freq = int(self._freq_pnames[ref_freq_idx][0] * 1e-6)
 
@@ -1185,14 +1167,13 @@ class HintBaselineComparisonAnalysis(FrequencyMapBaselineComparisonAnalysis):
         return "  Frequency hint analysis: {}\n{}".format(FrequencyMapBaselineComparisonAnalysis.__doc__,
                                                           FreqSweepAnalysis.help_text())
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
+    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq):
         super(HintBaselineComparisonAnalysis, self).__init__(profile_prefix=profile_prefix,
                                                              output_dir=output_dir,
                                                              verbose=verbose,
                                                              iterations=iterations,
                                                              min_freq=min_freq,
-                                                             max_freq=max_freq,
-                                                             enable_turbo=enable_turbo)
+                                                             max_freq=max_freq)
 
     def _setup_environment(self):
         if 'GEOPM_FREQUENCY_MAP' in os.environ:
@@ -1219,7 +1200,7 @@ class EnergyEfficientAgentAnalysis(Analysis):
         return "  Energy efficient analysis: {}\n{}".format(EnergyEfficientAgentAnalysis.__doc__,
                                                             FreqSweepAnalysis.help_text())
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
+    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq):
         super(EnergyEfficientAgentAnalysis, self).__init__(profile_prefix=profile_prefix,
                                                            output_dir=output_dir,
                                                            verbose=verbose,
@@ -1230,9 +1211,7 @@ class EnergyEfficientAgentAnalysis(Analysis):
                                                  verbose=verbose,
                                                  iterations=iterations,
                                                  min_freq=min_freq,
-                                                 max_freq=max_freq,
-                                                 enable_turbo=enable_turbo)
-        self._enable_turbo = enable_turbo
+                                                 max_freq=max_freq)
         self._freq_pnames = []
         self._min_freq = min_freq
         self._max_freq = max_freq
@@ -1291,7 +1270,7 @@ class EnergyEfficientAgentAnalysis(Analysis):
     def summary(self, process_output):
         sweep_summary_process, sweep_means_df, comp_df = process_output
         name = self._name + '_' + self._mode
-        ref_freq_idx = 0 #if self._enable_turbo else 1  # todo: does not work when min==max frequency
+        ref_freq_idx = 0
         sys.stdout.write(str(self._freq_pnames) + '\n')
         sys.stdout.write(str(self._freq_pnames[ref_freq_idx][0]) + '\n')
         ref_freq = int(self._freq_pnames[ref_freq_idx][0] * 1e-6)
@@ -1339,13 +1318,11 @@ class StreamDgemmMixAnalysis(Analysis):
     def help_text():
         return "  Stream-DGEMM mix analysis: {}\n{}".format(StreamDgemmMixAnalysis.__doc__, FreqSweepAnalysis.help_text())
 
-    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq, enable_turbo):
+    def __init__(self, profile_prefix, output_dir, verbose, iterations, min_freq, max_freq):
         super(StreamDgemmMixAnalysis, self).__init__(profile_prefix=profile_prefix,
                                                      output_dir=output_dir,
                                                      verbose=verbose,
                                                      iterations=iterations)
-
-        self._enable_turbo = enable_turbo
         self._sweep_analysis = {}
         self._offline_analysis = {}
         self._online_analysis = {}
@@ -1362,24 +1339,21 @@ class StreamDgemmMixAnalysis(Analysis):
                                                                 verbose=self._verbose,
                                                                 iterations=self._iterations,
                                                                 min_freq=self._min_freq,
-                                                                max_freq=self._max_freq,
-                                                                enable_turbo=self._enable_turbo)
+                                                                max_freq=self._max_freq)
             # Analysis class that includes a full sweep plus the plugin run with freq map
             self._offline_analysis[ratio_idx] = FrequencyMapBaselineComparisonAnalysis(profile_prefix=profile_prefix,
                                                                                        output_dir=self._output_dir,
                                                                                        verbose=self._verbose,
                                                                                        iterations=self._iterations,
                                                                                        min_freq=self._min_freq,
-                                                                                       max_freq=self._max_freq,
-                                                                                       enable_turbo=self._enable_turbo)
+                                                                                       max_freq=self._max_freq)
             # Analysis class that runs the online plugin
             self._online_analysis[ratio_idx] = EnergyEfficientAgentAnalysis(profile_prefix=profile_prefix,
                                                                             output_dir=self._output_dir,
                                                                             verbose=self._verbose,
                                                                             iterations=self._iterations,
                                                                             min_freq=self._min_freq,
-                                                                            max_freq=self._max_freq,
-                                                                            enable_turbo=self._enable_turbo)
+                                                                            max_freq=self._max_freq)
 
     def launch(self, config):
         source_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
