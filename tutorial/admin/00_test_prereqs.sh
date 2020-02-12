@@ -134,11 +134,13 @@ if [ ! -c ${FILE} ]; then
     RC=1
 fi
 
-if ! ${MSRSAVE} /tmp/msrsave_test; then
+TMPFILE=$(mktemp --tmpdir msrsave_test.XXXXXXXXXX)
+if ! ${MSRSAVE} ${TMPFILE}; then
     echo "ERROR: ${MSRSAVE} had a non-zero return code.  Please contact"
     echo "       The GEOPM or msr-safe maintainers for more information."
     RC=1
 fi
+rm ${TMPFILE}
 
 ./00_check_whitelist.sh # GEOPM required MSRs set properly in the msr-safe whitelist
 if [ $? -eq 1 ]; then
@@ -222,7 +224,7 @@ fi
 # Resource manager support
 if command_available_and_executable srun; then
     # SLURM detected
-    if ! srun --help | grep --quiet "cpu-bind"; then
+    if ! 2>/dev/null srun --help | grep --quiet "cpu-bind"; then
         echo "ERROR: SLURM detected but is missing cpu-bind support."
         echo "       Please add TaskPlugin=task/affinity to the slurm.conf."
         RC=1
