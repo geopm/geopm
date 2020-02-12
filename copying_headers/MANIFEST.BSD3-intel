@@ -213,6 +213,8 @@ src/SampleRegulator.cpp
 src/SampleRegulator.hpp
 src/SampleScheduler.cpp
 src/SampleScheduler.hpp
+src/ScalingModelRegion.cpp
+src/ScalingModelRegion.hpp
 src/SharedMemory.cpp
 src/SharedMemory.hpp
 src/SharedMemoryImp.hpp
@@ -382,6 +384,8 @@ test_integration/test_omp_outer_loop.py
 test_integration/test_profile_policy.cpp
 test_integration/test_profile_policy.py
 test_integration/test_plugin_static_policy.py
+test_integration/test_scaling_region.cpp
+test_integration/test_scaling_region.py
 test_integration/test_static_policy.c
 test_integration/test_static_policy.py
 test_integration/util.py
