@@ -45,6 +45,7 @@
 #include "StreamModelRegion.hpp"
 #include "SpinModelRegion.hpp"
 #include "IgnoreModelRegion.hpp"
+#include "ScalingModelRegion.hpp"
 
 namespace geopm
 {
@@ -92,6 +93,9 @@ namespace geopm
         }
         else if (name_check(name, "ignore")) {
             return geopm::make_unique<IgnoreModelRegion>(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
+        }
+        else if (name_check(name, "scaling")) {
+            return geopm::make_unique<ScalingModelRegion>(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
         }
         else {
             throw Exception("model_region_factory: unknown name: " + name,

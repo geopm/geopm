@@ -39,6 +39,7 @@ EXTRA_DIST += test_integration/geopm_context.py \
               test_integration/test_ee_stream_dgemm_mix.py \
               test_integration/test_omp_outer_loop.py \
               test_integration/test_profile_policy.py \
+              test_integration/test_scaling_region.py \
               test_integration/test_static_policy.py \
               test_integration/test_plugin_static_policy.py \
               test_integration/util.py \
@@ -46,6 +47,8 @@ EXTRA_DIST += test_integration/geopm_context.py \
 
 if ENABLE_MPI
 noinst_PROGRAMS += test_integration/test_ee_stream_dgemm_mix \
+                   test_integration/test_omp_outer_loop \
+                   test_integration/test_scaling_region \
                    # end
 
 test_integration_test_ee_stream_dgemm_mix_SOURCES = test_integration/test_ee_stream_dgemm_mix.cpp \
@@ -55,18 +58,24 @@ test_integration_test_ee_stream_dgemm_mix_LDADD = libgeopm.la $(MATH_LIB) $(MPI_
 test_integration_test_ee_stream_dgemm_mix_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
 test_integration_test_ee_stream_dgemm_mix_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
 
-noinst_PROGRAMS += test_integration/test_omp_outer_loop \
-                   # end
-
 test_integration_test_omp_outer_loop_SOURCES = test_integration/test_omp_outer_loop.cpp \
                                                $(model_source_files) \
                                                # end
 test_integration_test_omp_outer_loop_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
 test_integration_test_omp_outer_loop_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
 test_integration_test_omp_outer_loop_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
+
+test_integration_test_scaling_region_SOURCES = test_integration/test_scaling_region.cpp \
+                                               $(model_source_files) \
+                                               # end
+test_integration_test_scaling_region_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
+test_integration_test_scaling_region_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
+test_integration_test_scaling_region_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
+
 else
 EXTRA_DIST += test_integration/test_ee_stream_dgemm_mix.cpp \
               test_integration/test_omp_outer_loop.cpp \
+              test_integration/test_scaling_region.cpp \
               # end
 endif
 

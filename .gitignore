@@ -143,6 +143,7 @@
 /test_integration/test_ee_stream_dgemm_mix
 /test_integration/test_omp_outer_loop
 /test_integration/test_profile_policy
+/test_integration/test_scaling_region
 /test_integration/test_static_policy
 /tutorial/*.o
 /tutorial/Exception.hpp
