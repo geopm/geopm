@@ -51,6 +51,7 @@ import copy
 import tempfile
 import yaml
 import io
+import hashlib
 
 from distutils.spawn import find_executable
 from natsort import natsorted
@@ -117,7 +118,11 @@ class AppOutput(object):
 
             if do_cache:
                 paths_str = str(report_paths)
-                report_h5_name = 'report_{}.h5'.format(hash(paths_str))
+                try:
+                    h5_id = hashlib.shake_256(paths_str.encode()).hexdigest(14)
+                except AttributeError:
+                    h5_id = hash(paths_str)
+                report_h5_name = 'report_{}.h5'.format(h5_id)
                 self._all_paths.append(report_h5_name)
 
                 # check if cache is older than reports
@@ -176,7 +181,11 @@ class AppOutput(object):
             if do_cache:
                 # unique cache name based on trace files in this list
                 paths_str = str(trace_paths)
-                trace_h5_name = 'trace_{}.h5'.format(hash(paths_str))
+                try:
+                    h5_id = hashlib.shake_256(paths_str.encode()).hexdigest(14)
+                except AttributeError:
+                    h5_id = hash(paths_str)
+                trace_h5_name = 'trace_{}.h5'.format(h5_id)
                 self._all_paths.append(trace_h5_name)
 
                 # check if cache is older than traces
@@ -1386,4 +1395,3 @@ class RawReport(object):
             raise KeyError('<geopm> geopmpy.io: Field not found: {}'.format(key))
         match = sorted(matches)[0][1]
         return copy.deepcopy(raw_data[match])
-
