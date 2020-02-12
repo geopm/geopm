@@ -759,7 +759,6 @@ class FreqSweepAnalysis(Analysis):
     will not be degraded by more than a given margin.
     """
     step_freq = 100e6
-    # TODO: if doing skip launch, this should discover freq range from reports
 
     @staticmethod
     def add_options(parser, enforce_required):
@@ -804,8 +803,9 @@ class FreqSweepAnalysis(Analysis):
             if self._verbose:
                 sys.stderr.write("Warning: <geopm> geopmpy.analysis: Invalid or unspecified max_freq; using system maximum: {}.\n".format(sys_max))
             self._max_freq = sys_max
-        num_step = 1 + int((self._max_freq - self._min_freq) // FreqSweepAnalysis.step_freq)
-        freqs = [FreqSweepAnalysis.step_freq * ss + self._min_freq for ss in range(num_step)]
+
+        freqs = self._frequency_range()
+
         # add turbo frequency if applicable
         if self._max_freq not in freqs:
             freqs.append(self._max_freq)
@@ -823,7 +823,11 @@ class FreqSweepAnalysis(Analysis):
                                     profile_name=profile_name, agent_conf=agent_conf)
 
     def find_files(self):
-        super(FreqSweepAnalysis, self).find_files('*_freq_*.report')
+        freqs = self._frequency_range()
+        self._report_paths = []
+        for freq in freqs:
+            names = glob.glob("{}*.report".format(FreqSweepAnalysis.fixed_freq_name(self._name, freq)))
+            self._report_paths += names
 
     def summary_process(self, parse_output):
         output = {}
@@ -846,6 +850,11 @@ class FreqSweepAnalysis(Analysis):
     def plot(self, process_output):
         for region, df in process_output.items():
             geopmpy.plotter.generate_runtime_energy_plot(df, region, self._output_dir)
+
+    def _frequency_range(self):
+        num_step = 1 + int((self._max_freq - self._min_freq) // FreqSweepAnalysis.step_freq)
+        freqs = [FreqSweepAnalysis.step_freq * ss + self._min_freq for ss in range(num_step)]
+        return freqs
 
     def _region_freq_map(self, parse_output):
         """
