@@ -38,6 +38,7 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 #include "geopm.h"
 #include "geopm_sched.h"
@@ -126,6 +127,7 @@ namespace geopm
         size_t target = (size_t) parallel_function;
         std::ostringstream name_stream;
         std::string symbol_name;
+        std::string region_name;
         name_stream << "[OMPT]";
         std::pair<size_t, std::string> symbol = symbol_lookup(parallel_function);
         if (symbol.second.size()) {
@@ -136,7 +138,9 @@ namespace geopm
             name_stream << "0x" << std::setfill('0') << std::setw(16) << std::hex
                         << target;
         }
-        return name_stream.str();
+        region_name = name_stream.str();
+        region_name.erase(std::remove(region_name.begin(), region_name.end(), ' '), region_name.end());
+        return region_name;
     }
 
     void OMPTImp::region_enter(const void *parallel_function)
