@@ -46,6 +46,7 @@ power_budget = 400
 
 ratio_inds = [0, 1, 2, 3, 6, 5, 4]
 
+
 def get_expected_baseline_output_df(profile_names, column,
                                     baseline_metric_perf, profile_metric_perf):
     ''' Create dataframe of the savings values expected to be produced by baseline analysis.'''
@@ -119,10 +120,8 @@ class TestFreqSweepAnalysis(unittest.TestCase):
         self._mid_freq = self._max_freq - self._step_freq*2
         config = {'profile_prefix': self._name_prefix, 'output_dir': '.',
                   'verbose': True, 'iterations': 1,
-                  'min_freq': self._min_freq, 'max_freq': self._max_freq,
-                  'enable_turbo': True}
+                  'min_freq': self._min_freq, 'max_freq': self._max_freq}
         self._sweep_analysis = geopmpy.analysis.FreqSweepAnalysis(**config)
-        config['enable_turbo'] = False
         self._offline_analysis = geopmpy.analysis.FrequencyMapBaselineComparisonAnalysis(**config)
         self._online_analysis = geopmpy.analysis.EnergyEfficientAgentAnalysis(**config)
         self._mix_analysis = geopmpy.analysis.StreamDgemmMixAnalysis(**config)
