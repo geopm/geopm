@@ -105,13 +105,12 @@ def skip_unless_run_long_tests():
 
 def skip_unless_cpufreq():
     try:
-        test_exec = "dummy -- stat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq \
-                     && stat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
+        test_exec = "dummy -- stat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq"
         dev_null = open('/dev/null', 'w')
         geopm_test_launcher.allocation_node_test(test_exec, dev_null, dev_null)
         dev_null.close()
     except subprocess.CalledProcessError:
-        return unittest.skip("Could not determine min and max frequency, enable cpufreq driver to run this test.")
+        return unittest.skip("Could not determine min frequency, enable cpufreq driver to run this test.")
     return lambda func: func
 
 
