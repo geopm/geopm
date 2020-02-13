@@ -109,6 +109,7 @@ namespace geopm
             };
 
             const int M_PRECISION;
+            const double M_WAIT_SEC;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
             std::shared_ptr<FrequencyGovernor> m_freq_governor;
