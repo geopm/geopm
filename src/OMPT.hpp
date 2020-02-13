@@ -30,6 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef OMPT_HPP_INCLUDE
+#define OMPT_HPP_INCLUDE
+
 #include <string>
 
 namespace geopm
@@ -45,3 +48,5 @@ namespace geopm
             virtual void region_exit(const void *function_ptr) = 0;
     };
 }
+
+#endif

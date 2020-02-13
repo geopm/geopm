@@ -47,6 +47,21 @@ if [ $CI_MODE == "unit" ]; then
         ret=1
     fi
 
+    echo "Checking include guards in headers."
+    DIR="src/ test/"
+    for file in $(find $DIR -name "*.h" -o -name "*.hpp"); do
+        guard=$(basename $file | sed "s|\.|_|g" | tr 'a-z' 'A-Z')_INCLUDE
+        if [ $(grep -c $guard $file) -lt 2 ]; then
+            echo "$file has missing or incorrect include guard"
+            ret=1
+        fi
+    done
+
+    # Exit early for linter checks
+    if [ $ret -ne 0 ]; then
+        exit $ret
+    fi
+
     echo "Running main unit tests..."
     if ! make check; then
         echo "Main unit tests failed."
