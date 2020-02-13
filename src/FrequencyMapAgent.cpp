@@ -93,6 +93,7 @@ namespace geopm
     FrequencyMapAgent::FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo,
                                          std::shared_ptr<FrequencyGovernor> gov, std::map<uint64_t, double> frequency_map)
         : M_PRECISION(16)
+        , M_WAIT_SEC(0.002)
         , m_platform_io(plat_io)
         , m_platform_topo(topo)
         , m_freq_governor(gov)
@@ -297,7 +298,6 @@ namespace geopm
 
     void FrequencyMapAgent::wait(void)
     {
-        static double M_WAIT_SEC = 0.005;
         while(geopm_time_since(&m_last_wait) < M_WAIT_SEC) {
 
         }
