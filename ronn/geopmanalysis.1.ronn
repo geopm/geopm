@@ -34,6 +34,8 @@ geopmanalysis(1) -- run application and visualize results
 ## SYNOPSIS
 
 `geopmanalysis` _ANALYSIS_TYPE_ [_ANALYSIS_OPTIONS_] [_LAUNCH_OPTIONS_] -- _EXEC_ [_EXEC_ARGS_]
+`geopmanalysis` [--help] [--version]
+`geopmanalysis` _ANALYSIS_TYPE_ --help
 
 ## DESCRIPTION
 
@@ -46,37 +48,35 @@ the analysis can be rerun without needing an allocation using the
 `--geopm-analysis-skip-launch` option.  Using the
 `--geopm-analysis-output-dir` option to specify a unique directory for
 each analysis is highly recommended so that reports and traces from
-different experiments are not combined by mistake.  Note that any
-arguments to the launcher are also accepted by geopmanalysis; see
-**geopmlaunch(1)** for more details.
+different experiments are not combined by mistake.  Note that when
+launching an experiment, `--geopm-analysis-launcher` should be
+provided and any arguments to the launcher will be passed through; see
+**geopmlaunch(1)** for more details.  Each analysis type takes its own
+set of command line options listed below; these can be also seen by
+running `geopmanalysis <type> --help`.
+
 
 ## ANALYSIS TYPES
 The available analysis types are:
 
 * _freq_sweep_:
-  Runs the application at each available frequency. Compared to the baseline
-  frequency, finds the lowest frequency for each region at which the performance
-  will not be degraded by more than a given margin.
+  Runs the application at each available frequency. Compared to the
+  baseline frequency, finds the lowest frequency for each region at
+  which the performance will not be degraded by more than a given
+  margin.
 
-* _offline_:
-  Compares the energy_efficient agent in offline mode to the
-  baseline at sticker frequency.
+* _energy_efficient_:
+  Runs a _freq_sweep_ analysis and compares the energy_efficient agent
+  to the baseline at maximum frequency for the sweep.
 
-* _online_:
-  Compares the energy_efficient agent in online mode to the
-  baseline at sticker frequency.
+* _freq_map_:
+  Runs a _freq_sweep_ analysis and uses the result to produce a policy
+  for the frequency map agent, then compares the to the baseline at
+  maximum frequency for the sweep.
 
 * _hint_:
-  Compares the energy_efficient agent using per-region hints to the
-  baseline at sticker frequency.
-
-* _stream_mix_:
-  Runs a full frequency sweep, then offline and online modes of the
-  energy_efficient agent. The energy and runtime of the application
-  best-fit, per-phase offline mode, and per-phase online mode are
-  compared to the run at sticker frequency.  Note: unlike other
-  analysis types, this analysis uses the geopmbench application, and
-  application arguments should *not* be passed to it.
+  Compares the frequency map agent using per-region hints only to the
+  baseline at maximum frequency for the sweep.
 
 * _power_sweep_:
   Runs the application under a range of socket power limits.
@@ -139,7 +139,8 @@ The available analysis types are:
 
 ## OPTIONS FOR FREQ_SWEEP ANALYSIS
 
-The same options are also used for _offline_, _online_, and _hint_.
+The same options are also used for _energy_efficient_, _freq_map_, and
+_hint_ analysis types.
 
 * `--geopm-analysis-min-freq`:
   The minimum frequency to use for the sweep and analysis.  If out of
@@ -149,13 +150,10 @@ The same options are also used for _offline_, _online_, and _hint_.
   The maximum frequency to use for the sweep and analysis.  If out of
   range, the maximum available frequency on the platform will be used.
 
-* `--geopm-analysis-enable-turbo`:
-  When calculating the best per region frequencies, this flag
-  stipulates that frequencies in the turbo range should be considered.
-  By default, this flag is not set meaning frequencies in the turbo
-  range are not considered.
-
 ## OPTIONS FOR POWER_SWEEP ANALYSIS
+
+The same options are also used for _balancer_ and _node_efficiency_
+analysis types.
 
 * `--geopm-analysis-min-power`:
   The minimum package power to use for the sweep and analysis.  If out
@@ -246,19 +244,19 @@ the following additional options:
                              --geopm-analysis-launcher srun \
                              -N1 -n1 -- ./build/bin/geopmbench config.json
 
-  The _offline_ analysis type runs a frequency sweep (if reports are
+  The _freq_map_ analysis type runs a frequency sweep (if reports are
   not already present) to determine the best-fit frequency for each
   region of the application. Then it runs the application using the
   EnergyEfficientAgent plugin, which uses this mapping to change the
-  frequency when entering each region. The _online_ analysis type is
-  similar except that it determines the best-fit frequency through
-  online training.
+  frequency when entering each region. The _energy_efficient_ analysis
+  type is similar except that it determines the best-fit frequency
+  through online training.
 
-    geopmanalysis offline --geopm-analysis-profile-prefix myprof \
-                          --geopm-analysis-output-dir mydir \
-                          --geopm-ctl process \
-                          --geopm-analysis-launcher srun \
-                          -N1 -n1 -- ./build/bin/geopmbench config.json
+    geopmanalysis freq_map --geopm-analysis-profile-prefix myprof \
+                           --geopm-analysis-output-dir mydir \
+                           --geopm-ctl process \
+                           --geopm-analysis-launcher srun \
+                           -N1 -n1 -- ./build/bin/geopmbench config.json
 
   If an analysis launch has been run once, the same data can be reused
   using the --geopm-analysis-skip-launch option without supplying
@@ -269,29 +267,12 @@ the following additional options:
   consistent with what the analysis expects.  For example, the
   following command generates plots for the previous analysis:
 
-    geopmanalysis offline --geopm-analysis-profile-prefix myprof \
-                          --geopm-analysis-output-dir myprof \
-                          --geopm-analysis-plot \
-                          --geopm-analysis-skip-launch \
-                          --geopm-analysis-min-freq 1.0e9 \
-                          --geopm-analysis-max-freq 2.0e9
-
-  The _stream_mix_ analysis type uses the geopmbench application and
-  varies the ratio between the runtimes of the stream and dgemm
-  regions from around 20% stream to around 80% stream. For each ratio,
-  it launches a frequency sweep and the offline and online analysis
-  modes described above. The resulting analysis produces plots
-  comparing the runtime and energy savings of the different plugin
-  modes at each stream mix ratio.  Note that no application arguments
-  are passed to the command below, although other launch arguments are
-  required.
-
-    geopmanalysis stream_mix --geopm-analysis-profile-prefix myprof \
-                             --geopm-analysis-output-dir myprof \
-                             --geopm-analysis-plot \
-                             --geopm-ctl=process
-                             --geopm-analysis-launcher srun \
-                             -N1 -n1
+    geopmanalysis freq_map --geopm-analysis-profile-prefix myprof \
+                           --geopm-analysis-output-dir myprof \
+                           --geopm-analysis-plot \
+                           --geopm-analysis-skip-launch \
+                           --geopm-analysis-min-freq 1.0e9 \
+                           --geopm-analysis-max-freq 2.0e9
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation. All rights reserved.
