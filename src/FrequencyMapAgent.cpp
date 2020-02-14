@@ -333,10 +333,10 @@ namespace geopm
         std::ostringstream oss;
         oss << std::setprecision(M_PRECISION) << std::scientific;
         for (const auto &region : m_hash_freq_map) {
-            oss << "\n\t0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
+            oss << "\n    0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
             oss << region.first;
             oss << std::setfill('\0') << std::setw(0) << std::scientific;
-            oss << ":" << region.second;
+            oss << ": " << region.second;
         }
         oss << "\n";
         result.push_back(std::make_pair("Frequency map", oss.str()));
