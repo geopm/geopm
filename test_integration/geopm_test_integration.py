@@ -200,20 +200,6 @@ class TestIntegration(unittest.TestCase):
             trace = self._output.get_trace_data(node_name=nn)
             self.assertNotEqual(0, len(trace))
 
-    def test_no_report_and_trace_generation(self):
-        name = 'test_no_report_and_trace_generation'
-        num_node = 4
-        num_rank = 16
-        app_conf = geopmpy.io.BenchConf(name + '_app.config')
-        self._tmp_files.append(app_conf.get_path())
-        app_conf.append_region('sleep', 1.0)
-        agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
-        self._tmp_files.append(agent_conf.get_path())
-        launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf)
-        launcher.set_num_node(num_node)
-        launcher.set_num_rank(num_rank)
-        launcher.run(name)
-
     @unittest.skipUnless('mr-fusion' in socket.gethostname(), "This test only enabled on known working systems.")
     def test_report_and_trace_generation_pthread(self):
         name = 'test_report_and_trace_generation_pthread'
