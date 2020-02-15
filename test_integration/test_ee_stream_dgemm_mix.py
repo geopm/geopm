@@ -152,21 +152,6 @@ class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
             self.assertNotEqual(result[0][2], result[-1][2],
                                 msg='Same frequency chosen for dgemm only and stream only.')
 
-    def test_skip_short_regions(self):
-        """Test that agent does not learn from short regions.
-
-        """
-        report = geopmpy.io.RawReport(self._report_path)
-        host_names = report.host_names()
-        for host_name in report.host_names():
-            found_short = False
-            for region_name in report.region_names(host_name):
-                if region_name == 'short_region':
-                    region = report.raw_region(host_name, region_name)
-                    self.assertTrue('requested-online-frequency' not in region)
-                    found_short = True
-            self.assertTrue(found_short)
-
     def test_skip_network_regions(self):
         """Test that agent does not learn for regions declared with the network hint.
 
