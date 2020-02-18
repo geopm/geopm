@@ -34,6 +34,8 @@
 
 #include <cmath>
 
+#include <algorithm>
+
 #include "contrib/json11/json11.hpp"
 
 #include "Helper.hpp"
@@ -68,6 +70,10 @@ namespace geopm
         }
 
         for (const auto &obj : root.object_items()) {
+            if (std::find(m_policy_names.begin(), m_policy_names.end(), obj.first) == m_policy_names.end()) {
+                throw Exception("FilePolicy::" + std::string(__func__) + "(): invalid policy name: " +
+                                obj.first, GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
             if (obj.second.type() == Json::NUMBER) {
                 policy_value_map.emplace(obj.first, obj.second.number_value());
             }

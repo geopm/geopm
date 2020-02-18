@@ -64,7 +64,6 @@ void FilePolicyTest::SetUp()
                << tab << "\"FREQUENCY_MAX\" : 2300000000," << std::endl
                << tab << "\"FREQUENCY_MIN\" : 1200000000," << std::endl
                << tab << "\"PI\" : 3.14159265," << std::endl
-               << tab << "\"GHZ\" : 2.3e9," << std::endl
                << tab << "\"DEFAULT1\" : \"NAN\"," << std::endl
                << tab << "\"DEFAULT2\" : \"nan\"," << std::endl
                << tab << "\"DEFAULT3\" : \"NaN\"" << std::endl
@@ -75,8 +74,7 @@ void FilePolicyTest::SetUp()
     bad_json << "{" << std::endl
              << tab << "\"POWER_MAX\" : 400," << std::endl
              << tab << "\"FREQUENCY_MAX\" : 2300000000," << std::endl
-             << tab << "\"FREQUENCY_MIN\" : 1200000000," << std::endl
-             << tab << "\"ARBITRARY_SIGNAL\" : \"WUBBA LUBBA DUB DUB\"," << std::endl // Strings are not handled.
+             << tab << "\"FREQUENCY_MIN\" : \"WUBBA LUBBA DUB DUB\"," << std::endl // Strings are not handled.
              << tab << "\"PI\" : 3.14159265," << std::endl
              << tab << "\"GHZ\" : 2.3e9" << std::endl
              << "}" << std::endl;
@@ -116,10 +114,19 @@ TEST_F(FilePolicyTest, parse_json_file)
 
 TEST_F(FilePolicyTest, negative_parse_json_file)
 {
-    const std::vector<std::string> signal_names = {"FAKE_SIGNAL"};
-    std::vector<double> policy {NAN};
+    std::vector<std::string> signal_names = {"POWER_MAX", "FREQUENCY_MAX", "FREQUENCY_MIN", "PI",
+                                             "DEFAULT1", "DEFAULT2", "DEFAULT3"};
     GEOPM_EXPECT_THROW_MESSAGE(FilePolicy(m_json_file_path_bad, signal_names),
                                GEOPM_ERROR_FILE_PARSE, "unsupported type or malformed json config file");
+
+    std::ofstream bad_json(m_json_file_path_bad);
+    bad_json << "{" << std::endl
+             << "\"FAKE_SIGNAL\" : 400," << std::endl
+             << "\"FREQUENCY_MAX\" : 2300000000" << std::endl
+             << "}" << std::endl;
+    bad_json.close();
+    GEOPM_EXPECT_THROW_MESSAGE(FilePolicy(m_json_file_path_bad, signal_names),
+                               GEOPM_ERROR_INVALID, "invalid policy name");
 
     // Don't parse if Agent doesn't require any policies
     const std::vector<std::string> signal_names_empty;
