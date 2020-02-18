@@ -439,7 +439,7 @@ int MPI_Comm_accept(GEOPM_MPI_CONST char *port_name, MPI_Info info, int root, MP
     return PMPI_Comm_accept(port_name, info, root, geopm_swap_comm_world(comm), newcomm);
 }
 
-// In mvapich this is defined as a macro.
+/* In mvapich this is defined as a macro. */
 #ifdef MPI_Comm_c2f
 #undef MPI_Comm_c2f
 #define MPI_Comm_c2f(comm) (MPI_Fint)(geopm_swap_comm_world(comm))
@@ -499,7 +499,7 @@ int MPI_Comm_dup_with_info(MPI_Comm comm, MPI_Info info, MPI_Comm *newcomm)
 }
 #endif
 
-// In mvapich this is defined as a macro.
+/* In mvapich this is defined as a macro. */
 #ifdef MPI_Comm_f2c
 #undef MPI_Comm_f2c
 #define MPI_Comm_f2c(comm) geopm_swap_comm_world((MPI_Comm)(comm))

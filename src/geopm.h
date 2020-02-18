@@ -52,14 +52,14 @@ enum geopm_region_hash_e {
 /* APPLICATION REGION HINTS */
 /****************************/
 enum geopm_region_hint_e {
-    GEOPM_REGION_HINT_UNKNOWN =   1ULL << 32, // Region with unknown or varying characteristics
-    GEOPM_REGION_HINT_COMPUTE =   1ULL << 33, // Region dominated by compute
-    GEOPM_REGION_HINT_MEMORY =    1ULL << 34, // Region dominated by memory access
-    GEOPM_REGION_HINT_NETWORK =   1ULL << 35, // Region dominated by network traffic
-    GEOPM_REGION_HINT_IO =        1ULL << 36, // Region dominated by disk access
-    GEOPM_REGION_HINT_SERIAL =    1ULL << 37, // Single threaded region
-    GEOPM_REGION_HINT_PARALLEL =  1ULL << 38, // Region is threaded
-    GEOPM_REGION_HINT_IGNORE =    1ULL << 39, // Do not add region time to epoch
+    GEOPM_REGION_HINT_UNKNOWN =   1ULL << 32, /* Region with unknown or varying characteristics */
+    GEOPM_REGION_HINT_COMPUTE =   1ULL << 33, /* Region dominated by compute */
+    GEOPM_REGION_HINT_MEMORY =    1ULL << 34, /* Region dominated by memory access */
+    GEOPM_REGION_HINT_NETWORK =   1ULL << 35, /* Region dominated by network traffic */
+    GEOPM_REGION_HINT_IO =        1ULL << 36, /* Region dominated by disk access */
+    GEOPM_REGION_HINT_SERIAL =    1ULL << 37, /* Single threaded region */
+    GEOPM_REGION_HINT_PARALLEL =  1ULL << 38, /* Region is threaded */
+    GEOPM_REGION_HINT_IGNORE =    1ULL << 39, /* Do not add region time to epoch */
     GEOPM_MASK_REGION_HINT =      GEOPM_REGION_HINT_UNKNOWN |
                                   GEOPM_REGION_HINT_COMPUTE |
                                   GEOPM_REGION_HINT_MEMORY |

@@ -59,4 +59,4 @@ uint64_t geopm_mpi_func_rid(const char *func_name);
 int geopm_pmpi_init_thread(int *argc, char **argv[], int required, int *provided);
 int geopm_pmpi_finalize(void);
 MPI_Comm geopm_swap_comm_world(MPI_Comm comm);
-#endif //GEOPM_PMPI_H_INCLUDE
+#endif /* GEOPM_PMPI_H_INCLUDE */

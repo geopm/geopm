@@ -1983,7 +1983,7 @@ void MPI_WIN_CREATE_DYNAMIC(MPI_Fint *info, MPI_Fint *comm, MPI_Fint *win, MPI_F
 {
     FMPI_Win_create_dynamic(info, comm, win, ierr);
 }
-#endif //GEOPM_ENABLE_MPI3
+#endif /* GEOPM_ENABLE_MPI3 */
 void mpi_allgather(MPI_Fint* sendbuf, MPI_Fint* sendcount, MPI_Fint* sendtype, MPI_Fint* recvbuf, MPI_Fint* recvcount, MPI_Fint* recvtype, MPI_Fint* comm, MPI_Fint* ierr)
 {
     FMPI_Allgather(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm, ierr);
