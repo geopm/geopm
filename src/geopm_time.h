@@ -54,8 +54,10 @@ static inline double geopm_time_since(const struct geopm_time_s *begin);
 
 #include <time.h>
 
-/// @brief structure to abstract the timespec on linux from other
-///        representations of time.
+/*!
+ * @brief structure to abstract the timespec on linux from other
+ *        representations of time.
+ */
 struct geopm_time_s {
     struct timespec t;
 };

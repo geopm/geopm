@@ -41,15 +41,19 @@
 extern "C" {
 #endif
 
-/// @brief Enum for internally defined region hashes.
-/// Note the value is the geopm_crc32_str() of the stringified enum
+/*!
+ * @brief Enum for internally defined region hashes.
+ * Note the value is the geopm_crc32_str() of the stringified enum
+ */
 enum geopm_region_hash_epoch_e {
     GEOPM_REGION_HASH_EPOCH = 0x66c91423ULL,
 };
 
-/// Region id enums go from bit 63 and work their way down.
-/// Hint enums in geopm.h go from bit 32 and work their way up.
-/// There is a possibility of a conflict sometime in the future if they overlap.
+/**
+ * Region id enums go from bit 63 and work their way down.
+ * Hint enums in geopm.h go from bit 32 and work their way up.
+ * There is a possibility of a conflict sometime in the future if they overlap.
+ */
 enum geopm_region_id_e {
     GEOPM_REGION_ID_EPOCH =        1ULL << 63, /* Signaling the start of an epoch, no associated Region */
     GEOPM_REGION_ID_MPI =          1ULL << 62, /* Execution of MPI calls */
@@ -61,21 +65,33 @@ enum geopm_ctl_e {
     GEOPM_CTL_PTHREAD,
 };
 
-/// @brief Structure used to hold single profiling
-/// messages obtained from the application.
+/*!
+ * @brief Structure used to hold single profiling
+ * messages obtained from the application.
+ */
 struct geopm_prof_message_s {
-    /// @brief Rank identifier.
+    /*!
+     * @brief Rank identifier.
+     */
     int rank;
-    /// @brief 64-bit unique application region identifier.
+    /*!
+     * @brief 64-bit unique application region identifier.
+     */
     uint64_t region_id;
-    /// @brief Time stamp of when the sample was taken.
+    /*!
+     * @brief Time stamp of when the sample was taken.
+     */
     struct geopm_time_s timestamp;
-    /// @brief Progress of the rank within the current region.
+    /*!
+     * @brief Progress of the rank within the current region.
+     */
     double progress;
 };
 
-/// Helper that creates the DefaultProfile signleton (if not already created)
-/// and catches all exceptions.
+/**
+ * Helper that creates the DefaultProfile signleton (if not already created)
+ * and catches all exceptions.
+ */
 int geopm_prof_init(void);
 
 /*********************************/
