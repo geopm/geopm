@@ -32,19 +32,28 @@
 #ifndef GEOPM_PMPI_H_INCLUDE
 #define GEOPM_PMPI_H_INCLUDE
 
-/// @brief Swap out COMM_WORLD with our internally modified comm (fortran only)
+/*!
+ * @brief Swap out COMM_WORLD with our internally modified comm (fortran only)
+ */
 MPI_Fint geopm_swap_comm_world_f(MPI_Fint comm);
-/// @brief Mark entry of a wrapped MPI region
+/*!
+ * @brief Mark entry of a wrapped MPI region
+ */
 void geopm_mpi_region_enter(uint64_t func_rid);
-/// @brief Mark exit of a wrapped MPI region
+/*!
+ * @brief Mark exit of a wrapped MPI region
+ */
 void geopm_mpi_region_exit(uint64_t func_rid);
-/// @brief Create a unique region_id from a MPI function name
+/*!
+ * @brief Create a unique region_id from a MPI function name
+ */
 uint64_t geopm_mpi_func_rid(const char *func_name);
 
 /* Macro seems to be the best way to deal introducing per function
-   static storage with a non-const initializer.  We avoid repeating
-   code.  Note this approach is thread safe because of the underlying
-   lock in geopm_prof_region(). */
+ *  static storage with a non-const initializer.  We avoid repeating
+ *  code.  Note this approach is thread safe because of the underlying
+ *  lock in geopm_prof_region().
+ */
 #define GEOPM_PMPI_ENTER_MACRO(FUNC) \
     static unsigned is_once = 1; \
     static uint64_t func_rid = 0; \

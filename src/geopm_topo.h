@@ -38,32 +38,56 @@ extern "C" {
 #endif
 
 enum geopm_domain_e {
-    /// @brief Reserved to represent an invalid domain
+    /*!
+     * @brief Reserved to represent an invalid domain
+     */
     GEOPM_DOMAIN_INVALID = -1,
-    /// @brief All components on a user allocated compute
-    ///        node (one per controller)
+    /*!
+     * @brief All components on a user allocated compute
+     *        node (one per controller)
+     */
     GEOPM_DOMAIN_BOARD = 0,
-    /// @Brief Single processor package in one socket
+    /*!
+     * @brief Single processor package in one socket
+     */
     GEOPM_DOMAIN_PACKAGE = 1,
-    /// @brief Group of associated hyper-threads
+    /*!
+     * @brief Group of associated hyper-threads
+     */
     GEOPM_DOMAIN_CORE = 2,
-    /// @brief Linux logical CPU
+    /*!
+     * @brief Linux logical CPU
+     */
     GEOPM_DOMAIN_CPU = 3,
-    /// @brief Standard off package DIMM (DRAM or NAND)
+    /*!
+     * @brief Standard off package DIMM (DRAM or NAND)
+     */
     GEOPM_DOMAIN_BOARD_MEMORY = 4,
-    /// @brief On package memory (MCDRAM)
+    /*!
+     * @brief On package memory (MCDRAM)
+     */
     GEOPM_DOMAIN_PACKAGE_MEMORY = 5,
-    /// @brief Network interface controller on the PCI bus
+    /*!
+     * @brief Network interface controller on the PCI bus
+     */
     GEOPM_DOMAIN_BOARD_NIC = 6,
-    /// @brief Network interface controller on the
-    ///        processor package
+    /*!
+     * @brief Network interface controller on the
+     *        processor package
+     */
     GEOPM_DOMAIN_PACKAGE_NIC = 7,
-    /// @brief Accelerator card on the PCI bus
+    /*!
+     * @brief Accelerator card on the PCI bus
+     */
     GEOPM_DOMAIN_BOARD_ACCELERATOR = 8,
-    /// @brief Accelerator unit on the package (e.g
-    ///        on-package graphics)
+    /*!
+     * @brief Accelerator unit on the package (e.g
+     *        on-package graphics)
+     */
     GEOPM_DOMAIN_PACKAGE_ACCELERATOR = 9,
-    /// @brief Number of valid domains.
+    /*!
+     * @brief Number of valid domains.
+     */
     GEOPM_NUM_DOMAIN = 10,
 };
 
