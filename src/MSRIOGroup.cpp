@@ -151,7 +151,7 @@ namespace geopm
 
         // @todo: have MSRIOGroup handle this combined signal instead of platformIO
         register_msr_signal("TEMPERATURE_CORE_UNDER", "MSR::THERM_STATUS:DIGITAL_READOUT");
-        register_msr_signal("TEMPERATURE_PKG_UNDER", "MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT");
+        register_msr_signal("TEMPERATURE_PACKAGE_UNDER", "MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT");
         register_msr_signal("TEMPERATURE_MAX", "MSR::TEMPERATURE_TARGET:PROCHOT_MIN");
 
         register_msr_control("POWER_PACKAGE_LIMIT", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
