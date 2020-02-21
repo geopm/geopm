@@ -51,9 +51,9 @@ namespace geopm
             virtual ~ScalingModelRegion() = default;
             void big_o(double big_o);
             void run(void);
+            void run_atom(void);
         protected:
             size_t llc_size(void);
-            void run_atom(void);
 
             std::string m_sysfs_cache_dir;
             size_t m_llc_slop_size;
