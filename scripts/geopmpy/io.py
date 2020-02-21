@@ -1369,7 +1369,7 @@ class RawReport(object):
         for host_name in self.host_names():
             host_data = self._raw_dict[host_name]
             for xx in host_data:
-                if xx.startswith('Region {}'.format(region_name)):
+                if xx.startswith('Region {} ('.format(region_name)):
                     return xx.split()[2][1:-1]
         raise KeyError('<geopm> geopmpy.io: Region not found: {}'.format(region_name))
 
