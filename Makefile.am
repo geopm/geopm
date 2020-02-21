@@ -675,6 +675,8 @@ model_source_files = src/All2allModelRegion.cpp \
                      src/SpinModelRegion.hpp \
                      src/StreamModelRegion.cpp \
                      src/StreamModelRegion.hpp \
+                     src/TimedScalingModelRegion.cpp \
+                     src/TimedScalingModelRegion.hpp \
                      # end
 
 if ENABLE_MPI
