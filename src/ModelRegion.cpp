@@ -48,6 +48,7 @@
 #include "ScalingModelRegion.hpp"
 #include "BarrierModelRegion.hpp"
 #include "ReduceModelRegion.hpp"
+#include "TimedScalingModelRegion.hpp"
 
 namespace geopm
 {
@@ -104,6 +105,9 @@ namespace geopm
         }
         else if (name_check(name, "reduce")) {
             return geopm::make_unique<ReduceModelRegion>(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
+        }
+        else if (name_check(name, "timed_scaling")) {
+            return geopm::make_unique<TimedScalingModelRegion>(big_o, verbosity, do_imbalance, do_progress, do_unmarked);
         }
         else {
             throw Exception("model_region_factory: unknown name: " + name,
