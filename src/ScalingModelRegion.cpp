@@ -124,7 +124,7 @@ namespace geopm
         size_t num_trial = 11;
         size_t median_idx = num_trial / 2;
         std::vector<double> atom_time(num_trial, 0.0);
-        for (size_t trial_idx = 0; trial_idx < num_trial; ++trial_idx) {
+        for (size_t trial_idx = 0; trial_idx != num_trial; ++trial_idx) {
             struct geopm_time_s time_0;
             geopm_time(&time_0);
             size_t repeat = 10;
