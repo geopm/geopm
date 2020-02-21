@@ -196,15 +196,7 @@ int main(int argc, char **argv)
             if (!err) {
                 try {
                     int domain_type = PlatformTopo::domain_name_to_type(pos_args[1]);
-                    int idx = platform_io.push_signal(signal_name, domain_type, domain_idx);
-                    // read_batch multiple times for derivative-based signals;
-                    // should not affect other signals
-                    for (int ii = 0; ii < 16; ++ii) {
-                        platform_io.read_batch();
-                        platform_io.sample(idx);
-                        usleep(5000);
-                    }
-                    double result = platform_io.sample(idx);
+                    double result = platform_io.read_signal(signal_name, domain_type, domain_idx);
                     std::cout << platform_io.format_function(signal_name)(result) << std::endl;
                 }
                 catch (const geopm::Exception &ex) {
