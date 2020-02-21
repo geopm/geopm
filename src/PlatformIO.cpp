@@ -180,7 +180,7 @@ namespace geopm
                 is_found = true;
             }
             if (signal_name == "TEMPERATURE_PACKAGE") {
-                result = signal_domain_type("TEMPERATURE_PKG_UNDER");
+                result = signal_domain_type("TEMPERATURE_PACKAGE_UNDER");
                 is_found = true;
             }
         }
@@ -300,7 +300,7 @@ namespace geopm
                 under_idx = push_signal("TEMPERATURE_CORE_UNDER", domain_type, domain_idx);
             }
             else if (signal_name =="TEMPERATURE_PACKAGE") {
-                under_idx = push_signal("TEMPERATURE_PKG_UNDER", domain_type, domain_idx);
+                under_idx = push_signal("TEMPERATURE_PACKAGE_UNDER", domain_type, domain_idx);
             }
             result = m_active_signal.size();
             register_combined_signal(result,
