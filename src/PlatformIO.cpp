@@ -33,6 +33,7 @@
 #include "PlatformIOImp.hpp"
 
 #include <cpuid.h>
+#include <unistd.h>
 #include <iomanip>
 #include <cmath>
 #include <algorithm>
@@ -305,17 +306,7 @@ namespace geopm
             result = m_active_signal.size();
             register_combined_signal(result,
                                      {max_idx, under_idx},
-                                     std::unique_ptr<CombinedSignal>(
-                                         new CombinedSignal(
-                                             [] (const std::vector<double> &val) -> double {
-#ifdef GEOPM_DEBUG
-                                                 if (val.size() != 2) {
-                                                     throw Exception("PlatformIOImp::push_signal_temperature(): expected two values to subtract for temperature.",
-                                                                     GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-                                                 }
-#endif
-                                                 return val[0] - val[1];
-                                             } )));
+                                     std::unique_ptr<CombinedSignal>(new DifferenceCombinedSignal));
 
             m_active_signal.emplace_back(nullptr, result);
         }
@@ -528,8 +519,31 @@ namespace geopm
         double result = NAN;
         auto iogroup = find_signal_iogroup(signal_name);
         if (iogroup == nullptr) {
-            throw Exception("PlatformIOImp::read_signal(): signal name \"" + signal_name + "\" not found",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            std::size_t sep = signal_name.find("_");
+            std::string type = sep != std::string::npos ? signal_name.substr(sep) : "";
+            if (signal_name.find("POWER") == 0) {
+                DerivativeCombinedSignal dcs;
+                for (int ii = 0; ii < 16; ++ii) {
+                    double time = read_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
+                    double energy = read_signal("ENERGY" + type, domain_type, domain_idx);
+                    std::vector<double> operands {time, energy};
+                    result = dcs.sample(operands);
+                    if (ii < 15) {
+                        usleep(5000);
+                    }
+                }
+            }
+            else if (signal_name.find("TEMPERATURE") == 0) {
+                double max = read_signal("TEMPERATURE_MAX", GEOPM_DOMAIN_BOARD, 0);
+                double under = read_signal("TEMPERATURE" + type + "_UNDER", domain_type, domain_idx);
+                std::vector<double> operands {max, under};
+                DifferenceCombinedSignal dcs;
+                result = dcs.sample(operands);
+            }
+            else {
+                throw Exception("PlatformIOImp::read_signal(): signal name \"" + signal_name + "\" not found",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
         }
         else if (iogroup->signal_domain_type(signal_name) != domain_type) {
             result = read_signal_convert_domain(signal_name, domain_type, domain_idx);
