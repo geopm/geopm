@@ -394,6 +394,8 @@ test_integration/test_scaling_region.cpp
 test_integration/test_scaling_region.py
 test_integration/test_static_policy.c
 test_integration/test_static_policy.py
+test_integration/test_timed_scaling_region.cpp
+test_integration/test_timed_scaling_region.py
 test_integration/util.py
 travis_ci.sh
 tutorial/Makefile
