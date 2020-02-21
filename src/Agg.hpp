@@ -44,6 +44,8 @@ namespace geopm
         public:
             /// @brief Returns the sum of the input operands.
             static double sum(const std::vector<double> &operand);
+            /// @brief Returns the difference of the input operands.
+            static double difference(const std::vector<double> &operand);
             /// @brief Returns the average of the input operands.
             static double average(const std::vector<double> &operand);
             /// @brief Returns the median of the input operands.

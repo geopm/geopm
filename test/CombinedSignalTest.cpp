@@ -53,6 +53,18 @@ TEST(CombinedSignalTest, sample_sum)
     EXPECT_DOUBLE_EQ(28.1, result);
 }
 
+TEST(CombinedSignalTest, sample_difference)
+{
+    CombinedSignal comb_signal {geopm::Agg::difference};
+    std::vector<double> values = {0.0};
+    double result = comb_signal.sample(values);
+    EXPECT_DOUBLE_EQ(0.0, result);
+
+    values = {4.1, 5, -6, 7, 18};
+    result = comb_signal.sample(values);
+    EXPECT_DOUBLE_EQ(-19.9, result);
+}
+
 TEST(CombinedSignalTest, sample_max)
 {
     CombinedSignal comb_signal {geopm::Agg::max};

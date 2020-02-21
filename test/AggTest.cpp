@@ -43,12 +43,14 @@ TEST(AggTest, agg_function)
 {
     std::vector<double> data {16, 2, 4, 9, 128, 32, 4, 64};
     double sum = 259;
+    double difference = -227;
     double average = 32.375;
     double median = 12.5;
     double min = 2;
     double max = 128;
     double stddev = 43.902;
     EXPECT_DOUBLE_EQ(sum, Agg::sum(data));
+    EXPECT_DOUBLE_EQ(difference, Agg::difference(data));
     EXPECT_DOUBLE_EQ(average, Agg::average(data));
     EXPECT_DOUBLE_EQ(median, Agg::median(data));
     EXPECT_DOUBLE_EQ(4, Agg::median({4}));

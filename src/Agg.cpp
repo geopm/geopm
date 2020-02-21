@@ -36,6 +36,7 @@
 
 #include <algorithm>
 #include <numeric>
+#include <functional>
 
 #include "geopm_internal.h"
 #include "geopm_hash.h"
@@ -49,6 +50,15 @@ namespace geopm
         double result = NAN;
         if (operand.size()) {
             result = std::accumulate(operand.begin(), operand.end(), 0.0);
+        }
+        return result;
+    }
+
+    double Agg::difference(const std::vector<double> &operand)
+    {
+        double result = NAN;
+        if (operand.size()) {
+            result = std::accumulate(operand.begin() + 1, operand.end(), operand[0], std::minus<double>());
         }
         return result;
     }
