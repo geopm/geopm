@@ -39,6 +39,7 @@
 #include <memory>
 
 #include "geopm.h"
+#include "Profile.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
@@ -48,7 +49,6 @@ using geopm::platform_io;
 
 int main(int argc, char **argv)
 {
-    int err = 0;
     int comm_rank;
     int comm_size;
     MPI_Init(&argc, &argv);
@@ -70,31 +70,18 @@ int main(int argc, char **argv)
     double freq_sticker = platform_io().read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0);
     double freq_step = platform_io().read_signal("CPUINFO::FREQ_STEP", GEOPM_DOMAIN_BOARD, 0);
     int num_step = std::lround((freq_sticker - freq_min) / freq_step) + 1;
-    std::vector<uint64_t> region_id(num_step, 0ULL);
-    double freq = freq_min;
-    for (int idx = 0; idx != num_step; ++idx) {
-        std::string name = "scaling_region_" + std::to_string(idx);
-        int err = geopm_prof_region(name.c_str(), GEOPM_REGION_HINT_UNKNOWN, &(region_id[idx]));
-        if (err) {
-            throw geopm::Exception("test_scaling_region", err, __FILE__, __LINE__);
-        }
-        freq += freq_step;
-    }
+    geopm::Profile &prof = geopm::Profile::default_profile();
 
     int repeat = 1000;
-    for (const auto &rid : region_id) {
-        err = geopm_prof_enter(rid);
-        if (err) {
-            throw geopm::Exception("test_scaling_region", err, __FILE__, __LINE__);
-        }
+    for (int idx = 0; idx != num_step; ++idx) {
+        std::string scaling_name = "scaling_region_" + std::to_string(idx);
+        uint64_t scaling_rid = prof.region(scaling_name, GEOPM_REGION_HINT_UNKNOWN);
+        prof.enter(scaling_rid);
         for (int rep_idx = 0; rep_idx != repeat; ++rep_idx) {
             scaling_model->run();
         }
-        err = geopm_prof_exit(rid);
-        if (err) {
-            throw geopm::Exception("test_scaling_region", err, __FILE__, __LINE__);
-        }
+        prof.exit(scaling_rid);
     }
     MPI_Finalize();
-    return err;
+    return 0;
 }
