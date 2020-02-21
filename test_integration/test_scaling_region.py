@@ -92,37 +92,14 @@ class TestIntegrationScalingRegion(unittest.TestCase):
         cls._agent_conf_path = test_name + '-agent-config.json'
         # region_hash() of the sequence:
         # scaling_region_0, scaling_region_1, ... , scaling_region_30
-        cls._region_hash = [0x1f2b4ef8,
-                            0xed40cdfb,
-                            0xfe103e0f,
-                            0x0c7bbd0c,
-                            0xd8b1d9e7,
-                            0x2ada5ae4,
-                            0x398aa910,
-                            0xcbe12a13,
-                            0x95f21637,
-                            0x67999534,
-                            0xea0548e2,
-                            0xa33935c5,
-                            0x787db2ac,
-                            0x3141cf8b,
-                            0xcb18ca8f,
-                            0x8224b7a8,
-                            0x596030c1,
-                            0x105c4de6,
-                            0xa83e4c38,
-                            0xe102311f,
-                            0xf3aa44cb,
-                            0xba9639ec,
-                            0x61d2be85,
-                            0x28eec3a2,
-                            0xd2b7c6a6,
-                            0x9b8bbb81,
-                            0x40cf3ce8,
-                            0x09f341cf,
-                            0xb1914011,
-                            0xf8ad3d36,
-                            0x07949283]
+        cls._region_hash = [0x1f2b4ef8, 0xed40cdfb, 0xfe103e0f, 0x0c7bbd0c,
+                            0xd8b1d9e7, 0x2ada5ae4, 0x398aa910, 0xcbe12a13,
+                            0x95f21637, 0x67999534, 0xea0548e2, 0xa33935c5,
+                            0x787db2ac, 0x3141cf8b, 0xcb18ca8f, 0x8224b7a8,
+                            0x596030c1, 0x105c4de6, 0xa83e4c38, 0xe102311f,
+                            0xf3aa44cb, 0xba9639ec, 0x61d2be85, 0x28eec3a2,
+                            0xd2b7c6a6, 0x9b8bbb81, 0x40cf3ce8, 0x09f341cf,
+                            0xb1914011, 0xf8ad3d36, 0x07949283]
         if not cls._skip_launch:
             num_node = 1
             num_rank = 1
