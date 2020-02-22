@@ -73,6 +73,16 @@ namespace geopm
             CircularBuffer<m_sample_s> m_history;
             int m_derivative_num_fit;
     };
+
+    /// @brief Used by PlatformIO for CombinedSignals based on a
+    ///        difference between two signals.
+    class DifferenceCombinedSignal : public CombinedSignal
+    {
+        public:
+            DifferenceCombinedSignal() = default;
+            virtual ~DifferenceCombinedSignal() = default;
+            double sample(const std::vector<double> &values) override;
+    };
 }
 
 #endif

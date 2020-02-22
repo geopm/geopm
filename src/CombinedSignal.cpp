@@ -109,4 +109,15 @@ namespace geopm
         }
         return result;
     }
+
+    double DifferenceCombinedSignal::sample(const std::vector<double> &values)
+    {
+#ifdef GEOPM_DEBUG
+        if (values.size() != 2) {
+            throw Exception("DifferenceCombinedSignal::sample(): expected two values to subtract for temperature.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        return values[0] - values[1];
+    }
 }
