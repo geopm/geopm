@@ -158,6 +158,21 @@ class TestIntegrationScalingRegion(unittest.TestCase):
                     region = report.raw_region(host, rn)
                     self.assertNear(1.0, report.get_field(region, 'runtime', 'sec'))
 
+    def test_achieved_frequency(self):
+        """Test that the reports show achieved frequencies near target
+           frequency.
+
+        """
+        report = geopmpy.io.RawReport(self._report_path)
+        host_names = report.host_names()
+        for host in host_names:
+            for rn in report.region_names(host):
+                if rn.startswith('timed_scaling_region'):
+                    region = report.raw_region(host, rn)
+                    request_freq = report.get_field(region, 'frequency-map')
+                    actual_freq = report.get_field(region, 'frequency', 'Hz')
+                    self.assertNear(request_freq, actual_freq)
+
 if __name__ == '__main__':
     try:
         sys.argv.remove('--skip-launch')
