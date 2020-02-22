@@ -36,9 +36,11 @@
 #include "CombinedSignal.hpp"
 #include "Exception.hpp"
 #include "Agg.hpp"
+#include "config.h"
 
 using geopm::CombinedSignal;
 using geopm::DerivativeCombinedSignal;
+using geopm::DifferenceCombinedSignal;
 using geopm::Exception;
 
 TEST(CombinedSignalTest, sample_sum)
@@ -112,4 +114,25 @@ TEST(CombinedSignalTest, sample_slope_derivative)
         result = comb_signal.sample({(double)ii, sample_values[ii]});
     }
     EXPECT_NEAR(0.238, result, 0.001);
+}
+
+TEST(CombinedSignalTest, sample_difference)
+{
+    DifferenceCombinedSignal comb_signal;
+    std::vector<double> values = {0};
+#ifdef GEOPM_DEBUG
+    ASSERT_EQ(1u, values.size());
+    EXPECT_THROW(comb_signal.sample(values), Exception);
+    values = {1, 2, 3, 4};
+    ASSERT_EQ(4u, values.size());
+    EXPECT_THROW(comb_signal.sample(values), Exception);
+#endif
+
+    values = {0, 5};
+    double result = comb_signal.sample(values);
+    EXPECT_DOUBLE_EQ(-5.0, result);
+
+    values = {10, 5};
+    result = comb_signal.sample(values);
+    EXPECT_DOUBLE_EQ(5.0, result);
 }
