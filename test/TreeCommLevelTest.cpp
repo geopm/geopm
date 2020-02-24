@@ -39,6 +39,7 @@
 #include "TreeCommLevel.hpp"
 #include "MockComm.hpp"
 #include "geopm_test.hpp"
+#include "config.h"
 
 using geopm::TreeCommLevel;
 using geopm::TreeCommLevelImp;
@@ -265,7 +266,7 @@ TEST_F(TreeCommLevelTest, receive_up_complete)
     // errors
 #ifdef GEOPM_DEBUG
     GEOPM_EXPECT_THROW_MESSAGE(m_level_rank_1->receive_up(sample_out),
-                               GEOPM_ERROR_LOGIC, "called from rank not at root of level");
+                               GEOPM_ERROR_LOGIC, "Only zero rank of the level can call receive_up()");
 #endif
 }
 

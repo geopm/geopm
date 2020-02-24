@@ -34,6 +34,7 @@
 #include "geopm_time.h"
 #include "Exception.hpp"
 #include "RuntimeRegulator.hpp"
+#include "config.h"
 
 using geopm::Exception;
 using geopm::RuntimeRegulator;
