@@ -100,6 +100,8 @@ class TestIntegrationScalingRegion(unittest.TestCase):
                             0xba7adc69, 0xa9d8441e, 0x9d3fec87, 0x8e9d74f0,
                             0xf4f0bdb5, 0xe75225c2, 0xd3b58d5b, 0xc017152c,
                             0x276e1fd1, 0x34cc87a6, 0x1f3b4e17]
+        if 'exc_clear' in dir(sys):
+            sys.exc_clear()
         if not cls._skip_launch:
             num_node = 1
             num_rank = 1
