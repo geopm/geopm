@@ -91,6 +91,8 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
         cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
         num_node = 1
         num_rank = 4
+        if 'exc_clear' in dir(sys):
+            sys.exc_clear()
         for config in test_config:
             curr_run = test_name + config
             report_path = curr_run + '.report'
