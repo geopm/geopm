@@ -33,7 +33,6 @@
 #ifndef TIMEDSCALINGMODELREGION_HPP_INCLUDE
 #define TIMEDSCALINGMODELREGION_HPP_INCLUDE
 
-#include <functional>
 #include <memory>
 
 #include "SpinModelRegion.hpp"
@@ -50,9 +49,9 @@ namespace geopm
                                     bool do_progress,
                                     bool do_unmarked);
             virtual ~TimedScalingModelRegion() = default;
+            void run_atom(void);
         protected:
             std::shared_ptr<ScalingModelRegion> m_scaling_model;
-            std::function<void(void)> m_run_atom;
     };
 }
 

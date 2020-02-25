@@ -43,8 +43,12 @@ namespace geopm
                                                      bool do_unmarked)
         : SpinModelRegion(big_o_in, verbosity, do_imbalance, do_progress, do_unmarked)
         , m_scaling_model(std::make_shared<ScalingModelRegion>(1, 0, false, false, true))
-        , m_run_atom([this](){this->m_scaling_model->run_atom();})
     {
-        set_atom(m_run_atom);
+
+    }
+
+    void TimedScalingModelRegion::run_atom(void)
+    {
+        m_scaling_model->run_atom();
     }
 }
