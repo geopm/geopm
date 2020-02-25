@@ -71,9 +71,9 @@ namespace geopm
         m_big_o = big_o_in;
     }
 
-    void SpinModelRegion::set_atom(std::function<void(void)> run_atom)
+    void SpinModelRegion::run_atom(void)
     {
-        m_run_atom = run_atom;
+
     }
 
     void SpinModelRegion::run(void)
@@ -90,9 +90,7 @@ namespace geopm
                 struct geopm_time_s curr = {{0,0}};
                 (void)geopm_time(&start);
                 while (timeout < m_delay) {
-                    if (m_run_atom) {
-                        m_run_atom();
-                    }
+                    run_atom();
                     (void)geopm_time(&curr);
                     timeout = geopm_time_diff(&start, &curr);
                 }

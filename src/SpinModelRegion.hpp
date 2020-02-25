@@ -34,7 +34,6 @@
 #define SPINMODELREGION_HPP_INCLUDE
 
 #include "ModelRegion.hpp"
-#include <functional>
 
 namespace geopm
 {
@@ -50,10 +49,9 @@ namespace geopm
             virtual ~SpinModelRegion();
             void big_o(double big_o);
             void run(void);
-            void set_atom(std::function<void(void)> run_atom);
+            virtual void run_atom(void);
         protected:
             double m_delay;
-            std::function<void(void)> m_run_atom;
     };
 }
 
