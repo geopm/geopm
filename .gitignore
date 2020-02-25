@@ -32,6 +32,7 @@
 /configure
 /contrib/json11/*.lo
 /contrib/json11/*.o
+/copying_headers/MANIFEST.BSD3-intel
 /copying_headers/test-license.log
 /copying_headers/test-license.trs
 /coverage.info
