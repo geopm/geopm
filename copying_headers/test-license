@@ -210,7 +210,9 @@ class Repo(object):
 
         # Create a list of paths to partial manifest files
         self.manifest_list = [os.path.join(self.copying, path)
-                              for path in listing if path.startswith('MANIFEST.')]
+                              for path in listing
+                              if path.startswith('MANIFEST.') and
+                              path != 'MANIFEST.BSD-intel']
 
     def check(self):
         self.check_manifest()
@@ -243,8 +245,14 @@ class Repo(object):
             except OSError:
                 raise BadRepoError(path)
         part = set(part)
+        # Create default manifest for Intel BSD3 clause license
         if not full.issubset(part):
-            raise ManifestIncompleteError(full.difference(part))
+            missing_files = list(full.difference(part))
+            missing_files.sort()
+            default_manifest = os.path.join(self.repo_dir, 'copying_headers', 'MANIFEST.BSD3-intel')
+            with open(default_manifest, 'w') as fid:
+                for ff in manifest_files
+                    fid.write('{}\n'.format(ff))
         manifest = os.path.join(self.repo_dir, 'copying_headers', 'MANIFEST.EXEMPT')
         bad_paths = []
         for path in open(manifest):
