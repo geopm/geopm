@@ -38,6 +38,7 @@
 import sys
 import unittest
 import os
+import glob
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from test_integration import geopm_context
@@ -49,7 +50,7 @@ _g_skip_launch = False
 
 class AppConf(object):
     """Class that is used by the test launcher as a geopmpy.io.BenchConf
-    when running the test_scaling_region benchmark.
+    when running the test_@test_name@.
 
     """
     def write(self):
@@ -83,6 +84,9 @@ class TestIntegration_@test_name@(unittest.TestCase):
         cls._skip_launch = _g_skip_launch
         cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
         cls._agent_conf_path = test_name + '-agent-config.json'
+        # Clear out exception record for python 2 support
+        if 'exc_clear' in dir(sys):
+            sys.exc_clear()
         if not cls._skip_launch:
             num_node = 1
             num_rank = 1
@@ -91,9 +95,6 @@ class TestIntegration_@test_name@(unittest.TestCase):
             freq_sticker = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
             agent_conf_dict = {'FREQ_MIN':freq_min,
                                'FREQ_MAX':freq_sticker}
-            cls._region_freq = [freq_min + idx * freq_step
-                                for idx in range(num_step)]
-
             agent_conf = geopmpy.io.AgentConf(cls._agent_conf_path,
                                               'frequency_map',
                                               agent_conf_dict)
@@ -113,10 +114,12 @@ class TestIntegration_@test_name@(unittest.TestCase):
 
         """
         if (sys.exc_info() == (None, None, None) and not
-            cls._keep_files and not cls._skip_launch):
+            cls._keep_files and not
+            cls._skip_launch):
             os.unlink(cls._agent_conf_path)
             os.unlink(cls._report_path)
-            os.unlink(cls._trace_path)
+            for tf in glob.glob(cls._trace_path + '.*'):
+                os.unlink(tf)
 
     def test_load_report(self):
         """Test that the report can be loaded

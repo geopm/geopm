@@ -43,20 +43,16 @@
 #include "Exception.hpp"
 #include "ModelRegion.hpp"
 
-using geopm::platform_io;
-
 int main(int argc, char **argv)
 {
     int comm_rank;
-    int comm_size;
     MPI_Init(&argc, &argv);
-    MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank);
     bool is_verbose = false;
     if (comm_rank == 0) {
         for (int arg_idx = 1; arg_idx < argc; ++arg_idx) {
-            if (strncmp(argv[arg_idx], "--verbose", strlen("--verbose")) == 0 ||
-                strncmp(argv[arg_idx], "-v", strlen("-v")) == 0) {
+            std::string arg(argv[arg_idx]);
+            if (arg == "--verbose" || arg == "-v") {
                 is_verbose = true;
             }
         }
