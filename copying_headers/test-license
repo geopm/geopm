@@ -251,7 +251,7 @@ class Repo(object):
             missing_files.sort()
             default_manifest = os.path.join(self.repo_dir, 'copying_headers', 'MANIFEST.BSD3-intel')
             with open(default_manifest, 'w') as fid:
-                for ff in manifest_files
+                for ff in missing_files:
                     fid.write('{}\n'.format(ff))
         manifest = os.path.join(self.repo_dir, 'copying_headers', 'MANIFEST.EXEMPT')
         bad_paths = []
