@@ -39,12 +39,16 @@ import sys
 import unittest
 import os
 import glob
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from test_integration import geopm_context
-import geopmpy.io
 from test_integration import geopm_test_launcher
 from test_integration import util
+
+import geopmpy.io
 
 _g_skip_launch = False
 
@@ -86,11 +90,12 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
                          '.' + cls.__name__ + ') ...')
         test_name = 'ee_short_region_slop'
-        cls._report_path = test_name + '.report'
-        cls._trace_path = test_name + '.trace'
+        cls._report_path = 'test_{}.report'.format(test_name)
+        cls._trace_path = 'test_{}.trace'.format(test_name)
+        cls._image_path = 'test_{}.png'.format(test_name)
         cls._skip_launch = _g_skip_launch
         cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
-        cls._agent_conf_path = test_name + '-agent-config.json'
+        cls._agent_conf_path = 'test_{}-agent-config.json'.format(test_name)
         # Clear out exception record for python 2 support
         if 'exc_clear' in dir(sys):
             sys.exc_clear()
@@ -135,14 +140,75 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
             cls._skip_launch):
             os.unlink(cls._agent_conf_path)
             os.unlink(cls._report_path)
+            os.unlink(cls._image_path)
             for tf in glob.glob(cls._trace_path + '.*'):
                 os.unlink(tf)
 
-    def test_load_report(self):
-        """Test that the report can be loaded
+    def test_generate_plot(self):
+        """Visualize the data in the report
 
         """
         report = geopmpy.io.RawReport(self._report_path)
+        cols, scaling_data, timed_data = extract_data(report)
+        ylim = (0.9e9, 2.3e9)
+        plt.figure(figsize=(10,10))
+        plt.subplot(2, 2, 1)
+        plt.title('Scaling region achieved frequency')
+        plot_data(cols, scaling_data, 'duration', 'frequency')
+        plt.ylim(*ylim)
+        plt.subplot(2, 2, 2)
+        plt.title('Scaling region learned frequency')
+        plot_data(cols, scaling_data, 'duration', 'requested-online-frequency')
+        plt.ylim(*ylim)
+        plt.subplot(2, 2, 3)
+        plt.title('Timed region achieved frequency')
+        plot_data(cols, timed_data, 'duration', 'frequency')
+        plt.ylim(*ylim)
+        plt.subplot(2, 2, 4)
+        plt.title('Timed region learned frequency')
+        plot_data(cols, timed_data, 'duration', 'requested-online-frequency')
+        plt.ylim(*ylim)
+        plt.savefig(self._image_path)
+
+def extract_data(report):
+    cols = [('count', ''),
+            ('package-energy', 'joules'),
+            ('requested-online-frequency', ''),
+            ('power', 'watts'),
+            ('runtime', 'sec'),
+            ('frequency', 'Hz')]
+    scaling_data = extract_region_data(report, cols, 'scaling')
+    timed_data = extract_region_data(report, cols, 'timed')
+    cols.append(('duration', 'sec'))
+    dur = tuple(rt / ct for ct, rt in zip(scaling_data[0], scaling_data[4]))
+    scaling_data.append(dur)
+    dur = tuple(rt / ct for ct, rt in zip(timed_data[0], timed_data[4]))
+    timed_data.append(dur)
+    return cols, scaling_data, timed_data
+
+def plot_data(cols, data, xaxis, yaxis):
+    xaxis_idx = zip(*cols)[0].index(xaxis)
+    yaxis_idx = zip(*cols)[0].index(yaxis)
+    plt.semilogx(data[xaxis_idx], data[yaxis_idx], 'x')
+    plt.xlabel('{} ({})'.format(xaxis, zip(*cols)[1][xaxis_idx]))
+    plt.ylabel('{} ({})'.format(yaxis, zip(*cols)[1][yaxis_idx]))
+
+def extract_region_data(report, cols, key):
+    host = report.host_names()[0]
+    region_names = report.region_names(host)
+    regions = [report.raw_region(host, rn)
+               for rn in region_names
+               if rn.startswith(key)]
+    result = []
+    for rr in regions:
+         sample = []
+         for cc in cols:
+             try:
+                 sample.append(report.get_field(rr, cc[0], cc[1]))
+             except KeyError:
+                 sample.append(None)
+         result.append(sample)
+    return zip(*result)
 
 if __name__ == '__main__':
     try:
