@@ -135,6 +135,7 @@
 /test_integration/*.h5
 /test_integration/*.log
 /test_integration/*.report
+/test_integration/test_ee_short_region_slop
 /test_integration/test_ee_stream_dgemm_mix
 /test_integration/test_omp_outer_loop
 /test_integration/test_profile_policy
