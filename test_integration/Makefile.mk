@@ -67,3 +67,4 @@ include test_integration/test_ee_stream_dgemm_mix.mk
 include test_integration/test_scaling_region.mk
 include test_integration/test_timed_scaling_region.mk
 include test_integration/test_omp_outer_loop.mk
+include test_integration/test_ee_short_region_slop.mk
