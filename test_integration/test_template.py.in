@@ -49,24 +49,31 @@ from test_integration import util
 _g_skip_launch = False
 
 class AppConf(object):
-    """Class that is used by the test launcher as a geopmpy.io.BenchConf
-    when running the test_@test_name@.
+    """Class that is used by the test launcher in place of a
+    geopmpy.io.BenchConf when running the @test_name@ benchmark.
 
     """
     def write(self):
-        """No configuration files are required.
+        """Called by the test launcher prior to executing the test application
+        to write any files required by the application.
 
         """
         pass
 
     def get_exec_path(self):
-        """Path to benchmark
+        """Path to benchmark filled in by template automatically.
 
         """
         script_dir = os.path.dirname(os.path.realpath(__file__))
         return os.path.join(script_dir, '.libs', 'test_@test_name@')
 
     def get_exec_args(self):
+        """Returns a list of strings representing the command line arguments
+        to pass to the test-application for the next run.  This is
+        especially useful for tests that execute the test-application
+        multiple times.
+
+        """
         return []
 
 
@@ -88,31 +95,41 @@ class TestIntegration_@test_name@(unittest.TestCase):
         if 'exc_clear' in dir(sys):
             sys.exc_clear()
         if not cls._skip_launch:
+            # Set the job size parameters
             num_node = 1
             num_rank = 1
-            # Set up agent configuration so that each region is assigned a different frequency
+            time_limit = 6000
+            # Configure the test application
+            app_conf = AppConf()
+            # Configure the agent
+            # Query for the min and sticker frequency and run the
+            # energy efficient agent over this range.
             freq_min = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
             freq_sticker = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
             agent_conf_dict = {'FREQ_MIN':freq_min,
                                'FREQ_MAX':freq_sticker}
             agent_conf = geopmpy.io.AgentConf(cls._agent_conf_path,
-                                              'frequency_map',
+                                              'energy_efficient',
                                               agent_conf_dict)
-            launcher = geopm_test_launcher.TestLauncher(AppConf(),
+            # Create the test launcher with the above configuration
+            launcher = geopm_test_launcher.TestLauncher(app_conf,
                                                         agent_conf,
                                                         cls._report_path,
                                                         cls._trace_path,
-                                                        time_limit=6000)
+                                                        time_limit=time_limit)
             launcher.set_num_node(num_node)
             launcher.set_num_rank(num_rank)
+            # Run the test application
             launcher.run(test_name)
 
     @classmethod
     def tearDownClass(cls):
-        """If we are not handling an exception and the GEOPM_KEEP_FILES
-        environment variable is unset, clean up output.
+        """Clean up any files that may have been created during the test if we
+        are not handling an exception and the GEOPM_KEEP_FILES
+        environment variable is unset.
 
         """
+
         if (sys.exc_info() == (None, None, None) and not
             cls._keep_files and not
             cls._skip_launch):
@@ -132,5 +149,6 @@ if __name__ == '__main__':
         sys.argv.remove('--skip-launch')
         _g_skip_launch = True
     except ValueError:
-        pass
+        if 'exc_clear' in dir(sys):
+            sys.exc_clear()
     unittest.main()
