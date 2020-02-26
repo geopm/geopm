@@ -92,8 +92,9 @@ class TestIntegration_@test_name@(unittest.TestCase):
         sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
                          '.' + cls.__name__ + ') ...')
         test_name = '@test_name@'
-        cls._report_path = test_name + '.report'
-        cls._trace_path = test_name + '.trace'
+        cls._report_path = 'test_{}.report'.format(test_name)
+        cls._trace_path = 'test_{}.trace'.format(test_name)
+        cls._image_path = 'test_{}.png'.format(test_name)
         cls._skip_launch = _g_skip_launch
         cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
         cls._agent_conf_path = test_name + '-agent-config.json'
@@ -140,6 +141,7 @@ class TestIntegration_@test_name@(unittest.TestCase):
             cls._skip_launch):
             os.unlink(cls._agent_conf_path)
             os.unlink(cls._report_path)
+            os.unlink(cls._image_path)
             for tf in glob.glob(cls._trace_path + '.*'):
                 os.unlink(tf)
 
