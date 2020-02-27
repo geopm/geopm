@@ -61,11 +61,12 @@ int main(int argc, char **argv)
     }
     geopm::Profile &prof = geopm::Profile::default_profile();
     // Run twelve trials with region duration ranging from 100 us - 400 ms
-    size_t num_trial = 12;
+    size_t num_duration = 12;
     double duration = 1e-4;
     double repeat = 409600; // Each trial takes 41 seconds and the
-			    // whole execution takes 8 minutes
-    for (size_t trial_idx = 0; trial_idx != num_trial; ++trial_idx) {
+                            // whole execution takes 16 minutes at
+                            // sticker frequency.
+    for (size_t duration_idx = 0; duration_idx != num_duration; ++duration_idx) {
         // Create scaling and scaling_timed model regions
         std::unique_ptr<geopm::ModelRegion> model_scaling(
             geopm::ModelRegion::model_region("scaling", duration, is_verbose));
@@ -73,11 +74,11 @@ int main(int argc, char **argv)
             geopm::ModelRegion::model_region("timed_scaling", duration, is_verbose));
 
         // Rename model regions
-        std::string scaling_name = "scaling_" + std::to_string(trial_idx);
-        std::string timed_name = "timed_" + std::to_string(trial_idx);
+        std::string scaling_name = "scaling_" + std::to_string(duration_idx);
+        std::string timed_name = "timed_" + std::to_string(duration_idx);
         uint64_t scaling_rid = prof.region(scaling_name, GEOPM_REGION_HINT_UNKNOWN);
         uint64_t timed_rid = prof.region(timed_name, GEOPM_REGION_HINT_UNKNOWN);
-        // Execute the regions back to back repeatedlythe renamed region
+        // Execute the regions back to back repeatedly
         for (int idx = 0; idx != repeat; ++idx) {
             prof.enter(scaling_rid);
             model_scaling->run();
