@@ -7,21 +7,25 @@ individual trace files as arguments:
 $ python outlierdetection.py trace_dir/*.trace
 ```
 
-This will (eventually) emit a table out outlier nodes:
+Before executing, please edit `config.py` with the location (absolute or
+relative from the directory where this is being executed) of the trace and
+report files, a list of the node ids to be analyzed (a python iterable is
+fine), the powers used in the sweep (again, a python iterable may be used) and
+the iterations you would like analyzed (yet again, go with a python iterable).
 
-```
-OUTLIERS IDENTIFIED:
-Node 3135, 95.30%, Runt,  10.8W,  0.9C
-Node 2810, 96.40%, Pick, -12.9W, -3.3C
-Node 2938, 97.80%, Pick, -12.5W, -2.9C
-Node  733, 98.40%, Runt,  18.5W, -1.9C
-Node 2425, 99.89%, Pick, - 5.7W, -7.0C
-Node 1805, 99.95%, Runt,  15.4W,  6.4C
-Node 1709, 99.99%, Pick, -18.1W, -3.9C
-```
+Then, run `fit_by_nid.py`; it will emit the ids of outliers according to each
+statistic of interest.
 
-This is the node id, the probability that the node is an outlier, a string
-indicating whether this is especially strong or weak performance, and the
-difference between mean power and temperature for this node versus the ensemble
-(positive means that the node used more power or exhibited a higher temperature
-than average).
+Statistic 0: slope of power/frequency curve at sticker.
+
+Statistic 1: Energy consumption at TDP.
+
+Statistic 2: Minimum energy consumption across power caps.
+
+Statistic 3: Power cap at which energy consumption is minimized.
+
+Statistic 4: Processor-Sensor Heat Capacity
+
+Statistic 5: Thermal Conduction to Cooling Fluid (Fan-Driven Air)
+
+Statistic 6: Estimated Cooling Fluid Temperature
