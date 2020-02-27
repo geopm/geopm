@@ -44,13 +44,18 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from test_integration import geopm_context
-from test_integration import geopm_test_launcher
-from test_integration import util
-
 import geopmpy.io
 
 _g_skip_launch = False
+try:
+    sys.argv.remove('--skip-launch')
+    _g_skip_launch = True
+except ValueError:
+    from test_integration import geopm_context
+    from test_integration import geopm_test_launcher
+    from test_integration import util
+    if 'exc_clear' in dir(sys):
+        sys.exc_clear()
 
 class AppConf(object):
     """Class that is used by the test launcher in place of a
@@ -194,6 +199,9 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         all_energy.extend(timed_data_dynamic[column_idx(cols, 'package-energy')])
         min_energy = min(all_energy)
         max_energy = max(all_energy)
+        delta_energy = max_energy - min_energy
+        min_energy -= 0.05 * delta_energy
+        max_energy += 0.05 * delta_energy
 
         all_runtime = list(scaling_data_fixed[column_idx(cols, 'runtime')])
         all_runtime.extend(scaling_data_dynamic[column_idx(cols, 'runtime')])
@@ -201,6 +209,9 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         all_runtime.extend(timed_data_dynamic[column_idx(cols, 'runtime')])
         min_runtime = min(all_runtime)
         max_runtime = max(all_runtime)
+        delta_runtime = max_runtime - min_runtime
+        min_runtime -= 0.05 * delta_runtime
+        max_runtime += 0.05 * delta_runtime
 
         plt.figure(figsize=(10,10))
         plt.subplot(2, 2, 1)
@@ -284,10 +295,4 @@ def extract_data_region(report, cols, key):
     return zip(*result)
 
 if __name__ == '__main__':
-    try:
-        sys.argv.remove('--skip-launch')
-        _g_skip_launch = True
-    except ValueError:
-        if 'exc_clear' in dir(sys):
-            sys.exc_clear()
     unittest.main()
