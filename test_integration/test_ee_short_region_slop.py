@@ -42,6 +42,7 @@ import glob
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import pandas
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import geopmpy.io
@@ -113,21 +114,21 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
             # Configure the test application
             app_conf = AppConf()
 
-            # Region hases for scaling_0, scaling_1, ... , scaling_11
+            # Region hashes for scaling_0, scaling_1, ... , scaling_11
             scaling_rid = [0x8a244fc3, 0xc31832e4, 0x185cb58d, 0x5160c8aa,
                            0xab39cdae, 0xe205b089, 0x394137e0, 0x707d4ac7,
                            0xc81f4b19, 0x8123363e, 0x62184bff, 0x0a1b6737]
-            # Region hases for timed_0, timed_1, ... , timed_11
+            # Region hashes for timed_0, timed_1, ... , timed_11
             timed_rid = [0x2dbeb83f, 0x3e1c2048, 0x0afb88d1, 0x195910a6,
                          0x6334d9e3, 0x70964194, 0x4471e90d, 0x57d3717a,
                          0xb0aa7b87, 0xa308e3f0, 0x0eff69f9, 0xfc94eafa]
             # Configure the agent
             # Query for the min and sticker frequency and run the
-            # energy efficient agent over this range.
+            # frequency map agent over this range.
             freq_min = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
             freq_sticker = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
             agent_conf_fixed_dict = {'FREQ_MIN':freq_min,
-                               'FREQ_MAX':freq_sticker}
+                                     'FREQ_MAX':freq_sticker}
             agent_conf_fixed = geopmpy.io.AgentConf(cls._agent_conf_fixed_path,
                                                     'frequency_map',
                                                     agent_conf_fixed_dict)
@@ -213,7 +214,7 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         min_runtime -= 0.05 * delta_runtime
         max_runtime += 0.05 * delta_runtime
 
-        plt.figure(figsize=(10,10))
+        plt.figure(figsize=(11,11))
         plt.subplot(2, 2, 1)
         plt.title('Scaling region package-energy')
         plot_data(cols, scaling_data_fixed, 'duration', 'package-energy')
@@ -253,9 +254,11 @@ def extract_data(report):
     scaling_data = extract_data_region(report, cols, 'scaling')
     timed_data = extract_data_region(report, cols, 'timed')
     cols.append(('duration', 'sec'))
-    dur = tuple(rt / ct for ct, rt in zip(scaling_data[0], scaling_data[4]))
+    dur = tuple(rt / ct for ct, rt in zip(scaling_data[column_idx(cols, 'count')],
+                                          scaling_data[column_idx(cols, 'runtime')]))
     scaling_data.append(dur)
-    dur = tuple(rt / ct for ct, rt in zip(timed_data[0], timed_data[4]))
+    dur = tuple(rt / ct for ct, rt in zip(timed_data[column_idx(cols, 'count')],
+                                          timed_data[column_idx(cols, 'runtime')]))
     timed_data.append(dur)
     return cols, scaling_data, timed_data
 
