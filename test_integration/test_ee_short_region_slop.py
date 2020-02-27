@@ -90,12 +90,13 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
                          '.' + cls.__name__ + ') ...')
         test_name = 'ee_short_region_slop'
-        cls._report_path = 'test_{}.report'.format(test_name)
-        cls._trace_path = 'test_{}.trace'.format(test_name)
+        cls._report_path_fixed = 'test_{}_fixed.report'.format(test_name)
+        cls._report_path_dynamic = 'test_{}_dynamic.report'.format(test_name)
         cls._image_path = 'test_{}.png'.format(test_name)
         cls._skip_launch = _g_skip_launch
         cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
-        cls._agent_conf_path = 'test_{}-agent-config.json'.format(test_name)
+        cls._agent_conf_fixed_path = 'test_{}_fixed-agent-config.json'.format(test_name)
+        cls._agent_conf_dynamic_path = 'test_{}_dynamic-agent-config.json'.format(test_name)
         # Clear out exception record for python 2 support
         if 'exc_clear' in dir(sys):
             sys.exc_clear()
@@ -106,26 +107,59 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
             time_limit = 6000
             # Configure the test application
             app_conf = AppConf()
+
+            # Region hases for scaling_0, scaling_1, ... , scaling_11
+            scaling_rid = [0x8a244fc3, 0xc31832e4, 0x185cb58d, 0x5160c8aa,
+                           0xab39cdae, 0xe205b089, 0x394137e0, 0x707d4ac7,
+                           0xc81f4b19, 0x8123363e, 0x62184bff, 0x0a1b6737]
+            # Region hases for timed_0, timed_1, ... , timed_11
+            timed_rid = [0x2dbeb83f, 0x3e1c2048, 0x0afb88d1, 0x195910a6,
+                         0x6334d9e3, 0x70964194, 0x4471e90d, 0x57d3717a,
+                         0xb0aa7b87, 0xa308e3f0, 0x0eff69f9, 0xfc94eafa]
             # Configure the agent
             # Query for the min and sticker frequency and run the
             # energy efficient agent over this range.
             freq_min = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
             freq_sticker = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
-            agent_conf_dict = {'FREQ_MIN':freq_min,
+            agent_conf_fixed_dict = {'FREQ_MIN':freq_min,
                                'FREQ_MAX':freq_sticker}
-            agent_conf = geopmpy.io.AgentConf(cls._agent_conf_path,
-                                              'energy_efficient',
-                                              agent_conf_dict)
+            agent_conf_fixed = geopmpy.io.AgentConf(cls._agent_conf_fixed_path,
+                                                    'frequency_map',
+                                                    agent_conf_fixed_dict)
+            agent_conf_dynamic_dict = dict(agent_conf_fixed_dict)
+            policy_idx = 0
+            for rid in scaling_rid:
+                agent_conf_dynamic_dict['HASH_{}'.format(policy_idx)] = rid
+                agent_conf_dynamic_dict['FREQ_{}'.format(policy_idx)] = freq_sticker
+                policy_idx += 1
+            for rid in timed_rid:
+                agent_conf_dynamic_dict['HASH_{}'.format(policy_idx)] = rid
+                agent_conf_dynamic_dict['FREQ_{}'.format(policy_idx)] = freq_min
+                policy_idx += 1
+
+            agent_conf_dynamic = geopmpy.io.AgentConf(cls._agent_conf_dynamic_path,
+                                                      'frequency_map',
+                                                      agent_conf_dynamic_dict)
+
             # Create the test launcher with the above configuration
-            launcher = geopm_test_launcher.TestLauncher(app_conf,
-                                                        agent_conf,
-                                                        cls._report_path,
-                                                        cls._trace_path,
-                                                        time_limit=time_limit)
-            launcher.set_num_node(num_node)
-            launcher.set_num_rank(num_rank)
+            launcher_fixed = geopm_test_launcher.TestLauncher(app_conf,
+                                                              agent_conf_fixed,
+                                                              cls._report_path_fixed,
+                                                              time_limit=time_limit)
+            launcher_fixed.set_num_node(num_node)
+            launcher_fixed.set_num_rank(num_rank)
             # Run the test application
-            launcher.run(test_name)
+            launcher_fixed.run(test_name)
+
+            # Create the test launcher with the above configuration
+            launcher_dynamic = geopm_test_launcher.TestLauncher(app_conf,
+                                                                agent_conf_dynamic,
+                                                                cls._report_path_dynamic,
+                                                                time_limit=time_limit)
+            launcher_dynamic.set_num_node(num_node)
+            launcher_dynamic.set_num_rank(num_rank)
+            # Run the test application
+            launcher_dynamic.run(test_name)
 
     @classmethod
     def tearDownClass(cls):
@@ -138,36 +172,64 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         if (sys.exc_info() == (None, None, None) and not
             cls._keep_files and not
             cls._skip_launch):
-            os.unlink(cls._agent_conf_path)
-            os.unlink(cls._report_path)
+            os.unlink(cls._agent_conf_fixed_path)
+            os.unlink(cls._agent_conf_dynamic_path)
+            os.unlink(cls._report_path_fixed)
+            os.unlink(cls._report_path_dynamic)
             os.unlink(cls._image_path)
-            for tf in glob.glob(cls._trace_path + '.*'):
-                os.unlink(tf)
 
     def test_generate_plot(self):
         """Visualize the data in the report
 
         """
-        report = geopmpy.io.RawReport(self._report_path)
-        cols, scaling_data, timed_data = extract_data(report)
-        ylim = (0.9e9, 2.3e9)
+        report_dynamic = geopmpy.io.RawReport(self._report_path_dynamic)
+        cols, scaling_data_dynamic, timed_data_dynamic = extract_data(report_dynamic)
+
+        report_fixed = geopmpy.io.RawReport(self._report_path_fixed)
+        cols, scaling_data_fixed, timed_data_fixed = extract_data(report_fixed)
+
+        all_energy = list(scaling_data_fixed[column_idx(cols, 'package-energy')])
+        all_energy.extend(scaling_data_dynamic[column_idx(cols, 'package-energy')])
+        all_energy.extend(timed_data_fixed[column_idx(cols, 'package-energy')])
+        all_energy.extend(timed_data_dynamic[column_idx(cols, 'package-energy')])
+        min_energy = min(all_energy)
+        max_energy = max(all_energy)
+
+        all_runtime = list(scaling_data_fixed[column_idx(cols, 'runtime')])
+        all_runtime.extend(scaling_data_dynamic[column_idx(cols, 'runtime')])
+        all_runtime.extend(timed_data_fixed[column_idx(cols, 'runtime')])
+        all_runtime.extend(timed_data_dynamic[column_idx(cols, 'runtime')])
+        min_runtime = min(all_runtime)
+        max_runtime = max(all_runtime)
+
         plt.figure(figsize=(10,10))
         plt.subplot(2, 2, 1)
-        plt.title('Scaling region achieved frequency')
-        plot_data(cols, scaling_data, 'duration', 'frequency')
-        plt.ylim(*ylim)
+        plt.title('Scaling region package-energy')
+        plot_data(cols, scaling_data_fixed, 'duration', 'package-energy')
+        plot_data(cols, scaling_data_dynamic, 'duration', 'package-energy')
+        plt.ylim(min_energy, max_energy)
+        plt.legend(('fixed', 'dynamic'))
+
         plt.subplot(2, 2, 2)
-        plt.title('Scaling region learned frequency')
-        plot_data(cols, scaling_data, 'duration', 'requested-online-frequency')
-        plt.ylim(*ylim)
+        plt.title('Timed region package-energy')
+        plot_data(cols, timed_data_fixed, 'duration', 'package-energy')
+        plot_data(cols, timed_data_dynamic, 'duration', 'package-energy')
+        plt.ylim(min_energy, max_energy)
+        plt.legend(('fixed', 'dynamic'))
+
         plt.subplot(2, 2, 3)
-        plt.title('Timed region achieved frequency')
-        plot_data(cols, timed_data, 'duration', 'frequency')
-        plt.ylim(*ylim)
+        plt.title('Scaling region runtime')
+        plot_data(cols, scaling_data_fixed, 'duration', 'runtime')
+        plot_data(cols, scaling_data_dynamic, 'duration', 'runtime')
+        plt.ylim(min_runtime, max_runtime)
+        plt.legend(('fixed', 'dynamic'))
+
         plt.subplot(2, 2, 4)
-        plt.title('Timed region learned frequency')
-        plot_data(cols, timed_data, 'duration', 'requested-online-frequency')
-        plt.ylim(*ylim)
+        plt.title('Timed region runtime')
+        plot_data(cols, timed_data_fixed, 'duration', 'runtime')
+        plot_data(cols, timed_data_dynamic, 'duration', 'runtime')
+        plt.ylim(min_runtime, max_runtime)
+        plt.legend(('fixed', 'dynamic'))
         plt.savefig(self._image_path)
 
 def extract_data(report):
@@ -177,8 +239,8 @@ def extract_data(report):
             ('power', 'watts'),
             ('runtime', 'sec'),
             ('frequency', 'Hz')]
-    scaling_data = extract_region_data(report, cols, 'scaling')
-    timed_data = extract_region_data(report, cols, 'timed')
+    scaling_data = extract_data_region(report, cols, 'scaling')
+    timed_data = extract_data_region(report, cols, 'timed')
     cols.append(('duration', 'sec'))
     dur = tuple(rt / ct for ct, rt in zip(scaling_data[0], scaling_data[4]))
     scaling_data.append(dur)
@@ -186,14 +248,25 @@ def extract_data(report):
     timed_data.append(dur)
     return cols, scaling_data, timed_data
 
-def plot_data(cols, data, xaxis, yaxis):
-    xaxis_idx = zip(*cols)[0].index(xaxis)
-    yaxis_idx = zip(*cols)[0].index(yaxis)
-    plt.semilogx(data[xaxis_idx], data[yaxis_idx], 'x')
-    plt.xlabel('{} ({})'.format(xaxis, zip(*cols)[1][xaxis_idx]))
-    plt.ylabel('{} ({})'.format(yaxis, zip(*cols)[1][yaxis_idx]))
+def column_idx(cols, name):
+    return zip(*cols)[0].index(name)
 
-def extract_region_data(report, cols, key):
+def plot_data(cols, data, xaxis, yaxis):
+    xaxis_idx = column_idx(cols, xaxis)
+    yaxis_idx = column_idx(cols, yaxis)
+    plt.semilogx(data[xaxis_idx], data[yaxis_idx], 'x')
+    units = cols[xaxis_idx][1]
+    if units:
+        plt.xlabel('{} ({})'.format(xaxis, units))
+    else:
+        plt.xlabel(xaxis)
+    units = cols[yaxis_idx][1]
+    if units:
+        plt.ylabel('{} ({})'.format(yaxis, units))
+    else:
+        plt.ylabel(yaxis)
+
+def extract_data_region(report, cols, key):
     host = report.host_names()[0]
     region_names = report.region_names(host)
     regions = [report.raw_region(host, rn)
