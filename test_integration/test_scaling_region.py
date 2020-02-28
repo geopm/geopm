@@ -46,6 +46,7 @@ import glob
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from test_integration import geopm_context
 import geopmpy.io
+import geopmpy.error
 from test_integration import geopm_test_launcher
 from test_integration import util
 
@@ -100,8 +101,7 @@ class TestIntegrationScalingRegion(unittest.TestCase):
                             0xf3aa44cb, 0xba9639ec, 0x61d2be85, 0x28eec3a2,
                             0xd2b7c6a6, 0x9b8bbb81, 0x40cf3ce8, 0x09f341cf,
                             0xb1914011, 0xf8ad3d36, 0x07949283]
-        if 'exc_clear' in dir(sys):
-            sys.exc_clear()
+        geopmpy.error.exc_clear()
         if not cls._skip_launch:
             num_node = 1
             num_rank = 1
