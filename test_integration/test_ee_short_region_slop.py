@@ -33,6 +33,14 @@
 
 """EE_SHORT_REGION_SLOP
 
+Integration test that executes a scaling region and a timed scaling
+region back to back in a loop.  This pattern of execution is repeated
+with a variety of region durations.  The goal of the test is to find
+the shortest region for which the frequency map agent can successfully
+change the frequency down for the timed region to save energy while
+not impacting the performance of the scaling region which is targeted
+for a high frequency.
+
 """
 
 import sys
