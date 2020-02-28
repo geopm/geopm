@@ -45,6 +45,7 @@ import matplotlib.pyplot as plt
 import pandas
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from test_integration import geopm_context
 import geopmpy.io
 import geopmpy.error
 
@@ -53,7 +54,6 @@ try:
     sys.argv.remove('--skip-launch')
     _g_skip_launch = True
 except ValueError:
-    from test_integration import geopm_context
     from test_integration import geopm_test_launcher
     from test_integration import util
     geopmpy.error.exc_clear()
