@@ -108,9 +108,10 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         cls._report_path_dynamic = 'test_{}_dynamic.report'.format(test_name)
         cls._image_path = 'test_{}.png'.format(test_name)
         cls._skip_launch = _g_skip_launch
-        cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
+        cls._keep_files = cls._skip_launch or os.getenv('GEOPM_KEEP_FILES') is not None
         cls._agent_conf_fixed_path = 'test_{}_fixed-agent-config.json'.format(test_name)
         cls._agent_conf_dynamic_path = 'test_{}_dynamic-agent-config.json'.format(test_name)
+        cls._num_trial = 40
         # Clear out exception record for python 2 support
         geopmpy.error.exc_clear()
         if not cls._skip_launch:
@@ -154,25 +155,29 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
                                                       'frequency_map',
                                                       agent_conf_dynamic_dict)
 
-            # Create the test launcher with the above configuration
-            launcher_fixed = geopm_test_launcher.TestLauncher(app_conf,
-                                                              agent_conf_fixed,
-                                                              cls._report_path_fixed,
-                                                              time_limit=time_limit)
-            launcher_fixed.set_num_node(num_node)
-            launcher_fixed.set_num_rank(num_rank)
-            # Run the test application
-            launcher_fixed.run(test_name)
+            for trial_idx in range(cls._num_trial):
+                sys.stdout.write('\nTrial {} / {}\n'.format(trial_idx, cls._num_trial))
+                path = '{}.{}'.format(cls._report_path_fixed, trial_idx)
+                # Create the test launcher with the above configuration
+                launcher_fixed = geopm_test_launcher.TestLauncher(app_conf,
+                                                                  agent_conf_fixed,
+                                                                  path,
+                                                                  time_limit=time_limit)
+                launcher_fixed.set_num_node(num_node)
+                launcher_fixed.set_num_rank(num_rank)
+                # Run the test application
+                launcher_fixed.run('{}-fixed'.format(test_name))
+                path = '{}.{}'.format(cls._report_path_dynamic, trial_idx)
+                # Create the test launcher with the above configuration
+                launcher_dynamic = geopm_test_launcher.TestLauncher(app_conf,
+                                                                    agent_conf_dynamic,
+                                                                    path,
+                                                                    time_limit=time_limit)
+                launcher_dynamic.set_num_node(num_node)
+                launcher_dynamic.set_num_rank(num_rank)
+                # Run the test application
+                launcher_dynamic.run('{}-dynamic'.format(test_name))
 
-            # Create the test launcher with the above configuration
-            launcher_dynamic = geopm_test_launcher.TestLauncher(app_conf,
-                                                                agent_conf_dynamic,
-                                                                cls._report_path_dynamic,
-                                                                time_limit=time_limit)
-            launcher_dynamic.set_num_node(num_node)
-            launcher_dynamic.set_num_rank(num_rank)
-            # Run the test application
-            launcher_dynamic.run(test_name)
 
     @classmethod
     def tearDownClass(cls):
@@ -187,122 +192,135 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
             cls._skip_launch):
             os.unlink(cls._agent_conf_fixed_path)
             os.unlink(cls._agent_conf_dynamic_path)
-            os.unlink(cls._report_path_fixed)
-            os.unlink(cls._report_path_dynamic)
+            for trial_idx in range(cls._num_trial):
+                rf = '{}.{}'.format(cls._report_path_fixed, trial_idx)
+                os.unlink(rf)
+                rf = '{}.{}'.format(cls._report_path_dynamic, trial_idx)
+                os.unlink(rf)
             os.unlink(cls._image_path)
+
 
     def test_generate_plot(self):
         """Visualize the data in the report
 
         """
-        report_dynamic = geopmpy.io.RawReport(self._report_path_dynamic)
-        cols, scaling_data_dynamic, timed_data_dynamic = extract_data(report_dynamic)
+        data = pandas.DataFrame()
+        for trial_idx in range(self._num_trial):
+            try:
+                report_path = '{}.{}'.format(self._report_path_fixed, trial_idx)
+                report_fixed = geopmpy.io.RawReport(report_path)
+                report_path = '{}.{}'.format(self._report_path_dynamic, trial_idx)
+                report_dynamic = geopmpy.io.RawReport(report_path)
+                data = data.append(extract_data(report_fixed, trial_idx))
+                data = data.append(extract_data(report_dynamic, trial_idx))
+            except:
+                if trial_idx == 0:
+                    raise RuntimeError('Error: No reports found')
+                sys.stderr.write('Warning: only {} out of {} report files have been loaded.\n'.format(trial_idx, self._num_trial))
+                break
 
-        report_fixed = geopmpy.io.RawReport(self._report_path_fixed)
-        cols, scaling_data_fixed, timed_data_fixed = extract_data(report_fixed)
-
-        all_energy = list(scaling_data_fixed[column_idx(cols, 'package-energy')])
-        all_energy.extend(scaling_data_dynamic[column_idx(cols, 'package-energy')])
-        all_energy.extend(timed_data_fixed[column_idx(cols, 'package-energy')])
-        all_energy.extend(timed_data_dynamic[column_idx(cols, 'package-energy')])
-        min_energy = min(all_energy)
-        max_energy = max(all_energy)
-        delta_energy = max_energy - min_energy
-        min_energy -= 0.05 * delta_energy
-        max_energy += 0.05 * delta_energy
-
-        all_runtime = list(scaling_data_fixed[column_idx(cols, 'runtime')])
-        all_runtime.extend(scaling_data_dynamic[column_idx(cols, 'runtime')])
-        all_runtime.extend(timed_data_fixed[column_idx(cols, 'runtime')])
-        all_runtime.extend(timed_data_dynamic[column_idx(cols, 'runtime')])
-        min_runtime = min(all_runtime)
-        max_runtime = max(all_runtime)
+        yaxis_top = 'package-energy (joules)'
+        miny = data[yaxis_top].min()
+        maxy = data[yaxis_top].max()
+        deltay = maxy - miny
+        miny -= 0.1 * deltay
+        miny += 0.1 * deltay
+        min_runtime = data['runtime (sec)'].min()
+        max_runtime = data['runtime (sec)'].max()
         delta_runtime = max_runtime - min_runtime
         min_runtime -= 0.05 * delta_runtime
         max_runtime += 0.05 * delta_runtime
 
+        # Set index for data selection
+        data = data.set_index(['profile-name', 'region-name', 'count'])
         plt.figure(figsize=(11,11))
-        plt.subplot(2, 2, 1)
-        plt.title('Scaling region package-energy')
-        plot_data(cols, scaling_data_fixed, 'duration', 'package-energy')
-        plot_data(cols, scaling_data_dynamic, 'duration', 'package-energy')
-        plt.ylim(min_energy, max_energy)
-        plt.legend(('fixed', 'dynamic'))
 
-        plt.subplot(2, 2, 2)
-        plt.title('Timed region package-energy')
-        plot_data(cols, timed_data_fixed, 'duration', 'package-energy')
-        plot_data(cols, timed_data_dynamic, 'duration', 'package-energy')
-        plt.ylim(min_energy, max_energy)
-        plt.legend(('fixed', 'dynamic'))
+        # First subplot
+        ax = plt.subplot(2, 2, 1)
+        ax.set_xscale("log")
+        plot_data(data, 'scaling', 'duration (sec)', yaxis_top)
+        plt.ylim(miny, maxy)
 
-        plt.subplot(2, 2, 3)
-        plt.title('Scaling region runtime')
-        plot_data(cols, scaling_data_fixed, 'duration', 'runtime')
-        plot_data(cols, scaling_data_dynamic, 'duration', 'runtime')
+        ax = plt.subplot(2, 2, 2)
+        ax.set_xscale("log")
+        plot_data(data, 'timed', 'duration (sec)', yaxis_top)
+        plt.ylim(miny, maxy)
+
+        ax = plt.subplot(2, 2, 3)
+        ax.set_xscale("log")
+        plot_data(data, 'scaling', 'duration (sec)', 'runtime (sec)')
         plt.ylim(min_runtime, max_runtime)
-        plt.legend(('fixed', 'dynamic'))
 
-        plt.subplot(2, 2, 4)
-        plt.title('Timed region runtime')
-        plot_data(cols, timed_data_fixed, 'duration', 'runtime')
-        plot_data(cols, timed_data_dynamic, 'duration', 'runtime')
+        ax = plt.subplot(2, 2, 4)
+        ax.set_xscale("log")
+        plot_data(data, 'timed', 'duration (sec)', 'runtime (sec)')
         plt.ylim(min_runtime, max_runtime)
-        plt.legend(('fixed', 'dynamic'))
+
         plt.savefig(self._image_path)
 
-def extract_data(report):
-    cols = [('count', ''),
-            ('package-energy', 'joules'),
-            ('requested-online-frequency', ''),
-            ('power', 'watts'),
-            ('runtime', 'sec'),
-            ('frequency', 'Hz')]
+
+def extract_data(report, trial_idx):
+    cols = ['count',
+            'package-energy (joules)',
+            'requested-online-frequency',
+            'power (watts)',
+            'runtime (sec)',
+            'frequency (Hz)']
+
+    # Extract data frame for regions
     scaling_data = extract_data_region(report, cols, 'scaling')
     timed_data = extract_data_region(report, cols, 'timed')
-    cols.append(('duration', 'sec'))
-    dur = tuple(rt / ct for ct, rt in zip(scaling_data[column_idx(cols, 'count')],
-                                          scaling_data[column_idx(cols, 'runtime')]))
-    scaling_data.append(dur)
-    dur = tuple(rt / ct for ct, rt in zip(timed_data[column_idx(cols, 'count')],
-                                          timed_data[column_idx(cols, 'runtime')]))
-    timed_data.append(dur)
-    return cols, scaling_data, timed_data
+    dur = scaling_data['runtime (sec)'] / scaling_data['count']
+    scaling_data['duration (sec)'] = dur
 
-def column_idx(cols, name):
-    return zip(*cols)[0].index(name)
+    dur = timed_data['runtime (sec)'] / timed_data['count']
+    timed_data['duration (sec)'] = dur
+    prof_name = report.meta_data()['Profile']
+    scaling_data['profile-name'] = prof_name
+    timed_data['profile-name'] = prof_name
+    scaling_data['trial-idx'] = trial_idx
+    timed_data['trial-idx'] = trial_idx
+    return scaling_data.append(timed_data)
 
-def plot_data(cols, data, xaxis, yaxis):
-    xaxis_idx = column_idx(cols, xaxis)
-    yaxis_idx = column_idx(cols, yaxis)
-    plt.semilogx(data[xaxis_idx], data[yaxis_idx], 'x')
-    units = cols[xaxis_idx][1]
-    if units:
-        plt.xlabel('{} ({})'.format(xaxis, units))
-    else:
-        plt.xlabel(xaxis)
-    units = cols[yaxis_idx][1]
-    if units:
-        plt.ylabel('{} ({})'.format(yaxis, units))
-    else:
-        plt.ylabel(yaxis)
+
+def plot_data(data, region_type, xaxis, yaxis):
+    for policy_type in ('fixed', 'dynamic'):
+        prof_name = 'ee_short_region_slop-{}'.format(policy_type)
+        key = (prof_name, region_type)
+        level = ('profile-name', 'region-name')
+        selected_data = data.xs(key=key, level=level).groupby('count')
+        xdata = selected_data.mean()[xaxis]
+        ydata = selected_data.mean()[yaxis]
+        ydata_std = selected_data.std()[yaxis]
+        plt.errorbar(xdata, ydata, ydata_std, fmt='.')
+    plt.title('{} region {}'.format(region_type, yaxis))
+    plt.xlabel(xaxis)
+    plt.ylabel(yaxis)
+    plt.legend(('fixed', 'dynamic'))
+
 
 def extract_data_region(report, cols, key):
     host = report.host_names()[0]
     region_names = report.region_names(host)
-    regions = [report.raw_region(host, rn)
+    regions = [(rn, report.raw_region(host, rn))
                for rn in region_names
                if rn.startswith(key)]
-    result = []
-    for rr in regions:
-         sample = []
-         for cc in cols:
+    result = {}
+    sample = []
+    for (rn, rr) in regions:
+        # Split off the prefix from the region name, leaving just
+        # scaling or timed.
+        sample.append(rn.split('_')[0])
+    result['region-name'] = sample
+    for cc in cols:
+        sample = []
+        for (rn, rr) in regions:
              try:
-                 sample.append(report.get_field(rr, cc[0], cc[1]))
+                 sample.append(report.get_field(rr, cc))
              except KeyError:
                  sample.append(None)
-         result.append(sample)
-    return zip(*result)
+        result[cc] = sample
+    return pandas.DataFrame(result)
 
 if __name__ == '__main__':
     unittest.main()
