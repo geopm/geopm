@@ -43,10 +43,16 @@ import glob
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from test_integration import geopm_context
 import geopmpy.io
-from test_integration import geopm_test_launcher
-from test_integration import util
+import geopmpy.error
 
 _g_skip_launch = False
+try:
+    sys.argv.remove('--skip-launch')
+    _g_skip_launch = True
+except ValueError:
+    from test_integration import geopm_test_launcher
+    from test_integration import util
+    geopmpy.error.exc_clear()
 
 class AppConf(object):
     """Class that is used by the test launcher in place of a
@@ -92,8 +98,7 @@ class TestIntegration_@test_name@(unittest.TestCase):
         cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
         cls._agent_conf_path = test_name + '-agent-config.json'
         # Clear out exception record for python 2 support
-        if 'exc_clear' in dir(sys):
-            sys.exc_clear()
+        geopmpy.error.exc_clear()
         if not cls._skip_launch:
             # Set the job size parameters
             num_node = 1
@@ -149,6 +154,5 @@ if __name__ == '__main__':
         sys.argv.remove('--skip-launch')
         _g_skip_launch = True
     except ValueError:
-        if 'exc_clear' in dir(sys):
-            sys.exc_clear()
+        geopmpy.error.exc_clear()
     unittest.main()
