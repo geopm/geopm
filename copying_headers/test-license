@@ -198,21 +198,21 @@ class Repo(object):
     def __init__(self, repo_dir):
         self.repo_dir = repo_dir
         self.copying = os.path.join(repo_dir, 'copying_headers')
+        self.default_manifest = 'MANIFEST.BSD3-intel'
         try:
             listing = os.listdir(self.copying)
         except OSError:
             raise BadRepoError('{0}/*'.format(self.copying))
 
-        # Derive list of tags from copying_headers/MANIFEST.* file extensions
-        self.tag_list = [path.replace('MANIFEST.','')
-                         for path in listing if path.startswith('MANIFEST.') and
-                                                path != 'MANIFEST.EXEMPT']
+        # Derive list of tags from copying_headers/header.* file extensions
+        self.tag_list = [path.replace('header.','')
+                         for path in listing if path.startswith('header.')]
 
-        # Create a list of paths to partial manifest files
+        # Create a list of paths to partial manifest files that are not the default
         self.manifest_list = [os.path.join(self.copying, path)
                               for path in listing
                               if path.startswith('MANIFEST.') and
-                              path != 'MANIFEST.BSD-intel']
+                              path != self.default_manifest]
 
     def check(self):
         self.check_manifest()
@@ -249,7 +249,9 @@ class Repo(object):
         if not full.issubset(part):
             missing_files = list(full.difference(part))
             missing_files.sort()
-            default_manifest = os.path.join(self.repo_dir, 'copying_headers', 'MANIFEST.BSD3-intel')
+            default_manifest = os.path.join(self.repo_dir,
+                                            'copying_headers',
+                                            self.default_manifest)
             with open(default_manifest, 'w') as fid:
                 for ff in missing_files:
                     fid.write('{}\n'.format(ff))
