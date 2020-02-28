@@ -46,6 +46,7 @@ import pandas
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import geopmpy.io
+import geopmpy.error
 
 _g_skip_launch = False
 try:
@@ -55,8 +56,7 @@ except ValueError:
     from test_integration import geopm_context
     from test_integration import geopm_test_launcher
     from test_integration import util
-    if 'exc_clear' in dir(sys):
-        sys.exc_clear()
+    geopmpy.error.exc_clear()
 
 class AppConf(object):
     """Class that is used by the test launcher in place of a
@@ -104,8 +104,7 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         cls._agent_conf_fixed_path = 'test_{}_fixed-agent-config.json'.format(test_name)
         cls._agent_conf_dynamic_path = 'test_{}_dynamic-agent-config.json'.format(test_name)
         # Clear out exception record for python 2 support
-        if 'exc_clear' in dir(sys):
-            sys.exc_clear()
+        geopmpy.error.exc_clear()
         if not cls._skip_launch:
             # Set the job size parameters
             num_node = 1
