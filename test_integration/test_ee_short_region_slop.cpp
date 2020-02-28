@@ -46,24 +46,13 @@
 int main(int argc, char **argv)
 {
     // Start MPI
-    int comm_rank;
     MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank);
-    // Parse command line option for verbosity
     bool is_verbose = false;
-    if (comm_rank == 0) {
-        for (int arg_idx = 1; arg_idx < argc; ++arg_idx) {
-            std::string arg(argv[arg_idx]);
-            if (arg == "--verbose" || arg == "-v") {
-                is_verbose = true;
-            }
-        }
-    }
     geopm::Profile &prof = geopm::Profile::default_profile();
     // Run twelve trials with region duration ranging from 100 us - 400 ms
     size_t num_duration = 12;
-    double duration = 1e-4;
-    double repeat = 409600; // Each trial takes 41 seconds and the
+    double duration = 0.2048;
+    double repeat = 200; // Each trial takes 41 seconds and the
                             // whole execution takes 16 minutes at
                             // sticker frequency.
     for (size_t duration_idx = 0; duration_idx != num_duration; ++duration_idx) {
@@ -87,8 +76,8 @@ int main(int argc, char **argv)
             model_timed->run();
             prof.exit(timed_rid);
         }
-        repeat /= 2;
-        duration *= 2.0;
+        repeat *= 2;
+        duration /= 2.0;
     }
 
     // Shutdown MPI
