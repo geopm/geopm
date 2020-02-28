@@ -46,6 +46,7 @@ import glob
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from test_integration import geopm_context
 import geopmpy.io
+import geopmpy.error
 from test_integration import geopm_test_launcher
 from test_integration import util
 
@@ -91,8 +92,7 @@ class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
         cls._skip_launch = _g_skip_launch
         cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
         cls._agent_conf_path = test_name + '-agent-config.json'
-        if 'exc_clear' in dir(sys):
-            sys.exc_clear()
+        geopmpy.error.exc_clear()
         if  not cls._skip_launch:
             num_node = 2
             num_rank = 2

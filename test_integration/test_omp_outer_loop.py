@@ -47,6 +47,7 @@ import glob
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from test_integration import geopm_context
 import geopmpy.io
+import geopmpy.error
 from test_integration import geopm_test_launcher
 from test_integration import util
 
@@ -91,8 +92,7 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
         cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
         num_node = 1
         num_rank = 4
-        if 'exc_clear' in dir(sys):
-            sys.exc_clear()
+        geopmpy.error.exc_clear()
         for config in test_config:
             curr_run = test_name + config
             report_path = curr_run + '.report'

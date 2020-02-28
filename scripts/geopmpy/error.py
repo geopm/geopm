@@ -34,6 +34,7 @@
 from __future__ import absolute_import
 
 import cffi
+import sys
 
 _ffi = cffi.FFI()
 _ffi.cdef("""
@@ -91,3 +92,11 @@ def message(err_number):
     result_cstr = _ffi.new("char[]", name_max)
     _dl.geopm_error_message(err_number, result_cstr, name_max)
     return _ffi.string(result_cstr).decode()
+
+def exc_clear():
+    """Clear out exception record when run with python2, in python3 this
+    is cleared automatically when you leave the except clause.
+
+    """
+    if 'exc_clear' in dir(sys):
+        sys.exc_clear()
