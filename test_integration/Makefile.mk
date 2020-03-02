@@ -37,6 +37,7 @@ EXTRA_DIST += test_integration/configure_test_template.sh \
               test_integration/__init__.py \
               test_integration/__main__.py \
               test_integration/README.md \
+              test_integration/short_region/plot_margin_sweep.py \
               test_integration/test_profile_policy.py \
               test_integration/test_static_policy.py \
               test_integration/test_plugin_static_policy.py \
