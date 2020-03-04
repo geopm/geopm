@@ -52,11 +52,11 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas
 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 try:
     import geopmpy.io
     import geopmpy.error
 except ImportError:
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     from test_integration import geopm_context
     import geopmpy.io
     import geopmpy.error
