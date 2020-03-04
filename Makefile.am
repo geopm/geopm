@@ -243,7 +243,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              configure.ac \
              contrib/json11/LICENSE.txt \
              contrib/json11/README.md \
-             copying_headers/MANIFEST.BSD3-intel \
              copying_headers/MANIFEST.BSD3-llnl \
              copying_headers/MANIFEST.EXEMPT \
              copying_headers/MANIFEST.MIT-dropbox \
