@@ -52,10 +52,14 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from test_integration import geopm_context
-import geopmpy.io
-import geopmpy.error
+try:
+    import geopmpy.io
+    import geopmpy.error
+except ImportError:
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from test_integration import geopm_context
+    import geopmpy.io
+    import geopmpy.error
 
 _g_skip_launch = False
 try:
@@ -220,16 +224,9 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
                 break
 
         yaxis_top = 'package-energy (joules)'
-        miny = data[yaxis_top].min()
-        maxy = data[yaxis_top].max()
-        deltay = maxy - miny
-        miny -= 0.1 * deltay
-        miny += 0.1 * deltay
-        min_runtime = data['runtime (sec)'].min()
-        max_runtime = data['runtime (sec)'].max()
-        delta_runtime = max_runtime - min_runtime
-        min_runtime -= 0.05 * delta_runtime
-        max_runtime += 0.05 * delta_runtime
+
+        # Uncomment to make frequency plot
+        # yaxis_top = 'frequency (Hz)'
 
         # Set index for data selection
         data = data.set_index(['profile-name', 'region-name', 'count'])
@@ -239,22 +236,34 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         ax = plt.subplot(2, 2, 1)
         ax.set_xscale("log")
         plot_data(data, 'scaling', 'duration (sec)', yaxis_top)
-        plt.ylim(miny, maxy)
+        ylim = list(plt.ylim())
 
         ax = plt.subplot(2, 2, 2)
         ax.set_xscale("log")
         plot_data(data, 'timed', 'duration (sec)', yaxis_top)
-        plt.ylim(miny, maxy)
+        # Align y axis limits for top plots
+        yl = plt.ylim()
+        ylim[0] = min(yl[0], ylim[0])
+        ylim[1] = max(yl[1], ylim[1])
+        plt.ylim(ylim)
+        plt.subplot(2, 2, 1)
+        plt.ylim(ylim)
 
         ax = plt.subplot(2, 2, 3)
         ax.set_xscale("log")
         plot_data(data, 'scaling', 'duration (sec)', 'runtime (sec)')
-        plt.ylim(min_runtime, max_runtime)
+        ylim = list(plt.ylim())
 
         ax = plt.subplot(2, 2, 4)
         ax.set_xscale("log")
         plot_data(data, 'timed', 'duration (sec)', 'runtime (sec)')
-        plt.ylim(min_runtime, max_runtime)
+        # Align y axis limits for bottom plots
+        yl = plt.ylim()
+        ylim[0] = min(yl[0], ylim[0])
+        ylim[1] = max(yl[1], ylim[1])
+        plt.ylim(ylim)
+        plt.subplot(2, 2, 3)
+        plt.ylim(ylim)
 
         plt.savefig(self._image_path)
 
