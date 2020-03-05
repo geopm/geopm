@@ -55,9 +55,6 @@ import geopmpy.analysis
 
 NAN=float("nan")
 
-# TODO put in a warning if this is going to delete those
-# expensive traces
-
 _g_skip_launch = False
 try:
     sys.argv.remove('--skip-launch')
@@ -67,35 +64,6 @@ except ValueError:
     from test_integration import util
     geopmpy.error.exc_clear()
 
-class AppConf(object):
-    """Class that is used by the test launcher in place of a
-    geopmpy.io.BenchConf when running the outlier_detection benchmark.
-
-    """
-    def write(self):
-        """Called by the test launcher prior to executing the test application
-        to write any files required by the application.
-
-        """
-        pass
-
-    def get_exec_path(self):
-        """Path to benchmark filled in by template automatically.
-
-        """
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        return os.path.join(script_dir, '.libs', 'test_outlier_detection')
-
-    def get_exec_args(self):
-        """Returns a list of strings representing the command line arguments
-        to pass to the test-application for the next run.  This is
-        especially useful for tests that execute the test-application
-        multiple times.
-
-        """
-        return []
-
-@skip_unless_run_long_tests
 class TestIntegration_outlier_detection(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -112,11 +80,6 @@ class TestIntegration_outlier_detection(unittest.TestCase):
         # Clear out exception record for python 2 support
         geopmpy.error.exc_clear()
 
-        # TODO explicitly test for the existence of the output directory
-        # create it if it doesn't exist
-        # if it exists and there are traces and reports inside
-        # then DO NOT RERUN
-
         if os.path.isdir(cls._output_dir):
             cls._skip_launch = True
             cls._keep_files = True
@@ -124,6 +87,7 @@ class TestIntegration_outlier_detection(unittest.TestCase):
         cls.region_of_interest = "dgemm"
         cls.output_prefix = test_name
 
+        # TODO use the second arg of getenv to provide the default
         if os.getenv('GEOPM_REGION_OF_INTEREST'):
             cls.region_of_interest = os.getenv('GEOPM_REGION_OF_INTEREST')
         if os.getenv('GEOPM_OUTPUT_PREFIX'):
@@ -136,9 +100,9 @@ class TestIntegration_outlier_detection(unittest.TestCase):
             cls.P1 = float(os.getenv('GEOPM_P1'))
 
         if not cls._skip_launch:
-            # TODO horrifying
-            # workaround since sys_power_avail doesn't seem to work
-            geopmpy.analysis.PowerSweepAnalysis.sys_power_avail = staticmethod(lambda self = None: (125, 280, 560))
+            # TODO(alawibaba)
+            # horrifying workaround since sys_power_avail doesn't seem to work
+            geopmpy.analysis.PowerSweepAnalysis.sys_power_avail = staticmethod(lambda self = None: (0, 1e3, 1e3))
 
             # Default values:
             # default power sweep is to go from min power to tdp in 10W increments
@@ -174,7 +138,10 @@ class TestIntegration_outlier_detection(unittest.TestCase):
             if os.getenv('GEOPM_OUTLIER_BENCH_CONFIG'):
                 bench_config_json = os.getenv('GEOPM_OUTLIER_BENCH_CONFIG')
             else:
-                json.dump({"loop-count": 1, "region": ["dgemm"], "big-o": [30.0]}, open(bench_config_json, "w"))
+                benchconf = geopmpy.io.BenchConf(bench_config_json)
+                benchconf.set_loop_count(10)
+                benchconf.append_region('dgemm', 30)
+                benchconf.write()
             cls._analysis_obj.launch(
                     launcher_name = geopm_test_launcher.detect_launcher(),
                     args=['-n', str(num_ranks), '-N', str(num_nodes), 'geopmbench', bench_config_json])
@@ -244,6 +211,47 @@ class TestIntegration_outlier_detection(unittest.TestCase):
         report = geopmpy.io.RawReport(reports[0])
         import code
         code.interact(local=locals())
+
+    def test_stat0(self):
+        stat0_vals = self.stat0()
+        outliers = self.outliers(stat0_vals)
+        for outlier_info in outliers:
+            self.print_outlier_line(outlier_info, "Extreme incremental power at sticker")
+        self.assertEqual(0, len(outliers), "Outlier values of statistic 0 were measured.")
+
+    def test_stat1(self):
+        stat1_vals = self.stat1()
+        outliers = self.outliers(stat1_vals)
+        for outlier_info in outliers:
+            self.print_outlier_line(outlier_info, "Extreme energy consumption at TDP")
+        self.assertEqual(0, len(outliers), "Outlier values of statistic 1 were measured.")
+
+    def test_stat2(self):
+        stat2_vals = self.stat2()
+        outliers = self.outliers(stat2_vals)
+        for outlier_info in outliers:
+            self.print_outlier_line(outlier_info, "Extreme minimum energy consumption")
+        self.assertEqual(0, len(outliers), "Outlier values of statistic 2 were measured.")
+
+    def test_stat3(self):
+        stat3_vals = self.stat3()
+        outliers = self.outliers(stat3_vals)
+        for outlier_info in outliers:
+            self.print_outlier_line(outlier_info, "Extreme power limit at which energy consumption is minimized")
+        self.assertEqual(0, len(outliers), "Outlier values of statistic 3 were measured.")
+
+    def test_stat4(self):
+        stat4_vals = self.stat4()
+        outliers0 = self.outliers(stat4_vals, lambda x: x[0]**-1)
+        outliers1 = self.outliers(stat4_vals, lambda x: x[1]**-1)
+        outliers2 = self.outliers(stat4_vals, lambda x: x[2]**-1)
+        for outlier_info in outliers:
+            self.print_outlier_line(outlier_info, "Extreme thermal coefficient")
+        for outlier_info in outliers:
+            self.print_outlier_line(outlier_info, "Extreme thermal coefficient")
+        for outlier_info in outliers:
+            self.print_outlier_line(outlier_info, "Extreme thermal coefficient")
+        self.assertEqual(0, len(outliers0) + len(outliers1) + len(outliers2), "Outlier values of statistic 4 were measured.")
 
     @classmethod
     def stat0_by_host(cls, host):
@@ -315,7 +323,7 @@ class TestIntegration_outlier_detection(unittest.TestCase):
         return rval
 
     @classmethod
-    def stat5_by_host(cls, host, window=300):
+    def stat4_by_host(cls, host, window=300):
         XTXacc = npml.zeros((3,3))
         XTyacc = npml.zeros((3,1))
         for power in cls.power_range:
@@ -373,11 +381,11 @@ class TestIntegration_outlier_detection(unittest.TestCase):
         return (XTXacc.I * XTyacc).T.tolist()[0]
 
     @classmethod
-    def stat5(cls):
+    def stat4(cls):
         rval = {}
 
         for host in cls.host_range:
-            rval[host] = cls.stat5_by_host(host)
+            rval[host] = cls.stat4_by_host(host)
         return rval
 
     @staticmethod
@@ -414,7 +422,18 @@ class TestIntegration_outlier_detection(unittest.TestCase):
         mean = sum([stat(value) for value in value_dict.values()])/float(len(value_dict))
         stddev = (sum([stat(value)**2 for value in value_dict.values()])/float(len(value_dict)) - mean**2)**0.5
         X = mean + stddev * 2**.5 * erfinv(1-2./len(value_dict))
-        return [key for key in value_dict.keys() if stat(value_dict[key]) > X]
+        return [
+                {
+                    'key': key,
+                    'value': stat(value_dict[key]),
+                    'mean': mean,
+                    'stddev': stddev,
+                    'err': (stat(value_dict[key]) - mean)/stddev # number of sigmas above the mean
+                    } for key in value_dict.keys() if stat(value_dict[key]) > X]
+
+    @staticmethod
+    def print_outlier_line(outlier_info, error, output=sys.stdout):
+        output.write("%s: Host %s reports a value of %.1f (%.1f sigmas above the mean %.1f)\n" % (error, outlier_info['key'], outlier_info['value'], outlier_info['err'], outlier_info['mean']))
 
 
 if __name__ == '__main__':
