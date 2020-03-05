@@ -500,10 +500,46 @@ namespace geopm
                     "writeable": false
                 }
             }
+        },
+        "UNCORE_RATIO_LIMIT": {
+            "offset": "0x620",
+            "domain": "package",
+            "fields": {
+                "MIN_RATIO": {
+                    "begin_bit": 8,
+                    "end_bit":   14,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "writeable": true
+                },
+                "MAX_RATIO": {
+                    "begin_bit": 0,
+                    "end_bit":   6,
+                    "function":  "scale",
+                    "units":     "hertz",
+                    "scalar":    1e8,
+                    "writeable": true
+                }
+            }
+        },
+        "UNCORE_PERF_STATUS": {
+            "offset": "0x621",
+            "domain": "package",
+            "fields": {
+                "FREQ" : {
+                    "begin_bit": 0,
+                    "end_bit": 6,
+                    "function": "scale",
+                    "units": "hertz",
+                    "scalar": 1e8,
+                    "writeable": false
+                }
+            }
         }
     }
 }
-        )";
+)";
         return result;
     }
 }
