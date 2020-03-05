@@ -590,6 +590,20 @@ namespace geopm
                     "writeable": true
                 }
             }
+        },
+        "UNCORE_PERF_STATUS": {
+            "offset": "0x621",
+            "domain": "package",
+            "fields": {
+                "FREQ" : {
+                    "begin_bit": 0,
+                    "end_bit": 6,
+                    "function": "scale",
+                    "units": "hertz",
+                    "scalar": 1e8,
+                    "writeable": false
+                }
+            }
         }
     }
 }
