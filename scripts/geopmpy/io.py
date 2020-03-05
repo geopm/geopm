@@ -1436,3 +1436,5 @@ def RawTraceIterator(file_pointer):
 
         yield(rval)
         last = ll
+
+    fp.close()

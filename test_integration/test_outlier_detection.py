@@ -31,9 +31,105 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-#TODO write some stuff
 """OUTLIER_DETECTION
 
+The outlier detection integration test is intended to identify outlier nodes
+based on time-series statistics gathered from a benchmark run, which it can
+also run if desired. The script's behavior is controlled via environment
+variables.
+
+Variables that are always used:
+    GEOPM_OUTLIER_DIRECTORY - The directory to use for trace and report files
+                              If this directory exists, the benchmark will
+                              not be run. If it does not exist, create it and
+                              run the benchmark, populating it with trace
+                              and report files.
+    GEOPM_REGION_OF_INTEREST - The name of the region to use for the analysis.
+                               "dgemm" by default.
+    GEOPM_OUTPUT_PREFIX - The prefix for report and trace filenames. Report
+                          files follow the pattern
+                          <prefix>_<power limit>_power_governor_<iteration>.report
+                          and trace files follow the pattern
+                          <prefix>_<power limit>_power_governor_<iteration>.trace-<host>
+                          "outlier_detection" by default.
+
+Variables used by the benchmark run:
+    GEOPM_OUTLIER_MIN_POWER, GEOPM_OUTLIER_MAX_POWER, GEOPM_OUTLIER_POWER_STEP:
+                          These variables control the range of power values
+                          that the benchmark is run at. The benchmark run
+                          is run for powers between GEOPM_OUTLIER_MIN_POWER
+                          and GEOPM_OUTLIER_MAX_POWER (inclusive) at steps
+                          GEOPM_OUTLIER_POWER_STEP. The defaults are 0W,
+                          1kW and 10W, respectively. WE HIGHLY RECOMMEND
+                          SETTING MIN AND MAX POWER.
+    GEOPM_OUTLIER_NUM_ITERATIONS: The number of iterations to run at each
+                          power limit. 2 by default.
+    GEOPM_OUTLIER_NUM_NODES: The number of nodes to run the benchmark on.
+                          12 by default.
+    GEOPM_OUTLIER_NUM_RANKS: The number of ranks to run the benchmark on
+                          (across nodes). 300 by default.
+    GEOPM_OUTLIER_BENCH_CONFIG: A geopmbench config file to use for the
+                          benchmark runs. By default, this file is generated
+                          at runtime in the output directory and is called
+                          "short.json". It is configured to run 10 dgemm
+                          loops for 30 seconds apiece.
+
+Variables used by statistic 0 alone:
+    GEOPM_PN - The frequency at which voltage begins scaling with frequency
+               in GHz.  Architecture dependent. (Default 1.05)
+    GEOPM_P1 - Sticker frequency in GHz. Architecture dependent. (Default 1.3)
+
+Since the runs tend to be fairly long, this script will not erase its output.
+
+The command should be executed in an environment that is prepared to execute
+geopm as described in the general README.
+
+If the directory medium14.420 does not exist, the following command-line will
+create it, run the benchmark at power limits from 140W to 280W (inclusive) at
+10W increments on 14 nodes with 420 ranks, then analyze the output using
+statistic 1.
+
+$ GEOPM_OUTLIER_DIRECTORY=medium14.420 GEOPM_OUTLIER_MIN_POWER=140 GEOPM_OULIER_MAX_POWER=280 GEOPM_OUTLIER_NUM_NODES=14 GEOPM_OUTLIER_NUM_RANKS=420 -v TestIntegration_outlier_detection.test_stat1
+
+Later, to analyze the resulting data with statistic 2:
+
+$ GEOPM_OUTLIER_DIRECTORY=medium14.420 -v TestIntegration_outlier_detection.test_stat2
+
+Later, to analyze the resulting data with statistic 0:
+
+$ GEOPM_OUTLIER_DIRECTORY=medium14.420 GEOPM_PN=1.0 GEOPM_P1=2.1 -v TestIntegration_outlier_detection.test_stat0
+
+The test will "pass" if no outliers are found. If outliers are found,
+the corresponding error message will indicate which node has failed,
+the computed value and the deviation from the model. For example:
+
+Test_stat1 (__main__.TestIntegration_outlier_detection) ... (test_outlier_detection.TestIntegration_outlier_detection) ...Extreme energy consumption at TDP: Host mcfly1 reports a value of 12986.7 (2.2 sigmas above the mean 12582.7)
+FAIL
+
+======================================================================
+FAIL: test_stat1 (__main__.TestIntegration_outlier_detection)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "./test_outlier_detection.py", line 227, in test_stat1
+    self.assertEqual(0, len(outliers), "Outlier values of statistic 1 were measured.")
+AssertionError: Outlier values of statistic 1 were measured.
+
+----------------------------------------------------------------------
+Ran 1 test in 5.280s
+
+FAILED (failures=1)
+
+The statistics are defined below:
+
+Statistic 0: slope of power/frequency curve at sticker.
+Statistic 1: Energy consumption at TDP.
+Statistic 2: Minimum energy consumption across power caps.
+Statistic 3: Power cap at which energy consumption is minimized.
+Statistic 4: Temperature related statistics.  Running test_stat4
+             will search for outliers on the basis of:
+             4.0: Inverse Processor-Sensor Heat Capacity
+             4.1: Thermal Conduction to Cooling Fluid (Fan-Driven Air)
+             4.2: Estimated Cooling Fluid Temperature
 """
 
 # Make sure @skip decorator is included here
