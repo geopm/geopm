@@ -142,25 +142,25 @@ import json
 import numpy as np
 import numpy.matlib as npml
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from test_integration import geopm_context
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
+
+import geopm_context
+
 import geopmpy.io
 import geopmpy.error
-
 import geopmpy.analysis
 
 NAN=float("nan")
 
 _g_skip_launch = False
-try:
-    sys.argv.remove('--skip-launch')
-    _g_skip_launch = True
-except ValueError:
-    from test_integration import geopm_test_launcher
-    from test_integration import util
-    geopmpy.error.exc_clear()
 
 class TestIntegration_outlier_detection(unittest.TestCase):
+    avg_package_energy = None
+    power_range = None
+    host_range = None
+    iteration_range = None
+
     @classmethod
     def setUpClass(cls):
         """Create launcher, execute benchmark and set up class variables.
@@ -173,8 +173,6 @@ class TestIntegration_outlier_detection(unittest.TestCase):
         cls._output_dir = os.getenv('GEOPM_OUTLIER_DIRECTORY') or 'outlier_detection_output'
         cls._skip_launch = _g_skip_launch
         cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
-        # Clear out exception record for python 2 support
-        geopmpy.error.exc_clear()
 
         if os.path.isdir(cls._output_dir):
             cls._skip_launch = True
@@ -256,7 +254,12 @@ class TestIntegration_outlier_detection(unittest.TestCase):
         return report_files
 
     @classmethod
-    def calculate_ranges(cls):
+    def calculate_ranges(cls, cache=True):
+        cache_path = os.path.join(cls._output_dir, 'range_cache.json')
+        if cache and os.path.exists(cache_path):
+            with open(cache_path) as cache_file:
+                cls.power_range, cls.host_range, cls.iteration_range = json.load(cache_file)
+            return
         cls.power_range = set()
         cls.iteration_range = set()
         cls.host_range = set()
@@ -277,9 +280,18 @@ class TestIntegration_outlier_detection(unittest.TestCase):
         cls.power_range = sorted(list(cls.power_range))
         cls.host_range = sorted(list(cls.host_range))
         cls.iteration_range = sorted(list(cls.iteration_range))
+        if cache:
+            with open(cache_path, 'w') as cache_file:
+                json.dump((cls.power_range, cls.host_range, cls.iteration_range), cache_file)
 
     @classmethod
-    def compute_package_energy(cls):
+    def compute_package_energy(cls, cache=True):
+        cache_path = os.path.join(cls._output_dir, 'avg_package_energy_cache.json')
+        if cache and os.path.exists(cache_path):
+            with open(cache_path) as cache_file:
+                cls.avg_package_energy = json.load(cache_file)
+            return
+        cls.calculate_ranges()
         avg = lambda LL: sum(LL)/float(len(LL))
 
         package_energy = {host: {power: [] for power in cls.power_range} for host in cls.host_range}
@@ -298,13 +310,12 @@ class TestIntegration_outlier_detection(unittest.TestCase):
             for power in cls.power_range:
                 cls.avg_package_energy[host][power] = avg(package_energy[host][power])
 
+        if cache:
+            with open(cache_path, 'w') as cache_file:
+                json.dump(cls.avg_package_energy, cache_file)
 
-    def test_load_reports(self):
-        """Test that the report can be loaded
-
-        """
-        reports = [os.path.join(self._output_dir, report) for report in self.find_reports()]
-        report = geopmpy.io.RawReport(reports[0])
+    def test_interpreter(self):
+        "Open an interactive session."
         import code
         code.interact(local=locals())
 
@@ -380,15 +391,23 @@ class TestIntegration_outlier_detection(unittest.TestCase):
         else:
             best_fit1 = np.polyfit(x1, y1, deg=1)
         best_fit2 = np.polyfit(x2, y2, deg=3)
-        return best_fit, best_fit1, best_fit2
+        return {'overall': list(best_fit), 'linear': list(best_fit1), 'cubic': list(best_fit2)}
 
     @classmethod
-    def stat0(cls):
+    def stat0(cls, cache=True):
         """Computes power/frequency slope at sticker."""
+        cache_path = os.path.join(cls._output_dir, 'stat0_cache.json')
+        if cache and os.path.exists(cache_path):
+            fits = json.load(open(cache_path))
+        else:
+            fits = {}
+            for host in cls.host_range:
+                fits[host] = cls.stat0_by_host(host)
+            if cache:
+                json.dump(fits, open(cache_path, 'w'))
         slopes = {}
         for host in cls.host_range:
-            best_fit, best_fit1, best_fit2 = cls.stat0_by_host(host)
-            slopes[host] = sum([c*a for c,a in zip([3, 2, 1, 0], best_fit2)])/cls.P1
+            slopes[host] = sum([c*a for c,a in zip([3, 2, 1, 0], fits[host]['cubic'])])/cls.P1
         return slopes
 
     @classmethod
@@ -531,11 +550,67 @@ class TestIntegration_outlier_detection(unittest.TestCase):
     def print_outlier_line(outlier_info, error, output=sys.stdout):
         output.write("%s: Host %s reports a value of %.1f (%.1f sigmas above the mean %.1f)\n" % (error, outlier_info['key'], outlier_info['value'], outlier_info['err'], outlier_info['mean']))
 
+    def test_plot(self, imgcat=True):
+        import math
+        import random
+
+        mu = 60
+        sigma = 4
+        nhorses = 10000
+
+        fig = Figure()
+        FigureCanvas(fig)
+        ax = fig.add_subplot(111)
+        jon = ax.hist([random.gauss(mu, sigma) for _ in range(nhorses)])
+        erfs = [math.erf(x) for x in (jon[1]-mu)/sigma]
+        maxheight = max([b - a for a, b in zip([-1] + erfs, erfs + [1])]) * nhorses / 8**.5
+        heights = np.arange(40, 80, 0.02)
+        ax.plot(heights, maxheight * np.exp(-(heights-mu)**2/(2*sigma**2)))
+        ax.set_title('histogram test (i own %d horses)' % nhorses)
+        ax.set_xlabel('horse height (in)')
+        ax.set_ylabel('count')
+        fig.savefig(os.path.join(self._output_dir, "test.png"))
+        if imgcat:
+            import imgcat
+            sys.stdout.write("\n")
+            with open(os.path.join(self._output_dir, "test.png")) as imgfile:
+                imgcat.imgcat(imgfile)
+
+    def test_plot0(self, imgcat=True):
+        import math
+        import random
+
+        mu = 60
+        sigma = 4
+        nhorses = 10000
+
+        fig = Figure()
+        FigureCanvas(fig)
+        ax = fig.add_subplot(111)
+        jon = ax.hist([random.gauss(mu, sigma) for _ in range(nhorses)])
+        erfs = [math.erf(x) for x in (jon[1]-mu)/sigma]
+        maxheight = max([b - a for a, b in zip([-1] + erfs, erfs + [1])]) * nhorses / 8**.5
+        heights = np.arange(40, 80, 0.02)
+        ax.plot(heights, maxheight * np.exp(-(heights-mu)**2/(2*sigma**2)))
+        ax.set_title('histogram test (i own %d horses)' % nhorses)
+        ax.set_xlabel('horse height (in)')
+        ax.set_ylabel('count')
+        fig.savefig(os.path.join(self._output_dir, "test.png"))
+        if imgcat:
+            import imgcat
+            sys.stdout.write("\n")
+            with open(os.path.join(self._output_dir, "test.png")) as imgfile:
+                imgcat.imgcat(imgfile)
+
+
+
 
 if __name__ == '__main__':
     try:
         sys.argv.remove('--skip-launch')
         _g_skip_launch = True
     except ValueError:
+        from test_integration import geopm_test_launcher
+        from test_integration import util
         geopmpy.error.exc_clear()
     unittest.main()
