@@ -31,13 +31,27 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-"""The geopm python package: launcher, error, io, pio, plotter, policy_store,
-topo, agent, and version.
-
-"""
-
 from __future__ import absolute_import
 
-__all__ = ['analysis', 'agent', 'error', 'io', 'hash', 'launcher', 'pio', 'plotter', 'policy_store', 'topo', 'version']
+import cffi
 
-from geopmpy.version import __version__
+_ffi = cffi.FFI()
+_ffi.cdef("""
+uint64_t geopm_crc32_str(const char *key);
+""")
+_dl = _ffi.dlopen('libgeopmpolicy.so')
+
+def crc32_str(key):
+    """Return the geopm hash of a string
+    Args:
+        key (int): String to hash
+
+    Returns:
+        int: Hash of string
+
+    """
+    global _ffi
+    global _dl
+
+    key_name_cstr = _ffi.new("char[]", key.encode())
+    return _dl.geopm_crc32_str(key_name_cstr)

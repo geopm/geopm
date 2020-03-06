@@ -31,13 +31,19 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-"""The geopm python package: launcher, error, io, pio, plotter, policy_store,
-topo, agent, and version.
-
-"""
-
 from __future__ import absolute_import
 
-__all__ = ['analysis', 'agent', 'error', 'io', 'hash', 'launcher', 'pio', 'plotter', 'policy_store', 'topo', 'version']
 
-from geopmpy.version import __version__
+import unittest
+import geopmpy.hash
+
+
+class TestHash(unittest.TestCase):
+    def test_hash(self):
+        hash = geopmpy.hash.crc32_str('abcdefg')
+        self.assertEqual(0x6da35890, hash)
+        hash = geopmpy.hash.crc32_str('MPI_Bcast')
+        self.assertEqual(0xc5d73e1d, hash)
+
+if __name__ == '__main__':
+    unittest.main()
