@@ -43,10 +43,12 @@ Variables that are always used:
                               If this directory exists, the benchmark will
                               not be run. If it does not exist, create it and
                               run the benchmark, populating it with trace
-                              and report files.
-    GEOPM_REGION_OF_INTEREST - The name of the region to use for the analysis.
-                               "dgemm" by default.
-    GEOPM_OUTPUT_PREFIX - The prefix for report and trace filenames. Report
+                              and report files.  "outlier_detection_output" by
+                              default.
+    GEOPM_OUTLIER_REGION_OF_INTEREST - The name of the region to use for the
+                                       analysis.  "dgemm" by default.
+    GEOPM_OUTLIER_OUTPUT_PREFIX -
+                          The prefix for report and trace filenames. Report
                           files follow the pattern
                           <prefix>_<power limit>_power_governor_<iteration>.report
                           and trace files follow the pattern
@@ -75,11 +77,15 @@ Variables used by the benchmark run:
                           loops for 30 seconds apiece.
 
 Variables used by statistic 0 alone:
-    GEOPM_PN - The frequency at which voltage begins scaling with frequency
-               in GHz.  Architecture dependent. (Default 1.05)
-    GEOPM_P1 - Sticker frequency in GHz. Architecture dependent. (Default 1.3)
+    GEOPM_OUTLIER_PN - The frequency at which voltage begins scaling with
+                       frequency in GHz.  Architecture dependent. (Default 1.05)
+    GEOPM_OUTLIER_P1 - Sticker frequency in GHz. Architecture dependent.
+                       (Default 1.3)
 
 Since the runs tend to be fairly long, this script will not erase its output.
+Also, the script will generate cache files and plots in the output directory
+that are safe to erase. The cache files have the suffix "_cache.json" and
+the plots have the png extension.
 
 The command should be executed in an environment that is prepared to execute
 geopm as described in the general README.
@@ -97,7 +103,7 @@ $ GEOPM_OUTLIER_DIRECTORY=medium14.420 -v TestIntegration_outlier_detection.test
 
 Later, to analyze the resulting data with statistic 0:
 
-$ GEOPM_OUTLIER_DIRECTORY=medium14.420 GEOPM_PN=1.0 GEOPM_P1=2.1 -v TestIntegration_outlier_detection.test_stat0
+$ GEOPM_OUTLIER_DIRECTORY=medium14.420 GEOPM_OUTLIER_PN=1.0 GEOPM_OUTLIER_P1=2.1 -v TestIntegration_outlier_detection.test_stat0
 
 The test will "pass" if no outliers are found. If outliers are found,
 the corresponding error message will indicate which node has failed,
@@ -119,6 +125,12 @@ Ran 1 test in 5.280s
 
 FAILED (failures=1)
 
+Plots can be generated using the test_plot0, test_plot1 and test_plot2
+tests (which will always pass). These output png files to the output
+directory. If the imgcat python module is installed and you are using
+a terminal that supports sixel or base64 embedded images, these plots will
+also be rendered to the terminal.
+
 The statistics are defined below:
 
 Statistic 0: slope of power/frequency curve at sticker.
@@ -139,6 +151,7 @@ import unittest
 import os
 import glob
 import json
+import math
 import numpy as np
 import numpy.matlib as npml
 
@@ -179,13 +192,15 @@ class TestIntegration_outlier_detection(unittest.TestCase):
             cls._keep_files = True
 
         cls.region_of_interest = "dgemm"
+        # TODO it's not great to get the hash from a report
+        cls.region_of_interest_hash = "0x00000000a74bbf35"
         cls.output_prefix = test_name
 
         # TODO use the second arg of getenv to provide the default
-        if os.getenv('GEOPM_REGION_OF_INTEREST'):
-            cls.region_of_interest = os.getenv('GEOPM_REGION_OF_INTEREST')
-        if os.getenv('GEOPM_OUTPUT_PREFIX'):
-            cls.output_prefix = os.getenv('GEOPM_OUTPUT_PREFIX')
+        if os.getenv('GEOPM_OUTLIER_REGION_OF_INTEREST'):
+            cls.region_of_interest = os.getenv('GEOPM_OUTLIER_REGION_OF_INTEREST')
+        if os.getenv('GEOPM_OUTLIER_OUTPUT_PREFIX'):
+            cls.output_prefix = os.getenv('GEOPM_OUTLIER_OUTPUT_PREFIX')
 
         cls.Pn, cls.P1 = 1.05, 1.3
         if os.getenv('GEOPM_PN'):
@@ -254,6 +269,13 @@ class TestIntegration_outlier_detection(unittest.TestCase):
         return report_files
 
     @classmethod
+    def guess_power_limit_from_filename(cls, filename):
+        # this is only used for old reports (before we started embedding the policy in the report)
+        power = filename[len(cls.output_prefix)+1:]
+        power = int(power[:power.find("_")])
+        return power
+
+    @classmethod
     def calculate_ranges(cls, cache=True):
         cache_path = os.path.join(cls._output_dir, 'range_cache.json')
         if cache and os.path.exists(cache_path):
@@ -271,10 +293,7 @@ class TestIntegration_outlier_detection(unittest.TestCase):
             try:
                 cls.power_range.add(report.meta_data()['Policy']['POWER_PACKAGE_LIMIT_TOTAL'])
             except KeyError:
-                # old reports don't have this
-                power = base_report_filename[len(cls.output_prefix + "_power_governor")+1:]
-                power = int(power[:power.find("_")])
-                cls.power_range.add(power)
+                cls.power_range.add(cls.guess_power_limit_from_filename(base_report_filename))
             cls.host_range.update(report.host_names())
             cls.region_of_interest_hash = report.region_hash(cls.region_of_interest)
         cls.power_range = sorted(list(cls.power_range))
@@ -289,7 +308,13 @@ class TestIntegration_outlier_detection(unittest.TestCase):
         cache_path = os.path.join(cls._output_dir, 'avg_package_energy_cache.json')
         if cache and os.path.exists(cache_path):
             with open(cache_path) as cache_file:
-                cls.avg_package_energy = json.load(cache_file)
+                avg_package_energy_raw = json.load(cache_file)
+                # json doesn't support integers as dictionary keys
+                cls.avg_package_energy = {}
+                for host in avg_package_energy_raw:
+                    cls.avg_package_energy[host] = {}
+                    for power_raw in avg_package_energy_raw[host]:
+                        cls.avg_package_energy[host][int(power_raw)] = avg_package_energy_raw[host][power_raw]
             return
         cls.calculate_ranges()
         avg = lambda LL: sum(LL)/float(len(LL))
@@ -300,8 +325,7 @@ class TestIntegration_outlier_detection(unittest.TestCase):
             try:
                 power = report.meta_data()['Policy']['POWER_PACKAGE_LIMIT_TOTAL']
             except KeyError:
-                power = base_report_filename[len(cls.output_prefix + "_power_governor")+1:]
-                power = int(power[:power.find("_")])
+                power = cls.guess_power_limit_from_filename(base_report_filename)
             for host in report.host_names():
                 package_energy[host][power].append(report.get_field(report.raw_region(host, cls.region_of_interest), 'package-energy', 'joules'))
 
@@ -317,52 +341,51 @@ class TestIntegration_outlier_detection(unittest.TestCase):
     def test_interpreter(self):
         "Open an interactive session."
         import code
-        code.interact(local=locals())
+        code.interact(local=dict(globals(), **locals()))
 
     def test_stat0(self):
         stat0_vals = self.stat0()
-        outliers = self.outliers(stat0_vals)
+        outliers, model = self.outliers(stat0_vals)
         for outlier_info in outliers:
-            self.print_outlier_line(outlier_info, "Extreme incremental power at sticker")
+            self.print_outlier_line(outlier_info, model, "Extreme incremental power at sticker")
         self.assertEqual(0, len(outliers), "Outlier values of statistic 0 were measured.")
 
     def test_stat1(self):
         stat1_vals = self.stat1()
-        outliers = self.outliers(stat1_vals)
+        outliers, model = self.outliers(stat1_vals)
         for outlier_info in outliers:
-            self.print_outlier_line(outlier_info, "Extreme energy consumption at TDP")
+            self.print_outlier_line(outlier_info, model, "Extreme energy consumption at TDP")
         self.assertEqual(0, len(outliers), "Outlier values of statistic 1 were measured.")
 
     def test_stat2(self):
         stat2_vals = self.stat2()
-        outliers = self.outliers(stat2_vals)
+        outliers, model = self.outliers(stat2_vals)
         for outlier_info in outliers:
-            self.print_outlier_line(outlier_info, "Extreme minimum energy consumption")
+            self.print_outlier_line(outlier_info, model, "Extreme minimum energy consumption")
         self.assertEqual(0, len(outliers), "Outlier values of statistic 2 were measured.")
 
     def test_stat3(self):
         stat3_vals = self.stat3()
-        outliers = self.outliers(stat3_vals)
+        outliers, model = self.outliers(stat3_vals)
         for outlier_info in outliers:
-            self.print_outlier_line(outlier_info, "Extreme power limit at which energy consumption is minimized")
+            self.print_outlier_line(outlier_info, model, "Extreme power limit at which energy consumption is minimized")
         self.assertEqual(0, len(outliers), "Outlier values of statistic 3 were measured.")
 
     def test_stat4(self):
         stat4_vals = self.stat4()
-        outliers0 = self.outliers(stat4_vals, lambda x: x[0]**-1)
-        outliers1 = self.outliers(stat4_vals, lambda x: x[1]**-1)
-        outliers2 = self.outliers(stat4_vals, lambda x: x[2]**-1)
-        for outlier_info in outliers:
-            self.print_outlier_line(outlier_info, "Extreme thermal coefficient")
-        for outlier_info in outliers:
-            self.print_outlier_line(outlier_info, "Extreme thermal coefficient")
-        for outlier_info in outliers:
-            self.print_outlier_line(outlier_info, "Extreme thermal coefficient")
+        outliers0, model0 = self.outliers(stat4_vals, lambda x: x[0]**-1)
+        outliers1, model1 = self.outliers(stat4_vals, lambda x: x[1]**-1)
+        outliers2, model2 = self.outliers(stat4_vals, lambda x: x[2]**-1)
+        for outlier_info in outliers0:
+            self.print_outlier_line(outlier_info, model0, "Extreme thermal coefficient")
+        for outlier_info in outliers1:
+            self.print_outlier_line(outlier_info, model1, "Extreme thermal coefficient")
+        for outlier_info in outliers2:
+            self.print_outlier_line(outlier_info, model2, "Extreme thermal coefficient")
         self.assertEqual(0, len(outliers0) + len(outliers1) + len(outliers2), "Outlier values of statistic 4 were measured.")
 
     @classmethod
-    def stat0_by_host(cls, host):
-        """Computes power/frequency model for the given host."""
+    def power_vs_freq_by_host(cls, host, min_time=5):
         x1 = [] ; y1 = []
         x2 = [] ; y2 = []
         for power in cls.power_range:
@@ -372,19 +395,24 @@ class TestIntegration_outlier_detection(unittest.TestCase):
                     file_pointer = open(file_pointer)
                 except:
                     # be robust against iterations not being run on every host
-                    # TODO make this an error message
-                    print(file_pointer)
+                    sys.stderr.write("File '%s' not found. Continuing.\n" % file_pointer)
                     continue
                 for tline in geopmpy.io.RawTraceIterator(file_pointer):
-                    if tline["region_hash"] == cls.region_of_interest_hash:
+                    if tline["region_hash"] == cls.region_of_interest_hash and tline["time_f"] > min_time:
                         if tline["time_delta"] < 1e-10:
                             continue
-                        if tline["frequency_f"] < cls.Pn/float(cls.P1):
-                            x1.append(tline["frequency_f"])
+                        sample_freq = tline["cycles_thread_delta"]/tline["cycles_reference_delta"]
+                        if sample_freq < cls.Pn/float(cls.P1):
+                            x1.append(sample_freq)
                             y1.append(tline["energy_package_delta"]/tline["time_delta"])
                         else:
-                            x2.append(tline["frequency_f"])
+                            x2.append(sample_freq)
                             y2.append(tline["energy_package_delta"]/tline["time_delta"])
+        return x1, x2, y1, y2
+
+    @classmethod
+    def trimodel_fit(cls, host, datatuple):
+        (x1, x2, y1, y2) = datatuple
         best_fit = np.polyfit(x1+x2, y1+y2, deg=3)
         if len(x1) == 0:
             best_fit1 = [NAN, NAN]
@@ -394,6 +422,11 @@ class TestIntegration_outlier_detection(unittest.TestCase):
         return {'overall': list(best_fit), 'linear': list(best_fit1), 'cubic': list(best_fit2)}
 
     @classmethod
+    def stat0_by_host(cls, host, min_time=5):
+        """Computes power/frequency model for the given host."""
+        return cls.trimodel_fit(host, cls.power_vs_freq_by_host(host, min_time))
+
+    @classmethod
     def stat0(cls, cache=True):
         """Computes power/frequency slope at sticker."""
         cache_path = os.path.join(cls._output_dir, 'stat0_cache.json')
@@ -401,13 +434,15 @@ class TestIntegration_outlier_detection(unittest.TestCase):
             fits = json.load(open(cache_path))
         else:
             fits = {}
-            for host in cls.host_range:
+            import random
+            for host in random.sample(cls.host_range, 300):
                 fits[host] = cls.stat0_by_host(host)
             if cache:
-                json.dump(fits, open(cache_path, 'w'))
+                with open(cache_path, 'w') as fp:
+                    json.dump(fits, fp)
         slopes = {}
-        for host in cls.host_range:
-            slopes[host] = sum([c*a for c,a in zip([3, 2, 1, 0], fits[host]['cubic'])])/cls.P1
+        for host in fits.keys():
+            slopes[host] = sum([c*a for c,a in zip([3, 2, 1, 0], fits[host]['cubic'])])
         return slopes
 
     @classmethod
@@ -541,76 +576,137 @@ class TestIntegration_outlier_detection(unittest.TestCase):
                 {
                     'key': key,
                     'value': stat(value_dict[key]),
-                    'mean': mean,
-                    'stddev': stddev,
                     'err': (stat(value_dict[key]) - mean)/stddev # number of sigmas above the mean
-                    } for key in value_dict.keys() if stat(value_dict[key]) > X]
+                    } for key in value_dict.keys() if stat(value_dict[key]) > X], \
+                {'mu': mean, 'sigma': stddev}
 
     @staticmethod
-    def print_outlier_line(outlier_info, error, output=sys.stdout):
-        output.write("%s: Host %s reports a value of %.1f (%.1f sigmas above the mean %.1f)\n" % (error, outlier_info['key'], outlier_info['value'], outlier_info['err'], outlier_info['mean']))
+    def print_outlier_line(outlier_info, model, error, output=sys.stdout):
+        output.write("%s: Host %s reports a value of %.1f (%.1f sigmas above the mean %.1f)\n" % (error, outlier_info['key'], outlier_info['value'], outlier_info['err'], model['mu']))
 
-    def test_plot(self, imgcat=True):
-        import math
-        import random
-
-        mu = 60
-        sigma = 4
-        nhorses = 10000
-
+    def plot_power_freq_model(self, host):
+        x1, x2, y1, y2 = self.power_vs_freq_by_host(host)
+        best_fit = self.trimodel_fit(host, (x1, x2, y1, y2))
         fig = Figure()
         FigureCanvas(fig)
         ax = fig.add_subplot(111)
-        jon = ax.hist([random.gauss(mu, sigma) for _ in range(nhorses)])
-        erfs = [math.erf(x) for x in (jon[1]-mu)/sigma]
-        maxheight = max([b - a for a, b in zip([-1] + erfs, erfs + [1])]) * nhorses / 8**.5
-        heights = np.arange(40, 80, 0.02)
-        ax.plot(heights, maxheight * np.exp(-(heights-mu)**2/(2*sigma**2)))
-        ax.set_title('histogram test (i own %d horses)' % nhorses)
-        ax.set_xlabel('horse height (in)')
-        ax.set_ylabel('count')
-        fig.savefig(os.path.join(self._output_dir, "test.png"))
-        if imgcat:
+
+        ax.scatter(x1+x2, y1+y2)
+        range1 = np.arange(min(x1), max(x1), 0.02)
+        range2 = np.arange(min(x2), max(x2), 0.02)
+        range12 = np.arange(min(x1+x2), max(x1+x2), 0.02)
+        overallfit = lambda freq: sum([a*freq**c for c,a in zip([3, 2, 1, 0], best_fit['overall'])])
+        ax.plot(range12, overallfit(range12))
+        if not math.isnan(best_fit['linear'][0]) and not math.isnan(best_fit['linear'][1]):
+            linearfit = lambda freq: sum([a*freq**c for c,a in zip([1, 0], best_fit['linear'])])
+            cubicfit = lambda freq: sum([a*freq**c for c,a in zip([3, 2, 1, 0], best_fit['cubic'])])
+            ax.plot(range1, linearfit(range1))
+            ax.plot(range2, cubicfit(range2))
+        ax.set_xlabel('frequency (GHz)')
+        ax.set_ylabel('power (W)')
+        fig.savefig(os.path.join(self._output_dir, "pvsf_%s.png" % host))
+        try:
             import imgcat
             sys.stdout.write("\n")
-            with open(os.path.join(self._output_dir, "test.png")) as imgfile:
+            with open(os.path.join(self._output_dir, "pvsf_%s.png" % host)) as imgfile:
                 imgcat.imgcat(imgfile)
+        except ImportError:
+            pass
 
     def test_plot0(self, imgcat=True):
-        import math
-        import random
-
-        mu = 60
-        sigma = 4
-        nhorses = 10000
-
         fig = Figure()
         FigureCanvas(fig)
         ax = fig.add_subplot(111)
-        jon = ax.hist([random.gauss(mu, sigma) for _ in range(nhorses)])
+        stat0out = self.stat0()
+        npoints = len(stat0out)
+        jon = ax.hist(stat0out.values())
+        _, model = self.outliers(stat0out)
+        mu = model['mu'] ; sigma = model['sigma']
         erfs = [math.erf(x) for x in (jon[1]-mu)/sigma]
-        maxheight = max([b - a for a, b in zip([-1] + erfs, erfs + [1])]) * nhorses / 8**.5
-        heights = np.arange(40, 80, 0.02)
+        maxheight = max([b - a for a, b in zip([-1] + erfs, erfs + [1])]) * npoints / 8**.5
+        heights = np.arange(min(jon[1]), max(jon[1]), 0.02)
         ax.plot(heights, maxheight * np.exp(-(heights-mu)**2/(2*sigma**2)))
-        ax.set_title('histogram test (i own %d horses)' % nhorses)
-        ax.set_xlabel('horse height (in)')
+        ax.set_xlabel('Incremental energy consumption at sticker (W/GHz)')
         ax.set_ylabel('count')
-        fig.savefig(os.path.join(self._output_dir, "test.png"))
+        fig.savefig(os.path.join(self._output_dir, "plot0.png"))
         if imgcat:
-            import imgcat
-            sys.stdout.write("\n")
-            with open(os.path.join(self._output_dir, "test.png")) as imgfile:
-                imgcat.imgcat(imgfile)
+            try:
+                import imgcat
+                sys.stdout.write("\n")
+                with open(os.path.join(self._output_dir, "plot0.png")) as imgfile:
+                    imgcat.imgcat(imgfile)
+            except ImportError:
+                pass
 
+    def test_plot1(self, imgcat=True):
+        fig = Figure()
+        FigureCanvas(fig)
+        ax = fig.add_subplot(111)
+        stat1out = self.stat1()
+        npoints = len(stat1out)
+        jon = ax.hist(stat1out.values())
+        _, model = self.outliers(stat1out)
+        mu = model['mu'] ; sigma = model['sigma']
+        erfs = [math.erf(x) for x in (jon[1]-mu)/sigma]
+        maxheight = max([b - a for a, b in zip([-1] + erfs, erfs + [1])]) * npoints / 8**.5
+        heights = np.arange(min(jon[1]), max(jon[1]), 0.02)
+        ax.plot(heights, maxheight * np.exp(-(heights-mu)**2/(2*sigma**2)))
+        ax.set_xlabel('Energy consumption at TDP (J)')
+        ax.set_ylabel('count')
+        fig.savefig(os.path.join(self._output_dir, "plot1.png"))
+        if imgcat:
+            try:
+                import imgcat
+                sys.stdout.write("\n")
+                with open(os.path.join(self._output_dir, "plot1.png")) as imgfile:
+                    imgcat.imgcat(imgfile)
+            except ImportError:
+                pass
 
+    def test_plot2(self, imgcat=True):
+        fig = Figure()
+        FigureCanvas(fig)
+        ax = fig.add_subplot(111)
+        stat2out = self.stat2()
+        npoints = len(stat2out)
+        jon = ax.hist(stat2out.values())
+        _, model = self.outliers(stat2out)
+        mu = model['mu'] ; sigma = model['sigma']
+        erfs = [math.erf(x) for x in (jon[1]-mu)/sigma]
+        maxheight = max([b - a for a, b in zip([-1] + erfs, erfs + [1])]) * npoints / 8**.5
+        heights = np.arange(min(jon[1]), max(jon[1]), 0.02)
+        ax.plot(heights, maxheight * np.exp(-(heights-mu)**2/(2*sigma**2)))
+        ax.set_xlabel('Minimum energy consumption (J)')
+        ax.set_ylabel('count')
+        fig.savefig(os.path.join(self._output_dir, "plot2.png"))
+        if imgcat:
+            try:
+                import imgcat
+                sys.stdout.write("\n")
+                with open(os.path.join(self._output_dir, "plot2.png")) as imgfile:
+                    imgcat.imgcat(imgfile)
+            except ImportError:
+                pass
 
+def inlineScatterPlot(xdata, ydata):
+    import imgcat
+    import tempfile
+    fig = Figure()
+    FigureCanvas(fig)
+    ax = fig.add_subplot(111)
+    ax.scatter(xdata, ydata)
+    _, a = tempfile.mkstemp(suffix='.png')
+    fig.savefig(a)
+    with open(a) as ff:
+        imgcat.imgcat(ff)
+    os.remove(a)
 
 if __name__ == '__main__':
     try:
         sys.argv.remove('--skip-launch')
         _g_skip_launch = True
     except ValueError:
-        from test_integration import geopm_test_launcher
-        from test_integration import util
+        import geopm_test_launcher
+        import util
         geopmpy.error.exc_clear()
     unittest.main()
