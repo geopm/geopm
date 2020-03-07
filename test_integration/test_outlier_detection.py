@@ -47,6 +47,9 @@ Variables that are always used:
                               default.
     GEOPM_OUTLIER_REGION_OF_INTEREST - The name of the region to use for the
                                        analysis.  "dgemm" by default.
+    GEOPM_OUTLIER_REGION_OF_INTEREST_HASH - The hash of the region to use for
+                                            the analysis.  "0x00000000a74bbf35"
+                                            by default (corresponding to dgemm).
     GEOPM_OUTLIER_OUTPUT_PREFIX -
                           The prefix for report and trace filenames. Report
                           files follow the pattern
@@ -192,13 +195,15 @@ class TestIntegration_outlier_detection(unittest.TestCase):
             cls._keep_files = True
 
         cls.region_of_interest = "dgemm"
-        # TODO it's not great to get the hash from a report
+        # TODO compute the hash
         cls.region_of_interest_hash = "0x00000000a74bbf35"
         cls.output_prefix = test_name
 
         # TODO use the second arg of getenv to provide the default
         if os.getenv('GEOPM_OUTLIER_REGION_OF_INTEREST'):
             cls.region_of_interest = os.getenv('GEOPM_OUTLIER_REGION_OF_INTEREST')
+        if os.getenv('GEOPM_OUTLIER_REGION_OF_INTEREST_HASH'):
+            cls.region_of_interest_hash = os.getenv('GEOPM_OUTLIER_REGION_OF_INTEREST_HASH')
         if os.getenv('GEOPM_OUTLIER_OUTPUT_PREFIX'):
             cls.output_prefix = os.getenv('GEOPM_OUTLIER_OUTPUT_PREFIX')
 
@@ -295,7 +300,6 @@ class TestIntegration_outlier_detection(unittest.TestCase):
             except KeyError:
                 cls.power_range.add(cls.guess_power_limit_from_filename(base_report_filename))
             cls.host_range.update(report.host_names())
-            cls.region_of_interest_hash = report.region_hash(cls.region_of_interest)
         cls.power_range = sorted(list(cls.power_range))
         cls.host_range = sorted(list(cls.host_range))
         cls.iteration_range = sorted(list(cls.iteration_range))
