@@ -438,8 +438,7 @@ class TestIntegration_outlier_detection(unittest.TestCase):
             fits = json.load(open(cache_path))
         else:
             fits = {}
-            import random
-            for host in random.sample(cls.host_range, 300):
+            for host in cls.host_range:
                 fits[host] = cls.stat0_by_host(host)
             if cache:
                 with open(cache_path, 'w') as fp:
