@@ -150,7 +150,9 @@ def get_platform():
 
 class TestLauncher(object):
     def __init__(self, app_conf, agent_conf, report_path=None,
-                 trace_path=None, host_file=None, time_limit=600, region_barrier=False, performance=False, fatal_test=False):
+                 trace_path=None, host_file=None, time_limit=600,
+                 region_barrier=False, performance=False, fatal_test=False,
+                 trace_profile_path=None, report_signals=None, trace_signals=None):
         self._app_conf = app_conf
         self._agent_conf = agent_conf
         self._report_path = report_path
@@ -159,6 +161,9 @@ class TestLauncher(object):
         self._time_limit = time_limit
         self._region_barrier = region_barrier
         self._performance = performance
+        self._trace_profile_path = trace_profile_path
+        self._report_signals = report_signals
+        self._trace_signals = trace_signals
         self._node_list = None
         self._pmpi_ctl = 'process'
         self._job_name = 'geopm_int_test'
@@ -221,6 +226,12 @@ class TestLauncher(object):
                 argv.append('--geopm-region-barrier')
             if self._disable_ompt:
                 argv.append('--geopm-ompt-disable')
+            if self._trace_profile_path:
+                argv.extend(['--geopm-trace-profile', self._trace_profile_path])
+            if self._report_signals:
+                argv.extend(['--geopm-report-signals', self._report_signals])
+            if self._trace_signals:
+                argv.extend(['--geopm-trace-signals', self._trace_signals])
             argv.extend(['--'])
             exec_wrapper = os.getenv('GEOPM_EXEC_WRAPPER', '')
             if exec_wrapper:
