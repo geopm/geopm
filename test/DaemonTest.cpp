@@ -84,7 +84,7 @@ TEST_F(DaemonTest, get_default_policy)
         .WillOnce(Return(M_AGENT));
     EXPECT_CALL(*m_endpoint, get_profile_name())
         .WillOnce(Return(""));
-    EXPECT_CALL(*m_policystore, get_best("", M_AGENT))
+    EXPECT_CALL(*m_policystore, get_best(M_AGENT, ""))
         .WillOnce(Return(policy));
     EXPECT_CALL(*m_endpoint, write_policy(policy));
 
@@ -100,7 +100,7 @@ TEST_F(DaemonTest, get_profile_policy)
         .WillOnce(Return(M_AGENT));
     EXPECT_CALL(*m_endpoint, get_profile_name())
         .WillOnce(Return(profile_name));
-    EXPECT_CALL(*m_policystore, get_best(profile_name, M_AGENT))
+    EXPECT_CALL(*m_policystore, get_best(M_AGENT, profile_name))
         .WillOnce(Return(policy));
     EXPECT_CALL(*m_endpoint, write_policy(policy));
 

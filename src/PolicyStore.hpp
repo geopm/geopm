@@ -53,19 +53,20 @@ namespace geopm
             /// no best policy is known, the default policy for the agent is
             /// returned.  An exception is thrown if no default exists, or if
             /// any data store errors occur.
-            /// @param [in] profile_name Name of the profile to look up
             /// @param [in] agent_name   Name of the agent to look up
+            /// @param [in] profile_name Name of the profile to look up
             /// @return The recommended policy for the profile to use with the agent.
-            virtual std::vector<double> get_best(const std::string &profile_name,
-                                                 const std::string &agent_name) const = 0;
+            virtual std::vector<double> get_best(const std::string &agent_name,
+                                                 const std::string &profile_name) const = 0;
 
             /// @brief Set the record for the best policy for a profile with an agent.
             /// @details Creates or overwrites the best-known policy for a profile
             /// when used with the given agent.
-            /// @param [in] profile_name Name of the profile whose policy is being set.
             /// @param [in] agent_name Name of the agent for which this policy applies.
+            /// @param [in] profile_name Name of the profile whose policy is being set.
             /// @param [in] policy Policy string to use with the given agent.
-            virtual void set_best(const std::string &profile_name, const std::string &agent_name,
+            virtual void set_best(const std::string &agent_name,
+                                  const std::string &profile_name,
                                   const std::vector<double> &policy) = 0;
 
             /// @brief Set the default policy to use with an agent.
