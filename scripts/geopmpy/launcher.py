@@ -529,14 +529,26 @@ class Launcher(object):
                                shell=True)
         stdout_bytes, stderr_bytes = pid.communicate()
         if subprocess.PIPE in (popen_stdout, popen_stderr):
-            stdout.write(stdout_bytes.decode(encoding=stdout_encoding))
-            stderr.write(stderr_bytes.decode(encoding=stderr_encoding))
+            try:
+                stdout.write(stdout_bytes.decode(encoding=stdout_encoding))
+            except UnicodeEncodeError as u:
+                stdout.write(stdout_bytes)
+            try:
+                stderr.write(stderr_bytes.decode(encoding=stderr_encoding))
+            except UnicodeEncodeError as u:
+                stderr.write(stderr_bytes)
 
         if is_geopmctl:
             stdout_bytes, stderr_bytes = geopm_pid.communicate()
             if subprocess.PIPE in (popen_stdout, popen_stderr):
-                stdout.write(stdout_bytes.decode(encoding=stdout_encoding))
-                stderr.write(stderr_bytes.decode(encoding=stderr_encoding))
+                try:
+                    stdout.write(stdout_bytes.decode(encoding=stdout_encoding))
+                except UnicodeEncodeError as u:
+                    stdout.write(stdout_bytes)
+                try:
+                    stderr.write(stderr_bytes.decode(encoding=stderr_encoding))
+                except UnicodeEncodeError as u:
+                    stderr.write(stderr_bytes)
 
         signal.signal(signal.SIGINT, self.default_handler)
         if pid.returncode:
