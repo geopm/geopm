@@ -50,7 +50,7 @@ int main(int argc, char **argv)
     bool is_verbose = false;
     geopm::Profile &prof = geopm::Profile::default_profile();
     // Run twelve trials with region duration ranging from 100 us - 400 ms
-    size_t num_duration = 12;
+    size_t num_duration = 7;
     double duration = 0.2048;
     double repeat = 200; // Each trial takes 41 seconds and the
                             // whole execution takes 16 minutes at
