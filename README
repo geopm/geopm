@@ -230,6 +230,22 @@ SUSE:
 Alternatively the MPI requirement can be met by using OpenHPC
 packages.
 
+### BIOS Configuration
+If power governing or power balancing is the intended use case
+for GEOPM deployment then there is an additional dependency on
+the BIOS being configured to support RAPL control. To check for
+BIOS support, execute the following on a compute node:
+    ./tutorial/admin/00_test_prereqs.sh
+
+If the script output contains:
+    WARNING: The lock bit for the PKG_POWER_LIMIT MSR is set.  The power_balancer
+             and power_governor agents will not function properly until this is cleared.
+
+Please enable RAPL in your BIOS and if such an option doesn't exist please
+contact your BIOS vendor to obtain a RAPL supported BIOS.
+
+For additional information, please contact the GEOPM team.
+
 ### USER ENVIRONMENT
 The libraries, binaries and python tools will not be installed into
 the standard system paths if GEOPM is built from source and configured
