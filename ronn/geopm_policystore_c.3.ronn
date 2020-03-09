@@ -43,14 +43,14 @@ geopm_policystore_c(3) -- geopm resource policy store interface
   * `int geopm_policystore_disconnect();`
 
   * `int geopm_policystore_get_best(`:
-    `const char *`_profile_name_`,`<br>
     `const char *`_agent_name_`,`<br>
+    `const char *`_profile_name_`,`<br>
     `size_t` _max_policy_vals_`,`<br>
     `double *`_policy_vals_`);`
 
   * `int geopm_policystore_set_best(`:
-    `const char *`_profile_name_`,`<br>
     `const char *`_agent_name_`,`<br>
+    `const char *`_profile_name_`,`<br>
     `size_t `_num_policy_vals_`,`<br>
     `const double *`_policy_vals_`);`
 

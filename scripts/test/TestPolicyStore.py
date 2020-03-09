@@ -44,6 +44,7 @@ except ImportError:
 mock_c = mock.MagicMock()
 import geopmpy.policy_store
 
+
 class TestPolicyStore(unittest.TestCase):
     def setUp(self):
         mock_c.reset_mock()
@@ -76,27 +77,27 @@ class TestPolicyStore(unittest.TestCase):
 
     def test_get_best(self):
         mock_c.geopm_policystore_get_best.return_value = 0
-        geopmpy.policy_store.get_best('p1', 'a1')
+        geopmpy.policy_store.get_best('a1', 'p1')
         # Expect get_best(profile, agent)
-        self.assertEqual(b'p1\0', b''.join(mock_c.geopm_policystore_get_best.call_args[0][0]))
-        self.assertEqual(b'a1\0', b''.join(mock_c.geopm_policystore_get_best.call_args[0][1]))
+        self.assertEqual(b'a1\0', b''.join(mock_c.geopm_policystore_get_best.call_args[0][0]))
+        self.assertEqual(b'p1\0', b''.join(mock_c.geopm_policystore_get_best.call_args[0][1]))
 
         mock_c.geopm_policystore_get_best.return_value = -1
         with self.assertRaises(RuntimeError):
-            geopmpy.policy_store.get_best('p1', 'a1')
+            geopmpy.policy_store.get_best('a1', 'p1')
 
     def test_set_best(self):
         mock_c.geopm_policystore_set_best.return_value = 0
-        geopmpy.policy_store.set_best('p1', 'a1', [1., 2.])
+        geopmpy.policy_store.set_best('a1', 'p1', [1., 2.])
         # Expect set_best(profile, agent, policy_values, default_policy)
-        self.assertEqual(b'p1\0', b''.join(mock_c.geopm_policystore_set_best.call_args[0][0]))
-        self.assertEqual(b'a1\0', b''.join(mock_c.geopm_policystore_set_best.call_args[0][1]))
+        self.assertEqual(b'a1\0', b''.join(mock_c.geopm_policystore_set_best.call_args[0][0]))
+        self.assertEqual(b'p1\0', b''.join(mock_c.geopm_policystore_set_best.call_args[0][1]))
         self.assertEqual(2, mock_c.geopm_policystore_set_best.call_args[0][2])
         self.assertEqual([1, 2], list(mock_c.geopm_policystore_set_best.call_args[0][3]))
 
         mock_c.geopm_policystore_set_best.return_value = -1
         with self.assertRaises(RuntimeError):
-            geopmpy.policy_store.set_best('p1', 'a1', [1., 2.])
+            geopmpy.policy_store.set_best('a1', 'p1', [1., 2.])
 
     def test_set_default(self):
         mock_c.geopm_policystore_set_default.return_value = 0
@@ -109,6 +110,7 @@ class TestPolicyStore(unittest.TestCase):
         mock_c.geopm_policystore_set_default.return_value = -1
         with self.assertRaises(RuntimeError):
             geopmpy.policy_store.set_default('a1', [1., 2.])
+
 
 if __name__ == '__main__':
     unittest.main()

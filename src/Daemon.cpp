@@ -75,7 +75,7 @@ namespace geopm
         auto agent = m_endpoint->get_agent();
         if (agent != "") {
             std::string profile_name = m_endpoint->get_profile_name();
-            auto policy = m_policystore->get_best(profile_name, agent);
+            auto policy = m_policystore->get_best(agent, profile_name);
             m_endpoint->write_policy(policy);
         }
     }
