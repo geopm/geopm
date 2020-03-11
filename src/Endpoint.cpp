@@ -202,6 +202,18 @@ namespace geopm
         }
     }
 
+    void EndpointImp::wait_for_agent_detach(double timeout)
+    {
+        std::string agent = get_agent();
+        double sample_age = 0;
+        std::vector<double> sample(m_num_sample);
+        while (m_continue_loop && agent != "" && sample_age < timeout) {
+            agent = get_agent();
+            sample_age = read_sample(sample);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+    }
+
     void EndpointImp::stop_wait_loop(void)
     {
         m_continue_loop = false;

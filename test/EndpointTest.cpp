@@ -304,3 +304,27 @@ TEST_F(EndpointTest, wait_stops_when_agent_attaches)
     EXPECT_NE(result, std::future_status::timeout);
     mio.close();
 }
+
+TEST_F(EndpointTest, wait_stops_when_agent_detaches)
+{
+    struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer();
+    EndpointImp mio(m_shm_path, std::move(m_policy_shmem), std::move(m_sample_shmem), 0, 0);
+    mio.open();
+    // simulate agent attach
+    strncpy(data->agent, "monitor", GEOPM_ENDPOINT_AGENT_NAME_MAX);
+    ASSERT_EQ("monitor", mio.get_agent());
+
+    auto run_thread = std::async(std::launch::async,
+                                 [&mio, this] {
+                                     mio.wait_for_agent_detach(m_timeout);
+                                 });
+
+    // simulate agent detach
+    strncpy(data->agent, "", GEOPM_ENDPOINT_AGENT_NAME_MAX);
+
+    // wait for less than timeout; should exit before time limit without throwing
+    auto result = run_thread.wait_for(std::chrono::seconds(m_timeout - 1));
+    EXPECT_NE(result, std::future_status::timeout);
+    mio.close();
+
+}

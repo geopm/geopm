@@ -123,6 +123,7 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/EndpointTest.stop_wait_loop \
               test/gtest_links/EndpointTest.wait_loop_timeout_throws \
               test/gtest_links/EndpointTest.wait_stops_when_agent_attaches \
+              test/gtest_links/EndpointTest.wait_stops_when_agent_detaches \
               test/gtest_links/EndpointTestIntegration.write_shm \
               test/gtest_links/EndpointTestIntegration.write_read_policy \
               test/gtest_links/EndpointTestIntegration.write_read_sample \
