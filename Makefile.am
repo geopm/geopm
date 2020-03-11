@@ -463,7 +463,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/CSV.hpp \
                             src/DebugIOGroup.cpp \
                             src/DebugIOGroup.hpp \
-                            src/DefaultProfile.cpp \
                             src/ELF.cpp \
                             src/ELF.hpp \
                             src/Endpoint.cpp \
@@ -514,8 +513,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/MSRSignalImp.hpp \
                             src/MonitorAgent.cpp \
                             src/MonitorAgent.hpp \
-                            src/OMPT.cpp \
-                            src/OMPT.hpp \
                             src/OptionParser.cpp \
                             src/OptionParser.hpp \
                             src/PlatformIO.cpp \
@@ -535,8 +532,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/PowerGovernorImp.hpp \
                             src/PowerGovernorAgent.cpp \
                             src/PowerGovernorAgent.hpp \
-                            src/Profile.cpp \
-                            src/Profile.hpp \
                             src/ProfileIOGroup.cpp \
                             src/ProfileIOGroup.hpp \
                             src/ProfileIOSample.cpp \
@@ -598,12 +593,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/msr_data_snb.cpp \
                             # end
 
-if ENABLE_OMPT
-    libgeopmpolicy_la_SOURCES += src/ompt_callback.cpp
-else
-    EXTRA_DIST += src/ompt_callback.cpp
-endif
-
 beta_source_files = src/Daemon.cpp \
                     src/Daemon.hpp \
                     src/DaemonImp.hpp \
@@ -624,30 +613,58 @@ geopmwrite_SOURCES = src/geopmwrite_main.cpp
 geopmagent_SOURCES = src/geopmagent_main.cpp
 geopmadmin_SOURCES = src/geopmadmin_main.cpp
 
+mpi_source_files = src/DefaultProfile.cpp \
+                   src/MPIComm.cpp \
+                   src/MPIComm.hpp \
+                   src/MPICommSplit.cpp \
+                   src/Profile.cpp \
+                   src/Profile.hpp \
+                   src/geopm_ctl.h \
+                   src/geopm_mpi_comm_split.h \
+                   src/geopm_pmpi.c \
+                   src/geopm_pmpi_helper.cpp \
+                   src/geopm_pmpi.h \
+                   # end
+ompt_source_files = src/OMPT.cpp \
+                    src/OMPT.hpp \
+                    src/ompt_callback.cpp \
+                    # end
+fortran_source_files = src/geopm.f90 \
+                       src/geopm_pmpi_fortran.c \
+                       # end
+geopmctl_source_files = src/geopm_version.h \
+                        src/geopmctl_main.c \
+                        # end
+
 if ENABLE_MPI
     # All source files that are compiled into libgeopmpolicy are also
     # compiled into libgeopm.  We either have to do this or require
     # users to link to both libgeopm and libgeopmpolicy when calling
     # into application facing APIs.
     libgeopm_la_SOURCES = $(libgeopmpolicy_la_SOURCES) \
-                          src/MPIComm.cpp \
-                          src/MPIComm.hpp \
-                          src/MPICommSplit.cpp \
-                          src/geopm_ctl.h \
-                          src/geopm_mpi_comm_split.h \
-                          src/geopm_pmpi.c \
-                          src/geopm_pmpi_helper.cpp \
-                          src/geopm_pmpi.h \
+                          $(mpi_source_files) \
                           # end
-if ENABLE_FORTRAN
-    libgeopmfort_la_SOURCES = src/geopm.f90 \
-                              src/geopm_pmpi_fortran.c \
-                              # end
+    geopmctl_SOURCES = $(geopmctl_source_files)
+
+if ENABLE_OMPT
+    libgeopm_la_SOURCES += $(ompt_source_files)
+else
+    EXTRA_DIST += $(ompt_source_files)
 endif
 
-    geopmctl_SOURCES = src/geopm_version.h \
-                       src/geopmctl_main.c \
-                       # end
+if ENABLE_FORTRAN
+    libgeopmfort_la_SOURCES = $(fortran_source_files)
+else
+    EXTRA_DIST += $(fortran_source_files)
+endif
+
+# disable MPI
+else
+    EXTRA_DIST += $(mpi_source_files) \
+                  $(ompt_source_files) \
+                  $(fortran_source_files) \
+                  $(geopmctl_source_files) \
+                  # end
 endif
 
 model_source_files = src/All2allModelRegion.cpp \
