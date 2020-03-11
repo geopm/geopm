@@ -52,6 +52,8 @@ class MockEndpoint : public geopm::Endpoint
                      std::string(void));
         MOCK_METHOD1(wait_for_agent_attach,
                     void(double timeout));
+        MOCK_METHOD1(wait_for_agent_detach,
+                    void(double timeout));
         MOCK_METHOD0(stop_wait_loop,
                      void(void));
         MOCK_METHOD0(reset_wait_loop,
