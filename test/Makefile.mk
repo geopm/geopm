@@ -115,13 +115,16 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/DebugIOGroupTest.read_signal \
               test/gtest_links/DebugIOGroupTest.register_signal_error \
               test/gtest_links/DebugIOGroupTest.sample \
+              test/gtest_links/EndpointTest.attach_wait_loop_timeout_throws \
+              test/gtest_links/EndpointTest.detach_wait_loop_timeout_throws \
               test/gtest_links/EndpointTest.get_hostnames \
               test/gtest_links/EndpointTest.get_profile_name \
               test/gtest_links/EndpointTest.write_shm_policy \
               test/gtest_links/EndpointTest.parse_shm_sample \
               test/gtest_links/EndpointTest.get_agent \
               test/gtest_links/EndpointTest.stop_wait_loop \
-              test/gtest_links/EndpointTest.wait_loop_timeout_throws \
+              test/gtest_links/EndpointTest.wait_attach_timeout_0 \
+              test/gtest_links/EndpointTest.wait_detach_timeout_0 \
               test/gtest_links/EndpointTest.wait_stops_when_agent_attaches \
               test/gtest_links/EndpointTest.wait_stops_when_agent_detaches \
               test/gtest_links/EndpointTestIntegration.write_shm \
