@@ -48,7 +48,7 @@ namespace geopm
                                bool do_imbalance,
                                bool do_progress,
                                bool do_unmarked);
-            virtual ~ScalingModelRegion() = default;
+            virtual ~ScalingModelRegion();
             void big_o(double big_o);
             void run(void);
             void run_atom(void);
@@ -61,9 +61,7 @@ namespace geopm
             size_t m_rank_per_node;
             size_t m_array_len;
             size_t m_num_atom;
-            std::vector<double> m_array_a;
-            std::vector<double> m_array_b;
-            std::vector<double> m_array_c;
+            std::vector<double *> m_arrays;
     };
 }
 
