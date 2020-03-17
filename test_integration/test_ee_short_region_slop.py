@@ -172,8 +172,8 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
                                                       'frequency_map',
                                                       agent_conf_dynamic_dict)
 
-            report_signals = 'INSTRUCTIONS_RETIRED,CYCLES_REFERENCE,CYCLES_THREAD,MSR::UNCORE_PERF_STATUS:FREQ'
-            trace_signals = 'INSTRUCTIONS_RETIRED,MSR::UNCORE_PERF_STATUS:FREQ'
+            report_signals = 'INSTRUCTIONS_RETIRED,CYCLES_REFERENCE,CYCLES_THREAD'
+            trace_signals = 'INSTRUCTIONS_RETIRED,MSR::UNCORE_PERF_STATUS:FREQ,TEMPERATURE_CORE'
             for trial_idx in range(cls._num_trial):
                 sys.stdout.write('\nTrial {} / {}\n'.format(trial_idx, cls._num_trial))
                 path = '{}.{}'.format(cls._report_path_fixed, trial_idx)
@@ -402,6 +402,9 @@ def get_ipc(trace):
 def get_freq(trace):
     return trace['FREQUENCY']
 
+def get_temperature(trace):
+    return trace['TEMPERATURE_CORE']
+
 def get_relative_time(trace):
     return trace['TIME'] - trace['TIME'].iloc[0]
 
@@ -476,12 +479,12 @@ def generate_trace_region_plot(trace, out_path, region_name, region_count):
 def generate_trace_plot(trace, out_path, duration, begin_time=0):
     plt.figure(figsize=(11,16))
     trace = select_time_range(trace, duration, begin_time)
-    yfunc_list = [get_ipc, get_freq, get_uncore_freq]
-    ylabel_list = ['IPC', 'CPU freq Hz', 'Uncore freq Hz']
-    ylim_list = [g_plot_ipc_lim, g_plot_freq_lim, g_plot_freq_lim]
-    plot_idx_list = range(1, 4)
+    yfunc_list = [get_ipc, get_freq, get_uncore_freq, get_temperature]
+    ylabel_list = ['IPC', 'CPU freq (Hz)', 'Uncore freq (Hz)', 'Temperature (C)']
+    ylim_list = [g_plot_ipc_lim, g_plot_freq_lim, g_plot_freq_lim, [0,120]]
+    plot_idx_list = range(1, 5)
     for yfunc, ylabel, plot_idx, ylim in zip(yfunc_list, ylabel_list, plot_idx_list, ylim_list):
-        plt.subplot(3, 1, plot_idx)
+        plt.subplot(4, 1, plot_idx)
         for prefix in ['timed_', 'scaling_']:
             selected_trace = select_region(trace, prefix, range(12))
             ydata = yfunc(selected_trace)
