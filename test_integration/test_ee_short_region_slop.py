@@ -128,7 +128,7 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         cls._keep_files = cls._skip_launch or os.getenv('GEOPM_KEEP_FILES') is not None
         cls._agent_conf_fixed_path = 'test_{}_fixed-agent-config.json'.format(cls._test_name)
         cls._agent_conf_dynamic_path = 'test_{}_dynamic-agent-config.json'.format(cls._test_name)
-        cls._num_trial = 40
+        cls._num_trial = 10
         cls._num_duration = 7
         # Clear out exception record for python 2 support
         geopmpy.error.exc_clear()
@@ -150,8 +150,8 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
             # frequency map agent over this range.
             freq_min_sys = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
             freq_sticker = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
-            freq_min = freq_min_sys
-            freq_max = freq_sticker
+            freq_min = float(os.getenv('GEOPM_SLOP_FREQ_MIN', str(freq_min_sys)))
+            freq_max = float(os.getenv('GEOPM_SLOP_FREQ_MAX', str(freq_sticker)))
             agent_conf_fixed_dict = {'FREQ_MIN':freq_min,
                                      'FREQ_MAX':freq_max}
             agent_conf_fixed = geopmpy.io.AgentConf(cls._agent_conf_fixed_path,
