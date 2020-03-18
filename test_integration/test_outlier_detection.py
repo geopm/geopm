@@ -342,6 +342,10 @@ class TestIntegration_outlier_detection(unittest.TestCase):
             with open(cache_path, 'w') as cache_file:
                 json.dump(cls.avg_package_energy, cache_file)
 
+    def test_run(self):
+        "Just collect traces and reports."
+        pass
+
     def test_interpreter(self):
         "Open an interactive session."
         import code
