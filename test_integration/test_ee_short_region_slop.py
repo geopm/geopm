@@ -73,7 +73,7 @@ except ValueError:
     geopmpy.error.exc_clear()
 
 # Globals controlling uniform y axis limits in all plots
-g_plot_energy_lim = [6000, 11000]
+g_plot_energy_lim = [4000, 11000]
 g_plot_freq_lim = [9.0e8, 2.5e9]
 g_plot_time_lim = [30.0, 80.0]
 g_plot_ipc_lim = [0.0, 2.4]
@@ -123,7 +123,6 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         cls._trace_path_dynamic = 'test_{}_dynamic.trace'.format(cls._test_name)
         cls._trace_profile_path_fixed = 'test_{}_fixed.trace_profile'.format(cls._test_name)
         cls._trace_profile_path_dynamic = 'test_{}_dynamic.trace_profile'.format(cls._test_name)
-        cls._image_path = 'test_{}.png'.format(cls._test_name)
         cls._skip_launch = _g_skip_launch
         cls._keep_files = cls._skip_launch or os.getenv('GEOPM_KEEP_FILES') is not None
         cls._agent_conf_fixed_path = 'test_{}_fixed-agent-config.json'.format(cls._test_name)
@@ -233,12 +232,6 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
             cls._keep_files):
             os.unlink(cls._agent_conf_fixed_path)
             os.unlink(cls._agent_conf_dynamic_path)
-            for trial_idx in range(cls._num_trial):
-                rf = '{}.{}'.format(cls._report_path_fixed, trial_idx)
-                os.unlink(rf)
-                rf = '{}.{}'.format(cls._report_path_dynamic, trial_idx)
-                os.unlink(rf)
-            os.unlink(cls._image_path)
 
 
     def test_generate_report_plot(self):
@@ -271,7 +264,8 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
             plt.ylim(ylim)
             plt.subplot(3, 2, plot_idx - 2)
             plt.ylim(ylim)
-        plt.savefig(self._image_path)
+        image_path = 'test_{}.png'.format(self._test_name)
+        plt.savefig(image_path)
         plt.close()
 
     def test_generate_trace_plot(self):
