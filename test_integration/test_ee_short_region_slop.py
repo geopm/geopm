@@ -52,12 +52,16 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas
 
+# Put integration test directory into the path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 try:
+    # Try to load geopmpy without modifiying the path
     import geopmpy.io
     import geopmpy.error
     import geopmpy.hash
 except ImportError:
+    # If geopmpy is not installed in the PYTHONPATH then add local
+    # copy to path
     from test_integration import geopm_context
     import geopmpy.io
     import geopmpy.error
@@ -65,9 +69,12 @@ except ImportError:
 
 _g_skip_launch = False
 try:
+    # Check for skip launch command line arguement
     sys.argv.remove('--skip-launch')
     _g_skip_launch = True
 except ValueError:
+    # If we are not skipping the launch we need to import the test
+    # launcher
     from test_integration import geopm_test_launcher
     from test_integration import util
     geopmpy.error.exc_clear()
@@ -129,95 +136,15 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         cls._agent_conf_dynamic_path = 'test_{}_dynamic-agent-config.json'.format(cls._test_name)
         cls._num_trial = 10
         cls._num_duration = 7
+        cls._num_node = 1
+        cls._num_rank = 1
+        cls._job_time_limit = 6000
+        cls._report_signals = 'INSTRUCTIONS_RETIRED,CYCLES_REFERENCE,CYCLES_THREAD'
+        cls._trace_signals = 'INSTRUCTIONS_RETIRED,MSR::UNCORE_PERF_STATUS:FREQ,TEMPERATURE_CORE'
         # Clear out exception record for python 2 support
         geopmpy.error.exc_clear()
         if not cls._skip_launch:
-            # Set the job size parameters
-            num_node = 1
-            num_rank = 1
-            job_time_limit = 6000
-            # Configure the test application
-            app_conf = AppConf()
-
-            # Region hashes for scaling_0, scaling_1, ... , scaling_11
-            scaling_rid = [geopmpy.hash.crc32_str('scaling_{}'.format(idx))
-                           for idx in range(12)]
-            timed_rid = [geopmpy.hash.crc32_str('timed_{}'.format(idx))
-                         for idx in range(12)]
-            # Configure the agent
-            # Query for the min and sticker frequency and run the
-            # frequency map agent over this range.
-            freq_min_sys = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
-            freq_sticker = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
-            freq_min = float(os.getenv('GEOPM_SLOP_FREQ_MIN', str(freq_min_sys)))
-            freq_max = float(os.getenv('GEOPM_SLOP_FREQ_MAX', str(freq_sticker)))
-            agent_conf_fixed_dict = {'FREQ_MIN':freq_min,
-                                     'FREQ_MAX':freq_max}
-            agent_conf_fixed = geopmpy.io.AgentConf(cls._agent_conf_fixed_path,
-                                                    'frequency_map',
-                                                    agent_conf_fixed_dict)
-            agent_conf_dynamic_dict = dict(agent_conf_fixed_dict)
-            policy_idx = 0
-            for rid in scaling_rid:
-                agent_conf_dynamic_dict['HASH_{}'.format(policy_idx)] = rid
-                agent_conf_dynamic_dict['FREQ_{}'.format(policy_idx)] = freq_max
-                policy_idx += 1
-            for rid in timed_rid:
-                agent_conf_dynamic_dict['HASH_{}'.format(policy_idx)] = rid
-                agent_conf_dynamic_dict['FREQ_{}'.format(policy_idx)] = freq_min
-                policy_idx += 1
-
-            agent_conf_dynamic = geopmpy.io.AgentConf(cls._agent_conf_dynamic_path,
-                                                      'frequency_map',
-                                                      agent_conf_dynamic_dict)
-
-            report_signals = 'INSTRUCTIONS_RETIRED,CYCLES_REFERENCE,CYCLES_THREAD'
-            trace_signals = 'INSTRUCTIONS_RETIRED,MSR::UNCORE_PERF_STATUS:FREQ,TEMPERATURE_CORE'
-            for trial_idx in range(cls._num_trial):
-                sys.stdout.write('\nTrial {} / {}\n'.format(trial_idx, cls._num_trial))
-                path = '{}.{}'.format(cls._report_path_fixed, trial_idx)
-                # Create the test launcher with the above configuration
-                if trial_idx == 0:
-                    launcher_fixed = geopm_test_launcher.TestLauncher(app_conf,
-                                                                      agent_conf_fixed,
-                                                                      path,
-                                                                      trace_path=cls._trace_path_fixed,
-                                                                      time_limit=job_time_limit,
-                                                                      trace_profile_path=cls._trace_profile_path_fixed,
-                                                                      report_signals=report_signals,
-                                                                      trace_signals=trace_signals)
-                else:
-                    launcher_fixed = geopm_test_launcher.TestLauncher(app_conf,
-                                                                      agent_conf_fixed,
-                                                                      path,
-                                                                      time_limit=job_time_limit,
-                                                                      report_signals=report_signals)
-                launcher_fixed.set_num_node(num_node)
-                launcher_fixed.set_num_rank(num_rank)
-                # Run the test application
-                launcher_fixed.run('{}-fixed'.format(cls._test_name))
-                path = '{}.{}'.format(cls._report_path_dynamic, trial_idx)
-                # Create the test launcher with the above configuration
-                if trial_idx == 0:
-                    # Generate trace data for first dynamic run
-                    launcher_dynamic = geopm_test_launcher.TestLauncher(app_conf,
-                                                                        agent_conf_dynamic,
-                                                                        path,
-                                                                        trace_path=cls._trace_path_dynamic,
-                                                                        time_limit=job_time_limit,
-                                                                        trace_profile_path=cls._trace_profile_path_dynamic,
-                                                                        report_signals=report_signals,
-                                                                        trace_signals=trace_signals)
-                else:
-                    launcher_dynamic = geopm_test_launcher.TestLauncher(app_conf,
-                                                                        agent_conf_dynamic,
-                                                                        path,
-                                                                        time_limit=job_time_limit,
-                                                                        report_signals=report_signals)
-                launcher_dynamic.set_num_node(num_node)
-                launcher_dynamic.set_num_rank(num_rank)
-                # Run the test application
-                launcher_dynamic.run('{}-dynamic'.format(cls._test_name))
+            cls.launch()
 
 
     @classmethod
@@ -227,49 +154,105 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         environment variable is unset.
 
         """
-
         if (sys.exc_info() == (None, None, None) and not
             cls._keep_files):
             os.unlink(cls._agent_conf_fixed_path)
             os.unlink(cls._agent_conf_dynamic_path)
 
 
+    @classmethod
+    def launch(cls):
+        """Launch the test binary for all required trials
+
+        """
+        agent_conf_fixed, agent_conf_dynamic = cls.create_agent_conf()
+        trace_path_fixed = cls._trace_path_fixed
+        trace_path_dynamic = cls._trace_path_dynamic
+        profile_name_fixed = '{}-fixed'.format(cls._test_name)
+        profile_name_dynamic = '{}-dynamic'.format(cls._test_name)
+        for trial_idx in range(cls._num_trial):
+            sys.stdout.write('\nTrial {} / {}\n'.format(trial_idx, cls._num_trial))
+            report_path = '{}.{}'.format(cls._report_path_fixed, trial_idx)
+            cls.launch_trial(agent_conf_fixed, profile_name_fixed, report_path, trace_path_fixed)
+            report_path = '{}.{}'.format(cls._report_path_dynamic, trial_idx)
+            cls.launch_trial(agent_conf_dynamic, profile_name_dynamic, report_path, trace_path_dynamic)
+            trace_path_fixed = None
+            trace_path_dynamic = None
+
+
+    @classmethod
+    def launch_trial(cls, agent_conf, profile_name, report_path, trace_path):
+        """Launch the test binary for a single trial
+
+        """
+        app_conf = AppConf()
+        launcher = geopm_test_launcher.TestLauncher(app_conf,
+                                                    agent_conf,
+                                                    report_path,
+                                                    trace_path=trace_path,
+                                                    time_limit=cls._job_time_limit,
+                                                    report_signals=cls._report_signals,
+                                                    trace_signals=cls._trace_signals)
+        launcher.set_num_node(cls._num_node)
+        launcher.set_num_rank(cls._num_rank)
+        launcher.run(profile_name)
+
+
+    @classmethod
+    def create_agent_conf(cls):
+        """Create agent configuration objects for the fixed and dynamic cases
+
+        """
+        scaling_hash = [geopmpy.hash.crc32_str('scaling_{}'.format(idx))
+                       for idx in range(cls._num_duration)]
+        timed_hash = [geopmpy.hash.crc32_str('timed_{}'.format(idx))
+                     for idx in range(cls._num_duration)]
+        # Configure the agent
+        # Query for the min and sticker frequency and run the
+        # frequency map agent over this range.
+        freq_min_sys = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
+        freq_sticker = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
+        freq_min = float(os.getenv('GEOPM_SLOP_FREQ_MIN', str(freq_min_sys)))
+        freq_max = float(os.getenv('GEOPM_SLOP_FREQ_MAX', str(freq_sticker)))
+        agent_conf_fixed_dict = {'FREQ_MIN':freq_min,
+                                 'FREQ_MAX':freq_max}
+        agent_conf_fixed = geopmpy.io.AgentConf(cls._agent_conf_fixed_path,
+                                                'frequency_map',
+                                                agent_conf_fixed_dict)
+        agent_conf_dynamic_dict = dict(agent_conf_fixed_dict)
+        policy_idx = 0
+        for hh in scaling_hash:
+            agent_conf_dynamic_dict['HASH_{}'.format(policy_idx)] = hh
+            agent_conf_dynamic_dict['FREQ_{}'.format(policy_idx)] = freq_max
+            policy_idx += 1
+        for hh in timed_hash:
+            agent_conf_dynamic_dict['HASH_{}'.format(policy_idx)] = hh
+            agent_conf_dynamic_dict['FREQ_{}'.format(policy_idx)] = freq_min
+            policy_idx += 1
+
+        agent_conf_dynamic = geopmpy.io.AgentConf(cls._agent_conf_dynamic_path,
+                                                  'frequency_map',
+                                                  agent_conf_dynamic_dict)
+
+        return agent_conf_fixed, agent_conf_dynamic
+
+
     def test_generate_report_plot(self):
-        """Visualize the data in the report
+        """Test to visualize the data in the report files
 
         """
         report_df = create_report_df(self._report_path_fixed,
                                      self._report_path_dynamic,
                                      self._num_trial,
                                      self._num_duration)
-        # Set index for data selection
-        index = ['profile-name', 'region-name', 'count']
-        report_df = report_df.set_index(index)
-        plt.figure(figsize=(11,16))
+        out_path = 'test_{}.png'.format(self._test_name)
+        generate_report_plot(report_df, out_path)
 
-        region_names = ['scaling', 'timed']
-        yaxis_names = ['package-energy (joules)',
-                       'frequency (Hz)',
-                       'runtime (sec)']
-        ylim_list = [g_plot_energy_lim,
-                     g_plot_freq_lim,
-                     g_plot_time_lim]
-        plot_idx = 1
-        for ya, ylim in zip(yaxis_names, ylim_list):
-            for rn in region_names:
-                ax = plt.subplot(3, 2, plot_idx)
-                ax.set_xscale('log')
-                generate_report_plot(report_df, rn, 'duration (sec)', ya)
-                plot_idx += 1
-            plt.ylim(ylim)
-            plt.subplot(3, 2, plot_idx - 2)
-            plt.ylim(ylim)
-        image_path = 'test_{}.png'.format(self._test_name)
-        plt.savefig(image_path)
-        plt.close()
 
     def test_generate_trace_plot(self):
-        '''Generate time series plots of IPC'''
+        """Test to visualize the time series data in the trace files
+
+        """
         for region_idx in range(self._num_duration):
             scaling_region_name = 'scaling_{}'.format(region_idx)
             begin_region_hash = geopmpy.hash.crc32_str(scaling_region_name)
@@ -290,16 +273,20 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
                                                (trace['REGION_COUNT'] == region_count[0])].iloc[0]
                 end_time = trace['TIME'].loc[(trace['REGION_HASH'] == end_region_hash) &
                                              (trace['REGION_COUNT'] == region_count[-1])].iloc[-1]
-                duration = end_time - begin_time
+                delta_time = end_time - begin_time
                 out_path = 'test_{}_trace_overlay_{}_{}.png'.format(self._test_name, policy, scaling_region_name)
-                generate_trace_region_plot(trace, out_path, scaling_region_name, region_count)
+                generate_trace_overlay_plot(trace, out_path, scaling_region_name, region_count)
                 out_path = 'test_{}_trace_overlay_{}_{}.png'.format(self._test_name, policy, timed_region_name)
-                generate_trace_region_plot(trace, out_path, timed_region_name, region_count)
+                generate_trace_overlay_plot(trace, out_path, timed_region_name, region_count)
                 out_path = 'test_{}_trace_{}_{}.png'.format(self._test_name, policy, region_idx)
-                generate_trace_plot(trace, out_path, duration, begin_time)
+                generate_trace_plot(trace, out_path, delta_time, begin_time)
 
 
 def create_report_df(report_path_fixed, report_path_dynamic, num_trial, num_duration):
+    """Create pandas data frame that holds data from the reports that
+       relevent to the test
+
+    """
     result = pandas.DataFrame()
     for trial_idx in range(num_trial):
         try:
@@ -314,23 +301,28 @@ def create_report_df(report_path_fixed, report_path_dynamic, num_trial, num_dura
                 raise RuntimeError('Error: No reports found')
             sys.stderr.write('Warning: only {} out of {} report files have been loaded.\n'.format(trial_idx, num_trial))
             break
-    return result
+    # Set index for data selection
+    index = ['profile-name', 'region-name', 'count']
+    return result.set_index(index)
 
 
 def create_report_trial_df(raw_report, trial_idx, num_duration):
+    """Create a pandas data frame that holds the data from two reports
+       created by running one trial and adds some derived data as
+       columns.
+
+    """
     cols = ['count',
             'package-energy (joules)',
             'requested-online-frequency',
             'power (watts)',
             'runtime (sec)',
             'frequency (Hz)']
-
     # Extract data frame for regions
     scaling_data = create_report_region_df(raw_report, cols, 'scaling', num_duration)
     timed_data = create_report_region_df(raw_report, cols, 'timed', num_duration)
     dur = scaling_data['runtime (sec)'] / scaling_data['count']
     scaling_data['duration (sec)'] = dur
-
     dur = timed_data['runtime (sec)'] / timed_data['count']
     timed_data['duration (sec)'] = dur
     prof_name = raw_report.meta_data()['Profile']
@@ -340,7 +332,12 @@ def create_report_trial_df(raw_report, trial_idx, num_duration):
     timed_data['trial-idx'] = trial_idx
     return scaling_data.append(timed_data)
 
+
 def create_report_region_df(raw_report, cols, key, num_duration):
+    """Create a pandas data frame that holds the data from a single
+       report.
+
+    """
     host = raw_report.host_names()[0]
     region_names = raw_report.region_names(host)
     regions = [(rn, raw_report.raw_region(host, rn))
@@ -365,7 +362,36 @@ def create_report_region_df(raw_report, cols, key, num_duration):
     return pandas.DataFrame(result)
 
 
-def generate_report_plot(report_df, region_type, xaxis, yaxis, ylim=None):
+def generate_report_plot(report_df, out_path):
+    """Generate the figure containing all of the report based plots.
+
+    """
+    plt.figure(figsize=(11,16))
+    region_names = ['scaling', 'timed']
+    yaxis_names = ['package-energy (joules)',
+                   'frequency (Hz)',
+                   'runtime (sec)']
+    ylim_list = [g_plot_energy_lim,
+                 g_plot_freq_lim,
+                 g_plot_time_lim]
+    plot_idx = 1
+    for ya, ylim in zip(yaxis_names, ylim_list):
+        for rn in region_names:
+            ax = plt.subplot(3, 2, plot_idx)
+            ax.set_xscale('log')
+            generate_report_subplot(report_df, rn, 'duration (sec)', ya)
+            plot_idx += 1
+        plt.ylim(ylim)
+        plt.subplot(3, 2, plot_idx - 2)
+        plt.ylim(ylim)
+    plt.savefig(out_path)
+    plt.close()
+
+
+def generate_report_subplot(report_df, region_type, xaxis, yaxis, ylim=None):
+    """Create one of the subplots in the report figure.
+
+    """
     for policy_type in ('fixed', 'dynamic'):
         prof_name = 'ee_short_region_slop-{}'.format(policy_type)
         level = ('profile-name', 'region-name')
@@ -384,6 +410,10 @@ def generate_report_plot(report_df, region_type, xaxis, yaxis, ylim=None):
 
 
 def read_trace(path):
+    """Parse trace file into a data frame and convert the hash values to
+       integers.
+
+    """
     converters={'REGION_HASH': lambda xx: int(xx, 16)}
     return pandas.read_csv(path, sep='|', comment='#', converters=converters)
 
@@ -427,15 +457,15 @@ def select_region(trace, region_prefix, extension=''):
     return trace.loc[trace['REGION_HASH'].isin(region_hash)]
 
 
-def select_time_range(trace, duration, begin_time=None):
+def select_time_range(trace, delta_time, begin_time=None):
     if begin_time is None:
         begin_time = trace['TIME'].iloc[0]
-    end_time = begin_time + duration
+    end_time = begin_time + delta_time
     return trace.loc[(trace['TIME'] >= begin_time) &
                      (trace['TIME'] < end_time)]
 
 
-def generate_trace_region_plot(trace, out_path, region_name, region_count):
+def generate_trace_overlay_plot(trace, out_path, region_name, region_count):
     if type(region_count) is int:
         region_count = [region_count]
     ipc_legend = []
@@ -470,9 +500,9 @@ def generate_trace_region_plot(trace, out_path, region_name, region_count):
     plt.close()
 
 
-def generate_trace_plot(trace, out_path, duration, begin_time=0):
+def generate_trace_plot(trace, out_path, delta_time, begin_time=0):
     plt.figure(figsize=(11,16))
-    trace = select_time_range(trace, duration, begin_time)
+    trace = select_time_range(trace, delta_time, begin_time)
     yfunc_list = [get_ipc, get_freq, get_uncore_freq, get_temperature]
     ylabel_list = ['IPC', 'CPU freq (Hz)', 'Uncore freq (Hz)', 'Temperature (C)']
     ylim_list = [g_plot_ipc_lim, g_plot_freq_lim, g_plot_freq_lim, [0,120]]
