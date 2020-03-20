@@ -31,7 +31,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-"""Test the energy efficient agent by doing a frequency stream/dgemm mix.
+"""Test the energy efficient agent by running a mix of frequency-
+   sensitive and frequency-insensitive regions.
 
 """
 
@@ -69,7 +70,7 @@ class AppConf(object):
 
         """
         script_dir = os.path.dirname(os.path.realpath(__file__))
-        return os.path.join(script_dir, '.libs', 'test_ee_stream_dgemm_mix')
+        return os.path.join(script_dir, '.libs', 'test_ee_timed_scaling_mix')
 
     def get_exec_args(self):
         return []
@@ -78,7 +79,7 @@ class AppConf(object):
 @util.skip_unless_cpufreq()
 @util.skip_unless_optimized()
 @util.skip_unless_run_long_tests()
-class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
+class TestIntegrationEETimedScalingMix(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Create launcher, execute benchmark and set up class variables.
@@ -86,14 +87,14 @@ class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
         """
         sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
                          '.' + cls.__name__ + ') ...')
-        test_name = 'test_ee_stream_dgemm_mix'
+        test_name = 'test_ee_timed_scaling_mix'
         cls._report_path = test_name + '.report'
         cls._trace_path = test_name + '.trace'
         cls._skip_launch = _g_skip_launch
         cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
         cls._agent_conf_path = test_name + '-agent-config.json'
         geopmpy.error.exc_clear()
-        if  not cls._skip_launch:
+        if not cls._skip_launch:
             num_node = 2
             num_rank = 2
             min_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
@@ -131,7 +132,7 @@ class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
         """
         report = geopmpy.io.RawReport(self._report_path)
         host_names = report.host_names()
-        mix_name_re = re.compile(r'stream-[0-9]*\.[0-9]*-dgemm-[0-9]*\.[0-9]*')
+        mix_name_re = re.compile(r'timed-[0-9]*\.[0-9]*-scaling-[0-9]*\.[0-9]*')
         num_re = re.compile(r'[0-9]*\.[0-9]*')
         for host_name in report.host_names():
             result = []
@@ -168,6 +169,19 @@ class TestIntegrationEEStreamDGEMMMix(unittest.TestCase):
                     self.assertTrue('requested-online-frequency' not in region)
                     found_barrier = True
             self.assertTrue(found_barrier)
+
+    def test_skip_ignore_regions(self):
+        """Test that agent does not learn for regions declared with the ignore hint.
+
+        """
+        report = geopmpy.io.RawReport(self._report_path)
+        host_names = report.host_names()
+        for host_name in report.host_names():
+            for region_name in report.region_names(host_name):
+                if region_name in ['ignore']:
+                    region = report.raw_region(host_name, region_name)
+                    self.assertTrue('requested-online-frequency' not in region)
+                    found_barrier = True
 
 
 if __name__ == '__main__':

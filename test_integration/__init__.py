@@ -39,7 +39,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from test_integration import geopm_context
 from test_integration.geopm_test_integration import *
 from test_integration.test_omp_outer_loop import *
-from test_integration.test_ee_stream_dgemm_mix import *
+from test_integration.test_ee_timed_scaling_mix import *
 from test_integration.test_enforce_policy import *
 from test_integration.test_profile_policy import *
 from test_integration.test_plugin_static_policy import *
