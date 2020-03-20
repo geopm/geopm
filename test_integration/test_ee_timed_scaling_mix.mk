@@ -29,15 +29,15 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += test_integration/test_ee_stream_dgemm_mix.py
+EXTRA_DIST += test_integration/test_ee_timed_scaling_mix.py
 
 if ENABLE_MPI
-noinst_PROGRAMS += test_integration/test_ee_stream_dgemm_mix
-test_integration_test_ee_stream_dgemm_mix_SOURCES = test_integration/test_ee_stream_dgemm_mix.cpp
-test_integration_test_ee_stream_dgemm_mix_SOURCES += $(model_source_files)
-test_integration_test_ee_stream_dgemm_mix_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
-test_integration_test_ee_stream_dgemm_mix_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
-test_integration_test_ee_stream_dgemm_mix_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
+noinst_PROGRAMS += test_integration/test_ee_timed_scaling_mix
+test_integration_test_ee_timed_scaling_mix_SOURCES = test_integration/test_ee_timed_scaling_mix.cpp
+test_integration_test_ee_timed_scaling_mix_SOURCES += $(model_source_files)
+test_integration_test_ee_timed_scaling_mix_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
+test_integration_test_ee_timed_scaling_mix_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
+test_integration_test_ee_timed_scaling_mix_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
 else
-EXTRA_DIST += test_integration/test_ee_stream_dgemm_mix.cpp
+EXTRA_DIST += test_integration/test_ee_timed_scaling_mix.cpp
 endif

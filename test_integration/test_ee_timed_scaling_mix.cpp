@@ -59,54 +59,53 @@ int main(int argc, char **argv)
             }
         }
     }
-    std::unique_ptr<geopm::ModelRegion> spin_model(geopm::ModelRegion::model_region("spin", 0.075, is_verbose));
-    std::unique_ptr<geopm::ModelRegion> short_model(geopm::ModelRegion::model_region("spin", 0.01, is_verbose));
-    uint64_t short_region_id = 0;
-    err = geopm_prof_region("short_region", GEOPM_REGION_HINT_UNKNOWN, &short_region_id);
-    if (err) {
-        throw geopm::Exception("test_ee_stream_dgemm_mix", err, __FILE__, __LINE__);
-    }
 
-    int repeat = 300;
-    double dgemm_factor = 17;
-    double stream_factor = 1.0;
+    std::string test_name = "test_ee_timed_scaling_mix";
+    std::unique_ptr<geopm::ModelRegion> ignore_model(geopm::ModelRegion::model_region("spin", 0.075, is_verbose));
+    uint64_t ignore_region_id = 0;
+    err = geopm_prof_region("ignore", GEOPM_REGION_HINT_IGNORE, &ignore_region_id);
+    if (err) {
+        throw geopm::Exception(test_name, err, __FILE__, __LINE__);
+    }
+    int repeat = 100;
+    double scaling_factor = 1;
+    double timed_factor = 1;
     int num_mix = 5;
     double mix_factor = 1.0 / (num_mix - 1);
     for (int mix_idx = 0; mix_idx != num_mix; ++mix_idx) {
-        int stream_idx = num_mix - 1 - mix_idx;
-        int dgemm_idx = mix_idx;
-        double stream_big_o = stream_factor * mix_factor * stream_idx;
-        double dgemm_big_o = dgemm_factor * mix_factor * dgemm_idx;
-        std::unique_ptr<geopm::ModelRegion> stream_model(geopm::ModelRegion::model_region("stream-unmarked", stream_big_o, is_verbose));
-        std::unique_ptr<geopm::ModelRegion> dgemm_model(geopm::ModelRegion::model_region("dgemm-unmarked", dgemm_big_o, is_verbose));
+        int timed_idx = num_mix - 1 - mix_idx;
+        int scaling_idx = mix_idx;
+        double timed_big_o = timed_factor * mix_factor * timed_idx;
+        double scaling_big_o = scaling_factor * mix_factor * scaling_idx;
+        std::unique_ptr<geopm::ModelRegion> timed_model(geopm::ModelRegion::model_region("timed_scaling-unmarked", timed_big_o, is_verbose));
+        std::unique_ptr<geopm::ModelRegion> scaling_model(geopm::ModelRegion::model_region("scaling-unmarked", scaling_big_o, is_verbose));
         char region_name[NAME_MAX];
         region_name[NAME_MAX - 1] = '\0';
-        snprintf(region_name, NAME_MAX - 1, "stream-%.2f-dgemm-%.2f", stream_big_o, dgemm_big_o);
+        snprintf(region_name, NAME_MAX - 1, "timed-%.2f-scaling-%.2f", timed_big_o, scaling_big_o);
         uint64_t region_id = 0;
         err = geopm_prof_region(region_name, GEOPM_REGION_HINT_UNKNOWN, &region_id);
         if (err) {
-            throw geopm::Exception("test_ee_stream_dgemm_mix", err, __FILE__, __LINE__);
+            throw geopm::Exception(test_name, err, __FILE__, __LINE__);
         }
         for (int rep_idx = 0; rep_idx != repeat; ++rep_idx) {
             err = geopm_prof_enter(region_id);
             if (err) {
-                throw geopm::Exception("test_ee_stream_dgemm_mix", err, __FILE__, __LINE__);
+                throw geopm::Exception(test_name, err, __FILE__, __LINE__);
             }
-            stream_model->run();
-            dgemm_model->run();
+            timed_model->run();
+            scaling_model->run();
             err = geopm_prof_exit(region_id);
             if (err) {
-                throw geopm::Exception("test_ee_stream_dgemm_mix", err, __FILE__, __LINE__);
+                throw geopm::Exception(test_name, err, __FILE__, __LINE__);
             }
-            spin_model->run();
-            err = geopm_prof_enter(short_region_id);
+            err = geopm_prof_enter(ignore_region_id);
             if (err) {
-                throw geopm::Exception("test_ee_stream_dgemm_mix", err, __FILE__, __LINE__);
+                throw geopm::Exception(test_name, err, __FILE__, __LINE__);
             }
-            short_model->run();
-            err = geopm_prof_exit(short_region_id);
+            ignore_model->run();
+            err = geopm_prof_exit(ignore_region_id);
             if (err) {
-                throw geopm::Exception("test_ee_stream_dgemm_mix", err, __FILE__, __LINE__);
+                throw geopm::Exception(test_name, err, __FILE__, __LINE__);
             }
             MPI_Barrier(MPI_COMM_WORLD);
         }

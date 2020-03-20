@@ -57,7 +57,7 @@ test_integration_test_profile_policy_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
 endif
 
 include test_integration/test_ee_short_region_slop.mk
-include test_integration/test_ee_stream_dgemm_mix.mk
+include test_integration/test_ee_timed_scaling_mix.mk
 include test_integration/test_enforce_policy.mk
 include test_integration/test_omp_outer_loop.mk
 include test_integration/test_scaling_region.mk
