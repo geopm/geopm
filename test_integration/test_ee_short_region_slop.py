@@ -137,7 +137,7 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         cls._num_trial = 10
         cls._num_duration = 7
         cls._num_node = 1
-        cls._num_rank = 1
+        cls._num_rank = 2
         cls._job_time_limit = 6000
         cls._report_signals = 'INSTRUCTIONS_RETIRED,CYCLES_REFERENCE,CYCLES_THREAD'
         cls._trace_signals = 'INSTRUCTIONS_RETIRED,MSR::UNCORE_PERF_STATUS:FREQ,TEMPERATURE_CORE'
