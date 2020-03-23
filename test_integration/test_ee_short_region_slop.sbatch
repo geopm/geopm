@@ -36,7 +36,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-export OMP_NUM_THREADS=42
+export OMP_NUM_THREADS=21
 set -x
 hostname
 source $HOME/build/geopm-env.sh
