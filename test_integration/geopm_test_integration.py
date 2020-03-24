@@ -61,6 +61,7 @@ import geopmpy.launcher
 environment_default_path = os.path.join(util.get_config_value('GEOPM_CONFIG_PATH'), 'environment-default.json')
 environment_override_path = os.path.join(util.get_config_value('GEOPM_CONFIG_PATH'), 'environment-override.json')
 
+
 def create_frequency_map_policy(min_freq, max_freq, frequency_map, use_env=False):
     """Create a frequency map to be consumed by the frequency map agent.
 
@@ -81,7 +82,7 @@ def create_frequency_map_policy(min_freq, max_freq, frequency_map, use_env=False
             'sleep': 0x00000000536c798f,
             'MPI_Barrier': 0x000000007b561f45,
             'model-init': 0x00000000644f9787,
-            'unmarked-region': 0x00000000725e8066 }
+            'unmarked-region': 0x00000000725e8066}
 
     if use_env:
         os.environ['GEOPM_FREQUENCY_MAP'] = json.dumps(frequency_map)
@@ -94,6 +95,7 @@ def create_frequency_map_policy(min_freq, max_freq, frequency_map, use_env=False
             policy['FREQ_{}'.format(i)] = frequency
 
     return policy
+
 
 class TestIntegration(unittest.TestCase):
     def setUp(self):
@@ -151,10 +153,10 @@ class TestIntegration(unittest.TestCase):
         self._tmp_files.append(report_path)
 
         actual_policy = geopmpy.io.RawReport(report_path).meta_data()['Policy']
-        for expected_key,expected_value in expected_policy.items():
+        for expected_key, expected_value in expected_policy.items():
             self.assertEqual(expected_value, actual_policy[expected_key],
                              msg='Wrong policy value for {} (context: {})'.format(expected_key, context))
-        for actual_key,actual_value in actual_policy.items():
+        for actual_key, actual_value in actual_policy.items():
             if actual_key not in expected_policy:
                 self.assertEqual('NAN', actual_value,
                                  msg='Unexpected value for {} (context: {})'.format(actual_key, context))
@@ -413,7 +415,6 @@ class TestIntegration(unittest.TestCase):
             self.assertTrue(unmarked['sync-runtime (sec)'] >= epoch['sync-runtime (sec)'],
                             '''The sync-runtime for the unmarked region is NOT >= the Epoch sync-runtime.''')
 
-
     def test_runtime_nested(self):
         name = 'test_runtime_nested'
         report_path = name + '.report'
@@ -490,7 +491,7 @@ class TestIntegration(unittest.TestCase):
                     trace_elapsed_time = end_time - start_time
                     msg = 'for region {rn} on node {nn}'.format(rn=region_name, nn=nn)
                     self.assertNear(trace_elapsed_time, region_data['sync_runtime'].item(), msg=msg)
-            #epoch
+            # epoch
             region_data = self._output.get_report_data(node_name=nn, region='epoch')
             trace_elapsed_time = trace.iloc[-1]['TIME'] - trace['TIME'].loc[trace['EPOCH_COUNT'] == 0].iloc[0]
             msg = 'for epoch on node {nn}'.format(nn=nn)
@@ -868,7 +869,6 @@ class TestIntegration(unittest.TestCase):
                 avg_power_limit = sum(power_limits) / len(power_limits)
                 self.assertTrue(avg_power_limit <= power_budget)
 
-            min_runtime = float('nan')
             max_runtime = float('nan')
             node_names = self._output.get_node_names()
             runtime_list = []
@@ -1166,7 +1166,6 @@ class TestIntegration(unittest.TestCase):
         name = 'test_energy_efficient_single_region'
         min_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
         sticker_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
-        freq_step = geopm_test_launcher.geopmread("CPUINFO::FREQ_STEP board 0")
         self._agent = "energy_efficient"
         report_path = name + '.report'
         trace_path = name + '.trace'
@@ -1197,7 +1196,6 @@ class TestIntegration(unittest.TestCase):
                     msg = region_name + " frequency should be minimum frequency as specified by policy"
                     self.assertEqual(region['requested-online-frequency'], min_freq, msg=msg)  # freq should reduce
 
-
     @util.skip_unless_run_long_tests()
     @util.skip_unless_cpufreq()
     @util.skip_unless_batch()
@@ -1207,9 +1205,7 @@ class TestIntegration(unittest.TestCase):
         """
         name = 'test_energy_efficient_sticker'
         min_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
-        max_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_MAX board 0")
         sticker_freq = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
-        freq_step = geopm_test_launcher.geopmread("CPUINFO::FREQ_STEP board 0")
         self._agent = "energy_efficient"
         num_node = 1
         num_rank = 4
@@ -1245,7 +1241,6 @@ class TestIntegration(unittest.TestCase):
             if rr == '_sticker':
                 self._options = {'frequency_min': sticker_freq,
                                  'frequency_max': sticker_freq}
-                freq = sticker_freq
             else:
                 self._options = {'frequency_min': min_freq,
                                  'frequency_max': sticker_freq}
@@ -1315,6 +1310,7 @@ class TestIntegration(unittest.TestCase):
             util.remove_file_on_compute_nodes(environment_default_path)
             self.assert_geopm_uses_policy(override_policy, test_name + '_override_no_user')
             self.assert_geopm_uses_policy(override_policy, test_name + '_override_with_user', user_policy=user_policy)
+
 
 class TestIntegrationGeopmio(unittest.TestCase):
     ''' Tests of geopmread and geopmwrite.'''
@@ -1517,7 +1513,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
             '''
             try:
                 load_cpu_start()
-                time.sleep(5) # Give the load a moment to spin up
+                time.sleep(5)  # Give the load a moment to spin up
                 yield
             finally:
                 load_cpu_stop()
