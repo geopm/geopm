@@ -49,6 +49,7 @@ namespace geopm
         public:
             DefaultProfile();
             virtual ~DefaultProfile();
+            void enable_pmpi(void) override;
     };
 
     DefaultProfile::DefaultProfile()
@@ -60,6 +61,11 @@ namespace geopm
     DefaultProfile::~DefaultProfile()
     {
         g_pmpi_prof_enabled = 0;
+    }
+
+    void DefaultProfile::enable_pmpi(void)
+    {
+        g_pmpi_prof_enabled = m_is_enabled;
     }
 
     Profile &Profile::default_profile(void)
@@ -80,7 +86,8 @@ extern "C"
     {
         int err = 0;
         try {
-            geopm::Profile::default_profile();
+            geopm::Profile::default_profile().init();
+            geopm::Profile::default_profile().enable_pmpi();
         }
         catch (...) {
             err = geopm::exception_handler(std::current_exception());
