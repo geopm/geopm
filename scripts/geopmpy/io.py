@@ -1345,7 +1345,22 @@ class RawReport(object):
                     else:
                         out_fid.write('    {}'.format(line))
             out_fid.seek(0)
-            self._raw_dict = yaml.load(out_fid, Loader=yaml.SafeLoader)
+            # Fix issue with python yaml module where it is confused
+            # about floating point numbers of the form "1e+10" where
+            # the decimal point is missing.
+            # See PR: https://github.com/yaml/pyyaml/pull/174
+            # for upstream fix to pyyaml
+            loader = yaml.SafeLoader
+            loader.add_implicit_resolver(
+                u'tag:yaml.org,2002:float',
+                re.compile(r'''^(?:[-+]?(?:[0-9][0-9_]*)\.[0-9_]*(?:[eE][-+]?[0-9]+)?
+                               |[-+]?(?:[0-9][0-9_]*)(?:[eE][-+]?[0-9]+)
+                               |\.[0-9_]+(?:[eE][-+]?[0-9]+)?
+                               |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\.[0-9_]*
+                               |[-+]?\.(?:inf|Inf|INF)
+                               |\.(?:nan|NaN|NAN))$''', re.X),
+                list(u'-+0123456789.'))
+            self._raw_dict = yaml.load(out_fid, Loader=loader)
 
     def raw_report(self):
         return copy.deepcopy(self._raw_dict)
