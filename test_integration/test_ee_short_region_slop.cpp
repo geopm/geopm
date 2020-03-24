@@ -65,16 +65,27 @@ int main(int argc, char **argv)
         // Rename model regions
         std::string scaling_name = "scaling_" + std::to_string(duration_idx);
         std::string timed_name = "timed_" + std::to_string(duration_idx);
+        std::string barrier_scaling_name = "barrier_scaling_" + std::to_string(duration_idx);
+        std::string barrier_timed_name = "barrier_timed_" + std::to_string(duration_idx);
+
         uint64_t scaling_rid = prof.region(scaling_name, GEOPM_REGION_HINT_UNKNOWN);
         uint64_t timed_rid = prof.region(timed_name, GEOPM_REGION_HINT_UNKNOWN);
+        uint64_t barrier_scaling_rid = prof.region(barrier_scaling_name, GEOPM_REGION_HINT_UNKNOWN);
+        uint64_t barrier_timed_rid = prof.region(barrier_timed_name, GEOPM_REGION_HINT_UNKNOWN);
         // Execute the regions back to back repeatedly
         for (int idx = 0; idx != repeat; ++idx) {
             prof.enter(scaling_rid);
             model_scaling->run();
             prof.exit(scaling_rid);
+            prof.enter(barrier_scaling_rid);
+            MPI_Barrier(MPI_COMM_WORLD);
+            prof.exit(barrier_scaling_rid);
             prof.enter(timed_rid);
             model_timed->run();
             prof.exit(timed_rid);
+            prof.enter(barrier_timed_rid);
+            MPI_Barrier(MPI_COMM_WORLD);
+            prof.exit(barrier_timed_rid);
         }
         repeat *= 2;
         duration /= 2.0;
