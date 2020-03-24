@@ -85,6 +85,10 @@ namespace geopm
             Profile(const Profile &other) = default;
             virtual ~Profile() = default;
             static Profile &default_profile(void);
+
+            /// @brief Explicitly connect to the controller.
+            virtual void init(void) = 0;
+
             /// @brief Register a region of code to be profiled.
             ///
             /// The statistics gathered for each region are aggregated
@@ -164,6 +168,8 @@ namespace geopm
             virtual void epoch(void) = 0;
             virtual void shutdown(void) = 0;
             virtual std::shared_ptr<ProfileThreadTable> tprof_table(void) = 0;
+
+            virtual void enable_pmpi(void) = 0;
     };
 
     class Comm;
@@ -226,6 +232,7 @@ namespace geopm
                        std::shared_ptr<Comm> reduce_comm);
             /// @brief ProfileImp destructor, virtual.
             virtual ~ProfileImp();
+            void init(void) override;
             uint64_t region(const std::string region_name, long hint) override;
             void enter(uint64_t region_id) override;
             void exit(uint64_t region_id) override;
@@ -233,6 +240,7 @@ namespace geopm
             void epoch(void) override;
             void shutdown(void) override;
             std::shared_ptr<ProfileThreadTable> tprof_table(void) override;
+            virtual void enable_pmpi(void) override;
             void init_prof_comm(std::unique_ptr<Comm> comm, int &shm_num_rank);
             void init_ctl_msg(const std::string &sample_key);
             /// @brief Fill in rank affinity list.
@@ -273,9 +281,11 @@ namespace geopm
             void print(const std::string file_name);
             /// @brief holds the string name of the profile.
             std::string m_prof_name;
+            std::string m_key_base;
             std::string m_report;
             double m_timeout;
             bool m_do_region_barrier;
+            std::unique_ptr<Comm> m_comm;
             /// @brief Holds the 64 bit unique region identifier
             ///        for the current region.
             uint64_t m_curr_region_id;
@@ -291,6 +301,7 @@ namespace geopm
             ///        used to pass control messages to and from the geopm
             ///        runtime.
             std::unique_ptr<ControlMessage> m_ctl_msg;
+            const PlatformTopo &m_topo;
             /// @brief Attaches to the shared memory region for
             ///        passing samples to the geopm runtime.
             std::unique_ptr<SharedMemoryUser> m_table_shmem;

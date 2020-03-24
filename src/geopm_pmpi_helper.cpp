@@ -252,8 +252,8 @@ static int geopm_pmpi_init(const char *exec_name)
         if (!err) {
             err = geopm_env_do_profile(&do_profile);
         }
-        if (!err &&
-            do_profile) {
+        if (!err && do_profile) {
+            // should only get called by one thread
             geopm_prof_init();
         }
 #ifdef GEOPM_DEBUG
