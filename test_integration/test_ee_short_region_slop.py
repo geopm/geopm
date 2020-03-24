@@ -423,11 +423,14 @@ def get_ipc(trace):
     dc = trace['CYCLES_THREAD'].diff()
     return di / dc
 
+
 def get_freq(trace):
     return trace['FREQUENCY']
 
+
 def get_temperature(trace):
     return trace['TEMPERATURE_CORE']
+
 
 def get_relative_time(trace):
     return trace['TIME'] - trace['TIME'].iloc[0]
@@ -478,8 +481,6 @@ def generate_trace_overlay_plot(trace, out_path, region_name, region_count):
         ipc = get_ipc(selected_trace)
         freq = get_freq(selected_trace)
         time = get_relative_time(selected_trace)
-        if time.iloc[0] != 0.0:
-            sys.stdout.write('time[0] = {}'.format(time.iloc[0]))
         plt.subplot(2, 1, 1)
         plt.plot(time.iloc[:-1], ipc.iloc[1:], '.-')
         plt.ylim(g_plot_ipc_lim)

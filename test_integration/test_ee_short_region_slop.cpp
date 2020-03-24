@@ -49,12 +49,9 @@ int main(int argc, char **argv)
     MPI_Init(&argc, &argv);
     bool is_verbose = false;
     geopm::Profile &prof = geopm::Profile::default_profile();
-    // Run twelve trials with region duration ranging from 100 us - 400 ms
     size_t num_duration = 7;
     double duration = 0.2048;
-    double repeat = 200; // Each trial takes 41 seconds and the
-                            // whole execution takes 16 minutes at
-                            // sticker frequency.
+    double repeat = 200; // Each trial takes 41 seconds at sticker frequency
     for (size_t duration_idx = 0; duration_idx != num_duration; ++duration_idx) {
         // Create scaling and scaling_timed model regions
         std::unique_ptr<geopm::ModelRegion> model_scaling(
