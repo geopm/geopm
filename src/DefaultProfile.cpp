@@ -62,7 +62,6 @@ namespace geopm
         g_pmpi_prof_enabled = 0;
     }
 
-
     Profile &Profile::default_profile(void)
     {
         static geopm::DefaultProfile instance;

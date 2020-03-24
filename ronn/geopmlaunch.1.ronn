@@ -57,7 +57,7 @@ All command line options accepted by the underlying job scheduler
 with the exception of CPU affinity related options.  The wrapper
 script reinterprets the command line to pass modified options and set
 environment variables for the underlying application scheduler.  The
-GEOPM options, _geopm_opt_, are translated into environment varaibles
+GEOPM options, _geopm_opt_, are translated into environment variables
 to be interpreted by the GEOPM runtime (see the ENVIRONMENT section of
 **geopm(7)**).  The reinterpreted command line, including the
 environment modification, is printed to standard output by the script

@@ -63,11 +63,11 @@ namespace geopm
     }
 
     ApplicationIOImp::ApplicationIOImp(const std::string &shm_key,
-                                 std::unique_ptr<ProfileSampler> sampler,
-                                 std::shared_ptr<ProfileIOSample> pio_sample,
-                                 std::unique_ptr<EpochRuntimeRegulator> epoch_regulator,
-                                 PlatformIO &platform_io,
-                                 const PlatformTopo &platform_topo)
+                                       std::unique_ptr<ProfileSampler> sampler,
+                                       std::shared_ptr<ProfileIOSample> pio_sample,
+                                       std::unique_ptr<EpochRuntimeRegulator> epoch_regulator,
+                                       PlatformIO &platform_io,
+                                       const PlatformTopo &platform_topo)
         : m_sampler(std::move(sampler))
         , m_profile_io_sample(pio_sample)
         , m_platform_io(platform_io)
