@@ -243,38 +243,16 @@ namespace geopm
     {
         update_policy(in_policy);
         double freq = NAN;
-        double freq_min = m_freq_governor->get_frequency_min();
         double freq_max = m_freq_governor->get_frequency_max();
         std::vector<double> target_freq;
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
             const uint64_t curr_hash = m_last_region[ctl_idx].hash;
-            const uint64_t curr_hint = m_last_region[ctl_idx].hint;
             auto it = m_hash_freq_map.find(curr_hash);
             if (it != m_hash_freq_map.end()) {
                 freq = it->second;
             }
             else {
-                switch(curr_hint) {
-                    // Hints for low CPU frequency
-                    case GEOPM_REGION_HINT_MEMORY:
-                    case GEOPM_REGION_HINT_NETWORK:
-                    case GEOPM_REGION_HINT_IO:
-                        freq = freq_min;
-                        break;
-
-                    // Hints for maximum CPU frequency
-                    case GEOPM_REGION_HINT_COMPUTE:
-                    case GEOPM_REGION_HINT_SERIAL:
-                    case GEOPM_REGION_HINT_PARALLEL:
-                        freq = freq_max;
-                        break;
-                    // Hint Inconclusive
-                    //case GEOPM_REGION_HINT_UNKNOWN:
-                    //case GEOPM_REGION_HINT_IGNORE:
-                    default:
-                        freq = freq_max;
-                        break;
-                }
+                freq = freq_max;
             }
             m_hash_freq_map[m_last_region[ctl_idx].hash] = freq;
             target_freq.push_back(freq);
