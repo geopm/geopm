@@ -37,6 +37,7 @@
 
 #include "geopm.h"
 #include "Exception.hpp"
+#include "Profile.hpp"
 
 namespace geopm
 {
@@ -71,6 +72,10 @@ namespace geopm
 
     void StreamModelRegion::big_o(double big_o_in)
     {
+        geopm::Profile &prof = geopm::Profile::default_profile();
+        uint64_t start_rid = prof.region("geopm_stream_model_region_startup", GEOPM_REGION_HINT_IGNORE);
+        prof.enter(start_rid);
+
         if (m_big_o && m_big_o != big_o_in) {
             free(m_array_c);
             free(m_array_b);
@@ -100,6 +105,8 @@ namespace geopm
             }
         }
         m_big_o = big_o_in;
+
+        prof.exit(start_rid);
     }
 
     void StreamModelRegion::run(void)
