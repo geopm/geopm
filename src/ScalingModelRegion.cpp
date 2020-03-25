@@ -42,6 +42,7 @@
 #include "geopm.h"
 #include "geopm_time.h"
 #include "Exception.hpp"
+#include "Profile.hpp"
 
 namespace geopm
 {
@@ -120,6 +121,9 @@ namespace geopm
 
     void ScalingModelRegion::big_o(double big_o_in)
     {
+        geopm::Profile &prof = geopm::Profile::default_profile();
+        uint64_t start_rid = prof.region("geopm_scaling_model_region_startup", GEOPM_REGION_HINT_IGNORE);
+        prof.enter(start_rid);
         m_big_o = big_o_in;
         size_t num_trial = 11;
         size_t median_idx = num_trial / 2;
@@ -138,6 +142,7 @@ namespace geopm
         m_num_atom = big_o_in / median_atom_time;
         m_num_atom = m_num_atom ? m_num_atom : 1;
         m_norm = 1.0 / m_num_atom;
+        prof.exit(start_rid);
     }
 
     void ScalingModelRegion::run(void)
