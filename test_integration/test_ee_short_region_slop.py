@@ -415,7 +415,14 @@ def read_trace(path):
 
     """
     converters={'REGION_HASH': lambda xx: int(xx, 16)}
-    return pandas.read_csv(path, sep='|', comment='#', converters=converters)
+    skiprows = 0
+    with open(path) as fid:
+        for ll in fid:
+            if ll.startswith('#'):
+                skiprows += 1
+            else:
+                break
+    return pandas.read_csv(path, sep='|', skiprows=skiprows, converters=converters)
 
 
 def get_ipc(trace):
