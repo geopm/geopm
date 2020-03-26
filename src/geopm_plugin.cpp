@@ -37,67 +37,48 @@
 #include <iostream>
 
 #include "geopm_error.h"
+#include "geopm_plugin.hpp"
 #include "Environment.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
 
 #include "config.h"
 
-static const char *GEOPM_AGENT_PLUGIN_PREFIX    = "libgeopmagent_";
-static const char *GEOPM_IOGROUP_PLUGIN_PREFIX  = "libgeopmiogroup_";
-static const char *GEOPM_COMM_PLUGIN_PREFIX     = "libgeopmcomm_";
-static int env_plugin_path(std::string &plugin_path)
-{
-    int err = 0;
-    try {
-        plugin_path = geopm::environment().plugin_path();
-    }
-    catch (...) {
-        err = geopm::exception_handler(std::current_exception(), false);
-    }
-    return err;
-}
 
-static void __attribute__((constructor)) geopmpolicy_load(void)
+namespace geopm
 {
-    int err = 0;
-    std::string env_plugin_path_str;
-    err = env_plugin_path(env_plugin_path_str);
-    std::vector<std::string> plugin_paths {GEOPM_DEFAULT_PLUGIN_PATH};
-    std::string so_suffix = ".so." GEOPM_ABI_VERSION;
+    void plugin_load(std::string plugin_prefix)
+    {
+        std::string env_plugin_path_str(geopm::environment().plugin_path());
+        std::vector<std::string> plugin_paths {GEOPM_DEFAULT_PLUGIN_PATH};
+        std::string so_suffix = ".so." GEOPM_ABI_VERSION;
+        std::replace(so_suffix.begin(), so_suffix.end(), ':', '.');
 
-    if (!err && !env_plugin_path_str.empty()) {
-        for (auto it = so_suffix.begin(); it != so_suffix.end(); ++it) {
-            if (*it == ':') {
-                so_suffix.replace(it, it + 1, ".");
-            }
+        if (!env_plugin_path_str.empty()) {
+            // load paths in reverse order from environment variable list
+            auto user_paths = geopm::string_split(env_plugin_path_str, ":");
+            std::reverse(user_paths.begin(), user_paths.end());
+            plugin_paths.insert(plugin_paths.end(), user_paths.begin(), user_paths.end());
         }
-        // load paths in reverse order from environment variable list
-        auto user_paths = geopm::string_split(env_plugin_path_str, ":");
-        std::reverse(user_paths.begin(), user_paths.end());
-        plugin_paths.insert(plugin_paths.end(), user_paths.begin(), user_paths.end());
-    }
-    std::vector<std::string> plugins;
-    for (const auto &path : plugin_paths) {
-        std::vector<std::string> files = geopm::list_directory_files(path);
-        for (const auto &name : files) {
-            if (geopm::string_ends_with(name, so_suffix) ||
-                geopm::string_ends_with(name, ".dylib")) {
-                if (geopm::string_begins_with(name, GEOPM_COMM_PLUGIN_PREFIX) ||
-                    geopm::string_begins_with(name, GEOPM_IOGROUP_PLUGIN_PREFIX) ||
-                    geopm::string_begins_with(name, GEOPM_AGENT_PLUGIN_PREFIX)) {
-                    plugins.push_back(path + "/" + name);
+        std::vector<std::string> plugins;
+        for (const auto &path : plugin_paths) {
+            std::vector<std::string> files = geopm::list_directory_files(path);
+            for (const auto &name : files) {
+                if (geopm::string_ends_with(name, so_suffix)) {
+                    if (geopm::string_begins_with(name, plugin_prefix)) {
+                        plugins.push_back(path + "/" + name);
+                    }
                 }
             }
         }
-    }
-    for (const auto &plugin : plugins) {
-        if (NULL == dlopen(plugin.c_str(), RTLD_NOLOAD)) {
-            if (NULL == dlopen(plugin.c_str(), RTLD_LAZY)) {
+        for (const auto &plugin : plugins) {
+            if (NULL == dlopen(plugin.c_str(), RTLD_NOLOAD)) {
+                if (NULL == dlopen(plugin.c_str(), RTLD_LAZY)) {
 #ifdef GEOPM_DEBUG
-                std::cerr << "Warning: <geopm> Failed to dlopen plugin with dlerror(): "
-                          << dlerror() << std::endl;
+                    std::cerr << "Warning: <geopm> Failed to dlopen plugin with dlerror(): "
+                              << dlerror() << std::endl;
 #endif
+                }
             }
         }
     }

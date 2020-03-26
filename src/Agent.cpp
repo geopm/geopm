@@ -35,8 +35,10 @@
 #include <cmath>
 #include <sstream>
 #include <iostream>
+#include <mutex>
 
 #include "geopm_agent.h"
+#include "geopm_plugin.hpp"
 #include "string.h"
 #include "MonitorAgent.hpp"
 #include "PowerBalancerAgent.hpp"
@@ -51,44 +53,55 @@
 
 namespace geopm
 {
-    static PluginFactory<Agent> *g_plugin_factory;
-    static pthread_once_t g_register_built_in_once = PTHREAD_ONCE_INIT;
-    static void register_built_in_once(void)
-    {
-        g_plugin_factory->register_plugin(MonitorAgent::plugin_name(),
-                                          MonitorAgent::make_plugin,
-                                          Agent::make_dictionary(MonitorAgent::policy_names(),
-                                                                 MonitorAgent::sample_names()));
-        g_plugin_factory->register_plugin(PowerBalancerAgent::plugin_name(),
-                                          PowerBalancerAgent::make_plugin,
-                                          Agent::make_dictionary(PowerBalancerAgent::policy_names(),
-                                                                 PowerBalancerAgent::sample_names()));
-        g_plugin_factory->register_plugin(PowerGovernorAgent::plugin_name(),
-                                          PowerGovernorAgent::make_plugin,
-                                          Agent::make_dictionary(PowerGovernorAgent::policy_names(),
-                                                                 PowerGovernorAgent::sample_names()));
-        g_plugin_factory->register_plugin(EnergyEfficientAgent::plugin_name(),
-                                          EnergyEfficientAgent::make_plugin,
-                                          Agent::make_dictionary(EnergyEfficientAgent::policy_names(),
-                                                                 EnergyEfficientAgent::sample_names()));
-        g_plugin_factory->register_plugin(FrequencyMapAgent::plugin_name(),
-                                          FrequencyMapAgent::make_plugin,
-                                          Agent::make_dictionary(FrequencyMapAgent::policy_names(),
-                                                                 FrequencyMapAgent::sample_names()));
-    }
-
-    PluginFactory<Agent> &agent_factory(void)
-    {
-        static PluginFactory<Agent> instance;
-        g_plugin_factory = &instance;
-        pthread_once(&g_register_built_in_once, register_built_in_once);
-        return instance;
-    }
-
     const std::string Agent::m_num_sample_string = "NUM_SAMPLE";
     const std::string Agent::m_num_policy_string = "NUM_POLICY";
     const std::string Agent::m_sample_prefix = "SAMPLE_";
     const std::string Agent::m_policy_prefix = "POLICY_";
+    const std::string Agent::M_PLUGIN_PREFIX = "libgeopmagent_";
+
+    AgentFactory::AgentFactory()
+    {
+        register_plugin(MonitorAgent::plugin_name(),
+                        MonitorAgent::make_plugin,
+                        Agent::make_dictionary(MonitorAgent::policy_names(),
+                                               MonitorAgent::sample_names()));
+        register_plugin(PowerBalancerAgent::plugin_name(),
+                        PowerBalancerAgent::make_plugin,
+                        Agent::make_dictionary(PowerBalancerAgent::policy_names(),
+                                               PowerBalancerAgent::sample_names()));
+        register_plugin(PowerGovernorAgent::plugin_name(),
+                        PowerGovernorAgent::make_plugin,
+                        Agent::make_dictionary(PowerGovernorAgent::policy_names(),
+                                               PowerGovernorAgent::sample_names()));
+        register_plugin(EnergyEfficientAgent::plugin_name(),
+                        EnergyEfficientAgent::make_plugin,
+                        Agent::make_dictionary(EnergyEfficientAgent::policy_names(),
+                                               EnergyEfficientAgent::sample_names()));
+        register_plugin(FrequencyMapAgent::plugin_name(),
+                        FrequencyMapAgent::make_plugin,
+                        Agent::make_dictionary(FrequencyMapAgent::policy_names(),
+                                               FrequencyMapAgent::sample_names()));
+    }
+
+
+    AgentFactory &agent_factory(void)
+    {
+        static AgentFactory instance;
+        static bool once = true;
+        static std::once_flag flag;
+        if (once) {
+            once = false;
+            std::call_once(flag, plugin_load, Agent::M_PLUGIN_PREFIX);
+        }
+        return instance;
+    }
+
+
+    std::unique_ptr<Agent> Agent::make_unique(const std::string &agent_name)
+    {
+        return agent_factory().make_plugin(agent_name);
+    }
+
 
     std::vector<std::function<std::string(double)> > Agent::trace_formats(void) const
     {

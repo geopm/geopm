@@ -47,6 +47,7 @@ namespace geopm
         public:
             IOGroup() = default;
             virtual ~IOGroup() = default;
+            static std::unique_ptr<IOGroup> make_unique(const std::string &iogroup_name);
             /// @brief Returns the names of all signals provided by
             ///        the IOGroup.
             virtual std::set<std::string> signal_names(void) const = 0;
@@ -178,9 +179,17 @@ namespace geopm
             ///        string can be used by tools to generate help
             ///        text for users of the IOGroup.
             virtual std::string control_description(const std::string &control_name) const = 0;
+            static const std::string M_PLUGIN_PREFIX;
     };
 
-    PluginFactory<IOGroup> &iogroup_factory(void);
+    class IOGroupFactory : public PluginFactory<IOGroup>
+    {
+        public:
+            IOGroupFactory();
+            virtual ~IOGroupFactory() = default;
+    };
+
+    IOGroupFactory &iogroup_factory(void);
 }
 
 #endif

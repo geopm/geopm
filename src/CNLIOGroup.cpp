@@ -306,7 +306,7 @@ namespace geopm
 
     std::unique_ptr<IOGroup> CNLIOGroup::make_plugin(void)
     {
-        return make_unique<CNLIOGroup>();
+        return geopm::make_unique<CNLIOGroup>();
     }
 
     double CNLIOGroup::read_time(const std::string &freshness_path) const

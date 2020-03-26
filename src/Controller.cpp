@@ -129,7 +129,7 @@ extern "C"
         int err = 0;
         try {
             std::string agent_name = geopm::environment().agent();
-            std::shared_ptr<geopm::Agent> agent(geopm::agent_factory().make_plugin(agent_name));
+            std::shared_ptr<geopm::Agent> agent(geopm::Agent::make_unique(agent_name));
             std::vector<double> policy(geopm::Agent::num_policy(agent_name));
             std::string policy_path = geopm::environment().policy();
             geopm::FilePolicy file_policy(policy_path,
@@ -275,7 +275,7 @@ namespace geopm
     {
         if (m_agent.size() == 0) {
             for (int level = 0; level < m_max_level; ++level) {
-                m_agent.push_back(agent_factory().make_plugin(m_agent_name));
+                m_agent.push_back(Agent::make_unique(m_agent_name));
             }
         }
 #ifdef GEOPM_DEBUG
