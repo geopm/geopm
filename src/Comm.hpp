@@ -206,9 +206,17 @@ namespace geopm
             ///        allows static global objects to be cleaned up
             ///        before the destructor is called.
             virtual void tear_down(void) = 0;
+            static const std::string M_PLUGIN_PREFIX;
     };
 
-    PluginFactory<Comm>& comm_factory(void);
+    class CommFactory : public PluginFactory<Comm>
+    {
+        public:
+            CommFactory();
+            virtual ~CommFactory() = default;
+    };
+
+    CommFactory &comm_factory(void);
 }
 
 #endif

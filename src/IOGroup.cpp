@@ -31,9 +31,11 @@
  */
 
 #include <functional>
+#include <mutex>
 
 #include "IOGroup.hpp"
 
+#include "geopm_plugin.hpp"
 #include "MSRIOGroup.hpp"
 #include "CpuinfoIOGroup.hpp"
 #include "TimeIOGroup.hpp"
@@ -49,21 +51,36 @@
 
 namespace geopm
 {
-    static PluginFactory<IOGroup> *g_plugin_factory;
-    static pthread_once_t g_register_built_in_once = PTHREAD_ONCE_INIT;
-    static void register_built_in_once(void)
+    const std::string IOGroup::M_PLUGIN_PREFIX = "libgeopmiogroup_";
+
+
+    IOGroupFactory::IOGroupFactory()
     {
-        g_plugin_factory->register_plugin(MSRIOGroup::plugin_name(),
-                                          MSRIOGroup::make_plugin);
-        g_plugin_factory->register_plugin(TimeIOGroup::plugin_name(),
-                                          TimeIOGroup::make_plugin);
-        g_plugin_factory->register_plugin(CpuinfoIOGroup::plugin_name(),
-                                          CpuinfoIOGroup::make_plugin);
+        register_plugin(MSRIOGroup::plugin_name(),
+                        MSRIOGroup::make_plugin);
+        register_plugin(TimeIOGroup::plugin_name(),
+                        TimeIOGroup::make_plugin);
+        register_plugin(CpuinfoIOGroup::plugin_name(),
+                        CpuinfoIOGroup::make_plugin);
 #ifdef GEOPM_CNL_IOGROUP
-        g_plugin_factory->register_plugin(CNLIOGroup::plugin_name(),
-                                          CNLIOGroup::make_plugin);
+        register_plugin(CNLIOGroup::plugin_name(),
+                        CNLIOGroup::make_plugin);
 #endif
     }
+
+
+    IOGroupFactory &iogroup_factory(void)
+    {
+        static IOGroupFactory instance;
+        static bool once = true;
+        static std::once_flag flag;
+        if (once) {
+            once = false;
+            std::call_once(flag, plugin_load, IOGroup::M_PLUGIN_PREFIX);
+        }
+        return instance;
+    }
+
 
     std::function<std::string(double)> IOGroup::format_function(const std::string &signal_name) const
     {
@@ -79,13 +96,5 @@ namespace geopm
             result = string_format_raw64;
         }
         return result;
-    }
-
-    PluginFactory<IOGroup> &iogroup_factory(void)
-    {
-        static PluginFactory<IOGroup> instance;
-        g_plugin_factory = &instance;
-        pthread_once(&g_register_built_in_once, register_built_in_once);
-        return instance;
     }
 }

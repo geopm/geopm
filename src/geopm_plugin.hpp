@@ -30,42 +30,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Comm.hpp"
-
-#include <inttypes.h>
-#include <cpuid.h>
-#include <string>
-#include <sstream>
-#include <dlfcn.h>
-#include <list>
-#include <mutex>
-#include <geopm_plugin.hpp>
-#include "config.h"
-#ifdef GEOPM_ENABLE_MPI
-#include "MPIComm.hpp"
-#endif
+#ifndef GEOPM_PLUGIN_HPP_INCLUDE
+#define GEOPM_PLUGIN_HPP_INCLUDE
 
 namespace geopm
 {
-    const std::string Comm::M_PLUGIN_PREFIX = "libgeopmcomm_";
-
-    CommFactory::CommFactory()
-    {
-#ifdef GEOPM_ENABLE_MPI
-        register_plugin(geopm::MPIComm::plugin_name(),
-                        geopm::MPIComm::make_plugin);
-#endif
-    }
-
-    CommFactory &comm_factory(void)
-    {
-        static CommFactory instance;
-        static bool once = true;
-        static std::once_flag flag;
-        if (once) {
-            once = false;
-            std::call_once(flag, plugin_load, Comm::M_PLUGIN_PREFIX);
-        }
-        return instance;
-    }
+    void plugin_load(std::string plugin_prefix);
 }
+
+#endif

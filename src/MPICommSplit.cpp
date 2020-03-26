@@ -44,19 +44,9 @@
 
 #include "config.h"
 
+
 extern "C"
 {
-    static void __attribute__((constructor)) geopm_load(void)
-    {
-        try {
-            geopm::comm_factory().register_plugin(geopm::MPIComm::plugin_name(),
-                                                  geopm::MPIComm::make_plugin);
-        }
-        catch(...) {
-            geopm::exception_handler(std::current_exception(), true);
-        }
-    }
-
     int geopm_ctl_create(MPI_Comm comm, struct geopm_ctl_c **ctl)
     {
         int err = 0;

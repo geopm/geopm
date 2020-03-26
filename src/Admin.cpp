@@ -216,7 +216,7 @@ namespace geopm
             else {
                 policy_vals.resize(policy_names.size(), NAN);
             }
-            std::unique_ptr<Agent> agent = agent_factory().make_plugin(agent_name);
+            std::unique_ptr<Agent> agent = Agent::make_unique(agent_name);
             agent->validate_policy(policy_vals);
         }
         else if (policy_it != config_map.end()) {
