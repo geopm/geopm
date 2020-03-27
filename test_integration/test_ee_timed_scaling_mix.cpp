@@ -38,6 +38,7 @@
 #include <memory>
 
 #include "geopm.h"
+#include "Profile.hpp"
 #include "Exception.hpp"
 #include "ModelRegion.hpp"
 
@@ -59,14 +60,10 @@ int main(int argc, char **argv)
             }
         }
     }
-
     std::string test_name = "test_ee_timed_scaling_mix";
     std::unique_ptr<geopm::ModelRegion> ignore_model(geopm::ModelRegion::model_region("spin", 0.075, is_verbose));
-    uint64_t ignore_region_id = 0;
-    err = geopm_prof_region("ignore", GEOPM_REGION_HINT_IGNORE, &ignore_region_id);
-    if (err) {
-        throw geopm::Exception(test_name, err, __FILE__, __LINE__);
-    }
+    geopm::Profile &prof = geopm::Profile::default_profile();
+    uint64_t ignore_region_id = prof.region("ignore", GEOPM_REGION_HINT_IGNORE);
     int repeat = 100;
     double scaling_factor = 1;
     double timed_factor = 1;
@@ -83,30 +80,15 @@ int main(int argc, char **argv)
         region_name[NAME_MAX - 1] = '\0';
         snprintf(region_name, NAME_MAX - 1, "timed-%.2f-scaling-%.2f", timed_big_o, scaling_big_o);
         uint64_t region_id = 0;
-        err = geopm_prof_region(region_name, GEOPM_REGION_HINT_UNKNOWN, &region_id);
-        if (err) {
-            throw geopm::Exception(test_name, err, __FILE__, __LINE__);
-        }
+        region_id = prof.region(region_name, GEOPM_REGION_HINT_UNKNOWN);
         for (int rep_idx = 0; rep_idx != repeat; ++rep_idx) {
-            err = geopm_prof_enter(region_id);
-            if (err) {
-                throw geopm::Exception(test_name, err, __FILE__, __LINE__);
-            }
+            prof.enter(region_id);
             timed_model->run();
             scaling_model->run();
-            err = geopm_prof_exit(region_id);
-            if (err) {
-                throw geopm::Exception(test_name, err, __FILE__, __LINE__);
-            }
-            err = geopm_prof_enter(ignore_region_id);
-            if (err) {
-                throw geopm::Exception(test_name, err, __FILE__, __LINE__);
-            }
+            prof.exit(region_id);
+            prof.enter(ignore_region_id);
             ignore_model->run();
-            err = geopm_prof_exit(ignore_region_id);
-            if (err) {
-                throw geopm::Exception(test_name, err, __FILE__, __LINE__);
-            }
+            prof.exit(ignore_region_id);
             MPI_Barrier(MPI_COMM_WORLD);
         }
     }
