@@ -68,7 +68,7 @@ class TestIntegrationProfilePolicy(unittest.TestCase):
         geopmpy.policy_store.connect(policy_db_path)
         geopmpy.policy_store.set_default("power_balancer",
                                          [self.default_power_cap])
-        geopmpy.policy_store.set_best("power_custom", "power_balancer",
+        geopmpy.policy_store.set_best("power_balancer", "power_custom",
                                       [self.custom_power_cap, 0, 0, 0])
         geopmpy.policy_store.disconnect()
 
