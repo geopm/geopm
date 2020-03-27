@@ -1039,8 +1039,10 @@ class TestIntegration(unittest.TestCase):
         self.assertEqual(len(node_names), num_node)
         for nn in node_names:
             ignore_data = self._output.get_report_data(node_name=nn, region='ignore')
+            startup_data = self._output.get_report_data(node_name=nn,
+                                                        region='geopm_dgemm_model_region_startup')
             app_data = self._output.get_app_total_data(node_name=nn)
-            self.assertNear(ignore_data['runtime'].item(),
+            self.assertNear(ignore_data['runtime'].item() + startup_data['runtime'].item(),
                             app_data['ignore-runtime'].item(), 0.00005)
 
     @util.skip_unless_config_enable('ompt')
