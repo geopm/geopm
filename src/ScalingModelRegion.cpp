@@ -43,6 +43,7 @@
 #include "geopm_time.h"
 #include "Exception.hpp"
 #include "Profile.hpp"
+#include "Comm.hpp"
 
 namespace geopm
 {
@@ -55,7 +56,8 @@ namespace geopm
         , m_sysfs_cache_dir("/sys/devices/system/cpu/cpu0/cache")
         , m_llc_slop_size(320) // 5 cache lines
         , m_element_size(3 * 8)
-        , m_array_len((llc_size() - m_llc_slop_size) / m_element_size) // Array is sized to fit 3 in LLC with slop
+        , m_rank_per_node(comm_factory().make_plugin("MPIComm")->split("", Comm::M_COMM_SPLIT_TYPE_SHARED)->num_rank())
+        , m_array_len((llc_size() / m_rank_per_node - m_llc_slop_size) / m_element_size) // Array is sized to fit 3 in the LLC with slop assuming one LLC per node
         , m_array_a(m_array_len, 0.0)
         , m_array_b(m_array_len, 1.0)
         , m_array_c(m_array_len, 2.0)
