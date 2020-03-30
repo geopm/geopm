@@ -1349,8 +1349,8 @@ class TestIntegrationGeopmio(unittest.TestCase):
             sys.stderr.write('{} {}\n'.format(str(ex), stderr.getvalue()))
 
         for line in stdout.getvalue().splitlines():
-            if self.skip_warning_string.encode() not in line:
-                self.assertNotIn(b'Error', line)
+            if self.skip_warning_string not in line:
+                self.assertNotIn('Error', line)
 
     def test_geopmread_command_line(self):
         '''
@@ -1403,10 +1403,10 @@ class TestIntegrationGeopmio(unittest.TestCase):
 
         all_signals = []
         for line in stdout.getvalue().splitlines():
-            if self.skip_warning_string.encode() not in line:
+            if self.skip_warning_string not in line:
                 all_signals.append(line.strip())
         for sig in all_signals:
-            self.check_no_error([sig.decode(), 'board', '0'])
+            self.check_no_error([sig, 'board', '0'])
 
     @util.skip_unless_batch()
     def test_geopmread_signal_value(self):
