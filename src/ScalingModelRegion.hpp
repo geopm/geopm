@@ -58,6 +58,7 @@ namespace geopm
             std::string m_sysfs_cache_dir;
             size_t m_llc_slop_size;
             size_t m_element_size;
+            size_t m_rank_per_node;
             size_t m_array_len;
             size_t m_num_atom;
             std::vector<double> m_array_a;
