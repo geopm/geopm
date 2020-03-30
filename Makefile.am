@@ -232,6 +232,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              .gitignore \
              .travis.yml \
              .travis_obs.sh \
+             BLURB \
              CODE_OF_CONDUCT.md \
              CONTRIBUTING.md \
              ChangeLog \
