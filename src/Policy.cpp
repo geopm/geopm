@@ -32,16 +32,53 @@
 
 #include "Policy.hpp"
 
+#include <algorithm>
+#include <sstream>
+
+#include "Exception.hpp"
+#include "Helper.hpp"
+
 namespace geopm
 {
     Policy::Policy(const std::vector<PolicyField> &fields)
     {
+        size_t idx = 0;
+        m_default_values.resize(fields.size());
+        for (const auto &ff : fields) {
+            m_name_index[ff.name] = idx;
+            m_default_values[idx] = ff.default_value;
+            ++idx;
+        }
+        m_values = m_default_values;
 
+#ifdef GEOPM_DEBUG
+        // assert consistent vector sizes
+        if (fields.size() != m_values.size() ||
+            fields.size() != m_default_values.size()) {
+            throw Exception("Policy(): mismatch in internal vector sizes",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
     }
 
     std::vector<double> Policy::to_vector(void) const
     {
-        std::vector<double> result;
+        /// @todo: can't just return m_values because of NAN.
+        /// This could be handled differently with dedicated get/set methods
+        /// instead of double& accessor, which does not allow us to
+        /// capture resets from writing NAN.  However, this method
+        /// allows update(vector) to be a fast copy.
+        std::vector<double> result(m_values.size());
+        for (size_t ii = 0; ii < result.size(); ++ii) {
+            // TODO: const function can't call non-const operator[]
+            //result[ii] = operator[](ii);
+            if (std::isnan(m_values[ii])) {
+                result[ii] = m_default_values[ii];
+            }
+            else {
+                result[ii] = m_values[ii];
+            }
+        }
         return result;
     }
 
@@ -57,12 +94,36 @@ namespace geopm
 
     double& Policy::operator[](const std::string &name)
     {
-        return dummy;
+        auto it = m_name_index.find(name);
+        if (it == m_name_index.end()) {
+            throw Exception("Policy::operator[]: invalid policy field name",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+#ifdef GEOPM_DEBUG
+        // assert consistent indices
+        if (it->second < 0 || it->second >= m_values.size()) {
+            throw Exception("Policy(): mismatch in internal data structures",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        double &result = m_values[it->second];
+        if (std::isnan(result)) {
+            result = m_default_values[it->second];
+        }
+        return result;
     }
 
     double& Policy::operator[](size_t index)
     {
-        return dummy;
+        if (index >= m_values.size()) {
+            throw Exception("Policy::operator[]: policy field index out of bounds",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        double &result = m_values[index];
+        if (std::isnan(result)) {
+            result = m_default_values[index];
+        }
+        return result;
     }
 
     void Policy::update(const std::string &json)
@@ -77,6 +138,23 @@ namespace geopm
 
     std::string Policy::to_json(void) const
     {
-        return "bad";
+        /// @todo: see geopm_agent_policy_json_partial
+        /// need to ensure coverage and remove repeated code.
+        /// @todo: prints the policy in alpha order; want it to be
+        /// in policy order?
+        std::ostringstream output_str;
+        output_str << "{";
+        size_t idx = 0;
+        for (const auto &kv : m_name_index) {
+            if (idx > 0) {
+                output_str << ", ";
+            }
+            std::string policy_name = kv.first;
+            std::string policy_value = geopm::string_format_double(m_values[kv.second]);
+            output_str << "\"" << policy_name << "\": " << policy_value;
+            ++idx;
+        }
+        output_str << "}";
+        return output_str.str();
     }
 }

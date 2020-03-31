@@ -35,6 +35,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 namespace geopm
 {
@@ -86,7 +87,7 @@ namespace geopm
                 std::string name;
                 double default_value;
             };
-            Policy(const vector<PolicyField> &fields);
+            Policy(const std::vector<PolicyField> &fields);
             virtual ~Policy() = default;
 
             /// @todo might want copy/assignment
@@ -127,7 +128,7 @@ namespace geopm
             ///        thrown.  The string representing "NAN" is not
             ///        case-sensitive.
             /// @todo called by FilePolicy for initial file read of policy
-            void update(string json);
+            void update(const std::string &json);
 
             /// @brief Replace all values in the Policy with the
             ///        ordered input.  An input value NAN indicates it
@@ -136,12 +137,18 @@ namespace geopm
             ///        exception will be thrown.
             /// @todo Called by Controller at treecomm level interactions
             /// @todo could also be implemented with assigment operator. might be confusing.
-            void update(vector);
+            void update(const std::vector<std::string> &values);
 
             /// @brief Format the Policy as a JSON string.  All values will be
             ///        added, including defaults.
             /// @todo Called by geopmagent, reporter
             std::string to_json(void) const;
+
+        private:
+            std::map<std::string, size_t> m_name_index;
+            std::vector<double> m_default_values;
+            std::vector<double> m_values;
+
     };
 }
 
