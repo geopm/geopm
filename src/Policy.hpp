@@ -113,6 +113,7 @@ namespace geopm
             ///        valid or an exception will be thrown.
             /// @param [in] name Name of the policy field.
             double &operator[](const std::string &name);
+            const double &operator[](const std::string &name) const;
             /// @brief Access a policy field by ordered index to read
             ///        or overwrite.  If no new value has been set, or
             ///        NAN was previously written, the default value
@@ -120,6 +121,7 @@ namespace geopm
             ///        exception will be thrown.
             /// @param [in] index Index of the policy field in order.
             double &operator[](size_t index);
+            const double &operator[](size_t index) const;
 
             /// @brief Parse a JSON string and replace any policy
             ///        fields with the values present.  All keys must

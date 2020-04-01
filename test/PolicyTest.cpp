@@ -78,7 +78,28 @@ TEST(PolicyTest, get_set_fields)
     // invalid name error
     GEOPM_EXPECT_THROW_MESSAGE(pol["invalid"], GEOPM_ERROR_INVALID,
                                "invalid policy field name");
+}
 
+TEST(PolicyTest, update_from_vector)
+{
+    Policy::PolicyField f0 {"red", 0.0};
+    Policy::PolicyField f1 {"green", 1.0};
+    Policy::PolicyField f2 {"blue", 0.4};
+    Policy pol({f0, f1, f2});
+    EXPECT_EQ({0.0, 1.0, 0.4}, pol.to_vector());
+
+    std::vector<double> vals = {0.8, 0.2, 0.1};
+    pol.update(vals);
+    EXPECT_EQ(vals, pol.to_vector());
+
+    // nan values reset to default
+    vals = {0.5, NAN, NAN};
+    pol.update(vals);
+    EXPECT_EQ({0.5, 1.0, 0.4}, pol.to_vector());
+
+    // errors: wrong size
+    vals = {7, 7, 7, 7};
+    GEOPM_EXPECT_THROW_MESSAGE(pol.update(vals));
 }
 
 TEST(PolicyTest, to_vector)
@@ -104,6 +125,20 @@ TEST(PolicyTest, to_vector)
     pol["muffin"] = NAN;
     expected = {4.0, 6, 3.3, 300};
     EXPECT_EQ(expected, pol.to_vector());
+}
+
+TEST(PolicyTest, update_from_json)
+{
+    Policy::PolicyField f0 {"red", 0.0};
+    Policy::PolicyField f1 {"green", 1.0};
+    Policy::PolicyField f2 {"blue", 0.4};
+    Policy pol({f0, f1, f2});
+
+    pol.update("{\"red\": 8.88}");
+    // union of existing and new values
+    EXPECT_EQ({8.88, 1.0, 0.4}, pol.to_vector());
+
+
 }
 
 TEST(PolicyTest, to_json)

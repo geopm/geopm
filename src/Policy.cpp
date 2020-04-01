@@ -113,6 +113,11 @@ namespace geopm
         return result;
     }
 
+    const double& Policy::operator[](const std::string &name) const
+    {
+        return const_cast<const double&>(operator[](name));
+    }
+
     double& Policy::operator[](size_t index)
     {
         if (index >= m_values.size()) {
@@ -124,6 +129,11 @@ namespace geopm
             result = m_default_values[index];
         }
         return result;
+    }
+
+    const double& Policy::operator[](size_t index) const
+    {
+        return const_cast<const double&>(operator[](index));
     }
 
     void Policy::update(const std::string &json)
