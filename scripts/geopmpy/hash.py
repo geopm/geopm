@@ -39,7 +39,7 @@ _ffi = cffi.FFI()
 _ffi.cdef("""
 uint64_t geopm_crc32_str(const char *key);
 """)
-_dl = _ffi.dlopen('libgeopmpolicy.so')
+_dl = _ffi.dlopen('libgeopmpolicy.so', _ffi.RTLD_GLOBAL|_ffi.RTLD_LAZY)
 
 def crc32_str(key):
     """Return the geopm hash of a string
