@@ -80,6 +80,7 @@ class MSRIOGroupTest : public :: testing :: Test
         std::unique_ptr<MSRIOGroup> m_msrio_group;
         NiceMock<MockPlatformTopo> m_topo;
         int m_num_cpu = 16;
+        int m_num_core = 8;
         void mock_enable_fixed_counters(void);
 };
 
@@ -172,6 +173,7 @@ void MSRIOGroupTest::SetUp()
     m_test_dev_path = msrio->test_dev_paths();
     ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_PACKAGE)).WillByDefault(Return(1));
     ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU)).WillByDefault(Return(m_num_cpu));
+    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CORE)).WillByDefault(Return(m_num_core));
     std::set<int> package_cpus;
     for (int ii = 0; ii < m_num_cpu; ++ii) {
         ON_CALL(m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CPU, ii))
@@ -227,6 +229,41 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
     std::unique_ptr<MockMSRIO> msrio(new MockMSRIO(m_num_cpu));
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup(m_topo, std::move(msrio), 0x9999, m_num_cpu),
                                GEOPM_ERROR_RUNTIME, "Unsupported CPUID");
+}
+
+TEST_F(MSRIOGroupTest, valid_signal_temperature)
+{
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::TEMPERATURE_TARGET:PROCHOT_MIN"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::THERM_STATUS:DIGITAL_READOUT"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT"));
+
+    // check signal names are valid
+    EXPECT_TRUE(m_msrio_group->is_valid_signal("MSR::TEMPERATURE_CORE"));
+    EXPECT_TRUE(m_msrio_group->is_valid_signal("MSR::TEMPERATURE_PACKAGE"));
+
+    // check names appear in signal_names
+    auto signal_names = m_msrio_group->signal_names();
+    EXPECT_TRUE(signal_names.find("MSR::TEMPERATURE_CORE") != signal_names.end());
+    EXPECT_TRUE(signal_names.find("MSR::TEMPERATURE_PACKAGE") != signal_names.end());
+
+    // check signal has domain
+    EXPECT_EQ(GEOPM_DOMAIN_CORE,
+              m_msrio_group->signal_domain_type("MSR::TEMPERATURE_CORE"));
+    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
+              m_msrio_group->signal_domain_type("MSR::TEMPERATURE_PACKAGE"));
+
+    // check signal has agg function
+    std::function<std::string(double)> func;
+    func = m_msrio_group->format_function("MSR::TEMPERATURE_CORE");
+    EXPECT_TRUE(is_format_double(func));
+    func = m_msrio_group->format_function("MSR::TEMPERATURE_PACKAGE");
+    EXPECT_TRUE(is_format_double(func));
+
+    // check signal has description
+    std::string desc = m_msrio_group->signal_description("MSR::TEMPERATURE_CORE");
+    EXPECT_EQ("Core temperature in degrees C", desc);
+    desc = m_msrio_group->signal_description("MSR::TEMPERATURE_PACKAGE");
+    EXPECT_EQ("Package temperature in degrees C", desc);
 }
 
 TEST_F(MSRIOGroupTest, signal_error)
@@ -404,6 +441,87 @@ TEST_F(MSRIOGroupTest, read_signal)
     EXPECT_EQ(8888, inst_0);
 
     close(fd_0);
+}
+
+TEST_F(MSRIOGroupTest, read_signal_temperature)
+{
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::TEMPERATURE_TARGET:PROCHOT_MIN"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::THERM_STATUS:DIGITAL_READOUT"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT"));
+
+    // temperature is (PROCHOT_MIN - DIGITAL_READOUT)
+    int prochot_val = 98;
+    int readout_val = 66;
+    double exp_temp = prochot_val - readout_val;
+
+    int fd_0 = open(m_test_dev_path[0].c_str(), O_RDWR);
+    ASSERT_NE(-1, fd_0);
+
+    uint64_t prochot_msr = 0x1A2;
+    int prochot_begin = 16;
+    uint64_t value = prochot_val << prochot_begin;
+    size_t num_write = pwrite(fd_0, &value, sizeof(value), prochot_msr);
+    ASSERT_EQ(num_write, sizeof(value));
+    uint64_t readout_msr = 0x19C;
+    int readout_begin = 16;
+    value = readout_val << readout_begin;
+    num_write = pwrite(fd_0, &value, sizeof(value), readout_msr);
+    ASSERT_EQ(num_write, sizeof(value));
+    EXPECT_NEAR(exp_temp, m_msrio_group->read_signal("MSR::TEMPERATURE_CORE", GEOPM_DOMAIN_CORE, 0), 0.001);
+
+    readout_val = 55;
+    exp_temp = prochot_val - readout_val;
+    uint64_t pkg_readout_msr = 0x1B1;
+    int pkg_readout_begin = 16;
+    value = readout_val << pkg_readout_begin;
+    num_write = pwrite(fd_0, &value, sizeof(value), pkg_readout_msr);
+    ASSERT_EQ(num_write, sizeof(value));
+    EXPECT_NEAR(exp_temp, m_msrio_group->read_signal("MSR::TEMPERATURE_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0), 0.001);
+}
+
+
+TEST_F(MSRIOGroupTest, push_signal_temperature)
+{
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::TEMPERATURE_TARGET:PROCHOT_MIN"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::THERM_STATUS:DIGITAL_READOUT"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT"));
+
+    int core_idx = m_msrio_group->push_signal("MSR::TEMPERATURE_CORE", GEOPM_DOMAIN_CORE, 0);
+    int pkg_idx = m_msrio_group->push_signal("MSR::TEMPERATURE_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0);
+    EXPECT_GE(core_idx, 0);
+    EXPECT_GE(pkg_idx, 0);
+    // temperature is (PROCHOT_MIN - DIGITAL_READOUT)
+    int prochot_val = 98;
+    int readout_val = 66;
+    double exp_temp = prochot_val - readout_val;
+
+    int fd_0 = open(m_test_dev_path[0].c_str(), O_RDWR);
+    ASSERT_NE(-1, fd_0);
+
+    uint64_t prochot_msr = 0x1A2;
+    int prochot_begin = 16;
+    uint64_t value = prochot_val << prochot_begin;
+    size_t num_write = pwrite(fd_0, &value, sizeof(value), prochot_msr);
+    ASSERT_EQ(num_write, sizeof(value));
+    uint64_t readout_msr = 0x19C;
+    int readout_begin = 16;
+    value = readout_val << readout_begin;
+    num_write = pwrite(fd_0, &value, sizeof(value), readout_msr);
+    ASSERT_EQ(num_write, sizeof(value));
+
+    m_msrio_group->read_batch();
+    EXPECT_NEAR(exp_temp, m_msrio_group->sample(core_idx), 0.001);
+
+    readout_val = 55;
+    exp_temp = prochot_val - readout_val;
+    uint64_t pkg_readout_msr = 0x1B1;
+    int pkg_readout_begin = 16;
+    value = readout_val << pkg_readout_begin;
+    num_write = pwrite(fd_0, &value, sizeof(value), pkg_readout_msr);
+    ASSERT_EQ(num_write, sizeof(value));
+
+    m_msrio_group->read_batch();
+    EXPECT_NEAR(exp_temp, m_msrio_group->sample(pkg_idx), 0.001);
 }
 
 TEST_F(MSRIOGroupTest, signal_alias)
