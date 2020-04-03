@@ -102,7 +102,7 @@ int geopm_pio_control_description(const char *control_name,
                                   size_t description_max,
                                   char *description);
 """)
-_dl = _ffi.dlopen('libgeopmpolicy.so')
+_dl = _ffi.dlopen('libgeopmpolicy.so', _ffi.RTLD_GLOBAL|_ffi.RTLD_LAZY)
 
 def signal_names():
     """Get all available signals.

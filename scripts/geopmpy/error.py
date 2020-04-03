@@ -58,7 +58,7 @@ enum geopm_error_e {
 void geopm_error_message(int err, char *msg, size_t size);
 
 """)
-_dl = _ffi.dlopen('libgeopmpolicy.so')
+_dl = _ffi.dlopen('libgeopmpolicy.so', _ffi.RTLD_GLOBAL|_ffi.RTLD_LAZY)
 
 ERROR_RUNTIME = _dl.GEOPM_ERROR_RUNTIME
 ERROR_LOGIC = _dl.GEOPM_ERROR_LOGIC

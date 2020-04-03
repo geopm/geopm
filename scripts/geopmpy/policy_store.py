@@ -51,7 +51,7 @@ int geopm_policystore_set_best(const char* agent_name, const char* profile_name,
 int geopm_policystore_set_default(const char* agent_name,
                                   size_t num_policy_vals, const double* policy_vals);
 """)
-_dl = _ffi.dlopen('libgeopmpolicy.so')
+_dl = _ffi.dlopen('libgeopmpolicy.so', _ffi.RTLD_GLOBAL|_ffi.RTLD_LAZY)
 
 
 def connect(database_path):
