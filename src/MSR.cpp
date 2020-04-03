@@ -83,11 +83,11 @@ namespace geopm
             MSREncode(const struct MSR::m_encode_s &msre);
             MSREncode(int begin_bit, int end_bit, int function, int units, double scalar);
             virtual ~MSREncode() = default;
-            double decode(uint64_t field, uint64_t &last_field, uint64_t &num_overflow);
-            uint64_t encode(double value);
-            uint64_t mask(void);
-            int decode_function(void);
-            int units(void);
+            double decode(uint64_t field, uint64_t &last_field, uint64_t &num_overflow) const;
+            uint64_t encode(double value) const;
+            uint64_t mask(void) const;
+            int decode_function(void) const;
+            int units(void) const;
         private:
             const int m_function;
             int m_units;
@@ -124,7 +124,7 @@ namespace geopm
 #endif
     }
 
-    double MSREncode::decode(uint64_t field, uint64_t &last_field, uint64_t &num_overflow)
+    double MSREncode::decode(uint64_t field, uint64_t &last_field, uint64_t &num_overflow) const
     {
         double result = NAN;
         uint64_t subfield = (field & m_mask) >> m_shift;
@@ -159,7 +159,7 @@ namespace geopm
         return result;
     }
 
-    uint64_t MSREncode::encode(double value)
+    uint64_t MSREncode::encode(double value) const
     {
         uint64_t result = 0;
         double value_inferred = 0.0;
@@ -209,17 +209,17 @@ namespace geopm
         return result;
     }
 
-    uint64_t MSREncode::mask(void)
+    uint64_t MSREncode::mask(void) const
     {
         return m_mask;
     }
 
-    int MSREncode::decode_function(void)
+    int MSREncode::decode_function(void) const
     {
         return m_function;
     }
 
-    int MSREncode::units(void)
+    int MSREncode::units(void) const
     {
         return m_units;
     }
@@ -230,24 +230,14 @@ namespace geopm
                    const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &control)
         : m_name(msr_name)
         , m_offset(offset)
-        , m_signal_encode(signal.size(), NULL)
-        , m_control_encode(control.size())
         , m_domain_type(GEOPM_DOMAIN_INVALID)
-        , m_prog_msr(0)
-        , m_prog_field_name(0)
-        , m_prog_value(0)
     {
         init(signal, control);
     }
 
     MSRImp::~MSRImp()
     {
-        for (auto it = m_control_encode.rbegin(); it != m_control_encode.rend(); ++it) {
-            delete (*it);
-        }
-        for (auto it = m_signal_encode.rbegin(); it != m_signal_encode.rend(); ++it) {
-            delete (*it);
-        }
+
     }
 
     void MSRImp::init(const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &signal,
@@ -256,12 +246,12 @@ namespace geopm
         int idx = 0;
         for (auto it = signal.begin(); it != signal.end(); ++it, ++idx) {
             m_signal_map.insert(std::pair<std::string, int>(it->first, idx));
-            m_signal_encode[idx] = new MSREncode(it->second);
+            m_signal_encode.emplace_back(it->second);
         }
         idx = 0;
         for (auto it = control.begin(); it != control.end(); ++it, ++idx) {
             m_control_map.insert(std::pair<std::string, int>(it->first, idx));
-            m_control_encode[idx] = new MSREncode(it->second);
+            m_control_encode.emplace_back(it->second);
         }
         if (signal.size() != 0) {
             m_domain_type = signal[0].second.domain;
@@ -356,7 +346,7 @@ namespace geopm
             throw Exception("MSR::signal(): signal_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return m_signal_encode[signal_idx]->decode(field, last_field, num_overflow);
+        return m_signal_encode[signal_idx].decode(field, last_field, num_overflow);
     }
 
     void MSRImp::control(int control_idx,
@@ -368,13 +358,13 @@ namespace geopm
             throw Exception("MSR::control(): control_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        field = m_control_encode[control_idx]->encode(value);
-        mask = m_control_encode[control_idx]->mask();
+        field = m_control_encode[control_idx].encode(value);
+        mask = m_control_encode[control_idx].mask();
     }
 
     uint64_t MSRImp::mask(int control_idx) const
     {
-        return m_control_encode[control_idx]->mask();
+        return m_control_encode[control_idx].mask();
     }
 
     int MSRImp::domain_type(void) const
@@ -384,12 +374,12 @@ namespace geopm
 
     int MSRImp::decode_function(int signal_idx) const
     {
-        return m_signal_encode[signal_idx]->decode_function();
+        return m_signal_encode[signal_idx].decode_function();
     }
 
     int MSRImp::units(int signal_idx) const
     {
-        return m_signal_encode[signal_idx]->units();
+        return m_signal_encode[signal_idx].units();
     }
 
     MSR::m_function_e MSR::string_to_function(const std::string &str)

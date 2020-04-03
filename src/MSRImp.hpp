@@ -83,15 +83,11 @@ namespace geopm
                       const std::vector<std::pair<std::string, struct MSR::m_encode_s> > &control);
             std::string m_name;
             uint64_t m_offset;
-            std::vector<MSREncode *> m_signal_encode;
-            std::vector<MSREncode *> m_control_encode;
+            std::vector<MSREncode> m_signal_encode;
+            std::vector<MSREncode> m_control_encode;
             std::map<std::string, int> m_signal_map;
             std::map<std::string, int> m_control_map;
             int m_domain_type;
-            const std::vector<const MSR *> m_prog_msr;
-            const std::vector<std::string> m_prog_field_name;
-            const std::vector<double> m_prog_value;
-
     };
 }
 
