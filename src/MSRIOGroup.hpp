@@ -47,6 +47,7 @@ namespace geopm
     class MSRControl;
     class MSRIO;
     class PlatformTopo;
+    class CombinedSignal;
 
     /// @brief IOGroup that provides signals and controls based on MSRs.
     class MSRIOGroup : public IOGroup
@@ -171,6 +172,11 @@ namespace geopm
             std::map<std::string, std::string> m_signal_desc_map;
             std::map<std::string, std::string> m_control_desc_map;
             std::map<std::string, int> m_signal_units_map;
+
+            /// @todo remove with combined signal refactoring
+            static const std::set<std::string> m_combined_signal_names;
+            std::map<int, std::pair<std::vector<int>,
+                                    std::unique_ptr<CombinedSignal> > > m_combined_signals;
     };
 }
 

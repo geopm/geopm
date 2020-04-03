@@ -479,7 +479,6 @@ TEST_F(MSRIOGroupTest, read_signal_temperature)
     EXPECT_NEAR(exp_temp, m_msrio_group->read_signal("MSR::TEMPERATURE_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0), 0.001);
 }
 
-
 TEST_F(MSRIOGroupTest, push_signal_temperature)
 {
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::TEMPERATURE_TARGET:PROCHOT_MIN"));
