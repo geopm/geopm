@@ -73,7 +73,7 @@ namespace geopm
         }
         for (const auto &plugin : plugins) {
             if (NULL == dlopen(plugin.c_str(), RTLD_NOLOAD)) {
-                if (NULL == dlopen(plugin.c_str(), RTLD_LAZY)) {
+                if (NULL == dlopen(plugin.c_str(), RTLD_LAZY|RTLD_GLOBAL)) {
 #ifdef GEOPM_DEBUG
                     std::cerr << "Warning: <geopm> Failed to dlopen plugin with dlerror(): "
                               << dlerror() << std::endl;
