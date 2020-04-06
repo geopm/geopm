@@ -43,6 +43,7 @@
 
 #include "MSRIOImp.hpp"
 #include "Exception.hpp"
+#include "Helper.hpp"
 
 // Class derived from MSRIO used to test MSRIO w/o accessing the msr
 // device files.
@@ -652,18 +653,18 @@ class MSRIOTest : public :: testing :: Test
     protected:
         void SetUp(void);
         void TearDown(void);
-        TestMSRIO *m_msrio;
+        std::unique_ptr<TestMSRIO> m_msrio;
         int m_num_cpu = 4;
 };
 
 void MSRIOTest::SetUp(void)
 {
-    m_msrio = new TestMSRIO(m_num_cpu);
+    m_msrio = geopm::make_unique<TestMSRIO>(m_num_cpu);
 }
 
 void MSRIOTest::TearDown(void)
 {
-    delete m_msrio;
+
 }
 
 TEST_F(MSRIOTest, read_aligned)
@@ -819,4 +820,33 @@ TEST_F(MSRIOTest, write_batch)
     EXPECT_THROW(m_msrio->config_batch({}, {}, write_cpu_idx, {}, {}), geopm::Exception);
     EXPECT_THROW(m_msrio->config_batch(write_cpu_idx, {}, {}, {}, {}), geopm::Exception);
     EXPECT_THROW(m_msrio->config_batch({}, {}, write_cpu_idx, write_offset, {}), geopm::Exception);
+}
+
+TEST_F(MSRIOTest, add_read)
+{
+    std::vector<int> cpu_idx;
+    for (int i = 0; i < m_num_cpu; ++i) {
+        cpu_idx.push_back(i);
+    }
+    std::vector<std::string> words {"software", "engineer", "document", "everyday",
+                                    "modeling", "standout", "patience", "goodwill"};
+    std::vector<uint64_t> offsets {0xd28, 0x520, 0x468, 0x570, 0x918, 0xd80, 0xa40, 0x688};
+
+    std::vector<int> read_cpu_idx;
+    std::vector<uint64_t> read_offset;
+    std::vector<uint64_t> expected;
+    for (auto &ci : cpu_idx) {
+        auto wi = words.begin();
+        for (auto oi : offsets) {
+            uint64_t *mem  = m_msrio->add_read(ci, oi);
+            EXPECT_NE(nullptr, mem);
+            uint64_t result;
+            memcpy(&result, wi->data(), 8);
+            expected.push_back(result);
+            ++wi;
+        }
+    }
+    std::vector<uint64_t> actual;
+    m_msrio->read_batch(actual);
+    EXPECT_EQ(expected, actual);
 }
