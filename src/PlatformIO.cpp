@@ -75,9 +75,9 @@ namespace geopm
         , m_do_restore(false)
     {
         if (m_iogroup_list.size() == 0) {
-            for (const auto &it : iogroup_factory().plugin_names()) {
+            for (const auto &it : IOGroup::iogroup_names()) {
                 try {
-                    register_iogroup(iogroup_factory().make_plugin(it));
+                    register_iogroup(IOGroup::make_unique(it));
                 }
                 catch (const geopm::Exception &ex) {
 #ifdef GEOPM_DEBUG

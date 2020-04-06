@@ -58,6 +58,7 @@ namespace geopm
 #endif
     }
 
+
     CommFactory &comm_factory(void)
     {
         static CommFactory instance;
@@ -70,10 +71,18 @@ namespace geopm
         return instance;
     }
 
+
+    std::vector<std::string> Comm::comm_names(void)
+    {
+        return comm_factory().plugin_names();
+    }
+
+
     std::unique_ptr<Comm> Comm::make_unique(const std::string &comm_name)
     {
         return comm_factory().make_plugin(comm_name);
     }
+
 
     std::unique_ptr<Comm> Comm::make_unique(void)
     {

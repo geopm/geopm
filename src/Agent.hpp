@@ -47,6 +47,7 @@ namespace geopm
         public:
             Agent() = default;
             virtual ~Agent() = default;
+            static std::vector<std::string> agent_names(void);
             static std::unique_ptr<Agent> make_unique(const std::string &agent_name);
             /// @brief Set the level where this Agent is active and push
             ///        signals/controls for that level.
