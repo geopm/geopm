@@ -60,10 +60,10 @@ namespace geopm
     CommFactory &comm_factory(void)
     {
         static CommFactory instance;
-        static bool once = true;
+        static bool is_once = true;
         static std::once_flag flag;
-        if (once) {
-            once = false;
+        if (is_once) {
+            is_once = false;
             std::call_once(flag, plugin_load, Comm::M_PLUGIN_PREFIX);
         }
         return instance;

@@ -87,10 +87,10 @@ namespace geopm
     AgentFactory &agent_factory(void)
     {
         static AgentFactory instance;
-        static bool once = true;
+        static bool is_once = true;
         static std::once_flag flag;
-        if (once) {
-            once = false;
+        if (is_once) {
+            is_once = false;
             std::call_once(flag, plugin_load, Agent::M_PLUGIN_PREFIX);
         }
         return instance;

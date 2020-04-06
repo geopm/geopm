@@ -72,10 +72,10 @@ namespace geopm
     IOGroupFactory &iogroup_factory(void)
     {
         static IOGroupFactory instance;
-        static bool once = true;
+        static bool is_once = true;
         static std::once_flag flag;
-        if (once) {
-            once = false;
+        if (is_once) {
+            is_once = false;
             std::call_once(flag, plugin_load, IOGroup::M_PLUGIN_PREFIX);
         }
         return instance;
