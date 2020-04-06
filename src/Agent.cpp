@@ -97,6 +97,12 @@ namespace geopm
     }
 
 
+    std::vector<std::string> Agent::agent_names(void)
+    {
+        return agent_factory().plugin_names();
+    }
+
+
     std::unique_ptr<Agent> Agent::make_unique(const std::string &agent_name)
     {
         return agent_factory().make_plugin(agent_name);
@@ -226,7 +232,7 @@ int geopm_agent_supported(const char *agent_name)
 {
     int err = 0;
     try {
-        auto tmp = geopm::agent_factory().dictionary(agent_name);
+        geopm::Agent::num_policy(agent_name);
     }
     catch (const geopm::Exception &ex) {
         if (ex.err_value() == GEOPM_ERROR_INVALID) {
@@ -246,8 +252,7 @@ int geopm_agent_num_policy(const char *agent_name,
 {
     int err = 0;
     try {
-        *num_policy = geopm::Agent::num_policy(
-            geopm::agent_factory().dictionary(agent_name));
+        *num_policy = geopm::Agent::num_policy(agent_name);
     }
     catch (const geopm::Exception &ex) {
         if (ex.err_value() == GEOPM_ERROR_INVALID) {
@@ -268,8 +273,7 @@ int geopm_agent_num_sample(const char *agent_name,
 {
     int err = 0;
     try {
-        *num_sample = geopm::Agent::num_sample(
-            geopm::agent_factory().dictionary(agent_name));
+        *num_sample = geopm::Agent::num_sample(agent_name);
     }
     catch (const geopm::Exception &ex) {
         if (ex.err_value() == GEOPM_ERROR_INVALID) {
@@ -297,8 +301,7 @@ int geopm_agent_policy_name(const char *agent_name,
     }
     if (!err) {
         try {
-            std::string policy_name_cxx = geopm::Agent::policy_names(
-                geopm::agent_factory().dictionary(agent_name))[policy_idx];
+            std::string policy_name_cxx = geopm::Agent::policy_names(agent_name).at(policy_idx);
             if (policy_name_cxx.size() >= policy_name_max) {
                 err = E2BIG;
             }
@@ -334,8 +337,7 @@ int geopm_agent_sample_name(const char *agent_name,
     }
     if (!err) {
         try {
-            std::string sample_name_cxx = geopm::Agent::sample_names(
-                geopm::agent_factory().dictionary(agent_name))[sample_idx];
+            std::string sample_name_cxx = geopm::Agent::sample_names(agent_name).at(sample_idx);
             if (sample_name_cxx.size() >= sample_name_max) {
                 err = E2BIG;
             }
@@ -429,7 +431,7 @@ int geopm_agent_name(int agent_idx,
 {
     int err = 0;
     try {
-        std::vector<std::string> agent_names = geopm::agent_factory().plugin_names();
+        std::vector<std::string> agent_names = geopm::Agent::agent_names();
         if (agent_names.at(agent_idx).size() >= agent_name_max) {
             err = GEOPM_ERROR_INVALID;
         }
@@ -448,7 +450,7 @@ int geopm_agent_num_avail(int* num_agent)
 {
     int err = 0;
     try {
-        std::vector<std::string> agent_names = geopm::agent_factory().plugin_names();
+        std::vector<std::string> agent_names = geopm::Agent::agent_names();
         *num_agent = agent_names.size();
     }
     catch (...) {

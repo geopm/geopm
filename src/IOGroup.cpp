@@ -82,6 +82,18 @@ namespace geopm
     }
 
 
+    std::vector<std::string> IOGroup::iogroup_names(void)
+    {
+        return iogroup_factory().plugin_names();
+    }
+
+
+    std::unique_ptr<IOGroup> IOGroup::make_unique(const std::string &iogroup_name)
+    {
+        return iogroup_factory().make_plugin(iogroup_name);
+    }
+
+
     std::function<std::string(double)> IOGroup::format_function(const std::string &signal_name) const
     {
 #ifdef GEOPM_DEBUG

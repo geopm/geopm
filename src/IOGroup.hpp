@@ -47,6 +47,7 @@ namespace geopm
         public:
             IOGroup() = default;
             virtual ~IOGroup() = default;
+            static std::vector<std::string> iogroup_names(void);
             static std::unique_ptr<IOGroup> make_unique(const std::string &iogroup_name);
             /// @brief Returns the names of all signals provided by
             ///        the IOGroup.
