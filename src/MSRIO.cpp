@@ -174,6 +174,22 @@ namespace geopm
         m_write_batch.ops = m_write_batch_op.data();
     }
 
+    uint64_t *MSRIOImp::add_read(int cpu_idx, uint64_t offset)
+    {
+        m_msr_batch_op_s rd {
+            .cpu = (uint16_t)cpu_idx,
+            .isrdmsr = 1,
+            .err = 0,
+            .msr = (uint32_t)offset,
+            .msrdata = 0,
+            .wmask = 0
+        };
+        m_read_batch_op.push_back(rd);
+        m_read_batch.numops = m_read_batch_op.size();
+        m_read_batch.ops = m_read_batch_op.data();
+        return &m_read_batch.ops[m_read_batch.numops - 1].msrdata;
+    }
+
     void MSRIOImp::msr_ioctl(bool is_read)
     {
         struct m_msr_batch_array_s *batch_ptr = is_read ? &m_read_batch : &m_write_batch;
@@ -216,6 +232,23 @@ namespace geopm
                  ++raw_it, ++batch_idx) {
                 *raw_it = read_msr(m_read_batch_op[batch_idx].cpu,
                                    m_read_batch_op[batch_idx].msr);
+            }
+        }
+    }
+
+    void MSRIOImp::read_batch(void)
+    {
+        open_msr_batch();
+        if (m_is_batch_enabled) {
+            msr_ioctl(true);
+        }
+        else {
+            for (uint32_t batch_idx = 0;
+                 batch_idx != m_read_batch.numops;
+                 ++batch_idx) {
+                m_read_batch.ops[batch_idx].msrdata =
+                    read_msr(m_read_batch_op[batch_idx].cpu,
+                             m_read_batch_op[batch_idx].msr);
             }
         }
     }

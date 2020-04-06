@@ -56,7 +56,9 @@ namespace geopm
                               const std::vector<int> &write_cpu_idx,
                               const std::vector<uint64_t> &write_offset,
                               const std::vector<uint64_t> &write_mask) override;
+            uint64_t *add_read(int cpu_idx, uint64_t offset) override;
             void read_batch(std::vector<uint64_t> &raw_value) override;
+            void read_batch(void) override;
             void write_batch(const std::vector<uint64_t> &raw_value) override;
         private:
             struct m_msr_batch_op_s {
