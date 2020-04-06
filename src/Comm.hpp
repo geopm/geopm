@@ -61,7 +61,8 @@ namespace geopm
             Comm(const Comm &in_comm) = default;
             /// @brief Default destructor
             virtual ~Comm() = default;
-
+            static std::unique_ptr<Comm> make_unique(const std::string &comm_name);
+            static std::unique_ptr<Comm> make_unique(void);
             virtual std::shared_ptr<Comm> split() const = 0;
             virtual std::shared_ptr<Comm> split(int color, int key) const = 0;
             virtual std::shared_ptr<Comm> split(const std::string &tag, int split_type) const = 0;

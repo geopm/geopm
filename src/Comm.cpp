@@ -39,6 +39,7 @@
 #include <dlfcn.h>
 #include <list>
 #include <mutex>
+#include <Environment.hpp>
 #include <geopm_plugin.hpp>
 #include "config.h"
 #ifdef GEOPM_ENABLE_MPI
@@ -67,5 +68,15 @@ namespace geopm
             std::call_once(flag, plugin_load, Comm::M_PLUGIN_PREFIX);
         }
         return instance;
+    }
+
+    std::unique_ptr<Comm> Comm::make_unique(const std::string &comm_name)
+    {
+        return comm_factory().make_plugin(comm_name);
+    }
+
+    std::unique_ptr<Comm> Comm::make_unique(void)
+    {
+        return comm_factory().make_plugin(environment().comm());
     }
 }

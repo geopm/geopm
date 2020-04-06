@@ -165,7 +165,7 @@ namespace geopm
     }
 
     Controller::Controller()
-        : Controller(comm_factory().make_plugin(environment().comm()))
+        : Controller(Comm::make_unique())
     {
 
     }
