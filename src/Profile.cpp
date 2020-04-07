@@ -111,6 +111,9 @@ namespace geopm
         if (m_is_enabled) {
             return;
         }
+        if (m_comm == nullptr) {
+            m_comm = Comm::make_unique();
+        }
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_entry;
         geopm_time(&overhead_entry);
@@ -192,7 +195,7 @@ namespace geopm
     ProfileImp::ProfileImp()
         : ProfileImp(environment().profile(), environment().shmkey(), environment().report(),
                      environment().timeout(), environment().do_region_barrier(),
-                     Comm::make_unique(), nullptr, platform_topo(), nullptr,
+                     nullptr, nullptr, platform_topo(), nullptr,
                      nullptr, geopm::make_unique<SampleSchedulerImp>(0.01), nullptr)
     {
     }
