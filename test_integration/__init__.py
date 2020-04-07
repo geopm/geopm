@@ -43,4 +43,5 @@ from test_integration.test_ee_timed_scaling_mix import *
 from test_integration.test_enforce_policy import *
 from test_integration.test_profile_policy import *
 from test_integration.test_plugin_static_policy import *
+from test_integration.test_tutorial_base import *
 from geopmpy.version import __version__

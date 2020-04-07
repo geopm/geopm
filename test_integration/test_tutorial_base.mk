@@ -29,37 +29,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += test_integration/configure_test_template.sh \
-              test_integration/geopm_context.py \
-              test_integration/geopm_test_integration.py \
-              test_integration/geopm_test_launcher.py \
-              test_integration/geopm_test_loop.sh \
-              test_integration/__init__.py \
-              test_integration/__main__.py \
-              test_integration/README.md \
-              test_integration/short_region/plot_margin_sweep.py \
-              test_integration/test_profile_policy.py \
-              test_integration/test_plugin_static_policy.py \
-              test_integration/test_template.cpp.in \
-              test_integration/test_template.mk.in \
-              test_integration/test_template.py.in \
-              test_integration/util.py \
+EXTRA_DIST += test_integration/test_tutorial_base.py \
+              test_integration/test_tutorial_base.sh \
               # end
 
-if ENABLE_BETA
-noinst_PROGRAMS += test_integration/test_profile_policy
-test_integration_test_profile_policy_SOURCES = test_integration/test_profile_policy.cpp \
-                                               # end
-test_integration_test_profile_policy_LDADD = libgeopmpolicy.la
-test_integration_test_profile_policy_LDFLAGS = $(AM_LDFLAGS)
-test_integration_test_profile_policy_CXXFLAGS = $(AM_CXXFLAGS) -std=c++11
-
-endif
-
-include test_integration/test_ee_short_region_slop.mk
-include test_integration/test_ee_timed_scaling_mix.mk
-include test_integration/test_enforce_policy.mk
-include test_integration/test_omp_outer_loop.mk
-include test_integration/test_scaling_region.mk
-include test_integration/test_timed_scaling_region.mk
-include test_integration/test_tutorial_base.mk
