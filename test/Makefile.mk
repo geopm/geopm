@@ -232,6 +232,16 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/MSRIOTest.read_unaligned \
               test/gtest_links/MSRIOTest.write \
               test/gtest_links/MSRIOTest.write_batch \
+              test/gtest_links/MSRFieldSignalTest.read_batch_7_bit_float \
+              test/gtest_links/MSRFieldSignalTest.read_batch_log_half \
+              test/gtest_links/MSRFieldSignalTest.read_batch_overflow \
+              test/gtest_links/MSRFieldSignalTest.read_batch_scale \
+              test/gtest_links/MSRFieldSignalTest.read_7_bit_float \
+              test/gtest_links/MSRFieldSignalTest.read_log_half \
+              test/gtest_links/MSRFieldSignalTest.read_overflow \
+              test/gtest_links/MSRFieldSignalTest.read_scale \
+              test/gtest_links/MSRFieldSignalTest.real_counter \
+              test/gtest_links/MSRFieldSignalTest.setup_batch \
               test/gtest_links/MSRTest.msr \
               test/gtest_links/MSRTest.msr_control \
               test/gtest_links/MSRTest.msr_overflow \
@@ -444,6 +454,7 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/IOGroupTest.cpp \
                           test/MSRIOGroupTest.cpp \
                           test/MSRIOTest.cpp \
+                          test/MSRFieldSignalTest.cpp \
                           test/MSRTest.cpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \
