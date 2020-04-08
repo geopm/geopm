@@ -507,6 +507,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/MSRControl.cpp \
                             src/MSRControl.hpp \
                             src/MSRControlImp.hpp \
+                            src/MSRFieldSignal.cpp \
+                            src/MSRFieldSignal.hpp \
                             src/MSRIO.cpp \
                             src/MSRIO.hpp \
                             src/MSRIOImp.hpp \
