@@ -68,10 +68,6 @@ using testing::WithArg;
 using testing::NiceMock;
 using json11::Json;
 
-bool is_format_double(std::function<std::string(double)> func);
-bool is_format_integer(std::function<std::string(double)> func);
-bool is_format_raw64(std::function<std::string(double)> func);
-
 class MSRIOGroupTest : public :: testing :: Test
 {
     protected:
@@ -84,11 +80,11 @@ class MSRIOGroupTest : public :: testing :: Test
         void mock_enable_fixed_counters(void);
 };
 
-class MockMSRIO : public geopm::MSRIOImp
+class MSRIOGroupTestMockMSRIO : public geopm::MSRIOImp
 {
     public:
-        MockMSRIO(int num_cpu);
-        virtual ~MockMSRIO();
+        MSRIOGroupTestMockMSRIO(int num_cpu);
+        virtual ~MSRIOGroupTestMockMSRIO();
         std::vector<std::string> test_dev_paths();
     protected:
         void msr_path(int cpu_idx,
@@ -101,7 +97,7 @@ class MockMSRIO : public geopm::MSRIOImp
         std::vector<std::string> m_test_dev_path;
 };
 
-MockMSRIO::MockMSRIO(int num_cpu)
+MSRIOGroupTestMockMSRIO::MSRIOGroupTestMockMSRIO(int num_cpu)
     : MSRIOImp(num_cpu)
     , M_MAX_OFFSET(4096)
     , m_num_cpu(num_cpu)
@@ -115,19 +111,19 @@ MockMSRIO::MockMSRIO(int num_cpu)
         char tmp_path[NAME_MAX] = "/tmp/test_platform_io_dev_cpu_XXXXXX";
         int fd = mkstemp(tmp_path);
         if (fd == -1) {
-           throw Exception("MockMSRIO: mkstemp() failed",
+           throw Exception("MSRIOGroupTestMockMSRIO: mkstemp() failed",
                            errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         m_test_dev_path.push_back(tmp_path);
 
         int err = ftruncate(fd, M_MAX_OFFSET);
         if (err) {
-            throw Exception("MockMSRIO: ftruncate() failed",
+            throw Exception("MSRIOGroupTestMockMSRIO: ftruncate() failed",
                             errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         uint64_t *contents = (uint64_t *)mmap(NULL, M_MAX_OFFSET, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
         if (contents == NULL) {
-            throw Exception("MockMSRIO: mmap() failed",
+            throw Exception("MSRIOGroupTestMockMSRIO: mmap() failed",
                             errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         close(fd);
@@ -143,33 +139,33 @@ MockMSRIO::MockMSRIO(int num_cpu)
     }
 }
 
-MockMSRIO::~MockMSRIO()
+MSRIOGroupTestMockMSRIO::~MSRIOGroupTestMockMSRIO()
 {
     for (auto &path : m_test_dev_path) {
         unlink(path.c_str());
     }
 }
 
-std::vector<std::string> MockMSRIO::test_dev_paths()
+std::vector<std::string> MSRIOGroupTestMockMSRIO::test_dev_paths()
 {
     return m_test_dev_path;
 }
 
-void MockMSRIO::msr_path(int cpu_idx,
-                         int is_fallback,
-                         std::string &path)
+void MSRIOGroupTestMockMSRIO::msr_path(int cpu_idx,
+                                       int is_fallback,
+                                       std::string &path)
 {
     path = m_test_dev_path[cpu_idx];
 }
 
-void MockMSRIO::msr_batch_path(std::string &path)
+void MSRIOGroupTestMockMSRIO::msr_batch_path(std::string &path)
 {
     path = "test_dev_msr_safe";
 }
 
 void MSRIOGroupTest::SetUp()
 {
-    std::unique_ptr<MockMSRIO> msrio(new MockMSRIO(m_num_cpu));
+    std::unique_ptr<MSRIOGroupTestMockMSRIO> msrio(new MSRIOGroupTestMockMSRIO(m_num_cpu));
     m_test_dev_path = msrio->test_dev_paths();
     ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_PACKAGE)).WillByDefault(Return(1));
     ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU)).WillByDefault(Return(m_num_cpu));
@@ -215,7 +211,7 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
         MSRIOGroup::M_CPUID_SKX,
     };
     for (auto id : cpuids) {
-        std::unique_ptr<MockMSRIO> msrio(new MockMSRIO(m_num_cpu));
+        std::unique_ptr<MSRIOGroupTestMockMSRIO> msrio(new MSRIOGroupTestMockMSRIO(m_num_cpu));
         try {
             MSRIOGroup(m_topo, std::move(msrio), id, m_num_cpu);
         }
@@ -226,7 +222,7 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
     }
 
     // unsupported cpuid
-    std::unique_ptr<MockMSRIO> msrio(new MockMSRIO(m_num_cpu));
+    std::unique_ptr<MSRIOGroupTestMockMSRIO> msrio(new MSRIOGroupTestMockMSRIO(m_num_cpu));
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup(m_topo, std::move(msrio), 0x9999, m_num_cpu),
                                GEOPM_ERROR_RUNTIME, "Unsupported CPUID");
 }

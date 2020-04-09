@@ -35,7 +35,6 @@
 #include <string>
 #include <vector>
 
-#include "geopm_hash.h"
 #include "Helper.hpp"
 #include "geopm_test.hpp"
 
@@ -103,40 +102,3 @@ TEST(HelperTest, string_ends_with)
     EXPECT_FALSE(geopm::string_ends_with("", "plum"));
     EXPECT_TRUE(geopm::string_ends_with("plum", ""));
 }
-
-bool is_format_double(std::function<std::string(double)> func)
-{
-    double value = (double)0x3FF00000000000ULL;
-    std::string expected = "1.799680632343757e+16";
-    return func(value) == expected;
-}
-
-bool is_format_float(std::function<std::string(double)> func)
-{
-    double value = (double)0x3FF00000000000ULL;
-    std::string expected = "1.79968e+16";
-    return func(value) == expected;
-}
-
-bool is_format_integer(std::function<std::string(double)> func)
-{
-    double value = (double)0x3FF00000000000ULL;
-    std::string expected = "17996806323437568";
-    return func(value) == expected;
-}
-
-bool is_format_hex(std::function<std::string(double)> func)
-{
-    double value = (double)0x3FF00000000000ULL;
-    std::string expected = "0x003ff00000000000";
-    return func(value) == expected;
-}
-
-bool is_format_raw64(std::function<std::string(double)> func)
-{
-    uint64_t value_i = 0x3FF00000000000ULL;
-    double value = geopm_field_to_signal(value_i);
-    std::string expected = "0x003ff00000000000";
-    return func(value) == expected;
-}
-
