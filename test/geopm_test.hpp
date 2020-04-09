@@ -39,6 +39,12 @@
 
 #include "Exception.hpp"
 
+bool is_format_double(std::function<std::string(double)> func);
+bool is_format_float(std::function<std::string(double)> func);
+bool is_format_integer(std::function<std::string(double)> func);
+bool is_format_hex(std::function<std::string(double)> func);
+bool is_format_raw64(std::function<std::string(double)> func);
+
 /// Checks that the given statement throws a geopm::Exception with the
 /// right error code and message.  The message must be a substring of
 /// the thrown Exception's what() string.  Additional details may be

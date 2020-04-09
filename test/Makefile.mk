@@ -487,6 +487,7 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/TreeCommLevelTest.cpp \
                           test/TreeCommTest.cpp \
                           test/geopm_test.cpp \
+                          test/geopm_test_helper.cpp \
                           test/geopm_test.hpp \
                           # end
 
