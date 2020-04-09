@@ -110,6 +110,7 @@ namespace geopm
         m_func_map["MSR::PKG_POWER_INFO:MAX_POWER"] = Agg::sum;
         m_func_map["MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER"] = Agg::sum;
         m_func_map["MSR::THERM_STATUS:DIGITAL_READOUT"] = Agg::average;
+        m_func_map["MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT"] = Agg::average;
         m_func_map["MSR::TEMPERATURE_TARGET:PROCHOT_MIN"] = Agg::expect_same;
 
         m_signal_desc_map["MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER"] = "Maximum power to stay within thermal limits (TDP)";
