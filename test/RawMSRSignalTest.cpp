@@ -35,10 +35,11 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "MockMSRIO.hpp"
+#include "geopm_hash.h"
 #include "RawMSRSignal.hpp"
 #include "geopm_hash.h"
 #include "geopm_test.hpp"
+#include "MockMSRIO.hpp"
 
 using geopm::RawMSRSignal;
 using testing::Return;
