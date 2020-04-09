@@ -115,6 +115,14 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/DebugIOGroupTest.read_signal \
               test/gtest_links/DebugIOGroupTest.register_signal_error \
               test/gtest_links/DebugIOGroupTest.sample \
+              test/gtest_links/DerivativeSignalTest.errors \
+              test/gtest_links/DerivativeSignalTest.read_batch_flat \
+              test/gtest_links/DerivativeSignalTest.read_batch_first \
+              test/gtest_links/DerivativeSignalTest.read_batch_slope_1 \
+              test/gtest_links/DerivativeSignalTest.read_batch_slope_2 \
+              test/gtest_links/DerivativeSignalTest.read_flat \
+              test/gtest_links/DerivativeSignalTest.read_slope_1 \
+              test/gtest_links/DerivativeSignalTest.setup_batch \
               test/gtest_links/DifferenceSignalTest.errors \
               test/gtest_links/DifferenceSignalTest.read \
               test/gtest_links/DifferenceSignalTest.read_batch \
@@ -438,6 +446,7 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/CpuinfoIOGroupTest.cpp \
                           test/CSVTest.cpp \
                           test/DebugIOGroupTest.cpp \
+                          test/DerivativeSignalTest.cpp \
                           test/DifferenceSignalTest.cpp \
                           test/EndpointTest.cpp \
                           test/EndpointPolicyTracerTest.cpp \

@@ -30,36 +30,48 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SIGNAL_HPP_INCLUDE
-#define SIGNAL_HPP_INCLUDE
+#ifndef DERIVATIVESIGNAL_HPP_INCLUDE
+#define DERIVATIVESIGNAL_HPP_INCLUDE
 
-#include <functional>
+#include <memory>
+
+#include "Signal.hpp"
+#include "CircularBuffer.hpp"
 
 namespace geopm
 {
-    /// An abstract interface for all types of signals supported by an IOGroup.
-    /// Any implementation specific data should be injected in the derived class
-    /// constructor and used in setup_batch() if necessary.
-    class Signal
+    class DerivativeSignal : public Signal
     {
         public:
-            virtual ~Signal() = default;
-            /// @brief Make a copy of the signal with its own state.
-            ///        This is intended for use with read_signal() in
-            ///        the IOGroup.
-            virtual std::unique_ptr<Signal> clone(void) const = 0;
-            /// @brief Prepare the signal for being updating through
-            ///        side effects by the owner's read_batch step.
-            ///        This method should not fail if called multiple
-            ///        times, and ideally only apply the side effects
-            ///        on the first call.
-            virtual void setup_batch(void) = 0;
-            /// @brief Apply any conversions necessary to interpret
-            ///        the latest stored value as a double.
-            virtual double sample(void) = 0;
-            /// @brief Directly the value of the signal without
-            ///        affecting any pushed batch signals.
-            virtual double read(void) = 0;
+            DerivativeSignal(std::shared_ptr<Signal> time_sig,
+                             std::shared_ptr<Signal> y_sig,
+                             int read_loops, double sleep_time);
+            DerivativeSignal(const DerivativeSignal &other);
+            virtual ~DerivativeSignal() = default;
+            std::unique_ptr<Signal> clone(void) const override;
+            void setup_batch(void) override;
+            double sample(void) override;
+            double read(void) override;
+        private:
+            struct m_sample_s {
+                double time;
+                double sample;
+            };
+
+            /// Update the history buffer and compute the new derivative.
+            /// The read() and sample() methods have separate history.
+            static double compute_next(CircularBuffer<m_sample_s> &history,
+                                       int &num_fit,
+                                       double time, double signal);
+
+            std::shared_ptr<Signal> m_time_sig;
+            std::shared_ptr<Signal> m_y_sig;
+
+            const int M_NUM_SAMPLE_HISTORY;
+            CircularBuffer<m_sample_s> m_history;
+            int m_derivative_num_fit;
+            bool m_is_batch_ready;
+            double m_sleep_time;
     };
 }
 
