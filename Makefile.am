@@ -465,6 +465,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/CSV.hpp \
                             src/DebugIOGroup.cpp \
                             src/DebugIOGroup.hpp \
+                            src/DerivativeSignal.cpp \
+                            src/DerivativeSignal.hpp \
                             src/DifferenceSignal.cpp \
                             src/DifferenceSignal.hpp \
                             src/ELF.cpp \
