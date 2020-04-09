@@ -320,6 +320,10 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/ProfileTestIntegration.misconfig_tprof_shmem \
               test/gtest_links/ProfileTracerTest.construct_update_destruct \
               test/gtest_links/ProfileTracerTest.format \
+              test/gtest_links/RawMSRSignalTest.errors \
+              test/gtest_links/RawMSRSignalTest.read \
+              test/gtest_links/RawMSRSignalTest.read_batch \
+              test/gtest_links/RawMSRSignalTest.setup_batch \
               test/gtest_links/RegionAggregatorTest.epoch_total \
               test/gtest_links/RegionAggregatorTest.sample_total \
               test/gtest_links/ReporterTest.generate \
@@ -447,6 +451,7 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/MockEpochRuntimeRegulator.hpp \
                           test/MockFrequencyGovernor.hpp \
                           test/MockIOGroup.hpp \
+                          test/MockMSRIO.hpp \
                           test/MockPlatformIO.hpp \
                           test/MockPlatformTopo.hpp \
                           test/MockPowerBalancer.hpp \
@@ -476,6 +481,7 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/ProfileTableTest.cpp \
                           test/ProfileTest.cpp \
                           test/ProfileTracerTest.cpp \
+                          test/RawMSRSignalTest.cpp \
                           test/RegionAggregatorTest.cpp \
                           test/ReporterTest.cpp \
                           test/RuntimeRegulatorTest.cpp \
