@@ -378,11 +378,10 @@ TUTORIAL_DIST = tutorial/Makefile \
                 tutorial/tutorial_5.sh \
                 tutorial/tutorial_6.sh \
                 tutorial/tutorial_6_config.json \
-                tutorial/tutorial_balanced_policy.json \
                 tutorial/tutorial_build_gnu.sh \
                 tutorial/tutorial_build_intel.sh \
                 tutorial/tutorial_env.sh \
-                tutorial/tutorial_governed_policy.json \
+                tutorial/tutorial_power_policy.json \
                 tutorial/tutorial_region.c \
                 tutorial/tutorial_region_prof.c \
                 tutorial/tutorial_region.h \
