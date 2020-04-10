@@ -54,7 +54,7 @@ if [ "$MPIEXEC" ]; then
     GEOPM_CTL=process \
     GEOPM_REPORT=tutorial_3_governed_report \
     GEOPM_TRACE=tutorial_3_governed_trace \
-    GEOPM_POLICY=tutorial_governed_policy.json \
+    GEOPM_POLICY=tutorial_power_policy.json \
     $MPIEXEC ./tutorial_3 \
     && \
     GEOPM_AGENT="power_balancer" \
@@ -62,7 +62,7 @@ if [ "$MPIEXEC" ]; then
     GEOPM_CTL=process \
     GEOPM_REPORT=tutorial_3_balanced_report \
     GEOPM_TRACE=tutorial_3_balanced_trace \
-    GEOPM_POLICY=tutorial_balanced_policy.json \
+    GEOPM_POLICY=tutorial_power_policy.json \
     $MPIEXEC ./tutorial_3
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
@@ -74,7 +74,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 --geopm-agent=power_governor \
                 --geopm-report=tutorial_3_governed_report \
                 --geopm-trace=tutorial_3_governed_trace \
-                --geopm-policy=tutorial_governed_policy.json \
+                --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_3 \
     && \
     geopmlaunch srun \
@@ -84,7 +84,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 --geopm-agent=power_balancer \
                 --geopm-report=tutorial_3_balanced_report \
                 --geopm-trace=tutorial_3_balanced_trace \
-                --geopm-policy=tutorial_balanced_policy.json \
+                --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_3
     err=$?
 
@@ -97,7 +97,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 --geopm-agent=power_governor \
                 --geopm-report=tutorial_3_governed_report \
                 --geopm-trace=tutorial_3_governed_trace \
-                --geopm-policy=tutorial_governed_policy.json \
+                --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_3 \
     && \
     geopmlaunch aprun \
@@ -107,7 +107,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 --geopm-agent=power_balancer \
                 --geopm-report=tutorial_3_balanced_report \
                 --geopm-trace=tutorial_3_balanced_trace \
-                --geopm-policy=tutorial_balanced_policy.json \
+                --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_3
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
@@ -119,7 +119,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 --geopm-agent=power_governor \
                 --geopm-report=tutorial_3_governed_report \
                 --geopm-trace=tutorial_3_governed_trace \
-                --geopm-policy=tutorial_governed_policy.json \
+                --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_3 \
     && \
     geopmlaunch impi \
@@ -129,7 +129,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 --geopm-agent=power_balancer \
                 --geopm-report=tutorial_3_balanced_report \
                 --geopm-trace=tutorial_3_balanced_trace \
-                --geopm-policy=tutorial_balanced_policy.json \
+                --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_3
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
@@ -142,7 +142,7 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --geopm-agent=power_governor \
                 --geopm-report=tutorial_3_governed_report \
                 --geopm-trace=tutorial_3_governed_trace \
-                --geopm-policy=tutorial_governed_policy.json \
+                --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_3 \
     && \
     geopmlaunch ompi \
@@ -153,7 +153,7 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --geopm-agent=power_balancer \
                 --geopm-report=tutorial_3_balanced_report \
                 --geopm-trace=tutorial_3_balanced_trace \
-                --geopm-policy=tutorial_balanced_policy.json \
+                --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_3
     err=$?
 else

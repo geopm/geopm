@@ -62,7 +62,7 @@ if [ "$MPIEXEC" ]; then
     GEOPM_CTL=process \
     GEOPM_REPORT=tutorial_4_governed_report \
     GEOPM_TRACE=tutorial_4_governed_trace \
-    GEOPM_POLICY=tutorial_governed_policy.json \
+    GEOPM_POLICY=tutorial_power_policy.json \
     $MPIEXEC ./tutorial_4 \
     && \
     GEOPM_AGENT="power_balancer" \
@@ -70,7 +70,7 @@ if [ "$MPIEXEC" ]; then
     GEOPM_PMPI_CTL=process \
     GEOPM_REPORT=tutorial_4_balanced_report \
     GEOPM_TRACE=tutorial_4_balanced_trace \
-    GEOPM_POLICY=tutorial_balanced_policy.json \
+    GEOPM_POLICY=tutorial_power_policy.json \
     $MPIEXEC ./tutorial_4
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
@@ -82,7 +82,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 --geopm-agent=power_governor \
                 --geopm-report=tutorial_4_governed_report \
                 --geopm-trace=tutorial_4_governed_trace \
-                --geopm-policy=tutorial_governed_policy.json \
+                --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_4 \
     && \
     geopmlaunch srun \
@@ -92,7 +92,7 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
                 --geopm-agent=power_balancer \
                 --geopm-report=tutorial_4_balanced_report \
                 --geopm-trace=tutorial_4_balanced_trace \
-                --geopm-policy=tutorial_balanced_policy.json \
+                --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_4
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
@@ -104,7 +104,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 --geopm-agent=power_governor \
                 --geopm-report=tutorial_4_governed_report \
                 --geopm-trace=tutorial_4_governed_trace \
-                --geopm-policy=tutorial_governed_policy.json \
+                --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_4 \
     && \
     geopmlaunch aprun \
@@ -114,7 +114,7 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
                 --geopm-agent=power_balancer \
                 --geopm-report=tutorial_4_balanced_report \
                 --geopm-trace=tutorial_4_balanced_trace \
-                --geopm-policy=tutorial_balanced_policy.json \
+                --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_4
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
@@ -126,7 +126,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 --geopm-agent=power_governor \
                 --geopm-report=tutorial_4_governed_report \
                 --geopm-trace=tutorial_4_governed_trace \
-                --geopm-policy=tutorial_governed_policy.json \
+                --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_4 \
     && \
     geopmlaunch impi \
@@ -136,7 +136,7 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
                 --geopm-agent=power_balancer \
                 --geopm-report=tutorial_4_balanced_report \
                 --geopm-trace=tutorial_4_balanced_trace \
-                --geopm-policy=tutorial_balanced_policy.json \
+                --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_4
     err=$?
 elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
@@ -149,7 +149,7 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --geopm-agent=power_governor \
                 --geopm-report=tutorial_4_governed_report \
                 --geopm-trace=tutorial_4_governed_trace \
-                --geopm-policy=tutorial_governed_policy.json \
+                --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_4 \
     && \
     geopmlaunch ompi \
@@ -160,7 +160,7 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --geopm-agent=power_balancer \
                 --geopm-report=tutorial_4_balanced_report \
                 --geopm-trace=tutorial_4_balanced_trace \
-                --geopm-policy=tutorial_balanced_policy.json \
+                --geopm-policy=tutorial_power_policy.json \
                 -- ./tutorial_4
     err=$?
 else
