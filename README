@@ -186,8 +186,10 @@ must be set prior to running configure:
     export CXX=icpc
     export FC=ifort
     export F77=ifort
-    export MPICC=mpicc
-    export MPICXX=mpicxx
+    export MPICC=mpiicc
+    export MPICXX=mpiicpc
+    export MPIFC=mpiifort
+    export MPIF77=mpiifort
 
 An RPM can be created on a RHEL or SUSE system with the
 
