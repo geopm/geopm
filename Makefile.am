@@ -574,6 +574,7 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/geopm.h \
                             src/geopm_agent.h \
                             src/geopm_endpoint.h \
+                            src/geopm_debug.hpp \
                             src/geopm_error.h \
                             src/geopm_hash.c \
                             src/geopm_hash.h \
