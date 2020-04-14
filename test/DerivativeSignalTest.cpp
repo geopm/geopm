@@ -194,10 +194,10 @@ TEST_F(DerivativeSignalTest, errors)
     // cannot construct with null signals
     GEOPM_EXPECT_THROW_MESSAGE(DerivativeSignal(nullptr, m_y_sig, 0, 0),
                                GEOPM_ERROR_LOGIC,
-                               "underlying Signals cannot be null");
+                               "time_sig and y_sig cannot be null");
     GEOPM_EXPECT_THROW_MESSAGE(DerivativeSignal(m_time_sig, nullptr, 0, 0),
                                GEOPM_ERROR_LOGIC,
-                               "underlying Signals cannot be null");
+                               "time_sig and y_sig cannot be null");
 #endif
     // cannot call sample without setup_batch
     GEOPM_EXPECT_THROW_MESSAGE(m_sig->sample(), GEOPM_ERROR_RUNTIME,

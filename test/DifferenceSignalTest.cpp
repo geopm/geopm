@@ -103,10 +103,10 @@ TEST_F(DifferenceSignalTest, errors)
     // cannot construct with null signals
     GEOPM_EXPECT_THROW_MESSAGE(DifferenceSignal(nullptr, m_subtrahend),
                                GEOPM_ERROR_LOGIC,
-                               "underlying Signals cannot be null");
+                               "minuend and subtrahend cannot be null");
     GEOPM_EXPECT_THROW_MESSAGE(DifferenceSignal(m_minuend, nullptr),
                                GEOPM_ERROR_LOGIC,
-                               "underlying Signals cannot be null");
+                               "minuend and subtrahend cannot be null");
 #endif
 
     // cannot call sample without batch setup

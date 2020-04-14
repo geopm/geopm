@@ -57,16 +57,15 @@ namespace geopm
                            int end_bit,
                            int function,
                            double scalar);
-            MSRFieldSignal(const MSRFieldSignal &other);
+            MSRFieldSignal(const MSRFieldSignal &other) = delete;
             virtual ~MSRFieldSignal() = default;
-            std::unique_ptr<Signal> clone(void) const override;
             void setup_batch(void) override;
             double sample(void) override;
-            double read(void) override;
+            double read(void) const override;
         private:
             double convert_raw_value(double val,
                                      uint64_t &last_field,
-                                     int &num_overflow);
+                                     int &num_overflow) const;
             /// Underlying raw MSR that contains the field.  This
             /// should be a RawMSRSignal in most cases but a base
             /// class pointer is used for testing and only the public

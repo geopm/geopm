@@ -63,33 +63,13 @@ namespace geopm
         /// public. Alternatively, checks for these at the json
         /// parsing step would make these correctly logic errors.
         GEOPM_DEBUG_ASSERT(raw_msr != nullptr,
-                           "no valid raw Signal");
+                           "Signal pointer for raw_msr cannot be null");
         GEOPM_DEBUG_ASSERT(m_num_bit < 64, "64-bit fields are not supported");
         GEOPM_DEBUG_ASSERT(begin_bit <= end_bit,
                            "begin bit must be <= end bit");
         GEOPM_DEBUG_ASSERT(m_function >= MSR::M_FUNCTION_SCALE &&
                            m_function <= MSR::M_FUNCTION_OVERFLOW,
                            "invalid encoding function");
-    }
-
-    MSRFieldSignal::MSRFieldSignal(const MSRFieldSignal &other)
-        : m_raw_msr(other.m_raw_msr)
-        , m_shift(other.m_shift)
-        , m_num_bit(other.m_num_bit)
-        , m_mask(other.m_mask)
-        , m_subfield_max(other.m_subfield_max)
-        , m_function(other.m_function)
-        , m_scalar(other.m_scalar)
-        , m_last_field(0)
-        , m_num_overflow(0)
-        , m_is_batch_ready(false)
-    {
-
-    }
-
-    std::unique_ptr<Signal> MSRFieldSignal::clone(void) const
-    {
-        return geopm::make_unique<MSRFieldSignal>(*this);
     }
 
     void MSRFieldSignal::setup_batch(void)
@@ -102,7 +82,7 @@ namespace geopm
 
     double MSRFieldSignal::convert_raw_value(double val,
                                      uint64_t &last_field,
-                                     int &num_overflow)
+                                     int &num_overflow) const
     {
         uint64_t field = geopm_signal_to_field(val);
         uint64_t subfield = (field & m_mask) >> m_shift;
@@ -149,7 +129,7 @@ namespace geopm
         return convert_raw_value(m_raw_msr->sample(), m_last_field, m_num_overflow);
     }
 
-    double MSRFieldSignal::read(void)
+    double MSRFieldSignal::read(void) const
     {
         uint64_t last_field = 0;
         int num_overflow = 0;

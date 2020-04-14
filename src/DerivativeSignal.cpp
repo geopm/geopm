@@ -53,24 +53,7 @@ namespace geopm
         , m_sleep_time(sleep_time)
     {
         GEOPM_DEBUG_ASSERT(m_time_sig && m_y_sig,
-                           "underlying Signals cannot be null.");
-    }
-
-    DerivativeSignal::DerivativeSignal(const DerivativeSignal &other)
-        : m_time_sig(other.m_time_sig->clone())
-        , m_y_sig(other.m_y_sig->clone())
-        , M_NUM_SAMPLE_HISTORY(other.M_NUM_SAMPLE_HISTORY)
-        , m_history(M_NUM_SAMPLE_HISTORY)
-        , m_derivative_num_fit(0)
-        , m_is_batch_ready(false)
-        , m_sleep_time(other.m_sleep_time)
-    {
-
-    }
-
-    std::unique_ptr<Signal> DerivativeSignal::clone(void) const
-    {
-        return geopm::make_unique<DerivativeSignal>(*this);
+                           "Signal pointers for time_sig and y_sig cannot be null.");
     }
 
     void DerivativeSignal::setup_batch(void)
@@ -129,7 +112,7 @@ namespace geopm
         return compute_next(m_history, m_derivative_num_fit, time, signal);
     }
 
-    double DerivativeSignal::read(void)
+    double DerivativeSignal::read(void) const
     {
         double result = NAN;
         CircularBuffer<m_sample_s> temp_history(M_NUM_SAMPLE_HISTORY);
@@ -139,8 +122,8 @@ namespace geopm
             double signal = m_y_sig->read();
             result = compute_next(temp_history, num_fit, time, signal);
             if (ii < M_NUM_SAMPLE_HISTORY) {
-                usleep(m_sleep_time);            }
-
+                usleep(m_sleep_time);
+            }
         }
         return result;
     }
