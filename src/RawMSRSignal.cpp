@@ -53,21 +53,6 @@ namespace geopm
         GEOPM_DEBUG_ASSERT(m_msrio != nullptr, "no valid MSRIO object.");
     }
 
-    RawMSRSignal::RawMSRSignal(const RawMSRSignal &other)
-        : m_msrio(other.m_msrio)
-        , m_cpu(other.m_cpu)
-        , m_offset(other.m_offset)
-        , m_data(nullptr)
-        , m_is_batch_ready(false)
-    {
-
-    }
-
-    std::unique_ptr<Signal> RawMSRSignal::clone(void) const
-    {
-        return geopm::make_unique<RawMSRSignal>(*this);
-    }
-
     void RawMSRSignal::setup_batch(void)
     {
         GEOPM_DEBUG_ASSERT(m_msrio != nullptr, "no valid MSRIO object.");
@@ -92,7 +77,7 @@ namespace geopm
         return geopm_field_to_signal(*m_data);
     }
 
-    double RawMSRSignal::read(void)
+    double RawMSRSignal::read(void) const
     {
         GEOPM_DEBUG_ASSERT(m_msrio != nullptr, "no valid MSRIO object.");
 

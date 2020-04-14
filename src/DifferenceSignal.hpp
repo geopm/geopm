@@ -46,12 +46,11 @@ namespace geopm
         public:
             DifferenceSignal(std::shared_ptr<Signal> minuend,
                              std::shared_ptr<Signal> subtrahend);
-            DifferenceSignal(const DifferenceSignal &other);
+            DifferenceSignal(const DifferenceSignal &other) = delete;
             virtual ~DifferenceSignal() = default;
-            std::unique_ptr<Signal> clone(void) const override;
             void setup_batch(void) override;
             double sample(void) override;
-            double read(void) override;
+            double read(void) const override;
         private:
             std::shared_ptr<Signal> m_minuend;
             std::shared_ptr<Signal> m_subtrahend;

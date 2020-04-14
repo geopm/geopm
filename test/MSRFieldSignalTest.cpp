@@ -266,7 +266,7 @@ TEST_F(MSRFieldSignalTest, errors)
     // cannot construct with null underlying signal
     GEOPM_EXPECT_THROW_MESSAGE(MSRFieldSignal(nullptr, 0, 0,
                                               MSR::M_FUNCTION_SCALE, 1.0),
-                               GEOPM_ERROR_LOGIC, "no valid raw Signal");
+                               GEOPM_ERROR_LOGIC, "raw_msr cannot be null");
 
     // invalid number of bits
     GEOPM_EXPECT_THROW_MESSAGE(MSRFieldSignal(m_raw, 0, 63,

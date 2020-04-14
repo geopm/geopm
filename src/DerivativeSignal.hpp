@@ -46,12 +46,11 @@ namespace geopm
             DerivativeSignal(std::shared_ptr<Signal> time_sig,
                              std::shared_ptr<Signal> y_sig,
                              int read_loops, double sleep_time);
-            DerivativeSignal(const DerivativeSignal &other);
+            DerivativeSignal(const DerivativeSignal &other) = delete;
             virtual ~DerivativeSignal() = default;
-            std::unique_ptr<Signal> clone(void) const override;
             void setup_batch(void) override;
             double sample(void) override;
-            double read(void) override;
+            double read(void) const override;
         private:
             struct m_sample_s {
                 double time;

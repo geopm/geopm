@@ -40,14 +40,12 @@
 class MockSignal : public geopm::Signal
 {
     public:
-        MOCK_CONST_METHOD0(clone,
-                           std::unique_ptr<geopm::Signal>(void));
         MOCK_METHOD0(setup_batch,
                      void(void));
         MOCK_METHOD0(sample,
                      double(void));
-        MOCK_METHOD0(read,
-                     double(void));
+        MOCK_CONST_METHOD0(read,
+                           double(void));
 };
 
 #endif

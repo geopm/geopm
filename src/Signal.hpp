@@ -44,10 +44,6 @@ namespace geopm
     {
         public:
             virtual ~Signal() = default;
-            /// @brief Make a copy of the signal with its own state.
-            ///        This is intended for use with read_signal() in
-            ///        the IOGroup.
-            virtual std::unique_ptr<Signal> clone(void) const = 0;
             /// @brief Prepare the signal for being updating through
             ///        side effects by the owner's read_batch step.
             ///        This method should not fail if called multiple
@@ -59,7 +55,7 @@ namespace geopm
             virtual double sample(void) = 0;
             /// @brief Directly the value of the signal without
             ///        affecting any pushed batch signals.
-            virtual double read(void) = 0;
+            virtual double read(void) const = 0;
     };
 }
 

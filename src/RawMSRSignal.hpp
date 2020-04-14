@@ -50,12 +50,11 @@ namespace geopm
             RawMSRSignal(std::shared_ptr<MSRIO> msrio,
                          int cpu,
                          uint64_t offset);
-            RawMSRSignal(const RawMSRSignal &other);
+            RawMSRSignal(const RawMSRSignal &other) = delete;
             virtual ~RawMSRSignal() = default;
-            std::unique_ptr<Signal> clone(void) const override;
             void setup_batch(void) override;
             double sample(void) override;
-            double read(void) override;
+            double read(void) const override;
         private:
             /// MSRIO object shared by all MSR signals in the same
             /// batch.  This object should outlive all other data in

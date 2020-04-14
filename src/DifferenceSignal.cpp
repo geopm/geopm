@@ -45,21 +45,7 @@ namespace geopm
         , m_is_batch_ready(false)
     {
         GEOPM_DEBUG_ASSERT(m_minuend && m_subtrahend,
-                           "underlying Signals cannot be null.");
-    }
-
-    // clone is used here because derived subtype is not known
-    DifferenceSignal::DifferenceSignal(const DifferenceSignal &other)
-        : m_minuend(other.m_minuend->clone())
-        , m_subtrahend(other.m_minuend->clone())
-        , m_is_batch_ready(false)
-    {
-
-    }
-
-    std::unique_ptr<Signal> DifferenceSignal::clone(void) const
-    {
-        return geopm::make_unique<DifferenceSignal>(*this);
+                           "Signal pointers for minuend and subtrahend cannot be null.");
     }
 
     void DifferenceSignal::setup_batch(void)
@@ -80,7 +66,7 @@ namespace geopm
         return m_minuend->sample() - m_subtrahend->sample();
     }
 
-    double DifferenceSignal::read(void)
+    double DifferenceSignal::read(void) const
     {
         return m_minuend->read() - m_subtrahend->read();
     }
