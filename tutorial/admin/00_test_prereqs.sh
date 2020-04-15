@@ -48,14 +48,13 @@ command_available_and_executable(){
 }
 
 # GEOPM installed and executable
+command_available_and_executable geopmadmin
 command_available_and_executable geopmagent
 command_available_and_executable geopmbench
 command_available_and_executable geopmctl
 command_available_and_executable geopmlaunch
-command_available_and_executable geopmanalysis
 command_available_and_executable geopmread
 command_available_and_executable geopmwrite
-command_available_and_executable geopmadmin
 
 # Check GNU vs. Intel Toolchain
 if ! ldd $(which geopmbench) | grep --quiet libimf; then
