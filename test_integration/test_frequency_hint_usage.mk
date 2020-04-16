@@ -1,4 +1,3 @@
-#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -30,19 +29,15 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from __future__ import absolute_import
+EXTRA_DIST += test_integration/test_frequency_hint_usage.py
 
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from test_integration import geopm_context
-from test_integration.geopm_test_integration import *
-from test_integration.test_omp_outer_loop import *
-from test_integration.test_ee_timed_scaling_mix import *
-from test_integration.test_enforce_policy import *
-from test_integration.test_profile_policy import *
-from test_integration.test_plugin_static_policy import *
-from test_integration.test_tutorial_base import *
-from test_integration.test_frequency_hint_usage import *
-from geopmpy.version import __version__
+if ENABLE_MPI
+noinst_PROGRAMS += test_integration/test_frequency_hint_usage
+test_integration_test_frequency_hint_usage_SOURCES = test_integration/test_frequency_hint_usage.cpp
+test_integration_test_frequency_hint_usage_SOURCES += $(model_source_files)
+test_integration_test_frequency_hint_usage_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
+test_integration_test_frequency_hint_usage_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
+test_integration_test_frequency_hint_usage_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
+else
+EXTRA_DIST += test_integration/test_frequency_hint_usage.cpp
+endif

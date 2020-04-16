@@ -63,3 +63,4 @@ include test_integration/test_omp_outer_loop.mk
 include test_integration/test_scaling_region.mk
 include test_integration/test_timed_scaling_region.mk
 include test_integration/test_tutorial_base.mk
+include test_integration/test_frequency_hint_usage.mk
