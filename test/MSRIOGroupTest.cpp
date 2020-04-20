@@ -275,13 +275,14 @@ TEST_F(MSRIOGroupTest, valid_signal_names)
     signal_aliases.push_back("MSR::TEMPERATURE_PACKAGE");
 
     //// power signals
-    // @todo: POWER_PACKAGE and POWER_DRAM
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PKG_POWER_INFO:MIN_POWER"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PKG_POWER_INFO:MAX_POWER"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER"));
     signal_aliases.push_back("POWER_PACKAGE_MIN");
     signal_aliases.push_back("POWER_PACKAGE_MAX");
     signal_aliases.push_back("POWER_PACKAGE_TDP");
+    signal_aliases.push_back("MSR::POWER_PACKAGE");
+    signal_aliases.push_back("MSR::POWER_DRAM");
 
     auto signal_names = m_msrio_group->signal_names();
     for (const auto &name : signal_aliases) {
@@ -317,13 +318,16 @@ TEST_F(MSRIOGroupTest, valid_signal_domains)
               m_msrio_group->signal_domain_type("MSR::TEMPERATURE_PACKAGE"));
 
     // power
-    // @todo: POWER_PACKAGE and POWER_DRAM
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
               m_msrio_group->signal_domain_type("POWER_PACKAGE_MIN"));
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
               m_msrio_group->signal_domain_type("POWER_PACKAGE_MAX"));
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
               m_msrio_group->signal_domain_type("POWER_PACKAGE_TDP"));
+    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
+              m_msrio_group->signal_domain_type("MSR::POWER_PACKAGE"));
+    EXPECT_EQ(GEOPM_DOMAIN_BOARD_MEMORY,
+              m_msrio_group->signal_domain_type("MSR::POWER_DRAM"));
 }
 
 TEST_F(MSRIOGroupTest, valid_signal_aggregation)
@@ -370,6 +374,10 @@ TEST_F(MSRIOGroupTest, valid_signal_aggregation)
     //EXPECT_TRUE(is_agg_expect_same(func));
     //func = m_msrio_group->agg_function("POWER_PACKAGE_TDP");
     //EXPECT_TRUE(is_agg_expect_same(func));
+    func = m_msrio_group->agg_function("MSR::POWER_PACKAGE");
+    EXPECT_TRUE(is_agg_sum(func));
+    func = m_msrio_group->agg_function("MSR::POWER_DRAM");
+    EXPECT_TRUE(is_agg_sum(func));
 }
 
 TEST_F(MSRIOGroupTest, valid_signal_format)
@@ -381,12 +389,12 @@ TEST_F(MSRIOGroupTest, valid_signal_format)
         "ENERGY_PACKAGE", "ENERGY_DRAM",
         "FREQUENCY", "FREQUENCY_MAX",
         "MSR::TEMPERATURE_CORE", "MSR::TEMPERATURE_PACKAGE",
-        "POWER_PACKAGE_MIN", "POWER_PACKAGE_MAX", "POWER_PACKAGE_TDP"
+        "POWER_PACKAGE_MIN", "POWER_PACKAGE_MAX", "POWER_PACKAGE_TDP",
+        "MSR::POWER_PACKAGE", "MSR::POWER_DRAM"
     };
     for (const auto &name : si_alias) {
         func = m_msrio_group->format_function(name);
         EXPECT_TRUE(is_format_double(func));
-
     }
 
     // counter - no units, printed as integer
@@ -713,7 +721,6 @@ TEST_F(MSRIOGroupTest, read_signal_temperature)
 
 TEST_F(MSRIOGroupTest, read_signal_power)
 {
-    /// @todo POWER_PACKAGE and POWER_DRAM
     uint64_t info_offset = 0x614;
     uint64_t value = 0;
     size_t num_write = 0;
@@ -1286,16 +1293,9 @@ TEST_F(MSRIOGroupTest, parse_json_msrs)
     } } )";
     auto msr_list = MSRIOGroup::parse_json_msrs(json);
 
-    ASSERT_EQ(2u, msr_list.size());
-    auto &msr0 = msr_list[0];
-    EXPECT_EQ("MSR_ONE", msr0->name());
-    EXPECT_EQ(0x12U, msr0->offset());
-    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, msr0->domain_type());
-    EXPECT_EQ(1, msr0->num_signal());
-    EXPECT_EQ(0, msr0->num_control());
-    EXPECT_EQ("FIELD_RO", msr0->signal_name(0));
+    ASSERT_EQ(1u, msr_list.size());
 
-    auto &msr1 = msr_list[1];
+    auto &msr1 = msr_list[0];
     EXPECT_EQ("MSR_TWO", msr1->name());
     EXPECT_EQ(0x10U, msr1->offset());
     EXPECT_EQ(GEOPM_DOMAIN_CPU, msr1->domain_type());

@@ -198,7 +198,6 @@ namespace geopm
         return m_read_batch.ops[batch_idx].msrdata;
     }
 
-
     void MSRIOImp::msr_ioctl(bool is_read)
     {
         struct m_msr_batch_array_s *batch_ptr = is_read ? &m_read_batch : &m_write_batch;
