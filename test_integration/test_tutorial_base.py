@@ -40,12 +40,7 @@ Run through the base tutorial as a user would.
 import sys
 import unittest
 import os
-import glob
 import subprocess
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import pandas
 
 # Put integration test directory into the path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -123,8 +118,7 @@ class TestIntegration_tutorial_base(unittest.TestCase):
     @classmethod
     def launch(cls):
         "Run the tutorial scripts"
-        run_script = '''#!/bin/bash
-                        set -e
+        run_script = '''set -e
                         cd {tmp_link}/geopm-tutorial
                         ./tutorial_0.sh
                         ./tutorial_1.sh
