@@ -63,15 +63,14 @@ TEST(RawMSRSignalTest, read_batch)
     int cpu = 10;
     uint64_t offset = 0xABC;
     RawMSRSignal sig {m_msrio, cpu, offset};
-    uint64_t mapped_mem = 0;
+    int batch_idx = 42;
     EXPECT_CALL(*m_msrio, add_read(cpu, offset))
-        .WillOnce(Return(&mapped_mem));
+        .WillOnce(Return(batch_idx));
     sig.setup_batch();
 
     // mock read_batch by updating raw memory
     uint64_t expected = 0x456;
-    mapped_mem = expected;
-
+    EXPECT_CALL(*m_msrio, sample(batch_idx)).WillOnce(Return(expected));
     double result = sig.sample();
     EXPECT_EQ(expected, geopm_signal_to_field(result));
 }
@@ -82,10 +81,10 @@ TEST(RawMSRSignalTest, setup_batch)
     int cpu = 10;
     uint64_t offset = 0xABC;
     RawMSRSignal sig {m_msrio, cpu, offset};
-    uint64_t mapped_mem = 0;
+    int batch_idx = 42;
     // setup batch can be called multiple times without further side effects
     EXPECT_CALL(*m_msrio, add_read(cpu, offset)).Times(1)
-        .WillOnce(Return(&mapped_mem));
+        .WillOnce(Return(batch_idx));
     sig.setup_batch();
     sig.setup_batch();
 }

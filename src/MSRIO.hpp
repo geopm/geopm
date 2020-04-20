@@ -93,9 +93,8 @@ namespace geopm
             ///         read_batch() method is called.
             /// @param [in] offset MSR offset to be read when
             ///        read_batch() is called.
-            /// @return The mapped memory for use by signals.
-            virtual uint64_t *add_read(int cpu_idx, uint64_t offset) = 0;
-
+            /// @return The logical index that will be passed to sample().
+            virtual int add_read(int cpu_idx, uint64_t offset) = 0;
             /// @brief Batch read a set of MSRs configured by a
             ///        previous call to the batch_config() method.
             /// @param [out] raw_value The raw encoded MSR values to
@@ -106,6 +105,11 @@ namespace geopm
             ///        The memory used to store the result should have
             ///        been returned by add_read().
             virtual void read_batch(void) = 0;
+            /// @brief Read the full 64-bit value of the MSR that was
+            ///        previously added to the MSRIO with add_read().
+            ///        read_batch() must be called prior to calling
+            ///        this function.
+            virtual uint64_t sample(int batch_idx) const = 0;
             /// @brief Batch write a set of MSRs configured by a
             ///        previous call to the batch_config() method.
             /// @param [in] raw_value The raw encoded MSR values to be

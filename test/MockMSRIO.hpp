@@ -47,11 +47,13 @@ class MockMSRIO : public geopm::MSRIO
         MOCK_METHOD5(config_batch,
                      void(const std::vector<int> &read_cpu_idx, const std::vector<uint64_t> &read_offset, const std::vector<int> &write_cpu_idx, const std::vector<uint64_t> &write_offset, const std::vector<uint64_t> &write_mask));
         MOCK_METHOD2(add_read,
-                     uint64_t*(int cpu_idx, uint64_t offset));
+                     int(int cpu_idx, uint64_t offset));
         MOCK_METHOD1(read_batch,
                      void(std::vector<uint64_t> &raw_value));
         MOCK_METHOD0(read_batch,
                      void(void));
+        MOCK_CONST_METHOD1(sample,
+                           uint64_t(int batch_idx));
         MOCK_METHOD1(write_batch,
                      void(const std::vector<uint64_t> &raw_value));
 };

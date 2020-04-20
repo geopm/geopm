@@ -54,8 +54,18 @@ geopm::MSRIO(3) -- methods for reading and writing MSRs
     `const std::vector<uint64_t> &`_write_offset_`,`<br>
     `const std::vector<uint64_t> &`_write_mask_`);`
 
+  * `int add_read(`:
+    `int `_cpu_idx_`,`<br>
+    `uint64_t `_offset_`);`
+
   * `void read_batch(`:
     `std::vector<uint64_t> &`_raw_value_`);`
+
+  * `void read_batch(`:
+    `void);`
+
+  * `uint64_t sample(`:
+    `int `_batch_idx_`);
 
   * `void write_batch(`:
     `const std::vector<uint64_t> &`_raw_value_`);`
@@ -96,10 +106,22 @@ Refer to **geopm::MSR(3)** for more details.
     determine the locations that will be written when the write_batch()
     method is called.
 
+  * `add_read`():
+    Add an offset to the list of MSRs to be read by the next call to
+    read_batch().  This should only be used in combination with
+    config_batch() if the read index and offset vectors passed to
+    config_batch() are empty.
+
   * `read_batch`():
     Batch read a set of MSRs configured by a previous call to the
     batch_config() method.  The resulting raw encoded MSR values are
-    returned through the _raw_value_ parameter.
+    returned through the _raw_value_ parameter or accessible through
+    sample().
+
+  * `sample`():
+    Read the full 64-bit value of the MSR that was previously added
+    to the MSRIO batch with add_read().  read_batch() must be called
+    prior to calling sample().
 
   * `write_batch`():
     Batch write a set of MSRs configured by a previous call to the
