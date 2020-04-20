@@ -39,6 +39,7 @@
 #include <functional>
 
 #include "IOGroup.hpp"
+#include "geopm_time.h"
 
 namespace geopm
 {
@@ -47,7 +48,7 @@ namespace geopm
     class MSRControl;
     class MSRIO;
     class PlatformTopo;
-    class CombinedSignal;
+    class Signal;
 
     /// @brief IOGroup that provides signals and controls based on MSRs.
     class MSRIOGroup : public IOGroup
@@ -109,13 +110,6 @@ namespace geopm
             static std::string msr_whitelist(int cpuid);
             /// @brief Get the cpuid of the current platform.
             static int cpuid(void);
-            /// @brief Register a single MSR field as a signal. This
-            ///        is called by init_msr().
-            /// @param [in] signal_name Compound signal name of form
-            ///        "msr_name:field_name" where msr_name is the
-            ///        name of the MSR and the field_name is the name
-            ///        of the signal field held in the MSR.
-            void register_msr_signal(const std::string &signal_name);
             /// @brief Register a single MSR field as a control. This
             ///        is called by init_msr().
             /// @param [in] signal_name Compound control name of form
@@ -127,13 +121,45 @@ namespace geopm
             static std::unique_ptr<IOGroup> make_plugin(void);
             static std::vector<std::unique_ptr<MSR> > parse_json_msrs(const std::string &str);
         private:
+            /// @brief Parse a JSON string and add any raw MSRs and
+            ///        fields as available signals.
+            void parse_json_msrs_signal(const std::string &str);
+            /// @brief Loads architectural MSRs from the JSON file,
+            ///        MSRs for the given cpuid, and user-defined MSRs
+            ///        if found in the plugin path.
+            void init_msrs_signal(int cpu_id);
+            /// @brief Add support for an alias of a signal by name.
+            void register_msr_signal(const std::string &signal_name, const std::string &msr_field_name);
+            /// @brief Add support for temperature combined signals if underlying
+            ///        signals are available.
+            void register_temperature_signals(void);
+            /// @brief Add support for power combined signals if underlying
+            ///        signals are available.
+            void register_power_signals(void);
+
+            // all available signals: map from name and domain index
+            // to Signal ptr.  This pointer should be copied when signal
+            // is pushed and used directly for read_signal.
+            std::map<std::string, std::vector<std::shared_ptr<Signal> > > m_signal_available;
+            std::map<std::string, int> m_signal_domain;
+            std::map<std::string, int> m_signal_units;
+            std::map<std::string, std::function<double(const std::vector<double> &)> > m_signal_agg_func;
+            std::map<std::string, std::string> m_signal_desc_map;
+
+            // mapping of signal index to pushed signals
+            std::vector<std::shared_ptr<Signal> > m_signal_pushed;
+
+            // time for derivative signals
+            std::shared_ptr<geopm_time_s> m_time_zero;
+            std::shared_ptr<double> m_time_batch;
+
+            ///////////////////////////////////
             struct m_restore_s {
                 uint64_t value;
                 uint64_t mask;
             };
-            void register_msr_signal(const std::string &signal_name, const std::string &msr_field_name);
+
             void register_msr_control(const std::string &control_name, const std::string &msr_field_name);
-            void register_raw_msr_signal(const std::string &msr_name, const MSR &msr_ptr);
             void enable_fixed_counters(void);
             void check_control(const std::string &control_name);
             static std::string msr_whitelist(const std::vector<std::unique_ptr<MSR> > &msr_arr);
@@ -144,22 +170,15 @@ namespace geopm
             int m_num_cpu;
             bool m_is_active;
             bool m_is_read;
-            std::unique_ptr<MSRIO> m_msrio;
+            std::shared_ptr<MSRIO> m_msrio;
             int m_cpuid;
             std::vector<bool> m_is_adjusted;
-            // TODO: figure out diff with m_name_msr_map
             std::vector<std::unique_ptr<MSR> > m_msr_arr;
-            // Mappings from names to all valid signals and controls
+            // Mappings from names to all valid controls
             std::map<std::string, const MSR &> m_name_msr_map;
-            std::map<std::string, std::vector<std::shared_ptr<MSRSignal> > > m_name_cpu_signal_map;
             std::map<std::string, std::vector<std::shared_ptr<MSRControl> > > m_name_cpu_control_map;
-            // Pushed signals and controls only
-            std::vector<std::shared_ptr<MSRSignal> > m_active_signal;
+            // Pushed controls only
             std::vector<std::vector<std::shared_ptr<MSRControl> > > m_active_control;
-            // Vectors are over MSRs for all active signals
-            std::vector<uint64_t> m_read_field;
-            std::vector<int> m_read_cpu_idx;
-            std::vector<uint64_t> m_read_offset;
             // Vectors are over MSRs for all active controls
             std::vector<uint64_t> m_write_field;
             std::vector<int> m_write_cpu_idx;
@@ -168,15 +187,7 @@ namespace geopm
             const std::string m_name_prefix;
             std::vector<std::map<uint64_t, m_restore_s> > m_per_cpu_restore;
             bool m_is_fixed_enabled;
-            std::map<std::string, std::function<double(const std::vector<double> &)> > m_func_map;
-            std::map<std::string, std::string> m_signal_desc_map;
             std::map<std::string, std::string> m_control_desc_map;
-            std::map<std::string, int> m_signal_units_map;
-
-            /// @todo remove with combined signal refactoring
-            static const std::set<std::string> m_combined_signal_names;
-            std::map<int, std::pair<std::vector<int>,
-                                    std::unique_ptr<CombinedSignal> > > m_combined_signals;
     };
 }
 

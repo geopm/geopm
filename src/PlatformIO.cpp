@@ -523,12 +523,13 @@ namespace geopm
             std::string type = sep != std::string::npos ? signal_name.substr(sep) : "";
             if (signal_name.find("POWER") == 0) {
                 DerivativeCombinedSignal dcs;
-                for (int ii = 0; ii < 16; ++ii) {
+                int num_loops = 8;
+                for (int ii = 0; ii < num_loops; ++ii) {
                     double time = read_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
                     double energy = read_signal("ENERGY" + type, domain_type, domain_idx);
                     std::vector<double> operands {time, energy};
                     result = dcs.sample(operands);
-                    if (ii < 15) {
+                    if (ii < num_loops - 1) {
                         usleep(5000);
                     }
                 }

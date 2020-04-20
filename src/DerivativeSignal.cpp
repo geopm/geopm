@@ -121,8 +121,8 @@ namespace geopm
             double time = m_time_sig->read();
             double signal = m_y_sig->read();
             result = compute_next(temp_history, num_fit, time, signal);
-            if (ii < M_NUM_SAMPLE_HISTORY) {
-                usleep(m_sleep_time);
+            if (ii < M_NUM_SAMPLE_HISTORY - 1) {
+                usleep(m_sleep_time * 1e6);
             }
         }
         return result;
