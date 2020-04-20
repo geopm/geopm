@@ -33,6 +33,7 @@
 #include "geopm_test.hpp"
 
 #include "geopm_hash.h"
+#include "Agg.hpp"
 
 bool is_format_double(std::function<std::string(double)> func)
 {
@@ -68,4 +69,37 @@ bool is_format_raw64(std::function<std::string(double)> func)
     double value = geopm_field_to_signal(value_i);
     std::string expected = "0x003ff00000000000";
     return func(value) == expected;
+}
+
+static std::vector<double> example_data = {1, 2, 4, 10};
+
+bool is_agg_sum(std::function<double(const std::vector<double> &)> func)
+{
+    return func(example_data) == geopm::Agg::sum(example_data);
+}
+
+bool is_agg_average(std::function<double(const std::vector<double> &)> func)
+{
+    return func(example_data) == geopm::Agg::average(example_data);
+}
+
+bool is_agg_min(std::function<double(const std::vector<double> &)> func)
+{
+    return func(example_data) == geopm::Agg::min(example_data);
+}
+
+bool is_agg_max(std::function<double(const std::vector<double> &)> func)
+{
+    return func(example_data) == geopm::Agg::max(example_data);
+}
+
+bool is_agg_select_first(std::function<double(const std::vector<double> &)> func)
+{
+    return func(example_data) == geopm::Agg::select_first(example_data);
+}
+
+bool is_agg_expect_same(std::function<double(const std::vector<double> &)> func)
+{
+    double result = geopm::Agg::expect_same(example_data);
+    return !std::isnan(result) && func(example_data) == result;
 }
