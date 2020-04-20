@@ -45,6 +45,14 @@ bool is_format_integer(std::function<std::string(double)> func);
 bool is_format_hex(std::function<std::string(double)> func);
 bool is_format_raw64(std::function<std::string(double)> func);
 
+bool is_agg_sum(std::function<double(const std::vector<double> &)> func);
+bool is_agg_average(std::function<double(const std::vector<double> &)> func);
+bool is_agg_min(std::function<double(const std::vector<double> &)> func);
+bool is_agg_max(std::function<double(const std::vector<double> &)> func);
+bool is_agg_select_first(std::function<double(const std::vector<double> &)> func);
+bool is_agg_expect_same(std::function<double(const std::vector<double> &)> func);
+
+
 /// Checks that the given statement throws a geopm::Exception with the
 /// right error code and message.  The message must be a substring of
 /// the thrown Exception's what() string.  Additional details may be
