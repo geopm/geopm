@@ -214,7 +214,6 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/MSRIOGroupTest.control_alias \
               test/gtest_links/MSRIOGroupTest.control_error \
               test/gtest_links/MSRIOGroupTest.cpuid \
-              test/gtest_links/MSRIOGroupTest.format_function \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs_error_fields \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs_error_msrs \
@@ -222,16 +221,21 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/MSRIOGroupTest.push_control \
               test/gtest_links/MSRIOGroupTest.push_signal \
               test/gtest_links/MSRIOGroupTest.push_signal_temperature \
-              test/gtest_links/MSRIOGroupTest.read_signal \
+              test/gtest_links/MSRIOGroupTest.read_signal_counter \
+              test/gtest_links/MSRIOGroupTest.read_signal_energy \
+              test/gtest_links/MSRIOGroupTest.read_signal_frequency \
+              test/gtest_links/MSRIOGroupTest.read_signal_power \
               test/gtest_links/MSRIOGroupTest.read_signal_temperature \
               test/gtest_links/MSRIOGroupTest.register_msr_control \
-              test/gtest_links/MSRIOGroupTest.register_msr_signal \
               test/gtest_links/MSRIOGroupTest.sample \
               test/gtest_links/MSRIOGroupTest.sample_raw \
               test/gtest_links/MSRIOGroupTest.signal_alias \
               test/gtest_links/MSRIOGroupTest.signal_error \
               test/gtest_links/MSRIOGroupTest.supported_cpuid \
-              test/gtest_links/MSRIOGroupTest.valid_signal_temperature \
+              test/gtest_links/MSRIOGroupTest.valid_signal_aggregation \
+              test/gtest_links/MSRIOGroupTest.valid_signal_domains \
+              test/gtest_links/MSRIOGroupTest.valid_signal_format \
+              test/gtest_links/MSRIOGroupTest.valid_signal_names \
               test/gtest_links/MSRIOGroupTest.whitelist \
               test/gtest_links/MSRIOGroupTest.write_control \
               test/gtest_links/MSRIOTest.read_aligned \
