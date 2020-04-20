@@ -108,11 +108,16 @@ class TestIntegration_tutorial_base(unittest.TestCase):
         environment variable is unset.
 
         """
-        if (sys.exc_info() == (None, None, None) and not
-            cls._keep_files):
+        if not cls._keep_files:
             tmp_dir = os.readlink(cls._tmp_link)
             os.rmtree(tmp_dir)
             os.unlink(cls._tmp_link)
+
+
+    def tearDown(self):
+        if sys.exc_info() != (None, None, None):
+            TestIntegration_tutorial_base._keep_files = True
+
 
 
     @classmethod
