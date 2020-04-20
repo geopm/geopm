@@ -75,8 +75,9 @@ class MSRIOGroupTest : public :: testing :: Test
         std::vector<std::string> m_test_dev_path;
         std::unique_ptr<MSRIOGroup> m_msrio_group;
         NiceMock<MockPlatformTopo> m_topo;
+        int m_num_package = 2;
+        int m_num_core = 4;
         int m_num_cpu = 16;
-        int m_num_core = 8;
         void mock_enable_fixed_counters(void);
 };
 
@@ -165,12 +166,14 @@ void MSRIOGroupTestMockMSRIO::msr_batch_path(std::string &path)
 
 void MSRIOGroupTest::SetUp()
 {
-    std::unique_ptr<MSRIOGroupTestMockMSRIO> msrio(new MSRIOGroupTestMockMSRIO(m_num_cpu));
-    m_test_dev_path = msrio->test_dev_paths();
-    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_PACKAGE)).WillByDefault(Return(1));
-    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU)).WillByDefault(Return(m_num_cpu));
+    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_PACKAGE)).WillByDefault(Return(m_num_package));
     ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CORE)).WillByDefault(Return(m_num_core));
+    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU)).WillByDefault(Return(m_num_cpu));
+    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_BOARD_MEMORY)).WillByDefault(Return(m_num_package));
     std::set<int> package_cpus;
+    // slightly wrong, but works because we always use offset 0.
+    // might be nice to have a mock that sets all this up automatically;
+    // topo used in multiple tests
     for (int ii = 0; ii < m_num_cpu; ++ii) {
         ON_CALL(m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CPU, ii))
             .WillByDefault(Return(std::set<int>{ii}));
@@ -178,8 +181,18 @@ void MSRIOGroupTest::SetUp()
     }
     ON_CALL(m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, _))
         .WillByDefault(Return(package_cpus));
+    std::set<int> core_cpus;
+    for (int jj = 0; jj < m_num_cpu / m_num_core; ++jj) {
+        core_cpus.insert(jj);
+    }
+    ON_CALL(m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CORE, 0))
+        .WillByDefault(Return(core_cpus));
 
-    m_msrio_group = std::unique_ptr<MSRIOGroup>(new MSRIOGroup(m_topo, std::move(msrio), 0x657, m_num_cpu)); // KNL cpuid
+    auto msrio = geopm::make_unique<MSRIOGroupTestMockMSRIO>(m_num_cpu);
+    m_test_dev_path = msrio->test_dev_paths();
+    m_msrio_group = geopm::make_unique<MSRIOGroup>(m_topo, std::move(msrio),
+                                                   MSRIOGroup::M_CPUID_SKX,
+                                                   m_num_cpu);
 
     int fd = open(m_test_dev_path[0].c_str(), O_RDWR);
     ASSERT_NE(-1, fd);
@@ -211,7 +224,7 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
         MSRIOGroup::M_CPUID_SKX,
     };
     for (auto id : cpuids) {
-        std::unique_ptr<MSRIOGroupTestMockMSRIO> msrio(new MSRIOGroupTestMockMSRIO(m_num_cpu));
+        auto msrio = geopm::make_unique<MSRIOGroupTestMockMSRIO>(m_num_cpu);
         try {
             MSRIOGroup(m_topo, std::move(msrio), id, m_num_cpu);
         }
@@ -222,44 +235,177 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
     }
 
     // unsupported cpuid
-    std::unique_ptr<MSRIOGroupTestMockMSRIO> msrio(new MSRIOGroupTestMockMSRIO(m_num_cpu));
+    auto msrio = geopm::make_unique<MSRIOGroupTestMockMSRIO>(m_num_cpu);
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup(m_topo, std::move(msrio), 0x9999, m_num_cpu),
                                GEOPM_ERROR_RUNTIME, "Unsupported CPUID");
 }
 
-TEST_F(MSRIOGroupTest, valid_signal_temperature)
+TEST_F(MSRIOGroupTest, valid_signal_names)
 {
+    std::vector<std::string> signal_aliases;
+
+    //// energy signals
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PKG_ENERGY_STATUS:ENERGY"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::DRAM_ENERGY_STATUS:ENERGY"));
+    signal_aliases.push_back("ENERGY_PACKAGE");
+    signal_aliases.push_back("ENERGY_DRAM");
+
+    //// counters
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT"));
+    signal_aliases.push_back("INSTRUCTIONS_RETIRED");
+    signal_aliases.push_back("CYCLES_THREAD");
+    signal_aliases.push_back("CYCLES_REFERENCE");
+    signal_aliases.push_back("TIMESTAMP_COUNTER");
+
+    //// frequency signals
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PERF_STATUS:FREQ"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0"));
+    signal_aliases.push_back("FREQUENCY");
+    signal_aliases.push_back("FREQUENCY_MAX");
+    // note: FREQUENCY_MIN and FREQUENCY_STICKER come from CpuinfoIOGroup.
+
+    //// temperature signals
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::TEMPERATURE_TARGET:PROCHOT_MIN"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::THERM_STATUS:DIGITAL_READOUT"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT"));
+    signal_aliases.push_back("MSR::TEMPERATURE_CORE");
+    signal_aliases.push_back("MSR::TEMPERATURE_PACKAGE");
 
-    // check signal names are valid
-    EXPECT_TRUE(m_msrio_group->is_valid_signal("MSR::TEMPERATURE_CORE"));
-    EXPECT_TRUE(m_msrio_group->is_valid_signal("MSR::TEMPERATURE_PACKAGE"));
+    //// power signals
+    // @todo: POWER_PACKAGE and POWER_DRAM
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PKG_POWER_INFO:MIN_POWER"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PKG_POWER_INFO:MAX_POWER"));
+    ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER"));
+    signal_aliases.push_back("POWER_PACKAGE_MIN");
+    signal_aliases.push_back("POWER_PACKAGE_MAX");
+    signal_aliases.push_back("POWER_PACKAGE_TDP");
 
-    // check names appear in signal_names
     auto signal_names = m_msrio_group->signal_names();
-    EXPECT_TRUE(signal_names.find("MSR::TEMPERATURE_CORE") != signal_names.end());
-    EXPECT_TRUE(signal_names.find("MSR::TEMPERATURE_PACKAGE") != signal_names.end());
+    for (const auto &name : signal_aliases) {
+        // check signal aliases are valid
+        EXPECT_TRUE(m_msrio_group->is_valid_signal(name));
+        // check names appear in signal_names
+        EXPECT_TRUE(signal_names.find(name) != signal_names.end());
+        // check that there is some non-empty description
+        EXPECT_FALSE(m_msrio_group->signal_description(name).empty());
+    }
+}
 
-    // check signal has domain
+TEST_F(MSRIOGroupTest, valid_signal_domains)
+{
+    // energy
+    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, m_msrio_group->signal_domain_type("ENERGY_PACKAGE"));
+    EXPECT_EQ(GEOPM_DOMAIN_BOARD_MEMORY, m_msrio_group->signal_domain_type("ENERGY_DRAM"));
+
+    // counter
+    EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("INSTRUCTIONS_RETIRED"));
+    EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("CYCLES_THREAD"));
+    EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("CYCLES_REFERENCE"));
+    EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("TIMESTAMP_COUNTER"));
+
+    // frequency
+    EXPECT_EQ(GEOPM_DOMAIN_CPU, m_msrio_group->signal_domain_type("FREQUENCY"));
+    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, m_msrio_group->signal_domain_type("FREQUENCY_MAX"));
+
+    // temperature
     EXPECT_EQ(GEOPM_DOMAIN_CORE,
               m_msrio_group->signal_domain_type("MSR::TEMPERATURE_CORE"));
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
               m_msrio_group->signal_domain_type("MSR::TEMPERATURE_PACKAGE"));
 
-    // check signal has agg function
-    std::function<std::string(double)> func;
-    func = m_msrio_group->format_function("MSR::TEMPERATURE_CORE");
-    EXPECT_TRUE(is_format_double(func));
-    func = m_msrio_group->format_function("MSR::TEMPERATURE_PACKAGE");
-    EXPECT_TRUE(is_format_double(func));
+    // power
+    // @todo: POWER_PACKAGE and POWER_DRAM
+    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
+              m_msrio_group->signal_domain_type("POWER_PACKAGE_MIN"));
+    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
+              m_msrio_group->signal_domain_type("POWER_PACKAGE_MAX"));
+    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
+              m_msrio_group->signal_domain_type("POWER_PACKAGE_TDP"));
+}
 
-    // check signal has description
-    std::string desc = m_msrio_group->signal_description("MSR::TEMPERATURE_CORE");
-    EXPECT_EQ("Core temperature in degrees C", desc);
-    desc = m_msrio_group->signal_description("MSR::TEMPERATURE_PACKAGE");
-    EXPECT_EQ("Package temperature in degrees C", desc);
+TEST_F(MSRIOGroupTest, valid_signal_aggregation)
+{
+    std::function<double(const std::vector<double> &)> func;
+
+    // energy
+    func = m_msrio_group->agg_function("ENERGY_PACKAGE");
+    EXPECT_TRUE(is_agg_sum(func));
+    func = m_msrio_group->agg_function("ENERGY_DRAM");
+    EXPECT_TRUE(is_agg_sum(func));
+
+    // counter
+    func = m_msrio_group->agg_function("INSTRUCTIONS_RETIRED");
+    EXPECT_TRUE(is_agg_sum(func));
+    func = m_msrio_group->agg_function("CYCLES_THREAD");
+    EXPECT_TRUE(is_agg_sum(func));
+    func = m_msrio_group->agg_function("CYCLES_REFERENCE");
+    EXPECT_TRUE(is_agg_sum(func));
+    /// @todo: what should this be?
+    //func = m_msrio_group->agg_function("TIMESTAMP_COUNTER");
+    //EXPECT_TRUE(is_agg_sum(func));
+
+    // frequency
+    func = m_msrio_group->agg_function("FREQUENCY");
+    EXPECT_TRUE(is_agg_average(func));
+    /// @todo: what should this be?
+    //func = m_msrio_group->agg_function("FREQUENCY_MAX");
+    //EXPECT_TRUE(is_agg_expect_same(func));
+
+    // temperature
+    func = m_msrio_group->agg_function("MSR::TEMPERATURE_CORE");
+    EXPECT_TRUE(is_agg_average(func));
+    func = m_msrio_group->agg_function("MSR::TEMPERATURE_PACKAGE");
+    EXPECT_TRUE(is_agg_average(func));
+
+    // power
+    // @todo: POWER_PACKAGE and POWER_DRAM
+
+    // @todo: what should this be?
+    //func = m_msrio_group->agg_function("POWER_PACKAGE_MIN");
+    //EXPECT_TRUE(is_agg_expect_same(func));
+    //func = m_msrio_group->agg_function("POWER_PACKAGE_MAX");
+    //EXPECT_TRUE(is_agg_expect_same(func));
+    //func = m_msrio_group->agg_function("POWER_PACKAGE_TDP");
+    //EXPECT_TRUE(is_agg_expect_same(func));
+}
+
+TEST_F(MSRIOGroupTest, valid_signal_format)
+{
+    std::function<std::string(double)> func;
+
+    // most SI signals are printed as double
+    std::vector<std::string> si_alias = {
+        "ENERGY_PACKAGE", "ENERGY_DRAM",
+        "FREQUENCY", "FREQUENCY_MAX",
+        "MSR::TEMPERATURE_CORE", "MSR::TEMPERATURE_PACKAGE",
+        "POWER_PACKAGE_MIN", "POWER_PACKAGE_MAX", "POWER_PACKAGE_TDP"
+    };
+    for (const auto &name : si_alias) {
+        func = m_msrio_group->format_function(name);
+        EXPECT_TRUE(is_format_double(func));
+
+    }
+
+    // counter - no units, printed as integer
+    std::vector<std::string> count_alias = {
+        "INSTRUCTIONS_RETIRED",
+        "CYCLES_THREAD",
+        "CYCLES_REFERENCE"
+    };
+    for (const auto &name : count_alias) {
+        func = m_msrio_group->format_function(name);
+        EXPECT_TRUE(is_format_integer(func));
+    }
+
+    // raw MSRs printed in hex
+    func = m_msrio_group->format_function("MSR::PERF_STATUS#");
+    EXPECT_TRUE(is_format_raw64(func));
+
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->format_function("INVALID"),
+                               GEOPM_ERROR_INVALID, "not valid for MSRIOGroup");
 }
 
 TEST_F(MSRIOGroupTest, signal_error)
@@ -267,10 +413,9 @@ TEST_F(MSRIOGroupTest, signal_error)
     // error cases for push_signal
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("INVALID", GEOPM_DOMAIN_CPU, 0),
                                GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_PACKAGE, -1),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_CPU, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_PACKAGE, 9000),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_CPU, 9000),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
 
     // sample
@@ -280,9 +425,9 @@ TEST_F(MSRIOGroupTest, signal_error)
     // read_signal
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->read_signal("INVALID", GEOPM_DOMAIN_CPU, 0),
                                GEOPM_ERROR_INVALID, "signal name \"INVALID\" not found");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_PACKAGE, -1),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_CPU, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_PACKAGE, 9000),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_CPU, 9000),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
 }
 
@@ -294,7 +439,7 @@ TEST_F(MSRIOGroupTest, push_signal)
     EXPECT_EQ(GEOPM_DOMAIN_INVALID, m_msrio_group->signal_domain_type("INVALID"));
 
     // push valid signals
-    int freq_idx_0 = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_PACKAGE, 0);
+    int freq_idx_0 = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_CPU, 0);
     ASSERT_EQ(0, freq_idx_0);
     int inst_idx_0 = m_msrio_group->push_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY",
                                                 GEOPM_DOMAIN_CPU, 0);
@@ -317,7 +462,7 @@ TEST_F(MSRIOGroupTest, push_signal)
 
 TEST_F(MSRIOGroupTest, sample)
 {
-    int freq_idx_0 = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_PACKAGE, 0);
+    int freq_idx_0 = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_CPU, 0);
     ASSERT_EQ(0, freq_idx_0);
     int inst_idx_0 = m_msrio_group->push_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY",
                                                 GEOPM_DOMAIN_CPU, 0);
@@ -377,7 +522,7 @@ TEST_F(MSRIOGroupTest, sample)
     EXPECT_EQ(87654, inst_0);
     EXPECT_EQ(65432, inst_1);
 
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_PACKAGE, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_CPU, 0),
                                GEOPM_ERROR_INVALID, "cannot push a signal after read_batch");
 
     close(fd_0);
@@ -411,30 +556,121 @@ TEST_F(MSRIOGroupTest, sample_raw)
     close(fd_1);
 }
 
-TEST_F(MSRIOGroupTest, read_signal)
+TEST_F(MSRIOGroupTest, read_signal_energy)
 {
+    uint64_t pkg_energy_offset = 0x611;
+    uint64_t dram_energy_offset = 0x619;
+    uint64_t value = 0;
+    size_t num_write = 0;
+    double result;
+
     int fd_0 = open(m_test_dev_path[0].c_str(), O_RDWR);
     ASSERT_NE(-1, fd_0);
 
-    // read and sample immediately
-    uint64_t value = 0xD00;
-    size_t num_write = pwrite(fd_0, &value, sizeof(value), 0x198);
+    value = 1638400;  // 61uJ units
+    num_write = pwrite(fd_0, &value, sizeof(value), pkg_energy_offset);
     ASSERT_EQ(num_write, sizeof(value));
-    double freq_0 = m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_PACKAGE, 0);
-    EXPECT_EQ(1.3e9, freq_0);
+    result = m_msrio_group->read_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0);
+    EXPECT_NEAR(100, result, 0.0001);
+
+    value = 3276799;  // 15uJ units
+    num_write = pwrite(fd_0, &value, sizeof(value), dram_energy_offset);
+    ASSERT_EQ(num_write, sizeof(value));
+    result = m_msrio_group->read_signal("ENERGY_DRAM", GEOPM_DOMAIN_BOARD_MEMORY, 0);
+    EXPECT_NEAR(50, result, 0.0001);
+
+    close(fd_0);
+}
+
+TEST_F(MSRIOGroupTest, read_signal_counter)
+{
+    uint64_t tsc_offset = 0x10;
+    uint64_t fixed0_offset = 0x309;
+    uint64_t fixed1_offset = 0x30A;
+    uint64_t fixed2_offset = 0x30B;
+    uint64_t value = 0;
+    size_t num_write = 0;
+    double result;
+
+    int fd_0 = open(m_test_dev_path[0].c_str(), O_RDWR);
+    ASSERT_NE(-1, fd_0);
+
+    value = 11111;
+    num_write = pwrite(fd_0, &value, sizeof(value), tsc_offset);
+    ASSERT_EQ(num_write, sizeof(value));
+    result = m_msrio_group->read_signal("MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT", GEOPM_DOMAIN_CPU, 0);
+    EXPECT_EQ(11111, result);
+    value = 22222;
+    num_write = pwrite(fd_0, &value, sizeof(value), tsc_offset);
+    ASSERT_EQ(num_write, sizeof(value));
+    result = m_msrio_group->read_signal("TIMESTAMP_COUNTER", GEOPM_DOMAIN_CPU, 0);
+    EXPECT_EQ(22222, result);
 
     value = 7777;
-    num_write = pwrite(fd_0, &value, sizeof(value), 0x309);
+    num_write = pwrite(fd_0, &value, sizeof(value), fixed0_offset);
     ASSERT_EQ(num_write, sizeof(value));
-
-    double inst_0 = m_msrio_group->read_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY", GEOPM_DOMAIN_CPU, 0);
-    // 64-bit counters are normalized to first sample
-    EXPECT_EQ(7777, inst_0);
+    result = m_msrio_group->read_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY", GEOPM_DOMAIN_CPU, 0);
+    EXPECT_EQ(7777, result);
     value = 8888;
-    num_write = pwrite(fd_0, &value, sizeof(value), 0x309);
+    num_write = pwrite(fd_0, &value, sizeof(value), fixed0_offset);
     ASSERT_EQ(num_write, sizeof(value));
-    inst_0 = m_msrio_group->read_signal("MSR::FIXED_CTR0:INST_RETIRED_ANY", GEOPM_DOMAIN_CPU, 0);
-    EXPECT_EQ(8888, inst_0);
+    result = m_msrio_group->read_signal("INSTRUCTIONS_RETIRED", GEOPM_DOMAIN_CPU, 0);
+    EXPECT_EQ(8888, result);
+
+    value = 33333;
+    num_write = pwrite(fd_0, &value, sizeof(value), fixed1_offset);
+    ASSERT_EQ(num_write, sizeof(value));
+    result = m_msrio_group->read_signal("MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD", GEOPM_DOMAIN_CPU, 0);
+    EXPECT_EQ(33333, result);
+    value = 44444;
+    num_write = pwrite(fd_0, &value, sizeof(value), fixed1_offset);
+    ASSERT_EQ(num_write, sizeof(value));
+    result = m_msrio_group->read_signal("CYCLES_THREAD", GEOPM_DOMAIN_CPU, 0);
+    EXPECT_EQ(44444, result);
+
+    value = 55555;
+    num_write = pwrite(fd_0, &value, sizeof(value), fixed2_offset);
+    ASSERT_EQ(num_write, sizeof(value));
+    result = m_msrio_group->read_signal("MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC", GEOPM_DOMAIN_CPU, 0);
+    EXPECT_EQ(55555, result);
+    value = 66666;
+    num_write = pwrite(fd_0, &value, sizeof(value), fixed2_offset);
+    ASSERT_EQ(num_write, sizeof(value));
+    result = m_msrio_group->read_signal("CYCLES_REFERENCE", GEOPM_DOMAIN_CPU, 0);
+    EXPECT_EQ(66666, result);
+
+    close(fd_0);
+}
+
+TEST_F(MSRIOGroupTest, read_signal_frequency)
+{
+    uint64_t status_offset = 0x198;
+    uint64_t limit_offset = 0x1ad;
+    uint64_t value = 0;
+    size_t num_write = 0;
+    double result;
+
+    int fd_0 = open(m_test_dev_path[0].c_str(), O_RDWR);
+    ASSERT_NE(-1, fd_0);
+
+    value = 0xD00;  // 100MHz units, field 15:8
+    num_write = pwrite(fd_0, &value, sizeof(value), status_offset);
+    ASSERT_EQ(num_write, sizeof(value));
+    result = m_msrio_group->read_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_CPU, 0);
+    EXPECT_EQ(1.3e9, result);
+
+    value = 0xE00;
+    num_write = pwrite(fd_0, &value, sizeof(value), status_offset);
+    ASSERT_EQ(num_write, sizeof(value));
+    result = m_msrio_group->read_signal("FREQUENCY", GEOPM_DOMAIN_CPU, 0);
+    EXPECT_EQ(1.4e9, result);
+
+    // For SKX: MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0 0:7
+    value = 0xF;
+    num_write = pwrite(fd_0, &value, sizeof(value), limit_offset);
+    ASSERT_EQ(num_write, sizeof(value));
+    result = m_msrio_group->read_signal("FREQUENCY_MAX", GEOPM_DOMAIN_PACKAGE, 0);
+    EXPECT_EQ(1.5e9, result);
 
     close(fd_0);
 }
@@ -473,6 +709,52 @@ TEST_F(MSRIOGroupTest, read_signal_temperature)
     num_write = pwrite(fd_0, &value, sizeof(value), pkg_readout_msr);
     ASSERT_EQ(num_write, sizeof(value));
     EXPECT_NEAR(exp_temp, m_msrio_group->read_signal("MSR::TEMPERATURE_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0), 0.001);
+}
+
+TEST_F(MSRIOGroupTest, read_signal_power)
+{
+    /// @todo POWER_PACKAGE and POWER_DRAM
+    uint64_t info_offset = 0x614;
+    uint64_t value = 0;
+    size_t num_write = 0;
+    double result;
+
+    int fd_0 = open(m_test_dev_path[0].c_str(), O_RDWR);
+    ASSERT_NE(-1, fd_0);
+
+    // power limits
+    value = 0x258;  // 1/8W units, 14:0
+    num_write = pwrite(fd_0, &value, sizeof(value), info_offset);
+    ASSERT_EQ(num_write, sizeof(value));
+    result = m_msrio_group->read_signal("MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER", GEOPM_DOMAIN_PACKAGE, 0);
+    EXPECT_EQ(75, result);
+    value = 0x262;
+    num_write = pwrite(fd_0, &value, sizeof(value), info_offset);
+    ASSERT_EQ(num_write, sizeof(value));
+    result = m_msrio_group->read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_PACKAGE, 0);
+    EXPECT_EQ(76.25, result);
+
+    value = 0x1920000;  // 1/8W units, 30:16
+    num_write = pwrite(fd_0, &value, sizeof(value), info_offset);
+    ASSERT_EQ(num_write, sizeof(value));
+    result = m_msrio_group->read_signal("MSR::PKG_POWER_INFO:MIN_POWER", GEOPM_DOMAIN_PACKAGE, 0);
+    EXPECT_EQ(50.25, result);
+    value = 0x3210000;
+    num_write = pwrite(fd_0, &value, sizeof(value), info_offset);
+    ASSERT_EQ(num_write, sizeof(value));
+    result = m_msrio_group->read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_PACKAGE, 0);
+    EXPECT_EQ(100.125, result);
+
+    value = 0x64400000000;  // 1/8W units, 46:32
+    num_write = pwrite(fd_0, &value, sizeof(value), info_offset);
+    ASSERT_EQ(num_write, sizeof(value));
+    result = m_msrio_group->read_signal("MSR::PKG_POWER_INFO:MAX_POWER", GEOPM_DOMAIN_PACKAGE, 0);
+    EXPECT_EQ(200.5, result);
+    value = 0x64B00000000;
+    num_write = pwrite(fd_0, &value, sizeof(value), info_offset);
+    ASSERT_EQ(num_write, sizeof(value));
+    result = m_msrio_group->read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0);
+    EXPECT_EQ(201.375, result);
 }
 
 TEST_F(MSRIOGroupTest, push_signal_temperature)
@@ -521,9 +803,9 @@ TEST_F(MSRIOGroupTest, push_signal_temperature)
 
 TEST_F(MSRIOGroupTest, signal_alias)
 {
-    int freq_idx = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_PACKAGE, 0);
+    int freq_idx = m_msrio_group->push_signal("MSR::PERF_STATUS:FREQ", GEOPM_DOMAIN_CPU, 0);
     ASSERT_EQ(0, freq_idx);
-    int alias = m_msrio_group->push_signal("FREQUENCY", GEOPM_DOMAIN_PACKAGE, 0);
+    int alias = m_msrio_group->push_signal("FREQUENCY", GEOPM_DOMAIN_CPU, 0);
     EXPECT_EQ(freq_idx, alias);
 
     int fd = open(m_test_dev_path[0].c_str(), O_RDWR);
@@ -544,9 +826,9 @@ TEST_F(MSRIOGroupTest, control_error)
     // error cases for push_control
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("INVALID", GEOPM_DOMAIN_CPU, 0),
                                GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_PACKAGE, -1),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_CORE, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_PACKAGE, 9000),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_CORE, 9000),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
 
     // adjust
@@ -556,9 +838,9 @@ TEST_F(MSRIOGroupTest, control_error)
     // write_control
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_control("INVALID", GEOPM_DOMAIN_CPU, 0, 1e9),
                                GEOPM_ERROR_INVALID, "control name \"INVALID\" not found");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_PACKAGE, -1, 1e9),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_CORE, -1, 1e9),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_PACKAGE, 9000, 1e9),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_CORE, 9000, 1e9),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
 }
 
@@ -570,13 +852,13 @@ TEST_F(MSRIOGroupTest, push_control)
     EXPECT_EQ(GEOPM_DOMAIN_INVALID, m_msrio_group->control_domain_type("INVALID"));
 
     // push valid controls
-    int freq_idx_0 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_PACKAGE, 0);
+    int freq_idx_0 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_CORE, 0);
     ASSERT_EQ(0, freq_idx_0);
     int power_idx = m_msrio_group->push_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", GEOPM_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(1, power_idx);
 
     // pushing same control gives same index
-    int idx2 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_PACKAGE, 0);
+    int idx2 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_CORE, 0);
     EXPECT_EQ(freq_idx_0, idx2);
 
     // all provided controls are valid
@@ -588,7 +870,7 @@ TEST_F(MSRIOGroupTest, push_control)
 
 TEST_F(MSRIOGroupTest, adjust)
 {
-    int freq_idx_0 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_PACKAGE, 0);
+    int freq_idx_0 = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_CORE, 0);
     int power_idx = m_msrio_group->push_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", GEOPM_DOMAIN_PACKAGE, 0);
 
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->write_batch(), GEOPM_ERROR_INVALID,
@@ -645,7 +927,7 @@ TEST_F(MSRIOGroupTest, write_control)
     size_t num_read;
 
     // Set frequency to 3 GHz immediately
-    m_msrio_group->write_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_PACKAGE, 0, 3e9);
+    m_msrio_group->write_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_CORE, 0, 3e9);
     num_read = pread(fd_0, &value, sizeof(value), 0x199);
     EXPECT_EQ(8ULL, num_read);
     EXPECT_EQ(0x1E00ULL, (value & 0xFF00));
@@ -660,9 +942,9 @@ TEST_F(MSRIOGroupTest, write_control)
 
 TEST_F(MSRIOGroupTest, control_alias)
 {
-    int freq_idx = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_PACKAGE, 0);
+    int freq_idx = m_msrio_group->push_control("MSR::PERF_CTL:FREQ", GEOPM_DOMAIN_CORE, 0);
     ASSERT_EQ(0, freq_idx);
-    int alias = m_msrio_group->push_control("FREQUENCY", GEOPM_DOMAIN_PACKAGE, 0);
+    int alias = m_msrio_group->push_control("FREQUENCY", GEOPM_DOMAIN_CORE, 0);
     ASSERT_EQ(freq_idx, alias);
     int fd = open(m_test_dev_path[0].c_str(), O_RDWR);
     ASSERT_NE(-1, fd);
@@ -759,33 +1041,6 @@ TEST_F(MSRIOGroupTest, cpuid)
    }
 }
 
-TEST_F(MSRIOGroupTest, format_function)
-{
-    std::function<std::string(double)> func;
-    func = m_msrio_group->format_function("MSR::PERF_STATUS:FREQ");
-    EXPECT_TRUE(is_format_double(func));
-    func = m_msrio_group->format_function("MSR::FIXED_CTR0:INST_RETIRED_ANY");
-    EXPECT_TRUE(is_format_integer(func));
-    func = m_msrio_group->format_function("MSR::PERF_STATUS#");
-    EXPECT_TRUE(is_format_raw64(func));
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->format_function("INVALID"),
-                               GEOPM_ERROR_INVALID, "not valid for MSRIOGroup");
-}
-
-TEST_F(MSRIOGroupTest, register_msr_signal)
-{
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_signal("TEST"),
-                               GEOPM_ERROR_INVALID, "msr_name_field must be of the form \"MSR::<msr_name>:<field_name>\"");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_signal("MSR::TEST"),
-                               GEOPM_ERROR_INVALID, "msr_name_field must be of the form \"MSR::<msr_name>:<field_name>\"");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_signal("MSR::PERF_STATUS:FREQ"),
-                               GEOPM_ERROR_INVALID, "signal_name MSR::PERF_STATUS:FREQ was previously registered");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_signal("MSR::BAD:BAD"),
-                               GEOPM_ERROR_INVALID, "msr_name could not be found");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_signal("MSR::PERF_STATUS:BAD"),
-                               GEOPM_ERROR_INVALID, "field_name: BAD could not be found");
-}
-
 TEST_F(MSRIOGroupTest, register_msr_control)
 {
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_control("TEST"),
@@ -796,7 +1051,7 @@ TEST_F(MSRIOGroupTest, register_msr_control)
                                GEOPM_ERROR_INVALID, "control_name MSR::PERF_CTL:FREQ was previously registered");
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_control("MSR::BAD:BAD"),
                                GEOPM_ERROR_INVALID, "msr_name could not be found");
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_control("MSR::PERF_STATUS:BAD"),
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->register_msr_control("MSR::PERF_CTL:BAD"),
                                GEOPM_ERROR_INVALID, "field_name: BAD could not be found");
 
 }
@@ -1030,6 +1285,7 @@ TEST_F(MSRIOGroupTest, parse_json_msrs)
            }
     } } )";
     auto msr_list = MSRIOGroup::parse_json_msrs(json);
+
     ASSERT_EQ(2u, msr_list.size());
     auto &msr0 = msr_list[0];
     EXPECT_EQ("MSR_ONE", msr0->name());
@@ -1043,8 +1299,6 @@ TEST_F(MSRIOGroupTest, parse_json_msrs)
     EXPECT_EQ("MSR_TWO", msr1->name());
     EXPECT_EQ(0x10U, msr1->offset());
     EXPECT_EQ(GEOPM_DOMAIN_CPU, msr1->domain_type());
-    EXPECT_EQ(1, msr1->num_signal());
     EXPECT_EQ(1, msr1->num_control());
-    EXPECT_EQ("FIELD_RW", msr1->signal_name(0));
     EXPECT_EQ("FIELD_RW", msr1->control_name(0));
 }
