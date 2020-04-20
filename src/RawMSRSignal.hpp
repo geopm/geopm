@@ -62,9 +62,9 @@ namespace geopm
             std::shared_ptr<MSRIO> m_msrio;
             int m_cpu;
             uint64_t m_offset;
-            /// Location of the data that will be updated by the
+            /// Index to the data that will be updated by the
             /// MSRIO's read_batch() calls.
-            uint64_t *m_data;
+            int m_data_idx;
             bool m_is_batch_ready;
     };
 }

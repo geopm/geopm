@@ -44,6 +44,7 @@
 #include "MSRIOImp.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
+#include "geopm_test.hpp"
 
 // Class derived from MSRIO used to test MSRIO w/o accessing the msr
 // device files.
@@ -739,6 +740,7 @@ TEST_F(MSRIOTest, read_batch)
     for (int i = 0; i < m_num_cpu; ++i) {
         cpu_idx.push_back(i);
     }
+
     std::vector<std::string> words {"software", "engineer", "document", "everyday",
                                     "modeling", "standout", "patience", "goodwill"};
     std::vector<uint64_t> offsets {0xd28, 0x520, 0x468, 0x570, 0x918, 0xd80, 0xa40, 0x688};
@@ -746,21 +748,33 @@ TEST_F(MSRIOTest, read_batch)
     std::vector<int> read_cpu_idx;
     std::vector<uint64_t> read_offset;
     std::vector<uint64_t> expected;
+    std::vector<int> sample_idx;
     for (auto &ci : cpu_idx) {
         auto wi = words.begin();
         for (auto oi : offsets) {
-            read_cpu_idx.push_back(ci);
-            read_offset.push_back(oi);
+            sample_idx.push_back(m_msrio->add_read(ci, oi));
             uint64_t result;
             memcpy(&result, wi->data(), 8);
             expected.push_back(result);
             ++wi;
         }
     }
-    m_msrio->config_batch(read_cpu_idx, read_offset, {}, {}, {});
-    std::vector<uint64_t> actual;
+    ASSERT_LT(0u, sample_idx.size());
+
+    // sample without read_batch is an error
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio->sample(sample_idx[0]),
+                               GEOPM_ERROR_INVALID,
+                               "cannot call sample() before read_batch()");
+
+    std::vector<uint64_t> actual(expected.size());
     m_msrio->read_batch(actual);
     EXPECT_EQ(expected, actual);
+
+    // check that sample works with index from add_read
+    ASSERT_EQ(expected.size(), sample_idx.size());
+    for (size_t ii = 0; ii < sample_idx.size(); ++ii) {
+        EXPECT_EQ(expected[ii], m_msrio->sample(sample_idx[ii]));
+    }
 }
 
 TEST_F(MSRIOTest, write_batch)
@@ -820,33 +834,4 @@ TEST_F(MSRIOTest, write_batch)
     EXPECT_THROW(m_msrio->config_batch({}, {}, write_cpu_idx, {}, {}), geopm::Exception);
     EXPECT_THROW(m_msrio->config_batch(write_cpu_idx, {}, {}, {}, {}), geopm::Exception);
     EXPECT_THROW(m_msrio->config_batch({}, {}, write_cpu_idx, write_offset, {}), geopm::Exception);
-}
-
-TEST_F(MSRIOTest, add_read)
-{
-    std::vector<int> cpu_idx;
-    for (int i = 0; i < m_num_cpu; ++i) {
-        cpu_idx.push_back(i);
-    }
-    std::vector<std::string> words {"software", "engineer", "document", "everyday",
-                                    "modeling", "standout", "patience", "goodwill"};
-    std::vector<uint64_t> offsets {0xd28, 0x520, 0x468, 0x570, 0x918, 0xd80, 0xa40, 0x688};
-
-    std::vector<int> read_cpu_idx;
-    std::vector<uint64_t> read_offset;
-    std::vector<uint64_t> expected;
-    for (auto &ci : cpu_idx) {
-        auto wi = words.begin();
-        for (auto oi : offsets) {
-            uint64_t *mem  = m_msrio->add_read(ci, oi);
-            EXPECT_NE(nullptr, mem);
-            uint64_t result;
-            memcpy(&result, wi->data(), 8);
-            expected.push_back(result);
-            ++wi;
-        }
-    }
-    std::vector<uint64_t> actual;
-    m_msrio->read_batch(actual);
-    EXPECT_EQ(expected, actual);
 }

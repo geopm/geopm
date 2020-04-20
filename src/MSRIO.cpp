@@ -74,6 +74,7 @@ namespace geopm
         , m_write_batch({0, NULL})
         , m_read_batch_op(0)
         , m_write_batch_op(0)
+        , m_is_batch_read(false)
     {
 
     }
@@ -136,8 +137,9 @@ namespace geopm
             throw Exception("MSRIOImp::config_batch(): Input vector length mismatch",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        m_read_batch_op.resize(read_cpu_idx.size());
-        {
+
+        if (read_cpu_idx.size() > 0) {
+            m_read_batch_op.resize(read_cpu_idx.size());
             auto cpu_it = read_cpu_idx.begin();
             auto offset_it = read_offset.begin();
             for (auto batch_it = m_read_batch_op.begin();
@@ -151,8 +153,6 @@ namespace geopm
                 batch_it->wmask = 0;
             }
         }
-        m_read_batch.numops = m_read_batch_op.size();
-        m_read_batch.ops = m_read_batch_op.data();
 
         m_write_batch_op.resize(write_cpu_idx.size());
         {
@@ -174,7 +174,7 @@ namespace geopm
         m_write_batch.ops = m_write_batch_op.data();
     }
 
-    uint64_t *MSRIOImp::add_read(int cpu_idx, uint64_t offset)
+    int MSRIOImp::add_read(int cpu_idx, uint64_t offset)
     {
         m_msr_batch_op_s rd {
             .cpu = (uint16_t)cpu_idx,
@@ -184,11 +184,20 @@ namespace geopm
             .msrdata = 0,
             .wmask = 0
         };
+        int idx = m_read_batch_op.size();
         m_read_batch_op.push_back(rd);
-        m_read_batch.numops = m_read_batch_op.size();
-        m_read_batch.ops = m_read_batch_op.data();
-        return &m_read_batch.ops[m_read_batch.numops - 1].msrdata;
+        return idx;
     }
+
+    uint64_t MSRIOImp::sample(int batch_idx) const
+    {
+        if (!m_is_batch_read) {
+            throw Exception("MSRIOImp::sample(): cannot call sample() before read_batch().",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return m_read_batch.ops[batch_idx].msrdata;
+    }
+
 
     void MSRIOImp::msr_ioctl(bool is_read)
     {
@@ -210,12 +219,16 @@ namespace geopm
         }
     }
 
+    /// @todo: deprecated but part of public interface.  Remove with next major release.
     void MSRIOImp::read_batch(std::vector<uint64_t> &raw_value)
     {
         if (raw_value.size() < m_read_batch.numops) {
             raw_value.resize(m_read_batch.numops);
         }
         open_msr_batch();
+        m_read_batch.numops = m_read_batch_op.size();
+        m_read_batch.ops = m_read_batch_op.data();
+
         if (m_is_batch_enabled) {
             msr_ioctl(true);
             uint32_t batch_idx = 0;
@@ -230,15 +243,21 @@ namespace geopm
             for (auto raw_it = raw_value.begin();
                  batch_idx != m_read_batch.numops;
                  ++raw_it, ++batch_idx) {
-                *raw_it = read_msr(m_read_batch_op[batch_idx].cpu,
-                                   m_read_batch_op[batch_idx].msr);
+                m_read_batch.ops[batch_idx].msrdata =
+                    read_msr(m_read_batch_op[batch_idx].cpu,
+                             m_read_batch_op[batch_idx].msr);
+                *raw_it = m_read_batch.ops[batch_idx].msrdata;
             }
         }
+        m_is_batch_read = true;
     }
 
     void MSRIOImp::read_batch(void)
     {
         open_msr_batch();
+        m_read_batch.numops = m_read_batch_op.size();
+        m_read_batch.ops = m_read_batch_op.data();
+
         if (m_is_batch_enabled) {
             msr_ioctl(true);
         }
@@ -251,6 +270,7 @@ namespace geopm
                              m_read_batch_op[batch_idx].msr);
             }
         }
+        m_is_batch_read = true;
     }
 
     void MSRIOImp::write_batch(const std::vector<uint64_t> &raw_value)

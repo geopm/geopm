@@ -47,7 +47,7 @@ namespace geopm
         : m_msrio(msrio)
         , m_cpu(cpu)
         , m_offset(offset)
-        , m_data(nullptr)
+        , m_data_idx(-1)
         , m_is_batch_ready(false)
     {
         GEOPM_DEBUG_ASSERT(m_msrio != nullptr, "no valid MSRIO object.");
@@ -58,11 +58,11 @@ namespace geopm
         GEOPM_DEBUG_ASSERT(m_msrio != nullptr, "no valid MSRIO object.");
 
         if (!m_is_batch_ready) {
-            m_data = m_msrio->add_read(m_cpu, m_offset);
+            m_data_idx = m_msrio->add_read(m_cpu, m_offset);
             m_is_batch_ready = true;
         }
 
-        GEOPM_DEBUG_ASSERT(m_data, "no memory mapped for signal value.");
+        GEOPM_DEBUG_ASSERT(m_data_idx != -1, "Signal not added to MSRIO");
     }
 
     double RawMSRSignal::sample(void)
@@ -71,10 +71,10 @@ namespace geopm
             throw Exception("setup_batch() must be called before sample().",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        GEOPM_DEBUG_ASSERT(m_data != nullptr, "no memory mapped for signal value.");
+        GEOPM_DEBUG_ASSERT(m_data_idx != -1, "Signal not added to MSRIO");
 
         // convert to double
-        return geopm_field_to_signal(*m_data);
+        return geopm_field_to_signal(m_msrio->sample(m_data_idx));
     }
 
     double RawMSRSignal::read(void) const
