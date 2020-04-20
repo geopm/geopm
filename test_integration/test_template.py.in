@@ -136,7 +136,7 @@ class TestIntegration_@test_name@(unittest.TestCase):
 
         """
 
-        if (sys.exc_info() == (None, None, None) and not
+
             cls._keep_files and not
             cls._skip_launch):
             os.unlink(cls._agent_conf_path)
@@ -144,6 +144,10 @@ class TestIntegration_@test_name@(unittest.TestCase):
             os.unlink(cls._image_path)
             for tf in glob.glob(cls._trace_path + '.*'):
                 os.unlink(tf)
+
+    def tearDown(self):
+        if sys.exc_info() != (None, None, None):
+            TestIntegration_@test_name@._keep_files = True
 
     def test_load_report(self):
         """Test that the report can be loaded
