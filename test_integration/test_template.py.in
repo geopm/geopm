@@ -45,13 +45,9 @@ from test_integration import geopm_context
 import geopmpy.io
 import geopmpy.error
 
-_g_skip_launch = False
-try:
-    sys.argv.remove('--skip-launch')
-    _g_skip_launch = True
-except ValueError:
+from test_integration import util
+if util.do_launch():
     from test_integration import geopm_test_launcher
-    from test_integration import util
     geopmpy.error.exc_clear()
 
 class AppConf(object):
@@ -95,7 +91,7 @@ class TestIntegration_@test_name@(unittest.TestCase):
         cls._report_path = 'test_{}.report'.format(test_name)
         cls._trace_path = 'test_{}.trace'.format(test_name)
         cls._image_path = 'test_{}.png'.format(test_name)
-        cls._skip_launch = _g_skip_launch
+        cls._skip_launch = not util.do_launch()
         cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
         cls._agent_conf_path = test_name + '-agent-config.json'
         # Clear out exception record for python 2 support
@@ -156,9 +152,6 @@ class TestIntegration_@test_name@(unittest.TestCase):
         report = geopmpy.io.RawReport(self._report_path)
 
 if __name__ == '__main__':
-    try:
-        sys.argv.remove('--skip-launch')
-        _g_skip_launch = True
-    except ValueError:
-        geopmpy.error.exc_clear()
+    # Call do_launch to clear non-pyunit command line option
+    util.do_launch()
     unittest.main()

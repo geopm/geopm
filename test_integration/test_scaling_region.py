@@ -51,7 +51,6 @@ import geopmpy.hash
 from test_integration import geopm_test_launcher
 from test_integration import util
 
-_g_skip_launch = False
 
 class AppConf(object):
     """Class that is used by the test launcher as a geopmpy.io.BenchConf
@@ -89,7 +88,7 @@ class TestIntegrationScalingRegion(unittest.TestCase):
         test_name = 'test_scaling_region'
         cls._report_path = test_name + '.report'
         cls._trace_path = test_name + '.trace'
-        cls._skip_launch = _g_skip_launch
+        cls._skip_launch = not util.do_launch()
         cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
         cls._agent_conf_path = test_name + '-agent-config.json'
         # region_hash() of the sequence:
@@ -160,9 +159,6 @@ class TestIntegrationScalingRegion(unittest.TestCase):
                 self.assertGreater(pt[0], pt[1])
 
 if __name__ == '__main__':
-    try:
-        sys.argv.remove('--skip-launch')
-        _g_skip_launch = True
-    except ValueError:
-        pass
+    # Call do_launch to clear non-pyunit command line option
+    util.do_launch()
     unittest.main()

@@ -57,18 +57,7 @@ except ImportError:
     import geopmpy.io
     import geopmpy.error
     import geopmpy.hash
-
-_g_skip_launch = False
-try:
-    # Check for skip launch command line arguement
-    sys.argv.remove('--skip-launch')
-    _g_skip_launch = True
-except ValueError:
-    # If we are not skipping the launch we need to import the test
-    # launcher
-    from test_integration import geopm_test_launcher
-    from test_integration import util
-    geopmpy.error.exc_clear()
+from test_integration import util
 
 
 class TestIntegration_tutorial_base(unittest.TestCase):
@@ -77,8 +66,9 @@ class TestIntegration_tutorial_base(unittest.TestCase):
         sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
                          '.' + cls.__name__ + ') ...')
         cls._test_name = 'tutorial_base'
-        cls._skip_launch = _g_skip_launch
-        cls._keep_files = cls._skip_launch or os.getenv('GEOPM_KEEP_FILES') is not None
+        cls._skip_launch = not util.do_launch()
+        cls._keep_files = (cls._skip_launch or
+                           os.getenv('GEOPM_KEEP_FILES') is not None)
         cls._script_dir = os.path.dirname(os.path.realpath(__file__))
         cls._base_dir = os.path.dirname(cls._script_dir)
         cls._tmp_link = os.path.join(cls._script_dir, 'test_tutorial_base')
@@ -154,4 +144,6 @@ class TestIntegration_tutorial_base(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    # Call do_launch to clear non-pyunit command line option
+    util.do_launch()
     unittest.main()
