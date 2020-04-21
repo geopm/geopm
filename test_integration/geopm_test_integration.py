@@ -125,11 +125,6 @@ class TestIntegration(unittest.TestCase):
         else:
             os.environ['GEOPM_FREQUENCY_MAP'] = self._original_freq_map_env
 
-    def assertNear(self, a, b, epsilon=0.05, msg=''):
-        denom = a if a != 0 else 1
-        if abs((a - b) / denom) >= epsilon:
-            self.fail('The fractional difference between {a} and {b} is greater than {epsilon}.  {msg}'.format(a=a, b=b, epsilon=epsilon, msg=msg))
-
     def assert_geopm_uses_policy(self, expected_policy, context, user_policy=None):
         """Assert that geopm uses the given policy.
 
@@ -296,7 +291,7 @@ class TestIntegration(unittest.TestCase):
             sleep_data = ao.get_report_data(node_name=nn, region='sleep')
             app_data = ao.get_app_total_data(node_name=nn)
             self.assertNotEqual(0, len(sleep_data))
-            self.assertNear(delay, sleep_data['runtime'].item())
+            util.assertNear(self, delay, sleep_data['runtime'].item())
             self.assertGreater(app_data['runtime'].item(), sleep_data['runtime'].item())
             self.assertEqual(1, sleep_data['count'].item())
 
@@ -323,7 +318,7 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             report = self._output.get_report_data(node_name=nn, region='sleep')
             app_total = self._output.get_app_total_data(node_name=nn)
-            self.assertNear(delay, report['runtime'].item())
+            util.assertNear(self, delay, report['runtime'].item())
             self.assertGreater(app_total['runtime'].item(), report['runtime'].item())
 
     def test_runtime_epoch(self):
@@ -350,7 +345,7 @@ class TestIntegration(unittest.TestCase):
             sleep_data = self._output.get_report_data(node_name=nn, region='sleep')
             epoch_data = self._output.get_report_data(node_name=nn, region='epoch')
             total_runtime = sleep_data['runtime'].item() + spin_data['runtime'].item()
-            self.assertNear(total_runtime, epoch_data['runtime'].item())
+            util.assertNear(self, total_runtime, epoch_data['runtime'].item())
 
     def test_epoch_data_valid(self):
         name = 'test_epoch_data_valid'
@@ -439,8 +434,8 @@ class TestIntegration(unittest.TestCase):
             epoch_data = self._output.get_report_data(node_name=nn, region='epoch')
             app_totals = self._output.get_app_total_data(node_name=nn)
             # The spin sections of this region sleep for 'delay' seconds twice per loop.
-            self.assertNear(2 * loop_count * delay, spin_data['runtime'].item())
-            self.assertNear(spin_data['runtime'].item(), epoch_data['runtime'].item(), epsilon=0.01)
+            util.assertNear(self, 2 * loop_count * delay, spin_data['runtime'].item())
+            util.assertNear(self, spin_data['runtime'].item(), epoch_data['runtime'].item(), epsilon=0.01)
             self.assertGreater(app_totals['network-time'].item(), 0)
             self.assertGreater(0.1, app_totals['network-time'].item())
             self.assertEqual(loop_count, spin_data['count'].item())
@@ -471,7 +466,7 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             trace = self._output.get_trace_data(node_name=nn)
             app_totals = self._output.get_app_total_data(node_name=nn)
-            self.assertNear(trace.iloc[-1]['TIME'], app_totals['runtime'].item(), msg='Application runtime failure, node_name={}.'.format(nn))
+            util.assertNear(self, trace.iloc[-1]['TIME'], app_totals['runtime'].item(), msg='Application runtime failure, node_name={}.'.format(nn))
             # Calculate runtime totals for each region in each trace, compare to report
             tt = trace.reset_index(level='index')  # move 'index' field from multiindex to columns
             tt = tt.set_index(['REGION_HASH'], append=True)  # add region_hash column to multiindex
@@ -489,12 +484,12 @@ class TestIntegration(unittest.TestCase):
                     end_time = tt.loc[tt['index'] == end_idx]['TIME'].item()
                     trace_elapsed_time = end_time - start_time
                     msg = 'for region {rn} on node {nn}'.format(rn=region_name, nn=nn)
-                    self.assertNear(trace_elapsed_time, region_data['sync_runtime'].item(), msg=msg)
+                    util.assertNear(self, trace_elapsed_time, region_data['sync_runtime'].item(), msg=msg)
             # epoch
             region_data = self._output.get_report_data(node_name=nn, region='epoch')
             trace_elapsed_time = trace.iloc[-1]['TIME'] - trace['TIME'].loc[trace['EPOCH_COUNT'] == 0].iloc[0]
             msg = 'for epoch on node {nn}'.format(nn=nn)
-            self.assertNear(trace_elapsed_time, region_data['runtime'].item(), msg=msg)
+            util.assertNear(self, trace_elapsed_time, region_data['runtime'].item(), msg=msg)
 
     @util.skip_unless_config_enable('bloat')
     def test_runtime_regulator(self):
@@ -526,7 +521,7 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             app_totals = self._output.get_app_total_data(node_name=nn)
             trace = self._output.get_trace_data(node_name=nn)
-            self.assertNear(trace.iloc[-1]['TIME'], app_totals['runtime'].item())
+            util.assertNear(self, trace.iloc[-1]['TIME'], app_totals['runtime'].item())
             tt = trace.set_index(['REGION_HASH'], append=True)
             tt = tt.groupby(level=['REGION_HASH'])
             for region_name in regions:
@@ -538,10 +533,10 @@ class TestIntegration(unittest.TestCase):
                     epsilon = 0.001 if region_name != 'sleep' else 0.05
                     for index, df in filtered_df.iterrows():
                         if df['REGION_PROGRESS'] == 1:
-                            self.assertNear(df['REGION_RUNTIME'], expected_region_runtime[region_name], epsilon=epsilon)
+                            util.assertNear(self, df['REGION_RUNTIME'], expected_region_runtime[region_name], epsilon=epsilon)
                             first_time = True
                         if first_time is True and df['REGION_PROGRESS'] == 0:
-                            self.assertNear(df['REGION_RUNTIME'], expected_region_runtime[region_name], epsilon=epsilon)
+                            util.assertNear(self, df['REGION_RUNTIME'], expected_region_runtime[region_name], epsilon=epsilon)
 
     @util.skip_unless_run_long_tests()
     @util.skip_unless_config_enable('bloat')
@@ -599,7 +594,7 @@ class TestIntegration(unittest.TestCase):
                     if write_regions:
                         launcher.write_log(name, 'Region {} is {}.'.format(rr['id'].item(), region_name))
                     runtime = rr['sync_runtime'].item()
-                    self.assertNear(runtime,
+                    util.assertNear(self, runtime,
                                     region_times[nn][rr['id'].item()]['TIME'].sum())
             write_regions = False
 
@@ -633,7 +628,7 @@ class TestIntegration(unittest.TestCase):
         for nn in node_names:
             sleep_data = self._output.get_report_data(node_name=nn, region='sleep')
             app_total = self._output.get_app_total_data(node_name=nn)
-            self.assertNear(delay, sleep_data['runtime'].item())
+            util.assertNear(self, delay, sleep_data['runtime'].item())
             self.assertGreater(app_total['runtime'].item(), sleep_data['runtime'].item())
             self.assertEqual(1, sleep_data['count'].item())
 
@@ -662,7 +657,7 @@ class TestIntegration(unittest.TestCase):
             trace_data = self._output.get_trace_data(node_name=nn)
             spin_data = self._output.get_report_data(node_name=nn, region='spin')
             epoch_data = self._output.get_report_data(node_name=nn, region='epoch')
-            self.assertNear(delay * loop_count, spin_data['runtime'].item())
+            util.assertNear(self, delay * loop_count, spin_data['runtime'].item())
             self.assertEqual(loop_count, spin_data['count'].item())
             self.assertEqual(loop_count, epoch_data['count'].item())
             self.assertEqual(loop_count, trace_data['EPOCH_COUNT'][-1])
@@ -1006,11 +1001,11 @@ class TestIntegration(unittest.TestCase):
             # unmarked-region time as our error term when comparing
             # MPI time and all2all time.
             mpi_epsilon = max(unmarked_data['runtime'].item() / all2all_data['network_time'].item(), 0.05)
-            self.assertNear(all2all_data['network_time'].item(), all2all_data['runtime'].item(), mpi_epsilon)
-            self.assertNear(all2all_data['network_time'].item() + barrier_data['network_time'].item(),
+            util.assertNear(self, all2all_data['network_time'].item(), all2all_data['runtime'].item(), mpi_epsilon)
+            util.assertNear(self, all2all_data['network_time'].item() + barrier_data['network_time'].item(),
                             epoch_data['network_time'].item())
             # TODO: inconsistent; can we just use _ everywhere?
-            self.assertNear(all2all_data['network_time'].item() + barrier_data['network_time'].item(),
+            util.assertNear(self, all2all_data['network_time'].item() + barrier_data['network_time'].item(),
                             app_total['network-time'].item())
             self.assertEqual(0, unmarked_data['network_time'].item())
             self.assertEqual(0, sleep_data['network_time'].item())
@@ -1042,7 +1037,7 @@ class TestIntegration(unittest.TestCase):
             startup_data = self._output.get_report_data(node_name=nn,
                                                         region='geopm_dgemm_model_region_startup')
             app_data = self._output.get_app_total_data(node_name=nn)
-            self.assertNear(ignore_data['runtime'].item() + startup_data['runtime'].item(),
+            util.assertNear(self, ignore_data['runtime'].item() + startup_data['runtime'].item(),
                             app_data['ignore-runtime'].item(), 0.00005)
 
     @util.skip_unless_config_enable('ompt')
@@ -1146,7 +1141,7 @@ class TestIntegration(unittest.TestCase):
                     #todo verify trace frequencies
                     #todo verify agent report augment frequecies
                     msg = region_name + " frequency should be near assigned map frequency"
-                    self.assertNear(freq_map[region_name] / sticker_freq * 100, region_data['frequency'].item(), msg=msg)
+                    util.assertNear(self, freq_map[region_name] / sticker_freq * 100, region_data['frequency'].item(), msg=msg)
 
     def test_agent_frequency_map_env(self):
         """
