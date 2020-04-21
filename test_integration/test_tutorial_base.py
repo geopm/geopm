@@ -41,6 +41,7 @@ import sys
 import unittest
 import os
 import subprocess
+import shutil
 
 # Put integration test directory into the path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -110,7 +111,7 @@ class TestIntegration_tutorial_base(unittest.TestCase):
         """
         if not cls._keep_files:
             tmp_dir = os.readlink(cls._tmp_link)
-            os.rmtree(tmp_dir)
+            shutil.rmtree(tmp_dir)
             os.unlink(cls._tmp_link)
 
 
@@ -137,9 +138,19 @@ class TestIntegration_tutorial_base(unittest.TestCase):
 
     def test_generate_reports(self):
         "Check that reports were generated"
-        for tutorial_idx in range(7):
-            self.assrtTrue(os.path.exists('{tmp_link}/geopm-tutorial/tutorial_{tutorial_idx}.report'.format(
-                                              tmp_link=self.tmp_link, tutorial_idx=tutorial_idx)))
+        expected_reports = ['tutorial_0_report',
+                            'tutorial_1_report',
+                            'tutorial_2_report',
+                            'tutorial_3_balanced_report',
+                            'tutorial_3_governed_report',
+                            'tutorial_4_balanced_report',
+                            'tutorial_4_governed_report',
+                            'tutorial_5_report',
+                            'tutorial_6_report']
+        out_dir = '{tmp_link}/geopm-tutorial'.format(tmp_link=self._tmp_link)
+        for report in expected_reports:
+            report_path = os.path.join(out_dir, report)
+            self.assertTrue(os.path.exists(report_path))
 
 
 if __name__ == '__main__':
