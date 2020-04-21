@@ -92,7 +92,8 @@ class TestIntegration_@test_name@(unittest.TestCase):
         cls._trace_path = 'test_{}.trace'.format(test_name)
         cls._image_path = 'test_{}.png'.format(test_name)
         cls._skip_launch = not util.do_launch()
-        cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
+        cls._keep_files = (cls._skip_launch or
+                           os.getenv('GEOPM_KEEP_FILES') is not None)
         cls._agent_conf_path = test_name + '-agent-config.json'
         # Clear out exception record for python 2 support
         geopmpy.error.exc_clear()
@@ -132,9 +133,7 @@ class TestIntegration_@test_name@(unittest.TestCase):
 
         """
 
-
-            cls._keep_files and not
-            cls._skip_launch):
+        if not cls._keep_files:
             os.unlink(cls._agent_conf_path)
             os.unlink(cls._report_path)
             os.unlink(cls._image_path)
