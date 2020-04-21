@@ -67,16 +67,11 @@ except ImportError:
     import geopmpy.error
     import geopmpy.hash
 
-_g_skip_launch = False
-try:
-    # Check for skip launch command line arguement
-    sys.argv.remove('--skip-launch')
-    _g_skip_launch = True
-except ValueError:
+from test_integration import util
+if util.do_launch():
     # If we are not skipping the launch we need to import the test
     # launcher
     from test_integration import geopm_test_launcher
-    from test_integration import util
     geopmpy.error.exc_clear()
 
 # Globals controlling uniform y axis limits in all plots
@@ -130,7 +125,7 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         cls._trace_path_dynamic = 'test_{}_dynamic.trace'.format(cls._test_name)
         cls._trace_profile_path_fixed = 'test_{}_fixed.trace_profile'.format(cls._test_name)
         cls._trace_profile_path_dynamic = 'test_{}_dynamic.trace_profile'.format(cls._test_name)
-        cls._skip_launch = _g_skip_launch
+        cls._skip_launch = not util.do_launch()
         cls._keep_files = cls._skip_launch or os.getenv('GEOPM_KEEP_FILES') is not None
         cls._agent_conf_fixed_path = 'test_{}_fixed-agent-config.json'.format(cls._test_name)
         cls._agent_conf_dynamic_path = 'test_{}_dynamic-agent-config.json'.format(cls._test_name)
@@ -530,4 +525,6 @@ def generate_trace_plot(trace, out_path, delta_time, begin_time=0):
 
 
 if __name__ == '__main__':
+    # Call do_launch to clear non-pyunit command line option
+    util.do_launch()
     unittest.main()

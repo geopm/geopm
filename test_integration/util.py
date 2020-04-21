@@ -202,3 +202,21 @@ def remove_file_on_compute_nodes(file_path):
     """
     with open('/dev/null', 'w') as dev_null:
         geopm_test_launcher.allocation_node_test('dummy -- rm {}'.format(file_path), dev_null, dev_null)
+
+
+_g_do_launch_once = True
+_g_do_launch = True
+
+
+def do_launch():
+    # Check for skip launch command line argument
+    global _g_do_launch_once
+    global _g_do_launch
+    if _g_do_launch_once:
+        _g_do_launch_once = False
+        try:
+            sys.argv.remove('--skip-launch')
+            _g_do_launch = False
+        except ValueError:
+            pass
+    return _g_do_launch

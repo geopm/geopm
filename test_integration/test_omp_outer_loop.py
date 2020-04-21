@@ -51,8 +51,6 @@ import geopmpy.error
 from test_integration import geopm_test_launcher
 from test_integration import util
 
-_g_skip_launch = False
-
 
 class AppConf(object):
     """Class that is used by the test launcher to get access
@@ -88,7 +86,7 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
         test_config = ['_with_ompt', '_without_ompt']
         cls._expected_regions = ['MPI_Barrier']
         cls._report_path = []
-        cls._skip_launch = _g_skip_launch
+        cls._skip_launch = not util.do_launch()
         cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
         num_node = 1
         num_rank = 4
@@ -163,9 +161,6 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    try:
-        sys.argv.remove('--skip-launch')
-        _g_skip_launch = True
-    except ValueError:
-        pass
+    # Call do_launch to clear non-pyunit command line option
+    util.do_launch()
     unittest.main()
