@@ -206,8 +206,6 @@ def remove_file_on_compute_nodes(file_path):
 
 _g_do_launch_once = True
 _g_do_launch = True
-
-
 def do_launch():
     # Check for skip launch command line argument
     global _g_do_launch_once
@@ -220,3 +218,9 @@ def do_launch():
         except ValueError:
             pass
     return _g_do_launch
+
+
+def assertNear(self, a, b, epsilon=0.05, msg=''):
+    denom = a if a != 0 else 1
+    if abs((a - b) / denom) >= epsilon:
+        self.fail('The fractional difference between {a} and {b} is greater than {epsilon}.  {msg}'.format(a=a, b=b, epsilon=epsilon, msg=msg))

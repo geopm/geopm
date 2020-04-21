@@ -141,11 +141,6 @@ class TestIntegrationScalingRegion(unittest.TestCase):
             os.unlink(cls._agent_conf_path)
             os.unlink(cls._report_path)
 
-    def assertNear(self, a, b, epsilon=0.05, msg=''):
-        denom = a if a != 0 else 1
-        if abs((a - b) / denom) >= epsilon:
-            self.fail('The fractional difference between {a} and {b} is greater than {epsilon}.  {msg}'.format(a=a, b=b, epsilon=epsilon, msg=msg))
-
     def test_uniform_performance(self):
         """Test that the reports generated show uniform performance with
            respect to CPU frequency.
@@ -157,7 +152,7 @@ class TestIntegrationScalingRegion(unittest.TestCase):
             for rn in report.region_names(host):
                 if rn.startswith('timed_scaling_region'):
                     region = report.raw_region(host, rn)
-                    self.assertNear(1.0, report.get_field(region, 'runtime', 'sec'))
+                    util.assertNear(self, 1.0, report.get_field(region, 'runtime', 'sec'))
 
     def test_achieved_frequency(self):
         """Test that the reports show achieved frequencies near target
@@ -172,7 +167,7 @@ class TestIntegrationScalingRegion(unittest.TestCase):
                     region = report.raw_region(host, rn)
                     request_freq = report.get_field(region, 'frequency-map')
                     actual_freq = report.get_field(region, 'frequency', 'Hz')
-                    self.assertNear(request_freq, actual_freq)
+                    util.assertNear(self, request_freq, actual_freq)
 
 if __name__ == '__main__':
     # Call do_launch to clear non-pyunit command line option
