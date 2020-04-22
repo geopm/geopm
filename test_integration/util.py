@@ -224,3 +224,8 @@ def assertNear(self, a, b, epsilon=0.05, msg=''):
     denom = a if a != 0 else 1
     if abs((a - b) / denom) >= epsilon:
         self.fail('The fractional difference between {a} and {b} is greater than {epsilon}.  {msg}'.format(a=a, b=b, epsilon=epsilon, msg=msg))
+
+def assertNotNear(self, a, b, epsilon=0.05, msg=''):
+    denom = a if a != 0 else 1
+    if abs((a - b) / denom) < epsilon:
+        self.fail('The fractional difference between {a} and {b} is less than {epsilon}.  {msg}'.format(a=a, b=b, epsilon=epsilon, msg=msg))
