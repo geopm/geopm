@@ -271,8 +271,8 @@ TEST_F(MSRIOGroupTest, valid_signal_names)
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::TEMPERATURE_TARGET:PROCHOT_MIN"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::THERM_STATUS:DIGITAL_READOUT"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT"));
-    signal_aliases.push_back("MSR::TEMPERATURE_CORE");
-    signal_aliases.push_back("MSR::TEMPERATURE_PACKAGE");
+    signal_aliases.push_back("TEMPERATURE_CORE");
+    signal_aliases.push_back("TEMPERATURE_PACKAGE");
 
     //// power signals
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PKG_POWER_INFO:MIN_POWER"));
@@ -281,8 +281,8 @@ TEST_F(MSRIOGroupTest, valid_signal_names)
     signal_aliases.push_back("POWER_PACKAGE_MIN");
     signal_aliases.push_back("POWER_PACKAGE_MAX");
     signal_aliases.push_back("POWER_PACKAGE_TDP");
-    signal_aliases.push_back("MSR::POWER_PACKAGE");
-    signal_aliases.push_back("MSR::POWER_DRAM");
+    signal_aliases.push_back("POWER_PACKAGE");
+    signal_aliases.push_back("POWER_DRAM");
 
     auto signal_names = m_msrio_group->signal_names();
     for (const auto &name : signal_aliases) {
@@ -313,9 +313,9 @@ TEST_F(MSRIOGroupTest, valid_signal_domains)
 
     // temperature
     EXPECT_EQ(GEOPM_DOMAIN_CORE,
-              m_msrio_group->signal_domain_type("MSR::TEMPERATURE_CORE"));
+              m_msrio_group->signal_domain_type("TEMPERATURE_CORE"));
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
-              m_msrio_group->signal_domain_type("MSR::TEMPERATURE_PACKAGE"));
+              m_msrio_group->signal_domain_type("TEMPERATURE_PACKAGE"));
 
     // power
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
@@ -325,9 +325,9 @@ TEST_F(MSRIOGroupTest, valid_signal_domains)
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
               m_msrio_group->signal_domain_type("POWER_PACKAGE_TDP"));
     EXPECT_EQ(GEOPM_DOMAIN_PACKAGE,
-              m_msrio_group->signal_domain_type("MSR::POWER_PACKAGE"));
+              m_msrio_group->signal_domain_type("POWER_PACKAGE"));
     EXPECT_EQ(GEOPM_DOMAIN_BOARD_MEMORY,
-              m_msrio_group->signal_domain_type("MSR::POWER_DRAM"));
+              m_msrio_group->signal_domain_type("POWER_DRAM"));
 }
 
 TEST_F(MSRIOGroupTest, valid_signal_aggregation)
@@ -359,9 +359,9 @@ TEST_F(MSRIOGroupTest, valid_signal_aggregation)
     //EXPECT_TRUE(is_agg_expect_same(func));
 
     // temperature
-    func = m_msrio_group->agg_function("MSR::TEMPERATURE_CORE");
+    func = m_msrio_group->agg_function("TEMPERATURE_CORE");
     EXPECT_TRUE(is_agg_average(func));
-    func = m_msrio_group->agg_function("MSR::TEMPERATURE_PACKAGE");
+    func = m_msrio_group->agg_function("TEMPERATURE_PACKAGE");
     EXPECT_TRUE(is_agg_average(func));
 
     // power
@@ -374,9 +374,9 @@ TEST_F(MSRIOGroupTest, valid_signal_aggregation)
     //EXPECT_TRUE(is_agg_expect_same(func));
     //func = m_msrio_group->agg_function("POWER_PACKAGE_TDP");
     //EXPECT_TRUE(is_agg_expect_same(func));
-    func = m_msrio_group->agg_function("MSR::POWER_PACKAGE");
+    func = m_msrio_group->agg_function("POWER_PACKAGE");
     EXPECT_TRUE(is_agg_sum(func));
-    func = m_msrio_group->agg_function("MSR::POWER_DRAM");
+    func = m_msrio_group->agg_function("POWER_DRAM");
     EXPECT_TRUE(is_agg_sum(func));
 }
 
@@ -388,9 +388,9 @@ TEST_F(MSRIOGroupTest, valid_signal_format)
     std::vector<std::string> si_alias = {
         "ENERGY_PACKAGE", "ENERGY_DRAM",
         "FREQUENCY", "FREQUENCY_MAX",
-        "MSR::TEMPERATURE_CORE", "MSR::TEMPERATURE_PACKAGE",
+        "TEMPERATURE_CORE", "TEMPERATURE_PACKAGE",
         "POWER_PACKAGE_MIN", "POWER_PACKAGE_MAX", "POWER_PACKAGE_TDP",
-        "MSR::POWER_PACKAGE", "MSR::POWER_DRAM"
+        "POWER_PACKAGE", "POWER_DRAM"
     };
     for (const auto &name : si_alias) {
         func = m_msrio_group->format_function(name);
@@ -707,7 +707,7 @@ TEST_F(MSRIOGroupTest, read_signal_temperature)
     value = readout_val << readout_begin;
     num_write = pwrite(fd_0, &value, sizeof(value), readout_msr);
     ASSERT_EQ(num_write, sizeof(value));
-    EXPECT_NEAR(exp_temp, m_msrio_group->read_signal("MSR::TEMPERATURE_CORE", GEOPM_DOMAIN_CORE, 0), 0.001);
+    EXPECT_NEAR(exp_temp, m_msrio_group->read_signal("TEMPERATURE_CORE", GEOPM_DOMAIN_CORE, 0), 0.001);
 
     readout_val = 55;
     exp_temp = prochot_val - readout_val;
@@ -716,7 +716,7 @@ TEST_F(MSRIOGroupTest, read_signal_temperature)
     value = readout_val << pkg_readout_begin;
     num_write = pwrite(fd_0, &value, sizeof(value), pkg_readout_msr);
     ASSERT_EQ(num_write, sizeof(value));
-    EXPECT_NEAR(exp_temp, m_msrio_group->read_signal("MSR::TEMPERATURE_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0), 0.001);
+    EXPECT_NEAR(exp_temp, m_msrio_group->read_signal("TEMPERATURE_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0), 0.001);
 }
 
 TEST_F(MSRIOGroupTest, read_signal_power)
@@ -770,8 +770,8 @@ TEST_F(MSRIOGroupTest, push_signal_temperature)
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::THERM_STATUS:DIGITAL_READOUT"));
     ASSERT_TRUE(m_msrio_group->is_valid_signal("MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT"));
 
-    int core_idx = m_msrio_group->push_signal("MSR::TEMPERATURE_CORE", GEOPM_DOMAIN_CORE, 0);
-    int pkg_idx = m_msrio_group->push_signal("MSR::TEMPERATURE_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0);
+    int core_idx = m_msrio_group->push_signal("TEMPERATURE_CORE", GEOPM_DOMAIN_CORE, 0);
+    int pkg_idx = m_msrio_group->push_signal("TEMPERATURE_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_GE(core_idx, 0);
     EXPECT_GE(pkg_idx, 0);
     // temperature is (PROCHOT_MIN - DIGITAL_READOUT)

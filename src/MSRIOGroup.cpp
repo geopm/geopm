@@ -163,11 +163,6 @@ namespace geopm
         register_temperature_signals();
         register_power_signals();
 
-        // @todo: have MSRIOGroup handle this combined signal instead of platformIO
-        register_msr_signal("TEMPERATURE_CORE_UNDER", "MSR::THERM_STATUS:DIGITAL_READOUT");
-        register_msr_signal("TEMPERATURE_PACKAGE_UNDER", "MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT");
-        register_msr_signal("TEMPERATURE_MAX", "MSR::TEMPERATURE_TARGET:PROCHOT_MIN");
-
         register_msr_control("POWER_PACKAGE_LIMIT", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
         register_msr_control("FREQUENCY",        "MSR::PERF_CTL:FREQ");
         register_msr_control("POWER_PACKAGE_TIME_WINDOW", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
@@ -187,9 +182,11 @@ namespace geopm
         int max_domain = m_signal_domain[max_name];
         // pairs of high-level signal name and underlying digital readout MSR
         std::vector<std::pair<std::string, std::string> > temp_signals {
-            {"MSR::TEMPERATURE_CORE", "MSR::THERM_STATUS:DIGITAL_READOUT"},
-            {"MSR::TEMPERATURE_PACKAGE", "MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT"}
+            {"TEMPERATURE_CORE", "MSR::THERM_STATUS:DIGITAL_READOUT"},
+            {"TEMPERATURE_PACKAGE", "MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT"}
         };
+        m_signal_desc_map["TEMPERATURE_CORE"] = "Core temperature in degrees C";
+        m_signal_desc_map["TEMPERATURE_PACKAGE"] = "Package temperature in degrees C";
         for (const auto &ts : temp_signals) {
             std::string signal_name = ts.first;
             std::string msr_name = ts.second;
@@ -218,8 +215,6 @@ namespace geopm
                 m_signal_agg_func[signal_name] = agg_function(msr_name);
             }
         }
-        m_signal_desc_map["MSR::TEMPERATURE_CORE"] = "Core temperature in degrees C";
-        m_signal_desc_map["MSR::TEMPERATURE_PACKAGE"] = "Package temperature in degrees C";
     }
 
     void MSRIOGroup::register_power_signals(void)
@@ -239,11 +234,11 @@ namespace geopm
         // Power signal name with corresponding energy signal.  The
         // domain will match that of the energy signal.
         std::vector<std::pair<std::string, std::string> > power_signals {
-            {"MSR::POWER_PACKAGE", "ENERGY_PACKAGE"},
-            {"MSR::POWER_DRAM", "ENERGY_DRAM"}
+            {"POWER_PACKAGE", "ENERGY_PACKAGE"},
+            {"POWER_DRAM", "ENERGY_DRAM"}
         };
-        m_signal_desc_map["MSR::POWER_PACKAGE"] = "Average package power in watts over the last 80 ms";
-        m_signal_desc_map["MSR::POWER_DRAM"] = "Average DRAM power in watts over the last 80 ms";
+        m_signal_desc_map["POWER_PACKAGE"] = "Average package power in watts over the last 80 ms";
+        m_signal_desc_map["POWER_DRAM"] = "Average DRAM power in watts over the last 80 ms";
         for (const auto &ps : power_signals) {
             std::string signal_name = ps.first;
             std::string msr_name = ps.second;

@@ -289,7 +289,6 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/PlatformIOTest.sample_agg \
               test/gtest_links/PlatformIOTest.signal_control_description \
               test/gtest_links/PlatformIOTest.signal_control_names \
-              test/gtest_links/PlatformIOTest.signal_power \
               test/gtest_links/PlatformIOTest.write_control \
               test/gtest_links/PlatformIOTest.write_control_override \
               test/gtest_links/PlatformIOTest.write_control_agg \
