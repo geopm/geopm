@@ -132,7 +132,6 @@ class PlatformIOTest : public ::testing::Test
         std::set<int> m_cpu_set1;
 
         std::shared_ptr<PlatformIOTestMockIOGroup> m_time_iogroup;
-        std::shared_ptr<PlatformIOTestMockIOGroup> m_energy_iogroup;
         std::shared_ptr<PlatformIOTestMockIOGroup> m_control_iogroup;
         std::shared_ptr<PlatformIOTestMockIOGroup> m_override_iogroup;
 };
@@ -142,12 +141,6 @@ void PlatformIOTest::SetUp()
     // Basic IOGroup
     m_time_iogroup = std::make_shared<PlatformIOTestMockIOGroup>();
     m_time_iogroup->set_valid_signals({{"TIME", GEOPM_DOMAIN_BOARD}});
-
-    // IOGroup for energy signals needed to support power
-    m_energy_iogroup = std::make_shared<PlatformIOTestMockIOGroup>();
-    m_energy_iogroup->set_valid_signals({
-            {"ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE},
-            {"ENERGY_DRAM", GEOPM_DOMAIN_BOARD_MEMORY}});
 
     // IOGroup with signals and controls with the same name
     m_control_iogroup = std::make_shared<PlatformIOTestMockIOGroup>();
@@ -195,7 +188,6 @@ void PlatformIOTest::SetUp()
 
     m_iogroup_ptr = {
         m_time_iogroup,
-        m_energy_iogroup,
         m_control_iogroup,
         m_override_iogroup
     };
@@ -218,11 +210,7 @@ TEST_F(PlatformIOTest, signal_control_names)
     // IOGroup signals and PlatformIO signals
     std::set<std::string> expected_signals = {
         "TIME",
-        "ENERGY_PACKAGE", "ENERGY_DRAM",
         "FREQ", "MODE",
-        // provided by PlatformIO itself
-        "POWER_PACKAGE", "POWER_DRAM",
-        "TEMPERATURE_CORE", "TEMPERATURE_PACKAGE"
     };
     std::set<std::string> result = m_platio->signal_names();
     EXPECT_EQ(expected_signals.size(), result.size());
@@ -257,13 +245,6 @@ TEST_F(PlatformIOTest, domain_type)
     EXPECT_CALL(*m_time_iogroup, signal_domain_type("TIME"));
     domain_type = m_platio->signal_domain_type("TIME");
     EXPECT_EQ(GEOPM_DOMAIN_BOARD, domain_type);
-
-    EXPECT_CALL(*m_energy_iogroup, signal_domain_type("ENERGY_PACKAGE"));
-    EXPECT_CALL(*m_energy_iogroup, signal_domain_type("ENERGY_DRAM"));
-    domain_type = m_platio->signal_domain_type("POWER_PACKAGE");
-    EXPECT_EQ(GEOPM_DOMAIN_PACKAGE, domain_type);
-    domain_type = m_platio->signal_domain_type("POWER_DRAM");
-    EXPECT_EQ(GEOPM_DOMAIN_BOARD_MEMORY, domain_type);
 
     EXPECT_CALL(*m_control_iogroup, signal_domain_type("FREQ"));
     EXPECT_CALL(*m_control_iogroup, control_domain_type("FREQ"));
@@ -321,58 +302,6 @@ TEST_F(PlatformIOTest, push_signal_agg)
     // Domain of FREQ is CPU
     m_platio->push_signal("FREQ", GEOPM_DOMAIN_PACKAGE, 0);
     EXPECT_EQ(1 + m_cpu_set0.size(), (unsigned int)m_platio->num_signal_pushed());
-}
-
-TEST_F(PlatformIOTest, signal_power)
-{
-    EXPECT_CALL(*m_time_iogroup, signal_domain_type("TIME"));
-    EXPECT_CALL(*m_time_iogroup, push_signal("TIME", _, _));
-    EXPECT_CALL(*m_energy_iogroup, signal_domain_type("ENERGY_PACKAGE"));
-    EXPECT_CALL(*m_energy_iogroup, push_signal("ENERGY_PACKAGE", _, _));
-    EXPECT_CALL(*m_energy_iogroup, signal_domain_type("ENERGY_DRAM"));
-    EXPECT_CALL(*m_energy_iogroup, push_signal("ENERGY_DRAM", _, _));
-
-    int pkg_idx = m_platio->push_signal("POWER_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0);
-    int pkg_energy_idx = m_platio->push_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0);
-    EXPECT_NE(pkg_energy_idx, pkg_idx);
-    int dram_idx = m_platio->push_signal("POWER_DRAM", GEOPM_DOMAIN_BOARD_MEMORY, 0);
-    int dram_energy_idx = m_platio->push_signal("ENERGY_DRAM", GEOPM_DOMAIN_BOARD_MEMORY, 0);
-    EXPECT_NE(dram_energy_idx, dram_idx);
-
-    for (auto iog : m_iogroup_ptr) {
-        EXPECT_CALL(*iog, read_batch()).Times(3);
-    }
-    // time is sampled twice for each batch step, once for each power signal
-    EXPECT_CALL(*m_time_iogroup, sample(0))
-        .WillOnce(Return(2.0)).WillOnce(Return(2.0))
-        .WillOnce(Return(3.0)).WillOnce(Return(3.0))
-        .WillOnce(Return(4.0)).WillOnce(Return(4.0));
-    EXPECT_CALL(*m_energy_iogroup, sample(0))
-        .WillOnce(Return(777.77))
-        .WillOnce(Return(888.88))
-        .WillOnce(Return(999.99));
-    EXPECT_CALL(*m_energy_iogroup, sample(1))
-        .WillOnce(Return(333.33))
-        .WillOnce(Return(555.55))
-        .WillOnce(Return(777.77));
-
-    m_platio->read_batch();
-    double result = m_platio->sample(pkg_idx);
-    EXPECT_TRUE(std::isnan(result)); // only one sample so far
-    result = m_platio->sample(dram_idx);
-    EXPECT_TRUE(std::isnan(result));
-
-    m_platio->read_batch();
-    result = m_platio->sample(pkg_idx);
-    EXPECT_DOUBLE_EQ(111.11, result);
-    result = m_platio->sample(dram_idx);
-    EXPECT_DOUBLE_EQ(222.22, result);
-
-    m_platio->read_batch();
-    result = m_platio->sample(pkg_idx);
-    EXPECT_DOUBLE_EQ(111.11, result);
-    result = m_platio->sample(dram_idx);
-    EXPECT_DOUBLE_EQ(222.22, result);
 }
 
 TEST_F(PlatformIOTest, push_control)

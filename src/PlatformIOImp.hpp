@@ -113,12 +113,6 @@ namespace geopm
             void register_combined_signal(int signal_idx,
                                           std::vector<int> operands,
                                           std::unique_ptr<CombinedSignal> signal);
-            int push_signal_power(const std::string &signal_name,
-                                  int domain_type,
-                                  int domain_idx);
-            int push_signal_temperature(const std::string &signal_name,
-                                        int domain_type,
-                                        int domain_idx);
             int push_signal_convert_domain(const std::string &signal_name,
                                            int domain_type,
                                            int domain_idx);
