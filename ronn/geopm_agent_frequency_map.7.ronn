@@ -32,77 +32,170 @@ geopm_agent_frequency_map(7) -- agent for running regions at user selected frequ
 [//]: # (OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 
 ## DESCRIPTION
-This Agent is used to map predetermined optimal frequencies to named
-regions.  The best frequencies for each region are specified in the
-environment variable `GEOPM_FREQUENCY_MAP`, which is a JSON-formatted
-string mapping region name to frequency in Hertz, e.g. '{"region1":
-1.2e9, "region2": 1.5e9}'.  If a frequency for a region is not
-specified, the region hint will be used and the frequency will be set
-to either the minimum or maximum available frequency.  See
-**geopm_prof_c(3)** for the list of region hints.  These best-fit
-frequencies can be determined by running the application once at each
-available frequency and checking the performance of each region.
+The frequency map agent selects CPU frequency in response to changes
+in the application region being executed on each CPU.  The agent
+policy provides a map from a GEOPM region hash to a CPU frequency, see
+**geopm_hash(3)** for more information about the GEOPM region name
+hash function.  When a CPU is executing a region with a hash provided
+by the policy, the CPU will operate at the mapped frequency.  The
+policy also provides a default CPU frequency which is applied to all
+CPUs running the application while not executing a region described by
+the policy map.
 
-## AGENT BEHAVIOR HIGHLIGHTS
-Policies and samples are vectors of double precision values where each
-value has a meaning defined by the **geopm::Agent(3)** implementation.
-The Agent interface also provides methods for the Agent to extend
-reports and traces with additional Agent-specific information.
+Applying any control algorithm that changes CPU frequency on short
+intervals can result in undesirable interactions with the hardware
+control algorithm that dynamically selects uncore frequency.  For this
+reason, the frequency map agent policy provides an option to fix the
+uncore frequency to a single value while executing the application.
+If this option is not specified, the uncore frequency is not
+controlled by the agent at all.
 
-* `Agent Name`:
-  Set the `--geopm-agent` launch option or `GEOPM_AGENT` environment
-  variable to "frequency_map" and the Controller will select the
-  FrequencyMapAgent for its control handler.  See **geopmlaunch(1)** and
-  **geopm(7)** for more information about launch options and
-  environment variables.
-
-* `Agent Policy Definitions`:
-  The minimum and maximum frequency are passed down as policies.
-  Setting both to the same value can be used to force the entire
-  application to run at one frequency.
-
-  `FREQ_MIN`: The minimum frequency that the algorithm is allowed to
-              choose for any region.  If NAN is passed, it will use
-              the minimum available frequency by default.
-
-  `FREQ_MAX`: The maximum frequency that the algorithm is allowed to
-              choose for any region.  If NAN is passed, it will use
-              the maximum available frequency by default.
-
-  The rest of the policy consists of the map of per-region frequencies,
-  in pairs of region hash and region frequency. For example, to set a policy
-  with FREQ_MIN = 1 GHz, FREQ_MAX = 3 GHz, a mapped frequency of 2 GHz to
-  region hash 0x1234abcd, and 2.5 GHz to 0x2468cdef, the following policy could
-  be set: 1e9, 3e9, 0x1234abcd, 2e9, 0x2468cdef, 2.5e9
-
-  To encode as a json string, include a series of HASH_{index}, FREQ_{index}
-  pairs in the policy. Since json does not support hex literals, input the
-  hashes in their decimal form. For example, the above policy would look like:
-  { FREQ_MIN: 1e9, FREQ_MAX: 3e9, HASH_0: 305441741, FREQ_0: 2e9,
-    HASH_1: 610848239, FREQ_1: 2.5e9 }
-
-  The index values can be in the range of 0 to 30, inclusive. The order of
-  index values does not matter, and gaps in index values are permitted. Multiple
-  definitions of an index are not permitted, and multiple mappings of a region
-  are not permitted.
-
-  If the GEOPM_FREQUENCY_MAP environment variable specifies a frequency map,
-  the policy only consists of FREQ_MIN and FREQ_MAX. GEOPM_FREQUENCY_MAP is
-  deprecated and will no longer be used in a future release.
+Note: this agent can be used to control the application CPUs and
+optionally the uncore to run at fixed frequencies if no region
+frequency map is provided.
 
 
-* `Agent Sample Definitions`:
-  N/A
+## AGENT NAME
+The agent described in this manual is selected in many geopm
+interfaces with the "frequency_map" agent name.  This name can be
+passed to **geopmlaunch(1)** as the argument to the `--geopm-agent`
+option, or the `GEOPM_AGENT` environment variable can be set to this
+name (see **geopm(7)**).  This name can also be passed to the
+**geopmagent(1)** as the argument to the '-a' option.
 
-* `Trace Column Extensions`:
-  N/A
 
-* `Report Extensions`:
-  The assigned frequency for each region is added to the report.
+## POLICY PARAMETERS
 
-* `Control Loop Gate`:
-  The agent gates the Controller's control loop to a cadence
-  of 5ms.
+  `FREQ_DEFAULT`: The operating frequency set by the agent on CPUs
+                  executing the application while the application is
+                  not within a policy-mapped region.  The processor's
+                  sticker frequency is selected for this parameter if
+                  the user does not specify this parameter or
+                  specifies the value NAN.  The sticker frequency can
+                  be queried with geopmread as the "FREQUENCY_STICKER"
+                  signal and can also be found in /proc/cpuinfo in the
+                  "model name" field.
+
+  `FREQ_UNCORE`: The operating frequency for the uncore clock.  If
+                 specified the uncore clock will operate the fixed
+                 frequency provided.  If the parameter is not
+                 specified, or the value provided is NAN, then the
+                 system default range of uncore frequency will be
+                 allowed.
+
+  `HASH_0`: The GEOPM hash of a region name with a mapped CPU
+            frequency given by the `FREQ_0` policy parameter.  The
+            region hash values for each application region are
+            provided in the geopm report, and can be generated as
+            described in **geopm_hash(3)**.  In binary code, the
+            policy values are stored the double precision
+            representation of the 32 bit integer generated by the hash
+            function.  When using the **geopmagent(1)** interface to
+            generate a policy file, the region name can be provided in
+            the comma separated list for the `-p` option rather than
+            the hash of that string.
+
+  `FREQ_0`: The CPU frequency in units of Hz that will be set when a
+            CPU is executing the region associated with the `HASH_0`
+            region hash.  When using the **geopmagent(1)** command
+            line interface to generate a policy file, the mapped
+            frequency will always follow the region name or hash in
+            the comma separated list for the `-p` option.
+
+  `HASH_1`: The next region hash in the map after `HASH_0`.
+
+  `FREQ_1`: The next CPU frequency in the map after `FREQ_0`.
+
+  ...
+
+  `HASH_30`: There are at most 31 values in the map provided by the policy.
+
+  `FREQ_30`: The CPU frequency mapped by `HASH_30`.
+
+
+## POLICY REQUIREMENTS
+The frequency map index values can be in the range of 0 to 30,
+inclusive. The order of index values does not matter, and gaps in
+index values are permitted. Multiple definitions of an index are not
+permitted, and multiple mappings of a region are not permitted.  If a
+CPU or uncore frequency specified in the policy is not allowed by the
+system at runtime, an error will occur and an exception will be
+raised.
+
+
+## REPORT EXTENSIONS
+The assigned frequency for each region is added to each region
+including those that were not in the policy map (which will show the
+policy default CPU frequency).
+
+
+## CONTROL LOOP RATE
+The agent gates the control loop to sample at 2 milliseconds and rate
+limit frequency changes to 500 Hz.
+
+
+## EXAMPLES
+Besides the default CPU frequency and uncore frequency parameters, the
+policy consists of the map of per-region frequencies given as pairs of
+region hash and CPU frequency values.  The recommended way to generate
+a policy file for this agent is to use the **geopmagent(1)** command
+line tool.
+
+To create a policy with a default frequency of 3 GHz, an uncore
+frequency of 2 GHz with a map of "region_1" to 1.5 GHz and "region_2"
+to 2.5 GHz you can specify:
+
+    geopmagent -a frequency_map -p '3e9,2e9,region_1,1.5e9,region_2,2.5e9'
+
+Alternatively you can specify the regions by their hashed values:
+
+    geopmagent -a frequency_map -p '3e9,2e9,0xee12ee15,1.5e9,0xfd421de1,2.5e9'
+
+Although the **geopmagent(1)** is the recommended tool for creating
+the json policy string, there is one thing to note about creating the
+json string without this tool.  Since json does not support hex
+literals, the json must include the hashes in their decimal form. For
+example, the above policy json is:
+
+    {"FREQ_DEFAULT": 3e9,
+     "FREQ_UNCORE": 2e9,
+     "HASH_0": 3994218005,
+     "FREQ_0": 1.5e9,
+     "HASH_1": 4248968673,
+     "FREQ_1": 2.5e9}
+
+The **geopmread(1)** command line tool can be useful for learning the
+bounds of these system parameters.  The minimum, sticker, and
+maximum CPU frequencies are queried as below:
+
+    $ geopmread FREQUENCY_MIN board 0
+    1000000000
+
+    $ geopmread FREQUENCY_STICKER board 0
+    2100000000
+
+    $ geopmread FREQUENCY_MAX board 0
+    3700000000
+
+The minimum, and maximum uncore frequencies are queried as below:
+
+    $ geopmread MSR::UNCORE_RATIO_LIMIT:MIN_RATIO board 0
+    1200000000
+
+    $ geopmread MSR::UNCORE_RATIO_LIMIT:MAX_RATIO board 0
+    2400000000
+
+The geopmagent and geopmread command line tools can be used together
+to generate policies.  For example, to create a policy with the
+default CPU frequency set to two steps below maximum and the uncore
+frequency to the maximum the following commands can be used:
+
+    $ freq_default=$(($(geopmread FREQUENCY_MAX board 0) - \
+                      2 * $(geopmread FREQUENCY_STEP board 0)))
+    $ freq_uncore=$(geopmread MSR::UNCORE_RATIO_LIMIT:MAX_RATIO board 0)
+    $ geopmagent -a frequency_map -p$freq_default,$freq_uncore
+      {"FREQ_DEFAULT": 3500000000, "FREQ_UNCORE": 2400000000}
+
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation. All rights reserved.
