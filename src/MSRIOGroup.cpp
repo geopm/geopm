@@ -77,6 +77,10 @@ namespace geopm
     const std::string skx_msr_json(void);
     static std::vector<std::unique_ptr<MSR> > init_msr_arr(int cpu_id);
 
+    const std::string MSRIOGroup::M_DEFAULT_DESCRIPTION =
+        "Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's "
+        "Manual for information about this MSR";
+
     MSRIOGroup::MSRIOGroup()
         : MSRIOGroup(platform_topo(), std::unique_ptr<MSRIO>(new MSRIOImp), cpuid(), geopm_sched_num_cpu())
     {
@@ -110,26 +114,27 @@ namespace geopm
 
         // Set up aggregation functions for MSRs.
         // Aliases will lookup and use the agg_function for their underlying MSR.
-        m_signal_agg_func["MSR::PERF_STATUS:FREQ"] = Agg::average;
-        m_signal_agg_func["MSR::PKG_ENERGY_STATUS:ENERGY"] = Agg::sum;
-        m_signal_agg_func["MSR::DRAM_ENERGY_STATUS:ENERGY"] = Agg::sum;
-        m_signal_agg_func["MSR::FIXED_CTR0:INST_RETIRED_ANY"] = Agg::sum;
-        m_signal_agg_func["MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD"] = Agg::sum;
-        m_signal_agg_func["MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC"] = Agg::sum;
-        m_signal_agg_func["MSR::PKG_POWER_INFO:MIN_POWER"] = Agg::sum;
-        m_signal_agg_func["MSR::PKG_POWER_INFO:MAX_POWER"] = Agg::sum;
-        m_signal_agg_func["MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER"] = Agg::sum;
-        m_signal_agg_func["MSR::THERM_STATUS:DIGITAL_READOUT"] = Agg::average;
-        m_signal_agg_func["MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT"] = Agg::average;
-        m_signal_agg_func["MSR::TEMPERATURE_TARGET:PROCHOT_MIN"] = Agg::expect_same;
+        set_agg_function("MSR::PERF_STATUS:FREQ", Agg::average);
+        set_agg_function("MSR::PKG_ENERGY_STATUS:ENERGY", Agg::sum);
+        set_agg_function("MSR::DRAM_ENERGY_STATUS:ENERGY", Agg::sum);
+        set_agg_function("MSR::FIXED_CTR0:INST_RETIRED_ANY", Agg::sum);
+        set_agg_function("MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD", Agg::sum);
+        set_agg_function("MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC", Agg::sum);
+        set_agg_function("MSR::PKG_POWER_INFO:MIN_POWER", Agg::sum);
+        set_agg_function("MSR::PKG_POWER_INFO:MAX_POWER", Agg::sum);
+        set_agg_function("MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER", Agg::sum);
+        set_agg_function("MSR::THERM_STATUS:DIGITAL_READOUT", Agg::average);
+        set_agg_function("MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT", Agg::average);
+        set_agg_function("MSR::TEMPERATURE_TARGET:PROCHOT_MIN", Agg::expect_same);
 
-        m_signal_desc_map["MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER"] = "Maximum power to stay within thermal limits (TDP)";
+        set_description("MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER",
+                        "Maximum power to stay within thermal limits (TDP)");
 
         m_control_desc_map["MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT"] = "Set RAPL power limit";
         m_control_desc_map["MSR::PERF_CTL:FREQ"] = "Set processor frequency";
 
-        register_msr_signal("TIMESTAMP_COUNTER", "MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT");
-        register_msr_signal("FREQUENCY",         "MSR::PERF_STATUS:FREQ");
+        register_signal_alias("TIMESTAMP_COUNTER", "MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT");
+        register_signal_alias("FREQUENCY",         "MSR::PERF_STATUS:FREQ");
 
         std::string max_turbo_name;
         switch (m_cpuid) {
@@ -149,16 +154,16 @@ namespace geopm
                 throw Exception("MSRIOGroup: Unsupported CPUID",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        register_msr_signal("FREQUENCY_MAX", max_turbo_name);
+        register_signal_alias("FREQUENCY_MAX", max_turbo_name);
 
-        register_msr_signal("ENERGY_PACKAGE", "MSR::PKG_ENERGY_STATUS:ENERGY");
-        register_msr_signal("ENERGY_DRAM", "MSR::DRAM_ENERGY_STATUS:ENERGY");
-        register_msr_signal("INSTRUCTIONS_RETIRED", "MSR::FIXED_CTR0:INST_RETIRED_ANY");
-        register_msr_signal("CYCLES_THREAD", "MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD");
-        register_msr_signal("CYCLES_REFERENCE", "MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC");
-        register_msr_signal("POWER_PACKAGE_MIN", "MSR::PKG_POWER_INFO:MIN_POWER");
-        register_msr_signal("POWER_PACKAGE_MAX", "MSR::PKG_POWER_INFO:MAX_POWER");
-        register_msr_signal("POWER_PACKAGE_TDP", "MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER");
+        register_signal_alias("ENERGY_PACKAGE", "MSR::PKG_ENERGY_STATUS:ENERGY");
+        register_signal_alias("ENERGY_DRAM", "MSR::DRAM_ENERGY_STATUS:ENERGY");
+        register_signal_alias("INSTRUCTIONS_RETIRED", "MSR::FIXED_CTR0:INST_RETIRED_ANY");
+        register_signal_alias("CYCLES_THREAD", "MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD");
+        register_signal_alias("CYCLES_REFERENCE", "MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC");
+        register_signal_alias("POWER_PACKAGE_MIN", "MSR::PKG_POWER_INFO:MIN_POWER");
+        register_signal_alias("POWER_PACKAGE_MAX", "MSR::PKG_POWER_INFO:MAX_POWER");
+        register_signal_alias("POWER_PACKAGE_TDP", "MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER");
 
         register_temperature_signals();
         register_power_signals();
@@ -170,34 +175,49 @@ namespace geopm
         // @todo fix order of member construction
     }
 
-    MSRIOGroup::~MSRIOGroup()
+    void MSRIOGroup::set_agg_function(const std::string &name,
+                                      std::function<double(const std::vector<double> &)> agg_function)
     {
+        auto it = m_signal_available.find(name);
+        if (it != m_signal_available.end()) {
+            it->second.agg_function = agg_function;
+        }
+    }
 
+    void MSRIOGroup::set_description(const std::string &name,
+                                     const std::string &description)
+    {
+        auto it = m_signal_available.find(name);
+        if (it != m_signal_available.end()) {
+            it->second.description = description;
+        }
     }
 
     void MSRIOGroup::register_temperature_signals(void)
     {
         std::string max_name = "MSR::TEMPERATURE_TARGET:PROCHOT_MIN";
         auto max_it = m_signal_available.find(max_name);
-        int max_domain = m_signal_domain[max_name];
-        // pairs of high-level signal name and underlying digital readout MSR
-        std::vector<std::pair<std::string, std::string> > temp_signals {
-            {"TEMPERATURE_CORE", "MSR::THERM_STATUS:DIGITAL_READOUT"},
-            {"TEMPERATURE_PACKAGE", "MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT"}
+        int max_domain = max_it->second.domain;
+        // mapping of high-level signal name to description and
+        // underlying digital readout MSR
+        struct temp_data
+        {
+            std::string temp_name;
+            std::string description;
+            std::string msr_name;
         };
-        m_signal_desc_map["TEMPERATURE_CORE"] = "Core temperature in degrees C";
-        m_signal_desc_map["TEMPERATURE_PACKAGE"] = "Package temperature in degrees C";
+        std::vector<temp_data> temp_signals {
+            {"TEMPERATURE_CORE", "Core temperature in degrees C", "MSR::THERM_STATUS:DIGITAL_READOUT"},
+            {"TEMPERATURE_PACKAGE", "Package temperature in degrees C", "MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT"}
+        };
         for (const auto &ts : temp_signals) {
-            std::string signal_name = ts.first;
-            std::string msr_name = ts.second;
+            std::string signal_name = ts.temp_name;
+            std::string msr_name = ts.msr_name;
             auto read_it = m_signal_available.find(msr_name);
             if (max_it != m_signal_available.end() &&
-                read_it != m_signal_available.end())
-            {
-                GEOPM_DEBUG_ASSERT(m_signal_domain.find(msr_name) != m_signal_domain.end(),
-                                   msr_name + " was registered without a domain");
-                auto readings = read_it->second;
-                int read_domain = m_signal_domain[msr_name];
+                read_it != m_signal_available.end()) {
+                auto readings = read_it->second.signals;
+                int read_domain = read_it->second.domain;
                 int num_domain = m_platform_topo.num_domain(read_domain);
                 GEOPM_DEBUG_ASSERT(num_domain == (int)readings.size(),
                                    "size of domain for " + msr_name +
@@ -205,14 +225,15 @@ namespace geopm
                 std::vector<std::shared_ptr<Signal> > result(num_domain);
                 for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
                     int max_idx = *m_platform_topo.domain_nested(max_domain, read_domain, domain_idx).begin();
-                    auto min = max_it->second[max_idx];
-                    auto dim = readings[domain_idx];
-                    result[domain_idx] = std::make_shared<DifferenceSignal>(min, dim);
+                    auto max = max_it->second.signals[max_idx];
+                    auto sub = readings[domain_idx];
+                    result[domain_idx] = std::make_shared<DifferenceSignal>(max, sub);
                 }
-                m_signal_available[signal_name] = result;
-                m_signal_domain[signal_name] = read_domain;
-                m_signal_units[signal_name] = MSR::M_UNITS_CELSIUS;
-                m_signal_agg_func[signal_name] = agg_function(msr_name);
+                m_signal_available[signal_name] = {result,
+                                                   read_domain,
+                                                   MSR::M_UNITS_CELSIUS,
+                                                   agg_function(msr_name),
+                                                   ts.description};
             }
         }
     }
@@ -222,33 +243,38 @@ namespace geopm
         // register time signal; domain board
         std::string time_name = "MSR::TIME";
         std::shared_ptr<Signal> time_sig = std::make_shared<TimeSignal>(m_time_zero, m_time_batch);
-        m_signal_available[time_name] = std::vector<std::shared_ptr<Signal> >({time_sig});
-        m_signal_domain[time_name] = GEOPM_DOMAIN_BOARD;
-        m_signal_units[time_name] = MSR::M_UNITS_SECONDS;
-        m_signal_desc_map[time_name] = "Time in seconds used to calculate power";
-
-        // hardcoded parameters for read_signal for power
-        int num_read_loops = 8;
+        m_signal_available[time_name] = {std::vector<std::shared_ptr<Signal> >({time_sig}),
+                                         GEOPM_DOMAIN_BOARD,
+                                         MSR::M_UNITS_SECONDS,
+                                         Agg::select_first,
+                                         "Time in seconds used to calculate power"};
+        int derivative_window = 8;
         double sleep_time = 0.005;  // 5000 us
 
-        // Power signal name with corresponding energy signal.  The
-        // domain will match that of the energy signal.
-        std::vector<std::pair<std::string, std::string> > power_signals {
-            {"POWER_PACKAGE", "ENERGY_PACKAGE"},
-            {"POWER_DRAM", "ENERGY_DRAM"}
+        // Mapping of high-level signal name to description and
+        // underlying energy MSR.  The domain will match that of the
+        // energy signal.
+        struct power_data
+        {
+            std::string power_name;
+            std::string description;
+            std::string msr_name;
         };
-        m_signal_desc_map["POWER_PACKAGE"] = "Average package power in watts over the last 80 ms";
-        m_signal_desc_map["POWER_DRAM"] = "Average DRAM power in watts over the last 80 ms";
+        std::vector<power_data> power_signals {
+            {"POWER_PACKAGE",
+                    "Average package power in watts over 40 ms or 8 control loop iterations",
+                    "ENERGY_PACKAGE"},
+            {"POWER_DRAM",
+                    "Average DRAM power in watts over 40 ms or 8 control loop iterations",
+                    "ENERGY_DRAM"}
+        };
         for (const auto &ps : power_signals) {
-            std::string signal_name = ps.first;
-            std::string msr_name = ps.second;
+            std::string signal_name = ps.power_name;
+            std::string msr_name = ps.msr_name;
             auto read_it = m_signal_available.find(msr_name);
-            if (read_it != m_signal_available.end())
-            {
-                GEOPM_DEBUG_ASSERT(m_signal_domain.find(msr_name) != m_signal_domain.end(),
-                                   msr_name + " was registered without a domain");
-                auto readings = read_it->second;
-                int energy_domain = m_signal_domain[msr_name];
+            if (read_it != m_signal_available.end()) {
+                auto readings = read_it->second.signals;
+                int energy_domain = read_it->second.domain;
                 int num_domain = m_platform_topo.num_domain(energy_domain);
                 GEOPM_DEBUG_ASSERT(num_domain == (int)readings.size(),
                                    "size of domain for " + msr_name +
@@ -258,14 +284,14 @@ namespace geopm
                     auto eng = readings[domain_idx];
                     result[domain_idx] =
                         std::make_shared<DerivativeSignal>(time_sig, eng,
-                                                           num_read_loops, sleep_time);
+                                                           derivative_window,
+                                                           sleep_time);
                 }
-                m_signal_available[signal_name] = result;
-                m_signal_domain[signal_name] = energy_domain;
-                m_signal_units[signal_name] = MSR::M_UNITS_WATTS;
-                m_signal_agg_func[signal_name] = agg_function(msr_name);
-                // @todo: format
-                // @todo: description
+                m_signal_available[signal_name] = {result,
+                                                   energy_domain,
+                                                   MSR::M_UNITS_WATTS,
+                                                   agg_function(msr_name),
+                                                   ps.description};
             }
         }
     }
@@ -301,9 +327,9 @@ namespace geopm
     int MSRIOGroup::signal_domain_type(const std::string &signal_name) const
     {
         int result = GEOPM_DOMAIN_INVALID;
-        auto it = m_signal_domain.find(signal_name);
-        if (it != m_signal_domain.end()) {
-            result = it->second;
+        auto it = m_signal_available.find(signal_name);
+        if (it != m_signal_available.end()) {
+            result = it->second.domain;
         }
         return result;
     }
@@ -343,9 +369,9 @@ namespace geopm
         int result = -1;
         bool is_found = false;
 
-        GEOPM_DEBUG_ASSERT(m_signal_available.at(signal_name).size() == (size_t)m_platform_topo.num_domain(domain_type),
+        GEOPM_DEBUG_ASSERT(m_signal_available.at(signal_name).signals.size() == (size_t)m_platform_topo.num_domain(domain_type),
                            "Signal " + signal_name + " not correctly scoped to number of domains.");
-        std::shared_ptr<Signal> signal = m_signal_available.at(signal_name)[domain_idx];
+        std::shared_ptr<Signal> signal = m_signal_available.at(signal_name).signals[domain_idx];
         // Check if signal was already pushed
         for (size_t ii = 0; !is_found && ii < m_signal_pushed.size(); ++ii) {
             GEOPM_DEBUG_ASSERT(m_signal_pushed[ii] != nullptr,
@@ -517,7 +543,7 @@ namespace geopm
             throw Exception("MSRIOGroup::read_signal(): domain_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::shared_ptr<Signal> ref_sig = m_signal_available.at(signal_name)[domain_idx];
+        std::shared_ptr<Signal> ref_sig = m_signal_available.at(signal_name).signals[domain_idx];
         return ref_sig->read();
     }
 
@@ -703,32 +729,22 @@ namespace geopm
         m_is_active = true;
     }
 
-    void MSRIOGroup::register_msr_signal(const std::string &signal_name, const std::string &msr_name_field)
+    void MSRIOGroup::register_signal_alias(const std::string &signal_name, const std::string &msr_name_field)
     {
-        // Register aliases
-
-        if (msr_name_field.compare(0, m_name_prefix.size(), m_name_prefix) != 0) {
-            throw Exception("MSRIOGroup::register_msr_signal(): msr_name_field must be of the form \"MSR::<msr_name>:<field_name>\"",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
         if (m_signal_available.find(signal_name) != m_signal_available.end()) {
-            throw Exception("MSRIOGroup::register_msr_signal(): signal_name " + signal_name +
+            throw Exception("MSRIOGroup::register_signal_alias(): signal_name " + signal_name +
                             " was previously registered.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         auto it = m_signal_available.find(msr_name_field);
         if (it == m_signal_available.end()) {
-            throw Exception("MSRIOGroup::register_msr_signal(): MSR and field_name: " + msr_name_field + " could not be found",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            // skip adding an alias if underlying signal is not found
+            return;
         }
-        // copy signals for all domain indices
+        // copy signal info but append to description
         m_signal_available[signal_name] = it->second;
-        // copy metadata
-        m_signal_domain[signal_name] = signal_domain_type(msr_name_field);
-        m_signal_units[signal_name] = m_signal_units.at(msr_name_field);
-        m_signal_agg_func[signal_name] = agg_function(msr_name_field);
-        m_signal_desc_map[signal_name] = "Alias for " + msr_name_field + ". " +
-                                         signal_description(msr_name_field);
+        m_signal_available[signal_name].description =
+            "Alias for " + msr_name_field + ". " + m_signal_available[msr_name_field].description;
     }
 
     void MSRIOGroup::register_msr_control(const std::string &control_name)
@@ -829,12 +845,7 @@ namespace geopm
                             " not valid for MSRIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::function<double(const std::vector<double> &)> result = Agg::select_first;
-        auto it = m_signal_agg_func.find(signal_name);
-        if (it != m_signal_agg_func.end()) {
-            result = it->second;
-        }
-        return result;
+        return m_signal_available.at(signal_name).agg_function;
     }
 
     std::function<std::string(double)> MSRIOGroup::format_function(const std::string &signal_name) const
@@ -850,9 +861,9 @@ namespace geopm
             result = string_format_raw64;
         }
         else {
-            auto it = m_signal_units.find(signal_name);
-            if (it != m_signal_units.end()) {
-                int units = it->second;
+            auto it = m_signal_available.find(signal_name);
+            if (it != m_signal_available.end()) {
+                int units = it->second.units;
                 if (MSR::M_UNITS_NONE == units) {
                     result = string_format_integer;
                 }
@@ -874,12 +885,16 @@ namespace geopm
                             " not valid for MSRIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::string result = "Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR";
-        auto it = m_signal_desc_map.find(signal_name);
-        if (it != m_signal_desc_map.end()) {
-            result = it->second;
+        auto it = m_signal_available.find(signal_name);
+        if (it != m_signal_available.end()) {
+            return it->second.description;
         }
-        return result;
+#ifdef GEOPM_DEBUG
+        else {
+            throw Exception("MSRIOGroup::signal_description(): signal valid but not found in map",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
     }
 
     std::string MSRIOGroup::control_description(const std::string &control_name) const
@@ -889,7 +904,7 @@ namespace geopm
                             " not valid for MSRIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::string result = "Refer to the Intel(R) 64 and IA-32 Architectures Software Developer's Manual for information about this MSR";
+        std::string result = M_DEFAULT_DESCRIPTION;
         auto it = m_control_desc_map.find(control_name);
         if (it != m_control_desc_map.end()) {
             result = it->second;
@@ -1183,6 +1198,7 @@ namespace geopm
                           << msr_name << "; signals will not be available" << std::endl;
             }
 #endif
+            std::vector<std::shared_ptr<Signal> > result;
             for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
                 // get index of a single representative CPU for this domain
                 std::set<int> cpus = m_platform_topo.domain_nested(GEOPM_DOMAIN_CPU,
@@ -1190,10 +1206,13 @@ namespace geopm
                 int cpu_idx = *(cpus.begin());
                 std::shared_ptr<Signal> raw_msr =
                     std::make_shared<RawMSRSignal>(m_msrio, cpu_idx, msr_offset);
-                m_signal_available[raw_msr_signal_name].push_back(raw_msr);
-                m_signal_domain[raw_msr_signal_name] = domain_type;
-                m_signal_units[raw_msr_signal_name] = MSR::M_UNITS_NONE;
+                result.push_back(raw_msr);
             }
+            m_signal_available[raw_msr_signal_name] = {result,
+                                                       domain_type,
+                                                       MSR::M_UNITS_NONE,
+                                                       Agg::select_first,
+                                                       M_DEFAULT_DESCRIPTION};
 
             /// Validate fields within MSR
             auto fields_obj = msr_data["fields"].object_items();
@@ -1224,15 +1243,19 @@ namespace geopm
                 int units = MSR::string_to_units(field_data["units"].string_value());
                 double scalar = field_data["scalar"].number_value();
                 std::string field_signal_name = m_name_prefix + msr_name + ":" + field_name;
+                std::vector<std::shared_ptr<Signal> > result_field;
                 for (int domain_idx = 0; domain_idx < num_domain; ++domain_idx) {
-                    auto raw_msr = m_signal_available.at(raw_msr_signal_name)[domain_idx];
+                    auto raw_msr = m_signal_available.at(raw_msr_signal_name).signals[domain_idx];
                     std::shared_ptr<Signal> field_signal =
                         geopm::make_unique<MSRFieldSignal>(raw_msr, begin_bit, end_bit,
                                                            function, scalar);
-                    m_signal_available[field_signal_name].push_back(field_signal);
+                    result_field.push_back(field_signal);
                 }
-                m_signal_domain[field_signal_name] = domain_type;
-                m_signal_units[field_signal_name] = units;
+                m_signal_available[field_signal_name] = {result_field,
+                                                         domain_type,
+                                                         units,
+                                                         Agg::select_first,
+                                                         M_DEFAULT_DESCRIPTION};
             }
         }
     }

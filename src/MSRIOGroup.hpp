@@ -65,7 +65,7 @@ namespace geopm
 
             MSRIOGroup();
             MSRIOGroup(const PlatformTopo &platform_topo, std::unique_ptr<MSRIO> msrio, int cpuid, int num_cpu);
-            virtual ~MSRIOGroup();
+            virtual ~MSRIOGroup() = default;
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
             bool is_valid_signal(const std::string &signal_name) const override;
@@ -128,8 +128,17 @@ namespace geopm
             ///        MSRs for the given cpuid, and user-defined MSRs
             ///        if found in the plugin path.
             void init_msrs_signal(int cpu_id);
+            /// @brief Override the default aggregation function for a
+            ///        signal.  If signal is not available, does
+            ///        nothing.
+            void set_agg_function(const std::string &name,
+                                  std::function<double(const std::vector<double> &)> agg_function);
+            /// @brief Override the default description for a signal.
+            ///        If signal is not available, does nothing.
+            void set_description(const std::string &name,
+                                 const std::string &description);
             /// @brief Add support for an alias of a signal by name.
-            void register_msr_signal(const std::string &signal_name, const std::string &msr_field_name);
+            void register_signal_alias(const std::string &signal_name, const std::string &msr_field_name);
             /// @brief Add support for temperature combined signals if underlying
             ///        signals are available.
             void register_temperature_signals(void);
@@ -137,21 +146,28 @@ namespace geopm
             ///        signals are available.
             void register_power_signals(void);
 
-            // all available signals: map from name and domain index
-            // to Signal ptr.  This pointer should be copied when signal
-            // is pushed and used directly for read_signal.
-            std::map<std::string, std::vector<std::shared_ptr<Signal> > > m_signal_available;
-            std::map<std::string, int> m_signal_domain;
-            std::map<std::string, int> m_signal_units;
-            std::map<std::string, std::function<double(const std::vector<double> &)> > m_signal_agg_func;
-            std::map<std::string, std::string> m_signal_desc_map;
+            // All available signals: map from name to signal_info.
+            // The signals vector is over the indices for the domain.
+            // The signals pointers should be copied when signal is
+            // pushed and used directly for read_signal.
+            struct signal_info
+            {
+                std::vector<std::shared_ptr<Signal> > signals;
+                int domain;
+                int units;
+                std::function<double(const std::vector<double> &)> agg_function;
+                std::string description;
+            };
+            std::map<std::string, signal_info> m_signal_available;
 
-            // mapping of signal index to pushed signals
+            // Mapping of signal index to pushed signals.
             std::vector<std::shared_ptr<Signal> > m_signal_pushed;
 
             // time for derivative signals
             std::shared_ptr<geopm_time_s> m_time_zero;
             std::shared_ptr<double> m_time_batch;
+
+            static const std::string M_DEFAULT_DESCRIPTION;
 
             ///////////////////////////////////
             struct m_restore_s {
