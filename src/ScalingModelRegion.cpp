@@ -74,10 +74,12 @@ namespace geopm
         std::fill(m_arrays[0], m_arrays[0] + m_array_len, 0.0);
         std::fill(m_arrays[1], m_arrays[1] + m_array_len, 1.0);
         std::fill(m_arrays[2], m_arrays[2] + m_array_len, 2.0);
+
         m_name = "scaling";
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
+
         big_o(big_o_in);
         err = ModelRegion::region(GEOPM_REGION_HINT_MEMORY);
         if (err) {
@@ -142,6 +144,13 @@ namespace geopm
 
     void ScalingModelRegion::big_o(double big_o_in)
     {
+        // run_atom is called 2000 times prior to calibration to
+        // resolve issues with low IPC during calibration that lead to
+        // a small num_atom value and short duration scaling model regions.
+        for (size_t prep_idx = 0; prep_idx < 2000; ++prep_idx) {
+            run_atom();
+        }
+
         geopm::Profile &prof = geopm::Profile::default_profile();
         uint64_t start_rid = prof.region("geopm_scaling_model_region_startup", GEOPM_REGION_HINT_IGNORE);
         prof.enter(start_rid);
