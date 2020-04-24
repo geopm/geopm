@@ -43,6 +43,7 @@
 #include "RecordFilter.hpp"
 #include "Environment.hpp"
 #include "ValidateRecord.hpp"
+#include "geopm_hash.h"
 #include "record.hpp"
 
 namespace geopm
@@ -51,6 +52,49 @@ namespace geopm
     {
         static ApplicationSamplerImp instance;
         return instance;
+    }
+
+    std::set<uint64_t> ApplicationSampler::region_hash_network(void) {
+        std::set<uint64_t> ret;
+        std::set<std::string> network_funcs {"MPI_Allgather",
+                                             "MPI_Allgatherv",
+                                             "MPI_Allreduce",
+                                             "MPI_Alltoall",
+                                             "MPI_Alltoallv",
+                                             "MPI_Alltoallw",
+                                             "MPI_Barrier",
+                                             "MPI_Bcast"
+                                             "MPI_Bsend",
+                                             "MPI_Bsend_init",
+                                             "MPI_Gather",
+                                             "MPI_Gatherv",
+                                             "MPI_Neighbor_allgather",
+                                             "MPI_Neighbor_allgatherv",
+                                             "MPI_Neighbor_alltoall",
+                                             "MPI_Neighbor_alltoallv",
+                                             "MPI_Neighbor_alltoallw",
+                                             "MPI_Reduce",
+                                             "MPI_Reduce_scatter",
+                                             "MPI_Reduce_scatter_block",
+                                             "MPI_Rsend"
+                                             "MPI_Rsend_init",
+                                             "MPI_Scan",
+                                             "MPI_Scatter",
+                                             "MPI_Scatterv",
+                                             "MPI_Waitall",
+                                             "MPI_Waitany",
+                                             "MPI_Wait",
+                                             "MPI_Waitsome",
+                                             "MPI_Exscan",
+                                             "MPI_Recv",
+                                             "MPI_Send",
+                                             "MPI_Sendrecv",
+                                             "MPI_Sendrecv_replace",
+                                             "MPI_Ssend"};
+        for (auto const &func_name : network_funcs) {
+            ret.insert(geopm_crc32_str(func_name.c_str()));
+        }
+        return ret;
     }
 
     ApplicationSamplerImp::ApplicationSamplerImp()
