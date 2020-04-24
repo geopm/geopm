@@ -38,6 +38,7 @@
 #include <memory>
 #include <vector>
 #include <map>
+#include <set>
 #include <string>
 
 #include "geopm_time.h"
@@ -54,6 +55,10 @@ namespace geopm
         public:
             /// @brief Singleton accessor for the application sampler.
             static ApplicationSampler &application_sampler(void);
+            /// @brief Returns set of region hashes associated with
+            ///        application network functions.
+            /// @return Set of netowrk function region hashes.
+            static std::set<uint64_t> region_hash_network(void);
             /// @brief Set the reference time that will be used for
             ///        all future record time reporting.
             /// @param [in] start_time The reference zero time.
