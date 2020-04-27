@@ -885,9 +885,10 @@ namespace geopm
                             " not valid for MSRIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        std::string result = "Invalid signal description: no description found.";
         auto it = m_signal_available.find(signal_name);
         if (it != m_signal_available.end()) {
-            return it->second.description;
+            result = it->second.description;
         }
 #ifdef GEOPM_DEBUG
         else {
@@ -895,6 +896,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
+        return result;
     }
 
     std::string MSRIOGroup::control_description(const std::string &control_name) const
