@@ -194,8 +194,9 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/FrequencyGovernorTest.frequency_bounds_in_range \
               test/gtest_links/FrequencyGovernorTest.frequency_bounds_invalid \
               test/gtest_links/FrequencyGovernorTest.validate_policy \
+              test/gtest_links/FrequencyMapAgentTest.adjust_platform_map \
+              test/gtest_links/FrequencyMapAgentTest.adjust_platform_uncore \
               test/gtest_links/FrequencyMapAgentTest.hint \
-              test/gtest_links/FrequencyMapAgentTest.map \
               test/gtest_links/FrequencyMapAgentTest.name \
               test/gtest_links/FrequencyMapAgentTest.enforce_policy \
               test/gtest_links/FrequencyMapAgentTest.policy_to_json \

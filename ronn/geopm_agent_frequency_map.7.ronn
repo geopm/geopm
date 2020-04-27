@@ -73,7 +73,9 @@ name (see **geopm(7)**).  This name can also be passed to the
                   specified with a CPU frequency that is allowed by
                   the system.  Failure to provide this parameter,
                   setting it to an out of range value or specifying
-                  NAN will result in a runtime error.
+                  NAN will result in a runtime error, unless the policy
+                  is all NAN, in which case the agent will not exert
+                  any control.
 
   `FREQ_UNCORE`: The operating frequency for the uncore clock in units
                  of Hz.  If specified the uncore clock will operate
@@ -124,10 +126,8 @@ raised.
 
 
 ## REPORT EXTENSIONS
-The assigned frequency for each region is added to each region
-including those that were not in the policy map (which will show the
-policy default CPU frequency).
-
+The assigned frequency is added to each region's section of the report
+if that region was explicitly assigned a frequency in the policy map.
 
 ## CONTROL LOOP RATE
 The agent gates the control loop to sample the region hash and control
