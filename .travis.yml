@@ -66,8 +66,6 @@ script:
     - ./travis_ci.sh
 
 env:
-    matrix:
-        - CI_MODE=unit
     global:
         - INSTALL_ROOT=$TRAVIS_BUILD_DIR/../tmp_install
         - GEOPM_INSTALL_ROOT=$INSTALL_ROOT/geopm
