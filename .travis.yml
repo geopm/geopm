@@ -56,7 +56,7 @@ before_install:
 install:
     - PYENV_VERSION=2.7 pip install --user -r ./scripts/requirements.txt
     - PYENV_VERSION=3.6 pip install --user -r ./scripts/requirements.txt
-    - ./configure --disable-fortran --enable-debug --enable-beta --prefix=$GEOPM_INSTALL_ROOT
+    - ./configure --disable-fortran ${BUILD_TYPE} --enable-beta --prefix=$GEOPM_INSTALL_ROOT
 
 cache:
     directories:
@@ -74,6 +74,9 @@ env:
         - MANPATH="$GEOPM_INSTALL_ROOT/share/man:$MANPATH"
         - MAKEFLAGS="-j 2"
         - MPLBACKEND='Agg'
+    matrix:
+        - BUILD_TYPE="--disable-debug"
+        - BUILD_TYPE="--enable-debug"
 
 after_failure:
     - cat scripts/test/pytest_links/*.log
