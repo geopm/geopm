@@ -50,9 +50,10 @@ import geopmpy.io
 import geopmpy.error
 
 from test_integration import util
+from test_integration import geopm_test_launcher
 if util.do_launch():
-    from test_integration import geopm_test_launcher
     geopmpy.error.exc_clear()
+
 
 class AppConf(object):
     """Class that is used by the test launcher in place of a
@@ -98,13 +99,13 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
 
         cls._fmap_report_path = 'test_{}_fmap.report'.format(test_name)
         cls._fmap_trace_path = 'test_{}_fmap.trace'.format(test_name)
-        cls._fmap_agent_conf_path = test_name + '-fmap-agent-config.json'
+        cls._fmap_agent_conf_path = 'test_' + test_name + '-fmap-agent-config.json'
 
         cls._ee_report_path = 'test_{}_ee.report'.format(test_name)
         cls._ee_trace_path = 'test_{}_ee.trace'.format(test_name)
-        cls._ee_agent_conf_path = test_name + '-ee-agent-config.json'
+        cls._ee_agent_conf_path = 'test_' + test_name + '-ee-agent-config.json'
 
-        geopmpy.error.exc_clear() # Clear out exception record for python 2 support
+        geopmpy.error.exc_clear()  # Clear out exception record for python 2 support
 
         cls._freq_min = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
         cls._freq_sticker = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
@@ -119,13 +120,13 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
             # Configure the test application
             app_conf = AppConf()
 
-            # Configure the agent
-            agent_conf_dict = {'FREQ_MIN':cls._freq_min,
-                               'FREQ_MAX':cls._freq_default}
-
+            # Configure the agents
+            agent_conf_dict = {'FREQ_DEFAULT': cls._freq_default}
             fmap_agent_conf = geopmpy.io.AgentConf(cls._fmap_agent_conf_path,
                                                    'frequency_map',
                                                    agent_conf_dict)
+            agent_conf_dict = {'FREQ_MIN': cls._freq_min,
+                               'FREQ_MAX': cls._freq_default}
             ee_agent_conf = geopmpy.io.AgentConf(cls._ee_agent_conf_path,
                                                  'energy_efficient',
                                                  agent_conf_dict)
@@ -138,7 +139,7 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
                                                         time_limit=time_limit)
             launcher.set_num_node(num_node)
             launcher.set_num_rank(num_rank)
-            launcher.run(test_name)
+            launcher.run('test_' + test_name)
 
             # EE run
             launcher = geopm_test_launcher.TestLauncher(app_conf,
@@ -167,11 +168,10 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
             for tf in glob.glob(cls._ee_trace_path + '.*'):
                 os.unlink(tf)
 
-    def tearDown(cls):
+    def tearDown(self):
         if sys.exc_info() != (None, None, None):
             TestIntegration_frequency_hint_usage._keep_files = True
 
-    @unittest.expectedFailure # TODO Remove when agent behavior is changed.
     def test_frequency_sane_fmap(self):
         """
         Test that the hint is respected for MPI regions within a
@@ -181,13 +181,12 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
         host_name = report.host_names()[0]
 
         region = report.raw_region(host_name, 'compute_region')
-        assigned_freq = report.get_field(region, 'frequency-map')
         achieved_freq = report.get_field(region, 'frequency', 'Hz')
 
         # Fmap agent should assign policy default frequency for regions not
         # in the map.
-        self.assertEqual(self._freq_default, assigned_freq, msg='Expected assigned frequency to be max from policy since this region has the COMPUTE hint. ({} != {})'.format(self._freq_default, assigned_freq))
-        util.assertNear(self, self._freq_default, achieved_freq, msg='Expected achieved frequency to be near max from policy. ({} !~= {})'.format(self._freq_sticker, achieved_freq))
+        util.assertNear(self, self._freq_default, achieved_freq,
+                        msg='Expected achieved frequency to be near default from policy. ({} !~= {})'.format(self._freq_default, achieved_freq))
 
     @unittest.expectedFailure # TODO Remove when agent behavior is changed.
     def test_frequency_sane_ee(self):
@@ -207,12 +206,13 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
 
         # EE agent should assign not the minimum frequency for regions
         # with the COMPUTE hint.
-        self.assertNotEqual(self._freq_min, assigned_freq, msg='Expected assigned frequency to not be the min from policy since this region has the COMPUTE hint. ({} == {}).'.format(self._freq_min, assigned_freq))
-        util.assertNotNear(self, self._freq_min, achieved_freq, msg='Expected achieved frequency to NOT be near min from policy. ({} ~= {})'.format(self._freq_min, achieved_freq))
+        self.assertNotEqual(self._freq_min, assigned_freq,
+                            msg='Expected assigned frequency to not be the min from policy since this region has the COMPUTE hint. ({} == {}).'.format(self._freq_min, assigned_freq))
+        util.assertNotNear(self, self._freq_min, achieved_freq,
+                           msg='Expected achieved frequency to NOT be near min from policy. ({} ~= {})'.format(self._freq_min, achieved_freq))
 
 
 if __name__ == '__main__':
     # Call do_launch to clear non-pyunit command line option
     util.do_launch()
     unittest.main()
-
