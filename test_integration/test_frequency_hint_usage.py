@@ -54,12 +54,6 @@ if util.do_launch():
     from test_integration import geopm_test_launcher
     geopmpy.error.exc_clear()
 
-try:
-    sys.argv.remove('--skip-launch')
-    _g_skip_launch = True
-except ValueError:
-    geopmpy.error.exc_clear()
-
 class AppConf(object):
     """Class that is used by the test launcher in place of a
     geopmpy.io.BenchConf when running the frequency_hint_usage benchmark.
