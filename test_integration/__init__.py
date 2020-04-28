@@ -45,4 +45,6 @@ from test_integration.test_profile_policy import *
 from test_integration.test_plugin_static_policy import *
 from test_integration.test_tutorial_base import *
 from test_integration.test_frequency_hint_usage import *
+from test_integration.test_scaling_region import *
+from test_integration.test_timed_scaling_region import *
 from geopmpy.version import __version__
