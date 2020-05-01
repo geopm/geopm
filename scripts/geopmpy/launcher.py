@@ -632,6 +632,7 @@ class Launcher(object):
         app_cpu_per_node = app_rank_per_node * self.cpu_per_rank
         # Total number of cores per node
         core_per_node = self.core_per_socket * self.num_socket
+
         # Number of application ranks per socket (floored)
         rank_per_socket = app_rank_per_node // self.num_socket
         rank_per_socket_remainder = app_rank_per_node % self.num_socket
@@ -640,7 +641,10 @@ class Launcher(object):
         while app_thread_per_core * core_per_node < app_cpu_per_node:
             app_thread_per_core += 1
 
-        if app_thread_per_core > self.thread_per_core or app_rank_per_node > core_per_node:
+        if app_thread_per_core > self.thread_per_core:
+            err_fmt = '<geopm> geopmpy.launcher: Cannot oversubscribe hardware threads; requested threads per core: {}, hardware threads per core: {}.'
+            raise RuntimeError(err_fmt.format(app_thread_per_core, self.thread_per_core))
+        if app_rank_per_node > core_per_node:
             raise RuntimeError('<geopm> geopmpy.launcher: Cores cannot be shared between MPI ranks')
         if not self.config.allow_ht_pinning and app_thread_per_core > 1:
             raise RuntimeError('<geopm> geopmpy.launcher: Hyperthreads needed to satisfy ranks/threads configuration, but forbidden by'
