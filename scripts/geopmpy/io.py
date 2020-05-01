@@ -948,7 +948,14 @@ class Trace(object):
         old_governor_headers = {'power_budget': 'POWER_BUDGET'}
         old_headers.update(old_governor_headers)
 
-        column_headers = pandas.read_csv(trace_path, sep='|', comment='#', nrows=0, encoding='utf-8').columns.tolist()
+        skiprows = 0
+        with open(trace_path) as fid:
+            for ll in fid:
+                if ll.startswith('#'):
+                    skiprows += 1
+                else:
+                    break
+        column_headers = pandas.read_csv(trace_path, sep='|', skiprows=skiprows, nrows=0, encoding='utf-8').columns.tolist()
         original_headers = copy.deepcopy(column_headers)
 
         column_headers = [old_headers.get(ii, ii) for ii in column_headers]
@@ -961,7 +968,7 @@ class Trace(object):
         # You can force them to int64 by setting up a converter function then passing the hex string through it
         # with the read_csv call, but the number will be displayed as an integer from then on.  You'd have to convert
         # it back to a hex string to compare it with the data in the reports.
-        self._df = pandas.read_csv(trace_path, sep='|', comment='#', header=0, names=column_headers, encoding='utf-8',
+        self._df = pandas.read_csv(trace_path, sep='|', skiprows=skiprows, header=0, names=column_headers, encoding='utf-8',
                                    dtype={'REGION_HASH': 'unicode', 'REGION_HINT': 'unicode'})
         self._df.columns = list(map(str.strip, self._df[:0]))  # Strip whitespace from column names
         self._df['REGION_HASH'] = self._df['REGION_HASH'].astype('unicode').map(str.strip)  # Strip whitespace from region hashes
