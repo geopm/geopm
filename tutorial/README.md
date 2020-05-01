@@ -54,8 +54,9 @@ SLURM srun job launcher:
 
     geopmlaunch srun \
                 -N 2 -n 8 \
-                --geopm-preload --geopm-ctl=process \
-                --geopm-report=tutorial_0_report --geopm-trace=tutorial_0_trace \
+                --geopm-ctl=process \
+                --geopm-report=tutorial_0_report \
+                --geopm-trace=tutorial_0_trace \
                 -- ./tutorial_0
 
 The second method uses the geopmlaunch wrapper script for the ALPS
@@ -63,8 +64,9 @@ aprun job launcher:
 
     geopmlaunch aprun \
                 -N 4 -n 8 \
-                --geopm-preload --geopm-ctl=process \
-                --geopm-report=tutorial_0_report --geopm-trace=tutorial_0_trace \
+                --geopm-ctl=process \
+                --geopm-report=tutorial_0_report \
+                --geopm-trace=tutorial_0_trace \
                 -- ./tutorial_0
 
 If your system does not support srun or aprun launch, the third option

@@ -195,7 +195,9 @@ class Config(object):
         self.plugin = opts.plugin
         self.debug_attach = opts.debug_attach
         self.barrier = opts.barrier
-        self.preload = opts.preload
+        if opts.preload:
+            sys.stderr.write("Warning: <geopmpy.launcher> The --geopm-preload option is deprecated, libgeopm is always preloaded.\n")
+        self.preload = True
         self.omp_num_threads = None
         self.allow_ht_pinning = opts.allow_ht_pinning and 'GEOPM_DISABLE_HYPERTHREADS' not in os.environ
         self.ompt_disable = opts.ompt_disable
@@ -220,8 +222,7 @@ class Config(object):
         Dictionary describing the environment variables controlled by the
         configuration object.
         """
-        result = {'LD_DYNAMIC_WEAK': 'true',
-                  'OMP_PROC_BIND': 'true'}
+        result = {'OMP_PROC_BIND': 'true'}
         if self.ctl == 'pthread':
             result['MPICH_MAX_THREAD_SAFETY'] = 'multiple'
         if self.ctl in ('process', 'pthread'):
