@@ -110,6 +110,7 @@ namespace geopm
             bool m_is_policy_updated;
             bool m_do_write_batch;
             bool m_is_adjust_initialized;
+            bool m_is_real_policy;
             int m_freq_ctl_domain_type;
             int m_num_freq_ctl_domain;
             double m_core_freq_min;

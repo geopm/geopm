@@ -185,6 +185,7 @@ void FrequencyMapAgentTest::TearDown()
 TEST_F(FrequencyMapAgentTest, adjust_platform_map)
 {
     {
+        // expectations for initialization of controls
         EXPECT_CALL(*m_platform_io, read_signal("MSR::PERF_CTL:FREQ", _, _))
             .WillOnce(Return(m_freq_max));
         EXPECT_CALL(*m_platform_io, adjust(FREQ_CONTROL_IDX, m_freq_max));
@@ -195,6 +196,7 @@ TEST_F(FrequencyMapAgentTest, adjust_platform_map)
             .WillOnce(Return(m_region_hash[0]));
         std::vector<double> tmp;
         m_agent->sample_platform(tmp);
+        // initial all-NAN policy is accepted
         std::vector<double> empty_policy(m_num_policy, NAN);
         m_agent->adjust_platform(empty_policy);
         EXPECT_FALSE(m_agent->do_write_batch());
@@ -217,6 +219,13 @@ TEST_F(FrequencyMapAgentTest, adjust_platform_map)
                 EXPECT_TRUE(m_agent->do_write_batch());
             }
         }
+    }
+    {
+        // all-NAN policy after real policy is invalid
+        std::vector<double> empty_policy(m_num_policy, NAN);
+        GEOPM_EXPECT_THROW_MESSAGE(m_agent->adjust_platform(empty_policy),
+                                   GEOPM_ERROR_INVALID,
+                                   "invalid all-NAN policy");
     }
 }
 
@@ -364,10 +373,11 @@ TEST_F(FrequencyMapAgentTest, enforce_policy)
         m_agent->enforce_policy(policy);
     }
 
-    // all NAN policy does no control
+    // all NAN policy is invalid
     {
-        EXPECT_CALL(*m_platform_io, write_control(_, _, _, _)).Times(0);
-        m_agent->enforce_policy(empty_policy);
+        GEOPM_EXPECT_THROW_MESSAGE(m_agent->enforce_policy(empty_policy),
+                                   GEOPM_ERROR_INVALID,
+                                   "invalid all-NAN policy");
     }
 
     const std::vector<double> bad_policy(123, 100);

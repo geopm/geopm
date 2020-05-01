@@ -73,9 +73,7 @@ name (see **geopm(7)**).  This name can also be passed to the
                   specified with a CPU frequency that is allowed by
                   the system.  Failure to provide this parameter,
                   setting it to an out of range value or specifying
-                  NAN will result in a runtime error, unless the policy
-                  is all NAN, in which case the agent will not exert
-                  any control.
+                  NAN will result in a runtime error.
 
   `FREQ_UNCORE`: The operating frequency for the uncore clock in units
                  of Hz.  If specified the uncore clock will operate
