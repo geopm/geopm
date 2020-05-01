@@ -948,6 +948,9 @@ class Trace(object):
         old_governor_headers = {'power_budget': 'POWER_BUDGET'}
         old_headers.update(old_governor_headers)
 
+        # Need to determine how many lines are in the header
+        # explicitly.  We cannot use '#' as a comment character since
+        # it occurs in raw MSR signal names.
         skiprows = 0
         with open(trace_path) as fid:
             for ll in fid:
