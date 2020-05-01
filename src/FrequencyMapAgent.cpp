@@ -76,6 +76,7 @@ namespace geopm
         , m_is_policy_updated(false)
         , m_do_write_batch(false)
         , m_is_adjust_initialized(false)
+        , m_is_real_policy(false)
         , m_freq_ctl_domain_type(GEOPM_DOMAIN_INVALID)
         , m_num_freq_ctl_domain(0)
         , m_core_freq_min(NAN)
@@ -117,6 +118,7 @@ namespace geopm
 
         if (is_all_nan(policy)) {
             // All-NAN policy may be received before the first policy
+            /// @todo: in the future, this should not be accepted by this agent.
             return;
         }
 
@@ -175,11 +177,16 @@ namespace geopm
 
     void FrequencyMapAgent::update_policy(const std::vector<double> &policy)
     {
-        if (is_all_nan(policy)) {
-            // All-NAN policy is ignored
+        if (is_all_nan(policy) && !m_is_real_policy) {
+            // All-NAN policy is ignored until first real policy is received
             m_is_policy_updated = false;
             return;
         }
+        else if (is_all_nan(policy)) {
+            throw Exception("FrequencyMapAgent::update_policy(): received invalid all-NAN policy.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        m_is_real_policy = true;
 
         std::map<uint64_t, double> old_freq_map = m_hash_freq_map;
         m_hash_freq_map.clear();
@@ -271,7 +278,7 @@ namespace geopm
             m_is_adjust_initialized = true;
         }
 
-        if (is_all_nan(in_policy)) {
+        if (is_all_nan(in_policy) && !m_is_real_policy) {
             // All-NAN policy may be received before the first policy
             return;
         }
@@ -285,6 +292,7 @@ namespace geopm
             }
             else {
                 freq = m_default_freq;
+                m_hash_freq_map[curr_hash] = m_default_freq;
             }
             if (m_last_freq[ctl_idx] != freq) {
                 m_last_freq[ctl_idx] = freq;
@@ -402,7 +410,10 @@ namespace geopm
         }
 
         if (is_all_nan(policy)) {
-            // All-NAN policy does nothing
+            // All-NAN policy is invalid
+            throw Exception("FrequencyMapAgent::enforce_policy(): received invalid all-NAN policy.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+
             return;
         }
         m_platform_io.write_control("FREQUENCY", GEOPM_DOMAIN_BOARD, 0,

@@ -181,10 +181,13 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
         host_name = report.host_names()[0]
 
         region = report.raw_region(host_name, 'compute_region')
+        assigned_freq = report.get_field(region, 'frequency-map')
         achieved_freq = report.get_field(region, 'frequency', 'Hz')
 
         # Fmap agent should assign policy default frequency for regions not
         # in the map.
+        self.assertEqual(self._freq_default, assigned_freq,
+                         msg='Expected assigned frequency to be max from policy since this region has the COMPUTE hint. ({} != {})'.format(self._freq_default, assigned_freq))
         util.assertNear(self, self._freq_default, achieved_freq,
                         msg='Expected achieved frequency to be near default from policy. ({} !~= {})'.format(self._freq_default, achieved_freq))
 

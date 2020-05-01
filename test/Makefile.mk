@@ -196,10 +196,10 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/FrequencyGovernorTest.validate_policy \
               test/gtest_links/FrequencyMapAgentTest.adjust_platform_map \
               test/gtest_links/FrequencyMapAgentTest.adjust_platform_uncore \
-              test/gtest_links/FrequencyMapAgentTest.hint \
               test/gtest_links/FrequencyMapAgentTest.name \
               test/gtest_links/FrequencyMapAgentTest.enforce_policy \
               test/gtest_links/FrequencyMapAgentTest.policy_to_json \
+              test/gtest_links/FrequencyMapAgentTest.split_policy \
               test/gtest_links/FrequencyMapAgentTest.validate_policy \
               test/gtest_links/HelperTest.string_begins_with \
               test/gtest_links/HelperTest.string_ends_with \

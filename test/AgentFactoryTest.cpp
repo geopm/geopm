@@ -136,8 +136,8 @@ TEST(AgentFactoryTest, static_info_frequency_map)
     EXPECT_EQ(64, Agent::num_policy(agent_name));
     EXPECT_EQ(0, Agent::num_sample(agent_name));
     std::vector<std::string> exp_sample = {};
-    std::vector<std::string> exp_policy = {"FREQ_MIN",
-                                           "FREQ_MAX",
+    std::vector<std::string> exp_policy = {"FREQ_DEFAULT",
+                                           "FREQ_UNCORE",
                                            "HASH_0", "FREQ_0",
                                            "HASH_1", "FREQ_1",
                                            "HASH_2", "FREQ_2",
