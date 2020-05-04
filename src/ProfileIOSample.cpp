@@ -54,13 +54,6 @@ namespace geopm
         , m_thread_progress(cpu_rank.size(), NAN)
         , m_profile_tracer(geopm::make_unique<ProfileTracerImp>())
     {
-        // This object is created when app connects
-        geopm_time(&m_app_start_time);
-
-        // Ths following is necessary because all other usages of "time zero" query the TimeIOGroup.
-        double elapsed = platform_io().read_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
-        geopm_time_add(&m_app_start_time, elapsed * -1, &m_app_start_time);
-
         m_rank_idx_map = rank_to_node_local_rank(cpu_rank);
         m_cpu_rank = rank_to_node_local_rank_per_cpu(cpu_rank);
         m_num_rank = m_rank_idx_map.size();
@@ -294,11 +287,6 @@ namespace geopm
             ++cpu_idx;
         }
         return result;
-    }
-
-    double ProfileIOSampleImp::total_app_runtime(void) const
-    {
-        return geopm_time_since(&m_app_start_time);
     }
 
     std::vector<int> ProfileIOSampleImp::cpu_rank(void) const

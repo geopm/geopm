@@ -73,9 +73,6 @@ namespace geopm
             /// @brief Return the count of the given region
             ///        for the rank running on each CPU.
             virtual std::vector<int64_t> per_cpu_count() const = 0;
-            /// @brief Return the total time from the start of the
-            ///        application until now.
-            virtual double total_app_runtime(void) const = 0;
             /// @brief Returns the local-node rank running on each CPU.
             virtual std::vector<int> cpu_rank(void) const = 0;
     };
@@ -98,7 +95,6 @@ namespace geopm
             std::vector<double> per_cpu_thread_progress(void) const override;
             std::vector<double> per_cpu_runtime(uint64_t region_id) const override;
             std::vector<int64_t> per_cpu_count() const override;
-            double total_app_runtime(void) const override;
             std::vector<int> cpu_rank(void) const override;
         private:
             /// @brief Provide a mapping from global MPI to rank
@@ -124,7 +120,6 @@ namespace geopm
             };
             std::vector<double> per_rank_progress(const struct geopm_time_s &extrapolation_time) const;
 
-            struct geopm_time_s m_app_start_time;
             /// @brief A map from the MPI rank reported in the
             ///        ProfileSampler data to the node local rank
             ///        index.

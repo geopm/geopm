@@ -66,6 +66,8 @@ class ApplicationIOTest : public ::testing::Test
         MockPlatformIO m_platform_io;
         MockPlatformTopo m_platform_topo;
         std::unique_ptr<ApplicationIO> m_app_io;
+        int m_energy_pkg_idx;
+        int m_energy_dram_idx;
 };
 
 void ApplicationIOTest::SetUp()
@@ -77,6 +79,9 @@ void ApplicationIOTest::SetUp()
     m_epoch_regulator = new MockEpochRuntimeRegulator;
     auto tmp_reg = std::unique_ptr<MockEpochRuntimeRegulator>(m_epoch_regulator);
 
+    m_energy_pkg_idx = 18;
+    m_energy_dram_idx = 19;
+
     EXPECT_CALL(*m_sampler, initialize());
     EXPECT_CALL(*m_sampler, rank_per_node());
     EXPECT_CALL(*m_sampler, capacity());
@@ -85,16 +90,6 @@ void ApplicationIOTest::SetUp()
     m_num_memory_domain = 1;
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_CPU))
         .WillOnce(Return(m_num_cpu_domain));
-    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
-        .WillOnce(Return(m_num_package_domain));
-    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD_MEMORY))
-        .WillOnce(Return(m_num_memory_domain));
-    EXPECT_CALL(m_platform_io, read_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE, _))
-        .Times(m_num_package_domain)
-        .WillRepeatedly(Return(122.0/m_num_package_domain));
-    EXPECT_CALL(m_platform_io, read_signal("ENERGY_DRAM", GEOPM_DOMAIN_BOARD_MEMORY, _))
-        .Times(m_num_memory_domain)
-        .WillRepeatedly(Return(221.0/m_num_memory_domain));
     std::vector<int> ranks {1, 2, 3, 4};
     EXPECT_CALL(*m_sampler, cpu_rank()).WillOnce(Return(ranks));
     m_app_io = geopm::make_unique<ApplicationIOImp>(m_shm_key, std::move(tmp_s), tmp_pio,
@@ -129,10 +124,6 @@ TEST_F(ApplicationIOTest, passthrough)
     EXPECT_CALL(*m_epoch_regulator, total_epoch_runtime())
         .WillOnce(Return(123));
     EXPECT_EQ(123, m_app_io->total_epoch_runtime());
-
-    EXPECT_CALL(*m_pio_sample, total_app_runtime())
-        .WillOnce(Return(345));
-    EXPECT_EQ(345, m_app_io->total_app_runtime());
 
     EXPECT_CALL(*m_epoch_regulator, total_app_runtime_mpi())
         .WillOnce(Return(456));
