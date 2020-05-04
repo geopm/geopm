@@ -43,6 +43,7 @@
 #include "Exception.hpp"
 #include "MockAgent.hpp"
 #include "Helper.hpp"
+#include "geopm_test.hpp"
 
 class PolicyStoreImpTest : public ::testing::Test
 {
@@ -152,6 +153,14 @@ TEST_F(PolicyStoreImpTest, update_policy)
                                 policy_store.get_best("agent_with_policy", "trimend")));
     EXPECT_TRUE(PoliciesAreSame(policy1_trim_start,
                                 policy_store.get_best("agent_with_policy", "trimstart")));
+
+    // unknown agent is invalid
+    GEOPM_EXPECT_THROW_MESSAGE(policy_store.set_best("invalid_agent", "any", policy1),
+                               GEOPM_ERROR_INVALID, "\"invalid_agent\" has not been registered");
+
+    // wrong size policy for an agent is invalid
+    GEOPM_EXPECT_THROW_MESSAGE(policy_store.set_best("agent_without_policy", "any", policy1),
+                               GEOPM_ERROR_INVALID, "invalid policy for agent");
 }
 
 TEST_F(PolicyStoreImpTest, table_precedence)
@@ -191,4 +200,12 @@ TEST_F(PolicyStoreImpTest, table_precedence)
     policy_store.set_default("agent_with_policy", {});
     EXPECT_THROW(policy_store.get_best("agent_with_policy", "unoptimizedprofile"),
                  geopm::Exception);
+
+    // unknown agent is invalid
+    GEOPM_EXPECT_THROW_MESSAGE(policy_store.set_default("invalid_agent", {}),
+                               GEOPM_ERROR_INVALID, "\"invalid_agent\" has not been registered");
+
+    // wrong size policy for an agent is invalid
+    GEOPM_EXPECT_THROW_MESSAGE(policy_store.set_default("agent_without_policy", {123}),
+                               GEOPM_ERROR_INVALID, "invalid policy for agent");
 }

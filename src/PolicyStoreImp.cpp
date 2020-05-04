@@ -300,6 +300,13 @@ namespace geopm
                                   const std::string &profile_name,
                                   const std::vector<double> &policy)
     {
+        // check that the policy is valid for the agent
+        size_t num_policy = Agent::num_policy(agent_name);
+        if (policy.size() > num_policy) {
+            throw Exception("PolicyStoreImp::set_best(): invalid policy for " + agent_name + " agent.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         begin_transaction_or_throw(m_database);
         {
             // Remove existing policy values for this record in case the new
@@ -338,6 +345,13 @@ namespace geopm
     void PolicyStoreImp::set_default(const std::string &agent_name,
                                      const std::vector<double> &policy)
     {
+        // check that the policy is valid for the agent
+        size_t num_policy = Agent::num_policy(agent_name);
+        if (policy.size() > num_policy) {
+            throw Exception("PolicyStoreImp::set_default(): invalid policy for " + agent_name + " agent.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         begin_transaction_or_throw(m_database);
         {
             // Remove existing policy values for this record in case the new

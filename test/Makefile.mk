@@ -403,8 +403,8 @@ if ENABLE_BETA
     GTEST_TESTS += test/gtest_links/DaemonTest.get_default_policy \
                    test/gtest_links/DaemonTest.get_profile_policy \
                    test/gtest_links/PolicyStoreImpTest.self_consistent \
-                   test/gtest_links/PolicyStoreImpTest.update_policy \
                    test/gtest_links/PolicyStoreImpTest.table_precedence \
+                   test/gtest_links/PolicyStoreImpTest.update_policy \
                    # end
 endif
 
