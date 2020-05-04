@@ -45,6 +45,16 @@ class TestPolicyStoreIntegration(unittest.TestCase):
 
         geopmpy.policy_store.set_best('frequency_map', 'p1', [0.5, 1])
         geopmpy.policy_store.set_default('frequency_map', [2, 4])
+
+        with self.assertRaises(RuntimeError):
+            geopmpy.policy_store.set_default('invalid_agent', [])
+        with self.assertRaises(RuntimeError):
+            geopmpy.policy_store.set_default('monitor', [0.5])
+        with self.assertRaises(RuntimeError):
+            geopmpy.policy_store.set_best('invalid_agent', 'pinv', [])
+        with self.assertRaises(RuntimeError):
+            geopmpy.policy_store.set_best('monitor', 'pinv', [0.5])
+
         self.assertEqual([0.5, 1], geopmpy.policy_store.get_best('frequency_map', 'p1'))
         self.assertEqual([2, 4], geopmpy.policy_store.get_best('frequency_map', 'p2'))
         with self.assertRaises(RuntimeError):
