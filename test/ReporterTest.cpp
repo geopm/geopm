@@ -188,6 +188,12 @@ ReporterTest::ReporterTest()
                                                  "ENERGY_PACKAGE@package",
                                                  "",
                                                  true);
+    EXPECT_CALL(m_platform_io, push_signal("TIME", GEOPM_DOMAIN_BOARD, 0))
+        .WillOnce(Return(M_TIME_IDX));
+    EXPECT_CALL(m_platform_io, push_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0))
+        .WillOnce(Return(M_ENERGY_PKG_IDX));
+    EXPECT_CALL(m_platform_io, push_signal("ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0))
+        .WillOnce(Return(M_ENERGY_DRAM_IDX));
     m_reporter->init();
 }
 
@@ -203,13 +209,19 @@ TEST_F(ReporterTest, generate)
     EXPECT_CALL(m_application_io, report_name()).WillOnce(Return(m_report_name));
     EXPECT_CALL(m_application_io, profile_name());
     EXPECT_CALL(m_application_io, region_name_set());
-    EXPECT_CALL(m_application_io, total_app_runtime()).WillOnce(Return(56));
-    EXPECT_CALL(m_application_io, total_app_energy_pkg()).WillOnce(Return(2222));
-    EXPECT_CALL(m_application_io, total_app_energy_dram()).WillOnce(Return(2222));
     EXPECT_CALL(m_application_io, total_app_runtime_mpi()).WillOnce(Return(45));
     EXPECT_CALL(m_application_io, total_app_runtime_ignore()).WillOnce(Return(0.7));
     EXPECT_CALL(m_application_io, total_epoch_runtime_ignore()).WillRepeatedly(Return(0.7));
     EXPECT_CALL(m_application_io, total_epoch_runtime()).WillOnce(Return(70.0));
+    EXPECT_CALL(m_platform_io, sample(M_TIME_IDX))
+        .WillOnce(Return(56));
+    EXPECT_CALL(*m_agg, read_batch);
+    EXPECT_CALL(m_platform_io, sample(M_ENERGY_PKG_IDX))
+        .WillOnce(Return(2222))
+        .WillOnce(Return(4444));
+    EXPECT_CALL(m_platform_io, sample(M_ENERGY_DRAM_IDX))
+        .WillOnce(Return(1111))
+        .WillOnce(Return(2222));
     EXPECT_CALL(m_platform_io, read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0))
         .Times(4)
         .WillRepeatedly(Return(1.0));
@@ -339,7 +351,7 @@ TEST_F(ReporterTest, generate)
         "Application Totals:\n"
         "    runtime (sec): 56\n"
         "    package-energy (joules): 2222\n"
-        "    dram-energy (joules): 2222\n"
+        "    dram-energy (joules): 1111\n"
         "    power (watts): 39.6786\n"
         "    network-time (sec): 45\n"
         "    ignore-time (sec): 0.7\n"
@@ -348,6 +360,7 @@ TEST_F(ReporterTest, generate)
 
     std::istringstream exp_stream(expected);
 
+    m_reporter->update();
     m_reporter->generate("my_agent", agent_header, agent_node_report, m_region_agent_detail,
                          m_application_io,
                          m_comm, m_tree_comm);

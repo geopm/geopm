@@ -43,6 +43,7 @@
 #include <iostream>
 #include <iomanip>
 #include <limits.h>
+#include <math.h>
 
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
@@ -100,6 +101,11 @@ namespace geopm
         , m_env_signals(env_signals)
         , m_policy_path(policy_path)
         , m_do_endpoint(do_endpoint)
+        , m_app_energy_pkg_idx(-1)
+        , m_app_energy_dram_idx(-1)
+        , m_app_time_signal_idx(-1)
+        , m_start_energy_pkg(NAN)
+        , m_start_energy_dram(NAN)
     {
 
     }
@@ -111,6 +117,10 @@ namespace geopm
         m_energy_dram_idx = m_region_agg->push_signal_total("ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0);
         m_clk_core_idx = m_region_agg->push_signal_total("CYCLES_THREAD", GEOPM_DOMAIN_BOARD, 0);
         m_clk_ref_idx = m_region_agg->push_signal_total("CYCLES_REFERENCE", GEOPM_DOMAIN_BOARD, 0);
+        m_app_time_signal_idx = m_platform_io.push_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
+        m_app_energy_pkg_idx = m_platform_io.push_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0);
+        m_app_energy_dram_idx = m_platform_io.push_signal("ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0);
+
         for (const std::string &signal_name : string_split(m_env_signals, ",")) {
             std::vector<std::string> signal_name_domain = string_split(signal_name, "@");
             if (signal_name_domain.size() == 2) {
@@ -147,6 +157,11 @@ namespace geopm
 
     void ReporterImp::update()
     {
+        if (isnan(m_start_energy_pkg) && isnan(m_start_energy_dram)) {
+            m_start_energy_pkg = m_platform_io.sample(m_app_energy_pkg_idx);
+            m_start_energy_dram = m_platform_io.sample(m_app_energy_dram_idx);
+        }
+
         m_region_agg->read_batch();
     }
 
@@ -288,13 +303,14 @@ namespace geopm
         // extra runtimes for epoch region
         report << "    epoch-runtime-ignore (sec): " << application_io.total_epoch_runtime_ignore() << std::endl;
 
-        double total_runtime = application_io.total_app_runtime();
-        double app_energy_pkg = application_io.total_app_energy_pkg();
+        double total_runtime = m_platform_io.sample(m_app_time_signal_idx);
+        double app_energy_pkg = m_platform_io.sample(m_app_energy_pkg_idx) - m_start_energy_pkg;
         double avg_power = total_runtime == 0 ? 0 : app_energy_pkg / total_runtime;
+        double app_energy_dram = m_platform_io.sample(m_app_energy_dram_idx) - m_start_energy_dram;
         report << "Application Totals:" << std::endl
                << "    runtime (sec): " << total_runtime << std::endl
                << "    package-energy (joules): " << app_energy_pkg << std::endl
-               << "    dram-energy (joules): " << application_io.total_app_energy_dram() << std::endl
+               << "    dram-energy (joules): " << app_energy_dram << std::endl
                << "    power (watts): " << avg_power << std::endl
                << "    network-time (sec): " << application_io.total_app_runtime_mpi() << std::endl
                << "    ignore-time (sec): " << application_io.total_app_runtime_ignore() << std::endl;

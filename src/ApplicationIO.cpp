@@ -76,9 +76,8 @@ namespace geopm
         , m_is_connected(false)
         , m_rank_per_node(-1)
         , m_epoch_regulator(std::move(epoch_regulator))
-        , m_start_energy_pkg(NAN)
-        , m_start_energy_dram(NAN)
     {
+
     }
 
     ApplicationIOImp::~ApplicationIOImp()
@@ -100,9 +99,6 @@ namespace geopm
                 platform_io().register_iogroup(geopm::make_unique<ProfileIOGroup>(m_profile_io_sample, *m_epoch_regulator));
             }
             m_is_connected = true;
-
-            m_start_energy_pkg = current_energy_pkg();
-            m_start_energy_dram = current_energy_dram();
         }
     }
 
@@ -245,62 +241,6 @@ namespace geopm
         }
 #endif
         return m_epoch_regulator->total_epoch_energy_dram();
-    }
-
-    double ApplicationIOImp::total_app_runtime(void) const
-    {
-#ifdef GEOPM_DEBUG
-        if (!m_is_connected) {
-            throw Exception("ApplicationIOImp::" + std::string(__func__) +
-                            " called before connect().",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        return m_profile_io_sample->total_app_runtime();
-    }
-
-    double ApplicationIOImp::current_energy_pkg(void) const
-    {
-        double energy = 0.0;
-        int num_package = m_platform_topo.num_domain(GEOPM_DOMAIN_PACKAGE);
-        for (int pkg = 0; pkg < num_package; ++pkg) {
-            energy += m_platform_io.read_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE, pkg);
-        }
-        return energy;
-   }
-
-    double ApplicationIOImp::current_energy_dram(void) const
-    {
-        double energy = 0.0;
-        int num_dram = m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_MEMORY);
-        for (int dram = 0; dram < num_dram; ++dram) {
-            energy += m_platform_io.read_signal("ENERGY_DRAM", GEOPM_DOMAIN_BOARD_MEMORY, dram);
-        }
-        return energy;
-    }
-
-    double ApplicationIOImp::total_app_energy_pkg(void) const
-    {
-#ifdef GEOPM_DEBUG
-        if (!m_is_connected) {
-            throw Exception("ApplicationIOImp::" + std::string(__func__) +
-                            " called before connect().",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        return current_energy_pkg() - m_start_energy_pkg;
-    }
-
-    double ApplicationIOImp::total_app_energy_dram(void) const
-    {
-#ifdef GEOPM_DEBUG
-        if (!m_is_connected) {
-            throw Exception("ApplicationIOImp::" + std::string(__func__) +
-                            " called before connect().",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        return current_energy_dram() - m_start_energy_dram;
     }
 
     double ApplicationIOImp::total_app_runtime_mpi(void) const
