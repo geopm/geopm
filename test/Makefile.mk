@@ -216,6 +216,7 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/MSRIOGroupTest.control_error \
               test/gtest_links/MSRIOGroupTest.cpuid \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs \
+              test/gtest_links/MSRIOGroupTest.parse_json_msrs_signal \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs_error_fields \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs_error_msrs \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs_error_top_level \

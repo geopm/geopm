@@ -1051,6 +1051,9 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_top_level)
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs("{}}"),
                                GEOPM_ERROR_INVALID,
                                "detected a malformed json string");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal("{}}"),
+                               GEOPM_ERROR_INVALID,
+                               "detected a malformed json string");
 
     const std::map<std::string, Json> complete {
         {"msrs", {}}
@@ -1060,6 +1063,9 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_top_level)
     // unexpected keys
     input["extra"] = "extra";
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "unexpected key \"extra\" found at top level");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "unexpected key \"extra\" found at top level");
 
@@ -1072,6 +1078,9 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_top_level)
         GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
                                    GEOPM_ERROR_INVALID,
                                    "\"" + key + "\" key is required");
+        GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
+                                   GEOPM_ERROR_INVALID,
+                                   "\"" + key + "\" key is required");
     }
 
     // check types
@@ -1080,10 +1089,16 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_top_level)
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "\"msrs\" must be an object at top level");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "\"msrs\" must be an object at top level");
 
     input = complete;
     input["msrs"] = Json::object{ {"MSR_ONE", 1} };
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "msr \"MSR_ONE\" must be an object");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "msr \"MSR_ONE\" must be an object");
 }
@@ -1102,6 +1117,9 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_msrs)
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "unexpected key \"extra\" found in msr \"MSR_ONE\"");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "unexpected key \"extra\" found in msr \"MSR_ONE\"");
 
     // required keys
     std::vector<std::string> msr_keys {"offset", "domain", "fields"};
@@ -1110,6 +1128,9 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_msrs)
         msr.erase(key);
         input["msrs"] = Json::object{ {"MSR_ONE", msr} };
         GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
+                                   GEOPM_ERROR_INVALID,
+                                   "\"" + key + "\" key is required in msr \"MSR_ONE\"");
+        GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
                                    GEOPM_ERROR_INVALID,
                                    "\"" + key + "\" key is required in msr \"MSR_ONE\"");
     }
@@ -1121,10 +1142,16 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_msrs)
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "\"offset\" must be a hex string in msr \"MSR_ONE\"");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "\"offset\" must be a hex string in msr \"MSR_ONE\"");
     msr = complete;
     msr["offset"] = "invalid";
     input["msrs"] = Json::object{ {"MSR_ONE", msr} };
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "\"offset\" must be a hex string in msr \"MSR_ONE\"");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "\"offset\" must be a hex string in msr \"MSR_ONE\"");
     msr = complete;
@@ -1133,10 +1160,16 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_msrs)
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "\"domain\" must be a valid domain string in msr \"MSR_ONE\"");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "\"domain\" must be a valid domain string in msr \"MSR_ONE\"");
     msr = complete;
     msr["domain"] = "unknown";
     input["msrs"] = Json::object{ {"MSR_ONE", msr} };
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "\"domain\" must be a valid domain string in msr \"MSR_ONE\"");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "\"domain\" must be a valid domain string in msr \"MSR_ONE\"");
     msr = complete;
@@ -1145,13 +1178,18 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_msrs)
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "\"fields\" must be an object in msr \"MSR_ONE\"");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "\"fields\" must be an object in msr \"MSR_ONE\"");
     msr = complete;
     msr["fields"] = Json::object{ {"FIELD_RO", 2} };
     input["msrs"] = Json::object{ {"MSR_ONE", msr} };
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "\"FIELD_RO\" field within msr \"MSR_ONE\" must be an object");
-
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "\"FIELD_RO\" field within msr \"MSR_ONE\" must be an object");
 }
 
 TEST_F(MSRIOGroupTest, parse_json_msrs_error_fields)
@@ -1182,6 +1220,9 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_fields)
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "unexpected key \"extra\" found in \"MSR_ONE:FIELD_RO\"");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "unexpected key \"extra\" found in \"MSR_ONE:FIELD_RO\"");
 
     // required keys
     std::vector<std::string> field_keys {"begin_bit", "end_bit", "function",
@@ -1193,6 +1234,9 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_fields)
         GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
                                    GEOPM_ERROR_INVALID,
                                    "\"" + key + "\" key is required in \"MSR_ONE:FIELD_RO\"");
+        GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
+                                   GEOPM_ERROR_INVALID,
+                                   "\"" + key + "\" key is required in \"MSR_ONE:FIELD_RO\"");
     }
 
     // check types
@@ -1202,10 +1246,16 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_fields)
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "\"begin_bit\" must be an integer in \"MSR_ONE:FIELD_RO\"");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "\"begin_bit\" must be an integer in \"MSR_ONE:FIELD_RO\"");
     fields = complete;
     fields["begin_bit"] = 1.1;
     reset_input();
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "\"begin_bit\" must be an integer in \"MSR_ONE:FIELD_RO\"");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "\"begin_bit\" must be an integer in \"MSR_ONE:FIELD_RO\"");
     fields = complete;
@@ -1214,10 +1264,16 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_fields)
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "\"end_bit\" must be an integer in \"MSR_ONE:FIELD_RO\"");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "\"end_bit\" must be an integer in \"MSR_ONE:FIELD_RO\"");
     fields = complete;
     fields["end_bit"] = 4.4;
     reset_input();
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "\"end_bit\" must be an integer in \"MSR_ONE:FIELD_RO\"");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "\"end_bit\" must be an integer in \"MSR_ONE:FIELD_RO\"");
     fields = complete;
@@ -1226,10 +1282,16 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_fields)
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "\"function\" must be a valid function string in \"MSR_ONE:FIELD_RO\"");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "\"function\" must be a valid function string in \"MSR_ONE:FIELD_RO\"");
     fields = complete;
     fields["units"] = 3;
     reset_input();
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "\"units\" must be a string in \"MSR_ONE:FIELD_RO\"");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "\"units\" must be a string in \"MSR_ONE:FIELD_RO\"");
     fields = complete;
@@ -1238,10 +1300,16 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_fields)
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "\"scalar\" must be a number in \"MSR_ONE:FIELD_RO\"");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "\"scalar\" must be a number in \"MSR_ONE:FIELD_RO\"");
     fields = complete;
     fields["writeable"] = 0;
     reset_input();
     GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup::parse_json_msrs(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "\"writeable\" must be a bool in \"MSR_ONE:FIELD_RO\"");
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs_signal(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "\"writeable\" must be a bool in \"MSR_ONE:FIELD_RO\"");
 }
@@ -1284,4 +1352,40 @@ TEST_F(MSRIOGroupTest, parse_json_msrs)
     EXPECT_EQ(GEOPM_DOMAIN_CPU, msr1->domain_type());
     EXPECT_EQ(1, msr1->num_control());
     EXPECT_EQ("FIELD_RW", msr1->control_name(0));
+}
+
+TEST_F(MSRIOGroupTest, parse_json_msrs_signal)
+{
+    std::string json = R"({ "msrs": {
+           "MSR_ONE": { "offset": "0x12", "domain": "package",
+               "fields": {
+                   "FIELD_RO" : {
+                       "begin_bit": 1,
+                       "end_bit": 4,
+                       "function": "scale",
+                       "units": "hertz",
+                       "scalar": 2,
+                       "writeable": false
+                   }
+               }
+           },
+           "MSR_TWO": { "offset": "0x10", "domain": "cpu",
+               "fields": {
+                   "FIELD_RW" : {
+                       "begin_bit": 1,
+                       "end_bit": 4,
+                       "function": "scale",
+                       "units": "hertz",
+                       "scalar": 2,
+                       "writeable": true
+                   }
+               }
+           }
+    } } )";
+    m_msrio_group->parse_json_msrs_signal(json);
+    auto signals = m_msrio_group->signal_names();
+    std::set<std::string> expected = {"MSR::MSR_ONE:FIELD_RO", "MSR::MSR_TWO:FIELD_RW"};
+    for (const auto &name : expected) {
+        EXPECT_TRUE(signals.find(name) != signals.end()) << "Expected signal " << name << " not found in IOGroup.";
+    }
 }
