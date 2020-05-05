@@ -117,13 +117,13 @@ namespace geopm
             ///        name of the MSR and the field_name is the name
             ///        of the control field held in the MSR.
             void register_msr_control(const std::string &control_name);
+            /// @brief Parse a JSON string and add any raw MSRs and
+            ///        fields as available signals.
+            void parse_json_msrs_signal(const std::string &str);
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
             static std::vector<std::unique_ptr<MSR> > parse_json_msrs(const std::string &str);
         private:
-            /// @brief Parse a JSON string and add any raw MSRs and
-            ///        fields as available signals.
-            void parse_json_msrs_signal(const std::string &str);
             /// @brief Loads architectural MSRs from the JSON file,
             ///        MSRs for the given cpuid, and user-defined MSRs
             ///        if found in the plugin path.
