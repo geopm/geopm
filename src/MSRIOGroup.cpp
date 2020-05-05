@@ -82,12 +82,12 @@ namespace geopm
         "Manual for information about this MSR";
 
     MSRIOGroup::MSRIOGroup()
-        : MSRIOGroup(platform_topo(), std::unique_ptr<MSRIO>(new MSRIOImp), cpuid(), geopm_sched_num_cpu())
+        : MSRIOGroup(platform_topo(), std::make_shared<MSRIOImp>(), cpuid(), geopm_sched_num_cpu())
     {
 
     }
 
-    MSRIOGroup::MSRIOGroup(const PlatformTopo &topo, std::unique_ptr<MSRIO> msrio, int cpuid, int num_cpu)
+    MSRIOGroup::MSRIOGroup(const PlatformTopo &topo, std::shared_ptr<MSRIO> msrio, int cpuid, int num_cpu)
         : m_time_zero(std::make_shared<geopm_time_s>())
         , m_time_batch(std::make_shared<double>(NAN))
         , m_platform_topo(topo)

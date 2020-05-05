@@ -64,7 +64,7 @@ namespace geopm
             };
 
             MSRIOGroup();
-            MSRIOGroup(const PlatformTopo &platform_topo, std::unique_ptr<MSRIO> msrio, int cpuid, int num_cpu);
+            MSRIOGroup(const PlatformTopo &platform_topo, std::shared_ptr<MSRIO> msrio, int cpuid, int num_cpu);
             virtual ~MSRIOGroup() = default;
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
