@@ -65,7 +65,7 @@ using testing::Return;
 using testing::SetArgReferee;
 using testing::_;
 using testing::WithArg;
-using testing::NiceMock;
+using testing::AtLeast;
 using json11::Json;
 
 class MSRIOGroupTest : public :: testing :: Test
@@ -74,7 +74,7 @@ class MSRIOGroupTest : public :: testing :: Test
         void SetUp();
         std::vector<std::string> m_test_dev_path;
         std::unique_ptr<MSRIOGroup> m_msrio_group;
-        NiceMock<MockPlatformTopo> m_topo;
+        std::shared_ptr<MockPlatformTopo> m_topo;
         int m_num_package = 2;
         int m_num_core = 4;
         int m_num_cpu = 16;
@@ -166,31 +166,14 @@ void MSRIOGroupTestMockMSRIO::msr_batch_path(std::string &path)
 
 void MSRIOGroupTest::SetUp()
 {
-    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_PACKAGE)).WillByDefault(Return(m_num_package));
-    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CORE)).WillByDefault(Return(m_num_core));
-    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU)).WillByDefault(Return(m_num_cpu));
-    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_BOARD_MEMORY)).WillByDefault(Return(m_num_package));
-    std::set<int> package_cpus;
-    // slightly wrong, but works because we always use offset 0.
-    // might be nice to have a mock that sets all this up automatically;
-    // topo used in multiple tests
-    for (int ii = 0; ii < m_num_cpu; ++ii) {
-        ON_CALL(m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CPU, ii))
-            .WillByDefault(Return(std::set<int>{ii}));
-        package_cpus.insert(ii);
-    }
-    ON_CALL(m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_PACKAGE, _))
-        .WillByDefault(Return(package_cpus));
-    std::set<int> core_cpus;
-    for (int jj = 0; jj < m_num_cpu / m_num_core; ++jj) {
-        core_cpus.insert(jj);
-    }
-    ON_CALL(m_topo, domain_nested(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_CORE, 0))
-        .WillByDefault(Return(core_cpus));
+    m_topo = make_topo(m_num_package, m_num_core, m_num_cpu);
+    // suppress warnings about num_domain and domain_nested calls
+    EXPECT_CALL(*m_topo, num_domain(_)).Times(AtLeast(0));
+    EXPECT_CALL(*m_topo, domain_nested(_, _, _)).Times(AtLeast(0));
 
     auto msrio = geopm::make_unique<MSRIOGroupTestMockMSRIO>(m_num_cpu);
     m_test_dev_path = msrio->test_dev_paths();
-    m_msrio_group = geopm::make_unique<MSRIOGroup>(m_topo, std::move(msrio),
+    m_msrio_group = geopm::make_unique<MSRIOGroup>(*m_topo, std::move(msrio),
                                                    MSRIOGroup::M_CPUID_SKX,
                                                    m_num_cpu);
 
@@ -226,7 +209,7 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
     for (auto id : cpuids) {
         auto msrio = geopm::make_unique<MSRIOGroupTestMockMSRIO>(m_num_cpu);
         try {
-            MSRIOGroup(m_topo, std::move(msrio), id, m_num_cpu);
+            MSRIOGroup(*m_topo, std::move(msrio), id, m_num_cpu);
         }
         catch (const std::exception &ex) {
             FAIL() << "Could not construct MSRIOGroup for cpuid 0x"
@@ -236,7 +219,7 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
 
     // unsupported cpuid
     auto msrio = geopm::make_unique<MSRIOGroupTestMockMSRIO>(m_num_cpu);
-    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup(m_topo, std::move(msrio), 0x9999, m_num_cpu),
+    GEOPM_EXPECT_THROW_MESSAGE(MSRIOGroup(*m_topo, std::move(msrio), 0x9999, m_num_cpu),
                                GEOPM_ERROR_RUNTIME, "Unsupported CPUID");
 }
 
