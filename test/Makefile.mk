@@ -481,6 +481,7 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/MockIOGroup.hpp \
                           test/MockMSRIO.hpp \
                           test/MockPlatformIO.hpp \
+                          test/MockPlatformTopo.cpp \
                           test/MockPlatformTopo.hpp \
                           test/MockPowerBalancer.hpp \
                           test/MockPowerGovernor.hpp \
