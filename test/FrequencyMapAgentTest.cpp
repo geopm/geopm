@@ -292,7 +292,7 @@ TEST_F(FrequencyMapAgentTest, split_policy)
     policy[DEFAULT] = m_freq_max;
     tree_agent->split_policy(policy, out_policy);
     EXPECT_TRUE(tree_agent->do_send_policy());
-    ASSERT_EQ(num_children, out_policy.size());
+    ASSERT_EQ((size_t)num_children, out_policy.size());
     EXPECT_EQ(m_freq_max, out_policy[0][DEFAULT]);
     EXPECT_EQ(m_freq_max, out_policy[1][DEFAULT]);
 
@@ -304,7 +304,7 @@ TEST_F(FrequencyMapAgentTest, split_policy)
     policy[0] = m_freq_min;
     tree_agent->split_policy(policy, out_policy);
     EXPECT_TRUE(tree_agent->do_send_policy());
-    ASSERT_EQ(num_children, out_policy.size());
+    ASSERT_EQ((size_t)num_children, out_policy.size());
     EXPECT_EQ(m_freq_min, out_policy[0][DEFAULT]);
     EXPECT_EQ(m_freq_min, out_policy[1][DEFAULT]);
 
@@ -312,7 +312,7 @@ TEST_F(FrequencyMapAgentTest, split_policy)
     policy[1] = m_freq_max;
     tree_agent->split_policy(policy, out_policy);
     EXPECT_TRUE(tree_agent->do_send_policy());
-    ASSERT_EQ(num_children, out_policy.size());
+    ASSERT_EQ((size_t)num_children, out_policy.size());
     EXPECT_EQ(m_freq_min, out_policy[0][DEFAULT]);
     EXPECT_EQ(m_freq_min, out_policy[1][DEFAULT]);
     EXPECT_EQ(m_freq_max, out_policy[0][UNCORE]);
