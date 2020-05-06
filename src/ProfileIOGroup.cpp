@@ -48,18 +48,15 @@
 
 namespace geopm
 {
-    ProfileIOGroup::ProfileIOGroup(std::shared_ptr<ProfileIOSample> profile_sample,
-                                   std::shared_ptr<EpochRuntimeRegulator> epoch_regulator)
-        : ProfileIOGroup(profile_sample, epoch_regulator, platform_topo())
+    ProfileIOGroup::ProfileIOGroup()
+        : ProfileIOGroup(platform_topo())
     {
 
     }
 
-    ProfileIOGroup::ProfileIOGroup(std::shared_ptr<ProfileIOSample> profile_sample,
-                                   std::shared_ptr<EpochRuntimeRegulator> epoch_regulator,
-                                   const PlatformTopo &topo)
-        : m_profile_sample(profile_sample)
-        , m_epoch_regulator(epoch_regulator)
+    ProfileIOGroup::ProfileIOGroup(const PlatformTopo &topo)
+        : m_profile_sample(nullptr)
+        , m_epoch_regulator(nullptr)
         , m_signal_idx_map{{plugin_name() + "::REGION_HASH", M_SIGNAL_REGION_HASH},
                            {plugin_name() + "::REGION_HINT", M_SIGNAL_REGION_HINT},
                            {plugin_name() + "::REGION_PROGRESS", M_SIGNAL_REGION_PROGRESS},
@@ -91,7 +88,6 @@ namespace geopm
         , m_epoch_runtime_ignore(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
         , m_epoch_runtime(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
         , m_epoch_count(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
-        , m_cpu_rank(m_profile_sample->cpu_rank())
     {
 
     }
@@ -99,6 +95,14 @@ namespace geopm
     ProfileIOGroup::~ProfileIOGroup()
     {
 
+    }
+
+    void ProfileIOGroup::connect(std::shared_ptr<ProfileIOSample> profile_sample,
+                                 std::shared_ptr<EpochRuntimeRegulator> epoch_regulator)
+    {
+        m_profile_sample = profile_sample;
+        m_epoch_regulator = epoch_regulator;
+        m_cpu_rank = m_profile_sample->cpu_rank();
     }
 
     std::set<std::string> ProfileIOGroup::signal_names(void) const
@@ -178,6 +182,10 @@ namespace geopm
 
     void ProfileIOGroup::read_batch(void)
     {
+        if (m_profile_sample == nullptr) {
+            throw Exception("ProfileIOGroup::read_batch() called before connect",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
         if (m_do_read[M_SIGNAL_REGION_HASH] ||
             m_do_read[M_SIGNAL_REGION_HINT]) {
             m_per_cpu_region_id = m_profile_sample->per_cpu_region_id();
@@ -307,6 +315,10 @@ namespace geopm
 
     double ProfileIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
     {
+        if (m_profile_sample == nullptr) {
+            throw Exception("ProfileIOGroup::read_signal() called before connect",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
         int signal_type = check_signal(signal_name, domain_type, domain_idx);
         /// @todo Add support for non-cpu domains.
         int cpu_idx = domain_idx;
@@ -485,5 +497,10 @@ namespace geopm
     std::string ProfileIOGroup::plugin_name(void)
     {
         return GEOPM_PROFILE_IO_GROUP_PLUGIN_NAME;
+    }
+
+    std::unique_ptr<IOGroup> ProfileIOGroup::make_plugin(void)
+    {
+        return geopm::make_unique<ProfileIOGroup>();
     }
 }
