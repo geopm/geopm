@@ -39,6 +39,7 @@
 #include "MSRIOGroup.hpp"
 #include "CpuinfoIOGroup.hpp"
 #include "TimeIOGroup.hpp"
+#include "ProfileIOGroup.hpp"
 #include "Helper.hpp"
 #include "config.h"
 #ifdef GEOPM_CNL_IOGROUP
@@ -62,6 +63,8 @@ namespace geopm
                         TimeIOGroup::make_plugin);
         register_plugin(CpuinfoIOGroup::plugin_name(),
                         CpuinfoIOGroup::make_plugin);
+        register_plugin(ProfileIOGroup::plugin_name(),
+                        ProfileIOGroup::make_plugin);
 #ifdef GEOPM_CNL_IOGROUP
         register_plugin(CNLIOGroup::plugin_name(),
                         CNLIOGroup::make_plugin);

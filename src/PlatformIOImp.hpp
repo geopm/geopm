@@ -43,6 +43,7 @@ namespace geopm
     class IOGroup;
     class CombinedSignal;
     class PlatformTopo;
+    class ProfileIOGroup;
 
     class PlatformIOImp : public PlatformIO
     {
@@ -54,6 +55,8 @@ namespace geopm
             PlatformIOImp & operator=(const PlatformIOImp&) = delete;
             virtual ~PlatformIOImp() = default;
             void register_iogroup(std::shared_ptr<IOGroup> iogroup) override;
+            void register_profileio(std::shared_ptr<ProfileIOGroup> piogroup) override;
+            std::shared_ptr<ProfileIOGroup> get_profileio(void) override;
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
             int signal_domain_type(const std::string &signal_name) const override;
@@ -143,6 +146,7 @@ namespace geopm
                                     std::unique_ptr<CombinedSignal> > > m_combined_signal;
             std::map<int, std::vector<int> > m_combined_control;
             bool m_do_restore;
+            std::shared_ptr<ProfileIOGroup> m_piogroup;
     };
 }
 

@@ -46,6 +46,7 @@
 #include "PlatformTopo.hpp"
 #include "MSRIOGroup.hpp"
 #include "TimeIOGroup.hpp"
+#include "ProfileIOGroup.hpp"
 #include "CombinedSignal.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
@@ -77,7 +78,12 @@ namespace geopm
         if (m_iogroup_list.size() == 0) {
             for (const auto &it : IOGroup::iogroup_names()) {
                 try {
-                    register_iogroup(IOGroup::make_unique(it));
+                    if (it != "PROFILE") {
+                        register_iogroup(IOGroup::make_unique(it));
+                    }
+                    else {
+                        register_profileio(geopm::make_unique<ProfileIOGroup>());
+                    }
                 }
                 catch (const geopm::Exception &ex) {
 #ifdef GEOPM_DEBUG
@@ -102,6 +108,20 @@ namespace geopm
         }
         m_iogroup_list.push_back(iogroup);
     }
+
+
+    void PlatformIOImp::register_profileio(std::shared_ptr<ProfileIOGroup> piogroup)
+    {
+        register_iogroup(piogroup);
+        m_piogroup = piogroup;
+    }
+
+
+    std::shared_ptr<ProfileIOGroup> PlatformIOImp::get_profileio(void)
+    {
+        return m_piogroup;
+    }
+
 
     std::shared_ptr<IOGroup> PlatformIOImp::find_signal_iogroup(const std::string &signal_name) const
     {

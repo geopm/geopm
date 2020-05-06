@@ -95,7 +95,7 @@ namespace geopm
             if (m_profile_io_sample == nullptr) {
                 m_epoch_regulator = std::make_shared<EpochRuntimeRegulatorImp>(m_rank_per_node, m_platform_io, m_platform_topo);
                 m_profile_io_sample = std::make_shared<ProfileIOSampleImp>(cpu_rank, m_epoch_regulator);
-                platform_io().register_iogroup(geopm::make_unique<ProfileIOGroup>(m_profile_io_sample, m_epoch_regulator));
+                platform_io().get_profileio()->connect(m_profile_io_sample, m_epoch_regulator);
             }
             m_is_connected = true;
         }
