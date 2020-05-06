@@ -149,6 +149,7 @@ namespace geopm
             int m_app_time_signal_idx;
             double m_start_energy_pkg;
             double m_start_energy_dram;
+            double m_start_time_signal;
     };
 }
 

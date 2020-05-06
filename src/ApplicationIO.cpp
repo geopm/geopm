@@ -94,7 +94,6 @@ namespace geopm
             std::vector<int> cpu_rank = m_sampler->cpu_rank();
             if (m_profile_io_sample == nullptr) {
                 m_epoch_regulator = geopm::make_unique<EpochRuntimeRegulatorImp>(m_rank_per_node, m_platform_io, m_platform_topo);
-                m_epoch_regulator->init_unmarked_region();
                 m_profile_io_sample = std::make_shared<ProfileIOSampleImp>(cpu_rank, *m_epoch_regulator);
                 platform_io().register_iogroup(geopm::make_unique<ProfileIOGroup>(m_profile_io_sample, *m_epoch_regulator));
             }
@@ -104,6 +103,7 @@ namespace geopm
 
     void ApplicationIOImp::controller_ready(void)
     {
+        m_epoch_regulator->init_unmarked_region();
         m_sampler->controller_ready();
     }
 

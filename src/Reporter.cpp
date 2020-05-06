@@ -29,12 +29,18 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "config.h"
 
 #include "Reporter.hpp"
 
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
+#include <limits.h>
+#include <math.h>
+#ifdef GEOPM_HAS_XMMINTRIN
+#include <xmmintrin.h>
+#endif
 
 #include <sstream>
 #include <fstream>
@@ -42,8 +48,6 @@
 #include <numeric>
 #include <iostream>
 #include <iomanip>
-#include <limits.h>
-#include <math.h>
 
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
@@ -57,11 +61,7 @@
 #include "geopm_hash.h"
 #include "geopm_version.h"
 #include "Environment.hpp"
-#include "config.h"
-
-#ifdef GEOPM_HAS_XMMINTRIN
-#include <xmmintrin.h>
-#endif
+#include "geopm_debug.hpp"
 
 namespace geopm
 {
@@ -106,6 +106,7 @@ namespace geopm
         , m_app_time_signal_idx(-1)
         , m_start_energy_pkg(NAN)
         , m_start_energy_dram(NAN)
+        , m_start_time_signal(NAN)
     {
 
     }
@@ -157,9 +158,10 @@ namespace geopm
 
     void ReporterImp::update()
     {
-        if (isnan(m_start_energy_pkg) && isnan(m_start_energy_dram)) {
+        if (isnan(m_start_energy_pkg)) {
             m_start_energy_pkg = m_platform_io.sample(m_app_energy_pkg_idx);
             m_start_energy_dram = m_platform_io.sample(m_app_energy_dram_idx);
+            m_start_time_signal = m_platform_io.sample(m_app_time_signal_idx);
         }
 
         m_region_agg->read_batch();
@@ -303,7 +305,7 @@ namespace geopm
         // extra runtimes for epoch region
         report << "    epoch-runtime-ignore (sec): " << application_io.total_epoch_runtime_ignore() << std::endl;
 
-        double total_runtime = m_platform_io.sample(m_app_time_signal_idx);
+        double total_runtime = m_platform_io.sample(m_app_time_signal_idx) - m_start_time_signal;
         double app_energy_pkg = m_platform_io.sample(m_app_energy_pkg_idx) - m_start_energy_pkg;
         double avg_power = total_runtime == 0 ? 0 : app_energy_pkg / total_runtime;
         double app_energy_dram = m_platform_io.sample(m_app_energy_dram_idx) - m_start_energy_dram;

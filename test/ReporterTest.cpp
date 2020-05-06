@@ -29,6 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "config.h"
 
 #include <sstream>
 #include <fstream>
@@ -48,7 +49,6 @@
 #include "geopm.h"
 #include "geopm_internal.h"
 #include "geopm_hash.h"
-#include "config.h"
 
 using geopm::Reporter;
 using geopm::ReporterImp;
@@ -213,15 +213,16 @@ TEST_F(ReporterTest, generate)
     EXPECT_CALL(m_application_io, total_app_runtime_ignore()).WillOnce(Return(0.7));
     EXPECT_CALL(m_application_io, total_epoch_runtime_ignore()).WillRepeatedly(Return(0.7));
     EXPECT_CALL(m_application_io, total_epoch_runtime()).WillOnce(Return(70.0));
-    EXPECT_CALL(m_platform_io, sample(M_TIME_IDX))
-        .WillOnce(Return(56));
     EXPECT_CALL(*m_agg, read_batch);
+    EXPECT_CALL(m_platform_io, sample(M_TIME_IDX))
+        .WillOnce(Return(1))
+        .WillOnce(Return(57));
     EXPECT_CALL(m_platform_io, sample(M_ENERGY_PKG_IDX))
-        .WillOnce(Return(2222))
-        .WillOnce(Return(4444));
+        .WillOnce(Return(2223))
+        .WillOnce(Return(4445));
     EXPECT_CALL(m_platform_io, sample(M_ENERGY_DRAM_IDX))
-        .WillOnce(Return(1111))
-        .WillOnce(Return(2222));
+        .WillOnce(Return(1112))
+        .WillOnce(Return(2223));
     EXPECT_CALL(m_platform_io, read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0))
         .Times(4)
         .WillRepeatedly(Return(1.0));
