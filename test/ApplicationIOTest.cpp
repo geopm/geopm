@@ -66,8 +66,6 @@ class ApplicationIOTest : public ::testing::Test
         MockPlatformIO m_platform_io;
         MockPlatformTopo m_platform_topo;
         std::unique_ptr<ApplicationIO> m_app_io;
-        int m_energy_pkg_idx;
-        int m_energy_dram_idx;
 };
 
 void ApplicationIOTest::SetUp()
@@ -78,9 +76,6 @@ void ApplicationIOTest::SetUp()
     auto tmp_pio = std::shared_ptr<MockProfileIOSample>(m_pio_sample);
     m_epoch_regulator = new MockEpochRuntimeRegulator;
     auto tmp_reg = std::unique_ptr<MockEpochRuntimeRegulator>(m_epoch_regulator);
-
-    m_energy_pkg_idx = 18;
-    m_energy_dram_idx = 19;
 
     EXPECT_CALL(*m_sampler, initialize());
     EXPECT_CALL(*m_sampler, rank_per_node());
