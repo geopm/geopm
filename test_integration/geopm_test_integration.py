@@ -62,7 +62,7 @@ environment_default_path = os.path.join(util.get_config_value('GEOPM_CONFIG_PATH
 environment_override_path = os.path.join(util.get_config_value('GEOPM_CONFIG_PATH'), 'environment-override.json')
 
 
-def create_frequency_map_policy(min_freq, max_freq, frequency_map, use_env=False):
+def create_frequency_map_policy(max_freq, frequency_map, use_env=False):
     """Create a frequency map to be consumed by the frequency map agent.
 
     Arguments:
@@ -74,7 +74,7 @@ def create_frequency_map_policy(min_freq, max_freq, frequency_map, use_env=False
              Otherwise, clear the environment variable and return the policy
              needed when the variable is not in use.
     """
-    policy = {'frequency_min': min_freq, 'frequency_max': max_freq}
+    policy = {'FREQ_DEFAULT': max_freq, 'FREQ_UNCORE': float('nan')}
     known_hashes = {
             'dgemm': 0x00000000a74bbf35,
             'all2all': 0x000000003ddc81bf,
@@ -1121,7 +1121,7 @@ class TestIntegration(unittest.TestCase):
         freq_map['dgemm'] = min_freq + 2 * freq_step
         freq_map['stream'] = sticker_freq - 2 * freq_step
         freq_map['all2all'] = min_freq
-        self._options = create_frequency_map_policy(min_freq, max_freq, freq_map, use_env)
+        self._options = create_frequency_map_policy(max_freq, freq_map, use_env)
         agent_conf = geopmpy.io.AgentConf(name + '_agent.config', self._agent, self._options)
         self._tmp_files.append(agent_conf.get_path())
         launcher = geopm_test_launcher.TestLauncher(app_conf, agent_conf, report_path,
