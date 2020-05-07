@@ -78,7 +78,7 @@ namespace geopm
         if (m_iogroup_list.size() == 0) {
             for (const auto &it : IOGroup::iogroup_names()) {
                 try {
-                    if (it != "PROFILE") {
+                    if (it != ProfileIOGroup::plugin_name()) {
                         register_iogroup(IOGroup::make_unique(it));
                     }
                     else {
