@@ -367,29 +367,13 @@ class TestIntegration(unittest.TestCase):
             self.assertGreater(epoch['frequency (Hz)'], 0)
             self.assertEqual(epoch['count'], loop_count)
 
-            # Runtime
-            self.assertTrue(totals['runtime (sec)'] > unmarked['runtime (sec)'] >= epoch['runtime (sec)'],
-                            '''The total runtime is NOT > the unmarked runtime or the unmarked runtime is NOT
-                               >= the Epoch runtime.''')
+            for signal in ['runtime (sec)', 'package-energy (joules)', 'dram-energy (joules)']:
+                util.assertNear(self, totals[signal], unmarked[signal], msg='signal={}'.format(signal))
+                util.assertNear(self, totals[signal], epoch[signal], msg='signal={}'.format(signal))
+                self.assertGreaterEqual(totals[signal], epoch[signal], msg='signal={}'.format(signal))
 
-            # Package Energy (joules)
-            self.assertTrue(totals['package-energy (joules)'] >
-                            unmarked['package-energy (joules)'] >=
-                            epoch['package-energy (joules)'],
-                            '''The total package energy (joules) is NOT > the unmarked package energy (joules)
-                               or the unmarked package energy (joules) is NOT >= the Epoch package
-                               energy (joules).''')
-
-            # DRAM Energy
-            self.assertTrue(totals['dram-energy (joules)'] >
-                            unmarked['dram-energy (joules)'] >=
-                            epoch['dram-energy (joules)'],
-                            '''The total dram energy is NOT > the unmarked dram energy or the unmarked
-                               dram energy is NOT >= the Epoch dram energy.''')
-
-            # Sync-runtime
-            self.assertTrue(unmarked['sync-runtime (sec)'] >= epoch['sync-runtime (sec)'],
-                            '''The sync-runtime for the unmarked region is NOT >= the Epoch sync-runtime.''')
+            util.assertNear(self, unmarked['runtime (sec)'], unmarked['sync-runtime (sec)'])
+            util.assertNear(self, epoch['runtime (sec)'], epoch['sync-runtime (sec)'])
 
     def test_runtime_nested(self):
         name = 'test_runtime_nested'
