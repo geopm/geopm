@@ -49,14 +49,14 @@
 namespace geopm
 {
     ProfileIOGroup::ProfileIOGroup(std::shared_ptr<ProfileIOSample> profile_sample,
-                                   EpochRuntimeRegulator &epoch_regulator)
+                                   std::shared_ptr<EpochRuntimeRegulator> epoch_regulator)
         : ProfileIOGroup(profile_sample, epoch_regulator, platform_topo())
     {
 
     }
 
     ProfileIOGroup::ProfileIOGroup(std::shared_ptr<ProfileIOSample> profile_sample,
-                                   EpochRuntimeRegulator &epoch_regulator,
+                                   std::shared_ptr<EpochRuntimeRegulator> epoch_regulator,
                                    const PlatformTopo &topo)
         : m_profile_sample(profile_sample)
         , m_epoch_regulator(epoch_regulator)
@@ -194,13 +194,13 @@ namespace geopm
             m_thread_progress = m_profile_sample->per_cpu_thread_progress();
         }
         if (m_do_read[M_SIGNAL_EPOCH_RUNTIME]) {
-            std::vector<double> per_rank_epoch_runtime = m_epoch_regulator.last_epoch_runtime();
+            std::vector<double> per_rank_epoch_runtime = m_epoch_regulator->last_epoch_runtime();
             for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
                 m_epoch_runtime[cpu_idx] = per_rank_epoch_runtime[m_cpu_rank[cpu_idx]];
             }
         }
         if (m_do_read[M_SIGNAL_EPOCH_COUNT]) {
-            std::vector<double> per_rank_epoch_count = m_epoch_regulator.epoch_count();
+            std::vector<double> per_rank_epoch_count = m_epoch_regulator->epoch_count();
             for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
                 m_epoch_count[cpu_idx] = per_rank_epoch_count[m_cpu_rank[cpu_idx]];
             }
@@ -224,13 +224,13 @@ namespace geopm
             }
         }
         if (m_do_read[M_SIGNAL_EPOCH_RUNTIME_NETWORK]) {
-            std::vector<double> per_rank_epoch_runtime_network = m_epoch_regulator.last_epoch_runtime_network();
+            std::vector<double> per_rank_epoch_runtime_network = m_epoch_regulator->last_epoch_runtime_network();
             for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
                 m_epoch_runtime_network[cpu_idx] = per_rank_epoch_runtime_network[m_cpu_rank[cpu_idx]];
             }
         }
         if (m_do_read[M_SIGNAL_EPOCH_RUNTIME_IGNORE]) {
-            std::vector<double> per_rank_epoch_runtime_ignore = m_epoch_regulator.last_epoch_runtime_ignore();
+            std::vector<double> per_rank_epoch_runtime_ignore = m_epoch_regulator->last_epoch_runtime_ignore();
             for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
                 m_epoch_runtime_ignore[cpu_idx] = per_rank_epoch_runtime_ignore[m_cpu_rank[cpu_idx]];
             }
@@ -331,20 +331,20 @@ namespace geopm
                 result = m_profile_sample->per_cpu_thread_progress()[cpu_idx];
                 break;
             case M_SIGNAL_EPOCH_RUNTIME:
-                result = m_epoch_regulator.last_epoch_runtime()[cpu_idx];
+                result = m_epoch_regulator->last_epoch_runtime()[cpu_idx];
                 break;
             case M_SIGNAL_EPOCH_COUNT:
-                result = m_epoch_regulator.epoch_count()[cpu_idx];
+                result = m_epoch_regulator->epoch_count()[cpu_idx];
                 break;
             case M_SIGNAL_RUNTIME:
                 region_id = m_profile_sample->per_cpu_region_id()[cpu_idx];
                 result = m_profile_sample->per_cpu_runtime(region_id)[cpu_idx];
                 break;
             case M_SIGNAL_EPOCH_RUNTIME_NETWORK:
-                result = m_epoch_regulator.last_epoch_runtime_network()[cpu_idx];
+                result = m_epoch_regulator->last_epoch_runtime_network()[cpu_idx];
                 break;
             case M_SIGNAL_EPOCH_RUNTIME_IGNORE:
-                result = m_epoch_regulator.last_epoch_runtime_ignore()[cpu_idx];
+                result = m_epoch_regulator->last_epoch_runtime_ignore()[cpu_idx];
                 break;
             default:
 #ifdef GEOPM_DEBUG

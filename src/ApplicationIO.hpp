@@ -133,7 +133,7 @@ namespace geopm
             ApplicationIOImp(const std::string &shm_key,
                              std::unique_ptr<ProfileSampler> sampler,
                              std::shared_ptr<ProfileIOSample> pio_sample,
-                             std::unique_ptr<EpochRuntimeRegulator>,
+                             std::shared_ptr<EpochRuntimeRegulator> epoch_regulator,
                              PlatformIO &platform_io,
                              const PlatformTopo &platform_topo);
             virtual ~ApplicationIOImp();
@@ -173,7 +173,7 @@ namespace geopm
             std::vector<bool> m_is_epoch_changed;
             bool m_is_connected;
             int m_rank_per_node;
-            std::unique_ptr<EpochRuntimeRegulator> m_epoch_regulator;
+            std::shared_ptr<EpochRuntimeRegulator> m_epoch_regulator;
     };
 }
 

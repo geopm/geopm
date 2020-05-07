@@ -65,7 +65,7 @@ namespace geopm
     ApplicationIOImp::ApplicationIOImp(const std::string &shm_key,
                                        std::unique_ptr<ProfileSampler> sampler,
                                        std::shared_ptr<ProfileIOSample> pio_sample,
-                                       std::unique_ptr<EpochRuntimeRegulator> epoch_regulator,
+                                       std::shared_ptr<EpochRuntimeRegulator> epoch_regulator,
                                        PlatformIO &platform_io,
                                        const PlatformTopo &platform_topo)
         : m_sampler(std::move(sampler))
@@ -75,7 +75,7 @@ namespace geopm
         , m_thread_progress(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU))
         , m_is_connected(false)
         , m_rank_per_node(-1)
-        , m_epoch_regulator(std::move(epoch_regulator))
+        , m_epoch_regulator(epoch_regulator)
     {
 
     }
@@ -93,9 +93,9 @@ namespace geopm
             m_prof_sample.resize(m_sampler->capacity());
             std::vector<int> cpu_rank = m_sampler->cpu_rank();
             if (m_profile_io_sample == nullptr) {
-                m_epoch_regulator = geopm::make_unique<EpochRuntimeRegulatorImp>(m_rank_per_node, m_platform_io, m_platform_topo);
-                m_profile_io_sample = std::make_shared<ProfileIOSampleImp>(cpu_rank, *m_epoch_regulator);
-                platform_io().register_iogroup(geopm::make_unique<ProfileIOGroup>(m_profile_io_sample, *m_epoch_regulator));
+                m_epoch_regulator = std::make_shared<EpochRuntimeRegulatorImp>(m_rank_per_node, m_platform_io, m_platform_topo);
+                m_profile_io_sample = std::make_shared<ProfileIOSampleImp>(cpu_rank, m_epoch_regulator);
+                platform_io().register_iogroup(geopm::make_unique<ProfileIOGroup>(m_profile_io_sample, m_epoch_regulator));
             }
             m_is_connected = true;
         }
