@@ -84,7 +84,7 @@ namespace geopm
     class ProfileIOSampleImp : public ProfileIOSample
     {
         public:
-            ProfileIOSampleImp(const std::vector<int> &cpu_rank, EpochRuntimeRegulator &epoch_regulator);
+            ProfileIOSampleImp(const std::vector<int> &cpu_rank, std::shared_ptr<EpochRuntimeRegulator> epoch_regulator);
             virtual ~ProfileIOSampleImp();
             void finalize_unmarked_region() override;
             void update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
@@ -124,7 +124,7 @@ namespace geopm
             ///        ProfileSampler data to the node local rank
             ///        index.
             std::map<int, int> m_rank_idx_map;
-            EpochRuntimeRegulator &m_epoch_regulator;
+            std::shared_ptr<EpochRuntimeRegulator> m_epoch_regulator;
             /// @brief The rank index of the rank running on each CPU.
             std::vector<int> m_cpu_rank;
             /// @brief Number of ranks running on the node.
