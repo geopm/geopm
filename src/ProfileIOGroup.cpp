@@ -88,6 +88,7 @@ namespace geopm
         , m_epoch_runtime_ignore(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
         , m_epoch_runtime(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
         , m_epoch_count(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
+        , m_is_connected(false)
     {
 
     }
@@ -103,13 +104,16 @@ namespace geopm
         m_profile_sample = profile_sample;
         m_epoch_regulator = epoch_regulator;
         m_cpu_rank = m_profile_sample->cpu_rank();
+        m_is_connected = true;
     }
 
     std::set<std::string> ProfileIOGroup::signal_names(void) const
     {
         std::set<std::string> result;
-        for (const auto &sv : m_signal_idx_map) {
-            result.insert(sv.first);
+        if (m_is_connected) {
+            for (const auto &sv : m_signal_idx_map) {
+                result.insert(sv.first);
+            }
         }
         return result;
     }
@@ -182,7 +186,7 @@ namespace geopm
 
     void ProfileIOGroup::read_batch(void)
     {
-        if (m_profile_sample == nullptr) {
+        if (!m_is_connected) {
             throw Exception("ProfileIOGroup::read_batch() called before connect",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
@@ -315,7 +319,7 @@ namespace geopm
 
     double ProfileIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
     {
-        if (m_profile_sample == nullptr) {
+        if (!m_is_connected) {
             throw Exception("ProfileIOGroup::read_signal() called before connect",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }

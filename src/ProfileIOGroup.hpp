@@ -117,6 +117,7 @@ namespace geopm
             std::vector<double> m_epoch_count;
             std::map<int, int> m_rid_idx; // map from runtime signal index to the region id signal it uses
             std::vector<int> m_cpu_rank;
+            bool m_is_connected;
     };
 }
 
