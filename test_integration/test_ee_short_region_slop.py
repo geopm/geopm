@@ -209,8 +209,7 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         freq_sticker = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
         freq_min = float(os.getenv('GEOPM_SLOP_FREQ_MIN', str(freq_min_sys)))
         freq_max = float(os.getenv('GEOPM_SLOP_FREQ_MAX', str(freq_sticker)))
-        agent_conf_fixed_dict = {'FREQ_MIN':freq_min,
-                                 'FREQ_MAX':freq_max}
+        agent_conf_fixed_dict = {'FREQ_DEFAULT':freq_max}
         agent_conf_fixed = geopmpy.io.AgentConf(cls._agent_conf_fixed_path,
                                                 'frequency_map',
                                                 agent_conf_fixed_dict)
