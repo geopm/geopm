@@ -75,6 +75,20 @@ TEST_F(CircularBufferTest, buffer_values)
     EXPECT_DOUBLE_EQ(4.0, m_buffer->value(2));
     EXPECT_DOUBLE_EQ(5.0, m_buffer->value(3));
     EXPECT_DOUBLE_EQ(6.0, m_buffer->value(4));
+    std::vector<double> values {2.0, 3.0, 4.0, 5.0, 6.0};
+    EXPECT_EQ(values, m_buffer->make_vector());
+
+    ASSERT_EQ(5, m_buffer->capacity());
+    EXPECT_THROW(m_buffer->value(5), geopm::Exception);
+
+    // write over old values
+    m_buffer->insert(7.0);
+    m_buffer->insert(8.0);
+    EXPECT_DOUBLE_EQ(4.0, m_buffer->value(0));
+    EXPECT_DOUBLE_EQ(5.0, m_buffer->value(1));
+    EXPECT_DOUBLE_EQ(6.0, m_buffer->value(2));
+    EXPECT_DOUBLE_EQ(7.0, m_buffer->value(3));
+    EXPECT_DOUBLE_EQ(8.0, m_buffer->value(4));
 }
 
 TEST_F(CircularBufferTest, buffer_capacity)
@@ -84,4 +98,27 @@ TEST_F(CircularBufferTest, buffer_capacity)
     EXPECT_EQ(10, m_buffer->capacity());
     m_buffer->set_capacity(2);
     EXPECT_EQ(2, m_buffer->capacity());
+
+    // newest values maintained when capacity changes
+    m_buffer->insert(1.2);
+    m_buffer->insert(3.4);
+    m_buffer->set_capacity(3);
+    EXPECT_EQ(2, m_buffer->size());
+    EXPECT_DOUBLE_EQ(1.2, m_buffer->value(0));
+    EXPECT_DOUBLE_EQ(3.4, m_buffer->value(1));
+    m_buffer->insert(5.6);
+    m_buffer->set_capacity(2);
+    EXPECT_DOUBLE_EQ(3.4, m_buffer->value(0));
+    EXPECT_DOUBLE_EQ(5.6, m_buffer->value(1));
+
+    // zero capacity
+    m_buffer->set_capacity(0);
+    EXPECT_THROW(m_buffer->insert(1.1), geopm::Exception);
+
+    // one capacity
+    m_buffer->set_capacity(1);
+    m_buffer->insert(3.2);
+    EXPECT_DOUBLE_EQ(3.2, m_buffer->value(0));
+    m_buffer->insert(5.4);
+    EXPECT_DOUBLE_EQ(5.4, m_buffer->value(0));
 }
