@@ -1580,7 +1580,10 @@ class TestIntegrationGeopmagent(unittest.TestCase):
         # unspecified policy values are accepted
         self.check_json_output(['--agent', 'power_balancer', '--policy', '150'],
                                {'POWER_PACKAGE_LIMIT_TOTAL': 150})
-
+        # hashing works for frequency map agent
+        self.check_json_output(['--agent', 'frequency_map', '--policy', '1e9,nan,hello,2e9'],
+                               {'FREQ_DEFAULT': 1e9, 'FREQ_UNCORE': 'NAN',
+                                'HASH_0': geopmpy.hash.crc32_str('hello'), 'FREQ_0': 2e9})
         # errors
         self.check_output(['--agent', 'power_governor', '--policy', 'None'],
                           ['not a valid floating-point number', 'Invalid argument'])
