@@ -53,6 +53,7 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/AgentFactoryTest.static_info_energy_efficient \
               test/gtest_links/AgentFactoryTest.static_info_frequency_map \
               test/gtest_links/AggTest.agg_function \
+              test/gtest_links/AggTest.function_strings \
               test/gtest_links/ApplicationSamplerTest.one_enter_exit \
               test/gtest_links/ApplicationSamplerTest.process_mapping \
               test/gtest_links/ApplicationSamplerTest.string_conversion \

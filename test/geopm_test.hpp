@@ -47,8 +47,14 @@ bool is_format_raw64(std::function<std::string(double)> func);
 
 bool is_agg_sum(std::function<double(const std::vector<double> &)> func);
 bool is_agg_average(std::function<double(const std::vector<double> &)> func);
+bool is_agg_median(std::function<double(const std::vector<double> &)> func);
+bool is_agg_logical_and(std::function<double(const std::vector<double> &)> func);
+bool is_agg_logical_or(std::function<double(const std::vector<double> &)> func);
+bool is_agg_region_hash(std::function<double(const std::vector<double> &)> func);
+bool is_agg_region_hint(std::function<double(const std::vector<double> &)> func);
 bool is_agg_min(std::function<double(const std::vector<double> &)> func);
 bool is_agg_max(std::function<double(const std::vector<double> &)> func);
+bool is_agg_stddev(std::function<double(const std::vector<double> &)> func);
 bool is_agg_select_first(std::function<double(const std::vector<double> &)> func);
 bool is_agg_expect_same(std::function<double(const std::vector<double> &)> func);
 

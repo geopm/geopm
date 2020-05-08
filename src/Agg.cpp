@@ -30,17 +30,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
+
 #include "Agg.hpp"
 
 #include <cmath>
 
 #include <algorithm>
 #include <numeric>
+#include <map>
 
 #include "geopm_internal.h"
 #include "geopm_hash.h"
-
-#include "config.h"
+#include "Exception.hpp"
 
 namespace geopm
 {
@@ -200,5 +202,30 @@ namespace geopm
             }
         }
         return value;
+    }
+
+    std::function<double(const std::vector<double> &)> Agg::name_to_function(const std::string &name)
+    {
+        std::map<std::string, std::function<double(const std::vector<double> &)> > name_map = {
+            {"sum", sum},
+            {"average", average},
+            {"median", median},
+            {"logical_and", logical_and},
+            {"logical_or", logical_or},
+            {"region_hash", region_hash},
+            {"region_hint", region_hint},
+            {"min", min},
+            {"max", max},
+            {"stddev", stddev},
+            {"select_first", select_first},
+            {"expect_same", expect_same},
+        };
+
+        auto result = name_map.find(name);
+        if (result == name_map.end()) {
+            throw Exception("Agg::name_to_function(): unknown aggregation function: " + name,
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return result->second;
     }
 }

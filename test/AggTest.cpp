@@ -36,6 +36,7 @@
 #include "geopm.h"
 #include "geopm_internal.h"
 #include "geopm_hash.h"
+#include "geopm_test.hpp"
 
 using geopm::Agg;
 
@@ -85,4 +86,23 @@ TEST(AggTest, agg_function)
 
     EXPECT_EQ(5,
               Agg::region_hint({5, 5, 5, NAN}));
+}
+
+TEST(AggTest, function_strings)
+{
+    EXPECT_TRUE(is_agg_sum(Agg::name_to_function("sum")));
+    EXPECT_TRUE(is_agg_average(Agg::name_to_function("average")));
+    EXPECT_TRUE(is_agg_median(Agg::name_to_function("median")));
+    EXPECT_TRUE(is_agg_logical_and(Agg::name_to_function("logical_and")));
+    EXPECT_TRUE(is_agg_logical_or(Agg::name_to_function("logical_or")));
+    EXPECT_TRUE(is_agg_region_hash(Agg::name_to_function("region_hash")));
+    EXPECT_TRUE(is_agg_region_hint(Agg::name_to_function("region_hint")));
+    EXPECT_TRUE(is_agg_min(Agg::name_to_function("min")));
+    EXPECT_TRUE(is_agg_max(Agg::name_to_function("max")));
+    EXPECT_TRUE(is_agg_stddev(Agg::name_to_function("stddev")));
+    EXPECT_TRUE(is_agg_select_first(Agg::name_to_function("select_first")));
+    EXPECT_TRUE(is_agg_expect_same(Agg::name_to_function("expect_same")));
+
+    GEOPM_EXPECT_THROW_MESSAGE(Agg::name_to_function("invalid"), GEOPM_ERROR_INVALID,
+                               "unknown aggregation function");
 }

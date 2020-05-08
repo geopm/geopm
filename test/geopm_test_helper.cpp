@@ -32,6 +32,7 @@
 
 #include "geopm_test.hpp"
 
+#include "geopm.h"
 #include "geopm_hash.h"
 #include "Agg.hpp"
 
@@ -83,6 +84,38 @@ bool is_agg_average(std::function<double(const std::vector<double> &)> func)
     return func(example_data) == geopm::Agg::average(example_data);
 }
 
+bool is_agg_median(std::function<double(const std::vector<double> &)> func)
+{
+    return func(example_data) == geopm::Agg::median(example_data);
+}
+
+bool is_agg_logical_and(std::function<double(const std::vector<double> &)> func)
+{
+    return func({1, 1, 1}) == 1.0 &&
+           func({1, 0, 1}) == 0.0 &&
+           std::isnan(func({}));
+}
+
+bool is_agg_logical_or(std::function<double(const std::vector<double> &)> func)
+{
+    return func({1, 1, 1}) == 1.0 &&
+           func({1, 0, 1}) == 1.0 &&
+           func({0, 0, 0}) == 0.0 &&
+           std::isnan(func({}));
+}
+
+bool is_agg_region_hash(std::function<double(const std::vector<double> &)> func)
+{
+    return func({33, 44, 33}) == GEOPM_REGION_HASH_UNMARKED &&
+           func({44, 44, 44}) == 44;
+}
+
+bool is_agg_region_hint(std::function<double(const std::vector<double> &)> func)
+{
+    return func({1, 2, 3}) == GEOPM_REGION_HINT_UNKNOWN &&
+           func({2, 2, 2}) == 2;
+}
+
 bool is_agg_min(std::function<double(const std::vector<double> &)> func)
 {
     return func(example_data) == geopm::Agg::min(example_data);
@@ -93,6 +126,11 @@ bool is_agg_max(std::function<double(const std::vector<double> &)> func)
     return func(example_data) == geopm::Agg::max(example_data);
 }
 
+bool is_agg_stddev(std::function<double(const std::vector<double> &)> func)
+{
+    return func(example_data) == geopm::Agg::stddev(example_data);
+}
+
 bool is_agg_select_first(std::function<double(const std::vector<double> &)> func)
 {
     return func(example_data) == geopm::Agg::select_first(example_data);
@@ -100,6 +138,6 @@ bool is_agg_select_first(std::function<double(const std::vector<double> &)> func
 
 bool is_agg_expect_same(std::function<double(const std::vector<double> &)> func)
 {
-    double result = geopm::Agg::expect_same(example_data);
-    return !std::isnan(result) && func(example_data) == result;
+    return func({3.3, 3.3, 3.3}) == 3.3 &&
+           std::isnan(func({4.4, 4.4, 3.3, 4.4}));
 }
