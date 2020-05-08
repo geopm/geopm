@@ -103,9 +103,8 @@ class TestIntegrationScalingRegion(unittest.TestCase):
             freq_min = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
             freq_sticker = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
             freq_step = geopm_test_launcher.geopmread("CPUINFO::FREQ_STEP board 0")
-            num_step = int((freq_sticker - freq_min) / freq_step + 0.5)
-            agent_conf_dict = {'FREQ_DEFAULT': freq_sticker,
-                               'FREQ_UNCORE': float('nan')}
+            num_step = int((freq_sticker - freq_min) / freq_step + 0.5) + 1
+            agent_conf_dict = {'FREQ_DEFAULT': freq_sticker}
             cls._region_freq = [freq_min + idx * freq_step
                                 for idx in range(num_step)]
             freq_idx = 0
@@ -157,12 +156,12 @@ class TestIntegrationScalingRegion(unittest.TestCase):
         report = geopmpy.io.RawReport(self._report_path)
         host_names = report.host_names()
         for host in host_names:
-            for rn in report.region_names(host):
-                if rn.startswith('timed_scaling_region'):
-                    region = report.raw_region(host, rn)
-                    request_freq = report.get_field(region, 'frequency-map')
-                    actual_freq = report.get_field(region, 'frequency', 'Hz')
-                    util.assertNear(self, request_freq, actual_freq)
+            for rn in ['timed_scaling_region_{}'.format(idx)
+                       for idx in range(len(self._region_freq))]:
+                region = report.raw_region(host, rn)
+                request_freq = report.get_field(region, 'frequency-map')
+                actual_freq = report.get_field(region, 'frequency', 'Hz')
+                util.assertNear(self, request_freq, actual_freq)
 
 if __name__ == '__main__':
     # Call do_launch to clear non-pyunit command line option
