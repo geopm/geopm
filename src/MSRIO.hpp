@@ -60,7 +60,9 @@ namespace geopm
             ///        will be written, other bits in the MSR will be
             ///        unmodified.
             /// @param [in] write_mask The mask determines the bits of
-            ///        the MSR that will be modified.
+            ///        the MSR that will be modified.  An error will
+            ///        occur if bits are set in the raw_value that are
+            ///        not in the write mask.
             virtual void write_msr(int cpu_idx,
                                    uint64_t offset,
                                    uint64_t raw_value,
@@ -105,6 +107,20 @@ namespace geopm
             ///        The memory used to store the result should have
             ///        been returned by add_read().
             virtual void read_batch(void) = 0;
+            /// @brief Add another offset to the list of MSRs to be
+            ///        written in batch.
+            /// @param [in] cpu_idx logical Linux CPU index to write
+            ///        to when write_batch() method is called.
+            /// @param [in] offset MSR offset to be written when
+            ///        write_batch() method is called.
+            /// @return The logical index that will be passed to
+            ///         adjust().
+            virtual int add_write(int cpu_idx, uint64_t offset) = 0;
+            /// @brief Adjust a value that was previously added with
+            ///        the add_write() method.
+            virtual void adjust(int batch_idx,
+                                uint64_t value,
+                                uint64_t write_mask) = 0;
             /// @brief Read the full 64-bit value of the MSR that was
             ///        previously added to the MSRIO with add_read().
             ///        read_batch() must be called prior to calling
@@ -115,6 +131,8 @@ namespace geopm
             /// @param [in] raw_value The raw encoded MSR values to be
             ///        written.
             virtual void write_batch(const std::vector<uint64_t> &raw_value) = 0;
+            /// @brief Write all adjusted values.
+            virtual void write_batch(void) = 0;
             /// @brief Returns a unique_ptr to a concrete object
             ///        constructed using the underlying implementation
             static std::unique_ptr<MSRIO> make_unique(void);

@@ -34,6 +34,7 @@
 #define MSRIOIMP_HPP_INCLUDE
 
 #include <string>
+#include <map>
 
 #include "MSRIO.hpp"
 
@@ -61,6 +62,9 @@ namespace geopm
             void read_batch(void) override;
             uint64_t sample(int batch_idx) const override;
             void write_batch(const std::vector<uint64_t> &raw_value) override;
+            void write_batch(void) override;
+            int add_write(int cpu_idx, uint64_t offset) override;
+            void adjust(int batch_idx, uint64_t value, uint64_t write_mask) override;
         private:
             struct m_msr_batch_op_s {
                 uint16_t cpu;      /// @brief In: CPU to execute {rd/wr}msr ins.
@@ -81,14 +85,18 @@ namespace geopm
                 M_FALLBACK_MSR,
                 M_NUM_FALLBACK,
             };
-
+            void open_all(void);
             void open_msr(int cpu_idx);
             void open_msr_batch(void);
+            void close_all(void);
             void close_msr(int cpu_idx);
             void close_msr_batch(void);
             int msr_desc(int cpu_idx);
             int msr_batch_desc(void);
-            void msr_ioctl(bool is_read);
+            void msr_ioctl(struct m_msr_batch_array_s &batch);
+            void msr_ioctl_read(void);
+            void msr_ioctl_write(void);
+            uint64_t system_write_mask(uint64_t offset);
             virtual void msr_path(int cpu_idx,
                                   int fallback_idx,
                                   std::string &path);
@@ -102,6 +110,12 @@ namespace geopm
             std::vector<struct m_msr_batch_op_s> m_read_batch_op;
             std::vector<struct m_msr_batch_op_s> m_write_batch_op;
             bool m_is_batch_read;
+            std::vector<std::map<uint64_t, int> > m_read_batch_idx_map;
+            std::vector<std::map<uint64_t, int> > m_write_batch_idx_map;
+            std::map<uint64_t, uint64_t> m_offset_mask_map;
+            std::vector<uint64_t> m_write_val;
+            std::vector<uint64_t> m_write_mask;
+            bool m_is_open;
     };
 }
 

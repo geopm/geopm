@@ -56,6 +56,12 @@ class MockMSRIO : public geopm::MSRIO
                            uint64_t(int batch_idx));
         MOCK_METHOD1(write_batch,
                      void(const std::vector<uint64_t> &raw_value));
+        MOCK_METHOD2(add_write,
+                     int(int cpu_idx, uint64_t offset));
+        MOCK_METHOD3(adjust,
+                     void(int batch_idx, uint64_t value, uint64_t write_mask));
+        MOCK_METHOD0(write_batch,
+                     void(void));
 };
 
 #endif
