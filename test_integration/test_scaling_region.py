@@ -104,15 +104,15 @@ class TestIntegrationScalingRegion(unittest.TestCase):
             freq_sticker = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
             freq_step = geopm_test_launcher.geopmread("CPUINFO::FREQ_STEP board 0")
             num_step = int((freq_sticker - freq_min) / freq_step + 0.5)
-            agent_conf_dict = {'FREQ_MIN':freq_min,           
-                               'FREQ_MAX':freq_sticker}
+            agent_conf_dict = {'FREQ_DEFAULT':freq_sticker,
+                               'FREQ_UNCORE':float('nan')}
             cls._region_freq = [freq_min + idx * freq_step
                                 for idx in range(num_step)]
             freq_idx = 0
             for freq_idx in range(len(cls._region_freq)):
                 agent_conf_dict['HASH_{}'.format(freq_idx)] = cls._region_hash[freq_idx]
                 agent_conf_dict['FREQ_{}'.format(freq_idx)] = cls._region_freq[freq_idx]
-            
+
             agent_conf = geopmpy.io.AgentConf(cls._agent_conf_path,
                                               'frequency_map',
                                               agent_conf_dict)
