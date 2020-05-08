@@ -165,11 +165,11 @@ namespace geopm
     template <class type>
     void CircularBuffer<type>::set_capacity(const unsigned int size)
     {
-        if (size < m_count) {
+        if (size < m_count && m_max_size > 0) {
             int size_diff = m_count - size;
             std::vector<type> temp;
             //Copy newest data into temporary vector
-            for (unsigned int i = m_head + size_diff; i < ((m_head + m_count) % m_max_size); i = ((i + 1) % m_max_size)) {
+            for (unsigned int i = m_head + size_diff; i != ((m_head + m_count) % m_max_size); i = ((i + 1) % m_max_size)) {
                 temp.push_back(m_buffer[i]);
             }
             //now re-size and swap out with tmp vector data
