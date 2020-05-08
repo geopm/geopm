@@ -47,6 +47,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from test_integration import geopm_context
 import geopmpy.io
 import geopmpy.error
+import geopmpy.hash
 from test_integration import geopm_test_launcher
 from test_integration import util
 
@@ -92,14 +93,8 @@ class TestIntegrationScalingRegion(unittest.TestCase):
         cls._agent_conf_path = test_name + '-agent-config.json'
         # region_hash() of the sequence:
         # timed_scaling_region_0, timed_scaling_region_1, ... , timed_scaling_region_30
-        cls._region_hash = [0xb55b9ce7, 0x101a0e99, 0xfa34ceea, 0x5f755c94,
-                            0x2b8538fd, 0x8ec4aa83, 0x64ea6af0, 0xc1abf88e,
-                            0x8d0aa222, 0x284b305c, 0x50541c1a, 0x43f6846d,
-                            0x77112cf4, 0x64b3b483, 0x1ede7dc6, 0x0d7ce5b1,
-                            0x399b4d28, 0x2a39d55f, 0xcd40dfa2, 0xdee247d5,
-                            0xba7adc69, 0xa9d8441e, 0x9d3fec87, 0x8e9d74f0,
-                            0xf4f0bdb5, 0xe75225c2, 0xd3b58d5b, 0xc017152c,
-                            0x276e1fd1, 0x34cc87a6, 0x1f3b4e17]
+        cls._region_hash = [geopmpy.hash.crc32_str('timed_scaling_region_{}'.format(ii))
+                            for ii in range(31)]
         geopmpy.error.exc_clear()
         if not cls._skip_launch:
             num_node = 1
