@@ -350,6 +350,10 @@ TUTORIAL_DIST = tutorial/Makefile \
                 tutorial/agent/agent_tutorial.sh \
                 tutorial/agent/agent_tutorial_config.json \
                 tutorial/agent/example_policy.json \
+                tutorial/host_power_governor/HostPowerGovernorAgent.cpp \
+                tutorial/host_power_governor/README.md \
+                tutorial/host_power_governor/host_power_governor_tutorial.sh \
+                tutorial/host_power_governor/host_power_governor_tutorial_config.json \
                 tutorial/iogroup/ExampleIOGroup.cpp \
                 tutorial/iogroup/ExampleIOGroup.hpp \
                 tutorial/iogroup/README.md \

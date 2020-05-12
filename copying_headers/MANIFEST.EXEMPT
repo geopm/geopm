@@ -119,6 +119,8 @@ tutorial/admin/README.md
 tutorial/agent/README.md
 tutorial/agent/agent_tutorial_config.json
 tutorial/agent/example_policy.json
+tutorial/host_power_governor/README.md
+tutorial/host_power_governor/host_power_governor_tutorial_config.json
 tutorial/iogroup/README.md
 tutorial/plugin_load/README.md
 tutorial/tutorial_6_config.json

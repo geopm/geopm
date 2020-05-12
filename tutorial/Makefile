@@ -39,6 +39,7 @@ TUTORIAL_BIN = tutorial_0 \
                # end
 
 TUTORIAL_LIB = agent/libgeopmagent_example_agent.so.0.0.0 \
+               host_power_governor/libgeopmagent_host_power_governor_agent.so.0.0.0 \
                iogroup/libgeopmiogroup_example_iogroup.so.0.0.0 \
                plugin_load/alice/libgeopmiogroup_alice.so.0.0.0 \
                plugin_load/bob/libgeopmiogroup_bob.so.0.0.0
@@ -97,6 +98,9 @@ tutorial_region_prof.o: tutorial_region_prof.c tutorial_region.h
 
 agent/libgeopmagent_example_agent.so.0.0.0: agent/ExampleAgent.cpp agent/ExampleAgent.hpp
 	$(CXX) $(CXXFLAGS) -I ./agent $(GEOPM_PLUGIN_FLAGS) agent/ExampleAgent.cpp -o $@
+
+host_power_governor/libgeopmagent_host_power_governor_agent.so.0.0.0: host_power_governor/HostPowerGovernorAgent.cpp
+	$(CXX) $(CXXFLAGS) $(GEOPM_PLUGIN_FLAGS) host_power_governor/HostPowerGovernorAgent.cpp -o $@
 
 iogroup/libgeopmiogroup_example_iogroup.so.0.0.0: iogroup/ExampleIOGroup.cpp iogroup/ExampleIOGroup.hpp
 	$(CXX) $(CXXFLAGS) -I ./iogroup $(GEOPM_PLUGIN_FLAGS) iogroup/ExampleIOGroup.cpp -o $@
