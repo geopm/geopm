@@ -30,8 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RAWMSRSIGNAL_HPP_INCLUDE
-#define RAWMSRSIGNAL_HPP_INCLUDE
+#ifndef MSRFIELDCONTROL_HPP_INCLUDE
+#define MSRFIELDCONTROL_HPP_INCLUDE
 
 #include <cstdint>
 #include <cmath>
@@ -39,35 +39,43 @@
 #include <string>
 #include <memory>
 
-#include "Signal.hpp"
-
+#include "Control.hpp"
 
 namespace geopm
 {
     class MSRIO;
 
-    class RawMSRSignal : public Signal
+    /// Encapsulates conversion of control values in SI units to MSR
+    /// bitfields.
+    class MSRFieldControl : public Control
     {
         public:
-            RawMSRSignal(std::shared_ptr<MSRIO> msrio,
-                         int cpu,
-                         uint64_t offset);
-            RawMSRSignal(const RawMSRSignal &other) = delete;
-            virtual ~RawMSRSignal() = default;
+            MSRFieldControl(std::shared_ptr<MSRIO> msrio,
+                            int cpu,
+                            uint64_t offset,
+                            int begin_bit,
+                            int end_bit,
+                            int function,
+                            double scalar);
+            MSRFieldControl(const MSRFieldControl &other) = delete;
+            virtual ~MSRFieldControl() = default;
             void setup_batch(void) override;
-            double sample(void) override;
-            double read(void) const override;
+            void adjust(double value) override;
+            void write(double value) override;
         private:
-            /// MSRIO object shared by all MSR signals in the same
-            /// batch.  This object should outlive all other data in
-            /// the Signal.
+            uint64_t encode(double value) const;
+
             std::shared_ptr<MSRIO> m_msrio;
-            int m_cpu;
-            uint64_t m_offset;
-            /// Index to the data that will be updated by the
-            /// MSRIO's read_batch() calls.
-            int m_data_idx;
+            const int m_cpu;
+            const uint64_t m_offset;
+            const int m_shift;
+            const int m_num_bit;
+            const uint64_t m_mask;
+            const int m_function;
+            const double m_scalar;
+            const double m_inverse;
             bool m_is_batch_ready;
+            int m_adjust_idx;
     };
 }
 

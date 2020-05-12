@@ -40,7 +40,6 @@
 #include <memory>
 
 #include "Signal.hpp"
-#include "MSRIO.hpp"
 
 namespace geopm
 {

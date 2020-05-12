@@ -30,44 +30,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RAWMSRSIGNAL_HPP_INCLUDE
-#define RAWMSRSIGNAL_HPP_INCLUDE
-
-#include <cstdint>
-#include <cmath>
-
-#include <string>
-#include <memory>
-
-#include "Signal.hpp"
-
+#ifndef CONTROL_HPP_INCLUDE
+#define CONTROL_HPP_INCLUDE
 
 namespace geopm
 {
-    class MSRIO;
-
-    class RawMSRSignal : public Signal
+    /// An abstract interface for all types of controls supported by
+    /// an IOGroup.  Any implementation specific data should be
+    /// injected in the derived class constructor and used in
+    /// setup_batch() if necessary.
+    class Control
     {
         public:
-            RawMSRSignal(std::shared_ptr<MSRIO> msrio,
-                         int cpu,
-                         uint64_t offset);
-            RawMSRSignal(const RawMSRSignal &other) = delete;
-            virtual ~RawMSRSignal() = default;
-            void setup_batch(void) override;
-            double sample(void) override;
-            double read(void) const override;
-        private:
-            /// MSRIO object shared by all MSR signals in the same
-            /// batch.  This object should outlive all other data in
-            /// the Signal.
-            std::shared_ptr<MSRIO> m_msrio;
-            int m_cpu;
-            uint64_t m_offset;
-            /// Index to the data that will be updated by the
-            /// MSRIO's read_batch() calls.
-            int m_data_idx;
-            bool m_is_batch_ready;
+            virtual ~Control() = default;
+            /// @brief Prepare the control for being written through
+            ///        side effects by the owner's write_batch step.
+            ///        This method should not fail if called multiple
+            ///        times, and ideally only apply the side effects
+            ///        on the first call.
+            virtual void setup_batch(void) = 0;
+            /// @brief Store values to be written by the owner's
+            ///        write_batch step.
+            virtual void adjust(double value) = 0;
+            /// @brief Write the value of the control without
+            ///        affecting any pushed batch controls.
+            virtual void write(double value) = 0;
     };
 }
 
