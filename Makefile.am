@@ -457,6 +457,7 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/CombinedSignal.hpp \
                             src/Comm.cpp \
                             src/Comm.hpp \
+                            src/Control.hpp \
                             src/ControlMessage.cpp \
                             src/ControlMessage.hpp \
                             src/Controller.cpp \
@@ -511,6 +512,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/MSRControl.cpp \
                             src/MSRControl.hpp \
                             src/MSRControlImp.hpp \
+                            src/MSRFieldControl.cpp \
+                            src/MSRFieldControl.hpp \
                             src/MSRFieldSignal.cpp \
                             src/MSRFieldSignal.hpp \
                             src/MSRIO.cpp \
