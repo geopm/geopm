@@ -794,7 +794,7 @@ ruby/bin/ronn:
 	mkdir -p ruby/bin; \
 	which ronn >& /dev/null && \
 	ln -sf `which ronn` ruby/bin/ronn || \
-	gem install ronn -i ruby
+	gem install ronn --no-user-install --install-dir ruby
 	if [ ! -f $@ ]; then pushd ruby/bin && ln -sf ronn.ruby* ronn && popd; fi
 
 $(ronn_man): man/%: ruby/bin/ronn ronn/%.ronn ronn/index.txt ronn/header.txt
