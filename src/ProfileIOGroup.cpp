@@ -89,6 +89,7 @@ namespace geopm
         , m_epoch_runtime(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
         , m_epoch_count(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
         , m_is_connected(false)
+        , m_is_pushed(false)
     {
 
     }
@@ -154,6 +155,7 @@ namespace geopm
             throw Exception("ProfileIOGroup::push_signal: cannot push signal after call to read_batch().",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        m_is_pushed = true;
         int signal_type = check_signal(signal_name, domain_type, domain_idx);
 
         int signal_idx = 0;
@@ -186,6 +188,9 @@ namespace geopm
 
     void ProfileIOGroup::read_batch(void)
     {
+        if (!m_is_pushed) {
+            return;
+        }
         if (!m_is_connected) {
             throw Exception("ProfileIOGroup::read_batch() called before connect",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
