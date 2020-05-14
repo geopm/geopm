@@ -40,11 +40,13 @@
 
 namespace geopm
 {
+    class MSRPath;
+
     class MSRIOImp : public MSRIO
     {
         public:
             MSRIOImp();
-            MSRIOImp(int num_cpu);
+            MSRIOImp(int num_cpu, std::shared_ptr<MSRPath>);
             virtual ~MSRIOImp();
             uint64_t read_msr(int cpu_idx,
                               uint64_t offset) override;
@@ -80,11 +82,6 @@ namespace geopm
                 struct m_msr_batch_op_s *ops;  /// @brief In: Array[numops] of operations
             };
 
-            enum m_fallback_e {
-                M_FALLBACK_MSRSAFE,
-                M_FALLBACK_MSR,
-                M_NUM_FALLBACK,
-            };
             void open_all(void);
             void open_msr(int cpu_idx);
             void open_msr_batch(void);
@@ -97,10 +94,6 @@ namespace geopm
             void msr_ioctl_read(void);
             void msr_ioctl_write(void);
             uint64_t system_write_mask(uint64_t offset);
-            virtual void msr_path(int cpu_idx,
-                                  int fallback_idx,
-                                  std::string &path);
-            virtual void msr_batch_path(std::string &path);
 
             const int m_num_cpu;
             std::vector<int> m_file_desc;
@@ -116,6 +109,7 @@ namespace geopm
             std::vector<uint64_t> m_write_val;
             std::vector<uint64_t> m_write_mask;
             bool m_is_open;
+            std::shared_ptr<MSRPath> m_path;
     };
 }
 

@@ -518,6 +518,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/MSRIOImp.hpp \
                             src/MSRIOGroup.cpp \
                             src/MSRIOGroup.hpp \
+                            src/MSRPath.cpp \
+                            src/MSRPath.hpp \
                             src/MSRSignal.cpp \
                             src/MSRSignal.hpp \
                             src/MSRSignalImp.hpp \
