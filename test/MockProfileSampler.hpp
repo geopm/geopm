@@ -37,7 +37,7 @@
 
 #include "ProfileSampler.hpp"
 #include "Comm.hpp"
-#include "ProfileThread.hpp"
+#include "ProfileThreadTable.hpp"
 
 class MockProfileSampler : public geopm::ProfileSampler
 {

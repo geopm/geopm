@@ -51,7 +51,7 @@
 #include "Helper.hpp"
 #include "PlatformTopo.hpp"
 #include "ProfileTable.hpp"
-#include "ProfileThread.hpp"
+#include "ProfileThreadTable.hpp"
 #include "SampleScheduler.hpp"
 #include "Comm.hpp"
 #include "ControlMessage.hpp"

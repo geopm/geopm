@@ -546,8 +546,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/ProfileSampler.hpp \
                             src/ProfileTable.cpp \
                             src/ProfileTable.hpp \
-                            src/ProfileThread.cpp \
-                            src/ProfileThread.hpp \
+                            src/ProfileThreadTable.cpp \
+                            src/ProfileThreadTable.hpp \
                             src/ProfileTracer.cpp \
                             src/ProfileTracer.hpp \
                             src/RawMSRSignal.cpp \
