@@ -51,7 +51,7 @@
 #include "Environment.hpp"
 #include "PlatformTopo.hpp"
 #include "ProfileTable.hpp"
-#include "ProfileThread.hpp"
+#include "ProfileThreadTable.hpp"
 #include "SampleScheduler.hpp"
 #include "ControlMessage.hpp"
 #include "SharedMemoryImp.hpp"

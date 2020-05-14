@@ -35,7 +35,7 @@
 
 #include "gmock/gmock.h"
 
-#include "ProfileThread.hpp"
+#include "ProfileThreadTable.hpp"
 
 class MockProfileThreadTable : public geopm::ProfileThreadTable
 {
