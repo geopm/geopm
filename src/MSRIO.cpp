@@ -46,6 +46,7 @@
 #include "geopm_debug.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
+#include "MSRPath.hpp"
 
 #define GEOPM_IOC_MSR_BATCH _IOWR('c', 0xA2, struct geopm::MSRIOImp::m_msr_batch_array_s)
 
@@ -62,12 +63,12 @@ namespace geopm
     }
 
     MSRIOImp::MSRIOImp()
-        : MSRIOImp(geopm_sched_num_cpu())
+        : MSRIOImp(geopm_sched_num_cpu(), std::make_shared<MSRPath>())
     {
 
     }
 
-    MSRIOImp::MSRIOImp(int num_cpu)
+    MSRIOImp::MSRIOImp(int num_cpu, std::shared_ptr<MSRPath> path)
         : m_num_cpu(num_cpu)
         , m_file_desc(m_num_cpu + 1, -1) // Last file descriptor is for the batch file
         , m_is_batch_enabled(true)
@@ -79,6 +80,7 @@ namespace geopm
         , m_read_batch_idx_map(m_num_cpu)
         , m_write_batch_idx_map(m_num_cpu)
         , m_is_open(false)
+        , m_path(path)
     {
         open_all();
     }
@@ -481,39 +483,12 @@ namespace geopm
         return m_file_desc[m_num_cpu];
     }
 
-    void MSRIOImp::msr_path(int cpu_idx,
-                            int fallback_idx,
-                            std::string &path)
-    {
-        std::ostringstream path_ss;
-        path_ss << "/dev/cpu/" << cpu_idx;
-        switch (fallback_idx) {
-            case M_FALLBACK_MSRSAFE:
-                path_ss << "/msr_safe";
-                break;
-            case M_FALLBACK_MSR:
-                path_ss << "/msr";
-                break;
-            default:
-                throw Exception("MSRIOImp::msr_path(): Failed to open any of the options for reading msr values",
-                                GEOPM_ERROR_MSR_OPEN, __FILE__, __LINE__);
-                break;
-        }
-        path = path_ss.str();
-    }
-
-    void MSRIOImp::msr_batch_path(std::string &path)
-    {
-        path = "/dev/cpu/msr_batch";
-    }
-
     void MSRIOImp::open_msr(int cpu_idx)
     {
         for (int fallback_idx = 0;
              m_file_desc[cpu_idx] == -1;
              ++fallback_idx) {
-            std::string path;
-            msr_path(cpu_idx, fallback_idx, path);
+            std::string path = m_path->msr_path(cpu_idx, fallback_idx);
             m_file_desc[cpu_idx] = open(path.c_str(), O_RDWR);
         }
         struct stat stat_buffer;
@@ -527,8 +502,7 @@ namespace geopm
     void MSRIOImp::open_msr_batch(void)
     {
         if (m_is_batch_enabled && m_file_desc[m_num_cpu] == -1) {
-            std::string path;
-            msr_batch_path(path);
+            std::string path = m_path->msr_batch_path();
             m_file_desc[m_num_cpu] = open(path.c_str(), O_RDWR);
             if (m_file_desc[m_num_cpu] == -1) {
                 m_is_batch_enabled = false;
