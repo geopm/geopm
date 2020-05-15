@@ -430,7 +430,7 @@ namespace geopm
                  ++raw_it, ++batch_idx) {
                 m_write_batch.ops[batch_idx].msrdata = *raw_it;
             }
-            msr_ioctl(false);
+            msr_ioctl_write();
         }
         else
 #endif
