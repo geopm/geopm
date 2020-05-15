@@ -80,7 +80,7 @@ MSRIOMockFiles::MSRIOMockFiles(int num_cpu)
     : M_MAX_OFFSET(4096)
     , m_num_cpu(num_cpu)
 {
-    for (int cpu_idx = 0; cpu_idx < m_num_cpu + 1; ++cpu_idx) {
+    for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
         char tmp_path[NAME_MAX] = "/tmp/test_msrio_dev_cpu_XXXXXX";
         int fd = mkstemp(tmp_path);
         if (fd == -1) {
@@ -667,7 +667,7 @@ void MSRIOTest::SetUp(void)
             .WillOnce(Return(m_files->test_dev_path()[cpu_idx]));
     }
     EXPECT_CALL(*m_path, msr_batch_path())
-        .WillOnce(Return(m_files->test_dev_path()[m_num_cpu]));
+        .WillOnce(Return("NO_FILE_HERE"));
     m_msrio = geopm::make_unique<MSRIOImp>(m_num_cpu, m_path);
 }
 
