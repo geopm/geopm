@@ -42,53 +42,61 @@
 #include "gtest/gtest.h"
 
 #include "MSRIOImp.hpp"
+#include "MSRPath.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
 #include "geopm_test.hpp"
 
-// Class derived from MSRIO used to test MSRIO w/o accessing the msr
-// device files.
-class TestMSRIO : public geopm::MSRIOImp
+using geopm::MSRIO;
+using geopm::MSRIOImp;
+using geopm::MSRPath;
+using testing::Return;
+
+class MSRIOMockFiles
 {
     public:
-        TestMSRIO(int num_cpu);
-        virtual ~TestMSRIO();
+        MSRIOMockFiles(int num_cpu);
+        virtual ~MSRIOMockFiles();
         char *msr_space_ptr(int cpu_idx, off_t offset);
+        std::vector<std::string> test_dev_path(void) { return m_test_dev_path; }
     protected:
-        void msr_path(int cpu_idx,
-                      int is_fallback,
-                      std::string &path) override;
-        void msr_batch_path(std::string &path) override;
         const char **msr_words(void) const;
-
         const size_t M_MAX_OFFSET;
         const int m_num_cpu;
         std::vector<std::string> m_test_dev_path;
         std::vector<char *> m_msr_space;
 };
 
-TestMSRIO::TestMSRIO(int num_cpu)
-    : MSRIOImp(num_cpu)
-    , M_MAX_OFFSET(4096)
+
+class MockMSRPath : public MSRPath {
+    public:
+        MOCK_METHOD2(msr_path,
+                     std::string(int cpu_idx, int fallback_idx));
+        MOCK_METHOD0(msr_batch_path,
+                     std::string(void));
+};
+
+MSRIOMockFiles::MSRIOMockFiles(int num_cpu)
+    : M_MAX_OFFSET(4096)
     , m_num_cpu(num_cpu)
 {
     for (int cpu_idx = 0; cpu_idx < m_num_cpu + 1; ++cpu_idx) {
         char tmp_path[NAME_MAX] = "/tmp/test_msrio_dev_cpu_XXXXXX";
         int fd = mkstemp(tmp_path);
         if (fd == -1) {
-            throw geopm::Exception("TestMSRIO: mkstemp() failed",
+            throw geopm::Exception("MSRIOMockFiles: mkstemp() failed",
                                    errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         m_test_dev_path.push_back(tmp_path);
 
         int err = ftruncate(fd, M_MAX_OFFSET);
         if (err) {
-            throw geopm::Exception("TestMSRIO: ftruncate() failed",
+            throw geopm::Exception("MSRIOMockFiles: ftruncate() failed",
                                    errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         char *msr_space_ptr = (char *)mmap(NULL, M_MAX_OFFSET, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
         if (msr_space_ptr == NULL) {
-            throw geopm::Exception("TestMSRIO: mmap() failed",
+            throw geopm::Exception("MSRIOMockFiles: mmap() failed",
                                    errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         close(fd);
@@ -101,7 +109,7 @@ TestMSRIO::TestMSRIO(int num_cpu)
     }
 }
 
-TestMSRIO::~TestMSRIO()
+MSRIOMockFiles::~MSRIOMockFiles()
 {
     for (auto &msr_space_it : m_msr_space) {
         munmap(msr_space_it, M_MAX_OFFSET);
@@ -111,24 +119,13 @@ TestMSRIO::~TestMSRIO()
     }
 }
 
-void TestMSRIO::msr_path(int cpu_idx,
-                         int is_fallback,
-                         std::string &path)
-{
-    path = m_test_dev_path[cpu_idx];
-}
 
-void TestMSRIO::msr_batch_path(std::string &path)
-{
-    path = "test_dev_msr_safe";
-}
-
-char* TestMSRIO::msr_space_ptr(int cpu_idx, off_t offset)
+char* MSRIOMockFiles::msr_space_ptr(int cpu_idx, off_t offset)
 {
     return m_msr_space[cpu_idx] + offset;
 }
 
-const char **TestMSRIO::msr_words(void) const
+const char **MSRIOMockFiles::msr_words(void) const
 {
     static const char *instance[] = {
         "absolute", // 0x0
@@ -654,13 +651,24 @@ class MSRIOTest : public :: testing :: Test
     protected:
         void SetUp(void);
         void TearDown(void);
-        std::unique_ptr<TestMSRIO> m_msrio;
-        int m_num_cpu = 4;
+        int m_num_cpu;
+        std::unique_ptr<MSRIO> m_msrio;
+        std::unique_ptr<MSRIOMockFiles> m_files;
+        std::shared_ptr<MockMSRPath> m_path;
 };
 
 void MSRIOTest::SetUp(void)
 {
-    m_msrio = geopm::make_unique<TestMSRIO>(m_num_cpu);
+    m_num_cpu = 4;
+    m_files = geopm::make_unique<MSRIOMockFiles>(m_num_cpu);
+    m_path = std::make_shared<MockMSRPath>();
+    for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
+        EXPECT_CALL(*m_path, msr_path(cpu_idx, 0))
+            .WillOnce(Return(m_files->test_dev_path()[cpu_idx]));
+    }
+    EXPECT_CALL(*m_path, msr_batch_path())
+        .WillOnce(Return(m_files->test_dev_path()[m_num_cpu]));
+    m_msrio = geopm::make_unique<MSRIOImp>(m_num_cpu, m_path);
 }
 
 void MSRIOTest::TearDown(void)
@@ -676,12 +684,12 @@ TEST_F(MSRIOTest, read_aligned)
     for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
         field = m_msrio->read_msr(cpu_idx, 0);
         ASSERT_EQ(0, memcmp(&field, "absolute", 8));
-        space_ptr = m_msrio->msr_space_ptr(cpu_idx, 0);
+        space_ptr = m_files->msr_space_ptr(cpu_idx, 0);
         ASSERT_EQ(0, memcmp(&field, space_ptr, 8));
 
         field = m_msrio->read_msr(cpu_idx, 1600);
         ASSERT_EQ(0, memcmp(&field, "fraction", 8));
-        space_ptr = m_msrio->msr_space_ptr(cpu_idx, 1600);
+        space_ptr = m_files->msr_space_ptr(cpu_idx, 1600);
         ASSERT_EQ(0, memcmp(&field, space_ptr, 8));
     }
 }
@@ -694,12 +702,12 @@ TEST_F(MSRIOTest, read_unaligned)
     for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
         field = m_msrio->read_msr(cpu_idx, 4);
         ASSERT_EQ(0, memcmp(&field, "luteabst", 8));
-        space_ptr = m_msrio->msr_space_ptr(cpu_idx, 4);
+        space_ptr = m_files->msr_space_ptr(cpu_idx, 4);
         ASSERT_EQ(0, memcmp(&field, space_ptr, 8));
 
         field = m_msrio->read_msr(cpu_idx, 1604);
         ASSERT_EQ(0, memcmp(&field, "tionfran", 8));
-        space_ptr = m_msrio->msr_space_ptr(cpu_idx, 1604);
+        space_ptr = m_files->msr_space_ptr(cpu_idx, 1604);
         ASSERT_EQ(0, memcmp(&field, space_ptr, 8));
     }
 }
@@ -712,22 +720,22 @@ TEST_F(MSRIOTest, write)
     for (int cpu_idx = 0; cpu_idx < m_num_cpu; ++cpu_idx) {
         memcpy(&field, "etul\0\0\0\0", 8);
         m_msrio->write_msr(cpu_idx, 0, field, 0x00000000FFFFFFFF);
-        space_ptr = m_msrio->msr_space_ptr(cpu_idx, 0);
+        space_ptr = m_files->msr_space_ptr(cpu_idx, 0);
         ASSERT_EQ(0, memcmp(space_ptr, "etullute", 8));
 
         memcpy(&field, "\0\0\0\0osba", 8);
         m_msrio->write_msr(cpu_idx, 0, field, 0xFFFFFFFF00000000);
-        space_ptr = m_msrio->msr_space_ptr(cpu_idx, 0);
+        space_ptr = m_files->msr_space_ptr(cpu_idx, 0);
         ASSERT_EQ(0, memcmp(space_ptr, "etulosba", 8));
 
         memcpy(&field, "noit\0\0\0\0", 8);
         m_msrio->write_msr(cpu_idx, 1600, field, 0x00000000FFFFFFFF);
-        space_ptr = m_msrio->msr_space_ptr(cpu_idx, 1600);
+        space_ptr = m_files->msr_space_ptr(cpu_idx, 1600);
         ASSERT_EQ(0, memcmp(space_ptr, "noittion", 8));
 
         memcpy(&field, "\0\0\0\0carf", 8);
         m_msrio->write_msr(cpu_idx, 1600, field, 0xFFFFFFFF00000000);
-        space_ptr = m_msrio->msr_space_ptr(cpu_idx, 1600);
+        space_ptr = m_files->msr_space_ptr(cpu_idx, 1600);
         ASSERT_EQ(0, memcmp(space_ptr, "noitcarf", 8));
 
         EXPECT_THROW(m_msrio->write_msr(cpu_idx, 0, field, 0xFF), geopm::Exception);
@@ -825,7 +833,7 @@ TEST_F(MSRIOTest, write_batch)
     for (auto &ci : cpu_idx) {
         auto wi = end_words.begin();
         for (auto oi : offsets) {
-            EXPECT_EQ(0, memcmp(m_msrio->msr_space_ptr(ci, oi), wi->c_str(), 8));
+            EXPECT_EQ(0, memcmp(m_files->msr_space_ptr(ci, oi), wi->c_str(), 8));
             ++wi;
         }
     }
