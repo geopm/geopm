@@ -201,6 +201,9 @@ namespace geopm
 
     uint64_t MSRIOImp::system_write_mask(uint64_t offset)
     {
+        if (!m_is_batch_enabled) {
+            return ~0ULL;
+        }
         uint64_t result = 0;
         auto off_it = m_offset_mask_map.find(offset);
         if (off_it != m_offset_mask_map.end()) {
@@ -221,7 +224,7 @@ namespace geopm
             };
             int err = ioctl(msr_batch_desc(), GEOPM_IOC_MSR_BATCH, &arr);
             if (err || wr.err) {
-                throw Exception("MSRIOImp::add_write(): offset invalid",
+                throw Exception("MSRIOImp::system_write_mask(): read of mask failed",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             m_offset_mask_map[offset] = wr.wmask;
@@ -246,7 +249,7 @@ namespace geopm
             };
             m_write_batch_op.push_back(wr);
             m_write_val.push_back(0);
-            m_write_mask.push_back(0);
+            m_write_mask.push_back(0);  // will be widened to match writes by adjust()
             m_write_batch_idx_map[cpu_idx][offset] = result;
         }
         else {
@@ -332,9 +335,9 @@ namespace geopm
 
    void MSRIOImp::msr_ioctl_read(void)
     {
-        GEOPM_DEBUG_ASSERT(m_write_batch.numops == m_write_batch_op.size() &&
-                           m_write_batch.ops == m_write_batch_op.data(),
-                           "Batch operations not updated prior to calling MSRIOImp::msr_ioctl_write()");
+        GEOPM_DEBUG_ASSERT(m_read_batch.numops == m_read_batch_op.size() &&
+                           m_read_batch.ops == m_read_batch_op.data(),
+                           "Batch operations not updated prior to calling MSRIOImp::msr_ioctl_read()");
         msr_ioctl(m_read_batch);
     }
 
@@ -349,16 +352,14 @@ namespace geopm
         auto mask_it = m_write_mask.begin();
         for (auto &op_it : m_write_batch_op) {
             op_it.isrdmsr = 0;
-            op_it.msr &= ~*mask_it;
-            op_it.msr |= *val_it;
+            op_it.msrdata &= ~*mask_it;
+            op_it.msrdata |= *val_it;
             GEOPM_DEBUG_ASSERT((~op_it.wmask & *mask_it) == 0ULL,
                                "Write mask violation at write time");
             ++val_it;
             ++mask_it;
         }
         msr_ioctl(m_write_batch);
-        std::fill(m_write_val.begin(), m_write_val.end(), 0ULL);
-        std::fill(m_write_mask.begin(), m_write_mask.end(), 0ULL);
         for (auto &op_it : m_write_batch_op) {
             op_it.isrdmsr = 1;
         }
@@ -457,7 +458,7 @@ namespace geopm
         }
         else {
             for (uint32_t batch_idx = 0;
-                 batch_idx != m_read_batch.numops;
+                 batch_idx != m_write_batch.numops;
                  ++batch_idx) {
                 write_msr(m_write_batch_op[batch_idx].cpu,
                           m_write_batch_op[batch_idx].msr,
@@ -465,6 +466,8 @@ namespace geopm
                           m_write_mask.at(batch_idx));
             }
         }
+        std::fill(m_write_val.begin(), m_write_val.end(), 0ULL);
+        std::fill(m_write_mask.begin(), m_write_mask.end(), 0ULL);
         m_is_batch_read = true;
     }
 
