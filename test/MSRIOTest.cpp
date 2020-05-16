@@ -774,10 +774,7 @@ TEST_F(MSRIOTest, read_batch)
                                GEOPM_ERROR_INVALID,
                                "cannot call sample() before read_batch()");
 
-    std::vector<uint64_t> actual(expected.size());
-    m_msrio->read_batch(actual);
-    EXPECT_EQ(expected, actual);
-
+    m_msrio->read_batch();
     // check that sample works with index from add_read
     ASSERT_EQ(expected.size(), sample_idx.size());
     for (size_t ii = 0; ii < sample_idx.size(); ++ii) {
@@ -808,28 +805,20 @@ TEST_F(MSRIOTest, write_batch)
     std::vector<const char *> write_words  {"HARD\0\0\0\0", "BE\0\0\0\0RX", "M\0\0\0\0\0\0\0", "\0\0\0\0\0W\0\0",
                                             "\0\0BI\0\0\0\0", "XH\0\0\0\0\0\0", "\0\0\0ENTED", "\0\0L\0M\0\0\0"};
 
-    std::vector<int> write_cpu_idx;
-    std::vector<uint64_t> write_offset;
-    std::vector<uint64_t> write_mask;
-    std::vector<uint64_t> write_value;
-
     for (auto &ci : cpu_idx) {
         auto wi = write_words.begin();
         auto mi = masks.begin();
         for (auto oi : offsets) {
-            write_cpu_idx.push_back(ci);
-            write_offset.push_back(oi);
-            write_mask.push_back(*mi);
             uint64_t result;
             memcpy(&result, (*wi), 8);
-            write_value.push_back(result);
+            int idx = m_msrio->add_write(ci, oi);
+            m_msrio->adjust(idx, result, *mi);
             ++wi;
             ++mi;
         }
     }
-    m_msrio->config_batch({}, {}, write_cpu_idx, write_offset, write_mask);
 
-    m_msrio->write_batch(write_value);
+    m_msrio->write_batch();
     for (auto &ci : cpu_idx) {
         auto wi = end_words.begin();
         for (auto oi : offsets) {
@@ -838,8 +827,7 @@ TEST_F(MSRIOTest, write_batch)
         }
     }
 
-    // errors for config_batch
-    EXPECT_THROW(m_msrio->config_batch({}, {}, write_cpu_idx, {}, {}), geopm::Exception);
-    EXPECT_THROW(m_msrio->config_batch(write_cpu_idx, {}, {}, {}, {}), geopm::Exception);
-    EXPECT_THROW(m_msrio->config_batch({}, {}, write_cpu_idx, write_offset, {}), geopm::Exception);
+    // adjust with too-wide mask is an error
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio->adjust(0, 0, 0xFFFFFFFFFFFFFFFF),
+                               GEOPM_ERROR_INVALID, "write_mask is out of bounds");
 }

@@ -223,7 +223,6 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/MSRIOGroupTest.control_error \
               test/gtest_links/MSRIOGroupTest.cpuid \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs \
-              test/gtest_links/MSRIOGroupTest.parse_json_msrs_signal \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs_error_fields \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs_error_msrs \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs_error_top_level \
@@ -235,7 +234,6 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/MSRIOGroupTest.read_signal_frequency \
               test/gtest_links/MSRIOGroupTest.read_signal_power \
               test/gtest_links/MSRIOGroupTest.read_signal_temperature \
-              test/gtest_links/MSRIOGroupTest.register_msr_control \
               test/gtest_links/MSRIOGroupTest.sample \
               test/gtest_links/MSRIOGroupTest.sample_raw \
               test/gtest_links/MSRIOGroupTest.signal_error \
