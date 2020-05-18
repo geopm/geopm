@@ -131,6 +131,8 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/DifferenceSignalTest.read_batch \
               test/gtest_links/DifferenceSignalTest.setup_batch \
               test/gtest_links/DomainControlTest.errors \
+              test/gtest_links/DomainControlTest.save_restore \
+              test/gtest_links/DomainControlTest.setup_batch \
               test/gtest_links/DomainControlTest.write \
               test/gtest_links/DomainControlTest.write_batch \
               test/gtest_links/EndpointTest.attach_wait_loop_timeout_throws \
@@ -249,6 +251,13 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/MSRIOTest.read_unaligned \
               test/gtest_links/MSRIOTest.write \
               test/gtest_links/MSRIOTest.write_batch \
+              test/gtest_links/MSRFieldControlTest.errors \
+              test/gtest_links/MSRFieldControlTest.save_restore \
+              test/gtest_links/MSRFieldControlTest.setup_batch \
+              test/gtest_links/MSRFieldControlTest.write_batch_7_bit_float \
+              test/gtest_links/MSRFieldControlTest.write_7_bit_float \
+              test/gtest_links/MSRFieldControlTest.write_batch_log_half \
+              test/gtest_links/MSRFieldControlTest.write_log_half \
               test/gtest_links/MSRFieldControlTest.write_batch_scale \
               test/gtest_links/MSRFieldControlTest.write_scale \
               test/gtest_links/MSRFieldSignalTest.read_batch_7_bit_float \

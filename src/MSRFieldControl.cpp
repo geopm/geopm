@@ -54,10 +54,10 @@ namespace geopm
         , m_num_bit(end_bit - begin_bit + 1)
         , m_mask(((1ULL << m_num_bit) - 1) << begin_bit)
         , m_function(function)
-        , m_scalar(scalar)
         , m_inverse(1.0 / scalar)
         , m_is_batch_ready(false)
         , m_adjust_idx(-1)
+        , m_saved_msr_value(0)
     {
         if (m_msrio == nullptr) {
             throw Exception("MSRFieldControl: cannot construct with null MSRIO",
@@ -94,7 +94,7 @@ namespace geopm
             case MSR::M_FUNCTION_LOG_HALF:
                 // F = S * 2.0 ^ -X =>
                 // X = log2(S / F)
-                result = (uint64_t)std::log2(m_scalar / value);
+                result = (uint64_t)(-1.0 * std::log2(m_inverse * value));
                 break;
             case MSR::M_FUNCTION_7_BIT_FLOAT:
                 // F = S * 2 ^ Y * (1.0 + Z / 4.0)
@@ -142,5 +142,16 @@ namespace geopm
     {
         GEOPM_DEBUG_ASSERT(m_msrio != nullptr, "null MSRIO");
         m_msrio->write_msr(m_cpu, m_offset, encode(value), m_mask);
+    }
+
+    void MSRFieldControl::save(void)
+    {
+        m_saved_msr_value = m_msrio->read_msr(m_cpu, m_offset);
+        m_saved_msr_value &= m_mask;
+    }
+
+    void MSRFieldControl::restore(void)
+    {
+        m_msrio->write_msr(m_cpu, m_offset, m_saved_msr_value, m_mask);
     }
 }

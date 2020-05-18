@@ -80,6 +80,15 @@ TEST_F(DomainControlTest, write_batch)
     m_ctl->adjust(value);
 }
 
+TEST_F(DomainControlTest, setup_batch)
+{
+    // setup batch can be called multiple times without further side effects
+    EXPECT_CALL(*m_cpu_0, setup_batch()).Times(1);
+    EXPECT_CALL(*m_cpu_1, setup_batch()).Times(1);
+    m_ctl->setup_batch();
+    m_ctl->setup_batch();
+}
+
 TEST_F(DomainControlTest, errors)
 {
     // cannot construct if any cpu controls are null
@@ -89,4 +98,14 @@ TEST_F(DomainControlTest, errors)
     GEOPM_EXPECT_THROW_MESSAGE(m_ctl->adjust(123), GEOPM_ERROR_RUNTIME,
                                "cannot call adjust() before setup_batch()");
 
+}
+
+TEST_F(DomainControlTest, save_restore)
+{
+    EXPECT_CALL(*m_cpu_0, save());
+    EXPECT_CALL(*m_cpu_1, save());
+    m_ctl->save();
+    EXPECT_CALL(*m_cpu_0, restore());
+    EXPECT_CALL(*m_cpu_1, restore());
+    m_ctl->restore();
 }

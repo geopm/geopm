@@ -172,7 +172,6 @@ TEST_F(MSRFieldControlTest, setup_batch)
     ctl->setup_batch();
 }
 
-
 TEST_F(MSRFieldControlTest, errors)
 {
     // cannot constuct with null msrio
@@ -204,4 +203,17 @@ TEST_F(MSRFieldControlTest, errors)
                                                MSR::M_FUNCTION_SCALE, 1.0),
                                GEOPM_ERROR_INVALID, "begin bit must be <= end bit");
 
+}
+
+TEST_F(MSRFieldControlTest, save_restore)
+{
+    auto ctl = geopm::make_unique<MSRFieldControl>(m_msrio, m_cpu, m_offset,
+                                                   m_begin_bit, m_end_bit,
+                                                   MSR::M_FUNCTION_SCALE, 1.0);
+    uint64_t saved_value = 0x420000;
+    EXPECT_CALL(*m_msrio, read_msr(m_cpu, m_offset))
+        .WillOnce(Return(saved_value | 0x12));  // extra bits should be masked off for write
+    ctl->save();
+    EXPECT_CALL(*m_msrio, write_msr(m_cpu, m_offset, saved_value, m_mask));
+    ctl->restore();
 }

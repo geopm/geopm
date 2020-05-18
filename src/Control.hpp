@@ -55,6 +55,11 @@ namespace geopm
             /// @brief Write the value of the control without
             ///        affecting any pushed batch controls.
             virtual void write(double value) = 0;
+            /// @brief Store the current setting of the control for use
+            ///        by a future call to restore().
+            virtual void save(void) = 0;
+            /// @brief Restore the setting stored by save().
+            virtual void restore(void) = 0;
     };
 }
 
