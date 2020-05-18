@@ -81,4 +81,20 @@ namespace geopm
             ctl->write(value);
         }
     }
+
+    void DomainControl::save(void)
+    {
+        for (auto &ctl : m_controls) {
+            GEOPM_DEBUG_ASSERT(ctl != nullptr, "null Control saved in vector");
+            ctl->save();
+        }
+    }
+
+    void DomainControl::restore(void)
+    {
+        for (auto &ctl : m_controls) {
+            GEOPM_DEBUG_ASSERT(ctl != nullptr, "null Control saved in vector");
+            ctl->restore();
+        }
+    }
 }

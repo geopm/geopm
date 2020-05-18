@@ -46,6 +46,10 @@ class MockControl : public geopm::Control
                      void(double value));
         MOCK_METHOD1(write,
                      void(double value));
+        MOCK_METHOD0(save,
+                     void(void));
+        MOCK_METHOD0(restore,
+                     void(void));
 };
 
 #endif

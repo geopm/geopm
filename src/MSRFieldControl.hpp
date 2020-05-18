@@ -62,6 +62,8 @@ namespace geopm
             void setup_batch(void) override;
             void adjust(double value) override;
             void write(double value) override;
+            void save(void) override;
+            void restore(void) override;
         private:
             uint64_t encode(double value) const;
 
@@ -72,10 +74,10 @@ namespace geopm
             const int m_num_bit;
             const uint64_t m_mask;
             const int m_function;
-            const double m_scalar;
             const double m_inverse;
             bool m_is_batch_ready;
             int m_adjust_idx;
+            uint64_t m_saved_msr_value;
     };
 }
 

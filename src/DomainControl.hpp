@@ -49,6 +49,8 @@ namespace geopm
             void setup_batch(void) override;
             void adjust(double value) override;
             void write(double value) override;
+            void save(void) override;
+            void restore(void) override;
         private:
             std::vector<std::shared_ptr<Control> > m_controls;
             bool m_is_batch_ready;
