@@ -130,6 +130,9 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/DifferenceSignalTest.read \
               test/gtest_links/DifferenceSignalTest.read_batch \
               test/gtest_links/DifferenceSignalTest.setup_batch \
+              test/gtest_links/DomainControlTest.errors \
+              test/gtest_links/DomainControlTest.write \
+              test/gtest_links/DomainControlTest.write_batch \
               test/gtest_links/EndpointTest.attach_wait_loop_timeout_throws \
               test/gtest_links/EndpointTest.detach_wait_loop_timeout_throws \
               test/gtest_links/EndpointTest.get_hostnames \
@@ -456,6 +459,7 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/DebugIOGroupTest.cpp \
                           test/DerivativeSignalTest.cpp \
                           test/DifferenceSignalTest.cpp \
+                          test/DomainControlTest.cpp \
                           test/EndpointTest.cpp \
                           test/EndpointPolicyTracerTest.cpp \
                           test/EndpointUserTest.cpp \
@@ -477,6 +481,7 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \
                           test/MockComm.hpp \
+                          test/MockControl.hpp \
                           test/MockControlMessage.hpp \
                           test/MockEndpoint.hpp \
                           test/MockEndpointPolicyTracer.hpp \
