@@ -199,6 +199,14 @@ namespace geopm
         else if (!m_ctl_msg->is_shutdown()) {
             throw Exception("ProfileSamplerImp: invalid application status, expected shutdown status", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
+        auto content_end = content.begin() + length;
+        m_cache.resize(length);
+        auto cache_it = m_cache.begin();
+        for (auto content_it = content.begin();
+             content_it != content_end;
+             ++content_it, ++cache_it) {
+             *cache_it = content_it->second;
+        }
     }
 
     bool ProfileSamplerImp::do_shutdown(void) const
@@ -263,6 +271,11 @@ namespace geopm
     void ProfileSamplerImp::abort(void)
     {
         m_ctl_msg->abort();
+    }
+
+    std::vector<geopm_prof_message_s> ProfileSamplerImp::sample_cache(void)
+    {
+        return m_cache;
     }
 
     ProfileRankSamplerImp::ProfileRankSamplerImp(const std::string shm_key, size_t table_size)

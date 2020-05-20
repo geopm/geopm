@@ -160,6 +160,7 @@ namespace geopm
             virtual void controller_ready(void) = 0;
             /// @brief Signal application of failure.
             virtual void abort(void) = 0;
+            virtual std::vector<struct geopm_prof_message_s> sample_cache(void) = 0;
     };
 
 
@@ -288,6 +289,7 @@ namespace geopm
             std::shared_ptr<ProfileThreadTable> tprof_table(void) const override;
             void controller_ready(void) override;
             void abort(void) override;
+            std::vector<struct geopm_prof_message_s> sample_cache(void) override;
         private:
             /// Holds the shared memory region used for application coordination
             /// and control.
@@ -308,6 +310,7 @@ namespace geopm
             std::unique_ptr<SharedMemory> m_tprof_shmem;
             std::shared_ptr<ProfileThreadTable> m_tprof_table;
             int m_rank_per_node;
+            std::vector<struct geopm_prof_message_s> m_cache;
     };
 }
 

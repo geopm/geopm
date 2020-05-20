@@ -41,7 +41,7 @@
 
 namespace geopm
 {
-    class EpochRuntimeRegulator;
+    class ApplicationSampler;
     class ProfileIOSample;
     class PlatformTopo;
 
@@ -50,7 +50,7 @@ namespace geopm
     {
         public:
             ProfileIOGroup();
-            ProfileIOGroup(const PlatformTopo &topo);
+            ProfileIOGroup(const PlatformTopo &topo, ApplicationSampler &application_sampler);
             virtual ~ProfileIOGroup();
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
@@ -74,8 +74,7 @@ namespace geopm
             std::string control_description(const std::string &control_name) const override;
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
-            void connect(std::shared_ptr<ProfileIOSample> profile_sample,
-                         std::shared_ptr<EpochRuntimeRegulator> epoch_regulator);
+            void connect(void);
 
         private:
             enum m_signal_type {
@@ -99,8 +98,9 @@ namespace geopm
 
             int check_signal(const std::string &signal_name, int domain_type, int domain_idx) const;
 
+            ApplicationSampler &m_application_sampler;
+
             std::shared_ptr<ProfileIOSample> m_profile_sample;
-            std::shared_ptr<EpochRuntimeRegulator> m_epoch_regulator;
             std::map<std::string, int> m_signal_idx_map;
             const PlatformTopo &m_platform_topo;
             std::vector<bool> m_do_read;
