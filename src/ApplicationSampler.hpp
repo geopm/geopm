@@ -56,45 +56,43 @@ namespace geopm
             /// description of the "signal" field in the m_record_s is
             /// given for each enum value.
             enum m_event_e {
-                M_EVENT_REGION_ENTRY,     /// EVENT: The application has entered a region.
-                                          /// SIGNAL: The hash of the entered region.
-                M_EVENT_REGION_EXIT,      /// EVENT: The application has exited a region.
-                                          /// SIGNAL: The hash of the exited region.
+                M_EVENT_REGION_ENTRY = 0,  /// EVENT: The application has entered a region.
+                                           /// SIGNAL: The hash of the entered region.
+                M_EVENT_REGION_EXIT = 1,   /// EVENT: The application has exited a region.
+                                           /// SIGNAL: The hash of the exited region.
+                M_EVENT_EPOCH_COUNT = 2,   /// EVENT: An epoch call was made by the application.
+                                           /// SIGNAL: The number of epochs signaled by process.
+                M_EVENT_HINT = 3,          /// EVENT: Application behavior hint has changed.
+                                           ///        In the future this data will only be
+                                           ///        available as sampled by the per_cpu_hint()
+                                           ///        method and will not be reported as an event.
+                                           /// SIGNAL: The GEOPM_REGION_HINT enum value for the
+                                           ///         process.
                 ///
                 /// @todo SUPPORT FOR EVENTS BELOW IS FUTURE WORK
                 ///
-                M_EVENT_EPOCH_COUNT,      /// EVENT: The application has begun a new epoch.
-                                          /// SIGNAL: The number new epochs begun (1, 2,...)
-                M_EVENT_REGISTER_PROFILE, /// EVENT: The application has started up and all
-                                          ///        all processes associated with the
-                                          ///        application identify their profile name.
-                                          /// SIGNAL: The hash of the profile name unique to
-                                          ///         the application.
-                M_EVENT_CLAIM_CPU,        /// EVENT: The application has started up.  Each
-                                          ///        process will send one "claim" event per
-                                          ///        CPU in affinity mask.
-                                          /// SIGNAL: Linux logical CPU claimed by process.
-                M_EVENT_RELEASE_CPU,      /// EVENT: The application is shutting down.  Each
-                                          ///        process will send one "release" event for
-                                          ///        every previous "claim" event.
-                M_EVENT_NAME_KEY,         /// EVENT: The application is shutting down and has
-                                          ///        recorded all region names.
-                                          /// SIGNAL: A unique identifier which can be used to
-                                          ///         access the vector of all strings hashed
-                                          ///         by the application (with get_names()).
-                M_EVENT_HINT,             /// EVENT: Application behavior hint has changed.
-                                          ///        In the future this data will only be
-                                          ///        available as sampled by the per_cpu_hint()
-                                          ///        method and will not be reported as an event.
-                                          /// SIGNAL: The GEOPM_REGION_HINT enum value for the
-                                          ///         process.
-                M_EVENT_RANK_PROGRESS,    /// EVENT: The application has updated per process
-                                          ///        In the future this data will only be
-                                          ///        available as sampled by the
-                                          ///        per_cpu_progress() method and will not be
-                                          ///        reported as an event.
-                                          /// SIGNAL: Proccess progress from 0.0 - 1.0.
-                M_NUM_EVENT
+                M_EVENT_PROFILE = 4,       /// EVENT: The application has started up and all
+                                           ///        processes associated with the
+                                           ///        application identify their profile name.
+                                           /// SIGNAL: The hash of the profile name unique to
+                                           ///         the application.
+                M_EVENT_REPORT = 5,        /// EVENT: The application has completed and
+                                           ///        all processes associated with the
+                                           ///        application identify their report name.
+                                           /// SIGNAL: The hash of the report name.
+                M_EVENT_CLAIM_CPU = 6,     /// EVENT: The application has started up.  Each
+                                           ///        process will send one "claim" event per
+                                           ///        CPU in affinity mask.
+                                           /// SIGNAL: Linux logical CPU claimed by process.
+                M_EVENT_RELEASE_CPU = 7,   /// EVENT: The application is shutting down.  Each
+                                           ///        process will send one "release" event for
+                                           ///        every previous "claim" event.
+                M_EVENT_NAME_KEY = 8,      /// EVENT: The application is shutting down and has
+                                           ///        recorded all region names.
+                                           /// SIGNAL: A unique identifier which can be used to
+                                           ///         access the map to all strings hashed
+                                           ///         by the application (get_name_map()
+                                           ///         parameter).
             };
 
             /// @brief Record of an application event.
@@ -107,7 +105,7 @@ namespace geopm
                 /// @brief One of the m_event_e event types.
                 int event;
                 /// @brief The signal associated with the event type.
-                double signal;
+                uint64_t signal;
             };
 
             /// @brief Singleton accessor for the application sampler.
@@ -125,21 +123,16 @@ namespace geopm
             ///        update_records().
             /// @return Vector of application event records.
             virtual std::vector<m_record_s> get_records(void) const = 0;
-            /// @brief Called after recording a M_EVENT_NAME_KEY event
-            ///        to get all string hashed by the process.
-            ///
+            /// @brief Called after observing a M_EVENT_NAME_KEY event
+            ///        to get a map from any hash returned in a previous
+            ///        record to the string that generated the hash.
             ///        The result includes the names of all entered
-            ///        regions and the profile name.  The user can
-            ///        then create a reverse mapping of hashes
-            ///        recieved in prior events to their string name
-            ///        for reporting purposes.
-            ///
+            ///        regions and the profile name.
             /// @param [in] name_key The signal from the name key
             ///        event record.
-            /// @return Vector of all strings hashed by the process
-            ///         where the hash was returned as part of an
-            ///         event.
-            virtual std::vector<std::string> get_names(uint64_t name_key) const = 0;
+            /// @return A map from record-provided hash value to the
+            ///         string the record refers to.
+            virtual std::map<uint64_t, std::string> get_name_map(uint64_t name_key) const = 0;
             /// @brief Sample the current hint for every cpu.
             /// @return Vector over Linux logical CPU of the GEOPM
             ///         region hint currently being executed.
