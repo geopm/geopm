@@ -120,8 +120,7 @@ namespace geopm
             virtual void abort(void) = 0;
     };
 
-    class ProfileSampler;
-    class EpochRuntimeRegulator;
+    class ApplicationSampler;
     class ProfileIOSample;
     class PlatformIO;
     class PlatformTopo;
@@ -131,9 +130,7 @@ namespace geopm
         public:
             ApplicationIOImp(const std::string &shm_key);
             ApplicationIOImp(const std::string &shm_key,
-                             std::unique_ptr<ProfileSampler> sampler,
-                             std::shared_ptr<ProfileIOSample> pio_sample,
-                             std::shared_ptr<EpochRuntimeRegulator> epoch_regulator,
+                             ApplicationSampler &application_sampler,
                              PlatformIO &platform_io,
                              const PlatformTopo &platform_topo);
             virtual ~ApplicationIOImp();
@@ -161,8 +158,6 @@ namespace geopm
         private:
             static constexpr size_t M_SHMEM_REGION_SIZE = 2*1024*1024;
 
-            std::unique_ptr<ProfileSampler> m_sampler;
-            std::shared_ptr<ProfileIOSample> m_profile_io_sample;
             std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > m_prof_sample;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
@@ -172,8 +167,7 @@ namespace geopm
             std::vector<uint64_t> m_num_mpi_enter;
             std::vector<bool> m_is_epoch_changed;
             bool m_is_connected;
-            int m_rank_per_node;
-            std::shared_ptr<EpochRuntimeRegulator> m_epoch_regulator;
+            ApplicationSampler &m_application_sampler;
     };
 }
 

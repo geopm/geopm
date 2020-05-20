@@ -72,6 +72,9 @@ class MockProfileSampler : public geopm::ProfileSampler
                      void(void));
         MOCK_METHOD0(abort,
                      void(void));
+        MOCK_METHOD0(sample_cache,
+                     std::vector<struct geopm_prof_message_s> (void));
+
 };
 
 #endif

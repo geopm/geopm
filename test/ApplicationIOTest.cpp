@@ -39,6 +39,7 @@
 #include "gmock/gmock.h"
 
 #include "ApplicationIO.hpp"
+#include "ApplicationSampler.hpp"
 #include "Helper.hpp"
 #include "MockEpochRuntimeRegulator.hpp"
 #include "MockProfileSampler.hpp"
@@ -70,12 +71,19 @@ class ApplicationIOTest : public ::testing::Test
 
 void ApplicationIOTest::SetUp()
 {
+    auto &tmp_app_sampler = geopm::ApplicationSampler::application_sampler();
+
     m_sampler = new MockProfileSampler;
-    auto tmp_s = std::unique_ptr<MockProfileSampler>(m_sampler);
+    auto tmp_s = std::shared_ptr<MockProfileSampler>(m_sampler);
+    tmp_app_sampler.set_sampler(tmp_s);
+
     m_pio_sample = new MockProfileIOSample;
     auto tmp_pio = std::shared_ptr<MockProfileIOSample>(m_pio_sample);
+    tmp_app_sampler.set_io_sample(tmp_pio);
+
     m_epoch_regulator = new MockEpochRuntimeRegulator;
-    auto tmp_reg = std::unique_ptr<MockEpochRuntimeRegulator>(m_epoch_regulator);
+    auto tmp_reg = std::shared_ptr<MockEpochRuntimeRegulator>(m_epoch_regulator);
+    tmp_app_sampler.set_regulator(tmp_reg);
 
     EXPECT_CALL(*m_sampler, initialize());
     EXPECT_CALL(*m_sampler, rank_per_node());
@@ -87,8 +95,8 @@ void ApplicationIOTest::SetUp()
         .WillOnce(Return(m_num_cpu_domain));
     std::vector<int> ranks {1, 2, 3, 4};
     EXPECT_CALL(*m_sampler, cpu_rank()).WillOnce(Return(ranks));
-    m_app_io = geopm::make_unique<ApplicationIOImp>(m_shm_key, std::move(tmp_s), tmp_pio,
-                                                    std::move(tmp_reg), m_platform_io, m_platform_topo);
+    m_app_io = geopm::make_unique<ApplicationIOImp>(m_shm_key,
+                                                    tmp_app_sampler, m_platform_io, m_platform_topo);
     m_app_io->connect();
 }
 
