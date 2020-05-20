@@ -150,55 +150,6 @@ namespace geopm
         }
     }
 
-    void MSRIOImp::config_batch(const std::vector<int> &read_cpu_idx,
-                                const std::vector<uint64_t> &read_offset,
-                                const std::vector<int> &write_cpu_idx,
-                                const std::vector<uint64_t> &write_offset,
-                                const std::vector<uint64_t> &write_mask)
-    {
-        if (read_cpu_idx.size() != read_offset.size() ||
-            write_cpu_idx.size() != write_offset.size() ||
-            write_offset.size() != write_mask.size()) {
-            throw Exception("MSRIOImp::config_batch(): Input vector length mismatch",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        if (read_cpu_idx.size() > 0) {
-            m_read_batch_op.resize(read_cpu_idx.size());
-            auto cpu_it = read_cpu_idx.begin();
-            auto offset_it = read_offset.begin();
-            for (auto batch_it = m_read_batch_op.begin();
-                 batch_it != m_read_batch_op.end();
-                 ++batch_it, ++cpu_it, ++offset_it) {
-                batch_it->cpu = *cpu_it;
-                batch_it->isrdmsr = 1;
-                batch_it->err = 0;
-                batch_it->msr = *offset_it;
-                batch_it->msrdata = 0;
-                batch_it->wmask = 0;
-            }
-        }
-
-        m_write_batch_op.resize(write_cpu_idx.size());
-        {
-            auto cpu_it = write_cpu_idx.begin();
-            auto offset_it = write_offset.begin();
-            auto mask_it = write_mask.begin();
-            for (auto batch_it = m_write_batch_op.begin();
-                 batch_it != m_write_batch_op.end();
-                 ++batch_it, ++cpu_it, ++offset_it, ++mask_it) {
-                batch_it->cpu = *cpu_it;
-                batch_it->isrdmsr = 0;
-                batch_it->err = 0;
-                batch_it->msr = *offset_it;
-                batch_it->msrdata = 0;
-                batch_it->wmask = *mask_it;
-            }
-        }
-        m_write_batch.numops = m_write_batch_op.size();
-        m_write_batch.ops = m_write_batch_op.data();
-    }
-
     uint64_t MSRIOImp::system_write_mask(uint64_t offset)
     {
         if (!m_is_batch_enabled) {
@@ -365,38 +316,6 @@ namespace geopm
         }
     }
 
-    /// @todo: deprecated but part of public interface.  Remove with next major release.
-    void MSRIOImp::read_batch(std::vector<uint64_t> &raw_value)
-    {
-        if (raw_value.size() < m_read_batch.numops) {
-            raw_value.resize(m_read_batch.numops);
-        }
-        m_read_batch.numops = m_read_batch_op.size();
-        m_read_batch.ops = m_read_batch_op.data();
-
-        if (m_is_batch_enabled) {
-            msr_ioctl_read();
-            uint32_t batch_idx = 0;
-            for (auto raw_it = raw_value.begin();
-                 batch_idx != m_read_batch.numops;
-                 ++raw_it, ++batch_idx) {
-                *raw_it = m_read_batch.ops[batch_idx].msrdata;
-            }
-        }
-        else {
-            uint32_t batch_idx = 0;
-            for (auto raw_it = raw_value.begin();
-                 batch_idx != m_read_batch.numops;
-                 ++raw_it, ++batch_idx) {
-                m_read_batch.ops[batch_idx].msrdata =
-                    read_msr(m_read_batch_op[batch_idx].cpu,
-                             m_read_batch_op[batch_idx].msr);
-                *raw_it = m_read_batch.ops[batch_idx].msrdata;
-            }
-        }
-        m_is_batch_read = true;
-    }
-
     void MSRIOImp::read_batch(void)
     {
         m_read_batch.numops = m_read_batch_op.size();
@@ -415,37 +334,6 @@ namespace geopm
             }
         }
         m_is_batch_read = true;
-    }
-
-    void MSRIOImp::write_batch(const std::vector<uint64_t> &raw_value)
-    {
-        if (raw_value.size() < m_write_batch.numops) {
-            throw Exception("MSRIOImp::write_batch(): input vector smaller than configured number of ops",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-#ifdef GEOPM_MSRSAFE_IOCTL_WRITE
-        if (m_is_batch_enabled) {
-            uint32_t batch_idx = 0;
-            for (auto raw_it = raw_value.begin();
-                 batch_idx != m_write_batch.numops;
-                 ++raw_it, ++batch_idx) {
-                m_write_batch.ops[batch_idx].msrdata = *raw_it;
-            }
-            msr_ioctl_write();
-        }
-        else
-#endif
-        {
-            uint32_t batch_idx = 0;
-            for (auto raw_it = raw_value.begin();
-                 batch_idx != m_write_batch.numops;
-                 ++raw_it, ++batch_idx) {
-                write_msr(m_write_batch_op[batch_idx].cpu,
-                          m_write_batch_op[batch_idx].msr,
-                          *raw_it,
-                          m_write_batch_op[batch_idx].wmask);
-            }
-        }
     }
 
     void MSRIOImp::write_batch(void)

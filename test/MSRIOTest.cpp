@@ -826,8 +826,4 @@ TEST_F(MSRIOTest, write_batch)
             ++wi;
         }
     }
-
-    // adjust with too-wide mask is an error
-    GEOPM_EXPECT_THROW_MESSAGE(m_msrio->adjust(0, 0, 0xFFFFFFFFFFFFFFFF),
-                               GEOPM_ERROR_INVALID, "write_mask is out of bounds");
 }
