@@ -51,6 +51,12 @@
 
 namespace geopm
 {
+    ProfileIOSampleImp::ProfileIOSampleImp()
+        : ProfileIOSampleImp(ApplicationSampler::application_sampler())
+    {
+
+    }
+
     ProfileIOSampleImp::ProfileIOSampleImp(ApplicationSampler &application_sampler)
         : m_application_sampler(application_sampler)
         , m_thread_progress(m_application_sampler.get_sampler()->cpu_rank().size(), NAN)

@@ -84,6 +84,7 @@ namespace geopm
     class ProfileIOSampleImp : public ProfileIOSample
     {
         public:
+            ProfileIOSampleImp();
             ProfileIOSampleImp(ApplicationSampler &application_sampler);
             virtual ~ProfileIOSampleImp();
             void finalize_unmarked_region() override;
