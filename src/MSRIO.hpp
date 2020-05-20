@@ -67,29 +67,6 @@ namespace geopm
                                    uint64_t offset,
                                    uint64_t raw_value,
                                    uint64_t write_mask) = 0;
-            /// @brief initialize internal data structures to batch
-            ///        read/write from MSRs.
-            /// @param [in] read_cpu_idx A vector of logical Linux CPU
-            ///        indices to read from when read_batch() method
-            ///        is called.
-            /// @param [in] read_offset A vector of the MSR offsets to
-            ///        be read from when the read_batch() method is
-            ///        called.
-            /// @param [in] write_cpu_idx A vector of logical Linux
-            ///        CPU indices to write to when the write_batch()
-            ///        method is called.
-            /// @param [in] write_offset A vector of the MSR offset to
-            ///        be written to when the write_batch() method is
-            ///        called.
-            /// @param [in] write_mask A vector of write masks that
-            ///        will determine the bits of the MSRs to be
-            ///        modified when the write_batch() method is s
-            ///        called.
-            virtual void config_batch(const std::vector<int> &read_cpu_idx,
-                                      const std::vector<uint64_t> &read_offset,
-                                      const std::vector<int> &write_cpu_idx,
-                                      const std::vector<uint64_t> &write_offset,
-                                      const std::vector<uint64_t> &write_mask) = 0;
             /// @brief Extend the set of MSRs for batch read with a single offset.
             /// @param [in] cpu_idx logical Linux PU index to read from when
             ///         read_batch() method is called.
@@ -97,11 +74,6 @@ namespace geopm
             ///        read_batch() is called.
             /// @return The logical index that will be passed to sample().
             virtual int add_read(int cpu_idx, uint64_t offset) = 0;
-            /// @brief Batch read a set of MSRs configured by a
-            ///        previous call to the batch_config() method.
-            /// @param [out] raw_value The raw encoded MSR values to
-            ///        be read.
-            virtual void read_batch(std::vector<uint64_t> &raw_value) = 0;
             /// @brief Batch read a set of MSRs configured by a
             ///        previous call to the batch_config() method.
             ///        The memory used to store the result should have
@@ -126,11 +98,6 @@ namespace geopm
             ///        read_batch() must be called prior to calling
             ///        this function.
             virtual uint64_t sample(int batch_idx) const = 0;
-            /// @brief Batch write a set of MSRs configured by a
-            ///        previous call to the batch_config() method.
-            /// @param [in] raw_value The raw encoded MSR values to be
-            ///        written.
-            virtual void write_batch(const std::vector<uint64_t> &raw_value) = 0;
             /// @brief Write all adjusted values.
             virtual void write_batch(void) = 0;
             /// @brief Returns a unique_ptr to a concrete object

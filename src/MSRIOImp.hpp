@@ -54,16 +54,9 @@ namespace geopm
                            uint64_t offset,
                            uint64_t raw_value,
                            uint64_t write_mask) override;
-            void config_batch(const std::vector<int> &read_cpu_idx,
-                              const std::vector<uint64_t> &read_offset,
-                              const std::vector<int> &write_cpu_idx,
-                              const std::vector<uint64_t> &write_offset,
-                              const std::vector<uint64_t> &write_mask) override;
             int add_read(int cpu_idx, uint64_t offset) override;
-            void read_batch(std::vector<uint64_t> &raw_value) override;
             void read_batch(void) override;
             uint64_t sample(int batch_idx) const override;
-            void write_batch(const std::vector<uint64_t> &raw_value) override;
             void write_batch(void) override;
             int add_write(int cpu_idx, uint64_t offset) override;
             void adjust(int batch_idx, uint64_t value, uint64_t write_mask) override;
