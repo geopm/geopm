@@ -38,6 +38,7 @@
 #include "ApplicationSampler.hpp"
 #include "MockProfileSampler.hpp"
 #include "MockEpochRuntimeRegulator.hpp"
+#include "geopm.h"
 #include "geopm_internal.h"
 
 using testing::_;
@@ -67,16 +68,11 @@ void ApplicationSamplerTest::SetUp()
 
 TEST_F(ApplicationSamplerTest, one_enter_exit)
 {
-    uint64_t region_id = 0xabcd | GEOPM_REGION_HINT_COMPUTE;
+    uint64_t region_id = 0xabcdULL | GEOPM_REGION_HINT_COMPUTE;
     std::vector<struct geopm_prof_message_s> message_buffer {
-        {.rank=0,
-         .region_id=region_id,
-         .timestamp={{10,0}},
-         .progress=0.0},
-        {.rank=0,
-         .region_id=region_id,
-         .timestamp={{11,0}},
-         .progress=1.0},
+    //   rank     region_id     timestamp     progress
+        {0,       region_id,    {{10,0}},     0.0},
+        {0,       region_id,    {{11,0}},     1.0},
     };
     EXPECT_CALL(*m_mock_profile_sampler, sample_cache())
         .WillOnce(Return(message_buffer));
@@ -90,7 +86,7 @@ TEST_F(ApplicationSamplerTest, one_enter_exit)
     EXPECT_EQ(10.0, result[0].time);
     EXPECT_EQ(0, result[0].process);
     EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_ENTRY, result[0].event);
-    EXPECT_EQ(0xabcd, result[0].signal);
+    EXPECT_EQ(0xabcdULL, result[0].signal);
 
     EXPECT_EQ(10.0, result[1].time);
     EXPECT_EQ(0, result[1].process);
@@ -100,7 +96,7 @@ TEST_F(ApplicationSamplerTest, one_enter_exit)
     EXPECT_EQ(11.0, result[2].time);
     EXPECT_EQ(0, result[2].process);
     EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_EXIT, result[2].event);
-    EXPECT_EQ(0xabcd, result[2].signal);
+    EXPECT_EQ(0xabcdULL, result[2].signal);
 
     EXPECT_EQ(11.0, result[3].time);
     EXPECT_EQ(0, result[3].process);
@@ -110,24 +106,14 @@ TEST_F(ApplicationSamplerTest, one_enter_exit)
 
 TEST_F(ApplicationSamplerTest, with_mpi)
 {
-    uint64_t region_id = 0xabcd | GEOPM_REGION_HINT_COMPUTE;
+    uint64_t region_id = 0xabcdULL | GEOPM_REGION_HINT_COMPUTE;
+    uint64_t mpi_id = geopm_region_id_set_mpi(region_id);
     std::vector<struct geopm_prof_message_s> message_buffer {
-        {.rank=234,
-         .region_id=region_id,
-         .timestamp={{10,0}},
-         .progress=0.0},
-        {.rank=234,
-         .region_id=geopm_region_id_set_mpi(region_id),
-         .timestamp={{11,0}},
-         .progress=0.0},
-        {.rank=234,
-         .region_id=geopm_region_id_set_mpi(region_id),
-         .timestamp={{12,0}},
-         .progress=1.0},
-        {.rank=234,
-         .region_id=0xabcd,
-         .timestamp={{13,0}},
-         .progress=1.0},
+    //   rank     region_id     timestamp     progress
+        {234,     region_id,    {{10,0}},     0.0},
+        {234,     mpi_id,       {{11,0}},     0.0},
+        {234,     mpi_id,       {{12,0}},     1.0},
+        {234,     region_id,    {{13,0}},     1.0},
     };
     EXPECT_CALL(*m_mock_profile_sampler, sample_cache())
         .WillOnce(Return(message_buffer));
@@ -141,7 +127,7 @@ TEST_F(ApplicationSamplerTest, with_mpi)
     EXPECT_EQ(10.0, result[0].time);
     EXPECT_EQ(234, result[0].process);
     EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_ENTRY, result[0].event);
-    EXPECT_EQ(0xabcd, result[0].signal);
+    EXPECT_EQ(0xabcdULL, result[0].signal);
 
     EXPECT_EQ(10.0, result[1].time);
     EXPECT_EQ(234, result[1].process);
@@ -161,7 +147,7 @@ TEST_F(ApplicationSamplerTest, with_mpi)
     EXPECT_EQ(13.0, result[4].time);
     EXPECT_EQ(234, result[4].process);
     EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_EXIT, result[4].event);
-    EXPECT_EQ(0xabcd, result[4].signal);
+    EXPECT_EQ(0xabcdULL, result[4].signal);
 
     EXPECT_EQ(13.0, result[5].time);
     EXPECT_EQ(234, result[5].process);
@@ -171,32 +157,16 @@ TEST_F(ApplicationSamplerTest, with_mpi)
 
 TEST_F(ApplicationSamplerTest, with_epoch)
 {
-    uint64_t region_id = 0xabcd | GEOPM_REGION_HINT_COMPUTE;
+    uint64_t region_id = 0xabcdULL | GEOPM_REGION_HINT_COMPUTE;
+    uint64_t epoch_id = GEOPM_REGION_ID_EPOCH;
     std::vector<struct geopm_prof_message_s> message_buffer {
-        {.rank=0,
-         .region_id=region_id,
-         .timestamp={{10,0}},
-         .progress=0.0},
-        {.rank=0,
-         .region_id=GEOPM_REGION_ID_EPOCH,
-         .timestamp={{11,0}},
-         .progress=0.0},
-        {.rank=0,
-         .region_id=region_id,
-         .timestamp={{12,0}},
-         .progress=1.0},
-        {.rank=0,
-         .region_id=region_id,
-         .timestamp={{13,0}},
-         .progress=0.0},
-        {.rank=0,
-         .region_id=GEOPM_REGION_ID_EPOCH,
-         .timestamp={{14,0}},
-         .progress=0.0},
-        {.rank=0,
-         .region_id=region_id,
-         .timestamp={{15,0}},
-         .progress=1.0},
+    //   rank     region_id     timestamp     progress
+        {0,       region_id,    {{10,0}},     0.0},
+        {0,       epoch_id,     {{11,0}},     0.0},
+        {0,       region_id,    {{12,0}},     1.0},
+        {0,       region_id,    {{13,0}},     0.0},
+        {0,       epoch_id,     {{14,0}},     0.0},
+        {0,       region_id,    {{15,0}},     1.0},
     };
     EXPECT_CALL(*m_mock_profile_sampler, sample_cache())
         .WillOnce(Return(message_buffer));
@@ -210,7 +180,7 @@ TEST_F(ApplicationSamplerTest, with_epoch)
     EXPECT_EQ(10.0, result[0].time);
     EXPECT_EQ(0, result[0].process);
     EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_ENTRY, result[0].event);
-    EXPECT_EQ(0xabcd, result[0].signal);
+    EXPECT_EQ(0xabcdULL, result[0].signal);
 
     EXPECT_EQ(10.0, result[1].time);
     EXPECT_EQ(0, result[1].process);
@@ -220,12 +190,12 @@ TEST_F(ApplicationSamplerTest, with_epoch)
     EXPECT_EQ(11.0, result[2].time);
     EXPECT_EQ(0, result[2].process);
     EXPECT_EQ(ApplicationSampler::M_EVENT_EPOCH_COUNT, result[2].event);
-    EXPECT_EQ(1, result[2].signal);
+    EXPECT_EQ(1ULL, result[2].signal);
 
     EXPECT_EQ(12.0, result[3].time);
     EXPECT_EQ(0, result[3].process);
     EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_EXIT, result[3].event);
-    EXPECT_EQ(0xabcd, result[3].signal);
+    EXPECT_EQ(0xabcdULL, result[3].signal);
 
     EXPECT_EQ(12.0, result[4].time);
     EXPECT_EQ(0, result[4].process);
@@ -235,7 +205,7 @@ TEST_F(ApplicationSamplerTest, with_epoch)
     EXPECT_EQ(13.0, result[5].time);
     EXPECT_EQ(0, result[5].process);
     EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_ENTRY, result[5].event);
-    EXPECT_EQ(0xabcd, result[5].signal);
+    EXPECT_EQ(0xabcdULL, result[5].signal);
 
     EXPECT_EQ(13.0, result[6].time);
     EXPECT_EQ(0, result[6].process);
@@ -245,12 +215,12 @@ TEST_F(ApplicationSamplerTest, with_epoch)
     EXPECT_EQ(14.0, result[7].time);
     EXPECT_EQ(0, result[7].process);
     EXPECT_EQ(ApplicationSampler::M_EVENT_EPOCH_COUNT, result[7].event);
-    EXPECT_EQ(2, result[7].signal);
+    EXPECT_EQ(2ULL, result[7].signal);
 
     EXPECT_EQ(15.0, result[8].time);
     EXPECT_EQ(0, result[8].process);
     EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_EXIT, result[8].event);
-    EXPECT_EQ(0xabcd, result[8].signal);
+    EXPECT_EQ(0xabcdULL, result[8].signal);
 
     EXPECT_EQ(15.0, result[9].time);
     EXPECT_EQ(0, result[9].process);

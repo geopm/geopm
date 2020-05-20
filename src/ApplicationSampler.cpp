@@ -50,7 +50,7 @@ namespace geopm
             void time_zero(const geopm_time_s &start_time) override;
             void update_records(void) override;
             std::vector<m_record_s> get_records(void) const override;
-            std::vector<std::string> get_names(uint64_t name_key) const override;
+            std::map<uint64_t, std::string> get_name_map(uint64_t name_key) const override;
             std::vector<uint64_t> per_cpu_hint(void) const override;
             std::vector<double> per_cpu_progress(void) const override;
 
@@ -79,25 +79,21 @@ namespace geopm
             std::map<int, m_process_s> m_process_map;
     };
 
-
     ApplicationSampler &ApplicationSampler::application_sampler(void)
     {
         static ApplicationSamplerImp instance;
         return instance;
     }
 
-
     ApplicationSamplerImp::ApplicationSamplerImp()
     {
 
     }
 
-
     void ApplicationSamplerImp::time_zero(const geopm_time_s &start_time)
     {
         m_time_zero = start_time;
     }
-
 
     void ApplicationSamplerImp::update_records_epoch(const geopm_prof_message_s &msg)
     {
@@ -106,7 +102,7 @@ namespace geopm
         int event = M_EVENT_EPOCH_COUNT;
         m_process_s &proc_it = get_process(process);
         ++(proc_it.epoch_count);
-        double epoch_count = proc_it.epoch_count;
+        uint64_t epoch_count = proc_it.epoch_count;
         m_record_buffer.emplace_back(m_record_s {
             .time = time,
             .process = process,
@@ -114,7 +110,6 @@ namespace geopm
             .signal = epoch_count,
         });
     }
-
 
     void ApplicationSamplerImp::update_records_mpi(const geopm_prof_message_s &msg)
     {
@@ -130,20 +125,16 @@ namespace geopm
             .time = time,
             .process = process,
             .event = event,
-            .signal = (double)hint,
+            .signal = hint,
         });
     }
-
 
     void ApplicationSamplerImp::update_records_entry(const geopm_prof_message_s &msg)
     {
         double time = geopm_time_diff(&m_time_zero, &(msg.timestamp));
         int process = msg.rank;
-        double hash = (double)geopm_region_id_hash(msg.region_id);
+        uint64_t hash = geopm_region_id_hash(msg.region_id);
         int event = M_EVENT_REGION_ENTRY;
-        uint64_t hint = geopm_region_id_hint(msg.region_id);
-        m_process_s &proc_it = get_process(process);
-        proc_it.hint = hint;
         // Record event for change of region ID
         m_record_buffer.emplace_back(m_record_s {
               .time = time,
@@ -152,14 +143,16 @@ namespace geopm
               .signal = hash,
         });
         // Record event for change of hint
+        uint64_t hint = geopm_region_id_hint(msg.region_id);
+        m_process_s &proc_it = get_process(process);
+        proc_it.hint = hint;
         m_record_buffer.emplace_back(m_record_s {
             .time = time,
             .process = process,
             .event = M_EVENT_HINT,
-            .signal = (double)hint,
+            .signal = hint,
         });
     }
-
 
     void ApplicationSamplerImp::update_records_exit(const geopm_prof_message_s &msg)
     {
@@ -167,11 +160,8 @@ namespace geopm
         double time = geopm_time_diff(&m_time_zero, &(msg.timestamp));
         int process = msg.rank;
         /// Handle outer region entry and exit
-        double hash = (double)geopm_region_id_hash(msg.region_id);
+        uint64_t hash = geopm_region_id_hash(msg.region_id);
         int event = M_EVENT_REGION_EXIT;
-        uint64_t hint = GEOPM_REGION_HINT_UNKNOWN;
-        m_process_s &proc_it = get_process(process);
-        proc_it.hint = hint;
         // Record event for change of region ID
         m_record_buffer.emplace_back(m_record_s {
             .time = time,
@@ -180,20 +170,21 @@ namespace geopm
             .signal = hash,
         });
         // Record event for change of hint
+        uint64_t hint = GEOPM_REGION_HINT_UNKNOWN;
+        m_process_s &proc_it = get_process(process);
+        proc_it.hint = hint;
         m_record_buffer.emplace_back(m_record_s {
             .time = time,
             .process = process,
             .event = M_EVENT_HINT,
-            .signal = (double)hint,
+            .signal = hint,
         });
     }
-
 
     void ApplicationSamplerImp::update_records_progress(const geopm_prof_message_s &msg)
     {
         /// @todo handle calls to progress
     }
-
 
     void ApplicationSamplerImp::update_records(void)
     {
@@ -217,20 +208,18 @@ namespace geopm
         }
     }
 
-
     std::vector<ApplicationSampler::m_record_s> ApplicationSamplerImp::get_records(void) const
     {
         return m_record_buffer;
     }
 
 
-    std::vector<std::string> ApplicationSamplerImp::get_names(uint64_t name_key) const
+    std::map<uint64_t, std::string> ApplicationSamplerImp::get_name_map(uint64_t name_key) const
     {
         throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "() is not yet implemented",
                         GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         return {};
     }
-
 
     std::vector<uint64_t> ApplicationSamplerImp::per_cpu_hint(void) const
     {
@@ -239,14 +228,12 @@ namespace geopm
         return {};
     }
 
-
     std::vector<double> ApplicationSamplerImp::per_cpu_progress(void) const
     {
         throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "() is not yet implemented",
                         GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         return {};
     }
-
 
     void ApplicationSamplerImp::set_sampler(std::shared_ptr<ProfileSampler> sampler)
     {
@@ -255,30 +242,25 @@ namespace geopm
         m_record_buffer.reserve(2 * m_sampler->capacity());
     }
 
-
     std::shared_ptr<ProfileSampler> ApplicationSamplerImp::get_sampler(void)
     {
         return m_sampler;
     }
-
 
     void ApplicationSamplerImp::set_regulator(std::shared_ptr<EpochRuntimeRegulator> regulator)
     {
         m_regulator = regulator;
     }
 
-
     std::shared_ptr<EpochRuntimeRegulator> ApplicationSamplerImp::get_regulator(void)
     {
         return m_regulator;
     }
 
-
     void ApplicationSamplerImp::set_io_sample(std::shared_ptr<ProfileIOSample> io_sample)
     {
         m_io_sample = io_sample;
     }
-
 
     std::shared_ptr<ProfileIOSample> ApplicationSamplerImp::get_io_sample(void)
     {
