@@ -574,6 +574,7 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/TimeIOGroup.hpp \
                             src/TimeSignal.cpp \
                             src/TimeSignal.hpp \
+                            src/TimeZero.cpp \
                             src/Tracer.cpp \
                             src/Tracer.hpp \
                             src/TreeComm.cpp \

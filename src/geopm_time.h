@@ -51,6 +51,7 @@ static inline double geopm_time_diff(const struct geopm_time_s *begin, const str
 static inline bool geopm_time_comp(const struct geopm_time_s *aa, const struct geopm_time_s *bb);
 static inline void geopm_time_add(const struct geopm_time_s *begin, double elapsed, struct geopm_time_s *end);
 static inline double geopm_time_since(const struct geopm_time_s *begin);
+int geopm_time_zero(struct geopm_time_s *zero_time);
 
 #include <time.h>
 
@@ -131,6 +132,10 @@ static inline double geopm_time_since(const struct geopm_time_s *begin)
 }
 
 #ifdef __cplusplus
+}
+namespace geopm
+{
+    struct geopm_time_s time_zero(void);
 }
 #endif
 #endif
