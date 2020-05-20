@@ -53,6 +53,9 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/AgentFactoryTest.static_info_energy_efficient \
               test/gtest_links/AgentFactoryTest.static_info_frequency_map \
               test/gtest_links/AggTest.agg_function \
+              test/gtest_links/ApplicationSamplerTest.one_enter_exit \
+              test/gtest_links/ApplicationSamplerTest.with_mpi \
+              test/gtest_links/ApplicationSamplerTest.with_epoch \
               test/gtest_links/ApplicationIOTest.passthrough \
               test/gtest_links/CircularBufferTest.buffer_capacity \
               test/gtest_links/CircularBufferTest.buffer_size \
@@ -441,6 +444,7 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/AgentFactoryTest.cpp \
                           test/AggTest.cpp \
                           test/ApplicationIOTest.cpp \
+                          test/ApplicationSamplerTest.cpp \
                           test/CircularBufferTest.cpp \
                           test/CNLIOGroupTest.cpp \
                           test/CombinedSignalTest.cpp \
