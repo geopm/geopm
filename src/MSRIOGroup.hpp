@@ -45,9 +45,6 @@
 
 namespace geopm
 {
-    class MSR;
-    class MSRSignal;
-    class MSRControl;
     class MSRIO;
     class PlatformTopo;
     class Signal;

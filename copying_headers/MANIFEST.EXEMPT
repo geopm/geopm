@@ -48,7 +48,6 @@ ronn/GEOPM_CXX_MAN_Exception.3.ronn
 ronn/GEOPM_CXX_MAN_Helper.3.ronn
 ronn/GEOPM_CXX_MAN_IOGroup.3.ronn
 ronn/GEOPM_CXX_MAN_MPIComm.3.ronn
-ronn/GEOPM_CXX_MAN_MSR.3.ronn
 ronn/GEOPM_CXX_MAN_MSRIO.3.ronn
 ronn/GEOPM_CXX_MAN_MSRIOGroup.3.ronn
 ronn/GEOPM_CXX_MAN_MonitorAgent.3.ronn

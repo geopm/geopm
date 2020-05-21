@@ -268,12 +268,6 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/MSRFieldSignalTest.read_scale \
               test/gtest_links/MSRFieldSignalTest.real_counter \
               test/gtest_links/MSRFieldSignalTest.setup_batch \
-              test/gtest_links/MSRTest.msr \
-              test/gtest_links/MSRTest.msr_control \
-              test/gtest_links/MSRTest.msr_overflow \
-              test/gtest_links/MSRTest.msr_signal \
-              test/gtest_links/MSRTest.string_to_function \
-              test/gtest_links/MSRTest.string_to_units \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \
@@ -484,7 +478,6 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/MSRIOTest.cpp \
                           test/MSRFieldControlTest.cpp \
                           test/MSRFieldSignalTest.cpp \
-                          test/MSRTest.cpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \
                           test/MockComm.hpp \
