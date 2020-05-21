@@ -122,8 +122,6 @@ static inline int geopm_time_string(int buf_size, char *buf)
     return err;
 }
 
-const struct geopm_time_s GEOPM_TIME_REF = {{0, 0}};
-
 static inline double geopm_time_since(const struct geopm_time_s *begin)
 {
     struct geopm_time_s curr_time;

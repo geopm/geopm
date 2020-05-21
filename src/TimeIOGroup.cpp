@@ -45,10 +45,11 @@ namespace geopm
     TimeIOGroup::TimeIOGroup()
         : m_is_signal_pushed(false)
         , m_is_batch_read(false)
+        , m_time_zero(time_zero())
         , m_valid_signal_name{plugin_name() + "::ELAPSED",
                               "TIME"}
     {
-        geopm_time(&m_time_zero);
+
     }
 
     std::set<std::string> TimeIOGroup::signal_names(void) const

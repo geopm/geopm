@@ -96,11 +96,9 @@ namespace geopm
         , m_is_active(false)
         , m_is_read(false)
         , m_is_fixed_enabled(false)
-        , m_time_zero(std::make_shared<geopm_time_s>())
+        , m_time_zero(std::make_shared<geopm_time_s>(time_zero()))
         , m_time_batch(std::make_shared<double>(NAN))
     {
-        geopm_time(m_time_zero.get());
-
         // Load available signals and controls from files
         parse_json_msrs(arch_msr_json());
         parse_json_msrs(platform_data(m_cpuid));

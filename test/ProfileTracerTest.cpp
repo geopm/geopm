@@ -78,12 +78,9 @@ void ProfileTracerTest::SetUp(void)
 
 TEST_F(ProfileTracerTest, construct_update_destruct)
 {
-    // Test that the tracer samples time
-    EXPECT_CALL(m_platform_io, read_signal("TIME", GEOPM_DOMAIN_BOARD, 0))
-            .WillOnce(Return(5.0));
     {
         // Test that the constructor and update methods do not throw
-        std::unique_ptr<geopm::ProfileTracer> tracer = geopm::make_unique<geopm::ProfileTracerImp>(2, true, m_path, "", m_platform_io, GEOPM_TIME_REF);
+        std::unique_ptr<geopm::ProfileTracer> tracer = geopm::make_unique<geopm::ProfileTracerImp>(2, true, m_path, "", m_platform_io, geopm::time_zero());
         tracer->update(m_data.begin(), m_data.end());
     }
     // Test that a file was created by deleting it without error
@@ -93,8 +90,6 @@ TEST_F(ProfileTracerTest, construct_update_destruct)
 
 TEST_F(ProfileTracerTest, format)
 {
-    EXPECT_CALL(m_platform_io, read_signal("TIME", GEOPM_DOMAIN_BOARD, 0))
-            .WillOnce(Return(5.0));
     {
         geopm::ProfileTracerImp tracer(2, true, m_path, m_host_name, m_platform_io, m_time_stamp);
         tracer.update(m_data.begin(), m_data.end());
@@ -104,14 +99,14 @@ TEST_F(ProfileTracerTest, format)
     std::vector<std::string> output_lines = geopm::string_split(output, "\n");
     std::vector<std::string> expect_lines = {
         "RANK|REGION_HASH|REGION_HINT|TIMESTAMP|PROGRESS",
-        "0|0x00000000fa5920d6|0x0000000200000000|15|0",
-        "1|0x00000000fa5920d6|0x0000000200000000|16|0",
-        "2|0x00000000fa5920d6|0x0000000200000000|17|0",
-        "3|0x00000000fa5920d6|0x0000000200000000|18|0",
-        "3|0x00000000fa5920d6|0x0000000200000000|39|1",
-        "2|0x00000000fa5920d6|0x0000000200000000|40|1",
-        "1|0x00000000fa5920d6|0x0000000200000000|41|1",
-        "0|0x00000000fa5920d6|0x0000000200000000|42|1"
+        "0|0x00000000fa5920d6|0x0000000200000000|10|0",
+        "1|0x00000000fa5920d6|0x0000000200000000|11|0",
+        "2|0x00000000fa5920d6|0x0000000200000000|12|0",
+        "3|0x00000000fa5920d6|0x0000000200000000|13|0",
+        "3|0x00000000fa5920d6|0x0000000200000000|34|1",
+        "2|0x00000000fa5920d6|0x0000000200000000|35|1",
+        "1|0x00000000fa5920d6|0x0000000200000000|36|1",
+        "0|0x00000000fa5920d6|0x0000000200000000|37|1"
     };
     auto expect_it = expect_lines.begin();
     for (const auto &output_it : output_lines) {

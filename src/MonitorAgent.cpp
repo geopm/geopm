@@ -47,7 +47,7 @@ namespace geopm
     }
 
     MonitorAgent::MonitorAgent(PlatformIO &plat_io, const PlatformTopo &topo)
-        : m_last_wait(GEOPM_TIME_REF)
+        : m_last_wait(time_zero())
         , M_WAIT_SEC(0.005)
     {
         geopm_time(&m_last_wait);

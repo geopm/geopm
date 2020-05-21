@@ -75,7 +75,7 @@ namespace geopm
         , m_ascend_period(10)
         , m_min_num_converged(15)
         , m_adjusted_power(0.0)
-        , m_last_wait(GEOPM_TIME_REF)
+        , m_last_wait(time_zero())
         , M_WAIT_SEC(0.005)
     {
         geopm_time(&m_last_wait);

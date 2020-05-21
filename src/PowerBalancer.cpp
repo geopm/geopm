@@ -68,7 +68,7 @@ namespace geopm
         , m_num_sample(0)
         , m_power_cap(NAN)
         , m_power_limit(NAN)
-        , m_power_limit_change_time(GEOPM_TIME_REF)
+        , m_power_limit_change_time({{0,0}})
         , m_target_runtime(NAN)
         , m_trial_delta(8.0)
         , m_runtime_sample(NAN)
