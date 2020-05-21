@@ -92,7 +92,7 @@ namespace geopm
     {
         struct geopm_time_s time;
         /// @todo This time should come from the application.
-        geopm_time(&time);
+        geopm_time_zero(&time);
         for (int rank = 0; rank < m_rank_per_node; ++rank) {
             record_entry(GEOPM_REGION_HASH_UNMARKED, rank, time);
         }

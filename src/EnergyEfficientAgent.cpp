@@ -74,7 +74,7 @@ namespace geopm
         , m_freq_ctl_domain_type(m_freq_governor->frequency_domain_type())
         , m_num_freq_ctl_domain(m_platform_topo.num_domain(m_freq_ctl_domain_type))
         , m_region_map(m_num_freq_ctl_domain, region_map)
-        , m_last_wait(GEOPM_TIME_REF)
+        , m_last_wait(time_zero())
         , m_level(-1)
         , m_num_children(0)
         , m_do_send_policy(false)

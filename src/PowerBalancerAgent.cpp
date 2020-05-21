@@ -501,7 +501,7 @@ namespace geopm
         , m_role(nullptr)
         , m_power_governor(std::move(power_governor))
         , m_power_balancer(std::move(power_balancer))
-        , m_last_wait(GEOPM_TIME_REF)
+        , m_last_wait(time_zero())
         , M_WAIT_SEC(0.005)
         , m_power_tdp(NAN)
         , m_do_send_sample(false)

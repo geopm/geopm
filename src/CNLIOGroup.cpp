@@ -64,7 +64,8 @@ namespace geopm
     }
 
     CNLIOGroup::CNLIOGroup(const std::string &cpu_info_path)
-        : m_signal_offsets{ { plugin_name() + "::POWER_BOARD", SIGNAL_TYPE_POWER_BOARD },
+        : m_time_zero(geopm::time_zero())
+        , m_signal_offsets{ { plugin_name() + "::POWER_BOARD", SIGNAL_TYPE_POWER_BOARD },
                             { "POWER_BOARD", SIGNAL_TYPE_POWER_BOARD },
                             { plugin_name() + "::ENERGY_BOARD", SIGNAL_TYPE_ENERGY_BOARD },
                             { "ENERGY_BOARD", SIGNAL_TYPE_ENERGY_BOARD },
@@ -109,11 +110,6 @@ namespace geopm
               false, NAN }
         }
     {
-        if (geopm_time(&m_time_zero)) {
-            throw Exception("CNLIOGroup::CNLIOGroup(): Unable to get start time",
-                            errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-
         m_sample_rate = read_double_from_file(
             cpu_info_path + "/" + RAW_SCAN_HZ_FILE_NAME, "");
         if (m_sample_rate <= 0) {

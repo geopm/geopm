@@ -53,7 +53,7 @@ namespace geopm
                            environment().trace_profile(),
                            hostname(),
                            platform_io(),
-                           GEOPM_TIME_REF)
+                           time_zero())
     {
 
     }
@@ -63,32 +63,26 @@ namespace geopm
                                        const std::string &file_name,
                                        const std::string &host_name,
                                        PlatformIO &platform_io,
-                                       const struct geopm_time_s &time_zero)
+                                       const struct geopm_time_s &time_0)
         : m_is_trace_enabled(is_trace_enabled)
         , m_platform_io(platform_io)
-        , m_time_zero(time_zero)
+        , m_time_zero(time_0)
     {
         if (m_is_trace_enabled) {
             char time_cstr[NAME_MAX];
-            int err = geopm_time_to_string(&time_zero, NAME_MAX, time_cstr);
+            int err = geopm_time_to_string(&m_time_zero, NAME_MAX, time_cstr);
             if (err) {
                 throw Exception("geopm_time_to_string() failed",
                                 err, __FILE__, __LINE__);
             }
             m_csv = geopm::make_unique<CSVImp>(file_name, host_name, time_cstr, buffer_size);
 
-            if (geopm_time_diff(&m_time_zero, &GEOPM_TIME_REF) == 0.0) {
-                geopm_time(&m_time_zero);
-            }
             m_csv->add_column("RANK", "integer");
             m_csv->add_column("REGION_HASH", "hex");
             m_csv->add_column("REGION_HINT", "hex");
             m_csv->add_column("TIMESTAMP", "double");
             m_csv->add_column("PROGRESS", "float");
             m_csv->activate();
-
-            double rel_time = m_platform_io.read_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
-            geopm_time_add(&m_time_zero, -rel_time, &m_time_zero);
         }
     }
 

@@ -68,7 +68,7 @@ namespace geopm
         , M_WAIT_SEC(0.002)
         , m_platform_io(plat_io)
         , m_platform_topo(topo)
-        , m_wait_time(GEOPM_TIME_REF)
+        , m_wait_time(time_zero())
         , m_uncore_min_ctl_idx(-1)
         , m_uncore_max_ctl_idx(-1)
         , m_last_uncore_freq(NAN)

@@ -86,6 +86,7 @@ namespace geopm
     }
 
     ApplicationSamplerImp::ApplicationSamplerImp()
+        : m_time_zero(geopm::time_zero())
     {
 
     }

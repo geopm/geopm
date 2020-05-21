@@ -61,7 +61,7 @@
 
 namespace geopm
 {
-    const struct geopm_prof_message_s GEOPM_INVALID_PROF_MSG = {-1, 0, GEOPM_TIME_REF, -1.0};
+    const struct geopm_prof_message_s GEOPM_INVALID_PROF_MSG = {-1, 0, {{0,0}}, -1.0};
 
     ProfileSamplerImp::ProfileSamplerImp(size_t table_size)
         : ProfileSamplerImp(platform_topo(), table_size)
