@@ -728,15 +728,9 @@ TEST_F(MSRIOGroupTest, push_control)
     int power_idx = m_msrio_group->push_control("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT", GEOPM_DOMAIN_PACKAGE, 0);
     ASSERT_EQ(1, power_idx);
 
-    // pushing alias also sets enable
-    {
-        uint64_t pl1_enable_mask = 0x10000;
-        /// @todo not working
-        //EXPECT_CALL(*m_msrio, write_msr(0, pl1_limit_offset, pl1_enable_mask, 1));
-        int power_idx1 = m_msrio_group->push_control("POWER_PACKAGE_LIMIT",
-                                                     GEOPM_DOMAIN_PACKAGE, 0);
-        ASSERT_EQ(1, power_idx);
-    }
+    int power_idx1 = m_msrio_group->push_control("POWER_PACKAGE_LIMIT",
+                                                 GEOPM_DOMAIN_PACKAGE, 0);
+    ASSERT_EQ(power_idx, power_idx1);
 
     // all provided controls are valid
     EXPECT_NE(0u, m_msrio_group->control_names().size());
