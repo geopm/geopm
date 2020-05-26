@@ -64,6 +64,7 @@ void ApplicationSamplerTest::SetUp()
         .WillOnce(Return(4096));
     ApplicationSampler::application_sampler().set_sampler(m_mock_profile_sampler);
     ApplicationSampler::application_sampler().set_regulator(m_mock_regulator);
+    ApplicationSampler::application_sampler().time_zero(geopm_time_s {{0,0}});
 }
 
 TEST_F(ApplicationSamplerTest, one_enter_exit)
