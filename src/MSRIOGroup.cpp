@@ -1138,7 +1138,6 @@ namespace geopm
 
             auto msr_data = msr.second.object_items();
             uint64_t msr_offset = std::stoull(msr_data["offset"].string_value(), 0, 16);
-            int domain_type = PlatformTopo::domain_name_to_type(msr_data["domain"].string_value());
             auto fields_obj = msr_data["fields"].object_items();
             uint64_t combined_write_mask = 0;
             for (const auto &field : fields_obj) {
