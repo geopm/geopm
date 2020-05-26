@@ -34,8 +34,6 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "ProfileTracer.hpp"
-#include "MockPlatformIO.hpp"
-#include "PlatformTopo.hpp"
 #include "Helper.hpp"
 #include "geopm.h"
 #include "geopm_time.h"
@@ -47,7 +45,6 @@ class ProfileTracerTest : public ::testing::Test
 {
     protected:
         void SetUp(void);
-        MockPlatformIO m_platform_io;
         struct geopm_time_s m_time_stamp;
         std::string m_path = "test.profiletrace";
         std::string m_host_name = "myhost";
@@ -80,7 +77,7 @@ TEST_F(ProfileTracerTest, construct_update_destruct)
 {
     {
         // Test that the constructor and update methods do not throw
-        std::unique_ptr<geopm::ProfileTracer> tracer = geopm::make_unique<geopm::ProfileTracerImp>(2, true, m_path, "", m_platform_io, geopm::time_zero());
+        std::unique_ptr<geopm::ProfileTracer> tracer = geopm::make_unique<geopm::ProfileTracerImp>(2, true, m_path, "", geopm::time_zero());
         tracer->update(m_data.begin(), m_data.end());
     }
     // Test that a file was created by deleting it without error
@@ -91,7 +88,7 @@ TEST_F(ProfileTracerTest, construct_update_destruct)
 TEST_F(ProfileTracerTest, format)
 {
     {
-        geopm::ProfileTracerImp tracer(2, true, m_path, m_host_name, m_platform_io, m_time_stamp);
+        geopm::ProfileTracerImp tracer(2, true, m_path, m_host_name, m_time_stamp);
         tracer.update(m_data.begin(), m_data.end());
     }
     std::string output_path = m_path + "-" + m_host_name;

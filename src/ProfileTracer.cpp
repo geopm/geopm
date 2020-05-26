@@ -52,7 +52,6 @@ namespace geopm
                            environment().do_trace_profile(),
                            environment().trace_profile(),
                            hostname(),
-                           platform_io(),
                            time_zero())
     {
 
@@ -62,10 +61,8 @@ namespace geopm
                                        bool is_trace_enabled,
                                        const std::string &file_name,
                                        const std::string &host_name,
-                                       PlatformIO &platform_io,
                                        const struct geopm_time_s &time_0)
         : m_is_trace_enabled(is_trace_enabled)
-        , m_platform_io(platform_io)
         , m_time_zero(time_0)
     {
         if (m_is_trace_enabled) {

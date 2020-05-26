@@ -44,7 +44,6 @@ struct geopm_prof_message_s;
 
 namespace geopm
 {
-    class PlatformIO;
     class CSV;
 
     class ProfileTracer
@@ -64,7 +63,6 @@ namespace geopm
                              bool is_trace_enabled,
                              const std::string &file_name,
                              const std::string &host_name,
-                             PlatformIO &platform_io,
                              const struct geopm_time_s &time_zero);
             virtual ~ProfileTracerImp();
             void update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
@@ -80,7 +78,6 @@ namespace geopm
             };
             bool m_is_trace_enabled;
             std::unique_ptr<CSV> m_csv;
-            PlatformIO &m_platform_io;
             struct geopm_time_s m_time_zero;
     };
 }
