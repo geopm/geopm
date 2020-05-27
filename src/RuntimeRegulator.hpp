@@ -98,7 +98,7 @@ namespace geopm
                 int count;
             };
             int m_num_rank;
-            struct geopm_time_s m_time_zero;
+            struct geopm_time_s m_time_exit_cookie;
             std::vector<struct m_log_s> m_rank_log;
     };
 }
