@@ -174,6 +174,7 @@ namespace geopm
             static bool json_check_is_valid_offset(const json11::Json &obj);
             static bool json_check_is_valid_domain(const json11::Json &domain);
             static bool json_check_is_integer(const json11::Json &num);
+            static bool json_check_is_valid_aggregation(const json11::Json &obj);
             // Add raw MSR as an available signal
             void add_raw_msr_signal(const std::string &msr_name, int domain_type,
                                     uint64_t msr_offset);
@@ -182,13 +183,16 @@ namespace geopm
                                       const std::string &msr_field_name,
                                       int domain_type,
                                       int begin_bit, int end_bit,
-                                      int function, double scalar, int units);
+                                      int function, double scalar, int units,
+                                      const std::string &aggregation,
+                                      const std::string &description);
             // Add a bitfield of an MSR as an available control
             void add_msr_field_control(const std::string &msr_field_name,
                                        int domain_type,
                                        uint64_t msr_offset,
                                        int begin_bit, int end_bit,
-                                       int function, double scalar, int units);
+                                       int function, double scalar, int units,
+                                       const std::string &description);
 
             static const std::string M_DEFAULT_DESCRIPTION;
             static const std::string M_PLUGIN_NAME;
