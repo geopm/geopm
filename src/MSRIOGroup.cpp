@@ -877,19 +877,22 @@ namespace geopm
         std::string message;
     };
 
-    void check_expected_key_values(const Json &root, std::map<std::string, json_checker> &key_check_map,
+    void check_expected_key_values(const Json &root,
+                                   const std::map<std::string, json_checker> &required_key_map,
+                                   const std::map<std::string, json_checker> &optional_key_map,
                                    const std::string &loc_message)
     {
         auto items = root.object_items();
         // check for extra keys
         for (const auto &obj : items) {
-            if (key_check_map.find(obj.first) == key_check_map.end()) {
+            if (required_key_map.find(obj.first) == required_key_map.end() &&
+                optional_key_map.find(obj.first) == optional_key_map.end()) {
                 throw Exception("MSRIOGroup::" + std::string(__func__) + "(): unexpected key \"" + obj.first + "\" found " + loc_message,
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
         // check for required keys
-        for (const auto &key_check : key_check_map) {
+        for (const auto &key_check : required_key_map) {
             std::string key = key_check.first;
             json_checker key_param = key_check.second;
             if (items.find(key) == items.end()) {
@@ -900,6 +903,18 @@ namespace geopm
             if (obj.type() != key_param.json_type || !key_param.is_valid(obj)) {
                 throw Exception("MSRIOGroup::" + std::string(__func__) + "(): \"" + key + "\" " + key_param.message + " " + loc_message,
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+        // check optional keys
+        for (const auto &key_check : optional_key_map) {
+            std::string key = key_check.first;
+            json_checker key_param = key_check.second;
+            if (items.find(key) != items.end()) {
+                Json obj = root[key];
+                if (obj.type() != key_param.json_type || !key_param.is_valid(obj)) {
+                    throw Exception("MSRIOGroup::" + std::string(__func__) + "(): \"" + key + "\" " + key_param.message + " " + loc_message,
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
             }
         }
     }
@@ -935,12 +950,23 @@ namespace geopm
         return ((double)((int)(num.number_value())) == num.number_value());
     };
 
+    bool MSRIOGroup::json_check_is_valid_aggregation(const Json &obj)
+    {
+        try {
+            Agg::name_to_function(obj.string_value());
+        }
+        catch (const Exception &ex) {
+            return false;
+        }
+        return true;
+    };
+
     void MSRIOGroup::check_top_level(const Json &root)
     {
         std::map<std::string, json_checker> top_level_keys = {
             {"msrs", {Json::OBJECT, json_check_null_func, "must be an object"}}
         };
-        check_expected_key_values(root, top_level_keys, "at top level");
+        check_expected_key_values(root, top_level_keys, {}, "at top level");
     }
 
     void MSRIOGroup::check_msr_root(const Json &msr_root, const std::string &msr_name)
@@ -955,7 +981,7 @@ namespace geopm
                 {"domain", {Json::STRING, json_check_is_valid_domain, "must be a valid domain string"}},
                 {"fields", {Json::OBJECT, json_check_null_func, "must be an object"}}
         };
-        check_expected_key_values(msr_root, msr_keys, "in msr \"" + msr_name + "\"");
+        check_expected_key_values(msr_root, msr_keys, {}, "in msr \"" + msr_name + "\"");
     }
 
     void MSRIOGroup::check_msr_field(const Json &msr_field,
@@ -976,7 +1002,12 @@ namespace geopm
             {"scalar", {Json::NUMBER, json_check_null_func, "must be a number"}},
             {"writeable", {Json::BOOL, json_check_null_func, "must be a bool"}}
         };
-        check_expected_key_values(msr_field, field_checker, "in \"" + msr_name + ":" + field_name + "\"");
+        std::map<std::string, json_checker> optional_field_checker {
+            {"aggregation", {Json::STRING, json_check_is_valid_aggregation, "must be a valid aggregation function name"}},
+            {"description", {Json::STRING, json_check_null_func, "must be a string"}}
+        };
+        check_expected_key_values(msr_field, field_checker, optional_field_checker,
+                                  "in \"" + msr_name + ":" + field_name + "\"");
     }
 
     void MSRIOGroup::add_raw_msr_signal(const std::string &msr_name, int domain_type,
@@ -1013,7 +1044,9 @@ namespace geopm
                                           const std::string &msr_field_name,
                                           int domain_type,
                                           int begin_bit, int end_bit,
-                                          int function, double scalar, int units)
+                                          int function, double scalar, int units,
+                                          const std::string &agg_function,
+                                          const std::string &description)
     {
         std::string raw_msr_signal_name = M_NAME_PREFIX + msr_name + "#";
         int num_domain = m_platform_topo.num_domain(domain_type);
@@ -1029,8 +1062,8 @@ namespace geopm
             .signals = result_field_signal,
             .domain = domain_type,
             .units = units,
-            .agg_function = Agg::select_first,
-            .description = M_DEFAULT_DESCRIPTION
+            .agg_function = Agg::name_to_function(agg_function),
+            .description = description,
         };
     }
 
@@ -1038,7 +1071,8 @@ namespace geopm
                                            int domain_type,
                                            uint64_t msr_offset,
                                            int begin_bit, int end_bit,
-                                           int function, double scalar, int units)
+                                           int function, double scalar, int units,
+                                           const std::string &description)
     {
         int num_domain = m_platform_topo.num_domain(domain_type);
         std::vector<std::shared_ptr<Control> > result_field_control;
@@ -1058,7 +1092,7 @@ namespace geopm
             .controls = result_field_control,
             .domain = domain_type,
             .units = units,
-            .description = M_DEFAULT_DESCRIPTION,
+            .description = description,
         };
     }
 
@@ -1104,12 +1138,23 @@ namespace geopm
                 double scalar = field_data["scalar"].number_value();
                 int units = MSR::string_to_units(field_data["units"].string_value());
                 bool is_control = field_data["writeable"].bool_value();
+                // optional fields
+                std::string agg_function = "select_first";
+                std::string description = M_DEFAULT_DESCRIPTION;
+                if (field_data.find("aggregation") != field_data.end()) {
+                    agg_function = field_data["aggregation"].string_value();
+                }
+                if (field_data.find("description") != field_data.end()) {
+                    description = field_data["description"].string_value();
+                }
 
                 add_msr_field_signal(msr_name, sig_ctl_name, domain_type,
-                                     begin_bit, end_bit, function, scalar, units);
+                                     begin_bit, end_bit, function, scalar, units,
+                                     agg_function, description);
                 if (is_control) {
                     add_msr_field_control(sig_ctl_name, domain_type, msr_offset,
-                                          begin_bit, end_bit, function, scalar, units);
+                                          begin_bit, end_bit, function, scalar, units,
+                                          description);
                 }
             }
         }
