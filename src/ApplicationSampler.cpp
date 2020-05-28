@@ -45,6 +45,38 @@
 
 namespace geopm
 {
+    std::string ApplicationSampler::event_name(int event_type)
+    {
+        static const std::map<int, std::string> event_names {
+            {M_EVENT_REGION_ENTRY, "REGION_ENTRY"},
+            {M_EVENT_REGION_EXIT, "REGION_EXIT"},
+            {M_EVENT_EPOCH_COUNT, "EPOCH_COUNT"},
+            {M_EVENT_HINT, "HINT"}
+        };
+        auto it = event_names.find(event_type);
+        if (it == event_names.end()) {
+            throw geopm::Exception("unsupported event type: " + event_type,
+                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
+    }
+
+    int ApplicationSampler::event_type(const std::string &event_name)
+    {
+        static const std::map<std::string, int> event_types {
+            {"REGION_ENTRY", M_EVENT_REGION_ENTRY},
+            {"REGION_EXIT", M_EVENT_REGION_EXIT},
+            {"EPOCH_COUNT", M_EVENT_EPOCH_COUNT},
+            {"HINT", M_EVENT_HINT}
+        };
+        auto it = event_types.find(event_name);
+        if (it == event_types.end()) {
+            throw geopm::Exception("invalid event type string: " + event_name,
+                                   GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
+    }
+
     class ApplicationSamplerImp : public ApplicationSampler
     {
         public:

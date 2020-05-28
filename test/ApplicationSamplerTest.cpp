@@ -228,3 +228,19 @@ TEST_F(ApplicationSamplerTest, with_epoch)
     EXPECT_EQ(ApplicationSampler::M_EVENT_HINT, result[9].event);
     EXPECT_EQ(GEOPM_REGION_HINT_UNKNOWN, result[9].signal);
 }
+
+TEST_F(ApplicationSamplerTest, string_conversion)
+{
+    EXPECT_EQ("REGION_ENTRY", ApplicationSampler::event_name(ApplicationSampler::M_EVENT_REGION_ENTRY));
+    EXPECT_EQ("REGION_EXIT", ApplicationSampler::event_name(ApplicationSampler::M_EVENT_REGION_EXIT));
+    EXPECT_EQ("EPOCH_COUNT", ApplicationSampler::event_name(ApplicationSampler::M_EVENT_EPOCH_COUNT));
+    EXPECT_EQ("HINT", ApplicationSampler::event_name(ApplicationSampler::M_EVENT_HINT));
+
+    EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_ENTRY, ApplicationSampler::event_type("REGION_ENTRY"));
+    EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_EXIT, ApplicationSampler::event_type("REGION_EXIT"));
+    EXPECT_EQ(ApplicationSampler::M_EVENT_EPOCH_COUNT, ApplicationSampler::event_type("EPOCH_COUNT"));
+    EXPECT_EQ(ApplicationSampler::M_EVENT_HINT, ApplicationSampler::event_type("HINT"));
+
+    EXPECT_THROW(ApplicationSampler::event_name(99), geopm::Exception);
+    EXPECT_THROW(ApplicationSampler::event_type("INVALID"), geopm::Exception);
+}
