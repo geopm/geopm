@@ -110,21 +110,6 @@ namespace geopm
             parse_json_msrs(data);
         }
 
-        // Set up aggregation functions for MSRs.
-        // Aliases will lookup and use the agg_function for their underlying MSR.
-        set_agg_function("MSR::PERF_STATUS:FREQ", Agg::average);
-        set_agg_function("MSR::PKG_ENERGY_STATUS:ENERGY", Agg::sum);
-        set_agg_function("MSR::DRAM_ENERGY_STATUS:ENERGY", Agg::sum);
-        set_agg_function("MSR::FIXED_CTR0:INST_RETIRED_ANY", Agg::sum);
-        set_agg_function("MSR::FIXED_CTR1:CPU_CLK_UNHALTED_THREAD", Agg::sum);
-        set_agg_function("MSR::FIXED_CTR2:CPU_CLK_UNHALTED_REF_TSC", Agg::sum);
-        set_agg_function("MSR::PKG_POWER_INFO:MIN_POWER", Agg::sum);
-        set_agg_function("MSR::PKG_POWER_INFO:MAX_POWER", Agg::sum);
-        set_agg_function("MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER", Agg::sum);
-        set_agg_function("MSR::THERM_STATUS:DIGITAL_READOUT", Agg::average);
-        set_agg_function("MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT", Agg::average);
-        set_agg_function("MSR::TEMPERATURE_TARGET:PROCHOT_MIN", Agg::expect_same);
-
         set_signal_description("MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER",
                                "Maximum power to stay within thermal limits (TDP)");
 
@@ -171,15 +156,6 @@ namespace geopm
         register_control_alias("POWER_PACKAGE_LIMIT", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
         register_control_alias("FREQUENCY", "MSR::PERF_CTL:FREQ");
         register_control_alias("POWER_PACKAGE_TIME_WINDOW", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
-    }
-
-    void MSRIOGroup::set_agg_function(const std::string &name,
-                                      std::function<double(const std::vector<double> &)> agg_function)
-    {
-        auto it = m_signal_available.find(name);
-        if (it != m_signal_available.end()) {
-            it->second.agg_function = agg_function;
-        }
     }
 
     void MSRIOGroup::set_signal_description(const std::string &name,

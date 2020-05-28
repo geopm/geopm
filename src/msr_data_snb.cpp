@@ -95,7 +95,8 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "average"
                 }
             }
         },
@@ -123,7 +124,8 @@ namespace geopm
                     "function":  "scale",
                     "units":     "celsius",
                     "scalar":    1.0,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "expect_same"
                 }
             }
         },
@@ -315,7 +317,8 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "joules",
                     "scalar":    1.5258789063e-5,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "sum"
                 }
             }
         },
@@ -329,7 +332,8 @@ namespace geopm
                     "function":  "scale",
                     "units":     "watts",
                     "scalar":    1.25e-1,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "sum"
                 },
                 "MIN_POWER": {
                     "begin_bit": 16,
@@ -337,7 +341,8 @@ namespace geopm
                     "function":  "scale",
                     "units":     "watts",
                     "scalar":    1.25e-1,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "sum"
                 },
                 "MAX_POWER": {
                     "begin_bit": 32,
@@ -345,7 +350,8 @@ namespace geopm
                     "function":  "scale",
                     "units":     "watts",
                     "scalar":    1.25e-1,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "sum"
                 },
                 "MAX_TIME_WINDOW": {
                     "begin_bit": 48,
@@ -405,7 +411,8 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "joules",
                     "scalar":    1.5258789063e-05,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "sum"
                 }
             }
         },

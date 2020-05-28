@@ -187,7 +187,8 @@ namespace geopm
                     "function":  "scale",
                     "units":     "celsius",
                     "scalar":    1.0,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "average"
                 },
                 "RESOLUTION": {
                     "begin_bit": 27,
@@ -335,7 +336,8 @@ namespace geopm
                     "function":  "scale",
                     "units":     "celsius",
                     "scalar":    1.0,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "average"
                 }
             }
         },
@@ -349,7 +351,8 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "sum"
                 }
             }
         },
@@ -363,7 +366,8 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "sum"
                 }
             }
         },
@@ -377,7 +381,8 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "sum"
                 }
             }
         },
