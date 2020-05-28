@@ -151,6 +151,11 @@ namespace geopm
             virtual std::shared_ptr<EpochRuntimeRegulator> get_regulator(void) = 0;
             virtual void set_io_sample(std::shared_ptr<ProfileIOSample> io_sample) = 0;
             virtual std::shared_ptr<ProfileIOSample> get_io_sample(void) = 0;
+            /// @brief Format an m_event_e type as a string.
+            static std::string event_name(int event_type);
+            /// @brief Convert a human-readable event type string to
+            ///        an m_event_e
+            static int event_type(const std::string &event_name);
         protected:
             virtual ~ApplicationSampler() = default;
             ApplicationSampler() = default;

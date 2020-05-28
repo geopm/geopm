@@ -54,6 +54,7 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/AgentFactoryTest.static_info_frequency_map \
               test/gtest_links/AggTest.agg_function \
               test/gtest_links/ApplicationSamplerTest.one_enter_exit \
+              test/gtest_links/ApplicationSamplerTest.string_conversion \
               test/gtest_links/ApplicationSamplerTest.with_mpi \
               test/gtest_links/ApplicationSamplerTest.with_epoch \
               test/gtest_links/ApplicationIOTest.passthrough \
