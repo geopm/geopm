@@ -132,11 +132,6 @@ namespace geopm
             /// @brief Returns the filenames for user-defined MSRs if
             ///        found in the plugin path.
             static std::set<std::string> msr_data_files(void);
-            /// @brief Override the default aggregation function for a
-            ///        signal.  If signal is not available, does
-            ///        nothing.
-            void set_agg_function(const std::string &name,
-                                  std::function<double(const std::vector<double> &)> agg_function);
             /// @brief Override the default description for a signal.
             ///        If signal is not available, does nothing.
             void set_signal_description(const std::string &name,
