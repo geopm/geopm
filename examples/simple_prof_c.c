@@ -43,26 +43,14 @@
 
 int main(int argc, char **argv)
 {
-    int chunk_size = 0;
     int err = 0;
     int index = 0;
     int rank = 0;
     int num_iter = 100000000;
     double sum = 0.0;
-    int num_thread = 0;
     uint64_t region_id = 0;
 
     err = MPI_Init(&argc, &argv);
-    if (!err) {
-#pragma omp parallel
-{
-        num_thread = omp_get_num_threads();
-}
-        chunk_size = num_iter / num_thread;
-        if (num_iter % num_thread) {
-            ++chunk_size;
-        }
-    }
     if (!err) {
         err = geopm_prof_region("loop_0", GEOPM_REGION_HINT_UNKNOWN, &region_id);
     }
@@ -73,9 +61,8 @@ int main(int argc, char **argv)
     if (!err) {
 #pragma omp parallel default(shared) private(index)
 {
-        uint32_t thread_idx = omp_get_thread_num();
-        (void)geopm_tprof_init_loop(num_thread, thread_idx, num_iter, chunk_size);
-#pragma omp for reduction(+:sum) schedule(static, chunk_size)
+        (void)geopm_tprof_init(num_iter);
+#pragma omp for reduction(+:sum)
         for (index = 0; index < num_iter; ++index) {
             sum += (double)index;
             (void)geopm_tprof_post();
