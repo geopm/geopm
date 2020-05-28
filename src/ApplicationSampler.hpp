@@ -34,9 +34,11 @@
 #define APPLICATIONSAMPLER_HPP_INCLUDE
 
 #include <cstdint>
+
 #include <memory>
 #include <vector>
 #include <map>
+#include <string>
 
 #include "geopm_time.h"
 

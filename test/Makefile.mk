@@ -335,6 +335,9 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/PowerGovernorTest.govern \
               test/gtest_links/PowerGovernorTest.govern_max \
               test/gtest_links/PowerGovernorTest.govern_min \
+              test/gtest_links/ProcessEpochImpTest.epoch_count \
+              test/gtest_links/ProcessEpochImpTest.epoch_runtime \
+              test/gtest_links/ProcessEpochImpTest.hint_time \
               test/gtest_links/ProfileTableTest.hello \
               test/gtest_links/ProfileTableTest.name_set_fill_long \
               test/gtest_links/ProfileTableTest.name_set_fill_short \
@@ -515,6 +518,7 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/OptionParserTest.cpp \
                           test/PlatformIOTest.cpp \
                           test/PlatformTopoTest.cpp \
+                          test/ProcessEpochImpTest.cpp \
                           test/PowerBalancerAgentTest.cpp \
                           test/PowerBalancerTest.cpp \
                           test/PowerGovernorAgentTest.cpp \
