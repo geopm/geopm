@@ -481,6 +481,8 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/MSRFieldSignalTest.cpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \
+                          test/MockApplicationSampler.cpp \
+                          test/MockApplicationSampler.hpp \
                           test/MockComm.hpp \
                           test/MockControl.hpp \
                           test/MockControlMessage.hpp \
