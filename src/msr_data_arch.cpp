@@ -49,7 +49,8 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
-                    "writeable": false
+                    "writeable": false,
+                    "description": "An always running, monotonically increasing counter that is incremented at a constant rate.  For use as a wall clock timer."
                 }
             }
         },
@@ -352,7 +353,8 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "writeable": false,
-                    "aggregation": "sum"
+                    "aggregation": "sum",
+                    "description": "The count of the number of instructions executed."
                 }
             }
         },
@@ -367,7 +369,8 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "writeable": false,
-                    "aggregation": "sum"
+                    "aggregation": "sum",
+                    "description": "The count of the number of cycles while the logical processor is not in a halt state.  The count rate may change based on core frequency."
                 }
             }
         },
@@ -382,7 +385,8 @@ namespace geopm
                     "units":     "none",
                     "scalar":    1.0,
                     "writeable": false,
-                    "aggregation": "sum"
+                    "aggregation": "sum",
+                    "description": "The count of the number of cycles while the logical processor is not in a halt state and not in a stop-clock state.  The count rate is fixed at the TIMESTAMP_COUNT rate."
                 }
             }
         },

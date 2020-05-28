@@ -108,14 +108,6 @@ namespace geopm
             parse_json_msrs(data);
         }
 
-        set_signal_description("MSR::PKG_POWER_INFO:THERMAL_SPEC_POWER",
-                               "Maximum power to stay within thermal limits (TDP)");
-
-        set_control_description("MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT",
-                                "Set RAPL power limit");
-        set_control_description("MSR::PERF_CTL:FREQ",
-                                "Set processor frequency");
-
         register_signal_alias("TIMESTAMP_COUNTER", "MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT");
         register_signal_alias("FREQUENCY", "MSR::PERF_STATUS:FREQ");
 
@@ -138,6 +130,8 @@ namespace geopm
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         register_signal_alias("FREQUENCY_MAX", max_turbo_name);
+        set_signal_description("FREQUENCY_MAX",
+                               "Maximum processor frequency.");
 
         register_signal_alias("ENERGY_PACKAGE", "MSR::PKG_ENERGY_STATUS:ENERGY");
         register_signal_alias("ENERGY_DRAM", "MSR::DRAM_ENERGY_STATUS:ENERGY");
