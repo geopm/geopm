@@ -30,16 +30,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
+#ifndef PROCESSEPOCHIMP_HPP_INCLUDE
+#define PROCESSEPOCHIMP_HPP_INCLUDE
 
 #include "ProcessEpoch.hpp"
-#include "ProcessEpochImp.hpp"
-#include "Helper.hpp"
 
 namespace geopm
 {
-    std::unique_ptr<ProcessEpoch> ProcessEpoch::make_unique(void)
+    class ProcessEpochImp : public ProcessEpoch
     {
-        return geopm::make_unique<ProcessEpochImp>();
-    }
+        public:
+            ProcessEpochImp();
+            virtual ~ProcessEpochImp() = default;
+
+            void update(const ApplicationSampler::m_record_s &record) override;
+            double last_epoch_runtime(void) const override;
+            double last_epoch_runtime_network(void) const override;
+            double last_epoch_runtime_ignore(void) const override;
+            int epoch_count(void) const override;
+        private:
+            void reset_hint_map(std::map<uint64_t, double> &hint_map, double value);
+
+            int m_epoch_count;
+            double m_last_epoch_time;
+            double m_last_runtime;
+
+            uint64_t m_curr_hint;
+            double m_last_hint_time;
+            std::map<uint64_t, double> m_curr_hint_runtime;
+            std::map<uint64_t, double> m_last_hint_runtime;
+
+    };
 }
+
+#endif
