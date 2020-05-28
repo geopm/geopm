@@ -398,7 +398,6 @@ namespace geopm
             sample();
         }
         else {
-            m_tprof_table->enable(false);
             // Allow nesting of one MPI region within a non-mpi region
             if (m_curr_region_id &&
                 geopm_region_id_hint(m_curr_region_id) != GEOPM_REGION_HINT_NETWORK &&
@@ -441,9 +440,6 @@ namespace geopm
             (geopm_region_id_is_mpi(m_curr_region_id) &&
              geopm_region_id_is_mpi(region_id))) {
             --m_num_enter;
-        }
-        if (m_num_enter == 1) {
-            m_tprof_table->enable(true);
         }
 
         // if we are leaving the outer most nesting of our current region

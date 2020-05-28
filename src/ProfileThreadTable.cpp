@@ -62,39 +62,19 @@ namespace geopm
         }
     }
 
-    ProfileThreadTableImp::ProfileThreadTableImp(const ProfileThreadTableImp &other)
-        : m_buffer(other.m_buffer)
-        , m_num_cpu(other.m_num_cpu)
-        , m_stride(other.m_stride)
-        , m_is_enabled(true)
-    {
-
-    }
-
     int ProfileThreadTableImp::num_cpu(void)
     {
         return m_num_cpu;
     }
 
-    void ProfileThreadTableImp::enable(bool is_enabled)
-    {
-        m_is_enabled = is_enabled;
-    }
-
     void ProfileThreadTableImp::init(const uint32_t num_work_unit)
     {
-        if (!m_is_enabled) {
-            return;
-        }
         m_buffer[cpu_idx() * m_stride] = 0;
         m_buffer[cpu_idx() * m_stride + 1] = num_work_unit;
     }
 
     void ProfileThreadTableImp::init(int num_thread, int thread_idx, size_t num_iter, size_t chunk_size)
     {
-        if (!m_is_enabled) {
-            return;
-        }
         std::vector<uint32_t> num_work_unit(num_thread);
         std::fill(num_work_unit.begin(), num_work_unit.end(), 0);
 
@@ -116,9 +96,6 @@ namespace geopm
 
     void ProfileThreadTableImp::init(int num_thread, int thread_idx, size_t num_iter)
     {
-        if (!m_is_enabled) {
-            return;
-        }
         std::vector<uint32_t> num_work_unit(num_thread);
         std::fill(num_work_unit.begin(), num_work_unit.end(), num_iter / num_thread);
         for (int thread_idx = 0; thread_idx < (int)(num_iter % num_thread); ++thread_idx) {
@@ -129,9 +106,6 @@ namespace geopm
 
     void ProfileThreadTableImp::post(void)
     {
-        if (!m_is_enabled) {
-            return;
-        }
         ++m_buffer[cpu_idx() * m_stride];
     }
 
@@ -151,10 +125,12 @@ namespace geopm
         static thread_local int result = -1;
         if (result == -1) {
             result = geopm_sched_get_cpu();
+#ifdef GEOPM_DEBUG
             if (result >= geopm_sched_num_cpu()) {
                 throw Exception("ProfileThreadTableImp::cpu_idx(): Number of online CPUs is less than or equal to the value returned by sched_getcpu()",
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
+#endif
         }
         return result;
     }
