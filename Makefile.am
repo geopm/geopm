@@ -486,6 +486,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/EnergyEfficientRegion.hpp \
                             src/Environment.cpp \
                             src/Environment.hpp \
+                            src/EpochIOGroup.cpp \
+                            src/EpochIOGroup.hpp \
                             src/EpochRuntimeRegulator.cpp \
                             src/EpochRuntimeRegulator.hpp \
                             src/Exception.cpp \

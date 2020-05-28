@@ -55,7 +55,7 @@ namespace geopm
         };
         auto it = event_names.find(event_type);
         if (it == event_names.end()) {
-            throw geopm::Exception("unsupported event type: " + event_type,
+            throw geopm::Exception("unsupported event type: " + std::to_string(event_type),
                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return it->second;
