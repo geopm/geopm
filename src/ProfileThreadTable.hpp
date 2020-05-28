@@ -45,7 +45,6 @@ namespace geopm
             ProfileThreadTable() = default;
             ProfileThreadTable(const ProfileThreadTable &other) = default;
             virtual ~ProfileThreadTable() = default;
-            virtual void enable(bool is_enabled) = 0;
             virtual void init(int num_thread, int thread_idx, size_t num_iter) = 0;
             virtual void init(int num_thread, int thread_idx, size_t num_iter, size_t chunk_size) = 0;
             virtual void init(uint32_t num_work_unit) = 0;
@@ -61,9 +60,8 @@ namespace geopm
         public:
             ProfileThreadTableImp(size_t buffer_size, void *buffer);
             ProfileThreadTableImp(const PlatformTopo &topo, size_t buffer_size, void *buffer);
-            ProfileThreadTableImp(const ProfileThreadTableImp &other);
+            ProfileThreadTableImp(const ProfileThreadTableImp &other) = delete;
             virtual ~ProfileThreadTableImp() = default;
-            void enable(bool is_enabled) override;
             void init(int num_thread, int thread_idx, size_t num_iter) override;
             void init(int num_thread, int thread_idx, size_t num_iter, size_t chunk_size) override;
             void init(uint32_t num_work_unit) override;
@@ -75,7 +73,6 @@ namespace geopm
             uint32_t *m_buffer;
             uint32_t m_num_cpu;
             size_t m_stride;
-            bool m_is_enabled;
     };
 }
 
