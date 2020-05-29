@@ -39,6 +39,8 @@
 #include "ProfileIOSample.hpp"
 #include "EpochRuntimeRegulator.hpp"
 #include "Exception.hpp"
+#include "RecordFilter.hpp"
+#include "Environment.hpp"
 
 namespace geopm
 {
@@ -46,6 +48,7 @@ namespace geopm
     {
         public:
             ApplicationSamplerImp();
+            ApplicationSamplerImp(const std::string &filter_name);
             virtual ~ApplicationSamplerImp() = default;
             void time_zero(const geopm_time_s &start_time) override;
             void update_records(void) override;
@@ -64,6 +67,7 @@ namespace geopm
             struct m_process_s {
                 uint64_t epoch_count;
                 uint64_t hint;
+                std::shared_ptr<RecordFilter> filter;
             };
             void update_records_epoch(const geopm_prof_message_s &msg);
             void update_records_mpi(const geopm_prof_message_s &msg);
@@ -77,6 +81,8 @@ namespace geopm
             struct geopm_time_s m_time_zero;
             std::vector<m_record_s> m_record_buffer;
             std::map<int, m_process_s> m_process_map;
+            std::string m_filter_name;
+            bool m_is_filtered;
     };
 
     ApplicationSampler &ApplicationSampler::application_sampler(void)
@@ -86,7 +92,15 @@ namespace geopm
     }
 
     ApplicationSamplerImp::ApplicationSamplerImp()
+        : ApplicationSamplerImp(environment().record_filter())
+    {
+
+    }
+
+    ApplicationSamplerImp::ApplicationSamplerImp(const std::string &filter_name)
         : m_time_zero(geopm::time_zero())
+        , m_filter_name(filter_name)
+        , m_is_filtered(!m_filter_name.empty())
     {
 
     }
@@ -207,6 +221,16 @@ namespace geopm
                 update_records_progress(cache_it);
             }
         }
+        if (m_is_filtered) {
+            std::vector<ApplicationSampler::m_record_s> tmp_buffer;
+            for (auto &record_it : m_record_buffer) {
+                auto &proc = get_process(record_it.process);
+                for (auto &filtered_it : proc.filter->filter(record_it)) {
+                    tmp_buffer.push_back(filtered_it);
+                }
+            }
+            m_record_buffer = tmp_buffer;
+        }
     }
 
     std::vector<ApplicationSampler::m_record_s> ApplicationSamplerImp::get_records(void) const
@@ -270,9 +294,14 @@ namespace geopm
 
     ApplicationSamplerImp::m_process_s &ApplicationSamplerImp::get_process(int process)
     {
-        return m_process_map.emplace(process, m_process_s {
+        auto emp_it = m_process_map.emplace(process, m_process_s {
             .epoch_count = 0LL,
-            .hint = GEOPM_REGION_HINT_UNKNOWN
-        }).first->second;
+            .hint = GEOPM_REGION_HINT_UNKNOWN,
+            .filter = nullptr,
+        });
+        if (emp_it.second && m_is_filtered) {
+            emp_it.first->second.filter = RecordFilter::make_unique(m_filter_name);
+        }
+        return emp_it.first->second;
     }
 }
