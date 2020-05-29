@@ -687,7 +687,16 @@ namespace geopm
         std::string result = "Invalid signal description: no description found.";
         auto it = m_signal_available.find(signal_name);
         if (it != m_signal_available.end()) {
+            result += '\n';
             result = it->second.description;
+            std::string agg = Agg::function_to_name(it->second.agg_function);
+            std::string domain = m_platform_topo.domain_type_to_name(it->second.domain);
+
+            std::transform(agg.begin(), agg.end(), agg.begin(), ::toupper);
+            std::transform(domain.begin(), domain.end(), domain.begin(), ::toupper);
+
+            result += "\nSpecified in units of " + MSR::units_to_string(it->second.units) + '.';
+            result += "\nThe signal will be aggregated by " + agg + " across the " + domain + " domain.";
         }
 #ifdef GEOPM_DEBUG
         else {
