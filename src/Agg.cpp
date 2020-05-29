@@ -224,7 +224,33 @@ namespace geopm
         auto result = name_map.find(name);
         if (result == name_map.end()) {
             throw Exception("Agg::name_to_function(): unknown aggregation function: " + name,
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return result->second;
+    }
+
+    std::string Agg::function_to_name(std::function<double(const std::vector<double> &)> func)
+    {
+        std::map<decltype(&sum), std::string> function_map = {
+            {sum, "sum"},
+            {average, "average"},
+            {median, "median"},
+            {logical_and, "logical_and"},
+            {logical_or, "logical_or"},
+            {region_hash, "region_hash"},
+            {region_hint, "region_hint"},
+            {min, "min"},
+            {max, "max"},
+            {stddev, "stddev"},
+            {select_first, "select_first"},
+            {expect_same, "expect_same"},
+        };
+
+        auto f_ref = *(func.target<decltype(&sum)>());
+        auto result = function_map.find(f_ref);
+        if (result == function_map.end()) {
+            throw Exception("Agg::function_to_name(): unknown aggregation function.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result->second;
     }
