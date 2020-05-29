@@ -35,6 +35,8 @@
 
 #include <memory>
 #include <vector>
+#include <map>
+#include <cstdint>
 
 #include "geopm_time.h"
 
