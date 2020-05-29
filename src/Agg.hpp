@@ -93,6 +93,10 @@ namespace geopm
             ///        given string name.  If the name does not match
             ///        a known function, it throws an error.
             static std::function<double(const std::vector<double> &)> name_to_function(const std::string &name);
+            /// @brief Returns the corresponding agg function name for a
+            ///        given std::function.  If the std::function does not match
+            ///        a known function, it throws an error.
+            static std::string function_to_name(std::function<double(const std::vector<double> &)> func);
     };
 }
 
