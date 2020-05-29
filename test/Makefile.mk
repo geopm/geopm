@@ -184,6 +184,8 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/EnvironmentTest.default_endpoint_user_policy_override_endpoint \
               test/gtest_links/EnvironmentTest.user_policy_and_endpoint \
               test/gtest_links/EnvironmentTest.user_disable_ompt \
+              test/gtest_links/EpochRecordFilterTest.filter_in \
+              test/gtest_links/EpochRecordFilterTest.filter_out \
               test/gtest_links/EpochRuntimeRegulatorTest.all_ranks_enter_exit \
               test/gtest_links/EpochRuntimeRegulatorTest.epoch_runtime \
               test/gtest_links/EpochRuntimeRegulatorTest.invalid_ranks \
@@ -353,6 +355,12 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/ProfileTestIntegration.misconfig_tprof_shmem \
               test/gtest_links/ProfileTracerTest.construct_update_destruct \
               test/gtest_links/ProfileTracerTest.format \
+              test/gtest_links/ProxyEpochRecordFilterTest.simple_conversion \
+              test/gtest_links/ProxyEpochRecordFilterTest.skip_one \
+              test/gtest_links/ProxyEpochRecordFilterTest.skip_two_off_one \
+              test/gtest_links/ProxyEpochRecordFilterTest.invalid_construct \
+              test/gtest_links/ProxyEpochRecordFilterTest.filter_in \
+              test/gtest_links/ProxyEpochRecordFilterTest.filter_out \
               test/gtest_links/RawMSRSignalTest.errors \
               test/gtest_links/RawMSRSignalTest.read \
               test/gtest_links/RawMSRSignalTest.read_batch \
@@ -467,6 +475,7 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/EnergyEfficientAgentTest.cpp \
                           test/EnergyEfficientRegionTest.cpp \
                           test/EnvironmentTest.cpp \
+                          test/EpochRecordFilterTest.cpp \
                           test/EpochRuntimeRegulatorTest.cpp \
                           test/ExceptionTest.cpp \
                           test/FilePolicyTest.cpp \
@@ -522,6 +531,7 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/ProfileTableTest.cpp \
                           test/ProfileTest.cpp \
                           test/ProfileTracerTest.cpp \
+                          test/ProxyEpochRecordFilterTest.cpp \
                           test/RawMSRSignalTest.cpp \
                           test/RegionAggregatorTest.cpp \
                           test/ReporterTest.cpp \
