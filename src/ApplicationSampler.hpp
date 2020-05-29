@@ -33,10 +33,10 @@
 #ifndef APPLICATIONSAMPLER_HPP_INCLUDE
 #define APPLICATIONSAMPLER_HPP_INCLUDE
 
+#include <cstdint>
 #include <memory>
 #include <vector>
 #include <map>
-#include <cstdint>
 
 #include "geopm_time.h"
 
@@ -102,7 +102,7 @@ namespace geopm
                 /// @brief Elapsed time since time zero when event was
                 ///        recorded.
                 double time;
-                /// @brief The process identifier where event occured.
+                /// @brief The process identifier where event occurred.
                 int process;
                 /// @brief One of the m_event_e event types.
                 int event;

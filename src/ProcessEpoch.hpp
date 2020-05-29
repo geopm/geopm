@@ -77,11 +77,11 @@ namespace geopm
             ///        the callers responsiblity to filter out records
             ///        that are sent from other processes.
             virtual void update(const ApplicationSampler::m_record_s &record) = 0;
-            /// @brief The number of epoch events that have occured
-            ///        for the process that is tracked by this object.
+            /// @brief The number of epoch events that have been
+            ///        recieved from the process that is tracked by
+            ///        this object.
             ///
-            /// @return Zero based counter of the number of epoch
-            ///         events.
+            /// @return Number of epoch events.
             virtual int epoch_count(void) const = 0;
             /// @brief The total runtime that elapsed between the last
             ///        two epoch events for the tracked process.
@@ -90,15 +90,19 @@ namespace geopm
             virtual double last_epoch_runtime(void) const = 0;
             /// @brief The portion of the runtime that elapsed between
             ///        the last two epochs while application indicated
-            ///        the network hint.
+            ///        the network hint.  If epoch_count() is less than
+            ///        two then the value returned will be NAN.
             ///
-            /// @return Elapsed time in seconds.
+            /// @return Elapsed time in seconds or NAN prior to second
+            ///         epoch.
             virtual double last_epoch_runtime_network(void) const = 0;
             /// @brief The portion of the runtime that elapsed between
             ///        the last two epochs while application indicated
-            ///        the ignore hint.
+            ///        the ignore hint.  If epoch_count() is less than
+            ///        two then the value returned will be NAN.
             ///
-            /// @return Elapsed time in seconds.
+            /// @return Elapsed time in seconds or NAN prior to second
+            ///         epoch.
             virtual double last_epoch_runtime_ignore(void) const = 0;
     };
 }
