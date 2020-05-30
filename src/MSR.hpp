@@ -57,14 +57,18 @@ namespace geopm
                 M_UNITS_WATTS,
                 M_UNITS_JOULES,
                 M_UNITS_CELSIUS,
+                M_NUM_UNITS
             };
             /// @brief Convert a string to the corresponding m_function_e value
             static m_function_e string_to_function(const std::string &str);
             /// @brief Convert a string to the corresponding m_units_e value
             static m_units_e string_to_units(const std::string &str);
+            /// @brief Convert the m_units_e value to the corresponding string.
+            static std::string units_to_string(int);
         private:
             static const std::map<std::string, m_function_e> M_FUNCTION_STRING;
             static const std::map<std::string, m_units_e> M_UNITS_STRING;
+            static const char* M_UNITS[];
     };
 }
 
