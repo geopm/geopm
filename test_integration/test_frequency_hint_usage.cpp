@@ -63,15 +63,15 @@ int main(int argc, char **argv)
 
     // Create a model region
     std::unique_ptr<geopm::ModelRegion> model(
-        geopm::ModelRegion::model_region("reduce", 0.1, is_verbose));
+        geopm::ModelRegion::model_region("reduce", 1.0, is_verbose));
 
     // Rename model region to the test name
     geopm::Profile &prof = geopm::Profile::default_profile();
     std::string region_name = "compute_region";
     uint64_t rid = prof.region(region_name, GEOPM_REGION_HINT_COMPUTE);
 
-    // Loop over 1000 iterations of executing the renamed region
-    int num_step = 1000;
+    // Loop over 100 iterations of executing the renamed region
+    int num_step = 100;
     for (int idx = 0; idx != num_step; ++idx) {
         prof.enter(rid);
         model->run();
