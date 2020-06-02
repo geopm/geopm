@@ -36,6 +36,7 @@
 
 #include "ProcessEpochImp.hpp"
 #include "ApplicationSampler.hpp"
+#include "Exception.hpp"
 #include "geopm.h"
 #include "geopm_test.hpp"
 
@@ -69,9 +70,8 @@ enum {
 
 TEST_F(ProcessEpochImpTest, epoch_count)
 {
-
     // default value
-    EXPECT_DOUBLE_EQ(-1, m_process.epoch_count());
+    EXPECT_DOUBLE_EQ(0, m_process.epoch_count());
 
     // pre-epoch regions
     m_records = {
@@ -79,18 +79,18 @@ TEST_F(ProcessEpochImpTest, epoch_count)
         {0.2, 0, REGION_EXIT, 0xCAFE}
     };
     update_all();
-    EXPECT_DOUBLE_EQ(-1, m_process.epoch_count());
+    EXPECT_DOUBLE_EQ(0, m_process.epoch_count());
 
     m_records = {
-        {0.3, 0, EPOCH_COUNT, 0x0},
-    };
-    update_all();
-    EXPECT_DOUBLE_EQ(0, m_process.epoch_count());
-    m_records = {
-        {0.4, 0, EPOCH_COUNT, 0x1},
+        {0.3, 0, EPOCH_COUNT, 0x1},
     };
     update_all();
     EXPECT_DOUBLE_EQ(1, m_process.epoch_count());
+    m_records = {
+        {0.4, 0, EPOCH_COUNT, 0x2},
+    };
+    update_all();
+    EXPECT_DOUBLE_EQ(2, m_process.epoch_count());
 
     m_records = {
         {0.5, 0, EPOCH_COUNT, 0x4},
@@ -227,4 +227,7 @@ TEST_F(ProcessEpochImpTest, hint_time)
     update_all();
     EXPECT_NEAR(0.1, m_process.last_epoch_runtime_network(), 0.0001);
     EXPECT_NEAR(0.4, m_process.last_epoch_runtime_ignore(), 0.0001);
+
+    EXPECT_THROW(m_process.last_epoch_runtime_hint(99), geopm::Exception);
+    EXPECT_THROW(m_process.last_epoch_runtime_hint(-1), geopm::Exception);
 }

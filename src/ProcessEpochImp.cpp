@@ -36,11 +36,12 @@
 
 #include "geopm.h"
 #include "ProcessEpochImp.hpp"
+#include "Exception.hpp"
 
 namespace geopm
 {
     ProcessEpochImp::ProcessEpochImp()
-        : m_epoch_count(-1)
+        : m_epoch_count(0)
         , m_last_epoch_time(NAN)
         , m_last_runtime(NAN)
         , m_curr_hint(GEOPM_REGION_HINT_UNKNOWN)
@@ -50,7 +51,6 @@ namespace geopm
         reset_hint_map(m_last_hint_runtime, NAN);
     }
 
-    // todo: might want value input too
     void ProcessEpochImp::reset_hint_map(std::map<uint64_t, double> &hint_map,
                                          double value)
     {
@@ -66,40 +66,45 @@ namespace geopm
 
     void ProcessEpochImp::update(const ApplicationSampler::m_record_s &record)
     {
-        switch (record.event) {
-            case ApplicationSampler::M_EVENT_EPOCH_COUNT:
-                // update count
-                m_epoch_count = record.signal;
-                // update last runtime
-                if (!std::isnan(m_last_epoch_time)) {
-                    m_last_runtime = record.time - m_last_epoch_time;
-                }
-                m_last_epoch_time = record.time;
-
-                // attribute current hint time to the previous epoch
-                if (!std::isnan(m_last_hint_time)) {
-                    m_curr_hint_runtime[m_curr_hint] += record.time - m_last_hint_time;
-                }
-                m_last_hint_time = record.time;
-                // save off totals for all hints
-                if (!std::isnan(m_last_runtime)) {
-                    m_last_hint_runtime = m_curr_hint_runtime;
-                }
-                reset_hint_map(m_curr_hint_runtime, 0.0);
-                break;
-            case ApplicationSampler::M_EVENT_HINT:
-                // update total for previous hint
-                if (!std::isnan(m_last_hint_time)) {
-                    m_curr_hint_runtime[m_curr_hint] += record.time - m_last_hint_time;
-                }
-                // update current hint
-                m_curr_hint = record.signal;
-                m_last_hint_time = record.time;
-                break;
-            default:
-                break;
+        if (record.event == ApplicationSampler::M_EVENT_EPOCH_COUNT) {
+            update_count(record);
         }
+        else if (record.event == ApplicationSampler::M_EVENT_HINT) {
+            update_hint(record);
+        }
+    }
 
+    void ProcessEpochImp::update_count(const ApplicationSampler::m_record_s &record)
+    {
+        // update count
+        m_epoch_count = record.signal;
+        // update last runtime
+        if (!std::isnan(m_last_epoch_time)) {
+            m_last_runtime = record.time - m_last_epoch_time;
+        }
+        m_last_epoch_time = record.time;
+
+        // attribute current hint time to the previous epoch
+        if (!std::isnan(m_last_hint_time)) {
+            m_curr_hint_runtime[m_curr_hint] += record.time - m_last_hint_time;
+        }
+        m_last_hint_time = record.time;
+        // save off totals for all hints
+        if (!std::isnan(m_last_runtime)) {
+            m_last_hint_runtime = m_curr_hint_runtime;
+        }
+        reset_hint_map(m_curr_hint_runtime, 0.0);
+    }
+
+    void ProcessEpochImp::update_hint(const ApplicationSampler::m_record_s &record)
+    {
+        // update total for previous hint
+        if (!std::isnan(m_last_hint_time)) {
+            m_curr_hint_runtime[m_curr_hint] += record.time - m_last_hint_time;
+        }
+        // update current hint
+        m_curr_hint = record.signal;
+        m_last_hint_time = record.time;
     }
 
     double ProcessEpochImp::last_epoch_runtime(void) const
@@ -107,14 +112,36 @@ namespace geopm
         return m_last_runtime;
     }
 
+    double ProcessEpochImp::last_epoch_runtime_hint(uint64_t hint) const
+    {
+        double result = NAN;
+        switch(hint) {
+            case GEOPM_REGION_HINT_UNKNOWN:
+            case GEOPM_REGION_HINT_COMPUTE:
+            case GEOPM_REGION_HINT_MEMORY:
+            case GEOPM_REGION_HINT_NETWORK:
+            case GEOPM_REGION_HINT_IO:
+            case GEOPM_REGION_HINT_SERIAL:
+            case GEOPM_REGION_HINT_PARALLEL:
+            case GEOPM_REGION_HINT_IGNORE:
+                result = m_last_hint_runtime.at(hint);
+                break;
+            default:
+                throw Exception("ProcessEpochImp::last_epoch_runtime_hint(): "
+                                "invalid hint: " + std::to_string(hint),
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return result;
+    }
+
     double ProcessEpochImp::last_epoch_runtime_network(void) const
     {
-        return m_last_hint_runtime.at(GEOPM_REGION_HINT_NETWORK);
+        return last_epoch_runtime_hint(GEOPM_REGION_HINT_NETWORK);
     }
 
     double ProcessEpochImp::last_epoch_runtime_ignore(void) const
     {
-        return m_last_hint_runtime.at(GEOPM_REGION_HINT_IGNORE);
+        return last_epoch_runtime_hint(GEOPM_REGION_HINT_IGNORE);
     }
 
     int ProcessEpochImp::epoch_count(void) const

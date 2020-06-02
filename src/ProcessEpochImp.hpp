@@ -48,8 +48,16 @@ namespace geopm
             double last_epoch_runtime_network(void) const override;
             double last_epoch_runtime_ignore(void) const override;
             int epoch_count(void) const override;
+            /// @brief The portion of the runtime between the last two
+            ///        epochs while the application indicated the
+            ///        given hint.  If epoch_count() is less than two
+            ///        then the value returned will be NAN.
+            /// @param [in] hint The hint to find the portion of runtime for.
+            double last_epoch_runtime_hint(uint64_t hint) const;
         private:
             void reset_hint_map(std::map<uint64_t, double> &hint_map, double value);
+            void update_count(const ApplicationSampler::m_record_s &record);
+            void update_hint(const ApplicationSampler::m_record_s &record);
 
             int m_epoch_count;
             double m_last_epoch_time;
@@ -59,7 +67,6 @@ namespace geopm
             double m_last_hint_time;
             std::map<uint64_t, double> m_curr_hint_runtime;
             std::map<uint64_t, double> m_last_hint_runtime;
-
     };
 }
 
