@@ -44,7 +44,8 @@ namespace geopm
         , m_num_per_epoch(calls_per_epoch)
         , m_count(-startup_count)
     {
-        if (m_proxy_hash > 1ULL <<32) {
+        // Hash is a CRC32, so check that it is 32 bits
+        if (m_proxy_hash > UINT32_MAX) {
             throw Exception("ProxyEpochRecordFilter(): Parameter region_hash is out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -65,7 +66,7 @@ namespace geopm
             record.signal == m_proxy_hash) {
             if (m_count >= 0 &&
                 m_count % m_num_per_epoch == 0) {
-                ApplicationSampler::m_record_s epoch_event(record);
+                ApplicationSampler::m_record_s epoch_event = record;
                 epoch_event.event = ApplicationSampler::M_EVENT_EPOCH_COUNT;
                 epoch_event.signal = 1 + m_count / m_num_per_epoch;
                 result.push_back(epoch_event);

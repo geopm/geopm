@@ -57,7 +57,7 @@ namespace geopm
             /// the method returns a vector containing any filtered
             /// values resulting from the update.
             ///
-            /// @param record The update value to be filtered.
+            /// @param [in] record The update value to be filtered.
             ///
             /// @return Vector of zero or more records to update the
             ///         filtered stream.

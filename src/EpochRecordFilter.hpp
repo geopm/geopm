@@ -38,7 +38,7 @@
 namespace geopm
 {
     /// @brief Filter to retain only records that are used in
-    ///        caluculating signals for the EpochIOGroup.
+    ///        calculating signals for the EpochIOGroup.
     class EpochRecordFilter : public RecordFilter
     {
         public:
@@ -50,9 +50,9 @@ namespace geopm
             ///        are retained, all other records are removed
             ///        from the stream.
             ///
-            /// @param record The update value to be filtered.
+            /// @param [in] record The update value to be filtered.
             ///
-            /// @return Vector of lenth one containing input value if
+            /// @return Vector of length one containing input value if
             ///         event type matches, otherwise returns empty
             ///         vector.
             std::vector<ApplicationSampler::m_record_s> filter(const ApplicationSampler::m_record_s &record);

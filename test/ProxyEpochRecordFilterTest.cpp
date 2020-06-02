@@ -97,7 +97,7 @@ TEST_F(ProxyEpochRecordFilterTest, skip_one)
         EXPECT_EQ(ApplicationSampler::M_EVENT_EPOCH_COUNT, result[0].event);
         EXPECT_EQ(count, result[0].signal);
         result = perf.filter(record);
-        ASSERT_EQ(0ULL, result.size());
+        EXPECT_EQ(0ULL, result.size());
     }
 }
 
@@ -110,18 +110,19 @@ TEST_F(ProxyEpochRecordFilterTest, skip_two_off_one)
                                            ApplicationSampler::M_EVENT_REGION_ENTRY,
                                            hash};
     geopm::ProxyEpochRecordFilter perf(hash, 3, 1);
-    perf.filter(record);
+    std::vector<ApplicationSampler::m_record_s> result = perf.filter(record);
+    EXPECT_EQ(0ULL, result.size());
     for (uint64_t count = 1; count <= 10; ++count) {
-        std::vector<ApplicationSampler::m_record_s> result = perf.filter(record);
+        result = perf.filter(record);
         ASSERT_EQ(1ULL, result.size());
         EXPECT_EQ(0.0, result[0].time);
         EXPECT_EQ(0, result[0].process);
         EXPECT_EQ(ApplicationSampler::M_EVENT_EPOCH_COUNT, result[0].event);
         EXPECT_EQ(count, result[0].signal);
         result = perf.filter(record);
-        ASSERT_EQ(0ULL, result.size());
+        EXPECT_EQ(0ULL, result.size());
         result = perf.filter(record);
-        ASSERT_EQ(0ULL, result.size());
+        EXPECT_EQ(0ULL, result.size());
     }
 }
 
@@ -158,7 +159,7 @@ TEST_F(ProxyEpochRecordFilterTest, filter_out)
 {
     ApplicationSampler::m_record_s record {};
     std::vector<ApplicationSampler::m_record_s> result;
-    geopm::ProxyEpochRecordFilter perf(0XAULL, 1, 0);
+    geopm::ProxyEpochRecordFilter perf(0xAULL, 1, 0);
     for (auto event : m_out_events) {
         record.event = event;
         result = perf.filter(record);

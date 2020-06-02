@@ -60,14 +60,14 @@ namespace geopm
             /// @brief Constructor for a process specific proxy-region
             ///        EpochIOGroup record filter.
             ///
-            /// @param region_hash The hash for the region that will
-            ///        be used as a proxy for the epoch events.
+            /// @param [in] region_hash The hash for the region that
+            ///        will be used as a proxy for the epoch events.
             ///
-            /// @param calls_per_epoch Number of calls to the proxy
-            ///        region that are expected in each outer loop of
-            ///        the application per process.
+            /// @param [in] calls_per_epoch Number of calls to the
+            ///        proxy region that are expected in each outer
+            ///        loop of the application per process.
             ///
-            /// @param startup_count Number of calls to the proxy
+            /// @param [in] startup_count Number of calls to the proxy
             ///        region that are to be ignored at application
             ///        startup.  These calls are expected prior to
             ///        entering the outer loop of the application.
