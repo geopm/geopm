@@ -163,13 +163,12 @@ int main(int argc, char **argv)
                 // print all controls with description
                 auto controls = platform_io.control_names();
                 for (const auto &con : controls) {
-                    /// @todo nicer formatting
-                    std::cout << con << ": " << platform_io.control_description(con) << std::endl;
+                    std::cout << con << ":" << std::endl << platform_io.control_description(con) << std::endl;
                 }
             }
             else {
                 // print description for one control
-                std::cout << pos_args[0] << ": " << platform_io.control_description(pos_args[0]) << std::endl;
+                std::cout << pos_args[0] << ":" << std::endl << platform_io.control_description(pos_args[0]) << std::endl;
             }
         }
         catch (const geopm::Exception &ex) {

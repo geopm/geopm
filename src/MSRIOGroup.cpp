@@ -580,7 +580,7 @@ namespace geopm
         // copy signal info but append to description
         m_signal_available[signal_name] = it->second;
         m_signal_available[signal_name].description =
-            "Alias for " + msr_name_field + ". " + m_signal_available[msr_name_field].description;
+            m_signal_available[msr_name_field].description + '\n' + "    alias_for: " + msr_name_field;
     }
 
     void MSRIOGroup::register_control_alias(const std::string &control_name,
@@ -599,7 +599,7 @@ namespace geopm
         // copy control info but append to description
         m_control_available[control_name] = it->second;
         m_control_available[control_name].description =
-            "Alias for " + msr_name_field + ". " + m_control_available[msr_name_field].description;
+            m_control_available[msr_name_field].description + '\n' + "    alias_for: " + msr_name_field;
     }
 
     std::string MSRIOGroup::plugin_name(void)
@@ -687,16 +687,11 @@ namespace geopm
         std::string result = "Invalid signal description: no description found.";
         auto it = m_signal_available.find(signal_name);
         if (it != m_signal_available.end()) {
-            result += '\n';
-            result = it->second.description;
-            std::string agg = Agg::function_to_name(it->second.agg_function);
-            std::string domain = m_platform_topo.domain_type_to_name(it->second.domain);
-
-            std::transform(agg.begin(), agg.end(), agg.begin(), ::toupper);
-            std::transform(domain.begin(), domain.end(), domain.begin(), ::toupper);
-
-            result += "\nSpecified in units of " + MSR::units_to_string(it->second.units) + '.';
-            result += "\nThe signal will be aggregated by " + agg + " across the " + domain + " domain.";
+            result =  "    description: " + it->second.description + '\n'; // Includes alias_for if applicable
+            result += "    units: " + MSR::units_to_string(it->second.units) + '\n';
+            result += "    aggregation: " + Agg::function_to_name(it->second.agg_function) + '\n';
+            result += "    domain: " + m_platform_topo.domain_type_to_name(it->second.domain) + '\n';
+            result += "    iogroup: MSRIOGroup";
         }
 #ifdef GEOPM_DEBUG
         else {
@@ -717,7 +712,10 @@ namespace geopm
         std::string result = "Invalid control description: no description found.";
         auto it = m_control_available.find(control_name);
         if (it != m_control_available.end()) {
-            result = it->second.description;
+            result =  "    description: " + it->second.description + '\n'; // Includes alias_for if applicable
+            result += "    units: " + MSR::units_to_string(it->second.units) + '\n';
+            result += "    domain: " + m_platform_topo.domain_type_to_name(it->second.domain) + '\n';
+            result += "    iogroup: MSRIOGroup";
         }
 #ifdef GEOPM_DEBUG
         else {
