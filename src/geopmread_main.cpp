@@ -160,13 +160,12 @@ int main(int argc, char **argv)
                 // print all signals with description
                 auto signals = platform_io.signal_names();
                 for (const auto &sig : signals) {
-                    /// @todo nicer formatting
-                    std::cout << sig << ": " << platform_io.signal_description(sig) << std::endl;
+                    std::cout << sig << ":" << std::endl << platform_io.signal_description(sig) << std::endl;
                 }
             }
             else {
                 // print description for one signal
-                std::cout << pos_args[0] << ": " << platform_io.signal_description(pos_args[0]) << std::endl;
+                std::cout << pos_args[0] << ":" << std::endl << platform_io.signal_description(pos_args[0]) << std::endl;
             }
         }
         catch (const geopm::Exception &ex) {

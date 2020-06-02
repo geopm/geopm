@@ -1263,6 +1263,10 @@ TEST_F(MSRIOGroupTest, parse_json_msrs)
         EXPECT_TRUE(controls.find(name) != controls.end()) << "Expected control " << name << " not found in IOGroup.";
     }
     EXPECT_TRUE(is_agg_average(m_msrio_group->agg_function("MSR::MSR_ONE:FIELD_RO")));
-    EXPECT_EQ("a beautiful and clear description of a field",
+    EXPECT_EQ("    description: a beautiful and clear description of a field\n"
+              "    units: hertz\n"
+              "    aggregation: average\n"
+              "    domain: package\n"
+              "    iogroup: MSRIOGroup",
               m_msrio_group->signal_description("MSR::MSR_ONE:FIELD_RO"));
 }
