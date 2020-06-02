@@ -55,6 +55,24 @@ namespace geopm
 {
     const std::string IOGroup::M_PLUGIN_PREFIX = "libgeopmiogroup_";
 
+    const std::string IOGroup::M_UNITS[IOGroup::M_NUM_UNITS] = {
+        "none",
+        "seconds",
+        "hertz",
+        "watts",
+        "joules",
+        "celsius"
+    };
+
+    const std::map<std::string, IOGroup::m_units_e> IOGroup::M_UNITS_STRING = {
+        {IOGroup::M_UNITS[M_UNITS_NONE], M_UNITS_NONE},
+        {IOGroup::M_UNITS[M_UNITS_SECONDS], M_UNITS_SECONDS},
+        {IOGroup::M_UNITS[M_UNITS_HERTZ], M_UNITS_HERTZ},
+        {IOGroup::M_UNITS[M_UNITS_WATTS], M_UNITS_WATTS},
+        {IOGroup::M_UNITS[M_UNITS_JOULES], M_UNITS_JOULES},
+        {IOGroup::M_UNITS[M_UNITS_CELSIUS], M_UNITS_CELSIUS}
+    };
+
 
     IOGroupFactory::IOGroupFactory()
     {
@@ -117,5 +135,24 @@ namespace geopm
             result = string_format_raw64;
         }
         return result;
+    }
+
+    IOGroup::m_units_e IOGroup::string_to_units(const std::string &str)
+    {
+        auto it = M_UNITS_STRING.find(str);
+        if (it == M_UNITS_STRING.end()) {
+            throw Exception("IOGroup::string_to_units(): invalid units string",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
+    }
+
+    std::string IOGroup::units_to_string(int uni)
+    {
+        if (uni >= IOGroup::M_NUM_UNITS || uni < 0) {
+            throw Exception("IOGroup::units_to_string): invalid units value",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return IOGroup::M_UNITS[uni];
     }
 }
