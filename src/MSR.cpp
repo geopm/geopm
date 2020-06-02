@@ -37,15 +37,6 @@
 
 namespace geopm
 {
-    const char* MSR::M_UNITS[MSR::M_NUM_UNITS] = {
-        "none",
-        "seconds",
-        "hertz",
-        "watts",
-        "joules",
-        "celsius"
-    };
-
     const std::map<std::string, MSR::m_function_e> MSR::M_FUNCTION_STRING = {
         {"scale", M_FUNCTION_SCALE},
         {"log_half", M_FUNCTION_LOG_HALF},
@@ -53,41 +44,13 @@ namespace geopm
         {"overflow", M_FUNCTION_OVERFLOW}
     };
 
-    const std::map<std::string, MSR::m_units_e> MSR::M_UNITS_STRING = {
-        {MSR::M_UNITS[M_UNITS_NONE], M_UNITS_NONE},
-        {MSR::M_UNITS[M_UNITS_SECONDS], M_UNITS_SECONDS},
-        {MSR::M_UNITS[M_UNITS_HERTZ], M_UNITS_HERTZ},
-        {MSR::M_UNITS[M_UNITS_WATTS], M_UNITS_WATTS},
-        {MSR::M_UNITS[M_UNITS_JOULES], M_UNITS_JOULES},
-        {MSR::M_UNITS[M_UNITS_CELSIUS], M_UNITS_CELSIUS}
-    };
-
     MSR::m_function_e MSR::string_to_function(const std::string &str)
     {
         auto it = M_FUNCTION_STRING.find(str);
         if (it == M_FUNCTION_STRING.end()) {
-            throw Exception("MSR::string_to_units(): invalid function string",
+            throw Exception("MSR::string_to_function(): invalid function string",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return it->second;
-    }
-
-    MSR::m_units_e MSR::string_to_units(const std::string &str)
-    {
-        auto it = M_UNITS_STRING.find(str);
-        if (it == M_UNITS_STRING.end()) {
-            throw Exception("MSR::string_to_units(): invalid units string",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        return it->second;
-    }
-
-    std::string MSR::units_to_string(int uni)
-    {
-        if (uni >= MSR::M_NUM_UNITS || uni < 0) {
-            throw Exception("MSR::units_to_string): invalid units value",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        return MSR::M_UNITS[uni];
     }
 }

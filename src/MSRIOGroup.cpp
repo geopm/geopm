@@ -212,7 +212,7 @@ namespace geopm
                 }
                 m_signal_available[signal_name] = {result,
                                                    read_domain,
-                                                   MSR::M_UNITS_CELSIUS,
+                                                   IOGroup::M_UNITS_CELSIUS,
                                                    agg_function(msr_name),
                                                    ts.description};
             }
@@ -226,7 +226,7 @@ namespace geopm
         std::shared_ptr<Signal> time_sig = std::make_shared<TimeSignal>(m_time_zero, m_time_batch);
         m_signal_available[time_name] = {std::vector<std::shared_ptr<Signal> >({time_sig}),
                                          GEOPM_DOMAIN_BOARD,
-                                         MSR::M_UNITS_SECONDS,
+                                         IOGroup::M_UNITS_SECONDS,
                                          Agg::select_first,
                                          "Time in seconds used to calculate power"};
         int derivative_window = 8;
@@ -270,7 +270,7 @@ namespace geopm
                 }
                 m_signal_available[signal_name] = {result,
                                                    energy_domain,
-                                                   MSR::M_UNITS_WATTS,
+                                                   IOGroup::M_UNITS_WATTS,
                                                    agg_function(msr_name),
                                                    ps.description};
             }
@@ -663,7 +663,7 @@ namespace geopm
             auto it = m_signal_available.find(signal_name);
             if (it != m_signal_available.end()) {
                 int units = it->second.units;
-                if (MSR::M_UNITS_NONE == units) {
+                if (IOGroup::M_UNITS_NONE == units) {
                     result = string_format_integer;
                 }
             }
@@ -688,7 +688,7 @@ namespace geopm
         auto it = m_signal_available.find(signal_name);
         if (it != m_signal_available.end()) {
             result =  "    description: " + it->second.description + '\n'; // Includes alias_for if applicable
-            result += "    units: " + MSR::units_to_string(it->second.units) + '\n';
+            result += "    units: " + IOGroup::units_to_string(it->second.units) + '\n';
             result += "    aggregation: " + Agg::function_to_name(it->second.agg_function) + '\n';
             result += "    domain: " + m_platform_topo.domain_type_to_name(it->second.domain) + '\n';
             result += "    iogroup: MSRIOGroup";
@@ -713,7 +713,7 @@ namespace geopm
         auto it = m_control_available.find(control_name);
         if (it != m_control_available.end()) {
             result =  "    description: " + it->second.description + '\n'; // Includes alias_for if applicable
-            result += "    units: " + MSR::units_to_string(it->second.units) + '\n';
+            result += "    units: " + IOGroup::units_to_string(it->second.units) + '\n';
             result += "    domain: " + m_platform_topo.domain_type_to_name(it->second.domain) + '\n';
             result += "    iogroup: MSRIOGroup";
         }
@@ -1017,7 +1017,7 @@ namespace geopm
         m_signal_available[raw_msr_signal_name] = {
             .signals = result,
             .domain = domain_type,
-            .units = MSR::M_UNITS_NONE,
+            .units = IOGroup::M_UNITS_NONE,
             .agg_function = Agg::select_first,
             .description = M_DEFAULT_DESCRIPTION
         };
@@ -1119,7 +1119,7 @@ namespace geopm
                 int end_bit = (int)(field_data["end_bit"].number_value());
                 int function = MSR::string_to_function(field_data["function"].string_value());
                 double scalar = field_data["scalar"].number_value();
-                int units = MSR::string_to_units(field_data["units"].string_value());
+                int units = IOGroup::string_to_units(field_data["units"].string_value());
                 bool is_control = field_data["writeable"].bool_value();
                 // optional fields
                 std::string agg_function = "select_first";
