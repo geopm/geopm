@@ -37,22 +37,30 @@
 
 namespace geopm
 {
-    /// @brief Filter that can be used in place of the
-    ///        EpochRecordFilter to synthesize epoch events from a
-    ///        sequence of region entry events.  The filter also
-    ///        passes hint events through.
+    /// @brief Filter that can be used to synthesize epoch events from
+    ///        a sequence of region entry events.  The filter
+    ///        suppresses received epoch events and passes through all
+    ///        other events.
     ///
-    /// This filter can be used to support signals provided by the
-    /// EpochIOGroup without the user inserting calls to
-    /// geopm_prof_epoch() into application.  Instead a region
-    /// detected through runtimes like MPI function calls or OpenMP
-    /// parallel regions can be used to identify the outer loop of an
-    /// application.  This proxy region is specified at filter
-    /// construction time by the region hash.  There are two other
-    /// constructor parameters that enable support for multiple proxy
-    /// region entries per outer loop, and for calls to the proxy
-    /// region prior to the beginning of the outer loop.  The filter
-    /// expects to be provided records collected from a single
+    /// This filter is used to insert synthetic epoch events into the
+    /// stream received by an application process.  This provides
+    /// users of the ApplicationSampler with epoch events even if the
+    /// application does not provide them directly through calls to
+    /// geopm_prof_epoch().  When this filter is selected, any epoch
+    /// events that arrive though the application calls into
+    /// geopm_prof_epoch() are removed from the record stream.  The
+    /// output of this filter is a pass through of all non-epoch
+    /// events and may include synthesized epoch events.  The epoch
+    /// events are synthesized from region entry of a specified region
+    /// that may be detected through runtimes like MPI function calls
+    /// or OpenMP parallel regions.  This proxy-region is specified at
+    /// filter construction time by the region hash.  Typically, this
+    /// region hash value is determined by inspection of a report from
+    /// a previous run.  There are two other constructor parameters
+    /// that enable support for multiple proxy-region entries per
+    /// outer loop, and for application calls into the proxy-region
+    /// prior to the beginning of the outer loop.  The filter assumes
+    /// that the provided records have been collected from a single
     /// process.
     class ProxyEpochRecordFilter : public RecordFilter
     {
@@ -64,10 +72,10 @@ namespace geopm
             ///        will be used as a proxy for the epoch events.
             ///
             /// @param [in] calls_per_epoch Number of calls to the
-            ///        proxy region that are expected in each outer
+            ///        proxy-region that are expected in each outer
             ///        loop of the application per process.
             ///
-            /// @param [in] startup_count Number of calls to the proxy
+            /// @param [in] startup_count Number of calls to the proxy-
             ///        region that are to be ignored at application
             ///        startup.  These calls are expected prior to
             ///        entering the outer loop of the application.
@@ -77,7 +85,7 @@ namespace geopm
             /// @brief Default destructor.
             virtual ~ProxyEpochRecordFilter() = default;
             /// @brief If input record matches the periodic entry into
-            ///        the proxy region matching the construction
+            ///        the proxy-region matching the construction
             ///        arguments, then the output will be a vector of
             ///        length one containing the inferred
             ///        M_EVENT_EPOCH_COUNT event.  If the input record

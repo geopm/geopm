@@ -33,6 +33,7 @@
 #include "config.h"
 
 #include <map>
+#include <functional>
 
 #include "ApplicationSampler.hpp"
 #include "ProfileSampler.hpp"
@@ -48,7 +49,7 @@ namespace geopm
     {
         public:
             ApplicationSamplerImp();
-            ApplicationSamplerImp(const std::string &filter_name);
+            ApplicationSamplerImp(std::function<std::unique_ptr<RecordFilter>()> filter_factory);
             virtual ~ApplicationSamplerImp() = default;
             void time_zero(const geopm_time_s &start_time) override;
             void update_records(void) override;
@@ -81,7 +82,7 @@ namespace geopm
             struct geopm_time_s m_time_zero;
             std::vector<m_record_s> m_record_buffer;
             std::map<int, m_process_s> m_process_map;
-            std::string m_filter_name;
+            std::function<std::unique_ptr<RecordFilter>()> m_filter_factory;
             bool m_is_filtered;
     };
 
@@ -92,15 +93,21 @@ namespace geopm
     }
 
     ApplicationSamplerImp::ApplicationSamplerImp()
-        : ApplicationSamplerImp(environment().record_filter())
     {
-
+        if (environment().do_record_filter()) {
+            ApplicationSamplerImp([](void) {
+                return RecordFilter::make_unique(environment().record_filter());
+            });
+        }
+        else {
+            ApplicationSamplerImp(std::function<std::unique_ptr<RecordFilter>()>());
+        }
     }
 
-    ApplicationSamplerImp::ApplicationSamplerImp(const std::string &filter_name)
+    ApplicationSamplerImp::ApplicationSamplerImp(std::function<std::unique_ptr<RecordFilter>()> filter_factory)
         : m_time_zero(geopm::time_zero())
-        , m_filter_name(filter_name)
-        , m_is_filtered(!m_filter_name.empty())
+        , m_filter_factory(filter_factory)
+        , m_is_filtered(filter_factory)
     {
 
     }
@@ -300,7 +307,7 @@ namespace geopm
             .filter = nullptr,
         });
         if (emp_it.second && m_is_filtered) {
-            emp_it.first->second.filter = RecordFilter::make_unique(m_filter_name);
+            emp_it.first->second.filter = m_filter_factory();
         }
         return emp_it.first->second;
     }

@@ -63,6 +63,10 @@ namespace geopm
             /// @return Vector of zero or more records to update the
             ///         filtered stream.
             virtual std::vector<ApplicationSampler::m_record_s> filter(const ApplicationSampler::m_record_s &record) = 0;
+            static void parse_name_proxy_epoch(const std::string &name,
+                                               uint64_t &region_hash,
+                                               int &calls_per_epoch,
+                                               int &startup_count);
     };
 }
 
