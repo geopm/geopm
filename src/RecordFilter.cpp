@@ -43,37 +43,61 @@ namespace geopm
     {
         std::unique_ptr<RecordFilter> result;
         if (string_begins_with(name, "proxy_epoch")) {
-            uint64_t region_hash;
-            int calls_per_epoch = 1;
+            uint64_t region_hash= 0ULL;
+            int calls_per_epoch = 0;
             int startup_count = 0;
-            std::vector<std::string> split_name = string_split(name, ",");
-            if (split_name.size() <= 1ULL) {
-                throw Exception("RecordFilter::make_unique(): proxy_epoch type requires a hash, e.g. proxy_epoch,0x1234abcd",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-            else {
-                if (split_name[0] != "proxy_epoch") {
-                    throw Exception("RecordFilter::make_unique(): Expected name of the form \"proxy_epoch,<HASH>[,<CALLS>[,<STARTUP>]]\", got: " + name,
-                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-                }
-                region_hash = std::stoull(split_name[1]);
-                if (split_name.size() > 2ULL) {
-                    calls_per_epoch = std::stoi(split_name[2]);
-                }
-                if (split_name.size() > 3ULL) {
-                    startup_count = std::stoi(split_name[3]);
-                }
-                result = geopm::make_unique<ProxyEpochRecordFilter>(region_hash,
-                                                                    calls_per_epoch,
-                                                                    startup_count);
-            }
-
+            parse_name_proxy_epoch(name, region_hash, calls_per_epoch, startup_count);
+            result = geopm::make_unique<ProxyEpochRecordFilter>(region_hash,
+                                                                calls_per_epoch,
+                                                                startup_count);
         }
         else {
-            throw Exception("RecordFilter::make_unique(): unable to parse name: " + name,
+            throw Exception("RecordFilter::make_unique(): Unable to parse name: " + name,
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result;
     }
-}
 
+    void RecordFilter::parse_name_proxy_epoch(const std::string &name,
+                                              uint64_t &region_hash,
+                                              int &calls_per_epoch,
+                                              int &startup_count)
+    {
+        std::vector<std::string> split_name = string_split(name, ",");
+        if (split_name[0] != "proxy_epoch") {
+            throw Exception("RecordFilter::make_unique(): Expected name of the form \"proxy_epoch,<HASH>[,<CALLS>[,<STARTUP>]]\", got: " + name,
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (split_name.size() <= 1ULL) {
+            throw Exception("RecordFilter::make_unique(): proxy_epoch type requires a hash, e.g. proxy_epoch,0x1234abcd",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        try {
+            region_hash = std::stoull(split_name[1], nullptr, 0);
+        }
+        catch (std::exception) {
+            throw Exception("RecordFilter::make_unique(): Unable to parse parameter region_hash from filter name: " + name,
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        calls_per_epoch = 1;
+        startup_count = 0;
+        if (split_name.size() > 2ULL) {
+            try {
+                calls_per_epoch = std::stoi(split_name[2]);
+            }
+            catch (std::exception) {
+                throw Exception("RecordFilter::make_unique(): Unable to parse parameter calls_per_epoch from filter name: " + name,
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+        if (split_name.size() > 3ULL) {
+            try {
+                startup_count = std::stoi(split_name[3]);
+            }
+            catch (std::exception) {
+                throw Exception("RecordFilter::make_unique(): Unable to parse parameter startup_count from filter name: " + name,
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+    }
+}

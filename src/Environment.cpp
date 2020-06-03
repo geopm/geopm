@@ -397,4 +397,10 @@ namespace geopm
     {
         return lookup("GEOPM_RECORD_FILTER");
     }
+
+    bool EnvironmentImp::do_record_filter(void) const
+    {
+        return is_set("GEOPM_RECORD_FILTER");
+    }
+
 }
