@@ -36,8 +36,10 @@
 #include "geopm_test.hpp"
 
 #include "RecordFilter.hpp"
+#include "ApplicationSampler.hpp"
 
 using geopm::RecordFilter;
+using geopm::ApplicationSampler;
 
 class RecordFilterTest : public ::testing::Test
 {
@@ -54,7 +56,13 @@ TEST_F(RecordFilterTest, invalid_filter_name)
 TEST_F(RecordFilterTest, make_proxy_epoch)
 {
     std::shared_ptr<RecordFilter> filter = RecordFilter::make_unique("proxy_epoch,0xabcd1234");
-    EXPECT_TRUE(filter);
+    // Assert that the pointer is non-null
+    ASSERT_TRUE(filter);
+    ApplicationSampler::m_record_s record {0.0, 0, ApplicationSampler::M_EVENT_REGION_ENTRY, 0xabcd1234};
+    std::vector<ApplicationSampler::m_record_s> result = filter->filter(record);
+    ASSERT_EQ(2ULL, result.size());
+    EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_ENTRY, result[0].event);
+    EXPECT_EQ(ApplicationSampler::M_EVENT_EPOCH_COUNT, result[1].event);
 }
 
 TEST_F(RecordFilterTest, parse_name_proxy_epoch)

@@ -480,3 +480,32 @@ TEST_F(EnvironmentTest, user_disable_ompt)
 
     EXPECT_FALSE(m_env->do_ompt());
 }
+
+TEST_F(EnvironmentTest, record_filter_on)
+{
+    std::map<std::string, std::string> default_vars;
+    setenv("GEOPM_RECORD_FILTER", "proxy_epoch,0xabcd1234", 1);
+    std::map<std::string, std::string> override_vars;
+
+    vars_to_json(default_vars, M_DEFAULT_PATH);
+    vars_to_json(override_vars, M_OVERRIDE_PATH);
+
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+
+    EXPECT_TRUE(m_env->do_record_filter());
+    EXPECT_EQ("proxy_epoch,0xabcd1234", m_env->record_filter());
+}
+
+TEST_F(EnvironmentTest, record_filter_off)
+{
+    std::map<std::string, std::string> default_vars;
+    std::map<std::string, std::string> override_vars;
+
+    vars_to_json(default_vars, M_DEFAULT_PATH);
+    vars_to_json(override_vars, M_OVERRIDE_PATH);
+
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+
+    EXPECT_FALSE(m_env->do_record_filter());
+    EXPECT_EQ("", m_env->record_filter());
+}
