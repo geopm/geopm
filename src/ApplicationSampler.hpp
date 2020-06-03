@@ -145,6 +145,9 @@ namespace geopm
             /// @return Vector over Linux logical CPU of the region
             ///         progress.
             virtual std::vector<double> per_cpu_progress(void) const = 0;
+            /// @brief Return a per-cpu vector of the process mapped
+            ///        to each cpu.
+            virtual std::vector<int> per_cpu_process_id(void) const = 0;
 
             // Deprecated API's below for access to legacy objects
             virtual void set_sampler(std::shared_ptr<ProfileSampler> sampler) = 0;
