@@ -72,9 +72,16 @@ namespace geopm
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
         private:
-            const std::map<std::string, double> m_signal_value_map;
-            const std::map<std::string, std::function<double(const std::vector<double> &)> > m_func_map;
-            const std::map<std::string, std::string> m_desc_map;
+            /// @brief Add support for an alias of a signal by name.
+            void register_signal_alias(const std::string &alias_name, const std::string &signal_name);
+
+            struct m_signal_info_s {
+                double value;
+                int units;
+                std::function<double(const std::vector<double> &)> agg_function;
+                std::string description;
+            };
+            std::map<std::string, m_signal_info_s> m_signal_available;
     };
 }
 
