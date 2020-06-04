@@ -49,10 +49,10 @@ if ENABLE_OPENMP
 
     examples_fft_nas_ft_LDADD = libgeopm.la libgeopmfort.la $(MPI_FCLIBS) $(MPI_CXXLIBS)
     examples_fft_nas_ft_LDFLAGS = $(AM_LDFLAGS) $(MPI_LDFLAGS) $(OPENMP_CFLAGS)
-    examples_fft_nas_ft_FCFLAGS = -fopenmp -msse4.2 $(MPI_FCFLAGS) $(OPENMP_CFLAGS) -O3
+    examples_fft_nas_ft_FCFLAGS = -fallow-argument-mismatch -fopenmp -msse4.2 $(MPI_FCFLAGS) $(OPENMP_CFLAGS) -O3
     examples_fft_nas_ft_FFLAGS =  -fopenmp -msse4.2 $(MPI_FFLAGS) $(OPENMP_CFLAGS) -O3
 if HAVE_IFORT
-    examples_fft_nas_ft_FCFLAGS += -xAVX -shared-intel -mcmodel=medium -fpic
+    examples_fft_nas_ft_FCFLAGS += -fallow-argument-mismatch -xAVX -shared-intel -mcmodel=medium -fpic
     examples_fft_nas_ft_FFLAGS += -xAVX -shared-intel -mcmodel=medium -fpic
 endif
 endif
