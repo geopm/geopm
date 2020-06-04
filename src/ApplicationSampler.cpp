@@ -93,15 +93,16 @@ namespace geopm
     }
 
     ApplicationSamplerImp::ApplicationSamplerImp()
+        : ApplicationSamplerImp(environment().do_record_filter() ?
+                                // use record filter from environment
+                                [](void) {
+                                    return RecordFilter::make_unique(environment().record_filter());
+                                } :
+                                // otherwise, do not filter records
+                                std::function<std::unique_ptr<RecordFilter>()>()
+                                )
     {
-        if (environment().do_record_filter()) {
-            ApplicationSamplerImp([](void) {
-                return RecordFilter::make_unique(environment().record_filter());
-            });
-        }
-        else {
-            ApplicationSamplerImp(std::function<std::unique_ptr<RecordFilter>()>());
-        }
+
     }
 
     ApplicationSamplerImp::ApplicationSamplerImp(std::function<std::unique_ptr<RecordFilter>()> filter_factory)
