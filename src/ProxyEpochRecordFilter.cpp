@@ -38,7 +38,7 @@
 
 namespace geopm
 {
-    static uint64_t parse_region_hash(std::string filter_name)
+    static uint64_t parse_region_hash(const std::string &filter_name)
     {
         uint64_t region_hash = 0ULL;
         int calls_per_epoch = 0;
@@ -50,7 +50,7 @@ namespace geopm
         return region_hash;
     }
 
-    static int parse_calls_per_epoch(std::string filter_name)
+    static int parse_calls_per_epoch(const std::string &filter_name)
     {
         uint64_t region_hash = 0ULL;
         int calls_per_epoch = 0;
@@ -62,7 +62,7 @@ namespace geopm
         return calls_per_epoch;
     }
 
-    static int parse_startup_count(std::string filter_name)
+    static int parse_startup_count(const std::string &filter_name)
     {
         uint64_t region_hash = 0ULL;
         int calls_per_epoch = 0;
