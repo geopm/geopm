@@ -63,35 +63,6 @@ namespace geopm
             /// @return Vector of zero or more records to update the
             ///         filtered stream.
             virtual std::vector<ApplicationSampler::m_record_s> filter(const ApplicationSampler::m_record_s &record) = 0;
-            /// @brief Static function that will parse the filter
-            ///        string for the proxy_epoch into the constructor
-            ///        arguments for a ProxyEpochRecordFilter.
-            ///        Failure to parse will result in a thrown
-            ///        Exception with GEOPM_ERROR_INVALID type.
-            ///
-            /// @param [in] name The filter name which is of the form
-            ///        "proxy_epoch,<HASH>[,<CALLS>[,<STARTUP>]]" The
-            ///        region hash is always parsed (i.e. required).
-            ///        If the calls per epoch is provided or if both
-            ///        the call per epoch and startup count are
-            ///        provided they are also parsed.  The default
-            ///        value for calls_per_epoch is 1 and for
-            ///        startup_count is 0.
-            ///
-            /// @param [out] region_hash The hash of the region that will
-            ///        serve as the proxy for the epoch.
-            ///
-            /// @param [out] calls_per_epoch Number of entries into
-            ///        the proxy-region expected in each outer loop of
-            ///        the application.
-            ///
-            /// @param [out] startup_count Number of entries into the
-            ///        proxy-region expected prior to the beginning of
-            ///        the outer loop of the application.
-            static void parse_name_proxy_epoch(const std::string &name,
-                                               uint64_t &region_hash,
-                                               int &calls_per_epoch,
-                                               int &startup_count);
     };
 }
 
