@@ -40,6 +40,7 @@
 #include "CpuinfoIOGroup.hpp"
 #include "TimeIOGroup.hpp"
 #include "ProfileIOGroup.hpp"
+#include "EpochIOGroup.hpp"
 #include "Helper.hpp"
 #include "config.h"
 #ifdef GEOPM_CNL_IOGROUP
@@ -63,6 +64,8 @@ namespace geopm
                         TimeIOGroup::make_plugin);
         register_plugin(CpuinfoIOGroup::plugin_name(),
                         CpuinfoIOGroup::make_plugin);
+        register_plugin(EpochIOGroup::plugin_name(),
+                        EpochIOGroup::make_plugin);
         register_plugin(ProfileIOGroup::plugin_name(),
                         ProfileIOGroup::make_plugin);
 #ifdef GEOPM_CNL_IOGROUP
