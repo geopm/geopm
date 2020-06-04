@@ -44,32 +44,43 @@
 
 namespace geopm
 {
+    std::vector<double> nan_filter(const std::vector<double> &operand)
+    {
+        std::vector<double> result;
+        std::copy_if(operand.begin(), operand.end(), std::back_inserter(result),
+                     [](double x) -> bool { return !std::isnan(x); });
+        return result;
+    }
+
     double Agg::sum(const std::vector<double> &operand)
     {
+        auto filtered = nan_filter(operand);
         double result = NAN;
-        if (operand.size()) {
-            result = std::accumulate(operand.begin(), operand.end(), 0.0);
+        if (filtered.size()) {
+            result = std::accumulate(filtered.begin(), filtered.end(), 0.0);
         }
         return result;
     }
 
     double Agg::average(const std::vector<double> &operand)
     {
+        auto filtered = nan_filter(operand);
         double result = NAN;
-        if (operand.size()) {
-            result = Agg::sum(operand) / operand.size();
+        if (filtered.size()) {
+            result = Agg::sum(filtered) / filtered.size();
         }
         return result;
     }
 
     double Agg::median(const std::vector<double> &operand)
     {
+        auto filtered = nan_filter(operand);
         double result = NAN;
-        size_t num_op = operand.size();
+        size_t num_op = filtered.size();
         if (num_op) {
             size_t mid_idx = num_op / 2;
             bool is_even = ((num_op % 2) == 0);
-            std::vector<double> operand_sorted(operand);
+            std::vector<double> operand_sorted(filtered);
             std::sort(operand_sorted.begin(), operand_sorted.end());
             result = operand_sorted[mid_idx];
             if (is_even) {
@@ -82,9 +93,10 @@ namespace geopm
 
     double Agg::logical_and(const std::vector<double> &operand)
     {
+        auto filtered = nan_filter(operand);
         double result = NAN;
-        if (operand.size()) {
-            result = std::all_of(operand.begin(), operand.end(),
+        if (filtered.size()) {
+            result = std::all_of(filtered.begin(), filtered.end(),
                                  [](double it) {return (it != 0.0);});
         }
         return result;
@@ -92,9 +104,10 @@ namespace geopm
 
     double Agg::logical_or(const std::vector<double> &operand)
     {
+        auto filtered = nan_filter(operand);
         double result = NAN;
-        if (operand.size()) {
-            result = std::any_of(operand.begin(), operand.end(),
+        if (filtered.size()) {
+            result = std::any_of(filtered.begin(), filtered.end(),
                                  [](double it) {return (it != 0.0);});
         }
         return result;
@@ -102,12 +115,13 @@ namespace geopm
 
     static double common_value(const std::vector<double> &operand, double no_match)
     {
-        return (operand.size() &&
-                std::all_of(operand.cbegin(), operand.cend(),
-                            [operand](double x) {
-                                return x == operand[0];
+        auto filtered = nan_filter(operand);
+        return (filtered.size() &&
+                std::all_of(filtered.cbegin(), filtered.cend(),
+                            [filtered](double x) {
+                                return x == filtered[0];
                             })) ?
-               operand[0] : no_match;
+               filtered[0] : no_match;
     }
 
     double Agg::region_hash(const std::vector<double> &operand)
@@ -122,38 +136,41 @@ namespace geopm
 
     double Agg::min(const std::vector<double> &operand)
     {
+        auto filtered = nan_filter(operand);
         double result = NAN;
-        if (operand.size()) {
-            result = *std::min_element(operand.begin(), operand.end());
+        if (filtered.size()) {
+            result = *std::min_element(filtered.begin(), filtered.end());
         }
         return result;
     }
 
     double Agg::max(const std::vector<double> &operand)
     {
+        auto filtered = nan_filter(operand);
         double result = NAN;
-        if (operand.size()) {
-            result = *std::max_element(operand.begin(), operand.end());
+        if (filtered.size()) {
+            result = *std::max_element(filtered.begin(), filtered.end());
         }
         return result;
     }
 
     double Agg::stddev(const std::vector<double> &operand)
     {
+        auto filtered = nan_filter(operand);
         double result = NAN;
-        if (operand.size() > 1) {
-            double sum_squared = Agg::sum(operand);
+        if (filtered.size() > 1) {
+            double sum_squared = Agg::sum(filtered);
             sum_squared *= sum_squared;
-            std::vector<double> operand_squared(operand);
-            for (auto &it : operand_squared) {
+            std::vector<double> filtered_squared(filtered);
+            for (auto &it : filtered_squared) {
                 it *= it;
             }
-            double sum_squares = Agg::sum(operand_squared);
-            double aa = 1.0 / (operand.size() - 1);
-            double bb = aa / operand.size();
+            double sum_squares = Agg::sum(filtered_squared);
+            double aa = 1.0 / (filtered.size() - 1);
+            double bb = aa / filtered.size();
             result = std::sqrt(aa * sum_squares - bb * sum_squared);
         }
-        else if (operand.size() == 1) {
+        else if (filtered.size() == 1) {
             result = 0.0;
         }
         return result;
@@ -161,6 +178,7 @@ namespace geopm
 
     double Agg::select_first(const std::vector<double> &operand)
     {
+        // do not filter out NAN in case we are dealing with 64-bit raw MSRs
         double result = 0.0;
         if (operand.size() > 0) {
             result = operand[0];
@@ -170,11 +188,12 @@ namespace geopm
 
     double Agg::expect_same(const std::vector<double> &operand)
     {
+        auto filtered = nan_filter(operand);
         double value = NAN;
-        if (operand.size() > 0) {
-            value = operand[0];
+        if (filtered.size() > 0) {
+            value = filtered[0];
         }
-        for (auto vv : operand) {
+        for (auto vv : filtered) {
             if (vv != value) {
                 value = NAN;
                 break;
