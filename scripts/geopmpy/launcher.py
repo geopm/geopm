@@ -173,7 +173,7 @@ class Config(object):
         parser.add_argument('--geopm-preload', dest='preload', action='store_true', default=False)
         parser.add_argument('--geopm-hyperthreads-disable', dest='allow_ht_pinning', action='store_false', default=True)
         parser.add_argument('--geopm-ompt-disable', dest='ompt_disable', action='store_true', default=False)
-
+        parser.add_argument('--geopm-record-filter', dest='record_filter', type=str)
         opts, self.argv_unparsed = parser.parse_known_args(argv)
         # Error check inputs
         if opts.ctl not in ('process', 'pthread', 'application'):
@@ -201,6 +201,7 @@ class Config(object):
         self.omp_num_threads = None
         self.allow_ht_pinning = opts.allow_ht_pinning and 'GEOPM_DISABLE_HYPERTHREADS' not in os.environ
         self.ompt_disable = opts.ompt_disable
+        self.record_filter = opts.record_filter
 
     def __repr__(self):
         """
@@ -263,6 +264,8 @@ class Config(object):
             result['OMP_NUM_THREADS'] = self.omp_num_threads
         if self.ompt_disable:
             result['GEOPM_OMPT_DISABLE'] = 'true'
+        if self.record_filter:
+            result['GEOPM_RECORD_FILTER'] = self.record_filter
 
         # Add geopm installed OpenMP library to LD_LIBRARY_PATH if it
         # is present.
@@ -1572,7 +1575,7 @@ GEOPM_OPTIONS:
       --geopm-trace-profile=path
                                create geopm profile trace files with base name
                                "path"
-      --geopm-trace-endpoint-policy="path"
+      --geopm-trace-endpoint-policy=path
                                create geopm endpoint policy trace files with
                                base name "path"
       --geopm-trace-signals=signals
@@ -1596,6 +1599,8 @@ GEOPM_OPTIONS:
       --geopm-plugin-path=path look for geopm plugins in "path", a : separated
                                list of directories
       --geopm-debug-attach=rk  attach serial debugger to rank "rk"
+      --geopm-record-filter=filter
+                               apply the "filter" to the application record stream
       --geopm-region-barrier   apply node local barriers when application enters
                                or exits a geopm region
       --geopm-preload          use LD_PRELOAD to link libgeopm.so at runtime

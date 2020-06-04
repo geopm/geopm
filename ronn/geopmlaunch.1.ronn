@@ -361,6 +361,44 @@ listed below.
   will override any value currently set in the environment.  See the
   ENVIRONMENT section of **geopm(7)**.
 
+* `--geopm-record-filter` filter:
+  Applies the user specified filter to the application record data
+  feed.  The only filter currently supported is the "proxy_epoch"
+  filter.  Region entry and exit may be captured automatically through
+  runtimes like MPI and OpenMP.  Using this filter can enable one of
+  these automatically captured regions to serve as a proxy for the
+  outer loop of the application without modifying the application by
+  inserting calls to `geopm_prof_epoch()` (see **geopm_prof_c(3)**).
+  The filter is specified as a comma separated list.  The first value
+  selects the filter by name: "proxy_epoch". The second value in the
+  comma separated list specifies a region that will be used as a proxy
+  for calls to geopm_prof_epoch().  If the value can be interpreted as
+  an integer, it will be used as the numerical region hash of the
+  region name, otherwise, the value is interpreted as the region name.
+  The third value that can be provided in the comma separated list is
+  optional.  If provided, it specifies the number of region entries
+  into the proxy region that are expected per outer loop.  By default
+  this is assumed to be 1.  The fourth optional parameter that can be
+  specified in the comma separated list is the number of region
+  entries into the proxy region that are expected prior to the outer
+  loop beginning.  By default this is assumed to be 0.  In the
+  following example, the MPI_Barrier region entry is used as a proxy
+  for the epoch event:
+
+      --geopm-record-filter=proxy_epoch,MPI_Barrier
+
+  In the next example the MPI_Barrier region is specified as a hash
+  and the calls per outer loop is given as 6:
+
+      --geopm-record-filter=proxy_epoch,0x7b561f45,6
+
+  In the last example the calls prior to startup is specified as 10:
+
+      --geopm-record-filter=proxy_epoch,MPI_Barrier,6,10
+
+  Note: you must specify the calls per outer loop in order to specify
+  the calls prior to startup.
+
 * `--geopm-debug-attach` rank:
   Enables a serial debugger such as gdb to attach to a job when the
   GEOPM PMPI wrappers are enabled.  If set to a numerical value, the
