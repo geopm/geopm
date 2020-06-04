@@ -43,7 +43,7 @@
 #include "Agg.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
-#include "geopm_topo.h"
+#include "PlatformTopo.hpp"
 
 #include "config.h"
 
@@ -309,13 +309,28 @@ namespace geopm
 
     std::string CNLIOGroup::signal_description(const std::string &signal_name) const
     {
-        auto it = m_signal_available.find(signal_name);
-        if (it == m_signal_available.end()) {
+        if (!is_valid_signal(signal_name)) {
             throw Exception("CNLIOGroup::signal_description(): " + signal_name +
                                 "not valid for CNLIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return it->second.m_description;
+
+        std::string result = "Invalid signal description: no description found.";
+        auto it = m_signal_available.find(signal_name);
+        if (it != m_signal_available.end()) {
+            result =  "    description: " + it->second.m_description + '\n'; // Includes alias_for if applicable
+            result += "    units: " + IOGroup::units_to_string(it->second.m_units) + '\n';
+            result += "    aggregation: " + Agg::function_to_name(it->second.m_agg_function) + '\n';
+            result += "    domain: " + PlatformTopo::domain_type_to_name(GEOPM_DOMAIN_BOARD) + '\n';
+            result += "    iogroup: CNLIOGroup";
+        }
+#ifdef GEOPM_DEBUG
+        else {
+            throw Exception("CNLIOGroup::signal_description(): signal valid but not found in map",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        return result;
     }
 
     std::string CNLIOGroup::control_description(const std::string &control_name) const
