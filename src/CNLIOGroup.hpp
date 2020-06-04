@@ -77,33 +77,24 @@ namespace geopm
             static std::unique_ptr<IOGroup> make_plugin(void);
 
         private:
-            enum signal_type_e {
-                SIGNAL_TYPE_POWER_BOARD,
-                SIGNAL_TYPE_ENERGY_BOARD,
-                SIGNAL_TYPE_POWER_MEMORY,
-                SIGNAL_TYPE_ENERGY_MEMORY,
-                SIGNAL_TYPE_POWER_CPU,
-                SIGNAL_TYPE_ENERGY_CPU,
-                SIGNAL_TYPE_SAMPLE_RATE,
-                SIGNAL_TYPE_ELAPSED_TIME,
-                NUM_SIGNAL_TYPE
-            };
-            struct signal_s {
-                const std::string m_description;
-                const std::function<double(const std::vector<double> &)> m_agg_function;
-                const std::function<std::string(double)> m_format_function;
-                const std::function<double()> m_read_function;
+            void register_signal_alias(const std::string &alias_name, const std::string &signal_name);
+
+            struct m_signal_info_s {
+                std::string m_description;
+                std::function<double(const std::vector<double> &)> m_agg_function;
+                std::function<std::string(double)> m_format_function;
+                std::function<double()> m_read_function;
                 bool m_do_read;
                 double m_value;
+                int m_units;
             };
+            std::map<std::string, m_signal_info_s> m_signal_available;
 
             double read_time(const std::string &freshness_path) const;
 
             geopm_time_s m_time_zero;
             double m_initial_freshness;
             double m_sample_rate;
-            std::map<std::string, signal_type_e> m_signal_offsets;
-            std::vector<signal_s> m_signals;
     };
 }
 
