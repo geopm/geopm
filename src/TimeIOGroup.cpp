@@ -216,7 +216,15 @@ namespace geopm
                             "not valid for TimeIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return "Time in seconds since the IOGroup load.";
+
+        std::string result = "Invalid signal description: no description found.";
+        result = "    description: Time since the start of application profiling.\n";
+        result += "    units: " + IOGroup::units_to_string(M_UNITS_SECONDS) + '\n';
+        result += "    aggregation: " + Agg::function_to_name(Agg::select_first) + '\n';
+        result += "    domain: " + platform_topo().domain_type_to_name(GEOPM_DOMAIN_CPU) + '\n';
+        result += "    iogroup: TimeIOGroup";
+
+        return result;
     }
 
     std::string TimeIOGroup::control_description(const std::string &control_name) const
