@@ -59,7 +59,7 @@ c   arguments will generate a continuous sequence.
       parameter(d2m46=0.5d0**46)
 
       save i246m1
-      data i246m1/X'00003FFFFFFFFFFF'/
+      data i246m1/Z'00003FFFFFFFFFFF'/
 
       Lx = X
       La = A
@@ -90,7 +90,7 @@ c      parameter(i246m1=2**46-1)
       parameter(d2m46=0.5d0**46)
 
       save i246m1
-      data i246m1/X'00003FFFFFFFFFFF'/
+      data i246m1/Z'00003FFFFFFFFFFF'/
 
 c Note that the v6 compiler on an R8000 does something stupid with
 c the above. Using the following instead (or various other things)
