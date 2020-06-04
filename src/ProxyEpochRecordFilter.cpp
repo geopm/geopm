@@ -34,9 +34,98 @@
 
 #include "ProxyEpochRecordFilter.hpp"
 #include "Exception.hpp"
+#include "Helper.hpp"
 
 namespace geopm
 {
+    static uint64_t parse_region_hash(std::string filter_name)
+    {
+        uint64_t region_hash = 0ULL;
+        int calls_per_epoch = 0;
+        int startup_count = 0;
+        ProxyEpochRecordFilter::parse_name(filter_name,
+                                           region_hash,
+                                           calls_per_epoch,
+                                           startup_count);
+        return region_hash;
+    }
+
+    static int parse_calls_per_epoch(std::string filter_name)
+    {
+        uint64_t region_hash = 0ULL;
+        int calls_per_epoch = 0;
+        int startup_count = 0;
+        ProxyEpochRecordFilter::parse_name(filter_name,
+                                           region_hash,
+                                           calls_per_epoch,
+                                           startup_count);
+        return calls_per_epoch;
+    }
+
+    static int parse_startup_count(std::string filter_name)
+    {
+        uint64_t region_hash = 0ULL;
+        int calls_per_epoch = 0;
+        int startup_count = 0;
+        ProxyEpochRecordFilter::parse_name(filter_name,
+                                           region_hash,
+                                           calls_per_epoch,
+                                           startup_count);
+        return startup_count;
+    }
+
+    ProxyEpochRecordFilter::ProxyEpochRecordFilter(const std::string &filter_name)
+        : ProxyEpochRecordFilter(parse_region_hash(filter_name),
+                                 parse_calls_per_epoch(filter_name),
+                                 parse_startup_count(filter_name))
+    {
+
+    }
+
+
+    void ProxyEpochRecordFilter::parse_name(const std::string &name,
+                                            uint64_t &region_hash,
+                                            int &calls_per_epoch,
+                                            int &startup_count)
+    {
+        std::vector<std::string> split_name = string_split(name, ",");
+        if (split_name[0] != "proxy_epoch") {
+            throw Exception("RecordFilter::make_unique(): Expected name of the form \"proxy_epoch,<HASH>[,<CALLS>[,<STARTUP>]]\", got: " + name,
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (split_name.size() <= 1ULL) {
+            throw Exception("RecordFilter::make_unique(): proxy_epoch type requires a hash, e.g. proxy_epoch,0x1234abcd",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        try {
+            region_hash = std::stoull(split_name[1], nullptr, 0);
+        }
+        catch (std::exception) {
+            throw Exception("RecordFilter::make_unique(): Unable to parse parameter region_hash from filter name: " + name,
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        calls_per_epoch = 1;
+        startup_count = 0;
+        if (split_name.size() > 2ULL) {
+            try {
+                calls_per_epoch = std::stoi(split_name[2]);
+            }
+            catch (std::exception) {
+                throw Exception("RecordFilter::make_unique(): Unable to parse parameter calls_per_epoch from filter name: " + name,
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+        if (split_name.size() > 3ULL) {
+            try {
+                startup_count = std::stoi(split_name[3]);
+            }
+            catch (std::exception) {
+                throw Exception("RecordFilter::make_unique(): Unable to parse parameter startup_count from filter name: " + name,
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+    }
+
     ProxyEpochRecordFilter::ProxyEpochRecordFilter(uint64_t region_hash,
                                                    int calls_per_epoch,
                                                    int startup_count)
@@ -79,4 +168,3 @@ namespace geopm
         return result;
     }
 }
-
