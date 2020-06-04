@@ -491,6 +491,7 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/EnergyEfficientRegionTest.cpp \
                           test/EnvironmentTest.cpp \
                           test/EpochIOGroupTest.cpp \
+                          test/EpochIOGroupIntegrationTest.cpp \
                           test/EpochRuntimeRegulatorTest.cpp \
                           test/ExceptionTest.cpp \
                           test/FilePolicyTest.cpp \
