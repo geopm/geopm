@@ -38,6 +38,7 @@
 #include <string.h>
 #include <errno.h>
 
+#include <cmath>
 #include <climits>
 #include <cinttypes>
 #include <fstream>

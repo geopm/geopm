@@ -32,6 +32,8 @@
 
 #include "config.h"
 
+#include "geopm_hash.h"
+
 #include "ProxyEpochRecordFilter.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
@@ -97,12 +99,15 @@ namespace geopm
             throw Exception("RecordFilter::make_unique(): proxy_epoch type requires a hash, e.g. proxy_epoch,0x1234abcd",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        if (split_name[1].empty()) {
+            throw Exception("RecordFilter::make_unique(): Parameter region_hash is empty",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         try {
             region_hash = std::stoull(split_name[1], nullptr, 0);
         }
         catch (const std::exception &) {
-            throw Exception("RecordFilter::make_unique(): Unable to parse parameter region_hash from filter name: " + name,
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            region_hash = geopm_crc32_str(split_name[1].c_str());
         }
         calls_per_epoch = 1;
         startup_count = 0;
