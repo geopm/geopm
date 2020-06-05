@@ -591,6 +591,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/TreeComm.hpp \
                             src/TreeCommLevel.cpp \
                             src/TreeCommLevel.hpp \
+                            src/ValidateRecord.cpp \
+                            src/ValidateRecord.hpp \
                             src/geopm.h \
                             src/geopm_agent.h \
                             src/geopm_endpoint.h \

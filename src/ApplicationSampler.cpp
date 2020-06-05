@@ -42,6 +42,7 @@
 #include "Exception.hpp"
 #include "RecordFilter.hpp"
 #include "Environment.hpp"
+#include "ValidateRecord.hpp"
 
 namespace geopm
 {
@@ -102,6 +103,7 @@ namespace geopm
                 uint64_t epoch_count;
                 uint64_t hint;
                 std::shared_ptr<RecordFilter> filter;
+                ValidateRecord valid;
             };
             void update_records_epoch(const geopm_prof_message_s &msg);
             void update_records_mpi(const geopm_prof_message_s &msg);
@@ -262,14 +264,21 @@ namespace geopm
                 update_records_progress(cache_it);
             }
         }
-        if (m_is_filtered) {
-            std::vector<ApplicationSampler::m_record_s> tmp_buffer;
-            for (auto &record_it : m_record_buffer) {
-                auto &proc = get_process(record_it.process);
+
+        std::vector<ApplicationSampler::m_record_s> tmp_buffer;
+        for (auto &record_it : m_record_buffer) {
+            auto &proc = get_process(record_it.process);
+            if (m_is_filtered) {
                 for (auto &filtered_it : proc.filter->filter(record_it)) {
+                    proc.valid.check(filtered_it);
                     tmp_buffer.push_back(filtered_it);
                 }
             }
+            else {
+                proc.valid.check(record_it);
+            }
+        }
+        if (m_is_filtered) {
             m_record_buffer = tmp_buffer;
         }
     }

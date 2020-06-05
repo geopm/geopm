@@ -434,6 +434,17 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/TreeCommTest.geometry_nonroot \
               test/gtest_links/TreeCommTest.overhead_send \
               test/gtest_links/TreeCommTest.send_receive \
+              test/gtest_links/ValidateRecordTest.valid_stream \
+              test/gtest_links/ValidateRecordTest.process_change \
+              test/gtest_links/ValidateRecordTest.hint_invalid \
+              test/gtest_links/ValidateRecordTest.entry_exit_paired \
+              test/gtest_links/ValidateRecordTest.entry_exit_unpaired \
+              test/gtest_links/ValidateRecordTest.double_entry \
+              test/gtest_links/ValidateRecordTest.exit_without_entry \
+              test/gtest_links/ValidateRecordTest.entry_exit_invalid_hash \
+              test/gtest_links/ValidateRecordTest.epoch_count_monotone \
+              test/gtest_links/ValidateRecordTest.epoch_count_gap \
+              test/gtest_links/ValidateRecordTest.time_monotone \
               # end
 
 if ENABLE_BETA
@@ -569,6 +580,7 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/TracerTest.cpp \
                           test/TreeCommLevelTest.cpp \
                           test/TreeCommTest.cpp \
+                          test/ValidateRecordTest.cpp \
                           test/geopm_test.cpp \
                           test/geopm_test_helper.cpp \
                           test/geopm_test.hpp \
