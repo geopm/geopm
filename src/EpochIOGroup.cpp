@@ -40,6 +40,7 @@
 #include "Helper.hpp"
 #include "Exception.hpp"
 #include "Agg.hpp"
+#include "geopm_debug.hpp"
 
 namespace geopm
 {
@@ -69,7 +70,7 @@ namespace geopm
         /// messages from processes not in this map.  For now assume
         /// this initial mapping contains all process that will put
         /// messages in queue.
-        m_cpu_process = m_app.per_cpu_process_id();
+        m_cpu_process = m_app.per_cpu_process();
         for (const auto &proc : m_cpu_process) {
             if (proc != -1 && m_epoch_map.find(proc) == m_epoch_map.end()) {
                 m_epoch_map[proc] = ProcessEpoch::make_unique();
@@ -150,7 +151,6 @@ namespace geopm
         if (result == -1) {
             result = m_active_signal.size();
             m_active_signal.push_back({signal_type, domain_type, domain_idx});
-            // m_is_signal_pushed = true;
             m_signal_idx_map[{signal_type, domain_idx}] = result;
         }
         return result;
@@ -167,13 +167,11 @@ namespace geopm
         if (!m_is_initialized) {
             init();
         }
-        /// @todo: assume update_records() will get called by controller
+        /// update_records() will get called by controller
         auto records = m_app.get_records();
         for (const auto &record : records) {
-            if (m_epoch_map.find(record.process) == m_epoch_map.end()) {
-                /// @todo: this should not happen; for now skip record
-                continue;
-            }
+            GEOPM_DEBUG_ASSERT(m_epoch_map.find(record.process) != m_epoch_map.end(),
+                               "ProcessEpoch for process in record not found");
             m_epoch_map.at(record.process)->update(record);
         }
         m_is_batch_read = true;
@@ -271,7 +269,7 @@ namespace geopm
 
     std::unique_ptr<IOGroup> EpochIOGroup::make_plugin(void)
     {
-        return std::unique_ptr<IOGroup>(new EpochIOGroup);
+        return geopm::make_unique<EpochIOGroup>();
     }
 
     std::function<double(const std::vector<double> &)> EpochIOGroup::agg_function(const std::string &signal_name) const
@@ -290,6 +288,7 @@ namespace geopm
             case M_SIGNAL_EPOCH_RUNTIME:
             case M_SIGNAL_EPOCH_RUNTIME_NETWORK:
             case M_SIGNAL_EPOCH_RUNTIME_IGNORE:
+                // use default of Agg::max
                 break;
             default:
 #ifdef GEOPM_DEBUG
@@ -317,6 +316,7 @@ namespace geopm
             case M_SIGNAL_EPOCH_RUNTIME:
             case M_SIGNAL_EPOCH_RUNTIME_NETWORK:
             case M_SIGNAL_EPOCH_RUNTIME_IGNORE:
+                // use default of string_format_double
                 break;
             default:
 #ifdef GEOPM_DEBUG
@@ -345,10 +345,10 @@ namespace geopm
                 result = "Last runtime between epoch events sampled from the process on the given CPU";
                 break;
             case M_SIGNAL_EPOCH_RUNTIME_NETWORK:
-                result = "Portion of the last epoch with the network hint sampled from the process on the given CPU";
+                result = "Portion of last runtime between epoch event where the application provided the network hint.";
                 break;
             case M_SIGNAL_EPOCH_RUNTIME_IGNORE:
-                result = "Portion of the last epoch with the ignore hint sampled from the process on the given CPU";
+                result = "Portion of last runtime between epoch event where the application provided the ignore hint.";
                 break;
             default:
 #ifdef GEOPM_DEBUG

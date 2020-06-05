@@ -48,7 +48,7 @@ class MockApplicationSampler : public geopm::ApplicationSampler
                            std::vector<uint64_t>(void));
         MOCK_CONST_METHOD0(per_cpu_progress,
                            std::vector<double>(void));
-        MOCK_CONST_METHOD0(per_cpu_process_id,
+        MOCK_CONST_METHOD0(per_cpu_process,
                            std::vector<int>(void));
         MOCK_METHOD1(set_sampler,
                      void(std::shared_ptr<geopm::ProfileSampler> sampler));

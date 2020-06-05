@@ -147,7 +147,12 @@ namespace geopm
             virtual std::vector<double> per_cpu_progress(void) const = 0;
             /// @brief Return a per-cpu vector of the process mapped
             ///        to each cpu.
-            virtual std::vector<int> per_cpu_process_id(void) const = 0;
+            virtual std::vector<int> per_cpu_process(void) const = 0;
+            /// @brief Format an m_event_e type as a string.
+            static std::string event_name(int event_type);
+            /// @brief Convert a human-readable event type string to
+            ///        an m_event_e
+            static int event_type(const std::string &event_name);
 
             // Deprecated API's below for access to legacy objects
             virtual void set_sampler(std::shared_ptr<ProfileSampler> sampler) = 0;
@@ -156,11 +161,6 @@ namespace geopm
             virtual std::shared_ptr<EpochRuntimeRegulator> get_regulator(void) = 0;
             virtual void set_io_sample(std::shared_ptr<ProfileIOSample> io_sample) = 0;
             virtual std::shared_ptr<ProfileIOSample> get_io_sample(void) = 0;
-            /// @brief Format an m_event_e type as a string.
-            static std::string event_name(int event_type);
-            /// @brief Convert a human-readable event type string to
-            ///        an m_event_e
-            static int event_type(const std::string &event_name);
         protected:
             virtual ~ApplicationSampler() = default;
             ApplicationSampler() = default;

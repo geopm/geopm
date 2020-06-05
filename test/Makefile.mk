@@ -188,6 +188,10 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/EnvironmentTest.user_disable_ompt \
               test/gtest_links/EnvironmentTest.record_filter_on \
               test/gtest_links/EnvironmentTest.record_filter_off \
+              test/gtest_links/EpochIOGroupIntegrationTest.read_batch_count \
+              test/gtest_links/EpochIOGroupIntegrationTest.read_batch_runtime \
+              test/gtest_links/EpochIOGroupIntegrationTest.read_batch_runtime_ignore \
+              test/gtest_links/EpochIOGroupIntegrationTest.read_batch_runtime_network \
               test/gtest_links/EpochIOGroupTest.no_controls \
               test/gtest_links/EpochIOGroupTest.read_batch \
               test/gtest_links/EpochIOGroupTest.sample_count \

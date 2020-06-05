@@ -89,7 +89,7 @@ namespace geopm
             std::map<uint64_t, std::string> get_name_map(uint64_t name_key) const override;
             std::vector<uint64_t> per_cpu_hint(void) const override;
             std::vector<double> per_cpu_progress(void) const override;
-            std::vector<int> per_cpu_process_id(void) const override;
+            std::vector<int> per_cpu_process(void) const override;
 
             void set_sampler(std::shared_ptr<ProfileSampler> sampler) override;
             std::shared_ptr<ProfileSampler> get_sampler(void) override;
@@ -301,7 +301,7 @@ namespace geopm
         return {};
     }
 
-    std::vector<int> ApplicationSamplerImp::per_cpu_process_id(void) const
+    std::vector<int> ApplicationSamplerImp::per_cpu_process(void) const
     {
         return m_sampler->cpu_rank();
     }

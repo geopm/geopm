@@ -72,7 +72,7 @@ void EpochIOGroupIntegrationTest::SetUp()
     std::vector<int> cpu_process { m_pid_0, m_pid_0, m_pid_1, m_pid_1 };
     ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU))
         .WillByDefault(Return(m_num_cpu));
-    ON_CALL(m_app, per_cpu_process_id())
+    ON_CALL(m_app, per_cpu_process())
         .WillByDefault(Return(cpu_process));
     m_epoch_0 = ProcessEpoch::make_unique();
     m_epoch_1 = ProcessEpoch::make_unique();
@@ -82,7 +82,6 @@ void EpochIOGroupIntegrationTest::SetUp()
     };
 
     EXPECT_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU));
-    EXPECT_CALL(m_app, per_cpu_process_id());
     m_group = std::make_shared<EpochIOGroup>(m_topo, m_app, process_map);
 }
 
@@ -96,6 +95,7 @@ enum {
 
 TEST_F(EpochIOGroupIntegrationTest, read_batch_count)
 {
+    EXPECT_CALL(m_app, per_cpu_process());
     int idx0 = -1;
     int idx1 = -1;
     // expectations for push
@@ -123,6 +123,7 @@ TEST_F(EpochIOGroupIntegrationTest, read_batch_count)
 
 TEST_F(EpochIOGroupIntegrationTest, read_batch_runtime)
 {
+    EXPECT_CALL(m_app, per_cpu_process());
     int idx0 = -1;
     int idx1 = -1;
     idx0 = m_group->push_signal("EPOCH_RUNTIME", GEOPM_DOMAIN_CPU, 0);
@@ -150,6 +151,7 @@ TEST_F(EpochIOGroupIntegrationTest, read_batch_runtime)
 
 TEST_F(EpochIOGroupIntegrationTest, read_batch_runtime_network)
 {
+    EXPECT_CALL(m_app, per_cpu_process());
     int idx0 = -1;
     int idx1 = -1;
     idx0 = m_group->push_signal("EPOCH_RUNTIME_NETWORK", GEOPM_DOMAIN_CPU, 0);
@@ -181,6 +183,7 @@ TEST_F(EpochIOGroupIntegrationTest, read_batch_runtime_network)
 
 TEST_F(EpochIOGroupIntegrationTest, read_batch_runtime_ignore)
 {
+    EXPECT_CALL(m_app, per_cpu_process());
     int idx0 = -1;
     int idx1 = -1;
     idx0 = m_group->push_signal("EPOCH_RUNTIME_IGNORE", GEOPM_DOMAIN_CPU, 0);
