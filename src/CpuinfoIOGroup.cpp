@@ -158,9 +158,12 @@ namespace geopm
                                    Agg::expect_same,
                                    "Step size between process frequency settings"}}})
     {
-        register_signal_alias("FREQUENCY_MIN", "CPUINFO::FREQ_MIN");
-        register_signal_alias("FREQUENCY_STICKER", "CPUINFO::FREQ_STICKER");
-        register_signal_alias("FREQUENCY_STEP", "CPUINFO::FREQ_STEP");
+        register_signal_alias("FREQUENCY_MIN", "CPUINFO::FREQ_MIN"); // TODO: Remove @ v2.0
+        register_signal_alias("FREQUENCY_STICKER", "CPUINFO::FREQ_STICKER"); // TODO: Remove @ v2.0
+        register_signal_alias("FREQUENCY_STEP", "CPUINFO::FREQ_STEP"); // TODO: Remove @ v2.0
+        register_signal_alias("CPU_FREQUENCY_MIN", "CPUINFO::FREQ_MIN");
+        register_signal_alias("CPU_FREQUENCY_STICKER", "CPUINFO::FREQ_STICKER");
+        register_signal_alias("CPU_FREQUENCY_STEP", "CPUINFO::FREQ_STEP");
     }
 
     void CpuinfoIOGroup::register_signal_alias(const std::string &alias_name,
