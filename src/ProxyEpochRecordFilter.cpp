@@ -100,7 +100,7 @@ namespace geopm
         try {
             region_hash = std::stoull(split_name[1], nullptr, 0);
         }
-        catch (std::exception) {
+        catch (const std::exception &) {
             throw Exception("RecordFilter::make_unique(): Unable to parse parameter region_hash from filter name: " + name,
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
@@ -110,7 +110,7 @@ namespace geopm
             try {
                 calls_per_epoch = std::stoi(split_name[2]);
             }
-            catch (std::exception) {
+            catch (const std::exception &) {
                 throw Exception("RecordFilter::make_unique(): Unable to parse parameter calls_per_epoch from filter name: " + name,
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
@@ -119,7 +119,7 @@ namespace geopm
             try {
                 startup_count = std::stoi(split_name[3]);
             }
-            catch (std::exception) {
+            catch (const std::exception &) {
                 throw Exception("RecordFilter::make_unique(): Unable to parse parameter startup_count from filter name: " + name,
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
