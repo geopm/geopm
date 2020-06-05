@@ -199,7 +199,7 @@ class TestLauncher(object):
                                                          self._node_list, self._host_file)
             launcher.run(stdout=outfile, stderr=outfile)
 
-    def run(self, test_name, include_geopm_policy=True):
+    def run(self, test_name, include_geopm_policy=True, add_geopm_args=[]):
         """ Run the test as configured at construction time.
 
         Arguments:
@@ -232,6 +232,7 @@ class TestLauncher(object):
                 argv.extend(['--geopm-report-signals', self._report_signals])
             if self._trace_signals:
                 argv.extend(['--geopm-trace-signals', self._trace_signals])
+            argv.extend(add_geopm_args)
             argv.extend(['--'])
             exec_wrapper = os.getenv('GEOPM_EXEC_WRAPPER', '')
             if exec_wrapper:

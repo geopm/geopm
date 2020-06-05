@@ -67,10 +67,10 @@ namespace geopm
         // until ProfileIOGroup is deprecated, EpochIOGroup is
         // registered first to prevent it from overloading signal
         // aliases.
-        register_plugin(EpochIOGroup::plugin_name(),
-                        EpochIOGroup::make_plugin);
         register_plugin(ProfileIOGroup::plugin_name(),
                         ProfileIOGroup::make_plugin);
+        register_plugin(EpochIOGroup::plugin_name(),
+                        EpochIOGroup::make_plugin);
 #ifdef GEOPM_CNL_IOGROUP
         register_plugin(CNLIOGroup::plugin_name(),
                         CNLIOGroup::make_plugin);
