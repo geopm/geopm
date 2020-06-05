@@ -96,7 +96,7 @@ class TestIntegration_@test_name@(unittest.TestCase):
         cls._skip_launch = not util.do_launch()
         cls._keep_files = (cls._skip_launch or
                            os.getenv('GEOPM_KEEP_FILES') is not None)
-        cls._agent_conf_path = test_name + '-agent-config.json'
+        cls._agent_conf_path = 'test_' + test_name + '-agent-config.json'
         # Clear out exception record for python 2 support
         geopmpy.error.exc_clear()
         if not cls._skip_launch:
@@ -111,8 +111,8 @@ class TestIntegration_@test_name@(unittest.TestCase):
             # energy efficient agent over this range.
             freq_min = geopm_test_launcher.geopmread("CPUINFO::FREQ_MIN board 0")
             freq_sticker = geopm_test_launcher.geopmread("CPUINFO::FREQ_STICKER board 0")
-            agent_conf_dict = {'FREQ_MIN':freq_min,
-                               'FREQ_MAX':freq_sticker}
+            agent_conf_dict = {'FREQ_MIN': freq_min,
+                               'FREQ_MAX': freq_sticker}
             agent_conf = geopmpy.io.AgentConf(cls._agent_conf_path,
                                               'energy_efficient',
                                               agent_conf_dict)
@@ -125,7 +125,7 @@ class TestIntegration_@test_name@(unittest.TestCase):
             launcher.set_num_node(num_node)
             launcher.set_num_rank(num_rank)
             # Run the test application
-            launcher.run(test_name)
+            launcher.run('test_' + test_name)
 
     @classmethod
     def tearDownClass(cls):
