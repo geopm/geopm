@@ -62,14 +62,15 @@ int main(int argc, char **argv)
                         "       geopmread SIGNAL_NAME DOMAIN_TYPE DOMAIN_INDEX\n"
                         "       geopmread [--domain [SIGNAL_NAME]]\n"
                         "       geopmread [--info [SIGNAL_NAME]]\n"
-                        "       geopmread [--help] [--version] [--cache]\n"
+                        "       geopmread [--help] [--version] [--cache] [--info-all]\n"
                         "\n"
                         "  SIGNAL_NAME:  name of the signal\n"
                         "  DOMAIN_TYPE:  name of the domain for which the signal should be read\n"
                         "  DOMAIN_INDEX: index of the domain, starting from 0\n"
                         "\n"
-                        "  -d, --domain                     print domain of a signal\n"
+                        "  -d, --domain                     print domains detected\n"
                         "  -i, --info                       print longer description of a signal\n"
+                        "  -I, --info-all                   print longer description of all signals\n"
                         "  -c, --cache                      create geopm topo cache if it does not exist\n"
                         "  -h, --help                       print brief summary of the command line\n"
                         "                                   usage information, then exit\n"
@@ -82,6 +83,7 @@ int main(int argc, char **argv)
     static struct option long_options[] = {
         {"domain", no_argument, NULL, 'd'},
         {"info", no_argument, NULL, 'i'},
+        {"info-all", no_argument, NULL, 'I'},
         {"cache", no_argument, NULL, 'c'},
         {"help", no_argument, NULL, 'h'},
         {"version", no_argument, NULL, 'v'},
@@ -92,13 +94,17 @@ int main(int argc, char **argv)
     int err = 0;
     bool is_domain = false;
     bool is_info = false;
-    while (!err && (opt = getopt_long(argc, argv, "dichv", long_options, NULL)) != -1) {
+    bool is_all_info = false;
+    while (!err && (opt = getopt_long(argc, argv, "diIchv", long_options, NULL)) != -1) {
         switch (opt) {
             case 'd':
                 is_domain = true;
                 break;
             case 'i':
                 is_info = true;
+                break;
+            case 'I':
+                is_all_info = true;
                 break;
             case 'c':
                 geopm::PlatformTopo::create_cache();
@@ -134,43 +140,36 @@ int main(int argc, char **argv)
     PlatformIO &platform_io = geopm::platform_io();
     const PlatformTopo &platform_topo = geopm::platform_topo();
     if (is_domain) {
-        if (pos_args.size() == 0) {
-            // print all domains
-            for (int dom = GEOPM_DOMAIN_BOARD; dom < GEOPM_NUM_DOMAIN; ++dom) {
-                std::cout << std::setw(24) << std::left
-                          << PlatformTopo::domain_type_to_name(dom)
-                          << platform_topo.num_domain(dom) << std::endl;
-            }
-        }
-        else {
-            // print domain for one signal
-            try {
-                int domain_type = platform_io.signal_domain_type(pos_args[0]);
-                std::cout << PlatformTopo::domain_type_to_name(domain_type) << std::endl;
-            }
-            catch (const geopm::Exception &ex) {
-                std::cerr << "Error: unable to determine signal type: " << ex.what() << std::endl;
-                err = EINVAL;
-            }
+        // print all domains
+        for (int dom = GEOPM_DOMAIN_BOARD; dom < GEOPM_NUM_DOMAIN; ++dom) {
+            std::cout << std::setw(24) << std::left
+                      << PlatformTopo::domain_type_to_name(dom)
+                      << platform_topo.num_domain(dom) << std::endl;
         }
     }
     else if (is_info) {
         try {
-            if (pos_args.size() == 0) {
-                // print all signals with description
-                auto signals = platform_io.signal_names();
-                for (const auto &sig : signals) {
-                    std::cout << sig << ":" << std::endl << platform_io.signal_description(sig) << std::endl;
-                }
+            // print description for one signal
+            if (pos_args.size() > 0) {
+                std::cout << pos_args[0] << ":" << std::endl
+                          << platform_io.signal_description(pos_args[0]) << std::endl;
             }
             else {
-                // print description for one signal
-                std::cout << pos_args[0] << ":" << std::endl << platform_io.signal_description(pos_args[0]) << std::endl;
+                std::cerr << "Error: no signal requested." << std::endl;
+                err = EINVAL;
             }
         }
         catch (const geopm::Exception &ex) {
             std::cerr << "Error: " << ex.what() << std::endl;
             err = EINVAL;
+        }
+    }
+    else if (is_all_info) {
+        // print all signals with description
+        auto signals = platform_io.signal_names();
+        for (const auto &sig : signals) {
+            std::cout << sig << ":" << std::endl
+                      << platform_io.signal_description(sig) << std::endl;
         }
     }
     else {
