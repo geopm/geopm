@@ -248,10 +248,10 @@ namespace geopm
         };
         std::vector<power_data> power_signals {
             {"POWER_PACKAGE",
-                    "Average package power in watts over 40 ms or 8 control loop iterations",
+                    "Average package power over 40 ms or 8 control loop iterations",
                     "ENERGY_PACKAGE"},
             {"POWER_DRAM",
-                    "Average DRAM power in watts over 40 ms or 8 control loop iterations",
+                    "Average DRAM power over 40 ms or 8 control loop iterations",
                     "ENERGY_DRAM"}
         };
         for (const auto &ps : power_signals) {
@@ -277,7 +277,7 @@ namespace geopm
                                                    energy_domain,
                                                    IOGroup::M_UNITS_WATTS,
                                                    agg_function(msr_name),
-                                                   ps.description};
+                                                   ps.description + "\n    alias_for: " + ps.msr_name + " rate of change"};
             }
         }
     }
