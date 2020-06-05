@@ -191,8 +191,8 @@ namespace geopm
             std::string msr_name;
         };
         std::vector<temp_data> temp_signals {
-            {"TEMPERATURE_CORE", "Core temperature in degrees C", "MSR::THERM_STATUS:DIGITAL_READOUT"},
-            {"TEMPERATURE_PACKAGE", "Package temperature in degrees C", "MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT"}
+            {"TEMPERATURE_CORE", "Core temperature", "MSR::THERM_STATUS:DIGITAL_READOUT"},
+            {"TEMPERATURE_PACKAGE", "Package temperature", "MSR::PACKAGE_THERM_STATUS:DIGITAL_READOUT"}
         };
         for (const auto &ts : temp_signals) {
             std::string signal_name = ts.temp_name;
@@ -217,7 +217,9 @@ namespace geopm
                                                    read_domain,
                                                    IOGroup::M_UNITS_CELSIUS,
                                                    agg_function(msr_name),
-                                                   ts.description};
+                                                   ts.description +
+                                                   "\n    alias_for: Temperature derived from PROCHOT and "
+                                                   + ts.msr_name};
             }
         }
     }
