@@ -93,8 +93,10 @@ namespace geopm
     std::set<std::string> EpochIOGroup::signal_names(void) const
     {
         std::set<std::string> names;
-        for (const auto &kv : m_valid_signal_name) {
-            names.insert(kv.first);
+        if (m_is_initialized) {
+            for (const auto &kv : m_valid_signal_name) {
+                names.insert(kv.first);
+            }
         }
         return names;
     }

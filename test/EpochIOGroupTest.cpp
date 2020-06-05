@@ -104,6 +104,9 @@ TEST_F(EpochIOGroupTest, valid_signals)
         "EPOCH_RUNTIME_NETWORK",
         "EPOCH_RUNTIME_IGNORE",
     };
+    // enable signals
+    EXPECT_CALL(m_app, per_cpu_process());
+    m_group->read_batch();
 
     auto signal_names = m_group->signal_names();
     for (const auto &name : expected_names) {
