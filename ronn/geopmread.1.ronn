@@ -37,7 +37,13 @@ PRINT ALL SIGNAL NAMES <br>
 `geopmread`
 
 PRINT DOMAIN NAME AND SIZE <br>
-`geopmread` --domain [SIGNAL_NAME]
+`geopmread` --domain
+
+PRINT SIGNAL DESCRIPTION <br>
+`geopmread` --info SIGNAL_NAME
+
+PRINT ALL SIGNAL DESCRIPTIONS <br>
+`geopmread` --info-all
 
 READ SIGNAL <br>
 `geopmread` SIGNAL_NAME DOMAIN_TYPE DOMAIN_INDEX
@@ -93,12 +99,14 @@ exists.  See the `--cache` option below for more information.
 ## OPTIONS
 
   * `-d`, `--domain`:
-    Print domain of a signal if SIGNAL_NAME is provided, or print a
-    list of all domains on the system.
+    Print a list of all domains on the system.
 
   * `-i`, `--info`:
-    Print description of a signal if SIGNAL_NAME is provided, or print a
-    list of all available signals with their descriptions, if any.
+    Print description of the provided SIGNAL_NAME.
+
+  * `-I`, `--info-all`:
+    Print a list of all available signals with their descriptions,
+    if any.
 
   * `-c`, `--cache`:
     Create a cache file for the geopm::PlatformTopo object if one does
