@@ -138,6 +138,7 @@
 /test_integration/test_ee_short_region_slop
 /test_integration/test_ee_timed_scaling_mix
 /test_integration/test_enforce_policy
+/test_integration/test_epoch_inference
 /test_integration/test_frequency_hint_usage
 /test_integration/test_omp_outer_loop
 /test_integration/test_profile_policy
