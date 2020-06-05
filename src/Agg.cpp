@@ -161,11 +161,11 @@ namespace geopm
         if (filtered.size() > 1) {
             double sum_squared = Agg::sum(filtered);
             sum_squared *= sum_squared;
-            std::vector<double> filtered_squared(filtered);
-            for (auto &it : filtered_squared) {
+            std::vector<double> operand_squared(filtered);
+            for (auto &it : operand_squared) {
                 it *= it;
             }
-            double sum_squares = Agg::sum(filtered_squared);
+            double sum_squares = Agg::sum(operand_squared);
             double aa = 1.0 / (filtered.size() - 1);
             double bb = aa / filtered.size();
             result = std::sqrt(aa * sum_squares - bb * sum_squared);

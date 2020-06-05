@@ -71,7 +71,7 @@ void EpochIOGroupTest::SetUp()
     std::vector<int> cpu_process { m_pid_0, m_pid_0, m_pid_1, m_pid_1 };
     ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU))
         .WillByDefault(Return(m_num_cpu));
-    ON_CALL(m_app, per_cpu_process_id())
+    ON_CALL(m_app, per_cpu_process())
         .WillByDefault(Return(cpu_process));
     m_epoch_0 = std::make_shared<MockProcessEpoch>();
     m_epoch_1 = std::make_shared<MockProcessEpoch>();
@@ -155,7 +155,7 @@ TIME|PROCESS|EVENT|SIGNAL
 1.28657223|33|EPOCH_COUNT|0x2
 1.286573997|42|EPOCH_COUNT|0x1
 )");
-    EXPECT_CALL(m_app, per_cpu_process_id());
+    EXPECT_CALL(m_app, per_cpu_process());
     EXPECT_CALL(*m_epoch_0, update(_)).Times(2);
     EXPECT_CALL(*m_epoch_1, update(_)).Times(1);
     m_group->read_batch();
@@ -165,7 +165,7 @@ TIME|PROCESS|EVENT|SIGNAL
 
 TEST_F(EpochIOGroupTest, sample_count)
 {
-    EXPECT_CALL(m_app, per_cpu_process_id());
+    EXPECT_CALL(m_app, per_cpu_process());
     int idx0 = -1;
     int idx1 = -1;
     idx0 = m_group->push_signal("EPOCH_COUNT", GEOPM_DOMAIN_CPU, 0);
@@ -196,7 +196,7 @@ TEST_F(EpochIOGroupTest, sample_count)
 
 TEST_F(EpochIOGroupTest, sample_runtime)
 {
-    EXPECT_CALL(m_app, per_cpu_process_id());
+    EXPECT_CALL(m_app, per_cpu_process());
     int idx0 = -1;
     int idx1 = -1;
     idx0 = m_group->push_signal("EPOCH_RUNTIME", GEOPM_DOMAIN_CPU, 0);
@@ -223,7 +223,7 @@ TEST_F(EpochIOGroupTest, sample_runtime)
 
 TEST_F(EpochIOGroupTest, sample_runtime_network)
 {
-    EXPECT_CALL(m_app, per_cpu_process_id());
+    EXPECT_CALL(m_app, per_cpu_process());
     int idx0 = -1;
     int idx1 = -1;
     idx0 = m_group->push_signal("EPOCH_RUNTIME_NETWORK", GEOPM_DOMAIN_CPU, 0);
@@ -250,7 +250,7 @@ TEST_F(EpochIOGroupTest, sample_runtime_network)
 
 TEST_F(EpochIOGroupTest, sample_runtime_ignore)
 {
-    EXPECT_CALL(m_app, per_cpu_process_id());
+    EXPECT_CALL(m_app, per_cpu_process());
     int idx0 = -1;
     int idx1 = -1;
     idx0 = m_group->push_signal("EPOCH_RUNTIME_IGNORE", GEOPM_DOMAIN_CPU, 0);

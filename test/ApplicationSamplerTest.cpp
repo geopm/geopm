@@ -250,6 +250,6 @@ TEST_F(ApplicationSamplerTest, process_mapping)
     std::vector<int> expected { 4, 5, 77, 32 };
     EXPECT_CALL(*m_mock_profile_sampler, cpu_rank())
         .WillOnce(Return(expected));
-    std::vector<int> result = ApplicationSampler::application_sampler().per_cpu_process_id();
+    std::vector<int> result = ApplicationSampler::application_sampler().per_cpu_process();
     EXPECT_EQ(expected, result);
 }
