@@ -109,7 +109,9 @@ namespace geopm
         }
 
         register_signal_alias("TIMESTAMP_COUNTER", "MSR::TIME_STAMP_COUNTER:TIMESTAMP_COUNT");
-        register_signal_alias("FREQUENCY", "MSR::PERF_STATUS:FREQ");
+        register_signal_alias("FREQUENCY", "MSR::PERF_STATUS:FREQ"); // TODO: Remove @ v2.0
+        register_signal_alias("CPU_FREQUENCY_STATUS", "MSR::PERF_STATUS:FREQ");
+        register_signal_alias("CPU_FREQUENCY_CONTROL", "MSR::PERF_CTL:FREQ");
 
         std::string max_turbo_name;
         switch (m_cpuid) {
@@ -129,9 +131,10 @@ namespace geopm
                 throw Exception("MSRIOGroup: Unsupported CPUID",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        register_signal_alias("FREQUENCY_MAX", max_turbo_name);
-        set_signal_description("FREQUENCY_MAX",
-                               "Maximum processor frequency.");
+        register_signal_alias("FREQUENCY_MAX", max_turbo_name); // TODO: Remove @ v2.0
+        set_signal_description("FREQUENCY_MAX", "Maximum processor frequency."); // TODO: Remove @ v2.0
+        register_signal_alias("CPU_FREQUENCY_MAX", max_turbo_name);
+        set_signal_description("CPU_FREQUENCY_MAX", "Maximum processor frequency.");
 
         register_signal_alias("ENERGY_PACKAGE", "MSR::PKG_ENERGY_STATUS:ENERGY");
         register_signal_alias("ENERGY_DRAM", "MSR::DRAM_ENERGY_STATUS:ENERGY");
@@ -146,7 +149,8 @@ namespace geopm
         register_power_signals();
 
         register_control_alias("POWER_PACKAGE_LIMIT", "MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT");
-        register_control_alias("FREQUENCY", "MSR::PERF_CTL:FREQ");
+        register_control_alias("FREQUENCY", "MSR::PERF_CTL:FREQ"); // TODO: Remove @ v2.0
+        register_control_alias("CPU_FREQUENCY_CONTROL", "MSR::PERF_CTL:FREQ");
         register_control_alias("POWER_PACKAGE_TIME_WINDOW", "MSR::PKG_POWER_LIMIT:PL1_TIME_WINDOW");
     }
 
@@ -155,7 +159,12 @@ namespace geopm
     {
         auto it = m_signal_available.find(name);
         if (it != m_signal_available.end()) {
-            it->second.description = description;
+            // Look for "alias_for".  Preserve it if present.
+            auto pos = it->second.description.find("    alias_for");
+            if(pos != std::string::npos) {
+                it->second.description.erase(0, pos);
+            }
+            it->second.description.insert(0, description + '\n');
         }
     }
 
