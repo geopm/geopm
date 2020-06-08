@@ -365,21 +365,21 @@ listed below.
   Applies the user specified filter to the application record data
   feed.  The only filter currently supported is the "proxy_epoch"
   filter.  Region entry and exit may be captured automatically through
-  runtimes like MPI and OpenMP.  Using this filter can enable one of
+  runtimes such as MPI and OpenMP.  Using this filter can enable one of
   these automatically captured regions to serve as a proxy for the
   outer loop of the application without modifying the application by
   inserting calls to `geopm_prof_epoch()` (see **geopm_prof_c(3)**).
-  The filter is specified as a comma separated list.  The first value
+  The filter is specified as a comma-separated list.  The first value
   selects the filter by name: "proxy_epoch". The second value in the
-  comma separated list specifies a region that will be used as a proxy
+  comma-separated list specifies a region that will be used as a proxy
   for calls to geopm_prof_epoch().  If the value can be interpreted as
   an integer, it will be used as the numerical region hash of the
   region name, otherwise, the value is interpreted as the region name.
-  The third value that can be provided in the comma separated list is
+  The third value that can be provided in the comma-separated list is
   optional.  If provided, it specifies the number of region entries
   into the proxy region that are expected per outer loop.  By default
   this is assumed to be 1.  The fourth optional parameter that can be
-  specified in the comma separated list is the number of region
+  specified in the comma-separated list is the number of region
   entries into the proxy region that are expected prior to the outer
   loop beginning.  By default this is assumed to be 0.  In the
   following example, the MPI_Barrier region entry is used as a proxy
