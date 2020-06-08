@@ -370,7 +370,7 @@ class TestIntegration(unittest.TestCase):
             for signal in ['runtime (sec)', 'package-energy (joules)', 'dram-energy (joules)']:
                 util.assertNear(self, totals[signal], unmarked[signal], msg='signal={}'.format(signal))
                 util.assertNear(self, totals[signal], epoch[signal], msg='signal={}'.format(signal))
-                self.assertGreaterEqual(totals[signal], epoch[signal], msg='signal={}'.format(signal))
+                util.assertNear(self, totals[signal], epoch[signal], msg='signal={}'.format(signal))
 
             util.assertNear(self, unmarked['runtime (sec)'], unmarked['sync-runtime (sec)'])
             util.assertNear(self, epoch['runtime (sec)'], epoch['sync-runtime (sec)'])
