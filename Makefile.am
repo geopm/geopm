@@ -197,8 +197,7 @@ ronn_man_noinst = man/GEOPM_CXX_MAN_Comm.3 \
                   man/GEOPM_CXX_MAN_ProfileIOSample.3 \
                   # end
 
-ronn_man_beta = man/geopmanalysis.1 \
-                man/geopmendpoint.1 \
+ronn_man_beta = man/geopmendpoint.1 \
                 man/geopmplotter.1 \
                 man/geopm_daemon_c.3 \
                 man/geopm_endpoint_c.3 \
@@ -311,7 +310,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/geopm_version.3.ronn \
              ronn/geopmadmin.1.ronn \
              ronn/geopmagent.1.ronn \
-             ronn/geopmanalysis.1.ronn \
              ronn/geopmbench.1.ronn \
              ronn/geopmctl.1.ronn \
              ronn/geopmendpoint.1.ronn \
