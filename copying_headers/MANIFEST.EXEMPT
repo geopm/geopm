@@ -86,7 +86,6 @@ ronn/geopm_topo_c.3.ronn
 ronn/geopm_version.3.ronn
 ronn/geopmadmin.1.ronn
 ronn/geopmagent.1.ronn
-ronn/geopmanalysis.1.ronn
 ronn/geopmbench.1.ronn
 ronn/geopmctl.1.ronn
 ronn/geopmendpoint.1.ronn

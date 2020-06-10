@@ -80,11 +80,6 @@ elif ! 2>/dev/null ${PYTHON_CMD} -c "import geopmpy.launcher"; then
     2>&1 ${PYTHON_CMD} -c "import geopmpy.launcher" | grep Module
     echo "       Please read the \"PYTHON INSTALL\" section of the main README."
     RC=1
-elif ! 2>/dev/null ${PYTHON_CMD} -c "import geopmpy.analysis"; then
-    echo "ERROR: The following Python dependencies are missing:"
-    2>&1 ${PYTHON_CMD} -c "import geopmpy.analysis" | grep Module
-    echo "       Please read the \"PYTHON INSTALL\" section of the main README."
-    RC=1
 fi
 
 # SYSTEMD Config check
@@ -242,4 +237,3 @@ if [ ${RC} -eq 0 ]; then
     echo "System is OK!"
 fi
 exit ${RC}
-
