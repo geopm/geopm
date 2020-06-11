@@ -89,7 +89,7 @@ namespace geopm
                     "scalar":    1e8,
                     "writeable": false,
                     "aggregation": "average",
-                    "description": "The value associated with the current operating frequency of the CPU."
+                    "description": "The current operating frequency of the CPU."
                 }
             }
         },
