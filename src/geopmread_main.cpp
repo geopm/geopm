@@ -60,9 +60,8 @@ int main(int argc, char **argv)
 {
     const char *usage = "\nUsage:\n"
                         "       geopmread SIGNAL_NAME DOMAIN_TYPE DOMAIN_INDEX\n"
-                        "       geopmread [--domain [SIGNAL_NAME]]\n"
                         "       geopmread [--info [SIGNAL_NAME]]\n"
-                        "       geopmread [--help] [--version] [--cache] [--info-all]\n"
+                        "       geopmread [--help] [--version] [--cache] [--info-all] [--domain]\n"
                         "\n"
                         "  SIGNAL_NAME:  name of the signal\n"
                         "  DOMAIN_TYPE:  name of the domain for which the signal should be read\n"

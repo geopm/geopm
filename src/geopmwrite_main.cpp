@@ -61,9 +61,8 @@ int main(int argc, char **argv)
 {
     const char *usage = "\nUsage:\n"
                         "       geopmwrite CONTROL_NAME DOMAIN_TYPE DOMAIN_INDEX VALUE\n"
-                        "       geopmwrite [--domain [CONTROL_NAME]]\n"
                         "       geopmwrite [--info [CONTROL_NAME]]\n"
-                        "       geopmwrite [--help] [--version] [--cache] [--info-all]\n"
+                        "       geopmwrite [--help] [--version] [--cache] [--info-all] [--domain]\n"
                         "\n"
                         "  CONTROL_NAME:  name of the control\n"
                         "  DOMAIN_TYPE:  name of the domain for which the control should be written\n"
