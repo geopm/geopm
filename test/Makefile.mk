@@ -63,6 +63,7 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/CircularBufferTest.buffer_capacity \
               test/gtest_links/CircularBufferTest.buffer_size \
               test/gtest_links/CircularBufferTest.buffer_values \
+              test/gtest_links/CircularBufferTest.make_vector_slice \
               test/gtest_links/CombinedSignalTest.sample_flat_derivative \
               test/gtest_links/CombinedSignalTest.sample_max \
               test/gtest_links/CombinedSignalTest.sample_slope_derivative \
@@ -138,6 +139,12 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/DomainControlTest.setup_batch \
               test/gtest_links/DomainControlTest.write \
               test/gtest_links/DomainControlTest.write_batch \
+              test/gtest_links/EditDistEpochRecordFilterTest.one_region_repeated \
+              test/gtest_links/EditDistEpochRecordFilterTest.filter_in \
+              test/gtest_links/EditDistEpochRecordFilterTest.filter_out \
+              test/gtest_links/EditDistPeriodicityDetectorTest.pattern_a \
+              test/gtest_links/EditDistPeriodicityDetectorTest.pattern_ab \
+              test/gtest_links/EditDistPeriodicityDetectorTest.pattern_abb \
               test/gtest_links/EndpointTest.attach_wait_loop_timeout_throws \
               test/gtest_links/EndpointTest.detach_wait_loop_timeout_throws \
               test/gtest_links/EndpointTest.get_hostnames \
@@ -483,7 +490,18 @@ EXTRA_DIST += test/InternalProfile.cpp \
               test/no_omp_cpu.c \
               test/pmpi_mock.c \
               test/ProxyEpochRecordFilterTest.tutorial_2_profile_trace \
+              test/EditDistPeriodicityDetectorTest.0_pattern_a.trace \
+              test/EditDistPeriodicityDetectorTest.1_pattern_ab.trace \
+              test/EditDistPeriodicityDetectorTest.2_pattern_abb.trace \
+              test/EditDistPeriodicityDetectorTest.3_pattern_abcdc.trace \
+              test/EditDistPeriodicityDetectorTest.4_pattern_ababc.trace \
+              test/EditDistPeriodicityDetectorTest.5_pattern_abababc.trace \
+              test/EditDistPeriodicityDetectorTest.6_pattern_add1.trace \
+              test/EditDistPeriodicityDetectorTest.7_pattern_add2.trace \
+              test/EditDistPeriodicityDetectorTest.8_pattern_subtract1.trace \
+              test/EditDistPeriodicityDetectorTest.cpp \
               # end
+              # FK: FIXME: Add new traceout file names here.
 
 test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/AgentFactoryTest.cpp \
@@ -502,6 +520,8 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/DerivativeSignalTest.cpp \
                           test/DifferenceSignalTest.cpp \
                           test/DomainControlTest.cpp \
+                          test/EditDistEpochRecordFilterTest.cpp \
+                          test/EditDistPeriodicityDetectorTest.cpp \
                           test/EndpointTest.cpp \
                           test/EndpointPolicyTracerTest.cpp \
                           test/EndpointUserTest.cpp \
