@@ -469,6 +469,10 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/DifferenceSignal.hpp \
                             src/DomainControl.cpp \
                             src/DomainControl.hpp \
+                            src/EditDistPeriodicityDetector.cpp \
+                            src/EditDistPeriodicityDetector.hpp \
+                            src/EditDistEpochRecordFilter.cpp \
+                            src/EditDistEpochRecordFilter.hpp \
                             src/ELF.cpp \
                             src/ELF.hpp \
                             src/Endpoint.cpp \
