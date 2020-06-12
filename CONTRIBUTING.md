@@ -128,10 +128,10 @@ initializer lists), and some versions of astyle will format the code
 slightly differently.
 
 Use C style variable names with lower case and underscores.  Upper
-camel case is used exclusively for class names.  Prefix all member
-variables with "m_" and all global variables with "g_".  Do not prefix
-class methods with "get_" or "set_", the interface should reflect the
-usage.
+camel case (pascal case) is used exclusively for class names.  Prefix
+all member variables with "m_" and all global variables with "g_".
+Prefer to avoid prefixing class names "get_" or "set_" if the
+interface can reflect the usage.
 
 Please avoid global variables as much as possible and if it is
 necessary to use a global (primarily for C code) please scope them
@@ -141,14 +141,22 @@ Avoid preprocessor macros as much as possible (use enum not #define).
 Preprocessor usage should be reserved for expressing configure time
 options.
 
+Use std::shared_ptr and std::unique_ptr to avoid use of raw pointers
+in any interfaces or class members.  There should be no calls to new
+or delete, and instead to std::make_shared() and geopm::make_unique().
+Prefer to forward declare classes and structures in header files and
+avoid including local header files in other header files.
+
 Introducing a new file requires a license comment in its header with a
-corresponding copying_headers/header.* file.  The new file path must
-be listed in the corresponding copying_headers/MANIFEST.* file.  This
-can be tested by running the copying_headers/test_license script after
-committing the new file to git, removing the geopm/MANIFEST file and
-running the autogen.sh script.  Files for which a license comment is
-not appropriate should be listed in copying_headers/MANIFEST.EXEMPT.
-Any new installed files should also be added geopm.spec.in.
+corresponding copying_headers/header.* file.  If the new file does not
+have the legal text from copying_headers/header.BSD3-intel at the top
+of the file, the new file path must be listed in the corresponding
+copying_headers/MANIFEST.* file.  This can be tested by running the
+copying_headers/test_license script after committing the new file to
+git, removing the geopm/MANIFEST file and running the autogen.sh
+script.  Files for which a license comment is not appropriate should
+be listed in copying_headers/MANIFEST.EXEMPT.  Any new installed files
+should also be added geopm.spec.in.
 
 Introducing a new man page requires changes in multiple files:
 1. The build target (man page) should be added to ronn_man in
