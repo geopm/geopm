@@ -93,7 +93,7 @@ namespace geopm
             double get_value(int signal_type, int process_id) const;
 
             const PlatformTopo &m_topo;
-            ApplicationSampler &m_app;
+            const ApplicationSampler &m_app;
             std::map<int, std::shared_ptr<ProcessEpoch> > m_epoch_map;
             int m_num_cpu;
             bool m_is_batch_read;
