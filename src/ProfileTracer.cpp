@@ -30,12 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
+
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
 #include <iostream>
 #include <iomanip>
-#include "ProfileTracer.hpp"
+#include "ProfileTracerImp.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Helper.hpp"
@@ -43,7 +45,9 @@
 #include "Environment.hpp"
 #include "Exception.hpp"
 #include "CSV.hpp"
-#include "config.h"
+#include "geopm_debug.hpp"
+#include "ApplicationSampler.hpp"
+#include "record.hpp"
 
 namespace geopm
 {
@@ -74,30 +78,70 @@ namespace geopm
             }
             m_csv = geopm::make_unique<CSVImp>(file_name, host_name, time_cstr, buffer_size);
 
-            m_csv->add_column("RANK", "integer");
-            m_csv->add_column("REGION_HASH", "hex");
-            m_csv->add_column("REGION_HINT", "hex");
-            m_csv->add_column("TIMESTAMP", "double");
-            m_csv->add_column("PROGRESS", "float");
+            m_csv->add_column("TIME", "double");
+            m_csv->add_column("PROCESS", "integer");
+            m_csv->add_column("EVENT", event_format);
+            m_csv->add_column("SIGNAL", event_format);
             m_csv->activate();
         }
     }
 
     ProfileTracerImp::~ProfileTracerImp() = default;
 
-    void ProfileTracerImp::update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
-                                  std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end)
+    std::string ProfileTracerImp::event_format(double value)
+    {
+        static bool is_signal = false;
+        static int event_type;
+        std::string result;
+
+        if (!is_signal) {
+            // This is a call to format the event column
+            // Store the event type for the next call
+            event_type = value;
+            result = ApplicationSampler::event_name((int)value);
+            // The next call will format the signal column
+            is_signal = true;
+        }
+        else {
+            // This is a call to format the signal column
+            switch (event_type) {
+                case EVENT_REGION_ENTRY:
+                case EVENT_REGION_EXIT:
+                    result = string_format_hex(value);
+                    break;
+                case EVENT_EPOCH_COUNT:
+                    result = string_format_integer(value);
+                    break;
+                case EVENT_HINT:
+                    result = string_format_hint(value);
+                    break;
+                default:
+                    result = "INVALID";
+                    GEOPM_DEBUG_ASSERT(false, "ProfileTracer::event_format(): event out of range");
+                    break;
+            }
+            // The next call will be to format the event column
+            is_signal = false;
+        }
+        return result;
+    }
+
+    void ProfileTracerImp::update(const std::vector<record_s> &records)
     {
         if (m_is_trace_enabled) {
             std::vector<double> sample(M_NUM_COLUMN);
-            for (auto it = prof_sample_begin; it != prof_sample_end; ++it) {
-                sample[M_COLUMN_RANK] = it->second.rank;
-                sample[M_COLUMN_REGION_HASH] = geopm_region_id_hash(it->second.region_id);
-                sample[M_COLUMN_REGION_HINT] = geopm_region_id_hint(it->second.region_id);
-                sample[M_COLUMN_TIME] = geopm_time_diff(&m_time_zero, &(it->second.timestamp));
-                sample[M_COLUMN_PROGRESS] = it->second.progress;
+            for (const auto &it : records) {
+                sample[M_COLUMN_TIME] = it.time;
+                sample[M_COLUMN_PROCESS] = it.process;
+                sample[M_COLUMN_EVENT] = it.event;
+                sample[M_COLUMN_SIGNAL] = it.signal;
                 m_csv->update(sample);
             }
         }
+    }
+
+    std::unique_ptr<ProfileTracer> ProfileTracer::make_unique(void)
+    {
+        return geopm::make_unique<ProfileTracerImp>();
     }
 }

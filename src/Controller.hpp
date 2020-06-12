@@ -53,6 +53,8 @@ namespace geopm
     class EndpointPolicyTracer;
     class TreeComm;
     class Agent;
+    class ProfileTracer;
+    class ApplicationSampler;
 
     class Controller
     {
@@ -71,10 +73,12 @@ namespace geopm
                        int num_send_up,
                        int num_send_down,
                        std::unique_ptr<TreeComm> tree_comm,
+                       const ApplicationSampler &application_sampler,
                        std::shared_ptr<ApplicationIO> application_io,
                        std::unique_ptr<Reporter> reporter,
                        std::unique_ptr<Tracer> tracer,
                        std::unique_ptr<EndpointPolicyTracer> policy_tracer,
+                       std::shared_ptr<ProfileTracer> profile_tracer,
                        std::vector<std::unique_ptr<Agent> > level_agent,
                        std::vector<std::string> policy_names,
                        const std::string &policy_path,
@@ -162,10 +166,12 @@ namespace geopm
             const int m_num_level_ctl;
             const int m_max_level;
             const int m_root_level;
+            const ApplicationSampler &m_application_sampler;
             std::shared_ptr<ApplicationIO> m_application_io;
             std::unique_ptr<Reporter> m_reporter;
             std::unique_ptr<Tracer> m_tracer;
             std::unique_ptr<EndpointPolicyTracer> m_policy_tracer;
+            std::shared_ptr<ProfileTracer> m_profile_tracer;
             std::vector<std::unique_ptr<Agent> > m_agent;
             const bool m_is_root;
             std::vector<double> m_in_policy;

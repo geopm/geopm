@@ -30,30 +30,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PROFILETRACER_HPP_INCLUDE
-#define PROFILETRACER_HPP_INCLUDE
+#ifndef PROFILETRACERIMP_HPP_INCLUDE
+#define PROFILETRACERIMP_HPP_INCLUDE
 
-#include <vector>
-#include <utility>
-#include <fstream>
-#include <memory>
+#include "config.h"
 
-#include "geopm_time.h"
-
-struct geopm_prof_message_s;
+#include "ProfileTracer.hpp"
 
 namespace geopm
 {
-    class CSV;
     struct record_s;
 
-    class ProfileTracer
+    class ProfileTracerImp : public ProfileTracer
     {
         public:
-            static std::unique_ptr<ProfileTracer> make_unique(void);
-            ProfileTracer() = default;
-            virtual ~ProfileTracer() = default;
-            virtual void update(const std::vector<record_s> &records) = 0;
+            ProfileTracerImp();
+            ProfileTracerImp(size_t buffer_size,
+                             bool is_trace_enabled,
+                             const std::string &file_name,
+                             const std::string &host_name,
+                             const struct geopm_time_s &time_0);
+            virtual ~ProfileTracerImp();
+            void update(const std::vector<record_s> &records);
+            static std::string event_format(double value);
+         private:
+             enum m_column_e {
+                M_COLUMN_TIME,
+                M_COLUMN_PROCESS,
+                M_COLUMN_EVENT,
+                M_COLUMN_SIGNAL,
+                M_NUM_COLUMN
+            };
+            bool m_is_trace_enabled;
+            std::unique_ptr<CSV> m_csv;
+            struct geopm_time_s m_time_zero;
     };
 }
 
