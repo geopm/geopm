@@ -36,6 +36,7 @@
 #include "gmock/gmock.h"
 
 #include "ApplicationSampler.hpp"
+#include "record.hpp"
 
 class MockApplicationSampler : public geopm::ApplicationSampler
 {

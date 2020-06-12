@@ -33,13 +33,17 @@
 #include <memory>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "ProfileTracer.hpp"
+#include "ProfileTracerImp.hpp"
 #include "Helper.hpp"
+#include "record.hpp"
 #include "geopm.h"
 #include "geopm_time.h"
 #include "geopm_internal.h"
 
 using testing::Return;
+using geopm::ProfileTracer;
+using geopm::ProfileTracerImp;
+using geopm::record_s;
 
 class ProfileTracerTest : public ::testing::Test
 {
@@ -48,28 +52,24 @@ class ProfileTracerTest : public ::testing::Test
         struct geopm_time_s m_time_stamp;
         std::string m_path = "test.profiletrace";
         std::string m_host_name = "myhost";
-        std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > m_data;
+        std::vector<record_s> m_data;
 };
 
 void ProfileTracerTest::SetUp(void)
 {
-    uint64_t region_id = 0x00000000fa5920d6ULL | GEOPM_REGION_HINT_COMPUTE;
-    double progress = 0.0;
-
-    struct geopm_time_s time_stamp;
-    geopm_time(&m_time_stamp);
-    time_stamp = m_time_stamp;
-    geopm_time_add(&time_stamp, 10, &time_stamp);
+    uint64_t region_hash = 0x00000000fa5920d6ULL;
+    double time = 10.0;
+    int event = geopm::EVENT_REGION_ENTRY;
     for (int rank = 0; rank != 4; ++rank) {
-        m_data.push_back({region_id, {rank, region_id, time_stamp, progress}});
-        geopm_time_add(&time_stamp, 1, &time_stamp);
+        m_data.push_back({time, rank, event, region_hash});
+        time += 1.0;
     }
 
-    geopm_time_add(&time_stamp, 20, &time_stamp);
-    progress = 1.0;
+    time += 20;
+    event = geopm::EVENT_REGION_EXIT;
     for (int rank = 3; rank != -1; --rank) {
-        m_data.push_back({region_id, {rank, region_id, time_stamp, progress}});
-        geopm_time_add(&time_stamp, 1, &time_stamp);
+        m_data.push_back({time, rank, event, region_hash});
+        time += 1.0;
     }
 }
 
@@ -77,8 +77,8 @@ TEST_F(ProfileTracerTest, construct_update_destruct)
 {
     {
         // Test that the constructor and update methods do not throw
-        std::unique_ptr<geopm::ProfileTracer> tracer = geopm::make_unique<geopm::ProfileTracerImp>(2, true, m_path, "", geopm::time_zero());
-        tracer->update(m_data.begin(), m_data.end());
+        std::unique_ptr<ProfileTracer> tracer = geopm::make_unique<ProfileTracerImp>(2, true, m_path, "", geopm::time_zero());
+        tracer->update(m_data);
     }
     // Test that a file was created by deleting it without error
     int err = unlink(m_path.c_str());
@@ -88,22 +88,22 @@ TEST_F(ProfileTracerTest, construct_update_destruct)
 TEST_F(ProfileTracerTest, format)
 {
     {
-        geopm::ProfileTracerImp tracer(2, true, m_path, m_host_name, m_time_stamp);
-        tracer.update(m_data.begin(), m_data.end());
+        std::unique_ptr<ProfileTracer> tracer = geopm::make_unique<ProfileTracerImp>(2, true, m_path, m_host_name, m_time_stamp);
+        tracer->update(m_data);
     }
     std::string output_path = m_path + "-" + m_host_name;
     std::string output = geopm::read_file(output_path);
     std::vector<std::string> output_lines = geopm::string_split(output, "\n");
     std::vector<std::string> expect_lines = {
-        "RANK|REGION_HASH|REGION_HINT|TIMESTAMP|PROGRESS",
-        "0|0x00000000fa5920d6|0x0000000200000000|10|0",
-        "1|0x00000000fa5920d6|0x0000000200000000|11|0",
-        "2|0x00000000fa5920d6|0x0000000200000000|12|0",
-        "3|0x00000000fa5920d6|0x0000000200000000|13|0",
-        "3|0x00000000fa5920d6|0x0000000200000000|34|1",
-        "2|0x00000000fa5920d6|0x0000000200000000|35|1",
-        "1|0x00000000fa5920d6|0x0000000200000000|36|1",
-        "0|0x00000000fa5920d6|0x0000000200000000|37|1"
+        "TIME|PROCESS|EVENT|SIGNAL",
+        "10|0|REGION_ENTRY|0x00000000fa5920d6",
+        "11|1|REGION_ENTRY|0x00000000fa5920d6",
+        "12|2|REGION_ENTRY|0x00000000fa5920d6",
+        "13|3|REGION_ENTRY|0x00000000fa5920d6",
+        "34|3|REGION_EXIT|0x00000000fa5920d6",
+        "35|2|REGION_EXIT|0x00000000fa5920d6",
+        "36|1|REGION_EXIT|0x00000000fa5920d6",
+        "37|0|REGION_EXIT|0x00000000fa5920d6",
     };
     auto expect_it = expect_lines.begin();
     for (const auto &output_it : output_lines) {

@@ -60,7 +60,6 @@ namespace geopm
     ProfileIOSampleImp::ProfileIOSampleImp(ApplicationSampler &application_sampler)
         : m_application_sampler(application_sampler)
         , m_thread_progress(m_application_sampler.get_sampler()->cpu_rank().size(), NAN)
-        , m_profile_tracer(geopm::make_unique<ProfileTracerImp>())
     {
         m_rank_idx_map = rank_to_node_local_rank(m_application_sampler.get_sampler()->cpu_rank());
         m_cpu_rank = rank_to_node_local_rank_per_cpu(m_application_sampler.get_sampler()->cpu_rank());
@@ -120,7 +119,6 @@ namespace geopm
     void ProfileIOSampleImp::update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                                     std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end)
     {
-        m_profile_tracer->update(prof_sample_begin, prof_sample_end);
         for (auto sample_it = prof_sample_begin; sample_it != prof_sample_end; ++sample_it) {
             auto rank_idx_it = m_rank_idx_map.find(sample_it->second.rank);
 #ifdef GEOPM_DEBUG

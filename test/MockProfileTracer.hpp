@@ -30,31 +30,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PROFILETRACER_HPP_INCLUDE
-#define PROFILETRACER_HPP_INCLUDE
+#ifndef MOCKPROFILETRACER_HPP_INCLUDE
+#define MOCKPROFILETRACER_HPP_INCLUDE
 
-#include <vector>
-#include <utility>
-#include <fstream>
-#include <memory>
+#include "gmock/gmock.h"
 
-#include "geopm_time.h"
+#include "ProfileTracer.hpp"
 
-struct geopm_prof_message_s;
-
-namespace geopm
+class MockProfileTracer : public geopm::ProfileTracer
 {
-    class CSV;
-    struct record_s;
-
-    class ProfileTracer
-    {
-        public:
-            static std::unique_ptr<ProfileTracer> make_unique(void);
-            ProfileTracer() = default;
-            virtual ~ProfileTracer() = default;
-            virtual void update(const std::vector<record_s> &records) = 0;
-    };
-}
+    public:
+        MOCK_METHOD1(update,
+                     void(const std::vector<geopm::record_s> &records));
+};
 
 #endif

@@ -543,6 +543,7 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/MockProfileIOSample.hpp \
                           test/MockProfileSampler.hpp \
                           test/MockProfileTable.hpp \
+                          test/MockProfileTracer.hpp \
                           test/MockProfileThreadTable.hpp \
                           test/MockRegionAggregator.hpp \
                           test/MockReporter.hpp \

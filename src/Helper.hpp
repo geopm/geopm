@@ -134,6 +134,8 @@ namespace geopm
     ///        byte-wise copied into the memory of signal.
     /// @return A well formatted string representation of the signal.
     std::string string_format_raw64(double signal);
+
+    std::string string_format_hint(double signal);
 }
 
 #endif

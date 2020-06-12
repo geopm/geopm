@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
+
 #include "Controller.hpp"
 
 #include <cmath>
@@ -51,7 +53,9 @@
 #include "EndpointUser.hpp"
 #include "FilePolicy.hpp"
 #include "Helper.hpp"
-#include "config.h"
+#include "ProfileTracer.hpp"
+#include "ApplicationSampler.hpp"
+#include "record.hpp"
 
 extern "C"
 {
@@ -179,6 +183,7 @@ namespace geopm
                      std::unique_ptr<TreeComm>(new TreeCommImp(ppn1_comm,
                          Agent::num_policy(environment().agent()),
                          Agent::num_sample(environment().agent()))),
+                     ApplicationSampler::application_sampler(),
                      std::shared_ptr<ApplicationIO>(new ApplicationIOImp(environment().shmkey())),
                      std::unique_ptr<Reporter>(new ReporterImp(get_start_time(),
                                                                environment().report(),
@@ -187,6 +192,7 @@ namespace geopm
                                                                ppn1_comm->rank())),
                      nullptr,
                      std::unique_ptr<EndpointPolicyTracer>(nullptr),
+                     ProfileTracer::make_unique(),
                      std::vector<std::unique_ptr<Agent> >{},
                      Agent::policy_names(environment().agent()),
                      environment().policy(),
@@ -204,10 +210,12 @@ namespace geopm
                            int num_send_down,
                            int num_send_up,
                            std::unique_ptr<TreeComm> tree_comm,
+                           const ApplicationSampler &application_sampler,
                            std::shared_ptr<ApplicationIO> application_io,
                            std::unique_ptr<Reporter> reporter,
                            std::unique_ptr<Tracer> tracer,
                            std::unique_ptr<EndpointPolicyTracer> policy_tracer,
+                           std::shared_ptr<ProfileTracer> profile_tracer,
                            std::vector<std::unique_ptr<Agent> > level_agent,
                            std::vector<std::string> policy_names,
                            const std::string &policy_path,
@@ -224,10 +232,12 @@ namespace geopm
         , m_num_level_ctl(m_tree_comm->num_level_controlled())
         , m_max_level(m_num_level_ctl + 1)
         , m_root_level(m_tree_comm->root_level())
+        , m_application_sampler(application_sampler)
         , m_application_io(std::move(application_io))
         , m_reporter(std::move(reporter))
         , m_tracer(std::move(tracer))
         , m_policy_tracer(std::move(policy_tracer))
+        , m_profile_tracer(std::move(profile_tracer))
         , m_agent(std::move(level_agent))
         , m_is_root(m_num_level_ctl == m_root_level)
         , m_in_policy(m_num_send_down, NAN)
@@ -345,6 +355,7 @@ namespace geopm
         m_application_io->update(m_comm);
         m_platform_io.read_batch();
         m_tracer->update(m_trace_sample, m_application_io->region_info());
+        m_profile_tracer->update(m_application_sampler.get_records());
         m_application_io->clear_region_info();
 
         while (!m_application_io->do_shutdown()) {
@@ -353,6 +364,7 @@ namespace geopm
         m_application_io->update(m_comm);
         m_platform_io.read_batch();
         m_tracer->update(m_trace_sample, m_application_io->region_info());
+        m_profile_tracer->update(m_application_sampler.get_records());
         m_application_io->clear_region_info();
         generate();
         m_platform_io.restore_control();
@@ -443,6 +455,7 @@ namespace geopm
         m_reporter->update();
         m_agent[0]->trace_values(m_trace_sample);
         m_tracer->update(m_trace_sample, m_application_io->region_info());
+        m_profile_tracer->update(m_application_sampler.get_records());
         m_application_io->clear_region_info();
 
         for (int level = 0; level < m_num_level_ctl; ++level) {

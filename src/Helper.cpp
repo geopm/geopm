@@ -44,6 +44,8 @@
 #include <fstream>
 #include <algorithm>
 #include <sstream>
+#include <map>
+#include "geopm.h"
 #include "geopm_hash.h"
 #include "Exception.hpp"
 #include "config.h"
@@ -224,6 +226,26 @@ namespace geopm
     {
         char result[NAME_MAX];
         snprintf(result, NAME_MAX, "0x%016" PRIx64, geopm_signal_to_field(signal));
+        return result;
+    }
+
+    std::string string_format_hint(double signal)
+    {
+        std::string result = "INVALID";
+        static const std::map<uint64_t, std::string> result_map {
+            {GEOPM_REGION_HINT_UNKNOWN, "UNKNOWN"},
+            {GEOPM_REGION_HINT_COMPUTE, "COMPUTE"},
+            {GEOPM_REGION_HINT_MEMORY, "MEMORY"},
+            {GEOPM_REGION_HINT_NETWORK, "NETWORK"},
+            {GEOPM_REGION_HINT_IO, "IO"},
+            {GEOPM_REGION_HINT_SERIAL, "SERIAL"},
+            {GEOPM_REGION_HINT_PARALLEL, "PARALLEL"},
+            {GEOPM_REGION_HINT_IGNORE, "IGNORE"},
+        };
+        auto it = result_map.find((uint64_t)signal);
+        if (it != result_map.end()) {
+            result = it->second;
+        }
         return result;
     }
 }
