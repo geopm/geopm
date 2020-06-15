@@ -43,7 +43,7 @@
 #include "geopm.h"
 
 using geopm::Exception;
-using geopm::ApplicationSampler;
+using geopm::record_s;
 using geopm::ProcessEpoch;
 using testing::Return;
 using testing::_;
@@ -87,10 +87,10 @@ void EpochIOGroupIntegrationTest::SetUp()
 
 // shorter names for the enum event types
 enum {
-    REGION_ENTRY = ApplicationSampler::M_EVENT_REGION_ENTRY,
-    REGION_EXIT = ApplicationSampler::M_EVENT_REGION_EXIT,
-    EPOCH_COUNT = ApplicationSampler::M_EVENT_EPOCH_COUNT,
-    HINT = ApplicationSampler::M_EVENT_HINT,
+    REGION_ENTRY = geopm::EVENT_REGION_ENTRY,
+    REGION_EXIT = geopm::EVENT_REGION_EXIT,
+    EPOCH_COUNT = geopm::EVENT_EPOCH_COUNT,
+    HINT = geopm::EVENT_HINT,
 };
 
 TEST_F(EpochIOGroupIntegrationTest, read_batch_count)
@@ -107,7 +107,7 @@ TEST_F(EpochIOGroupIntegrationTest, read_batch_count)
     EXPECT_NE(-1, idx1);
     EXPECT_NE(idx0, idx1);
 
-    std::vector<ApplicationSampler::m_record_s> records = {
+    std::vector<record_s> records = {
         {0.2, m_pid_0, EPOCH_COUNT, 0x1},
         {1.2, m_pid_0, EPOCH_COUNT, 0x2},
         {1.2, m_pid_1, EPOCH_COUNT, 0x1},
@@ -134,7 +134,7 @@ TEST_F(EpochIOGroupIntegrationTest, read_batch_runtime)
     EXPECT_NE(-1, idx1);
     EXPECT_NE(idx0, idx1);
 
-    std::vector<ApplicationSampler::m_record_s> records = {
+    std::vector<record_s> records = {
         {0.1, m_pid_1, EPOCH_COUNT, 0x10},
         {0.2, m_pid_0, EPOCH_COUNT, 0x10},
         {4.6, m_pid_1, EPOCH_COUNT, 0x11},
@@ -162,7 +162,7 @@ TEST_F(EpochIOGroupIntegrationTest, read_batch_runtime_network)
     EXPECT_NE(-1, idx1);
     EXPECT_NE(idx0, idx1);
 
-    std::vector<ApplicationSampler::m_record_s> records = {
+    std::vector<record_s> records = {
         {0.100, m_pid_0, EPOCH_COUNT, 0x10},
         {0.100, m_pid_0, HINT, GEOPM_REGION_HINT_NETWORK},
         {0.100, m_pid_1, EPOCH_COUNT, 0x12},
@@ -194,7 +194,7 @@ TEST_F(EpochIOGroupIntegrationTest, read_batch_runtime_ignore)
     EXPECT_NE(-1, idx1);
     EXPECT_NE(idx0, idx1);
 
-    std::vector<ApplicationSampler::m_record_s> records = {
+    std::vector<record_s> records = {
         { 2.00, m_pid_0, EPOCH_COUNT, 0x1},
         { 2.00, m_pid_1, EPOCH_COUNT, 0x1},
         { 2.00, m_pid_0, HINT, GEOPM_REGION_HINT_IGNORE},

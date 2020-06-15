@@ -37,6 +37,7 @@
 #include "ProxyEpochRecordFilter.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
+#include "ApplicationSampler.hpp"
 
 namespace geopm
 {
@@ -153,17 +154,17 @@ namespace geopm
         }
     }
 
-    std::vector<ApplicationSampler::m_record_s> ProxyEpochRecordFilter::filter(const ApplicationSampler::m_record_s &record)
+    std::vector<record_s> ProxyEpochRecordFilter::filter(const record_s &record)
     {
-        std::vector<ApplicationSampler::m_record_s> result;
-        if (record.event != ApplicationSampler::M_EVENT_EPOCH_COUNT) {
+        std::vector<record_s> result;
+        if (record.event != EVENT_EPOCH_COUNT) {
             result.push_back(record);
-            if (record.event == ApplicationSampler::M_EVENT_REGION_ENTRY &&
+            if (record.event == EVENT_REGION_ENTRY &&
                 record.signal == m_proxy_hash) {
                 if (m_count >= 0 &&
                     m_count % m_num_per_epoch == 0) {
-                    ApplicationSampler::m_record_s epoch_event = record;
-                    epoch_event.event = ApplicationSampler::M_EVENT_EPOCH_COUNT;
+                    record_s epoch_event = record;
+                    epoch_event.event = EVENT_EPOCH_COUNT;
                     epoch_event.signal = 1 + m_count / m_num_per_epoch;
                     result.push_back(epoch_event);
                 }

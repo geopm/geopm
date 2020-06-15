@@ -37,6 +37,8 @@
 
 namespace geopm
 {
+    struct record_s;
+
     /// @brief Filter that can be used to synthesize epoch events from
     ///        a sequence of region entry events.  The filter
     ///        suppresses received epoch events and passes through all
@@ -97,7 +99,7 @@ namespace geopm
             ///
             /// @return An empty vector or a vector of length one
             ///         containing a record of an epoch or hint event.
-            std::vector<ApplicationSampler::m_record_s> filter(const ApplicationSampler::m_record_s &record);
+            std::vector<record_s> filter(const record_s &record);
             /// @brief Static function that will parse the filter
             ///        string for the proxy_epoch into the constructor
             ///        arguments for a ProxyEpochRecordFilter.

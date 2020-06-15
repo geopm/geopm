@@ -38,15 +38,15 @@
 #include "ApplicationSampler.hpp"
 #include "geopm.h"
 
-using geopm::ApplicationSampler;
 using geopm::ValidateRecord;
+using geopm::record_s;
 
 class ValidateRecordTest : public ::testing::Test
 {
     protected:
         void SetUp();
         ValidateRecord m_filter;
-        ApplicationSampler::m_record_s m_record;
+        record_s m_record;
 };
 
 
@@ -54,7 +54,7 @@ void ValidateRecordTest::SetUp()
 {
     m_record.time = 2020.0;
     m_record.process = 42;
-    m_record.event = ApplicationSampler::M_EVENT_HINT;
+    m_record.event = geopm::EVENT_HINT;
     m_record.signal = GEOPM_REGION_HINT_UNKNOWN;
 }
 
@@ -63,17 +63,17 @@ TEST_F(ValidateRecordTest, valid_stream)
     m_filter.check(m_record);
 
     m_record.time += 1.0;
-    m_record.event = ApplicationSampler::M_EVENT_REGION_ENTRY;
+    m_record.event = geopm::EVENT_REGION_ENTRY;
     m_record.signal = 0xabcd1234;
     m_filter.check(m_record);
 
     m_record.time += 1.0;
-    m_record.event = ApplicationSampler::M_EVENT_REGION_EXIT;
+    m_record.event = geopm::EVENT_REGION_EXIT;
     m_record.signal = 0xabcd1234;
     m_filter.check(m_record);
 
     m_record.time += 1.0;
-    m_record.event = ApplicationSampler::M_EVENT_EPOCH_COUNT;
+    m_record.event = geopm::EVENT_EPOCH_COUNT;
     m_record.signal = 1;
     m_filter.check(m_record);
 
@@ -106,23 +106,23 @@ TEST_F(ValidateRecordTest, hint_invalid)
 
 TEST_F(ValidateRecordTest, entry_exit_paired)
 {
-    m_record.event = ApplicationSampler::M_EVENT_REGION_ENTRY;
+    m_record.event = geopm::EVENT_REGION_ENTRY;
     m_record.signal = 0xabcd1234ULL;
     m_filter.check(m_record);
 
     m_record.time += 1.0;
-    m_record.event = ApplicationSampler::M_EVENT_REGION_EXIT;
+    m_record.event = geopm::EVENT_REGION_EXIT;
     m_filter.check(m_record);
 }
 
 TEST_F(ValidateRecordTest, entry_exit_unpaired)
 {
-    m_record.event = ApplicationSampler::M_EVENT_REGION_ENTRY;
+    m_record.event = geopm::EVENT_REGION_ENTRY;
     m_record.signal = 0xabcd1234ULL;
     m_filter.check(m_record);
 
     m_record.time += 1.0;
-    m_record.event = ApplicationSampler::M_EVENT_REGION_EXIT;
+    m_record.event = geopm::EVENT_REGION_EXIT;
     m_record.signal = 0xabcd1235ULL;
     GEOPM_EXPECT_THROW_MESSAGE(m_filter.check(m_record),
                                GEOPM_ERROR_INVALID,
@@ -131,12 +131,12 @@ TEST_F(ValidateRecordTest, entry_exit_unpaired)
 
 TEST_F(ValidateRecordTest, double_entry)
 {
-    m_record.event = ApplicationSampler::M_EVENT_REGION_ENTRY;
+    m_record.event = geopm::EVENT_REGION_ENTRY;
     m_record.signal = 0xabcd1234ULL;
     m_filter.check(m_record);
 
     m_record.time += 1.0;
-    m_record.event = ApplicationSampler::M_EVENT_REGION_ENTRY;
+    m_record.event = geopm::EVENT_REGION_ENTRY;
     m_record.signal = 0xabcd1235ULL;
     GEOPM_EXPECT_THROW_MESSAGE(m_filter.check(m_record),
                                GEOPM_ERROR_INVALID,
@@ -145,7 +145,7 @@ TEST_F(ValidateRecordTest, double_entry)
 
 TEST_F(ValidateRecordTest, exit_without_entry)
 {
-    m_record.event = ApplicationSampler::M_EVENT_REGION_EXIT;
+    m_record.event = geopm::EVENT_REGION_EXIT;
     m_record.signal = 0xabcd1234ULL;
     GEOPM_EXPECT_THROW_MESSAGE(m_filter.check(m_record),
                                GEOPM_ERROR_INVALID,
@@ -154,7 +154,7 @@ TEST_F(ValidateRecordTest, exit_without_entry)
 
 TEST_F(ValidateRecordTest, entry_exit_invalid_hash)
 {
-    m_record.event = ApplicationSampler::M_EVENT_REGION_ENTRY;
+    m_record.event = geopm::EVENT_REGION_ENTRY;
     m_record.signal = UINT32_MAX + 1;
     GEOPM_EXPECT_THROW_MESSAGE(m_filter.check(m_record),
                                GEOPM_ERROR_INVALID,
@@ -163,7 +163,7 @@ TEST_F(ValidateRecordTest, entry_exit_invalid_hash)
 
 TEST_F(ValidateRecordTest, epoch_count_monotone)
 {
-    m_record.event = ApplicationSampler::M_EVENT_EPOCH_COUNT;
+    m_record.event = geopm::EVENT_EPOCH_COUNT;
     m_record.signal = 1;
     m_filter.check(m_record);
 
@@ -175,7 +175,7 @@ TEST_F(ValidateRecordTest, epoch_count_monotone)
 
 TEST_F(ValidateRecordTest, epoch_count_gap)
 {
-    m_record.event = ApplicationSampler::M_EVENT_EPOCH_COUNT;
+    m_record.event = geopm::EVENT_EPOCH_COUNT;
     m_record.signal = 1;
     m_filter.check(m_record);
 
@@ -192,7 +192,7 @@ TEST_F(ValidateRecordTest, time_monotone)
     m_filter.check(m_record);
 
     m_record.time -= 1.0;
-    m_record.event = ApplicationSampler::M_EVENT_REGION_ENTRY;
+    m_record.event = geopm::EVENT_REGION_ENTRY;
     m_record.signal = 0xabcd1234;
     GEOPM_EXPECT_THROW_MESSAGE(m_filter.check(m_record),
                                GEOPM_ERROR_INVALID,

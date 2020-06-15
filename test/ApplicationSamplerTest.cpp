@@ -46,6 +46,7 @@ using testing::Return;
 using geopm::ApplicationSampler;
 using geopm::ProfileSampler;
 using geopm::EpochRuntimeRegulator;
+using geopm::record_s;
 
 
 class ApplicationSamplerTest : public ::testing::Test
@@ -78,7 +79,7 @@ TEST_F(ApplicationSamplerTest, one_enter_exit)
     EXPECT_CALL(*m_mock_profile_sampler, sample_cache())
         .WillOnce(Return(message_buffer));
     ApplicationSampler::application_sampler().update_records();
-    std::vector<struct ApplicationSampler::m_record_s> result {
+    std::vector<struct record_s> result {
         ApplicationSampler::application_sampler().get_records()
     };
 
@@ -86,22 +87,22 @@ TEST_F(ApplicationSamplerTest, one_enter_exit)
 
     EXPECT_EQ(10.0, result[0].time);
     EXPECT_EQ(0, result[0].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_ENTRY, result[0].event);
+    EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[0].event);
     EXPECT_EQ(0xabcdULL, result[0].signal);
 
     EXPECT_EQ(10.0, result[1].time);
     EXPECT_EQ(0, result[1].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_HINT, result[1].event);
+    EXPECT_EQ(geopm::EVENT_HINT, result[1].event);
     EXPECT_EQ(GEOPM_REGION_HINT_COMPUTE, result[1].signal);
 
     EXPECT_EQ(11.0, result[2].time);
     EXPECT_EQ(0, result[2].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_EXIT, result[2].event);
+    EXPECT_EQ(geopm::EVENT_REGION_EXIT, result[2].event);
     EXPECT_EQ(0xabcdULL, result[2].signal);
 
     EXPECT_EQ(11.0, result[3].time);
     EXPECT_EQ(0, result[3].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_HINT, result[3].event);
+    EXPECT_EQ(geopm::EVENT_HINT, result[3].event);
     EXPECT_EQ(GEOPM_REGION_HINT_UNKNOWN, result[3].signal);
 }
 
@@ -119,7 +120,7 @@ TEST_F(ApplicationSamplerTest, with_mpi)
     EXPECT_CALL(*m_mock_profile_sampler, sample_cache())
         .WillOnce(Return(message_buffer));
     ApplicationSampler::application_sampler().update_records();
-    std::vector<struct ApplicationSampler::m_record_s> result {
+    std::vector<struct record_s> result {
         ApplicationSampler::application_sampler().get_records()
     };
 
@@ -127,32 +128,32 @@ TEST_F(ApplicationSamplerTest, with_mpi)
 
     EXPECT_EQ(10.0, result[0].time);
     EXPECT_EQ(234, result[0].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_ENTRY, result[0].event);
+    EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[0].event);
     EXPECT_EQ(0xabcdULL, result[0].signal);
 
     EXPECT_EQ(10.0, result[1].time);
     EXPECT_EQ(234, result[1].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_HINT, result[1].event);
+    EXPECT_EQ(geopm::EVENT_HINT, result[1].event);
     EXPECT_EQ(GEOPM_REGION_HINT_COMPUTE, result[1].signal);
 
     EXPECT_EQ(11.0, result[2].time);
     EXPECT_EQ(234, result[2].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_HINT, result[2].event);
+    EXPECT_EQ(geopm::EVENT_HINT, result[2].event);
     EXPECT_EQ(GEOPM_REGION_HINT_NETWORK, result[2].signal);
 
     EXPECT_EQ(12.0, result[3].time);
     EXPECT_EQ(234, result[3].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_HINT, result[3].event);
+    EXPECT_EQ(geopm::EVENT_HINT, result[3].event);
     EXPECT_EQ(GEOPM_REGION_HINT_COMPUTE, result[3].signal);
 
     EXPECT_EQ(13.0, result[4].time);
     EXPECT_EQ(234, result[4].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_EXIT, result[4].event);
+    EXPECT_EQ(geopm::EVENT_REGION_EXIT, result[4].event);
     EXPECT_EQ(0xabcdULL, result[4].signal);
 
     EXPECT_EQ(13.0, result[5].time);
     EXPECT_EQ(234, result[5].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_HINT, result[5].event);
+    EXPECT_EQ(geopm::EVENT_HINT, result[5].event);
     EXPECT_EQ(GEOPM_REGION_HINT_UNKNOWN, result[5].signal);
 }
 
@@ -172,7 +173,7 @@ TEST_F(ApplicationSamplerTest, with_epoch)
     EXPECT_CALL(*m_mock_profile_sampler, sample_cache())
         .WillOnce(Return(message_buffer));
     ApplicationSampler::application_sampler().update_records();
-    std::vector<struct ApplicationSampler::m_record_s> result {
+    std::vector<struct record_s> result {
         ApplicationSampler::application_sampler().get_records()
     };
 
@@ -180,66 +181,66 @@ TEST_F(ApplicationSamplerTest, with_epoch)
 
     EXPECT_EQ(10.0, result[0].time);
     EXPECT_EQ(0, result[0].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_ENTRY, result[0].event);
+    EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[0].event);
     EXPECT_EQ(0xabcdULL, result[0].signal);
 
     EXPECT_EQ(10.0, result[1].time);
     EXPECT_EQ(0, result[1].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_HINT, result[1].event);
+    EXPECT_EQ(geopm::EVENT_HINT, result[1].event);
     EXPECT_EQ(GEOPM_REGION_HINT_COMPUTE, result[1].signal);
 
     EXPECT_EQ(11.0, result[2].time);
     EXPECT_EQ(0, result[2].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_EPOCH_COUNT, result[2].event);
+    EXPECT_EQ(geopm::EVENT_EPOCH_COUNT, result[2].event);
     EXPECT_EQ(1ULL, result[2].signal);
 
     EXPECT_EQ(12.0, result[3].time);
     EXPECT_EQ(0, result[3].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_EXIT, result[3].event);
+    EXPECT_EQ(geopm::EVENT_REGION_EXIT, result[3].event);
     EXPECT_EQ(0xabcdULL, result[3].signal);
 
     EXPECT_EQ(12.0, result[4].time);
     EXPECT_EQ(0, result[4].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_HINT, result[4].event);
+    EXPECT_EQ(geopm::EVENT_HINT, result[4].event);
     EXPECT_EQ(GEOPM_REGION_HINT_UNKNOWN, result[4].signal);
 
     EXPECT_EQ(13.0, result[5].time);
     EXPECT_EQ(0, result[5].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_ENTRY, result[5].event);
+    EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[5].event);
     EXPECT_EQ(0xabcdULL, result[5].signal);
 
     EXPECT_EQ(13.0, result[6].time);
     EXPECT_EQ(0, result[6].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_HINT, result[6].event);
+    EXPECT_EQ(geopm::EVENT_HINT, result[6].event);
     EXPECT_EQ(GEOPM_REGION_HINT_COMPUTE, result[6].signal);
 
     EXPECT_EQ(14.0, result[7].time);
     EXPECT_EQ(0, result[7].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_EPOCH_COUNT, result[7].event);
+    EXPECT_EQ(geopm::EVENT_EPOCH_COUNT, result[7].event);
     EXPECT_EQ(2ULL, result[7].signal);
 
     EXPECT_EQ(15.0, result[8].time);
     EXPECT_EQ(0, result[8].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_EXIT, result[8].event);
+    EXPECT_EQ(geopm::EVENT_REGION_EXIT, result[8].event);
     EXPECT_EQ(0xabcdULL, result[8].signal);
 
     EXPECT_EQ(15.0, result[9].time);
     EXPECT_EQ(0, result[9].process);
-    EXPECT_EQ(ApplicationSampler::M_EVENT_HINT, result[9].event);
+    EXPECT_EQ(geopm::EVENT_HINT, result[9].event);
     EXPECT_EQ(GEOPM_REGION_HINT_UNKNOWN, result[9].signal);
 }
 
 TEST_F(ApplicationSamplerTest, string_conversion)
 {
-    EXPECT_EQ("REGION_ENTRY", ApplicationSampler::event_name(ApplicationSampler::M_EVENT_REGION_ENTRY));
-    EXPECT_EQ("REGION_EXIT", ApplicationSampler::event_name(ApplicationSampler::M_EVENT_REGION_EXIT));
-    EXPECT_EQ("EPOCH_COUNT", ApplicationSampler::event_name(ApplicationSampler::M_EVENT_EPOCH_COUNT));
-    EXPECT_EQ("HINT", ApplicationSampler::event_name(ApplicationSampler::M_EVENT_HINT));
+    EXPECT_EQ("REGION_ENTRY", ApplicationSampler::event_name(geopm::EVENT_REGION_ENTRY));
+    EXPECT_EQ("REGION_EXIT", ApplicationSampler::event_name(geopm::EVENT_REGION_EXIT));
+    EXPECT_EQ("EPOCH_COUNT", ApplicationSampler::event_name(geopm::EVENT_EPOCH_COUNT));
+    EXPECT_EQ("HINT", ApplicationSampler::event_name(geopm::EVENT_HINT));
 
-    EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_ENTRY, ApplicationSampler::event_type("REGION_ENTRY"));
-    EXPECT_EQ(ApplicationSampler::M_EVENT_REGION_EXIT, ApplicationSampler::event_type("REGION_EXIT"));
-    EXPECT_EQ(ApplicationSampler::M_EVENT_EPOCH_COUNT, ApplicationSampler::event_type("EPOCH_COUNT"));
-    EXPECT_EQ(ApplicationSampler::M_EVENT_HINT, ApplicationSampler::event_type("HINT"));
+    EXPECT_EQ(geopm::EVENT_REGION_ENTRY, ApplicationSampler::event_type("REGION_ENTRY"));
+    EXPECT_EQ(geopm::EVENT_REGION_EXIT, ApplicationSampler::event_type("REGION_EXIT"));
+    EXPECT_EQ(geopm::EVENT_EPOCH_COUNT, ApplicationSampler::event_type("EPOCH_COUNT"));
+    EXPECT_EQ(geopm::EVENT_HINT, ApplicationSampler::event_type("HINT"));
 
     EXPECT_THROW(ApplicationSampler::event_name(99), geopm::Exception);
     EXPECT_THROW(ApplicationSampler::event_type("INVALID"), geopm::Exception);

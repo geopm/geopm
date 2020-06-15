@@ -65,13 +65,13 @@ class MockApplicationSampler : public geopm::ApplicationSampler
         MOCK_CONST_METHOD1(get_name_map,
                            std::map<uint64_t, std::string>(uint64_t name_key));
 
-        std::vector<geopm::ApplicationSampler::m_record_s> get_records(void) const override;
+        std::vector<geopm::record_s> get_records(void) const override;
         /// Inject records to be used by next call to get_records()
         /// @todo: figure out input type for this
-        void inject_records(const std::vector<geopm::ApplicationSampler::m_record_s> &records);
+        void inject_records(const std::vector<geopm::record_s> &records);
         void inject_records(const std::string &record_trace);
     private:
-        std::vector<geopm::ApplicationSampler::m_record_s> m_records;
+        std::vector<geopm::record_s> m_records;
 };
 
 #endif

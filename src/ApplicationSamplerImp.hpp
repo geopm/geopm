@@ -50,7 +50,7 @@ namespace geopm
             virtual ~ApplicationSamplerImp() = default;
             void time_zero(const geopm_time_s &start_time) override;
             void update_records(void) override;
-            std::vector<m_record_s> get_records(void) const override;
+            std::vector<record_s> get_records(void) const override;
             std::map<uint64_t, std::string> get_name_map(uint64_t name_key) const override;
             std::vector<uint64_t> per_cpu_hint(void) const override;
             std::vector<double> per_cpu_progress(void) const override;
@@ -79,7 +79,7 @@ namespace geopm
             std::shared_ptr<EpochRuntimeRegulator> m_regulator;
             std::shared_ptr<ProfileIOSample> m_io_sample;
             struct geopm_time_s m_time_zero;
-            std::vector<m_record_s> m_record_buffer;
+            std::vector<record_s> m_record_buffer;
             std::map<int, m_process_s> m_process_map;
             std::function<std::unique_ptr<RecordFilter>()> m_filter_factory;
             bool m_is_filtered;

@@ -41,7 +41,7 @@ class MockProcessEpoch : public geopm::ProcessEpoch
 {
     public:
         MOCK_METHOD1(update,
-                     void(const geopm::ApplicationSampler::m_record_s &record));
+                     void(const geopm::record_s &record));
         MOCK_CONST_METHOD0(epoch_count,
                            int(void));
         MOCK_CONST_METHOD0(last_epoch_runtime,

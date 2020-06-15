@@ -51,7 +51,7 @@ namespace geopm
             ///        consistent with previously checked records.
             /// @param record [in] Application sampler record to be
             ///        validated.
-            void check(const ApplicationSampler::m_record_s &record);
+            void check(const record_s &record);
         private:
             bool m_is_empty;
             double m_time;
