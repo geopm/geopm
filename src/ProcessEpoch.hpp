@@ -36,11 +36,9 @@
 #include <cstdint>
 #include <memory>
 
-#include "ApplicationSampler.hpp"
-
-
 namespace geopm
 {
+    struct record_s;
     /// @brief Class that analyzes application records sent from a
     ///        single process to determine epoch related signals for
     ///        the EpochIOGroup.  These signals are:
@@ -76,7 +74,7 @@ namespace geopm
             ///        by the process tracked by this object.  It is
             ///        the callers responsiblity to filter out records
             ///        that are sent from other processes.
-            virtual void update(const ApplicationSampler::m_record_s &record) = 0;
+            virtual void update(const record_s &record) = 0;
             /// @brief The number of epoch events that have been
             ///        recieved from the process that is tracked by
             ///        this object.

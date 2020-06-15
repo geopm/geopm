@@ -39,12 +39,12 @@
 #include "Helper.hpp"
 #include "Exception.hpp"
 
-std::vector<geopm::ApplicationSampler::m_record_s> MockApplicationSampler::get_records(void) const
+std::vector<geopm::record_s> MockApplicationSampler::get_records(void) const
 {
     return m_records;
 }
 
-void MockApplicationSampler::inject_records(const std::vector<geopm::ApplicationSampler::m_record_s> &records)
+void MockApplicationSampler::inject_records(const std::vector<geopm::record_s> &records)
 {
     m_records = records;
 }

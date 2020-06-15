@@ -34,11 +34,11 @@
 #define RECORDFILTER_HPP_INCLUDE
 
 #include <vector>
-
-#include "ApplicationSampler.hpp"
+#include <memory>
 
 namespace geopm
 {
+    struct record_s;
     /// @brief Base class for filters that can be applied to
     ///        ApplicationSampler record streams produced by a single
     ///        process.
@@ -62,7 +62,7 @@ namespace geopm
             ///
             /// @return Vector of zero or more records to update the
             ///         filtered stream.
-            virtual std::vector<ApplicationSampler::m_record_s> filter(const ApplicationSampler::m_record_s &record) = 0;
+            virtual std::vector<record_s> filter(const record_s &record) = 0;
     };
 }
 

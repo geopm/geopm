@@ -41,7 +41,7 @@
 #include "geopm_test.hpp"
 
 using geopm::ProcessEpochImp;
-using geopm::ApplicationSampler;
+using geopm::record_s;
 
 
 class ProcessEpochImpTest : public ::testing::Test
@@ -50,7 +50,7 @@ class ProcessEpochImpTest : public ::testing::Test
         void update_all(void);
 
         ProcessEpochImp m_process;
-        std::vector<ApplicationSampler::m_record_s> m_records;
+        std::vector<record_s> m_records;
 };
 
 void ProcessEpochImpTest::update_all(void)
@@ -62,10 +62,10 @@ void ProcessEpochImpTest::update_all(void)
 
 // shorter names for the enum event types
 enum {
-    REGION_ENTRY = ApplicationSampler::M_EVENT_REGION_ENTRY,
-    REGION_EXIT = ApplicationSampler::M_EVENT_REGION_EXIT,
-    EPOCH_COUNT = ApplicationSampler::M_EVENT_EPOCH_COUNT,
-    HINT = ApplicationSampler::M_EVENT_HINT,
+    REGION_ENTRY = geopm::EVENT_REGION_ENTRY,
+    REGION_EXIT = geopm::EVENT_REGION_EXIT,
+    EPOCH_COUNT = geopm::EVENT_EPOCH_COUNT,
+    HINT = geopm::EVENT_HINT,
 };
 
 TEST_F(ProcessEpochImpTest, epoch_count)

@@ -49,10 +49,10 @@ namespace geopm
     std::string ApplicationSampler::event_name(int event_type)
     {
         static const std::map<int, std::string> event_names {
-            {M_EVENT_REGION_ENTRY, "REGION_ENTRY"},
-            {M_EVENT_REGION_EXIT, "REGION_EXIT"},
-            {M_EVENT_EPOCH_COUNT, "EPOCH_COUNT"},
-            {M_EVENT_HINT, "HINT"}
+            {EVENT_REGION_ENTRY, "REGION_ENTRY"},
+            {EVENT_REGION_EXIT, "REGION_EXIT"},
+            {EVENT_EPOCH_COUNT, "EPOCH_COUNT"},
+            {EVENT_HINT, "HINT"}
         };
         auto it = event_names.find(event_type);
         if (it == event_names.end()) {
@@ -65,10 +65,10 @@ namespace geopm
     int ApplicationSampler::event_type(const std::string &event_name)
     {
         static const std::map<std::string, int> event_types {
-            {"REGION_ENTRY", M_EVENT_REGION_ENTRY},
-            {"REGION_EXIT", M_EVENT_REGION_EXIT},
-            {"EPOCH_COUNT", M_EVENT_EPOCH_COUNT},
-            {"HINT", M_EVENT_HINT}
+            {"REGION_ENTRY", EVENT_REGION_ENTRY},
+            {"REGION_EXIT", EVENT_REGION_EXIT},
+            {"EPOCH_COUNT", EVENT_EPOCH_COUNT},
+            {"HINT", EVENT_HINT}
         };
         auto it = event_types.find(event_name);
         if (it == event_types.end()) {
@@ -114,11 +114,11 @@ namespace geopm
     {
         double time = geopm_time_diff(&m_time_zero, &(msg.timestamp));
         int process = msg.rank;
-        int event = M_EVENT_EPOCH_COUNT;
+        int event = EVENT_EPOCH_COUNT;
         m_process_s &proc_it = get_process(process);
         ++(proc_it.epoch_count);
         uint64_t epoch_count = proc_it.epoch_count;
-        m_record_buffer.emplace_back(m_record_s {
+        m_record_buffer.emplace_back(record_s {
             .time = time,
             .process = process,
             .event = event,
@@ -130,13 +130,13 @@ namespace geopm
     {
         double time = geopm_time_diff(&m_time_zero, &(msg.timestamp));
         int process = msg.rank;
-        int event = M_EVENT_HINT;
+        int event = EVENT_HINT;
         uint64_t hint = GEOPM_REGION_HINT_NETWORK;
         if (msg.progress == 1.0) {
             m_process_s &proc_it = get_process(process);
             hint = proc_it.hint;
         }
-        m_record_buffer.emplace_back(m_record_s {
+        m_record_buffer.emplace_back(record_s {
             .time = time,
             .process = process,
             .event = event,
@@ -149,9 +149,9 @@ namespace geopm
         double time = geopm_time_diff(&m_time_zero, &(msg.timestamp));
         int process = msg.rank;
         uint64_t hash = geopm_region_id_hash(msg.region_id);
-        int event = M_EVENT_REGION_ENTRY;
+        int event = EVENT_REGION_ENTRY;
         // Record event for change of region ID
-        m_record_buffer.emplace_back(m_record_s {
+        m_record_buffer.emplace_back(record_s {
               .time = time,
               .process = process,
               .event = event,
@@ -161,10 +161,10 @@ namespace geopm
         uint64_t hint = geopm_region_id_hint(msg.region_id);
         m_process_s &proc_it = get_process(process);
         proc_it.hint = hint;
-        m_record_buffer.emplace_back(m_record_s {
+        m_record_buffer.emplace_back(record_s {
             .time = time,
             .process = process,
-            .event = M_EVENT_HINT,
+            .event = EVENT_HINT,
             .signal = hint,
         });
     }
@@ -176,9 +176,9 @@ namespace geopm
         int process = msg.rank;
         /// Handle outer region entry and exit
         uint64_t hash = geopm_region_id_hash(msg.region_id);
-        int event = M_EVENT_REGION_EXIT;
+        int event = EVENT_REGION_EXIT;
         // Record event for change of region ID
-        m_record_buffer.emplace_back(m_record_s {
+        m_record_buffer.emplace_back(record_s {
             .time = time,
             .process = process,
             .event = event,
@@ -188,10 +188,10 @@ namespace geopm
         uint64_t hint = GEOPM_REGION_HINT_UNKNOWN;
         m_process_s &proc_it = get_process(process);
         proc_it.hint = hint;
-        m_record_buffer.emplace_back(m_record_s {
+        m_record_buffer.emplace_back(record_s {
             .time = time,
             .process = process,
-            .event = M_EVENT_HINT,
+            .event = EVENT_HINT,
             .signal = hint,
         });
     }
@@ -222,7 +222,7 @@ namespace geopm
             }
         }
 
-        std::vector<ApplicationSampler::m_record_s> tmp_buffer;
+        std::vector<record_s> tmp_buffer;
         for (auto &record_it : m_record_buffer) {
             auto &proc = get_process(record_it.process);
             if (m_is_filtered) {
@@ -240,7 +240,7 @@ namespace geopm
         }
     }
 
-    std::vector<ApplicationSampler::m_record_s> ApplicationSamplerImp::get_records(void) const
+    std::vector<record_s> ApplicationSamplerImp::get_records(void) const
     {
         return m_record_buffer;
     }

@@ -37,6 +37,7 @@
 #include "geopm.h"
 #include "ProcessEpochImp.hpp"
 #include "Exception.hpp"
+#include "ApplicationSampler.hpp"
 
 namespace geopm
 {
@@ -64,17 +65,17 @@ namespace geopm
         hint_map[GEOPM_REGION_HINT_IGNORE] = value;
     }
 
-    void ProcessEpochImp::update(const ApplicationSampler::m_record_s &record)
+    void ProcessEpochImp::update(const record_s &record)
     {
-        if (record.event == ApplicationSampler::M_EVENT_EPOCH_COUNT) {
+        if (record.event == EVENT_EPOCH_COUNT) {
             update_count(record);
         }
-        else if (record.event == ApplicationSampler::M_EVENT_HINT) {
+        else if (record.event == EVENT_HINT) {
             update_hint(record);
         }
     }
 
-    void ProcessEpochImp::update_count(const ApplicationSampler::m_record_s &record)
+    void ProcessEpochImp::update_count(const record_s &record)
     {
         // update count
         m_epoch_count = record.signal;
@@ -96,7 +97,7 @@ namespace geopm
         reset_hint_map(m_curr_hint_runtime, 0.0);
     }
 
-    void ProcessEpochImp::update_hint(const ApplicationSampler::m_record_s &record)
+    void ProcessEpochImp::update_hint(const record_s &record)
     {
         // update total for previous hint
         if (!std::isnan(m_last_hint_time)) {

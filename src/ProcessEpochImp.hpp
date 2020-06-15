@@ -33,17 +33,21 @@
 #ifndef PROCESSEPOCHIMP_HPP_INCLUDE
 #define PROCESSEPOCHIMP_HPP_INCLUDE
 
+#include <map>
+#include <cstdint>
+
 #include "ProcessEpoch.hpp"
 
 namespace geopm
 {
+    struct record_s;
     class ProcessEpochImp : public ProcessEpoch
     {
         public:
             ProcessEpochImp();
             virtual ~ProcessEpochImp() = default;
 
-            void update(const ApplicationSampler::m_record_s &record) override;
+            void update(const record_s &record) override;
             double last_epoch_runtime(void) const override;
             double last_epoch_runtime_network(void) const override;
             double last_epoch_runtime_ignore(void) const override;
@@ -56,8 +60,8 @@ namespace geopm
             double last_epoch_runtime_hint(uint64_t hint) const;
         private:
             void reset_hint_map(std::map<uint64_t, double> &hint_map, double value);
-            void update_count(const ApplicationSampler::m_record_s &record);
-            void update_hint(const ApplicationSampler::m_record_s &record);
+            void update_count(const record_s &record);
+            void update_hint(const record_s &record);
 
             int m_epoch_count;
             double m_last_epoch_time;

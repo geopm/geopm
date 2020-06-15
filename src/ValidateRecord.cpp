@@ -38,6 +38,7 @@
 #include "ValidateRecord.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
+#include "ApplicationSampler.hpp"
 
 namespace geopm
 {
@@ -56,7 +57,7 @@ namespace geopm
         }
     }
 
-    void ValidateRecord::check(const ApplicationSampler::m_record_s &record)
+    void ValidateRecord::check(const record_s &record)
     {
         if (m_is_empty) {
             m_time = record.time;
@@ -75,7 +76,7 @@ namespace geopm
         }
         m_time = record.time;
         switch (record.event) {
-            case ApplicationSampler::M_EVENT_HINT:
+            case EVENT_HINT:
                 if ((record.signal == 0ULL) || // check that the hint is not empty
                     (record.signal & (record.signal - 1)) || // check that only one bit is set
                     (record.signal & ~GEOPM_MASK_REGION_HINT)) { // check that the hint is in the mask
@@ -83,7 +84,7 @@ namespace geopm
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
                 break;
-            case ApplicationSampler::M_EVENT_REGION_ENTRY:
+            case EVENT_REGION_ENTRY:
                 validate_hash(record.signal);
                 if (m_region_hash != GEOPM_REGION_HASH_INVALID) {
                     throw Exception("ValidateRecord::filter(): Nested region entry detected",
@@ -91,7 +92,7 @@ namespace geopm
                 }
                 m_region_hash = record.signal;
                 break;
-            case ApplicationSampler::M_EVENT_REGION_EXIT:
+            case EVENT_REGION_EXIT:
                 validate_hash(record.signal);
                 if (m_region_hash == GEOPM_REGION_HASH_INVALID) {
                     throw Exception("ValidateRecord::filter(): Region exit without entry",
@@ -103,7 +104,7 @@ namespace geopm
                 }
                 m_region_hash = GEOPM_REGION_HASH_INVALID;
                 break;
-            case ApplicationSampler::M_EVENT_EPOCH_COUNT:
+            case EVENT_EPOCH_COUNT:
                 if (record.signal != m_epoch_count + 1) {
                     throw Exception("ValidateRecord::filter(): Epoch count not monotone and contiguous",
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
