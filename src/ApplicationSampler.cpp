@@ -35,7 +35,7 @@
 #include <map>
 #include <functional>
 
-#include "ApplicationSampler.hpp"
+#include "ApplicationSamplerImp.hpp"
 #include "ProfileSampler.hpp"
 #include "ProfileIOSample.hpp"
 #include "EpochRuntimeRegulator.hpp"
@@ -77,49 +77,6 @@ namespace geopm
         }
         return it->second;
     }
-
-    class ApplicationSamplerImp : public ApplicationSampler
-    {
-        public:
-            ApplicationSamplerImp();
-            ApplicationSamplerImp(std::function<std::unique_ptr<RecordFilter>()> filter_factory);
-            virtual ~ApplicationSamplerImp() = default;
-            void time_zero(const geopm_time_s &start_time) override;
-            void update_records(void) override;
-            std::vector<m_record_s> get_records(void) const override;
-            std::map<uint64_t, std::string> get_name_map(uint64_t name_key) const override;
-            std::vector<uint64_t> per_cpu_hint(void) const override;
-            std::vector<double> per_cpu_progress(void) const override;
-            std::vector<int> per_cpu_process(void) const override;
-
-            void set_sampler(std::shared_ptr<ProfileSampler> sampler) override;
-            std::shared_ptr<ProfileSampler> get_sampler(void) override;
-            void set_regulator(std::shared_ptr<EpochRuntimeRegulator> regulator) override;
-            std::shared_ptr<EpochRuntimeRegulator> get_regulator(void) override;
-            void set_io_sample(std::shared_ptr<ProfileIOSample> io_sample) override;
-            std::shared_ptr<ProfileIOSample> get_io_sample(void) override;
-        private:
-            struct m_process_s {
-                uint64_t epoch_count;
-                uint64_t hint;
-                std::shared_ptr<RecordFilter> filter;
-                ValidateRecord valid;
-            };
-            void update_records_epoch(const geopm_prof_message_s &msg);
-            void update_records_mpi(const geopm_prof_message_s &msg);
-            void update_records_entry(const geopm_prof_message_s &msg);
-            void update_records_exit(const geopm_prof_message_s &msg);
-            void update_records_progress(const geopm_prof_message_s &msg);
-            m_process_s &get_process(int process);
-            std::shared_ptr<ProfileSampler> m_sampler;
-            std::shared_ptr<EpochRuntimeRegulator> m_regulator;
-            std::shared_ptr<ProfileIOSample> m_io_sample;
-            struct geopm_time_s m_time_zero;
-            std::vector<m_record_s> m_record_buffer;
-            std::map<int, m_process_s> m_process_map;
-            std::function<std::unique_ptr<RecordFilter>()> m_filter_factory;
-            bool m_is_filtered;
-    };
 
     ApplicationSampler &ApplicationSampler::application_sampler(void)
     {
