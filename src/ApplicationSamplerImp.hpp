@@ -41,6 +41,7 @@ struct geopm_prof_message_s;
 namespace geopm
 {
     class RecordFilter;
+    struct record_s;
 
     class ApplicationSamplerImp : public ApplicationSampler
     {

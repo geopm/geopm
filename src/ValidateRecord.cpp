@@ -38,7 +38,7 @@
 #include "ValidateRecord.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
-#include "ApplicationSampler.hpp"
+#include "record.hpp"
 
 namespace geopm
 {

@@ -36,7 +36,7 @@
 #include "geopm_test.hpp"
 
 #include "RecordFilter.hpp"
-#include "ApplicationSampler.hpp"
+#include "record.hpp"
 
 using geopm::RecordFilter;
 using geopm::record_s;

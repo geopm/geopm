@@ -37,7 +37,7 @@
 #include "geopm.h"
 #include "ProcessEpochImp.hpp"
 #include "Exception.hpp"
-#include "ApplicationSampler.hpp"
+#include "record.hpp"
 
 namespace geopm
 {

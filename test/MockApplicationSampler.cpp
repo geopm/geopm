@@ -35,6 +35,7 @@
 #include <map>
 
 #include "MockApplicationSampler.hpp"
+#include "record.hpp"
 
 #include "Helper.hpp"
 #include "Exception.hpp"

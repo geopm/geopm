@@ -35,7 +35,7 @@
 #include "geopm_test.hpp"
 
 #include "ValidateRecord.hpp"
-#include "ApplicationSampler.hpp"
+#include "record.hpp"
 #include "geopm.h"
 
 using geopm::ValidateRecord;
