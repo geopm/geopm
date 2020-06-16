@@ -35,7 +35,7 @@
 
 
 #include "ProcessEpochImp.hpp"
-#include "ApplicationSampler.hpp"
+#include "record.hpp"
 #include "Exception.hpp"
 #include "geopm.h"
 #include "geopm_test.hpp"

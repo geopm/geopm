@@ -35,7 +35,7 @@
 #include "geopm_test.hpp"
 
 #include "ProxyEpochRecordFilter.hpp"
-#include "ApplicationSampler.hpp"
+#include "record.hpp"
 
 using geopm::record_s;
 using geopm::ProxyEpochRecordFilter;

@@ -43,6 +43,7 @@
 #include "RecordFilter.hpp"
 #include "Environment.hpp"
 #include "ValidateRecord.hpp"
+#include "record.hpp"
 
 namespace geopm
 {

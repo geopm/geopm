@@ -35,6 +35,7 @@
 
 #include "EpochIOGroup.hpp"
 #include "ApplicationSampler.hpp"
+#include "record.hpp"
 #include "Exception.hpp"
 #include "PlatformTopo.hpp"
 #include "MockPlatformTopo.hpp"

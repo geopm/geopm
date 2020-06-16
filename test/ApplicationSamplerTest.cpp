@@ -38,6 +38,7 @@
 #include "ApplicationSampler.hpp"
 #include "MockProfileSampler.hpp"
 #include "MockEpochRuntimeRegulator.hpp"
+#include "record.hpp"
 #include "geopm.h"
 #include "geopm_internal.h"
 

@@ -47,66 +47,7 @@ namespace geopm
     class ProfileSampler;
     class ProfileIOSample;
     class EpochRuntimeRegulator;
-    /// @brief Enumeration of event types that can be stored
-    ///        in a record.
-    ///
-    /// This enum is stored in the "event" field of an
-    /// m_record_s.  For each event type the "signal" field of
-    /// a record will represent different data.  The
-    /// description of the "signal" field in the m_record_s is
-    /// given for each enum value.
-    enum event_e {
-        EVENT_REGION_ENTRY = 0,  /// EVENT: The application has entered a region.
-                                   /// SIGNAL: The hash of the entered region.
-        EVENT_REGION_EXIT = 1,   /// EVENT: The application has exited a region.
-                                   /// SIGNAL: The hash of the exited region.
-        EVENT_EPOCH_COUNT = 2,   /// EVENT: An epoch call was made by the application.
-                                   /// SIGNAL: The number of epochs signaled by process.
-        EVENT_HINT = 3,          /// EVENT: Application behavior hint has changed.
-                                   ///        In the future this data will only be
-                                   ///        available as sampled by the per_cpu_hint()
-                                   ///        method and will not be reported as an event.
-                                   /// SIGNAL: The GEOPM_REGION_HINT enum value for the
-                                   ///         process.
-        ///
-        /// @todo SUPPORT FOR EVENTS BELOW IS FUTURE WORK
-        ///
-        EVENT_PROFILE = 4,       /// EVENT: The application has started up and all
-                                   ///        processes associated with the
-                                   ///        application identify their profile name.
-                                   /// SIGNAL: The hash of the profile name unique to
-                                   ///         the application.
-        EVENT_REPORT = 5,        /// EVENT: The application has completed and
-                                   ///        all processes associated with the
-                                   ///        application identify their report name.
-                                   /// SIGNAL: The hash of the report name.
-        EVENT_CLAIM_CPU = 6,     /// EVENT: The application has started up.  Each
-                                   ///        process will send one "claim" event per
-                                   ///        CPU in affinity mask.
-                                   /// SIGNAL: Linux logical CPU claimed by process.
-        EVENT_RELEASE_CPU = 7,   /// EVENT: The application is shutting down.  Each
-                                   ///        process will send one "release" event for
-                                   ///        every previous "claim" event.
-        EVENT_NAME_KEY = 8,      /// EVENT: The application is shutting down and has
-                                   ///        recorded all region names.
-                                   /// SIGNAL: A unique identifier which can be used to
-                                   ///         access the map to all strings hashed
-                                   ///         by the application (get_name_map()
-                                   ///         parameter).
-    };
-
-    /// @brief Record of an application event.
-    struct record_s {
-        /// @brief Elapsed time since time zero when event was
-        ///        recorded.
-        double time;
-        /// @brief The process identifier where event occurred.
-        int process;
-        /// @brief One of the m_event_e event types.
-        int event;
-        /// @brief The signal associated with the event type.
-        uint64_t signal;
-    };
+    struct record_s;
 
     class ApplicationSampler
     {

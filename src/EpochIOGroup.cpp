@@ -41,6 +41,7 @@
 #include "Exception.hpp"
 #include "Agg.hpp"
 #include "geopm_debug.hpp"
+#include "record.hpp"
 
 namespace geopm
 {
