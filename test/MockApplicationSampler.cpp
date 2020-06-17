@@ -32,6 +32,7 @@
 
 #include "config.h"
 
+#include <cmath>
 #include <map>
 
 #include "MockApplicationSampler.hpp"
@@ -40,14 +41,39 @@
 #include "Exception.hpp"
 #include "geopm.h"
 
+void MockApplicationSampler::update_time(double time)
+{
+    if (isnan(m_time_1)) {
+        m_time_1 = time;
+    }
+    else {
+        m_time_0 = m_time_1;
+        m_time_1 = time;
+    }
+}
+
 std::vector<geopm::record_s> MockApplicationSampler::get_records(void) const
 {
-    return m_records;
+    std::vector<geopm::record_s> result;
+    if (isnan(m_time_1)) {
+        result = m_records;
+    }
+    else {
+        for (const auto &it : m_records) {
+            if (it.time >= m_time_0 &&
+                it.time < m_time_1) {
+                result.push_back(it);
+            }
+        }
+    }
+    return result;
 }
 
 void MockApplicationSampler::inject_records(const std::vector<geopm::record_s> &records)
 {
     m_records = records;
+    m_time_0 = 0.0;
+    m_time_1 = NAN;
 }
 
 static uint64_t name_to_hint(std::string name)
@@ -72,6 +98,8 @@ static uint64_t name_to_hint(std::string name)
 void MockApplicationSampler::inject_records(const std::string &record_trace)
 {
     m_records.clear();
+    m_time_0 = 0.0;
+    m_time_1 = NAN;
 
     std::string header = "";
     std::vector<std::string> lines = geopm::string_split(record_trace, "\n");

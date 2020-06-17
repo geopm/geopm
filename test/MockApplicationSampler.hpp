@@ -71,8 +71,11 @@ class MockApplicationSampler : public geopm::ApplicationSampler
         /// @todo: figure out input type for this
         void inject_records(const std::vector<geopm::record_s> &records);
         void inject_records(const std::string &record_trace);
+        void update_time(double time);
     private:
         std::vector<geopm::record_s> m_records;
+        double m_time_0;
+        double m_time_1;
 };
 
 #endif
