@@ -155,9 +155,9 @@ TEST_F(EpochIOGroupTest, read_batch)
     m_app.inject_records(R"(
 # agent: monitor
 TIME|PROCESS|EVENT|SIGNAL
-0.286542262|33|EPOCH_COUNT|0x1
-1.28657223|33|EPOCH_COUNT|0x2
-1.286573997|42|EPOCH_COUNT|0x1
+0.286542262|33|EPOCH_COUNT|1
+1.28657223|33|EPOCH_COUNT|2
+1.286573997|42|EPOCH_COUNT|1
 )");
     EXPECT_CALL(m_app, per_cpu_process());
     EXPECT_CALL(*m_epoch_0, update(_)).Times(2);
