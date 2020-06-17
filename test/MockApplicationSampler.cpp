@@ -36,9 +36,9 @@
 
 #include "MockApplicationSampler.hpp"
 #include "record.hpp"
-
 #include "Helper.hpp"
 #include "Exception.hpp"
+#include "geopm.h"
 
 std::vector<geopm::record_s> MockApplicationSampler::get_records(void) const
 {
@@ -48,6 +48,25 @@ std::vector<geopm::record_s> MockApplicationSampler::get_records(void) const
 void MockApplicationSampler::inject_records(const std::vector<geopm::record_s> &records)
 {
     m_records = records;
+}
+
+static uint64_t name_to_hint(std::string name)
+{
+    uint64_t result = GEOPM_REGION_HINT_UNKNOWN;
+    static const std::map<std::string, uint64_t> result_map {
+        {"COMPUTE", GEOPM_REGION_HINT_COMPUTE},
+        {"MEMORY", GEOPM_REGION_HINT_MEMORY},
+        {"NETWORK", GEOPM_REGION_HINT_NETWORK},
+        {"IO", GEOPM_REGION_HINT_IO},
+        {"SERIAL", GEOPM_REGION_HINT_SERIAL},
+        {"PARALLEL", GEOPM_REGION_HINT_PARALLEL},
+        {"IGNORE", GEOPM_REGION_HINT_IGNORE},
+    };
+    auto it = result_map.find(name);
+    if (it != result_map.end()) {
+        result = it->second;
+    }
+    return result;
 }
 
 void MockApplicationSampler::inject_records(const std::string &record_trace)
@@ -75,8 +94,20 @@ void MockApplicationSampler::inject_records(const std::string &record_trace)
         double time = std::stod(cols[0]);
         int process = std::stoi(cols[1]);
         int event = geopm::ApplicationSampler::event_type(cols[2]);
+        uint64_t signal = 0;
         // assume hex is going to be most convenient
-        uint64_t signal = std::stoull(cols[3], 0, 16);
+        switch (event) {
+            case geopm::EVENT_REGION_ENTRY:
+            case geopm::EVENT_REGION_EXIT:
+                signal = std::stoull(cols[3], 0, 16);
+                break;
+            case geopm::EVENT_EPOCH_COUNT:
+                signal = std::stoi(cols[3]);
+                break;
+            case geopm::EVENT_HINT:
+                signal = name_to_hint(cols[3]);
+                break;
+        }
         m_records.push_back({time, process, event, signal});
     }
 }
