@@ -379,6 +379,7 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/ProxyEpochRecordFilterTest.filter_in \
               test/gtest_links/ProxyEpochRecordFilterTest.filter_out \
               test/gtest_links/ProxyEpochRecordFilterTest.parse_name \
+              test/gtest_links/ProxyEpochRecordFilterTest.parse_tutorial_2 \
               test/gtest_links/RawMSRSignalTest.errors \
               test/gtest_links/RawMSRSignalTest.read \
               test/gtest_links/RawMSRSignalTest.read_batch \
