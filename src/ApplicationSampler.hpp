@@ -88,11 +88,6 @@ namespace geopm
             /// @brief Return a per-cpu vector of the process mapped
             ///        to each cpu.
             virtual std::vector<int> per_cpu_process(void) const = 0;
-            /// @brief Format an event_e type as a string.
-            static std::string event_name(int event_type);
-            /// @brief Convert a human-readable event type string to
-            ///        an event_e
-            static int event_type(const std::string &event_name);
 
             // Deprecated API's below for access to legacy objects
             virtual void set_sampler(std::shared_ptr<ProfileSampler> sampler) = 0;

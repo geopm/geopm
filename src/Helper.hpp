@@ -134,13 +134,6 @@ namespace geopm
     ///        byte-wise copied into the memory of signal.
     /// @return A well formatted string representation of the signal.
     std::string string_format_raw64(double signal);
-    /// @brief Format a string to represent a hint enum from the
-    ///        geopm_region_hint_e.
-    /// @param [in] signal One of the hint enum values cast to a
-    ///        double.
-    /// @return A shortened string representation of the hint enum:
-    ///         e.g. GEOPM_REGION_HINT_MEMORY => "MEMORY".
-    std::string string_format_hint(double signal);
 }
 
 #endif

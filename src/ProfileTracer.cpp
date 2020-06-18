@@ -98,7 +98,7 @@ namespace geopm
             // This is a call to format the event column
             // Store the event type for the next call
             event_type = value;
-            result = ApplicationSampler::event_name((int)value);
+            result = event_name((int)value);
             // The next call will format the signal column
             is_signal = true;
         }
@@ -113,7 +113,7 @@ namespace geopm
                     result = string_format_integer(value);
                     break;
                 case EVENT_HINT:
-                    result = string_format_hint(value);
+                    result = hint_name(value);
                     break;
                 default:
                     result = "INVALID";

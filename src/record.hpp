@@ -34,6 +34,7 @@
 #define RECORD_HPP_INCLUDE
 
 #include <cstdint>
+#include <string>
 
 namespace geopm
 {
@@ -84,6 +85,23 @@ namespace geopm
                                  ///         by the application (get_name_map()
                                  ///         parameter).
     };
+
+    /// @brief Format an event_e type as a string.
+    std::string event_name(int event_type);
+    /// @brief Convert a human-readable event type string to
+    ///        an event_e
+    int event_type(const std::string &event_name);
+    /// @brief Format a string to represent a hint enum from the
+    ///        geopm_region_hint_e.
+    /// @param [in] hint One of the hint enum values.
+    /// @return A shortened string representation of the hint enum:
+    ///         e.g. GEOPM_REGION_HINT_MEMORY => "MEMORY".
+    std::string hint_name(uint64_t hint);
+    /// @brief Parse a string representing the hint name.
+    /// @param [in] hint_name A string representing the hint as would
+    ///        be returned by hint_type_to_name().
+    /// @return One of the geopm_region_hint_e enum values.
+    uint64_t hint_type(std::string hint_name);
 
     /// @brief Record of an application event.
     struct record_s {
