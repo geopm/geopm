@@ -101,7 +101,7 @@ namespace geopm
     /// @param [in] hint_name A string representing the hint as would
     ///        be returned by hint_type_to_name().
     /// @return One of the geopm_region_hint_e enum values.
-    uint64_t hint_type(std::string hint_name);
+    uint64_t hint_type(const std::string &hint_name);
 
     /// @brief Record of an application event.
     struct record_s {

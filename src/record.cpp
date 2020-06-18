@@ -93,7 +93,7 @@ namespace geopm
         return it->second;
     }
 
-    uint64_t hint_type(std::string hint_name)
+    uint64_t hint_type(const std::string &hint_name)
     {
         static const std::map<std::string, uint64_t> result_map {
             {"UNKNOWN", GEOPM_REGION_HINT_UNKNOWN},
