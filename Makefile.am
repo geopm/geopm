@@ -617,6 +617,7 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/msr_data_knl.cpp \
                             src/msr_data_skx.cpp \
                             src/msr_data_snb.cpp \
+                            src/record.cpp \
                             src/record.hpp \
                             # end
 

@@ -76,25 +76,6 @@ void MockApplicationSampler::inject_records(const std::vector<geopm::record_s> &
     m_time_1 = NAN;
 }
 
-static uint64_t name_to_hint(std::string name)
-{
-    uint64_t result = GEOPM_REGION_HINT_UNKNOWN;
-    static const std::map<std::string, uint64_t> result_map {
-        {"COMPUTE", GEOPM_REGION_HINT_COMPUTE},
-        {"MEMORY", GEOPM_REGION_HINT_MEMORY},
-        {"NETWORK", GEOPM_REGION_HINT_NETWORK},
-        {"IO", GEOPM_REGION_HINT_IO},
-        {"SERIAL", GEOPM_REGION_HINT_SERIAL},
-        {"PARALLEL", GEOPM_REGION_HINT_PARALLEL},
-        {"IGNORE", GEOPM_REGION_HINT_IGNORE},
-    };
-    auto it = result_map.find(name);
-    if (it != result_map.end()) {
-        result = it->second;
-    }
-    return result;
-}
-
 void MockApplicationSampler::inject_records(const std::string &record_trace)
 {
     m_records.clear();
@@ -121,7 +102,7 @@ void MockApplicationSampler::inject_records(const std::string &record_trace)
         // columns match fields from m_record_s
         double time = std::stod(cols[0]);
         int process = std::stoi(cols[1]);
-        int event = geopm::ApplicationSampler::event_type(cols[2]);
+        int event = geopm::event_type(cols[2]);
         uint64_t signal = 0;
         // assume hex is going to be most convenient
         switch (event) {
@@ -133,7 +114,7 @@ void MockApplicationSampler::inject_records(const std::string &record_trace)
                 signal = std::stoi(cols[3]);
                 break;
             case geopm::EVENT_HINT:
-                signal = name_to_hint(cols[3]);
+                signal = geopm::hint_type(cols[3]);
                 break;
         }
         m_records.push_back({time, process, event, signal});
