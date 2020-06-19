@@ -107,11 +107,14 @@ TEST_F(ProfileTracerTest, format)
     };
     auto expect_it = expect_lines.begin();
     for (const auto &output_it : output_lines) {
-        if (output_it[0] != '#' && output_it.size()) {
+        if (expect_it != expect_lines.end() &&
+            !output_it.empty() &&
+            output_it[0] != '#') {
             EXPECT_EQ(*expect_it, output_it);
             ++expect_it;
         }
     }
+    EXPECT_EQ(expect_lines.end(), expect_it);
     int err = unlink(output_path.c_str());
     EXPECT_EQ(0, err);
 }
