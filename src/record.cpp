@@ -87,7 +87,7 @@ namespace geopm
         };
         auto it = result_map.find(hint);
         if (it == result_map.end()) {
-            throw Exception("Profile::hint_hame(): Invalid hint",
+            throw Exception("hint_hame(): Invalid hint",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return it->second;
@@ -107,7 +107,7 @@ namespace geopm
         };
         auto it = result_map.find(hint_name);
         if (it == result_map.end()) {
-            throw Exception("Profile::hint_type():  Unknown hint name: " + hint_name + "\n",
+            throw Exception("hint_type():  Unknown hint name: " + hint_name + "\n",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return it->second;
