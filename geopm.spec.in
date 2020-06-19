@@ -117,7 +117,7 @@ test -f configure || ./autogen.sh
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --disable-mpi --disable-openmp \
-            --disable-fortran --disable-doc \
+            --disable-fortran --disable-ronn \
             --with-python=%{python_bin} \
             || ( cat config.log && false )
 %else
@@ -125,7 +125,7 @@ test -f configure || ./autogen.sh
             --includedir=%{_includedir} --sbindir=%{_sbindir} \
             --mandir=%{_mandir} --docdir=%{docdir} \
             --disable-mpi --disable-openmp \
-            --disable-fortran --disable-doc \
+            --disable-fortran --disable-ronn \
             --with-python=%{python_bin} \
             || ( cat config.log && false )
 %endif

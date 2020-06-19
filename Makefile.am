@@ -784,7 +784,7 @@ rpm-theta: dist
 	cp geopm-theta.spec $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
 	rpmbuild $(rpmbuild_flags) --buildroot=$(rpm_topdir)-root --define "_sourcedir $(rpm_topdir)/SOURCES" -ba $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
 
-if ENABLE_DOC
+if ENABLE_RONN
 
 # DOXYGEN TARGET
 

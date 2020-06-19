@@ -259,19 +259,19 @@ fi
 AC_SUBST([enable_fortran])
 AM_CONDITIONAL([ENABLE_FORTRAN], [test "x$enable_fortran" = "x1"])
 
-AC_ARG_ENABLE([doc],
-  [AS_HELP_STRING([--disable-doc], [Do not create man pages with ronn])],
-[if test "x$enable_doc" = "xno" ; then
-  enable_doc="0"
+AC_ARG_ENABLE([ronn],
+  [AS_HELP_STRING([--disable-ronn], [Do not create man pages with ronn])],
+[if test "x$enable_ronn" = "xno" ; then
+  enable_ronn="0"
 else
-  enable_doc="1"
+  enable_ronn="1"
 fi
 ],
-[enable_doc="1"]
+[enable_ronn="1"]
 )
 
-AC_SUBST([enable_doc])
-AM_CONDITIONAL([ENABLE_DOC], [test "x$enable_doc" = "x1"])
+AC_SUBST([enable_ronn])
+AM_CONDITIONAL([ENABLE_RONN], [test "x$enable_ronn" = "x1"])
 
 AC_ARG_WITH([libelf], [AS_HELP_STRING([--with-libelf=PATH],
             [specify directory for installed libelf package.])])
@@ -640,7 +640,7 @@ AC_MSG_RESULT([overhead           : ${enable_overhead}])
 AC_MSG_RESULT([mpi                : ${enable_mpi}])
 AC_MSG_RESULT([openmp             : ${enable_openmp}])
 AC_MSG_RESULT([fortran            : ${enable_fortran}])
-AC_MSG_RESULT([doc                : ${enable_doc}])
+AC_MSG_RESULT([ronn               : ${enable_ronn}])
 AC_MSG_RESULT([ompt               : ${enable_ompt}])
 AC_MSG_RESULT([beta               : ${enable_beta}])
 AC_MSG_RESULT([bloat              : ${enable_bloat}])
