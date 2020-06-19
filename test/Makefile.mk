@@ -482,6 +482,7 @@ EXTRA_DIST += test/InternalProfile.cpp \
               test/legacy_whitelist.out \
               test/no_omp_cpu.c \
               test/pmpi_mock.c \
+              test/ProxyEpochRecordFilterTest.tutorial_2_profile_trace \
               # end
 
 test_geopm_test_SOURCES = test/AdminTest.cpp \
