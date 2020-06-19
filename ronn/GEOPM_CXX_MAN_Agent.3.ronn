@@ -266,22 +266,29 @@ I/O implementations by different `Agent` classes.
   * `report_header`():
     Custom fields that will be added to the report header when this
     agent is used.  To be consistent with the rest of the header, the
-    keys should be title case, e.g. "Start Time"; they must not
-    contain the colon character ':'.
+    keys should be title case, e.g. "Agent Header Name"; they must not
+    contain the colon character ':'.  Care must be taken not to add
+    keys that conflict with default header keys, like names that start
+    with "Start Time", "Profile", "Agent" or "Policy".
 
   * `report_host`():
     Custom fields for the Host section of the report.  To be
     consistent with the rest of this section, the keys should have
     the first letter capitalized, e.g. "Final freq map"; they must
-    not contain the colon character ':'.
+    not contain the colon character ':'.  Care must be taken not to
+    add keys that conflict with default host keys, like names that
+    start with "Region", "Epoch Totals" or "Application Totals".
 
   * `report_region`():
     Custom fields for each region in the report.  To be consistent
     with the rest of the region report, the string keys that will
     appear at the start of each line should be all lower case with
-    words separated by hyphens and followed by the units if applicable,
-    e.g "package-energy (joules)".  The field name must not contain the
-    colon character ':'.
+    words separated by hyphens and followed by the units if
+    applicable, e.g "package-energy (joules)".  The field name must
+    not contain the colon character ':'.  Care must be taken not to
+    add keys that conflict with the default region keys, like names
+    that start with "runtime", "sync-runtime", "package-energy",
+    "dram-energy", "power", "frequency", "network-time", or "count".
 
   * `trace_names`():
     Column headers to be added to the trace.  These will be
