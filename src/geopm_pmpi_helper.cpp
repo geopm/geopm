@@ -105,25 +105,6 @@ extern "C" {
         return err;
     }
 
-#ifdef GEOPM_DEBUG
-    static int geopm_env_debug_attach(int *debug_attach)
-    {
-        int err = 0;
-        try {
-            if (!debug_attach) {
-                err = GEOPM_ERROR_INVALID;
-            }
-            else {
-                *debug_attach = geopm::environment().debug_attach();
-            }
-        }
-        catch (...) {
-            err = geopm::exception_handler(std::current_exception(), false);
-        }
-        return err;
-    }
-#endif
-
     void geopm_mpi_region_enter(uint64_t func_rid)
     {
         if (geopm_is_pmpi_prof_enabled()) {
@@ -168,10 +149,9 @@ static int geopm_pmpi_init(const char *exec_name)
     g_geopm_comm_world_f = PMPI_Comm_c2f(MPI_COMM_WORLD);
     PMPI_Comm_rank(MPI_COMM_WORLD, &rank);
 #ifdef GEOPM_DEBUG
-    int debug_attach = -1;
-    err = geopm_env_debug_attach(&debug_attach);
-    if (!err &&
-        debug_attach == rank) {
+    if (geopm::environment().do_debug_attach_all() ||
+        (geopm::environment().do_debug_attach_one() &&
+         geopm::environment().debug_attach_process() == rank)) {
         char hostname[NAME_MAX];
         gethostname(hostname, sizeof(hostname));
         printf("PID %d on %s ready for attach\n", getpid(), hostname);

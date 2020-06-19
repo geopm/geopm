@@ -70,12 +70,14 @@ namespace geopm
             virtual bool do_trace_endpoint_policy(void) const = 0;
             virtual bool do_profile(void) const = 0;
             virtual int timeout(void) const = 0;
-            virtual int debug_attach(void) const = 0;
             virtual bool do_ompt(void) const = 0;
             virtual std::string default_config_path(void) const = 0;
             virtual std::string override_config_path(void) const = 0;
             virtual std::string record_filter(void) const = 0;
             virtual bool do_record_filter(void) const = 0;
+            virtual bool do_debug_attach_all(void) const = 0;
+            virtual bool do_debug_attach_one(void) const = 0;
+            virtual int debug_attach_process(void) const = 0;
             static std::map<std::string, std::string> parse_environment_file(const std::string &env_file_path);
     };
 
@@ -109,7 +111,6 @@ namespace geopm
             bool do_trace_endpoint_policy(void) const override;
             bool do_profile() const override;
             int timeout(void) const override;
-            int debug_attach(void) const override;
             static std::set<std::string> get_all_vars(void);
             bool do_ompt(void) const override;
             std::string default_config_path(void) const override;
@@ -120,6 +121,9 @@ namespace geopm
                                                std::map<std::string, std::string> &name_value_map);
             std::string record_filter(void) const override;
             bool do_record_filter(void) const override;
+            bool do_debug_attach_all(void) const override;
+            bool do_debug_attach_one(void) const override;
+            int debug_attach_process(void) const override;
         protected:
             void parse_environment(void);
             bool is_set(const std::string &env_var) const;

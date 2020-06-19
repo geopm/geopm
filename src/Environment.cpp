@@ -373,7 +373,36 @@ namespace geopm
         return std::stoi(lookup("GEOPM_TIMEOUT"));
     }
 
-    int EnvironmentImp::debug_attach(void) const
+    bool EnvironmentImp::do_debug_attach_all(void) const
+    {
+        bool result = false;
+        if (is_set("GEOPM_DEBUG_ATTACH")) {
+            try {
+                std::stoi(lookup("GEOPM_DEBUG_ATTACH"));
+            }
+            catch (const std::exception &) {
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    bool EnvironmentImp::do_debug_attach_one(void) const
+    {
+        bool result = false;
+        if (is_set("GEOPM_DEBUG_ATTACH")) {
+            try {
+                std::stoi(lookup("GEOPM_DEBUG_ATTACH"));
+                result = true;
+            }
+            catch (const std::exception &) {
+
+            }
+        }
+        return result;
+    }
+
+    int EnvironmentImp::debug_attach_process(void) const
     {
         return std::stoi(lookup("GEOPM_DEBUG_ATTACH"));
     }
