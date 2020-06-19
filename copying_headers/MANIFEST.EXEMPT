@@ -100,6 +100,7 @@ scripts/MANIFEST.in
 scripts/outlier/README.md
 scripts/outlier/theta_nodelist_broken.txt
 scripts/requirements.txt
+test/ProxyEpochRecordFilterTest.tutorial_2_profile_trace
 test_integration/README.md
 tutorial/README.md
 tutorial/admin/README.md
