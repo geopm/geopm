@@ -31,6 +31,7 @@
  */
 
 #include <memory>
+#include <vector>
 
 #include "gtest/gtest.h"
 #include "CircularBuffer.hpp"
@@ -121,4 +122,45 @@ TEST_F(CircularBufferTest, buffer_capacity)
     EXPECT_DOUBLE_EQ(3.2, m_buffer->value(0));
     m_buffer->insert(5.4);
     EXPECT_DOUBLE_EQ(5.4, m_buffer->value(0));
+}
+
+TEST_F(CircularBufferTest, make_vector_slice)
+{
+    // Below: Buffer is full and pointer is at the 0th position
+    // in the internal buffer.
+    m_buffer->insert(4.0);
+    m_buffer->insert(5.0);
+
+    std::vector<double> expected;
+
+    expected = {1.0, 2.0, 3.0};
+    EXPECT_EQ(expected, m_buffer->make_vector_slice(0, 3));
+
+    expected = {1.0, 2.0, 3.0, 4.0, 5.0};
+    EXPECT_EQ(expected, m_buffer->make_vector_slice(0, 5));
+
+    expected = {2.0};
+    EXPECT_EQ(expected, m_buffer->make_vector_slice(1, 2));
+
+    expected = {2.0, 3.0};
+    EXPECT_EQ(expected, m_buffer->make_vector_slice(1, 3));
+
+    // Move the head of the circular buffer to position 1.
+    m_buffer->insert(1.1);
+
+    expected = {3.0, 4.0};
+    EXPECT_EQ(expected, m_buffer->make_vector_slice(1, 3));
+
+    expected = {3.0, 4.0, 5.0};
+    EXPECT_EQ(expected, m_buffer->make_vector_slice(1, 4));
+
+    expected = {3.0, 4.0, 5.0, 1.1};
+    EXPECT_EQ(expected, m_buffer->make_vector_slice(1, 5));
+
+    expected = {1.1};
+    EXPECT_EQ(expected, m_buffer->make_vector_slice(4, 5));
+
+    EXPECT_THROW(m_buffer->make_vector_slice(5, 6), geopm::Exception);
+    EXPECT_THROW(m_buffer->make_vector_slice(5, 7), geopm::Exception);
+    EXPECT_THROW(m_buffer->make_vector_slice(0, 0), geopm::Exception);
 }
