@@ -109,6 +109,13 @@ namespace geopm
             ///
             /// @return Vector containing the circular buffer contents.
             std::vector<type> make_vector(void) const;
+            /// @brief Create a vector slice from the circular buffer contents.
+            ///
+            /// @param [in] start Start index (inclusive).
+            /// @param [in] end End index (exclusive).
+
+            /// @return Vector containing the circular buffer contents at [start, end).
+            std::vector<type> make_vector_slice(const unsigned int start, const unsigned int end) const;
         private:
             /// @brief Vector holding the buffer data.
             std::vector<type> m_buffer;
@@ -222,6 +229,36 @@ namespace geopm
         }
         return result;
     }
+
+    template <class type>
+    std::vector<type> CircularBuffer<type>::make_vector_slice(const unsigned int idx_start, const unsigned int idx_end) const
+    {
+        if (idx_start >= size()) {
+            throw Exception("CircularBuffer::make_vector_slice(): start is out of bounds", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (idx_end > size()) {
+            throw Exception("CircularBuffer::make_vector_slice(): end is out of bounds", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (idx_end <= idx_start) {
+            throw Exception("CircularBuffer::make_vector_slice(): end index is smaller than start index", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        int slice_length = idx_end - idx_start;
+        std::vector<type> result(slice_length);
+
+        unsigned int start=(m_head + idx_start) % capacity();
+        unsigned int end=(((m_head + idx_end) - 1) % capacity()) + 1;
+
+        if(end > start) {
+            std::copy(m_buffer.begin() + start, m_buffer.begin() + end, result.begin());
+        }
+        else {
+            std::copy(m_buffer.begin() + start, m_buffer.end(), result.begin());
+            std::copy(m_buffer.begin(), m_buffer.begin() + end, result.begin() + capacity() - start);
+        }
+        return result;
+    }
+
 }
 
 #endif
