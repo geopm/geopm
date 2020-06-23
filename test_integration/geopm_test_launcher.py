@@ -132,7 +132,7 @@ def geopmread(read_str):
         try:
             result = float(last_line)
         except ValueError:
-            result = yaml.safe_load(output)
+            result = yaml.safe_load(output).values()[0]
     return result
 
 def get_platform():
