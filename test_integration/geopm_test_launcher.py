@@ -44,6 +44,7 @@ import math
 import shlex
 import unittest
 import getpass
+import yaml
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from test_integration import geopm_context
@@ -122,15 +123,17 @@ def geopmread(read_str):
     except subprocess.CalledProcessError as err:
         sys.stderr.write(stderr.getvalue())
         raise err
-    last_line = stdout.getvalue().splitlines()[-1]
+    output = stdout.getvalue()
+    last_line = output.splitlines()[-1]
 
     if last_line.startswith('0x'):
-        return int(last_line)
+        result = int(last_line)
     else:
         try:
-            return float(last_line)
+            result = float(last_line)
         except ValueError:
-            return last_line
+            result = yaml.safe_load(output)
+    return result
 
 def get_platform():
     test_exec = "dummy -- cat /proc/cpuinfo"
