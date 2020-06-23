@@ -1458,10 +1458,8 @@ class TestIntegrationGeopmio(unittest.TestCase):
             finally:
                 load_cpu_stop()
 
-        read_domain = geopm_test_launcher.geopmread('{} {}'.format('--info', 'CPU_FREQUENCY_STATUS'))
-        read_domain = read_domain['CPU_FREQUENCY_STATUS']['domain']
-        write_domain = geopm_test_launcher.geopmread('{} {}'.format('--info', 'CPU_FREQUENCY_CONTROL'))
-        write_domain = write_domain['CPU_FREQUENCY_CONTROL']['domain']
+        read_domain = geopm_test_launcher.geopmread('--info CPU_FREQUENCY_STATUS')['domain']
+        write_domain = geopm_test_launcher.geopmread('--info CPU_FREQUENCY_CONTROL')['domain']
         min_freq, sticker_freq = read_min_sticker_freq()
 
         old_freq = read_current_freq(write_domain, 'CPU_FREQUENCY_CONTROL')
