@@ -585,7 +585,7 @@ else
 fi
 AC_SUBST([ENABLE_BETA])
 
-GEOPM_SOURCE_DIR=`readlink -f $srcdir`
+GEOPM_SOURCE_DIR=$(readlink -f $srcdir)
 AC_DEFINE_UNQUOTED([GEOPM_SOURCE_DIR], ["$GEOPM_SOURCE_DIR"], [Root of the GEOPM source directory])
 
 AC_CONFIG_FILES([Makefile geopm.spec geopm-ohpc.spec geopm-theta.spec scripts/geopmpy/version.py ronn/geopm.7.ronn])
