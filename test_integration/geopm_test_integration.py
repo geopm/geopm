@@ -1316,14 +1316,11 @@ class TestIntegrationGeopmio(unittest.TestCase):
                                          'board_memory', 'package_memory',
                                          'board_nic', 'package_nic',
                                          'board_accelerator', 'package_accelerator'])
-        self.check_output(['--domain', 'TIME'], ['cpu'])
-
         # read signal
         self.check_no_error(['TIME', 'board', '0'])
 
         # info
         self.check_no_error(['--info'])
-        self.check_output(['--info', 'TIME'], ['Time in seconds'])
 
         # errors
         read_err = 'domain type and domain index are required'
@@ -1333,7 +1330,6 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_output(['FREQUENCY', 'package', '111'], ['cannot read signal'])
         self.check_output(['ENERGY_PACKAGE', 'cpu', '0'], ['cannot read signal'])
         self.check_output(['INVALID', 'board', '0'], ['cannot read signal'])
-        self.check_output(['--domain', 'INVALID'], ['unable to determine signal type'])
         self.check_output(['--domain', '--info'], ['info about domain not implemented'])
 
     @util.skip_unless_batch()
@@ -1417,12 +1413,6 @@ class TestIntegrationGeopmio(unittest.TestCase):
                                          'board_memory', 'package_memory',
                                          'board_nic', 'package_nic',
                                          'board_accelerator', 'package_accelerator'])
-        self.check_no_error(['--domain', 'FREQUENCY'])
-
-        # info
-        self.check_no_error(['--info'])
-        self.check_output(['--info', 'FREQUENCY'], ['processor frequency'])
-
         # errors
         write_err = 'domain type, domain index, and value are required'
         self.check_output(['FREQUENCY'], [write_err])
@@ -1433,7 +1423,6 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_output(['FREQUENCY', 'package', '111', '0'], ['cannot write control'])
         self.check_output(['FREQUENCY', 'board_nic', '0', '0'], ['cannot write control'])
         self.check_output(['INVALID', 'board', '0', '0'], ['cannot write control'])
-        self.check_output(['--domain', 'INVALID'], ['unable to determine control type'])
         self.check_output(['--domain', '--info'], ['info about domain not implemented'])
 
     @util.skip_unless_batch()
@@ -1469,27 +1458,29 @@ class TestIntegrationGeopmio(unittest.TestCase):
             finally:
                 load_cpu_stop()
 
-        read_domain = geopm_test_launcher.geopmread('{} {}'.format('--domain', 'FREQUENCY'))
-        write_domain = geopm_test_launcher.geopmwrite('{} {}'.format('--domain', 'FREQUENCY'))
+        read_domain = geopm_test_launcher.geopmread('{} {}'.format('--info', 'CPU_FREQUENCY_STATUS'))
+        read_domain = read_domain['CPU_FREQUENCY_STATUS']['domain']
+        write_domain = geopm_test_launcher.geopmread('{} {}'.format('--info', 'CPU_FREQUENCY_CONTROL'))
+        write_domain = write_domain['CPU_FREQUENCY_CONTROL']['domain']
         min_freq, sticker_freq = read_min_sticker_freq()
 
-        old_freq = read_current_freq(write_domain, 'MSR::PERF_CTL:FREQ')
+        old_freq = read_current_freq(write_domain, 'CPU_FREQUENCY_CONTROL')
         self.assertLess(old_freq, sticker_freq * 2)
         self.assertGreater(old_freq, min_freq - 1e8)
 
         with load_cpu():
             # Set to min and check
-            geopm_test_launcher.geopmwrite('{} {} {} {}'.format('FREQUENCY', write_domain, '0', str(min_freq))),
+            geopm_test_launcher.geopmwrite('{} {} {} {}'.format('CPU_FREQUENCY_CONTROL', write_domain, '0', str(min_freq))),
             time.sleep(1)
             result = read_current_freq(read_domain)
             self.assertEqual(min_freq, result)
             # Set to sticker and check
-            geopm_test_launcher.geopmwrite('{} {} {} {}'.format('FREQUENCY', write_domain, '0', str(sticker_freq))),
+            geopm_test_launcher.geopmwrite('{} {} {} {}'.format('CPU_FREQUENCY_CONTROL', write_domain, '0', str(sticker_freq))),
             time.sleep(1)
             result = read_current_freq(read_domain)
             self.assertEqual(sticker_freq, result)
             # Restore the original frequency
-            geopm_test_launcher.geopmwrite('{} {} {} {}'.format('FREQUENCY', write_domain, '0', str(old_freq))),
+            geopm_test_launcher.geopmwrite('{} {} {} {}'.format('CPU_FREQUENCY_CONTROL', write_domain, '0', str(old_freq))),
 
 
 class TestIntegrationGeopmagent(unittest.TestCase):
