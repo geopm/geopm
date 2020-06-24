@@ -30,14 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-
 #include <cstdint>
+
 #include "gtest/gtest.h"
-#include "geopm_test.hpp"
+
 #include "EditDistPeriodicityDetector.hpp"
 #include "MockApplicationSampler.hpp"
 #include "Helper.hpp"
+#include "geopm_test.hpp"
 
 using geopm::record_s;
 using geopm::EditDistPeriodicityDetector;
@@ -55,9 +55,9 @@ void EditDistPeriodicityDetectorTest::SetUp()
     m_test_root_path = "./test/";
 }
 
-void check_vals(std::string trace_file_path, int warmup, int period, int history_size=100, bool debug=false);
-void check_vals(std::string trace_file_path, int start, int end, int period, int history_size, bool debug=false);
-void check_vals(std::vector<record_s> recs, std::vector<std::vector<int> > expected, int history_size=100, bool debug=false);
+void check_vals(std::string trace_file_path, int warmup, int period, int history_size=100);
+void check_vals(std::string trace_file_path, int start, int end, int period, int history_size);
+void check_vals(std::vector<record_s> recs, std::vector<std::vector<int> > expected, int history_size=100);
 
 
 /// Pattern 0: (A)x10
@@ -127,13 +127,13 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_add1)
     int history_size = 100;
 
     check_vals(m_test_root_path + "EditDistPeriodicityDetectorTest.6_pattern_add1.trace", 7, 24, period, history_size);
-    check_vals(m_test_root_path + "EditDistPeriodicityDetectorTest.6_pattern_add1.trace", 32, period, history_size);
+    int warmup = 32;
+    check_vals(m_test_root_path + "EditDistPeriodicityDetectorTest.6_pattern_add1.trace", warmup, period, history_size);
 }
 
 /// Pattern 7: (ABCD)x6 (EF) (ABCD)x9
 TEST_F(EditDistPeriodicityDetectorTest, pattern_add2)
 {
-    int warmup = 1;
     int period = 4;
     int history_size = 100;
 
@@ -144,7 +144,6 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_add2)
 /// Pattern 8: (ABCD)x6 (ABC) (ABCD)x12
 TEST_F(EditDistPeriodicityDetectorTest, pattern_subtract1)
 {
-    int warmup = 1;
     int period = 4;
     int history_size = 100;
 
@@ -156,7 +155,7 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_subtract1)
 
 /// start: inclusive
 /// end: exclusive
-void check_vals(std::string trace_file_path, int start, int end, int period, int history_size, bool debug)
+void check_vals(std::string trace_file_path, int start, int end, int period, int history_size)
 {
     MockApplicationSampler app;
     app.inject_records(geopm::read_file(trace_file_path));
@@ -178,10 +177,10 @@ void check_vals(std::string trace_file_path, int start, int end, int period, int
         expected.push_back({period, 0});
     }
 
-    check_vals(recs, expected, history_size, debug);
+    check_vals(recs, expected, history_size);
 }
 
-void check_vals(std::string trace_file_path, int warmup, int period, int history_size, bool debug)
+void check_vals(std::string trace_file_path, int warmup, int period, int history_size)
 {
     MockApplicationSampler app;
     app.inject_records(geopm::read_file(trace_file_path));
@@ -200,27 +199,22 @@ void check_vals(std::string trace_file_path, int warmup, int period, int history
         expected.push_back({period, 0});
     }
 
-    check_vals(recs, expected, history_size, debug);
+    check_vals(recs, expected, history_size);
 }
 
-void check_vals(std::vector<record_s> recs, std::vector<std::vector<int> > expected, int history_size, bool debug)
+void check_vals(std::vector<record_s> recs, std::vector<std::vector<int> > expected, int history_size)
 {
     geopm::EditDistPeriodicityDetector edpd(history_size);
 
-    for(int i=0; i < expected.size(); i++) {
+    for(size_t i = 0; i < expected.size(); i++) {
         edpd.update(recs[i]);
         int period = edpd.get_period();
         int score = edpd.get_score();
 
-        if(debug) {
-            std::cout << "Record: i=" << i << " period=" << period << " score=" << score << "\n";
-            std::cout << "Expect: i=" << i << " period=" << expected[i][0] << " score=" << expected[i][1] << "\n";
-        } else {
-            if(expected[i][0] != -1) {
-                // -1 means skip the test entry (probably for warmup).
-                EXPECT_EQ(expected[i][0], edpd.get_period()) << "Record #: " << i;
-                EXPECT_EQ(expected[i][1], edpd.get_score()) << "Record #: " << i;
-            }
+        if(expected[i][0] != -1) {
+            // -1 means skip the test entry (probably for warmup).
+            EXPECT_EQ(expected[i][0], edpd.get_period()) << "Record #: " << i << " period=" << period << " score=" << score << "\n";
+            EXPECT_EQ(expected[i][1], edpd.get_score()) << "Record #: " << i << " period=" << expected[i][0] << " score=" << expected[i][1] << "\n";
         }
     }
 }

@@ -233,10 +233,10 @@ namespace geopm
     template <class type>
     std::vector<type> CircularBuffer<type>::make_vector_slice(const unsigned int idx_start, const unsigned int idx_end) const
     {
-        if (idx_start >= size()) {
+        if (idx_start >= (unsigned int)size()) {
             throw Exception("CircularBuffer::make_vector_slice(): start is out of bounds", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (idx_end > size()) {
+        if (idx_end > (unsigned int)size()) {
             throw Exception("CircularBuffer::make_vector_slice(): end is out of bounds", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (idx_end <= idx_start) {

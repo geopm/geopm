@@ -31,12 +31,11 @@
  */
 
 #include <cstdint>
-#include <iostream>
+
 #include "gtest/gtest.h"
 #include "geopm_test.hpp"
 
 #include "EditDistEpochRecordFilter.hpp"
-#include "MockEditDistPeriodicityDetector.hpp"
 #include "MockApplicationSampler.hpp"
 #include "record.hpp"
 #include "Helper.hpp"
@@ -45,17 +44,21 @@ using geopm::EditDistEpochRecordFilter;
 using geopm::record_s;
 
 void check_vals(std::vector<record_s> testout, std::vector<int> epoch_time_vector);
-std::vector<record_s> filter_file(std::string trace_file_path, int history_size, bool debug=false);
-void print_records(std::vector<record_s> recs, int filter=-1);
 std::vector<int> extract_epoch_times(std::vector<record_s> recs);
 
 class EditDistEpochRecordFilterTest : public ::testing::Test
 {
     protected:
         void SetUp();
+        std::vector<record_s> filter_file(std::string trace_file_path, int history_size);
+
         std::vector<int> m_in_events;
         std::vector<int> m_out_events;
         std::string m_test_root_path;
+        double m_stable_hyst = 1;
+        int m_min_stable_period = 4;
+        double m_unstable_hyst = 1.5;
+
 };
 
 void EditDistEpochRecordFilterTest::SetUp()
@@ -95,7 +98,9 @@ TEST_F(EditDistEpochRecordFilterTest, one_region_repeated)
     };
 
     double time = 0.0;
-    geopm::EditDistEpochRecordFilter ederf(16);
+    int buffer_size = 16;
+    geopm::EditDistEpochRecordFilter ederf(m_stable_hyst, m_min_stable_period,
+                                           m_unstable_hyst, buffer_size);
     for (uint64_t count = 0; count <= 4; ++count) {
 
         std::vector<record_s> result;
@@ -158,7 +163,9 @@ TEST_F(EditDistEpochRecordFilterTest, one_region_repeated)
 TEST_F(EditDistEpochRecordFilterTest, filter_in)
 {
     record_s record {};
-    geopm::EditDistEpochRecordFilter ederf(16);
+    int buffer_size = 16;
+    geopm::EditDistEpochRecordFilter ederf(m_stable_hyst, m_min_stable_period,
+                                           m_unstable_hyst, buffer_size);
     for (auto event : m_in_events) {
         record.event = event;
         std::vector<record_s> result = ederf.filter(record);
@@ -174,7 +181,9 @@ TEST_F(EditDistEpochRecordFilterTest, filter_out)
 {
     record_s record {};
     std::vector<record_s> result;
-    geopm::EditDistEpochRecordFilter ederf(16);
+    int buffer_size = 16;
+    geopm::EditDistEpochRecordFilter ederf(m_stable_hyst, m_min_stable_period,
+                                           m_unstable_hyst, buffer_size);
     for (auto event : m_out_events) {
         record.event = event;
         result = ederf.filter(record);
@@ -265,12 +274,14 @@ TEST_F(EditDistEpochRecordFilterTest, pattern_subtract1)
     check_vals(testout, {11, 15, 19, 23, 33, 38, 42, 46, 50, 54, 58, 62, 66, 70, 74});
 }
 
-std::vector<record_s> filter_file(std::string trace_file_path, int history_size, bool debug)
+std::vector<record_s> EditDistEpochRecordFilterTest::filter_file(std::string trace_file_path,
+                                                                 int history_size)
 {
     MockApplicationSampler app;
     app.inject_records(geopm::read_file(trace_file_path));
 
-    geopm::EditDistEpochRecordFilter ederf(history_size);
+    geopm::EditDistEpochRecordFilter ederf(m_stable_hyst, m_min_stable_period,
+                                           m_unstable_hyst, history_size);
 
     std::vector<record_s> recs = app.get_records();
 
@@ -290,18 +301,7 @@ std::vector<record_s> filter_file(std::string trace_file_path, int history_size,
 
 void check_vals(std::vector<record_s> testout, std::vector<int> epoch_time_vector)
 {
-    // print_records(testout, geopm::EVENT_EPOCH_COUNT);
     EXPECT_EQ(epoch_time_vector, extract_epoch_times(testout));
-}
-
-void print_records(std::vector<record_s> recs, int filter)
-{
-    for(const auto &rec : recs) {
-        if(filter != -1 && rec.event != filter) {
-            continue;
-        }
-        std::cout << "Time=" << rec.time << " Event=" << rec.event << " Signal=" << rec.signal << "\n";
-    }
 }
 
 std::vector<int> extract_epoch_times(std::vector<record_s> recs)
