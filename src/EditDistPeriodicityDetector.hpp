@@ -34,31 +34,38 @@
 #define EDITDISTPERIODICITYDETECTOR_HPP_INCLUDE
 
 #include <cstdint>
-#include<vector>
+#include <vector>
 
 #include "CircularBuffer.hpp"
 
 namespace geopm
 {
     struct record_s;
+
     class EditDistPeriodicityDetector
     {
         public:
-            EditDistPeriodicityDetector(unsigned int history_buffer_size);
+            EditDistPeriodicityDetector(int history_buffer_size);
             virtual ~EditDistPeriodicityDetector() = default;
-            virtual void update(const record_s &record);
-            virtual void calc_period();
-            virtual int get_period() const;
-            virtual int get_score() const;
-            virtual void reset();
-
+            /// @brief Update detector with a new record from the application.
+            void update(const record_s &record);
+            /// @brief Return the best estimate of the period length
+            ///        in number of records, based on the data
+            ///        inserted through update().  Until a stable
+            ///        period is determined, returns -1.
+            int get_period(void) const;
+            /// @brief Return the metric that will be maximized to
+            ///        detemine the period.  Until a stable period is
+            ///        determined, returns -1.
+            int get_score(void) const;
         private:
+            void calc_period();
+            uint64_t get_history_value(int index) const;
+            int find_min_match(int index) const;
+
             CircularBuffer<uint64_t> m_history_buffer;
             int m_period;
             int m_score;
-            uint64_t get_history_value(unsigned int index) const;
-            std::vector<uint64_t> get_history_slice(unsigned int start) const;
-            int find_gcd(unsigned int index) const;
     };
 }
 
