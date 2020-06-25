@@ -71,6 +71,16 @@ namespace geopm
                                       std::shared_ptr<EditDistPeriodicityDetector> edpd);
             virtual ~EditDistEpochRecordFilter() = default;
             std::vector<record_s> filter(const record_s &record) override;
+            /// @brief Static function that will parse the filter
+            ///        string for the edit_distance into the constructor
+            ///        arguments for a EditDistanceEpochRecordFilter.
+            ///        Failure to parse will result in a thrown
+            ///        Exception with GEOPM_ERROR_INVALID type.
+            static void parse_name(const std::string &name,
+                                   int &history_buffer_size,
+                                   double &stable_period_hysteresis,
+                                   int &min_stable_period,
+                                   double &unstable_period_hysteresis);
         private:
             bool epoch_detected();
 

@@ -32,10 +32,14 @@
 
 #include "config.h"
 
+#include <exception>
+
 #include "EditDistEpochRecordFilter.hpp"
 #include "EditDistPeriodicityDetector.hpp"
 #include "Exception.hpp"
+#include "Helper.hpp"
 #include "record.hpp"
+#include "geopm_debug.hpp"
 
 namespace geopm
 {
@@ -161,5 +165,65 @@ namespace geopm
             }
         }
         return false;
+    }
+
+    void EditDistEpochRecordFilter::parse_name(const std::string &name,
+                                               int &history_buffer_size,
+                                               double &stable_period_hysteresis,
+                                               int &min_stable_period,
+                                               double &unstable_period_hysteresis)
+    {
+        auto pieces = string_split(name, ",");
+        GEOPM_DEBUG_ASSERT(pieces.size() > 0, "string_split() failed.");
+
+        // empirically determined default values
+        history_buffer_size = 100;
+        stable_period_hysteresis = 1.0;
+        min_stable_period = 4;
+        unstable_period_hysteresis = 1.5;
+
+        if (pieces[0] != "edit_distance") {
+            throw Exception("Unknown filter name", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        if (pieces.size() > 1) {
+            try {
+                history_buffer_size = std::stoi(pieces[1]);
+            }
+            catch (const std::exception &ex) {
+                throw Exception("EditDistEpochRecordFilter::parse_name(): invalid buffer size",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+        if (pieces.size() > 2) {
+            try {
+                stable_period_hysteresis = std::stod(pieces[2]);
+            }
+            catch (const std::exception &ex) {
+                throw Exception("EditDistEpochRecordFilter::parse_name(): invalid stable hysteresis",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+        if (pieces.size() > 3) {
+            try {
+                min_stable_period = std::stoi(pieces[3]);
+            }
+            catch (const std::exception &ex) {
+                throw Exception("EditDistEpochRecordFilter::parse_name(): invalid stable period",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+        if (pieces.size() > 4) {
+            try {
+                unstable_period_hysteresis = std::stod(pieces[4]);
+            }
+            catch (const std::exception &ex) {
+                throw Exception("EditDistEpochRecordFilter::parse_name(): invalid unstable hysteresis",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
+        if (pieces.size() > 5) {
+            throw Exception("Too many commas in filter name", GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
     }
 }
