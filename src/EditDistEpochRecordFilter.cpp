@@ -43,26 +43,91 @@
 
 namespace geopm
 {
-    EditDistEpochRecordFilter::EditDistEpochRecordFilter(double stable_period_hysteresis,
-                                                         int min_stable_period,
-                                                         double unstable_period_hysteresis,
-                                                         int history_buffer_size)
-        : EditDistEpochRecordFilter(stable_period_hysteresis,
-                                    min_stable_period,
-                                    unstable_period_hysteresis,
-                                    std::make_shared<EditDistPeriodicityDetector>(history_buffer_size))
+    static int parse_history_buffer_size(const std::string &name)
+    {
+        int history_buffer_size;
+        int min_stable_period;
+        double stable_period_hysteresis;
+        double unstable_period_hysteresis;
+        EditDistEpochRecordFilter::parse_name(name,
+                                              history_buffer_size,
+                                              min_stable_period,
+                                              stable_period_hysteresis,
+                                              unstable_period_hysteresis);
+        return history_buffer_size;
+    }
+
+    static int parse_min_stable_period(const std::string &name)
+    {
+        int history_buffer_size;
+        int min_stable_period;
+        double stable_period_hysteresis;
+        double unstable_period_hysteresis;
+        EditDistEpochRecordFilter::parse_name(name,
+                                              history_buffer_size,
+                                              min_stable_period,
+                                              stable_period_hysteresis,
+                                              unstable_period_hysteresis);
+        return min_stable_period;
+    }
+
+    static int parse_stable_period_hysteresis(const std::string &name)
+    {
+        int history_buffer_size;
+        int min_stable_period;
+        double stable_period_hysteresis;
+        double unstable_period_hysteresis;
+        EditDistEpochRecordFilter::parse_name(name,
+                                              history_buffer_size,
+                                              min_stable_period,
+                                              stable_period_hysteresis,
+                                              unstable_period_hysteresis);
+        return stable_period_hysteresis;
+    }
+
+    static int parse_unstable_period_hysteresis(const std::string &name)
+    {
+        int history_buffer_size;
+        int min_stable_period;
+        double stable_period_hysteresis;
+        double unstable_period_hysteresis;
+        EditDistEpochRecordFilter::parse_name(name,
+                                              history_buffer_size,
+                                              min_stable_period,
+                                              stable_period_hysteresis,
+                                              unstable_period_hysteresis);
+        return unstable_period_hysteresis;
+    }
+
+    EditDistEpochRecordFilter::EditDistEpochRecordFilter(const std::string &name)
+        : EditDistEpochRecordFilter(parse_history_buffer_size(name),
+                                    parse_min_stable_period(name),
+                                    parse_stable_period_hysteresis(name),
+                                    parse_unstable_period_hysteresis(name))
     {
 
     }
 
-    EditDistEpochRecordFilter::EditDistEpochRecordFilter(double stable_period_hysteresis,
+    EditDistEpochRecordFilter::EditDistEpochRecordFilter(int history_buffer_size,
                                                          int min_stable_period,
-                                                         double unstable_period_hysteresis,
-                                                         std::shared_ptr<EditDistPeriodicityDetector> edpd)
-        : m_stable_period_hysteresis(stable_period_hysteresis)
+                                                         double stable_period_hysteresis,
+                                                         double unstable_period_hysteresis)
+        : EditDistEpochRecordFilter(std::make_shared<EditDistPeriodicityDetector>(history_buffer_size),
+                                    min_stable_period,
+                                    stable_period_hysteresis,
+                                    unstable_period_hysteresis)
+    {
+
+    }
+
+    EditDistEpochRecordFilter::EditDistEpochRecordFilter(std::shared_ptr<EditDistPeriodicityDetector> edpd,
+                                                         int min_stable_period,
+                                                         double stable_period_hysteresis,
+                                                         double unstable_period_hysteresis)
+        : m_edpd(edpd)
         , m_min_stable_period(min_stable_period)
+        , m_stable_period_hysteresis(stable_period_hysteresis)
         , m_unstable_period_hysteresis(unstable_period_hysteresis)
-        , m_edpd(edpd)
         , m_last_period(-1)
         , m_period_stable(0)
         , m_period_unstable(0)
@@ -169,8 +234,8 @@ namespace geopm
 
     void EditDistEpochRecordFilter::parse_name(const std::string &name,
                                                int &history_buffer_size,
-                                               double &stable_period_hysteresis,
                                                int &min_stable_period,
+                                               double &stable_period_hysteresis,
                                                double &unstable_period_hysteresis)
     {
         auto pieces = string_split(name, ",");
@@ -178,8 +243,8 @@ namespace geopm
 
         // empirically determined default values
         history_buffer_size = 100;
-        stable_period_hysteresis = 1.0;
         min_stable_period = 4;
+        stable_period_hysteresis = 1.0;
         unstable_period_hysteresis = 1.5;
 
         if (pieces[0] != "edit_distance") {
@@ -197,19 +262,19 @@ namespace geopm
         }
         if (pieces.size() > 2) {
             try {
-                stable_period_hysteresis = std::stod(pieces[2]);
+                min_stable_period = std::stoi(pieces[2]);
             }
             catch (const std::exception &ex) {
-                throw Exception("EditDistEpochRecordFilter::parse_name(): invalid stable hysteresis",
+                throw Exception("EditDistEpochRecordFilter::parse_name(): invalid stable period",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
         if (pieces.size() > 3) {
             try {
-                min_stable_period = std::stoi(pieces[3]);
+                stable_period_hysteresis = std::stod(pieces[3]);
             }
             catch (const std::exception &ex) {
-                throw Exception("EditDistEpochRecordFilter::parse_name(): invalid stable period",
+                throw Exception("EditDistEpochRecordFilter::parse_name(): invalid stable hysteresis",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
