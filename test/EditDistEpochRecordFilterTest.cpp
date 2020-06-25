@@ -39,6 +39,7 @@
 #include "MockApplicationSampler.hpp"
 #include "record.hpp"
 #include "Helper.hpp"
+#include "geopm_test.hpp"
 
 using geopm::EditDistEpochRecordFilter;
 using geopm::record_s;
@@ -272,6 +273,92 @@ TEST_F(EditDistEpochRecordFilterTest, pattern_subtract1)
 
     std::vector<record_s> testout = filter_file(m_test_root_path + "EditDistPeriodicityDetectorTest.8_pattern_subtract1.trace", history_size);
     check_vals(testout, {11, 15, 19, 23, 33, 38, 42, 46, 50, 54, 58, 62, 66, 70, 74});
+}
+
+TEST_F(EditDistEpochRecordFilterTest, parse_name)
+{
+    int buffer_size = -1;
+    double stable_hyst = NAN;
+    int min_stable_period = -1;
+    double unstable_hyst = NAN;
+
+    EditDistEpochRecordFilter::parse_name("edit_distance",
+                                          buffer_size, stable_hyst,
+                                          min_stable_period, unstable_hyst);
+    // default values
+    EXPECT_EQ(100, buffer_size);
+    EXPECT_EQ(1.0, stable_hyst);
+    EXPECT_EQ(4, min_stable_period);
+    EXPECT_EQ(1.5, unstable_hyst);
+
+    EditDistEpochRecordFilter::parse_name("edit_distance,42",
+                                          buffer_size, stable_hyst,
+                                          min_stable_period, unstable_hyst);
+    EXPECT_EQ(42, buffer_size);
+    EXPECT_EQ(1.0, stable_hyst);
+    EXPECT_EQ(4, min_stable_period);
+    EXPECT_EQ(1.5, unstable_hyst);
+
+    EditDistEpochRecordFilter::parse_name("edit_distance,52,2.0",
+                                          buffer_size, stable_hyst,
+                                          min_stable_period, unstable_hyst);
+    EXPECT_EQ(52, buffer_size);
+    EXPECT_EQ(2.0, stable_hyst);
+    EXPECT_EQ(4, min_stable_period);
+    EXPECT_EQ(1.5, unstable_hyst);
+
+    EditDistEpochRecordFilter::parse_name("edit_distance,62,5.0,20",
+                                          buffer_size, stable_hyst,
+                                          min_stable_period, unstable_hyst);
+    EXPECT_EQ(62, buffer_size);
+    EXPECT_EQ(5.0, stable_hyst);
+    EXPECT_EQ(20, min_stable_period);
+    EXPECT_EQ(1.5, unstable_hyst);
+
+    EditDistEpochRecordFilter::parse_name("edit_distance,62,5.0,30,3.5",
+                                          buffer_size, stable_hyst,
+                                          min_stable_period, unstable_hyst);
+    EXPECT_EQ(62, buffer_size);
+    EXPECT_EQ(5.0, stable_hyst);
+    EXPECT_EQ(30, min_stable_period);
+    EXPECT_EQ(3.5, unstable_hyst);
+
+    GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("not_edit_distance",
+                                                                     buffer_size,
+                                                                     stable_hyst,
+                                                                     min_stable_period,
+                                                                     unstable_hyst),
+                               GEOPM_ERROR_INVALID, "Unknown filter name");
+    GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,invalid",
+                                                                     buffer_size,
+                                                                     stable_hyst,
+                                                                     min_stable_period,
+                                                                     unstable_hyst),
+                               GEOPM_ERROR_INVALID, "invalid buffer size");
+    GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,1,invalid",
+                                                                     buffer_size,
+                                                                     stable_hyst,
+                                                                     min_stable_period,
+                                                                     unstable_hyst),
+                               GEOPM_ERROR_INVALID, "invalid stable hysteresis");
+    GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,1,1,invalid",
+                                                                     buffer_size,
+                                                                     stable_hyst,
+                                                                     min_stable_period,
+                                                                     unstable_hyst),
+                               GEOPM_ERROR_INVALID, "invalid stable period");
+    GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,1,1,1,invalid",
+                                                                     buffer_size,
+                                                                     stable_hyst,
+                                                                     min_stable_period,
+                                                                     unstable_hyst),
+                               GEOPM_ERROR_INVALID, "invalid unstable hysteresis");
+    GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,1,1,1,2,2,2",
+                                                                     buffer_size,
+                                                                     stable_hyst,
+                                                                     min_stable_period,
+                                                                     unstable_hyst),
+                               GEOPM_ERROR_INVALID, "Too many commas");
 }
 
 std::vector<record_s> EditDistEpochRecordFilterTest::filter_file(std::string trace_file_path,
