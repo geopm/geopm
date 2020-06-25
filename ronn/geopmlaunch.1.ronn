@@ -362,23 +362,27 @@ listed below.
   ENVIRONMENT section of **geopm(7)**.
 
 * `--geopm-record-filter` filter:
+
   Applies the user specified filter to the application record data
-  feed.  The only filter currently supported is the "proxy_epoch"
-  filter.  Region entry and exit may be captured automatically through
-  runtimes such as MPI and OpenMP.  Using this filter can enable one of
-  these automatically captured regions to serve as a proxy for the
-  outer loop of the application without modifying the application by
-  inserting calls to `geopm_prof_epoch()` (see **geopm_prof_c(3)**).
-  The filter is specified as a comma-separated list.  The first value
-  selects the filter by name: "proxy_epoch". The second value in the
-  comma-separated list specifies a region that will be used as a proxy
-  for calls to geopm_prof_epoch().  If the value can be interpreted as
-  an integer, it will be used as the numerical region hash of the
-  region name, otherwise, the value is interpreted as the region name.
-  The third value that can be provided in the comma-separated list is
-  optional.  If provided, it specifies the number of region entries
-  into the proxy region that are expected per outer loop.  By default
-  this is assumed to be 1.  The fourth optional parameter that can be
+  feed.  The filters currently supported are "proxy_epoch" and
+  "edit_distance".  These filters can be used to infer the application
+  outer loop (epoch) without modifying the application by inserting
+  calls to `geopm_prof_epoch()` (see **geopm_prof_c(3)**).  Region
+  entry and exit may be captured automatically through runtimes such
+  as MPI and OpenMP.
+
+  The "proxy_epoch" filter looks for entries into a specific region
+  that serves as a proxy for epoch events.  The filter is specified as
+  a comma-separated list.  The first value selects the filter by name:
+  "proxy_epoch". The second value in the comma-separated list
+  specifies a region that will be used as a proxy for calls to
+  geopm_prof_epoch().  If the value can be interpreted as an integer,
+  it will be used as the numerical region hash of the region name,
+  otherwise, the value is interpreted as the region name.  The third
+  value that can be provided in the comma-separated list is optional.
+  If provided, it specifies the number of region entries into the
+  proxy region that are expected per outer loop.  By default this is
+  assumed to be 1.  The fourth optional parameter that can be
   specified in the comma-separated list is the number of region
   entries into the proxy region that are expected prior to the outer
   loop beginning.  By default this is assumed to be 0.  In the
@@ -398,6 +402,20 @@ listed below.
 
   Note: you must specify the calls per outer loop in order to specify
   the calls prior to startup.
+
+  The "edit_distance" filter will attempt to infer the epoch based on
+  patterns in the region entry events using an edit distance
+  algorithm.  The filter is specified as string beginning with the
+  name "edit_distance"; if optional parameters are specified, they are
+  provided as a comma-separated list following the name.  The first
+  parameter is the buffer size; the default if not provided is 100.
+  The second parameter is the minimum stable period length in number
+  of records.  The third parameter is the stable period hysteresis
+  factor.  The fourth parameter is the unstable period hysteresis
+  factor.  In the following example, the "edit_distance" filter will
+  be used with all optional parameters provided:
+
+      --geopm-record-filter=edit_distance,200,8,2.0,3.0
 
 * `--geopm-debug-attach` rank:
   Enables a serial debugger such as gdb to attach to a job when the

@@ -45,15 +45,18 @@ namespace geopm
         public:
             /// @brief Default constructor for the filter.
             ///
-            /// @param [in] stable_period_hysteresis Factor that along
-            ///        with the period length that detemines when a
-            ///        stable period has been detected.  Suggested
-            ///        default is 1.
+            /// @param [in] history_buffer_size Number of region entry
+            ///        events stored in order to determine an epoch.
             ///
             /// @param [in] min_stable_period Minimum period length in
             ///        number of records that will be considered
             ///        stable in order to begin emitting epoch
             ///        records.  Suggested default is 4.
+            ///
+            /// @param [in] stable_period_hysteresis Factor that along
+            ///        with the period length that detemines when a
+            ///        stable period has been detected.  Suggested
+            ///        default is 1.
             ///
             /// @param [in] unstable_period_hysteresis Factor that
             ///        along with the period length that detemines
@@ -61,14 +64,15 @@ namespace geopm
             ///        happens when the period changes from the
             ///        previously detected length.  Suggested default
             ///        is 1.5.
-            EditDistEpochRecordFilter(double stable_period_hysteresis,
+            EditDistEpochRecordFilter(int history_buffer_size,
                                       int min_stable_period,
-                                      double unstable_period_hysteresis,
-                                      int history_buffer_size);
-            EditDistEpochRecordFilter(double stable_period_hysteresis,
+                                      double stable_period_hysteresis,
+                                      double unstable_period_hysteresis);
+            EditDistEpochRecordFilter(std::shared_ptr<EditDistPeriodicityDetector> edpd,
                                       int min_stable_period,
-                                      double unstable_period_hysteresis,
-                                      std::shared_ptr<EditDistPeriodicityDetector> edpd);
+                                      double stable_period_hysteresis,
+                                      double unstable_period_hysteresis);
+            EditDistEpochRecordFilter(const std::string &name);
             virtual ~EditDistEpochRecordFilter() = default;
             std::vector<record_s> filter(const record_s &record) override;
             /// @brief Static function that will parse the filter
@@ -78,16 +82,16 @@ namespace geopm
             ///        Exception with GEOPM_ERROR_INVALID type.
             static void parse_name(const std::string &name,
                                    int &history_buffer_size,
-                                   double &stable_period_hysteresis,
                                    int &min_stable_period,
+                                   double &stable_period_hysteresis,
                                    double &unstable_period_hysteresis);
         private:
             bool epoch_detected();
 
-            const double m_stable_period_hysteresis;
-            const int m_min_stable_period;
-            const double m_unstable_period_hysteresis;
             std::shared_ptr<EditDistPeriodicityDetector> m_edpd;
+            const int m_min_stable_period;
+            const double m_stable_period_hysteresis;
+            const double m_unstable_period_hysteresis;
             int m_last_period;
             int m_period_stable;
             int m_period_unstable;

@@ -34,6 +34,7 @@
 
 #include "RecordFilter.hpp"
 #include "ProxyEpochRecordFilter.hpp"
+#include "EditDistEpochRecordFilter.hpp"
 #include "Helper.hpp"
 #include "Exception.hpp"
 
@@ -44,6 +45,9 @@ namespace geopm
         std::unique_ptr<RecordFilter> result;
         if (string_begins_with(name, "proxy_epoch")) {
             result = geopm::make_unique<ProxyEpochRecordFilter>(name);
+        }
+        else if (string_begins_with(name, "edit_distance")) {
+            result = geopm::make_unique<EditDistEpochRecordFilter>(name);
         }
         else {
             throw Exception("RecordFilter::make_unique(): Unable to parse name: " + name,
