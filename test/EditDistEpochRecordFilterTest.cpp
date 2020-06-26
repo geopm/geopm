@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
 #include <cstdint>
 
 #include "gtest/gtest.h"
@@ -55,7 +56,7 @@ class EditDistEpochRecordFilterTest : public ::testing::Test
 
         std::vector<int> m_in_events;
         std::vector<int> m_out_events;
-        std::string m_test_root_path;
+        std::string m_trace_file_prefix;
         int m_min_stable_period = 4;
         double m_stable_hyst = 1;
         double m_unstable_hyst = 1.5;
@@ -77,7 +78,8 @@ void EditDistEpochRecordFilterTest::SetUp()
     m_out_events = {
         geopm::EVENT_EPOCH_COUNT,
     };
-    m_test_root_path = "./test/";
+    m_trace_file_prefix = GEOPM_SOURCE_DIR;
+    m_trace_file_prefix += "/test/EditDistPeriodicityDetectorTest.";
 }
 
 /*
@@ -205,7 +207,7 @@ TEST_F(EditDistEpochRecordFilterTest, pattern_a)
 {
     int history_size = 100;
 
-    std::vector<record_s> testout = filter_file(m_test_root_path + "EditDistPeriodicityDetectorTest.0_pattern_a.trace", history_size);
+    std::vector<record_s> testout = filter_file(m_trace_file_prefix + "0_pattern_a.trace", history_size);
     check_vals(testout, {5, 6, 7, 8, 9});
 }
 
@@ -214,7 +216,7 @@ TEST_F(EditDistEpochRecordFilterTest, pattern_ab)
 {
     int history_size = 100;
 
-    std::vector<record_s> testout = filter_file(m_test_root_path + "EditDistPeriodicityDetectorTest.1_pattern_ab.trace", history_size);
+    std::vector<record_s> testout = filter_file(m_trace_file_prefix + "1_pattern_ab.trace", history_size);
     check_vals(testout, {7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29});
 }
 
@@ -223,7 +225,7 @@ TEST_F(EditDistEpochRecordFilterTest, pattern_abb)
 {
     int history_size = 100;
 
-    std::vector<record_s> testout = filter_file(m_test_root_path + "EditDistPeriodicityDetectorTest.2_pattern_abb.trace",history_size);
+    std::vector<record_s> testout = filter_file(m_trace_file_prefix + "2_pattern_abb.trace",history_size);
     check_vals(testout, {9, 12, 15, 18, 21, 24, 27, 30, 33});
 }
 
@@ -232,7 +234,7 @@ TEST_F(EditDistEpochRecordFilterTest, pattern_abcdc)
 {
     int history_size = 100;
 
-    std::vector<record_s> testout = filter_file(m_test_root_path + "EditDistPeriodicityDetectorTest.3_pattern_abcdc.trace", history_size);
+    std::vector<record_s> testout = filter_file(m_trace_file_prefix + "3_pattern_abcdc.trace", history_size);
     check_vals(testout, {11, 16, 20, 24, 28, 45, 71, 88, 105});
 }
 
@@ -241,7 +243,7 @@ TEST_F(EditDistEpochRecordFilterTest, pattern_ababc)
 {
     int history_size = 100;
 
-    std::vector<record_s> testout = filter_file(m_test_root_path + "EditDistPeriodicityDetectorTest.4_pattern_ababc.trace", history_size);
+    std::vector<record_s> testout = filter_file(m_trace_file_prefix + "4_pattern_ababc.trace", history_size);
     check_vals(testout, {16, 21, 26, 31});
 }
 
@@ -250,7 +252,7 @@ TEST_F(EditDistEpochRecordFilterTest, pattern_abababc)
 {
     int history_size = 100;
 
-    std::vector<record_s> testout = filter_file(m_test_root_path + "EditDistPeriodicityDetectorTest.5_pattern_abababc.trace", history_size);
+    std::vector<record_s> testout = filter_file(m_trace_file_prefix + "5_pattern_abababc.trace", history_size);
     check_vals(testout, {20, 27, 34, 41});
 }
 
@@ -259,7 +261,7 @@ TEST_F(EditDistEpochRecordFilterTest, pattern_add1)
 {
     int history_size = 100;
 
-    std::vector<record_s> testout = filter_file(m_test_root_path + "EditDistPeriodicityDetectorTest.6_pattern_add1.trace", history_size);
+    std::vector<record_s> testout = filter_file(m_trace_file_prefix + "6_pattern_add1.trace", history_size);
     check_vals(testout, {11, 15, 19, 23, 32, 36, 40, 44, 48});
 }
 
@@ -268,7 +270,7 @@ TEST_F(EditDistEpochRecordFilterTest, pattern_add2)
 {
     int history_size = 100;
 
-    std::vector<record_s> testout = filter_file(m_test_root_path + "EditDistPeriodicityDetectorTest.7_pattern_add2.trace", history_size);
+    std::vector<record_s> testout = filter_file(m_trace_file_prefix + "7_pattern_add2.trace", history_size);
     check_vals(testout, {11, 15, 19, 23, 32, 36, 40, 44, 48, 52, 56, 60});
 }
 
@@ -277,7 +279,7 @@ TEST_F(EditDistEpochRecordFilterTest, pattern_subtract1)
 {
     int history_size = 100;
 
-    std::vector<record_s> testout = filter_file(m_test_root_path + "EditDistPeriodicityDetectorTest.8_pattern_subtract1.trace", history_size);
+    std::vector<record_s> testout = filter_file(m_trace_file_prefix + "8_pattern_subtract1.trace", history_size);
     check_vals(testout, {11, 15, 19, 23, 33, 38, 42, 46, 50, 54, 58, 62, 66, 70, 74});
 }
 
