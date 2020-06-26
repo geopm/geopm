@@ -293,7 +293,7 @@ TEST_F(RegionAggregatorTest, epoch_total)
         EXPECT_CALL(m_platio, sample(M_SIGNAL_R_HASH_BOARD))
             .WillRepeatedly(Return(region));
         EXPECT_CALL(m_platio, sample(M_SIGNAL_EPOCH_COUNT))
-            .WillRepeatedly(Return(-1));
+            .WillRepeatedly(Return(0));
 
         ++step;
 
@@ -316,7 +316,7 @@ TEST_F(RegionAggregatorTest, epoch_total)
             .WillRepeatedly(Return(region));
         // after first epoch()
         EXPECT_CALL(m_platio, sample(M_SIGNAL_EPOCH_COUNT))
-            .WillRepeatedly(Return(0));
+            .WillRepeatedly(Return(1));
 
         ++step;
 
