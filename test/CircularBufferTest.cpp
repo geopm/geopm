@@ -134,33 +134,33 @@ TEST_F(CircularBufferTest, make_vector_slice)
     std::vector<double> expected;
 
     expected = {1.0, 2.0, 3.0};
-    EXPECT_EQ(expected, m_buffer->make_vector_slice(0, 3));
+    EXPECT_EQ(expected, m_buffer->make_vector(0, 3));
 
     expected = {1.0, 2.0, 3.0, 4.0, 5.0};
-    EXPECT_EQ(expected, m_buffer->make_vector_slice(0, 5));
+    EXPECT_EQ(expected, m_buffer->make_vector(0, 5));
 
     expected = {2.0};
-    EXPECT_EQ(expected, m_buffer->make_vector_slice(1, 2));
+    EXPECT_EQ(expected, m_buffer->make_vector(1, 2));
 
     expected = {2.0, 3.0};
-    EXPECT_EQ(expected, m_buffer->make_vector_slice(1, 3));
+    EXPECT_EQ(expected, m_buffer->make_vector(1, 3));
 
     // Move the head of the circular buffer to position 1.
     m_buffer->insert(1.1);
 
     expected = {3.0, 4.0};
-    EXPECT_EQ(expected, m_buffer->make_vector_slice(1, 3));
+    EXPECT_EQ(expected, m_buffer->make_vector(1, 3));
 
     expected = {3.0, 4.0, 5.0};
-    EXPECT_EQ(expected, m_buffer->make_vector_slice(1, 4));
+    EXPECT_EQ(expected, m_buffer->make_vector(1, 4));
 
     expected = {3.0, 4.0, 5.0, 1.1};
-    EXPECT_EQ(expected, m_buffer->make_vector_slice(1, 5));
+    EXPECT_EQ(expected, m_buffer->make_vector(1, 5));
 
     expected = {1.1};
-    EXPECT_EQ(expected, m_buffer->make_vector_slice(4, 5));
+    EXPECT_EQ(expected, m_buffer->make_vector(4, 5));
 
-    EXPECT_THROW(m_buffer->make_vector_slice(5, 6), geopm::Exception);
-    EXPECT_THROW(m_buffer->make_vector_slice(5, 7), geopm::Exception);
-    EXPECT_THROW(m_buffer->make_vector_slice(0, 0), geopm::Exception);
+    EXPECT_THROW(m_buffer->make_vector(5, 6), geopm::Exception);
+    EXPECT_THROW(m_buffer->make_vector(5, 7), geopm::Exception);
+    EXPECT_THROW(m_buffer->make_vector(0, 0), geopm::Exception);
 }

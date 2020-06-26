@@ -131,7 +131,7 @@ namespace geopm
         if (m_history_buffer.size() == slice_start) {
             return 1;
         }
-        std::vector<uint64_t> recs = m_history_buffer.make_vector_slice(
+        std::vector<uint64_t> recs = m_history_buffer.make_vector(
             slice_start - 1, m_history_buffer.size());
         int result = recs.size();
         bool perfect_match = false;
