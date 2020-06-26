@@ -30,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
 #include <cstdint>
 
 #include "gtest/gtest.h"
@@ -46,13 +47,14 @@ class EditDistPeriodicityDetectorTest : public ::testing::Test
 {
     protected:
         void SetUp();
-        std::string m_test_root_path;
+        std::string m_trace_file_prefix;
 };
 
 
 void EditDistPeriodicityDetectorTest::SetUp()
 {
-    m_test_root_path = "./test/";
+    m_trace_file_prefix = GEOPM_SOURCE_DIR;
+    m_trace_file_prefix += "/test/EditDistPeriodicityDetectorTest.";
 }
 
 void check_vals(std::string trace_file_path, int warmup, int period, int history_size=100);
@@ -67,7 +69,7 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_a)
     int period = 1;
     int history_size = 100;
 
-    check_vals(m_test_root_path + "EditDistPeriodicityDetectorTest.0_pattern_a.trace", warmup, period, history_size);
+    check_vals(m_trace_file_prefix + "0_pattern_a.trace", warmup, period, history_size);
 }
 
 /// Pattern 1: (AB)x15
@@ -77,7 +79,7 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_ab)
     int period = 2;
     int history_size = 100;
 
-    check_vals(m_test_root_path + "EditDistPeriodicityDetectorTest.1_pattern_ab.trace", warmup, period, history_size);
+    check_vals(m_trace_file_prefix + "1_pattern_ab.trace", warmup, period, history_size);
 }
 
 /// Pattern 2: (ABB)x12
@@ -87,7 +89,7 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_abb)
     int period = 3;
     int history_size = 100;
 
-    check_vals(m_test_root_path + "EditDistPeriodicityDetectorTest.2_pattern_abb.trace", warmup, period, history_size);
+    check_vals(m_trace_file_prefix + "2_pattern_abb.trace", warmup, period, history_size);
 }
 
 /// Pattern 3: (ABCDABCDABCDC) (ABCDABCDABCDABCDC)x6 (ABCD)
@@ -97,7 +99,7 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_abcdc)
     int period = 17;
     int history_size = 100;
 
-    check_vals(m_test_root_path + "EditDistPeriodicityDetectorTest.3_pattern_abcdc.trace", warmup, period, history_size);
+    check_vals(m_trace_file_prefix + "3_pattern_abcdc.trace", warmup, period, history_size);
 }
 
 /// Pattern 4: (AB) (ABABC)x3
@@ -107,7 +109,7 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_ababc)
     int period = 5;
     int history_size = 100;
 
-    check_vals(m_test_root_path + "EditDistPeriodicityDetectorTest.4_pattern_ababc.trace", warmup, period, history_size);
+    check_vals(m_trace_file_prefix + "4_pattern_ababc.trace", warmup, period, history_size);
 }
 
 /// Pattern 5: (ABABABC)x6
@@ -117,7 +119,7 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_abababc)
     int period = 7;
     int history_size = 100;
 
-    check_vals(m_test_root_path + "EditDistPeriodicityDetectorTest.5_pattern_abababc.trace", warmup, period, history_size);
+    check_vals(m_trace_file_prefix + "5_pattern_abababc.trace", warmup, period, history_size);
 }
 
 /// Pattern 6: (ABCD)x6 (E) (ABCD)x6
@@ -126,9 +128,9 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_add1)
     int period = 4;
     int history_size = 100;
 
-    check_vals(m_test_root_path + "EditDistPeriodicityDetectorTest.6_pattern_add1.trace", 7, 24, period, history_size);
+    check_vals(m_trace_file_prefix + "6_pattern_add1.trace", 7, 24, period, history_size);
     int warmup = 32;
-    check_vals(m_test_root_path + "EditDistPeriodicityDetectorTest.6_pattern_add1.trace", warmup, period, history_size);
+    check_vals(m_trace_file_prefix + "6_pattern_add1.trace", warmup, period, history_size);
 }
 
 /// Pattern 7: (ABCD)x6 (EF) (ABCD)x9
@@ -137,8 +139,8 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_add2)
     int period = 4;
     int history_size = 100;
 
-    check_vals(m_test_root_path + "EditDistPeriodicityDetectorTest.7_pattern_add2.trace", 7, 24, period, history_size);
-    check_vals(m_test_root_path + "EditDistPeriodicityDetectorTest.7_pattern_add2.trace", 33, period, history_size);
+    check_vals(m_trace_file_prefix + "7_pattern_add2.trace", 7, 24, period, history_size);
+    check_vals(m_trace_file_prefix + "7_pattern_add2.trace", 33, period, history_size);
 }
 
 /// Pattern 8: (ABCD)x6 (ABC) (ABCD)x12
@@ -147,8 +149,8 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_subtract1)
     int period = 4;
     int history_size = 100;
 
-    check_vals(m_test_root_path + "EditDistPeriodicityDetectorTest.8_pattern_subtract1.trace", 7, 27, period, history_size);
-    check_vals(m_test_root_path + "EditDistPeriodicityDetectorTest.8_pattern_subtract1.trace", 54, period, history_size);
+    check_vals(m_trace_file_prefix + "8_pattern_subtract1.trace", 7, 27, period, history_size);
+    check_vals(m_trace_file_prefix + "8_pattern_subtract1.trace", 54, period, history_size);
 }
 
 /// HELPER FUNCTIONS
