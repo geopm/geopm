@@ -124,7 +124,7 @@ namespace geopm
             auto epoch_idx = std::make_pair(it.first, GEOPM_REGION_HASH_EPOCH);
             double curr_epoch_count = m_platform_io.sample(m_epoch_count_idx);
             if (m_region_sample_data.find(epoch_idx) == m_region_sample_data.end() &&
-                curr_epoch_count > -1) {
+                curr_epoch_count > 0) {
                 m_region_sample_data[epoch_idx].last_entry_value = value;
             }
 
