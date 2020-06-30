@@ -125,21 +125,21 @@ namespace geopm
             const double m_stable_period_hysteresis;
             // Parameter input for the algorithm.
             const double m_unstable_period_hysteresis;
-            // State variable of the stable period detector state machine.
-            bool m_is_period_detected;
             // Input to the stable period detector state machine.
             int m_last_period;
             // Input to the stable period detector state machine.
             int m_period_stable;
             // Input to the stable period detector state machine.
             int m_period_unstable;
+            // State variable of the stable period detector state machine.
+            bool m_is_period_detected;
             // Input to the stable period detector state machine.
             int m_last_epoch;
+            // Variable for the filter method.
+            int m_epoch_count;
             // Input to the stable period detector state machine.
             // Set by the filter method.
             int m_record_count;
-            // Variable for the filter method.
-            int m_epoch_count;
     };
 }
 
