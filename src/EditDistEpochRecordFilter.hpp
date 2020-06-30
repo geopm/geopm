@@ -86,19 +86,60 @@ namespace geopm
                                    double &stable_period_hysteresis,
                                    double &unstable_period_hysteresis);
         private:
+            /// Implements:
+            ///  1. The stable period detector state machine,
+            ///  2. Returns True if the last record passed to m_edpd
+            ///     is considered as an epoch marker. Marked
+            ///     records are expected to be spaced (in number of
+            ///     records) the length of a period plus/minus erroneous
+            ///     records.
+            ///
+            /// STATE MACHINE OPERATION
+            /// -------------------------
+            /// PERIOD_DETECTED state means we are observing a stable period of N and as long as we stay in this
+            /// state we expect to observe an epoch distance of length N plus/minus erroneously added/removed
+            /// calls, which are indicated by the edit distance (score).
+            ///
+            /// The period stability is measured by comparing the period detected with the most current record vs
+            /// detected with the previous. We store the previous in m_last_period. Only periods of length
+            /// >= MIN_DETECTABLE_PERIOD are considered as potentially stable
+            ///
+            /// The conditions for NO_PERIOD_DETECTED -> PERIOD_DETECTED state transition:
+            ///    * Stable period of N detected by String Edit Distance algorithm for
+            ///      the last MAX(N, MIN_STABLE_PERIOD) x STABLE_PERIOD_HYSTERESIS records.
+            ///    * Only periods >= MIN_DETECTABLE_PERIOD are considered as potentially stable.
+            ///
+            /// The conditions for PERIOD_DETECTED -> NO_PERIOD_DETECTED state transition:
+            ///    * Detected period deviated from N for the last UNSTABLE_PERIOD_HYSTERESIS x N records.
+            ///
+            /// The conditions for reporting a record as epoch marker:
+            ///    * "N plus/minus erroneous records" passed since last reported epoch marker.
             bool epoch_detected();
 
+            // The String Edit Distance algorithm that finds the
+            // patterns are implemented in this object.
             std::shared_ptr<EditDistPeriodicityDetector> m_edpd;
+            // Parameter input for the algorithm.
             const int m_min_stable_period;
+            // Parameter input for the algorithm.
             const double m_stable_period_hysteresis;
+            // Parameter input for the algorithm.
             const double m_unstable_period_hysteresis;
-            int m_last_period;
-            int m_period_stable;
-            int m_period_unstable;
+            // State variable of the stable period detector state machine.
             bool m_is_period_detected;
+            // Input to the stable period detector state machine.
+            int m_last_period;
+            // Input to the stable period detector state machine.
+            int m_period_stable;
+            // Input to the stable period detector state machine.
+            int m_period_unstable;
+            // Input to the stable period detector state machine.
             int m_last_epoch;
-            int m_epoch_count;
+            // Input to the stable period detector state machine.
+            // Set by the filter method.
             int m_record_count;
+            // Variable for the filter method.
+            int m_epoch_count;
     };
 }
 

@@ -163,12 +163,16 @@ namespace geopm
 
     bool EditDistEpochRecordFilter::epoch_detected()
     {
+        // The below IF statement is a state machine where the state variable is m_is_period_detected
+        // (true means state PERIOD_DETECTED false means NO_PERIOD_DETECTED).
+        //
         if (!m_is_period_detected) {
             if (m_edpd->get_score() >= m_edpd->get_period()) {
                 // If the score is the same as the period or greater the detected period is really low quality.
                 // For example: A B C D ... will give period = 1 with score = 1.
-                // In that case, we reset the period detection, i.e., we don;t even treat the
+                // In that case, we reset the period detection, i.e., we don't even treat the
                 // last period detected as valid.
+                // Also periods that are too short don't count even if they are good quality.
                 m_last_period = -1;
                 m_period_stable = 0;
             }
@@ -214,7 +218,7 @@ namespace geopm
             }
 
             // Note that the following statement may work even if there is insertions, but that should be tested.
-            // TODO: We need to evaluate the value of passing the following condition:
+            // @todo We need to evaluate the value of passing the following condition:
             //       (m_record_count - m_last_epoch) > m_edpd->get_period()
 
             // We fail the following condition:
