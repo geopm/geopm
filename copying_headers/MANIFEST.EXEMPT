@@ -33,6 +33,7 @@ examples/nekbone/README
 examples/qbox/README
 geopm-ohpc.spec.in
 geopm-theta.spec.in
+integration/test/README.md
 pull_request_template.md
 ronn/GEOPM_CXX_MAN_Agent.3.ronn
 ronn/GEOPM_CXX_MAN_Agg.3.ronn
@@ -110,7 +111,6 @@ test/EditDistPeriodicityDetectorTest.6_pattern_add1.trace
 test/EditDistPeriodicityDetectorTest.7_pattern_add2.trace
 test/EditDistPeriodicityDetectorTest.8_pattern_subtract1.trace
 test/ProxyEpochRecordFilterTest.tutorial_2_profile_trace
-test_integration/README.md
 tutorial/README.md
 tutorial/admin/README.md
 tutorial/agent/README.md

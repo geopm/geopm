@@ -402,11 +402,11 @@ test cyle is executed with the following commands:
 The unit tests can be executed on any development system, including
 VMs and containers, that meets the BUILD REQUIREMENTS section above.
 
-The integration tests are located in the "test_integration" directory.
+The integration tests are located in the "integration/test" directory.
 These tests require a system meeting all of the requirements discussed
 in the RUN REQUIREMENTS section above and can be executed as follows:
 
-    cd test_integration
+    cd integration/test
     python .
 
 These integration tests are based on pyunit and leverage the geopmpy
