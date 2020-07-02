@@ -859,7 +859,7 @@ PHONY_TARGETS = clean-local \
                 # end
 
 include test/Makefile.mk
-include test_integration/Makefile.mk
+include integration/Makefile.mk
 include examples/Makefile.mk
 include scripts/Makefile.mk
 include openmp.mk
