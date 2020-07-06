@@ -128,7 +128,9 @@ the full GEOPM runtime.
 BUILD REQUIREMENTS
 ------------------
 In order to build the GEOPM package from source, the below
-requirements must be met.
+requirements must be met.  The user can opt out of the features
+enabled by any of these requirements by providing the appropriate
+disable flag to the configure command line.
 
 The GEOPM package requires a compiler that supports the MPI 2.2 and
 C++11 standards.  These requirements can be met by using GCC version
@@ -151,9 +153,17 @@ UBUNTU (as of 18.04.3 LTS):
     apt install libtool automake libopenmpi-dev build-essential gfortran \
         libelf-dev ruby ruby-dev python libsqlite3-dev
 
+Requirements that can be avoided by removing features with configure
+option:
+
+   - MPI compiler: --disable-mpi
+   - Ruby, Ruby Gems and Ronn:  --disable-ronn
+   - A Fortran compiler:  --disable-fortran
+   - The elfutils library: --disable-ompt
+
 Alternatively these can be installed from source, and an alternate MPI
-implementation to OpenMPI can be selected (e.g. one provided by
-OpenMPI).  See
+implementation to OpenMPI can be selected (e.g. the Intel distribution
+of MPI).  See
 
     ./configure --help
 
