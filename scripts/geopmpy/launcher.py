@@ -78,13 +78,13 @@ class Factory(object):
                                            ('OMPIExecLauncher', OMPIExecLauncher)])
 
     def create(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
-               time_limit=None, job_name=None, node_list=None, host_file=None,
+               time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
                reservation=None, quiet=None):
         try:
             launcher_name = argv[1]
             return self._launcher_dict[launcher_name](argv[2:], num_rank, num_node, cpu_per_rank, timeout,
-                                                      time_limit, job_name, node_list, host_file,
-                                                      reservation=reservation, quiet=quiet)
+                                                      time_limit, job_name, node_list, exclude_list,
+                                                      host_file, reservation=reservation, quiet=quiet)
         except KeyError:
             raise LookupError('<geopm> geopmpy.launcher: Unsupported launcher "{}" requested'.format(launcher_name))
 
@@ -329,8 +329,8 @@ class Launcher(object):
     Defines common methods used by all Launcher objects.
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
-                 time_limit=None, job_name=None, node_list=None, host_file=None, partition=None,
-                 reservation=None, quiet=None):
+                 time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
+                 partition=None, reservation=None, quiet=None):
         """
         Constructor takes the command line options passed to the job
         launch application along with optional override values for
@@ -341,6 +341,7 @@ class Launcher(object):
         """
         self.environ_ext = dict()
         self.rank_per_node = None
+        self.exclude_list = None
         self.reservation = None
         self.quiet = quiet
         self.default_handler = signal.getsignal(signal.SIGINT)
@@ -389,6 +390,12 @@ class Launcher(object):
                 self.node_list = self.node_list_delim().join(node_list)
             else:
                 self.node_list = node_list
+        if exclude_list is not None:
+            self.is_override_enabled = True
+            if type(exclude_list) is list:
+                self.exclude_list = self.node_list_delim().join(exclude_list)
+            else:
+                self.exclude_list = exclude_list
         if host_file is not None:
             self.is_override_enabled = True
             self.host_file = host_file
@@ -591,6 +598,7 @@ class Launcher(object):
         launcher = factory.create(argv, num_rank=self.num_node, num_node=self.num_node,
                                   host_file=self.host_file,
                                   node_list=self.node_list,
+                                  exclude_list=self.exclude_list,
                                   reservation=self.reservation)
         launcher.run()
         # Query the topology for Launcher calculations by running lscpu on one node.
@@ -603,6 +611,7 @@ class Launcher(object):
         launcher = factory.create(argv, 1, 1,
                                   host_file=self.host_file,
                                   node_list=self.node_list,
+                                  exclude_list=self.exclude_list,
                                   reservation=self.reservation)
         ostream = io.StringIO()
         launcher.run(stdout=ostream)
@@ -735,6 +744,7 @@ class Launcher(object):
         """
         result = []
         result.extend(self.num_node_option())
+        result.extend(self.exclude_list_option())
         result.extend(self.num_rank_option(is_geopmctl))
         result.extend(self.affinity_option(is_geopmctl))
         result.extend(self.preload_option())
@@ -754,6 +764,13 @@ class Launcher(object):
         number of compute nodes.
         """
         raise NotImplementedError('<geopm> geopmpy.launcher: Launcher.num_node_option() undefined in the base class')
+
+    def exclude_list_option(self):
+        """
+        Returns a list containing the command line options specifying the
+        compute nodes to exclude from execution.
+        """
+        raise NotImplementedError('<geopm> geopmpy.launcher: Launcher.exclude_list_option() undefined in the base class')
 
     def num_rank_option(self, is_geopmctl):
         """
@@ -871,13 +888,13 @@ class SrunLauncher(Launcher):
     application srun.
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
-                 time_limit=None, job_name=None, node_list=None, host_file=None,
+                 time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
                  reservation=None, quiet=None):
         """
         Pass through to Launcher constructor.
         """
         super(SrunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
-                                           time_limit, job_name, node_list, host_file,
+                                           time_limit, job_name, node_list, exclude_list, host_file,
                                            reservation=reservation, quiet=quiet)
 
         if (self.is_geopm_enabled and
@@ -902,6 +919,7 @@ class SrunLauncher(Launcher):
         parser = argparse.ArgumentParser(add_help=False)
         parser.add_argument('-n', '--ntasks', dest='num_rank', type=int)
         parser.add_argument('-N', '--nodes', dest='num_node', type=int)
+        parser.add_argument('-x', '--exclude', dest='exclude_list', type=str)
         parser.add_argument('-c', '--cpus-per-task', dest='cpu_per_rank', type=int)
         parser.add_argument('-I', '--immediate', dest='timeout', type=int)
         parser.add_argument('-t', '--time', dest='time_limit', type=int)
@@ -921,6 +939,7 @@ class SrunLauncher(Launcher):
             self.rank_per_node = opts.rank_per_node
             if self.num_node is None and self.num_rank is not None and self.rank_per_node is not None:
                 self.num_node = int_ceil_div(self.num_rank, self.rank_per_node)
+        self.exclude_list = opts.exclude_list
         self.cpu_per_rank = opts.cpu_per_rank
         self.timeout = opts.timeout
         self.time_limit = None
@@ -948,6 +967,15 @@ class SrunLauncher(Launcher):
         Returns a list containing the -N option for srun.
         """
         return ['-N', str(self.num_node)]
+
+    def exclude_list_option(self):
+        """
+        Returns a list containing the -x option for srun.
+        """
+        result = []
+        if self.exclude_list is not None:
+            result = ['-x', self.exclude_list]
+        return result
 
     def affinity_option(self, is_geopmctl):
         """
@@ -1105,13 +1133,14 @@ class OMPIExecLauncher(Launcher):
     application mpiexec.
     """
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
-                 time_limit=None, job_name=None, node_list=None, host_file=None,
+                 time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
                  reservation=None, quiet=None):
         """
         Pass through to Launcher constructor.
         """
         super(OMPIExecLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
-                                              time_limit, job_name, node_list, host_file, quiet=quiet)
+                                               time_limit, job_name, node_list, exclude_list,
+                                               host_file, quiet=quiet)
         self._tmp_files = []
 
     def run(self, stdout=sys.stdout, stderr=sys.stderr):
@@ -1292,13 +1321,13 @@ class IMPIExecLauncher(Launcher):
     _is_once = True
 
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
-                 time_limit=None, job_name=None, node_list=None, host_file=None,
+                 time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
                  reservation=None, quiet=None):
         """
         Pass through to Launcher constructor.
         """
         super(IMPIExecLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
-                                               time_limit, job_name, node_list, host_file,
+                                               time_limit, job_name, node_list, exclude_list, host_file,
                                                reservation=reservation, quiet=quiet)
 
         self.is_slurm_enabled = False
@@ -1409,6 +1438,9 @@ class IMPIExecLauncher(Launcher):
 
         return result
 
+    def exclude_list_option(self):
+        return []
+
     def get_idle_nodes(self):
         """
         Returns a list of the names of compute nodes that are currently
@@ -1422,13 +1454,13 @@ class IMPIExecLauncher(Launcher):
 
 class AprunLauncher(Launcher):
     def __init__(self, argv, num_rank=None, num_node=None, cpu_per_rank=None, timeout=None,
-                 time_limit=None, job_name=None, node_list=None, host_file=None,
+                 time_limit=None, job_name=None, node_list=None, exclude_list=None, host_file=None,
                  reservation=None, quiet=None):
         """
         Pass through to Launcher constructor.
         """
         super(AprunLauncher, self).__init__(argv, num_rank, num_node, cpu_per_rank, timeout,
-                                            time_limit, job_name, node_list, host_file,
+                                            time_limit, job_name, node_list, exclude_list, host_file,
                                             reservation=reservation, quiet=quiet)
 
         if self.is_geopm_enabled and self.config.get_ctl() == 'application':
@@ -1446,6 +1478,7 @@ class AprunLauncher(Launcher):
         parser.add_argument('-t', '--cpu-time-limit', dest='time_limit', type=int)
         parser.add_argument('-L', '--node-list', dest='node_list', type=str)
         parser.add_argument('-l', '--node-list-file', dest='host_file', type=str)
+        parser.add_argument('-E', '--exclude-node-list', dest='exclude_list', type=str)
 
         opts, self.argv_unparsed = parser.parse_known_args(self.argv_unparsed)
 
@@ -1462,6 +1495,7 @@ class AprunLauncher(Launcher):
             self.time_limit = int_ceil_div(self.time_limit, self.cpu_per_rank)
         self.node_list = opts.node_list
         self.host_file = opts.host_file
+        self.exclude_list = opts.exclude_list
 
         if (self.is_geopm_enabled and
             any(aa.startswith('--cpu-binding') or
@@ -1528,6 +1562,15 @@ class AprunLauncher(Launcher):
         result = []
         if self.host_file is not None:
             result = ['-l', self.host_file]
+        return result
+
+    def exclude_list_option(self):
+        """
+        Returns a list containing the -E option for aprun.
+        """
+        result = []
+        if self.exclude_list is not None:
+            result = ['-E', self.exclude_list]
         return result
 
     def preload_option(self):

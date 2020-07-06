@@ -168,6 +168,7 @@ class TestLauncher(object):
         self._report_signals = report_signals
         self._trace_signals = trace_signals
         self._node_list = None
+        self._exclude_list = None
         self._pmpi_ctl = 'process'
         self._job_name = 'geopm_int_test'
         self._timeout = 30
@@ -181,6 +182,9 @@ class TestLauncher(object):
 
     def set_node_list(self, node_list):
         self._node_list = node_list
+
+    def set_exclude_list(self, exclude_list):
+        self._exclude_list = exclude_list
 
     def set_num_node(self, num_node):
         self._num_node = num_node
@@ -199,7 +203,8 @@ class TestLauncher(object):
             launcher = geopmpy.launcher.Factory().create(argv, self._num_rank, self._num_node,
                                                          self._cpu_per_rank, self._timeout,
                                                          self._time_limit, self._job_name,
-                                                         self._node_list, self._host_file)
+                                                         self._node_list, self._exclude_list,
+                                                         self._host_file)
             launcher.run(stdout=outfile, stderr=outfile)
 
     def run(self, test_name, include_geopm_policy=True, add_geopm_args=[]):
@@ -245,7 +250,7 @@ class TestLauncher(object):
             argv.append('--verbose')
             argv.extend(self._app_conf.get_exec_args())
             launcher = geopmpy.launcher.Factory().create(argv, self._num_rank, self._num_node, self._cpu_per_rank, self._timeout,
-                                                         self._time_limit, test_name, self._node_list, self._host_file)
+                                                         self._time_limit, test_name, self._node_list, self._exclude_list, self._host_file)
 
             try:
                 launcher.run(stdout=outfile, stderr=outfile)
@@ -343,7 +348,7 @@ class TestLauncher(object):
             # is intentional here and is the best we can do
             # without a whitelist of node names
             launcher = geopmpy.launcher.Factory().create(argv, self._num_node, self._num_node, self._cpu_per_rank, self._timeout,
-                                                         self._time_limit, 'msr_save', self._node_list, self._host_file)
+                                                         self._time_limit, 'msr_save', self._node_list, self._exclude_list, self._host_file)
             launcher.run()
 
     def disable_ompt(self):
