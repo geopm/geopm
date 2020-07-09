@@ -37,6 +37,7 @@
 #include <string.h>
 #include <float.h>
 #include <unistd.h>
+#include <cmath>
 
 #include "geopm_sched.h"
 #include "PlatformTopo.hpp"
@@ -116,7 +117,7 @@ namespace geopm
         for (uint32_t cpu = 0; cpu < m_num_cpu; ++cpu) {
             numer = (double)m_buffer[cpu * m_stride];
             denom = m_buffer[cpu * m_stride + 1];
-            progress[cpu] = denom ? numer / denom : -1.0;
+            progress[cpu] = denom ? numer / denom : NAN;
         }
     }
 
