@@ -43,6 +43,7 @@ from integration.test.test_ee_timed_scaling_mix import *
 from integration.test.test_enforce_policy import *
 from integration.test.test_profile_policy import *
 from integration.test.test_plugin_static_policy import *
+from integration.test.test_power_balancer import *
 from integration.test.test_tutorial_base import *
 from integration.test.test_frequency_hint_usage import *
 from integration.test.test_scaling_region import *
