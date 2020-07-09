@@ -56,12 +56,6 @@ if ENABLE_FORTRAN
 endif
 endif
 
-if !ENABLE_FORTRAN
-install-fortran:
-	-
-endif
-
-
 install-exec-hook: install-python install-fortran install-openmp install-plugin-dir
 dist: dist-googletest dist-openmp
 
@@ -118,14 +112,18 @@ endif
 
 if ENABLE_MPI
 if ENABLE_FORTRAN
-
 all-local: geopm.mod
 
 install-fortran:
 	$(INSTALL) -d $(DESTDIR)/$(libdir)/$(FC)/modules/geopm-`uname -m`
 	$(INSTALL) geopm.mod $(DESTDIR)/$(libdir)/$(FC)/modules/geopm-`uname -m`
-
+else
+install-fortran:
+	-
 endif
+else
+install-fortran:
+	-
 endif
 
 install-plugin-dir:
@@ -764,10 +762,14 @@ distclean-local-ruby:
 	rm -rf ruby
 
 # FORTRAN MODULE TARGET
+if ENABLE_MPI
 if ENABLE_FORTRAN
 BUILT_SOURCES = geopm.mod
 geopm.mod: src/geopm.f90
 	$(FC) $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS) -c $<
+else
+BUILT_SOURCES =
+endif
 else
 BUILT_SOURCES =
 endif
