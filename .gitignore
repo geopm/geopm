@@ -75,6 +75,7 @@
 /integration/test/test_omp_outer_loop
 /integration/test/test_profile_policy
 /integration/test/test_scaling_region
+/integration/test/test_socket_imbalance
 /integration/test/test_timed_scaling_region
 /integration/test/test_tutorial_base
 /integration/test/*.trace*
