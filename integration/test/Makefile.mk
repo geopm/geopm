@@ -55,5 +55,4 @@ include integration/test/test_timed_scaling_region.mk
 include integration/test/test_tutorial_base.mk
 include integration/test/test_frequency_hint_usage.mk
 include integration/test/test_epoch_inference.mk
-include integration/test/test_socket_imbalance.mk
 include integration/test/test_power_balancer.mk
