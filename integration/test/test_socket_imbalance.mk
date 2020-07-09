@@ -29,30 +29,15 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/test/configure_test_template.sh \
-              integration/test/geopm_context.py \
-              integration/test/geopm_test_integration.py \
-              integration/test/geopm_test_launcher.py \
-              integration/test/geopm_test_loop.sh \
-              integration/test/__init__.py \
-              integration/test/__main__.py \
-              integration/test/README.md \
-              integration/test/short_region/plot_margin_sweep.py \
-              integration/test/test_plugin_static_policy.py \
-              integration/test/test_template.cpp.in \
-              integration/test/test_template.mk.in \
-              integration/test/test_template.py.in \
-              integration/test/util.py \
-              # end
+EXTRA_DIST += integration/test/test_socket_imbalance.py
 
-include integration/test/test_ee_short_region_slop.mk
-include integration/test/test_ee_timed_scaling_mix.mk
-include integration/test/test_enforce_policy.mk
-include integration/test/test_omp_outer_loop.mk
-include integration/test/test_profile_policy.mk
-include integration/test/test_scaling_region.mk
-include integration/test/test_timed_scaling_region.mk
-include integration/test/test_tutorial_base.mk
-include integration/test/test_frequency_hint_usage.mk
-include integration/test/test_epoch_inference.mk
-include integration/test/test_socket_imbalance.mk
+if ENABLE_MPI
+noinst_PROGRAMS += integration/test/test_socket_imbalance
+integration_test_test_socket_imbalance_SOURCES = integration/test/test_socket_imbalance.cpp
+integration_test_test_socket_imbalance_SOURCES += $(model_source_files)
+integration_test_test_socket_imbalance_LDADD = libgeopm.la $(MATH_LIB) $(MPI_CLIBS)
+integration_test_test_socket_imbalance_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) $(MATH_CLDFLAGS)
+integration_test_test_socket_imbalance_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS) -D_GNU_SOURCE -std=c++11 $(MATH_CFLAGS)
+else
+EXTRA_DIST += integration/test/test_socket_imbalance.cpp
+endif
