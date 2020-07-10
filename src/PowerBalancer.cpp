@@ -93,7 +93,8 @@ namespace geopm
 
     void PowerBalancerImp::power_limit_adjusted(double actual_limit)
     {
-        // m_power_limit starts as the requested limit.  actual limit is what the governor returned.
+        // m_power_limit starts as the requested limit.  actual limit
+        // is the clipped value.
         if (actual_limit > m_power_limit) {
             // we hit the minimum, so stop lowering
             m_is_target_met = true;
@@ -119,8 +120,14 @@ namespace geopm
     bool PowerBalancerImp::is_runtime_stable(double measured_runtime)
     {
         bool result = false;
-        bool is_stable = is_limit_stable() && !std::isnan(measured_runtime);
-        if (is_stable && m_runtime_buffer->size() == 0) {
+        if (!is_limit_stable() ||
+            std::isnan(measured_runtime)) {
+            return result;
+        }
+        /// m_runtime_vec used as a temporary holder until enough time
+        /// has passed to determine how many samples are required in
+        /// the circular buffer.
+        if (m_runtime_buffer->size() == 0) {
             m_runtime_vec.push_back(measured_runtime);
             if (Agg::sum(m_runtime_vec) > M_MIN_DURATION) {
                 m_num_sample = m_runtime_vec.size();
@@ -137,12 +144,13 @@ namespace geopm
                 m_runtime_vec.resize(0);
             }
         }
-        else if (is_stable) {
+        else {
             m_runtime_buffer->insert(measured_runtime);
             if (m_runtime_buffer->size() == m_runtime_buffer->capacity()) {
                 result = true;
             }
         }
+        calculate_runtime_sample();
         return result;
     }
 
@@ -194,8 +202,8 @@ namespace geopm
             }
             else {
                 m_power_limit -= m_trial_delta;
+                m_runtime_buffer->clear();
             }
-            m_runtime_buffer->clear();
         }
         return m_is_target_met;
     }
