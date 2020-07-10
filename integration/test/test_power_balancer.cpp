@@ -77,7 +77,7 @@ int main(int argc, char **argv)
     if (err) {
         throw geopm::Exception("MPI_Comm_rank()", err, __FILE__, __LINE__);
     }
-    
+
     // Create a model region
     std::unique_ptr<geopm::ModelRegion> model(
         geopm::ModelRegion::model_region("dgemm", big_o, is_verbose));
@@ -85,6 +85,7 @@ int main(int argc, char **argv)
     // Loop over 1000 iterations of executing the renamed region
     int num_step = 1000;
     for (int idx = 0; idx != num_step; ++idx) {
+        geopm_prof_epoch();
         model->run();
         MPI_Barrier(MPI_COMM_WORLD);
     }
