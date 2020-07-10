@@ -396,7 +396,6 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation. All rights 
 **geopm::Exception(3)**,
 **geopm::Helper(3)**,
 **geopm::IOGroup(3)**,
-**geopm::MSR(3)**,
 **geopm::MSRIO(3)**,
 **geopm::MSRIOGroup(3)**,
 **geopm::PlatformIO(3)**,
