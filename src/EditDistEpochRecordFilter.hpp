@@ -101,8 +101,7 @@ namespace geopm
             /// calls, which are indicated by the edit distance (score).
             ///
             /// The period stability is measured by comparing the period detected with the most current record vs
-            /// detected with the previous. We store the previous in m_last_period. Only periods of length
-            /// >= MIN_DETECTABLE_PERIOD are considered as potentially stable
+            /// detected with the previous. We store the previous in m_last_period.
             ///
             /// The conditions for NO_PERIOD_DETECTED -> PERIOD_DETECTED state transition:
             ///    * Stable period of N detected by String Edit Distance algorithm for
@@ -116,14 +115,17 @@ namespace geopm
             ///    * "N plus/minus erroneous records" passed since last reported epoch marker.
             bool epoch_detected();
 
-            // The String Edit Distance algorithm that finds the
-            // patterns are implemented in this object.
+            /// The String Edit Distance algorithm that finds the
+            /// patterns are implemented in this object.
             std::shared_ptr<EditDistPeriodicityDetector> m_edpd;
-            // Parameter input for the algorithm.
+            // Parameter for the epoch detection algorithm. See
+            // EditDistEpochRecordFilter::epoch_detected().
             const int m_min_stable_period;
-            // Parameter input for the algorithm.
+            // Parameter for the epoch detection algorithm. See
+            // EditDistEpochRecordFilter::epoch_detected().
             const double m_stable_period_hysteresis;
-            // Parameter input for the algorithm.
+            // Parameter for the epoch detection algorithm. See
+            // EditDistEpochRecordFilter::epoch_detected().
             const double m_unstable_period_hysteresis;
             // Input to the stable period detector state machine.
             int m_last_period;
