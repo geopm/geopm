@@ -75,6 +75,10 @@ namespace geopm
         , m_platform_topo(platform_topo)
         , m_env_column(env_column)
         , M_BUFFER_SIZE(134217728) // 128 MiB
+        , m_region_hash_idx(-1)
+        , m_region_hint_idx(-1)
+        , m_region_progress_idx(-1)
+        , m_region_runtime_idx(-1)
     {
         if (m_is_trace_enabled) {
             m_csv = make_unique<CSVImp>(file_path, hostname, start_time, M_BUFFER_SIZE);

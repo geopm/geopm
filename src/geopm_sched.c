@@ -193,6 +193,8 @@ static void geopm_proc_cpuset_once(void)
     }
     if (!err) {
         err = geopm_sched_proc_cpuset_helper(num_cpu, proc_cpuset, fid);
+    }
+    if (fid) {
         fclose(fid);
     }
     if (!err) {

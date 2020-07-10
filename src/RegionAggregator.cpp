@@ -61,6 +61,7 @@ namespace geopm
 
     RegionAggregatorImp::RegionAggregatorImp(PlatformIO &platio)
         : m_platform_io(platio)
+        , m_epoch_count_idx(-1)
     {
 
     }

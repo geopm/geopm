@@ -44,6 +44,10 @@ namespace geopm
 {
     ValidateRecord::ValidateRecord()
         : m_is_empty(true)
+        , m_time(NAN)
+        , m_process(-1)
+        , m_epoch_count(0)
+        , m_region_hash(GEOPM_REGION_HASH_INVALID)
     {
 
     }

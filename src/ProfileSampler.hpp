@@ -234,7 +234,6 @@ namespace geopm
             std::set<std::string> m_name_set;
             /// Holds the status of the name_fill operation.
             bool m_is_name_finished;
-            int rank_per_node;
     };
 
     class PlatformTopo;
