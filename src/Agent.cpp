@@ -30,16 +30,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
+
 #include "Agent.hpp"
 
 #include <cmath>
+#include <cstring>
+
 #include <sstream>
 #include <iostream>
 #include <mutex>
 
 #include "geopm_agent.h"
 #include "geopm_plugin.hpp"
-#include "string.h"
 #include "MonitorAgent.hpp"
 #include "PowerBalancerAgent.hpp"
 #include "PowerGovernorAgent.hpp"
@@ -49,7 +52,6 @@
 #include "Endpoint.hpp"
 #include "SharedMemoryUser.hpp"
 #include "Helper.hpp"
-#include "config.h"
 
 namespace geopm
 {
@@ -96,18 +98,15 @@ namespace geopm
         return instance;
     }
 
-
     std::vector<std::string> Agent::agent_names(void)
     {
         return agent_factory().plugin_names();
     }
 
-
     std::unique_ptr<Agent> Agent::make_unique(const std::string &agent_name)
     {
         return agent_factory().make_plugin(agent_name);
     }
-
 
     std::vector<std::function<std::string(double)> > Agent::trace_formats(void) const
     {
@@ -129,7 +128,13 @@ namespace geopm
                             "Agent was not registered with plugin factory with the correct dictionary.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
-        return atoi(it->second.c_str());
+        int num_sample = std::stoi(it->second);
+        if (num_sample < 0) {
+            throw Exception("Agent::num_sample(): "
+                            "Agent was not registered with plugin factory with the correct dictionary.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+        return num_sample;
     }
 
     int Agent::num_sample(const std::string &agent_name)
@@ -145,7 +150,13 @@ namespace geopm
                             "Agent was not registered with plugin factory with the correct dictionary.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
-        return atoi(it->second.c_str());
+        int num_policy = std::stoi(it->second);
+        if (num_policy < 0) {
+            throw Exception("Agent::num_policy(): "
+                            "Agent was not registered with plugin factory with the correct dictionary.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+        return num_policy;
     }
 
     int Agent::num_policy(const std::string &agent_name)
@@ -178,6 +189,7 @@ namespace geopm
     {
         size_t num_names = num_policy(dictionary);
         std::vector<std::string> result(num_names);
+
         for (size_t name_idx = 0; name_idx != num_names; ++name_idx) {
             std::string key = m_policy_prefix + std::to_string(name_idx);
             auto it = dictionary.find(key);

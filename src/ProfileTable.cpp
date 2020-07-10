@@ -111,6 +111,7 @@ namespace geopm
         if (!is_inserted) {
             // check for overflow
             if (m_table->curr_size >= m_table->max_size) {
+                (void) pthread_mutex_unlock(&(m_table->lock));
                 throw Exception("ProfileTableImp::insert(): table overflowed.",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
@@ -150,6 +151,7 @@ namespace geopm
                 throw Exception("ProfileTableImp::key(): pthread_mutex_lock()", err, __FILE__, __LINE__);
             }
             if (m_key_set.find(result) != m_key_set.end()) {
+                pthread_mutex_unlock(&(m_key_map_lock));
                 throw Exception("ProfileTableImp::key(): String hash collision", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             m_key_set.insert(result);

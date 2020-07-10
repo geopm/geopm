@@ -46,6 +46,7 @@ namespace geopm
         : m_is_signal_pushed(false)
         , m_is_batch_read(false)
         , m_time_zero(time_zero())
+        , m_time_curr(NAN)
         , m_valid_signal_name{plugin_name() + "::ELAPSED",
                               "TIME"}
     {
