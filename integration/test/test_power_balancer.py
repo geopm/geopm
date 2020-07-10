@@ -109,7 +109,6 @@ class TestIntegration_power_balancer(unittest.TestCase):
                     app_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
                     cls._tmp_files.append(app_conf.get_path())
                     app_conf.append_region('dgemm-imbalance', 8.0)
-                    app_conf.append_region('all2all', 0.05)
                     app_conf.set_loop_count(loop_count)
                     # Update app config with imbalance
                     alloc_nodes = geopm_test_launcher.TestLauncher.get_alloc_nodes()
