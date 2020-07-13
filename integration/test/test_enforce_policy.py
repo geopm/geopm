@@ -48,6 +48,7 @@ from integration.test import util
 import geopmpy.topo
 
 
+@util.skip_unless_do_launch()
 @util.skip_unless_batch()
 class TestIntegrationEnforcePolicy(unittest.TestCase):
     """Test the static policy enforcement feature of the agent interface

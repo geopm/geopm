@@ -48,6 +48,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 from integration.test import util
 
 
+@util.skip_unless_do_launch()
 @util.skip_unless_batch()
 class TestIntegrationProfilePolicy(unittest.TestCase):
     def setUp(self):

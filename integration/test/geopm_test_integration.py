@@ -79,6 +79,7 @@ def create_frequency_map_policy(max_freq, frequency_map):
     return policy
 
 
+@util.skip_unless_do_launch()
 class TestIntegration(unittest.TestCase):
     def setUp(self):
         self.longMessage = True
@@ -1163,6 +1164,7 @@ class TestIntegration(unittest.TestCase):
             self.assert_geopm_uses_policy(override_policy, test_name + '_override_with_user', user_policy=user_policy)
 
 
+@util.skip_unless_do_launch()
 class TestIntegrationGeopmio(unittest.TestCase):
     ''' Tests of geopmread and geopmwrite.'''
     def setUp(self):
