@@ -47,14 +47,13 @@ import geopmpy.io
 import geopmpy.error
 
 from integration.test import util
-if util.do_launch():
+if True: #not util.do_launch():
     # Note: this import may be moved outside of do_launch if needed to run
     # commands on compute nodes such as geopm_test_launcher.geopmread
     from integration.test import geopm_test_launcher
     geopmpy.error.exc_clear()
 
 
-# TODO: dont need skip decorator if skipping launch
 @util.skip_unless_run_long_tests()
 @util.skip_unless_batch()
 class TestIntegration_power_balancer(unittest.TestCase):
@@ -65,24 +64,13 @@ class TestIntegration_power_balancer(unittest.TestCase):
 
         """
         def write(self):
-            """Called by the test launcher prior to executing the test application
-            to write any files required by the application.
-            """
             pass
 
         def get_exec_path(self):
-            """Path to benchmark filled in by template automatically.
-            """
             script_dir = os.path.dirname(os.path.realpath(__file__))
             return os.path.join(script_dir, '.libs', 'test_power_balancer')
 
         def get_exec_args(self):
-            """Returns a list of strings representing the command line arguments
-            to pass to the test-application for the next run.  This is
-            especially useful for tests that execute the test-application
-            multiple times.
-
-            """
             return []
 
     @classmethod
@@ -90,18 +78,16 @@ class TestIntegration_power_balancer(unittest.TestCase):
         """Create launcher, execute benchmark and set up class variables.
 
         """
-        sys.stdout.write('(' + os.path.basename(__file__).split('.')[0] +
-                         '.' + cls.__name__ + ') ...')
         cls._test_name = 'test_power_balancer'
         cls._num_node = 4
         cls._agent_list = ['power_governor', 'power_balancer']
-        cls._skip_launch = not util.do_launch()
+        # TODO: might want accessor methods?
+        # or rename to something like "test_config"
+        cls._skip_launch = util.g_util.skip_launch()
+        cls._show_details = util.g_util.show_details()
         cls._tmp_files = []
         cls._keep_files = (cls._skip_launch or
                            os.getenv('GEOPM_KEEP_FILES') is not None)
-
-        # TODO: command line option:
-        cls._verbose = False
 
         # Clear out exception record for python 2 support
         geopmpy.error.exc_clear()
@@ -118,14 +104,14 @@ class TestIntegration_power_balancer(unittest.TestCase):
             gov_agent_conf_path = cls._test_name + '_gov_agent.config'
             bal_agent_conf_path = cls._test_name + '_bal_agent.config'
             cls._tmp_files.append(gov_agent_conf_path)
-            # self._tmp_files.append(bal_agent_conf_path)
+            cls._tmp_files.append(bal_agent_conf_path)
             path_dict = {'power_governor': gov_agent_conf_path, 'power_balancer': bal_agent_conf_path}
 
             for app_name in ['geopmbench', 'socket_imbalance']:
                 app_conf = None
                 if app_name == 'geopmbench':
                     app_conf = geopmpy.io.BenchConf(cls._test_name + '_app.config')
-                    # self._tmp_files.append(app_conf.get_path())
+                    cls._tmp_files.append(app_conf.get_path())
                     app_conf.append_region('dgemm-imbalance', 8.0)
                     app_conf.append_region('all2all', 0.05)
                     app_conf.set_loop_count(loop_count)
@@ -173,7 +159,6 @@ class TestIntegration_power_balancer(unittest.TestCase):
         self.assertEqual(self._num_node, len(node_names))
 
         new_output = geopmpy.io.RawReport(report_path)
-        print(new_output.meta_data())
         power_budget = new_output.meta_data()['Policy']['POWER_PACKAGE_LIMIT_TOTAL']
 
         power_limits = []
@@ -184,8 +169,7 @@ class TestIntegration_power_balancer(unittest.TestCase):
             first_epoch_index = tt.loc[tt['EPOCH_COUNT'] == 0][:1].index[0]
             epoch_dropped_data = tt[first_epoch_index:]  # Drop all startup data
 
-            power_data = epoch_dropped_data.filter(regex='ENERGY')
-            power_data['TIME'] = epoch_dropped_data['TIME']
+            power_data = epoch_dropped_data[['TIME', 'ENERGY_PACKAGE', 'ENERGY_DRAM']]
             power_data = power_data.diff().dropna()
             power_data.rename(columns={'TIME': 'ELAPSED_TIME'}, inplace=True)
             power_data = power_data.loc[(power_data != 0).all(axis=1)]  # Will drop any row that is all 0's
@@ -198,9 +182,9 @@ class TestIntegration_power_balancer(unittest.TestCase):
 
             pandas.set_option('display.width', 100)
             # launcher.write_log(name, 'Power stats from {} {} :\n{}'.format(agent, nn, power_data.describe()))
-            # TODO: still want this in launcher log?
-            if self._verbose:
-                sys.stdout.write('Power stats from {} {} :\n{}\n'.format(agent, nn, power_data.describe()))
+            # TODO: still want this in launcher log? ^ in case of skip launch
+            if self._show_details:
+                sys.stdout.write('\nPower stats from {} {} :\n{}\n'.format(agent, nn, power_data.describe()))
 
             # Get final power limit set on the node
             if agent == 'power_balancer':
@@ -215,7 +199,7 @@ class TestIntegration_power_balancer(unittest.TestCase):
         runtime_list = []
         for node_name in node_names:
             epoch_data = output.get_report_data(node_name=node_name, region='dgemm')
-            runtime_list.append(epoch_data['runtime'].item())
+            runtime_list.append(epoch_data['runtime'].values.item())
         return runtime_list
 
     def balancer_test_helper(self, app_name):
@@ -237,9 +221,10 @@ class TestIntegration_power_balancer(unittest.TestCase):
                 max_runtime = max(runtime_list)
                 margin = margin_factor * (max_runtime - mean_runtime)
 
-        sys.stdout.write("\nAverage runtime stats:\n")
-        sys.stdout.write("governor runtime: {}, balancer runtime: {}, margin: {}\n".format(
-            agent_runtime['power_governor'], agent_runtime['power_balancer'], margin))
+        if self._show_details:
+            sys.stdout.write("\nAverage runtime stats:\n")
+            sys.stdout.write("governor runtime: {}, balancer runtime: {}, margin: {}\n".format(
+                agent_runtime['power_governor'], agent_runtime['power_balancer'], margin))
 
         self.assertGreater(agent_runtime['power_governor'] - margin,
                            agent_runtime['power_balancer'],
@@ -255,6 +240,4 @@ class TestIntegration_power_balancer(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    # Call do_launch to clear non-pyunit command line option
-    util.do_launch()
     unittest.main()
