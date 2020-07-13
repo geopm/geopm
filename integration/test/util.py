@@ -41,9 +41,80 @@ import sys
 import unittest
 import subprocess
 from io import StringIO
+import argparse
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from integration.test import geopm_test_launcher
+
+
+# the global singleton
+class Util:
+    _instance = None
+
+    def __init__(self):
+        self._do_parse_once = False
+        self._skip_launch = False
+        self._show_details = False
+
+    @classmethod
+    def instance(cls):
+        if not cls._instance:
+            cls._instance = Util()
+            cls._instance.parse_command_line_args()
+        return cls._instance
+
+    def parse_command_line_args(self):
+        ''' Parses command line to remove geopm integration-specific options.
+            New options added here should not conflict with the set
+            provided by unittest.main().
+            @todo: perhaps a geopm- prefix for options?
+        '''
+        if self._do_parse_once:
+            return
+
+        self._do_parse_once = True
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--skip-launch', dest='skip_launch',
+                            action='store_true', default=False,
+                            help='reuse existing data files; do not launch any jobs')
+        parser.add_argument('--show-details', dest='show_details',
+                            action='store_true', default=False,
+                            help='print additional data analysis details')
+        # workaround so that this help plus base pyunit help text will be printed
+        if '-h' in sys.argv or '--help' in sys.argv:
+            # TODO: use custom help text; this is confusing
+            sys.stdout.write('GEOPM test-specific help:\n')
+            sys.stdout.write('-------------------------\n')
+            parser.print_help()
+            sys.stdout.write('\nCommon pyunit help:\n')
+            sys.stdout.write(  '-------------------\n')
+            return
+
+        args, remaining = parser.parse_known_args()
+        sys.argv = [sys.argv[0]] + remaining
+        self._skip_launch = args.skip_launch
+        self._show_details = args.show_details
+
+    def skip_launch(self):
+        ''' Skip parts of test requiring a job launched on compute nodes.
+            Ideally the test should only analyze existing report/trace files.
+        '''
+        return self._skip_launch
+
+    def show_details(self):
+        ''' Can be used by tests to print optional additional details about the
+            data used.
+        '''
+        return self._show_details
+
+
+# will be created the first time this file is imported
+g_util = Util.instance()
+
+
+def do_launch():
+    return not g_util.skip_launch()
+
 
 def skip_unless_platform_bdx():
     fam, mod = geopm_test_launcher.get_platform()
@@ -94,13 +165,13 @@ def skip_unless_optimized():
 
 def skip_unless_batch():
     batch_env_vars = ['SLURM_NODELIST', 'COBALT_JOBID']
-    if not any(opt in batch_env_vars for opt in os.environ):
+    if not g_util.skip_launch() and not any(opt in batch_env_vars for opt in os.environ):
         return unittest.skip('Requires batch session.')
     return lambda func: func
 
 
 def skip_unless_run_long_tests():
-    if 'GEOPM_RUN_LONG_TESTS' not in os.environ:
+    if not g_util.skip_launch() and 'GEOPM_RUN_LONG_TESTS' not in os.environ:
         return unittest.skip("Define GEOPM_RUN_LONG_TESTS in your environment to run this test.")
     return lambda func: func
 
@@ -206,26 +277,11 @@ def remove_file_on_compute_nodes(file_path):
         geopm_test_launcher.allocation_node_test('dummy -- rm {}'.format(file_path), dev_null, dev_null)
 
 
-_g_do_launch_once = True
-_g_do_launch = True
-def do_launch():
-    # Check for skip launch command line argument
-    global _g_do_launch_once
-    global _g_do_launch
-    if _g_do_launch_once:
-        _g_do_launch_once = False
-        try:
-            sys.argv.remove('--skip-launch')
-            _g_do_launch = False
-        except ValueError:
-            pass
-    return _g_do_launch
-
-
 def assertNear(self, a, b, epsilon=0.05, msg=''):
     denom = a if a != 0 else 1
     if abs((a - b) / denom) >= epsilon:
         self.fail('The fractional difference between {a} and {b} is greater than {epsilon}.  {msg}'.format(a=a, b=b, epsilon=epsilon, msg=msg))
+
 
 def assertNotNear(self, a, b, epsilon=0.05, msg=''):
     denom = a if a != 0 else 1
