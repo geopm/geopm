@@ -226,10 +226,9 @@ namespace geopm
                 .hint = (uint64_t)m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HINT][ctl_idx]),
                 .runtime = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_RUNTIME][ctl_idx]),
                 .count = (uint64_t)m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_COUNT][ctl_idx])};
-            // If region hash has changed, or region count changed for the same region
-            // update current region (entry)
-            if (m_last_region_info[ctl_idx].hash != current_region_info.hash ||
-                m_last_region_info[ctl_idx].count != current_region_info.count) {
+            if (m_last_region_info[ctl_idx].hash != current_region_info.hash || // region boundary observed
+                (m_last_region_info[ctl_idx].hash == current_region_info.hash &&
+                 m_last_region_info[ctl_idx].count != current_region_info.count)) { // region count change for same region
                 if (do_learning(current_region_info.hash, current_region_info.hint)) {
                     /// set the freq for the current region (entry)
                     auto current_region_it = m_region_map[ctl_idx].find(current_region_info.hash);
