@@ -79,10 +79,16 @@ namespace geopm
         if (m_is_pshared) {
             err = pthread_mutexattr_setpshared(&lock_attr, PTHREAD_PROCESS_SHARED);
             if (err) {
+                (void) pthread_mutexattr_destroy(&lock_attr);
                 throw Exception("ProfileTableImp: pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
         err = pthread_mutex_init(&(m_table->lock), &lock_attr);
+        if (err) {
+            (void) pthread_mutexattr_destroy(&lock_attr);
+            throw Exception("ProfileTableImp: pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        err = pthread_mutexattr_destroy(&lock_attr);
         if (err) {
             throw Exception("ProfileTableImp: pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
