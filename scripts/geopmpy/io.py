@@ -1438,7 +1438,7 @@ class RawReportCollection(object):
     Used to group together a collection of related RawReports.
     '''
 
-    def __init__(self, report_paths, dir_name=',', verbose=True, do_cache=True):
+    def __init__(self, report_paths, dir_name='.', verbose=True, do_cache=True):
         self._reports_df = pandas.DataFrame()
         self._app_reports_df = pandas.DataFrame()
         self._epoch_reports_df = pandas.DataFrame()
@@ -1459,8 +1459,9 @@ class RawReportCollection(object):
             except TypeError:
                 raise TypeError('<geopm> geopmpy.io: AppOutput: reports must be a list of paths or a glob pattern')
             report_paths = natsorted(report_paths)
-            if len(report_paths) == 0:
-                raise RuntimeError('<geopm> geopmpy.io: No report files found with pattern {}.'.format(report_glob))
+
+        if len(report_paths) == 0:
+            raise RuntimeError('<geopm> geopmpy.io: No report files found with pattern {}.'.format(report_glob))
 
         if do_cache:
             paths_str = str(report_paths)
@@ -1468,7 +1469,7 @@ class RawReportCollection(object):
                 h5_id = hashlib.shake_256(paths_str.encode()).hexdigest(14)
             except AttributeError:
                 h5_id = hash(paths_str)
-            report_h5_name = 'report_{}.h5'.format(h5_id)
+            report_h5_name = os.path.join(dir_name, 'report_{}.h5'.format(h5_id))
 
             # check if cache is older than reports
             if os.path.exists(report_h5_name):
@@ -1485,7 +1486,7 @@ class RawReportCollection(object):
                 # load dataframes from cache
                 self._reports_df = pandas.read_hdf(report_h5_name, 'report')
                 self._app_reports_df = pandas.read_hdf(report_h5_name, 'app_report')
-                self._epoch_report_df = pandas.read_hdf(report_h5_name, 'epoch_report')
+                self._epoch_reports_df = pandas.read_hdf(report_h5_name, 'epoch_report')
                 if verbose:
                     sys.stdout.write('Loaded report data from {}.\n'.format(report_h5_name))
             except IOError:
