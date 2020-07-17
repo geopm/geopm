@@ -42,7 +42,6 @@
 #include "Exception.hpp"
 #include "ModelRegion.hpp"
 #include "PlatformTopo.hpp"
-#include "geopm_mpi_comm_split.h"
 #include "geopm_sched.h"
 
 int main(int argc, char **argv)
@@ -66,17 +65,6 @@ int main(int argc, char **argv)
     int package_idx = geopm::platform_topo().domain_idx(GEOPM_DOMAIN_PACKAGE, cpu_idx);
     double big_o_base = 5.0;
     double big_o = big_o_base * (1.0 + package_idx * 0.25);
-
-    MPI_Comm shared_comm;
-    int err = geopm_comm_split_shared(MPI_COMM_WORLD, NULL, &shared_comm);
-    if (err) {
-        throw geopm::Exception("geopm_comm_split_shared()", err, __FILE__, __LINE__);
-    }
-    int shared_rank;
-    err = MPI_Comm_rank(shared_comm, &shared_rank);
-    if (err) {
-        throw geopm::Exception("MPI_Comm_rank()", err, __FILE__, __LINE__);
-    }
 
     // Create a model region
     std::unique_ptr<geopm::ModelRegion> model(

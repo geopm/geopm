@@ -40,6 +40,7 @@ import unittest
 import os
 import glob
 import pandas
+import time
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from integration.test import geopm_context
@@ -47,7 +48,7 @@ import geopmpy.io
 import geopmpy.error
 
 from integration.test import util
-if True: #not util.do_launch():
+if util.do_launch():
     # Note: this import may be moved outside of do_launch if needed to run
     # commands on compute nodes such as geopm_test_launcher.geopmread
     from integration.test import geopm_test_launcher
@@ -81,8 +82,6 @@ class TestIntegration_power_balancer(unittest.TestCase):
         cls._test_name = 'test_power_balancer'
         cls._num_node = 4
         cls._agent_list = ['power_governor', 'power_balancer']
-        # TODO: might want accessor methods?
-        # or rename to something like "test_config"
         cls._skip_launch = util.g_util.skip_launch()
         cls._show_details = util.g_util.show_details()
         cls._tmp_files = []
@@ -136,6 +135,7 @@ class TestIntegration_power_balancer(unittest.TestCase):
                     launcher.set_num_rank(num_rank)
                     launcher.write_log(run_name, 'Power cap = {}W'.format(power_budget))
                     launcher.run(run_name)
+                    time.sleep(60)
 
     @classmethod
     def tearDownClass(cls):
@@ -153,7 +153,7 @@ class TestIntegration_power_balancer(unittest.TestCase):
         if sys.exc_info() != (None, None, None):
             TestIntegration_power_balancer._keep_files = True
 
-    def get_power_data(self, agent, report_path, trace_path):
+    def get_power_data(self, app_name, agent, report_path, trace_path):
         output = geopmpy.io.AppOutput(report_path, trace_path + '*')
         node_names = output.get_node_names()
         self.assertEqual(self._num_node, len(node_names))
@@ -181,10 +181,13 @@ class TestIntegration_power_balancer(unittest.TestCase):
             power_data['COMBINED_POWER'] = power_data['SOCKET_POWER'] + power_data['DRAM_POWER']
 
             pandas.set_option('display.width', 100)
-            # launcher.write_log(name, 'Power stats from {} {} :\n{}'.format(agent, nn, power_data.describe()))
-            # TODO: still want this in launcher log? ^ in case of skip launch
+            power_stats = '\nPower stats from {} {} :\n{}\n'.format(agent, nn, power_data.describe())
+            if not self._skip_launch:
+                run_name = '{}_{}_{}'.format(self._test_name, agent, app_name)
+                with open(run_name + '.log', 'a') as outfile:
+                    outfile.write(power_stats)
             if self._show_details:
-                sys.stdout.write('\nPower stats from {} {} :\n{}\n'.format(agent, nn, power_data.describe()))
+                sys.stdout.write(power_stats)
 
             # Get final power limit set on the node
             if agent == 'power_balancer':
@@ -213,7 +216,7 @@ class TestIntegration_power_balancer(unittest.TestCase):
             report_path = '{}.report'.format(run_name)
             trace_path = '{}.trace'.format(run_name)
 
-            runtime_list = self.get_power_data(agent, report_path, trace_path)
+            runtime_list = self.get_power_data(app_name, agent, report_path, trace_path)
             agent_runtime[agent] = max(runtime_list)
 
             if agent == 'power_governor':
