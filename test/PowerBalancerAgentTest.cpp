@@ -35,7 +35,6 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "MockPowerGovernor.hpp"
 #include "MockPowerBalancer.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
@@ -46,6 +45,7 @@
 #include "config.h"
 
 using geopm::PowerBalancerAgent;
+using geopm::PowerBalancer;
 using geopm::PlatformTopo;
 using ::testing::_;
 using ::testing::SetArgReferee;
@@ -71,8 +71,7 @@ class PowerBalancerAgentTest : public ::testing::Test
 
         MockPlatformIO m_platform_io;
         MockPlatformTopo m_platform_topo;
-        std::unique_ptr<MockPowerGovernor> m_power_gov;
-        std::unique_ptr<MockPowerBalancer> m_power_bal;
+        std::vector<std::shared_ptr<MockPowerBalancer> > m_power_bal;
         std::unique_ptr<PowerBalancerAgent> m_agent;
 
         const double M_POWER_PACKAGE_MIN = 50;
@@ -80,12 +79,14 @@ class PowerBalancerAgentTest : public ::testing::Test
         const double M_POWER_PACKAGE_MAX = 325;
         const int M_NUM_PKGS = 2;
         const std::vector<int> M_FAN_IN = {2, 2};
+        const double M_TIME_WINDOW = 0.015;
 };
 
 void PowerBalancerAgentTest::SetUp()
 {
-    m_power_gov = geopm::make_unique<MockPowerGovernor>();
-    m_power_bal = geopm::make_unique<MockPowerBalancer>();
+    for (int i = 0; i < M_NUM_PKGS; ++i) {
+        m_power_bal.push_back(std::make_shared<MockPowerBalancer>());
+    }
 
     ON_CALL(m_platform_io, read_signal("POWER_PACKAGE_TDP", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(M_POWER_PACKAGE_TDP));
@@ -95,7 +96,16 @@ void PowerBalancerAgentTest::SetUp()
         .WillByDefault(Return(M_POWER_PACKAGE_MAX));
     ON_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, _))
         .WillByDefault(Return(M_POWER_PACKAGE_MAX/M_NUM_PKGS));
+    ON_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
+        .WillByDefault(Return(M_NUM_PKGS));
 
+    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_TDP", _, _));
+    std::vector<std::shared_ptr<PowerBalancer> >power_bal_base(m_power_bal.size());
+    std::copy(m_power_bal.begin(), m_power_bal.end(), power_bal_base.begin());
+    m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
+                                                     power_bal_base,
+                                                     M_POWER_PACKAGE_MIN,
+                                                     M_POWER_PACKAGE_MAX);
 }
 
 TEST_F(PowerBalancerAgentTest, power_balancer_agent)
@@ -108,9 +118,6 @@ TEST_F(PowerBalancerAgentTest, power_balancer_agent)
                                                     "MAX_EPOCH_RUNTIME",
                                                     "SUM_POWER_SLACK",
                                                     "MIN_POWER_HEADROOM"};
-    MockPowerGovernor *power_gov_p = m_power_gov.get();
-    m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
-                                                     std::move(m_power_gov), std::move(m_power_bal));
 
     EXPECT_EQ("power_balancer", m_agent->plugin_name());
     EXPECT_EQ(exp_pol_names, m_agent->policy_names());
@@ -122,12 +129,15 @@ TEST_F(PowerBalancerAgentTest, power_balancer_agent)
 
     // check that single-node balancer can be initialized
     EXPECT_CALL(m_platform_topo, num_domain(_)).Times(AtLeast(1));
-    EXPECT_CALL(*power_gov_p, init_platform_io());
-    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME", _, _));
-    EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", _, _));
-    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_NETWORK", _, _));
-    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_IGNORE", _, _));
-    m_agent->init(0, {}, false);
+    for (int pkg_idx = 0; pkg_idx != M_NUM_PKGS; ++pkg_idx) {
+        EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME", GEOPM_DOMAIN_PACKAGE, pkg_idx));
+        EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", GEOPM_DOMAIN_PACKAGE, pkg_idx));
+        EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_NETWORK", GEOPM_DOMAIN_PACKAGE, pkg_idx));
+        EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_IGNORE", GEOPM_DOMAIN_PACKAGE, pkg_idx));
+        EXPECT_CALL(m_platform_io, push_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_PACKAGE, pkg_idx));
+    }
+    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_TIME_WINDOW", GEOPM_DOMAIN_BOARD, 0, M_TIME_WINDOW));
+    m_agent->init(0, {}, true);
 }
 
 TEST_F(PowerBalancerAgentTest, tree_root_agent)
@@ -141,13 +151,6 @@ TEST_F(PowerBalancerAgentTest, tree_root_agent)
     ON_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(200));
 
-    EXPECT_CALL(m_platform_io, control_domain_type("POWER_PACKAGE_LIMIT"))
-        .WillOnce(Return(GEOPM_DOMAIN_PACKAGE));
-    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
-        .WillOnce(Return(2));
-
-    m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
-                                                     std::move(m_power_gov), std::move(m_power_bal));
     m_agent->init(level, M_FAN_IN, IS_ROOT);
 
     std::vector<double> in_policy {NAN, NAN, NAN, NAN};
@@ -272,8 +275,6 @@ TEST_F(PowerBalancerAgentTest, tree_agent)
     int level = 1;
     int num_children = M_FAN_IN[level - 1];
 
-    m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
-                                                     std::move(m_power_gov), std::move(m_power_bal));
     m_agent->init(level, M_FAN_IN, IS_ROOT);
 
     std::vector<double> in_policy {NAN, NAN, NAN, NAN};
@@ -424,7 +425,6 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
 
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .WillOnce(Return(M_NUM_PKGS));
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_TDP", _, _));
     EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, _))
         .WillOnce(Return(M_POWER_PACKAGE_MAX));
     EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0))
@@ -460,42 +460,52 @@ TEST_F(PowerBalancerAgentTest, leaf_agent)
             .WillOnce(Return(epoch_rt_ignore[x]));
     }
 
-    m_power_gov = geopm::make_unique<MockPowerGovernor>();
+   double actual_limit = 299.0 / M_NUM_PKGS;
+#if 0
     EXPECT_CALL(*m_power_gov, init_platform_io());
     EXPECT_CALL(*m_power_gov, sample_platform())
         .Times(4);
-    double actual_limit = 299.0 / M_NUM_PKGS;
-    EXPECT_CALL(*m_power_gov, adjust_platform(300.0, _))
+     EXPECT_CALL(*m_power_gov, adjust_platform(300.0, _))
         .Times(4)
         .WillRepeatedly(SetArgReferee<1>(actual_limit));
     EXPECT_CALL(*m_power_gov, do_write_batch())
         .Times(4)
         .WillRepeatedly(Return(true));
-    m_power_bal = geopm::make_unique<MockPowerBalancer>();
-    EXPECT_CALL(*m_power_bal, power_limit_adjusted(actual_limit))
-        .Times(4);
+#endif
+    for (auto &power_bal : m_power_bal) {
+        EXPECT_CALL(*power_bal, power_limit_adjusted(actual_limit))
+            .Times(4);
 
-    EXPECT_CALL(*m_power_bal, target_runtime(epoch_rt[0]));
-    EXPECT_CALL(*m_power_bal, calculate_runtime_sample()).Times(2);
-    EXPECT_CALL(*m_power_bal, runtime_sample())
-        .WillRepeatedly(Return(epoch_rt[0]));
-    double exp_in = epoch_rt[0] - epoch_rt_mpi[0] - epoch_rt_ignore[0];
-    EXPECT_CALL(*m_power_bal, is_runtime_stable(exp_in))
-        .WillOnce(Return(true));
-    exp_in = epoch_rt[1] - epoch_rt_mpi[1] - epoch_rt_ignore[1];
-    EXPECT_CALL(*m_power_bal, is_target_met(exp_in))
-        .WillRepeatedly(Return(true));
-    EXPECT_CALL(*m_power_bal, power_slack())
-        .WillRepeatedly(Return(0.0));
-    EXPECT_CALL(*m_power_bal, power_cap(300.0))
-        .Times(2);
-    EXPECT_CALL(*m_power_bal, power_cap())
-        .WillRepeatedly(Return(300.0));
-    EXPECT_CALL(*m_power_bal, power_limit())
-        .WillRepeatedly(Return(300.0));
-    EXPECT_CALL(*m_power_bal, power_slack());
-    m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
-                                                     std::move(m_power_gov), std::move(m_power_bal));
+        EXPECT_CALL(*power_bal, target_runtime(epoch_rt[0]));
+        EXPECT_CALL(*power_bal, calculate_runtime_sample()).Times(2);
+        EXPECT_CALL(*power_bal, runtime_sample())
+            .WillRepeatedly(Return(epoch_rt[0]));
+        double exp_in = epoch_rt[0] - epoch_rt_mpi[0] - epoch_rt_ignore[0];
+        EXPECT_CALL(*power_bal, is_runtime_stable(exp_in))
+            .WillOnce(Return(true));
+        exp_in = epoch_rt[1] - epoch_rt_mpi[1] - epoch_rt_ignore[1];
+        EXPECT_CALL(*power_bal, is_target_met(exp_in))
+            .WillRepeatedly(Return(true));
+        EXPECT_CALL(*power_bal, power_slack())
+            .WillRepeatedly(Return(0.0));
+        EXPECT_CALL(*power_bal, power_cap(300.0))
+            .Times(2);
+        EXPECT_CALL(*power_bal, power_cap())
+            .WillRepeatedly(Return(300.0));
+        EXPECT_CALL(*power_bal, power_limit())
+            .WillRepeatedly(Return(300.0));
+        EXPECT_CALL(*power_bal, power_slack());
+    }
+
+    EXPECT_CALL(m_platform_topo, num_domain(_)).Times(AtLeast(1));
+    for (int pkg_idx = 0; pkg_idx != M_NUM_PKGS; ++pkg_idx) {
+        EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME", GEOPM_DOMAIN_PACKAGE, pkg_idx));
+        EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", GEOPM_DOMAIN_PACKAGE, pkg_idx));
+        EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_NETWORK", GEOPM_DOMAIN_PACKAGE, pkg_idx));
+        EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_IGNORE", GEOPM_DOMAIN_PACKAGE, pkg_idx));
+        EXPECT_CALL(m_platform_io, push_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_PACKAGE, pkg_idx));
+    }
+    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_TIME_WINDOW", GEOPM_DOMAIN_BOARD, 0, M_TIME_WINDOW));
     m_agent->init(level, M_FAN_IN, IS_ROOT);
 
     EXPECT_EQ(trace_cols, m_agent->trace_names());
@@ -625,8 +635,6 @@ TEST_F(PowerBalancerAgentTest, enforce_policy)
     EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_BOARD,
                                              0, limit/M_NUM_PKGS));
 
-    m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
-                                                     std::move(m_power_gov), std::move(m_power_bal));
     m_agent->enforce_policy(policy);
 
     EXPECT_THROW(m_agent->enforce_policy(bad_policy), geopm::Exception);
@@ -634,9 +642,6 @@ TEST_F(PowerBalancerAgentTest, enforce_policy)
 
 TEST_F(PowerBalancerAgentTest, validate_policy)
 {
-    m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
-                                                     std::move(m_power_gov), std::move(m_power_bal));
-
     std::vector<double> policy;
 
     // valid policy unchanged
