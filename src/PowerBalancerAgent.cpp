@@ -642,7 +642,7 @@ namespace geopm
 
     PowerBalancerAgent::~PowerBalancerAgent() = default;
 
-    void PowerBalancerAgent::init(int level, const std::vector<int> &fan_in, bool is_root)
+    void PowerBalancerAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
         bool is_tree_root = (level == (int)fan_in.size());
         if (level == 0) {
@@ -654,6 +654,8 @@ namespace geopm
                                                 M_TIME_WINDOW,
                                                 is_tree_root,
                                                 calc_num_node(fan_in));
+            m_platform_io.write_control("POWER_PACKAGE_TIME_WINDOW",
+                                        GEOPM_DOMAIN_BOARD, 0, M_TIME_WINDOW);
         }
         else if (is_tree_root) {
             m_role = std::make_shared<RootRole>(level,
@@ -664,8 +666,6 @@ namespace geopm
         else {
             m_role = std::make_shared<TreeRole>(level, fan_in);
         }
-        m_platform_io.write_control("POWER_PACKAGE_TIME_WINDOW",
-                                    GEOPM_DOMAIN_BOARD, 0, M_TIME_WINDOW);
     }
 
     void PowerBalancerAgent::split_policy(const std::vector<double> &in_policy,
