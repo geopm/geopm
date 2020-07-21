@@ -175,8 +175,9 @@ namespace geopm
     // Try to get a policy from the BestPolicies table. If none is found, an
     // empty vector is returned.
     static std::vector<double>
-    get_policy_from_best_policies(sqlite3 *database, const std::string &profile_name,
-                                  const std::string &agent_name)
+    get_policy_from_best_policies(sqlite3 *database,
+                                  const std::string &agent_name,
+                                  const std::string &profile_name)
     {
         static const char SELECT_BEST_POLICY[] =
             "SELECT offset,value "
@@ -193,7 +194,8 @@ namespace geopm
     // Try to get an agent's policy from a given table. Return true if the
     // policy is successfully obtained, or false if it does not exist.
     // Exceptions are thrown for any errors.
-    static std::vector<double> get_default(sqlite3 *database, const std::string &agent_name)
+    static std::vector<double> get_default(sqlite3 *database,
+                                           const std::string &agent_name)
     {
         static const char SELECT_default[] =
             "SELECT offset,value "
@@ -270,10 +272,10 @@ namespace geopm
         }
     }
 
-    std::vector<double> PolicyStoreImp::get_best(const std::string &profile_name,
-                                                 const std::string &agent_name) const
+    std::vector<double> PolicyStoreImp::get_best(const std::string &agent_name,
+                                                 const std::string &profile_name) const
     {
-        auto policy = get_policy_from_best_policies(m_database, profile_name, agent_name);
+        auto policy = get_policy_from_best_policies(m_database, agent_name, profile_name);
         if (policy.empty()) {
             policy = get_default(m_database, agent_name);
         }
@@ -294,10 +296,17 @@ namespace geopm
         return policy;
     }
 
-    void PolicyStoreImp::set_best(const std::string &profile_name,
-                                  const std::string &agent_name,
+    void PolicyStoreImp::set_best(const std::string &agent_name,
+                                  const std::string &profile_name,
                                   const std::vector<double> &policy)
     {
+        // check that the policy is valid for the agent
+        size_t num_policy = Agent::num_policy(agent_name);
+        if (policy.size() > num_policy) {
+            throw Exception("PolicyStoreImp::set_best(): invalid policy for " + agent_name + " agent.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         begin_transaction_or_throw(m_database);
         {
             // Remove existing policy values for this record in case the new
@@ -336,6 +345,13 @@ namespace geopm
     void PolicyStoreImp::set_default(const std::string &agent_name,
                                      const std::vector<double> &policy)
     {
+        // check that the policy is valid for the agent
+        size_t num_policy = Agent::num_policy(agent_name);
+        if (policy.size() > num_policy) {
+            throw Exception("PolicyStoreImp::set_default(): invalid policy for " + agent_name + " agent.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
         begin_transaction_or_throw(m_database);
         {
             // Remove existing policy values for this record in case the new

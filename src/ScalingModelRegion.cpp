@@ -38,10 +38,13 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <stdlib.h>
 
 #include "geopm.h"
 #include "geopm_time.h"
 #include "Exception.hpp"
+#include "Profile.hpp"
+#include "Comm.hpp"
 
 namespace geopm
 {
@@ -54,20 +57,41 @@ namespace geopm
         , m_sysfs_cache_dir("/sys/devices/system/cpu/cpu0/cache")
         , m_llc_slop_size(320) // 5 cache lines
         , m_element_size(3 * 8)
-        , m_array_len((llc_size() - m_llc_slop_size) / m_element_size) // Array is sized to fit 3 in LLC with slop
-        , m_array_a(m_array_len, 0.0)
-        , m_array_b(m_array_len, 1.0)
-        , m_array_c(m_array_len, 2.0)
+        , m_rank_per_node(Comm::make_unique()->split("", Comm::M_COMM_SPLIT_TYPE_SHARED)->num_rank())
+        , m_array_len((llc_size() / m_rank_per_node - m_llc_slop_size) / m_element_size) // Array is sized to fit 3 in the LLC with slop assuming one LLC per node
+        , m_arrays(3, nullptr)
     {
+        int err = 0;
+        size_t align = 4096;
+        size_t array_size = m_array_len * sizeof(double);
+        for (auto &it : m_arrays) {
+            err = posix_memalign((void **)&it, align, array_size);
+            if (err) {
+                throw Exception("ScalingModelRegion: posix_memalign error",
+                                err, __FILE__, __LINE__);
+            }
+        }
+        std::fill(m_arrays[0], m_arrays[0] + m_array_len, 0.0);
+        std::fill(m_arrays[1], m_arrays[1] + m_array_len, 1.0);
+        std::fill(m_arrays[2], m_arrays[2] + m_array_len, 2.0);
+
         m_name = "scaling";
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
+
         big_o(big_o_in);
-        int err = ModelRegion::region(GEOPM_REGION_HINT_MEMORY);
+        err = ModelRegion::region(GEOPM_REGION_HINT_MEMORY);
         if (err) {
             throw Exception("ScalingModelRegion::ScalingModelRegion()",
                             err, __FILE__, __LINE__);
+        }
+    }
+
+    ScalingModelRegion::~ScalingModelRegion()
+    {
+        for (auto &it : m_arrays) {
+            free(it);
         }
     }
 
@@ -113,13 +137,23 @@ namespace geopm
     {
         double scalar = 3.0;
 #pragma omp parallel for
-        for (size_t idx = 0; idx < m_array_a.size(); ++idx) {
-            m_array_a[idx] += m_array_b[idx] + scalar * m_array_c[idx];
+        for (size_t idx = 0; idx < m_array_len; ++idx) {
+            m_arrays[0][idx] += m_arrays[1][idx] + scalar * m_arrays[2][idx];
         }
     }
 
     void ScalingModelRegion::big_o(double big_o_in)
     {
+        // run_atom is called 2000 times prior to calibration to
+        // resolve issues with low IPC during calibration that lead to
+        // a small num_atom value and short duration scaling model regions.
+        for (size_t prep_idx = 0; prep_idx < 2000; ++prep_idx) {
+            run_atom();
+        }
+
+        geopm::Profile &prof = geopm::Profile::default_profile();
+        uint64_t start_rid = prof.region("geopm_scaling_model_region_startup", GEOPM_REGION_HINT_IGNORE);
+        prof.enter(start_rid);
         m_big_o = big_o_in;
         size_t num_trial = 11;
         size_t median_idx = num_trial / 2;
@@ -138,6 +172,7 @@ namespace geopm
         m_num_atom = big_o_in / median_atom_time;
         m_num_atom = m_num_atom ? m_num_atom : 1;
         m_norm = 1.0 / m_num_atom;
+        prof.exit(start_rid);
     }
 
     void ScalingModelRegion::run(void)

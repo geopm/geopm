@@ -73,21 +73,19 @@ namespace geopm
             /// @brief Return the count of the given region
             ///        for the rank running on each CPU.
             virtual std::vector<int64_t> per_cpu_count() const = 0;
-            /// @brief Return the total time from the start of the
-            ///        application until now.
-            virtual double total_app_runtime(void) const = 0;
             /// @brief Returns the local-node rank running on each CPU.
             virtual std::vector<int> cpu_rank(void) const = 0;
     };
 
     template <typename T> class CircularBuffer;
-    class EpochRuntimeRegulator;
+    class ApplicationSampler;
     class ProfileTracer;
 
     class ProfileIOSampleImp : public ProfileIOSample
     {
         public:
-            ProfileIOSampleImp(const std::vector<int> &cpu_rank, EpochRuntimeRegulator &epoch_regulator);
+            ProfileIOSampleImp();
+            ProfileIOSampleImp(ApplicationSampler &application_sampler);
             virtual ~ProfileIOSampleImp();
             void finalize_unmarked_region() override;
             void update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
@@ -98,7 +96,6 @@ namespace geopm
             std::vector<double> per_cpu_thread_progress(void) const override;
             std::vector<double> per_cpu_runtime(uint64_t region_id) const override;
             std::vector<int64_t> per_cpu_count() const override;
-            double total_app_runtime(void) const override;
             std::vector<int> cpu_rank(void) const override;
         private:
             /// @brief Provide a mapping from global MPI to rank
@@ -124,12 +121,13 @@ namespace geopm
             };
             std::vector<double> per_rank_progress(const struct geopm_time_s &extrapolation_time) const;
 
-            struct geopm_time_s m_app_start_time;
             /// @brief A map from the MPI rank reported in the
             ///        ProfileSampler data to the node local rank
             ///        index.
             std::map<int, int> m_rank_idx_map;
-            EpochRuntimeRegulator &m_epoch_regulator;
+
+            ApplicationSampler &m_application_sampler;
+
             /// @brief The rank index of the rank running on each CPU.
             std::vector<int> m_cpu_rank;
             /// @brief Number of ranks running on the node.
@@ -142,7 +140,6 @@ namespace geopm
             ///        stored ProfileSampler data used for
             ///        extrapolation.
             std::vector<uint64_t> m_region_id;
-            std::unique_ptr<ProfileTracer> m_profile_tracer;
     };
 }
 

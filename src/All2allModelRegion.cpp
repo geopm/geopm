@@ -60,8 +60,12 @@ namespace geopm
         m_do_imbalance = do_imbalance;
         m_do_progress = do_progress;
         m_do_unmarked = do_unmarked;
-        big_o(big_o_in);
-        int err = ModelRegion::region(GEOPM_REGION_HINT_UNKNOWN);
+        int err = MPI_Comm_size(MPI_COMM_WORLD, &m_num_rank);
+        if (err) {
+            throw Exception("All2allModelRegion: MPI_Comm_size() failed",
+                            err, __FILE__, __LINE__);
+        }
+        err = ModelRegion::region(GEOPM_REGION_HINT_UNKNOWN);
         if (!err) {
             err = MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
         }
@@ -69,6 +73,8 @@ namespace geopm
             throw Exception("All2allModelRegion::All2allModelRegion()",
                             err, __FILE__, __LINE__);
         }
+
+        big_o(big_o_in);
     }
 
     All2allModelRegion::~All2allModelRegion()
@@ -85,12 +91,6 @@ namespace geopm
 
         num_progress_updates(big_o_in);
 
-        int err = MPI_Comm_size(MPI_COMM_WORLD, &m_num_rank);
-        if (err) {
-            throw Exception("MPI_Comm_size()",
-                            err, __FILE__, __LINE__);
-        }
-
         if (m_num_progress_updates > 1) {
             m_num_send = 1048576; //1MB
         }
@@ -99,7 +99,7 @@ namespace geopm
         }
 
         if (big_o_in && m_big_o != big_o_in) {
-            err = posix_memalign((void **)&m_send_buffer, m_align,
+            int err = posix_memalign((void **)&m_send_buffer, m_align,
                                  m_num_rank * m_num_send * sizeof(char));
             if (!err) {
                 err = posix_memalign((void **)&m_recv_buffer, m_align,

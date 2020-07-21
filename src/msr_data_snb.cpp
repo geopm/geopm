@@ -95,7 +95,9 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "average",
+                    "description": "The current operating frequency of the CPU."
                 }
             }
         },
@@ -109,7 +111,8 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
-                    "writeable": true
+                    "writeable": true,
+                    "description": "Target operating frequency of the CPU based on the control register."
                 }
             }
         },
@@ -123,7 +126,8 @@ namespace geopm
                     "function":  "scale",
                     "units":     "celsius",
                     "scalar":    1.0,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "expect_same"
                 }
             }
         },
@@ -237,7 +241,8 @@ namespace geopm
                     "function":  "scale",
                     "units":     "watts",
                     "scalar":    1.25e-1,
-                    "writeable": true
+                    "writeable": true,
+                    "description": "The average power usage limit over the time window specified in PL1_TIME_WINDOW."
                 },
                 "PL1_LIMIT_ENABLE": {
                     "begin_bit": 15,
@@ -261,7 +266,8 @@ namespace geopm
                     "function":  "7_bit_float",
                     "units":     "seconds",
                     "scalar":    9.765625e-04,
-                    "writeable": true
+                    "writeable": true,
+                    "description": "The time window associated with power limit 1."
                 },
                 "PL2_POWER_LIMIT": {
                     "begin_bit": 32,
@@ -315,7 +321,9 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "joules",
                     "scalar":    1.5258789063e-5,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "sum",
+                    "description": "An increasing meter of energy consumed by the package over time.  It will reset periodically due to roll-over."
                 }
             }
         },
@@ -329,7 +337,9 @@ namespace geopm
                     "function":  "scale",
                     "units":     "watts",
                     "scalar":    1.25e-1,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "sum",
+                    "description": "Maximum power to stay within the thermal limits based on the design (TDP)."
                 },
                 "MIN_POWER": {
                     "begin_bit": 16,
@@ -337,7 +347,9 @@ namespace geopm
                     "function":  "scale",
                     "units":     "watts",
                     "scalar":    1.25e-1,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "sum",
+                    "description": "The minimum power limit based on the electrical specification."
                 },
                 "MAX_POWER": {
                     "begin_bit": 32,
@@ -345,7 +357,9 @@ namespace geopm
                     "function":  "scale",
                     "units":     "watts",
                     "scalar":    1.25e-1,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "sum",
+                    "description": "The maximum power limit based on the electrical specification."
                 },
                 "MAX_TIME_WINDOW": {
                     "begin_bit": 48,
@@ -405,7 +419,9 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "joules",
                     "scalar":    1.5258789063e-05,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "sum",
+                    "description": "An increasing meter of energy consumed by the DRAM over time.  It will reset periodically due to roll-over."
                 }
             }
         },

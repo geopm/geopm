@@ -49,7 +49,8 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
-                    "writeable": false
+                    "writeable": false,
+                    "description": "An always running, monotonically increasing counter that is incremented at a constant rate.  For use as a wall clock timer."
                 }
             }
         },
@@ -187,7 +188,8 @@ namespace geopm
                     "function":  "scale",
                     "units":     "celsius",
                     "scalar":    1.0,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "average"
                 },
                 "RESOLUTION": {
                     "begin_bit": 27,
@@ -335,7 +337,8 @@ namespace geopm
                     "function":  "scale",
                     "units":     "celsius",
                     "scalar":    1.0,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "average"
                 }
             }
         },
@@ -349,7 +352,9 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "sum",
+                    "description": "The count of the number of instructions executed."
                 }
             }
         },
@@ -363,7 +368,9 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "sum",
+                    "description": "The count of the number of cycles while the logical processor is not in a halt state.  The count rate may change based on core frequency."
                 }
             }
         },
@@ -377,7 +384,9 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
-                    "writeable": false
+                    "writeable": false,
+                    "aggregation": "sum",
+                    "description": "The count of the number of cycles while the logical processor is not in a halt state and not in a stop-clock state.  The count rate is fixed at the TIMESTAMP_COUNT rate."
                 }
             }
         },

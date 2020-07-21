@@ -72,7 +72,7 @@ int geopm_agent_name(int agent_idx,
 
 int geopm_agent_enforce_policy(void);
 """)
-_dl = _ffi.dlopen('libgeopmpolicy.so')
+_dl = _ffi.dlopen('libgeopmpolicy.so', _ffi.RTLD_GLOBAL|_ffi.RTLD_LAZY)
 _name_max = 1024
 _policy_max = 8192
 

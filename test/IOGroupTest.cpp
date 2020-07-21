@@ -91,19 +91,6 @@ void IOGroupTest::SetUp()
                       << "The error was: " << ex.what() << std::endl;
         }
     }
-
-    // Add IOGroups that are not registered by default
-    m_profile_sample = std::make_shared<MockProfileIOSample>();
-    std::vector<int> rank;
-    ON_CALL(*m_profile_sample, cpu_rank()).WillByDefault(Return(rank));
-    EXPECT_CALL(*m_profile_sample, cpu_rank()).Times(testing::AtLeast(0));
-    try {
-        m_plugins.emplace_back(geopm::make_unique<ProfileIOGroup>(m_profile_sample, m_epoch_reg));
-    }
-    catch(const std::exception &ex) {
-        std::cerr << "Warning: failed to load ProfileIOGroup. "
-                  << "The error was: " << ex.what() << std::endl;
-    }
 }
 
 TEST_F(IOGroupTest, signal_names_are_valid)

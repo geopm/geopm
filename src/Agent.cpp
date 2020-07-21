@@ -30,14 +30,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
+
 #include "Agent.hpp"
 
 #include <cmath>
+#include <cstring>
+
 #include <sstream>
 #include <iostream>
+#include <mutex>
 
 #include "geopm_agent.h"
-#include "string.h"
+#include "geopm_plugin.hpp"
 #include "MonitorAgent.hpp"
 #include "PowerBalancerAgent.hpp"
 #include "PowerGovernorAgent.hpp"
@@ -47,48 +52,61 @@
 #include "Endpoint.hpp"
 #include "SharedMemoryUser.hpp"
 #include "Helper.hpp"
-#include "config.h"
 
 namespace geopm
 {
-    static PluginFactory<Agent> *g_plugin_factory;
-    static pthread_once_t g_register_built_in_once = PTHREAD_ONCE_INIT;
-    static void register_built_in_once(void)
-    {
-        g_plugin_factory->register_plugin(MonitorAgent::plugin_name(),
-                                          MonitorAgent::make_plugin,
-                                          Agent::make_dictionary(MonitorAgent::policy_names(),
-                                                                 MonitorAgent::sample_names()));
-        g_plugin_factory->register_plugin(PowerBalancerAgent::plugin_name(),
-                                          PowerBalancerAgent::make_plugin,
-                                          Agent::make_dictionary(PowerBalancerAgent::policy_names(),
-                                                                 PowerBalancerAgent::sample_names()));
-        g_plugin_factory->register_plugin(PowerGovernorAgent::plugin_name(),
-                                          PowerGovernorAgent::make_plugin,
-                                          Agent::make_dictionary(PowerGovernorAgent::policy_names(),
-                                                                 PowerGovernorAgent::sample_names()));
-        g_plugin_factory->register_plugin(EnergyEfficientAgent::plugin_name(),
-                                          EnergyEfficientAgent::make_plugin,
-                                          Agent::make_dictionary(EnergyEfficientAgent::policy_names(),
-                                                                 EnergyEfficientAgent::sample_names()));
-        g_plugin_factory->register_plugin(FrequencyMapAgent::plugin_name(),
-                                          FrequencyMapAgent::make_plugin,
-                                          Agent::make_dictionary(FrequencyMapAgent::policy_names(),
-                                                                 FrequencyMapAgent::sample_names()));
-    }
-
-    PluginFactory<Agent> &agent_factory(void)
-    {
-        static PluginFactory<Agent> instance;
-        g_plugin_factory = &instance;
-        pthread_once(&g_register_built_in_once, register_built_in_once);
-        return instance;
-    }
-
     const std::string Agent::m_num_sample_string = "NUM_SAMPLE";
     const std::string Agent::m_num_policy_string = "NUM_POLICY";
     const std::string Agent::m_sample_prefix = "SAMPLE_";
     const std::string Agent::m_policy_prefix = "POLICY_";
+    const std::string Agent::M_PLUGIN_PREFIX = "libgeopmagent_";
+
+    AgentFactory::AgentFactory()
+    {
+        register_plugin(MonitorAgent::plugin_name(),
+                        MonitorAgent::make_plugin,
+                        Agent::make_dictionary(MonitorAgent::policy_names(),
+                                               MonitorAgent::sample_names()));
+        register_plugin(PowerBalancerAgent::plugin_name(),
+                        PowerBalancerAgent::make_plugin,
+                        Agent::make_dictionary(PowerBalancerAgent::policy_names(),
+                                               PowerBalancerAgent::sample_names()));
+        register_plugin(PowerGovernorAgent::plugin_name(),
+                        PowerGovernorAgent::make_plugin,
+                        Agent::make_dictionary(PowerGovernorAgent::policy_names(),
+                                               PowerGovernorAgent::sample_names()));
+        register_plugin(EnergyEfficientAgent::plugin_name(),
+                        EnergyEfficientAgent::make_plugin,
+                        Agent::make_dictionary(EnergyEfficientAgent::policy_names(),
+                                               EnergyEfficientAgent::sample_names()));
+        register_plugin(FrequencyMapAgent::plugin_name(),
+                        FrequencyMapAgent::make_plugin,
+                        Agent::make_dictionary(FrequencyMapAgent::policy_names(),
+                                               FrequencyMapAgent::sample_names()));
+    }
+
+
+    AgentFactory &agent_factory(void)
+    {
+        static AgentFactory instance;
+        static bool is_once = true;
+        static std::once_flag flag;
+        if (is_once) {
+            is_once = false;
+            std::call_once(flag, plugin_load, Agent::M_PLUGIN_PREFIX);
+        }
+        return instance;
+    }
+
+    std::vector<std::string> Agent::agent_names(void)
+    {
+        return agent_factory().plugin_names();
+    }
+
+    std::unique_ptr<Agent> Agent::make_unique(const std::string &agent_name)
+    {
+        return agent_factory().make_plugin(agent_name);
+    }
 
     std::vector<std::function<std::string(double)> > Agent::trace_formats(void) const
     {
@@ -110,7 +128,13 @@ namespace geopm
                             "Agent was not registered with plugin factory with the correct dictionary.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
-        return atoi(it->second.c_str());
+        int num_sample = std::stoi(it->second);
+        if (num_sample < 0) {
+            throw Exception("Agent::num_sample(): "
+                            "Agent was not registered with plugin factory with the correct dictionary.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+        return num_sample;
     }
 
     int Agent::num_sample(const std::string &agent_name)
@@ -126,7 +150,13 @@ namespace geopm
                             "Agent was not registered with plugin factory with the correct dictionary.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
-        return atoi(it->second.c_str());
+        int num_policy = std::stoi(it->second);
+        if (num_policy < 0) {
+            throw Exception("Agent::num_policy(): "
+                            "Agent was not registered with plugin factory with the correct dictionary.",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+        return num_policy;
     }
 
     int Agent::num_policy(const std::string &agent_name)
@@ -159,6 +189,7 @@ namespace geopm
     {
         size_t num_names = num_policy(dictionary);
         std::vector<std::string> result(num_names);
+
         for (size_t name_idx = 0; name_idx != num_names; ++name_idx) {
             std::string key = m_policy_prefix + std::to_string(name_idx);
             auto it = dictionary.find(key);
@@ -213,7 +244,7 @@ int geopm_agent_supported(const char *agent_name)
 {
     int err = 0;
     try {
-        auto tmp = geopm::agent_factory().dictionary(agent_name);
+        geopm::Agent::num_policy(agent_name);
     }
     catch (const geopm::Exception &ex) {
         if (ex.err_value() == GEOPM_ERROR_INVALID) {
@@ -233,8 +264,7 @@ int geopm_agent_num_policy(const char *agent_name,
 {
     int err = 0;
     try {
-        *num_policy = geopm::Agent::num_policy(
-            geopm::agent_factory().dictionary(agent_name));
+        *num_policy = geopm::Agent::num_policy(agent_name);
     }
     catch (const geopm::Exception &ex) {
         if (ex.err_value() == GEOPM_ERROR_INVALID) {
@@ -255,8 +285,7 @@ int geopm_agent_num_sample(const char *agent_name,
 {
     int err = 0;
     try {
-        *num_sample = geopm::Agent::num_sample(
-            geopm::agent_factory().dictionary(agent_name));
+        *num_sample = geopm::Agent::num_sample(agent_name);
     }
     catch (const geopm::Exception &ex) {
         if (ex.err_value() == GEOPM_ERROR_INVALID) {
@@ -284,8 +313,7 @@ int geopm_agent_policy_name(const char *agent_name,
     }
     if (!err) {
         try {
-            std::string policy_name_cxx = geopm::Agent::policy_names(
-                geopm::agent_factory().dictionary(agent_name))[policy_idx];
+            std::string policy_name_cxx = geopm::Agent::policy_names(agent_name).at(policy_idx);
             if (policy_name_cxx.size() >= policy_name_max) {
                 err = E2BIG;
             }
@@ -321,8 +349,7 @@ int geopm_agent_sample_name(const char *agent_name,
     }
     if (!err) {
         try {
-            std::string sample_name_cxx = geopm::Agent::sample_names(
-                geopm::agent_factory().dictionary(agent_name))[sample_idx];
+            std::string sample_name_cxx = geopm::Agent::sample_names(agent_name).at(sample_idx);
             if (sample_name_cxx.size() >= sample_name_max) {
                 err = E2BIG;
             }
@@ -416,7 +443,7 @@ int geopm_agent_name(int agent_idx,
 {
     int err = 0;
     try {
-        std::vector<std::string> agent_names = geopm::agent_factory().plugin_names();
+        std::vector<std::string> agent_names = geopm::Agent::agent_names();
         if (agent_names.at(agent_idx).size() >= agent_name_max) {
             err = GEOPM_ERROR_INVALID;
         }
@@ -435,7 +462,7 @@ int geopm_agent_num_avail(int* num_agent)
 {
     int err = 0;
     try {
-        std::vector<std::string> agent_names = geopm::agent_factory().plugin_names();
+        std::vector<std::string> agent_names = geopm::Agent::agent_names();
         *num_agent = agent_names.size();
     }
     catch (...) {

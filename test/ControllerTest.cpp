@@ -53,6 +53,8 @@
 #include "MockEndpointPolicyTracer.hpp"
 #include "Helper.hpp"
 #include "Agg.hpp"
+#include "MockApplicationSampler.hpp"
+#include "MockProfileTracer.hpp"
 
 using geopm::Controller;
 using geopm::PlatformIO;
@@ -159,6 +161,8 @@ class ControllerTest : public ::testing::Test
         std::vector<std::pair<std::string, std::string> > m_agent_report;
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > m_region_names;
         std::string m_file_policy_path = "ControllerTest_policy.json";
+        MockApplicationSampler m_application_sampler;
+        std::shared_ptr<MockProfileTracer> m_profile_tracer;
 };
 
 void ControllerTest::SetUp()
@@ -175,6 +179,7 @@ void ControllerTest::SetUp()
     m_reporter = new MockReporter();
     m_tracer = new MockTracer();
     m_policy_tracer = new MockEndpointPolicyTracer();
+    m_profile_tracer = std::make_shared<MockProfileTracer>();
 
     // called during clean up
     EXPECT_CALL(m_platform_io, restore_control());
@@ -216,10 +221,12 @@ TEST_F(ControllerTest, construct_with_file_policy)
     Controller controller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
+                          m_application_sampler,
                           m_application_io,
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::unique_ptr<MockEndpointPolicyTracer>(m_policy_tracer),
+                          m_profile_tracer,
                           std::move(m_agents),
                           {"A", "B"},
                           m_file_policy_path, true,
@@ -256,10 +263,12 @@ TEST_F(ControllerTest, run_with_no_policy)
     Controller controller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
+                          m_application_sampler,
                           m_application_io,
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::unique_ptr<MockEndpointPolicyTracer>(m_policy_tracer),
+                          m_profile_tracer,
                           std::move(m_agents),
                           {"A", "B"},
                           "", false,  // false
@@ -363,10 +372,12 @@ TEST_F(ControllerTest, get_hostnames)
     Controller controller(multi_node_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
+                          m_application_sampler,
                           m_application_io,
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::unique_ptr<MockEndpointPolicyTracer>(m_policy_tracer),
+                          m_profile_tracer,
                           std::move(m_agents),
                           {}, "", false, // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
@@ -394,10 +405,12 @@ TEST_F(ControllerTest, single_node)
     Controller controller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
+                          m_application_sampler,
                           m_application_io,
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::unique_ptr<MockEndpointPolicyTracer>(m_policy_tracer),
+                          m_profile_tracer,
                           std::move(m_agents),
                           {}, "", false,  // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
@@ -475,10 +488,12 @@ TEST_F(ControllerTest, two_level_controller_1)
     Controller controller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
+                          m_application_sampler,
                           m_application_io,
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::unique_ptr<MockEndpointPolicyTracer>(m_policy_tracer),
+                          m_profile_tracer,
                           std::move(m_agents),
                           {}, "", false, // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
@@ -576,10 +591,12 @@ TEST_F(ControllerTest, two_level_controller_2)
     Controller controller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
+                          m_application_sampler,
                           m_application_io,
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::unique_ptr<MockEndpointPolicyTracer>(m_policy_tracer),
+                          m_profile_tracer,
                           std::move(m_agents),
                           {}, "", false, // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
@@ -686,10 +703,12 @@ TEST_F(ControllerTest, two_level_controller_0)
     Controller controller(m_comm, m_platform_io,
                           m_agent_name, m_num_send_down, m_num_send_up,
                           std::unique_ptr<MockTreeComm>(m_tree_comm),
+                          m_application_sampler,
                           m_application_io,
                           std::unique_ptr<MockReporter>(m_reporter),
                           std::unique_ptr<MockTracer>(m_tracer),
                           std::unique_ptr<MockEndpointPolicyTracer>(m_policy_tracer),
+                          m_profile_tracer,
                           std::move(m_agents),
                           {}, "", false, // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),

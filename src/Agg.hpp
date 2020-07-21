@@ -34,6 +34,7 @@
 #define AGG_HPP_INCLUDE
 
 #include <vector>
+#include <functional>
 
 namespace geopm
 {
@@ -88,6 +89,14 @@ namespace geopm
             ///        to aggregate values that may be interpreted as NAN
             ///        such as raw register values.
             static double expect_same(const std::vector<double> &operand);
+            /// @brief Returns the corresponding agg function for a
+            ///        given string name.  If the name does not match
+            ///        a known function, it throws an error.
+            static std::function<double(const std::vector<double> &)> name_to_function(const std::string &name);
+            /// @brief Returns the corresponding agg function name for a
+            ///        given std::function.  If the std::function does not match
+            ///        a known function, it throws an error.
+            static std::string function_to_name(std::function<double(const std::vector<double> &)> func);
     };
 }
 

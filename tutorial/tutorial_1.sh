@@ -64,7 +64,6 @@ elif [ "$GEOPM_LAUNCHER" = "srun" ]; then
     geopmlaunch srun \
                 -N ${NUM_NODES} \
                 -n ${TOTAL_RANKS} \
-                --geopm-preload \
                 --geopm-ctl=process \
                 --geopm-report=tutorial_1_report \
                 --geopm-trace=tutorial_1_trace \
@@ -75,7 +74,6 @@ elif [ "$GEOPM_LAUNCHER" = "aprun" ]; then
     geopmlaunch aprun \
                 -N ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
-                --geopm-preload \
                 --geopm-ctl=process \
                 --geopm-report=tutorial_1_report \
                 --geopm-trace=tutorial_1_trace \
@@ -86,7 +84,6 @@ elif [ "$GEOPM_LAUNCHER" = "impi" ]; then
     geopmlaunch impi \
                 -ppn ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
-                --geopm-preload \
                 --geopm-ctl=process \
                 --geopm-report=tutorial_1_report \
                 --geopm-trace=tutorial_1_trace \
@@ -98,7 +95,6 @@ elif [ "$GEOPM_LAUNCHER" = "ompi" ]; then
                 --npernode ${RANKS_PER_NODE} \
                 -n ${TOTAL_RANKS} \
                 --hostfile tutorial_hosts \
-                --geopm-preload \
                 --geopm-ctl=process \
                 --geopm-report=tutorial_1_report \
                 --geopm-trace=tutorial_1_trace \

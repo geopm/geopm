@@ -56,12 +56,6 @@ if ENABLE_FORTRAN
 endif
 endif
 
-if !ENABLE_FORTRAN
-install-fortran:
-	-
-endif
-
-
 install-exec-hook: install-python install-fortran install-openmp install-plugin-dir
 dist: dist-googletest dist-openmp
 
@@ -96,10 +90,8 @@ pkginclude_HEADERS = contrib/json11/json11.hpp \
                      src/Helper.hpp \
                      src/IOGroup.hpp \
                      src/MSR.hpp \
-                     src/MSRControl.hpp \
                      src/MSRIO.hpp \
                      src/MSRIOGroup.hpp \
-                     src/MSRSignal.hpp \
                      src/PlatformIO.hpp \
                      src/PlatformTopo.hpp \
                      src/PluginFactory.hpp \
@@ -120,14 +112,18 @@ endif
 
 if ENABLE_MPI
 if ENABLE_FORTRAN
-
 all-local: geopm.mod
 
 install-fortran:
 	$(INSTALL) -d $(DESTDIR)/$(libdir)/$(FC)/modules/geopm-`uname -m`
 	$(INSTALL) geopm.mod $(DESTDIR)/$(libdir)/$(FC)/modules/geopm-`uname -m`
-
+else
+install-fortran:
+	-
 endif
+else
+install-fortran:
+	-
 endif
 
 install-plugin-dir:
@@ -151,7 +147,6 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/GEOPM_CXX_MAN_Exception.3 \
                 man/GEOPM_CXX_MAN_Helper.3 \
                 man/GEOPM_CXX_MAN_IOGroup.3 \
-                man/GEOPM_CXX_MAN_MSR.3 \
                 man/GEOPM_CXX_MAN_MSRIO.3 \
                 man/GEOPM_CXX_MAN_MSRIOGroup.3 \
                 man/GEOPM_CXX_MAN_PlatformIO.3 \
@@ -200,8 +195,7 @@ ronn_man_noinst = man/GEOPM_CXX_MAN_Comm.3 \
                   man/GEOPM_CXX_MAN_ProfileIOSample.3 \
                   # end
 
-ronn_man_beta = man/geopmanalysis.1 \
-                man/geopmendpoint.1 \
+ronn_man_beta = man/geopmendpoint.1 \
                 man/geopmplotter.1 \
                 man/geopm_daemon_c.3 \
                 man/geopm_endpoint_c.3 \
@@ -219,8 +213,6 @@ endif
 ronn_man = $(ronn_man_inst) $(ronn_man_noinst)
 
 dist_man_MANS = $(ronn_man_inst) \
-                man/GEOPM_CXX_MAN_MSRControl.3 \
-                man/GEOPM_CXX_MAN_MSRSignal.3 \
                 # end
 
 dist_doc_DATA = COPYING \
@@ -232,6 +224,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              .gitignore \
              .travis.yml \
              .travis_obs.sh \
+             BLURB \
              CODE_OF_CONDUCT.md \
              CONTRIBUTING.md \
              ChangeLog \
@@ -243,7 +236,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              configure.ac \
              contrib/json11/LICENSE.txt \
              contrib/json11/README.md \
-             copying_headers/MANIFEST.BSD3-intel \
              copying_headers/MANIFEST.BSD3-llnl \
              copying_headers/MANIFEST.EXEMPT \
              copying_headers/MANIFEST.MIT-dropbox \
@@ -278,7 +270,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/GEOPM_CXX_MAN_Helper.3.ronn \
              ronn/GEOPM_CXX_MAN_IOGroup.3.ronn \
              ronn/GEOPM_CXX_MAN_MPIComm.3.ronn \
-             ronn/GEOPM_CXX_MAN_MSR.3.ronn \
              ronn/GEOPM_CXX_MAN_MSRIO.3.ronn \
              ronn/GEOPM_CXX_MAN_MSRIOGroup.3.ronn \
              ronn/GEOPM_CXX_MAN_MonitorAgent.3.ronn \
@@ -317,7 +308,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/geopm_version.3.ronn \
              ronn/geopmadmin.1.ronn \
              ronn/geopmagent.1.ronn \
-             ronn/geopmanalysis.1.ronn \
              ronn/geopmbench.1.ronn \
              ronn/geopmctl.1.ronn \
              ronn/geopmendpoint.1.ronn \
@@ -331,6 +321,8 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              scripts/outlier/README.md \
              scripts/outlier/outlier_detection.py \
              scripts/outlier/theta_nodelist_broken.txt \
+             specs/geopm-gcc-mvapich2-toss.spec \
+             specs/geopm-intel-mvapich2-toss.spec \
              travis_ci.sh \
              test_hw/Makefile \
              test_hw/geopm_time.h \
@@ -378,11 +370,10 @@ TUTORIAL_DIST = tutorial/Makefile \
                 tutorial/tutorial_5.sh \
                 tutorial/tutorial_6.sh \
                 tutorial/tutorial_6_config.json \
-                tutorial/tutorial_balanced_policy.json \
                 tutorial/tutorial_build_gnu.sh \
                 tutorial/tutorial_build_intel.sh \
                 tutorial/tutorial_env.sh \
-                tutorial/tutorial_governed_policy.json \
+                tutorial/tutorial_power_policy.json \
                 tutorial/tutorial_region.c \
                 tutorial/tutorial_region_prof.c \
                 tutorial/tutorial_region.h \
@@ -400,6 +391,8 @@ endif
 
 # EXTEND FLAGS FOR MPI TARGETS
 if ENABLE_MPI
+    MPI_CFLAGS += -DGEOPM_ENABLE_MPI
+    MPI_FCFLAGS += -DGEOPM_ENABLE_MPI
     libgeopm_la_LDFLAGS = $(AM_LDFLAGS) $(MPI_CLDFLAGS) -version-info $(geopm_abi_version)
     libgeopm_la_CFLAGS = $(AM_CFLAGS) $(MPI_CFLAGS)
     libgeopm_la_CXXFLAGS = $(AM_CXXFLAGS) $(MPI_CFLAGS)
@@ -447,6 +440,9 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/Agg.hpp \
                             src/ApplicationIO.cpp \
                             src/ApplicationIO.hpp \
+                            src/ApplicationSampler.cpp \
+                            src/ApplicationSampler.hpp \
+                            src/ApplicationSamplerImp.hpp \
                             src/CircularBuffer.hpp \
                             src/CNLIOGroup.cpp \
                             src/CNLIOGroup.hpp \
@@ -454,6 +450,7 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/CombinedSignal.hpp \
                             src/Comm.cpp \
                             src/Comm.hpp \
+                            src/Control.hpp \
                             src/ControlMessage.cpp \
                             src/ControlMessage.hpp \
                             src/Controller.cpp \
@@ -464,7 +461,16 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/CSV.hpp \
                             src/DebugIOGroup.cpp \
                             src/DebugIOGroup.hpp \
-                            src/DefaultProfile.cpp \
+                            src/DerivativeSignal.cpp \
+                            src/DerivativeSignal.hpp \
+                            src/DifferenceSignal.cpp \
+                            src/DifferenceSignal.hpp \
+                            src/DomainControl.cpp \
+                            src/DomainControl.hpp \
+                            src/EditDistPeriodicityDetector.cpp \
+                            src/EditDistPeriodicityDetector.hpp \
+                            src/EditDistEpochRecordFilter.cpp \
+                            src/EditDistEpochRecordFilter.hpp \
                             src/ELF.cpp \
                             src/ELF.hpp \
                             src/Endpoint.cpp \
@@ -481,6 +487,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/EnergyEfficientRegion.hpp \
                             src/Environment.cpp \
                             src/Environment.hpp \
+                            src/EpochIOGroup.cpp \
+                            src/EpochIOGroup.hpp \
                             src/EpochRuntimeRegulator.cpp \
                             src/EpochRuntimeRegulator.hpp \
                             src/Exception.cpp \
@@ -501,22 +509,19 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/ModelParse.hpp \
                             src/MSR.cpp \
                             src/MSR.hpp \
-                            src/MSRImp.hpp \
-                            src/MSRControl.cpp \
-                            src/MSRControl.hpp \
-                            src/MSRControlImp.hpp \
+                            src/MSRFieldControl.cpp \
+                            src/MSRFieldControl.hpp \
+                            src/MSRFieldSignal.cpp \
+                            src/MSRFieldSignal.hpp \
                             src/MSRIO.cpp \
                             src/MSRIO.hpp \
                             src/MSRIOImp.hpp \
                             src/MSRIOGroup.cpp \
                             src/MSRIOGroup.hpp \
-                            src/MSRSignal.cpp \
-                            src/MSRSignal.hpp \
-                            src/MSRSignalImp.hpp \
+                            src/MSRPath.cpp \
+                            src/MSRPath.hpp \
                             src/MonitorAgent.cpp \
                             src/MonitorAgent.hpp \
-                            src/OMPT.cpp \
-                            src/OMPT.hpp \
                             src/OptionParser.cpp \
                             src/OptionParser.hpp \
                             src/PlatformIO.cpp \
@@ -536,8 +541,10 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/PowerGovernorImp.hpp \
                             src/PowerGovernorAgent.cpp \
                             src/PowerGovernorAgent.hpp \
-                            src/Profile.cpp \
-                            src/Profile.hpp \
+                            src/ProcessEpoch.cpp \
+                            src/ProcessEpoch.hpp \
+                            src/ProcessEpochImp.cpp \
+                            src/ProcessEpochImp.hpp \
                             src/ProfileIOGroup.cpp \
                             src/ProfileIOGroup.hpp \
                             src/ProfileIOSample.cpp \
@@ -546,10 +553,17 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/ProfileSampler.hpp \
                             src/ProfileTable.cpp \
                             src/ProfileTable.hpp \
-                            src/ProfileThread.cpp \
-                            src/ProfileThread.hpp \
+                            src/ProfileThreadTable.cpp \
+                            src/ProfileThreadTable.hpp \
                             src/ProfileTracer.cpp \
                             src/ProfileTracer.hpp \
+                            src/ProfileTracerImp.hpp \
+                            src/ProxyEpochRecordFilter.cpp \
+                            src/ProxyEpochRecordFilter.hpp \
+                            src/RawMSRSignal.cpp \
+                            src/RawMSRSignal.hpp \
+                            src/RecordFilter.cpp \
+                            src/RecordFilter.hpp \
                             src/RegionAggregator.cpp \
                             src/RegionAggregator.hpp \
                             src/RegionAggregatorImp.hpp \
@@ -567,17 +581,24 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/SharedMemoryScopedLock.cpp \
                             src/SharedMemoryScopedLock.hpp \
                             src/SharedMemoryUser.hpp \
+                            src/Signal.hpp \
                             src/TimeIOGroup.cpp \
                             src/TimeIOGroup.hpp \
+                            src/TimeSignal.cpp \
+                            src/TimeSignal.hpp \
+                            src/TimeZero.cpp \
                             src/Tracer.cpp \
                             src/Tracer.hpp \
                             src/TreeComm.cpp \
                             src/TreeComm.hpp \
                             src/TreeCommLevel.cpp \
                             src/TreeCommLevel.hpp \
+                            src/ValidateRecord.cpp \
+                            src/ValidateRecord.hpp \
                             src/geopm.h \
                             src/geopm_agent.h \
                             src/geopm_endpoint.h \
+                            src/geopm_debug.hpp \
                             src/geopm_error.h \
                             src/geopm_hash.c \
                             src/geopm_hash.h \
@@ -586,6 +607,7 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/geopm_pio.h \
                             src/geopm_policystore.h \
                             src/geopm_plugin.cpp \
+                            src/geopm_plugin.hpp \
                             src/geopm_sched.c \
                             src/geopm_sched.h \
                             src/geopm_time.h \
@@ -597,13 +619,9 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/msr_data_knl.cpp \
                             src/msr_data_skx.cpp \
                             src/msr_data_snb.cpp \
+                            src/record.cpp \
+                            src/record.hpp \
                             # end
-
-if ENABLE_OMPT
-    libgeopmpolicy_la_SOURCES += src/ompt_callback.cpp
-else
-    EXTRA_DIST += src/ompt_callback.cpp
-endif
 
 beta_source_files = src/Daemon.cpp \
                     src/Daemon.hpp \
@@ -625,30 +643,58 @@ geopmwrite_SOURCES = src/geopmwrite_main.cpp
 geopmagent_SOURCES = src/geopmagent_main.cpp
 geopmadmin_SOURCES = src/geopmadmin_main.cpp
 
+mpi_source_files = src/DefaultProfile.cpp \
+                   src/MPIComm.cpp \
+                   src/MPIComm.hpp \
+                   src/MPICommSplit.cpp \
+                   src/Profile.cpp \
+                   src/Profile.hpp \
+                   src/geopm_ctl.h \
+                   src/geopm_mpi_comm_split.h \
+                   src/geopm_pmpi.c \
+                   src/geopm_pmpi_helper.cpp \
+                   src/geopm_pmpi.h \
+                   # end
+ompt_source_files = src/OMPT.cpp \
+                    src/OMPT.hpp \
+                    src/ompt_callback.cpp \
+                    # end
+fortran_source_files = src/geopm.f90 \
+                       src/geopm_pmpi_fortran.c \
+                       # end
+geopmctl_source_files = src/geopm_version.h \
+                        src/geopmctl_main.c \
+                        # end
+
 if ENABLE_MPI
     # All source files that are compiled into libgeopmpolicy are also
     # compiled into libgeopm.  We either have to do this or require
     # users to link to both libgeopm and libgeopmpolicy when calling
     # into application facing APIs.
     libgeopm_la_SOURCES = $(libgeopmpolicy_la_SOURCES) \
-                          src/MPIComm.cpp \
-                          src/MPIComm.hpp \
-                          src/MPICommSplit.cpp \
-                          src/geopm_ctl.h \
-                          src/geopm_mpi_comm_split.h \
-                          src/geopm_pmpi.c \
-                          src/geopm_pmpi_helper.cpp \
-                          src/geopm_pmpi.h \
+                          $(mpi_source_files) \
                           # end
-if ENABLE_FORTRAN
-    libgeopmfort_la_SOURCES = src/geopm.f90 \
-                              src/geopm_pmpi_fortran.c \
-                              # end
+    geopmctl_SOURCES = $(geopmctl_source_files)
+
+if ENABLE_OMPT
+    libgeopm_la_SOURCES += $(ompt_source_files)
+else
+    EXTRA_DIST += $(ompt_source_files)
 endif
 
-    geopmctl_SOURCES = src/geopm_version.h \
-                       src/geopmctl_main.c \
-                       # end
+if ENABLE_FORTRAN
+    libgeopmfort_la_SOURCES = $(fortran_source_files)
+else
+    EXTRA_DIST += $(fortran_source_files)
+endif
+
+# disable MPI
+else
+    EXTRA_DIST += $(mpi_source_files) \
+                  $(ompt_source_files) \
+                  $(fortran_source_files) \
+                  $(geopmctl_source_files) \
+                  # end
 endif
 
 model_source_files = src/All2allModelRegion.cpp \
@@ -716,10 +762,14 @@ distclean-local-ruby:
 	rm -rf ruby
 
 # FORTRAN MODULE TARGET
+if ENABLE_MPI
 if ENABLE_FORTRAN
 BUILT_SOURCES = geopm.mod
 geopm.mod: src/geopm.f90
 	$(FC) $(AM_FCFLAGS) $(FCFLAGS) $(MPI_FCFLAGS) -c $<
+else
+BUILT_SOURCES =
+endif
 else
 BUILT_SOURCES =
 endif
@@ -740,7 +790,7 @@ rpm-theta: dist
 	cp geopm-theta.spec $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
 	rpmbuild $(rpmbuild_flags) --buildroot=$(rpm_topdir)-root --define "_sourcedir $(rpm_topdir)/SOURCES" -ba $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
 
-if ENABLE_DOC
+if ENABLE_RONN
 
 # DOXYGEN TARGET
 
@@ -761,7 +811,7 @@ ruby/bin/ronn:
 	mkdir -p ruby/bin; \
 	which ronn >& /dev/null && \
 	ln -sf `which ronn` ruby/bin/ronn || \
-	gem install ronn -i ruby
+	gem install ronn --no-user-install --install-dir ruby
 	if [ ! -f $@ ]; then pushd ruby/bin && ln -sf ronn.ruby* ronn && popd; fi
 
 $(ronn_man): man/%: ruby/bin/ronn ronn/%.ronn ronn/index.txt ronn/header.txt
@@ -792,15 +842,6 @@ endif
 geopm-tutorial.tar.gz: $(TUTORIAL_DIST)
 	tar --transform='s|^|geopm-|' -zcf $@ $^
 
-man/GEOPM_CXX_MAN_MSRSignal.3: man/GEOPM_CXX_MAN_MSR.3
-	cp $^ $@
-	if [ -f ronn/GEOPM_CXX_MAN_MSR.3.html ]; then cp ronn/GEOPM_CXX_MAN_MSR.3.html ronn/GEOPM_CXX_MAN_MSRSignal.3.html; fi
-
-man/GEOPM_CXX_MAN_MSRControl.3: man/GEOPM_CXX_MAN_MSR.3
-	cp $^ $@
-	if [ -f ronn/GEOPM_CXX_MAN_MSR.3.html ]; then cp ronn/GEOPM_CXX_MAN_MSR.3.html ronn/GEOPM_CXX_MAN_MSRControl.3.html; fi
-
-
 checkprogs: gtest-checkprogs pytest-checkprogs $(check_PROGRAMS) $(check_LTLIBRARIES)
 
 # INCLUDES
@@ -820,7 +861,7 @@ PHONY_TARGETS = clean-local \
                 # end
 
 include test/Makefile.mk
-include test_integration/Makefile.mk
+include integration/Makefile.mk
 include examples/Makefile.mk
 include scripts/Makefile.mk
 include openmp.mk

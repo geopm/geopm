@@ -46,7 +46,8 @@ namespace geopm
 
     RuntimeRegulatorImp::RuntimeRegulatorImp(int num_rank, bool is_epoch)
         : m_num_rank(num_rank)
-        , m_rank_log(m_num_rank, m_log_s {GEOPM_TIME_REF, 0.0, 0.0, is_epoch ? -1 : 0})
+        , m_time_exit_cookie({{0,0}})
+        , m_rank_log(m_num_rank, m_log_s {m_time_exit_cookie, 0.0, 0.0, is_epoch ? -1 : 0})
     {
 #ifdef GEOPM_DEBUG
         if (m_num_rank <= 0) {
@@ -62,7 +63,7 @@ namespace geopm
             throw Exception("RuntimeRegulatorImp::record_entry(): invalid rank value",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        if (geopm_time_diff(&m_rank_log[rank].enter_time, &GEOPM_TIME_REF) != 0.0) {
+        if (geopm_time_diff(&m_rank_log[rank].enter_time, &m_time_exit_cookie) != 0.0) {
             throw Exception("RuntimeRegulatorImp::record_entry(): rank re-entry before exit detected",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
@@ -78,14 +79,14 @@ namespace geopm
             throw Exception("RuntimeRegulatorImp::record_exit(): invalid rank value",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        if (geopm_time_diff(&m_rank_log[rank].enter_time, &GEOPM_TIME_REF) == 0.0) {
+        if (geopm_time_diff(&m_rank_log[rank].enter_time, &m_time_exit_cookie) == 0.0) {
             throw Exception("RuntimeRegulatorImp::record_exit(): exit before entry",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
 
         double delta = geopm_time_diff(&m_rank_log[rank].enter_time, &exit_time);
         m_rank_log[rank].last_runtime = delta;
-        m_rank_log[rank].enter_time = GEOPM_TIME_REF; // record exit
+        m_rank_log[rank].enter_time = m_time_exit_cookie; // record exit
         m_rank_log[rank].total_runtime += delta;
         ++m_rank_log[rank].count;
     }

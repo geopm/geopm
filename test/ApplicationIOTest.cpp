@@ -39,6 +39,7 @@
 #include "gmock/gmock.h"
 
 #include "ApplicationIO.hpp"
+#include "ApplicationSampler.hpp"
 #include "Helper.hpp"
 #include "MockEpochRuntimeRegulator.hpp"
 #include "MockProfileSampler.hpp"
@@ -70,12 +71,19 @@ class ApplicationIOTest : public ::testing::Test
 
 void ApplicationIOTest::SetUp()
 {
+    auto &tmp_app_sampler = geopm::ApplicationSampler::application_sampler();
+
     m_sampler = new MockProfileSampler;
-    auto tmp_s = std::unique_ptr<MockProfileSampler>(m_sampler);
+    auto tmp_s = std::shared_ptr<MockProfileSampler>(m_sampler);
+    tmp_app_sampler.set_sampler(tmp_s);
+
     m_pio_sample = new MockProfileIOSample;
     auto tmp_pio = std::shared_ptr<MockProfileIOSample>(m_pio_sample);
+    tmp_app_sampler.set_io_sample(tmp_pio);
+
     m_epoch_regulator = new MockEpochRuntimeRegulator;
-    auto tmp_reg = std::unique_ptr<MockEpochRuntimeRegulator>(m_epoch_regulator);
+    auto tmp_reg = std::shared_ptr<MockEpochRuntimeRegulator>(m_epoch_regulator);
+    tmp_app_sampler.set_regulator(tmp_reg);
 
     EXPECT_CALL(*m_sampler, initialize());
     EXPECT_CALL(*m_sampler, rank_per_node());
@@ -85,20 +93,10 @@ void ApplicationIOTest::SetUp()
     m_num_memory_domain = 1;
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_CPU))
         .WillOnce(Return(m_num_cpu_domain));
-    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
-        .WillOnce(Return(m_num_package_domain));
-    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_BOARD_MEMORY))
-        .WillOnce(Return(m_num_memory_domain));
-    EXPECT_CALL(m_platform_io, read_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE, _))
-        .Times(m_num_package_domain)
-        .WillRepeatedly(Return(122.0/m_num_package_domain));
-    EXPECT_CALL(m_platform_io, read_signal("ENERGY_DRAM", GEOPM_DOMAIN_BOARD_MEMORY, _))
-        .Times(m_num_memory_domain)
-        .WillRepeatedly(Return(221.0/m_num_memory_domain));
     std::vector<int> ranks {1, 2, 3, 4};
     EXPECT_CALL(*m_sampler, cpu_rank()).WillOnce(Return(ranks));
-    m_app_io = geopm::make_unique<ApplicationIOImp>(m_shm_key, std::move(tmp_s), tmp_pio,
-                                                    std::move(tmp_reg), m_platform_io, m_platform_topo);
+    m_app_io = geopm::make_unique<ApplicationIOImp>(m_shm_key,
+                                                    tmp_app_sampler, m_platform_io, m_platform_topo);
     m_app_io->connect();
 }
 
@@ -129,10 +127,6 @@ TEST_F(ApplicationIOTest, passthrough)
     EXPECT_CALL(*m_epoch_regulator, total_epoch_runtime())
         .WillOnce(Return(123));
     EXPECT_EQ(123, m_app_io->total_epoch_runtime());
-
-    EXPECT_CALL(*m_pio_sample, total_app_runtime())
-        .WillOnce(Return(345));
-    EXPECT_EQ(345, m_app_io->total_app_runtime());
 
     EXPECT_CALL(*m_epoch_regulator, total_app_runtime_mpi())
         .WillOnce(Return(456));

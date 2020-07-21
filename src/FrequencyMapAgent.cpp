@@ -37,6 +37,7 @@
 #include <iomanip>
 #include <iostream>
 #include <utility>
+#include <algorithm>
 
 #include "contrib/json11/json11.hpp"
 
@@ -49,60 +50,41 @@
 #include "FrequencyGovernor.hpp"
 #include "Helper.hpp"
 #include "Exception.hpp"
+#include "geopm_debug.hpp"
 #include "config.h"
 
 using json11::Json;
 
 namespace geopm
 {
-    static std::map<uint64_t, double> parse_env_map(void)
-    {
-        std::map<uint64_t, double> frequency_map;
-        std::string env_map_str = environment().frequency_map();
-        if (env_map_str.length()) {
-            std::cerr << "Warning: <geopm> Use of the GEOPM_FREQUENCY_MAP "
-                         "environment variable is deprecated. Frequency maps "
-                         "will only be set via "
-                      << FrequencyMapAgent::plugin_name()
-                      << " agent policies in the future.\n";
-            std::string err;
-            Json root = Json::parse(env_map_str, err);
-            if (!err.empty() || !root.is_object()) {
-                throw Exception("FrequencyMapAgent::" + std::string(__func__) + "(): detected a malformed json config file: " + err,
-                                GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
-            }
-            for (const auto &obj : root.object_items()) {
-                if (obj.second.type() != Json::NUMBER) {
-                    throw Exception("FrequencyMapAgent::" + std::string(__func__) +
-                                    ": Region best-fit frequency must be a number",
-                                    GEOPM_ERROR_FILE_PARSE, __FILE__, __LINE__);
-                }
-                uint64_t hash = geopm_crc32_str(obj.first.c_str());
-                frequency_map[hash] = obj.second.number_value();
-            }
-        }
-        return frequency_map;
-    }
-
     FrequencyMapAgent::FrequencyMapAgent()
-        : FrequencyMapAgent(platform_io(), platform_topo(), FrequencyGovernor::make_shared(), parse_env_map())
+        : FrequencyMapAgent(platform_io(), platform_topo())
     {
 
     }
 
-    FrequencyMapAgent::FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo,
-                                         std::shared_ptr<FrequencyGovernor> gov, std::map<uint64_t, double> frequency_map)
+    FrequencyMapAgent::FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo)
         : M_PRECISION(16)
         , M_WAIT_SEC(0.002)
         , m_platform_io(plat_io)
         , m_platform_topo(topo)
-        , m_freq_governor(gov)
-        , m_hash_freq_map(frequency_map)
-        , m_last_wait(GEOPM_TIME_REF)
-        , m_level(-1)
+        , m_wait_time(time_zero())
+        , m_uncore_min_ctl_idx(-1)
+        , m_uncore_max_ctl_idx(-1)
+        , m_last_uncore_freq(NAN)
         , m_num_children(0)
         , m_is_policy_updated(false)
-        , m_is_initialized_with_map(!frequency_map.empty())
+        , m_do_write_batch(false)
+        , m_is_adjust_initialized(false)
+        , m_is_real_policy(false)
+        , m_freq_ctl_domain_type(GEOPM_DOMAIN_INVALID)
+        , m_num_freq_ctl_domain(0)
+        , m_core_freq_min(NAN)
+        , m_core_freq_max(NAN)
+        , m_uncore_init_min(NAN)
+        , m_uncore_init_max(NAN)
+        , m_default_freq(NAN)
+        , m_uncore_freq(NAN)
     {
 
     }
@@ -119,8 +101,7 @@ namespace geopm
 
     void FrequencyMapAgent::init(int level, const std::vector<int> &fan_in, bool is_level_root)
     {
-        m_level = level;
-        if (m_level == 0) {
+        if (level == 0) {
             m_num_children = 0;
             init_platform_io();
         }
@@ -131,14 +112,28 @@ namespace geopm
 
     void FrequencyMapAgent::validate_policy(std::vector<double> &policy) const
     {
-#ifdef GEOPM_DEBUG
-        if (!is_valid_policy_size(policy)) {
-            throw Exception("FrequencyMapAgent::" + std::string(__func__) + "(): policy vector not correctly sized.",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        GEOPM_DEBUG_ASSERT(policy.size() == M_NUM_POLICY,
+                           "FrequencyMapAgent::" + std::string(__func__) +
+                           "(): policy vector not correctly sized.");
+
+        if (is_all_nan(policy)) {
+            // All-NAN policy may be received before the first policy
+            /// @todo: in the future, this should not be accepted by this agent.
+            return;
         }
-#endif
-        m_freq_governor->validate_policy(policy[M_POLICY_FREQ_MIN],
-                                         policy[M_POLICY_FREQ_MAX]);
+
+        if (std::isnan(policy[M_POLICY_FREQ_DEFAULT])) {
+            throw Exception("FrequencyMapAgent::" + std::string(__func__) +
+                            "(): default frequency must be provided in policy.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        if (policy[M_POLICY_FREQ_DEFAULT] > m_core_freq_max ||
+            policy[M_POLICY_FREQ_DEFAULT] < m_core_freq_min) {
+            throw Exception("FrequencyMapAgent::" + std::string(__func__) +
+                            "(): default frequency out of range: " +
+                            std::to_string(policy[M_POLICY_FREQ_DEFAULT]) + ".",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
 
         // Validate all (hash, frequency) pairs
         std::set<double> policy_regions;
@@ -151,6 +146,11 @@ namespace geopm
                 // memory so that regions can be input to this policy in the
                 // same form they are output from a report.
                 auto region = static_cast<uint64_t>(*it);
+                if (std::isnan(mapped_freq)) {
+                    throw Exception("FrequencyMapAgent::" + std::string(__func__) +
+                                    "(): mapped region with no frequency assigned.",
+                                    GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                }
                 // A valid region will either set or clear its mapped frequency.
                 // Just make sure it does not have multiple definitions.
                 if (!policy_regions.insert(region).second) {
@@ -169,36 +169,57 @@ namespace geopm
         }
     }
 
+    bool FrequencyMapAgent::is_all_nan(const std::vector<double> &vec)
+    {
+        return std::all_of(vec.begin(), vec.end(),
+                           [](double x) -> bool { return std::isnan(x); });
+    }
+
     void FrequencyMapAgent::update_policy(const std::vector<double> &policy)
     {
-        m_is_policy_updated = m_freq_governor->set_frequency_bounds(
-            policy[M_POLICY_FREQ_MIN], policy[M_POLICY_FREQ_MAX]);
+        if (is_all_nan(policy) && !m_is_real_policy) {
+            // All-NAN policy is ignored until first real policy is received
+            m_is_policy_updated = false;
+            return;
+        }
+        else if (is_all_nan(policy)) {
+            throw Exception("FrequencyMapAgent::update_policy(): received invalid all-NAN policy.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        m_is_real_policy = true;
 
+        std::map<uint64_t, double> old_freq_map = m_hash_freq_map;
+        m_hash_freq_map.clear();
         for (auto it = policy.begin() + M_POLICY_FIRST_HASH;
-             it != policy.end() && std::next(it) != policy.end(); std::advance(it, 2)) {
+             it != policy.end() && std::next(it) != policy.end();
+             std::advance(it, 2)) {
             if (!std::isnan(*it)) {
                 auto hash = static_cast<uint64_t>(*it);
                 auto freq = *(it + 1);
-                if (std::isnan(freq)) {
-                    auto num_erased = m_hash_freq_map.erase(hash);
-                    if (num_erased != 0) {
-                        m_is_policy_updated = true;
-                    }
-                }
-                else {
-                    auto inserted = m_hash_freq_map.emplace(hash, freq);
-                    if (inserted.second) {
-                        m_is_policy_updated = true;
-                    }
-                    else {
-                        if (inserted.first->second != freq) {
-                            inserted.first->second = freq;
-                            m_is_policy_updated = true;
-                        }
-                    }
-                }
+
+                // Not valid to have NAN freq for hash.
+                // This is a logic error because it is checked by
+                // validate policy, which the controller should
+                // call before this function.
+                GEOPM_DEBUG_ASSERT(!std::isnan(freq),
+                                   "mapped region with no frequency assigned.");
+                m_hash_freq_map[hash] = freq;
             }
         }
+        m_is_policy_updated = false;
+        // check if policy changed
+        if (m_default_freq != policy[M_POLICY_FREQ_DEFAULT]) {
+            m_is_policy_updated = true;
+            m_default_freq = policy[M_POLICY_FREQ_DEFAULT];
+        }
+        if (m_hash_freq_map != old_freq_map) {
+            m_is_policy_updated = true;
+        }
+        if (!std::isnan(policy[M_POLICY_FREQ_UNCORE]) &&
+            m_uncore_freq != policy[M_POLICY_FREQ_UNCORE]) {
+            m_is_policy_updated = true;
+        }
+        m_uncore_freq = policy[M_POLICY_FREQ_UNCORE];
     }
 
     void FrequencyMapAgent::split_policy(const std::vector<double> &in_policy,
@@ -210,7 +231,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
         for (auto &child_policy : out_policy) {
-            if (!is_valid_policy_size(child_policy)) {
+            if (child_policy.size() != M_NUM_POLICY) {
                 throw Exception("FrequencyMapAgent::" + std::string(__func__) + "(): child_policy vector not correctly sized.",
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
@@ -242,71 +263,84 @@ namespace geopm
     void FrequencyMapAgent::adjust_platform(const std::vector<double> &in_policy)
     {
         update_policy(in_policy);
+
+        m_do_write_batch = false;
+
+        if (!m_is_adjust_initialized) {
+            // adjust all controls once in case not applied by policy
+            for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
+                // @todo: this is bad; agent should be able to use aliases
+                double val = m_platform_io.read_signal("MSR::PERF_CTL:FREQ", m_freq_ctl_domain_type, ctl_idx);
+                m_platform_io.adjust(m_freq_control_idx[ctl_idx], val);
+            }
+            m_platform_io.adjust(m_uncore_min_ctl_idx, m_uncore_init_min);
+            m_platform_io.adjust(m_uncore_max_ctl_idx, m_uncore_init_max);
+            m_is_adjust_initialized = true;
+        }
+
+        if (is_all_nan(in_policy) && !m_is_real_policy) {
+            // All-NAN policy may be received before the first policy
+            return;
+        }
+
         double freq = NAN;
-        double freq_min = m_freq_governor->get_frequency_min();
-        double freq_max = m_freq_governor->get_frequency_max();
-        std::vector<double> target_freq;
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
-            const uint64_t curr_hash = m_last_region[ctl_idx].hash;
-            const uint64_t curr_hint = m_last_region[ctl_idx].hint;
+            const uint64_t curr_hash = m_last_hash[ctl_idx];
             auto it = m_hash_freq_map.find(curr_hash);
             if (it != m_hash_freq_map.end()) {
                 freq = it->second;
             }
             else {
-                switch(curr_hint) {
-                    // Hints for low CPU frequency
-                    case GEOPM_REGION_HINT_MEMORY:
-                    case GEOPM_REGION_HINT_NETWORK:
-                    case GEOPM_REGION_HINT_IO:
-                        freq = freq_min;
-                        break;
-
-                    // Hints for maximum CPU frequency
-                    case GEOPM_REGION_HINT_COMPUTE:
-                    case GEOPM_REGION_HINT_SERIAL:
-                    case GEOPM_REGION_HINT_PARALLEL:
-                        freq = freq_max;
-                        break;
-                    // Hint Inconclusive
-                    //case GEOPM_REGION_HINT_UNKNOWN:
-                    //case GEOPM_REGION_HINT_IGNORE:
-                    default:
-                        freq = freq_max;
-                        break;
-                }
+                freq = m_default_freq;
+                m_hash_freq_map[curr_hash] = m_default_freq;
             }
-            m_hash_freq_map[m_last_region[ctl_idx].hash] = freq;
-            target_freq.push_back(freq);
+            if (m_last_freq[ctl_idx] != freq) {
+                m_last_freq[ctl_idx] = freq;
+                m_platform_io.adjust(m_freq_control_idx[ctl_idx], freq);
+                m_do_write_batch = true;
+            }
         }
 
-        m_freq_governor->adjust_platform(target_freq);
+        // adjust fixed uncore freq
+        if (m_last_uncore_freq != m_uncore_freq) {
+            if (!std::isnan(m_uncore_freq)) {
+                m_platform_io.adjust(m_uncore_min_ctl_idx, m_uncore_freq);
+                m_platform_io.adjust(m_uncore_max_ctl_idx, m_uncore_freq);
+                m_do_write_batch = true;
+            }
+            else if (!std::isnan(m_last_uncore_freq)) {
+                m_platform_io.adjust(m_uncore_min_ctl_idx, m_uncore_init_min);
+                m_platform_io.adjust(m_uncore_max_ctl_idx, m_uncore_init_max);
+                m_do_write_batch = true;
+            }
+            m_last_uncore_freq = m_uncore_freq;
+        }
     }
 
     bool FrequencyMapAgent::do_write_batch(void) const
     {
-        return m_freq_governor->do_write_batch();
+        return m_do_write_batch;
     }
 
     void FrequencyMapAgent::sample_platform(std::vector<double> &out_sample)
     {
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
-            m_last_region[ctl_idx].hash = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH][ctl_idx]);
-            m_last_region[ctl_idx].hint = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HINT][ctl_idx]);
+            m_last_hash[ctl_idx] = m_platform_io.sample(m_hash_signal_idx[ctl_idx]);
         }
     }
 
     void FrequencyMapAgent::wait(void)
     {
-        while(geopm_time_since(&m_last_wait) < M_WAIT_SEC) {
+        while(geopm_time_since(&m_wait_time) < M_WAIT_SEC) {
 
         }
-        geopm_time(&m_last_wait);
+        geopm_time(&m_wait_time);
     }
 
     std::vector<std::string> FrequencyMapAgent::policy_names(void)
     {
-        std::vector<std::string> names{"FREQ_MIN", "FREQ_MAX"};
+
+        std::vector<std::string> names{"FREQ_DEFAULT", "FREQ_UNCORE"};
         names.reserve(M_NUM_POLICY);
 
         for (size_t i = 0; names.size() < M_NUM_POLICY; ++i) {
@@ -348,7 +382,6 @@ namespace geopm
     {
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > result;
         for (const auto &region : m_hash_freq_map) {
-            /// @todo re-implement with m_region_map and m_hash_freq_map keys as pair (hash + hint)
             result[region.first].push_back(std::make_pair("frequency-map", std::to_string(region.second)));
         }
         return result;
@@ -371,47 +404,49 @@ namespace geopm
 
     void FrequencyMapAgent::enforce_policy(const std::vector<double> &policy) const
     {
-        if (!is_valid_policy_size(policy)) {
+        if (policy.size() != M_NUM_POLICY) {
             throw Exception("FrequencyMapAgent::enforce_policy(): policy vector incorrectly sized.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        m_platform_io.write_control("FREQUENCY", GEOPM_DOMAIN_BOARD, 0, policy[M_POLICY_FREQ_MAX]);
+
+        if (is_all_nan(policy)) {
+            // All-NAN policy is invalid
+            throw Exception("FrequencyMapAgent::enforce_policy(): received invalid all-NAN policy.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+
+            return;
+        }
+        m_platform_io.write_control("FREQUENCY", GEOPM_DOMAIN_BOARD, 0,
+                                    policy[M_POLICY_FREQ_DEFAULT]);
+        if (!std::isnan(policy[M_POLICY_FREQ_UNCORE])) {
+                m_platform_io.write_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", GEOPM_DOMAIN_BOARD, 0,
+                                            policy[M_POLICY_FREQ_UNCORE]);
+                m_platform_io.write_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", GEOPM_DOMAIN_BOARD, 0,
+                                            policy[M_POLICY_FREQ_UNCORE]);
+        }
     }
 
     void FrequencyMapAgent::init_platform_io(void)
     {
-        const struct m_region_info_s DEFAULT_REGION { .hash = GEOPM_REGION_HASH_UNMARKED,
-                                                      .hint = GEOPM_REGION_HINT_UNKNOWN};
-        m_freq_governor->init_platform_io();
-        const int freq_ctl_domain_type = m_freq_governor->frequency_domain_type();
-        m_num_freq_ctl_domain = m_platform_topo.num_domain(freq_ctl_domain_type);
-        m_last_region = std::vector<struct m_region_info_s>(m_num_freq_ctl_domain,
-                                                            DEFAULT_REGION);
-        std::vector<std::string> signal_names = {"REGION_HASH", "REGION_HINT"};
-        for (size_t sig_idx = 0; sig_idx < signal_names.size(); ++sig_idx) {
-            m_signal_idx.push_back(std::vector<int>());
-            for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
-                m_signal_idx[sig_idx].push_back(m_platform_io.push_signal(signal_names[sig_idx],
-                                                                          freq_ctl_domain_type,
-                                                                          ctl_idx));
-            }
+        m_freq_ctl_domain_type = m_platform_io.control_domain_type("FREQUENCY");
+        m_num_freq_ctl_domain = m_platform_topo.num_domain(m_freq_ctl_domain_type);
+        m_last_hash = std::vector<uint64_t>(m_num_freq_ctl_domain,
+                                            GEOPM_REGION_HASH_UNMARKED);
+        m_last_freq = std::vector<double>(m_num_freq_ctl_domain, NAN);
+        for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
+            m_hash_signal_idx.push_back(m_platform_io.push_signal("REGION_HASH",
+                                                                  m_freq_ctl_domain_type,
+                                                                  ctl_idx));
+            m_freq_control_idx.push_back(m_platform_io.push_control("FREQUENCY",
+                                                                    m_freq_ctl_domain_type,
+                                                                    ctl_idx));
         }
-    }
+        m_uncore_min_ctl_idx = m_platform_io.push_control("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", GEOPM_DOMAIN_BOARD, 0);
+        m_uncore_max_ctl_idx = m_platform_io.push_control("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", GEOPM_DOMAIN_BOARD, 0);
 
-    bool FrequencyMapAgent::is_valid_policy_size(const std::vector<double> &policy) const
-    {
-        bool ret = true;
-        if (m_is_initialized_with_map) {
-            if (policy.size() != M_POLICY_FIRST_HASH) {
-                ret = false;
-            }
-        }
-        else {
-            if (policy.size() > M_NUM_POLICY ||
-                policy.size() < M_POLICY_FIRST_HASH || policy.size() % 2) {
-                ret = false;
-            }
-        }
-        return ret;
+        m_core_freq_min = m_platform_io.read_signal("FREQUENCY_MIN", GEOPM_DOMAIN_BOARD, 0);
+        m_core_freq_max = m_platform_io.read_signal("FREQUENCY_MAX", GEOPM_DOMAIN_BOARD, 0);
+        m_uncore_init_min = m_platform_io.read_signal("MSR::UNCORE_RATIO_LIMIT:MIN_RATIO", GEOPM_DOMAIN_BOARD, 0);
+        m_uncore_init_max = m_platform_io.read_signal("MSR::UNCORE_RATIO_LIMIT:MAX_RATIO", GEOPM_DOMAIN_BOARD, 0);
     }
 }

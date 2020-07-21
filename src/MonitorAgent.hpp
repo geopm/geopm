@@ -79,7 +79,7 @@ namespace geopm
             static std::vector<std::string> policy_names(void);
             static std::vector<std::string> sample_names(void);
         private:
-            geopm_time_s m_last_wait;
+            struct geopm_time_s m_last_wait;
             const double M_WAIT_SEC;
     };
 }

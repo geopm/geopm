@@ -144,6 +144,12 @@ namespace geopm
             const std::string m_env_signals;
             const std::string m_policy_path;
             bool m_do_endpoint;
+            int m_app_energy_pkg_idx;
+            int m_app_energy_dram_idx;
+            int m_app_time_signal_idx;
+            double m_start_energy_pkg;
+            double m_start_energy_dram;
+            double m_start_time_signal;
     };
 }
 

@@ -37,7 +37,13 @@ PRINT ALL CONTROL NAMES <br>
 `geopmwrite`
 
 PRINT DOMAIN NAME AND SIZE <br>
-`geopmwrite` --domain [CONTROL_NAME]
+`geopmwrite` --domain
+
+PRINT CONTOL DESCRIPTION <br>
+`geopmwrite` --info CONTROL_NAME
+
+PRINT ALL CONTROL DESCRIPTIONS <br>
+`geopmwrite` --info-all
 
 WRITE CONTROL <br>
 `geopmwrite` CONTROL_NAME DOMAIN_TYPE DOMAIN_INDEX VALUE
@@ -93,12 +99,14 @@ exists.  See the `--cache` option below for more information.
 ## OPTIONS
 
   * `-d`, `--domain`:
-    Print domain of a control if CONTROL_NAME is provided, or print a
-    list of all domains on the system.
+    Print a list of all domains on the system.
 
   * `-i`, `--info`:
-    Print description of a signal if CONTROL_NAME is provided, or print a
-    list of all available controls with their descriptions, if any.
+    Print description of the provided CONTROL_NAME.
+
+  * `-I`, `--info-all`:
+    Print a list of all available controls with their descriptions,
+    if any.
 
   * `-c`, `--cache`:
     Create a cache file for the geopm::PlatformTopo object if one does

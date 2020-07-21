@@ -33,6 +33,8 @@
 #ifndef MOCKPLATFORMTOPO_HPP_INCLUDE
 #define MOCKPLATFORMTOPO_HPP_INCLUDE
 
+#include <memory>
+
 #include "gmock/gmock.h"
 
 #include "PlatformTopo.hpp"
@@ -49,5 +51,10 @@ class MockPlatformTopo : public geopm::PlatformTopo
         MOCK_CONST_METHOD3(domain_nested,
                            std::set<int>(int inner_domain, int outer_domain, int outer_idx));
 };
+
+/// Create a MockPlatformTopo and set up expectations for the system hierarchy.
+/// Counts for each input component are for the whole board.
+std::shared_ptr<MockPlatformTopo> make_topo(int num_package, int num_core, int num_cpu);
+
 
 #endif

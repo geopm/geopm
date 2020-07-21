@@ -40,6 +40,11 @@ namespace geopm
     SampleSchedulerImp::SampleSchedulerImp(double overhead_frac)
         : m_overhead_frac(overhead_frac)
         , m_status(M_STATUS_CLEAR)
+        , m_entry_time({{0, 0}})
+        , m_sample_time(NAN)
+        , m_work_time(NAN)
+        , m_sample_stride(0)
+        , m_sample_count(0)
     {
 
     }

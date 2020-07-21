@@ -61,17 +61,17 @@ int main(int argc, char **argv)
 {
     const char *usage = "\nUsage:\n"
                         "       geopmwrite CONTROL_NAME DOMAIN_TYPE DOMAIN_INDEX VALUE\n"
-                        "       geopmwrite [--domain [CONTROL_NAME]]\n"
                         "       geopmwrite [--info [CONTROL_NAME]]\n"
-                        "       geopmwrite [--help] [--version] [--cache]\n"
+                        "       geopmwrite [--help] [--version] [--cache] [--info-all] [--domain]\n"
                         "\n"
                         "  CONTROL_NAME:  name of the control\n"
                         "  DOMAIN_TYPE:  name of the domain for which the control should be written\n"
                         "  DOMAIN_INDEX: index of the domain, starting from 0\n"
                         "  VALUE:        setting to adjust control to\n"
                         "\n"
-                        "  -d, --domain                     print domain of a control\n"
+                        "  -d, --domain                     print domains detected\n"
                         "  -i, --info                       print longer description of a control\n"
+                        "  -I, --info-all                   print longer description of all controls\n"
                         "  -c, --cache                      create geopm topo cache if it does not exist\n"
                         "  -h, --help                       print brief summary of the command line\n"
                         "                                   usage information, then exit\n"
@@ -84,6 +84,7 @@ int main(int argc, char **argv)
     static struct option long_options[] = {
         {"domain", no_argument, NULL, 'd'},
         {"info", no_argument, NULL, 'i'},
+        {"info-all", no_argument, NULL, 'I'},
         {"cache", no_argument, NULL, 'c'},
         {"help", no_argument, NULL, 'h'},
         {"version", no_argument, NULL, 'v'},
@@ -94,13 +95,17 @@ int main(int argc, char **argv)
     int err = 0;
     bool is_domain = false;
     bool is_info = false;
-    while (!err && (opt = getopt_long(argc, argv, "dichv", long_options, NULL)) != -1) {
+    bool is_all_info = false;
+    while (!err && (opt = getopt_long(argc, argv, "diIchv", long_options, NULL)) != -1) {
         switch (opt) {
             case 'd':
                 is_domain = true;
                 break;
             case 'i':
                 is_info = true;
+                break;
+            case 'I':
+                is_all_info = true;
                 break;
             case 'c':
                 geopm::PlatformTopo::create_cache();
@@ -137,44 +142,36 @@ int main(int argc, char **argv)
     PlatformIO &platform_io = geopm::platform_io();
     const PlatformTopo &platform_topo = geopm::platform_topo();
     if (is_domain) {
-        if (pos_args.size() == 0) {
-            // print all domains
-            for (int dom = GEOPM_DOMAIN_BOARD; dom < GEOPM_NUM_DOMAIN; ++dom) {
-                std::cout << std::setw(24) << std::left
-                          << PlatformTopo::domain_type_to_name(dom)
-                          << platform_topo.num_domain(dom) << std::endl;
-            }
-        }
-        else {
-            // print domain for one control
-            try {
-                int domain_type = platform_io.control_domain_type(pos_args[0]);
-                std::cout << PlatformTopo::domain_type_to_name(domain_type) << std::endl;
-            }
-            catch (const geopm::Exception &ex) {
-                std::cerr << "Error: unable to determine control type: " << ex.what() << std::endl;
-                err = EINVAL;
-            }
+        // print all domains
+        for (int dom = GEOPM_DOMAIN_BOARD; dom < GEOPM_NUM_DOMAIN; ++dom) {
+            std::cout << std::setw(24) << std::left
+                      << PlatformTopo::domain_type_to_name(dom)
+                      << platform_topo.num_domain(dom) << std::endl;
         }
     }
     else if (is_info) {
         try {
-            if (pos_args.size() == 0) {
-                // print all controls with description
-                auto controls = platform_io.control_names();
-                for (const auto &con : controls) {
-                    /// @todo nicer formatting
-                    std::cout << con << ": " << platform_io.control_description(con) << std::endl;
-                }
+            // print description for one control
+            if (pos_args.size() > 0) {
+                std::cout << pos_args[0] << ":" << std::endl
+                          << platform_io.control_description(pos_args[0]) << std::endl;
             }
             else {
-                // print description for one control
-                std::cout << pos_args[0] << ": " << platform_io.control_description(pos_args[0]) << std::endl;
+                std::cerr << "Error: no control requested." << std::endl;
+                err = EINVAL;
             }
         }
         catch (const geopm::Exception &ex) {
             std::cerr << "Error: " << ex.what() << std::endl;
             err = EINVAL;
+        }
+    }
+    else if (is_all_info) {
+        // print all controls with description
+        auto controls = platform_io.control_names();
+        for (const auto &con : controls) {
+            std::cout << con << ":" << std::endl
+                      << platform_io.control_description(con) << std::endl;
         }
     }
     else {

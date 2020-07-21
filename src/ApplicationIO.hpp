@@ -73,12 +73,6 @@ namespace geopm
             ///        region.
             /// @param [in] region_id The region ID.
             virtual double total_region_runtime_mpi(uint64_t region_id) const = 0;
-            /// @brief Returns the total application runtime.
-            virtual double total_app_runtime(void) const = 0;
-            /// @brief Returns the total application package energy.
-            virtual double total_app_energy_pkg(void) const = 0;
-            /// @brief Returns the total application dram energy.
-            virtual double total_app_energy_dram(void) const = 0;
             /// @brief Returns the total time spent in MPI for the
             ///        application.
             virtual double total_app_runtime_mpi(void) const = 0;
@@ -126,8 +120,7 @@ namespace geopm
             virtual void abort(void) = 0;
     };
 
-    class ProfileSampler;
-    class EpochRuntimeRegulator;
+    class ApplicationSampler;
     class ProfileIOSample;
     class PlatformIO;
     class PlatformTopo;
@@ -137,9 +130,7 @@ namespace geopm
         public:
             ApplicationIOImp(const std::string &shm_key);
             ApplicationIOImp(const std::string &shm_key,
-                             std::unique_ptr<ProfileSampler> sampler,
-                             std::shared_ptr<ProfileIOSample> pio_sample,
-                             std::unique_ptr<EpochRuntimeRegulator>,
+                             ApplicationSampler &application_sampler,
                              PlatformIO &platform_io,
                              const PlatformTopo &platform_topo);
             virtual ~ApplicationIOImp();
@@ -150,9 +141,6 @@ namespace geopm
             std::set<std::string> region_name_set(void) const override;
             double total_region_runtime(uint64_t region_id) const override;
             double total_region_runtime_mpi(uint64_t region_id) const override;
-            double total_app_runtime(void) const override;
-            double total_app_energy_pkg(void) const override;
-            double total_app_energy_dram(void) const override;
             double total_app_runtime_mpi(void) const override;
             double total_app_runtime_ignore(void) const override;
             int total_epoch_count(void) const override;
@@ -170,11 +158,6 @@ namespace geopm
         private:
             static constexpr size_t M_SHMEM_REGION_SIZE = 2*1024*1024;
 
-            double current_energy_pkg(void) const;
-            double current_energy_dram(void) const;
-
-            std::unique_ptr<ProfileSampler> m_sampler;
-            std::shared_ptr<ProfileIOSample> m_profile_io_sample;
             std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > m_prof_sample;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
@@ -184,10 +167,7 @@ namespace geopm
             std::vector<uint64_t> m_num_mpi_enter;
             std::vector<bool> m_is_epoch_changed;
             bool m_is_connected;
-            int m_rank_per_node;
-            std::unique_ptr<EpochRuntimeRegulator> m_epoch_regulator;
-            double m_start_energy_pkg;
-            double m_start_energy_dram;
+            ApplicationSampler &m_application_sampler;
     };
 }
 

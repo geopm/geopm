@@ -89,7 +89,7 @@ Region sleep (0x00000000536c798f):
     dram-energy (joules): 2835.43
     power (watts): 121.389
     frequency (%): 50.0846
-    frequency (Hz): 1.05178e+09
+    frequency (Hz): 1e+09
     network-time (sec): 0
     count: 5500
     requested-online-frequency: 1000000000.000000
@@ -494,6 +494,9 @@ class TestIO(unittest.TestCase):
         self.assertLess(region_runtime, total_runtime)
         field_runtime = report.get_field(epoch, 'runtime')
         self.assertEqual(runtime, field_runtime)
+        region = report.raw_region('mcfly11', 'sleep')
+        self.assertTrue(type(region['frequency (Hz)']) is float)
+        self.assertEqual(1e9, region['frequency (Hz)'])
 
     def test_report(self):
         """ Test that a file of concatenated reports can be extracted to

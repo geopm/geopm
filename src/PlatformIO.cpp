@@ -46,6 +46,7 @@
 #include "PlatformTopo.hpp"
 #include "MSRIOGroup.hpp"
 #include "TimeIOGroup.hpp"
+#include "ProfileIOGroup.hpp"
 #include "CombinedSignal.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
@@ -75,9 +76,14 @@ namespace geopm
         , m_do_restore(false)
     {
         if (m_iogroup_list.size() == 0) {
-            for (const auto &it : iogroup_factory().plugin_names()) {
+            for (const auto &it : IOGroup::iogroup_names()) {
                 try {
-                    register_iogroup(iogroup_factory().make_plugin(it));
+                    if (it != ProfileIOGroup::plugin_name()) {
+                        register_iogroup(IOGroup::make_unique(it));
+                    }
+                    else {
+                        register_profileio(geopm::make_unique<ProfileIOGroup>());
+                    }
                 }
                 catch (const geopm::Exception &ex) {
 #ifdef GEOPM_DEBUG
@@ -102,6 +108,20 @@ namespace geopm
         }
         m_iogroup_list.push_back(iogroup);
     }
+
+
+    void PlatformIOImp::register_profileio(std::shared_ptr<ProfileIOGroup> piogroup)
+    {
+        register_iogroup(piogroup);
+        m_piogroup = piogroup;
+    }
+
+
+    std::shared_ptr<ProfileIOGroup> PlatformIOImp::get_profileio(void)
+    {
+        return m_piogroup;
+    }
+
 
     std::shared_ptr<IOGroup> PlatformIOImp::find_signal_iogroup(const std::string &signal_name) const
     {
@@ -135,11 +155,7 @@ namespace geopm
 
     std::set<std::string> PlatformIOImp::signal_names(void) const
     {
-        /// @todo better handling for signals provided by PlatformIOImp
-        /// These depend on ENERGY signals and should not be available
-        /// if ENERGY_PACKAGE and ENERGY_DRAM are not available.
-        std::set<std::string> result {"POWER_PACKAGE", "POWER_DRAM",
-                                      "TEMPERATURE_CORE", "TEMPERATURE_PACKAGE"};
+        std::set<std::string> result;
         for (const auto &io_group : m_iogroup_list) {
             auto names = io_group->signal_names();
             result.insert(names.begin(), names.end());
@@ -165,25 +181,6 @@ namespace geopm
         if (iogroup != nullptr) {
             is_found = true;
             result = iogroup->signal_domain_type(signal_name);
-        }
-        /// @todo better handling for signals provided by PlatformIOImp
-        if (!is_found) {
-            if (signal_name == "POWER_PACKAGE") {
-                result = signal_domain_type("ENERGY_PACKAGE");
-                is_found = true;
-            }
-            if (signal_name == "POWER_DRAM") {
-                result = signal_domain_type("ENERGY_DRAM");
-                is_found = true;
-            }
-            if (signal_name == "TEMPERATURE_CORE") {
-                result = signal_domain_type("TEMPERATURE_CORE_UNDER");
-                is_found = true;
-            }
-            if (signal_name == "TEMPERATURE_PACKAGE") {
-                result = signal_domain_type("TEMPERATURE_PACKAGE_UNDER");
-                is_found = true;
-            }
         }
         if (!is_found) {
             throw Exception("PlatformIOImp::signal_domain_type(): signal name \"" +
@@ -246,69 +243,11 @@ namespace geopm
                 }
             }
         }
-        if (result == -1 && signal_name.find("POWER") != std::string::npos) {
-            result = push_signal_power(signal_name, domain_type, domain_idx);
-            m_existing_signal[sig_tup] = result;
-        }
-        if (result == -1 && signal_name.find("TEMPERATURE") != std::string::npos) {
-            result = push_signal_temperature(signal_name, domain_type, domain_idx);
-            m_existing_signal[sig_tup] = result;
-        }
         if (result == -1) {
             throw Exception("PlatformIOImp::push_signal(): no support for signal name \"" +
                             signal_name + "\" and domain type \"" +
                             std::to_string(domain_type) + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        return result;
-    }
-
-    int PlatformIOImp::push_signal_power(const std::string &signal_name,
-                                         int domain_type,
-                                         int domain_idx)
-    {
-        int result = -1;
-        if (signal_name == "POWER_PACKAGE" || signal_name == "POWER_DRAM") {
-            int energy_idx = -1;
-            if (signal_name == "POWER_PACKAGE") {
-                energy_idx = push_signal("ENERGY_PACKAGE", domain_type, domain_idx);
-            }
-            else if (signal_name == "POWER_DRAM") {
-                energy_idx = push_signal("ENERGY_DRAM", domain_type, domain_idx);
-            }
-
-            int time_idx = push_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
-            result = m_active_signal.size();
-
-            register_combined_signal(result,
-                                     {time_idx, energy_idx},
-                                     std::unique_ptr<CombinedSignal>(new DerivativeCombinedSignal));
-
-            m_active_signal.emplace_back(nullptr, result);
-        }
-        return result;
-    }
-
-    int PlatformIOImp::push_signal_temperature(const std::string &signal_name,
-                                               int domain_type,
-                                               int domain_idx)
-    {
-        int result = -1;
-        if (signal_name == "TEMPERATURE_CORE" || signal_name == "TEMPERATURE_PACKAGE") {
-            int max_idx = push_signal("TEMPERATURE_MAX", domain_type, domain_idx);
-            int under_idx = -1;
-            if (signal_name == "TEMPERATURE_CORE") {
-                under_idx = push_signal("TEMPERATURE_CORE_UNDER", domain_type, domain_idx);
-            }
-            else if (signal_name =="TEMPERATURE_PACKAGE") {
-                under_idx = push_signal("TEMPERATURE_PACKAGE_UNDER", domain_type, domain_idx);
-            }
-            result = m_active_signal.size();
-            register_combined_signal(result,
-                                     {max_idx, under_idx},
-                                     std::unique_ptr<CombinedSignal>(new DifferenceCombinedSignal));
-
-            m_active_signal.emplace_back(nullptr, result);
         }
         return result;
     }
@@ -519,31 +458,8 @@ namespace geopm
         double result = NAN;
         auto iogroup = find_signal_iogroup(signal_name);
         if (iogroup == nullptr) {
-            std::size_t sep = signal_name.find("_");
-            std::string type = sep != std::string::npos ? signal_name.substr(sep) : "";
-            if (signal_name.find("POWER") == 0) {
-                DerivativeCombinedSignal dcs;
-                for (int ii = 0; ii < 16; ++ii) {
-                    double time = read_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
-                    double energy = read_signal("ENERGY" + type, domain_type, domain_idx);
-                    std::vector<double> operands {time, energy};
-                    result = dcs.sample(operands);
-                    if (ii < 15) {
-                        usleep(5000);
-                    }
-                }
-            }
-            else if (signal_name.find("TEMPERATURE") == 0) {
-                double max = read_signal("TEMPERATURE_MAX", GEOPM_DOMAIN_BOARD, 0);
-                double under = read_signal("TEMPERATURE" + type + "_UNDER", domain_type, domain_idx);
-                std::vector<double> operands {max, under};
-                DifferenceCombinedSignal dcs;
-                result = dcs.sample(operands);
-            }
-            else {
-                throw Exception("PlatformIOImp::read_signal(): signal name \"" + signal_name + "\" not found",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
+            throw Exception("PlatformIOImp::read_signal(): signal name \"" + signal_name + "\" not found",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         else if (iogroup->signal_domain_type(signal_name) != domain_type) {
             result = read_signal_convert_domain(signal_name, domain_type, domain_idx);
@@ -655,46 +571,18 @@ namespace geopm
     std::function<std::string(double)> PlatformIOImp::format_function(const std::string &signal_name) const
     {
         std::function<std::string(double)> result;
-        /// @todo: find a better way to track signals produced by PlatformIOImp itself
-        if (signal_name == "POWER_PACKAGE") {
-            result = string_format_double;
+        // PlatformIOImp forwards formatting request to underlying IOGroup
+        auto iogroup = find_signal_iogroup(signal_name);
+        if (iogroup == nullptr) {
+            throw Exception("PlatformIOImp::format_function(): unknown how to format \"" + signal_name + "\"",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        else if (signal_name == "POWER_DRAM") {
-            result = string_format_double;
-        }
-        else if (signal_name == "TEMPERATURE_CORE") {
-            result = string_format_double;
-        }
-        else if (signal_name == "TEMPERATURE_PACKAGE") {
-            result = string_format_double;
-        }
-        else {
-            // PlatformIOImp forwards formatting request to underlying IOGroup
-            auto iogroup = find_signal_iogroup(signal_name);
-            if (iogroup == nullptr) {
-               throw Exception("PlatformIOImp::format_function(): unknown how to format \"" + signal_name + "\"",
-                               GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-            result = iogroup->format_function(signal_name);
-        }
+        result = iogroup->format_function(signal_name);
         return result;
     }
 
     std::string PlatformIOImp::signal_description(const std::string &signal_name) const
     {
-        /// @todo: find a better way to track signals produced by PlatformIOImp itself
-        if (signal_name == "POWER_PACKAGE") {
-            return "Average package power in watts over the last 8 samples (usually 40 ms).";
-        }
-        else if (signal_name == "POWER_DRAM") {
-            return "Average DRAM power in watts over the last 8 samples (usually 40 ms).";
-        }
-        else if (signal_name == "TEMPERATURE_CORE") {
-            return "Core temperaure in degrees C";
-        }
-        else if (signal_name == "TEMPERATURE_PACKAGE") {
-            return "Package temperature in degrees C";
-        }
         auto iogroup = find_signal_iogroup(signal_name);
         if (iogroup == nullptr) {
             throw Exception("PlatformIOImp::signal_description(): unknown signal \"" + signal_name + "\"",

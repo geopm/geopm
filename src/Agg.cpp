@@ -30,46 +30,59 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
+
 #include "Agg.hpp"
 
 #include <cmath>
 
 #include <algorithm>
 #include <numeric>
+#include <map>
 
 #include "geopm_internal.h"
 #include "geopm_hash.h"
-
-#include "config.h"
+#include "Exception.hpp"
 
 namespace geopm
 {
+    std::vector<double> nan_filter(const std::vector<double> &operand)
+    {
+        std::vector<double> result;
+        std::copy_if(operand.begin(), operand.end(), std::back_inserter(result),
+                     [](double x) -> bool { return !std::isnan(x); });
+        return result;
+    }
+
     double Agg::sum(const std::vector<double> &operand)
     {
+        auto filtered = nan_filter(operand);
         double result = NAN;
-        if (operand.size()) {
-            result = std::accumulate(operand.begin(), operand.end(), 0.0);
+        if (filtered.size()) {
+            result = std::accumulate(filtered.begin(), filtered.end(), 0.0);
         }
         return result;
     }
 
     double Agg::average(const std::vector<double> &operand)
     {
+        auto filtered = nan_filter(operand);
         double result = NAN;
-        if (operand.size()) {
-            result = Agg::sum(operand) / operand.size();
+        if (filtered.size()) {
+            result = Agg::sum(filtered) / filtered.size();
         }
         return result;
     }
 
     double Agg::median(const std::vector<double> &operand)
     {
+        auto filtered = nan_filter(operand);
         double result = NAN;
-        size_t num_op = operand.size();
+        size_t num_op = filtered.size();
         if (num_op) {
             size_t mid_idx = num_op / 2;
             bool is_even = ((num_op % 2) == 0);
-            std::vector<double> operand_sorted(operand);
+            std::vector<double> operand_sorted(filtered);
             std::sort(operand_sorted.begin(), operand_sorted.end());
             result = operand_sorted[mid_idx];
             if (is_even) {
@@ -82,9 +95,10 @@ namespace geopm
 
     double Agg::logical_and(const std::vector<double> &operand)
     {
+        auto filtered = nan_filter(operand);
         double result = NAN;
-        if (operand.size()) {
-            result = std::all_of(operand.begin(), operand.end(),
+        if (filtered.size()) {
+            result = std::all_of(filtered.begin(), filtered.end(),
                                  [](double it) {return (it != 0.0);});
         }
         return result;
@@ -92,9 +106,10 @@ namespace geopm
 
     double Agg::logical_or(const std::vector<double> &operand)
     {
+        auto filtered = nan_filter(operand);
         double result = NAN;
-        if (operand.size()) {
-            result = std::any_of(operand.begin(), operand.end(),
+        if (filtered.size()) {
+            result = std::any_of(filtered.begin(), filtered.end(),
                                  [](double it) {return (it != 0.0);});
         }
         return result;
@@ -102,12 +117,13 @@ namespace geopm
 
     static double common_value(const std::vector<double> &operand, double no_match)
     {
-        return (operand.size() &&
-                std::all_of(operand.cbegin(), operand.cend(),
-                            [operand](double x) {
-                                return x == operand[0];
+        auto filtered = nan_filter(operand);
+        return (filtered.size() &&
+                std::all_of(filtered.cbegin(), filtered.cend(),
+                            [filtered](double x) {
+                                return x == filtered[0];
                             })) ?
-               operand[0] : no_match;
+               filtered[0] : no_match;
     }
 
     double Agg::region_hash(const std::vector<double> &operand)
@@ -122,38 +138,41 @@ namespace geopm
 
     double Agg::min(const std::vector<double> &operand)
     {
+        auto filtered = nan_filter(operand);
         double result = NAN;
-        if (operand.size()) {
-            result = *std::min_element(operand.begin(), operand.end());
+        if (filtered.size()) {
+            result = *std::min_element(filtered.begin(), filtered.end());
         }
         return result;
     }
 
     double Agg::max(const std::vector<double> &operand)
     {
+        auto filtered = nan_filter(operand);
         double result = NAN;
-        if (operand.size()) {
-            result = *std::max_element(operand.begin(), operand.end());
+        if (filtered.size()) {
+            result = *std::max_element(filtered.begin(), filtered.end());
         }
         return result;
     }
 
     double Agg::stddev(const std::vector<double> &operand)
     {
+        auto filtered = nan_filter(operand);
         double result = NAN;
-        if (operand.size() > 1) {
-            double sum_squared = Agg::sum(operand);
+        if (filtered.size() > 1) {
+            double sum_squared = Agg::sum(filtered);
             sum_squared *= sum_squared;
-            std::vector<double> operand_squared(operand);
+            std::vector<double> operand_squared(filtered);
             for (auto &it : operand_squared) {
                 it *= it;
             }
             double sum_squares = Agg::sum(operand_squared);
-            double aa = 1.0 / (operand.size() - 1);
-            double bb = aa / operand.size();
+            double aa = 1.0 / (filtered.size() - 1);
+            double bb = aa / filtered.size();
             result = std::sqrt(aa * sum_squares - bb * sum_squared);
         }
-        else if (operand.size() == 1) {
+        else if (filtered.size() == 1) {
             result = 0.0;
         }
         return result;
@@ -161,6 +180,7 @@ namespace geopm
 
     double Agg::select_first(const std::vector<double> &operand)
     {
+        // do not filter out NAN in case we are dealing with 64-bit raw MSRs
         double result = 0.0;
         if (operand.size() > 0) {
             result = operand[0];
@@ -170,16 +190,68 @@ namespace geopm
 
     double Agg::expect_same(const std::vector<double> &operand)
     {
+        auto filtered = nan_filter(operand);
         double value = NAN;
-        if (operand.size() > 0) {
-            value = operand[0];
+        if (filtered.size() > 0) {
+            value = filtered[0];
         }
-        for (auto vv : operand) {
+        for (auto vv : filtered) {
             if (vv != value) {
                 value = NAN;
                 break;
             }
         }
         return value;
+    }
+
+    std::function<double(const std::vector<double> &)> Agg::name_to_function(const std::string &name)
+    {
+        std::map<std::string, std::function<double(const std::vector<double> &)> > name_map = {
+            {"sum", sum},
+            {"average", average},
+            {"median", median},
+            {"logical_and", logical_and},
+            {"logical_or", logical_or},
+            {"region_hash", region_hash},
+            {"region_hint", region_hint},
+            {"min", min},
+            {"max", max},
+            {"stddev", stddev},
+            {"select_first", select_first},
+            {"expect_same", expect_same},
+        };
+
+        auto result = name_map.find(name);
+        if (result == name_map.end()) {
+            throw Exception("Agg::name_to_function(): unknown aggregation function: " + name,
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return result->second;
+    }
+
+    std::string Agg::function_to_name(std::function<double(const std::vector<double> &)> func)
+    {
+        std::map<decltype(&sum), std::string> function_map = {
+            {sum, "sum"},
+            {average, "average"},
+            {median, "median"},
+            {logical_and, "logical_and"},
+            {logical_or, "logical_or"},
+            {region_hash, "region_hash"},
+            {region_hint, "region_hint"},
+            {min, "min"},
+            {max, "max"},
+            {stddev, "stddev"},
+            {select_first, "select_first"},
+            {expect_same, "expect_same"},
+        };
+
+        auto f_ref = *(func.target<decltype(&sum)>());
+        auto result = function_map.find(f_ref);
+        if (result == function_map.end()) {
+            throw Exception("Agg::function_to_name(): unknown aggregation function.",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return result->second;
     }
 }

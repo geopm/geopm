@@ -31,12 +31,16 @@
  */
 
 #include <functional>
+#include <mutex>
 
 #include "IOGroup.hpp"
 
+#include "geopm_plugin.hpp"
 #include "MSRIOGroup.hpp"
 #include "CpuinfoIOGroup.hpp"
 #include "TimeIOGroup.hpp"
+#include "ProfileIOGroup.hpp"
+#include "EpochIOGroup.hpp"
 #include "Helper.hpp"
 #include "config.h"
 #ifdef GEOPM_CNL_IOGROUP
@@ -49,21 +53,73 @@
 
 namespace geopm
 {
-    static PluginFactory<IOGroup> *g_plugin_factory;
-    static pthread_once_t g_register_built_in_once = PTHREAD_ONCE_INIT;
-    static void register_built_in_once(void)
+    const std::string IOGroup::M_PLUGIN_PREFIX = "libgeopmiogroup_";
+
+    const std::string IOGroup::M_UNITS[IOGroup::M_NUM_UNITS] = {
+        "none",
+        "seconds",
+        "hertz",
+        "watts",
+        "joules",
+        "celsius"
+    };
+
+    const std::map<std::string, IOGroup::m_units_e> IOGroup::M_UNITS_STRING = {
+        {IOGroup::M_UNITS[M_UNITS_NONE], M_UNITS_NONE},
+        {IOGroup::M_UNITS[M_UNITS_SECONDS], M_UNITS_SECONDS},
+        {IOGroup::M_UNITS[M_UNITS_HERTZ], M_UNITS_HERTZ},
+        {IOGroup::M_UNITS[M_UNITS_WATTS], M_UNITS_WATTS},
+        {IOGroup::M_UNITS[M_UNITS_JOULES], M_UNITS_JOULES},
+        {IOGroup::M_UNITS[M_UNITS_CELSIUS], M_UNITS_CELSIUS}
+    };
+
+
+    IOGroupFactory::IOGroupFactory()
     {
-        g_plugin_factory->register_plugin(MSRIOGroup::plugin_name(),
-                                          MSRIOGroup::make_plugin);
-        g_plugin_factory->register_plugin(TimeIOGroup::plugin_name(),
-                                          TimeIOGroup::make_plugin);
-        g_plugin_factory->register_plugin(CpuinfoIOGroup::plugin_name(),
-                                          CpuinfoIOGroup::make_plugin);
+        register_plugin(MSRIOGroup::plugin_name(),
+                        MSRIOGroup::make_plugin);
+        register_plugin(TimeIOGroup::plugin_name(),
+                        TimeIOGroup::make_plugin);
+        register_plugin(CpuinfoIOGroup::plugin_name(),
+                        CpuinfoIOGroup::make_plugin);
+        // until ProfileIOGroup is deprecated, EpochIOGroup is
+        // registered first to prevent it from overloading signal
+        // aliases.
+        register_plugin(ProfileIOGroup::plugin_name(),
+                        ProfileIOGroup::make_plugin);
+        register_plugin(EpochIOGroup::plugin_name(),
+                        EpochIOGroup::make_plugin);
 #ifdef GEOPM_CNL_IOGROUP
-        g_plugin_factory->register_plugin(CNLIOGroup::plugin_name(),
-                                          CNLIOGroup::make_plugin);
+        register_plugin(CNLIOGroup::plugin_name(),
+                        CNLIOGroup::make_plugin);
 #endif
     }
+
+
+    IOGroupFactory &iogroup_factory(void)
+    {
+        static IOGroupFactory instance;
+        static bool is_once = true;
+        static std::once_flag flag;
+        if (is_once) {
+            is_once = false;
+            std::call_once(flag, plugin_load, IOGroup::M_PLUGIN_PREFIX);
+        }
+        return instance;
+    }
+
+
+    std::vector<std::string> IOGroup::iogroup_names(void)
+    {
+        return iogroup_factory().plugin_names();
+    }
+
+
+    std::unique_ptr<IOGroup> IOGroup::make_unique(const std::string &iogroup_name)
+    {
+        return iogroup_factory().make_plugin(iogroup_name);
+    }
+
 
     std::function<std::string(double)> IOGroup::format_function(const std::string &signal_name) const
     {
@@ -81,11 +137,22 @@ namespace geopm
         return result;
     }
 
-    PluginFactory<IOGroup> &iogroup_factory(void)
+    IOGroup::m_units_e IOGroup::string_to_units(const std::string &str)
     {
-        static PluginFactory<IOGroup> instance;
-        g_plugin_factory = &instance;
-        pthread_once(&g_register_built_in_once, register_built_in_once);
-        return instance;
+        auto it = M_UNITS_STRING.find(str);
+        if (it == M_UNITS_STRING.end()) {
+            throw Exception("IOGroup::string_to_units(): invalid units string",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
+    }
+
+    std::string IOGroup::units_to_string(int uni)
+    {
+        if (uni >= IOGroup::M_NUM_UNITS || uni < 0) {
+            throw Exception("IOGroup::units_to_string): invalid units value",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return IOGroup::M_UNITS[uni];
     }
 }

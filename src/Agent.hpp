@@ -47,6 +47,8 @@ namespace geopm
         public:
             Agent() = default;
             virtual ~Agent() = default;
+            static std::vector<std::string> agent_names(void);
+            static std::unique_ptr<Agent> make_unique(const std::string &agent_name);
             /// @brief Set the level where this Agent is active and push
             ///        signals/controls for that level.
             /// @param [in] level Level of the tree where this agent
@@ -203,6 +205,7 @@ namespace geopm
             static void aggregate_sample(const std::vector<std::vector<double> > &in_sample,
                                          const std::vector<std::function<double(const std::vector<double>&)> > &agg_func,
                                          std::vector<double> &out_sample);
+            static const std::string M_PLUGIN_PREFIX;
         private:
             static const std::string m_num_sample_string;
             static const std::string m_num_policy_string;
@@ -210,7 +213,14 @@ namespace geopm
             static const std::string m_policy_prefix;
     };
 
-    PluginFactory<Agent> &agent_factory(void);
+    class AgentFactory : public PluginFactory<Agent>
+    {
+        public:
+            AgentFactory();
+            virtual ~AgentFactory() = default;
+    };
+
+    AgentFactory &agent_factory(void);
 }
 
 #endif

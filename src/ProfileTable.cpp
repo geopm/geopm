@@ -79,10 +79,16 @@ namespace geopm
         if (m_is_pshared) {
             err = pthread_mutexattr_setpshared(&lock_attr, PTHREAD_PROCESS_SHARED);
             if (err) {
+                (void) pthread_mutexattr_destroy(&lock_attr);
                 throw Exception("ProfileTableImp: pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
         err = pthread_mutex_init(&(m_table->lock), &lock_attr);
+        if (err) {
+            (void) pthread_mutexattr_destroy(&lock_attr);
+            throw Exception("ProfileTableImp: pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        err = pthread_mutexattr_destroy(&lock_attr);
         if (err) {
             throw Exception("ProfileTableImp: pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
@@ -111,6 +117,7 @@ namespace geopm
         if (!is_inserted) {
             // check for overflow
             if (m_table->curr_size >= m_table->max_size) {
+                (void) pthread_mutex_unlock(&(m_table->lock));
                 throw Exception("ProfileTableImp::insert(): table overflowed.",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
@@ -150,6 +157,7 @@ namespace geopm
                 throw Exception("ProfileTableImp::key(): pthread_mutex_lock()", err, __FILE__, __LINE__);
             }
             if (m_key_set.find(result) != m_key_set.end()) {
+                pthread_mutex_unlock(&(m_key_map_lock));
                 throw Exception("ProfileTableImp::key(): String hash collision", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             m_key_set.insert(result);

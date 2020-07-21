@@ -51,7 +51,7 @@
 #include "Helper.hpp"
 #include "PlatformTopo.hpp"
 #include "ProfileTable.hpp"
-#include "ProfileThread.hpp"
+#include "ProfileThreadTable.hpp"
 #include "SampleScheduler.hpp"
 #include "Comm.hpp"
 #include "ControlMessage.hpp"
@@ -61,7 +61,7 @@
 
 namespace geopm
 {
-    const struct geopm_prof_message_s GEOPM_INVALID_PROF_MSG = {-1, 0, GEOPM_TIME_REF, -1.0};
+    const struct geopm_prof_message_s GEOPM_INVALID_PROF_MSG = {-1, 0, {{0,0}}, -1.0};
 
     ProfileSamplerImp::ProfileSamplerImp(size_t table_size)
         : ProfileSamplerImp(platform_topo(), table_size)
@@ -199,6 +199,14 @@ namespace geopm
         else if (!m_ctl_msg->is_shutdown()) {
             throw Exception("ProfileSamplerImp: invalid application status, expected shutdown status", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
+        auto content_end = content.begin() + length;
+        m_cache.resize(length);
+        auto cache_it = m_cache.begin();
+        for (auto content_it = content.begin();
+             content_it != content_end;
+             ++content_it, ++cache_it) {
+             *cache_it = content_it->second;
+        }
     }
 
     bool ProfileSamplerImp::do_shutdown(void) const
@@ -265,10 +273,18 @@ namespace geopm
         m_ctl_msg->abort();
     }
 
+    std::vector<geopm_prof_message_s> ProfileSamplerImp::sample_cache(void)
+    {
+        return m_cache;
+    }
+
     ProfileRankSamplerImp::ProfileRankSamplerImp(const std::string shm_key, size_t table_size)
         : m_table_shmem(nullptr)
         , m_table(nullptr)
+        , m_tprof_shmem(nullptr)
+        , m_tprof_table(nullptr)
         , m_region_entry(GEOPM_INVALID_PROF_MSG)
+        , m_epoch_entry(GEOPM_INVALID_PROF_MSG)
         , m_is_name_finished(false)
     {
         std::string key_path("/dev/shm/" + shm_key);

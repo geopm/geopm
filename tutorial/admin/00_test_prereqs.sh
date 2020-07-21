@@ -48,14 +48,13 @@ command_available_and_executable(){
 }
 
 # GEOPM installed and executable
+command_available_and_executable geopmadmin
 command_available_and_executable geopmagent
 command_available_and_executable geopmbench
 command_available_and_executable geopmctl
 command_available_and_executable geopmlaunch
-command_available_and_executable geopmanalysis
 command_available_and_executable geopmread
 command_available_and_executable geopmwrite
-command_available_and_executable geopmadmin
 
 # Check GNU vs. Intel Toolchain
 if ! ldd $(which geopmbench) | grep --quiet libimf; then
@@ -79,11 +78,6 @@ if ! 2>/dev/null ${PYTHON_CMD} -c "import geopmpy"; then
 elif ! 2>/dev/null ${PYTHON_CMD} -c "import geopmpy.launcher"; then
     echo "ERROR: The following Python dependencies are missing:"
     2>&1 ${PYTHON_CMD} -c "import geopmpy.launcher" | grep Module
-    echo "       Please read the \"PYTHON INSTALL\" section of the main README."
-    RC=1
-elif ! 2>/dev/null ${PYTHON_CMD} -c "import geopmpy.analysis"; then
-    echo "ERROR: The following Python dependencies are missing:"
-    2>&1 ${PYTHON_CMD} -c "import geopmpy.analysis" | grep Module
     echo "       Please read the \"PYTHON INSTALL\" section of the main README."
     RC=1
 fi
@@ -243,4 +237,3 @@ if [ ${RC} -eq 0 ]; then
     echo "System is OK!"
 fi
 exit ${RC}
-

@@ -56,12 +56,6 @@ using ::testing::InvokeWithoutArgs;
 using ::testing::InSequence;
 using ::testing::AtLeast;
 
-bool is_format_double(std::function<std::string(double)> func);
-bool is_format_float(std::function<std::string(double)> func);
-bool is_format_integer(std::function<std::string(double)> func);
-bool is_format_hex(std::function<std::string(double)> func);
-bool is_format_raw64(std::function<std::string(double)> func);
-
 
 class PowerBalancerAgentTest : public ::testing::Test
 {

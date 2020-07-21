@@ -45,8 +45,20 @@ namespace geopm
     class IOGroup
     {
         public:
+            enum m_units_e {
+                M_UNITS_NONE,
+                M_UNITS_SECONDS,
+                M_UNITS_HERTZ,
+                M_UNITS_WATTS,
+                M_UNITS_JOULES,
+                M_UNITS_CELSIUS,
+                M_NUM_UNITS
+            };
+
             IOGroup() = default;
             virtual ~IOGroup() = default;
+            static std::vector<std::string> iogroup_names(void);
+            static std::unique_ptr<IOGroup> make_unique(const std::string &iogroup_name);
             /// @brief Returns the names of all signals provided by
             ///        the IOGroup.
             virtual std::set<std::string> signal_names(void) const = 0;
@@ -178,9 +190,27 @@ namespace geopm
             ///        string can be used by tools to generate help
             ///        text for users of the IOGroup.
             virtual std::string control_description(const std::string &control_name) const = 0;
+
+            /// @brief Convert a string to the corresponding m_units_e value
+            static m_units_e string_to_units(const std::string &str);
+            /// @brief Convert the m_units_e value to the corresponding string.
+            static std::string units_to_string(int);
+
+            static const std::string M_PLUGIN_PREFIX;
+
+        private:
+            static const std::string M_UNITS[];
+            static const std::map<std::string, m_units_e> M_UNITS_STRING;
     };
 
-    PluginFactory<IOGroup> &iogroup_factory(void);
+    class IOGroupFactory : public PluginFactory<IOGroup>
+    {
+        public:
+            IOGroupFactory();
+            virtual ~IOGroupFactory() = default;
+    };
+
+    IOGroupFactory &iogroup_factory(void);
 }
 
 #endif

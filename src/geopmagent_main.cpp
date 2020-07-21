@@ -42,6 +42,8 @@
 
 #include "geopm_agent.h"
 #include "geopm_error.h"
+#include "geopm_hash.h"
+#include "Agent.hpp"
 #include "OptionParser.hpp"
 
 #include "config.h"
@@ -178,12 +180,20 @@ int main(int argc, char **argv)
                 char *tok = strtok(policy_vals_ptr, ",");
                 char *endptr = NULL;
                 while (!err && tok != NULL) {
-                    policy_vals[policy_count++] = strtod(tok, &endptr);
+                    policy_vals[policy_count] = strtod(tok, &endptr);
                     if (tok == endptr) {
-                        fprintf(stderr, "Error: %s is not a valid floating-point number; "
-                                "use \"NAN\" to indicate default.\n", tok);
-                        err = EINVAL;
+                        std::string policy_name = geopm::Agent::policy_names(agent_ptr).at(policy_count);
+                        if (policy_name.find("HASH") != std::string::npos ||
+                            policy_name.find("hash") != std::string::npos) {
+                            policy_vals[policy_count] = geopm_crc32_str(tok);
+                        }
+                        else {
+                            fprintf(stderr, "Error: %s is not a valid floating-point number; "
+                                            "use \"NAN\" to indicate default.\n", tok);
+                            err = EINVAL;
+                        }
                     }
+                    ++policy_count;
                     if (policy_count > GEOPMAGENT_DOUBLE_LENGTH) {
                         err = E2BIG;
                     }

@@ -47,14 +47,12 @@ namespace geopm
 {
     class PlatformIO;
     class PlatformTopo;
-    class FrequencyGovernor;
 
     class FrequencyMapAgent : public Agent
     {
         public:
             FrequencyMapAgent();
-            FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo,
-                              std::shared_ptr<FrequencyGovernor> gov, std::map<uint64_t, double> frequency_map);
+            FrequencyMapAgent(PlatformIO &plat_io, const PlatformTopo &topo);
             virtual ~FrequencyMapAgent() = default;
             void init(int level, const std::vector<int> &fan_in, bool is_level_root) override;
             void validate_policy(std::vector<double> &policy) const override;
@@ -83,11 +81,11 @@ namespace geopm
         private:
             void update_policy(const std::vector<double> &policy);
             void init_platform_io(void);
-            bool is_valid_policy_size(const std::vector<double> &policy) const;
+            static bool is_all_nan(const std::vector<double> &vec);
 
             enum m_policy_e {
-                M_POLICY_FREQ_MIN,
-                M_POLICY_FREQ_MAX,
+                M_POLICY_FREQ_DEFAULT,
+                M_POLICY_FREQ_UNCORE,
                 M_POLICY_FIRST_HASH,
                 M_POLICY_FIRST_FREQUENCY,
                 // The remainder of policy values can be additional pairs of
@@ -95,33 +93,32 @@ namespace geopm
                 M_NUM_POLICY = 64,
             };
 
-            enum m_signal_e {
-                M_SIGNAL_REGION_HASH,
-                M_SIGNAL_REGION_HINT,
-                M_NUM_SIGNAL,
-            };
-
-            struct m_region_info_s {
-                uint64_t hash;
-                uint64_t hint;
-                double runtime;
-                uint64_t count;
-            };
-
             const int M_PRECISION;
             const double M_WAIT_SEC;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
-            std::shared_ptr<FrequencyGovernor> m_freq_governor;
-            std::vector<struct m_region_info_s>  m_last_region;
+            geopm_time_s m_wait_time;
             std::map<uint64_t, double> m_hash_freq_map;
-            geopm_time_s m_last_wait;
-            std::vector<std::vector<int> > m_signal_idx;
-            int m_level;
+            std::vector<int> m_hash_signal_idx;
+            std::vector<int> m_freq_control_idx;
+            int m_uncore_min_ctl_idx;
+            int m_uncore_max_ctl_idx;
+            std::vector<uint64_t> m_last_hash;
+            std::vector<double> m_last_freq;
+            double m_last_uncore_freq;
             int m_num_children;
             bool m_is_policy_updated;
+            bool m_do_write_batch;
+            bool m_is_adjust_initialized;
+            bool m_is_real_policy;
+            int m_freq_ctl_domain_type;
             int m_num_freq_ctl_domain;
-            bool m_is_initialized_with_map;
+            double m_core_freq_min;
+            double m_core_freq_max;
+            double m_uncore_init_min;
+            double m_uncore_init_max;
+            double m_default_freq;
+            double m_uncore_freq;
     };
 }
 

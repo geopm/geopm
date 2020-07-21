@@ -119,7 +119,7 @@ of the target architecture for the configuration.
 See the script [`03_setup_fixed_frequency.sh`](03_setup_fixed_frequency.sh) in this
 folder for an example of how to set up a system to run all jobs at 300 MHz
 below the sticker frequency. The test script
-[`test_integration/test_plugin_static_policy.py`](../../test_integration/test_plugin_static_policy.py)
+[`integration/test/test_plugin_static_policy.py`](../../integration/test/test_plugin_static_policy.py)
 can be used to verify that this setup is working.
 
 ## 4. Set the energy efficient agent as the default agent
@@ -129,7 +129,7 @@ jobs launched with GEOPM optimize energy efficiency, see the script
 [`04_setup_default_energy_efficient.sh`](04_setup_default_energy_efficient.sh). In
 this example, jobs not using GEOPM will run without having their frequency
 changed. The test script
-[`test_integration/test_plugin_static_policy.py`](../../test_integration/test_plugin_static_policy.py)
+[`integration/test/test_plugin_static_policy.py`](../../integration/test/test_plugin_static_policy.py)
 can be used to verify that this setup is working.
 
 ## 5. Limiting power for non-GEOPM jobs
@@ -140,7 +140,7 @@ system to limit the total system power.
 See the script [`05_setup_fixed_power_cap.sh`](05_setup_fixed_power_cap.sh) in this
 folder for an example of how to set up a system to run all jobs at 50 watts
 below TDP. The test script
-[`test_integration/test_plugin_static_policy.py`](../../test_integration/test_plugin_static_policy.py)
+[`integration/test/test_plugin_static_policy.py`](../../integration/test/test_plugin_static_policy.py)
 can be used to verify that this setup is working.
 
 ## 6. Set the power balancing agent as the default
@@ -150,7 +150,7 @@ jobs launched with GEOPM optimize performance under a power cap, see the script
 [`06_setup_default_power_balancer.sh`](06_setup_default_power_balancer.sh). In
 this example, jobs not using GEOPM will have their power cap set to a fixed cap
 across all nodes. The test script
-[`test_integration/test_plugin_static_policy.py`](../../test_integration/test_plugin_static_policy.py)
+[`integration/test/test_plugin_static_policy.py`](../../integration/test/test_plugin_static_policy.py)
 can be used to verify that this setup is working.
 
 ## 7. Restrict CPU frequency OR enforce energy efficient agent
@@ -163,7 +163,7 @@ efficient agent.
 To make this change, refer to the script
 [`07_setup_override_energy_efficient.sh`](07_setup_override_energy_efficient.sh).
 The test script
-[`test_integration/test_plugin_static_policy.py`](../../test_integration/test_plugin_static_policy.py)
+[`integration/test/test_plugin_static_policy.py`](../../integration/test/test_plugin_static_policy.py)
 can be used to verify that this setup is working.
 
 ## 8. Restrict power cap or enforce power balancing agent
@@ -175,7 +175,7 @@ the same average power cap.
 To make this change, refer to the script
 [`08_setup_override_power_balancer.sh`](08_setup_override_power_balancer.sh).  The
 test script
-[`test_integration/test_plugin_static_policy.py`](../../test_integration/test_plugin_static_policy.py)
+[`integration/test/test_plugin_static_policy.py`](../../integration/test/test_plugin_static_policy.py)
 can be used to verify that this setup is working.
 
 ## 9. Control location of report and trace file output
@@ -187,4 +187,3 @@ the corresponding issue ([#912](https://github.com/geopm/geopm/issues/912)).
 This is a planned feature of GEOPM that is not yet available. To be notified
 when this is completed or to participate in its development, please refer to
 the corresponding issue ([#913](https://github.com/geopm/geopm/issues/913)).
-

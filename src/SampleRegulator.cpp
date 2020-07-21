@@ -42,6 +42,8 @@
 namespace geopm
 {
     SampleRegulatorImp::SampleRegulatorImp(const std::vector<int> &cpu_rank)
+        : m_aligned_time({{0, 0}})
+        , m_num_platform_signal(0)
     {
         std::set<int> rank_set;
         for (auto it = cpu_rank.begin(); it != cpu_rank.end(); ++it) {

@@ -48,6 +48,7 @@ class TimeIOGroupTest : public :: testing :: Test
 
         TimeIOGroup m_group;
         const int m_time_domain;
+        const double M_EPSILON = 0.1;
 };
 
 TimeIOGroupTest::TimeIOGroupTest()
@@ -143,7 +144,7 @@ TEST_F(TimeIOGroupTest, sample)
     time0 = m_group.sample(signal_idx);
     m_group.read_batch();
     time1 = m_group.sample(signal_idx);
-    EXPECT_NEAR(time1 - time0, 1.0, 0.001);
+    EXPECT_NEAR(time1 - time0, 1.0, M_EPSILON);
     // Check for throw if sample index is out of range
     EXPECT_THROW(m_group.sample(1), Exception);
     EXPECT_THROW(m_group.sample(-1), Exception);
@@ -163,15 +164,15 @@ TEST_F(TimeIOGroupTest, read_signal)
     struct geopm_time_s spin1;
     double time0 = m_group.read_signal("TIME::ELAPSED", m_time_domain, 0);
     double time0a = m_group.read_signal("TIME", m_time_domain, 0);
-    EXPECT_NEAR(time0, time0a, 1e-4);
+    EXPECT_NEAR(time0, time0a, M_EPSILON);
     geopm_time(&spin0);
     do {
         geopm_time(&spin1);
     } while (geopm_time_diff(&spin0, &spin1) < 1.0);
     double time1 = m_group.read_signal("TIME::ELAPSED", m_time_domain, 0);
     double time1a = m_group.read_signal("TIME", m_time_domain, 0);
-    EXPECT_NEAR(time1, time1a, 1e-4);
-    EXPECT_NEAR(time1 - time0, 1.0, 0.001);
+    EXPECT_NEAR(time1, time1a, M_EPSILON);
+    EXPECT_NEAR(time1 - time0, 1.0, M_EPSILON);
     EXPECT_THROW(m_group.read_signal("INVALID", m_time_domain, 0), Exception);
 
     // must read correct domain

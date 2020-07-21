@@ -134,17 +134,6 @@ fi
 [enable_procfs="1"]
 )
 
-AC_ARG_ENABLE([msrsafe-ioctl-write],
-  [AS_HELP_STRING([--enable-msrsafe-ioctl-write], [Enable GEOPM to use msr-safe driver to use batch write ioctl facility which is broken as of msr-safe version 1.2.0])],
-[if test "x$enable_msrsafe_ioctl_write" = "xno" ; then
-  enable_msrsafe_ioctl_write="0"
-else
-  enable_msrsafe_ioctl_write="1"
-fi
-],
-[enable_msrsafe_ioctl_write="0"]
-)
-
 AC_ARG_ENABLE([cnl-iogroup],
   [AS_HELP_STRING([--enable-cnl-iogroup], [Enable the CNL IOGroup])],
 [if test "x$enable_cnl_iogroup" = "xno" ; then
@@ -270,19 +259,19 @@ fi
 AC_SUBST([enable_fortran])
 AM_CONDITIONAL([ENABLE_FORTRAN], [test "x$enable_fortran" = "x1"])
 
-AC_ARG_ENABLE([doc],
-  [AS_HELP_STRING([--disable-doc], [Do not create man pages with ronn])],
-[if test "x$enable_doc" = "xno" ; then
-  enable_doc="0"
+AC_ARG_ENABLE([ronn],
+  [AS_HELP_STRING([--disable-ronn], [Do not create man pages with ronn])],
+[if test "x$enable_ronn" = "xno" ; then
+  enable_ronn="0"
 else
-  enable_doc="1"
+  enable_ronn="1"
 fi
 ],
-[enable_doc="1"]
+[enable_ronn="1"]
 )
 
-AC_SUBST([enable_doc])
-AM_CONDITIONAL([ENABLE_DOC], [test "x$enable_doc" = "x1"])
+AC_SUBST([enable_ronn])
+AM_CONDITIONAL([ENABLE_RONN], [test "x$enable_ronn" = "x1"])
 
 AC_ARG_WITH([libelf], [AS_HELP_STRING([--with-libelf=PATH],
             [specify directory for installed libelf package.])])
@@ -596,6 +585,9 @@ else
 fi
 AC_SUBST([ENABLE_BETA])
 
+GEOPM_SOURCE_DIR=$(readlink -f $srcdir)
+AC_DEFINE_UNQUOTED([GEOPM_SOURCE_DIR], ["$GEOPM_SOURCE_DIR"], [Root of the GEOPM source directory])
+
 AC_CONFIG_FILES([Makefile geopm.spec geopm-ohpc.spec geopm-theta.spec scripts/geopmpy/version.py ronn/geopm.7.ronn])
 AC_OUTPUT
 
@@ -651,7 +643,7 @@ AC_MSG_RESULT([overhead           : ${enable_overhead}])
 AC_MSG_RESULT([mpi                : ${enable_mpi}])
 AC_MSG_RESULT([openmp             : ${enable_openmp}])
 AC_MSG_RESULT([fortran            : ${enable_fortran}])
-AC_MSG_RESULT([doc                : ${enable_doc}])
+AC_MSG_RESULT([ronn               : ${enable_ronn}])
 AC_MSG_RESULT([ompt               : ${enable_ompt}])
 AC_MSG_RESULT([beta               : ${enable_beta}])
 AC_MSG_RESULT([bloat              : ${enable_bloat}])

@@ -62,13 +62,20 @@ namespace geopm
         }
         err = pthread_mutexattr_settype(&lock_attr, PTHREAD_MUTEX_ERRORCHECK);
         if (err) {
+            (void) pthread_mutexattr_destroy(&lock_attr);
             throw Exception("SharedMemory::setup_mutex(): pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         err = pthread_mutexattr_setpshared(&lock_attr, PTHREAD_PROCESS_SHARED);
         if (err) {
+            (void) pthread_mutexattr_destroy(&lock_attr);
             throw Exception("SharedMemory::setup_mutex(): pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         err = pthread_mutex_init(lock, &lock_attr);
+        if (err) {
+            (void) pthread_mutexattr_destroy(&lock_attr);
+            throw Exception("SharedMemory::setup_mutex(): pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        err = pthread_mutexattr_destroy(&lock_attr);
         if (err) {
             throw Exception("SharedMemory::setup_mutex(): pthread mutex initialization", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
@@ -189,6 +196,7 @@ namespace geopm
             }
             err = fstat(shm_id, &stat_struct);
             if (err) {
+                (void) close(shm_id);
                 std::ostringstream ex_str;
                 ex_str << "SharedMemoryUserImp: fstat() error on shared memory with key \"" << shm_key << "\"";
                 throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);

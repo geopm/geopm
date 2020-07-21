@@ -37,6 +37,9 @@
 
 #include "geopm_internal.h"
 
+#include "ApplicationSampler.hpp"
+#include "ProfileIOSample.hpp"
+#include "ProfileSampler.hpp"
 #include "EpochRuntimeRegulator.hpp"
 #include "CircularBuffer.hpp"
 #include "RuntimeRegulator.hpp"
@@ -48,21 +51,18 @@
 
 namespace geopm
 {
-    ProfileIOSampleImp::ProfileIOSampleImp(const std::vector<int> &cpu_rank,
-                                           EpochRuntimeRegulator &epoch_regulator)
-        : m_epoch_regulator(epoch_regulator)
-        , m_thread_progress(cpu_rank.size(), NAN)
-        , m_profile_tracer(geopm::make_unique<ProfileTracerImp>())
+    ProfileIOSampleImp::ProfileIOSampleImp()
+        : ProfileIOSampleImp(ApplicationSampler::application_sampler())
     {
-        // This object is created when app connects
-        geopm_time(&m_app_start_time);
 
-        // Ths following is necessary because all other usages of "time zero" query the TimeIOGroup.
-        double elapsed = platform_io().read_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
-        geopm_time_add(&m_app_start_time, elapsed * -1, &m_app_start_time);
+    }
 
-        m_rank_idx_map = rank_to_node_local_rank(cpu_rank);
-        m_cpu_rank = rank_to_node_local_rank_per_cpu(cpu_rank);
+    ProfileIOSampleImp::ProfileIOSampleImp(ApplicationSampler &application_sampler)
+        : m_application_sampler(application_sampler)
+        , m_thread_progress(m_application_sampler.get_sampler()->cpu_rank().size(), NAN)
+    {
+        m_rank_idx_map = rank_to_node_local_rank(m_application_sampler.get_sampler()->cpu_rank());
+        m_cpu_rank = rank_to_node_local_rank_per_cpu(m_application_sampler.get_sampler()->cpu_rank());
         m_num_rank = m_rank_idx_map.size();
 
         // 2 samples for linear interpolation
@@ -110,16 +110,15 @@ namespace geopm
         geopm_time(&time);
         for (int rank = 0; rank < (int)m_region_id.size(); ++rank) {
             if (m_region_id[rank] == GEOPM_REGION_HASH_UNMARKED) {
-                m_epoch_regulator.record_exit(GEOPM_REGION_HASH_UNMARKED, rank, time);
+                m_application_sampler.get_regulator()->record_exit(GEOPM_REGION_HASH_UNMARKED, rank, time);
             }
-            m_epoch_regulator.epoch(rank, time);
+            m_application_sampler.get_regulator()->epoch(rank, time);
         }
     }
 
     void ProfileIOSampleImp::update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
                                     std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end)
     {
-        m_profile_tracer->update(prof_sample_begin, prof_sample_end);
         for (auto sample_it = prof_sample_begin; sample_it != prof_sample_end; ++sample_it) {
             auto rank_idx_it = m_rank_idx_map.find(sample_it->second.rank);
 #ifdef GEOPM_DEBUG
@@ -131,7 +130,7 @@ namespace geopm
             size_t local_rank = rank_idx_it->second;
             const uint64_t region_id = sample_it->second.region_id;
             if (geopm_region_id_is_epoch(region_id)) {
-                m_epoch_regulator.epoch(local_rank, sample_it->second.timestamp);
+                m_application_sampler.get_regulator()->epoch(local_rank, sample_it->second.timestamp);
             }
             else {
                 struct m_rank_sample_s rank_sample { .timestamp = sample_it->second.timestamp,
@@ -139,22 +138,22 @@ namespace geopm
                 if (m_region_id[local_rank] != region_id) {
                     if (rank_sample.progress == 0.0) {
                         if (m_region_id[local_rank] == GEOPM_REGION_HASH_UNMARKED) {
-                            m_epoch_regulator.record_exit(GEOPM_REGION_HASH_UNMARKED, local_rank, rank_sample.timestamp);
+                            m_application_sampler.get_regulator()->record_exit(GEOPM_REGION_HASH_UNMARKED, local_rank, rank_sample.timestamp);
                         }
-                        m_epoch_regulator.record_entry(region_id, local_rank, rank_sample.timestamp);
+                        m_application_sampler.get_regulator()->record_entry(region_id, local_rank, rank_sample.timestamp);
                     }
                     m_rank_sample_buffer[local_rank].clear();
                 }
                 if (rank_sample.progress == 1.0) {
-                    m_epoch_regulator.record_exit(region_id, local_rank, rank_sample.timestamp);
+                    m_application_sampler.get_regulator()->record_exit(region_id, local_rank, rank_sample.timestamp);
                     uint64_t mpi_parent_rid = geopm_region_id_unset_mpi(region_id);
-                    if (m_epoch_regulator.is_regulated(mpi_parent_rid)) {
+                    if (m_application_sampler.get_regulator()->is_regulated(mpi_parent_rid)) {
                         m_region_id[local_rank] = mpi_parent_rid;
                     }
                     else {
                         if (m_region_id[local_rank] != GEOPM_REGION_HASH_UNMARKED) {
                             m_region_id[local_rank] = GEOPM_REGION_HASH_UNMARKED;
-                            m_epoch_regulator.record_entry(GEOPM_REGION_HASH_UNMARKED, local_rank, rank_sample.timestamp);
+                            m_application_sampler.get_regulator()->record_entry(GEOPM_REGION_HASH_UNMARKED, local_rank, rank_sample.timestamp);
                         }
                     }
                 }
@@ -260,7 +259,7 @@ namespace geopm
     {
         std::vector<double> result(m_cpu_rank.size(), 0.0);
         region_id = geopm_region_id_unset_mpi(region_id); // signal should return runtime for outer region only
-        const std::vector<double> &rank_runtimes = m_epoch_regulator.region_regulator(region_id).per_rank_last_runtime();
+        const std::vector<double> &rank_runtimes = m_application_sampler.get_regulator()->region_regulator(region_id).per_rank_last_runtime();
         int cpu_idx = 0;
         for (auto rank : m_cpu_rank) {
 #ifdef GEOPM_DEBUG
@@ -290,15 +289,10 @@ namespace geopm
 #endif
             uint64_t region_id = m_region_id[m_cpu_rank[cpu_idx]];
             region_id = geopm_region_id_unset_mpi(region_id); // signal should return count for outer region only
-            result[cpu_idx] = m_epoch_regulator.region_regulator(region_id).per_rank_count()[rank];
+            result[cpu_idx] = m_application_sampler.get_regulator()->region_regulator(region_id).per_rank_count()[rank];
             ++cpu_idx;
         }
         return result;
-    }
-
-    double ProfileIOSampleImp::total_app_runtime(void) const
-    {
-        return geopm_time_since(&m_app_start_time);
     }
 
     std::vector<int> ProfileIOSampleImp::cpu_rank(void) const

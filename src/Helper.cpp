@@ -38,11 +38,14 @@
 #include <string.h>
 #include <errno.h>
 
+#include <cmath>
 #include <climits>
 #include <cinttypes>
 #include <fstream>
 #include <algorithm>
 #include <sstream>
+#include <map>
+#include "geopm.h"
 #include "geopm_hash.h"
 #include "Exception.hpp"
 #include "config.h"
@@ -203,7 +206,12 @@ namespace geopm
     std::string string_format_integer(double signal)
     {
         char result[NAME_MAX];
-        snprintf(result, NAME_MAX, "%lld", (long long)signal);
+        if (std::isnan(signal)) {
+            snprintf(result, NAME_MAX, "%g", signal);
+        }
+        else {
+            snprintf(result, NAME_MAX, "%lld", (long long)signal);
+        }
         return result;
     }
 

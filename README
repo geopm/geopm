@@ -128,7 +128,9 @@ the full GEOPM runtime.
 BUILD REQUIREMENTS
 ------------------
 In order to build the GEOPM package from source, the below
-requirements must be met.
+requirements must be met.  The user can opt out of the features
+enabled by any of these requirements by providing the appropriate
+disable flag to the configure command line.
 
 The GEOPM package requires a compiler that supports the MPI 2.2 and
 C++11 standards.  These requirements can be met by using GCC version
@@ -151,9 +153,17 @@ UBUNTU (as of 18.04.3 LTS):
     apt install libtool automake libopenmpi-dev build-essential gfortran \
         libelf-dev ruby ruby-dev python libsqlite3-dev
 
+Requirements that can be avoided by removing features with configure
+option:
+
+   - MPI compiler: --disable-mpi
+   - Ruby, Ruby Gems and Ronn:  --disable-ronn
+   - A Fortran compiler:  --disable-fortran
+   - The elfutils library: --disable-ompt
+
 Alternatively these can be installed from source, and an alternate MPI
-implementation to OpenMPI can be selected (e.g. one provided by
-OpenMPI).  See
+implementation to OpenMPI can be selected (e.g. the Intel distribution
+of MPI).  See
 
     ./configure --help
 
@@ -186,8 +196,10 @@ must be set prior to running configure:
     export CXX=icpc
     export FC=ifort
     export F77=ifort
-    export MPICC=mpicc
-    export MPICXX=mpicxx
+    export MPICC=mpiicc
+    export MPICXX=mpiicpc
+    export MPIFC=mpiifort
+    export MPIF77=mpiifort
 
 An RPM can be created on a RHEL or SUSE system with the
 
@@ -229,6 +241,22 @@ SUSE:
 
 Alternatively the MPI requirement can be met by using OpenHPC
 packages.
+
+### BIOS Configuration
+If power governing or power balancing is the intended use case
+for GEOPM deployment then there is an additional dependency on
+the BIOS being configured to support RAPL control. To check for
+BIOS support, execute the following on a compute node:
+    ./tutorial/admin/00_test_prereqs.sh
+
+If the script output contains:
+    WARNING: The lock bit for the PKG_POWER_LIMIT MSR is set.  The power_balancer
+             and power_governor agents will not function properly until this is cleared.
+
+Please enable RAPL in your BIOS and if such an option doesn't exist please
+contact your BIOS vendor to obtain a RAPL supported BIOS.
+
+For additional information, please contact the GEOPM team.
 
 ### USER ENVIRONMENT
 The libraries, binaries and python tools will not be installed into
@@ -374,11 +402,11 @@ test cyle is executed with the following commands:
 The unit tests can be executed on any development system, including
 VMs and containers, that meets the BUILD REQUIREMENTS section above.
 
-The integration tests are located in the "test_integration" directory.
+The integration tests are located in the "integration/test" directory.
 These tests require a system meeting all of the requirements discussed
 in the RUN REQUIREMENTS section above and can be executed as follows:
 
-    cd test_integration
+    cd integration/test
     python .
 
 These integration tests are based on pyunit and leverage the geopmpy
@@ -506,8 +534,7 @@ interfaces may change before they are included in official releases.
 To enable these features in the GEOPM install location, configure
 GEOPM with the `--enable-beta` configure flag.  The features currently
 considered unfinalized are the endpoint interface, the `geopmendpoint`
-application, the `geopmanalysis` application, and the `geopmplotter`
-application.
+application, and the `geopmplotter` application.
 
 ACKNOWLEDGMENTS
 ---------------

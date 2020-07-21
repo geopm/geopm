@@ -89,7 +89,7 @@ extern "C"
         return err;
     }
 
-    int geopm_policystore_get_best(const char *profile_name, const char *agent_name,
+    int geopm_policystore_get_best(const char *agent_name, const char *profile_name,
                                    size_t max_policy_vals, double *policy_vals)
     {
         int err = 0;
@@ -98,7 +98,7 @@ extern "C"
         }
         else {
             try {
-                auto best = connected_store->get_best(profile_name, agent_name);
+                auto best = connected_store->get_best(agent_name, profile_name);
                 if (!policy_vals || best.size() > max_policy_vals) {
                     err = GEOPM_ERROR_INVALID;
                 }
@@ -117,7 +117,7 @@ extern "C"
         return err;
     }
 
-    int geopm_policystore_set_best(const char *profile_name, const char *agent_name,
+    int geopm_policystore_set_best(const char *agent_name, const char *profile_name,
                                    size_t num_policy_vals, const double *policy_vals)
     {
         int err = 0;
@@ -127,7 +127,7 @@ extern "C"
         else {
             try {
                 std::vector<double> policy(policy_vals, policy_vals + num_policy_vals);
-                connected_store->set_best(profile_name, agent_name, policy);
+                connected_store->set_best(agent_name, profile_name, policy);
             }
             catch (...) {
                 err = geopm::exception_handler(std::current_exception());

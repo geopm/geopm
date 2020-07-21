@@ -51,7 +51,7 @@
 #include "Environment.hpp"
 #include "PlatformTopo.hpp"
 #include "ProfileTable.hpp"
-#include "ProfileThread.hpp"
+#include "ProfileThreadTable.hpp"
 #include "SampleScheduler.hpp"
 #include "ControlMessage.hpp"
 #include "SharedMemoryImp.hpp"
@@ -62,23 +62,31 @@
 
 namespace geopm
 {
-    ProfileImp::ProfileImp(const std::string &prof_name, const std::string &key_base,
-                           const std::string &report, double timeout, bool do_region_barrier,
-                           std::unique_ptr<Comm> comm, std::unique_ptr<ControlMessage> ctl_msg,
-                           const PlatformTopo &topo, std::unique_ptr<ProfileTable> table,
+    ProfileImp::ProfileImp(const std::string &prof_name,
+                           const std::string &key_base,
+                           const std::string &report,
+                           double timeout,
+                           bool do_region_barrier,
+                           std::unique_ptr<Comm> comm,
+                           std::unique_ptr<ControlMessage> ctl_msg,
+                           const PlatformTopo &topo,
+                           std::unique_ptr<ProfileTable> table,
                            std::shared_ptr<ProfileThreadTable> t_table,
                            std::unique_ptr<SampleScheduler> scheduler,
                            std::shared_ptr<Comm> reduce_comm)
-        : m_is_enabled(true)
+        : m_is_enabled(false)
         , m_prof_name(prof_name)
+        , m_key_base(key_base)
         , m_report(report)
         , m_timeout(timeout)
         , m_do_region_barrier(do_region_barrier)
+        , m_comm(std::move(comm))
         , m_curr_region_id(0)
         , m_num_enter(0)
         , m_progress(0.0)
         , m_ctl_shmem(nullptr)
         , m_ctl_msg(std::move(ctl_msg))
+        , m_topo(topo)
         , m_table_shmem(nullptr)
         , m_table(std::move(table))
         , m_tprof_shmem(nullptr)
@@ -95,11 +103,22 @@ namespace geopm
         , m_overhead_time_startup(0.0)
         , m_overhead_time_shutdown(0.0)
     {
+
+    }
+
+    void ProfileImp::init(void)
+    {
+        if (m_is_enabled) {
+            return;
+        }
+        if (m_comm == nullptr) {
+            m_comm = Comm::make_unique();
+        }
 #ifdef GEOPM_OVERHEAD
         struct geopm_time_s overhead_entry;
         geopm_time(&overhead_entry);
         if (m_reduce_comm == nullptr) {
-            m_reduce_comm = geopm::comm_factory().make_plugin(environment().comm());
+            m_reduce_comm = Comm::make_unique();
         }
 #else
         /// read and write to satisfy clang ifndef GEOPM_OVERHEAD
@@ -110,21 +129,29 @@ namespace geopm
         ++m_overhead_time_shutdown;
         --m_overhead_time_shutdown;
 #endif
-        std::string sample_key(key_base + "-sample");
-        std::string tprof_key(key_base + "-tprof");
+        std::string sample_key(m_key_base + "-sample");
+        std::string tprof_key(m_key_base + "-tprof");
         int shm_num_rank = 0;
 
-        init_prof_comm(std::move(comm), shm_num_rank);
+        init_prof_comm(std::move(m_comm), shm_num_rank);
+        std::string step;
         try {
+            step = "ctl_msg";
             init_ctl_msg(sample_key);
-            init_cpu_list(topo.num_domain(GEOPM_DOMAIN_CPU));
+            step = "cpu_list";
+            init_cpu_list(m_topo.num_domain(GEOPM_DOMAIN_CPU));
+            step = "cpu_affinity";
             init_cpu_affinity(shm_num_rank);
-            init_tprof_table(tprof_key, topo);
+            step = "tprof_table";
+            init_tprof_table(tprof_key, m_topo);
+            step = "table";
             init_table(sample_key);
+            m_is_enabled = true;
         }
         catch (const Exception &ex) {
             if (!m_rank) {
-                std::cerr << "Warning: <geopm> Controller handshake failed, running without geopm." << std::endl;
+                std::cerr << "Warning: <geopm> Controller handshake failed at step "
+                          << step << ", running without geopm." << std::endl;
                 int err = ex.err_value();
                 if (err != GEOPM_ERROR_RUNTIME) {
                     char tmp_msg[NAME_MAX];
@@ -138,13 +165,37 @@ namespace geopm
 #ifdef GEOPM_OVERHEAD
         m_overhead_time_startup = geopm_time_since(&overhead_entry);
 #endif
+
+#ifdef GEOPM_DEBUG
+        // assert that all objects were created
+        if (m_is_enabled) {
+            std::vector<std::string> null_objects;
+            if (!m_ctl_msg) {
+                null_objects.push_back("m_ctl_msg");
+            }
+            if (!m_table) {
+                null_objects.push_back("m_table");
+            }
+            if (!m_tprof_table) {
+                null_objects.push_back("m_tprof_table");
+            }
+            if (!m_scheduler) {
+                null_objects.push_back("m_scheduler");
+            }
+            if (!null_objects.empty()) {
+                std::string objs = string_join(null_objects, ", ");
+                throw Exception("Profile::init(): one or more internal objects not initialized: " + objs,
+                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
+        }
+#endif
     }
 
 
     ProfileImp::ProfileImp()
         : ProfileImp(environment().profile(), environment().shmkey(), environment().report(),
                      environment().timeout(), environment().do_region_barrier(),
-                     comm_factory().make_plugin(environment().comm()), nullptr, platform_topo(), nullptr,
+                     nullptr, nullptr, platform_topo(), nullptr,
                      nullptr, geopm::make_unique<SampleSchedulerImp>(0.01), nullptr)
     {
     }
@@ -180,10 +231,6 @@ namespace geopm
 
     void ProfileImp::init_cpu_list(int num_cpu)
     {
-        if (!m_is_enabled) {
-            return;
-        }
-
         cpu_set_t *proc_cpuset = NULL;
         proc_cpuset = CPU_ALLOC(num_cpu);
         if (!proc_cpuset) {
@@ -205,11 +252,12 @@ namespace geopm
         m_ctl_msg->step();  // M_STATUS_MAP_BEGIN
         m_ctl_msg->wait();  // M_STATUS_MAP_BEGIN
 
-        for (int i = 0 ; i < shm_num_rank; ++i) {
-            if (i == m_shm_rank) {
-                if (i == 0) {
-                    for (int i = 0; i < GEOPM_MAX_NUM_CPU; ++i) {
-                        m_ctl_msg->cpu_rank(i, -1);
+        // Assign ranks to cores; -1 indicates unassigned and -2 indicates double assigned.
+        for (int ii = 0 ; ii < shm_num_rank; ++ii) {
+            if (ii == m_shm_rank) {
+                if (ii == 0) {
+                    for (int jj = 0; jj < GEOPM_MAX_NUM_CPU; ++jj) {
+                        m_ctl_msg->cpu_rank(jj, -1);
                     }
                     for (auto it = m_cpu_list.begin(); it != m_cpu_list.end(); ++it) {
                         m_ctl_msg->cpu_rank(*it, m_rank);
@@ -350,7 +398,6 @@ namespace geopm
             sample();
         }
         else {
-            m_tprof_table->enable(false);
             // Allow nesting of one MPI region within a non-mpi region
             if (m_curr_region_id &&
                 geopm_region_id_hint(m_curr_region_id) != GEOPM_REGION_HINT_NETWORK &&
@@ -393,9 +440,6 @@ namespace geopm
             (geopm_region_id_is_mpi(m_curr_region_id) &&
              geopm_region_id_is_mpi(region_id))) {
             --m_num_enter;
-        }
-        if (m_num_enter == 1) {
-            m_tprof_table->enable(true);
         }
 
         // if we are leaving the outer most nesting of our current region
@@ -571,5 +615,10 @@ namespace geopm
     std::shared_ptr<ProfileThreadTable> ProfileImp::tprof_table(void)
     {
         return m_tprof_table;
+    }
+
+    void ProfileImp::enable_pmpi(void)
+    {
+
     }
 }

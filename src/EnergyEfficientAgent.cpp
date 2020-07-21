@@ -74,7 +74,7 @@ namespace geopm
         , m_freq_ctl_domain_type(m_freq_governor->frequency_domain_type())
         , m_num_freq_ctl_domain(m_platform_topo.num_domain(m_freq_ctl_domain_type))
         , m_region_map(m_num_freq_ctl_domain, region_map)
-        , m_last_wait(GEOPM_TIME_REF)
+        , m_last_wait(time_zero())
         , m_level(-1)
         , m_num_children(0)
         , m_do_send_policy(false)
@@ -194,6 +194,9 @@ namespace geopm
             if (GEOPM_REGION_HASH_UNMARKED == hash) {
                 m_target_freq[ctl_idx] = m_freq_governor->get_frequency_max();
             }
+            else if (GEOPM_REGION_HINT_IGNORE == hint) {
+                m_target_freq[ctl_idx] = m_freq_governor->get_frequency_max();
+            }
             else if (GEOPM_REGION_HINT_NETWORK == hint) {
                 m_target_freq[ctl_idx] = m_freq_governor->get_frequency_min();
             }
@@ -227,8 +230,7 @@ namespace geopm
             // update current region (entry)
             if (m_last_region_info[ctl_idx].hash != current_region_info.hash ||
                 m_last_region_info[ctl_idx].count != current_region_info.count) {
-                if (current_region_info.hash != GEOPM_REGION_HASH_UNMARKED &&
-                    current_region_info.hint != GEOPM_REGION_HINT_NETWORK) {
+                if (do_learning(current_region_info.hash, current_region_info.hint)) {
                     /// set the freq for the current region (entry)
                     auto current_region_it = m_region_map[ctl_idx].find(current_region_info.hash);
                     if (current_region_it == m_region_map[ctl_idx].end()) {
@@ -240,8 +242,7 @@ namespace geopm
                 }
                 /// update previous region (exit)
                 struct m_region_info_s last_region_info = m_last_region_info[ctl_idx];
-                if (last_region_info.hash != GEOPM_REGION_HASH_UNMARKED &&
-                    last_region_info.hint != GEOPM_REGION_HINT_NETWORK) {
+                if (do_learning(last_region_info.hash, last_region_info.hint)) {
                     auto last_region_it = m_region_map[ctl_idx].find(last_region_info.hash);
                     if (last_region_it == m_region_map[ctl_idx].end()) {
                         throw Exception("EnergyEfficientAgent::" + std::string(__func__) +
@@ -373,5 +374,12 @@ namespace geopm
                             m_freq_ctl_domain_type, ctl_idx));
             }
         }
+    }
+
+    bool EnergyEfficientAgent::do_learning(uint64_t hash, uint64_t hint) const
+    {
+            return (hash != GEOPM_REGION_HASH_UNMARKED &&
+                    hint != GEOPM_REGION_HINT_NETWORK &&
+                    hint != GEOPM_REGION_HINT_IGNORE);
     }
 }

@@ -115,7 +115,7 @@ void EnvironmentTest::expect_vars(std::map<std::string, std::string> exp_vars) c
     }
     EXPECT_EQ(exp_vars["GEOPM_MAX_FAN_OUT"], std::to_string(m_env->max_fan_out()));
     EXPECT_EQ(exp_vars["GEOPM_TIMEOUT"], std::to_string(m_env->timeout()));
-    EXPECT_EQ(exp_vars["GEOPM_DEBUG_ATTACH"], std::to_string(m_env->debug_attach()));
+    EXPECT_EQ(exp_vars["GEOPM_DEBUG_ATTACH"], std::to_string(m_env->debug_attach_process()));
     EXPECT_EQ(exp_vars["GEOPM_TRACE_SIGNALS"], m_env->trace_signals());
     EXPECT_EQ(exp_vars["GEOPM_REPORT_SIGNALS"], m_env->report_signals());
     EXPECT_EQ(exp_vars.find("GEOPM_REGION_BARRIER") != exp_vars.end(), m_env->do_region_barrier());
@@ -479,4 +479,33 @@ TEST_F(EnvironmentTest, user_disable_ompt)
     m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
 
     EXPECT_FALSE(m_env->do_ompt());
+}
+
+TEST_F(EnvironmentTest, record_filter_on)
+{
+    std::map<std::string, std::string> default_vars;
+    setenv("GEOPM_RECORD_FILTER", "proxy_epoch,0xabcd1234", 1);
+    std::map<std::string, std::string> override_vars;
+
+    vars_to_json(default_vars, M_DEFAULT_PATH);
+    vars_to_json(override_vars, M_OVERRIDE_PATH);
+
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+
+    EXPECT_TRUE(m_env->do_record_filter());
+    EXPECT_EQ("proxy_epoch,0xabcd1234", m_env->record_filter());
+}
+
+TEST_F(EnvironmentTest, record_filter_off)
+{
+    std::map<std::string, std::string> default_vars;
+    std::map<std::string, std::string> override_vars;
+
+    vars_to_json(default_vars, M_DEFAULT_PATH);
+    vars_to_json(override_vars, M_OVERRIDE_PATH);
+
+    m_env = geopm::make_unique<EnvironmentImp>(M_DEFAULT_PATH, M_OVERRIDE_PATH);
+
+    EXPECT_FALSE(m_env->do_record_filter());
+    EXPECT_EQ("", m_env->record_filter());
 }

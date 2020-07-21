@@ -38,7 +38,7 @@
 
 #include "geopm.h"
 #include "Exception.hpp"
-
+#include "Profile.hpp"
 
 #ifdef GEOPM_ENABLE_MKL
 #include <mkl.h>
@@ -97,6 +97,10 @@ namespace geopm
 
     void DGEMMModelRegion::big_o(double big_o_in)
     {
+        geopm::Profile &prof = geopm::Profile::default_profile();
+        uint64_t start_rid = prof.region("geopm_dgemm_model_region_startup", GEOPM_REGION_HINT_IGNORE);
+        prof.enter(start_rid);
+
         if (m_big_o && m_big_o != big_o_in) {
             free(m_matrix_c);
             free(m_matrix_b);
@@ -126,6 +130,7 @@ namespace geopm
             }
         }
         m_big_o = big_o_in;
+        prof.exit(start_rid);
     }
 
     void DGEMMModelRegion::run(void)

@@ -150,7 +150,8 @@ namespace geopm
                 "GEOPM_PROFILE",
                 "GEOPM_FREQUENCY_MAP",
                 "GEOPM_MAX_FAN_OUT",
-                "GEOPM_OMPT_DISABLE"};
+                "GEOPM_OMPT_DISABLE",
+                "GEOPM_RECORD_FILTER"};
     }
 
     void EnvironmentImp::parse_environment()
@@ -372,7 +373,36 @@ namespace geopm
         return std::stoi(lookup("GEOPM_TIMEOUT"));
     }
 
-    int EnvironmentImp::debug_attach(void) const
+    bool EnvironmentImp::do_debug_attach_all(void) const
+    {
+        bool result = false;
+        if (is_set("GEOPM_DEBUG_ATTACH")) {
+            try {
+                std::stoi(lookup("GEOPM_DEBUG_ATTACH"));
+            }
+            catch (const std::exception &) {
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    bool EnvironmentImp::do_debug_attach_one(void) const
+    {
+        bool result = false;
+        if (is_set("GEOPM_DEBUG_ATTACH")) {
+            try {
+                std::stoi(lookup("GEOPM_DEBUG_ATTACH"));
+                result = true;
+            }
+            catch (const std::exception &) {
+
+            }
+        }
+        return result;
+    }
+
+    int EnvironmentImp::debug_attach_process(void) const
     {
         return std::stoi(lookup("GEOPM_DEBUG_ATTACH"));
     }
@@ -391,4 +421,15 @@ namespace geopm
     {
         return m_override_config_path;
     }
+
+    std::string EnvironmentImp::record_filter(void) const
+    {
+        return lookup("GEOPM_RECORD_FILTER");
+    }
+
+    bool EnvironmentImp::do_record_filter(void) const
+    {
+        return is_set("GEOPM_RECORD_FILTER");
+    }
+
 }

@@ -948,7 +948,17 @@ class Trace(object):
         old_governor_headers = {'power_budget': 'POWER_BUDGET'}
         old_headers.update(old_governor_headers)
 
-        column_headers = pandas.read_csv(trace_path, sep='|', comment='#', nrows=0, encoding='utf-8').columns.tolist()
+        # Need to determine how many lines are in the header
+        # explicitly.  We cannot use '#' as a comment character since
+        # it occurs in raw MSR signal names.
+        skiprows = 0
+        with open(trace_path) as fid:
+            for ll in fid:
+                if ll.startswith('#'):
+                    skiprows += 1
+                else:
+                    break
+        column_headers = pandas.read_csv(trace_path, sep='|', skiprows=skiprows, nrows=0, encoding='utf-8').columns.tolist()
         original_headers = copy.deepcopy(column_headers)
 
         column_headers = [old_headers.get(ii, ii) for ii in column_headers]
@@ -961,7 +971,7 @@ class Trace(object):
         # You can force them to int64 by setting up a converter function then passing the hex string through it
         # with the read_csv call, but the number will be displayed as an integer from then on.  You'd have to convert
         # it back to a hex string to compare it with the data in the reports.
-        self._df = pandas.read_csv(trace_path, sep='|', comment='#', header=0, names=column_headers, encoding='utf-8',
+        self._df = pandas.read_csv(trace_path, sep='|', skiprows=skiprows, header=0, names=column_headers, encoding='utf-8',
                                    dtype={'REGION_HASH': 'unicode', 'REGION_HINT': 'unicode'})
         self._df.columns = list(map(str.strip, self._df[:0]))  # Strip whitespace from column names
         self._df['REGION_HASH'] = self._df['REGION_HASH'].astype('unicode').map(str.strip)  # Strip whitespace from region hashes
@@ -1323,6 +1333,7 @@ class AgentConf(object):
         with open(self._path, "w") as outfile:
             outfile.write(agent.policy_json(self._agent, policy_values))
 
+
 class RawReport(object):
     def __init__(self, path):
         with open(path) as in_fid, tempfile.TemporaryFile(mode='w+t') as out_fid:
@@ -1344,7 +1355,22 @@ class RawReport(object):
                     else:
                         out_fid.write('    {}'.format(line))
             out_fid.seek(0)
-            self._raw_dict = yaml.load(out_fid, Loader=yaml.SafeLoader)
+            # Fix issue with python yaml module where it is confused
+            # about floating point numbers of the form "1e+10" where
+            # the decimal point is missing.
+            # See PR: https://github.com/yaml/pyyaml/pull/174
+            # for upstream fix to pyyaml
+            loader = yaml.SafeLoader
+            loader.add_implicit_resolver(
+                u'tag:yaml.org,2002:float',
+                re.compile(r'''^(?:[-+]?(?:[0-9][0-9_]*)\.[0-9_]*(?:[eE][-+]?[0-9]+)?
+                               |[-+]?(?:[0-9][0-9_]*)(?:[eE][-+]?[0-9]+)
+                               |\.[0-9_]+(?:[eE][-+]?[0-9]+)?
+                               |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\.[0-9_]*
+                               |[-+]?\.(?:inf|Inf|INF)
+                               |\.(?:nan|NaN|NAN))$''', re.X),
+                list(u'-+0123456789.'))
+            self._raw_dict = yaml.load(out_fid, Loader=loader)
 
     def raw_report(self):
         return copy.deepcopy(self._raw_dict)
@@ -1388,6 +1414,16 @@ class RawReport(object):
         host_data = self._raw_dict[host_name]
         key = 'Application Totals'
         return copy.deepcopy(host_data[key])
+
+    def agent_host_additions(self, host_name):
+        # other keys that are not region, epoch, or app
+        # total i.e. from Agent::report_host()
+        host_data = self._raw_dict[host_name]
+        result = {}
+        for key, val in host_data.items():
+            if key not in ['Epoch Totals', 'Application Totals'] and not key.startswith('Region '):
+                result[key] = copy.deepcopy(val)
+        return result
 
     def get_field(self, raw_data, key, units=''):
         matches = [(len(kk), kk) for kk in raw_data if key in kk and units in kk]
@@ -1438,3 +1474,205 @@ def RawTraceIterator(file_pointer):
         last = ll
 
     fp.close()
+
+
+class RawReportCollection(object):
+    '''
+    Used to group together a collection of related RawReports.
+    '''
+
+    def __init__(self, report_paths, dir_name=',', verbose=True, do_cache=True):
+        self._reports_df = pandas.DataFrame()
+        self._app_reports_df = pandas.DataFrame()
+        self._epoch_reports_df = pandas.DataFrame()
+        self.load_reports(report_paths, dir_name, verbose, do_cache)
+
+    def load_reports(self, reports, dir_name, verbose, do_cache):
+        '''
+        TODO: copied from AppOutput.  refactor to shared function.
+        - removed concept of tracked files to be deleted
+        - added separate epoch dataframe
+        '''
+        if type(reports) is list:
+            report_paths = [os.path.join(dir_name, path) for path in reports]
+        else:
+            report_glob = os.path.join(dir_name, reports)
+            try:
+                report_paths = glob.glob(report_glob)
+            except TypeError:
+                raise TypeError('<geopm> geopmpy.io: AppOutput: reports must be a list of paths or a glob pattern')
+            report_paths = natsorted(report_paths)
+            if len(report_paths) == 0:
+                raise RuntimeError('<geopm> geopmpy.io: No report files found with pattern {}.'.format(report_glob))
+
+        if do_cache:
+            paths_str = str(report_paths)
+            try:
+                h5_id = hashlib.shake_256(paths_str.encode()).hexdigest(14)
+            except AttributeError:
+                h5_id = hash(paths_str)
+            report_h5_name = 'report_{}.h5'.format(h5_id)
+
+            # check if cache is older than reports
+            if os.path.exists(report_h5_name):
+                cache_mod_time = os.path.getmtime(report_h5_name)
+                regen_cache = False
+                for report_file in report_paths:
+                    mod_time = os.path.getmtime(report_file)
+                    if mod_time > cache_mod_time:
+                        regen_cache = True
+                if regen_cache:
+                    os.remove(report_h5_name)
+
+            try:
+                # load dataframes from cache
+                self._reports_df = pandas.read_hdf(report_h5_name, 'report')
+                self._app_reports_df = pandas.read_hdf(report_h5_name, 'app_report')
+                self._epoch_report_df = pandas.read_hdf(report_h5_name, 'epoch_report')
+                if verbose:
+                    sys.stdout.write('Loaded report data from {}.\n'.format(report_h5_name))
+            except IOError:
+                sys.stderr.write('Warning: <geopm> geopmpy.io: Report HDF5 file not detected or older than reports.  Data will be saved to {}.\n'
+                                 .format(report_h5_name))
+                self.parse_reports(report_paths, verbose)
+
+                # Cache report dataframe
+                try:
+                    if verbose:
+                        sys.stdout.write('Generating HDF5 files... ')
+                    self._reports_df.to_hdf(report_h5_name, 'report', format='table')
+                    self._app_reports_df.to_hdf(report_h5_name, 'app_report', format='table', append=True)
+                    self._epoch_reports_df.to_hdf(report_h5_name, 'epoch_report', format='table', append=True)
+                except ImportError as error:
+                    sys.stderr.write('Warning: <geopm> geopmpy.io: Unable to write HDF5 file: {}\n'.format(str(error)))
+
+                if verbose:
+                    sys.stdout.write('Done.\n')
+                    sys.stdout.flush()
+        else:
+            self.parse_reports(report_paths, verbose)
+
+    def parse_reports(self, report_paths, verbose):
+        # Note: overlapping key names can break this
+        # Insert repeated data for non-leaf levels
+        # TODO: iteration - for now, distinguishable from start time
+
+        def _init_tables():
+            self._columns_order = {}
+            self._columns_set = {}
+            for name in ["region", "epoch", "app"]:
+                self._columns_order[name] = []
+                self._columns_set[name] = set()
+
+        def _add_column(table_name, col_name):
+            '''
+            Used to add columns to the data frame in the order they appear in the report.
+            '''
+            if table_name not in ['region', 'epoch', 'app', 'all']:
+                raise RuntimeError('Invalid table name')
+            if table_name == 'all':
+                _add_column('region', col_name)
+                _add_column('epoch', col_name)
+                _add_column('app', col_name)
+            elif col_name not in self._columns_set[table_name]:
+                self._columns_set[table_name].add(col_name)
+                self._columns_order[table_name].append(col_name)
+
+        def _try_float(val):
+            '''
+            Attempt to convert values we assume are floats
+            '''
+            rv = val
+            try:
+                rv = float(val)
+            except:
+                pass
+            return rv
+
+        _init_tables()
+
+        df = pandas.DataFrame()
+        epoch_df = pandas.DataFrame()
+        app_df = pandas.DataFrame()
+
+        for report in report_paths:
+            if verbose:
+                sys.stdout.write("Loading data from {}.\n".format(report))
+            rr = RawReport(report)
+            meta_data = rr.meta_data()
+            header = {}
+            # report header
+            for top_key, top_val in meta_data.items():
+                # allow one level of dict nesting in header for policy
+                if type(top_val) is dict:
+                    for in_key, in_val in top_val.items():
+                        _add_column('all', in_key)
+                        header[in_key] = _try_float(in_val)
+                else:
+                    _add_column('all', top_key)
+                    header[top_key] = top_val
+
+            _add_column('all', 'host')
+            host_names = rr.host_names()
+            for host in host_names:
+                # data about host to be repeated over all rows
+                per_host_data = {'host': host}
+
+                # TODO: other host data may also contain dict
+                # TODO: leave out for now
+                #other_host_data = rr.agent_host_additions(host)
+
+                _add_column('region', 'region')
+                region_names = rr.region_names(host)
+                for region in region_names:
+                    row = copy.deepcopy(header)
+                    row.update(per_host_data)
+                    row['region'] = region
+                    # TODO: region hash
+                    region_data = rr.raw_region(host, region)
+                    for key, val in region_data.items():
+                        region_data[key] = _try_float(val)
+                    row.update(region_data)
+                    for cc in rr.raw_region(host, region).keys():
+                        _add_column('region', cc)
+                    df = df.append(row, ignore_index=True)
+
+                epoch_row = copy.deepcopy(header)
+                epoch_row.update(per_host_data)
+                epoch_data = rr.raw_epoch(host)
+                for key, val in epoch_data.items():
+                    epoch_data[key] = _try_float(val)
+                for cc in epoch_data.keys():
+                    _add_column('epoch', cc)
+                epoch_row.update(epoch_data)
+                epoch_df = epoch_df.append(epoch_row, ignore_index=True)
+
+                app_row = copy.deepcopy(header)
+                app_row.update(per_host_data)
+                app_data = rr.raw_totals(host)
+                for key, val in app_data.items():
+                    app_data[key] = _try_float(val)
+                for cc in app_data.keys():
+                    _add_column('app', cc)
+                app_row.update(app_data)
+                app_df = app_df.append(app_row, ignore_index=True)
+        # reorder the columns to order of first appearance
+        df = df.reindex(columns=self._columns_order['region'])
+        self._reports_df = df
+        epoch_df = epoch_df.reindex(columns=self._columns_order['epoch'])
+        self._epoch_reports_df = epoch_df
+        app_df = app_df.reindex(columns=self._columns_order['app'])
+        self._app_reports_df = app_df
+
+    # TODO: rename
+    def get_df(self):
+        return self._reports_df
+
+    def get_df_filtered(self, columns):
+        return self.reports_df.drop(columns=columns)
+
+    def get_epoch_df(self):
+        return self._epoch_reports_df
+
+    def get_app_df(self):
+        return self._app_reports_df

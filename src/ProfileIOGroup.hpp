@@ -41,7 +41,7 @@
 
 namespace geopm
 {
-    class EpochRuntimeRegulator;
+    class ApplicationSampler;
     class ProfileIOSample;
     class PlatformTopo;
 
@@ -49,11 +49,8 @@ namespace geopm
     class ProfileIOGroup : public IOGroup
     {
         public:
-            ProfileIOGroup(std::shared_ptr<ProfileIOSample> profile_sample,
-                           EpochRuntimeRegulator &epoch_regulator);
-            ProfileIOGroup(std::shared_ptr<ProfileIOSample> profile_sample,
-                           EpochRuntimeRegulator &epoch_regulator,
-                           const PlatformTopo &topo);
+            ProfileIOGroup();
+            ProfileIOGroup(const PlatformTopo &topo, ApplicationSampler &application_sampler);
             virtual ~ProfileIOGroup();
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
@@ -76,6 +73,9 @@ namespace geopm
             std::string signal_description(const std::string &signal_name) const override;
             std::string control_description(const std::string &control_name) const override;
             static std::string plugin_name(void);
+            static std::unique_ptr<IOGroup> make_plugin(void);
+            void connect(void);
+
         private:
             enum m_signal_type {
                 M_SIGNAL_EPOCH_COUNT,
@@ -98,8 +98,9 @@ namespace geopm
 
             int check_signal(const std::string &signal_name, int domain_type, int domain_idx) const;
 
+            ApplicationSampler &m_application_sampler;
+
             std::shared_ptr<ProfileIOSample> m_profile_sample;
-            EpochRuntimeRegulator &m_epoch_regulator;
             std::map<std::string, int> m_signal_idx_map;
             const PlatformTopo &m_platform_topo;
             std::vector<bool> m_do_read;
@@ -116,6 +117,8 @@ namespace geopm
             std::vector<double> m_epoch_count;
             std::map<int, int> m_rid_idx; // map from runtime signal index to the region id signal it uses
             std::vector<int> m_cpu_rank;
+            bool m_is_connected;
+            bool m_is_pushed;
     };
 }
 

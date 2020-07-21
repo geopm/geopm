@@ -37,51 +37,23 @@
 #include <utility>
 #include <fstream>
 #include <memory>
+
 #include "geopm_time.h"
 
 struct geopm_prof_message_s;
 
-
 namespace geopm
 {
-    class PlatformIO;
     class CSV;
+    struct record_s;
 
     class ProfileTracer
     {
         public:
+            static std::unique_ptr<ProfileTracer> make_unique(void);
             ProfileTracer() = default;
             virtual ~ProfileTracer() = default;
-            virtual void update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
-                                std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end) = 0;
-    };
-
-    class ProfileTracerImp : public ProfileTracer
-    {
-        public:
-            ProfileTracerImp();
-            ProfileTracerImp(size_t buffer_size,
-                             bool is_trace_enabled,
-                             const std::string &file_name,
-                             const std::string &host_name,
-                             PlatformIO &platform_io,
-                             const struct geopm_time_s &time_zero);
-            virtual ~ProfileTracerImp();
-            void update(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_begin,
-                        std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::const_iterator prof_sample_end) override;
-        private:
-            enum m_column_e {
-                M_COLUMN_RANK,
-                M_COLUMN_REGION_HASH,
-                M_COLUMN_REGION_HINT,
-                M_COLUMN_TIME,
-                M_COLUMN_PROGRESS,
-                M_NUM_COLUMN
-            };
-            bool m_is_trace_enabled;
-            std::unique_ptr<CSV> m_csv;
-            PlatformIO &m_platform_io;
-            struct geopm_time_s m_time_zero;
+            virtual void update(const std::vector<record_s> &records) = 0;
     };
 }
 

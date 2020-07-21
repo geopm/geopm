@@ -188,13 +188,29 @@ namespace geopm
 
     void EndpointImp::wait_for_agent_attach(double timeout)
     {
-        std::string agent = "";
+        std::string agent = get_agent();
         geopm_time_s start;
         geopm_time(&start);
         while (m_continue_loop && agent == "") {
             agent = get_agent();
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            if (geopm_time_since(&start) >= timeout) {
+            if (timeout >= 0 && geopm_time_since(&start) >= timeout) {
+                throw Exception("EndpointImp::" + std::string(__func__) +
+                                "(): timed out waiting for controller.",
+                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+        }
+    }
+
+    void EndpointImp::wait_for_agent_detach(double timeout)
+    {
+        std::string agent = get_agent();
+        geopm_time_s start;
+        geopm_time(&start);
+        while (m_continue_loop && agent != "") {
+            agent = get_agent();
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            if (timeout >= 0 && geopm_time_since(&start) >= timeout) {
                 throw Exception("EndpointImp::" + std::string(__func__) +
                                 "(): timed out waiting for controller.",
                                 GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);

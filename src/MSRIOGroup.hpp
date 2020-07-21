@@ -38,15 +38,17 @@
 #include <memory>
 #include <functional>
 
+#include "contrib/json11/json11.hpp"
+
 #include "IOGroup.hpp"
+#include "geopm_time.h"
 
 namespace geopm
 {
-    class MSR;
-    class MSRSignal;
-    class MSRControl;
     class MSRIO;
     class PlatformTopo;
+    class Signal;
+    class Control;
 
     /// @brief IOGroup that provides signals and controls based on MSRs.
     class MSRIOGroup : public IOGroup
@@ -62,8 +64,11 @@ namespace geopm
             };
 
             MSRIOGroup();
-            MSRIOGroup(const PlatformTopo &platform_topo, std::unique_ptr<MSRIO> msrio, int cpuid, int num_cpu);
-            virtual ~MSRIOGroup();
+            MSRIOGroup(const PlatformTopo &platform_topo,
+                       std::shared_ptr<MSRIO> msrio,
+                       int cpuid,
+                       int num_cpu);
+            virtual ~MSRIOGroup() = default;
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
             bool is_valid_signal(const std::string &signal_name) const override;
@@ -94,11 +99,9 @@ namespace geopm
             std::function<std::string(double)> format_function(const std::string &signal_name) const override;
             std::string signal_description(const std::string &signal_name) const override;
             std::string control_description(const std::string &control_name) const override;
-            /// @brief Fill string with the msr-safe whitelist file contents
-            ///        reflecting all known MSRs for the current platform.
-            /// @return String formatted to be written to
-            ///        an msr-safe whitelist file.
-            std::string msr_whitelist(void) const;
+            /// @brief Parse a JSON string and add any raw MSRs and
+            ///        fields as available signals and controls.
+            void parse_json_msrs(const std::string &str);
             /// @brief Fill string with the msr-safe whitelist file
             ///        contents reflecting all known MSRs for the
             ///        specified platform.
@@ -108,69 +111,127 @@ namespace geopm
             static std::string msr_whitelist(int cpuid);
             /// @brief Get the cpuid of the current platform.
             static int cpuid(void);
-            /// @brief Register a single MSR field as a signal. This
-            ///        is called by init_msr().
-            /// @param [in] signal_name Compound signal name of form
-            ///        "msr_name:field_name" where msr_name is the
-            ///        name of the MSR and the field_name is the name
-            ///        of the signal field held in the MSR.
-            void register_msr_signal(const std::string &signal_name);
-            /// @brief Register a single MSR field as a control. This
-            ///        is called by init_msr().
-            /// @param [in] signal_name Compound control name of form
-            ///        "msr_name:field_name" where msr_name is the
-            ///        name of the MSR and the field_name is the name
-            ///        of the control field held in the MSR.
-            void register_msr_control(const std::string &control_name);
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
-            static std::vector<std::unique_ptr<MSR> > parse_json_msrs(const std::string &str);
         private:
-            struct m_restore_s {
-                uint64_t value;
-                uint64_t mask;
-            };
-            void register_msr_signal(const std::string &signal_name, const std::string &msr_field_name);
-            void register_msr_control(const std::string &control_name, const std::string &msr_field_name);
-            void register_raw_msr_signal(const std::string &msr_name, const MSR &msr_ptr);
-            void enable_fixed_counters(void);
-            void check_control(const std::string &control_name);
-            static std::string msr_whitelist(const std::vector<std::unique_ptr<MSR> > &msr_arr);
+            /// @brief Parse the given JSON string and update the
+            ///        whitelist data map.
+            static void parse_json_msrs_whitelist(const std::string &str,
+                                                  std::map<uint64_t, std::pair<uint64_t, std::string> > &whitelist_data);
+            /// @brief Format a string with the msr-safe whitelist file contents
+            ///        reflecting all known MSRs for the current platform.
+            /// @param [in] whitelist_data Map from MSR offset to
+            ///        write mask and name.
+            /// @return String formatted to be written to
+            ///        an msr-safe whitelist file.
+            static std::string format_whitelist(const std::map<uint64_t, std::pair<uint64_t, std::string> > &whitelist_data);
 
-            /// @brief Configure memory for all pushed signals and controls.
-            void activate(void);
+            /// @brief Return the JSON string for the MSR data
+            ///        associated with the given cpuid.
+            static std::string platform_data(int cpu_id);
+            /// @brief Returns the filenames for user-defined MSRs if
+            ///        found in the plugin path.
+            static std::set<std::string> msr_data_files(void);
+            /// @brief Override the default description for a signal.
+            ///        If signal is not available, does nothing.
+            void set_signal_description(const std::string &name,
+                                        const std::string &description);
+            /// @brief Override the default description for a signal.
+            ///        If signal is not available, does nothing.
+            void set_control_description(const std::string &name,
+                                        const std::string &description);
+            /// @brief Add support for an alias of a signal by name.
+            void register_signal_alias(const std::string &signal_name, const std::string &msr_field_name);
+            /// @brief Add support for an alias of a control by name.
+            void register_control_alias(const std::string &control_name, const std::string &msr_field_name);
+            /// @brief Add support for temperature combined signals if underlying
+            ///        signals are available.
+            void register_temperature_signals(void);
+            /// @brief Add support for power combined signals if underlying
+            ///        signals are available.
+            void register_power_signals(void);
+            /// @brief Write to enable bits for all fixed counters.
+            void enable_fixed_counters(void);
+            /// @brief Check system configuration and warn if it ma
+            ///        interfere with the given control.
+            void check_control(const std::string &control_name);
+
+            /// Helpers for JSON parsing
+            static void check_top_level(const json11::Json &root);
+            static void check_msr_root(const json11::Json &msr_root,
+                                       const std::string &msr_name);
+            static void check_msr_field(const json11::Json &msr_field,
+                                        const std::string &msr_name,
+                                        const std::string &msr_field_name);
+            // Used to validate type and value of JSON objects
+            static bool json_check_null_func(const json11::Json &obj);
+            static bool json_check_is_hex_string(const json11::Json &obj);
+            static bool json_check_is_valid_offset(const json11::Json &obj);
+            static bool json_check_is_valid_domain(const json11::Json &domain);
+            static bool json_check_is_integer(const json11::Json &num);
+            static bool json_check_is_valid_aggregation(const json11::Json &obj);
+            // Add raw MSR as an available signal
+            void add_raw_msr_signal(const std::string &msr_name, int domain_type,
+                                    uint64_t msr_offset);
+            // Add a bitfield of an MSR as an available signal
+            void add_msr_field_signal(const std::string &msr_name,
+                                      const std::string &msr_field_name,
+                                      int domain_type,
+                                      int begin_bit, int end_bit,
+                                      int function, double scalar, int units,
+                                      const std::string &aggregation,
+                                      const std::string &description);
+            // Add a bitfield of an MSR as an available control
+            void add_msr_field_control(const std::string &msr_field_name,
+                                       int domain_type,
+                                       uint64_t msr_offset,
+                                       int begin_bit, int end_bit,
+                                       int function, double scalar, int units,
+                                       const std::string &description);
+
+            static const std::string M_DEFAULT_DESCRIPTION;
+            static const std::string M_PLUGIN_NAME;
+            static const std::string M_NAME_PREFIX;
             const PlatformTopo &m_platform_topo;
+            std::shared_ptr<MSRIO> m_msrio;
+            int m_cpuid;
             int m_num_cpu;
             bool m_is_active;
             bool m_is_read;
-            std::unique_ptr<MSRIO> m_msrio;
-            int m_cpuid;
-            std::vector<bool> m_is_adjusted;
-            // TODO: figure out diff with m_name_msr_map
-            std::vector<std::unique_ptr<MSR> > m_msr_arr;
-            // Mappings from names to all valid signals and controls
-            std::map<std::string, const MSR &> m_name_msr_map;
-            std::map<std::string, std::vector<std::shared_ptr<MSRSignal> > > m_name_cpu_signal_map;
-            std::map<std::string, std::vector<std::shared_ptr<MSRControl> > > m_name_cpu_control_map;
-            // Pushed signals and controls only
-            std::vector<std::shared_ptr<MSRSignal> > m_active_signal;
-            std::vector<std::vector<std::shared_ptr<MSRControl> > > m_active_control;
-            // Vectors are over MSRs for all active signals
-            std::vector<uint64_t> m_read_field;
-            std::vector<int> m_read_cpu_idx;
-            std::vector<uint64_t> m_read_offset;
-            // Vectors are over MSRs for all active controls
-            std::vector<uint64_t> m_write_field;
-            std::vector<int> m_write_cpu_idx;
-            std::vector<uint64_t> m_write_offset;
-            std::vector<uint64_t> m_write_mask;
-            const std::string m_name_prefix;
-            std::vector<std::map<uint64_t, m_restore_s> > m_per_cpu_restore;
             bool m_is_fixed_enabled;
-            std::map<std::string, std::function<double(const std::vector<double> &)> > m_func_map;
-            std::map<std::string, std::string> m_signal_desc_map;
-            std::map<std::string, std::string> m_control_desc_map;
-            std::map<std::string, int> m_signal_units_map;
+            std::vector<bool> m_is_adjusted;
+
+            // time for derivative signals
+            std::shared_ptr<geopm_time_s> m_time_zero;
+            std::shared_ptr<double> m_time_batch;
+
+            // All available signals: map from name to signal_info.
+            // The signals vector is over the indices for the domain.
+            // The signals pointers should be copied when signal is
+            // pushed and used directly for read_signal.
+            struct signal_info
+            {
+                std::vector<std::shared_ptr<Signal> > signals;
+                int domain;
+                int units;
+                std::function<double(const std::vector<double> &)> agg_function;
+                std::string description;
+            };
+            std::map<std::string, signal_info> m_signal_available;
+
+            struct control_info
+            {
+                std::vector<std::shared_ptr<Control> > controls;
+                int domain;
+                int units;
+                std::string description;
+            };
+            std::map<std::string, control_info> m_control_available;
+
+            // Mapping of signal index to pushed signals.
+            std::vector<std::shared_ptr<Signal> > m_signal_pushed;
+            // Mapping of control index to pushed controls
+            std::vector<std::shared_ptr<Control> > m_control_pushed;
     };
 }
 

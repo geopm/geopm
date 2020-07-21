@@ -58,13 +58,13 @@ extern "C"
      * @brief Get the best known policy for a given agent and profile.
      * @details Gets the agent's default policy if no best policy has
      * been reported.
-     * @param [in] profile_name Name of the profile to find.
      * @param [in] agent_name Name of the agent to find.
+     * @param [in] profile_name Name of the profile to find.
      * @param [in] max_policy_vals Maximum number of values that can fit in @p policy_vals.
      * @param [out] policy_vals Best known or default policy.
      * @return Zero on success, error code on failure.
      */
-    int geopm_policystore_get_best(const char *profile_name, const char *agent_name,
+    int geopm_policystore_get_best(const char *agent_name, const char *profile_name,
                                    size_t max_policy_vals, double *policy_vals);
 
     /*!
@@ -75,7 +75,7 @@ extern "C"
      * @param [in] policy_vals New policy to apply.
      * @return Zero on success, error code on failure.
      */
-    int geopm_policystore_set_best(const char *profile_name, const char *agent_name,
+    int geopm_policystore_set_best(const char *agent_name, const char *profile_name,
                                    size_t num_policy_vals, const double *policy_vals);
 
     /*!

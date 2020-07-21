@@ -53,10 +53,17 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/AgentFactoryTest.static_info_energy_efficient \
               test/gtest_links/AgentFactoryTest.static_info_frequency_map \
               test/gtest_links/AggTest.agg_function \
+              test/gtest_links/AggTest.function_strings \
+              test/gtest_links/ApplicationSamplerTest.one_enter_exit \
+              test/gtest_links/ApplicationSamplerTest.process_mapping \
+              test/gtest_links/ApplicationSamplerTest.string_conversion \
+              test/gtest_links/ApplicationSamplerTest.with_mpi \
+              test/gtest_links/ApplicationSamplerTest.with_epoch \
               test/gtest_links/ApplicationIOTest.passthrough \
               test/gtest_links/CircularBufferTest.buffer_capacity \
               test/gtest_links/CircularBufferTest.buffer_size \
               test/gtest_links/CircularBufferTest.buffer_values \
+              test/gtest_links/CircularBufferTest.make_vector_slice \
               test/gtest_links/CombinedSignalTest.sample_flat_derivative \
               test/gtest_links/CombinedSignalTest.sample_max \
               test/gtest_links/CombinedSignalTest.sample_slope_derivative \
@@ -115,14 +122,41 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/DebugIOGroupTest.read_signal \
               test/gtest_links/DebugIOGroupTest.register_signal_error \
               test/gtest_links/DebugIOGroupTest.sample \
+              test/gtest_links/DerivativeSignalTest.errors \
+              test/gtest_links/DerivativeSignalTest.read_batch_flat \
+              test/gtest_links/DerivativeSignalTest.read_batch_first \
+              test/gtest_links/DerivativeSignalTest.read_batch_slope_1 \
+              test/gtest_links/DerivativeSignalTest.read_batch_slope_2 \
+              test/gtest_links/DerivativeSignalTest.read_flat \
+              test/gtest_links/DerivativeSignalTest.read_slope_1 \
+              test/gtest_links/DerivativeSignalTest.setup_batch \
+              test/gtest_links/DifferenceSignalTest.errors \
+              test/gtest_links/DifferenceSignalTest.read \
+              test/gtest_links/DifferenceSignalTest.read_batch \
+              test/gtest_links/DifferenceSignalTest.setup_batch \
+              test/gtest_links/DomainControlTest.errors \
+              test/gtest_links/DomainControlTest.save_restore \
+              test/gtest_links/DomainControlTest.setup_batch \
+              test/gtest_links/DomainControlTest.write \
+              test/gtest_links/DomainControlTest.write_batch \
+              test/gtest_links/EditDistEpochRecordFilterTest.one_region_repeated \
+              test/gtest_links/EditDistEpochRecordFilterTest.filter_in \
+              test/gtest_links/EditDistEpochRecordFilterTest.filter_out \
+              test/gtest_links/EditDistPeriodicityDetectorTest.pattern_a \
+              test/gtest_links/EditDistPeriodicityDetectorTest.pattern_ab \
+              test/gtest_links/EditDistPeriodicityDetectorTest.pattern_abb \
+              test/gtest_links/EndpointTest.attach_wait_loop_timeout_throws \
+              test/gtest_links/EndpointTest.detach_wait_loop_timeout_throws \
               test/gtest_links/EndpointTest.get_hostnames \
               test/gtest_links/EndpointTest.get_profile_name \
               test/gtest_links/EndpointTest.write_shm_policy \
               test/gtest_links/EndpointTest.parse_shm_sample \
               test/gtest_links/EndpointTest.get_agent \
               test/gtest_links/EndpointTest.stop_wait_loop \
-              test/gtest_links/EndpointTest.wait_loop_timeout_throws \
+              test/gtest_links/EndpointTest.wait_attach_timeout_0 \
+              test/gtest_links/EndpointTest.wait_detach_timeout_0 \
               test/gtest_links/EndpointTest.wait_stops_when_agent_attaches \
+              test/gtest_links/EndpointTest.wait_stops_when_agent_detaches \
               test/gtest_links/EndpointTestIntegration.write_shm \
               test/gtest_links/EndpointTestIntegration.write_read_policy \
               test/gtest_links/EndpointTestIntegration.write_read_sample \
@@ -160,6 +194,19 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/EnvironmentTest.default_endpoint_user_policy_override_endpoint \
               test/gtest_links/EnvironmentTest.user_policy_and_endpoint \
               test/gtest_links/EnvironmentTest.user_disable_ompt \
+              test/gtest_links/EnvironmentTest.record_filter_on \
+              test/gtest_links/EnvironmentTest.record_filter_off \
+              test/gtest_links/EpochIOGroupIntegrationTest.read_batch_count \
+              test/gtest_links/EpochIOGroupIntegrationTest.read_batch_runtime \
+              test/gtest_links/EpochIOGroupIntegrationTest.read_batch_runtime_ignore \
+              test/gtest_links/EpochIOGroupIntegrationTest.read_batch_runtime_network \
+              test/gtest_links/EpochIOGroupTest.no_controls \
+              test/gtest_links/EpochIOGroupTest.read_batch \
+              test/gtest_links/EpochIOGroupTest.sample_count \
+              test/gtest_links/EpochIOGroupTest.sample_runtime \
+              test/gtest_links/EpochIOGroupTest.sample_runtime_ignore \
+              test/gtest_links/EpochIOGroupTest.sample_runtime_network \
+              test/gtest_links/EpochIOGroupTest.valid_signals \
               test/gtest_links/EpochRuntimeRegulatorTest.all_ranks_enter_exit \
               test/gtest_links/EpochRuntimeRegulatorTest.epoch_runtime \
               test/gtest_links/EpochRuntimeRegulatorTest.invalid_ranks \
@@ -178,11 +225,12 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/FrequencyGovernorTest.frequency_bounds_in_range \
               test/gtest_links/FrequencyGovernorTest.frequency_bounds_invalid \
               test/gtest_links/FrequencyGovernorTest.validate_policy \
-              test/gtest_links/FrequencyMapAgentTest.hint \
-              test/gtest_links/FrequencyMapAgentTest.map \
+              test/gtest_links/FrequencyMapAgentTest.adjust_platform_map \
+              test/gtest_links/FrequencyMapAgentTest.adjust_platform_uncore \
               test/gtest_links/FrequencyMapAgentTest.name \
               test/gtest_links/FrequencyMapAgentTest.enforce_policy \
               test/gtest_links/FrequencyMapAgentTest.policy_to_json \
+              test/gtest_links/FrequencyMapAgentTest.split_policy \
               test/gtest_links/FrequencyMapAgentTest.validate_policy \
               test/gtest_links/HelperTest.string_begins_with \
               test/gtest_links/HelperTest.string_ends_with \
@@ -195,24 +243,28 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/IOGroupTest.signals_have_descriptions \
               test/gtest_links/IOGroupTest.signals_have_format_functions \
               test/gtest_links/MSRIOGroupTest.adjust \
-              test/gtest_links/MSRIOGroupTest.control_alias \
               test/gtest_links/MSRIOGroupTest.control_error \
               test/gtest_links/MSRIOGroupTest.cpuid \
-              test/gtest_links/MSRIOGroupTest.format_function \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs_error_fields \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs_error_msrs \
               test/gtest_links/MSRIOGroupTest.parse_json_msrs_error_top_level \
               test/gtest_links/MSRIOGroupTest.push_control \
               test/gtest_links/MSRIOGroupTest.push_signal \
-              test/gtest_links/MSRIOGroupTest.read_signal \
-              test/gtest_links/MSRIOGroupTest.register_msr_control \
-              test/gtest_links/MSRIOGroupTest.register_msr_signal \
+              test/gtest_links/MSRIOGroupTest.push_signal_temperature \
+              test/gtest_links/MSRIOGroupTest.read_signal_counter \
+              test/gtest_links/MSRIOGroupTest.read_signal_energy \
+              test/gtest_links/MSRIOGroupTest.read_signal_frequency \
+              test/gtest_links/MSRIOGroupTest.read_signal_power \
+              test/gtest_links/MSRIOGroupTest.read_signal_temperature \
               test/gtest_links/MSRIOGroupTest.sample \
               test/gtest_links/MSRIOGroupTest.sample_raw \
-              test/gtest_links/MSRIOGroupTest.signal_alias \
               test/gtest_links/MSRIOGroupTest.signal_error \
               test/gtest_links/MSRIOGroupTest.supported_cpuid \
+              test/gtest_links/MSRIOGroupTest.valid_signal_aggregation \
+              test/gtest_links/MSRIOGroupTest.valid_signal_domains \
+              test/gtest_links/MSRIOGroupTest.valid_signal_format \
+              test/gtest_links/MSRIOGroupTest.valid_signal_names \
               test/gtest_links/MSRIOGroupTest.whitelist \
               test/gtest_links/MSRIOGroupTest.write_control \
               test/gtest_links/MSRIOTest.read_aligned \
@@ -220,12 +272,25 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/MSRIOTest.read_unaligned \
               test/gtest_links/MSRIOTest.write \
               test/gtest_links/MSRIOTest.write_batch \
-              test/gtest_links/MSRTest.msr \
-              test/gtest_links/MSRTest.msr_control \
-              test/gtest_links/MSRTest.msr_overflow \
-              test/gtest_links/MSRTest.msr_signal \
-              test/gtest_links/MSRTest.string_to_function \
-              test/gtest_links/MSRTest.string_to_units \
+              test/gtest_links/MSRFieldControlTest.errors \
+              test/gtest_links/MSRFieldControlTest.save_restore \
+              test/gtest_links/MSRFieldControlTest.setup_batch \
+              test/gtest_links/MSRFieldControlTest.write_batch_7_bit_float \
+              test/gtest_links/MSRFieldControlTest.write_7_bit_float \
+              test/gtest_links/MSRFieldControlTest.write_batch_log_half \
+              test/gtest_links/MSRFieldControlTest.write_log_half \
+              test/gtest_links/MSRFieldControlTest.write_batch_scale \
+              test/gtest_links/MSRFieldControlTest.write_scale \
+              test/gtest_links/MSRFieldSignalTest.read_batch_7_bit_float \
+              test/gtest_links/MSRFieldSignalTest.read_batch_log_half \
+              test/gtest_links/MSRFieldSignalTest.read_batch_overflow \
+              test/gtest_links/MSRFieldSignalTest.read_batch_scale \
+              test/gtest_links/MSRFieldSignalTest.read_7_bit_float \
+              test/gtest_links/MSRFieldSignalTest.read_log_half \
+              test/gtest_links/MSRFieldSignalTest.read_overflow \
+              test/gtest_links/MSRFieldSignalTest.read_scale \
+              test/gtest_links/MSRFieldSignalTest.real_counter \
+              test/gtest_links/MSRFieldSignalTest.setup_batch \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \
@@ -256,7 +321,6 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/PlatformIOTest.sample_agg \
               test/gtest_links/PlatformIOTest.signal_control_description \
               test/gtest_links/PlatformIOTest.signal_control_names \
-              test/gtest_links/PlatformIOTest.signal_power \
               test/gtest_links/PlatformIOTest.write_control \
               test/gtest_links/PlatformIOTest.write_control_override \
               test/gtest_links/PlatformIOTest.write_control_agg \
@@ -294,6 +358,9 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/PowerGovernorTest.govern \
               test/gtest_links/PowerGovernorTest.govern_max \
               test/gtest_links/PowerGovernorTest.govern_min \
+              test/gtest_links/ProcessEpochImpTest.epoch_count \
+              test/gtest_links/ProcessEpochImpTest.epoch_runtime \
+              test/gtest_links/ProcessEpochImpTest.hint_time \
               test/gtest_links/ProfileTableTest.hello \
               test/gtest_links/ProfileTableTest.name_set_fill_long \
               test/gtest_links/ProfileTableTest.name_set_fill_short \
@@ -312,6 +379,20 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/ProfileTestIntegration.misconfig_tprof_shmem \
               test/gtest_links/ProfileTracerTest.construct_update_destruct \
               test/gtest_links/ProfileTracerTest.format \
+              test/gtest_links/ProxyEpochRecordFilterTest.simple_conversion \
+              test/gtest_links/ProxyEpochRecordFilterTest.skip_one \
+              test/gtest_links/ProxyEpochRecordFilterTest.skip_two_off_one \
+              test/gtest_links/ProxyEpochRecordFilterTest.invalid_construct \
+              test/gtest_links/ProxyEpochRecordFilterTest.filter_in \
+              test/gtest_links/ProxyEpochRecordFilterTest.filter_out \
+              test/gtest_links/ProxyEpochRecordFilterTest.parse_name \
+              test/gtest_links/ProxyEpochRecordFilterTest.parse_tutorial_2 \
+              test/gtest_links/RawMSRSignalTest.errors \
+              test/gtest_links/RawMSRSignalTest.read \
+              test/gtest_links/RawMSRSignalTest.read_batch \
+              test/gtest_links/RawMSRSignalTest.setup_batch \
+              test/gtest_links/RecordFilterTest.invalid_filter_name \
+              test/gtest_links/RecordFilterTest.make_proxy_epoch \
               test/gtest_links/RegionAggregatorTest.epoch_total \
               test/gtest_links/RegionAggregatorTest.sample_total \
               test/gtest_links/ReporterTest.generate \
@@ -361,14 +442,25 @@ GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/TreeCommTest.geometry_nonroot \
               test/gtest_links/TreeCommTest.overhead_send \
               test/gtest_links/TreeCommTest.send_receive \
+              test/gtest_links/ValidateRecordTest.valid_stream \
+              test/gtest_links/ValidateRecordTest.process_change \
+              test/gtest_links/ValidateRecordTest.hint_invalid \
+              test/gtest_links/ValidateRecordTest.entry_exit_paired \
+              test/gtest_links/ValidateRecordTest.entry_exit_unpaired \
+              test/gtest_links/ValidateRecordTest.double_entry \
+              test/gtest_links/ValidateRecordTest.exit_without_entry \
+              test/gtest_links/ValidateRecordTest.entry_exit_invalid_hash \
+              test/gtest_links/ValidateRecordTest.epoch_count_monotone \
+              test/gtest_links/ValidateRecordTest.epoch_count_gap \
+              test/gtest_links/ValidateRecordTest.time_monotone \
               # end
 
 if ENABLE_BETA
     GTEST_TESTS += test/gtest_links/DaemonTest.get_default_policy \
                    test/gtest_links/DaemonTest.get_profile_policy \
                    test/gtest_links/PolicyStoreImpTest.self_consistent \
-                   test/gtest_links/PolicyStoreImpTest.update_policy \
                    test/gtest_links/PolicyStoreImpTest.table_precedence \
+                   test/gtest_links/PolicyStoreImpTest.update_policy \
                    # end
 endif
 
@@ -397,12 +489,25 @@ EXTRA_DIST += test/InternalProfile.cpp \
               test/legacy_whitelist.out \
               test/no_omp_cpu.c \
               test/pmpi_mock.c \
+              test/ProxyEpochRecordFilterTest.tutorial_2_profile_trace \
+              test/EditDistPeriodicityDetectorTest.0_pattern_a.trace \
+              test/EditDistPeriodicityDetectorTest.1_pattern_ab.trace \
+              test/EditDistPeriodicityDetectorTest.2_pattern_abb.trace \
+              test/EditDistPeriodicityDetectorTest.3_pattern_abcdc.trace \
+              test/EditDistPeriodicityDetectorTest.4_pattern_ababc.trace \
+              test/EditDistPeriodicityDetectorTest.5_pattern_abababc.trace \
+              test/EditDistPeriodicityDetectorTest.6_pattern_add1.trace \
+              test/EditDistPeriodicityDetectorTest.7_pattern_add2.trace \
+              test/EditDistPeriodicityDetectorTest.8_pattern_subtract1.trace \
+              test/EditDistPeriodicityDetectorTest.cpp \
               # end
+              # FK: FIXME: Add new traceout file names here.
 
 test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/AgentFactoryTest.cpp \
                           test/AggTest.cpp \
                           test/ApplicationIOTest.cpp \
+                          test/ApplicationSamplerTest.cpp \
                           test/CircularBufferTest.cpp \
                           test/CNLIOGroupTest.cpp \
                           test/CombinedSignalTest.cpp \
@@ -412,12 +517,19 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/CpuinfoIOGroupTest.cpp \
                           test/CSVTest.cpp \
                           test/DebugIOGroupTest.cpp \
+                          test/DerivativeSignalTest.cpp \
+                          test/DifferenceSignalTest.cpp \
+                          test/DomainControlTest.cpp \
+                          test/EditDistEpochRecordFilterTest.cpp \
+                          test/EditDistPeriodicityDetectorTest.cpp \
                           test/EndpointTest.cpp \
                           test/EndpointPolicyTracerTest.cpp \
                           test/EndpointUserTest.cpp \
                           test/EnergyEfficientAgentTest.cpp \
                           test/EnergyEfficientRegionTest.cpp \
                           test/EnvironmentTest.cpp \
+                          test/EpochIOGroupTest.cpp \
+                          test/EpochIOGroupIntegrationTest.cpp \
                           test/EpochRuntimeRegulatorTest.cpp \
                           test/ExceptionTest.cpp \
                           test/FilePolicyTest.cpp \
@@ -427,10 +539,14 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/IOGroupTest.cpp \
                           test/MSRIOGroupTest.cpp \
                           test/MSRIOTest.cpp \
-                          test/MSRTest.cpp \
+                          test/MSRFieldControlTest.cpp \
+                          test/MSRFieldSignalTest.cpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \
+                          test/MockApplicationSampler.cpp \
+                          test/MockApplicationSampler.hpp \
                           test/MockComm.hpp \
+                          test/MockControl.hpp \
                           test/MockControlMessage.hpp \
                           test/MockEndpoint.hpp \
                           test/MockEndpointPolicyTracer.hpp \
@@ -439,13 +555,17 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/MockEpochRuntimeRegulator.hpp \
                           test/MockFrequencyGovernor.hpp \
                           test/MockIOGroup.hpp \
+                          test/MockMSRIO.hpp \
                           test/MockPlatformIO.hpp \
+                          test/MockPlatformTopo.cpp \
                           test/MockPlatformTopo.hpp \
                           test/MockPowerBalancer.hpp \
                           test/MockPowerGovernor.hpp \
+                          test/MockProcessEpoch.hpp \
                           test/MockProfileIOSample.hpp \
                           test/MockProfileSampler.hpp \
                           test/MockProfileTable.hpp \
+                          test/MockProfileTracer.hpp \
                           test/MockProfileThreadTable.hpp \
                           test/MockRegionAggregator.hpp \
                           test/MockReporter.hpp \
@@ -453,6 +573,7 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/MockSampleScheduler.hpp \
                           test/MockSharedMemory.hpp \
                           test/MockSharedMemoryUser.hpp \
+                          test/MockSignal.hpp \
                           test/MockTracer.hpp \
                           test/MockTreeComm.hpp \
                           test/MockTreeCommLevel.hpp \
@@ -461,6 +582,7 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/OptionParserTest.cpp \
                           test/PlatformIOTest.cpp \
                           test/PlatformTopoTest.cpp \
+                          test/ProcessEpochImpTest.cpp \
                           test/PowerBalancerAgentTest.cpp \
                           test/PowerBalancerTest.cpp \
                           test/PowerGovernorAgentTest.cpp \
@@ -468,6 +590,9 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/ProfileTableTest.cpp \
                           test/ProfileTest.cpp \
                           test/ProfileTracerTest.cpp \
+                          test/ProxyEpochRecordFilterTest.cpp \
+                          test/RawMSRSignalTest.cpp \
+                          test/RecordFilterTest.cpp \
                           test/RegionAggregatorTest.cpp \
                           test/ReporterTest.cpp \
                           test/RuntimeRegulatorTest.cpp \
@@ -478,7 +603,9 @@ test_geopm_test_SOURCES = test/AdminTest.cpp \
                           test/TracerTest.cpp \
                           test/TreeCommLevelTest.cpp \
                           test/TreeCommTest.cpp \
+                          test/ValidateRecordTest.cpp \
                           test/geopm_test.cpp \
+                          test/geopm_test_helper.cpp \
                           test/geopm_test.hpp \
                           # end
 
@@ -499,6 +626,10 @@ else
     EXTRA_DIST += test/ELFTest.cpp
 endif
 
+# add sources not in geopmpolicy; Profile uses MockComm
+test_geopm_test_SOURCES += src/Profile.cpp \
+                           src/Profile.hpp \
+                           # endif
 
 test_geopm_test_LDADD = libgeopmpolicy.la \
                         libgmock.a \

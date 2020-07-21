@@ -46,6 +46,7 @@ extern "C" {
 enum geopm_region_hash_e {
     GEOPM_REGION_HASH_INVALID  = 0x0ULL,
     GEOPM_REGION_HASH_UNMARKED = 0x725e8066ULL, /* Note the value is the geopm_crc32_str() of the stringified enum */
+    GEOPM_U64_SENTINEL_REGION_HASH = UINT64_MAX, /* Force enum type to uint64_t */
 };
 
 /****************************/
@@ -68,6 +69,7 @@ enum geopm_region_hint_e {
                                   GEOPM_REGION_HINT_SERIAL |
                                   GEOPM_REGION_HINT_PARALLEL |
                                   GEOPM_REGION_HINT_IGNORE,
+    GEOPM_U64_SENTINEL_REGION_HINT = UINT64_MAX, /* Force enum type to uint64_t */
 };
 
 /*!
