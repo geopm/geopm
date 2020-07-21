@@ -89,9 +89,15 @@ class TestIntegration_power_balancer(unittest.TestCase):
         geopmpy.error.exc_clear()
 
         if not cls._skip_launch:
-            num_rank = 16
             loop_count = 500
             fam, mod = geopm_test_launcher.get_platform()
+            alloc_nodes = geopm_test_launcher.TestLauncher.get_alloc_nodes()
+            num_node = len(alloc_nodes)
+            if (len(alloc_nodes) != cls._num_node):
+               err_fmt = 'Warning: <test_power_balancer> Allocation size ({}) is different than expected ({})\n'
+               sys.stderr.write(err_fmt.format(num_node, cls._num_node))
+               cls._num_node = num_node
+            num_rank = 2 * cls._num_node
             power_budget = 200
             if fam == 6 and mod == 87:
                 # budget for KNL
@@ -111,7 +117,6 @@ class TestIntegration_power_balancer(unittest.TestCase):
                     app_conf.append_region('dgemm-imbalance', 8.0)
                     app_conf.set_loop_count(loop_count)
                     # Update app config with imbalance
-                    alloc_nodes = geopm_test_launcher.TestLauncher.get_alloc_nodes()
                     for nn in range(len(alloc_nodes) // 2):
                         app_conf.append_imbalance(alloc_nodes[nn], 0.5)
                 elif app_name == 'socket_imbalance':
