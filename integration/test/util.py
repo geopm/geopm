@@ -183,30 +183,35 @@ def skip_unless_run_long_tests():
 
 
 def skip_unless_cpufreq():
-    try:
-        test_exec = "dummy -- stat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq"
-        dev_null = open('/dev/null', 'w')
-        geopm_test_launcher.allocation_node_test(test_exec, dev_null, dev_null)
-        dev_null.close()
-    except subprocess.CalledProcessError:
-        return unittest.skip("Could not determine min frequency, enable cpufreq driver to run this test.")
+    if not g_util.skip_launch():
+        try:
+            test_exec = "dummy -- stat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq"
+            dev_null = open('/dev/null', 'w')
+            geopm_test_launcher.allocation_node_test(test_exec, dev_null, dev_null)
+            dev_null.close()
+        except subprocess.CalledProcessError:
+            return unittest.skip("Could not determine min frequency, enable cpufreq driver to run this test.")
     return lambda func: func
 
 
 def skip_unless_stressng():
-    try:
-        test_exec = "dummy -- stress-ng -h"
-        dev_null = open('/dev/null', 'w')
-        geopm_test_launcher.allocation_node_test(test_exec, dev_null, dev_null)
-        dev_null.close()
-    except subprocess.CalledProcessError:
-        return unittest.skip("Missing stress-ng.  Please install in the compute image.")
+    if not g_util.skip_launch():
+        try:
+            test_exec = "dummy -- stress-ng -h"
+            dev_null = open('/dev/null', 'w')
+            geopm_test_launcher.allocation_node_test(test_exec, dev_null, dev_null)
+            dev_null.close()
+        except subprocess.CalledProcessError:
+            return unittest.skip("Missing stress-ng.  Please install in the compute image.")
     return lambda func: func
 
 
 def skip_or_ensure_writable_file(path):
     """Skip the test unless the given file can be created or modified on compute nodes.
     """
+    if g_util.skip_launch():
+        return unittest.skip("This test requires launch; do not use --skip-launch")
+
     stdout = StringIO()
     created_directories = list()
     try:
@@ -241,15 +246,16 @@ def skip_or_ensure_writable_file(path):
 def skip_unless_library_in_ldconfig(library):
     """Skip the test if the given library is not in ldconfig on the compute nodes.
     """
-    try:
-        with open('/dev/null', 'w') as dev_null:
-            stdout = StringIO()
-            geopm_test_launcher.allocation_node_test('dummy -- ldconfig --print-cache', stdout, dev_null)
-            stdout.seek(0)
-            if not any(line.startswith('\t{}'.format(library)) for line in stdout):
-                return unittest.skip("Library '{}' not in ldconfig".format(library))
-    except subprocess.CalledProcessError:
-        return unittest.skip("Unable to run ldconfig")
+    if not g_util.skip_launch():
+        try:
+            with open('/dev/null', 'w') as dev_null:
+                stdout = StringIO()
+                geopm_test_launcher.allocation_node_test('dummy -- ldconfig --print-cache', stdout, dev_null)
+                stdout.seek(0)
+                if not any(line.startswith('\t{}'.format(library)) for line in stdout):
+                    return unittest.skip("Library '{}' not in ldconfig".format(library))
+        except subprocess.CalledProcessError:
+            return unittest.skip("Unable to run ldconfig")
     return lambda func: func
 
 
