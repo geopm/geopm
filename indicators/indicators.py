@@ -124,8 +124,10 @@ def make_pies():
         bad_label = cc[1]
         bad_name = bad_label.split('-')[-1]
         title = cc[2]
-        good_count = Query(labels=good_label, state='open').total_count()
-        bad_count = Query(labels=bad_label, state='open').total_count()
+        query = Query(labels=good_label, state='open')
+        good_count = query.total_count()
+        query = Query(labels=bad_label, state='open')
+        bad_count = query.total_count()
         pie_chart(good_count, bad_count, title, good_name, bad_name)
         plt_idx += 1
     today = dt.date.today()
@@ -163,7 +165,8 @@ def make_age():
     for cc in combos:
         count = []
         for rr in date_ranges:
-            count.append(Query(labels=cc, state='open', create_dates=rr).total_count())
+            query = Query(labels=cc, state='open', create_dates=rr)
+            count.append(query.total_count())
         count_matrix.append(tuple(count))
 
     date_names = ['00-30 days', '31-60 days', '61-90 days', '90+ days']
@@ -186,21 +189,31 @@ def make_trend():
     long_ago=dt.date(2017, 1, 1)
     begin = dt.date(2020, 4, 1)
     today = dt.date.today()
-    delta7 = dt.timedelta(days=14)
-    date = begin
-    data = []
-    while date < today:
-        qq = Query(labels='bug', create_dates=(long_ago, date))
-        tt = qq.total_count()
-        qq = Query(labels='bug', closed_dates=(long_ago, date))
-        cl = qq.total_count()
-        op = tt - cl
-        data.append((date, op, cl))
-        date += delta7
-    date, op, cl = zip(*data)
+    delta = dt.timedelta(days=14)
+    date = [begin]
+    open_count = []
+    closed_count = []
+    # Enable today as last date
+    do_append = 2
+    while do_append != 0:
+        dates = (long_ago, date[-1])
+        query = Query(labels='bug', create_dates=dates)
+        total_count = query.total_count()
+        query = Query(labels='bug', closed_dates=dates)
+        closed_count.append(query.total_count())
+        open_count.append(total_count - closed_count[-1])
+        next_date = date[-1] + delta
+        if next_date > today:
+            do_append -= 1
+        if do_append == 2:
+            date.append(next_date)
+        elif do_append == 1:
+            date.append(today)
+
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
     plt.gca().xaxis.set_major_locator(mdates.MonthLocator())
-    plt.stackplot(date, op, cl, colors='rg', labels=['open', 'closed'])
+    plt.stackplot(date, open_count, closed_count,
+                  colors='rg', labels=['open', 'closed'])
     plt.gcf().autofmt_xdate()
     plt.legend()
     plt.xlabel('Total bug count')
