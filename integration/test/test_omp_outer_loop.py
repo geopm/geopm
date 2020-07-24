@@ -96,16 +96,16 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
             report_path = curr_run + '.report'
             cls._report_path.append(report_path)
             cls._agent_conf_path = test_name + '-agent-config.json'
-            agent_conf = geopmpy.io.AgentConf(cls._agent_conf_path)
-            launcher = geopm_test_launcher.TestLauncher(AppConf(),
-                                                        agent_conf,
-                                                        report_path,
-                                                        time_limit=6000)
-            launcher.set_num_node(num_node)
-            launcher.set_num_rank(num_rank)
-            if config == '_without_ompt':
-                launcher.disable_ompt()
-            if  not cls._skip_launch:
+            if not cls._skip_launch:
+                agent_conf = geopmpy.io.AgentConf(cls._agent_conf_path)
+                launcher = geopm_test_launcher.TestLauncher(AppConf(),
+                                                            agent_conf,
+                                                            report_path,
+                                                            time_limit=6000)
+                launcher.set_num_node(num_node)
+                launcher.set_num_rank(num_rank)
+                if config == '_without_ompt':
+                    launcher.disable_ompt()
                 launcher.run(curr_run)
 
     @classmethod

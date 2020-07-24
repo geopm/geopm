@@ -121,6 +121,7 @@ class TestIntegration_tutorial_base(unittest.TestCase):
                         ./tutorial_6.sh'''.format(tmp_link=cls._tmp_link)
         subprocess.check_call(run_script, shell=True)
 
+    @util.skip_unless_do_launch()
     def test_generate_reports(self):
         "Check that reports were generated"
         expected_reports = ['tutorial_0_report',

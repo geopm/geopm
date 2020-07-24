@@ -148,6 +148,7 @@ class TestIntegrationScalingRegion(unittest.TestCase):
                     region = report.raw_region(host, rn)
                     util.assertNear(self, 1.0, report.get_field(region, 'runtime', 'sec'))
 
+    @util.skip_unless_do_launch()
     def test_achieved_frequency(self):
         """Test that the reports show achieved frequencies near target
            frequency.

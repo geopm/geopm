@@ -84,6 +84,7 @@ class AppConf(object):
         return []
 
 
+@util.skip_unless_do_launch()
 class TestIntegration_frequency_hint_usage(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
