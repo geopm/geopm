@@ -98,7 +98,7 @@ class TestIntegration_power_balancer(unittest.TestCase):
                sys.stderr.write(err_fmt.format(num_node, cls._num_node))
                cls._num_node = num_node
             num_rank = 2 * cls._num_node
-            power_budget = 200
+            power_budget = 180
             if fam == 6 and mod == 87:
                 # budget for KNL
                 power_budget = 130
