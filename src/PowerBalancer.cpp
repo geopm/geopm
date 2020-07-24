@@ -53,7 +53,7 @@ namespace geopm
     }
 
     PowerBalancerImp::PowerBalancerImp(double ctl_latency)
-        : PowerBalancerImp(ctl_latency, 0.125, 5, 0.25)
+        : PowerBalancerImp(ctl_latency, 0.125, 9, 0.25)
     {
 
     }
