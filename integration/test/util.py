@@ -54,7 +54,6 @@ class Util:
     def __init__(self):
         self._do_parse_once = False
         self._skip_launch = False
-        self._show_details = False
 
     @classmethod
     def instance(cls):
@@ -77,9 +76,6 @@ class Util:
         parser.add_argument('--skip-launch', dest='skip_launch',
                             action='store_true', default=False,
                             help='reuse existing data files; do not launch any jobs')
-        parser.add_argument('--show-details', dest='show_details',
-                            action='store_true', default=False,
-                            help='print additional data analysis details')
         # workaround so that this help plus base pyunit help text will be printed
         if '-h' in sys.argv or '--help' in sys.argv:
             # TODO: use custom help text; this is confusing
@@ -93,19 +89,12 @@ class Util:
         args, remaining = parser.parse_known_args()
         sys.argv = [sys.argv[0]] + remaining
         self._skip_launch = args.skip_launch
-        self._show_details = args.show_details
 
     def skip_launch(self):
         ''' Skip parts of test requiring a job launched on compute nodes.
             Ideally the test should only analyze existing report/trace files.
         '''
         return self._skip_launch
-
-    def show_details(self):
-        ''' Can be used by tests to print optional additional details about the
-            data used.
-        '''
-        return self._show_details
 
 
 # will be created the first time this file is imported
