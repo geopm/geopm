@@ -48,7 +48,7 @@ namespace geopm
             /// @param [in] history_buffer_size Number of region entry
             ///        events stored in order to determine an epoch.
             ///
-            /// @param [in] min_stable_period Minimum period length in
+            /// @param [in] min_hysteresis_base_period Minimum period length in
             ///        number of records that will be considered
             ///        stable in order to begin emitting epoch
             ///        records.  Suggested default is 4.
@@ -65,11 +65,11 @@ namespace geopm
             ///        previously detected length.  Suggested default
             ///        is 1.5.
             EditDistEpochRecordFilter(int history_buffer_size,
-                                      int min_stable_period,
+                                      int min_hysteresis_base_period,
                                       double stable_period_hysteresis,
                                       double unstable_period_hysteresis);
             EditDistEpochRecordFilter(std::shared_ptr<EditDistPeriodicityDetector> edpd,
-                                      int min_stable_period,
+                                      int min_hysteresis_base_period,
                                       double stable_period_hysteresis,
                                       double unstable_period_hysteresis);
             EditDistEpochRecordFilter(const std::string &name);
@@ -82,7 +82,7 @@ namespace geopm
             ///        Exception with GEOPM_ERROR_INVALID type.
             static void parse_name(const std::string &name,
                                    int &history_buffer_size,
-                                   int &min_stable_period,
+                                   int &min_hysteresis_base_period,
                                    double &stable_period_hysteresis,
                                    double &unstable_period_hysteresis);
         private:
@@ -105,7 +105,7 @@ namespace geopm
             ///
             /// The conditions for NO_PERIOD_DETECTED -> PERIOD_DETECTED state transition:
             ///    * Stable period of N detected by String Edit Distance algorithm for
-            ///      the last MAX(N, MIN_STABLE_PERIOD) x STABLE_PERIOD_HYSTERESIS records.
+            ///      the last MAX(N, min_hysteresis_base_period) x STABLE_PERIOD_HYSTERESIS records.
             ///    * Only periods >= MIN_DETECTABLE_PERIOD are considered as potentially stable.
             ///
             /// The conditions for PERIOD_DETECTED -> NO_PERIOD_DETECTED state transition:
@@ -120,7 +120,7 @@ namespace geopm
             std::shared_ptr<EditDistPeriodicityDetector> m_edpd;
             // Parameter for the epoch detection algorithm. See
             // EditDistEpochRecordFilter::epoch_detected().
-            const int m_min_stable_period;
+            const int m_min_hysteresis_base_period;
             // Parameter for the epoch detection algorithm. See
             // EditDistEpochRecordFilter::epoch_detected().
             const double m_stable_period_hysteresis;
