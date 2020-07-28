@@ -108,7 +108,7 @@ namespace geopm
         // return a string with a repeating pattern in it. For example:
         //     A B A B A B ...
         // find_gcd will find the smallest repeating pattern in it: A B
-        m_period = find_min_match(bestm);
+        m_period = find_smallest_repeating_pattern(bestm);
     }
 
     int EditDistPeriodicityDetector::get_period(void) const
@@ -126,7 +126,7 @@ namespace geopm
         return m_history_buffer.value(index - 1);
     }
 
-    int EditDistPeriodicityDetector::find_min_match(int slice_start) const
+    int EditDistPeriodicityDetector::find_smallest_repeating_pattern(int slice_start) const
     {
         if (m_history_buffer.size() == slice_start) {
             return 1;

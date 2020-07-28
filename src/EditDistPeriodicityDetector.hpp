@@ -61,7 +61,7 @@ namespace geopm
         private:
             void calc_period();
             uint64_t get_history_value(int index) const;
-            int find_min_match(int index) const;
+            int find_smallest_repeating_pattern(int index) const;
 
             CircularBuffer<uint64_t> m_history_buffer;
             int m_period;
