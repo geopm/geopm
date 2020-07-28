@@ -79,6 +79,7 @@ class Query:
     def query(self):
         # Sure would be nice to use the requests module, but I can't
         # get authentication to work!
+        time.sleep(0.1)
         cmd = ['curl', '-u', self.auth(), str(self)]
         pid = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = pid.communicate()
@@ -105,7 +106,7 @@ def format_pie(pct, allvals):
 
 def pie_chart(good_count, bad_count, title, good_name, bad_name):
     dd = [good_count, bad_count]
-    plt.pie(dd, labels=[good_name, bad_name], colors = 'gr', startangle=45,
+    plt.pie(dd, labels=[good_name, bad_name], colors = ['#33cc33','#ff5050'], startangle=45,
             autopct=lambda pct: format_pie(pct, dd))
     plt.axis('equal')
     plt.title(title)
@@ -213,7 +214,7 @@ def make_trend():
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
     plt.gca().xaxis.set_major_locator(mdates.MonthLocator())
     plt.stackplot(date, open_count, closed_count,
-                  colors='rg', labels=['open', 'closed'])
+                  colors=['#ff5050','#33cc33'], labels=['open', 'closed'])
     plt.gcf().autofmt_xdate()
     plt.legend()
     plt.xlabel('Total bug count')
