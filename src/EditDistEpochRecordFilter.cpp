@@ -206,7 +206,7 @@ namespace geopm
                 m_period_unstable += 1;
             }
 
-            if (m_period_unstable == (int)(m_unstable_period_hysteresis *  m_edpd->get_period())) {
+            if (m_period_unstable == (int)(m_unstable_period_hysteresis * m_last_period)) {
                 m_is_period_detected = false;
                 // Reset for next use
                 m_period_unstable = 0;
