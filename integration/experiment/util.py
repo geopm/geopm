@@ -39,7 +39,6 @@ import subprocess
 import io
 import yaml
 import shlex
-import json
 
 import geopmpy.launcher
 
@@ -132,20 +131,25 @@ def geopmread(read_str):
     return result
 
 
-def launch_run(agent_conf, app_conf, extra_cli_args, **launcher_factory_args):
+def launch_run(agent_conf, app_conf, output_dir, extra_cli_args, **launcher_factory_args):
     # TODO: why does launcher strip off first arg, rather than geopmlaunch main?
     argv = ['dummy', detect_launcher()]
 
-    if agent_conf.get_agent() != 'monitor':
+    if agent_conf is not None and agent_conf.get_agent() != 'monitor':
         argv.append('--geopm-agent=' + agent_conf.get_agent())
         argv.append('--geopm-policy=' + agent_conf.get_path())
 
     argv.extend(extra_cli_args)
 
     argv.extend(['--'])
+
+    # TODO: does it matter if these are string or list?
+    # throw if get_exec_args is not a list?
     # Use app config to get path and arguments
-    argv.append(app_conf.get_exec_path())
-    argv.extend(app_conf.get_exec_args())
+    # argv.append(app_conf.get_exec_path())
+    # argv.extend(app_conf.get_exec_args())
+    bash_path = app_conf.make_bash(output_dir)
+    argv.extend([bash_path])
 
     launcher = geopmpy.launcher.Factory().create(argv, **launcher_factory_args)
     launcher.run()

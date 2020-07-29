@@ -111,7 +111,7 @@ def launch_power_sweep(file_prefix, output_dir, iterations,
                                   '--geopm-trace-signals=' + ','.join(trace_sig)]
                 extra_cli_args += experiment_cli_args
                 # any arguments after run_args are passed directly to launcher
-                util.launch_run(agent_conf, app_conf, extra_cli_args,
+                util.launch_run(agent_conf, app_conf, output_dir, extra_cli_args,
                                 num_node=num_node, num_rank=num_rank)  # raw launcher factory args
 
                 # rest to cool off between runs
