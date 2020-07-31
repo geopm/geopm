@@ -85,7 +85,7 @@ def launch_power_sweep(file_prefix, output_dir, iterations,
                  "TEMPERATURE_PACKAGE@package"]
 
     for iteration in range(iterations):
-        for power_cap in range(min_power, max_power+1, step_power):
+        for power_cap in range(max_power, min_power-1, -step_power):
             for agent in agent_types:
                 options = {'power_budget': power_cap}
                 # TODO: check for valid agent type; this should be reusable between all agent types
