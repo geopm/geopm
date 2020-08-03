@@ -83,7 +83,11 @@ class Query:
         cmd = ['curl', '-u', self.auth(), str(self)]
         pid = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = pid.communicate()
-        return json.loads(out)
+        try:
+            result = json.loads(out)
+        except ValueError:
+            result = {}
+        return result
 
     def total_count(self):
         is_done = False
@@ -99,9 +103,28 @@ class Query:
                 time.sleep(5)
         return result
 
+def bug_combos():
+    combos = [('bug-quality-low', 'bug-priority-low', 'bug-exposure-low'),
+              ('bug-quality-low', 'bug-priority-low', 'bug-exposure-high'),
+              ('bug-quality-low', 'bug-priority-high', 'bug-exposure-low'),
+              ('bug-quality-low', 'bug-priority-high', 'bug-exposure-high'),
+              ('bug-quality-high', 'bug-priority-low', 'bug-exposure-low'),
+              ('bug-quality-high', 'bug-priority-low', 'bug-exposure-high'),
+              ('bug-quality-high', 'bug-priority-high', 'bug-exposure-low'),
+              ('bug-quality-high', 'bug-priority-high', 'bug-exposure-high')]
+    legend = ['ql-pl-el',
+              'ql-pl-eh',
+              'ql-ph-el',
+              'ql-ph-eh',
+              'qh-pl-el',
+              'qh-pl-eh',
+              'qh-ph-el',
+              'qh-ph-eh']
+    return combos, legend
+
 def format_pie(pct, allvals):
     total = sum(allvals)
-    absolute = int(total * pct / 100.0)
+    absolute = int(total * pct / 100.0 + 0.5)
     return "{:d}\n({:.1f}%)".format(absolute, pct)
 
 def pie_chart(good_count, bad_count, title, good_name, bad_name):
@@ -118,8 +141,11 @@ def make_pies():
                   ('bug-exposure-low', 'bug-exposure-high', 'Bug Exposure')]
     plt_idx = 1
     plt.figure(figsize=(11,4))
+    today = dt.date.today()
     for cc in categories:
         plt.subplot(1,3,plt_idx)
+        if plt_idx == 2:
+            plt.xlabel(today.isoformat())
         good_label = cc[0]
         good_name = good_label.split('-')[-1]
         bad_label = cc[1]
@@ -131,9 +157,7 @@ def make_pies():
         bad_count = query.total_count()
         pie_chart(good_count, bad_count, title, good_name, bad_name)
         plt_idx += 1
-    today = dt.date.today()
-
-    plt.savefig('bug-pie-{}.png'.format(today.isoformat()))
+    plt.savefig('bug-pie.png')
     plt.close()
 
 def make_age():
@@ -145,23 +169,7 @@ def make_age():
                    [today - 2 * delta30, today -     delta30 + delta1],
                    [today - 3 * delta30, today - 2 * delta30 + delta1],
                    [begin,               today - 3 * delta30 + delta1]]
-    combos = [('bug-quality-low', 'bug-priority-low', 'bug-exposure-low'),
-              ('bug-quality-low', 'bug-priority-low', 'bug-exposure-high'),
-              ('bug-quality-low', 'bug-priority-high', 'bug-exposure-low'),
-              ('bug-quality-low', 'bug-priority-high', 'bug-exposure-high'),
-              ('bug-quality-high', 'bug-priority-low', 'bug-exposure-low'),
-              ('bug-quality-high', 'bug-priority-low', 'bug-exposure-high'),
-              ('bug-quality-high', 'bug-priority-high', 'bug-exposure-low'),
-              ('bug-quality-high', 'bug-priority-high', 'bug-exposure-high')]
-    combos_legend = ['ql-pl-el',
-                     'ql-pl-eh',
-                     'ql-ph-el',
-                     'ql-ph-eh',
-                     'qh-pl-el',
-                     'qh-pl-eh',
-                     'qh-ph-el',
-                     'qh-ph-eh']
-
+    combos, combos_legend = bug_combos()
     count_matrix = []
     for cc in combos:
         count = []
@@ -180,10 +188,10 @@ def make_age():
         bottom = [aa + bb for (aa, bb) in zip(bottom, cc)]
     plt.xticks(bar_pos, date_names)
     plt.ylabel('Open Bug Count')
-    plt.title('GEOPM Bug Aging by Priority-Quality-Exposure')
-    plt.legend(combos_legend)
     today = dt.date.today()
-    plt.savefig('bug-age-{}.png'.format(today.isoformat()))
+    plt.title('GEOPM Bug Aging by Priority-Quality-Exposure ({})'.format(today.isoformat()))
+    plt.legend(combos_legend)
+    plt.savefig('bug-age.png')
     plt.close()
 
 def make_trend():
@@ -218,12 +226,48 @@ def make_trend():
     plt.gcf().autofmt_xdate()
     plt.legend()
     plt.xlabel('Total bug count')
-    plt.title('GEOPM Bug Status Trend')
-    today = dt.date.today()
-    plt.savefig('bug-trend-{}.png'.format(today.isoformat()))
+    plt.title('GEOPM Bug Status Trend ({})'.format(today.isoformat()))
+    plt.savefig('bug-trend.png')
     plt.close()
+
+def make_cumulative():
+    long_ago=dt.date(2017, 1, 1)
+    today = dt.date.today()
+    delta = dt.timedelta(days=14)
+    date = []
+    combos, combos_legend = bug_combos()
+    count_matrix = []
+    for weeks_ago in range(6):
+        date.insert(0, today - weeks_ago * delta)
+
+    date_names = []
+    for dd in date:
+        date_names.append(dd.isoformat())
+
+    for cc in combos:
+        count = []
+        for dd in date:
+            query = Query(labels=cc, create_dates=[long_ago, dd])
+            count.append(query.total_count())
+        count_matrix.append(tuple(count))
+
+    plt.figure(figsize=(8,6))
+    bar_pos = range(len(date))
+    bar_width = 0.75
+    bottom = [0 for dd in date]
+    for cc in count_matrix:
+        plt.bar(bar_pos, cc, bottom=bottom, width=bar_width)
+        bottom = [aa + bb for (aa, bb) in zip(bottom, cc)]
+    plt.xticks(bar_pos, date_names, rotation=30)
+    plt.legend(combos_legend, bbox_to_anchor=(0.94, 0.5), loc='center left')
+    plt.xlabel('Cumulative bug count')
+    plt.title('GEOPM Cumulative Bugs by Priority-Quality-Exposure ({})'.format(today.isoformat()))
+    plt.savefig('bug-cumulative.png')
+    plt.close()
+
 
 if __name__ == '__main__':
     make_pies()
     make_age()
     make_trend()
+    make_cumulative()
