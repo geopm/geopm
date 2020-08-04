@@ -189,13 +189,13 @@ def make_age():
     plt.xticks(bar_pos, date_names)
     plt.ylabel('Open Bug Count')
     today = dt.date.today()
-    plt.title('GEOPM Bug Aging by Priority-Quality-Exposure ({})'.format(today.isoformat()))
+    plt.title('GEOPM Bug Aging by Quality-Priority-Exposure ({})'.format(today.isoformat()))
     plt.legend(combos_legend)
     plt.savefig('bug-age.png')
     plt.close()
 
 def make_trend():
-    long_ago=dt.date(2017, 1, 1)
+    long_ago = dt.date(2017, 1, 1)
     begin = dt.date(2020, 4, 1)
     today = dt.date.today()
     delta = dt.timedelta(days=14)
@@ -231,7 +231,7 @@ def make_trend():
     plt.close()
 
 def make_cumulative():
-    long_ago=dt.date(2017, 1, 1)
+    long_ago = dt.date(2017, 1, 1)
     today = dt.date.today()
     delta = dt.timedelta(days=14)
     date = []
@@ -242,7 +242,7 @@ def make_cumulative():
 
     date_names = []
     for dd in date:
-        date_names.append(dd.isoformat())
+        date_names.append(dd.strftime("%m/%d/%Y"))
 
     for cc in combos:
         count = []
@@ -259,9 +259,9 @@ def make_cumulative():
         plt.bar(bar_pos, cc, bottom=bottom, width=bar_width)
         bottom = [aa + bb for (aa, bb) in zip(bottom, cc)]
     plt.xticks(bar_pos, date_names, rotation=30)
-    plt.legend(combos_legend, bbox_to_anchor=(0.94, 0.5), loc='center left')
-    plt.xlabel('Cumulative bug count')
-    plt.title('GEOPM Cumulative Bugs by Priority-Quality-Exposure ({})'.format(today.isoformat()))
+    plt.legend(combos_legend, bbox_to_anchor=(0.945, 0.5), loc='center left')
+    plt.ylabel('Cumulative Bug Count')
+    plt.title('GEOPM Cumulative Bugs by Quality-Priority-Exposure ({})'.format(today.isoformat()))
     plt.savefig('bug-cumulative.png')
     plt.close()
 

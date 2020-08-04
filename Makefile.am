@@ -255,6 +255,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              geopm-tutorial.tar.gz \
              geopm.spec \
              geopm.spec.in \
+             indicators/index.html \
              indicators/indicators.py \
              pull_request_template.md \
              ronn/GEOPM_CXX_MAN_Agent.3.ronn \
