@@ -224,7 +224,7 @@ def make_trend():
     plt.stackplot(date, open_count, closed_count,
                   colors=['#ff5050','#33cc33'], labels=['open', 'closed'])
     plt.gcf().autofmt_xdate()
-    plt.legend()
+    plt.legend(bbox_to_anchor=(0.01,0.99), loc='upper left')
     plt.xlabel('Total bug count')
     plt.title('GEOPM Bug Status Trend ({})'.format(today.isoformat()))
     plt.savefig('bug-trend.png')
