@@ -153,7 +153,7 @@ class TestIntegrationEETimedScalingMix(unittest.TestCase):
                                 msg='Same frequency chosen for dgemm only and stream only.')
 
     def test_skip_network_regions(self):
-        """Test that agent does not learn for regions declared with the network hint.
+        """Test that agent does not learn for regions declared as communication APIs.
 
         """
         report = geopmpy.io.RawReport(self._report_path)
@@ -166,19 +166,6 @@ class TestIntegrationEETimedScalingMix(unittest.TestCase):
                     self.assertTrue('requested-online-frequency' not in region)
                     found_barrier = True
             self.assertTrue(found_barrier)
-
-    def test_skip_ignore_regions(self):
-        """Test that agent does not learn for regions declared with the ignore hint.
-
-        """
-        report = geopmpy.io.RawReport(self._report_path)
-        host_names = report.host_names()
-        for host_name in report.host_names():
-            for region_name in report.region_names(host_name):
-                if region_name in ['ignore']:
-                    region = report.raw_region(host_name, region_name)
-                    self.assertTrue('requested-online-frequency' not in region)
-                    found_barrier = True
 
 
 if __name__ == '__main__':

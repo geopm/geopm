@@ -42,6 +42,7 @@
 #include "geopm.h"
 #include "geopm_hash.h"
 
+#include "ApplicationSampler.hpp"
 #include "EnergyEfficientRegion.hpp"
 #include "FrequencyGovernor.hpp"
 #include "PlatformIO.hpp"
@@ -99,6 +100,7 @@ namespace geopm
         if (m_level == 0) {
             m_num_children = 0;
             init_platform_io();
+            m_network_hash = ApplicationSampler::region_hash_network();
         }
         else {
             m_num_children = fan_in[level - 1];
@@ -190,14 +192,10 @@ namespace geopm
         update_policy(in_policy);
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
             uint64_t hash = m_last_region_info[ctl_idx].hash;
-            uint64_t hint = m_last_region_info[ctl_idx].hint;
             if (GEOPM_REGION_HASH_UNMARKED == hash) {
                 m_target_freq[ctl_idx] = m_freq_governor->get_frequency_max();
             }
-            else if (GEOPM_REGION_HINT_IGNORE == hint) {
-                m_target_freq[ctl_idx] = m_freq_governor->get_frequency_max();
-            }
-            else if (GEOPM_REGION_HINT_NETWORK == hint) {
+            else if (!do_learning(hash, 0)) {
                 m_target_freq[ctl_idx] = m_freq_governor->get_frequency_min();
             }
             else {
@@ -223,14 +221,13 @@ namespace geopm
         for (size_t ctl_idx = 0; ctl_idx < (size_t) m_num_freq_ctl_domain; ++ctl_idx) {
             struct m_region_info_s current_region_info {
                 .hash = (uint64_t)m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HASH][ctl_idx]),
-                .hint = (uint64_t)m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HINT][ctl_idx]),
                 .runtime = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_RUNTIME][ctl_idx]),
                 .count = (uint64_t)m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_COUNT][ctl_idx])};
             // If region hash has changed, or region count changed for the same region
             // update current region (entry)
             if (m_last_region_info[ctl_idx].hash != current_region_info.hash ||
                 m_last_region_info[ctl_idx].count != current_region_info.count) {
-                if (do_learning(current_region_info.hash, current_region_info.hint)) {
+                if (do_learning(current_region_info.hash, 0)) {
                     /// set the freq for the current region (entry)
                     auto current_region_it = m_region_map[ctl_idx].find(current_region_info.hash);
                     if (current_region_it == m_region_map[ctl_idx].end()) {
@@ -242,11 +239,12 @@ namespace geopm
                 }
                 /// update previous region (exit)
                 struct m_region_info_s last_region_info = m_last_region_info[ctl_idx];
-                if (do_learning(last_region_info.hash, last_region_info.hint)) {
+                if (do_learning(last_region_info.hash, 0)) {
                     auto last_region_it = m_region_map[ctl_idx].find(last_region_info.hash);
                     if (last_region_it == m_region_map[ctl_idx].end()) {
                         throw Exception("EnergyEfficientAgent::" + std::string(__func__) +
-                                        "(): region exit before entry detected.",
+                                        "(): region " + string_format_hex(last_region_info.hash) +
+                                        " exit before entry detected.",
                                         GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                     }
                     // Higher is better for performance, so negate
@@ -360,7 +358,6 @@ namespace geopm
     {
         m_freq_governor->init_platform_io();
         const struct m_region_info_s DEFAULT_REGION { .hash = GEOPM_REGION_HASH_UNMARKED,
-                                                      .hint = GEOPM_REGION_HINT_UNKNOWN,
                                                       .runtime = 0.0,
                                                       .count = 0};
         m_last_region_info = std::vector<struct m_region_info_s>(m_num_freq_ctl_domain, DEFAULT_REGION);
@@ -379,7 +376,6 @@ namespace geopm
     bool EnergyEfficientAgent::do_learning(uint64_t hash, uint64_t hint) const
     {
             return (hash != GEOPM_REGION_HASH_UNMARKED &&
-                    hint != GEOPM_REGION_HINT_NETWORK &&
-                    hint != GEOPM_REGION_HINT_IGNORE);
+                    m_network_hash.find(hash) == m_network_hash.end());
     }
 }
