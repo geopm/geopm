@@ -1,6 +1,3 @@
-## geopm/integration/experiment/trace_analysis/README
-
-
 The scripts in this folder are used to analyze a single GEOPM trace
 file.  They can be used standalone by passing the path to the trace
 file as the last argumement on the command line, or by importing them

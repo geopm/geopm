@@ -74,3 +74,9 @@ gen_plot_balancer_power_limit.py
 
   - Plot over time showing epoch runtimes and power limits chosen by the
     balancer algorithm.  Useful for checking the algorithm behavior.
+
+gen_balancer_comparison_plot.py
+
+  - Create a bar chart comparing the total runtime or energy of the
+    application when run with the power balancer against the power
+    governor over a range of power caps.
