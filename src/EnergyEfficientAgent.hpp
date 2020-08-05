@@ -87,7 +87,6 @@ namespace geopm
         private:
             bool update_policy(const std::vector<double> &in_policy);
             void init_platform_io(void);
-            bool do_learning(uint64_t hash, uint64_t hint) const;
 
             enum m_policy_e {
                 M_POLICY_FREQ_MIN,
