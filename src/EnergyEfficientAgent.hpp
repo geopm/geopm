@@ -33,6 +33,7 @@
 #ifndef ENERGYEFFICIENTAGENT_HPP_INCLUDE
 #define ENERGYEFFICIENTAGENT_HPP_INCLUDE
 
+#include <set>
 #include <vector>
 #include <map>
 #include <string>
@@ -106,7 +107,6 @@ namespace geopm
 
             struct m_region_info_s {
                 uint64_t hash;
-                uint64_t hint;
                 double runtime;
                 uint64_t count;
             };
@@ -128,6 +128,7 @@ namespace geopm
             int m_num_children;
             bool m_do_send_policy;
             double m_perf_margin;
+            std::set<uint64_t> m_network_hash;
     };
 }
 
