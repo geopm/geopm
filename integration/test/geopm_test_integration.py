@@ -1200,7 +1200,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         except subprocess.CalledProcessError as ex:
             sys.stderr.write('{} {}\n'.format(str(ex), stderr.getvalue()))
 
-        for line in stdout.getvalue().splitlines():
+        for line in stderr.getvalue().splitlines():
             if self.skip_warning_string not in line:
                 self.assertNotIn('Error', line)
 
@@ -1222,7 +1222,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
         self.check_no_error(['TIME', 'board', '0'])
 
         # info
-        self.check_no_error(['--info'])
+        self.check_no_error(['--info-all'])
 
         # errors
         read_err = 'domain type and domain index are required'
@@ -1269,15 +1269,16 @@ class TestIntegrationGeopmio(unittest.TestCase):
             "TEMPERATURE_CORE": (0, 100)
         }
 
-        for signal, val_range in signal_range.items():
+        for signal_name, val_range in signal_range.items():
             try:
-                self.check_no_error([signal, "board", "0"])
+                self.check_no_error([signal_name, "board", "0"])
             except:
                 raise
                 pass  # skip missing signals
             else:
-                self.check_output_range([signal, "board", "0"], *val_range)
+                self.check_output_range([signal_name, "board", "0"], *val_range)
 
+    @util.skip_unless_batch()
     def test_geopmread_custom_msr(self):
         '''
         Check that MSRIOGroup picks up additional MSRs in path.
@@ -1331,7 +1332,6 @@ class TestIntegrationGeopmio(unittest.TestCase):
     @util.skip_unless_batch()
     @util.skip_unless_stressng()
     def test_geopmwrite_set_freq(self):
-        load_pid = None
         '''
         Check that geopmwrite can be used to set frequency.
         '''
@@ -1340,7 +1340,7 @@ class TestIntegrationGeopmio(unittest.TestCase):
 
         def read_min_sticker_freq():
             return (geopm_test_launcher.geopmread('{} {} {}'.format('CPUINFO::FREQ_MIN', 'board', '0')),
-                   geopm_test_launcher.geopmread('{} {} {}'.format('CPUINFO::FREQ_STICKER', 'board', '0')))
+                    geopm_test_launcher.geopmread('{} {} {}'.format('CPUINFO::FREQ_STICKER', 'board', '0')))
 
         def load_cpu_start():
             self.load_pid = subprocess.Popen('stress-ng --cpu=$(lscpu | grep -e "^CPU(" | cut -d: -f2 | tr -d " ")', shell=True)
