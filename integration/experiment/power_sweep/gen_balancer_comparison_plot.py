@@ -47,7 +47,7 @@ import geopmpy.io
 from experiment import common_args
 
 
-def plot_process(report_data, metric, normalize, speedup):
+def prep_plot_data(report_data, metric, normalize, speedup):
     edf = report_data
 
     # rename some columns
@@ -117,7 +117,7 @@ def plot_balancer_comparison(df, label, metric, output_dir='.',
     }
 
     # Analysis
-    df = plot_process(df, metric=metric, normalize=normalize, speedup=speedup)
+    df = prep_plot_data(df, metric=metric, normalize=normalize, speedup=speedup)
     if detailed:
         sys.stdout.write('{}\n'.format(df))
 
@@ -250,6 +250,7 @@ if __name__ == '__main__':
     args, _ = parser.parse_known_args()
     output_dir = args.output_dir
 
+    # TODO: make into utility function
     try:
         output = geopmpy.io.RawReportCollection("*report", dir_name=output_dir)
     except:

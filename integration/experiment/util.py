@@ -30,8 +30,6 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# TODO: some methods from test/util.py could move here
-
 # Helper functions useful for both tests and experiments
 
 import sys
@@ -135,8 +133,7 @@ def geopmread(read_str):
     return result
 
 
-# TODO: better name, do_launch is taken
-def try_launch(agent_conf, app_conf, extra_cli_args, **launcher_factory_args):
+def launch_run(agent_conf, app_conf, extra_cli_args, **launcher_factory_args):
     # TODO: why does launcher strip off first arg, rather than geopmlaunch main?
     argv = ['dummy', detect_launcher()]
 
