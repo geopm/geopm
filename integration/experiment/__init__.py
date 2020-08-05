@@ -28,10 +28,3 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
-
-EXTRA_DIST += integration/README.md
-
-include integration/apps/Makefile.mk
-include integration/experiment/Makefile.mk
-include integration/test/Makefile.mk
