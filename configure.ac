@@ -134,6 +134,19 @@ fi
 [enable_procfs="1"]
 )
 
+AC_ARG_ENABLE([nvml],
+  [AS_HELP_STRING([--enable-nvml], [Enable GEOPM to use the NVIDIA NVML driver to support NVIDIA board accelerators])],
+[if test "x$enable_nvml" = "xno" ; then
+  enable_nvml="0"
+else
+  enable_nvml="1"
+fi
+],
+[enable_nvml="0"]
+)
+AC_SUBST([enable_nvml])
+AM_CONDITIONAL([ENABLE_NVML], [test "x$enable_nvml" = "x1"])
+
 AC_ARG_ENABLE([cnl-iogroup],
   [AS_HELP_STRING([--enable-cnl-iogroup], [Enable the CNL IOGroup])],
 [if test "x$enable_cnl_iogroup" = "xno" ; then
@@ -175,6 +188,14 @@ if test "x$enable_msrsafe_ioctl_write" = "x1" ; then
   AC_DEFINE([GEOPM_MSRSAFE_IOCTL_WRITE], [ ], [Enables use of msr-safe ioctl feature for writing (broken as of msr-safe version 1.2.0)])
 fi
 AC_SUBST([enable_msrsafe_ioctl_write])
+
+if test "x$enable_nvml" = "x1" ; then
+  ENABLE_NVML=True
+  AC_DEFINE([GEOPM_ENABLE_NVML], [ ], [Enables use of NVIDIA NVML driver to support NVIDIA Board acellerators])
+else
+  ENABLE_NVML=False
+fi
+AC_SUBST([ENABLE_NVML])
 
 AC_ARG_WITH([sqlite3], [AS_HELP_STRING([--with-sqlite3=PATH],
             [specify directory for installed sqlite3 package.])])
@@ -269,6 +290,14 @@ fi
 ],
 [enable_ronn="1"]
 )
+
+AC_ARG_WITH([libnvml], [AS_HELP_STRING([--with-libnvml=PATH],
+            [specify directory for installed libnvml package.])])
+if test "x$with_libnvml" != x; then
+  EXTRA_CPPFLAGS="$EXTRA_CPPFLAGS -I$with_libnvml/include"
+  LD_LIBRARY_PATH="$with_libnvml/lib:$LD_LIBRARY_PATH"
+  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_libnvml/lib"
+fi
 
 AC_SUBST([enable_ronn])
 AM_CONDITIONAL([ENABLE_RONN], [test "x$enable_ronn" = "x1"])
@@ -466,6 +495,16 @@ AC_CHECK_HEADER([gelf.h], [], [
     echo "missing gelf.h: ELF library is required, use --with-libelf or --with-libelf-include to specify location"
     exit -1])
 
+if test "x$enable_nvml" = "x1" ; then
+    AC_SEARCH_LIBS([nvmlSystemGetCudaDriverVersion], [nvidia-ml])
+    AC_CHECK_LIB([nvidia-ml], [nvmlSystemGetCudaDriverVersion], [], [
+        echo "missing libnvidia-ml: NVML library is required, use --with-libnvml to specify location"
+        exit -1])
+    AC_CHECK_HEADER([nvml.h], [], [
+        echo "missing nvml.h: NVML header is required, use --with-libnvml to specify location"
+        exit -1])
+fi
+
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h float.h inttypes.h malloc.h netdb.h stddef.h stdint.h stdlib.h string.h sys/socket.h unistd.h])
 
@@ -647,4 +686,5 @@ AC_MSG_RESULT([ronn               : ${enable_ronn}])
 AC_MSG_RESULT([ompt               : ${enable_ompt}])
 AC_MSG_RESULT([beta               : ${enable_beta}])
 AC_MSG_RESULT([bloat              : ${enable_bloat}])
+AC_MSG_RESULT([nvml               : ${enable_nvml}])
 AC_MSG_RESULT([===============================================================================])
