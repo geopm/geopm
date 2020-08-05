@@ -35,105 +35,34 @@ from __future__ import division
 
 import os
 import sys
-import socket
-import subprocess
 import datetime
-import signal
 import io
 import math
 import shlex
-import unittest
 import getpass
-import yaml
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from integration.test import geopm_context
 import geopmpy.launcher
+import integration.util
 
 
+# TODO: update tests to use integration.util
 def detect_launcher():
-    """
-    Heuristic to determine the resource manager used on the system.
-    Returns name of resource manager or launcher, otherwise a
-    LookupError is raised.
-    """
-    # Try the environment
-    result = os.environ.get('GEOPM_LAUNCHER', None)
-    if not result:
-        # Check for known host names
-        slurm_hosts = ['mr-fusion', 'mcfly']
-        alps_hosts = ['theta']
-        hostname = socket.gethostname()
-        if any(hostname.startswith(word) for word in slurm_hosts):
-            result = 'srun'
-        elif any(hostname.startswith(word) for word in alps_hosts):
-            result = 'aprun'
-    if not result:
-        try:
-            exec_str = 'srun --version'
-            subprocess.check_call(exec_str, stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE, shell=True)
-            result = 'srun'
-        except subprocess.CalledProcessError:
-            pass
-    if not result:
-        try:
-            exec_str = 'aprun --version'
-            subprocess.check_call(exec_str, stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE, shell=True)
-            result = 'aprun'
-        except subprocess.CalledProcessError:
-            pass
-    if not result:
-        raise LookupError('Unable to determine resource manager')
-    return result
+    return integration.util.detect_launcher()
+
 
 def allocation_node_test(test_exec, stdout, stderr):
-    argv = shlex.split(test_exec)
-    launcher = detect_launcher()
-    argv.insert(1, launcher)
-    if launcher == 'aprun':
-        argv.insert(2, '-q') # Use quiet flag with aprun to suppress end of job info string
-    argv.insert(2, '--geopm-ctl-disable')
-    launcher = geopmpy.launcher.Factory().create(argv, num_rank=1, num_node=1,
-                                                 job_name="geopm_allocation_test", quiet=True)
-    launcher.run(stdout, stderr)
+    integration.util.allocation_node_test(test_exec, stdout, stderr)
+
 
 def geopmwrite(write_str):
-    test_exec = "dummy -- geopmwrite " + write_str
-    stdout = io.StringIO()
-    stderr = io.StringIO()
-    try:
-        allocation_node_test(test_exec, stdout, stderr)
-    except subprocess.CalledProcessError as err:
-        sys.stderr.write(stderr.getvalue())
-        raise err
-    output = stdout.getvalue().splitlines()
-    last_line = None
-    if len(output) > 0:
-        last_line = output[-1]
-    return last_line
+    return integration.util.geopmwrite(write_str)
+
 
 def geopmread(read_str):
-    test_exec = "dummy -- geopmread " + read_str
-    stdout = io.StringIO()
-    stderr = io.StringIO()
-    try:
-        allocation_node_test(test_exec, stdout, stderr)
-    except subprocess.CalledProcessError as err:
-        sys.stderr.write(stderr.getvalue())
-        raise err
-    output = stdout.getvalue()
-    last_line = output.splitlines()[-1]
+    return integration.util.geopmread(read_str)
 
-    if last_line.startswith('0x'):
-        result = int(last_line)
-    else:
-        try:
-            result = float(last_line)
-        except ValueError:
-            result = yaml.safe_load(output).values()[0]
-    return result
 
 def get_platform():
     test_exec = "dummy -- cat /proc/cpuinfo"
