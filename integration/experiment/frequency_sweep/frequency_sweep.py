@@ -38,71 +38,73 @@ Helper functions for running power sweep experiments.
 import sys
 import os
 import time
-import math
 
 import geopmpy.io
 
-from experiment import util
 from experiment import machine
+from experiment import util
 
 
-def setup_power_bounds(mach, min_power, max_power, step_power):
-    if min_power is None:
-        # system minimum is actually too low; use 50% of TDP or min rounded up to nearest step, whichever is larger
-        min_power = max(0.5 * mach.power_package_tdp(), mach.power_package_min())
-        min_power = step_power * math.ceil(float(min_power)/step_power)
-        sys.stderr.write("Warning: <geopm> run_power_sweep: Invalid or unspecified min_power; using default minimum: {}.\n".format(min_power))
+def setup_frequency_bounds(mach, min_freq, max_freq, step_freq, add_turbo_step):
+    sys_min = mach.frequency_min()
+    sys_max = mach.frequency_max()
+    sys_step = mach.frequency_step()
+    sys_sticker = mach.frequency_sticker()
+    if min_freq is None:
+        min_freq = sys_min
+    if max_freq is None:
+        max_freq = sys_sticker
+    if step_freq is None:
+        step_freq = sys_step
+    if step_freq < sys_step or step_freq % sys_step != 0:
+        sys.stderr.write('<geopm> Warning: frequency step size may be incompatible with p-states.\n')
+    if (max_freq - min_freq) % step_freq != 0:
+        sys.stderr.write('<geopm> Warning: frequency range not evenly divisible by step size.\n')
+    if min_freq < sys_min or max_freq > sys_max:
+        raise RuntimeError('Frequency bounds are out of range for this system')
 
-    if max_power is None:
-        max_power = mach.power_package_tdp()
-        sys.stderr.write("Warning: <geopm> run_power_sweep: Invalid or unspecified max_power; using system TDP: {}.\n".format(max_power))
-
-    if (min_power < mach.power_package_min() or
-        max_power > mach.power_package_max() or
-        min_power > max_power):
-        raise RuntimeError('Power bounds are out of range for this system')
-
-    return int(min_power), int(max_power)
+    num_step = 1 + int((max_freq - min_freq) // step_freq)
+    freqs = [step_freq * ss + min_freq for ss in range(num_step)]
+    if add_turbo_step and sys_max not in freqs:
+        freqs.append(sys_max)
+    freqs = sorted(freqs, reverse=True)
+    return freqs
 
 
-def launch_power_sweep(file_prefix, output_dir, iterations,
-                       min_power, max_power, step_power, agent_types,
-                       num_node, num_rank, app_conf, experiment_cli_args, cool_off_time=60):
-    """
-    Runs the application under a range of socket power limits.  Used
-    by other analysis types to run either the PowerGovernorAgent or
-    the PowerBalancerAgent.
-    """
-    name = file_prefix + "_power_sweep"
+def launch_frequency_sweep(output_dir, iterations,
+                           freq_range,
+                           agent_types, num_node,
+                           app_conf, experiment_cli_args,
+                           cool_off_time=60):
+    '''
+    Run the application over a range of fixed processor frequencies.
+    Currently only supports the frequency map agent
+    '''
     machine.init_output_dir(output_dir)
+    app_name = app_conf.name()
+    rank_per_node = app_conf.get_rank_per_node()
+    num_rank = num_node * rank_per_node
 
     # report extensions
     report_sig = ["CYCLES_THREAD@package", "CYCLES_REFERENCE@package",
                   "TIME@package", "ENERGY_PACKAGE@package"]
+
     # trace extensions
-    trace_sig = ["MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT@package",
-                 "EPOCH_RUNTIME@package",
-                 "EPOCH_RUNTIME_NETWORK@package",
-                 "EPOCH_RUNTIME_IGNORE@package",
-                 "TEMPERATURE_PACKAGE@package"]
-
+    trace_sig = []
+    print(experiment_cli_args)
     for iteration in range(iterations):
-        for power_cap in range(max_power, min_power-1, -step_power):
+        for freq in freq_range:
             for agent in agent_types:
-                options = {'power_budget': power_cap}
-                # TODO: check for valid agent type; this should be reusable between all agent types
-
-                config_file = os.path.join(output_dir, name + '_agent.config')
-                agent_conf = geopmpy.io.AgentConf(path=config_file,
-                                                  agent=agent,
-                                                  options=options)
-                agent_conf.write()
-
-                uid = '{}_{}_{}_{}'.format(name, agent, power_cap, iteration)
+                uid = '{}_{}_{}_{}'.format(app_name, agent, freq, iteration)
                 report_path = os.path.join(output_dir, '{}.report'.format(uid))
                 trace_path = os.path.join(output_dir, '{}.trace'.format(uid))
                 profile_name = 'iteration_{}'.format(iteration)
                 log_path = os.path.join(output_dir, '{}.log'.format(uid))
+
+                # TODO: handle energy efficient agent ?
+                options = {'FREQ_DEFAULT': freq}
+                agent_conf = geopmpy.io.AgentConf(os.path.join(output_dir, '{}_agent_{}.config'.format(agent, freq)), agent, options)
+                agent_conf.write()
 
                 # TODO: these are not passed to launcher create()
                 # some are generic enough they could be, though
@@ -113,7 +115,8 @@ def launch_power_sweep(file_prefix, output_dir, iterations,
                                   '--geopm-trace-signals=' + ','.join(trace_sig)]
                 extra_cli_args += experiment_cli_args
                 # any arguments after run_args are passed directly to launcher
-                util.launch_run(agent_conf, app_conf, output_dir, extra_cli_args, log_path,
+                util.launch_run(agent_conf, app_conf, output_dir,
+                                extra_cli_args, log_path=log_path,
                                 num_node=num_node, num_rank=num_rank)  # raw launcher factory args
 
                 # Get app-reported figure of merit
