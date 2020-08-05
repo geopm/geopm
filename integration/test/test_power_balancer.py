@@ -135,7 +135,7 @@ class TestIntegration_power_balancer(unittest.TestCase):
                     launcher.set_num_node(cls._num_node)
                     launcher.set_num_rank(num_rank)
                     launcher.write_log(run_name, 'Power cap = {}W'.format(power_budget))
-                    launcher.run(run_name)
+                    launcher.run(run_name, add_geopm_args=['--geopm-trace-signals', 'MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT@package,EPOCH_RUNTIME@package,EPOCH_RUNTIME_NETWORK@package'])
                     time.sleep(60)
 
 
@@ -181,7 +181,7 @@ class TestIntegration_power_balancer(unittest.TestCase):
 
             # Get final power limit set on the node
             if agent == 'power_balancer':
-                power_limits.append(epoch_dropped_data['POWER_LIMIT'][-1])
+                power_limits.append(epoch_dropped_data['ENFORCED_POWER_LIMIT'][-1])
 
         # Check average limit for job is not exceeded
         if agent == 'power_balancer':
