@@ -38,6 +38,7 @@
 #include <string>
 #include <memory>
 #include <functional>
+#include <set>
 
 #include "geopm_time.h"
 
@@ -99,6 +100,7 @@ namespace geopm
             const PlatformTopo &m_platform_topo;
             geopm_time_s m_wait_time;
             std::map<uint64_t, double> m_hash_freq_map;
+            std::set<uint64_t> m_default_freq_hash;
             std::vector<int> m_hash_signal_idx;
             std::vector<int> m_freq_control_idx;
             int m_uncore_min_ctl_idx;

@@ -291,8 +291,8 @@ namespace geopm
                 freq = it->second;
             }
             else {
+                m_default_freq_hash.insert(curr_hash);
                 freq = m_default_freq;
-                m_hash_freq_map[curr_hash] = m_default_freq;
             }
             if (m_last_freq[ctl_idx] != freq) {
                 m_last_freq[ctl_idx] = freq;
@@ -372,6 +372,12 @@ namespace geopm
             oss << std::setfill('\0') << std::setw(0) << std::scientific;
             oss << ": " << region.second;
         }
+        for (const auto &region : m_default_freq_hash) {
+            oss << "\n    0x" << std::hex << std::setfill('0') << std::setw(16) << std::fixed;
+            oss << region;
+            oss << std::setfill('\0') << std::setw(0) << std::scientific;
+            oss << ": " << m_default_freq;
+        }
         oss << "\n";
         result.push_back(std::make_pair("Frequency map", oss.str()));
 
@@ -383,6 +389,9 @@ namespace geopm
         std::map<uint64_t, std::vector<std::pair<std::string, std::string> > > result;
         for (const auto &region : m_hash_freq_map) {
             result[region.first].push_back(std::make_pair("frequency-map", std::to_string(region.second)));
+        }
+        for (const auto region : m_default_freq_hash) {
+            result[region].push_back(std::make_pair("frequency-map", std::to_string(m_default_freq)));
         }
         return result;
     }
