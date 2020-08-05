@@ -33,6 +33,7 @@ examples/nekbone/README
 examples/qbox/README
 geopm-ohpc.spec.in
 geopm-theta.spec.in
+integration/README.md
 integration/test/README.md
 pull_request_template.md
 ronn/GEOPM_CXX_MAN_Agent.3.ronn
