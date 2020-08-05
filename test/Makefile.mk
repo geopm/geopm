@@ -35,7 +35,8 @@ if ENABLE_MPI
     check_PROGRAMS += test/geopm_mpi_test_api
 endif
 
-GTEST_TESTS = test/gtest_links/AdminTest.agent_no_policy \
+GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
+              test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/AdminTest.config_default \
               test/gtest_links/AdminTest.config_override \
               test/gtest_links/AdminTest.dup_config \
@@ -476,6 +477,20 @@ if ENABLE_OMPT
                    # end
 endif
 
+if ENABLE_NVML
+    GTEST_TESTS += test/gtest_links/NVMLAcceleratorTopoTest.hpe_sx40_default_config \
+                   test/gtest_links/NVMLAcceleratorTopoTest.no_gpu_config \
+                   test/gtest_links/NVMLAcceleratorTopoTest.mutex_affinitization_config \
+                   test/gtest_links/NVMLAcceleratorTopoTest.equidistant_affinitization_config \
+                   test/gtest_links/NVMLAcceleratorTopoTest.n1_superset_n_affinitization_config \
+                   test/gtest_links/NVMLAcceleratorTopoTest.greedbuster_affinitization_config \
+                   test/gtest_links/NVMLAcceleratorTopoTest.hpe_6500_affinitization_config \
+                   test/gtest_links/NVMLAcceleratorTopoTest.uneven_affinitization_config \
+                   test/gtest_links/NVMLAcceleratorTopoTest.high_cpu_count_config \
+                   test/gtest_links/NVMLAcceleratorTopoTest.high_cpu_count_gaps_config \
+                   # end
+endif
+
 TESTS_ENVIRONMENT = PYTHON='$(PYTHON)'
 
 TESTS += $(GTEST_TESTS) \
@@ -503,7 +518,8 @@ EXTRA_DIST += test/InternalProfile.cpp \
               # end
               # FK: FIXME: Add new traceout file names here.
 
-test_geopm_test_SOURCES = test/AdminTest.cpp \
+test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
+                          test/AdminTest.cpp \
                           test/AgentFactoryTest.cpp \
                           test/AggTest.cpp \
                           test/ApplicationIOTest.cpp \
@@ -614,10 +630,20 @@ beta_test_sources = test/DaemonTest.cpp \
                     test/PolicyStoreImpTest.cpp \
                     # end
 
+nvml_test_sources = test/NVMLAcceleratorTopoTest.cpp \
+                    test/MockNVMLDevicePool.hpp \
+                    # end
+
 if ENABLE_BETA
     test_geopm_test_SOURCES += $(beta_test_sources)
 else
     EXTRA_DIST += $(beta_test_sources)
+endif
+
+if ENABLE_NVML
+    test_geopm_test_SOURCES += $(nvml_test_sources)
+else
+    EXTRA_DIST += $(nvml_test_sources)
 endif
 
 if ENABLE_OMPT

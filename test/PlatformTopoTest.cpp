@@ -41,6 +41,7 @@
 #include "Helper.hpp"
 #include "PlatformTopoImp.hpp"
 #include "Exception.hpp"
+#include "config.h"
 
 using geopm::PlatformTopo;
 using geopm::PlatformTopoImp;
@@ -267,7 +268,11 @@ TEST_F(PlatformTopoTest, hsw_num_domain)
     /// @todo when implemented, add tests for each platform
     EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_BOARD_NIC));
     EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_NIC));
+#ifdef GEOPM_ENABLE_NVML
+    EXPECT_GE(topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR), 0);
+#else
     EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR));
+#endif
     EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_ACCELERATOR));
 
     EXPECT_THROW(topo.num_domain(GEOPM_DOMAIN_INVALID), geopm::Exception);
@@ -295,6 +300,11 @@ TEST_F(PlatformTopoTest, bdx_num_domain)
     EXPECT_EQ(72, topo.num_domain(GEOPM_DOMAIN_CPU));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_BOARD_MEMORY));
     EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_MEMORY));
+#ifdef GEOPM_ENABLE_NVML
+    EXPECT_GE(topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR), 0);
+#else
+    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR));
+#endif
 }
 
 TEST_F(PlatformTopoTest, ppc_num_domain)
@@ -376,10 +386,16 @@ TEST_F(PlatformTopoTest, bdx_domain_idx)
     for (auto cpu_idx : cpu_set_node1) {
         EXPECT_EQ(1, topo.domain_idx(GEOPM_DOMAIN_BOARD_MEMORY, cpu_idx));
     }
+
+#ifdef GEOPM_ENABLE_NVML
+    EXPECT_GE(topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR, 0), -1);
+#else
+    EXPECT_EQ(-1, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR, 0));
+#endif
+
     EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_PACKAGE_MEMORY, 0), geopm::Exception);
     EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_BOARD_NIC, 0), geopm::Exception);
     EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_PACKAGE_NIC, 0), geopm::Exception);
-    EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR, 0), geopm::Exception);
     EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_PACKAGE_ACCELERATOR, 0), geopm::Exception);
 }
 
@@ -566,6 +582,15 @@ TEST_F(PlatformTopoTest, bdx_domain_nested)
                                         GEOPM_DOMAIN_BOARD, 0);
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
+    // Board Accelerator
+#ifdef GEOPM_ENABLE_NVML
+    EXPECT_NO_THROW(topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                       GEOPM_DOMAIN_BOARD_ACCELERATOR, 0));
+#else
+    EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                    GEOPM_DOMAIN_BOARD_ACCELERATOR, 0), Exception);
+#endif
+
     // TODO: still to be implemented
     EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_CPU,
                                     GEOPM_DOMAIN_PACKAGE_MEMORY, 0), Exception);
@@ -575,8 +600,6 @@ TEST_F(PlatformTopoTest, bdx_domain_nested)
                                     GEOPM_DOMAIN_PACKAGE_NIC, 0), Exception);
     EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_CPU,
                                     GEOPM_DOMAIN_BOARD_NIC, 0), Exception);
-    EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_CPU,
-                                    GEOPM_DOMAIN_BOARD_ACCELERATOR, 0), Exception);
 }
 
 TEST_F(PlatformTopoTest, parse_error)

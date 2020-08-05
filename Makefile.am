@@ -80,6 +80,7 @@ if ENABLE_BETA
 endif
 
 pkginclude_HEADERS = contrib/json11/json11.hpp \
+                     src/AcceleratorTopo.hpp \
                      src/Agent.hpp \
                      src/Agg.hpp \
                      src/CircularBuffer.hpp \
@@ -434,6 +435,8 @@ endif
 
 libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             contrib/json11/json11.hpp \
+                            src/AcceleratorTopo.cpp \
+                            src/AcceleratorTopo.hpp \
                             src/Admin.cpp \
                             src/Admin.hpp \
                             src/Agent.cpp \
@@ -624,6 +627,15 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/record.cpp \
                             src/record.hpp \
                             # end
+
+if ENABLE_NVML
+    libgeopmpolicy_la_SOURCES += src/NVMLAcceleratorTopo.cpp \
+                                 src/NVMLAcceleratorTopo.hpp \
+                                 src/NVMLDevicePool.cpp \
+                                 src/NVMLDevicePool.hpp \
+                                 src/NVMLDevicePoolImp.hpp \
+                                 #end
+endif
 
 beta_source_files = src/Daemon.cpp \
                     src/Daemon.hpp \

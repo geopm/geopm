@@ -45,6 +45,7 @@
 
 #include "geopm_sched.h"
 #include "Exception.hpp"
+#include "AcceleratorTopo.hpp"
 
 #include "config.h"
 
@@ -99,6 +100,7 @@ namespace geopm
     PlatformTopoImp::PlatformTopoImp(const std::string &test_cache_file_name)
         : M_TEST_CACHE_FILE_NAME(test_cache_file_name)
         , m_do_fclose(true)
+        , m_accelerator_topo(accelerator_topo())
     {
         std::map<std::string, std::string> lscpu_map;
         lscpu(lscpu_map);
@@ -138,9 +140,14 @@ namespace geopm
                 break;
             case GEOPM_DOMAIN_BOARD_NIC:
             case GEOPM_DOMAIN_PACKAGE_NIC:
+                // @todo Add support for NIC to PlatformTopo.
+                result = 0;
+                break;
             case GEOPM_DOMAIN_BOARD_ACCELERATOR:
+                result = m_accelerator_topo.num_accelerator();
+                break;
             case GEOPM_DOMAIN_PACKAGE_ACCELERATOR:
-                /// @todo Add support for NIC and accelerators to PlatformTopo.
+                // @todo Add support for package accelerators to PlatformTopo.
                 result = 0;
                 break;
             case GEOPM_DOMAIN_INVALID:
@@ -174,6 +181,9 @@ namespace geopm
                 for (auto numa_cpus : m_numa_map) {
                     cpu_idx.insert(numa_cpus.begin(), numa_cpus.end());
                 }
+                break;
+            case GEOPM_DOMAIN_BOARD_ACCELERATOR:
+                cpu_idx = m_accelerator_topo.ideal_cpu_affinitization(domain_idx);
                 break;
             case GEOPM_DOMAIN_PACKAGE:
                 for (int thread_idx = 0;
@@ -258,12 +268,19 @@ namespace geopm
                         ++numa_idx;
                     }
                     break;
+                case GEOPM_DOMAIN_BOARD_ACCELERATOR:
+                    for(int accel_idx = 0; accel_idx <  m_accelerator_topo.num_accelerator(); ++accel_idx) {
+                        std::set <int> affin = m_accelerator_topo.ideal_cpu_affinitization(accel_idx);
+                        if (affin.find(cpu_idx) != affin.end()){
+                            result = accel_idx;
+                        }
+                    }
+                    break;
                 case GEOPM_DOMAIN_PACKAGE_MEMORY:
                 case GEOPM_DOMAIN_BOARD_NIC:
                 case GEOPM_DOMAIN_PACKAGE_NIC:
-                case GEOPM_DOMAIN_BOARD_ACCELERATOR:
                 case GEOPM_DOMAIN_PACKAGE_ACCELERATOR:
-                    /// @todo Add support for package memory NIC and accelerators to domain_idx() method.
+                    // @todo Add support for package memory NIC and accelerators to domain_idx() method.
                     throw Exception("PlatformTopoImp::domain_idx() no support yet for PACKAGE_MEMORY, NIC, or ACCELERATOR",
                                     GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
                     break;
@@ -311,6 +328,11 @@ namespace geopm
         else if (outer_domain == GEOPM_DOMAIN_BOARD_MEMORY &&
                  inner_domain == GEOPM_DOMAIN_CPU) {
             // To support mapping CPU signals to DRAM domain (e.g. power)
+            result = true;
+        }
+        else if (outer_domain == GEOPM_DOMAIN_BOARD_ACCELERATOR &&
+                 inner_domain == GEOPM_DOMAIN_CPU) {
+            // To support mapping CPU signals to ACCELERATOR domain (e.g. power)
             result = true;
         }
         return result;
