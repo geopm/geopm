@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,13 +31,35 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/common_args.py \
-              integration/experiment/__init__.py \
-              integration/experiment/machine.py \
-              integration/experiment/monitor/run_nekbone.py \
-              integration/experiment/util.py \
-              # end
+'''
+Run Nekbone with the monitor agent.
+'''
 
-include integration/experiment/monitor/Makefile.mk
-include integration/experiment/power_sweep/Makefile.mk
-include integration/experiment/trace_analysis/Makefile.mk
+import argparse
+
+from experiment import common_args
+from experiment.monitor import monitor
+from apps.nekbone import nekbone
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    common_args.add_output_dir(parser)
+    common_args.add_nodes(parser)
+
+    args, experiment_cli_args = parser.parse_known_args()
+
+    output_dir = args.output_dir
+    num_node = args.nodes
+
+    # application parameters
+    app_conf = nekbone.NekboneAppConf()
+
+    # experiment parameters
+    iterations = 2
+
+    monitor.launch_monitor(output_dir=output_dir,
+                           iterations=iterations,
+                           num_node=num_node,
+                           app_conf=app_conf,
+                           experiment_cli_args=experiment_cli_args)
