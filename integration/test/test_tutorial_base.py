@@ -44,7 +44,7 @@ import subprocess
 import shutil
 
 # Put integration test directory into the path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 try:
     # Try to load geopmpy without modifiying the path
     import geopmpy.io
@@ -53,11 +53,11 @@ try:
 except ImportError:
     # If geopmpy is not installed in the PYTHONPATH then add local
     # copy to path
-    from integration.test import geopm_context
+    import geopm_context
     import geopmpy.io
     import geopmpy.error
     import geopmpy.hash
-from integration.test import util
+import util
 
 
 class TestIntegration_tutorial_base(unittest.TestCase):

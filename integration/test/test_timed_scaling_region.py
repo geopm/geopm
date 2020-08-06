@@ -43,13 +43,12 @@ import unittest
 import os
 import glob
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from integration.test import geopm_context
+import geopm_context
 import geopmpy.io
 import geopmpy.error
 import geopmpy.hash
-from integration.test import geopm_test_launcher
-from integration.test import util
+import geopm_test_launcher
+import util
 
 
 class AppConf(object):

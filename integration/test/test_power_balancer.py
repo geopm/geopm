@@ -42,16 +42,15 @@ import glob
 import pandas
 import time
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from integration.test import geopm_context
+import geopm_context
 import geopmpy.io
 import geopmpy.error
 
-from integration.test import util
+import util
 if util.do_launch():
     # Note: this import may be moved outside of do_launch if needed to run
     # commands on compute nodes such as geopm_test_launcher.geopmread
-    from integration.test import geopm_test_launcher
+    import geopm_test_launcher
     geopmpy.error.exc_clear()
 
 

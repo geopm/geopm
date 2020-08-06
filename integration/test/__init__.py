@@ -32,20 +32,5 @@
 
 from __future__ import absolute_import
 
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from integration.test import geopm_context
-from integration.test.geopm_test_integration import *
-from integration.test.test_omp_outer_loop import *
-from integration.test.test_ee_timed_scaling_mix import *
-from integration.test.test_enforce_policy import *
-from integration.test.test_profile_policy import *
-from integration.test.test_plugin_static_policy import *
-from integration.test.test_power_balancer import *
-from integration.test.test_tutorial_base import *
-from integration.test.test_frequency_hint_usage import *
-from integration.test.test_scaling_region import *
-from integration.test.test_timed_scaling_region import *
+import geopm_context
 from geopmpy.version import __version__

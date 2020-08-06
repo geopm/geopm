@@ -35,7 +35,7 @@ import json
 import os
 import glob
 
-from experiment import util
+import util
 
 
 class Machine:
