@@ -1,0 +1,278 @@
+From 5be7a6dcc0afb70e23b53f282dd430269d297cbf Mon Sep 17 00:00:00 2001
+From: Brad Geltz <brad.geltz@intel.com>
+Date: Wed, 5 Aug 2020 13:33:08 -0700
+Subject: [PATCH 1/7] Fix whitespace issues
+#
+#  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in
+#        the documentation and/or other materials provided with the
+#        distribution.
+#
+#      * Neither the name of Intel Corporation nor the names of its
+#        contributors may be used to endorse or promote products derived
+#        from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+Signed-off-by: Brad Geltz <brad.geltz@intel.com>
+---
+ src/cg.f                    |  8 ++++----
+ src/driver.f                | 50 ++++++++++++++++++++++-----------------------
+ test/example1/makenek-intel |  6 +++---
+ 3 files changed, 32 insertions(+), 32 deletions(-)
+
+diff --git a/src/cg.f b/src/cg.f
+index b4214dd..f9c4f6d 100644
+--- a/src/cg.f
++++ b/src/cg.f
+@@ -30,9 +30,9 @@ c     Input:   c - inverse of the counting matrix
+ c
+ c     Work arrays:   r,w,p,z  - vectors of length n
+ c
+-c     User-provided ax(w,z,n) returns  w := Az,  
++c     User-provided ax(w,z,n) returns  w := Az,
+ c
+-c     User-provided solveM(z,r,n) ) returns  z := M^-1 r,  
++c     User-provided solveM(z,r,n) ) returns  z := M^-1 r,
+ c
+       parameter (lt=lx1*ly1*lz1*lelt)
+ c     real ur(lt),us(lt),ut(lt)
+@@ -227,8 +227,8 @@ c-------------------------------------------------------------------------
+       include 'SIZE'
+       real w(n),u(n)
+       real h2i
+-  
+-      h2i = (n+1)*(n+1)  
++
++      h2i = (n+1)*(n+1)
+       do i = 2,n-1
+          w(i)=h2i*(2*u(i)-u(i-1)-u(i+1))
+       enddo
+diff --git a/src/driver.f b/src/driver.f
+index f45aa50..cb4421f 100644
+--- a/src/driver.f
++++ b/src/driver.f
+@@ -1,6 +1,6 @@
+ c-----------------------------------------------------------------------
+       program nekbone
+-      
++
+       include 'SIZE'
+       include 'TOTAL'
+       include 'mpif.h'
+@@ -10,7 +10,7 @@ c-----------------------------------------------------------------------
+ 
+       real ah(lx1*lx1),bh(lx1),ch(lx1*lx1),dh(lx1*lx1)
+      $    ,zpts(2*lx1),wght(2*lx1)
+-      
++
+       real x(lt),f(lt),r(lt),w(lt),p(lt),z(lt),c(lt)
+       real g(6,lt)
+       real mfloplist(1024), avmflop
+@@ -32,7 +32,7 @@ c-----------------------------------------------------------------------
+       numthreads = 1
+ #ifdef _OPENMP
+       numthreads= omp_get_max_threads()
+-#endif 
++#endif
+ 
+       if (nid.eq.0) then
+         write(*,*) "Max number of threads: ", numthreads
+@@ -44,7 +44,7 @@ c     call platform_timer(iverbose)   ! iverbose=0 or 1
+ 
+       icount = 0
+ 
+-#ifndef NITER 
++#ifndef NITER
+ #define NITER 100
+ #endif
+       niter = NITER
+@@ -54,9 +54,9 @@ c     call platform_timer(iverbose)   ! iverbose=0 or 1
+       end if
+ 
+ #ifdef LOG
+-#define WLOG(X) if (nid .eq. 0) write(*,*) X 
+-#else 
+-#define WLOG(X) 
++#define WLOG(X) if (nid .eq. 0) write(*,*) X
++#else
++#define WLOG(X)
+ #endif
+ 
+ c     SET UP and RUN NEKBONE
+@@ -72,7 +72,7 @@ c     SET UP and RUN NEKBONE
+            call set_multiplicity (c)       ! Inverse of counting matrix
+ 
+            WLOG("calling proxy_setup")
+-           call proxy_setup(ah,bh,ch,dh,zpts,wght,g) 
++           call proxy_setup(ah,bh,ch,dh,zpts,wght,g)
+ 
+            n     = nx1*ny1*nz1*nelt
+ 
+@@ -152,10 +152,10 @@ C     Transfer array dimensions to common
+ 
+       include 'SIZE'
+       include 'INPUT'
+- 
++
+       ny1=nx1
+       nz1=nx1
+- 
++
+       ndim=ldim
+ 
+       return
+@@ -166,34 +166,34 @@ c-----------------------------------------------------------------------
+       include 'TOTAL'
+       logical ifbrick
+       integer e,eg,offs
+- 
++
+ 
+       if(.not.ifbrick) then   ! A 1-D array of elements of length P*lelt
+   10     continue
+          nelx = nelt*np
+          nely = 1
+          nelz = 1
+-   
++
+          do e=1,nelt
+             eg = e + nid*nelt
+             lglel(e) = eg
+          enddo
+-      else              ! A 3-D block of elements 
++      else              ! A 3-D block of elements
+         if (npx*npy*npz .ne. np) then
+           call cubic(npx,npy,npz,np)  !xyz distribution of total proc
+-        end if 
++        end if
+         if (mx*my*mz .ne. nelt) then
+           call cubic(mx,my,mz,nelt)   !xyz distribution of elements per proc
+-        end if 
+-      
++        end if
++
+ c       if(mx.eq.nelt) goto 10
+ 
+         nelx = mx*npx
+-        nely = my*npy 
++        nely = my*npy
+         nelz = mz*npz
+ 
+         e = 1
+-        offs = (mod(nid,npx)*mx) + npx*(my*mx)*(mod(nid/npx,npy)) 
++        offs = (mod(nid,npx)*mx) + npx*(my*mx)*(mod(nid/npx,npy))
+      $      + (npx*npy)*(mx*my*mz)*(nid/(npx*npy))
+         do k = 0,mz-1
+         do j = 0,my-1
+@@ -243,26 +243,26 @@ c-----------------------------------------------------------------------
+             it = ix
+             ix = iy
+             iy = it
+-          end if      
++          end if
+ 
+           if (ix < iz) then
+             it = ix
+             ix = iz
+             iz = it
+-          end if      
++          end if
+ 
+           if (iy < iz) then
+             it = iy
+             iy = iz
+             iz = it
+-          end if      
++          end if
+ 
+           if ( REAL(ix)/iz < ratio) then
+             ratio = REAL(ix)/iz
+             mx = ix
+             my = iy
+             mz = iz
+-          end if 
++          end if
+ 
+         end if
+       enddo
+@@ -361,7 +361,7 @@ c-----------------------------------------------------------------------
+         do i = 1,20
+           tmp1(i) = 0.0
+         end do
+-        
++
+         tmp1(1)= time1
+         do i = 1, numThrd
+           tmp1(2)= tmp1(2) + trzero(i)
+@@ -620,7 +620,7 @@ c----------------------------------------------------------------------
+ 
+       !open .rea
+       if(nid.eq.0) then
+-         open(unit=9,file='data.rea',status='old') 
++         open(unit=9,file='data.rea',status='old')
+          read(9,*,err=100) ifbrick
+          read(9,*,err=100) iel0,ielN,ielD
+          read(9,*,err=100) nx0,nxN,nxD
+@@ -654,7 +654,7 @@ c     nxN=lx1
+   200 continue
+       write(6,*) "ERROR data.rea :: iel0 > ielN or nx0 > nxN :: ABORT"
+       call exitt0
+-  
++
+       return
+       end
+ c-----------------------------------------------------------------------
+diff --git a/test/example1/makenek-intel b/test/example1/makenek-intel
+index 209dfc3..fa6e4f3 100755
+--- a/test/example1/makenek-intel
++++ b/test/example1/makenek-intel
+@@ -2,7 +2,7 @@
+ # Nek5000 build config file
+ # (c) 2008,2009,2010 UCHICAGO ARGONNE, LLC
+ 
+-# source path 
++# source path
+ SOURCE_ROOT="../../src"
+ 
+ # Fortran compiler
+@@ -11,7 +11,7 @@ F77="mpiifort"
+ # C compiler
+ CC="mpiicc"
+ 
+-# pre-processor symbol list 
++# pre-processor symbol list
+ # (set PPLIST=? to get a list of available symbols)
+ #PPLSIT="BGQ BGP K10_MXM TIMERS MPITIMER BGQTIMER CGTTIMER NITER=20 LOG MPITHREADS XSMM MXMBASIC MKL BLAS_MXM XSMM_FIXED XSMM_DISPATCH NPOLY=8"
+ PPLIST="TIMERS CGTIMERS"
+@@ -25,7 +25,7 @@ PPLIST="TIMERS CGTIMERS"
+ 
+ # auxilliary files to compile
+ # NOTE: source files have to located in the same directory as makenek
+-#       a makefile_usr.inc has to be provided containing the build rules 
++#       a makefile_usr.inc has to be provided containing the build rules
+ #USR="foo.o"
+ 
+ # linking flags
+-- 
+1.8.3.1
+

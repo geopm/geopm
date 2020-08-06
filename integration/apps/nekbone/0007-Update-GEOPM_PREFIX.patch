@@ -1,3 +1,8 @@
+From a193a2176c9b2aa82bd28a3dd8d767c3c51b2407 Mon Sep 17 00:00:00 2001
+From: Brad Geltz <brad.geltz@intel.com>
+Date: Thu, 13 Aug 2020 17:00:11 -0700
+Subject: [PATCH 7/7] Update GEOPM_PREFIX
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -28,10 +33,24 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+Signed-off-by: Brad Geltz <brad.geltz@intel.com>
+---
+ test/example1/makenek-intel | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-EXTRA_DIST += integration/apps/apps.py \
-              integration/apps/geopmbench.py \
-              integration/apps/__init__.py \
-              # end
+diff --git a/test/example1/makenek-intel b/test/example1/makenek-intel
+index 6fb562f..5c4066e 100755
+--- a/test/example1/makenek-intel
++++ b/test/example1/makenek-intel
+@@ -4,7 +4,7 @@
+ 
+ # source path
+ SOURCE_ROOT="../../src"
+-GEOPM_ROOT="${GEOPM_PREFIX:?Please set GEOPM_PREFIX.}" # Defined in intelCRADA/env.sh
++GEOPM_ROOT="${HOME}/build/geopm"
+ 
+ # Fortran compiler
+ F77="mpifort -I${GEOPM_ROOT}/lib/ifort/modules/geopm-x86_64/"
+-- 
+1.8.3.1
 
-include integration/apps/nekbone/Makefile.mk

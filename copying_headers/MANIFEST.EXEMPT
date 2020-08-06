@@ -29,7 +29,6 @@ examples/fft/COPYING-NAS
 examples/fft/README
 examples/hacc/README
 examples/minife/README
-examples/nekbone/README
 examples/qbox/README
 geopm-ohpc.spec.in
 geopm-theta.spec.in

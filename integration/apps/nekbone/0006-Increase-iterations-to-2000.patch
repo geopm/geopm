@@ -1,3 +1,8 @@
+From 18c38bb08657814c2f5df214628a19d9a7d43012 Mon Sep 17 00:00:00 2001
+From: Brad Geltz <brad.geltz@intel.com>
+Date: Wed, 5 Aug 2020 15:42:57 -0700
+Subject: [PATCH 6/7] Increase iterations to 2000
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -28,10 +33,24 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+Signed-off-by: Brad Geltz <brad.geltz@intel.com>
+---
+ test/example1/makenek-intel | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-EXTRA_DIST += integration/apps/apps.py \
-              integration/apps/geopmbench.py \
-              integration/apps/__init__.py \
-              # end
+diff --git a/test/example1/makenek-intel b/test/example1/makenek-intel
+index 15eab37..6fb562f 100755
+--- a/test/example1/makenek-intel
++++ b/test/example1/makenek-intel
+@@ -15,7 +15,7 @@ CC="mpicc"
+ # pre-processor symbol list
+ # (set PPLIST=? to get a list of available symbols)
+ #PPLSIT="BGQ BGP K10_MXM TIMERS MPITIMER BGQTIMER CGTTIMER NITER=20 LOG MPITHREADS XSMM MXMBASIC MKL BLAS_MXM XSMM_FIXED XSMM_DISPATCH NPOLY=8"
+-PPLIST="TIMERS CGTIMERS"
++PPLIST="TIMERS CGTIMERS NITER=2000"
+ 
+ 
+ # OPTIONAL SETTINGS
+-- 
+1.8.3.1
 
-include integration/apps/nekbone/Makefile.mk

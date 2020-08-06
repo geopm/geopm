@@ -1,3 +1,4 @@
+#!/bin/bash
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,9 +30,25 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/apps/apps.py \
-              integration/apps/geopmbench.py \
-              integration/apps/__init__.py \
-              # end
+# Clear out old versions:
+rm -rf nekbone
 
-include integration/apps/nekbone/Makefile.mk
+# Acquire the source:
+svn checkout https://repocafe.cels.anl.gov/repos/nekbone
+base_dir=$PWD
+
+# Change directories to the unpacked files.
+cd nekbone/trunk/nekbone
+
+# Patch nekbone with the patch utility:
+patch -p1 < $base_dir/0001-Fix-whitespace-issues.patch
+patch -p1 < $base_dir/0002-Link-w-GEOPM.patch
+patch -p1 < $base_dir/0003-Only-run-the-12th-order-polynomial.patch
+patch -p1 < $base_dir/0004-Increase-maximum-number-of-elements-to-32768.patch
+patch -p1 < $base_dir/0005-Add-Epoch-markup.patch
+patch -p1 < $base_dir/0006-Increase-iterations-to-2000.patch
+patch -p1 < $base_dir/0007-Update-GEOPM_PREFIX.patch
+
+# Build
+cd test/example1
+./makenek-intel
