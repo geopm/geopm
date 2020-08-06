@@ -43,7 +43,7 @@ import geopmpy.io
 
 from experiment import common_args
 from experiment.power_sweep import power_sweep
-from experiment import util
+from experiment import machine
 
 
 if __name__ == '__main__':
@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     output_dir = args.output_dir
     num_nodes = args.nodes
-    machine = util.init_output_dir(output_dir)
+    mach = machine.init_output_dir(output_dir)
 
     # application parameters
     app_name = 'dgemm'
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     min_power = args.min_power
     max_power = args.max_power
     step_power = 10
-    min_power, max_power = power_sweep.setup_power_bounds(machine, min_power, max_power, step_power)
+    min_power, max_power = power_sweep.setup_power_bounds(mach, min_power, max_power, step_power)
     iterations = 2
     power_sweep.launch_power_sweep(file_prefix=app_name,
                                    output_dir=output_dir,
