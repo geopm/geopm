@@ -37,8 +37,17 @@ import sys
 import os
 import unittest
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from integration.test import *
+from geopm_test_integration import *
+from test_omp_outer_loop import *
+from test_ee_timed_scaling_mix import *
+from test_enforce_policy import *
+from test_profile_policy import *
+from test_plugin_static_policy import *
+from test_power_balancer import *
+from test_tutorial_base import *
+from test_frequency_hint_usage import *
+from test_scaling_region import *
+from test_timed_scaling_region import *
 
 if __name__ == '__main__':
     unittest.main()

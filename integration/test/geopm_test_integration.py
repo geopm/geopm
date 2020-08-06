@@ -52,9 +52,8 @@ import io
 import time
 import signal
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from integration.test import util
-from integration.test import geopm_test_launcher
+import util
+import geopm_test_launcher
 import geopmpy.io
 import geopmpy.launcher
 import geopmpy.hash

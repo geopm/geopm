@@ -44,8 +44,7 @@ import geopmpy.launcher
 import geopmpy.io
 import geopmpy.policy_store
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from integration.test import util
+import util
 
 
 @util.skip_unless_do_launch()

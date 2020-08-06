@@ -41,27 +41,27 @@ import math
 import shlex
 import getpass
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from integration.test import geopm_context
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import geopm_context
 import geopmpy.launcher
-import integration.util
+from experiment import util
 
 
-# TODO: update tests to use integration.util
+# TODO: update tests to use util
 def detect_launcher():
-    return integration.util.detect_launcher()
+    return util.detect_launcher()
 
 
 def allocation_node_test(test_exec, stdout, stderr):
-    integration.util.allocation_node_test(test_exec, stdout, stderr)
+    util.allocation_node_test(test_exec, stdout, stderr)
 
 
 def geopmwrite(write_str):
-    return integration.util.geopmwrite(write_str)
+    return util.geopmwrite(write_str)
 
 
 def geopmread(read_str):
-    return integration.util.geopmread(read_str)
+    return util.geopmread(read_str)
 
 
 def get_platform():

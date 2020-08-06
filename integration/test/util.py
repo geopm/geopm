@@ -43,8 +43,7 @@ import subprocess
 from io import StringIO
 import argparse
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from integration.test import geopm_test_launcher
+import geopm_test_launcher
 
 
 # the global singleton

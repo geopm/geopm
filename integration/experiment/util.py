@@ -42,7 +42,7 @@ import shlex
 import json
 
 import geopmpy.launcher
-from experiment import machine
+import machine
 
 
 def detect_launcher():

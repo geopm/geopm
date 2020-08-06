@@ -40,11 +40,10 @@ import subprocess
 import io
 import json
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from integration.test import geopm_context
+import geopm_context
 import geopmpy.io
-from integration.test import geopm_test_launcher
-from integration.test import util
+import geopm_test_launcher
+import util
 import geopmpy.topo
 
 
