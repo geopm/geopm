@@ -43,21 +43,21 @@ import math
 import geopmpy.io
 
 from experiment import util
+from experiment import machine
 
-
-def setup_power_bounds(machine, min_power, max_power, step_power):
+def setup_power_bounds(mach, min_power, max_power, step_power):
     if min_power is None:
         # system minimum is actually too low; use 50% of TDP or min rounded up to nearest step, whichever is larger
-        min_power = max(0.5 * machine.power_package_tdp(), machine.power_package_min())
+        min_power = max(0.5 * mach.power_package_tdp(), mach.power_package_min())
         min_power = step_power * math.ceil(float(min_power)/step_power)
         sys.stderr.write("Warning: <geopm> run_power_sweep: Invalid or unspecified min_power; using default minimum: {}.\n".format(min_power))
 
     if max_power is None:
-        max_power = machine.power_package_tdp()
+        max_power = mach.power_package_tdp()
         sys.stderr.write("Warning: <geopm> run_power_sweep: Invalid or unspecified max_power; using system TDP: {}.\n".format(max_power))
 
-    if (min_power < machine.power_package_min() or
-        max_power > machine.power_package_max()):
+    if (min_power < mach.power_package_min() or
+        max_power > mach.power_package_max()):
         raise RuntimeError('Power bounds are out of range for this system')
 
     return int(min_power), int(max_power)
@@ -72,7 +72,7 @@ def launch_power_sweep(file_prefix, output_dir, iterations,
     the PowerBalancerAgent.
     """
     name = file_prefix + "_power_sweep"
-    util.init_output_dir(output_dir)
+    machine.init_output_dir(output_dir)
 
     # report extensions
     report_sig = ["CYCLES_THREAD@package", "CYCLES_REFERENCE@package",

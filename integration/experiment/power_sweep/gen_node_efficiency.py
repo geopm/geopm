@@ -43,7 +43,6 @@ import argparse
 
 import geopmpy.io
 
-from experiment import util
 from experiment import common_args
 from experiment import machine
 
@@ -126,11 +125,11 @@ def achieved_freq_histogram_package(app_name, output_dir, report_df, detailed=Fa
     # min and max are used to create consistent x-axis limits
     # sticker frequency is used when converting the percent-of-sticker to
     # a value in hertz
-    machine = util.get_machine(output_dir)
-    min_freq = machine.frequency_min()
-    max_freq = machine.frequency_max()
-    sticker_freq = machine.frequency_sticker()
-    step_freq = machine.frequency_step()
+    mach = machine.get_machine(output_dir)
+    min_freq = mach.frequency_min()
+    max_freq = mach.frequency_max()
+    sticker_freq = mach.frequency_sticker()
+    step_freq = mach.frequency_step()
 
     report_df['power_limit'] = report_df['POWER_PACKAGE_LIMIT_TOTAL']
 

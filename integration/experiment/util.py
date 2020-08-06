@@ -42,7 +42,6 @@ import shlex
 import json
 
 import geopmpy.launcher
-import machine
 
 
 def detect_launcher():
@@ -150,20 +149,3 @@ def launch_run(agent_conf, app_conf, extra_cli_args, **launcher_factory_args):
 
     launcher = geopmpy.launcher.Factory().create(argv, **launcher_factory_args)
     launcher.run()
-
-
-def init_output_dir(output_dir):
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    elif not os.path.isdir(output_dir):
-        raise RuntimeError('Requested output directory is a file: {}'.format(output_dir))
-    mm = machine.Machine(output_dir)
-    mm.save()
-    return mm
-
-
-def get_machine(output_dir):
-    mm = machine.Machine(output_dir)
-    mm.load()
-    return mm
-
