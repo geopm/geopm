@@ -35,15 +35,12 @@
 Example power sweep experiment using geopmbench.
 '''
 
-import sys
-import os
 import argparse
-
-import geopmpy.io
 
 from experiment import common_args
 from experiment.power_sweep import power_sweep
 from experiment import machine
+from apps import geopmbench
 
 
 if __name__ == '__main__':
@@ -51,14 +48,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     common_args.add_output_dir(parser)
     common_args.add_nodes(parser)
-
-    # TODO add to common
-    parser.add_argument('--min-power', dest='min_power',
-                        action='store', type=float, default=None,
-                        help='bottom power limit for the sweep')
-    parser.add_argument('--max-power', dest='max_power',
-                        action='store', type=float, default=None,
-                        help='top power limit for the sweep')
+    common_args.add_min_power(parser)
+    common_args.add_max_power(parser)
 
     args, extra_cli_args = parser.parse_known_args()
 
@@ -67,12 +58,8 @@ if __name__ == '__main__':
     mach = machine.init_output_dir(output_dir)
 
     # application parameters
-    app_name = 'dgemm'
-    app_conf = geopmpy.io.BenchConf(path=os.path.join(output_dir, 'dgemm.conf'))
-    app_conf.append_region('dgemm', 8.0)
-    app_conf.set_loop_count(500)
-    app_conf.write()
-    rank_per_node = 2
+    app_conf = geopmbench.DgemmAppConf(output_dir)
+    num_rank = num_nodes * app_conf.get_rank_per_node()
 
     # experiment parameters
     min_power = args.min_power
@@ -80,7 +67,7 @@ if __name__ == '__main__':
     step_power = 10
     min_power, max_power = power_sweep.setup_power_bounds(mach, min_power, max_power, step_power)
     iterations = 2
-    power_sweep.launch_power_sweep(file_prefix=app_name,
+    power_sweep.launch_power_sweep(file_prefix=app_conf.name(),
                                    output_dir=output_dir,
                                    iterations=iterations,
                                    min_power=min_power,
@@ -88,6 +75,6 @@ if __name__ == '__main__':
                                    step_power=step_power,
                                    agent_types=['power_governor', 'power_balancer'],
                                    num_node=num_nodes,
-                                   num_rank=num_nodes*rank_per_node,
+                                   num_rank=num_rank,
                                    app_conf=app_conf,
                                    experiment_cli_args=extra_cli_args)

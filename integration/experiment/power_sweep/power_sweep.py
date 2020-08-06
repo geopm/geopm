@@ -58,7 +58,8 @@ def setup_power_bounds(mach, min_power, max_power, step_power):
         sys.stderr.write("Warning: <geopm> run_power_sweep: Invalid or unspecified max_power; using system TDP: {}.\n".format(max_power))
 
     if (min_power < mach.power_package_min() or
-        max_power > mach.power_package_max()):
+        max_power > mach.power_package_max() or
+        min_power > max_power):
         raise RuntimeError('Power bounds are out of range for this system')
 
     return int(min_power), int(max_power)
