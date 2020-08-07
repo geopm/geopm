@@ -237,9 +237,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     common_args.add_output_dir(parser)
     common_args.add_show_details(parser)
-    # TODO: move to common args and replace in node_efficiency
-    parser.add_argument('--label', action='store', default="",
-                        help='name of the application to use for plot titles')
+    common_args.add_label(parser)
     parser.add_argument('--normalize', action='store_true', default=False,
                         help='use normalized values')
     parser.add_argument('--speedup', action='store_true', default=False,

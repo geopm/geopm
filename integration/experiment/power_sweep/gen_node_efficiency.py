@@ -184,10 +184,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     common_args.add_output_dir(parser)
     common_args.add_show_details(parser)
-    parser.add_argument('--label', action='store', default="APP",
-                        help='name of the application to use for plot titles')
-
+    common_args.add_label(parser)
     args, _ = parser.parse_known_args()
+
     output_dir = args.output_dir
     show_details = args.show_details
     label = args.label
