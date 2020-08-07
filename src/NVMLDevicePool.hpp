@@ -74,6 +74,11 @@ namespace geopm
             ///        accelerator.
             /// @return Accelerator power consumption in milliwatts.
             virtual uint64_t power (int accel_idx) const = 0;
+            /// @brief Get the NVML device power limit in milliwatts.
+            /// @param [in] accel_idx The index indicating a particular
+            ///        accelerator.
+            /// @return Accelerator power limit in milliwatts.
+            virtual uint64_t power_limit (int accel_idx) const = 0;
             /// @brief Get the NVML device memory subsystem frequency in MHz.
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
@@ -82,7 +87,7 @@ namespace geopm
             /// @brief Get the current NVML device clock throttle reasons.
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
-            /// @return Accelerator clock throttle reasons as defined 
+            /// @return Accelerator clock throttle reasons as defined
             //          in nvml.h.
             virtual uint64_t throttle_reasons(int accel_idx) const = 0;
             /// @brief Get the current NVML device temperature.
@@ -100,7 +105,7 @@ namespace geopm
             //         device.
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
-            /// @return Accelerator performance state, defined by the 
+            /// @return Accelerator performance state, defined by the
             //          NVML API as 0 to 15, with 0 being maximum performance,
             //          15 being minimum performance, and 32 being unknown.
             virtual uint64_t performance_state(int accel_idx) const = 0;
@@ -119,7 +124,7 @@ namespace geopm
             /// @brief Get the NVML device memory Utilization metric
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator.
-            /// @return Accelerator memory utilization percentage 
+            /// @return Accelerator memory utilization percentage
             //          as a whole number from 0 to 100.
             virtual uint64_t utilization_mem(int accel_idx) const = 0;
             /// @brief Get the list of PIDs with an active context on an NVML

@@ -174,6 +174,20 @@ namespace geopm
         return (uint64_t)result;
     }
 
+    uint64_t NVMLDevicePoolImp::power_limit(int accel_idx) const
+    {
+        check_accel_range(accel_idx);
+        unsigned int result;
+        nvmlReturn_t nvml_result;
+
+        nvml_result = nvmlDeviceGetPowerManagementLimit(m_nvml_device.at(accel_idx), &result);
+        check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
+                          ": NVML failed to get power limit for accelerator " +
+                          std::to_string(accel_idx) + ".", __LINE__);
+
+        return (uint64_t)result;
+    }
+
     uint64_t NVMLDevicePoolImp::frequency_status_mem(int accel_idx) const
     {
         check_accel_range(accel_idx);
