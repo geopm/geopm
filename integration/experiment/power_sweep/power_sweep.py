@@ -45,6 +45,7 @@ import geopmpy.io
 from experiment import util
 from experiment import machine
 
+
 def setup_power_bounds(mach, min_power, max_power, step_power):
     if min_power is None:
         # system minimum is actually too low; use 50% of TDP or min rounded up to nearest step, whichever is larger
