@@ -37,10 +37,6 @@ EXTRA_DIST += examples/README.md \
               examples/comd/README \
               examples/custom_msr/msr_reasons.json \
               examples/hacc/README \
-              examples/minife/0001-Adding-geopm-markup-to-CORAL-version-of-miniFE.patch \
-              examples/minife/0001-Optimized-MiniFE-code-for-Intel-hardware.patch \
-              examples/minife/0002-Marked-up-MiniFE-code-for-use-with-GEOPM.patch \
-              examples/minife/README \
               examples/qbox/0001-Adding-geopm-markup-for-qbox.patch \
               examples/qbox/0002-Fixing-run-scripts-and-adding-run-scipt-for-qbox.patch \
               examples/qbox/README \

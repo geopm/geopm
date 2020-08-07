@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,10 +31,35 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/apps/apps.py \
-              integration/apps/geopmbench.py \
-              integration/apps/__init__.py \
-              # end
+'''
+Run MiniFE with the monitor agent.
+'''
 
-include integration/apps/minife/Makefile.mk
-include integration/apps/nekbone/Makefile.mk
+import argparse
+
+from experiment import common_args
+from experiment.monitor import monitor
+from apps.minife import minife
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    common_args.add_output_dir(parser)
+    common_args.add_nodes(parser)
+
+    args, experiment_cli_args = parser.parse_known_args()
+
+    output_dir = args.output_dir
+    num_node = args.nodes
+
+    # application parameters
+    app_conf = minife.MinifeAppConf(num_node)
+
+    # experiment parameters
+    iterations = 2
+
+    monitor.launch(output_dir=output_dir,
+                   iterations=iterations,
+                   num_node=num_node,
+                   app_conf=app_conf,
+                   experiment_cli_args=experiment_cli_args)

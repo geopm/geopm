@@ -28,11 +28,3 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
-EXTRA_DIST += integration/apps/apps.py \
-              integration/apps/geopmbench.py \
-              integration/apps/__init__.py \
-              # end
-
-include integration/apps/minife/Makefile.mk
-include integration/apps/nekbone/Makefile.mk
