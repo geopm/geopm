@@ -51,3 +51,32 @@ def add_show_details(parser):
         parser.add_argument('--show-details', dest='show_details',
                             action='store_true', default=False,
                             help='print additional data analysis details')
+
+
+def add_min_power(parser):
+    parser.add_argument('--min-power', dest='min_power',
+                        action='store', type=float, default=None,
+                        help='bottom power limit for the sweep')
+
+
+def add_max_power(parser):
+    parser.add_argument('--max-power', dest='max_power',
+                        action='store', type=float, default=None,
+                        help='top power limit for the sweep')
+
+
+def add_label(parser):
+    parser.add_argument('--label', action='store', default="APP",
+                        help='name of the application to use for plot titles')
+
+
+def add_min_frequency(parser):
+    parser.add_argument('--min-frequency', dest='min_frequency',
+                        action='store', type=float, default=None,
+                        help='bottom frequency limit for the sweep')
+
+
+def add_max_frequency(parser):
+    parser.add_argument('--max-frequency', dest='max_frequency',
+                        action='store', type=float, default=None,
+                        help='top frequency limit for the sweep')
