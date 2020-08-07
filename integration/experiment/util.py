@@ -131,7 +131,8 @@ def geopmread(read_str):
     return result
 
 
-def launch_run(agent_conf, app_conf, output_dir, extra_cli_args, **launcher_factory_args):
+def launch_run(agent_conf, app_conf, output_dir, extra_cli_args, log_path=None,
+               **launcher_factory_args):
     # TODO: why does launcher strip off first arg, rather than geopmlaunch main?
     argv = ['dummy', detect_launcher()]
 
@@ -143,13 +144,13 @@ def launch_run(agent_conf, app_conf, output_dir, extra_cli_args, **launcher_fact
 
     argv.extend(['--'])
 
-    # TODO: does it matter if these are string or list?
-    # throw if get_exec_args is not a list?
-    # Use app config to get path and arguments
-    # argv.append(app_conf.get_exec_path())
-    # argv.extend(app_conf.get_exec_args())
     bash_path = app_conf.make_bash(output_dir)
     argv.extend([bash_path])
 
     launcher = geopmpy.launcher.Factory().create(argv, **launcher_factory_args)
-    launcher.run()
+    if log_path is None:
+        launcher.run()
+    else:
+        with open(log_path, 'w') as outfile:
+            # TODO: some apps print to stderr..... use stderr=outfile
+            launcher.run(stdout=outfile)
