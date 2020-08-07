@@ -30,12 +30,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import sys
 import json
 import os
 import glob
 
-import util
+from . import util
 
 
 class Machine:
@@ -91,6 +90,7 @@ class Machine:
         for sn in signal_names:
             self.signals[sn] = util.geopmread('{} board 0'.format(sn))
 
+
 def init_output_dir(output_dir):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -105,4 +105,3 @@ def get_machine(output_dir):
     mm = Machine(output_dir)
     mm.load()
     return mm
-
