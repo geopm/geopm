@@ -81,8 +81,8 @@ class TestIntegration_power_balancer(unittest.TestCase):
         cls._test_name = 'test_power_balancer'
         cls._num_node = 4
         cls._agent_list = ['power_governor', 'power_balancer']
-        cls._skip_launch = util.g_util.skip_launch()
-        cls._show_details = util.g_util.show_details()
+        cls._skip_launch = False
+        cls._show_details = True
         cls._tmp_files = []
         cls._keep_files = (cls._skip_launch or
                            os.getenv('GEOPM_KEEP_FILES') is not None)
