@@ -22,7 +22,6 @@ copying_headers/header.NAS
 dox-public/Doxyfile.in
 dox/Doxyfile
 examples/README.md
-examples/amg/README
 examples/comd/README
 examples/custom_msr/msr_reasons.json
 examples/hacc/README

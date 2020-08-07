@@ -29,14 +29,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/monitor/gen_plot_achieved_power.py \
-              integration/experiment/monitor/__init__.py \
-              integration/experiment/monitor/monitor.py \
-              integration/experiment/monitor/run_monitor_amg.py \
-              integration/experiment/monitor/run_monitor_dgemm.py \
-              integration/experiment/monitor/run_monitor_dgemm_tiny.py \
-              integration/experiment/monitor/run_monitor_hpcg.py \
-              integration/experiment/monitor/run_monitor_minife.py \
-              integration/experiment/monitor/run_monitor_nasft.py \
-              integration/experiment/monitor/run_monitor_nekbone.py \
+EXTRA_DIST += integration/apps/amg/0001-Adding-geopm-markup-to-CORAL-2-AMG.patch \
+              integration/apps/amg/amg.py \
+              integration/apps/amg/download_and_build.sh \
+              integration/apps/amg/__init__.py \
               # end
