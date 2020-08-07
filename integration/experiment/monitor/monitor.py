@@ -66,7 +66,7 @@ def launch_monitor(output_dir, iterations,
                           '--geopm-report-signals=' + ','.join(report_sig)]
         extra_cli_args += experiment_cli_args
         # any arguments after run_args are passed directly to launcher
-        util.launch_run(None, app_conf, output_dir, extra_cli_args,
+        util.launch_run(None, app_conf, output_dir, extra_cli_args, log_path,
                         num_node=num_node, num_rank=num_rank)  # raw launcher factory args
 
         # Get app-reported figure of merit
