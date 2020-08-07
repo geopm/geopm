@@ -30,9 +30,6 @@
 #
 
 EXTRA_DIST += examples/README.md \
-              examples/amg/0001-Adding-geopm-markup-to-AMG.patch \
-              examples/amg/0001-Adding-geopm-markup-to-CORAL-2-AMG.patch \
-              examples/amg/README \
               examples/comd/0001-Marked-up-CoMD-code-for-use-with-GEOPM.patch \
               examples/comd/README \
               examples/custom_msr/msr_reasons.json \

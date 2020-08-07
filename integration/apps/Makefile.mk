@@ -35,6 +35,7 @@ EXTRA_DIST += integration/apps/apps.py \
               integration/apps/README.md \
               # end
 
+include integration/apps/amg/Makefile.mk
 include integration/apps/hpcg/Makefile.mk
 include integration/apps/minife/Makefile.mk
 include integration/apps/nekbone/Makefile.mk

@@ -1,3 +1,4 @@
+#!/bin/bash
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,14 +30,17 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/monitor/gen_plot_achieved_power.py \
-              integration/experiment/monitor/__init__.py \
-              integration/experiment/monitor/monitor.py \
-              integration/experiment/monitor/run_monitor_amg.py \
-              integration/experiment/monitor/run_monitor_dgemm.py \
-              integration/experiment/monitor/run_monitor_dgemm_tiny.py \
-              integration/experiment/monitor/run_monitor_hpcg.py \
-              integration/experiment/monitor/run_monitor_minife.py \
-              integration/experiment/monitor/run_monitor_nasft.py \
-              integration/experiment/monitor/run_monitor_nekbone.py \
-              # end
+# Acquire the source:
+wget https://asc.llnl.gov/coral-2-benchmarks/downloads/AMG-master-5.zip
+
+# Unpack the source:
+unzip AMG-master-5.zip
+
+# Change directories to the unpacked files:
+cd AMG-master
+
+# Patch MiniFE with the patch utility:
+patch -p1 < ../0001-Adding-geopm-markup-to-CORAL-2-AMG.patch
+
+# Build
+make
