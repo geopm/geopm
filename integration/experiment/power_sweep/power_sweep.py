@@ -102,6 +102,7 @@ def launch_power_sweep(file_prefix, output_dir, iterations,
                 report_path = os.path.join(output_dir, '{}.report'.format(uid))
                 trace_path = os.path.join(output_dir, '{}.trace'.format(uid))
                 profile_name = 'iteration_{}'.format(iteration)
+                log_path = os.path.join(output_dir, '{}.log'.format(uid))
 
                 # TODO: these are not passed to launcher create()
                 # some are generic enough they could be, though
@@ -112,7 +113,7 @@ def launch_power_sweep(file_prefix, output_dir, iterations,
                                   '--geopm-trace-signals=' + ','.join(trace_sig)]
                 extra_cli_args += experiment_cli_args
                 # any arguments after run_args are passed directly to launcher
-                util.launch_run(agent_conf, app_conf, output_dir, extra_cli_args,
+                util.launch_run(agent_conf, app_conf, output_dir, extra_cli_args, log_path,
                                 num_node=num_node, num_rank=num_rank)  # raw launcher factory args
 
                 # rest to cool off between runs
