@@ -50,7 +50,9 @@ class MockNVMLDevicePool : public geopm::NVMLDevicePool
                            uint64_t(int));
         MOCK_CONST_METHOD1(utilization,
                            uint64_t(int));
-        MOCK_CONST_METHOD1(power ,
+        MOCK_CONST_METHOD1(power,
+                           uint64_t(int));
+        MOCK_CONST_METHOD1(power_limit,
                            uint64_t(int));
         MOCK_CONST_METHOD1(frequency_status_mem,
                            uint64_t(int));

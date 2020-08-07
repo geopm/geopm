@@ -633,6 +633,8 @@ if ENABLE_NVML
                                  src/NVMLDevicePool.cpp \
                                  src/NVMLDevicePool.hpp \
                                  src/NVMLDevicePoolImp.hpp \
+                                 src/NVMLIOGroup.cpp \
+                                 src/NVMLIOGroup.hpp \
                                  #end
 endif
 

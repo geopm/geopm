@@ -488,6 +488,11 @@ if ENABLE_NVML
                    test/gtest_links/NVMLAcceleratorTopoTest.uneven_affinitization_config \
                    test/gtest_links/NVMLAcceleratorTopoTest.high_cpu_count_config \
                    test/gtest_links/NVMLAcceleratorTopoTest.high_cpu_count_gaps_config \
+                   test/gtest_links/NVMLIOGroupTest.read_signal \
+                   test/gtest_links/NVMLIOGroupTest.read_signal_and_batch \
+                   test/gtest_links/NVMLIOGroupTest.write_control \
+                   test/gtest_links/NVMLIOGroupTest.push_control_adjust_write_batch \
+                   test/gtest_links/NVMLIOGroupTest.error_path \
                    # end
 endif
 
@@ -633,6 +638,7 @@ beta_test_sources = test/DaemonTest.cpp \
 
 nvml_test_sources = test/NVMLAcceleratorTopoTest.cpp \
                     test/MockNVMLDevicePool.hpp \
+                    test/NVMLIOGroupTest.cpp \
                     # end
 
 if ENABLE_BETA

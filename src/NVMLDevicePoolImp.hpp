@@ -48,6 +48,7 @@ namespace geopm
             virtual uint64_t frequency_status_sm(int accel_idx) const override;
             virtual uint64_t utilization(int accel_idx) const override;
             virtual uint64_t power(int accel_idx) const override;
+            virtual uint64_t power_limit(int accel_idx) const override;
             virtual uint64_t frequency_status_mem(int accel_idx) const override;
             virtual uint64_t throttle_reasons(int accel_idx) const override;
             virtual uint64_t temperature(int accel_idx) const override;
