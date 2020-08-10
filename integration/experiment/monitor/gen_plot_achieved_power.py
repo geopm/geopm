@@ -36,11 +36,8 @@ Plot a histogram of the achieved power on each node from an unconstrained run.
 '''
 
 import sys
-import os
 import pandas
 import argparse
-import matplotlib.pyplot as plt
-import numpy
 
 import geopmpy.io
 
@@ -53,17 +50,17 @@ from experiment.power_sweep import gen_node_efficiency
 def plot_node_power(df, app_name, min_power, max_power, step_power, output_dir,
                     show_details=False):
 
-    # rename some columns
-    df['runtime'] = df['runtime (sec)']
-    df['network_time'] = df['network-time (sec)']
-    df['energy_pkg'] = df['package-energy (joules)']
-    df['frequency'] = df['frequency (Hz)']
-    df.set_index(['host'], inplace=True)
+    temp_df = df.copy()
+    df['package'] = 0
+    df['power'] = df['ENERGY_PACKAGE@package-0'] / df['TIME@package-0']
+    df.set_index(['host', 'package'], inplace=True)
+    temp_df['package'] = 1
+    temp_df['power'] = temp_df['ENERGY_PACKAGE@package-1'] / temp_df['TIME@package-1']
+    temp_df.set_index(['host', 'package'], inplace=True)
 
-    # TODO: per package info
-    energy_data = df.groupby(['host']).mean()['energy_pkg'].sort_values()
-    runtime_data = df.groupby(['host']).mean()['runtime'].sort_values()
-    power_data = energy_data / runtime_data
+    df = df.append(temp_df)
+
+    power_data = df.groupby(['host', 'package']).mean()['power']
     power_data = power_data.sort_values()
     power_data = pandas.DataFrame(power_data, columns=['power'])
 
@@ -73,7 +70,7 @@ def plot_node_power(df, app_name, min_power, max_power, step_power, output_dir,
     min_drop = min_power
     max_drop = max_power - step_power
     bin_size = step_power
-    xprecision = 3
+    xprecision = 3  # TODO: move into function
     gen_node_efficiency.generate_histogram(power_data, app_name,
                                            min_drop, max_drop, 'power',
                                            bin_size, xprecision, output_dir)
@@ -84,15 +81,15 @@ if __name__ == '__main__':
     common_args.add_output_dir(parser)
     common_args.add_label(parser)
     common_args.add_show_details(parser)
-    # common_args.add_min_power(parser)
-    # common_args.add_max_power(parser)
 
     args, _ = parser.parse_known_args()
     output_dir = args.output_dir
 
     mach = machine.get_machine(output_dir)
-    min_power = mach.power_package_min()
-    max_power = mach.power_package_tdp()
+    # TODO: use per-values; machine needs num packages
+    num_package = 2
+    min_power = mach.power_package_min() / num_package
+    max_power = mach.power_package_tdp() / num_package
     step_power = 10
 
     # TODO: make into utility function
