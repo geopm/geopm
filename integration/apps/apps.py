@@ -51,10 +51,6 @@ class AppConf(object):
         self._exec_args = exec_args
         # TODO: consider injecting num node and ranks here too
 
-    def get_num_node(self):
-        ''' Total number of nodes required by the application. '''
-        return None
-
     def get_rank_per_node(self):
         ''' Total number of ranks required by the application. '''
         return None
