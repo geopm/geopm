@@ -1,5 +1,35 @@
+#  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in
+#        the documentation and/or other materials provided with the
+#        distribution.
+#
+#      * Neither the name of Intel Corporation nor the names of its
+#        contributors may be used to endorse or promote products derived
+#        from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
 import os
-import textwrap
 
 from . import apps
 import geopmpy.io
@@ -15,14 +45,6 @@ class DgemmAppConf(apps.AppConf):
         self._bench_conf = geopmpy.io.BenchConf(os.path.join(output_dir, 'dgemm.conf'))
         self._bench_conf.append_region('dgemm', 8.0)
         self._bench_conf.set_loop_count(500)
-
-    def get_num_node(self):
-        # TODO: this seems bad
-        # proposal: num_nodes always an input to __init__, app throws if it can't handle.
-        # num ranks per node always an output from app conf.
-        # if you want to play with different rank configs, use different app conf
-        raise RuntimeError("<geopm> dgemm application scales to any number of nodes.")
-        return None
 
     def get_rank_per_node(self):
         # TODO: use self._machine_file to determine?
@@ -51,14 +73,6 @@ class TinyAppConf(apps.AppConf):
         self._bench_conf = geopmpy.io.BenchConf(os.path.join(output_dir, 'tiny.conf'))
         self._bench_conf.append_region('dgemm', 0.2)
         self._bench_conf.set_loop_count(500)
-
-    def get_num_node(self):
-        # TODO: this seems bad
-        # proposal: num_nodes always an input to __init__, app throws if it can't handle.
-        # num ranks per node always an output from app conf.
-        # if you want to play with different rank configs, use different app conf
-        raise RuntimeError("<geopm> dgemm application scales to any number of nodes.")
-        return None
 
     def get_rank_per_node(self):
         # TODO: use self._machine_file to determine?
