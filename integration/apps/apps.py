@@ -36,11 +36,10 @@ import textwrap
 
 class AppConf(object):
     """
-    An object that contains all details needed to run an
-    application.  When used with experiment run scripts, write()
-    should be called by the run function before starting the run,
-    and get_exec_path() and get_exec_args() will be used to
-    construct command line arguments to the launcher.
+    An object that contains all details needed to run an application.
+    When used with experiment run scripts, setup(), get_exec_path(),
+    get_exec_args(), and cleanup() will be used to construct command
+    line arguments to the launcher.
     """
     @classmethod
     def name():
@@ -49,7 +48,6 @@ class AppConf(object):
     def __init__(self, exec_path, exec_args=[]):
         self._exec_path = exec_path
         self._exec_args = exec_args
-        # TODO: consider injecting num node and ranks here too
 
     def get_rank_per_node(self):
         ''' Total number of ranks required by the application. '''
@@ -60,15 +58,19 @@ class AppConf(object):
         return None
 
     def setup(self):
+        ''' Any steps to be run prior to running one iteration of the application. '''
         return ''
 
     def get_exec_path(self):
+        ''' Application executable path. '''
         return self._exec_path
 
     def get_exec_args(self):
+        ''' Command line arguments to the application. '''
         return self._exec_args
 
     def cleanup(self):
+        ''' Any steps to be run after running one iteration of the application. '''
         return ''
 
     def parse_fom(self, log_path):
@@ -79,8 +81,8 @@ class AppConf(object):
         if type(app_params) is list:
             app_params = ' '.join(self.get_exec_args())
 
-        script = textwrap.dedent('''\
-            #!/bin/bash
+        script = '''#!/bin/bash\n'''
+        script += textwrap.dedent('''\
             {setup}
             {app_exec} {app_params}
             {cleanup}
