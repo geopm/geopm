@@ -41,7 +41,6 @@
 
 namespace geopm
 {
-
     const AcceleratorTopo &accelerator_topo(void)
     {
 #ifdef GEOPM_ENABLE_NVML
@@ -52,7 +51,7 @@ namespace geopm
         return instance;
     }
 
-    int AcceleratorTopo::num_accelerator() const
+    int AcceleratorTopo::num_accelerator(void) const
     {
         return 0;
     }

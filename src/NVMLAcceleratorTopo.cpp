@@ -43,10 +43,8 @@
 
 namespace geopm
 {
-
     NVMLAcceleratorTopo::NVMLAcceleratorTopo()
-                                                  // TODO: can this be extracted from platform topo
-        : NVMLAcceleratorTopo(nvml_device_pool(), geopm_sched_num_cpu())
+        : NVMLAcceleratorTopo(nvml_device_pool(geopm_sched_num_cpu()), geopm_sched_num_cpu())
     {
     }
 
@@ -56,24 +54,23 @@ namespace geopm
         m_num_accelerator = m_nvml_device_pool.num_accelerator();
 
         if (m_num_accelerator == 0) {
-            std::cerr << "Warning: <geopm> NVMLAcceleratorTopo: No NVIDIA accelerators detected.\n";
+            std::cerr << "Warning: <geopm> NVMLAcceleratorTopo: No NVML accelerators detected.\n";
         }
         else {
             int cpu_remaining = 0;
             std::vector<cpu_set_t *> ideal_affinitization_mask_vec;
-            cpu_set_t *affinitized_cpuset = NULL;
+            cpu_set_t *affinitized_cpuset = CPU_ALLOC(num_cpu);
 
-            affinitized_cpuset = CPU_ALLOC(num_cpu);
             CPU_ZERO_S(CPU_ALLOC_SIZE(num_cpu), affinitized_cpuset);
 
             m_ideal_cpu_affinitization.resize(m_num_accelerator);
 
             // Cache ideal affinitization due to the overhead associated with the NVML calls
-            for(int accel_idx = 0; accel_idx <  m_num_accelerator; ++accel_idx) {
+            for (int accel_idx = 0; accel_idx <  m_num_accelerator; ++accel_idx) {
                 ideal_affinitization_mask_vec.push_back(m_nvml_device_pool.ideal_cpu_affinitization_mask(accel_idx));
             }
 
-            // TODO: As an optimization this may be replacable with CPU_OR of all masks in ideal_affinitzation_mask_vec
+            /// @todo: As an optimization this may be replacable with CPU_OR of all masks in ideal_affinitzation_mask_vec
             //       and CPU_COUNT of the output
             for (int accel_idx = 0; accel_idx <  m_num_accelerator; ++accel_idx) {
                 for (int cpu_idx = 0; cpu_idx < num_cpu; cpu_idx++) {
@@ -88,10 +85,10 @@ namespace geopm
                 }
             }
 
-            // In order to handle systems where the number of CPUs are not evenly divisble by the number of GPUs 
-            // a two pass process is used.  This does not guarantee affinitization is successful, but covers many
-            // common cases
-            for(int affinitization_attempts = 0; affinitization_attempts < 2; ++affinitization_attempts) {
+            // In order to handle systems where the number of CPUs are not evenly divisble by the number of
+            // Accelerators a two pass process is used.  This does not guarantee affinitization is successful,
+            // fair, or that logical CPUs aren't split between Accelerators, but it does cover many common cases
+            for (int affinitization_attempts = 0; affinitization_attempts < 2; ++affinitization_attempts) {
                 unsigned int num_cpu_per_accelerator = cpu_remaining / m_num_accelerator;
                 if (num_cpu_per_accelerator == 0) {
                     num_cpu_per_accelerator = cpu_remaining % m_num_accelerator;
@@ -102,7 +99,6 @@ namespace geopm
                 // for the accelerator with the fewest possible CPUs in the accelerator mask
                 for (int accel_idx = 0; accel_idx <  m_num_accelerator; ++accel_idx) {
                     unsigned int accelerator_cpu_count = 0;
-
                     int cpu_idx = 0;
                     while (cpu_idx < num_cpu && accelerator_cpu_count < num_cpu_per_accelerator) {
                         if (CPU_ISSET(cpu_idx, ideal_affinitization_mask_vec.at(accel_idx))) {
@@ -120,17 +116,16 @@ namespace geopm
                 }
             }
 
-            if(cpu_remaining != 0){
+            if (cpu_remaining != 0) {
                 throw Exception("NVMLAcceleratorTopo::" + std::string(__func__) +
                                 ": Failed to affinitize all valid CPUs to Accelerators.  " +
                                 std::to_string(cpu_remaining) + " CPUs remain unassociated with any accelerator.",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
-
     }
 
-    int NVMLAcceleratorTopo::num_accelerator() const
+    int NVMLAcceleratorTopo::num_accelerator(void) const
     {
         return m_num_accelerator;
     }
@@ -139,10 +134,9 @@ namespace geopm
     {
         if (accel_idx < 0 || accel_idx >= m_num_accelerator) {
             throw Exception("NVMLAcceleratorTopo::" + std::string(__func__) + ": accel_idx " +
-                            std::to_string(accel_idx) + "  is out of range",
+                            std::to_string(accel_idx) + " is out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-
         return m_ideal_cpu_affinitization.at(accel_idx);
     }
 }

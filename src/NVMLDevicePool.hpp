@@ -55,71 +55,72 @@ namespace geopm
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
             virtual cpu_set_t *ideal_cpu_affinitization_mask(int accel_idx) const = 0;
-            /// @brief Get the NVIDIA streaming multiprocessor frequency
+            /// @brief Get the NVML device streaming multiprocessor frequency
             //         in MHz
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
-            virtual uint64_t frequency_status(int accel_idx) const = 0;
-            /// @brief Get the NVIDIA device utilization metric
+            virtual uint64_t frequency_status_sm(int accel_idx) const = 0;
+            /// @brief Get the NVML device utilization metric
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
             virtual double utilization(int accel_idx) const = 0;
-            /// @brief Get the NVIDIA GPU Power in milliwatts
+            /// @brief Get the NVML device power in milliwatts
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
             virtual uint64_t power (int accel_idx) const = 0;
-            /// @brief Get the NVIDIA memory subsystem frequency in MHz
+            /// @brief Get the NVML device memory subsystem frequency in MHz
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
             virtual uint64_t frequency_status_mem(int accel_idx) const = 0;
-            /// @brief Get the current NVIDIA clock throttle reasons
+            /// @brief Get the current NVML device clock throttle reasons
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
             virtual uint64_t throttle_reasons(int accel_idx) const = 0;
-            /// @brief Get the current NVIDIA device temperature
+            /// @brief Get the current NVML device temperature
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
             virtual uint64_t temperature(int accel_idx) const = 0;
             /// @brief Get the total energy consumed counter value for
-            //         an NVIDIA device in millijoules
+            //         an NVML device in millijoules
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
             virtual uint64_t energy(int accel_idx) const = 0;
-            /// @brief Get the current performance state of an NVIDIA
+            /// @brief Get the current performance state of an NVML
             //         device
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
             virtual uint64_t performance_state(int accel_idx) const = 0;
             /// @brief Get the pcie rx throughput over a 20ms period for
-            //         an NVIDIA device
+            //         an NVML device
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
             virtual uint64_t throughput_rx_pcie(int accel_idx) const = 0;
             /// @brief Get the pcie tx throughput over a 20ms period for
-            //         an NVIDIA device
+            //         an NVML device
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
             virtual uint64_t throughput_tx_pcie(int accel_idx) const = 0;
-            /// @brief Get the NVIDIA device memory Utilization metric
+            /// @brief Get the NVML device memory Utilization metric
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
             virtual double utilization_mem(int accel_idx) const = 0;
-            /// @brief Get the list of PIDs actively running on an NVIDIA
-            //         accelerator
+            /// @brief Get the list of PIDs actively running on an NVML
+            //         device
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
             virtual std::vector<int> active_process_list(int accel_idx) const = 0;
 
-            /// @brief Set min and max frequency for NVIDIA device
+            /// @brief Set min and max frequency for NVML device
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
-            /// @param [in] setting Target frequency in MHz
-            virtual void frequency_control(int accel_idx, int setting) const = 0;
-            /// @brief Reset min and max frequency for NVIDIA device
+            /// @param [in] min_freq Target min frequency in MHz
+            /// @param [in] max_freq Target max frequency in MHz
+            virtual void frequency_control_sm(int accel_idx, int min_freq, int max_freq) const = 0;
+            /// @brief Reset min and max frequency for NVML device
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
             virtual void frequency_reset_control(int accel_idx) const = 0;
-            /// @brief Set power limit for NVIDIA device
+            /// @brief Set power limit for NVML device
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
             /// @param [in] setting Power cap in milliwatts
@@ -127,7 +128,6 @@ namespace geopm
         private:
     };
 
-    const NVMLDevicePool &nvml_device_pool(void);
+    const NVMLDevicePool &nvml_device_pool(int num_cpu);
 }
-
 #endif
