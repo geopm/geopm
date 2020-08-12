@@ -54,7 +54,14 @@ namespace geopm
         return instance;
     }
 
-    std::set<uint64_t> ApplicationSampler::region_hash_network(void) {
+    std::set<uint64_t> ApplicationSampler::region_hash_network(void)
+    {
+        static std::set <uint64_t> result = region_hash_network_once();
+        return result;
+    }
+
+    std::set<uint64_t> ApplicationSampler::region_hash_network_once(void)
+    {
         std::set<uint64_t> ret;
         std::set<std::string> network_funcs {"MPI_Allgather",
                                              "MPI_Allgatherv",
