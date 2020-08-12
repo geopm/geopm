@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
+
 #include "Comm.hpp"
 
 #include <inttypes.h>
@@ -41,7 +43,6 @@
 #include <mutex>
 #include <Environment.hpp>
 #include <geopm_plugin.hpp>
-#include "config.h"
 #ifdef GEOPM_ENABLE_MPI
 #include "MPIComm.hpp"
 #endif
