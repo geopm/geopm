@@ -104,6 +104,8 @@ namespace geopm
         protected:
             virtual ~ApplicationSampler() = default;
             ApplicationSampler() = default;
+        private:
+            static std::set<uint64_t> region_hash_network_once(void);
     };
 }
 
