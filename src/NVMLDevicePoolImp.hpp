@@ -41,11 +41,11 @@ namespace geopm
     class NVMLDevicePoolImp : public NVMLDevicePool
     {
         public:
-            NVMLDevicePoolImp();
+            NVMLDevicePoolImp(const int num_cpu);
             virtual ~NVMLDevicePoolImp();
-            virtual int num_accelerator() const override;
+            virtual int num_accelerator(void) const override;
             virtual cpu_set_t *ideal_cpu_affinitization_mask(int accel_idx) const override;
-            virtual uint64_t frequency_status(int accel_idx) const override;
+            virtual uint64_t frequency_status_sm(int accel_idx) const override;
             virtual double utilization(int accel_idx) const override;
             virtual uint64_t power(int accel_idx) const override;
             virtual uint64_t frequency_status_mem(int accel_idx) const override;
@@ -58,19 +58,17 @@ namespace geopm
             virtual double utilization_mem(int accel_idx) const override;
             virtual std::vector<int> active_process_list(int accel_idx) const override;
 
-            virtual void frequency_control(int accel_idx, int setting) const override;
+            virtual void frequency_control_sm(int accel_idx, int min_freq, int max_freq) const override;
             virtual void frequency_reset_control(int accel_idx) const override;
             virtual void power_control(int accel_idx, int setting) const override;
 
         private:
+            const unsigned int M_MAX_CONTEXTS;
+            const unsigned int M_NUM_CPU;
             virtual void check_accel_range(int accel_idx) const;
-
+            virtual void check_nvml_result(nvmlReturn_t nvml_result, int error, std::string message) const;
             unsigned int m_num_accelerator;
             std::vector<nvmlDevice_t> m_nvml_device;
-
-            unsigned int m_max_contexts;
-
     };
 }
-
 #endif

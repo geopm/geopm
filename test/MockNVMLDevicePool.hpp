@@ -45,35 +45,37 @@ class MockNVMLDevicePool : public geopm::NVMLDevicePool
         MOCK_CONST_METHOD1(ideal_cpu_affinitization_mask,
                            cpu_set_t *(int));
         MOCK_CONST_METHOD1(frequency_status,
-                          uint64_t(int));
+                           uint64_t(int));
+        MOCK_CONST_METHOD1(frequency_status_sm,
+                           uint64_t(int));
         MOCK_CONST_METHOD1(utilization,
-                          double(int));
+                           double(int));
         MOCK_CONST_METHOD1(power ,
-                          uint64_t(int));
+                           uint64_t(int));
         MOCK_CONST_METHOD1(frequency_status_mem,
-                          uint64_t(int));
+                           uint64_t(int));
         MOCK_CONST_METHOD1(throttle_reasons,
-                          uint64_t(int));
+                           uint64_t(int));
         MOCK_CONST_METHOD1(temperature,
-                          uint64_t(int));
+                           uint64_t(int));
         MOCK_CONST_METHOD1(energy,
-                          uint64_t(int));
+                           uint64_t(int));
         MOCK_CONST_METHOD1(performance_state,
-                          uint64_t(int));
+                           uint64_t(int));
         MOCK_CONST_METHOD1(throughput_rx_pcie,
-                          uint64_t(int));
+                           uint64_t(int));
         MOCK_CONST_METHOD1(throughput_tx_pcie,
-                          uint64_t(int));
+                           uint64_t(int));
         MOCK_CONST_METHOD1(utilization_mem,
-                          double(int));
+                           double(int));
         MOCK_CONST_METHOD1(active_process_list,
-                          std::vector<int>(int));
-        MOCK_CONST_METHOD2(frequency_control,
-                          void(int, int));
+                           std::vector<int>(int));
+        MOCK_CONST_METHOD3(frequency_control_sm,
+                           void(int, int, int));
         MOCK_CONST_METHOD1(frequency_reset_control,
-                          void(int));
+                           void(int));
         MOCK_CONST_METHOD2(power_control,
-                          void(int, int));
+                           void(int, int));
 };
 
 #endif

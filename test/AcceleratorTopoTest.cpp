@@ -48,22 +48,7 @@ using geopm::AcceleratorTopo;
 using geopm::Exception;
 using testing::Return;
 
-class AcceleratorTopoTest : public :: testing :: Test
-{
-    protected:
-        void SetUp();
-        void TearDown();
-};
-
-void AcceleratorTopoTest::SetUp()
-{
-}
-
-void AcceleratorTopoTest::TearDown()
-{
-}
-
-TEST_F(AcceleratorTopoTest, default_config)
+TEST(AcceleratorTopoTest, default_config)
 {
     std::unique_ptr<AcceleratorTopo> topo;
     topo = geopm::make_unique<AcceleratorTopo>();

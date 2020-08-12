@@ -76,7 +76,6 @@ namespace geopm
             int m_core_per_package;
             int m_thread_per_core;
             std::vector<std::set<int> > m_numa_map;
-
             const AcceleratorTopo &m_accelerator_topo;
     };
 }

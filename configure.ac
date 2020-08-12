@@ -135,7 +135,7 @@ fi
 )
 
 AC_ARG_ENABLE([nvml],
-  [AS_HELP_STRING([--enable-nvml], [Enable GEOPM to use the NVIDIA NVML driver to support NVIDIA board accelerators])],
+  [AS_HELP_STRING([--enable-nvml], [Enables use of the NVML driver to support NVML board accelerators])],
 [if test "x$enable_nvml" = "xno" ; then
   enable_nvml="0"
 else
@@ -191,7 +191,7 @@ AC_SUBST([enable_msrsafe_ioctl_write])
 
 if test "x$enable_nvml" = "x1" ; then
   ENABLE_NVML=True
-  AC_DEFINE([GEOPM_ENABLE_NVML], [ ], [Enables use of NVIDIA NVML driver to support NVIDIA Board acellerators])
+  AC_DEFINE([GEOPM_ENABLE_NVML], [ ], [Enables use of the NVML driver to support NVML board accelerators])
 else
   ENABLE_NVML=False
 fi
