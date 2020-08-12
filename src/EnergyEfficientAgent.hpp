@@ -127,7 +127,8 @@ namespace geopm
             int m_num_children;
             bool m_do_send_policy;
             double m_perf_margin;
-            std::set<uint64_t> m_network_hash;
+            std::set<uint64_t> m_low_freq_hash;
+            std::set<uint64_t> m_no_learning_hash;
     };
 }
 
