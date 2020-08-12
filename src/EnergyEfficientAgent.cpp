@@ -215,6 +215,19 @@ namespace geopm
         m_freq_governor->adjust_platform(m_target_freq);
     }
 
+    bool EnergyEfficientAgent::is_region_boundary(const struct m_region_info_s &last_region_info, const struct m_region_info_s &current_region_info)
+    {
+        bool ret = false;
+        if (last_region_info.hash != current_region_info.hash || // region hash change
+            (last_region_info.hash == current_region_info.hash &&
+             last_region_info.count != current_region_info.count) || // same hash, new count
+            (last_region_info.hash == current_region_info.hash &&
+             last_region_info.hint != current_region_info.hint)) { // same hash, new hint
+            ret = true;
+        }
+        return ret;
+    }
+
     void EnergyEfficientAgent::sample_platform(std::vector<double> &out_sample)
     {
         double freq_min = m_freq_governor->get_frequency_min();
@@ -226,10 +239,7 @@ namespace geopm
                 .hint = (uint64_t)m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_HINT][ctl_idx]),
                 .runtime = m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_RUNTIME][ctl_idx]),
                 .count = (uint64_t)m_platform_io.sample(m_signal_idx[M_SIGNAL_REGION_COUNT][ctl_idx])};
-            // If region hash has changed, or region count changed for the same region
-            // update current region (entry)
-            if (m_last_region_info[ctl_idx].hash != current_region_info.hash ||
-                m_last_region_info[ctl_idx].count != current_region_info.count) {
+            if (EnergyEfficientAgent::is_region_boundary(m_last_region_info[ctl_idx], current_region_info)) {
                 if (do_learning(current_region_info.hash, current_region_info.hint)) {
                     /// set the freq for the current region (entry)
                     auto current_region_it = m_region_map[ctl_idx].find(current_region_info.hash);

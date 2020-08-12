@@ -84,6 +84,8 @@ namespace geopm
             static std::vector<std::string> policy_names(void);
             static std::vector<std::string> sample_names(void);
         private:
+            struct m_region_info_s;
+            static bool is_region_boundary(const struct m_region_info_s &last_region_info, const struct m_region_info_s &current_region_info);
             bool update_policy(const std::vector<double> &in_policy);
             void init_platform_io(void);
             bool do_learning(uint64_t hash, uint64_t hint) const;
