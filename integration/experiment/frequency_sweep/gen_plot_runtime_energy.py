@@ -71,47 +71,45 @@ def generate_runtime_energy_plot(df, name, output_dir='.'):
     plt.close()
 
 
+def find_longest_region(report_df):
+    max_freq = report_df['freq_hz'].max()
+    max_freq_data = report_df.loc[report_df['freq_hz'] == max_freq]
+    longest_runtime = max_freq_data['runtime'].max()
+    longest_data = max_freq_data.loc[max_freq_data['runtime'] == longest_runtime]
+    regions = longest_data['region'].unique()
+    longest = regions[0]
+    if len(regions) > 1:
+        sys.stderr.write('<geopm> Warning: multiple regions with same longest runtime.')
+    return longest
+
+
 def plot_runtime_energy(report_df, label, output_dir, show_details=False):
     # rename some columns
     # TODO: only works for freq map agent
-    report_df['freq_mhz'] = report_df['FREQ_DEFAULT']
+    report_df['freq_hz'] = report_df['FREQ_DEFAULT']
     report_df['runtime'] = report_df['runtime (sec)']
     report_df['network_time'] = report_df['network-time (sec)']
     report_df['energy_pkg'] = report_df['package-energy (joules)']
     report_df['frequency'] = report_df['frequency (Hz)']
-    report_df = report_df.set_index(['Agent', 'freq_mhz', 'Profile', 'host', 'region'])
+    report_df = report_df[['freq_hz', 'runtime', 'region', 'network_time',
+                           'energy_pkg', 'frequency', 'count']]
 
-    # select only columns of interest
-    report_df = report_df[['runtime', 'network_time', 'energy_pkg',
-                           'frequency', 'count']]
+    longest_region = find_longest_region(report_df)
+    region_df = report_df.loc[report_df['region'] == longest_region]
+    data = []
+    freqs = sorted(region_df['freq_hz'].unique())
+    for freq in freqs:
+        freq_df = region_df.loc[region_df['freq_hz'] == freq]
+        region_mean_runtime = freq_df['runtime'].mean()
+        region_mean_energy = freq_df['energy_pkg'].mean()
+        data.append([region_mean_runtime, region_mean_energy])
+    result = pandas.DataFrame(data, index=freqs,
+                              columns=['runtime', 'energy_pkg'])
 
-    # find region of interest
-    # TODO: command line option to override
-    # TODO: nicer way to do this?
-    max_freq = report_df.index.get_level_values(level='freq_mhz').max()
-    idx = pandas.IndexSlice
-    max_freq_run = report_df.loc[idx[:, max_freq, :, :, :], ]
-    longest_region = max_freq_run.loc[max_freq_run['runtime'] == max_freq_run['runtime'].max()].index.get_level_values('region').item()
-
-    result = _runtime_energy_sweep(report_df, longest_region)
     if show_details:
         sys.stdout.write('Data for longest region "{}":\n{}\n'.format(longest_region, result))
 
     generate_runtime_energy_plot(result, label, output_dir)
-
-
-def _runtime_energy_sweep(df, region):
-    idx = pandas.IndexSlice
-    # freq_pname = FreqSweepAnalysis.get_freq_profiles(df, self._name)
-    data = []
-    freqs = df.index.get_level_values(level='freq_mhz').unique()
-    for freq in freqs:
-        freq_df = df.loc[idx[:, freq, :, :, region], ]
-        region_mean_runtime = freq_df['runtime'].mean()
-        region_mean_energy = freq_df['energy_pkg'].mean()
-        data.append([region_mean_runtime, region_mean_energy])
-    return pandas.DataFrame(data, index=freqs,
-                            columns=['runtime', 'energy_pkg'])
 
 
 if __name__ == '__main__':
