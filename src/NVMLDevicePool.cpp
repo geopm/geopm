@@ -61,33 +61,22 @@ namespace geopm
 
         //Initialize NVML
         nvml_result = nvmlInit();
-        if (nvml_result != NVML_SUCCESS) {
-            throw Exception("NVMLDevicePool::" + std::string(__func__) +
-                            ": NVML failed to initialize.  Error: " +
-                            nvmlErrorString(nvml_result),
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
+        check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
+                          ": NVML failed to initialize.");
 
         //Query number of NVML Accelerators
         nvml_result = nvmlDeviceGetCount(&m_num_accelerator);
-        if (nvml_result != NVML_SUCCESS) {
-            throw Exception("NVMLDevicePool::" + std::string(__func__) +
-                            ": NVML failed to query device count.  Error: " +
-                            nvmlErrorString(nvml_result),
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
+        check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
+                          ": NVML failed to query device count.");
 
         //Acquire device handle for each NVML Accelerator
         m_nvml_device.resize(m_num_accelerator);
         for (unsigned int accel_idx = 0; accel_idx < m_num_accelerator; ++accel_idx) {
             nvml_result = nvmlDeviceGetHandleByIndex(accel_idx,
                                                      &m_nvml_device.at(accel_idx));
-            if (nvml_result != NVML_SUCCESS) {
-                throw Exception("NVMLDevicePool::" + std::string(__func__) +
-                                ": NVML failed to get handle for accelerator " +
-                                std::to_string(accel_idx) + ".  Error: " + nvmlErrorString(nvml_result),
-                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
+            check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
+                              ": NVML failed to get handle for accelerator " +
+                              std::to_string(accel_idx) + ".");
         }
     }
 
@@ -106,7 +95,7 @@ namespace geopm
     void NVMLDevicePoolImp::check_nvml_result(nvmlReturn_t nvml_result, int error, std::string message) const
     {
         if (nvml_result != NVML_SUCCESS) {
-            throw Exception(message, error, __FILE__, __LINE__);
+            throw Exception(message + "  Error: " + nvmlErrorString(nvml_result), error, __FILE__, __LINE__);
         }
     }
 
@@ -140,7 +129,7 @@ namespace geopm
                                                             (unsigned long *)accel_cpuset);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to get CPU Affinity bitmask for accelerator " +
-                          std::to_string(accel_idx) + ".  Error: " + nvmlErrorString(nvml_result));
+                          std::to_string(accel_idx) + ".");
         return accel_cpuset;
     }
 
@@ -154,7 +143,7 @@ namespace geopm
                                          &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to get SM Frequency for accelerator " +
-                          std::to_string(accel_idx) + ".  Error: " + nvmlErrorString(nvml_result));
+                          std::to_string(accel_idx) + ".");
         return (uint64_t)result;
     }
 
@@ -167,7 +156,7 @@ namespace geopm
         nvml_result =  nvmlDeviceGetUtilizationRates(m_nvml_device.at(accel_idx), &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to get GPU Utilization for accelerator " +
-                          std::to_string(accel_idx) + ".  Error: " + nvmlErrorString(nvml_result));
+                          std::to_string(accel_idx) + ".");
         return (double)result.gpu;
     }
 
@@ -180,7 +169,7 @@ namespace geopm
         nvml_result = nvmlDeviceGetPowerUsage(m_nvml_device.at(accel_idx), &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to get power for accelerator " +
-                          std::to_string(accel_idx) + ".  Error: " + nvmlErrorString(nvml_result));
+                          std::to_string(accel_idx) + ".");
 
         return (uint64_t)result;
     }
@@ -194,7 +183,7 @@ namespace geopm
         nvml_result = nvmlDeviceGetClock(m_nvml_device.at(accel_idx), NVML_CLOCK_MEM, NVML_CLOCK_ID_CURRENT, &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to get Memory Frequency for accelerator " +
-                          std::to_string(accel_idx) + ".  Error: " + nvmlErrorString(nvml_result));
+                          std::to_string(accel_idx) + ".");
 
         return (uint64_t)result;
     }
@@ -208,7 +197,7 @@ namespace geopm
         nvml_result = nvmlDeviceGetCurrentClocksThrottleReasons(m_nvml_device.at(accel_idx), &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to get current clock throttle reasosn for accelerator " +
-                          std::to_string(accel_idx) + ".  Error: " + nvmlErrorString(nvml_result));
+                          std::to_string(accel_idx) + ".");
 
         return (uint64_t)result;
     }
@@ -222,7 +211,7 @@ namespace geopm
         nvml_result =  nvmlDeviceGetTemperature(m_nvml_device.at(accel_idx), NVML_TEMPERATURE_GPU, &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to get temperature for accelerator " +
-                          std::to_string(accel_idx) + ".  Error: " + nvmlErrorString(nvml_result));
+                          std::to_string(accel_idx) + ".");
 
         return (uint64_t)result;
     }
@@ -236,7 +225,7 @@ namespace geopm
         nvml_result =  nvmlDeviceGetTotalEnergyConsumption(m_nvml_device.at(accel_idx), &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to get energy for accelerator " +
-                          std::to_string(accel_idx) + ".  Error: " + nvmlErrorString(nvml_result));
+                          std::to_string(accel_idx) + ".");
 
         return (uint64_t)result;
     }
@@ -250,7 +239,7 @@ namespace geopm
         nvml_result = nvmlDeviceGetPerformanceState(m_nvml_device.at(accel_idx), &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to get performance state for accelerator " +
-                          std::to_string(accel_idx) + ".  Error: " + nvmlErrorString(nvml_result));
+                          std::to_string(accel_idx) + ".");
 
         return (uint64_t)result;
     }
@@ -264,7 +253,7 @@ namespace geopm
         nvml_result = nvmlDeviceGetPcieThroughput(m_nvml_device.at(accel_idx), NVML_PCIE_UTIL_RX_BYTES, &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to get PCIE received throughput rate for accelerator " +
-                          std::to_string(accel_idx) + ".  Error: " + nvmlErrorString(nvml_result));
+                          std::to_string(accel_idx) + ".");
 
         return (uint64_t)result;
     }
@@ -278,7 +267,7 @@ namespace geopm
         nvml_result = nvmlDeviceGetPcieThroughput(m_nvml_device.at(accel_idx), NVML_PCIE_UTIL_TX_BYTES, &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to get PCIE transmitted throughput rate for accelerator " +
-                          std::to_string(accel_idx) + ".  Error: " + nvmlErrorString(nvml_result));
+                          std::to_string(accel_idx) + ".");
 
         return (uint64_t)result;
     }
@@ -292,7 +281,7 @@ namespace geopm
         nvml_result =  nvmlDeviceGetUtilizationRates(m_nvml_device.at(accel_idx), &result);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to get memory utilization for accelerator " +
-                          std::to_string(accel_idx) + ".  Error: " + nvmlErrorString(nvml_result));
+                          std::to_string(accel_idx) + ".");
 
         return (double)result.memory;
     }
@@ -329,7 +318,7 @@ namespace geopm
             }
             check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                               ": NVML failed to acquire running processes for accelerator " +
-                              std::to_string(accel_idx) + ".  Error: " + nvmlErrorString(nvml_result));
+                              std::to_string(accel_idx) + ".");
 
             for (int i = 0; i<temp; i++) {
                 result.push_back(process_info_list[i].pid);
@@ -338,7 +327,7 @@ namespace geopm
         else {
             check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                               ": NVML failed to acquire running processes for accelerator " +
-                              std::to_string(accel_idx) + ".  Error: " + nvmlErrorString(nvml_result));
+                              std::to_string(accel_idx) + ".");
         }
         return result;
     }
@@ -351,7 +340,7 @@ namespace geopm
         nvml_result = nvmlDeviceSetGpuLockedClocks(m_nvml_device[accel_idx], (unsigned int) min_freq, (unsigned int) max_freq);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to set sm frequency for accelerator " +
-                          std::to_string(accel_idx) + ".  Error: " + nvmlErrorString(nvml_result));
+                          std::to_string(accel_idx) + ".");
     }
 
     void NVMLDevicePoolImp::frequency_reset_control(int accel_idx) const
@@ -362,7 +351,7 @@ namespace geopm
         nvml_result =  nvmlDeviceResetGpuLockedClocks(m_nvml_device[accel_idx]);
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to reset sm frequency for accelerator " +
-                          std::to_string(accel_idx) + ".  Error: " + nvmlErrorString(nvml_result));
+                          std::to_string(accel_idx) + ".");
     }
 
     void NVMLDevicePoolImp::power_control(int accel_idx, int setting) const
@@ -373,6 +362,6 @@ namespace geopm
         nvml_result = nvmlDeviceSetPowerManagementLimit(m_nvml_device.at(accel_idx), (unsigned int) (setting));
         check_nvml_result(nvml_result, GEOPM_ERROR_RUNTIME, "NVMLDevicePool::" + std::string(__func__) +
                           ": NVML failed to set power limit for accelerator " +
-                          std::to_string(accel_idx) + ".  Error: " + nvmlErrorString(nvml_result));
+                          std::to_string(accel_idx) + ".");
     }
 }
