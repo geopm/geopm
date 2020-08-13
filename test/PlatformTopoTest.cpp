@@ -37,16 +37,20 @@
 #include <string>
 
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
 #include "Helper.hpp"
+#include "MockAcceleratorTopo.hpp"
 #include "PlatformTopoImp.hpp"
 #include "Exception.hpp"
 #include "config.h"
 #include "geopm_test.hpp"
 
+using geopm::AcceleratorTopo;
 using geopm::PlatformTopo;
 using geopm::PlatformTopoImp;
 using geopm::Exception;
+using testing::Return;
 
 class PlatformTopoTest : public :: testing :: Test
 {
@@ -63,6 +67,7 @@ class PlatformTopoTest : public :: testing :: Test
         std::string m_ppc_lscpu_str;
         std::string m_no0x_lscpu_str;
         bool m_do_unlink;
+        std::shared_ptr<MockAcceleratorTopo> m_accelerator_topo;
 };
 
 void PlatformTopoTest::spoof_lscpu(void)
@@ -235,6 +240,9 @@ void PlatformTopoTest::SetUp()
         "NUMA node1 CPU(s):     ffffc0000ffffc0000\n"
         "Flags:                 fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch epb cat_l3 cdp_l3 invpcid_single intel_pt spec_ctrl ibpb_support tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm cqm rdt_a rdseed adx smap xsaveopt cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local dtherm ida arat pln pts\n";
     m_do_unlink = false;
+
+    m_accelerator_topo = std::make_shared<MockAcceleratorTopo>();
+    ON_CALL(*m_accelerator_topo, num_accelerator()).WillByDefault(Return(0));
 }
 
 void PlatformTopoTest::TearDown()
@@ -257,8 +265,10 @@ void PlatformTopoTest::write_lscpu(const std::string &lscpu_str)
 
 TEST_F(PlatformTopoTest, hsw_num_domain)
 {
+    const int num_accelerator = 4;
+    EXPECT_CALL(*m_accelerator_topo, num_accelerator()).WillRepeatedly(Return(num_accelerator));
     write_lscpu(m_hsw_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_CORE));
@@ -269,11 +279,7 @@ TEST_F(PlatformTopoTest, hsw_num_domain)
     /// @todo when implemented, add tests for each platform
     EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_BOARD_NIC));
     EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_NIC));
-#ifdef GEOPM_ENABLE_NVML
-    EXPECT_NO_THROW(topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR));
-#else
-    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR));
-#endif
+    EXPECT_EQ(num_accelerator, topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR));
     EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_ACCELERATOR));
 
     EXPECT_THROW(topo.num_domain(GEOPM_DOMAIN_INVALID), geopm::Exception);
@@ -282,7 +288,7 @@ TEST_F(PlatformTopoTest, hsw_num_domain)
 TEST_F(PlatformTopoTest, knl_num_domain)
 {
     write_lscpu(m_knl_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(64, topo.num_domain(GEOPM_DOMAIN_CORE));
@@ -293,25 +299,23 @@ TEST_F(PlatformTopoTest, knl_num_domain)
 
 TEST_F(PlatformTopoTest, bdx_num_domain)
 {
+    const int num_accelerator = 4;
+    EXPECT_CALL(*m_accelerator_topo, num_accelerator()).WillRepeatedly(Return(num_accelerator));
     write_lscpu(m_bdx_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(36, topo.num_domain(GEOPM_DOMAIN_CORE));
     EXPECT_EQ(72, topo.num_domain(GEOPM_DOMAIN_CPU));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_BOARD_MEMORY));
     EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_PACKAGE_MEMORY));
-#ifdef GEOPM_ENABLE_NVML
-    EXPECT_NO_THROW(topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR));
-#else
-    EXPECT_EQ(0, topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR));
-#endif
+    EXPECT_EQ(num_accelerator, topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR));
 }
 
 TEST_F(PlatformTopoTest, ppc_num_domain)
 {
     write_lscpu(m_ppc_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(20, topo.num_domain(GEOPM_DOMAIN_CORE));
@@ -323,7 +327,7 @@ TEST_F(PlatformTopoTest, ppc_num_domain)
 TEST_F(PlatformTopoTest, no0x_num_domain)
 {
     write_lscpu(m_no0x_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
     EXPECT_EQ(1, topo.num_domain(GEOPM_DOMAIN_BOARD));
     EXPECT_EQ(2, topo.num_domain(GEOPM_DOMAIN_PACKAGE));
     EXPECT_EQ(36, topo.num_domain(GEOPM_DOMAIN_CORE));
@@ -356,8 +360,18 @@ TEST_F(PlatformTopoTest, singleton_construction)
 
 TEST_F(PlatformTopoTest, bdx_domain_idx)
 {
+    const int num_accelerator = 4;
+    EXPECT_CALL(*m_accelerator_topo, num_accelerator()).WillRepeatedly(Return(num_accelerator));
+    std::set<int> cpu_affin[num_accelerator];
+    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
+        for (int cpu_idx = 0; cpu_idx < 72/num_accelerator; ++cpu_idx) {
+            cpu_affin[accel_idx].insert(cpu_idx+(accel_idx*18));
+        }
+        EXPECT_CALL(*m_accelerator_topo, 
+                     ideal_cpu_affinitization(accel_idx)).WillRepeatedly(Return(cpu_affin[accel_idx]));
+    }
     write_lscpu(m_bdx_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
     EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_BOARD, 0));
     EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_PACKAGE, 0));
     EXPECT_EQ(1, topo.domain_idx(GEOPM_DOMAIN_PACKAGE, 18));
@@ -388,11 +402,20 @@ TEST_F(PlatformTopoTest, bdx_domain_idx)
         EXPECT_EQ(1, topo.domain_idx(GEOPM_DOMAIN_BOARD_MEMORY, cpu_idx));
     }
 
-#ifdef GEOPM_ENABLE_NVML
-    EXPECT_NO_THROW(topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR, 0));
-#else
-    EXPECT_EQ(-1, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR, 0));
-#endif
+    for (int cpu_idx = 0; cpu_idx < 72; ++cpu_idx) {
+        if (cpu_idx < 18) {
+            EXPECT_EQ(0, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR, cpu_idx));
+        }
+        else if (cpu_idx < 36) {
+            EXPECT_EQ(1, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR, cpu_idx));
+        }
+        else if (cpu_idx < 54) {
+            EXPECT_EQ(2, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR, cpu_idx));
+        }
+        else {
+            EXPECT_EQ(3, topo.domain_idx(GEOPM_DOMAIN_BOARD_ACCELERATOR, cpu_idx));
+        }
+    }
 
     EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_PACKAGE_MEMORY, 0), geopm::Exception);
     EXPECT_THROW(topo.domain_idx(GEOPM_DOMAIN_BOARD_NIC, 0), geopm::Exception);
@@ -403,7 +426,7 @@ TEST_F(PlatformTopoTest, bdx_domain_idx)
 TEST_F(PlatformTopoTest, bdx_is_nested_domain)
 {
     write_lscpu(m_bdx_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
 
     // domains containing CPUs
     EXPECT_TRUE(topo.is_nested_domain(GEOPM_DOMAIN_CPU, GEOPM_DOMAIN_BOARD));
@@ -447,8 +470,18 @@ TEST_F(PlatformTopoTest, bdx_is_nested_domain)
 
 TEST_F(PlatformTopoTest, bdx_domain_nested)
 {
+    const int num_accelerator = 4;
+    EXPECT_CALL(*m_accelerator_topo, num_accelerator()).WillRepeatedly(Return(num_accelerator));
+    std::set<int> cpu_affin[num_accelerator];
+    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
+        for (int cpu_idx = 0; cpu_idx < 72/num_accelerator; ++cpu_idx) {
+            cpu_affin[accel_idx].insert(cpu_idx+(accel_idx*18));
+        }
+        EXPECT_CALL(*m_accelerator_topo, 
+                     ideal_cpu_affinitization(accel_idx)).WillRepeatedly(Return(cpu_affin[accel_idx]));
+    }
     write_lscpu(m_bdx_lscpu_str);
-    PlatformTopoImp topo(m_lscpu_file_name);
+    PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
 
     std::set<int> cpu_set_board;
     std::set<int> core_set_board;
@@ -584,16 +617,10 @@ TEST_F(PlatformTopoTest, bdx_domain_nested)
     EXPECT_EQ(idx_set_expect, idx_set_actual);
 
     // Board Accelerator
-#ifdef GEOPM_ENABLE_NVML
-    EXPECT_NO_THROW(topo.domain_nested(GEOPM_DOMAIN_CPU,
-                                       GEOPM_DOMAIN_BOARD_ACCELERATOR, 0));
-#else
-    EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_CPU,
-                                    GEOPM_DOMAIN_BOARD_ACCELERATOR, 0), Exception);
-    GEOPM_EXPECT_THROW_MESSAGE(topo.domain_nested(GEOPM_DOMAIN_CPU,
-                                                  GEOPM_DOMAIN_BOARD_ACCELERATOR, 0),
-                               GEOPM_ERROR_INVALID, "domain_idx out of range");
-#endif
+    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
+        EXPECT_EQ(topo.domain_nested(GEOPM_DOMAIN_CPU,
+                                           GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx), cpu_affin[accel_idx]);
+    }
 
     // TODO: still to be implemented
     EXPECT_THROW(topo.domain_nested(GEOPM_DOMAIN_CPU,
@@ -635,15 +662,15 @@ TEST_F(PlatformTopoTest, parse_error)
         "Socket(s):             1\n";
 
     write_lscpu(lscpu_missing_cpu);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo), Exception);
     write_lscpu(lscpu_missing_thread);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo), Exception);
     write_lscpu(lscpu_missing_cores);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo), Exception);
     write_lscpu(lscpu_missing_sockets);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo), Exception);
     write_lscpu(lscpu_missing_numa);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo), Exception);
 
     std::string lscpu_non_number =
         "CPU(s):                xx\n"
@@ -652,7 +679,7 @@ TEST_F(PlatformTopoTest, parse_error)
         "Socket(s):             1\n"
         "NUMA node(s):          1\n";
     write_lscpu(lscpu_non_number);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo), Exception);
 
     std::string lscpu_invalid =
         "CPU(s):                2\n"
@@ -661,7 +688,7 @@ TEST_F(PlatformTopoTest, parse_error)
         "Socket(s):             2\n"
         "NUMA node(s):          1\n";
     write_lscpu(lscpu_invalid);
-    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name), Exception);
+    EXPECT_THROW(PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo), Exception);
 }
 
 TEST_F(PlatformTopoTest, domain_type_to_name)
