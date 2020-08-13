@@ -192,7 +192,7 @@ namespace geopm
                 }
                 break;
             case GEOPM_DOMAIN_BOARD_ACCELERATOR:
-                cpu_idx = m_accelerator_topo.ideal_cpu_affinitization(domain_idx);
+                cpu_idx = m_accelerator_topo.cpu_affinity_ideal(domain_idx);
                 break;
             case GEOPM_DOMAIN_PACKAGE:
                 for (int thread_idx = 0;
@@ -279,7 +279,7 @@ namespace geopm
                     break;
                 case GEOPM_DOMAIN_BOARD_ACCELERATOR:
                     for(int accel_idx = 0; (accel_idx <  m_accelerator_topo.num_accelerator()) && (result == -1); ++accel_idx) {
-                        std::set <int> affin = m_accelerator_topo.ideal_cpu_affinitization(accel_idx);
+                        std::set<int> affin = m_accelerator_topo.cpu_affinity_ideal(accel_idx);
                         if (affin.find(cpu_idx) != affin.end()) {
                             result = accel_idx;
                         }

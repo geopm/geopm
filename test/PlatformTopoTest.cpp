@@ -367,8 +367,8 @@ TEST_F(PlatformTopoTest, bdx_domain_idx)
         for (int cpu_idx = 0; cpu_idx < 72/num_accelerator; ++cpu_idx) {
             cpu_affin[accel_idx].insert(cpu_idx+(accel_idx*18));
         }
-        EXPECT_CALL(*m_accelerator_topo, 
-                     ideal_cpu_affinitization(accel_idx)).WillRepeatedly(Return(cpu_affin[accel_idx]));
+        EXPECT_CALL(*m_accelerator_topo,
+                     cpu_affinity_ideal(accel_idx)).WillRepeatedly(Return(cpu_affin[accel_idx]));
     }
     write_lscpu(m_bdx_lscpu_str);
     PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);
@@ -477,8 +477,8 @@ TEST_F(PlatformTopoTest, bdx_domain_nested)
         for (int cpu_idx = 0; cpu_idx < 72/num_accelerator; ++cpu_idx) {
             cpu_affin[accel_idx].insert(cpu_idx+(accel_idx*18));
         }
-        EXPECT_CALL(*m_accelerator_topo, 
-                     ideal_cpu_affinitization(accel_idx)).WillRepeatedly(Return(cpu_affin[accel_idx]));
+        EXPECT_CALL(*m_accelerator_topo,
+                     cpu_affinity_ideal(accel_idx)).WillRepeatedly(Return(cpu_affin[accel_idx]));
     }
     write_lscpu(m_bdx_lscpu_str);
     PlatformTopoImp topo(m_lscpu_file_name, *m_accelerator_topo);

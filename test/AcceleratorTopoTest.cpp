@@ -53,5 +53,5 @@ TEST(AcceleratorTopoTest, default_config)
     std::unique_ptr<AcceleratorTopo> topo;
     topo = geopm::make_unique<AcceleratorTopo>();
     EXPECT_EQ(0, topo->num_accelerator());
-    EXPECT_EQ(topo->ideal_cpu_affinitization(0), std::set<int>{});
+    EXPECT_EQ(topo->cpu_affinity_ideal(0), std::set<int>{});
 }

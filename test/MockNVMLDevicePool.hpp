@@ -42,14 +42,14 @@ class MockNVMLDevicePool : public geopm::NVMLDevicePool
     public:
         MOCK_CONST_METHOD0(num_accelerator,
                            int(void));
-        MOCK_CONST_METHOD1(ideal_cpu_affinitization_mask,
+        MOCK_CONST_METHOD1(cpu_affinity_ideal_mask,
                            cpu_set_t *(int));
         MOCK_CONST_METHOD1(frequency_status,
                            uint64_t(int));
         MOCK_CONST_METHOD1(frequency_status_sm,
                            uint64_t(int));
         MOCK_CONST_METHOD1(utilization,
-                           double(int));
+                           uint64_t(int));
         MOCK_CONST_METHOD1(power ,
                            uint64_t(int));
         MOCK_CONST_METHOD1(frequency_status_mem,
@@ -67,7 +67,7 @@ class MockNVMLDevicePool : public geopm::NVMLDevicePool
         MOCK_CONST_METHOD1(throughput_tx_pcie,
                            uint64_t(int));
         MOCK_CONST_METHOD1(utilization_mem,
-                           double(int));
+                           uint64_t(int));
         MOCK_CONST_METHOD1(active_process_list,
                            std::vector<int>(int));
         MOCK_CONST_METHOD3(frequency_control_sm,

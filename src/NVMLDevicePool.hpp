@@ -50,64 +50,79 @@ namespace geopm
             NVMLDevicePool() = default;
             virtual ~NVMLDevicePool() = default;
             /// @brief Number of accelerators on the platform.
+            /// @return Number of NVML accelerators
             virtual int num_accelerator(void) const = 0;
             /// @brief CPU Affinitization mask for a particular accelerator
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
-            virtual cpu_set_t *ideal_cpu_affinitization_mask(int accel_idx) const = 0;
+            /// @return CPU to Accelerator idea affinitization bitmask
+            virtual cpu_set_t *cpu_affinity_ideal_mask(int accel_idx) const = 0;
             /// @brief Get the NVML device streaming multiprocessor frequency
             //         in MHz
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
+            /// @return Accelerator streaming multiproccesor frequency in MHz
             virtual uint64_t frequency_status_sm(int accel_idx) const = 0;
             /// @brief Get the NVML device utilization metric
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
-            virtual double utilization(int accel_idx) const = 0;
+            /// @return Accelerator streaming multiprocessor utilization
+            virtual uint64_t utilization(int accel_idx) const = 0;
             /// @brief Get the NVML device power in milliwatts
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
+            /// @return Accelerator power consumption in milliwatts
             virtual uint64_t power (int accel_idx) const = 0;
             /// @brief Get the NVML device memory subsystem frequency in MHz
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
+            /// @return Accelerator memory frequency in MHz
             virtual uint64_t frequency_status_mem(int accel_idx) const = 0;
             /// @brief Get the current NVML device clock throttle reasons
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
+            /// @return Accelerator clock throttle reasons
             virtual uint64_t throttle_reasons(int accel_idx) const = 0;
             /// @brief Get the current NVML device temperature
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
+            /// @return Accelerator temperature in Celsius
             virtual uint64_t temperature(int accel_idx) const = 0;
             /// @brief Get the total energy consumed counter value for
             //         an NVML device in millijoules
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
+            /// @return Accelerator energy consumption in millijoules
             virtual uint64_t energy(int accel_idx) const = 0;
             /// @brief Get the current performance state of an NVML
             //         device
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
+            /// @return Accelerator performance state
             virtual uint64_t performance_state(int accel_idx) const = 0;
             /// @brief Get the pcie rx throughput over a 20ms period for
             //         an NVML device
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
+            /// @return Accelerator pcie rx throughput in kilobytes per second
             virtual uint64_t throughput_rx_pcie(int accel_idx) const = 0;
             /// @brief Get the pcie tx throughput over a 20ms period for
             //         an NVML device
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
+            /// @return Accelerator pcie tx throughput in kilobytes per second
             virtual uint64_t throughput_tx_pcie(int accel_idx) const = 0;
             /// @brief Get the NVML device memory Utilization metric
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
-            virtual double utilization_mem(int accel_idx) const = 0;
-            /// @brief Get the list of PIDs actively running on an NVML
+            /// @return Accelerator memory utilization
+            virtual uint64_t utilization_mem(int accel_idx) const = 0;
+            /// @brief Get the list of PIDs with an active context on an NVML
             //         device
             /// @param [in] accel_idx The index indicating a particular
             ///        accelerator
+            /// @return List of PIDs that are associated with a context on the
+            //          specified NVML devic
             virtual std::vector<int> active_process_list(int accel_idx) const = 0;
 
             /// @brief Set min and max frequency for NVML device
