@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,16 +31,48 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/power_sweep/gen_balancer_comparison.py \
-              integration/experiment/power_sweep/gen_balancer_comparison_plot.py \
-              integration/experiment/power_sweep/gen_node_efficiency.py \
-              integration/experiment/power_sweep/gen_power_sweep_summary.py \
-              integration/experiment/power_sweep/gen_plot_balancer_power_limit.py \
-              integration/experiment/power_sweep/__init__.py \
-              integration/experiment/power_sweep/power_sweep.py \
-              integration/experiment/power_sweep/README.md \
-              integration/experiment/power_sweep/run_power_sweep_nekbone.py \
-              integration/experiment/power_sweep/run_power_sweep_dgemm.py \
-              integration/experiment/power_sweep/run_power_sweep_dgemm_tiny.py \
-              integration/experiment/power_sweep/run_power_sweep_minife.py \
-              # end
+'''
+Example power sweep experiment using miniFE.
+'''
+
+import argparse
+
+from experiment import common_args
+from experiment.power_sweep import power_sweep
+from experiment import machine
+from apps.minife import minife
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    common_args.add_output_dir(parser)
+    common_args.add_nodes(parser)
+    common_args.add_min_power(parser)
+    common_args.add_max_power(parser)
+
+    args, extra_cli_args = parser.parse_known_args()
+
+    output_dir = args.output_dir
+    num_nodes = args.nodes
+    mach = machine.init_output_dir(output_dir)
+
+    # application parameters
+    app_conf = minife.MinifeAppConf(num_nodes)
+    num_rank = num_nodes * app_conf.get_rank_per_node()
+
+    # experiment parameters
+    min_power = args.min_power
+    max_power = args.max_power
+    step_power = 10
+    min_power, max_power = power_sweep.setup_power_bounds(mach, min_power, max_power, step_power)
+    iterations = 2
+    power_sweep.launch(output_dir=output_dir,
+                       iterations=iterations,
+                       min_power=min_power,
+                       max_power=max_power,
+                       step_power=step_power,
+                       agent_types=['power_governor', 'power_balancer'],
+                       num_node=num_nodes,
+                       app_conf=app_conf,
+                       experiment_cli_args=extra_cli_args)
