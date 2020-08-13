@@ -98,9 +98,18 @@ namespace geopm
     }
 
     PlatformTopoImp::PlatformTopoImp(const std::string &test_cache_file_name)
+        : PlatformTopoImp(test_cache_file_name, accelerator_topo())
+    {
+        std::map<std::string, std::string> lscpu_map;
+        lscpu(lscpu_map);
+        parse_lscpu(lscpu_map, m_num_package, m_core_per_package, m_thread_per_core);
+        parse_lscpu_numa(lscpu_map, m_numa_map);
+    }
+
+    PlatformTopoImp::PlatformTopoImp(const std::string &test_cache_file_name, const AcceleratorTopo &accelerator_topo)
         : M_TEST_CACHE_FILE_NAME(test_cache_file_name)
         , m_do_fclose(true)
-        , m_accelerator_topo(accelerator_topo())
+        , m_accelerator_topo(accelerator_topo)
     {
         std::map<std::string, std::string> lscpu_map;
         lscpu(lscpu_map);
@@ -271,7 +280,7 @@ namespace geopm
                 case GEOPM_DOMAIN_BOARD_ACCELERATOR:
                     for(int accel_idx = 0; (accel_idx <  m_accelerator_topo.num_accelerator()) && (result == -1); ++accel_idx) {
                         std::set <int> affin = m_accelerator_topo.ideal_cpu_affinitization(accel_idx);
-                        if (affin.find(cpu_idx) != affin.end()){
+                        if (affin.find(cpu_idx) != affin.end()) {
                             result = accel_idx;
                         }
                     }

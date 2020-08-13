@@ -45,6 +45,7 @@ namespace geopm
         public:
             PlatformTopoImp();
             PlatformTopoImp(const std::string &test_cache_file_name);
+            PlatformTopoImp(const std::string &test_cache_file_name, const AcceleratorTopo &accelerator_topo);
             virtual ~PlatformTopoImp() = default;
             int num_domain(int domain_type) const override;
             int domain_idx(int domain_type,

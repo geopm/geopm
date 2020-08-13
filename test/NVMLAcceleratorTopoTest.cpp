@@ -330,7 +330,7 @@ TEST_F(NVMLAcceleratorTopoTest, high_cpu_count_config)
     std::set<int> cpus_allowed_set[num_accelerator];
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        for (int cpu_idx = 0; cpu_idx < num_cpu/topo.num_accelerator(); ++cpu_idx) {
+        for (int cpu_idx = 0; cpu_idx < num_cpu/num_accelerator; ++cpu_idx) {
             cpus_allowed_set[accel_idx].insert(cpu_idx+(accel_idx*16));
         }
 
