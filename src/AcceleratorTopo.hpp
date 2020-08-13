@@ -47,7 +47,7 @@ namespace geopm
             /// @brief CPU Affinitization set for a particular accelerator
             /// @param [in] domain_idx The index indicating a particular
             ///        accelerator
-            virtual std::set<int> ideal_cpu_affinitization(int domain_idx) const;
+            virtual std::set<int> cpu_affinity_ideal(int domain_idx) const;
     };
 
     const AcceleratorTopo &accelerator_topo(void);

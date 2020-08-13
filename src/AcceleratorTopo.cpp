@@ -56,7 +56,7 @@ namespace geopm
         return 0;
     }
 
-    std::set<int> AcceleratorTopo::ideal_cpu_affinitization(int domain_idx) const
+    std::set<int> AcceleratorTopo::cpu_affinity_ideal(int domain_idx) const
     {
         return {};
     }

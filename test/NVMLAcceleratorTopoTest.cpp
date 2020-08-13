@@ -79,7 +79,7 @@ TEST_F(NVMLAcceleratorTopoTest, no_gpu_config)
     NVMLAcceleratorTopo topo(*m_device_pool, num_cpu);
     EXPECT_EQ(num_accelerator, topo.num_accelerator());
 
-    GEOPM_EXPECT_THROW_MESSAGE(topo.ideal_cpu_affinitization(num_accelerator), GEOPM_ERROR_INVALID, "accel_idx 0 is out of range");
+    GEOPM_EXPECT_THROW_MESSAGE(topo.cpu_affinity_ideal(num_accelerator), GEOPM_ERROR_INVALID, "accel_idx 0 is out of range");
 }
 
 //Test case: The HPE SX40 default system configuration
@@ -95,7 +95,7 @@ TEST_F(NVMLAcceleratorTopoTest, hpe_sx40_default_config)
     accel_bitmask[3] = 0xfffff00000;
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        EXPECT_CALL(*m_device_pool, ideal_cpu_affinitization_mask(accel_idx)).WillOnce(Return((cpu_set_t *) &accel_bitmask[accel_idx]));
+        EXPECT_CALL(*m_device_pool, cpu_affinity_ideal_mask(accel_idx)).WillOnce(Return((cpu_set_t *) &accel_bitmask[accel_idx]));
     }
 
     EXPECT_CALL(*m_device_pool, num_accelerator()).WillOnce(Return(num_accelerator));
@@ -109,7 +109,7 @@ TEST_F(NVMLAcceleratorTopoTest, hpe_sx40_default_config)
     cpus_allowed_set[3] = {30,31,32,33,34,35,36,37,38,39};
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        ASSERT_THAT(topo.ideal_cpu_affinitization(accel_idx), cpus_allowed_set[accel_idx]);
+        ASSERT_THAT(topo.cpu_affinity_ideal(accel_idx), cpus_allowed_set[accel_idx]);
     }
 }
 
@@ -126,7 +126,7 @@ TEST_F(NVMLAcceleratorTopoTest, mutex_affinitization_config)
     accel_bitmask[3] = 0xffc0000000;
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        EXPECT_CALL(*m_device_pool, ideal_cpu_affinitization_mask(accel_idx)).WillOnce(Return((cpu_set_t *)&accel_bitmask[accel_idx]));
+        EXPECT_CALL(*m_device_pool, cpu_affinity_ideal_mask(accel_idx)).WillOnce(Return((cpu_set_t *)&accel_bitmask[accel_idx]));
     }
     EXPECT_CALL(*m_device_pool, num_accelerator()).WillOnce(Return(num_accelerator));
 
@@ -139,7 +139,7 @@ TEST_F(NVMLAcceleratorTopoTest, mutex_affinitization_config)
     cpus_allowed_set[3] = {30,31,32,33,34,35,36,37,38,39};
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        ASSERT_THAT(topo.ideal_cpu_affinitization(accel_idx), cpus_allowed_set[accel_idx]);
+        ASSERT_THAT(topo.cpu_affinity_ideal(accel_idx), cpus_allowed_set[accel_idx]);
     }
 }
 
@@ -156,7 +156,7 @@ TEST_F(NVMLAcceleratorTopoTest, equidistant_affinitization_config)
     accel_bitmask[3] = 0xffffffffff;
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        EXPECT_CALL(*m_device_pool, ideal_cpu_affinitization_mask(accel_idx)).WillOnce(Return((cpu_set_t *)&accel_bitmask[accel_idx]));
+        EXPECT_CALL(*m_device_pool, cpu_affinity_ideal_mask(accel_idx)).WillOnce(Return((cpu_set_t *)&accel_bitmask[accel_idx]));
     }
     EXPECT_CALL(*m_device_pool, num_accelerator()).WillOnce(Return(num_accelerator));
 
@@ -170,7 +170,7 @@ TEST_F(NVMLAcceleratorTopoTest, equidistant_affinitization_config)
     cpus_allowed_set[3] = {30,31,32,33,34,35,36,37,38,39};
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        ASSERT_THAT(topo.ideal_cpu_affinitization(accel_idx), cpus_allowed_set[accel_idx]);
+        ASSERT_THAT(topo.cpu_affinity_ideal(accel_idx), cpus_allowed_set[accel_idx]);
     }
 }
 
@@ -187,7 +187,7 @@ TEST_F(NVMLAcceleratorTopoTest, n1_superset_n_affinitization_config)
     accel_bitmask[3] = 0xffffffffff;
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        EXPECT_CALL(*m_device_pool, ideal_cpu_affinitization_mask(accel_idx)).WillOnce(Return((cpu_set_t *)&accel_bitmask[accel_idx]));
+        EXPECT_CALL(*m_device_pool, cpu_affinity_ideal_mask(accel_idx)).WillOnce(Return((cpu_set_t *)&accel_bitmask[accel_idx]));
     }
     EXPECT_CALL(*m_device_pool, num_accelerator()).WillOnce(Return(num_accelerator));
 
@@ -201,7 +201,7 @@ TEST_F(NVMLAcceleratorTopoTest, n1_superset_n_affinitization_config)
     cpus_allowed_set[3] = {0 ,1 ,2 ,3 ,34,35,36,37,38,39};
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        ASSERT_THAT(topo.ideal_cpu_affinitization(accel_idx), cpus_allowed_set[accel_idx]);
+        ASSERT_THAT(topo.cpu_affinity_ideal(accel_idx), cpus_allowed_set[accel_idx]);
     }
 }
 
@@ -218,7 +218,7 @@ TEST_F(NVMLAcceleratorTopoTest, greedbuster_affinitization_config)
     accel_bitmask[3] = 0x00000003ff;
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        EXPECT_CALL(*m_device_pool, ideal_cpu_affinitization_mask(accel_idx)).WillOnce(Return((cpu_set_t *)&accel_bitmask[accel_idx]));
+        EXPECT_CALL(*m_device_pool, cpu_affinity_ideal_mask(accel_idx)).WillOnce(Return((cpu_set_t *)&accel_bitmask[accel_idx]));
     }
     EXPECT_CALL(*m_device_pool, num_accelerator()).WillOnce(Return(num_accelerator));
 
@@ -243,7 +243,7 @@ TEST_F(NVMLAcceleratorTopoTest, hpe_6500_affinitization_config)
     accel_bitmask[7] = 0xffffffff000000;
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        EXPECT_CALL(*m_device_pool, ideal_cpu_affinitization_mask(accel_idx)).WillOnce(Return((cpu_set_t *)&accel_bitmask[accel_idx]));
+        EXPECT_CALL(*m_device_pool, cpu_affinity_ideal_mask(accel_idx)).WillOnce(Return((cpu_set_t *)&accel_bitmask[accel_idx]));
     }
     EXPECT_CALL(*m_device_pool, num_accelerator()).WillOnce(Return(num_accelerator));
 
@@ -261,7 +261,7 @@ TEST_F(NVMLAcceleratorTopoTest, hpe_6500_affinitization_config)
     cpus_allowed_set[7] = {49,50,51,52,53,54,55};
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        ASSERT_THAT(topo.ideal_cpu_affinitization(accel_idx), cpus_allowed_set[accel_idx]);
+        ASSERT_THAT(topo.cpu_affinity_ideal(accel_idx), cpus_allowed_set[accel_idx]);
     }
 }
 
@@ -277,7 +277,7 @@ TEST_F(NVMLAcceleratorTopoTest, uneven_affinitization_config)
     accel_bitmask[2] = 0xfffff;
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        EXPECT_CALL(*m_device_pool, ideal_cpu_affinitization_mask(accel_idx)).WillOnce(Return((cpu_set_t *)&accel_bitmask[accel_idx]));
+        EXPECT_CALL(*m_device_pool, cpu_affinity_ideal_mask(accel_idx)).WillOnce(Return((cpu_set_t *)&accel_bitmask[accel_idx]));
     }
     EXPECT_CALL(*m_device_pool, num_accelerator()).WillOnce(Return(num_accelerator));
 
@@ -290,7 +290,7 @@ TEST_F(NVMLAcceleratorTopoTest, uneven_affinitization_config)
     cpus_allowed_set[2] = {12,13,14,15,16,17};
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        ASSERT_THAT(topo.ideal_cpu_affinitization(accel_idx), cpus_allowed_set[accel_idx]);
+        ASSERT_THAT(topo.cpu_affinity_ideal(accel_idx), cpus_allowed_set[accel_idx]);
     }
 }
 
@@ -320,7 +320,7 @@ TEST_F(NVMLAcceleratorTopoTest, high_cpu_count_config)
     accel_bitmask[7][1] = 0xffffffffffffffff;
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        EXPECT_CALL(*m_device_pool, ideal_cpu_affinitization_mask(accel_idx)).WillOnce(Return((cpu_set_t *)&accel_bitmask[accel_idx]));
+        EXPECT_CALL(*m_device_pool, cpu_affinity_ideal_mask(accel_idx)).WillOnce(Return((cpu_set_t *)&accel_bitmask[accel_idx]));
     }
     EXPECT_CALL(*m_device_pool, num_accelerator()).WillOnce(Return(num_accelerator));
 
@@ -334,7 +334,7 @@ TEST_F(NVMLAcceleratorTopoTest, high_cpu_count_config)
             cpus_allowed_set[accel_idx].insert(cpu_idx+(accel_idx*16));
         }
 
-        ASSERT_THAT(topo.ideal_cpu_affinitization(accel_idx), cpus_allowed_set[accel_idx]);
+        ASSERT_THAT(topo.cpu_affinity_ideal(accel_idx), cpus_allowed_set[accel_idx]);
     }
 }
 
@@ -363,7 +363,7 @@ TEST_F(NVMLAcceleratorTopoTest, high_cpu_count_gaps_config)
     accel_bitmask[7][1] = 0xf800000000000000;
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        EXPECT_CALL(*m_device_pool, ideal_cpu_affinitization_mask(accel_idx)).WillOnce(Return((cpu_set_t *)&accel_bitmask[accel_idx]));
+        EXPECT_CALL(*m_device_pool, cpu_affinity_ideal_mask(accel_idx)).WillOnce(Return((cpu_set_t *)&accel_bitmask[accel_idx]));
     }
     EXPECT_CALL(*m_device_pool, num_accelerator()).WillOnce(Return(num_accelerator));
 
@@ -381,6 +381,6 @@ TEST_F(NVMLAcceleratorTopoTest, high_cpu_count_gaps_config)
     cpus_allowed_set[7] = {52,53,54,55,123,124,125,126};
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        ASSERT_THAT(topo.ideal_cpu_affinitization(accel_idx), cpus_allowed_set[accel_idx]);
+        ASSERT_THAT(topo.cpu_affinity_ideal(accel_idx), cpus_allowed_set[accel_idx]);
     }
 }
