@@ -81,7 +81,7 @@ def launch_frequency_sweep(output_dir, iterations,
     Currently only supports the frequency map agent
     '''
     machine.init_output_dir(output_dir)
-    app_name = app_conf.name()
+
     rank_per_node = app_conf.get_rank_per_node()
     num_rank = num_node * rank_per_node
 
@@ -95,35 +95,23 @@ def launch_frequency_sweep(output_dir, iterations,
     for iteration in range(iterations):
         for freq in freq_range:
             for agent in agent_types:
-                uid = '{}_{}_{}_{}'.format(app_name, agent, freq, iteration)
-                report_path = os.path.join(output_dir, '{}.report'.format(uid))
-                trace_path = os.path.join(output_dir, '{}.trace'.format(uid))
-                profile_name = 'iteration_{}'.format(iteration)
-                log_path = os.path.join(output_dir, '{}.log'.format(uid))
+                run_id = '{}_{}'.format(freq, iteration)
 
                 # TODO: handle energy efficient agent ?
                 options = {'FREQ_DEFAULT': freq}
                 agent_conf = geopmpy.io.AgentConf(os.path.join(output_dir, '{}_agent_{}.config'.format(agent, freq)), agent, options)
                 agent_conf.write()
 
-                # TODO: these are not passed to launcher create()
-                # some are generic enough they could be, though
-                extra_cli_args = ['--geopm-report', report_path,
-                                  '--geopm-trace', trace_path,
-                                  '--geopm-profile', profile_name,
-                                  '--geopm-report-signals=' + ','.join(report_sig),
+                extra_cli_args = ['--geopm-report-signals=' + ','.join(report_sig),
                                   '--geopm-trace-signals=' + ','.join(trace_sig)]
                 extra_cli_args += experiment_cli_args
-                # any arguments after run_args are passed directly to launcher
-                util.launch_run(agent_conf, app_conf, output_dir,
-                                extra_cli_args, log_path=log_path,
-                                num_node=num_node, num_rank=num_rank)  # raw launcher factory args
 
-                # Get app-reported figure of merit
-                fom = app_conf.parse_fom(log_path)
-                # Append to report????????????????
-                with open(report_path, 'a') as report:
-                    report.write('\nFigure of Merit: {}'.format(fom))
+                util.launch_run(agent_conf=agent_conf,
+                                app_conf=app_conf,
+                                run_id=run_id,
+                                output_dir=output_dir,
+                                extra_cli_args=extra_cli_args,
+                                num_node=num_node, num_rank=num_rank)  # raw launcher factory args
 
                 # rest to cool off between runs
                 time.sleep(cool_off_time)

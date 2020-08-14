@@ -52,7 +52,7 @@ class NekboneAppConf(apps.AppConf):
         # TODO: use self._machine_file to determine
         return self._num_rank_per_node
 
-    def setup(self):
+    def setup(self, run_id):
         size = 10000  # this size varies per system
         input_file = textwrap.dedent('''
         .true. = ifbrick               ! brick or linear geometry
@@ -72,6 +72,10 @@ class NekboneAppConf(apps.AppConf):
 
     def get_exec_args(self):
         return ['ex1']
+
+    def get_custom_geopm_args(self):
+        return ['--geopm-ompt-disable',
+                '--geopm-hyperthreads-disable']
 
     def parse_fom(self, log_path):
         result = None

@@ -67,14 +67,16 @@ def setup_power_bounds(mach, min_power, max_power, step_power):
 
 def launch_power_sweep(file_prefix, output_dir, iterations,
                        min_power, max_power, step_power, agent_types,
-                       num_node, num_rank, app_conf, experiment_cli_args, cool_off_time=60):
+                       num_node, app_conf, experiment_cli_args, cool_off_time=60):
     """
     Runs the application under a range of socket power limits.  Used
     by other analysis types to run either the PowerGovernorAgent or
     the PowerBalancerAgent.
     """
-    name = file_prefix + "_power_sweep"
     machine.init_output_dir(output_dir)
+
+    rank_per_node = app_conf.get_rank_per_node()
+    num_rank = num_node * rank_per_node
 
     # report extensions
     report_sig = ["CYCLES_THREAD@package", "CYCLES_REFERENCE@package",
@@ -89,38 +91,25 @@ def launch_power_sweep(file_prefix, output_dir, iterations,
     for iteration in range(iterations):
         for power_cap in range(max_power, min_power-1, -step_power):
             for agent in agent_types:
-                options = {'power_budget': power_cap}
-                # TODO: check for valid agent type; this should be reusable between all agent types
+                run_id = '{}_{}'.format(power_cap, iteration)
 
-                config_file = os.path.join(output_dir, name + '_agent.config')
+                options = {'power_budget': power_cap}
+                config_file = os.path.join(output_dir, run_id + '_agent.config')
                 agent_conf = geopmpy.io.AgentConf(path=config_file,
                                                   agent=agent,
                                                   options=options)
                 agent_conf.write()
 
-                uid = '{}_{}_{}_{}'.format(name, agent, power_cap, iteration)
-                report_path = os.path.join(output_dir, '{}.report'.format(uid))
-                trace_path = os.path.join(output_dir, '{}.trace'.format(uid))
-                profile_name = 'iteration_{}'.format(iteration)
-                log_path = os.path.join(output_dir, '{}.log'.format(uid))
-
-                # TODO: these are not passed to launcher create()
-                # some are generic enough they could be, though
-                extra_cli_args = ['--geopm-report', report_path,
-                                  '--geopm-trace', trace_path,
-                                  '--geopm-profile', profile_name,
-                                  '--geopm-report-signals=' + ','.join(report_sig),
+                extra_cli_args = ['--geopm-report-signals=' + ','.join(report_sig),
                                   '--geopm-trace-signals=' + ','.join(trace_sig)]
                 extra_cli_args += experiment_cli_args
-                # any arguments after run_args are passed directly to launcher
-                util.launch_run(agent_conf, app_conf, output_dir, extra_cli_args, log_path,
-                                num_node=num_node, num_rank=num_rank)  # raw launcher factory args
 
-                # Get app-reported figure of merit
-                fom = app_conf.parse_fom(log_path)
-                # Append to report????????????????
-                with open(report_path, 'a') as report:
-                    report.write('\nFigure of Merit: {}'.format(fom))
+                util.launch_run(agent_conf=agent_conf,
+                                app_conf=app_conf,
+                                run_id=run_id,
+                                output_dir=output_dir,
+                                extra_clu_args=extra_cli_args,
+                                num_node=num_node, num_rank=num_rank)  # raw launcher factory args
 
                 # rest to cool off between runs
                 time.sleep(cool_off_time)
