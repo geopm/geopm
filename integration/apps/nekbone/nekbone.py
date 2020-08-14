@@ -64,6 +64,9 @@ class NekboneAppConf(apps.AppConf):
         '''.format(size=size))
         return 'ulimit -s unlimited; cat > ./data.rea << EOF {}'.format(input_file)
 
+    def cleanup(self):
+        return 'rm -f ./data.rea'
+
     def get_exec_path(self):
         return os.path.join(self._nekbone_path, 'nekbone')
 
