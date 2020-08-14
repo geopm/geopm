@@ -44,14 +44,9 @@ class NekboneAppConf(apps.AppConf):
     def __init__(self):
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
         self._nekbone_path = os.path.join(benchmark_dir, 'nekbone/trunk/nekbone/test/example1/')
-
         # TODO: needed? is size in setup() related ?
-        self._num_node = 2
-        self._num_rank_per_node = 8
+        self._num_rank_per_node = 2
         #self._machine_file = machine_file
-
-    def get_num_node(self):
-        return self._num_node
 
     def get_rank_per_node(self):
         # TODO: use self._machine_file to determine
