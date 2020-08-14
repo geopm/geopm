@@ -131,20 +131,45 @@ def geopmread(read_str):
     return result
 
 
-def launch_run(agent_conf, app_conf, output_dir, extra_cli_args, log_path=None,
+def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args, log_path=None,
                **launcher_factory_args):
+
     # TODO: why does launcher strip off first arg, rather than geopmlaunch main?
     argv = ['dummy', detect_launcher()]
 
-    if agent_conf is not None and agent_conf.get_agent() != 'monitor':
+    agent_name = 'monitor'
+    if agent_conf is not None:
+        if os.path.dirname(agent_conf.get_path()) != output_dir:
+            raise RuntimeError("Agent policy is not located in output_dir")
+        agent_name = agent_conf.get_agent()
+        agent_conf.write()
+
+    if agent_name != 'monitor':
         argv.append('--geopm-agent=' + agent_conf.get_agent())
         argv.append('--geopm-policy=' + agent_conf.get_path())
 
+    app_name = app_conf.name()
+
+    uid = '{}_{}_{}'.format(app_name.lower(), agent_name, run_id)
+    report_path = os.path.join(output_dir, '{}.report'.format(uid))
+    trace_path = os.path.join(output_dir, '{}.trace'.format(uid))
+    profile_name = uid
+    log_path = os.path.join(output_dir, '{}.log'.format(uid))
+
+    # TODO: these are not passed to launcher create()
+    # some are generic enough they could be, though
+    extra_cli_args = ['--geopm-report', report_path,
+                      '--geopm-trace', trace_path,
+                      '--geopm-profile', profile_name,
+    ]
     argv.extend(extra_cli_args)
+
+    # extra geopm args needed by app
+    argv.extend(app_conf.get_custom_geopm_args())
 
     argv.extend(['--'])
 
-    bash_path = app_conf.make_bash(output_dir)
+    bash_path = app_conf.make_bash(output_dir, uid)
     argv.extend([bash_path])
 
     launcher = geopmpy.launcher.Factory().create(argv, **launcher_factory_args)
@@ -154,3 +179,9 @@ def launch_run(agent_conf, app_conf, output_dir, extra_cli_args, log_path=None,
         with open(log_path, 'w') as outfile:
             # TODO: some apps print to stderr..... use stderr=outfile
             launcher.run(stdout=outfile)
+
+    # Get app-reported figure of merit
+    fom = app_conf.parse_fom(log_path)
+    # Append to report????????????????
+    with open(report_path, 'a') as report:
+        report.write('\nFigure of Merit: {}'.format(fom))

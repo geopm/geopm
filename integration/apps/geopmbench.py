@@ -50,7 +50,7 @@ class DgemmAppConf(apps.AppConf):
         # TODO: use self._machine_file to determine?
         return 2
 
-    def setup(self):
+    def setup(self, run_id):
         self._bench_conf.write()
         return ""
 
@@ -78,7 +78,7 @@ class TinyAppConf(apps.AppConf):
         # TODO: use self._machine_file to determine?
         return 2
 
-    def setup(self):
+    def setup(self, run_id):
         self._bench_conf.write()
         return ""
 
