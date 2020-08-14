@@ -83,10 +83,12 @@ class AppConf(object):
 
         script = '''#!/bin/bash\n'''
         script += textwrap.dedent('''\
+            cd {output_dir}
             {setup}
             {app_exec} {app_params}
             {cleanup}
-        '''.format(setup=self.setup(),
+        '''.format(output_dir=output_dir,
+                   setup=self.setup(),
                    app_exec=self.get_exec_path(),
                    app_params=app_params,
                    cleanup=self.cleanup()))
