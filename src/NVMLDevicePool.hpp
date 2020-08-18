@@ -50,95 +50,100 @@ namespace geopm
             NVMLDevicePool() = default;
             virtual ~NVMLDevicePool() = default;
             /// @brief Number of accelerators on the platform.
-            /// @return Number of NVML accelerators
+            /// @return Number of NVML accelerators.
             virtual int num_accelerator(void) const = 0;
             /// @brief CPU Affinitization mask for a particular accelerator
             /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator
-            /// @return CPU to Accelerator idea affinitization bitmask
+            ///        accelerator.
+            /// @return CPU to Accelerator idea affinitization bitmask.
             virtual cpu_set_t *cpu_affinity_ideal_mask(int accel_idx) const = 0;
             /// @brief Get the NVML device streaming multiprocessor frequency
-            //         in MHz
+            //         in MHz.
             /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator
-            /// @return Accelerator streaming multiproccesor frequency in MHz
+            ///        accelerator.
+            /// @return Accelerator streaming multiproccesor frequency in MHz.
             virtual uint64_t frequency_status_sm(int accel_idx) const = 0;
-            /// @brief Get the NVML device utilization metric
+            /// @brief Get the NVML device utilization metric.
             /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator
+            ///        accelerator.
             /// @return Accelerator streaming multiprocessor utilization
+            //          percentage as a whole number from 0 to 100.
             virtual uint64_t utilization(int accel_idx) const = 0;
-            /// @brief Get the NVML device power in milliwatts
+            /// @brief Get the NVML device power in milliwatts.
             /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator
-            /// @return Accelerator power consumption in milliwatts
+            ///        accelerator.
+            /// @return Accelerator power consumption in milliwatts.
             virtual uint64_t power (int accel_idx) const = 0;
-            /// @brief Get the NVML device memory subsystem frequency in MHz
+            /// @brief Get the NVML device memory subsystem frequency in MHz.
             /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator
-            /// @return Accelerator memory frequency in MHz
+            ///        accelerator.
+            /// @return Accelerator memory frequency in MHz.
             virtual uint64_t frequency_status_mem(int accel_idx) const = 0;
-            /// @brief Get the current NVML device clock throttle reasons
+            /// @brief Get the current NVML device clock throttle reasons.
             /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator
-            /// @return Accelerator clock throttle reasons
+            ///        accelerator.
+            /// @return Accelerator clock throttle reasons as defined 
+            //          in nvml.h.
             virtual uint64_t throttle_reasons(int accel_idx) const = 0;
-            /// @brief Get the current NVML device temperature
+            /// @brief Get the current NVML device temperature.
             /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator
-            /// @return Accelerator temperature in Celsius
+            ///        accelerator.
+            /// @return Accelerator temperature in Celsius.
             virtual uint64_t temperature(int accel_idx) const = 0;
             /// @brief Get the total energy consumed counter value for
-            //         an NVML device in millijoules
+            //         an NVML device in millijoules.
             /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator
-            /// @return Accelerator energy consumption in millijoules
+            ///        accelerator.
+            /// @return Accelerator energy consumption in millijoules.
             virtual uint64_t energy(int accel_idx) const = 0;
             /// @brief Get the current performance state of an NVML
-            //         device
+            //         device.
             /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator
-            /// @return Accelerator performance state
+            ///        accelerator.
+            /// @return Accelerator performance state, defined by the 
+            //          NVML API as 0 to 15, with 0 being maximum performance,
+            //          15 being minimum performance, and 32 being unknown.
             virtual uint64_t performance_state(int accel_idx) const = 0;
-            /// @brief Get the pcie rx throughput over a 20ms period for
-            //         an NVML device
+            /// @brief Get the pcie receive throughput over a 20ms period for
+            //         an NVML device.
             /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator
-            /// @return Accelerator pcie rx throughput in kilobytes per second
+            ///        accelerator.
+            /// @return Accelerator pcie receive throughput in kilobytes per second.
             virtual uint64_t throughput_rx_pcie(int accel_idx) const = 0;
-            /// @brief Get the pcie tx throughput over a 20ms period for
-            //         an NVML device
+            /// @brief Get the pcie transmit throughput over a 20ms period for
+            //         an NVML device.
             /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator
-            /// @return Accelerator pcie tx throughput in kilobytes per second
+            ///        accelerator.
+            /// @return Accelerator pcie transmit throughput in kilobytes per second.
             virtual uint64_t throughput_tx_pcie(int accel_idx) const = 0;
             /// @brief Get the NVML device memory Utilization metric
             /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator
-            /// @return Accelerator memory utilization
+            ///        accelerator.
+            /// @return Accelerator memory utilization percentage 
+            //          as a whole number from 0 to 100.
             virtual uint64_t utilization_mem(int accel_idx) const = 0;
             /// @brief Get the list of PIDs with an active context on an NVML
-            //         device
+            //         device.
             /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator
+            ///        accelerator.
             /// @return List of PIDs that are associated with a context on the
-            //          specified NVML devic
+            //          specified NVML device.
             virtual std::vector<int> active_process_list(int accel_idx) const = 0;
 
-            /// @brief Set min and max frequency for NVML device
+            /// @brief Set min and max frequency for NVML device.
             /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator
-            /// @param [in] min_freq Target min frequency in MHz
-            /// @param [in] max_freq Target max frequency in MHz
+            ///        accelerator.
+            /// @param [in] min_freq Target min frequency in MHz.
+            /// @param [in] max_freq Target max frequency in MHz.
             virtual void frequency_control_sm(int accel_idx, int min_freq, int max_freq) const = 0;
-            /// @brief Reset min and max frequency for NVML device
+            /// @brief Reset min and max frequency for NVML device.
             /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator
+            ///        accelerator.
             virtual void frequency_reset_control(int accel_idx) const = 0;
-            /// @brief Set power limit for NVML device
+            /// @brief Set power limit for NVML device.
             /// @param [in] accel_idx The index indicating a particular
-            ///        accelerator
-            /// @param [in] setting Power cap in milliwatts
+            ///        accelerator.
+            /// @param [in] setting Power cap in milliwatts.
             virtual void power_control(int accel_idx, int setting) const = 0;
         private:
     };
