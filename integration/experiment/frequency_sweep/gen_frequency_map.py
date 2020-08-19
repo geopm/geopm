@@ -38,6 +38,7 @@ a given maximum performance degradation (runtime increase).
 
 import sys
 import argparse
+import json
 
 import geopmpy.io
 import geopmpy.hash
@@ -93,26 +94,16 @@ def format_region_freq_map(df, perf_margin, show_details):
     sys.stdout.write('{}\n'.format(freq_map))
     max_freq = df['FREQ_DEFAULT'].max()
     sys.stdout.write('\nFrequency map agent policy:\n')
-    sys.stdout.write('{\n')
+
     idx = 0
-    # Note: json.dumps not used here so that comments can be added.
-    # Other external python libraries might support adding comments.
-    # Standard JSON does not allow comments, but most parsers support
-    # Javascript-style comments.
-    add_comments = True
+    policy = {"FREQ_DEFAULT": max_freq}
     for region_name in df['region'].unique():
         region_hash = geopmpy.hash.crc32_str(region_name)
         region_freq = freq_map[region_name]
-        line = '    "HASH_{idx}": "0x{rid}", "FREQ_{idx}": {freq},'.format(idx=idx,
-                                                                           rid=region_hash,
-                                                                           freq=region_freq)
-        if add_comments:
-            line += '  // {}'.format(region_name)
-        line += '\n'
+        policy['HASH_{}'.format(idx)] = region_hash
+        policy['FREQ_{}'.format(idx)] = region_freq
         idx += 1
-        sys.stdout.write(line)
-    sys.stdout.write('    "FREQ_DEFAULT": {}\n'.format(max_freq))
-    sys.stdout.write('}\n')
+    sys.stdout.write('{}\n'.format(json.dumps(policy)))
 
 
 if __name__ == '__main__':
