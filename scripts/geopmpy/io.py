@@ -1383,8 +1383,11 @@ class RawReport(object):
     def meta_data(self):
         return copy.deepcopy(self._raw_dict['GEOPM Meta Data'])
 
+    def figure_of_merit(self):
+        return copy.deepcopy(self._raw_dict['Figure of Merit'])
+
     def host_names(self):
-        return [xx for xx in self._raw_dict if xx != 'GEOPM Meta Data']
+        return [xx for xx in self._raw_dict if xx not in ['GEOPM Meta Data', 'Figure of Merit']]
 
     def region_names(self, host_name):
         host_data = self._raw_dict[host_name]
@@ -1559,6 +1562,7 @@ class RawReportCollection(object):
             rr = RawReport(report)
             meta_data = rr.meta_data()
             header = {}
+
             # report header
             for top_key, top_val in meta_data.items():
                 # allow one level of dict nesting in header for policy
@@ -1571,6 +1575,8 @@ class RawReportCollection(object):
                     header[top_key] = top_val
 
             _add_column('all', 'host')
+            _add_column('app', 'FOM')
+            figure_of_merit = rr.figure_of_merit()
             host_names = rr.host_names()
             for host in host_names:
                 # data about host to be repeated over all rows
@@ -1606,6 +1612,7 @@ class RawReportCollection(object):
                 epoch_df = epoch_df.append(epoch_row, ignore_index=True)
 
                 app_row = copy.deepcopy(header)
+                app_row['FOM'] = figure_of_merit
                 app_row.update(per_host_data)
                 app_data = rr.raw_totals(host)
                 for key, val in app_data.items():
