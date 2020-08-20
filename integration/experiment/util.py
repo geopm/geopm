@@ -182,6 +182,6 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args, log_pat
 
     # Get app-reported figure of merit
     fom = app_conf.parse_fom(log_path)
-    # Append to report????????????????
+    # Append to report
     with open(report_path, 'a') as report:
-        report.write('\nFigure of Merit: {}'.format(fom))
+        report.write('\nFigure of Merit: {}\n'.format(fom))

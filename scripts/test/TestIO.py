@@ -43,12 +43,14 @@ from contextlib import contextmanager
 
 import geopmpy.io
 
+
 def touch_file(file_path):
     """ Set a file's last-modified time to now.
     Create the file if it doesn't exist.
     """
     with open(file_path, 'a'):
         os.utime(file_path, None)
+
 
 @contextmanager
 def self_cleaning_app_output(*args, **kwargs):
@@ -60,6 +62,7 @@ def self_cleaning_app_output(*args, **kwargs):
         yield app_output
     finally:
         app_output.remove_files()
+
 
 test_report_data = """##### geopm 1.0.0+dev30g4cccfda #####
 Start Time: Thu May 30 14:38:17 2019
@@ -448,6 +451,7 @@ TIME|EPOCH_COUNT|REGION_HASH|REGION_HINT|REGION_PROGRESS|REGION_COUNT|REGION_RUN
 0.268616921|-1|0x00000000644f9787|0x0000000100000000|0|0|0|242610.5656738281|31538.70031841627|149.7814626529688|14.94329910436242|1600000000|44317174126049|44901195205784|58.93181818181818|150
 """
 
+
 class TestIO(unittest.TestCase):
     def setUp(self):
         if 'assertCountEqual' not in dir(self):
@@ -514,6 +518,7 @@ class TestIO(unittest.TestCase):
         """ Test that a report is not read when it is cached.
         """
         spy_open = mock.Mock(wraps=open)
+
         def count_open(path):
             """ Count the number of times spy_open() has been called with path
             """
@@ -541,6 +546,25 @@ class TestIO(unittest.TestCase):
             self.assertAlmostEqual(242598.262512207, trace_df.iloc[0]['ENERGY_PACKAGE'])
             self.assertAlmostEqual(0.268616921, trace_df.iloc[-1]['TIME'])
             self.assertAlmostEqual(242610.5656738281, trace_df.iloc[-1]['ENERGY_PACKAGE'])
+
+    def test_figure_of_merit(self):
+        fom_report_path = os.path.join(os.path.dirname(__file__), 'test_io_experiment.report')
+
+        # test that old AppOutput doesn't fail
+        output = geopmpy.io.AppOutput(reports=fom_report_path)
+        df = output.get_app_total_data(node_name='mcfly1')
+        self.assertAlmostEqual(310.057, df.iloc[0]['runtime'])
+
+        # test that RawReport can find FOM
+        rr = geopmpy.io.RawReport(path=fom_report_path)
+        print(rr._raw_dict)
+        print('FOM:', rr.figure_of_merit())
+        self.assertAlmostEqual(327780.0, rr.figure_of_merit())
+
+        # test that RawReport works when FOM is missing
+        report = geopmpy.io.RawReport(self._report_path)
+        self.assertTrue(report.figure_of_merit() is None)
+
 
 if __name__ == '__main__':
     unittest.main()

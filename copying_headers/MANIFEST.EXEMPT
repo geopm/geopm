@@ -103,6 +103,7 @@ scripts/MANIFEST.in
 scripts/outlier/README.md
 scripts/outlier/theta_nodelist_broken.txt
 scripts/requirements.txt
+scripts/test/test_io_experiment.report
 test/EditDistPeriodicityDetectorTest.0_pattern_a.trace
 test/EditDistPeriodicityDetectorTest.1_pattern_ab.trace
 test/EditDistPeriodicityDetectorTest.2_pattern_abb.trace
