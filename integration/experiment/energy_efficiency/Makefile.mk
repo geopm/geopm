@@ -29,16 +29,6 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/common_args.py \
-              integration/experiment/__init__.py \
-              integration/experiment/launch_util.py \
-              integration/experiment/machine.py \
-              integration/experiment/util.py \
+EXTRA_DIST += integration/experiment/energy_efficiency/gen_plot_profile_comparison.py \
+              integration/experiment/energy_efficiency/__init__.py \
               # end
-
-include integration/experiment/energy_efficiency/Makefile.mk
-include integration/experiment/frequency_sweep/Makefile.mk
-include integration/experiment/monitor/Makefile.mk
-include integration/experiment/power_balancer_energy/Makefile.mk
-include integration/experiment/power_sweep/Makefile.mk
-include integration/experiment/trace_analysis/Makefile.mk
