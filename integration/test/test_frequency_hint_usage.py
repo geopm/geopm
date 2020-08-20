@@ -95,8 +95,6 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
                          '.' + cls.__name__ + ') ...')
         test_name = 'frequency_hint_usage'
         cls._skip_launch = not util.do_launch()
-        cls._keep_files = (cls._skip_launch or
-                           os.getenv('GEOPM_KEEP_FILES') is not None)
 
         cls._fmap_report_path = 'test_{}_fmap.report'.format(test_name)
         cls._fmap_trace_path = 'test_{}_fmap.trace'.format(test_name)
@@ -152,22 +150,6 @@ class TestIntegration_frequency_hint_usage(unittest.TestCase):
             launcher.set_num_rank(num_rank)
             launcher.run(test_name)
 
-    @classmethod
-    def tearDownClass(cls):
-        """Clean up any files that may have been created during the test if we
-        are not handling an exception and the GEOPM_KEEP_FILES
-        environment variable is unset.
-
-        """
-        if not cls._keep_files:
-            os.unlink(cls._fmap_agent_conf_path)
-            os.unlink(cls._fmap_report_path)
-            for tf in glob.glob(cls._fmap_trace_path + '.*'):
-                os.unlink(tf)
-            os.unlink(cls._ee_agent_conf_path)
-            os.unlink(cls._ee_report_path)
-            for tf in glob.glob(cls._ee_trace_path + '.*'):
-                os.unlink(tf)
 
     def tearDown(self):
         if sys.exc_info() != (None, None, None):

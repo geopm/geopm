@@ -89,7 +89,6 @@ class TestIntegrationScalingRegion(unittest.TestCase):
         cls._report_path = test_name + '.report'
         cls._trace_path = test_name + '.trace'
         cls._skip_launch = not util.do_launch()
-        cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
         cls._agent_conf_path = test_name + '-agent-config.json'
         # region_hash() of the sequence:
         # scaling_region_0, scaling_region_1, ... , scaling_region_30
@@ -124,16 +123,6 @@ class TestIntegrationScalingRegion(unittest.TestCase):
             launcher.set_num_rank(num_rank)
             launcher.run(test_name)
 
-    @classmethod
-    def tearDownClass(cls):
-        """If we are not handling an exception and the GEOPM_KEEP_FILES
-        environment variable is unset, clean up output.
-
-        """
-        if (sys.exc_info() == (None, None, None) and not
-            cls._keep_files and not cls._skip_launch):
-            os.unlink(cls._agent_conf_path)
-            os.unlink(cls._report_path)
 
     def test_monotone_performance(self):
         """Test that the reports generated show linear performance with

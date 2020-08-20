@@ -108,8 +108,6 @@ class TestIntegration_epoch_inference(unittest.TestCase):
                          '.' + cls.__name__ + ') ...')
         cls._test_name = 'epoch_inference'
         cls._skip_launch = not util.do_launch()
-        cls._keep_files = (cls._skip_launch or
-                           os.getenv('GEOPM_KEEP_FILES') is not None)
 
         cls._files = []
         cls._trace_path_prefix = 'test_{}_trace'.format(cls._test_name)
@@ -154,18 +152,6 @@ class TestIntegration_epoch_inference(unittest.TestCase):
 
                 launcher.run('test_' + cls._test_name, add_geopm_args=geopm_args)
 
-    @classmethod
-    def tearDownClass(cls):
-        """Clean up any files that may have been created during the test if we
-        are not handling an exception and the GEOPM_KEEP_FILES
-        environment variable is unset.
-
-        """
-        if not cls._keep_files:
-            for filename in cls._files:
-                os.unlink(filename)
-            for tf in glob.glob(cls._trace_path_prefix + '*'):
-                os.unlink(tf)
 
     def tearDown(self):
         if sys.exc_info() != (None, None, None):
