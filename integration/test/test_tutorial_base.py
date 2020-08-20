@@ -67,8 +67,6 @@ class TestIntegration_tutorial_base(unittest.TestCase):
                          '.' + cls.__name__ + ') ...')
         cls._test_name = 'tutorial_base'
         cls._skip_launch = not util.do_launch()
-        cls._keep_files = (cls._skip_launch or
-                           os.getenv('GEOPM_KEEP_FILES') is not None)
         cls._script_dir = os.path.dirname(os.path.realpath(__file__))
         cls._base_dir = os.path.dirname(os.path.dirname(cls._script_dir))
         cls._tmp_link = os.path.join(cls._script_dir, 'test_tutorial_base')
@@ -91,17 +89,6 @@ class TestIntegration_tutorial_base(unittest.TestCase):
         if not cls._skip_launch:
             cls.launch()
 
-    @classmethod
-    def tearDownClass(cls):
-        """Clean up any files that may have been created during the test if we
-        are not handling an exception and the GEOPM_KEEP_FILES
-        environment variable is unset.
-
-        """
-        if not cls._keep_files:
-            tmp_dir = os.readlink(cls._tmp_link)
-            shutil.rmtree(tmp_dir)
-            os.unlink(cls._tmp_link)
 
     def tearDown(self):
         if sys.exc_info() != (None, None, None):

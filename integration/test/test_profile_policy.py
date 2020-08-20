@@ -105,15 +105,6 @@ class TestIntegrationProfilePolicy(unittest.TestCase):
             os.unlink("/dev/shm/geopm*")
         except:
             pass
-        # TODO: this could be a helper function
-        """If we are not handling an exception and the GEOPM_KEEP_FILES
-        environment variable is unset, clean up output.
-
-        """
-        keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
-        if sys.exc_info() == (None, None, None) and not keep_files:
-            for file_name in self._files:
-                os.unlink(file_name)
 
     @util.skip_unless_config_enable('beta')
     def test_policy_default(self):

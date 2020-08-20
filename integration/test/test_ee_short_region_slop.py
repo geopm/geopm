@@ -126,7 +126,6 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         cls._trace_profile_path_fixed = 'test_{}_fixed.trace_profile'.format(cls._test_name)
         cls._trace_profile_path_dynamic = 'test_{}_dynamic.trace_profile'.format(cls._test_name)
         cls._skip_launch = not util.do_launch()
-        cls._keep_files = cls._skip_launch or os.getenv('GEOPM_KEEP_FILES') is not None
         cls._agent_conf_fixed_path = 'test_{}_fixed-agent-config.json'.format(cls._test_name)
         cls._agent_conf_dynamic_path = 'test_{}_dynamic-agent-config.json'.format(cls._test_name)
         cls._num_trial = 10
@@ -140,19 +139,6 @@ class TestIntegration_ee_short_region_slop(unittest.TestCase):
         geopmpy.error.exc_clear()
         if not cls._skip_launch:
             cls.launch()
-
-
-    @classmethod
-    def tearDownClass(cls):
-        """Clean up any files that may have been created during the test if we
-        are not handling an exception and the GEOPM_KEEP_FILES
-        environment variable is unset.
-
-        """
-        if (sys.exc_info() == (None, None, None) and not
-            cls._keep_files):
-            os.unlink(cls._agent_conf_fixed_path)
-            os.unlink(cls._agent_conf_dynamic_path)
 
 
     @classmethod

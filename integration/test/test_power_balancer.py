@@ -84,8 +84,6 @@ class TestIntegration_power_balancer(unittest.TestCase):
         cls._skip_launch = False
         cls._show_details = True
         cls._tmp_files = []
-        cls._keep_files = (cls._skip_launch or
-                           os.getenv('GEOPM_KEEP_FILES') is not None)
 
         # Clear out exception record for python 2 support
         geopmpy.error.exc_clear()
@@ -136,17 +134,6 @@ class TestIntegration_power_balancer(unittest.TestCase):
                     launcher.run(run_name)
                     time.sleep(60)
 
-    @classmethod
-    def tearDownClass(cls):
-        """Clean up any files that may have been created during the test if we
-        are not handling an exception and the GEOPM_KEEP_FILES
-        environment variable is unset.
-
-        """
-        if not cls._keep_files:
-            for path in cls._tmp_files:
-                for tf in glob.glob(path + '.*'):
-                    os.unlink(tf)
 
     def tearDown(self):
         if sys.exc_info() != (None, None, None):

@@ -48,7 +48,6 @@ mkdir -p $out_dir_1/data
 mkdir -p $out_dir_2/data
 
 # Run full range for CPU and uncore
-GEOPM_KEEP_FILES=true \
 python ./test_ee_short_region_slop.py
 mv *.png $out_dir_0
 mv *.report* *.log *.json *trace* $out_dir_0/data
@@ -58,13 +57,11 @@ max_uncore_freq=$(geopmread MSR::UNCORE_RATIO_LIMIT:MAX_RATIO board 0)
 geopmwrite MSR::UNCORE_RATIO_LIMIT:MIN_RATIO board 0 $max_uncore_freq
 
 # Run full range for CPU and fixed uncore
-GEOPM_KEEP_FILES=true \
 python ./test_ee_short_region_slop.py
 mv *.png $out_dir_1
 mv *.report* *.log *.json *trace* $out_dir_1/data
 
 # Run limited range for CPU and fixed uncore
-GEOPM_KEEP_FILES=true \
 GEOPM_SLOP_FREQ_MIN=1.6e9 \
 GEOPM_SLOP_FREQ_MAX=2.0e9 \
 python ./test_ee_short_region_slop.py

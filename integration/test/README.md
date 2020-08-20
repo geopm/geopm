@@ -17,12 +17,6 @@ Used to force the integration tests to target a specific Launcher
 implementation as supported by the Launcher factory.  See
 **geopmlaunch(1)** for more details.
 
-### GEOPM_KEEP_FILES
-Normally, the test output is cleaned up (i.e. deleted) when a test is
-successful and is only preserved if the test were to fail.  If this
-variable is set then no files will be removed and all of the test's
-output will be preserved.
-
 ### GEOPM_RUN_LONG_TESTS
 This variable specifies whether or not to run the integration tests
 that take a considerable amount of time.  The rough rule is that all
@@ -59,11 +53,10 @@ periodically clean up the files to avoid conflating experimental data.
 temporary files:
 
     $ git clean -fd .
-    $ export GEOPM_KEEP_FILES=true
     $ export GEOPM_RUN_LONG_TESTS=true
     $ ./geopm_test_integration.py -v TestIntegration.test_power_consumption
 
 Or as a one-liner:
 
-    $ git clean -fd . ; GEOPM_KEEP_FILES=true GEOPM_RUN_LONG_TESTS=true ./geopm_test_integration.py -v TestIntegration.test_power_consumption
+    $ git clean -fd . ; GEOPM_RUN_LONG_TESTS=true ./geopm_test_integration.py -v TestIntegration.test_power_consumption
 

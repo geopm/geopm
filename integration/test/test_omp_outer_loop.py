@@ -86,7 +86,6 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
         cls._expected_regions = ['MPI_Barrier']
         cls._report_path = []
         cls._skip_launch = not util.do_launch()
-        cls._keep_files = os.getenv('GEOPM_KEEP_FILES') is not None
         num_node = 1
         num_rank = 4
         geopmpy.error.exc_clear()
@@ -107,17 +106,6 @@ class TestIntegrationOMPOuterLoop(unittest.TestCase):
                     launcher.disable_ompt()
                 launcher.run(curr_run)
 
-    @classmethod
-    def tearDownClass(cls):
-        """If we are not handling an exception and the GEOPM_KEEP_FILES
-        environment variable is unset, clean up output.
-
-        """
-        if (sys.exc_info() == (None, None, None) and not
-            cls._keep_files and not cls._skip_launch):
-            os.unlink(cls._agent_conf_path)
-            for rp in cls._report_path:
-                os.unlink(rp)
 
     def test_regions_absent(self):
         """Test that the first run's report does NOT contain
