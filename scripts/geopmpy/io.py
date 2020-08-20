@@ -1452,6 +1452,7 @@ class RawReportCollection(object):
         self._reports_df = pandas.DataFrame()
         self._app_reports_df = pandas.DataFrame()
         self._epoch_reports_df = pandas.DataFrame()
+        self._meta_data = None
         self.load_reports(report_paths, dir_name, verbose, do_cache)
 
     @staticmethod
@@ -1460,6 +1461,15 @@ class RawReportCollection(object):
         h5_id = hashlib.sha256(paths_str.encode()).hexdigest()[:14]
         report_h5_name = os.path.join(outdir, 'cache_{}.h5'.format(h5_id))
         return report_h5_name
+
+    @staticmethod
+    def fixup_metadata(metadata, df):
+        # This block works around having mixed datatypes in the Profile column by
+        # forcing the column into the NumPy S type.
+        for key, val in metadata.items():
+            if type(val) is not dict: # Policy is a dict and should be excluded
+                df[key] = df[key].astype('S')
+        return df
 
     def load_reports(self, reports, dir_name, verbose, do_cache):
         '''
@@ -1506,14 +1516,26 @@ class RawReportCollection(object):
                 self.parse_reports(report_paths, verbose)
 
                 # Cache report dataframe
-                try:
-                    if verbose:
-                        sys.stdout.write('Generating HDF5 files... ')
-                    self._reports_df.to_hdf(report_h5_name, 'report', format='table')
-                    self._app_reports_df.to_hdf(report_h5_name, 'app_report', format='table', append=True)
-                    self._epoch_reports_df.to_hdf(report_h5_name, 'epoch_report', format='table', append=True)
-                except ImportError as error:
-                    sys.stderr.write('Warning: <geopm> geopmpy.io: Unable to write HDF5 file: {}\n'.format(str(error)))
+                cache_created = False
+                while not cache_created:
+                    try:
+                        if verbose:
+                            sys.stdout.write('Generating HDF5 files... ')
+                        self._reports_df.to_hdf(report_h5_name, 'report', format='table')
+                        self._app_reports_df.to_hdf(report_h5_name, 'app_report', format='table', append=True)
+                        self._epoch_reports_df.to_hdf(report_h5_name, 'epoch_report', format='table', append=True)
+                        cache_created = True
+                    except TypeError as error:
+                        fm = RawReportCollection.fixup_metadata
+                        if verbose:
+                            sys.stdout.write('Applying workaround for strings in HDF5 files... ')
+                        self._reports_df = fm(self._meta_data, self._reports_df)
+                        self._app_reports_df = fm(self._meta_data, self._app_reports_df)
+                        self._epoch_reports_df = fm(self._meta_data, self._epoch_reports_df)
+
+                    except ImportError as error:
+                        sys.stderr.write('Warning: <geopm> geopmpy.io: Unable to write HDF5 file: {}\n'.format(str(error)))
+                        break
 
                 if verbose:
                     sys.stdout.write('Done.\n')
@@ -1568,11 +1590,11 @@ class RawReportCollection(object):
             if verbose:
                 sys.stdout.write("Loading data from {}.\n".format(report))
             rr = RawReport(report)
-            meta_data = rr.meta_data()
+            self._meta_data = rr.meta_data()
             header = {}
 
             # report header
-            for top_key, top_val in meta_data.items():
+            for top_key, top_val in self._meta_data.items():
                 # allow one level of dict nesting in header for policy
                 if type(top_val) is dict:
                     for in_key, in_val in top_val.items():
@@ -1580,7 +1602,7 @@ class RawReportCollection(object):
                         header[in_key] = _try_float(in_val)
                 else:
                     _add_column('all', top_key)
-                    header[top_key] = top_val
+                    header[top_key] = str(top_val)
 
             _add_column('all', 'host')
             figure_of_merit = rr.figure_of_merit()
