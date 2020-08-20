@@ -551,19 +551,22 @@ class TestIO(unittest.TestCase):
         fom_report_path = os.path.join(os.path.dirname(__file__), 'test_io_experiment.report')
 
         # test that old AppOutput doesn't fail
-        output = geopmpy.io.AppOutput(reports=fom_report_path)
+        output = geopmpy.io.AppOutput(reports=fom_report_path, do_cache=False)
         df = output.get_app_total_data(node_name='mcfly1')
         self.assertAlmostEqual(310.057, df.iloc[0]['runtime'])
 
         # test that RawReport can find FOM
         rr = geopmpy.io.RawReport(path=fom_report_path)
-        print(rr._raw_dict)
-        print('FOM:', rr.figure_of_merit())
         self.assertAlmostEqual(327780.0, rr.figure_of_merit())
+        rrc = geopmpy.io.RawReportCollection(fom_report_path, do_cache=False)
+        app_data = rrc.get_app_df()
+        self.assertAlmostEqual(327780.0, app_data['FOM'].mean())
 
         # test that RawReport works when FOM is missing
         report = geopmpy.io.RawReport(self._report_path)
         self.assertTrue(report.figure_of_merit() is None)
+        rrc = geopmpy.io.RawReportCollection(self._report_path, do_cache=False)
+        self.assertFalse('FOM' in rrc.get_app_df().columns)
 
 
 if __name__ == '__main__':
