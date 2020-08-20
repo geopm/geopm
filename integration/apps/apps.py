@@ -80,7 +80,7 @@ class AppConf(object):
     def parse_fom(self, log_path):
         return None
 
-    def make_bash(self, output_dir, run_id):
+    def make_bash(self, run_id):
         # setup has side effects; call before get_exec_args
         setup = self.setup(run_id)
         app_params = self.get_exec_args()
@@ -88,19 +88,15 @@ class AppConf(object):
             app_params = ' '.join(self.get_exec_args())
 
         script = '''#!/bin/bash\n'''
-        # TODO: cd interferes with AgentConf ability to correctly write the agent policy file
-        # and later be read by the controller
         script += textwrap.dedent('''\
-            # cd {output_dir}
             {setup}
             {app_exec} {app_params}
             {cleanup}
-        '''.format(output_dir=output_dir,
-                   setup=setup,
+        '''.format(setup=setup,
                    app_exec=self.get_exec_path(),
                    app_params=app_params,
                    cleanup=self.cleanup()))
-        bash_file = os.path.join(output_dir, '{}.sh'.format(self.name()))
+        bash_file = '{}.sh'.format(self.name())
         with open(bash_file, 'w') as ofile:
             ofile.write(script)
         # read, write, execute for owner

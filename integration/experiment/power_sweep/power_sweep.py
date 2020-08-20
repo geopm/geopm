@@ -94,11 +94,10 @@ def launch_power_sweep(file_prefix, output_dir, iterations,
                 run_id = '{}_{}'.format(power_cap, iteration)
 
                 options = {'power_budget': power_cap}
-                config_file = os.path.join(output_dir, run_id + '_agent.config')
+                config_file = run_id + '_agent.config'
                 agent_conf = geopmpy.io.AgentConf(path=config_file,
                                                   agent=agent,
                                                   options=options)
-                agent_conf.write()
 
                 extra_cli_args = ['--geopm-report-signals=' + ','.join(report_sig),
                                   '--geopm-trace-signals=' + ','.join(trace_sig)]
@@ -108,7 +107,7 @@ def launch_power_sweep(file_prefix, output_dir, iterations,
                                 app_conf=app_conf,
                                 run_id=run_id,
                                 output_dir=output_dir,
-                                extra_clu_args=extra_cli_args,
+                                extra_cli_args=extra_cli_args,
                                 num_node=num_node, num_rank=num_rank)  # raw launcher factory args
 
                 # rest to cool off between runs

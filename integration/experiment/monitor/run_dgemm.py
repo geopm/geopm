@@ -54,7 +54,7 @@ if __name__ == '__main__':
     num_node = args.nodes
 
     # application parameters
-    app_conf = geopmbench.DgemmAppConf(output_dir)
+    app_conf = geopmbench.DgemmAppConf()
 
     # experiment parameters
     iterations = 2

@@ -96,11 +96,8 @@ def launch_frequency_sweep(output_dir, iterations,
         for freq in freq_range:
             for agent in agent_types:
                 run_id = '{}_{}'.format(freq, iteration)
-
-                # TODO: handle energy efficient agent ?
                 options = {'FREQ_DEFAULT': freq}
-                agent_conf = geopmpy.io.AgentConf(os.path.join(output_dir, '{}_agent_{}.config'.format(agent, freq)), agent, options)
-                agent_conf.write()
+                agent_conf = geopmpy.io.AgentConf('{}_agent_{}.config'.format(agent, freq), agent, options)
 
                 extra_cli_args = ['--geopm-report-signals=' + ','.join(report_sig),
                                   '--geopm-trace-signals=' + ','.join(trace_sig)]

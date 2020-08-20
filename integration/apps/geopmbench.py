@@ -41,8 +41,8 @@ class DgemmAppConf(apps.AppConf):
     def name():
         return 'DGEMM'
 
-    def __init__(self, output_dir):
-        self._bench_conf = geopmpy.io.BenchConf(os.path.join(output_dir, 'dgemm.conf'))
+    def __init__(self):
+        self._bench_conf = geopmpy.io.BenchConf('dgemm.conf')
         self._bench_conf.append_region('dgemm', 8.0)
         self._bench_conf.set_loop_count(500)
 
@@ -69,8 +69,8 @@ class TinyAppConf(apps.AppConf):
     def name():
         return 'tiny'
 
-    def __init__(self, output_dir):
-        self._bench_conf = geopmpy.io.BenchConf(os.path.join(output_dir, 'tiny.conf'))
+    def __init__(self):
+        self._bench_conf = geopmpy.io.BenchConf('tiny.conf')
         self._bench_conf.append_region('dgemm', 0.2)
         self._bench_conf.set_loop_count(500)
 

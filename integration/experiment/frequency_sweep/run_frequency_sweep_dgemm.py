@@ -57,7 +57,7 @@ if __name__ == '__main__':
     mach = machine.init_output_dir(output_dir)
 
     # application parameters
-    app_conf = geopmbench.DgemmAppConf(output_dir)
+    app_conf = geopmbench.DgemmAppConf()
 
     # experiment parameters
     min_freq = args.min_frequency
