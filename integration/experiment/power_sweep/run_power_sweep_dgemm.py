@@ -58,8 +58,7 @@ if __name__ == '__main__':
     mach = machine.init_output_dir(output_dir)
 
     # application parameters
-    app_conf = geopmbench.DgemmAppConf(output_dir)
-    num_rank = num_nodes * app_conf.get_rank_per_node()
+    app_conf = geopmbench.DgemmAppConf()
 
     # experiment parameters
     min_power = args.min_power
@@ -75,6 +74,5 @@ if __name__ == '__main__':
                                    step_power=step_power,
                                    agent_types=['power_governor', 'power_balancer'],
                                    num_node=num_nodes,
-                                   num_rank=num_rank,
                                    app_conf=app_conf,
                                    experiment_cli_args=extra_cli_args)
