@@ -56,6 +56,7 @@ EXTRA_DIST += scripts/MANIFEST.in \
               scripts/test/TestError.py \
               scripts/test/TestHash.py \
               scripts/test/TestIO.py \
+              scripts/test/test_io_experiment.report \
               scripts/test/TestLauncher.py \
               scripts/test/TestPIO.py \
               scripts/test/TestPolicyStore.py \

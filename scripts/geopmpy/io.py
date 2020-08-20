@@ -1352,6 +1352,8 @@ class RawReport(object):
                     if line.startswith('Host:'):
                         host = line.split(':')[1].strip()
                         out_fid.write('{}:\n'.format(host))
+                    elif line.startswith('Figure of Merit'):
+                        out_fid.write('{}'.format(line))
                     else:
                         out_fid.write('    {}'.format(line))
             out_fid.seek(0)
@@ -1384,7 +1386,12 @@ class RawReport(object):
         return copy.deepcopy(self._raw_dict['GEOPM Meta Data'])
 
     def figure_of_merit(self):
-        return copy.deepcopy(self._raw_dict['Figure of Merit'])
+        result = None
+        try:
+            result = copy.deepcopy(self._raw_dict['Figure of Merit'])
+        except:
+            pass
+        return result
 
     def host_names(self):
         return [xx for xx in self._raw_dict if xx not in ['GEOPM Meta Data', 'Figure of Merit']]

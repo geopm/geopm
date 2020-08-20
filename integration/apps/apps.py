@@ -37,7 +37,7 @@ import textwrap
 class AppConf(object):
     """
     An object that contains all details needed to run an application.
-    When used with experiment run scripts, setup_iteration(), get_exec_path(),
+    When used with experiment run scripts, setup(), get_exec_path(),
     get_exec_args(), and cleanup() will be used to construct command
     line arguments to the launcher.
     """
