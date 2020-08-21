@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,12 +31,37 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/frequency_sweep/__init__.py \
-              integration/experiment/frequency_sweep/frequency_sweep.py \
-              integration/experiment/frequency_sweep/gen_frequency_map.py \
-              integration/experiment/frequency_sweep/gen_plot_runtime_energy.py \
-              integration/experiment/frequency_sweep/gen_region_summary.py \
-              integration/experiment/frequency_sweep/run_frequency_sweep_dgemm.py \
-              integration/experiment/frequency_sweep/run_frequency_sweep_dgemm_tiny.py \
-              integration/experiment/frequency_sweep/run_frequency_sweep_nekbone.py \
-              # end
+'''
+Run a small DGEMM with the monitor agent.
+'''
+
+import argparse
+
+from experiment import common_args
+from experiment.monitor import monitor
+from apps import geopmbench
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    common_args.add_output_dir(parser)
+    common_args.add_nodes(parser)
+
+    args, experiment_cli_args = parser.parse_known_args()
+
+    output_dir = args.output_dir
+    num_node = args.nodes
+
+    # application parameters
+    app_conf = geopmbench.TinyAppConf()
+
+    # experiment parameters
+    iterations = 2
+
+    monitor.launch_monitor(output_dir=output_dir,
+                           iterations=iterations,
+                           num_node=num_node,
+                           app_conf=app_conf,
+                           experiment_cli_args=experiment_cli_args,
+                           cool_off_time=0)
