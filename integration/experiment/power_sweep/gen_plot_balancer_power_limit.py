@@ -61,8 +61,10 @@ def plot_lines(traces):
         pl1 = df['MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT-package-1']
         rt0 = df['EPOCH_RUNTIME-package-0'] - df['EPOCH_RUNTIME_NETWORK-package-0']
         rt1 = df['EPOCH_RUNTIME-package-1'] - df['EPOCH_RUNTIME_NETWORK-package-1']
-        # TODO: try catch and warn about using the balancer
-        tgt = df['POLICY_MAX_EPOCH_RUNTIME']
+        try:
+            tgt = df['POLICY_MAX_EPOCH_RUNTIME']
+        except:
+            raise RuntimeError('POLICY_MAX_EPOCH_RUNTIME missing from trace {}; use on balancer traces only.\n'.format(path))
 
         color0 = colors[idx]
         color1 = colors[idx + 1]
