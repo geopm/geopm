@@ -82,9 +82,6 @@ def launch_frequency_sweep(output_dir, iterations,
     '''
     machine.init_output_dir(output_dir)
 
-    rank_per_node = app_conf.get_rank_per_node()
-    num_rank = num_node * rank_per_node
-
     # report extensions
     report_sig = ["CYCLES_THREAD@package", "CYCLES_REFERENCE@package",
                   "TIME@package", "ENERGY_PACKAGE@package"]
@@ -108,7 +105,7 @@ def launch_frequency_sweep(output_dir, iterations,
                                 run_id=run_id,
                                 output_dir=output_dir,
                                 extra_cli_args=extra_cli_args,
-                                num_node=num_node, num_rank=num_rank)  # raw launcher factory args
+                                num_node=num_node)
 
                 # rest to cool off between runs
                 time.sleep(cool_off_time)

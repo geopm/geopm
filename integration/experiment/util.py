@@ -132,8 +132,7 @@ def geopmread(read_str):
 
 
 def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
-               redirect_stdout=True,
-               **launcher_factory_args):
+               num_nodes, redirect_stdout=True):
     # launcher and app should create files in output_dir
     start_dir = os.getcwd()
     os.chdir(output_dir)
@@ -173,7 +172,11 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
     bash_path = app_conf.make_bash(uid)
     argv.extend([bash_path])
 
-    launcher = geopmpy.launcher.Factory().create(argv, **launcher_factory_args)
+    num_ranks = app_conf.get_rank_per_node() * num_nodes
+
+    launcher = geopmpy.launcher.Factory().create(argv,
+                                                 num_node=num_nodes,
+                                                 num_ranks=num_ranks)
     if redirect_stdout:
         with open(log_path, 'w') as outfile:
             # TODO: some apps print to stderr. use stderr=outfile
