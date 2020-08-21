@@ -32,7 +32,6 @@
 EXTRA_DIST += integration/experiment/common_args.py \
               integration/experiment/__init__.py \
               integration/experiment/machine.py \
-              integration/experiment/monitor/run_nekbone.py \
               integration/experiment/util.py \
               # end
 

@@ -58,7 +58,6 @@ if __name__ == '__main__':
 
     # application parameters
     app_conf = geopmbench.TinyAppConf()
-    num_rank = num_nodes * app_conf.get_rank_per_node()
 
     # experiment parameters
     min_power = args.min_power

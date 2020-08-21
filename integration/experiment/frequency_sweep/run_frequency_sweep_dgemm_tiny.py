@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,12 +31,46 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/frequency_sweep/__init__.py \
-              integration/experiment/frequency_sweep/frequency_sweep.py \
-              integration/experiment/frequency_sweep/gen_frequency_map.py \
-              integration/experiment/frequency_sweep/gen_plot_runtime_energy.py \
-              integration/experiment/frequency_sweep/gen_region_summary.py \
-              integration/experiment/frequency_sweep/run_frequency_sweep_dgemm.py \
-              integration/experiment/frequency_sweep/run_frequency_sweep_dgemm_tiny.py \
-              integration/experiment/frequency_sweep/run_frequency_sweep_nekbone.py \
-              # end
+'''
+Example frequency sweep experiment using geopmbench.
+'''
+
+import argparse
+
+from experiment import common_args
+from experiment.frequency_sweep import frequency_sweep
+from experiment import machine
+from apps import geopmbench
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    common_args.add_output_dir(parser)
+    common_args.add_nodes(parser)
+    common_args.add_min_frequency(parser)
+    common_args.add_max_frequency(parser)
+
+    args, extra_cli_args = parser.parse_known_args()
+
+    output_dir = args.output_dir
+    num_nodes = args.nodes
+    mach = machine.init_output_dir(output_dir)
+
+    # application parameters
+    app_conf = geopmbench.TinyAppConf()
+
+    # experiment parameters
+    min_freq = args.min_frequency
+    max_freq = args.max_frequency
+    step_freq = None
+    freqs = frequency_sweep.setup_frequency_bounds(mach, min_freq, max_freq, step_freq,
+                                                   add_turbo_step=True)
+    iterations = 2
+    frequency_sweep.launch_frequency_sweep(output_dir=output_dir,
+                                           iterations=iterations,
+                                           freq_range=freqs,
+                                           agent_types=['frequency_map'],
+                                           num_node=num_nodes,
+                                           app_conf=app_conf,
+                                           experiment_cli_args=extra_cli_args,
+                                           cool_off_time=0)
