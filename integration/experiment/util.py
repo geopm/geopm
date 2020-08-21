@@ -39,6 +39,7 @@ import subprocess
 import io
 import yaml
 import shlex
+import time
 
 import geopmpy.launcher
 
@@ -176,7 +177,7 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
 
     launcher = geopmpy.launcher.Factory().create(argv,
                                                  num_node=num_nodes,
-                                                 num_ranks=num_ranks)
+                                                 num_rank=num_ranks)
     if redirect_stdout:
         with open(log_path, 'w') as outfile:
             # TODO: some apps print to stderr. use stderr=outfile
@@ -192,3 +193,41 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
 
     # return to previous directory
     os.chdir(start_dir)
+
+
+class LaunchConfig():
+    def __init__(self, app_conf, agent_conf, name):
+        self._app_conf = app_conf
+        self._agent_conf = agent_conf
+        self._name = name
+
+    def app_conf(self):
+        return self._app_conf
+
+    def agent_conf(self):
+        return self._agent_conf
+
+    def run_id(self, iteration):
+        return '{}_{}'.format(self._name, iteration)
+
+
+def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir, cool_off_time=60):
+    '''
+    targets: a list of LaunchConfig
+    iteration: integer number of iterations
+    '''
+    if not os.path.exists(os.path.join(output_dir, 'machine.json')):
+        raise RuntimeError('Missing machine file in {}; call machine.init_output_dir() before calling this function.'.format(output_dir))
+
+    for iteration in range(iterations):
+        for tar in targets:
+            agent_conf = tar.agent_conf()
+            app_conf = tar.app_conf()
+            run_id = tar.run_id(iteration)
+
+            launch_run(agent_conf, app_conf, run_id, output_dir,
+                       extra_cli_args=extra_cli_args,
+                       num_nodes=num_nodes)
+
+            # rest to cool off between runs
+            time.sleep(cool_off_time)
