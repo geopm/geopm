@@ -36,13 +36,11 @@ Helper functions for running power sweep experiments.
 '''
 
 import sys
-import time
 import math
 
 import geopmpy.io
 
 from experiment import util
-from experiment import machine
 
 
 def setup_power_bounds(mach, min_power, max_power, step_power):
@@ -64,47 +62,58 @@ def setup_power_bounds(mach, min_power, max_power, step_power):
     return int(min_power), int(max_power)
 
 
-def launch_power_sweep(file_prefix, output_dir, iterations,
-                       min_power, max_power, step_power, agent_types,
-                       num_node, app_conf, experiment_cli_args, cool_off_time=60):
-    """
-    Runs the application under a range of socket power limits.  Used
-    by other analysis types to run either the PowerGovernorAgent or
-    the PowerBalancerAgent.
-    """
-    machine.init_output_dir(output_dir)
-
-    # report extensions
+def report_signals():
     report_sig = ["CYCLES_THREAD@package", "CYCLES_REFERENCE@package",
                   "TIME@package", "ENERGY_PACKAGE@package"]
-    # trace extensions
+    return report_sig
+
+
+def trace_signals():
     trace_sig = ["MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT@package",
                  "EPOCH_RUNTIME@package",
                  "EPOCH_RUNTIME_NETWORK@package",
                  "EPOCH_RUNTIME_IGNORE@package",
                  "TEMPERATURE_PACKAGE@package"]
+    return trace_sig
 
-    for iteration in range(iterations):
-        for power_cap in range(max_power, min_power-1, -step_power):
-            for agent in agent_types:
-                run_id = '{}_{}'.format(power_cap, iteration)
 
-                options = {'power_budget': power_cap}
-                config_file = run_id + '_agent.config'
-                agent_conf = geopmpy.io.AgentConf(path=config_file,
-                                                  agent=agent,
-                                                  options=options)
+def launch_configs(app_conf, agent, min_power, max_power, step_power):
+    """
+    Runs the application under a range of socket power limits.  Used
+    by other analysis types to run either the PowerGovernorAgent or
+    the PowerBalancerAgent.
+    """
 
-                extra_cli_args = ['--geopm-report-signals=' + ','.join(report_sig),
-                                  '--geopm-trace-signals=' + ','.join(trace_sig)]
-                extra_cli_args += experiment_cli_args
+    targets = []
+    for power_cap in range(max_power, min_power-1, -step_power):
+        name = '{}'.format(power_cap)
+        options = {'power_budget': power_cap}
+        config_file = name + '_agent.config'
+        agent_conf = geopmpy.io.AgentConf(path=config_file,
+                                          agent=agent,
+                                          options=options)
+        targets.append(util.LaunchConfig(app_conf=app_conf,
+                                         agent_conf=agent_conf,
+                                         name=name))
+    return targets
 
-                util.launch_run(agent_conf=agent_conf,
-                                app_conf=app_conf,
-                                run_id=run_id,
-                                output_dir=output_dir,
-                                extra_cli_args=extra_cli_args,
-                                num_node=num_node)
 
-                # rest to cool off between runs
-                time.sleep(cool_off_time)
+def launch(output_dir, iterations,
+           min_power, max_power, step_power, agent_types,
+           num_node, app_conf, experiment_cli_args, cool_off_time=60):
+
+    targets = []
+    for agent in agent_types:
+        targets.extend(launch_configs(app_conf, agent, min_power, max_power, step_power))
+
+    report_sig = report_signals()
+    trace_sig = trace_signals()
+    extra_cli_args = list(experiment_cli_args)
+    extra_cli_args += util.geopm_signal_args(report_signals=report_sig,
+                                             trace_signals=trace_sig)
+    util.launch_all_runs(targets=targets,
+                         num_nodes=num_node,
+                         iterations=iterations,
+                         extra_cli_args=extra_cli_args,
+                         output_dir=output_dir,
+                         cool_off_time=cool_off_time)

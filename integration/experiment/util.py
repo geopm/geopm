@@ -231,3 +231,12 @@ def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir, 
 
             # rest to cool off between runs
             time.sleep(cool_off_time)
+
+
+def geopm_signal_args(report_signals, trace_signals):
+    result = []
+    if report_signals is not None:
+        result += ['--geopm-report-signals=' + ','.join(report_signals)]
+    if trace_signals is not None:
+        result += ['--geopm-trace-signals=' + ','.join(trace_signals)]
+    return result

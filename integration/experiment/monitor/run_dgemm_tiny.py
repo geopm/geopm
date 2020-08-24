@@ -59,9 +59,9 @@ if __name__ == '__main__':
     # experiment parameters
     iterations = 2
 
-    monitor.launch_monitor(output_dir=output_dir,
-                           iterations=iterations,
-                           num_node=num_node,
-                           app_conf=app_conf,
-                           experiment_cli_args=experiment_cli_args,
-                           cool_off_time=0)
+    monitor.launch(output_dir=output_dir,
+                   iterations=iterations,
+                   num_node=num_node,
+                   app_conf=app_conf,
+                   experiment_cli_args=experiment_cli_args,
+                   cool_off_time=0)

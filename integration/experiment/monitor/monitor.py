@@ -33,30 +33,24 @@
 Helper functions for running the monitor agent.
 '''
 
-import time
-
-from experiment import machine
 from experiment import util
 
 
-def launch_monitor(output_dir, iterations,
-                   num_node, app_conf, experiment_cli_args, cool_off_time=60):
-
-    machine.init_output_dir(output_dir)
+def launch(output_dir, iterations,
+           num_node, app_conf, experiment_cli_args, cool_off_time=60):
 
     report_sig = ["CYCLES_THREAD@package", "CYCLES_REFERENCE@package",
                   "TIME@package", "ENERGY_PACKAGE@package"]
 
-    extra_cli_args = ['--geopm-report-signals=' + ','.join(report_sig)]
+    extra_cli_args = util.geopm_signal_args(report_sig, None)
     extra_cli_args += experiment_cli_args
 
-    for iteration in range(iterations):
-        util.launch_run(agent_conf=None,
-                        app_conf=app_conf,
-                        run_id=iteration,
-                        output_dir=output_dir,
-                        extra_cli_args=extra_cli_args,
-                        num_node=num_node)
-
-        # rest to cool off between runs
-        time.sleep(cool_off_time)
+    targets = [util.LaunchConfig(app_conf=app_conf,
+                                 agent_conf=None,
+                                 name=app_conf.name())]
+    util.launch_all_runs(targets=targets,
+                         num_nodes=num_node,
+                         iterations=iterations,
+                         extra_cli_args=extra_cli_args,
+                         output_dir=output_dir,
+                         cool_off_time=cool_off_time)
