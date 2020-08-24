@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,27 +31,43 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-'''
-Helper functions for running the monitor agent.
-'''
-
 from experiment import launch_util
+from experiment.power_sweep import power_sweep
+from experiment.monitor import monitor
+
+def launch_configs(app_conf_ref, app_conf, min_power, max_power, step_power):
+    launch_configs = [launch_util.LaunchConfig(app_conf=app_conf_ref,
+                                               agent_conf=None,
+                                               name="reference")]
+
+    launch_configs += power_sweep.launch_configs(app_conf=app_conf,
+                                                 agent='power_balancer',
+                                                 min_power=min_power,
+                                                 max_power=max_power,
+                                                 step_power=step_power)
+    return launch_configs
 
 def report_signals():
-    return ["CYCLES_THREAD@package", "CYCLES_REFERENCE@package",
-            "TIME@package", "ENERGY_PACKAGE@package"]
+    report_sig = set(monitor.report_signals())
+    report_sig.update(power_sweep.report_signals())
+    report_sig = sorted(list(report_sig))
+    return report_sig
+
+def trace_signals():
+    return power_sweep.trace_signals()
 
 def launch(output_dir, iterations,
-           num_node, app_conf, experiment_cli_args, cool_off_time=60):
+           min_power, max_power, step_power,
+           num_nodes, app_conf_ref, app_conf,
+           experiment_cli_args, cool_off_time=60):
 
-    extra_cli_args = launch_util.geopm_signal_args(report_signals(), None)
-    extra_cli_args += experiment_cli_args
+    extra_cli_args = list(experiment_cli_args)
+    extra_cli_args += launch_util.geopm_signal_args(report_signals=report_signals(),
+                                                    trace_signals=trace_signals())
+    targets = launch_configs(app_conf_ref, app_conf, min_power, max_power, step_power)
 
-    targets = [launch_util.LaunchConfig(app_conf=app_conf,
-                                        agent_conf=None,
-                                        name="")]
     launch_util.launch_all_runs(targets=targets,
-                                num_nodes=num_node,
+                                num_nodes=num_nodes,
                                 iterations=iterations,
                                 extra_cli_args=extra_cli_args,
                                 output_dir=output_dir,
