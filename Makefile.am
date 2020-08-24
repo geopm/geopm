@@ -80,7 +80,6 @@ if ENABLE_BETA
 endif
 
 pkginclude_HEADERS = contrib/json11/json11.hpp \
-                     src/AcceleratorTopo.hpp \
                      src/Agent.hpp \
                      src/Agg.hpp \
                      src/CircularBuffer.hpp \
