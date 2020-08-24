@@ -31,7 +31,17 @@
 #
 
 # Clear out old versions:
-rm -rf nekbone
+if [ -d "nekbone" ]; then
+    echo "WARNING: Previous nekbone checkout detected at ./nekbone"
+    read -p "OK to delete and rebuild? (y/n) " -n 1 -r
+    echo
+    if [[ ${REPLY} =~ ^[Yy]$ ]]; then
+        rm -rf nekbone
+    else
+        echo "Not OK.  Stopping."
+        exit 1
+    fi
+fi
 
 # Acquire the source:
 svn checkout https://repocafe.cels.anl.gov/repos/nekbone
