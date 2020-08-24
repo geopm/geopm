@@ -40,7 +40,7 @@ import math
 
 import geopmpy.io
 
-from experiment import util
+from experiment import launch_util
 
 
 def setup_power_bounds(mach, min_power, max_power, step_power):
@@ -92,9 +92,9 @@ def launch_configs(app_conf, agent, min_power, max_power, step_power):
         agent_conf = geopmpy.io.AgentConf(path=config_file,
                                           agent=agent,
                                           options=options)
-        targets.append(util.LaunchConfig(app_conf=app_conf,
-                                         agent_conf=agent_conf,
-                                         name=name))
+        targets.append(launch_util.LaunchConfig(app_conf=app_conf,
+                                                agent_conf=agent_conf,
+                                                name=name))
     return targets
 
 
@@ -109,11 +109,11 @@ def launch(output_dir, iterations,
     report_sig = report_signals()
     trace_sig = trace_signals()
     extra_cli_args = list(experiment_cli_args)
-    extra_cli_args += util.geopm_signal_args(report_signals=report_sig,
-                                             trace_signals=trace_sig)
-    util.launch_all_runs(targets=targets,
-                         num_nodes=num_node,
-                         iterations=iterations,
-                         extra_cli_args=extra_cli_args,
-                         output_dir=output_dir,
-                         cool_off_time=cool_off_time)
+    extra_cli_args += launch_util.geopm_signal_args(report_signals=report_sig,
+                                                    trace_signals=trace_sig)
+    launch_util.launch_all_runs(targets=targets,
+                                num_nodes=num_node,
+                                iterations=iterations,
+                                extra_cli_args=extra_cli_args,
+                                output_dir=output_dir,
+                                cool_off_time=cool_off_time)

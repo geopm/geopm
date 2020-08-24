@@ -39,7 +39,7 @@ import sys
 
 import geopmpy.io
 
-from experiment import util
+from experiment import launch_util
 
 
 def setup_frequency_bounds(mach, min_freq, max_freq, step_freq, add_turbo_step):
@@ -84,9 +84,9 @@ def launch_configs(app_conf, freq_range):
         name = '{:.1e}'.format(freq)
         options = {'FREQ_DEFAULT': freq}
         agent_conf = geopmpy.io.AgentConf('{}_agent_{}.config'.format(agent, freq), agent, options)
-        targets.append(util.LaunchConfig(app_conf=app_conf,
-                                         agent_conf=agent_conf,
-                                         name=name))
+        targets.append(launch_util.LaunchConfig(app_conf=app_conf,
+                                                agent_conf=agent_conf,
+                                                name=name))
     return targets
 
 
@@ -101,11 +101,11 @@ def launch(output_dir, iterations, freq_range,
     report_sig = report_signals()
     trace_sig = trace_signals()
     extra_cli_args = list(experiment_cli_args)
-    extra_cli_args += util.geopm_signal_args(report_signals=report_sig,
-                                             trace_signals=trace_sig)
-    util.launch_all_runs(targets=targets,
-                         num_nodes=num_node,
-                         iterations=iterations,
-                         extra_cli_args=extra_cli_args,
-                         output_dir=output_dir,
-                         cool_off_time=cool_off_time)
+    extra_cli_args += launch_util.geopm_signal_args(report_signals=report_sig,
+                                                    trace_signals=trace_sig)
+    launch_util.launch_all_runs(targets=targets,
+                                num_nodes=num_node,
+                                iterations=iterations,
+                                extra_cli_args=extra_cli_args,
+                                output_dir=output_dir,
+                                cool_off_time=cool_off_time)
