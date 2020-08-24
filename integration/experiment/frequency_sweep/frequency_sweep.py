@@ -36,12 +36,9 @@ Helper functions for running power sweep experiments.
 '''
 
 import sys
-import os
-import time
 
 import geopmpy.io
 
-from experiment import machine
 from experiment import util
 
 
@@ -71,41 +68,44 @@ def setup_frequency_bounds(mach, min_freq, max_freq, step_freq, add_turbo_step):
     return freqs
 
 
-def launch_frequency_sweep(output_dir, iterations,
-                           freq_range,
-                           agent_types, num_node,
-                           app_conf, experiment_cli_args,
-                           cool_off_time=60):
+def report_signals():
+    return ["CYCLES_THREAD@package", "CYCLES_REFERENCE@package",
+            "TIME@package", "ENERGY_PACKAGE@package"]
+
+
+def trace_signals():
+    return []
+
+
+def launch_configs(app_conf, freq_range):
+    agent = 'frequency_map'
+    targets = []
+    for freq in freq_range:
+        name = '{:.1e}'.format(freq)
+        options = {'FREQ_DEFAULT': freq}
+        agent_conf = geopmpy.io.AgentConf('{}_agent_{}.config'.format(agent, freq), agent, options)
+        targets.append(util.LaunchConfig(app_conf=app_conf,
+                                         agent_conf=agent_conf,
+                                         name=name))
+    return targets
+
+
+def launch(output_dir, iterations, freq_range,
+           agent_types, num_node, app_conf, experiment_cli_args,
+           cool_off_time=60):
     '''
     Run the application over a range of fixed processor frequencies.
     Currently only supports the frequency map agent
     '''
-    machine.init_output_dir(output_dir)
-
-    # report extensions
-    report_sig = ["CYCLES_THREAD@package", "CYCLES_REFERENCE@package",
-                  "TIME@package", "ENERGY_PACKAGE@package"]
-
-    # trace extensions
-    trace_sig = []
-    print(experiment_cli_args)
-    for iteration in range(iterations):
-        for freq in freq_range:
-            for agent in agent_types:
-                run_id = '{}_{}'.format(freq, iteration)
-                options = {'FREQ_DEFAULT': freq}
-                agent_conf = geopmpy.io.AgentConf('{}_agent_{}.config'.format(agent, freq), agent, options)
-
-                extra_cli_args = ['--geopm-report-signals=' + ','.join(report_sig),
-                                  '--geopm-trace-signals=' + ','.join(trace_sig)]
-                extra_cli_args += experiment_cli_args
-
-                util.launch_run(agent_conf=agent_conf,
-                                app_conf=app_conf,
-                                run_id=run_id,
-                                output_dir=output_dir,
-                                extra_cli_args=extra_cli_args,
-                                num_node=num_node)
-
-                # rest to cool off between runs
-                time.sleep(cool_off_time)
+    targets = launch_configs(app_conf, freq_range)
+    report_sig = report_signals()
+    trace_sig = trace_signals()
+    extra_cli_args = list(experiment_cli_args)
+    extra_cli_args += util.geopm_signal_args(report_signals=report_sig,
+                                             trace_signals=trace_sig)
+    util.launch_all_runs(targets=targets,
+                         num_nodes=num_node,
+                         iterations=iterations,
+                         extra_cli_args=extra_cli_args,
+                         output_dir=output_dir,
+                         cool_off_time=cool_off_time)
