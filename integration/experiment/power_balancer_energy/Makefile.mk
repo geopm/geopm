@@ -29,28 +29,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-'''
-Helper functions for running the monitor agent.
-'''
-
-from experiment import launch_util
-
-def report_signals():
-    return ["CYCLES_THREAD@package", "CYCLES_REFERENCE@package",
-            "TIME@package", "ENERGY_PACKAGE@package"]
-
-def launch(output_dir, iterations,
-           num_node, app_conf, experiment_cli_args, cool_off_time=60):
-
-    extra_cli_args = launch_util.geopm_signal_args(report_signals(), None)
-    extra_cli_args += experiment_cli_args
-
-    targets = [launch_util.LaunchConfig(app_conf=app_conf,
-                                        agent_conf=None,
-                                        name="")]
-    launch_util.launch_all_runs(targets=targets,
-                                num_nodes=num_node,
-                                iterations=iterations,
-                                extra_cli_args=extra_cli_args,
-                                output_dir=output_dir,
-                                cool_off_time=cool_off_time)
+EXTRA_DIST += integration/experiment/power_balancer_energy/__init__.py \
+              integration/experiment/power_balancer_energy/power_balancer_energy.py \
+              integration/experiment/power_balancer_energy/run_power_balancer_energy_dgemm.py \
+              integration/experiment/power_balancer_energy/run_power_balancer_energy_nekbone.py \
+              # end

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,28 +31,45 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-'''
-Helper functions for running the monitor agent.
-'''
+import argparse
 
-from experiment import launch_util
+from experiment import common_args
+from experiment import machine
+from apps import geopmbench
 
-def report_signals():
-    return ["CYCLES_THREAD@package", "CYCLES_REFERENCE@package",
-            "TIME@package", "ENERGY_PACKAGE@package"]
+from experiment.power_sweep import power_sweep
+from experiment.power_balancer_energy import power_balancer_energy
 
-def launch(output_dir, iterations,
-           num_node, app_conf, experiment_cli_args, cool_off_time=60):
+if __name__ == '__main__':
 
-    extra_cli_args = launch_util.geopm_signal_args(report_signals(), None)
-    extra_cli_args += experiment_cli_args
+    parser = argparse.ArgumentParser()
+    common_args.add_output_dir(parser)
+    common_args.add_nodes(parser)
+    common_args.add_min_power(parser)
+    common_args.add_max_power(parser)
 
-    targets = [launch_util.LaunchConfig(app_conf=app_conf,
-                                        agent_conf=None,
-                                        name="")]
-    launch_util.launch_all_runs(targets=targets,
-                                num_nodes=num_node,
-                                iterations=iterations,
-                                extra_cli_args=extra_cli_args,
-                                output_dir=output_dir,
-                                cool_off_time=cool_off_time)
+    args, extra_cli_args = parser.parse_known_args()
+    output_dir = args.output_dir
+    num_nodes = args.nodes
+    mach = machine.init_output_dir(output_dir)
+
+    # application parameters
+    app_conf = geopmbench.DgemmAppConf()
+
+    # experiment parameters
+    min_power = args.min_power
+    max_power = args.max_power
+    step_power = 10
+    min_power, max_power = power_sweep.setup_power_bounds(mach, min_power,
+                                                          max_power, step_power)
+    iterations = 2
+
+    power_balancer_energy.launch(output_dir=output_dir,
+                                 iterations=iterations,
+                                 min_power=min_power,
+                                 max_power=max_power,
+                                 step_power=step_power,
+                                 num_nodes=num_nodes,
+                                 app_conf_ref=app_conf,
+                                 app_conf=app_conf,
+                                 experiment_cli_args=extra_cli_args)
