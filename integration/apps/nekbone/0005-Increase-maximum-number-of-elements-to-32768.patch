@@ -1,7 +1,7 @@
-From 76fffeff937942938ba978e3311ede8678279ba7 Mon Sep 17 00:00:00 2001
+From f67fab85676273085f053af416780c3aeff0de1b Mon Sep 17 00:00:00 2001
 From: Brad Geltz <brad.geltz@intel.com>
 Date: Wed, 5 Aug 2020 14:47:02 -0700
-Subject: [PATCH 4/7] Increase maximum number of elements to 32768
+Subject: [PATCH 5/8] Increase maximum number of elements to 32768
 #
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
@@ -33,6 +33,7 @@ Subject: [PATCH 4/7] Increase maximum number of elements to 32768
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+
 Signed-off-by: Brad Geltz <brad.geltz@intel.com>
 ---
  test/example1/SIZE | 2 +-
@@ -52,5 +53,5 @@ index 941aedc..fa4fb8c 100644
        parameter (lelg=lelt*lp)                ! max total elements in a test
        parameter (lelx=lelg,lely=1,lelz=1)     ! max elements in each direction
 -- 
-1.8.3.1
+2.23.0
 

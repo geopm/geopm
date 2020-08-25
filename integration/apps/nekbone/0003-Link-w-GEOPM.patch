@@ -1,7 +1,7 @@
-From a193a2176c9b2aa82bd28a3dd8d767c3c51b2407 Mon Sep 17 00:00:00 2001
+From 7ddb3453e08be80148a4e032abb9490d620ac795 Mon Sep 17 00:00:00 2001
 From: Brad Geltz <brad.geltz@intel.com>
-Date: Thu, 13 Aug 2020 17:00:11 -0700
-Subject: [PATCH 7/7] Update GEOPM_PREFIX
+Date: Wed, 5 Aug 2020 13:34:15 -0700
+Subject: [PATCH 3/8] Link w/GEOPM
 #
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
@@ -33,24 +33,47 @@ Subject: [PATCH 7/7] Update GEOPM_PREFIX
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+
+- Also use default compilers (not Intel wrappers)
+
 Signed-off-by: Brad Geltz <brad.geltz@intel.com>
 ---
- test/example1/makenek-intel | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ test/example1/makenek-intel | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/test/example1/makenek-intel b/test/example1/makenek-intel
-index 6fb562f..5c4066e 100755
+index a5cce80..491621b 100755
 --- a/test/example1/makenek-intel
 +++ b/test/example1/makenek-intel
-@@ -4,7 +4,7 @@
+@@ -4,12 +4,13 @@
  
  # source path
  SOURCE_ROOT="../../src"
--GEOPM_ROOT="${GEOPM_PREFIX:?Please set GEOPM_PREFIX.}" # Defined in intelCRADA/env.sh
 +GEOPM_ROOT="${HOME}/build/geopm"
  
  # Fortran compiler
- F77="mpifort -I${GEOPM_ROOT}/lib/ifort/modules/geopm-x86_64/"
+-F77="mpiifort"
++F77="mpifort -I${GEOPM_ROOT}/lib/ifort/modules/geopm-x86_64/"
+ 
+ # C compiler
+-CC="mpiicc"
++CC="mpicc"
+ 
+ # pre-processor symbol list
+ # (set PPLIST=? to get a list of available symbols)
+@@ -29,10 +30,10 @@ PPLIST="TIMERS CGTIMERS"
+ #USR="foo.o"
+ 
+ # linking flags
+-USR_LFLAGS="-qopenmp -mcmodel=medium -shared-intel"
++USR_LFLAGS="-qopenmp -mcmodel=medium -shared-intel -L${GEOPM_ROOT}/lib -lgeopm -lgeopmfort"
+ 
+ # generic compiler flags
+-#G="-g"
++G="-DGEOPM -I${GEOPM_ROOT}/include"
+ 
+ # optimization flags
+ OPT_FLAGS_STD="-qopenmp -O3 -g -xCORE-AVX2 -mcmodel=medium -shared-intel"
 -- 
-1.8.3.1
+2.23.0
 

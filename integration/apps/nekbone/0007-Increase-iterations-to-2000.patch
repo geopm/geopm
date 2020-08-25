@@ -1,3 +1,8 @@
+From 92492983175ebc59b4d14a4be412cef0538669bd Mon Sep 17 00:00:00 2001
+From: Brad Geltz <brad.geltz@intel.com>
+Date: Wed, 5 Aug 2020 15:42:57 -0700
+Subject: [PATCH 7/8] Increase iterations to 2000
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,15 +34,24 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/apps/nekbone/0001-Fix-whitespace-issues.patch \
-              integration/apps/nekbone/0002-Use-AVX2.patch \
-              integration/apps/nekbone/0003-Link-w-GEOPM.patch \
-              integration/apps/nekbone/0004-Only-run-the-12th-order-polynomial.patch \
-              integration/apps/nekbone/0005-Increase-maximum-number-of-elements-to-32768.patch \
-              integration/apps/nekbone/0006-Add-Epoch-markup.patch \
-              integration/apps/nekbone/0007-Increase-iterations-to-2000.patch \
-              integration/apps/nekbone/0008-Add-barriers-to-collective-calls.patch \
-              integration/apps/nekbone/__init__.py \
-              integration/apps/nekbone/download_and_build.sh \
-              integration/apps/nekbone/nekbone.py \
-              # end
+Signed-off-by: Brad Geltz <brad.geltz@intel.com>
+---
+ test/example1/makenek-intel | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/test/example1/makenek-intel b/test/example1/makenek-intel
+index 491621b..1a2733b 100755
+--- a/test/example1/makenek-intel
++++ b/test/example1/makenek-intel
+@@ -15,7 +15,7 @@ CC="mpicc"
+ # pre-processor symbol list
+ # (set PPLIST=? to get a list of available symbols)
+ #PPLSIT="BGQ BGP K10_MXM TIMERS MPITIMER BGQTIMER CGTTIMER NITER=20 LOG MPITHREADS XSMM MXMBASIC MKL BLAS_MXM XSMM_FIXED XSMM_DISPATCH NPOLY=8"
+-PPLIST="TIMERS CGTIMERS"
++PPLIST="TIMERS CGTIMERS NITER=2000"
+ 
+ 
+ # OPTIONAL SETTINGS
+-- 
+2.23.0
+

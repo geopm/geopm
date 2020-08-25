@@ -1,7 +1,7 @@
-From 18c38bb08657814c2f5df214628a19d9a7d43012 Mon Sep 17 00:00:00 2001
+From 479c5ab17bdd9ae592f678f76638334778b7c3e1 Mon Sep 17 00:00:00 2001
 From: Brad Geltz <brad.geltz@intel.com>
-Date: Wed, 5 Aug 2020 15:42:57 -0700
-Subject: [PATCH 6/7] Increase iterations to 2000
+Date: Mon, 24 Aug 2020 17:14:19 -0700
+Subject: [PATCH 8/8] Add barriers to collective calls
 #
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
@@ -33,24 +33,64 @@ Subject: [PATCH 6/7] Increase iterations to 2000
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+
+- Add special makefile to set build flag which enables
+  barrier usage before collectives.
+
 Signed-off-by: Brad Geltz <brad.geltz@intel.com>
 ---
- test/example1/makenek-intel | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ src/comm_mpi.f              | 9 +++++++++
+ test/example1/makenek-intel | 3 +++
+ 2 files changed, 12 insertions(+)
 
+diff --git a/src/comm_mpi.f b/src/comm_mpi.f
+index 11df316..bf3dc4b 100644
+--- a/src/comm_mpi.f
++++ b/src/comm_mpi.f
+@@ -107,6 +107,9 @@ c
+       real x(n), w(n)
+       character*3 op
+ c
++#ifdef GEOPM_BARRIER
++      call mpi_barrier(nekcomm, ierr)
++#endif
+       if (op.eq.'+  ') then
+          call mpi_allreduce (x,w,n,nekreal,mpi_sum ,nekcomm,ierr)
+       elseif (op.EQ.'M  ') then
+@@ -135,6 +138,9 @@ c
+       integer x(n), w(n)
+       character*3 op
+ 
++#ifdef GEOPM_BARRIER
++      call mpi_barrier(nekcomm, ierr)
++#endif
+       if     (op.eq.'+  ') then
+         call mpi_allreduce (x,w,n,mpi_integer,mpi_sum ,nekcomm,ierr)
+       elseif (op.EQ.'M  ') then
+@@ -163,6 +169,9 @@ c
+       integer*8 x(n), w(n)
+       character*3 op
+ 
++#ifdef GEOPM_BARRIER
++      call mpi_barrier(nekcomm, ierr)
++#endif
+       if     (op.eq.'+  ') then
+         call mpi_allreduce (x,w,n,mpi_integer8,mpi_sum ,nekcomm,ierr)
+       elseif (op.EQ.'M  ') then
 diff --git a/test/example1/makenek-intel b/test/example1/makenek-intel
-index 15eab37..6fb562f 100755
+index 1a2733b..affd0e7 100755
 --- a/test/example1/makenek-intel
 +++ b/test/example1/makenek-intel
-@@ -15,7 +15,7 @@ CC="mpicc"
- # pre-processor symbol list
- # (set PPLIST=? to get a list of available symbols)
- #PPLSIT="BGQ BGP K10_MXM TIMERS MPITIMER BGQTIMER CGTTIMER NITER=20 LOG MPITHREADS XSMM MXMBASIC MKL BLAS_MXM XSMM_FIXED XSMM_DISPATCH NPOLY=8"
--PPLIST="TIMERS CGTIMERS"
-+PPLIST="TIMERS CGTIMERS NITER=2000"
+@@ -34,6 +34,9 @@ USR_LFLAGS="-qopenmp -mcmodel=medium -shared-intel -L${GEOPM_ROOT}/lib -lgeopm -
  
+ # generic compiler flags
+ G="-DGEOPM -I${GEOPM_ROOT}/include"
++if [ ! -z "${GEOPM_BARRIER+x}" ]; then
++    G="-DGEOPM_BARRIER ${G}"
++fi
  
- # OPTIONAL SETTINGS
+ # optimization flags
+ OPT_FLAGS_STD="-qopenmp -O3 -g -xCORE-AVX2 -mcmodel=medium -shared-intel"
 -- 
-1.8.3.1
+2.23.0
 
