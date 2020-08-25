@@ -34,6 +34,7 @@
 
 import os
 import time
+import sys
 
 import geopmpy.launcher
 from . import util
@@ -64,6 +65,8 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
     trace_path = '{}.trace'.format(uid)
     profile_name = uid
     log_path = '{}.log'.format(uid)
+    sys.stdout.write('Run commencing...\nLive job output will be written to: {}\n'
+                     .format(os.path.join(output_dir, log_path)))
 
     # TODO: these are not passed to launcher create()
     # some are generic enough they could be, though
@@ -141,6 +144,7 @@ def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir, 
 
             # rest to cool off between runs
             time.sleep(cool_off_time)
+    sys.stdout.write('Run complete!\n')
 
 
 def geopm_signal_args(report_signals, trace_signals):
