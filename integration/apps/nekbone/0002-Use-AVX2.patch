@@ -1,7 +1,7 @@
-From 684454d80044c89ac714ded78bb83898faa240eb Mon Sep 17 00:00:00 2001
+From ebf7b3c74f53fb32aeba6d1be24511dc96465a5b Mon Sep 17 00:00:00 2001
 From: Brad Geltz <brad.geltz@intel.com>
-Date: Wed, 5 Aug 2020 14:12:20 -0700
-Subject: [PATCH 3/7] Only run the 12th order polynomial
+Date: Mon, 24 Aug 2020 15:53:59 -0700
+Subject: [PATCH 2/8] Use AVX2
 #
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
@@ -33,22 +33,29 @@ Subject: [PATCH 3/7] Only run the 12th order polynomial
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+
+- xHost could enable AVX-512.
+
 Signed-off-by: Brad Geltz <brad.geltz@intel.com>
 ---
- test/example1/data.rea | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ test/example1/makenek-intel | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/test/example1/data.rea b/test/example1/data.rea
-index 36077f4..cc1c6a7 100644
---- a/test/example1/data.rea
-+++ b/test/example1/data.rea
-@@ -1,5 +1,5 @@
- .true. = ifbrick               ! brick or linear geometry
- 512 512 1  = iel0,ielN,ielD (per processor)  ! range of number of elements per proc.
-- 9  12 3 = nx0,nxN,nxD         ! poly. order range for nx1
-+ 12 12 1 = nx0,nxN,nxD         ! poly. order range for nx1
-  1  1  1 = npx, npy, npz       ! processor distribution in x,y,z
-  1  1  1 = mx, my, mz          ! local element distribution in x,y,z
+diff --git a/test/example1/makenek-intel b/test/example1/makenek-intel
+index fa6e4f3..a5cce80 100755
+--- a/test/example1/makenek-intel
++++ b/test/example1/makenek-intel
+@@ -35,8 +35,8 @@ USR_LFLAGS="-qopenmp -mcmodel=medium -shared-intel"
+ #G="-g"
+ 
+ # optimization flags
+-OPT_FLAGS_STD="-qopenmp -O3 -g -xHost -mcmodel=medium -shared-intel"
+-OPT_FLAGS_MAG="-qopenmp -O3 -g -xHost -mcmodel=medium -shared-intel"
++OPT_FLAGS_STD="-qopenmp -O3 -g -xCORE-AVX2 -mcmodel=medium -shared-intel"
++OPT_FLAGS_MAG="-qopenmp -O3 -g -xCORE-AVX2 -mcmodel=medium -shared-intel"
+ 
+ ###############################################################################
+ # DONT'T TOUCH WHAT FOLLOWS !!!
 -- 
-1.8.3.1
+2.23.0
 

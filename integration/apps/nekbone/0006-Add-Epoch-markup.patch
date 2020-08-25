@@ -1,9 +1,7 @@
-From efaf688e7f87891e90134b24de26332fed006a4b Mon Sep 17 00:00:00 2001
+From 1462dea2ad94396d4a1af5f48753c243c33b9d02 Mon Sep 17 00:00:00 2001
 From: Brad Geltz <brad.geltz@intel.com>
 Date: Wed, 5 Aug 2020 15:18:29 -0700
-Subject: [PATCH 5/7] Add Epoch markup
-
-- Only time the second invocation of cg().
+Subject: [PATCH 6/8] Add Epoch markup
 #
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
@@ -35,6 +33,9 @@ Subject: [PATCH 5/7] Add Epoch markup
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+
+- Only time the second invocation of cg().
+
 Signed-off-by: Brad Geltz <brad.geltz@intel.com>
 ---
  src/cg.f     | 14 ++++++++++++++
@@ -110,5 +111,5 @@ index cb4421f..4f2a224 100644
             call set_timer_flop_cnt(1)
  
 -- 
-1.8.3.1
+2.23.0
 

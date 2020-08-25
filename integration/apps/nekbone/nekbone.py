@@ -41,7 +41,8 @@ class NekboneAppConf(apps.AppConf):
     def name():
         return 'nekbone'
 
-    def __init__(self):
+    def __init__(self, add_barriers=False):
+        self._add_barriers = add_barriers
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
         self._nekbone_path = os.path.join(benchmark_dir, 'nekbone/trunk/nekbone/test/example1/')
         # TODO: needed? is size in setup() related ?
@@ -68,7 +69,13 @@ class NekboneAppConf(apps.AppConf):
         return 'rm -f ./data.rea'
 
     def get_exec_path(self):
-        return os.path.join(self._nekbone_path, 'nekbone')
+        binary_name = ''
+        if self._add_barriers:
+            binary_name = 'nekbone-barrier'
+        else:
+            binary_name = 'nekbone'
+
+        return os.path.join(self._nekbone_path, binary_name)
 
     def get_exec_args(self):
         return ['ex1']

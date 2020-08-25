@@ -1,7 +1,7 @@
-From 5be7a6dcc0afb70e23b53f282dd430269d297cbf Mon Sep 17 00:00:00 2001
+From 15af3e8216c38204c9b84a2be8553d042f7f6989 Mon Sep 17 00:00:00 2001
 From: Brad Geltz <brad.geltz@intel.com>
 Date: Wed, 5 Aug 2020 13:33:08 -0700
-Subject: [PATCH 1/7] Fix whitespace issues
+Subject: [PATCH 1/8] Fix whitespace issues
 #
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
@@ -33,12 +33,14 @@ Subject: [PATCH 1/7] Fix whitespace issues
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+
 Signed-off-by: Brad Geltz <brad.geltz@intel.com>
 ---
- src/cg.f                    |  8 ++++----
- src/driver.f                | 50 ++++++++++++++++++++++-----------------------
- test/example1/makenek-intel |  6 +++---
- 3 files changed, 32 insertions(+), 32 deletions(-)
+ src/cg.f                    |  8 +++---
+ src/comm_mpi.f              | 56 ++++++++++++++++++-------------------
+ src/driver.f                | 50 ++++++++++++++++-----------------
+ test/example1/makenek-intel |  6 ++--
+ 4 files changed, 60 insertions(+), 60 deletions(-)
 
 diff --git a/src/cg.f b/src/cg.f
 index b4214dd..f9c4f6d 100644
@@ -67,6 +69,216 @@ index b4214dd..f9c4f6d 100644
        do i = 2,n-1
           w(i)=h2i*(2*u(i)-u(i-1)-u(i+1))
        enddo
+diff --git a/src/comm_mpi.f b/src/comm_mpi.f
+index 26f1bc0..11df316 100644
+--- a/src/comm_mpi.f
++++ b/src/comm_mpi.f
+@@ -13,7 +13,7 @@ c-----------------------------------------------------------------------
+       if ( mpi_is_initialized .eq. 0 ) then
+ #ifdef MPITHREADS
+         call mpi_init_thread (MPI_THREAD_MULTIPLE,provided,ierr)
+-#else 
++#else
+         call mpi_init (ierr)
+ #endif
+       endif
+@@ -33,11 +33,11 @@ c        call exitt
+       endif
+ 
+       IF (NP.GT.LP) THEN
+-         WRITE(6,*) 
++         WRITE(6,*)
+      $   'ERROR: Code compiled for a max of',LP,' processors.'
+-         WRITE(6,*) 
++         WRITE(6,*)
+      $   'Recompile with LP =',NP,' or run with fewer processors.'
+-         WRITE(6,*) 
++         WRITE(6,*)
+      $   'Aborting in routine INIPROC.'
+          call exitt
+       endif
+@@ -49,7 +49,7 @@ c        call exitt
+       if (oneeps.ne.1.0) then
+          wdsize=8
+       else
+-         if(nid.eq.0) 
++         if(nid.eq.0)
+      &     write(6,*) 'ABORT: single precision mode not supported!'
+          call exitt
+       endif
+@@ -74,7 +74,7 @@ c
+       NODE0=0
+       NODE= NID+1
+ 
+-      if (nid.eq.0) then 
++      if (nid.eq.0) then
+          write(6,*) 'Number of processors:',np
+          WRITE(6,*) 'REAL    wdsize      :',WDSIZE
+          WRITE(6,*) 'INTEGER wdsize      :',ISIZE
+@@ -203,7 +203,7 @@ C
+       call mpi_recv (buf,len,mpi_byte
+      $              ,jnid,mtype,nekcomm,status,ierr)
+ c
+-      if (len.gt.lenm) then 
++      if (len.gt.lenm) then
+           write(6,*) nid,'long message in mpi_crecv:',len,lenm
+           call exitt
+       endif
+@@ -224,7 +224,7 @@ C
+      $            ,jnid,mtype,nekcomm,status,ierr)
+       call mpi_get_count (status,mpi_byte,len,ierr)
+ c
+-      if (len.gt.lenm) then 
++      if (len.gt.lenm) then
+           write(6,*) nid,'long message in mpi_crecv:',len,lenm
+           call exitt
+       endif
+@@ -266,7 +266,7 @@ c-----------------------------------------------------------------------
+       double precision fclock_gettime
+       external fclock_gettime
+       dnekclock = fclock_gettime()
+-#else 
++#else
+       integer*8 countval, countrate, countmax
+       double precision countd
+       call system_clock(countval, countrate, countmax)
+@@ -443,7 +443,7 @@ c-----------------------------------------------------------------------
+       include 'TOTAL'
+ 
+       ierr = iglsum(ierr,1)
+-      if(ierr.eq.0) return 
++      if(ierr.eq.0) return
+ 
+       len = indx1(string,'$',1)
+       call blank(ostring,132)
+@@ -504,7 +504,7 @@ c
+       ttotal = tstop-etimes
+       nxyz   = nx1*ny1*nz1
+ 
+-      if (nid.eq.0) then 
++      if (nid.eq.0) then
+          dtmp1 = 0
+          dtmp2 = 0
+          dtmp3 = 0
+@@ -514,23 +514,23 @@ c
+            dtmp1 = np*ttime/(dgp*max(istep,1))
+            dtmp2 = ttime/max(istep,1)
+            dtmp3 = 1.*papi_flops/1e6
+-         endif 
++         endif
+          write(6,*) ' '
+          write(6,'(A)') 'call exitt: dying ...'
+          write(6,*) ' '
+ c        call print_stack()
+          write(6,*) ' '
+-         write(6,'(4(A,1p1e13.5,A,/))') 
++         write(6,'(4(A,1p1e13.5,A,/))')
+      &       'total elapsed time             : ',ttotal, ' sec'
+      &      ,'total solver time incl. I/O    : ',ttime , ' sec'
+      &      ,'time/timestep                  : ',dtmp2 , ' sec'
+      &      ,'CPU seconds/timestep/gridpt    : ',dtmp1 , ' sec'
+ #ifdef PAPI
+-         write(6,'(2(A,1g13.5,/))') 
++         write(6,'(2(A,1g13.5,/))')
+      &       'Gflops                         : ',dtmp3/1000.
+      &      ,'Gflops/s                       : ',papi_mflops/1000.
+ #endif
+-      endif 
++      endif
+ 
+       nz1 = 1/(nx1-ny1)
+ 
+@@ -644,7 +644,7 @@ c-----------------------------------------------------------------------
+          nloop = max(nloop,1)
+ 
+          len   = 8*nwds
+-     
++
+          call ping_loop(t1,t0,len,nloop,nodea,nodeb,nid,x,y,x,y)
+ 
+          if (nid.eq.nodea) then
+@@ -792,7 +792,7 @@ c-----------------------------------------------------------------------
+ 
+       nwds  = min(1000,lt)
+       nloop = 50
+- 
++
+       tmsg = 0.
+       call gop(tmsg,t1,'+  ',1)
+ 
+@@ -890,7 +890,7 @@ c-----------------------------------------------------------------------
+       if (nid.eq.0) then
+          nwds = 1
+          do itest=1,500
+-            if (ivb.gt.0.or.itest.eq.1) 
++            if (ivb.gt.0.or.itest.eq.1)
+      $         write(6,1) np,nwds,(times(k,itest),k=1,2)
+     1       format(i9,i12,1p2e16.8,' gop')
+             nwds = (nwds+1)*1.016
+@@ -943,7 +943,7 @@ c-----------------------------------------------------------------------
+       if (nid.eq.0) then
+          nwds = 1
+          do itest=1,500
+-            if (ivb.gt.0.or.itest.eq.1) 
++            if (ivb.gt.0.or.itest.eq.1)
+      $         write(6,1) np,nwds,(times(k,itest),k=1,2)
+     1       format(i9,i12,1p2e16.8,' gp2')
+             nwds = (nwds+1)*1.016
+@@ -992,7 +992,7 @@ c     Std. fan-in/fan-out
+       real x(n), w(n)
+       character*3 op
+ 
+-      integer bit, bytes, cnt, diff, spsize, i, 
++      integer bit, bytes, cnt, diff, spsize, i,
+      *   parent, troot, xor, root, lnp, log2
+       logical ifgot
+ 
+@@ -1168,17 +1168,17 @@ c     Double Buffer : does 2*nloop timings
+ 
+       itag=1
+       if (nid.eq.nodea) then
+-         call mpi_irecv(y1,len,mpi_byte,nodeb,itag,nekcomm,msg1,ierr)   ! 1b 
++         call mpi_irecv(y1,len,mpi_byte,nodeb,itag,nekcomm,msg1,ierr)   ! 1b
+          call nekgsync
+ 
+ 
+          t0 = mpi_wtime ()
+          do i=1,nloop
+-            call mpi_send (x1,len,mpi_byte,nodeb,itag,nekcomm,ierr)     ! 1a 
+-            call mpi_irecv(y2,len,mpi_byte,nodeb,itag,nekcomm,msg2,ierr)! 2b 
++            call mpi_send (x1,len,mpi_byte,nodeb,itag,nekcomm,ierr)     ! 1a
++            call mpi_irecv(y2,len,mpi_byte,nodeb,itag,nekcomm,msg2,ierr)! 2b
+             call mpi_wait (msg1,status,ierr)                            ! 1b
+-            call mpi_send (x2,len,mpi_byte,nodeb,itag,nekcomm,ierr)     ! 2a 
+-            call mpi_irecv(y1,len,mpi_byte,nodeb,itag,nekcomm,msg1,ierr)! 3b 
++            call mpi_send (x2,len,mpi_byte,nodeb,itag,nekcomm,ierr)     ! 2a
++            call mpi_irecv(y1,len,mpi_byte,nodeb,itag,nekcomm,msg1,ierr)! 3b
+             call mpi_wait (msg2,status,ierr)                            ! 2b
+          enddo
+          t1 = mpi_wtime ()
+@@ -1187,7 +1187,7 @@ c     Double Buffer : does 2*nloop timings
+ 
+       elseif (nid.eq.nodeb) then
+ 
+-         call mpi_irecv(y1,len,mpi_byte,nodea,itag,nekcomm,msg1,ierr)   ! nb 
++         call mpi_irecv(y1,len,mpi_byte,nodea,itag,nekcomm,msg1,ierr)   ! nb
+          call nekgsync
+ 
+ 
+@@ -1195,11 +1195,11 @@ c     Double Buffer : does 2*nloop timings
+             call mpi_wait (msg1,status,ierr)                            ! 1a
+             call mpi_send (x1,len,mpi_byte,nodea,itag,nekcomm,ierr)     ! 1b
+             call mpi_irecv(y2,len,mpi_byte,nodea,itag,nekcomm,msg2,ierr)! 2a
+-            call mpi_wait (msg2,status,ierr)                            ! 2a 
++            call mpi_wait (msg2,status,ierr)                            ! 2a
+             call mpi_send (x2,len,mpi_byte,nodea,itag,nekcomm,ierr)     ! 2b
+             call mpi_irecv(y1,len,mpi_byte,nodea,itag,nekcomm,msg1,ierr)! 3a
+          enddo
+-         call mpi_wait (msg1,status,ierr)                            ! 2a 
++         call mpi_wait (msg1,status,ierr)                            ! 2a
+          call mpi_send (x1,len,mpi_byte,nodea,itag,nekcomm,ierr)        ! nb
+ 
+       else
 diff --git a/src/driver.f b/src/driver.f
 index f45aa50..cb4421f 100644
 --- a/src/driver.f
@@ -274,5 +486,5 @@ index 209dfc3..fa6e4f3 100755
  
  # linking flags
 -- 
-1.8.3.1
+2.23.0
 
