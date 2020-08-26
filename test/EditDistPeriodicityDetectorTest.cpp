@@ -57,9 +57,9 @@ void EditDistPeriodicityDetectorTest::SetUp()
     m_trace_file_prefix += "/test/EditDistPeriodicityDetectorTest.";
 }
 
-void check_vals(std::string trace_file_path, int warmup, int period, int history_size=100);
+void check_vals(std::string trace_file_path, int warmup, int period, int history_size=20);
 void check_vals(std::string trace_file_path, int start, int end, int period, int history_size);
-void check_vals(std::vector<record_s> recs, std::vector<std::vector<int> > expected, int history_size=100);
+void check_vals(std::vector<record_s> recs, std::vector<std::vector<int> > expected, int history_size=20);
 
 
 /// Pattern 0: (A)x10
@@ -67,7 +67,7 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_a)
 {
     int warmup = 1;
     int period = 1;
-    int history_size = 100;
+    int history_size = 20;
 
     check_vals(m_trace_file_prefix + "0_pattern_a.trace", warmup, period, history_size);
 }
@@ -77,7 +77,7 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_ab)
 {
     int warmup = 3;
     int period = 2;
-    int history_size = 100;
+    int history_size = 20;
 
     check_vals(m_trace_file_prefix + "1_pattern_ab.trace", warmup, period, history_size);
 }
@@ -87,7 +87,7 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_abb)
 {
     int warmup = 5;
     int period = 3;
-    int history_size = 100;
+    int history_size = 20;
 
     check_vals(m_trace_file_prefix + "2_pattern_abb.trace", warmup, period, history_size);
 }
@@ -97,7 +97,7 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_abcdc)
 {
     int warmup = 33;
     int period = 17;
-    int history_size = 100;
+    int history_size = 20;
 
     check_vals(m_trace_file_prefix + "3_pattern_abcdc.trace", warmup, period, history_size);
 }
@@ -117,7 +117,7 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_abababc)
 {
     int warmup = 13;
     int period = 7;
-    int history_size = 100;
+    int history_size = 20;
 
     check_vals(m_trace_file_prefix + "5_pattern_abababc.trace", warmup, period, history_size);
 }
@@ -126,7 +126,7 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_abababc)
 TEST_F(EditDistPeriodicityDetectorTest, pattern_add1)
 {
     int period = 4;
-    int history_size = 100;
+    int history_size = 20;
 
     check_vals(m_trace_file_prefix + "6_pattern_add1.trace", 7, 24, period, history_size);
     int warmup = 32;
@@ -137,7 +137,7 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_add1)
 TEST_F(EditDistPeriodicityDetectorTest, pattern_add2)
 {
     int period = 4;
-    int history_size = 100;
+    int history_size = 20;
 
     check_vals(m_trace_file_prefix + "7_pattern_add2.trace", 7, 24, period, history_size);
     check_vals(m_trace_file_prefix + "7_pattern_add2.trace", 33, period, history_size);
@@ -147,7 +147,7 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_add2)
 TEST_F(EditDistPeriodicityDetectorTest, pattern_subtract1)
 {
     int period = 4;
-    int history_size = 100;
+    int history_size = 20;
 
     check_vals(m_trace_file_prefix + "8_pattern_subtract1.trace", 7, 27, period, history_size);
     check_vals(m_trace_file_prefix + "8_pattern_subtract1.trace", 54, period, history_size);
