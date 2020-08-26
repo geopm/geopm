@@ -118,20 +118,35 @@ void NVMLIOGroupTest::TearDown()
 TEST_F(NVMLIOGroupTest, push_control_adjust_write_batch)
 {
     const int num_accelerator = m_platform_topo->num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR);
-    std::vector<int> batch_idx;
+    std::map<int, double> batch_value;
     NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool);
 
+    std::vector<double> mock_freq = {1530, 1320, 420, 135};
+    std::vector<double> mock_power = {153600, 70000, 300000, 50000};
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        batch_idx.push_back(nvml_io.push_control("NVML::FREQUENCY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx));
-        batch_idx.push_back(nvml_io.push_control("FREQUENCY_ACCELERATOR_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx));
-        batch_idx.push_back(nvml_io.push_control("NVML::FREQUENCY_RESET", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx));
-        batch_idx.push_back(nvml_io.push_control("NVML::POWER_LIMIT", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx));
-        batch_idx.push_back(nvml_io.push_control("POWER_ACCELERATOR_LIMIT", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx));
+        batch_value[(nvml_io.push_control("NVML::FREQUENCY_CONTROL",
+                                        GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx))] = mock_freq.at(accel_idx)*1e6;
+        batch_value[(nvml_io.push_control("FREQUENCY_ACCELERATOR_CONTROL",
+                                        GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx))] = mock_freq.at(accel_idx)*1e6;
+        EXPECT_CALL(*m_device_pool,
+                    frequency_control_sm(accel_idx, mock_freq.at(accel_idx),
+                                         mock_freq.at(accel_idx))).Times(2);
+
+        batch_value[(nvml_io.push_control("NVML::FREQUENCY_RESET_CONTROL",
+                                        GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx))] = mock_freq.at(accel_idx);
+        EXPECT_CALL(*m_device_pool, frequency_reset_control(accel_idx)).Times(1);
+
+        batch_value[(nvml_io.push_control("NVML::POWER_LIMIT_CONTROL",
+                                        GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx))] = mock_power.at(accel_idx)/1e3;
+        batch_value[(nvml_io.push_control("POWER_ACCELERATOR_LIMIT_CONTROL",
+                                        GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx))] = mock_power.at(accel_idx)/1e3;
+        EXPECT_CALL(*m_device_pool, power_control(accel_idx, mock_power.at(accel_idx))).Times(2);
     }
 
-    for (int idx = 0; idx < batch_idx.size(); ++idx) {
+    for (auto& sv: batch_value) {
+
         // Given that we are mocking NVMLDevicePool the actual setting here doesn't matter
-        EXPECT_NO_THROW(nvml_io.adjust(batch_idx.at(idx), 12345.6));
+        EXPECT_NO_THROW(nvml_io.adjust(sv.first, sv.second));
     }
     EXPECT_NO_THROW(nvml_io.write_batch());
 }
@@ -141,12 +156,30 @@ TEST_F(NVMLIOGroupTest, write_control)
     const int num_accelerator = m_platform_topo->num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR);
     NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool);
 
+    std::vector<double> mock_freq = {1530, 1320, 420, 135};
+    std::vector<double> mock_power = {153600, 70000, 300000, 50000};
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
-        EXPECT_NO_THROW(nvml_io.write_control("NVML::FREQUENCY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx, 1530000000));
-        EXPECT_NO_THROW(nvml_io.write_control("FREQUENCY_ACCELERATOR_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx, 1530000000));
-        EXPECT_NO_THROW(nvml_io.write_control("NVML::FREQUENCY_RESET", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx, 12345));
-        EXPECT_NO_THROW(nvml_io.write_control("NVML::POWER_LIMIT", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx, 200));
-        EXPECT_NO_THROW(nvml_io.write_control("POWER_ACCELERATOR_LIMIT", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx, 200));
+        EXPECT_CALL(*m_device_pool,
+                    frequency_control_sm(accel_idx, mock_freq.at(accel_idx),
+                                         mock_freq.at(accel_idx))).Times(2);
+        EXPECT_NO_THROW(nvml_io.write_control("NVML::FREQUENCY_CONTROL",
+                                              GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx,
+                                              mock_freq.at(accel_idx)*1e6));
+        EXPECT_NO_THROW(nvml_io.write_control("FREQUENCY_ACCELERATOR_CONTROL",
+                                              GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx,
+                                              mock_freq.at(accel_idx)*1e6));
+
+        EXPECT_CALL(*m_device_pool, frequency_reset_control(accel_idx)).Times(1);
+        EXPECT_NO_THROW(nvml_io.write_control("NVML::FREQUENCY_RESET_CONTROL",
+                                              GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx, 12345));
+
+        EXPECT_CALL(*m_device_pool, power_control(accel_idx, mock_power.at(accel_idx))).Times(2);
+        EXPECT_NO_THROW(nvml_io.write_control("NVML::POWER_LIMIT_CONTROL",
+                                              GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx,
+                                              mock_power.at(accel_idx)/1e3));
+        EXPECT_NO_THROW(nvml_io.write_control("POWER_ACCELERATOR_LIMIT_CONTROL",
+                                              GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx,
+                                              mock_power.at(accel_idx)/1e3));
     }
 }
 
@@ -157,22 +190,34 @@ TEST_F(NVMLIOGroupTest, read_signal_and_batch)
     std::vector<double> mock_freq = {1530, 1320, 420, 135};
     std::vector<int> batch_idx;
 
+    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool);
+
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         EXPECT_CALL(*m_device_pool, frequency_status_sm(accel_idx)).WillRepeatedly(Return(mock_freq.at(accel_idx)));
     }
-
-    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool);
-
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         batch_idx.push_back(nvml_io.push_signal("NVML::FREQUENCY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx));
     }
     nvml_io.read_batch();
-
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
         double frequency = nvml_io.read_signal("NVML::FREQUENCY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
         double frequency_batch = nvml_io.sample(batch_idx.at(accel_idx));
 
         EXPECT_DOUBLE_EQ(frequency, mock_freq.at(accel_idx)*1e6);
+        EXPECT_DOUBLE_EQ(frequency, frequency_batch);
+    }
+
+    mock_freq = {1630, 1420, 520, 235};
+    //second round of testing with a modified value
+    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
+        EXPECT_CALL(*m_device_pool, frequency_status_sm(accel_idx)).WillRepeatedly(Return(mock_freq.at(accel_idx)));
+    }
+    nvml_io.read_batch();
+    for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
+        double frequency = nvml_io.read_signal("NVML::FREQUENCY", GEOPM_DOMAIN_BOARD_ACCELERATOR, accel_idx);
+        double frequency_batch = nvml_io.sample(batch_idx.at(accel_idx));
+
+        EXPECT_DOUBLE_EQ(frequency, (mock_freq.at(accel_idx))*1e6);
         EXPECT_DOUBLE_EQ(frequency, frequency_batch);
     }
 }
@@ -195,7 +240,6 @@ TEST_F(NVMLIOGroupTest, read_signal)
     std::vector<double> mock_pcie_tx_throughput = {2000, 3000, 4000, 100};
     std::vector<double> mock_utilization_mem = {25, 50, 100, 75};
 
-    /// @todo: Read /proc/sys/kernel/pid_max to guarantee that we never hit an actual PID in testing?
     std::vector<int> active_process_list = {40961, 40962, 40963};
 
     for (int accel_idx = 0; accel_idx < num_accelerator; ++accel_idx) {
@@ -298,11 +342,11 @@ TEST_F(NVMLIOGroupTest, error_path)
     GEOPM_EXPECT_THROW_MESSAGE(nvml_io.read_signal("NVML::INVALID", GEOPM_DOMAIN_BOARD_ACCELERATOR, 0),
                                GEOPM_ERROR_INVALID, "NVML::INVALID not valid for NVMLIOGroup");
 
-    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_control("NVML::FREQUENCY", GEOPM_DOMAIN_BOARD, 0),
+    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_control("NVML::FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0),
                                GEOPM_ERROR_INVALID, "domain_type must be");
     GEOPM_EXPECT_THROW_MESSAGE(nvml_io.adjust(0, 12345.6),
                                GEOPM_ERROR_INVALID, "batch_idx 0 out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.write_control("NVML::FREQUENCY", GEOPM_DOMAIN_BOARD, 0, 1530000000),
+    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.write_control("NVML::FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD, 0, 1530000000),
                                GEOPM_ERROR_INVALID, "domain_type must be");
 
     GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_control("NVML::INVALID", GEOPM_DOMAIN_BOARD_ACCELERATOR, 0),
@@ -319,12 +363,12 @@ TEST_F(NVMLIOGroupTest, error_path)
     GEOPM_EXPECT_THROW_MESSAGE(nvml_io.read_signal("NVML::FREQUENCY", GEOPM_DOMAIN_BOARD_ACCELERATOR, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
 
-    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_control("NVML::FREQUENCY", GEOPM_DOMAIN_BOARD_ACCELERATOR, num_accelerator),
+    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_control("NVML::FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR, num_accelerator),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_control("NVML::FREQUENCY", GEOPM_DOMAIN_BOARD_ACCELERATOR, -1),
+    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.push_control("NVML::FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR, -1),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.write_control("NVML::FREQUENCY", GEOPM_DOMAIN_BOARD_ACCELERATOR, num_accelerator, 1530000000),
+    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.write_control("NVML::FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR, num_accelerator, 1530000000),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
-    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.write_control("NVML::FREQUENCY", GEOPM_DOMAIN_BOARD_ACCELERATOR, -1, 1530000000),
+    GEOPM_EXPECT_THROW_MESSAGE(nvml_io.write_control("NVML::FREQUENCY_CONTROL", GEOPM_DOMAIN_BOARD_ACCELERATOR, -1, 1530000000),
                                GEOPM_ERROR_INVALID, "domain_idx out of range");
 }

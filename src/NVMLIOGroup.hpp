@@ -38,15 +38,14 @@
 #include <string>
 #include <memory>
 
-#include "PluginFactory.hpp"
 #include "IOGroup.hpp"
-#include "NVMLDevicePool.hpp"
 
 #include <nvml.h>
 
 namespace geopm
 {
     class PlatformTopo;
+    class NVMLDevicePool;
 
     /// @brief IOGroup that provides signals and controls for NVML Accelerators
     class NVMLIOGroup : public IOGroup
@@ -81,6 +80,9 @@ namespace geopm
             void register_signal_alias(const std::string &alias_name, const std::string &signal_name);
             void register_control_alias(const std::string &alias_name, const std::string &control_name);
 
+            std::map<pid_t, int> accelerator_process_map(void) const;
+            double cpu_accelerator_affinity(int cpu_idx, std::map<pid_t, int> process_map) const;
+
             const PlatformTopo &m_platform_topo;
             const NVMLDevicePool &m_nvml_device_pool;
             bool m_is_batch_read;
@@ -95,7 +97,7 @@ namespace geopm
             struct control_s
             {
                 double m_setting;
-                bool m_do_write;
+                bool m_is_adjusted;
             };
 
             struct signal_info {
