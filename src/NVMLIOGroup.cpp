@@ -42,6 +42,7 @@
 
 #include "IOGroup.hpp"
 #include "PlatformTopo.hpp"
+#include "NVMLDevicePool.hpp"
 #include "Exception.hpp"
 #include "Agg.hpp"
 #include "Helper.hpp"
@@ -101,7 +102,7 @@ namespace geopm
                                   string_format_double
                                   }},
                               {"NVML::TEMPERATURE", {
-                                  "Accelerator temperature",
+                                  "Accelerator temperature in degrees Celsius",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
@@ -151,22 +152,22 @@ namespace geopm
                                   Agg::max,
                                   string_format_double
                                   }}
-						     })
-        , m_control_available({{"NVML::FREQUENCY", {
+                             })
+        , m_control_available({{"NVML::FREQUENCY_CONTROL", {
                                     "Sets streaming multiprocessor frequency min and max to the same limit",
                                     {},
                                     GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                     Agg::average,
                                     string_format_double
                                     }},
-                               {"NVML::FREQUENCY_RESET", {
+                               {"NVML::FREQUENCY_RESET_CONTROL", {
                                     "Resets streaming multiprocessor frequency min and max limits to default values",
                                     {},
                                     GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                     Agg::average,
                                     string_format_double
                                     }},
-                               {"NVML::POWER_LIMIT", {
+                               {"NVML::POWER_LIMIT_CONTROL", {
                                     "Sets accelerator power limit",
                                     {},
                                     GEOPM_DOMAIN_BOARD_ACCELERATOR,
@@ -196,8 +197,8 @@ namespace geopm
             }
             sv.second.controls = result;
         }
-        register_control_alias("POWER_ACCELERATOR_LIMIT", "NVML::POWER_LIMIT");
-        register_control_alias("FREQUENCY_ACCELERATOR_CONTROL", "NVML::FREQUENCY");
+        register_control_alias("POWER_ACCELERATOR_LIMIT_CONTROL", "NVML::POWER_LIMIT_CONTROL");
+        register_control_alias("FREQUENCY_ACCELERATOR_CONTROL", "NVML::FREQUENCY_CONTROL");
     }
 
     // Extract the set of all signal names from the index map
@@ -337,59 +338,66 @@ namespace geopm
         return result;
     }
 
+    // The active process list NVML call can be costly, 0.5-2ms per call was seen in early testing on average,
+    // with a worst case of 8ms per call.  Because of this we cache the processes in a PID <-> Accelerator map
+    // before using them elsewhere
+    std::map<pid_t, int> NVMLIOGroup::accelerator_process_map(void) const
+    {
+        std::map<pid_t,int> accelerator_pid_map;
+
+        for (int accel_idx = 0; accel_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++accel_idx) {
+            std::vector<int> active_process_list = m_nvml_device_pool.active_process_list(accel_idx);
+            for (auto proc_itr : active_process_list) {
+                // If a process is associated with multiple accelerators we have no good means of
+                // signaling the user beyond providing an error value (-1).
+                if (!accelerator_pid_map.count((pid_t)proc_itr)) {
+                    accelerator_pid_map[(pid_t)proc_itr] = accel_idx;
+                }
+                else {
+                    accelerator_pid_map[(pid_t)proc_itr] = -1;
+                }
+            }
+        }
+        return accelerator_pid_map;
+    }
+
+    // Parse PID to CPU affinitzation and use process list --> accelerator map to get CPU --> accelerator
+    double NVMLIOGroup::cpu_accelerator_affinity(int cpu_idx, std::map<pid_t, int> process_map) const
+    {
+        double result = NAN;
+        cpu_set_t *proc_cpuset = NULL;
+        proc_cpuset = CPU_ALLOC(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU));
+        if (proc_cpuset != NULL) {
+            for (auto &proc : process_map) {
+                if (sched_getaffinity(proc.first,
+                                      CPU_ALLOC_SIZE(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU)),
+                                      proc_cpuset) == 0) {
+                    if (CPU_ISSET(cpu_idx, proc_cpuset)) {
+                        result = proc.second;
+                        break;
+                    }
+                }
+            }
+        }
+        else {
+            throw Exception("NVMLIOGroup::" + std::string(__func__) + ": failed to allocate process CPU mask",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        return result;
+    }
+
     // Parse and update saved values for signals
     void NVMLIOGroup::read_batch(void)
     {
         m_is_batch_read = true;
         for (auto &sv : m_signal_available) {
             if (sv.first == "NVML::CPU_ACCELERATOR_ACTIVE_AFFINITIZATION") {
-                // clear previous values
+                std::map<pid_t,int> process_map = accelerator_process_map();
+
                 for (int domain_idx = 0; domain_idx < sv.second.signals.size(); ++domain_idx) {
                     if (sv.second.signals.at(domain_idx)->m_do_read) {
-                        sv.second.signals.at(domain_idx)->m_value = NAN;
+                        sv.second.signals.at(domain_idx)->m_value = cpu_accelerator_affinity(domain_idx, process_map);
                     }
-                }
-
-                // The active process list NVML call can be costly, 0.5-2ms per call was seen in early testing on average,
-                // with a worst case of 8ms per call.  Because of this we want to cache the processes first, THEN
-                // associate them with a CPU & Accelerator pairing
-                std::vector<int> active_process_list;
-                std::map<pid_t,int> process_accelerator_map;
-
-                for (int accel_idx = 0; accel_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++accel_idx) {
-                    active_process_list = m_nvml_device_pool.active_process_list(accel_idx);
-
-                    for (auto proc_itr : active_process_list) {
-                        // If a process is associated with multiple accelerators we have no good means of
-                        // signaling the user beyond providing an error value (-1).
-                        if (!process_accelerator_map.count((pid_t)proc_itr)) {
-                            process_accelerator_map[(pid_t)proc_itr] = accel_idx;
-                        }
-                        else {
-                            process_accelerator_map[(pid_t)proc_itr] = -1;
-                        }
-                    }
-                }
-
-                // Parse PID to CPU affinitzation and use process list --> accelerator mapping to get CPU --> accelerator
-                cpu_set_t *proc_cpuset = NULL;
-                proc_cpuset = CPU_ALLOC(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU));
-                if (proc_cpuset != NULL) {
-                    for (auto &proc : process_accelerator_map) {
-                        for (int domain_idx = 0; domain_idx < sv.second.signals.size(); ++domain_idx) {
-                            if (sv.second.signals.at(domain_idx)->m_do_read) {
-                                if (sched_getaffinity(proc.first, CPU_ALLOC_SIZE(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU)), proc_cpuset) == 0) {
-                                    if (CPU_ISSET(domain_idx, proc_cpuset)) {
-                                        sv.second.signals.at(domain_idx)->m_value = proc.second;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else {
-                    throw Exception("NVMLIOGroup::" + std::string(__func__) + ": failed to allocate process CPU mask",
-                                    GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
                 }
             }
             else {
@@ -408,7 +416,7 @@ namespace geopm
     {
         for (auto &sv : m_control_available) {
             for (int domain_idx = 0; domain_idx < sv.second.controls.size(); ++domain_idx) {
-                if (sv.second.controls.at(domain_idx)->m_do_write) {
+                if (sv.second.controls.at(domain_idx)->m_is_adjusted) {
                     write_control(sv.first, sv.second.domain, domain_idx, sv.second.controls.at(domain_idx)->m_setting);
                 }
             }
@@ -440,7 +448,7 @@ namespace geopm
         }
 
         m_control_pushed.at(batch_idx)->m_setting = setting;
-        m_control_pushed.at(batch_idx)->m_do_write = true;
+        m_control_pushed.at(batch_idx)->m_is_adjusted = true;
     }
 
     // Read the value of a signal immediately, bypassing read_batch().  Should not modify m_signal_value
@@ -499,34 +507,8 @@ namespace geopm
             result = (double) m_nvml_device_pool.utilization_mem(domain_idx)/100;
         }
         else if (signal_name == "NVML::CPU_ACCELERATOR_ACTIVE_AFFINITIZATION") {
-            std::vector<int> active_process_list;
-            std::map<pid_t,int> process_accelerator_map;
-
-            // Cache active process list --> accelerator
-            for (int accel_idx = 0; accel_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++accel_idx) {
-                active_process_list = m_nvml_device_pool.active_process_list(accel_idx);
-
-                for (auto proc_itr : active_process_list) {
-                    process_accelerator_map[(pid_t) proc_itr] = accel_idx;
-                }
-            }
-
-            // Parse PID to CPU affinitzation and use process list --> accelerator map to get CPU --> accelerator
-            cpu_set_t *proc_cpuset = NULL;
-            proc_cpuset = CPU_ALLOC(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU));
-            if (proc_cpuset != NULL) {
-                for (auto &proc : process_accelerator_map) {
-                    if (sched_getaffinity(proc.first, CPU_ALLOC_SIZE(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU)), proc_cpuset) == 0) {
-                        if (CPU_ISSET(domain_idx, proc_cpuset)) {
-                            result = proc.second;
-                        }
-                    }
-                }
-            }
-            else {
-                throw Exception("NVMLIOGroup::" + std::string(__func__) + ": failed to allocate memory for cpuset",
-                                GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
+            std::map<pid_t,int> process_map = accelerator_process_map();
+            result = cpu_accelerator_affinity(domain_idx, process_map);
         }
         else {
     #ifdef GEOPM_DEBUG
@@ -556,13 +538,13 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        if (control_name == "NVML::FREQUENCY" || control_name == "FREQUENCY_ACCELERATOR_CONTROL") {
+        if (control_name == "NVML::FREQUENCY_CONTROL" || control_name == "FREQUENCY_ACCELERATOR_CONTROL") {
             m_nvml_device_pool.frequency_control_sm(domain_idx, setting/1e6, setting/1e6);
         }
-        else if (control_name == "NVML::FREQUENCY_RESET") {
+        else if (control_name == "NVML::FREQUENCY_RESET_CONTROL") {
             m_nvml_device_pool.frequency_reset_control(domain_idx);
         }
-        else if (control_name == "NVML::POWER_LIMIT" || control_name == "POWER_ACCELERATOR_LIMIT") {
+        else if (control_name == "NVML::POWER_LIMIT_CONTROL" || control_name == "POWER_ACCELERATOR_LIMIT_CONTROL") {
             m_nvml_device_pool.power_control(domain_idx, setting*1e3);
         }
         else {
@@ -590,13 +572,6 @@ namespace geopm
         /// @todo: Usage of the NVML API for setting frequency, power, etc requires root privileges.
         ///        As such several unit tests will fail when calling restore_control.  Once a non-
         ///        privileged solution is available this code may be restored
-        // for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++domain_idx) {
-        //     // Write original NVML Power Limit
-        //     m_nvml_device_pool.power_control(domain_idx, m_initial_power_limit.at(domain_idx));
-
-        //     // Reset NVML Frequency Limit
-        //     m_nvml_device_pool.frequency_reset_control(domain_idx);
-        // }
     }
 
     // Hint to Agent about how to aggregate signals from this IOGroup
@@ -631,9 +606,7 @@ namespace geopm
                             " not valid for NVMLIOGroup.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        std::string result = "";
-        result = m_signal_available.at(signal_name).m_description;
-        return result;
+        return m_signal_available.at(signal_name).m_description;
     }
 
     // A user-friendly description of each control
@@ -645,9 +618,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        std::string result = "";
-        result = m_control_available.at(control_name).m_description;
-        return result;
+        return m_control_available.at(control_name).m_description;
     }
 
     // Name used for registration with the IOGroup factory
@@ -659,11 +630,11 @@ namespace geopm
     // Function used by the factory to create objects of this type
     std::unique_ptr<IOGroup> NVMLIOGroup::make_plugin(void)
     {
-        return std::unique_ptr<IOGroup>(new NVMLIOGroup);
+        return geopm::make_unique<NVMLIOGroup>();
     }
 
     void NVMLIOGroup::register_signal_alias(const std::string &alias_name,
-                                           const std::string &signal_name)
+                                            const std::string &signal_name)
     {
         if (m_signal_available.find(alias_name) != m_signal_available.end()) {
             throw Exception("NVMLIOGroup::" + std::string(__func__) + ": signal_name " + alias_name +
