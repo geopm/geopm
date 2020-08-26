@@ -41,7 +41,7 @@ from . import machine
 
 
 def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
-               num_nodes, redirect_stdout=True):
+               num_nodes):
     # launcher and app should create files in output_dir
     start_dir = os.getcwd()
     os.chdir(output_dir)
@@ -78,7 +78,7 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
 
     argv.extend(['--'])
 
-    bash_path = app_conf.make_bash(uid)
+    bash_path = app_conf.make_bash(uid, log_path)
     argv.extend([bash_path])
 
     num_ranks = app_conf.get_rank_per_node() * num_nodes
@@ -86,12 +86,7 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
     launcher = geopmpy.launcher.Factory().create(argv,
                                                  num_node=num_nodes,
                                                  num_rank=num_ranks)
-    if redirect_stdout:
-        with open(log_path, 'w') as outfile:
-            # TODO: some apps print to stderr. use stderr=outfile
-            launcher.run(stdout=outfile)
-    else:
-        launcher.run()
+    launcher.run()
 
     # Get app-reported figure of merit
     fom = app_conf.parse_fom(log_path)
