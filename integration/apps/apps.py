@@ -80,7 +80,7 @@ class AppConf(object):
     def parse_fom(self, log_path):
         return None
 
-    def make_bash(self, run_id):
+    def make_bash(self, run_id, log_file):
         # setup has side effects; call before get_exec_args
         setup = self.setup(run_id)
         app_params = self.get_exec_args()
@@ -90,11 +90,12 @@ class AppConf(object):
         script = '''#!/bin/bash\n'''
         script += textwrap.dedent('''\
             {setup}
-            {app_exec} {app_params}
+            {app_exec} {app_params} 2>&1 | tee -a {log_file}
             {cleanup}
         '''.format(setup=setup,
                    app_exec=self.get_exec_path(),
                    app_params=app_params,
+                   log_file=log_file,
                    cleanup=self.cleanup()))
         bash_file = '{}.sh'.format(self.name())
         with open(bash_file, 'w') as ofile:
