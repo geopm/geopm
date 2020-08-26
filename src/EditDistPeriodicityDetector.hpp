@@ -58,14 +58,24 @@ namespace geopm
             ///        detemine the period.  Until a stable period is
             ///        determined, returns -1.
             int get_score(void) const;
+            /// @brief Return the number of records that this object has
+            ///        received so far via update().
+            int num_records(void) const;
         private:
             void calc_period();
+            unsigned int Dget(int ii, int jj, int mm);
+            void Dset(int ii, int jj, int mm, unsigned int val);
             uint64_t get_history_value(int index) const;
             int find_smallest_repeating_pattern(int index) const;
 
             CircularBuffer<uint64_t> m_history_buffer;
+            int m_history_buffer_size;
             int m_period;
             int m_score;
+            int m_record_count;
+
+            unsigned int m_myinf;
+            unsigned int *m_DP;
     };
 }
 

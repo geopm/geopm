@@ -45,70 +45,94 @@ namespace geopm
 {
     EditDistPeriodicityDetector::EditDistPeriodicityDetector(int history_buffer_size)
         : m_history_buffer(history_buffer_size)
+        , m_history_buffer_size(history_buffer_size)
         , m_period(-1)
         , m_score(-1)
+        , m_record_count(0)
     {
-
+        m_DP = new unsigned int[history_buffer_size * history_buffer_size * history_buffer_size];
+        m_myinf = 2*history_buffer_size;
     }
 
     void EditDistPeriodicityDetector::update(const record_s &record)
     {
         if (record.event == EVENT_REGION_ENTRY) {
             m_history_buffer.insert(record.signal);
+            m_record_count ++;
             calc_period();
         }
     }
 
+    void EditDistPeriodicityDetector::Dset(int ii, int jj, int mm, unsigned int val) {
+        m_DP[((ii % m_history_buffer_size) * m_history_buffer_size + (jj % m_history_buffer_size)) * m_history_buffer_size + (mm % m_history_buffer_size)] = val;
+    }
+
+    unsigned int EditDistPeriodicityDetector::Dget(int ii, int jj, int mm) {
+        if (ii <= m_record_count - m_history_buffer_size) {
+            return m_myinf;
+        }
+        if (jj >= m_history_buffer_size) {
+            return m_myinf;
+        }
+        if (mm <= m_record_count - m_history_buffer_size) {
+            return m_myinf;
+        }
+        return m_DP[((ii % m_history_buffer_size) * m_history_buffer_size
+                + (jj % m_history_buffer_size)) * m_history_buffer_size + (mm % m_history_buffer_size)];
+     }
+
     void EditDistPeriodicityDetector::calc_period(void)
     {
-        int buffer_size = m_history_buffer.size();
-        if (buffer_size < 2) {
+        if (m_record_count < 2) {
             return;
         }
 
-        size_t dim_i = m_history_buffer.size();
-        size_t dim_j = dim_i + 1;
-        size_t dim_m = dim_i + 1;
-        int DD[dim_i][dim_j][dim_m];
-        for (int mm = 0; mm < buffer_size + 1; ++mm) {
-            for (int ii = 0; ii < buffer_size; ++ii) {
-                DD[ii][0][mm] = 0;
-                DD[0][ii][mm] = ii;
-            }
+        int num_recs_in_hist = m_history_buffer.size();
+
+        for (int ii = std::max({0, m_record_count-m_history_buffer_size}); ii < m_record_count; ++ii) {
+            Dset(ii, 0, m_record_count-1, 0);
+        }
+        for (int mm = std::max({0, m_record_count-m_history_buffer_size}); mm < m_record_count; ++mm) {
+            Dset(0, m_record_count-mm, mm, m_record_count-mm);
         }
 
-        for (int mm = 1; mm < buffer_size + 1; ++mm) {
-            for (int ii = 1; ii < mm; ++ii) {
-                for (int jj = 1; jj < buffer_size - mm + 2; ++jj) {
-                    int term = (get_history_value(ii) !=
-                                get_history_value(mm + jj - 1)) ?
-                               2 : 0;
-                    DD[ii][jj][mm] = std::min({DD[ii - 1][jj    ][mm] + 1,
-                                               DD[ii    ][jj - 1][mm] + 1,
-                                               DD[ii - 1][jj - 1][mm] + term});
+        for (int mm = std::max({1, m_record_count-m_history_buffer_size}); mm < m_record_count; ++mm) {
+            for (int ii = std::max({1, m_record_count-m_history_buffer_size}); ii < mm+1; ++ii) {
+                int term;
+                if (m_record_count-(ii-1) <= num_recs_in_hist) {
+                    term = (m_history_buffer.value(num_recs_in_hist-(m_record_count-(ii-1))) !=
+                            m_history_buffer.value(num_recs_in_hist - 1)) ?
+                        2 : 0;
+                } else {
+                    term = 2;
                 }
+                Dset(ii, m_record_count-mm, mm,
+                        std::min({Dget(ii - 1, m_record_count - mm    , mm) + 1,
+                                  Dget(ii    , m_record_count - mm - 1, mm) + 1,
+                                  Dget(ii - 1, m_record_count - mm - 1, mm) + term}));
             }
         }
 
-        int mm = 1 + (buffer_size / 2.0 + 0.5);
+        int mm = std::max({(int)(m_record_count / 2.0 + 0.5), m_record_count-m_history_buffer_size});
         int bestm = mm;
-        int bestval = DD[mm - 1][buffer_size - mm + 1][mm];
+        unsigned int bestval = Dget(mm, m_record_count - mm, mm);
         ++mm;
-        for(; mm != buffer_size + 1; ++mm) {
-            int val = DD[mm - 1][buffer_size - mm + 1][mm];
+        for(; mm < m_record_count; ++mm) {
+            unsigned int val = Dget(mm, m_record_count - mm, mm);
             if(val < bestval) {
                 bestval = val;
                 bestm = mm;
             }
         }
+
         m_score = bestval;
         // Originally this was:
         //      m_period = n - bestm + 1;
         // However since the algorithm find the bestm with the lowest index it will
         // return a string with a repeating pattern in it. For example:
         //     A B A B A B ...
-        // find_gcd will find the smallest repeating pattern in it: A B
-        m_period = find_smallest_repeating_pattern(bestm);
+        // find_min_match will find the smallest repeating pattern in it: A B
+        m_period = find_smallest_repeating_pattern(num_recs_in_hist-(m_record_count-bestm));
     }
 
     int EditDistPeriodicityDetector::get_period(void) const
@@ -126,13 +150,20 @@ namespace geopm
         return m_history_buffer.value(index - 1);
     }
 
+    int EditDistPeriodicityDetector::num_records(void) const
+    {
+        return m_record_count;
+    }
+
     int EditDistPeriodicityDetector::find_smallest_repeating_pattern(int slice_start) const
     {
         if (m_history_buffer.size() == slice_start) {
             return 1;
         }
         std::vector<uint64_t> recs = m_history_buffer.make_vector(
-            slice_start - 1, m_history_buffer.size());
+            slice_start, m_history_buffer.size());
+        std::vector<int> reps;
+
         int result = recs.size();
         bool perfect_match = false;
         int div_max = (recs.size() / 2) + 1;
