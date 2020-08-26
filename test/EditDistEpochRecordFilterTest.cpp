@@ -52,7 +52,7 @@ class EditDistEpochRecordFilterTest : public ::testing::Test
 {
     protected:
         void SetUp();
-        std::vector<record_s> filter_file(std::string trace_file_path, int history_size);
+        std::vector<record_s> filter_file(std::string trace_file_path, int history_size, bool squash_recs=false, int min_detectable_period=1);
 
         std::vector<int> m_in_events;
         std::vector<int> m_out_events;
@@ -61,7 +61,7 @@ class EditDistEpochRecordFilterTest : public ::testing::Test
         int m_min_detectable_period = 1;
         double m_stable_hyst = 1;
         double m_unstable_hyst = 1.5;
-
+        bool m_squash_records = false;
 };
 
 void EditDistEpochRecordFilterTest::SetUp()
@@ -107,7 +107,8 @@ TEST_F(EditDistEpochRecordFilterTest, one_region_repeated)
                                            m_min_hysteresis_base_period,
                                            m_min_detectable_period,
                                            m_stable_hyst,
-                                           m_unstable_hyst);
+                                           m_unstable_hyst,
+                                           m_squash_records);
     for (uint64_t count = 0; count <= 4; ++count) {
 
         std::vector<record_s> result;
@@ -175,7 +176,8 @@ TEST_F(EditDistEpochRecordFilterTest, filter_in)
                                            m_min_hysteresis_base_period,
                                            m_min_detectable_period,
                                            m_stable_hyst,
-                                           m_unstable_hyst);
+                                           m_unstable_hyst,
+                                           m_squash_records);
     for (auto event : m_in_events) {
         record.event = event;
         std::vector<record_s> result = ederf.filter(record);
@@ -196,7 +198,8 @@ TEST_F(EditDistEpochRecordFilterTest, filter_out)
                                            m_min_hysteresis_base_period,
                                            m_min_detectable_period,
                                            m_stable_hyst,
-                                           m_unstable_hyst);
+                                           m_unstable_hyst,
+                                           m_squash_records);
     for (auto event : m_out_events) {
         record.event = event;
         result = ederf.filter(record);
@@ -287,6 +290,47 @@ TEST_F(EditDistEpochRecordFilterTest, pattern_subtract1)
     check_vals(testout, {11, 15, 19, 23, 46, 50, 54, 58, 62, 66, 70, 74});
 }
 
+/// FFT Short for Rank 0
+TEST_F(EditDistEpochRecordFilterTest, fft_small)
+{
+    int history_size = 20;
+
+    std::vector<record_s> testout = filter_file(m_trace_file_prefix + "fft_small.trace", history_size);
+    check_vals(testout, {11, 13, 16, 19, 21, 24, 27});
+}
+
+/// Pattern 1: (AB)x15 w/ squash records
+TEST_F(EditDistEpochRecordFilterTest, sq_pattern_ab)
+{
+    int history_size = 20;
+    bool squash_recs=true;
+
+    std::vector<record_s> testout = filter_file(m_trace_file_prefix + "1_pattern_ab.trace", history_size, squash_recs);
+    check_vals(testout, {8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28});
+}
+
+/// Pattern 2: (ABB)x12 w/ squash records
+TEST_F(EditDistEpochRecordFilterTest, sq_pattern_abb)
+{
+    int history_size = 20;
+    bool squash_recs=true;
+
+    std::vector<record_s> testout = filter_file(m_trace_file_prefix + "2_pattern_abb.trace", history_size, squash_recs);
+    check_vals(testout, {12, 15, 18, 21, 24, 27, 30, 33});
+}
+
+
+/// HACC Short for Rank 0 w/ record squashing
+TEST_F(EditDistEpochRecordFilterTest, sq_hacc_small)
+{
+    int history_size = 20;
+    bool squash_recs=true;
+    int min_detectable_period = 5;
+
+    std::vector<record_s> testout = filter_file(m_trace_file_prefix + "hacc_small.trace", history_size, squash_recs, min_detectable_period);
+    check_vals(testout, {3395, 4024, 4653});
+}
+
 TEST_F(EditDistEpochRecordFilterTest, parse_name)
 {
     int buffer_size = -1;
@@ -294,142 +338,188 @@ TEST_F(EditDistEpochRecordFilterTest, parse_name)
     int min_hysteresis_base_period = -1;
     int min_detectable_period = -1;
     double unstable_hyst = NAN;
+    bool squash_records = true;
 
     EditDistEpochRecordFilter::parse_name("edit_distance",
                                           buffer_size,
                                           min_hysteresis_base_period,
                                           min_detectable_period,
                                           stable_hyst,
-                                          unstable_hyst);
+                                          unstable_hyst,
+                                          squash_records);
     // default values
     EXPECT_EQ(50, buffer_size);
     EXPECT_EQ(1.0, stable_hyst);
     EXPECT_EQ(4, min_hysteresis_base_period);
     EXPECT_EQ(3, min_detectable_period);
     EXPECT_EQ(1.5, unstable_hyst);
+    EXPECT_EQ(false, squash_records);
 
     EditDistEpochRecordFilter::parse_name("edit_distance,42",
                                           buffer_size,
                                           min_hysteresis_base_period,
                                           min_detectable_period,
                                           stable_hyst,
-                                          unstable_hyst);
+                                          unstable_hyst,
+                                          squash_records);
     EXPECT_EQ(42, buffer_size);
     EXPECT_EQ(4, min_hysteresis_base_period);
     EXPECT_EQ(3, min_detectable_period);
     EXPECT_EQ(1.0, stable_hyst);
     EXPECT_EQ(1.5, unstable_hyst);
+    EXPECT_EQ(false, squash_records);
 
     EditDistEpochRecordFilter::parse_name("edit_distance,52,20",
                                           buffer_size,
                                           min_hysteresis_base_period,
                                           min_detectable_period,
                                           stable_hyst,
-                                          unstable_hyst);
+                                          unstable_hyst,
+                                          squash_records);
+
     EXPECT_EQ(52, buffer_size);
     EXPECT_EQ(20, min_hysteresis_base_period);
     EXPECT_EQ(3, min_detectable_period);
     EXPECT_EQ(1.0, stable_hyst);
     EXPECT_EQ(1.5, unstable_hyst);
+    EXPECT_EQ(false, squash_records);
 
     EditDistEpochRecordFilter::parse_name("edit_distance,52,20,105",
                                           buffer_size,
                                           min_hysteresis_base_period,
                                           min_detectable_period,
                                           stable_hyst,
-                                          unstable_hyst);
+                                          unstable_hyst,
+                                          squash_records);
+
     EXPECT_EQ(52, buffer_size);
     EXPECT_EQ(20, min_hysteresis_base_period);
     EXPECT_EQ(105, min_detectable_period);
     EXPECT_EQ(1.0, stable_hyst);
     EXPECT_EQ(1.5, unstable_hyst);
+    EXPECT_EQ(false, squash_records);
 
     EditDistEpochRecordFilter::parse_name("edit_distance,62,30,115,5.0",
                                           buffer_size,
                                           min_hysteresis_base_period,
                                           min_detectable_period,
                                           stable_hyst,
-                                          unstable_hyst);
+                                          unstable_hyst,
+                                          squash_records);
+
     EXPECT_EQ(62, buffer_size);
     EXPECT_EQ(30, min_hysteresis_base_period);
     EXPECT_EQ(115, min_detectable_period);
     EXPECT_EQ(5.0, stable_hyst);
     EXPECT_EQ(1.5, unstable_hyst);
+    EXPECT_EQ(false, squash_records);
 
     EditDistEpochRecordFilter::parse_name("edit_distance,62,40,125,6.0,3.5",
                                           buffer_size,
                                           min_hysteresis_base_period,
                                           min_detectable_period,
                                           stable_hyst,
-                                          unstable_hyst);
+                                          unstable_hyst,
+                                          squash_records);
     EXPECT_EQ(62, buffer_size);
     EXPECT_EQ(40, min_hysteresis_base_period);
     EXPECT_EQ(125, min_detectable_period);
     EXPECT_EQ(6.0, stable_hyst);
     EXPECT_EQ(3.5, unstable_hyst);
+    EXPECT_EQ(false, squash_records);
+
+    EditDistEpochRecordFilter::parse_name("edit_distance,62,40,125,6.0,3.5,0",
+                                          buffer_size,
+                                          min_hysteresis_base_period,
+                                          min_detectable_period,
+                                          stable_hyst,
+                                          unstable_hyst,
+                                          squash_records);
+    EXPECT_EQ(62, buffer_size);
+    EXPECT_EQ(40, min_hysteresis_base_period);
+    EXPECT_EQ(125, min_detectable_period);
+    EXPECT_EQ(6.0, stable_hyst);
+    EXPECT_EQ(3.5, unstable_hyst);
+    EXPECT_EQ(false, squash_records);
 
     GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("not_edit_distance",
                                                                      buffer_size,
                                                                      min_hysteresis_base_period,
-                                                                     m_min_detectable_period,
+                                                                     min_detectable_period,
                                                                      stable_hyst,
-                                                                     unstable_hyst),
+                                                                     unstable_hyst,
+                                                                     squash_records),
                                GEOPM_ERROR_INVALID, "Unknown filter name");
     GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,invalid",
                                                                      buffer_size,
                                                                      min_hysteresis_base_period,
-                                                                     m_min_detectable_period,
+                                                                     min_detectable_period,
                                                                      stable_hyst,
-                                                                     unstable_hyst),
+                                                                     unstable_hyst,
+                                                                     squash_records),
                                GEOPM_ERROR_INVALID, "invalid buffer size");
     GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,1,invalid",
                                                                      buffer_size,
                                                                      min_hysteresis_base_period,
-                                                                     m_min_detectable_period,
+                                                                     min_detectable_period,
                                                                      stable_hyst,
-                                                                     unstable_hyst),
+                                                                     unstable_hyst,
+                                                                     squash_records),
                                GEOPM_ERROR_INVALID, "invalid hysteresis base period");
     GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,1,1,invalid",
                                                                      buffer_size,
                                                                      min_hysteresis_base_period,
-                                                                     m_min_detectable_period,
+                                                                     min_detectable_period,
                                                                      stable_hyst,
-                                                                     unstable_hyst),
+                                                                     unstable_hyst,
+                                                                     squash_records),
                                GEOPM_ERROR_INVALID, "invalid minimum detectable period");
     GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,1,1,1,invalid",
                                                                      buffer_size,
                                                                      min_hysteresis_base_period,
-                                                                     m_min_detectable_period,
+                                                                     min_detectable_period,
                                                                      stable_hyst,
-                                                                     unstable_hyst),
+                                                                     unstable_hyst,
+                                                                     squash_records),
                                GEOPM_ERROR_INVALID, "invalid stable hysteresis");
     GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,1,1,1,1,invalid",
                                                                      buffer_size,
                                                                      min_hysteresis_base_period,
-                                                                     m_min_detectable_period,
+                                                                     min_detectable_period,
                                                                      stable_hyst,
-                                                                     unstable_hyst),
+                                                                     unstable_hyst,
+                                                                     squash_records),
                                GEOPM_ERROR_INVALID, "invalid unstable hysteresis");
-    GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,1,1,1,2,2,2",
+    GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,1,1,1,1,1,invalid",
                                                                      buffer_size,
                                                                      min_hysteresis_base_period,
-                                                                     m_min_detectable_period,
+                                                                     min_detectable_period,
                                                                      stable_hyst,
-                                                                     unstable_hyst),
+                                                                     unstable_hyst,
+                                                                     squash_records),
+                               GEOPM_ERROR_INVALID, "invalid squash records");
+    GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("edit_distance,1,1,1,2,2,2,2",
+                                                                     buffer_size,
+                                                                     min_hysteresis_base_period,
+                                                                     min_detectable_period,
+                                                                     stable_hyst,
+                                                                     unstable_hyst,
+                                                                     squash_records),
                                GEOPM_ERROR_INVALID, "Too many commas");
 }
 
 std::vector<record_s> EditDistEpochRecordFilterTest::filter_file(std::string trace_file_path,
-                                                                 int buffer_size)
+                                                                 int buffer_size, bool squash_recs, int min_detectable_period)
 {
     MockApplicationSampler app;
     app.inject_records(geopm::read_file(trace_file_path));
 
     geopm::EditDistEpochRecordFilter ederf(buffer_size,
                                            m_min_hysteresis_base_period,
-                                           m_min_detectable_period,
+                                           min_detectable_period,
                                            m_stable_hyst,
-                                           m_unstable_hyst);
+                                           m_unstable_hyst,
+                                           squash_recs);
 
     std::vector<record_s> recs = app.get_records();
 

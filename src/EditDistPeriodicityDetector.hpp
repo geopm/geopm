@@ -34,6 +34,7 @@
 #define EDITDISTPERIODICITYDETECTOR_HPP_INCLUDE
 
 #include <cstdint>
+#include <memory>
 #include <vector>
 
 #include "CircularBuffer.hpp"
@@ -41,14 +42,27 @@
 namespace geopm
 {
     struct record_s;
+    template <typename T> class CircularBuffer;
 
     class EditDistPeriodicityDetector
     {
         public:
-            EditDistPeriodicityDetector(int history_buffer_size);
+            /// @brief Default constructor for String Edit Distance based
+            ///        periodicity detector used in EditDistEpochRecordFilter.
+            ///
+            /// @param [in] history_buffer_size Number of region entry
+            ///        events stored in order to determine an epoch.
+            ///
+            /// @param [in] squash_records If true, repeating records will be
+            ///        compressed to improve runtime. Default and recommended value
+            ///        is false.
+            EditDistPeriodicityDetector(int history_buffer_size, bool squash_records);
             virtual ~EditDistPeriodicityDetector() = default;
-            /// @brief Update detector with a new record from the application.
-            void update(const record_s &record);
+            /// @brief Update detector with a new record from the application. Returns
+            ///        True if the addition of record changed the history buffer and
+            ///        epoch detection algorithm should be run (relevant for record
+            ///        squashing)
+            bool update(const record_s &record);
             /// @brief Return the best estimate of the period length
             ///        in number of records, based on the data
             ///        inserted through update().  Until a stable
@@ -70,12 +84,24 @@ namespace geopm
 
             CircularBuffer<uint64_t> m_history_buffer;
             int m_history_buffer_size;
-            int m_period;
             int m_score;
             int m_record_count;
             std::vector<uint32_t> m_DP;
+            bool m_squash_records;
 
             uint32_t m_myinf;
+
+            int m_period;
+
+            // Used in record squashing and initialized only if record squashing
+            // is enabled.
+            std::unique_ptr<CircularBuffer<uint32_t> > m_repeat_count;
+
+            // Used in record squashing.
+            uint64_t m_last_event;
+
+            // Used in record squashing.
+            uint32_t m_last_event_count;
     };
 }
 

@@ -152,6 +152,10 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/EditDistEpochRecordFilterTest.pattern_add1 \
               test/gtest_links/EditDistEpochRecordFilterTest.pattern_add2 \
               test/gtest_links/EditDistEpochRecordFilterTest.pattern_subtract1 \
+              test/gtest_links/EditDistEpochRecordFilterTest.fft_small \
+              test/gtest_links/EditDistEpochRecordFilterTest.sq_pattern_ab \
+              test/gtest_links/EditDistEpochRecordFilterTest.sq_pattern_abb \
+              test/gtest_links/EditDistEpochRecordFilterTest.sq_hacc_small \
               test/gtest_links/EditDistEpochRecordFilterTest.parse_name \
               test/gtest_links/EditDistPeriodicityDetectorTest.pattern_a \
               test/gtest_links/EditDistPeriodicityDetectorTest.pattern_ab \
@@ -162,6 +166,10 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/EditDistPeriodicityDetectorTest.pattern_add1 \
               test/gtest_links/EditDistPeriodicityDetectorTest.pattern_add2 \
               test/gtest_links/EditDistPeriodicityDetectorTest.pattern_subtract1 \
+              test/gtest_links/EditDistPeriodicityDetectorTest.fft_small \
+              test/gtest_links/EditDistPeriodicityDetectorTest.sq_pattern_ab \
+              test/gtest_links/EditDistPeriodicityDetectorTest.sq_pattern_abb \
+              test/gtest_links/EditDistPeriodicityDetectorTest.sq_hacc_small \
               test/gtest_links/EndpointTest.attach_wait_loop_timeout_throws \
               test/gtest_links/EndpointTest.detach_wait_loop_timeout_throws \
               test/gtest_links/EndpointTest.get_hostnames \

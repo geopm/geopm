@@ -68,11 +68,16 @@ namespace geopm
             ///        happens when the period changes from the
             ///        previously detected length.  Suggested default
             ///        is 1.5.
+            ///
+            /// @param [in] squash_records If true, repeating records will be
+            ///        compressed to improve runtime. Default and recommended value
+            ///        is false.
             EditDistEpochRecordFilter(int history_buffer_size,
                                       int min_hysteresis_base_period,
                                       int min_detectable_period,
                                       double stable_period_hysteresis,
-                                      double unstable_period_hysteresis);
+                                      double unstable_period_hysteresis,
+                                      bool squash_records);
             EditDistEpochRecordFilter(std::shared_ptr<EditDistPeriodicityDetector> edpd,
                                       int min_hysteresis_base_period,
                                       int min_detectable_period,
@@ -91,7 +96,8 @@ namespace geopm
                                    int &min_hysteresis_base_period,
                                    int &min_detectable_period,
                                    double &stable_period_hysteresis,
-                                   double &unstable_period_hysteresis);
+                                   double &unstable_period_hysteresis,
+                                   bool &squash_records);
         private:
             /// Implements:
             ///  1. The stable period detector state machine,
