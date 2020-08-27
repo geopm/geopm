@@ -39,7 +39,7 @@ from apps.nekbone import nekbone
 
 
 from experiment.power_sweep import power_sweep
-from experiment.power_balancer_energy import power_balancer_energy
+from experiment.energy_efficiency import power_balancer_energy
 
 if __name__ == '__main__':
 
