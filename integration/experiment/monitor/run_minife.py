@@ -46,6 +46,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     common_args.add_output_dir(parser)
     common_args.add_nodes(parser)
+    common_args.add_iterations(parser)
 
     args, experiment_cli_args = parser.parse_known_args()
 
@@ -56,7 +57,7 @@ if __name__ == '__main__':
     app_conf = minife.MinifeAppConf(num_node)
 
     # experiment parameters
-    iterations = 2
+    iterations = args.iterations
 
     monitor.launch(output_dir=output_dir,
                    iterations=iterations,

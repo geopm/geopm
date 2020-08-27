@@ -50,6 +50,7 @@ if __name__ == '__main__':
     common_args.add_nodes(parser)
     common_args.add_min_power(parser)
     common_args.add_max_power(parser)
+    common_args.add_iterations(parser)
 
     args, extra_cli_args = parser.parse_known_args()
 
@@ -65,7 +66,7 @@ if __name__ == '__main__':
     max_power = args.max_power
     step_power = 10
     min_power, max_power = power_sweep.setup_power_bounds(mach, min_power, max_power, step_power)
-    iterations = 2
+    iterations = args.iterations
     power_sweep.launch(output_dir=output_dir,
                        iterations=iterations,
                        min_power=min_power,
