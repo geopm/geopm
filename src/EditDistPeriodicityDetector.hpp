@@ -35,6 +35,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <memory>
 
 #include "CircularBuffer.hpp"
 
@@ -63,8 +64,8 @@ namespace geopm
             int num_records(void) const;
         private:
             void calc_period();
-            unsigned int Dget(int ii, int jj, int mm);
-            void Dset(int ii, int jj, int mm, unsigned int val);
+            uint32_t Dget(int ii, int jj, int mm);
+            void Dset(int ii, int jj, int mm, uint32_t val);
             uint64_t get_history_value(int index) const;
             int find_smallest_repeating_pattern(int index) const;
 
@@ -74,8 +75,8 @@ namespace geopm
             int m_score;
             int m_record_count;
 
-            unsigned int m_myinf;
-            unsigned int *m_DP;
+            uint32_t m_myinf;
+            std::unique_ptr<std::vector<uint32_t> > m_DP;
     };
 }
 
