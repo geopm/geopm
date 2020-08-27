@@ -67,7 +67,7 @@ def summary(df, baseline, targets, show_details):
     df['runtime'] = df['runtime (sec)']
 
     # choose columns of interest
-    df = df[['Profile', 'Agent', 'FREQ_DEFAULT', 'FREQ_UNCORE', 'HASH_0', 'FREQ_0', 'energy', 'runtime']]
+    df = df[['Profile', 'Agent', 'energy', 'runtime']]
 
     # check that baseline is present
     profiles = df['Profile'].unique()
@@ -170,6 +170,10 @@ def plot_bars(df, baseline_profile, xlabel, output_dir, use_stdev=False):
         os.mkdir(fig_dir)
     plt.savefig(os.path.join(fig_dir, '{}_bar.png'.format(title.lower())))
 
+def get_profile_list(rrc):
+    result = rrc.get_app_df()['Profile'].unique()
+    result = sorted(list(set(map(extract_prefix, result))), reverse=True)
+    return result
 
 if __name__ == '__main__':
 
@@ -195,11 +199,6 @@ if __name__ == '__main__':
 
     args, extra_cli_args = parser.parse_known_args()
 
-    if (not args.baseline or not args.targets) and not args.show_profiles:
-        sys.stderr.write('Profile prefixes for baseline and targets must be provided.  Show all profiles with --show-profiles.\n')
-        parser.print_help()
-        sys.exit(1)
-
     output_dir = args.output_dir
     try:
         rrc = geopmpy.io.RawReportCollection("*report", dir_name=output_dir)
@@ -207,14 +206,29 @@ if __name__ == '__main__':
         sys.stderr.write('<geopm> Error: No report data found in {}\n'.format(output_dir))
         sys.exit(1)
 
+    profile_list = get_profile_list(rrc)
     if args.show_profiles:
-        profile_list = rrc.get_app_df()['Profile'].unique()
-        profile_list = sorted(list(set(map(extract_prefix, profile_list))), reverse=True)
         sys.stdout.write(','.join(profile_list) + '\n')
         sys.exit(0)
 
-    baseline = args.baseline
-    targets = args.targets.split(',')
+    if args.baseline:
+        baseline = args.baseline
+    else:
+        longest=0
+        for pp in profile_list:
+            without = list(profile_list)
+            without.remove(pp)
+            rank = len(os.path.commonprefix(without))
+            if longest < rank:
+                longest = rank
+                baseline = pp
+
+    if args.targets:
+        targets = args.targets.split(',')
+    else:
+        targets = list(profile_list)
+        targets.remove(baseline)
+
     show_details = args.show_details
 
     result = summary(rrc.get_app_df(), baseline, targets, show_details)
