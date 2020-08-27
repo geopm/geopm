@@ -37,6 +37,7 @@
 #include <cmath>
 #include <algorithm>
 
+#include "Helper.hpp"
 #include "record.hpp"
 #include "geopm_debug.hpp"
 
@@ -50,7 +51,7 @@ namespace geopm
         , m_score(-1)
         , m_record_count(0)
     {
-        m_DP = new unsigned int[history_buffer_size * history_buffer_size * history_buffer_size];
+        m_DP = geopm::make_unique<std::vector<uint32_t> >(history_buffer_size * history_buffer_size * history_buffer_size);
         m_myinf = 2*history_buffer_size;
     }
 
@@ -63,11 +64,11 @@ namespace geopm
         }
     }
 
-    void EditDistPeriodicityDetector::Dset(int ii, int jj, int mm, unsigned int val) {
-        m_DP[((ii % m_history_buffer_size) * m_history_buffer_size + (jj % m_history_buffer_size)) * m_history_buffer_size + (mm % m_history_buffer_size)] = val;
+    void EditDistPeriodicityDetector::Dset(int ii, int jj, int mm, uint32_t val) {
+        (*m_DP)[((ii % m_history_buffer_size) * m_history_buffer_size + (jj % m_history_buffer_size)) * m_history_buffer_size + (mm % m_history_buffer_size)] = val;
     }
 
-    unsigned int EditDistPeriodicityDetector::Dget(int ii, int jj, int mm) {
+    uint32_t EditDistPeriodicityDetector::Dget(int ii, int jj, int mm) {
         if (ii <= m_record_count - m_history_buffer_size) {
             return m_myinf;
         }
@@ -77,7 +78,7 @@ namespace geopm
         if (mm <= m_record_count - m_history_buffer_size) {
             return m_myinf;
         }
-        return m_DP[((ii % m_history_buffer_size) * m_history_buffer_size
+        return (*m_DP)[((ii % m_history_buffer_size) * m_history_buffer_size
                 + (jj % m_history_buffer_size)) * m_history_buffer_size + (mm % m_history_buffer_size)];
      }
 
@@ -115,10 +116,10 @@ namespace geopm
 
         int mm = std::max({(int)(m_record_count / 2.0 + 0.5), m_record_count-m_history_buffer_size});
         int bestm = mm;
-        unsigned int bestval = Dget(mm, m_record_count - mm, mm);
+        uint32_t bestval = Dget(mm, m_record_count - mm, mm);
         ++mm;
         for(; mm < m_record_count; ++mm) {
-            unsigned int val = Dget(mm, m_record_count - mm, mm);
+            uint32_t val = Dget(mm, m_record_count - mm, mm);
             if(val < bestval) {
                 bestval = val;
                 bestm = mm;
