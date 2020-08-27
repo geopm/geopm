@@ -35,7 +35,6 @@
 
 #include <cstdint>
 #include <vector>
-#include <memory>
 
 #include "CircularBuffer.hpp"
 
@@ -74,9 +73,9 @@ namespace geopm
             int m_period;
             int m_score;
             int m_record_count;
+            std::vector<uint32_t> m_DP;
 
             uint32_t m_myinf;
-            std::unique_ptr<std::vector<uint32_t> > m_DP;
     };
 }
 

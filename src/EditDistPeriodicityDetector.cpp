@@ -50,8 +50,9 @@ namespace geopm
         , m_period(-1)
         , m_score(-1)
         , m_record_count(0)
+        , m_DP(history_buffer_size * history_buffer_size * history_buffer_size)
     {
-        m_DP = geopm::make_unique<std::vector<uint32_t> >(history_buffer_size * history_buffer_size * history_buffer_size);
+        //m_DP = geopm::make_unique<std::vector<uint32_t> >(history_buffer_size * history_buffer_size * history_buffer_size);
         m_myinf = 2*history_buffer_size;
     }
 
@@ -65,7 +66,7 @@ namespace geopm
     }
 
     void EditDistPeriodicityDetector::Dset(int ii, int jj, int mm, uint32_t val) {
-        (*m_DP)[((ii % m_history_buffer_size) * m_history_buffer_size + (jj % m_history_buffer_size)) * m_history_buffer_size + (mm % m_history_buffer_size)] = val;
+        m_DP[((ii % m_history_buffer_size) * m_history_buffer_size + (jj % m_history_buffer_size)) * m_history_buffer_size + (mm % m_history_buffer_size)] = val;
     }
 
     uint32_t EditDistPeriodicityDetector::Dget(int ii, int jj, int mm) {
@@ -78,7 +79,7 @@ namespace geopm
         if (mm <= m_record_count - m_history_buffer_size) {
             return m_myinf;
         }
-        return (*m_DP)[((ii % m_history_buffer_size) * m_history_buffer_size
+        return m_DP[((ii % m_history_buffer_size) * m_history_buffer_size
                 + (jj % m_history_buffer_size)) * m_history_buffer_size + (mm % m_history_buffer_size)];
      }
 

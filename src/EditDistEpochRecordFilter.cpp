@@ -194,7 +194,7 @@ namespace geopm
         // (true means state PERIOD_DETECTED false means NO_PERIOD_DETECTED).
         //
         if (!m_is_period_detected) {
-            if (m_edpd->get_score() >= m_edpd->get_period() or m_edpd->get_period() < m_min_detectable_period) {
+            if (m_edpd->get_score() >= m_edpd->get_period() || m_edpd->get_period() < m_min_detectable_period) {
                 // If the score is the same as the period or greater the detected period is really low quality.
                 // For example: A B C D ... will give period = 1 with score = 1.
                 // In that case, we reset the period detection, i.e., we don't even treat the
