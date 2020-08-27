@@ -45,20 +45,18 @@ fi
 
 # Acquire the source:
 svn checkout https://repocafe.cels.anl.gov/repos/nekbone
-base_dir=$PWD
+base_dir=${PWD}
 
 # Change directories to the unpacked files.
 cd nekbone/trunk/nekbone
 
-# Patch nekbone with the patch utility:
-patch -p1 < $base_dir/0001-Fix-whitespace-issues.patch
-patch -p1 < $base_dir/0002-Use-AVX2.patch
-patch -p1 < $base_dir/0003-Link-w-GEOPM.patch
-patch -p1 < $base_dir/0004-Only-run-the-12th-order-polynomial.patch
-patch -p1 < $base_dir/0005-Increase-maximum-number-of-elements-to-32768.patch
-patch -p1 < $base_dir/0006-Add-Epoch-markup.patch
-patch -p1 < $base_dir/0007-Increase-iterations-to-2000.patch
-patch -p1 < $base_dir/0008-Add-barriers-to-collective-calls.patch
+# Create a git repo for the app source
+git init
+git add -A
+git commit -sm "Initial commit"
+
+# Patch nekbone:
+git am ${base_dir}/*.patch
 
 # Build
 cd test/example1
