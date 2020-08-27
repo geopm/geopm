@@ -80,3 +80,8 @@ def add_max_frequency(parser):
     parser.add_argument('--max-frequency', dest='max_frequency',
                         action='store', type=float, default=None,
                         help='top frequency limit for the sweep')
+
+def add_iterations(parser):
+    parser.add_argument('--iterations', dest='iterations',
+                        action='store', type=int, default=2,
+                        help='number of iterations to launch')
