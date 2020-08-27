@@ -48,6 +48,7 @@ if __name__ == '__main__':
     common_args.add_nodes(parser)
     common_args.add_min_power(parser)
     common_args.add_max_power(parser)
+    common_args.add_iterations(parser)
 
     args, extra_cli_args = parser.parse_known_args()
     output_dir = args.output_dir
@@ -60,10 +61,10 @@ if __name__ == '__main__':
     # experiment parameters
     min_power = args.min_power
     max_power = args.max_power
+    iterations = args.iterations
     step_power = 10
     min_power, max_power = power_sweep.setup_power_bounds(mach, min_power,
                                                           max_power, step_power)
-    iterations = 2
 
     power_balancer_energy.launch(output_dir=output_dir,
                                  iterations=iterations,
