@@ -214,6 +214,8 @@ if __name__ == '__main__':
     if args.baseline:
         baseline = args.baseline
     else:
+        if len(profile_list) < 3:
+            raise RuntimeError('Fewer than 3 distinct profiles discovered, --baseline must be provided')
         longest=0
         for pp in profile_list:
             without = list(profile_list)
@@ -222,6 +224,7 @@ if __name__ == '__main__':
             if longest < rank:
                 longest = rank
                 baseline = pp
+        sys.stderr.write('Warning: --baseline not provided, using best guess: "{}"\n'.format(baseline))
 
     if args.targets:
         targets = args.targets.split(',')
