@@ -50,9 +50,6 @@ import geopmpy.hash
 from experiment import common_args
 
 
-# TODO: we assume profile name is unique for baseline, but we might want the agent also
-
-
 def extract_prefix(name):
     ''' Remove the iteration number after the last underscore. '''
     return '_'.join(name.split('_')[:-1])
@@ -170,10 +167,12 @@ def plot_bars(df, baseline_profile, xlabel, output_dir, use_stdev=False):
         os.mkdir(fig_dir)
     plt.savefig(os.path.join(fig_dir, '{}_bar.png'.format(title.lower())))
 
+
 def get_profile_list(rrc):
     result = rrc.get_app_df()['Profile'].unique()
     result = sorted(list(set(map(extract_prefix, result))), reverse=True)
     return result
+
 
 if __name__ == '__main__':
 
@@ -187,9 +186,9 @@ if __name__ == '__main__':
     parser.add_argument('--targets', dest='targets',
                         action='store', default=None,
                         help='comma-separated list of profile names to compare')
-    parser.add_argument('--show-profiles', dest='show_profiles',
+    parser.add_argument('--list-profiles', dest='list_profiles',
                         action='store_true', default=False,
-                        help='show all profiles present in the discovered reports')
+                        help='list all profiles present in the discovered reports and exit')
     parser.add_argument('--xlabel', dest='xlabel',
                         action='store', default='Profile',
                         help='x-axis label for profiles')
@@ -207,7 +206,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     profile_list = get_profile_list(rrc)
-    if args.show_profiles:
+    if args.list_profiles:
         sys.stdout.write(','.join(profile_list) + '\n')
         sys.exit(0)
 
@@ -216,7 +215,7 @@ if __name__ == '__main__':
     else:
         if len(profile_list) < 3:
             raise RuntimeError('Fewer than 3 distinct profiles discovered, --baseline must be provided')
-        longest=0
+        longest = 0
         for pp in profile_list:
             without = list(profile_list)
             without.remove(pp)
