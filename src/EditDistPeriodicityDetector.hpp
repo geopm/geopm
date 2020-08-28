@@ -95,13 +95,13 @@ namespace geopm
 
             // Used in record squashing and initialized only if record squashing
             // is enabled.
-            std::unique_ptr<CircularBuffer<uint32_t> > m_repeat_count;
+            std::unique_ptr<CircularBuffer<int> > m_repeat_count;
 
             // Used in record squashing.
             uint64_t m_last_event;
 
             // Used in record squashing.
-            uint32_t m_last_event_count;
+            int m_last_event_count;
     };
 }
 

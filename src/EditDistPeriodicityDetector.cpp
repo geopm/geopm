@@ -54,7 +54,7 @@ namespace geopm
         m_myinf = 2*history_buffer_size;
 
         if (squash_records) {
-            m_repeat_count = geopm::make_unique<CircularBuffer<uint32_t> >(history_buffer_size);
+            m_repeat_count = geopm::make_unique<CircularBuffer<int> >(history_buffer_size);
             m_last_event = 0;
             m_last_event_count = 0;
             // This is right though because in the case where event squashing
@@ -138,7 +138,7 @@ namespace geopm
                     if (m_squash_records) {
                         if (m_history_buffer.value(num_recs_in_hist-(m_record_count-(ii-1))) ==
                             m_history_buffer.value(num_recs_in_hist - 1)) {
-                            term = abs(m_repeat_count->value(num_recs_in_hist-(m_record_count-(ii-1))) - m_repeat_count->value(num_recs_in_hist - 1));
+                            term = abs((m_repeat_count->value(num_recs_in_hist-(m_record_count-(ii-1)))) - m_repeat_count->value(num_recs_in_hist - 1));
                         } else {
                             term = m_repeat_count->value(num_recs_in_hist-(m_record_count-(ii-1))) + m_repeat_count->value(num_recs_in_hist - 1);
                         }
@@ -206,7 +206,7 @@ namespace geopm
         }
         std::vector<uint64_t> recs = m_history_buffer.make_vector(
             slice_start, m_history_buffer.size());
-        std::vector<uint32_t> reps;
+        std::vector<int> reps;
         if (m_squash_records) {
             reps = m_repeat_count->make_vector(
                     slice_start, m_history_buffer.size());
