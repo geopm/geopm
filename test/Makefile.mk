@@ -538,9 +538,10 @@ EXTRA_DIST += test/InternalProfile.cpp \
               test/EditDistPeriodicityDetectorTest.6_pattern_add1.trace \
               test/EditDistPeriodicityDetectorTest.7_pattern_add2.trace \
               test/EditDistPeriodicityDetectorTest.8_pattern_subtract1.trace \
+              test/EditDistPeriodicityDetectorTest.fft_small.trace \
+              test/EditDistPeriodicityDetectorTest.hacc_small.trace \
               test/EditDistPeriodicityDetectorTest.cpp \
               # end
-              # FK: FIXME: Add new traceout file names here.
 
 test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/AdminTest.cpp \
