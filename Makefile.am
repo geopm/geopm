@@ -211,10 +211,12 @@ else
 ronn_man_noinst += $(ronn_man_beta)
 endif
 
+if ENABLE_RONN
 ronn_man = $(ronn_man_inst) $(ronn_man_noinst)
 
 dist_man_MANS = $(ronn_man_inst) \
                 # end
+endif
 
 dist_doc_DATA = COPYING \
                 README \
