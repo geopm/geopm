@@ -353,7 +353,7 @@ TEST_F(EditDistEpochRecordFilterTest, parse_name)
     EXPECT_EQ(4, min_hysteresis_base_period);
     EXPECT_EQ(3, min_detectable_period);
     EXPECT_EQ(1.5, unstable_hyst);
-    EXPECT_EQ(false, squash_records);
+    EXPECT_FALSE(squash_records);
 
     EditDistEpochRecordFilter::parse_name("edit_distance,42",
                                           buffer_size,
@@ -367,7 +367,7 @@ TEST_F(EditDistEpochRecordFilterTest, parse_name)
     EXPECT_EQ(3, min_detectable_period);
     EXPECT_EQ(1.0, stable_hyst);
     EXPECT_EQ(1.5, unstable_hyst);
-    EXPECT_EQ(false, squash_records);
+    EXPECT_FALSE(squash_records);
 
     EditDistEpochRecordFilter::parse_name("edit_distance,52,20",
                                           buffer_size,
@@ -382,7 +382,7 @@ TEST_F(EditDistEpochRecordFilterTest, parse_name)
     EXPECT_EQ(3, min_detectable_period);
     EXPECT_EQ(1.0, stable_hyst);
     EXPECT_EQ(1.5, unstable_hyst);
-    EXPECT_EQ(false, squash_records);
+    EXPECT_FALSE(squash_records);
 
     EditDistEpochRecordFilter::parse_name("edit_distance,52,20,105",
                                           buffer_size,
@@ -397,7 +397,7 @@ TEST_F(EditDistEpochRecordFilterTest, parse_name)
     EXPECT_EQ(105, min_detectable_period);
     EXPECT_EQ(1.0, stable_hyst);
     EXPECT_EQ(1.5, unstable_hyst);
-    EXPECT_EQ(false, squash_records);
+    EXPECT_FALSE(squash_records);
 
     EditDistEpochRecordFilter::parse_name("edit_distance,62,30,115,5.0",
                                           buffer_size,
@@ -412,7 +412,7 @@ TEST_F(EditDistEpochRecordFilterTest, parse_name)
     EXPECT_EQ(115, min_detectable_period);
     EXPECT_EQ(5.0, stable_hyst);
     EXPECT_EQ(1.5, unstable_hyst);
-    EXPECT_EQ(false, squash_records);
+    EXPECT_FALSE(squash_records);
 
     EditDistEpochRecordFilter::parse_name("edit_distance,62,40,125,6.0,3.5",
                                           buffer_size,
@@ -426,9 +426,9 @@ TEST_F(EditDistEpochRecordFilterTest, parse_name)
     EXPECT_EQ(125, min_detectable_period);
     EXPECT_EQ(6.0, stable_hyst);
     EXPECT_EQ(3.5, unstable_hyst);
-    EXPECT_EQ(false, squash_records);
+    EXPECT_FALSE(squash_records);
 
-    EditDistEpochRecordFilter::parse_name("edit_distance,62,40,125,6.0,3.5,0",
+    EditDistEpochRecordFilter::parse_name("edit_distance,62,40,125,6.0,3.5,1",
                                           buffer_size,
                                           min_hysteresis_base_period,
                                           min_detectable_period,
@@ -440,7 +440,7 @@ TEST_F(EditDistEpochRecordFilterTest, parse_name)
     EXPECT_EQ(125, min_detectable_period);
     EXPECT_EQ(6.0, stable_hyst);
     EXPECT_EQ(3.5, unstable_hyst);
-    EXPECT_EQ(false, squash_records);
+    EXPECT_TRUE(squash_records);
 
     GEOPM_EXPECT_THROW_MESSAGE(EditDistEpochRecordFilter::parse_name("not_edit_distance",
                                                                      buffer_size,
