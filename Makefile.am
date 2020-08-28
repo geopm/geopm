@@ -767,7 +767,10 @@ clean-local-coverage:
 	rm -f `find -name \*.gcno` `find -name \*.gcda`
 
 clean-local-man:
-	rm -rf man ronn/*.html ronn/*.1 ronn/*.3 ronn/*.7
+	if [ ! $(abs_srcdir)/ronn -ef $(abs_top_builddir)/ronn ] ; then \
+		rm -rf $(abs_top_builddir)/ronn/*.ronn ; \
+	fi ; \
+	rm -rf $(abs_top_builddir)/man $(abs_top_builddir)/ronn/*.html $(abs_top_builddir)/ronn/*.1 $(abs_top_builddir)/ronn/*.3 $(abs_top_builddir)/ronn/*.7
 
 clean-local-fortran:
 	rm -rf geopm.mod
@@ -831,7 +834,7 @@ ruby/bin/ronn:
 $(ronn_man): man/%: ruby/bin/ronn ronn/%.ronn ronn/index.txt ronn/header.txt
 	TARGET_DOC=`basename $@` ; \
 	RONN_DIR="$(abs_srcdir)/ronn" ; \
-	if [ ! $$RONN_DIR -ef "$(abs_top_builddir)/ronn" ] && [ $$TARGET_DOC != "geopm.7" ]; then \
+	if [ ! "$$RONN_DIR" -ef "$(abs_top_builddir)/ronn" ] && [ "$$TARGET_DOC" != "geopm.7" ]; then \
 		cp -u $$RONN_DIR/$$TARGET_DOC.ronn ./ronn ; \
 	fi ; \
 	mkdir -p man ; \
@@ -839,14 +842,15 @@ $(ronn_man): man/%: ruby/bin/ronn ronn/%.ronn ronn/index.txt ronn/header.txt
 	cd $(abs_top_builddir)/ronn && \
 	$(abs_top_builddir)/ruby/bin/ronn --date=`date "+%Y-%m-%d"` \
 	                 --organization="GEOPM @VERSION@" \
-	                 $$TARGET_DOC.ronn
-	if [ $$TARGET_DOC != "geopm.7" ] ; then \
-		TMP_SRC="$(abs_top_builddir)/ronn/$$TARGET_DOC" ; \
+	                 $$TARGET_DOC.ronn ; \
+	cd - ; \
+	if [ ! "$$RONN_DIR" -ef "$(abs_top_builddir)/ronn" ] && [ "$$TARGET_DOC" == "geopm.7" ]; then \
+		cat "$(top_srcdir)/ronn/header.txt" "$(abs_top_builddir)/ronn/`basename $@`.ronn" | \
+           sed -e 's/\(#include.*\) \\fIhttp.*/\1\\fR/g' > $@ ; \
 	else \
-		TMP_SRC="$$RONN_DIR/$$TARGET_DOC" ; \
-	fi ; \
-	cat "$(top_srcdir)/ronn/header.txt" "$$TMP_SRC.ronn" | \
-		sed -e 's/\(#include.*\) \\fIhttp.*/\1\\fR/g' > $@
+		cat "$(top_srcdir)/ronn/header.txt" "$(top_srcdir)/ronn/`basename $@`.ronn" | \
+           sed -e 's/\(#include.*\) \\fIhttp.*/\1\\fR/g' > $@ ; \
+	fi
 
 # GH_PAGES TARGET
 gh-pages: doxygen $(dist_man_MANS)
