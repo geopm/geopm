@@ -29,6 +29,14 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+
+'''
+Describes the best known configuration for Nekbone.
+
+On one node of mcfly, one iteration with the monitor agent takes about
+300sec and produces a trace file of about 13MB.
+'''
+
 import os
 import textwrap
 
@@ -45,9 +53,7 @@ class NekboneAppConf(apps.AppConf):
         self._add_barriers = add_barriers
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
         self._nekbone_path = os.path.join(benchmark_dir, 'nekbone/trunk/nekbone/test/example1/')
-        # TODO: needed? is size in setup() related ?
         self._num_rank_per_node = 2
-        #self._machine_file = machine_file
 
     def get_rank_per_node(self):
         # TODO: use self._machine_file to determine
