@@ -72,13 +72,19 @@ namespace geopm
 
     uint32_t EditDistPeriodicityDetector::Dget(int ii, int jj, int mm) {
         if (ii <= m_record_count - m_history_buffer_size) {
-            return std::numeric_limits<uint32_t>::max();
+            // This value is supposed to be INF but not so large that it gets wrapped around when
+            // a small value is added to it.
+            return std::numeric_limits<uint32_t>::max()/2;
         }
         if (jj >= m_history_buffer_size) {
-            return std::numeric_limits<uint32_t>::max();
+            // This value is supposed to be INF but not so large that it gets wrapped around when
+            // a small value is added to it.
+            return std::numeric_limits<uint32_t>::max()/2;
         }
         if (mm <= m_record_count - m_history_buffer_size) {
-            return std::numeric_limits<uint32_t>::max();
+            // This value is supposed to be INF but not so large that it gets wrapped around when
+            // a small value is added to it.
+            return std::numeric_limits<uint32_t>::max()/2;
         }
         return m_DP[((ii % m_history_buffer_size)  * m_history_buffer_size
                    + (jj % m_history_buffer_size)) * m_history_buffer_size
