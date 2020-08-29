@@ -36,8 +36,8 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <limits>
 
-#include "Helper.hpp"
 #include "record.hpp"
 #include "geopm_debug.hpp"
 
@@ -52,35 +52,37 @@ namespace geopm
         , m_record_count(0)
         , m_DP(history_buffer_size * history_buffer_size * history_buffer_size)
     {
-        //m_DP = geopm::make_unique<std::vector<uint32_t> >(history_buffer_size * history_buffer_size * history_buffer_size);
-        m_myinf = 2*history_buffer_size;
+
     }
 
     void EditDistPeriodicityDetector::update(const record_s &record)
     {
         if (record.event == EVENT_REGION_ENTRY) {
             m_history_buffer.insert(record.signal);
-            m_record_count ++;
+            ++m_record_count;
             calc_period();
         }
     }
 
     void EditDistPeriodicityDetector::Dset(int ii, int jj, int mm, uint32_t val) {
-        m_DP[((ii % m_history_buffer_size) * m_history_buffer_size + (jj % m_history_buffer_size)) * m_history_buffer_size + (mm % m_history_buffer_size)] = val;
+        m_DP[((ii % m_history_buffer_size)  * m_history_buffer_size
+            + (jj % m_history_buffer_size)) * m_history_buffer_size
+            + (mm % m_history_buffer_size)] = val;
     }
 
     uint32_t EditDistPeriodicityDetector::Dget(int ii, int jj, int mm) {
         if (ii <= m_record_count - m_history_buffer_size) {
-            return m_myinf;
+            return std::numeric_limits<uint32_t>::max();
         }
         if (jj >= m_history_buffer_size) {
-            return m_myinf;
+            return std::numeric_limits<uint32_t>::max();
         }
         if (mm <= m_record_count - m_history_buffer_size) {
-            return m_myinf;
+            return std::numeric_limits<uint32_t>::max();
         }
-        return m_DP[((ii % m_history_buffer_size) * m_history_buffer_size
-                + (jj % m_history_buffer_size)) * m_history_buffer_size + (mm % m_history_buffer_size)];
+        return m_DP[((ii % m_history_buffer_size)  * m_history_buffer_size
+                   + (jj % m_history_buffer_size)) * m_history_buffer_size
+                   + (mm % m_history_buffer_size)];
      }
 
     void EditDistPeriodicityDetector::calc_period(void)
@@ -91,31 +93,30 @@ namespace geopm
 
         int num_recs_in_hist = m_history_buffer.size();
 
-        for (int ii = std::max({0, m_record_count-m_history_buffer_size}); ii < m_record_count; ++ii) {
+        for (int ii = std::max({0, m_record_count - m_history_buffer_size}); ii < m_record_count; ++ii) {
             Dset(ii, 0, m_record_count-1, 0);
         }
-        for (int mm = std::max({0, m_record_count-m_history_buffer_size}); mm < m_record_count; ++mm) {
-            Dset(0, m_record_count-mm, mm, m_record_count-mm);
+        for (int mm = std::max({0, m_record_count - m_history_buffer_size}); mm < m_record_count; ++mm) {
+            Dset(0, m_record_count - mm, mm, m_record_count - mm);
         }
 
-        for (int mm = std::max({1, m_record_count-m_history_buffer_size}); mm < m_record_count; ++mm) {
-            for (int ii = std::max({1, m_record_count-m_history_buffer_size}); ii < mm+1; ++ii) {
-                int term;
-                if (m_record_count-(ii-1) <= num_recs_in_hist) {
-                    term = (m_history_buffer.value(num_recs_in_hist-(m_record_count-(ii-1))) !=
-                            m_history_buffer.value(num_recs_in_hist - 1)) ?
-                        2 : 0;
-                } else {
-                    term = 2;
+        for (int mm = std::max({1, m_record_count - m_history_buffer_size}); mm < m_record_count; ++mm) {
+            for (int ii = std::max({1, m_record_count - m_history_buffer_size}); ii < mm + 1; ++ii) {
+                int term = 2;
+                if ((m_record_count - (ii - 1) <= num_recs_in_hist) &&
+                    (m_history_buffer.value(num_recs_in_hist - (m_record_count - (ii - 1))) ==
+                     m_history_buffer.value(num_recs_in_hist - 1)))
+                {
+                    term = 0;
                 }
-                Dset(ii, m_record_count-mm, mm,
+                Dset(ii, m_record_count - mm, mm,
                         std::min({Dget(ii - 1, m_record_count - mm    , mm) + 1,
                                   Dget(ii    , m_record_count - mm - 1, mm) + 1,
                                   Dget(ii - 1, m_record_count - mm - 1, mm) + term}));
             }
         }
 
-        int mm = std::max({(int)(m_record_count / 2.0 + 0.5), m_record_count-m_history_buffer_size});
+        int mm = std::max({(int)(m_record_count / 2.0 + 0.5), m_record_count - m_history_buffer_size});
         int bestm = mm;
         uint32_t bestval = Dget(mm, m_record_count - mm, mm);
         ++mm;
@@ -134,7 +135,7 @@ namespace geopm
         // return a string with a repeating pattern in it. For example:
         //     A B A B A B ...
         // find_min_match will find the smallest repeating pattern in it: A B
-        m_period = find_smallest_repeating_pattern(num_recs_in_hist-(m_record_count-bestm));
+        m_period = find_smallest_repeating_pattern(num_recs_in_hist - (m_record_count - bestm));
     }
 
     int EditDistPeriodicityDetector::get_period(void) const
@@ -164,7 +165,6 @@ namespace geopm
         }
         std::vector<uint64_t> recs = m_history_buffer.make_vector(
             slice_start, m_history_buffer.size());
-        std::vector<int> reps;
 
         int result = recs.size();
         bool perfect_match = false;

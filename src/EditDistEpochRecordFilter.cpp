@@ -216,7 +216,7 @@ namespace geopm
             if ((m_edpd->get_period() <= m_min_hysteresis_base_period &&
                  (m_period_stable == m_stable_period_hysteresis * m_min_hysteresis_base_period)) ||
                 (m_edpd->get_period() > m_min_hysteresis_base_period &&
-                 (m_period_stable >= m_stable_period_hysteresis * m_edpd->get_period()))) {
+                 (m_period_stable >= (int)(m_stable_period_hysteresis * m_edpd->get_period())))) {
                 // To understand this criteria read m_min_hysteresis_base_period and m_stable_period_hysteresis documentation.
 
                 m_is_period_detected = true;
