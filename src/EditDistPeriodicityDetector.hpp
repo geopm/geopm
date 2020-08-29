@@ -69,13 +69,11 @@ namespace geopm
             int find_smallest_repeating_pattern(int index) const;
 
             CircularBuffer<uint64_t> m_history_buffer;
-            int m_history_buffer_size;
+            const int m_history_buffer_size;
             int m_period;
             int m_score;
             int m_record_count;
             std::vector<uint32_t> m_DP;
-
-            uint32_t m_myinf;
     };
 }
 
