@@ -83,25 +83,18 @@ namespace geopm
             int find_smallest_repeating_pattern(int index) const;
 
             CircularBuffer<uint64_t> m_history_buffer;
-            int m_history_buffer_size;
+            // Used in record squashing.
+            CircularBuffer<int> m_repeat_count;
+            const int m_history_buffer_size;
             int m_score;
             int m_record_count;
             std::vector<uint32_t> m_DP;
             bool m_squash_records;
-
-            uint32_t m_myinf;
-
-            int m_period;
-
-            // Used in record squashing and initialized only if record squashing
-            // is enabled.
-            std::unique_ptr<CircularBuffer<int> > m_repeat_count;
-
             // Used in record squashing.
             uint64_t m_last_event;
-
             // Used in record squashing.
             int m_last_event_count;
+            int m_period;
     };
 }
 

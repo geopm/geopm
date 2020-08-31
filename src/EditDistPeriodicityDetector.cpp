@@ -36,8 +36,8 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <limits>
 
-#include "Helper.hpp"
 #include "record.hpp"
 #include "geopm_debug.hpp"
 
@@ -45,23 +45,23 @@ namespace geopm
 {
     EditDistPeriodicityDetector::EditDistPeriodicityDetector(int history_buffer_size, bool squash_records)
         : m_history_buffer(history_buffer_size)
+        , m_repeat_count(history_buffer_size)
         , m_history_buffer_size(history_buffer_size)
         , m_score(-1)
         , m_record_count(0)
         , m_DP(history_buffer_size * history_buffer_size * history_buffer_size)
         , m_squash_records(squash_records)
+        , m_last_event(0)
+        , m_last_event_count(0)
+        // This is right though because in the case where event squashing
+        // is being used, calc_period will never be called when all the
+        // events are identical, and in this case, the period is 1.
+        , m_period(1)
     {
-        m_myinf = 2*history_buffer_size;
-
         if (squash_records) {
-            m_repeat_count = geopm::make_unique<CircularBuffer<int> >(history_buffer_size);
-            m_last_event = 0;
-            m_last_event_count = 0;
-            // This is right though because in the case where event squashing
-            // is being used, calc_period will never be called when all the
-            // events are identical, and in this case, the period is 1.
             m_period = 1;
-        } else {
+        }
+        else {
             m_period = -1;
         }
     }
@@ -78,8 +78,8 @@ namespace geopm
                     bool return_val = false;
                     if (m_last_event_count > 0) {
                         m_history_buffer.insert(record.signal);
-                        m_repeat_count->insert(m_last_event_count);
-                        m_record_count ++;
+                        m_repeat_count.insert(m_last_event_count);
+                        ++m_record_count;
                         calc_period();
                         return_val = true;
                     }
@@ -99,21 +99,30 @@ namespace geopm
     }
 
     void EditDistPeriodicityDetector::Dset(int ii, int jj, int mm, uint32_t val) {
-        m_DP[((ii % m_history_buffer_size) * m_history_buffer_size + (jj % m_history_buffer_size)) * m_history_buffer_size + (mm % m_history_buffer_size)] = val;
+        m_DP[((ii % m_history_buffer_size)  * m_history_buffer_size
+            + (jj % m_history_buffer_size)) * m_history_buffer_size
+            + (mm % m_history_buffer_size)] = val;
     }
 
     uint32_t EditDistPeriodicityDetector::Dget(int ii, int jj, int mm) {
         if (ii <= m_record_count - m_history_buffer_size) {
-            return m_myinf;
+            // This value is supposed to be INF but not so large that it gets wrapped around when
+            // a small value is added to it.
+            return std::numeric_limits<uint32_t>::max()/2;
         }
         if (jj >= m_history_buffer_size) {
-            return m_myinf;
+            // This value is supposed to be INF but not so large that it gets wrapped around when
+            // a small value is added to it.
+            return std::numeric_limits<uint32_t>::max()/2;
         }
         if (mm <= m_record_count - m_history_buffer_size) {
-            return m_myinf;
+            // This value is supposed to be INF but not so large that it gets wrapped around when
+            // a small value is added to it.
+            return std::numeric_limits<uint32_t>::max()/2;
         }
-        return m_DP[((ii % m_history_buffer_size) * m_history_buffer_size
-                + (jj % m_history_buffer_size)) * m_history_buffer_size + (mm % m_history_buffer_size)];
+        return m_DP[((ii % m_history_buffer_size)  * m_history_buffer_size
+                   + (jj % m_history_buffer_size)) * m_history_buffer_size
+                   + (mm % m_history_buffer_size)];
      }
 
     void EditDistPeriodicityDetector::calc_period(void)
@@ -124,40 +133,43 @@ namespace geopm
 
         int num_recs_in_hist = m_history_buffer.size();
 
-        for (int ii = std::max({0, m_record_count-m_history_buffer_size}); ii < m_record_count; ++ii) {
+        for (int ii = std::max({0, m_record_count - m_history_buffer_size}); ii < m_record_count; ++ii) {
             Dset(ii, 0, m_record_count-1, 0);
         }
-        for (int mm = std::max({0, m_record_count-m_history_buffer_size}); mm < m_record_count; ++mm) {
-            Dset(0, m_record_count-mm, mm, m_record_count-mm);
+        for (int mm = std::max({0, m_record_count - m_history_buffer_size}); mm < m_record_count; ++mm) {
+            Dset(0, m_record_count - mm, mm, m_record_count - mm);
         }
 
         for (int mm = std::max({1, m_record_count-m_history_buffer_size}); mm < m_record_count; ++mm) {
             for (int ii = std::max({1, m_record_count-m_history_buffer_size}); ii < mm+1; ++ii) {
                 int term;
-                if (m_record_count-(ii-1) <= num_recs_in_hist) {
+                if (m_record_count - (ii - 1) <= num_recs_in_hist) {
                     if (m_squash_records) {
-                        if (m_history_buffer.value(num_recs_in_hist-(m_record_count-(ii-1))) ==
+                        if (m_history_buffer.value(num_recs_in_hist - (m_record_count - (ii - 1))) ==
                             m_history_buffer.value(num_recs_in_hist - 1)) {
-                            term = abs((m_repeat_count->value(num_recs_in_hist-(m_record_count-(ii-1)))) - m_repeat_count->value(num_recs_in_hist - 1));
-                        } else {
-                            term = m_repeat_count->value(num_recs_in_hist-(m_record_count-(ii-1))) + m_repeat_count->value(num_recs_in_hist - 1);
+                            term = abs(m_repeat_count.value(num_recs_in_hist - (m_record_count - (ii - 1))) - m_repeat_count.value(num_recs_in_hist - 1));
                         }
-                    } else {
-                        term = (m_history_buffer.value(num_recs_in_hist-(m_record_count-(ii-1))) !=
+                        else {
+                            term = m_repeat_count.value(num_recs_in_hist - (m_record_count - (ii - 1))) + m_repeat_count.value(num_recs_in_hist - 1);
+                        }
+                    }
+                    else {
+                        term = (m_history_buffer.value(num_recs_in_hist - (m_record_count - (ii - 1))) !=
                                 m_history_buffer.value(num_recs_in_hist - 1)) ?
                             2 : 0;
                     }
                 } else {
-                    term = m_squash_records ? 2 * m_repeat_count->value(num_recs_in_hist - 1) : 2;
+                    term = m_squash_records ? 2 * m_repeat_count.value(num_recs_in_hist - 1) : 2;
                 }
-                Dset(ii, m_record_count-mm, mm,
+
+                Dset(ii, m_record_count - mm, mm,
                         std::min({Dget(ii - 1, m_record_count - mm    , mm) + 1,
                                   Dget(ii    , m_record_count - mm - 1, mm) + 1,
                                   Dget(ii - 1, m_record_count - mm - 1, mm) + term}));
             }
         }
 
-        int mm = std::max({(int)(m_record_count / 2.0 + 0.5), m_record_count-m_history_buffer_size});
+        int mm = std::max({(int)(m_record_count / 2.0 + 0.5), m_record_count - m_history_buffer_size});
         int bestm = mm;
         uint32_t bestval = Dget(mm, m_record_count - mm, mm);
         ++mm;
@@ -176,7 +188,7 @@ namespace geopm
         // return a string with a repeating pattern in it. For example:
         //     A B A B A B ...
         // find_min_match will find the smallest repeating pattern in it: A B
-        m_period = find_smallest_repeating_pattern(num_recs_in_hist-(m_record_count-bestm));
+        m_period = find_smallest_repeating_pattern(num_recs_in_hist - (m_record_count - bestm));
     }
 
     int EditDistPeriodicityDetector::get_period(void) const
@@ -206,11 +218,13 @@ namespace geopm
         }
         std::vector<uint64_t> recs = m_history_buffer.make_vector(
             slice_start, m_history_buffer.size());
+
         std::vector<int> reps;
         if (m_squash_records) {
-            reps = m_repeat_count->make_vector(
+            reps = m_repeat_count.make_vector(
                     slice_start, m_history_buffer.size());
         }
+
         int result = recs.size();
         bool perfect_match = false;
         int div_max = (recs.size() / 2) + 1;
