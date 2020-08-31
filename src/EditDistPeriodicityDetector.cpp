@@ -53,12 +53,11 @@ namespace geopm
         , m_squash_records(squash_records)
         , m_last_event(0)
         , m_last_event_count(0)
-        // This is right though because in the case where event squashing
-        // is being used, calc_period will never be called when all the
-        // events are identical, and in this case, the period is 1.
-        , m_period(1)
     {
         if (squash_records) {
+            // This is right though because in the case where event squashing
+            // is being used, calc_period will never be called when all the
+            // events are identical, and in this case, the period is 1.
             m_period = 1;
         }
         else {
@@ -68,34 +67,33 @@ namespace geopm
 
     bool EditDistPeriodicityDetector::update(const record_s &record)
     {
-        if (record.event == EVENT_REGION_ENTRY) {
-            if (m_squash_records) {
-                if (m_last_event == record.signal) {
-                    m_last_event_count ++;
-                    return false;
-                }
-                else {
-                    bool return_val = false;
-                    if (m_last_event_count > 0) {
-                        m_history_buffer.insert(record.signal);
-                        m_repeat_count.insert(m_last_event_count);
-                        ++m_record_count;
-                        calc_period();
-                        return_val = true;
-                    }
-                    m_last_event = record.signal;
-                    m_last_event_count = 1;
-                    return return_val;
-                }
-            } else {
-                m_history_buffer.insert(record.signal);
-                m_record_count ++;
-                calc_period();
-                return true;
-            }
-        } else {
+        if (record.event != EVENT_REGION_ENTRY) {
             return false;
         }
+        bool hist_updated = false;
+        if (m_squash_records) {
+            if (m_last_event == record.signal) {
+                m_last_event_count ++;
+            }
+            else {
+                if (m_last_event_count > 0) {
+                    m_history_buffer.insert(record.signal);
+                    m_repeat_count.insert(m_last_event_count);
+                    ++m_record_count;
+                    calc_period();
+                    hist_updated = true;
+                }
+                m_last_event = record.signal;
+                m_last_event_count = 1;
+            }
+        }
+        else {
+            m_history_buffer.insert(record.signal);
+            m_record_count ++;
+            calc_period();
+            hist_updated = true;
+        }
+        return hist_updated;
     }
 
     void EditDistPeriodicityDetector::Dset(int ii, int jj, int mm, uint32_t val) {

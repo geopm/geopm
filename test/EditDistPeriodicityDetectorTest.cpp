@@ -263,8 +263,6 @@ void check_vals(std::vector<record_s> recs, std::vector<std::vector<int> > expec
                 // -1 means skip the test entry (probably for warmup).
                 EXPECT_EQ(expected[region_entry_num][0], edpd.get_period()) << "Record #: " << region_entry_num << " Received period=" << period << " Expected period=" <<  expected[region_entry_num][0] << "\n";
                 EXPECT_EQ(expected[region_entry_num][1], edpd.get_score()) << "Record #: " << region_entry_num << " Received score=" << score << " Expected score=" << expected[region_entry_num][1] << "\n";
-                // Left here for debug of tests, if needed.
-                // std::cout << "Rec #: " << region_entry_num << " Hash: " << recs[i].signal << " Period: " << period << " Score=" << score << "\n";
             }
             region_entry_num++;
         }
