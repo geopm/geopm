@@ -67,7 +67,7 @@ namespace geopm
                                   string_format_double
                                   }},
                               {"NVML::UTILIZATION_ACCELERATOR", {
-                                  "Percentage of time the accelerator operated on a kernel in the last set of driver samples",
+                                  "Fraction of time the accelerator operated on a kernel in the last set of driver samples",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::average,
@@ -98,7 +98,7 @@ namespace geopm
                                   "Accelerator clock throttling reasons",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
+                                  Agg::expect_same,
                                   string_format_double
                                   }},
                               {"NVML::TEMPERATURE", {
@@ -116,37 +116,38 @@ namespace geopm
                                   string_format_double
                                   }},
                               {"NVML::PERFORMANCE_STATE", {
-                                  "Accelerator performance state",
+                                  "Accelerator performance state, defined by the NVML API as a value from 0 to 15"
+                                  "\n  with 0 being maximum performance, 15 being minimum performance, and 32 being unknown",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
+                                  Agg::expect_same,
                                   string_format_double
                                   }},
                               {"NVML::PCIE_RX_THROUGHPUT", {
                                   "Accelerator PCIE receive throughput in bytes per second over a 20 millisecond period",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
+                                  Agg::sum,
                                   string_format_double
                                   }},
                               {"NVML::PCIE_TX_THROUGHPUT", {
                                   "Accelerator PCIE transmit throughput in bytes per second over a 20 millisecond period",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                  Agg::average,
+                                  Agg::sum,
                                   string_format_double
                                   }},
                               {"NVML::CPU_ACCELERATOR_ACTIVE_AFFINITIZATION", {
                                   "Returns the associated accelerator for a given CPU as determined by running processes."
-                                  "\n  If no accelerators map to the CPU then NAN is returned"
-                                  "\n  If multiple accelerators map to the CPU -1 is returned",
+                                  "\n  If no accelerators map to the CPU then -1 is returned"
+                                  "\n  If multiple accelerators map to the CPU NAN is returned",
                                   {},
                                   GEOPM_DOMAIN_CPU,
-                                  Agg::average,
+                                  Agg::expect_same,
                                   string_format_double
                                   }},
                               {"NVML::UTILIZATION_MEMORY", {
-                                  "Percentage of time the accelerator memory was accessed in the last set of driver samples",
+                                  "Fraction of time the accelerator memory was accessed in the last set of driver samples",
                                   {},
                                   GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                   Agg::max,
@@ -154,24 +155,25 @@ namespace geopm
                                   }}
                              })
         , m_control_available({{"NVML::FREQUENCY_CONTROL", {
-                                    "Sets streaming multiprocessor frequency min and max to the same limit",
+                                    "Sets streaming multiprocessor frequency min and max to the same limit (in hertz)",
                                     {},
                                     GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                     Agg::average,
                                     string_format_double
                                     }},
                                {"NVML::FREQUENCY_RESET_CONTROL", {
-                                    "Resets streaming multiprocessor frequency min and max limits to default values",
+                                    "Resets streaming multiprocessor frequency min and max limits to default values."
+                                    "\n  Parameter provided is unused.",
                                     {},
                                     GEOPM_DOMAIN_BOARD_ACCELERATOR,
                                     Agg::average,
                                     string_format_double
                                     }},
                                {"NVML::POWER_LIMIT_CONTROL", {
-                                    "Sets accelerator power limit",
+                                    "Sets accelerator power limit in watts",
                                     {},
                                     GEOPM_DOMAIN_BOARD_ACCELERATOR,
-                                    Agg::average,
+                                    Agg::sum,
                                     string_format_double
                                     }}
                               })
@@ -341,9 +343,9 @@ namespace geopm
     // The active process list NVML call can be costly, 0.5-2ms per call was seen in early testing on average,
     // with a worst case of 8ms per call.  Because of this we cache the processes in a PID <-> Accelerator map
     // before using them elsewhere
-    std::map<pid_t, int> NVMLIOGroup::accelerator_process_map(void) const
+    std::map<pid_t, double> NVMLIOGroup::accelerator_process_map(void) const
     {
-        std::map<pid_t,int> accelerator_pid_map;
+        std::map<pid_t,double> accelerator_pid_map;
 
         for (int accel_idx = 0; accel_idx < m_platform_topo.num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR); ++accel_idx) {
             std::vector<int> active_process_list = m_nvml_device_pool.active_process_list(accel_idx);
@@ -362,9 +364,9 @@ namespace geopm
     }
 
     // Parse PID to CPU affinitzation and use process list --> accelerator map to get CPU --> accelerator
-    double NVMLIOGroup::cpu_accelerator_affinity(int cpu_idx, std::map<pid_t, int> process_map) const
+    double NVMLIOGroup::cpu_accelerator_affinity(int cpu_idx, std::map<pid_t, double> process_map) const
     {
-        double result = NAN;
+        double result = -1;
         cpu_set_t *proc_cpuset = NULL;
         proc_cpuset = CPU_ALLOC(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU));
         if (proc_cpuset != NULL) {
@@ -392,7 +394,7 @@ namespace geopm
         m_is_batch_read = true;
         for (auto &sv : m_signal_available) {
             if (sv.first == "NVML::CPU_ACCELERATOR_ACTIVE_AFFINITIZATION") {
-                std::map<pid_t,int> process_map = accelerator_process_map();
+                std::map<pid_t, double> process_map = accelerator_process_map();
 
                 for (int domain_idx = 0; domain_idx < sv.second.signals.size(); ++domain_idx) {
                     if (sv.second.signals.at(domain_idx)->m_do_read) {
@@ -507,7 +509,7 @@ namespace geopm
             result = (double) m_nvml_device_pool.utilization_mem(domain_idx)/100;
         }
         else if (signal_name == "NVML::CPU_ACCELERATOR_ACTIVE_AFFINITIZATION") {
-            std::map<pid_t,int> process_map = accelerator_process_map();
+            std::map<pid_t, double> process_map = accelerator_process_map();
             result = cpu_accelerator_affinity(domain_idx, process_map);
         }
         else {
