@@ -114,6 +114,12 @@ def summary(df, baseline, targets, show_details):
                                        'runtime_std', 'energy_std',
                                        'min_delta_runtime', 'max_delta_runtime',
                                        'min_delta_energy', 'max_delta_energy'])
+
+    with open(os.path.join(output_dir, '{}_stats.log'.format(common_prefix)), 'w') as outfile:
+        outfile.write('Baseline runtime data:\n{}\n\n'.format(base_data['runtime'].describe()))
+        outfile.write('Baseline energy data:\n{}\n\n'.format(base_data['energy'].describe()))
+        outfile.write('{}\n'.format(result))
+
     return result
 
 
@@ -170,7 +176,7 @@ def plot_bars(df, baseline_profile, xlabel, output_dir, use_stdev=False):
 
 def get_profile_list(rrc):
     result = rrc.get_app_df()['Profile'].unique()
-    result = sorted(list(set(map(extract_prefix, result))), reverse=True)
+    result = sorted(list(set(map(extract_prefix, result))))
     return result
 
 
@@ -231,10 +237,10 @@ if __name__ == '__main__':
         targets = list(profile_list)
         targets.remove(baseline)
 
+    common_prefix = os.path.commonprefix(targets).rstrip('_')
     show_details = args.show_details
 
     result = summary(rrc.get_app_df(), baseline, targets, show_details)
     if show_details:
         sys.stdout.write('{}\n'.format(result))
-
     plot_bars(result, baseline, args.xlabel, output_dir, args.use_stdev)
