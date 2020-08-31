@@ -29,7 +29,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/energy_efficiency/gen_plot_profile_comparison.py \
+EXTRA_DIST += integration/experiment/energy_efficiency/barrier_frequency_sweep.py \
+              integration/experiment/energy_efficiency/gen_plot_profile_comparison.py \
               integration/experiment/energy_efficiency/__init__.py \
               integration/experiment/energy_efficiency/power_balancer_energy.py \
               integration/experiment/energy_efficiency/run_barrier_frequency_sweep_nekbone.py \

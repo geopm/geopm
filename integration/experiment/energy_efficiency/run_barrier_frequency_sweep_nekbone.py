@@ -38,12 +38,11 @@ at a lower frequency to the baseline with no added barriers.
 
 import argparse
 
-import geopmpy.io
 import geopmpy.hash
 from experiment import common_args
 from experiment import machine
-from experiment import launch_util
 from experiment.frequency_sweep import frequency_sweep
+from experiment.energy_efficiency import barrier_frequency_sweep
 from apps.nekbone import nekbone
 
 
@@ -77,26 +76,12 @@ if __name__ == '__main__':
     default_freq = max(freqs)
     iterations = args.iterations
 
-    report_sig = ["CYCLES_THREAD@package", "CYCLES_REFERENCE@package",
-                  "TIME@package", "ENERGY_PACKAGE@package"]
-    extra_cli_args += launch_util.geopm_signal_args(report_sig, [])
-
-    # baseline run
-    targets = [launch_util.LaunchConfig(app_conf=baseline_app, agent_conf=None, name='base')]
-
-    # freq map runs
-    for freq in freqs:
-        rid = 'fma_{:.1e}'.format(freq)
-        options = {'FREQ_DEFAULT': default_freq,  # or use max or sticker from mach
-                   'HASH_0': barrier_hash,
-                   'FREQ_0': freq}
-        agent_conf = geopmpy.io.AgentConf('{}.config'.format(rid),
-                                          agent='frequency_map',
-                                          options=options)
-        targets.append(launch_util.LaunchConfig(app_conf=target_app, agent_conf=agent_conf, name=rid))
-
-    launch_util.launch_all_runs(targets=targets,
-                                num_nodes=num_nodes,
-                                iterations=iterations,
-                                extra_cli_args=extra_cli_args,
-                                output_dir=output_dir)
+    barrier_frequency_sweep.launch(output_dir=output_dir,
+                                   iterations=iterations,
+                                   default_freq=default_freq,
+                                   sweep_freqs=freqs,
+                                   barrier_hash=barrier_hash,
+                                   num_nodes=num_nodes,
+                                   app_conf_ref=baseline_app,
+                                   app_conf=target_app,
+                                   experiment_cli_args=extra_cli_args)
