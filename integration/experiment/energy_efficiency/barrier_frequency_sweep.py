@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,29 +31,56 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-'''
-Helper functions for running the monitor agent.
-'''
-
+import geopmpy.io
 from experiment import launch_util
+from experiment.monitor import monitor
+
+
+def launch_configs(app_conf_ref, app_conf, default_freq, sweep_freqs, barrier_hash):
+
+    # baseline run
+    launch_configs = [launch_util.LaunchConfig(app_conf=app_conf_ref,
+                                               agent_conf=None,
+                                               name='reference')]
+
+    # freq map runs
+    for freq in sweep_freqs:
+        rid = 'fma_{:.1e}'.format(freq)
+        options = {'FREQ_DEFAULT': default_freq,  # or use max or sticker from mach
+                   'HASH_0': barrier_hash,
+                   'FREQ_0': freq}
+        agent_conf = geopmpy.io.AgentConf('{}.config'.format(rid),
+                                          agent='frequency_map',
+                                          options=options)
+        launch_configs.append(launch_util.LaunchConfig(app_conf=app_conf,
+                                                       agent_conf=agent_conf,
+                                                       name=rid))
+
+    return launch_configs
 
 
 def report_signals():
-    return ["CYCLES_THREAD@package", "CYCLES_REFERENCE@package",
-            "TIME@package", "ENERGY_PACKAGE@package"]
+    report_sig = set(monitor.report_signals())
+    report_sig = sorted(list(report_sig))
+    return report_sig
+
+
+def trace_signals():
+    return []
 
 
 def launch(output_dir, iterations,
-           num_node, app_conf, experiment_cli_args, cool_off_time=60):
+           default_freq, sweep_freqs, barrier_hash,
+           num_nodes, app_conf_ref, app_conf,
+           experiment_cli_args, cool_off_time=60):
 
-    extra_cli_args = launch_util.geopm_signal_args(report_signals(), None)
-    extra_cli_args += experiment_cli_args
+    extra_cli_args = list(experiment_cli_args)
+    extra_cli_args += launch_util.geopm_signal_args(report_signals=report_signals(),
+                                                    trace_signals=trace_signals())
+    targets = launch_configs(app_conf_ref, app_conf, default_freq, sweep_freqs)
 
-    targets = [launch_util.LaunchConfig(app_conf=app_conf,
-                                        agent_conf=None,
-                                        name="")]
     launch_util.launch_all_runs(targets=targets,
-                                num_nodes=num_node,
+                                num_nodes=num_nodes,
                                 iterations=iterations,
                                 extra_cli_args=extra_cli_args,
                                 output_dir=output_dir,

@@ -35,6 +35,7 @@ from experiment import launch_util
 from experiment.power_sweep import power_sweep
 from experiment.monitor import monitor
 
+
 def launch_configs(app_conf_ref, app_conf, min_power, max_power, step_power):
     launch_configs = [launch_util.LaunchConfig(app_conf=app_conf_ref,
                                                agent_conf=None,
@@ -47,14 +48,17 @@ def launch_configs(app_conf_ref, app_conf, min_power, max_power, step_power):
                                                  step_power=step_power)
     return launch_configs
 
+
 def report_signals():
     report_sig = set(monitor.report_signals())
     report_sig.update(power_sweep.report_signals())
     report_sig = sorted(list(report_sig))
     return report_sig
 
+
 def trace_signals():
     return power_sweep.trace_signals()
+
 
 def launch(output_dir, iterations,
            min_power, max_power, step_power,
