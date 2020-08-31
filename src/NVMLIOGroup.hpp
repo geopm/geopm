@@ -80,8 +80,8 @@ namespace geopm
             void register_signal_alias(const std::string &alias_name, const std::string &signal_name);
             void register_control_alias(const std::string &alias_name, const std::string &control_name);
 
-            std::map<pid_t, int> accelerator_process_map(void) const;
-            double cpu_accelerator_affinity(int cpu_idx, std::map<pid_t, int> process_map) const;
+            std::map<pid_t, double> accelerator_process_map(void) const;
+            double cpu_accelerator_affinity(int cpu_idx, std::map<pid_t, double> process_map) const;
 
             const PlatformTopo &m_platform_topo;
             const NVMLDevicePool &m_nvml_device_pool;

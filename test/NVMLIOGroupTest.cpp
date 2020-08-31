@@ -306,7 +306,9 @@ TEST_F(NVMLIOGroupTest, read_signal)
     for (int cpu_idx = 0; cpu_idx < num_cpu; ++cpu_idx) {
         // FIXME: The most complex signal is the cpu accelerator active afifinitzation signal, which is currently
         //        not fully testable due to needing a running process for get affinity.  For now using a no throw check
-        EXPECT_NO_THROW(nvml_io.read_signal("NVML::CPU_ACCELERATOR_ACTIVE_AFFINITIZATION", GEOPM_DOMAIN_CPU, cpu_idx));
+        double affin = NAN;
+        EXPECT_NO_THROW(affin = nvml_io.read_signal("NVML::CPU_ACCELERATOR_ACTIVE_AFFINITIZATION", GEOPM_DOMAIN_CPU, cpu_idx));
+        EXPECT_DOUBLE_EQ(affin, -1);
     }
 }
 
