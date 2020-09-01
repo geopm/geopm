@@ -32,6 +32,7 @@
 #
 
 import geopmpy.io
+from experiment import util
 from experiment import launch_util
 from experiment.monitor import monitor
 
@@ -43,10 +44,25 @@ def launch_configs(app_conf_ref, app_conf, default_freq, sweep_freqs, barrier_ha
                                                agent_conf=None,
                                                name='reference')]
 
+    # alternative baseline
+
+    # TODO: may not always be correct
+    max_uncore = float(util.geopmread('MSR::UNCORE_RATIO_LIMIT:MAX_RATIO board 0'))
+
+    options = {'FREQ_DEFAULT': default_freq,
+               'FREQ_UNCORE': max_uncore}
+    agent_conf = geopmpy.io.AgentConf('{}.config'.format('fma_fixed'),
+                                      agent='frequency_map',
+                                      options=options)
+    launch_configs.append(launch_util.LaunchConfig(app_conf=app_conf_ref,
+                                                   agent_conf=agent_conf,
+                                                   name='fixed_uncore'))
+
     # freq map runs
     for freq in sweep_freqs:
         rid = 'fma_{:.1e}'.format(freq)
         options = {'FREQ_DEFAULT': default_freq,  # or use max or sticker from mach
+                   'FREQ_UNCORE': max_uncore,
                    'HASH_0': barrier_hash,
                    'FREQ_0': freq}
         agent_conf = geopmpy.io.AgentConf('{}.config'.format(rid),
@@ -66,7 +82,7 @@ def report_signals():
 
 
 def trace_signals():
-    return []
+    return ["MSR::UNCORE_PERF_STATUS:FREQ@package"]
 
 
 def launch(output_dir, iterations,
@@ -77,7 +93,7 @@ def launch(output_dir, iterations,
     extra_cli_args = list(experiment_cli_args)
     extra_cli_args += launch_util.geopm_signal_args(report_signals=report_signals(),
                                                     trace_signals=trace_signals())
-    targets = launch_configs(app_conf_ref, app_conf, default_freq, sweep_freqs)
+    targets = launch_configs(app_conf_ref, app_conf, default_freq, sweep_freqs, barrier_hash)
 
     launch_util.launch_all_runs(targets=targets,
                                 num_nodes=num_nodes,
