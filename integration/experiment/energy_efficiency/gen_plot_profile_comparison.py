@@ -159,7 +159,7 @@ def plot_bars(df, baseline_profile, xlabel, output_dir, use_stdev=False):
                 yerr=yerr, **errorbar_format)
 
     # baseline
-    ax.axhline(y=1.0, color='orange', linestyle='dotted')
+    ax.axhline(y=1.0, color='orange', linestyle='dotted', label='baseline')
 
     ax.set_xticks(points)
     ax.set_xticklabels(labels, rotation='vertical')
