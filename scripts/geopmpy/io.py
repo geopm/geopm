@@ -1559,9 +1559,9 @@ class RawReportCollection(object):
 
         _init_tables()
 
-        df = pandas.DataFrame()
-        epoch_df = pandas.DataFrame()
-        app_df = pandas.DataFrame()
+        region_df_list = []
+        epoch_df_list = []
+        app_df_list = []
 
         for report in report_paths:
             if verbose:
@@ -1607,7 +1607,7 @@ class RawReportCollection(object):
                     row.update(region_data)
                     for cc in rr.raw_region(host, region).keys():
                         _add_column('region', cc)
-                    df = df.append(row, ignore_index=True)
+                    region_df_list.append(pandas.DataFrame(row, index=[0]))
 
                 epoch_row = copy.deepcopy(header)
                 epoch_row.update(per_host_data)
@@ -1617,7 +1617,7 @@ class RawReportCollection(object):
                 for cc in epoch_data.keys():
                     _add_column('epoch', cc)
                 epoch_row.update(epoch_data)
-                epoch_df = epoch_df.append(epoch_row, ignore_index=True)
+                epoch_df_list.append(pandas.DataFrame(epoch_row, index=[0]))
 
                 app_row = copy.deepcopy(header)
                 if figure_of_merit is not None:
@@ -1629,12 +1629,15 @@ class RawReportCollection(object):
                 for cc in app_data.keys():
                     _add_column('app', cc)
                 app_row.update(app_data)
-                app_df = app_df.append(app_row, ignore_index=True)
+                app_df_list.append(pandas.DataFrame(app_row, index=[0]))
         # reorder the columns to order of first appearance
+        df = pandas.concat(region_df_list, ignore_index=True)
         df = df.reindex(columns=self._columns_order['region'])
         self._reports_df = df
+        epoch_df = pandas.concat(epoch_df_list, ignore_index=True)
         epoch_df = epoch_df.reindex(columns=self._columns_order['epoch'])
         self._epoch_reports_df = epoch_df
+        app_df = pandas.concat(app_df_list, ignore_index=True)
         app_df = app_df.reindex(columns=self._columns_order['app'])
         self._app_reports_df = app_df
 
