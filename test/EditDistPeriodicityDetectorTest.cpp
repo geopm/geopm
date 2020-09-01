@@ -107,7 +107,7 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_ababc)
 {
     int warmup = 11;
     int period = 5;
-    int history_size = 100;
+    int history_size = 20;
 
     check_vals(m_trace_file_prefix + "4_pattern_ababc.trace", warmup, period, history_size);
 }
@@ -151,6 +151,16 @@ TEST_F(EditDistPeriodicityDetectorTest, pattern_subtract1)
 
     check_vals(m_trace_file_prefix + "8_pattern_subtract1.trace", 7, 27, period, history_size);
     check_vals(m_trace_file_prefix + "8_pattern_subtract1.trace", 54, period, history_size);
+}
+
+/// FFT Short for Rank 0
+TEST_F(EditDistPeriodicityDetectorTest, fft_small)
+{
+    int warmup = 60;
+    int period = 13;
+    int history_size = 20;
+
+    check_vals(m_trace_file_prefix + "fft_small.trace", warmup, period, history_size);
 }
 
 /// HELPER FUNCTIONS
@@ -208,15 +218,19 @@ void check_vals(std::vector<record_s> recs, std::vector<std::vector<int> > expec
 {
     geopm::EditDistPeriodicityDetector edpd(history_size);
 
+    int region_entry_num = 0;
     for(size_t i = 0; i < expected.size(); i++) {
-        edpd.update(recs[i]);
-        int period = edpd.get_period();
-        int score = edpd.get_score();
+        if (recs[i].event == geopm::EVENT_REGION_ENTRY) {
+            edpd.update(recs[i]);
+            int period = edpd.get_period();
+            int score = edpd.get_score();
 
-        if(expected[i][0] != -1) {
-            // -1 means skip the test entry (probably for warmup).
-            EXPECT_EQ(expected[i][0], edpd.get_period()) << "Record #: " << i << " period=" << period << " score=" << score << "\n";
-            EXPECT_EQ(expected[i][1], edpd.get_score()) << "Record #: " << i << " period=" << expected[i][0] << " score=" << expected[i][1] << "\n";
+            if(expected[region_entry_num][0] != -1) {
+                // -1 means skip the test entry (probably for warmup).
+                EXPECT_EQ(expected[region_entry_num][0], edpd.get_period()) << "Record #: " << region_entry_num << " Received period=" << period << " Expected period=" <<  expected[region_entry_num][0] << "\n";
+                EXPECT_EQ(expected[region_entry_num][1], edpd.get_score()) << "Record #: " << region_entry_num << " Received score=" << score << " Expected score=" << expected[region_entry_num][1] << "\n";
+            }
+            region_entry_num++;
         }
     }
 }

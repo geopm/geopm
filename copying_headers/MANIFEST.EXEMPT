@@ -112,6 +112,7 @@ test/EditDistPeriodicityDetectorTest.5_pattern_abababc.trace
 test/EditDistPeriodicityDetectorTest.6_pattern_add1.trace
 test/EditDistPeriodicityDetectorTest.7_pattern_add2.trace
 test/EditDistPeriodicityDetectorTest.8_pattern_subtract1.trace
+test/EditDistPeriodicityDetectorTest.fft_small.trace
 test/ProxyEpochRecordFilterTest.tutorial_2_profile_trace
 tutorial/README.md
 tutorial/admin/README.md
