@@ -74,9 +74,18 @@ def summary(df, baseline, targets, show_details):
 
     base_runtime = base_data['runtime'].mean()
     base_energy = base_data['energy'].mean()
+
+    # reset output stats
+    # TODO: make this less of a mess
+    output_prefix = os.path.join(output_dir, '{}'.format(common_prefix))
+    output_stats_name = '{}_stats.log'.format(output_prefix)
+    with open(output_stats_name, 'w') as outfile:
+        pass
+
     if show_details:
-        sys.stdout.write('Baseline runtime data:\n{}\n\n'.format(base_data['runtime'].describe()))
-        sys.stdout.write('Baseline energy data:\n{}\n\n'.format(base_data['energy'].describe()))
+        sys.stdout.write('Baseline data:\n{}\n\n'.format(base_data[['runtime', 'energy']].describe()))
+    with open(output_stats_name, 'a') as outfile:
+        outfile.write('Baseline data:\n{}\n\n'.format(base_data[['runtime', 'energy']].describe()))
 
     data = []
     xnames = []
@@ -88,6 +97,11 @@ def summary(df, baseline, targets, show_details):
 
         target_runtime = target_data['runtime'].mean()
         target_energy = target_data['energy'].mean()
+        if show_details:
+            sys.stdout.write('{} data:\n{}\n\n'.format(target_name, target_data[['runtime', 'energy']].describe()))
+        with open(output_stats_name, 'a') as outfile:
+            outfile.write('{} data:\n{}\n\n'.format(target_name, target_data[['runtime', 'energy']].describe()))
+
         norm_runtime = target_runtime / base_runtime
         norm_energy = target_energy / base_energy
         # for error bars, normalize to same baseline mean
@@ -115,9 +129,9 @@ def summary(df, baseline, targets, show_details):
                                        'min_delta_runtime', 'max_delta_runtime',
                                        'min_delta_energy', 'max_delta_energy'])
 
-    with open(os.path.join(output_dir, '{}_stats.log'.format(common_prefix)), 'w') as outfile:
-        outfile.write('Baseline runtime data:\n{}\n\n'.format(base_data['runtime'].describe()))
-        outfile.write('Baseline energy data:\n{}\n\n'.format(base_data['energy'].describe()))
+    if show_details:
+        sys.stdout.write('{}\n'.format(result))
+    with open(output_stats_name, 'a') as outfile:
         outfile.write('{}\n'.format(result))
 
     return result
@@ -129,6 +143,10 @@ def plot_bars(df, baseline_profile, xlabel, output_dir, use_stdev=False):
     title = os.path.commonprefix(labels)
     labels = list(map(lambda x: x[len(title):], labels))
     title = title.rstrip('_')
+    if use_stdev:
+        title += ' (stdev)'
+    else:
+        title += ' (min-max)'
     points = numpy.arange(len(df.index))
     bar_width = 0.35
 
@@ -171,7 +189,11 @@ def plot_bars(df, baseline_profile, xlabel, output_dir, use_stdev=False):
     fig_dir = os.path.join(output_dir, 'figures')
     if not os.path.exists(fig_dir):
         os.mkdir(fig_dir)
-    plt.savefig(os.path.join(fig_dir, '{}_bar.png'.format(title.lower())))
+    fig_name = '{}_bar'.format(title.lower().replace(' ', '_').replace(')', '').replace('(', ''))
+    fig_name = os.path.join(fig_dir, '{}.png'.format(fig_name))
+    plt.savefig(fig_name)
+    if show_details:
+        sys.stdout.write('Wrote {}\n'.format(fig_name))
 
 
 def get_profile_list(rrc):
@@ -207,8 +229,8 @@ if __name__ == '__main__':
     output_dir = args.output_dir
     try:
         rrc = geopmpy.io.RawReportCollection("*report", dir_name=output_dir)
-    except:
-        sys.stderr.write('<geopm> Error: No report data found in {}\n'.format(output_dir))
+    except RuntimeError as ex:
+        sys.stderr.write('<geopm> Error: No report data found in {}: {}\n'.format(output_dir, ex))
         sys.exit(1)
 
     profile_list = get_profile_list(rrc)
@@ -241,6 +263,4 @@ if __name__ == '__main__':
     show_details = args.show_details
 
     result = summary(rrc.get_app_df(), baseline, targets, show_details)
-    if show_details:
-        sys.stdout.write('{}\n'.format(result))
     plot_bars(result, baseline, args.xlabel, output_dir, args.use_stdev)
