@@ -34,6 +34,7 @@ EXTRA_DIST += integration/experiment/frequency_sweep/__init__.py \
               integration/experiment/frequency_sweep/gen_frequency_map.py \
               integration/experiment/frequency_sweep/gen_plot_runtime_energy.py \
               integration/experiment/frequency_sweep/gen_region_summary.py \
+              integration/experiment/frequency_sweep/run_frequency_sweep_amg.py \
               integration/experiment/frequency_sweep/run_frequency_sweep_dgemm.py \
               integration/experiment/frequency_sweep/run_frequency_sweep_dgemm_tiny.py \
               integration/experiment/frequency_sweep/run_frequency_sweep_hpcg.py \
