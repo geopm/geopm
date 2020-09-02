@@ -77,7 +77,7 @@ def trace_signals():
     return trace_sig
 
 
-def launch_configs(app_conf, agent, min_power, max_power, step_power):
+def launch_configs(app_conf, agent_types, min_power, max_power, step_power):
     """
     Runs the application under a range of socket power limits.  Used
     by other analysis types to run either the PowerGovernorAgent or
@@ -86,15 +86,16 @@ def launch_configs(app_conf, agent, min_power, max_power, step_power):
 
     targets = []
     for power_cap in range(max_power, min_power-1, -step_power):
-        name = '{}'.format(power_cap)
-        options = {'power_budget': power_cap}
-        config_file = name + '_agent.config'
-        agent_conf = geopmpy.io.AgentConf(path=config_file,
-                                          agent=agent,
-                                          options=options)
-        targets.append(launch_util.LaunchConfig(app_conf=app_conf,
-                                                agent_conf=agent_conf,
-                                                name=name))
+        for agent in agent_types:
+            name = '{}'.format(power_cap)
+            options = {'power_budget': power_cap}
+            config_file = name + '_agent.config'
+            agent_conf = geopmpy.io.AgentConf(path=config_file,
+                                              agent=agent,
+                                              options=options)
+            targets.append(launch_util.LaunchConfig(app_conf=app_conf,
+                                                    agent_conf=agent_conf,
+                                                    name=name))
     return targets
 
 
@@ -102,9 +103,7 @@ def launch(output_dir, iterations,
            min_power, max_power, step_power, agent_types,
            num_node, app_conf, experiment_cli_args, cool_off_time=60):
 
-    targets = []
-    for agent in agent_types:
-        targets.extend(launch_configs(app_conf, agent, min_power, max_power, step_power))
+    targets = launch_configs(app_conf, agent_types, min_power, max_power, step_power)
 
     report_sig = report_signals()
     trace_sig = trace_signals()

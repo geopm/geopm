@@ -42,7 +42,7 @@ def launch_configs(app_conf_ref, app_conf, min_power, max_power, step_power):
                                                name="reference")]
 
     launch_configs += power_sweep.launch_configs(app_conf=app_conf,
-                                                 agent='power_balancer',
+                                                 agent_types=['power_balancer'],
                                                  min_power=min_power,
                                                  max_power=max_power,
                                                  step_power=step_power)
