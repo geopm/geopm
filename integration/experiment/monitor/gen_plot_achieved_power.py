@@ -44,7 +44,7 @@ import geopmpy.io
 from experiment import common_args
 from experiment import machine
 # TODO: need common thing
-from experiment.power_sweep import gen_node_efficiency
+from experiment.power_sweep import gen_plot_node_efficiency
 
 
 def plot_node_power(df, app_name, min_power, max_power, step_power, output_dir,
@@ -71,9 +71,9 @@ def plot_node_power(df, app_name, min_power, max_power, step_power, output_dir,
     max_drop = max_power - step_power
     bin_size = step_power
     xprecision = 3  # TODO: move into function
-    gen_node_efficiency.generate_histogram(power_data, app_name,
-                                           min_drop, max_drop, 'power',
-                                           bin_size, xprecision, output_dir)
+    gen_plot_node_efficiency.generate_histogram(power_data, app_name,
+                                                min_drop, max_drop, 'power',
+                                                bin_size, xprecision, output_dir)
 
 
 if __name__ == '__main__':
