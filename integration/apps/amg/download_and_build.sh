@@ -30,6 +30,20 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+AMG_DIR=AMG-master
+# Clear out old versions:
+if [ -d "$AMG_DIR" ]; then
+    echo "WARNING: Previous AMG checkout detected at ./$AMG_DIR"
+    read -p "OK to delete and rebuild? (y/n) " -n 1 -r
+    echo
+    if [[ ${REPLY} =~ ^[Yy]$ ]]; then
+        rm -rf $AMG_DIR
+    else
+        echo "Not OK.  Stopping."
+        exit 1
+    fi
+fi
+
 # Acquire the source:
 wget https://asc.llnl.gov/coral-2-benchmarks/downloads/AMG-master-5.zip
 
@@ -37,10 +51,15 @@ wget https://asc.llnl.gov/coral-2-benchmarks/downloads/AMG-master-5.zip
 unzip AMG-master-5.zip
 
 # Change directories to the unpacked files:
-cd AMG-master
+cd $AMG_DIR
 
-# Patch MiniFE with the patch utility:
-patch -p1 < ../0001-Adding-geopm-markup-to-CORAL-2-AMG.patch
+# Create a git repo for the app source
+git init
+git add -A
+git commit -sm "Initial commit"
+
+# Patch AMG with the patch utility:
+git am ../0001-Adding-geopm-markup-to-CORAL-2-AMG.patch
 
 # Build
 make
