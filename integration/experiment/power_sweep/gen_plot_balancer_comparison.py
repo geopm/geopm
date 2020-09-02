@@ -121,9 +121,6 @@ def plot_balancer_comparison(df, label, metric, output_dir='.',
     if detailed:
         sys.stdout.write('{}\n'.format(df))
 
-    # Plotting
-    output_types = ['png']
-
     target_agent = 'power_balancer'
     reference_agent = 'power_governor'
 
@@ -222,13 +219,12 @@ def plot_balancer_comparison(df, label, metric, output_dir='.',
         file_name += '_normalized'
     if detailed:
         sys.stdout.write('Writing:\n')
-    for ext in output_types:
-        if not os.path.exists(os.path.join(output_dir, 'figures')):
-            os.mkdir(os.path.join(output_dir, 'figures'))
-        full_path = os.path.join(output_dir, 'figures', '{}.{}'.format(file_name, ext))
-        plt.savefig(full_path)
-        if detailed:
-            sys.stdout.write('    {}\n'.format(full_path))
+    if not os.path.exists(os.path.join(output_dir, 'figures')):
+        os.mkdir(os.path.join(output_dir, 'figures'))
+    full_path = os.path.join(output_dir, 'figures', '{}.png'.format(file_name))
+    plt.savefig(full_path)
+    if detailed:
+        sys.stdout.write('    {}\n'.format(full_path))
     sys.stdout.flush()
     plt.close()
 
