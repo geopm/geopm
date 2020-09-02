@@ -47,27 +47,50 @@ import geopmpy.io
 from experiment import common_args
 
 
-def generate_runtime_energy_plot(df, name, output_dir='.'):
+def generate_runtime_energy_plot(df, use_stdev, name, output_dir='.'):
     """
     Creates a plot comparing the runtime and energy of a region on two axes.
     """
-    f, ax = plt.subplots()
+    errorbar_format = {'fmt': '',
+                       'label': '',
+                       'elinewidth': 1,
+                       'zorder': 10}
 
-    ax.plot(df.index, df['energy_pkg'], color='DarkBlue', label='Energy', marker='o', linestyle='-')
-    ax.set_xlabel('Frequency (GHz)')
+    f, ax = plt.subplots()
+    points = df.index
+
+    ax.plot(points, df['energy'], color='DarkBlue', label='Energy', marker='o', linestyle='-')
     ax.set_ylabel('Energy (J)')
+    yerr = (df['min_delta_energy'], df['max_delta_energy'])
+    if use_stdev:
+        yerr = (df['energy_std'], df['energy_std'])
+    ax.errorbar(points, df['energy'], xerr=None,
+                yerr=yerr, color='Blue', **errorbar_format)
 
     ax2 = ax.twinx()
-    ax2.plot(df.index, df['runtime'], color='Red', label='Runtime', marker='s', linestyle='-')
+    ax2.plot(points, df['runtime'], color='Red', label='Runtime', marker='s', linestyle='-')
     ax2.set_ylabel('Runtime (s)')
+    yerr = (df['min_delta_runtime'], df['max_delta_runtime'])
+    if use_stdev:
+        yerr = (df['runtime_std'], df['runtime_std'])
+    ax2.errorbar(points, df['runtime'], xerr=None,
+                 yerr=yerr, color='DarkRed', **errorbar_format)
 
+    ax.set_xlabel('Frequency (GHz)')
     lines, labels = ax.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
 
     plt.legend(lines + lines2, labels + labels2, shadow=True, fancybox=True, loc='best')
+    if use_stdev:
+        name += ' (stdev)'
+    else:
+        name += ' (min-max)'
     plt.title('{}'.format(name))
     f.tight_layout()
-    plt.savefig(os.path.join(output_dir, '{}_freq_energy.{}'.format(name.lower().replace(' ', '_'), 'png')))
+    if not os.path.exists(os.path.join(output_dir, 'figures')):
+        os.mkdir(os.path.join(output_dir, 'figures'))
+    figname = '{}_freq_energy'.format(name.lower().replace(' ', '_').replace('(', '').replace(')', ''))
+    plt.savefig(os.path.join(output_dir, 'figures', figname))
     plt.close()
 
 
@@ -83,33 +106,43 @@ def find_longest_region(report_df):
     return longest
 
 
-def plot_runtime_energy(report_df, label, output_dir, show_details=False):
+def plot_runtime_energy(report_df, use_stdev, label, output_dir, show_details=False):
     # rename some columns
     # TODO: only works for freq map agent
-    report_df['freq_hz'] = report_df['FREQ_DEFAULT']
+    report_df['freq_req'] = report_df['FREQ_DEFAULT']
     report_df['runtime'] = report_df['runtime (sec)']
     report_df['network_time'] = report_df['network-time (sec)']
-    report_df['energy_pkg'] = report_df['package-energy (joules)']
-    report_df['frequency'] = report_df['frequency (Hz)']
-    report_df = report_df[['freq_hz', 'runtime', 'region', 'network_time',
-                           'energy_pkg', 'frequency', 'count']]
-
-    longest_region = find_longest_region(report_df)
-    region_df = report_df.loc[report_df['region'] == longest_region]
+    report_df['energy'] = report_df['package-energy (joules)']
+    report_df = report_df[['freq_req', 'runtime', 'network_time', 'energy']]
     data = []
-    freqs = sorted(region_df['freq_hz'].unique())
+    freqs = sorted(report_df['freq_req'].unique())
     for freq in freqs:
-        freq_df = region_df.loc[region_df['freq_hz'] == freq]
+        freq_df = report_df.loc[report_df['freq_req'] == freq]
         region_mean_runtime = freq_df['runtime'].mean()
-        region_mean_energy = freq_df['energy_pkg'].mean()
-        data.append([region_mean_runtime, region_mean_energy])
+        region_mean_energy = freq_df['energy'].mean()
+        min_runtime = freq_df['runtime'].min()
+        max_runtime = freq_df['runtime'].max()
+        min_energy = freq_df['energy'].min()
+        max_energy = freq_df['energy'].max()
+        std_runtime = freq_df['runtime'].std()
+        std_energy = freq_df['energy'].std()
+        min_delta_runtime = region_mean_runtime - min_runtime
+        max_delta_runtime = max_runtime - region_mean_runtime
+        min_delta_energy = region_mean_energy - min_energy
+        max_delta_energy = max_energy - region_mean_energy
+        data.append([region_mean_runtime, region_mean_energy,
+                     std_runtime, std_energy,
+                     min_delta_runtime, max_delta_runtime,
+                     min_delta_energy, max_delta_energy])
     result = pandas.DataFrame(data, index=freqs,
-                              columns=['runtime', 'energy_pkg'])
+                              columns=['runtime', 'energy',
+                                       'runtime_std', 'energy_std',
+                                       'min_delta_runtime', 'max_delta_runtime',
+                                       'min_delta_energy', 'max_delta_energy'])
 
     if show_details:
-        sys.stdout.write('Data for longest region "{}":\n{}\n'.format(longest_region, result))
-
-    generate_runtime_energy_plot(result, label, output_dir)
+        sys.stdout.write('Data for {}:\n{}\n'.format(label, result))
+    generate_runtime_energy_plot(result, use_stdev, label, output_dir)
 
 
 if __name__ == '__main__':
@@ -117,6 +150,10 @@ if __name__ == '__main__':
     common_args.add_output_dir(parser)
     common_args.add_show_details(parser)
     common_args.add_label(parser)
+    common_args.add_use_stdev(parser)
+    parser.add_argument('--target-region', dest='target_region',
+                        action='store', type=str, default=None,
+                        help='name of the region to use to select data (default=application totals)')
 
     args = parser.parse_args()
     output_dir = args.output_dir
@@ -127,7 +164,18 @@ if __name__ == '__main__':
         sys.stderr.write('<geopm> Error: No report data found in {}; run a frequency sweep before using this analysis\n'.format(output_dir))
         sys.exit(1)
 
-    plot_runtime_energy(output.get_df(),
-                        label=args.label,
+    label = args.label
+    target_region = args.target_region
+    if target_region is not None:
+        df = output.get_df()
+        data = df.loc[df['region'] == target_region]
+        label += ', ' + target_region
+    else:
+        data = output.get_app_df()
+    print(label)
+
+    plot_runtime_energy(data,
+                        args.use_stdev,
+                        label=label,
                         output_dir=output_dir,
                         show_details=args.show_details)
