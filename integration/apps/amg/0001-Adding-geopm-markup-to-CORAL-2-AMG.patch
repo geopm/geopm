@@ -1,8 +1,8 @@
-From c85f3d5f9368a2ae1e47a5dc0ada286d5a14e17c Mon Sep 17 00:00:00 2001
+From fae5785c8ff30b5b7965bcd52e494c5236eece34 Mon Sep 17 00:00:00 2001
 From: Diana Guttman <diana.r.guttman@intel.com>
-Date: Tue, 18 Sep 2018 21:23:35 +0000
-Subject: [PATCH] Adding geopm markup to CORAL 2 AMG.
-
+Date: Tue, 1 Sep 2020 16:24:07 -0700
+Subject: [PATCH] Adding geopm markup to CORAL 2 AMG
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ Signed-off-by: Diana Guttman <diana.r.guttman@intel.com>
  3 files changed, 96 insertions(+), 3 deletions(-)
 
 diff --git a/Makefile.include b/Makefile.include
-index b73ccce..ec2f9b1 100644
+index b73ccce..688c3b9 100644
 --- a/Makefile.include
 +++ b/Makefile.include
 @@ -45,9 +45,10 @@ CC = mpicc
@@ -50,11 +50,11 @@ index b73ccce..ec2f9b1 100644
  INCLUDE_CFLAGS = -O2 -DTIMER_USE_MPI -DHYPRE_USING_OPENMP -fopenmp -DHYPRE_HOPSCOTCH -DHYPRE_USING_PERSISTENT_COMM -DHYPRE_BIGINT
  #INCLUDE_CFLAGS = -O2 -DTIMER_USE_MPI -DHYPRE_USING_OPENMP -qsmp=omp -qmaxmem=-1 -DHYPRE_HOPSCOTCH -DHYPRE_USING_PERSISTENT_COMM -DHYPRE_BIGINT
 +INCLUDE_CFLAGS += -xCORE-AVX2 -I$(HOME)/build/geopm/include -DGEOPM
- 
+
  # set link flags here
  #INCLUDE_LFLAGS = -lm -qsmp=omp
  INCLUDE_LFLAGS = -lm -fopenmp
- #INCLUDE_LFLAGS = -lm 
+ #INCLUDE_LFLAGS = -lm
 -
 +INCLUDE_LFLAGS += -L$(HOME)/build/geopm/lib -lgeopm -dynamic
 diff --git a/krylov/pcg.c b/krylov/pcg.c
@@ -64,7 +64,7 @@ index 2492dae..06de01e 100644
 @@ -33,6 +33,10 @@
  #include "krylov.h"
  #include "_hypre_utilities.h"
- 
+
 +#ifdef GEOPM
 +#include "geopm.h"
 +#endif
@@ -75,7 +75,7 @@ index 2492dae..06de01e 100644
 @@ -319,6 +323,13 @@ hypre_PCGSolve( void *pcg_vdata,
     HYPRE_Int             i = 0;
     HYPRE_Int             my_id, num_procs;
- 
+
 +#ifdef GEOPM
 +   uint64_t   region_id = 0;
 +
@@ -84,12 +84,12 @@ index 2492dae..06de01e 100644
 +#endif
 +
     (pcg_data -> converged) = 0;
- 
+
     (*(pcg_functions->CommInfo))(A,&my_id,&num_procs);
 @@ -476,8 +487,18 @@ hypre_PCGSolve( void *pcg_vdata,
        }
     }
- 
+
 +#ifdef GEOPM
 +   geopm_prof_exit(region_id);
 +#endif
@@ -112,7 +112,7 @@ index 2492dae..06de01e 100644
 +#ifdef GEOPM
 +    geopm_prof_exit(region_id);
 +#endif
- 
+
     /*--------------------------------------------------------------------
      * Finish up with some outputs.
 diff --git a/test/amg.c b/test/amg.c
@@ -120,9 +120,9 @@ index fb5ccb5..9c606f9 100644
 --- a/test/amg.c
 +++ b/test/amg.c
 @@ -37,6 +37,10 @@
- 
+
  #include <time.h>
- 
+
 +#ifdef GEOPM
 +#include "geopm.h"
 +#endif
@@ -131,9 +131,9 @@ index fb5ccb5..9c606f9 100644
  extern "C" {
  #endif
 @@ -136,6 +140,11 @@ main( hypre_int argc,
- 
+
     HYPRE_Real *values;
- 
+
 +#ifdef GEOPM
 +   uint64_t   region_id = 0;
 +#endif
@@ -150,7 +150,7 @@ index fb5ccb5..9c606f9 100644
 +      geopm_prof_region("MatrixSetup", 0, &region_id);
 +      geopm_prof_enter(region_id);
 +#endif
- 
+
     time_index = hypre_InitializeTiming("Spatial Operator");
     hypre_BeginTiming(time_index);
 @@ -279,10 +292,17 @@ main( hypre_int argc,
@@ -160,7 +160,7 @@ index fb5ccb5..9c606f9 100644
 +#ifdef GEOPM
 +   geopm_prof_exit(region_id);
 +#endif
- 
+
     /*-----------------------------------------------------------
      * Set up the RHS and initial guess
      *-----------------------------------------------------------*/
@@ -168,13 +168,13 @@ index fb5ccb5..9c606f9 100644
 +      geopm_prof_region("IJVectorSetup", 0, &region_id);
 +      geopm_prof_enter(region_id);
 +#endif
- 
+
     time_index = hypre_InitializeTiming("RHS and Initial Guess");
     hypre_BeginTiming(time_index);
 @@ -343,6 +363,9 @@ main( hypre_int argc,
- 
+
     }
- 
+
 +#ifdef GEOPM
 +   geopm_prof_exit(region_id);
 +#endif
@@ -182,7 +182,7 @@ index fb5ccb5..9c606f9 100644
      * Problem 1: Solve one large problem with AMG-PCG
      *-----------------------------------------------------------*/
 @@ -350,6 +373,10 @@ main( hypre_int argc,
- 
+
     if (problem_id == 1 )
     {
 +#ifdef GEOPM
@@ -195,18 +195,18 @@ index fb5ccb5..9c606f9 100644
 @@ -402,6 +429,10 @@ main( hypre_int argc,
        hypre_ClearTiming();
        fflush(NULL);
- 
+
 +#ifdef GEOPM
 +      geopm_prof_exit(region_id);
 +#endif
 +
        HYPRE_BoomerAMGGetCumNnzAP(pcg_precond, &cum_nnz_AP);
- 
+
        FOM1 = cum_nnz_AP/ wall_time;
 @@ -416,6 +447,11 @@ main( hypre_int argc,
-       HYPRE_PCGSolve(pcg_solver, (HYPRE_Matrix)parcsr_A, 
+       HYPRE_PCGSolve(pcg_solver, (HYPRE_Matrix)parcsr_A,
                       (HYPRE_Vector)b, (HYPRE_Vector)x);
-  
+
 +#ifdef GEOPM
 +      geopm_prof_region("PCGTeardown", 0, &region_id);
 +      geopm_prof_enter(region_id);
@@ -219,15 +219,15 @@ index fb5ccb5..9c606f9 100644
           FOM1 /= 4.0;
           printf ("\n\nFigure of Merit (FOM_1): %e\n\n", FOM1);
        }
-- 
+-
 +#ifdef GEOPM
 +      geopm_prof_exit(region_id);
 +#endif
     }
- 
+
     /*-----------------------------------------------------------
 @@ -453,15 +491,30 @@ main( hypre_int argc,
- 
+
     if (problem_id == 2)
     {
 +#ifdef GEOPM
@@ -251,7 +251,7 @@ index fb5ccb5..9c606f9 100644
 +#endif
        for (j=0; j < time_steps; j++)
        {
-- 
+-
 +#ifdef GEOPM
 +         geopm_prof_epoch();
 +#endif
@@ -285,8 +285,7 @@ index fb5ccb5..9c606f9 100644
 +#endif
 +
     }
-  
- 
--- 
-2.12.3
 
+
+--
+1.8.3.1
