@@ -829,24 +829,14 @@ ruby/bin/ronn:
 	if [ ! -f $@ ]; then pushd ruby/bin && ln -sf ronn.ruby* ronn && popd; fi
 
 $(ronn_man): man/%: ruby/bin/ronn ronn/%.ronn ronn/index.txt ronn/header.txt
-	TARGET_DOC=`basename $@` ; \
-	RONN_DIR="$(abs_srcdir)/ronn" ; \
-	if [ ! "$(abs_srcdir)/ronn" -ef "$(abs_top_builddir)/ronn" && $$TARGET_DOC != "geopm.7" ] ; then \
-		cp -u $$RONN_DIR/$$TARGET_DOC.ronn ./ronn ; \
-	fi ; \
-	mkdir -p man ; \
-	export GEM_PATH=$(abs_top_builddir)/ruby:$$GEM_PATH && \
-	cd $(abs_top_builddir)/ronn && \
-	$(abs_top_builddir)/ruby/bin/ronn --date=`date "+%Y-%m-%d"` \
+	mkdir -p man
+	export GEM_PATH=`readlink -f $(top_srcdir)/ruby`:$$GEM_PATH && \
+	cd ronn && \
+	../ruby/bin/ronn --date=`date "+%Y-%m-%d"` \
 	                 --organization="GEOPM @VERSION@" \
-	                 $$TARGET_DOC.ronn
-	if [ $$TARGET_DOC != "geopm.7" ] ; then \
-		TMP_SRC="$(abs_top_builddir)/ronn/$$TARGET_DOC" ; \
-	else \
-		TMP_SRC="$$RONN_DIR/$$TARGET_DOC" ; \
-	fi ; \
-	cat "$(top_srcdir)/ronn/header.txt" "$$TMP_SRC.ronn" | \
-		sed -e 's/\(#include.*\) \\fIhttp.*/\1\\fR/g' > $@
+	                 `basename $@`.ronn
+	cat ronn/header.txt ronn/`basename $@` | \
+	    sed -e 's/\(#include.*\) \\fIhttp.*/\1\\fR/g' > $@
 
 # GH_PAGES TARGET
 gh-pages: doxygen $(dist_man_MANS)
