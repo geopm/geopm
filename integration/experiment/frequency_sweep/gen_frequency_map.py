@@ -113,7 +113,7 @@ if __name__ == '__main__':
     parser.add_argument('--perf-margin', dest='perf_margin',
                         action='store', type=float, default=0.10,
                         help='fraction of performance degradation from max frequency to allow (default=0.10)')
-    args, _ = parser.parse_known_args()
+    args = parser.parse_args()
     perf_margin = args.perf_margin
     if perf_margin < 0 or perf_margin > 1.0:
         raise RuntimeError('Value for --perf-margin should be between 0.0 and 1.0')

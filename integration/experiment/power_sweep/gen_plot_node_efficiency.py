@@ -185,7 +185,7 @@ if __name__ == '__main__':
     common_args.add_output_dir(parser)
     common_args.add_show_details(parser)
     common_args.add_label(parser)
-    args, _ = parser.parse_known_args()
+    args = parser.parse_args()
 
     output_dir = args.output_dir
     show_details = args.show_details
