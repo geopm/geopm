@@ -831,7 +831,7 @@ ruby/bin/ronn:
 $(ronn_man): man/%: ruby/bin/ronn ronn/%.ronn ronn/index.txt ronn/header.txt
 	TARGET_DOC=`basename $@` ; \
 	RONN_DIR="$(abs_srcdir)/ronn" ; \
-	if [ ! $$RONN_DIR -ef "$(abs_top_builddir)/ronn" ] && [ $$TARGET_DOC != "geopm.7" ]; then \
+	if [ ! "$(abs_srcdir)/ronn" -ef "$(abs_top_builddir)/ronn" && $$TARGET_DOC != "geopm.7" ] ; then \
 		cp -u $$RONN_DIR/$$TARGET_DOC.ronn ./ronn ; \
 	fi ; \
 	mkdir -p man ; \
