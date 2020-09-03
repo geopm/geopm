@@ -222,7 +222,7 @@ if __name__ == '__main__':
                         action='store', default='Profile',
                         help='x-axis label for profiles')
 
-    args, extra_cli_args = parser.parse_known_args()
+    args = parser.parse_args()
 
     output_dir = args.output_dir
     try:

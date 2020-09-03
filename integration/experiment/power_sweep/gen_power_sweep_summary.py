@@ -66,7 +66,7 @@ def summary(parse_output):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     common_args.add_output_dir(parser)
-    args, _ = parser.parse_known_args()
+    args = parser.parse_args()
     output_dir = args.output_dir
 
     output = geopmpy.io.RawReportCollection("*report", dir_name=output_dir)

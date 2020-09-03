@@ -245,7 +245,7 @@ if __name__ == '__main__':
     parser.add_argument('--metric', action='store', default='runtime',
                         help='metric to use for comparison.  One of: runtime, energy_pkg, frequency, power')
 
-    args, _ = parser.parse_known_args()
+    args = parser.parse_args()
     output_dir = args.output_dir
 
     # TODO: make into utility function

@@ -36,7 +36,6 @@ Example power sweep experiment using geopmbench.
 '''
 
 import sys
-import os
 import pandas
 import argparse
 
@@ -74,7 +73,7 @@ if __name__ == '__main__':
     common_args.add_output_dir(parser)
     common_args.add_show_details(parser)
 
-    args, _ = parser.parse_known_args()
+    args = parser.parse_args()
     output_dir = args.output_dir
     show_details = args.show_details
 
