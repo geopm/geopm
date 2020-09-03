@@ -369,21 +369,23 @@ namespace geopm
         double result = -1;
         cpu_set_t *proc_cpuset = NULL;
         proc_cpuset = CPU_ALLOC(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU));
-        if (proc_cpuset != NULL) {
-            for (auto &proc : process_map) {
-                if (sched_getaffinity(proc.first,
-                                      CPU_ALLOC_SIZE(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU)),
-                                      proc_cpuset) == 0) {
-                    if (CPU_ISSET(cpu_idx, proc_cpuset)) {
-                        result = proc.second;
-                        break;
-                    }
-                }
-            }
-        }
-        else {
-            throw Exception("NVMLIOGroup::" + std::string(__func__) + ": failed to allocate process CPU mask",
+        if (proc_cpuset == NULL) {
+            throw Exception("NVMLIOGroup::" + std::string(__func__) +
+                            ": failed to allocate process CPU mask",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        size_t alloc_size = CPU_ALLOC_SIZE(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU));
+        for (auto &proc : process_map) {
+            int err = sched_getaffinity(proc.first, alloc_size, proc_cpuset);
+            if (err) {
+                throw Exception("NVMLIOGroup::" + std::string(__func__) +
+                                ": failed to get affinity mask for process: " +
+                                std::to_string(proc.first), err, __FILE__, __LINE__);
+            }
+            if (CPU_ISSET(cpu_idx, proc_cpuset)) {
+                result = proc.second;
+                break;
+            }
         }
         return result;
     }
@@ -410,7 +412,6 @@ namespace geopm
                 }
             }
         }
-
     }
 
     // Write all controls that have been pushed and adjusted
