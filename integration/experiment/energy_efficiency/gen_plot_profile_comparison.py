@@ -207,6 +207,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     common_args.add_output_dir(parser)
     common_args.add_show_details(parser)
+    common_args.add_use_stdev(parser)
 
     parser.add_argument('--baseline', dest='baseline',
                         action='store', default=None,
@@ -220,9 +221,6 @@ if __name__ == '__main__':
     parser.add_argument('--xlabel', dest='xlabel',
                         action='store', default='Profile',
                         help='x-axis label for profiles')
-    parser.add_argument('--use-stdev', dest='use_stdev',
-                        action='store_true', default=False,
-                        help='use standard deviation instead of min-max spread for error bars')
 
     args, extra_cli_args = parser.parse_known_args()
 
