@@ -86,3 +86,9 @@ def add_iterations(parser):
     parser.add_argument('--iterations', dest='iterations',
                         action='store', type=int, default=2,
                         help='number of iterations to launch')
+
+
+def add_use_stdev(parser):
+    parser.add_argument('--use-stdev', dest='use_stdev',
+                        action='store_true', default=False,
+                        help='use standard deviation instead of min-max spread for error bars')
