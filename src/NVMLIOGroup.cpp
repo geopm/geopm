@@ -39,6 +39,7 @@
 #include <sstream>
 #include <string>
 #include <sched.h>
+#include <errno.h>
 
 #include "IOGroup.hpp"
 #include "PlatformTopo.hpp"
@@ -367,23 +368,24 @@ namespace geopm
     double NVMLIOGroup::cpu_accelerator_affinity(int cpu_idx, std::map<pid_t, double> process_map) const
     {
         double result = -1;
-        cpu_set_t *proc_cpuset = NULL;
-        proc_cpuset = CPU_ALLOC(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU));
+        size_t num_cpu = m_platform_topo.num_domain(GEOPM_DOMAIN_CPU)
+        size_t alloc_size = CPU_ALLOC_SIZE(num_cpu);
+        cpu_set_t *proc_cpuset = CPU_ALLOC(num_cpu);
         if (proc_cpuset == NULL) {
             throw Exception("NVMLIOGroup::" + std::string(__func__) +
                             ": failed to allocate process CPU mask",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                            ENOMEM, __FILE__, __LINE__);
         }
-        size_t alloc_size = CPU_ALLOC_SIZE(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU));
         for (auto &proc : process_map) {
             int err = sched_getaffinity(proc.first, alloc_size, proc_cpuset);
-            if (err) {
+            if (err == EINVAL || err == EFAULT) {
                 throw Exception("NVMLIOGroup::" + std::string(__func__) +
                                 ": failed to get affinity mask for process: " +
                                 std::to_string(proc.first), err, __FILE__, __LINE__);
             }
-            if (CPU_ISSET(cpu_idx, proc_cpuset)) {
+            if (!err && CPU_ISSET(cpu_idx, proc_cpuset)) {
                 result = proc.second;
+                // Return first match, w/o break will return last match
                 break;
             }
         }
