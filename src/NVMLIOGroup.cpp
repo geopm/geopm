@@ -352,12 +352,12 @@ namespace geopm
             std::vector<int> active_process_list = m_nvml_device_pool.active_process_list(accel_idx);
             for (auto proc_itr : active_process_list) {
                 // If a process is associated with multiple accelerators we have no good means of
-                // signaling the user beyond providing an error value (-1).
+                // signaling the user beyond providing an error value (NAN).
                 if (!accelerator_pid_map.count((pid_t)proc_itr)) {
                     accelerator_pid_map[(pid_t)proc_itr] = accel_idx;
                 }
                 else {
-                    accelerator_pid_map[(pid_t)proc_itr] = -1;
+                    accelerator_pid_map[(pid_t)proc_itr] = NAN;
                 }
             }
         }
@@ -368,7 +368,7 @@ namespace geopm
     double NVMLIOGroup::cpu_accelerator_affinity(int cpu_idx, std::map<pid_t, double> process_map) const
     {
         double result = -1;
-        size_t num_cpu = m_platform_topo.num_domain(GEOPM_DOMAIN_CPU)
+        size_t num_cpu = m_platform_topo.num_domain(GEOPM_DOMAIN_CPU);
         size_t alloc_size = CPU_ALLOC_SIZE(num_cpu);
         cpu_set_t *proc_cpuset = CPU_ALLOC(num_cpu);
         if (proc_cpuset == NULL) {
