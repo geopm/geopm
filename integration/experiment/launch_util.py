@@ -42,7 +42,7 @@ from . import machine
 
 
 def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
-               num_nodes):
+               num_nodes, enable_traces):
     # launcher and app should create files in output_dir
     start_dir = os.getcwd()
     os.chdir(output_dir)
@@ -71,9 +71,11 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
     # TODO: these are not passed to launcher create()
     # some are generic enough they could be, though
     extra_cli_args += ['--geopm-report', report_path,
-                       '--geopm-trace', trace_path,
                        '--geopm-profile', profile_name,
     ]
+    if enable_traces:
+        extra_cli_args += ['--geopm-trace', trace_path]
+
     argv.extend(extra_cli_args)
 
     # extra geopm args needed by app
@@ -120,7 +122,7 @@ class LaunchConfig():
         return run_id
 
 
-def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir, cool_off_time=60):
+def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir, cool_off_time=60, enable_traces=False):
     '''
     targets: a list of LaunchConfig
     iteration: integer number of iterations
@@ -135,7 +137,7 @@ def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir, 
 
             launch_run(agent_conf, app_conf, run_id, output_dir,
                        extra_cli_args=extra_cli_args,
-                       num_nodes=num_nodes)
+                       num_nodes=num_nodes, enable_traces=enable_traces)
 
             # rest to cool off between runs
             time.sleep(cool_off_time)

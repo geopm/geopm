@@ -119,7 +119,8 @@ def launch(app_conf, args, experiment_cli_args):
                                 iterations=args.trial_count,
                                 extra_cli_args=extra_cli_args,
                                 output_dir=args.output_dir,
-                                cool_off_time=args.cool_off_time)
+                                cool_off_time=args.cool_off_time,
+                                enable_traces=args.enable_traces)
 
 
 def main(app_conf, **defaults):

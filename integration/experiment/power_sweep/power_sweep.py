@@ -51,7 +51,8 @@ def setup_run_args(parser):
     common_args.add_max_power(parser)
     common_args.add_step_power(parser)
     common_args.add_agent_list(parser)
-    parser.set_defaults(agent_list='power_governor,power_balancer')
+    parser.set_defaults(agent_list='power_governor,power_balancer',
+                        enable_traces=True)
 
 
 def setup_power_bounds(mach, min_power, max_power, step_power):
@@ -122,7 +123,8 @@ def launch(app_conf, args, experiment_cli_args):
                                 iterations=args.trial_count,
                                 extra_cli_args=extra_cli_args,
                                 output_dir=args.output_dir,
-                                cool_off_time=args.cool_off_time)
+                                cool_off_time=args.cool_off_time,
+                                enable_traces=args.enable_traces)
 
 
 def main(app_conf, **defaults):
