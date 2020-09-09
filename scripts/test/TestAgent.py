@@ -35,10 +35,29 @@ from __future__ import absolute_import
 
 import unittest
 import json
+import os
 import geopmpy.agent
 
-
 class TestAgent(unittest.TestCase):
+    @staticmethod
+    def get_config_value(key):
+        """Get the value of an option from the build configuration, returning None
+        if no such key is present.
+        """
+        path = os.path.join(
+               os.path.dirname(
+                os.path.dirname(
+                 os.path.dirname(
+                  os.path.realpath(__file__)))),
+               'config.log')
+        with open(path) as config_file:
+            for line in config_file:
+                line_start = "{}='".format(key)
+                line_end = "'\n"
+                if line.startswith(line_start) and line.endswith(line_end):
+                    return line[len(line_start):-len(line_end)]
+        return None
+
     def test_policy_names(self):
         for agent in geopmpy.agent.names():
             policy = geopmpy.agent.policy_names(agent)
@@ -51,8 +70,13 @@ class TestAgent(unittest.TestCase):
 
     def test_agent_names(self):
         names = geopmpy.agent.names()
-        expected = set(['energy_efficient', 'power_balancer', 'power_governor',
-                        'frequency_map', 'monitor'])
+        enable_nvml = TestAgent.get_config_value('enable_nvml')
+        if(enable_nvml == '1'):
+            expected = set(['energy_efficient', 'power_balancer', 'power_governor',
+                            'frequency_map', 'monitor', 'nvml_board_utilization'])
+        else:
+            expected = set(['energy_efficient', 'power_balancer', 'power_governor',
+                            'frequency_map', 'monitor'])
         self.assertEqual(expected, set(names))
 
     def test_json(self):
@@ -65,7 +89,6 @@ class TestAgent(unittest.TestCase):
             json_str = geopmpy.agent.policy_json(agent, policy_val)
             res_policy = json.loads(json_str)
             self.assertEqual(exp_policy, res_policy)
-
 
 if __name__ == '__main__':
     unittest.main()

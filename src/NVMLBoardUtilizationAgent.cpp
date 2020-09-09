@@ -64,7 +64,7 @@ namespace geopm
                               {"NVML::POWER", {}},
                               {"NVML::TOTAL_ENERGY_CONSUMPTION", {}},
                               {"FREQUENCY", {}}
-    					     })
+                             })
         , m_control_available({{"NVML::FREQUENCY_CONTROL", {}},
                                {"FREQUENCY", {}}
                               })

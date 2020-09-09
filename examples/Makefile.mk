@@ -30,6 +30,14 @@
 #
 
 EXTRA_DIST += examples/README.md \
+              examples/accelerator_examples/policy_default-doublethresh.json \
+              examples/accelerator_examples/policy_default-singlethresh.json \
+              examples/accelerator_examples/hacc/policy_hacc-doublethresh.json \
+              examples/accelerator_examples/hacc/policy_hacc-singlethresh.json \
+              examples/accelerator_examples/hacc/README \
+              examples/accelerator_examples/lammps/policy_lammps-doublethresh.json \
+              examples/accelerator_examples/lammps/policy_lammps-singlethresh.json \
+              examples/accelerator_examples/lammps/README \
               examples/amg/0001-Adding-geopm-markup-to-AMG.patch \
               examples/amg/0001-Adding-geopm-markup-to-CORAL-2-AMG.patch \
               examples/amg/README \
