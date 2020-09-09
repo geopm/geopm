@@ -42,6 +42,7 @@ def setup_run_args(parser):
     add_node_count(parser)
     add_trial_count(parser)
     add_cool_off_time(parser)
+    add_enable_traces(parser)
 
 
 def add_output_dir(parser):
@@ -125,3 +126,17 @@ def add_agent_list(parser):
     parser.add_argument('--agent-list', dest='agent_list',
                         action='store', type=str, default=None,
                         help='comma separated list of agents to be compared')
+
+
+def add_enable_traces(parser):
+    parser.add_argument('--enable-traces', dest='enable_traces',
+                         action='store_const', const=True,
+                         default=False, help='Enable trace generation')
+    parser.add_argument('--disable-traces', dest='enable_traces',
+                        action='store_const', const=False,
+                        help='Disable trace generation')
+
+
+def add_disable_traces(parser):
+    add_enable_traces(parser)
+    parser.set_defaults(enable_traces=True)
