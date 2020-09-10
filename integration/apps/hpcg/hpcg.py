@@ -42,45 +42,68 @@ class HpcgAppConf(apps.AppConf):
     def name():
         return 'hpcg'
 
-    def __init__(self):
-        benchmark_dir = os.path.dirname(os.path.abspath(__file__))
-        self._hpcg_dir = os.path.join(benchmark_dir, 'hpcg-3.1', 'build', 'bin')
-        self._ranks_per_node = 2
+    def __init__(self, mach, mkl_version=False):
+        self._mkl_version = mkl_version
+        if self._mkl_version:
+            # use MKL benchmark; requires MKL to be installed
+            benchmark_dir = '/opt/ohpc/pub/compiler/intel/compilers_and_libraries_2019.4.243/linux/mkl/benchmarks/hpcg/bin'
+            self._hpcg_exe = os.path.join(benchmark_dir, 'xhpcg_skx')
+        else:
+            # use reference version; will be slower
+            benchmark_dir = os.path.dirname(os.path.abspath(__file__))
+            self._hpcg_exe = os.path.join(benchmark_dir, 'hpcg-3.1', 'build', 'bin', 'xhpcg')
+
+        self._ranks_per_node = mach.num_package()
+        # more ranks = more MPI time
+        #self._ranks_per_node = mach.num_core() - 2
+
+        # TODO: should have 1 OMP thread per core
 
     def get_rank_per_node(self):
         return self._ranks_per_node
 
     def setup(self, run_id):
-        ''' This problem should be tuned to use at least 25% of main memory.'''
+        # per-process size; should be tuned to use at least 25% of main memory.
+        # size for mcfly (93GB per node) with 2 ranks per node
+        size = "256 256 256"  # 24GB, 1000 sec with reference, 220 sec with MKL benchmark
         input_file = textwrap.dedent('''
         HPCG benchmark input file
-        Sandia National Laboratories; University of Tennessee, Knoxville
-        104 104 104
+        GEOPM integration
+        {problem}
         {runtime}
         EOF
-        '''.format(runtime=60))
+        '''.format(runtime=60, problem=size))
         return 'cat > ./hpcg.dat << EOF {}'.format(input_file)
 
     def get_exec_path(self):
-        return os.path.join(self._hpcg_dir, 'xhpcg')
+        return self._hpcg_exe
 
     def get_exec_args(self):
         return []
 
     def parse_fom(self, log_path):
-        # log path is ignored; look for output files in current directory
-        pattern = "HPCG-Benchmark_3.1*.txt"
-        matching_files = glob.glob(pattern)
-        if len(matching_files) > 1:
-            sys.stderr.write('<geopm> Warning: multiple output files matched for HPCG\n')
-        if len(matching_files) == 0:
-            raise RuntimeError('No HPCG files found with pattern "{}"'.format(pattern))
+        result = None
+        if self._mkl_version:
+            pattern = "GFLOP/s rating of"
+            with open(log_path) as fid:
+                for line in fid.readlines():
+                    if pattern in line:
+                        result = float(line.split()[-1])
+                        break
+        else:
+            # log path is ignored; look for output files in current directory
+            pattern = "HPCG-Benchmark_3.1*.txt"
+            matching_files = glob.glob(pattern)
+            if len(matching_files) > 1:
+                sys.stderr.write('<geopm> Warning: multiple output files matched for HPCG\n')
+            if len(matching_files) == 0:
+                raise RuntimeError('No HPCG files found with pattern "{}"'.format(pattern))
 
-        result = ''
-        # use last one in list if multiple matches
-        # TODO: this is a problem
-        with open(matching_files[-1]) as outfile:
-            for line in outfile:
-                if 'Final Summary::HPCG result is ' in line:
-                    result += line.split('=')[-1]
+            result = ''
+            # use last one in list if multiple matches
+            # TODO: this is a problem
+            with open(matching_files[-1]) as outfile:
+                for line in outfile:
+                    if 'Final Summary::HPCG result is ' in line:
+                        result += line.split('=')[-1]
         return result
