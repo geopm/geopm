@@ -129,3 +129,20 @@ def geopmread(read_str):
         except ValueError:
             result = yaml.safe_load(output).values()[0]
     return result
+
+
+def geopmread_domain():
+    test_exec = "dummy -- geopmread -d"
+    stdout = io.StringIO()
+    stderr = io.StringIO()
+    try:
+        allocation_node_test(test_exec, stdout, stderr)
+    except subprocess.CalledProcessError as err:
+        sys.stderr.write(stderr.getvalue())
+        raise err
+    output = stdout.getvalue()
+    result = {}
+    for line in output.strip().split('\n'):
+        domain, count = tuple(line.split())
+        result[domain] = int(count)
+    return result
