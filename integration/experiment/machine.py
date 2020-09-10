@@ -45,7 +45,12 @@ class Machine:
     def load(self):
         try:
             with open(self.path) as fid:
-                self.signals = json.load(fid)
+                data = json.load(fid)
+                if 'signals' in data and 'topo' in data:
+                    self.signals = data['signals']
+                    self.topo = data['topo']
+                else:
+                    self.signals = data
         except:
             raise RuntimeError("<geopm> Unable to open machine config {}.".format(self.path))
 
@@ -54,8 +59,12 @@ class Machine:
         if os.path.exists(self.path) and glob.glob(glob_pattern):
             raise RuntimeError('<geopm> Machine.save(): function called twice with same path, and reports exist in the same directory.  File exists: {}'.format(self.path))
         self._query()
+        data = {
+            'signals': self.signals,
+            'topo': self.topo,
+        }
         with open(self.path, 'w') as info_file:
-            json.dump(self.signals, info_file)
+            json.dump(data, info_file)
 
     def frequency_min(self):
         return self.signals['FREQUENCY_MIN']
@@ -78,6 +87,36 @@ class Machine:
     def power_package_max(self):
         return self.signals['POWER_PACKAGE_MAX']
 
+    def num_board(self):
+        return self.topo['board']
+
+    def num_package(self):
+        return self.topo['package']
+
+    def num_core(self):
+        return self.topo['core']
+
+    def num_cpu(self):
+        return self.topo['cpu']
+
+    def num_board_memory(self):
+        return self.topo['board_memory']
+
+    def num_package_memory(self):
+        return self.topo['package_memory']
+
+    def num_board_nic(self):
+        return self.topo['board_nic']
+
+    def num_package_nic(self):
+        return self.topo['package_nic']
+
+    def num_board_accelerator(self):
+        return self.topo['board_accelerator']
+
+    def num_package_accelerator(self):
+        return self.topo['package_accelerator']
+
     def _query(self):
         self.signals = {}
         signal_names = ['FREQUENCY_MIN',
@@ -89,6 +128,8 @@ class Machine:
                         'POWER_PACKAGE_MAX']
         for sn in signal_names:
             self.signals[sn] = util.geopmread('{} board 0'.format(sn))
+
+        self.topo = util.geopmread_domain()
 
 
 def init_output_dir(output_dir):
