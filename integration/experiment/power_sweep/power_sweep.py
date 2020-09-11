@@ -37,10 +37,20 @@ Helper functions for running power sweep experiments.
 
 import sys
 import math
+import argparse
 
 import geopmpy.io
 
 from experiment import launch_util
+from experiment import common_args
+from experiment import machine
+
+def setup_run_args(parser):
+    common_args.setup_run_args(parser)
+    common_args.add_min_power(parser)
+    common_args.add_max_power(parser)
+    common_args.add_step_power(parser)
+    common_args.add_agent_list(parser, 'power_governor,power_balancer')
 
 
 def setup_power_bounds(mach, min_power, max_power, step_power):
@@ -63,18 +73,16 @@ def setup_power_bounds(mach, min_power, max_power, step_power):
 
 
 def report_signals():
-    report_sig = ["CYCLES_THREAD@package", "CYCLES_REFERENCE@package",
-                  "TIME@package", "ENERGY_PACKAGE@package"]
-    return report_sig
+    return ["CYCLES_THREAD@package", "CYCLES_REFERENCE@package",
+            "TIME@package", "ENERGY_PACKAGE@package"]
 
 
 def trace_signals():
-    trace_sig = ["MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT@package",
-                 "EPOCH_RUNTIME@package",
-                 "EPOCH_RUNTIME_NETWORK@package",
-                 "EPOCH_RUNTIME_IGNORE@package",
-                 "TEMPERATURE_PACKAGE@package"]
-    return trace_sig
+    return ["MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT@package",
+            "EPOCH_RUNTIME@package",
+            "EPOCH_RUNTIME_NETWORK@package",
+            "EPOCH_RUNTIME_IGNORE@package",
+            "TEMPERATURE_PACKAGE@package"]
 
 
 def launch_configs(app_conf, agent_types, min_power, max_power, step_power):
@@ -99,20 +107,28 @@ def launch_configs(app_conf, agent_types, min_power, max_power, step_power):
     return targets
 
 
-def launch(output_dir, iterations,
-           min_power, max_power, step_power, agent_types,
-           num_node, app_conf, experiment_cli_args, cool_off_time=60):
+def launch(app_conf, args, experiment_cli_args):
 
-    targets = launch_configs(app_conf, agent_types, min_power, max_power, step_power)
-
-    report_sig = report_signals()
-    trace_sig = trace_signals()
+    agent_types = args.agent_list.split(',')
+    mach = machine.init_output_dir(args.output_dir)
+    min_power, max_power = setup_power_bounds(mach, args.min_power,
+                                              args.max_power, args.step_power)
+    targets = launch_configs(app_conf, agent_types, min_power, max_power, args.step_power)
     extra_cli_args = list(experiment_cli_args)
-    extra_cli_args += launch_util.geopm_signal_args(report_signals=report_sig,
-                                                    trace_signals=trace_sig)
+    extra_cli_args += launch_util.geopm_signal_args(report_signals=report_signals(),
+                                                    trace_signals=trace_signals())
     launch_util.launch_all_runs(targets=targets,
-                                num_nodes=num_node,
-                                iterations=iterations,
+                                num_nodes=args.node_count,
+                                iterations=args.trial_count,
                                 extra_cli_args=extra_cli_args,
-                                output_dir=output_dir,
-                                cool_off_time=cool_off_time)
+                                output_dir=args.output_dir,
+                                cool_off_time=args.cool_off_time)
+
+
+def main(app_conf, **defaults):
+    parser = argparse.ArgumentParser()
+    setup_run_args(parser)
+    parser.set_defaults(**defaults)
+    args, extra_cli_args = parser.parse_known_args()
+    launch(app_conf=app_conf, args=args,
+           experiment_cli_args=extra_cli_args)
