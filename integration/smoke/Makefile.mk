@@ -30,10 +30,7 @@
 #
 
 
-EXTRA_DIST += integration/README.md \
+EXTRA_DIST += integration/smoke/gen_smoke.sh \
+              integration/smoke/run_smoke.sh \
+              integration/smoke/geopm_env.sh \
               # end
-
-include integration/apps/Makefile.mk
-include integration/experiment/Makefile.mk
-include integration/test/Makefile.mk
-include integration/smoke/Makefile.mk

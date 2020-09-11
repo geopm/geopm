@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,11 +31,61 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+source geopm_env.sh
+EXP_DIR=$GEOPM_SRC/integration/experiment
 
-EXTRA_DIST += integration/README.md \
-              # end
+function run_all {
+    for APP in $APPLICATIONS; do
+        SCRIPT=${EXP_DIR}/${EXP_TYPE}/run_${EXP_TYPE}_${APP}.py
+        OUTDIR=${SLURM_JOB_ID}_${APP}_${EXP_TYPE}
+        if [ -f $SCRIPT ]; then
+            python3 ${SCRIPT} --output-dir=${OUTDIR} --node-count=${SLURM_NNODES} ${ARGS}
+        else
+            echo "Script missing: $SCRIPT"
+        fi
+    done
+}
 
-include integration/apps/Makefile.mk
-include integration/experiment/Makefile.mk
-include integration/test/Makefile.mk
-include integration/smoke/Makefile.mk
+function run_all_monitor {
+    APPLICATIONS="dgemm dgemm_tiny nekbone minife"
+    EXP_TYPE=monitor
+    ARGS=""
+    run_all
+}
+
+function run_all_power_sweep {
+    APPLICATIONS="dgemm dgemm_tiny nekbone minife"
+    EXP_TYPE=power_sweep
+    ARGS="--min-power=220 --max-power=230"
+    run_all
+}
+
+function run_all_freq_sweep {
+    APPLICATIONS="dgemm dgemm_tiny nekbone minife"
+    EXP_TYPE=frequency_sweep
+    ARGS="--min-frequency=1.9e9 --max-frequency=2.0e9"
+    run_all
+}
+
+if [ ! "$SLURM_JOB_ID" ] || [ ! "$SLURM_NNODES" ]; then
+    echo "Error: This script must be run within a SLURM allocation"
+    exit -1
+fi
+
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 monitor|power_sweep|freq_sweep"
+    exit -1
+fi
+
+name=$1
+
+if [ "$name" == "monitor" ]; then
+    run_all_monitor
+elif [ "$name" == "power_sweep" ]; then
+    run_all_power_sweep
+elif [ "$name" == "freq_sweep" ]; then
+    run_all_freq_sweep
+else
+    echo "Error: Unknown name: $name" 1>&2
+    exit -1
+fi
