@@ -35,46 +35,12 @@
 Example power sweep experiment using geopmbench.
 '''
 
-import argparse
 
-from experiment import common_args
 from experiment.power_sweep import power_sweep
-from experiment import machine
 from apps import geopmbench
 
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser()
-    common_args.add_output_dir(parser)
-    common_args.add_nodes(parser)
-    common_args.add_min_power(parser)
-    common_args.add_max_power(parser)
-    common_args.add_iterations(parser)
-
-    args, extra_cli_args = parser.parse_known_args()
-
-    output_dir = args.output_dir
-    num_nodes = args.nodes
-    mach = machine.init_output_dir(output_dir)
-
-    # application parameters
     app_conf = geopmbench.TinyAppConf()
-
-    # experiment parameters
-    min_power = args.min_power
-    max_power = args.max_power
-    step_power = 10
-    min_power, max_power = power_sweep.setup_power_bounds(mach, min_power, max_power, step_power)
-    iterations = args.iterations
-
-    power_sweep.launch(output_dir=output_dir,
-                       iterations=iterations,
-                       min_power=min_power,
-                       max_power=max_power,
-                       step_power=step_power,
-                       agent_types=['power_governor', 'power_balancer'],
-                       num_node=num_nodes,
-                       app_conf=app_conf,
-                       experiment_cli_args=extra_cli_args,
-                       cool_off_time=0)
+    power_sweep.main(app_conf, cool_off_time=0)
