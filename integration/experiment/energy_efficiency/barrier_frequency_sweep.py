@@ -31,10 +31,16 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+
+import argparse
+
 import geopmpy.io
+import geopmpy.hash
 from experiment import util
 from experiment import launch_util
+from experiment import machine
 from experiment.monitor import monitor
+from experiment.frequency_sweep import frequency_sweep
 
 
 def launch_configs(app_conf_ref, app_conf, default_freq, sweep_freqs, barrier_hash):
@@ -76,28 +82,44 @@ def launch_configs(app_conf_ref, app_conf, default_freq, sweep_freqs, barrier_ha
 
 
 def report_signals():
-    report_sig = set(monitor.report_signals())
-    report_sig = sorted(list(report_sig))
-    return report_sig
+    return monitor.report_signals()
 
 
 def trace_signals():
     return ["MSR::UNCORE_PERF_STATUS:FREQ@package"]
 
 
-def launch(output_dir, iterations,
-           default_freq, sweep_freqs, barrier_hash,
-           num_nodes, app_conf_ref, app_conf,
-           experiment_cli_args, cool_off_time=60):
+def launch(app_conf_init, args, experiment_cli_args):
+    mach = machine.init_output_dir(args.output_dir)
+    freq_range = frequency_sweep.setup_frequency_bounds(mach,
+                                                        args.min_frequency,
+                                                        args.max_frequency,
+                                                        args.step_frequency,
+                                                        add_turbo_step=True)
+    barrier_hash = geopmpy.hash.crc32_str('MPI_Barrier')
+    default_freq = max(freq_range)
+    targets = launch_configs(app_conf_ref=app_conf_init(add_barriers=False),
+                             app_conf=app_conf_init(add_barriers=True),
+                             default_freq=max(freq_range),
+                             sweep_freqs=freq_range,
+                             barrier_hash=geopmpy.hash.crc32_str('MPI_Barrier'))
 
     extra_cli_args = list(experiment_cli_args)
     extra_cli_args += launch_util.geopm_signal_args(report_signals=report_signals(),
                                                     trace_signals=trace_signals())
-    targets = launch_configs(app_conf_ref, app_conf, default_freq, sweep_freqs, barrier_hash)
-
     launch_util.launch_all_runs(targets=targets,
-                                num_nodes=num_nodes,
-                                iterations=iterations,
+                                num_nodes=args.node_count,
+                                iterations=args.trial_count,
                                 extra_cli_args=extra_cli_args,
-                                output_dir=output_dir,
-                                cool_off_time=cool_off_time)
+                                output_dir=args.output_dir,
+                                cool_off_time=args.cool_off_time)
+
+
+def main(app_conf_init, **defaults):
+    parser = argparse.ArgumentParser()
+    # Use frequency sweep's run args
+    frequency_sweep.setup_run_args(parser)
+    parser.set_defaults(**defaults)
+    args, extra_cli_args = parser.parse_known_args()
+    launch(app_conf_init=app_conf_init, args=args,
+           experiment_cli_args=extra_cli_args)
