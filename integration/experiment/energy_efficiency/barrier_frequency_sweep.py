@@ -89,7 +89,7 @@ def trace_signals():
     return ["MSR::UNCORE_PERF_STATUS:FREQ@package"]
 
 
-def launch(app_conf_init, args, experiment_cli_args):
+def launch(app_conf_ref, app_conf, args, experiment_cli_args):
     mach = machine.init_output_dir(args.output_dir)
     freq_range = frequency_sweep.setup_frequency_bounds(mach,
                                                         args.min_frequency,
@@ -98,8 +98,8 @@ def launch(app_conf_init, args, experiment_cli_args):
                                                         add_turbo_step=True)
     barrier_hash = geopmpy.hash.crc32_str('MPI_Barrier')
     default_freq = max(freq_range)
-    targets = launch_configs(app_conf_ref=app_conf_init(add_barriers=False),
-                             app_conf=app_conf_init(add_barriers=True),
+    targets = launch_configs(app_conf_ref=app_conf_ref,
+                             app_conf=app_conf,
                              default_freq=max(freq_range),
                              sweep_freqs=freq_range,
                              barrier_hash=geopmpy.hash.crc32_str('MPI_Barrier'))
@@ -115,11 +115,13 @@ def launch(app_conf_init, args, experiment_cli_args):
                                 cool_off_time=args.cool_off_time)
 
 
-def main(app_conf_init, **defaults):
+def main(app_conf_ref, app_conf, **defaults):
     parser = argparse.ArgumentParser()
     # Use frequency sweep's run args
     frequency_sweep.setup_run_args(parser)
     parser.set_defaults(**defaults)
     args, extra_cli_args = parser.parse_known_args()
-    launch(app_conf_init=app_conf_init, args=args,
+    launch(app_conf_ref=app_conf_ref,
+           app_conf=app_conf,
+           args=args,
            experiment_cli_args=extra_cli_args)
