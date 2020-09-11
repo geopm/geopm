@@ -36,10 +36,19 @@ Helper functions for running power sweep experiments.
 '''
 
 import sys
+import argparse
 
 import geopmpy.io
 
 from experiment import launch_util
+from experiment import common_args
+from experiment import machine
+
+def setup_run_args(parser):
+    common_args.setup_run_args(parser)
+    common_args.add_min_frequency(parser)
+    common_args.add_max_frequency(parser)
+    common_args.add_step_frequency(parser)
 
 
 def setup_frequency_bounds(mach, min_freq, max_freq, step_freq, add_turbo_step):
@@ -90,22 +99,33 @@ def launch_configs(app_conf, freq_range):
     return targets
 
 
-def launch(output_dir, iterations, freq_range,
-           agent_types, num_node, app_conf, experiment_cli_args,
-           cool_off_time=60):
+def launch(app_conf, args, experiment_cli_args):
     '''
     Run the application over a range of fixed processor frequencies.
     Currently only supports the frequency map agent
     '''
+    mach = machine.init_output_dir(args.output_dir)
+    freq_range = setup_frequency_bounds(mach,
+                                        args.min_frequency,
+                                        args.max_frequency,
+                                        args.step_frequency,
+                                        add_turbo_step=True)
     targets = launch_configs(app_conf, freq_range)
-    report_sig = report_signals()
-    trace_sig = trace_signals()
     extra_cli_args = list(experiment_cli_args)
-    extra_cli_args += launch_util.geopm_signal_args(report_signals=report_sig,
-                                                    trace_signals=trace_sig)
+    extra_cli_args += launch_util.geopm_signal_args(report_signals=report_signals(),
+                                                    trace_signals=trace_signals())
     launch_util.launch_all_runs(targets=targets,
-                                num_nodes=num_node,
-                                iterations=iterations,
+                                num_nodes=args.node_count,
+                                iterations=args.trial_count,
                                 extra_cli_args=extra_cli_args,
-                                output_dir=output_dir,
-                                cool_off_time=cool_off_time)
+                                output_dir=args.output_dir,
+                                cool_off_time=args.cool_off_time)
+
+
+def main(app_conf, **defaults):
+    parser = argparse.ArgumentParser()
+    setup_run_args(parser)
+    parser.set_defaults(**defaults)
+    args, extra_cli_args = parser.parse_known_args()
+    launch(app_conf=app_conf, args=args,
+           experiment_cli_args=extra_cli_args)
