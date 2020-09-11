@@ -35,43 +35,12 @@
 Example frequency sweep experiment using geopmbench.
 '''
 
-import argparse
 
-from experiment import common_args
 from experiment.frequency_sweep import frequency_sweep
-from experiment import machine
 from apps import geopmbench
+
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser()
-    common_args.add_output_dir(parser)
-    common_args.add_nodes(parser)
-    common_args.add_min_frequency(parser)
-    common_args.add_max_frequency(parser)
-    common_args.add_iterations(parser)
-
-    args, extra_cli_args = parser.parse_known_args()
-
-    output_dir = args.output_dir
-    num_nodes = args.nodes
-    mach = machine.init_output_dir(output_dir)
-
-    # application parameters
     app_conf = geopmbench.TinyAppConf()
-
-    # experiment parameters
-    min_freq = args.min_frequency
-    max_freq = args.max_frequency
-    step_freq = None
-    freqs = frequency_sweep.setup_frequency_bounds(mach, min_freq, max_freq, step_freq,
-                                                   add_turbo_step=True)
-    iterations = args.iterations
-    frequency_sweep.launch(output_dir=output_dir,
-                           iterations=iterations,
-                           freq_range=freqs,
-                           agent_types=['frequency_map'],
-                           num_node=num_nodes,
-                           app_conf=app_conf,
-                           experiment_cli_args=extra_cli_args,
-                           cool_off_time=0)
+    frequency_sweep.main(app_conf, cool_off_time=0)
