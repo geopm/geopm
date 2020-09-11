@@ -33,7 +33,13 @@
 Helper functions for running the monitor agent.
 '''
 
+import argparse
+
 from experiment import launch_util
+from experiment import common_args
+
+def setup_run_args(parser):
+    common_args.setup_run_args(parser)
 
 
 def report_signals():
@@ -41,18 +47,25 @@ def report_signals():
             "TIME@package", "ENERGY_PACKAGE@package"]
 
 
-def launch(output_dir, iterations,
-           num_node, app_conf, experiment_cli_args, cool_off_time=60):
-
+def launch(app_conf, args, experiment_cli_args):
     extra_cli_args = launch_util.geopm_signal_args(report_signals(), None)
     extra_cli_args += experiment_cli_args
 
     targets = [launch_util.LaunchConfig(app_conf=app_conf,
                                         agent_conf=None,
                                         name="")]
+
     launch_util.launch_all_runs(targets=targets,
-                                num_nodes=num_node,
-                                iterations=iterations,
+                                num_nodes=args.node_count,
+                                iterations=args.trial_count,
                                 extra_cli_args=extra_cli_args,
-                                output_dir=output_dir,
-                                cool_off_time=cool_off_time)
+                                output_dir=args.output_dir,
+                                cool_off_time=args.cool_off_time)
+
+def main(app_conf, **defaults):
+    parser = argparse.ArgumentParser()
+    setup_run_args(parser)
+    parser.set_defaults(**defaults)
+    args, extra_args = parser.parse_known_args()
+    launch(app_conf=app_conf, args=args,
+           experiment_cli_args=extra_args)

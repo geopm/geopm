@@ -35,32 +35,12 @@
 Run Nekbone with the monitor agent.
 '''
 
-import argparse
 
-from experiment import common_args
 from experiment.monitor import monitor
 from apps.nekbone import nekbone
 
+
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser()
-    common_args.add_output_dir(parser)
-    common_args.add_nodes(parser)
-    common_args.add_iterations(parser)
-
-    args, experiment_cli_args = parser.parse_known_args()
-
-    output_dir = args.output_dir
-    num_node = args.nodes
-
-    # application parameters
     app_conf = nekbone.NekboneAppConf()
-
-    # experiment parameters
-    iterations = args.iterations
-
-    monitor.launch(output_dir=output_dir,
-                   iterations=iterations,
-                   num_node=num_node,
-                   app_conf=app_conf,
-                   experiment_cli_args=experiment_cli_args)
+    monitor.main(app_conf)
