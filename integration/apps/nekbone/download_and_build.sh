@@ -30,6 +30,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+set -e
+
 # Clear out old versions:
 if [ -d "nekbone" ]; then
     echo "WARNING: Previous nekbone checkout detected at ./nekbone"
@@ -64,4 +66,3 @@ GEOPM_BARRIER=yes ./makenek-intel
 mv nekbone nekbone-barrier
 make clean
 ./makenek-intel
-
