@@ -42,5 +42,6 @@ from apps.nekbone import nekbone
 
 if __name__ == '__main__':
 
-    app_conf_init = nekbone.NekboneAppConf
-    barrier_frequency_sweep.main(app_conf_init)
+    app_conf_ref = nekbone.NekboneAppConf(add_barriers=False)
+    app_conf = nekbone.NekboneAppConf(add_barriers=True)
+    barrier_frequency_sweep.main(app_conf_ref, app_conf)

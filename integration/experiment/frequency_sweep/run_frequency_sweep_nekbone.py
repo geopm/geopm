@@ -37,7 +37,7 @@ Example frequency sweep experiment using Nekbone.
 
 
 from experiment.frequency_sweep import frequency_sweep
-from apps import nekbone
+from apps.nekbone import nekbone
 
 
 if __name__ == '__main__':

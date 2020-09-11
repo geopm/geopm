@@ -50,7 +50,8 @@ def setup_run_args(parser):
     common_args.add_min_power(parser)
     common_args.add_max_power(parser)
     common_args.add_step_power(parser)
-    common_args.add_agent_list(parser, 'power_governor,power_balancer')
+    common_args.add_agent_list(parser)
+    parser.set_defaults(agent_list='power_governor,power_balancer')
 
 
 def setup_power_bounds(mach, min_power, max_power, step_power):
@@ -108,7 +109,6 @@ def launch_configs(app_conf, agent_types, min_power, max_power, step_power):
 
 
 def launch(app_conf, args, experiment_cli_args):
-
     agent_types = args.agent_list.split(',')
     mach = machine.init_output_dir(args.output_dir)
     min_power, max_power = setup_power_bounds(mach, args.min_power,
