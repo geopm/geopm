@@ -29,11 +29,32 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+if [ ! "$GEOPM_PREFIX" ]; then
+    export GEOPM_PREFIX=$HOME/build/geopm
+fi
+if [ ! "$GEOPM_SRC" ]; then
+    export GEOPM_SRC=$HOME/Git/geopm
+fi
 
-EXTRA_DIST += integration/README.md \
-              # end
+PATH_EXT=$GEOPM_PREFIX/bin
+LD_LIBRARY_PATH_EXT=$GEOPM_PREFIX/lib
+PYTHONPATH_EXT=$GEOPM_PREFIX/lib/python3.6/site-packages:$GEOPM_SRC/integration
 
-include integration/apps/Makefile.mk
-include integration/experiment/Makefile.mk
-include integration/test/Makefile.mk
-include integration/smoke/Makefile.mk
+if [ ! "$PATH" ]; then
+    echo "Warning: No PATH set?" 1>&2
+    export PATH=$PATH_EXT
+else
+    export PATH=$PATH_EXT:$PATH
+fi
+
+if [ ! "$LD_LIBRARY_PATH" ]; then
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_EXT
+else
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_EXT:$LD_LIBRARY_PATH
+fi
+
+if [ ! "$PYTHONPATH" ]; then
+    export PYTHONPATH=$PYTHONPATH_EXT
+else
+    export PYTHONPATH=$PYTHONPATH_EXT:$PYTHONPATH
+fi
