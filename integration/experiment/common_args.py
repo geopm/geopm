@@ -34,61 +34,94 @@
 Common command line arguments for experiments.
 '''
 
+def setup_run_args(parser):
+    """Add common arguments for all run scripts:
+       --output-dir --node-count --trial-count --cool-off-time
+    """
+    add_output_dir(parser)
+    add_node_count(parser)
+    add_trial_count(parser)
+    add_cool_off_time(parser)
 
-def add_output_dir(parser):
-    parser.add_argument('-o', '--output-dir', dest='output_dir',
-                        action='store', default='.',
+
+def add_output_dir(parser, default='.'):
+    parser.add_argument('--output-dir', dest='output_dir',
+                        action='store', default=default,
                         help='location for reports and other output files')
 
 
-def add_nodes(parser):
-    parser.add_argument('--nodes', dest='nodes',
-                        default=1, type=int,
+def add_trial_count(parser, default=2):
+    parser.add_argument('--trial-count', dest='trial_count',
+                        action='store', type=int, default=default,
+                        help='number of experiment trials to launch')
+
+
+def add_node_count(parser, default=1):
+    parser.add_argument('--node-count', dest='node_count',
+                        default=default, type=int,
                         help='number of nodes to use for launch')
 
 
-def add_show_details(parser):
+def add_show_details(parser, default=False):
         parser.add_argument('--show-details', dest='show_details',
-                            action='store_true', default=False,
+                            action='store_true', default=default,
                             help='print additional data analysis details')
 
 
-def add_min_power(parser):
+def add_min_power(parser, default=None):
     parser.add_argument('--min-power', dest='min_power',
-                        action='store', type=float, default=None,
+                        action='store', type=float, default=default,
                         help='bottom power limit for the sweep')
 
 
-def add_max_power(parser):
+def add_max_power(parser, default=None):
     parser.add_argument('--max-power', dest='max_power',
-                        action='store', type=float, default=None,
+                        action='store', type=float, default=default,
                         help='top power limit for the sweep')
 
 
-def add_label(parser):
-    parser.add_argument('--label', action='store', default="APP",
+def add_step_power(parser, default=10):
+    parser.add_argument('--step-power', dest='step_power',
+                        action='store', type=float, default=default,
+                        help='increment between power steps for sweep')
+
+
+def add_label(parser, default="APP"):
+    parser.add_argument('--label', action='store', default=default,
                         help='name of the application to use for plot titles')
 
 
-def add_min_frequency(parser):
+def add_min_frequency(parser, default=None):
     parser.add_argument('--min-frequency', dest='min_frequency',
-                        action='store', type=float, default=None,
+                        action='store', type=float, default=default,
                         help='bottom frequency limit for the sweep')
 
 
-def add_max_frequency(parser):
+def add_max_frequency(parser, default=None):
     parser.add_argument('--max-frequency', dest='max_frequency',
-                        action='store', type=float, default=None,
+                        action='store', type=float, default=default,
                         help='top frequency limit for the sweep')
 
 
-def add_iterations(parser):
-    parser.add_argument('--iterations', dest='iterations',
-                        action='store', type=int, default=2,
-                        help='number of iterations to launch')
+def add_step_frequency(parser, default=None):
+    parser.add_argument('--step-frequency', dest='step_frequency',
+                        action='store', type=float, default=default,
+                        help='increment between frequency steps for sweep')
 
 
-def add_use_stdev(parser):
+def add_use_stdev(parser, default=False):
     parser.add_argument('--use-stdev', dest='use_stdev',
-                        action='store_true', default=False,
+                        action='store_true', default=default,
                         help='use standard deviation instead of min-max spread for error bars')
+
+
+def add_cool_off_time(parser, default=60):
+    parser.add_argument('--cool-off-time', dest='cool_off_time',
+                        action='store', type=float, default=default,
+                        help='wait time between workload execution for cool down')
+
+
+def add_agent_list(parser, default=None):
+    parser.add_argument('--agent-list', dest='agent_list',
+                        action='store', type=str, default=default,
+                        help='comma separated list of agents to be compared')
