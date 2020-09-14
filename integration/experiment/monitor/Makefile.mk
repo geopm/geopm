@@ -34,6 +34,8 @@ EXTRA_DIST += integration/experiment/monitor/gen_plot_achieved_power.py \
               integration/experiment/monitor/monitor.py \
               integration/experiment/monitor/run_monitor_dgemm.py \
               integration/experiment/monitor/run_monitor_dgemm_tiny.py \
+              integration/experiment/monitor/run_monitor_hpcg.py \
+              integration/experiment/monitor/run_monitor_hpcg_mkl.py \
               integration/experiment/monitor/run_monitor_minife.py \
               integration/experiment/monitor/run_monitor_nekbone.py \
               # end
