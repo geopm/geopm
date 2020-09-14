@@ -34,5 +34,6 @@ EXTRA_DIST += integration/apps/apps.py \
               integration/apps/__init__.py \
               # end
 
+include integration/apps/hpcg/Makefile.mk
 include integration/apps/minife/Makefile.mk
 include integration/apps/nekbone/Makefile.mk

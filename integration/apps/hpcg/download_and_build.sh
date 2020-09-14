@@ -30,6 +30,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+set -e
+
 HPCG_DIR=hpcg-3.1
 if [ -d "$HPCG_DIR" ]; then
     echo "WARNING: Previous HPCG checkout detected at ./$HPCG_DIR"
@@ -44,7 +46,9 @@ if [ -d "$HPCG_DIR" ]; then
 fi
 
 # Acquire the source:
-wget http://www.hpcg-benchmark.org/downloads/hpcg-3.1.tar.gz
+if [ ! -f hpcg-3.1.tar.gz ]; then
+    wget http://www.hpcg-benchmark.org/downloads/hpcg-3.1.tar.gz
+fi
 
 # Unpack the source:
 tar xvzf hpcg-3.1.tar.gz

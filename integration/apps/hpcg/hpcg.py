@@ -54,8 +54,6 @@ class HpcgAppConf(apps.AppConf):
             self._hpcg_exe = os.path.join(benchmark_dir, 'hpcg-3.1', 'build', 'bin', 'xhpcg')
 
         self._ranks_per_node = mach.num_package()
-        # more ranks = more MPI time
-        #self._ranks_per_node = mach.num_core() - 2
 
         # TODO: should have 1 OMP thread per core
 
