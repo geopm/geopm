@@ -1,8 +1,3 @@
-From 19555a7a1d1565115c375d27cf406e717baae9fd Mon Sep 17 00:00:00 2001
-From: Diana Guttman <diana.r.guttman@intel.com>
-Date: Thu, 27 Aug 2020 13:13:02 -0700
-Subject: [PATCH] Fix OpenMP compiler option for ICPC
-
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -34,23 +29,8 @@ Subject: [PATCH] Fix OpenMP compiler option for ICPC
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-Signed-off-by: Diana Guttman <diana.r.guttman@intel.com>
----
- setup/Make.MPIICPC_OMP | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/setup/Make.MPIICPC_OMP b/setup/Make.MPIICPC_OMP
-index 273cb19..cfcd1e3 100644
---- a/setup/Make.MPIICPC_OMP
-+++ b/setup/Make.MPIICPC_OMP
-@@ -118,7 +118,7 @@ HPCG_DEFS     = $(HPCG_OPTS) $(HPCG_INCLUDES) -DMPICH_IGNORE_CXX_SEEK
- # ----------------------------------------------------------------------
- #
- CXX          = mpiicpc
--CXXFLAGS     = $(HPCG_DEFS) -O3 -openmp
-+CXXFLAGS     = $(HPCG_DEFS) -O3 -qopenmp
- #
- LINKER       = $(CXX)
- LINKFLAGS    = $(CXXFLAGS)
---
-1.8.3.1
+EXTRA_DIST += integration/apps/hpcg/0001-Fix-OpenMP-compiler-option-for-ICPC.patch \
+              integration/apps/hpcg/download_and_build.sh \
+              integration/apps/hpcg/hpcg.py \
+              integration/apps/hpcg/__init__.py \
+              # end
