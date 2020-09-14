@@ -33,7 +33,9 @@
 set -e
 
 # Acquire the source:
-wget https://asc.llnl.gov/CORAL-benchmarks/Throughput/MiniFE_ref_2.0-rc3.tar.gz
+if [ ! -f MiniFE_ref_2.0-rc3.tar.gz ]; then
+    wget https://asc.llnl.gov/CORAL-benchmarks/Throughput/MiniFE_ref_2.0-rc3.tar.gz
+fi
 
 # Unpack the source:
 tar zxvf MiniFE_ref_2.0-rc3.tar.gz
