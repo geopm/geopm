@@ -62,22 +62,30 @@ class HpcgAppConf(apps.AppConf):
 
     def setup(self, run_id):
         # per-process size; should be tuned to use at least 25% of main memory.
-        # size for mcfly (93GB per node) with 2 ranks per node
+        # must be multiple of 8 and greater than 24
+        # size for mcfly (93GB per node) with 2 ranks per node:
         size = "256 256 256"  # 24GB, 1000 sec with reference, 220 sec with MKL benchmark
-        input_file = textwrap.dedent('''
-        HPCG benchmark input file
-        GEOPM integration
-        {problem}
-        {runtime}
-        EOF
-        '''.format(runtime=1800, problem=size))
-        return 'cat > ./hpcg.dat << EOF {}'.format(input_file)
+        runtime = "1800"
+        result = ''
+        if self._mkl_version:
+            self._exec_args = '-n{} -t{}'.format(size, runtime)
+        else:
+            self._exec_args = ''
+            input_file = textwrap.dedent('''
+            HPCG benchmark input file
+            GEOPM integration
+            {problem}
+            {runtime}
+            EOF
+            '''.format(runtime=runtime, problem=size))
+            result = 'cat > ./hpcg.dat << EOF {}'.format(input_file)
+        return result
 
     def get_exec_path(self):
         return self._hpcg_exe
 
     def get_exec_args(self):
-        return []
+        return self._exec_args
 
     def parse_fom(self, log_path):
         result = None
