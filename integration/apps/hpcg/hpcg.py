@@ -70,7 +70,7 @@ class HpcgAppConf(apps.AppConf):
         {problem}
         {runtime}
         EOF
-        '''.format(runtime=60, problem=size))
+        '''.format(runtime=1800, problem=size))
         return 'cat > ./hpcg.dat << EOF {}'.format(input_file)
 
     def get_exec_path(self):
