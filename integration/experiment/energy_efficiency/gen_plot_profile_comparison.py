@@ -159,7 +159,7 @@ def plot_bars(df, baseline_profile, xlabel, output_dir, use_stdev=False):
 
     f, ax = plt.subplots()
     # plot runtime
-    ax.bar(points - bar_width / 2, df['runtime_norm'], width=bar_width, color='blue',
+    ax.bar(points - bar_width / 2, df['runtime_norm'], width=bar_width, color='orange',
            label='runtime')
     yerr = (df['min_delta_runtime'], df['max_delta_runtime'])
     if use_stdev:
@@ -168,7 +168,7 @@ def plot_bars(df, baseline_profile, xlabel, output_dir, use_stdev=False):
                 yerr=yerr, **errorbar_format)
 
     # plot energy
-    ax.bar(points + bar_width / 2, df['energy_norm'], width=bar_width, color='cyan',
+    ax.bar(points + bar_width / 2, df['energy_norm'], width=bar_width, color='purple',
            label='energy')
     yerr = (df['min_delta_energy'], df['max_delta_energy'])
     if use_stdev:
@@ -177,7 +177,7 @@ def plot_bars(df, baseline_profile, xlabel, output_dir, use_stdev=False):
                 yerr=yerr, **errorbar_format)
 
     # baseline
-    ax.axhline(y=1.0, color='orange', linestyle='dotted', label='baseline')
+    ax.axhline(y=1.0, color='blue', linestyle='dotted', label='baseline')
 
     ax.set_xticks(points)
     ax.set_xticklabels(labels, rotation='vertical')
