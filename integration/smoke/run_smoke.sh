@@ -47,21 +47,21 @@ function run_all {
 }
 
 function run_all_monitor {
-    APPLICATIONS="dgemm dgemm_tiny nekbone minife"
+    APPLICATIONS="dgemm dgemm_tiny nekbone minife hpcg hpcg_mkl"
     EXP_TYPE=monitor
     ARGS=""
     run_all
 }
 
 function run_all_power_sweep {
-    APPLICATIONS="dgemm dgemm_tiny nekbone minife"
+    APPLICATIONS="dgemm dgemm_tiny nekbone minife hpcg hpcg_mkl"
     EXP_TYPE=power_sweep
     ARGS="--min-power=220 --max-power=230"
     run_all
 }
 
 function run_all_freq_sweep {
-    APPLICATIONS="dgemm dgemm_tiny nekbone minife"
+    APPLICATIONS="dgemm dgemm_tiny nekbone minife hpcg hpcg_mkl"
     EXP_TYPE=frequency_sweep
     ARGS="--min-frequency=1.9e9 --max-frequency=2.0e9"
     run_all
