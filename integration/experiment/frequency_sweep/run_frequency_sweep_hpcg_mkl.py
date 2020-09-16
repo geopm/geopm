@@ -32,7 +32,7 @@
 #
 
 '''
-Frequency sweep experiment using HPCG MKL version.
+Frequency sweep experiment using HPCG Intel(R) MKL version.
 '''
 
 import argparse
