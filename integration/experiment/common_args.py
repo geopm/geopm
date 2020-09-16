@@ -43,6 +43,7 @@ def setup_run_args(parser):
     add_trial_count(parser)
     add_cool_off_time(parser)
     add_enable_traces(parser)
+    add_enable_profile_traces(parser)
 
 
 def add_output_dir(parser):
@@ -140,3 +141,17 @@ def add_enable_traces(parser):
 def add_disable_traces(parser):
     add_enable_traces(parser)
     parser.set_defaults(enable_traces=True)
+
+
+def add_enable_profile_traces(parser):
+    parser.add_argument('--enable-profile-traces', dest='enable_profile_traces',
+                         action='store_const', const=True,
+                         default=False, help='Enable profile trace generation')
+    parser.add_argument('--disable-profile-traces', dest='enable_profile_traces',
+                        action='store_const', const=False,
+                        help='Disable profile trace generation')
+
+
+def add_disable_profile_traces(parser):
+    add_enable_profile_traces(parser)
+    parser.set_defaults(enable_profile_traces=True)

@@ -42,7 +42,7 @@ from . import machine
 
 
 def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
-               num_nodes, enable_traces):
+               num_nodes, enable_traces, enable_profile_traces):
     # launcher and app should create files in output_dir
     start_dir = os.getcwd()
     os.chdir(output_dir)
@@ -63,6 +63,7 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
     uid = '{}_{}_{}'.format(app_name.lower(), agent_name, run_id)
     report_path = '{}.report'.format(uid)
     trace_path = '{}.trace'.format(uid)
+    profile_trace_path = '{}.ptrace'.format(uid)
     profile_name = uid
     log_path = '{}.log'.format(uid)
     sys.stdout.write('Run commencing...\nLive job output will be written to: {}\n'
@@ -75,6 +76,8 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
     ]
     if enable_traces:
         extra_cli_args += ['--geopm-trace', trace_path]
+    if enable_profile_traces:
+        extra_cli_args += ['--geopm-trace-profile', profile_trace_path]
 
     argv.extend(extra_cli_args)
 
@@ -122,7 +125,7 @@ class LaunchConfig():
         return run_id
 
 
-def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir, cool_off_time=60, enable_traces=False):
+def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir, cool_off_time=60, enable_traces=False, enable_profile_traces=False):
     '''
     targets: a list of LaunchConfig
     iteration: integer number of iterations
@@ -137,7 +140,8 @@ def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir, 
 
             launch_run(agent_conf, app_conf, run_id, output_dir,
                        extra_cli_args=extra_cli_args,
-                       num_nodes=num_nodes, enable_traces=enable_traces)
+                       num_nodes=num_nodes, enable_traces=enable_traces,
+                       enable_profile_traces=enable_profile_traces)
 
             # rest to cool off between runs
             time.sleep(cool_off_time)
