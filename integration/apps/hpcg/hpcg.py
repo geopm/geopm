@@ -45,7 +45,7 @@ class HpcgAppConf(apps.AppConf):
     def __init__(self, mach, mkl_version=False):
         self._mkl_version = mkl_version
         if self._mkl_version:
-            # use MKL benchmark; requires MKL to be installed
+            # use Intel(R) MKL benchmark; requires Intel(R) MKL to be installed
             benchmark_dir = '/opt/ohpc/pub/compiler/intel/compilers_and_libraries_2019.4.243/linux/mkl/benchmarks/hpcg/bin'
             self._hpcg_exe = os.path.join(benchmark_dir, 'xhpcg_skx')
         else:

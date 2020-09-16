@@ -32,7 +32,7 @@
 #
 
 '''
-Run HPCG MKL version with the monitor agent.
+Run HPCG Intel(R) MKL version with the monitor agent.
 '''
 
 import argparse

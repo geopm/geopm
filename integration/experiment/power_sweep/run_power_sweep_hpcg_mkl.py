@@ -32,7 +32,7 @@
 #
 
 '''
-Power sweep experiment using HPCG MKL version.
+Power sweep experiment using HPCG Intel(R) MKL version.
 '''
 
 import argparse
