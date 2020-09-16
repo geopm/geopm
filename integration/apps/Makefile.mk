@@ -32,8 +32,10 @@
 EXTRA_DIST += integration/apps/apps.py \
               integration/apps/geopmbench.py \
               integration/apps/__init__.py \
+              integration/apps/README.md \
               # end
 
 include integration/apps/hpcg/Makefile.mk
 include integration/apps/minife/Makefile.mk
 include integration/apps/nekbone/Makefile.mk
+include integration/apps/nasft/Makefile.mk

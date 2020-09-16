@@ -39,5 +39,6 @@ EXTRA_DIST += integration/experiment/frequency_sweep/__init__.py \
               integration/experiment/frequency_sweep/run_frequency_sweep_hpcg.py \
               integration/experiment/frequency_sweep/run_frequency_sweep_hpcg_mkl.py \
               integration/experiment/frequency_sweep/run_frequency_sweep_minife.py \
+              integration/experiment/frequency_sweep/run_frequency_sweep_nasft.py \
               integration/experiment/frequency_sweep/run_frequency_sweep_nekbone.py \
               # end

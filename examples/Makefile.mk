@@ -104,5 +104,3 @@ endif
 endif
 endif
 endif
-
-include examples/fft/Makefile.mk

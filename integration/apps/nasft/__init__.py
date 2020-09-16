@@ -28,15 +28,3 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
-EXTRA_DIST += integration/experiment/monitor/gen_plot_achieved_power.py \
-              integration/experiment/monitor/__init__.py \
-              integration/experiment/monitor/monitor.py \
-              integration/experiment/monitor/run_monitor_dgemm.py \
-              integration/experiment/monitor/run_monitor_dgemm_tiny.py \
-              integration/experiment/monitor/run_monitor_hpcg.py \
-              integration/experiment/monitor/run_monitor_hpcg_mkl.py \
-              integration/experiment/monitor/run_monitor_minife.py \
-              integration/experiment/monitor/run_monitor_nasft.py \
-              integration/experiment/monitor/run_monitor_nekbone.py \
-              # end
