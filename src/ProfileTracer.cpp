@@ -51,32 +51,25 @@
 
 namespace geopm
 {
-    ProfileTracerImp::ProfileTracerImp()
-        : ProfileTracerImp(1024 * 1024,
+    ProfileTracerImp::ProfileTracerImp(const std::string &start_time)
+        : ProfileTracerImp(start_time,
+                           1024 * 1024,
                            environment().do_trace_profile(),
                            environment().trace_profile(),
-                           hostname(),
-                           time_zero())
+                           hostname())
     {
 
     }
 
-    ProfileTracerImp::ProfileTracerImp(size_t buffer_size,
+    ProfileTracerImp::ProfileTracerImp(const std::string &start_time,
+                                       size_t buffer_size,
                                        bool is_trace_enabled,
                                        const std::string &file_name,
-                                       const std::string &host_name,
-                                       const struct geopm_time_s &time_0)
+                                       const std::string &host_name)
         : m_is_trace_enabled(is_trace_enabled)
-        , m_time_zero(time_0)
     {
         if (m_is_trace_enabled) {
-            char time_cstr[NAME_MAX];
-            int err = geopm_time_to_string(&m_time_zero, NAME_MAX, time_cstr);
-            if (err) {
-                throw Exception("geopm_time_to_string() failed",
-                                err, __FILE__, __LINE__);
-            }
-            m_csv = geopm::make_unique<CSVImp>(file_name, host_name, time_cstr, buffer_size);
+            m_csv = geopm::make_unique<CSVImp>(file_name, host_name, start_time, buffer_size);
 
             m_csv->add_column("TIME", "double");
             m_csv->add_column("PROCESS", "integer");
@@ -140,8 +133,8 @@ namespace geopm
         }
     }
 
-    std::unique_ptr<ProfileTracer> ProfileTracer::make_unique(void)
+    std::unique_ptr<ProfileTracer> ProfileTracer::make_unique(const std::string &start_time)
     {
-        return geopm::make_unique<ProfileTracerImp>();
+        return geopm::make_unique<ProfileTracerImp>(start_time);
     }
 }

@@ -38,8 +38,6 @@
 #include <fstream>
 #include <memory>
 
-#include "geopm_time.h"
-
 struct geopm_prof_message_s;
 
 namespace geopm
@@ -50,8 +48,7 @@ namespace geopm
     class ProfileTracer
     {
         public:
-            static std::unique_ptr<ProfileTracer> make_unique(void);
-            ProfileTracer() = default;
+            static std::unique_ptr<ProfileTracer> make_unique(const std::string &start_time);
             virtual ~ProfileTracer() = default;
             virtual void update(const std::vector<record_s> &records) = 0;
     };

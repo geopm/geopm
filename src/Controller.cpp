@@ -192,7 +192,7 @@ namespace geopm
                                                                ppn1_comm->rank())),
                      nullptr,
                      std::unique_ptr<EndpointPolicyTracer>(nullptr),
-                     ProfileTracer::make_unique(),
+                     ProfileTracer::make_unique(get_start_time()),
                      std::vector<std::unique_ptr<Agent> >{},
                      Agent::policy_names(environment().agent()),
                      environment().policy(),

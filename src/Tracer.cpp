@@ -143,7 +143,7 @@ namespace geopm
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
 #endif
-            size_t num_sig = env_sig.size();
+           size_t num_sig = env_sig.size();
             for (size_t sig_idx = 0; sig_idx != num_sig; ++sig_idx) {
                 int num_dom = m_platform_topo.num_domain(env_dom.at(sig_idx));
                 for (int dom_idx = 0; dom_idx != num_dom; ++dom_idx) {

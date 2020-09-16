@@ -44,12 +44,12 @@ namespace geopm
     class ProfileTracerImp : public ProfileTracer
     {
         public:
-            ProfileTracerImp();
-            ProfileTracerImp(size_t buffer_size,
+            ProfileTracerImp(const std::string &start_time);
+            ProfileTracerImp(const std::string &start_time,
+                             size_t buffer_size,
                              bool is_trace_enabled,
                              const std::string &file_name,
-                             const std::string &host_name,
-                             const struct geopm_time_s &time_0);
+                             const std::string &host_name);
             virtual ~ProfileTracerImp();
             void update(const std::vector<record_s> &records);
             static std::string event_format(double value);
@@ -63,7 +63,6 @@ namespace geopm
             };
             bool m_is_trace_enabled;
             std::unique_ptr<CSV> m_csv;
-            struct geopm_time_s m_time_zero;
     };
 }
 
