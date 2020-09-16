@@ -49,7 +49,7 @@ class ProfileTracerTest : public ::testing::Test
 {
     protected:
         void SetUp(void);
-        struct geopm_time_s m_time_stamp;
+        std::string m_start_time = "Mon Sep 14 19:00:25 2020";
         std::string m_path = "test.profiletrace";
         std::string m_host_name = "myhost";
         std::vector<record_s> m_data;
@@ -77,7 +77,7 @@ TEST_F(ProfileTracerTest, construct_update_destruct)
 {
     {
         // Test that the constructor and update methods do not throw
-        std::unique_ptr<ProfileTracer> tracer = geopm::make_unique<ProfileTracerImp>(2, true, m_path, "", geopm::time_zero());
+        std::unique_ptr<ProfileTracer> tracer = geopm::make_unique<ProfileTracerImp>(m_start_time, 2, true, m_path, "");
         tracer->update(m_data);
     }
     // Test that a file was created by deleting it without error
@@ -88,7 +88,7 @@ TEST_F(ProfileTracerTest, construct_update_destruct)
 TEST_F(ProfileTracerTest, format)
 {
     {
-        std::unique_ptr<ProfileTracer> tracer = geopm::make_unique<ProfileTracerImp>(2, true, m_path, m_host_name, m_time_stamp);
+        std::unique_ptr<ProfileTracer> tracer = geopm::make_unique<ProfileTracerImp>(m_start_time, 2, true, m_path, m_host_name);
         tracer->update(m_data);
     }
     std::string output_path = m_path + "-" + m_host_name;
