@@ -65,30 +65,29 @@ namespace geopm
     }
 
     void EditDistPeriodicityDetector::Dset(int ii, int jj, int mm, uint32_t val) {
-        m_DP[((ii % m_history_buffer_size)  * m_history_buffer_size
-            + (jj % m_history_buffer_size)) * m_history_buffer_size
+        m_DP[ (ii % m_history_buffer_size) * m_history_buffer_size * m_history_buffer_size
+            + (jj % m_history_buffer_size) * m_history_buffer_size
             + (mm % m_history_buffer_size)] = val;
     }
 
     uint32_t EditDistPeriodicityDetector::Dget(int ii, int jj, int mm) {
+        // This value is supposed to be INF but not so large that it gets wrapped around when
+        // a small value is added to it.
+        uint32_t const_inf = std::numeric_limits<uint32_t>::max()/2;
         if (ii <= m_record_count - m_history_buffer_size) {
-            // This value is supposed to be INF but not so large that it gets wrapped around when
-            // a small value is added to it.
-            return std::numeric_limits<uint32_t>::max()/2;
+            return const_inf;
         }
-        if (jj >= m_history_buffer_size) {
-            // This value is supposed to be INF but not so large that it gets wrapped around when
-            // a small value is added to it.
-            return std::numeric_limits<uint32_t>::max()/2;
+        else if (jj >= m_history_buffer_size) {
+            return const_inf;
         }
-        if (mm <= m_record_count - m_history_buffer_size) {
-            // This value is supposed to be INF but not so large that it gets wrapped around when
-            // a small value is added to it.
-            return std::numeric_limits<uint32_t>::max()/2;
+        else if (mm <= m_record_count - m_history_buffer_size) {
+            return const_inf;
         }
-        return m_DP[((ii % m_history_buffer_size)  * m_history_buffer_size
-                   + (jj % m_history_buffer_size)) * m_history_buffer_size
-                   + (mm % m_history_buffer_size)];
+        else {
+            return m_DP[ (ii % m_history_buffer_size) * m_history_buffer_size * m_history_buffer_size
+                       + (jj % m_history_buffer_size) * m_history_buffer_size
+                       + (mm % m_history_buffer_size)];
+        }
      }
 
     void EditDistPeriodicityDetector::calc_period(void)
@@ -109,16 +108,22 @@ namespace geopm
         for (int mm = std::max({1, m_record_count - m_history_buffer_size}); mm < m_record_count; ++mm) {
             for (int ii = std::max({1, m_record_count - m_history_buffer_size}); ii < mm + 1; ++ii) {
                 int term = 2;
-                if ((m_record_count - (ii - 1) <= num_recs_in_hist) &&
-                    (m_history_buffer.value(num_recs_in_hist - (m_record_count - (ii - 1))) ==
-                     m_history_buffer.value(num_recs_in_hist - 1)))
-                {
+                // If the record to be compared to the latest addition is not new enough to reside in the
+                // history buffer, by default it is not a match. If it is in the history buffer, the penalty
+                // term is 0 if the are equal.
+                // FIXME: Check the indices below.
+                bool cond_newrec = m_record_count - (ii - 1) <= num_recs_in_hist;
+                uint64_t last_rec_in_history = m_history_buffer.value(num_recs_in_hist - 1);
+                uint64_t compared_rec = m_history_buffer.value(num_recs_in_hist - (m_record_count - (ii - 1)));
+                if ( cond_newrec && (compared_rec == last_rec_in_history)) {
                     term = 0;
                 }
-                Dset(ii, m_record_count - mm, mm,
-                        std::min({Dget(ii - 1, m_record_count - mm    , mm) + 1,
-                                  Dget(ii    , m_record_count - mm - 1, mm) + 1,
-                                  Dget(ii - 1, m_record_count - mm - 1, mm) + term}));
+                // The value that will go into the D matrix (i.e. penalty) is the minimum of the
+                // added penalties from all directions (add/subtract/replace).
+                uint32_t d_value = std::min({Dget(ii - 1, m_record_count - mm    , mm) + 1,
+                                             Dget(ii    , m_record_count - mm - 1, mm) + 1,
+                                             Dget(ii - 1, m_record_count - mm - 1, mm) + term})
+                Dset(ii, m_record_count - mm, mm, d_value);
             }
         }
 
