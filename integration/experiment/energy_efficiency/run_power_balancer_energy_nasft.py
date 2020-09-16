@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,14 +31,22 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/monitor/gen_plot_achieved_power.py \
-              integration/experiment/monitor/__init__.py \
-              integration/experiment/monitor/monitor.py \
-              integration/experiment/monitor/run_monitor_dgemm.py \
-              integration/experiment/monitor/run_monitor_dgemm_tiny.py \
-              integration/experiment/monitor/run_monitor_hpcg.py \
-              integration/experiment/monitor/run_monitor_hpcg_mkl.py \
-              integration/experiment/monitor/run_monitor_minife.py \
-              integration/experiment/monitor/run_monitor_nasft.py \
-              integration/experiment/monitor/run_monitor_nekbone.py \
-              # end
+import argparse
+
+from experiment import machine
+from experiment.energy_efficiency import power_balancer_energy
+from experiment.power_sweep import power_sweep
+from apps.nasft import nasft
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    power_sweep.setup_run_args(parser)
+    parser.set_defaults(agent_list='power_balancer')
+    args, extra_args = parser.parse_known_args()
+    mach = machine.init_output_dir(args.output_dir)
+    app_conf = nasft.NasftAppConf(mach)
+    power_balancer_energy.launch(app_conf=app_conf, args=args,
+                                 experiment_cli_args=extra_args)
+

@@ -28,8 +28,6 @@
 /dox-public/html/
 /dox-public/latex/
 .DS_Store
-/examples/fft/nas_ft
-/examples/fft/*.o
 /examples/geopm_ctl_single
 /examples/geopmhash
 /examples/geopm_platform_supported
@@ -62,6 +60,8 @@
 /gtest-all.o
 /install-sh
 /integration/apps/nekbone/nekbone/
+/integration/apps/nasft/nasft/nas_ft
+/integration/apps/nasft/nasft/*.o
 /integration/test/*.config
 /integration/test/geopm_test_integration
 /integration/test/geopm_test_integration.pyc

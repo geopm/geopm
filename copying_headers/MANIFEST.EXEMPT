@@ -25,13 +25,14 @@ examples/README.md
 examples/amg/README
 examples/comd/README
 examples/custom_msr/msr_reasons.json
-examples/fft/COPYING-NAS
-examples/fft/README
 examples/hacc/README
 examples/qbox/README
 geopm-ohpc.spec.in
 geopm-theta.spec.in
 integration/README.md
+integration/apps/README.md
+integration/apps/nasft/nasft/COPYING-NAS
+integration/apps/nasft/nasft/README
 integration/experiment/power_sweep/README.md
 integration/experiment/trace_analysis/README.md
 integration/test/README.md

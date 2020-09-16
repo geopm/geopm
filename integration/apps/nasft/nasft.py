@@ -29,14 +29,55 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/monitor/gen_plot_achieved_power.py \
-              integration/experiment/monitor/__init__.py \
-              integration/experiment/monitor/monitor.py \
-              integration/experiment/monitor/run_monitor_dgemm.py \
-              integration/experiment/monitor/run_monitor_dgemm_tiny.py \
-              integration/experiment/monitor/run_monitor_hpcg.py \
-              integration/experiment/monitor/run_monitor_hpcg_mkl.py \
-              integration/experiment/monitor/run_monitor_minife.py \
-              integration/experiment/monitor/run_monitor_nasft.py \
-              integration/experiment/monitor/run_monitor_nekbone.py \
-              # end
+
+'''
+Describes the best known configuration for the NAS FT benchamrk.
+
+'''
+
+import os
+
+from .. import apps
+
+class NasftAppConf(apps.AppConf):
+
+    @staticmethod
+    def name():
+        return 'nasft'
+
+    def __init__(self, mach):
+        benchmark_dir = os.path.dirname(os.path.abspath(__file__))
+        self._nasft_path = os.path.join(benchmark_dir, 'nasft/.libs')
+        self._num_rank_per_node = int((mach.num_core() / 2) - 2)
+
+    def get_rank_per_node(self):
+        return self._num_rank_per_node
+
+    def setup(self, run_id):
+        return ''
+
+    def cleanup(self):
+        return ''
+
+    def get_exec_path(self):
+        return os.path.join(self._nasft_path, 'nas_ft')
+
+    def get_exec_args(self):
+        return []
+
+    def get_custom_geopm_args(self):
+        return []
+
+    @staticmethod
+    def parse_fom(log_path):
+        result = None
+        key = 'Mop/s total'
+        with open(log_path) as fid:
+            for line in fid:
+                words = [ww.strip() for ww in line.split('=')]
+                if len(words) == 2 and words[0] == key:
+                    try:
+                        result = float(words[1])
+                    except ValueError:
+                        pass
+        return result
