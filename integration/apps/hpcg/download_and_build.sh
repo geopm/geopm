@@ -32,7 +32,15 @@
 
 set -e
 
-HPCG_DIR=hpcg-3.1
+TARGETS="mcfly quartz xeon"
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 <target system>.  Available targets: ${TARGETS}"
+    exit 1
+fi
+
+target_arch=$1
+
+HPCG_DIR=hpcg_mkl
 if [ -d "$HPCG_DIR" ]; then
     echo "WARNING: Previous HPCG checkout detected at ./$HPCG_DIR"
     read -p "OK to delete and rebuild? (y/n) " -n 1 -r
@@ -45,27 +53,44 @@ if [ -d "$HPCG_DIR" ]; then
     fi
 fi
 
-# Acquire the source:
-if [ ! -f hpcg-3.1.tar.gz ]; then
-    wget http://www.hpcg-benchmark.org/downloads/hpcg-3.1.tar.gz
+# Supported targets
+if [ "$target_arch" = "mcfly" ]; then
+    BUILD_PATCHES=""
+    TARGET=IMPI_IOMP_SKX
+    BIN=xhpcg_skx
+elif [ "$target_arch" = "quartz" ]; then
+    BUILD_PATCHES="../0001-Change-MPI-compiler-to-mpicxx.patch"
+    TARGET=IMPI_IOMP_AVX2
+    BIN=xhpcg_avx2
+elif [ "$target_arch" = "xeon" ]; then
+    BUILD_PATCHES=""
+    TARGET=IMPI_IOMP_AVX2
+    BIN=xhpcg_avx2
+else
+    echo "Unknown target.  Available targets: ${TARGETS}"
+    exit 1
 fi
 
-# Unpack the source:
-tar xvzf hpcg-3.1.tar.gz
+# Acquire the source:
+cp -r ${MKLROOT}/benchmarks/hpcg/ $HPCG_DIR
 
-# Change directories to the unpacked files.
 cd $HPCG_DIR
 
 # Set up git
+rm bin/xhpcg*
 git init
 git add -A
 git commit --no-edit -s -m "Initial commit"
 
 # Apply patches
-git am ../0001-Fix-OpenMP-compiler-option-for-ICPC.patch
+for patch in ${BUILD_PATCHES}; do
+    git am ${patch}
+done
 
 # Build
-mkdir build
-cd build
-../configure MPIICPC_OMP
+./configure ${TARGET}
 make
+
+# Use uniform binary name
+cd bin
+ln -fs ${BIN} xhpcg.x

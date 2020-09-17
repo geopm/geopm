@@ -32,7 +32,7 @@
 #
 
 '''
-Run HPCG reference version with the monitor agent.
+Run HPCG with the monitor agent.
 '''
 
 import argparse

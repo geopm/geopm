@@ -40,7 +40,6 @@ EXTRA_DIST += integration/experiment/power_sweep/gen_balancer_comparison.py \
               integration/experiment/power_sweep/run_power_sweep_dgemm.py \
               integration/experiment/power_sweep/run_power_sweep_dgemm_tiny.py \
               integration/experiment/power_sweep/run_power_sweep_hpcg.py \
-              integration/experiment/power_sweep/run_power_sweep_hpcg_mkl.py \
               integration/experiment/power_sweep/run_power_sweep_minife.py \
               integration/experiment/power_sweep/run_power_sweep_nekbone.py \
               # end
