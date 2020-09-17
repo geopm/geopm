@@ -1,7 +1,7 @@
-From 19555a7a1d1565115c375d27cf406e717baae9fd Mon Sep 17 00:00:00 2001
+From d2e4577baf8ed44ca989d8df35207f95016e9c60 Mon Sep 17 00:00:00 2001
 From: Diana Guttman <diana.r.guttman@intel.com>
-Date: Thu, 27 Aug 2020 13:13:02 -0700
-Subject: [PATCH] Fix OpenMP compiler option for ICPC
+Date: Tue, 22 Sep 2020 14:48:20 -0700
+Subject: [PATCH] Change MPI compiler to mpicxx
 
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
@@ -36,21 +36,21 @@ Subject: [PATCH] Fix OpenMP compiler option for ICPC
 
 Signed-off-by: Diana Guttman <diana.r.guttman@intel.com>
 ---
- setup/Make.MPIICPC_OMP | 2 +-
+ setup/Make.IMPI_IOMP_AVX2 | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/setup/Make.MPIICPC_OMP b/setup/Make.MPIICPC_OMP
-index 273cb19..cfcd1e3 100644
---- a/setup/Make.MPIICPC_OMP
-+++ b/setup/Make.MPIICPC_OMP
-@@ -118,7 +118,7 @@ HPCG_DEFS     = $(HPCG_OPTS) $(HPCG_INCLUDES) -DMPICH_IGNORE_CXX_SEEK
+diff --git a/setup/Make.IMPI_IOMP_AVX2 b/setup/Make.IMPI_IOMP_AVX2
+index e7e42ca..9d791e6 100644
+--- a/setup/Make.IMPI_IOMP_AVX2
++++ b/setup/Make.IMPI_IOMP_AVX2
+@@ -134,7 +134,7 @@ HPCG_DEFS     = -DMPICH_IGNORE_CXX_SEEK $(HPCG_OPTS) $(HPCG_INCLUDES)
+ # - Compilers / linkers - Optimization flags ---------------------------
  # ----------------------------------------------------------------------
  #
- CXX          = mpiicpc
--CXXFLAGS     = $(HPCG_DEFS) -O3 -openmp
-+CXXFLAGS     = $(HPCG_DEFS) -O3 -qopenmp
- #
- LINKER       = $(CXX)
- LINKFLAGS    = $(CXXFLAGS)
+-CXX          = mpiicpc
++CXX          = mpicxx
+ CXXFLAGS     = -xCORE-AVX2 -qopenmp -std=c++11 $(HPCG_DEFS)
+ ifeq (yes, $(DBG))
+   CXXFLAGS  += -O0 -g -DHPCG_DEBUG
 --
 1.8.3.1

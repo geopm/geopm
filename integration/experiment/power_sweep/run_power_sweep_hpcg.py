@@ -32,7 +32,7 @@
 #
 
 '''
-Power sweep experiment using HPCG reference version.
+Power sweep experiment using HPCG.
 '''
 
 import argparse
