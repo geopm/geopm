@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,14 +31,23 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/energy_efficiency/barrier_frequency_sweep.py \
-              integration/experiment/energy_efficiency/gen_plot_profile_comparison.py \
-              integration/experiment/energy_efficiency/__init__.py \
-              integration/experiment/energy_efficiency/power_balancer_energy.py \
-              integration/experiment/energy_efficiency/run_barrier_frequency_sweep_nekbone.py \
-              integration/experiment/energy_efficiency/run_power_balancer_energy_dgemm.py \
-              integration/experiment/energy_efficiency/run_power_balancer_energy_hpcg.py \
-              integration/experiment/energy_efficiency/run_power_balancer_energy_nasft.py \
-              integration/experiment/energy_efficiency/run_power_balancer_energy_minife.py \
-              integration/experiment/energy_efficiency/run_power_balancer_energy_nekbone.py \
-              # end
+'''
+Energy savings from power capping experiment using miniFE.
+'''
+
+import argparse
+
+from experiment.power_sweep import power_sweep
+from experiment.energy_efficiency import power_balancer_energy
+from apps.minife import minife
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    power_sweep.setup_run_args(parser)
+    parser.set_defaults(agent_list='power_balancer')
+    args, extra_cli_args = parser.parse_known_args()
+    app_conf = minife.MinifeAppConf(args.node_count)
+    power_balancer_energy.launch(app_conf=app_conf, args=args,
+                                 experiment_cli_args=extra_cli_args)
