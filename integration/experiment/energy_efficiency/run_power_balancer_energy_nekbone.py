@@ -33,7 +33,7 @@
 
 
 from experiment.energy_efficiency import power_balancer_energy
-from apps import nekbone
+from apps.nekbone import nekbone
 
 
 if __name__ == '__main__':
