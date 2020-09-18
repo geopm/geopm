@@ -88,34 +88,34 @@ class Machine:
         return self.signals['POWER_PACKAGE_MAX']
 
     def num_board(self):
-        return self.topo['board']
+        return int(self.topo['board'])
 
     def num_package(self):
-        return self.topo['package']
+        return int(self.topo['package'])
 
     def num_core(self):
-        return self.topo['core']
+        return int(self.topo['core'])
 
     def num_cpu(self):
-        return self.topo['cpu']
+        return int(self.topo['cpu'])
 
     def num_board_memory(self):
-        return self.topo['board_memory']
+        return int(self.topo['board_memory'])
 
     def num_package_memory(self):
-        return self.topo['package_memory']
+        return int(self.topo['package_memory'])
 
     def num_board_nic(self):
-        return self.topo['board_nic']
+        return int(self.topo['board_nic'])
 
     def num_package_nic(self):
-        return self.topo['package_nic']
+        return int(self.topo['package_nic'])
 
     def num_board_accelerator(self):
-        return self.topo['board_accelerator']
+        return int(self.topo['board_accelerator'])
 
     def num_package_accelerator(self):
-        return self.topo['package_accelerator']
+        return int(self.topo['package_accelerator'])
 
     def _query(self):
         self.signals = {}
