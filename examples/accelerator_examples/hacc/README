@@ -1,0 +1,25 @@
+The publicly available source code can be acquired from the CORAL-2 benchmarks site here:
+    https://asc.llnl.gov/coral-2-benchmarks/supplementary-material.php
+
+If using newer versions of the cuda toolkit (10+), some updates may be required.  Most notably:
+    - Change env setup to match local toolkit version
+    - src/halo_finder/cudaUtil.h
+        ○ Change shfl_down primitives to shfl_down_sync
+            § From: __shfl_down(val,*,warpSize);
+            § To: __shfl_down_sync(0xFFFFFFFF, val,*,warpSize);
+
+If issues are encountered with the defined VMAX ALIGNY size when running on multiple accelerators
+it may need to be increased.
+
+If running using MPIRun src/halo_finder/cudaUtil.h will require updates to handle MPI_LOCALRANK.  Specifically
+update the cudaDeviceSelector function with:
+
+    + else if((str = getenv("MPI_LOCALRANKID")) != NULL) {
+    +     local_rank = atoi(str);
+    + }
+      //get the number of devices to use
+      if((str = getenv("HACC_NUM_CUDA_DEV")) != NULL) {
+          numDev=atoi(str);
+      }
+
+Either Intel® Math Kernel Library (MKL) or FFTW3 may be used.

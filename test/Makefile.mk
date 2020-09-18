@@ -488,6 +488,9 @@ if ENABLE_NVML
                    test/gtest_links/NVMLAcceleratorTopoTest.uneven_affinitization_config \
                    test/gtest_links/NVMLAcceleratorTopoTest.high_cpu_count_config \
                    test/gtest_links/NVMLAcceleratorTopoTest.high_cpu_count_gaps_config \
+                   test/gtest_links/NVMLBoardUtilizationAgentTest.plugin_name \
+                   test/gtest_links/NVMLBoardUtilizationAgentTest.policy_names \
+                   test/gtest_links/NVMLBoardUtilizationAgentTest.sample_names \
                    test/gtest_links/NVMLIOGroupTest.read_signal \
                    test/gtest_links/NVMLIOGroupTest.read_signal_and_batch \
                    test/gtest_links/NVMLIOGroupTest.write_control \
@@ -637,6 +640,7 @@ beta_test_sources = test/DaemonTest.cpp \
                     # end
 
 nvml_test_sources = test/NVMLAcceleratorTopoTest.cpp \
+                    test/NVMLBoardUtilizationAgentTest.cpp \
                     test/MockNVMLDevicePool.hpp \
                     test/NVMLIOGroupTest.cpp \
                     # end

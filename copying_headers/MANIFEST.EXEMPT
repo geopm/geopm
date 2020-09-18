@@ -29,6 +29,14 @@ examples/fft/COPYING-NAS
 examples/fft/README
 examples/hacc/README
 examples/qbox/README
+examples/accelerator_examples/policy_default-doublethresh.json
+examples/accelerator_examples/policy_default-singlethresh.json
+examples/accelerator_examples/hacc/README
+examples/accelerator_examples/hacc/policy_hacc-doublethresh.json
+examples/accelerator_examples/hacc/policy_hacc-singlethresh.json
+examples/accelerator_examples/lammps/README
+examples/accelerator_examples/lammps/policy_lammps-doublethresh.json
+examples/accelerator_examples/lammps/policy_lammps-singlethresh.json
 geopm-ohpc.spec.in
 geopm-theta.spec.in
 integration/README.md

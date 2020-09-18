@@ -1,0 +1,5 @@
+The publicly available source code can be acquired from Sandia National Labs here:
+    https://lammps.sandia.gov/download.html
+
+GPU specific enabling instructions are available here:
+    https://lammps.sandia.gov/doc/Speed_gpu.html
