@@ -39,12 +39,17 @@ fi
 
 # Unpack the source:
 tar zxvf MiniFE_ref_2.0-rc3.tar.gz
+base_dir=${PWD}
 
 # Change directories to the unpacked files.
 cd miniFE_openmp-2.0-rc3
 
 # Patch MiniFE with the patch utility:
-patch -p1 < ../0001-Adding-geopm-markup-to-CORAL-version-of-miniFE.patch
+git init
+git add -A
+git commit -sm "Initial commit"
+
+git am ${base_dir}/*.patch
 
 # Build
 cd src
