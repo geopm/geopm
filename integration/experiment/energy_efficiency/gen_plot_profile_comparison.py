@@ -42,92 +42,33 @@ import argparse
 import sys
 import os
 import numpy
-import pandas
 import matplotlib.pyplot as plt
 
 import geopmpy.io
 import geopmpy.hash
 from experiment import common_args
+from experiment import report
 
 
-def extract_prefix(name):
-    ''' Remove the iteration number after the last underscore. '''
-    return '_'.join(name.split('_')[:-1])
+# TODO: rename variables/column headers to be consistent
+def summary(df, perf_metric, use_stdev, baseline, targets, show_details):
 
+    report.prepare_columns(df, perf_metric)
 
-def summary(df, baseline, targets, show_details):
-    # remove iteration from end of profile name
-    df['Profile'] = df['Profile'].apply(extract_prefix)
-
-    # rename some columns
-    df['energy'] = df['package-energy (joules)']
-    df['runtime'] = df['runtime (sec)']
-
-    # choose columns of interest
-    df = df[['Profile', 'Agent', 'energy', 'runtime']]
-
-    # check that baseline is present
-    profiles = df['Profile'].unique()
-    if baseline not in profiles:
-        raise RuntimeError('Baseline profile prefix "{}" not present in data.'.format(baseline))
-    base_data = df.loc[df['Profile'] == baseline]
-
-    base_runtime = base_data['runtime'].mean()
-    base_energy = base_data['energy'].mean()
+    result = report.energy_perf_summary(df=df,
+                                        loop_key='Profile',
+                                        loop_vals=targets,
+                                        baseline=baseline,
+                                        perf_metric=perf_metric,
+                                        use_stdev=use_stdev)
 
     # reset output stats
     # TODO: make this less of a mess
     output_prefix = os.path.join(output_dir, '{}'.format(common_prefix))
     output_stats_name = '{}_stats.log'.format(output_prefix)
     with open(output_stats_name, 'w') as outfile:
+        # re-create file to be appended to
         pass
-
-    if show_details:
-        sys.stdout.write('Baseline data:\n{}\n\n'.format(base_data[['runtime', 'energy']].describe()))
-    with open(output_stats_name, 'a') as outfile:
-        outfile.write('Baseline data:\n{}\n\n'.format(base_data[['runtime', 'energy']].describe()))
-
-    data = []
-    xnames = []
-    for target_name in targets:
-        # check that target is present
-        if target_name not in profiles:
-            raise RuntimeError('Target profile prefix "{}" not present in data.'.format(target_name))
-        target_data = df.loc[df['Profile'] == target_name]
-
-        target_runtime = target_data['runtime'].mean()
-        target_energy = target_data['energy'].mean()
-        if show_details:
-            sys.stdout.write('{} data:\n{}\n\n'.format(target_name, target_data[['runtime', 'energy']].describe()))
-        with open(output_stats_name, 'a') as outfile:
-            outfile.write('{} data:\n{}\n\n'.format(target_name, target_data[['runtime', 'energy']].describe()))
-
-        norm_runtime = target_runtime / base_runtime
-        norm_energy = target_energy / base_energy
-        # for error bars, normalize to same baseline mean
-        min_runtime = target_data['runtime'].min() / base_runtime
-        max_runtime = target_data['runtime'].max() / base_runtime
-        min_energy = target_data['energy'].min() / base_energy
-        max_energy = target_data['energy'].max() / base_energy
-        std_runtime = target_data['runtime'].std() / base_runtime
-        std_energy = target_data['energy'].std() / base_energy
-        min_delta_runtime = norm_runtime - min_runtime
-        max_delta_runtime = max_runtime - norm_runtime
-        min_delta_energy = norm_energy - min_energy
-        max_delta_energy = max_energy - norm_energy
-        data.append([target_runtime, target_energy,
-                     norm_runtime, norm_energy,
-                     std_runtime, std_energy,
-                     min_delta_runtime, max_delta_runtime,
-                     min_delta_energy, max_delta_energy])
-        xnames.append(target_name)
-
-    result = pandas.DataFrame(data, index=xnames,
-                              columns=['runtime', 'energy',
-                                       'runtime_norm', 'energy_norm',
-                                       'runtime_std', 'energy_std',
-                                       'min_delta_runtime', 'max_delta_runtime',
-                                       'min_delta_energy', 'max_delta_energy'])
 
     if show_details:
         sys.stdout.write('{}\n'.format(result))
@@ -137,16 +78,11 @@ def summary(df, baseline, targets, show_details):
     return result
 
 
-def plot_bars(df, baseline_profile, xlabel, output_dir, use_stdev=False):
+def plot_bars(df, baseline_profile, title, perf_label, xlabel, output_dir, show_details):
 
     labels = df.index.format()
-    title = os.path.commonprefix(labels)
-    labels = list(map(lambda x: x[len(title):], labels))
-    title = title.rstrip('_')
-    if use_stdev:
-        title += ' (stdev)'
-    else:
-        title += ' (min-max)'
+    prefix = os.path.commonprefix(labels)
+    labels = list(map(lambda x: x[len(prefix):], labels))
     points = numpy.arange(len(df.index))
     bar_width = 0.35
 
@@ -158,22 +94,19 @@ def plot_bars(df, baseline_profile, xlabel, output_dir, use_stdev=False):
                        'zorder': 10}
 
     f, ax = plt.subplots()
-    # plot runtime
-    ax.bar(points - bar_width / 2, df['runtime_norm'], width=bar_width, color='orange',
-           label='runtime')
-    yerr = (df['min_delta_runtime'], df['max_delta_runtime'])
-    if use_stdev:
-        yerr = (df['runtime_std'], df['runtime_std'])
-    ax.errorbar(points - bar_width / 2, df['runtime_norm'], xerr=None,
+    # plot performance
+    perf = df['performance']
+    yerr = (df['min_delta_perf'], df['max_delta_perf'])
+    ax.bar(points - bar_width / 2, perf, width=bar_width, color='orange',
+           label=perf_label)
+    ax.errorbar(points - bar_width / 2, perf, xerr=None,
                 yerr=yerr, **errorbar_format)
 
     # plot energy
-    ax.bar(points + bar_width / 2, df['energy_norm'], width=bar_width, color='purple',
-           label='energy')
+    ax.bar(points + bar_width / 2, df['energy'], width=bar_width, color='purple',
+           label='Energy')
     yerr = (df['min_delta_energy'], df['max_delta_energy'])
-    if use_stdev:
-        yerr = (df['energy_std'], df['energy_std'])
-    ax.errorbar(points + bar_width / 2, df['energy_norm'], xerr=None,
+    ax.errorbar(points + bar_width / 2, df['energy'], xerr=None,
                 yerr=yerr, **errorbar_format)
 
     # baseline
@@ -183,13 +116,18 @@ def plot_bars(df, baseline_profile, xlabel, output_dir, use_stdev=False):
     ax.set_xticklabels(labels, rotation='vertical')
     ax.set_xlabel(xlabel)
     f.subplots_adjust(bottom=0.25)  # TODO: use longest profile name
-    ax.set_ylabel('Normalized runtime (s) or energy (J)')
+    ax.set_ylabel('Normalized performance or energy')
     plt.title('{}\nBaseline: {}'.format(title, baseline_profile))
     plt.legend()
     fig_dir = os.path.join(output_dir, 'figures')
     if not os.path.exists(fig_dir):
         os.mkdir(fig_dir)
-    fig_name = '{}_bar'.format(title.lower().replace(' ', '_').replace(')', '').replace('(', ''))
+    # TODO: title to filename helper
+    fig_name = '{}_bar'.format(title.lower()
+                               .replace(' ', '_')
+                               .replace(')', '')
+                               .replace('(', '')
+                               .replace(',', ''))
     fig_name = os.path.join(fig_dir, '{}.png'.format(fig_name))
     plt.savefig(fig_name)
     if show_details:
@@ -198,7 +136,8 @@ def plot_bars(df, baseline_profile, xlabel, output_dir, use_stdev=False):
 
 def get_profile_list(rrc):
     result = rrc.get_app_df()['Profile'].unique()
-    result = sorted(list(set(map(extract_prefix, result))))
+    profs, _ = zip(*map(report.extract_trial, result))
+    result = sorted(list(set(profs)))
     return result
 
 
@@ -208,6 +147,7 @@ if __name__ == '__main__':
     common_args.add_output_dir(parser)
     common_args.add_show_details(parser)
     common_args.add_use_stdev(parser)
+    common_args.add_performance_metric(parser)
 
     parser.add_argument('--baseline', dest='baseline',
                         action='store', default=None,
@@ -258,7 +198,23 @@ if __name__ == '__main__':
         targets.remove(baseline)
 
     common_prefix = os.path.commonprefix(targets).rstrip('_')
-    show_details = args.show_details
 
-    result = summary(rrc.get_app_df(), baseline, targets, show_details)
-    plot_bars(result, baseline, args.xlabel, output_dir, args.use_stdev)
+    result = summary(df=rrc.get_app_df(),
+                     perf_metric=args.performance_metric,
+                     use_stdev=args.use_stdev,
+                     baseline=baseline,
+                     targets=targets,
+                     show_details=args.show_details)
+
+    title = os.path.commonprefix(targets)
+    title = title.rstrip('_')
+    title = title + ' (' + args.performance_metric
+    if args.use_stdev:
+        title += ', stdev)'
+    else:
+        title += ', min-max)'
+    perf_label = report.perf_metric_label(args.performance_metric)
+
+    plot_bars(result, baseline, title, perf_label,
+              xlabel=args.xlabel,
+              output_dir=output_dir, show_details=args.show_details)

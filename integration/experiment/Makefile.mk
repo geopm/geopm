@@ -35,6 +35,7 @@ EXTRA_DIST += integration/experiment/common_args.py \
               integration/experiment/launch_util.py \
               integration/experiment/machine.py \
               integration/experiment/README.md \
+              integration/experiment/report.py \
               integration/experiment/util.py \
               # end
 

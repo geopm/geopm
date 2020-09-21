@@ -144,7 +144,8 @@ def achieved_freq_histogram_package(app_name, output_dir, report_df, detailed=Fa
     # convert percent to GHz frequency based on sticker
     report_df['frequency'] *= sticker_freq / 1e9
 
-    profiles = report_df['POWER_PACKAGE_LIMIT_TOTAL'].unique()
+    # dropna to filter out monitor data if present
+    profiles = report_df['POWER_PACKAGE_LIMIT_TOTAL'].dropna().unique()
     power_caps = sorted(profiles)  # list(range(self._min_power, self._max_power+1, self._step_power))
     gov_freq_data = {}
     bal_freq_data = {}
@@ -171,7 +172,6 @@ def achieved_freq_histogram_package(app_name, output_dir, report_df, detailed=Fa
     for target_power in power_caps:
         gov_data = gov_freq_data[target_power]
         bal_data = bal_freq_data[target_power]
-
         name = app_name + "@" + str(target_power) + "W Governor"
         generate_histogram(gov_data, name, min_drop, max_drop, 'frequency',
                            bin_size, 3, output_dir)
