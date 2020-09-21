@@ -568,6 +568,27 @@ class TestIO(unittest.TestCase):
         rrc = geopmpy.io.RawReportCollection(self._report_path, do_cache=False)
         self.assertFalse('FOM' in rrc.get_app_df().columns)
 
+    def test_h5_name(self):
+        # check that a set of reports produces the same hdf5 cache name
+        # from any output dir relative path
+
+        cwd = os.path.dirname(os.path.abspath(__file__))
+        basenames = ['file_a', 'file_b', 'file_c']
+        for name in basenames:
+            with open(name, 'w'):
+                # touch file
+                pass
+        rel_set = [os.path.join('.', ff) for ff in basenames]
+        abs_set = [os.path.join(cwd, ff) for ff in basenames]
+
+        outdir = cwd
+        rel_h5 = geopmpy.io.RawReportCollection.make_h5_name(rel_set, outdir)
+        abs_h5 = geopmpy.io.RawReportCollection.make_h5_name(rel_set, outdir)
+        self.assertEqual(rel_h5, abs_h5)
+
+        for ff in basenames:
+            os.unlink(ff)
+
 
 if __name__ == '__main__':
     unittest.main()
