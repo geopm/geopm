@@ -1454,6 +1454,16 @@ class RawReportCollection(object):
         self._epoch_reports_df = pandas.DataFrame()
         self.load_reports(report_paths, dir_name, verbose, do_cache)
 
+    @staticmethod
+    def make_h5_name(paths, outdir):
+        paths_str = str([os.path.abspath(rr) for rr in paths])
+        try:
+            h5_id = hashlib.shake_256(paths_str.encode()).hexdigest(14)
+        except AttributeError:
+            h5_id = hash(paths_str)
+        report_h5_name = os.path.join(outdir, 'cache_{}.h5'.format(h5_id))
+        return report_h5_name
+
     def load_reports(self, reports, dir_name, verbose, do_cache):
         '''
         TODO: copied from AppOutput.  refactor to shared function.
@@ -1474,13 +1484,7 @@ class RawReportCollection(object):
             raise RuntimeError('<geopm> geopmpy.io: No report files found with pattern {}.'.format(report_glob))
 
         if do_cache:
-            paths_str = str(report_paths)
-            try:
-                h5_id = hashlib.shake_256(paths_str.encode()).hexdigest(14)
-            except AttributeError:
-                h5_id = hash(paths_str)
-            report_h5_name = os.path.join(dir_name, 'report_{}.h5'.format(h5_id))
-
+            report_h5_name = RawReportCollection.make_h5_name(report_paths, dir_name)
             # check if cache is older than reports
             if os.path.exists(report_h5_name):
                 cache_mod_time = os.path.getmtime(report_h5_name)
