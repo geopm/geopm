@@ -111,8 +111,8 @@ namespace geopm
                 // If the record to be compared to the latest addition is not new enough to reside in the
                 // history buffer, by default it is not a match. If it is in the history buffer, the penalty
                 // term is 0 if the are equal.
-                // FIXME: Check the indices below.
-                bool cond_newrec = m_record_count - (ii - 1) <= num_recs_in_hist;
+                int entry_age = (m_record_count - 1) - ii;
+                bool cond_newrec = entry_age < num_recs_in_hist;
                 uint64_t last_rec_in_history = m_history_buffer.value(num_recs_in_hist - 1);
                 uint64_t compared_rec = m_history_buffer.value(num_recs_in_hist - (m_record_count - (ii - 1)));
                 if ( cond_newrec && (compared_rec == last_rec_in_history)) {
