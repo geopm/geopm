@@ -66,7 +66,7 @@ ronn/GEOPM_CXX_MAN_ProfileIOSample.3.ronn
 ronn/GEOPM_CXX_MAN_RegionAggregator.3.ronn
 ronn/GEOPM_CXX_MAN_SharedMemory.3.ronn
 ronn/GEOPM_CXX_MAN_TimeIOGroup.3.ronn
-ronn/geopm.7.ronn.in
+ronn/geopm.7.ronn
 ronn/geopm_agent_c.3.ronn
 ronn/geopm_agent_energy_efficient.7.ronn
 ronn/geopm_agent_frequency_map.7.ronn
@@ -97,7 +97,7 @@ ronn/geopmplotter.1.ronn
 ronn/geopmpy.7.ronn
 ronn/geopmread.1.ronn
 ronn/geopmwrite.1.ronn
-ronn/header.txt
+ronn/header.html
 ronn/index.txt
 scripts/MANIFEST.in
 scripts/outlier/README.md

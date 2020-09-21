@@ -279,17 +279,6 @@ fi
 AC_SUBST([enable_fortran])
 AM_CONDITIONAL([ENABLE_FORTRAN], [test "x$enable_fortran" = "x1"])
 
-AC_ARG_ENABLE([ronn],
-  [AS_HELP_STRING([--disable-ronn], [Do not create man pages with ronn])],
-[if test "x$enable_ronn" = "xno" ; then
-  enable_ronn="0"
-else
-  enable_ronn="1"
-fi
-],
-[enable_ronn="1"]
-)
-
 AC_ARG_WITH([libnvml], [AS_HELP_STRING([--with-libnvml=PATH],
             [specify directory for installed libnvml package.])])
 if test "x$with_libnvml" != x; then
@@ -297,9 +286,6 @@ if test "x$with_libnvml" != x; then
   LD_LIBRARY_PATH="$with_libnvml/lib:$LD_LIBRARY_PATH"
   EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$with_libnvml/lib"
 fi
-
-AC_SUBST([enable_ronn])
-AM_CONDITIONAL([ENABLE_RONN], [test "x$enable_ronn" = "x1"])
 
 AC_ARG_WITH([libelf], [AS_HELP_STRING([--with-libelf=PATH],
             [specify directory for installed libelf package.])])
@@ -626,7 +612,7 @@ AC_SUBST([ENABLE_BETA])
 GEOPM_SOURCE_DIR=$(readlink -f $srcdir)
 AC_DEFINE_UNQUOTED([GEOPM_SOURCE_DIR], ["$GEOPM_SOURCE_DIR"], [Root of the GEOPM source directory])
 
-AC_CONFIG_FILES([Makefile geopm.spec geopm-ohpc.spec geopm-theta.spec scripts/geopmpy/version.py ronn/geopm.7.ronn])
+AC_CONFIG_FILES([Makefile geopm.spec geopm-ohpc.spec geopm-theta.spec scripts/geopmpy/version.py])
 AC_OUTPUT
 
 # ============================================================================
@@ -681,7 +667,6 @@ AC_MSG_RESULT([overhead           : ${enable_overhead}])
 AC_MSG_RESULT([mpi                : ${enable_mpi}])
 AC_MSG_RESULT([openmp             : ${enable_openmp}])
 AC_MSG_RESULT([fortran            : ${enable_fortran}])
-AC_MSG_RESULT([ronn               : ${enable_ronn}])
 AC_MSG_RESULT([ompt               : ${enable_ompt}])
 AC_MSG_RESULT([beta               : ${enable_beta}])
 AC_MSG_RESULT([bloat              : ${enable_bloat}])
