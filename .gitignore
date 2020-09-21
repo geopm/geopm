@@ -106,11 +106,6 @@
 /plugin/*.lo
 /plugin/*.o
 *.pyc
-/ronn/*.1
-/ronn/*.3
-/ronn/*.7
-/ronn/geopm.7.ronn
-/ronn/*.html
 /ruby/
 /scripts/AUTHORS
 /scripts/build/*

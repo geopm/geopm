@@ -110,14 +110,18 @@ if ENABLE_BETA
                           # end
 endif
 
+all_local = $(ronn_man_noinst)
+
 if ENABLE_MPI
 if ENABLE_FORTRAN
-all-local: geopm.mod
+
+all_local += geopm.mod
 
 install-fortran:
 	$(INSTALL) -d $(DESTDIR)/$(libdir)/$(FC)/modules/geopm-`uname -m`
 	$(INSTALL) geopm.mod $(DESTDIR)/$(libdir)/$(FC)/modules/geopm-`uname -m`
 else
+
 install-fortran:
 	-
 endif
@@ -125,6 +129,8 @@ else
 install-fortran:
 	-
 endif
+
+all-local: $(all_local)
 
 install-plugin-dir:
 	$(INSTALL) -d $(DESTDIR)/$(pkglibdir)
@@ -248,6 +254,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              copying_headers/test-license \
              dox-public/Doxyfile.in \
              dox/Doxyfile \
+             gen_man.sh \
              geopm-ohpc.spec \
              geopm-ohpc.spec.in \
              geopm-theta.spec \
@@ -318,7 +325,8 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/geopmpy.7.ronn \
              ronn/geopmread.1.ronn \
              ronn/geopmwrite.1.ronn \
-             ronn/header.txt \
+             ronn/header.html \
+             ronn/header.roff \
              ronn/index.txt \
              scripts/outlier/README.md \
              scripts/outlier/outlier_detection.py \
@@ -768,10 +776,7 @@ clean-local-coverage:
 	rm -f `find -name \*.gcno` `find -name \*.gcda`
 
 clean-local-man:
-	if [ ! $(abs_srcdir)/ronn -ef $(abs_top_builddir)/ronn ] ; then \
-		rm -rf $(abs_top_builddir)/ronn/*.ronn ; \
-	fi ; \
-	rm -rf $(abs_top_builddir)/man $(abs_top_builddir)/ronn/*.html $(abs_top_builddir)/ronn/*.1 $(abs_top_builddir)/ronn/*.3 $(abs_top_builddir)/ronn/*.7
+	rm -rf man
 
 clean-local-fortran:
 	rm -rf geopm.mod
@@ -808,12 +813,7 @@ rpm-theta: dist
 	cp geopm-theta.spec $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
 	rpmbuild $(rpmbuild_flags) --buildroot=$(rpm_topdir)-root --define "_sourcedir $(rpm_topdir)/SOURCES" -ba $(rpm_topdir)/SPECS/geopm-$(VERSION).spec
 
-if ENABLE_RONN
-
 # DOXYGEN TARGET
-
-all-local: $(ronn_man_noinst)
-
 dox-public/Doxyfile: dox-public/Doxyfile.in
 	sed -e "s|@INSTALL_HEADER_FILES@|$(include_HEADERS) $(pkginclude_HEADERS)|g" \
             dox-public/Doxyfile.in > dox-public/Doxyfile
@@ -823,35 +823,9 @@ doxygen: dox-public/Doxyfile
 	doxygen dox-public/Doxyfile
 
 # MAN TARGET
-BUILT_SOURCES += ruby/bin/ronn
-
-ruby/bin/ronn:
-	mkdir -p ruby/bin; \
-	which ronn >& /dev/null && \
-	ln -sf `which ronn` ruby/bin/ronn || \
-	gem install ronn --no-user-install --install-dir ruby
-	if [ ! -f $@ ]; then pushd ruby/bin && ln -sf ronn.ruby* ronn && popd; fi
-
-$(ronn_man): man/%: ruby/bin/ronn ronn/%.ronn ronn/index.txt ronn/header.txt
-	TARGET_DOC=`basename $@` ; \
-	RONN_DIR="$(abs_srcdir)/ronn" ; \
-	if [ ! "$$RONN_DIR" -ef "$(abs_top_builddir)/ronn" ] && [ "$$TARGET_DOC" != "geopm.7" ]; then \
-		cp -u $$RONN_DIR/$$TARGET_DOC.ronn ./ronn ; \
-	fi ; \
-	mkdir -p man ; \
-	export GEM_PATH=$(abs_top_builddir)/ruby:$$GEM_PATH && \
-	cd $(abs_top_builddir)/ronn && \
-	$(abs_top_builddir)/ruby/bin/ronn --date=`date "+%Y-%m-%d"` \
-	                 --organization="GEOPM @VERSION@" \
-	                 $$TARGET_DOC.ronn ; \
-	cd - ; \
-	if [ ! "$$RONN_DIR" -ef "$(abs_top_builddir)/ronn" ] && [ "$$TARGET_DOC" == "geopm.7" ]; then \
-		cat "$(top_srcdir)/ronn/header.txt" "$(abs_top_builddir)/ronn/`basename $@`.ronn" | \
-           sed -e 's/\(#include.*\) \\fIhttp.*/\1\\fR/g' > $@ ; \
-	else \
-		cat "$(top_srcdir)/ronn/header.txt" "$(top_srcdir)/ronn/`basename $@`.ronn" | \
-           sed -e 's/\(#include.*\) \\fIhttp.*/\1\\fR/g' > $@ ; \
-	fi
+$(ronn_man): man/%: $(top_srcdir)/ronn/%.ronn
+	mkdir -p man
+	$(top_srcdir)/gen_man.sh $(top_srcdir) $^ $@
 
 # GH_PAGES TARGET
 gh-pages: doxygen $(dist_man_MANS)
@@ -859,14 +833,6 @@ gh-pages: doxygen $(dist_man_MANS)
 	mkdir -p gh-pages/man
 	cp -rf dox-public/html/* gh-pages/dox/.
 	cp ronn/*.html gh-pages/man/.
-
-else
-
-$(ronn_man): man/%: ronn/%.ronn
-	mkdir -p man
-	test -f $@ || sed 's|^\[//\]: #|.\\\"|' ronn/`basename $@`.ronn > $@
-
-endif
 
 geopm-tutorial.tar.gz: $(TUTORIAL_DIST)
 	tar --transform='s|^|geopm-|' -zcf $@ $^
