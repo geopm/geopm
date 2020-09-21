@@ -46,7 +46,7 @@ from experiment import common_args
 
 def balancer_comparison(report_epoch_data, detailed=False):
     margin_factor = 0.25
-    power_caps = report_epoch_data['POWER_PACKAGE_LIMIT_TOTAL'].unique()
+    power_caps = report_epoch_data['POWER_PACKAGE_LIMIT_TOTAL'].dropna().unique() # dropna handles monitor runs
 
     result = pandas.DataFrame(columns=['max_runtime_gov', 'max_runtime_bal', 'margin', 'runtime_pct'])
     for cap in power_caps:
@@ -58,7 +58,7 @@ def balancer_comparison(report_epoch_data, detailed=False):
         max_runtime_gov = edf.xs(['power_governor', cap])['sync-runtime (sec)'].max()
         max_runtime_bal = edf.xs(['power_balancer', cap])['sync-runtime (sec)'].max()
         margin = margin_factor * (max_runtime_gov - mean_runtime_gov)
-        runtime_pct = (max_runtime_gov - max_runtime_bal) / max_runtime_bal
+        runtime_pct = (max_runtime_gov - max_runtime_bal) / max_runtime_gov
 
         result.loc[cap] = [max_runtime_gov, max_runtime_bal, margin, runtime_pct]
     return result
