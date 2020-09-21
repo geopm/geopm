@@ -152,8 +152,8 @@ def add_disable_traces(parser):
 
 def add_enable_profile_traces(parser):
     parser.add_argument('--enable-profile-traces', dest='enable_profile_traces',
-                         action='store_const', const=True,
-                         default=False, help='Enable profile trace generation')
+                        action='store_const', const=True,
+                        default=False, help='Enable profile trace generation')
     parser.add_argument('--disable-profile-traces', dest='enable_profile_traces',
                         action='store_const', const=False,
                         help='Disable profile trace generation')
@@ -162,3 +162,9 @@ def add_enable_profile_traces(parser):
 def add_disable_profile_traces(parser):
     add_enable_profile_traces(parser)
     parser.set_defaults(enable_profile_traces=True)
+
+
+def add_performance_metric(parser):
+    parser.add_argument('--performance-metric', dest='performance_metric',
+                        action='store', type=str, default='FOM',
+                        help='metric to use for performance (default: figure of merit)')

@@ -38,20 +38,20 @@ versus the fixed frequency from a frequency sweep.
 
 import sys
 import os
-import pandas
 import argparse
 import matplotlib.pyplot as plt
 
 import geopmpy.io
 
 from experiment import common_args
+from experiment import report
 
 
-def generate_runtime_energy_plot(df, use_stdev, name, output_dir='.'):
+def generate_runtime_energy_plot(df, perf_metric_label, title, output_dir='.'):
     """
     Creates a plot comparing the runtime and energy of a region on two axes.
     """
-    errorbar_format = {'fmt': '',
+    errorbar_format = {'fmt': ' ',
                        'label': '',
                        'elinewidth': 1,
                        'zorder': 10}
@@ -59,37 +59,29 @@ def generate_runtime_energy_plot(df, use_stdev, name, output_dir='.'):
     f, ax = plt.subplots()
     points = df.index
 
-    ax.plot(points, df['energy'], color='DarkBlue', label='Energy', marker='o', linestyle='-')
+    ax.plot(points, df['energy'], color='purple', label='Energy', marker='o', linestyle='-')
     ax.set_ylabel('Energy (J)')
     yerr = (df['min_delta_energy'], df['max_delta_energy'])
-    if use_stdev:
-        yerr = (df['energy_std'], df['energy_std'])
     ax.errorbar(points, df['energy'], xerr=None,
-                yerr=yerr, color='Blue', **errorbar_format)
+                yerr=yerr, color='purple', **errorbar_format)
 
     ax2 = ax.twinx()
-    ax2.plot(points, df['runtime'], color='Red', label='Runtime', marker='s', linestyle='-')
-    ax2.set_ylabel('Runtime (s)')
-    yerr = (df['min_delta_runtime'], df['max_delta_runtime'])
-    if use_stdev:
-        yerr = (df['runtime_std'], df['runtime_std'])
-    ax2.errorbar(points, df['runtime'], xerr=None,
-                 yerr=yerr, color='DarkRed', **errorbar_format)
+    ax2.plot(points, df['performance'], color='orange', label=perf_metric_label, marker='s', linestyle='-')
+    ax2.set_ylabel(perf_metric_label)
+    yerr = (df['min_delta_perf'], df['max_delta_perf'])
+    ax2.errorbar(points, df['performance'], xerr=None,
+                 yerr=yerr, color='orange', **errorbar_format)
 
     ax.set_xlabel('Frequency (GHz)')
     lines, labels = ax.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
 
     plt.legend(lines + lines2, labels + labels2, shadow=True, fancybox=True, loc='best')
-    if use_stdev:
-        name += ' (stdev)'
-    else:
-        name += ' (min-max)'
-    plt.title('{}'.format(name))
+    plt.title('{}'.format(title))
     f.tight_layout()
     if not os.path.exists(os.path.join(output_dir, 'figures')):
         os.mkdir(os.path.join(output_dir, 'figures'))
-    figname = '{}_freq_energy'.format(name.lower().replace(' ', '_').replace('(', '').replace(')', ''))
+    figname = '{}_freq_energy'.format(title.lower().replace(' ', '_').replace('(', '').replace(')', ''))
     plt.savefig(os.path.join(output_dir, 'figures', figname))
     plt.close()
 
@@ -106,43 +98,30 @@ def find_longest_region(report_df):
     return longest
 
 
-def plot_runtime_energy(report_df, use_stdev, label, output_dir, show_details=False):
-    # rename some columns
-    # TODO: only works for freq map agent
-    report_df['freq_req'] = report_df['FREQ_DEFAULT']
-    report_df['runtime'] = report_df['runtime (sec)']
-    report_df['network_time'] = report_df['network-time (sec)']
-    report_df['energy'] = report_df['package-energy (joules)']
-    report_df = report_df[['freq_req', 'runtime', 'network_time', 'energy']]
-    data = []
-    freqs = sorted(report_df['freq_req'].unique())
-    for freq in freqs:
-        freq_df = report_df.loc[report_df['freq_req'] == freq]
-        region_mean_runtime = freq_df['runtime'].mean()
-        region_mean_energy = freq_df['energy'].mean()
-        min_runtime = freq_df['runtime'].min()
-        max_runtime = freq_df['runtime'].max()
-        min_energy = freq_df['energy'].min()
-        max_energy = freq_df['energy'].max()
-        std_runtime = freq_df['runtime'].std()
-        std_energy = freq_df['energy'].std()
-        min_delta_runtime = region_mean_runtime - min_runtime
-        max_delta_runtime = max_runtime - region_mean_runtime
-        min_delta_energy = region_mean_energy - min_energy
-        max_delta_energy = max_energy - region_mean_energy
-        data.append([region_mean_runtime, region_mean_energy,
-                     std_runtime, std_energy,
-                     min_delta_runtime, max_delta_runtime,
-                     min_delta_energy, max_delta_energy])
-    result = pandas.DataFrame(data, index=freqs,
-                              columns=['runtime', 'energy',
-                                       'runtime_std', 'energy_std',
-                                       'min_delta_runtime', 'max_delta_runtime',
-                                       'min_delta_energy', 'max_delta_energy'])
+# TODO: some repeated code in profile comparison (without normalization)
+def plot_runtime_energy(report_df, perf_metric, use_stdev, label, output_dir, show_details=False):
+
+    report.prepare_columns(report_df, perf_metric)
+    #report_df = report_df[['FREQ_DEFAULT', 'runtime', 'network_time', 'energy', 'FOM']]
+    # TODO: might want loop_key to be passed in as a function instead
+    freqs = sorted(report_df['FREQ_DEFAULT'].unique())
+    result = report.energy_perf_summary(df=report_df,
+                                        loop_key='FREQ_DEFAULT',
+                                        loop_vals=freqs,
+                                        baseline=None,
+                                        perf_metric=perf_metric,
+                                        use_stdev=use_stdev)
+    perf_metric_label = report.perf_metric_label(perf_metric)
 
     if show_details:
         sys.stdout.write('Data for {}:\n{}\n'.format(label, result))
-    generate_runtime_energy_plot(result, use_stdev, label, output_dir)
+
+    title = label
+    if use_stdev:
+        title += ' (stdev)'
+    else:
+        title += ' (min-max)'
+    generate_runtime_energy_plot(result, perf_metric_label, title, output_dir)
 
 
 if __name__ == '__main__':
@@ -151,6 +130,7 @@ if __name__ == '__main__':
     common_args.add_show_details(parser)
     common_args.add_label(parser)
     common_args.add_use_stdev(parser)
+    common_args.add_performance_metric(parser)
     parser.add_argument('--target-region', dest='target_region',
                         action='store', type=str, default=None,
                         help='name of the region to use to select data (default=application totals)')
@@ -172,10 +152,12 @@ if __name__ == '__main__':
         label += ', ' + target_region
     else:
         data = output.get_app_df()
-    print(label)
 
-    plot_runtime_energy(data,
-                        args.use_stdev,
+    label += ' ' + args.performance_metric
+
+    plot_runtime_energy(report_df=data,
+                        use_stdev=args.use_stdev,
                         label=label,
                         output_dir=output_dir,
-                        show_details=args.show_details)
+                        show_details=args.show_details,
+                        perf_metric=args.performance_metric)
