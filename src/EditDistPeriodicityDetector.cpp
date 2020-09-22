@@ -122,7 +122,7 @@ namespace geopm
                 // added penalties from all directions (add/subtract/replace).
                 uint32_t d_value = std::min({Dget(ii - 1, m_record_count - mm    , mm) + 1,
                                              Dget(ii    , m_record_count - mm - 1, mm) + 1,
-                                             Dget(ii - 1, m_record_count - mm - 1, mm) + term})
+                                             Dget(ii - 1, m_record_count - mm - 1, mm) + term});
                 Dset(ii, m_record_count - mm, mm, d_value);
             }
         }
