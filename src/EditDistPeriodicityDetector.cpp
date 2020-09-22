@@ -107,16 +107,18 @@ namespace geopm
 
         for (int mm = std::max({1, m_record_count - m_history_buffer_size}); mm < m_record_count; ++mm) {
             for (int ii = std::max({1, m_record_count - m_history_buffer_size}); ii < mm + 1; ++ii) {
-                int term = 2;
                 // If the record to be compared to the latest addition is not new enough to reside in the
                 // history buffer, by default it is not a match. If it is in the history buffer, the penalty
                 // term is 0 if the are equal.
                 int entry_age = (m_record_count - 1) - ii;
                 bool cond_newrec = entry_age < num_recs_in_hist;
                 uint64_t last_rec_in_history = m_history_buffer.value(num_recs_in_hist - 1);
-                uint64_t compared_rec = m_history_buffer.value(num_recs_in_hist - (m_record_count - (ii - 1)));
-                if ( cond_newrec && (compared_rec == last_rec_in_history)) {
-                    term = 0;
+                int term = 2;
+                if (cond_newrec) {
+                    uint64_t compared_rec = m_history_buffer.value(num_recs_in_hist - (m_record_count - (ii - 1)));
+                    if (compared_rec == last_rec_in_history) {
+                        term = 0;
+                    }
                 }
                 // The value that will go into the D matrix (i.e. penalty) is the minimum of the
                 // added penalties from all directions (add/subtract/replace).
