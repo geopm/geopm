@@ -41,6 +41,7 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include <libgen.h>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "contrib/json11/json11.hpp"
@@ -929,7 +930,8 @@ TEST_F(MSRIOGroupTest, write_control)
 
 TEST_F(MSRIOGroupTest, whitelist)
 {
-    std::ifstream file("test/legacy_whitelist.out");
+    char file_name[NAME_MAX] = __FILE__;
+    std::ifstream file(std::string(dirname(file_name)) + "/legacy_whitelist.out");
     std::string line;
     uint64_t offset;
     uint64_t mask;
