@@ -105,17 +105,25 @@ namespace geopm
             Dset(0, m_record_count - mm, mm, m_record_count - mm);
         }
 
+        uint64_t last_rec_in_history = m_history_buffer.value(num_recs_in_hist - 1);
         for (int mm = std::max({1, m_record_count - m_history_buffer_size}); mm < m_record_count; ++mm) {
             for (int ii = std::max({1, m_record_count - m_history_buffer_size}); ii < mm + 1; ++ii) {
                 // If the record to be compared to the latest addition is not new enough to reside in the
                 // history buffer, by default it is not a match. If it is in the history buffer, the penalty
-                // term is 0 if the are equal.
-                int entry_age = (m_record_count - 1) - ii;
-                bool cond_newrec = entry_age < num_recs_in_hist;
-                uint64_t last_rec_in_history = m_history_buffer.value(num_recs_in_hist - 1);
+                // term is 0 if they are equal.
+
+                // ii is the length of the first substring that we are comparing against. If there were
+                // no history truncation, we would be comparing entry ii - 1 (0-indexed) to the latest
+                // record, entry m_record_count - 1.
+
+                // entry_age is 1 for the most recent entry (it goes from 1 to m_record_count, inclusive)
+                int entry_age = m_record_count - (ii - 1);
+                // If entry_age is above num_recs_in_hist, it will no longer be in our buffer.
+                bool cond_newrec = entry_age <= num_recs_in_hist;
                 int term = 2;
                 if (cond_newrec) {
-                    uint64_t compared_rec = m_history_buffer.value(num_recs_in_hist - (m_record_count - (ii - 1)));
+                    // We still have the desired record, so we can compare it to the new one.
+                    uint64_t compared_rec = m_history_buffer.value(num_recs_in_hist - entry_age);
                     if (compared_rec == last_rec_in_history) {
                         term = 0;
                     }
