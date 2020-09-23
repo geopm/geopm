@@ -21,19 +21,18 @@ Providing code that is small and reproduces the issue is nice to have.
 
 FEATURE REQUEST
 ---------------
-Please submit a issue on GitHub for any feature requests.
+Please submit an issue on GitHub for any feature requests.
 
 CHANGE REQUEST
 --------------
-There are two ways to submit a change request.  Opening a pull request
-on GitHub from a fork of GEOPM is preferred for most cases.  It is
-also acceptable to submit a change request directly to GerritHub, and
-this is the workflow for maintainers and active developers.
 
-### GitHub pull request
-All pull requests to the geopm/geopm repository on GitHub will
-automatically be submitted to Travis CI for unit testing.  The link
-for creating a pull request is here:
+Changes to GEOPM are submitted by opening a pull request on GitHub
+from a fork of GEOPM.  Including a Signed-off-by: line in the commit
+message is appreciated, but not required.  All pull requests to the
+geopm/geopm repository on GitHub will automatically be submitted to
+Travis CI for unit testing.
+
+The link for creating a pull request is here:
 
 https://github.com/geopm/geopm/pulls
 
@@ -41,52 +40,30 @@ and the link to the results of the unit testing is here:
 
 https://travis-ci.org/geopm/geopm
 
-If the tests pass in Travis CI then the pull request will be brought
-into GerritHub for review by the GEOPM maintainers.  Including a
-Change-Id: and Signed-off-by: line in the commit message is
-appreciated, but not required (they will be added for you by the
-maintainers).  The link for the GerritHub reviews is here:
-
-https://review.gerrithub.io/#/q/project:geopm/geopm
-
 We encourage users and developers of the GEOPM software to participate
-in our code review process through GerritHub.  When the request passes
-review the change will be integrated into the GEOPM development branch
-on GitHub through a Gerrit submission.
+in our code review process through GitHub.
 
-### GerritHub review request
+### Review process
 
-It is also possible to submit a change request directly to GerritHub.
-This is the primary workflow of active developers.  When using this
-method please include a Change-Id: and Signed-off-by: line in the
-commit message; Change-Id is automatically added when you clone from
-GerritHub with the commit-msg hook.  The GEOPM Gerrit server
-information can be found here:
+Our process for requesting a pull request to be reviewed and merged
+is as follows:
 
-https://review.gerrithub.io/#/admin/projects/geopm/geopm
+1.  The author submits the pull request.  Please refer to the Git
+    documentation on how to create pull request:
+    <https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests>.
 
-Our process for requesting a patch to be reviewed/merged through
-Gerrit is:
+2.  The submitter may optionally request specific people to be reviewers.
+    Otherwise, any GEOPM developer may be an approver for the pull request.
 
-1.  The patch owner submits the patch to Gerrit.  Please refer to the
-    Gerrit documentation on how to create review request.
-    See <https://review.gerrithub.io/Documentation/intro-quick.html>.
-2.  The patch owner marks the patch CR+1 (code review) and V+1
-    (verified) when complete.  CR+1 signifies that the code compiles,
-    and the code is sufficient and correct per the patch owner and/or
-    the person scoring it.  V+1 signifies the code has been
-    tested/vetted and is ready to be merged per the patch owner and/or
-    the person scoring it.  Verified means passing all unit tests
-    (and, if possible, all integration tests) before and after this
-    patch was introduced.  In general, the patch owner is the only
-    person that needs to verify the patch, but in some cases, dev team
-    members may explicitly cherry-pick and test a patch on behalf of a
-    submitter.
-3.  Dev team members (NOT the patch owner) review the patch only after
-    (2) is complete.  The last person to review a patch should mark it CR+2
-    instead of +1.  Once the patch has been marked CR+2 and V+1, it can be
-    merged.
+3.  During the review process, a reviewer may request changes to the pull
+    request.  If possible, these should be submitted as new commits
+    without rebasing or squashing to simplify the reader's ability to
+    view changes.
 
+4.  When the pull request is accepted by the reviewer(s), it will be
+    marked "Approve".  Once the request is approved by all reviewers
+    and all CI checks are passing, the change will be integrated into
+    the GEOPM development branch by a maintainer.
 
 TEST INSTRUCTIONS
 -----------------
@@ -95,7 +72,15 @@ directory:
 
     make check
 
-Please run these tests before submitting a change request.
+Please run these tests before submitting a change request.  You can
+build and run unit tests on a standalone computer (such as a laptop) by
+configuring without MPI as follows:
+
+    ./configure --disable-mpi
+    make
+    make check
+
+The integration tests require a system with MPI and multiple compute nodes.
 
 COVERAGE INSTRUCTIONS
 ---------------------
@@ -118,7 +103,11 @@ Any help in increasing code coverage levels is appreciated.
 
 CODING STYLE
 ------------
-Code formatting can be corrected to conform to the GEOPM standard
+
+Python code should follow the PEP8 standard as described in
+<https://www.python.org/dev/peps/pep-0008/>.
+
+C++ code can be corrected to conform to the GEOPM standard
 using astyle with the following options:
 
     astyle --style=linux --indent=spaces=4 -y -S -C -N
