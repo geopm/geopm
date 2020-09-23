@@ -153,4 +153,8 @@ CLEAN_LOCAL_TARGETS += clean-local-pytest-script-links \
                        clean-local-python
 
 install-python: scripts/setup.py
+# Move version.py into source for out of place builds
+	if [ ! -f $(abs_srcdir)/scripts/geopmpy/version.py ]; then \
+	    cp scripts/geopmpy/version.py $(abs_srcdir)/scripts/geopmpy/version.py; \
+	fi
 	cd $(abs_srcdir)/scripts && $(PYTHON) ./setup.py install -O1 --root $(DESTDIR)/ --prefix $(prefix)
