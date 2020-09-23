@@ -1,16 +1,6 @@
 GEOPM - Global Extensible Open Power Manager
 ============================================
 
-DISCLAIMER
-----------
-SEE COPYING FILE FOR LICENSE INFORMATION.
-
-LAST UPDATE
------------
-2019 October 29
-
-Christopher Cantalupo <christopher.m.cantalupo@intel.com> <br>
-
 WEB PAGES
 ---------
 https://geopm.github.io <br>
@@ -21,7 +11,22 @@ SUMMARY
 -------
 The Global Extensible Open Power Manager (GEOPM) is a framework for
 exploring power and energy optimizations targeting high performance
-computing.  The GEOPM package provides many built-in features.  A
+computing.
+
+With GEOPM you can:
+
+- Interact with hardware settings using a platform-agnostic interface
+- Profile applications to study their power and energy behavior
+- Automatically detect MPI and OpenMP phases in an application
+- Optimize MPI applications to improve energy efficiency or reduce the
+  effects of work imbalance, system jitter, and manufacturing variation
+  through built-in control algorithms
+- Develop your own runtime control algorithms through the extensible
+  plugin architecture
+
+DESCRIPTION
+-----------
+The GEOPM package provides many built-in features.  A
 simple use case is reading hardware counters and setting hardware
 controls with platform independant syntax using a command line tool on
 a particular compute node.  An advanced use case is dynamically
@@ -513,8 +518,6 @@ the compute node boot image.  Changing the policy value will impact
 all subsequently launched GEOPM processes, but it will not change the
 behavior of already running GEOPM control processes.
 
-
-
 STATUS
 ------
 This software is production quality as of version 1.0.  We will be
@@ -535,6 +538,17 @@ To enable these features in the GEOPM install location, configure
 GEOPM with the `--enable-beta` configure flag.  The features currently
 considered unfinalized are the endpoint interface, the `geopmendpoint`
 application, and the `geopmplotter` application.
+
+DISCLAIMER
+----------
+SEE COPYING FILE FOR LICENSE INFORMATION.
+
+LAST UPDATE
+-----------
+2020 September 25
+
+Christopher Cantalupo <christopher.m.cantalupo@intel.com> <br>
+Diana Guttman <diana.r.guttman@intel.com>
 
 ACKNOWLEDGMENTS
 ---------------
