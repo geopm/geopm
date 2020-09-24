@@ -47,6 +47,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     power_sweep.setup_run_args(parser)
     args, extra_cli_args = parser.parse_known_args()
+    extra_cli_args.append("--geopm-record-filter=proxy_epoch,0x00000000ff4029e3,4")
     mach = machine.init_output_dir(args.output_dir)
     app_conf = hpcg.HpcgAppConf(mach)
     power_sweep.launch(app_conf=app_conf, args=args,

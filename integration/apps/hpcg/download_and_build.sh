@@ -83,9 +83,7 @@ git add -A
 git commit --no-edit -s -m "Initial commit"
 
 # Apply patches
-for patch in ${BUILD_PATCHES}; do
-    git am ${patch}
-done
+git am ${BUILD_PATCHES}
 
 # Build
 ./configure ${TARGET}
