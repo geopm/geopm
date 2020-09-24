@@ -107,6 +107,10 @@
 /plugin/*.lo
 /plugin/*.o
 *.pyc
+/ronn/*.1
+/ronn/*.3
+/ronn/*.7
+/ronn/*.html
 /ruby/
 /scripts/AUTHORS
 /scripts/build/*
