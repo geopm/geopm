@@ -1457,7 +1457,7 @@ class RawReportCollection(object):
 
     @staticmethod
     def make_h5_name(paths, outdir):
-        paths_str = str([os.path.abspath(rr) for rr in paths])
+        paths_str = str([os.path.realpath(rr) for rr in paths])
         h5_id = hashlib.sha256(paths_str.encode()).hexdigest()[:14]
         report_h5_name = os.path.join(outdir, 'cache_{}.h5'.format(h5_id))
         return report_h5_name
