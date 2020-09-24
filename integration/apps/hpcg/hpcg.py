@@ -65,9 +65,6 @@ class HpcgAppConf(apps.AppConf):
     def get_exec_args(self):
         return self._exec_args
 
-    def get_custom_geopm_args(self):
-        return ["--geopm-record-filter=proxy_epoch,0x00000000ff4029e3,4"]
-
     def parse_fom(self, log_path):
         result = None
         pattern = "GFLOP/s rating of"
