@@ -48,22 +48,25 @@ from experiment import common_args
 
 
 def prep_plot_data(report_data, metric, normalize, speedup):
-    edf = report_data
+    idf = report_data
 
     # rename some columns
-    edf['power_limit'] = edf['POWER_PACKAGE_LIMIT_TOTAL']
-    edf['runtime'] = edf['runtime (sec)']
-    edf['network_time'] = edf['network-time (sec)']
-    edf['energy_pkg'] = edf['package-energy (joules)']
-    edf['frequency'] = edf['frequency (Hz)']
+    idf['power_limit'] = idf['POWER_PACKAGE_LIMIT_TOTAL']
+    idf['runtime'] = idf['runtime (sec)']
+    idf['network_time'] = idf['network-time (sec)']
+    idf['energy_pkg'] = idf['package-energy (joules)']
+    try:
+        idf['frequency'] = idf['frequency (Hz)']
+    except KeyError:
+        pass
 
-    edf = edf.set_index(['Agent', 'power_limit', 'Profile', 'host'])
+    idf = idf.set_index(['Agent', 'power_limit', 'Profile', 'host'])
 
     df = pandas.DataFrame()
     reference = 'power_governor'
     target = 'power_balancer'
 
-    ref_epoch_data = edf.xs([reference])
+    ref_epoch_data = idf.xs([reference])
     if metric == 'power':
         rge = ref_epoch_data['energy_pkg']
         rgr = ref_epoch_data['runtime']
@@ -75,7 +78,7 @@ def prep_plot_data(report_data, metric, normalize, speedup):
     df['reference_max'] = reference_g.max()
     df['reference_min'] = reference_g.min()
 
-    tar_epoch_data = edf.xs([target])
+    tar_epoch_data = idf.xs([target])
     if metric == 'power':
         tge = tar_epoch_data['energy_pkg']
         tgr = tar_epoch_data['runtime']
@@ -105,7 +108,7 @@ def prep_plot_data(report_data, metric, normalize, speedup):
     return df
 
 
-def plot_balancer_comparison(df, label, metric, output_dir='.',
+def plot_balancer_comparison(output, label, metric, output_dir='.',
                              speedup=False, normalize=False, detailed=False):
 
     units = {
@@ -116,10 +119,17 @@ def plot_balancer_comparison(df, label, metric, output_dir='.',
         'power': 'W',
     }
 
+    # Test if Epochs were used
+    if output.get_epoch_df()[:1]['count'].item() > 0.0:
+        df = output.get_epoch_df()
+        df_type = "Epochs"
+    else:
+        df = output.get_app_df()
+        df_type = "App Totals"
+    label += ' ' + df_type
+
     # Analysis
     df = prep_plot_data(df, metric=metric, normalize=normalize, speedup=speedup)
-    if detailed:
-        sys.stdout.write('{}\n'.format(df))
 
     target_agent = 'power_balancer'
     reference_agent = 'power_governor'
@@ -189,7 +199,7 @@ def plot_balancer_comparison(df, label, metric, output_dir='.',
 
     ax.grid(axis='y', linestyle='--', color='black')
 
-    plt.title('{}: {} Decreases from Power Balancing'.format(label, title_datatype), y=1.02)
+    plt.title('{} : Governor vs. Balancer {}'.format(label, title_datatype), y=1.02)
 
     plt.margins(0.02, 0.01)
     plt.axis('tight')
@@ -218,13 +228,18 @@ def plot_balancer_comparison(df, label, metric, output_dir='.',
     elif normalize:
         file_name += '_normalized'
     if detailed:
+        sys.stdout.write('{}\n'.format(df))
         sys.stdout.write('Writing:\n')
     if not os.path.exists(os.path.join(output_dir, 'figures')):
         os.mkdir(os.path.join(output_dir, 'figures'))
-    full_path = os.path.join(output_dir, 'figures', '{}.png'.format(file_name))
+    path = os.path.join(output_dir, 'figures', '{}'.format(file_name))
+    full_path = path + '.png'
     plt.savefig(full_path)
     if detailed:
         sys.stdout.write('    {}\n'.format(full_path))
+        sys.stdout.write('    {}\n'.format(path + '.log'))
+        with open(path + '.log', 'w') as log:
+            log.write('{}\n'.format(df))
     sys.stdout.flush()
     plt.close()
 
@@ -251,7 +266,7 @@ if __name__ == '__main__':
         sys.stderr.write('<geopm> Error: No report data found in {}; run a power sweep before using this analysis\n'.format(output_dir))
         sys.exit(1)
 
-    plot_balancer_comparison(output.get_epoch_df(),
+    plot_balancer_comparison(output,
                              label=args.label,
                              metric=args.metric,
                              output_dir=output_dir,
