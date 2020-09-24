@@ -55,4 +55,4 @@ except ImportError:
         with open(src_version_path) as fid:
             __version__ = fid.read().strip()
     except IOError:
-        __version__='0.0.0'
+        __version__ = '0.0.0'
