@@ -109,6 +109,7 @@ TEST_F(MSRIOGroupTest, supported_cpuid)
         MSRIOGroup::M_CPUID_BDX,
         MSRIOGroup::M_CPUID_KNL,
         MSRIOGroup::M_CPUID_SKX,
+        MSRIOGroup::M_CPUID_ICX,
     };
     for (auto id : cpuids) {
         try {

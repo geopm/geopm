@@ -125,6 +125,7 @@ namespace geopm
                 max_turbo_name = "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_1CORE";
                 break;
             case MSRIOGroup::M_CPUID_SKX:
+            case MSRIOGroup::M_CPUID_ICX:
                 max_turbo_name = "MSR::TURBO_RATIO_LIMIT:MAX_RATIO_LIMIT_0";
                 break;
             default:
@@ -747,6 +748,7 @@ namespace geopm
                 platform_msrs = snb_msr_json();
                 break;
             case MSRIOGroup::M_CPUID_SKX:
+            case MSRIOGroup::M_CPUID_ICX:
                 platform_msrs = skx_msr_json();
                 break;
             default:
