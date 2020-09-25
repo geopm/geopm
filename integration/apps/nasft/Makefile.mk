@@ -35,3 +35,4 @@ EXTRA_DIST += integration/apps/nasft/nasft.py \
               # end
 
 include integration/apps/nasft/nasft/Makefile.mk
+include integration/apps/nasft/nasft_E/Makefile.mk
