@@ -45,10 +45,13 @@ class NasftAppConf(apps.AppConf):
     def name():
         return 'nasft'
 
-    def __init__(self, mach):
+    def __init__(self, mach, num_node=1):
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
-        self._nasft_path = os.path.join(benchmark_dir, 'nasft/.libs')
         self._num_rank_per_node = int((mach.num_core() / 2) - 2)
+        if num_node < 128:
+            self._nasft_path = os.path.join(benchmark_dir, 'nasft/.libs/nas_ft')
+        else:
+            self._nasft_path = os.path.join(benchmark_dir, 'nasft_E/.libs/nas_ft_E')
 
     def get_rank_per_node(self):
         return self._num_rank_per_node
@@ -60,7 +63,7 @@ class NasftAppConf(apps.AppConf):
         return ''
 
     def get_exec_path(self):
-        return os.path.join(self._nasft_path, 'nas_ft')
+        return self._nasft_path
 
     def get_exec_args(self):
         return []

@@ -48,6 +48,6 @@ if __name__ == '__main__':
     monitor.setup_run_args(parser)
     args, extra_args = parser.parse_known_args()
     mach = machine.init_output_dir(args.output_dir)
-    app_conf = nasft.NasftAppConf(mach)
+    app_conf = nasft.NasftAppConf(mach, args.node_count)
     monitor.launch(app_conf=app_conf, args=args,
                    experiment_cli_args=extra_args)

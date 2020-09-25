@@ -48,6 +48,6 @@ if __name__ == '__main__':
     frequency_sweep.setup_run_args(parser)
     args, extra_cli_args = parser.parse_known_args()
     mach = machine.init_output_dir(args.output_dir)
-    app_conf = nasft.NasftAppConf(mach)
+    app_conf = nasft.NasftAppConf(mach, args.node_count)
     frequency_sweep.launch(app_conf=app_conf, args=args,
                            experiment_cli_args=extra_cli_args)
