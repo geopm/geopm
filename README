@@ -1,5 +1,14 @@
+<!--<img src="https://geopm.github.io/geopm-logo.png" alt="GEOPM logo" width=300>-->
+<img src="geopm-banner.png" alt="GEOPM logo">
+
 GEOPM - Global Extensible Open Power Manager
 ============================================
+
+[![Build Status](https://travis-ci.org/geopm/geopm.svg)](https://travis-ci.org/geopm/geopm)
+![version](https://img.shields.io/badge/version-1.1.0-blue)
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![Hacktoberfest 2020](https://img.shields.io/github/hacktoberfest/2020/badges/shields?label=hacktoberfest%202020)](https://github.com/badges/shields/issues?q=is%3Aopen+is%3Aissue+label%3Ahacktoberfest)
+
 
 WEB PAGES
 ---------
@@ -23,6 +32,7 @@ With GEOPM you can:
   through built-in control algorithms
 - Develop your own runtime control algorithms through the extensible
   plugin architecture
+
 
 DESCRIPTION
 -----------
@@ -86,8 +96,6 @@ control.
 
 TRAVIS CI
 ---------
-[![Build Status](https://travis-ci.org/geopm/geopm.svg)](https://travis-ci.org/geopm/geopm)
-
 The GEOPM public GitHub project has been integrated with Travis
 continuous integration.
 
