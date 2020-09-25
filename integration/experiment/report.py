@@ -70,7 +70,7 @@ def prepare_columns(df, perf_metric):
 
 def perf_metric_label(perf_metric):
     if perf_metric == 'FOM':
-        perf_metric_label = 'Figure of Merit'
+        perf_metric_label = 'Performance'
     elif perf_metric == 'runtime':
         perf_metric_label = 'Runtime'
     else:
