@@ -199,7 +199,13 @@ if __name__ == '__main__':
 
     common_prefix = os.path.commonprefix(targets).rstrip('_')
 
-    result = summary(df=rrc.get_app_df(),
+    # Test if Epochs were used
+    if rrc.get_epoch_df()[:1]['count'].item() > 0.0:
+        df = rrc.get_epoch_df()
+    else:
+        df = rrc.get_app_df()
+
+    result = summary(df=df,
                      perf_metric=args.performance_metric,
                      use_stdev=args.use_stdev,
                      baseline=baseline,
