@@ -151,7 +151,11 @@ if __name__ == '__main__':
         data = df.loc[df['region'] == target_region]
         label += ', ' + target_region
     else:
-        data = output.get_app_df()
+        # Test if Epochs were used
+        if output.get_epoch_df()[:1]['count'].item() > 0.0:
+            data = output.get_epoch_df()
+        else:
+            data = output.get_app_df()
 
     label += ' ' + args.performance_metric
 
