@@ -45,10 +45,13 @@ if [ -d "$AMG_DIR" ]; then
 fi
 
 # Acquire the source:
-wget https://asc.llnl.gov/coral-2-benchmarks/downloads/AMG-master-5.zip
+ZIP_NAME=amg-master-5.zip
+if [ ! -f $ZIP_NAME ]; then
+    wget https://asc.llnl.gov/sites/asc/files/2020-09/amg-master-5.zip
+fi
 
 # Unpack the source:
-unzip AMG-master-5.zip
+unzip $ZIP_NAME
 
 # Change directories to the unpacked files:
 cd $AMG_DIR
