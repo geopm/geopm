@@ -963,8 +963,8 @@ class TestIntegration(unittest.TestCase):
             dgemm_bigo = dgemm_bigo_jlse
             stream_bigo = stream_bigo_jlse
         elif hostname.startswith('mcfly'):
-            dgemm_bigo = 42.0
-            stream_bigo = 1.75
+            dgemm_bigo = 28.0
+            stream_bigo = 1.5
         elif hostname.startswith('quartz'):
             dgemm_bigo = dgemm_bigo_quartz
             stream_bigo = stream_bigo_quartz
@@ -1064,8 +1064,8 @@ class TestIntegration(unittest.TestCase):
             dgemm_bigo = dgemm_bigo_jlse
             stream_bigo = stream_bigo_jlse
         elif hostname.startswith('mcfly'):
-            dgemm_bigo = 42.0
-            stream_bigo = 1.75
+            dgemm_bigo = 28.0
+            stream_bigo = 1.5
         elif hostname.startswith('quartz'):
             dgemm_bigo = dgemm_bigo_quartz
             stream_bigo = stream_bigo_quartz
