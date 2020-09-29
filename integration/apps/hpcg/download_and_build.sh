@@ -31,6 +31,7 @@
 #
 
 set -e
+set -x
 
 TARGETS="mcfly quartz xeon"
 if [ $# -ne 1 ]; then
@@ -83,7 +84,9 @@ git add -A
 git commit --no-edit -s -m "Initial commit"
 
 # Apply patches
-git am ${BUILD_PATCHES}
+if [ "${BUILD_PATCHES}" != "" ]; then
+    git am ${BUILD_PATCHES}
+fi
 
 # Build
 ./configure ${TARGET}
