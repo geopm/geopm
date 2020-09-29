@@ -31,6 +31,7 @@
 #
 
 set -e
+set -x
 
 # Acquire the source:
 if [ ! -f MiniFE_ref_2.0-rc3.tar.gz ]; then

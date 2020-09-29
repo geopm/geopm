@@ -84,7 +84,7 @@ git add -A
 git commit --no-edit -s -m "Initial commit"
 
 # Apply patches
-if [ "${BUILD_PATCHES}" != "" ]; then
+if [ ! -z "${BUILD_PATCHES}"]; then
     git am ${BUILD_PATCHES}
 fi
 
