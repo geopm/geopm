@@ -47,7 +47,7 @@ from experiment import common_args
 from experiment import report
 
 
-def generate_runtime_energy_plot(df, perf_metric_label, title, output_dir='.'):
+def generate_runtime_energy_plot(df, perf_metric_label, energy_metric_label, title, output_dir='.'):
     """
     Creates a plot comparing the runtime and energy of a region on two axes.
     """
@@ -59,10 +59,10 @@ def generate_runtime_energy_plot(df, perf_metric_label, title, output_dir='.'):
     f, ax = plt.subplots()
     points = df.index
 
-    ax.plot(points, df['energy'], color='purple', label='Energy', marker='o', linestyle='-')
-    ax.set_ylabel('Energy (J)')
+    ax.plot(points, df['energy_perf'], color='purple', label=energy_metric_label, marker='o', linestyle='-')
+    ax.set_ylabel(energy_metric_label)
     yerr = (df['min_delta_energy'], df['max_delta_energy'])
-    ax.errorbar(points, df['energy'], xerr=None,
+    ax.errorbar(points, df['energy_perf'], xerr=None,
                 yerr=yerr, color='purple', **errorbar_format)
 
     ax2 = ax.twinx()
@@ -81,7 +81,7 @@ def generate_runtime_energy_plot(df, perf_metric_label, title, output_dir='.'):
     f.tight_layout()
     if not os.path.exists(os.path.join(output_dir, 'figures')):
         os.mkdir(os.path.join(output_dir, 'figures'))
-    figname = '{}_freq_energy'.format(title.lower().replace(' ', '_').replace('(', '').replace(')', ''))
+    figname = '{}_freq_energy_baz'.format(title.lower().replace(' ', '_').replace('(', '').replace(')', ''))
     plt.savefig(os.path.join(output_dir, 'figures', figname))
     plt.close()
 
@@ -101,8 +101,8 @@ def find_longest_region(report_df):
 # TODO: some repeated code in profile comparison (without normalization)
 def plot_runtime_energy(report_df, perf_metric, use_stdev, label, output_dir, show_details=False):
 
-    report.prepare_columns(report_df, perf_metric)
-    #report_df = report_df[['FREQ_DEFAULT', 'runtime', 'network_time', 'energy', 'FOM']]
+    report.prepare_columns(report_df)
+    report.prepare_metrics(report_df, perf_metric)
     # TODO: might want loop_key to be passed in as a function instead
     freqs = sorted(report_df['FREQ_DEFAULT'].unique())
     result = report.energy_perf_summary(df=report_df,
@@ -111,7 +111,7 @@ def plot_runtime_energy(report_df, perf_metric, use_stdev, label, output_dir, sh
                                         baseline=None,
                                         perf_metric=perf_metric,
                                         use_stdev=use_stdev)
-    perf_metric_label = report.perf_metric_label(perf_metric)
+    perf_metric_label, energy_metric_label = report.perf_metric_label(perf_metric)
 
     if show_details:
         sys.stdout.write('Data for {}:\n{}\n'.format(label, result))
@@ -121,7 +121,7 @@ def plot_runtime_energy(report_df, perf_metric, use_stdev, label, output_dir, sh
         title += ' (stdev)'
     else:
         title += ' (min-max)'
-    generate_runtime_energy_plot(result, perf_metric_label, title, output_dir)
+    generate_runtime_energy_plot(result, perf_metric_label, energy_metric_label, title, output_dir)
 
 
 if __name__ == '__main__':

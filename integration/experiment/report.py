@@ -44,7 +44,7 @@ def extract_trial(name):
     return '_'.join(pieces[:-1]), int(pieces[-1])
 
 
-def prepare_columns(df, perf_metric):
+def prepare_columns(df):
     # remove iteration from end of profile name
     df['trial'] = df['Profile']
     df[['Profile', 'trial']] = df['Profile'].apply(extract_trial).tolist()
@@ -53,17 +53,26 @@ def prepare_columns(df, perf_metric):
     df['runtime'] = df['runtime (sec)']
     df['network_time'] = df['network-time (sec)']
     df['energy'] = df['package-energy (joules)']
+    df['power'] = df['power (watts)']
+    # for epoch vs totals - see #1288
+    try:
+        df['frequency'] = df['frequency (Hz)']
+    except KeyError:
+        pass
 
-    # import code
-    # code.interact(local=dict(globals(), **locals()))
 
+def prepare_metrics(df, perf_metric):
+    energy_metric = 'energy_perf'
     if perf_metric == 'FOM':
         # if FOM is not present, use inverse runtime
         if 'FOM' not in df.columns or df["FOM"].isnull().any():
             df['FOM'] = 1.0 / df['runtime']
             sys.stdout.write('Using inverse runtime for performance.\n')
+        # use perf per watt
+        df[energy_metric] = df[perf_metric] / df['power']
+        sys.stdout.write('Using performance per watt instead of energy.\n')
     elif perf_metric == 'runtime':
-        pass
+        df[energy_metric] = df['energy']
     else:
         raise RuntimeError("Invalid performance metric: {}".format(perf_metric))
 
@@ -71,21 +80,24 @@ def prepare_columns(df, perf_metric):
 def perf_metric_label(perf_metric):
     if perf_metric == 'FOM':
         perf_metric_label = 'Performance'
+        energy_metric_label = 'Perf. per watt'
     elif perf_metric == 'runtime':
         perf_metric_label = 'Runtime'
+        energy_metric_label = 'Energy'
     else:
         raise RuntimeError("Invalid performance metric: {}".format(perf_metric))
-    return perf_metric_label
+    return perf_metric_label, energy_metric_label
 
 
 def energy_perf_summary(df, loop_key, loop_vals, baseline, perf_metric, use_stdev):
+    energy_metric = 'energy_perf'
     if baseline is not None:
         if baseline not in df[loop_key].unique():
             raise RuntimeError('Baseline value for {} "{}" not present in data.'.format(loop_key, baseline))
         base_data = df.loc[df[loop_key] == baseline]
         base_data.set_index('trial')
         base_data = base_data.groupby('trial').mean()
-        base_energy = base_data['energy'].mean()
+        base_energy = base_data[energy_metric].mean()
         base_perf = base_data[perf_metric].mean()
     else:
         # if no baseline, do not normalize
@@ -99,18 +111,18 @@ def energy_perf_summary(df, loop_key, loop_vals, baseline, perf_metric, use_stde
         row_df.set_index('trial')
         row_df = row_df.groupby('trial').mean()
 
-        mean_energy = row_df['energy'].mean() / base_energy
+        mean_energy = row_df[energy_metric].mean() / base_energy
         mean_perf = row_df[perf_metric].mean() / base_perf
         if use_stdev:
-            energy_std = row_df['energy'].std() / base_energy
+            energy_std = row_df[energy_metric].std() / base_energy
             min_delta_energy = energy_std
             max_delta_energy = energy_std
             perf_std = row_df[perf_metric].std() / base_perf
             min_delta_perf = perf_std
             max_delta_perf = perf_std
         else:
-            min_energy = row_df['energy'].min() / base_energy
-            max_energy = row_df['energy'].max() / base_energy
+            min_energy = row_df[energy_metric].min() / base_energy
+            max_energy = row_df[energy_metric].max() / base_energy
             min_delta_energy = mean_energy - min_energy
             max_delta_energy = max_energy - mean_energy
             min_perf = row_df[perf_metric].min() / base_perf
@@ -122,7 +134,7 @@ def energy_perf_summary(df, loop_key, loop_vals, baseline, perf_metric, use_stde
                      min_delta_energy, max_delta_energy,
                      min_delta_perf, max_delta_perf])
     return pandas.DataFrame(data, index=loop_vals,
-                            columns=['energy', 'performance',
+                            columns=[energy_metric, 'performance',
                                      'min_delta_energy', 'max_delta_energy',
                                      'min_delta_perf', 'max_delta_perf'])
 
