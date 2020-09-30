@@ -6,3 +6,7 @@ integration/apps/nasft/nasft/npbparams.fi
 integration/apps/nasft/nasft/print_results.f
 integration/apps/nasft/nasft/randi8.f
 integration/apps/nasft/nasft/timers.f
+integration/apps/nasft/nasft_E/ft.f90
+integration/apps/nasft/nasft_E/global.fi
+integration/apps/nasft/nasft_E/mpinpb.fi
+integration/apps/nasft/nasft_E/npbparams.fi

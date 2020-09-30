@@ -46,7 +46,7 @@ if __name__ == '__main__':
     parser.set_defaults(agent_list='power_balancer')
     args, extra_args = parser.parse_known_args()
     mach = machine.init_output_dir(args.output_dir)
-    app_conf = nasft.NasftAppConf(mach)
+    app_conf = nasft.NasftAppConf(mach, args.node_count)
     power_balancer_energy.launch(app_conf=app_conf, args=args,
                                  experiment_cli_args=extra_args)
 
