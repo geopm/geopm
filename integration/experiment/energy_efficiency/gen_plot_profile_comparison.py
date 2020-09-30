@@ -53,7 +53,8 @@ from experiment import report
 # TODO: rename variables/column headers to be consistent
 def summary(df, perf_metric, use_stdev, baseline, targets, show_details):
 
-    report.prepare_columns(df, perf_metric)
+    report.prepare_columns(df)
+    report.prepare_metrics(df, perf_metric)
 
     result = report.energy_perf_summary(df=df,
                                         loop_key='Profile',
@@ -78,7 +79,7 @@ def summary(df, perf_metric, use_stdev, baseline, targets, show_details):
     return result
 
 
-def plot_bars(df, baseline_profile, title, perf_label, xlabel, output_dir, show_details):
+def plot_bars(df, baseline_profile, title, perf_label, energy_label, xlabel, output_dir, show_details):
 
     labels = df.index.format()
     prefix = os.path.commonprefix(labels)
@@ -103,10 +104,10 @@ def plot_bars(df, baseline_profile, title, perf_label, xlabel, output_dir, show_
                 yerr=yerr, **errorbar_format)
 
     # plot energy
-    ax.bar(points + bar_width / 2, df['energy'], width=bar_width, color='purple',
-           label='Energy')
+    ax.bar(points + bar_width / 2, df['energy_perf'], width=bar_width, color='purple',
+           label=energy_label)
     yerr = (df['min_delta_energy'], df['max_delta_energy'])
-    ax.errorbar(points + bar_width / 2, df['energy'], xerr=None,
+    ax.errorbar(points + bar_width / 2, df['energy_perf'], xerr=None,
                 yerr=yerr, **errorbar_format)
 
     # baseline
@@ -123,7 +124,7 @@ def plot_bars(df, baseline_profile, title, perf_label, xlabel, output_dir, show_
     if not os.path.exists(fig_dir):
         os.mkdir(fig_dir)
     # TODO: title to filename helper
-    fig_name = '{}_bar'.format(title.lower()
+    fig_name = '{}_bar_baz'.format(title.lower()
                                .replace(' ', '_')
                                .replace(')', '')
                                .replace('(', '')
@@ -219,8 +220,8 @@ if __name__ == '__main__':
         title += ', stdev)'
     else:
         title += ', min-max)'
-    perf_label = report.perf_metric_label(args.performance_metric)
+    perf_label, energy_label = report.perf_metric_label(args.performance_metric)
 
-    plot_bars(result, baseline, title, perf_label,
+    plot_bars(result, baseline, title, perf_label, energy_label,
               xlabel=args.xlabel,
               output_dir=output_dir, show_details=args.show_details)
