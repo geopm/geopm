@@ -53,7 +53,7 @@ is as follows:
     <https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests>.
 
 2.  The submitter may optionally request specific people to be reviewers.
-    Otherwise, any GEOPM developer may be an approver for the pull request.
+    Otherwise, any GEOPM maintainer may be an approver for the pull request.
 
 3.  During the review process, a reviewer may request changes to the pull
     request.  If possible, these should be submitted as new commits
