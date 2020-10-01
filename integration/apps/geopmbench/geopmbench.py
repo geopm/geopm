@@ -50,15 +50,16 @@ class DgemmAppConf(apps.AppConf):
         # TODO: use self._machine_file to determine?
         return 2
 
-    def setup(self, run_id):
+    def get_bash_setup_commands(self):
+        # TODO: get rid of side effects
         self._bench_conf.write()
-        return ""
+        return ''
 
-    def get_exec_path(self):
+    def get_bash_exec_path(self):
         # TODO: may need to find local version if not installed
         return 'geopmbench'
 
-    def get_exec_args(self):
+    def get_bash_exec_args(self):
         return self._bench_conf.get_path()
 
 
@@ -74,17 +75,18 @@ class TinyAppConf(apps.AppConf):
         self._bench_conf.append_region('dgemm', 0.2)
         self._bench_conf.set_loop_count(500)
 
+    def get_bash_setup_commands(self):
+        # TODO: get rid of side effects
+        self._bench_conf.write()
+        return ''
+
     def get_rank_per_node(self):
         # TODO: use self._machine_file to determine?
         return 2
 
-    def setup(self, run_id):
-        self._bench_conf.write()
-        return ""
-
-    def get_exec_path(self):
+    def get_bash_exec_path(self):
         # TODO: may need to find local version if not installed
         return 'geopmbench'
 
-    def get_exec_args(self):
+    def get_bash_exec_args(self):
         return self._bench_conf.get_path()

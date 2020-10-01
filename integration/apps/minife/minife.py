@@ -62,27 +62,23 @@ class MinifeAppConf(apps.AppConf):
     def get_rank_per_node(self):
         return self.ranks_per_node
 
-    def setup(self, run_id):
-        self.unique_name = run_id
-        return ''
-
-    def get_exec_path(self):
+    def get_bash_exec_path(self):
         return self.exe_path
 
-    def get_exec_args(self):
-        return self.app_params + ' -name=' + self.unique_name
+    def get_bash_exec_args(self):
+        return self.app_params + ' -name=' + self.get_run_id()
 
     def parse_fom(self, log_path):
         # log path is ignored; use unique_name from init
-        matching_files = glob.glob('*' + self.unique_name + '*.yaml')
+        matching_files = glob.glob('*' + self.get_run_id() + '*.yaml')
         if len(matching_files) > 1:
             sys.stderr.write('<geopm> Warning: multiple yml files matched for miniFE\n')
         if len(matching_files) == 0:
-            raise RuntimeError('No miniFE yml files found with pattern "{}"'.format(self.unique_name))
+            raise RuntimeError('No miniFE yml files found with pattern "{}"'.format(self.get_run_id()))
 
         result = ''
         # use last one in list if multiple matches
-        # TODO: this is a problem
+        # TODO: this is a problem if multiple trials run in parallel in the same dir
         with open(matching_files[-1]) as outfile:
             for line in outfile:
                 if 'Total CG Mflops' in line:
