@@ -33,4 +33,5 @@ EXTRA_DIST += integration/apps/minife/0001-Adding-geopm-markup-to-CORAL-version-
               integration/apps/minife/build.sh \
               integration/apps/minife/__init__.py \
               integration/apps/minife/minife.py \
+              integration/apps/minife/README.md \
               # end

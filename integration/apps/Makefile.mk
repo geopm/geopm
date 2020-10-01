@@ -30,6 +30,7 @@
 #
 
 EXTRA_DIST += integration/apps/apps.py \
+              integration/apps/build_func.sh \
               integration/apps/__init__.py \
               integration/apps/README.md \
               # end
