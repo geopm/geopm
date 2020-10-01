@@ -39,6 +39,7 @@ import sys
 import geopmpy.launcher
 from . import util
 from . import machine
+from apps import apps
 
 
 def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
@@ -86,7 +87,7 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
 
     argv.extend(['--'])
 
-    bash_path = app_conf.make_bash(uid, log_path)
+    bash_path = apps.make_bash(app_conf, run_id, log_path)
     argv.extend([bash_path])
 
     num_ranks = app_conf.get_rank_per_node() * num_nodes

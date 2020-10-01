@@ -68,13 +68,10 @@ class AmgAppConf(apps.AppConf):
     def get_rank_per_node(self):
         return self.ranks_per_node
 
-    def setup(self, run_id):
-        return ''
-
-    def get_exec_path(self):
+    def get_bash_exec_path(self):
         return self.exe_path
 
-    def get_exec_args(self):
+    def get_bash_exec_args(self):
         return self.app_params
 
     def parse_fom(self, logfile):

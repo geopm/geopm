@@ -39,6 +39,7 @@ import os
 
 from .. import apps
 
+
 class NasftAppConf(apps.AppConf):
 
     @staticmethod
@@ -53,19 +54,10 @@ class NasftAppConf(apps.AppConf):
     def get_rank_per_node(self):
         return self._num_rank_per_node
 
-    def setup(self, run_id):
-        return ''
-
-    def cleanup(self):
-        return ''
-
-    def get_exec_path(self):
+    def get_bash_exec_path(self):
         return os.path.join(self._nasft_path, 'nas_ft')
 
-    def get_exec_args(self):
-        return []
-
-    def get_custom_geopm_args(self):
+    def get_bash_exec_args(self):
         return []
 
     @staticmethod

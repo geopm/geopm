@@ -59,7 +59,7 @@ class NekboneAppConf(apps.AppConf):
         # TODO: use self._machine_file to determine
         return self._num_rank_per_node
 
-    def setup(self, run_id):
+    def get_bash_setup_commands(self):
         size = 10000  # this size varies per system
         input_file = textwrap.dedent('''
         .true. = ifbrick               ! brick or linear geometry
@@ -71,10 +71,10 @@ class NekboneAppConf(apps.AppConf):
         '''.format(size=size))
         return 'ulimit -s unlimited; cat > ./data.rea << EOF {}'.format(input_file)
 
-    def cleanup(self):
+    def get_bash_cleanup_commands(self):
         return 'rm -f ./data.rea'
 
-    def get_exec_path(self):
+    def get_bash_exec_path(self):
         binary_name = ''
         if self._add_barriers:
             binary_name = 'nekbone-barrier'
@@ -83,7 +83,7 @@ class NekboneAppConf(apps.AppConf):
 
         return os.path.join(self._nekbone_path, binary_name)
 
-    def get_exec_args(self):
+    def get_bash_exec_args(self):
         return ['ex1']
 
     def get_custom_geopm_args(self):
