@@ -30,40 +30,21 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-set -e
 set -x
+set -e
 
-# Clear out old versions:
-if [ -d "nekbone" ]; then
-    echo "WARNING: Previous nekbone checkout detected at ./nekbone"
-    read -p "OK to delete and rebuild? (y/n) " -n 1 -r
-    echo
-    if [[ ${REPLY} =~ ^[Yy]$ ]]; then
-        rm -rf nekbone
-    else
-        echo "Not OK.  Stopping."
-        exit 1
-    fi
-fi
+# Get helper functions
+source ../build_func.sh
 
-# Acquire the source:
-svn checkout https://repocafe.cels.anl.gov/repos/nekbone
-base_dir=${PWD}
+dirname=AMG-master
+archive=amg-master-5.zip
+url=https://asc.llnl.gov/sites/asc/files/2020-09
 
-# Change directories to the unpacked files.
-cd nekbone/trunk/nekbone
+clean_source $dirname
+get_archive $archive $url
+unpack_archive $archive
+setup_source_git $dirname
 
-# Create a git repo for the app source
-git init
-git add -A
-git commit -sm "Initial commit"
-
-# Patch nekbone:
-git am ${base_dir}/*.patch
-
-# Build
-cd test/example1
-GEOPM_BARRIER=yes ./makenek-intel
-mv nekbone nekbone-barrier
-make clean
-./makenek-intel
+# build
+cd $dirname
+make

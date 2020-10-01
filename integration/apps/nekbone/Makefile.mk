@@ -38,6 +38,6 @@ EXTRA_DIST += integration/apps/nekbone/0001-Fix-whitespace-issues.patch \
               integration/apps/nekbone/0007-Increase-iterations-to-2000.patch \
               integration/apps/nekbone/0008-Add-barriers-to-collective-calls.patch \
               integration/apps/nekbone/__init__.py \
-              integration/apps/nekbone/download_and_build.sh \
+              integration/apps/nekbone/build.sh \
               integration/apps/nekbone/nekbone.py \
               # end

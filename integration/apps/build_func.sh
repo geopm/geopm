@@ -1,4 +1,3 @@
-#!/bin/bash
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -30,28 +29,63 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-set -e
-set -x
 
-# Acquire the source:
-if [ ! -f MiniFE_ref_2.0-rc3.tar.gz ]; then
-    wget https://asc.llnl.gov/CORAL-benchmarks/Throughput/MiniFE_ref_2.0-rc3.tar.gz
-fi
+# Clean out old versions of application source and warn user
+function clean_source {
+    dirname=$1
+    # Clear out old versions:
+    if [ -d "$dirname" ]; then
+        echo "WARNING: Previous source directory detected at ./$dirname"
+        read -p "OK to delete and rebuild? (y/n) " -n 1 -r
+        echo
+        if [[ ${REPLY} =~ ^[Yy]$ ]]; then
+            rm -rf $dirname
+        else
+            echo "Not OK.  Stopping."
+            exit 1
+        fi
+    fi
+}
 
-# Unpack the source:
-tar zxvf MiniFE_ref_2.0-rc3.tar.gz
-base_dir=${PWD}
+# Setup a git repository and apply patches
+function setup_source_git {
+    basedir=$PWD
+    dirname=$1
+    if [ $# == 2 ]; then
+        patch_list=$2
+    else
+        patch_list="$(ls $basedir/*.patch 2> /dev/null || true)"
+    fi
+    cd $dirname
+    # Create a git repo for the app source
+    git init
+    git add -A
+    git commit --no-edit -sm "Initial commit"
+    if [ ! -z  "$patch_list" ]; then
+        git am $patch_list
+    fi
+    cd -
+}
 
-# Change directories to the unpacked files.
-cd miniFE_openmp-2.0-rc3
+# Get the source archive from local cache or web page
+function get_archive {
+    archive=$1
+    if [ ! -f $archive ]; then
+        if [ -f "$GEOPM_APPS_SRCDIR/$archive" ]; then
+            cp $"$GEOPM_APPS_SRCDIR/$archive" .
+        elif [ $# -eq 2 ]; then
+            url=$2
+            wget $url/$archive
+        fi
+    fi
+}
 
-# Patch MiniFE with the patch utility:
-git init
-git add -A
-git commit -sm "Initial commit"
-
-git am ${base_dir}/*.patch
-
-# Build
-cd src
-make
+# Unpack an archive with tar or unzip
+function unpack_archive {
+    archive=$1
+    if [ "${archive##*.}" == zip ]; then
+        unzip $archive
+    else
+        tar xvf $archive
+    fi
+}

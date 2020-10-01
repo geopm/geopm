@@ -30,39 +30,48 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-AMG_DIR=AMG-master
-# Clear out old versions:
-if [ -d "$AMG_DIR" ]; then
-    echo "WARNING: Previous AMG checkout detected at ./$AMG_DIR"
-    read -p "OK to delete and rebuild? (y/n) " -n 1 -r
-    echo
-    if [[ ${REPLY} =~ ^[Yy]$ ]]; then
-        rm -rf $AMG_DIR
-    else
-        echo "Not OK.  Stopping."
-        exit 1
-    fi
+set -e
+set -x
+
+source ../build_func.sh
+
+TARGETS="mcfly quartz xeon"
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 <target system>.  Available targets: ${TARGETS}"
+    exit 1
 fi
 
+target_arch=$1
+
+# Supported targets
+if [ "$target_arch" = "mcfly" ]; then
+    BUILD_PATCHES=""
+    TARGET=IMPI_IOMP_SKX
+    BIN=xhpcg_skx
+elif [ "$target_arch" = "quartz" ]; then
+    BUILD_PATCHES="../0001-Change-MPI-compiler-to-mpicxx.patch"
+    TARGET=IMPI_IOMP_AVX2
+    BIN=xhpcg_avx2
+elif [ "$target_arch" = "xeon" ]; then
+    BUILD_PATCHES=""
+    TARGET=IMPI_IOMP_AVX2
+    BIN=xhpcg_avx2
+else
+    echo "Unknown target.  Available targets: ${TARGETS}"
+    exit 1
+fi
+
+dirname=hpcg
+clean_source $dirname
 # Acquire the source:
-ZIP_NAME=amg-master-5.zip
-if [ ! -f $ZIP_NAME ]; then
-    wget https://asc.llnl.gov/sites/asc/files/2020-09/amg-master-5.zip
-fi
-
-# Unpack the source:
-unzip $ZIP_NAME
-
-# Change directories to the unpacked files:
-cd $AMG_DIR
-
-# Create a git repo for the app source
-git init
-git add -A
-git commit -sm "Initial commit"
-
-# Patch AMG with the patch utility:
-git am ../0001-Adding-geopm-markup-to-CORAL-2-AMG.patch
-
+cp -r ${MKLROOT}/benchmarks/hpcg/ $dirname
+# Get rid of prebuilt binaries
+rm $dirname/bin/xhpcg*
+setup_source_git "$dirname" "$BUILD_PATCHES"
 # Build
+cd $dirname
+./configure ${TARGET}
 make
+# Use uniform binary name
+cd bin
+ln -fs ${BIN} xhpcg.x
