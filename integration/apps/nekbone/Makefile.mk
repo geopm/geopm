@@ -40,4 +40,5 @@ EXTRA_DIST += integration/apps/nekbone/0001-Fix-whitespace-issues.patch \
               integration/apps/nekbone/__init__.py \
               integration/apps/nekbone/build.sh \
               integration/apps/nekbone/nekbone.py \
+              integration/apps/nekbone/README.md \
               # end
