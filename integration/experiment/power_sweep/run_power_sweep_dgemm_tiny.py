@@ -37,7 +37,7 @@ Example power sweep experiment using geopmbench.
 
 
 from experiment.power_sweep import power_sweep
-from apps import geopmbench
+from apps.geopmbench import geopmbench
 
 
 if __name__ == '__main__':

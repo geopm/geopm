@@ -37,7 +37,7 @@ Example frequency sweep experiment using geopmbench.
 
 
 from experiment.frequency_sweep import frequency_sweep
-from apps import geopmbench
+from apps.geopmbench import geopmbench
 
 
 if __name__ == '__main__':

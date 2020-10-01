@@ -33,7 +33,7 @@
 
 
 from experiment.energy_efficiency import power_balancer_energy
-from apps import geopmbench
+from apps.geopmbench import geopmbench
 
 
 if __name__ == '__main__':
