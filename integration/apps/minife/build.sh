@@ -30,68 +30,25 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-set -e
 set -x
+set -e
 
-TARGETS="mcfly quartz xeon"
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 <target system>.  Available targets: ${TARGETS}"
-    exit 1
-fi
+# Get helper functions
+source ../build_func.sh
 
-target_arch=$1
+# Set variables for workload
+dirname=miniFE_openmp-2.0-rc3
+archive=$dirname.zip
+url=https://asc.llnl.gov/sites/asc/files/2020-09
 
-HPCG_DIR=hpcg_mkl
-if [ -d "$HPCG_DIR" ]; then
-    echo "WARNING: Previous HPCG checkout detected at ./$HPCG_DIR"
-    read -p "OK to delete and rebuild? (y/n) " -n 1 -r
-    echo
-    if [[ ${REPLY} =~ ^[Yy]$ ]]; then
-        rm -rf $HPCG_DIR
-    else
-        echo "Not OK.  Stopping."
-        exit 1
-    fi
-fi
+# Run helper functions
+clean_source $dirname
+rm -rf __MACOSX
+get_archive $archive $url
+unpack_archive $archive
+rm -rf __MACOSX
+setup_source_git $dirname
 
-# Supported targets
-if [ "$target_arch" = "mcfly" ]; then
-    BUILD_PATCHES=""
-    TARGET=IMPI_IOMP_SKX
-    BIN=xhpcg_skx
-elif [ "$target_arch" = "quartz" ]; then
-    BUILD_PATCHES="../0001-Change-MPI-compiler-to-mpicxx.patch"
-    TARGET=IMPI_IOMP_AVX2
-    BIN=xhpcg_avx2
-elif [ "$target_arch" = "xeon" ]; then
-    BUILD_PATCHES=""
-    TARGET=IMPI_IOMP_AVX2
-    BIN=xhpcg_avx2
-else
-    echo "Unknown target.  Available targets: ${TARGETS}"
-    exit 1
-fi
-
-# Acquire the source:
-cp -r ${MKLROOT}/benchmarks/hpcg/ $HPCG_DIR
-
-cd $HPCG_DIR
-
-# Set up git
-rm bin/xhpcg*
-git init
-git add -A
-git commit --no-edit -s -m "Initial commit"
-
-# Apply patches
-if [ ! -z "${BUILD_PATCHES}"]; then
-    git am ${BUILD_PATCHES}
-fi
-
-# Build
-./configure ${TARGET}
+# Build application
+cd $dirname/src
 make
-
-# Use uniform binary name
-cd bin
-ln -fs ${BIN} xhpcg.x

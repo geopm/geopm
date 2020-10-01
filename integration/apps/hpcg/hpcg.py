@@ -41,7 +41,7 @@ class HpcgAppConf(apps.AppConf):
 
     def __init__(self, mach):
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
-        self._hpcg_exe = os.path.join(benchmark_dir, 'hpcg_mkl', 'bin', 'xhpcg.x')
+        self._hpcg_exe = os.path.join(benchmark_dir, 'hpcg', 'bin', 'xhpcg.x')
 
         self._ranks_per_node = mach.num_package()
 

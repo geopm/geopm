@@ -52,7 +52,7 @@ class NekboneAppConf(apps.AppConf):
     def __init__(self, add_barriers=False):
         self._add_barriers = add_barriers
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
-        self._nekbone_path = os.path.join(benchmark_dir, 'nekbone/trunk/nekbone/test/example1/')
+        self._nekbone_path = os.path.join(benchmark_dir, 'nekbone/test/example1/')
         self._num_rank_per_node = 2
 
     def get_rank_per_node(self):

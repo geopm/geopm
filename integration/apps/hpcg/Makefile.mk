@@ -30,7 +30,7 @@
 #
 
 EXTRA_DIST += integration/apps/hpcg/0001-Change-MPI-compiler-to-mpicxx.patch \
-              integration/apps/hpcg/download_and_build.sh \
+              integration/apps/hpcg/build.sh \
               integration/apps/hpcg/hpcg.py \
               integration/apps/hpcg/__init__.py \
               # end

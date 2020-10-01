@@ -1,3 +1,4 @@
+#!/bin/bash
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,8 +30,34 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/apps/amg/0001-Adding-geopm-markup-to-CORAL-2-AMG.patch \
-              integration/apps/amg/amg.py \
-              integration/apps/amg/build.sh \
-              integration/apps/amg/__init__.py \
-              # end
+set -x
+set -e
+set -x
+
+# Get helper functions
+source ../build_func.sh
+
+function get_nekbone_source {
+    dirname=$1
+    basedir=$PWD
+    tmpdir=$(mktemp -d)
+    cd $tmpdir
+    svn checkout https://repocafe.cels.anl.gov/repos/nekbone
+    mv nekbone/trunk/nekbone $basedir/$dirname
+    cd -
+    rm -rf $tmpdir
+}
+
+# Set variables for workload
+dirname=nekbone
+clean_source $dirname
+# Acquire the source:
+get_nekbone_source $dirname
+setup_source_git $dirname
+
+# Build
+cd $dirname/test/example1
+GEOPM_BARRIER=yes ./makenek-intel
+mv nekbone nekbone-barrier
+make clean
+./makenek-intel
