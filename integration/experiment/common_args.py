@@ -138,8 +138,8 @@ def add_agent_list(parser):
 
 def add_enable_traces(parser):
     parser.add_argument('--enable-traces', dest='enable_traces',
-                         action='store_const', const=True,
-                         default=False, help='Enable trace generation')
+                        action='store_const', const=True,
+                        default=False, help='Enable trace generation')
     parser.add_argument('--disable-traces', dest='enable_traces',
                         action='store_const', const=False,
                         help='Disable trace generation')
