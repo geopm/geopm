@@ -32,14 +32,14 @@
 
 # Clean out old versions of application source and warn user
 clean_source() {
-    local dirname=$1
+    local DIRNAME=${1}
     # Clear out old versions:
-    if [ -d "$dirname" ]; then
-        echo "WARNING: Previous source directory detected at ./$dirname"
+    if [ -d "${DIRNAME}" ]; then
+        echo "WARNING: Previous source directory detected at ./${DIRNAME}"
         read -p "OK to delete and rebuild? (y/n) " -n 1 -r
         echo
         if [[ ${REPLY} =~ ^[Yy]$ ]]; then
-            rm -rf $dirname
+            rm -rf ${DIRNAME}
         else
             echo "Not OK.  Stopping."
             exit 1
@@ -49,44 +49,44 @@ clean_source() {
 
 # Setup a git repository and apply patches
 setup_source_git() {
-    local basedir=$PWD
-    local dirname=$1
+    local BASEDIR=${PWD}
+    local DIRNAME=${1}
     if [ $# == 2 ]; then
-        local patch_list=$2
+        local PATCH_LIST=${2}
     else
-        local patch_list="$(ls $basedir/*.patch 2> /dev/null || true)"
+        local PATCH_LIST="$(ls ${BASEDIR}/*.patch 2> /dev/null || true)"
     fi
-    cd $dirname
+    cd ${DIRNAME}
     # Create a git repo for the app source
     git init
     git checkout -b main
     git add -A
     git commit --no-edit -sm "Initial commit"
-    if [ ! -z  "$patch_list" ]; then
-        git am $patch_list
+    if [ ! -z  "${PATCH_LIST}" ]; then
+        git am ${PATCH_LIST}
     fi
     cd -
 }
 
 # Get the source archive from local cache or web page
 get_archive() {
-    local archive=$1
-    if [ ! -f $archive ]; then
-        if [ -f "$GEOPM_APPS_SRCDIR/$archive" ]; then
-            cp $"$GEOPM_APPS_SRCDIR/$archive" .
+    local ARCHIVE=$1
+    if [ ! -f ${ARCHIVE} ]; then
+        if [ -f "${GEOPM_APPS_SRCDIR}/${ARCHIVE}" ]; then
+            cp "${GEOPM_APPS_SRCDIR}/${ARCHIVE}" .
         elif [ $# -eq 2 ]; then
-            local url=$2
-            wget $url/$archive
+            local URL=$2
+            wget ${URL}/${ARCHIVE}
         fi
     fi
 }
 
 # Unpack an archive with tar or unzip
 unpack_archive() {
-    local archive=$1
-    if [ "${archive##*.}" == zip ]; then
-        unzip $archive
+    local ARCHIVE=$1
+    if [ "${ARCHIVE##*.}" == zip ]; then
+        unzip ${ARCHIVE}
     else
-        tar xvf $archive
+        tar xvf ${ARCHIVE}
     fi
 }

@@ -36,16 +36,16 @@ set -e
 # Get helper functions
 source ../build_func.sh
 
-dirname=AMG-master
-archive=amg-master-5.zip
-url=https://asc.llnl.gov/sites/asc/files/2020-09
+DIRNAME=AMG-master
+ARCHIVE=amg-master-5.zip
+URL=https://asc.llnl.gov/sites/asc/files/2020-09
 
-clean_source $dirname
-get_archive $archive $url
-unpack_archive $archive
+clean_source ${DIRNAME}
+get_archive ${ARCHIVE} ${URL}
+unpack_archive ${ARCHIVE}
 # TODO: geopm markup patch needs to be fixed
-setup_source_git $dirname ''
+setup_source_git ${DIRNAME} ''
 
 # build
-cd $dirname
+cd ${DIRNAME}
 make

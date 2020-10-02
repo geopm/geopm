@@ -42,14 +42,14 @@ get_nekbone_source() {
 }
 
 # Set variables for workload
-dirname=nekbone
-clean_source $dirname
+DIRNAME=nekbone
+clean_source ${DIRNAME}
 # Acquire the source:
-get_nekbone_source $dirname
-setup_source_git $dirname
+get_nekbone_source ${DIRNAME}
+setup_source_git ${DIRNAME}
 
 # Build
-cd $dirname/test/example1
+cd ${DIRNAME}/test/example1
 GEOPM_BARRIER=yes ./makenek-intel
 mv nekbone nekbone-barrier
 make clean
