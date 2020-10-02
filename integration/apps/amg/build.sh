@@ -43,7 +43,8 @@ url=https://asc.llnl.gov/sites/asc/files/2020-09
 clean_source $dirname
 get_archive $archive $url
 unpack_archive $archive
-setup_source_git $dirname
+# TODO: geopm markup patch needs to be fixed
+setup_source_git $dirname ''
 
 # build
 cd $dirname
