@@ -37,8 +37,12 @@ set -e
 source ../build_func.sh
 
 get_nekbone_source() {
-    svn checkout https://repocafe.cels.anl.gov/repos/nekbone/trunk/nekbone ${1}
-    rm -fr ${1}/.svn
+    local DIRNAME=${1}
+    svn checkout https://repocafe.cels.anl.gov/repos/nekbone/trunk/nekbone ${DIRNAME}
+    cd ${DIRNAME}
+    svn log > svn.log
+    rm -fr .svn
+    cd -
 }
 
 # Set variables for workload
