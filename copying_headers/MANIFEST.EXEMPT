@@ -35,6 +35,8 @@ integration/apps/nasft/nasft/COPYING-NAS
 integration/apps/nasft/nasft/README
 integration/apps/nasft/README.md
 integration/apps/nekbone/README.md
+integration/experiment/frequency_sweep/README.md
+integration/experiment/monitor/README.md
 integration/experiment/power_sweep/README.md
 integration/experiment/README.md
 integration/experiment/trace_analysis/README.md
