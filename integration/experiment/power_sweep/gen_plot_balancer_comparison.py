@@ -45,28 +45,31 @@ import numpy
 import geopmpy.io
 
 from experiment import common_args
+from experiment import report
 
 
-def prep_plot_data(report_data, metric, normalize, speedup):
+def prep_plot_data(report_data, metric, normalize, speedup, use_stdev):
     idf = report_data
+    report.prepare_columns(idf)
+    report.prepare_metrics(idf, metric)
 
     # rename some columns
     idf['power_limit'] = idf['POWER_PACKAGE_LIMIT_TOTAL']
-    idf['runtime'] = idf['runtime (sec)']
-    idf['network_time'] = idf['network-time (sec)']
-    idf['energy_pkg'] = idf['package-energy (joules)']
-    try:
-        idf['frequency'] = idf['frequency (Hz)']
-    except KeyError:
-        pass
 
-    idf = idf.set_index(['Agent', 'power_limit', 'Profile', 'host'])
+    print(idf)
+
+    # mean across nodes within trials
+    idf = idf.set_index(['Agent', 'power_limit', 'host', 'trial'])
+    idf = idf.groupby(['Agent', 'power_limit', 'trial']).mean()
+
+    print(idf)
 
     df = pandas.DataFrame()
     reference = 'power_governor'
     target = 'power_balancer'
 
     ref_epoch_data = idf.xs([reference])
+
     if metric == 'power':
         rge = ref_epoch_data['energy_pkg']
         rgr = ref_epoch_data['runtime']
@@ -77,6 +80,7 @@ def prep_plot_data(report_data, metric, normalize, speedup):
     df['reference_mean'] = reference_g.mean()
     df['reference_max'] = reference_g.max()
     df['reference_min'] = reference_g.min()
+    df['reference_std'] = reference_g.std()
 
     tar_epoch_data = idf.xs([target])
     if metric == 'power':
@@ -89,6 +93,7 @@ def prep_plot_data(report_data, metric, normalize, speedup):
     df['target_mean'] = target_g.mean()
     df['target_max'] = target_g.max()
     df['target_min'] = target_g.min()
+    df['target_std'] = target_g.std()
 
     if normalize and not speedup:  # Normalize the data against the rightmost reference bar
         df /= df['reference_mean'].iloc[-1]
@@ -98,18 +103,26 @@ def prep_plot_data(report_data, metric, normalize, speedup):
         df['target_mean'] = 1 / df['target_mean']
         df['target_max'] = 1 / df['target_max']
         df['target_min'] = 1 / df['target_min']
+        # do not invert stdev
 
     # Convert the maxes and mins to be deltas from the mean; required for the errorbar API
-    df['reference_max_delta'] = df['reference_max'] - df['reference_mean']
-    df['reference_min_delta'] = df['reference_mean'] - df['reference_min']
-    df['target_max_delta'] = df['target_max'] - df['target_mean']
-    df['target_min_delta'] = df['target_mean'] - df['target_min']
+    if use_stdev:
+        df['reference_min_delta'] = df['reference_std']
+        df['reference_max_delta'] = df['reference_std']
+        df['target_min_delta'] = df['target_std']
+        df['target_max_delta'] = df['target_std']
+    else:
+        df['reference_max_delta'] = df['reference_max'] - df['reference_mean']
+        df['reference_min_delta'] = df['reference_mean'] - df['reference_min']
+        df['target_max_delta'] = df['target_max'] - df['target_mean']
+        df['target_min_delta'] = df['target_mean'] - df['target_min']
 
     return df
 
 
 def plot_balancer_comparison(output, label, metric, output_dir='.',
-                             speedup=False, normalize=False, detailed=False):
+                             speedup=False, normalize=False, use_stdev=False,
+                             detailed=False):
 
     units = {
         'energy': 'J',
@@ -129,7 +142,8 @@ def plot_balancer_comparison(output, label, metric, output_dir='.',
     label += ' ' + df_type
 
     # Analysis
-    df = prep_plot_data(df, metric=metric, normalize=normalize, speedup=speedup)
+    df = prep_plot_data(df, metric=metric, normalize=normalize, speedup=speedup,
+                        use_stdev=use_stdev)
 
     target_agent = 'power_balancer'
     reference_agent = 'power_governor'
@@ -227,6 +241,10 @@ def plot_balancer_comparison(output, label, metric, output_dir='.',
         file_name += '_speedup'
     elif normalize:
         file_name += '_normalized'
+    if use_stdev:
+        file_name += '_stdev'
+    else:
+        file_name += '_minmax'
     if detailed:
         sys.stdout.write('{}\n'.format(df))
         sys.stdout.write('Writing:\n')
@@ -249,12 +267,13 @@ if __name__ == '__main__':
     common_args.add_output_dir(parser)
     common_args.add_show_details(parser)
     common_args.add_label(parser)
+    common_args.add_use_stdev(parser)
     parser.add_argument('--normalize', action='store_true', default=False,
                         help='use normalized values')
     parser.add_argument('--speedup', action='store_true', default=False,
                         help='show results as a speedup percentage')
     parser.add_argument('--metric', action='store', default='runtime',
-                        help='metric to use for comparison.  One of: runtime, energy_pkg, frequency, power')
+                        help='metric to use for comparison.  One of: runtime, energy_pkg, frequency, power, FOM')
 
     args = parser.parse_args()
     output_dir = args.output_dir
@@ -272,4 +291,5 @@ if __name__ == '__main__':
                              output_dir=output_dir,
                              normalize=args.normalize,
                              speedup=args.speedup,
+                             use_stdev=args.use_stdev,
                              detailed=args.show_details)
