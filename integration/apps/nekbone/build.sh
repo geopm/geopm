@@ -32,7 +32,6 @@
 
 set -x
 set -e
-set -x
 
 # Get helper functions
 source ../build_func.sh
