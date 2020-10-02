@@ -127,7 +127,7 @@ class AppConf(object):
         return 1
 
     def get_cpu_per_rank(self):
-        ''' NOT USED: Hardware threads per rank required by the application.
+        ''' Hardware threads per rank required by the application.
             If None is returned, the launcher will select the number
             of threads to use based on the number of cores on the
             platform.

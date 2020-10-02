@@ -91,10 +91,12 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
     argv.extend([bash_path])
 
     num_ranks = app_conf.get_rank_per_node() * num_nodes
+    cpu_per_rank = app_conf.get_cpu_per_rank()
 
     launcher = geopmpy.launcher.Factory().create(argv,
                                                  num_node=num_nodes,
-                                                 num_rank=num_ranks)
+                                                 num_rank=num_ranks,
+                                                 cpu_per_rank=cpu_per_rank)
     launcher.run()
 
     # Get app-reported figure of merit
