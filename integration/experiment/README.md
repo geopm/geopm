@@ -1,3 +1,46 @@
+# Experiments
+
+This directory provides the integration infrastructure with
+experiements.  All experiments are broken into two parts: running
+parallel jobs, and analyzing the job output.
+
+## Common Python Supporting Files
+
+There is some functionality that is shared between different
+expereiments and these features are captured in python modules
+at the base of the experiement directory.
+
+#### `common_args.py`
+
+There are many command line arguments that are used by run and
+analysis scripts that are common.  The `common_args` module provides
+functions for adding command line arguments to an `argparse` command
+line parser.  When run and gen scripts use these command line
+interfaces it provides a more uniform user experience when calling the
+scripts, and some common code for adding command line options.
+
+#### `launch_util.py`
+
+The `launch_util` module provides the high level launch functions that
+enable run scripts to launch a sequence of job configurations.
+
+#### `machine.py`
+
+Used to generate a json file containing descriptive information about
+the compute nodes where jobs are running.  Each experiment creates one
+of these json files at run time.  The machine object may be used to
+configure an application and it is refered to by the "gen" analysis
+scripts to understand the system where the jobs were run without
+requiring compute node access.
+
+#### `util.py`
+
+The `util` module provides low level functions that assist in querying
+system configurations.  This module is not commonly used by run or gen
+scripts, but is used by the other supporting files in this directory.
+
+## Experiment Directories
+
 Scripts are grouped into sub-folders based on the type of
 experiment, such as a sweep across power limits or processor
 frequency settings.  In each experiment directory there should be
