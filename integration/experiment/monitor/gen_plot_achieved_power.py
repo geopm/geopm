@@ -32,7 +32,7 @@
 #
 
 '''
-Plot a histogram of the achieved power on each node from an unconstrained run.
+Plot a histogram of the achieved power on each package from an unconstrained run.
 '''
 
 import sys

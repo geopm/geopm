@@ -4,79 +4,58 @@ POWER SWEEP-BASED EXPERIMENTS
 The scripts in this directory are used to run and analyze application
 runs that use different package power limits as their agent policy.
 
-The general workflow is as follows:
+## Base Experiment Module
 
-1. Run the sweep for a specific application with
-   run_power_sweep_<app>.py.  An directory to hold all output files is
-   recommended and can be specified with `--output-dir`.  The number
-   of nodes can be specified with `--nodes`; otherwise 1 node will be
-   used.
+#### `power_sweep.py`:
 
-2. Generate the desired analysis targetting the resulting output with
-   `--output-dir`; by default all reports/traces in the current
-   working directory are used.  Some scripts support more verbose
-   output with `--show-details`.
+  Contains helper functions for launching a power sweep and common
+  command line arguments.
 
-Example:
+  In addition to command line arguments common to all run scripts,
+  power sweep runs also accept the following options:
 
-1. Run DGEMM on 4 nodes:
+  - `--max-power`: the maximum power setting for the sweep.  By
+                   default, uses TDP for the compute nodes.  Within
+                   each trial, the experiment script will start at the
+                   highest power limit and run at each limit until
+                   it reaches the minimum.
 
-  ./run_power_sweep_dgemm.py --nodes=4 --output-dir=test42
+  - `--min-power`: the minimum power setting to use for the sweep.
 
-2. Calculate the achieved frequency on each node and generate histogram plots:
+  - `--step-power`: the step size in watts between settings for the sweep.
 
-  ./node_efficiency.py --output-dir=test42
+  - `--agent-list`: the list of agents to use for the sweep.  They
+                    must use a power limit policy.  By default, both
+                    the power_governor and power_balancer are run.
 
+## Analysis Scripts to Produce Summary Tables and Visualizations
 
+#### gen_power_sweep_summary.py:
 
-Base Experiment Module
-----------------------
-power_sweep.py:
+  Prints basic summary of the runtime and energy characteristics at
+  each power cap.
 
-  - Contains the helper function for launching a power sweep.
+#### gen_balancer_comparison.py
 
+  Compares the total runtime and energy of the application when run
+  with the power balancer against the power governor and prints the
+  runtime and energy savings.
 
-Application Specific Run Scripts
---------------------------------
+#### gen_plot_node_efficiency.py
 
-run_power_sweep_dgemm.py:
+  Calculates the achieved frequency of every package of every node at
+  each power cap and agent in the experiment.  Produces a histogram
+  plot for each power cap and agent summarizing the data.  If
+  --show-details is passed, it also prints the same data to standard
+  output.
 
-  - Runs DGEMM on a number of nodes over a range of power caps.
+#### gen_plot_balancer_power_limit.py
 
-run_power_sweep_dgemm_tiny.py
+  Plot over time showing epoch runtimes and power limits chosen by the
+  balancer algorithm.  Useful for checking the algorithm behavior.
 
-  - Runs a small DGEMM problem on a number of nodes over a range of
-    power caps.  This will run more quickly than the default dgemm.
+#### gen_plot_balancer_comparison.py
 
-Analysis Scripts to Produce Summary Tables and Visualizations
--------------------------------------------------------------
-
-gen_power_sweep_summary.py:
-
-  - Prints basic summary of the runtime and energy characteristics at
-    each power cap.
-
-gen_balancer_comparison.py
-
-  - Compares the total runtime and energy of the application when run
-    with the power balancer against the power governor and prints the
-    runtime and energy savings.
-
-gen_node_efficiency.py
-
-  - Calculates the achieved frequency of every package of every node
-    at each power cap and agent in the experiment.  Produces a
-    histogram plot for each power cap and agent summarizing the data.
-    If --show-details is passed, it also prints the same data to
-    standard output.
-
-gen_plot_balancer_power_limit.py
-
-  - Plot over time showing epoch runtimes and power limits chosen by the
-    balancer algorithm.  Useful for checking the algorithm behavior.
-
-gen_balancer_comparison_plot.py
-
-  - Create a bar chart comparing the total runtime or energy of the
-    application when run with the power balancer against the power
-    governor over a range of power caps.
+  Create a bar chart comparing the total runtime or energy of the
+  application when run with the power balancer against the power
+  governor over a range of power caps.
