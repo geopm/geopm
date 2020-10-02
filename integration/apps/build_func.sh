@@ -32,7 +32,7 @@
 
 # Clean out old versions of application source and warn user
 function clean_source {
-    dirname=$1
+    local dirname=$1
     # Clear out old versions:
     if [ -d "$dirname" ]; then
         echo "WARNING: Previous source directory detected at ./$dirname"
@@ -49,12 +49,12 @@ function clean_source {
 
 # Setup a git repository and apply patches
 function setup_source_git {
-    basedir=$PWD
-    dirname=$1
+    local basedir=$PWD
+    local dirname=$1
     if [ $# == 2 ]; then
-        patch_list=$2
+        local patch_list=$2
     else
-        patch_list="$(ls $basedir/*.patch 2> /dev/null || true)"
+        local patch_list="$(ls $basedir/*.patch 2> /dev/null || true)"
     fi
     cd $dirname
     # Create a git repo for the app source
@@ -69,12 +69,12 @@ function setup_source_git {
 
 # Get the source archive from local cache or web page
 function get_archive {
-    archive=$1
+    local archive=$1
     if [ ! -f $archive ]; then
         if [ -f "$GEOPM_APPS_SRCDIR/$archive" ]; then
             cp $"$GEOPM_APPS_SRCDIR/$archive" .
         elif [ $# -eq 2 ]; then
-            url=$2
+            local url=$2
             wget $url/$archive
         fi
     fi
@@ -82,7 +82,7 @@ function get_archive {
 
 # Unpack an archive with tar or unzip
 function unpack_archive {
-    archive=$1
+    local archive=$1
     if [ "${archive##*.}" == zip ]; then
         unzip $archive
     else
