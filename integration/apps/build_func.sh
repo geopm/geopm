@@ -31,7 +31,7 @@
 
 
 # Clean out old versions of application source and warn user
-function clean_source {
+clean_source() {
     local dirname=$1
     # Clear out old versions:
     if [ -d "$dirname" ]; then
@@ -48,7 +48,7 @@ function clean_source {
 }
 
 # Setup a git repository and apply patches
-function setup_source_git {
+setup_source_git() {
     local basedir=$PWD
     local dirname=$1
     if [ $# == 2 ]; then
@@ -69,7 +69,7 @@ function setup_source_git {
 }
 
 # Get the source archive from local cache or web page
-function get_archive {
+get_archive() {
     local archive=$1
     if [ ! -f $archive ]; then
         if [ -f "$GEOPM_APPS_SRCDIR/$archive" ]; then
@@ -82,7 +82,7 @@ function get_archive {
 }
 
 # Unpack an archive with tar or unzip
-function unpack_archive {
+unpack_archive() {
     local archive=$1
     if [ "${archive##*.}" == zip ]; then
         unzip $archive
