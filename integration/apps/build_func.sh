@@ -59,6 +59,7 @@ function setup_source_git {
     cd $dirname
     # Create a git repo for the app source
     git init
+    git checkout -b main
     git add -A
     git commit --no-edit -sm "Initial commit"
     if [ ! -z  "$patch_list" ]; then
