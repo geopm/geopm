@@ -38,14 +38,8 @@ set -x
 source ../build_func.sh
 
 function get_nekbone_source {
-    dirname=$1
-    basedir=$PWD
-    tmpdir=$(mktemp -d)
-    cd $tmpdir
-    svn checkout https://repocafe.cels.anl.gov/repos/nekbone
-    mv nekbone/trunk/nekbone $basedir/$dirname
-    cd -
-    rm -rf $tmpdir
+    svn checkout https://repocafe.cels.anl.gov/repos/nekbone/trunk/nekbone ${1}
+    rm -fr ${1}/.svn
 }
 
 # Set variables for workload
