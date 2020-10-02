@@ -36,7 +36,7 @@ EXP_DIR=$GEOPM_SRC/integration/experiment
 
 function run_all {
     for APP in $APPLICATIONS; do
-        SCRIPT=${EXP_DIR}/${EXP_TYPE}/run_${EXP_TYPE}_${APP}.py
+        SCRIPT=${EXP_DIR}/${EXP_SUBDIR}/run_${EXP_TYPE}_${APP}.py
         OUTDIR=${SLURM_JOB_ID}_${APP}_${EXP_TYPE}
         if [ -f $SCRIPT ]; then
             python3 ${SCRIPT} --output-dir=${OUTDIR} --node-count=${SLURM_NNODES} ${ARGS}
@@ -47,22 +47,41 @@ function run_all {
 }
 
 function run_all_monitor {
-    APPLICATIONS="dgemm dgemm_tiny nekbone minife amg"
+    APPLICATIONS="dgemm dgemm_tiny nekbone minife amg nasft hpcg"
+    EXP_SUBDIR=monitor
     EXP_TYPE=monitor
     ARGS=""
     run_all
 }
 
 function run_all_power_sweep {
-    APPLICATIONS="dgemm dgemm_tiny nekbone minife amg"
+    APPLICATIONS="dgemm dgemm_tiny nekbone minife amg nasft hpcg"
+    EXP_SUBDIR=power_sweep
     EXP_TYPE=power_sweep
     ARGS="--min-power=220 --max-power=230"
     run_all
 }
 
 function run_all_freq_sweep {
-    APPLICATIONS="dgemm dgemm_tiny nekbone minife amg"
+    APPLICATIONS="dgemm dgemm_tiny nekbone minife amg nasft hpcg"
+    EXP_SUBDIR=frequency_sweep
     EXP_TYPE=frequency_sweep
+    ARGS="--min-frequency=1.9e9 --max-frequency=2.0e9"
+    run_all
+}
+
+function run_all_power_balancer_energy {
+    APPLICATIONS="dgemm dgemm_tiny nekbone minife amg nasft hpcg"
+    EXP_SUBDIR=energy_efficiency
+    EXP_TYPE=power_balancer_energy
+    ARGS="--min-power=220 --max-power=230"
+    run_all
+}
+
+function run_all_barrier_freq_sweep {
+    APPLICATIONS="dgemm dgemm_tiny nekbone minife amg nasft hpcg"
+    EXP_SUBDIR=energy_efficiency
+    EXP_TYPE=barrier_frequency_sweep
     ARGS="--min-frequency=1.9e9 --max-frequency=2.0e9"
     run_all
 }
@@ -73,7 +92,7 @@ if [ ! "$SLURM_JOB_ID" ] || [ ! "$SLURM_NNODES" ]; then
 fi
 
 if [ $# -ne 1 ]; then
-    echo "Usage: $0 monitor|power_sweep|freq_sweep"
+    echo "Usage: $0 monitor|power_sweep|freq_sweep|power_balancer_energy|barrier_freq_sweep"
     exit -1
 fi
 
@@ -85,6 +104,10 @@ elif [ "$name" == "power_sweep" ]; then
     run_all_power_sweep
 elif [ "$name" == "freq_sweep" ]; then
     run_all_freq_sweep
+elif [ "$name" == "power_balancer_energy" ]; then
+    run_all_power_balancer_energy
+elif [ "$name" == "barrier_freq_sweep" ]; then
+    run_all_barrier_freq_sweep
 else
     echo "Error: Unknown name: $name" 1>&2
     exit -1
