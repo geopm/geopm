@@ -41,18 +41,18 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-target_arch=$1
+TARGET_ARCH=${1}
 
 # Supported targets
-if [ "$target_arch" = "mcfly" ]; then
+if [ "${TARGET_ARCH}" = "mcfly" ]; then
     BUILD_PATCHES=""
     TARGET=IMPI_IOMP_SKX
     BIN=xhpcg_skx
-elif [ "$target_arch" = "quartz" ]; then
+elif [ "${TARGET_ARCH}" = "quartz" ]; then
     BUILD_PATCHES="../0001-Change-MPI-compiler-to-mpicxx.patch"
     TARGET=IMPI_IOMP_AVX2
     BIN=xhpcg_avx2
-elif [ "$target_arch" = "xeon" ]; then
+elif [ "${TARGET_ARCH}" = "xeon" ]; then
     BUILD_PATCHES=""
     TARGET=IMPI_IOMP_AVX2
     BIN=xhpcg_avx2
@@ -61,15 +61,15 @@ else
     exit 1
 fi
 
-dirname=hpcg
-clean_source $dirname
+DIRNAME=hpcg
+clean_source ${DIRNAME}
 # Acquire the source:
-cp -r ${MKLROOT}/benchmarks/hpcg/ $dirname
+cp -r ${MKLROOT}/benchmarks/hpcg/ ${DIRNAME}
 # Get rid of prebuilt binaries
-rm $dirname/bin/xhpcg*
-setup_source_git "$dirname" "$BUILD_PATCHES"
+rm ${DIRNAME}/bin/xhpcg*
+setup_source_git "${DIRNAME}" "${BUILD_PATCHES}"
 # Build
-cd $dirname
+cd ${DIRNAME}
 ./configure ${TARGET}
 make
 # Use uniform binary name

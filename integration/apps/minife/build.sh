@@ -37,18 +37,18 @@ set -e
 source ../build_func.sh
 
 # Set variables for workload
-dirname=miniFE_openmp-2.0-rc3
-archive=$dirname.zip
-url=https://asc.llnl.gov/sites/asc/files/2020-09
+DIRNAME=miniFE_openmp-2.0-rc3
+ARCHIVE=${DIRNAME}.zip
+URL=https://asc.llnl.gov/sites/asc/files/2020-09
 
 # Run helper functions
-clean_source $dirname
+clean_source ${DIRNAME}
 rm -rf __MACOSX
-get_archive $archive $url
-unpack_archive $archive
+get_archive ${ARCHIVE} ${URL}
+unpack_archive ${ARCHIVE}
 rm -rf __MACOSX
-setup_source_git $dirname
+setup_source_git ${DIRNAME}
 
 # Build application
-cd $dirname/src
+cd ${DIRNAME}/src
 make
