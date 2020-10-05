@@ -63,7 +63,7 @@ class AmgAppConf(apps.AppConf):
 
         self.app_params = problem + ' ' + size_per_proc + ' ' + process_config
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
-        self.exe_path = os.path.join(benchmark_dir, 'AMG-master/test/amg')
+        self.exe_path = os.path.join(benchmark_dir, 'AMG/test/amg')
 
     def get_rank_per_node(self):
         return self.ranks_per_node
