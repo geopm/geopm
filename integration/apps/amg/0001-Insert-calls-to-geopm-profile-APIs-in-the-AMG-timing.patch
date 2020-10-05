@@ -1,4 +1,4 @@
-From b24d2ae1b7c96af22e2ef3d82340911219901b54 Mon Sep 17 00:00:00 2001
+From 62708c3504cf9150e9fa39490fb36aaa3063f141 Mon Sep 17 00:00:00 2001
 From: "Christopher M. Cantalupo" <christopher.m.cantalupo@intel.com>
 Date: Mon, 5 Oct 2020 13:41:31 -0700
 Subject: [PATCH] Insert calls to geopm profile APIs in the AMG timing.c file
@@ -38,8 +38,9 @@ Signed-off-by: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
 ---
  .gitignore         |  2 ++
  Makefile.include   |  4 ++++
+ krylov/pcg.c       |  4 ++++
  utilities/timing.c | 21 +++++++++++++++++++++
- 3 files changed, 27 insertions(+)
+ 4 files changed, 31 insertions(+)
  create mode 100644 .gitignore
 
 diff --git a/.gitignore b/.gitignore
@@ -63,6 +64,21 @@ index b73ccce..f911dc9 100644
 +GEOPM_INSTALL ?= $(HOME)/build/geopm
 +INCLUDE_CFLAGS += -xCORE-AVX2 -I$(GEOPM_INSTALL)/include -DGEOPM
 +INCLUDE_LFLAGS += -L$(GEOPM_INSTALL)/lib -lgeopm
+diff --git a/krylov/pcg.c b/krylov/pcg.c
+index 2492dae..303e5b7 100644
+--- a/krylov/pcg.c
++++ b/krylov/pcg.c
+@@ -478,6 +478,10 @@ hypre_PCGSolve( void *pcg_vdata,
+ 
+    while ((i+1) <= max_iter)
+    {
++#ifdef GEOPM
++       geopm_prof_epoch();
++#endif
++
+       /*--------------------------------------------------------------------
+        * the core CG calculations...
+        *--------------------------------------------------------------------*/
 diff --git a/utilities/timing.c b/utilities/timing.c
 index 2ada3e4..c946211 100644
 --- a/utilities/timing.c
