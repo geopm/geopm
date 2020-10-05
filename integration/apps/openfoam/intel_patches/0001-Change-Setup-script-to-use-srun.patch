@@ -1,0 +1,33 @@
+From 4cd34795a11a0030dbee889ffc5ed099eca35ef5 Mon Sep 17 00:00:00 2001
+From: Diana Guttman <diana.r.guttman@intel.com>
+Date: Mon, 12 Oct 2020 13:45:00 -0700
+Subject: [PATCH] Change Setup script to use srun
+
+Signed-off-by: Diana Guttman <diana.r.guttman@intel.com>
+---
+ benchmarks/motorbike/Setup | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/benchmarks/motorbike/Setup b/benchmarks/motorbike/Setup
+index d83ff4d..003ddbf 100755
+--- a/benchmarks/motorbike/Setup
++++ b/benchmarks/motorbike/Setup
+@@ -2,6 +2,7 @@
+ cd ${0%/*} || exit 1    # run from this directory
+ 
+ NPROCS=$1
++NODES=$2
+ 
+ echo "Running with $NPROCS procs."
+ 
+@@ -22,6 +23,6 @@ runApplication decomposePar
+ ls -d processor* | xargs -I {} rm -rf ./{}/0
+ ls -d processor* | xargs -I {} cp -r 0.org ./{}/0
+ 
+-runParallel potentialFoam
++srun -N $NODES -n $NPROCS potentialFoam -parallel
+ 
+ # ----------------------------------------------------------------- end-of-file
+-- 
+1.8.3.1
+

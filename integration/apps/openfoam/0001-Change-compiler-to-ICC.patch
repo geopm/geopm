@@ -1,0 +1,68 @@
+From 325e26c850ed5338ec2416312cd190ba4b77c510 Mon Sep 17 00:00:00 2001
+From: Diana Guttman <diana.r.guttman@intel.com>
+Date: Mon, 5 Oct 2020 14:19:29 -0700
+Subject: [PATCH] Change compiler to ICC
+
+Signed-off-by: Diana Guttman <diana.r.guttman@intel.com>
+---
+ etc/bashrc                           | 6 +++---
+ wmake/rules/linux64Icc/c++           | 2 +-
+ wmake/rules/linux64Icc/mplibINTELMPI | 2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/etc/bashrc b/etc/bashrc
+index adcfcaf..606dc3c 100644
+--- a/etc/bashrc
++++ b/etc/bashrc
+@@ -68,7 +68,7 @@ export WM_COMPILER_TYPE=system
+ # [WM_COMPILER] - Compiler:
+ # = Gcc | Clang | Icc | Cray | Amd | Arm | Pgi | Fujitsu |
+ #   Gcc<digits> | Clang<digits>
+-export WM_COMPILER=Gcc
++export WM_COMPILER=Icc
+ 
+ # [WM_PRECISION_OPTION] - Floating-point precision:
+ # = DP | SP | SPDP
+@@ -76,7 +76,7 @@ export WM_PRECISION_OPTION=DP
+ 
+ # [WM_LABEL_SIZE] - Label size in bits:
+ # = 32 | 64
+-export WM_LABEL_SIZE=32
++export WM_LABEL_SIZE=64
+ 
+ # [WM_COMPILE_OPTION] - Optimised(default), debug, profiling, other:
+ # = Opt | Debug | Prof
+@@ -87,7 +87,7 @@ export WM_COMPILE_OPTION=Opt
+ # = SYSTEMOPENMPI | OPENMPI | SYSTEMMPI | MPI | MPICH | MPICH-GM |
+ #   HPMPI | CRAY-MPICH | FJMPI | QSMPI | SGIMPI | INTELMPI | USERMPI
+ # Also possible to use INTELMPI-xyz etc and define your own wmake rule
+-export WM_MPLIB=SYSTEMOPENMPI
++export WM_MPLIB=INTELMPI
+ 
+ 
+ #------------------------------------------------------------------------------
+diff --git a/wmake/rules/linux64Icc/c++ b/wmake/rules/linux64Icc/c++
+index 64f4178..aa38bb9 100644
+--- a/wmake/rules/linux64Icc/c++
++++ b/wmake/rules/linux64Icc/c++
+@@ -4,7 +4,7 @@ c++ARCH     = -pthread -fp-trap=common -fp-model precise
+ 
+ include $(DEFAULT_RULES)/c++$(WM_COMPILE_OPTION)
+ 
+-c++FLAGS    = $(c++ARCH) $(GFLAGS) $(c++WARN) $(c++OPT) $(c++DBUG) $(ptFLAGS) $(LIB_HEADER_DIRS) -fPIC
++c++FLAGS    = $(c++ARCH) $(GFLAGS) $(c++WARN) $(c++OPT) $(c++DBUG) $(ptFLAGS) $(LIB_HEADER_DIRS) -fPIC -xCORE-AVX512 -fp-speculation=safe
+ 
+ Ctoo        = $(WM_SCHEDULER) $(CC) $(c++FLAGS) -c $< -o $@
+ cxxtoo      = $(Ctoo)
+diff --git a/wmake/rules/linux64Icc/mplibINTELMPI b/wmake/rules/linux64Icc/mplibINTELMPI
+index b3667bc..234b467 100644
+--- a/wmake/rules/linux64Icc/mplibINTELMPI
++++ b/wmake/rules/linux64Icc/mplibINTELMPI
+@@ -1,3 +1,3 @@
+ PFLAGS     = -DMPICH_SKIP_MPICXX -DOMPI_SKIP_MPICXX
+ PINC       = -isystem $(MPI_ARCH_PATH)/intel64/include
+-PLIBS      = -L$(MPI_ARCH_PATH)/intel64/lib -lmpi
++PLIBS      = -L$(MPI_ARCH_PATH)/intel64/lib/release -lmpi
+-- 
+1.8.3.1
+
