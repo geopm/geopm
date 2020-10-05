@@ -29,7 +29,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/apps/amg/0001-Adding-geopm-markup-to-CORAL-2-AMG.patch \
+EXTRA_DIST += integration/apps/amg/0001-Insert-calls-to-geopm-profile-APIs-in-the-AMG-timing.patch \
               integration/apps/amg/amg.py \
               integration/apps/amg/build.sh \
               integration/apps/amg/__init__.py \

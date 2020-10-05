@@ -1,0 +1,121 @@
+From b24d2ae1b7c96af22e2ef3d82340911219901b54 Mon Sep 17 00:00:00 2001
+From: "Christopher M. Cantalupo" <christopher.m.cantalupo@intel.com>
+Date: Mon, 5 Oct 2020 13:41:31 -0700
+Subject: [PATCH] Insert calls to geopm profile APIs in the AMG timing.c file
+
+#  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in
+#        the documentation and/or other materials provided with the
+#        distribution.
+#
+#      * Neither the name of Intel Corporation nor the names of its
+#        contributors may be used to endorse or promote products derived
+#        from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+Signed-off-by: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
+---
+ .gitignore         |  2 ++
+ Makefile.include   |  4 ++++
+ utilities/timing.c | 21 +++++++++++++++++++++
+ 3 files changed, 27 insertions(+)
+ create mode 100644 .gitignore
+
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..151a620
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,2 @@
++*.o
++*.a
+\ No newline at end of file
+diff --git a/Makefile.include b/Makefile.include
+index b73ccce..f911dc9 100644
+--- a/Makefile.include
++++ b/Makefile.include
+@@ -51,3 +51,7 @@ INCLUDE_CFLAGS = -O2 -DTIMER_USE_MPI -DHYPRE_USING_OPENMP -fopenmp -DHYPRE_HOPSC
+ INCLUDE_LFLAGS = -lm -fopenmp
+ #INCLUDE_LFLAGS = -lm 
+ 
++# Add CFLAGS for geopm
++GEOPM_INSTALL ?= $(HOME)/build/geopm
++INCLUDE_CFLAGS += -xCORE-AVX2 -I$(GEOPM_INSTALL)/include -DGEOPM
++INCLUDE_LFLAGS += -L$(GEOPM_INSTALL)/lib -lgeopm
+diff --git a/utilities/timing.c b/utilities/timing.c
+index 2ada3e4..c946211 100644
+--- a/utilities/timing.c
++++ b/utilities/timing.c
+@@ -25,6 +25,9 @@
+ #define HYPRE_TIMING_GLOBALS
+ #include "_hypre_utilities.h"
+ #include "timing.h"
++#ifdef GEOPM
++#include "geopm.h"
++#endif
+ 
+ /*-------------------------------------------------------
+  * Timing macros
+@@ -40,6 +43,11 @@ hypre_TimingCPUCount += time_getCPUSeconds()
+ 
+ #define hypre_global_timing_ref(index,field) hypre_global_timing->field
+ 
++#ifdef GEOPM
++#define GEOPM_TIME_INDEX_MAX 512
++uint64_t g_geopm_rid[GEOPM_TIME_INDEX_MAX] = {};
++#endif
++
+ /*--------------------------------------------------------------------------
+  * hypre_InitializeTiming
+  *--------------------------------------------------------------------------*/
+@@ -153,6 +161,13 @@ hypre_InitializeTiming( const char *name )
+       (hypre_global_timing_ref(threadid, num_names)) ++;
+    }
+ 
++#ifdef GEOPM
++   if (time_index < GEOPM_TIME_INDEX_MAX) {
++       geopm_prof_region(name, GEOPM_REGION_HINT_UNKNOWN, g_geopm_rid + time_index);
++       geopm_prof_enter(g_geopm_rid[time_index]);
++   }
++#endif
++
+    return time_index;
+ }
+ 
+@@ -199,6 +214,12 @@ hypre_FinalizeTiming( HYPRE_Int time_index )
+       hypre_global_timing = NULL;
+    }
+ 
++#ifdef GEOPM
++   if (time_index < GEOPM_TIME_INDEX_MAX) {
++       ierr = geopm_prof_exit(g_geopm_rid[time_index]);
++   }
++#endif
++
+    return ierr;
+ }
+ 
+-- 
+1.8.3.1
+
