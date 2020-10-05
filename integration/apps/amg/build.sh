@@ -36,15 +36,11 @@ set -e
 # Get helper functions
 source ../build_func.sh
 
-DIRNAME=AMG-master
-ARCHIVE=amg-master-5.zip
-URL=https://asc.llnl.gov/sites/asc/files/2020-09
+DIRNAME=AMG
 
 clean_source ${DIRNAME}
-get_archive ${ARCHIVE} ${URL}
-unpack_archive ${ARCHIVE}
-setup_source_git ${DIRNAME}
-
-# build
+git clone https://github.com/LLNL/AMG.git ${DIRNAME}
 cd ${DIRNAME}
+git am ../*.patch
+# build
 make
