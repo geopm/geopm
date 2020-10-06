@@ -1,4 +1,4 @@
-From 7ddb3453e08be80148a4e032abb9490d620ac795 Mon Sep 17 00:00:00 2001
+From bf916aafc3df7bc1f6bc4da55a59f4876a1ed647 Mon Sep 17 00:00:00 2001
 From: Brad Geltz <brad.geltz@intel.com>
 Date: Wed, 5 Aug 2020 13:34:15 -0700
 Subject: [PATCH 3/8] Link w/GEOPM
@@ -38,35 +38,32 @@ Subject: [PATCH 3/8] Link w/GEOPM
 
 Signed-off-by: Brad Geltz <brad.geltz@intel.com>
 ---
- test/example1/makenek-intel | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ test/example1/makenek-intel | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/test/example1/makenek-intel b/test/example1/makenek-intel
-index a5cce80..491621b 100755
+index a5cce80..82ec388 100755
 --- a/test/example1/makenek-intel
 +++ b/test/example1/makenek-intel
-@@ -4,12 +4,13 @@
- 
- # source path
+@@ -6,10 +6,10 @@
  SOURCE_ROOT="../../src"
-+GEOPM_ROOT="${HOME}/build/geopm"
  
  # Fortran compiler
 -F77="mpiifort"
-+F77="mpifort -I${GEOPM_ROOT}/lib/ifort/modules/geopm-x86_64/"
++F77="${MPIF77} ${GEOPM_FFLAGS}"
  
  # C compiler
 -CC="mpiicc"
-+CC="mpicc"
++CC="${MPICC}"
  
  # pre-processor symbol list
  # (set PPLIST=? to get a list of available symbols)
-@@ -29,10 +30,10 @@ PPLIST="TIMERS CGTIMERS"
+@@ -29,10 +29,10 @@ PPLIST="TIMERS CGTIMERS"
  #USR="foo.o"
  
  # linking flags
 -USR_LFLAGS="-qopenmp -mcmodel=medium -shared-intel"
-+USR_LFLAGS="-qopenmp -mcmodel=medium -shared-intel -L${GEOPM_ROOT}/lib -lgeopm -lgeopmfort"
++USR_LFLAGS="-qopenmp -mcmodel=medium -shared-intel ${GEOPM_LDFLAGS} ${GEOPM_LDLIBS} ${GEOPM_FORTRAN_LDLIBS}"
  
  # generic compiler flags
 -#G="-g"

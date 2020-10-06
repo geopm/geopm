@@ -82,5 +82,5 @@ export GEOPM_CFLAGS="-I${GEOPM_INC}"
 export GEOPM_FFLAGS="-I${GEOPM_LIB}/${FC}/modules/geopm-x86_64"
 export GEOPM_LDFLAGS="-L${GEOPM_LIB}"
 export GEOPM_LDLIBS="-lgeopm"
-export GEOPM_FORTRAN_LDLIBS="${GEOPM_LDLIBS} -lgeopmfortran"
+export GEOPM_FORTRAN_LDLIBS="${GEOPM_LDLIBS} -lgeopmfort"
 
