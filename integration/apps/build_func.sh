@@ -29,6 +29,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+if [ -f ${HOME}/.geopmrc ]; then
+    source ${HOME}/.geopmrc
+fi
+
+source $GEOPM_SOURCE/integration/config/build_env.sh
 
 # Clean out old versions of application source and warn user
 clean_source() {
@@ -72,8 +77,8 @@ setup_source_git() {
 get_archive() {
     local ARCHIVE=$1
     if [ ! -f ${ARCHIVE} ]; then
-        if [ -f "${GEOPM_APPS_SRCDIR}/${ARCHIVE}" ]; then
-            cp "${GEOPM_APPS_SRCDIR}/${ARCHIVE}" .
+        if [ -f "${GEOPM_APPS_SOURCES}/${ARCHIVE}" ]; then
+            cp "${GEOPM_APPS_SOURCES}/${ARCHIVE}" .
         elif [ $# -eq 2 ]; then
             local URL=$2
             wget ${URL}/${ARCHIVE}
@@ -89,4 +94,36 @@ unpack_archive() {
     else
         tar xvf ${ARCHIVE}
     fi
+}
+
+# Clear out previously installed binaries
+clean_geopm() {
+    if [ -e "${GEOPM_INSTALL}" ]; then
+        echo "WARNING: Previous install of geopm or other data found at ${GEOPM_INSTALL}"
+        read -p "OK to delete and reinstall? (y/n) " -n 1 -r
+        echo
+        if [[ ${REPLY} =~ ^[Yy]$ ]]; then
+            rm -rf ${GEOPM_INSTALL}
+        else
+            echo "Not OK.  Stopping."
+            return 1
+        fi
+    fi
+}
+
+# Build geopm in a subdirectory and install
+install_geopm() {
+    local BASE_DIR=${PWD}
+    local BUILD_DIR=${GEOPM_SOURCE}/integration/build
+    clean_geopm && \
+    cd ${GEOPM_SOURCE} && \
+    ./autogen.sh && \
+    mkdir -p $BUILD_DIR && \
+    cd $BUILD_DIR && \
+    ${GEOPM_SOURCE}/configure --prefix=${GEOPM_INSTALL} --with-python=python3 && \
+    make -j10 && \
+    make install
+    ERR=$?
+    cd ${BASE_DIR}
+    return ${ERR}
 }
