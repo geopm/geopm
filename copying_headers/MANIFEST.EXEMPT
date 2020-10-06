@@ -30,6 +30,7 @@ geopm-ohpc.spec.in
 geopm-theta.spec.in
 integration/README.md
 integration/apps/README.md
+integration/apps/amg/README.md
 integration/apps/minife/README.md
 integration/apps/nasft/nasft/COPYING-NAS
 integration/apps/nasft/nasft/README
