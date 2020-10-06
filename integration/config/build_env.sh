@@ -37,7 +37,7 @@
 # It is NOT intended to be ./ executed.
 
 if [ -f ${HOME}/.geopmrc ]; then
-    source ~/.geopmrc
+    source ${HOME}/.geopmrc
 fi
 
 if [ ! -z ${GEOPM_SYSTEM_ENV} ]; then
@@ -50,6 +50,7 @@ export GEOPM_INSTALL=${GEOPM_INSTALL:?Please set GEOPM_INSTALL in your environme
 export GEOPM_APPS_SOURCES=${GEOPM_APPS_SOURCES:?Please set GEOPM_APPS_SOURCES in your environment.}
 
 # Default Intel Toolchain compiler overrides
+# The MPI compiler wrappers are supported by Intel, but are not Intel specific.
 export CC=${CC:-icc}
 export CXX=${CXX:-icpc}
 export MPICC=${MPICC:-mpicc}

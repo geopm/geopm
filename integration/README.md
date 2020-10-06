@@ -18,10 +18,19 @@ Additionally, ~/.geopmrc should have the following contents (at a minimum):
 ```
 #!/bin/bash
 
+# Path to the GEOPM source code
 export GEOPM_SOURCE=${HOME}/geopm
+
+# Path to the installation artifacts for GEOPM
 export GEOPM_INSTALL=${HOME}/build/geopm
+
+# Path to for job output
 export GEOPM_WORKDIR=${HOME}/output
+
+# Path to location of application archives
 export GEOPM_APPS_SOURCES=${HOME}/geopm_apps
+
+# Path to system override for environment setup
 export GEOPM_SYSTEM_ENV=${GEOPM_SOURCE}/integration/config/<UNIQUE MACHINE NAME>_env.sh
 ```
 
