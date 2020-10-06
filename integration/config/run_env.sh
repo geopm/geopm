@@ -104,14 +104,14 @@ if [ ! -d ${GEOPM_WORKDIR} ]; then
 fi
 
 if [ ! -x "$(command -v geopmread)" ]; then
-    echo "Error: 'geopmread' is not available.  Please build and install GEOPM into GEOPM_BUILD = ${GEOPM_BUILD}."
+    echo "Error: 'geopmread' is not available.  Please build and install GEOPM into GEOPM_INSTALL = ${GEOPM_INSTALL}."
     return 1
 fi
 
 # Check installed version of GEOPM against source version
-pushd ${GEOPM_SOURCE} > /dev/null
+cd ${GEOPM_SOURCE}
 GEOPM_SOURCE_VERSION=$(cat VERSION)
-popd > /dev/null
+cd -
 GEOPMREAD_VERSION=$(geopmread --version | head -n1)
 
 if [ "${GEOPMREAD_VERSION}" != "${GEOPM_SOURCE_VERSION}" ]; then
