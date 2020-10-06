@@ -1,7 +1,8 @@
-From 479c5ab17bdd9ae592f678f76638334778b7c3e1 Mon Sep 17 00:00:00 2001
+From f413b54f0f485e17cc12bf9ccbbf652f6fc1a690 Mon Sep 17 00:00:00 2001
 From: Brad Geltz <brad.geltz@intel.com>
 Date: Mon, 24 Aug 2020 17:14:19 -0700
 Subject: [PATCH 8/8] Add barriers to collective calls
+
 #
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
@@ -40,8 +41,8 @@ Subject: [PATCH 8/8] Add barriers to collective calls
 Signed-off-by: Brad Geltz <brad.geltz@intel.com>
 ---
  src/comm_mpi.f              | 9 +++++++++
- test/example1/makenek-intel | 3 +++
- 2 files changed, 12 insertions(+)
+ test/example1/makenek-intel | 5 ++++-
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
 diff --git a/src/comm_mpi.f b/src/comm_mpi.f
 index 11df316..bf3dc4b 100644
@@ -78,13 +79,15 @@ index 11df316..bf3dc4b 100644
          call mpi_allreduce (x,w,n,mpi_integer8,mpi_sum ,nekcomm,ierr)
        elseif (op.EQ.'M  ') then
 diff --git a/test/example1/makenek-intel b/test/example1/makenek-intel
-index 1a2733b..affd0e7 100755
+index e8ba84e..eb80bf5 100755
 --- a/test/example1/makenek-intel
 +++ b/test/example1/makenek-intel
-@@ -34,6 +34,9 @@ USR_LFLAGS="-qopenmp -mcmodel=medium -shared-intel -L${GEOPM_ROOT}/lib -lgeopm -
+@@ -32,7 +32,10 @@ PPLIST="TIMERS CGTIMERS NITER=2000"
+ USR_LFLAGS="-qopenmp -mcmodel=medium -shared-intel ${GEOPM_LDFLAGS} ${GEOPM_LDLIBS} ${GEOPM_FORTRAN_LDLIBS}"
  
  # generic compiler flags
- G="-DGEOPM -I${GEOPM_ROOT}/include"
+-G="-DGEOPM -I${GEOPM_ROOT}/include"
++G="-DGEOPM ${GEOPM_CFLAGS}"
 +if [ ! -z "${GEOPM_BARRIER+x}" ]; then
 +    G="-DGEOPM_BARRIER ${G}"
 +fi
