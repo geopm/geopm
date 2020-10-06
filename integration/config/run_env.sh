@@ -37,7 +37,7 @@
 # It is NOT intended to be ./ executed.
 
 if [ -f ${HOME}/.geopmrc ]; then
-    source ~/.geopmrc
+    source ${HOME}/.geopmrc
 fi
 
 if [ ! -z ${GEOPM_SYSTEM_ENV} ]; then
@@ -82,8 +82,7 @@ else
 fi
 
 PYTHONPATH_EXT=\
-"${GEOPM_INSTALL}/lib/python3.6/site-packages:"\
-"${GEOPM_INSTALL}/lib/python2.7/site-packages:"\
+"${GEOPMPY_PKGDIR}:"\
 "${GEOPM_SOURCE}/integration"
 if [ ! -z "${PYTHONPATH}" ]; then
     export PYTHONPATH=${PYTHONPATH_EXT}:${PYTHONPATH}

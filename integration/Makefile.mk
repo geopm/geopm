@@ -31,8 +31,8 @@
 
 
 EXTRA_DIST += integration/README.md \
-              integration/build_env.sh \
-              integration/run_env.sh \
+              integration/config/build_env.sh \
+              integration/config/run_env.sh \
               integration/config/default_env.sh \
               # end
 
