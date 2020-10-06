@@ -33,4 +33,5 @@ EXTRA_DIST += integration/apps/amg/0001-Insert-calls-to-geopm-profile-APIs-in-th
               integration/apps/amg/amg.py \
               integration/apps/amg/build.sh \
               integration/apps/amg/__init__.py \
+              integration/apps/amg/README.md \
               # end
