@@ -9,9 +9,7 @@ Prior to running for the first time, users must setup their environment
 properly.  Please edit your ~/.bashrc to include the following:
 
 ```
-if [ -f ~/.geopmrc ]; then
-    . ~/.geopmrc
-fi
+source ${HOME}/.geopmrc
 ```
 
 Additionally, ~/.geopmrc should have the following contents (at a minimum):
@@ -24,13 +22,13 @@ export GEOPM_SOURCE=${HOME}/geopm
 # Path to the installation artifacts for GEOPM
 export GEOPM_INSTALL=${HOME}/build/geopm
 
-# Path to for job output
+# Path to location for job output directories
 export GEOPM_WORKDIR=${HOME}/output
 
 # Path to location of application archives
 export GEOPM_APPS_SOURCES=${HOME}/geopm_apps
 
-# Path to system override for environment setup
+# Path to system override for environment setup (OPTIONAL)
 export GEOPM_SYSTEM_ENV=${GEOPM_SOURCE}/integration/config/<UNIQUE MACHINE NAME>_env.sh
 ```
 
