@@ -1,4 +1,4 @@
-From 62708c3504cf9150e9fa39490fb36aaa3063f141 Mon Sep 17 00:00:00 2001
+From 461128cef50eb0d8436702ea1afc2f8e79470531 Mon Sep 17 00:00:00 2001
 From: "Christopher M. Cantalupo" <christopher.m.cantalupo@intel.com>
 Date: Mon, 5 Oct 2020 13:41:31 -0700
 Subject: [PATCH] Insert calls to geopm profile APIs in the AMG timing.c file
@@ -38,9 +38,9 @@ Signed-off-by: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
 ---
  .gitignore         |  2 ++
  Makefile.include   |  4 ++++
- krylov/pcg.c       |  4 ++++
+ krylov/pcg.c       |  5 +++++
  utilities/timing.c | 21 +++++++++++++++++++++
- 4 files changed, 31 insertions(+)
+ 4 files changed, 32 insertions(+)
  create mode 100644 .gitignore
 
 diff --git a/.gitignore b/.gitignore
@@ -65,10 +65,18 @@ index b73ccce..f911dc9 100644
 +INCLUDE_CFLAGS += -xCORE-AVX2 -I$(GEOPM_INSTALL)/include -DGEOPM
 +INCLUDE_LFLAGS += -L$(GEOPM_INSTALL)/lib -lgeopm
 diff --git a/krylov/pcg.c b/krylov/pcg.c
-index 2492dae..303e5b7 100644
+index 2492dae..56b0bac 100644
 --- a/krylov/pcg.c
 +++ b/krylov/pcg.c
-@@ -478,6 +478,10 @@ hypre_PCGSolve( void *pcg_vdata,
+@@ -32,6 +32,7 @@
+ 
+ #include "krylov.h"
+ #include "_hypre_utilities.h"
++#include <geopm.h>
+ 
+ /*--------------------------------------------------------------------------
+  * hypre_PCGFunctionsCreate
+@@ -478,6 +479,10 @@ hypre_PCGSolve( void *pcg_vdata,
  
     while ((i+1) <= max_iter)
     {
