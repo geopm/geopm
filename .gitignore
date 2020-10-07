@@ -121,6 +121,7 @@
 /src/*.lo
 /src/*.o
 /stamp-h1
+*.sbatch
 *.swp
 /tags
 /test-driver
