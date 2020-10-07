@@ -1,8 +1,8 @@
-From d2e4577baf8ed44ca989d8df35207f95016e9c60 Mon Sep 17 00:00:00 2001
-From: Diana Guttman <diana.r.guttman@intel.com>
-Date: Tue, 22 Sep 2020 14:48:20 -0700
-Subject: [PATCH] Change MPI compiler to mpicxx
-
+From d3d34949d54c1e4e7777a8cbcd7f0d3d78c8448a Mon Sep 17 00:00:00 2001
+From: Brad Geltz <brad.geltz@intel.com>
+Date: Wed, 7 Oct 2020 11:20:39 -0700
+Subject: [PATCH 1/2] Fix whitespace issues
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -34,23 +34,59 @@ Subject: [PATCH] Change MPI compiler to mpicxx
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-Signed-off-by: Diana Guttman <diana.r.guttman@intel.com>
----
- setup/Make.IMPI_IOMP_AVX2 | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+- Add build files to .gitignore
 
+Signed-off-by: Brad Geltz <brad.geltz@intel.com>
+---
+ .gitignore                | 3 +++
+ setup/Make.IMPI_IOMP_AVX2 | 6 +++---
+ setup/Make.IMPI_IOMP_SKX  | 6 +++---
+ 3 files changed, 9 insertions(+), 6 deletions(-)
+ create mode 100644 .gitignore
+
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..14ba1b2
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,3 @@
++*.o
++bin/
++Makefile
 diff --git a/setup/Make.IMPI_IOMP_AVX2 b/setup/Make.IMPI_IOMP_AVX2
-index e7e42ca..9d791e6 100644
+index e7e42ca..38b0f73 100644
 --- a/setup/Make.IMPI_IOMP_AVX2
 +++ b/setup/Make.IMPI_IOMP_AVX2
-@@ -134,7 +134,7 @@ HPCG_DEFS     = -DMPICH_IGNORE_CXX_SEEK $(HPCG_OPTS) $(HPCG_INCLUDES)
- # - Compilers / linkers - Optimization flags ---------------------------
- # ----------------------------------------------------------------------
+@@ -87,9 +87,9 @@ BINdir       = $(TOPdir)/bin
+ # header files,  MPlib  is defined  to be the name of  the library to be
+ # used. The variable MPdir is only used for defining MPinc and MPlib.
  #
--CXX          = mpiicpc
-+CXX          = mpicxx
- CXXFLAGS     = -xCORE-AVX2 -qopenmp -std=c++11 $(HPCG_DEFS)
- ifeq (yes, $(DBG))
-   CXXFLAGS  += -O0 -g -DHPCG_DEBUG
---
-1.8.3.1
+-MPdir        = 
+-MPinc        = 
+-MPlib        = 
++MPdir        =
++MPinc        =
++MPlib        =
+ #
+ #
+ # ----------------------------------------------------------------------
+diff --git a/setup/Make.IMPI_IOMP_SKX b/setup/Make.IMPI_IOMP_SKX
+index 3213ef7..9325d71 100644
+--- a/setup/Make.IMPI_IOMP_SKX
++++ b/setup/Make.IMPI_IOMP_SKX
+@@ -87,9 +87,9 @@ BINdir       = $(TOPdir)/bin
+ # header files,  MPlib  is defined  to be the name of  the library to be
+ # used. The variable MPdir is only used for defining MPinc and MPlib.
+ #
+-MPdir        = 
+-MPinc        = 
+-MPlib        = 
++MPdir        =
++MPinc        =
++MPlib        =
+ #
+ #
+ # ----------------------------------------------------------------------
+-- 
+2.23.0
+
