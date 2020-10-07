@@ -1,8 +1,8 @@
-From 23af5a280b84ddb34fde3ce5764376a7112f9951 Mon Sep 17 00:00:00 2001
-From: Diana Guttman <diana.r.guttman@intel.com>
-Date: Tue, 18 Sep 2018 21:43:42 +0000
-Subject: [PATCH] Adding geopm markup to CORAL version of miniFE.
-
+From 1aa92708e95ffb39815759f588d0371c508613c7 Mon Sep 17 00:00:00 2001
+From: Brad Geltz <brad.geltz@intel.com>
+Date: Wed, 7 Oct 2020 15:55:14 -0700
+Subject: [PATCH 5/5] Add region markup
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -34,51 +34,12 @@ Subject: [PATCH] Adding geopm markup to CORAL version of miniFE.
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-Signed-off-by: Steve S. Sylvester <steve.s.sylvester@intel.com>
-Signed-off-by: Diana Guttman <diana.r.guttman@intel.com>
+Signed-off-by: Brad Geltz <brad.geltz@intel.com>
 ---
- src/Makefile                   | 14 ++++++++------
  src/SparseMatrix_functions.hpp | 24 ++++++++++++++++++++++++
  src/Vector_functions.hpp       | 24 ++++++++++++++++++++++++
- src/cg_solve.hpp               |  7 +++++++
- 4 files changed, 63 insertions(+), 6 deletions(-)
+ 2 files changed, 48 insertions(+)
 
-diff --git a/src/Makefile b/src/Makefile
-index 461bdde..0ef6065 100644
---- a/src/Makefile
-+++ b/src/Makefile
-@@ -16,7 +16,7 @@ MINIFE_MATRIX_TYPE = -DMINIFE_CSR_MATRIX
- 
- # BG/Q
- #CFLAGS = -DIBM_HPM -qlist -qsource  -g -O3 -qsmp=omp
--CFLAGS = -qlist -qsource  -g -O3 -qsmp=omp
-+CFLAGS = -g -O3 -fopenmp -I$(HOME)/build/geopm/include
- CXXFLAGS = $(CFLAGS)
- 
- # To enable memory high water mark reporting uncomment the
-@@ -25,15 +25,17 @@ CPPFLAGS = -I. -I../utils -I../fem $(MINIFE_TYPES) \
- 	$(MINIFE_MATRIX_TYPE) \
- 	-DHAVE_MPI -DMPICH_IGNORE_CXX_SEEK #-DMINIFE_REPORT_RUSAGE
- 
--LDFLAGS=$(CFLAGS)
--LIBS=
-+LDFLAGS=$(CFLAGS) -L$(HOME)/build/geopm/lib
-+LIBS=-lgeopm
- 
- # GNU CXX=mpicxx
- # GNU CC=mpicc
- 
- # BG/Q
--CXX=mpixlcxx_r
--CC=mpixlc_r
--
-+# CXX=mpixlcxx_r
-+# CC=mpixlc_r
-+#
-+CXX=mpicxx
-+CC=mpicc
- 
- include make_targets
 diff --git a/src/SparseMatrix_functions.hpp b/src/SparseMatrix_functions.hpp
 index 876f4ad..b598181 100644
 --- a/src/SparseMatrix_functions.hpp
@@ -86,7 +47,7 @@ index 876f4ad..b598181 100644
 @@ -43,6 +43,10 @@
  #include <exchange_externals.hpp>
  #include <mytimer.hpp>
- 
+
 +#ifndef NO_GEOPM
 +#include "geopm.h"
 +#endif
@@ -97,7 +58,7 @@ index 876f4ad..b598181 100644
 @@ -515,6 +519,13 @@ void operator()(MatrixType& A,
          ScalarType* ycoefs                        = &y.coefs[0];
          const ScalarType beta                     = 0;
- 
+
 +#ifndef NO_GEOPM
 +        static uint64_t R_ID = 0;
 +        if (R_ID == 0) {
@@ -109,7 +70,7 @@ index 876f4ad..b598181 100644
          for(MINIFE_GLOBAL_ORDINAL row = 0; row < rows_size; ++row) {
                  const MINIFE_GLOBAL_ORDINAL row_start = Arowoffsets[row];
 @@ -529,6 +540,9 @@ void operator()(MatrixType& A,
- 
+
                  ycoefs[row] = sum;
          }
 +#ifndef NO_GEOPM
@@ -121,7 +82,7 @@ index 876f4ad..b598181 100644
 @@ -553,6 +567,13 @@ void operator()(MatrixType& A,
          ScalarType* ycoefs = &y.coefs[0];
    ScalarType beta = 0;
- 
+
 +#ifndef NO_GEOPM
 +  static uint64_t R_ID = 0;
 +  if (R_ID == 0) {
@@ -133,7 +94,7 @@ index 876f4ad..b598181 100644
    for(int row=0; row<n; ++row) {
      ScalarType sum = beta*ycoefs[row];
 @@ -566,6 +587,9 @@ void operator()(MatrixType& A,
- 
+
      ycoefs[row] = sum;
    }
 +#ifndef NO_GEOPM
@@ -149,7 +110,7 @@ index cdf9b15..4f54069 100644
 @@ -36,6 +36,10 @@
  #include <mpi.h>
  #endif
- 
+
 +#ifndef NO_GEOPM
 +#include "geopm.h"
 +#endif
@@ -160,7 +121,7 @@ index cdf9b15..4f54069 100644
 @@ -152,6 +156,13 @@ void
    const ScalarType*  ycoefs = &y.coefs[0];
          ScalarType*  wcoefs = &w.coefs[0];
- 
+
 +#ifndef NO_GEOPM
 +  static uint64_t R_ID = 0;
 +  if (R_ID == 0) {
@@ -178,13 +139,13 @@ index cdf9b15..4f54069 100644
 +#ifndef NO_GEOPM
 +  geopm_prof_exit( R_ID);
 +#endif
- 
+
  #ifdef MINIFE_DEBUG_OPENMP
    std::cout << "Finished WAXPBY." << std::endl;
 @@ -245,10 +259,20 @@ typename TypeTraits<typename Vector::ScalarType>::magnitude_type
    const Scalar*  ycoefs = &y.coefs[0];
    MINIFE_SCALAR result = 0;
- 
+
 +#ifndef NO_GEOPM
 +  static uint64_t R_ID = 0;
 +  if (R_ID == 0) {
@@ -199,34 +160,9 @@ index cdf9b15..4f54069 100644
 +#ifndef NO_GEOPM
 +  geopm_prof_exit( R_ID);
 +#endif
- 
+
  #ifdef HAVE_MPI
    magnitude local_dot = result, global_dot = 0;
-diff --git a/src/cg_solve.hpp b/src/cg_solve.hpp
-index 69812c4..d43c6cd 100644
---- a/src/cg_solve.hpp
-+++ b/src/cg_solve.hpp
-@@ -36,6 +36,10 @@
- 
- #include <outstream.hpp>
- 
-+#ifndef NO_GEOPM
-+#include "geopm.h"
-+#endif
-+
- namespace miniFE {
- 
- template<typename Scalar>
-@@ -150,6 +154,9 @@ cg_solve(OperatorType& A,
- #endif
- 
-   for(LocalOrdinalType k=1; k <= max_iter && normr > tolerance; ++k) {
-+#ifndef NO_GEOPM
-+    geopm_prof_epoch();
-+#endif
-     if (k == 1) {
-       TICK(); waxpby(one, r, zero, r, p); TOCK(tWAXPY);
-     }
--- 
-2.12.3
+--
+2.23.0
 

@@ -1,3 +1,8 @@
+From c50eaca4728143ab891dde5598be05d7a401d6ee Mon Sep 17 00:00:00 2001
+From: Brad Geltz <brad.geltz@intel.com>
+Date: Wed, 7 Oct 2020 12:03:55 -0700
+Subject: [PATCH 1/5] Cleanup and add gitignore
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,13 +34,42 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/apps/minife/0001-Cleanup-and-add-gitignore.patch \
-              integration/apps/minife/0002-Enable-MPI-in-Intel-build.patch \
-              integration/apps/minife/0003-Link-GEOPM.patch \
-              integration/apps/minife/0004-Add-Epoch-markup.patch \
-              integration/apps/minife/0005-Add-region-markup.patch \
-              integration/apps/minife/build.sh \
-              integration/apps/minife/__init__.py \
-              integration/apps/minife/minife.py \
-              integration/apps/minife/README.md \
-              # end
+Signed-off-by: Brad Geltz <brad.geltz@intel.com>
+---
+ .gitignore          |  3 +++
+ src/miniFE_info.hpp | 13 -------------
+ 2 files changed, 3 insertions(+), 13 deletions(-)
+ create mode 100644 .gitignore
+ delete mode 100644 src/miniFE_info.hpp
+
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..8a3f96a
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,3 @@
++*.o
++src/miniFE.x
++src/miniFE_info.hpp
+diff --git a/src/miniFE_info.hpp b/src/miniFE_info.hpp
+deleted file mode 100644
+index 918839c..0000000
+--- a/src/miniFE_info.hpp
++++ /dev/null
+@@ -1,13 +0,0 @@
+-#ifndef miniFE_info_hpp
+-#define miniFE_info_hpp
+-
+-#define MINIFE_HOSTNAME "vulcanlac4"
+-#define MINIFE_KERNEL_NAME "'Linux'"
+-#define MINIFE_KERNEL_RELEASE "'2.6.32-358.11.1.2chaos.bl2.1.ppc64'"
+-#define MINIFE_PROCESSOR "'ppc64'"
+-
+-#define MINIFE_CXX "'/usr/local/bin/mpixlcxx_r'"
+-#define MINIFE_CXX_VERSION "'/opt/ibmcmp/vacpp/bg/12.1/bin/.orig/bgxlC_r: 1501-216 (W) command option --version is not recognized - passed to ld'"
+-#define MINIFE_CXXFLAGS "'-qlist -qsource  -g -O3 -qsmp=omp'"
+-
+-#endif
+--
+2.23.0
+

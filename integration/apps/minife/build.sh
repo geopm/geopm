@@ -51,4 +51,4 @@ setup_source_git ${DIRNAME}
 
 # Build application
 cd ${DIRNAME}/src
-make
+make -f Makefile.intel.openmp
