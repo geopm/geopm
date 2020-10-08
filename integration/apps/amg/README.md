@@ -1,5 +1,10 @@
 # AMG: Algebraic Multi-Grid
 
+### Last update
+
+October 8, 2020
+Christopher Cantalupo <christopher.m.cantalupo@intel.com>
+
 ### Summary
 
 From the authors <https://proxyapps.exascaleproject.org/app/amg>:
@@ -15,20 +20,12 @@ From the authors <https://proxyapps.exascaleproject.org/app/amg>:
 This application may expose work imbalance across ranks, and appears
 to be capable of drawing near TDP on Xeon platforms.
 
-### Versions available:
+### Obtaining the Source Code
 
-- The version of posted to the CORAL-2 benchmark website is currently
-  one patch behind the github repository:
-  https://asc.llnl.gov/sites/asc/files/2020-09/amg-master-5.zip
-
-- The github repository has a correction for how "FOM_2" is
-  calculated:
-  https://github.com/LLNL/AMG/commit/3ada8a128e311543e84d9d66344ece77924127a8
-
-- This value is not printed in the configuration set up in amg.py (we
-  specify `-problem 1` on the CLI), rather "FOM_1" is printed at the
-  end of the log.
-
+Build script is written to download the latest from
+<https://github.com/LLNL/AMG.git>.  This version is currently one
+commit (3ada8a128e) ahead of the download posted to the CORAL-2
+benchmark webside.
 
 ### Parallelism
 
@@ -42,7 +39,7 @@ The command line arguments to the benchmark specify the type of
 problem to be solved, the size of the problem and distribution of the
 work across the ranks in a highly customizable way.  In the AmgAppConf
 "problem 1" is executed and the sizing of the problem was chosen so it
-would run for as long as possible without very large memory
+will run for as long as possible without very large memory
 requirements given the number of nodes requested.
 
 ### Modifications

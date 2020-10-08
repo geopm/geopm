@@ -43,10 +43,10 @@ clean_source() {
         echo "WARNING: Previous source directory detected at ./${DIRNAME}"
         read -p "OK to delete and rebuild? (y/n) " -n 1 -r
         echo
-        if [[ ${REPLY} =~ ^[Yy]$ ]]; then
+        if [[ "${REPLY}" =~ ^[Yy]$ ]]; then
             rm -rf ${DIRNAME}
         else
-            echo "Not OK.  Stopping."
+            echo "Not OK.  Stopping." 1>&2
             exit 1
         fi
     fi
@@ -103,9 +103,11 @@ clean_geopm() {
         echo "WARNING: Previous build of geopm or other data found at ${BUILD_DIR}"
         read -p "OK to delete all object files and recompile? (y/n) " -n 1 -r
         echo
-        if [[ ${REPLY} =~ ^[Yy]$ ]]; then
+        if [[ "${REPLY}" =~ ^[Yy]$ ]]; then
             rm -rf ${BUILD_DIR}
-        elif [[ ! ${REPLY} =~ ^[Nn]$ ]]; then
+        elif [[ "${REPLY}" =~ ^[Nn]$ ]]; then
+            echo "WARNING: Executing incremental build"
+        else
             echo "Error: Did not understand reply: ${REPLY}" 1>&2
             return 1
         fi
@@ -123,8 +125,10 @@ clean_geopm() {
     fi
 }
 
-# Build geopm in a subdirectory and install
+# Build geopm in a subdirectory and install into GEOPM build
+# All arguments are forwarded to the configure command
 install_geopm() {
+    local CONFIG_EXT="$@"
     local BASE_DIR=${PWD}
     local BUILD_DIR=${GEOPM_SOURCE}/integration/build
     clean_geopm ${BUILD_DIR} && \
@@ -132,7 +136,7 @@ install_geopm() {
     ./autogen.sh && \
     mkdir -p ${BUILD_DIR} && \
     cd ${BUILD_DIR} && \
-    ${GEOPM_SOURCE}/configure --prefix=${GEOPM_INSTALL} --with-python=python3 && \
+    ${GEOPM_SOURCE}/configure --prefix=${GEOPM_INSTALL} ${CONFIG_EXT} && \
     make -j10 && \
     make install
     local ERR=$?

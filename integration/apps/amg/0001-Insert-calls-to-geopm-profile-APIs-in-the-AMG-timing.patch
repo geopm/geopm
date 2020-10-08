@@ -63,17 +63,19 @@ index b73ccce..f911dc9 100644
  
 +# Add CFLAGS for geopm
 +GEOPM_INSTALL ?= $(HOME)/build/geopm
-+INCLUDE_CFLAGS += -xCORE-AVX2 -I$(GEOPM_INSTALL)/include -DGEOPM
-+INCLUDE_LFLAGS += -L$(GEOPM_INSTALL)/lib -lgeopm
++INCLUDE_CFLAGS += -xCORE-AVX2 $(GEOPM_CFLAGS) -DGEOPM
++INCLUDE_LFLAGS += $(GEOPM_LDFLAGS) $(GEOPM_LDLIBS)
 diff --git a/krylov/pcg.c b/krylov/pcg.c
 index 2492dae..56b0bac 100644
 --- a/krylov/pcg.c
 +++ b/krylov/pcg.c
-@@ -32,6 +32,7 @@
+@@ -32,6 +32,9 @@
  
  #include "krylov.h"
  #include "_hypre_utilities.h"
++#ifdef GEOPM
 +#include <geopm.h>
++#endif
  
  /*--------------------------------------------------------------------------
   * hypre_PCGFunctionsCreate
