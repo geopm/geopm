@@ -29,6 +29,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+if [ -f ${HOME}/.geopmrc ]; then
+    source ${HOME}/.geopmrc
+fi
+
+source $GEOPM_SOURCE/integration/config/build_env.sh
 
 # Clean out old versions of application source and warn user
 clean_source() {
