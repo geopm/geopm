@@ -106,7 +106,7 @@ geopm(7) -- global extensible open power manager
 ## INTEGRATION WITH PMPI
 Linking to libgeopm will define symbols that intercept the MPI
 interface through PMPI.  This can be disabled with the configure time
-option `--disable-pmpi`, but is enabled by default.  See
+option `--disable-mpi`, but is enabled by default.  See
 `LD_DYNAMIC_WEAK` environment variable description below for the
 runtime requirements of the PMPI design.  When using the GEOPM PMPI
 interposition other profilers which use the same method will be in
@@ -408,6 +408,7 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation. All rights 
 **geopm::RegionAggregator(3)**,
 **geopm::SharedMemory(3)**,
 **geopm::TimeIOGroup(3)**,
+**geopmadmin(1)**,
 **geopmagent(1)**,
 **geopmbench(1)**,
 **geopmctl(1)**,

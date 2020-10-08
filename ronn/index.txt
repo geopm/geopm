@@ -51,6 +51,7 @@ geopm_topo_c(3)                  geopm_topo_c.3
 geopm_pio_c(3)                   geopm_pio_c.3
 geopm_policystore_c(3)           geopm_policystore_c.3
 geopm_version(3)                 geopm_version.3
+geopmadmin(1)                    geopmadmin.1
 geopmagent(1)                    geopmagent.1
 geopmbench(1)                    geopmbench.1
 geopmctl(1)                      geopmctl.1
