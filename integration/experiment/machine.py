@@ -52,10 +52,11 @@ class Machine:
                     try:
                         self.meminfo = data['meminfo']
                     except:
-                        #  :( :(
-                        pass
+                        self.meminfo = {}
                 except:
                     self.signals = data
+                    self.topo = {}
+                    self.meminfo = {}
         except:
             raise RuntimeError("<geopm> Unable to open machine config {}.".format(self.path))
 
@@ -123,7 +124,7 @@ class Machine:
     def num_package_accelerator(self):
         return int(self.topo['package_accelerator'])
 
-    def total_node_memory_mb(self):
+    def total_node_memory_bytes(self):
         return float(self.meminfo['MemTotal'])
 
     def _query(self):

@@ -164,7 +164,8 @@ def get_node_memory_info():
             key, total, units = tuple(line.split())
             if units != 'kB':
                 raise RuntimeError("Unknown how to convert units: {}".format(units))
-            # Note: in spite of 'kB' label, meminfo displays kibibytes
-            result['MemTotal'] = float(total) / 1024
+            # Convert to bytes.  Note: in spite of 'kB' label, meminfo
+            # displays kibibytes
+            result['MemTotal'] = float(total) * 1024
             break
     return result
