@@ -35,24 +35,27 @@
 
 # Check command line args
 if [ $# -eq 3 ]; then
-    # ex. ./gen_slurm.sh 1 nekbone monitor
     NUM_NODES=$1
     APP=$2
     EXP_DIR=$3
     EXP_TYPE=$3
-elif [ $# -ne 4 ]; then
-    echo "Usage: $0 <num_nodes> <app> <exp_dir & exp_type>"
-    echo "       ex. $ ./gen_slurm.sh 1 nekbone monitor"
-    echo "                         OR"
-    echo "       $0 <num_nodes> <app> <exp_dir> <exp_type>."
-    echo "       ex. $ ./gen_slurm.sh 1 nekbone energy_efficiency power_balancer_energy"
-    echo
-    exit 1
-else
+elif [ $# -eq 4 ]; then
     NUM_NODES=$1
     APP=$2
     EXP_DIR=$3
     EXP_TYPE=$4
+else
+    echo "Usage:"
+    echo "       $0 NUM_NODES APP EXPERIMENT_DIR [EXPERIMENT_TYPE]"
+    echo
+    echo "  EXPERIMENT_TYPE: Optional, required when the directory name does not match"
+    echo "                   the Python experiment file."
+    echo
+    echo "Examples:"
+    echo "  $ ./gen_slurm.sh 1 nekbone monitor"
+    echo "  $ ./gen_slurm.sh 1 nekbone energy_efficiency power_balancer_energy"
+    echo
+    exit 1
 fi
 
 if [ -f $HOME/.geopmrc ]; then
