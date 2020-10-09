@@ -146,3 +146,25 @@ def geopmread_domain():
         domain, count = tuple(line.split())
         result[domain] = int(count)
     return result
+
+
+def get_node_memory_info():
+    test_exec = 'dummy -- cat /proc/meminfo'
+    stdout = io.StringIO()
+    stderr = io.StringIO()
+    try:
+        allocation_node_test(test_exec, stdout, stderr)
+    except subprocess.CalledProcessError as err:
+        sys.stderr.write(stderr.getvalue())
+        raise err
+    output = stdout.getvalue()
+    result = {}
+    for line in output.strip().split('\n'):
+        if 'MemTotal' in line:
+            key, total, units = tuple(line.split())
+            if units != 'kB':
+                raise RuntimeError("Unknown how to convert units: {}".format(units))
+            # Note: in spite of 'kB' label, meminfo displays kibibytes
+            result['MemTotal'] = float(total) / 1024
+            break
+    return result
