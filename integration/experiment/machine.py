@@ -46,10 +46,15 @@ class Machine:
         try:
             with open(self.path) as fid:
                 data = json.load(fid)
-                if 'signals' in data and 'topo' in data:
+                try:
                     self.signals = data['signals']
                     self.topo = data['topo']
-                else:
+                    try:
+                        self.meminfo = data['meminfo']
+                    except:
+                        #  :( :(
+                        pass
+                except:
                     self.signals = data
         except:
             raise RuntimeError("<geopm> Unable to open machine config {}.".format(self.path))
@@ -62,6 +67,7 @@ class Machine:
         data = {
             'signals': self.signals,
             'topo': self.topo,
+            'meminfo': self.meminfo
         }
         with open(self.path, 'w') as info_file:
             json.dump(data, info_file)
@@ -117,6 +123,9 @@ class Machine:
     def num_package_accelerator(self):
         return int(self.topo['package_accelerator'])
 
+    def total_node_memory_mb(self):
+        return float(self.meminfo['MemTotal'])
+
     def _query(self):
         self.signals = {}
         signal_names = ['FREQUENCY_MIN',
@@ -130,6 +139,7 @@ class Machine:
             self.signals[sn] = util.geopmread('{} board 0'.format(sn))
 
         self.topo = util.geopmread_domain()
+        self.meminfo = util.get_node_memory_info()
 
 
 def init_output_dir(output_dir):
