@@ -116,7 +116,7 @@ GEOPMREAD_VERSION=$(geopmread --version | head -n1)
 
 if [ "${GEOPMREAD_VERSION}" != "${GEOPM_SOURCE_VERSION}" ]; then
     echo "Warning: Version mismatch between installed version of GEOPM and the source tree!"
-    echo"   Installed version = ${GEOPMREAD_VERSION} | Source version = ${GEOPM_SOURCE_VERSION}"
+    echo "   Installed version = ${GEOPMREAD_VERSION} | Source version = ${GEOPM_SOURCE_VERSION}"
 fi
 
 if ! ldd $(which geopmbench) | grep --quiet libimf; then
