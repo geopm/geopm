@@ -1,0 +1,25 @@
+From 4549ea19b904b3b0928bc561ae7a65c73204a902 Mon Sep 17 00:00:00 2001
+From: Fuat Keceli <fuat.keceli@intel.com>
+Date: Fri, 9 Oct 2020 11:36:09 -0700
+Subject: [PATCH 3/3] Changed the definiton of the TOPdir in Makefile.
+
+---
+ Make.Linux_Intel64 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Make.Linux_Intel64 b/Make.Linux_Intel64
+index 205a459..87d7191 100644
+--- a/Make.Linux_Intel64
++++ b/Make.Linux_Intel64
+@@ -67,7 +67,7 @@ ARCH         = Linux_Intel64
+ # - HPL Directory Structure / HPL library ------------------------------
+ # ----------------------------------------------------------------------
+ #
+-TOPdir       = $(HOME)/hpl
++TOPdir       := $(shell git rev-parse --show-toplevel)
+ INCdir       = $(TOPdir)/include
+ BINdir       = $(TOPdir)/bin/$(ARCH)
+ LIBdir       = $(TOPdir)/lib/$(ARCH)
+-- 
+1.8.3.1
+
