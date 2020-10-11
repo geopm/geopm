@@ -69,8 +69,6 @@ static pthread_t g_ctl_thread;
 #endif
 
 extern "C" {
-    int geopm_is_pmpi_prof_enabled(void);
-
     static int geopm_env_pmpi_ctl(int *pmpi_ctl)
     {
         int err = 0;
@@ -107,32 +105,26 @@ extern "C" {
 
     void geopm_mpi_region_enter(uint64_t func_rid)
     {
-        if (geopm_is_pmpi_prof_enabled()) {
-            if (func_rid) {
-                geopm_prof_enter(func_rid);
-            }
-            geopm_prof_enter(GEOPM_REGION_ID_MPI);
+        if (func_rid) {
+            geopm_prof_enter(func_rid);
         }
+        geopm_prof_enter(GEOPM_REGION_ID_MPI);
     }
 
     void geopm_mpi_region_exit(uint64_t func_rid)
     {
-        if (geopm_is_pmpi_prof_enabled()) {
-            geopm_prof_exit(GEOPM_REGION_ID_MPI);
-            if (func_rid) {
-                geopm_prof_exit(func_rid);
-            }
+        geopm_prof_exit(GEOPM_REGION_ID_MPI);
+        if (func_rid) {
+            geopm_prof_exit(func_rid);
         }
     }
 
     uint64_t geopm_mpi_func_rid(const char *func_name)
     {
         uint64_t result = 0;
-        if (geopm_is_pmpi_prof_enabled()) {
-            int err = geopm_prof_region(func_name, GEOPM_REGION_HINT_NETWORK, &result);
-            if (err) {
-                result = 0;
-            }
+        int err = geopm_prof_region(func_name, GEOPM_REGION_HINT_NETWORK, &result);
+        if (err) {
+            result = 0;
         }
         return result;
     }
