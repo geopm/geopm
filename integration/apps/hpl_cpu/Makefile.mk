@@ -29,16 +29,12 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/monitor/gen_plot_achieved_power.py \
-              integration/experiment/monitor/__init__.py \
-              integration/experiment/monitor/monitor.py \
-              integration/experiment/monitor/README.md \
-              integration/experiment/monitor/run_monitor_amg.py \
-              integration/experiment/monitor/run_monitor_dgemm.py \
-              integration/experiment/monitor/run_monitor_dgemm_tiny.py \
-              integration/experiment/monitor/run_monitor_hpcg.py \
-              integration/experiment/monitor/run_monitor_hpl_cpu.py \
-              integration/experiment/monitor/run_monitor_minife.py \
-              integration/experiment/monitor/run_monitor_nasft.py \
-              integration/experiment/monitor/run_monitor_nekbone.py \
+
+EXTRA_DIST += integration/apps/hpl_cpu/hpl_cpu.py \
+              integration/apps/hpl_cpu/__init__.py \
+              integration/apps/hpl_cpu/build.sh \
+              integration/apps/hpl_cpu/README.md \
+              ./0001-Copied-setup-Make.Linux_Intel64-over-to-main-directo.patch \
+              ./0002-Changed-LAinc-lib-to-the-correct-paths-and-openmp-fl.patch \
+              ./0003-Changed-the-definiton-of-the-TOPdir-in-Makefile.patch
               # end

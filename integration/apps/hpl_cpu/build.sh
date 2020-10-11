@@ -1,3 +1,4 @@
+#!/bin/bash
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,16 +30,23 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/monitor/gen_plot_achieved_power.py \
-              integration/experiment/monitor/__init__.py \
-              integration/experiment/monitor/monitor.py \
-              integration/experiment/monitor/README.md \
-              integration/experiment/monitor/run_monitor_amg.py \
-              integration/experiment/monitor/run_monitor_dgemm.py \
-              integration/experiment/monitor/run_monitor_dgemm_tiny.py \
-              integration/experiment/monitor/run_monitor_hpcg.py \
-              integration/experiment/monitor/run_monitor_hpl_cpu.py \
-              integration/experiment/monitor/run_monitor_minife.py \
-              integration/experiment/monitor/run_monitor_nasft.py \
-              integration/experiment/monitor/run_monitor_nekbone.py \
-              # end
+set -x
+set -e
+
+# Get helper functions
+source ../build_func.sh
+
+# Set variables for workload
+DIRNAME=hpl-2.3
+ARCHIVE=${DIRNAME}.tar.gz
+URL=https://www.netlib.org/benchmark/hpl/
+
+# Run helper functions
+clean_source ${DIRNAME}
+get_archive ${ARCHIVE} ${URL}
+unpack_archive ${ARCHIVE}
+setup_source_git ${DIRNAME}
+
+# Build application
+cd ${DIRNAME}
+make arch=Linux_Intel64
