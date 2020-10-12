@@ -74,7 +74,7 @@ class HplCpuAppConf(apps.AppConf):
         self.Q = process_grid_ratios[num_nodes]['Q']
 
         self.N = int(round(math.sqrt(dram_for_app / 8)))
-        self.cores_per_node = cores_per_node
+        self._cpu_per_rank = cores_per_node
 
         print(f'DRAM reserved for APP: {dram_for_app} Cores for app: {cores_per_node} N={self.N}')
 
@@ -113,16 +113,26 @@ class HplCpuAppConf(apps.AppConf):
         8            memory alignment in double (> 0)
         EOF
         ''')
-        # KMP_HW_SUBSET: forces 1 thread per core to be used
-        # OMP_NUM_THREADS: # number of cores per node
-        # MKL_NUM_THREADS: # matches with above, effective if linked against MKL
-        return f'export KMP_HW_SUBSET=1t; ' \
-               f'export OMP_NUM_THREADS={self.cores_per_node}; ' \
-               f'export MKL_NUM_THREADS={self.cores_per_node}; ' \
-               f'cat > ./HPL.dat << EOF {input_file}'
+        # KMP_HW_SUBSET: forces 1 thread per core to be used. Technically this
+        # should not be needed since --geopm-hyperthreads-disable is set below.
+        # OMP_NUM_THREADS: # number of cores per node. Technically this should
+        # not be needed since setting _cpu_per_rank will prompt the launcher to
+        # choose that many cores.
+        # MKL_NUM_THREADS: # matches with above, effective if linked against MKL.
+        env_file = textwrap.dedent(f'''
+        export KMP_HW_SUBSET=1t
+        export OMP_NUM_THREADS={self._cpu_per_rank}
+        export MKL_NUM_THREADS={self._cpu_per_rank}
+        EOF
+        ''')
+
+        return f'cat > hpl_env.sh << EOF {env_file} source ./hpl_env.sh; cat > ./HPL.dat << EOF {input_file}'
 
     def get_rank_per_node(self):
         return 1
+
+    def get_cpu_per_rank(self):
+        return self._cpu_per_rank
 
     def get_bash_exec_path(self):
         return self.exe_path
