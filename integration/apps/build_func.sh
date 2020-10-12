@@ -52,6 +52,36 @@ clean_source() {
     fi
 }
 
+# Clone a git reposutory
+clone_repo_git(){
+    local REPOURL=$1
+    local DIRNAME=$2
+    local TOPHASH=$3
+    local ARCHIVE=${DIRNAME}_${TOPHASH}.tgz
+
+    git clone ${REPOURL} ${DIRNAME}
+    if [ ! -d ${DIRNAME} ]; then
+        echo "Error: Unable to clone ${DIRNAME} source."
+        return 1
+    fi
+
+    cd ${DIRNAME}
+    local HASH=$(git rev-parse --short HEAD)
+    cd -
+    if [ "${TOPHASH}" != "${HASH}" ]; then
+        echo "Error: Current source hash (${HASH}) is different than expected hash (${TOPHASH})."
+        return 1
+    fi
+
+    # If the user set the cache dir, pack up the source for next time
+    if [ -d ${GEOPM_APPS_SOURCES} ]; then
+        tar czvf ${ARCHIVE} ${DIRNAME}
+        cp ${ARCHIVE} ${GEOPM_APPS_SOURCES}
+    else
+        echo "Warning: Please set GEOPM_APPS_SOURCES in your environment to enable the local source code cache."
+    fi
+}
+
 # Setup a git repository and apply patches
 setup_source_git() {
     local BASEDIR=${PWD}
