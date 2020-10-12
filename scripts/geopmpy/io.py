@@ -1398,7 +1398,7 @@ class RawReport(object):
 
     def region_names(self, host_name):
         host_data = self._raw_dict[host_name]
-        result = [xx.split()[1] for xx in host_data if xx.startswith('Region ')]
+        result = [' '.join(xx.split()[1:-1]) for xx in host_data if xx.startswith('Region ')]
         return result
 
     def region_hash(self, region_name):
@@ -1406,7 +1406,7 @@ class RawReport(object):
             host_data = self._raw_dict[host_name]
             for xx in host_data:
                 if xx.startswith('Region {} ('.format(region_name)):
-                    return xx.split()[2][1:-1]
+                    return xx.split()[-1][1:-1]
         raise KeyError('<geopm> geopmpy.io: Region not found: {}'.format(region_name))
 
     def raw_region(self, host_name, region_name):
