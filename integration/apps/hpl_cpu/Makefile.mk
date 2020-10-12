@@ -34,7 +34,7 @@ EXTRA_DIST += integration/apps/hpl_cpu/hpl_cpu.py \
               integration/apps/hpl_cpu/__init__.py \
               integration/apps/hpl_cpu/build.sh \
               integration/apps/hpl_cpu/README.md \
-              ./0001-Copied-setup-Make.Linux_Intel64-over-to-main-directo.patch \
-              ./0002-Changed-LAinc-lib-to-the-correct-paths-and-openmp-fl.patch \
-              ./0003-Changed-the-definiton-of-the-TOPdir-in-Makefile.patch
+              integration/apps/hpl_cpu/0001-Copied-setup-Make.Linux_Intel64-over-to-main-directo.patch \
+              integration/apps/hpl_cpu/0002-Changed-LAinc-lib-to-the-correct-paths-and-openmp-fl.patch \
+              integration/apps/hpl_cpu/0003-Changed-the-definiton-of-the-TOPdir-in-Makefile.patch
               # end
