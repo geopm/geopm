@@ -217,6 +217,17 @@ Region stream-0.00-dgemm-6.00 (0x00000000af4cafa3):
     network-time (sec): 0
     count: 500
     requested-online-frequency: 1700000000.000000
+Region with some spaces (0x00000000af000fa3):
+    runtime (sec): 17.8807
+    sync-runtime (sec): 17.8327
+    package-energy (joules): 4367.48
+    dram-energy (joules): 252.722
+    power (watts): 244.914
+    frequency (%): 75.7953
+    frequency (Hz): 1.5917e+09
+    network-time (sec): 0
+    count: 500
+    requested-online-frequency: 1700000000.000000
 Region unmarked-region (0x00000000725e8066):
     runtime (sec): 6.07865
     sync-runtime (sec): 6.13216
@@ -394,6 +405,17 @@ Region stream-0.00-dgemm-6.00 (0x00000000af4cafa3):
     power (watts): 246.185
     frequency (%): 75.8795
     frequency (Hz): 1.59347e+09
+    network-time (sec): 0
+    count: 500
+    requested-online-frequency: 1700000000.000000
+Region with some spaces (0x00000000af000fa3):
+    runtime (sec): 17.8807
+    sync-runtime (sec): 17.8327
+    package-energy (joules): 4367.48
+    dram-energy (joules): 252.722
+    power (watts): 244.914
+    frequency (%): 75.7953
+    frequency (Hz): 1.5917e+09
     network-time (sec): 0
     count: 500
     requested-online-frequency: 1700000000.000000
