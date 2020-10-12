@@ -37,10 +37,19 @@ set -e
 source ../build_func.sh
 
 DIRNAME=AMG
+GITREPO=https://github.com/LLNL/AMG.git
+TOPHASH=3ada8a1
+ARCHIVE=${DIRNAME}_${TOPHASH}.tgz
 
 clean_source ${DIRNAME}
-git clone https://github.com/LLNL/AMG.git ${DIRNAME}
-cd ${DIRNAME}
-git am ../*.patch
+get_archive ${ARCHIVE}
+if [ -f ${ARCHIVE} ]; then
+    unpack_archive ${ARCHIVE}
+else
+    clone_repo_git ${GITREPO} ${DIRNAME} ${TOPHASH}
+fi
+setup_source_git ${DIRNAME}
+
 # build
+cd ${DIRNAME}
 make
