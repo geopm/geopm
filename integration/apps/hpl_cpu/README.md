@@ -14,4 +14,4 @@ create a matrix size that fits the given percentage of the total DRAM of the nod
 best ALU utilization, whereas higher percentages will compete with OS resources.
 Lower percentages can be used to run fast tests.
 
-The benchmark implementation here allows node sizes of 2, 4, 8 and 16.
+The benchmark implementation here allows node sizes of 1, 2, 4, 8 and 16.
