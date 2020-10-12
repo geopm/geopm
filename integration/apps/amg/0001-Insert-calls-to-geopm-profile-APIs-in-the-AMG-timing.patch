@@ -1,4 +1,4 @@
-From d71f6dbf57fe7ea74beed704ed849f95e36c5fbc Mon Sep 17 00:00:00 2001
+From 312bdfcb681608d26b6b8a9824c4665144356647 Mon Sep 17 00:00:00 2001
 From: "Christopher M. Cantalupo" <christopher.m.cantalupo@intel.com>
 Date: Mon, 5 Oct 2020 13:41:31 -0700
 Subject: [PATCH 1/2] Insert calls to geopm profile APIs in the AMG timing.c
@@ -38,10 +38,10 @@ Subject: [PATCH 1/2] Insert calls to geopm profile APIs in the AMG timing.c
 Signed-off-by: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
 ---
  .gitignore         |  2 ++
- Makefile.include   |  4 ++++
- krylov/pcg.c       |  5 +++++
+ Makefile.include   |  6 +++++-
+ krylov/pcg.c       |  7 +++++++
  utilities/timing.c | 21 +++++++++++++++++++++
- 4 files changed, 32 insertions(+)
+ 4 files changed, 35 insertions(+), 1 deletion(-)
  create mode 100644 .gitignore
 
 diff --git a/.gitignore b/.gitignore
@@ -54,9 +54,18 @@ index 0000000..151a620
 +*.a
 \ No newline at end of file
 diff --git a/Makefile.include b/Makefile.include
-index b73ccce..f911dc9 100644
+index b73ccce..1397d5b 100644
 --- a/Makefile.include
 +++ b/Makefile.include
+@@ -23,7 +23,7 @@
+ 
+ # set the compiler here
+ #CC = gcc
+-CC = mpicc
++CC = ${MPICC}
+ #CC = mpixlc_r
+ 
+ # set compile flags here
 @@ -51,3 +51,7 @@ INCLUDE_CFLAGS = -O2 -DTIMER_USE_MPI -DHYPRE_USING_OPENMP -fopenmp -DHYPRE_HOPSC
  INCLUDE_LFLAGS = -lm -fopenmp
  #INCLUDE_LFLAGS = -lm 
@@ -66,7 +75,7 @@ index b73ccce..f911dc9 100644
 +INCLUDE_CFLAGS += -xCORE-AVX2 $(GEOPM_CFLAGS) -DGEOPM
 +INCLUDE_LFLAGS += $(GEOPM_LDFLAGS) $(GEOPM_LDLIBS)
 diff --git a/krylov/pcg.c b/krylov/pcg.c
-index 2492dae..56b0bac 100644
+index 2492dae..3d1bc42 100644
 --- a/krylov/pcg.c
 +++ b/krylov/pcg.c
 @@ -32,6 +32,9 @@
@@ -79,7 +88,7 @@ index 2492dae..56b0bac 100644
  
  /*--------------------------------------------------------------------------
   * hypre_PCGFunctionsCreate
-@@ -478,6 +479,10 @@ hypre_PCGSolve( void *pcg_vdata,
+@@ -478,6 +481,10 @@ hypre_PCGSolve( void *pcg_vdata,
  
     while ((i+1) <= max_iter)
     {

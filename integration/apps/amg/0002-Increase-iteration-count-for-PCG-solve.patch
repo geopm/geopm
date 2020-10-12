@@ -1,4 +1,4 @@
-From 1b815dfb46002ab44064e26fea188cfbabe14ea0 Mon Sep 17 00:00:00 2001
+From 6d49442a0cae9020c019bc43af63053b79b98534 Mon Sep 17 00:00:00 2001
 From: "Christopher M. Cantalupo" <christopher.m.cantalupo@intel.com>
 Date: Tue, 6 Oct 2020 17:08:13 -0700
 Subject: [PATCH 2/2] Increase iteration count for PCG solve
@@ -44,7 +44,7 @@ Signed-off-by: Christopher M. Cantalupo <christopher.m.cantalupo@intel.com>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/test/amg.c b/test/amg.c
-index 18811ea..20cbb0b 100644
+index 18811ea..842f636 100644
 --- a/test/amg.c
 +++ b/test/amg.c
 @@ -72,7 +72,7 @@ main( hypre_int argc,
