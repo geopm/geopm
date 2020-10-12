@@ -66,7 +66,11 @@ setup_source_git() {
     git init
     git checkout -b main
     git add -A
-    git commit --no-edit -sm "Initial commit"
+
+    # The "|| true" is required if ${DIRNAME} is already a Git repo.
+    # In this case, no commit will be added.
+    git commit --no-edit -sm "Initial commit" || true
+
     if [ ! -z  "${PATCH_LIST}" ]; then
         git am ${PATCH_LIST}
     fi
