@@ -1,7 +1,7 @@
-From 66e51fa6875cb44b55f712a50356ec7a06439a8b Mon Sep 17 00:00:00 2001
+From 87dfdc01acf0fee54d2065cd1db2adc42d6097b4 Mon Sep 17 00:00:00 2001
 From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Thu, 8 Oct 2020 18:20:43 -0700
-Subject: [PATCH 1/3] Copied setup/Make.Linux_Intel64 over to main directory
+Subject: [PATCH 1/4] Copied setup/Make.Linux_Intel64 over to main directory
 
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #

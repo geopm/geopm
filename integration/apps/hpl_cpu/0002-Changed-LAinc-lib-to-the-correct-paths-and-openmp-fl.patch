@@ -1,7 +1,7 @@
-From 28146d103eaa9b2d03dd21c971c2fcf10cdda702 Mon Sep 17 00:00:00 2001
+From 4a214908473fa022e407974591b8faaab22a2526 Mon Sep 17 00:00:00 2001
 From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Fri, 9 Oct 2020 08:54:30 -0700
-Subject: [PATCH 2/3] Changed LAinc/lib to the correct paths and -openmp flag
+Subject: [PATCH 2/4] Changed LAinc/lib to the correct paths and -openmp flag
  to -qopenmp
 
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
