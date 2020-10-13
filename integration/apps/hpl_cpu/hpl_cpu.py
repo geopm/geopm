@@ -76,22 +76,24 @@ class HplCpuAppConf(apps.AppConf):
         self.N = int(round(math.sqrt(dram_for_app / 8)))
         self._cpu_per_rank = cores_per_node
 
-        print(f'DRAM reserved for APP: {dram_for_app} Cores for app: {cores_per_node} N={self.N}')
+        sys.stdout.write('DRAM reserved for APP: {dram_for_app:0.2f}GB\n'.format(dram_for_app=dram_for_app/2**30))
+        sys.stdout.write('Cores for app: {cores_per_node}\n'.format(cores_per_node=cores_per_node))
+        sys.stdout.write('N={N}\n'.format(N=self.N))
 
     def get_bash_setup_commands(self):
-        input_file = textwrap.dedent(f'''
+        input_file = textwrap.dedent('''
         HPLinpack benchmark input file
         Innovative Computing Laboratory, University of Tennessee
         HPL.out      output file name (if any)
         6            device out (6=stdout,7=stderr,file)
         1            # of problems sizes (N)
-        {self.N}     Ns
+        {N}          Ns
         1            # of NBs
-        {self.NBs}   NBs
+        {NBs}        NBs
         0            PMAP process mapping (0=Row-,1=Column-major)
         1            # of process grids (P x Q)
-        {self.P}     Ps
-        {self.Q}     Qs
+        {P}          Ps
+        {Q}          Qs
         16.0         threshold
         1            # of panel fact
         1            PFACTs (0=left, 1=Crout, 2=Right)1
@@ -112,23 +114,10 @@ class HplCpuAppConf(apps.AppConf):
         1            Equilibration (0=no,1=yes)
         8            memory alignment in double (> 0)
         EOF
-        ''')
-        # KMP_HW_SUBSET: forces 1 thread per core to be used. Technically this
-        # should not be needed since --geopm-hyperthreads-disable is set below.
-        # OMP_NUM_THREADS: # number of cores per node. Technically this should
-        # not be needed since setting _cpu_per_rank will prompt the launcher to
-        # choose that many cores.
-        # MKL_NUM_THREADS: # matches with above, effective if linked against MKL.
-        env_file = textwrap.dedent(f'''
-        export KMP_HW_SUBSET=1t
-        export OMP_NUM_THREADS={self._cpu_per_rank}
-        export MKL_NUM_THREADS={self._cpu_per_rank}
-        EOF
-        ''')
+        '''.format(N=self.N, NBs=self.NBs, P=self.P, Q=self.Q))
 
-        setup_commands = f'cat > hpl_env.sh << EOF {env_file}\n'
-        setup_commands += f'source ./hpl_env.sh\n'
-        setup_commands += f'cat > ./HPL.dat << EOF {input_file}\n'
+        setup_commands = 'export MKL_NUM_THREADS={cpu_per_rank}\n'.format(cpu_per_rank=self._cpu_per_rank)
+        setup_commands += 'cat > ./HPL.dat << EOF {input_file}\n'.format(input_file=input_file)
         return setup_commands
 
     def get_rank_per_node(self):
