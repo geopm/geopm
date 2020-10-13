@@ -1,7 +1,7 @@
-From dfc36a091bba3af0786d1f8f04b166932449adb2 Mon Sep 17 00:00:00 2001
+From cffa0bffaa20c40cdbcbbfb4f8a4f8b273c2da4f Mon Sep 17 00:00:00 2001
 From: Fuat Keceli <fuat.keceli@intel.com>
-Date: Fri, 9 Oct 2020 11:36:09 -0700
-Subject: [PATCH 3/4] Changed the definiton of the TOPdir in Makefile.
+Date: Mon, 12 Oct 2020 22:15:29 -0700
+Subject: [PATCH 4/4] Replaced mpicc with the environment variable.
 
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
@@ -40,18 +40,18 @@ Signed-off-by: Fuat Keceli <fuat.keceli@intel.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/Make.Linux_Intel64 b/Make.Linux_Intel64
-index 205a459..87d7191 100644
+index 87d7191..36403d4 100644
 --- a/Make.Linux_Intel64
 +++ b/Make.Linux_Intel64
-@@ -67,7 +67,7 @@ ARCH         = Linux_Intel64
- # - HPL Directory Structure / HPL library ------------------------------
+@@ -175,7 +175,7 @@ HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES)
+ # - Compilers / linkers - Optimization flags ---------------------------
  # ----------------------------------------------------------------------
  #
--TOPdir       = $(HOME)/hpl
-+TOPdir       := $(shell git rev-parse --show-toplevel)
- INCdir       = $(TOPdir)/include
- BINdir       = $(TOPdir)/bin/$(ARCH)
- LIBdir       = $(TOPdir)/lib/$(ARCH)
+-CC       = mpiicc
++CC       = $(MPICC)
+ CCNOOPT  = $(HPL_DEFS)
+ OMP_DEFS = -qopenmp
+ CCFLAGS  = $(HPL_DEFS) -O3 -w -ansi-alias -i-static -z noexecstack -z relro -z now -nocompchk -Wall
 -- 
 1.8.3.1
 

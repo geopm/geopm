@@ -126,7 +126,10 @@ class HplCpuAppConf(apps.AppConf):
         EOF
         ''')
 
-        return f'cat > hpl_env.sh << EOF {env_file} source ./hpl_env.sh; cat > ./HPL.dat << EOF {input_file}'
+        setup_commands = f'cat > hpl_env.sh << EOF {env_file}\n'
+        setup_commands += f'source ./hpl_env.sh\n'
+        setup_commands += f'cat > ./HPL.dat << EOF {input_file}\n'
+        return setup_commands
 
     def get_rank_per_node(self):
         return 1
@@ -141,6 +144,10 @@ class HplCpuAppConf(apps.AppConf):
         return ''
 
     def get_custom_geopm_args(self):
+        # See README.md for an explanation of why
+        # HPL cannot start in process control mode.
+        # Also hyperthreading does not benefit HPL and
+        # it is turned off.
         return ['--geopm-ctl=application',
                 '--geopm-hyperthreads-disable']
 
