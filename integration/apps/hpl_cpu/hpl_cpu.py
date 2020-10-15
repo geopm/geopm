@@ -69,7 +69,7 @@ class HplCpuAppConf(apps.AppConf):
             16: {'P': 4, 'Q': 4}
         }
         if num_nodes not in process_grid_ratios:
-            raise RuntimeError(f"Number of nodes {num_nodes} is not defined for HPL.")
+            raise RuntimeError("Number of nodes {num_nodes} is not defined for HPL.".format(num_nodes=num_nodes))
         self.P = process_grid_ratios[num_nodes]['P']
         self.Q = process_grid_ratios[num_nodes]['Q']
 
