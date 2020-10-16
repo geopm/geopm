@@ -143,10 +143,6 @@ class HplCpuAppConf(apps.AppConf):
             then PMI_RANK=${OMPI_COMM_WORLD_RANK}
             fi
             ''')
-            # FIXME
-            #          This setting may give 1-2% of performance increase over the
-            #          default value of 262000 for large problems and high number of cores
-            # setup_commands += 'export I_MPI_EAGER_THRESHOLD=128000'
 
         return setup_commands
 
