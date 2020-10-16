@@ -34,6 +34,7 @@
 #define AGG_HPP_INCLUDE
 
 #include <vector>
+#include <string>
 #include <functional>
 
 namespace geopm
