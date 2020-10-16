@@ -75,8 +75,7 @@ clone_repo_git(){
 
     # If the user set the cache dir, pack up the source for next time
     if [ -d ${GEOPM_APPS_SOURCES} ]; then
-        tar czvf ${ARCHIVE} ${DIRNAME}
-        cp ${ARCHIVE} ${GEOPM_APPS_SOURCES}
+        tar czvf ${GEOPM_APPS_SOURCES}/${ARCHIVE} ${DIRNAME}
     else
         echo "Warning: Please set GEOPM_APPS_SOURCES in your environment to enable the local source code cache."
     fi
@@ -93,13 +92,12 @@ setup_source_git() {
     fi
     cd ${DIRNAME}
     # Create a git repo for the app source
-    git init
-    git checkout -b main
-    git add -A
-
-    # The "|| true" is required if ${DIRNAME} is already a Git repo.
-    # In this case, no commit will be added.
-    git commit --no-edit -sm "Initial commit" || true
+    if [ ! -d .git ]; then
+        git init
+        git checkout -b main
+        git add -A
+        git commit --no-edit -sm "Initial commit"
+    fi
 
     if [ ! -z  "${PATCH_LIST}" ]; then
         git am ${PATCH_LIST}
@@ -116,6 +114,9 @@ get_archive() {
         elif [ $# -eq 2 ]; then
             local URL=$2
             wget ${URL}/${ARCHIVE}
+            if [ -d ${GEOPM_APPS_SOURCES} ]; then
+                cp ${ARCHIVE} ${GEOPM_APPS_SOURCES}
+            fi
         fi
     fi
 }
