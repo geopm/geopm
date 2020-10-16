@@ -30,10 +30,6 @@ This would normally be done by setting the following environment variables
 
     $ export KMP_HW_SUBSET=1t # forces 1 thread per core to be used
     $ export OMP_NUM_THREADS=44 # number of cores per node
-    $ export MKL_NUM_THREADS=44 # matches with above, effective if linked against MKL.
-
-MKL_NUM_THREADS is used by the MKL libraries to determine how many threads
-are used per rank.
 
 In the GEOPM integration infrastructure, OMP_NUM_THREADS is inferred from
 the get_cpu_per_rank function of AppConf base class. This is set to the number of

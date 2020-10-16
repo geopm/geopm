@@ -38,10 +38,10 @@ import textwrap
 from apps import apps
 
 
-class HplCpuAppConf(apps.AppConf):
+class HplNetlibAppConf(apps.AppConf):
     @staticmethod
     def name():
-        return 'hpl_cpu'
+        return 'hpl_netlib'
 
     def __init__(self, num_nodes, mach, perc_dram_per_node=0.9, cores_per_node=None):
         '''
@@ -59,7 +59,8 @@ class HplCpuAppConf(apps.AppConf):
             cores_per_node = mach.num_core()
 
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
-        self.exe_path = os.path.join(benchmark_dir, 'hpl-2.3/bin/Linux_Intel64/xhpl')
+        self.exec_path = os.path.join(benchmark_dir, 'hpl-2.3/bin/Linux_Intel64/xhpl')
+
         self.NBs=384 # This is the recommended size for Intel Scalable Xeon family.
         process_grid_ratios = {
             1: {'P': 1, 'Q': 1},
@@ -69,7 +70,7 @@ class HplCpuAppConf(apps.AppConf):
             16: {'P': 4, 'Q': 4}
         }
         if num_nodes not in process_grid_ratios:
-            raise RuntimeError("Number of nodes {num_nodes} is not defined for HPL.".format(num_nodes=num_nodes))
+            raise RuntimeError("Number of nodes {} is not defined for HPL.".format(num_nodes))
         self.P = process_grid_ratios[num_nodes]['P']
         self.Q = process_grid_ratios[num_nodes]['Q']
 
@@ -77,8 +78,8 @@ class HplCpuAppConf(apps.AppConf):
         self._cpu_per_rank = cores_per_node
 
         sys.stdout.write('DRAM reserved for APP: {dram_for_app:0.2f}GB\n'.format(dram_for_app=dram_for_app/2**30))
-        sys.stdout.write('Cores for app: {cores_per_node}\n'.format(cores_per_node=cores_per_node))
-        sys.stdout.write('N={N}\n'.format(N=self.N))
+        sys.stdout.write('Cores for app: {}\n'.format(cores_per_node))
+        sys.stdout.write('N={}\n'.format(self.N))
 
     def get_bash_setup_commands(self):
         input_file = textwrap.dedent('''
@@ -116,8 +117,8 @@ class HplCpuAppConf(apps.AppConf):
         EOF
         '''.format(N=self.N, NBs=self.NBs, P=self.P, Q=self.Q))
 
-        setup_commands = 'export MKL_NUM_THREADS={cpu_per_rank}\n'.format(cpu_per_rank=self._cpu_per_rank)
-        setup_commands += 'cat > ./HPL.dat << EOF {input_file}\n'.format(input_file=input_file)
+        setup_commands = 'cat > ./HPL.dat << EOF {}\n'.format(input_file)
+
         return setup_commands
 
     def get_rank_per_node(self):
@@ -127,7 +128,7 @@ class HplCpuAppConf(apps.AppConf):
         return self._cpu_per_rank
 
     def get_bash_exec_path(self):
-        return self.exe_path
+        return self.exec_path
 
     def get_bash_exec_args(self):
         return ''

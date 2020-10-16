@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -31,28 +29,13 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-'''
-Run HPL CPU with the monitor agent small size.
-'''
 
-import argparse
-
-from experiment.monitor import monitor
-from experiment import machine
-from apps.hpl_cpu import hpl_cpu
-
-
-if __name__ == '__main__':
-
-    parser = argparse.ArgumentParser()
-    monitor.setup_run_args(parser)
-    parser.add_argument('--perc-dram', dest='perc_dram_per_node',
-                    action='store', type=float, default=0.9,
-                    help='Ratio of the total node DRAM that should be used for the HPL matrix (assuming DP). Default is 0.9.')
-    args, extra_args = parser.parse_known_args()
-    if len(extra_args) > 0:
-        raise RuntimeError("Arguments not known: " + " ".join(extra_args))
-    mach = machine.init_output_dir(args.output_dir)
-    app_conf = hpl_cpu.HplCpuAppConf(args.node_count, mach, perc_dram_per_node=args.perc_dram_per_node)
-    monitor.launch(app_conf=app_conf, args=args,
-                  experiment_cli_args=[])
+EXTRA_DIST += integration/apps/hpl_netlib/hpl_netlib.py \
+              integration/apps/hpl_netlib/__init__.py \
+              integration/apps/hpl_netlib/build.sh \
+              integration/apps/hpl_netlib/README.md \
+              integration/apps/hpl_netlib/0001-Copied-setup-Make.Linux_Intel64-over-to-main-directo.patch \
+              integration/apps/hpl_netlib/0002-Changed-LAinc-lib-to-the-correct-paths-and-openmp-fl.patch \
+              integration/apps/hpl_netlib/0003-Changed-the-definiton-of-the-TOPdir-in-Makefile.patch \
+              integration/apps/hpl_netlib/0004-Replaced-mpicc-with-the-environment-variable.patch \
+              # end

@@ -1,3 +1,4 @@
+#!/bin/bash
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,13 +30,24 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+set -x
+set -e
 
-EXTRA_DIST += integration/apps/hpl_cpu/hpl_cpu.py \
-              integration/apps/hpl_cpu/__init__.py \
-              integration/apps/hpl_cpu/build.sh \
-              integration/apps/hpl_cpu/README.md \
-              integration/apps/hpl_cpu/0001-Copied-setup-Make.Linux_Intel64-over-to-main-directo.patch \
-              integration/apps/hpl_cpu/0002-Changed-LAinc-lib-to-the-correct-paths-and-openmp-fl.patch \
-              integration/apps/hpl_cpu/0003-Changed-the-definiton-of-the-TOPdir-in-Makefile.patch \
-              integration/apps/hpl_cpu/0004-Replaced-mpicc-with-the-environment-variable.patch \
-              # end
+# Get helper functions
+source ../build_func.sh
+
+
+# Set variables for workload
+DIRNAME=hpl-2.3
+ARCHIVE=${DIRNAME}.tar.gz
+URL=https://www.netlib.org/benchmark/hpl/
+
+# Run helper functions
+clean_source ${DIRNAME}
+get_archive ${ARCHIVE} ${URL}
+unpack_archive ${ARCHIVE}
+setup_source_git ${DIRNAME}
+
+# Build application
+cd ${DIRNAME}
+make arch=Linux_Intel64
