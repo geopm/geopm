@@ -43,7 +43,7 @@ class HplCpuAppConf(apps.AppConf):
     def name():
         return 'hpl_cpu'
 
-    def __init__(self, num_nodes, mach, perc_dram_per_node=0.9, cores_per_node=None):
+    def __init__(self, num_nodes, mach, perc_dram_per_node=0.9, cores_per_node=None, codebase="netlib"):
         '''
         num_nodes: Number of MPI ranks (1 node per rank) -- 2, 4, 8 or 16.
         perc_dram_per_node: Ratio of the total node DRAM that should be used for the
@@ -53,13 +53,23 @@ class HplCpuAppConf(apps.AppConf):
         cores_per_node: Number of Xeon cores that each MPI process can offload to via OMP.
                         Total number of physical cores will be selected if this is not set
                         (defauilt=None).
+        codebase: Can be mkl or netlib. Default is netlib.
+                  The executable path and the environment set up are different for netlib and hpl versions.
         '''
         dram_for_app = num_nodes * mach.total_node_memory_bytes() * perc_dram_per_node
         if cores_per_node is None:
             cores_per_node = mach.num_core()
 
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
-        self.exe_path = os.path.join(benchmark_dir, 'hpl-2.3/bin/Linux_Intel64/xhpl')
+        self.mklroot = None # Only defined if codebase is MKL.
+        if codebase == "netlib":
+            self.exe_path = os.path.join(benchmark_dir, 'hpl-2.3/bin/Linux_Intel64/xhpl')
+        elif codebase == "mkl":
+            self.mklroot = os.getenv('MKLROOT')
+            self.exe_path = os.path.join(self.mklroot, 'benchmarks/mp_linpack/xhpl_intel64_dynamic')
+        else:
+            raise RuntimeError("Codebase is not known: " + codebase)
+
         self.NBs=384 # This is the recommended size for Intel Scalable Xeon family.
         process_grid_ratios = {
             1: {'P': 1, 'Q': 1},
@@ -76,6 +86,7 @@ class HplCpuAppConf(apps.AppConf):
         self.N = int(round(math.sqrt(dram_for_app / 8)))
         self._cpu_per_rank = cores_per_node
 
+        sys.stdout.write('Codebase: {codebase}\n'.format(codebase=codebase))
         sys.stdout.write('DRAM reserved for APP: {dram_for_app:0.2f}GB\n'.format(dram_for_app=dram_for_app/2**30))
         sys.stdout.write('Cores for app: {cores_per_node}\n'.format(cores_per_node=cores_per_node))
         sys.stdout.write('N={N}\n'.format(N=self.N))
@@ -116,8 +127,27 @@ class HplCpuAppConf(apps.AppConf):
         EOF
         '''.format(N=self.N, NBs=self.NBs, P=self.P, Q=self.Q))
 
-        setup_commands = 'export MKL_NUM_THREADS={cpu_per_rank}\n'.format(cpu_per_rank=self._cpu_per_rank)
-        setup_commands += 'cat > ./HPL.dat << EOF {input_file}\n'.format(input_file=input_file)
+        setup_commands = 'cat > ./HPL.dat << EOF {input_file}\n'.format(input_file=input_file)
+
+        # Below are only needed if the codebase is MKL.
+        if not self.mklroot is None:
+            setup_commands += 'export MKL_NUM_THREADS={cpu_per_rank}\n'.format(cpu_per_rank=self._cpu_per_rank)
+            setup_commands += textwrap.dedent('''
+            # For Mvapich
+            if [ -n "${MPIRUN_RANK}" ]
+            then PMI_RANK=${MPIRUN_RANK}
+            fi
+
+            # For OpenMPI
+            if [ -n "${OMPI_COMM_WORLD_RANK}" ]
+            then PMI_RANK=${OMPI_COMM_WORLD_RANK}
+            fi
+            ''')
+            # FIXME
+            #          This setting may give 1-2% of performance increase over the
+            #          default value of 262000 for large problems and high number of cores
+            # setup_commands += 'export I_MPI_EAGER_THRESHOLD=128000'
+
         return setup_commands
 
     def get_rank_per_node(self):

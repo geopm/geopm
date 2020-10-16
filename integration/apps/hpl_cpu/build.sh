@@ -30,23 +30,89 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-set -x
 set -e
 
-# Get helper functions
-source ../build_func.sh
+codebase="netlib"
 
-# Set variables for workload
-DIRNAME=hpl-2.3
-ARCHIVE=${DIRNAME}.tar.gz
-URL=https://www.netlib.org/benchmark/hpl/
+function usage {
+    set +x
+    echo "Usage: build.sh [--mkl] [--netlib] [-h |--help]"
+    echo "   Default is netlib if not specified."
+}
 
-# Run helper functions
-clean_source ${DIRNAME}
-get_archive ${ARCHIVE} ${URL}
-unpack_archive ${ARCHIVE}
-setup_source_git ${DIRNAME}
+if (( $# > 1 )); then
+    set +x
+    shift
+    usage
+    echo "Extra arguments: $@"
+    exit 1
+fi
 
-# Build application
-cd ${DIRNAME}
-make arch=Linux_Intel64
+while [ "$1" != "" ]; do
+    case $1 in
+        --netlib )    codebase="netlib"
+                      ;;
+        --mkl )       codebase="mkl"
+                      ;;
+        --help | -h ) usage
+                      exit
+                      ;;
+        * )           echo "Argument not known: $1"
+                      usage
+                      exit 1
+    esac
+    shift
+done
+
+if [[ "${codebase}" == "netlib" ]]; then
+    set -x
+    # Get helper functions
+    source ../build_func.sh
+
+    # Set variables for workload
+    DIRNAME=hpl-2.3
+    ARCHIVE=${DIRNAME}.tar.gz
+    URL=https://www.netlib.org/benchmark/hpl/
+
+    # Run helper functions
+    clean_source ${DIRNAME}
+    get_archive ${ARCHIVE} ${URL}
+    unpack_archive ${ARCHIVE}
+    setup_source_git ${DIRNAME}
+
+    # Build application
+    cd ${DIRNAME}
+    make arch=Linux_Intel64
+else
+    set +x
+    echo "This script will check if:"
+    echo "   1. MKL is installed in your system and environment is set (check $MKLROOT environment variable)."
+    echo "   2. Intel HPL binary is installed as a part of the MKL installation in the \$MKLROOT/benchmarks/mp_linpack directory."
+    echo "   3. Check MPI version."
+    echo "It will not perform any download/build. User is expected to install MKL manually."
+
+    echo "Check 1..."
+    if [[ "${MKLROOT}" == "" ]]; then
+        echo "ERROR: MKLROOT env variable is not found. Make sure that the MKL is installed."
+    fi
+
+    echo "Check 2..."
+    xhpl_executable=${MKLROOT}/benchmarks/mp_linpack/xhpl_intel64_dynamic
+    if ! [[ -f "${xhpl_executable}" ]]; then
+        echo "ERROR: HPL executable is not found in the MKL installation at ${xhpl_executable}."
+    fi
+
+    xhpl_executable_wrapper=${MKLROOT}/benchmarks/mp_linpack/runme_intel64_prv
+    if ! [[ -f "${xhpl_executable_wrapper}" ]]; then
+        echo "ERROR: HPL executable wrapper is not found in the MKL installation at ${xhpl_executable_wrapper}."
+    fi
+
+    echo "Check 3..."
+    mpilib=$(ldd ${xhpl_executable} |grep libmpi.so)
+    echo "MPI library: ${mpilib}"
+    if echo ${mpilib} |grep mvapich > /dev/null; then
+        echo "INFO: Detected MVAPICH MPI. Not recommended for MKL HPL runs."
+    fi
+
+    echo "MKL HPL seems to be installed on your system."
+fi
