@@ -342,6 +342,442 @@ namespace geopm
                 }
             }
         },
+        "IA32_PERFEVTSEL0": {
+            "offset": "0x186",
+            "domain": "cpu",
+            "fields": {
+                "EVENT_SELECT": {
+                    "begin_bit": 0,
+                    "end_bit":   7,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "UMASK": {
+                    "begin_bit": 8,
+                    "end_bit":   15,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "USR": {
+                    "begin_bit": 16,
+                    "end_bit":   16,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "OS": {
+                    "begin_bit": 17,
+                    "end_bit":   17,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "EDGE": {
+                    "begin_bit": 18,
+                    "end_bit":   18,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "PC": {
+                    "begin_bit": 19,
+                    "end_bit":   19,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "INT": {
+                    "begin_bit": 20,
+                    "end_bit":   20,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "ANYTHREAD": {
+                    "begin_bit": 21,
+                    "end_bit":   21,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "EN": {
+                    "begin_bit": 22,
+                    "end_bit":   22,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "INV": {
+                    "begin_bit": 23,
+                    "end_bit":   23,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "CMASK": {
+                    "begin_bit": 24,
+                    "end_bit":   31,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                }
+            }
+        },
+        "IA32_PERFEVTSEL1": {
+            "offset": "0x187",
+            "domain": "cpu",
+            "fields": {
+                "EVENT_SELECT": {
+                    "begin_bit": 0,
+                    "end_bit":   7,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "UMASK": {
+                    "begin_bit": 8,
+                    "end_bit":   15,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "USR": {
+                    "begin_bit": 16,
+                    "end_bit":   16,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "OS": {
+                    "begin_bit": 17,
+                    "end_bit":   17,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "EDGE": {
+                    "begin_bit": 18,
+                    "end_bit":   18,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "PC": {
+                    "begin_bit": 19,
+                    "end_bit":   19,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "INT": {
+                    "begin_bit": 20,
+                    "end_bit":   20,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "ANYTHREAD": {
+                    "begin_bit": 21,
+                    "end_bit":   21,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "EN": {
+                    "begin_bit": 22,
+                    "end_bit":   22,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "INV": {
+                    "begin_bit": 23,
+                    "end_bit":   23,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "CMASK": {
+                    "begin_bit": 24,
+                    "end_bit":   31,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                }
+            }
+        },
+        "IA32_PERFEVTSEL2": {
+            "offset": "0x188",
+            "domain": "cpu",
+            "fields": {
+                "EVENT_SELECT": {
+                    "begin_bit": 0,
+                    "end_bit":   7,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "UMASK": {
+                    "begin_bit": 8,
+                    "end_bit":   15,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "USR": {
+                    "begin_bit": 16,
+                    "end_bit":   16,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "OS": {
+                    "begin_bit": 17,
+                    "end_bit":   17,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "EDGE": {
+                    "begin_bit": 18,
+                    "end_bit":   18,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "PC": {
+                    "begin_bit": 19,
+                    "end_bit":   19,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "INT": {
+                    "begin_bit": 20,
+                    "end_bit":   20,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "ANYTHREAD": {
+                    "begin_bit": 21,
+                    "end_bit":   21,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "EN": {
+                    "begin_bit": 22,
+                    "end_bit":   22,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "INV": {
+                    "begin_bit": 23,
+                    "end_bit":   23,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "CMASK": {
+                    "begin_bit": 24,
+                    "end_bit":   31,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                }
+            }
+        },
+        "IA32_PERFEVTSEL3": {
+            "offset": "0x189",
+            "domain": "cpu",
+            "fields": {
+                "EVENT_SELECT": {
+                    "begin_bit": 0,
+                    "end_bit":   7,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "UMASK": {
+                    "begin_bit": 8,
+                    "end_bit":   15,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "USR": {
+                    "begin_bit": 16,
+                    "end_bit":   16,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "OS": {
+                    "begin_bit": 17,
+                    "end_bit":   17,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "EDGE": {
+                    "begin_bit": 18,
+                    "end_bit":   18,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "PC": {
+                    "begin_bit": 19,
+                    "end_bit":   19,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "INT": {
+                    "begin_bit": 20,
+                    "end_bit":   20,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "ANYTHREAD": {
+                    "begin_bit": 21,
+                    "end_bit":   21,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "EN": {
+                    "begin_bit": 22,
+                    "end_bit":   22,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "INV": {
+                    "begin_bit": 23,
+                    "end_bit":   23,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "CMASK": {
+                    "begin_bit": 24,
+                    "end_bit":   31,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                }
+            }
+        },
+        "IA32_PMC0": {
+            "offset": "0xC1",
+            "domain": "cpu",
+            "fields": {
+                "PERFCTR": {
+                    "begin_bit": 0,
+                    "end_bit":   31,
+                    "function":  "overflow",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": false,
+                    "aggregation": "sum"
+                }
+            }
+        },
+        "IA32_PMC1": {
+            "offset": "0xC2",
+            "domain": "cpu",
+            "fields": {
+                "PERFCTR": {
+                    "begin_bit": 0,
+                    "end_bit":   31,
+                    "function":  "overflow",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": false,
+                    "aggregation": "sum"
+                }
+            }
+        },
+        "IA32_PMC2": {
+            "offset": "0xC3",
+            "domain": "cpu",
+            "fields": {
+                "PERFCTR": {
+                    "begin_bit": 0,
+                    "end_bit":   31,
+                    "function":  "overflow",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": false,
+                    "aggregation": "sum"
+                }
+            }
+        },
+        "IA32_PMC3": {
+            "offset": "0xC4",
+            "domain": "cpu",
+            "fields": {
+                "PERFCTR": {
+                    "begin_bit": 0,
+                    "end_bit":   31,
+                    "function":  "overflow",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": false,
+                    "aggregation": "sum"
+                }
+            }
+        },
         "FIXED_CTR0": {
             "offset": "0x309",
             "domain": "cpu",
@@ -488,6 +924,22 @@ namespace geopm
                     "scalar":    1.0,
                     "writeable": true
                 },
+                "EN_PMC2": {
+                    "begin_bit": 2,
+                    "end_bit":   2,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "EN_PMC3": {
+                    "begin_bit": 3,
+                    "end_bit":   3,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
                 "EN_FIXED_CTR0": {
                     "begin_bit": 32,
                     "end_bit":   32,
@@ -527,6 +979,22 @@ namespace geopm
                     "writeable": true
                 },
                 "CLEAR_OVF_PMC1": {
+                    "begin_bit": 1,
+                    "end_bit":   1,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "CLEAR_OVF_PMC2": {
+                    "begin_bit": 1,
+                    "end_bit":   1,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                },
+                "CLEAR_OVF_PMC3": {
                     "begin_bit": 1,
                     "end_bit":   1,
                     "function":  "scale",
