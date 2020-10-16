@@ -73,9 +73,21 @@ clone_repo_git(){
         return 1
     fi
 
+    backup_archive ${ARCHIVE} ${DIRNAME}
+}
+
+backup_archive() {
+    local ARCHIVE=$1
+    local DIRNAME=$2
+
     # If the user set the cache dir, pack up the source for next time
     if [ -d ${GEOPM_APPS_SOURCES} ]; then
-        tar czvf ${GEOPM_APPS_SOURCES}/${ARCHIVE} ${DIRNAME}
+        if [ ! -f ${ARCHIVE} ]; then
+            tar czvf ${ARCHIVE} ${DIRNAME}
+        fi
+        if [ ! -f ${GEOPM_APPS_SOURCE}/${ARCHIVE} ]; then
+            cp ${ARCHIVE} ${GEOPM_APPS_SOURCES}
+        fi
     else
         echo "Warning: Please set GEOPM_APPS_SOURCES in your environment to enable the local source code cache."
     fi
@@ -114,9 +126,7 @@ get_archive() {
         elif [ $# -eq 2 ]; then
             local URL=$2
             wget ${URL}/${ARCHIVE}
-            if [ -d ${GEOPM_APPS_SOURCES} ]; then
-                cp ${ARCHIVE} ${GEOPM_APPS_SOURCES}
-            fi
+            backup_archive ${ARCHIVE}
         fi
     fi
 }
