@@ -1352,7 +1352,7 @@ class RawReport(object):
                     if line.startswith('Host:'):
                         host = line.split(':')[1].strip()
                         out_fid.write('{}:\n'.format(host))
-                    elif line.startswith('Figure of Merit'):
+                    elif line.startswith('Figure of Merit') or line.startswith('Total Runtime'):
                         out_fid.write('{}'.format(line))
                     else:
                         out_fid.write('    {}'.format(line))
@@ -1393,8 +1393,16 @@ class RawReport(object):
             pass
         return result
 
+    def total_runtime(self):
+        result = None
+        try:
+            result = copy.deepcopy(self._raw_dict['Total Runtime'])
+        except:
+            pass
+        return result
+
     def host_names(self):
-        return [xx for xx in self._raw_dict if xx not in ['GEOPM Meta Data', 'Figure of Merit']]
+        return [xx for xx in self._raw_dict if xx not in ['GEOPM Meta Data', 'Figure of Merit', 'Total Runtime']]
 
     def region_names(self, host_name):
         host_data = self._raw_dict[host_name]
@@ -1608,7 +1616,19 @@ class RawReportCollection(object):
             figure_of_merit = rr.figure_of_merit()
             if figure_of_merit is not None:
                 _add_column('app', 'FOM')
+            total_runtime = rr.total_runtime()
+            if total_runtime is not None:
+                _add_column('app', 'total_runtime')
             host_names = rr.host_names()
+            if len(host_names) == 0:
+                # Handle runs without geopmctl
+                app_row = copy.deepcopy(header)
+                if figure_of_merit is not None:
+                    app_row['FOM'] = figure_of_merit
+                if total_runtime is not None:
+                    app_row['total_runtime'] = total_runtime
+                app_df_list.append(pandas.DataFrame(app_row, index=[0]))
+
             for host in host_names:
                 # data about host to be repeated over all rows
                 per_host_data = {'host': host}
@@ -1645,6 +1665,8 @@ class RawReportCollection(object):
                 app_row = copy.deepcopy(header)
                 if figure_of_merit is not None:
                     app_row['FOM'] = figure_of_merit
+                if total_runtime is not None:
+                    app_row['total_runtime'] = total_runtime
                 app_row.update(per_host_data)
                 app_data = rr.raw_totals(host)
                 for key, val in app_data.items():

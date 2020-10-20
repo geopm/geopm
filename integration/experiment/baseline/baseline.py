@@ -29,21 +29,45 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/common_args.py \
-              integration/experiment/__init__.py \
-              integration/experiment/gen_slurm.sh \
-              integration/experiment/launch_util.py \
-              integration/experiment/machine.py \
-              integration/experiment/plotting.py \
-              integration/experiment/README.md \
-              integration/experiment/report.py \
-              integration/experiment/util.py \
-              # end
+'''
+Helper functions for running apps without geopm.
+'''
 
-include integration/experiment/baseline/Makefile.mk
-include integration/experiment/energy_efficiency/Makefile.mk
-include integration/experiment/frequency_sweep/Makefile.mk
-include integration/experiment/monitor/Makefile.mk
-include integration/experiment/power_sweep/Makefile.mk
-include integration/experiment/trace_analysis/Makefile.mk
-include integration/experiment/uncore_frequency_sweep/Makefile.mk
+import argparse
+
+from experiment import launch_util
+from experiment import common_args
+
+
+def setup_run_args(parser):
+    common_args.setup_run_args(parser)
+
+
+def launch(app_conf_configs, args, experiment_cli_args):
+    extra_cli_args = experiment_cli_args.copy()
+
+    targets = []
+    for name, app_conf in app_conf_configs.items():
+        for use_geopm_ctl in [False, True]:
+            targets.append(launch_util.LaunchConfig(app_conf=app_conf,
+                                                    agent_conf=None,
+                                                    name=name,
+                                                    use_geopm_ctl=use_geopm_ctl))
+
+    launch_util.launch_all_runs(targets=targets,
+                                num_nodes=args.node_count,
+                                iterations=args.trial_count,
+                                extra_cli_args=extra_cli_args,
+                                output_dir=args.output_dir,
+                                cool_off_time=args.cool_off_time,
+                                enable_traces=False,
+                                enable_profile_traces=False)
+
+
+def main(app_conf, **defaults):
+    parser = argparse.ArgumentParser()
+    setup_run_args(parser)
+    parser.set_defaults(**defaults)
+    args, extra_args = parser.parse_known_args()
+    launch(app_conf=app_conf, args=args,
+           experiment_cli_args=extra_args)

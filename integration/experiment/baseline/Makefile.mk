@@ -29,21 +29,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/common_args.py \
-              integration/experiment/__init__.py \
-              integration/experiment/gen_slurm.sh \
-              integration/experiment/launch_util.py \
-              integration/experiment/machine.py \
-              integration/experiment/plotting.py \
-              integration/experiment/README.md \
-              integration/experiment/report.py \
-              integration/experiment/util.py \
+EXTRA_DIST += integration/experiment/baseline/__init__.py \
+              integration/experiment/baseline/baseline.py \
+              integration/experiment/baseline/README.md \
               # end
-
-include integration/experiment/baseline/Makefile.mk
-include integration/experiment/energy_efficiency/Makefile.mk
-include integration/experiment/frequency_sweep/Makefile.mk
-include integration/experiment/monitor/Makefile.mk
-include integration/experiment/power_sweep/Makefile.mk
-include integration/experiment/trace_analysis/Makefile.mk
-include integration/experiment/uncore_frequency_sweep/Makefile.mk

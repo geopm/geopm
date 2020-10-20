@@ -320,3 +320,23 @@ def make_bash(app_conf, run_id, log_file):
     # read, write, execute for owner
     os.chmod(bash_file, stat.S_IRWXU)
     return bash_file
+
+
+def get_available_app_cores(mach, pin_config):
+    '''
+    pin_config: str
+    mach: Machine
+
+    Returns number of cores available to be used by the application.
+
+    '''
+    app_cores = mach.num_core()
+    if pin_config == 'all_cores':
+        pass
+    elif pin_config == 'geopm_os_shared':
+        app_cores -= 1
+    elif pin_config == 'geopm_os_reserved':
+        app_cores -= 2
+    else:
+        raise RuntimeError("Unknown pin_config: {}".format(pin_config))
+    return app_cores
