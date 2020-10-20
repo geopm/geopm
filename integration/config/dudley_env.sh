@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,14 +31,27 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+# DUDLEY BUILD ENVIRONMENT
+#
+# This script is intended to be sourced within an existing script or shell ONLY.
+# It is NOT intended to be ./ executed.
 
-EXTRA_DIST += integration/README.md \
-              integration/config/build_env.sh \
-              integration/config/run_env.sh \
-              integration/config/dudley_env.sh \
-              # end
+# Default Intel Toolchain compiler overrides
+# The MPI compiler wrappers are supported by Intel, but are not Intel specific.
 
-include integration/apps/Makefile.mk
-include integration/experiment/Makefile.mk
-include integration/test/Makefile.mk
-include integration/smoke/Makefile.mk
+
+module purge
+module load autotools intel impi
+
+export CC=icc
+export CXX=icpc
+export MPICC=mpiicc
+export MPICXX=mpiicpc
+export FC=ifort
+export F77=ifort
+export F90=ifort
+export MPIFORT=mpiifort
+export MPIFC=mpiifort
+export MPIF77=mpiifort
+export MPIF90=mpiifort
+export FI_PROVIDER=psm2
