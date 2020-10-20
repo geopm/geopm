@@ -110,7 +110,7 @@ get_archive() {
     local ARCHIVE=$1
     if [ ! -f ${ARCHIVE} ]; then
         if [ -f "${GEOPM_APPS_SOURCES}/${ARCHIVE}" ]; then
-            cp "${GEOPM_APPS_SOURCES}/${ARCHIVE}" .
+            ln -s "${GEOPM_APPS_SOURCES}/${ARCHIVE}"
         elif [ $# -eq 2 ]; then
             local URL=$2
             wget ${URL}/${ARCHIVE}
