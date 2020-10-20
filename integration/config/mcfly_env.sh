@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,20 +31,29 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/apps/apps.py \
-              integration/apps/build_func.sh \
-              integration/apps/__init__.py \
-              integration/apps/README.md \
-              # end
+# MCFLY BUILD ENVIRONMENT
+#
+# This script is intended to be sourced within an existing script or shell ONLY.
+# It is NOT intended to be ./ executed.
 
-include integration/apps/private.mk
-include integration/apps/amg/Makefile.mk
-include integration/apps/geopmbench/Makefile.mk
-include integration/apps/hpcg/Makefile.mk
-include integration/apps/hpl_mkl/Makefile.mk
-include integration/apps/hpl_netlib/Makefile.mk
-include integration/apps/minife/Makefile.mk
-include integration/apps/nekbone/Makefile.mk
-include integration/apps/nasft/Makefile.mk
-include integration/apps/pennant/Makefile.mk
-include integration/apps/wrf/Makefile.mk
+# Default Intel Toolchain compiler overrides
+# The MPI compiler wrappers are supported by Intel, but are not Intel specific.
+
+module purge
+module load autotools intel impi
+
+export CC=icc
+export CXX=icpc
+export MPICC=mpiicc
+export MPICXX=mpiicpc
+export FC=ifort
+export F77=ifort
+export F90=ifort
+export MPIFORT=mpiifort
+export MPIFC=mpiifort
+export MPIF77=mpiifort
+export MPIF90=mpiifort
+
+export I_MPI_FABRICS=ofi
+export I_MPI_OFI_PROVIDER=psm2
+export PSM2_IDENTIFY=1

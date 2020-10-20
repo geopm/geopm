@@ -29,20 +29,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/apps/apps.py \
-              integration/apps/build_func.sh \
-              integration/apps/__init__.py \
-              integration/apps/README.md \
+EXTRA_DIST += integration/apps/wrf/0001-Whitespace-cleanup.patch \
+              integration/apps/wrf/0002-Intel-Compiler-updates.patch \
+              integration/apps/wrf/0003-Performance-compilation-flag-updates.patch \
+              integration/apps//wrf/__init__.py \
+              integration/apps//wrf/build.sh \
+              integration/apps//wrf/wrf.py \
+              integration/apps//wrf/README.md \
               # end
-
-include integration/apps/private.mk
-include integration/apps/amg/Makefile.mk
-include integration/apps/geopmbench/Makefile.mk
-include integration/apps/hpcg/Makefile.mk
-include integration/apps/hpl_mkl/Makefile.mk
-include integration/apps/hpl_netlib/Makefile.mk
-include integration/apps/minife/Makefile.mk
-include integration/apps/nekbone/Makefile.mk
-include integration/apps/nasft/Makefile.mk
-include integration/apps/pennant/Makefile.mk
-include integration/apps/wrf/Makefile.mk

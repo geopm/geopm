@@ -33,6 +33,8 @@ EXTRA_DIST += integration/experiment/frequency_sweep/__init__.py \
               integration/experiment/frequency_sweep/frequency_sweep.py \
               integration/experiment/frequency_sweep/gen_frequency_map.py \
               integration/experiment/frequency_sweep/gen_plot_runtime_energy.py \
+              integration/experiment/frequency_sweep/gen_plot_freqinv_runtime.py \
+              integration/experiment/frequency_sweep/gen_plot_freqinv_fom.py \
               integration/experiment/frequency_sweep/gen_region_summary.py \
               integration/experiment/frequency_sweep/README.md \
               integration/experiment/frequency_sweep/run_frequency_sweep_amg.py \
@@ -43,4 +45,5 @@ EXTRA_DIST += integration/experiment/frequency_sweep/__init__.py \
               integration/experiment/frequency_sweep/run_frequency_sweep_nasft.py \
               integration/experiment/frequency_sweep/run_frequency_sweep_nekbone.py \
               integration/experiment/frequency_sweep/run_frequency_sweep_pennant.py \
+              integration/experiment/frequency_sweep/run_frequency_sweep_wrf.py \
               # end
