@@ -966,6 +966,20 @@ namespace geopm
                 }
             }
         },
+        "IA32_ENERGY_PERF_BIAS": {
+            "offset": "0x1B0",
+            "domain": "cpu",
+            "fields": {
+                "POWER_POLICY_PREFERENCE": {
+                    "begin_bit": 0,
+                    "end_bit":   3,
+                    "function":  "scale",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": true
+                }
+            }
+        },
         "PERF_GLOBAL_OVF_CTRL": {
             "offset": "0x390",
             "domain": "cpu",
