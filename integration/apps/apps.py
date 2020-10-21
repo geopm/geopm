@@ -191,6 +191,8 @@ class AppConf(object):
            the application.
 
         '''
+        pass
+
     def experiment_teardown(self, output_dir):
         '''Delete all files or symbolic links created by an experiment after
            all trials have completed.  This is for the removal of
