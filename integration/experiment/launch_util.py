@@ -141,13 +141,16 @@ def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir, 
             app_conf = tar.app_conf()
             run_id = tar.run_id(iteration)
 
+            app_conf.prelaunch_setup(run_id, output_dir)
             launch_run(agent_conf, app_conf, run_id, output_dir,
                        extra_cli_args=extra_cli_args,
                        num_nodes=num_nodes, enable_traces=enable_traces,
                        enable_profile_traces=enable_profile_traces)
+            app_conf.postlaunch_teardown(run_id, output_dir)
 
             # rest to cool off between runs
             time.sleep(cool_off_time)
+    app_conf.experiment_teardown(output_dir)
     sys.stdout.write('Run complete!\n')
 
 
