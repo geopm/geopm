@@ -138,15 +138,14 @@ class AppConf(object):
         return None
 
 
-    def prelaunch_setup(self, run_id, output_dir):
-        '''Execute any commands that will create files to be used during a
-           launch of an step in an experiment.  This may include
-           creating symbolic links, copying files into the output
-           directory, or executing commands that create input data for
-           the application.  This step will be called repeately, once
-           for each trial executed by an experiment.  Some files may
-           be created by the first call to this method and then
-           persist throughout an experiment.
+    def trial_setup(self, run_id, output_dir):
+        '''Create files to be used during a launch of a step in an
+           experiment.  This method may create symbolic links, copy
+           files into the output directory, or execute commands that
+           create input data for the application.  This step will be
+           called repeatedly, once for each trial executed by an
+           experiment. These files will be cleaned up after each trial
+           with the trial_teardown() method.
 
            Args:
                run_id (str): A unique string used to label output for
@@ -161,12 +160,13 @@ class AppConf(object):
         '''
         pass
 
-    def postlaunch_teardown(self, run_id, output_dir):
-        '''Delete files or symbolic links created as part of an experiment
-           trial that are not needed by subsequent trials.  This step
-           will be called repeately, once for each trial executed by
-           an experiment.  Final clean up after all trials can be done
-           by experiment_teardown().
+    def trial_teardown(self, run_id, output_dir):
+        '''Delete temporary files or symbolic links created as part of an
+           experiment trial that are not needed by subsequent trials.
+           This step will be called repeatedly, once for each trial
+           executed by an experiment.  This method may also rename
+           output files to contain the run_id so that they are not
+           overwritten by subsequent trials.
 
            Args:
                run_id (str): A unique string used to label output for
@@ -181,12 +181,22 @@ class AppConf(object):
         '''
         pass
 
+    def experiment_setup(self, output_dir):
+        '''Create files to be used throughout an experiment and present for
+           all trials.  These files typically persist unchanged
+           throughout the execution of the experiement and are cleaned
+           up with the experiement_teardown() method.  This method may
+           create symbolic links, copy files into the output
+           directory, or execute commands that create input data for
+           the application.
+
+        '''
     def experiment_teardown(self, output_dir):
         '''Delete all files or symbolic links created by an experiment after
            all trials have completed.  This is for the removal of
            files and symbolic links that are created on the first
            trial, used throughout the experiment and not cleaned up by
-           postlaunch_teardown().
+           trial_teardown().
 
            Args:
                output_dir (str): Path to the working directory where
@@ -199,7 +209,6 @@ class AppConf(object):
         pass
 
     def get_bash_setup_commands(self):
-
         ''' Any actions to be added to the bash script to run prior to one
             iteration of the application.  This method should not have
             any side effects.  It must return a string containing
