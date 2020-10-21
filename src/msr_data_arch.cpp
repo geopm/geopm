@@ -966,6 +966,20 @@ namespace geopm
                 }
             }
         },
+        "C6_RESIDENCY": {
+            "offset": "0x3FD",
+            "domain": "core",
+            "fields": {
+                "RESIDENCY": {
+                    "begin_bit": 0,
+                    "end_bit":   47,
+                    "function":  "overflow",
+                    "units":     "none",
+                    "scalar":    1.0,
+                    "writeable": false
+                }
+            }
+        },
         "PERF_GLOBAL_OVF_CTRL": {
             "offset": "0x390",
             "domain": "cpu",
