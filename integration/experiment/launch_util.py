@@ -137,7 +137,6 @@ def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir, 
         raise RuntimeError('Called launch_util.launch_all_runs() with empty target list')
 
     machine.init_output_dir(output_dir)
-    targets[0].app_conf().experiment_setup(output_dir)
     for iteration in range(iterations):
         for tar in targets:
             agent_conf = tar.agent_conf()
@@ -153,7 +152,10 @@ def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir, 
 
             # rest to cool off between runs
             time.sleep(cool_off_time)
-    targets[-1].app_conf().experiment_teardown(output_dir)
+
+    for tar in targets:
+        tar.app_conf().experiment_teardown(output_dir)
+
     sys.stdout.write('Run complete!\n')
 
 
