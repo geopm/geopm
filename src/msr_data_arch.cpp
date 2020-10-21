@@ -966,7 +966,7 @@ namespace geopm
                 }
             }
         },
-        "IA32_ENERGY_PERF_BIAS": {
+        "ENERGY_PERF_BIAS": {
             "offset": "0x1B0",
             "domain": "cpu",
             "fields": {
