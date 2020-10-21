@@ -137,7 +137,69 @@ class AppConf(object):
         '''
         return None
 
+
+    def prelaunch_setup(self, run_id, output_dir):
+        '''Execute any commands that will create files to be used during a
+           launch of an step in an experiment.  This may include
+           creating symbolic links, copying files into the output
+           directory, or executing commands that create input data for
+           the application.  This step will be called repeately, once
+           for each trial executed by an experiment.  Some files may
+           be created by the first call to this method and then
+           persist throughout an experiment.
+
+           Args:
+               run_id (str): A unique string used to label output for
+                             the current experiment trial.
+
+               output_dir (str): Path to the working directory where
+                                 the trial will be executed.  The
+                                 value of this parameter will be the
+                                 same for all calls made to this
+                                 method during an experiment.
+
+        '''
+        pass
+
+    def postlaunch_teardown(self, run_id, output_dir):
+        '''Delete files or symbolic links created as part of an experiment
+           trial that are not needed by subsequent trials.  This step
+           will be called repeately, once for each trial executed by
+           an experiment.  Final clean up after all trials can be done
+           by experiment_teardown().
+
+           Args:
+               run_id (str): A unique string used to label output for
+                             the current experiment trial.
+
+               output_dir (str): Path to the working directory where
+                                 the trial was be executed.  The value
+                                 of this parameter will be the same
+                                 for all calls made to this method
+                                 during an experiment.
+
+        '''
+        pass
+
+    def experiment_teardown(self, output_dir):
+        '''Delete all files or symbolic links created by an experiment after
+           all trials have completed.  This is for the removal of
+           files and symbolic links that are created on the first
+           trial, used throughout the experiment and not cleaned up by
+           postlaunch_teardown().
+
+           Args:
+               output_dir (str): Path to the working directory where
+                                 the trial was be executed.  The value
+                                 of this parameter will be the same
+                                 for all calls made to this method
+                                 during an experiment.
+
+        '''
+        pass
+
     def get_bash_setup_commands(self):
+
         ''' Any actions to be added to the bash script to run prior to one
             iteration of the application.  This method should not have
             any side effects.  It must return a string containing
