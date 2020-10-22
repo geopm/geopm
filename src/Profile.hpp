@@ -114,7 +114,7 @@ namespace geopm
             ///         Profile::exit(), Profile::progress and
             ///         Profile::sample() to associate these calls with
             ///         the registered region.
-            virtual uint64_t region(const std::string region_name, long hint) = 0;
+            virtual uint64_t region(const std::string &region_name, long hint) = 0;
             /// @brief Mark a region entry point.
             ///
             /// Called to denote the beginning of region of code that
@@ -233,7 +233,7 @@ namespace geopm
             /// @brief ProfileImp destructor, virtual.
             virtual ~ProfileImp();
             void init(void) override;
-            uint64_t region(const std::string region_name, long hint) override;
+            uint64_t region(const std::string &region_name, long hint) override;
             void enter(uint64_t region_id) override;
             void exit(uint64_t region_id) override;
             void progress(uint64_t region_id, double fraction) override;
@@ -278,7 +278,7 @@ namespace geopm
             ///        output report.  There may be suffixes appended
             ///        to this name if multiple files are created.
             ///
-            void print(const std::string file_name);
+            void print(const std::string &file_name);
             /// @brief holds the string name of the profile.
             std::string m_prof_name;
             std::string m_key_base;
