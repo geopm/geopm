@@ -31,11 +31,12 @@ geopm-theta.spec.in
 integration/README.md
 integration/apps/README.md
 integration/apps/amg/README.md
+integration/apps/hpl_mkl/README.md
+integration/apps/hpl_netlib/README.md
 integration/apps/minife/README.md
 integration/apps/nasft/nasft/COPYING-NAS
 integration/apps/nasft/nasft/README
 integration/apps/nasft/README.md
-integration/apps/hpl_netlib/README.md
 integration/apps/nekbone/README.md
 integration/experiment/frequency_sweep/README.md
 integration/experiment/monitor/README.md

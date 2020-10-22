@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,18 +31,28 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/apps/apps.py \
-              integration/apps/build_func.sh \
-              integration/apps/__init__.py \
-              integration/apps/README.md \
-              # end
+'''
+Run HPL MKL with the monitor agent small size.
+'''
 
-include integration/apps/private.mk
-include integration/apps/amg/Makefile.mk
-include integration/apps/geopmbench/Makefile.mk
-include integration/apps/hpcg/Makefile.mk
-include integration/apps/hpl_mkl/Makefile.mk
-include integration/apps/hpl_netlib/Makefile.mk
-include integration/apps/minife/Makefile.mk
-include integration/apps/nekbone/Makefile.mk
-include integration/apps/nasft/Makefile.mk
+import argparse
+
+from experiment.monitor import monitor
+from experiment import machine
+from apps.hpl_mkl import hpl_mkl
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    monitor.setup_run_args(parser)
+    parser.add_argument('--perc-dram', dest='perc_dram_per_node',
+                        action='store', type=float, default=0.9,
+                        help='Ratio of the total node DRAM that should be used for the HPL matrix (assuming DP). Default is 0.9.')
+    args, extra_args = parser.parse_known_args()
+    if len(extra_args) > 0:
+        raise RuntimeError("Arguments not known: " + " ".join(extra_args))
+    mach = machine.init_output_dir(args.output_dir)
+    app_conf = hpl_mkl.HplMklAppConf(args.node_count, mach, perc_dram_per_node=args.perc_dram_per_node)
+    monitor.launch(app_conf=app_conf, args=args,
+                   experiment_cli_args=[])

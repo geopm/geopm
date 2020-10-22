@@ -29,18 +29,36 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/apps/apps.py \
-              integration/apps/build_func.sh \
-              integration/apps/__init__.py \
-              integration/apps/README.md \
-              # end
+import os
+import textwrap
 
-include integration/apps/private.mk
-include integration/apps/amg/Makefile.mk
-include integration/apps/geopmbench/Makefile.mk
-include integration/apps/hpcg/Makefile.mk
-include integration/apps/hpl_mkl/Makefile.mk
-include integration/apps/hpl_netlib/Makefile.mk
-include integration/apps/minife/Makefile.mk
-include integration/apps/nekbone/Makefile.mk
-include integration/apps/nasft/Makefile.mk
+from apps.hpl_netlib import hpl_netlib
+
+
+class HplMklAppConf(hpl_netlib.HplNetlibAppConf):
+    @staticmethod
+    def name():
+        return 'hpl_mkl'
+
+    def __init__(self, num_nodes, mach, perc_dram_per_node=0.9, cores_per_node=None):
+        super().__init__(num_nodes, mach, perc_dram_per_node, cores_per_node)
+        self.mklroot = os.getenv('MKLROOT')
+        self.exec_path = os.path.join(self.mklroot, 'benchmarks/mp_linpack/xhpl_intel64_dynamic')
+
+    def get_bash_setup_commands(self):
+        benchmark_dir = os.path.dirname(os.path.abspath(__file__))
+
+        setup_commands += '{}\n'.format(os.path.join(benchmark_dir, 'check_env.sh'))
+        setup_commands += 'export MKL_NUM_THREADS={}\n'.format(self._cpu_per_rank)
+        setup_commands += textwrap.dedent('''
+        # For Mvapich
+        if [ -n "${MPIRUN_RANK}" ]; then
+            PMI_RANK=${MPIRUN_RANK}
+        fi
+
+        # For OpenMPI
+        if [ -n "${OMPI_COMM_WORLD_RANK}" ]; then
+            PMI_RANK=${OMPI_COMM_WORLD_RANK}
+        fi
+        ''')
+        return setup_commands
