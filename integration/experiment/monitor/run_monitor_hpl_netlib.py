@@ -48,7 +48,8 @@ if __name__ == '__main__':
     monitor.setup_run_args(parser)
     parser.add_argument('--perc-dram', dest='perc_dram_per_node',
                         action='store', type=float, default=0.9,
-                        help='Ratio of the total node DRAM that should be used for the HPL matrix (assuming DP). Default is 0.9.')
+                        help='Ratio of the total node DRAM that should be used for the HPL matrix (assuming DP).'
+                             + ' Value should be between 0 and 1. Default is 0.9.')
     args, extra_args = parser.parse_known_args()
     if len(extra_args) > 0:
         raise RuntimeError("Arguments not known: " + " ".join(extra_args))
