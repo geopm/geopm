@@ -107,7 +107,7 @@ namespace geopm
             bool receive_up(int level, std::vector<std::vector<double> > &sample) override;
             size_t overhead_send(void) const override;
         private:
-            int num_level_controlled(std::vector<int> coords);
+            int num_level_controlled(const std::vector<int> &coords);
             std::vector<std::unique_ptr<TreeCommLevel> > init_level(
                 std::shared_ptr<Comm> comm_cart, int root_level);
             std::shared_ptr<Comm> m_comm;

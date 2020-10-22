@@ -86,7 +86,7 @@ namespace geopm
         comm->barrier();
     }
 
-    int TreeCommImp::num_level_controlled(std::vector<int> coords)
+    int TreeCommImp::num_level_controlled(const std::vector<int> &coords)
     {
         int result = 0;
         for (auto it = coords.rbegin(); it != coords.rend() && *it == 0; ++it) {
