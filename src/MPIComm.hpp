@@ -54,9 +54,9 @@ namespace geopm
             MPIComm(const MPIComm *in_comm);
             MPIComm(const MPIComm *in_comm, std::vector<int> dimension, std::vector<int> periods, bool is_reorder);
             MPIComm(const MPIComm *in_comm, int color, int key);
-            MPIComm(const MPIComm *in_comm, std::string tag,  bool &is_ctl);
-            MPIComm(const MPIComm *in_comm, std::string tag);
-            MPIComm(const MPIComm *in_comm, std::string tag, int split_type);
+            MPIComm(const MPIComm *in_comm, const std::string &tag,  bool &is_ctl);
+            MPIComm(const MPIComm *in_comm, const std::string &tag);
+            MPIComm(const MPIComm *in_comm, const std::string &tag, int split_type);
             virtual ~MPIComm();
 
             static std::string plugin_name(void);
