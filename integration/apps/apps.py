@@ -150,7 +150,13 @@ class AppConf(object):
            data for the application.  This step will be called
            repeatedly, once for each trial executed by an
            experiment. Some of these files may be cleaned up after
-           each trial with the trial_teardown() method.
+           each trial with the trial_teardown() method.  Some files
+           may be left by the trial_teardown() method for use by
+           subsequent trials.  For this reason it is advised to check
+           for file existence prior to creation if a previous trial
+           may have left a valid file for future use.  These files
+           that persist between trials can be removed by the
+           experiment_teardown() method.
 
            Args:
                run_id (str): A unique string used to label output for
