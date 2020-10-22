@@ -57,7 +57,7 @@ else
 fi
 
 echo "Check 3..."
-mpilib=$(ldd ${xhpl_executable} |grep libmpi.so)
+mpilib=$(ldd ${xhpl_executable} | grep libmpi.so)
 echo "    MPI library: ${mpilib}"
 if echo ${mpilib} |grep mvapich > /dev/null; then
     echo "WARNING: Detected MVAPICH MPI. Not recommended for MKL HPL runs."

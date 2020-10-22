@@ -13,10 +13,13 @@ processors.
 Testing has been done with MKL 19.0.4.243 and impi 2019.4.243 (dynamically linked).
 IMPI is required for the best performance.
 
-The --perc-dram option passed to the run scripts that call this banchmark
-create a matrix size that fits the given percentage of the total DRAM of the nodes.
-80-90% is recommended for best performance. Lower values will not have the best
-best ALU utilization, whereas higher percentages will compete with OS resources.
+The application is configured to solve a double-precision FP matrix in this infrastructure.
+Matrix size can be controlled via the --perc-dram option, which can be passed to the run
+scripts that call this benchmark. The double-precision FP matrix will be sized such that 
+it fits in the given ratio of the total DRAM of the nodes (value between 0 and 1).
+Values above 0.75 are recommended for best performance. Lower values will not have the best
+best ALU utilization. Higher percentages may compete with OS resources or in extreme
+cases (typically >0.9) may cause the application to quit with a "not enough memory" error.
 Lower percentages can be used to run fast tests.
 
 The benchmark implementation here allows node sizes of 1, 2, 4, 8 and 16.

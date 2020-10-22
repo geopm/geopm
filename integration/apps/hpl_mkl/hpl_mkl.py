@@ -41,14 +41,14 @@ class HplMklAppConf(hpl_netlib.HplNetlibAppConf):
         return 'hpl_mkl'
 
     def __init__(self, num_nodes, mach, perc_dram_per_node=0.9, cores_per_node=None):
-        super().__init__(num_nodes, mach, perc_dram_per_node, cores_per_node)
+        super(HplMklAppConf, self).__init__(num_nodes, mach, perc_dram_per_node, cores_per_node)
         self.mklroot = os.getenv('MKLROOT')
         self.exec_path = os.path.join(self.mklroot, 'benchmarks/mp_linpack/xhpl_intel64_dynamic')
 
     def get_bash_setup_commands(self):
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
 
-        setup_commands += '{}\n'.format(os.path.join(benchmark_dir, 'check_env.sh'))
+        setup_commands = '{}\n'.format(os.path.join(benchmark_dir, 'check_env.sh'))
         setup_commands += 'export MKL_NUM_THREADS={}\n'.format(self._cpu_per_rank)
         setup_commands += textwrap.dedent('''
         # For Mvapich
