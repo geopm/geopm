@@ -278,7 +278,7 @@ namespace geopm
         return m_cache;
     }
 
-    ProfileRankSamplerImp::ProfileRankSamplerImp(const std::string shm_key, size_t table_size)
+    ProfileRankSamplerImp::ProfileRankSamplerImp(const std::string &shm_key, size_t table_size)
         : m_table_shmem(nullptr)
         , m_table(nullptr)
         , m_tprof_shmem(nullptr)
