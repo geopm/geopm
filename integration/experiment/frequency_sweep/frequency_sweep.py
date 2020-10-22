@@ -49,6 +49,9 @@ def setup_run_args(parser):
     common_args.add_min_frequency(parser)
     common_args.add_max_frequency(parser)
     common_args.add_step_frequency(parser)
+    parser.add_argument("--run-max-turbo", dest="run_max_turbo",
+            action='store_true', default=False,
+            help='add extra run to the experiment at maximum turbo frequency')
 
 
 def setup_frequency_bounds(mach, min_freq, max_freq, step_freq, add_turbo_step):
@@ -109,7 +112,7 @@ def launch(app_conf, args, experiment_cli_args):
                                         args.min_frequency,
                                         args.max_frequency,
                                         args.step_frequency,
-                                        add_turbo_step=True)
+                                        args.run_max_turbo)
     targets = launch_configs(app_conf, freq_range)
     extra_cli_args = list(experiment_cli_args)
     extra_cli_args += launch_util.geopm_signal_args(report_signals=report_signals(),
