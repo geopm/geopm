@@ -31,6 +31,7 @@
 
 EXTRA_DIST += integration/experiment/baseline/__init__.py \
               integration/experiment/baseline/baseline.py \
+              integration/experiment/baseline/gen_summary.py \
               integration/experiment/baseline/README.md \
               integration/experiment/baseline/run_baseline_minife.py \
               # end
