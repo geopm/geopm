@@ -43,7 +43,7 @@ namespace geopm
     class DomainControl : public Control
     {
         public:
-            DomainControl(std::vector<std::shared_ptr<Control> > controls);
+            DomainControl(const std::vector<std::shared_ptr<Control> > &controls);
             DomainControl(const DomainControl &other) = delete;
             virtual ~DomainControl() = default;
             void setup_batch(void) override;

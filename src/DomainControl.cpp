@@ -38,7 +38,7 @@
 
 namespace geopm
 {
-    DomainControl::DomainControl(std::vector<std::shared_ptr<Control> > controls)
+    DomainControl::DomainControl(const std::vector<std::shared_ptr<Control> > &controls)
         : m_controls(controls)
         , m_is_batch_ready(false)
     {
