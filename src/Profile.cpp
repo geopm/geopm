@@ -349,7 +349,7 @@ namespace geopm
         m_is_enabled = false;
     }
 
-    uint64_t ProfileImp::region(const std::string region_name, long hint)
+    uint64_t ProfileImp::region(const std::string &region_name, long hint)
     {
         if (!m_is_enabled) {
             return 0;
@@ -548,7 +548,7 @@ namespace geopm
 
     }
 
-    void ProfileImp::print(const std::string file_name)
+    void ProfileImp::print(const std::string &file_name)
     {
         if (!m_is_enabled || !m_table_shmem) {
             return;
