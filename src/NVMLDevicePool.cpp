@@ -92,7 +92,7 @@ namespace geopm
 #endif
     }
 
-    void NVMLDevicePoolImp::check_nvml_result(nvmlReturn_t nvml_result, int error, std::string message, int line) const
+    void NVMLDevicePoolImp::check_nvml_result(nvmlReturn_t nvml_result, int error, const std::string &message, int line) const
     {
         if (nvml_result != NVML_SUCCESS) {
             throw Exception(message + "  Error: " + nvmlErrorString(nvml_result), error, __FILE__, line);
