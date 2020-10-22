@@ -45,8 +45,8 @@ namespace geopm
     class ModelApplication
     {
         public:
-            ModelApplication(uint64_t loop_count, std::vector<std::string> region_name,
-                             std::vector<double> big_o, int verbosity, int rank);
+            ModelApplication(uint64_t loop_count, const std::vector<std::string> &region_name,
+                             const std::vector<double> &big_o, int verbosity, int rank);
             virtual ~ModelApplication() = default;
             void run(void);
         protected:
