@@ -47,7 +47,7 @@
 
 namespace geopm
 {
-    void plugin_load(std::string plugin_prefix)
+    void plugin_load(const std::string &plugin_prefix)
     {
         std::string env_plugin_path_str(geopm::environment().plugin_path());
         std::vector<std::string> plugin_paths {GEOPM_DEFAULT_PLUGIN_PATH};

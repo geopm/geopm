@@ -35,7 +35,7 @@
 
 namespace geopm
 {
-    void plugin_load(std::string plugin_prefix);
+    void plugin_load(const std::string &plugin_prefix);
 }
 
 #endif
