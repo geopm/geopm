@@ -36,7 +36,6 @@ set -e
 # Get helper functions
 source ../build_func.sh
 
-
 # Set variables for workload
 DIRNAME=hpl-2.3
 ARCHIVE=${DIRNAME}.tar.gz
