@@ -49,7 +49,7 @@ class Imbalancer
 {
     public:
         Imbalancer();
-        Imbalancer(const std::string config_path);
+        Imbalancer(const std::string &config_path);
         virtual ~Imbalancer();
         void frac(double delay_frac);
         void enter(void);
@@ -67,7 +67,7 @@ Imbalancer::Imbalancer()
 
 }
 
-Imbalancer::Imbalancer(const std::string config_path)
+Imbalancer::Imbalancer(const std::string &config_path)
     : Imbalancer()
 {
     if (config_path.length()) {
