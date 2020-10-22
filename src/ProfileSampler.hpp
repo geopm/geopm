@@ -191,7 +191,7 @@ namespace geopm
             ///
             /// @param [in] table_size Size of the hash table to create in
             ///        the shared memory region.
-            ProfileRankSamplerImp(const std::string shm_key, size_t table_size);
+            ProfileRankSamplerImp(const std::string &shm_key, size_t table_size);
             /// @brief ProfileRankSamplerImp destructor.
             ///
             /// Cleans up the hash table and shared memory region.
