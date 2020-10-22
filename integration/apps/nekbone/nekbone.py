@@ -54,25 +54,32 @@ class NekboneAppConf(apps.AppConf):
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
         self._nekbone_path = os.path.join(benchmark_dir, 'nekbone/test/example1/')
         self._num_rank_per_node = 2
+        self._input_name = 'data.rea'
 
     def get_rank_per_node(self):
         # TODO: use self._machine_file to determine
         return self._num_rank_per_node
 
-    def get_bash_setup_commands(self):
+    def trial_setup(self, run_id, output_dir):
         size = 10000  # this size varies per system
-        input_file = textwrap.dedent('''
+        input_data = textwrap.dedent('''
         .true. = ifbrick               ! brick or linear geometry
         {size} {size} 1  = iel0,ielN,ielD (per processor)  ! range of number of elements per proc.
         12 12 1 = nx0,nxN,nxD         ! poly. order range for nx1
         1  1  1 = npx, npy, npz       ! processor distribution in x,y,z
         1  1  1 = mx, my, mz          ! local element distribution in x,y,z
-        EOF
         '''.format(size=size))
-        return 'ulimit -s unlimited; cat > ./data.rea << EOF {}'.format(input_file)
+        file_name = os.path.join(output_dir, self._input_name)
+        if not os.path.exists(file_name):
+            with open(file_name, 'w') as fid:
+                fid.write(input_data)
 
-    def get_bash_cleanup_commands(self):
-        return 'rm -f ./data.rea'
+    def experiment_teardown(self, output_dir):
+        file_name = os.path.join(output_dir, self._input_name)
+        os.unlink(file_name)
+
+    def get_bash_setup_commands(self):
+        return 'ulimit -s unlimited'
 
     def get_bash_exec_path(self):
         binary_name = ''
