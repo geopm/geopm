@@ -46,7 +46,7 @@
 
 namespace geopm
 {
-    ModelApplication::ModelApplication(uint64_t repeat, std::vector<std::string> region_name, std::vector<double> big_o, int verbosity, int rank)
+    ModelApplication::ModelApplication(uint64_t repeat, const std::vector<std::string> &region_name, const std::vector<double> &big_o, int verbosity, int rank)
         : m_repeat(repeat)
         , m_rank(rank)
     {
