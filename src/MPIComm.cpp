@@ -147,7 +147,7 @@ namespace geopm
         }
     }
 
-    MPIComm::MPIComm(const MPIComm *in_comm, std::string tag, int split_type)
+    MPIComm::MPIComm(const MPIComm *in_comm, const std::string &tag, int split_type)
         : m_comm(MPI_COMM_NULL)
         , m_maxdims(1)
         , m_name(in_comm->m_name)
@@ -173,7 +173,7 @@ namespace geopm
         }
     }
 
-    MPIComm::MPIComm(const MPIComm *in_comm, std::string tag,  bool &is_ctl)
+    MPIComm::MPIComm(const MPIComm *in_comm, const std::string &tag,  bool &is_ctl)
         : m_comm(MPI_COMM_NULL)
         , m_maxdims(1)
         , m_name(in_comm->m_name)
