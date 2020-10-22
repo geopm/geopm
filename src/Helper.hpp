@@ -97,7 +97,7 @@ namespace geopm
     bool string_begins_with(const std::string &str, const std::string &key);
 
     /// @brief Returns whether one string ends with another.
-    bool string_ends_with(std::string str, std::string key);
+    bool string_ends_with(const std::string &str, const std::string &key);
 
     /// @brief Format a string to best represent a signal encoding a
     ///        double precision floating point number.

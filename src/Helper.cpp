@@ -182,7 +182,7 @@ namespace geopm
         return (str.find(key) == 0);
     }
 
-    bool string_ends_with(std::string str, std::string key)
+    bool string_ends_with(const std::string &str, const std::string &key)
     {
         std::reverse(str.begin(), str.end());
         std::reverse(key.begin(), key.end());
