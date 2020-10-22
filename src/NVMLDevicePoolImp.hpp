@@ -67,7 +67,7 @@ namespace geopm
             const unsigned int M_MAX_CONTEXTS;
             const unsigned int M_NUM_CPU;
             virtual void check_accel_range(int accel_idx) const;
-            virtual void check_nvml_result(nvmlReturn_t nvml_result, int error, std::string message, int line) const;
+            virtual void check_nvml_result(nvmlReturn_t nvml_result, int error, const std::string &message, int line) const;
             unsigned int m_num_accelerator;
             std::vector<nvmlDevice_t> m_nvml_device;
     };
