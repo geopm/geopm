@@ -142,7 +142,6 @@ class AppConf(object):
         '''
         return None
 
-
     def trial_setup(self, run_id, output_dir):
         '''Create files to be used during a launch of a step in an experiment.
            This method may create symbolic links, copy files into the
@@ -277,7 +276,7 @@ class AppConf(object):
                 log_path (str): path to the log file containing the
                                 standard output from the previous run.
 
-            Return:
+            Returns:
                 float or None: application figure of merit for the run.
         '''
         return None
@@ -293,7 +292,7 @@ def make_bash(app_conf, run_id, log_file):
             log_path (str): path to the log file containing the
                             standard output from the previous run.
 
-        Return:
+        Returns:
             str: path to the generated script
     '''
 
@@ -323,11 +322,22 @@ def make_bash(app_conf, run_id, log_file):
 
 
 def get_available_app_cores(mach, pin_config):
-    '''
-    pin_config: str
-    mach: Machine
+    '''Returns the number of cores per node available to be used by
+    an application for the given pinning configuration.  The pinning
+    configuration determines how many cores will be reserved for the
+    OS and the GEOPM controller, if any.
 
-    Returns number of cores available to be used by the application.
+    Args:
+        pin_config (str): One of "all_cores" (no cores reserved),
+                          "geopm_os_shared" (1 core reserved to be
+                          shared by OS and GEOPM), or
+                          "geopm_os_reserved" (2 cores reserved for
+                          the OS and GEOPM).
+        mach (Machine): the machine configuration for the compute
+                        nodes containing the total number of cores.
+
+    Returns:
+        int: number of cores available to be used by the application.
 
     '''
     app_cores = mach.num_core()
