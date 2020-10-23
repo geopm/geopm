@@ -62,6 +62,7 @@ if [ -f $HOME/.geopmrc ]; then
     source ~/.geopmrc
 fi
 GEOPM_SOURCE=${GEOPM_SOURCE:?"Please define GEOPM_SOURCE in your environment"}
+GEOPM_WORKDIR=${GEOPM_WORKDIR:?"Please define GEOPM_WORKDIR in your environment"}
 
 if [ ! -z ${GEOPM_SYSTEM_ENV} ]; then
     source ${GEOPM_SYSTEM_ENV}
@@ -92,7 +93,7 @@ source ${GEOPM_SOURCE}/integration/config/run_env.sh
 OUTPUT_DIR=\${GEOPM_WORKDIR}/\${SLURM_JOB_NAME}_\${SLURM_JOBID}
 
 ${GEOPM_SOURCE}/integration/experiment/${EXP_DIR}/run_${EXP_TYPE}_${APP}.py \\
-    --nodes=\${SLURM_NNODES} \\
+    --node-count=\${SLURM_NNODES} \\
     --output-dir=\${OUTPUT_DIR} \\
     # end
 
