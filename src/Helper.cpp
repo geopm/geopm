@@ -184,9 +184,7 @@ namespace geopm
 
     bool string_ends_with(const std::string &str, const std::string &key)
     {
-        std::reverse(str.begin(), str.end());
-        std::reverse(key.begin(), key.end());
-        return string_begins_with(str, key);
+        return (str.rfind(key.c_str(), str.length() - key.length(), key.length()) != std::string::npos);
     }
 
     std::string string_format_double(double signal)
