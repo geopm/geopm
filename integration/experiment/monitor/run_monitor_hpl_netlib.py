@@ -32,7 +32,7 @@
 #
 
 '''
-Run HPL Netlib with the monitor agent small size.
+Run HPL Netlib with the monitor agent.
 '''
 
 import argparse
