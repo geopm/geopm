@@ -32,7 +32,7 @@
 #
 
 '''
-Run HPL MKL with the monitor agent small size.
+Run HPL MKL with the monitor agent.
 '''
 
 import argparse
