@@ -313,7 +313,8 @@ def make_bash(app_conf, run_id, log_file):
                app_params=app_params,
                log_file=log_file,
                cleanup=app_conf.get_bash_cleanup_commands()))
-    bash_file = '{}.sh'.format(app_conf.name())
+    bash_file = '{}_{}.sh'.format(app_conf.name(), run_id)
+    bash_file = os.path.join(os.getcwd(), bash_file)
     with open(bash_file, 'w') as ofile:
         ofile.write(script)
     # read, write, execute for owner
