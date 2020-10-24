@@ -29,19 +29,49 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/apps/apps.py \
-              integration/apps/build_func.sh \
-              integration/apps/__init__.py \
-              integration/apps/README.md \
-              # end
+import os
+import sys
+import glob
+import math
+import textwrap
+import re
 
-include integration/apps/private.mk
-include integration/apps/amg/Makefile.mk
-include integration/apps/geopmbench/Makefile.mk
-include integration/apps/hpcg/Makefile.mk
-include integration/apps/hpl_mkl/Makefile.mk
-include integration/apps/hpl_netlib/Makefile.mk
-include integration/apps/minife/Makefile.mk
-include integration/apps/nekbone/Makefile.mk
-include integration/apps/nasft/Makefile.mk
-include integration/apps/pennant/Makefile.mk
+from apps import apps
+
+
+class PennantAppConf(apps.AppConf):
+    @staticmethod
+    def name():
+        return 'pennant'
+
+    def __init__(self, problem_file="PENNANT/test/nohpoly/nohpoly.pnt"):
+        benchmark_dir = os.path.dirname(os.path.abspath(__file__))
+        print(benchmark_dir)
+        self._exec_path = os.path.join(benchmark_dir, 'PENNANT/build/pennant')
+        print(self._exec_path)
+        if os.path.isfile(problem_file):
+            self._exec_args = problem_file
+        elif os.path.isfile(os.path.join(benchmark_dir, problem_file)):
+            self._exec_args = os.path.join(benchmark_dir, problem_file)
+        else:
+            raise RuntimeError("Input file not found: " + problem_file)
+
+    def get_rank_per_node(self):
+        return 1
+
+    def get_cpu_per_rank(self):
+        return 6
+
+    def parse_fom(self, log_path):
+        with open(log_path) as fid:
+            for line in fid.readlines():
+                m_zones = re.match(r"^Zones:\s*(\d+)", line)
+                m_runtime = re.match(r"^hydro cycle run time=\s*(.*)", line)
+                m_cycle = re.match(r"^cycle\s*=\s*(\d+),.*", line)
+                if m_zones:
+                    zones = int(m_zones.group(1))
+                if m_runtime:
+                    runtime = float(m_runtime.group(1))
+                if m_cycle:
+                    cycle = int(m_cycle.group(1))
+        return zones * cycle / runtime
