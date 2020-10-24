@@ -77,7 +77,7 @@ namespace geopm
     uint32_t EditDistPeriodicityDetector::Dget(int ii, int jj, int mm) const {
         // This value is supposed to be INF but not so large that it gets wrapped around when
         // a small value is added to it.
-        uint32_t result = std::numeric_limits<uint32_t>::max()/2;
+        uint32_t result = std::numeric_limits<uint32_t>::max() / 2;
 
         // D[ii, jj, mm] is the string-edit distance between records [0..ii) and
         // [mm..mm+jj). If ii is too short, the values will be truncated.
@@ -100,7 +100,7 @@ namespace geopm
         int num_recs_in_hist = m_history_buffer.size();
 
         for (int ii = std::max({0, m_record_count - m_history_buffer_size}); ii < m_record_count; ++ii) {
-            Dset(ii, 0, m_record_count-1, 0);
+            Dset(ii, 0, m_record_count - 1, 0);
         }
         for (int mm = std::max({0, m_record_count - m_history_buffer_size}); mm < m_record_count; ++mm) {
             Dset(0, m_record_count - mm, mm, m_record_count - mm);

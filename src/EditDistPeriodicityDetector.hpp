@@ -45,6 +45,11 @@ namespace geopm
     class EditDistPeriodicityDetector
     {
         public:
+            /// @brief Default constructor for String Edit Distance based
+            ///        periodicity detector used in EditDistEpochRecordFilter.
+            ///
+            /// @param [in] history_buffer_size Number of region entry
+            ///        events stored in order to determine an epoch.
             EditDistPeriodicityDetector(int history_buffer_size);
             virtual ~EditDistPeriodicityDetector() = default;
             /// @brief Update detector with a new record from the application.
