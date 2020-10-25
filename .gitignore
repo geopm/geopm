@@ -60,9 +60,11 @@
 /gtest-all.o
 /install-sh
 /integration/apps/hpcg/hpcg/
+/integration/apps/hpl_netlib/hpl-2.3/
 /integration/apps/nekbone/nekbone/
 /integration/apps/nasft/nasft/nas_ft
 /integration/apps/nasft/nasft/*.o
+/integration/apps/pennant/PENNANT/
 /integration/test/*.config
 /integration/test/geopm_test_integration
 /integration/test/geopm_test_integration.pyc
