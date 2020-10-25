@@ -34,4 +34,5 @@ EXTRA_DIST += integration/apps/pennant/pennant.py \
               integration/apps/pennant/__init__.py \
               integration/apps/pennant/build.sh \
               integration/apps/pennant/README.md \
+              integration/apps/pennant/0001-Fixed-Makefile-to-GEOPM-and-Intel-conventions.patch \
               # end
