@@ -29,6 +29,10 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+'''
+AppConf class for HPL reference (netlib) benchmark.
+'''
+
 import os
 import sys
 import glob
@@ -37,6 +41,14 @@ import textwrap
 
 from apps import apps
 
+def setup_run_args(parser):
+    """ Add common arguments for all run scripts:
+        --perc-dram
+    """
+    parser.add_argument('--perc-dram', dest='perc_dram_per_node',
+                        action='store', type=float, default=0.9,
+                        help='Ratio of the total node DRAM that should be used for the HPL matrix (assuming DP).'
+                             + ' Value should be between 0 and 1. Default is 0.9.')
 
 class HplNetlibAppConf(apps.AppConf):
     @staticmethod

@@ -29,6 +29,10 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+'''
+AppConf class for HPL MKL benchmark.
+'''
+
 import os
 import textwrap
 

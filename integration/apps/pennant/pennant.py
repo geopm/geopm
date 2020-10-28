@@ -29,26 +29,32 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+'''
+AppConf class for Pennant benchmark.
+'''
+
 import os
-import sys
-import glob
-import math
-import textwrap
 import re
 
 from apps import apps
 
+def setup_run_args(parser):
+    """ Add common arguments for all run scripts:
+        --input
+    """
+    parser.add_argument('--input', "-i",
+                        action='store', type=str, default="PENNANT/test/leblancx4/leblancx4.pnt",
+                        help='Path to the input file (see .pnt files in test directory of the PENNANT source tarball).' +
+                             ' Absolute path or relative to the app directory. Default is nohpoly.pnt')
 
 class PennantAppConf(apps.AppConf):
     @staticmethod
     def name():
         return 'pennant'
 
-    def __init__(self, problem_file="PENNANT/test/nohpoly/nohpoly.pnt"):
+    def __init__(self, problem_file="PENNANT/test/leblancx4/leblancx4.pnt"):
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
-        print(benchmark_dir)
         self._exec_path = os.path.join(benchmark_dir, 'PENNANT/build/pennant')
-        print(self._exec_path)
         if os.path.isfile(problem_file):
             self._exec_args = problem_file
         elif os.path.isfile(os.path.join(benchmark_dir, problem_file)):
@@ -57,17 +63,21 @@ class PennantAppConf(apps.AppConf):
             raise RuntimeError("Input file not found: " + problem_file)
 
     def get_rank_per_node(self):
-        return 1
+        return 2
 
     def get_cpu_per_rank(self):
-        return 6
+        return 1
+
+    def get_custom_geopm_args(self):
+        return ['--geopm-ompt-disable']
 
     def parse_fom(self, log_path):
         with open(log_path) as fid:
             for line in fid.readlines():
-                m_zones = re.match(r"^Zones:\s*(\d+)", line)
-                m_runtime = re.match(r"^hydro cycle run time=\s*(.*)", line)
-                m_cycle = re.match(r"^cycle\s*=\s*(\d+),.*", line)
+                float_regex = r'([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)' 
+                m_zones = re.match(r'^Zones:\s*' + float_regex, line)
+                m_runtime = re.match(r'^hydro cycle run time=\s*' + float_regex, line)
+                m_cycle = re.match(r'^cycle\s*=\s*' + float_regex, line)
                 if m_zones:
                     zones = int(m_zones.group(1))
                 if m_runtime:
