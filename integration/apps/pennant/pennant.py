@@ -68,7 +68,7 @@ class PennantAppConf(apps.AppConf):
             raise RuntimeError("Input file not found: " + problem_file)
 
     def get_rank_per_node(self):
-        return 2
+        return 42
 
     def get_cpu_per_rank(self):
         return 1
