@@ -38,14 +38,19 @@ import re
 
 from apps import apps
 
+
 def setup_run_args(parser):
     """ Add common arguments for all run scripts:
         --input
     """
     parser.add_argument('--input', "-i",
-                        action='store', type=str, default="PENNANT/test/leblancx4/leblancx4.pnt",
-                        help='Path to the input file (see .pnt files in test directory of the PENNANT source tarball).' +
-                             ' Absolute path or relative to the app directory. Default is nohpoly.pnt')
+                        action='store', type=str,
+                        default="PENNANT/test/leblancx4/leblancx4.pnt",
+                        help='Path to the input file (see .pnt files in test' +
+                             'directory of the PENNANT source tarball). ' +
+                             'Absolute path or relative to the app ' +
+                             'directory. Default is nohpoly.pnt')
+
 
 class PennantAppConf(apps.AppConf):
     @staticmethod
@@ -74,9 +79,10 @@ class PennantAppConf(apps.AppConf):
     def parse_fom(self, log_path):
         with open(log_path) as fid:
             for line in fid.readlines():
-                float_regex = r'([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)' 
+                float_regex = r'([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)'
                 m_zones = re.match(r'^Zones:\s*' + float_regex, line)
-                m_runtime = re.match(r'^hydro cycle run time=\s*' + float_regex, line)
+                m_runtime = re.match(r'^hydro cycle run time=\s*' +
+                                     float_regex, line)
                 m_cycle = re.match(r'^cycle\s*=\s*' + float_regex, line)
                 if m_zones:
                     zones = int(m_zones.group(1))
