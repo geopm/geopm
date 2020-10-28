@@ -38,17 +38,14 @@ Run Pennant with the monitor agent.
 import argparse
 
 from experiment.monitor import monitor
-from experiment import machine
 from apps.pennant import pennant
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     monitor.setup_run_args(parser)
-    parser.add_argument('--input', "-i",
-                        action='store', type=str, default="PENNANT/test/nohpoly/nohpoly.pnt",
-                        help='Path to the input file (see .pnt files in test directory of the PENNANT source tarball).' +
-                             ' Absolute path or relative to the app directory. Default is nohpoly.pnt')
+    pennant.setup_run_args(parser)
+
     args, extra_args = parser.parse_known_args()
     if len(extra_args) > 0:
         raise RuntimeError("Arguments not known: " + " ".join(extra_args))
