@@ -35,20 +35,23 @@ AppConf class for HPL reference (netlib) benchmark.
 
 import os
 import sys
-import glob
 import math
 import textwrap
 
 from apps import apps
 
+
 def setup_run_args(parser):
     """ Add common arguments for all run scripts:
         --perc-dram
     """
+    help_text = 'Ratio of the total node DRAM that should be used for the HPL ' + \
+                'matrix (assuming DP). Value should be between 0 and 1. ' + \
+                'Default is 0.9.'
     parser.add_argument('--perc-dram', dest='perc_dram_per_node',
                         action='store', type=float, default=0.9,
-                        help='Ratio of the total node DRAM that should be used for the HPL matrix (assuming DP).'
-                             + ' Value should be between 0 and 1. Default is 0.9.')
+                        help=help_text)
+
 
 class HplNetlibAppConf(apps.AppConf):
     @staticmethod
@@ -73,7 +76,7 @@ class HplNetlibAppConf(apps.AppConf):
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
         self.exec_path = os.path.join(benchmark_dir, 'hpl-2.3/bin/Linux_Intel64/xhpl')
 
-        self.NBs=384 # This is the recommended size for Intel Scalable Xeon family.
+        self.NBs = 384  # This is the recommended size for Intel Scalable Xeon family.
         process_grid_ratios = {
             1: {'P': 1, 'Q': 1},
             2: {'P': 1, 'Q': 2},
