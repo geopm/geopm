@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,15 +31,24 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+# ENDEAVOR BUILD ENVIRONMENT
+#
+# This script is intended to be sourced within an existing script or shell ONLY.
+# It is NOT intended to be ./ executed.
 
-EXTRA_DIST += integration/README.md \
-              integration/config/build_env.sh \
-              integration/config/run_env.sh \
-              integration/config/dudley_env.sh \
-              integration/config/endeavor_env.sh \
-              # end
 
-include integration/apps/Makefile.mk
-include integration/experiment/Makefile.mk
-include integration/test/Makefile.mk
-include integration/smoke/Makefile.mk
+source /opt/intel/compiler/latest/bin/compilervars.sh intel64
+source /opt/intel/impi/latest/compilers_and_libraries/linux/mpi/intel64/bin/mpivars.sh
+
+export GEOPM_LAUNCHER=impi
+export CC=icc
+export CXX=icpc
+export MPICC=mpiicc
+export MPICXX=mpiicpc
+export FC=ifort
+export F77=ifort
+export F90=ifort
+export MPIFORT=mpiifort
+export MPIFC=mpiifort
+export MPIF77=mpiifort
+export MPIF90=mpiifort
