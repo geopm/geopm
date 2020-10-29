@@ -45,3 +45,4 @@ include integration/apps/minife/Makefile.mk
 include integration/apps/nekbone/Makefile.mk
 include integration/apps/nasft/Makefile.mk
 include integration/apps/pennant/Makefile.mk
+include integration/apps/qe/Makefile.mk
