@@ -36,7 +36,7 @@ compiler:
     - clang #todo version?
     - g++-4.8
 
-dist: trusty
+dist: bionic
 
 language: cpp
 
