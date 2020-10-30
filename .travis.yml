@@ -54,7 +54,9 @@ before_install:
     - pyenv global 3.6
 
 install:
+    - PYENV_VERSION=2.7 pip install --upgrade pip
     - PYENV_VERSION=2.7 pip install --user -r ./scripts/requirements.txt
+    - PYENV_VERSION=3.6 pip install --upgrade pip
     - PYENV_VERSION=3.6 pip install --user -r ./scripts/requirements.txt
     - ./configure --disable-fortran ${BUILD_TYPE} --enable-beta --prefix=$GEOPM_INSTALL_ROOT
 
