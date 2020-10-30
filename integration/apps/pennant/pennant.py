@@ -73,9 +73,6 @@ class PennantAppConf(apps.AppConf):
     def get_cpu_per_rank(self):
         return 1
 
-    def get_custom_geopm_args(self):
-        return ['--geopm-ompt-disable']
-
     def parse_fom(self, log_path):
         with open(log_path) as fid:
             for line in fid.readlines():
