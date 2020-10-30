@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,19 +31,23 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/power_sweep/gen_balancer_comparison.py \
-              integration/experiment/power_sweep/gen_power_sweep_summary.py \
-              integration/experiment/power_sweep/gen_plot_balancer_comparison.py \
-              integration/experiment/power_sweep/gen_plot_balancer_power_limit.py \
-              integration/experiment/power_sweep/gen_plot_node_efficiency.py \
-              integration/experiment/power_sweep/__init__.py \
-              integration/experiment/power_sweep/power_sweep.py \
-              integration/experiment/power_sweep/README.md \
-              integration/experiment/power_sweep/run_power_sweep_amg.py \
-              integration/experiment/power_sweep/run_power_sweep_dgemm.py \
-              integration/experiment/power_sweep/run_power_sweep_dgemm_tiny.py \
-              integration/experiment/power_sweep/run_power_sweep_hpcg.py \
-              integration/experiment/power_sweep/run_power_sweep_minife.py \
-              integration/experiment/power_sweep/run_power_sweep_nekbone.py \
-              integration/experiment/power_sweep/run_power_sweep_pennant.py \
-              # end
+'''
+Run a power sweep with Pennant.
+'''
+
+import argparse
+
+from experiment.power_sweep import power_sweep
+from apps.pennant import pennant
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    power_sweep.setup_run_args(parser)
+    pennant.setup_run_args(parser)
+    args, extra_args = parser.parse_known_args()
+    if len(extra_args) > 0:
+        raise RuntimeError("Arguments not known: " + " ".join(extra_args))
+    app_conf = pennant.PennantAppConf(args.input)
+    power_sweep.launch(app_conf=app_conf, args=args, experiment_cli_args=[])
