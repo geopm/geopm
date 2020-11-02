@@ -45,7 +45,6 @@ git:
     depth: false
 
 before_install:
-    - rvm install 2.0.0
     - git fetch origin --tags
     - git fetch origin $TRAVIS_BRANCH
     - ./autogen.sh
