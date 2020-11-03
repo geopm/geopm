@@ -29,18 +29,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/common_args.py \
-              integration/experiment/__init__.py \
-              integration/experiment/gen_slurm.sh \
-              integration/experiment/launch_util.py \
-              integration/experiment/machine.py \
-              integration/experiment/README.md \
-              integration/experiment/util.py \
+EXTRA_DIST += integration/experiment/uncore_frequency_sweep/__init__.py \
+              integration/experiment/uncore_frequency_sweep/uncore_frequency_sweep.py \
+              integration/experiment/uncore_frequency_sweep/gen_plot_heatmap.py \
+              integration/experiment/uncore_frequency_sweep/README.md \
+              integration/experiment/uncore_frequency_sweep/run_uncore_frequency_sweep_dgemm.py \
+              integration/experiment/uncore_frequency_sweep/run_uncore_frequency_sweep_dgemm_tiny.py \
+              integration/experiment/uncore_frequency_sweep/test.py \
               # end
-
-include integration/experiment/energy_efficiency/Makefile.mk
-include integration/experiment/frequency_sweep/Makefile.mk
-include integration/experiment/monitor/Makefile.mk
-include integration/experiment/power_sweep/Makefile.mk
-include integration/experiment/trace_analysis/Makefile.mk
-include integration/experiment/uncore_frequency_sweep/Makefile.mk
