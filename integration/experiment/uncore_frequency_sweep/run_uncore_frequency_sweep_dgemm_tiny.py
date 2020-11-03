@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,18 +31,16 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/common_args.py \
-              integration/experiment/__init__.py \
-              integration/experiment/gen_slurm.sh \
-              integration/experiment/launch_util.py \
-              integration/experiment/machine.py \
-              integration/experiment/README.md \
-              integration/experiment/util.py \
-              # end
+'''
+Example uncore frequency sweep experiment using geopmbench.
+'''
 
-include integration/experiment/energy_efficiency/Makefile.mk
-include integration/experiment/frequency_sweep/Makefile.mk
-include integration/experiment/monitor/Makefile.mk
-include integration/experiment/power_sweep/Makefile.mk
-include integration/experiment/trace_analysis/Makefile.mk
-include integration/experiment/uncore_frequency_sweep/Makefile.mk
+
+from experiment.uncore_frequency_sweep import uncore_frequency_sweep
+from apps.geopmbench import geopmbench
+
+
+if __name__ == '__main__':
+
+    app_conf = geopmbench.TinyAppConf()
+    uncore_frequency_sweep.main(app_conf, cool_off_time=0)
