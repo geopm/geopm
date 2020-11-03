@@ -27,6 +27,9 @@ map agent.
 
   - `--step-frequency`: the step size in hertz between settings for the sweep.
 
+  - `--run-max-turbo`: executes an additional run with max turbo
+                       frequency as the limit.
+
 ## Analysis Scripts to Produce Summary Tables and Visualizations
 
 #### `gen_region_summary.py`:
