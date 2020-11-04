@@ -1,7 +1,7 @@
-From 19af6f4b74856c9694b795bd34aebaaa2b2a268d Mon Sep 17 00:00:00 2001
+From d459d18d48a234b564e98059629a9b6d00229980 Mon Sep 17 00:00:00 2001
 From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Sat, 24 Oct 2020 15:04:43 -0700
-Subject: [PATCH 1/1] Fixed Makefile to GEOPM and Intel conventions.
+Subject: [PATCH 1/2] Fixed Makefile to GEOPM and Intel conventions.
 
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
@@ -34,6 +34,7 @@ Subject: [PATCH 1/1] Fixed Makefile to GEOPM and Intel conventions.
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+Signed-off-by: Fuat Keceli <fuat.keceli@intel.com>
 ---
  Makefile | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
