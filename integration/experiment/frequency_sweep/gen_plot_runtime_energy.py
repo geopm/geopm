@@ -45,6 +45,7 @@ import geopmpy.io
 
 from experiment import common_args
 from experiment import report
+from experiment import plotting
 
 
 def generate_runtime_energy_plot(df, perf_metric_label, energy_metric_label, title, output_dir='.'):
@@ -81,7 +82,7 @@ def generate_runtime_energy_plot(df, perf_metric_label, energy_metric_label, tit
     f.tight_layout()
     if not os.path.exists(os.path.join(output_dir, 'figures')):
         os.mkdir(os.path.join(output_dir, 'figures'))
-    figname = '{}_freq_energy_baz'.format(title.lower().replace(' ', '_').replace('(', '').replace(')', ''))
+    figname = plotting.title_to_filename('{}_freq_energy'.format(title))
     plt.savefig(os.path.join(output_dir, 'figures', figname))
     plt.close()
 

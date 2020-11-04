@@ -48,9 +48,9 @@ import geopmpy.io
 import geopmpy.hash
 from experiment import common_args
 from experiment import report
+from experiment import plotting
 
 
-# TODO: rename variables/column headers to be consistent
 def summary(df, perf_metric, use_stdev, baseline, targets, show_details):
 
     report.prepare_columns(df)
@@ -63,17 +63,12 @@ def summary(df, perf_metric, use_stdev, baseline, targets, show_details):
                                         perf_metric=perf_metric,
                                         use_stdev=use_stdev)
 
-    # reset output stats
-    # TODO: make this less of a mess
     output_prefix = os.path.join(output_dir, '{}'.format(common_prefix))
     output_stats_name = '{}_stats.log'.format(output_prefix)
-    with open(output_stats_name, 'w') as outfile:
-        # re-create file to be appended to
-        pass
 
     if show_details:
         sys.stdout.write('{}\n'.format(result))
-    with open(output_stats_name, 'a') as outfile:
+    with open(output_stats_name, 'w') as outfile:
         outfile.write('{}\n'.format(result))
 
     return result
@@ -123,13 +118,8 @@ def plot_bars(df, baseline_profile, title, perf_label, energy_label, xlabel, out
     fig_dir = os.path.join(output_dir, 'figures')
     if not os.path.exists(fig_dir):
         os.mkdir(fig_dir)
-    # TODO: title to filename helper
-    fig_name = '{}_bar_baz'.format(title.lower()
-                               .replace(' ', '_')
-                               .replace(')', '')
-                               .replace('(', '')
-                               .replace(',', ''))
-    fig_name = os.path.join(fig_dir, '{}.png'.format(fig_name))
+    fig_name = plotting.title_to_filename(title)
+    fig_name = os.path.join(fig_dir, fig_name)
     plt.savefig(fig_name)
     if show_details:
         sys.stdout.write('Wrote {}\n'.format(fig_name))
