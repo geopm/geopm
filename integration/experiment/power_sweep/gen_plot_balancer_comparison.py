@@ -46,6 +46,7 @@ import geopmpy.io
 
 from experiment import common_args
 from experiment import report
+from experiment import plotting
 
 
 def prep_plot_data(report_data, metric, normalize, speedup, use_stdev):
@@ -235,7 +236,7 @@ def plot_balancer_comparison(output, label, metric, output_dir='.',
         ax.set_ylim(0, ymax)
 
     # Write data/plot files
-    file_name = '{}_{}_comparison'.format(label.lower().replace(' ', '_'), metric)
+    file_name = plotting.title_to_filename('{}_{}_comparison'.format(label, metric))
     if speedup:
         # speedup alone and normalized speedup are the same
         file_name += '_speedup'
@@ -250,13 +251,12 @@ def plot_balancer_comparison(output, label, metric, output_dir='.',
         sys.stdout.write('Writing:\n')
     if not os.path.exists(os.path.join(output_dir, 'figures')):
         os.mkdir(os.path.join(output_dir, 'figures'))
-    path = os.path.join(output_dir, 'figures', '{}'.format(file_name))
-    full_path = path + '.png'
+    full_path = os.path.join(output_dir, 'figures', '{}'.format(file_name))
     plt.savefig(full_path)
     if detailed:
         sys.stdout.write('    {}\n'.format(full_path))
-        sys.stdout.write('    {}\n'.format(path + '.log'))
-        with open(path + '.log', 'w') as log:
+        sys.stdout.write('    {}\n'.format(full_path + '.log'))
+        with open(full_path + '.log', 'w') as log:
             log.write('{}\n'.format(df))
     sys.stdout.flush()
     plt.close()
