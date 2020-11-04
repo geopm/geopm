@@ -32,6 +32,10 @@
 
 sudo: false
 
+branches:
+    only:
+    - /.*dev.*/
+
 compiler:
     - clang #todo version?
     - g++-4.8
