@@ -128,7 +128,8 @@ class LaunchConfig():
         return run_id
 
 
-def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir, cool_off_time=60, enable_traces=False, enable_profile_traces=False):
+def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir,
+                    cool_off_time=60, enable_traces=False, enable_profile_traces=False):
     '''
     targets: a list of LaunchConfig
     iteration: integer number of iterations
@@ -136,6 +137,7 @@ def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir, 
     if len(targets) == 0:
         raise RuntimeError('Called launch_util.launch_all_runs() with empty target list')
 
+    output_dir = os.path.abspath(output_dir)
     machine.init_output_dir(output_dir)
     for iteration in range(iterations):
         for tar in targets:
