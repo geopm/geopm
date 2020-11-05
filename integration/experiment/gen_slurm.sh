@@ -69,11 +69,11 @@ if [ ! -z ${GEOPM_SYSTEM_ENV} ]; then
 fi
 
 # check for additional sbatch arguments
-if [ ! -z ${GEOPM_SLURM_ACCOUNT} ]; then
+if [ ! -z ${GEOPM_USER_ACCOUNT} ]; then
     SBATCH_ACCOUNT_LINE="#SBATCH -A ${GEOPM_USER_ACCOUNT}"
 fi
 
-if [ ! -z ${GEOPM_SLURM_DEFAULT_QUEUE} ]; then
+if [ ! -z ${GEOPM_SYSTEM_DEFAULT_QUEUE} ]; then
    SBATCH_QUEUE_LINE="#SBATCH -p ${GEOPM_SYSTEM_DEFAULT_QUEUE}"
 fi
 
