@@ -57,9 +57,10 @@ clone_repo_git(){
     local REPOURL=$1
     local DIRNAME=$2
     local TOPHASH=$3
+    local CLONEARGS=$4
     local ARCHIVE=${DIRNAME}_${TOPHASH}.tgz
 
-    git clone ${REPOURL} ${DIRNAME}
+    git clone ${CLONEARGS} ${REPOURL} ${DIRNAME}
     if [ ! -d ${DIRNAME} ]; then
         echo "Error: Unable to clone ${DIRNAME} source."
         return 1
