@@ -37,6 +37,7 @@ Helper functions for running power sweep experiments.
 
 import sys
 import argparse
+import os
 
 import geopmpy.io
 
@@ -89,13 +90,14 @@ def trace_signals():
     return []
 
 
-def launch_configs(app_conf, freq_range):
+def launch_configs(output_dir, app_conf, freq_range):
     agent = 'frequency_map'
     targets = []
     for freq in freq_range:
         name = '{:.1e}'.format(freq)
         options = {'FREQ_DEFAULT': freq}
-        agent_conf = geopmpy.io.AgentConf('{}_agent_{}.config'.format(agent, freq), agent, options)
+        file_name = os.path.join(output_dir, '{}_agent_{}.config'.format(agent, freq))
+        agent_conf = geopmpy.io.AgentConf(file_name, agent, options)
         targets.append(launch_util.LaunchConfig(app_conf=app_conf,
                                                 agent_conf=agent_conf,
                                                 name=name))
@@ -107,13 +109,14 @@ def launch(app_conf, args, experiment_cli_args):
     Run the application over a range of fixed processor frequencies.
     Currently only supports the frequency map agent
     '''
-    mach = machine.init_output_dir(args.output_dir)
+    output_dir = os.path.abspath(args.output_dir)
+    mach = machine.init_output_dir(output_dir)
     freq_range = setup_frequency_bounds(mach,
                                         args.min_frequency,
                                         args.max_frequency,
                                         args.step_frequency,
                                         args.run_max_turbo)
-    targets = launch_configs(app_conf, freq_range)
+    targets = launch_configs(output_dir, app_conf, freq_range)
     extra_cli_args = list(experiment_cli_args)
     extra_cli_args += launch_util.geopm_signal_args(report_signals=report_signals(),
                                                     trace_signals=trace_signals())
@@ -121,7 +124,7 @@ def launch(app_conf, args, experiment_cli_args):
                                 num_nodes=args.node_count,
                                 iterations=args.trial_count,
                                 extra_cli_args=extra_cli_args,
-                                output_dir=args.output_dir,
+                                output_dir=output_dir,
                                 cool_off_time=args.cool_off_time,
                                 enable_traces=args.enable_traces,
                                 enable_profile_traces=args.enable_profile_traces)

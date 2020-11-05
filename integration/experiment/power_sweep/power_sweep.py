@@ -38,6 +38,7 @@ Helper functions for running power sweep experiments.
 import sys
 import math
 import argparse
+import os
 
 import geopmpy.io
 
@@ -87,7 +88,7 @@ def trace_signals():
             "TEMPERATURE_PACKAGE@package"]
 
 
-def launch_configs(app_conf, agent_types, min_power, max_power, step_power):
+def launch_configs(output_dir, app_conf, agent_types, min_power, max_power, step_power):
     """
     Runs the application under a range of socket power limits.  Used
     by other analysis types to run either the PowerGovernorAgent or
@@ -99,7 +100,7 @@ def launch_configs(app_conf, agent_types, min_power, max_power, step_power):
         for agent in agent_types:
             name = '{}'.format(power_cap)
             options = {'power_budget': power_cap}
-            config_file = name + '_agent.config'
+            config_file = os.path.join(output_dir, name + '_agent.config')
             agent_conf = geopmpy.io.AgentConf(path=config_file,
                                               agent=agent,
                                               options=options)
@@ -110,11 +111,12 @@ def launch_configs(app_conf, agent_types, min_power, max_power, step_power):
 
 
 def launch(app_conf, args, experiment_cli_args):
+    output_dir = os.path.abspath(args.output_dir)
     agent_types = args.agent_list.split(',')
-    mach = machine.init_output_dir(args.output_dir)
+    mach = machine.init_output_dir(output_dir)
     min_power, max_power = setup_power_bounds(mach, args.min_power,
                                               args.max_power, args.step_power)
-    targets = launch_configs(app_conf, agent_types, min_power, max_power, args.step_power)
+    targets = launch_configs(output_dir, app_conf, agent_types, min_power, max_power, args.step_power)
     extra_cli_args = list(experiment_cli_args)
     extra_cli_args += launch_util.geopm_signal_args(report_signals=report_signals(),
                                                     trace_signals=trace_signals())
@@ -122,7 +124,7 @@ def launch(app_conf, args, experiment_cli_args):
                                 num_nodes=args.node_count,
                                 iterations=args.trial_count,
                                 extra_cli_args=extra_cli_args,
-                                output_dir=args.output_dir,
+                                output_dir=output_dir,
                                 cool_off_time=args.cool_off_time,
                                 enable_traces=args.enable_traces,
                                 enable_profile_traces=args.enable_profile_traces)
