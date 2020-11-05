@@ -33,6 +33,7 @@
 
 
 import argparse
+import os
 
 import geopmpy.io
 import geopmpy.hash
@@ -43,12 +44,12 @@ from experiment.monitor import monitor
 from experiment.frequency_sweep import frequency_sweep
 
 
-def launch_configs(app_conf_ref, app_conf, default_freq, sweep_freqs, barrier_hash):
+def launch_configs(output_dir, app_conf_ref, app_conf, default_freq, sweep_freqs, barrier_hash):
 
     # baseline run
-    launch_configs = [launch_util.LaunchConfig(app_conf=app_conf_ref,
-                                               agent_conf=None,
-                                               name='reference')]
+    result = [launch_util.LaunchConfig(app_conf=app_conf_ref,
+                                       agent_conf=None,
+                                       name='reference')]
 
     # alternative baseline
 
@@ -57,12 +58,13 @@ def launch_configs(app_conf_ref, app_conf, default_freq, sweep_freqs, barrier_ha
 
     options = {'FREQ_DEFAULT': default_freq,
                'FREQ_UNCORE': max_uncore}
-    agent_conf = geopmpy.io.AgentConf('{}.config'.format('fma_fixed'),
+    config_file = os.path.join(output_dir, '{}.config'.format('fma_fixed'))
+    agent_conf = geopmpy.io.AgentConf(config_file,
                                       agent='frequency_map',
                                       options=options)
-    launch_configs.append(launch_util.LaunchConfig(app_conf=app_conf_ref,
-                                                   agent_conf=agent_conf,
-                                                   name='fixed_uncore'))
+    result.append(launch_util.LaunchConfig(app_conf=app_conf_ref,
+                                           agent_conf=agent_conf,
+                                           name='fixed_uncore'))
 
     # freq map runs
     for freq in sweep_freqs:
@@ -71,14 +73,15 @@ def launch_configs(app_conf_ref, app_conf, default_freq, sweep_freqs, barrier_ha
                    'FREQ_UNCORE': max_uncore,
                    'HASH_0': barrier_hash,
                    'FREQ_0': freq}
-        agent_conf = geopmpy.io.AgentConf('{}.config'.format(rid),
+        config_file = os.path.join(output_dir, '{}.config'.format(rid))
+        agent_conf = geopmpy.io.AgentConf(config_file,
                                           agent='frequency_map',
                                           options=options)
-        launch_configs.append(launch_util.LaunchConfig(app_conf=app_conf,
-                                                       agent_conf=agent_conf,
-                                                       name=rid))
+        result.append(launch_util.LaunchConfig(app_conf=app_conf,
+                                               agent_conf=agent_conf,
+                                               name=rid))
 
-    return launch_configs
+    return result
 
 
 def report_signals():
@@ -90,7 +93,8 @@ def trace_signals():
 
 
 def launch(app_conf_ref, app_conf, args, experiment_cli_args):
-    mach = machine.init_output_dir(args.output_dir)
+    output_dir = os.path.abspath(args.output_dir)
+    mach = machine.init_output_dir(output_dir)
     freq_range = frequency_sweep.setup_frequency_bounds(mach,
                                                         args.min_core_frequency,
                                                         args.max_core_frequency,
@@ -98,7 +102,8 @@ def launch(app_conf_ref, app_conf, args, experiment_cli_args):
                                                         add_turbo_step=True)
     barrier_hash = geopmpy.hash.crc32_str('MPI_Barrier')
     default_freq = max(freq_range)
-    targets = launch_configs(app_conf_ref=app_conf_ref,
+    targets = launch_configs(output_dir=output_dir,
+                             app_conf_ref=app_conf_ref,
                              app_conf=app_conf,
                              default_freq=default_freq,
                              sweep_freqs=freq_range,
@@ -111,7 +116,7 @@ def launch(app_conf_ref, app_conf, args, experiment_cli_args):
                                 num_nodes=args.node_count,
                                 iterations=args.trial_count,
                                 extra_cli_args=extra_cli_args,
-                                output_dir=args.output_dir,
+                                output_dir=output_dir,
                                 cool_off_time=args.cool_off_time,
                                 enable_traces=args.enable_traces,
                                 enable_profile_traces=args.enable_profile_traces)

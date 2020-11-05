@@ -34,6 +34,7 @@ Helper functions for running the monitor agent.
 '''
 
 import argparse
+import os
 
 from experiment import launch_util
 from experiment import common_args
@@ -48,6 +49,7 @@ def report_signals():
 
 
 def launch(app_conf, args, experiment_cli_args):
+    output_dir = os.path.abspath(args.output_dir)
     extra_cli_args = launch_util.geopm_signal_args(report_signals(), None)
     extra_cli_args += experiment_cli_args
 
@@ -59,7 +61,7 @@ def launch(app_conf, args, experiment_cli_args):
                                 num_nodes=args.node_count,
                                 iterations=args.trial_count,
                                 extra_cli_args=extra_cli_args,
-                                output_dir=args.output_dir,
+                                output_dir=output_dir,
                                 cool_off_time=args.cool_off_time,
                                 enable_traces=args.enable_traces,
                                 enable_profile_traces=args.enable_profile_traces)
