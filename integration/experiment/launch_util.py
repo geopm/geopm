@@ -62,11 +62,11 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
     app_name = app_conf.name()
 
     uid = '{}_{}_{}'.format(app_name.lower(), agent_name, run_id)
-    report_path = '{}.report'.format(uid)
-    trace_path = '{}.trace'.format(uid)
-    profile_trace_path = '{}.ptrace'.format(uid)
+    report_path = os.path.join(output_dir, '{}.report'.format(uid))
+    trace_path = os.path.join(output_dir, '{}.trace'.format(uid))
+    profile_trace_path = os.path.join(output_dir, '{}.ptrace'.format(uid))
     profile_name = uid
-    log_path = '{}.log'.format(uid)
+    log_path = os.path.join(output_dir, '{}.log'.format(uid))
     sys.stdout.write('Run commencing...\nLive job output will be written to: {}\n'
                      .format(os.path.join(output_dir, log_path)))
 
