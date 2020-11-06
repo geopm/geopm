@@ -48,6 +48,7 @@ from experiment.frequency_sweep import frequency_sweep
 
 def setup_run_args(parser):
     common_args.setup_run_args(parser)
+    common_args.add_run_max_turbo(parser)
     parser.add_argument('--max-core-frequency', dest='max_core_frequency',
                         action='store', type=float, default=None,
                         help='the maximum core frequency setting for the sweep')
@@ -57,9 +58,6 @@ def setup_run_args(parser):
     parser.add_argument('--step-core-frequency', dest='step_core_frequency',
                         action='store', type=float, default=None,
                         help='the step size in hertz between core frequency settings for the sweep')
-    parser.add_argument("--run-max-turbo", dest="run_max_turbo",
-                        action='store_true', default=False,
-                        help='add extra runs to the experiment at maximum turbo frequency')
     parser.add_argument('--max-uncore-frequency', dest='max_uncore_frequency',
                         action='store', type=float, default=None,
                         help='the maximum uncore frequency setting for the sweep')
