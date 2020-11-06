@@ -50,9 +50,7 @@ def setup_run_args(parser):
     common_args.add_min_frequency(parser)
     common_args.add_max_frequency(parser)
     common_args.add_step_frequency(parser)
-    parser.add_argument("--run-max-turbo", dest="run_max_turbo",
-                        action='store_true', default=False,
-                        help='add extra run to the experiment at maximum turbo frequency')
+    common_args.add_run_max_turbo(parser)
 
 
 def setup_frequency_bounds(mach, min_freq, max_freq, step_freq, add_turbo_step):

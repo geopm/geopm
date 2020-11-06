@@ -111,6 +111,12 @@ def add_step_frequency(parser):
                         help='increment between frequency steps for sweep')
 
 
+def add_run_max_turbo(parser):
+    parser.add_argument("--run-max-turbo", dest="run_max_turbo",
+                        action='store_true', default=False,
+                        help='add extra run to the experiment at maximum turbo frequency')
+
+
 def add_use_stdev(parser):
     parser.add_argument('--use-stdev', dest='use_stdev',
                         action='store_true', default=False,
