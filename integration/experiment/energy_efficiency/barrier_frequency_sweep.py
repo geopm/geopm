@@ -92,17 +92,17 @@ def trace_signals():
 def launch(app_conf_ref, app_conf, args, experiment_cli_args):
     mach = machine.init_output_dir(args.output_dir)
     freq_range = frequency_sweep.setup_frequency_bounds(mach,
-                                                        args.min_frequency,
-                                                        args.max_frequency,
-                                                        args.step_frequency,
+                                                        args.min_core_frequency,
+                                                        args.max_core_frequency,
+                                                        args.step_core_frequency,
                                                         add_turbo_step=True)
     barrier_hash = geopmpy.hash.crc32_str('MPI_Barrier')
     default_freq = max(freq_range)
     targets = launch_configs(app_conf_ref=app_conf_ref,
                              app_conf=app_conf,
-                             default_freq=max(freq_range),
+                             default_freq=default_freq,
                              sweep_freqs=freq_range,
-                             barrier_hash=geopmpy.hash.crc32_str('MPI_Barrier'))
+                             barrier_hash=barrier_hash)
 
     extra_cli_args = list(experiment_cli_args)
     extra_cli_args += launch_util.geopm_signal_args(report_signals=report_signals(),
