@@ -41,13 +41,8 @@ source /opt/intel/compiler/latest/bin/compilervars.sh intel64
 source /opt/intel/impi/latest/compilers_and_libraries/linux/mpi/intel64/bin/mpivars.sh
 
 export GEOPM_LAUNCHER=impi
-export CC=icc
-export CXX=icpc
 export MPICC=mpiicc
 export MPICXX=mpiicpc
-export FC=ifort
-export F77=ifort
-export F90=ifort
 export MPIFORT=mpiifort
 export MPIFC=mpiifort
 export MPIF77=mpiifort
