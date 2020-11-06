@@ -49,24 +49,18 @@ from experiment.frequency_sweep import frequency_sweep
 def setup_run_args(parser):
     common_args.setup_run_args(parser)
     common_args.add_run_max_turbo(parser)
-    parser.add_argument('--max-core-frequency', dest='max_core_frequency',
-                        action='store', type=float, default=None,
-                        help='the maximum core frequency setting for the sweep')
-    parser.add_argument('--min-core-frequency', dest='min_core_frequency',
-                        action='store', type=float, default=None,
-                        help='the minimum core frequency setting for the sweep')
-    parser.add_argument('--step-core-frequency', dest='step_core_frequency',
-                        action='store', type=float, default=None,
-                        help='the step size in hertz between core frequency settings for the sweep')
+    common_args.add_min_core_frequency(parser)
+    common_args.add_max_core_frequency(parser)
+    common_args.add_step_core_frequency(parser)
     parser.add_argument('--max-uncore-frequency', dest='max_uncore_frequency',
                         action='store', type=float, default=None,
-                        help='the maximum uncore frequency setting for the sweep')
+                        help='top uncore frequency setting for the sweep')
     parser.add_argument('--min-uncore-frequency', dest='min_uncore_frequency',
                         action='store', type=float, default=None,
-                        help='the minimum uncore frequency setting for the sweep')
+                        help='bottom uncore frequency setting for the sweep')
     parser.add_argument('--step-uncore-frequency', dest='step_uncore_frequency',
                         action='store', type=float, default=None,
-                        help='the step size in hertz between uncore frequency settings for the sweep')
+                        help='increment in hertz between uncore frequency settings for the sweep')
 
 
 def setup_uncore_frequency_bounds(mach, min_uncore_freq, max_uncore_freq,
