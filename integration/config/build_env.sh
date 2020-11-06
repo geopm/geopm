@@ -53,12 +53,15 @@ export GEOPM_APPS_SOURCES=${GEOPM_APPS_SOURCES:?Please set GEOPM_APPS_SOURCES in
 # The MPI compiler wrappers are supported by Intel, but are not Intel specific.
 export CC=${CC:-icc}
 export CXX=${CXX:-icpc}
-export MPICC=${MPICC:-mpicc}
-export MPICXX=${MPICXX:-mpicxx}
 export FC=${FC:-ifort}
 export F77=${F77:-ifort}
+export F90=${F90:-ifort}
+export MPICC=${MPICC:-mpicc}
+export MPICXX=${MPICXX:-mpicxx}
+export MPIFORT=${MPIFORT:-mpifort}
 export MPIFC=${MPIFC:-mpifort}
 export MPIF77=${MPIF77:-mpifort}
+export MPIF90=${MPIF90:-mpifort}
 
 COMPILER_LIST="CC CXX MPICC MPICXX FC F77 MPIFC MPIF77"
 for compiler in ${COMPILER_LIST}; do
@@ -83,4 +86,3 @@ export GEOPM_FFLAGS="-I${GEOPM_LIB}/${FC}/modules/geopm-x86_64"
 export GEOPM_LDFLAGS="-L${GEOPM_LIB}"
 export GEOPM_LDLIBS="-lgeopm"
 export GEOPM_FORTRAN_LDLIBS="${GEOPM_LDLIBS} -lgeopmfort"
-
