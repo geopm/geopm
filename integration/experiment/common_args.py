@@ -34,6 +34,7 @@
 Common command line arguments for experiments.
 '''
 
+
 def setup_run_args(parser):
     """Add common arguments for all run scripts:
        --output-dir --node-count --trial-count --cool-off-time
@@ -93,20 +94,20 @@ def add_label(parser):
                         help='name of the application to use for plot titles')
 
 
-def add_min_core_frequency(parser):
-    parser.add_argument('--min-core-frequency', dest='min_core_frequency',
+def add_min_frequency(parser):
+    parser.add_argument('--min-frequency', dest='min_frequency',
                         action='store', type=float, default=None,
                         help='bottom core frequency limit for the sweep')
 
 
-def add_max_core_frequency(parser):
-    parser.add_argument('--max-core_frequency', dest='max_core_frequency',
+def add_max_frequency(parser):
+    parser.add_argument('--max-frequency', dest='max_frequency',
                         action='store', type=float, default=None,
                         help='top core frequency limit for the sweep')
 
 
-def add_step_core_frequency(parser):
-    parser.add_argument('--step-core-frequency', dest='step_core_frequency',
+def add_step_frequency(parser):
+    parser.add_argument('--step-frequency', dest='step_frequency',
                         action='store', type=float, default=None,
                         help='increment between core frequency steps for sweep')
 

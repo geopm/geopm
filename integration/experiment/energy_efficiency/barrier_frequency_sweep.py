@@ -96,9 +96,9 @@ def launch(app_conf_ref, app_conf, args, experiment_cli_args):
     output_dir = os.path.abspath(args.output_dir)
     mach = machine.init_output_dir(output_dir)
     freq_range = frequency_sweep.setup_frequency_bounds(mach,
-                                                        args.min_core_frequency,
-                                                        args.max_core_frequency,
-                                                        args.step_core_frequency,
+                                                        args.min_frequency,
+                                                        args.max_frequency,
+                                                        args.step_frequency,
                                                         add_turbo_step=True)
     barrier_hash = geopmpy.hash.crc32_str('MPI_Barrier')
     default_freq = max(freq_range)

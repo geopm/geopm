@@ -48,9 +48,9 @@ from experiment import machine
 
 def setup_run_args(parser):
     common_args.setup_run_args(parser)
-    common_args.add_min_core_frequency(parser)
-    common_args.add_max_core_frequency(parser)
-    common_args.add_step_core_frequency(parser)
+    common_args.add_min_frequency(parser)
+    common_args.add_max_frequency(parser)
+    common_args.add_step_frequency(parser)
     common_args.add_run_max_turbo(parser)
 
 
@@ -111,9 +111,9 @@ def launch(app_conf, args, experiment_cli_args):
     output_dir = os.path.abspath(args.output_dir)
     mach = machine.init_output_dir(output_dir)
     freq_range = setup_frequency_bounds(mach,
-                                        args.min_core_frequency,
-                                        args.max_core_frequency,
-                                        args.step_core_frequency,
+                                        args.min_frequency,
+                                        args.max_frequency,
+                                        args.step_frequency,
                                         args.run_max_turbo)
     targets = launch_configs(output_dir, app_conf, freq_range)
     extra_cli_args = list(experiment_cli_args)

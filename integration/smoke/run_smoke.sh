@@ -66,7 +66,7 @@ function run_all_freq_sweep {
     APPLICATIONS="dgemm dgemm_tiny nekbone minife amg nasft hpcg"
     EXP_SUBDIR=frequency_sweep
     EXP_TYPE=frequency_sweep
-    ARGS="--min-core-frequency=1.9e9 --max-core-frequency=2.0e9"
+    ARGS="--min-frequency=1.9e9 --max-frequency=2.0e9"
     run_all
 }
 
