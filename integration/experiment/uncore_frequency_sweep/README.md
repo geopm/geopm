@@ -15,17 +15,17 @@ frequency.
   In addition to command line arguments common to all run scripts,
   frequency sweep runs also accept the following options:
 
-  - `--max-core-frequency`: the maximum core frequency setting for the
-                            sweep.  By default, it uses the sticker
-                            for the compute nodes.  Within each trial,
-                            the experiment script will start at the
-                            highest frequency and run at each limit
-                            until it reaches the minimum.
+  - `--max-frequency`: the maximum core frequency setting for the
+                       sweep.  By default, it uses the sticker
+                       for the compute nodes.  Within each trial,
+                       the experiment script will start at the
+                       highest frequency and run at each limit
+                       until it reaches the minimum.
 
-  - `--min-core-frequency`: the minimum core frequency setting for the sweep.
+  - `--min-frequency`: the minimum core frequency setting for the sweep.
 
-  - `--step-core-frequency`: the step size in hertz between core
-                             frequency settings for the sweep.
+  - `--step-frequency`: the step size in hertz between core
+                        frequency settings for the sweep.
 
   - `--run-max-turbo`: executes additional runs with max turbo
                        frequency as the limit for the core frequency.

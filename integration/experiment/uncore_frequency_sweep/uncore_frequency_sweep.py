@@ -49,9 +49,9 @@ from experiment.frequency_sweep import frequency_sweep
 def setup_run_args(parser):
     common_args.setup_run_args(parser)
     common_args.add_run_max_turbo(parser)
-    common_args.add_min_core_frequency(parser)
-    common_args.add_max_core_frequency(parser)
-    common_args.add_step_core_frequency(parser)
+    common_args.add_min_frequency(parser)
+    common_args.add_max_frequency(parser)
+    common_args.add_step_frequency(parser)
     parser.add_argument('--max-uncore-frequency', dest='max_uncore_frequency',
                         action='store', type=float, default=None,
                         help='top uncore frequency setting for the sweep')
@@ -119,9 +119,9 @@ def launch(app_conf, args, experiment_cli_args):
     '''
     mach = machine.init_output_dir(args.output_dir)
     core_freq_range = frequency_sweep.setup_frequency_bounds(mach,
-                                                             args.min_core_frequency,
-                                                             args.max_core_frequency,
-                                                             args.step_core_frequency,
+                                                             args.min_frequency,
+                                                             args.max_frequency,
+                                                             args.step_frequency,
                                                              args.run_max_turbo)
     uncore_freq_range = setup_uncore_frequency_bounds(mach,
                                                       args.min_uncore_frequency,
