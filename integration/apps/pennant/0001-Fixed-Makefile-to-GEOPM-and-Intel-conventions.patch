@@ -1,4 +1,4 @@
-From d459d18d48a234b564e98059629a9b6d00229980 Mon Sep 17 00:00:00 2001
+From 6266626aefb0b8ddae0f838429a2c11a6414c4ac Mon Sep 17 00:00:00 2001
 From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Sat, 24 Oct 2020 15:04:43 -0700
 Subject: [PATCH 1/2] Fixed Makefile to GEOPM and Intel conventions.

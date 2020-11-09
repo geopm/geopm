@@ -1,4 +1,4 @@
-From e9e555e33352e8291c02d7f55e39632b57f713c0 Mon Sep 17 00:00:00 2001
+From 5eaba38677522f077091b549334efc0b0d614eb5 Mon Sep 17 00:00:00 2001
 From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Wed, 4 Nov 2020 06:55:51 -0800
 Subject: [PATCH 2/2] Added geopm epoch markup.
@@ -36,52 +36,52 @@ Subject: [PATCH 2/2] Added geopm epoch markup.
 
 Signed-off-by: Fuat Keceli <fuat.keceli@intel.com>
 ---
- Makefile      | 9 +++++++--
- src/Driver.cc | 8 ++++++++
- 2 files changed, 15 insertions(+), 2 deletions(-)
+ Makefile      |  6 ++++++
+ src/Driver.cc | 12 ++++++++++++
+ 2 files changed, 18 insertions(+)
 
 diff --git a/Makefile b/Makefile
-index e05e812..b501cdc 100644
+index e05e812..4f4dbdb 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -32,9 +32,14 @@ CXXFLAGS_OPENMP := -qopenmp
- 
- # end compiler-dependent flags
+@@ -36,6 +36,12 @@ CXXFLAGS_OPENMP := -qopenmp
+ CXXFLAGS := $(CXXFLAGS_OPT)
+ #CXXFLAGS := $(CXXFLAGS_DEBUG)
  
 +# link against geopm
-+ifndef NOGEOPM
++ifdef USEGEOPM
 +	LDFLAGS += $(GEOPM_LDFLAGS) $(GEOPM_LDLIBS)
++	CXXFLAGS += $(GEOPM_CFLAGS) -DUSEGEOPM
 +endif
 +
- # select optimized or debug
--CXXFLAGS := $(CXXFLAGS_OPT)
--#CXXFLAGS := $(CXXFLAGS_DEBUG)
-+CXXFLAGS := $(CXXFLAGS_OPT) $(GEOPM_CFLAGS)
-+#CXXFLAGS := $(CXXFLAGS_DEBUG) $(GEOPM_CFLAGS)
- 
  # add mpi to compile (comment out for serial build)
  # the following assumes the existence of an mpi compiler
+ # wrapper called mpicxx
 diff --git a/src/Driver.cc b/src/Driver.cc
-index 2b919df..30cf4f2 100644
+index 2b919df..dca6d4c 100644
 --- a/src/Driver.cc
 +++ b/src/Driver.cc
 @@ -28,6 +28,10 @@
  #include "Mesh.hh"
  #include "Hydro.hh"
  
-+#ifndef NO_GEOPM
++#ifdef USEGEOPM
 +#include "geopm.h"
 +#endif
 +
  using namespace std;
  
  
-@@ -97,6 +101,10 @@ void Driver::run() {
+@@ -97,6 +101,14 @@ void Driver::run() {
      // main event loop
      while (cycle < cstop && time < tstop) {
  
-+#ifndef NO_GEOPM
-+        geopm_prof_epoch();
++#ifdef USEGEOPM
++        // Picking up an epoch every cycle end up in too many epochs
++        // per second and increases the GEOPM control loop significantly.
++        if (cycle % 100 == 0) {
++            geopm_prof_epoch();
++        }
 +#endif
 +
          cycle += 1;
