@@ -38,6 +38,7 @@ Run a power sweep with Pennant.
 import argparse
 
 from experiment.power_sweep import power_sweep
+from experiment import machine
 from apps.pennant import pennant
 
 
@@ -49,5 +50,6 @@ if __name__ == '__main__':
     args, extra_args = parser.parse_known_args()
     if len(extra_args) > 0:
         raise RuntimeError("Arguments not known: " + " ".join(extra_args))
-    app_conf = pennant.PennantAppConf(args.input)
+    mach = machine.init_output_dir(args.output_dir)
+    app_conf = pennant.PennantAppConf(mach, args.input, args.cores_per_node)
     power_sweep.launch(app_conf=app_conf, args=args, experiment_cli_args=[])

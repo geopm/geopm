@@ -43,13 +43,19 @@ def setup_run_args(parser):
     """ Add common arguments for all run scripts:
         --input
     """
-    parser.add_argument('--input', "-i",
+    parser.add_argument('--input', '-i',
                         action='store', type=str,
                         default="PENNANT/test/leblancx4/leblancx4.pnt",
                         help='Path to the input file (see .pnt files in test' +
                              'directory of the PENNANT source tarball). ' +
                              'Absolute path or relative to the app ' +
-                             'directory. Default is nohpoly.pnt')
+                             'directory. Default is leblancx4.pnt')
+    parser.add_argument('--cores-per-node', '-c', dest='cores_per_node',
+                        action='store', type=int,
+                        help='Number of pyhysical cores to reserve for the app. ' +
+                             'If not defined, highest even number of cores less than ' +
+                             'the total number in the node will be reserved (leaving at ' +
+                             'least one node for GEOPM).')
 
 
 class PennantAppConf(apps.AppConf):
@@ -57,7 +63,7 @@ class PennantAppConf(apps.AppConf):
     def name():
         return 'pennant'
 
-    def __init__(self, problem_file="PENNANT/test/leblancx4/leblancx4.pnt"):
+    def __init__(self, mach, problem_file="PENNANT/test/leblancx4/leblancx4.pnt", cores_per_node=None):
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
         self._exec_path = os.path.join(benchmark_dir, 'PENNANT/build/pennant')
         if os.path.isfile(problem_file):
@@ -66,12 +72,24 @@ class PennantAppConf(apps.AppConf):
             self._exec_args = os.path.join(benchmark_dir, problem_file)
         else:
             raise RuntimeError("Input file not found: " + problem_file)
+        if cores_per_node is None:
+            # Reserve one for geopm.
+            reserved_cores = mach.num_core() - 1
+            # If odd number throw one out.
+            reserved_cores = (reserved_cores // 2) * 2
+            self._cores_per_node = reserved_cores
+        else:
+            self._cores_per_node = cores_per_node
+
 
     def get_rank_per_node(self):
-        return 42
+        return self._cores_per_node // self.get_cpu_per_rank()
 
     def get_cpu_per_rank(self):
         return 1
+
+    def get_custom_geopm_args(self):
+        return ['--geopm-hyperthreads-disable', '--geopm-ompt-disable']
 
     def parse_fom(self, log_path):
         with open(log_path) as fid:

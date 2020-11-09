@@ -49,4 +49,4 @@ setup_source_git ${DIRNAME}
 
 # Build application
 cd ${DIRNAME}
-make
+make USEGEOPM=1
