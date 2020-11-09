@@ -31,8 +31,21 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-source geopm_env.sh
-EXP_DIR=$GEOPM_SRC/integration/experiment
+# TODO: fix this
+if [ -f ${HOME}/.geopmrc ]; then
+    source ${HOME}/.geopmrc
+fi
+
+if [ ! -z ${GEOPM_SYSTEM_ENV} ]; then
+    source ${GEOPM_SYSTEM_ENV}
+fi
+
+GEOPM_SOURCE=${GEOPM_SOURCE:?Please set GEOPM_SOURCE in your environment.}
+source ${GEOPM_SOURCE}/integration/config/run_env.sh
+EXP_DIR=${GEOPM_SOURCE}/integration/experiment
+
+APPLICATIONS="dgemm dgemm_tiny nekbone minife amg nasft hpcg hpl_mkl hpl_netlib pennant"
+
 
 function check {
    if [ $? -ne 0 ]; then
@@ -51,14 +64,17 @@ function print_result {
 
 
 function find_output_dirs {
-    find . -regextype sed -regex "./[0-9]*_${APP}_${EXP_TYPE}" -type d
+    if [ -z "${SLURM_JOB_ID}" ]; then
+        find . -regextype sed -regex "./[0-9]*_${APP}_${EXP_TYPE}" -type d
+    else
+        find . -regextype sed -regex "./${SLURM_JOB_ID}_${APP}_${EXP_TYPE}" -type d
+    fi
 }
 
 
 function gen_all_monitor {
-    APPLICATIONS="dgemm dgemm_tiny nekbone minife"
-    EXP_TYPE=monitor
 
+    EXP_TYPE=monitor
     for APP in ${APPLICATIONS}; do
         result=0
         OUTPUT_DIRS=$(find_output_dirs)
@@ -72,7 +88,7 @@ function gen_all_monitor {
 
 
 function gen_all_power_sweep {
-    APPLICATIONS="dgemm dgemm_tiny nekbone minife"
+
     EXP_TYPE=power_sweep
     for APP in ${APPLICATIONS}; do
         result=0
@@ -96,7 +112,6 @@ function gen_all_power_sweep {
 
 function gen_all_freq_sweep {
 
-    APPLICATIONS="dgemm dgemm_tiny nekbone minife"
     EXP_TYPE=frequency_sweep
     for APP in ${APPLICATIONS}; do
         result=0

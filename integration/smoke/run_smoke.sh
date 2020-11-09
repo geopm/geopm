@@ -31,8 +31,22 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-source geopm_env.sh
-EXP_DIR=$GEOPM_SRC/integration/experiment
+
+# TODO: fix this
+if [ -f ${HOME}/.geopmrc ]; then
+    source ${HOME}/.geopmrc
+fi
+
+if [ ! -z ${GEOPM_SYSTEM_ENV} ]; then
+    source ${GEOPM_SYSTEM_ENV}
+fi
+
+GEOPM_SOURCE=${GEOPM_SOURCE:?Please set GEOPM_SOURCE in your environment.}
+source ${GEOPM_SOURCE}/integration/config/run_env.sh
+EXP_DIR=${GEOPM_SOURCE}/integration/experiment
+
+APPLICATIONS="dgemm dgemm_tiny nekbone minife amg nasft hpcg hpl_mkl hpl_netlib pennant"
+
 
 function run_all {
     for APP in $APPLICATIONS; do
@@ -47,7 +61,6 @@ function run_all {
 }
 
 function run_all_monitor {
-    APPLICATIONS="dgemm dgemm_tiny nekbone minife amg nasft hpcg"
     EXP_SUBDIR=monitor
     EXP_TYPE=monitor
     ARGS=""
@@ -55,7 +68,6 @@ function run_all_monitor {
 }
 
 function run_all_power_sweep {
-    APPLICATIONS="dgemm dgemm_tiny nekbone minife amg nasft hpcg"
     EXP_SUBDIR=power_sweep
     EXP_TYPE=power_sweep
     ARGS="--min-power=220 --max-power=230"
@@ -63,15 +75,20 @@ function run_all_power_sweep {
 }
 
 function run_all_freq_sweep {
-    APPLICATIONS="dgemm dgemm_tiny nekbone minife amg nasft hpcg"
     EXP_SUBDIR=frequency_sweep
     EXP_TYPE=frequency_sweep
     ARGS="--min-frequency=1.9e9 --max-frequency=2.0e9"
     run_all
 }
 
+function run_all_uncore_freq_sweep {
+    EXP_SUBDIR=uncore_frequency_sweep
+    EXP_TYPE=uncore_frequency_sweep
+    ARGS="--min-frequency=1.9e9 --max-frequency=2.0e9 --min-uncore-frequency=2.1e9 --max-uncore-frequency=2.2e9"
+    run_all
+}
+
 function run_all_power_balancer_energy {
-    APPLICATIONS="dgemm dgemm_tiny nekbone minife amg nasft hpcg"
     EXP_SUBDIR=energy_efficiency
     EXP_TYPE=power_balancer_energy
     ARGS="--min-power=220 --max-power=230"
@@ -79,7 +96,6 @@ function run_all_power_balancer_energy {
 }
 
 function run_all_barrier_freq_sweep {
-    APPLICATIONS="dgemm dgemm_tiny nekbone minife amg nasft hpcg"
     EXP_SUBDIR=energy_efficiency
     EXP_TYPE=barrier_frequency_sweep
     ARGS="--min-core-frequency=1.9e9 --max-core-frequency=2.0e9"
@@ -92,7 +108,7 @@ if [ ! "$SLURM_JOB_ID" ] || [ ! "$SLURM_NNODES" ]; then
 fi
 
 if [ $# -ne 1 ]; then
-    echo "Usage: $0 monitor|power_sweep|freq_sweep|power_balancer_energy|barrier_freq_sweep"
+    echo "Usage: $0 monitor|power_sweep|freq_sweep|power_balancer_energy|barrier_freq_sweep|uncore_freq_sweep"
     exit -1
 fi
 
@@ -108,6 +124,8 @@ elif [ "$name" == "power_balancer_energy" ]; then
     run_all_power_balancer_energy
 elif [ "$name" == "barrier_freq_sweep" ]; then
     run_all_barrier_freq_sweep
+elif [ "$name" == "uncore_freq_sweep" ]; then
+    run_all_uncore_freq_sweep
 else
     echo "Error: Unknown name: $name" 1>&2
     exit -1
