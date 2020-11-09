@@ -31,6 +31,5 @@
 
 
 EXTRA_DIST += integration/smoke/gen_smoke.sh \
-              integration/smoke/geopm_env.sh \
               integration/smoke/run_smoke.sh \
               # end
