@@ -95,7 +95,8 @@ def report_signals():
 
 
 def trace_signals():
-    return []
+    return ['MSR::UNCORE_PERF_STATUS:FREQ@package', 'MSR::UNCORE_RATIO_LIMIT:MAX_RATIO@package',
+            'MSR::UNCORE_RATIO_LIMIT:MIN_RATIO@package']
 
 
 def launch_configs(app_conf, core_freq_range, uncore_freq_range):

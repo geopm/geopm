@@ -48,9 +48,14 @@ def report_signals():
             "TIME@package", "ENERGY_PACKAGE@package"]
 
 
+def trace_signals():
+    return ['MSR::UNCORE_PERF_STATUS:FREQ@package', 'MSR::UNCORE_RATIO_LIMIT:MAX_RATIO@package',
+            'MSR::UNCORE_RATIO_LIMIT:MIN_RATIO@package']
+
+
 def launch(app_conf, args, experiment_cli_args):
     output_dir = os.path.abspath(args.output_dir)
-    extra_cli_args = launch_util.geopm_signal_args(report_signals(), None)
+    extra_cli_args = launch_util.geopm_signal_args(report_signals(), trace_signals())
     extra_cli_args += experiment_cli_args
 
     targets = [launch_util.LaunchConfig(app_conf=app_conf,
