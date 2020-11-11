@@ -60,7 +60,7 @@ def setup_power_bounds(mach, min_power, max_power, step_power):
     if min_power is None:
         # system minimum is actually too low; use 50% of TDP or min rounded up to nearest step, whichever is larger
         min_power = max(0.5 * mach.power_package_tdp(), mach.power_package_min())
-        min_power = step_power * math.ceil(float(min_power)/step_power)
+        min_power = step_power * math.ceil(float(min_power) / step_power)
         sys.stderr.write("Warning: <geopm> run_power_sweep: Invalid or unspecified min_power; using default minimum: {}.\n".format(min_power))
 
     if max_power is None:
@@ -96,6 +96,9 @@ def launch_configs(output_dir, app_conf, agent_types, min_power, max_power, step
     """
 
     targets = []
+    min_power = int(min_power)
+    max_power = int(max_power)
+    step_power = int(step_power)
     for power_cap in range(max_power, min_power-1, -step_power):
         for agent in agent_types:
             name = '{}'.format(power_cap)
