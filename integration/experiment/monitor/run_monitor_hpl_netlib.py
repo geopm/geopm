@@ -48,9 +48,7 @@ if __name__ == '__main__':
     monitor.setup_run_args(parser)
     hpl_netlib.setup_run_args(parser)
     args, extra_args = parser.parse_known_args()
-    if len(extra_args) > 0:
-        raise RuntimeError("Arguments not known: " + " ".join(extra_args))
     mach = machine.init_output_dir(args.output_dir)
     app_conf = hpl_netlib.HplNetlibAppConf(args.node_count, mach, perc_dram_per_node=args.perc_dram_per_node)
     monitor.launch(app_conf=app_conf, args=args,
-                   experiment_cli_args=[])
+                   experiment_cli_args=extra_args)
