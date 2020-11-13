@@ -46,10 +46,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     monitor.setup_run_args(parser)
     pennant.setup_run_args(parser)
-
     args, extra_args = parser.parse_known_args()
-    if len(extra_args) > 0:
-        raise RuntimeError("Arguments not known: " + " ".join(extra_args))
     mach = machine.init_output_dir(args.output_dir)
     app_conf = pennant.PennantAppConf(mach, args.input, args.cores_per_node)
-    monitor.launch(app_conf=app_conf, args=args, experiment_cli_args=[])
+    monitor.launch(app_conf=app_conf, args=args,
+                   experiment_cli_args=extra_args)
