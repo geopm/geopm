@@ -61,9 +61,9 @@
 /install-sh
 /integration/apps/hpcg/hpcg/
 /integration/apps/hpl_netlib/hpl-2.3/
-/integration/apps/nekbone/nekbone/
 /integration/apps/nasft/nasft/nas_ft
 /integration/apps/nasft/nasft/*.o
+/integration/apps/nekbone/nekbone/
 /integration/apps/pennant/PENNANT/
 /integration/apps/pennant/pennant_1_0_1.tgz
 /integration/test/*.config
@@ -79,6 +79,7 @@
 /integration/test/test_frequency_hint_usage
 /integration/test/test_omp_outer_loop
 /integration/test/test_power_balancer
+/integration/test/test_profile_overflow
 /integration/test/test_profile_policy
 /integration/test/test_scaling_region
 /integration/test/test_timed_scaling_region
@@ -115,6 +116,7 @@
 /ronn/*.7
 /ronn/*.html
 /ruby/
+*.sbatch
 /scripts/AUTHORS
 /scripts/build/*
 /scripts/COPYING
@@ -129,7 +131,6 @@
 /src/*.lo
 /src/*.o
 /stamp-h1
-*.sbatch
 *.swp
 /tags
 /test-driver
