@@ -29,9 +29,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/apps/wrf/0001-Whitespace-cleanup.patch \
-              integration/apps/wrf/0002-Intel-Compiler-updates.patch \
-              integration/apps/wrf/0003-Performance-compilation-flag-updates.patch \
+EXTRA_DIST += integration/apps/wrf/0001-Intel-Compiler-updates.patch \
               integration/apps//wrf/__init__.py \
               integration/apps//wrf/build.sh \
               integration/apps//wrf/wrf.py \

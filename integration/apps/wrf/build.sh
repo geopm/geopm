@@ -139,7 +139,7 @@ cd ../
 cd ${DIRNAME}
 
 #Finally build WRF
-./compile -j 20 wrf
+./compile -j 20 wrf >& wrf_compile.log
 
 #Put inputs in run dir
 ln -s ${GEOPM_SOURCE}/integration/apps/wrf/bench_2.5km/diffwrf.py ${GEOPM_SOURCE}/integration/apps/wrf/${DIRNAME}/run/

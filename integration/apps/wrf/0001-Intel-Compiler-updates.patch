@@ -1,7 +1,7 @@
-From a525872a7680a999c18d45be4ce2401bffb8c342 Mon Sep 17 00:00:00 2001
+From e6f18c8507d9f50eca3d3896d12498c044f34755 Mon Sep 17 00:00:00 2001
 From: Lowren Lawson <lowren.h.lawson@intel.com>
-Date: Thu, 29 Oct 2020 12:58:32 -0700
-Subject: [PATCH 2/3] Intel Compiler updates
+Date: Thu, 12 Nov 2020 13:51:16 -0800
+Subject: [PATCH 1/2] Intel Compiler updates
 #
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
@@ -40,7 +40,7 @@ Signed-off-by: Lowren Lawson <lowren.h.lawson@intel.com>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/arch/configure_new.defaults b/arch/configure_new.defaults
-index 3a8b7a0..b126f2c 100644
+index bc311ea..2eb6ca4 100644
 --- a/arch/configure_new.defaults
 +++ b/arch/configure_new.defaults
 @@ -1834,13 +1834,13 @@ CC_TOOLS        =      $(SCC)

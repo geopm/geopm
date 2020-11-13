@@ -32,9 +32,6 @@
 
 '''
 Describes the best known configuration for WRF.
-
-On one node of mcfly, one iteration with the monitor agent takes about
-???sec and produces a trace file of about ??MB.
 '''
 
 import os
@@ -89,12 +86,18 @@ class WrfAppConf(apps.AppConf):
         return self._num_rank_per_node
 
     def get_bash_setup_commands(self):
-        return_string =  "ulimit -s unlimited;\n"
-        return_string += "export OMP_PLACES=cores;\n"
-        return_string += "export OMP_PROC_BIND=close;\n"
-        return_string += "export OMP_STACKSIZE=512M;\n" #TODO: May change to 128M for low node count
-        return_string += "export WRFIO_NCD_LARGE_FILE_SUPPORT=1;\n"
-        return_string += "export WRF_NUM_TILES="+str(self._wrf_num_tiles)+";\n"
+        return_string =  '''\
+ulimit -s unlimited;
+export OMP_PLACES=cores
+export OMP_PROC_BIND=close
+export WRFIO_NCD_LARGE_FILE_SUPPORT=1
+export WRF_NUM_TILES={}
+'''.format(self._wrf_num_tiles)
+        if self._num_nodes == 1:
+            return_string += "export OMP_STACKSIZE=128M\n"
+        else:
+            return_string += "export OMP_STACKSIZE=512M\n"
+
         return return_string
 
     def get_bash_exec_path(self):
@@ -105,19 +108,13 @@ class WrfAppConf(apps.AppConf):
     def get_bash_exec_args(self):
         return ""
 
-    def experiment_setup(self, output_dir):
-        pass
-
-    def experiment_teardown(self, output_dir):
-        pass
-
     def trial_setup(self, run_id, output_dir):
-        exec_str = "ln -sf " + self._Wrf_path + "* " + output_dir + "/."
+        exec_str = "ln -sf {}* {}/.".format(self._Wrf_path, output_dir)
         subprocess.check_call(exec_str, stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE, shell=True)
 
     def trial_teardown(self, run_id, output_dir):
-        exec_str = "mv " + output_dir + "/rsl.out.0000 " + output_dir + "/rsl.out." + run_id
+        exec_str = "mv {}/rsl.out.0000 {}/rsl.out.{}".format(output_dir, output_dir, run_id)
         subprocess.check_call(exec_str, stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE, shell=True)
         pass
@@ -135,5 +132,5 @@ class WrfAppConf(apps.AppConf):
                         timestep_sum += float(line.split(':')[-1].strip().split()[0])
                     idx += 1;
 
-        avg_time = timestep_sum/idx;
+        avg_time = 1/(timestep_sum/idx);
         return avg_time;
