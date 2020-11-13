@@ -43,14 +43,14 @@ def setup_run_args(parser):
     """ Add common arguments for all run scripts:
         --input
     """
-    parser.add_argument('--pennant-input', '-i',
+    parser.add_argument('--pennant-input', dest='pennant_input'
                         action='store', type=str,
                         default="PENNANT/test/leblancx4/leblancx4.pnt",
                         help='Path to the input file (see .pnt files in test' +
                              'directory of the PENNANT source tarball). ' +
                              'Absolute path or relative to the app ' +
                              'directory. Default is leblancx4.pnt')
-    parser.add_argument('--pennant-cores-per-node', '-c', dest='cores_per_node',
+    parser.add_argument('--pennant-cores-per-node', dest='pennant_cores_per_node',
                         action='store', type=int,
                         help='Number of physical cores to reserve for the app. ' +
                              'If not defined, highest even number of cores less than ' +
