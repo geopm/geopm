@@ -7,7 +7,7 @@ From https://www.netlib.org/benchmark/hpl/:
 	computers. It can thus be regarded as a portable as well as freely
 	available implementation of the High Performance Computing Linpack Benchmark.
 
-Testing has been done with mvapich2 2.3.1 (dynamically linked) and Intel
+Testing has been done with mvapich2 2.3.1 (dynamically linked) and Intel (R)
 compiler/library package version 19.0.4.243.
 
 The application is configured to solve a double-precision FP matrix in this infrastructure.

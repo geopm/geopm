@@ -7,10 +7,10 @@ From https://www.netlib.org/benchmark/hpl/:
     computers. It can thus be regarded as a portable as well as freely
     available implementation of the High Performance Computing Linpack Benchmark.
 
-This AppConf runs the MKL version of HPL, which is optimized for Intel
-processors.
+This AppConf runs the Intel (R) Math Kernel Library (MKL) version of HPL, which is
+optimized for Intel (R) processors.
 
-Testing has been done with MKL 19.0.4.243 and impi 2019.4.243 (dynamically linked).
+Testing has been done with Intel (R) MKL 19.0.4.243 and impi 2019.4.243 (dynamically linked).
 IMPI is required for the best performance.
 
 The application is configured to solve a double-precision FP matrix in this infrastructure.
@@ -41,7 +41,7 @@ This would normally be done by setting the following environment variables
     $ export OMP_NUM_THREADS=44 # number of cores per node
     $ export MKL_NUM_THREADS=44 # matches with above, effective if linked against MKL.
 
-MKL_NUM_THREADS is used by the MKL libraries to determine how many threads
+MKL_NUM_THREADS is used by the Intel (R) MKL to determine how many threads
 are used per rank.
 
 In the GEOPM integration infrastructure, OMP_NUM_THREADS is inferred from
