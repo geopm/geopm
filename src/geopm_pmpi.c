@@ -52,11 +52,18 @@
 #include "config.h"
 
 static int g_is_mpi_finalized = 0;
+static int g_is_rate_limited = 0;
 
 int geopm_is_comm_enabled(void)
 {
     return !g_is_mpi_finalized;
 }
+
+void geopm_set_rate_limited(void)
+{
+    g_is_rate_limited = 1;
+}
+
 
 #ifndef GEOPM_TEST
 int MPI_Init(int *argc, char **argv[])
@@ -70,11 +77,20 @@ int MPI_Init_thread(int *argc, char **argv[], int required, int *provided)
     return geopm_pmpi_init_thread(argc, argv, required, provided);
 }
 
+
 int MPI_Finalize(void)
 {
+    int is_any_rate_limited = 0;
+    PMPI_Reduce(&g_is_rate_limited, &is_any_rate_limited, 1,
+                MPI_INT, MPI_LOR, 0, MPI_COMM_WORLD);
+    int rank;
+    PMPI_Comm_rank(MPI_COMM_WORLD, &rank);
     int err = geopm_pmpi_finalize();
     int err_final = PMPI_Finalize();
     g_is_mpi_finalized = 1;
+    if (rank == 0 && is_any_rate_limited) {
+        fprintf(stderr, "Warning: <geopm> One or more MPI calls was suppressed due to rate limiting.\n");
+    }
     return err ? err : err_final;
 }
 #endif

@@ -41,6 +41,8 @@
 #include "geopm_pmpi.h"
 #include "config.h"
 
+void geopm_set_rate_limited(void);
+
 /* MPI FORTRAN extern definitions */
 #ifdef GEOPM_ENABLE_MPI3
 extern void pmpi_comm_create_group_(MPI_Fint* comm, MPI_Fint* group, MPI_Fint* tag, MPI_Fint* newcomm, MPI_Fint* ierr);

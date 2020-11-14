@@ -32,6 +32,8 @@
 #ifndef GEOPM_PMPI_H_INCLUDE
 #define GEOPM_PMPI_H_INCLUDE
 
+#include "geopm_time.h"
+
 /*!
  * @brief Swap out COMM_WORLD with our internally modified comm (fortran only)
  */
@@ -49,21 +51,37 @@ void geopm_mpi_region_exit(uint64_t func_rid);
  */
 uint64_t geopm_mpi_func_rid(const char *func_name);
 
+void geopm_set_rate_limited(void);
+
 /* Macro seems to be the best way to deal introducing per function
  *  static storage with a non-const initializer.  We avoid repeating
  *  code.  Note this approach is thread safe because of the underlying
  *  lock in geopm_prof_region().
  */
+#define ENTRY_RATE_LIMIT 0.0005
 #define GEOPM_PMPI_ENTER_MACRO(FUNC) \
     static unsigned is_once = 1; \
     static uint64_t func_rid = 0; \
+    static struct geopm_time_s last_entry = {{0, 0}};  \
+    static unsigned is_entered = 0; \
     if (is_once || func_rid == 0) { \
         func_rid = geopm_mpi_func_rid(FUNC); \
         is_once = 0; \
     } \
-    geopm_mpi_region_enter(func_rid);
+    if (geopm_time_since(&last_entry) > ENTRY_RATE_LIMIT) {       \
+        geopm_mpi_region_enter(func_rid);                         \
+        geopm_time(&last_entry);                                  \
+        is_entered = 1;                                           \
+    }                                                             \
+    else {                                                        \
+        geopm_set_rate_limited();                                       \
+    }
 
-#define GEOPM_PMPI_EXIT_MACRO geopm_mpi_region_exit(func_rid);
+#define GEOPM_PMPI_EXIT_MACRO                     \
+    if (is_entered) {                             \
+        geopm_mpi_region_exit(func_rid);          \
+        is_entered = 0;                           \
+    }
 
 int geopm_pmpi_init_thread(int *argc, char **argv[], int required, int *provided);
 int geopm_pmpi_finalize(void);
