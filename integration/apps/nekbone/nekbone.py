@@ -76,7 +76,10 @@ class NekboneAppConf(apps.AppConf):
 
     def experiment_teardown(self, output_dir):
         file_name = os.path.join(output_dir, self._input_name)
-        os.unlink(file_name)
+        try:
+            os.unlink(file_name)
+        except FileNotFoundError:
+            pass
 
     def get_bash_setup_commands(self):
         return 'ulimit -s unlimited'
