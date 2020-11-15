@@ -43,7 +43,7 @@ def setup_run_args(parser):
     """ Add common arguments for all run scripts:
         --input
     """
-    parser.add_argument('--pennant-input', dest='pennant_input'
+    parser.add_argument('--pennant-input', dest='pennant_input',
                         action='store', type=str,
                         default="PENNANT/test/leblancx4/leblancx4.pnt",
                         help='Path to the input file (see .pnt files in test' +
