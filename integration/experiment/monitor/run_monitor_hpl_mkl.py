@@ -49,6 +49,6 @@ if __name__ == '__main__':
     hpl_netlib.setup_run_args(parser)
     args, extra_args = parser.parse_known_args()
     mach = machine.init_output_dir(args.output_dir)
-    app_conf = hpl_mkl.HplMklAppConf(args.node_count, mach, perc_dram_per_node=args.perc_dram_per_node)
+    app_conf = hpl_mkl.HplMklAppConf(args.node_count, mach, frac_dram_per_node=args.frac_dram_per_node)
     monitor.launch(app_conf=app_conf, args=args,
                    experiment_cli_args=extra_args)

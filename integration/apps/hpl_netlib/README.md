@@ -11,9 +11,9 @@ Testing has been done with mvapich2 2.3.1 (dynamically linked) and Intel (R)
 compiler/library package version 19.0.4.243.
 
 The application is configured to solve a double-precision FP matrix in this infrastructure.
-Matrix size can be controlled via the --perc-dram option, which can be passed to the run
+Matrix size can be controlled via the --frac-dram option, which can be passed to the run
 scripts that call this banchmark. The double-precision FP matrix will be sized such that 
-it fits in the given ratio of the total DRAM of the nodes (value between 0 and 1).
+it fits in the given fraction of the total DRAM of the nodes (value between 0 and 1).
 Values above 0.75 are recommended for best performance. Lower values will not have the best
 best ALU utilization. Higher percentages may compete with OS resources or in extreme
 cases (typically >0.9) may cause the application to quit with a "not enough memory" error.
