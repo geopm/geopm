@@ -246,6 +246,7 @@ def plot_balancer_comparison(output, label, metric, output_dir='.',
         file_name += '_stdev'
     else:
         file_name += '_minmax'
+    file_name += '.png'
     if detailed:
         sys.stdout.write('{}\n'.format(df))
         sys.stdout.write('Writing:\n')
