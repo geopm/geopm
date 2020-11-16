@@ -43,13 +43,13 @@ from apps import apps
 
 def setup_run_args(parser):
     """ Add common arguments for all run scripts:
-        --perc-dram
+        --frac-dram
     """
     help_text = 'Ratio of the total node DRAM that should be used for the HPL ' + \
                 'matrix (assuming DP). Value should be between 0 and 1. ' + \
                 'Default is 0.7. 0.8-0.9 is a better value but might fail due to ' + \
                 'out-of-memory.'
-    parser.add_argument('--perc-dram', dest='perc_dram_per_node',
+    parser.add_argument('--frac-dram', dest='frac_dram_per_node',
                         action='store', type=float, default=0.7,
                         help=help_text)
 
@@ -59,10 +59,10 @@ class HplNetlibAppConf(apps.AppConf):
     def name():
         return 'hpl_netlib'
 
-    def __init__(self, num_nodes, mach, perc_dram_per_node=0.7, cores_per_node=None):
+    def __init__(self, num_nodes, mach, frac_dram_per_node=0.7, cores_per_node=None):
         '''
         num_nodes: Number of MPI ranks (1 node per rank) -- 2, 4, 8 or 16.
-        perc_dram_per_node: Ratio of the total node DRAM that should be used for the
+        frac_dram_per_node: Ratio of the total node DRAM that should be used for the
                             HPL matrix (assuming DP).
                             80-90% is a good amount to maximize efficiency.
                             Default is 0.9.
@@ -70,7 +70,7 @@ class HplNetlibAppConf(apps.AppConf):
                         Total number of physical cores will be selected if this is not set
                         (defauilt=None).
         '''
-        dram_for_app = num_nodes * mach.total_node_memory_bytes() * perc_dram_per_node
+        dram_for_app = num_nodes * mach.total_node_memory_bytes() * frac_dram_per_node
         if cores_per_node is None:
             cores_per_node = mach.num_core()
 
