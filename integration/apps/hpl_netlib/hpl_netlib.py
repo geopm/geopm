@@ -59,16 +59,14 @@ class HplNetlibAppConf(apps.AppConf):
     def name():
         return 'hpl_netlib'
 
-    def __init__(self, num_nodes, mach, frac_dram_per_node=0.7, cores_per_node=None):
+    def __init__(self, num_nodes, mach, frac_dram_per_node, cores_per_node):
         '''
         num_nodes: Number of MPI ranks (1 node per rank) -- 2, 4, 8 or 16.
         frac_dram_per_node: Ratio of the total node DRAM that should be used for the
                             HPL matrix (assuming DP).
                             80-90% is a good amount to maximize efficiency.
-                            Default is 0.9.
         cores_per_node: Number of Xeon cores that each MPI process can offload to via OMP.
-                        Total number of physical cores will be selected if this is not set
-                        (defauilt=None).
+                        Total number of physical cores will be selected if this is set to None.
         '''
         dram_for_app = num_nodes * mach.total_node_memory_bytes() * frac_dram_per_node
         if cores_per_node is None:
