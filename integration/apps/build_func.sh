@@ -138,7 +138,10 @@ unpack_archive() {
     if [ "${ARCHIVE##*.}" == zip ]; then
         unzip ${ARCHIVE}
     else
-        tar xvf ${ARCHIVE}
+        local DIRNAME=$(tar -tf ${ARCHIVE} | head -1 | cut -f1 -d"/")
+        if [ ! -d ${DIRNAME} ]; then
+            tar xvf ${ARCHIVE}
+        fi
     fi
 }
 
