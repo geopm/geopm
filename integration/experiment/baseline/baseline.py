@@ -48,11 +48,15 @@ def launch(app_conf_configs, args, experiment_cli_args):
 
     targets = []
     for name, app_conf in app_conf_configs.items():
-        for use_geopm_ctl in [False, True]:
-            targets.append(launch_util.LaunchConfig(app_conf=app_conf,
-                                                    agent_conf=None,
-                                                    name=name,
-                                                    use_geopm_ctl=use_geopm_ctl))
+        targets.append(launch_util.LaunchConfig(app_conf=app_conf,
+                                                agent_conf=None,
+                                                name=name,
+                                                use_geopm_ctl=False))
+
+        targets.append(launch_util.LaunchConfig(app_conf=app_conf,
+                                                agent_conf=None,
+                                                name=name,
+                                                use_geopm_ctl=True))
 
     launch_util.launch_all_runs(targets=targets,
                                 num_nodes=args.node_count,

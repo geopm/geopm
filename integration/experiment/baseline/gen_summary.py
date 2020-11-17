@@ -38,6 +38,7 @@ runs with and without the GEOPM controller on dedicated cores.
 
 import argparse
 import sys
+import pandas
 
 import geopmpy.io
 import geopmpy.hash
@@ -71,6 +72,11 @@ if __name__ == '__main__':
         # Raw data from separate trials; condense host rows
         temp = df.set_index('Profile')
         temp = temp.groupby('Profile').mean()
+        # handle missing data from previous versions
+        if 'FOM' not in temp.columns:
+            temp['FOM'] = None
+        if 'total_runtime' not in temp.columns:
+            temp['total_runtime'] = None
         sys.stdout.write('{}\n'.format(temp[['total_runtime', 'FOM']]))
 
     # remove iteration from end of profile name
@@ -80,22 +86,31 @@ if __name__ == '__main__':
     # error
     df = df.set_index('Profile')
     group = df.groupby('Profile')
-    result = group.mean()
-    result = result[['total_runtime', 'FOM']]
-    result['min_runtime'] = group['total_runtime'].min()
-    result['max_runtime'] = group['total_runtime'].max()
-    result['std_runtime'] = group['total_runtime'].std()
-    result['min_fom'] = group['FOM'].min()
-    result['max_fom'] = group['FOM'].max()
-    result['std_fom'] = group['FOM'].std()
+    temp = group.mean()
+    result = pandas.DataFrame()
+
+    if 'total_runtime' in temp.columns:
+        result['total_runtime'] = temp['total_runtime']
+        result['min_runtime'] = group['total_runtime'].min()
+        result['max_runtime'] = group['total_runtime'].max()
+        result['std_runtime'] = group['total_runtime'].std()
+    if 'FOM' in temp.columns:
+        result['FOM'] = temp['FOM']
+        result['min_fom'] = group['FOM'].min()
+        result['max_fom'] = group['FOM'].max()
+        result['std_fom'] = group['FOM'].std()
+
     if args.use_stdev:
         sys.stdout.write('Using stdev for error percent\n')
-        result['error_pct_runtime'] = result['std_runtime'] / result['total_runtime']
-        result['error_pct_fom'] = result['std_fom'] / result['FOM']
+        if 'total_runtime' in result.columns:
+            result['error_pct_runtime'] = result['std_runtime'] / result['total_runtime']
+        if 'FOM' in result.columns:
+            result['error_pct_fom'] = result['std_fom'] / result['FOM']
     else:
         sys.stdout.write('Using min-max for error percent\n')
-        # TODO: what is this supposed to be for min-max
-        result['error_pct_runtime'] = (result['max_runtime'] - result['min_runtime']) / result['total_runtime']
-        result['error_pct_fom'] = (result['max_fom'] - result['min_fom']) / result['FOM']
+        if 'total_runtime' in result.columns:
+            result['error_pct_runtime'] = (result['max_runtime'] - result['min_runtime']) / result['total_runtime']
+        if 'FOM' in result.columns:
+            result['error_pct_fom'] = (result['max_fom'] - result['min_fom']) / result['FOM']
 
     sys.stdout.write('{}\n'.format(result))
