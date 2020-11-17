@@ -56,9 +56,8 @@ class MinifeAppConf(apps.AppConf):
         self.app_params = problem_sizes[num_nodes]
 
         app_cores = apps.get_available_app_cores(mach, pin_config)
-        # TODO: test other thread configs
-        self.cpu_per_rank = 1
-        self.ranks_per_node = app_cores // self.cpu_per_rank
+        self.ranks_per_node = 4
+        self.cpu_per_rank = app_cores // self.ranks_per_node
 
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
         self.exe_path = os.path.join(benchmark_dir, 'miniFE_openmp-2.0-rc3/src/miniFE.x')
