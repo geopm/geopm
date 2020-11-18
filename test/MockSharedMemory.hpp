@@ -46,7 +46,7 @@ class MockSharedMemory : public geopm::SharedMemory
     public:
         MockSharedMemory() = delete;
         MockSharedMemory(size_t size) {
-            m_buffer = std::vector<char>(size);
+            m_buffer = std::vector<char>(size, '\0');
             EXPECT_CALL(*this, size())
                 .WillRepeatedly(testing::Return(size));
             EXPECT_CALL(*this, pointer())

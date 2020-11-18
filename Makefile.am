@@ -452,6 +452,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/Agg.hpp \
                             src/ApplicationIO.cpp \
                             src/ApplicationIO.hpp \
+                            src/ApplicationRecordLog.cpp \
+                            src/ApplicationRecordLog.hpp \
                             src/ApplicationSampler.cpp \
                             src/ApplicationSampler.hpp \
                             src/ApplicationSamplerImp.hpp \
