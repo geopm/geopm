@@ -18,7 +18,7 @@ From the authors <https://proxyapps.exascaleproject.org/app/amg>:
 ### GEOPM Opportunity
 
 This application may expose work imbalance across ranks, and appears
-to be capable of drawing near TDP on Xeon platforms.
+to be capable of drawing near TDP on Intel (R) Xeon (R) platforms.
 
 ### Obtaining the Source Code
 

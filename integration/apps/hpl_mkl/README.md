@@ -15,7 +15,7 @@ IMPI is required for the best performance.
 
 The application is configured to solve a double-precision FP matrix in this infrastructure.
 Matrix size can be controlled via the --frac-dram option, which can be passed to the run
-scripts that call this benchmark. The double-precision FP matrix will be sized such that 
+scripts that call this benchmark. The double-precision FP matrix will be sized such that
 it fits in the given fraction of the total DRAM of the nodes (value between 0 and 1).
 Values above 0.75 are recommended for best performance. Lower values will not have the best
 best ALU utilization. Higher percentages may compete with OS resources or in extreme
@@ -24,7 +24,7 @@ Lower percentages can be used to run fast tests.
 
 The benchmark implementation here allows node sizes of 1, 2, 4, 8 and 16.
 
-The MKL AppConf class (HplMklAppConf) is derived from HplNetlibAppConf since
+The Intel (R) MKL AppConf class (HplMklAppConf) is derived from HplNetlibAppConf since
 the app configurations are mostly the same.
 
 # HPL Threading
@@ -39,7 +39,7 @@ This would normally be done by setting the following environment variables
 
     $ export KMP_HW_SUBSET=1t   # forces 1 thread per core to be used
     $ export OMP_NUM_THREADS=44 # number of cores per node
-    $ export MKL_NUM_THREADS=44 # matches with above, effective if linked against MKL.
+    $ export MKL_NUM_THREADS=44 # matches with above, effective if linked against Intel (R) MKL.
 
 MKL_NUM_THREADS is used by the Intel (R) MKL to determine how many threads
 are used per rank.
@@ -48,7 +48,7 @@ In the GEOPM integration infrastructure, OMP_NUM_THREADS is inferred from
 the get_cpu_per_rank function of AppConf base class. This is set to the number of
 cores per node inside the HplMklAppConf class in hpl_mkl.py.
 
-Similarly hyper-threading is turned off via --geopm-hyperthreads-disable in the 
+Similarly hyper-threading is turned off via --geopm-hyperthreads-disable in the
 HplMklAppConf.get_custom_geopm_args function.
 
 Finally, the specific way that HPL is written does not allow GEOPM to start in

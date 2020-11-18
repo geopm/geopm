@@ -75,7 +75,7 @@ class HplNetlibAppConf(apps.AppConf):
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
         self.exec_path = os.path.join(benchmark_dir, 'hpl-2.3/bin/Linux_Intel64/xhpl')
 
-        self.NBs = 384  # This is the recommended size for Intel Scalable Xeon family.
+        self.NBs = 384  # This is the recommended size for Intel (R) Xeon (R) Scalable family.
         process_grid_ratios = {
             1: {'P': 1, 'Q': 1},
             2: {'P': 1, 'Q': 2},

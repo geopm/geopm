@@ -36,10 +36,6 @@
 # This script is intended to be sourced within an existing script or shell ONLY.
 # It is NOT intended to be ./ executed.
 
-# Default Intel Toolchain compiler overrides
-# The MPI compiler wrappers are supported by Intel, but are not Intel specific.
-
-
 module purge
 module load autotools intel impi
 

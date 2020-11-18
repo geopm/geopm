@@ -49,8 +49,9 @@ export GEOPM_SOURCE=${GEOPM_SOURCE:?Please set GEOPM_SOURCE in your environment.
 export GEOPM_INSTALL=${GEOPM_INSTALL:?Please set GEOPM_INSTALL in your environment.}
 export GEOPM_APPS_SOURCES=${GEOPM_APPS_SOURCES:?Please set GEOPM_APPS_SOURCES in your environment.}
 
-# Default Intel Toolchain compiler overrides
-# The MPI compiler wrappers are supported by Intel, but are not Intel specific.
+# Using generic names for MPI compiler wrappers.  These names are
+# supported by Intel (R) MPI, but may be used with other MPI
+# implementations as well.
 export CC=${CC:-icc}
 export CXX=${CXX:-icpc}
 export FC=${FC:-ifort}
@@ -65,9 +66,9 @@ export MPIF90=${MPIF90:-mpifort}
 
 COMPILER_LIST="CC CXX MPICC MPICXX FC F77 MPIFC MPIF77"
 for compiler in ${COMPILER_LIST}; do
-    # Check to ensure Intel is used
+    # Check to ensure Intel (R) is used
     if ! ${!compiler} --version | grep --quiet Intel; then
-        echo "Error: Please ensure the Intel Toolchain is setup properly. (${compiler} = ${!compiler} is not supported)"
+        echo "Error: Please ensure the Intel (R) toolchain is setup properly. (${compiler} = ${!compiler} is not supported)"
         return 1
     fi
 done

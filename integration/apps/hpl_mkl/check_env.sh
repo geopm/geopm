@@ -31,8 +31,8 @@
 #
 
 echo "This script will check if:"
-echo "   1. MKL is installed in your system and environment is set (check \$MKLROOT environment variable)."
-echo "   2. Intel HPL binary (xhpl_intel64_dynamic) is installed as a part of the MKL installation in the"
+echo "   1. Intel (R) MKL is installed in your system and environment is set (check \$MKLROOT environment variable)."
+echo "   2. Intel (R) HPL binary (xhpl_intel64_dynamic) is installed as a part of the MKL installation in the"
 echo "      \$MKLROOT/benchmarks/mp_linpack directory."
 echo "   3. MPI version is IMPI."
 echo "It will not perform any download/build. User is expected to install MKL manually."
