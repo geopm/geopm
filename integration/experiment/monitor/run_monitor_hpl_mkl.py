@@ -32,7 +32,7 @@
 #
 
 '''
-Run HPL MKL with the monitor agent.
+Run Intel (R) MKL HPL with the monitor agent.
 '''
 
 import argparse
