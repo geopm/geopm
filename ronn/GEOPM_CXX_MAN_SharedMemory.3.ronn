@@ -37,85 +37,47 @@ geopm::SharedMemory(3) -- abstractions for shared memory
 
 `Link with -lgeopm (MPI) or -lgeopmpolicy (non-MPI)`
 
-  * `SharedMemory(`:
-    `const std::string &`_shm_key_`,`<br>
-    `size_t `_size_`);`
+  * `std::unique_ptr<SharedMemory> make_unique_owner(`:
+    `const std::string` _shm_key_`,` <br>
+    `size_t` _size_`);`
 
-  * `~SharedMemory(`:
+  * `std::unique_ptr<SharedMemory> make_unique_user(`:
+    `const std::string` _shm_key_`,` <br>
+    `unsigned int` _timeout_`);`
+
+  * `void *pointer(`:
+    `void) const;`
+
+  * `std::string key(`:
+    `void) const;`
+
+  * `size_t size(`:
+    `void) const;`
+
+  * `void unlink(`:
     `void);`
 
-  * `void *SharedMemory::pointer(`:
-    `void) const;`
-
-  * `std::string SharedMemory::key(`:
-    `void) const;`
-
-  * `size_t SharedMemory::size(`:
-    `void) const;`
-
-  * `SharedMemoryUser(`:
-    `const std::string &`_shm_key_`,`<br>
-    `unsigned int `_timeout_`);`
-
-  * `SharedMemoryUser(`:
-    `const std::string &`_shm_key_`);`
-
-  * `~SharedMemoryUser(`:
+  * `std::unique_ptr<SharedMemoryScopedLock> get_scoped_lock(`:
     `void);`
 
-  * `void *SharedMemoryUser::pointer(`:
-    `void) const;`
-
-  * `std::string SharedMemoryUser::key(`:
-    `void) const;`
-
-  * `size_t SharedMemoryUser::size(`:
-    `void) const;`
-
-  * `void SharedMemoryUser::unlink(`:
-    `void);`
 
 ## DESCRIPTION
-The SharedMemory class encapsulates the creation of inter-process
-shared memory.  The SharedMemoryUser class encapsulates attaching to
+The SharedMemory class encapsulates the creation and use of
 inter-process shared memory.  In the GEOPM runtime, shared memory is
 used to communicate between the user application's MPI calls and calls
 to **geopm_prof_c(3)** methods, and the Controller running on the same
 node.
 
-## SHAREDMEMORY CLASS METHODS
+## CLASS METHODS
 
-  * `SharedMemory`():
-    Constructor creates an inter-process shared memory region with key
-    _shm_key_ and _size_.
+  * `make_unique_owner`():
+    Creates a shared memory region with key _shm_key_ and _size_ and
+    returns a pointer to a SharedMemory object managing it.
 
-  * `~SharedMemory`():
-    Destructor destroys and unlinks the shared memory region.
-
-  * `pointer`():
-    Returns a pointer to the shared memory region.
-
-  * `key`():
-    Returns the key to the shared memory region.
-
-  * `size`():
-    Returns the size of the shared memory region.
-
-
-## SHAREDMEMORYUSER CLASS METHODS
-
-  * `SharedMemoryUser`():
-    Constructor attempts to attach to a inter-process shared memory
-    region with key _shm_key_. This version of the constructor tries
-    to attach multiple times until a _timeout_ in seconds is reached.
-
-  * `SharedMemoryUser`():
-    Constructor attempts to attach to a inter-process shared memory
-    region with key _shm_key_. This version of the constructor
-    attempts to attach a single time.
-
-  * `~SharedMemoryUser`():
-    Destructor detaches from shared memory region.
+  * `make_unique_user`():
+    Attempts to attach to a inter-process shared memory region with
+    key _shm_key_ within _timeout_ and returns a pointer to a
+    SharedMemory object managing it.
 
   * `pointer`():
     Returns a pointer to the shared memory region.
@@ -128,6 +90,12 @@ node.
 
   * `unlink`():
     Unlink the shared memory region.
+
+  * `get_scoped_lock`():
+    Returns a temporary object that holds the mutex lock for the
+    shared memory region while in scope, and releases it when it goes
+    out of scope.  This method should be called before accessing the
+    memory with `pointer`().
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation. All rights reserved.

@@ -55,7 +55,7 @@
 #include "SampleScheduler.hpp"
 #include "Comm.hpp"
 #include "ControlMessage.hpp"
-#include "SharedMemoryImp.hpp"
+#include "SharedMemory.hpp"
 #include "Exception.hpp"
 #include "config.h"
 
@@ -83,7 +83,7 @@ namespace geopm
         std::string sample_key_path("/dev/shm/" + sample_key);
         // Remove shared memory file if one already exists.
         (void)unlink(sample_key_path.c_str());
-        m_ctl_shmem = geopm::make_unique<SharedMemoryImp>(sample_key, sizeof(struct geopm_ctl_message_s));
+        m_ctl_shmem = SharedMemory::make_unique_owner(sample_key, sizeof(struct geopm_ctl_message_s));
         m_ctl_msg = geopm::make_unique<ControlMessageImp>(*(struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), true, true, env.timeout());
 
         std::string tprof_key = key_base + "-tprof";
@@ -91,7 +91,7 @@ namespace geopm
         // Remove shared memory file if one already exists.
         (void)unlink(tprof_key_path.c_str());
         size_t tprof_size = 64 * topo.num_domain(GEOPM_DOMAIN_CPU);
-        m_tprof_shmem = geopm::make_unique<SharedMemoryImp>(tprof_key, tprof_size);
+        m_tprof_shmem = SharedMemory::make_unique_owner(tprof_key, tprof_size);
         m_tprof_table = geopm::make_unique<ProfileThreadTableImp>(tprof_size, m_tprof_shmem->pointer());
         errno = 0; // Ignore errors from the unlink calls.
     }
@@ -290,7 +290,7 @@ namespace geopm
         std::string key_path("/dev/shm/" + shm_key);
         (void)unlink(key_path.c_str());
         errno = 0; // Ignore errors from the unlink call.
-        m_table_shmem = geopm::make_unique<SharedMemoryImp>(shm_key, table_size);
+        m_table_shmem = SharedMemory::make_unique_owner(shm_key, table_size);
         m_table = geopm::make_unique<ProfileTableImp>(m_table_shmem->size(), m_table_shmem->pointer());
     }
 

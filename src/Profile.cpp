@@ -54,7 +54,7 @@
 #include "ProfileThreadTable.hpp"
 #include "SampleScheduler.hpp"
 #include "ControlMessage.hpp"
-#include "SharedMemoryImp.hpp"
+#include "SharedMemory.hpp"
 #include "Exception.hpp"
 #include "Comm.hpp"
 #include "Helper.hpp"
@@ -216,7 +216,7 @@ namespace geopm
     void ProfileImp::init_ctl_msg(const std::string &sample_key)
     {
         if (!m_ctl_msg) {
-            m_ctl_shmem = geopm::make_unique<SharedMemoryUserImp>(sample_key, m_timeout);
+            m_ctl_shmem = SharedMemory::make_unique_user(sample_key, m_timeout);
             m_shm_comm->barrier();
             if (!m_shm_rank) {
                 m_ctl_shmem->unlink();
@@ -293,7 +293,7 @@ namespace geopm
     void ProfileImp::init_tprof_table(const std::string &tprof_key, const PlatformTopo &topo)
     {
         if (!m_tprof_table) {
-            m_tprof_shmem = geopm::make_unique<SharedMemoryUserImp>(tprof_key, m_timeout);
+            m_tprof_shmem = SharedMemory::make_unique_user(tprof_key, m_timeout);
             m_shm_comm->barrier();
             if (!m_shm_rank) {
                 m_tprof_shmem->unlink();
@@ -307,7 +307,7 @@ namespace geopm
         if (!m_table) {
             std::string table_shm_key(sample_key);
             table_shm_key += "-" + std::to_string(m_rank);
-            m_table_shmem = geopm::make_unique<SharedMemoryUserImp>(table_shm_key, m_timeout);
+            m_table_shmem = SharedMemory::make_unique_user(table_shm_key, m_timeout);
             m_table_shmem->unlink();
             m_table = geopm::make_unique<ProfileTableImp>(m_table_shmem->size(), m_table_shmem->pointer());
         }

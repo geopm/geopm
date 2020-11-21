@@ -35,13 +35,10 @@
 #include "gtest/gtest.h"
 #include "geopm_error.h"
 #include "Exception.hpp"
-#include "SharedMemoryImp.hpp"
+#include "SharedMemory.hpp"
 #include "geopm_test.hpp"
 
 using geopm::SharedMemory;
-using geopm::SharedMemoryImp;
-using geopm::SharedMemoryUser;
-using geopm::SharedMemoryUserImp;
 
 class SharedMemoryTest : public :: testing :: Test
 {
@@ -53,15 +50,15 @@ class SharedMemoryTest : public :: testing :: Test
         std::string m_shm_key;
         size_t m_size;
         std::unique_ptr<SharedMemory> m_shmem;
-        std::unique_ptr<SharedMemoryUser> m_shmem_u;
+        std::unique_ptr<SharedMemory> m_shmem_u;
 };
 
 void SharedMemoryTest::SetUp()
 {
     m_shm_key = "/geopm-shm-foo-SharedMemoryTest-" + std::to_string(getpid());
     m_size = sizeof(size_t);
-    m_shmem = NULL;
-    m_shmem_u = NULL;
+    m_shmem = nullptr;
+    m_shmem_u = nullptr;
 }
 
 void SharedMemoryTest::TearDown()
@@ -73,12 +70,12 @@ void SharedMemoryTest::TearDown()
 
 void SharedMemoryTest::config_shmem()
 {
-    m_shmem.reset(new geopm::SharedMemoryImp(m_shm_key, m_size));
+    m_shmem = SharedMemory::make_unique_owner(m_shm_key, m_size);
 }
 
 void SharedMemoryTest::config_shmem_u()
 {
-    m_shmem_u.reset(new geopm::SharedMemoryUserImp(m_shm_key, 1)); // 1 second timeout
+    m_shmem_u = SharedMemory::make_unique_user(m_shm_key, 1); // 1 second timeout
 }
 
 TEST_F(SharedMemoryTest, fd_check)
@@ -102,10 +99,10 @@ TEST_F(SharedMemoryTest, fd_check)
 TEST_F(SharedMemoryTest, invalid_construction)
 {
     m_shm_key += "-invalid_construction";
-    EXPECT_THROW((SharedMemoryImp(m_shm_key, 0)), geopm::Exception);  // invalid memory region size
-    EXPECT_THROW((SharedMemoryUserImp(m_shm_key, 1)), geopm::Exception);
-    EXPECT_THROW((SharedMemoryImp("", m_size)), geopm::Exception);  // invalid key
-    EXPECT_THROW((SharedMemoryUserImp("", 1)), geopm::Exception);
+    EXPECT_THROW((SharedMemory::make_unique_owner(m_shm_key, 0)), geopm::Exception);  // invalid memory region size
+    EXPECT_THROW((SharedMemory::make_unique_user(m_shm_key, 1)), geopm::Exception);
+    EXPECT_THROW((SharedMemory::make_unique_owner("", m_size)), geopm::Exception);  // invalid key
+    EXPECT_THROW((SharedMemory::make_unique_user("", 1)), geopm::Exception);
 }
 
 TEST_F(SharedMemoryTest, share_data)
