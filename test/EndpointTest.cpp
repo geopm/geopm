@@ -55,11 +55,11 @@
 #include "Exception.hpp"
 #include "EndpointImp.hpp"
 #include "EndpointUser.hpp"
-#include "SharedMemoryImp.hpp"
+#include "SharedMemory.hpp"
 
 using geopm::EndpointImp;
 using geopm::EndpointUserImp;
-using geopm::SharedMemoryUserImp;
+using geopm::SharedMemory;
 using geopm::geopm_endpoint_policy_shmem_s;
 using geopm::geopm_endpoint_sample_shmem_s;
 using geopm::Exception;
@@ -146,8 +146,8 @@ TEST_F(EndpointTestIntegration, write_shm)
     mio.open();
     mio.write_policy(values);
 
-    SharedMemoryUserImp smp(m_shm_path + "-policy", 1);
-    struct geopm_endpoint_policy_shmem_s *data = (struct geopm_endpoint_policy_shmem_s *) smp.pointer();
+    auto smp = SharedMemory::make_unique_user(m_shm_path + "-policy", 1);
+    struct geopm_endpoint_policy_shmem_s *data = (struct geopm_endpoint_policy_shmem_s *) smp->pointer();
 
     ASSERT_LT(0u, data->count);
     std::vector<double> result(data->values, data->values + data->count);

@@ -35,7 +35,7 @@
 #include <sstream>
 
 #include "geopm_mpi_comm_split.h"
-#include "SharedMemoryImp.hpp"
+#include "SharedMemory.hpp"
 #include "Environment.hpp"
 #include "Exception.hpp"
 #include "Controller.hpp"
@@ -88,8 +88,8 @@ extern "C"
             shmem_key << geopm::environment().shmkey() << "-comm-split-" << tag;
             std::ostringstream shmem_path;
             shmem_path << "/dev/shm" << shmem_key.str();
-            std::shared_ptr<geopm::SharedMemoryImp> shmem = nullptr;
-            std::shared_ptr<geopm::SharedMemoryUserImp> shmem_user = nullptr;
+            std::shared_ptr<geopm::SharedMemory> shmem = nullptr;
+            std::shared_ptr<geopm::SharedMemory> shmem_user = nullptr;
             int rank, color = -1;
 
             MPI_Comm_rank(comm, &rank);
@@ -105,7 +105,7 @@ extern "C"
             }
             MPI_Barrier(comm);
             try {
-                shmem = std::make_shared<geopm::SharedMemoryImp>(shmem_key.str(), sizeof(int));
+                shmem = geopm::SharedMemory::make_unique_owner(shmem_key.str(), sizeof(int));
             }
             catch (const geopm::Exception &ex) {
                 if (ex.err_value() != EEXIST) {
@@ -113,7 +113,7 @@ extern "C"
                 }
             }
             if (!shmem) {
-                shmem_user = std::make_shared<geopm::SharedMemoryUserImp>(shmem_key.str(), geopm::environment().timeout());
+                shmem_user = geopm::SharedMemory::make_unique_user(shmem_key.str(), geopm::environment().timeout());
             }
             else {
                 color = rank;

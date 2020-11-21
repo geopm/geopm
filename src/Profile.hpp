@@ -173,7 +173,7 @@ namespace geopm
     };
 
     class Comm;
-    class SharedMemoryUser;
+    class SharedMemory;
     class ControlMessage;
     class PlatformTopo;
     class ProfileTable;
@@ -296,7 +296,7 @@ namespace geopm
             double m_progress;
             /// @brief Attaches to the shared memory region for
             ///        control messages.
-            std::unique_ptr<SharedMemoryUser> m_ctl_shmem;
+            std::unique_ptr<SharedMemory> m_ctl_shmem;
             /// @brief Holds a pointer to the shared memory region
             ///        used to pass control messages to and from the geopm
             ///        runtime.
@@ -304,11 +304,11 @@ namespace geopm
             const PlatformTopo &m_topo;
             /// @brief Attaches to the shared memory region for
             ///        passing samples to the geopm runtime.
-            std::unique_ptr<SharedMemoryUser> m_table_shmem;
+            std::unique_ptr<SharedMemory> m_table_shmem;
             /// @brief Hash table for sample messages contained in
             ///        shared memory.
             std::unique_ptr<ProfileTable> m_table;
-            std::unique_ptr<SharedMemoryUser> m_tprof_shmem;
+            std::unique_ptr<SharedMemory> m_tprof_shmem;
             std::shared_ptr<ProfileThreadTable> m_tprof_table;
             std::unique_ptr<SampleScheduler> m_scheduler;
             /// @brief Holds a list of cpus that the rank process is

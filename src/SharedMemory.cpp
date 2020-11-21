@@ -42,6 +42,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 #include "geopm_time.h"
 #include "Exception.hpp"
@@ -81,33 +82,36 @@ namespace geopm
         }
     }
 
-    std::unique_ptr<SharedMemory> SharedMemory::make_unique(const std::string &shm_key, size_t size)
+    std::unique_ptr<SharedMemory> SharedMemory::make_unique_owner(const std::string &shm_key, size_t size)
     {
-        return geopm::make_unique<SharedMemoryImp>(shm_key, size);
+        std::unique_ptr<SharedMemoryImp> owner = geopm::make_unique<SharedMemoryImp>();
+        owner->create_memory_region(shm_key, size);
+        return std::unique_ptr<SharedMemory>(std::move(owner));
     }
 
-    std::shared_ptr<SharedMemory> SharedMemory::make_shared(const std::string &shm_key, size_t size)
+    std::unique_ptr<SharedMemory> SharedMemory::make_unique_user(const std::string &shm_key, unsigned int timeout)
     {
-        return std::make_shared<SharedMemoryImp>(shm_key, size);
+        std::unique_ptr<SharedMemoryImp> user = geopm::make_unique<SharedMemoryImp>();
+        user->attach_memory_region(shm_key, timeout);
+        return std::unique_ptr<SharedMemory>(std::move(user));
     }
 
-    std::unique_ptr<SharedMemoryUser> SharedMemoryUser::make_unique(const std::string &shm_key, unsigned int timeout)
+    SharedMemoryImp::SharedMemoryImp()
+        : m_size(0)
+        , m_ptr(NULL)
+        , m_is_linked(false)
     {
-        return geopm::make_unique<SharedMemoryUserImp>(shm_key, timeout);
+
     }
 
-    std::shared_ptr<SharedMemoryUser> SharedMemoryUser::make_shared(const std::string &shm_key, unsigned int timeout)
-    {
-        return std::make_shared<SharedMemoryUserImp>(shm_key, timeout);
-    }
-
-    SharedMemoryImp::SharedMemoryImp(const std::string &shm_key, size_t size)
-        : m_shm_key(shm_key)
-        , m_size(size + M_LOCK_SIZE)
+    void SharedMemoryImp::create_memory_region(const std::string &shm_key, size_t size)
     {
         if (!size) {
             throw Exception("SharedMemoryImp: Cannot create shared memory region of zero size", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
+        m_shm_key = shm_key;
+        m_size = size + M_LOCK_SIZE;
+
         mode_t old_mask = umask(0);
         int shm_id = shm_open(m_shm_key.c_str(), O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP| S_IWGRP | S_IROTH| S_IWOTH);
         if (shm_id < 0) {
@@ -139,6 +143,9 @@ namespace geopm
         umask(old_mask);
 
         setup_mutex((pthread_mutex_t*)m_ptr);
+
+        m_is_linked = true;
+        m_do_unlink_check = false;
     }
 
     SharedMemoryImp::~SharedMemoryImp()
@@ -154,7 +161,17 @@ namespace geopm
 
     void SharedMemoryImp::unlink(void)
     {
-        (void) shm_unlink(m_shm_key.c_str());
+        // ProfileSampler destructor calls unlink, so don't throw if constructed
+        // as owner
+        if (m_is_linked) {
+            int err = shm_unlink(m_shm_key.c_str());
+            if (err && m_do_unlink_check) {
+                std::ostringstream tmp_str;
+                tmp_str << "SharedMemoryImp::unlink() Call to shm_unlink(" << m_shm_key  << ") failed";
+                throw Exception(tmp_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            }
+            m_is_linked = false;
+        }
     }
 
     void *SharedMemoryImp::pointer(void) const
@@ -177,12 +194,11 @@ namespace geopm
         return geopm::make_unique<SharedMemoryScopedLock>((pthread_mutex_t*)m_ptr);
     }
 
-
-    SharedMemoryUserImp::SharedMemoryUserImp(const std::string &shm_key, unsigned int timeout)
-        : m_shm_key(shm_key)
-        , m_size(0)
-        , m_is_linked(false)
+    void SharedMemoryImp::attach_memory_region(const std::string &shm_key, unsigned int timeout)
     {
+        m_shm_key = shm_key;
+        m_is_linked = false;
+
         int shm_id = -1;
         struct stat stat_struct;
         int err = 0;
@@ -191,14 +207,14 @@ namespace geopm
             shm_id = shm_open(shm_key.c_str(), O_RDWR, 0);
             if (shm_id < 0) {
                 std::ostringstream ex_str;
-                ex_str << "SharedMemoryUserImp: Could not open shared memory with key \""  <<  shm_key << "\"";
+                ex_str << "SharedMemoryImp: Could not open shared memory with key \""  <<  shm_key << "\"";
                 throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             err = fstat(shm_id, &stat_struct);
             if (err) {
                 (void) close(shm_id);
                 std::ostringstream ex_str;
-                ex_str << "SharedMemoryUserImp: fstat() error on shared memory with key \"" << shm_key << "\"";
+                ex_str << "SharedMemoryImp: fstat() error on shared memory with key \"" << shm_key << "\"";
                 throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
             m_size = stat_struct.st_size;
@@ -206,7 +222,7 @@ namespace geopm
             m_ptr = mmap(NULL, m_size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
             if (m_ptr == MAP_FAILED) {
                 (void) close(shm_id);
-                throw Exception("SharedMemoryUserImp: Could not mmap shared memory region", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                throw Exception("SharedMemoryImp: Could not mmap shared memory region", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
         else {
@@ -217,7 +233,7 @@ namespace geopm
             }
             if (shm_id < 0) {
                 std::ostringstream ex_str;
-                ex_str << "SharedMemoryUserImp: Could not open shared memory with key \"" << shm_key << "\"";
+                ex_str << "SharedMemoryImp: Could not open shared memory with key \"" << shm_key << "\"";
                 throw Exception(ex_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
 
@@ -229,62 +245,21 @@ namespace geopm
             }
             if (!m_size) {
                 (void) close(shm_id);
-                throw Exception("SharedMemoryUserImp: Opened shared memory region, but it is zero length", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                throw Exception("SharedMemoryImp: Opened shared memory region, but it is zero length", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
 
             m_ptr = mmap(NULL, m_size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
             if (m_ptr == MAP_FAILED) {
                 (void) close(shm_id);
-                throw Exception("SharedMemoryUserImp: Could not mmap shared memory region", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+                throw Exception("SharedMemoryImp: Could not mmap shared memory region", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
             }
         }
 
         err = close(shm_id);
         if (err) {
-            throw Exception("SharedMemoryUserImp: Could not close shared memory file", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+            throw Exception("SharedMemoryImp: Could not close shared memory file", errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         m_is_linked = true;
-    }
-
-    SharedMemoryUserImp::~SharedMemoryUserImp()
-    {
-        if (munmap(m_ptr, m_size)) {
-#ifdef GEOPM_DEBUG
-            std::cerr << "Warning: <geopm> SharedMemoryUserImp: Could not unmap pointer" << std::endl;
-#endif
-        }
-    }
-
-    void *SharedMemoryUserImp::pointer(void) const
-    {
-        return (char*)m_ptr + M_LOCK_SIZE;
-    }
-
-    std::string SharedMemoryUserImp::key(void) const
-    {
-        return m_shm_key;
-    }
-
-    size_t SharedMemoryUserImp::size(void) const
-    {
-        return m_size - M_LOCK_SIZE;
-    }
-
-    void SharedMemoryUserImp::unlink(void)
-    {
-        if (m_is_linked) {
-            int err = shm_unlink(m_shm_key.c_str());
-            if (err) {
-                std::ostringstream tmp_str;
-                tmp_str << "SharedMemoryUserImp::unlink() Call to shm_unlink(" << m_shm_key  << ") failed";
-                throw Exception(tmp_str.str(), errno ? errno : GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-            }
-            m_is_linked = false;
-        }
-    }
-
-    std::unique_ptr<SharedMemoryScopedLock> SharedMemoryUserImp::get_scoped_lock(void)
-    {
-        return geopm::make_unique<SharedMemoryScopedLock>((pthread_mutex_t*)m_ptr);
+        m_do_unlink_check = true;
     }
 }

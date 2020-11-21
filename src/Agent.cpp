@@ -49,8 +49,6 @@
 #include "EnergyEfficientAgent.hpp"
 #include "FrequencyMapAgent.hpp"
 #include "Environment.hpp"
-#include "Endpoint.hpp"
-#include "SharedMemoryUser.hpp"
 #include "Helper.hpp"
 
 namespace geopm

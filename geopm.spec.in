@@ -235,7 +235,6 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 %{_includedir}/geopm/RegionAggregator.hpp
 %{_includedir}/geopm/SharedMemory.hpp
 %{_includedir}/geopm/SharedMemoryScopedLock.hpp
-%{_includedir}/geopm/SharedMemoryUser.hpp
 %{_includedir}/geopm/TimeIOGroup.hpp
 %{_includedir}/geopm/json11.hpp
 %{_includedir}/geopm_agent.h

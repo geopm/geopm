@@ -98,11 +98,11 @@ namespace geopm
     {
         if (m_policy_shmem == nullptr) {
             size_t shmem_size = sizeof(struct geopm_endpoint_policy_shmem_s);
-            m_policy_shmem = SharedMemory::make_unique(m_path + shm_policy_postfix(), shmem_size);
+            m_policy_shmem = SharedMemory::make_unique_owner(m_path + shm_policy_postfix(), shmem_size);
         }
         if (m_sample_shmem == nullptr) {
             size_t shmem_size = sizeof(struct geopm_endpoint_sample_shmem_s);
-            m_sample_shmem = SharedMemory::make_unique(m_path + shm_sample_postfix(), shmem_size);
+            m_sample_shmem = SharedMemory::make_unique_owner(m_path + shm_sample_postfix(), shmem_size);
         }
         auto lock_p = m_policy_shmem->get_scoped_lock();
         struct geopm_endpoint_policy_shmem_s *data_p = (struct geopm_endpoint_policy_shmem_s*)m_policy_shmem->pointer();

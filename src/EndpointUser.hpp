@@ -63,7 +63,7 @@ namespace geopm
                                                              const std::set<std::string> &hosts);
     };
 
-    class SharedMemoryUser;
+    class SharedMemory;
 
     class EndpointUserImp : public EndpointUser
     {
@@ -73,8 +73,8 @@ namespace geopm
             EndpointUserImp(const std::string &data_path,
                               const std::set<std::string> &hosts);
             EndpointUserImp(const std::string &data_path,
-                            std::unique_ptr<SharedMemoryUser> policy_shmem,
-                            std::unique_ptr<SharedMemoryUser> sample_shmem,
+                            std::unique_ptr<SharedMemory> policy_shmem,
+                            std::unique_ptr<SharedMemory> sample_shmem,
                             const std::string &agent_name,
                             int num_sample,
                             const std::string &profile_name,
@@ -85,8 +85,8 @@ namespace geopm
             void write_sample(const std::vector<double> &sample) override;
         private:
             std::string m_path;
-            std::unique_ptr<SharedMemoryUser> m_policy_shmem;
-            std::unique_ptr<SharedMemoryUser> m_sample_shmem;
+            std::unique_ptr<SharedMemory> m_policy_shmem;
+            std::unique_ptr<SharedMemory> m_sample_shmem;
             std::string m_hostlist_path;
             size_t m_num_sample;
     };

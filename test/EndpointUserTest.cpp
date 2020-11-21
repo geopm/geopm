@@ -39,12 +39,12 @@
 #include "geopm_endpoint.h"
 #include "EndpointUser.hpp"
 #include "EndpointImp.hpp"
-#include "SharedMemoryImp.hpp"
+#include "SharedMemory.hpp"
 #include "Helper.hpp"
-#include "MockSharedMemoryUser.hpp"
+#include "MockSharedMemory.hpp"
 
 using geopm::EndpointUserImp;
-using geopm::SharedMemoryImp;
+using geopm::SharedMemory;
 using geopm::geopm_endpoint_policy_shmem_s;
 using geopm::geopm_endpoint_sample_shmem_s;
 using testing::AtLeast;
@@ -56,8 +56,8 @@ class EndpointUserTest : public ::testing::Test
         void TearDown();
         const std::string m_shm_path = "/EndpointUserTest_data_" + std::to_string(geteuid());
         std::string m_hostlist_file = "EndpointUserTest_hosts";
-        std::unique_ptr<MockSharedMemoryUser> m_policy_shmem_user;
-        std::unique_ptr<MockSharedMemoryUser> m_sample_shmem_user;
+        std::unique_ptr<MockSharedMemory> m_policy_shmem_user;
+        std::unique_ptr<MockSharedMemory> m_sample_shmem_user;
 };
 
 class EndpointUserTestIntegration : public ::testing::Test
@@ -70,9 +70,9 @@ class EndpointUserTestIntegration : public ::testing::Test
 void EndpointUserTest::SetUp()
 {
     size_t policy_shmem_size = sizeof(struct geopm_endpoint_policy_shmem_s);
-    m_policy_shmem_user = geopm::make_unique<MockSharedMemoryUser>(policy_shmem_size);
+    m_policy_shmem_user = geopm::make_unique<MockSharedMemory>(policy_shmem_size);
     size_t sample_shmem_size = sizeof(struct geopm_endpoint_sample_shmem_s);
-    m_sample_shmem_user = geopm::make_unique<MockSharedMemoryUser>(sample_shmem_size);
+    m_sample_shmem_user = geopm::make_unique<MockSharedMemory>(sample_shmem_size);
 
     EXPECT_CALL(*m_policy_shmem_user, get_scoped_lock()).Times(AtLeast(0));
     EXPECT_CALL(*m_sample_shmem_user, get_scoped_lock()).Times(AtLeast(0));
@@ -177,9 +177,9 @@ TEST_F(EndpointUserTestIntegration, parse_shm)
     std::string full_path("/dev/shm" + m_shm_path);
 
     size_t shmem_size = sizeof(struct geopm_endpoint_policy_shmem_s);
-    SharedMemoryImp smp(m_shm_path + "-policy", shmem_size);
-    struct geopm_endpoint_policy_shmem_s *data = (struct geopm_endpoint_policy_shmem_s *) smp.pointer();
-    SharedMemoryImp sms(m_shm_path + "-sample", sizeof(struct geopm_endpoint_sample_shmem_s));
+    auto smp = SharedMemory::make_unique_owner(m_shm_path + "-policy", shmem_size);
+    struct geopm_endpoint_policy_shmem_s *data = (struct geopm_endpoint_policy_shmem_s *) smp->pointer();
+    auto sms = SharedMemory::make_unique_owner(m_shm_path + "-sample", sizeof(struct geopm_endpoint_sample_shmem_s));
 
     double tmp[] = { 1.1, 2.2, 3.3 };
     int num_policy = sizeof(tmp) / sizeof(tmp[0]);

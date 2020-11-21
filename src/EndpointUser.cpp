@@ -40,7 +40,7 @@
 #include "Helper.hpp"
 #include "Agent.hpp"
 #include "Environment.hpp"
-#include "SharedMemoryUser.hpp"
+#include "SharedMemory.hpp"
 
 #include "config.h"
 
@@ -62,8 +62,8 @@ namespace geopm
     }
 
     EndpointUserImp::EndpointUserImp(const std::string &data_path,
-                                     std::unique_ptr<SharedMemoryUser> policy_shmem,
-                                     std::unique_ptr<SharedMemoryUser> sample_shmem,
+                                     std::unique_ptr<SharedMemory> policy_shmem,
+                                     std::unique_ptr<SharedMemory> sample_shmem,
                                      const std::string &agent_name,
                                      int num_sample,
                                      const std::string &profile_name,
@@ -78,12 +78,12 @@ namespace geopm
         // profile, hostname list.  Once user attaches to sample
         // shmem, RM knows it has attached to both policy and sample.
         if (m_policy_shmem == nullptr) {
-            m_policy_shmem = SharedMemoryUser::make_unique(m_path + EndpointImp::shm_policy_postfix(),
-                                                           environment().timeout());
+            m_policy_shmem = SharedMemory::make_unique_user(m_path + EndpointImp::shm_policy_postfix(),
+                                                            environment().timeout());
         }
         if (m_sample_shmem == nullptr) {
-            m_sample_shmem = SharedMemoryUser::make_unique(m_path + EndpointImp::shm_sample_postfix(),
-                                                           environment().timeout());
+            m_sample_shmem = SharedMemory::make_unique_user(m_path + EndpointImp::shm_sample_postfix(),
+                                                            environment().timeout());
         }
         auto lock = m_sample_shmem->get_scoped_lock();
         auto data = (struct geopm_endpoint_sample_shmem_s *)m_sample_shmem->pointer();

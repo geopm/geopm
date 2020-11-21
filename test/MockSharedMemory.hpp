@@ -51,8 +51,9 @@ class MockSharedMemory : public geopm::SharedMemory
                 .WillRepeatedly(testing::Return(size));
             EXPECT_CALL(*this, pointer())
                 .WillRepeatedly(testing::Return(m_buffer.data()));
+            EXPECT_CALL(*this, unlink())
+                .WillRepeatedly(testing::Return());
         };
-
         virtual ~MockSharedMemory() = default;
 
         MOCK_CONST_METHOD0(pointer,
