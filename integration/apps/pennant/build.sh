@@ -49,4 +49,10 @@ setup_source_git ${DIRNAME}
 
 # Build application
 cd ${DIRNAME}
-make USEGEOPM=1
+make USEGEOPM=1 EPOCH_TO_OUTERLOOP=100
+mv build build_geopm_epoch100
+make clean
+make USEGEOPM=1 EPOCH_TO_OUTERLOOP=1
+mv build build_geopm_epoch1
+make clean
+make

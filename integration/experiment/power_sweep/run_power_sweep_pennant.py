@@ -49,7 +49,6 @@ if __name__ == '__main__':
     pennant.setup_run_args(parser)
     args, extra_args = parser.parse_known_args()
     mach = machine.init_output_dir(args.output_dir)
-    app_conf = pennant.PennantAppConf(mach, args.pennant_input,
-                                      args.pennant_cores_per_node)
+    app_conf = pennant.create_appconf(mach, args)
     power_sweep.launch(app_conf=app_conf, args=args,
                        experiment_cli_args=extra_args)

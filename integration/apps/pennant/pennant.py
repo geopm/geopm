@@ -40,10 +40,9 @@ from apps import apps
 
 
 def setup_run_args(parser):
-    """ Add common arguments for all run scripts:
-        --input
+    """ Add common arguments for all run scripts.
     """
-    parser.add_argument('--pennant-input', dest='pennant_input'
+    parser.add_argument('--pennant-input', dest='pennant_input',
                         action='store', type=str,
                         default="PENNANT/test/leblancx4/leblancx4.pnt",
                         help='Path to the input file (see .pnt files in test' +
@@ -56,15 +55,56 @@ def setup_run_args(parser):
                              'If not defined, highest even number of cores less than ' +
                              'the total number in the node will be reserved (leaving at ' +
                              'least one node for GEOPM).')
+    parser.add_argument('--pennant-cores-per-rank', dest='pennant_cores_per_rank',
+                        action='store', type=int, default=1,
+                        help='Number of physical cores to use per rank for OMP parallelism.' +
+                             'Default is 1.')
+    parser.add_argument('--epoch-to-outerloop', dest='epoch_to_outerloop',
+                        action='store', type=int,
+                        help='Chooses an appropriate pennant build with a specific GEOPM ' +
+                             'epoch marker per outer loop count. If not specified, built-in '
+                             'value for the problem size will be used.')
 
+def create_appconf(mach, args):
+    ''' Create a PennantAppConfig object from an ArgParse and experiment.machine object.
+    '''
+    return PennantAppConf(mach, args.pennant_input, args.pennant_cores_per_node,
+                          args.pennant_cores_per_rank, args.epoch_to_outerloop)
 
 class PennantAppConf(apps.AppConf):
     @staticmethod
     def name():
         return 'pennant'
 
-    def __init__(self, mach, problem_file="PENNANT/test/leblancx4/leblancx4.pnt", cores_per_node=None):
+    def __init__(self, mach, problem_file, cores_per_node, cores_per_rank, epoch_to_outerloop):
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # Based on the problem size we choose a different build of pennant.
+        # The difference between these builds is how GEOPM epochs are marked:
+        #    epoch100: One epoch every 100 outer loops iterations.
+        #    epoch1: One epoch every 100 outer loops iterations.
+        #    default: No epoch markup.
+        # There is a known issue that epochs occuring too often causes GEOPM to hang due to
+        # epoch handling overwhelming GEOPM control loop. Larger problem sizes are expected to
+        # handle less outer loops per epoch since outer loop time seems to go up with
+        # problem size.
+        exec_dir = {
+            'PENNANT/test/leblancx4/leblancx4.pnt': 'PENNANT/build_geopm_epoch100/pennant',
+            'PENNANT/test/leblancx4/leblancx16.pnt': 'PENNANT/build_geopm_epoch1/pennant',
+            'default': 'PENNANT/build/pennant'
+        }
+        if epoch_to_outerloop is None:
+            if problem_file in exec_dir:
+                self._exec_path = os.path.join(benchmark_dir, exec_dir[problem_file])
+            else:
+                self._exec_path = os.path.join(benchmark_dir, exec_dir['default'])
+        else:
+            matching_path = [f for f in exec_dir.values() if f.find('epoch{}/'.format(epoch_to_outerloop))]
+            if len(matching_path) == 1:
+                self._exec_path = os.path.join(benchmark_dir, matching_path)
+            else:
+                raise RuntimeError('Epoch to outer loop count does not match any of the pennant builds: {}'.format(epoch_to_outerloop))
+
         self._exec_path = os.path.join(benchmark_dir, 'PENNANT/build/pennant')
         if os.path.isfile(problem_file):
             self._exec_args = problem_file
@@ -79,14 +119,21 @@ class PennantAppConf(apps.AppConf):
             reserved_cores = (reserved_cores // 2) * 2
             self._cores_per_node = reserved_cores
         else:
+            if cores_per_node > mach.num_core():
+                raise RuntimeError('Number of requested cores is more than the number ' +
+                                   'of available cores: {}'.format(cores_per_node))
             self._cores_per_node = cores_per_node
+        if self._cores_per_node % cores_per_rank != 0:
+            raise RuntimeError('Number of requested cores is not divisible by OMP threads '
+                'per rank: {} % {}'.format(self._cores_per_node, cores_per_rank))
+        self._cores_per_rank = cores_per_rank
 
 
     def get_rank_per_node(self):
         return self._cores_per_node // self.get_cpu_per_rank()
 
     def get_cpu_per_rank(self):
-        return 1
+        return self._cores_per_rank
 
     def get_custom_geopm_args(self):
         return ['--geopm-hyperthreads-disable', '--geopm-ompt-disable']

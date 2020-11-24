@@ -1,4 +1,4 @@
-From 5eaba38677522f077091b549334efc0b0d614eb5 Mon Sep 17 00:00:00 2001
+From 8918aa87cbb70ba7bffffea3d334210912159ddd Mon Sep 17 00:00:00 2001
 From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Wed, 4 Nov 2020 06:55:51 -0800
 Subject: [PATCH 2/2] Added geopm epoch markup.
@@ -41,7 +41,7 @@ Signed-off-by: Fuat Keceli <fuat.keceli@intel.com>
  2 files changed, 18 insertions(+)
 
 diff --git a/Makefile b/Makefile
-index e05e812..4f4dbdb 100644
+index e05e812..a0611ef 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -36,6 +36,12 @@ CXXFLAGS_OPENMP := -qopenmp
@@ -51,14 +51,14 @@ index e05e812..4f4dbdb 100644
 +# link against geopm
 +ifdef USEGEOPM
 +	LDFLAGS += $(GEOPM_LDFLAGS) $(GEOPM_LDLIBS)
-+	CXXFLAGS += $(GEOPM_CFLAGS) -DUSEGEOPM
++	CXXFLAGS += $(GEOPM_CFLAGS) -DUSEGEOPM -DEPOCH_TO_OUTERLOOP=$(EPOCH_TO_OUTERLOOP)
 +endif
 +
  # add mpi to compile (comment out for serial build)
  # the following assumes the existence of an mpi compiler
  # wrapper called mpicxx
 diff --git a/src/Driver.cc b/src/Driver.cc
-index 2b919df..dca6d4c 100644
+index 2b919df..c75da82 100644
 --- a/src/Driver.cc
 +++ b/src/Driver.cc
 @@ -28,6 +28,10 @@
@@ -79,7 +79,7 @@ index 2b919df..dca6d4c 100644
 +#ifdef USEGEOPM
 +        // Picking up an epoch every cycle end up in too many epochs
 +        // per second and increases the GEOPM control loop significantly.
-+        if (cycle % 100 == 0) {
++        if (cycle % EPOCH_TO_OUTERLOOP == 0) {
 +            geopm_prof_epoch();
 +        }
 +#endif
