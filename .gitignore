@@ -65,6 +65,7 @@
 /integration/apps/nasft/nasft/nas_ft
 /integration/apps/nasft/nasft/*.o
 /integration/apps/pennant/PENNANT/
+/integration/apps/pennant/pennant_1_0_1.tgz
 /integration/test/*.config
 /integration/test/geopm_test_integration
 /integration/test/geopm_test_integration.pyc
