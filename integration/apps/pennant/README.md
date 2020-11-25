@@ -22,8 +22,8 @@ the OS and GEOPM.
 Based on the problem size we choose a different build of pennant.
 The difference between these builds is how GEOPM epochs are marked:
 
-    epoch100: One epoch every 100 outer loops iterations.
-    epoch1: One epoch every 100 outer loops iterations.
+    epoch100: One epoch every 100 outer loop iterations.
+    epoch1: One epoch every outer loop iteration.
     default: No epoch markup.
 
 There is a known issue that epochs occuring too often causes GEOPM to hang due to
