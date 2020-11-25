@@ -57,7 +57,10 @@ namespace geopm
         , m_is_setup(false)
         , m_epoch_count(0)
     {
-
+        if (shmem->size() < buffer_size()) {
+            throw Exception("ApplicationRecordLog: Shared memory provided in constructor is too small",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
     }
 
     void ApplicationRecordLogImp::set_process(int process)
@@ -86,18 +89,15 @@ namespace geopm
         check_reset(layout);
         /// @todo: Optimize with piecewise_construct
         auto emplace_pair = m_hash_region_enter_map.emplace(
-                                std::make_pair(hash,
-                                               m_region_enter_s {
-                                                   layout.num_record,
-                                                   -1,
-                                                   time}));
+            std::piecewise_construct,
+            std::forward_as_tuple(hash),
+            std::forward_as_tuple());
         bool is_new  = emplace_pair.second;
-        emplace_pair.first->second.enter_time = time;
-        // Note: region_idx == layout.num_region if the region has not
-        // been entered yet.  If region was entered previously
-        // region_idx will be the location in the table data is stored
-        // for that region.
+        m_region_enter_s &region_enter = emplace_pair.first->second;
+        region_enter.enter_time = time;
         if (is_new) {
+            region_enter.record_idx = layout.num_record;
+            region_enter.region_idx = -1; // Not a short region yet
             record_s enter_record = {
                .time = geopm_time_diff(&m_time_zero, &time),
                .process = m_process,

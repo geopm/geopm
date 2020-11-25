@@ -50,7 +50,6 @@ class ApplicationRecordLogTest : public ::testing::Test
 {
     protected:
         void SetUp();
-        void will_lock(void);
         std::shared_ptr<MockSharedMemory> m_mock_shared_memory;
         std::unique_ptr<ApplicationRecordLog> m_record_log;
 
@@ -65,10 +64,13 @@ void ApplicationRecordLogTest::SetUp()
     EXPECT_CALL(*m_mock_shared_memory, get_scoped_lock()).Times(AtLeast(0));
 }
 
-void ApplicationRecordLogTest::will_lock()
+TEST_F(ApplicationRecordLogTest, bad_shmem)
 {
-    EXPECT_CALL(*m_mock_shared_memory, get_scoped_lock())
-        .Times(1);
+    size_t buffer_size = ApplicationRecordLog::buffer_size();
+    std::shared_ptr<MockSharedMemory> shmem = std::make_shared<MockSharedMemory>(buffer_size - 1);
+    GEOPM_EXPECT_THROW_MESSAGE(ApplicationRecordLog::make_unique(shmem),
+                               GEOPM_ERROR_INVALID,
+                               "Shared memory provided in constructor is too small");
 }
 
 TEST_F(ApplicationRecordLogTest, empty_dump)
