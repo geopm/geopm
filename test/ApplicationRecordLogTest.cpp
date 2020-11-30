@@ -73,6 +73,18 @@ TEST_F(ApplicationRecordLogTest, bad_shmem)
                                "Shared memory provided in constructor is too small");
 }
 
+TEST_F(ApplicationRecordLogTest, get_sizes)
+{
+    size_t buffer = ApplicationRecordLog::buffer_size();
+    size_t record = ApplicationRecordLog::max_record();
+    size_t region = ApplicationRecordLog::max_region();
+    EXPECT_LT(0ULL, buffer);
+    EXPECT_LT(0ULL, record);
+    EXPECT_LT(0ULL, region);
+    EXPECT_LT(record, region);
+    EXPECT_GT(buffer, region * sizeof(geopm::short_region_s) + record * sizeof(geopm::record_s));
+}
+
 TEST_F(ApplicationRecordLogTest, empty_dump)
 {
     std::vector<record_s> records;
