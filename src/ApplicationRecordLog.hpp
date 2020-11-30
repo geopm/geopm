@@ -77,26 +77,131 @@ namespace geopm
             static std::unique_ptr<ApplicationRecordLog> make_unique(std::shared_ptr<SharedMemory> shmem);
             /// @brief Destructor for pure virtual base class.
             virtual ~ApplicationRecordLog() = default;
-            /// @brief Called by the Profile to set the process
-            ///        identifier that will be used to tag all control
-            ///        messages.
-            /// @param process [in] The process identifier, e.g. the
-            ///                MPI rank, the linux process ID for the
-            ///                parent thread or any other integer
-            ///                unique across the compute node to
-            ///                identify the process calling into the
-            ///                Profile object.
+            /// @brief Set the process identifier.
+            ///
+            /// Called by the Profile to set the process identifier
+            /// that will be used to tag all control messages.  This
+            /// method must be called prior to the enter(), exit() or
+            /// epoch() methods.  The value provided is any integer
+            /// unique to the compute node that identifies the caller
+            /// of the profile interface.  Commonly this is the MPI
+            /// rank, but could also be the linux process ID for a
+            /// parent thread.
+            ///
+            /// @param process [in] The process identifier.
             virtual void set_process(int process) = 0;
+            /// @brief Set the reference time.
+            ///
+            /// Called by the Profile to set the reference time that
+            /// is used to construct the time element of a record_s.
+            /// This method must be called prior to the enter(),
+            /// exit() or epoch() methods.
+            ///
+            /// @param time [in] The timestamp when the profiled
+            ///             process began.
             virtual void set_time_zero(const geopm_time_s &time) = 0;
+            /// @brief Create a message in the log defining a region
+            ///        entry.
+            ///
+            /// Called by the Profile object when a region is entered.
+            /// This creates a record_s in the log inticating entry if
+            /// the region is entered for the first time since the
+            /// last dump() call, or it sets the start time for a
+            /// short region if the region was entered and exited
+            /// since the last call to dump().
+            ///
+            /// @param hash [in] The region hash that is entered.
+            ///
+            /// @param time [in] The timestamp when the entry event
+            ///             occurred.
             virtual void enter(uint64_t hash, const geopm_time_s &time) = 0;
+            /// @brief Create a message in the log defining a region
+            ///        exit.
+            ///
+            /// Called by the Profile object when a region is exited.
+            /// This creates a record_s in the log indicating exit if
+            /// the matching entry for the region was called prior to
+            /// the last dump() call.  If the region was entered since
+            /// the last call to dump(), the first entry event will be
+            /// converted into a short region event.  The call to
+            /// exit() for short regions has the effect of updating
+            /// the short region event time and count values.
+            ///
+            /// @param hash [in] The reigon hash that was exited.
+            ///
+            /// @param time [in] The timestamp when the exit event
+            ///             occured.
             virtual void exit(uint64_t hash, const geopm_time_s &time) = 0;
+            /// @brief Create a message in the log defining an epoch
+            ///        event.
+            ///
+            /// Called by the Profile object when an epoch event
+            /// occurs.  This creates a record_s in the log indicating
+            /// that an epoch event occured.
+            ///
+            /// @param time [in] The timestamp when the epoch event
+            ///             occured.
             virtual void epoch(const geopm_time_s &time) = 0;
+            /// @brief Get all events that have occured since the last
+            ///        call to dump().
+            ///
+            /// Called by the ApplicationSampler to gather all records
+            /// that have been created by the Profile object since the
+            /// last time the method was called.  The call effectively
+            /// removes all of the records and short region data from
+            /// the table.
+            ///
+            /// For optimal performance the user should reserve space
+            /// in the output vectors using the max_record() and
+            /// max_region() static methods:
+            ///
+            ///     records.reserve(ApplicationRecordLog::max_record());
+            ///     short_regions.reserve(ApplicationRecordLog::max_region());
+            ///
+            /// Note that the "signal" in any sort region events in
+            /// the records output vector is the index into the
+            /// short_regions output vector, and the length of the
+            /// short_regions vector will be equal to the number of
+            /// events with type "EVENT_SHORT_REGION" in the records
+            /// output vector.
+            ///
+            /// @param records [out] Vector of records written since
+            ///                last dump().
+            ///
+            /// @param short_regions [out] Vector of short region data
+            ///                      about any short regions events in
+            ///                      the records output vector.
             virtual void dump(std::vector<record_s> &records,
                               std::vector<short_region_s> &short_regions) = 0;
+            /// @brief Gets the shared memory size requirement.
+            ///
+            /// This method returns the value to use when sizing the
+            /// SharedMemory object used to construct the
+            /// ApplicationRecordLog.
+            ///
+            /// @return Size requirement for SharedMemory object.
             static size_t buffer_size(void);
+            /// @brief Gets the maximum number of records.
+            ///
+            /// This method returns the value to use when reserving
+            /// elements in the records vector passed to dump().
+            ///
+            /// @return The maximum length of the records vector after
+            ///         a call to dump().
+            static size_t max_record(void);
+            /// @brief Gets the maximum number of short region events.
+            ///
+            /// This method returns the value to use when reserving
+            /// elements in the short_regions vector passed to dump().
+            ///
+            /// @return The maximum length of the short_regions vector
+            ///         after a call to dump().
+            static size_t max_region(void);
         protected:
             ApplicationRecordLog() = default;
             static constexpr size_t M_LAYOUT_SIZE = 49192;
+            static constexpr int M_MAX_RECORD = 1024;
+            static constexpr int M_MAX_REGION = M_MAX_RECORD + 1;
     };
     class ApplicationRecordLogImp : public ApplicationRecordLog
     {
@@ -111,8 +216,6 @@ namespace geopm
             void dump(std::vector<record_s> &records,
                       std::vector<short_region_s> &short_regions) override;
         private:
-            static constexpr int M_MAX_RECORD = 1024;
-            static constexpr int M_MAX_REGION = M_MAX_RECORD + 1;
             struct m_layout_s {
                 int num_record;
                 record_s record_table[M_MAX_RECORD];

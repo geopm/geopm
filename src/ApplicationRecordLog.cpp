@@ -50,6 +50,16 @@ namespace geopm
         return M_LAYOUT_SIZE;
     }
 
+    size_t ApplicationRecordLog::max_record(void)
+    {
+        return M_MAX_RECORD;
+    }
+
+    size_t ApplicationRecordLog::max_region(void)
+    {
+        return M_MAX_REGION;
+    }
+
     ApplicationRecordLogImp::ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem)
         : m_process(-1)
         , m_shmem(shmem)
