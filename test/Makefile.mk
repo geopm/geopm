@@ -609,6 +609,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/MockApplicationRecordLog.hpp \
                           test/MockApplicationSampler.cpp \
                           test/MockApplicationSampler.hpp \
+                          test/MockApplicationStatus.hpp \
                           test/MockComm.hpp \
                           test/MockControl.hpp \
                           test/MockControlMessage.hpp \

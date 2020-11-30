@@ -30,29 +30,36 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKAPPLICATIONRECORDLOG_HPP_INCLUDE
-#define MOCKAPPLICATIONRECORDLOG_HPP_INCLUDE
+#ifndef MOCKAPPLICATIONSTATUS_HPP_INCLUDE
+#define MOCKAPPLICATIONSTATUS_HPP_INCLUDE
 
 #include "gmock/gmock.h"
 
-#include "ApplicationRecordLog.hpp"
+#include "ApplicationStatus.hpp"
 
-class MockApplicationRecordLog : public geopm::ApplicationRecordLog
+class MockApplicationStatus : public geopm::ApplicationStatus
 {
     public:
-        MOCK_METHOD1(set_process,
-                     void(int process));
-        MOCK_METHOD1(set_time_zero,
-                     void(const geopm_time_s &time));
-        MOCK_METHOD2(enter,
-                     void(uint64_t hash, const geopm_time_s &time));
-        MOCK_METHOD2(exit,
-                     void(uint64_t hash, const geopm_time_s &time));
-        MOCK_METHOD1(epoch,
-                     void(const geopm_time_s &time));
-        MOCK_METHOD2(dump,
-                     void(std::vector<geopm::record_s> &records,
-                          std::vector<geopm::short_region_s> &short_regions));
+        MOCK_METHOD2(set_hint,
+                     void(int cpu_idx, uint64_t hints));
+        MOCK_CONST_METHOD1(get_hint,
+                           uint64_t(int cpu_idx));
+        MOCK_METHOD2(set_hash,
+                     void(int cpu_idx, uint64_t hash));
+        MOCK_CONST_METHOD1(get_hash,
+                           uint64_t(int cpu_idx));
+        MOCK_METHOD2(set_total_work_units,
+                     void(int cpu_idx, int work_units));
+        MOCK_METHOD1(increment_work_unit,
+                     void(int cpu_idx));
+        MOCK_CONST_METHOD1(get_progress_cpu,
+                           double(int cpu_idx));
+        MOCK_METHOD2(set_process,
+                     void(const std::set<int> &cpu_idx, int process));
+        MOCK_CONST_METHOD1(get_process,
+                           int(int cpu_idx));
+        MOCK_METHOD0(update_cache,
+                     void(void));
 };
 
 #endif
