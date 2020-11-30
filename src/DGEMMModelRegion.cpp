@@ -39,6 +39,7 @@
 #include "geopm.h"
 #include "Exception.hpp"
 #include "Profile.hpp"
+#include "Helper.hpp"
 
 #ifdef GEOPM_ENABLE_MKL
 #include <mkl.h>
@@ -76,7 +77,7 @@ namespace geopm
         , m_matrix_b(NULL)
         , m_matrix_c(NULL)
         , m_matrix_size(0)
-        , m_pad_size(64)
+        , m_pad_size(geopm::hardware_destructive_interference_size)
     {
         m_name = "dgemm";
         m_do_imbalance = do_imbalance;
