@@ -222,7 +222,8 @@ namespace geopm
                 int num_region;
                 short_region_s region_table[M_MAX_REGION];
             };
-            static_assert(sizeof(m_layout_s) == M_LAYOUT_SIZE);
+            static_assert(sizeof(m_layout_s) == M_LAYOUT_SIZE,
+                          "Defined layout size does not match the actual layout size");
 
             struct m_region_enter_s {
                 int record_idx;
