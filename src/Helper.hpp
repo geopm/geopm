@@ -134,6 +134,11 @@ namespace geopm
     ///        byte-wise copied into the memory of signal.
     /// @return A well formatted string representation of the signal.
     std::string string_format_raw64(double signal);
+
+    /// @brief Cache line size used to properly align structs to avoid
+    ///        false sharing between threads.
+    /// @todo  Replace with C++17 standard library equivalent.
+    static constexpr int hardware_destructive_interference_size = 64;
 }
 
 #endif
