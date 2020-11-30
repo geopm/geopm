@@ -47,7 +47,7 @@ namespace geopm
 
     size_t ApplicationRecordLog::buffer_size(void)
     {
-        return sizeof(m_layout_s);
+        return M_LAYOUT_SIZE;
     }
 
     ApplicationRecordLogImp::ApplicationRecordLogImp(std::shared_ptr<SharedMemory> shmem)

@@ -45,15 +45,47 @@
 namespace geopm
 {
     class SharedMemory;
-    class SharedMemoryUser;
     class SharedMemoryScopedLock;
 
+    /// @brief Provides an abstraction for a shared memory buffer that
+    ///        can be used to pass entry, exit, epoch and short region
+    ///        events from Profile to ApplicationSampler.
+    ///
+    /// This class provides a compression of short running regions to
+    /// avoid overwhelming the controller with too many records.
+    ///
+    /// If the Profile calls entry() and then exit() for the same
+    /// region hash within a control interval (between two calls to
+    /// dump()) the entry event is converted into a short region
+    /// event.  All future pairs of entry() and exit() using this hash
+    /// but prior to the next dump() call will be aggregated into this
+    /// short region event.
+    ///
+    /// If a region hash was observed as a short region during a
+    /// control interval (it was both entered and exited), but the
+    /// dump() call occurs prior to an exit() call that would close
+    /// the region, the subsequent exit() call to this region will be
+    /// classified as a short region event and the intervening
+    /// interval of time will be recorded in this event created by the
+    /// exit() call.
     class ApplicationRecordLog
     {
         public:
+            /// @brief Factory constructor
+            /// @param shmem [in] Shared memory object of at least the
+            ///              size returned by buffer_size().
             static std::unique_ptr<ApplicationRecordLog> make_unique(std::shared_ptr<SharedMemory> shmem);
-            static std::unique_ptr<ApplicationRecordLog> make_unique(std::shared_ptr<SharedMemoryUser> shmem);
+            /// @brief Destructor for pure virtual base class.
             virtual ~ApplicationRecordLog() = default;
+            /// @brief Called by the Profile to set the process
+            ///        identifier that will be used to tag all control
+            ///        messages.
+            /// @param process [in] The process identifier, e.g. the
+            ///                MPI rank, the linux process ID for the
+            ///                parent thread or any other integer
+            ///                unique across the compute node to
+            ///                identify the process calling into the
+            ///                Profile object.
             virtual void set_process(int process) = 0;
             virtual void set_time_zero(const geopm_time_s &time) = 0;
             virtual void enter(uint64_t hash, const geopm_time_s &time) = 0;
@@ -64,16 +96,8 @@ namespace geopm
             static size_t buffer_size(void);
         protected:
             ApplicationRecordLog() = default;
-            static constexpr int M_MAX_RECORD = 1024;
-            static constexpr int M_MAX_REGION = M_MAX_RECORD + 1;
-            struct m_layout_s {
-                int num_record;
-                record_s record_table[M_MAX_RECORD];
-                int num_region;
-                short_region_s region_table[M_MAX_REGION];
-            };
+            static constexpr size_t M_LAYOUT_SIZE = 49192;
     };
-
     class ApplicationRecordLogImp : public ApplicationRecordLog
     {
         public:
@@ -87,6 +111,16 @@ namespace geopm
             void dump(std::vector<record_s> &records,
                       std::vector<short_region_s> &short_regions) override;
         private:
+            static constexpr int M_MAX_RECORD = 1024;
+            static constexpr int M_MAX_REGION = M_MAX_RECORD + 1;
+            struct m_layout_s {
+                int num_record;
+                record_s record_table[M_MAX_RECORD];
+                int num_region;
+                short_region_s region_table[M_MAX_REGION];
+            };
+            static_assert(sizeof(m_layout_s) == M_LAYOUT_SIZE);
+
             struct m_region_enter_s {
                 int record_idx;
                 int region_idx;
