@@ -46,52 +46,74 @@ namespace geopm
     class SharedMemory;
     class PlatformTopo;
 
+    /// @brief Object that encapsulates application process
+    ///        information such as the process ID, region hash, or
+    ///        region hint.  There will be one ApplicationStatus for
+    ///        the node (board domain) on each side of the shared
+    ///        memory.
     class ApplicationStatus
     {
-            /// TODO: check for num CPU
-            // TODO: const for getters
-            /// TODO: make sure everything stored in memory is 32 bits
         public:
             virtual ~ApplicationStatus() = default;
 
-            virtual void set_hint(int cpu_idx, uint64_t hints) = 0;  // may need to shift to get 32bit int
-            virtual uint64_t get_hint(int cpu_idx) = 0;
-            virtual std::vector<uint64_t> get_hint(void) = 0;
-
+            /// @brief Set the current hint bits for a CPU.
+            virtual void set_hint(int cpu_idx, uint64_t hints) = 0;
+            /// @brief Get the current hint bits for a CPU.
+            virtual uint64_t get_hint(int cpu_idx) const = 0;
+            /// @brief Get the current hint bits for every CPU.
+            virtual std::vector<uint64_t> get_hint(void) const = 0;
+            /// @brief Set the hash of the region currently running on
+            ///        a CPU.
             virtual void set_hash(int cpu_idx, uint64_t hash) = 0;
-            virtual uint64_t get_hash(int cpu_idx) = 0;
-            virtual std::vector<uint64_t> get_hash(void) = 0;
+            /// @brief Get the hash of the region currently running on
+            ///        a CPU.
+            virtual uint64_t get_hash(int cpu_idx) const = 0;
+            /// @brief Set the hashes of the regions currently running
+            ///        on each CPU.
+            virtual std::vector<uint64_t> get_hash(void) const = 0;
 
-            virtual void set_total_work_units(int cpu_idx, int work_units) = 0;  // each cpu gets a fraction of what was passed to tprof_init()
-            virtual void increment_work_unit(int cpu_idx) = 0;  // complete a work unit for this cpu
-            virtual double get_work_progress(int cpu_idx) = 0;
-            virtual std::vector<double> get_work_progress(void) = 0;
-            // unique id of a process with its own memory being managed by
-            // the geopm controller
-            // this may be:
-            // - COMM_WORLD MPI rank
-            // - local MPI rank
-            // - Linux parent process id for whole app
-            // unique id for things being coordinated within a job
-            // there will be one-to-one mapping of Profile object (AppRecordLog etc) per process
-            // this is not *necessarily* a linux process id, but it could be
-            // it just has to be self consistent and unique within a job
-            // more notes:
-            // there is one AppRecordLog per process on each side of the shmem
-            // there is one ApplicationStatus per node (board) on each side of the shmem
-            virtual void set_process(std::set<int> cpu_idx, int process) = 0;
-            virtual int get_process(int cpu_idx) = 0;
-            virtual std::vector<int> get_process(void) = 0;
-
-            // ID of a thread within a process
-            // - Linux child process id
-            // this should be something that linux understands0
-            //void set_thread_id(int cpu_idx, int thread_id);
-            //int get_thread_id(int cpu_idx);
-            //std::vector<int> get_thread_id(void);
-
+            /// @brief Reset the total work units for a single CPU to
+            ///        be completed as part of a parallel region.
+            ///        Calling this method also resets the work
+            ///        completed for the CPU.
+            virtual void set_total_work_units(int cpu_idx, int work_units) = 0;
+            /// @brief Mark a unit of work completed for this CPU.
+            virtual void increment_work_unit(int cpu_idx) = 0;
+            /// @brief Get the current progress for this CPU.
+            ///        Progress is the fraction of the total work
+            ///        units that have been completed.
+            virtual double get_work_progress(int cpu_idx) const = 0;
+            /// @brief Get the current progress of every CPU.
+            ///        Progress is the fraction of the total work
+            ///        units that have been completed.
+            virtual std::vector<double> get_work_progress(void) const = 0;
+            /// @brief Assign a set of CPUs to a unique ID for a
+            ///        process being coordinated within a job by the
+            ///        GEOPM controller.  This may be: a COMM_WORLD or
+            ///        node-local MPI rank; a Linux parent process ID
+            ///        for an application; or some other concept of a
+            ///        process with its own memory.  This ID should be
+            ///        self-consistent and unique within a job.  There
+            ///        will be one Profile object per process on the
+            ///        application side, and one ApplicationRecordLog
+            ///        per process on each side of the shared memory.
+            virtual void set_process(const std::set<int> &cpu_idx, int process) = 0;
+            /// @brief Get the process ID for the process the CPU is
+            ///        currently assigned to.
+            virtual int get_process(int cpu_idx) const = 0;
+            /// @brief Get the process IDs for every CPU.
+            virtual std::vector<int> get_process(void) const = 0;
+            /// @brief Create an ApplicationStatus object using the
+            ///        given SharedMemory.  The caller is responsible
+            ///        for calling `buffer_size()` when creating the
+            ///        shared memory, or attaching to an existing
+            ///        shared memory region before passing the object
+            ///        to this method.
             static std::unique_ptr<ApplicationStatus> make_unique(const PlatformTopo& topo,
                                                                   std::shared_ptr<SharedMemory> shmem);
+            /// @brief Return the required size of the shared memory
+            ///        region used by the ApplicationStatus for the
+            ///        given number of CPUs.
             static size_t buffer_size(int num_cpu);
 
         protected:
@@ -105,18 +127,18 @@ namespace geopm
                                  std::shared_ptr<SharedMemory> shmem);
             virtual ~ApplicationStatusImp() = default;
             void set_hint(int cpu_idx, uint64_t hints) override;
-            uint64_t get_hint(int cpu_idx) override;
-            std::vector<uint64_t> get_hint(void) override;
+            uint64_t get_hint(int cpu_idx) const override;
+            std::vector<uint64_t> get_hint(void) const override;
             void set_hash(int cpu_idx, uint64_t hash) override;
-            uint64_t get_hash(int cpu_idx) override;
-            std::vector<uint64_t> get_hash(void) override;
+            uint64_t get_hash(int cpu_idx) const override;
+            std::vector<uint64_t> get_hash(void) const override;
             void set_total_work_units(int cpu_idx, int work_units) override;
             void increment_work_unit(int cpu_idx) override;
-            double get_work_progress(int cpu_idx) override;
-            std::vector<double> get_work_progress(void) override;
-            void set_process(std::set<int> cpu_idx, int process) override;
-            int get_process(int cpu_idx) override;
-            std::vector<int> get_process(void) override;
+            double get_work_progress(int cpu_idx) const override;
+            std::vector<double> get_work_progress(void) const override;
+            void set_process(const std::set<int> &cpu_idx, int process) override;
+            int get_process(int cpu_idx) const override;
+            std::vector<int> get_process(void) const override;
         private:
             // These fields must all be 32-bit int
             struct m_app_status_s
@@ -136,9 +158,6 @@ namespace geopm
             const PlatformTopo &m_topo;
             int m_num_cpu;
             std::shared_ptr<SharedMemory> m_shmem;
-            // TODO: this is an array; better way to handle?
-            // TODO: want all hints, etc. next to each other since
-            // we will frequently use the vector return
             m_app_status_s *m_buffer;
     };
 }

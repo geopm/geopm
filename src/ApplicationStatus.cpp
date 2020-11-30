@@ -70,7 +70,8 @@ namespace geopm
             throw Exception("ApplicationStatus: shared memory incorrectly sized",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        // Note: no lock
+        // Note: no lock; all members of the struct are 32-bits and will be
+        // accessed atomically by hardware.
         m_buffer = (m_app_status_s *)m_shmem->pointer();
 
         // initialize shmem if all zero is not appropriate
@@ -95,7 +96,7 @@ namespace geopm
         m_buffer[cpu_idx].hints = (uint32_t)(hints >> 32);
     }
 
-    uint64_t ApplicationStatusImp::get_hint(int cpu_idx)
+    uint64_t ApplicationStatusImp::get_hint(int cpu_idx) const
     {
         if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
             throw Exception("ApplicationStatusImp::get_hint(): invalid CPU index: " + std::to_string(cpu_idx),
@@ -105,7 +106,7 @@ namespace geopm
         return (uint64_t)m_buffer[cpu_idx].hints << 32;
     }
 
-    std::vector<uint64_t> ApplicationStatusImp::get_hint(void)
+    std::vector<uint64_t> ApplicationStatusImp::get_hint(void) const
     {
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
         std::vector<uint64_t> result(m_num_cpu);
@@ -129,7 +130,7 @@ namespace geopm
         m_buffer[cpu_idx].hash = (uint32_t)hash;
     }
 
-    uint64_t ApplicationStatusImp::get_hash(int cpu_idx)
+    uint64_t ApplicationStatusImp::get_hash(int cpu_idx) const
     {
         if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
             throw Exception("ApplicationStatusImp::get_hash(): invalid CPU index: " + std::to_string(cpu_idx),
@@ -139,11 +140,10 @@ namespace geopm
         return m_buffer[cpu_idx].hash;
     }
 
-    std::vector<uint64_t> ApplicationStatusImp::get_hash(void)
+    std::vector<uint64_t> ApplicationStatusImp::get_hash(void) const
     {
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
         std::vector<uint64_t> result(m_num_cpu);
-        // TODO: optimize by storing all hashes adjacent
         for (int ii = 0; ii < m_num_cpu; ++ii) {
             result[ii] = get_hash(ii);
         }
@@ -185,7 +185,7 @@ namespace geopm
         m_buffer[cpu_idx].completed_work += 1;
     }
 
-    double ApplicationStatusImp::get_work_progress(int cpu_idx)
+    double ApplicationStatusImp::get_work_progress(int cpu_idx) const
     {
         if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
             throw Exception("ApplicationStatusImp::get_work_progress(): invalid CPU index: " + std::to_string(cpu_idx),
@@ -200,7 +200,7 @@ namespace geopm
         return (double)completed / total_work;
     }
 
-    std::vector<double> ApplicationStatusImp::get_work_progress(void)
+    std::vector<double> ApplicationStatusImp::get_work_progress(void) const
     {
         std::vector<double> result(m_num_cpu);
         for (int ii = 0; ii < m_num_cpu; ++ii) {
@@ -209,7 +209,7 @@ namespace geopm
         return result;
     }
 
-    void ApplicationStatusImp::set_process(std::set<int> cpu_idx, int process)
+    void ApplicationStatusImp::set_process(const std::set<int> &cpu_idx, int process)
     {
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
         for (auto cpu : cpu_idx) {
@@ -221,7 +221,7 @@ namespace geopm
         }
     }
 
-    int ApplicationStatusImp::get_process(int cpu_idx)
+    int ApplicationStatusImp::get_process(int cpu_idx) const
     {
         if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
             throw Exception("ApplicationStatusImp::get_process(): invalid CPU index: " + std::to_string(cpu_idx),
@@ -232,7 +232,7 @@ namespace geopm
         return m_buffer[cpu_idx].process;
     }
 
-    std::vector<int> ApplicationStatusImp::get_process(void)
+    std::vector<int> ApplicationStatusImp::get_process(void) const
     {
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
         std::vector<int> result(m_num_cpu);
