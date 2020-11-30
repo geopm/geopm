@@ -39,6 +39,8 @@
 #include <vector>
 #include <set>
 
+#include "Helper.hpp"
+
 namespace geopm
 {
     class SharedMemory;
@@ -93,7 +95,7 @@ namespace geopm
             static size_t buffer_size(int num_cpu);
 
         protected:
-            static constexpr size_t M_STATUS_SIZE = 64;
+            static constexpr size_t M_STATUS_SIZE = geopm::hardware_destructive_interference_size;
     };
 
     class ApplicationStatusImp : public ApplicationStatus
@@ -126,7 +128,7 @@ namespace geopm
                 uint32_t completed_work;
                 char padding[44];
             };
-            static_assert((sizeof(ApplicationStatusImp::m_app_status_s) % 64) == 0,
+            static_assert((sizeof(ApplicationStatusImp::m_app_status_s) % geopm::hardware_destructive_interference_size) == 0,
                           "m_app_status_s not aligned to cache lines");
             static_assert(sizeof(ApplicationStatusImp::m_app_status_s) == ApplicationStatus::M_STATUS_SIZE,
                           "M_STATUS_SIZE does not match size of m_app_status_s");
