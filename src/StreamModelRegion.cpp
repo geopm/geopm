@@ -38,6 +38,7 @@
 #include "geopm.h"
 #include "Exception.hpp"
 #include "Profile.hpp"
+#include "Helper.hpp"
 
 namespace geopm
 {
@@ -51,7 +52,7 @@ namespace geopm
         , m_array_b(NULL)
         , m_array_c(NULL)
         , m_array_len(0)
-        , m_align(64)
+        , m_align(geopm::hardware_destructive_interference_size)
     {
         m_name = "stream";
         m_do_imbalance = do_imbalance;

@@ -39,7 +39,7 @@
 #include "geopm.h"
 #include "geopm_time.h"
 #include "Exception.hpp"
-
+#include "Helper.hpp"
 
 namespace geopm
 {
@@ -53,7 +53,7 @@ namespace geopm
         , m_recv_buffer(NULL)
         , m_num_send(0)
         , m_num_rank(0)
-        , m_align(64)
+        , m_align(geopm::hardware_destructive_interference_size)
         , m_rank(-1)
     {
         m_name = "all2all";
