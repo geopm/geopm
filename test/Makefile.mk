@@ -75,7 +75,12 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/ApplicationSamplerTest.string_conversion \
               test/gtest_links/ApplicationSamplerTest.with_mpi \
               test/gtest_links/ApplicationSamplerTest.with_epoch \
-              test/gtest_links/ApplicationStatusTest.something \
+              test/gtest_links/ApplicationStatusTest.bad_shmem \
+              test/gtest_links/ApplicationStatusTest.hash \
+              test/gtest_links/ApplicationStatusTest.hints \
+              test/gtest_links/ApplicationStatusTest.process \
+              test/gtest_links/ApplicationStatusTest.work_progress \
+              test/gtest_links/ApplicationStatusTest.wrong_buffer_size \
               test/gtest_links/ApplicationIOTest.passthrough \
               test/gtest_links/CircularBufferTest.buffer_capacity \
               test/gtest_links/CircularBufferTest.buffer_size \
