@@ -36,6 +36,7 @@
 #include "geopm_error.h"
 #include "Exception.hpp"
 #include "SharedMemory.hpp"
+#include "Helper.hpp"
 #include "geopm_test.hpp"
 
 using geopm::SharedMemory;
@@ -147,7 +148,8 @@ TEST_F(SharedMemoryTest, lock_shmem)
     // normally, this mutex should not be accessed directly.  This test
     // checks that get_scoped_lock() has the expected side effects on the
     // mutex.
-    pthread_mutex_t *mutex = (pthread_mutex_t*)((char*)m_shmem->pointer() - sizeof(pthread_mutex_t));
+    pthread_mutex_t *mutex = (pthread_mutex_t*)((char*)m_shmem->pointer() -
+                                                geopm::hardware_destructive_interference_size);
 
     // mutex starts out lockable
     EXPECT_EQ(0, pthread_mutex_trylock(mutex));
@@ -176,7 +178,8 @@ TEST_F(SharedMemoryTest, lock_shmem_u)
     // normally, this mutex should not be accessed directly.  This test
     // checks that get_scoped_lock() has the expected side effects on the
     // mutex.
-    pthread_mutex_t *mutex = (pthread_mutex_t*)((char*)m_shmem_u->pointer() - sizeof(pthread_mutex_t));
+    pthread_mutex_t *mutex = (pthread_mutex_t*)((char*)m_shmem_u->pointer() -
+                                                geopm::hardware_destructive_interference_size);
 
     // mutex starts out lockable
     EXPECT_EQ(0, pthread_mutex_trylock(mutex));
