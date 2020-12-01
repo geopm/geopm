@@ -251,12 +251,12 @@ namespace geopm
     }
 
 
-    void ApplicationRecordLogImp::append_record(m_layout_s &layout, record_s record)
+    void ApplicationRecordLogImp::append_record(m_layout_s &layout, const record_s &record)
     {
         int record_idx = layout.num_record;
         // Don't overrun the buffer
         if (record_idx < M_MAX_RECORD) {
-            layout.record_table[record_idx] = std::move(record);
+            layout.record_table[record_idx] = record;
             ++(layout.num_record);
         }
         else {
