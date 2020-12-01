@@ -207,9 +207,7 @@ namespace geopm
         std::unique_ptr<SharedMemoryScopedLock> lock = m_shmem->get_scoped_lock();
         m_layout_s &layout = *((m_layout_s *)(m_shmem->pointer()));
         records.assign(layout.record_table, layout.record_table + layout.num_record);
-        records.resize(layout.num_record);
         short_regions.assign(layout.region_table, layout.region_table + layout.num_region);
-        short_regions.resize(layout.num_region);
         layout.num_record = 0;
         layout.num_region = 0;
     }
