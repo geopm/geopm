@@ -232,7 +232,7 @@ namespace geopm
             };
             void check_setup(void);
             void check_reset(m_layout_s &layout);
-            void append_record(m_layout_s &layout, const record_s &record);
+            void append_record(m_layout_s &layout, record_s record);
             int m_process;
             std::shared_ptr<SharedMemory> m_shmem;
             std::map<uint64_t, m_region_enter_s> m_hash_region_enter_map;

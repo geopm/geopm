@@ -304,6 +304,13 @@ TEST_F(ApplicationRecordLogTest, dump_twice)
 
 TEST_F(ApplicationRecordLogTest, dump_within_region)
 {
+    // This test shows the case where a region has been entered and
+    // exited between two calls to dump to create a short region
+    // event.  Additionally, in this case the region is entered and
+    // then an epoch call is made prior to a call to dump(). Here the
+    // entry call will not be noted by the caller of dump(), but
+    // instead the closing of this region will be replaced by a short
+    // region event in the subsequent call to dump().
     std::vector<record_s> records;
     std::vector<short_region_s> short_regions;
     int proc_id = 123;
