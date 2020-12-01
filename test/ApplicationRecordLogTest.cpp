@@ -361,7 +361,6 @@ TEST_F(ApplicationRecordLogTest, overflow_record_table)
     std::vector<record_s> records;
     std::vector<short_region_s> short_regions;
     int proc_id = 123;
-    //uint64_t hash = 0xABCD;
     // Note time_zero is one second after 1970
     geopm_time_s time_0 = {{1, 0}};
     m_record_log->set_process(proc_id);
