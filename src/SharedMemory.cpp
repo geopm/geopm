@@ -52,7 +52,8 @@
 namespace geopm
 {
     /// @brief Size of the lock in memory.
-    static constexpr size_t M_LOCK_SIZE = sizeof(pthread_mutex_t);
+    static constexpr size_t M_LOCK_SIZE = geopm::hardware_destructive_interference_size;
+    static_assert(sizeof(pthread_mutex_t) <= M_LOCK_SIZE, "M_LOCK_SIZE not large enough for mutex type");
 
     static void setup_mutex(pthread_mutex_t *lock)
     {
