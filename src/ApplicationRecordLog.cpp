@@ -97,7 +97,6 @@ namespace geopm
         std::unique_ptr<SharedMemoryScopedLock> lock = m_shmem->get_scoped_lock();
         m_layout_s &layout = *((m_layout_s *)(m_shmem->pointer()));
         check_reset(layout);
-        /// @todo: Optimize with piecewise_construct
         auto emplace_pair = m_hash_region_enter_map.emplace(
             std::piecewise_construct,
             std::forward_as_tuple(hash),

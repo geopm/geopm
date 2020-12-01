@@ -68,12 +68,23 @@ namespace geopm
     /// classified as a short region event and the intervening
     /// interval of time will be recorded in this event created by the
     /// exit() call.
+    ///
+    /// There is a loss of information when a region is entered and
+    /// exited within one control loop when compared to the case where
+    /// a dump() call is made between an entry() and exit() call.  In
+    /// the former case, the exact timestamp associated with all
+    /// region exit and entry events for a particular hash that occur
+    /// after the first enter() call for that hash and prior to the
+    /// next dump() call are lost.  The short region event records the
+    /// number of calls to the hashed region and the total amount of
+    /// time in the region, but the exact sequence and timing of
+    /// events following the first enter() is not recorded.
     class ApplicationRecordLog
     {
         public:
             /// @brief Factory constructor
-            /// @param shmem [in] Shared memory object of at least the
-            ///              size returned by buffer_size().
+            /// @param [in] shmem Shared memory object of at least the
+            ///        size returned by buffer_size().
             static std::unique_ptr<ApplicationRecordLog> make_unique(std::shared_ptr<SharedMemory> shmem);
             /// @brief Destructor for pure virtual base class.
             virtual ~ApplicationRecordLog() = default;
@@ -88,7 +99,7 @@ namespace geopm
             /// rank, but could also be the linux process ID for a
             /// parent thread.
             ///
-            /// @param process [in] The process identifier.
+            /// @param [in] process The process identifier.
             virtual void set_process(int process) = 0;
             /// @brief Set the reference time.
             ///
@@ -97,23 +108,23 @@ namespace geopm
             /// This method must be called prior to the enter(),
             /// exit() or epoch() methods.
             ///
-            /// @param time [in] The timestamp when the profiled
-            ///             process began.
+            /// @param [in] time The timestamp when the profiled
+            ///        process began.
             virtual void set_time_zero(const geopm_time_s &time) = 0;
             /// @brief Create a message in the log defining a region
             ///        entry.
             ///
             /// Called by the Profile object when a region is entered.
-            /// This creates a record_s in the log inticating entry if
+            /// This creates a record_s in the log indicating entry if
             /// the region is entered for the first time since the
             /// last dump() call, or it sets the start time for a
             /// short region if the region was entered and exited
             /// since the last call to dump().
             ///
-            /// @param hash [in] The region hash that is entered.
+            /// @param [in] hash The region hash that is entered.
             ///
-            /// @param time [in] The timestamp when the entry event
-            ///             occurred.
+            /// @param [in] time The timestamp when the entry event
+            ///        occurred.
             virtual void enter(uint64_t hash, const geopm_time_s &time) = 0;
             /// @brief Create a message in the log defining a region
             ///        exit.
@@ -127,22 +138,22 @@ namespace geopm
             /// exit() for short regions has the effect of updating
             /// the short region event time and count values.
             ///
-            /// @param hash [in] The reigon hash that was exited.
+            /// @param hash [in] The region hash that was exited.
             ///
             /// @param time [in] The timestamp when the exit event
-            ///             occured.
+            ///             occurred.
             virtual void exit(uint64_t hash, const geopm_time_s &time) = 0;
             /// @brief Create a message in the log defining an epoch
             ///        event.
             ///
             /// Called by the Profile object when an epoch event
             /// occurs.  This creates a record_s in the log indicating
-            /// that an epoch event occured.
+            /// that an epoch event occurred.
             ///
             /// @param time [in] The timestamp when the epoch event
-            ///             occured.
+            ///             occurred.
             virtual void epoch(const geopm_time_s &time) = 0;
-            /// @brief Get all events that have occured since the last
+            /// @brief Get all events that have occurred since the last
             ///        call to dump().
             ///
             /// Called by the ApplicationSampler to gather all records
@@ -165,12 +176,12 @@ namespace geopm
             /// events with type "EVENT_SHORT_REGION" in the records
             /// output vector.
             ///
-            /// @param records [out] Vector of records written since
-            ///                last dump().
+            /// @param [out] records Vector of records written since
+            ///        last dump().
             ///
-            /// @param short_regions [out] Vector of short region data
-            ///                      about any short regions events in
-            ///                      the records output vector.
+            /// @param [out] short_regions Vector of short region data
+            ///        about any short regions events in the records
+            ///        output vector.
             virtual void dump(std::vector<record_s> &records,
                               std::vector<short_region_s> &short_regions) = 0;
             /// @brief Gets the shared memory size requirement.
