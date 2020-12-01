@@ -206,10 +206,10 @@ namespace geopm
         // this function should not do anything with m_hash_region_enter_map
         std::unique_ptr<SharedMemoryScopedLock> lock = m_shmem->get_scoped_lock();
         m_layout_s &layout = *((m_layout_s *)(m_shmem->pointer()));
+        records.assign(layout.record_table, layout.record_table + layout.num_record);
         records.resize(layout.num_record);
-        std::copy(layout.record_table, layout.record_table + layout.num_record, records.begin());
+        short_regions.assign(layout.region_table, layout.region_table + layout.num_region);
         short_regions.resize(layout.num_region);
-        std::copy(layout.region_table, layout.region_table + layout.num_region, short_regions.begin());
         layout.num_record = 0;
         layout.num_region = 0;
     }
@@ -251,12 +251,12 @@ namespace geopm
     }
 
 
-    void ApplicationRecordLogImp::append_record(m_layout_s &layout, const record_s &record)
+    void ApplicationRecordLogImp::append_record(m_layout_s &layout, record_s record)
     {
         int record_idx = layout.num_record;
         // Don't overrun the buffer
         if (record_idx < M_MAX_RECORD) {
-            layout.record_table[record_idx] = record;
+            layout.record_table[record_idx] = std::move(record);
             ++(layout.num_record);
         }
         else {
