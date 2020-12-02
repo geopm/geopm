@@ -54,16 +54,14 @@ namespace geopm
 {
     constexpr size_t ApplicationIOImp::M_SHMEM_REGION_SIZE;
 
-    ApplicationIOImp::ApplicationIOImp(const std::string &shm_key)
-        : ApplicationIOImp(shm_key,
-                           ApplicationSampler::application_sampler(),
+    ApplicationIOImp::ApplicationIOImp()
+        : ApplicationIOImp(ApplicationSampler::application_sampler(),
                            platform_io(), platform_topo())
     {
 
     }
 
-    ApplicationIOImp::ApplicationIOImp(const std::string &shm_key,
-                                       ApplicationSampler &application_sampler,
+    ApplicationIOImp::ApplicationIOImp(ApplicationSampler &application_sampler,
                                        PlatformIO &platform_io,
                                        const PlatformTopo &platform_topo)
         : m_platform_io(platform_io)
