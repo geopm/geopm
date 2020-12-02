@@ -46,8 +46,8 @@ real(kind=c_double) :: sum
 integer(8) :: region_id
 integer :: rank
 integer(4) :: num_thread
-integer(8) :: num_iter
-integer(8) :: chunk_size
+integer(4) :: num_iter
+integer(4) :: chunk_size
 integer(4) :: thread_idx
 
 num_iter = 100000000
@@ -62,7 +62,7 @@ sum = 0
 !$omp end parallel
 !$omp parallel default(shared) private(thread_idx)
     thread_idx = omp_get_thread_num()
-    ierr = geopm_tprof_init_loop(num_thread, thread_idx, num_iter, chunk_size)
+    ierr = geopm_tprof_init(num_iter)
 !$omp do schedule(static, chunk_size)
     do index = 1, int(num_iter)
         sum = sum + index
