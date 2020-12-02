@@ -95,8 +95,9 @@ void ApplicationIOTest::SetUp()
         .WillOnce(Return(m_num_cpu_domain));
     std::vector<int> ranks {1, 2, 3, 4};
     EXPECT_CALL(*m_sampler, cpu_rank()).WillOnce(Return(ranks));
-    m_app_io = geopm::make_unique<ApplicationIOImp>(m_shm_key,
-                                                    tmp_app_sampler, m_platform_io, m_platform_topo);
+    m_app_io = geopm::make_unique<ApplicationIOImp>(tmp_app_sampler,
+                                                    m_platform_io,
+                                                    m_platform_topo);
     m_app_io->connect();
 }
 
