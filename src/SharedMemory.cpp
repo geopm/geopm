@@ -100,6 +100,7 @@ namespace geopm
         : m_size(0)
         , m_ptr(NULL)
         , m_is_linked(false)
+        , m_do_unlink_check(false)
     {
 
     }
