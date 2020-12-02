@@ -128,9 +128,8 @@ namespace geopm
     class ApplicationIOImp : public ApplicationIO
     {
         public:
-            ApplicationIOImp(const std::string &shm_key);
-            ApplicationIOImp(const std::string &shm_key,
-                             ApplicationSampler &application_sampler,
+            ApplicationIOImp();
+            ApplicationIOImp(ApplicationSampler &application_sampler,
                              PlatformIO &platform_io,
                              const PlatformTopo &platform_topo);
             virtual ~ApplicationIOImp();

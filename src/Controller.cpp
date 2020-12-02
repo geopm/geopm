@@ -184,7 +184,7 @@ namespace geopm
                          Agent::num_policy(environment().agent()),
                          Agent::num_sample(environment().agent()))),
                      ApplicationSampler::application_sampler(),
-                     std::shared_ptr<ApplicationIO>(new ApplicationIOImp(environment().shmkey())),
+                     std::shared_ptr<ApplicationIO>(new ApplicationIOImp()),
                      std::unique_ptr<Reporter>(new ReporterImp(get_start_time(),
                                                                environment().report(),
                                                                platform_io(),
@@ -199,18 +199,18 @@ namespace geopm
                      environment().do_policy(),
                      nullptr,
                      environment().endpoint(),
-                     environment().do_endpoint())
+                     environment().do_endpoint(),
+                     environment().shmkey())
     {
 
     }
-
     Controller::Controller(std::shared_ptr<Comm> comm,
                            PlatformIO &plat_io,
                            const std::string &agent_name,
                            int num_send_down,
                            int num_send_up,
                            std::unique_ptr<TreeComm> tree_comm,
-                           const ApplicationSampler &application_sampler,
+                           ApplicationSampler &application_sampler,
                            std::shared_ptr<ApplicationIO> application_io,
                            std::unique_ptr<Reporter> reporter,
                            std::unique_ptr<Tracer> tracer,
@@ -222,7 +222,8 @@ namespace geopm
                            bool do_policy,
                            std::unique_ptr<EndpointUser> endpoint,
                            const std::string &endpoint_path,
-                           bool do_endpoint)
+                           bool do_endpoint,
+                           const std::string &shm_key)
         : m_comm(comm)
         , m_platform_io(plat_io)
         , m_agent_name(agent_name)
@@ -248,6 +249,7 @@ namespace geopm
         , m_endpoint(std::move(endpoint))
         , m_do_endpoint(do_endpoint)
         , m_do_policy(do_policy)
+        , m_shm_key(shm_key)
     {
         if (m_num_send_down > 0 && !(m_do_policy || m_do_endpoint)) {
             throw Exception("Controller(): at least one of policy or endpoint path"
@@ -345,6 +347,7 @@ namespace geopm
     void Controller::run(void)
     {
         m_application_io->connect();
+        m_application_sampler.connect(m_shm_key);
         create_agents();
         m_platform_io.save_control();
         init_agents();
