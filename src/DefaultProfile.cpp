@@ -211,26 +211,6 @@ extern "C"
         return err;
     }
 
-    int geopm_tprof_init_loop(int num_thread, int thread_idx, size_t num_iter, size_t chunk_size)
-    {
-        int err = 0;
-        if (g_pmpi_tprof_enabled) {
-            try {
-                std::shared_ptr<geopm::ProfileThreadTable> table_ptr = geopm::Profile::default_profile().tprof_table();
-                if (chunk_size) {
-                    table_ptr->init(num_thread, thread_idx, num_iter, chunk_size);
-                }
-                else {
-                    table_ptr->init(num_thread, thread_idx, num_iter);
-                }
-            }
-            catch (...) {
-                err = geopm::exception_handler(std::current_exception());
-            }
-        }
-        return err;
-    }
-
     int geopm_tprof_post(void)
     {
         int err = 0;
