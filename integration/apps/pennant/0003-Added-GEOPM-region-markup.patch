@@ -1,0 +1,392 @@
+From 57bfeefcf42a9ed32ffe112c2e881ec0fd6f23b8 Mon Sep 17 00:00:00 2001
+From: Fuat Keceli <fuat.keceli@intel.com>
+Date: Tue, 1 Dec 2020 17:44:13 -0800
+Subject: [PATCH 3/3] Added GEOPM region markup
+
+#  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in
+#        the documentation and/or other materials provided with the
+#        distribution.
+#
+#      * Neither the name of Intel Corporation nor the names of its
+#        contributors may be used to endorse or promote products derived
+#        from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY LOG OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+Signed-off-by: Fuat Keceli <fuat.keceli@intel.com>
+---
+ Makefile            |  6 +++++
+ src/Driver.cc       | 28 ++++++++++++++++++-
+ src/Hydro.cc        | 78 ++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ src/PennantGeopm.cc | 54 +++++++++++++++++++++++++++++++++++++
+ src/PennantGeopm.hh | 32 ++++++++++++++++++++++
+ src/main.cc         |  3 +++
+ 6 files changed, 199 insertions(+), 2 deletions(-)
+ create mode 100644 src/PennantGeopm.cc
+ create mode 100644 src/PennantGeopm.hh
+
+diff --git a/Makefile b/Makefile
+index a0611ef..369d119 100644
+--- a/Makefile
++++ b/Makefile
+@@ -40,6 +40,12 @@ CXXFLAGS := $(CXXFLAGS_OPT)
+ ifdef USEGEOPM
+ 	LDFLAGS += $(GEOPM_LDFLAGS) $(GEOPM_LDLIBS)
+ 	CXXFLAGS += $(GEOPM_CFLAGS) -DUSEGEOPM -DEPOCH_TO_OUTERLOOP=$(EPOCH_TO_OUTERLOOP)
++ifdef USEGEOPMMARKUP
++	CXXFLAGS += -DUSEGEOPMMARKUP
++endif
++ifdef USEGEOPMMARKUP_2
++	CXXFLAGS += -DUSEGEOPMMARKUP_2
++endif
+ endif
+ 
+ # add mpi to compile (comment out for serial build)
+diff --git a/src/Driver.cc b/src/Driver.cc
+index c75da82..9785995 100644
+--- a/src/Driver.cc
++++ b/src/Driver.cc
+@@ -31,9 +31,11 @@
+ #ifdef USEGEOPM
+ #include "geopm.h"
+ #endif
++#include "PennantGeopm.hh"
+ 
+ using namespace std;
+ 
++using namespace PennantGeopm;
+ 
+ Driver::Driver(const InputFile* inp, const string& pname)
+         : probname(pname) {
+@@ -70,7 +72,6 @@ Driver::Driver(const InputFile* inp, const string& pname)
+     // initialize mesh, hydro
+     mesh = new Mesh(inp);
+     hydro = new Hydro(inp, mesh);
+-
+ }
+ 
+ Driver::~Driver() {
+@@ -111,12 +112,37 @@ void Driver::run() {
+ 
+         cycle += 1;
+ 
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP
++        geopm_prof_enter(region_id_calcGlobalDt);
++#endif // USEGEOPMMARKUP
++#ifdef USEGEOPMMARKUP_2
++        geopm_prof_enter(region_id_calcGlobalDt);
++#endif // USEGEOPMMARKUP_2
++#endif // USEGEOPM
++
+         // get timestep
+         calcGlobalDt();
+ 
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP
++        geopm_prof_exit(region_id_calcGlobalDt);
++#endif // USEGEOPMMARKUP
++#ifdef USEGEOPMMARKUP_2
++        geopm_prof_exit(region_id_calcGlobalDt);
++        geopm_prof_enter(region_id_hydroDoCycle);
++#endif // USEGEOPMMARKUP_2
++#endif // USEGEOPM
++
+         // begin hydro cycle
+         hydro->doCycle(dt);
+ 
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP_2
++        geopm_prof_exit(region_id_hydroDoCycle);
++#endif // USEGEOPMMARKUP_2
++#endif // USEGEOPM
++
+         time += dt;
+ 
+         if (mype == 0 &&
+diff --git a/src/Hydro.cc b/src/Hydro.cc
+index 23fab68..02a7190 100644
+--- a/src/Hydro.cc
++++ b/src/Hydro.cc
+@@ -30,8 +30,15 @@
+ #include "QCS.hh"
+ #include "HydroBC.hh"
+ 
++#ifdef USEGEOPM
++#include "geopm.h"
++#endif
++#include "PennantGeopm.hh"
++
+ using namespace std;
+ 
++using namespace PennantGeopm;
++
+ 
+ Hydro::Hydro(const InputFile* inp, Mesh* m) : mesh(m) {
+     cfl = inp->getDouble("cfl", 0.6);
+@@ -193,6 +200,12 @@ void Hydro::doCycle(
+     double* smf = mesh->smf;
+     double* zdl = mesh->zdl;
+ 
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP
++    geopm_prof_enter(region_id_doCycle_omp1);
++#endif
++#endif
++
+     // Begin hydro cycle
+     #pragma omp parallel for schedule(static)
+     for (int pch = 0; pch < numpch; ++pch) {
+@@ -208,6 +221,13 @@ void Hydro::doCycle(
+         advPosHalf(px0, pu0, dt, pxp, pfirst, plast);
+     } // for pch
+ 
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP
++    geopm_prof_exit(region_id_doCycle_omp1);
++    geopm_prof_enter(region_id_doCycle_omp2);
++#endif
++#endif
++
+     #pragma omp parallel for schedule(static)
+     for (int sch = 0; sch < numsch; ++sch) {
+         int sfirst = mesh->schsfirst[sch];
+@@ -241,12 +261,41 @@ void Hydro::doCycle(
+         qcs->calcForce(sfq, sfirst, slast);
+         sumCrnrForce(sfp, sfq, sft, cftot, sfirst, slast);
+     }  // for sch
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP
++    geopm_prof_exit(region_id_doCycle_omp2);
++    geopm_prof_enter(region_id_doCycle_checkBadSides1);
++#endif
++#endif
++
+     mesh->checkBadSides();
+ 
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP
++    geopm_prof_exit(region_id_doCycle_checkBadSides1);
++    geopm_prof_enter(region_id_doCycle_sumToPoints1);
++#endif
++#endif
++
+     // sum corner masses, forces to points
+     mesh->sumToPoints(cmaswt, pmaswt);
++
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP
++    geopm_prof_exit(region_id_doCycle_sumToPoints1);
++    geopm_prof_enter(region_id_doCycle_sumToPoints2);
++#endif
++#endif
++
+     mesh->sumToPoints(cftot, pf);
+ 
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP
++    geopm_prof_exit(region_id_doCycle_sumToPoints2);
++    geopm_prof_enter(region_id_doCycle_omp3);
++#endif
++#endif
++
+     #pragma omp parallel for schedule(static)
+     for (int pch = 0; pch < numpch; ++pch) {
+         int pfirst = mesh->pchpfirst[pch];
+@@ -267,8 +316,22 @@ void Hydro::doCycle(
+         advPosFull(px0, pu0, pap, dt, px, pu, pfirst, plast);
+     }  // for pch
+ 
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP
++    geopm_prof_exit(region_id_doCycle_omp3);
++    geopm_prof_enter(region_id_doCycle_resetDtHydro);
++#endif
++#endif
++
+     resetDtHydro();
+ 
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP
++    geopm_prof_exit(region_id_doCycle_resetDtHydro);
++    geopm_prof_enter(region_id_doCycle_omp4);
++#endif
++#endif
++
+     #pragma omp parallel for schedule(static)
+     for (int sch = 0; sch < numsch; ++sch) {
+         int sfirst = mesh->schsfirst[sch];
+@@ -286,6 +349,14 @@ void Hydro::doCycle(
+         calcWork(sfp, sfq, pu0, pu, pxp, dt, zw, zetot,
+                 sfirst, slast);
+     }  // for sch
++
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP
++    geopm_prof_exit(region_id_doCycle_omp4);
++    geopm_prof_enter(region_id_doCycle_checkBadSides2);
++#endif
++#endif
++
+     mesh->checkBadSides();
+ 
+     #pragma omp parallel for schedule(static)
+@@ -304,8 +375,13 @@ void Hydro::doCycle(
+         calcDtHydro(zdl, zvol, zvol0, dt, zfirst, zlast);
+     }  // for zch
+ 
+-}
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP
++    geopm_prof_exit(region_id_doCycle_checkBadSides2);
++#endif
++#endif
+ 
++}
+ 
+ void Hydro::advPosHalf(
+         const double2* px0,
+diff --git a/src/PennantGeopm.cc b/src/PennantGeopm.cc
+new file mode 100644
+index 0000000..f1e4230
+--- /dev/null
++++ b/src/PennantGeopm.cc
+@@ -0,0 +1,54 @@
++#ifdef USEGEOPM
++#include "geopm.h"
++#include "PennantGeopm.hh"
++#endif
++
++namespace PennantGeopm {
++
++#ifdef USEGEOPM
++
++#ifdef USEGEOPMMARKUP
++uint64_t region_id_calcGlobalDt;
++uint64_t region_id_doCycle_omp1;
++uint64_t region_id_doCycle_omp2;
++uint64_t region_id_doCycle_checkBadSides1;
++uint64_t region_id_doCycle_sumToPoints1;
++uint64_t region_id_doCycle_sumToPoints2;
++uint64_t region_id_doCycle_omp3;
++uint64_t region_id_doCycle_resetDtHydro;
++uint64_t region_id_doCycle_omp4;
++uint64_t region_id_doCycle_checkBadSides2;
++#endif // USEGEOPMMARKUP
++
++#ifdef USEGEOPMMARKUP_2
++uint64_t region_id_calcGlobalDt;
++uint64_t region_id_hydroDoCycle;
++#endif // USEGEOPMMARKUP
++
++#endif // USEGEOPM
++
++void init() {
++#ifdef USEGEOPM
++
++#ifdef USEGEOPMMARKUP
++    geopm_prof_region("calcGlobalDt", GEOPM_REGION_HINT_UNKNOWN, &region_id_calcGlobalDt);
++    geopm_prof_region("doCycle_omp1", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_omp1);
++    geopm_prof_region("doCycle_omp2", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_omp2);
++    geopm_prof_region("doCycle_checkBadSides1", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_checkBadSides1);
++    geopm_prof_region("doCycle_sumToPoints1", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_sumToPoints1);
++    geopm_prof_region("doCycle_sumToPoints2", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_sumToPoints2);
++    geopm_prof_region("doCycle_omp3", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_omp3);
++    geopm_prof_region("doCycle_resetDtHydro", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_resetDtHydro);
++    geopm_prof_region("doCycle_omp4", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_omp4);
++    geopm_prof_region("doCycle_checkBadSides2", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_checkBadSides2);
++#endif // USEGEOPMMARKUP
++
++#ifdef USEGEOPMMARKUP_2
++    geopm_prof_region("calcGlobalDt", GEOPM_REGION_HINT_UNKNOWN, &region_id_calcGlobalDt);
++    geopm_prof_region("hydroDoCycle", GEOPM_REGION_HINT_UNKNOWN, &region_id_hydroDoCycle);
++#endif // USEGEOPMMARKUP_2
++
++#endif // USEGEOPM
++}  // init
++
++}  // namespace PennantGeopm
+\ No newline at end of file
+diff --git a/src/PennantGeopm.hh b/src/PennantGeopm.hh
+new file mode 100644
+index 0000000..b14724c
+--- /dev/null
++++ b/src/PennantGeopm.hh
+@@ -0,0 +1,32 @@
++#ifndef PENNANT_GEOPM_HH_
++#define PENNANT_GEOPM_HH_
++
++namespace PennantGeopm {
++
++#ifdef USEGEOPM
++
++#ifdef USEGEOPMMARKUP
++    extern uint64_t region_id_calcGlobalDt;
++    extern uint64_t region_id_doCycle_omp1;
++    extern uint64_t region_id_doCycle_omp2;
++    extern uint64_t region_id_doCycle_checkBadSides1;
++    extern uint64_t region_id_doCycle_sumToPoints1;
++    extern uint64_t region_id_doCycle_sumToPoints2;
++    extern uint64_t region_id_doCycle_omp3;
++    extern uint64_t region_id_doCycle_resetDtHydro;
++    extern uint64_t region_id_doCycle_omp4;
++    extern uint64_t region_id_doCycle_checkBadSides2;
++#endif // USEGEOPMMARKUP
++
++#ifdef USEGEOPMMARKUP_2
++    extern uint64_t region_id_calcGlobalDt;
++    extern uint64_t region_id_hydroDoCycle;
++#endif // USEGEOPMMARKUP_2
++
++#endif // USEGEOPM
++
++void init();
++
++}  // namespace PennantGeopm
++
++#endif /* PENNANT_GEOPM_HH_ */
+\ No newline at end of file
+diff --git a/src/main.cc b/src/main.cc
+index 5c41673..c62b97f 100644
+--- a/src/main.cc
++++ b/src/main.cc
+@@ -18,12 +18,15 @@
+ #include "InputFile.hh"
+ #include "Driver.hh"
+ 
++#include "PennantGeopm.hh"
++
+ using namespace std;
+ 
+ 
+ int main(const int argc, const char** argv)
+ {
+     Parallel::init();
++    PennantGeopm::init();
+ 
+     if (argc != 2) {
+         if (Parallel::mype == 0)
+-- 
+1.8.3.1
+
