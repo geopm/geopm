@@ -163,6 +163,7 @@ class ControllerTest : public ::testing::Test
         std::string m_file_policy_path = "ControllerTest_policy.json";
         MockApplicationSampler m_application_sampler;
         std::shared_ptr<MockProfileTracer> m_profile_tracer;
+        std::string m_shm_key = "ControllerTest_shm_key";
 };
 
 void ControllerTest::SetUp()
@@ -230,8 +231,8 @@ TEST_F(ControllerTest, construct_with_file_policy)
                           std::move(m_agents),
                           {"A", "B"},
                           m_file_policy_path, true,
-                          nullptr, "", false // endpoint
-                          );
+                          nullptr, "", false, // endpoint
+                          m_shm_key);
 }
 
 TEST_F(ControllerTest, run_with_no_policy)
@@ -272,8 +273,8 @@ TEST_F(ControllerTest, run_with_no_policy)
                           std::move(m_agents),
                           {"A", "B"},
                           "", false,  // false
-                          nullptr, "", false // endpoint
-                          );
+                          nullptr, "", false, // endpoint
+                          m_shm_key);
 
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
@@ -381,8 +382,8 @@ TEST_F(ControllerTest, get_hostnames)
                           std::move(m_agents),
                           {}, "", false, // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "", true  // endpoint
-                          );
+                          "", true,  // endpoint
+                          m_shm_key);
 
     EXPECT_CALL(*multi_node_comm, rank());
     std::set<std::string> result = controller.get_hostnames("node4");
@@ -414,8 +415,8 @@ TEST_F(ControllerTest, single_node)
                           std::move(m_agents),
                           {}, "", false,  // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "", true  // endpoint
-                          );
+                          "", true,  // endpoint
+                          m_shm_key);
 
     // setup trace
     std::vector<std::string> trace_names = {"COL1", "COL2"};
@@ -497,8 +498,8 @@ TEST_F(ControllerTest, two_level_controller_1)
                           std::move(m_agents),
                           {}, "", false, // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "", true  // endpoint
-                          );
+                          "", true,  // endpoint
+                          m_shm_key);
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     std::vector<std::function<std::string(double)> > trace_formats = {
@@ -600,8 +601,8 @@ TEST_F(ControllerTest, two_level_controller_2)
                           std::move(m_agents),
                           {}, "", false, // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "", true // endpoint
-                          );
+                          "", true, // endpoint
+                          m_shm_key);
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     std::vector<std::function<std::string(double)> > trace_formats = {
@@ -712,8 +713,8 @@ TEST_F(ControllerTest, two_level_controller_0)
                           std::move(m_agents),
                           {}, "", false, // file policy
                           std::unique_ptr<MockEndpointUser>(m_endpoint),
-                          "", true // endpoint
-                          );
+                          "", true, // endpoint
+                          m_shm_key);
 
     std::vector<std::string> trace_names = {"COL1", "COL2"};
     std::vector<std::function<std::string(double)> > trace_formats = {

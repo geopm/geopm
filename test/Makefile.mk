@@ -72,9 +72,10 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/ApplicationRecordLogTest.overflow_record_table \
               test/gtest_links/ApplicationRecordLogTest.cannot_overflow_region_table \
               test/gtest_links/ApplicationSamplerTest.one_enter_exit \
+              test/gtest_links/ApplicationSamplerTest.one_enter_exit_two_ranks \
               test/gtest_links/ApplicationSamplerTest.process_mapping \
               test/gtest_links/ApplicationSamplerTest.string_conversion \
-              test/gtest_links/ApplicationSamplerTest.with_mpi \
+              test/gtest_links/ApplicationSamplerTest.short_regions \
               test/gtest_links/ApplicationSamplerTest.with_epoch \
               test/gtest_links/ApplicationStatusTest.bad_shmem \
               test/gtest_links/ApplicationStatusTest.hash \
@@ -611,6 +612,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/MockAcceleratorTopo.hpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \
+                          test/MockApplicationRecordLog.hpp \
                           test/MockApplicationSampler.cpp \
                           test/MockApplicationSampler.hpp \
                           test/MockComm.hpp \
@@ -635,6 +637,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/MockProfileTable.hpp \
                           test/MockProfileTracer.hpp \
                           test/MockProfileThreadTable.hpp \
+                          test/MockRecordFilter.hpp \
                           test/MockRegionAggregator.hpp \
                           test/MockReporter.hpp \
                           test/MockRuntimeRegulator.hpp \
