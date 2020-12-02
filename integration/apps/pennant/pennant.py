@@ -89,13 +89,13 @@ class PennantAppConf(apps.AppConf):
         # handle less outer loops per epoch since outer loop time seems to go up with
         # problem size.
         exec_dir = {
-            'PENNANT/test/leblancx4/leblancx4.pnt': 'PENNANT/build_geopm_epoch100/pennant',
-            'PENNANT/test/leblancx4/leblancx16.pnt': 'PENNANT/build_geopm_epoch1/pennant',
+            'leblancx4.pnt': 'PENNANT/build_geopm_epoch100/pennant',
+            'leblancx16.pnt': 'PENNANT/build_geopm_epoch1/pennant',
             'default': 'PENNANT/build/pennant'
         }
         if epoch_to_outerloop is None:
-            if problem_file in exec_dir:
-                self._exec_path = os.path.join(benchmark_dir, exec_dir[problem_file])
+            if os.path.basename(problem_file) in exec_dir:
+                self._exec_path = os.path.join(benchmark_dir, exec_dir[os.path.basename(problem_file)])
             else:
                 self._exec_path = os.path.join(benchmark_dir, exec_dir['default'])
         else:
@@ -105,7 +105,6 @@ class PennantAppConf(apps.AppConf):
             else:
                 raise RuntimeError('Epoch to outer loop count does not match any of the pennant builds: {}'.format(epoch_to_outerloop))
 
-        self._exec_path = os.path.join(benchmark_dir, 'PENNANT/build/pennant')
         if os.path.isfile(problem_file):
             self._exec_args = problem_file
         elif os.path.isfile(os.path.join(benchmark_dir, problem_file)):
