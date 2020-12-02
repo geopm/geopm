@@ -303,8 +303,8 @@
       integer i, j, k, tid, ierr
 
       integer(8) region_id
-      integer(8) num_it
-      integer(8) chunk_size
+      integer(4) num_it
+      integer(4) chunk_size
       integer num_thread
 !$omp parallel
       num_thread = omp_get_num_threads()
@@ -319,7 +319,7 @@
       ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,k,tid)
       tid = omp_get_thread_num()
-      ierr = geopm_tprof_init_loop(num_thread, tid, num_it, chunk_size)
+      ierr = geopm_tprof_init(num_it)
 !$omp do schedule(static, chunk_size)
       do k = 1, d3
          do j = 1, d2
@@ -789,7 +789,8 @@
       double precision ap, twiddle(d1, d2, d3)
 
       integer, external :: omp_get_thread_num, omp_get_num_threads
-      integer(8) region_id, num_it, chunk_size
+      integer(8) region_id
+      integer(4) num_it, chunk_size
       integer num_thread
 !$omp parallel
       num_thread = omp_get_num_threads()
@@ -819,7 +820,7 @@
          ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,k,ii,ii2,jj,ij2,kk,tid)
          tid = omp_get_thread_num()
-         ierr = geopm_tprof_init_loop(num_thread, tid, num_it, chunk_size)
+         ierr = geopm_tprof_init(num_it)
 !$omp do schedule(static, chunk_size)
          do i = 1, dims(1,3)
             ii =  mod(i+xstart(3)-2+nx/2, nx) - nx/2
@@ -849,7 +850,7 @@
          ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,k,ii,ii2,jj,ij2,kk,tid)
          tid = omp_get_thread_num()
-         ierr = geopm_tprof_init_loop(num_thread, tid, num_it, chunk_size)
+         ierr = geopm_tprof_init(num_it)
 !$omp do schedule(static, chunk_size)
          do i = 1,dims(2,3)
             ii =  mod(i+xstart(3)-2+nx/2, nx) - nx/2
@@ -879,7 +880,7 @@
          ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,k,ii,ii2,jj,ij2,kk,tid)
          tid = omp_get_thread_num()
-         ierr = geopm_tprof_init_loop(num_thread, tid, num_it, chunk_size)
+         ierr = geopm_tprof_init(num_it)
 !$omp do schedule(static, chunk_size)
          do i = 1,dims(2,3)
             ii =  mod(i+xstart(3)-2+nx/2, nx) - nx/2
@@ -1084,8 +1085,8 @@
 
       integer, external :: omp_get_thread_num, omp_get_num_threads
       integer(8) region_id
-      integer(8) num_it
-      integer(8) chunk_size
+      integer(4) num_it
+      integer(4) chunk_size
       integer num_thread
 !$omp parallel
       num_thread = omp_get_num_threads()
@@ -1109,7 +1110,7 @@
       ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,k,jj,tid,y)
       tid = omp_get_thread_num()
-      ierr = geopm_tprof_init_loop(num_thread, tid, num_it, chunk_size)
+      ierr = geopm_tprof_init(num_it)
 !$omp do schedule(static, chunk_size)
       do k = 1, d3
          do jj = 0, d2 - fftblock, fftblock
@@ -1165,8 +1166,8 @@
 
       integer, external :: omp_get_thread_num, omp_get_num_threads
       integer(8) region_id
-      integer(8) num_it
-      integer(8) chunk_size
+      integer(4) num_it
+      integer(4) chunk_size
       integer num_thread
 
       logd2 = ilog2(d2)
@@ -1185,7 +1186,7 @@
 
 !$omp parallel default(shared) private(i,j,k,ii,y,tid)
       tid = omp_get_thread_num()
-      ierr = geopm_tprof_init_loop(num_thread, tid, num_it, chunk_size)
+      ierr = geopm_tprof_init(num_it)
 !$omp do schedule(static, chunk_size)
       do k = 1, d3
         do ii = 0, d1 - fftblock, fftblock
@@ -1241,8 +1242,8 @@
 
       integer, external :: omp_get_thread_num, omp_get_num_threads
       integer(8) region_id
-      integer(8) num_it
-      integer(8) chunk_size
+      integer(4) num_it
+      integer(4) chunk_size
       integer num_thread
 
       logd3 = ilog2(d3)
@@ -1260,7 +1261,7 @@
       ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,k,ii,y, tid)
       tid = omp_get_thread_num()
-      ierr = geopm_tprof_init_loop(num_thread, tid, num_it, chunk_size)
+      ierr = geopm_tprof_init(num_it)
 !$omp do schedule(static, chunk_size)
       do j = 1, d2
         do ii = 0, d1 - fftblock, fftblock
@@ -1553,8 +1554,8 @@
 
       integer, external :: omp_get_thread_num, omp_get_num_threads
       integer(8) region_id
-      integer(8) num_it
-      integer(8) chunk_size
+      integer(4) num_it
+      integer(4) chunk_size
       integer num_thread
 !$omp parallel
       num_thread = omp_get_num_threads()
@@ -1596,7 +1597,7 @@
          ierr = geopm_prof_enter(region_id)
 !$omp parallel default(shared) private(i,j,ii,jj,z,tid)
          tid = omp_get_thread_num()
-         ierr = geopm_tprof_init_loop(num_thread, tid, num_it, chunk_size)
+         ierr = geopm_tprof_init(num_it)
 !$omp do schedule(static, chunk_size)
          do j = 0, n2-1, transblock
             do i = 0, n1-1, transblock
@@ -1684,8 +1685,8 @@
 
       integer, external :: omp_get_thread_num, omp_get_num_threads
       integer(8) region_id
-      integer(8) num_it
-      integer(8) chunk_size
+      integer(4) num_it
+      integer(4) chunk_size
       integer num_thread
 !$omp parallel
       num_thread = omp_get_num_threads()
@@ -1702,7 +1703,7 @@
       if (timers_enabled) call timer_start(T_transxzfin)
 !$omp parallel default(shared) private(i,j,p,ioff,tid)
       tid = omp_get_thread_num()
-      ierr = geopm_tprof_init_loop(num_thread, tid, num_it, chunk_size)
+      ierr = geopm_tprof_init(num_it)
 !$omp do schedule(static, chunk_size)
       do p = 0, np2-1
          ioff = p*n2
