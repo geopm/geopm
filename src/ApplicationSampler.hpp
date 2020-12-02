@@ -45,10 +45,12 @@
 
 namespace geopm
 {
+    class ApplicationRecordLog;
     class ProfileSampler;
     class ProfileIOSample;
     class EpochRuntimeRegulator;
     struct record_s;
+    struct short_region_s;
 
     class ApplicationSampler
     {
@@ -72,6 +74,7 @@ namespace geopm
             ///        update_records().
             /// @return Vector of application event records.
             virtual std::vector<record_s> get_records(void) const = 0;
+            virtual short_region_s get_short_region(uint64_t event_signal) const = 0;
             /// @brief Called after observing a EVENT_NAME_KEY event
             ///        to get a map from any hash returned in a previous
             ///        record to the string that generated the hash.
@@ -93,7 +96,7 @@ namespace geopm
             /// @brief Return a per-cpu vector of the process mapped
             ///        to each cpu.
             virtual std::vector<int> per_cpu_process(void) const = 0;
-
+            virtual void connect(const std::string &shm_key) = 0;
             // Deprecated API's below for access to legacy objects
             virtual void set_sampler(std::shared_ptr<ProfileSampler> sampler) = 0;
             virtual std::shared_ptr<ProfileSampler> get_sampler(void) = 0;

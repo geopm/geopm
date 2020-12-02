@@ -73,7 +73,7 @@ namespace geopm
                        int num_send_up,
                        int num_send_down,
                        std::unique_ptr<TreeComm> tree_comm,
-                       const ApplicationSampler &application_sampler,
+                       ApplicationSampler &application_sampler,
                        std::shared_ptr<ApplicationIO> application_io,
                        std::unique_ptr<Reporter> reporter,
                        std::unique_ptr<Tracer> tracer,
@@ -85,7 +85,8 @@ namespace geopm
                        bool do_policy,
                        std::unique_ptr<EndpointUser> endpoint,
                        const std::string &endpoint_path,
-                       bool do_endpoint);
+                       bool do_endpoint,
+                       const std::string &shm_key);
             virtual ~Controller();
             /// @brief Run control algorithm.
             ///
@@ -166,7 +167,7 @@ namespace geopm
             const int m_num_level_ctl;
             const int m_max_level;
             const int m_root_level;
-            const ApplicationSampler &m_application_sampler;
+            ApplicationSampler &m_application_sampler;
             std::shared_ptr<ApplicationIO> m_application_io;
             std::unique_ptr<Reporter> m_reporter;
             std::unique_ptr<Tracer> m_tracer;
@@ -188,6 +189,7 @@ namespace geopm
 
             std::vector<std::string> m_agent_policy_names;
             std::vector<std::string> m_agent_sample_names;
+            std::string m_shm_key;
     };
 }
 #endif
