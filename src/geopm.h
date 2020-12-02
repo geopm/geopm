@@ -104,11 +104,6 @@ int geopm_prof_shutdown(void);
 
 int geopm_tprof_init(uint32_t num_work_unit);
 
-int geopm_tprof_init_loop(int num_thread,
-                          int thread_idx,
-                          size_t num_iter,
-                          size_t chunk_size);
-
 int geopm_tprof_post(void);
 
 #ifdef __cplusplus
