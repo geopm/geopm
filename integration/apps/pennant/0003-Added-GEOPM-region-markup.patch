@@ -1,4 +1,4 @@
-From 57bfeefcf42a9ed32ffe112c2e881ec0fd6f23b8 Mon Sep 17 00:00:00 2001
+From 3e46efb2c171ea249538cf6ed42f0fb023923426 Mon Sep 17 00:00:00 2001
 From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Tue, 1 Dec 2020 17:44:13 -0800
 Subject: [PATCH 3/3] Added GEOPM region markup
@@ -36,13 +36,13 @@ Subject: [PATCH 3/3] Added GEOPM region markup
 
 Signed-off-by: Fuat Keceli <fuat.keceli@intel.com>
 ---
- Makefile            |  6 +++++
- src/Driver.cc       | 28 ++++++++++++++++++-
- src/Hydro.cc        | 78 ++++++++++++++++++++++++++++++++++++++++++++++++++++-
- src/PennantGeopm.cc | 54 +++++++++++++++++++++++++++++++++++++
- src/PennantGeopm.hh | 32 ++++++++++++++++++++++
- src/main.cc         |  3 +++
- 6 files changed, 199 insertions(+), 2 deletions(-)
+ Makefile            |  6 ++++
+ src/Driver.cc       | 28 +++++++++++++++++-
+ src/Hydro.cc        | 85 ++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ src/PennantGeopm.cc | 54 ++++++++++++++++++++++++++++++++++
+ src/PennantGeopm.hh | 32 ++++++++++++++++++++
+ src/main.cc         |  3 ++
+ 6 files changed, 206 insertions(+), 2 deletions(-)
  create mode 100644 src/PennantGeopm.cc
  create mode 100644 src/PennantGeopm.hh
 
@@ -126,7 +126,7 @@ index c75da82..9785995 100644
  
          if (mype == 0 &&
 diff --git a/src/Hydro.cc b/src/Hydro.cc
-index 23fab68..02a7190 100644
+index 23fab68..82fe633 100644
 --- a/src/Hydro.cc
 +++ b/src/Hydro.cc
 @@ -30,8 +30,15 @@
@@ -237,7 +237,7 @@ index 23fab68..02a7190 100644
      #pragma omp parallel for schedule(static)
      for (int sch = 0; sch < numsch; ++sch) {
          int sfirst = mesh->schsfirst[sch];
-@@ -286,6 +349,14 @@ void Hydro::doCycle(
+@@ -286,8 +349,23 @@ void Hydro::doCycle(
          calcWork(sfp, sfq, pu0, pu, pxp, dt, zw, zetot,
                  sfirst, slast);
      }  // for sch
@@ -251,15 +251,24 @@ index 23fab68..02a7190 100644
 +
      mesh->checkBadSides();
  
++#ifdef USEGEOPM
++#ifdef USEGEOPMMARKUP
++    geopm_prof_exit(region_id_doCycle_checkBadSides2);
++    geopm_prof_enter(region_id_doCycle_omp4);
++#endif
++#endif
++
      #pragma omp parallel for schedule(static)
-@@ -304,8 +375,13 @@ void Hydro::doCycle(
+     for (int zch = 0; zch < mesh->numzch; ++zch) {
+         int zfirst = mesh->zchzfirst[zch];
+@@ -304,8 +382,13 @@ void Hydro::doCycle(
          calcDtHydro(zdl, zvol, zvol0, dt, zfirst, zlast);
      }  // for zch
  
 -}
 +#ifdef USEGEOPM
 +#ifdef USEGEOPMMARKUP
-+    geopm_prof_exit(region_id_doCycle_checkBadSides2);
++    geopm_prof_exit(region_id_doCycle_omp4);
 +#endif
 +#endif
  
