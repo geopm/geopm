@@ -62,6 +62,22 @@
 
 namespace geopm
 {
+
+    int Profile::get_cpu(void)
+    {
+        static thread_local int result = -1;
+        if (result == -1) {
+            result = geopm_sched_get_cpu();
+#ifdef GEOPM_DEBUG
+            if (result >= geopm_sched_num_cpu()) {
+                throw geopm::Exception("Profile::get_cpu(): Number of online CPUs is less than or equal to the value returned by sched_getcpu()",
+                                       GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            }
+#endif
+        }
+        return result;
+    }
+
     ProfileImp::ProfileImp(const std::string &prof_name,
                            const std::string &key_base,
                            const std::string &report,
