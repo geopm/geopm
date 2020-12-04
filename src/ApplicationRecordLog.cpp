@@ -108,6 +108,7 @@ namespace geopm
         if (is_new) {
             region_enter.record_idx = layout.num_record;
             region_enter.region_idx = -1; // Not a short region yet
+            region_enter.is_short = false;
             record_s enter_record = {
                .time = geopm_time_diff(&m_time_zero, &time),
                .process = m_process,
@@ -128,6 +129,7 @@ namespace geopm
 
         auto region_it = m_hash_region_enter_map.find(hash);
         if (region_it == m_hash_region_enter_map.end()) {
+            // No short region info; send a normal exit event
             record_s exit_record = {
                .time = geopm_time_diff(&m_time_zero, &time),
                .process = m_process,
@@ -137,8 +139,10 @@ namespace geopm
             append_record(layout, exit_record);
         }
         else {
+            // This region was previous marked short or an entry
+            // occurred in the same control loop.
             auto &enter_info = region_it->second;
-
+            enter_info.is_short = true;
             if (enter_info.record_idx == -1) {
                 GEOPM_DEBUG_ASSERT(enter_info.region_idx == -1,
                                    "Short region in list with no matching record");
@@ -165,17 +169,21 @@ namespace geopm
                 ++(layout.num_region);
                 GEOPM_DEBUG_ASSERT(layout.num_region <= M_MAX_REGION,
                                    "ApplicationRecordLogImp::exit(): too many regions entered and exited within one control loop");
+                // Add a new short region
                 layout.region_table[region_idx] = {
                     .hash = hash,
                     .num_complete = 0,
                     .total_time = 0.0,
                 };
+                GEOPM_DEBUG_ASSERT(layout.record_table[enter_info.record_idx].event == EVENT_REGION_ENTRY,
+                                   "ApplicationRegionLog::exit(): adding a new short region when existing was not an entry.");
                 // Convert the region entry event into a short region event
                 layout.record_table[enter_info.record_idx].event = EVENT_SHORT_REGION;
                 layout.record_table[enter_info.record_idx].signal = region_idx;
             }
             GEOPM_DEBUG_ASSERT(region_idx >= 0 && region_idx < layout.num_region,
                                "Invalid region index");
+            // Update the count and total time for the short region
             auto &region = layout.region_table[region_idx];
             ++(region.num_complete);
             region.total_time += geopm_time_diff(&(enter_info.enter_time), &time);
@@ -235,12 +243,22 @@ namespace geopm
     void ApplicationRecordLogImp::check_reset(m_layout_s &layout)
     {
         if (layout.num_record == 0) {
+            // Other side has cleared the records.
+            // If currently in a short region, keep track of any short region data.
             auto region_enter_it = m_hash_region_enter_map.find(m_entered_region_hash);
             if (region_enter_it != m_hash_region_enter_map.end()) {
                 auto &entry_info = region_enter_it->second;
-                entry_info.record_idx = -1;
-                entry_info.region_idx = -1;
-                m_hash_region_enter_map = {*region_enter_it};
+                if (entry_info.is_short) {
+                    // the current region was previous marked as short;
+                    // maintain entry to convert a future exit
+                    entry_info.record_idx = -1;
+                    entry_info.region_idx = -1;
+                    m_hash_region_enter_map = {*region_enter_it};
+                }
+                else {
+                    // never marked as short region so an exit event will be sent
+                    m_hash_region_enter_map.clear();
+                }
             }
             else {
                 m_hash_region_enter_map.clear();
