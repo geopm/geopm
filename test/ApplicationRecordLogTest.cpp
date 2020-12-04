@@ -207,16 +207,20 @@ TEST_F(ApplicationRecordLogTest, one_exit)
     int proc_id = 123;
     uint64_t hash = 0x1234abcd;
     geopm_time_s time_0 = {{1, 0}};
-    geopm_time_s time = {{2, 0}};
+    geopm_time_s time_1 = {{2, 0}};
+    geopm_time_s time_2 = {{3, 0}};
 
     m_record_log->set_process(proc_id);
     m_record_log->set_time_zero(time_0);
 
-    m_record_log->exit(hash, time);
+    m_record_log->enter(hash, time_1);
+    m_record_log->dump(records, short_regions);
+
+    m_record_log->exit(hash, time_2);
     m_record_log->dump(records, short_regions);
     EXPECT_EQ(0ULL, short_regions.size());
     ASSERT_EQ(1ULL, records.size());
-    EXPECT_EQ(1.0, records[0].time);
+    EXPECT_EQ(2.0, records[0].time);
     EXPECT_EQ(proc_id, records[0].process);
     EXPECT_EQ(geopm::EVENT_REGION_EXIT, records[0].event);
     EXPECT_EQ(hash, records[0].signal);

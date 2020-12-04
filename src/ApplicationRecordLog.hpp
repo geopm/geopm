@@ -240,6 +240,7 @@ namespace geopm
                 int record_idx;
                 int region_idx;
                 geopm_time_s enter_time;
+                bool is_short;
             };
             void check_setup(void);
             void check_reset(m_layout_s &layout);
