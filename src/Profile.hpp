@@ -170,6 +170,13 @@ namespace geopm
             virtual std::shared_ptr<ProfileThreadTable> tprof_table(void) = 0;
 
             virtual void enable_pmpi(void) = 0;
+
+            /// @brief Returns the Linux logical CPU index that the
+            ///        calling thread is executing on, and caches the
+            ///        result to be used in future calls.  This method
+            ///        should be used by callers to report the correct
+            ///        cpu to thread_init() and thread_post().
+            static int get_cpu(void);
     };
 
     class Comm;
