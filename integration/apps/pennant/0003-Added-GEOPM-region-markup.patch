@@ -1,4 +1,4 @@
-From 31d5ec851755fb6a948b41bae9a3bacb3fd6f2ab Mon Sep 17 00:00:00 2001
+From 49a76ed325466f32036ae9f6344988108f1465f6 Mon Sep 17 00:00:00 2001
 From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Tue, 1 Dec 2020 17:44:13 -0800
 Subject: [PATCH 3/3] Added GEOPM region markup
@@ -36,35 +36,32 @@ Subject: [PATCH 3/3] Added GEOPM region markup
 
 Signed-off-by: Fuat Keceli <fuat.keceli@intel.com>
 ---
- Makefile            |  6 ++++
- src/Driver.cc       | 28 +++++++++++++++++-
+ Makefile            |  3 ++
+ src/Driver.cc       | 15 +++++++++-
  src/Hydro.cc        | 85 ++++++++++++++++++++++++++++++++++++++++++++++++++++-
- src/PennantGeopm.cc | 56 +++++++++++++++++++++++++++++++++++
- src/PennantGeopm.hh | 33 +++++++++++++++++++++
+ src/PennantGeopm.cc | 46 +++++++++++++++++++++++++++++
+ src/PennantGeopm.hh | 28 ++++++++++++++++++
  src/main.cc         |  3 ++
- 6 files changed, 209 insertions(+), 2 deletions(-)
+ 6 files changed, 178 insertions(+), 2 deletions(-)
  create mode 100644 src/PennantGeopm.cc
  create mode 100644 src/PennantGeopm.hh
 
 diff --git a/Makefile b/Makefile
-index a0611ef..369d119 100644
+index a0611ef..ba33a1d 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -40,6 +40,12 @@ CXXFLAGS := $(CXXFLAGS_OPT)
+@@ -40,6 +40,9 @@ CXXFLAGS := $(CXXFLAGS_OPT)
  ifdef USEGEOPM
  	LDFLAGS += $(GEOPM_LDFLAGS) $(GEOPM_LDLIBS)
  	CXXFLAGS += $(GEOPM_CFLAGS) -DUSEGEOPM -DEPOCH_TO_OUTERLOOP=$(EPOCH_TO_OUTERLOOP)
 +ifdef USEGEOPMMARKUP
 +	CXXFLAGS += -DUSEGEOPMMARKUP
 +endif
-+ifdef USEGEOPMMARKUP_2
-+	CXXFLAGS += -DUSEGEOPMMARKUP_2
-+endif
  endif
  
  # add mpi to compile (comment out for serial build)
 diff --git a/src/Driver.cc b/src/Driver.cc
-index c75da82..9785995 100644
+index c75da82..6339f31 100644
 --- a/src/Driver.cc
 +++ b/src/Driver.cc
 @@ -31,9 +31,11 @@
@@ -87,7 +84,7 @@ index c75da82..9785995 100644
  }
  
  Driver::~Driver() {
-@@ -111,12 +112,37 @@ void Driver::run() {
+@@ -111,9 +112,21 @@ void Driver::run() {
  
          cycle += 1;
  
@@ -95,9 +92,6 @@ index c75da82..9785995 100644
 +#ifdef USEGEOPMMARKUP
 +        geopm_prof_enter(region_id_calcGlobalDt);
 +#endif // USEGEOPMMARKUP
-+#ifdef USEGEOPMMARKUP_2
-+        geopm_prof_enter(region_id_calcGlobalDt);
-+#endif // USEGEOPMMARKUP_2
 +#endif // USEGEOPM
 +
          // get timestep
@@ -107,24 +101,11 @@ index c75da82..9785995 100644
 +#ifdef USEGEOPMMARKUP
 +        geopm_prof_exit(region_id_calcGlobalDt);
 +#endif // USEGEOPMMARKUP
-+#ifdef USEGEOPMMARKUP_2
-+        geopm_prof_exit(region_id_calcGlobalDt);
-+        geopm_prof_enter(region_id_hydroDoCycle);
-+#endif // USEGEOPMMARKUP_2
 +#endif // USEGEOPM
 +
          // begin hydro cycle
          hydro->doCycle(dt);
  
-+#ifdef USEGEOPM
-+#ifdef USEGEOPMMARKUP_2
-+        geopm_prof_exit(region_id_hydroDoCycle);
-+#endif // USEGEOPMMARKUP_2
-+#endif // USEGEOPM
-+
-         time += dt;
- 
-         if (mype == 0 &&
 diff --git a/src/Hydro.cc b/src/Hydro.cc
 index 23fab68..4427352 100644
 --- a/src/Hydro.cc
@@ -278,10 +259,10 @@ index 23fab68..4427352 100644
          const double2* px0,
 diff --git a/src/PennantGeopm.cc b/src/PennantGeopm.cc
 new file mode 100644
-index 0000000..dbea3c0
+index 0000000..49d1af5
 --- /dev/null
 +++ b/src/PennantGeopm.cc
-@@ -0,0 +1,56 @@
+@@ -0,0 +1,46 @@
 +#ifdef USEGEOPM
 +#include "geopm.h"
 +#include "PennantGeopm.hh"
@@ -305,11 +286,6 @@ index 0000000..dbea3c0
 +uint64_t region_id_doCycle_omp5;
 +#endif // USEGEOPMMARKUP
 +
-+#ifdef USEGEOPMMARKUP_2
-+uint64_t region_id_calcGlobalDt;
-+uint64_t region_id_hydroDoCycle;
-+#endif // USEGEOPMMARKUP
-+
 +#endif // USEGEOPM
 +
 +void init() {
@@ -329,11 +305,6 @@ index 0000000..dbea3c0
 +    geopm_prof_region("doCycle_omp5", GEOPM_REGION_HINT_UNKNOWN, &region_id_doCycle_omp5);
 +#endif // USEGEOPMMARKUP
 +
-+#ifdef USEGEOPMMARKUP_2
-+    geopm_prof_region("calcGlobalDt", GEOPM_REGION_HINT_UNKNOWN, &region_id_calcGlobalDt);
-+    geopm_prof_region("hydroDoCycle", GEOPM_REGION_HINT_UNKNOWN, &region_id_hydroDoCycle);
-+#endif // USEGEOPMMARKUP_2
-+
 +#endif // USEGEOPM
 +}  // init
 +
@@ -341,10 +312,10 @@ index 0000000..dbea3c0
 \ No newline at end of file
 diff --git a/src/PennantGeopm.hh b/src/PennantGeopm.hh
 new file mode 100644
-index 0000000..fce4d06
+index 0000000..31bbd87
 --- /dev/null
 +++ b/src/PennantGeopm.hh
-@@ -0,0 +1,33 @@
+@@ -0,0 +1,28 @@
 +#ifndef PENNANT_GEOPM_HH_
 +#define PENNANT_GEOPM_HH_
 +
@@ -365,11 +336,6 @@ index 0000000..fce4d06
 +    extern uint64_t region_id_doCycle_checkBadSides2;
 +    extern uint64_t region_id_doCycle_omp5;
 +#endif // USEGEOPMMARKUP
-+
-+#ifdef USEGEOPMMARKUP_2
-+    extern uint64_t region_id_calcGlobalDt;
-+    extern uint64_t region_id_hydroDoCycle;
-+#endif // USEGEOPMMARKUP_2
 +
 +#endif // USEGEOPM
 +
