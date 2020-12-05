@@ -35,6 +35,7 @@
 import os
 import time
 import sys
+import subprocess
 
 import geopmpy.launcher
 from . import util
@@ -148,12 +149,21 @@ def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir,
             app_conf = tar.app_conf()
             run_id = tar.run_id(iteration)
 
-            app_conf.trial_setup(run_id, output_dir)
-            launch_run(agent_conf, app_conf, run_id, output_dir,
-                       extra_cli_args=extra_cli_args,
-                       num_nodes=num_nodes, enable_traces=enable_traces,
-                       enable_profile_traces=enable_profile_traces)
-            app_conf.trial_teardown(run_id, output_dir)
+            trial_complete = False
+            while trial_complete is False:
+                app_conf.trial_setup(run_id, output_dir)
+                try:
+                    launch_run(agent_conf, app_conf, run_id, output_dir,
+                               extra_cli_args=extra_cli_args,
+                               num_nodes=num_nodes, enable_traces=enable_traces,
+                               enable_profile_traces=enable_profile_traces)
+                    trial_complete = True
+                except subprocess.CalledProcessError as e:
+                    # Hit if e.g. the app calls MPI_ABORT
+                    sys.stderr.write('Warning: <geopm> Execption encountered during run {}'.format(e))
+                    sys.stderr.write('Retrying previous trial...')
+                finally:
+                    app_conf.trial_teardown(run_id, output_dir)
 
             # rest to cool off between runs
             time.sleep(cool_off_time)
