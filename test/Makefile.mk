@@ -76,7 +76,6 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/ApplicationSamplerTest.with_mpi \
               test/gtest_links/ApplicationSamplerTest.with_epoch \
               test/gtest_links/ApplicationStatusTest.bad_shmem \
-              test/gtest_links/ApplicationStatusTest.hash \
               test/gtest_links/ApplicationStatusTest.hints \
               test/gtest_links/ApplicationStatusTest.process \
               test/gtest_links/ApplicationStatusTest.work_progress \

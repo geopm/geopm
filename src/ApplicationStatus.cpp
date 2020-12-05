@@ -116,40 +116,6 @@ namespace geopm
         return result;
     }
 
-    void ApplicationStatusImp::set_hash(int cpu_idx, uint64_t hash)
-    {
-        if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
-            throw Exception("ApplicationStatusImp::set_hash(): invalid CPU index: " + std::to_string(cpu_idx),
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        if (((~0ULL << 32) & hash) != 0) {
-            throw Exception("ApplicationStatusImp::set_hash(): invalid region hash: " + std::to_string(hash),
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
-        m_buffer[cpu_idx].hash = (uint32_t)hash;
-    }
-
-    uint64_t ApplicationStatusImp::get_hash(int cpu_idx) const
-    {
-        if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
-            throw Exception("ApplicationStatusImp::get_hash(): invalid CPU index: " + std::to_string(cpu_idx),
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-        GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
-        return m_buffer[cpu_idx].hash;
-    }
-
-    std::vector<uint64_t> ApplicationStatusImp::get_hash(void) const
-    {
-        GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
-        std::vector<uint64_t> result(m_num_cpu);
-        for (int ii = 0; ii < m_num_cpu; ++ii) {
-            result[ii] = get_hash(ii);
-        }
-        return result;
-    }
-
     void ApplicationStatusImp::set_total_work_units(int cpu_idx, int work_units)
     {
         if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
