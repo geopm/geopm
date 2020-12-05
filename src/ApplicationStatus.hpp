@@ -47,10 +47,9 @@ namespace geopm
     class PlatformTopo;
 
     /// @brief Object that encapsulates application process
-    ///        information such as the process ID, region hash, or
-    ///        region hint.  There will be one ApplicationStatus for
-    ///        the node (board domain) on each side of the shared
-    ///        memory.
+    ///        information such as the process ID or region hint.
+    ///        There will be one ApplicationStatus for the node (board
+    ///        domain) on each side of the shared memory.
     class ApplicationStatus
     {
         public:
@@ -62,16 +61,6 @@ namespace geopm
             virtual uint64_t get_hint(int cpu_idx) const = 0;
             /// @brief Get the current hint bits for every CPU.
             virtual std::vector<uint64_t> get_hint(void) const = 0;
-            /// @brief Set the hash of the region currently running on
-            ///        a CPU.
-            virtual void set_hash(int cpu_idx, uint64_t hash) = 0;
-            /// @brief Get the hash of the region currently running on
-            ///        a CPU.
-            virtual uint64_t get_hash(int cpu_idx) const = 0;
-            /// @brief Set the hashes of the regions currently running
-            ///        on each CPU.
-            virtual std::vector<uint64_t> get_hash(void) const = 0;
-
             /// @brief Reset the total work units for a single CPU to
             ///        be completed as part of a parallel region.
             ///        Calling this method also resets the work
@@ -129,9 +118,6 @@ namespace geopm
             void set_hint(int cpu_idx, uint64_t hints) override;
             uint64_t get_hint(int cpu_idx) const override;
             std::vector<uint64_t> get_hint(void) const override;
-            void set_hash(int cpu_idx, uint64_t hash) override;
-            uint64_t get_hash(int cpu_idx) const override;
-            std::vector<uint64_t> get_hash(void) const override;
             void set_total_work_units(int cpu_idx, int work_units) override;
             void increment_work_unit(int cpu_idx) override;
             double get_work_progress(int cpu_idx) const override;
@@ -144,11 +130,10 @@ namespace geopm
             struct m_app_status_s
             {
                 uint32_t hints;
-                uint32_t hash;
                 int32_t process; // can be negative
                 uint32_t total_work;
                 uint32_t completed_work;
-                char padding[44];
+                char padding[48];
             };
             static_assert((sizeof(ApplicationStatusImp::m_app_status_s) % geopm::hardware_destructive_interference_size) == 0,
                           "m_app_status_s not aligned to cache lines");
