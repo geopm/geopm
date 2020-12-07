@@ -489,31 +489,6 @@ namespace geopm
 
     }
 
-    void ProfileImp::progress(uint64_t region_id, double fraction)
-    {
-        if (!m_is_enabled) {
-            return;
-        }
-
-#ifdef GEOPM_OVERHEAD
-        struct geopm_time_s overhead_entry;
-        geopm_time(&overhead_entry);
-#endif
-
-        if (m_num_enter == 1 && m_curr_region_id == region_id &&
-            fraction > 0.0 && fraction < 1.0 &&
-            m_scheduler->do_sample()) {
-            m_progress = fraction;
-            sample();
-            m_scheduler->record_exit();
-        }
-
-#ifdef GEOPM_OVERHEAD
-        m_overhead_time += geopm_time_since(&overhead_entry);
-#endif
-
-    }
-
     void ProfileImp::epoch(void)
     {
         if (!m_is_enabled ||
