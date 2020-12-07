@@ -178,36 +178,47 @@ TEST_F(ApplicationSamplerTest, one_enter_exit_two_ranks)
 
 TEST_F(ApplicationSamplerTest, with_epoch)
 {
-    uint64_t region_hash = 0xabcdULL;
-    std::vector<record_s> message_buffer {
+    uint64_t region_hash_0 = 0xabcdULL;
+    uint64_t region_hash_1 = 0x1234ULL;
+
+    std::vector<record_s> message_buffer_0 {
     //   time      process      event                      signal
-        {10.0,     0,           geopm::EVENT_REGION_ENTRY, region_hash},
+        {10.0,     0,           geopm::EVENT_REGION_ENTRY, region_hash_0},
         {11.0,     0,           geopm::EVENT_EPOCH_COUNT,  1},
-        {12.0,     0,           geopm::EVENT_REGION_EXIT, region_hash},
-        {13.0,     0,           geopm::EVENT_REGION_ENTRY, region_hash},
+        {12.0,     0,           geopm::EVENT_REGION_EXIT, region_hash_0},
+        {13.0,     0,           geopm::EVENT_REGION_ENTRY, region_hash_1},
         {14.0,     0,           geopm::EVENT_EPOCH_COUNT, 2},
-        {15.0,     0,           geopm::EVENT_REGION_EXIT, region_hash},
+        {15.0,     0,           geopm::EVENT_REGION_EXIT, region_hash_1},
     };
 
-    std::vector<record_s> empty_message_buffer;
+    std::vector<record_s> message_buffer_1 {
+    //   time      process      event                      signal
+        {10.5,     234,         geopm::EVENT_REGION_ENTRY, region_hash_0},
+        {11.5,     234,         geopm::EVENT_EPOCH_COUNT,  1},
+        {12.5,     234,         geopm::EVENT_REGION_EXIT, region_hash_0},
+        {13.5,     234,         geopm::EVENT_REGION_ENTRY, region_hash_1},
+        {14.5,     234,         geopm::EVENT_EPOCH_COUNT, 2},
+        {15.5,     234,         geopm::EVENT_REGION_EXIT, region_hash_1},
+    };
+
     std::vector<short_region_s> empty_short_region_buffer;
     EXPECT_CALL(*m_record_log_0, dump(_, _))
-        .WillOnce(DoAll(SetArgReferee<0>(message_buffer),
+        .WillOnce(DoAll(SetArgReferee<0>(message_buffer_0),
                         SetArgReferee<1>(empty_short_region_buffer)));
     EXPECT_CALL(*m_record_log_1, dump(_, _))
-        .WillOnce(DoAll(SetArgReferee<0>(empty_message_buffer),
+        .WillOnce(DoAll(SetArgReferee<0>(message_buffer_1),
                         SetArgReferee<1>(empty_short_region_buffer)));
     m_app_sampler->update_records();
     std::vector<struct record_s> result {
          m_app_sampler->get_records()
     };
 
-    ASSERT_EQ(6U, result.size());
+    ASSERT_EQ(12U, result.size());
 
     EXPECT_EQ(10.0, result[0].time);
     EXPECT_EQ(0, result[0].process);
     EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[0].event);
-    EXPECT_EQ(region_hash, result[0].signal);
+    EXPECT_EQ(region_hash_0, result[0].signal);
 
     EXPECT_EQ(11.0, result[1].time);
     EXPECT_EQ(0, result[1].process);
@@ -217,12 +228,12 @@ TEST_F(ApplicationSamplerTest, with_epoch)
     EXPECT_EQ(12.0, result[2].time);
     EXPECT_EQ(0, result[2].process);
     EXPECT_EQ(geopm::EVENT_REGION_EXIT, result[2].event);
-    EXPECT_EQ(region_hash, result[2].signal);
+    EXPECT_EQ(region_hash_0, result[2].signal);
 
     EXPECT_EQ(13.0, result[3].time);
     EXPECT_EQ(0, result[3].process);
     EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[3].event);
-    EXPECT_EQ(region_hash, result[3].signal);
+    EXPECT_EQ(region_hash_1, result[3].signal);
 
     EXPECT_EQ(14.0, result[4].time);
     EXPECT_EQ(0, result[4].process);
@@ -232,7 +243,37 @@ TEST_F(ApplicationSamplerTest, with_epoch)
     EXPECT_EQ(15.0, result[5].time);
     EXPECT_EQ(0, result[5].process);
     EXPECT_EQ(geopm::EVENT_REGION_EXIT, result[5].event);
-    EXPECT_EQ(region_hash, result[5].signal);
+    EXPECT_EQ(region_hash_1, result[5].signal);
+
+    EXPECT_EQ(10.5, result[6].time);
+    EXPECT_EQ(234, result[6].process);
+    EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[6].event);
+    EXPECT_EQ(region_hash_0, result[6].signal);
+
+    EXPECT_EQ(11.5, result[7].time);
+    EXPECT_EQ(234, result[7].process);
+    EXPECT_EQ(geopm::EVENT_EPOCH_COUNT, result[7].event);
+    EXPECT_EQ(1U, result[7].signal);
+
+    EXPECT_EQ(12.5, result[8].time);
+    EXPECT_EQ(234, result[8].process);
+    EXPECT_EQ(geopm::EVENT_REGION_EXIT, result[8].event);
+    EXPECT_EQ(region_hash_0, result[8].signal);
+
+    EXPECT_EQ(13.5, result[9].time);
+    EXPECT_EQ(234, result[9].process);
+    EXPECT_EQ(geopm::EVENT_REGION_ENTRY, result[9].event);
+    EXPECT_EQ(region_hash_1, result[9].signal);
+
+    EXPECT_EQ(14.5, result[10].time);
+    EXPECT_EQ(234, result[10].process);
+    EXPECT_EQ(geopm::EVENT_EPOCH_COUNT, result[10].event);
+    EXPECT_EQ(2U, result[10].signal);
+
+    EXPECT_EQ(15.5, result[11].time);
+    EXPECT_EQ(234, result[11].process);
+    EXPECT_EQ(geopm::EVENT_REGION_EXIT, result[11].event);
+    EXPECT_EQ(region_hash_1, result[11].signal);
 }
 
 TEST_F(ApplicationSamplerTest, string_conversion)
