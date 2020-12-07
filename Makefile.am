@@ -226,6 +226,8 @@ dist_doc_DATA = COPYING \
                 # end
 
 EXTRA_DIST = $(TUTORIAL_DIST) \
+             .github/include_guards.sh \
+             .github/workflows/build.yml \
              .gitignore \
              .travis.yml \
              .travis_obs.sh \
