@@ -153,7 +153,7 @@ namespace geopm
         else {
             m_num_progress_updates = 100;
         }
-        m_norm = 1.0 / m_num_progress_updates;
+        (void)geopm_tprof_init(m_num_progress_updates);
     }
 
     int ModelRegion::region(uint64_t hint)
@@ -187,7 +187,7 @@ namespace geopm
     void ModelRegion::loop_enter(uint64_t iteration)
     {
         if (m_do_progress) {
-            (void)geopm_prof_progress(m_region_id, iteration * m_norm);
+            (void)geopm_tprof_post();
         }
         if (m_do_imbalance) {
             (void)geopm_imbalancer_enter();
