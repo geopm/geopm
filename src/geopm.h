@@ -95,9 +95,6 @@ int geopm_prof_enter(uint64_t region_id);
 
 int geopm_prof_exit(uint64_t region_id);
 
-int geopm_prof_progress(uint64_t region_id,
-                        double fraction);
-
 int geopm_prof_epoch(void);
 
 int geopm_prof_shutdown(void);
