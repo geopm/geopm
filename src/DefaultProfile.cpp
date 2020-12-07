@@ -147,23 +147,6 @@ extern "C"
         return err;
     }
 
-    int geopm_prof_progress(uint64_t region_id, double fraction)
-    {
-        int err = 0;
-        if (g_pmpi_prof_enabled) {
-            try {
-                geopm::Profile::default_profile().progress(region_id, fraction);
-            }
-            catch (...) {
-                err = geopm::exception_handler(std::current_exception());
-            }
-        }
-        else {
-            err = GEOPM_ERROR_RUNTIME;
-        }
-        return err;
-    }
-
     int geopm_prof_epoch(void)
     {
         int err = 0;
