@@ -111,7 +111,7 @@ int main(int argc, char **argv)
 "\n"
 "                 If \"-progress\" is appended to any region name in the\n"
 "                 configuration, then progress for the region will be\n"
-"                 reported through the geopm_prof_progress API.\n"
+"                 reported through the geopm_tprof_* API.\n"
 "\n"
 "\n";
 
