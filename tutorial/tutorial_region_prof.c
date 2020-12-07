@@ -83,13 +83,13 @@ static int stream_profiled_serial(uint64_t region_id, size_t num_stream, double 
     const size_t block = 256;
     const size_t num_block = num_stream / block;
     const size_t num_remain = num_stream % block;
-    const double norm = 1.0 / num_block;
 
+    geopm_tprof_init(num_block);
     for (size_t i = 0; i < num_block; ++i) {
         for (size_t j = 0; j < block; ++j) {
             a[i * block + j] = b[i * block + j] + scalar * c[i * block + j];
         }
-        geopm_prof_progress(region_id, i * norm);
+        geopm_tprof_post();
     }
     for (size_t j = 0; j < num_remain; ++j) {
         a[num_block * block + j] = b[num_block * block + j] + scalar * c[num_block * block + j];

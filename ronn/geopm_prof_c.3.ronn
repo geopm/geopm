@@ -48,10 +48,6 @@ geopm_prof_c(3) -- application profiling interfaces
   * `int geopm_prof_exit(`:
     `uint64_t` _region_id_`);`
 
-  * `int geopm_prof_progress(`:
-    `uint64_t` _region_id_, <br>
-    `double` _fraction_`);`
-
   * `int geopm_prof_epoch(`:
     `void);`
 
@@ -95,15 +91,15 @@ initialized.
   * `geopm_prof_region`():
     registers an application region.  The _region_name_ and _hint_ are
     input parameters, and the _region_id_ is output.  The _region_id_
-    can be used with `geopm_prof_enter`(), `geopm_prof_exit`(), and
-    `geopm_prof_progress`() to reference the region.  If the region
-    name has been previously registered, a call to this function will
-    set the _region_id_ but the state associated with the region is
-    unmodified.  The _region_name_ is used to determine the output
-    _region_id_ and is also displayed in the profiling report to
-    identify the region.  The _hint_ is one of the values given by the
-    geopm_region_hint_e enum defined in _geopm.h_ which determines the
-    initial control settings.  The following hints are supported:
+    can be used with `geopm_prof_enter`() and `geopm_prof_exit`() to
+    reference the region.  If the region name has been previously
+    registered, a call to this function will set the _region_id_ but
+    the state associated with the region is unmodified.  The
+    _region_name_ is used to determine the output _region_id_ and is
+    also displayed in the profiling report to identify the region.
+    The _hint_ is one of the values given by the geopm_region_hint_e
+    enum defined in _geopm.h_ which determines the initial control
+    settings.  The following hints are supported:
 
     `GEOPM_REGION_HINT_UNKNOWN`: <br>
     Default value, provides no hint to the runtime.
@@ -149,14 +145,6 @@ initialized.
     region.  If this region is nested then the call is ignored and an
     error code is returned.
 
-  * `geopm_prof_progress`():
-    is called by the compute application in a single threaded context
-    to signal the proportion of work completed for a region,
-    _fraction_, where _fraction_ is between 0 and 1.  If the
-    _region_id_ does not match the _region_id_ of the last call to
-    geopm_prof_prof_enter() that was not nested, then this call is
-    ignored and an error code is returned.
-
   * `geopm_prof_epoch`():
     is called once for each pass through a computational loop
     containing inter-node synchronization events.  This call acts as a
@@ -170,22 +158,19 @@ initialized.
     the `GEOPM_REGION_HINT_IGNORE` hint bit set will be ignored.
 
   * `geopm_tprof_init`():
-    resets the thread profile table, which extends the functionality
-    of the profiling interface to report progress within threaded
-    regions.  Along with `geopm_tprof_post()`, it provides an
-    alternative to the `geopm_prof_progress()` method.  This should be
-    called by all threads to set up the table after entering a thread
-    parallel region.  This interface enables each thread to set
-    the total number work units that the thread will be executing.
-    This corresponds to the number of times that the
-    `geopm_tprof_post`() interface will be called by the thread to
-    report progress within the region.
+    resets the thread progress and updates the total work for a
+    threaded region.  Along with `geopm_tprof_post()`, it provides a
+    way for threads to report progress within a region.  This should
+    be called by all threads with _num_work_unit_, the total number of
+    work units to be completed by all threads after entering a thread
+    parallel region.  The total work units corresponds to the number
+    of times that the `geopm_tprof_post`() interface will be called by
+    any thread to report progress within the region.
 
   * `geopm_tprof_post`():
     is called after a thread has completed each work unit to report
-    progress.  Rather than a user-provided percentage of work complete,
-    this method signals the completion of one work unit out of the total
-    passed to `geopm_tprof_init()`.
+    progress.  This method signals the completion of one work unit out
+    of the total passed to `geopm_tprof_init()`.
 
 ## EXAMPLE
 
