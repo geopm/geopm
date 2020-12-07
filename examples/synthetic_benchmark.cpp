@@ -345,6 +345,7 @@ void synthetic_benchmark_main(int nranks, int rank)
 
     geopm_prof_region("loop_one", GEOPM_REGION_HINT_UNKNOWN, &region_id[0]);
     geopm_prof_enter(region_id[0]);
+    geopm_tprof_init(syntheticcfg.rank_iters(rank));
     geopm_time(&start);
 
     GET_TIME(tStart);
@@ -357,7 +358,7 @@ void synthetic_benchmark_main(int nranks, int rank)
         }
 
         x += do_work(i);
-        geopm_prof_progress(region_id[0], i*syntheticcfg.rank_norm(rank));
+        geopm_tprof_post();
     }
     GET_TIME(tEnd);
     fprintf(stderr, "%.2fs: Rank %d finished\n", tEnd-tStart, rank);
