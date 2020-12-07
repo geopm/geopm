@@ -38,40 +38,40 @@
 int main(int argc, char**argv)
 {
     uint64_t region_id[3];
-    struct geopm_time_s start, curr;
-    double timeout = 0;
     int rank;
+    int iterations, total_iterations;
 
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     geopm_prof_region("loop_one", GEOPM_REGION_HINT_UNKNOWN, &region_id[0]);
     geopm_prof_enter(region_id[0]);
-    geopm_time(&start);
-    while (timeout < 1.0) {
-        geopm_time(&curr);
-        timeout = geopm_time_diff(&start, &curr);
-        geopm_prof_progress(region_id[2], timeout/1.0);
+    total_iterations = 1000;
+    geopm_tprof_init(total_iterations);
+    iterations = 0;
+    while (iterations < total_iterations) {
+        geopm_tprof_post();
+        ++iterations;
     }
     geopm_prof_exit(region_id[0]);
 
     geopm_prof_region("loop_two", GEOPM_REGION_HINT_UNKNOWN, &region_id[1]);
     geopm_prof_enter(region_id[1]);
-    geopm_time(&start);
-    while (timeout < 2.0) {
-        geopm_time(&curr);
-        timeout = geopm_time_diff(&start, &curr);
-        geopm_prof_progress(region_id[2], timeout/2.0);
+    total_iterations = 2000;
+    geopm_tprof_init(total_iterations);
+    iterations = 0;
+    while (iterations < total_iterations) {
+        geopm_tprof_post();
     }
     geopm_prof_exit(region_id[1]);
 
     geopm_prof_region("loop_three", GEOPM_REGION_HINT_UNKNOWN, &region_id[2]);
     geopm_prof_enter(region_id[2]);
-    geopm_time(&start);
-    while (timeout < 3.0) {
-        geopm_time(&curr);
-        timeout = geopm_time_diff(&start, &curr);
-        geopm_prof_progress(region_id[2], timeout/3.0);
+    total_iterations = 1000;
+    geopm_tprof_init(total_iterations);
+    iterations = 0;
+    while (iterations < total_iterations) {
+        geopm_tprof_post();
     }
     geopm_prof_exit(region_id[2]);
 
