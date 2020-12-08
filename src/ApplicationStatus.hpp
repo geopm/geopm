@@ -56,25 +56,40 @@ namespace geopm
             virtual ~ApplicationStatus() = default;
 
             /// @brief Set the current hint bits for a CPU.
+            /// @param [in] cpu_idx Index of the Linux logical CPU
+            /// @param [in] hints Bitfield of hints to set for the
+            ///             CPU.  Any existing hints will be
+            ///             overwritten.
             virtual void set_hint(int cpu_idx, uint64_t hints) = 0;
             /// @brief Get the current hint bits for a CPU.
+            /// @param [in] cpu_idx Index of the Linux logical CPU.
+            /// @return The current hints for the given CPU.
             virtual uint64_t get_hint(int cpu_idx) const = 0;
             /// @brief Get the current hint bits for every CPU.
+            /// @return Vector over Linux logical CPU of the current
+            ///         hints.
             virtual std::vector<uint64_t> get_hint(void) const = 0;
-            /// @brief Reset the total work units for a single CPU to
+            /// @brief Reset the total work units for all threads to
             ///        be completed as part of a parallel region.
             ///        Calling this method also resets the work
             ///        completed for the CPU.
+            /// @param [in] cpu_idx Index of the Linux logical CPU
             virtual void set_total_work_units(int cpu_idx, int work_units) = 0;
             /// @brief Mark a unit of work completed for this CPU.
+            /// @param [in] cpu_idx Index of the Linux logical CPU
             virtual void increment_work_unit(int cpu_idx) = 0;
             /// @brief Get the current progress for this CPU.
             ///        Progress is the fraction of the total work
             ///        units that have been completed.
+            /// @param [in] cpu_idx Index of the Linux logical CPU.
+            /// @return Fraction of the total work completed by this
+            ///         CPU.
             virtual double get_work_progress(int cpu_idx) const = 0;
             /// @brief Get the current progress of every CPU.
             ///        Progress is the fraction of the total work
             ///        units that have been completed.
+            /// @return Vector over Linux logical CPU of the work
+            ///         progress values.
             virtual std::vector<double> get_work_progress(void) const = 0;
             /// @brief Assign a set of CPUs to a unique ID for a
             ///        process being coordinated within a job by the
@@ -86,11 +101,16 @@ namespace geopm
             ///        will be one Profile object per process on the
             ///        application side, and one ApplicationRecordLog
             ///        per process on each side of the shared memory.
+            /// @param [in] cpu_idx Set of Linux logical CPUs for the process
             virtual void set_process(const std::set<int> &cpu_idx, int process) = 0;
             /// @brief Get the process ID for the process the CPU is
             ///        currently assigned to.
+            /// @param [in] cpu_idx Index of the Linux logical CPU
+            /// @return ID of the process running on the given CPU.
             virtual int get_process(int cpu_idx) const = 0;
             /// @brief Get the process IDs for every CPU.
+            /// @return Vector over Linux logical CPU of the process
+            ///         IDs.
             virtual std::vector<int> get_process(void) const = 0;
             /// @brief Create an ApplicationStatus object using the
             ///        given SharedMemory.  The caller is responsible
@@ -98,11 +118,15 @@ namespace geopm
             ///        shared memory, or attaching to an existing
             ///        shared memory region before passing the object
             ///        to this method.
+            /// @return A unique_ptr to the new ApplicationStatus
+            ///         object.
             static std::unique_ptr<ApplicationStatus> make_unique(const PlatformTopo& topo,
                                                                   std::shared_ptr<SharedMemory> shmem);
             /// @brief Return the required size of the shared memory
             ///        region used by the ApplicationStatus for the
             ///        given number of CPUs.
+            /// @return Minimum buffer size required for the
+            ///         SharedMemory used by ApplicationStatus.
             static size_t buffer_size(int num_cpu);
 
         protected:
@@ -129,8 +153,8 @@ namespace geopm
             // These fields must all be 32-bit int
             struct m_app_status_s
             {
+                int32_t process; // can be negative, indicating unset process
                 uint32_t hints;
-                int32_t process; // can be negative
                 uint32_t total_work;
                 uint32_t completed_work;
                 char padding[48];

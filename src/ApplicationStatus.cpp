@@ -129,9 +129,8 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
 
         }
-
-        m_buffer[cpu_idx].total_work = work_units;
         m_buffer[cpu_idx].completed_work = 0;
+        m_buffer[cpu_idx].total_work = work_units;
     }
 
     void ApplicationStatusImp::increment_work_unit(int cpu_idx)
@@ -158,12 +157,12 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
+        double result = NAN;
         int total_work = m_buffer[cpu_idx].total_work;
-        if (total_work <= 0) {
-            return NAN;
+        if (total_work > 0) {
+            result = (double)m_buffer[cpu_idx].completed_work / total_work;
         }
-        int completed = m_buffer[cpu_idx].completed_work;
-        return (double)completed / total_work;
+        return result;
     }
 
     std::vector<double> ApplicationStatusImp::get_work_progress(void) const
