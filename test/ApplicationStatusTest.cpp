@@ -141,6 +141,40 @@ TEST_F(ApplicationStatusTest, hints)
                                GEOPM_ERROR_INVALID, "invalid CPU index");
 }
 
+TEST_F(ApplicationStatusTest, hash)
+{
+    std::vector<uint64_t> expected(M_NUM_CPU, 0ULL);
+    ASSERT_EQ(0x0, GEOPM_REGION_HASH_INVALID);
+
+    EXPECT_EQ(expected, m_status->get_hash());
+    EXPECT_EQ(0x00, m_status->get_hash(0));
+    EXPECT_EQ(0x00, m_status->get_hash(1));
+    EXPECT_EQ(0x00, m_status->get_hash(2));
+    EXPECT_EQ(0x00, m_status->get_hash(3));
+
+    m_status->set_hash(0, 0xAA);
+    m_status->set_hash(1, 0xAA);
+    m_status->set_hash(2, 0xBB);
+    m_status->set_hash(3, 0xCC);
+    expected = {0xAA, 0xAA, 0xBB, 0xCC};
+    EXPECT_EQ(expected, m_status->get_hash());
+    EXPECT_EQ(0xAA, m_status->get_hash(0));
+    EXPECT_EQ(0xAA, m_status->get_hash(1));
+    EXPECT_EQ(0xBB, m_status->get_hash(2));
+    EXPECT_EQ(0xCC, m_status->get_hash(3));
+
+    GEOPM_EXPECT_THROW_MESSAGE(m_status->set_hash(-1, 0xDD),
+                               GEOPM_ERROR_INVALID, "invalid CPU index");
+    GEOPM_EXPECT_THROW_MESSAGE(m_status->set_hash(99, 0xDD),
+                               GEOPM_ERROR_INVALID, "invalid CPU index");
+    GEOPM_EXPECT_THROW_MESSAGE(m_status->set_hash(0, (0xFFULL << 32)),
+                               GEOPM_ERROR_INVALID, "invalid region hash");
+    GEOPM_EXPECT_THROW_MESSAGE(m_status->get_hash(-1),
+                               GEOPM_ERROR_INVALID, "invalid CPU index");
+    GEOPM_EXPECT_THROW_MESSAGE(m_status->get_hash(99),
+                               GEOPM_ERROR_INVALID, "invalid CPU index");
+}
+
 TEST_F(ApplicationStatusTest, work_progress)
 {
 
