@@ -87,7 +87,7 @@ namespace geopm
             /// @param [in] cpu_idx Index of the Linux logical CPU.
             /// @return Fraction of the total work completed by this
             ///         CPU.
-            virtual double get_work_progress(int cpu_idx) const = 0;
+            virtual double get_progress_cpu(int cpu_idx) const = 0;
             /// @brief Assign a set of CPUs to a unique ID for a
             ///        process being coordinated within a job by the
             ///        GEOPM controller.  This may be: a COMM_WORLD or
@@ -138,7 +138,7 @@ namespace geopm
             uint64_t get_hash(int cpu_idx) const override;
             void set_total_work_units(int cpu_idx, int work_units) override;
             void increment_work_unit(int cpu_idx) override;
-            double get_work_progress(int cpu_idx) const override;
+            double get_progress_cpu(int cpu_idx) const override;
             void set_process(const std::set<int> &cpu_idx, int process) override;
             int get_process(int cpu_idx) const override;
         private:

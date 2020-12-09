@@ -164,10 +164,10 @@ namespace geopm
         m_buffer[cpu_idx].completed_work += 1;
     }
 
-    double ApplicationStatusImp::get_work_progress(int cpu_idx) const
+    double ApplicationStatusImp::get_progress_cpu(int cpu_idx) const
     {
         if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
-            throw Exception("ApplicationStatusImp::get_work_progress(): invalid CPU index: " + std::to_string(cpu_idx),
+            throw Exception("ApplicationStatusImp::get_progress_cpu(): invalid CPU index: " + std::to_string(cpu_idx),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
