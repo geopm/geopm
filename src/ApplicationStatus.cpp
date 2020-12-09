@@ -106,16 +106,6 @@ namespace geopm
         return (uint64_t)m_buffer[cpu_idx].hints << 32;
     }
 
-    std::vector<uint64_t> ApplicationStatusImp::get_hint(void) const
-    {
-        GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
-        std::vector<uint64_t> result(m_num_cpu);
-        for (int ii = 0; ii < m_num_cpu; ++ii) {
-            result[ii] = get_hint(ii);
-        }
-        return result;
-    }
-
     void ApplicationStatusImp::set_hash(int cpu_idx, uint64_t hash)
     {
         if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
@@ -138,16 +128,6 @@ namespace geopm
         }
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
         return m_buffer[cpu_idx].hash;
-    }
-
-    std::vector<uint64_t> ApplicationStatusImp::get_hash(void) const
-    {
-        GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
-        std::vector<uint64_t> result(m_num_cpu);
-        for (int ii = 0; ii < m_num_cpu; ++ii) {
-            result[ii] = get_hash(ii);
-        }
-        return result;
     }
 
     void ApplicationStatusImp::set_total_work_units(int cpu_idx, int work_units)
@@ -199,15 +179,6 @@ namespace geopm
         return result;
     }
 
-    std::vector<double> ApplicationStatusImp::get_work_progress(void) const
-    {
-        std::vector<double> result(m_num_cpu);
-        for (int ii = 0; ii < m_num_cpu; ++ii) {
-            result[ii] = get_work_progress(ii);
-        }
-        return result;
-    }
-
     void ApplicationStatusImp::set_process(const std::set<int> &cpu_idx, int process)
     {
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
@@ -229,15 +200,5 @@ namespace geopm
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
 
         return m_buffer[cpu_idx].process;
-    }
-
-    std::vector<int> ApplicationStatusImp::get_process(void) const
-    {
-        GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
-        std::vector<int> result(m_num_cpu);
-        for (int ii = 0; ii < m_num_cpu; ++ii) {
-            result[ii] = get_process(ii);
-        }
-        return result;
     }
 }
