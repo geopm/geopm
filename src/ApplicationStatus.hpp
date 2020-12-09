@@ -66,19 +66,12 @@ namespace geopm
             /// @param [in] cpu_idx Index of the Linux logical CPU.
             /// @return The current hints for the given CPU.
             virtual uint64_t get_hint(int cpu_idx) const = 0;
-            /// @brief Get the current hint bits for every CPU.
-            /// @return Vector over Linux logical CPU of the current
-            ///         hints.
-            virtual std::vector<uint64_t> get_hint(void) const = 0;
             /// @brief Set the hash of the region currently running on
             ///        a CPU.
             virtual void set_hash(int cpu_idx, uint64_t hash) = 0;
             /// @brief Get the hash of the region currently running on
             ///        a CPU.
             virtual uint64_t get_hash(int cpu_idx) const = 0;
-            /// @brief Set the hashes of the regions currently running
-            ///        on each CPU.
-            virtual std::vector<uint64_t> get_hash(void) const = 0;
             /// @brief Reset the total work units for all threads to
             ///        be completed as part of a parallel region.
             ///        Calling this method also resets the work
@@ -95,12 +88,6 @@ namespace geopm
             /// @return Fraction of the total work completed by this
             ///         CPU.
             virtual double get_work_progress(int cpu_idx) const = 0;
-            /// @brief Get the current progress of every CPU.
-            ///        Progress is the fraction of the total work
-            ///        units that have been completed.
-            /// @return Vector over Linux logical CPU of the work
-            ///         progress values.
-            virtual std::vector<double> get_work_progress(void) const = 0;
             /// @brief Assign a set of CPUs to a unique ID for a
             ///        process being coordinated within a job by the
             ///        GEOPM controller.  This may be: a COMM_WORLD or
@@ -118,10 +105,6 @@ namespace geopm
             /// @param [in] cpu_idx Index of the Linux logical CPU
             /// @return ID of the process running on the given CPU.
             virtual int get_process(int cpu_idx) const = 0;
-            /// @brief Get the process IDs for every CPU.
-            /// @return Vector over Linux logical CPU of the process
-            ///         IDs.
-            virtual std::vector<int> get_process(void) const = 0;
             /// @brief Create an ApplicationStatus object using the
             ///        given SharedMemory.  The caller is responsible
             ///        for calling `buffer_size()` when creating the
@@ -151,17 +134,13 @@ namespace geopm
             virtual ~ApplicationStatusImp() = default;
             void set_hint(int cpu_idx, uint64_t hints) override;
             uint64_t get_hint(int cpu_idx) const override;
-            std::vector<uint64_t> get_hint(void) const override;
             void set_hash(int cpu_idx, uint64_t hash) override;
             uint64_t get_hash(int cpu_idx) const override;
-            std::vector<uint64_t> get_hash(void) const override;
             void set_total_work_units(int cpu_idx, int work_units) override;
             void increment_work_unit(int cpu_idx) override;
             double get_work_progress(int cpu_idx) const override;
-            std::vector<double> get_work_progress(void) const override;
             void set_process(const std::set<int> &cpu_idx, int process) override;
             int get_process(int cpu_idx) const override;
-            std::vector<int> get_process(void) const override;
         private:
             // These fields must all be 32-bit int
             struct m_app_status_s

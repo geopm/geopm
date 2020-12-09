@@ -84,12 +84,10 @@ TEST_F(ApplicationStatusTest, bad_shmem)
 
 TEST_F(ApplicationStatusTest, hints)
 {
-    std::vector<uint64_t> expected(M_NUM_CPU, 0ULL);
     uint64_t NOHINTS = 0ULL;
     uint64_t NETWORK = GEOPM_REGION_HINT_NETWORK;
     uint64_t COMPARA = GEOPM_REGION_HINT_COMPUTE | GEOPM_REGION_HINT_PARALLEL;
 
-    EXPECT_EQ(expected, m_status->get_hint());
     EXPECT_EQ(NOHINTS, m_status->get_hint(0));
     EXPECT_EQ(NOHINTS, m_status->get_hint(1));
     EXPECT_EQ(NOHINTS, m_status->get_hint(2));
@@ -97,9 +95,6 @@ TEST_F(ApplicationStatusTest, hints)
 
     m_status->set_hint(1, NETWORK);
     m_status->set_hint(3, NETWORK);
-    expected[1] = NETWORK;
-    expected[3] = NETWORK;
-    EXPECT_EQ(expected, m_status->get_hint());
     EXPECT_EQ(NOHINTS, m_status->get_hint(0));
     EXPECT_EQ(NETWORK, m_status->get_hint(1));
     EXPECT_EQ(NOHINTS, m_status->get_hint(2));
@@ -107,9 +102,6 @@ TEST_F(ApplicationStatusTest, hints)
 
     m_status->set_hint(2, COMPARA);
     m_status->set_hint(3, COMPARA);
-    expected[2] = COMPARA;
-    expected[3] = COMPARA;
-    EXPECT_EQ(expected, m_status->get_hint());
     EXPECT_EQ(NOHINTS, m_status->get_hint(0));
     EXPECT_EQ(NETWORK, m_status->get_hint(1));
     EXPECT_EQ(COMPARA, m_status->get_hint(2));
@@ -119,10 +111,6 @@ TEST_F(ApplicationStatusTest, hints)
     m_status->set_hint(1, 0ULL);
     m_status->set_hint(2, 0ULL);
     m_status->set_hint(3, 0ULL);
-    expected[1] = NOHINTS;
-    expected[2] = NOHINTS;
-    expected[3] = NOHINTS;
-    EXPECT_EQ(expected, m_status->get_hint());
     EXPECT_EQ(NOHINTS, m_status->get_hint(0));
     EXPECT_EQ(NOHINTS, m_status->get_hint(1));
     EXPECT_EQ(NOHINTS, m_status->get_hint(2));
@@ -143,10 +131,8 @@ TEST_F(ApplicationStatusTest, hints)
 
 TEST_F(ApplicationStatusTest, hash)
 {
-    std::vector<uint64_t> expected(M_NUM_CPU, 0ULL);
     ASSERT_EQ(0x0, GEOPM_REGION_HASH_INVALID);
 
-    EXPECT_EQ(expected, m_status->get_hash());
     EXPECT_EQ(0x00, m_status->get_hash(0));
     EXPECT_EQ(0x00, m_status->get_hash(1));
     EXPECT_EQ(0x00, m_status->get_hash(2));
@@ -156,8 +142,6 @@ TEST_F(ApplicationStatusTest, hash)
     m_status->set_hash(1, 0xAA);
     m_status->set_hash(2, 0xBB);
     m_status->set_hash(3, 0xCC);
-    expected = {0xAA, 0xAA, 0xBB, 0xCC};
-    EXPECT_EQ(expected, m_status->get_hash());
     EXPECT_EQ(0xAA, m_status->get_hash(0));
     EXPECT_EQ(0xAA, m_status->get_hash(1));
     EXPECT_EQ(0xBB, m_status->get_hash(2));
@@ -197,18 +181,14 @@ TEST_F(ApplicationStatusTest, work_progress)
     m_status->increment_work_unit(1);
     EXPECT_DOUBLE_EQ(0.750, m_status->get_work_progress(0));
     EXPECT_DOUBLE_EQ(0.250, m_status->get_work_progress(1));
-    auto result = m_status->get_work_progress();
-    EXPECT_DOUBLE_EQ(0.750, result[0]);
-    EXPECT_DOUBLE_EQ(0.250, result[1]);
-    EXPECT_TRUE(std::isnan(result[2]));
-    EXPECT_TRUE(std::isnan(result[3]));
+    EXPECT_TRUE(std::isnan(m_status->get_work_progress(2)));
+    EXPECT_TRUE(std::isnan(m_status->get_work_progress(3)));
     m_status->increment_work_unit(0);
     m_status->increment_work_unit(1);
     m_status->increment_work_unit(1);
     EXPECT_DOUBLE_EQ(1.000, m_status->get_work_progress(0));
     EXPECT_DOUBLE_EQ(0.500, m_status->get_work_progress(1));
 
-    // TODO: throw in profile side?
     GEOPM_EXPECT_THROW_MESSAGE(m_status->increment_work_unit(0),
                                GEOPM_ERROR_RUNTIME, "more increments than total work");
 
@@ -246,9 +226,6 @@ TEST_F(ApplicationStatusTest, work_progress)
 
 TEST_F(ApplicationStatusTest, process)
 {
-    std::vector<int> expected(M_NUM_CPU, -1);
-
-    EXPECT_EQ(expected, m_status->get_process());
     EXPECT_EQ(-1, m_status->get_process(0));
     EXPECT_EQ(-1, m_status->get_process(1));
     EXPECT_EQ(-1, m_status->get_process(2));
@@ -257,8 +234,6 @@ TEST_F(ApplicationStatusTest, process)
     m_status->set_process({0, 2}, 34);
     m_status->set_process({1}, 56);
     m_status->set_process({3}, 78);
-    expected = {34, 56, 34, 78};
-    EXPECT_EQ(expected, m_status->get_process());
     EXPECT_EQ(34, m_status->get_process(0));
     EXPECT_EQ(56, m_status->get_process(1));
     EXPECT_EQ(34, m_status->get_process(2));
@@ -266,8 +241,6 @@ TEST_F(ApplicationStatusTest, process)
 
     // detach processes
     m_status->set_process({0, 1, 2, 3}, -1);
-    expected = {-1, -1, -1, -1};
-    EXPECT_EQ(expected, m_status->get_process());
     EXPECT_EQ(-1, m_status->get_process(0));
     EXPECT_EQ(-1, m_status->get_process(1));
     EXPECT_EQ(-1, m_status->get_process(2));
