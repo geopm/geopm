@@ -73,11 +73,12 @@ namespace geopm
         // Note: no lock; all members of the struct are 32-bits and will be
         // accessed atomically by hardware.
         m_buffer = (m_app_status_s *)m_shmem->pointer();
+        m_cache.resize(m_shmem->size());
 
         // initialize shmem if all zero is not appropriate
         for (int ii = 0; ii < m_num_cpu; ++ii) {
-            m_buffer[ii].total_work = -1;
             m_buffer[ii].process = -1;
+            m_cache[ii].process = -1;
         }
     }
 
@@ -102,8 +103,9 @@ namespace geopm
             throw Exception("ApplicationStatusImp::get_hint(): invalid CPU index: " + std::to_string(cpu_idx),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
-        return (uint64_t)m_buffer[cpu_idx].hints << 32;
+        GEOPM_DEBUG_ASSERT(m_cache.size() == buffer_size(m_num_cpu),
+                           "Memory for m_cache not sized correctly");
+        return (uint64_t)m_cache[cpu_idx].hints << 32;
     }
 
     void ApplicationStatusImp::set_hash(int cpu_idx, uint64_t hash)
@@ -126,8 +128,9 @@ namespace geopm
             throw Exception("ApplicationStatusImp::get_hash(): invalid CPU index: " + std::to_string(cpu_idx),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
-        return m_buffer[cpu_idx].hash;
+        GEOPM_DEBUG_ASSERT(m_cache.size() == buffer_size(m_num_cpu),
+                           "Memory for m_cache not sized correctly");
+        return m_cache[cpu_idx].hash;
     }
 
     void ApplicationStatusImp::set_total_work_units(int cpu_idx, int work_units)
@@ -136,13 +139,14 @@ namespace geopm
             throw Exception("ApplicationStatusImp::set_total_work_units(): invalid CPU index: " + std::to_string(cpu_idx),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
-
         if (work_units < 0) {
             throw Exception("ApplicationStatusImp::set_total_work_units(): invalid number of work units: " + std::to_string(work_units),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
 
         }
+        GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
+        // completed_work must be written first to prevent invalid
+        // progress in case of a race
         m_buffer[cpu_idx].completed_work = 0;
         m_buffer[cpu_idx].total_work = work_units;
     }
@@ -170,11 +174,12 @@ namespace geopm
             throw Exception("ApplicationStatusImp::get_progress_cpu(): invalid CPU index: " + std::to_string(cpu_idx),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
+        GEOPM_DEBUG_ASSERT(m_cache.size() == buffer_size(m_num_cpu),
+                           "Memory for m_cache not sized correctly");
         double result = NAN;
-        int total_work = m_buffer[cpu_idx].total_work;
+        int total_work = m_cache[cpu_idx].total_work;
         if (total_work > 0) {
-            result = (double)m_buffer[cpu_idx].completed_work / total_work;
+            result = (double)m_cache[cpu_idx].completed_work / total_work;
         }
         return result;
     }
@@ -197,8 +202,17 @@ namespace geopm
             throw Exception("ApplicationStatusImp::get_process(): invalid CPU index: " + std::to_string(cpu_idx),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
+        GEOPM_DEBUG_ASSERT(m_cache.size() == buffer_size(m_num_cpu),
+                           "Memory for m_cache not sized correctly");
 
-        return m_buffer[cpu_idx].process;
+        return m_cache[cpu_idx].process;
+    }
+
+    void ApplicationStatusImp::update_cache(void)
+    {
+        GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
+        GEOPM_DEBUG_ASSERT(m_cache.size() == buffer_size(m_num_cpu),
+                           "Memory for m_cache not sized correctly");
+        std::copy(m_buffer, m_buffer + buffer_size(m_num_cpu), m_cache.begin());
     }
 }
