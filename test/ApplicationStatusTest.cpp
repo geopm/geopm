@@ -131,21 +131,21 @@ TEST_F(ApplicationStatusTest, hints)
 
 TEST_F(ApplicationStatusTest, hash)
 {
-    ASSERT_EQ(0x0, GEOPM_REGION_HASH_INVALID);
+    ASSERT_EQ(0x00ULL, GEOPM_REGION_HASH_INVALID);
 
-    EXPECT_EQ(0x00, m_status->get_hash(0));
-    EXPECT_EQ(0x00, m_status->get_hash(1));
-    EXPECT_EQ(0x00, m_status->get_hash(2));
-    EXPECT_EQ(0x00, m_status->get_hash(3));
+    EXPECT_EQ(0x00ULL, m_status->get_hash(0));
+    EXPECT_EQ(0x00ULL, m_status->get_hash(1));
+    EXPECT_EQ(0x00ULL, m_status->get_hash(2));
+    EXPECT_EQ(0x00ULL, m_status->get_hash(3));
 
     m_status->set_hash(0, 0xAA);
     m_status->set_hash(1, 0xAA);
     m_status->set_hash(2, 0xBB);
     m_status->set_hash(3, 0xCC);
-    EXPECT_EQ(0xAA, m_status->get_hash(0));
-    EXPECT_EQ(0xAA, m_status->get_hash(1));
-    EXPECT_EQ(0xBB, m_status->get_hash(2));
-    EXPECT_EQ(0xCC, m_status->get_hash(3));
+    EXPECT_EQ(0xAAULL, m_status->get_hash(0));
+    EXPECT_EQ(0xAAULL, m_status->get_hash(1));
+    EXPECT_EQ(0xBBULL, m_status->get_hash(2));
+    EXPECT_EQ(0xCCULL, m_status->get_hash(3));
 
     GEOPM_EXPECT_THROW_MESSAGE(m_status->set_hash(-1, 0xDD),
                                GEOPM_ERROR_INVALID, "invalid CPU index");
