@@ -105,6 +105,11 @@ namespace geopm
             /// @param [in] cpu_idx Index of the Linux logical CPU
             /// @return ID of the process running on the given CPU.
             virtual int get_process(int cpu_idx) const = 0;
+            /// @brief Updates the local memory with the latest values from
+            ///        the shared memory.  Any calls to get methods will use
+            ///        these values until the cache is updated again.
+            virtual void update_cache(void) = 0;
+
             /// @brief Create an ApplicationStatus object using the
             ///        given SharedMemory.  The caller is responsible
             ///        for calling `buffer_size()` when creating the
@@ -141,6 +146,7 @@ namespace geopm
             double get_progress_cpu(int cpu_idx) const override;
             void set_process(const std::set<int> &cpu_idx, int process) override;
             int get_process(int cpu_idx) const override;
+            void update_cache(void) override;
         private:
             // These fields must all be 32-bit int
             struct m_app_status_s
@@ -161,6 +167,7 @@ namespace geopm
             int m_num_cpu;
             std::shared_ptr<SharedMemory> m_shmem;
             m_app_status_s *m_buffer;
+            std::vector<m_app_status_s> m_cache;
     };
 }
 
