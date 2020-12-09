@@ -165,51 +165,51 @@ TEST_F(ApplicationStatusTest, work_progress)
     // CPUs 2 and 3 are inactive, 0 work units
     m_status->set_total_work_units(0, 4);
     m_status->set_total_work_units(1, 8);
-    EXPECT_DOUBLE_EQ(0.000, m_status->get_work_progress(0));
-    EXPECT_DOUBLE_EQ(0.000, m_status->get_work_progress(1));
-    EXPECT_TRUE(std::isnan(m_status->get_work_progress(2)));
-    EXPECT_TRUE(std::isnan(m_status->get_work_progress(3)));
+    EXPECT_DOUBLE_EQ(0.000, m_status->get_progress_cpu(0));
+    EXPECT_DOUBLE_EQ(0.000, m_status->get_progress_cpu(1));
+    EXPECT_TRUE(std::isnan(m_status->get_progress_cpu(2)));
+    EXPECT_TRUE(std::isnan(m_status->get_progress_cpu(3)));
     m_status->increment_work_unit(0);
     m_status->increment_work_unit(1);
-    EXPECT_DOUBLE_EQ(0.250, m_status->get_work_progress(0));
-    EXPECT_DOUBLE_EQ(0.125, m_status->get_work_progress(1));
+    EXPECT_DOUBLE_EQ(0.250, m_status->get_progress_cpu(0));
+    EXPECT_DOUBLE_EQ(0.125, m_status->get_progress_cpu(1));
     m_status->increment_work_unit(0);
-    EXPECT_DOUBLE_EQ(0.500, m_status->get_work_progress(0));
-    EXPECT_DOUBLE_EQ(0.125, m_status->get_work_progress(1));
-    EXPECT_DOUBLE_EQ(0.125, m_status->get_work_progress(1));
-    m_status->increment_work_unit(0);
-    m_status->increment_work_unit(1);
-    EXPECT_DOUBLE_EQ(0.750, m_status->get_work_progress(0));
-    EXPECT_DOUBLE_EQ(0.250, m_status->get_work_progress(1));
-    EXPECT_TRUE(std::isnan(m_status->get_work_progress(2)));
-    EXPECT_TRUE(std::isnan(m_status->get_work_progress(3)));
+    EXPECT_DOUBLE_EQ(0.500, m_status->get_progress_cpu(0));
+    EXPECT_DOUBLE_EQ(0.125, m_status->get_progress_cpu(1));
+    EXPECT_DOUBLE_EQ(0.125, m_status->get_progress_cpu(1));
     m_status->increment_work_unit(0);
     m_status->increment_work_unit(1);
+    EXPECT_DOUBLE_EQ(0.750, m_status->get_progress_cpu(0));
+    EXPECT_DOUBLE_EQ(0.250, m_status->get_progress_cpu(1));
+    EXPECT_TRUE(std::isnan(m_status->get_progress_cpu(2)));
+    EXPECT_TRUE(std::isnan(m_status->get_progress_cpu(3)));
+    m_status->increment_work_unit(0);
     m_status->increment_work_unit(1);
-    EXPECT_DOUBLE_EQ(1.000, m_status->get_work_progress(0));
-    EXPECT_DOUBLE_EQ(0.500, m_status->get_work_progress(1));
+    m_status->increment_work_unit(1);
+    EXPECT_DOUBLE_EQ(1.000, m_status->get_progress_cpu(0));
+    EXPECT_DOUBLE_EQ(0.500, m_status->get_progress_cpu(1));
 
     GEOPM_EXPECT_THROW_MESSAGE(m_status->increment_work_unit(0),
                                GEOPM_ERROR_RUNTIME, "more increments than total work");
 
     // reset progress
     m_status->set_total_work_units(0, 8);
-    EXPECT_DOUBLE_EQ(0.00, m_status->get_work_progress(0));
+    EXPECT_DOUBLE_EQ(0.00, m_status->get_progress_cpu(0));
 
     // leave region
     m_status->set_total_work_units(0, 0);
     m_status->set_total_work_units(1, 0);
     m_status->set_total_work_units(2, 0);
     m_status->set_total_work_units(3, 0);
-    EXPECT_TRUE(std::isnan(m_status->get_work_progress(0)));
-    EXPECT_TRUE(std::isnan(m_status->get_work_progress(1)));
-    EXPECT_TRUE(std::isnan(m_status->get_work_progress(2)));
-    EXPECT_TRUE(std::isnan(m_status->get_work_progress(3)));
+    EXPECT_TRUE(std::isnan(m_status->get_progress_cpu(0)));
+    EXPECT_TRUE(std::isnan(m_status->get_progress_cpu(1)));
+    EXPECT_TRUE(std::isnan(m_status->get_progress_cpu(2)));
+    EXPECT_TRUE(std::isnan(m_status->get_progress_cpu(3)));
 
 
-    GEOPM_EXPECT_THROW_MESSAGE(m_status->get_work_progress(-1),
+    GEOPM_EXPECT_THROW_MESSAGE(m_status->get_progress_cpu(-1),
                                GEOPM_ERROR_INVALID, "invalid CPU index");
-    GEOPM_EXPECT_THROW_MESSAGE(m_status->get_work_progress(99),
+    GEOPM_EXPECT_THROW_MESSAGE(m_status->get_progress_cpu(99),
                                GEOPM_ERROR_INVALID, "invalid CPU index");
     GEOPM_EXPECT_THROW_MESSAGE(m_status->set_total_work_units(-1, 100),
                                GEOPM_ERROR_INVALID, "invalid CPU index");
