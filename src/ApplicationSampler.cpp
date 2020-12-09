@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
  *
@@ -140,7 +139,7 @@ namespace geopm
         // Clear the buffers that we will be building.
         m_record_buffer.clear();
         m_short_region_buffer.clear();
-        // Itereate over the record log for each process
+        // Iterate over the record log for each process
         for (auto &proc_map_it : m_process_map) {
             // Record the location in the record buffer where this
             // process' data begins for updating the short region
