@@ -540,6 +540,18 @@ namespace geopm
 
     }
 
+    void ProfileImp::thread_init(int cpu, uint32_t num_work_unit)
+    {
+        // Note: cpu will be determined by legacy object; input is ignored
+        m_tprof_table->init(num_work_unit);
+    }
+
+    void ProfileImp::thread_post(int cpu)
+    {
+        // Note: cpu will be determined by legacy object; input is ignored
+        m_tprof_table->post();
+    }
+
     void ProfileImp::sample(void)
     {
         if (!m_is_enabled) {
@@ -626,11 +638,6 @@ namespace geopm
         }
 #endif
 
-    }
-
-    std::shared_ptr<ProfileThreadTable> ProfileImp::tprof_table(void)
-    {
-        return m_tprof_table;
     }
 
     void ProfileImp::enable_pmpi(void)
