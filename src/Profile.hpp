@@ -36,13 +36,12 @@
 #include <cstdint>
 #include <vector>
 #include <string>
-#include <list>
+#include <set>
 #include <memory>
+#include <stack>
 
 namespace geopm
 {
-    class ProfileThreadTable;
-
     /// @brief Enables application profiling and application feedback
     ///        to the control algorithm.
     ///
@@ -178,9 +177,9 @@ namespace geopm
     class Comm;
     class SharedMemory;
     class ControlMessage;
-    class PlatformTopo;
     class ProfileTable;
-    class SampleScheduler;
+    class ApplicationRecordLog;
+    class ApplicationStatus;
 
     class ProfileImp : public Profile
     {
@@ -204,8 +203,6 @@ namespace geopm
             ///
             /// @param [in] timeout Application connection timeout.
             ///
-            /// @param [in] do_region_barrier Insert MPI barrier between regions.
-            ///
             /// @param [in] comm The application's MPI communicator.
             ///        Each rank of this communicator will report to a
             ///        separate shared memory region.  One
@@ -216,23 +213,26 @@ namespace geopm
             /// @param [in] ctl_msg Preconstructed ControlMessage instance,
             ///        bypasses shmem creation.
             ///
-            /// @param [in] topo Preconstructed PlatformTopo instance,
-            ///        bypasses singleton discovery.
+            /// @param [in] num_cpu Number of CPUs for the platform
             ///
-            /// @param [in] ctl_msg Preconstructed ProfileTable instance,
+            /// @param [in] cpu_set Set of CPUs assigned to the
+            ///        process owning the Profile object
+            ///
+            /// @param [in] table Preconstructed ProfileTable instance,
             ///        bypasses shmem creation.
-            ///
-            /// @param [in] ctl_msg Preconstructed ProfileThreadTable instance,
-            ///        bypasses shmem creation.
-            ///
-            /// @param [in] ctl_msg Preconstructed SampleScheduler instance.
-            ProfileImp(const std::string &prof_name, const std::string &key_base,
-                       const std::string &report, double timeout, bool do_region_barrier,
-                       std::unique_ptr<Comm> comm, std::unique_ptr<ControlMessage> ctl_msg,
-                       const PlatformTopo &topo, std::unique_ptr<ProfileTable> table,
-                       std::shared_ptr<ProfileThreadTable> t_table,
-                       std::unique_ptr<SampleScheduler> scheduler,
-                       std::shared_ptr<Comm> reduce_comm);
+            ProfileImp(const std::string &prof_name,
+                       const std::string &key_base,
+                       const std::string &report,
+                       double timeout,
+                       std::shared_ptr<Comm> comm,
+                       std::shared_ptr<ControlMessage> ctl_msg,
+                       int num_cpu,
+                       std::set<int> cpu_set,
+                       std::shared_ptr<ProfileTable> table,
+                       std::shared_ptr<Comm> reduce_comm,
+                       std::shared_ptr<ApplicationStatus> app_status,
+                       std::shared_ptr<ApplicationRecordLog> app_record_log,
+                       int process);
             /// @brief ProfileImp destructor, virtual.
             virtual ~ProfileImp();
             void init(void) override;
@@ -244,92 +244,80 @@ namespace geopm
             void thread_init(int cpu, uint32_t num_work_unit) override;
             void thread_post(int cpu) override;
             virtual void enable_pmpi(void) override;
-            void init_prof_comm(std::unique_ptr<Comm> comm, int &shm_num_rank);
+        protected:
+            bool m_is_enabled;
+        private:
+            void init_prof_comm(std::shared_ptr<Comm> comm, int &shm_num_rank);
             void init_ctl_msg(const std::string &sample_key);
             /// @brief Fill in rank affinity list.
             ///
-            /// Uses PlatformTopo to determine the cpuset the current
+            /// Uses num_cpu to determine the cpuset the current
             /// process is bound to. This information is used to fill
             /// in a set containing all CPUs we can run on. This is used
             /// to communicate with the geopm runtime the number of ranks
             /// as well as their affinity masks.
-            void init_cpu_list(int num_cpu);
+            void init_cpu_set(int num_cpu);
             void init_cpu_affinity(int shm_num_rank);
-            void init_tprof_table(const std::string &tprof_key, const PlatformTopo &topo);
             void init_table(const std::string &sample_key);
-        protected:
-            bool m_is_enabled;
-        private:
+            /// @brief Set the hint on all CPUs assigned to this process.
+            void set_hint(uint64_t hint);
+
             enum m_profile_const_e {
                 M_PROF_SAMPLE_PERIOD = 1,
             };
-            /// @brief Post profile sample.
-            ///
-            /// Called to derive a sample based on the profiling
-            /// information collected.  This sample is posted to the
-            /// geopm::Controller through shared memory.
-            void sample(void);
-            /// @brief Print profile report to a file.
-            ///
-            /// Writes a profile report to a file with the given
-            /// file_name.  This should be called only after all
-            /// profile data has been collected, just prior to
-            /// application termination.
-            ///
-            /// @param [in] file_name The base file name for the
-            ///        output report.  There may be suffixes appended
-            ///        to this name if multiple files are created.
-            ///
-            void print(const std::string &file_name);
+
+            /// @brief Sends the report name and region names across
+            ///        to Controller.
+            void send_names(const std::string &report_file_name);
+
             /// @brief holds the string name of the profile.
             std::string m_prof_name;
             std::string m_key_base;
             std::string m_report;
             double m_timeout;
-            bool m_do_region_barrier;
-            std::unique_ptr<Comm> m_comm;
+            std::shared_ptr<Comm> m_comm;
             /// @brief Holds the 64 bit unique region identifier
             ///        for the current region.
             uint64_t m_curr_region_id;
+            uint64_t m_current_hash;
             /// @brief Holds the number of ranks that enter a region in
             ///        order to keep track of nested regions.
             int m_num_enter;
-            /// @brief Holds the rank's current progress in the region.
-            double m_progress;
             /// @brief Attaches to the shared memory region for
             ///        control messages.
             std::unique_ptr<SharedMemory> m_ctl_shmem;
             /// @brief Holds a pointer to the shared memory region
             ///        used to pass control messages to and from the geopm
             ///        runtime.
-            std::unique_ptr<ControlMessage> m_ctl_msg;
-            const PlatformTopo &m_topo;
+            std::shared_ptr<ControlMessage> m_ctl_msg;
+            int m_num_cpu;
+            /// @brief Holds the set of cpus that the rank process is
+            ///        bound to.
+            std::set<int> m_cpu_set;
             /// @brief Attaches to the shared memory region for
             ///        passing samples to the geopm runtime.
             std::unique_ptr<SharedMemory> m_table_shmem;
             /// @brief Hash table for sample messages contained in
             ///        shared memory.
-            std::unique_ptr<ProfileTable> m_table;
-            std::unique_ptr<SharedMemory> m_tprof_shmem;
-            std::shared_ptr<ProfileThreadTable> m_tprof_table;
-            std::unique_ptr<SampleScheduler> m_scheduler;
-            /// @brief Holds a list of cpus that the rank process is
-            ///        bound to.
-            std::list<int> m_cpu_list;
+            std::shared_ptr<ProfileTable> m_table;
             /// @brief Communicator consisting of the root rank on each
             ///        compute node.
             std::shared_ptr<Comm> m_shm_comm;
             /// @brief The process's rank in MPI_COMM_WORLD.
             int m_rank;
+            int m_process;
             /// @brief The process's rank in m_shm_comm.
             int m_shm_rank;
-            uint64_t m_parent_region;
-            double m_parent_progress;
-            int m_parent_num_enter;
             std::shared_ptr<Comm> m_reduce_comm;
+
+            std::shared_ptr<ApplicationStatus> m_app_status;
+            std::shared_ptr<ApplicationRecordLog> m_app_record_log;
+            std::stack<uint64_t> m_hint_stack;
+
             double m_overhead_time;
             double m_overhead_time_startup;
             double m_overhead_time_shutdown;
+
     };
 }
 
