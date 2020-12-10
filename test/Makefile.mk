@@ -408,6 +408,15 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/ProfileTableTest.overfill \
               test/gtest_links/ProfileTracerTest.construct_update_destruct \
               test/gtest_links/ProfileTracerTest.format \
+              test/gtest_links/ProfileTest.enter_exit \
+              test/gtest_links/ProfileTest.enter_exit_nested \
+              test/gtest_links/ProfileTest.epoch \
+              test/gtest_links/ProfileTest.progress_multithread \
+              test/gtest_links/ProfileTestIntegration.enter_exit \
+              test/gtest_links/ProfileTestIntegration.enter_exit_short \
+              test/gtest_links/ProfileTestIntegration.enter_exit_nested \
+              test/gtest_links/ProfileTestIntegration.epoch \
+              test/gtest_links/ProfileTestIntegration.progress_multithread \
               test/gtest_links/ProxyEpochRecordFilterTest.simple_conversion \
               test/gtest_links/ProxyEpochRecordFilterTest.skip_one \
               test/gtest_links/ProxyEpochRecordFilterTest.skip_two_off_one \
@@ -641,6 +650,8 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/PowerGovernorAgentTest.cpp \
                           test/PowerGovernorTest.cpp \
                           test/ProfileTableTest.cpp \
+                          test/ProfileTest.cpp \
+                          test/ProfileTestIntegration.cpp \
                           test/ProfileTracerTest.cpp \
                           test/ProxyEpochRecordFilterTest.cpp \
                           test/RawMSRSignalTest.cpp \
