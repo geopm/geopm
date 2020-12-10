@@ -179,15 +179,13 @@ initialized.
     the total number work units that the thread will be executing.
     This corresponds to the number of times that the
     `geopm_tprof_post`() interface will be called by the thread to
-    report progress within the region.  If `geopm_tprof_init`() is
-    called within a parallel region `geopm_tprof_init_loop`() should
-    not be called.
+    report progress within the region.
 
   * `geopm_tprof_post`():
     is called after a thread has completed each work unit to report
     progress.  Rather than a user-provided percentage of work complete,
     this method signals the completion of one work unit out of the total
-    passed to `geopm_tprof_init()` or `geopm_tprof_init_loop()`.
+    passed to `geopm_tprof_init()`.
 
 ## EXAMPLE
 
