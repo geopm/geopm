@@ -587,6 +587,9 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/SharedMemoryScopedLock.cpp \
                             src/SharedMemoryScopedLock.hpp \
                             src/Signal.hpp \
+                            src/SSTIO.cpp \
+                            src/SSTIOImp.hpp \
+                            src/SSTIO.hpp \
                             src/TimeIOGroup.cpp \
                             src/TimeIOGroup.hpp \
                             src/TimeSignal.cpp \
