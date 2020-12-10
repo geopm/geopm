@@ -59,7 +59,7 @@ static int stream_profiled_omp(uint64_t region_id, size_t num_stream, double sca
 #pragma omp parallel
 {
     int thread_idx = omp_get_thread_num();
-    (void)geopm_tprof_init_loop(num_thread, thread_idx, num_block, 0);
+    (void)geopm_tprof_init(num_block);
 
 #pragma omp for
     for (size_t i = 0; i < num_block; ++i) {

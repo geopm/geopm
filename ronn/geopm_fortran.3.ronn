@@ -83,12 +83,6 @@ geopm_fortran(3) -- geopm fortran interface
  * `integer(kind=c_int) function geopm_prof_epoch(`_prof_`)`:
    `type(c_ptr), value, intent(in) ::` _prof_
 
- * `integer(kind=c_int) function geopm_tprof_init_loop(`_num_thread_`,`_thread_idx_`,`_num_iter_`, `_chunk_size_`)`:
-   `integer(kind=c_int), value, intent(in) ::` _num_thread_ <br>
-   `integer(kind=c_int), value, intent(in) ::` _thread_idx_ <br>
-   `integer(kind=c_size_t), value, intent(in) ::` _num_iter_ <br>
-   `integer(kind=c_size_t), value, intent(in) ::` _chunk_size_
-
  * `integer(kind=c_int) function geopm_tprof_init(`_num_work_unit_`)`:
    `integer(kind=c_int32_t), value, intent(in) ::` _num_work_unit_ <br>
 
