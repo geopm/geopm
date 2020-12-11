@@ -51,8 +51,6 @@
 #include "Helper.hpp"
 #include "PlatformTopo.hpp"
 #include "ProfileTable.hpp"
-#include "ProfileThreadTable.hpp"
-#include "SampleScheduler.hpp"
 #include "Comm.hpp"
 #include "ControlMessage.hpp"
 #include "SharedMemory.hpp"
@@ -73,8 +71,6 @@ namespace geopm
         , m_ctl_msg(nullptr)
         , m_table_size(table_size)
         , m_do_report(false)
-        , m_tprof_shmem(nullptr)
-        , m_tprof_table(nullptr)
         , m_rank_per_node(0)
     {
         const Environment &env = environment();
@@ -86,21 +82,11 @@ namespace geopm
         m_ctl_shmem = SharedMemory::make_unique_owner(sample_key, sizeof(struct geopm_ctl_message_s));
         m_ctl_msg = geopm::make_unique<ControlMessageImp>(*(struct geopm_ctl_message_s *)m_ctl_shmem->pointer(), true, true, env.timeout());
 
-        std::string tprof_key = key_base + "-tprof";
-        std::string tprof_key_path("/dev/shm/" + tprof_key);
-        // Remove shared memory file if one already exists.
-        (void)unlink(tprof_key_path.c_str());
-        size_t tprof_size = 64 * topo.num_domain(GEOPM_DOMAIN_CPU);
-        m_tprof_shmem = SharedMemory::make_unique_owner(tprof_key, tprof_size);
-        m_tprof_table = geopm::make_unique<ProfileThreadTableImp>(tprof_size, m_tprof_shmem->pointer());
         errno = 0; // Ignore errors from the unlink calls.
     }
 
     ProfileSamplerImp::~ProfileSamplerImp()
     {
-        if (m_tprof_shmem) {
-            m_tprof_shmem->unlink();
-        }
         if (m_ctl_shmem) {
             m_ctl_shmem->unlink();
         }
@@ -263,11 +249,6 @@ namespace geopm
         return m_profile_name;
     }
 
-    std::shared_ptr<ProfileThreadTable> ProfileSamplerImp::tprof_table(void) const
-    {
-        return m_tprof_table;
-    }
-
     void ProfileSamplerImp::abort(void)
     {
         m_ctl_msg->abort();
@@ -281,8 +262,6 @@ namespace geopm
     ProfileRankSamplerImp::ProfileRankSamplerImp(const std::string &shm_key, size_t table_size)
         : m_table_shmem(nullptr)
         , m_table(nullptr)
-        , m_tprof_shmem(nullptr)
-        , m_tprof_table(nullptr)
         , m_region_entry(GEOPM_INVALID_PROF_MSG)
         , m_epoch_entry(GEOPM_INVALID_PROF_MSG)
         , m_is_name_finished(false)

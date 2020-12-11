@@ -37,7 +37,6 @@
 
 #include "ProfileSampler.hpp"
 #include "Comm.hpp"
-#include "ProfileThreadTable.hpp"
 
 class MockProfileSampler : public geopm::ProfileSampler
 {
@@ -66,8 +65,6 @@ class MockProfileSampler : public geopm::ProfileSampler
                            std::string (void));
         MOCK_CONST_METHOD0(profile_name,
                            std::string (void));
-        MOCK_CONST_METHOD0(tprof_table,
-                           std::shared_ptr<geopm::ProfileThreadTable>(void));
         MOCK_METHOD0(controller_ready,
                      void(void));
         MOCK_METHOD0(abort,
