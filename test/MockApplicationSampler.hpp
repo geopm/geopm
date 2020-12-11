@@ -38,17 +38,20 @@
 #include "ApplicationSampler.hpp"
 #include "record.hpp"
 
+
 class MockApplicationSampler : public geopm::ApplicationSampler
 {
     public:
         MOCK_METHOD1(time_zero,
                      void(const geopm_time_s &start_time));
-        MOCK_METHOD0(update_records,
-                     void(void));
-        MOCK_CONST_METHOD0(per_cpu_hint,
-                           std::vector<uint64_t>(void));
-        MOCK_CONST_METHOD0(per_cpu_progress,
-                           std::vector<double>(void));
+        MOCK_METHOD1(update,
+                     void(const geopm_time_s &curr_time));
+        MOCK_CONST_METHOD1(cpu_hint,
+                           uint64_t(int cpu_idx));
+        MOCK_CONST_METHOD2(cpu_hint_time,
+                           double(int cpu_idx, uint64_t hint));
+        MOCK_CONST_METHOD1(cpu_progress,
+                           double(int cpu_idx));
         MOCK_CONST_METHOD0(per_cpu_process,
                            std::vector<int>(void));
         MOCK_METHOD1(connect,

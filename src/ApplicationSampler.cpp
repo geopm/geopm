@@ -37,6 +37,7 @@
 
 #include "ApplicationSamplerImp.hpp"
 #include "ApplicationRecordLog.hpp"
+#include "ApplicationStatus.hpp"
 #include "ProfileSampler.hpp"
 #include "ProfileIOSample.hpp"
 #include "EpochRuntimeRegulator.hpp"
@@ -45,8 +46,10 @@
 #include "Environment.hpp"
 #include "ValidateRecord.hpp"
 #include "SharedMemory.hpp"
+#include "PlatformTopo.hpp"
 #include "record.hpp"
 #include "geopm_debug.hpp"
+#include "geopm.h"
 #include "geopm_hash.h"
 
 namespace geopm
@@ -108,20 +111,41 @@ namespace geopm
     }
 
     ApplicationSamplerImp::ApplicationSamplerImp()
-        : ApplicationSamplerImp(std::map<int, m_process_s> {},
+        : ApplicationSamplerImp(nullptr,
+                                platform_topo().num_domain(GEOPM_DOMAIN_CPU),
+                                std::map<int, m_process_s> {},
                                 environment().do_record_filter(),
                                 environment().record_filter())
     {
 
     }
 
-    ApplicationSamplerImp::ApplicationSamplerImp(const std::map<int, m_process_s> &process_map,
+    const std::map<uint64_t, double> ApplicationSamplerImp::m_hint_time_init = {
+        {GEOPM_REGION_HINT_UNKNOWN, 0.0},
+        {GEOPM_REGION_HINT_COMPUTE, 0.0},
+        {GEOPM_REGION_HINT_MEMORY, 0.0},
+        {GEOPM_REGION_HINT_NETWORK, 0.0},
+        {GEOPM_REGION_HINT_IO, 0.0},
+        {GEOPM_REGION_HINT_SERIAL, 0.0},
+        {GEOPM_REGION_HINT_PARALLEL, 0.0},
+        {GEOPM_REGION_HINT_IGNORE, 0.0},
+    };
+
+
+    ApplicationSamplerImp::ApplicationSamplerImp(std::shared_ptr<ApplicationStatus> status,
+                                                 int num_cpu,
+                                                 const std::map<int, m_process_s> &process_map,
                                                  bool is_filtered,
                                                  const std::string &filter_name)
         : m_time_zero(geopm::time_zero())
+        , m_status(status)
+        , m_num_cpu(num_cpu)
         , m_process_map(process_map)
         , m_is_filtered(is_filtered)
         , m_filter_name(filter_name)
+        , m_hint_time(m_num_cpu, m_hint_time_init)
+        , m_update_time({{0, 0}})
+        , m_is_first_update(true)
     {
 
     }
@@ -131,8 +155,18 @@ namespace geopm
         m_time_zero = start_time;
     }
 
-    void ApplicationSamplerImp::update_records(void)
+    void ApplicationSamplerImp::update(const geopm_time_s &curr_time)
     {
+        m_status->update_cache();
+        if (!m_is_first_update) {
+            double time_delta = geopm_time_diff(&m_update_time, &curr_time);
+            for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
+                uint64_t hint = m_status->get_hint(cpu_idx);
+                m_hint_time[cpu_idx].at(hint) += time_delta;
+            }
+        }
+        m_is_first_update = false;
+        m_update_time = curr_time;
         // Dump the record log from each process, filter the results,
         // and reindex the short region event signals.
 
@@ -196,7 +230,7 @@ namespace geopm
             throw Exception("ApplicationSampler::get_short_region(), event_signal does not match any short region handle",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return m_short_region_buffer.at(event_signal);
+        return m_short_region_buffer[event_signal];
     }
 
     std::map<uint64_t, std::string> ApplicationSamplerImp::get_name_map(uint64_t name_key) const
@@ -206,28 +240,52 @@ namespace geopm
         return {};
     }
 
-    std::vector<uint64_t> ApplicationSamplerImp::per_cpu_hint(void) const
+    uint64_t ApplicationSamplerImp::cpu_hint(int cpu_idx) const
     {
-        throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "() is not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-        return {};
+        return m_status->get_hint(cpu_idx);
     }
 
-    std::vector<double> ApplicationSamplerImp::per_cpu_progress(void) const
+    double ApplicationSamplerImp::cpu_hint_time(int cpu_idx, uint64_t hint) const
     {
-        throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "() is not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-        return {};
+        if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
+            throw Exception("ApplicationSampler::" + std::string(__func__) +
+                            "(): cpu_idx is out of range: " + std::to_string(cpu_idx),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        auto &hint_map = m_hint_time[cpu_idx];
+        auto it = hint_map.find(hint);
+        if (it == hint_map.end()) {
+            throw Exception("ApplicationSampler::" + std::string(__func__) +
+                            "(): hint is invalid: " + std::to_string(hint),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
+    }
+
+    double ApplicationSamplerImp::cpu_progress(int cpu_idx) const
+    {
+        return m_status->get_progress_cpu(cpu_idx);
     }
 
     std::vector<int> ApplicationSamplerImp::per_cpu_process(void) const
     {
-        return m_sampler->cpu_rank();
+        std::vector<int> result(m_num_cpu);
+        for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
+            result[cpu_idx] = m_status->get_process(cpu_idx);
+        }
+        return result;
     }
 
     void ApplicationSamplerImp::connect(const std::string &shm_key)
     {
-        if (m_process_map.empty()) {
+        if (!m_status) {
+            std::string shmem_name = shm_key + "-status";
+            std::shared_ptr<SharedMemory> status_shmem =
+                SharedMemory::make_unique_owner(shmem_name,
+                                                ApplicationStatus::buffer_size(m_num_cpu));
+            m_status = ApplicationStatus::make_unique(m_num_cpu, status_shmem);
+            GEOPM_DEBUG_ASSERT(m_process_map.empty(),
+                               "m_process_map is not empty, but we are connecting");
             // Convert per-cpu process to a set of the unique process id's
             std::set<int> proc_set;
             for (const auto &proc_it : per_cpu_process()) {
