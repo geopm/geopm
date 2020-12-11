@@ -118,7 +118,7 @@ namespace geopm
             ///        to this method.
             /// @return A unique_ptr to the new ApplicationStatus
             ///         object.
-            static std::unique_ptr<ApplicationStatus> make_unique(const PlatformTopo& topo,
+            static std::unique_ptr<ApplicationStatus> make_unique(int num_cpu,
                                                                   std::shared_ptr<SharedMemory> shmem);
             /// @brief Return the required size of the shared memory
             ///        region used by the ApplicationStatus for the
@@ -134,7 +134,7 @@ namespace geopm
     class ApplicationStatusImp : public ApplicationStatus
     {
         public:
-            ApplicationStatusImp(const PlatformTopo& topo,
+            ApplicationStatusImp(int num_cpu,
                                  std::shared_ptr<SharedMemory> shmem);
             virtual ~ApplicationStatusImp() = default;
             void set_hint(int cpu_idx, uint64_t hints) override;
@@ -163,7 +163,6 @@ namespace geopm
             static_assert(sizeof(ApplicationStatusImp::m_app_status_s) == ApplicationStatus::M_STATUS_SIZE,
                           "M_STATUS_SIZE does not match size of m_app_status_s");
 
-            const PlatformTopo &m_topo;
             int m_num_cpu;
             std::shared_ptr<SharedMemory> m_shmem;
             m_app_status_s *m_buffer;

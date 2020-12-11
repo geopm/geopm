@@ -37,7 +37,6 @@
 #include "geopm.h"
 #include "ApplicationStatus.hpp"
 #include "MockSharedMemory.hpp"
-#include "MockPlatformTopo.hpp"
 
 using geopm::ApplicationStatus;
 using testing::AtLeast;
@@ -49,20 +48,15 @@ class ApplicationStatusTest : public ::testing::Test
         void SetUp();
         std::shared_ptr<MockSharedMemory> m_mock_shared_memory;
         std::unique_ptr<ApplicationStatus> m_status;
-        MockPlatformTopo m_topo;
         const int M_NUM_CPU = 4;
 };
 
 void ApplicationStatusTest::SetUp()
 {
-    ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU))
-        .WillByDefault(Return(M_NUM_CPU));
-
     size_t buffer_size = ApplicationStatus::buffer_size(M_NUM_CPU);
     m_mock_shared_memory = std::make_shared<MockSharedMemory>(buffer_size);
 
-    EXPECT_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU));
-    m_status = ApplicationStatus::make_unique(m_topo, m_mock_shared_memory);
+    m_status = ApplicationStatus::make_unique(M_NUM_CPU, m_mock_shared_memory);
 
 
 }
@@ -70,15 +64,13 @@ void ApplicationStatusTest::SetUp()
 TEST_F(ApplicationStatusTest, wrong_buffer_size)
 {
     auto shmem = std::make_shared<MockSharedMemory>(7);
-    EXPECT_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU));
-    GEOPM_EXPECT_THROW_MESSAGE(ApplicationStatus::make_unique(m_topo, shmem),
+    GEOPM_EXPECT_THROW_MESSAGE(ApplicationStatus::make_unique(M_NUM_CPU, shmem),
                                GEOPM_ERROR_INVALID, "shared memory incorrectly sized");
 }
 
 TEST_F(ApplicationStatusTest, bad_shmem)
 {
-    EXPECT_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU));
-    GEOPM_EXPECT_THROW_MESSAGE(ApplicationStatus::make_unique(m_topo, nullptr),
+    GEOPM_EXPECT_THROW_MESSAGE(ApplicationStatus::make_unique(M_NUM_CPU, nullptr),
                                GEOPM_ERROR_INVALID, "shared memory pointer cannot be null");
 }
 
