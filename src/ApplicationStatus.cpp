@@ -39,16 +39,15 @@
 #include "SharedMemory.hpp"
 #include "Helper.hpp"
 #include "Exception.hpp"
-#include "PlatformTopo.hpp"
 #include "geopm_debug.hpp"
 
 namespace geopm
 {
 
-    std::unique_ptr<ApplicationStatus> ApplicationStatus::make_unique(const PlatformTopo& topo,
+    std::unique_ptr<ApplicationStatus> ApplicationStatus::make_unique(int num_cpu,
                                                                       std::shared_ptr<SharedMemory> shmem)
     {
-        return geopm::make_unique<ApplicationStatusImp>(topo, shmem);
+        return geopm::make_unique<ApplicationStatusImp>(num_cpu, shmem);
     }
 
     size_t ApplicationStatus::buffer_size(int num_cpu)
@@ -56,10 +55,9 @@ namespace geopm
         return M_STATUS_SIZE * num_cpu;
     }
 
-    ApplicationStatusImp::ApplicationStatusImp(const PlatformTopo& topo,
+    ApplicationStatusImp::ApplicationStatusImp(int num_cpu,
                                                std::shared_ptr<SharedMemory> shmem)
-        : m_topo(topo)
-        , m_num_cpu(m_topo.num_domain(GEOPM_DOMAIN_CPU))
+        : m_num_cpu(num_cpu)
         , m_shmem(shmem)
     {
         if (m_shmem == nullptr) {
