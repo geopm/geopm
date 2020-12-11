@@ -36,11 +36,11 @@
 #include "ApplicationSampler.hpp"
 #include "ValidateRecord.hpp"
 
-
 struct geopm_prof_message_s;
 namespace geopm
 {
     class RecordFilter;
+    class ApplicationStatus;
 
     class ApplicationSamplerImp : public ApplicationSampler
     {
@@ -53,17 +53,20 @@ namespace geopm
                 std::vector<short_region_s> short_regions;
             };
             ApplicationSamplerImp();
-            ApplicationSamplerImp(const std::map<int, m_process_s> &process_map,
+            ApplicationSamplerImp(std::shared_ptr<ApplicationStatus> status,
+                                  int num_cpu,
+                                  const std::map<int, m_process_s> &process_map,
                                   bool is_filtered,
                                   const std::string &filter_name);
             virtual ~ApplicationSamplerImp() = default;
             void time_zero(const geopm_time_s &start_time) override;
-            void update_records(void) override;
+            void update(const geopm_time_s &curr_time) override;
             std::vector<record_s> get_records(void) const override;
             short_region_s get_short_region(uint64_t event_signal) const override;
             std::map<uint64_t, std::string> get_name_map(uint64_t name_key) const override;
-            std::vector<uint64_t> per_cpu_hint(void) const override;
-            std::vector<double> per_cpu_progress(void) const override;
+            uint64_t cpu_hint(int cpu_idx) const override;
+            double cpu_hint_time(int cpu_idx, uint64_t hint) const override;
+            double cpu_progress(int cpu_idx) const override;
             std::vector<int> per_cpu_process(void) const override;
             void connect(const std::string &shm_key) override;
 
@@ -80,9 +83,15 @@ namespace geopm
             struct geopm_time_s m_time_zero;
             std::vector<record_s> m_record_buffer;
             std::vector<short_region_s> m_short_region_buffer;
+            std::shared_ptr<ApplicationStatus> m_status;
+            int m_num_cpu;
             std::map<int, m_process_s> m_process_map;
             const bool m_is_filtered;
             const std::string m_filter_name;
+            static const std::map<uint64_t, double> m_hint_time_init;
+            std::vector<std::map<uint64_t, double> > m_hint_time;
+            geopm_time_s m_update_time;
+            bool m_is_first_update;
     };
 }
 

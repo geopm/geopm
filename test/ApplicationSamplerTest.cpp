@@ -40,6 +40,7 @@
 #include "MockEpochRuntimeRegulator.hpp"
 #include "MockApplicationRecordLog.hpp"
 #include "MockRecordFilter.hpp"
+#include "MockApplicationStatus.hpp"
 #include "record.hpp"
 #include "geopm.h"
 #include "geopm_internal.h"
@@ -71,6 +72,8 @@ class ApplicationSamplerTest : public ::testing::Test
         std::shared_ptr<MockRecordFilter> m_filter_1;
         std::shared_ptr<MockApplicationRecordLog> m_record_log_0;
         std::shared_ptr<MockApplicationRecordLog> m_record_log_1;
+        std::shared_ptr<MockApplicationStatus> m_mock_status;
+        int m_num_cpu;
 };
 
 void ApplicationSamplerTest::SetUp()
@@ -81,13 +84,15 @@ void ApplicationSamplerTest::SetUp()
     m_filter_1 = std::make_shared<MockRecordFilter>();
     m_record_log_0 = std::make_shared<MockApplicationRecordLog>();
     m_record_log_1 = std::make_shared<MockApplicationRecordLog>();
+    m_mock_status = std::make_shared<MockApplicationStatus>();
+    m_num_cpu = 2;
 
     m_process_map[0].filter = m_filter_0;
     m_process_map[0].record_log = m_record_log_0;
     m_process_map[234].filter = m_filter_1;
     m_process_map[234].record_log = m_record_log_1;
 
-    m_app_sampler = std::make_shared<ApplicationSamplerImp>(m_process_map, false, "");
+    m_app_sampler = std::make_shared<ApplicationSamplerImp>(m_mock_status, m_num_cpu, m_process_map, false, "");
     m_app_sampler->set_sampler(m_mock_profile_sampler);
     m_app_sampler->set_regulator(m_mock_regulator);
     m_app_sampler->time_zero(geopm_time_s {{0,0}});
@@ -109,7 +114,8 @@ TEST_F(ApplicationSamplerTest, one_enter_exit)
     EXPECT_CALL(*m_record_log_1, dump(_, _))
         .WillOnce(DoAll(SetArgReferee<0>(empty_message_buffer),
                         SetArgReferee<1>(empty_short_region_buffer)));
-    m_app_sampler->update_records();
+    EXPECT_CALL(*m_mock_status, update_cache());
+    m_app_sampler->update({{1, 0}});
     std::vector<struct record_s> result {
          m_app_sampler->get_records()
     };
@@ -148,7 +154,8 @@ TEST_F(ApplicationSamplerTest, one_enter_exit_two_ranks)
     EXPECT_CALL(*m_record_log_1, dump(_, _))
         .WillOnce(DoAll(SetArgReferee<0>(message_buffer_1),
                         SetArgReferee<1>(empty_short_region_buffer)));
-    m_app_sampler->update_records();
+    EXPECT_CALL(*m_mock_status, update_cache());
+    m_app_sampler->update({{1, 0}});
     std::vector<struct record_s> result {
          m_app_sampler->get_records()
     };
@@ -208,7 +215,8 @@ TEST_F(ApplicationSamplerTest, with_epoch)
     EXPECT_CALL(*m_record_log_1, dump(_, _))
         .WillOnce(DoAll(SetArgReferee<0>(message_buffer_1),
                         SetArgReferee<1>(empty_short_region_buffer)));
-    m_app_sampler->update_records();
+    EXPECT_CALL(*m_mock_status, update_cache());
+    m_app_sampler->update({{1, 0}});
     std::vector<struct record_s> result {
          m_app_sampler->get_records()
     };
@@ -294,9 +302,9 @@ TEST_F(ApplicationSamplerTest, string_conversion)
 
 TEST_F(ApplicationSamplerTest, process_mapping)
 {
-    std::vector<int> expected { 4, 5, 77, 32 };
-    EXPECT_CALL(*m_mock_profile_sampler, cpu_rank())
-        .WillOnce(Return(expected));
+    std::vector<int> expected {42, 42};
+    EXPECT_CALL(*m_mock_status, get_process(_))
+        .WillRepeatedly(Return(42));
     std::vector<int> result = m_app_sampler->per_cpu_process();
     EXPECT_EQ(expected, result);
 }
@@ -326,7 +334,8 @@ TEST_F(ApplicationSamplerTest, short_regions)
     EXPECT_CALL(*m_record_log_1, dump(_, _))
         .WillOnce(DoAll(SetArgReferee<0>(message_buffer_1),
                         SetArgReferee<1>(short_region_buffer_1)));
-    m_app_sampler->update_records();
+    EXPECT_CALL(*m_mock_status, update_cache());
+    m_app_sampler->update({{1, 0}});
     std::vector<struct record_s> records {
         m_app_sampler->get_records()
     };
@@ -358,4 +367,87 @@ TEST_F(ApplicationSamplerTest, short_regions)
     GEOPM_EXPECT_THROW_MESSAGE(m_app_sampler->get_short_region(3),
                                GEOPM_ERROR_INVALID,
                                "event_signal does not match any short region handle");
+}
+
+TEST_F(ApplicationSamplerTest, hint_time)
+{
+    std::vector<record_s> empty_message_buffer;
+    std::vector<short_region_s> empty_short_region_buffer;
+    {
+        EXPECT_CALL(*m_record_log_0, dump(_, _))
+            .WillOnce(DoAll(SetArgReferee<0>(empty_message_buffer),
+                            SetArgReferee<1>(empty_short_region_buffer)));
+        EXPECT_CALL(*m_record_log_1, dump(_, _))
+            .WillOnce(DoAll(SetArgReferee<0>(empty_message_buffer),
+                            SetArgReferee<1>(empty_short_region_buffer)));
+        EXPECT_CALL(*m_mock_status, update_cache());
+        m_app_sampler->update({{1, 0}});
+    }
+    {
+        EXPECT_CALL(*m_record_log_0, dump(_, _))
+            .WillOnce(DoAll(SetArgReferee<0>(empty_message_buffer),
+                            SetArgReferee<1>(empty_short_region_buffer)));
+        EXPECT_CALL(*m_record_log_1, dump(_, _))
+            .WillOnce(DoAll(SetArgReferee<0>(empty_message_buffer),
+                            SetArgReferee<1>(empty_short_region_buffer)));
+        EXPECT_CALL(*m_mock_status, update_cache());
+        EXPECT_CALL(*m_mock_status, get_hint(_))
+            .WillRepeatedly(Return(GEOPM_REGION_HINT_NETWORK));
+        m_app_sampler->update({{2, 0}});
+    }
+    double compute_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_COMPUTE);
+    EXPECT_EQ(0.0, compute_time);
+    double network_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_NETWORK);
+    EXPECT_EQ(1.0, network_time);
+    compute_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_COMPUTE);
+    EXPECT_EQ(0.0, compute_time);
+    network_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_NETWORK);
+    EXPECT_EQ(1.0, network_time);
+    uint64_t curr_hint = m_app_sampler->cpu_hint(0);
+    EXPECT_EQ(GEOPM_REGION_HINT_NETWORK, curr_hint);
+    curr_hint = m_app_sampler->cpu_hint(1);
+    EXPECT_EQ(GEOPM_REGION_HINT_NETWORK, curr_hint);
+    {
+        EXPECT_CALL(*m_record_log_0, dump(_, _))
+            .WillOnce(DoAll(SetArgReferee<0>(empty_message_buffer),
+                            SetArgReferee<1>(empty_short_region_buffer)));
+        EXPECT_CALL(*m_record_log_1, dump(_, _))
+            .WillOnce(DoAll(SetArgReferee<0>(empty_message_buffer),
+                            SetArgReferee<1>(empty_short_region_buffer)));
+        EXPECT_CALL(*m_mock_status, update_cache());
+        EXPECT_CALL(*m_mock_status, get_hint(_))
+            .WillRepeatedly(Return(GEOPM_REGION_HINT_COMPUTE));
+        m_app_sampler->update({{4, 0}});
+    }
+    compute_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_COMPUTE);
+    EXPECT_EQ(2.0, compute_time);
+    network_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_NETWORK);
+    EXPECT_EQ(1.0, network_time);
+    compute_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_COMPUTE);
+    EXPECT_EQ(2.0, compute_time);
+    network_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_NETWORK);
+    EXPECT_EQ(1.0, network_time);
+    curr_hint = m_app_sampler->cpu_hint(0);
+    EXPECT_EQ(GEOPM_REGION_HINT_COMPUTE, curr_hint);
+    curr_hint = m_app_sampler->cpu_hint(1);
+    EXPECT_EQ(GEOPM_REGION_HINT_COMPUTE, curr_hint);
+}
+
+TEST_F(ApplicationSamplerTest, cpu_process)
+{
+    EXPECT_CALL(*m_mock_status, get_process(_))
+        .WillRepeatedly(Return(234));
+    std::vector<int> cpu_process = m_app_sampler->per_cpu_process();
+    std::vector<int> expected {234, 234};
+    EXPECT_EQ(expected, cpu_process);
+}
+
+
+TEST_F(ApplicationSamplerTest, cpu_progress)
+{
+    double expected = 0.75;
+    EXPECT_CALL(*m_mock_status, get_progress_cpu(1))
+        .WillOnce(Return(expected));
+    EXPECT_EQ(expected, m_app_sampler->cpu_progress(1));
+
 }
