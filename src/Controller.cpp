@@ -354,8 +354,10 @@ namespace geopm
         m_reporter->init();
         setup_trace();
         m_application_io->controller_ready();
-
         m_application_io->update(m_comm);
+        geopm_time_s curr_time;
+        geopm_time(&curr_time);
+        m_application_sampler.update(curr_time);
         m_platform_io.read_batch();
         m_tracer->update(m_trace_sample, m_application_io->region_info());
         m_profile_tracer->update(m_application_sampler.get_records());
@@ -365,6 +367,8 @@ namespace geopm
             step();
         }
         m_application_io->update(m_comm);
+        geopm_time(&curr_time);
+        m_application_sampler.update(curr_time);
         m_platform_io.read_batch();
         m_tracer->update(m_trace_sample, m_application_io->region_info());
         m_profile_tracer->update(m_application_sampler.get_records());
@@ -451,6 +455,9 @@ namespace geopm
     void Controller::walk_up(void)
     {
         m_application_io->update(m_comm);
+        geopm_time_s curr_time;
+        geopm_time(&curr_time);
+        m_application_sampler.update(curr_time);
         m_platform_io.read_batch();
         m_agent[0]->sample_platform(m_out_sample);
         bool do_send = m_agent[0]->do_send_sample();
