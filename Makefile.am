@@ -587,8 +587,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/Reporter.hpp \
                             src/RuntimeRegulator.cpp \
                             src/RuntimeRegulator.hpp \
-                            src/SampleRegulator.cpp \
-                            src/SampleRegulator.hpp \
                             src/SampleScheduler.cpp \
                             src/SampleScheduler.hpp \
                             src/SharedMemory.cpp \
