@@ -67,8 +67,10 @@ namespace geopm
             virtual void time_zero(const geopm_time_s &start_time) = 0;
             /// @brief Update the record buffer by clearing out old
             ///        records and providing a new cache for
-            ///        subsequent calls to the get_records() method.
-            virtual void update_records(void) = 0;
+            ///        subsequent calls to the get_records()
+            ///        method. Also update cache of application
+            ///        status for use by hint and progress APIs.
+            virtual void update(const geopm_time_s &curr_time) = 0;
             /// @brief Get all of the application events that have
             ///        been recorded since the last call to
             ///        update_records().
@@ -85,18 +87,77 @@ namespace geopm
             /// @return A map from record-provided hash value to the
             ///         string the record refers to.
             virtual std::map<uint64_t, std::string> get_name_map(uint64_t name_key) const = 0;
-            /// @brief Sample the current hint for every cpu.
-            /// @return Vector over Linux logical CPU of the GEOPM
-            ///         region hint currently being executed.
-            virtual std::vector<uint64_t> per_cpu_hint(void) const = 0;
-            /// @brief Sample the current progress for every cpu.
-            /// @return Vector over Linux logical CPU of the region
-            ///         progress.
-            virtual std::vector<double> per_cpu_progress(void) const = 0;
-            /// @brief Return a per-cpu vector of the process mapped
-            ///        to each cpu.
+            /// @brief Get the hint associated with a CPU.
+            ///
+            /// Returns the most recently sampled value for the hint
+            /// associated with the Linux logical CPU specified by the
+            /// user.  An exception is raised if the value of cpu_idx
+            /// is negative or greater or equal to
+            /// platform_topo().num_domain(GEOPM_DOMAIN_CPU).
+            ///
+            /// @param [in] cpu_idx The index of the linux logical CPU
+            ///        to query.
+            /// @return The hint associated with the CPU.
+            virtual uint64_t cpu_hint(int cpu_idx) const = 0;
+            /// @brief Get the amount of time a CPU has been measured
+            ///        running with a hint.
+            ///
+            /// Returns a total amount of time in seconds that a CPU
+            /// was measured to be running with the hint value on the
+            /// Linux logical CPU specified by the user.  An exception
+            /// is raised if the value of cpu_idx is negative or
+            /// greater or equal to
+            /// platform_topo().num_domain(GEOPM_DOMAIN_CPU) or if the
+            /// specified hint is invalid.
+            ///
+            /// @param [in] cpu_idx The index of the linux logical CPU
+            ///        to query.
+            ///
+            /// @return The total time in seconds since the
+            ///         applications started.
+            virtual double cpu_hint_time(int cpu_idx, uint64_t hint) const = 0;
+            /// @brief Get the progress reported on a CPU.
+            ///
+            /// Returns the most recently sampled value for the
+            /// fraction of the work units completed by the thread
+            /// running on the specified CPU.  If the CPU queried is
+            /// not currently executing a thread that is reporting
+            /// progress, then the value NAN is returned.  An
+            /// exception is raised if the value of cpu_idx is
+            /// negative or greater or equal to
+            /// platform_topo().num_domain(GEOPM_DOMAIN_CPU).
+            ///
+            /// @param [in] cpu_idx The index of the linux logical CPU
+            ///        to query.
+            ///
+            /// @return Value between 0.0 and 1.0 representing the
+            ///         fraction of work completed, or NAN.
+            virtual double cpu_progress(int cpu_idx) const = 0;
+            /// @brief Get the process ID for each linux logical CPU.
+            ///
+            /// A vector of length the number of CPUs on the system is
+            /// returned.  If a CPU has been claimed by a process, the
+            /// returned value in the vector corresponding to the CPU
+            /// will be the process identifier.  If a CPU is unclaimed
+            /// the value will be populated with -1.
+            ///
+            /// @return A vector of process identifiers indexed over
+            ///         the GEOPM_DOMAIN_CPU.
             virtual std::vector<int> per_cpu_process(void) const = 0;
-            virtual void connect(const std::string &shm_key) = 0;
+            /// @brief Connect with an application using a key
+            ///
+            /// Called by the Controller to set up all channels of
+            /// communication with the application using the provided
+            /// string as a key.  This string corresponds to the
+            /// --geopm-shmkey geopmlaunch option or the GEOPM_SHMKEY
+            /// environment variable used by the application that is
+            /// connected.
+            ///
+            /// @param [in] app_key String known to the
+            ///        application that will be used to identify a
+            ///        channel of communication.
+            virtual void connect(const std::string &app_key) = 0;
+
             // Deprecated API's below for access to legacy objects
             virtual void set_sampler(std::shared_ptr<ProfileSampler> sampler) = 0;
             virtual std::shared_ptr<ProfileSampler> get_sampler(void) = 0;
