@@ -35,7 +35,6 @@
 #include <string.h>
 
 #include "geopm.h"
-#include "ProfileThreadTable.hpp"
 #include "Exception.hpp"
 
 #include "config.h"
