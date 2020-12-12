@@ -40,7 +40,6 @@
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "ProfileSampler.hpp"
-#include "ProfileThreadTable.hpp"
 #include "ProfileIOSample.hpp"
 #include "ProfileIOGroup.hpp"
 #include "Helper.hpp"
