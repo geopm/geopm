@@ -635,7 +635,6 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/MockProfileSampler.hpp \
                           test/MockProfileTable.hpp \
                           test/MockProfileTracer.hpp \
-                          test/MockProfileThreadTable.hpp \
                           test/MockRecordFilter.hpp \
                           test/MockRegionAggregator.hpp \
                           test/MockReporter.hpp \
