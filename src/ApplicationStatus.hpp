@@ -44,7 +44,6 @@
 namespace geopm
 {
     class SharedMemory;
-    class PlatformTopo;
 
     /// @brief Object that encapsulates application process
     ///        information such as the process ID, region hash, or
