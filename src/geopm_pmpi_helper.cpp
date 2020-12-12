@@ -108,12 +108,10 @@ extern "C" {
         if (func_rid) {
             geopm_prof_enter(func_rid);
         }
-        geopm_prof_enter(GEOPM_REGION_ID_MPI);
     }
 
     void geopm_mpi_region_exit(uint64_t func_rid)
     {
-        geopm_prof_exit(GEOPM_REGION_ID_MPI);
         if (func_rid) {
             geopm_prof_exit(func_rid);
         }
