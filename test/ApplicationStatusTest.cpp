@@ -122,6 +122,11 @@ TEST_F(ApplicationStatusTest, hints)
                                GEOPM_ERROR_INVALID, "invalid CPU index");
     GEOPM_EXPECT_THROW_MESSAGE(m_status->get_hint(99),
                                GEOPM_ERROR_INVALID, "invalid CPU index");
+    std::vector<uint64_t> bad_data(8, ~0ULL);
+    memcpy(m_mock_shared_memory->pointer(), bad_data.data(), 64);
+    m_status->update_cache();
+    GEOPM_EXPECT_THROW_MESSAGE(m_status->get_hint(0),
+                               GEOPM_ERROR_INVALID, "invalid hint value read");
 }
 
 TEST_F(ApplicationStatusTest, hash)
