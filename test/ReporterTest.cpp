@@ -188,12 +188,6 @@ ReporterTest::ReporterTest()
                                                  "ENERGY_PACKAGE@package",
                                                  "",
                                                  true);
-    EXPECT_CALL(m_platform_io, push_signal("TIME", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Return(M_TIME_IDX));
-    EXPECT_CALL(m_platform_io, push_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Return(M_ENERGY_PKG_IDX));
-    EXPECT_CALL(m_platform_io, push_signal("ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Return(M_ENERGY_DRAM_IDX));
     m_reporter->init();
 }
 
@@ -214,15 +208,14 @@ TEST_F(ReporterTest, generate)
     EXPECT_CALL(m_application_io, total_epoch_runtime_ignore()).WillRepeatedly(Return(0.7));
     EXPECT_CALL(m_application_io, total_epoch_runtime()).WillOnce(Return(70.0));
     EXPECT_CALL(*m_agg, read_batch);
-    EXPECT_CALL(m_platform_io, sample(M_TIME_IDX))
-        .WillOnce(Return(1))
-        .WillOnce(Return(57));
-    EXPECT_CALL(m_platform_io, sample(M_ENERGY_PKG_IDX))
-        .WillOnce(Return(2223))
-        .WillOnce(Return(4445));
-    EXPECT_CALL(m_platform_io, sample(M_ENERGY_DRAM_IDX))
-        .WillOnce(Return(1112))
-        .WillOnce(Return(2223));
+    // Application totals
+    EXPECT_CALL(*m_agg, sample_total(M_TIME_IDX))
+        .WillOnce(Return(56));
+    EXPECT_CALL(*m_agg, sample_total(M_ENERGY_PKG_IDX))
+        .WillOnce(Return(2222));
+    EXPECT_CALL(*m_agg, sample_total(M_ENERGY_DRAM_IDX))
+        .WillOnce(Return(1111));
+
     EXPECT_CALL(m_platform_io, read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0))
         .Times(4)
         .WillRepeatedly(Return(1.0));
