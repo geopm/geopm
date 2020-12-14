@@ -41,7 +41,7 @@
 #include "Reporter.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
-#include "MockRegionAggregator.hpp"
+#include "MockSampleAggregator.hpp"
 #include "MockApplicationIO.hpp"
 #include "MockComm.hpp"
 #include "MockTreeComm.hpp"
@@ -94,7 +94,7 @@ class ReporterTest : public testing::Test
 
         MockPlatformIO m_platform_io;
         MockPlatformTopo m_platform_topo;
-        MockRegionAggregator *m_agg;  // freed with Reporter
+        MockSampleAggregator *m_agg;  // freed with Reporter
         MockApplicationIO m_application_io;
         std::shared_ptr<ReporterTestMockComm> m_comm;
         MockTreeComm m_tree_comm;
@@ -151,7 +151,7 @@ class ReporterTest : public testing::Test
 
 ReporterTest::ReporterTest()
 {
-    m_agg = new MockRegionAggregator();
+    m_agg = new MockSampleAggregator();
 
     ON_CALL(m_application_io, profile_name())
         .WillByDefault(Return(m_profile_name));
@@ -184,7 +184,7 @@ ReporterTest::ReporterTest()
                                                  m_platform_io,
                                                  m_platform_topo,
                                                  0,
-                                                 std::unique_ptr<MockRegionAggregator>(m_agg),
+                                                 std::unique_ptr<MockSampleAggregator>(m_agg),
                                                  "ENERGY_PACKAGE@package",
                                                  "",
                                                  true);
