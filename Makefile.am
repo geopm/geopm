@@ -97,7 +97,7 @@ pkginclude_HEADERS = contrib/json11/json11.hpp \
                      src/PluginFactory.hpp \
                      src/PowerBalancer.hpp \
                      src/PowerGovernor.hpp \
-                     src/RegionAggregator.hpp \
+                     src/SampleAggregator.hpp \
                      src/SharedMemory.hpp \
                      src/SharedMemoryScopedLock.hpp \
                      src/TimeIOGroup.hpp \
@@ -159,7 +159,7 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/GEOPM_CXX_MAN_PluginFactory.3 \
                 man/GEOPM_CXX_MAN_PowerBalancer.3 \
                 man/GEOPM_CXX_MAN_PowerGovernor.3 \
-                man/GEOPM_CXX_MAN_RegionAggregator.3 \
+                man/GEOPM_CXX_MAN_SampleAggregator.3 \
                 man/GEOPM_CXX_MAN_SharedMemory.3 \
                 man/GEOPM_CXX_MAN_TimeIOGroup.3 \
                 man/geopm.7 \
@@ -290,7 +290,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/GEOPM_CXX_MAN_PowerGovernorAgent.3.ronn \
              ronn/GEOPM_CXX_MAN_ProfileIOGroup.3.ronn \
              ronn/GEOPM_CXX_MAN_ProfileIOSample.3.ronn \
-             ronn/GEOPM_CXX_MAN_RegionAggregator.3.ronn \
+             ronn/GEOPM_CXX_MAN_SampleAggregator.3.ronn \
              ronn/GEOPM_CXX_MAN_SharedMemory.3.ronn \
              ronn/GEOPM_CXX_MAN_TimeIOGroup.3.ronn \
              ronn/geopm.7.ronn \
@@ -578,13 +578,13 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/RawMSRSignal.hpp \
                             src/RecordFilter.cpp \
                             src/RecordFilter.hpp \
-                            src/RegionAggregator.cpp \
-                            src/RegionAggregator.hpp \
-                            src/RegionAggregatorImp.hpp \
                             src/Reporter.cpp \
                             src/Reporter.hpp \
                             src/RuntimeRegulator.cpp \
                             src/RuntimeRegulator.hpp \
+                            src/SampleAggregator.cpp \
+                            src/SampleAggregator.hpp \
+                            src/SampleAggregatorImp.hpp \
                             src/SharedMemory.cpp \
                             src/SharedMemory.hpp \
                             src/SharedMemoryImp.hpp \
