@@ -450,7 +450,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/RuntimeRegulatorTest.config_rank_then_workers \
               test/gtest_links/RuntimeRegulatorTest.exceptions \
               test/gtest_links/RuntimeRegulatorTest.one_rank_reenter_and_exit \
-              test/gtest_links/SampleAggregatorTest.epoch_total \
+              test/gtest_links/SampleAggregatorTest.epoch_application_total \
               test/gtest_links/SampleAggregatorTest.sample_total \
               test/gtest_links/SchedTest.test_proc_cpuset_0 \
               test/gtest_links/SchedTest.test_proc_cpuset_1 \
