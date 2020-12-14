@@ -86,6 +86,13 @@ namespace geopm
             /// @return Total accumulated value for the signal for one
             ///        region.
             virtual double sample_total(int signal_idx, uint64_t region_hash) = 0;
+            /// @brief Get the total value of a signal that has
+            ///        been pushed since the first sample.
+            /// @param [in] signal_idx Index returned by a previous
+            ///        call to push_signal_total.
+            /// @return Total accumulated value for the signal,
+            ///         regardless of region or epoch.
+            virtual double sample_total(int signal_idx) = 0;
             /// @brief Update stored totals for each signal after
             ///        PlatformIO::read_batch has been called.  This
             ///        should be called with every PlatformIO update

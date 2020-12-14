@@ -277,7 +277,7 @@ TEST_F(SampleAggregatorTest, sample_total)
     EXPECT_DOUBLE_EQ(0.0, m_agg->sample_total(M_SIGNAL_TIME, 0x9999));
 }
 
-TEST_F(SampleAggregatorTest, epoch_total)
+TEST_F(SampleAggregatorTest, epoch_application_total)
 {
     uint64_t reg_normal = 0x3333;
 
@@ -327,4 +327,7 @@ TEST_F(SampleAggregatorTest, epoch_total)
     EXPECT_DOUBLE_EQ(2.0, m_agg->sample_total(M_SIGNAL_TIME, GEOPM_REGION_HASH_UNMARKED));
     // First epoch observed at step == 2, app finished at step == 4.  4 - 2 = 2
     EXPECT_DOUBLE_EQ(2.0, m_agg->sample_total(M_SIGNAL_TIME, GEOPM_REGION_HASH_EPOCH));
+
+    // Application totals
+    EXPECT_DOUBLE_EQ(4.0, m_agg->sample_total(M_SIGNAL_TIME));
 }

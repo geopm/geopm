@@ -100,8 +100,9 @@ namespace geopm
         if (data_it != m_region_sample_data.end()) {
             auto &data = data_it->second;
             if(!std::isnan(data.last_entry_value)) {
-                // if the region is Epoch, calculate the total now
-                if(region_hash == GEOPM_REGION_HASH_EPOCH) {
+                // if the region is Epoch or application totals, calculate the total now
+                if(region_hash == GEOPM_REGION_HASH_EPOCH ||
+                   region_hash == GEOPM_REGION_HASH_INVALID) {
                     data.total = m_platform_io.sample(signal_idx) - data.last_entry_value;
                 }
                 // if currently in this region, add current value to total
@@ -112,6 +113,14 @@ namespace geopm
             current_value += data.total;
         }
         return current_value;
+    }
+
+    double SampleAggregatorImp::sample_total(int signal_idx)
+    {
+        // TODO: this could instead have a separate map for app totals
+        // instead of using a fake region hash.
+        // Note: unmarked is tracked separately
+        return sample_total(signal_idx, GEOPM_REGION_HASH_INVALID);
     }
 
     void SampleAggregatorImp::read_batch(void)
@@ -134,6 +143,8 @@ namespace geopm
                 m_last_region_hash[it.first] = region_hash;
                 // set start value for first region to be recording this signal
                 m_region_sample_data[std::make_pair(it.first, region_hash)].last_entry_value = value;
+                // set start value for application totals
+                m_region_sample_data[std::make_pair(it.first, GEOPM_REGION_HASH_INVALID)].last_entry_value = value;
             }
             else {
                 const uint64_t last_hash = m_last_region_hash[it.first];
