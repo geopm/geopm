@@ -30,8 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef REGIONAGGREGATOR_HPP_INCLUDE
-#define REGIONAGGREGATOR_HPP_INCLUDE
+#ifndef SAMPLEAGGREGATOR_HPP_INCLUDE
+#define SAMPLEAGGREGATOR_HPP_INCLUDE
 
 #include <cstdint>
 
@@ -41,11 +41,11 @@
 
 namespace geopm
 {
-    class RegionAggregator
+    class SampleAggregator
     {
         public:
-            RegionAggregator() = default;
-            virtual ~RegionAggregator() = default;
+            SampleAggregator() = default;
+            virtual ~SampleAggregator() = default;
             /// @brief Push required PlatformIO signals (EPOCH_COUNT).
             virtual void init(void) = 0;
             /// @brief Push a signal to be accumulated per-region.  It
@@ -97,10 +97,10 @@ namespace geopm
             virtual std::set<uint64_t> tracked_region_hash(void) const = 0;
             /// @brief Returns a unique_ptr to a concrete object
             ///        constructed using the underlying implementation
-            static std::unique_ptr<RegionAggregator> make_unique(void);
+            static std::unique_ptr<SampleAggregator> make_unique(void);
             /// @brief Returns a shared_ptr to a concrete object
             ///        constructed using the underlying implementation
-            static std::shared_ptr<RegionAggregator> make_shared(void);
+            static std::shared_ptr<SampleAggregator> make_shared(void);
     };
 }
 

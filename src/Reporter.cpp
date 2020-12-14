@@ -51,7 +51,7 @@
 
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
-#include "RegionAggregatorImp.hpp"
+#include "SampleAggregator.hpp"
 #include "ApplicationIO.hpp"
 #include "Comm.hpp"
 #include "TreeComm.hpp"
@@ -75,7 +75,7 @@ namespace geopm
                       platform_io,
                       platform_topo,
                       rank,
-                      std::unique_ptr<RegionAggregator>(new RegionAggregatorImp),
+                      SampleAggregator::make_unique(),
                       environment().report_signals(),
                       environment().policy(),
                       environment().do_endpoint())
@@ -88,7 +88,7 @@ namespace geopm
                              PlatformIO &platform_io,
                              const PlatformTopo &platform_topo,
                              int rank,
-                             std::unique_ptr<RegionAggregator> agg,
+                             std::unique_ptr<SampleAggregator> agg,
                              const std::string &env_signals,
                              const std::string &policy_path,
                              bool do_endpoint)
