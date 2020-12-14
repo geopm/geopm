@@ -48,6 +48,8 @@ class MockSampleAggregator : public geopm::SampleAggregator
                          int domain_idx));
         MOCK_METHOD2(sample_total,
                      double(int signal_idx, uint64_t region_id));
+        MOCK_METHOD1(sample_total,
+                     double(int signal_idx));
         MOCK_METHOD0(read_batch,
                      void(void));
         MOCK_CONST_METHOD0(tracked_region_hash,
