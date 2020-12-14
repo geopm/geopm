@@ -97,7 +97,7 @@ namespace geopm
 
     class PlatformIO;
     class PlatformTopo;
-    class RegionAggregator;
+    class SampleAggregator;
 
     class ReporterImp : public Reporter
     {
@@ -112,7 +112,7 @@ namespace geopm
                         PlatformIO &platform_io,
                         const PlatformTopo &platform_topo,
                         int rank,
-                        std::unique_ptr<RegionAggregator> agg,
+                        std::unique_ptr<SampleAggregator> agg,
                         const std::string &env_signal,
                         const std::string &policy_path,
                         bool do_endpoint);
@@ -133,7 +133,7 @@ namespace geopm
             std::string m_report_name;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
-            std::unique_ptr<RegionAggregator> m_region_agg;
+            std::unique_ptr<SampleAggregator> m_region_agg;
             int m_rank;
             int m_region_bulk_runtime_idx;
             int m_energy_pkg_idx;
