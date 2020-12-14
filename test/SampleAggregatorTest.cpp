@@ -35,7 +35,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "RegionAggregatorImp.hpp"
+#include "SampleAggregatorImp.hpp"
 #include "Helper.hpp"
 #include "PlatformTopo.hpp"
 #include "Agg.hpp"
@@ -46,18 +46,18 @@
 #include "geopm_hash.h"
 #include "geopm_test.hpp"
 
-using geopm::RegionAggregator;
-using geopm::RegionAggregatorImp;
+using geopm::SampleAggregator;
+using geopm::SampleAggregatorImp;
 using geopm::PlatformTopo;
 using testing::_;
 using testing::Return;
 
-class RegionAggregatorTest : public ::testing::Test
+class SampleAggregatorTest : public ::testing::Test
 {
     protected:
         void SetUp(void);
 
-        std::unique_ptr<RegionAggregator> m_agg;
+        std::unique_ptr<SampleAggregator> m_agg;
         MockPlatformIO m_platio;
         enum M_SIGNAL {
             M_SIGNAL_TIME,
@@ -78,7 +78,7 @@ class RegionAggregatorTest : public ::testing::Test
         };
 };
 
-void RegionAggregatorTest::SetUp(void)
+void SampleAggregatorTest::SetUp(void)
 {
     ON_CALL(m_platio, push_signal("TIME", GEOPM_DOMAIN_BOARD, 0))
         .WillByDefault(Return(M_SIGNAL_TIME));
@@ -111,11 +111,11 @@ void RegionAggregatorTest::SetUp(void)
 
     EXPECT_CALL(m_platio, push_signal("EPOCH_COUNT", _, _))
         .WillOnce(Return(M_SIGNAL_EPOCH_COUNT));
-    m_agg = geopm::make_unique<RegionAggregatorImp>(m_platio);
+    m_agg = geopm::make_unique<SampleAggregatorImp>(m_platio);
     m_agg->init();
 }
 
-TEST_F(RegionAggregatorTest, sample_total)
+TEST_F(SampleAggregatorTest, sample_total)
 {
     uint64_t regionA = 0x4444;
     uint64_t regionB = 0x5555;
@@ -277,7 +277,7 @@ TEST_F(RegionAggregatorTest, sample_total)
     EXPECT_DOUBLE_EQ(0.0, m_agg->sample_total(M_SIGNAL_TIME, 0x9999));
 }
 
-TEST_F(RegionAggregatorTest, epoch_total)
+TEST_F(SampleAggregatorTest, epoch_total)
 {
     uint64_t reg_normal = 0x3333;
 

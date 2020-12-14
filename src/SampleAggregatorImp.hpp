@@ -30,24 +30,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef REGIONAGGREGATORIMP_HPP_INCLUDE
-#define REGIONAGGREGATORIMP_HPP_INCLUDE
+#ifndef SAMPLEAGGREGATORIMP_HPP_INCLUDE
+#define SAMPLEAGGREGATORIMP_HPP_INCLUDE
 
 #include <cmath>
 
 #include <map>
 
-#include "RegionAggregator.hpp"
+#include "SampleAggregator.hpp"
 
 namespace geopm
 {
     class PlatformIO;
 
-    class RegionAggregatorImp : public RegionAggregator
+    class SampleAggregatorImp : public SampleAggregator
     {
         public:
-            RegionAggregatorImp();
-            RegionAggregatorImp(PlatformIO &platio);
+            SampleAggregatorImp();
+            SampleAggregatorImp(PlatformIO &platio);
             void init(void) override;
             int push_signal_total(const std::string &signal_idx,
                                   int domain_type,
