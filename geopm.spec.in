@@ -191,7 +191,7 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 %doc %{_mandir}/man3/geopm::PluginFactory.3.gz
 %doc %{_mandir}/man3/geopm::PowerBalancer.3.gz
 %doc %{_mandir}/man3/geopm::PowerGovernor.3.gz
-%doc %{_mandir}/man3/geopm::RegionAggregator.3.gz
+%doc %{_mandir}/man3/geopm::SampleAggregator.3.gz
 %doc %{_mandir}/man3/geopm::SharedMemory.3.gz
 %doc %{_mandir}/man3/geopm::TimeIOGroup.3.gz
 %doc %{_mandir}/man3/geopm_agent_c.3.gz
@@ -232,7 +232,7 @@ rm -f %{buildroot}/%{_bindir}/geopmlaunch
 %{_includedir}/geopm/PluginFactory.hpp
 %{_includedir}/geopm/PowerBalancer.hpp
 %{_includedir}/geopm/PowerGovernor.hpp
-%{_includedir}/geopm/RegionAggregator.hpp
+%{_includedir}/geopm/SampleAggregator.hpp
 %{_includedir}/geopm/SharedMemory.hpp
 %{_includedir}/geopm/SharedMemoryScopedLock.hpp
 %{_includedir}/geopm/TimeIOGroup.hpp

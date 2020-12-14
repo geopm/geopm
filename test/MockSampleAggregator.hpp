@@ -30,14 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKREGIONAGGREGATOR_HPP_INCLUDE
-#define MOCKREGIONAGGREGATOR_HPP_INCLUDE
+#ifndef MOCKSAMPLEAGGREGATOR_HPP_INCLUDE
+#define MOCKSAMPLEAGGREGATOR_HPP_INCLUDE
 
 #include "gmock/gmock.h"
 
-#include "RegionAggregator.hpp"
+#include "SampleAggregator.hpp"
 
-class MockRegionAggregator : public geopm::RegionAggregator
+class MockSampleAggregator : public geopm::SampleAggregator
 {
     public:
         MOCK_METHOD0(init,

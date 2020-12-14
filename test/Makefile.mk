@@ -435,8 +435,6 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/RawMSRSignalTest.setup_batch \
               test/gtest_links/RecordFilterTest.invalid_filter_name \
               test/gtest_links/RecordFilterTest.make_proxy_epoch \
-              test/gtest_links/RegionAggregatorTest.epoch_total \
-              test/gtest_links/RegionAggregatorTest.sample_total \
               test/gtest_links/ReporterTest.generate \
               test/gtest_links/RuntimeRegulatorTest.all_in_and_out \
               test/gtest_links/RuntimeRegulatorTest.all_reenter \
@@ -444,6 +442,8 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/RuntimeRegulatorTest.config_rank_then_workers \
               test/gtest_links/RuntimeRegulatorTest.exceptions \
               test/gtest_links/RuntimeRegulatorTest.one_rank_reenter_and_exit \
+              test/gtest_links/SampleAggregatorTest.epoch_total \
+              test/gtest_links/SampleAggregatorTest.sample_total \
               test/gtest_links/SchedTest.test_proc_cpuset_0 \
               test/gtest_links/SchedTest.test_proc_cpuset_1 \
               test/gtest_links/SchedTest.test_proc_cpuset_2 \
@@ -630,9 +630,9 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/MockProfileTable.hpp \
                           test/MockProfileTracer.hpp \
                           test/MockRecordFilter.hpp \
-                          test/MockRegionAggregator.hpp \
                           test/MockReporter.hpp \
                           test/MockRuntimeRegulator.hpp \
+                          test/MockSampleAggregator.hpp \
                           test/MockSampleScheduler.hpp \
                           test/MockSharedMemory.hpp \
                           test/MockSignal.hpp \
@@ -656,9 +656,9 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/ProxyEpochRecordFilterTest.cpp \
                           test/RawMSRSignalTest.cpp \
                           test/RecordFilterTest.cpp \
-                          test/RegionAggregatorTest.cpp \
                           test/ReporterTest.cpp \
                           test/RuntimeRegulatorTest.cpp \
+                          test/SampleAggregatorTest.cpp \
                           test/SchedTest.cpp \
                           test/SharedMemoryTest.cpp \
                           test/TimeIOGroupTest.cpp \
