@@ -46,7 +46,10 @@ import numpy as np
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 
-from geopmpy import io as geoio
+import geopmpy.io
+
+from experiment import common_args
+from experiment import machine
 
 # abstract model class
 # TODO add types and help text! modern python!
@@ -129,15 +132,9 @@ class CubicPowerModel(PolynomialFitPowerModel):
         super().__init__(degree=3)
 
 
-def extract_from_reports(path, region_filter):
+def extract_from_reports(df, region_filter):
     simplified_data = []
     
-    try:
-        df = geoio.RawReportCollection("*report", dir_name=path).get_df()
-    except RuntimeError:
-        sys.stderr.write("<geopm> Error: No report data found in " + path + \
-                "; run a power sweep before using this analysis.\n")
-        sys.exit(1)
     for profile in df['Profile'].unique():
         # profile will be something like "unifiedmodel_power_governor_250_1"
         power_limit = int(profile.split('_')[-2])  # TODO - access the policy
@@ -161,10 +158,9 @@ def extract_from_reports(path, region_filter):
 
 
 def dump_simplified_data(simplified_data, fname):
-    raw_out = open(fname, "w")
-    for pl, rt, en in sorted(simplified_data):
-        raw_out.write("%d %f %f\n" % (pl, rt, en))
-    raw_out.close()
+    with open(fname, "w") as raw_out:
+        for pl, rt, en in sorted(simplified_data):
+            raw_out.write("{} {} {}\n".format(pl, rt, en))
 
 
 def dump_stats_summary(simplified_data, fname):
@@ -194,10 +190,15 @@ def dump_stats_summary(simplified_data, fname):
         enx[pl] /= count[pl]
         enxx[pl] /= count[pl]
 
-    stats_out = open(fname, "w")
-    for pl in sorted(count.keys()):
-        stats_out.write("%d %f %f %f %f\n" % (pl, rtx[pl], (rtxx[pl] - rtx[pl]**2)**.5, enx[pl], (enxx[pl] - enx[pl]**2)**.5))
-    stats_out.close()
+    with open(fname, "w") as stats_out:
+        for pl in sorted(count.keys()):
+            stats_out.write(
+                    "{} {} {} {} {}\n".format((
+                        pl,
+                        rtx[pl],
+                        (rtxx[pl] - rtx[pl]**2)**.5,
+                        enx[pl],
+                        (enxx[pl] - enx[pl]**2)**.5)))
 
 
 def analyze_extracted_data(simplified_data, rtmodel, enmodel):
@@ -231,57 +232,109 @@ def policy_min_energy(plrange, enmodel, rtmodel=None, pltdp=None, max_degradatio
         return bestpl, bestrt, besten
 
 
-def main(argv):
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--path', help='path containing reports and machine.json', required=True)
-    parser.add_argument('--region_filter', help='comma-separated list of regions to include, default to include all regions', default=None)
-    parser.add_argument('--dump_prefix', help='prefix to dump statistics to, empty to not dump stats')
-    parser.add_argument('--min_pl', help='minimum power limit, default behavior is to use machine.json', default=-1, type=float)
-    parser.add_argument('--max_pl', help='maximum power limit, default behavior is to use machine.json', default=-1, type=float)
-    parser.add_argument('--tdp', help='tdp (sticker power limit), default behavior is to use machine.json', default=-1, type=float)
-    parser.add_argument('--max_degradation', help='maximum allowed runtime degradation, default is 0.1 (i.e., 10%%)', default=0.1, type=float)
-    parser.add_argument('--min_energy', help='ignore max degradation, just give the minimum energy possible', action='store_true')
-
-    args = parser.parse_args(argv[1:])
-
-    simplified_data = extract_from_reports(args.path, args.region_filter)
-    if args.dump_prefix:
-        dump_simplified_data(simplified_data, "%s.dat" % dump_prefix)
-        dump_stats_summary(simplified_data, "%s.stats" % dump_prefix)
+def main(df,
+        region_filter,
+        dump_prefix,
+        min_pl,
+        max_pl,
+        tdp,
+        min_energy,
+        max_degradation):
+    simplified_data = extract_from_reports(df, args.region_filter)
+    if dump_prefix:
+        dump_simplified_data(simplified_data, "{}.dat".format(dump_prefix))
+        dump_stats_summary(simplified_data, "{}.stats".format(dump_prefix))
 
     rtmodel = CubicPowerModel()
     enmodel = CubicPowerModel()
 
     analyze_extracted_data(simplified_data, rtmodel, enmodel)
 
+    plrange = [min_pl + i for i in range(int(max_pl - min_pl))] + [max_pl]
+    bestpl, bestrt, besten = policy_min_energy(plrange, enmodel, rtmodel, tdp, max_degradation=(None if args.min_energy else args.max_degradation))
+    tdprt, tdpen = rtmodel.test(tdp), enmodel.test(tdp)
+
+    return {'tdp': {'power': tdp, 'runtime': tdprt, 'energy': tdpen}, 
+            'best': {'power': bestpl, 'runtime': bestrt, 'energy': besten}}
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    common_args.add_min_power(parser)
+    common_args.add_max_power(parser)
+    parser.add_argument('--path', required=True,
+                        help='path containing reports and machine.json')
+    parser.add_argument('--region_filter', default=None,
+                        help='comma-separated list of regions to include, '
+                             'default to include all regions')
+    parser.add_argument('--dump_prefix',
+                        help='prefix to dump statistics to, empty to not dump '
+                             'stats')
+    parser.add_argument('--tdp', default=-1, type=float,
+                        help='tdp (sticker power limit), default behavior is '
+                             'to use max power')
+    parser.add_argument('--max_degradation', default=0.1, type=float,
+                        help='maximum allowed runtime degradation, default is '
+                             '0.1 (i.e., 10%%)')
+    parser.add_argument('--min_energy', action='store_true',
+                        help='ignore max degradation, just give the minimum '
+                             'energy possible')
+
+    args = parser.parse_args()
+
+    try:
+        df = geopmpy.io.RawReportCollection(
+                "*report", dir_name=args.path).get_df()
+    except RuntimeError:
+        sys.stderr.write("<geopm> Error: No report data found in " + path + \
+                "; run a power sweep before using this analysis.\n")
+        sys.exit(1)
+
     min_pl, tdp, max_pl = None, None, None
-    if min(args.min_pl, args.tdp, args.max_pl) < 0:
+    if None in [args.min_power, args.tdp, args.max_power] or \
+            min(args.min_power, args.tdp, args.max_power) < 0:
         try:
-            machine_info = json.load(open(os.path.join(args.path, "machine.json")))
-            min_pl = machine_info['signals']['POWER_PACKAGE_MIN']
-            tdp = machine_info['signals']['POWER_PACKAGE_TDP']
-            max_pl = machine_info['signals']['POWER_PACKAGE_TDP']
-        except IOError:
-            sys.stderr.write("Warning: couldn't open machine.json. Falling back to default values.\n")
+            machine_info = machine.get_machine(args.path)
+            min_pl = machine_info.power_package_min()
+            tdp = machine_info.power_package_tdp()
+            max_pl = machine_info.power_package_tdp()
+        except RuntimeError:
+            sys.stderr.write("Warning: couldn't open machine.json. Falling "
+                             "back to default values.\n")
             min_pl = 150
             tdp = 280
             max_pl = 280
 
     # user-provided arguments override
-    if args.min_pl > 0:
-        min_pl = args.min_pl
-    if args.tdp > 0:
+    if args.min_power and args.min_power > 0:
+        min_pl = args.min_power
+    if args.tdp and args.tdp > 0:
         tdp = args.tdp
-    if args.max_pl > 0:
-        max_pl = args.max_pl
+    if args.max_power and args.max_power > 0:
+        max_pl = args.max_power
 
-    plrange = [min_pl + i for i in range(int(max_pl - min_pl))] + [max_pl]
-    bestpl, bestrt, besten = policy_min_energy(plrange, enmodel, rtmodel, tdp, max_degradation=(None if args.min_energy else args.max_degradation))
-    tdprt, tdpen = rtmodel.test(tdp), enmodel.test(tdp)
+    output = main(df, args.region_filter, args.dump_prefix, min_pl, max_pl, tdp,
+                  args.min_energy, args.max_degradation)
 
-    print("AT TDP = %dW, RUNTIME = %f s,  ENERGY = %f J" % (tdp, tdprt, tdpen))
-    print("AT PL  = %dW, RUNTIME = %f s,  ENERGY = %f J" % (bestpl, bestrt, besten))
-    print("DELTA          RUNTIME = %f %%, ENERGY = %f %%" % (100 * (bestrt - tdprt)/tdprt, 100 * (besten - tdpen)/tdpen))
+    sys.stdout.write(
+            "AT TDP = {power:.0f}W, "
+            "RUNTIME = {runtime:.0f} s, "
+            "ENERGY = {energy:.0f} J\n"\
+                    .format(**output['tdp']))
+    sys.stdout.write(
+            "AT PL  = {power:.0f}W, "
+            "RUNTIME = {runtime:.0f} s, "
+            "ENERGY = {energy:.0f} J\n"\
+                    .format(**output['best']))
 
-if __name__ == '__main__':
-    main(sys.argv)
+    relative_delta = lambda new, old: (new - old) / old
+
+    sys.stdout.write(
+            "DELTA          RUNTIME = {:.1f} %,  ENERGY = {:.1f} %\n"\
+                    .format(
+                        100 * relative_delta(
+                            output['best']['runtime'],
+                            output['tdp']['runtime']),
+                        100 * relative_delta(
+                            output['best']['energy'],
+                            output['tdp']['energy'])))
