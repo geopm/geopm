@@ -302,9 +302,10 @@ TEST_F(ApplicationSamplerTest, string_conversion)
 
 TEST_F(ApplicationSamplerTest, process_mapping)
 {
-    std::vector<int> expected {42, 42};
+    std::vector<int> expected {42, 24};
     EXPECT_CALL(*m_mock_status, get_process(_))
-        .WillRepeatedly(Return(42));
+        .WillOnce(Return(42))
+        .WillOnce(Return(24));
     std::vector<int> result = m_app_sampler->per_cpu_process();
     EXPECT_EQ(expected, result);
 }
@@ -369,8 +370,32 @@ TEST_F(ApplicationSamplerTest, short_regions)
                                "event_signal does not match any short region handle");
 }
 
+TEST_F(ApplicationSamplerTest, hint)
+{
+    EXPECT_CALL(*m_mock_status, get_hint(0))
+        .WillOnce(Return(GEOPM_REGION_HINT_COMPUTE));
+    uint64_t hint = m_app_sampler->cpu_hint(0);
+    EXPECT_EQ(GEOPM_REGION_HINT_COMPUTE, hint);
+    EXPECT_CALL(*m_mock_status, get_hint(1))
+        .WillOnce(Return(GEOPM_REGION_HINT_MEMORY));
+    hint = m_app_sampler->cpu_hint(1);
+    EXPECT_EQ(GEOPM_REGION_HINT_MEMORY, hint);
+}
+
 TEST_F(ApplicationSamplerTest, hint_time)
 {
+    double compute_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_COMPUTE);
+    EXPECT_EQ(0.0, compute_time);
+    double network_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_NETWORK);
+    EXPECT_EQ(0.0, network_time);
+    double memory_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_MEMORY);
+    EXPECT_EQ(0.0, memory_time);
+    compute_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_COMPUTE);
+    EXPECT_EQ(0.0, compute_time);
+    network_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_NETWORK);
+    EXPECT_EQ(0.0, network_time);
+    memory_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_MEMORY);
+    EXPECT_EQ(0.0, memory_time);
     std::vector<record_s> empty_message_buffer;
     std::vector<short_region_s> empty_short_region_buffer;
     {
@@ -383,30 +408,18 @@ TEST_F(ApplicationSamplerTest, hint_time)
         EXPECT_CALL(*m_mock_status, update_cache());
         m_app_sampler->update({{1, 0}});
     }
-    {
-        EXPECT_CALL(*m_record_log_0, dump(_, _))
-            .WillOnce(DoAll(SetArgReferee<0>(empty_message_buffer),
-                            SetArgReferee<1>(empty_short_region_buffer)));
-        EXPECT_CALL(*m_record_log_1, dump(_, _))
-            .WillOnce(DoAll(SetArgReferee<0>(empty_message_buffer),
-                            SetArgReferee<1>(empty_short_region_buffer)));
-        EXPECT_CALL(*m_mock_status, update_cache());
-        EXPECT_CALL(*m_mock_status, get_hint(_))
-            .WillRepeatedly(Return(GEOPM_REGION_HINT_NETWORK));
-        m_app_sampler->update({{2, 0}});
-    }
-    double compute_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_COMPUTE);
+    compute_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_COMPUTE);
     EXPECT_EQ(0.0, compute_time);
-    double network_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_NETWORK);
-    EXPECT_EQ(1.0, network_time);
+    network_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_NETWORK);
+    EXPECT_EQ(0.0, network_time);
+    memory_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_MEMORY);
+    EXPECT_EQ(0.0, memory_time);
     compute_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_COMPUTE);
     EXPECT_EQ(0.0, compute_time);
     network_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_NETWORK);
-    EXPECT_EQ(1.0, network_time);
-    uint64_t curr_hint = m_app_sampler->cpu_hint(0);
-    EXPECT_EQ(GEOPM_REGION_HINT_NETWORK, curr_hint);
-    curr_hint = m_app_sampler->cpu_hint(1);
-    EXPECT_EQ(GEOPM_REGION_HINT_NETWORK, curr_hint);
+    EXPECT_EQ(0.0, network_time);
+    memory_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_MEMORY);
+    EXPECT_EQ(0.0, memory_time);
     {
         EXPECT_CALL(*m_record_log_0, dump(_, _))
             .WillOnce(DoAll(SetArgReferee<0>(empty_message_buffer),
@@ -416,21 +429,72 @@ TEST_F(ApplicationSamplerTest, hint_time)
                             SetArgReferee<1>(empty_short_region_buffer)));
         EXPECT_CALL(*m_mock_status, update_cache());
         EXPECT_CALL(*m_mock_status, get_hint(_))
-            .WillRepeatedly(Return(GEOPM_REGION_HINT_COMPUTE));
+            .WillOnce(Return(GEOPM_REGION_HINT_NETWORK))
+            .WillOnce(Return(GEOPM_REGION_HINT_COMPUTE));
+        m_app_sampler->update({{2, 0}});
+    }
+    compute_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_COMPUTE);
+    EXPECT_EQ(0.0, compute_time);
+    network_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_NETWORK);
+    EXPECT_EQ(1.0, network_time);
+    memory_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_MEMORY);
+    EXPECT_EQ(0.0, memory_time);
+    compute_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_COMPUTE);
+    EXPECT_EQ(1.0, compute_time);
+    network_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_NETWORK);
+    EXPECT_EQ(0.0, network_time);
+    memory_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_MEMORY);
+    EXPECT_EQ(0.0, memory_time);
+    {
+        EXPECT_CALL(*m_record_log_0, dump(_, _))
+            .WillOnce(DoAll(SetArgReferee<0>(empty_message_buffer),
+                            SetArgReferee<1>(empty_short_region_buffer)));
+        EXPECT_CALL(*m_record_log_1, dump(_, _))
+            .WillOnce(DoAll(SetArgReferee<0>(empty_message_buffer),
+                            SetArgReferee<1>(empty_short_region_buffer)));
+        EXPECT_CALL(*m_mock_status, update_cache());
+        EXPECT_CALL(*m_mock_status, get_hint(_))
+            .WillOnce(Return(GEOPM_REGION_HINT_NETWORK))
+            .WillOnce(Return(GEOPM_REGION_HINT_MEMORY));
         m_app_sampler->update({{4, 0}});
     }
     compute_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_COMPUTE);
-    EXPECT_EQ(2.0, compute_time);
+    EXPECT_EQ(0.0, compute_time);
     network_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_NETWORK);
-    EXPECT_EQ(1.0, network_time);
+    EXPECT_EQ(3.0, network_time);
+    memory_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_MEMORY);
+    EXPECT_EQ(0.0, memory_time);
     compute_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_COMPUTE);
-    EXPECT_EQ(2.0, compute_time);
+    EXPECT_EQ(1.0, compute_time);
     network_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_NETWORK);
-    EXPECT_EQ(1.0, network_time);
-    curr_hint = m_app_sampler->cpu_hint(0);
-    EXPECT_EQ(GEOPM_REGION_HINT_COMPUTE, curr_hint);
-    curr_hint = m_app_sampler->cpu_hint(1);
-    EXPECT_EQ(GEOPM_REGION_HINT_COMPUTE, curr_hint);
+    EXPECT_EQ(0.0, network_time);
+    memory_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_MEMORY);
+    EXPECT_EQ(2.0, memory_time);
+    {
+        EXPECT_CALL(*m_record_log_0, dump(_, _))
+            .WillOnce(DoAll(SetArgReferee<0>(empty_message_buffer),
+                            SetArgReferee<1>(empty_short_region_buffer)));
+        EXPECT_CALL(*m_record_log_1, dump(_, _))
+            .WillOnce(DoAll(SetArgReferee<0>(empty_message_buffer),
+                            SetArgReferee<1>(empty_short_region_buffer)));
+        EXPECT_CALL(*m_mock_status, update_cache());
+        EXPECT_CALL(*m_mock_status, get_hint(_))
+            .WillOnce(Return(GEOPM_REGION_HINT_COMPUTE))
+            .WillOnce(Return(GEOPM_REGION_HINT_NETWORK));
+        m_app_sampler->update({{7, 0}});
+    }
+    compute_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_COMPUTE);
+    EXPECT_EQ(3.0, compute_time);
+    network_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_NETWORK);
+    EXPECT_EQ(3.0, network_time);
+    memory_time = m_app_sampler->cpu_hint_time(0, GEOPM_REGION_HINT_MEMORY);
+    EXPECT_EQ(0.0, memory_time);
+    compute_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_COMPUTE);
+    EXPECT_EQ(1.0, compute_time);
+    network_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_NETWORK);
+    EXPECT_EQ(3.0, network_time);
+    memory_time = m_app_sampler->cpu_hint_time(1, GEOPM_REGION_HINT_MEMORY);
+    EXPECT_EQ(2.0, memory_time);
 }
 
 TEST_F(ApplicationSamplerTest, cpu_process)
