@@ -54,7 +54,7 @@ def plot_3d(df):
 
 
 def plot_heatmap(data, cmap, norm, zbar_range, zbar_label, z_thresh,
-                 x_range, x_label, y_range, y_label, title, outdir):
+                 x_range, x_label, y_range, y_label, title, outdir, filename):
 
     # need to transpose the data for imshow
     data = np.array(data)
@@ -66,7 +66,7 @@ def plot_heatmap(data, cmap, norm, zbar_range, zbar_label, z_thresh,
     cbar.ax.set_ylabel(zbar_label, rotation=-90, va='bottom')
 
     ax.set_xlabel(x_label)
-    ax.set_xticklabels(x_range, rotation=90)
+    ax.set_xticklabels(x_range)
     ax.set_xticks(np.arange(len(x_range)))
 
     ax.set_ylabel(y_label)
@@ -91,20 +91,24 @@ def plot_heatmap(data, cmap, norm, zbar_range, zbar_label, z_thresh,
     ax.set_ylim(b, t)
     ################
 
+    f.set_size_inches(6.0, 4.5)
     plt.title(title)
     f.tight_layout()
-    filename = '{}.png'.format(title.replace(' ', '_').replace('\n', '_').replace(':', ''))
+    filename = '{}.png'.format(filename)
     if not os.path.exists(os.path.join(outdir, 'figures')):
         os.mkdir(os.path.join(outdir, 'figures'))
     plt.savefig(os.path.join(outdir, 'figures', filename))
     plt.close()
 
 
-def setup_3d_data(df, metric, show_details):
+def setup_3d_data(df, metric, show_details, scalar=1e9):
     # rename some columns
     df['runtime'] = df['runtime (sec)']
     df['energy'] = df['package-energy (joules)']
     df['power'] = df['power (watts)']
+
+    df['FREQ_DEFAULT'] /= scalar
+    df['FREQ_UNCORE'] /= scalar
 
     xs = sorted(df['FREQ_DEFAULT'].unique())
     ys = sorted(df['FREQ_UNCORE'].unique())
@@ -125,22 +129,29 @@ def setup_3d_data(df, metric, show_details):
     return xs, ys, zs, min_z, max_z
 
 
-def plot_uncore_sweep_heatmap(df, metric, label, output_dir, show_details):
+def plot_uncore_sweep_heatmap(df, metric, label, region, output_dir, show_details):
     if metric not in ['power', 'energy', 'runtime']:
         raise RuntimeError('Unknown z-axis metric: {}'.format(metric))
 
     xs, ys, zs, min_z, max_z = setup_3d_data(df, metric, show_details)
-    value_range = np.linspace(min_z, max_z, 20)
+    min_z = round(min_z - 10, -1)
+    max_z = round(max_z + 10, -1)
+    value_range = np.linspace(min_z, max_z, 10)
     z_thresh = 0.0
-    cmap = cm.get_cmap('autumn')
+    cmap = cm.get_cmap('autumn_r')
     norm = colors.Normalize(value_range.min(), value_range.max())
 
+    metric_label = { 'runtime': 'Runtime (sec)',
+                     'energy': 'Energy (j)',
+                     'power': 'Power (W)'}
+
     plot_heatmap(data=zs, cmap=cmap, norm=norm, zbar_range=value_range,
-                 zbar_label=metric, z_thresh=z_thresh,
-                 x_range=xs, x_label='Core Frequency (Hz)',
-                 y_range=ys, y_label='Uncore Frequency (Hz)',
-                 title='{} Uncore Frequency Sweep: {}'.format(label, metric),
-                 outdir=output_dir)
+                 zbar_label=metric_label[metric], z_thresh=z_thresh,
+                 x_range=xs, x_label='Core Frequency (GHz)',
+                 y_range=ys, y_label='Uncore Frequency (GHz)',
+                 title='{} Uncore Frequency Sweep\nregion = {}, z-axis = {}'.format(label, region, metric),
+                 outdir=output_dir,
+                 filename='{}_uncore_frequency_sweep_{}_{}'.format(label.lower(), metric, region.lower()))
 
 
 if __name__ == '__main__':
@@ -170,15 +181,19 @@ if __name__ == '__main__':
     label = args.label
     target_region = args.target_region
     if target_region is not None:
-        df = output.get_df()
-        data = df.loc[df['region'] == target_region]
-        label += ', ' + target_region
+        if target_region == "Epoch":
+            data = output.get_epoch_df()
+        else:
+            df = output.get_df()
+            data = df.loc[df['region'] == target_region]
+        region = target_region
     else:
         data = output.get_app_df()
+        region = "Totals"
 
     if args.plot_3d:
         plot_3d(data)
     else:
         plot_uncore_sweep_heatmap(df=data, metric=args.metric,
-                                  label=args.label, output_dir=args.output_dir,
+                                  label=label, region=region, output_dir=args.output_dir,
                                   show_details=args.show_details)
