@@ -93,17 +93,20 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
     num_ranks = app_conf.get_rank_per_node() * num_nodes
     cpu_per_rank = app_conf.get_cpu_per_rank()
 
-    launcher = geopmpy.launcher.Factory().create(argv,
-                                                 num_node=num_nodes,
-                                                 num_rank=num_ranks,
-                                                 cpu_per_rank=cpu_per_rank)
-    launcher.run()
+    # Attempt to run if there are no valid report files for the current configuration
+    if not (os.path.isfile(report_path) and os.path.getsize(report_path) > 0):
 
-    # Get app-reported figure of merit
-    fom = app_conf.parse_fom(log_path)
-    # Append to report
-    with open(report_path, 'a') as report:
-        report.write('\nFigure of Merit: {}\n'.format(fom))
+        launcher = geopmpy.launcher.Factory().create(argv,
+                                                     num_node=num_nodes,
+                                                     num_rank=num_ranks,
+                                                     cpu_per_rank=cpu_per_rank)
+        launcher.run()
+
+        # Get app-reported figure of merit
+        fom = app_conf.parse_fom(log_path)
+        # Append to report
+        with open(report_path, 'a') as report:
+            report.write('\nFigure of Merit: {}\n'.format(fom))
 
     # return to previous directory
     os.chdir(start_dir)
