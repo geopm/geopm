@@ -77,6 +77,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/ApplicationSamplerTest.string_conversion \
               test/gtest_links/ApplicationSamplerTest.short_regions \
               test/gtest_links/ApplicationSamplerTest.with_epoch \
+              test/gtest_links/ApplicationSamplerTest.hint \
               test/gtest_links/ApplicationSamplerTest.hint_time \
               test/gtest_links/ApplicationSamplerTest.cpu_process \
               test/gtest_links/ApplicationSamplerTest.cpu_progress \
