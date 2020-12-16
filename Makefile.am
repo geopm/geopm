@@ -446,6 +446,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             contrib/json11/json11.hpp \
                             src/AcceleratorTopo.cpp \
                             src/AcceleratorTopo.hpp \
+                            src/Accumulator.cpp \
+                            src/Accumulator.hpp \
                             src/Admin.cpp \
                             src/Admin.hpp \
                             src/Agent.cpp \
