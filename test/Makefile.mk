@@ -569,6 +569,7 @@ EXTRA_DIST += test/InternalProfile.cpp \
               # end
 
 test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
+                          test/AccumulatorTest.cpp \
                           test/AdminTest.cpp \
                           test/AgentFactoryTest.cpp \
                           test/AggTest.cpp \
