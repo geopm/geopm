@@ -42,40 +42,43 @@ import sys
 import argparse
 import json
 
+import pandas
 import numpy as np
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.linear_model import LinearRegression
+from numpy.polynomial.polynomial import Polynomial
 
 import geopmpy.io
 
 from experiment import common_args
 from experiment import machine
 
-# abstract model class
-# TODO add types and help text! modern python!
 class PowerLimitModel:
+    "Abstract class for predicting a statistic based on a power limit."
     def __init__(self):
-        # TODO raise not implemented
-        pass
+        "Default constructor."
+        raise NotImplemented()
 
-    def train(self, PL_list, value_list):
-        # TODO raise not implemented
-        pass
+    def train(self, df, key):
+        "Train this model to fit the data of column key contained in the " \
+        "dataframe (df), which is indexed by power limit. This modifies " \
+        "the instance it is called on, preparing it for calls of the " \
+        "methods test and batch_test."
+        raise NotImplemented()
 
     def test(self, PL):
-        # TODO raise not implemented
-        pass
+        "Evaluate a trained model on a single power limit (PL). Returns " \
+        "the model's prediction for this power limit."
+        raise NotImplemented()
 
     def batch_test(self, PL_list):
+        "Evaluate a trained model on a list-like container of power limits " \
+        "(PL_list). Returns a list of values."
         return [self.test(PL) for PL in PL_list]
 
     def serialize(self):
-        # TODO raise not implemented
-        # actually make this convert to/from json nicely
-        pass
+        "Convert model to JSON."
+        raise NotImplemented()
 
     def __str__(self):
-        # TODO classname?
         return "<%s>" % "PowerLimitModel"
 
     def repr(self):
@@ -83,36 +86,33 @@ class PowerLimitModel:
 
 
 class PolynomialFitPowerModel(PowerLimitModel):
+    "Implementation of a polynomial model of fixed degree that can be a " \
+    "trained to predict a statistic from a power limit."
     def __init__(self, degree):
+        "Default constructor; degree (a positive integer) is the degree " \
+        "of the polynomial being fit to."
         self._degree = degree
-        self._transform = PolynomialFeatures(
-                degree=self._degree,
-                include_bias=False)
         self._model = None
 
-    def train(self, PL_list, value_list):
-        # TODO check if PL_list and value_list are the same length
-        x1 = np.array(PL_list).reshape((-1, 1))
-        yy = np.array(value_list)
-        xn = self._transform.fit_transform(x1)
-        self._model = LinearRegression().fit(xn, yy)
+    def train(self, df, key):
+        self._model = Polynomial.fit(
+                df.index,
+                df[key].values,
+                deg=self._degree).convert()
 
     def test(self, PL):
-        # TODO shouldn't have to look inside the coeffs and 
-        # intercept to do this
-        return self._model.intercept_ + \
-               sum([
-                   c * PL**(i+1) for i, c in enumerate(self._model.coef_)
-                   ])
+        return sum(self._model.coef * PL**np.arange(self._degree+1))
 
     def __str__(self):
-        if self._model:
+        if self._model is not None:
             terms = ["", " PL"] + \
-                    [" PL ** %d" % (i+1)
-                            for i in range(1, len(self._model.coef_))]
-            coeffs = [self._model.intercept] + self._model.coef_
+                    [" PL ** {}".format(i)
+                            for i in range(2, self._degree+1)]
+            coeffs = list(self._model.coef)
             expression = ""
-            terms.reverse() ; coeffs.reverse() ; firstTerm = True
+            terms.reverse()
+            coeffs.reverse()
+            firstTerm = True
             for tt, cc in zip(terms, coeffs):
                 if not firstTerm:
                     if cc < 0:
@@ -121,118 +121,118 @@ class PolynomialFitPowerModel(PowerLimitModel):
                     else:
                         expression += " + "
                 expression += str(cc) + tt
+                firstTerm = False
             # TODO classname
-            return "<%s %s>" % ("Polyfitmodel", expression)
+            return "<{} {}>".format(self.__class__.__name__, expression)
         else:
-            return "<%s (untrained)>" % "Polyfitmodel"  #TODO classname
+            return "<{} (untrained)>".format(self.__class__.__name__)
 
 
 class CubicPowerModel(PolynomialFitPowerModel):
+    "Implementation of a cubic model that can be a trained to predict a " \
+    "statistic from a power limit."
     def __init__(self):
+        "Simple constructor."
         super().__init__(degree=3)
 
 
-def extract_from_reports(df, region_filter):
-    simplified_data = []
-    
-    for profile in df['Profile'].unique():
-        # profile will be something like "unifiedmodel_power_governor_250_1"
-        power_limit = int(profile.split('_')[-2])  # TODO - access the policy
-        df_profile = df[df['Profile'] == profile]
-        for host in df_profile['host'].unique():
-            df_profile_host = df_profile[df_profile['host'] == host]
-            total_rt = 0
-            total_en = 0
-            for region_name in df_profile_host['region'].unique():
-                if region_filter and region_name not in region_filter:
-                    continue
-                region = df_profile_host[df_profile_host['region'] == region_name]
-                runtime = sum(region['runtime (sec)'])
-                energy = sum(region['package-energy (joules)'])
-    
-                total_rt += runtime
-                total_en += energy
-    
-            simplified_data.append((power_limit, total_rt, total_en))
-    return simplified_data
+def extract_columns(df, region_filter = None):
+    "Extract the columns of interest from the full report collection " \
+    "dataframe. This returns a dataframe indexed by the power limit " \
+    "and columns 'runtime' and 'energy'. region_filter (if provided) " \
+    "is a container that specifies which regions to include (by default,  " \
+    "include all of them)."
+    df_filtered = df
+    if region_filter:
+        df_filtered = df[df['region'].isin(region_filter.split(','))]
+
+    # these are the only columns we need
+    df_cols = df_filtered[[
+        'Profile',
+        'host',
+        'runtime (sec)',
+        'package-energy (joules)']]
+
+    df_agg = df_cols.groupby(['Profile', 'host']).sum().reset_index()
+
+    # TODO is there a better way to do this?
+    # profile will be something like "unifiedmodel_power_governor_250_1"
+    power_limit = df_agg['Profile'].str.split('_').str[3].astype(int)
+
+    # keep the columns we want
+    return pandas.concat([
+        power_limit,
+        df_agg[['runtime (sec)', 'package-energy (joules)']]
+        ],
+        axis = 1) \
+    .rename({
+        'Profile': 'power_limit',
+        'runtime (sec)': 'runtime',
+        'package-energy (joules)': 'energy'
+        },
+        axis = 1) \
+    .set_index('power_limit')
 
 
-def dump_simplified_data(simplified_data, fname):
-    with open(fname, "w") as raw_out:
-        for pl, rt, en in sorted(simplified_data):
-            raw_out.write("{} {} {}\n".format(pl, rt, en))
+def dump_stats_summary(df: pandas.DataFrame, fname: str) -> None:
+    "Write mean runtime and energy and the standard deviation of " \
+    "runtime and energy for each power limit in CSV format to the " \
+    "file fname."
+    means = df \
+            .groupby(level=0) \
+            .mean() \
+            .rename(lambda x: x+"_mean", axis=1)
+    stds = df \
+            .groupby(level=0) \
+            .mean() \
+            .rename(lambda x: x+"_stddev", axis=1)
+    pandas.concat([means, stds], axis=1).to_csv(fname)
 
 
-def dump_stats_summary(simplified_data, fname):
-    count = {}
-    for pl, rt, en in sorted(simplified_data):
-        if pl in count:
-            count[pl] += 1
-        else:
-            count[pl] = 1
+def policy_min_energy(
+        plrange,
+        enmodel,
+        rtmodel = None,
+        pltdp = None,
+        max_degradation = None):
+    "Find the power limit over the range plrange (list-like) that " \
+    "has the minimum predicted energy usage (according to the energy model " \
+    "enmodel, an instance of PowerLimitModel), subject to the constraint " \
+    "that its runtime does not exceed the runtime at power limit pltdp " \
+    "by more than a factor of (1 + max_degradation), if max_degradation is " \
+    "specified. Returns a dictionary with keys power, runtime, and energy, " \
+    "and values the optimal power limit and the predicted runtime and energy " \
+    "at that limit, respectively."
 
-    rtx = {} ; rtxx = {}
-    enx = {} ; enxx = {}
-    for pl in count:
-        rtx[pl] = 0 ; rtxx[pl] = 0
-        enx[pl] = 0 ; enxx[pl] = 0
-
-
-    for pl, rt, en in sorted(simplified_data):
-        rtx[pl] += rt
-        rtxx[pl] += rt**2
-        enx[pl] += en
-        enxx[pl] += en**2
-
-    for pl in count:
-        rtx[pl] /= count[pl]
-        rtxx[pl] /= count[pl]
-        enx[pl] /= count[pl]
-        enxx[pl] /= count[pl]
-
-    with open(fname, "w") as stats_out:
-        for pl in sorted(count.keys()):
-            stats_out.write(
-                    "{} {} {} {} {}\n".format((
-                        pl,
-                        rtx[pl],
-                        (rtxx[pl] - rtx[pl]**2)**.5,
-                        enx[pl],
-                        (enxx[pl] - enx[pl]**2)**.5)))
-
-
-def analyze_extracted_data(simplified_data, rtmodel, enmodel):
-    rtmodel.train([pl for pl, _, __ in simplified_data],
-            [rt for _, rt, __ in simplified_data])
-    enmodel.train([pl for pl, _, __ in simplified_data],
-            [en for _, __, en in simplified_data])
-
-
-def policy_min_energy(plrange, enmodel, rtmodel=None, pltdp=None, max_degradation=None):
     if pltdp is None:
         pltdp = max(plrange)
 
     en_predictions = enmodel.batch_test(plrange)
     if max_degradation is None:
         # we don't need the runtime model in this case
-        besten, bestpl = min(zip(en_predictions, plrange))
+        best_energy, best_pl = min(zip(en_predictions, plrange))
         if rtmodel:
-            bestrt = rtmodel.test(bestpl)
+            best_runtime = rtmodel.test(bestpl)
         else:
-            bestrt = None
-        return bestpl, bestrt, besten
+            best_runtime = None
+        return {'power': best_pl,
+                'runtime': best_runtime,
+                'energy': best_energy}
     else:
         rt_predictions = rtmodel.batch_test(plrange)
         rt_at_tdp = rtmodel.test(pltdp)
         constrained_values = [
-                (en, pl, rt)
-                for pl, rt, en in zip(plrange, rt_predictions, en_predictions)
-                if rt <= (1 + max_degradation) * rt_at_tdp]
-        besten, bestpl, bestrt = min(constrained_values)
-        return bestpl, bestrt, besten
+                (energy, pl, runtime)
+                for pl, runtime, energy
+                in zip(plrange, rt_predictions, en_predictions)
+                if runtime <= (1 + max_degradation) * rt_at_tdp]
+        best_energy, best_pl, best_runtime = min(constrained_values)
+        return {'power': best_pl,
+                'runtime': best_runtime,
+                'energy': best_energy}
 
 
-def main(df,
+def main(full_df,
         region_filter,
         dump_prefix,
         min_pl,
@@ -240,22 +240,32 @@ def main(df,
         tdp,
         min_energy,
         max_degradation):
-    simplified_data = extract_from_reports(df, args.region_filter)
+    "The main function. full_df is a report collection dataframe, " \
+    "region_filter is a list of regions to include, dump_prefix " \
+    "a filename prefix for debugging output (if specified), min_pl, " \
+    "max_pl, tdp are the minimum, maximum, and reference power limits, " \
+    "respectively, min_energy is a flag indicating whether or not " \
+    "minimum energy is sought not subject to a constraint on runtime " \
+    "(True if runtime should be ignored) and max_degradation specifies " \
+    "what maximum runtime degradation is accepted."
+    df = extract_columns(full_df, args.region_filter)
     if dump_prefix:
-        dump_simplified_data(simplified_data, "{}.dat".format(dump_prefix))
-        dump_stats_summary(simplified_data, "{}.stats".format(dump_prefix))
+        df.to_csv("{}.dat".format(dump_prefix))
+        dump_stats_summary(df, "{}.stats".format(dump_prefix))
 
-    rtmodel = CubicPowerModel()
-    enmodel = CubicPowerModel()
+    runtime_model = CubicPowerModel()
+    energy_model = CubicPowerModel()
 
-    analyze_extracted_data(simplified_data, rtmodel, enmodel)
+    runtime_model.train(df, key='runtime')
+    energy_model.train(df, key='energy')
 
     plrange = [min_pl + i for i in range(int(max_pl - min_pl))] + [max_pl]
-    bestpl, bestrt, besten = policy_min_energy(plrange, enmodel, rtmodel, tdp, max_degradation=(None if args.min_energy else args.max_degradation))
-    tdprt, tdpen = rtmodel.test(tdp), enmodel.test(tdp)
+    best_policy = policy_min_energy(plrange, energy_model, runtime_model, tdp,
+            max_degradation=(None if args.min_energy else args.max_degradation))
+    tdprt, tdpen = runtime_model.test(tdp), energy_model.test(tdp)
 
-    return {'tdp': {'power': tdp, 'runtime': tdprt, 'energy': tdpen}, 
-            'best': {'power': bestpl, 'runtime': bestrt, 'energy': besten}}
+    return {'tdp': {'power': tdp, 'runtime': tdprt, 'energy': tdpen},
+            'best': best_policy}
 
 
 if __name__ == '__main__':
