@@ -72,12 +72,12 @@ namespace geopm
         m_last = m_current;
     }
 
-    double SumAccumulatorImp::sample_all(void) const
+    double SumAccumulatorImp::total(void) const
     {
         return m_total;
     }
 
-    double SumAccumulatorImp::sample_last(void) const
+    double SumAccumulatorImp::interval_total(void) const
     {
         return m_last;
     }
@@ -112,13 +112,13 @@ namespace geopm
                  m_curr_total / m_curr_weight;
     }
 
-    double AvgAccumulatorImp::sample_all(void) const
+    double AvgAccumulatorImp::average(void) const
     {
         return m_weight == 0.0 ? 0.0 :
                m_total / m_weight;
     }
 
-    double AvgAccumulatorImp::sample_last(void) const
+    double AvgAccumulatorImp::interval_average(void) const
     {
         return m_last;
     }
