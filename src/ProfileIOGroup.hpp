@@ -88,7 +88,15 @@ namespace geopm
                 M_SIGNAL_EPOCH_RUNTIME,
                 M_SIGNAL_EPOCH_RUNTIME_NETWORK,
                 M_SIGNAL_EPOCH_RUNTIME_IGNORE,
-                M_SIGNAL_MAX,
+                M_SIGNAL_HINT_UNKNOWN_TIME,
+                M_SIGNAL_HINT_MEMORY_TIME,
+                M_SIGNAL_HINT_COMPUTE_TIME,
+                M_SIGNAL_HINT_NETWORK_TIME,
+                M_SIGNAL_HINT_IO_TIME,
+                M_SIGNAL_HINT_SERIAL_TIME,
+                M_SIGNAL_HINT_PARALLEL_TIME,
+                M_SIGNAL_HINT_IGNORE_TIME,
+                M_NUM_SIGNAL,
             };
             struct m_signal_config {
                 int signal_type;
