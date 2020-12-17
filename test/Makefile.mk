@@ -36,6 +36,11 @@ if ENABLE_MPI
 endif
 
 GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
+              test/gtest_links/AccumulatorTest.empty \
+              test/gtest_links/AccumulatorTest.sum_ones \
+              test/gtest_links/AccumulatorTest.sum_idx \
+              test/gtest_links/AccumulatorTest.avg_ones \
+              test/gtest_links/AccumulatorTest.avg_idx_signal \
               test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/AdminTest.config_default \
               test/gtest_links/AdminTest.config_override \
