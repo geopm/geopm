@@ -50,6 +50,12 @@ namespace geopm
     /// of package energy consumed while the application was executing
     /// a particular region.
     ///
+    /// The SumAccumulator is used to accumulate a signal that is
+    /// monotonically increasing, e.g. energy, in order to track the
+    /// portion of the total increase that occurred while the condition
+    /// is true, e.g. while the application was executing a particular
+    /// region.
+    ///
     /// Each of these objects is specific to a signal, and it is also
     /// particular to a condition that is being tracked.  This
     /// condition may be: the application is executing a particular
@@ -61,12 +67,6 @@ namespace geopm
     /// (though not enforced) that one call to enter() proceeds each
     /// call to exit(), and these are used to update the values
     /// returned by interval_total().
-    ///
-    /// The SumAccumulator is used to accumulate a signal that is
-    /// monotonically increasing, e.g. energy, in order to track the
-    /// portion of the total increase that occurred while the condition
-    /// is true, e.g. while the application was executing a particular
-    /// region.
     class SumAccumulator
     {
         public:
@@ -113,7 +113,7 @@ namespace geopm
             ///
             /// Get the increase in the signal while the condition is
             /// true over the last interval.  An interval is defined
-            /// by an entry() and exit() call.
+            /// by an enter() and exit() call.
             ///
             /// @return Sum of all values passed to update() during
             ///         last interval.
@@ -124,6 +124,10 @@ namespace geopm
 
     /// @brief Class to track the average value of a signal while a
     ///        condition is true.
+    ///
+    /// The AvgAccumulator is used to provide the average value of a
+    /// signal while a condition is true, e.g. while the application
+    /// was executing a particular region.
     ///
     /// Each of these objects is specific to a particular signal, and
     /// it is also particular to a condition that is being tracked.
@@ -136,10 +140,6 @@ namespace geopm
     /// not enforced) that one call to enter() proceeds each call to
     /// exit(), and these are used to update the values returned by
     /// interval_average().
-    ///
-    /// The AvgAccumulator is used to provide the average value of a
-    /// signal while a condition is true, e.g. while the application
-    /// was executing a particular region.
     class AvgAccumulator
     {
         public:
