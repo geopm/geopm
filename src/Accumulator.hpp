@@ -37,19 +37,30 @@
 
 namespace geopm
 {
-    /// @brief Class to track the accumulation of a signal.
+    /// @brief Class to track the total increase of a signal while a
+    ///        condition is true.
     ///
-    /// Each of these objects is specific to a particular signal, and
-    /// it is also particular to a condition that is being tracked.
-    /// This condition may be: a particular region being profiled by
-    /// the application, the epoch events, or the hint signal.  The
+    /// There are many monotonically increasing signals provided by
+    /// PlatformIO, for example: ENERGY_PACKAGE, CYCLES_THREAD, and
+    /// CYCLES_REFERENCE.  It is useful to track the amount that these
+    /// signals increase while a condition is true.  In the common
+    /// case, the condition is that the application is executing a
+    /// particular region of code.  An example use for a
+    /// SumAccumulator object is to track the increase in the amount
+    /// of package energy consumed while the application was executing
+    /// a particular region.
+    ///
+    /// Each of these objects is specific to a signal, and it is also
+    /// particular to a condition that is being tracked.  This
+    /// condition may be: the application is executing a particular
+    /// profiled region, or the hint signal has a particular value.  The
     /// user only calls the update() method when the condition is true
     /// (e.g. the application is within the tracked region).  The
     /// enter() and exit() API's are used to track values for the last
-    /// occurrence of the condition being true.  It is expected (though
-    /// not enforced) that one call to enter() proceeds each call to
-    /// exit(), and these are used to update the values returned by
-    /// interval_total().
+    /// occurrence of the condition being true.  It is expected
+    /// (though not enforced) that one call to enter() proceeds each
+    /// call to exit(), and these are used to update the values
+    /// returned by interval_total().
     ///
     /// The SumAccumulator is used to accumulate a signal that is
     /// monotonically increasing, e.g. energy, in order to track the
@@ -111,6 +122,24 @@ namespace geopm
             SumAccumulator() = default;
     };
 
+    /// @brief Class to track the average value of a signal while a
+    ///        condition is true.
+    ///
+    /// Each of these objects is specific to a particular signal, and
+    /// it is also particular to a condition that is being tracked.
+    /// This condition may be: a particular region being profiled by
+    /// the application, the epoch events, or the hint signal.  The
+    /// user only calls the update() method when the condition is true
+    /// (e.g. the application is within the tracked region).  The
+    /// enter() and exit() API's are used to track values for the last
+    /// occurrence of the condition being true.  It is expected (though
+    /// not enforced) that one call to enter() proceeds each call to
+    /// exit(), and these are used to update the values returned by
+    /// interval_average().
+    ///
+    /// The AvgAccumulator is used to provide the average value of a
+    /// signal while a condition is true, e.g. while the application
+    /// was executing a particular region.
     class AvgAccumulator
     {
         public:
@@ -187,9 +216,9 @@ namespace geopm
             double total(void) const override;
             double interval_total(void) const override;
         private:
-            double m_total; // Sum of all delta values
-            double m_current; // Current sum of delta values since entry (increasing while in region and zeroed on entry)
-            double m_last; // Last sum of delta values over region (updated on exit with "current" value)
+            double m_total;
+            double m_current;
+            double m_last;
     };
 
     class AvgAccumulatorImp : public AvgAccumulator
@@ -203,11 +232,11 @@ namespace geopm
             double average(void) const override;
             double interval_average(void) const override;
         private:
-            double m_total; // Sum of all delta values times delta time
-            double m_weight; // Sum of all delta time
-            double m_curr_total; // Sum of all delta values time delta time since last entry (increasing while in a region and zeroed on entry)
-            double m_curr_weight; // Sum of all time delta time since last entry (increasing while in a region and zeroed on entry)
-            double m_last; // When region is exited update with curr_total / curr_weight
+            double m_total;
+            double m_weight;
+            double m_curr_total;
+            double m_curr_weight;
+            double m_last;
     };
 }
 
