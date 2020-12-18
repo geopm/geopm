@@ -440,7 +440,6 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/RawMSRSignalTest.setup_batch \
               test/gtest_links/RecordFilterTest.invalid_filter_name \
               test/gtest_links/RecordFilterTest.make_proxy_epoch \
-              test/gtest_links/ReporterTest.generate \
               test/gtest_links/RuntimeRegulatorTest.all_in_and_out \
               test/gtest_links/RuntimeRegulatorTest.all_reenter \
               test/gtest_links/RuntimeRegulatorTest.check_start_count \
@@ -448,7 +447,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/RuntimeRegulatorTest.exceptions \
               test/gtest_links/RuntimeRegulatorTest.one_rank_reenter_and_exit \
               test/gtest_links/SampleAggregatorTest.epoch_application_total \
-              test/gtest_links/SampleAggregatorTest.sample_total \
+              test/gtest_links/SampleAggregatorTest.sample_application \
               test/gtest_links/SchedTest.test_proc_cpuset_0 \
               test/gtest_links/SchedTest.test_proc_cpuset_1 \
               test/gtest_links/SchedTest.test_proc_cpuset_2 \
