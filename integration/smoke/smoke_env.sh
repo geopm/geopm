@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,8 +31,14 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+if [ -f ${HOME}/.geopmrc ]; then
+    source ${HOME}/.geopmrc
+fi
 
-EXTRA_DIST += integration/smoke/gen_smoke.sh \
-              integration/smoke/run_smoke.sh \
-              integration/smoke/smoke_env.sh \
-              # end
+if [ ! -z ${GEOPM_SYSTEM_ENV} ]; then
+    source ${GEOPM_SYSTEM_ENV}
+fi
+
+GEOPM_SOURCE=${GEOPM_SOURCE:?Please set GEOPM_SOURCE in your environment.}
+source ${GEOPM_SOURCE}/integration/config/run_env.sh
+EXP_DIR=${GEOPM_SOURCE}/integration/experiment
