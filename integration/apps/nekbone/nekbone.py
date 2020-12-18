@@ -78,7 +78,7 @@ class NekboneAppConf(apps.AppConf):
         file_name = os.path.join(output_dir, self._input_name)
         try:
             os.unlink(file_name)
-        except FileNotFoundError:
+        except IOError:
             pass
 
     def get_bash_setup_commands(self):
