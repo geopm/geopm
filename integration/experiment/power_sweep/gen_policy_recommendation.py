@@ -122,7 +122,6 @@ class PolynomialFitPowerModel(PowerLimitModel):
                         expression += " + "
                 expression += str(cc) + tt
                 firstTerm = False
-            # TODO classname
             return "<{} {}>".format(self.__class__.__name__, expression)
         else:
             return "<{} (untrained)>".format(self.__class__.__name__)
@@ -174,7 +173,7 @@ def extract_columns(df, region_filter = None):
     .set_index('power_limit')
 
 
-def dump_stats_summary(df: pandas.DataFrame, fname: str) -> None:
+def dump_stats_summary(df, fname):
     "Write mean runtime and energy and the standard deviation of " \
     "runtime and energy for each power limit in CSV format to the " \
     "file fname."
@@ -212,7 +211,7 @@ def policy_min_energy(
         # we don't need the runtime model in this case
         best_energy, best_pl = min(zip(en_predictions, plrange))
         if rtmodel:
-            best_runtime = rtmodel.test(bestpl)
+            best_runtime = rtmodel.test(best_pl)
         else:
             best_runtime = None
         return {'power': best_pl,
