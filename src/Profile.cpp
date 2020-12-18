@@ -101,7 +101,6 @@ namespace geopm
         , m_comm(comm)
         , m_curr_region_id(0)
         , m_current_hash(GEOPM_REGION_HASH_UNMARKED)
-        , m_num_enter(0)
         , m_ctl_shmem(nullptr)
         , m_ctl_msg(ctl_msg)
         , m_num_cpu(num_cpu)

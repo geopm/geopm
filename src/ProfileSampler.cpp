@@ -262,8 +262,6 @@ namespace geopm
     ProfileRankSamplerImp::ProfileRankSamplerImp(const std::string &shm_key, size_t table_size)
         : m_table_shmem(nullptr)
         , m_table(nullptr)
-        , m_region_entry(GEOPM_INVALID_PROF_MSG)
-        , m_epoch_entry(GEOPM_INVALID_PROF_MSG)
         , m_is_name_finished(false)
     {
         std::string key_path("/dev/shm/" + shm_key);
