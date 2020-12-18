@@ -662,7 +662,6 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/MockReporter.hpp \
                           test/MockRuntimeRegulator.hpp \
                           test/MockSampleAggregator.hpp \
-                          test/MockSampleScheduler.hpp \
                           test/MockSharedMemory.hpp \
                           test/MockSignal.hpp \
                           test/MockTracer.hpp \
