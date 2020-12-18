@@ -282,9 +282,6 @@ namespace geopm
             ///        for the current region.
             uint64_t m_curr_region_id;
             uint64_t m_current_hash;
-            /// @brief Holds the number of ranks that enter a region in
-            ///        order to keep track of nested regions.
-            int m_num_enter;
             /// @brief Attaches to the shared memory region for
             ///        control messages.
             std::unique_ptr<SharedMemory> m_ctl_shmem;
