@@ -147,15 +147,19 @@ def extract_columns(df, region_filter = None):
 
     # these are the only columns we need
     df_cols = df_filtered[[
-        'Profile',
+        'POWER_PACKAGE_LIMIT_TOTAL',
         'host',
         'runtime (sec)',
         'package-energy (joules)']]
 
-    df_agg = df_cols.groupby(['Profile', 'host']).sum().reset_index()
+    # TODO maybe rename earlier
+
+    df_agg = df_cols.groupby(['POWER_PACKAGE_LIMIT_TOTAL', 'host']).sum().reset_index()
 
     # TODO is there a better way to do this?
     # profile will be something like "unifiedmodel_power_governor_250_1"
+    # --- policy gets added by field name, in this case
+    # --- "POWER_PACKAGE_LIMIT_TOTAL"
     power_limit = df_agg['Profile'].str.split('_').str[3].astype(int)
 
     # keep the columns we want
@@ -174,9 +178,11 @@ def extract_columns(df, region_filter = None):
 
 
 def dump_stats_summary(df, fname):
-    "Write mean runtime and energy and the standard deviation of " \
-    "runtime and energy for each power limit in CSV format to the " \
-    "file fname."
+    # TODO convert docstrings to use triple quotes
+    """
+    Write mean runtime and energy and the standard deviation of 
+    runtime and energy for each power limit in CSV format to the
+    file fname."""
     means = df \
             .groupby(level=0) \
             .mean() \
