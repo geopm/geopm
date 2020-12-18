@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
+
 #include "SampleAggregatorImp.hpp"
 
 #include "geopm.h"
@@ -39,18 +41,13 @@
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
-#include "config.h"
+#include "Accumulator.hpp"
 
 namespace geopm
 {
     std::unique_ptr<SampleAggregator> SampleAggregator::make_unique(void)
     {
         return geopm::make_unique<SampleAggregatorImp>();
-    }
-
-    std::shared_ptr<SampleAggregator> SampleAggregator::make_shared(void)
-    {
-        return std::make_shared<SampleAggregatorImp>();
     }
 
     SampleAggregatorImp::SampleAggregatorImp()
@@ -61,108 +58,320 @@ namespace geopm
 
     SampleAggregatorImp::SampleAggregatorImp(PlatformIO &platio)
         : m_platform_io(platio)
-        , m_epoch_count_idx(-1)
+        , m_time_idx(m_platform_io.push_signal("TIME", GEOPM_DOMAIN_BOARD, 0))
+        , m_is_updated(false)
     {
 
-    }
-
-    void SampleAggregatorImp::init(void)
-    {
-        m_epoch_count_idx = m_platform_io.push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0);
     }
 
     int SampleAggregatorImp::push_signal_total(const std::string &signal_name,
                                                int domain_type,
                                                int domain_idx)
     {
-        int signal_idx = m_platform_io.push_signal(signal_name, domain_type, domain_idx);
-        m_region_hash_idx[signal_idx] = m_platform_io.push_signal("REGION_HASH", domain_type, domain_idx);
-        return signal_idx;
+        if (m_is_updated) {
+           throw Exception("SampleAggregatorImp::push_signal_total(): called after update()",
+                           GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        int result = m_platform_io.push_signal(signal_name, domain_type, domain_idx);
+        auto bad_it = m_avg_signal.find(result);
+        if (bad_it != m_avg_signal.end()) {
+           throw Exception("SampleAggregatorImp::push_signal_total(): signal already pushed for average",
+                           GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        auto signal_it = m_sum_signal.find(result);
+        if (signal_it == m_sum_signal.end()) {
+            m_sum_signal[result] = {
+                NAN,
+                m_platform_io.push_signal("REGION_HASH", domain_type, domain_idx),
+                GEOPM_REGION_HASH_UNMARKED,
+                m_platform_io.push_signal("EPOCH_COUNT", domain_type, domain_idx),
+                0,
+                SumAccumulator::make_unique(),
+                SumAccumulator::make_unique(),
+                {},
+                {},
+           };
+        }
+        return result;
     }
 
-    double SampleAggregatorImp::sample_total(int signal_idx, uint64_t region_hash)
+    int SampleAggregatorImp::push_signal_average(const std::string &signal_name,
+                                                 int domain_type,
+                                                 int domain_idx)
     {
-        if (signal_idx < 0) {
-            throw Exception("SampleAggregatorImp::sample_total(): Invalid signal index",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        if (m_is_updated) {
+           throw Exception("SampleAggregatorImp::push_signal_average(): called after update()",
+                           GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (m_region_hash_idx.find(signal_idx) == m_region_hash_idx.end()) {
-            throw Exception("SampleAggregatorImp::sample_total(): Cannot call sample_total "
-                            "for signal index not pushed with push_signal_total.",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        int result = m_platform_io.push_signal(signal_name, domain_type, domain_idx);
+        auto bad_it = m_sum_signal.find(result);
+        if (bad_it != m_sum_signal.end()) {
+           throw Exception("SampleAggregatorImp::push_signal_average(): signal already pushed for total",
+                           GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        double current_value = 0.0;
-        uint64_t curr_hash = m_platform_io.sample(m_region_hash_idx.at(signal_idx));
-        m_tracked_region_hash.insert(curr_hash);
-        // Look up the data for this combination of signal and region ID
-        auto idx = std::make_pair(signal_idx, region_hash);
-        auto data_it = m_region_sample_data.find(idx);
-        if (data_it != m_region_sample_data.end()) {
-            auto &data = data_it->second;
-            if(!std::isnan(data.last_entry_value)) {
-                // if the region is Epoch or application totals, calculate the total now
-                if(region_hash == GEOPM_REGION_HASH_EPOCH ||
-                   region_hash == GEOPM_REGION_HASH_INVALID) {
-                    data.total = m_platform_io.sample(signal_idx) - data.last_entry_value;
-                }
-                // if currently in this region, add current value to total
-                else if (region_hash == curr_hash) {
-                    current_value += m_platform_io.sample(signal_idx) - data.last_entry_value;
-                }
-            }
-            current_value += data.total;
+        auto signal_it = m_avg_signal.find(result);
+        if (signal_it == m_avg_signal.end()) {
+            m_avg_signal[result] = {
+                NAN,
+                m_platform_io.push_signal("REGION_HASH", domain_type, domain_idx),
+                GEOPM_REGION_HASH_UNMARKED,
+                m_platform_io.push_signal("EPOCH_COUNT", domain_type, domain_idx),
+                0,
+                AvgAccumulator::make_unique(),
+                AvgAccumulator::make_unique(),
+                {},
+                {},
+           };
         }
-        return current_value;
+        return result;
     }
 
-    double SampleAggregatorImp::sample_total(int signal_idx)
+
+    /// @todo Repeated code could be avoided with template
+    static std::map<uint64_t, std::shared_ptr<SumAccumulator> >::iterator
+    emplace_hash(
+        std::map<uint64_t, std::shared_ptr<SumAccumulator> > &hash_accum_map,
+        uint64_t hash)
     {
-        // TODO: this could instead have a separate map for app totals
-        // instead of using a fake region hash.
-        // Note: unmarked is tracked separately
-        return sample_total(signal_idx, GEOPM_REGION_HASH_INVALID);
+        std::map<uint64_t, std::shared_ptr<SumAccumulator> >::iterator result;
+        result = hash_accum_map.find(hash);
+        if (result == hash_accum_map.end()) {
+            auto empl_ret = hash_accum_map.emplace(hash, SumAccumulator::make_unique());
+            result = empl_ret.first;
+        }
+        return result;
     }
 
-    void SampleAggregatorImp::read_batch(void)
+    static std::map<uint64_t, std::shared_ptr<AvgAccumulator> >::iterator
+    emplace_hash(
+        std::map<uint64_t, std::shared_ptr<AvgAccumulator> > &hash_accum_map,
+        uint64_t hash)
     {
-        for (const auto &it : m_region_hash_idx) {
-            double value = m_platform_io.sample(it.first);
-            const uint64_t region_hash = m_platform_io.sample(it.second);
-            m_tracked_region_hash.insert(region_hash);
+        std::map<uint64_t, std::shared_ptr<AvgAccumulator> >::iterator result;
+        result = hash_accum_map.find(hash);
+        if (result == hash_accum_map.end()) {
+            auto empl_ret = hash_accum_map.emplace(hash, AvgAccumulator::make_unique());
+            result = empl_ret.first;
+        }
+        return result;
+    }
 
-            // Wait for the first Epoch and insert 1 sample at the beginning of time
-            auto epoch_idx = std::make_pair(it.first, GEOPM_REGION_HASH_EPOCH);
-            double curr_epoch_count = m_platform_io.sample(m_epoch_count_idx);
-            if (m_region_sample_data.find(epoch_idx) == m_region_sample_data.end() &&
-                curr_epoch_count > 0) {
-                m_region_sample_data[epoch_idx].last_entry_value = value;
-            }
-
-            // first time sampling this signal
-            if (m_last_region_hash.find(it.first) == m_last_region_hash.end()) {
-                m_last_region_hash[it.first] = region_hash;
-                // set start value for first region to be recording this signal
-                m_region_sample_data[std::make_pair(it.first, region_hash)].last_entry_value = value;
-                // set start value for application totals
-                m_region_sample_data[std::make_pair(it.first, GEOPM_REGION_HASH_INVALID)].last_entry_value = value;
+    void SampleAggregatorImp::update_total(void)
+    {
+        // Update all of the sum aggregators
+        for (auto &signal_it : m_sum_signal) {
+            int signal_idx = signal_it.first;
+            m_sum_signal_s &signal = signal_it.second;
+            double sample = m_platform_io.sample(signal_idx);
+            uint64_t hash = m_platform_io.sample(signal.region_hash_idx);
+            int epoch_count = m_platform_io.sample(signal.epoch_count_idx);
+            if (!m_is_updated) {
+                // On first call just initialize the signal values
+                signal.sample_last = sample;
+                signal.region_hash_last = hash;
+                signal.epoch_count_last = epoch_count;
+                signal.region_accum_it = emplace_hash(signal.region_accum, hash);
             }
             else {
-                const uint64_t last_hash = m_last_region_hash[it.first];
-                // region boundary
-                if (region_hash != last_hash) {
-                    // add entry to new region
-                    m_region_sample_data[std::make_pair(it.first, region_hash)].last_entry_value = value;
-                    // update total for previous region
-                    double prev_total = value - m_region_sample_data.at(std::make_pair(it.first, last_hash)).last_entry_value;
-                    m_region_sample_data[std::make_pair(it.first, last_hash)].total += prev_total;
-                    m_last_region_hash[it.first] = region_hash;
+                // Measure the change since the last update
+                double delta = sample - signal.sample_last;
+                // Update that application totals
+                signal.app_accum->update(delta);
+                // If the epoch count has changed, call the exit/enter
+                if (epoch_count != signal.epoch_count_last) {
+                    if (signal.epoch_count_last != 0) {
+                        signal.epoch_accum->exit();
+                    }
+                    signal.epoch_accum->enter();
                 }
+                // If we have observed our first epoch, update epoch totals
+                if (signal.epoch_count_last != 0) {
+                    signal.epoch_accum->update(delta);
+                }
+                signal.region_accum_it->second->update(delta);
+                if (signal.region_hash_last != hash) {
+                    // If we have exited a valid region, call exit()
+                    if (signal.region_hash_last != GEOPM_REGION_HASH_UNMARKED) {
+                        signal.region_accum_it->second->exit();
+                    }
+                    // Update region hash information
+                    signal.region_hash_last = hash;
+                    signal.region_accum_it = emplace_hash(signal.region_accum, hash);
+                    // If we have entered a valid region, call enter()
+                    if (hash != GEOPM_REGION_HASH_UNMARKED) {
+                        signal.region_accum_it->second->enter();
+                    }
+                }
+                signal.sample_last = sample;
+                signal.epoch_count_last = epoch_count;
             }
         }
     }
 
-    std::set<uint64_t> SampleAggregatorImp::tracked_region_hash(void) const
+    void SampleAggregatorImp::update_average(void)
     {
-        return m_tracked_region_hash;
+        // Update all of the sum aggregators
+        for (auto &signal_it : m_avg_signal) {
+            int signal_idx = signal_it.first;
+            m_avg_signal_s &signal = signal_it.second;
+            double time = m_platform_io.sample(m_time_idx);
+            double sample = m_platform_io.sample(signal_idx);
+            uint64_t hash = m_platform_io.sample(signal.region_hash_idx);
+            int epoch_count = m_platform_io.sample(signal.epoch_count_idx);
+            if (!m_is_updated) {
+                // On first call just initialize the signal values
+                signal.time_last = time;
+                signal.region_hash_last = hash;
+                signal.epoch_count_last = epoch_count;
+                signal.region_accum_it = emplace_hash(signal.region_accum, hash);
+            }
+            else {
+                // Measure the time change since the last update
+                double delta = time - signal.time_last;
+                // Update that application totals
+                signal.app_accum->update(delta, sample);
+                // If the epoch count has changed, call the exit/enter
+                if (epoch_count != signal.epoch_count_last) {
+                    if (signal.epoch_count_last != 0) {
+                        signal.epoch_accum->exit();
+                    }
+                    signal.epoch_accum->enter();
+                }
+                // If we have observed our first epoch, update epoch totals
+                if (signal.epoch_count_last != 0) {
+                    signal.epoch_accum->update(delta, sample);
+                }
+                signal.region_accum_it->second->update(delta, sample);
+                if (signal.region_hash_last != hash) {
+                    // If we have exited a valid region, call exit()
+                    if (signal.region_hash_last != GEOPM_REGION_HASH_UNMARKED) {
+                        signal.region_accum_it->second->exit();
+                    }
+                    // Update region hash information
+                    signal.region_hash_last = hash;
+                    signal.region_accum_it = emplace_hash(signal.region_accum, hash);
+                    // If we have entered a valid region, call enter()
+                    if (hash != GEOPM_REGION_HASH_UNMARKED) {
+                        signal.region_accum_it->second->enter();
+                    }
+                }
+                signal.time_last = time;
+                signal.epoch_count_last = epoch_count;
+            }
+        }
+    }
+
+    void SampleAggregatorImp::update(void)
+    {
+        update_total();
+        update_average();
+        m_is_updated = true;
+    }
+
+    double SampleAggregatorImp::sample_application(int signal_idx)
+    {
+        double result = NAN;
+        auto sum_it = m_sum_signal.find(signal_idx);
+        if (sum_it != m_sum_signal.end()) {
+            result = sum_it->second.app_accum->total();
+        }
+        else {
+            auto avg_it = m_avg_signal.find(signal_idx);
+            if (avg_it == m_avg_signal.end()) {
+                throw Exception("SampleAggregator::sample_application(): Invalid signal index: signal index not pushed with push_signal_total() or push_signal_average()",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            result = avg_it->second.app_accum->average();
+        }
+        return result;
+    }
+
+    double SampleAggregatorImp::sample_epoch_helper(int signal_idx, bool is_last)
+    {
+        double result = NAN;
+        auto sum_it = m_sum_signal.find(signal_idx);
+        if (sum_it != m_sum_signal.end()) {
+            if (is_last) {
+                result = sum_it->second.epoch_accum->interval_total();
+            }
+            else {
+                result = sum_it->second.epoch_accum->total();
+            }
+        }
+        else {
+            auto avg_it = m_avg_signal.find(signal_idx);
+            if (avg_it == m_avg_signal.end()) {
+                throw Exception("SampleAggregator::sample_epoch(): Invalid signal index: signal index not pushed with push_signal_total() or push_signal_average()",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            if (is_last) {
+                result = avg_it->second.epoch_accum->interval_average();
+            }
+            else {
+                result = avg_it->second.epoch_accum->average();
+            }
+        }
+        return result;
+    }
+
+    double SampleAggregatorImp::sample_region_helper(int signal_idx, uint64_t region_hash, bool is_last)
+    {
+        double result = NAN;
+        auto sum_it = m_sum_signal.find(signal_idx);
+        if (sum_it != m_sum_signal.end()) {
+            const auto &region_accum = sum_it->second.region_accum;
+            auto region_accum_it = region_accum.find(region_hash);
+            if (region_accum_it == region_accum.end()) {
+                result = 0.0;
+            }
+            else {
+                auto accum_ptr = region_accum_it->second;
+                if (is_last) {
+                    result = accum_ptr->interval_total();
+                }
+                else {
+                    result = accum_ptr->total();
+                }
+            }
+        }
+        else {
+            auto avg_it = m_avg_signal.find(signal_idx);
+            if (avg_it == m_avg_signal.end()) {
+                throw Exception("SampleAggregator::sample_region(): Invalid signal index: signal index not pushed with push_signal_total() or push_signal_average()",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+            const auto &region_accum = avg_it->second.region_accum;
+            auto region_accum_it = region_accum.find(region_hash);
+            if (region_accum_it != region_accum.end()) {
+                auto accum_ptr = region_accum_it->second;
+                if (is_last) {
+                    result = accum_ptr->interval_average();
+                }
+                else {
+                    result = accum_ptr->average();
+                }
+            }
+        }
+        return result;
+    }
+
+    double SampleAggregatorImp::sample_region(int signal_idx, uint64_t region_hash)
+    {
+        return sample_region_helper(signal_idx, region_hash, false);
+    }
+
+    double SampleAggregatorImp::sample_region_last(int signal_idx, uint64_t region_hash)
+    {
+        return sample_region_helper(signal_idx, region_hash, true);
+    }
+
+    double SampleAggregatorImp::sample_epoch(int signal_idx)
+    {
+        return sample_epoch_helper(signal_idx, false);
+    }
+
+    double SampleAggregatorImp::sample_epoch_last(int signal_idx)
+    {
+        return sample_epoch_helper(signal_idx, true);
     }
 }
