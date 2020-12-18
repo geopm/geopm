@@ -58,20 +58,23 @@ class PowerLimitModel:
         raise NotImplemented()
 
     def train(self, df, key):
-        "Train this model to fit the data of column key contained in the " \
-        "dataframe (df), which is indexed by power limit. This modifies " \
-        "the instance it is called on, preparing it for calls of the " \
-        "methods test and batch_test."
+        """
+        Train this model to fit the data of column key contained in the
+        dataframe (df), which is indexed by power limit. This modifies
+        the instance it is called on, preparing it for calls of the
+        methods test and batch_test."""
         raise NotImplemented()
 
     def test(self, PL):
-        "Evaluate a trained model on a single power limit (PL). Returns " \
-        "the model's prediction for this power limit."
+        """
+        Evaluate a trained model on a single power limit (PL). Returns
+        the model's prediction for this power limit."""
         raise NotImplemented()
 
     def batch_test(self, PL_list):
-        "Evaluate a trained model on a list-like container of power limits " \
-        "(PL_list). Returns a list of values."
+        """
+        Evaluate a trained model on a list-like container of power limits
+        (PL_list). Returns a list of values."""
         return [self.test(PL) for PL in PL_list]
 
     def serialize(self):
@@ -86,11 +89,13 @@ class PowerLimitModel:
 
 
 class PolynomialFitPowerModel(PowerLimitModel):
-    "Implementation of a polynomial model of fixed degree that can be a " \
-    "trained to predict a statistic from a power limit."
+    """
+    Implementation of a polynomial model of fixed degree that can be a
+    trained to predict a statistic from a power limit."""
     def __init__(self, degree):
-        "Default constructor; degree (a positive integer) is the degree " \
-        "of the polynomial being fit to."
+        """
+        Default constructor; degree (a positive integer) is the degree
+        of the polynomial being fit to."""
         self._degree = degree
         self._model = None
 
@@ -128,19 +133,21 @@ class PolynomialFitPowerModel(PowerLimitModel):
 
 
 class CubicPowerModel(PolynomialFitPowerModel):
-    "Implementation of a cubic model that can be a trained to predict a " \
-    "statistic from a power limit."
+    """
+    Implementation of a cubic model that can be a trained to predict a
+    statistic from a power limit."""
     def __init__(self):
         "Simple constructor."
         super().__init__(degree=3)
 
 
 def extract_columns(df, region_filter = None):
-    "Extract the columns of interest from the full report collection " \
-    "dataframe. This returns a dataframe indexed by the power limit " \
-    "and columns 'runtime' and 'energy'. region_filter (if provided) " \
-    "is a container that specifies which regions to include (by default,  " \
-    "include all of them)."
+    """
+    Extract the columns of interest from the full report collection
+    dataframe. This returns a dataframe indexed by the power limit
+    and columns 'runtime' and 'energy'. region_filter (if provided)
+    is a container that specifies which regions to include (by default,
+    include all of them)."""
     df_filtered = df
     if region_filter:
         df_filtered = df[df['region'].isin(region_filter.split(','))]
@@ -150,35 +157,21 @@ def extract_columns(df, region_filter = None):
         'POWER_PACKAGE_LIMIT_TOTAL',
         'host',
         'runtime (sec)',
-        'package-energy (joules)']]
-
-    # TODO maybe rename earlier
-
-    df_agg = df_cols.groupby(['POWER_PACKAGE_LIMIT_TOTAL', 'host']).sum().reset_index()
-
-    # TODO is there a better way to do this?
-    # profile will be something like "unifiedmodel_power_governor_250_1"
-    # --- policy gets added by field name, in this case
-    # --- "POWER_PACKAGE_LIMIT_TOTAL"
-    power_limit = df_agg['Profile'].str.split('_').str[3].astype(int)
-
-    # keep the columns we want
-    return pandas.concat([
-        power_limit,
-        df_agg[['runtime (sec)', 'package-energy (joules)']]
-        ],
-        axis = 1) \
+        'package-energy (joules)']] \
     .rename({
-        'Profile': 'power_limit',
+        'POWER_PACKAGE_LIMIT_TOTAL': 'power_limit',
         'runtime (sec)': 'runtime',
         'package-energy (joules)': 'energy'
-        },
-        axis = 1) \
+    },
+    axis = 1) \
+    .groupby(['power_limit', 'host']).sum().reset_index() \
+    [['power_limit', 'runtime', 'energy']] \
     .set_index('power_limit')
+
+    return df_cols
 
 
 def dump_stats_summary(df, fname):
-    # TODO convert docstrings to use triple quotes
     """
     Write mean runtime and energy and the standard deviation of 
     runtime and energy for each power limit in CSV format to the
@@ -200,14 +193,15 @@ def policy_min_energy(
         rtmodel = None,
         pltdp = None,
         max_degradation = None):
-    "Find the power limit over the range plrange (list-like) that " \
-    "has the minimum predicted energy usage (according to the energy model " \
-    "enmodel, an instance of PowerLimitModel), subject to the constraint " \
-    "that its runtime does not exceed the runtime at power limit pltdp " \
-    "by more than a factor of (1 + max_degradation), if max_degradation is " \
-    "specified. Returns a dictionary with keys power, runtime, and energy, " \
-    "and values the optimal power limit and the predicted runtime and energy " \
-    "at that limit, respectively."
+    """
+    Find the power limit over the range plrange (list-like) that
+    has the minimum predicted energy usage (according to the energy model
+    enmodel, an instance of PowerLimitModel), subject to the constraint
+    that its runtime does not exceed the runtime at power limit pltdp
+    by more than a factor of (1 + max_degradation), if max_degradation is
+    specified. Returns a dictionary with keys power, runtime, and energy,
+    and values the optimal power limit and the predicted runtime and energy
+    at that limit, respectively."""
 
     if pltdp is None:
         pltdp = max(plrange)
@@ -245,14 +239,15 @@ def main(full_df,
         tdp,
         min_energy,
         max_degradation):
-    "The main function. full_df is a report collection dataframe, " \
-    "region_filter is a list of regions to include, dump_prefix " \
-    "a filename prefix for debugging output (if specified), min_pl, " \
-    "max_pl, tdp are the minimum, maximum, and reference power limits, " \
-    "respectively, min_energy is a flag indicating whether or not " \
-    "minimum energy is sought not subject to a constraint on runtime " \
-    "(True if runtime should be ignored) and max_degradation specifies " \
-    "what maximum runtime degradation is accepted."
+    """
+    The main function. full_df is a report collection dataframe,
+    region_filter is a list of regions to include, dump_prefix
+    a filename prefix for debugging output (if specified), min_pl,
+    max_pl, tdp are the minimum, maximum, and reference power limits,
+    respectively, min_energy is a flag indicating whether or not
+    minimum energy is sought not subject to a constraint on runtime
+    (True if runtime should be ignored) and max_degradation specifies
+    what maximum runtime degradation is accepted."""
     df = extract_columns(full_df, args.region_filter)
     if dump_prefix:
         df.to_csv("{}.dat".format(dump_prefix))
