@@ -44,10 +44,10 @@ namespace geopm
     class SampleAggregator
     {
         public:
-            SampleAggregator() = default;
+            /// @brief Returns a unique_ptr to a concrete object
+            ///        constructed using the underlying implementation
+            static std::unique_ptr<SampleAggregator> make_unique(void);
             virtual ~SampleAggregator() = default;
-            /// @brief Push required PlatformIO signals (EPOCH_COUNT).
-            virtual void init(void) = 0;
             /// @brief Push a signal to be accumulated per-region.  It
             ///        must be a valid signal available through
             ///        PlatformIO.  Note that unlike other signals
@@ -71,6 +71,23 @@ namespace geopm
             virtual int push_signal_total(const std::string &signal_name,
                                           int domain_type,
                                           int domain_idx) = 0;
+            virtual int push_signal_average(const std::string &signal_name,
+                                            int domain_type,
+                                            int domain_idx) = 0;
+            /// @brief Update stored totals for each signal after
+            ///        PlatformIO::read_batch has been called.  This
+            ///        should be called with every PlatformIO update
+            ///        because sample_total() maybe not be called
+            ///        until the end of execution.
+            virtual void update(void) = 0;
+            /// @brief Get the total value of a signal that has
+            ///        been pushed since the first sample.
+            /// @param [in] signal_idx Index returned by a previous
+            ///        call to push_signal_total.
+            /// @return Total accumulated value for the signal,
+            ///         regardless of region or epoch.
+            virtual double sample_application(int signal_idx) = 0;
+            virtual double sample_epoch(int signal_idx) = 0;
             /// @brief Sample a signal that has been pushed to
             ///        accumlate as per-region values.  Note that
             ///        unlike other signals this is a total
@@ -85,29 +102,11 @@ namespace geopm
             ///        for.
             /// @return Total accumulated value for the signal for one
             ///        region.
-            virtual double sample_total(int signal_idx, uint64_t region_hash) = 0;
-            /// @brief Get the total value of a signal that has
-            ///        been pushed since the first sample.
-            /// @param [in] signal_idx Index returned by a previous
-            ///        call to push_signal_total.
-            /// @return Total accumulated value for the signal,
-            ///         regardless of region or epoch.
-            virtual double sample_total(int signal_idx) = 0;
-            /// @brief Update stored totals for each signal after
-            ///        PlatformIO::read_batch has been called.  This
-            ///        should be called with every PlatformIO update
-            ///        because sample_total() maybe not be called
-            ///        until the end of execution.
-            virtual void read_batch(void) = 0;
-            /// @brief Returns the set of region hashes tracked by this
-            ///        object.
-            virtual std::set<uint64_t> tracked_region_hash(void) const = 0;
-            /// @brief Returns a unique_ptr to a concrete object
-            ///        constructed using the underlying implementation
-            static std::unique_ptr<SampleAggregator> make_unique(void);
-            /// @brief Returns a shared_ptr to a concrete object
-            ///        constructed using the underlying implementation
-            static std::shared_ptr<SampleAggregator> make_shared(void);
+            virtual double sample_region(int signal_idx, uint64_t region_hash) = 0;
+            virtual double sample_epoch_last(int signal_idx) = 0;
+            virtual double sample_region_last(int signal_idx, uint64_t region_hash) = 0;
+        protected:
+            SampleAggregator() = default;
     };
 }
 
