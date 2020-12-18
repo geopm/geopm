@@ -149,12 +149,11 @@ namespace geopm
                 std::remove(m_report_name.c_str());
             }
         }
-        m_region_agg->init();
     }
 
     void ReporterImp::update()
     {
-        m_region_agg->read_batch();
+        m_region_agg->update();
     }
 
     void ReporterImp::generate(const std::string &agent_name,
@@ -261,19 +260,20 @@ namespace geopm
                        << std::endl;
             }
             else {
+                /// @fixme needs to use m_region_agg->sample_epoch()
                 report << "Epoch Totals:"
                        << std::endl;
             }
-            double sync_rt = m_region_agg->sample_total(m_region_bulk_runtime_idx, region.hash);
-            double package_energy = m_region_agg->sample_total(m_energy_pkg_idx, region.hash);
+            double sync_rt = m_region_agg->sample_region(m_region_bulk_runtime_idx, region.hash);
+            double package_energy = m_region_agg->sample_region(m_energy_pkg_idx, region.hash);
             double power = sync_rt == 0 ? 0 : package_energy / sync_rt;
             report << "    runtime (sec): " << region.per_rank_avg_runtime << std::endl;
             report << "    sync-runtime (sec): " << sync_rt << std::endl;
             report << "    package-energy (joules): " << package_energy << std::endl;
-            report << "    dram-energy (joules): " << m_region_agg->sample_total(m_energy_dram_idx, region.hash) << std::endl;
+            report << "    dram-energy (joules): " << m_region_agg->sample_region(m_energy_dram_idx, region.hash) << std::endl;
             report << "    power (watts): " << power << std::endl;
-            double numer = m_region_agg->sample_total(m_clk_core_idx, region.hash);
-            double denom = m_region_agg->sample_total(m_clk_ref_idx, region.hash);
+            double numer = m_region_agg->sample_region(m_clk_core_idx, region.hash);
+            double denom = m_region_agg->sample_region(m_clk_ref_idx, region.hash);
             double freq = denom != 0 ? 100.0 * numer / denom : 0.0;
             report << "    frequency (%): " << freq << std::endl;
             report << "    frequency (Hz): " << freq / 100.0 * m_platform_io.read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0) << std::endl;
@@ -283,7 +283,7 @@ namespace geopm
             report << "    network-time (sec): " << network_time << std::endl;
             report << "    count: " << region.count << std::endl;
             for (const auto &env_it : m_env_signal_name_idx) {
-                report << "    " << env_it.first << ": " << m_region_agg->sample_total(env_it.second, region.hash) << std::endl;
+                report << "    " << env_it.first << ": " << m_region_agg->sample_region(env_it.second, region.hash) << std::endl;
             }
             const auto &it = agent_region_report.find(region.hash);
             if (it != agent_region_report.end()) {
@@ -297,10 +297,10 @@ namespace geopm
 
         // Note: this is "sync-runtime" total but there's very little
         // difference with "accurate" runtime for app totals
-        double total_runtime = m_region_agg->sample_total(m_region_bulk_runtime_idx);
-        double app_energy_pkg = m_region_agg->sample_total(m_energy_pkg_idx);
+        double total_runtime = m_region_agg->sample_application(m_region_bulk_runtime_idx);
+        double app_energy_pkg = m_region_agg->sample_application(m_energy_pkg_idx);
         double avg_power = total_runtime == 0 ? 0 : app_energy_pkg / total_runtime;
-        double app_energy_dram = m_region_agg->sample_total(m_energy_dram_idx);
+        double app_energy_dram = m_region_agg->sample_application(m_energy_dram_idx);
         report << "Application Totals:" << std::endl
                << "    runtime (sec): " << total_runtime << std::endl
                << "    package-energy (joules): " << app_energy_pkg << std::endl
