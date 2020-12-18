@@ -217,10 +217,6 @@ namespace geopm
             std::unique_ptr<SharedMemory> m_table_shmem;
             /// The hash table which stores application process samples.
             std::unique_ptr<ProfileTable> m_table;
-            /// Holds the initial state of the last region entered.
-            struct geopm_prof_message_s m_region_entry;
-            /// Holds the initial state of the last region entered.
-            struct geopm_prof_message_s m_epoch_entry;
             /// Holds the profile name string.
             std::string m_prof_name;
             /// Holds the file name for the post-process report.
