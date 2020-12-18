@@ -37,24 +37,24 @@
 
 #include "SampleAggregator.hpp"
 
-class MockSampleAggregator : public geopm::SampleAggregator
-{
+class MockSampleAggregator : public geopm::SampleAggregator {
     public:
-        MOCK_METHOD0(init,
-                     void(void));
         MOCK_METHOD3(push_signal_total,
-                     int(const std::string &signal_idx,
-                         int domain_type,
-                         int domain_idx));
-        MOCK_METHOD2(sample_total,
-                     double(int signal_idx, uint64_t region_id));
-        MOCK_METHOD1(sample_total,
-                     double(int signal_idx));
-        MOCK_METHOD0(read_batch,
+                     int(const std::string &signal_name, int domain_type, int domain_idx));
+        MOCK_METHOD3(push_signal_average,
+                     int(const std::string &signal_name, int domain_type, int domain_idx));
+        MOCK_METHOD0(update,
                      void(void));
-        MOCK_CONST_METHOD0(tracked_region_hash,
-                           std::set<uint64_t>());
-        MOCK_CONST_METHOD0(tracked_signals,
-                           std::set<int>());
+        MOCK_METHOD1(sample_application,
+                     double(int signal_idx));
+        MOCK_METHOD1(sample_epoch,
+                     double(int signal_idx));
+        MOCK_METHOD2(sample_region,
+                     double(int signal_idx, uint64_t region_hash));
+        MOCK_METHOD1(sample_epoch_last,
+                     double(int signal_idx));
+        MOCK_METHOD2(sample_region_last,
+                     double(int signal_idx, uint64_t region_hash));
 };
+
 #endif
