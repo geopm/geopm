@@ -52,7 +52,6 @@ from experiment import plotting
 def prep_plot_data(report_data, metric, normalize, speedup, use_stdev):
     idf = report_data
     report.prepare_columns(idf)
-    report.prepare_metrics(idf, metric)
 
     # rename some columns
     idf['power_limit'] = idf['POWER_PACKAGE_LIMIT_TOTAL']
