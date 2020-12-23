@@ -236,7 +236,7 @@ def plot_balancer_comparison(output, label, metric, output_dir='.',
         ax.set_ylim(0, ymax)
 
     # Write data/plot files
-    file_name = plotting.title_to_filename('{}_{}_comparison'.format(label, metric))
+    file_name = '{}_{}_comparison'.format(label, metric)
     if speedup:
         # speedup alone and normalized speedup are the same
         file_name += '_speedup'
@@ -246,7 +246,7 @@ def plot_balancer_comparison(output, label, metric, output_dir='.',
         file_name += '_stdev'
     else:
         file_name += '_minmax'
-    file_name += '.png'
+    file_name = plotting.title_to_filename(file_name)
     if detailed:
         sys.stdout.write('{}\n'.format(df))
         sys.stdout.write('Writing:\n')
