@@ -71,7 +71,7 @@ def prep_plot_data(report_data, metric, normalize, speedup, use_stdev):
     ref_epoch_data = idf.xs([reference])
 
     if metric == 'power':
-        rge = ref_epoch_data['energy_pkg']
+        rge = ref_epoch_data['energy'] # Added by report.prepare_columns
         rgr = ref_epoch_data['runtime']
         reference_g = (rge / rgr).groupby(level='power_limit')
     else:
@@ -84,7 +84,7 @@ def prep_plot_data(report_data, metric, normalize, speedup, use_stdev):
 
     tar_epoch_data = idf.xs([target])
     if metric == 'power':
-        tge = tar_epoch_data['energy_pkg']
+        tge = tar_epoch_data['energy']
         tgr = tar_epoch_data['runtime']
         target_g = (tge / tgr).groupby(level='power_limit')
     else:
@@ -126,7 +126,7 @@ def plot_balancer_comparison(output, label, metric, output_dir='.',
 
     units = {
         'energy': 'J',
-        'energy_pkg': 'J',
+        'energy': 'J',
         'runtime': 's',
         'frequency': '% of sticker',
         'power': 'W',
@@ -196,7 +196,7 @@ def plot_balancer_comparison(output, label, metric, output_dir='.',
     ax.set_xticklabels(xlabels)
     ax.set_xlabel('Average Node Power Limit (W)')
 
-    if metric == 'energy_pkg':
+    if metric == 'energy':
         title_datatype = 'Energy'
     else:
         title_datatype = metric.title()
@@ -273,7 +273,7 @@ if __name__ == '__main__':
     parser.add_argument('--speedup', action='store_true', default=False,
                         help='show results as a speedup percentage')
     parser.add_argument('--metric', action='store', default='runtime',
-                        help='metric to use for comparison.  One of: runtime, energy_pkg, frequency, power, FOM')
+                        help='metric to use for comparison.  One of: runtime, energy, frequency, power, FOM') # For these plots, energy means total socket energy
 
     args = parser.parse_args()
     output_dir = args.output_dir
