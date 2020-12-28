@@ -77,22 +77,22 @@ namespace geopm
                            {"EPOCH_RUNTIME_NETWORK", M_SIGNAL_EPOCH_RUNTIME_NETWORK},
                            {plugin_name() + "::EPOCH_RUNTIME_IGNORE", M_SIGNAL_EPOCH_RUNTIME_IGNORE},
                            {"EPOCH_RUNTIME_IGNORE", M_SIGNAL_EPOCH_RUNTIME_IGNORE},
-                           {"HINT_UNKNOWN_TIME", M_SIGNAL_HINT_UNKNOWN_TIME},
-                           {plugin_name() + "::HINT_UNKNOWN_TIME", M_SIGNAL_HINT_UNKNOWN_TIME},
-                           {"HINT_COMPUTE_TIME", M_SIGNAL_HINT_COMPUTE_TIME},
-                           {plugin_name() + "::HINT_COMPUTE_TIME", M_SIGNAL_HINT_COMPUTE_TIME},
-                           {"HINT_MEMORY_TIME", M_SIGNAL_HINT_MEMORY_TIME},
-                           {plugin_name() + "::HINT_MEMORY_TIME", M_SIGNAL_HINT_MEMORY_TIME},
-                           {"HINT_NETWORK_TIME", M_SIGNAL_HINT_NETWORK_TIME},
-                           {plugin_name() + "::HINT_NETWORK_TIME", M_SIGNAL_HINT_NETWORK_TIME},
-                           {"HINT_IO_TIME", M_SIGNAL_HINT_IO_TIME},
-                           {plugin_name() + "::HINT_IO_TIME", M_SIGNAL_HINT_IO_TIME},
-                           {"HINT_SERIAL_TIME", M_SIGNAL_HINT_SERIAL_TIME},
-                           {plugin_name() + "::HINT_SERIAL_TIME", M_SIGNAL_HINT_SERIAL_TIME},
-                           {"HINT_PARALLEL_TIME", M_SIGNAL_HINT_PARALLEL_TIME},
-                           {plugin_name() + "::HINT_PARALLEL_TIME", M_SIGNAL_HINT_PARALLEL_TIME},
-                           {"HINT_IGNORE_TIME", M_SIGNAL_HINT_IGNORE_TIME},
-                           {plugin_name() + "::HINT_IGNORE_TIME", M_SIGNAL_HINT_IGNORE_TIME}}
+                           {"TIME_HINT_UNKNOWN", M_SIGNAL_TIME_HINT_UNKNOWN},
+                           {plugin_name() + "::TIME_HINT_UNKNOWN", M_SIGNAL_TIME_HINT_UNKNOWN},
+                           {"TIME_HINT_COMPUTE", M_SIGNAL_TIME_HINT_COMPUTE},
+                           {plugin_name() + "::TIME_HINT_COMPUTE", M_SIGNAL_TIME_HINT_COMPUTE},
+                           {"TIME_HINT_MEMORY", M_SIGNAL_TIME_HINT_MEMORY},
+                           {plugin_name() + "::TIME_HINT_MEMORY", M_SIGNAL_TIME_HINT_MEMORY},
+                           {"TIME_HINT_NETWORK", M_SIGNAL_TIME_HINT_NETWORK},
+                           {plugin_name() + "::TIME_HINT_NETWORK", M_SIGNAL_TIME_HINT_NETWORK},
+                           {"TIME_HINT_IO", M_SIGNAL_TIME_HINT_IO},
+                           {plugin_name() + "::TIME_HINT_IO", M_SIGNAL_TIME_HINT_IO},
+                           {"TIME_HINT_SERIAL", M_SIGNAL_TIME_HINT_SERIAL},
+                           {plugin_name() + "::TIME_HINT_SERIAL", M_SIGNAL_TIME_HINT_SERIAL},
+                           {"TIME_HINT_PARALLEL", M_SIGNAL_TIME_HINT_PARALLEL},
+                           {plugin_name() + "::TIME_HINT_PARALLEL", M_SIGNAL_TIME_HINT_PARALLEL},
+                           {"TIME_HINT_IGNORE", M_SIGNAL_TIME_HINT_IGNORE},
+                           {plugin_name() + "::TIME_HINT_IGNORE", M_SIGNAL_TIME_HINT_IGNORE}}
         , m_platform_topo(topo)
         , m_do_read(M_NUM_SIGNAL, false)
         , m_is_batch_read(false)
@@ -319,28 +319,28 @@ namespace geopm
             case M_SIGNAL_EPOCH_RUNTIME_IGNORE:
                 result = m_epoch_runtime_ignore[cpu_idx];
                 break;
-            case M_SIGNAL_HINT_UNKNOWN_TIME:
+            case M_SIGNAL_TIME_HINT_UNKNOWN:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_UNKNOWN);
                 break;
-            case M_SIGNAL_HINT_COMPUTE_TIME:
+            case M_SIGNAL_TIME_HINT_COMPUTE:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_COMPUTE);
                 break;
-            case M_SIGNAL_HINT_MEMORY_TIME:
+            case M_SIGNAL_TIME_HINT_MEMORY:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_MEMORY);
                 break;
-            case M_SIGNAL_HINT_NETWORK_TIME:
+            case M_SIGNAL_TIME_HINT_NETWORK:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_NETWORK);
                 break;
-            case M_SIGNAL_HINT_IO_TIME:
+            case M_SIGNAL_TIME_HINT_IO:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_IO);
                 break;
-            case M_SIGNAL_HINT_SERIAL_TIME:
+            case M_SIGNAL_TIME_HINT_SERIAL:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_SERIAL);
                 break;
-            case M_SIGNAL_HINT_PARALLEL_TIME:
+            case M_SIGNAL_TIME_HINT_PARALLEL:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_PARALLEL);
                 break;
-            case M_SIGNAL_HINT_IGNORE_TIME:
+            case M_SIGNAL_TIME_HINT_IGNORE:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_IGNORE);
                 break;
             default:
@@ -405,28 +405,28 @@ namespace geopm
             case M_SIGNAL_EPOCH_RUNTIME_IGNORE:
                 result = m_application_sampler.get_regulator()->last_epoch_runtime_ignore()[cpu_idx];
                 break;
-            case M_SIGNAL_HINT_UNKNOWN_TIME:
+            case M_SIGNAL_TIME_HINT_UNKNOWN:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_UNKNOWN);
                 break;
-            case M_SIGNAL_HINT_COMPUTE_TIME:
+            case M_SIGNAL_TIME_HINT_COMPUTE:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_COMPUTE);
                 break;
-            case M_SIGNAL_HINT_MEMORY_TIME:
+            case M_SIGNAL_TIME_HINT_MEMORY:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_MEMORY);
                 break;
-            case M_SIGNAL_HINT_NETWORK_TIME:
+            case M_SIGNAL_TIME_HINT_NETWORK:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_NETWORK);
                 break;
-            case M_SIGNAL_HINT_IO_TIME:
+            case M_SIGNAL_TIME_HINT_IO:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_IO);
                 break;
-            case M_SIGNAL_HINT_SERIAL_TIME:
+            case M_SIGNAL_TIME_HINT_SERIAL:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_SERIAL);
                 break;
-            case M_SIGNAL_HINT_PARALLEL_TIME:
+            case M_SIGNAL_TIME_HINT_PARALLEL:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_PARALLEL);
                 break;
-            case M_SIGNAL_HINT_IGNORE_TIME:
+            case M_SIGNAL_TIME_HINT_IGNORE:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_IGNORE);
                 break;
             default:
@@ -480,22 +480,22 @@ namespace geopm
             {"PROFILE::EPOCH_RUNTIME_NETWORK", Agg::max},
             {"EPOCH_RUNTIME_IGNORE", Agg::max},
             {"PROFILE::EPOCH_RUNTIME_IGNORE", Agg::max},
-            {"HINT_UNKNOWN_TIME", Agg::average},
-            {"PROFILE::HINT_UNKNOWN_TIME", Agg::average},
-            {"HINT_COMPUTE_TIME", Agg::average},
-            {"PROFILE::HINT_COMPUTE_TIME", Agg::average},
-            {"HINT_MEMORY_TIME", Agg::average},
-            {"PROFILE::HINT_MEMORY_TIME", Agg::average},
-            {"HINT_NETWORK_TIME", Agg::average},
-            {"PROFILE::HINT_NETWORK_TIME", Agg::average},
-            {"HINT_IO_TIME", Agg::average},
-            {"PROFILE::HINT_IO_TIME", Agg::average},
-            {"HINT_SERIAL_TIME", Agg::average},
-            {"PROFILE::HINT_SERIAL_TIME", Agg::average},
-            {"HINT_PARALLEL_TIME", Agg::average},
-            {"PROFILE::HINT_PARALLEL_TIME", Agg::average},
-            {"HINT_IGNORE_TIME", Agg::average},
-            {"PROFILE::HINT_IGNORE_TIME", Agg::average},
+            {"TIME_HINT_UNKNOWN", Agg::average},
+            {"PROFILE::TIME_HINT_UNKNOWN", Agg::average},
+            {"TIME_HINT_COMPUTE", Agg::average},
+            {"PROFILE::TIME_HINT_COMPUTE", Agg::average},
+            {"TIME_HINT_MEMORY", Agg::average},
+            {"PROFILE::TIME_HINT_MEMORY", Agg::average},
+            {"TIME_HINT_NETWORK", Agg::average},
+            {"PROFILE::TIME_HINT_NETWORK", Agg::average},
+            {"TIME_HINT_IO", Agg::average},
+            {"PROFILE::TIME_HINT_IO", Agg::average},
+            {"TIME_HINT_SERIAL", Agg::average},
+            {"PROFILE::TIME_HINT_SERIAL", Agg::average},
+            {"TIME_HINT_PARALLEL", Agg::average},
+            {"PROFILE::TIME_HINT_PARALLEL", Agg::average},
+            {"TIME_HINT_IGNORE", Agg::average},
+            {"PROFILE::TIME_HINT_IGNORE", Agg::average},
         };
         auto it = fn_map.find(signal_name);
         if (it == fn_map.end()) {
@@ -530,22 +530,22 @@ namespace geopm
             {"PROFILE::EPOCH_RUNTIME_NETWORK", string_format_double},
             {"EPOCH_RUNTIME_IGNORE", string_format_double},
             {"PROFILE::EPOCH_RUNTIME_IGNORE", string_format_double},
-            {"HINT_UNKNOWN_TIME", string_format_double},
-            {"PROFILE::HINT_UNKNOWN_TIME", string_format_double},
-            {"HINT_COMPUTE_TIME", string_format_double},
-            {"PROFILE::HINT_COMPUTE_TIME", string_format_double},
-            {"HINT_MEMORY_TIME", string_format_double},
-            {"PROFILE::HINT_MEMORY_TIME", string_format_double},
-            {"HINT_NETWORK_TIME", string_format_double},
-            {"PROFILE::HINT_NETWORK_TIME", string_format_double},
-            {"HINT_IO_TIME", string_format_double},
-            {"PROFILE::HINT_IO_TIME", string_format_double},
-            {"HINT_SERIAL_TIME", string_format_double},
-            {"PROFILE::HINT_SERIAL_TIME", string_format_double},
-            {"HINT_PARALLEL_TIME", string_format_double},
-            {"PROFILE::HINT_PARALLEL_TIME", string_format_double},
-            {"HINT_IGNORE_TIME", string_format_double},
-            {"PROFILE::HINT_IGNORE_TIME", string_format_double},
+            {"TIME_HINT_UNKNOWN", string_format_double},
+            {"PROFILE::TIME_HINT_UNKNOWN", string_format_double},
+            {"TIME_HINT_COMPUTE", string_format_double},
+            {"PROFILE::TIME_HINT_COMPUTE", string_format_double},
+            {"TIME_HINT_MEMORY", string_format_double},
+            {"PROFILE::TIME_HINT_MEMORY", string_format_double},
+            {"TIME_HINT_NETWORK", string_format_double},
+            {"PROFILE::TIME_HINT_NETWORK", string_format_double},
+            {"TIME_HINT_IO", string_format_double},
+            {"PROFILE::TIME_HINT_IO", string_format_double},
+            {"TIME_HINT_SERIAL", string_format_double},
+            {"PROFILE::TIME_HINT_SERIAL", string_format_double},
+            {"TIME_HINT_PARALLEL", string_format_double},
+            {"PROFILE::TIME_HINT_PARALLEL", string_format_double},
+            {"TIME_HINT_IGNORE", string_format_double},
+            {"PROFILE::TIME_HINT_IGNORE", string_format_double},
         };
         auto it = fmt_map.find(signal_name);
         if (it == fmt_map.end()) {
