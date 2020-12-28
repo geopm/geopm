@@ -580,6 +580,8 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/ProxyEpochRecordFilter.hpp \
                             src/RawMSRSignal.cpp \
                             src/RawMSRSignal.hpp \
+                            src/ProcessRegionAggregator.cpp \
+                            src/ProcessRegionAggregator.hpp \
                             src/RecordFilter.cpp \
                             src/RecordFilter.hpp \
                             src/Reporter.cpp \
