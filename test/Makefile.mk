@@ -420,6 +420,9 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/ProcessRegionAggregatorTest.entry_exit \
               test/gtest_links/ProcessRegionAggregatorTest.short_region \
               test/gtest_links/ProcessRegionAggregatorTest.multiple_processes \
+              test/gtest_links/ProfileIOGroupTest.is_valid \
+              test/gtest_links/ProfileIOGroupTest.read_signal_hint_time \
+              test/gtest_links/ProfileIOGroupTest.batch_signal_hint_time \
               test/gtest_links/ProfileTableTest.hello \
               test/gtest_links/ProfileTableTest.name_set_fill_long \
               test/gtest_links/ProfileTableTest.name_set_fill_short \
@@ -667,6 +670,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/PowerBalancerTest.cpp \
                           test/PowerGovernorAgentTest.cpp \
                           test/PowerGovernorTest.cpp \
+                          test/ProfileIOGroupTest.cpp \
                           test/ProfileTableTest.cpp \
                           test/ProfileTest.cpp \
                           test/ProfileTestIntegration.cpp \
