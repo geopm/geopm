@@ -118,7 +118,7 @@ namespace geopm
     void ProfileIOGroup::connect(void)
     {
         // The ProfileIOSample and EpochRuntimeRegulator should be initialized prior to this call.
-        m_cpu_rank = m_application_sampler.get_io_sample()->cpu_rank();
+        m_cpu_rank = m_application_sampler.per_cpu_process();
         m_is_connected = true;
     }
 
@@ -286,7 +286,6 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        /// @todo support for non-cpu signal domains
         int cpu_idx = m_active_signal[signal_idx].domain_idx;
         switch (m_active_signal[signal_idx].signal_type) {
             case M_SIGNAL_REGION_HASH:
@@ -367,7 +366,6 @@ namespace geopm
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         int signal_type = check_signal(signal_name, domain_type, domain_idx);
-        /// @todo Add support for non-cpu domains.
         int cpu_idx = domain_idx;
         struct geopm_time_s read_time;
         uint64_t region_id;
@@ -574,7 +572,6 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (domain_type != GEOPM_DOMAIN_CPU) {
-            /// @todo Add support for non-cpu domains.
             throw Exception("ProfileIOGroup::check_signal(): non-CPU domains are not supported",
                             GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
         }
