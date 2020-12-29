@@ -141,6 +141,42 @@ namespace geopm
         return result;
     }
 
+    template <typename type>
+    void sample_aggregator_update_epoch(type &signal, int epoch_count)
+    {
+        // If the epoch count has changed, call the exit/enter
+        if (epoch_count != signal.epoch_count_last) {
+            if (signal.epoch_count_last != 0) {
+                signal.epoch_accum->exit();
+            }
+            signal.epoch_accum->enter();
+            signal.epoch_count_last = epoch_count;
+        }
+    }
+
+    template <typename type>
+    void sample_aggregator_update_hash_exit(type &signal, uint64_t hash)
+    {
+        if (signal.region_hash_last != hash) {
+            // If we have exited a valid region, call exit()
+            if (signal.region_hash_last != GEOPM_REGION_HASH_UNMARKED) {
+                signal.region_accum_it->second->exit();
+            }
+        }
+    }
+
+    template <typename type>
+    void sample_aggregator_update_hash_enter(type &signal, uint64_t hash)
+    {
+        if (signal.region_hash_last != hash) {
+            // If we have entered a valid region, call enter()
+            if (hash != GEOPM_REGION_HASH_UNMARKED) {
+                signal.region_accum_it->second->enter();
+            }
+            signal.region_hash_last = hash;
+        }
+    }
+
     void SampleAggregatorImp::update_total(void)
     {
         // Update all of the sum aggregators
@@ -155,40 +191,26 @@ namespace geopm
                 signal.sample_last = sample;
                 signal.region_hash_last = hash;
                 signal.epoch_count_last = epoch_count;
-                signal.region_accum_it = sample_aggregator_emplace_hash<SumAccumulator>(signal.region_accum, hash);
+                signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);
             }
             else {
                 // Measure the change since the last update
                 double delta = sample - signal.sample_last;
                 // Update that application totals
                 signal.app_accum->update(delta);
-                // If the epoch count has changed, call the exit/enter
-                if (epoch_count != signal.epoch_count_last) {
-                    if (signal.epoch_count_last != 0) {
-                        signal.epoch_accum->exit();
-                    }
-                    signal.epoch_accum->enter();
-                }
                 // If we have observed our first epoch, update epoch totals
                 if (signal.epoch_count_last != 0) {
                     signal.epoch_accum->update(delta);
                 }
+                // Update region totals
                 signal.region_accum_it->second->update(delta);
+                sample_aggregator_update_epoch(signal, epoch_count);
+                sample_aggregator_update_hash_exit(signal, hash);
                 if (signal.region_hash_last != hash) {
-                    // If we have exited a valid region, call exit()
-                    if (signal.region_hash_last != GEOPM_REGION_HASH_UNMARKED) {
-                        signal.region_accum_it->second->exit();
-                    }
-                    // Update region hash information
-                    signal.region_hash_last = hash;
-                    signal.region_accum_it = sample_aggregator_emplace_hash<SumAccumulator>(signal.region_accum, hash);
-                    // If we have entered a valid region, call enter()
-                    if (hash != GEOPM_REGION_HASH_UNMARKED) {
-                        signal.region_accum_it->second->enter();
-                    }
+                    signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);
                 }
+                sample_aggregator_update_hash_enter(signal, hash);
                 signal.sample_last = sample;
-                signal.epoch_count_last = epoch_count;
             }
         }
     }
@@ -208,40 +230,26 @@ namespace geopm
                 signal.time_last = time;
                 signal.region_hash_last = hash;
                 signal.epoch_count_last = epoch_count;
-                signal.region_accum_it = sample_aggregator_emplace_hash<AvgAccumulator>(signal.region_accum, hash);
+                signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);
             }
             else {
                 // Measure the time change since the last update
                 double delta = time - signal.time_last;
                 // Update that application totals
                 signal.app_accum->update(delta, sample);
-                // If the epoch count has changed, call the exit/enter
-                if (epoch_count != signal.epoch_count_last) {
-                    if (signal.epoch_count_last != 0) {
-                        signal.epoch_accum->exit();
-                    }
-                    signal.epoch_accum->enter();
-                }
                 // If we have observed our first epoch, update epoch totals
                 if (signal.epoch_count_last != 0) {
                     signal.epoch_accum->update(delta, sample);
                 }
+                // Update region totals
                 signal.region_accum_it->second->update(delta, sample);
+                sample_aggregator_update_epoch(signal, epoch_count);
+                sample_aggregator_update_hash_exit(signal, hash);
                 if (signal.region_hash_last != hash) {
-                    // If we have exited a valid region, call exit()
-                    if (signal.region_hash_last != GEOPM_REGION_HASH_UNMARKED) {
-                        signal.region_accum_it->second->exit();
-                    }
-                    // Update region hash information
-                    signal.region_hash_last = hash;
-                    signal.region_accum_it = sample_aggregator_emplace_hash<AvgAccumulator>(signal.region_accum, hash);
-                    // If we have entered a valid region, call enter()
-                    if (hash != GEOPM_REGION_HASH_UNMARKED) {
-                        signal.region_accum_it->second->enter();
-                    }
+                    signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);
                 }
+                sample_aggregator_update_hash_enter(signal, hash);
                 signal.time_last = time;
-                signal.epoch_count_last = epoch_count;
             }
         }
     }
