@@ -255,13 +255,20 @@ TEST_F(SampleAggregatorTest, sample_application)
     std::set<uint64_t> regions = {regionA, regionB, GEOPM_REGION_HASH_UNMARKED};
 
     for (auto region : regions) {
-        EXPECT_EQ(exp_time[0][region], m_agg->sample_region(M_SIGNAL_TIME, region));
-        EXPECT_EQ(exp_energy[0][region], m_agg->sample_region(M_SIGNAL_ENERGY_0, region));
-        EXPECT_EQ(exp_energy[1][region], m_agg->sample_region(M_SIGNAL_ENERGY_1, region));
-        EXPECT_EQ(exp_cycles[0][region], m_agg->sample_region(M_SIGNAL_CYCLES_0, region)) << region;
-        EXPECT_EQ(exp_cycles[1][region], m_agg->sample_region(M_SIGNAL_CYCLES_1, region)) << region;
-        EXPECT_EQ(exp_cycles[2][region], m_agg->sample_region(M_SIGNAL_CYCLES_2, region)) << region;
-        EXPECT_EQ(exp_cycles[3][region], m_agg->sample_region(M_SIGNAL_CYCLES_3, region)) << region;
+        EXPECT_EQ(exp_time[0][region], m_agg->sample_region(M_SIGNAL_TIME, region))
+            << "Region hash: " << geopm::string_format_hex(region);
+        EXPECT_EQ(exp_energy[0][region], m_agg->sample_region(M_SIGNAL_ENERGY_0, region))
+            << "Region hash: " << geopm::string_format_hex(region);
+        EXPECT_EQ(exp_energy[1][region], m_agg->sample_region(M_SIGNAL_ENERGY_1, region))
+            << "Region hash: " << geopm::string_format_hex(region);
+        EXPECT_EQ(exp_cycles[0][region], m_agg->sample_region(M_SIGNAL_CYCLES_0, region))
+            << "Region hash: " << geopm::string_format_hex(region);
+        EXPECT_EQ(exp_cycles[1][region], m_agg->sample_region(M_SIGNAL_CYCLES_1, region))
+            << "Region hash: " << geopm::string_format_hex(region);
+        EXPECT_EQ(exp_cycles[2][region], m_agg->sample_region(M_SIGNAL_CYCLES_2, region))
+            << "Region hash: " << geopm::string_format_hex(region);
+        EXPECT_EQ(exp_cycles[3][region], m_agg->sample_region(M_SIGNAL_CYCLES_3, region))
+            << "Region hash: " << geopm::string_format_hex(region);
     }
 
     // Invalid index
