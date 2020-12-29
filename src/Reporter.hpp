@@ -40,6 +40,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <ostream>
 
 namespace geopm
 {
@@ -93,11 +94,19 @@ namespace geopm
                                   const ApplicationIO &application_io,
                                   std::shared_ptr<Comm> comm,
                                   const TreeComm &tree_comm) = 0;
+            struct region_info {
+                std::string name;
+                uint64_t hash;
+                double per_rank_avg_runtime;
+                    //double network_time;
+                int count;
+            };
     };
 
     class PlatformIO;
     class PlatformTopo;
     class SampleAggregator;
+    class ProcessRegionAggregator;
 
     class ReporterImp : public Reporter
     {
@@ -112,7 +121,8 @@ namespace geopm
                         PlatformIO &platform_io,
                         const PlatformTopo &platform_topo,
                         int rank,
-                        std::unique_ptr<SampleAggregator> agg,
+                        std::shared_ptr<SampleAggregator> sample_agg,
+                        std::shared_ptr<ProcessRegionAggregator> proc_agg,
                         const std::string &env_signal,
                         const std::string &policy_path,
                         bool do_endpoint);
@@ -127,23 +137,52 @@ namespace geopm
                           std::shared_ptr<Comm> comm,
                           const TreeComm &tree_comm) override;
         private:
-            std::string get_max_memory(void);
+            /// @brief Set up structures used to calculate region-synchronous
+            ///        field data to be sampled from SampleAggregator.
+            void init_sync_fields(void);
+            /// @brief Returns the memoy high water mark for the
+            ///        controller process.
+            double get_max_memory(void);
+
+            // TODO: yaml functions could be static?
+            // TODO: rename to indent_write?  does not enforce correct yaml
+            // indent level * 2 spaces per indent
+            void yaml_write(std::ostream &os, int indent_level, const std::string &val);
+            void yaml_write(std::ostream &os, int indent_level,
+                            const std::vector<std::pair<std::string, std::string> > &data);
+            void yaml_write(std::ostream &os, int indent_level,
+                            const std::vector<std::pair<std::string, double> > &data);
+
+            std::vector<std::pair<std::string, double> > get_region_data(const region_info &region);
 
             std::string m_start_time;
             std::string m_report_name;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
-            std::unique_ptr<SampleAggregator> m_region_agg;
-            int m_rank;
-            int m_region_bulk_runtime_idx;
-            int m_energy_pkg_idx;
-            int m_energy_dram_idx;
-            int m_clk_core_idx;
-            int m_clk_ref_idx;
-            std::vector<std::pair<std::string, int> > m_env_signal_name_idx;
+            std::shared_ptr<SampleAggregator> m_sample_agg;
+            std::shared_ptr<ProcessRegionAggregator> m_proc_region_agg;
             const std::string m_env_signals;
             const std::string m_policy_path;
             bool m_do_endpoint;
+            int m_rank;
+            double m_sticker_freq;
+
+            // Mapping from pushed signal name to index
+            std::map<std::string, int> m_sync_signal_idx;
+
+            // Fields for each section in order.  function can be
+            // passthrough, or combo of other fields
+            struct m_sync_field_s
+            {
+                std::string field_label;
+                std::vector<std::string> supporting_signals;
+                std::function<double(uint64_t, const std::vector<std::string>&)> func;
+            };
+            // All default fields supported by sample aggregator
+            std::vector<m_sync_field_s> m_sync_fields;
+
+            // Signals added through environment
+            std::vector<std::pair<std::string, int> > m_env_signal_name_idx;
     };
 }
 
