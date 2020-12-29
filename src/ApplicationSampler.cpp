@@ -157,6 +157,10 @@ namespace geopm
 
     void ApplicationSamplerImp::update(const geopm_time_s &curr_time)
     {
+        if (!m_status) {
+            throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
         m_status->update_cache();
         if (!m_is_first_update) {
             double time_delta = geopm_time_diff(&m_update_time, &curr_time);
@@ -242,6 +246,10 @@ namespace geopm
 
     uint64_t ApplicationSamplerImp::cpu_hint(int cpu_idx) const
     {
+        if (!m_status) {
+            throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
         return m_status->get_hint(cpu_idx);
     }
 
@@ -264,11 +272,19 @@ namespace geopm
 
     double ApplicationSamplerImp::cpu_progress(int cpu_idx) const
     {
+        if (!m_status) {
+            throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
         return m_status->get_progress_cpu(cpu_idx);
     }
 
     std::vector<int> ApplicationSamplerImp::per_cpu_process(void) const
     {
+        if (!m_status) {
+            throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
         std::vector<int> result(m_num_cpu);
         for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
             result[cpu_idx] = m_status->get_process(cpu_idx);
