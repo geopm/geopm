@@ -126,31 +126,16 @@ namespace geopm
         return result;
     }
 
-
-    /// @todo Repeated code could be avoided with template
-    static std::map<uint64_t, std::shared_ptr<SumAccumulator> >::iterator
-    emplace_hash(
-        std::map<uint64_t, std::shared_ptr<SumAccumulator> > &hash_accum_map,
+    template<typename type>
+    typename std::map<uint64_t, std::shared_ptr<type> >::iterator
+    sample_aggregator_emplace_hash(
+        std::map<uint64_t, std::shared_ptr<type> > &hash_accum_map,
         uint64_t hash)
     {
-        std::map<uint64_t, std::shared_ptr<SumAccumulator> >::iterator result;
+        typename std::map<uint64_t, std::shared_ptr<type> >::iterator result;
         result = hash_accum_map.find(hash);
         if (result == hash_accum_map.end()) {
-            auto empl_ret = hash_accum_map.emplace(hash, SumAccumulator::make_unique());
-            result = empl_ret.first;
-        }
-        return result;
-    }
-
-    static std::map<uint64_t, std::shared_ptr<AvgAccumulator> >::iterator
-    emplace_hash(
-        std::map<uint64_t, std::shared_ptr<AvgAccumulator> > &hash_accum_map,
-        uint64_t hash)
-    {
-        std::map<uint64_t, std::shared_ptr<AvgAccumulator> >::iterator result;
-        result = hash_accum_map.find(hash);
-        if (result == hash_accum_map.end()) {
-            auto empl_ret = hash_accum_map.emplace(hash, AvgAccumulator::make_unique());
+            auto empl_ret = hash_accum_map.emplace(hash, type::make_unique());
             result = empl_ret.first;
         }
         return result;
@@ -170,7 +155,7 @@ namespace geopm
                 signal.sample_last = sample;
                 signal.region_hash_last = hash;
                 signal.epoch_count_last = epoch_count;
-                signal.region_accum_it = emplace_hash(signal.region_accum, hash);
+                signal.region_accum_it = sample_aggregator_emplace_hash<SumAccumulator>(signal.region_accum, hash);
             }
             else {
                 // Measure the change since the last update
@@ -196,7 +181,7 @@ namespace geopm
                     }
                     // Update region hash information
                     signal.region_hash_last = hash;
-                    signal.region_accum_it = emplace_hash(signal.region_accum, hash);
+                    signal.region_accum_it = sample_aggregator_emplace_hash<SumAccumulator>(signal.region_accum, hash);
                     // If we have entered a valid region, call enter()
                     if (hash != GEOPM_REGION_HASH_UNMARKED) {
                         signal.region_accum_it->second->enter();
@@ -223,7 +208,7 @@ namespace geopm
                 signal.time_last = time;
                 signal.region_hash_last = hash;
                 signal.epoch_count_last = epoch_count;
-                signal.region_accum_it = emplace_hash(signal.region_accum, hash);
+                signal.region_accum_it = sample_aggregator_emplace_hash<AvgAccumulator>(signal.region_accum, hash);
             }
             else {
                 // Measure the time change since the last update
@@ -249,7 +234,7 @@ namespace geopm
                     }
                     // Update region hash information
                     signal.region_hash_last = hash;
-                    signal.region_accum_it = emplace_hash(signal.region_accum, hash);
+                    signal.region_accum_it = sample_aggregator_emplace_hash<AvgAccumulator>(signal.region_accum, hash);
                     // If we have entered a valid region, call enter()
                     if (hash != GEOPM_REGION_HASH_UNMARKED) {
                         signal.region_accum_it->second->enter();
