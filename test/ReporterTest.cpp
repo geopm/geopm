@@ -91,12 +91,14 @@ class ReporterTest : public testing::Test
             M_TIME_SERIAL_IDX,
             M_TIME_PARALLEL_IDX,
             M_TIME_UNKNOWN_IDX,
+            M_TIME_UNSET_IDX,
             M_ENERGY_PKG_IDX,
             M_ENERGY_DRAM_IDX,
             M_CLK_CORE_IDX,
             M_CLK_REF_IDX,
             M_ENERGY_PKG_ENV_IDX_0,
             M_ENERGY_PKG_ENV_IDX_1,
+            M_EPOCH_COUNT_IDX,
         };
         ReporterTest();
         void TearDown(void);
@@ -200,6 +202,8 @@ ReporterTest::ReporterTest()
         .WillRepeatedly(Return(M_TIME_PARALLEL_IDX));
     EXPECT_CALL(*m_sample_agg, push_signal_total("TIME_HINT_UNKNOWN", _, _))
         .WillRepeatedly(Return(M_TIME_UNKNOWN_IDX));
+    EXPECT_CALL(*m_sample_agg, push_signal_total("TIME_HINT_UNSET", _, _))
+        .WillRepeatedly(Return(M_TIME_UNSET_IDX));
     EXPECT_CALL(*m_sample_agg, push_signal_total("ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0))
         .WillRepeatedly(Return(M_ENERGY_PKG_IDX));
     EXPECT_CALL(*m_sample_agg, push_signal_total("ENERGY_DRAM", _, _))
@@ -208,6 +212,8 @@ ReporterTest::ReporterTest()
         .WillRepeatedly(Return(M_CLK_REF_IDX));
     EXPECT_CALL(*m_sample_agg, push_signal_total("CYCLES_THREAD", _, _))
         .WillRepeatedly(Return(M_CLK_CORE_IDX));
+    EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0))
+        .WillRepeatedly(Return(M_EPOCH_COUNT_IDX));
 
     // environment signals
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
@@ -253,7 +259,7 @@ TEST_F(ReporterTest, generate)
     }
     for (auto rid : m_region_count) {
         if (GEOPM_REGION_HASH_EPOCH == rid.first) {
-            EXPECT_CALL(m_platform_io, read_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0))
+            EXPECT_CALL(m_platform_io, sample(M_EPOCH_COUNT_IDX))
                 .WillOnce(Return(rid.second));
         }
         else {
@@ -276,6 +282,11 @@ TEST_F(ReporterTest, generate)
         EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_IDX, rid.first))
             .WillRepeatedly(Return(rid.second));
     }
+    EXPECT_CALL(*m_sample_agg, sample_application(M_TIME_IDX))
+        .WillRepeatedly(Return(56));
+    EXPECT_CALL(*m_sample_agg, sample_epoch(M_TIME_IDX))
+        .WillRepeatedly(Return(70));
+
     for (auto rid : m_region_energy) {
         EXPECT_CALL(*m_sample_agg, sample_region(M_ENERGY_PKG_IDX, rid.first))
             .WillRepeatedly(Return(rid.second/2.0));
@@ -308,6 +319,8 @@ TEST_F(ReporterTest, generate)
         .WillRepeatedly(Return(0.6));
     EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_UNKNOWN_IDX, _))
         .WillRepeatedly(Return(0.7));
+    EXPECT_CALL(*m_sample_agg, sample_region(M_TIME_UNSET_IDX, _))
+        .WillRepeatedly(Return(0.8));
 
     // Other calls
     EXPECT_CALL(m_tree_comm, overhead_send()).WillOnce(Return(678 * 56));
@@ -353,6 +366,7 @@ TEST_F(ReporterTest, generate)
         "      time-hint-serial (s): 0.5\n"
         "      time-hint-parallel (s): 0.6\n"
         "      time-hint-unknown (s): 0.7\n"
+        "      time-hint-unset (s): 0.8\n"
         "      ENERGY_PACKAGE@package-0: 194.25\n"
         "      ENERGY_PACKAGE@package-1: 194.25\n"
         "      agent stat: 1\n"
@@ -376,6 +390,7 @@ TEST_F(ReporterTest, generate)
         "      time-hint-serial (s): 0.5\n"
         "      time-hint-parallel (s): 0.6\n"
         "      time-hint-unknown (s): 0.7\n"
+        "      time-hint-unset (s): 0.8\n"
         "      ENERGY_PACKAGE@package-0: 222\n"
         "      ENERGY_PACKAGE@package-1: 222\n"
         "      agent stat: 2\n"
@@ -396,6 +411,7 @@ TEST_F(ReporterTest, generate)
         "    time-hint-serial (s): 0.5\n"
         "    time-hint-parallel (s): 0.6\n"
         "    time-hint-unknown (s): 0.7\n"
+        "    time-hint-unset (s): 0.8\n"
         "    ENERGY_PACKAGE@package-0: 55.5\n"
         "    ENERGY_PACKAGE@package-1: 55.5\n"
         "    agent stat: 3\n"
@@ -416,6 +432,7 @@ TEST_F(ReporterTest, generate)
         "    time-hint-serial (s): 0.5\n"
         "    time-hint-parallel (s): 0.6\n"
         "    time-hint-unknown (s): 0.7\n"
+        "    time-hint-unset (s): 0.8\n"
         "    ENERGY_PACKAGE@package-0: 83.5\n"
         "    ENERGY_PACKAGE@package-1: 83.5\n"
         "  Application Totals:\n"
@@ -435,6 +452,7 @@ TEST_F(ReporterTest, generate)
         "    time-hint-serial (s): 0.5\n"
         "    time-hint-parallel (s): 0.6\n"
         "    time-hint-unknown (s): 0.7\n"
+        "    time-hint-unset (s): 0.8\n"
         "    ENERGY_PACKAGE@package-0: 1111\n"
         "    ENERGY_PACKAGE@package-1: 1111\n"
         "    geopmctl memory HWM (B):\n"
