@@ -79,6 +79,8 @@ namespace geopm
                            {"EPOCH_RUNTIME_IGNORE", M_SIGNAL_EPOCH_RUNTIME_IGNORE},
                            {"TIME_HINT_UNKNOWN", M_SIGNAL_TIME_HINT_UNKNOWN},
                            {plugin_name() + "::TIME_HINT_UNKNOWN", M_SIGNAL_TIME_HINT_UNKNOWN},
+                           {"TIME_HINT_UNSET", M_SIGNAL_TIME_HINT_UNSET},
+                           {plugin_name() + "::TIME_HINT_UNSET", M_SIGNAL_TIME_HINT_UNSET},
                            {"TIME_HINT_COMPUTE", M_SIGNAL_TIME_HINT_COMPUTE},
                            {plugin_name() + "::TIME_HINT_COMPUTE", M_SIGNAL_TIME_HINT_COMPUTE},
                            {"TIME_HINT_MEMORY", M_SIGNAL_TIME_HINT_MEMORY},
@@ -321,6 +323,9 @@ namespace geopm
             case M_SIGNAL_TIME_HINT_UNKNOWN:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_UNKNOWN);
                 break;
+            case M_SIGNAL_TIME_HINT_UNSET:
+                result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_UNSET);
+                break;
             case M_SIGNAL_TIME_HINT_COMPUTE:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_COMPUTE);
                 break;
@@ -406,6 +411,9 @@ namespace geopm
             case M_SIGNAL_TIME_HINT_UNKNOWN:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_UNKNOWN);
                 break;
+            case M_SIGNAL_TIME_HINT_UNSET:
+                result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_UNSET);
+                break;
             case M_SIGNAL_TIME_HINT_COMPUTE:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_COMPUTE);
                 break;
@@ -480,6 +488,8 @@ namespace geopm
             {"PROFILE::EPOCH_RUNTIME_IGNORE", Agg::max},
             {"TIME_HINT_UNKNOWN", Agg::average},
             {"PROFILE::TIME_HINT_UNKNOWN", Agg::average},
+            {"TIME_HINT_UNSET", Agg::average},
+            {"PROFILE::TIME_HINT_UNSET", Agg::average},
             {"TIME_HINT_COMPUTE", Agg::average},
             {"PROFILE::TIME_HINT_COMPUTE", Agg::average},
             {"TIME_HINT_MEMORY", Agg::average},
@@ -530,6 +540,8 @@ namespace geopm
             {"PROFILE::EPOCH_RUNTIME_IGNORE", string_format_double},
             {"TIME_HINT_UNKNOWN", string_format_double},
             {"PROFILE::TIME_HINT_UNKNOWN", string_format_double},
+            {"TIME_HINT_UNSET", string_format_double},
+            {"PROFILE::TIME_HINT_UNSET", string_format_double},
             {"TIME_HINT_COMPUTE", string_format_double},
             {"PROFILE::TIME_HINT_COMPUTE", string_format_double},
             {"TIME_HINT_MEMORY", string_format_double},
