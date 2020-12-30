@@ -66,6 +66,7 @@ namespace geopm
             std::vector<record_s> get_records(void) const override;
             short_region_s get_short_region(uint64_t event_signal) const override;
             std::map<uint64_t, std::string> get_name_map(uint64_t name_key) const override;
+            uint64_t cpu_region_hash(int cpu_idx) const override;
             uint64_t cpu_hint(int cpu_idx) const override;
             double cpu_hint_time(int cpu_idx, uint64_t hint) const override;
             double cpu_progress(int cpu_idx) const override;
