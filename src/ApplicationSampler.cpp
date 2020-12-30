@@ -151,6 +151,14 @@ namespace geopm
 
     }
 
+    ApplicationSamplerImp::~ApplicationSamplerImp()
+    {
+        for (auto const& process : m_process_map) {
+            process.second.record_log_shmem->unlink();
+        }
+        m_status_shmem->unlink();
+    }
+
     void ApplicationSamplerImp::time_zero(const geopm_time_s &start_time)
     {
         m_time_zero = start_time;
@@ -298,10 +306,9 @@ namespace geopm
     {
         if (!m_status) {
             std::string shmem_name = shm_key + "-status";
-            std::shared_ptr<SharedMemory> status_shmem =
-                SharedMemory::make_unique_owner(shmem_name,
-                                                ApplicationStatus::buffer_size(m_num_cpu));
-            m_status = ApplicationStatus::make_unique(m_num_cpu, status_shmem);
+            m_status_shmem = SharedMemory::make_unique_owner(shmem_name,
+                                                             ApplicationStatus::buffer_size(m_num_cpu));
+            m_status = ApplicationStatus::make_unique(m_num_cpu, m_status_shmem);
             GEOPM_DEBUG_ASSERT(m_process_map.empty(),
                                "m_process_map is not empty, but we are connecting");
             // Convert per-cpu process to a set of the unique process id's
@@ -321,6 +328,7 @@ namespace geopm
                 if (m_is_filtered) {
                     process.filter = RecordFilter::make_unique(m_filter_name);
                 }
+                process.record_log_shmem = record_log_shmem;
                 process.record_log = ApplicationRecordLog::make_unique(record_log_shmem);
                 process.records.reserve(ApplicationRecordLog::max_record());
                 process.short_regions.reserve(ApplicationRecordLog::max_region());
