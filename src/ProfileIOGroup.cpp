@@ -35,8 +35,6 @@
 #include "PlatformTopo.hpp"
 #include "ApplicationSampler.hpp"
 #include "Helper.hpp"
-#include "EpochRuntimeRegulator.hpp"
-#include "RuntimeRegulator.hpp"
 #include "ProfileIOSample.hpp"
 #include "Exception.hpp"
 #include "Agg.hpp"
@@ -59,24 +57,10 @@ namespace geopm
         : m_application_sampler(application_sampler)
         , m_signal_idx_map{{plugin_name() + "::REGION_HASH", M_SIGNAL_REGION_HASH},
                            {plugin_name() + "::REGION_HINT", M_SIGNAL_REGION_HINT},
-                           {plugin_name() + "::REGION_PROGRESS", M_SIGNAL_REGION_PROGRESS},
-                           {plugin_name() + "::REGION_COUNT", M_SIGNAL_REGION_COUNT},
                            {plugin_name() + "::REGION_THREAD_PROGRESS", M_SIGNAL_THREAD_PROGRESS},
                            {"REGION_HASH", M_SIGNAL_REGION_HASH},
                            {"REGION_HINT", M_SIGNAL_REGION_HINT},
-                           {"REGION_PROGRESS", M_SIGNAL_REGION_PROGRESS},
-                           {"REGION_COUNT", M_SIGNAL_REGION_COUNT},
                            {"REGION_THREAD_PROGRESS", M_SIGNAL_THREAD_PROGRESS},
-                           {plugin_name() + "::EPOCH_RUNTIME", M_SIGNAL_EPOCH_RUNTIME},
-                           {"EPOCH_RUNTIME", M_SIGNAL_EPOCH_RUNTIME},
-                           {plugin_name() + "::EPOCH_COUNT", M_SIGNAL_EPOCH_COUNT},
-                           {"EPOCH_COUNT", M_SIGNAL_EPOCH_COUNT},
-                           {plugin_name() + "::REGION_RUNTIME", M_SIGNAL_RUNTIME},
-                           {"REGION_RUNTIME", M_SIGNAL_RUNTIME},
-                           {plugin_name() + "::EPOCH_RUNTIME_NETWORK", M_SIGNAL_EPOCH_RUNTIME_NETWORK},
-                           {"EPOCH_RUNTIME_NETWORK", M_SIGNAL_EPOCH_RUNTIME_NETWORK},
-                           {plugin_name() + "::EPOCH_RUNTIME_IGNORE", M_SIGNAL_EPOCH_RUNTIME_IGNORE},
-                           {"EPOCH_RUNTIME_IGNORE", M_SIGNAL_EPOCH_RUNTIME_IGNORE},
                            {"TIME_HINT_UNKNOWN", M_SIGNAL_TIME_HINT_UNKNOWN},
                            {plugin_name() + "::TIME_HINT_UNKNOWN", M_SIGNAL_TIME_HINT_UNKNOWN},
                            {"TIME_HINT_UNSET", M_SIGNAL_TIME_HINT_UNSET},
@@ -98,14 +82,7 @@ namespace geopm
         , m_platform_topo(topo)
         , m_do_read(M_NUM_SIGNAL, false)
         , m_is_batch_read(false)
-        , m_per_cpu_progress(topo.num_domain(GEOPM_DOMAIN_CPU), NAN)
-        , m_per_cpu_runtime(topo.num_domain(GEOPM_DOMAIN_CPU), NAN)
-        , m_per_cpu_count(topo.num_domain(GEOPM_DOMAIN_CPU), 0)
         , m_thread_progress(topo.num_domain(GEOPM_DOMAIN_CPU), NAN)
-        , m_epoch_runtime_network(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
-        , m_epoch_runtime_ignore(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
-        , m_epoch_runtime(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
-        , m_epoch_count(topo.num_domain(GEOPM_DOMAIN_CPU), 0.0)
         , m_is_connected(false)
         , m_is_pushed(false)
     {
@@ -119,8 +96,7 @@ namespace geopm
 
     void ProfileIOGroup::connect(void)
     {
-        // The ProfileIOSample and EpochRuntimeRegulator should be initialized prior to this call.
-        m_cpu_rank = m_application_sampler.get_io_sample()->cpu_rank();
+        m_cpu_rank = m_application_sampler.per_cpu_process();
         m_is_connected = true;
     }
 
@@ -187,11 +163,6 @@ namespace geopm
             result = m_active_signal.size();
             m_active_signal.push_back({signal_type, domain_type, domain_idx});
             m_do_read[signal_type] = true;
-            // Runtime and count signals require region hash signal to be sampled
-            if (signal_type == M_SIGNAL_RUNTIME ||
-                signal_type == M_SIGNAL_REGION_COUNT) {
-                m_do_read[M_SIGNAL_REGION_HASH] = true;
-            }
         }
         return result;
     }
@@ -215,58 +186,8 @@ namespace geopm
             m_do_read[M_SIGNAL_REGION_HINT]) {
             m_per_cpu_region_id = m_application_sampler.get_io_sample()->per_cpu_region_id();
         }
-        if (m_do_read[M_SIGNAL_REGION_PROGRESS]) {
-            struct geopm_time_s read_time;
-            geopm_time(&read_time);
-            m_per_cpu_progress = m_application_sampler.get_io_sample()->per_cpu_progress(read_time);
-        }
-        if (m_do_read[M_SIGNAL_REGION_COUNT]) {
-            m_per_cpu_count = m_application_sampler.get_io_sample()->per_cpu_count();
-        }
         if (m_do_read[M_SIGNAL_THREAD_PROGRESS]) {
             m_thread_progress = m_application_sampler.get_io_sample()->per_cpu_thread_progress();
-        }
-        if (m_do_read[M_SIGNAL_EPOCH_RUNTIME]) {
-            std::vector<double> per_rank_epoch_runtime = m_application_sampler.get_regulator()->last_epoch_runtime();
-            for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
-                m_epoch_runtime[cpu_idx] = per_rank_epoch_runtime[m_cpu_rank[cpu_idx]];
-            }
-        }
-        if (m_do_read[M_SIGNAL_EPOCH_COUNT]) {
-            std::vector<double> per_rank_epoch_count = m_application_sampler.get_regulator()->epoch_count();
-            for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
-                m_epoch_count[cpu_idx] = per_rank_epoch_count[m_cpu_rank[cpu_idx]];
-            }
-        }
-        if (m_do_read[M_SIGNAL_RUNTIME]) {
-            // look up the region for each cpu and cache the per-cpu runtimes for that region
-            std::map<uint64_t, std::vector<double> > cache;
-            for (const auto &rid : m_per_cpu_region_id) {
-                // add runtimes for each region if not already present
-                auto it = cache.find(rid);
-                if (it == cache.end()) {
-                    cache.emplace(std::piecewise_construct,
-                                  std::forward_as_tuple(rid),
-                                  std::forward_as_tuple(m_application_sampler.get_io_sample()->per_cpu_runtime(rid)));
-                }
-            }
-            // look up the last runtime for a cpu given its current region
-            // we assume ranks don't move between cpus
-            for (size_t cpu = 0; cpu < m_per_cpu_runtime.size(); ++cpu) {
-                m_per_cpu_runtime[cpu] = cache.at(m_per_cpu_region_id[cpu])[cpu];
-            }
-        }
-        if (m_do_read[M_SIGNAL_EPOCH_RUNTIME_NETWORK]) {
-            std::vector<double> per_rank_epoch_runtime_network = m_application_sampler.get_regulator()->last_epoch_runtime_network();
-            for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
-                m_epoch_runtime_network[cpu_idx] = per_rank_epoch_runtime_network[m_cpu_rank[cpu_idx]];
-            }
-        }
-        if (m_do_read[M_SIGNAL_EPOCH_RUNTIME_IGNORE]) {
-            std::vector<double> per_rank_epoch_runtime_ignore = m_application_sampler.get_regulator()->last_epoch_runtime_ignore();
-            for (size_t cpu_idx = 0; cpu_idx != m_cpu_rank.size(); ++cpu_idx) {
-                m_epoch_runtime_ignore[cpu_idx] = per_rank_epoch_runtime_ignore[m_cpu_rank[cpu_idx]];
-            }
         }
         m_is_batch_read = true;
     }
@@ -297,29 +218,8 @@ namespace geopm
             case M_SIGNAL_REGION_HINT:
                 result = geopm_region_id_hint(m_per_cpu_region_id[cpu_idx]);
                 break;
-            case M_SIGNAL_REGION_PROGRESS:
-                result = m_per_cpu_progress[cpu_idx];
-                break;
-            case M_SIGNAL_REGION_COUNT:
-                result = m_per_cpu_count[cpu_idx];
-                break;
             case M_SIGNAL_THREAD_PROGRESS:
                 result = m_thread_progress[cpu_idx];
-                break;
-            case M_SIGNAL_EPOCH_RUNTIME:
-                result = m_epoch_runtime[cpu_idx];
-                break;
-            case M_SIGNAL_EPOCH_COUNT:
-                result = m_epoch_count[cpu_idx];
-                break;
-            case M_SIGNAL_RUNTIME:
-                result = m_per_cpu_runtime[cpu_idx];
-                break;
-            case M_SIGNAL_EPOCH_RUNTIME_NETWORK:
-                result = m_epoch_runtime_network[cpu_idx];
-                break;
-            case M_SIGNAL_EPOCH_RUNTIME_IGNORE:
-                result = m_epoch_runtime_ignore[cpu_idx];
                 break;
             case M_SIGNAL_TIME_HINT_UNKNOWN:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_UNKNOWN);
@@ -384,31 +284,8 @@ namespace geopm
             case M_SIGNAL_REGION_HINT:
                 result = geopm_region_id_hint(m_application_sampler.get_io_sample()->per_cpu_region_id()[cpu_idx]);
                 break;
-            case M_SIGNAL_REGION_PROGRESS:
-                geopm_time(&read_time);
-                result = m_application_sampler.get_io_sample()->per_cpu_progress(read_time)[cpu_idx];
-                break;
-            case M_SIGNAL_REGION_COUNT:
-                result = m_application_sampler.get_io_sample()->per_cpu_count()[cpu_idx];
-                break;
             case M_SIGNAL_THREAD_PROGRESS:
                 result = m_application_sampler.get_io_sample()->per_cpu_thread_progress()[cpu_idx];
-                break;
-            case M_SIGNAL_EPOCH_RUNTIME:
-                result = m_application_sampler.get_regulator()->last_epoch_runtime()[cpu_idx];
-                break;
-            case M_SIGNAL_EPOCH_COUNT:
-                result = m_application_sampler.get_regulator()->epoch_count()[cpu_idx];
-                break;
-            case M_SIGNAL_RUNTIME:
-                region_id = m_application_sampler.get_io_sample()->per_cpu_region_id()[cpu_idx];
-                result = m_application_sampler.get_io_sample()->per_cpu_runtime(region_id)[cpu_idx];
-                break;
-            case M_SIGNAL_EPOCH_RUNTIME_NETWORK:
-                result = m_application_sampler.get_regulator()->last_epoch_runtime_network()[cpu_idx];
-                break;
-            case M_SIGNAL_EPOCH_RUNTIME_IGNORE:
-                result = m_application_sampler.get_regulator()->last_epoch_runtime_ignore()[cpu_idx];
                 break;
             case M_SIGNAL_TIME_HINT_UNKNOWN:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_UNKNOWN);
@@ -466,28 +343,12 @@ namespace geopm
     std::function<double(const std::vector<double> &)> ProfileIOGroup::agg_function(const std::string &signal_name) const
     {
         static const std::map<std::string, std::function<double(const std::vector<double> &)> > fn_map {
-            {"REGION_RUNTIME", Agg::max},
-            {"PROFILE::REGION_RUNTIME", Agg::max},
-            {"REGION_PROGRESS", Agg::min},
-            {"PROFILE::REGION_PROGRESS", Agg::min},
             {"REGION_THREAD_PROGRESS", Agg::min},
             {"PROFILE::REGION_THREAD_PROGRESS", Agg::min},
             {"REGION_HASH", Agg::region_hash},
             {"PROFILE::REGION_HASH", Agg::region_hash},
             {"REGION_HINT", Agg::region_hint},
             {"PROFILE::REGION_HINT", Agg::region_hint},
-            {"REGION_COUNT", Agg::min},
-            {"PROFILE::REGION_COUNT", Agg::min},
-            {"EPOCH_RUNTIME", Agg::max},
-            {"PROFILE::EPOCH_RUNTIME", Agg::max},
-            {"EPOCH_ENERGY", Agg::sum},
-            {"PROFILE::EPOCH_ENERGY", Agg::sum},
-            {"EPOCH_COUNT", Agg::min},
-            {"PROFILE::EPOCH_COUNT", Agg::min},
-            {"EPOCH_RUNTIME_NETWORK", Agg::max},
-            {"PROFILE::EPOCH_RUNTIME_NETWORK", Agg::max},
-            {"EPOCH_RUNTIME_IGNORE", Agg::max},
-            {"PROFILE::EPOCH_RUNTIME_IGNORE", Agg::max},
             {"TIME_HINT_UNKNOWN", Agg::average},
             {"PROFILE::TIME_HINT_UNKNOWN", Agg::average},
             {"TIME_HINT_UNSET", Agg::average},
@@ -518,28 +379,12 @@ namespace geopm
     std::function<std::string(double)> ProfileIOGroup::format_function(const std::string &signal_name) const
     {
        static const std::map<std::string, std::function<std::string(double)> > fmt_map {
-            {"REGION_RUNTIME", string_format_double},
-            {"REGION_COUNT", string_format_integer},
-            {"PROFILE::REGION_RUNTIME", string_format_double},
-            {"REGION_PROGRESS", string_format_float},
-            {"PROFILE::REGION_COUNT", string_format_integer},
-            {"PROFILE::REGION_PROGRESS", string_format_float},
             {"REGION_THREAD_PROGRESS", string_format_float},
             {"PROFILE::REGION_THREAD_PROGRESS", string_format_float},
             {"REGION_HASH", string_format_hex},
             {"PROFILE::REGION_HASH", string_format_hex},
             {"REGION_HINT", string_format_hex},
             {"PROFILE::REGION_HINT", string_format_hex},
-            {"EPOCH_RUNTIME", string_format_double},
-            {"PROFILE::EPOCH_RUNTIME", string_format_double},
-            {"EPOCH_ENERGY", string_format_double},
-            {"PROFILE::EPOCH_ENERGY", string_format_double},
-            {"EPOCH_COUNT", string_format_integer},
-            {"PROFILE::EPOCH_COUNT", string_format_integer},
-            {"EPOCH_RUNTIME_NETWORK", string_format_double},
-            {"PROFILE::EPOCH_RUNTIME_NETWORK", string_format_double},
-            {"EPOCH_RUNTIME_IGNORE", string_format_double},
-            {"PROFILE::EPOCH_RUNTIME_IGNORE", string_format_double},
             {"TIME_HINT_UNKNOWN", string_format_double},
             {"PROFILE::TIME_HINT_UNKNOWN", string_format_double},
             {"TIME_HINT_UNSET", string_format_double},
