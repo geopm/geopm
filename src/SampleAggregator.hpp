@@ -47,63 +47,168 @@ namespace geopm
             /// @brief Returns a unique_ptr to a concrete object
             ///        constructed using the underlying implementation
             static std::unique_ptr<SampleAggregator> make_unique(void);
+            /// @brief Default destructor of pure virtual base.
             virtual ~SampleAggregator() = default;
-            /// @brief Push a signal to be accumulated per-region.  It
-            ///        must be a valid signal available through
-            ///        PlatformIO.  Note that unlike other signals
-            ///        this is a total accumulated per region by
-            ///        subtracting the value of the signal at the
-            ///        region exit from the region entry.  Region
-            ///        entry and exit are not exact and are determined
-            ///        by the value of the REGION_HASH signal at the
-            ///        time of read_batch().  This aggregation should
-            ///        only be used for signals that are monotonically
-            ///        increasing, such as time.
+            /// @brief Push a signal to be accumulated per-region as a
+            ///        total.
+            ///
+            /// The signal name must be a valid signal available
+            /// through PlatformIO.  Note that unlike other signals
+            /// this is a total accumulated per region by subtracting
+            /// the value of the signal at the region exit from the
+            /// region entry.  Region entry and exit are not exact and
+            /// are determined by the value of the REGION_HASH signal
+            /// at the time of read_batch().  This aggregation should
+            /// only be used for signals that are monotonically
+            /// increasing, such as time.
+            ///
             /// @param [in] signal_name Name of the signal to sample
             ///         and aggregate.
+            ///
             /// @param [in] domain_type Domain type over which the
             ///        region hash and signal should be sampled.
+            ///
             /// @param [in] domain_idx Domain over which the region hash
             ///        and signal should be sampled.
+            ///
             /// @return Index of signal to be used with sample().
             ///         This index matches the return value of
             ///         PlatformIO::push_signal() for the same signal.
             virtual int push_signal_total(const std::string &signal_name,
                                           int domain_type,
                                           int domain_idx) = 0;
+            /// @brief Push a signal to be accumulated per-region as
+            ///        an average.
+            ///
+            /// The signal name must be a valid signal available
+            /// through PlatformIO.  Note that unlike other signals
+            /// this is an average value accumulated per region by a
+            /// time weighted mean of the values sampled while in the
+            /// region. Region entry and exit are not exact and are
+            /// determined by the value of the REGION_HASH signal at
+            /// the time of read_batch().  This aggregation should be
+            /// used for signals that vary up and down over time such
+            /// as the CPU frequency.
+            ///
+            /// @param [in] signal_name Name of the signal to sample
+            ///        and aggregate.
+            ///
+            /// @param [in] domain_type Domain type over which the region
+            ///        hash and signal should be sampled.
+            ///
+            /// @param [in] domain_idx Domain over which the region
+            ///        hash and signal should be sampled.
+            ///
+            /// @return Index of signal to be used with sample().
+            ///         This index matches the return value of
+            ///         PlatformIO::push_signal() for the same signal.
             virtual int push_signal_average(const std::string &signal_name,
                                             int domain_type,
                                             int domain_idx) = 0;
-            /// @brief Update stored totals for each signal after
-            ///        PlatformIO::read_batch has been called.  This
-            ///        should be called with every PlatformIO update
-            ///        because sample_total() maybe not be called
-            ///        until the end of execution.
+            /// @brief Update stored totals for each signal.
+            ///
+            /// This method is to be called after each call to
+            /// PlatformIO::read_batch().  This should be called with
+            /// every PlatformIO update because sample_total() maybe
+            /// not be called until the end of execution.
             virtual void update(void) = 0;
-            /// @brief Get the total value of a signal that has
-            ///        been pushed since the first sample.
+            /// @brief Get the aggregated value of a signal.
+            ///
+            /// The aggregation type is determined by which method was
+            /// used to push the signal: push_signal_total() or
+            /// push_signal_average().  The value returned is
+            /// aggregated over all samples since the application
+            /// start.
+            ///
             /// @param [in] signal_idx Index returned by a previous
-            ///        call to push_signal_total.
-            /// @return Total accumulated value for the signal,
-            ///         regardless of region or epoch.
+            ///        call to push_signal_total() or
+            ///        push_signal_average().
+            ///
+            /// @return Aggregated value for the signal regardless of
+            ///         region or epoch.
             virtual double sample_application(int signal_idx) = 0;
-            virtual double sample_epoch(int signal_idx) = 0;
-            /// @brief Sample a signal that has been pushed to
-            ///        accumlate as per-region values.  Note that
-            ///        unlike other signals this is a total
-            ///        accumulated per region by subtracting the value
-            ///        of the signal at the region exit from the
-            ///        region entry.  Region entry and exit are not
-            ///        exact and are determined by the value of the
-            ///        REGION_HASH signal at the time of read_batch().
+            /// @brief Get the aggregated value of a signal since the
+            ///        first epoch.
+            ///
+            /// The aggregation type is determined by which method was
+            /// used to push the signal: push_signal_total() or
+            /// push_signal_average().  The value returned is
+            /// aggregated over all samples since the first epoch
+            /// observed over the domain specified when the signal was
+            /// pushed.
+            ///
             /// @param [in] signal_idx Index returned by a previous
-            ///        call to push_signal_total.
-            /// @param [in] region_hash The region hash to look up data
-            ///        for.
-            /// @return Total accumulated value for the signal for one
-            ///        region.
+            ///        call to push_signal_total() or
+            ///        push_signal_average().
+            ///
+            /// @return Aggregated value for the signal since first
+            ///         epoch.
+            virtual double sample_epoch(int signal_idx) = 0;
+            /// @brief Get the aggregated value of a signal during the
+            ///        execution of a particular region.
+            ///
+            /// The aggregation type is determined by which method was
+            /// used to push the signal: push_signal_total() or
+            /// push_signal_average().  The value returned is
+            /// aggregated over all samples where the REGION_HASH
+            /// signal matched the value specified for the domain
+            /// pushed.  The returned value is zero for
+            /// push_signal_total() aggregation, and NAN for
+            /// push_signal_average aggregation if the region was not
+            /// observed for any samples.
+            ///
+            /// @param [in] signal_idx Index returned by a previous
+            ///        call to push_signal_total() or
+            ///        push_signal_average().
+            ///
+            /// @param [in] region_hash The region hash to look up
+            ///        data for.
+            ///
+            /// @return Aggregated value for the signal during the
+            ///         region.
             virtual double sample_region(int signal_idx, uint64_t region_hash) = 0;
+            /// @brief Get the aggregated value of a signal over the
+            ///        last completed epoch interval.
+            ///
+            /// The aggregation type is determined by which method was
+            /// used to push the signal: push_signal_total() or
+            /// push_signal_average().  The value returned is
+            /// aggregated over all samples between the last two
+            /// samples when the epoch count changed.
+            ///
+            /// @param [in] signal_idx Index returned by a previous
+            ///        call to push_signal_total() or
+            ///        push_signal_average().
+            ///
+            /// @return Aggregated value for the signal over last
+            ///         epoch.
             virtual double sample_epoch_last(int signal_idx) = 0;
+            /// @brief Get the aggregated value of a signal during the
+            ///        the last completed execution of a particular
+            ///        region.
+            ///
+            /// The aggregation type is determined by which method was
+            /// used to push the signal: push_signal_total() or
+            /// push_signal_average().  The value returned is
+            /// aggregated over the last contiguous set of samples
+            /// where the REGION_HASH signal matched the value
+            /// specified for the domain pushed.  Note that if the
+            /// region is currently executing, the value reported is
+            /// aggregated over the last region interval, not the
+            /// currently executing interval. The returned value is
+            /// zero for push_signal_total() aggregation, and NAN for
+            /// push_signal_average aggregation if a completed region
+            /// with the specified hash has not been observed.
+            ///
+            /// @param [in] signal_idx Index returned by a previous
+            ///        call to push_signal_total() or
+            ///        push_signal_average().
+            ///
+            /// @param [in] region_hash The region hash to look up
+            ///        data for.
+            ///
+            /// @return Aggregated value for the signal during the
+            ///         last execution of the region.
             virtual double sample_region_last(int signal_idx, uint64_t region_hash) = 0;
         protected:
             SampleAggregator() = default;
