@@ -185,8 +185,8 @@ namespace geopm
 
         if (m_app_status == nullptr) {
             std::string key = m_key_base + "-status";
-            auto shmem = SharedMemory::make_unique_user(key, m_timeout);
-            m_app_status = ApplicationStatus::make_unique(m_num_cpu, std::move(shmem));
+            std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(key, m_timeout);
+            m_app_status = ApplicationStatus::make_unique(m_num_cpu, shmem);
 
             // wait until all ranks attach, then unlink
             m_shm_comm->barrier();
@@ -198,12 +198,9 @@ namespace geopm
 
         if (m_app_record_log == nullptr) {
             std::string key = m_key_base + "-record-log-" + std::to_string(m_process);
-            auto shmem = SharedMemory::make_unique_user(key, m_timeout);
-            m_app_record_log = ApplicationRecordLog::make_unique(std::move(shmem));
-
-            if (!m_shm_rank) {
-                shmem->unlink();
-            }
+            std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(key, m_timeout);
+            m_app_record_log = ApplicationRecordLog::make_unique(shmem);
+            shmem->unlink();
         }
 
         // TODO: fixme
@@ -545,10 +542,6 @@ namespace geopm
             return;
         }
 
-        if (m_current_hash == GEOPM_REGION_HASH_INVALID) {
-            throw Exception("Profile::thread_init(): not valid outside of a region",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
         m_app_status->set_total_work_units(cpu, num_work_unit);
     }
 
@@ -558,10 +551,6 @@ namespace geopm
             return;
         }
 
-        if (m_current_hash == GEOPM_REGION_HASH_INVALID) {
-            throw Exception("Profile::thread_post(): not valid outside of a region",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
         m_app_status->increment_work_unit(cpu);
     }
 
