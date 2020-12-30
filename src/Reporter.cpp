@@ -222,6 +222,13 @@ namespace geopm
         yaml_write(report, M_INDENT_REGION, "regions:");
 
         // vector of region data, in descending order by runtime
+        struct region_info {
+            std::string name;
+            uint64_t hash;
+            double per_rank_avg_runtime;
+            int count;
+        };
+
         std::vector<region_info> region_ordered;
         auto region_name_set = application_io.region_name_set();
         for (const auto &region : region_name_set) {
@@ -249,9 +256,13 @@ namespace geopm
             }
 #endif
             yaml_write(report, M_INDENT_REGION, "-");
-            yaml_write(report, M_INDENT_REGION_FIELD, {{"name", region.name},
-                                                       {"hash", geopm::string_format_hex(region.hash)}});
-            auto region_data = get_region_data(region);
+            yaml_write(report, M_INDENT_REGION_FIELD,
+                       {{"name", region.name},
+                        {"hash", geopm::string_format_hex(region.hash)}});
+            yaml_write(report, M_INDENT_REGION_FIELD,
+                       {{"runtime (s)", region.per_rank_avg_runtime},
+                        {"count", region.count}});
+            auto region_data = get_region_data(region.hash);
             yaml_write(report, M_INDENT_REGION_FIELD, region_data);
             const auto &it = agent_region_report.find(region.hash);
             if (it != agent_region_report.end()) {
@@ -259,13 +270,12 @@ namespace geopm
             }
         }
 
-        // TODO: once more of these ApplicationIO calls are removed, we can
-        // get rid of the region_info struct
-
         yaml_write(report, M_INDENT_UNMARKED, "Unmarked Totals:");
         double unmarked_time = m_proc_region_agg->get_runtime_average(GEOPM_REGION_HASH_UNMARKED);
-        region_info unmarked {"unmarked", GEOPM_REGION_HASH_UNMARKED, unmarked_time, 0};
-        auto unmarked_data = get_region_data(unmarked);
+        yaml_write(report, M_INDENT_UNMARKED_FIELD,
+                   {{"runtime (s)", unmarked_time},
+                    {"count", 0}});
+        auto unmarked_data = get_region_data(GEOPM_REGION_HASH_UNMARKED);
         yaml_write(report, M_INDENT_UNMARKED_FIELD, unmarked_data);
         // agent extensions for unmarked
         const auto &it = agent_region_report.find(GEOPM_REGION_HASH_UNMARKED);
@@ -276,14 +286,18 @@ namespace geopm
         yaml_write(report, M_INDENT_EPOCH, "Epoch Totals:");
         double epoch_runtime = m_sample_agg->sample_epoch(m_sync_signal_idx["TIME"]);
         int epoch_count = m_platform_io.sample(m_epoch_count_idx);
-        region_info epoch {"epoch", GEOPM_REGION_HASH_EPOCH, epoch_runtime, epoch_count};
-        auto epoch_data = get_region_data(epoch);
+        yaml_write(report, M_INDENT_EPOCH_FIELD,
+                   {{"runtime (s)", epoch_runtime},
+                    {"count", epoch_count}});
+        auto epoch_data = get_region_data(GEOPM_REGION_HASH_EPOCH);
         yaml_write(report, M_INDENT_EPOCH_FIELD, epoch_data);
 
         yaml_write(report, M_INDENT_TOTALS, "Application Totals:");
         double total_runtime = m_sample_agg->sample_application(m_sync_signal_idx["TIME"]);
-        region_info app_totals {"totals", GEOPM_REGION_HASH_APP, total_runtime, 0};
-        auto region_data = get_region_data(app_totals);
+        yaml_write(report, M_INDENT_TOTALS_FIELD,
+                   {{"runtime (s)", total_runtime},
+                    {"count", 0}});
+        auto region_data = get_region_data(GEOPM_REGION_HASH_APP);
         yaml_write(report, M_INDENT_TOTALS_FIELD, region_data);
 
         // Controller overhead
@@ -374,22 +388,18 @@ namespace geopm
         };
     }
 
-    std::vector<std::pair<std::string, double> > ReporterImp::get_region_data(const region_info &region)
+    std::vector<std::pair<std::string, double> > ReporterImp::get_region_data(uint64_t region_hash)
     {
         std::vector<std::pair<std::string, double> > result;
-        // non-sync fields
-        result.push_back({"runtime (s)", region.per_rank_avg_runtime});
-        result.push_back({"count", region.count});
 
         // sync fields as initialized in init_sync_fields
-        uint64_t hash = region.hash;
         for (auto &field : m_sync_fields) {
-            result.push_back({field.field_label, field.func(hash, field.supporting_signals)});
+            result.push_back({field.field_label, field.func(region_hash, field.supporting_signals)});
         }
 
         // signals added by user through environment
         for (const auto &env_it : m_env_signal_name_idx) {
-            result.push_back({env_it.first, m_sample_agg->sample_region(env_it.second, region.hash)});
+            result.push_back({env_it.first, m_sample_agg->sample_region(env_it.second, region_hash)});
         }
         return result;
     }

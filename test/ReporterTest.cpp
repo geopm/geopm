@@ -255,6 +255,9 @@ TEST_F(ReporterTest, generate)
     EXPECT_CALL(m_application_io, report_name()).WillOnce(Return(m_report_name));
     EXPECT_CALL(m_application_io, profile_name());
     EXPECT_CALL(m_application_io, region_name_set());
+
+    // ProcessRegionAgregator
+    EXPECT_CALL(*m_region_agg, update);
     for (auto rid : m_region_runtime) {
         EXPECT_CALL(*m_region_agg, get_runtime_average(rid.first))
             .WillOnce(Return(rid.second));
