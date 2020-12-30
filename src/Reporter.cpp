@@ -275,14 +275,14 @@ namespace geopm
         }
 
         yaml_write(report, 1, "Epoch Totals:");
-        double epoch_runtime = m_sample_agg->sample_region(m_sync_signal_idx["TIME"], GEOPM_REGION_HASH_EPOCH);
+        double epoch_runtime = m_sample_agg->sample_epoch(m_sync_signal_idx["TIME"]);
         int epoch_count = m_platform_io.sample(m_epoch_count_idx);
         region_info epoch {"epoch", GEOPM_REGION_HASH_EPOCH, epoch_runtime, epoch_count};
         auto epoch_data = get_region_data(epoch);
         yaml_write(report, 2, epoch_data);
 
         yaml_write(report, 1, "Application Totals:");
-        double total_runtime = m_sample_agg->sample_region(m_sync_signal_idx["TIME"], GEOPM_REGION_HASH_APP);
+        double total_runtime = m_sample_agg->sample_application(m_sync_signal_idx["TIME"]);
         region_info app_totals {"totals", GEOPM_REGION_HASH_APP, total_runtime, 0};
         auto region_data = get_region_data(app_totals);
         yaml_write(report, 2, region_data);
