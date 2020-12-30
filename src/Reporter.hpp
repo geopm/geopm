@@ -41,6 +41,7 @@
 #include <memory>
 #include <vector>
 #include <ostream>
+#include <functional>
 
 namespace geopm
 {
