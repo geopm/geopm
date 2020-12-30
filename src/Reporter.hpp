@@ -138,21 +138,33 @@ namespace geopm
                           std::shared_ptr<Comm> comm,
                           const TreeComm &tree_comm) override;
         private:
+            /// @brief number of spaces for each indentation
+            static constexpr int M_SPACES_INDENT = 2;
+            // Number of levels of indentation for each section of the report
+            static constexpr int M_INDENT_HEADER = 0;
+            static constexpr int M_INDENT_HOST = 0;
+            static constexpr int M_INDENT_HOST_NAME = M_INDENT_HOST + 1;
+            static constexpr int M_INDENT_HOST_AGENT = M_INDENT_HOST_NAME + 1;
+            static constexpr int M_INDENT_REGION = M_INDENT_HOST_NAME + 1;
+            static constexpr int M_INDENT_REGION_FIELD = M_INDENT_REGION + 1;
+            static constexpr int M_INDENT_UNMARKED = M_INDENT_HOST_NAME + 1;
+            static constexpr int M_INDENT_UNMARKED_FIELD = M_INDENT_UNMARKED + 1;
+            static constexpr int M_INDENT_EPOCH = M_INDENT_HOST_NAME + 1;
+            static constexpr int M_INDENT_EPOCH_FIELD = M_INDENT_EPOCH + 1;
+            static constexpr int M_INDENT_TOTALS = M_INDENT_HOST_NAME + 1;
+            static constexpr int M_INDENT_TOTALS_FIELD = M_INDENT_TOTALS + 1;
             /// @brief Set up structures used to calculate region-synchronous
             ///        field data to be sampled from SampleAggregator.
             void init_sync_fields(void);
             /// @brief Returns the memoy high water mark for the
             ///        controller process.
             double get_max_memory(void);
-
-            // TODO: yaml functions could be static?
-            // TODO: rename to indent_write?  does not enforce correct yaml
-            // indent level * 2 spaces per indent
-            void yaml_write(std::ostream &os, int indent_level, const std::string &val);
-            void yaml_write(std::ostream &os, int indent_level,
-                            const std::vector<std::pair<std::string, std::string> > &data);
-            void yaml_write(std::ostream &os, int indent_level,
-                            const std::vector<std::pair<std::string, double> > &data);
+            static void yaml_write(std::ostream &os, int indent_level,
+                                   const std::string &val);
+            static void yaml_write(std::ostream &os, int indent_level,
+                                   const std::vector<std::pair<std::string, std::string> > &data);
+            static void yaml_write(std::ostream &os, int indent_level,
+                                   const std::vector<std::pair<std::string, double> > &data);
 
             std::vector<std::pair<std::string, double> > get_region_data(const region_info &region);
 
