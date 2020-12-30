@@ -121,6 +121,7 @@ namespace geopm
     }
 
     const std::map<uint64_t, double> ApplicationSamplerImp::m_hint_time_init = {
+        {GEOPM_REGION_HINT_UNSET, 0.0},
         {GEOPM_REGION_HINT_UNKNOWN, 0.0},
         {GEOPM_REGION_HINT_COMPUTE, 0.0},
         {GEOPM_REGION_HINT_MEMORY, 0.0},
@@ -162,6 +163,7 @@ namespace geopm
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         m_status->update_cache();
+
         if (!m_is_first_update) {
             double time_delta = geopm_time_diff(&m_update_time, &curr_time);
             for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
