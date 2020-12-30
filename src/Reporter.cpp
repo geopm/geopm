@@ -166,6 +166,7 @@ namespace geopm
     void ReporterImp::update()
     {
         m_sample_agg->update();
+        m_proc_region_agg->update();
     }
 
     void ReporterImp::generate(const std::string &agent_name,
