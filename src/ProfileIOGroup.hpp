@@ -89,6 +89,7 @@ namespace geopm
                 M_SIGNAL_EPOCH_RUNTIME_NETWORK,
                 M_SIGNAL_EPOCH_RUNTIME_IGNORE,
                 M_SIGNAL_TIME_HINT_UNKNOWN,
+                M_SIGNAL_TIME_HINT_UNSET,
                 M_SIGNAL_TIME_HINT_MEMORY,
                 M_SIGNAL_TIME_HINT_COMPUTE,
                 M_SIGNAL_TIME_HINT_NETWORK,
