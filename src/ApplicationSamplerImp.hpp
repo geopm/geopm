@@ -41,6 +41,7 @@ namespace geopm
 {
     class RecordFilter;
     class ApplicationStatus;
+    class SharedMemory;
 
     class ApplicationSamplerImp : public ApplicationSampler
     {
@@ -48,6 +49,7 @@ namespace geopm
             struct m_process_s {
                 std::shared_ptr<RecordFilter> filter;
                 ValidateRecord valid;
+                std::shared_ptr<SharedMemory> record_log_shmem;
                 std::shared_ptr<ApplicationRecordLog> record_log;
                 std::vector<record_s> records;
                 std::vector<short_region_s> short_regions;
@@ -58,7 +60,7 @@ namespace geopm
                                   const std::map<int, m_process_s> &process_map,
                                   bool is_filtered,
                                   const std::string &filter_name);
-            virtual ~ApplicationSamplerImp() = default;
+            virtual ~ApplicationSamplerImp();
             void time_zero(const geopm_time_s &start_time) override;
             void update(const geopm_time_s &curr_time) override;
             std::vector<record_s> get_records(void) const override;
@@ -83,6 +85,7 @@ namespace geopm
             struct geopm_time_s m_time_zero;
             std::vector<record_s> m_record_buffer;
             std::vector<short_region_s> m_short_region_buffer;
+            std::shared_ptr<SharedMemory> m_status_shmem;
             std::shared_ptr<ApplicationStatus> m_status;
             int m_num_cpu;
             std::map<int, m_process_s> m_process_map;
