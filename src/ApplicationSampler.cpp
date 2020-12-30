@@ -258,6 +258,15 @@ namespace geopm
         return {};
     }
 
+    uint64_t ApplicationSamplerImp::cpu_region_hash(int cpu_idx) const
+    {
+        if (!m_status) {
+            throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        return m_status->get_hash(cpu_idx);
+    }
+
     uint64_t ApplicationSamplerImp::cpu_hint(int cpu_idx) const
     {
         if (!m_status) {
