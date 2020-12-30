@@ -95,13 +95,6 @@ namespace geopm
                                   const ApplicationIO &application_io,
                                   std::shared_ptr<Comm> comm,
                                   const TreeComm &tree_comm) = 0;
-            struct region_info {
-                std::string name;
-                uint64_t hash;
-                double per_rank_avg_runtime;
-                    //double network_time;
-                int count;
-            };
     };
 
     class PlatformIO;
@@ -166,7 +159,7 @@ namespace geopm
             static void yaml_write(std::ostream &os, int indent_level,
                                    const std::vector<std::pair<std::string, double> > &data);
 
-            std::vector<std::pair<std::string, double> > get_region_data(const region_info &region);
+            std::vector<std::pair<std::string, double> > get_region_data(uint64_t region_hash);
 
             std::string m_start_time;
             std::string m_report_name;
