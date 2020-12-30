@@ -116,6 +116,16 @@ TEST_F(ProfileIOGroupTest, read_signal_hint_time)
     EXPECT_EQ(expected, result);
 }
 
+/*
+TEST_F(ProfileIOGroupTest, read_signal_region_hash)
+{
+    uint64_t reg_a = 0xAAAA;
+    uint64_t reg_b = 0xBBBB;
+    EXPECT_CALL(m_sampler, ??);
+
+}
+*/
+
 TEST_F(ProfileIOGroupTest, batch_signal_hint_time)
 {
     int idx0 = m_group->push_signal("TIME_HINT_NETWORK", GEOPM_DOMAIN_CPU, 2);
