@@ -208,18 +208,17 @@ namespace geopm
                 {"Agent", agent_name},
                 {"Policy", policy_str}
             };
-            int indent_level = 0;
-            yaml_write(common_report, indent_level, header);
-            yaml_write(common_report, indent_level, agent_report_header);
+            yaml_write(common_report, M_INDENT_HEADER, header);
+            yaml_write(common_report, M_INDENT_HEADER, agent_report_header);
         }
 
         // per-host report
         std::ostringstream report;
         report << "\n";
-        yaml_write(report, 0, "Hosts:");
-        yaml_write(report, 1, hostname() + ":");
-        yaml_write(report, 2, agent_host_report);
-        yaml_write(report, 2, "regions:");
+        yaml_write(report, M_INDENT_HOST, "Hosts:");
+        yaml_write(report, M_INDENT_HOST_NAME, hostname() + ":");
+        yaml_write(report, M_INDENT_HOST_AGENT, agent_host_report);
+        yaml_write(report, M_INDENT_REGION, "regions:");
 
         // vector of region data, in descending order by runtime
         std::vector<region_info> region_ordered;
@@ -248,51 +247,50 @@ namespace geopm
                                 GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
             }
 #endif
-            // TODO: get rid of numbers for indent level; probably need some vars
-            yaml_write(report, 2, "-");
-            yaml_write(report, 3, {{"name", region.name}});
-            yaml_write(report, 3, {{"hash", region.hash}});
+            yaml_write(report, M_INDENT_REGION, "-");
+            yaml_write(report, M_INDENT_REGION_FIELD, {{"name", region.name}});
+            yaml_write(report, M_INDENT_REGION_FIELD, {{"hash", region.hash}});
             auto region_data = get_region_data(region);
-            yaml_write(report, 3, region_data);
+            yaml_write(report, M_INDENT_REGION_FIELD, region_data);
             const auto &it = agent_region_report.find(region.hash);
             if (it != agent_region_report.end()) {
-                yaml_write(report, 3, agent_region_report.at(region.hash));
+                yaml_write(report, M_INDENT_REGION_FIELD, agent_region_report.at(region.hash));
             }
         }
 
         // TODO: once more of these ApplicationIO calls are removed, we can
         // get rid of the region_info struct
 
-        yaml_write(report, 1, "Unmarked Totals:");
+        yaml_write(report, M_INDENT_UNMARKED, "Unmarked Totals:");
         double unmarked_time = m_proc_region_agg->get_runtime_average(GEOPM_REGION_HASH_UNMARKED);
         region_info unmarked {"unmarked", GEOPM_REGION_HASH_UNMARKED, unmarked_time, 0};
         auto unmarked_data = get_region_data(unmarked);
-        yaml_write(report, 2, unmarked_data);
+        yaml_write(report, M_INDENT_UNMARKED_FIELD, unmarked_data);
         // agent extensions for unmarked
         const auto &it = agent_region_report.find(GEOPM_REGION_HASH_UNMARKED);
         if (it != agent_region_report.end()) {
-            yaml_write(report, 3, agent_region_report.at(GEOPM_REGION_HASH_UNMARKED));
+            yaml_write(report, M_INDENT_UNMARKED_FIELD, agent_region_report.at(GEOPM_REGION_HASH_UNMARKED));
         }
 
-        yaml_write(report, 1, "Epoch Totals:");
+        yaml_write(report, M_INDENT_EPOCH, "Epoch Totals:");
         double epoch_runtime = m_sample_agg->sample_epoch(m_sync_signal_idx["TIME"]);
         int epoch_count = m_platform_io.sample(m_epoch_count_idx);
         region_info epoch {"epoch", GEOPM_REGION_HASH_EPOCH, epoch_runtime, epoch_count};
         auto epoch_data = get_region_data(epoch);
-        yaml_write(report, 2, epoch_data);
+        yaml_write(report, M_INDENT_EPOCH_FIELD, epoch_data);
 
-        yaml_write(report, 1, "Application Totals:");
+        yaml_write(report, M_INDENT_TOTALS, "Application Totals:");
         double total_runtime = m_sample_agg->sample_application(m_sync_signal_idx["TIME"]);
         region_info app_totals {"totals", GEOPM_REGION_HASH_APP, total_runtime, 0};
         auto region_data = get_region_data(app_totals);
-        yaml_write(report, 2, region_data);
+        yaml_write(report, M_INDENT_TOTALS_FIELD, region_data);
 
         // Controller overhead
         std::vector<std::pair<std::string, double> > overhead {
             {"geopmctl memory HWM (B)", get_max_memory()},
             {"geopmctl network BW (B/s)", tree_comm.overhead_send() / total_runtime}
         };
-        yaml_write(report, 2, overhead);
+        yaml_write(report, M_INDENT_TOTALS_FIELD, overhead);
 
         // aggregate reports from every node
         report.seekp(0, std::ios::end);
@@ -452,14 +450,14 @@ namespace geopm
     void ReporterImp::yaml_write(std::ostream &os, int indent_level,
                                  const std::string &val)
     {
-        std::string indent(indent_level * 2, ' ');
+        std::string indent(indent_level * M_SPACES_INDENT, ' ');
         os << indent << val << std::endl;
     }
 
     void ReporterImp::yaml_write(std::ostream &os, int indent_level,
                                  const std::vector<std::pair<std::string, std::string> > &data)
     {
-        std::string indent(indent_level * 2, ' ');
+        std::string indent(indent_level * M_SPACES_INDENT, ' ');
         for (const auto &kv : data) {
             os << indent << kv.first << ": " << kv.second << std::endl;
         }
@@ -468,7 +466,7 @@ namespace geopm
     void ReporterImp::yaml_write(std::ostream &os, int indent_level,
                                  const std::vector<std::pair<std::string, double> > &data)
     {
-        std::string indent(indent_level * 2, ' ');
+        std::string indent(indent_level * M_SPACES_INDENT, ' ');
         for (auto kv: data) {
             os << indent << kv.first << ": " << kv.second << std::endl;
         }
