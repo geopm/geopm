@@ -176,6 +176,51 @@ namespace geopm
             step = "cpu_affinity";
             init_cpu_affinity(shm_num_rank);
             step = "table";
+
+
+
+
+
+            //////////////// new code path ///////////////
+
+        if (m_app_status == nullptr) {
+            std::string key = m_key_base + "-status";
+            auto shmem = SharedMemory::make_unique_user(key, m_timeout);
+            m_app_status = ApplicationStatus::make_unique(m_num_cpu, std::move(shmem));
+
+        }
+
+        if (m_app_record_log == nullptr) {
+            std::string key = m_key_base + "-record-log-" + std::to_string(m_process);
+            auto shmem = SharedMemory::make_unique_user(key, m_timeout);
+            m_app_record_log = ApplicationRecordLog::make_unique(std::move(shmem));
+        }
+
+        // TODO: fixme
+        m_process = m_rank;
+
+        if (m_process < 0) {
+            throw Exception("Profile::init(): invalid process",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        GEOPM_DEBUG_ASSERT(m_app_record_log != nullptr, "Profile::init(): m_app_record_log not initialized");
+        GEOPM_DEBUG_ASSERT(m_app_status != nullptr, "Profile::init(): m_app_status not initialized");
+        GEOPM_DEBUG_ASSERT(m_process >= 0, "Profile::init(): m_process not initialized");
+
+        m_app_status->set_process(m_cpu_set, m_process);
+
+        m_app_record_log->set_process(m_process);
+        // TODO: start time from where?
+        geopm_time_s start_time;
+        geopm_time(&start_time);
+        m_app_record_log->set_time_zero(start_time);
+        ///////////// end new ///////////////////
+
+
+
+
+
             init_table(sample_key);
             m_is_enabled = true;
         }
@@ -215,33 +260,6 @@ namespace geopm
         }
 #endif
 
-        if (m_app_status == nullptr) {
-            std::string key = m_key_base + "-status";
-            auto shmem = SharedMemory::make_unique_user(key, m_timeout);
-            m_app_status = ApplicationStatus::make_unique(m_num_cpu, std::move(shmem));
-
-        }
-
-        if (m_app_record_log == nullptr) {
-            std::string key = m_key_base + "-record-log-" + std::to_string(m_process);
-            auto shmem = SharedMemory::make_unique_user(key, m_timeout);
-            m_app_record_log = ApplicationRecordLog::make_unique(std::move(shmem));
-        }
-
-        if (m_process < 0) {
-            throw Exception("Profile::init(): invalid process",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        GEOPM_DEBUG_ASSERT(m_app_record_log != nullptr, "Profile::init(): m_app_record_log not initialized");
-        GEOPM_DEBUG_ASSERT(m_app_status != nullptr, "Profile::init(): m_app_status not initialized");
-        GEOPM_DEBUG_ASSERT(m_process >= 0, "Profile::init(): m_process not initialized");
-
-        m_app_record_log->set_process(m_process);
-        // TODO: start time from where?
-        geopm_time_s start_time;
-        geopm_time(&start_time);
-        m_app_record_log->set_time_zero(start_time);
     }
 
     // TODO: m_comm is never used again after this
@@ -462,7 +480,7 @@ namespace geopm
         m_hint_stack.pop();
         if (m_hint_stack.empty()) {
             // leaving outermost region, clear hints and exit region
-            set_hint(0ULL);
+            set_hint(GEOPM_REGION_HINT_UNSET);
             m_app_record_log->exit(hash, now);
             m_current_hash = GEOPM_REGION_HASH_INVALID;
             // reset both progress ints; calling post() outside of
@@ -513,6 +531,10 @@ namespace geopm
 
     void ProfileImp::thread_init(int cpu, uint32_t num_work_unit)
     {
+        if (!m_is_enabled) {
+            return;
+        }
+
         if (m_current_hash == GEOPM_REGION_HASH_INVALID) {
             throw Exception("Profile::thread_init(): not valid outside of a region",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -522,6 +544,10 @@ namespace geopm
 
     void ProfileImp::thread_post(int cpu)
     {
+        if (!m_is_enabled) {
+            return;
+        }
+
         if (m_current_hash == GEOPM_REGION_HASH_INVALID) {
             throw Exception("Profile::thread_post(): not valid outside of a region",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
