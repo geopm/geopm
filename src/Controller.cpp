@@ -392,9 +392,8 @@ namespace geopm
     void Controller::step(void)
     {
         walk_down();
-
-        walk_up();
         m_agent[0]->wait();
+        walk_up();
     }
 
     void Controller::walk_down(void)
