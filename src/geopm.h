@@ -53,6 +53,7 @@ enum geopm_region_hash_e {
 /* APPLICATION REGION HINTS */
 /****************************/
 enum geopm_region_hint_e {
+    GEOPM_REGION_HINT_UNSET =     0ULL,       /* For clearing hints */
     GEOPM_REGION_HINT_UNKNOWN =   1ULL << 32, /* Region with unknown or varying characteristics */
     GEOPM_REGION_HINT_COMPUTE =   1ULL << 33, /* Region dominated by compute */
     GEOPM_REGION_HINT_MEMORY =    1ULL << 34, /* Region dominated by memory access */
