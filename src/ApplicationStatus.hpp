@@ -57,13 +57,13 @@ namespace geopm
 
             /// @brief Set the current hint bits for a CPU.
             /// @param [in] cpu_idx Index of the Linux logical CPU
-            /// @param [in] hints Bitfield of hints to set for the
-            ///             CPU.  Any existing hints will be
+            /// @param [in] hint Bitfield of hint to set for the
+            ///             CPU.  Any existing hint will be
             ///             overwritten.
-            virtual void set_hint(int cpu_idx, uint64_t hints) = 0;
+            virtual void set_hint(int cpu_idx, uint64_t hint) = 0;
             /// @brief Get the current hint bits for a CPU.
             /// @param [in] cpu_idx Index of the Linux logical CPU.
-            /// @return The current hints for the given CPU.
+            /// @return The current hint for the given CPU.
             virtual uint64_t get_hint(int cpu_idx) const = 0;
             /// @brief Set the hash of the region currently running on
             ///        a CPU.
@@ -136,7 +136,7 @@ namespace geopm
             ApplicationStatusImp(int num_cpu,
                                  std::shared_ptr<SharedMemory> shmem);
             virtual ~ApplicationStatusImp() = default;
-            void set_hint(int cpu_idx, uint64_t hints) override;
+            void set_hint(int cpu_idx, uint64_t hint) override;
             uint64_t get_hint(int cpu_idx) const override;
             void set_hash(int cpu_idx, uint64_t hash) override;
             uint64_t get_hash(int cpu_idx) const override;
@@ -151,7 +151,7 @@ namespace geopm
             struct m_app_status_s
             {
                 int32_t process; // can be negative, indicating unset process
-                uint32_t hints;
+                uint32_t hint;
                 uint32_t hash;
                 uint32_t total_work;
                 uint32_t completed_work;

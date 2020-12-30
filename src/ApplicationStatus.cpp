@@ -77,22 +77,24 @@ namespace geopm
         for (int ii = 0; ii < m_num_cpu; ++ii) {
             m_buffer[ii].process = -1;
             m_cache[ii].process = -1;
+            m_buffer[ii].hint = GEOPM_REGION_HINT_UNSET;
+            m_cache[ii].hint = GEOPM_REGION_HINT_UNSET;
         }
     }
 
-    void ApplicationStatusImp::set_hint(int cpu_idx, uint64_t hints)
+    void ApplicationStatusImp::set_hint(int cpu_idx, uint64_t hint)
     {
         if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
             throw Exception("ApplicationStatusImp::set_hint(): invalid CPU index: " + std::to_string(cpu_idx),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if ((hints & ~GEOPM_MASK_REGION_HINT) != 0ULL) {
+        if ((hint & ~GEOPM_MASK_REGION_HINT) != 0ULL) {
             throw Exception("ApplicationStatusImp::set_hint(): invalid hint",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
-        // pack hints into 32 bits for atomic write
-        m_buffer[cpu_idx].hints = (uint32_t)(hints >> 32);
+        // pack hint into 32 bits for atomic write
+        m_buffer[cpu_idx].hint = (uint32_t)(hint >> 32);
     }
 
     uint64_t ApplicationStatusImp::get_hint(int cpu_idx) const
@@ -103,7 +105,7 @@ namespace geopm
         }
         GEOPM_DEBUG_ASSERT(m_cache.size() == buffer_size(m_num_cpu),
                            "Memory for m_cache not sized correctly");
-        uint64_t result = (uint64_t)m_cache[cpu_idx].hints << 32;
+        uint64_t result = (uint64_t)m_cache[cpu_idx].hint << 32;
         if ((result & ~GEOPM_MASK_REGION_HINT) != 0ULL) {
             throw Exception("ApplicationStatusImp::get_hint(): invalid hint value read from shared memory: " + std::to_string(result),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -216,6 +218,6 @@ namespace geopm
         GEOPM_DEBUG_ASSERT(m_buffer != nullptr, "m_buffer not set");
         GEOPM_DEBUG_ASSERT(m_cache.size() == buffer_size(m_num_cpu),
                            "Memory for m_cache not sized correctly");
-        std::copy(m_buffer, m_buffer + buffer_size(m_num_cpu), m_cache.begin());
+        std::copy(m_buffer, m_buffer + m_num_cpu, m_cache.begin());
     }
 }

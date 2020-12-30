@@ -174,7 +174,7 @@ namespace geopm
         auto records = m_app.get_records();
         for (const auto &record : records) {
             GEOPM_DEBUG_ASSERT(m_epoch_map.find(record.process) != m_epoch_map.end(),
-                               "ProcessEpoch for process in record not found");
+                               "ProcessEpoch for process " + std::to_string(record.process) + " in record not found");
             m_epoch_map.at(record.process)->update(record);
         }
         m_is_batch_read = true;
