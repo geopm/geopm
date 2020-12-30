@@ -370,6 +370,20 @@ TEST_F(ApplicationSamplerTest, short_regions)
                                "event_signal does not match any short region handle");
 }
 
+TEST_F(ApplicationSamplerTest, hash)
+{
+    uint64_t region_a = 0xAAAA;
+    uint64_t region_b = 0xBBBB;
+    EXPECT_CALL(*m_mock_status, get_hash(0))
+        .WillOnce(Return(region_a));
+    EXPECT_CALL(*m_mock_status, get_hash(1))
+        .WillOnce(Return(region_b));
+    uint64_t hash = m_app_sampler->cpu_region_hash(0);
+    EXPECT_EQ(region_a, hash);
+    hash = m_app_sampler->cpu_region_hash(1);
+    EXPECT_EQ(region_b, hash);
+}
+
 TEST_F(ApplicationSamplerTest, hint)
 {
     EXPECT_CALL(*m_mock_status, get_hint(0))
@@ -506,12 +520,10 @@ TEST_F(ApplicationSamplerTest, cpu_process)
     EXPECT_EQ(expected, cpu_process);
 }
 
-
 TEST_F(ApplicationSamplerTest, cpu_progress)
 {
     double expected = 0.75;
     EXPECT_CALL(*m_mock_status, get_progress_cpu(1))
         .WillOnce(Return(expected));
     EXPECT_EQ(expected, m_app_sampler->cpu_progress(1));
-
 }
