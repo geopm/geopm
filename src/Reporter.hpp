@@ -166,6 +166,7 @@ namespace geopm
             bool m_do_endpoint;
             int m_rank;
             double m_sticker_freq;
+            int m_epoch_count_idx;
 
             // Mapping from pushed signal name to index
             std::map<std::string, int> m_sync_signal_idx;

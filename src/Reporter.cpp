@@ -107,6 +107,7 @@ namespace geopm
         , m_do_endpoint(do_endpoint)
         , m_rank(rank)
         , m_sticker_freq(m_platform_io.read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0))
+        , m_epoch_count_idx(-1)
     {
 
     }
@@ -146,6 +147,9 @@ namespace geopm
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
         }
+
+        m_epoch_count_idx = m_platform_io.push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0);
+
         if (!m_rank) {
             // check if report file can be created
             if (!m_report_name.empty()) {
@@ -272,7 +276,7 @@ namespace geopm
 
         yaml_write(report, 1, "Epoch Totals:");
         double epoch_runtime = m_sample_agg->sample_region(m_sync_signal_idx["TIME"], GEOPM_REGION_HASH_EPOCH);
-        int epoch_count = m_platform_io.read_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0);
+        int epoch_count = m_platform_io.sample(m_epoch_count_idx);
         region_info epoch {"epoch", GEOPM_REGION_HASH_EPOCH, epoch_runtime, epoch_count};
         auto epoch_data = get_region_data(epoch);
         yaml_write(report, 2, epoch_data);
@@ -367,6 +371,7 @@ namespace geopm
             {"time-hint-serial (s)", {"TIME_HINT_SERIAL"}, sample_only},
             {"time-hint-parallel (s)", {"TIME_HINT_PARALLEL"}, sample_only},
             {"time-hint-unknown (s)", {"TIME_HINT_UNKNOWN"}, sample_only},
+            {"time-hint-unset (s)", {"TIME_HINT_UNSET"}, sample_only},
         };
     }
 
