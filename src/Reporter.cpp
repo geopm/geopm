@@ -248,8 +248,8 @@ namespace geopm
             }
 #endif
             yaml_write(report, M_INDENT_REGION, "-");
-            yaml_write(report, M_INDENT_REGION_FIELD, {{"name", region.name}});
-            yaml_write(report, M_INDENT_REGION_FIELD, {{"hash", region.hash}});
+            yaml_write(report, M_INDENT_REGION_FIELD, {{"name", region.name},
+                                                       {"hash", geopm::string_format_hex(region.hash)}});
             auto region_data = get_region_data(region);
             yaml_write(report, M_INDENT_REGION_FIELD, region_data);
             const auto &it = agent_region_report.find(region.hash);
