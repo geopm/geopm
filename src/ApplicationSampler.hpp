@@ -87,6 +87,18 @@ namespace geopm
             /// @return A map from record-provided hash value to the
             ///         string the record refers to.
             virtual std::map<uint64_t, std::string> get_name_map(uint64_t name_key) const = 0;
+            /// @brief Get the region hash associated with a CPU.
+            ///
+            /// Returns the most recently sampled value for the region
+            /// hash associated with the Linux logical CPU specified
+            /// by the user.  An exception is raised if the value of
+            /// cpu_idx is negative or greater or equal to
+            /// platform_topo().num_domain(GEOPM_DOMAIN_CPU).
+            ///
+            /// @param [in] cpu_idx The index of the linux logical CPU
+            ///        to query.
+            /// @return The region hash associated with the CPU.
+            virtual uint64_t cpu_region_hash(int cpu_idx) const = 0;
             /// @brief Get the hint associated with a CPU.
             ///
             /// Returns the most recently sampled value for the hint

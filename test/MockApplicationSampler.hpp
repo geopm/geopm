@@ -46,6 +46,8 @@ class MockApplicationSampler : public geopm::ApplicationSampler
                      void(const geopm_time_s &start_time));
         MOCK_METHOD1(update,
                      void(const geopm_time_s &curr_time));
+        MOCK_CONST_METHOD1(cpu_region_hash,
+                           uint64_t(int cpu_idx));
         MOCK_CONST_METHOD1(cpu_hint,
                            uint64_t(int cpu_idx));
         MOCK_CONST_METHOD2(cpu_hint_time,
