@@ -188,12 +188,22 @@ namespace geopm
             auto shmem = SharedMemory::make_unique_user(key, m_timeout);
             m_app_status = ApplicationStatus::make_unique(m_num_cpu, std::move(shmem));
 
+            // wait until all ranks attach, then unlink
+            m_shm_comm->barrier();
+            if (!m_shm_rank) {
+                shmem->unlink();
+            }
+
         }
 
         if (m_app_record_log == nullptr) {
             std::string key = m_key_base + "-record-log-" + std::to_string(m_process);
             auto shmem = SharedMemory::make_unique_user(key, m_timeout);
             m_app_record_log = ApplicationRecordLog::make_unique(std::move(shmem));
+
+            if (!m_shm_rank) {
+                shmem->unlink();
+            }
         }
 
         // TODO: fixme
