@@ -173,7 +173,6 @@ namespace geopm
             if (hash != GEOPM_REGION_HASH_UNMARKED) {
                 signal.region_accum_it->second->enter();
             }
-            signal.region_hash_last = hash;
         }
     }
 
@@ -210,6 +209,7 @@ namespace geopm
                     signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);
                 }
                 sample_aggregator_update_hash_enter(signal, hash);
+                signal.region_hash_last = hash;
                 signal.sample_last = sample;
             }
         }
@@ -249,6 +249,7 @@ namespace geopm
                     signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);
                 }
                 sample_aggregator_update_hash_enter(signal, hash);
+                signal.region_hash_last = hash;
                 signal.time_last = time;
             }
         }
