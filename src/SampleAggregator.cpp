@@ -350,7 +350,6 @@ namespace geopm
 
     double SampleAggregatorImp::sample_region(int signal_idx, uint64_t region_hash)
     {
-        // TODO: bad hack using special region hashes instead of the dedicated API
         if (region_hash == GEOPM_REGION_HASH_EPOCH) {
             return sample_epoch(signal_idx);
         }
@@ -362,6 +361,9 @@ namespace geopm
 
     double SampleAggregatorImp::sample_region_last(int signal_idx, uint64_t region_hash)
     {
+        if (region_hash == GEOPM_REGION_HASH_EPOCH) {
+            return sample_epoch_last(signal_idx);
+        }
         return sample_region_helper(signal_idx, region_hash, true);
     }
 
