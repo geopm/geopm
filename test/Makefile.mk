@@ -421,8 +421,16 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/ProcessRegionAggregatorTest.short_region \
               test/gtest_links/ProcessRegionAggregatorTest.multiple_processes \
               test/gtest_links/ProfileIOGroupTest.is_valid \
+              test/gtest_links/ProfileIOGroupTest.aliases \
+              test/gtest_links/ProfileIOGroupTest.read_signal_region_hash \
+              test/gtest_links/ProfileIOGroupTest.read_signal_hint \
+              test/gtest_links/ProfileIOGroupTest.read_signal_thread_progress \
               test/gtest_links/ProfileIOGroupTest.read_signal_hint_time \
+              test/gtest_links/ProfileIOGroupTest.batch_signal_region_hash \
+              test/gtest_links/ProfileIOGroupTest.batch_signal_hint \
+              test/gtest_links/ProfileIOGroupTest.batch_signal_thread_progress \
               test/gtest_links/ProfileIOGroupTest.batch_signal_hint_time \
+              test/gtest_links/ProfileIOGroupTest.errors \
               test/gtest_links/ProfileTableTest.hello \
               test/gtest_links/ProfileTableTest.name_set_fill_long \
               test/gtest_links/ProfileTableTest.name_set_fill_short \
