@@ -104,11 +104,14 @@ namespace geopm
 
             std::map<std::string, int> m_signal_idx_map;
             const PlatformTopo &m_platform_topo;
+            const int m_num_cpu;
             std::vector<bool> m_do_read;
             bool m_is_batch_read;
             std::vector<struct m_signal_config> m_active_signal;
-            std::vector<uint64_t> m_per_cpu_region_id;
-            std::vector<double> m_thread_progress;
+            std::vector<uint64_t> m_per_cpu_hash;
+            std::vector<uint64_t> m_per_cpu_hint;
+            std::vector<double> m_per_cpu_progress;
+
             std::map<int, int> m_rid_idx; // map from runtime signal index to the region id signal it uses
             std::vector<int> m_cpu_rank;
             bool m_is_connected;
