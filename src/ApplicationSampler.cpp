@@ -329,7 +329,9 @@ namespace geopm
             // Convert per-cpu process to a set of the unique process id's
             std::set<int> proc_set;
             for (const auto &proc_it : per_cpu_process()) {
-                proc_set.insert(proc_it);
+                if (proc_it != -1) {
+                    proc_set.insert(proc_it);
+                }
             }
             // For each unique process id create a record log and
             // insert it into map indexed by process id

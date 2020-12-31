@@ -77,8 +77,14 @@ namespace geopm
         for (int ii = 0; ii < m_num_cpu; ++ii) {
             m_buffer[ii].process = -1;
             m_cache[ii].process = -1;
+            m_buffer[ii].hash = GEOPM_REGION_HASH_INVALID;
+            m_cache[ii].hash = GEOPM_REGION_HASH_INVALID;
             m_buffer[ii].hint = GEOPM_REGION_HINT_UNSET;
             m_cache[ii].hint = GEOPM_REGION_HINT_UNSET;
+            m_buffer[ii].total_work = 0;
+            m_cache[ii].total_work = 0;
+            m_buffer[ii].completed_work = 0;
+            m_cache[ii].completed_work = 0;
         }
     }
 
@@ -198,6 +204,9 @@ namespace geopm
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             m_buffer[cpu].process = process;
+            m_buffer[cpu].hash = GEOPM_REGION_HASH_UNMARKED;
+            m_buffer[cpu].hint = GEOPM_REGION_HINT_UNSET;
+
         }
     }
 

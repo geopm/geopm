@@ -112,6 +112,7 @@ namespace geopm
             void update_average(void);
             double sample_epoch_helper(int signal_idx, bool is_last);
             double sample_region_helper(int signal_idx, uint64_t region_hash, bool is_last);
+            uint64_t sample_to_hash(double sample);
 
             PlatformIO &m_platform_io;
             int m_time_idx;
