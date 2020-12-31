@@ -176,24 +176,28 @@ namespace geopm
             step = "cpu_affinity";
             init_cpu_affinity(shm_num_rank);
             step = "table";
-
-
-
-
+            init_table(sample_key);
 
             //////////////// new code path ///////////////
 
         if (m_app_status == nullptr) {
+            m_shm_comm->barrier();
             std::string key = m_key_base + "-status";
             std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(key, m_timeout);
             m_app_status = ApplicationStatus::make_unique(m_num_cpu, shmem);
-
             // wait until all ranks attach, then unlink
             m_shm_comm->barrier();
             if (!m_shm_rank) {
                 shmem->unlink();
             }
 
+        }
+
+        // TODO: fixme
+        m_process = m_rank;
+        if (m_process < 0) {
+            throw Exception("Profile::init(): invalid process",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         if (m_app_record_log == nullptr) {
@@ -203,13 +207,6 @@ namespace geopm
             shmem->unlink();
         }
 
-        // TODO: fixme
-        m_process = m_rank;
-
-        if (m_process < 0) {
-            throw Exception("Profile::init(): invalid process",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
 
         GEOPM_DEBUG_ASSERT(m_app_record_log != nullptr, "Profile::init(): m_app_record_log not initialized");
         GEOPM_DEBUG_ASSERT(m_app_status != nullptr, "Profile::init(): m_app_status not initialized");
@@ -218,9 +215,8 @@ namespace geopm
         m_app_status->set_process(m_cpu_set, m_process);
 
         m_app_record_log->set_process(m_process);
-        // TODO: start time from where?
         geopm_time_s start_time;
-        geopm_time(&start_time);
+        geopm_time_zero(&start_time);
         m_app_record_log->set_time_zero(start_time);
         ///////////// end new ///////////////////
 
@@ -228,7 +224,6 @@ namespace geopm
 
 
 
-            init_table(sample_key);
             m_is_enabled = true;
         }
         catch (const Exception &ex) {

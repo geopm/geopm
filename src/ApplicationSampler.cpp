@@ -295,6 +295,8 @@ namespace geopm
 
     std::vector<int> ApplicationSamplerImp::per_cpu_process(void) const
     {
+        return m_sampler->cpu_rank();
+        /// @todo code below will work *after* the handshake is complete
         if (!m_status) {
             throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
