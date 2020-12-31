@@ -55,7 +55,9 @@ namespace geopm
     {
         std::set<int> procs;
         for (const auto &pp : m_app_sampler.per_cpu_process()) {
-            procs.insert(pp);
+            if (pp != -1) {
+                procs.insert(pp);
+            }
         }
         m_num_process = procs.size();
         if (m_num_process == 0) {
