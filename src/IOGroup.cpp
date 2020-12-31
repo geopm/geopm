@@ -85,9 +85,6 @@ namespace geopm
                         TimeIOGroup::make_plugin);
         register_plugin(CpuinfoIOGroup::plugin_name(),
                         CpuinfoIOGroup::make_plugin);
-        // until ProfileIOGroup is deprecated, EpochIOGroup is
-        // registered first to prevent it from overloading signal
-        // aliases.
         register_plugin(ProfileIOGroup::plugin_name(),
                         ProfileIOGroup::make_plugin);
         register_plugin(EpochIOGroup::plugin_name(),
