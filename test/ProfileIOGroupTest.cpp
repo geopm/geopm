@@ -164,6 +164,8 @@ TEST_F(ProfileIOGroupTest, batch_signal_region_hash)
     uint64_t reg_b = 0xBBBB;
     int idx0 = m_group->push_signal("REGION_HASH", GEOPM_DOMAIN_CPU, 0);
     int idx1 = m_group->push_signal("REGION_HASH", GEOPM_DOMAIN_CPU, 1);
+    int idx2 = m_group->push_signal("REGION_HASH", GEOPM_DOMAIN_CPU, 2);
+    int idx3 = m_group->push_signal("REGION_HASH", GEOPM_DOMAIN_CPU, 3);
     EXPECT_NE(idx0, idx1);
 
     // before batch
@@ -184,11 +186,15 @@ TEST_F(ProfileIOGroupTest, batch_signal_region_hash)
 
         EXPECT_EQ(reg_a, m_group->sample(idx0));
         EXPECT_EQ(reg_b, m_group->sample(idx1));
+        EXPECT_TRUE(std::isnan(m_group->sample(idx2)));
+        EXPECT_TRUE(std::isnan(m_group->sample(idx3)));
     }
     {
         EXPECT_CALL(m_sampler, cpu_region_hash(_)).Times(0);
         EXPECT_EQ(reg_a, m_group->sample(idx0));
         EXPECT_EQ(reg_b, m_group->sample(idx1));
+        EXPECT_TRUE(std::isnan(m_group->sample(idx2)));
+        EXPECT_TRUE(std::isnan(m_group->sample(idx3)));
     }
 
     // second batch
@@ -196,7 +202,7 @@ TEST_F(ProfileIOGroupTest, batch_signal_region_hash)
         EXPECT_CALL(m_sampler, cpu_region_hash(0))
             .WillOnce(Return(reg_b));
         EXPECT_CALL(m_sampler, cpu_region_hash(1))
-            .WillOnce(Return(GEOPM_REGION_HASH_INVALID));
+            .WillOnce(Return(GEOPM_REGION_HASH_UNMARKED));
         EXPECT_CALL(m_sampler, cpu_region_hash(2))
             .WillOnce(Return(GEOPM_REGION_HASH_INVALID));
         EXPECT_CALL(m_sampler, cpu_region_hash(3))
@@ -204,7 +210,9 @@ TEST_F(ProfileIOGroupTest, batch_signal_region_hash)
         m_group->read_batch();
 
         EXPECT_EQ(reg_b, m_group->sample(idx0));
-        EXPECT_EQ(GEOPM_REGION_HASH_INVALID, m_group->sample(idx1));
+        EXPECT_EQ(GEOPM_REGION_HASH_UNMARKED, m_group->sample(idx1));
+        EXPECT_TRUE(std::isnan(m_group->sample(idx2)));
+        EXPECT_TRUE(std::isnan(m_group->sample(idx3)));
     }
 }
 
