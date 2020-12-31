@@ -67,7 +67,7 @@ namespace geopm
         std::vector<std::pair<std::string, int> > aliases {
             {"REGION_HASH", M_SIGNAL_REGION_HASH},
             {"REGION_HINT", M_SIGNAL_REGION_HINT},
-            {"REGION_THREAD_PROGRESS", M_SIGNAL_THREAD_PROGRESS},
+            {"REGION_PROGRESS", M_SIGNAL_THREAD_PROGRESS},
             {"TIME_HINT_UNKNOWN", M_SIGNAL_TIME_HINT_UNKNOWN},
             {"TIME_HINT_UNSET", M_SIGNAL_TIME_HINT_UNSET},
             {"TIME_HINT_COMPUTE", M_SIGNAL_TIME_HINT_COMPUTE},
@@ -269,8 +269,6 @@ namespace geopm
     {
         int signal_type = check_signal(signal_name, domain_type, domain_idx);
         int cpu_idx = domain_idx;
-        struct geopm_time_s read_time;
-        uint64_t region_id;
         double result = NAN;
         switch (signal_type) {
             case M_SIGNAL_REGION_HASH:
@@ -338,8 +336,8 @@ namespace geopm
     std::function<double(const std::vector<double> &)> ProfileIOGroup::agg_function(const std::string &signal_name) const
     {
         static const std::map<std::string, std::function<double(const std::vector<double> &)> > fn_map {
-            {"REGION_THREAD_PROGRESS", Agg::min},
-            {"PROFILE::REGION_THREAD_PROGRESS", Agg::min},
+            {"REGION_PROGRESS", Agg::min},
+            {"PROFILE::REGION_PROGRESS", Agg::min},
             {"REGION_HASH", Agg::region_hash},
             {"PROFILE::REGION_HASH", Agg::region_hash},
             {"REGION_HINT", Agg::region_hint},
@@ -374,8 +372,8 @@ namespace geopm
     std::function<std::string(double)> ProfileIOGroup::format_function(const std::string &signal_name) const
     {
        static const std::map<std::string, std::function<std::string(double)> > fmt_map {
-            {"REGION_THREAD_PROGRESS", string_format_float},
-            {"PROFILE::REGION_THREAD_PROGRESS", string_format_float},
+            {"REGION_PROGRESS", string_format_float},
+            {"PROFILE::REGION_PROGRESS", string_format_float},
             {"REGION_HASH", string_format_hex},
             {"PROFILE::REGION_HASH", string_format_hex},
             {"REGION_HINT", string_format_hex},
