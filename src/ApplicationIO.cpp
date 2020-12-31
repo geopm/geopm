@@ -318,11 +318,9 @@ namespace geopm
 #endif
         size_t length = 0;
         m_application_sampler.get_sampler()->sample(m_prof_sample, length, comm);
-
-        m_application_sampler.get_io_sample()->update(m_prof_sample.cbegin(), m_prof_sample.cbegin() + length);
+        m_application_sampler.get_io_sample()->update(m_prof_sample.cbegin(),
+                                                      m_prof_sample.cbegin() + length);
         m_application_sampler.get_io_sample()->update_thread(m_thread_progress);
-
-
     }
 
     std::list<geopm_region_info_s> ApplicationIOImp::region_info(void) const
