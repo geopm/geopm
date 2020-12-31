@@ -100,7 +100,7 @@ namespace geopm
         , m_timeout(timeout)
         , m_comm(comm)
         , m_curr_region_id(0)
-        , m_current_hash(GEOPM_REGION_HASH_INVALID)
+        , m_current_hash(GEOPM_REGION_HASH_UNMARKED)
         , m_num_enter(0)
         , m_ctl_shmem(nullptr)
         , m_ctl_msg(ctl_msg)
@@ -442,7 +442,7 @@ namespace geopm
         uint64_t hash = geopm_region_id_hash(region_id);
         uint64_t hint = geopm_region_id_hint(region_id);
 
-        if (m_current_hash == GEOPM_REGION_HASH_INVALID) {
+        if (m_current_hash == GEOPM_REGION_HASH_UNMARKED) {
             // not currently in a region; enter region
             m_current_hash = hash;
             geopm_time_s now;
@@ -487,7 +487,7 @@ namespace geopm
             // leaving outermost region, clear hints and exit region
             set_hint(GEOPM_REGION_HINT_UNSET);
             m_app_record_log->exit(hash, now);
-            m_current_hash = GEOPM_REGION_HASH_INVALID;
+            m_current_hash = GEOPM_REGION_HASH_UNMARKED;
             for (const int &cpu_idx : m_cpu_set) {
                 m_app_status->set_hash(cpu_idx, m_current_hash);
             }
