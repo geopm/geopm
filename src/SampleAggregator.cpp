@@ -83,7 +83,7 @@ namespace geopm
             m_sum_signal[result] = {
                 NAN,
                 m_platform_io.push_signal("REGION_HASH", domain_type, domain_idx),
-                GEOPM_REGION_HASH_UNMARKED,
+                GEOPM_REGION_HASH_INVALID,
                 m_platform_io.push_signal("EPOCH_COUNT", domain_type, domain_idx),
                 0,
                 SumAccumulator::make_unique(),
@@ -114,7 +114,7 @@ namespace geopm
             m_avg_signal[result] = {
                 NAN,
                 m_platform_io.push_signal("REGION_HASH", domain_type, domain_idx),
-                GEOPM_REGION_HASH_UNMARKED,
+                GEOPM_REGION_HASH_INVALID,
                 m_platform_io.push_signal("EPOCH_COUNT", domain_type, domain_idx),
                 0,
                 AvgAccumulator::make_unique(),
@@ -201,7 +201,7 @@ namespace geopm
                 signal.epoch_count_last = epoch_count;
                 signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);
             }
-            else {
+            else if (hash != GEOPM_REGION_HASH_INVALID) {
                 // Measure the change since the last update
                 double delta = sample - signal.sample_last;
                 // Update that application totals
@@ -241,7 +241,7 @@ namespace geopm
                 signal.epoch_count_last = epoch_count;
                 signal.region_accum_it = sample_aggregator_emplace_hash(signal.region_accum, hash);
             }
-            else {
+            else if (hash != GEOPM_REGION_HASH_INVALID) {
                 // Measure the time change since the last update
                 double delta = time - signal.time_last;
                 // Update that application totals
