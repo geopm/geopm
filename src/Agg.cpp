@@ -118,12 +118,15 @@ namespace geopm
     static double common_value(const std::vector<double> &operand, double no_match)
     {
         auto filtered = nan_filter(operand);
-        return (filtered.size() &&
-                std::all_of(filtered.cbegin(), filtered.cend(),
-                            [filtered](double x) {
-                                return x == filtered[0];
-                            })) ?
-               filtered[0] : no_match;
+        double result = NAN;
+        if (filtered.size() != 0) {
+            result = std::all_of(filtered.cbegin(), filtered.cend(),
+                                [filtered](double x) {
+                                    return x == filtered[0];
+                                }) ?
+                     filtered[0] : no_match;
+        }
+        return result;
     }
 
     double Agg::region_hash(const std::vector<double> &operand)

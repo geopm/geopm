@@ -217,8 +217,11 @@ namespace geopm
 
     std::string string_format_hex(double signal)
     {
+        if (std::isnan(signal)) {
+            return "NAN";
+        }
         char result[NAME_MAX];
-        snprintf(result, NAME_MAX, "0x%016" PRIx64, (uint64_t)signal);
+        snprintf(result, NAME_MAX, "0x%08" PRIx64, (uint64_t)signal);
         return result;
     }
 
