@@ -180,7 +180,6 @@ namespace geopm
             return;
         }
         if (m_do_read[M_SIGNAL_REGION_HASH]) {
-            // TODO: filter only pushed cpu idx?  copying everything probably cheaper than a branch
             for (int idx = 0; idx < m_num_cpu; ++idx) {
                 m_per_cpu_hash[idx] = m_application_sampler.cpu_region_hash(idx);
             }
@@ -203,6 +202,14 @@ namespace geopm
 
     }
 
+    double ProfileIOGroup::hash_to_signal(uint64_t hash)
+    {
+        if (hash == GEOPM_REGION_HASH_INVALID) {
+            return NAN;
+        }
+        return hash;
+    }
+
     double ProfileIOGroup::sample(int signal_idx)
     {
         double result = NAN;
@@ -218,7 +225,7 @@ namespace geopm
         int cpu_idx = m_active_signal[signal_idx].domain_idx;
         switch (m_active_signal[signal_idx].signal_type) {
             case M_SIGNAL_REGION_HASH:
-                result = m_per_cpu_hash[cpu_idx];
+                result = hash_to_signal(m_per_cpu_hash[cpu_idx]);
                 break;
             case M_SIGNAL_REGION_HINT:
                 result = m_per_cpu_hint[cpu_idx];
