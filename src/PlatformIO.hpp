@@ -57,18 +57,6 @@ namespace geopm
             /// @param [in] iogroup Shared pointer to the IOGroup
             ///        object.
             virtual void register_iogroup(std::shared_ptr<IOGroup> iogroup) = 0;
-            /// @brief Special registration function for the standard
-            ///        ProfileIOGroup.  Input will be used to support
-            ///        the get_profileio method.
-            /// @param piogroup Shared pointer to the ProfileIOGroup
-            ///        object.
-            virtual void register_profileio(std::shared_ptr<ProfileIOGroup> piogroup) = 0;
-            /// @brief Special accessor for ProfileIOGroup to enable
-            ///        application connect after plugin registration.
-            /// @return Returns pointer to value last passed to
-            ///         register_profileio().  If register_profileio()
-            ///         has not been called, returns nullptr.
-            virtual std::shared_ptr<ProfileIOGroup> get_profileio(void) = 0;
             /// @brief Returns the names of all available signals.
             ///        This includes all signals and aliases provided
             ///        by IOGroups as well as signals provided by
