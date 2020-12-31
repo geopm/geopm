@@ -115,7 +115,8 @@ namespace geopm
     void ReporterImp::init(void)
     {
         if (m_proc_region_agg == nullptr) {
-            // this init() is called after application connection established
+            // ProcessRegionAggregator should not be constructed until
+            // application connection is established.
             m_proc_region_agg = ProcessRegionAggregator::make_unique();
         }
 
