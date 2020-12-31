@@ -448,6 +448,9 @@ namespace geopm
             geopm_time_s now;
             geopm_time(&now);
             m_app_record_log->enter(hash, now);
+            for (const int &cpu_idx : m_cpu_set) {
+                m_app_status->set_hash(cpu_idx, hash);
+            }
         }
         // top level and nested entries inside a region both update hints
         m_hint_stack.push(hint);
@@ -485,6 +488,9 @@ namespace geopm
             set_hint(GEOPM_REGION_HINT_UNSET);
             m_app_record_log->exit(hash, now);
             m_current_hash = GEOPM_REGION_HASH_INVALID;
+            for (const int &cpu_idx : m_cpu_set) {
+                m_app_status->set_hash(cpu_idx, m_current_hash);
+            }
             // reset both progress ints; calling post() outside of
             // region is an error
             for (auto cpu : m_cpu_set) {
