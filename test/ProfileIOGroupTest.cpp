@@ -35,8 +35,10 @@
 #include "geopm.h"
 #include "ProfileIOGroup.hpp"
 #include "Exception.hpp"
+#include "Helper.hpp"
 #include "MockPlatformTopo.hpp"
 #include "MockApplicationSampler.hpp"
+#include "geopm_test.hpp"
 
 using geopm::ProfileIOGroup;
 using geopm::Exception;
@@ -66,7 +68,6 @@ ProfileIOGroupTest::ProfileIOGroupTest()
         .WillByDefault(Return(m_num_cpu));
     EXPECT_CALL(m_topo, num_domain(_)).Times(AtLeast(1));
 
-
     m_group = std::make_shared<ProfileIOGroup>(m_topo, m_sampler);
 
     // no signals before connection
@@ -78,10 +79,12 @@ ProfileIOGroupTest::ProfileIOGroupTest()
 }
 
 // TODO: test list
+// read signal invalid domain and index
 // push invalid domain type and index
 // push invalid name
 // push signal and alias, same result
 // region count, region hash
+// push after read batch
 
 TEST_F(ProfileIOGroupTest, is_valid)
 {
@@ -98,7 +101,53 @@ TEST_F(ProfileIOGroupTest, is_valid)
     // invalid signal
     EXPECT_FALSE(m_group->is_valid_signal("INVALID"));
     EXPECT_EQ(GEOPM_DOMAIN_INVALID, m_group->signal_domain_type("INVALID"));
+}
 
+TEST_F(ProfileIOGroupTest, aliases)
+{
+    auto all_names = m_group->signal_names();
+    int alias_count = 0;
+    for (const auto &name : all_names) {
+        if (! geopm::string_begins_with(name, m_group->plugin_name())) {
+            int idx0 = m_group->push_signal(name, GEOPM_DOMAIN_CPU, 0);
+            int idx1 = m_group->push_signal("PROFILE::" + name, GEOPM_DOMAIN_CPU, 0);
+            EXPECT_EQ(idx0, idx1);
+            ++alias_count;
+        }
+    }
+    EXPECT_LT(0, alias_count) << "Expected some signal aliases";
+}
+
+TEST_F(ProfileIOGroupTest, read_signal_region_hash)
+{
+    uint64_t reg_a = 0xAAAA;
+    uint64_t reg_b = 0xBBBB;
+    EXPECT_CALL(m_sampler, cpu_region_hash(0))
+        .WillOnce(Return(reg_a));
+    EXPECT_CALL(m_sampler, cpu_region_hash(1))
+        .WillOnce(Return(reg_b));
+    EXPECT_EQ(reg_a, m_group->read_signal("REGION_HASH", GEOPM_DOMAIN_CPU, 0));
+    EXPECT_EQ(reg_b, m_group->read_signal("REGION_HASH", GEOPM_DOMAIN_CPU, 1));
+}
+
+TEST_F(ProfileIOGroupTest, read_signal_hint)
+{
+    EXPECT_CALL(m_sampler, cpu_hint(0))
+        .WillOnce(Return(GEOPM_REGION_HINT_IGNORE));
+    EXPECT_CALL(m_sampler, cpu_hint(1))
+        .WillOnce(Return(GEOPM_REGION_HINT_MEMORY));
+    EXPECT_EQ(GEOPM_REGION_HINT_IGNORE, m_group->read_signal("REGION_HINT", GEOPM_DOMAIN_CPU, 0));
+    EXPECT_EQ(GEOPM_REGION_HINT_MEMORY, m_group->read_signal("REGION_HINT", GEOPM_DOMAIN_CPU, 1));
+}
+
+TEST_F(ProfileIOGroupTest, read_signal_thread_progress)
+{
+    EXPECT_CALL(m_sampler, cpu_progress(0))
+        .WillOnce(Return(0.25));
+    EXPECT_CALL(m_sampler, cpu_progress(1))
+        .WillOnce(Return(0.75));
+    EXPECT_EQ(0.25, m_group->read_signal("REGION_THREAD_PROGRESS", GEOPM_DOMAIN_CPU, 0));
+    EXPECT_EQ(0.75, m_group->read_signal("REGION_THREAD_PROGRESS", GEOPM_DOMAIN_CPU, 1));
 }
 
 TEST_F(ProfileIOGroupTest, read_signal_hint_time)
@@ -116,15 +165,66 @@ TEST_F(ProfileIOGroupTest, read_signal_hint_time)
     EXPECT_EQ(expected, result);
 }
 
-/*
-TEST_F(ProfileIOGroupTest, read_signal_region_hash)
+TEST_F(ProfileIOGroupTest, batch_signal_region_hash)
 {
     uint64_t reg_a = 0xAAAA;
     uint64_t reg_b = 0xBBBB;
-    EXPECT_CALL(m_sampler, ??);
+    int idx0 = m_group->push_signal("REGION_HASH", GEOPM_DOMAIN_CPU, 0);
+    int idx1 = m_group->push_signal("REGION_HASH", GEOPM_DOMAIN_CPU, 1);
+    EXPECT_NE(idx0, idx1);
 
+    // before batch
+    GEOPM_EXPECT_THROW_MESSAGE(m_group->sample(idx0), GEOPM_ERROR_INVALID,
+                               "signal has not been read");
+
+    // first batch
+    {
+        EXPECT_CALL(m_sampler, cpu_region_hash(0))
+            .WillOnce(Return(reg_a));
+        EXPECT_CALL(m_sampler, cpu_region_hash(1))
+            .WillOnce(Return(reg_b));
+        EXPECT_CALL(m_sampler, cpu_region_hash(2))
+            .WillOnce(Return(GEOPM_REGION_HASH_INVALID));
+        EXPECT_CALL(m_sampler, cpu_region_hash(3))
+            .WillOnce(Return(GEOPM_REGION_HASH_INVALID));
+        m_group->read_batch();
+
+        EXPECT_EQ(reg_a, m_group->sample(idx0));
+        EXPECT_EQ(reg_b, m_group->sample(idx1));
+    }
+    {
+        EXPECT_CALL(m_sampler, cpu_region_hash(_)).Times(0);
+        EXPECT_EQ(reg_a, m_group->sample(idx0));
+        EXPECT_EQ(reg_b, m_group->sample(idx1));
+    }
+
+    // second batch
+    {
+        EXPECT_CALL(m_sampler, cpu_region_hash(0))
+            .WillOnce(Return(reg_b));
+        EXPECT_CALL(m_sampler, cpu_region_hash(1))
+            .WillOnce(Return(GEOPM_REGION_HASH_INVALID));
+        EXPECT_CALL(m_sampler, cpu_region_hash(2))
+            .WillOnce(Return(GEOPM_REGION_HASH_INVALID));
+        EXPECT_CALL(m_sampler, cpu_region_hash(3))
+            .WillOnce(Return(GEOPM_REGION_HASH_INVALID));
+        m_group->read_batch();
+
+        EXPECT_EQ(reg_b, m_group->sample(idx0));
+        EXPECT_EQ(GEOPM_REGION_HASH_INVALID, m_group->sample(idx1));
+    }
 }
-*/
+
+TEST_F(ProfileIOGroupTest, batch_signal_hint)
+{
+    FAIL() << "TODO";
+}
+
+TEST_F(ProfileIOGroupTest, batch_signal_thread_progress)
+{
+    FAIL() << "TODO";
+}
+
 
 TEST_F(ProfileIOGroupTest, batch_signal_hint_time)
 {
