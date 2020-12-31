@@ -139,8 +139,8 @@ TEST_F(ProfileIOGroupTest, read_signal_thread_progress)
         .WillOnce(Return(0.25));
     EXPECT_CALL(m_sampler, cpu_progress(1))
         .WillOnce(Return(0.75));
-    EXPECT_EQ(0.25, m_group->read_signal("REGION_THREAD_PROGRESS", GEOPM_DOMAIN_CPU, 0));
-    EXPECT_EQ(0.75, m_group->read_signal("REGION_THREAD_PROGRESS", GEOPM_DOMAIN_CPU, 1));
+    EXPECT_EQ(0.25, m_group->read_signal("REGION_PROGRESS", GEOPM_DOMAIN_CPU, 0));
+    EXPECT_EQ(0.75, m_group->read_signal("REGION_PROGRESS", GEOPM_DOMAIN_CPU, 1));
 }
 
 TEST_F(ProfileIOGroupTest, read_signal_hint_time)
@@ -269,8 +269,8 @@ TEST_F(ProfileIOGroupTest, batch_signal_hint)
 
 TEST_F(ProfileIOGroupTest, batch_signal_thread_progress)
 {
-    int idx0 = m_group->push_signal("REGION_THREAD_PROGRESS", GEOPM_DOMAIN_CPU, 0);
-    int idx1 = m_group->push_signal("REGION_THREAD_PROGRESS", GEOPM_DOMAIN_CPU, 1);
+    int idx0 = m_group->push_signal("REGION_PROGRESS", GEOPM_DOMAIN_CPU, 0);
+    int idx1 = m_group->push_signal("REGION_PROGRESS", GEOPM_DOMAIN_CPU, 1);
     EXPECT_NE(idx0, idx1);
 
     // before batch
