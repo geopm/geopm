@@ -351,8 +351,6 @@ namespace geopm
         m_application_io->connect();
         m_application_sampler.connect(m_shm_key);
 
-        m_platform_io.get_profileio()->connect();
-
         create_agents();
         m_platform_io.save_control();
         init_agents();
