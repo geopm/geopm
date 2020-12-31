@@ -244,7 +244,7 @@ ReporterTest::ReporterTest()
 
 void ReporterTest::TearDown(void)
 {
-    //std::remove(m_report_name.c_str());
+    std::remove(m_report_name.c_str());
 }
 
 void check_report(std::istream &expected, std::istream &result);
