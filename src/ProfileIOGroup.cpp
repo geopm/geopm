@@ -173,12 +173,11 @@ namespace geopm
 
     void ProfileIOGroup::read_batch(void)
     {
+        if (!m_is_connected) {
+            connect();
+        }
         if (!m_is_pushed) {
             return;
-        }
-        if (!m_is_connected) {
-            throw Exception("ProfileIOGroup::read_batch() called before connect",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
         if (m_do_read[M_SIGNAL_REGION_HASH]) {
             // TODO: filter only pushed cpu idx?  copying everything probably cheaper than a branch
@@ -187,10 +186,14 @@ namespace geopm
             }
         }
         if (m_do_read[M_SIGNAL_REGION_HINT]) {
-            //m_per_cpu_region_id = m_application_sampler.get_io_sample()->per_cpu_region_id();
+            for (int idx = 0; idx < m_num_cpu; ++idx) {
+                m_per_cpu_hint[idx] = m_application_sampler.cpu_hint(idx);
+            }
         }
         if (m_do_read[M_SIGNAL_THREAD_PROGRESS]) {
-            //m_thread_progress = m_application_sampler.get_io_sample()->per_cpu_thread_progress();
+            for (int idx = 0; idx < m_num_cpu; ++idx) {
+                m_per_cpu_progress[idx] = m_application_sampler.cpu_progress(idx);
+            }
         }
         m_is_batch_read = true;
     }
@@ -433,7 +436,7 @@ namespace geopm
         }
         if (domain_type != GEOPM_DOMAIN_CPU) {
             throw Exception("ProfileIOGroup::check_signal(): non-CPU domains are not supported",
-                            GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         int cpu_idx = domain_idx;
         if (cpu_idx < 0 || cpu_idx >= m_platform_topo.num_domain(GEOPM_DOMAIN_CPU)) {
