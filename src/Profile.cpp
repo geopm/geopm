@@ -109,7 +109,6 @@ namespace geopm
         , m_table_shmem(nullptr)
         , m_table(table)
         , m_shm_comm(nullptr)
-        , m_rank(0)
         , m_process(process)
         , m_shm_rank(0)
         , m_reduce_comm(reduce_comm)
@@ -177,57 +176,14 @@ namespace geopm
             init_cpu_affinity(shm_num_rank);
             step = "table";
             init_table(sample_key);
-
-            //////////////// new code path ///////////////
-
-        if (m_app_status == nullptr) {
-            m_shm_comm->barrier();
-            std::string key = m_key_base + "-status";
-            std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(key, m_timeout);
-            m_app_status = ApplicationStatus::make_unique(m_num_cpu, shmem);
-            // wait until all ranks attach, then unlink
-            m_shm_comm->barrier();
-            if (!m_shm_rank) {
-                shmem->unlink();
-            }
-
-        }
-
-        // TODO: fixme
-        m_process = m_rank;
-        if (m_process < 0) {
-            throw Exception("Profile::init(): invalid process",
-                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-        }
-
-        if (m_app_record_log == nullptr) {
-            std::string key = m_key_base + "-record-log-" + std::to_string(m_process);
-            std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(key, m_timeout);
-            m_app_record_log = ApplicationRecordLog::make_unique(shmem);
-            shmem->unlink();
-        }
-
-
-        GEOPM_DEBUG_ASSERT(m_app_record_log != nullptr, "Profile::init(): m_app_record_log not initialized");
-        GEOPM_DEBUG_ASSERT(m_app_status != nullptr, "Profile::init(): m_app_status not initialized");
-        GEOPM_DEBUG_ASSERT(m_process >= 0, "Profile::init(): m_process not initialized");
-
-        m_app_status->set_process(m_cpu_set, m_process);
-
-        m_app_record_log->set_process(m_process);
-        geopm_time_s start_time;
-        geopm_time_zero(&start_time);
-        m_app_record_log->set_time_zero(start_time);
-        ///////////// end new ///////////////////
-
-
-
-
-
+            step = "app_status";
+            init_app_status();
+            step = "app_record_log";
+            init_app_record_log();
             m_is_enabled = true;
         }
         catch (const Exception &ex) {
-            if (!m_rank) {
+            if (m_process < 0) {
                 std::cerr << "Warning: <geopm> Controller handshake failed at step "
                           << step << ", running without geopm." << std::endl;
                 int err = ex.err_value();
@@ -268,7 +224,7 @@ namespace geopm
     void ProfileImp::init_prof_comm(std::shared_ptr<Comm> comm, int &shm_num_rank)
     {
         if (!m_shm_comm) {
-            m_rank = comm->rank();
+            m_process = comm->rank();
             m_shm_comm = comm->split("prof", Comm::M_COMM_SPLIT_TYPE_SHARED);
             comm->tear_down();
             comm.reset();
@@ -325,7 +281,7 @@ namespace geopm
                         m_ctl_msg->cpu_rank(jj, -1);
                     }
                     for (auto it = m_cpu_set.begin(); it != m_cpu_set.end(); ++it) {
-                        m_ctl_msg->cpu_rank(*it, m_rank);
+                        m_ctl_msg->cpu_rank(*it, m_process);
                     }
                 }
                 else {
@@ -334,7 +290,7 @@ namespace geopm
                             m_ctl_msg->cpu_rank(*it, -2);
                         }
                         else {
-                            m_ctl_msg->cpu_rank(*it, m_rank);
+                            m_ctl_msg->cpu_rank(*it, m_process);
                         }
                     }
                 }
@@ -359,7 +315,7 @@ namespace geopm
     {
         if (!m_table) {
             std::string table_shm_key(sample_key);
-            table_shm_key += "-" + std::to_string(m_rank);
+            table_shm_key += "-" + std::to_string(m_process);
             m_table_shmem = SharedMemory::make_unique_user(table_shm_key, m_timeout);
             m_table_shmem->unlink();
             m_table = geopm::make_unique<ProfileTableImp>(m_table_shmem->size(), m_table_shmem->pointer());
@@ -368,6 +324,50 @@ namespace geopm
         m_shm_comm->barrier();
         m_ctl_msg->step();  // M_STATUS_SAMPLE_BEGIN
         m_ctl_msg->wait();  // M_STATUS_SAMPLE_BEGIN
+    }
+
+    void ProfileImp::init_app_status(void)
+    {
+        if (m_app_status == nullptr) {
+            m_shm_comm->barrier();
+            std::string key = m_key_base + "-status";
+            std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(key, m_timeout);
+            m_app_status = ApplicationStatus::make_unique(m_num_cpu, shmem);
+            // wait until all ranks attach, then unlink
+            m_shm_comm->barrier();
+            if (!m_shm_rank) {
+                shmem->unlink();
+            }
+        }
+        GEOPM_DEBUG_ASSERT(m_app_status != nullptr,
+                           "Profile::init(): m_app_status not initialized");
+    }
+
+    void ProfileImp::init_app_record_log(void)
+    {
+        if (m_process < 0) {
+            throw Exception("Profile::init(): invalid process",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+
+        if (m_app_record_log == nullptr) {
+            std::string key = m_key_base + "-record-log-" + std::to_string(m_process);
+            std::shared_ptr<SharedMemory> shmem = SharedMemory::make_unique_user(key, m_timeout);
+            m_app_record_log = ApplicationRecordLog::make_unique(shmem);
+            shmem->unlink();
+        }
+
+        GEOPM_DEBUG_ASSERT(m_app_record_log != nullptr,
+                           "Profile::init(): m_app_record_log not initialized");
+        GEOPM_DEBUG_ASSERT(m_process >= 0,
+                           "Profile::init(): m_process not initialized");
+
+        m_app_status->set_process(m_cpu_set, m_process);
+
+        m_app_record_log->set_process(m_process);
+        geopm_time_s start_time;
+        geopm_time_zero(&start_time);
+        m_app_record_log->set_time_zero(start_time);
     }
 
     ProfileImp::~ProfileImp()
@@ -609,7 +609,7 @@ namespace geopm
         double max_overhead[3] = {};
         m_reduce_comm->reduce_max(overhead_buffer, max_overhead, 3, 0);
 
-        if (!m_rank) {
+        if (m_process == 0) {
             std::cout << "GEOPM startup (seconds):  " << max_overhead[0] << std::endl;
             std::cout << "GEOPM runtime (seconds):  " << max_overhead[1] << std::endl;
             std::cout << "GEOPM shutdown (seconds): " << max_overhead[2] << std::endl;
