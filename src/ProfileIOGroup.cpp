@@ -55,37 +55,35 @@ namespace geopm
 
     ProfileIOGroup::ProfileIOGroup(const PlatformTopo &topo, ApplicationSampler &application_sampler)
         : m_application_sampler(application_sampler)
-        , m_signal_idx_map{{plugin_name() + "::REGION_HASH", M_SIGNAL_REGION_HASH},
-                           {plugin_name() + "::REGION_HINT", M_SIGNAL_REGION_HINT},
-                           {plugin_name() + "::REGION_THREAD_PROGRESS", M_SIGNAL_THREAD_PROGRESS},
-                           {"REGION_HASH", M_SIGNAL_REGION_HASH},
-                           {"REGION_HINT", M_SIGNAL_REGION_HINT},
-                           {"REGION_THREAD_PROGRESS", M_SIGNAL_THREAD_PROGRESS},
-                           {"TIME_HINT_UNKNOWN", M_SIGNAL_TIME_HINT_UNKNOWN},
-                           {plugin_name() + "::TIME_HINT_UNKNOWN", M_SIGNAL_TIME_HINT_UNKNOWN},
-                           {"TIME_HINT_UNSET", M_SIGNAL_TIME_HINT_UNSET},
-                           {plugin_name() + "::TIME_HINT_UNSET", M_SIGNAL_TIME_HINT_UNSET},
-                           {"TIME_HINT_COMPUTE", M_SIGNAL_TIME_HINT_COMPUTE},
-                           {plugin_name() + "::TIME_HINT_COMPUTE", M_SIGNAL_TIME_HINT_COMPUTE},
-                           {"TIME_HINT_MEMORY", M_SIGNAL_TIME_HINT_MEMORY},
-                           {plugin_name() + "::TIME_HINT_MEMORY", M_SIGNAL_TIME_HINT_MEMORY},
-                           {"TIME_HINT_NETWORK", M_SIGNAL_TIME_HINT_NETWORK},
-                           {plugin_name() + "::TIME_HINT_NETWORK", M_SIGNAL_TIME_HINT_NETWORK},
-                           {"TIME_HINT_IO", M_SIGNAL_TIME_HINT_IO},
-                           {plugin_name() + "::TIME_HINT_IO", M_SIGNAL_TIME_HINT_IO},
-                           {"TIME_HINT_SERIAL", M_SIGNAL_TIME_HINT_SERIAL},
-                           {plugin_name() + "::TIME_HINT_SERIAL", M_SIGNAL_TIME_HINT_SERIAL},
-                           {"TIME_HINT_PARALLEL", M_SIGNAL_TIME_HINT_PARALLEL},
-                           {plugin_name() + "::TIME_HINT_PARALLEL", M_SIGNAL_TIME_HINT_PARALLEL},
-                           {"TIME_HINT_IGNORE", M_SIGNAL_TIME_HINT_IGNORE},
-                           {plugin_name() + "::TIME_HINT_IGNORE", M_SIGNAL_TIME_HINT_IGNORE}}
         , m_platform_topo(topo)
+        , m_num_cpu(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU))
         , m_do_read(M_NUM_SIGNAL, false)
         , m_is_batch_read(false)
-        , m_thread_progress(topo.num_domain(GEOPM_DOMAIN_CPU), NAN)
+        , m_per_cpu_hash(m_num_cpu, GEOPM_REGION_HASH_INVALID)
+        , m_per_cpu_hint(m_num_cpu, GEOPM_REGION_HINT_UNSET)
+        , m_per_cpu_progress(m_num_cpu, NAN)
         , m_is_connected(false)
         , m_is_pushed(false)
     {
+        std::vector<std::pair<std::string, int> > aliases {
+            {"REGION_HASH", M_SIGNAL_REGION_HASH},
+            {"REGION_HINT", M_SIGNAL_REGION_HINT},
+            {"REGION_THREAD_PROGRESS", M_SIGNAL_THREAD_PROGRESS},
+            {"TIME_HINT_UNKNOWN", M_SIGNAL_TIME_HINT_UNKNOWN},
+            {"TIME_HINT_UNSET", M_SIGNAL_TIME_HINT_UNSET},
+            {"TIME_HINT_COMPUTE", M_SIGNAL_TIME_HINT_COMPUTE},
+            {"TIME_HINT_MEMORY", M_SIGNAL_TIME_HINT_MEMORY},
+            {"TIME_HINT_NETWORK", M_SIGNAL_TIME_HINT_NETWORK},
+            {"TIME_HINT_IO", M_SIGNAL_TIME_HINT_IO},
+            {"TIME_HINT_SERIAL", M_SIGNAL_TIME_HINT_SERIAL},
+            {"TIME_HINT_PARALLEL", M_SIGNAL_TIME_HINT_PARALLEL},
+            {"TIME_HINT_IGNORE", M_SIGNAL_TIME_HINT_IGNORE}
+        };
+        // same signal index for aliases and underlying signal
+        for (const auto &name : aliases) {
+            m_signal_idx_map[name.first] = name.second;
+            m_signal_idx_map[plugin_name() + "::" + name.first] = name.second;
+        }
 
     }
 
@@ -182,12 +180,17 @@ namespace geopm
             throw Exception("ProfileIOGroup::read_batch() called before connect",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        if (m_do_read[M_SIGNAL_REGION_HASH] ||
-            m_do_read[M_SIGNAL_REGION_HINT]) {
-            m_per_cpu_region_id = m_application_sampler.get_io_sample()->per_cpu_region_id();
+        if (m_do_read[M_SIGNAL_REGION_HASH]) {
+            // TODO: filter only pushed cpu idx?  copying everything probably cheaper than a branch
+            for (int idx = 0; idx < m_num_cpu; ++idx) {
+                m_per_cpu_hash[idx] = m_application_sampler.cpu_region_hash(idx);
+            }
+        }
+        if (m_do_read[M_SIGNAL_REGION_HINT]) {
+            //m_per_cpu_region_id = m_application_sampler.get_io_sample()->per_cpu_region_id();
         }
         if (m_do_read[M_SIGNAL_THREAD_PROGRESS]) {
-            m_thread_progress = m_application_sampler.get_io_sample()->per_cpu_thread_progress();
+            //m_thread_progress = m_application_sampler.get_io_sample()->per_cpu_thread_progress();
         }
         m_is_batch_read = true;
     }
@@ -205,20 +208,20 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (!m_is_batch_read) {
-            throw Exception("TimeIOGroup::sample(): signal has not been read",
+            throw Exception("ProfileIOGroup::sample(): signal has not been read",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
         int cpu_idx = m_active_signal[signal_idx].domain_idx;
         switch (m_active_signal[signal_idx].signal_type) {
             case M_SIGNAL_REGION_HASH:
-                result = geopm_region_id_hash(m_per_cpu_region_id[cpu_idx]);
+                result = m_per_cpu_hash[cpu_idx];
                 break;
             case M_SIGNAL_REGION_HINT:
-                result = geopm_region_id_hint(m_per_cpu_region_id[cpu_idx]);
+                result = m_per_cpu_hint[cpu_idx];
                 break;
             case M_SIGNAL_THREAD_PROGRESS:
-                result = m_thread_progress[cpu_idx];
+                result = m_per_cpu_progress[cpu_idx];
                 break;
             case M_SIGNAL_TIME_HINT_UNKNOWN:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_UNKNOWN);
@@ -277,13 +280,13 @@ namespace geopm
         double result = NAN;
         switch (signal_type) {
             case M_SIGNAL_REGION_HASH:
-                result = geopm_region_id_hash(m_application_sampler.get_io_sample()->per_cpu_region_id()[cpu_idx]);
+                result = m_application_sampler.cpu_region_hash(cpu_idx);
                 break;
             case M_SIGNAL_REGION_HINT:
-                result = geopm_region_id_hint(m_application_sampler.get_io_sample()->per_cpu_region_id()[cpu_idx]);
+                result = m_application_sampler.cpu_hint(cpu_idx);
                 break;
             case M_SIGNAL_THREAD_PROGRESS:
-                result = m_application_sampler.get_io_sample()->per_cpu_thread_progress()[cpu_idx];
+                result = m_application_sampler.cpu_progress(cpu_idx);
                 break;
             case M_SIGNAL_TIME_HINT_UNKNOWN:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_UNKNOWN);
