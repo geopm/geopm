@@ -99,6 +99,7 @@ namespace geopm
             };
 
             int check_signal(const std::string &signal_name, int domain_type, int domain_idx) const;
+            static double hash_to_signal(uint64_t hash);
 
             ApplicationSampler &m_application_sampler;
 
