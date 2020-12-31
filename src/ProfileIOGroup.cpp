@@ -62,7 +62,6 @@ namespace geopm
         , m_per_cpu_hash(m_num_cpu, GEOPM_REGION_HASH_INVALID)
         , m_per_cpu_hint(m_num_cpu, GEOPM_REGION_HINT_UNSET)
         , m_per_cpu_progress(m_num_cpu, NAN)
-        , m_is_connected(false)
         , m_is_pushed(false)
     {
         std::vector<std::pair<std::string, int> > aliases {
@@ -92,19 +91,11 @@ namespace geopm
 
     }
 
-    void ProfileIOGroup::connect(void)
-    {
-        m_cpu_rank = m_application_sampler.per_cpu_process();
-        m_is_connected = true;
-    }
-
     std::set<std::string> ProfileIOGroup::signal_names(void) const
     {
         std::set<std::string> result;
-        if (m_is_connected) {
-            for (const auto &sv : m_signal_idx_map) {
-                result.insert(sv.first);
-            }
+        for (const auto &sv : m_signal_idx_map) {
+            result.insert(sv.first);
         }
         return result;
     }
@@ -173,9 +164,6 @@ namespace geopm
 
     void ProfileIOGroup::read_batch(void)
     {
-        if (!m_is_connected) {
-            connect();
-        }
         if (!m_is_pushed) {
             return;
         }
@@ -279,10 +267,6 @@ namespace geopm
 
     double ProfileIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
     {
-        if (!m_is_connected) {
-            throw Exception("ProfileIOGroup::read_signal() called before connect",
-                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
         int signal_type = check_signal(signal_name, domain_type, domain_idx);
         int cpu_idx = domain_idx;
         struct geopm_time_s read_time;
