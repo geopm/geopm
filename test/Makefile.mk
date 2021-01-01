@@ -55,6 +55,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/AgentFactoryTest.static_info_frequency_map \
               test/gtest_links/AggTest.agg_function \
               test/gtest_links/AggTest.function_strings \
+              test/gtest_links/ApplicationIOTest.passthrough \
               test/gtest_links/ApplicationRecordLogTest.bad_shmem \
               test/gtest_links/ApplicationRecordLogTest.get_sizes \
               test/gtest_links/ApplicationRecordLogTest.empty_dump \
@@ -79,17 +80,23 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/ApplicationStatusTest.hash \
               test/gtest_links/ApplicationStatusTest.hints \
               test/gtest_links/ApplicationStatusTest.process \
+              test/gtest_links/ApplicationStatusTest.update_cache \
               test/gtest_links/ApplicationStatusTest.work_progress \
               test/gtest_links/ApplicationStatusTest.wrong_buffer_size \
-              test/gtest_links/ApplicationIOTest.passthrough \
               test/gtest_links/CircularBufferTest.buffer_capacity \
               test/gtest_links/CircularBufferTest.buffer_size \
               test/gtest_links/CircularBufferTest.buffer_values \
               test/gtest_links/CircularBufferTest.make_vector_slice \
+              test/gtest_links/CNLIOGroupTest.valid_signals \
+              test/gtest_links/CNLIOGroupTest.read_signal \
+              test/gtest_links/CNLIOGroupTest.push_signal \
+              test/gtest_links/CNLIOGroupTest.parse_energy \
+              test/gtest_links/CNLIOGroupTest.parse_power \
               test/gtest_links/CombinedSignalTest.sample_flat_derivative \
               test/gtest_links/CombinedSignalTest.sample_max \
               test/gtest_links/CombinedSignalTest.sample_slope_derivative \
               test/gtest_links/CombinedSignalTest.sample_sum \
+              test/gtest_links/CombinedSignalTest.sample_difference \
               test/gtest_links/CommMPIImpTest.mpi_allreduce \
               test/gtest_links/CommMPIImpTest.mpi_barrier \
               test/gtest_links/CommMPIImpTest.mpi_broadcast \
@@ -101,11 +108,6 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/CommMPIImpTest.mpi_mem_ops \
               test/gtest_links/CommMPIImpTest.mpi_reduce \
               test/gtest_links/CommMPIImpTest.mpi_win_ops \
-              test/gtest_links/CNLIOGroupTest.valid_signals \
-              test/gtest_links/CNLIOGroupTest.read_signal \
-              test/gtest_links/CNLIOGroupTest.push_signal \
-              test/gtest_links/CNLIOGroupTest.parse_energy \
-              test/gtest_links/CNLIOGroupTest.parse_power \
               test/gtest_links/ControlMessageTest.cpu_rank \
               test/gtest_links/ControlMessageTest.is_name_begin \
               test/gtest_links/ControlMessageTest.is_sample_begin \
@@ -331,6 +333,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/MSRFieldSignalTest.read_scale \
               test/gtest_links/MSRFieldSignalTest.real_counter \
               test/gtest_links/MSRFieldSignalTest.setup_batch \
+              test/gtest_links/MSRFieldSignalTest.errors \
               test/gtest_links/ModelApplicationTest.parse_config_errors \
               test/gtest_links/MonitorAgentTest.policy_names \
               test/gtest_links/MonitorAgentTest.sample_names \
@@ -349,6 +352,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/OptionParserTest.format_help \
               test/gtest_links/PlatformIOTest.adjust \
               test/gtest_links/PlatformIOTest.adjust_agg \
+              test/gtest_links/PlatformIOTest.agg_function \
               test/gtest_links/PlatformIOTest.domain_type \
               test/gtest_links/PlatformIOTest.push_control \
               test/gtest_links/PlatformIOTest.push_control_agg \
@@ -394,6 +398,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/PowerGovernorAgentTest.split_policy \
               test/gtest_links/PowerGovernorAgentTest.sample_platform \
               test/gtest_links/PowerGovernorAgentTest.trace \
+              test/gtest_links/PowerGovernorAgentTest.validate_policy \
               test/gtest_links/PowerGovernorAgentTest.wait \
               test/gtest_links/PowerGovernorTest.govern \
               test/gtest_links/PowerGovernorTest.govern_max \
@@ -433,6 +438,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/RawMSRSignalTest.setup_batch \
               test/gtest_links/RecordFilterTest.invalid_filter_name \
               test/gtest_links/RecordFilterTest.make_proxy_epoch \
+              test/gtest_links/RecordFilterTest.make_edit_distance \
               test/gtest_links/RegionAggregatorTest.epoch_total \
               test/gtest_links/RegionAggregatorTest.sample_total \
               test/gtest_links/ReporterTest.generate \
