@@ -96,14 +96,14 @@ TEST_F(ProfileTracerTest, format)
     std::vector<std::string> output_lines = geopm::string_split(output, "\n");
     std::vector<std::string> expect_lines = {
         "TIME|PROCESS|EVENT|SIGNAL",
-        "10|0|REGION_ENTRY|0x00000000fa5920d6",
-        "11|1|REGION_ENTRY|0x00000000fa5920d6",
-        "12|2|REGION_ENTRY|0x00000000fa5920d6",
-        "13|3|REGION_ENTRY|0x00000000fa5920d6",
-        "34|3|REGION_EXIT|0x00000000fa5920d6",
-        "35|2|REGION_EXIT|0x00000000fa5920d6",
-        "36|1|REGION_EXIT|0x00000000fa5920d6",
-        "37|0|REGION_EXIT|0x00000000fa5920d6",
+        "10|0|REGION_ENTRY|0xfa5920d6",
+        "11|1|REGION_ENTRY|0xfa5920d6",
+        "12|2|REGION_ENTRY|0xfa5920d6",
+        "13|3|REGION_ENTRY|0xfa5920d6",
+        "34|3|REGION_EXIT|0xfa5920d6",
+        "35|2|REGION_EXIT|0xfa5920d6",
+        "36|1|REGION_EXIT|0xfa5920d6",
+        "37|0|REGION_EXIT|0xfa5920d6",
     };
     auto expect_it = expect_lines.begin();
     for (const auto &output_it : output_lines) {

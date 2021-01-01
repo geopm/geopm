@@ -69,8 +69,9 @@ TEST(AggTest, agg_function)
     EXPECT_EQ(1.0, Agg::logical_or({1.0, 1.0, 0.0}));
     EXPECT_EQ(0.0, Agg::logical_or({0.0, 0.0}));
 
-    EXPECT_EQ(GEOPM_REGION_HASH_UNMARKED,
-              Agg::region_hash({}));
+    EXPECT_TRUE(std::isnan(Agg::region_hash({})));
+
+    EXPECT_TRUE(std::isnan(Agg::region_hash({NAN, NAN})));
 
     EXPECT_EQ(GEOPM_REGION_HASH_UNMARKED,
               Agg::region_hash({5, 6, NAN, 7}));
@@ -78,8 +79,9 @@ TEST(AggTest, agg_function)
     EXPECT_EQ(5,
               Agg::region_hash({5, 5, 5, NAN}));
 
-    EXPECT_EQ(GEOPM_REGION_HINT_UNKNOWN,
-              Agg::region_hint({}));
+    EXPECT_TRUE(std::isnan(Agg::region_hint({})));
+
+    EXPECT_TRUE(std::isnan(Agg::region_hint({NAN, NAN})));
 
     EXPECT_EQ(GEOPM_REGION_HINT_UNKNOWN,
               Agg::region_hint({5, 6, NAN, 7}));
