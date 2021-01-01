@@ -44,16 +44,6 @@ int main(int argc, char **argv)
     int comm_rank;
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank);
-    // Parse command line option for verbosity
-    bool is_verbose = false;
-    if (comm_rank == 0) {
-        for (int arg_idx = 1; arg_idx < argc; ++arg_idx) {
-            std::string arg(argv[arg_idx]);
-            if (arg == "--verbose" || arg == "-v") {
-                is_verbose = true;
-            }
-        }
-    }
     // Note: do not change this value without updating the corresponding python test
     int num_step = 10000000;
     for (int idx = 0; idx != num_step; ++idx) {

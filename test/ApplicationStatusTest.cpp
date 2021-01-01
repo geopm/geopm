@@ -76,9 +76,9 @@ TEST_F(ApplicationStatusTest, bad_shmem)
 
 TEST_F(ApplicationStatusTest, hints)
 {
-    uint64_t NOHINTS = 0ULL;
+    uint64_t NOHINTS = GEOPM_REGION_HINT_UNSET;
     uint64_t NETWORK = GEOPM_REGION_HINT_NETWORK;
-    uint64_t COMPARA = GEOPM_REGION_HINT_COMPUTE | GEOPM_REGION_HINT_PARALLEL;
+    uint64_t COMPUTE = GEOPM_REGION_HINT_COMPUTE;
 
     EXPECT_EQ(NOHINTS, m_status->get_hint(0));
     EXPECT_EQ(NOHINTS, m_status->get_hint(1));
@@ -93,18 +93,18 @@ TEST_F(ApplicationStatusTest, hints)
     EXPECT_EQ(NOHINTS, m_status->get_hint(2));
     EXPECT_EQ(NETWORK, m_status->get_hint(3));
 
-    m_status->set_hint(2, COMPARA);
-    m_status->set_hint(3, COMPARA);
+    m_status->set_hint(2, COMPUTE);
+    m_status->set_hint(3, COMPUTE);
     m_status->update_cache();
     EXPECT_EQ(NOHINTS, m_status->get_hint(0));
     EXPECT_EQ(NETWORK, m_status->get_hint(1));
-    EXPECT_EQ(COMPARA, m_status->get_hint(2));
-    EXPECT_EQ(COMPARA, m_status->get_hint(3));
+    EXPECT_EQ(COMPUTE, m_status->get_hint(2));
+    EXPECT_EQ(COMPUTE, m_status->get_hint(3));
 
     // clear hint
-    m_status->set_hint(1, 0ULL);
-    m_status->set_hint(2, 0ULL);
-    m_status->set_hint(3, 0ULL);
+    m_status->set_hint(1, GEOPM_REGION_HINT_UNSET);
+    m_status->set_hint(2, GEOPM_REGION_HINT_UNSET);
+    m_status->set_hint(3, GEOPM_REGION_HINT_UNSET);
     m_status->update_cache();
     EXPECT_EQ(NOHINTS, m_status->get_hint(0));
     EXPECT_EQ(NOHINTS, m_status->get_hint(1));
@@ -131,12 +131,10 @@ TEST_F(ApplicationStatusTest, hints)
 
 TEST_F(ApplicationStatusTest, hash)
 {
-    ASSERT_EQ(0x00ULL, GEOPM_REGION_HASH_INVALID);
-
-    EXPECT_EQ(0x00ULL, m_status->get_hash(0));
-    EXPECT_EQ(0x00ULL, m_status->get_hash(1));
-    EXPECT_EQ(0x00ULL, m_status->get_hash(2));
-    EXPECT_EQ(0x00ULL, m_status->get_hash(3));
+    EXPECT_EQ(GEOPM_REGION_HASH_INVALID, m_status->get_hash(0));
+    EXPECT_EQ(GEOPM_REGION_HASH_INVALID, m_status->get_hash(1));
+    EXPECT_EQ(GEOPM_REGION_HASH_INVALID, m_status->get_hash(2));
+    EXPECT_EQ(GEOPM_REGION_HASH_INVALID, m_status->get_hash(3));
 
     m_status->set_hash(0, 0xAA);
     m_status->set_hash(1, 0xAA);
@@ -269,27 +267,37 @@ TEST_F(ApplicationStatusTest, update_cache)
     uint64_t hint = GEOPM_REGION_HINT_NETWORK;
     uint64_t hash = 0xABC;
     int process = 42;
+    EXPECT_EQ(GEOPM_REGION_HINT_UNSET, m_status->get_hint(0));
+    EXPECT_EQ(GEOPM_REGION_HASH_INVALID, m_status->get_hash(0));
+    m_status->set_process({0, 1}, process);
+
+    // default values before cache update
+    EXPECT_EQ(-1, m_status->get_process(0));
+
+    m_status->update_cache();
+    // set process initalizes hash for active CPUs
+    EXPECT_EQ(GEOPM_REGION_HASH_UNMARKED, m_status->get_hash(0));
+    EXPECT_EQ(GEOPM_REGION_HASH_UNMARKED, m_status->get_hash(1));
+    EXPECT_EQ(GEOPM_REGION_HASH_INVALID, m_status->get_hash(2));
+    EXPECT_EQ(GEOPM_REGION_HASH_INVALID, m_status->get_hash(3));
+
     m_status->set_hint(0, hint);
     m_status->set_hash(0, hash);
     m_status->set_total_work_units(0, 4);
     m_status->increment_work_unit(0);
-    m_status->set_process({0, 1}, process);
-
-    // default values before dump
-    EXPECT_EQ(0ULL, m_status->get_hint(0));
-    EXPECT_EQ(GEOPM_REGION_HASH_INVALID, m_status->get_hash(0));
+    // default values before cache update
+    EXPECT_EQ(GEOPM_REGION_HINT_UNSET, m_status->get_hint(0));
+    EXPECT_EQ(GEOPM_REGION_HASH_UNMARKED, m_status->get_hash(0));
     EXPECT_TRUE(std::isnan(m_status->get_progress_cpu(0)));
-    EXPECT_EQ(-1, m_status->get_process(0));
-
-    m_status->update_cache();
 
     // written values visible after update
+    m_status->update_cache();
     EXPECT_EQ(hint, m_status->get_hint(0));
     EXPECT_EQ(hash, m_status->get_hash(0));
     EXPECT_EQ(0.25, m_status->get_progress_cpu(0));
     EXPECT_EQ(process, m_status->get_process(0));
 
-    m_status->set_hint(0, 0ULL);
+    m_status->set_hint(0, GEOPM_REGION_HINT_UNSET);
     m_status->set_hash(0, GEOPM_REGION_HASH_INVALID);
     m_status->set_total_work_units(0, 8);
     m_status->increment_work_unit(0);
