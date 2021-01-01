@@ -30,6 +30,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
+
 #include "ProfileIOGroup.hpp"
 
 #include "PlatformTopo.hpp"
@@ -41,7 +43,7 @@
 #include "geopm_hash.h"
 #include "geopm_time.h"
 #include "geopm_internal.h"
-#include "config.h"
+#include "geopm_debug.hpp"
 
 #define GEOPM_PROFILE_IO_GROUP_PLUGIN_NAME "PROFILE"
 
@@ -59,11 +61,17 @@ namespace geopm
         , m_num_cpu(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU))
         , m_do_read(M_NUM_SIGNAL, false)
         , m_is_batch_read(false)
-        , m_per_cpu_hash(m_num_cpu, GEOPM_REGION_HASH_INVALID)
-        , m_per_cpu_hint(m_num_cpu, GEOPM_REGION_HINT_UNSET)
-        , m_per_cpu_progress(m_num_cpu, NAN)
         , m_is_pushed(false)
     {
+
+        // default signal values: 0.0 for hint time and progress, NAN for others
+        std::fill(m_per_cpu_sample.begin(), m_per_cpu_sample.end(),
+                  std::vector<double>(m_num_cpu, 0.0));
+        std::fill(m_per_cpu_sample[M_SIGNAL_REGION_HASH].begin(),
+                  m_per_cpu_sample[M_SIGNAL_REGION_HASH].end(), NAN);
+        std::fill(m_per_cpu_sample[M_SIGNAL_REGION_HINT].begin(),
+                  m_per_cpu_sample[M_SIGNAL_REGION_HINT].end(), NAN);
+
         std::vector<std::pair<std::string, int> > aliases {
             {"REGION_HASH", M_SIGNAL_REGION_HASH},
             {"REGION_HINT", M_SIGNAL_REGION_HINT},
@@ -83,7 +91,6 @@ namespace geopm
             m_signal_idx_map[name.first] = name.second;
             m_signal_idx_map[plugin_name() + "::" + name.first] = name.second;
         }
-
     }
 
     ProfileIOGroup::~ProfileIOGroup()
@@ -167,19 +174,29 @@ namespace geopm
         if (!m_is_pushed) {
             return;
         }
+
         if (m_do_read[M_SIGNAL_REGION_HASH]) {
             for (int idx = 0; idx < m_num_cpu; ++idx) {
-                m_per_cpu_hash[idx] = m_application_sampler.cpu_region_hash(idx);
+                m_per_cpu_sample[M_SIGNAL_REGION_HASH][idx] = hash_to_signal(m_application_sampler.cpu_region_hash(idx));
             }
         }
         if (m_do_read[M_SIGNAL_REGION_HINT]) {
             for (int idx = 0; idx < m_num_cpu; ++idx) {
-                m_per_cpu_hint[idx] = m_application_sampler.cpu_hint(idx);
+                m_per_cpu_sample[M_SIGNAL_REGION_HINT][idx] = m_application_sampler.cpu_hint(idx);
             }
         }
         if (m_do_read[M_SIGNAL_THREAD_PROGRESS]) {
             for (int idx = 0; idx < m_num_cpu; ++idx) {
-                m_per_cpu_progress[idx] = m_application_sampler.cpu_progress(idx);
+                m_per_cpu_sample[M_SIGNAL_THREAD_PROGRESS][idx] = m_application_sampler.cpu_progress(idx);
+            }
+        }
+
+        for (int signal_type = M_SIGNAL_TIME_HINT_UNSET; signal_type < M_NUM_SIGNAL; ++signal_type) {
+            if (m_do_read[signal_type]) {
+                uint64_t hint = signal_type_to_hint(signal_type);
+                for (int idx = 0; idx < m_num_cpu; ++idx) {
+                    m_per_cpu_sample[signal_type][idx] = m_application_sampler.cpu_hint_time(idx, hint);
+                }
             }
         }
         m_is_batch_read = true;
@@ -198,9 +215,48 @@ namespace geopm
         return hash;
     }
 
+    uint64_t ProfileIOGroup::signal_type_to_hint(int signal_type)
+    {
+        uint64_t result = GEOPM_REGION_HINT_UNSET;
+        switch (signal_type) {
+            case M_SIGNAL_TIME_HINT_UNSET:
+                result = GEOPM_REGION_HINT_UNSET;
+                break;
+            case M_SIGNAL_TIME_HINT_UNKNOWN:
+                result = GEOPM_REGION_HINT_UNKNOWN;
+                break;
+            case M_SIGNAL_TIME_HINT_COMPUTE:
+                result = GEOPM_REGION_HINT_COMPUTE;
+                break;
+            case M_SIGNAL_TIME_HINT_MEMORY:
+                result = GEOPM_REGION_HINT_MEMORY;
+                break;
+            case M_SIGNAL_TIME_HINT_NETWORK:
+                result = GEOPM_REGION_HINT_NETWORK;
+                break;
+            case M_SIGNAL_TIME_HINT_IO:
+                result = GEOPM_REGION_HINT_IO;
+                break;
+            case M_SIGNAL_TIME_HINT_SERIAL:
+                result = GEOPM_REGION_HINT_SERIAL;
+                break;
+            case M_SIGNAL_TIME_HINT_PARALLEL:
+                result = GEOPM_REGION_HINT_PARALLEL;
+                break;
+            case M_SIGNAL_TIME_HINT_IGNORE:
+                result = GEOPM_REGION_HINT_IGNORE;
+                break;
+            default:
+                throw Exception("ProfileIOGroup::signal_type_to_hint(): signal_type "
+                                "must be a M_SIGNAL_TIME_HINT type",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return result;
+    }
+
+
     double ProfileIOGroup::sample(int signal_idx)
     {
-        double result = NAN;
         if (signal_idx < 0 || signal_idx >= (int)m_active_signal.size()) {
             throw Exception("ProfileIOGroup::sample(): signal_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -211,52 +267,14 @@ namespace geopm
         }
 
         int cpu_idx = m_active_signal[signal_idx].domain_idx;
-        switch (m_active_signal[signal_idx].signal_type) {
-            case M_SIGNAL_REGION_HASH:
-                result = hash_to_signal(m_per_cpu_hash[cpu_idx]);
-                break;
-            case M_SIGNAL_REGION_HINT:
-                result = m_per_cpu_hint[cpu_idx];
-                break;
-            case M_SIGNAL_THREAD_PROGRESS:
-                result = m_per_cpu_progress[cpu_idx];
-                break;
-            case M_SIGNAL_TIME_HINT_UNKNOWN:
-                result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_UNKNOWN);
-                break;
-            case M_SIGNAL_TIME_HINT_UNSET:
-                result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_UNSET);
-                break;
-            case M_SIGNAL_TIME_HINT_COMPUTE:
-                result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_COMPUTE);
-                break;
-            case M_SIGNAL_TIME_HINT_MEMORY:
-                result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_MEMORY);
-                break;
-            case M_SIGNAL_TIME_HINT_NETWORK:
-                result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_NETWORK);
-                break;
-            case M_SIGNAL_TIME_HINT_IO:
-                result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_IO);
-                break;
-            case M_SIGNAL_TIME_HINT_SERIAL:
-                result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_SERIAL);
-                break;
-            case M_SIGNAL_TIME_HINT_PARALLEL:
-                result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_PARALLEL);
-                break;
-            case M_SIGNAL_TIME_HINT_IGNORE:
-                result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_IGNORE);
-                break;
-            default:
-#ifdef GEOPM_DEBUG
-                throw Exception("ProfileIOGroup:sample(): Signal was pushed with an invalid signal type",
-                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-#endif
-                break;
-        }
-
-        return result;
+        int signal_type = m_active_signal[signal_idx].signal_type;
+        GEOPM_DEBUG_ASSERT(cpu_idx >= 0 && cpu_idx < m_num_cpu,
+                           "ProfileIOGroup:sample(): Signal was pushed with an "
+                           "invalid cpu_idx");
+        GEOPM_DEBUG_ASSERT(signal_type >= 0 && signal_type < M_NUM_SIGNAL,
+                           "ProfileIOGroup:sample(): Signal was pushed with an "
+                           "invalid signal_type");
+        return m_per_cpu_sample[signal_type][cpu_idx];
     }
 
     void ProfileIOGroup::adjust(int control_idx, double setting)
@@ -280,11 +298,11 @@ namespace geopm
             case M_SIGNAL_THREAD_PROGRESS:
                 result = m_application_sampler.cpu_progress(cpu_idx);
                 break;
-            case M_SIGNAL_TIME_HINT_UNKNOWN:
-                result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_UNKNOWN);
-                break;
             case M_SIGNAL_TIME_HINT_UNSET:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_UNSET);
+                break;
+            case M_SIGNAL_TIME_HINT_UNKNOWN:
+                result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_UNKNOWN);
                 break;
             case M_SIGNAL_TIME_HINT_COMPUTE:
                 result = m_application_sampler.cpu_hint_time(cpu_idx, GEOPM_REGION_HINT_COMPUTE);
