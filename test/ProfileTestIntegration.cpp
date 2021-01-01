@@ -97,7 +97,6 @@ class ProfileTestIntegration : public ::testing::Test
 void ProfileTestIntegration::SetUp()
 {
     int shm_rank = 6;
-    int world_rank = 37;
     std::string M_PROF_NAME = "profile_test";
     std::string M_REPORT = "report_test";
     int M_SHM_COMM_SIZE = 2;
@@ -119,7 +118,7 @@ void ProfileTestIntegration::SetUp()
         .WillByDefault(testing::Return(true));
 
     m_world_comm = std::make_shared<NiceMock<MockComm> >();
-    ON_CALL(*m_world_comm, rank()).WillByDefault(Return(world_rank));
+    ON_CALL(*m_world_comm, rank()).WillByDefault(Return(m_process));
     ON_CALL(*m_world_comm, split("prof", geopm::Comm::M_COMM_SPLIT_TYPE_SHARED))
         .WillByDefault(Return(m_shm_comm));
     m_comm = std::make_shared<NiceMock<MockComm> >();
@@ -137,9 +136,8 @@ void ProfileTestIntegration::SetUp()
                                                m_cpu_list,
                                                m_table,
                                                m_comm,
-                                               nullptr, // status
-                                               nullptr, // record_log
-                                               m_process);
+                                               nullptr,  // status
+                                               nullptr); // record_log
 
     m_profile->init();
 }

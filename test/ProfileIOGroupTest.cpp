@@ -70,12 +70,6 @@ ProfileIOGroupTest::ProfileIOGroupTest()
 
     m_group = std::make_shared<ProfileIOGroup>(m_topo, m_sampler);
 
-    // no signals before connection
-    EXPECT_EQ(0u, m_group->signal_names().size());
-
-    // read batch calls connect
-    EXPECT_CALL(m_sampler, per_cpu_process())
-        .WillOnce(Return(m_cpu_rank));
     m_group->read_batch();
 }
 
