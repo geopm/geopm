@@ -312,28 +312,56 @@ TEST_F(ProfileIOGroupTest, batch_signal_thread_progress)
 TEST_F(ProfileIOGroupTest, batch_signal_hint_time)
 {
     int idx0 = m_group->push_signal("TIME_HINT_NETWORK", GEOPM_DOMAIN_CPU, 2);
-    int idx0a = m_group->push_signal("PROFILE::TIME_HINT_NETWORK", GEOPM_DOMAIN_CPU, 2);
-    EXPECT_EQ(idx0, idx0a);
     int idx1 = m_group->push_signal("TIME_HINT_NETWORK", GEOPM_DOMAIN_CPU, 3);
     EXPECT_NE(idx0, idx1);
     int idx2 = m_group->push_signal("TIME_HINT_IGNORE", GEOPM_DOMAIN_CPU, 2);
     EXPECT_NE(idx0, idx2);
 
-    // TODO: read_batch not used for caching; sample calls through directly
-    m_group->read_batch();
+    // before batch
+    GEOPM_EXPECT_THROW_MESSAGE(m_group->sample(idx0), GEOPM_ERROR_INVALID,
+                               "signal has not been read");
 
-    double expected = 7.77;
-    EXPECT_CALL(m_sampler, cpu_hint_time(2, GEOPM_REGION_HINT_NETWORK))
-        .WillOnce(Return(expected));
-    double result = m_group->sample(idx0);
-    EXPECT_EQ(expected, result);
+    // first batch
+    {
+        // others in batch
+        EXPECT_CALL(m_sampler, cpu_hint_time(_, _)).WillRepeatedly(Return(0.0));
 
-    expected = 9.99;
-    EXPECT_CALL(m_sampler, cpu_hint_time(2, GEOPM_REGION_HINT_IGNORE))
-        .WillOnce(Return(expected));
-    result = m_group->sample(idx2);
-    EXPECT_EQ(expected, result);
+        EXPECT_CALL(m_sampler, cpu_hint_time(2, GEOPM_REGION_HINT_NETWORK))
+            .WillOnce(Return(7.77));
+        EXPECT_CALL(m_sampler, cpu_hint_time(3, GEOPM_REGION_HINT_NETWORK))
+            .WillOnce(Return(8.88));
+        EXPECT_CALL(m_sampler, cpu_hint_time(2, GEOPM_REGION_HINT_IGNORE))
+            .WillOnce(Return(9.99));
+        m_group->read_batch();
 
+        EXPECT_EQ(7.77, m_group->sample(idx0));
+        EXPECT_EQ(8.88, m_group->sample(idx1));
+        EXPECT_EQ(9.99, m_group->sample(idx2));
+    }
+    {
+        EXPECT_CALL(m_sampler, cpu_hint_time(_, _)).Times(0);
+        EXPECT_EQ(7.77, m_group->sample(idx0));
+        EXPECT_EQ(8.88, m_group->sample(idx1));
+        EXPECT_EQ(9.99, m_group->sample(idx2));
+    }
+
+    // second batch
+    {
+        // others in batch
+        EXPECT_CALL(m_sampler, cpu_hint_time(_, _)).WillRepeatedly(Return(0.0));
+
+        EXPECT_CALL(m_sampler, cpu_hint_time(2, GEOPM_REGION_HINT_NETWORK))
+            .WillOnce(Return(3.33));
+        EXPECT_CALL(m_sampler, cpu_hint_time(3, GEOPM_REGION_HINT_NETWORK))
+            .WillOnce(Return(4.44));
+        EXPECT_CALL(m_sampler, cpu_hint_time(2, GEOPM_REGION_HINT_IGNORE))
+            .WillOnce(Return(5.55));
+        m_group->read_batch();
+
+        EXPECT_EQ(3.33, m_group->sample(idx0));
+        EXPECT_EQ(4.44, m_group->sample(idx1));
+        EXPECT_EQ(5.55, m_group->sample(idx2));
+    }
 }
 
 TEST_F(ProfileIOGroupTest, errors)

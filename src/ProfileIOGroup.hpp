@@ -81,10 +81,10 @@ namespace geopm
                 M_SIGNAL_REGION_HASH,
                 M_SIGNAL_REGION_HINT,
                 M_SIGNAL_THREAD_PROGRESS,
-                M_SIGNAL_TIME_HINT_UNKNOWN,
                 M_SIGNAL_TIME_HINT_UNSET,
-                M_SIGNAL_TIME_HINT_MEMORY,
+                M_SIGNAL_TIME_HINT_UNKNOWN,
                 M_SIGNAL_TIME_HINT_COMPUTE,
+                M_SIGNAL_TIME_HINT_MEMORY,
                 M_SIGNAL_TIME_HINT_NETWORK,
                 M_SIGNAL_TIME_HINT_IO,
                 M_SIGNAL_TIME_HINT_SERIAL,
@@ -98,8 +98,19 @@ namespace geopm
                 int domain_idx;
             };
 
+            /// @brief Check that the signal name and domain are valid
+            ///        and returns the corresponding m_signal_type for
+            ///        the signal.
             int check_signal(const std::string &signal_name, int domain_type, int domain_idx) const;
+            /// @brief Converts a region hash to double for use as a
+            ///        signal.  GEOPM_REGION_HASH_INVALID is converted
+            ///        to NAN.
             static double hash_to_signal(uint64_t hash);
+            /// @brief Converts a m_signal_type for the IOGroup to the
+            ///        corresponding geopm_region_hint_e defined in
+            ///        geopm.h.  The signal_type must be one of the
+            ///        M_SIGNAL_TIME_HINT* signals.
+            static uint64_t signal_type_to_hint(int signal_type);
 
             ApplicationSampler &m_application_sampler;
 
@@ -109,10 +120,9 @@ namespace geopm
             std::vector<bool> m_do_read;
             bool m_is_batch_read;
             std::vector<struct m_signal_config> m_active_signal;
-            std::vector<uint64_t> m_per_cpu_hash;
-            std::vector<uint64_t> m_per_cpu_hint;
-            std::vector<double> m_per_cpu_progress;
-            std::map<int, int> m_rid_idx; // map from runtime signal index to the region id signal it uses
+            std::array<std::vector<double>, M_NUM_SIGNAL> m_per_cpu_sample;
+            /// map from runtime signal index to the region id signal it uses
+            std::map<int, int> m_rid_idx;
             bool m_is_pushed;
     };
 }
