@@ -98,7 +98,7 @@ TEST_F(CSVTest, columns)
         sep = "|";
     }
     std::string expect_legend(expect_legend_stream.str());
-    std::string expect_values = "0.000244140625|0.5|1024|0x0020000000000000|0xffffffffffffffff|0.000244140625";
+    std::string expect_values = "0.000244140625|0.5|1024|0x20000000000000|0xffffffffffffffff|0.000244140625";
     std::string output_path = "CSVTest-columns-output";
     {
         std::unique_ptr<geopm::CSV> csv = geopm::make_unique<geopm::CSVImp>(output_path, m_host_name, m_start_time, m_buffer_size);
@@ -150,7 +150,7 @@ TEST_F(CSVTest, buffer)
         sep = "|";
     }
     std::string expect_legend(expect_legend_stream.str());
-    std::string expect_values = "6.103515625e-05|0.5|1024|0x0020000000000000|0xffffffffffffffff|6.103515625e-05";
+    std::string expect_values = "6.103515625e-05|0.5|1024|0x20000000000000|0xffffffffffffffff|6.103515625e-05";
     std::string output_path = "CSVTest-buffer-output";
     {
         std::unique_ptr<geopm::CSV> csv = geopm::make_unique<geopm::CSVImp>(output_path, "", m_start_time, m_buffer_size);
