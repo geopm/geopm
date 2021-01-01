@@ -91,8 +91,7 @@ namespace geopm
                            std::shared_ptr<ProfileTable> table,
                            std::shared_ptr<Comm> reduce_comm,
                            std::shared_ptr<ApplicationStatus> app_status,
-                           std::shared_ptr<ApplicationRecordLog> app_record_log,
-                           int process)
+                           std::shared_ptr<ApplicationRecordLog> app_record_log)
         : m_is_enabled(false)
         , m_prof_name(prof_name)
         , m_key_base(key_base)
@@ -108,7 +107,7 @@ namespace geopm
         , m_table_shmem(nullptr)
         , m_table(table)
         , m_shm_comm(nullptr)
-        , m_process(process)
+        , m_process(-1)
         , m_shm_rank(0)
         , m_reduce_comm(reduce_comm)
         , m_app_status(app_status)
@@ -132,8 +131,7 @@ namespace geopm
                      nullptr,  // table
                      nullptr,  // reduce_comm
                      nullptr,  // app_status
-                     nullptr,  // app_record_log
-                     -1)  // process
+                     nullptr)  // app_record_log
     {
 
     }
