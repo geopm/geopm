@@ -78,7 +78,6 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/ApplicationRecordLogTest.cannot_overflow_region_table \
               test/gtest_links/ApplicationSamplerTest.one_enter_exit \
               test/gtest_links/ApplicationSamplerTest.one_enter_exit_two_ranks \
-              test/gtest_links/ApplicationSamplerTest.process_mapping \
               test/gtest_links/ApplicationSamplerTest.string_conversion \
               test/gtest_links/ApplicationSamplerTest.short_regions \
               test/gtest_links/ApplicationSamplerTest.with_epoch \
@@ -435,8 +434,6 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/ProfileTableTest.name_set_fill_long \
               test/gtest_links/ProfileTableTest.name_set_fill_short \
               test/gtest_links/ProfileTableTest.overfill \
-              test/gtest_links/ProfileTracerTest.construct_update_destruct \
-              test/gtest_links/ProfileTracerTest.format \
               test/gtest_links/ProfileTest.enter_exit \
               test/gtest_links/ProfileTest.enter_exit_nested \
               test/gtest_links/ProfileTest.epoch \
@@ -446,6 +443,8 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/ProfileTestIntegration.enter_exit_nested \
               test/gtest_links/ProfileTestIntegration.epoch \
               test/gtest_links/ProfileTestIntegration.progress_multithread \
+              test/gtest_links/ProfileTracerTest.construct_update_destruct \
+              test/gtest_links/ProfileTracerTest.format \
               test/gtest_links/ProxyEpochRecordFilterTest.simple_conversion \
               test/gtest_links/ProxyEpochRecordFilterTest.skip_one \
               test/gtest_links/ProxyEpochRecordFilterTest.skip_two_off_one \
@@ -461,8 +460,6 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/RecordFilterTest.invalid_filter_name \
               test/gtest_links/RecordFilterTest.make_proxy_epoch \
               test/gtest_links/RecordFilterTest.make_edit_distance \
-              test/gtest_links/RegionAggregatorTest.epoch_total \
-              test/gtest_links/RegionAggregatorTest.sample_total \
               test/gtest_links/ReporterTest.generate \
               test/gtest_links/RuntimeRegulatorTest.all_in_and_out \
               test/gtest_links/RuntimeRegulatorTest.all_reenter \
