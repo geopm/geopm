@@ -196,7 +196,7 @@ TEST_F(TracerTest, update_samples)
     m_tracer->flush();
 
     std::string expected_str = "\n\n\n\n\n\n"
-        "0.5|1|0x0000000000000002|0x0000000000000003|4.5|5.5|6.5|7.5|8.5|9.5|10|11|12.5|13.7|14.7|15.7|88.8|77.7\n";
+        "0.5|1|0x00000002|0x00000003|4.5|5.5|6.5|7.5|8.5|9.5|10|11|12.5|13.7|14.7|15.7|88.8|77.7\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
     ASSERT_TRUE(result.good()) << strerror(errno);
@@ -230,7 +230,7 @@ TEST_F(TracerTest, region_entry_exit)
     m_tracer->flush();
     std::string expected_str ="\n\n\n\n\n"
         "\n" // header
-        "2.2|0|0x0000000000000123|0x0000000100000000|0|0|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n";
+        "2.2|0|0x00000123|0x100000000|0|0|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n";
 
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);

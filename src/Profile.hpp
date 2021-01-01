@@ -231,8 +231,7 @@ namespace geopm
                        std::shared_ptr<ProfileTable> table,
                        std::shared_ptr<Comm> reduce_comm,
                        std::shared_ptr<ApplicationStatus> app_status,
-                       std::shared_ptr<ApplicationRecordLog> app_record_log,
-                       int process);
+                       std::shared_ptr<ApplicationRecordLog> app_record_log);
             /// @brief ProfileImp destructor, virtual.
             virtual ~ProfileImp();
             void init(void) override;
@@ -303,7 +302,6 @@ namespace geopm
             ///        compute node.
             std::shared_ptr<Comm> m_shm_comm;
             /// @brief The process's rank in MPI_COMM_WORLD.
-            int m_rank;
             int m_process;
             /// @brief The process's rank in m_shm_comm.
             int m_shm_rank;
