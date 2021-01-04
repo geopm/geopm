@@ -59,8 +59,6 @@ function run_all_power_sweep {
     EXP_TYPE=power_sweep
     ARGS="--min-power=190 --max-power=230"
     run_all
-    python3 ${EXP_DIR}/power_sweep/gen_policy_recommendation.py \
-            --path ${SLURM_JOB_ID}_dgemm_power_sweep
 }
 
 function run_all_freq_sweep {
