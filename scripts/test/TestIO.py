@@ -42,6 +42,7 @@ from collections import Counter
 from contextlib import contextmanager
 
 import geopmpy.io
+import geopmpy.update_report
 
 
 def touch_file(file_path):
@@ -64,10 +65,12 @@ def self_cleaning_app_output(*args, **kwargs):
         app_output.remove_files()
 
 
-test_report_data = """##### geopm 1.0.0+dev30g4cccfda #####
+test_report_data_old = """\
+##### geopm 1.0.0+dev30g4cccfda #####
 Start Time: Thu May 30 14:38:17 2019
 Profile: test_ee_stream_dgemm_mix
 Agent: energy_efficient
+Policy: {}
 
 Host: mcfly11
 Final online freq map:
@@ -452,6 +455,703 @@ Application Totals:
     geopmctl network BW (B/sec): 0
 """
 
+test_report_data = """\
+GEOPM Version: 1.0.0+dev30g4cccfda
+Start Time: Thu May 30 14:38:17 2019
+Profile: test_ee_stream_dgemm_mix
+Agent: energy_efficient
+Policy: {}
+
+Hosts:
+  mcfly11:
+    Final online freq map:
+      0x0db5f27a: 1000000000.000000
+      0x3a6c47e3: 1000000000.000000
+      0x3c627f60: 1400000000.000000
+      0x536c798f: 1000000000.000000
+      0x725e8066: 2100000000.000000
+      0x76244144: 1100000000.000000
+      0x9851de3f: 1000000000.000000
+      0xaddfa74f: 1600000000.000000
+      0xaf4cafa3: 1700000000.000000
+      0xce08ae24: 1300000000.000000
+      0xe1242325: 1700000000.000000
+      0xe50a9187: 1600000000.000000
+      0xf9d11bbd: 1500000000.000000
+
+    Regions:
+    -
+      name: sleep
+      hash: 0x536c798f
+      runtime (s): 275.998
+      sync-runtime (s): 276.581
+      package-energy (J): 33573.9
+      dram-energy (J): 2835.43
+      power (W): 121.389
+      frequency (%): 50.0846
+      frequency (Hz): 1e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 5500
+      requested-online-frequency: 1000000000.000000
+    -
+      name: stream-0.35-dgemm-1.80
+      hash: 0x76244144
+      runtime (s): 28.5021
+      sync-runtime (s): 28.4395
+      package-energy (J): 4804.24
+      dram-energy (J): 598.129
+      power (W): 168.928
+      frequency (%): 53.9602
+      frequency (Hz): 1.13317e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1100000000.000000
+    -
+      name: stream-0.40-dgemm-1.20
+      hash: 0x0db5f27a
+      runtime (s): 28.2568
+      sync-runtime (s): 28.2187
+      package-energy (J): 4575.15
+      dram-energy (J): 639.775
+      power (W): 162.132
+      frequency (%): 50.303
+      frequency (Hz): 1.05636e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1000000000.000000
+    -
+      name: stream-0.45-dgemm-0.60
+      hash: 0x9851de3f
+      runtime (s): 27.1528
+      sync-runtime (s): 27.1159
+      package-energy (J): 4430.24
+      dram-energy (J): 667.228
+      power (W): 163.382
+      frequency (%): 50.5233
+      frequency (Hz): 1.06099e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1000000000.000000
+    -
+      name: stream-0.30-dgemm-2.40
+      hash: 0xce08ae24
+      runtime (s): 25.6523
+      sync-runtime (s): 25.5885
+      package-energy (J): 4517.88
+      dram-energy (J): 540.39
+      power (W): 176.559
+      frequency (%): 61.4774
+      frequency (Hz): 1.29102e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1300000000.000000
+    -
+      name: stream-0.50-dgemm-0.00
+      hash: 0x3a6c47e3
+      runtime (s): 25.3236
+      sync-runtime (s): 25.2728
+      package-energy (J): 4308.43
+      dram-energy (J): 685.24
+      power (W): 170.477
+      frequency (%): 50.8315
+      frequency (Hz): 1.06746e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1000000000.000000
+    -
+      name: stream-0.25-dgemm-3.00
+      hash: 0x3c627f60
+      runtime (s): 24.4374
+      sync-runtime (s): 24.3823
+      package-energy (J): 4606.69
+      dram-energy (J): 491.049
+      power (W): 188.936
+      frequency (%): 65.2223
+      frequency (Hz): 1.36967e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1400000000.000000
+    -
+      name: stream-0.20-dgemm-3.60
+      hash: 0xf9d11bbd
+      runtime (s): 23.2674
+      sync-runtime (s): 23.2105
+      package-energy (J): 4591.63
+      dram-energy (J): 443.931
+      power (W): 197.826
+      frequency (%): 68.9304
+      frequency (Hz): 1.44754e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1500000000.000000
+    -
+      name: stream-0.15-dgemm-4.20
+      hash: 0xaddfa74f
+      runtime (s): 20.85
+      sync-runtime (s): 20.7729
+      package-energy (J): 4424.92
+      dram-energy (J): 383.237
+      power (W): 213.014
+      frequency (%): 72.3136
+      frequency (Hz): 1.51858e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1600000000.000000
+    -
+      name: stream-0.10-dgemm-4.80
+      hash: 0xe50a9187
+      runtime (s): 19.8318
+      sync-runtime (s): 19.7529
+      package-energy (J): 4429.42
+      dram-energy (J): 328.406
+      power (W): 224.242
+      frequency (%): 72.2398
+      frequency (Hz): 1.51704e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1600000000.000000
+    -
+      name: stream-0.05-dgemm-5.40
+      hash: 0xe1242325
+      runtime (s): 18.2642
+      sync-runtime (s): 18.1456
+      package-energy (J): 4319.39
+      dram-energy (J): 280.249
+      power (W): 238.041
+      frequency (%): 75.8382
+      frequency (Hz): 1.5926e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1700000000.000000
+    -
+      name: stream-0.00-dgemm-6.00
+      hash: 0xaf4cafa3
+      runtime (s): 17.8807
+      sync-runtime (s): 17.8327
+      package-energy (J): 4367.48
+      dram-energy (J): 252.722
+      power (W): 244.914
+      frequency (%): 75.7953
+      frequency (Hz): 1.5917e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1700000000.000000
+    -
+      name: with some spaces
+      hash: 0xaf000fa3
+      runtime (s): 17.8807
+      sync-runtime (s): 17.8327
+      package-energy (J): 4367.48
+      dram-energy (J): 252.722
+      power (W): 244.914
+      frequency (%): 75.7953
+      frequency (Hz): 1.5917e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1700000000.000000
+    Unmarked Totals:
+      runtime (s): 6.07865
+      sync-runtime (s): 6.13216
+      package-energy (J): 1043.75
+      dram-energy (J): 72.5349
+      power (W): 170.209
+      frequency (%): 97.2362
+      frequency (Hz): 2.04196e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 0
+      requested-online-frequency: 2100000000.000000
+    Epoch Totals:
+      runtime (s): 0
+      sync-runtime (s): 0
+      package-energy (J): 0
+      dram-energy (J): 0
+      power (W): 0
+      frequency (%): 0
+      frequency (Hz): 0
+      time-hint-network (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 0
+      time-hint-ignore (s): 0
+    Application Totals:
+      runtime (s): 541.507
+      package-energy (J): 83998.9
+      dram-energy (J): 8218.69
+      power (W): 155.121
+      time-hint-network (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      time-hint-ignore (s): 0
+      geopmctl memory HWM (B): 147939328
+      geopmctl network BW (B/sec): 0.0443208
+
+  mcfly12:
+    Final online freq map:
+      0x0db5f27a: 1000000000.000000
+      0x3a6c47e3: 1000000000.000000
+      0x3c627f60: 1400000000.000000
+      0x536c798f: 1000000000.000000
+      0x725e8066: 2200000000.000000
+      0x76244144: 1100000000.000000
+      0x9851de3f: 1000000000.000000
+      0xaddfa74f: 1500000000.000000
+      0xaf4cafa3: 1700000000.000000
+      0xce08ae24: 1300000000.000000
+      0xe1242325: 1700000000.000000
+      0xe50a9187: 1600000000.000000
+      0xf9d11bbd: 1500000000.000000
+
+    Regions:
+    -
+      name: sleep
+      hash: 0x536c798f
+      runtime (s): 275.837
+      sync-runtime (s): 276.56
+      package-energy (J): 34545.2
+      dram-energy (J): 3811.41
+      power (W): 124.91
+      frequency (%): 50.0117
+      frequency (Hz): 1.05024e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 5500
+      requested-online-frequency: 1000000000.000000
+    -
+      name: stream-0.35-dgemm-1.80
+      hash: 0x76244144
+      runtime (s): 29.1273
+      sync-runtime (s): 29.0865
+      package-energy (J): 4968.14
+      dram-energy (J): 713.884
+      power (W): 170.806
+      frequency (%): 53.9922
+      frequency (Hz): 1.13384e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1100000000.000000
+    -
+      name: stream-0.40-dgemm-1.20
+      hash: 0x0db5f27a
+      runtime (s): 28.4557
+      sync-runtime (s): 28.3904
+      package-energy (J): 4697.92
+      dram-energy (J): 745.835
+      power (W): 165.476
+      frequency (%): 50.3009
+      frequency (Hz): 1.05632e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1000000000.000000
+    -
+      name: stream-0.45-dgemm-0.60
+      hash: 0x9851de3f
+      runtime (s): 27.2367
+      sync-runtime (s): 27.1905
+      package-energy (J): 4478.41
+      dram-energy (J): 767.496
+      power (W): 164.705
+      frequency (%): 50.3711
+      frequency (Hz): 1.05779e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1000000000.000000
+    -
+      name: stream-0.30-dgemm-2.40
+      hash: 0xce08ae24
+      runtime (s): 25.8974
+      sync-runtime (s): 25.8082
+      package-energy (J): 4672.56
+      dram-energy (J): 636.411
+      power (W): 181.05
+      frequency (%): 61.493
+      frequency (Hz): 1.29135e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1300000000.000000
+    -
+      name: stream-0.50-dgemm-0.00
+      hash: 0x3a6c47e3
+      runtime (s): 25.2686
+      sync-runtime (s): 25.2523
+      package-energy (J): 4412.83
+      dram-energy (J): 776.741
+      power (W): 174.75
+      frequency (%): 50.9256
+      frequency (Hz): 1.06944e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1000000000.000000
+    -
+      name: stream-0.25-dgemm-3.00
+      hash: 0x3c627f60
+      runtime (s): 24.5979
+      sync-runtime (s): 24.5117
+      package-energy (J): 4732.35
+      dram-energy (J): 583.029
+      power (W): 193.065
+      frequency (%): 65.2297
+      frequency (Hz): 1.36982e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1400000000.000000
+    -
+      name: stream-0.20-dgemm-3.60
+      hash: 0xf9d11bbd
+      runtime (s): 23.2737
+      sync-runtime (s): 23.2129
+      package-energy (J): 4694.3
+      dram-energy (J): 527.13
+      power (W): 202.228
+      frequency (%): 68.9091
+      frequency (Hz): 1.44709e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1500000000.000000
+    -
+      name: stream-0.15-dgemm-4.20
+      hash: 0xaddfa74f
+      runtime (s): 22.3063
+      sync-runtime (s): 22.1766
+      package-energy (J): 4650.85
+      dram-energy (J): 466.899
+      power (W): 209.719
+      frequency (%): 68.7558
+      frequency (Hz): 1.44387e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1500000000.000000
+    -
+      name: stream-0.10-dgemm-4.80
+      hash: 0xe50a9187
+      runtime (s): 20.3869
+      sync-runtime (s): 20.3101
+      package-energy (J): 4646.27
+      dram-energy (J): 410.599
+      power (W): 228.767
+      frequency (%): 72.2666
+      frequency (Hz): 1.5176e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1600000000.000000
+    -
+      name: stream-0.05-dgemm-5.40
+      hash: 0xe1242325
+      runtime (s): 19.2864
+      sync-runtime (s): 19.1575
+      package-energy (J): 4618.09
+      dram-energy (J): 352.889
+      power (W): 241.059
+      frequency (%): 76.1363
+      frequency (Hz): 1.59886e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1700000000.000000
+    -
+      name: stream-0.00-dgemm-6.00
+      hash: 0xaf4cafa3
+      runtime (s): 18.6718
+      sync-runtime (s): 18.6886
+      package-energy (J): 4600.85
+      dram-energy (J): 321.137
+      power (W): 246.185
+      frequency (%): 75.8795
+      frequency (Hz): 1.59347e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1700000000.000000
+    -
+      name: with some spaces
+      hash: 0xaf000fa3
+      runtime (s): 17.8807
+      sync-runtime (s): 17.8327
+      package-energy (J): 4367.48
+      dram-energy (J): 252.722
+      power (W): 244.914
+      frequency (%): 75.7953
+      frequency (Hz): 1.5917e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 500
+      requested-online-frequency: 1700000000.000000
+    Unmarked Totals:
+      runtime (s): 1.15034
+      sync-runtime (s): 1.11497
+      package-energy (J): 226.452
+      dram-energy (J): 28.9149
+      power (W): 203.102
+      frequency (%): 95.0914
+      frequency (Hz): 1.99692e+09
+      time-hint-network (s): 0
+      time-hint-ignore (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 0
+      requested-online-frequency: 2200000000.000000
+    Epoch Totals:
+      runtime (s): 0
+      sync-runtime (s): 0
+      package-energy (J): 0
+      dram-energy (J): 0
+      power (W): 0
+      frequency (%): 0
+      frequency (Hz): 0
+      time-hint-network (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      count: 0
+      time-hint-ignore (s): 0
+    Application Totals:
+      runtime (s): 541.505
+      package-energy (J): 85946.8
+      dram-energy (J): 10142.6
+      power (W): 158.718
+      time-hint-network (s): 0
+      time-hint-compute (s): 0
+      time-hint-memory (s): 0
+      time-hint-io (s): 0
+      time-hint-serial (s): 0
+      time-hint-parallel (s): 0
+      time-hint-unknown (s): 0
+      time-hint-unset (s): 0
+      time-hint-ignore (s): 0
+      geopmctl memory HWM (B): 145715200
+      geopmctl network BW (B/sec): 0
+"""
+
 # First lines from a test_trace_runtimes integration test run
 test_trace_data = """# geopm_version: 1.0.0+dev209g77e1ebb8
 # start_time: Thu Oct 03 08:19:34 2019
@@ -611,6 +1311,20 @@ class TestIO(unittest.TestCase):
         for ff in basenames:
             os.unlink(ff)
 
+
+class TestConvert(unittest.TestCase):
+    def setUp(self):
+        pass
+    def tearDown(self):
+        pass
+    def test_convert(self):
+        new_report = geopmpy.update_report.update_report_str(test_report_data_old)
+        line_number = 1
+        for (expected_line, actual_line) in zip(test_report_data.splitlines(), new_report.splitlines()):
+            self.assertEqual(expected_line, actual_line,
+                             msg="'{}' != '{}', line: {}".format(
+                             expected_line, actual_line, line_number))
+            line_number += 1
 
 if __name__ == '__main__':
     unittest.main()
