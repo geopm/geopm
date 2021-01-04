@@ -88,6 +88,8 @@ function gen_all_power_sweep {
             check
             python3 ${EXP_DIR}/${EXP_TYPE}/gen_plot_balancer_power_limit.py ${OUTDIR}/*power_balancer*.trace-*
             check
+            python3 ${EXP_DIR}/${EXP_TYPE}/gen_policy_recommendation.py --path ${OUTDIR}
+            check
         done
         print_result
     done

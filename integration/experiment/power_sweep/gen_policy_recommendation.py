@@ -55,7 +55,7 @@ class PowerLimitModel:
     "Abstract class for predicting a statistic based on a power limit."
     def __init__(self):
         "Default constructor."
-        raise NotImplemented()
+        raise NotImplementedError
 
     def train(self, df, key):
         """
@@ -63,15 +63,15 @@ class PowerLimitModel:
         dataframe (df), which is indexed by power limit. This modifies
         the instance it is called on, preparing it for calls of the
         methods test and batch_test."""
-        raise NotImplemented()
+        raise NotImplementedError
 
-    def test(self, PL):
+    def evaluate(self, PL):
         """
         Evaluate a trained model on a single power limit (PL). Returns
         the model's prediction for this power limit."""
-        raise NotImplemented()
+        raise NotImplementedError
 
-    def batch_test(self, PL_list):
+    def batch_evaluate(self, PL_list):
         """
         Evaluate a trained model on a list-like container of power limits
         (PL_list). Returns a list of values."""
@@ -79,7 +79,7 @@ class PowerLimitModel:
 
     def serialize(self):
         "Convert model to JSON."
-        raise NotImplemented()
+        raise NotImplementedError
 
     def __str__(self):
         return "<%s>" % "PowerLimitModel"
@@ -105,14 +105,14 @@ class PolynomialFitPowerModel(PowerLimitModel):
                 df[key].values,
                 deg=self._degree).convert()
 
-    def test(self, PL):
-        return sum(self._model.coef * PL**np.arange(self._degree+1))
+    def evaluate(self, PL):
+        return sum(self._model.coef * PL ** np.arange(self._degree + 1))
 
     def __str__(self):
         if self._model is not None:
             terms = ["", " PL"] + \
                     [" PL ** {}".format(i)
-                            for i in range(2, self._degree+1)]
+                            for i in range(2, self._degree + 1)]
             coeffs = list(self._model.coef)
             expression = ""
             terms.reverse()
@@ -206,26 +206,26 @@ def policy_min_energy(
     if pltdp is None:
         pltdp = max(plrange)
 
-    en_predictions = enmodel.batch_test(plrange)
+    en_predictions = enmodel.batch_evaluate(plrange)
     if max_degradation is None:
         # we don't need the runtime model in this case
         best_energy, best_pl = min(zip(en_predictions, plrange))
         if rtmodel:
-            best_runtime = rtmodel.test(best_pl)
+            best_runtime = rtmodel.evaluate(best_pl)
         else:
             best_runtime = None
         return {'power': best_pl,
                 'runtime': best_runtime,
                 'energy': best_energy}
     else:
-        rt_predictions = rtmodel.batch_test(plrange)
-        rt_at_tdp = rtmodel.test(pltdp)
+        rt_predictions = rtmodel.batch_evaluate(plrange)
+        rt_at_tdp = rtmodel.evaluate(pltdp)
         constrained_values = [
-                (energy, pl, runtime)
+                (energy, runtime, pl)
                 for pl, runtime, energy
                 in zip(plrange, rt_predictions, en_predictions)
                 if runtime <= (1 + max_degradation) * rt_at_tdp]
-        best_energy, best_pl, best_runtime = min(constrained_values)
+        best_energy, best_runtime, best_pl = min(constrained_values)
         return {'power': best_pl,
                 'runtime': best_runtime,
                 'energy': best_energy}
@@ -237,18 +237,16 @@ def main(full_df,
         min_pl,
         max_pl,
         tdp,
-        min_energy,
         max_degradation):
     """
-    The main function. full_df is a report collection dataframe,
-    region_filter is a list of regions to include, dump_prefix
-    a filename prefix for debugging output (if specified), min_pl,
-    max_pl, tdp are the minimum, maximum, and reference power limits,
-    respectively, min_energy is a flag indicating whether or not
-    minimum energy is sought not subject to a constraint on runtime
-    (True if runtime should be ignored) and max_degradation specifies
-    what maximum runtime degradation is accepted."""
-    df = extract_columns(full_df, args.region_filter)
+    The main function. full_df is a report collection dataframe, region_filter
+    is a list of regions to include, dump_prefix a filename prefix for
+    debugging output (if specified), min_pl, max_pl, tdp are the minimum,
+    maximum, and reference power limits, respectively, max_degradation
+    specifies what maximum runtime degradation is accepted. If max_degradation
+    is None, then just find the minimum energy configuration, ignoring
+    runtime."""
+    df = extract_columns(full_df, region_filter)
     if dump_prefix:
         df.to_csv("{}.dat".format(dump_prefix))
         dump_stats_summary(df, "{}.stats".format(dump_prefix))
@@ -261,8 +259,8 @@ def main(full_df,
 
     plrange = [min_pl + i for i in range(int(max_pl - min_pl))] + [max_pl]
     best_policy = policy_min_energy(plrange, energy_model, runtime_model, tdp,
-            max_degradation=(None if args.min_energy else args.max_degradation))
-    tdprt, tdpen = runtime_model.test(tdp), energy_model.test(tdp)
+            max_degradation=max_degradation)
+    tdprt, tdpen = runtime_model.evaluate(tdp), energy_model.evaluate(tdp)
 
     return {'tdp': {'power': tdp, 'runtime': tdprt, 'energy': tdpen},
             'best': best_policy}
@@ -274,16 +272,17 @@ if __name__ == '__main__':
     common_args.add_max_power(parser)
     parser.add_argument('--path', required=True,
                         help='path containing reports and machine.json')
-    parser.add_argument('--region_filter', default=None,
+    parser.add_argument('--region-filter', default=None, dest='region_filter',
                         help='comma-separated list of regions to include, '
                              'default to include all regions')
-    parser.add_argument('--dump_prefix',
+    parser.add_argument('--dump-prefix', dest='dump_prefix',
                         help='prefix to dump statistics to, empty to not dump '
                              'stats')
-    parser.add_argument('--tdp', default=-1, type=float,
+    parser.add_argument('--tdp', default=None, type=float,
                         help='tdp (sticker power limit), default behavior is '
                              'to use max power')
-    parser.add_argument('--max_degradation', default=0.1, type=float,
+    parser.add_argument('--max-degradation',
+                        default=0.1, type=float, dest='max_degradation',
                         help='maximum allowed runtime degradation, default is '
                              '0.1 (i.e., 10%%)')
     parser.add_argument('--min_energy', action='store_true',
@@ -324,7 +323,7 @@ if __name__ == '__main__':
         max_pl = args.max_power
 
     output = main(df, args.region_filter, args.dump_prefix, min_pl, max_pl, tdp,
-                  args.min_energy, args.max_degradation)
+                  None if args.min_energy else args.max_degradation)
 
     sys.stdout.write(
             "AT TDP = {power:.0f}W, "
