@@ -212,15 +212,15 @@ namespace geopm
             };
             yaml_write(common_report, M_INDENT_HEADER, header);
             yaml_write(common_report, M_INDENT_HEADER, agent_report_header);
+            common_report << "\n";
+            yaml_write(common_report, M_INDENT_HOST, "Hosts:");
         }
 
         // per-host report
         std::ostringstream report;
-        report << "\n";
-        yaml_write(report, M_INDENT_HOST, "Hosts:");
         yaml_write(report, M_INDENT_HOST_NAME, hostname() + ":");
         yaml_write(report, M_INDENT_HOST_AGENT, agent_host_report);
-        yaml_write(report, M_INDENT_REGION, "regions:");
+        yaml_write(report, M_INDENT_REGION, "Regions:");
 
         // vector of region data, in descending order by runtime
         struct region_info {

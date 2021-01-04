@@ -351,7 +351,7 @@ TEST_F(ReporterTest, generate)
         "  " + geopm::hostname() + ":\n"
         "    three: 3\n"
         "    four: 4\n"
-        "    regions:\n"
+        "    Regions:\n"
         "    -\n"
         "      name: all2all\n"
         "      hash: 0x3ddc81bf\n"
