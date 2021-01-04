@@ -26,4 +26,6 @@ The WRF build scripts use perl to change the configure file before
 build, so the generalized setup of compilers used for other apps
 in the GEOPM integration infrastructure will not work as expected.
 The configure file has been modified in the patches to use ifort,
-mpiifort, and mpiicc.  Please modify as necessary.
+mpiifort, and mpiicc.  Please modify the
+<WRFMODEL>/arch/configure_new.defaults file as necessary for a
+given architecture and run mode.

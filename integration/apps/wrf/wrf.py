@@ -121,16 +121,20 @@ export WRF_NUM_TILES={}
 
     def parse_fom(self, log_path):
         key = "Timing for main"
-        idx = 0;
+        count = 0;
         timestep_sum = 0;
         filename = 'rsl.out.0000'
         with open(filename) as fid:
             for line in fid.readlines():
                 line = line.rstrip()  # remove '\n' at end of line
                 if key in line:
-                    if idx > 0: #First value skews the FOM
+                    if count > 0: #First value skews the FOM
                         timestep_sum += float(line.split(':')[-1].strip().split()[0])
-                    idx += 1;
+                    count += 1;
 
-        avg_time = 1/(timestep_sum/idx);
-        return avg_time;
+        #Avg time per step is likely what WRF users will be familiar with.
+        avg_time = timestep_sum/count;
+
+        #Avg rate is in line with the FoM approach used by GEOPM
+        avg_rate = count/timestep_sum;
+        return avg_rate;
