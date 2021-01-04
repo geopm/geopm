@@ -45,4 +45,5 @@ EXTRA_DIST += integration/experiment/power_sweep/gen_balancer_comparison.py \
               integration/experiment/power_sweep/run_power_sweep_minife.py \
               integration/experiment/power_sweep/run_power_sweep_nekbone.py \
               integration/experiment/power_sweep/run_power_sweep_pennant.py \
+              integration/experiment/power_sweep/test_gen_policy_recommendation.py \
               # end
