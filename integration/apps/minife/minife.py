@@ -41,8 +41,7 @@ class MinifeAppConf(apps.AppConf):
     def name():
         return 'minife'
 
-    def __init__(self, num_nodes):
-        self.ranks_per_node = 2
+    def __init__(self, num_nodes, mach, pin_config='geopm_os_reserved'):
         problem_sizes = {
             1: '-nx=396 -ny=384 -nz=384',  # '-nx=264 -ny=256 -nz=256',
             4: '-nx=528 -ny=512 -nz=512',  # '-nx=419 -ny=406 -nz=406',
@@ -56,11 +55,18 @@ class MinifeAppConf(apps.AppConf):
             raise RuntimeError("No input size defined for minife on {} nodes".format(num_nodes))
         self.app_params = problem_sizes[num_nodes]
 
+        app_cores = apps.get_available_app_cores(mach, pin_config)
+        self.ranks_per_node = 4
+        self.cpu_per_rank = app_cores // self.ranks_per_node
+
         benchmark_dir = os.path.dirname(os.path.abspath(__file__))
         self.exe_path = os.path.join(benchmark_dir, 'miniFE_openmp-2.0-rc3/src/miniFE.x')
 
     def get_rank_per_node(self):
         return self.ranks_per_node
+
+    def get_cpu_per_rank(self):
+        return self.cpu_per_rank
 
     def get_bash_exec_path(self):
         return self.exe_path

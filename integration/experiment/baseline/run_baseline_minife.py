@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,21 +31,26 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/experiment/common_args.py \
-              integration/experiment/__init__.py \
-              integration/experiment/gen_slurm.sh \
-              integration/experiment/launch_util.py \
-              integration/experiment/machine.py \
-              integration/experiment/plotting.py \
-              integration/experiment/README.md \
-              integration/experiment/report.py \
-              integration/experiment/util.py \
-              # end
+'''
+Run MiniFE with the monitor agent.
+'''
 
-include integration/experiment/baseline/Makefile.mk
-include integration/experiment/energy_efficiency/Makefile.mk
-include integration/experiment/frequency_sweep/Makefile.mk
-include integration/experiment/monitor/Makefile.mk
-include integration/experiment/power_sweep/Makefile.mk
-include integration/experiment/trace_analysis/Makefile.mk
-include integration/experiment/uncore_frequency_sweep/Makefile.mk
+import argparse
+
+from experiment import machine
+from experiment.baseline import baseline
+from apps.minife import minife
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    baseline.setup_run_args(parser)
+    args, extra_args = parser.parse_known_args()
+    mach = machine.init_output_dir(args.output_dir)
+    app_conf_full = minife.MinifeAppConf(args.node_count, mach, 'all_cores')
+    app_conf_reserved = minife.MinifeAppConf(args.node_count, mach, 'geopm_os_reserved')
+    baseline.launch(app_conf_configs={'full': app_conf_full,
+                                      'reserved': app_conf_reserved},
+                    args=args,
+                    experiment_cli_args=extra_args)
+

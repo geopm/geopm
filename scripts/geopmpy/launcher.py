@@ -150,7 +150,7 @@ class Config(object):
         if any(aa.startswith('--geopm-ctl-disable') for aa in argv):
             argv.remove('--geopm-ctl-disable')
             if any(aa.startswith('--geopm-') for aa in argv):
-                raise RuntimeError('<geopm> geopmpy.launcher: Some GEOPM options have been provided but --geopm-ctl-disable was also given.')
+                raise RuntimeError('<geopm> geopmpy.launcher: Some GEOPM options have been provided but --geopm-ctl-disable was also given: {}'.format(argv))
             raise PassThroughError('<geopm> geopmpy.launcher: --geopm-ctl-disable specified; disabling the controller...')
         # Parse the subset of arguments used by geopm
         parser = argparse.ArgumentParser(add_help=False)

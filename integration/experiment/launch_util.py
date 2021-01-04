@@ -34,6 +34,8 @@
 
 import os
 import time
+import timeit
+import datetime
 import sys
 
 import geopmpy.launcher
@@ -43,13 +45,15 @@ from apps import apps
 
 
 def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
-               num_nodes, enable_traces, enable_profile_traces):
+               num_nodes, enable_traces, enable_profile_traces,
+               use_geopm_ctl):
     # launcher and app should create files in output_dir
     start_dir = os.getcwd()
     os.chdir(output_dir)
 
     # TODO: why does launcher strip off first arg, rather than geopmlaunch main?
     argv = ['dummy', util.detect_launcher()]
+    extra_args = extra_cli_args.copy()
 
     agent_name = 'monitor'
     if agent_conf is not None:
@@ -61,29 +65,42 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
 
     app_name = app_conf.name()
 
-    uid = '{}_{}_{}'.format(app_name.lower(), agent_name, run_id)
-    report_path = os.path.join(output_dir, '{}.report'.format(uid))
-    trace_path = os.path.join(output_dir, '{}.trace'.format(uid))
-    profile_trace_path = os.path.join(output_dir, '{}.ptrace'.format(uid))
-    profile_name = uid
+    if use_geopm_ctl:
+        uid = '{}_{}_{}'.format(app_name.lower(), agent_name, run_id)
+        report_path = os.path.join(output_dir, '{}.report'.format(uid))
+        trace_path = os.path.join(output_dir, '{}.trace'.format(uid))
+        profile_trace_path = os.path.join(output_dir, '{}.ptrace'.format(uid))
+        profile_name = uid
+        extra_args += ['--geopm-report', report_path,
+                       '--geopm-profile', profile_name,]
+        if enable_traces:
+            extra_args += ['--geopm-trace', trace_path]
+        if enable_profile_traces:
+            extra_args += ['--geopm-trace-profile', profile_trace_path]
+        # extra geopm args needed by app
+        # TODO: make sure no non-geopm args in this list (e.g. WRF); if so,
+        # they will need to be added below with a different AppConf method
+        extra_args += app_conf.get_custom_geopm_args()
+    else:
+        uid = '{}_{}_{}'.format(app_name.lower(), 'no_ctl', run_id)
+        report_path = os.path.join(output_dir, '{}.report'.format(uid))
+        extra_args += ['--geopm-ctl-disable']
+
+        # This must match format from report header, including geopm_time_to_string()
+        header = '##### geopm {} #####\n'.format(geopmpy.version.__version__)
+        header += 'Start Time: {}\n'.format(datetime.datetime.now().strftime("%a %b %d %H:%M:%S %Y"))
+        header += 'Profile: {}\n'.format(uid)
+        header += 'Agent: None\n'
+        header += 'Policy: None\n'
+        with open(report_path, 'w') as report:
+            report.write(header)
+
     log_path = os.path.join(output_dir, '{}.log'.format(uid))
+
     sys.stdout.write('Run commencing...\nLive job output will be written to: {}\n'
                      .format(os.path.join(output_dir, log_path)))
 
-    # TODO: these are not passed to launcher create()
-    # some are generic enough they could be, though
-    extra_cli_args += ['--geopm-report', report_path,
-                       '--geopm-profile', profile_name,
-    ]
-    if enable_traces:
-        extra_cli_args += ['--geopm-trace', trace_path]
-    if enable_profile_traces:
-        extra_cli_args += ['--geopm-trace-profile', profile_trace_path]
-
-    argv.extend(extra_cli_args)
-
-    # extra geopm args needed by app
-    argv.extend(app_conf.get_custom_geopm_args())
+    argv.extend(extra_args)
 
     argv.extend(['--'])
 
@@ -97,23 +114,29 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
                                                  num_node=num_nodes,
                                                  num_rank=num_ranks,
                                                  cpu_per_rank=cpu_per_rank)
+    start_time = timeit.default_timer()
     launcher.run()
+    end_time = timeit.default_timer()
 
     # Get app-reported figure of merit
     fom = app_conf.parse_fom(log_path)
+    # Get total runtime
+    total_runtime = datetime.timedelta(seconds=end_time-start_time).total_seconds()
     # Append to report
     with open(report_path, 'a') as report:
         report.write('\nFigure of Merit: {}\n'.format(fom))
+        report.write('Total Runtime: {}\n'.format(total_runtime))
 
     # return to previous directory
     os.chdir(start_dir)
 
 
 class LaunchConfig():
-    def __init__(self, app_conf, agent_conf, name):
+    def __init__(self, app_conf, agent_conf, name, use_geopm_ctl=True):
         self._app_conf = app_conf
         self._agent_conf = agent_conf
         self._name = name
+        self._use_geopm_ctl = use_geopm_ctl
 
     def app_conf(self):
         return self._app_conf
@@ -126,6 +149,9 @@ class LaunchConfig():
         if self._name:
             run_id = '{}_{}'.format(self._name, run_id)
         return run_id
+
+    def use_geopm_ctl(self):
+        return self._use_geopm_ctl
 
 
 def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir,
@@ -149,7 +175,8 @@ def launch_all_runs(targets, num_nodes, iterations, extra_cli_args, output_dir,
             launch_run(agent_conf, app_conf, run_id, output_dir,
                        extra_cli_args=extra_cli_args,
                        num_nodes=num_nodes, enable_traces=enable_traces,
-                       enable_profile_traces=enable_profile_traces)
+                       enable_profile_traces=enable_profile_traces,
+                       use_geopm_ctl=tar.use_geopm_ctl())
             app_conf.trial_teardown(run_id, output_dir)
 
             # rest to cool off between runs

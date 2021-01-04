@@ -142,7 +142,6 @@ class AppConf(object):
         '''
         return None
 
-
     def trial_setup(self, run_id, output_dir):
         '''Create files to be used during a launch of a step in an experiment.
            This method may create symbolic links, copy files into the
@@ -277,7 +276,7 @@ class AppConf(object):
                 log_path (str): path to the log file containing the
                                 standard output from the previous run.
 
-            Return:
+            Returns:
                 float or None: application figure of merit for the run.
         '''
         return None
@@ -293,7 +292,7 @@ def make_bash(app_conf, run_id, log_file):
             log_path (str): path to the log file containing the
                             standard output from the previous run.
 
-        Return:
+        Returns:
             str: path to the generated script
     '''
 
@@ -320,3 +319,34 @@ def make_bash(app_conf, run_id, log_file):
     # read, write, execute for owner
     os.chmod(bash_file, stat.S_IRWXU)
     return bash_file
+
+
+def get_available_app_cores(mach, pin_config):
+    '''Returns the number of cores per node available to be used by
+    an application for the given pinning configuration.  The pinning
+    configuration determines how many cores will be reserved for the
+    OS and the GEOPM controller, if any.
+
+    Args:
+        pin_config (str): One of "all_cores" (no cores reserved),
+                          "geopm_os_shared" (1 core reserved to be
+                          shared by OS and GEOPM), or
+                          "geopm_os_reserved" (2 cores reserved for
+                          the OS and GEOPM).
+        mach (Machine): the machine configuration for the compute
+                        nodes containing the total number of cores.
+
+    Returns:
+        int: number of cores available to be used by the application.
+
+    '''
+    app_cores = mach.num_core()
+    if pin_config == 'all_cores':
+        pass
+    elif pin_config == 'geopm_os_shared':
+        app_cores -= 1
+    elif pin_config == 'geopm_os_reserved':
+        app_cores -= 2
+    else:
+        raise RuntimeError("Unknown pin_config: {}".format(pin_config))
+    return app_cores
