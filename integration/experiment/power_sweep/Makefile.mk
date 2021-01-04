@@ -30,6 +30,7 @@
 #
 
 EXTRA_DIST += integration/experiment/power_sweep/gen_balancer_comparison.py \
+              integration/experiment/power_sweep/gen_policy_recommendation.py \
               integration/experiment/power_sweep/gen_power_sweep_summary.py \
               integration/experiment/power_sweep/gen_plot_balancer_comparison.py \
               integration/experiment/power_sweep/gen_plot_balancer_power_limit.py \
