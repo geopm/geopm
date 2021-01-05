@@ -109,45 +109,11 @@ namespace geopm
         , m_sticker_freq(m_platform_io.read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0))
         , m_epoch_count_idx(-1)
     {
-
-    }
-
-    void ReporterImp::init(void)
-    {
-        if (m_proc_region_agg == nullptr) {
-            // ProcessRegionAggregator should not be constructed until
-            // application connection is established.
-            m_proc_region_agg = ProcessRegionAggregator::make_unique();
-        }
+        GEOPM_DEBUG_ASSERT(m_sample_agg != nullptr, "m_sample_agg cannot be null");
 
         init_sync_fields();
 
-        for (const auto &field : m_sync_fields) {
-            for (const auto &signal : field.supporting_signals) {
-                m_sync_signal_idx[signal] = m_sample_agg->push_signal_total(signal, GEOPM_DOMAIN_BOARD, 0);
-            }
-        }
-
-        for (const std::string &signal_name : string_split(m_env_signals, ",")) {
-            std::vector<std::string> signal_name_domain = string_split(signal_name, "@");
-            if (signal_name_domain.size() == 2) {
-                int domain_type = m_platform_topo.domain_name_to_type(signal_name_domain[1]);
-                for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(domain_type); ++domain_idx) {
-                    m_env_signal_name_idx.emplace_back(
-                        signal_name + '-' + std::to_string(domain_idx),
-                        m_sample_agg->push_signal_total(signal_name_domain[0], domain_type, domain_idx));
-                }
-            }
-            else if (signal_name_domain.size() == 1) {
-                m_env_signal_name_idx.emplace_back(
-                    signal_name,
-                    m_sample_agg->push_signal_total(signal_name, GEOPM_DOMAIN_BOARD, 0));
-            }
-            else {
-                throw Exception("ReporterImp::init(): Environment report extension contains signals with multiple \"@\" characters.",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-            }
-        }
+        init_environment_signals();
 
         m_epoch_count_idx = m_platform_io.push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0);
 
@@ -161,6 +127,15 @@ namespace geopm
                 }
                 std::remove(m_report_name.c_str());
             }
+        }
+    }
+
+    void ReporterImp::init(void)
+    {
+        if (m_proc_region_agg == nullptr) {
+            // ProcessRegionAggregator should not be constructed until
+            // application connection is established.
+            m_proc_region_agg = ProcessRegionAggregator::make_unique();
         }
     }
 
@@ -387,6 +362,36 @@ namespace geopm
             {"time-hint-unknown (s)", {"TIME_HINT_UNKNOWN"}, sample_only},
             {"time-hint-unset (s)", {"TIME_HINT_UNSET"}, sample_only},
         };
+
+        for (const auto &field : m_sync_fields) {
+            for (const auto &signal : field.supporting_signals) {
+                m_sync_signal_idx[signal] = m_sample_agg->push_signal_total(signal, GEOPM_DOMAIN_BOARD, 0);
+            }
+        }
+    }
+
+    void ReporterImp::init_environment_signals(void)
+    {
+        for (const std::string &signal_name : string_split(m_env_signals, ",")) {
+            std::vector<std::string> signal_name_domain = string_split(signal_name, "@");
+            if (signal_name_domain.size() == 2) {
+                int domain_type = m_platform_topo.domain_name_to_type(signal_name_domain[1]);
+                for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(domain_type); ++domain_idx) {
+                    m_env_signal_name_idx.emplace_back(
+                        signal_name + '-' + std::to_string(domain_idx),
+                        m_sample_agg->push_signal_total(signal_name_domain[0], domain_type, domain_idx));
+                }
+            }
+            else if (signal_name_domain.size() == 1) {
+                m_env_signal_name_idx.emplace_back(
+                    signal_name,
+                    m_sample_agg->push_signal_total(signal_name, GEOPM_DOMAIN_BOARD, 0));
+            }
+            else {
+                throw Exception("ReporterImp::init(): Environment report extension contains signals with multiple \"@\" characters.",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            }
+        }
     }
 
     std::vector<std::pair<std::string, double> > ReporterImp::get_region_data(uint64_t region_hash)
