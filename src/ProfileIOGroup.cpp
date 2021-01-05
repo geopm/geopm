@@ -217,41 +217,24 @@ namespace geopm
 
     uint64_t ProfileIOGroup::signal_type_to_hint(int signal_type)
     {
-        uint64_t result = GEOPM_REGION_HINT_UNSET;
-        switch (signal_type) {
-            case M_SIGNAL_TIME_HINT_UNSET:
-                result = GEOPM_REGION_HINT_UNSET;
-                break;
-            case M_SIGNAL_TIME_HINT_UNKNOWN:
-                result = GEOPM_REGION_HINT_UNKNOWN;
-                break;
-            case M_SIGNAL_TIME_HINT_COMPUTE:
-                result = GEOPM_REGION_HINT_COMPUTE;
-                break;
-            case M_SIGNAL_TIME_HINT_MEMORY:
-                result = GEOPM_REGION_HINT_MEMORY;
-                break;
-            case M_SIGNAL_TIME_HINT_NETWORK:
-                result = GEOPM_REGION_HINT_NETWORK;
-                break;
-            case M_SIGNAL_TIME_HINT_IO:
-                result = GEOPM_REGION_HINT_IO;
-                break;
-            case M_SIGNAL_TIME_HINT_SERIAL:
-                result = GEOPM_REGION_HINT_SERIAL;
-                break;
-            case M_SIGNAL_TIME_HINT_PARALLEL:
-                result = GEOPM_REGION_HINT_PARALLEL;
-                break;
-            case M_SIGNAL_TIME_HINT_IGNORE:
-                result = GEOPM_REGION_HINT_IGNORE;
-                break;
-            default:
+        static const std::map<int, uint64_t> type_hints {
+            {M_SIGNAL_TIME_HINT_UNSET, GEOPM_REGION_HINT_UNSET},
+            {M_SIGNAL_TIME_HINT_UNKNOWN, GEOPM_REGION_HINT_UNKNOWN},
+            {M_SIGNAL_TIME_HINT_COMPUTE, GEOPM_REGION_HINT_COMPUTE},
+            {M_SIGNAL_TIME_HINT_MEMORY, GEOPM_REGION_HINT_MEMORY},
+            {M_SIGNAL_TIME_HINT_NETWORK, GEOPM_REGION_HINT_NETWORK},
+            {M_SIGNAL_TIME_HINT_IO, GEOPM_REGION_HINT_IO},
+            {M_SIGNAL_TIME_HINT_SERIAL, GEOPM_REGION_HINT_SERIAL},
+            {M_SIGNAL_TIME_HINT_PARALLEL, GEOPM_REGION_HINT_PARALLEL},
+            {M_SIGNAL_TIME_HINT_IGNORE, GEOPM_REGION_HINT_IGNORE}
+        };
+        auto result = type_hints.find(signal_type);
+        if (result == type_hints.end()) {
                 throw Exception("ProfileIOGroup::signal_type_to_hint(): signal_type "
                                 "must be a M_SIGNAL_TIME_HINT type",
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        return result;
+        return result->second;
     }
 
 
