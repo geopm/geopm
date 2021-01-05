@@ -60,8 +60,9 @@ namespace geopm
         public:
             Reporter() = default;
             virtual ~Reporter() = default;
-            /// @brief Set up per-region tracking of energy signals
-            ///        and signals used to calculate frequency.
+            /// @brief Handle any initialization that must take place
+            ///        after the Controller has connected to the
+            ///        application.
             virtual void init(void) = 0;
             /// @brief Read values from PlatformIO to update
             ///        aggregated samples.
@@ -149,6 +150,13 @@ namespace geopm
             /// @brief Set up structures used to calculate region-synchronous
             ///        field data to be sampled from SampleAggregator.
             void init_sync_fields(void);
+            /// @brief Set up signals added by the user through the environment.
+            void init_environment_signals(void);
+            /// @brief Samples values for fields common to all
+            ///        regions, epoch data, and application totals.
+            ///        The vector returned by this method is intended
+            ///        to be passed to yaml_write().
+            std::vector<std::pair<std::string, double> > get_region_data(uint64_t region_hash);
             /// @brief Returns the memoy high water mark for the
             ///        controller process.
             double get_max_memory(void);
@@ -158,8 +166,6 @@ namespace geopm
                                    const std::vector<std::pair<std::string, std::string> > &data);
             static void yaml_write(std::ostream &os, int indent_level,
                                    const std::vector<std::pair<std::string, double> > &data);
-
-            std::vector<std::pair<std::string, double> > get_region_data(uint64_t region_hash);
 
             std::string m_start_time;
             std::string m_report_name;
