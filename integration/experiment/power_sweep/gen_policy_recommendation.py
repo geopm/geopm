@@ -171,7 +171,7 @@ def dump_stats_summary(df, fname):
     runtime and energy for each power limit in CSV format to the
     file fname."""
     means = df.groupby(level=0).mean().rename(lambda x: x+"_mean", axis=1)
-    stds = df.groupby(level=0).mean().rename(lambda x: x+"_stddev", axis=1)
+    stds = df.groupby(level=0).std().rename(lambda x: x+"_stddev", axis=1)
     pandas.concat([means, stds], axis=1).to_csv(fname)
 
 
