@@ -56,13 +56,9 @@ def prep_plot_data(report_data, metric, normalize, speedup, use_stdev):
     # rename some columns
     idf['power_limit'] = idf['POWER_PACKAGE_LIMIT_TOTAL']
 
-    print(idf)
-
     # mean across nodes within trials
     idf = idf.set_index(['Agent', 'power_limit', 'host', 'trial'])
     idf = idf.groupby(['Agent', 'power_limit', 'trial']).mean()
-
-    print(idf)
 
     df = pandas.DataFrame()
     reference = 'power_governor'
@@ -251,10 +247,10 @@ def plot_balancer_comparison(output, label, metric, output_dir='.',
         sys.stdout.write('Writing:\n')
     if not os.path.exists(os.path.join(output_dir, 'figures')):
         os.mkdir(os.path.join(output_dir, 'figures'))
-    full_path = os.path.join(output_dir, 'figures', '{}'.format(file_name))
-    plt.savefig(full_path)
+    full_path = os.path.join(output_dir, 'figures', file_name)
+    plt.savefig(full_path + '.png')
     if detailed:
-        sys.stdout.write('    {}\n'.format(full_path))
+        sys.stdout.write('    {}\n'.format(full_path + '.png'))
         sys.stdout.write('    {}\n'.format(full_path + '.log'))
         with open(full_path + '.log', 'w') as log:
             log.write('{}\n'.format(df))

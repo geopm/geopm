@@ -113,7 +113,7 @@ def generate_histogram(data, app_name, min_drop, max_drop, label, bin_size,
         os.makedirs(fig_dir)
 
     filename = plotting.title_to_filename('{}_{}_histo'.format(app_name, label))
-    full_path = os.path.join(fig_dir, filename)
+    full_path = os.path.join(fig_dir, filename + '.png')
     plt.savefig(full_path)
     if verbose:
         sys.stdout.write('    {}\n'.format(full_path))
