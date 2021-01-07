@@ -66,26 +66,29 @@ class TestPolicy(unittest.TestCase):
         runtime_model.train(df, key='runtime')
         energy_model.train(df, key='energy')
         
-        assert(policy_min_energy(
-                    plrange,
-                    energy_model,
-                    runtime_model,
-                    tdp)['power'] == 210)
-        assert(policy_min_energy(
-                    plrange,
-                    energy_model,
-                    runtime_model,
-                    tdp,
-                    0.1)['power'] == 250)
-        assert(policy_min_energy(
-                    plrange,
-                    energy_model,
-                    runtime_model,
-                    tdp,
-                    0.05)['power'] == 260)
+        self.assertEqual(
+                policy_min_energy(plrange,
+                                  energy_model,
+                                  runtime_model,
+                                  tdp)['power'],
+                210)
+        self.assertEqual(
+                policy_min_energy(plrange,
+                                  energy_model,
+                                  runtime_model,
+                                  tdp,
+                                  0.1)['power'],
+                250)
+        self.assertEqual(
+                policy_min_energy(plrange,
+                                  energy_model,
+                                  runtime_model,
+                                  tdp,
+                                  0.05)['power'],
+                260)
 
     def test_noisy(self):
-        self.test_basic(noise=0.1, samples=10) 
+        self.test_basic(noise=0.1, samples=20) 
 
 if __name__ == '__main__':
     unittest.main()
