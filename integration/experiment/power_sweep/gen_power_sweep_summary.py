@@ -55,10 +55,13 @@ def summary(parse_output):
     parse_output['achieved_power'] = parse_output['energy_pkg'] / parse_output['sync-runtime (sec)']
     parse_output['iteration'] = parse_output.apply(lambda row: row['Profile'].split('_')[-1],
                                                    axis=1)
+    # add extra columns
+    parse_output['cpu_time'] = parse_output['runtime'] - parse_output['network_time']
+
     # set up index for grouping
     parse_output = parse_output.set_index(['Agent', 'host', 'power_limit'])
     summary = pandas.DataFrame()
-    for col in ['count', 'runtime', 'network_time', 'energy_pkg', 'energy_dram', 'frequency', 'achieved_power']:
+    for col in ['count', 'runtime', 'cpu_time', 'network_time', 'energy_pkg', 'energy_dram', 'frequency', 'achieved_power']:
         summary[col] = parse_output[col].groupby(['Agent', 'power_limit']).mean()
     return summary
 
