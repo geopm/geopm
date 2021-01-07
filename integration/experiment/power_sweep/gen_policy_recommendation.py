@@ -145,7 +145,7 @@ def extract_columns(df, region_filter = None):
     is a container that specifies which regions to include (by default,
     include all of them)."""
     df_filtered = df
-    if region_filter:
+    if region_filter and region_filter != 'Epoch':
         df_filtered = df[df['region'].isin(region_filter.split(','))]
 
     # these are the only columns we need
@@ -269,7 +269,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     try:
-        df = geopmpy.io.RawReportCollection('*report', dir_name=args.path).get_df()
+        if args.region_filter == 'Epoch':
+            df = geopmpy.io.RawReportCollection('*report', dir_name=args.path).get_epoch_df()
+        else:
+            df = geopmpy.io.RawReportCollection('*report', dir_name=args.path).get_df()
     except RuntimeError:
         sys.stderr.write('<geopm> Error: No report data found in ' + path + \
                          '; run a power sweep before using this analysis.\n')
