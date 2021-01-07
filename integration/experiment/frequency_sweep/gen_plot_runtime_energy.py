@@ -83,7 +83,7 @@ def generate_runtime_energy_plot(df, perf_metric_label, energy_metric_label, tit
     if not os.path.exists(os.path.join(output_dir, 'figures')):
         os.mkdir(os.path.join(output_dir, 'figures'))
     figname = plotting.title_to_filename('{}_freq_energy'.format(title))
-    plt.savefig(os.path.join(output_dir, 'figures', figname))
+    plt.savefig(os.path.join(output_dir, 'figures', figname + '.png'))
     plt.close()
 
 

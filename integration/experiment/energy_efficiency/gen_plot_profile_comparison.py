@@ -119,7 +119,7 @@ def plot_bars(df, baseline_profile, title, perf_label, energy_label, xlabel, out
     if not os.path.exists(fig_dir):
         os.mkdir(fig_dir)
     fig_name = plotting.title_to_filename(title)
-    fig_name = os.path.join(fig_dir, fig_name)
+    fig_name = os.path.join(fig_dir, fig_name + '.png')
     plt.savefig(fig_name)
     if show_details:
         sys.stdout.write('Wrote {}\n'.format(fig_name))
