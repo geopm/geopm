@@ -1,0 +1,28 @@
+From 7dc0b8a6357aca6405be8e9c8ba30705618a6d12 Mon Sep 17 00:00:00 2001
+From: Diana Guttman <diana.r.guttman@intel.com>
+Date: Fri, 16 Oct 2020 11:36:13 -0700
+Subject: [PATCH 2/2] Put blockMeshDict in system
+
+- Allows it to be cleaned up.
+
+Signed-off-by: Diana Guttman <diana.r.guttman@intel.com>
+---
+ benchmarks/motorbike/Mesh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/benchmarks/motorbike/Mesh b/benchmarks/motorbike/Mesh
+index ae9c976..f76e490 100755
+--- a/benchmarks/motorbike/Mesh
++++ b/benchmarks/motorbike/Mesh
+@@ -12,7 +12,7 @@ echo "Setting up with $NPROCS procs.  Blockmesh size = $NX x $NY x $NZ"
+ mkdir -p constant/polyMesh
+ mkdir -p constant/triSurface
+ 
+-sed "s/NX/$NX/g;s/NY/$NY/g;s/NZ/$NZ/g" system/blockMeshDict-mesh.in > constant/polyMesh/blockMeshDict
++sed "s/NX/$NX/g;s/NY/$NY/g;s/NZ/$NZ/g" system/blockMeshDict-mesh.in > system/blockMeshDict
+ cp system/decomposeParDict-mesh.in system/decomposeParDict
+ 
+ # Source tutorial run functions
+-- 
+1.8.3.1
+

@@ -30,47 +30,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SAMPLESCHEDULER_HPP_INCLUDE
-#define SAMPLESCHEDULER_HPP_INCLUDE
+#ifndef MOCKAPPLICATIONRECORDLOG_HPP_INCLUDE
+#define MOCKAPPLICATIONRECORDLOG_HPP_INCLUDE
 
-#include "geopm_time.h"
+#include "gmock/gmock.h"
 
-namespace geopm
+#include "ApplicationRecordLog.hpp"
+
+class MockApplicationRecordLog : public geopm::ApplicationRecordLog
 {
-    /// @brief SampleSchecduler class encapsulates functionality to schedule and
-    /// regulate the frequency of application profile samples.
-    class SampleScheduler
-    {
-        public:
-            SampleScheduler() = default;
-            virtual ~SampleScheduler() = default;
-            virtual bool do_sample(void) = 0;
-            virtual void record_exit(void) = 0;
-            virtual void clear(void) = 0;
-    };
-
-    class SampleSchedulerImp : public SampleScheduler
-    {
-        public:
-            SampleSchedulerImp(double overhead_frac);
-            virtual ~SampleSchedulerImp() = default;
-            bool do_sample(void) override;
-            void record_exit(void) override;
-            void clear(void) override;
-        private:
-            enum m_status_e {
-                M_STATUS_CLEAR,
-                M_STATUS_ENTERED,
-                M_STATUS_READY,
-            };
-            double m_overhead_frac;
-            int m_status;
-            struct geopm_time_s m_entry_time;
-            double m_sample_time;
-            double m_work_time;
-            size_t m_sample_stride;
-            size_t m_sample_count;
-    };
-}
+    public:
+        MOCK_METHOD1(set_process,
+                     void(int process));
+        MOCK_METHOD1(set_time_zero,
+                     void(const geopm_time_s &time));
+        MOCK_METHOD2(enter,
+                     void(uint64_t hash, const geopm_time_s &time));
+        MOCK_METHOD2(exit,
+                     void(uint64_t hash, const geopm_time_s &time));
+        MOCK_METHOD1(epoch,
+                     void(const geopm_time_s &time));
+        MOCK_METHOD2(dump,
+                     void(std::vector<geopm::record_s> &records,
+                          std::vector<geopm::short_region_s> &short_regions));
+};
 
 #endif

@@ -30,30 +30,35 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKPROFILETHREADTABLE_HPP_INCLUDE
-#define MOCKPROFILETHREADTABLE_HPP_INCLUDE
+#include "config.h"
 
-#include "gmock/gmock.h"
+#include <mpi.h>
+#include <cmath>
+#include <string>
+#include <vector>
+#include <memory>
 
-#include "ProfileThreadTable.hpp"
 
-class MockProfileThreadTable : public geopm::ProfileThreadTable
+int main(int argc, char **argv)
 {
-    public:
-        MOCK_METHOD1(enable,
-                     void (bool is_enabled));
-        MOCK_METHOD3(init,
-                     void (int num_thread, int thread_idx, size_t num_iter));
-        MOCK_METHOD4(init,
-                     void (int num_thread, int thread_idx, size_t num_iter, size_t chunk_size));
-        MOCK_METHOD1(init,
-                     void (uint32_t num_work_unit));
-        MOCK_METHOD0(post,
-                     void (void));
-        MOCK_METHOD1(dump,
-                     void (std::vector<double> &progress));
-        MOCK_METHOD0(num_cpu,
-                     int (void));
-};
-
-#endif
+    int comm_rank;
+    MPI_Init(&argc, &argv);
+    MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank);
+    // Parse command line option for verbosity
+    bool is_verbose = false;
+    if (comm_rank == 0) {
+        for (int arg_idx = 1; arg_idx < argc; ++arg_idx) {
+            std::string arg(argv[arg_idx]);
+            if (arg == "--verbose" || arg == "-v") {
+                is_verbose = true;
+            }
+        }
+    }
+    // Note: do not change this value without updating the corresponding python test
+    int num_step = 10000000;
+    for (int idx = 0; idx != num_step; ++idx) {
+        MPI_Barrier(MPI_COMM_WORLD);
+    }
+    MPI_Finalize();
+    return 0;
+}

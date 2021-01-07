@@ -40,7 +40,6 @@
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "ProfileSampler.hpp"
-#include "ProfileThreadTable.hpp"
 #include "ProfileIOSample.hpp"
 #include "ProfileIOGroup.hpp"
 #include "Helper.hpp"
@@ -54,16 +53,14 @@ namespace geopm
 {
     constexpr size_t ApplicationIOImp::M_SHMEM_REGION_SIZE;
 
-    ApplicationIOImp::ApplicationIOImp(const std::string &shm_key)
-        : ApplicationIOImp(shm_key,
-                           ApplicationSampler::application_sampler(),
+    ApplicationIOImp::ApplicationIOImp()
+        : ApplicationIOImp(ApplicationSampler::application_sampler(),
                            platform_io(), platform_topo())
     {
 
     }
 
-    ApplicationIOImp::ApplicationIOImp(const std::string &shm_key,
-                                       ApplicationSampler &application_sampler,
+    ApplicationIOImp::ApplicationIOImp(ApplicationSampler &application_sampler,
                                        PlatformIO &platform_io,
                                        const PlatformTopo &platform_topo)
         : m_platform_io(platform_io)
@@ -97,7 +94,6 @@ namespace geopm
                 auto profile_io_sample = std::make_shared<ProfileIOSampleImp>();
                 m_application_sampler.set_io_sample(profile_io_sample);
 
-                platform_io().get_profileio()->connect();
             }
             m_is_connected = true;
         }
@@ -322,9 +318,8 @@ namespace geopm
 #endif
         size_t length = 0;
         m_application_sampler.get_sampler()->sample(m_prof_sample, length, comm);
-        m_application_sampler.update_records();
-        m_application_sampler.get_io_sample()->update(m_prof_sample.cbegin(), m_prof_sample.cbegin() + length);
-        m_application_sampler.get_sampler()->tprof_table()->dump(m_thread_progress);
+        m_application_sampler.get_io_sample()->update(m_prof_sample.cbegin(),
+                                                      m_prof_sample.cbegin() + length);
         m_application_sampler.get_io_sample()->update_thread(m_thread_progress);
     }
 

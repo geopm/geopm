@@ -35,7 +35,6 @@
 #include <string.h>
 
 #include "geopm.h"
-#include "ProfileThreadTable.hpp"
 #include "Exception.hpp"
 
 #include "config.h"
@@ -79,6 +78,7 @@ namespace geopm
         return instance;
     }
 }
+
 
 extern "C"
 {
@@ -146,23 +146,6 @@ extern "C"
         return err;
     }
 
-    int geopm_prof_progress(uint64_t region_id, double fraction)
-    {
-        int err = 0;
-        if (g_pmpi_prof_enabled) {
-            try {
-                geopm::Profile::default_profile().progress(region_id, fraction);
-            }
-            catch (...) {
-                err = geopm::exception_handler(std::current_exception());
-            }
-        }
-        else {
-            err = GEOPM_ERROR_RUNTIME;
-        }
-        return err;
-    }
-
     int geopm_prof_epoch(void)
     {
         int err = 0;
@@ -202,27 +185,8 @@ extern "C"
         int err = 0;
         if (g_pmpi_tprof_enabled) {
             try {
-                geopm::Profile::default_profile().tprof_table()->init(num_work_unit);
-            }
-            catch (...) {
-                err = geopm::exception_handler(std::current_exception());
-            }
-        }
-        return err;
-    }
-
-    int geopm_tprof_init_loop(int num_thread, int thread_idx, size_t num_iter, size_t chunk_size)
-    {
-        int err = 0;
-        if (g_pmpi_tprof_enabled) {
-            try {
-                std::shared_ptr<geopm::ProfileThreadTable> table_ptr = geopm::Profile::default_profile().tprof_table();
-                if (chunk_size) {
-                    table_ptr->init(num_thread, thread_idx, num_iter, chunk_size);
-                }
-                else {
-                    table_ptr->init(num_thread, thread_idx, num_iter);
-                }
+                int cpu = geopm::Profile::get_cpu();
+                geopm::Profile::default_profile().thread_init(cpu, num_work_unit);
             }
             catch (...) {
                 err = geopm::exception_handler(std::current_exception());
@@ -236,7 +200,8 @@ extern "C"
         int err = 0;
         if (g_pmpi_tprof_enabled) {
             try {
-                geopm::Profile::default_profile().tprof_table()->post();
+                int cpu = geopm::Profile::get_cpu();
+                geopm::Profile::default_profile().thread_post(cpu);
             }
             catch (...) {
                 err = geopm::exception_handler(std::current_exception());

@@ -104,12 +104,8 @@ namespace geopm
                      m_platform_io.format_function("REGION_HASH")},
                     {"REGION_HINT", GEOPM_DOMAIN_BOARD, 0,
                      m_platform_io.format_function("REGION_HINT")},
-                    {"REGION_PROGRESS", GEOPM_DOMAIN_BOARD, 0,
-                     m_platform_io.format_function("REGION_PROGRESS")},
-                    {"REGION_COUNT", GEOPM_DOMAIN_BOARD, 0,
-                     m_platform_io.format_function("REGION_COUNT")},
-                    {"REGION_RUNTIME", GEOPM_DOMAIN_BOARD, 0,
-                     m_platform_io.format_function("REGION_RUNTIME")},
+                    {"REGION_THREAD_PROGRESS", GEOPM_DOMAIN_BOARD, 0,
+                     m_platform_io.format_function("REGION_THREAD_PROGRESS")},
                     {"ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0,
                      m_platform_io.format_function("ENERGY_PACKAGE")},
                     {"ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0,
@@ -196,40 +192,6 @@ namespace geopm
                 m_last_telemetry[col_idx] = val;
                 ++col_idx;
             }
-#ifdef GEOPM_TRACE_BLOAT
-            // save region id and progress, which will get written over by entry/exit
-            double region_hash = m_last_telemetry[m_region_hash_idx];
-            double region_hint = m_last_telemetry[m_region_hint_idx];
-            double region_progress = m_last_telemetry[m_region_progress_idx];
-            double region_runtime = m_last_telemetry[m_region_runtime_idx];
-
-            // insert samples for region entry/exit
-            size_t idx = 0;
-            for (const auto &reg : region_entry_exit) {
-                // skip the last region entry if it matches the
-                // sampled telemetry region hash, hint, and progress
-                if (!((idx == region_entry_exit.size() - 1) &&
-                      region_progress == reg.progress &&
-                      region_progress == 0.0 &&
-                      region_hash == reg.hash &&
-                      region_hint == reg.hint)) {
-                    m_last_telemetry[m_region_hash_idx] = reg.hash;
-                    m_last_telemetry[m_region_hint_idx] = reg.hint;
-                    m_last_telemetry[m_region_progress_idx] = reg.progress;
-                    m_last_telemetry[m_region_runtime_idx] = reg.runtime;
-                    /// @todo There are no updates to the region count field.
-                    ///       Rather than fix this issue, will just remove
-                    ///       these inserted rows in future commit.
-                    m_csv->update(m_last_telemetry);
-                }
-                ++idx;
-            }
-            // print sampled data last
-            m_last_telemetry[m_region_hash_idx] = region_hash;
-            m_last_telemetry[m_region_hint_idx] = region_hint;
-            m_last_telemetry[m_region_progress_idx] = region_progress;
-            m_last_telemetry[m_region_runtime_idx] = region_runtime;
-#endif // GEOPM_TRACE_BLOAT
             m_csv->update(m_last_telemetry);
         }
     }

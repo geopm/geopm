@@ -78,17 +78,19 @@ namespace geopm
 
         private:
             enum m_signal_type {
-                M_SIGNAL_EPOCH_COUNT,
                 M_SIGNAL_REGION_HASH,
                 M_SIGNAL_REGION_HINT,
-                M_SIGNAL_REGION_PROGRESS,
-                M_SIGNAL_REGION_COUNT,
-                M_SIGNAL_RUNTIME,
                 M_SIGNAL_THREAD_PROGRESS,
-                M_SIGNAL_EPOCH_RUNTIME,
-                M_SIGNAL_EPOCH_RUNTIME_NETWORK,
-                M_SIGNAL_EPOCH_RUNTIME_IGNORE,
-                M_SIGNAL_MAX,
+                M_SIGNAL_TIME_HINT_UNKNOWN,
+                M_SIGNAL_TIME_HINT_UNSET,
+                M_SIGNAL_TIME_HINT_MEMORY,
+                M_SIGNAL_TIME_HINT_COMPUTE,
+                M_SIGNAL_TIME_HINT_NETWORK,
+                M_SIGNAL_TIME_HINT_IO,
+                M_SIGNAL_TIME_HINT_SERIAL,
+                M_SIGNAL_TIME_HINT_PARALLEL,
+                M_SIGNAL_TIME_HINT_IGNORE,
+                M_NUM_SIGNAL,
             };
             struct m_signal_config {
                 int signal_type;
@@ -97,27 +99,20 @@ namespace geopm
             };
 
             int check_signal(const std::string &signal_name, int domain_type, int domain_idx) const;
+            static double hash_to_signal(uint64_t hash);
 
             ApplicationSampler &m_application_sampler;
 
-            std::shared_ptr<ProfileIOSample> m_profile_sample;
             std::map<std::string, int> m_signal_idx_map;
             const PlatformTopo &m_platform_topo;
+            const int m_num_cpu;
             std::vector<bool> m_do_read;
             bool m_is_batch_read;
             std::vector<struct m_signal_config> m_active_signal;
-            std::vector<uint64_t> m_per_cpu_region_id;
+            std::vector<uint64_t> m_per_cpu_hash;
+            std::vector<uint64_t> m_per_cpu_hint;
             std::vector<double> m_per_cpu_progress;
-            std::vector<double> m_per_cpu_runtime;
-            std::vector<int64_t> m_per_cpu_count;
-            std::vector<double> m_thread_progress;
-            std::vector<double> m_epoch_runtime_network;
-            std::vector<double> m_epoch_runtime_ignore;
-            std::vector<double> m_epoch_runtime;
-            std::vector<double> m_epoch_count;
             std::map<int, int> m_rid_idx; // map from runtime signal index to the region id signal it uses
-            std::vector<int> m_cpu_rank;
-            bool m_is_connected;
             bool m_is_pushed;
     };
 }

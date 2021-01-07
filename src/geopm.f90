@@ -118,32 +118,12 @@ module geopm
             integer(kind=c_int64_t), value, intent(in) :: region_id
         end function geopm_prof_exit
 
-        !> @brief Fortran interface to @link geopm.h geopm_prof_progress @endlink C function.
-        !> @ingroup fortran
-        integer(kind=c_int) function geopm_prof_progress(region_id, fraction) bind(C)
-            import
-            implicit none
-            integer(kind=c_int64_t), value, intent(in) :: region_id
-            real(kind=c_double), value, intent(in) :: fraction
-        end function geopm_prof_progress
-
         !> @brief Fortran interface to @link geopm.h geopm_prof_epoch @endlink C function.
         !> @ingroup fortran
         integer(kind=c_int) function geopm_prof_epoch() bind(C)
             import
             implicit none
         end function geopm_prof_epoch
-
-        !> @brief Fortran interface to @link geopm.h geopm_tprof_init_loop @endlink C function.
-        !> @ingroup fortran
-        integer(kind=c_int) function geopm_tprof_init_loop(num_thread, thread_idx, num_iter, chunk_size) bind(C)
-            import
-            implicit none
-            integer(kind=c_int), value, intent(in) :: num_thread
-            integer(kind=c_int), value, intent(in) :: thread_idx
-            integer(kind=c_size_t), value, intent(in) :: num_iter
-            integer(kind=c_size_t), value, intent(in) :: chunk_size
-        end function geopm_tprof_init_loop
 
         !> @brief Fortran interface to @link geopm.h geopm_tprof_init @endlink C function.
         !> @ingroup fortran

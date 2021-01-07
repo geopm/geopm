@@ -36,6 +36,11 @@ if ENABLE_MPI
 endif
 
 GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
+              test/gtest_links/AccumulatorTest.empty \
+              test/gtest_links/AccumulatorTest.sum_ones \
+              test/gtest_links/AccumulatorTest.sum_idx \
+              test/gtest_links/AccumulatorTest.avg_ones \
+              test/gtest_links/AccumulatorTest.avg_idx_signal \
               test/gtest_links/AdminTest.agent_no_policy \
               test/gtest_links/AdminTest.config_default \
               test/gtest_links/AdminTest.config_override \
@@ -72,10 +77,16 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/ApplicationRecordLogTest.overflow_record_table \
               test/gtest_links/ApplicationRecordLogTest.cannot_overflow_region_table \
               test/gtest_links/ApplicationSamplerTest.one_enter_exit \
+              test/gtest_links/ApplicationSamplerTest.one_enter_exit_two_ranks \
               test/gtest_links/ApplicationSamplerTest.process_mapping \
               test/gtest_links/ApplicationSamplerTest.string_conversion \
-              test/gtest_links/ApplicationSamplerTest.with_mpi \
+              test/gtest_links/ApplicationSamplerTest.short_regions \
               test/gtest_links/ApplicationSamplerTest.with_epoch \
+              test/gtest_links/ApplicationSamplerTest.hash \
+              test/gtest_links/ApplicationSamplerTest.hint \
+              test/gtest_links/ApplicationSamplerTest.hint_time \
+              test/gtest_links/ApplicationSamplerTest.cpu_process \
+              test/gtest_links/ApplicationSamplerTest.cpu_progress \
               test/gtest_links/ApplicationStatusTest.bad_shmem \
               test/gtest_links/ApplicationStatusTest.hash \
               test/gtest_links/ApplicationStatusTest.hints \
@@ -406,24 +417,35 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/ProcessEpochImpTest.epoch_count \
               test/gtest_links/ProcessEpochImpTest.epoch_runtime \
               test/gtest_links/ProcessEpochImpTest.hint_time \
+              test/gtest_links/ProcessRegionAggregatorTest.entry_exit \
+              test/gtest_links/ProcessRegionAggregatorTest.short_region \
+              test/gtest_links/ProcessRegionAggregatorTest.multiple_processes \
+              test/gtest_links/ProfileIOGroupTest.is_valid \
+              test/gtest_links/ProfileIOGroupTest.aliases \
+              test/gtest_links/ProfileIOGroupTest.read_signal_region_hash \
+              test/gtest_links/ProfileIOGroupTest.read_signal_hint \
+              test/gtest_links/ProfileIOGroupTest.read_signal_thread_progress \
+              test/gtest_links/ProfileIOGroupTest.read_signal_hint_time \
+              test/gtest_links/ProfileIOGroupTest.batch_signal_region_hash \
+              test/gtest_links/ProfileIOGroupTest.batch_signal_hint \
+              test/gtest_links/ProfileIOGroupTest.batch_signal_thread_progress \
+              test/gtest_links/ProfileIOGroupTest.batch_signal_hint_time \
+              test/gtest_links/ProfileIOGroupTest.errors \
               test/gtest_links/ProfileTableTest.hello \
               test/gtest_links/ProfileTableTest.name_set_fill_long \
               test/gtest_links/ProfileTableTest.name_set_fill_short \
               test/gtest_links/ProfileTableTest.overfill \
-              test/gtest_links/ProfileTest.enter_exit \
-              test/gtest_links/ProfileTest.epoch \
-              test/gtest_links/ProfileTest.progress \
-              test/gtest_links/ProfileTest.region \
-              test/gtest_links/ProfileTest.shutdown \
-              test/gtest_links/ProfileTest.tprof_table \
-              test/gtest_links/ProfileTestIntegration.config \
-              test/gtest_links/ProfileTestIntegration.cpu_set_size \
-              test/gtest_links/ProfileTestIntegration.misconfig_affinity \
-              test/gtest_links/ProfileTestIntegration.misconfig_ctl_shmem \
-              test/gtest_links/ProfileTestIntegration.misconfig_table_shmem \
-              test/gtest_links/ProfileTestIntegration.misconfig_tprof_shmem \
               test/gtest_links/ProfileTracerTest.construct_update_destruct \
               test/gtest_links/ProfileTracerTest.format \
+              test/gtest_links/ProfileTest.enter_exit \
+              test/gtest_links/ProfileTest.enter_exit_nested \
+              test/gtest_links/ProfileTest.epoch \
+              test/gtest_links/ProfileTest.progress_multithread \
+              test/gtest_links/ProfileTestIntegration.enter_exit \
+              test/gtest_links/ProfileTestIntegration.enter_exit_short \
+              test/gtest_links/ProfileTestIntegration.enter_exit_nested \
+              test/gtest_links/ProfileTestIntegration.epoch \
+              test/gtest_links/ProfileTestIntegration.progress_multithread \
               test/gtest_links/ProxyEpochRecordFilterTest.simple_conversion \
               test/gtest_links/ProxyEpochRecordFilterTest.skip_one \
               test/gtest_links/ProxyEpochRecordFilterTest.skip_two_off_one \
@@ -448,9 +470,8 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/RuntimeRegulatorTest.config_rank_then_workers \
               test/gtest_links/RuntimeRegulatorTest.exceptions \
               test/gtest_links/RuntimeRegulatorTest.one_rank_reenter_and_exit \
-              test/gtest_links/SampleRegulatorTest.align_profile \
-              test/gtest_links/SampleRegulatorTest.insert_platform \
-              test/gtest_links/SampleRegulatorTest.insert_profile \
+              test/gtest_links/SampleAggregatorTest.epoch_application_total \
+              test/gtest_links/SampleAggregatorTest.sample_application \
               test/gtest_links/SchedTest.test_proc_cpuset_0 \
               test/gtest_links/SchedTest.test_proc_cpuset_1 \
               test/gtest_links/SchedTest.test_proc_cpuset_2 \
@@ -568,6 +589,7 @@ EXTRA_DIST += test/InternalProfile.cpp \
               # end
 
 test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
+                          test/AccumulatorTest.cpp \
                           test/AdminTest.cpp \
                           test/AgentFactoryTest.cpp \
                           test/AggTest.cpp \
@@ -611,8 +633,10 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/MockAcceleratorTopo.hpp \
                           test/MockAgent.hpp \
                           test/MockApplicationIO.hpp \
+                          test/MockApplicationRecordLog.hpp \
                           test/MockApplicationSampler.cpp \
                           test/MockApplicationSampler.hpp \
+                          test/MockApplicationStatus.hpp \
                           test/MockComm.hpp \
                           test/MockControl.hpp \
                           test/MockControlMessage.hpp \
@@ -634,11 +658,10 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/MockProfileSampler.hpp \
                           test/MockProfileTable.hpp \
                           test/MockProfileTracer.hpp \
-                          test/MockProfileThreadTable.hpp \
-                          test/MockRegionAggregator.hpp \
+                          test/MockRecordFilter.hpp \
                           test/MockReporter.hpp \
                           test/MockRuntimeRegulator.hpp \
-                          test/MockSampleScheduler.hpp \
+                          test/MockSampleAggregator.hpp \
                           test/MockSharedMemory.hpp \
                           test/MockSignal.hpp \
                           test/MockTracer.hpp \
@@ -654,16 +677,18 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/PowerBalancerTest.cpp \
                           test/PowerGovernorAgentTest.cpp \
                           test/PowerGovernorTest.cpp \
+                          test/ProfileIOGroupTest.cpp \
                           test/ProfileTableTest.cpp \
                           test/ProfileTest.cpp \
+                          test/ProfileTestIntegration.cpp \
                           test/ProfileTracerTest.cpp \
                           test/ProxyEpochRecordFilterTest.cpp \
                           test/RawMSRSignalTest.cpp \
+                          test/ProcessRegionAggregatorTest.cpp \
                           test/RecordFilterTest.cpp \
-                          test/RegionAggregatorTest.cpp \
                           test/ReporterTest.cpp \
                           test/RuntimeRegulatorTest.cpp \
-                          test/SampleRegulatorTest.cpp \
+                          test/SampleAggregatorTest.cpp \
                           test/SchedTest.cpp \
                           test/SharedMemoryTest.cpp \
                           test/TimeIOGroupTest.cpp \

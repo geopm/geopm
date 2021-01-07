@@ -119,7 +119,7 @@ the dgemm region.
 
 If "-progress" is appended to any region name in the
 configuration, then progress for the region will be
-reported through the geopm_prof_progress API.
+reported through the geopm_tprof_* API.
 
 ## COPYRIGHT
 Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation. All rights reserved.

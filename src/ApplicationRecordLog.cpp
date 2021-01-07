@@ -70,7 +70,7 @@ namespace geopm
         , m_epoch_count(0)
         , m_entered_region_hash(GEOPM_REGION_HASH_INVALID)
     {
-        if (shmem->size() < buffer_size()) {
+        if (m_shmem->size() < buffer_size()) {
             throw Exception("ApplicationRecordLog: Shared memory provided in constructor is too small",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }

@@ -30,22 +30,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKSAMPLESCHEDULER_HPP_INCLUDE
-#define MOCKSAMPLESCHEDULER_HPP_INCLUDE
+#ifndef MOCKRECORDFILTER_HPP_INCLUDE
+#define MOCKRECORDFILTER_HPP_INCLUDE
 
 #include "gmock/gmock.h"
 
-#include "SampleScheduler.hpp"
+#include "RecordFilter.hpp"
 
-class MockSampleScheduler : public geopm::SampleScheduler
+class MockRecordFilter : public geopm::RecordFilter
 {
     public:
-        MOCK_METHOD0(do_sample,
-                     bool (void));
-        MOCK_METHOD0(record_exit,
-                     void (void));
-        MOCK_METHOD0(clear,
-                     void (void));
+        MOCK_METHOD1(filter,
+                     std::vector<geopm::record_s>(const geopm::record_s &record));
 };
 
 #endif

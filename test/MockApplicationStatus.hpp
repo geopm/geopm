@@ -30,45 +30,36 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef REGIONAGGREGATORIMP_HPP_INCLUDE
-#define REGIONAGGREGATORIMP_HPP_INCLUDE
+#ifndef MOCKAPPLICATIONSTATUS_HPP_INCLUDE
+#define MOCKAPPLICATIONSTATUS_HPP_INCLUDE
 
-#include <cmath>
+#include "gmock/gmock.h"
 
-#include <map>
+#include "ApplicationStatus.hpp"
 
-#include "RegionAggregator.hpp"
-
-namespace geopm
+class MockApplicationStatus : public geopm::ApplicationStatus
 {
-    class PlatformIO;
-
-    class RegionAggregatorImp : public RegionAggregator
-    {
-        public:
-            RegionAggregatorImp();
-            RegionAggregatorImp(PlatformIO &platio);
-            void init(void) override;
-            int push_signal_total(const std::string &signal_idx,
-                                  int domain_type,
-                                  int domain_idx) override;
-            double sample_total(int signal_idx, uint64_t region_hash) override;
-            void read_batch(void) override;
-            std::set<uint64_t> tracked_region_hash(void) const override;
-        private:
-            PlatformIO &m_platform_io;
-            std::map<int, int> m_region_hash_idx;
-            struct m_region_data_s
-            {
-                double total = 0.0;
-                double last_entry_value = NAN;
-            };
-            // Data for each combination of signal index and region hash
-            std::map<std::pair<int, uint64_t>, m_region_data_s> m_region_sample_data;
-            std::map<int, uint64_t> m_last_region_hash;
-            int m_epoch_count_idx;
-            std::set<uint64_t> m_tracked_region_hash;
-    };
-}
+    public:
+        MOCK_METHOD2(set_hint,
+                     void(int cpu_idx, uint64_t hints));
+        MOCK_CONST_METHOD1(get_hint,
+                           uint64_t(int cpu_idx));
+        MOCK_METHOD2(set_hash,
+                     void(int cpu_idx, uint64_t hash));
+        MOCK_CONST_METHOD1(get_hash,
+                           uint64_t(int cpu_idx));
+        MOCK_METHOD2(set_total_work_units,
+                     void(int cpu_idx, int work_units));
+        MOCK_METHOD1(increment_work_unit,
+                     void(int cpu_idx));
+        MOCK_CONST_METHOD1(get_progress_cpu,
+                           double(int cpu_idx));
+        MOCK_METHOD2(set_process,
+                     void(const std::set<int> &cpu_idx, int process));
+        MOCK_CONST_METHOD1(get_process,
+                           int(int cpu_idx));
+        MOCK_METHOD0(update_cache,
+                     void(void));
+};
 
 #endif

@@ -30,29 +30,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MOCKREGIONAGGREGATOR_HPP_INCLUDE
-#define MOCKREGIONAGGREGATOR_HPP_INCLUDE
+#ifndef MOCKPROCESSREGIONAGGREGATOR_HPP_INCLUDE
+#define MOCKPROCESSREGIONAGGREGATOR_HPP_INCLUDE
 
 #include "gmock/gmock.h"
 
-#include "RegionAggregator.hpp"
+#include "ProcessRegionAggregator.hpp"
 
-class MockRegionAggregator : public geopm::RegionAggregator
+class MockProcessRegionAggregator : public geopm::ProcessRegionAggregator
 {
     public:
-        MOCK_METHOD0(init,
+        MOCK_METHOD0(update,
                      void(void));
-        MOCK_METHOD3(push_signal_total,
-                     int(const std::string &signal_idx,
-                         int domain_type,
-                         int domain_idx));
-        MOCK_METHOD2(sample_total,
-                     double(int signal_idx, uint64_t region_id));
-        MOCK_METHOD0(read_batch,
-                     void(void));
-        MOCK_CONST_METHOD0(tracked_region_hash,
-                           std::set<uint64_t>());
-        MOCK_CONST_METHOD0(tracked_signals,
-                           std::set<int>());
+        MOCK_CONST_METHOD1(get_runtime_average,
+                           double(uint64_t region_hash));
+        MOCK_CONST_METHOD1(get_count_average,
+                           double(uint64_t region_hash));
 };
+
 #endif

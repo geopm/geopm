@@ -36,6 +36,8 @@
 #include <functional>
 
 #include "ApplicationSamplerImp.hpp"
+#include "ApplicationRecordLog.hpp"
+#include "ApplicationStatus.hpp"
 #include "ProfileSampler.hpp"
 #include "ProfileIOSample.hpp"
 #include "EpochRuntimeRegulator.hpp"
@@ -43,8 +45,12 @@
 #include "RecordFilter.hpp"
 #include "Environment.hpp"
 #include "ValidateRecord.hpp"
-#include "geopm_hash.h"
+#include "SharedMemory.hpp"
+#include "PlatformTopo.hpp"
 #include "record.hpp"
+#include "geopm_debug.hpp"
+#include "geopm.h"
+#include "geopm_hash.h"
 
 namespace geopm
 {
@@ -105,24 +111,56 @@ namespace geopm
     }
 
     ApplicationSamplerImp::ApplicationSamplerImp()
-        : ApplicationSamplerImp(environment().do_record_filter() ?
-                                // use record filter from environment
-                                [](void) {
-                                    return RecordFilter::make_unique(environment().record_filter());
-                                } :
-                                // otherwise, do not filter records
-                                std::function<std::unique_ptr<RecordFilter>()>()
-                                )
+        : ApplicationSamplerImp(nullptr,
+                                platform_topo().num_domain(GEOPM_DOMAIN_CPU),
+                                std::map<int, m_process_s> {},
+                                environment().do_record_filter(),
+                                environment().record_filter())
     {
 
     }
 
-    ApplicationSamplerImp::ApplicationSamplerImp(std::function<std::unique_ptr<RecordFilter>()> filter_factory)
+    const std::map<uint64_t, double> ApplicationSamplerImp::m_hint_time_init = {
+        {GEOPM_REGION_HINT_UNSET, 0.0},
+        {GEOPM_REGION_HINT_UNKNOWN, 0.0},
+        {GEOPM_REGION_HINT_COMPUTE, 0.0},
+        {GEOPM_REGION_HINT_MEMORY, 0.0},
+        {GEOPM_REGION_HINT_NETWORK, 0.0},
+        {GEOPM_REGION_HINT_IO, 0.0},
+        {GEOPM_REGION_HINT_SERIAL, 0.0},
+        {GEOPM_REGION_HINT_PARALLEL, 0.0},
+        {GEOPM_REGION_HINT_IGNORE, 0.0},
+    };
+
+
+    ApplicationSamplerImp::ApplicationSamplerImp(std::shared_ptr<ApplicationStatus> status,
+                                                 int num_cpu,
+                                                 const std::map<int, m_process_s> &process_map,
+                                                 bool is_filtered,
+                                                 const std::string &filter_name)
         : m_time_zero(geopm::time_zero())
-        , m_filter_factory(filter_factory)
-        , m_is_filtered(filter_factory)
+        , m_status(status)
+        , m_num_cpu(num_cpu)
+        , m_process_map(process_map)
+        , m_is_filtered(is_filtered)
+        , m_filter_name(filter_name)
+        , m_hint_time(m_num_cpu, m_hint_time_init)
+        , m_update_time({{0, 0}})
+        , m_is_first_update(true)
     {
 
+    }
+
+    ApplicationSamplerImp::~ApplicationSamplerImp()
+    {
+        for (auto const& process : m_process_map) {
+            if (process.second.record_log_shmem) {
+                process.second.record_log_shmem->unlink();
+            }
+        }
+        if (m_status_shmem) {
+            m_status_shmem->unlink();
+        }
     }
 
     void ApplicationSamplerImp::time_zero(const geopm_time_s &start_time)
@@ -130,133 +168,72 @@ namespace geopm
         m_time_zero = start_time;
     }
 
-    void ApplicationSamplerImp::update_records_epoch(const geopm_prof_message_s &msg)
+    void ApplicationSamplerImp::update(const geopm_time_s &curr_time)
     {
-        double time = geopm_time_diff(&m_time_zero, &(msg.timestamp));
-        int process = msg.rank;
-        int event = EVENT_EPOCH_COUNT;
-        m_process_s &proc_it = get_process(process);
-        ++(proc_it.epoch_count);
-        uint64_t epoch_count = proc_it.epoch_count;
-        m_record_buffer.emplace_back(record_s {
-            .time = time,
-            .process = process,
-            .event = event,
-            .signal = epoch_count,
-        });
-    }
-
-    void ApplicationSamplerImp::update_records_mpi(const geopm_prof_message_s &msg)
-    {
-        double time = geopm_time_diff(&m_time_zero, &(msg.timestamp));
-        int process = msg.rank;
-        int event = EVENT_HINT;
-        uint64_t hint = GEOPM_REGION_HINT_NETWORK;
-        if (msg.progress == 1.0) {
-            m_process_s &proc_it = get_process(process);
-            hint = proc_it.hint;
+        if (!m_status) {
+            throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        m_record_buffer.emplace_back(record_s {
-            .time = time,
-            .process = process,
-            .event = event,
-            .signal = hint,
-        });
-    }
+        m_status->update_cache();
 
-    void ApplicationSamplerImp::update_records_entry(const geopm_prof_message_s &msg)
-    {
-        double time = geopm_time_diff(&m_time_zero, &(msg.timestamp));
-        int process = msg.rank;
-        uint64_t hash = geopm_region_id_hash(msg.region_id);
-        int event = EVENT_REGION_ENTRY;
-        // Record event for change of region ID
-        m_record_buffer.emplace_back(record_s {
-              .time = time,
-              .process = process,
-              .event = event,
-              .signal = hash,
-        });
-        // Record event for change of hint
-        uint64_t hint = geopm_region_id_hint(msg.region_id);
-        m_process_s &proc_it = get_process(process);
-        proc_it.hint = hint;
-        m_record_buffer.emplace_back(record_s {
-            .time = time,
-            .process = process,
-            .event = EVENT_HINT,
-            .signal = hint,
-        });
-    }
+        if (!m_is_first_update) {
+            double time_delta = geopm_time_diff(&m_update_time, &curr_time);
+            for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
+                uint64_t hint = m_status->get_hint(cpu_idx);
+                m_hint_time[cpu_idx].at(hint) += time_delta;
+            }
+        }
+        m_is_first_update = false;
+        m_update_time = curr_time;
+        // Dump the record log from each process, filter the results,
+        // and reindex the short region event signals.
 
-    void ApplicationSamplerImp::update_records_exit(const geopm_prof_message_s &msg)
-    {
-        // Set common values for all events
-        double time = geopm_time_diff(&m_time_zero, &(msg.timestamp));
-        int process = msg.rank;
-        /// Handle outer region entry and exit
-        uint64_t hash = geopm_region_id_hash(msg.region_id);
-        int event = EVENT_REGION_EXIT;
-        // Record event for change of region ID
-        m_record_buffer.emplace_back(record_s {
-            .time = time,
-            .process = process,
-            .event = event,
-            .signal = hash,
-        });
-        // Record event for change of hint
-        uint64_t hint = GEOPM_REGION_HINT_UNKNOWN;
-        m_process_s &proc_it = get_process(process);
-        proc_it.hint = hint;
-        m_record_buffer.emplace_back(record_s {
-            .time = time,
-            .process = process,
-            .event = EVENT_HINT,
-            .signal = hint,
-        });
-    }
-
-    void ApplicationSamplerImp::update_records_progress(const geopm_prof_message_s &msg)
-    {
-        /// @todo handle calls to progress
-    }
-
-    void ApplicationSamplerImp::update_records(void)
-    {
+        // Clear the buffers that we will be building.
         m_record_buffer.clear();
-        for (auto &cache_it : m_sampler->sample_cache()) {
-            if (geopm_region_id_is_epoch(cache_it.region_id)) {
-                update_records_epoch(cache_it);
-            }
-            else if (geopm_region_id_is_mpi(cache_it.region_id)) {
-                update_records_mpi(cache_it);
-            }
-            else if (cache_it.progress == 0.0) {
-                update_records_entry(cache_it);
-            }
-            else if (cache_it.progress == 1.0) {
-                update_records_exit(cache_it);
-            }
-            else {
-                update_records_progress(cache_it);
-            }
-        }
-
-        std::vector<record_s> tmp_buffer;
-        for (auto &record_it : m_record_buffer) {
-            auto &proc = get_process(record_it.process);
+        m_short_region_buffer.clear();
+        // Iterate over the record log for each process
+        for (auto &proc_map_it : m_process_map) {
+            // Record the location in the record buffer where this
+            // process' data begins for updating the short region
+            // event signals.
+            size_t record_offset = m_record_buffer.size();
+            // Get data from the record log
+            auto &proc_it = proc_map_it.second;
+            proc_it.record_log->dump(proc_it.records, proc_it.short_regions);
             if (m_is_filtered) {
-                for (auto &filtered_it : proc.filter->filter(record_it)) {
-                    proc.valid.check(filtered_it);
-                    tmp_buffer.push_back(filtered_it);
+                // Filter and check the records and push them onto
+                // m_record_buffer
+                for (const auto &record_it : proc_it.records) {
+                    for (auto &filtered_it : proc_it.filter->filter(record_it)) {
+                        proc_it.valid.check(filtered_it);
+                        m_record_buffer.push_back(filtered_it);
+                    }
                 }
             }
             else {
-                proc.valid.check(record_it);
+                // Check the records and push them onto m_record_buffer
+                for (const auto &record : proc_it.records) {
+                    proc_it.valid.check(record);
+                }
+                m_record_buffer.insert(m_record_buffer.end(),
+                                       proc_it.records.begin(),
+                                       proc_it.records.end());
             }
-        }
-        if (m_is_filtered) {
-            m_record_buffer = tmp_buffer;
+            // Update the "signal" field for all of the short region
+            // events to have the right offset.
+            size_t short_region_remain = proc_it.short_regions.size();
+            for (auto record_it = m_record_buffer.begin() + record_offset;
+                 short_region_remain > 0 &&
+                 record_it != m_record_buffer.end();
+                 ++record_it) {
+                if (record_it->event == EVENT_SHORT_REGION) {
+                    record_it->signal += m_short_region_buffer.size();
+                    --short_region_remain;
+                }
+            }
+            m_short_region_buffer.insert(m_short_region_buffer.end(),
+                                         proc_it.short_regions.begin(),
+                                         proc_it.short_regions.end());
         }
     }
 
@@ -265,6 +242,14 @@ namespace geopm
         return m_record_buffer;
     }
 
+    short_region_s ApplicationSamplerImp::get_short_region(uint64_t event_signal) const
+    {
+        if (event_signal >= m_short_region_buffer.size()) {
+            throw Exception("ApplicationSampler::get_short_region(), event_signal does not match any short region handle",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return m_short_region_buffer[event_signal];
+    }
 
     std::map<uint64_t, std::string> ApplicationSamplerImp::get_name_map(uint64_t name_key) const
     {
@@ -273,30 +258,104 @@ namespace geopm
         return {};
     }
 
-    std::vector<uint64_t> ApplicationSamplerImp::per_cpu_hint(void) const
+    uint64_t ApplicationSamplerImp::cpu_region_hash(int cpu_idx) const
     {
-        throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "() is not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-        return {};
+        if (!m_status) {
+            throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        return m_status->get_hash(cpu_idx);
     }
 
-    std::vector<double> ApplicationSamplerImp::per_cpu_progress(void) const
+    uint64_t ApplicationSamplerImp::cpu_hint(int cpu_idx) const
     {
-        throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "() is not yet implemented",
-                        GEOPM_ERROR_NOT_IMPLEMENTED, __FILE__, __LINE__);
-        return {};
+        if (!m_status) {
+            throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        return m_status->get_hint(cpu_idx);
+    }
+
+    double ApplicationSamplerImp::cpu_hint_time(int cpu_idx, uint64_t hint) const
+    {
+        if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
+            throw Exception("ApplicationSampler::" + std::string(__func__) +
+                            "(): cpu_idx is out of range: " + std::to_string(cpu_idx),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        auto &hint_map = m_hint_time[cpu_idx];
+        auto it = hint_map.find(hint);
+        if (it == hint_map.end()) {
+            throw Exception("ApplicationSampler::" + std::string(__func__) +
+                            "(): hint is invalid: " + std::to_string(hint),
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
+    }
+
+    double ApplicationSamplerImp::cpu_progress(int cpu_idx) const
+    {
+        if (!m_status) {
+            throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        return m_status->get_progress_cpu(cpu_idx);
     }
 
     std::vector<int> ApplicationSamplerImp::per_cpu_process(void) const
     {
         return m_sampler->cpu_rank();
+        /// @todo code below will work *after* the handshake is complete
+        if (!m_status) {
+            throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
+                            GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
+        }
+        std::vector<int> result(m_num_cpu);
+        for (int cpu_idx = 0; cpu_idx != m_num_cpu; ++cpu_idx) {
+            result[cpu_idx] = m_status->get_process(cpu_idx);
+        }
+        return result;
+    }
+
+    void ApplicationSamplerImp::connect(const std::string &shm_key)
+    {
+        if (!m_status) {
+            std::string shmem_name = shm_key + "-status";
+            m_status_shmem = SharedMemory::make_unique_owner(shmem_name,
+                                                             ApplicationStatus::buffer_size(m_num_cpu));
+            m_status = ApplicationStatus::make_unique(m_num_cpu, m_status_shmem);
+            GEOPM_DEBUG_ASSERT(m_process_map.empty(),
+                               "m_process_map is not empty, but we are connecting");
+            // Convert per-cpu process to a set of the unique process id's
+            std::set<int> proc_set;
+            for (const auto &proc_it : per_cpu_process()) {
+                if (proc_it != -1) {
+                    proc_set.insert(proc_it);
+                }
+            }
+            // For each unique process id create a record log and
+            // insert it into map indexed by process id
+            for (const auto &proc_it : proc_set) {
+                std::string shmem_name = shm_key + "-record-log-" + std::to_string(proc_it);
+                std::shared_ptr<SharedMemory> record_log_shmem =
+                    SharedMemory::make_unique_owner(shmem_name,
+                                                    ApplicationRecordLog::buffer_size());
+                auto emplace_ret = m_process_map.emplace(proc_it, m_process_s {});
+                auto &process = emplace_ret.first->second;
+                if (m_is_filtered) {
+                    process.filter = RecordFilter::make_unique(m_filter_name);
+                }
+                process.record_log_shmem = record_log_shmem;
+                process.record_log = ApplicationRecordLog::make_unique(record_log_shmem);
+                process.records.reserve(ApplicationRecordLog::max_record());
+                process.short_regions.reserve(ApplicationRecordLog::max_region());
+            }
+        }
     }
 
     void ApplicationSamplerImp::set_sampler(std::shared_ptr<ProfileSampler> sampler)
     {
         m_sampler = sampler;
-        // Each message can create two records
-        m_record_buffer.reserve(2 * m_sampler->capacity());
     }
 
     std::shared_ptr<ProfileSampler> ApplicationSamplerImp::get_sampler(void)
@@ -322,18 +381,5 @@ namespace geopm
     std::shared_ptr<ProfileIOSample> ApplicationSamplerImp::get_io_sample(void)
     {
         return m_io_sample;
-    }
-
-    ApplicationSamplerImp::m_process_s &ApplicationSamplerImp::get_process(int process)
-    {
-        auto emp_it = m_process_map.emplace(process, m_process_s {
-            .epoch_count = 0LL,
-            .hint = GEOPM_REGION_HINT_UNKNOWN,
-            .filter = nullptr,
-        });
-        if (emp_it.second && m_is_filtered) {
-            emp_it.first->second.filter = m_filter_factory();
-        }
-        return emp_it.first->second;
     }
 }

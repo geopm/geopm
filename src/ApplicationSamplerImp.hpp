@@ -36,26 +36,42 @@
 #include "ApplicationSampler.hpp"
 #include "ValidateRecord.hpp"
 
-
 struct geopm_prof_message_s;
 namespace geopm
 {
     class RecordFilter;
-    struct record_s;
+    class ApplicationStatus;
+    class SharedMemory;
 
     class ApplicationSamplerImp : public ApplicationSampler
     {
         public:
+            struct m_process_s {
+                std::shared_ptr<RecordFilter> filter;
+                ValidateRecord valid;
+                std::shared_ptr<SharedMemory> record_log_shmem;
+                std::shared_ptr<ApplicationRecordLog> record_log;
+                std::vector<record_s> records;
+                std::vector<short_region_s> short_regions;
+            };
             ApplicationSamplerImp();
-            ApplicationSamplerImp(std::function<std::unique_ptr<RecordFilter>()> filter_factory);
-            virtual ~ApplicationSamplerImp() = default;
+            ApplicationSamplerImp(std::shared_ptr<ApplicationStatus> status,
+                                  int num_cpu,
+                                  const std::map<int, m_process_s> &process_map,
+                                  bool is_filtered,
+                                  const std::string &filter_name);
+            virtual ~ApplicationSamplerImp();
             void time_zero(const geopm_time_s &start_time) override;
-            void update_records(void) override;
+            void update(const geopm_time_s &curr_time) override;
             std::vector<record_s> get_records(void) const override;
+            short_region_s get_short_region(uint64_t event_signal) const override;
             std::map<uint64_t, std::string> get_name_map(uint64_t name_key) const override;
-            std::vector<uint64_t> per_cpu_hint(void) const override;
-            std::vector<double> per_cpu_progress(void) const override;
+            uint64_t cpu_region_hash(int cpu_idx) const override;
+            uint64_t cpu_hint(int cpu_idx) const override;
+            double cpu_hint_time(int cpu_idx, uint64_t hint) const override;
+            double cpu_progress(int cpu_idx) const override;
             std::vector<int> per_cpu_process(void) const override;
+            void connect(const std::string &shm_key) override;
 
             void set_sampler(std::shared_ptr<ProfileSampler> sampler) override;
             std::shared_ptr<ProfileSampler> get_sampler(void) override;
@@ -64,26 +80,22 @@ namespace geopm
             void set_io_sample(std::shared_ptr<ProfileIOSample> io_sample) override;
             std::shared_ptr<ProfileIOSample> get_io_sample(void) override;
         private:
-            struct m_process_s {
-                uint64_t epoch_count;
-                uint64_t hint;
-                std::shared_ptr<RecordFilter> filter;
-                ValidateRecord valid;
-            };
-            void update_records_epoch(const geopm_prof_message_s &msg);
-            void update_records_mpi(const geopm_prof_message_s &msg);
-            void update_records_entry(const geopm_prof_message_s &msg);
-            void update_records_exit(const geopm_prof_message_s &msg);
-            void update_records_progress(const geopm_prof_message_s &msg);
-            m_process_s &get_process(int process);
             std::shared_ptr<ProfileSampler> m_sampler;
             std::shared_ptr<EpochRuntimeRegulator> m_regulator;
             std::shared_ptr<ProfileIOSample> m_io_sample;
             struct geopm_time_s m_time_zero;
             std::vector<record_s> m_record_buffer;
+            std::vector<short_region_s> m_short_region_buffer;
+            std::shared_ptr<SharedMemory> m_status_shmem;
+            std::shared_ptr<ApplicationStatus> m_status;
+            int m_num_cpu;
             std::map<int, m_process_s> m_process_map;
-            std::function<std::unique_ptr<RecordFilter>()> m_filter_factory;
-            bool m_is_filtered;
+            const bool m_is_filtered;
+            const std::string m_filter_name;
+            static const std::map<uint64_t, double> m_hint_time_init;
+            std::vector<std::map<uint64_t, double> > m_hint_time;
+            geopm_time_s m_update_time;
+            bool m_is_first_update;
     };
 }
 

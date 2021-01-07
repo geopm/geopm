@@ -35,7 +35,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "RegionAggregatorImp.hpp"
+#include "SampleAggregatorImp.hpp"
 #include "Helper.hpp"
 #include "PlatformTopo.hpp"
 #include "Agg.hpp"
@@ -46,18 +46,18 @@
 #include "geopm_hash.h"
 #include "geopm_test.hpp"
 
-using geopm::RegionAggregator;
-using geopm::RegionAggregatorImp;
+using geopm::SampleAggregator;
+using geopm::SampleAggregatorImp;
 using geopm::PlatformTopo;
 using testing::_;
 using testing::Return;
 
-class RegionAggregatorTest : public ::testing::Test
+class SampleAggregatorTest : public ::testing::Test
 {
     protected:
         void SetUp(void);
 
-        std::unique_ptr<RegionAggregator> m_agg;
+        std::unique_ptr<SampleAggregator> m_agg;
         MockPlatformIO m_platio;
         enum M_SIGNAL {
             M_SIGNAL_TIME,
@@ -78,10 +78,8 @@ class RegionAggregatorTest : public ::testing::Test
         };
 };
 
-void RegionAggregatorTest::SetUp(void)
+void SampleAggregatorTest::SetUp(void)
 {
-    ON_CALL(m_platio, push_signal("TIME", GEOPM_DOMAIN_BOARD, 0))
-        .WillByDefault(Return(M_SIGNAL_TIME));
     ON_CALL(m_platio, push_signal("ENERGY", GEOPM_DOMAIN_PACKAGE, 0))
         .WillByDefault(Return(M_SIGNAL_ENERGY_0));
     ON_CALL(m_platio, push_signal("ENERGY", GEOPM_DOMAIN_PACKAGE, 1))
@@ -110,12 +108,13 @@ void RegionAggregatorTest::SetUp(void)
         .WillByDefault(Return(M_SIGNAL_R_HASH_CPU_3));
 
     EXPECT_CALL(m_platio, push_signal("EPOCH_COUNT", _, _))
-        .WillOnce(Return(M_SIGNAL_EPOCH_COUNT));
-    m_agg = geopm::make_unique<RegionAggregatorImp>(m_platio);
-    m_agg->init();
+        .WillRepeatedly(Return(M_SIGNAL_EPOCH_COUNT));
+    EXPECT_CALL(m_platio, push_signal("TIME", GEOPM_DOMAIN_BOARD, 0))
+        .WillOnce(Return(M_SIGNAL_TIME));
+    m_agg = geopm::make_unique<SampleAggregatorImp>(m_platio);
 }
 
-TEST_F(RegionAggregatorTest, sample_total)
+TEST_F(SampleAggregatorTest, sample_application)
 {
     uint64_t regionA = 0x4444;
     uint64_t regionB = 0x5555;
@@ -250,34 +249,39 @@ TEST_F(RegionAggregatorTest, sample_total)
 
         // epoch count - no epoch
         EXPECT_CALL(m_platio, sample(M_SIGNAL_EPOCH_COUNT))
-            .WillRepeatedly(Return(-1));
-        m_agg->read_batch();
+            .WillRepeatedly(Return(0));
+        m_agg->update();
     }
     std::set<uint64_t> regions = {regionA, regionB, GEOPM_REGION_HASH_UNMARKED};
 
     for (auto region : regions) {
-        EXPECT_EQ(exp_time[0][region], m_agg->sample_total(M_SIGNAL_TIME, region));
-        EXPECT_EQ(exp_energy[0][region], m_agg->sample_total(M_SIGNAL_ENERGY_0, region));
-        EXPECT_EQ(exp_energy[1][region], m_agg->sample_total(M_SIGNAL_ENERGY_1, region));
-        EXPECT_EQ(exp_cycles[0][region], m_agg->sample_total(M_SIGNAL_CYCLES_0, region));
-        EXPECT_EQ(exp_cycles[1][region], m_agg->sample_total(M_SIGNAL_CYCLES_1, region));
-        EXPECT_EQ(exp_cycles[2][region], m_agg->sample_total(M_SIGNAL_CYCLES_2, region));
-        EXPECT_EQ(exp_cycles[3][region], m_agg->sample_total(M_SIGNAL_CYCLES_3, region));
+        EXPECT_EQ(exp_time[0][region], m_agg->sample_region(M_SIGNAL_TIME, region))
+            << "Region hash: " << geopm::string_format_hex(region);
+        EXPECT_EQ(exp_energy[0][region], m_agg->sample_region(M_SIGNAL_ENERGY_0, region))
+            << "Region hash: " << geopm::string_format_hex(region);
+        EXPECT_EQ(exp_energy[1][region], m_agg->sample_region(M_SIGNAL_ENERGY_1, region))
+            << "Region hash: " << geopm::string_format_hex(region);
+        EXPECT_EQ(exp_cycles[0][region], m_agg->sample_region(M_SIGNAL_CYCLES_0, region))
+            << "Region hash: " << geopm::string_format_hex(region);
+        EXPECT_EQ(exp_cycles[1][region], m_agg->sample_region(M_SIGNAL_CYCLES_1, region))
+            << "Region hash: " << geopm::string_format_hex(region);
+        EXPECT_EQ(exp_cycles[2][region], m_agg->sample_region(M_SIGNAL_CYCLES_2, region))
+            << "Region hash: " << geopm::string_format_hex(region);
+        EXPECT_EQ(exp_cycles[3][region], m_agg->sample_region(M_SIGNAL_CYCLES_3, region))
+            << "Region hash: " << geopm::string_format_hex(region);
     }
-    std::set<uint64_t> result_regions = m_agg->tracked_region_hash();
-    EXPECT_EQ(regions, result_regions);
 
     // Invalid index
-    GEOPM_EXPECT_THROW_MESSAGE(m_agg->sample_total(-1, regionA), GEOPM_ERROR_INVALID,
+    GEOPM_EXPECT_THROW_MESSAGE(m_agg->sample_region(-1, regionA), GEOPM_ERROR_INVALID,
                                "Invalid signal index");
     // Unpushed signal index
-    GEOPM_EXPECT_THROW_MESSAGE(m_agg->sample_total(9999, regionA), GEOPM_ERROR_INVALID,
+    GEOPM_EXPECT_THROW_MESSAGE(m_agg->sample_region(9999, regionA), GEOPM_ERROR_INVALID,
                                "signal index not pushed with push_signal_total");
     // Unseen region
-    EXPECT_DOUBLE_EQ(0.0, m_agg->sample_total(M_SIGNAL_TIME, 0x9999));
+    EXPECT_DOUBLE_EQ(0.0, m_agg->sample_region(M_SIGNAL_TIME, 0x9999));
 }
 
-TEST_F(RegionAggregatorTest, epoch_total)
+TEST_F(SampleAggregatorTest, epoch_application_total)
 {
     uint64_t reg_normal = 0x3333;
 
@@ -297,12 +301,12 @@ TEST_F(RegionAggregatorTest, epoch_total)
 
         ++step;
 
-        m_agg->read_batch();
+        m_agg->update();
     }
 
-    EXPECT_DOUBLE_EQ(1.0, m_agg->sample_total(M_SIGNAL_TIME, reg_normal));
-    EXPECT_DOUBLE_EQ(0.0, m_agg->sample_total(M_SIGNAL_TIME, GEOPM_REGION_HASH_UNMARKED));
-    EXPECT_DOUBLE_EQ(0.0, m_agg->sample_total(M_SIGNAL_TIME, GEOPM_REGION_HASH_EPOCH));
+    EXPECT_DOUBLE_EQ(1.0, m_agg->sample_region(M_SIGNAL_TIME, reg_normal));
+    EXPECT_DOUBLE_EQ(0.0, m_agg->sample_region(M_SIGNAL_TIME, GEOPM_REGION_HASH_UNMARKED));
+    EXPECT_DOUBLE_EQ(0.0, m_agg->sample_epoch(M_SIGNAL_TIME));
 
     // only time from non-MPI, non-ignore regions will go in epoch
     // unmarked region is also included in epoch
@@ -320,11 +324,14 @@ TEST_F(RegionAggregatorTest, epoch_total)
 
         ++step;
 
-        m_agg->read_batch();
+        m_agg->update();
     }
 
-    EXPECT_DOUBLE_EQ(2.0, m_agg->sample_total(M_SIGNAL_TIME, reg_normal));
-    EXPECT_DOUBLE_EQ(2.0, m_agg->sample_total(M_SIGNAL_TIME, GEOPM_REGION_HASH_UNMARKED));
+    EXPECT_DOUBLE_EQ(2.0, m_agg->sample_region(M_SIGNAL_TIME, reg_normal));
+    EXPECT_DOUBLE_EQ(2.0, m_agg->sample_region(M_SIGNAL_TIME, GEOPM_REGION_HASH_UNMARKED));
     // First epoch observed at step == 2, app finished at step == 4.  4 - 2 = 2
-    EXPECT_DOUBLE_EQ(2.0, m_agg->sample_total(M_SIGNAL_TIME, GEOPM_REGION_HASH_EPOCH));
+    EXPECT_DOUBLE_EQ(2.0, m_agg->sample_epoch(M_SIGNAL_TIME));
+
+    // Application totals
+    EXPECT_DOUBLE_EQ(4.0, m_agg->sample_application(M_SIGNAL_TIME));
 }

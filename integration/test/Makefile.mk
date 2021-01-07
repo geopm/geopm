@@ -56,3 +56,4 @@ include integration/test/test_tutorial_base.mk
 include integration/test/test_frequency_hint_usage.mk
 include integration/test/test_epoch_inference.mk
 include integration/test/test_power_balancer.mk
+include integration/test/test_profile_overflow.mk

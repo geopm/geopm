@@ -99,9 +99,7 @@ void TracerTest::SetUp(void)
         {"EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_integer},
         {"REGION_HASH", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_hex},
         {"REGION_HINT", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_hex},
-        {"REGION_PROGRESS", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_float},
-        {"REGION_COUNT", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_integer},
-        {"REGION_RUNTIME", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
+        {"REGION_THREAD_PROGRESS", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_float},
         {"ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
         {"ENERGY_DRAM", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
         {"POWER_PACKAGE", GEOPM_DOMAIN_BOARD, 0, geopm::string_format_double},
@@ -165,7 +163,7 @@ TEST_F(TracerTest, columns)
                                   "# node_name: " + m_hostname + "\n"
                                   "# agent:\n";
     std::string expected_str = expected_header +
-        "TIME|EPOCH_COUNT|REGION_HASH|REGION_HINT|REGION_PROGRESS|REGION_COUNT|REGION_RUNTIME|ENERGY_PACKAGE|ENERGY_DRAM|"
+        "TIME|EPOCH_COUNT|REGION_HASH|REGION_HINT|REGION_THREAD_PROGRESS|ENERGY_PACKAGE|ENERGY_DRAM|"
         "POWER_PACKAGE|POWER_DRAM|FREQUENCY|CYCLES_THREAD|CYCLES_REFERENCE|TEMPERATURE_CORE|"
         "EXTRA|EXTRA_SPECIAL-cpu-0|EXTRA_SPECIAL-cpu-1|"
         "col1|col2\n";
@@ -198,7 +196,7 @@ TEST_F(TracerTest, update_samples)
     m_tracer->flush();
 
     std::string expected_str = "\n\n\n\n\n\n"
-        "0.5|1|0x0000000000000002|0x0000000000000003|4.5|5|6.5|7.5|8.5|9.5|10.5|11.5|12|13|14.5|15.7|16.7|17.7|88.8|77.7\n";
+        "0.5|1|0x0000000000000002|0x0000000000000003|4.5|5.5|6.5|7.5|8.5|9.5|10|11|12.5|13.7|14.7|15.7|88.8|77.7\n";
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);
     ASSERT_TRUE(result.good()) << strerror(errno);
@@ -232,14 +230,7 @@ TEST_F(TracerTest, region_entry_exit)
     m_tracer->flush();
     std::string expected_str ="\n\n\n\n\n"
         "\n" // header
-#ifdef GEOPM_TRACE_BLOAT
-        "2.2|0|0x0000000000000123|0x0000000100000000|0|0|3.2|2.2|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n"
-        "2.2|0|0x0000000000000123|0x0000000100000000|1|0|3.2|2.2|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n"
-        "2.2|0|0x0000000000000345|0x0000000100000000|0|0|3.2|2.2|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n"
-        "2.2|0|0x0000000000000456|0x0000000100000000|1|0|3.2|2.2|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n"
-        "2.2|0|0x0000000000000345|0x0000000100000000|1|0|3.2|2.2|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n"
-#endif
-        "2.2|0|0x0000000000000123|0x0000000100000000|0|0|2.2|2.2|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n";
+        "2.2|0|0x0000000000000123|0x0000000100000000|0|0|2.2|2.2|2.2|2.2|2|2|2.2|2.2|2.2|2.2|88|77\n";
 
     std::istringstream expected(expected_str);
     std::ifstream result(m_path + "-" + m_hostname);

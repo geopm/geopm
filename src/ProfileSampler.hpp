@@ -83,7 +83,6 @@ namespace geopm
     };
 
     class Comm;
-    class ProfileThreadTable;
 
     class ProfileSampler
     {
@@ -154,7 +153,6 @@ namespace geopm
             virtual std::set<std::string> name_set(void) const = 0;
             virtual std::string report_name(void) const = 0;
             virtual std::string profile_name(void) const = 0;
-            virtual std::shared_ptr<ProfileThreadTable> tprof_table(void) const = 0;
             /// @brief Signal to the application that the controller
             ///        is ready to begin receiving samples.
             virtual void controller_ready(void) = 0;
@@ -213,19 +211,12 @@ namespace geopm
             bool name_fill(std::set<std::string> &name_set) override;
             void report_name(std::string &report_str) const override;
             void profile_name(std::string &prof_str) const override;
-            std::shared_ptr<ProfileThreadTable> tprof_table(void) const;
         private:
             /// Holds the shared memory region used for sampling from the
             /// application process.
             std::unique_ptr<SharedMemory> m_table_shmem;
             /// The hash table which stores application process samples.
             std::unique_ptr<ProfileTable> m_table;
-            std::unique_ptr<SharedMemory> m_tprof_shmem;
-            std::shared_ptr<ProfileThreadTable> m_tprof_table;
-            /// Holds the initial state of the last region entered.
-            struct geopm_prof_message_s m_region_entry;
-            /// Holds the initial state of the last region entered.
-            struct geopm_prof_message_s m_epoch_entry;
             /// Holds the profile name string.
             std::string m_prof_name;
             /// Holds the file name for the post-process report.
@@ -285,7 +276,6 @@ namespace geopm
             std::set<std::string> name_set(void) const override;
             std::string report_name(void) const override;
             std::string profile_name(void) const override;
-            std::shared_ptr<ProfileThreadTable> tprof_table(void) const override;
             void controller_ready(void) override;
             void abort(void) override;
             std::vector<struct geopm_prof_message_s> sample_cache(void) override;
@@ -306,8 +296,6 @@ namespace geopm
             std::string m_report_name;
             std::string m_profile_name;
             bool m_do_report;
-            std::unique_ptr<SharedMemory> m_tprof_shmem;
-            std::shared_ptr<ProfileThreadTable> m_tprof_table;
             int m_rank_per_node;
             std::vector<struct geopm_prof_message_s> m_cache;
     };

@@ -40,6 +40,8 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <ostream>
+#include <functional>
 
 namespace geopm
 {
@@ -97,7 +99,8 @@ namespace geopm
 
     class PlatformIO;
     class PlatformTopo;
-    class RegionAggregator;
+    class SampleAggregator;
+    class ProcessRegionAggregator;
 
     class ReporterImp : public Reporter
     {
@@ -112,7 +115,8 @@ namespace geopm
                         PlatformIO &platform_io,
                         const PlatformTopo &platform_topo,
                         int rank,
-                        std::unique_ptr<RegionAggregator> agg,
+                        std::shared_ptr<SampleAggregator> sample_agg,
+                        std::shared_ptr<ProcessRegionAggregator> proc_agg,
                         const std::string &env_signal,
                         const std::string &policy_path,
                         bool do_endpoint);
@@ -127,29 +131,65 @@ namespace geopm
                           std::shared_ptr<Comm> comm,
                           const TreeComm &tree_comm) override;
         private:
-            std::string get_max_memory(void);
+            /// @brief number of spaces for each indentation
+            static constexpr int M_SPACES_INDENT = 2;
+            // Number of levels of indentation for each section of the report
+            static constexpr int M_INDENT_HEADER = 0;
+            static constexpr int M_INDENT_HOST = 0;
+            static constexpr int M_INDENT_HOST_NAME = M_INDENT_HOST + 1;
+            static constexpr int M_INDENT_HOST_AGENT = M_INDENT_HOST_NAME + 1;
+            static constexpr int M_INDENT_REGION = M_INDENT_HOST_NAME + 1;
+            static constexpr int M_INDENT_REGION_FIELD = M_INDENT_REGION + 1;
+            static constexpr int M_INDENT_UNMARKED = M_INDENT_HOST_NAME + 1;
+            static constexpr int M_INDENT_UNMARKED_FIELD = M_INDENT_UNMARKED + 1;
+            static constexpr int M_INDENT_EPOCH = M_INDENT_HOST_NAME + 1;
+            static constexpr int M_INDENT_EPOCH_FIELD = M_INDENT_EPOCH + 1;
+            static constexpr int M_INDENT_TOTALS = M_INDENT_HOST_NAME + 1;
+            static constexpr int M_INDENT_TOTALS_FIELD = M_INDENT_TOTALS + 1;
+            /// @brief Set up structures used to calculate region-synchronous
+            ///        field data to be sampled from SampleAggregator.
+            void init_sync_fields(void);
+            /// @brief Returns the memoy high water mark for the
+            ///        controller process.
+            double get_max_memory(void);
+            static void yaml_write(std::ostream &os, int indent_level,
+                                   const std::string &val);
+            static void yaml_write(std::ostream &os, int indent_level,
+                                   const std::vector<std::pair<std::string, std::string> > &data);
+            static void yaml_write(std::ostream &os, int indent_level,
+                                   const std::vector<std::pair<std::string, double> > &data);
+
+            std::vector<std::pair<std::string, double> > get_region_data(uint64_t region_hash);
 
             std::string m_start_time;
             std::string m_report_name;
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
-            std::unique_ptr<RegionAggregator> m_region_agg;
-            int m_rank;
-            int m_region_bulk_runtime_idx;
-            int m_energy_pkg_idx;
-            int m_energy_dram_idx;
-            int m_clk_core_idx;
-            int m_clk_ref_idx;
-            std::vector<std::pair<std::string, int> > m_env_signal_name_idx;
+            std::shared_ptr<SampleAggregator> m_sample_agg;
+            std::shared_ptr<ProcessRegionAggregator> m_proc_region_agg;
             const std::string m_env_signals;
             const std::string m_policy_path;
             bool m_do_endpoint;
-            int m_app_energy_pkg_idx;
-            int m_app_energy_dram_idx;
-            int m_app_time_signal_idx;
-            double m_start_energy_pkg;
-            double m_start_energy_dram;
-            double m_start_time_signal;
+            int m_rank;
+            double m_sticker_freq;
+            int m_epoch_count_idx;
+
+            // Mapping from pushed signal name to index
+            std::map<std::string, int> m_sync_signal_idx;
+
+            // Fields for each section in order.  function can be
+            // passthrough, or combo of other fields
+            struct m_sync_field_s
+            {
+                std::string field_label;
+                std::vector<std::string> supporting_signals;
+                std::function<double(uint64_t, const std::vector<std::string>&)> func;
+            };
+            // All default fields supported by sample aggregator
+            std::vector<m_sync_field_s> m_sync_fields;
+
+            // Signals added through environment
+            std::vector<std::pair<std::string, int> > m_env_signal_name_idx;
     };
 }
 
