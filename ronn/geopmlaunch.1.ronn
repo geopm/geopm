@@ -109,38 +109,18 @@ listed below.
   reserved for use by GEOPM; do not specify when using `geopmlaunch`.
 
 ## GEOPM OPTIONS
+
 * `--geopm-report` path:
   Specifies the path to the GEOPM report output file that is generated
   at the conclusion of the run if this option is provided.  If the
-  option is not provided, a report named "geopm.report" will be created.
-  The GEOPM report contains a summary of the profiling information
-  collected by GEOPM throughout the application execution.  The report
-  contains information about runtimes, MPI usage, and energy
-  consumption for each compute node used by the application.  The
-  report is broken down by compute node and then by region.  The
-  regions are defined by use of the **geopm_prof_c(3)** interface to
-  mark up the user application or automatic inference of regions based
-  on interposing on the MPI or OpenMP interfaces (interposing on
-  OpenMP requires that the optional configuration parameter
-  `--enable-ompt` is provided at GEOPM compile time, and the
-  `--geopm-ompt-disable` option is not provided to `geopmlaunch`). Note that
-  the sampled values, like 'energy', are accumulated into the sum for a
-  region only when all ranks on a compute node are concurrently
-  executing the same region; otherwise statistics gathered are
-  accumulated within the 'unmarked-region'.  Also note that the
-  `sync-runtime` accumulates the total amount of time when all ranks
-  within a compute node were synchronously within the region.  The
-  `runtime` value is the time spent within a region by a rank averaged
-  over all ranks on the node regardless of synchronicity of execution.
-  The "Application totals" are not calculated by sampling throughout
-  the run, but rather by differencing values measured at the start and
-  end of the application.  When comparing energy and time values from
-  the report, care should be taken to use 'runtime' in the case of
-  application totals, and 'sync-runtime' for all other regions.  This
-  option is used by the launcher to set the `GEOPM_REPORT` environment
-  variable.  The command line option will override any value currently
-  set in the environment.  See the ENVIRONMENT section of
-  **geopm(7)**.
+  option is not provided, a report named "geopm.report" will be
+  created.  The GEOPM report contains a summary of the profiling
+  information collected by GEOPM throughout the application execution.
+  Refer to **geopm_report(7)** for a description of the information
+  contained in the report.  This option is used by the launcher to set
+  the `GEOPM_REPORT` environment variable.  The command line option
+  will override any value currently set in the environment.  See the
+  ENVIRONMENT section of **geopm(7)**.
 
 * `--geopm-report-signals` signals:
   Used to insert additional measurements into the report beyond the
@@ -531,5 +511,6 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation. All rights 
 **geopm_agent_monitor(7)**,
 **geopm_agent_power_balancer(7)**,
 **geopm_agent_power_governor(7)**,
+**geopm_report(7)**,
 **geopm_error(3)**,
 **geopmctl(1)**
