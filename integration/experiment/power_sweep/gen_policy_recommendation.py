@@ -75,7 +75,7 @@ class PowerLimitModel:
         """
         Evaluate a trained model on a list-like container of power limits
         (PL_list). Returns a list of values."""
-        return [self.test(PL) for PL in PL_list]
+        return [self.evaluate(PL) for PL in PL_list]
 
     def serialize(self):
         "Convert model to JSON."
