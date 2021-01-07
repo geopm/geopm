@@ -37,10 +37,8 @@ consumption. Offers power-governor policy recommendations for
 minimum energy use subject to a runtime degradation constraint.
 '''
 
-import os
 import sys
 import argparse
-import json
 
 import pandas
 import numpy as np
@@ -100,10 +98,9 @@ class PolynomialFitPowerModel(PowerLimitModel):
         self._model = None
 
     def train(self, df, key):
-        self._model = Polynomial.fit(
-                df.index,
-                df[key].values,
-                deg=self._degree).convert()
+        self._model = Polynomial.fit(df.index,
+                                     df[key].values,
+                                     deg=self._degree).convert()
 
     def evaluate(self, PL):
         return sum(self._model.coef * PL ** np.arange(self._degree + 1))
@@ -111,8 +108,7 @@ class PolynomialFitPowerModel(PowerLimitModel):
     def __str__(self):
         if self._model is not None:
             terms = ["", " PL"] + \
-                    [" PL ** {}".format(i)
-                            for i in range(2, self._degree + 1)]
+                    [" PL ** {}".format(i) for i in range(2, self._degree + 1)]
             coeffs = list(self._model.coef)
             expression = ""
             terms.reverse()
@@ -153,46 +149,34 @@ def extract_columns(df, region_filter = None):
         df_filtered = df[df['region'].isin(region_filter.split(','))]
 
     # these are the only columns we need
-    df_cols = df_filtered[[
-        'POWER_PACKAGE_LIMIT_TOTAL',
-        'host',
-        'runtime (sec)',
-        'package-energy (joules)']] \
-    .rename({
-        'POWER_PACKAGE_LIMIT_TOTAL': 'power_limit',
-        'runtime (sec)': 'runtime',
-        'package-energy (joules)': 'energy'
-    },
-    axis = 1) \
-    .groupby(['power_limit', 'host']).sum().reset_index() \
-    [['power_limit', 'runtime', 'energy']] \
-    .set_index('power_limit')
+    df_cols = df_filtered[['POWER_PACKAGE_LIMIT_TOTAL',
+                           'host',
+                           'runtime (sec)',
+                           'package-energy (joules)']]
+
+    df_cols = df_cols.rename({'POWER_PACKAGE_LIMIT_TOTAL': 'power_limit',
+                              'runtime (sec)': 'runtime',
+                              'package-energy (joules)': 'energy'
+                             }, axis = 1)
+
+    df_cols = df_cols.groupby(['power_limit', 'host']).sum().reset_index()
+    df_cols = df_cols[['power_limit', 'runtime', 'energy']].set_index('power_limit')
 
     return df_cols
 
 
 def dump_stats_summary(df, fname):
     """
-    Write mean runtime and energy and the standard deviation of 
+    Write mean runtime and energy and the standard deviation of
     runtime and energy for each power limit in CSV format to the
     file fname."""
-    means = df \
-            .groupby(level=0) \
-            .mean() \
-            .rename(lambda x: x+"_mean", axis=1)
-    stds = df \
-            .groupby(level=0) \
-            .mean() \
-            .rename(lambda x: x+"_stddev", axis=1)
+    means = df.groupby(level=0).mean().rename(lambda x: x+"_mean", axis=1)
+    stds = df.groupby(level=0).mean().rename(lambda x: x+"_stddev", axis=1)
     pandas.concat([means, stds], axis=1).to_csv(fname)
 
 
-def policy_min_energy(
-        plrange,
-        enmodel,
-        rtmodel = None,
-        pltdp = None,
-        max_degradation = None):
+def policy_min_energy(plrange, enmodel, rtmodel = None, pltdp = None,
+                      max_degradation = None):
     """
     Find the power limit over the range plrange (list-like) that
     has the minimum predicted energy usage (according to the energy model
@@ -220,24 +204,17 @@ def policy_min_energy(
     else:
         rt_predictions = rtmodel.batch_evaluate(plrange)
         rt_at_tdp = rtmodel.evaluate(pltdp)
-        constrained_values = [
-                (energy, runtime, pl)
-                for pl, runtime, energy
-                in zip(plrange, rt_predictions, en_predictions)
-                if runtime <= (1 + max_degradation) * rt_at_tdp]
+        constrained_values = [(energy, runtime, pl)
+                              for pl, runtime, energy
+                              in zip(plrange, rt_predictions, en_predictions)
+                              if runtime <= (1 + max_degradation) * rt_at_tdp]
         best_energy, best_runtime, best_pl = min(constrained_values)
         return {'power': best_pl,
                 'runtime': best_runtime,
                 'energy': best_energy}
 
 
-def main(full_df,
-        region_filter,
-        dump_prefix,
-        min_pl,
-        max_pl,
-        tdp,
-        max_degradation):
+def main(full_df, region_filter, dump_prefix, min_pl, max_pl, tdp, max_degradation):
     """
     The main function. full_df is a report collection dataframe, region_filter
     is a list of regions to include, dump_prefix a filename prefix for
@@ -259,7 +236,7 @@ def main(full_df,
 
     plrange = [min_pl + i for i in range(int(max_pl - min_pl))] + [max_pl]
     best_policy = policy_min_energy(plrange, energy_model, runtime_model, tdp,
-            max_degradation=max_degradation)
+                                    max_degradation = max_degradation)
     tdprt, tdpen = runtime_model.evaluate(tdp), energy_model.evaluate(tdp)
 
     return {'tdp': {'power': tdp, 'runtime': tdprt, 'energy': tdpen},
@@ -292,11 +269,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     try:
-        df = geopmpy.io.RawReportCollection(
-                "*report", dir_name=args.path).get_df()
+        df = geopmpy.io.RawReportCollection('*report', dir_name=args.path).get_df()
     except RuntimeError:
-        sys.stderr.write("<geopm> Error: No report data found in " + path + \
-                "; run a power sweep before using this analysis.\n")
+        sys.stderr.write('<geopm> Error: No report data found in ' + path + \
+                         '; run a power sweep before using this analysis.\n')
         sys.exit(1)
 
     min_pl, tdp, max_pl = None, None, None
@@ -308,8 +284,8 @@ if __name__ == '__main__':
             tdp = machine_info.power_package_tdp()
             max_pl = machine_info.power_package_tdp()
         except RuntimeError:
-            sys.stderr.write("Warning: couldn't open machine.json. Falling "
-                             "back to default values.\n")
+            sys.stderr.write('Warning: couldn\'t open machine.json. Falling '
+                             'back to default values.\n')
             min_pl = 150
             tdp = 280
             max_pl = 280
@@ -325,25 +301,15 @@ if __name__ == '__main__':
     output = main(df, args.region_filter, args.dump_prefix, min_pl, max_pl, tdp,
                   None if args.min_energy else args.max_degradation)
 
-    sys.stdout.write(
-            "AT TDP = {power:.0f}W, "
-            "RUNTIME = {runtime:.0f} s, "
-            "ENERGY = {energy:.0f} J\n"\
-                    .format(**output['tdp']))
-    sys.stdout.write(
-            "AT PL  = {power:.0f}W, "
-            "RUNTIME = {runtime:.0f} s, "
-            "ENERGY = {energy:.0f} J\n"\
-                    .format(**output['best']))
+    sys.stdout.write('AT TDP = {power:.0f}W, '
+                     'RUNTIME = {runtime:.0f} s, '
+                     'ENERGY = {energy:.0f} J\n'.format(**output['tdp']))
+    sys.stdout.write('AT PL  = {power:.0f}W, '
+                     'RUNTIME = {runtime:.0f} s, '
+                     'ENERGY = {energy:.0f} J\n'.format(**output['best']))
 
-    relative_delta = lambda new, old: (new - old) / old
+    relative_delta = lambda new, old: 100 * (new - old) / old
 
-    sys.stdout.write(
-            "DELTA          RUNTIME = {:.1f} %,  ENERGY = {:.1f} %\n"\
-                    .format(
-                        100 * relative_delta(
-                            output['best']['runtime'],
-                            output['tdp']['runtime']),
-                        100 * relative_delta(
-                            output['best']['energy'],
-                            output['tdp']['energy'])))
+    sys.stdout.write('DELTA          RUNTIME = {:.1f} %,  ENERGY = {:.1f} %\n'
+                     .format(relative_delta(output['best']['runtime'], output['tdp']['runtime']),
+                             relative_delta(output['best']['energy'], output['tdp']['energy'])))
