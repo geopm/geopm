@@ -169,6 +169,7 @@ ronn_man_inst = man/GEOPM_CXX_MAN_Agent.3 \
                 man/geopm_agent_monitor.7 \
                 man/geopm_agent_power_balancer.7 \
                 man/geopm_agent_power_governor.7 \
+                man/geopm_report.7 \
                 man/geopm_ctl_c.3 \
                 man/geopm_error.3 \
                 man/geopm_fortran.3 \
@@ -300,6 +301,7 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/geopm_agent_monitor.7.ronn \
              ronn/geopm_agent_power_balancer.7.ronn \
              ronn/geopm_agent_power_governor.7.ronn \
+             ronn/geopm_report.7.ronn \
              ronn/geopm_ctl_c.3.ronn \
              ronn/geopm_daemon_c.3.ronn \
              ronn/geopm_endpoint_c.3.ronn \

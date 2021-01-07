@@ -82,6 +82,7 @@ ronn/geopm_agent_frequency_map.7.ronn
 ronn/geopm_agent_monitor.7.ronn
 ronn/geopm_agent_power_balancer.7.ronn
 ronn/geopm_agent_power_governor.7.ronn
+ronn/geopm_report.7.ronn
 ronn/geopm_ctl_c.3.ronn
 ronn/geopm_daemon_c.3.ronn
 ronn/geopm_endpoint_c.3.ronn
