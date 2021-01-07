@@ -150,7 +150,7 @@ def extract_columns(df, region_filter = None):
 
     # these are the only columns we need
     df_cols = df_filtered[['POWER_PACKAGE_LIMIT_TOTAL',
-                           'host',
+                           'host', 'Profile',
                            'runtime (sec)',
                            'package-energy (joules)']]
 
@@ -159,7 +159,7 @@ def extract_columns(df, region_filter = None):
                               'package-energy (joules)': 'energy'
                              }, axis = 1)
 
-    df_cols = df_cols.groupby(['power_limit', 'host']).sum().reset_index()
+    df_cols = df_cols.groupby(['power_limit', 'host', 'Profile']).sum().reset_index()
     df_cols = df_cols[['power_limit', 'runtime', 'energy']].set_index('power_limit')
 
     return df_cols
