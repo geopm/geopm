@@ -69,98 +69,34 @@ pandas.set_option('max_columns', 100)
 
 
 class AppOutput(object):
-    """The container class for all report and trace related data.
+    """The container class for all trace related data.
 
     This class holds the relevant objects for parsing and indexing all
     data that is output from GEOPM.  This object can be created with a
-    report glob string, a trace glob string, or both that will be used
+    a trace glob string that will be used
     to search dir_name for the relevant files.  If files are found
     their data will be parsed into objects for easy data access.
     Additionally a Pandas DataFrame is constructed containing all of
-    the report data and a separate DataFrame containing all of the
+    all of the
     trace data.  These DataFrames are indexed based on the version of
     GEOPM found in the files, the profile name, agent name, and the number
     of times that particular configuration has been seen by the parser
     (i.e. experiment iteration).
 
     Attributes:
-        report_glob: The string pattern to use to search for report files.
         trace_glob: The string pattern to use to search for trace files.
         dir_name: The directory path to use when searching for files.
         verbose: A bool to control whether verbose output is printed to stdout.
 
     """
 
-    def __init__(self, reports=None, traces=None, dir_name='.', verbose=False, do_cache=True):
-        self._reports = {}
-        self._reports_df = pandas.DataFrame()
+    def __init__(self, traces=None, dir_name='.', verbose=False, do_cache=True):
         self._traces = {}
         self._traces_df = pandas.DataFrame()
         self._all_paths = []
         self._index_tracker = IndexTracker()
         self._node_names = None
         self._region_names = None
-
-        if reports:
-            if type(reports) is list:
-                report_paths = [os.path.join(dir_name, path) for path in reports]
-            else:
-                report_glob = os.path.join(dir_name, reports)
-                try:
-                    report_paths = glob.glob(report_glob)
-                except TypeError:
-                    raise TypeError('<geopm> geopmpy.io: AppOutput: reports must be a list of paths or a glob pattern')
-                report_paths = natsorted(report_paths)
-                if len(report_paths) == 0:
-                    raise RuntimeError('<geopm> geopmpy.io: No report files found with pattern {}.'.format(report_glob))
-
-            self._all_paths.extend(report_paths)
-
-            if do_cache:
-                paths_str = str(report_paths)
-                try:
-                    h5_id = hashlib.shake_256(paths_str.encode()).hexdigest(14)
-                except AttributeError:
-                    h5_id = hash(paths_str)
-                report_h5_name = 'report_{}.h5'.format(h5_id)
-                self._all_paths.append(report_h5_name)
-
-                # check if cache is older than reports
-                if os.path.exists(report_h5_name):
-                    cache_mod_time = os.path.getmtime(report_h5_name)
-                    regen_cache = False
-                    for report_file in report_paths:
-                        mod_time = os.path.getmtime(report_file)
-                        if mod_time > cache_mod_time:
-                            regen_cache = True
-                    if regen_cache:
-                        os.remove(report_h5_name)
-
-                try:
-                    # load dataframes from cache
-                    self._reports_df = pandas.read_hdf(report_h5_name, 'report')
-                    self._app_reports_df = pandas.read_hdf(report_h5_name, 'app_report')
-                    if verbose:
-                        sys.stdout.write('Loaded reports from {}.\n'.format(report_h5_name))
-                except IOError as err:
-                    sys.stderr.write('Warning: <geopm> geopmpy.io: Report HDF5 file not detected or older than reports.  Data will be saved to {}.\n'
-                                     .format(report_h5_name))
-                    self.parse_reports(report_paths, verbose)
-
-                    # Cache report dataframe
-                    try:
-                        if verbose:
-                            sys.stdout.write('Generating HDF5 files... ')
-                        self._reports_df.to_hdf(report_h5_name, 'report', format='table')
-                        self._app_reports_df.to_hdf(report_h5_name, 'app_report', format='table', append=True)
-                    except ImportError as error:
-                        sys.stderr.write('Warning: <geopm> geopmpy.io: Unable to write HDF5 file: {}\n'.format(str(error)))
-
-                    if verbose:
-                        sys.stdout.write('Done.\n')
-                        sys.stdout.flush()
-            else:
-                self.parse_reports(report_paths, verbose)
 
         if traces:
             if type(traces) is list:
@@ -222,54 +158,6 @@ class AppOutput(object):
             else:
                 self.parse_traces(trace_paths, verbose)
 
-    def parse_reports(self, report_paths, verbose):
-        reports_df_list = []
-        reports_app_df_list = []
-        files = 0
-        filesize = 0
-        for rp in report_paths:  # Get report count for verbose progress
-            filesize += os.stat(rp).st_size
-            with open(rp, 'r') as fid:
-                for line in fid:
-                    if re.findall(r'Host:', line):
-                        files += 1
-
-        filesize = '{}KiB'.format(filesize // 1024)
-        fileno = 1
-        for rp in report_paths:
-            # Parse the first report
-            rr_size = os.stat(rp).st_size
-            rr = Report(rp)
-            if verbose:
-                sys.stdout.write('\rParsing report {} of {} ({})... '.format(fileno, files, filesize))
-                sys.stdout.flush()
-            fileno += 1
-            self.add_report_df(rr, reports_df_list, reports_app_df_list)
-            # Parse the remaining reports in this file
-            while (rr.get_last_offset() != rr_size):
-                rr = Report(rp, rr.get_last_offset())
-                if rr.get_node_name() is not None:
-                    self.add_report_df(rr, reports_df_list, reports_app_df_list)
-                    if verbose:
-                        sys.stdout.write('\rParsing report {} of {} ({})... '.format(fileno, files, filesize))
-                        sys.stdout.flush()
-                    fileno += 1
-            Report.reset_vars()  # If we've reached the end of a report, reset the static vars
-        if verbose:
-            sys.stdout.write('Done.\n')
-            sys.stdout.flush()
-
-        if verbose:
-            sys.stdout.write('Creating combined reports DF... ')
-            sys.stdout.flush()
-        self._reports_df = pandas.concat(reports_df_list)
-        self._reports_df = self._reports_df.sort_index(ascending=True)
-        self._app_reports_df = pandas.concat(reports_app_df_list)
-        self._app_reports_df = self._app_reports_df.sort_index(ascending=True)
-        if verbose:
-            sys.stdout.write('Done.\n')
-            sys.stdout.flush()
-
     def parse_traces(self, trace_paths, verbose):
         traces_df_list = []
         fileno = 1
@@ -311,42 +199,6 @@ class AppOutput(object):
             except OSError:
                 pass
 
-    def add_report_df(self, rr, reports_df_list, reports_app_df_list):
-        """Adds a report DataFrame to the tracking list.
-
-        The report tracking list is used to create the combined
-        DataFrame once all reports are parsed.
-
-        Args:
-            rr: The report object that will be converted to a
-                DataFrame, indexed, and added to the tracking list.
-
-        """
-        # Build and index the DF
-        rdf = pandas.DataFrame(rr).T.drop('name', 1)
-        numeric_cols = ['count', 'energy_pkg', 'energy_dram', 'frequency', 'network_time', 'runtime', 'sync_runtime']
-        rdf[numeric_cols] = rdf[numeric_cols].apply(pandas.to_numeric)
-
-        # Add extra index info
-        index = self._index_tracker.get_multiindex(rr)
-        rdf = rdf.set_index(index)
-        reports_df_list.append(rdf)
-
-        # Save application totals
-        app = {'runtime': rr.get_runtime(),
-               'energy-package': rr.get_energy_pkg(),
-               'energy-dram': rr.get_energy_dram(),
-               'network-time': rr.get_network_time(),
-               'ignore-runtime': rr.get_ignore_runtime(),
-               'memory-hwm': rr.get_memory_hwm(),
-               'network-bw': rr.get_network_bw()
-              }
-        index = index.droplevel('region').drop_duplicates()
-        app_df = pandas.DataFrame(app, index=index)
-        numeric_cols = list(app)
-        app_df[numeric_cols] = app_df[numeric_cols].apply(pandas.to_numeric)
-        reports_app_df_list.append(app_df)
-
     def add_trace_df(self, tt, traces_df_list):
         """Adds a trace DataFrame to the tracking list.
 
@@ -363,75 +215,12 @@ class AppOutput(object):
         tdf = tdf.set_index(self._index_tracker.get_multiindex(tt))
         traces_df_list.append(tdf)
 
-    def get_node_names(self):
-        """Returns the names of the nodes detected in the parse report files.
-
-        Note that this is only useful for a single experiment's
-        dataset.  The _reports dictionary is populated from every
-        report file that was globbed, so if you have multiple
-        iterations of an experiment the last set of reports parsed
-        will be contained in this dictionary.  Additionally, if
-        different nodes were used with different experiment iterations
-        then this dictionary will not have consistent data.
-
-        If analysis of all of the data is desired, use get_report_df()
-        to get a combined DataFrame of all the data.
-
-        """
-        if self._node_names is None:
-            self._node_names = self._reports_df.index.get_level_values('node_name').unique().tolist()
-        return self._node_names
-
-    def get_region_names(self):
-        if self._region_names is None:
-            self._region_names = self._reports_df.index.get_level_values('region').unique().tolist()
-        return self._region_names
-
-    def get_report_data(self, profile=None, agent=None, node_name=None, region=None):
-        idx = pandas.IndexSlice
-        df = self._reports_df
-        if profile is not None:
-            if type(profile) is tuple:
-                minp, maxp = profile
-                df = df.loc[idx[:, :, minp:maxp, :, :, :, :], ]
-            else:
-                df = df.loc[idx[:, :, profile, :, :, :, :], ]
-        if agent is not None:
-            df = df.loc[idx[:, :, :, agent, :, :, :], ]
-        if node_name is not None:
-            df = df.loc[idx[:, :, :, :, node_name, :, :], ]
-        if region is not None:
-            df = df.loc[idx[:, :, :, :, :, :, region], ]
-        return df
-
-    # TODO Call this from outside code to get totals
-    def get_app_total_data(self, node_name=None):
-        idx = pandas.IndexSlice
-        df = self._app_reports_df
-        if node_name is not None:
-            df = df.loc[idx[:, :, :, :, node_name, :], ]
-        return df
-
     def get_trace_data(self, node_name=None):
         idx = pandas.IndexSlice
         df = self._traces_df
         if node_name is not None:
             df = df.loc[idx[:, :, :, :, node_name, :, :], ]
         return df
-
-    def get_report_df(self):
-        """Getter for the combined DataFrame of all report files parsed.
-
-        This DataFrame contains all data parsed, and has a complex
-        MultiIndex for accessing the unique data from each individual
-        report.  For more information on this index, see the
-        IndexTracker docstring.
-
-        Returns:
-            pandas.DataFrame: Contains all parsed data.
-
-        """
-        return self._reports_df
 
     def get_trace_df(self):
         """Getter for the combined DataFrame of all trace files parsed.
@@ -446,22 +235,6 @@ class AppOutput(object):
 
         """
         return self._traces_df
-
-    def extract_index_from_profile(self, inplace=False):
-        """
-        Pulls the power budget or other number out of the profile name
-        and replaces the name column of the data frame with this
-        number.
-        """
-        profile_name_map = {}
-        names_list = self._reports_df.index.get_level_values('name').unique().tolist()
-        for name in names_list:
-            # The profile name is currently set to: ${NAME}_${POWER_BUDGET}
-            profile_name_map.update({name: int(name.split('_')[-1])})
-        df = self._reports_df.rename(index=profile_name_map).sort_index(ascending=True)
-        if inplace:
-            self._reports_df = df
-        return df
 
 
 class IndexTracker(object):
@@ -579,326 +352,6 @@ class IndexTracker(object):
 
         """
         self._run_outputs = {}
-
-
-class Report(OrderedDict):
-    """An object to parse and encapsulate the data from a report file.
-
-    Reports from the GEOPM runtime are currently coalesced into a
-    single file from all the nodes used in a particular run.  This
-    class will process the combined file one line at a time and
-    attempt to extract and encapsulate a single report in its member
-    variables.  The intention is that for a combined file, one would
-    first create one of these objects to extract the first report.  To
-    parse the remaining reports, you will create a new object with the
-    same report_path but use the offset from the previous object to
-    see where you left off in the parsing process.
-
-    Attributes:
-        report_path: A string path to a report file to be parsed.
-        offset: The starting offset within the report_path file to
-                begin looking for a new report.
-
-    """
-    # These variables are intentionally defined outside __init__().  They occur once at the top of a combined report
-    # file and are needed for all report contained in the combined file.  Defining them this way allows the initial
-    # value to be shared among all Report files created.
-    _version = None
-    _name = None
-    _agent = None
-    _start_time = None
-
-    @staticmethod
-    def reset_vars():
-        """Clears the static variables used in this class.  Should be called
-        just before parsing a second, third, etc.  report file since
-        these fields may change.
-
-        """
-        (Report._version, Report._name, Report._agent, Report._start_time) = \
-            None, None, None, None
-
-    def __init__(self, report_path, offset=0):
-        super(Report, self).__init__()
-        self._path = report_path
-        self._offset = offset
-        self._version = None
-        self._start_time = None
-        self._profile_name = None
-        self._agent = None
-        self._total_runtime = None
-        self._total_energy_pkg = None
-        self._total_energy_dram = None
-        self._total_ignore_runtime = None
-        self._total_network_time = None
-        self._total_memory_hwm = None
-        self._total_network_bw = None
-        self._node_name = None
-
-        found_totals = False
-        (region_name, region_id, runtime, sync_runtime, energy_pkg, energy_dram, frequency, network_time, count) = None, None, None, None, None, None, None, None, None
-        float_regex = r'([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)'
-
-        with open(self._path, 'r') as fid:
-            fid.seek(self._offset)
-            line = fid.readline()
-            while len(line) != 0:
-                if self._version is None:
-                    match = re.search(r'^##### geopm (\S+) #####$', line)
-                    if match is not None:
-                        self._version = match.group(1)
-                if self._start_time is None:
-                    match = re.search(r'^Start Time: (.+)$', line)
-                    if match is not None:
-                        self._start_time = match.group(1)
-                if self._profile_name is None:
-                    match = re.search(r'^Profile: (\S+)$', line)
-                    if match is not None:
-                        self._profile_name = match.group(1)
-                if self._agent is None:
-                    match = re.search(r'^Agent: (\S+)$', line)
-                    if match is not None:
-                        self._agent = match.group(1)
-                if self._node_name is None:
-                    match = re.search(r'^Host: (\S+)$', line)
-                    if match is not None:
-                        self._node_name = match.group(1)
-                if region_name is None:
-                    match = re.search(r'^Region (\S+) \((0x)?([0-9a-fA-F]+)\):', line)
-                    if match is not None:
-                        region_name = match.group(1)
-                        if match.group(2) is None:
-                            region_id = match.group(3)
-                        else:
-                            region_id = match.group(2) + match.group(3)
-                if region_name is None:
-                    match = re.search(r'^Epoch Totals:', line)
-                    if match is not None:
-                        region_name = 'epoch'
-                if runtime is None:
-                    match = re.search(r'^\s+runtime.+: ' + float_regex, line)
-                    if match is not None:
-                        runtime = float(match.group(1))
-                if sync_runtime is None:
-                    match = re.search(r'^\s+sync-runtime.+: ' + float_regex, line)
-                    if match is not None:
-                        sync_runtime = float(match.group(1))
-                if energy_pkg is None:
-                    match = re.search(r'^\s+package-energy.+: ' + float_regex, line)
-                    if match is not None:
-                        energy_pkg = float(match.group(1))
-                if energy_dram is None:
-                    match = re.search(r'^\s+dram-energy.+: ' + float_regex, line)
-                    if match is not None:
-                        energy_dram = float(match.group(1))
-                if frequency is None:
-                    match = re.search(r'^\s+frequency \(%\)+: ' + float_regex, line)
-                    if match is not None:
-                        frequency = float(match.group(1))
-                if network_time is None:
-                    match = re.search(r'^\s+network-time.+: ' + float_regex, line)
-                    if match is not None:
-                        network_time = float(match.group(1))
-                if count is None:
-                    match = re.search(r'^\s+count: ' + float_regex, line)
-                    if match is not None:
-                        count = float(match.group(1))
-                        self[region_name] = Region(region_name, region_id, runtime, sync_runtime, energy_pkg, energy_dram, frequency, network_time, count)
-                        (region_name, region_id, runtime, sync_runtime, energy_pkg, energy_dram, frequency, network_time, count) = \
-                            None, None, None, None, None, None, None, None, None
-                if not found_totals:
-                    match = re.search(r'^Application Totals:$', line)
-                    if match is not None:
-                        found_totals = True
-                else:
-                    if self._total_runtime is None:
-                        match = re.search(r'\s+runtime.+: ' + float_regex, line)
-                        if match is not None:
-                            self._total_runtime = float(match.group(1))
-                    if self._total_energy_pkg is None:
-                        match = re.search(r'\s+package-energy.+: ' + float_regex, line)
-                        if match is not None:
-                            self._total_energy_pkg = float(match.group(1))
-                    if self._total_energy_dram is None:
-                        match = re.search(r'\s+dram-energy.+: ' + float_regex, line)
-                        if match is not None:
-                            self._total_energy_dram = float(match.group(1))
-                    if self._total_network_time is None:
-                        match = re.search(r'\s+network-time.+: ' + float_regex, line)
-                        if match is not None:
-                            self._total_network_time = float(match.group(1))
-                    if self._total_ignore_runtime is None:
-                        match = re.search(r'\s+ignore-time.+: ' + float_regex, line)
-                        if match is not None:
-                            self._total_ignore_runtime = float(match.group(1))
-                    if self._total_memory_hwm is None:
-                        match = re.search(r'\s+geopmctl memory HWM: ' + float_regex + ' kB$', line)
-                        if match is not None:
-                            self._total_memory_hwm = float(match.group(1))
-                    if self._total_network_bw is None:
-                        match = re.search(r'\s+geopmctl network BW.+: ' + float_regex, line)
-                        if match is not None:
-                            self._total_network_bw = float(match.group(1))
-                            break # End of report blob
-
-                line = fid.readline()
-            self._offset = fid.tell()
-
-        # Check static vars to see if they were parsed.  if not, use the Report vals
-        if self._version is None and Report._version:
-            self._version = Report._version
-        elif self._version:
-            Report._version = self._version
-        else:
-            raise SyntaxError('<geopm> geopmpy.io: Unable to parse version information from report!')
-        if self._profile_name is None and Report._profile_name:
-            self._profile_name = Report._profile_name
-        elif self._profile_name:
-            Report._profile_name = self._profile_name
-        else:
-            raise SyntaxError('<geopm> geopmpy.io: Unable to parse name information from report!')
-        if self._agent is None and Report._agent:
-            self._agent = Report._agent
-        elif self._agent:
-            Report._agent = self._agent
-        else:
-            raise SyntaxError('<geopm> geopmpy.io: Unable to parse agent information from report!')
-        if self._start_time is None and Report._start_time:
-            self._start_time = Report._start_time
-        elif self._start_time:
-            Report._start_time = self._start_time
-        else:
-            raise SyntaxError('<geopm> geopmpy.io: Unable to parse start time from report!')
-
-        # TODO: temporary hack to use old data
-        if self._total_energy_dram is None:
-            self._total_energy_dram = 0
-        if (len(line) != 0 and (region_name is not None or not found_totals or
-            None in (self._total_runtime, self._total_energy_pkg, self._total_energy_dram, self._total_ignore_runtime, self._total_network_time))):
-            raise SyntaxError('<geopm> geopmpy.io: Unable to parse report {} before offset {}: '.format(self._path, self._offset))
-
-    # Fields used for dataframe construction only
-    def get_profile_name(self):
-        return self._profile_name
-
-    def get_start_time(self):
-        return self._start_time
-
-    def get_version(self):
-        return self._version
-
-    def get_agent(self):
-        return self._agent
-
-    def get_node_name(self):
-        return self._node_name
-
-    def get_last_offset(self):
-        return self._offset
-
-    # Application totals
-    def get_runtime(self):
-        return self._total_runtime
-
-    def get_ignore_runtime(self):
-        return self._total_ignore_runtime
-
-    def get_network_time(self):
-        return self._total_network_time
-
-    def get_energy_pkg(self):
-        return self._total_energy_pkg
-
-    def get_energy_dram(self):
-        return self._total_energy_dram
-
-    def get_memory_hwm(self):
-        return self._total_memory_hwm
-
-    def get_network_bw(self):
-        return self._total_network_bw
-
-
-class Region(OrderedDict):
-    """Encapsulates all data related to a region from a report file.
-
-    Attributes:
-        name: The name of the region.
-        rid: The numeric ID of the region.
-        runtime: The accumulated time of the region in seconds.
-        energy_pkg: The accumulated package energy from this region in
-                    Joules.
-        energy_dram: The accumulated DRAM energy from this region in
-                     Joules.
-        frequency: The average frequency achieved during this region
-                   in terms of percent of sticker frequency.
-        network_time: The accumulated time in this region executing MPI
-                     calls in seconds.
-        count: The number of times this region has been entered.
-
-    """
-    def __init__(self, name, rid, runtime, sync_runtime, energy_pkg, energy_dram, frequency, network_time, count):
-        super(Region, self).__init__()
-        self['name'] = name
-        self['id'] = rid
-        self['runtime'] = float(runtime)
-        self['sync_runtime'] = float(sync_runtime) if sync_runtime is not None else runtime
-        self['energy_pkg'] = float(energy_pkg)
-        self['energy_dram'] = float(energy_dram) if energy_dram is not None else 0
-        self['frequency'] = float(frequency)
-        self['network_time'] = float(network_time)
-        self['count'] = int(count)
-
-    def __repr__(self):
-        template = """\
-{name} ({rid})
-  runtime     : {runtime}
-  sync-runtime : {sync_runtime}
-  package-energy : {energy_pkg}
-  dram-energy : {energy_dram}
-  frequency   : {frequency}
-  network-time : {network_time}
-  count       : {count}
-"""
-        return template.format(name=self['name'],
-                               rid=self['id'],
-                               runtime=self['runtime'],
-                               sync_runtime=self['sync_runtime'],
-                               energy_pkg=self['energy_pkg'],
-                               energy_dram=self['energy_dram'],
-                               frequency=self['frequency'],
-                               network_time=self['network_time'],
-                               count=self['count'])
-
-    def __str__(self):
-        return self.__repr__()
-
-    def get_name(self):
-        return self['name']
-
-    def get_id(self):
-        return self['id']
-
-    def get_runtime(self):
-        return self['runtime']
-
-    def get_sync_runtime(self):
-        return self['sync_runtime']
-
-    def get_energy_pkg(self):
-        return self['energy_pkg']
-
-    def get_energy_dram(self):
-        return self['energy_dram']
-
-    def get_frequency(self):
-        return self['frequency']
-
-    def get_network_time(self):
-        return self['network_time']
-
-    def get_count(self):
-        return self['count']
 
 
 class Trace(object):
