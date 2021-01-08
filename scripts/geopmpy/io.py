@@ -57,6 +57,7 @@ from distutils.spawn import find_executable
 from natsort import natsorted
 from geopmpy import __version__
 from geopmpy import agent
+from geopmpy import update_report
 
 try:
     _, os.environ['COLUMNS'] = subprocess.check_output(['stty', 'size']).decode().split()
@@ -1336,43 +1337,24 @@ class AgentConf(object):
 
 class RawReport(object):
     def __init__(self, path):
-        with open(path) as in_fid, tempfile.TemporaryFile(mode='w+t') as out_fid:
-            out_fid.write('GEOPM Meta Data:\n')
-            line = in_fid.readline()
-            version = line.split()[2]
-            out_fid.write('    GEOPM Version: {}\n'.format(version))
-            line = in_fid.readline()
-            col_pos = line.find(': ')
-            out_fid.write("    {}: '{}'\n".format(line[:col_pos], line[col_pos+2:-1]))
-            for idx in range(2):
-                line = in_fid.readline()
-                out_fid.write('    {}'.format(line))
-            for line in in_fid.readlines():
-                if len(line) > 1:
-                    if line.startswith('Host:'):
-                        host = line.split(':')[1].strip()
-                        out_fid.write('{}:\n'.format(host))
-                    elif line.startswith('Figure of Merit'):
-                        out_fid.write('{}'.format(line))
-                    else:
-                        out_fid.write('    {}'.format(line))
-            out_fid.seek(0)
-            # Fix issue with python yaml module where it is confused
-            # about floating point numbers of the form "1e+10" where
-            # the decimal point is missing.
-            # See PR: https://github.com/yaml/pyyaml/pull/174
-            # for upstream fix to pyyaml
-            loader = yaml.SafeLoader
-            loader.add_implicit_resolver(
-                u'tag:yaml.org,2002:float',
-                re.compile(r'''^(?:[-+]?(?:[0-9][0-9_]*)\.[0-9_]*(?:[eE][-+]?[0-9]+)?
-                               |[-+]?(?:[0-9][0-9_]*)(?:[eE][-+]?[0-9]+)
-                               |\.[0-9_]+(?:[eE][-+]?[0-9]+)?
-                               |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\.[0-9_]*
-                               |[-+]?\.(?:inf|Inf|INF)
-                               |\.(?:nan|NaN|NAN))$''', re.X),
-                list(u'-+0123456789.'))
-            self._raw_dict = yaml.load(out_fid, Loader=loader)
+        update_report.update_report(path)
+        # Fix issue with python yaml module where it is confused
+        # about floating point numbers of the form "1e+10" where
+        # the decimal point is missing.
+        # See PR: https://github.com/yaml/pyyaml/pull/174
+        # for upstream fix to pyyaml
+        loader = yaml.SafeLoader
+        loader.add_implicit_resolver(
+            u'tag:yaml.org,2002:float',
+            re.compile(r'''^(?:[-+]?(?:[0-9][0-9_]*)\.[0-9_]*(?:[eE][-+]?[0-9]+)?
+                           |[-+]?(?:[0-9][0-9_]*)(?:[eE][-+]?[0-9]+)
+                           |\.[0-9_]+(?:[eE][-+]?[0-9]+)?
+                           |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\.[0-9_]*
+                           |[-+]?\.(?:inf|Inf|INF)
+                           |\.(?:nan|NaN|NAN))$''', re.X),
+            list(u'-+0123456789.'))
+        with open(path) as fid:
+            self._raw_dict = yaml.load(fid, Loader=loader)
 
     def raw_report(self):
         return copy.deepcopy(self._raw_dict)
@@ -1383,7 +1365,15 @@ class RawReport(object):
             fid.write(jdata)
 
     def meta_data(self):
-        return copy.deepcopy(self._raw_dict['GEOPM Meta Data'])
+        result = dict()
+        all_keys = ['GEOPM Version',
+                    'Start Time',
+                    'Profile',
+                    'Agent',
+                    'Policy']
+        for kk in all_keys:
+            result[kk] = self._raw_dict[kk]
+        return result
 
     def figure_of_merit(self):
         result = None
@@ -1394,14 +1384,14 @@ class RawReport(object):
         return result
 
     def host_names(self):
-        return [xx for xx in self._raw_dict if xx not in ['GEOPM Meta Data', 'Figure of Merit']]
+        return self._raw_dict['Hosts'].keys()
 
     def region_names(self, host_name):
-        host_data = self._raw_dict[host_name]
-        result = [' '.join(xx.split()[1:-1]) for xx in host_data if xx.startswith('Region ')]
-        return result
+        return [rr['name'] for rr in self._raw_dict['Hosts'][host_name]['Regions']]
 
     def region_hash(self, region_name):
+        raise NotImplementedError('region_hash is not implemented')
+        return [rr['name'] for rr in self._raw_dict['Hosts'][host_name]['Regions']]
         for host_name in self.host_names():
             host_data = self._raw_dict[host_name]
             for xx in host_data:
@@ -1410,18 +1400,26 @@ class RawReport(object):
         raise KeyError('<geopm> geopmpy.io: Region not found: {}'.format(region_name))
 
     def raw_region(self, host_name, region_name):
-        host_data = self._raw_dict[host_name]
-        region_hash = self.region_hash(region_name)
-        key = 'Region {} ({})'.format(region_name, region_hash)
+        result = None
+        for rr in self._raw_dict['Hosts'][host_name]['Regions']:
+            if rr['name'] == region_name:
+               result = copy.deepcopy(rr)
+        if not result:
+            raise RuntimeError('region name: {} not found'.format(region_name))
+        return result
+
+    def raw_unmarked(self, host_name):
+        host_data = self._raw_dict["Hosts"][host_name]
+        key = 'Unmarked Totals'
         return copy.deepcopy(host_data[key])
 
     def raw_epoch(self, host_name):
-        host_data = self._raw_dict[host_name]
+        host_data = self._raw_dict["Hosts"][host_name]
         key = 'Epoch Totals'
         return copy.deepcopy(host_data[key])
 
     def raw_totals(self, host_name):
-        host_data = self._raw_dict[host_name]
+        host_data = self._raw_dict["Hosts"][host_name]
         key = 'Application Totals'
         return copy.deepcopy(host_data[key])
 
@@ -1507,6 +1505,7 @@ class RawReportCollection(object):
                 # load dataframes from cache
                 self._reports_df = pandas.read_hdf(report_h5_name, 'report')
                 self._app_reports_df = pandas.read_hdf(report_h5_name, 'app_report')
+                self._unmarked_reports_df = pandas.read_hdf(report_h5_name, 'unmarked_report')
                 self._epoch_reports_df = pandas.read_hdf(report_h5_name, 'epoch_report')
                 if verbose:
                     sys.stdout.write('Loaded report data from {}.\n'.format(report_h5_name))
@@ -1523,6 +1522,7 @@ class RawReportCollection(object):
                             sys.stdout.write('Generating HDF5 files... ')
                         self._reports_df.to_hdf(report_h5_name, 'report', format='table')
                         self._app_reports_df.to_hdf(report_h5_name, 'app_report', format='table', append=True)
+                        self._unmarked_reports_df.to_hdf(report_h5_name, 'unmarked_report', format='table', append=True)
                         self._epoch_reports_df.to_hdf(report_h5_name, 'epoch_report', format='table', append=True)
                         cache_created = True
                     except TypeError as error:
@@ -1531,8 +1531,8 @@ class RawReportCollection(object):
                             sys.stdout.write('Applying workaround for strings in HDF5 files... ')
                         self._reports_df = fm(self._meta_data, self._reports_df)
                         self._app_reports_df = fm(self._meta_data, self._app_reports_df)
+                        self._unmarked_reports_df = fm(self._meta_data, self._unmarked_reports_df)
                         self._epoch_reports_df = fm(self._meta_data, self._epoch_reports_df)
-
                     except ImportError as error:
                         sys.stderr.write('Warning: <geopm> geopmpy.io: Unable to write HDF5 file: {}\n'.format(str(error)))
                         break
@@ -1551,7 +1551,7 @@ class RawReportCollection(object):
         def _init_tables():
             self._columns_order = {}
             self._columns_set = {}
-            for name in ["region", "epoch", "app"]:
+            for name in ['region', 'unmarked', 'epoch', 'app']:
                 self._columns_order[name] = []
                 self._columns_set[name] = set()
 
@@ -1559,10 +1559,11 @@ class RawReportCollection(object):
             '''
             Used to add columns to the data frame in the order they appear in the report.
             '''
-            if table_name not in ['region', 'epoch', 'app', 'all']:
+            if table_name not in ['region', 'unmarked', 'epoch', 'app', 'all']:
                 raise RuntimeError('Invalid table name')
             if table_name == 'all':
                 _add_column('region', col_name)
+                _add_column('unmarked', col_name)
                 _add_column('epoch', col_name)
                 _add_column('app', col_name)
             elif col_name not in self._columns_set[table_name]:
@@ -1583,6 +1584,7 @@ class RawReportCollection(object):
         _init_tables()
 
         region_df_list = []
+        unmarked_df_list = []
         epoch_df_list = []
         app_df_list = []
 
@@ -1622,15 +1624,28 @@ class RawReportCollection(object):
                 for region in region_names:
                     row = copy.deepcopy(header)
                     row.update(per_host_data)
-                    row['region'] = region
                     # TODO: region hash
                     region_data = rr.raw_region(host, region)
                     for key, val in region_data.items():
-                        region_data[key] = _try_float(val)
+                        if key == 'name':
+                            region_data['region'] = val
+                        else:
+                            region_data[key] = _try_float(val)
                     row.update(region_data)
                     for cc in rr.raw_region(host, region).keys():
-                        _add_column('region', cc)
+                        if cc != 'name':
+                            _add_column('region', cc)
                     region_df_list.append(pandas.DataFrame(row, index=[0]))
+
+                unmarked_row = copy.deepcopy(header)
+                unmarked_row.update(per_host_data)
+                unmarked_data = rr.raw_unmarked(host)
+                for key, val in unmarked_data.items():
+                    unmarked_data[key] = _try_float(val)
+                for cc in unmarked_data.keys():
+                    _add_column('unmarked', cc)
+                unmarked_row.update(unmarked_data)
+                unmarked_df_list.append(pandas.DataFrame(unmarked_row, index=[0]))
 
                 epoch_row = copy.deepcopy(header)
                 epoch_row.update(per_host_data)
@@ -1657,12 +1672,16 @@ class RawReportCollection(object):
         df = pandas.concat(region_df_list, ignore_index=True)
         df = df.reindex(columns=self._columns_order['region'])
         self._reports_df = df
+        unmarked_df = pandas.concat(unmarked_df_list, ignore_index=True)
+        unmarked_df = unmarked_df.reindex(columns=self._columns_order['unmarked'])
+        self._unmarked_reports_df = unmarked_df
         epoch_df = pandas.concat(epoch_df_list, ignore_index=True)
         epoch_df = epoch_df.reindex(columns=self._columns_order['epoch'])
         self._epoch_reports_df = epoch_df
         app_df = pandas.concat(app_df_list, ignore_index=True)
         app_df = app_df.reindex(columns=self._columns_order['app'])
         self._app_reports_df = app_df
+
 
     # TODO: rename
     def get_df(self):
@@ -1676,3 +1695,6 @@ class RawReportCollection(object):
 
     def get_app_df(self):
         return self._app_reports_df
+
+    def get_unmarked_df(self):
+        return self._unmarked_reports_df
