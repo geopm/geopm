@@ -79,7 +79,7 @@ clone_repo_git(){
 
 backup_archive() {
     local ARCHIVE=$1
-    local DIRNAME=$2
+    local DIRNAME=$2 # Optional; Used when this function should create ARCHIVE
 
     # If the user set the cache dir, pack up the source for next time
     if [ -d ${GEOPM_APPS_SOURCES} ]; then
@@ -138,6 +138,8 @@ unpack_archive() {
     if [ "${ARCHIVE##*.}" == zip ]; then
         unzip ${ARCHIVE}
     else
+        # Inspect the tarball to get the root DIR.  Assume that if the
+        # root dir already exists in the PWD that this has already been extracted.
         local DIRNAME=$(tar -tf ${ARCHIVE} | head -1 | cut -f1 -d"/")
         if [ ! -d ${DIRNAME} ]; then
             tar xvf ${ARCHIVE}
