@@ -233,7 +233,7 @@ namespace geopm
 #endif
             yaml_write(report, M_INDENT_REGION, "-");
             yaml_write(report, M_INDENT_REGION_FIELD,
-                       {{"name", region.name},
+                       {{"name", '"' + region.name + '"'},
                         {"hash", geopm::string_format_hex(region.hash)}});
             yaml_write(report, M_INDENT_REGION_FIELD,
                        {{"runtime (s)", region.per_rank_avg_runtime},
