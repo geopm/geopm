@@ -39,6 +39,7 @@ is_new_host = False
 is_epoch_section = False
 is_app_section = False
 
+
 def update_report_line(old_line):
     global is_new_host
     global is_app_section
@@ -77,7 +78,7 @@ def update_report_line(old_line):
         name = name_hash[:sep]
         hash = name_hash[sep + 2:]
         result.append('    -')
-        result.append('      name: {}'.format(name))
+        result.append('      region: {}'.format(name))
         result.append('      hash: {}'.format(hash))
     elif old_line.startswith('    epoch-runtime-ignore (sec):'):
         result.append('  {}'.format(old_line.replace('epoch-runtime-ignore', 'time-hint-ignore')))
@@ -117,6 +118,7 @@ def update_report_line(old_line):
     result = [ll.rstrip().replace('0x00000000', '0x').replace('(sec)', '(s)').replace('(joules)', '(J)').replace('(watts)', '(W)') for ll in result]
     return result
 
+
 def update_report_str(old_report):
     old_report_lines = old_report.splitlines()
     new_report_lines = []
@@ -146,10 +148,12 @@ def update_report_str(old_report):
         new_report_lines.extend(update_report_line(line))
     return '\n'.join(new_report_lines)
 
+
 def is_old_format(path):
     with open(path) as fid:
         first_line = fid.readline()
     return first_line.startswith('##### geopm 1.')
+
 
 def update_report(in_file, out_file=None):
     is_in_place = (in_file == out_file or out_file is None)
@@ -167,6 +171,7 @@ def update_report(in_file, out_file=None):
             fid.write(updated)
     elif not is_in_place:
         shutil.copyfile(in_file, out_file)
+
 
 if __name__ == '__main__':
     usage = """\

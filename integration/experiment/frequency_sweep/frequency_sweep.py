@@ -52,6 +52,8 @@ def setup_run_args(parser):
     common_args.add_max_frequency(parser)
     common_args.add_step_frequency(parser)
     common_args.add_run_max_turbo(parser)
+    common_args.add_agent_list(parser)
+    parser.set_defaults(agent_list='frequency_map')
 
 
 def setup_frequency_bounds(mach, min_freq, max_freq, step_freq, add_turbo_step):

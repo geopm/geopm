@@ -48,7 +48,6 @@ import sys
 import subprocess
 import psutil
 import copy
-import tempfile
 import yaml
 import io
 import hashlib
@@ -1387,23 +1386,13 @@ class RawReport(object):
         return self._raw_dict['Hosts'].keys()
 
     def region_names(self, host_name):
-        return [rr['name'] for rr in self._raw_dict['Hosts'][host_name]['Regions']]
-
-    def region_hash(self, region_name):
-        raise NotImplementedError('region_hash is not implemented')
-        return [rr['name'] for rr in self._raw_dict['Hosts'][host_name]['Regions']]
-        for host_name in self.host_names():
-            host_data = self._raw_dict[host_name]
-            for xx in host_data:
-                if xx.startswith('Region {} ('.format(region_name)):
-                    return xx.split()[-1][1:-1]
-        raise KeyError('<geopm> geopmpy.io: Region not found: {}'.format(region_name))
+        return [rr['region'] for rr in self._raw_dict['Hosts'][host_name]['Regions']]
 
     def raw_region(self, host_name, region_name):
         result = None
         for rr in self._raw_dict['Hosts'][host_name]['Regions']:
-            if rr['name'] == region_name:
-               result = copy.deepcopy(rr)
+            if rr['region'] == region_name:
+                result = copy.deepcopy(rr)
         if not result:
             raise RuntimeError('region name: {} not found'.format(region_name))
         return result
@@ -1624,17 +1613,14 @@ class RawReportCollection(object):
                 for region in region_names:
                     row = copy.deepcopy(header)
                     row.update(per_host_data)
+                    #row['region'] = row.pop('name')
                     # TODO: region hash
                     region_data = rr.raw_region(host, region)
                     for key, val in region_data.items():
-                        if key == 'name':
-                            region_data['region'] = val
-                        else:
-                            region_data[key] = _try_float(val)
+                        region_data[key] = _try_float(val)
                     row.update(region_data)
                     for cc in rr.raw_region(host, region).keys():
-                        if cc != 'name':
-                            _add_column('region', cc)
+                        _add_column('region', cc)
                     region_df_list.append(pandas.DataFrame(row, index=[0]))
 
                 unmarked_row = copy.deepcopy(header)
