@@ -251,7 +251,8 @@ if __name__ == '__main__':
                         help='path containing reports and machine.json')
     parser.add_argument('--region-filter', default=None, dest='region_filter',
                         help='comma-separated list of regions to include, '
-                             'default to include all regions')
+                             'default to include all regions, use \'Epoch\' '
+                             'here to analyze just the Epoch data')
     parser.add_argument('--dump-prefix', dest='dump_prefix',
                         help='prefix to dump statistics to, empty to not dump '
                              'stats')
