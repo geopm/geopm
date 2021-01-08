@@ -1489,29 +1489,29 @@ class RawReportCollection(object):
             raise RuntimeError('<geopm> geopmpy.io: No report files found with pattern {}.'.format(report_glob))
 
         if do_cache:
-            report_h5_name = RawReportCollection.make_h5_name(report_paths, dir_name)
+            self._report_h5_name = RawReportCollection.make_h5_name(report_paths, dir_name)
             # check if cache is older than reports
-            if os.path.exists(report_h5_name):
-                cache_mod_time = os.path.getmtime(report_h5_name)
+            if os.path.exists(self._report_h5_name):
+                cache_mod_time = os.path.getmtime(self._report_h5_name)
                 regen_cache = False
                 for report_file in report_paths:
                     mod_time = os.path.getmtime(report_file)
                     if mod_time > cache_mod_time:
                         regen_cache = True
                 if regen_cache:
-                    os.remove(report_h5_name)
+                    os.remove(self._report_h5_name)
 
             try:
                 # load dataframes from cache
-                self._reports_df = pandas.read_hdf(report_h5_name, 'report')
-                self._app_reports_df = pandas.read_hdf(report_h5_name, 'app_report')
-                self._unmarked_reports_df = pandas.read_hdf(report_h5_name, 'unmarked_report')
-                self._epoch_reports_df = pandas.read_hdf(report_h5_name, 'epoch_report')
+                self._reports_df = pandas.read_hdf(self._report_h5_name, 'report')
+                self._app_reports_df = pandas.read_hdf(self._report_h5_name, 'app_report')
+                self._unmarked_reports_df = pandas.read_hdf(self._report_h5_name, 'unmarked_report')
+                self._epoch_reports_df = pandas.read_hdf(self._report_h5_name, 'epoch_report')
                 if verbose:
-                    sys.stdout.write('Loaded report data from {}.\n'.format(report_h5_name))
+                    sys.stdout.write('Loaded report data from {}.\n'.format(self._report_h5_name))
             except IOError:
                 sys.stderr.write('Warning: <geopm> geopmpy.io: Report HDF5 file not detected or older than reports.  Data will be saved to {}.\n'
-                                 .format(report_h5_name))
+                                 .format(self._report_h5_name))
                 self.parse_reports(report_paths, verbose)
 
                 # Cache report dataframe
@@ -1520,10 +1520,10 @@ class RawReportCollection(object):
                     try:
                         if verbose:
                             sys.stdout.write('Generating HDF5 files... ')
-                        self._reports_df.to_hdf(report_h5_name, 'report', format='table')
-                        self._app_reports_df.to_hdf(report_h5_name, 'app_report', format='table', append=True)
-                        self._unmarked_reports_df.to_hdf(report_h5_name, 'unmarked_report', format='table', append=True)
-                        self._epoch_reports_df.to_hdf(report_h5_name, 'epoch_report', format='table', append=True)
+                        self._reports_df.to_hdf(self._report_h5_name, 'report', format='table')
+                        self._app_reports_df.to_hdf(self._report_h5_name, 'app_report', format='table', append=True)
+                        self._unmarked_reports_df.to_hdf(self._report_h5_name, 'unmarked_report', format='table', append=True)
+                        self._epoch_reports_df.to_hdf(self._report_h5_name, 'epoch_report', format='table', append=True)
                         cache_created = True
                     except TypeError as error:
                         fm = RawReportCollection.fixup_metadata
@@ -1682,6 +1682,11 @@ class RawReportCollection(object):
         app_df = app_df.reindex(columns=self._columns_order['app'])
         self._app_reports_df = app_df
 
+    def remove_cache(self):
+        try:
+            os.unlink(self._report_h5_name)
+        except OSError:
+            pass
 
     # TODO: rename
     def get_df(self):
