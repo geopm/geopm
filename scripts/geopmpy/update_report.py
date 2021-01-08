@@ -32,6 +32,8 @@
 #
 
 import sys
+import os
+import shutil
 
 is_new_host = False
 is_epoch_section = False
@@ -103,6 +105,8 @@ def update_report_line(old_line):
     elif old_line.startswith('    geopmctl memory HWM:'):
         num_byte = int(old_line.split(': ')[1].replace(' kB', '')) * 1024
         result.append('      geopmctl memory HWM (B): {}'.format(num_byte))
+    elif old_line.startswith('Figure of Merit:'):
+        result.append(old_line)
     elif old_line.startswith('    '):
         result.append('  {}'.format(old_line))
     elif not old_line.startswith(' '):

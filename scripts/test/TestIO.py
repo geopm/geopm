@@ -54,15 +54,16 @@ def touch_file(file_path):
 
 
 @contextmanager
-def self_cleaning_app_output(*args, **kwargs):
-    """ Create an AppOutput that cleans up its cache files when it goes out of
-    scope.
+def self_cleaning_raw_report_collection(path):
+    """Create an raw report that will remove the cache after it goes out
+    of scope.
+
     """
-    app_output = geopmpy.io.AppOutput(*args, **kwargs)
+    raw_report = geopmpy.io.RawReportCollection(path)
     try:
-        yield app_output
+        yield raw_report
     finally:
-        app_output.remove_files()
+        raw_report.remove_cache()
 
 
 test_report_data_old = """\
@@ -1227,18 +1228,6 @@ class TestIO(unittest.TestCase):
         self.assertTrue(type(region['frequency (Hz)']) is float)
         self.assertEqual(1e9, region['frequency (Hz)'])
 
-    def test_report(self):
-        """ Test that a file of concatenated reports can be extracted to
-        a dataframe.
-        """
-        with self_cleaning_app_output(reports=self._report_path) as app_output:
-            self.assertCountEqual(['mcfly11', 'mcfly12'], app_output.get_node_names())
-            start_time = app_output.get_report_data().index.get_level_values('start_time').unique()
-            self.assertEqual(1, len(start_time))
-            self.assertEqual('Thu May 30 14:38:17 2019', start_time[0])
-            self.assertEqual(27.1528, app_output.get_report_data(node_name='mcfly11', region='stream-0.45-dgemm-0.60').iloc[0]['runtime'])
-            self.assertEqual(27.2367, app_output.get_report_data(node_name='mcfly12', region='stream-0.45-dgemm-0.60').iloc[0]['runtime'])
-
     def test_report_cache(self):
         """ Test that a report is not read when it is cached.
         """
@@ -1249,36 +1238,31 @@ class TestIO(unittest.TestCase):
             """
             return Counter([c[0][0] for c in spy_open.call_args_list])[path]
 
-        with mock.patch('geopmpy.io.open', spy_open), self_cleaning_app_output(reports=self._report_path):
+        with mock.patch('geopmpy.io.open', spy_open), self_cleaning_raw_report_collection(self._report_path):
             initial_call_count = count_open(self._report_path)
 
-            geopmpy.io.AppOutput(reports=self._report_path)
+            geopmpy.io.RawReportCollection(self._report_path)
             self.assertEqual(initial_call_count, count_open(self._report_path))
 
             touch_file(self._report_path)
-            geopmpy.io.AppOutput(reports=self._report_path)
+            geopmpy.io.RawReportCollection(self._report_path)
             self.assertEqual(initial_call_count * 2, count_open(self._report_path))
 
     def test_trace(self):
         """ Test that a trace file can be extracted to a dataframe.
         """
-        with self_cleaning_app_output(traces=self._trace_path) as app_output:
-            trace_df = app_output.get_trace_data(node_name='mcfly1')
-            start_time = trace_df.index.get_level_values('start_time').unique()
-            self.assertEqual(1, len(start_time))
-            self.assertEqual('Thu Oct 03 08:19:34 2019', start_time[0])
-            self.assertAlmostEqual(0.204296343, trace_df.iloc[0]['TIME'])
-            self.assertAlmostEqual(242598.262512207, trace_df.iloc[0]['ENERGY_PACKAGE'])
-            self.assertAlmostEqual(0.268616921, trace_df.iloc[-1]['TIME'])
-            self.assertAlmostEqual(242610.5656738281, trace_df.iloc[-1]['ENERGY_PACKAGE'])
+        app_output = geopmpy.io.AppOutput(traces=self._trace_path, do_cache=False)
+        trace_df = app_output.get_trace_data(node_name='mcfly1')
+        start_time = trace_df.index.get_level_values('start_time').unique()
+        self.assertEqual(1, len(start_time))
+        self.assertEqual('Thu Oct 03 08:19:34 2019', start_time[0])
+        self.assertAlmostEqual(0.204296343, trace_df.iloc[0]['TIME'])
+        self.assertAlmostEqual(242598.262512207, trace_df.iloc[0]['ENERGY_PACKAGE'])
+        self.assertAlmostEqual(0.268616921, trace_df.iloc[-1]['TIME'])
+        self.assertAlmostEqual(242610.5656738281, trace_df.iloc[-1]['ENERGY_PACKAGE'])
 
     def test_figure_of_merit(self):
         fom_report_path = os.path.join(os.path.dirname(__file__), 'test_io_experiment.report')
-
-        # test that old AppOutput doesn't fail
-        output = geopmpy.io.AppOutput(reports=fom_report_path, do_cache=False)
-        df = output.get_app_total_data(node_name='mcfly1')
-        self.assertAlmostEqual(310.057, df.iloc[0]['runtime'])
 
         # test that RawReport can find FOM
         rr = geopmpy.io.RawReport(path=fom_report_path)
