@@ -482,7 +482,7 @@ Hosts:
 
     Regions:
     -
-      name: sleep
+      name: "sleep"
       hash: 0x536c798f
       runtime (s): 275.998
       sync-runtime (s): 276.581
@@ -503,7 +503,7 @@ Hosts:
       count: 5500
       requested-online-frequency: 1000000000.000000
     -
-      name: stream-0.35-dgemm-1.80
+      name: "stream-0.35-dgemm-1.80"
       hash: 0x76244144
       runtime (s): 28.5021
       sync-runtime (s): 28.4395
@@ -524,7 +524,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1100000000.000000
     -
-      name: stream-0.40-dgemm-1.20
+      name: "stream-0.40-dgemm-1.20"
       hash: 0x0db5f27a
       runtime (s): 28.2568
       sync-runtime (s): 28.2187
@@ -545,7 +545,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1000000000.000000
     -
-      name: stream-0.45-dgemm-0.60
+      name: "stream-0.45-dgemm-0.60"
       hash: 0x9851de3f
       runtime (s): 27.1528
       sync-runtime (s): 27.1159
@@ -566,7 +566,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1000000000.000000
     -
-      name: stream-0.30-dgemm-2.40
+      name: "stream-0.30-dgemm-2.40"
       hash: 0xce08ae24
       runtime (s): 25.6523
       sync-runtime (s): 25.5885
@@ -587,7 +587,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1300000000.000000
     -
-      name: stream-0.50-dgemm-0.00
+      name: "stream-0.50-dgemm-0.00"
       hash: 0x3a6c47e3
       runtime (s): 25.3236
       sync-runtime (s): 25.2728
@@ -608,7 +608,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1000000000.000000
     -
-      name: stream-0.25-dgemm-3.00
+      name: "stream-0.25-dgemm-3.00"
       hash: 0x3c627f60
       runtime (s): 24.4374
       sync-runtime (s): 24.3823
@@ -629,7 +629,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1400000000.000000
     -
-      name: stream-0.20-dgemm-3.60
+      name: "stream-0.20-dgemm-3.60"
       hash: 0xf9d11bbd
       runtime (s): 23.2674
       sync-runtime (s): 23.2105
@@ -650,7 +650,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1500000000.000000
     -
-      name: stream-0.15-dgemm-4.20
+      name: "stream-0.15-dgemm-4.20"
       hash: 0xaddfa74f
       runtime (s): 20.85
       sync-runtime (s): 20.7729
@@ -671,7 +671,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1600000000.000000
     -
-      name: stream-0.10-dgemm-4.80
+      name: "stream-0.10-dgemm-4.80"
       hash: 0xe50a9187
       runtime (s): 19.8318
       sync-runtime (s): 19.7529
@@ -692,7 +692,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1600000000.000000
     -
-      name: stream-0.05-dgemm-5.40
+      name: "stream-0.05-dgemm-5.40"
       hash: 0xe1242325
       runtime (s): 18.2642
       sync-runtime (s): 18.1456
@@ -713,7 +713,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1700000000.000000
     -
-      name: stream-0.00-dgemm-6.00
+      name: "stream-0.00-dgemm-6.00"
       hash: 0xaf4cafa3
       runtime (s): 17.8807
       sync-runtime (s): 17.8327
@@ -734,7 +734,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1700000000.000000
     -
-      name: with some spaces
+      name: "with some spaces"
       hash: 0xaf000fa3
       runtime (s): 17.8807
       sync-runtime (s): 17.8327
@@ -829,7 +829,7 @@ Hosts:
 
     Regions:
     -
-      name: sleep
+      name: "sleep"
       hash: 0x536c798f
       runtime (s): 275.837
       sync-runtime (s): 276.56
@@ -850,7 +850,7 @@ Hosts:
       count: 5500
       requested-online-frequency: 1000000000.000000
     -
-      name: stream-0.35-dgemm-1.80
+      name: "stream-0.35-dgemm-1.80"
       hash: 0x76244144
       runtime (s): 29.1273
       sync-runtime (s): 29.0865
@@ -871,7 +871,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1100000000.000000
     -
-      name: stream-0.40-dgemm-1.20
+      name: "stream-0.40-dgemm-1.20"
       hash: 0x0db5f27a
       runtime (s): 28.4557
       sync-runtime (s): 28.3904
@@ -892,7 +892,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1000000000.000000
     -
-      name: stream-0.45-dgemm-0.60
+      name: "stream-0.45-dgemm-0.60"
       hash: 0x9851de3f
       runtime (s): 27.2367
       sync-runtime (s): 27.1905
@@ -913,7 +913,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1000000000.000000
     -
-      name: stream-0.30-dgemm-2.40
+      name: "stream-0.30-dgemm-2.40"
       hash: 0xce08ae24
       runtime (s): 25.8974
       sync-runtime (s): 25.8082
@@ -934,7 +934,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1300000000.000000
     -
-      name: stream-0.50-dgemm-0.00
+      name: "stream-0.50-dgemm-0.00"
       hash: 0x3a6c47e3
       runtime (s): 25.2686
       sync-runtime (s): 25.2523
@@ -955,7 +955,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1000000000.000000
     -
-      name: stream-0.25-dgemm-3.00
+      name: "stream-0.25-dgemm-3.00"
       hash: 0x3c627f60
       runtime (s): 24.5979
       sync-runtime (s): 24.5117
@@ -976,7 +976,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1400000000.000000
     -
-      name: stream-0.20-dgemm-3.60
+      name: "stream-0.20-dgemm-3.60"
       hash: 0xf9d11bbd
       runtime (s): 23.2737
       sync-runtime (s): 23.2129
@@ -997,7 +997,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1500000000.000000
     -
-      name: stream-0.15-dgemm-4.20
+      name: "stream-0.15-dgemm-4.20"
       hash: 0xaddfa74f
       runtime (s): 22.3063
       sync-runtime (s): 22.1766
@@ -1018,7 +1018,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1500000000.000000
     -
-      name: stream-0.10-dgemm-4.80
+      name: "stream-0.10-dgemm-4.80"
       hash: 0xe50a9187
       runtime (s): 20.3869
       sync-runtime (s): 20.3101
@@ -1039,7 +1039,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1600000000.000000
     -
-      name: stream-0.05-dgemm-5.40
+      name: "stream-0.05-dgemm-5.40"
       hash: 0xe1242325
       runtime (s): 19.2864
       sync-runtime (s): 19.1575
@@ -1060,7 +1060,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1700000000.000000
     -
-      name: stream-0.00-dgemm-6.00
+      name: "stream-0.00-dgemm-6.00"
       hash: 0xaf4cafa3
       runtime (s): 18.6718
       sync-runtime (s): 18.6886
@@ -1081,7 +1081,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1700000000.000000
     -
-      name: with some spaces
+      name: "with some spaces"
       hash: 0xaf000fa3
       runtime (s): 17.8807
       sync-runtime (s): 17.8327
@@ -1162,7 +1162,7 @@ Hosts:
 # First lines from a test_trace_runtimes integration test run
 test_trace_data = """# geopm_version: 1.0.0+dev209g77e1ebb8
 # start_time: Thu Oct 03 08:19:34 2019
-# profile_name: test_trace_runtimes
+# profile_name: "test_trace_runtimes
 # node_name: mcfly1
 # agent: power_governor
 TIME|EPOCH_COUNT|REGION_HASH|REGION_HINT|REGION_PROGRESS|REGION_COUNT|REGION_RUNTIME|ENERGY_PACKAGE|ENERGY_DRAM|POWER_PACKAGE|POWER_DRAM|FREQUENCY|CYCLES_THREAD|CYCLES_REFERENCE|TEMPERATURE_CORE|POWER_BUDGET
