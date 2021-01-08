@@ -50,10 +50,10 @@ def prepare_columns(df):
     df[['Profile', 'trial']] = df['Profile'].apply(extract_trial).tolist()
 
     # rename some columns
-    df['runtime'] = df['runtime (sec)']
-    df['network_time'] = df['network-time (sec)']
-    df['energy'] = df['package-energy (joules)']
-    df['power'] = df['power (watts)']
+    df['runtime'] = df['runtime (s)']
+    df['network_time'] = df['time-hint-network (s)']
+    df['energy'] = df['package-energy (J)']
+    df['power'] = df['power (W)']
     # for epoch vs totals - see #1288
     try:
         df['frequency'] = df['frequency (Hz)']

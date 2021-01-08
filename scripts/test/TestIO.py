@@ -1162,7 +1162,7 @@ Hosts:
 # First lines from a test_trace_runtimes integration test run
 test_trace_data = """# geopm_version: 1.0.0+dev209g77e1ebb8
 # start_time: Thu Oct 03 08:19:34 2019
-# profile_name: "test_trace_runtimes
+# profile_name: test_trace_runtimes
 # node_name: mcfly1
 # agent: power_governor
 TIME|EPOCH_COUNT|REGION_HASH|REGION_HINT|REGION_PROGRESS|REGION_COUNT|REGION_RUNTIME|ENERGY_PACKAGE|ENERGY_DRAM|POWER_PACKAGE|POWER_DRAM|FREQUENCY|CYCLES_THREAD|CYCLES_REFERENCE|TEMPERATURE_CORE|POWER_BUDGET
