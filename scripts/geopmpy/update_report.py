@@ -34,23 +34,32 @@
 import sys
 
 is_new_host = False
-is_end_section = False
+is_epoch_section = False
+is_app_section = False
 
 def update_report_line(old_line):
     global is_new_host
-    global is_end_section
+    global is_app_section
+    global is_epoch_section
     result = []
     # Keep track of global state
     if old_line.startswith('Host: '):
         is_new_host = True
-        is_end_section = False
+        is_app_section = False
+        is_epoch_section = False
     if old_line.startswith('Region ') and is_new_host:
         result.append('    Regions:')
         is_new_host = False
-        is_end_section = False
+        is_app_section = False
+        is_epoch_section = False
     if old_line.startswith('Epoch Totals:'):
         is_new_host = False
-        is_end_section = True
+        is_app_section = False
+        is_epoch_section = True
+    if old_line.startswith('Application Totals:'):
+        is_new_host = False
+        is_app_section = True
+        is_epoch_section = False
 
     # Define rules for rearranging report
     if old_line.startswith('Host: '):
@@ -74,7 +83,7 @@ def update_report_line(old_line):
         result.append('  {}'.format(old_line.replace('ignore-time', 'time-hint-ignore')))
     elif old_line.startswith('    network-time (sec):'):
         result.append(old_line.replace('network-time', '  time-hint-network'))
-        if not is_end_section:
+        if not (is_app_section or is_epoch_section):
             result.append('      time-hint-ignore (s): 0')
         result.extend(['      time-hint-compute (s): 0',
                        '      time-hint-memory (s): 0',
@@ -83,6 +92,14 @@ def update_report_line(old_line):
                        '      time-hint-parallel (s): 0',
                        '      time-hint-unknown (s): 0',
                        '      time-hint-unset (s): 0'])
+    elif is_app_section and old_line.startswith('    power (watts):'):
+        result.append('  {}'.format(old_line))
+        result.append('      frequency (%): 0')
+        result.append('      frequency (Hz): 0')
+    elif is_app_section and old_line.startswith('    runtime (sec):'):
+        time = float(old_line.split(': ')[1])
+        result.append('  {}'.format(old_line))
+        result.append('      sync-runtime (s): {}'.format(time))
     elif old_line.startswith('    geopmctl memory HWM:'):
         num_byte = int(old_line.split(': ')[1].replace(' kB', '')) * 1024
         result.append('      geopmctl memory HWM (B): {}'.format(num_byte))
@@ -97,8 +114,6 @@ def update_report_line(old_line):
     return result
 
 def update_report_str(old_report):
-    if not old_report.startswith('##### geopm 1'):
-        raise ValueError('Input does not appear to be a legacy report')
     old_report_lines = old_report.splitlines()
     new_report_lines = []
     if len(old_report_lines) < 6:
@@ -127,14 +142,27 @@ def update_report_str(old_report):
         new_report_lines.extend(update_report_line(line))
     return '\n'.join(new_report_lines)
 
+def is_old_format(path):
+    with open(path) as fid:
+        first_line = fid.readline()
+    return first_line.startswith('##### geopm 1.')
+
 def update_report(in_file, out_file=None):
-    if out_file is None:
-        out_file = in_file
-    with open(in_file) as fid:
-        report_str = fid.read()
-        updated = update_report_str(report_str)
-    with open(out_file, 'w') as fid:
-        fid.write(updated)
+    is_in_place = (in_file == out_file or out_file is None)
+    if is_old_format(in_file):
+        if is_in_place:
+            backup = '{}.orig'.format(in_file)
+            if os.path.exists(backup):
+                raise RuntimeError('Tried to convert file, but backup already exists')
+            shutil.copyfile(in_file, backup)
+            out_file = in_file
+        with open(in_file) as fid:
+            report_str = fid.read()
+            updated = update_report_str(report_str)
+        with open(out_file, 'w') as fid:
+            fid.write(updated)
+    elif not is_in_place:
+        shutil.copyfile(in_file, out_file)
 
 if __name__ == '__main__':
     usage = """\
