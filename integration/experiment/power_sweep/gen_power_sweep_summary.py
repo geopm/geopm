@@ -47,12 +47,12 @@ from experiment import common_args
 def summary(parse_output):
     # rename some columns
     parse_output['power_limit'] = parse_output['POWER_PACKAGE_LIMIT_TOTAL']
-    parse_output['runtime'] = parse_output['runtime (sec)']
-    parse_output['network_time'] = parse_output['network-time (sec)']
-    parse_output['energy_pkg'] = parse_output['package-energy (joules)']
-    parse_output['energy_dram'] = parse_output['dram-energy (joules)']
+    parse_output['runtime'] = parse_output['runtime (s)']
+    parse_output['network_time'] = parse_output['time-hint-network (s)']
+    parse_output['energy_pkg'] = parse_output['package-energy (J)']
+    parse_output['energy_dram'] = parse_output['dram-energy (J)']
     parse_output['frequency'] = parse_output['frequency (Hz)']
-    parse_output['achieved_power'] = parse_output['energy_pkg'] / parse_output['sync-runtime (sec)']
+    parse_output['achieved_power'] = parse_output['energy_pkg'] / parse_output['sync-runtime (s)']
     parse_output['iteration'] = parse_output.apply(lambda row: row['Profile'].split('_')[-1],
                                                    axis=1)
     # add extra columns
