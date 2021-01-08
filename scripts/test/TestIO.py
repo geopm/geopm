@@ -792,9 +792,12 @@ Hosts:
       time-hint-ignore (s): 0
     Application Totals:
       runtime (s): 541.507
+      sync-runtime (s): 541.507
       package-energy (J): 83998.9
       dram-energy (J): 8218.69
       power (W): 155.121
+      frequency (%): 0
+      frequency (Hz): 0
       time-hint-network (s): 0
       time-hint-compute (s): 0
       time-hint-memory (s): 0
@@ -1136,9 +1139,12 @@ Hosts:
       time-hint-ignore (s): 0
     Application Totals:
       runtime (s): 541.505
+      sync-runtime (s): 541.505
       package-energy (J): 85946.8
       dram-energy (J): 10142.6
       power (W): 158.718
+      frequency (%): 0
+      frequency (Hz): 0
       time-hint-network (s): 0
       time-hint-compute (s): 0
       time-hint-memory (s): 0
@@ -1203,20 +1209,17 @@ class TestIO(unittest.TestCase):
         self.assertLess(stream_region['requested-online-frequency'], dgemm_region['requested-online-frequency'])
 
         raw = report.raw_report()
-        json_path = self._report_path + '.json'
-        report.dump_json(json_path)
         meta = report.meta_data()
         hosts = report.host_names()
         region_names = report.region_names(hosts[0])
-        hash = report.region_hash(region_names[0])
         region = report.raw_region(hosts[1], region_names[1])
-        region_runtime = region['runtime (sec)']
+        region_runtime = region['runtime (s)']
         count = region['count']
         epoch = report.raw_epoch(hosts[0])
-        runtime = epoch['runtime (sec)']
+        runtime = epoch['runtime (s)']
         self.assertEqual(0, runtime)
         totals = report.raw_totals(hosts[1])
-        total_runtime = totals['runtime (sec)']
+        total_runtime = totals['runtime (s)']
         self.assertLess(region_runtime, total_runtime)
         field_runtime = report.get_field(epoch, 'runtime')
         self.assertEqual(runtime, field_runtime)
@@ -1310,6 +1313,128 @@ class TestIO(unittest.TestCase):
 
         for ff in basenames:
             os.unlink(ff)
+
+    def test_raw_report_collection_region(self):
+        rrc = geopmpy.io.RawReportCollection(self._report_path, do_cache=False)
+        df = rrc.get_df()
+        sleep_region_mcfly11 = {'GEOPM Version': '1.0.0+dev30g4cccfda',
+                                'Start Time': 'Thu May 30 14:38:17 2019',
+                                'Profile': 'test_ee_stream_dgemm_mix',
+                                'Agent': 'energy_efficient',
+                                'host': 'mcfly11',
+                                'region': 'sleep',
+                                'hash': 0x536c798f,
+                                'runtime (s)': 275.998,
+                                'sync-runtime (s)': 276.581,
+                                'package-energy (J)': 33573.9,
+                                'dram-energy (J)': 2835.43,
+                                'power (W)': 121.389,
+                                'frequency (%)': 50.0846,
+                                'frequency (Hz)': 1e+09,
+                                'time-hint-network (s)': 0,
+                                'time-hint-ignore (s)': 0,
+                                'time-hint-compute (s)': 0,
+                                'time-hint-memory (s)': 0,
+                                'time-hint-io (s)': 0,
+                                'time-hint-serial (s)': 0,
+                                'time-hint-parallel (s)': 0,
+                                'time-hint-unknown (s)': 0,
+                                'time-hint-unset (s)': 0,
+                                'count': 5500,
+                                'requested-online-frequency': 1000000000.000000}
+        self.assertEqual(set(sleep_region_mcfly11.keys()), set(df.columns))
+        actual_sleep_region = df.loc[(df['host'] == 'mcfly11') &
+                                     (df['region'] == 'sleep')].to_dict('records')[0]
+        self.assertEqual(sleep_region_mcfly11, actual_sleep_region)
+
+    def test_raw_report_collection_app_totals(self):
+        rrc = geopmpy.io.RawReportCollection(self._report_path, do_cache=False)
+        df = rrc.get_app_df()
+        app_totals_mcfly12 = {'GEOPM Version': '1.0.0+dev30g4cccfda',
+                              'Start Time': 'Thu May 30 14:38:17 2019',
+                              'Profile': 'test_ee_stream_dgemm_mix',
+                              'Agent': 'energy_efficient',
+                              'host': 'mcfly12',
+                              'runtime (s)': 541.505,
+                              'sync-runtime (s)': 541.505,
+                              'package-energy (J)': 85946.8,
+                              'dram-energy (J)': 10142.6,
+                              'power (W)': 158.718,
+                              'frequency (%)': 0,
+                              'frequency (Hz)': 0,
+                              'time-hint-network (s)': 0,
+                              'time-hint-compute (s)': 0,
+                              'time-hint-memory (s)': 0,
+                              'time-hint-io (s)': 0,
+                              'time-hint-serial (s)': 0,
+                              'time-hint-parallel (s)': 0,
+                              'time-hint-unknown (s)': 0,
+                              'time-hint-unset (s)': 0,
+                              'time-hint-ignore (s)': 0,
+                              'geopmctl memory HWM (B)': 145715200,
+                              'geopmctl network BW (B/sec)': 0}
+        self.assertEqual(set(app_totals_mcfly12.keys()), set(df.columns))
+        actual_totals= df.loc[(df['host'] == 'mcfly12')].to_dict('records')[0]
+        self.assertEqual(app_totals_mcfly12, actual_totals)
+
+    def test_raw_report_collection_epoch_totals(self):
+        rrc = geopmpy.io.RawReportCollection(self._report_path, do_cache=False)
+        df = rrc.get_epoch_df()
+        epoch_totals_mcfly12 = {'GEOPM Version': '1.0.0+dev30g4cccfda',
+                                'Start Time': 'Thu May 30 14:38:17 2019',
+                                'Profile': 'test_ee_stream_dgemm_mix',
+                                'Agent': 'energy_efficient',
+                                'host': 'mcfly12',
+                                'runtime (s)': 0,
+                                'sync-runtime (s)': 0,
+                                'package-energy (J)': 0,
+                                'dram-energy (J)': 0,
+                                'power (W)': 0,
+                                'frequency (%)': 0,
+                                'frequency (Hz)': 0,
+                                'time-hint-network (s)': 0,
+                                'time-hint-compute (s)': 0,
+                                'time-hint-memory (s)': 0,
+                                'time-hint-io (s)': 0,
+                                'time-hint-serial (s)': 0,
+                                'time-hint-parallel (s)': 0,
+                                'time-hint-unknown (s)': 0,
+                                'time-hint-unset (s)': 0,
+                                'count': 0,
+                                'time-hint-ignore (s)': 0}
+        self.assertEqual(set(epoch_totals_mcfly12.keys()), set(df.columns))
+        actual_totals= df.loc[(df['host'] == 'mcfly12')].to_dict('records')[0]
+        self.assertEqual(epoch_totals_mcfly12, actual_totals)
+
+    def test_raw_report_collection_unmarked_totals(self):
+        rrc = geopmpy.io.RawReportCollection(self._report_path, do_cache=False)
+        df = rrc.get_unmarked_df()
+        unmarked_mcfly11 = {'GEOPM Version': '1.0.0+dev30g4cccfda',
+                            'Start Time': 'Thu May 30 14:38:17 2019',
+                            'Profile': 'test_ee_stream_dgemm_mix',
+                            'Agent': 'energy_efficient',
+                            'host': 'mcfly11',
+                            'runtime (s)': 6.07865,
+                            'sync-runtime (s)': 6.13216,
+                            'package-energy (J)': 1043.75,
+                            'dram-energy (J)': 72.5349,
+                            'power (W)': 170.209,
+                            'frequency (%)': 97.2362,
+                            'frequency (Hz)': 2.04196e+09,
+                            'time-hint-network (s)': 0,
+                            'time-hint-ignore (s)': 0,
+                            'time-hint-compute (s)': 0,
+                            'time-hint-memory (s)': 0,
+                            'time-hint-io (s)': 0,
+                            'time-hint-serial (s)': 0,
+                            'time-hint-parallel (s)': 0,
+                            'time-hint-unknown (s)': 0,
+                            'time-hint-unset (s)': 0,
+                            'count': 0,
+                            'requested-online-frequency': 2100000000.000000}
+        self.assertEqual(set(unmarked_mcfly11.keys()), set(df.columns))
+        actual = df.loc[(df['host'] == 'mcfly11')].to_dict('records')[0]
+        self.assertEqual(unmarked_mcfly11, actual)
 
 
 class TestConvert(unittest.TestCase):
