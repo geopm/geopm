@@ -39,7 +39,9 @@ topo, agent, and version.
 from __future__ import absolute_import
 import os
 
-__all__ = ['agent', 'error', 'io', 'hash', 'launcher', 'pio', 'plotter', 'policy_store', 'topo', 'version']
+__all__ = ['agent', 'error', 'hash', 'io', 'launcher',
+           'pio', 'plotter', 'policy_store', 'topo',
+           'update_report', 'version']
 
 try:
     from geopmpy.version import __version__
