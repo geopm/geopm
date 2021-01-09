@@ -158,8 +158,8 @@ def region_length_analysis(report_collection, analysis_dir):
     df = prepare(df)
     edf = prepare(edf)
 
-    df['runtime-per-iteration'] = df['runtime (sec)'] / df['count']
-    df['sync-runtime-per-iteration'] = df['sync-runtime (sec)'] / df['count']
+    df['runtime-per-iteration'] = df['runtime (s)'] / df['count']
+    df['sync-runtime-per-iteration'] = df['sync-runtime (s)'] / df['count']
 
     field_list = ['runtime-per-iteration', 'runtime (sec)', 'sync-runtime-per-iteration', 'sync-runtime (sec)', 'network-time (sec)', 'count']
 
@@ -167,7 +167,7 @@ def region_length_analysis(report_collection, analysis_dir):
     results = gdf[field_list].mean().sort_index(level=['region', 'core_mhz', 'uncore_mhz'], ascending=[True, False, False])
 
     gedf = edf.groupby(['core_mhz', 'uncore_mhz'], sort=False)
-    epoch_means = gedf['runtime (sec)'].mean().sort_index(level=['core_mhz', 'uncore_mhz'], ascending=True) # Unclear why True is necessary
+    epoch_means = gedf['runtime (s)'].mean().sort_index(level=['core_mhz', 'uncore_mhz'], ascending=True) # Unclear why True is necessary
 
     with open(os.path.join(analysis_dir, 'region_iteration_runtime.log'), 'w') as log:
         log.write('Per-region means (all nodes)\n')
@@ -176,7 +176,7 @@ def region_length_analysis(report_collection, analysis_dir):
 
             ldf = ldf.copy() # Avoid SettingWithCopyWarning
             ldf = ldf.reset_index('region', drop=True)
-            ldf['% of epoch'] = (ldf['runtime (sec)'] / epoch_means) * 100
+            ldf['% of epoch'] = (ldf['runtime (s)'] / epoch_means) * 100
             ldf['epoch_time'] = epoch_means
 
             log.write('Region = {}\n'.format(region))
@@ -186,7 +186,7 @@ def region_length_analysis(report_collection, analysis_dir):
     with open(os.path.join(analysis_dir, 'region_iteration_runtime_filtered.log'), 'w') as log:
         log.write('Per-region means (all nodes) > 5 ms per iteration && total runtime >= 10.0\n')
         log.write('-' * 80 + '\n')
-        condition = (results['runtime-per-iteration'] > 0.005) & (results['runtime (sec)'] > 10.0)
+        condition = (results['runtime-per-iteration'] > 0.005) & (results['runtime (s)'] > 10.0)
         for (region), ldf in results.loc[condition].groupby('region'):
             log.write('{}\n\n'.format(ldf))
 
