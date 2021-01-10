@@ -43,10 +43,17 @@ function check {
 
 
 function print_result {
-    if [ $result -ne 0 ]; then
-        echo -e "\e[1;31m[ FAIL ] $EXP_TYPE with $APP\e[0m" 1>&2
-    else
+    local LOG_NAME="smoke_test_gen_results.log"
+
+    if [ $result -eq 0 ]; then
         echo -e "\e[1;32m[ PASS ] $EXP_TYPE with $APP\e[0m" 1>&2
+        echo "${APP} ${EXP_TYPE} PASS" >> ${LOG_NAME}
+    elif [ $result -eq 1 ]; then
+        echo -e "\e[1;31m[ FAIL ] $EXP_TYPE with $APP\e[0m" 1>&2
+        echo "${APP} ${EXP_TYPE} FAIL" >> ${LOG_NAME}
+    elif [ $result -eq 2 ]; then
+        echo -e "\e[1;33m[ SKIP ] $EXP_TYPE with $APP\e[0m" 1>&2
+        echo "${APP} ${EXP_TYPE} SKIP" >> ${LOG_NAME}
     fi
 }
 
@@ -70,6 +77,9 @@ function gen_all_monitor {
             python3 ${EXP_DIR}/${EXP_TYPE}/gen_plot_achieved_power.py --output-dir=${OUTDIR} --show-details
             check
         done
+        if [ -z "${OUTPUT_DIRS}" ]; then
+            result=2
+        fi
         print_result
     done
 }
@@ -95,6 +105,27 @@ function gen_all_power_sweep {
             python3 ${EXP_DIR}/${EXP_TYPE}/gen_policy_recommendation.py --path ${OUTDIR}
             check
         done
+        if [ -z "${OUTPUT_DIRS}" ]; then
+            result=2
+        fi
+        print_result
+    done
+}
+
+
+function gen_all_power_balancer_energy {
+
+    EXP_TYPE=power_balancer_energy
+    for APP in ${APPLICATIONS}; do
+        result=0
+        OUTPUT_DIRS=$(find_output_dirs)
+        for OUTDIR in $OUTPUT_DIRS; do
+            python3 ${EXP_DIR}/energy_efficiency/gen_plot_profile_comparison.py --output-dir=${OUTDIR} --show-details
+            check
+        done
+        if [ -z "${OUTPUT_DIRS}" ]; then
+            result=2
+        fi
         print_result
     done
 }
@@ -114,12 +145,51 @@ function gen_all_freq_sweep {
             python3 ${EXP_DIR}/${EXP_TYPE}/gen_region_summary.py --output-dir=${OUTDIR} --show-details
             check
         done
+        if [ -z "${OUTPUT_DIRS}" ]; then
+            result=2
+        fi
+        print_result
+    done
+}
+
+
+function gen_all_uncore_freq_sweep {
+
+    EXP_TYPE=uncore_frequency_sweep
+    for APP in ${APPLICATIONS}; do
+        result=0
+        OUTPUT_DIRS=$(find_output_dirs)
+        for OUTDIR in $OUTPUT_DIRS; do
+            python3 ${EXP_DIR}/${EXP_TYPE}/gen_plot_heatmap.py --output-dir=${OUTDIR} --show-details
+            check
+        done
+        if [ -z "${OUTPUT_DIRS}" ]; then
+            result=2
+        fi
+        print_result
+    done
+}
+
+
+function gen_all_barrier_frequency_sweep {
+
+    EXP_TYPE=barrier_frequency_sweep
+    for APP in ${APPLICATIONS}; do
+        result=0
+        OUTPUT_DIRS=$(find_output_dirs)
+        for OUTDIR in $OUTPUT_DIRS; do
+            python3 ${EXP_DIR}/energy_efficiency/gen_plot_profile_comparison.py --output-dir=${OUTDIR} --show-details
+            check
+        done
+        if [ -z "${OUTPUT_DIRS}" ]; then
+            result=2
+        fi
         print_result
     done
 }
 
 if [ $# -ne 1 ]; then
-    echo "Usage: $0 monitor|power_sweep|freq_sweep"
+    echo "Usage: $0 monitor|power_sweep|frequency_sweep|uncore_frequency_sweep|barrier_frequency_sweep|power_balancer_energy"
     exit -1
 fi
 
@@ -129,8 +199,14 @@ if [ "$name" == "monitor" ]; then
     gen_all_monitor
 elif [ "$name" == "power_sweep" ]; then
     gen_all_power_sweep
-elif [ "$name" == "freq_sweep" ]; then
+elif [ "$name" == "power_balancer_energy" ]; then
+    gen_all_power_balancer_energy
+elif [ "$name" == "frequency_sweep" ]; then
     gen_all_freq_sweep
+elif [ "$name" == "uncore_frequency_sweep" ]; then
+    gen_all_uncore_freq_sweep
+elif [ "$name" == "barrier_frequency_sweep" ]; then
+    gen_all_barrier_freq_sweep
 else
     echo "Error: Unknown name: $name" 1>&2
     exit -1
