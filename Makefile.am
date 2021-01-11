@@ -561,10 +561,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/PowerGovernorImp.hpp \
                             src/PowerGovernorAgent.cpp \
                             src/PowerGovernorAgent.hpp \
-                            src/ProcessEpoch.cpp \
-                            src/ProcessEpoch.hpp \
-                            src/ProcessEpochImp.cpp \
-                            src/ProcessEpochImp.hpp \
                             src/ProfileIOGroup.cpp \
                             src/ProfileIOGroup.hpp \
                             src/ProfileIOSample.cpp \
