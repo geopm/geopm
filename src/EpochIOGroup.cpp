@@ -36,7 +36,6 @@
 
 #include "PlatformTopo.hpp"
 #include "ApplicationSampler.hpp"
-#include "ProcessEpoch.hpp"
 #include "Helper.hpp"
 #include "Exception.hpp"
 #include "Agg.hpp"
@@ -47,59 +46,41 @@ namespace geopm
 {
     EpochIOGroup::EpochIOGroup()
         : EpochIOGroup(platform_topo(),
-                       ApplicationSampler::application_sampler(),
-                       std::map<int, std::shared_ptr<ProcessEpoch> >{})
+                       ApplicationSampler::application_sampler())
     {
 
     }
 
     EpochIOGroup::EpochIOGroup(const PlatformTopo &topo,
-                               ApplicationSampler &app,
-                               const std::map<int, std::shared_ptr<ProcessEpoch> > &epoch)
+                               ApplicationSampler &app)
         : m_topo(topo)
         , m_app(app)
-        , m_epoch_map(epoch)
         , m_num_cpu(m_topo.num_domain(GEOPM_DOMAIN_CPU))
+        , m_per_cpu_count(m_num_cpu, 0)
         , m_is_batch_read(false)
         , m_is_initialized(false)
     {
 
     }
 
-    void EpochIOGroup::init(void) {
-        /// @todo: account for cpu claim messages.  No handling for
-        /// messages from processes not in this map.  For now assume
-        /// this initial mapping contains all process that will put
-        /// messages in queue.
-        m_cpu_process = m_app.per_cpu_process();
-        for (const auto &proc : m_cpu_process) {
-            if (proc != -1 && m_epoch_map.find(proc) == m_epoch_map.end()) {
-                m_epoch_map[proc] = ProcessEpoch::make_unique();
-            }
+    const std::set<std::string> EpochIOGroup::m_valid_signal_name = {
+        "EPOCH::EPOCH_COUNT",
+        "EPOCH_COUNT",
+    };
+
+    void EpochIOGroup::init(void)
+    {
+        int cpu_idx = 0;
+        for (const auto &proc : m_app.per_cpu_process()) {
+            m_process_cpu_map[proc].insert(cpu_idx);
+            ++cpu_idx;
         }
         m_is_initialized = true;
     }
 
-    const std::map<std::string, int> EpochIOGroup::m_valid_signal_name = {
-        {"EPOCH::EPOCH_COUNT", M_SIGNAL_EPOCH_COUNT},
-        {"EPOCH::EPOCH_RUNTIME", M_SIGNAL_EPOCH_RUNTIME},
-        {"EPOCH::EPOCH_RUNTIME_NETWORK", M_SIGNAL_EPOCH_RUNTIME_NETWORK},
-        {"EPOCH::EPOCH_RUNTIME_IGNORE", M_SIGNAL_EPOCH_RUNTIME_IGNORE},
-        {"EPOCH_COUNT", M_SIGNAL_EPOCH_COUNT},
-        {"EPOCH_RUNTIME", M_SIGNAL_EPOCH_RUNTIME},
-        {"EPOCH_RUNTIME_NETWORK", M_SIGNAL_EPOCH_RUNTIME_NETWORK},
-        {"EPOCH_RUNTIME_IGNORE", M_SIGNAL_EPOCH_RUNTIME_IGNORE},
-    };
-
     std::set<std::string> EpochIOGroup::signal_names(void) const
     {
-        std::set<std::string> names;
-        if (m_is_initialized) {
-            for (const auto &kv : m_valid_signal_name) {
-                names.insert(kv.first);
-            }
-        }
-        return names;
+        return m_valid_signal_name;
     }
 
     std::set<std::string> EpochIOGroup::control_names(void) const
@@ -144,17 +125,16 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
-        int signal_type = signal_name_to_type(signal_name);
         // check if already pushed
         int result = -1;
-        auto it = m_signal_idx_map.find({signal_type, domain_idx});
-        if (it != m_signal_idx_map.end()) {
+        auto it = m_cpu_signal_map.find(domain_idx);
+        if (it != m_cpu_signal_map.end()) {
             result = it->second;
         }
         if (result == -1) {
             result = m_active_signal.size();
-            m_active_signal.push_back({signal_type, domain_type, domain_idx});
-            m_signal_idx_map[{signal_type, domain_idx}] = result;
+            m_active_signal.push_back(domain_idx);
+            m_cpu_signal_map[domain_idx] = result;
         }
         return result;
     }
@@ -173,9 +153,14 @@ namespace geopm
         /// update_records() will get called by controller
         auto records = m_app.get_records();
         for (const auto &record : records) {
-            GEOPM_DEBUG_ASSERT(m_epoch_map.find(record.process) != m_epoch_map.end(),
-                               "ProcessEpoch for process " + std::to_string(record.process) + " in record not found");
-            m_epoch_map.at(record.process)->update(record);
+            GEOPM_DEBUG_ASSERT(m_process_cpu_map.find(record.process) != m_process_cpu_map.end(),
+                               "Process " + std::to_string(record.process) + " in record not found");
+            if (record.event == EVENT_EPOCH_COUNT) {
+                const auto &cpu_set = m_process_cpu_map.at(record.process);
+                for (const auto &cpu_idx : cpu_set) {
+                    m_per_cpu_count[cpu_idx] = (int)record.signal;
+                }
+            }
         }
         m_is_batch_read = true;
     }
@@ -195,52 +180,20 @@ namespace geopm
             throw Exception("EpochIOGroup::sample(): batch_idx out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        auto sig = m_active_signal[batch_idx];
-        int cpu_idx = sig.domain_idx;
+        int cpu_idx = m_active_signal[batch_idx];
 #ifdef GEOPM_DEBUG
         if (cpu_idx < 0 || cpu_idx >= m_num_cpu) {
             throw Exception("EpochIOGroup::sample(): invalid cpu_idx saved in map.",
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        int process_id = m_cpu_process[cpu_idx];
-        double result = NAN;
-        if (process_id != -1) {
-            result = get_value(sig.signal_type, process_id);
-        }
-        return result;
+        return m_per_cpu_count[cpu_idx];
     }
 
     void EpochIOGroup::adjust(int batch_idx, double setting)
     {
         throw Exception("EpochIOGroup::adjust(): there are no controls supported by the EpochIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-
-    double EpochIOGroup::get_value(int signal_type, int process_id) const
-    {
-        double result = NAN;
-        switch (signal_type) {
-            case M_SIGNAL_EPOCH_COUNT:
-                result = m_epoch_map.at(process_id)->epoch_count();
-                break;
-            case M_SIGNAL_EPOCH_RUNTIME:
-                result = m_epoch_map.at(process_id)->last_epoch_runtime();
-                break;
-            case M_SIGNAL_EPOCH_RUNTIME_NETWORK:
-                result = m_epoch_map.at(process_id)->last_epoch_runtime_network();
-                break;
-            case M_SIGNAL_EPOCH_RUNTIME_IGNORE:
-                result = m_epoch_map.at(process_id)->last_epoch_runtime_ignore();
-                break;
-            default:
-#ifdef GEOPM_DEBUG
-                throw Exception("EpochIOGroup::sample(): invalid signal type saved in active signals",
-                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-#endif
-                break;
-        }
-        return result;
     }
 
     double EpochIOGroup::read_signal(const std::string &signal_name, int domain_type, int domain_idx)
@@ -282,25 +235,7 @@ namespace geopm
                             "not valid for EpochIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        int signal_type = signal_name_to_type(signal_name);
-        std::function<double(const std::vector<double> &)> result = Agg::max;
-        switch (signal_type) {
-            case M_SIGNAL_EPOCH_COUNT:
-                result = Agg::min;
-                break;
-            case M_SIGNAL_EPOCH_RUNTIME:
-            case M_SIGNAL_EPOCH_RUNTIME_NETWORK:
-            case M_SIGNAL_EPOCH_RUNTIME_IGNORE:
-                // use default of Agg::max
-                break;
-            default:
-#ifdef GEOPM_DEBUG
-                throw Exception("EpochIOGroup::sample(): invalid signal type",
-                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-#endif
-                break;
-        }
-        return result;
+        return Agg::min;
     }
 
     std::function<std::string(double)> EpochIOGroup::format_function(const std::string &signal_name) const
@@ -310,25 +245,7 @@ namespace geopm
                             " not valid for EpochIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        int signal_type = signal_name_to_type(signal_name);
-        std::function<std::string(double)> result = string_format_double;
-        switch (signal_type) {
-            case M_SIGNAL_EPOCH_COUNT:
-                result = string_format_integer;
-                break;
-            case M_SIGNAL_EPOCH_RUNTIME:
-            case M_SIGNAL_EPOCH_RUNTIME_NETWORK:
-            case M_SIGNAL_EPOCH_RUNTIME_IGNORE:
-                // use default of string_format_double
-                break;
-            default:
-#ifdef GEOPM_DEBUG
-                throw Exception("EpochIOGroup::sample(): invalid signal type",
-                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-#endif
-                break;
-        }
-        return result;
+        return string_format_integer;
     }
 
     std::string EpochIOGroup::signal_description(const std::string &signal_name) const
@@ -338,51 +255,13 @@ namespace geopm
                             " not valid for EpochIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        int signal_type = signal_name_to_type(signal_name);
-        std::string result;
-        switch (signal_type) {
-            case M_SIGNAL_EPOCH_COUNT:
-                result = "Number of epoch events sampled from the process on the given CPU";
-                break;
-            case M_SIGNAL_EPOCH_RUNTIME:
-                result = "Last runtime between epoch events sampled from the process on the given CPU";
-                break;
-            case M_SIGNAL_EPOCH_RUNTIME_NETWORK:
-                result = "Portion of last runtime between epoch event where the application provided the network hint.";
-                break;
-            case M_SIGNAL_EPOCH_RUNTIME_IGNORE:
-                result = "Portion of last runtime between epoch event where the application provided the ignore hint.";
-                break;
-            default:
-#ifdef GEOPM_DEBUG
-                throw Exception("EpochIOGroup::sample(): invalid signal type",
-                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-#endif
-                break;
-        }
-        return result;
+        return "Number of epoch events sampled from the process on the given CPU";
     }
 
     std::string EpochIOGroup::control_description(const std::string &control_name) const
     {
         throw Exception("EpochIOGroup::control_description(): there are no controls supported by the EpochIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
-    }
-
-    int EpochIOGroup::signal_name_to_type(const std::string &signal_name)
-    {
-        int signal_type = -1;
-        auto name_it = m_valid_signal_name.find(signal_name);
-        if (name_it != m_valid_signal_name.end()) {
-            signal_type = name_it->second;
-        }
-#ifdef GEOPM_DEBUG
-        else {
-            throw Exception("EpochIOGroup::signal_name_to_type: Valid signal name not found in map: " + signal_name,
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        return signal_type;
     }
 
     void EpochIOGroup::check_domain(int domain_type, int domain_idx) const

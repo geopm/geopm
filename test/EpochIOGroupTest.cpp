@@ -40,7 +40,6 @@
 #include "PlatformTopo.hpp"
 #include "MockPlatformTopo.hpp"
 #include "MockApplicationSampler.hpp"
-#include "MockProcessEpoch.hpp"
 #include "geopm_test.hpp"
 
 using geopm::Exception;
@@ -58,8 +57,6 @@ class EpochIOGroupTest : public ::testing::Test
         int m_pid_0;
         int m_pid_1;
         MockApplicationSampler m_app;
-        std::shared_ptr<MockProcessEpoch> m_epoch_0;
-        std::shared_ptr<MockProcessEpoch> m_epoch_1;
         std::shared_ptr<EpochIOGroup> m_group;
 
 };
@@ -74,15 +71,8 @@ void EpochIOGroupTest::SetUp()
         .WillByDefault(Return(m_num_cpu));
     ON_CALL(m_app, per_cpu_process())
         .WillByDefault(Return(cpu_process));
-    m_epoch_0 = std::make_shared<MockProcessEpoch>();
-    m_epoch_1 = std::make_shared<MockProcessEpoch>();
-    std::map<int, std::shared_ptr<geopm::ProcessEpoch> > process_map {
-        {m_pid_0, m_epoch_0},
-        {m_pid_1, m_epoch_1},
-    };
-
     EXPECT_CALL(m_topo, num_domain(GEOPM_DOMAIN_CPU));
-    m_group = std::make_shared<EpochIOGroup>(m_topo, m_app, process_map);
+    m_group = std::make_shared<EpochIOGroup>(m_topo, m_app);
 }
 
 MATCHER_P(IsRecordEqual, other, "")
@@ -97,13 +87,7 @@ TEST_F(EpochIOGroupTest, valid_signals)
 {
     std::vector<std::string> expected_names = {
         "EPOCH::EPOCH_COUNT",
-        "EPOCH::EPOCH_RUNTIME",
-        "EPOCH::EPOCH_RUNTIME_NETWORK",
-        "EPOCH::EPOCH_RUNTIME_IGNORE",
         "EPOCH_COUNT",
-        "EPOCH_RUNTIME",
-        "EPOCH_RUNTIME_NETWORK",
-        "EPOCH_RUNTIME_IGNORE",
     };
     // enable signals
     EXPECT_CALL(m_app, per_cpu_process());
@@ -122,15 +106,9 @@ TEST_F(EpochIOGroupTest, valid_signals)
 
     // check aggregation
     EXPECT_TRUE(is_agg_min(m_group->agg_function("EPOCH_COUNT")));
-    EXPECT_TRUE(is_agg_max(m_group->agg_function("EPOCH_RUNTIME")));
-    EXPECT_TRUE(is_agg_max(m_group->agg_function("EPOCH_RUNTIME_NETWORK")));
-    EXPECT_TRUE(is_agg_max(m_group->agg_function("EPOCH_RUNTIME_IGNORE")));
 
     // check formatting
     EXPECT_TRUE(is_format_integer(m_group->format_function("EPOCH_COUNT")));
-    EXPECT_TRUE(is_format_double(m_group->format_function("EPOCH_RUNTIME")));
-    EXPECT_TRUE(is_format_double(m_group->format_function("EPOCH_RUNTIME_NETWORK")));
-    EXPECT_TRUE(is_format_double(m_group->format_function("EPOCH_RUNTIME_IGNORE")));
 
     // invalid inputs
     EXPECT_FALSE(m_group->is_valid_signal("INVALID"));
@@ -160,8 +138,6 @@ TIME|PROCESS|EVENT|SIGNAL
 1.286573997|42|EPOCH_COUNT|1
 )");
     EXPECT_CALL(m_app, per_cpu_process());
-    EXPECT_CALL(*m_epoch_0, update(_)).Times(2);
-    EXPECT_CALL(*m_epoch_1, update(_)).Times(1);
     m_group->read_batch();
     // no more push allowed
     EXPECT_THROW(m_group->push_signal("EPOCH_COUNT", GEOPM_DOMAIN_CPU, 0), Exception);
@@ -182,101 +158,24 @@ TEST_F(EpochIOGroupTest, sample_count)
 
     // must read_batch once
     EXPECT_THROW(m_group->sample(idx0), Exception);
+
+    m_app.inject_records(R"(
+# agent: monitor
+TIME|PROCESS|EVENT|SIGNAL
+0.286542262|33|EPOCH_COUNT|1
+1.28657223|33|EPOCH_COUNT|2
+1.286573997|42|EPOCH_COUNT|1
+)");
     m_group->read_batch();
 
-    EXPECT_CALL(*m_epoch_0, epoch_count())
-        .WillOnce(Return(3));
     double value = m_group->sample(idx0);
-    EXPECT_EQ(3.0, value);
-    EXPECT_CALL(*m_epoch_1, epoch_count())
-        .WillOnce(Return(4));
+    EXPECT_EQ(2.0, value);
     value = m_group->sample(idx1);
-    EXPECT_EQ(4.0, value);
+    EXPECT_EQ(1.0, value);
 
     // errors for sample
     EXPECT_THROW(m_group->sample(-1), Exception);
     EXPECT_THROW(m_group->sample(idx1 + 1), Exception);
-}
-
-TEST_F(EpochIOGroupTest, sample_runtime)
-{
-    EXPECT_CALL(m_app, per_cpu_process());
-    int idx0 = -1;
-    int idx1 = -1;
-    idx0 = m_group->push_signal("EPOCH_RUNTIME", GEOPM_DOMAIN_CPU, 0);
-    int idx = m_group->push_signal("EPOCH::EPOCH_RUNTIME", GEOPM_DOMAIN_CPU, 0);
-    EXPECT_NE(-1, idx0);
-    EXPECT_EQ(idx0, idx);
-    idx1 = m_group->push_signal("EPOCH_RUNTIME", GEOPM_DOMAIN_CPU, 2);
-    EXPECT_NE(-1, idx1);
-    EXPECT_NE(idx0, idx1);
-
-    // must read_batch once
-    EXPECT_THROW(m_group->sample(idx0), Exception);
-    m_group->read_batch();
-
-    EXPECT_CALL(*m_epoch_0, last_epoch_runtime())
-        .WillOnce(Return(4.5));
-    double value = m_group->sample(idx0);
-    EXPECT_EQ(4.5, value);
-    EXPECT_CALL(*m_epoch_1, last_epoch_runtime())
-        .WillOnce(Return(9.8));
-    value = m_group->sample(idx1);
-    EXPECT_EQ(9.8, value);
-}
-
-TEST_F(EpochIOGroupTest, sample_runtime_network)
-{
-    EXPECT_CALL(m_app, per_cpu_process());
-    int idx0 = -1;
-    int idx1 = -1;
-    idx0 = m_group->push_signal("EPOCH_RUNTIME_NETWORK", GEOPM_DOMAIN_CPU, 0);
-    int idx = m_group->push_signal("EPOCH::EPOCH_RUNTIME_NETWORK", GEOPM_DOMAIN_CPU, 0);
-    EXPECT_NE(-1, idx0);
-    EXPECT_EQ(idx0, idx);
-    idx1 = m_group->push_signal("EPOCH_RUNTIME_NETWORK", GEOPM_DOMAIN_CPU, 2);
-    EXPECT_NE(-1, idx1);
-    EXPECT_NE(idx0, idx1);
-
-    // must read_batch once
-    EXPECT_THROW(m_group->sample(idx0), Exception);
-    m_group->read_batch();
-
-    EXPECT_CALL(*m_epoch_0, last_epoch_runtime_network())
-        .WillOnce(Return(0.003));
-    double value = m_group->sample(idx0);
-    EXPECT_EQ(0.003, value);
-    EXPECT_CALL(*m_epoch_1, last_epoch_runtime_network())
-        .WillOnce(Return(0.004));
-    value = m_group->sample(idx1);
-    EXPECT_EQ(0.004, value);
-}
-
-TEST_F(EpochIOGroupTest, sample_runtime_ignore)
-{
-    EXPECT_CALL(m_app, per_cpu_process());
-    int idx0 = -1;
-    int idx1 = -1;
-    idx0 = m_group->push_signal("EPOCH_RUNTIME_IGNORE", GEOPM_DOMAIN_CPU, 0);
-    int idx = m_group->push_signal("EPOCH::EPOCH_RUNTIME_IGNORE", GEOPM_DOMAIN_CPU, 0);
-    EXPECT_NE(-1, idx0);
-    EXPECT_EQ(idx0, idx);
-    idx1 = m_group->push_signal("EPOCH_RUNTIME_IGNORE", GEOPM_DOMAIN_CPU, 2);
-    EXPECT_NE(-1, idx1);
-    EXPECT_NE(idx0, idx1);
-
-    // must read_batch once
-    EXPECT_THROW(m_group->sample(idx0), Exception);
-    m_group->read_batch();
-
-    EXPECT_CALL(*m_epoch_0, last_epoch_runtime_ignore())
-        .WillOnce(Return(55.66));
-    double value = m_group->sample(idx0);
-    EXPECT_EQ(55.66, value);
-    EXPECT_CALL(*m_epoch_1, last_epoch_runtime_ignore())
-        .WillOnce(Return(34.34));
-    value = m_group->sample(idx1);
-    EXPECT_EQ(34.34, value);
 }
 
 TEST_F(EpochIOGroupTest, no_controls)

@@ -41,15 +41,13 @@ namespace geopm
 {
     class PlatformTopo;
     class ApplicationSampler;
-    class ProcessEpoch;
 
     class EpochIOGroup : public IOGroup
     {
         public:
             EpochIOGroup();
             EpochIOGroup(const PlatformTopo &topo,
-                         ApplicationSampler &app,
-                         const std::map<int, std::shared_ptr<ProcessEpoch> > &epoch);
+                         ApplicationSampler &app);
             virtual ~EpochIOGroup() = default;
             std::set<std::string> signal_names(void) const override;
             std::set<std::string> control_names(void) const override;
@@ -74,34 +72,20 @@ namespace geopm
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
         private:
-            enum m_signal_type {
-                M_SIGNAL_EPOCH_COUNT,
-                M_SIGNAL_EPOCH_RUNTIME,
-                M_SIGNAL_EPOCH_RUNTIME_NETWORK,
-                M_SIGNAL_EPOCH_RUNTIME_IGNORE,
-                M_SIGNAL_MAX,
-            };
-            struct m_signal_config {
-                int signal_type;
-                int domain_type;
-                int domain_idx;
-            };
-            static int signal_name_to_type(const std::string &signal_name);
-            static const std::map<std::string, int> m_valid_signal_name;
+            static const std::set<std::string> m_valid_signal_name;
             void init(void);
             void check_domain(int domain_type, int domain_idx) const;
-            double get_value(int signal_type, int process_id) const;
+            void check_signal_name(const std::string &signal_name) const;
 
             const PlatformTopo &m_topo;
             const ApplicationSampler &m_app;
-            std::map<int, std::shared_ptr<ProcessEpoch> > m_epoch_map;
             int m_num_cpu;
+            std::vector<int> m_per_cpu_count;
+            std::map<int, std::set<int> > m_process_cpu_map;
             bool m_is_batch_read;
             bool m_is_initialized;
-            std::vector<int> m_cpu_process;
-            std::map<std::pair<int, int>, int> m_signal_idx_map;
-            std::vector<struct m_signal_config> m_active_signal;
-
+            std::map<int, int> m_cpu_signal_map;
+            std::vector<int> m_active_signal;
     };
 }
 
