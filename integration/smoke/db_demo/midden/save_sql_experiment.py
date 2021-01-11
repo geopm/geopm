@@ -6,7 +6,9 @@ import mysql.connector
 import getpass
 import glob
 from datetime import datetime
+import argparse
 
+import db_conn
 import geopmpy.io
 
 
@@ -54,25 +56,26 @@ def show_policy(cursor, policy_id):
     return result
 
 
-def add_experiment(cursor, output_dir, job_id, exp_type, date, notes):
-    # raw data blob
-    try:
-        output = geopmpy.io.RawReportCollection("*report", dir_name=output_dir)
-    except:
-        sys.stderr.write('<geopm> Error: No report data found in {}; run a monitor experiment before using this analysis\n'.format(output_dir))
-        sys.exit(1)
-    h5_name = output.hdf5_name
-    with open(h5_name, 'rb') as ifile:
-        blob = ifile.read()
-    print(h5_name, output.get_df())
+def add_experiment(cursor, output_dir, job_id, exp_type, date, notes, save_blob):
 
+    blob = None
+    if save_blob:
+        # raw data blob
+        try:
+            output = geopmpy.io.RawReportCollection("*report", dir_name=output_dir)
+        except Exception as ex:
+            raise RuntimeError('<geopm> Error: No report data found in {}; error: {}\n'.format(output_dir, ex))
+        h5_name = output.hdf5_name
+        with open(h5_name, 'rb') as ifile:
+            blob = ifile.read()
+            print(h5_name, output.get_df())
     # add experiment containing all reports
     sql = '''INSERT INTO Experiments (output_dir, jobid, type, date, notes, raw_data)
              VALUES (%s, %s, %s, %s, %s, %s)'''
     cursor.execute(sql, (output_dir, job_id, exp_type, date, notes, blob))
     exp_id = cursor.lastrowid
 
-    # add reports
+    # add individual reports
     report_paths = glob.glob(os.path.join(output_dir, '*report'))
     for path in report_paths:
         report = geopmpy.io.RawReport(path)
@@ -110,20 +113,7 @@ def add_experiment(cursor, output_dir, job_id, exp_type, date, notes):
 
 if __name__ == '__main__':
 
-    if len(sys.argv) < 2:
-        sys.stderr.write('Usage: {} <output dir>\n')
-        sys.exit(1)
 
-    config = {
-        'user': 'diana',
-        'database': 'test',
-    }
-    password = getpass.getpass("Password:")
-    conn = mysql.connector.connect(password=password, **config)
-    conn.autocommit = False  # require commit() at end of transaction
-
-    # TODO: add try except with rollback()
-    cursor = conn.cursor()
     # TODO: Brad: this is set globally through phpmyadmin
     # cursor.execute('set max_allowed_packet=67108864')  # for HDF5 blob
 
@@ -138,5 +128,6 @@ if __name__ == '__main__':
 
     output_dir = os.path.realpath(sys.argv[1])
 
-    add_experiment(cursor, output_dir, 1234, 'test exp', datetime.today(), 'some notes')
-    conn.commit()
+    add_experiment(db_conn, output_dir, 1234, 'test exp', datetime.today(), 'some notes')
+
+    show_experiments(db_conn)
