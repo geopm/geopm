@@ -249,15 +249,9 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/EnvironmentTest.record_filter_on \
               test/gtest_links/EnvironmentTest.record_filter_off \
               test/gtest_links/EpochIOGroupIntegrationTest.read_batch_count \
-              test/gtest_links/EpochIOGroupIntegrationTest.read_batch_runtime \
-              test/gtest_links/EpochIOGroupIntegrationTest.read_batch_runtime_ignore \
-              test/gtest_links/EpochIOGroupIntegrationTest.read_batch_runtime_network \
               test/gtest_links/EpochIOGroupTest.no_controls \
               test/gtest_links/EpochIOGroupTest.read_batch \
               test/gtest_links/EpochIOGroupTest.sample_count \
-              test/gtest_links/EpochIOGroupTest.sample_runtime \
-              test/gtest_links/EpochIOGroupTest.sample_runtime_ignore \
-              test/gtest_links/EpochIOGroupTest.sample_runtime_network \
               test/gtest_links/EpochIOGroupTest.valid_signals \
               test/gtest_links/EpochRuntimeRegulatorTest.all_ranks_enter_exit \
               test/gtest_links/EpochRuntimeRegulatorTest.epoch_runtime \
@@ -413,9 +407,6 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/PowerGovernorTest.govern \
               test/gtest_links/PowerGovernorTest.govern_max \
               test/gtest_links/PowerGovernorTest.govern_min \
-              test/gtest_links/ProcessEpochImpTest.epoch_count \
-              test/gtest_links/ProcessEpochImpTest.epoch_runtime \
-              test/gtest_links/ProcessEpochImpTest.hint_time \
               test/gtest_links/ProcessRegionAggregatorTest.entry_exit \
               test/gtest_links/ProcessRegionAggregatorTest.short_region \
               test/gtest_links/ProcessRegionAggregatorTest.multiple_processes \
@@ -650,7 +641,6 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/MockPlatformTopo.hpp \
                           test/MockPowerBalancer.hpp \
                           test/MockPowerGovernor.hpp \
-                          test/MockProcessEpoch.hpp \
                           test/MockProfileIOSample.hpp \
                           test/MockProfileSampler.hpp \
                           test/MockProfileTable.hpp \
@@ -669,7 +659,6 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/OptionParserTest.cpp \
                           test/PlatformIOTest.cpp \
                           test/PlatformTopoTest.cpp \
-                          test/ProcessEpochImpTest.cpp \
                           test/PowerBalancerAgentTest.cpp \
                           test/PowerBalancerTest.cpp \
                           test/PowerGovernorAgentTest.cpp \
