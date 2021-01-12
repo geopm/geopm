@@ -13,7 +13,7 @@ Hosts:
 
     Regions:
     -
-      name: MPI_Allreduce
+      region: "MPI_Allreduce"
       hash: 0x0d94e328
       runtime (s): 53.6629
       sync-runtime (s): 53.7105
@@ -34,7 +34,7 @@ Hosts:
       count: 12005
       frequency-map: 2100000000.000000
     -
-      name: MPI_Waitall
+      region: "MPI_Waitall"
       hash: 0x9b88f62c
       runtime (s): 2.49686
       sync-runtime (s): 1.4433
@@ -55,7 +55,7 @@ Hosts:
       count: 4017
       frequency-map: 2100000000.000000
     -
-      name: MPI_Recv
+      region: "MPI_Recv"
       hash: 0x81ff55b3
       runtime (s): 0.0243092
       sync-runtime (s): 0
@@ -75,7 +75,7 @@ Hosts:
       time-hint-unset (s): 0
       count: 1
     -
-      name: MPI_Barrier
+      region: "MPI_Barrier"
       hash: 0x7b561f45
       runtime (s): 0.000182592
       sync-runtime (s): 0
@@ -95,7 +95,7 @@ Hosts:
       time-hint-unset (s): 0
       count: 2
     -
-      name: MPI_Bcast
+      region: "MPI_Bcast"
       hash: 0xc5d73e1d
       runtime (s): 6.25485e-05
       sync-runtime (s): 0
@@ -115,7 +115,7 @@ Hosts:
       time-hint-unset (s): 0
       count: 13
     -
-      name: MPI_Send
+      region: "MPI_Send"
       hash: 0x6de37280
       runtime (s): 9.997e-06
       sync-runtime (s): 0
@@ -201,7 +201,7 @@ Hosts:
 
     Regions:
     -
-      name: MPI_Allreduce
+      region: "MPI_Allreduce"
       hash: 0x0d94e328
       runtime (s): 44.6647
       sync-runtime (s): 36.961
@@ -222,7 +222,7 @@ Hosts:
       count: 12005
       frequency-map: 2100000000.000000
     -
-      name: MPI_Waitall
+      region: "MPI_Waitall"
       hash: 0x9b88f62c
       runtime (s): 9.18918
       sync-runtime (s): 1.27065
@@ -243,7 +243,7 @@ Hosts:
       count: 4016
       frequency-map: 2100000000.000000
     -
-      name: MPI_Recv
+      region: "MPI_Recv"
       hash: 0x81ff55b3
       runtime (s): 0.0771475
       sync-runtime (s): 0.0480501
@@ -264,7 +264,7 @@ Hosts:
       count: 1
       frequency-map: 2100000000.000000
     -
-      name: MPI_Bcast
+      region: "MPI_Bcast"
       hash: 0xc5d73e1d
       runtime (s): 0.000255102
       sync-runtime (s): 0.00282621
@@ -285,7 +285,7 @@ Hosts:
       count: 13
       frequency-map: 2100000000.000000
     -
-      name: MPI_Barrier
+      region: "MPI_Barrier"
       hash: 0x7b561f45
       runtime (s): 0.000144567
       sync-runtime (s): 0
@@ -305,7 +305,7 @@ Hosts:
       time-hint-unset (s): 0
       count: 2
     -
-      name: MPI_Send
+      region: "MPI_Send"
       hash: 0x6de37280
       runtime (s): 4.628e-06
       sync-runtime (s): 0
@@ -389,7 +389,7 @@ Hosts:
 
     Regions:
     -
-      name: MPI_Allreduce
+      region: "MPI_Allreduce"
       hash: 0x0d94e328
       runtime (s): 52.9585
       sync-runtime (s): 50.2554
@@ -410,7 +410,7 @@ Hosts:
       count: 12005
       frequency-map: 2100000000.000000
     -
-      name: MPI_Waitall
+      region: "MPI_Waitall"
       hash: 0x9b88f62c
       runtime (s): 5.46226
       sync-runtime (s): 2.07918
@@ -431,7 +431,7 @@ Hosts:
       count: 4017
       frequency-map: 2100000000.000000
     -
-      name: MPI_Bcast
+      region: "MPI_Bcast"
       hash: 0xc5d73e1d
       runtime (s): 0.000258602
       sync-runtime (s): 0
@@ -451,7 +451,7 @@ Hosts:
       time-hint-unset (s): 0
       count: 13
     -
-      name: MPI_Barrier
+      region: "MPI_Barrier"
       hash: 0x7b561f45
       runtime (s): 0.000159486
       sync-runtime (s): 0
@@ -471,7 +471,7 @@ Hosts:
       time-hint-unset (s): 0
       count: 2
     -
-      name: MPI_Recv
+      region: "MPI_Recv"
       hash: 0x81ff55b3
       runtime (s): 2.81565e-05
       sync-runtime (s): 0
@@ -491,7 +491,7 @@ Hosts:
       time-hint-unset (s): 0
       count: 1
     -
-      name: MPI_Send
+      region: "MPI_Send"
       hash: 0x6de37280
       runtime (s): 7.72e-06
       sync-runtime (s): 0
@@ -576,7 +576,7 @@ Hosts:
 
     Regions:
     -
-      name: MPI_Allreduce
+      region: "MPI_Allreduce"
       hash: 0x0d94e328
       runtime (s): 28.5227
       sync-runtime (s): 5.57359
@@ -597,7 +597,7 @@ Hosts:
       count: 12005
       frequency-map: 2100000000.000000
     -
-      name: MPI_Waitall
+      region: "MPI_Waitall"
       hash: 0x9b88f62c
       runtime (s): 24.9578
       sync-runtime (s): 0.951159
@@ -618,7 +618,7 @@ Hosts:
       count: 4016
       frequency-map: 2100000000.000000
     -
-      name: MPI_Recv
+      region: "MPI_Recv"
       hash: 0x81ff55b3
       runtime (s): 0.0553426
       sync-runtime (s): 0
@@ -638,7 +638,7 @@ Hosts:
       time-hint-unset (s): 0
       count: 1
     -
-      name: MPI_Bcast
+      region: "MPI_Bcast"
       hash: 0xc5d73e1d
       runtime (s): 0.000258361
       sync-runtime (s): 0
@@ -658,7 +658,7 @@ Hosts:
       time-hint-unset (s): 0
       count: 13
     -
-      name: MPI_Barrier
+      region: "MPI_Barrier"
       hash: 0x7b561f45
       runtime (s): 0.000183035
       sync-runtime (s): 0
@@ -679,7 +679,7 @@ Hosts:
       count: 2
       frequency-map: 2100000000.000000
     -
-      name: MPI_Send
+      region: "MPI_Send"
       hash: 0x6de37280
       runtime (s): 4.616e-06
       sync-runtime (s): 0
