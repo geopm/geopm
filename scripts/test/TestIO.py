@@ -1278,7 +1278,7 @@ class TestIO(unittest.TestCase):
         # check that a set of reports produces the same hdf5 cache name
         # from any output dir relative path
 
-        cwd = os.path.dirname(os.path.abspath(__file__))
+        cwd = os.getcwd()
         basenames = ['file_a', 'file_b', 'file_c']
         for name in basenames:
             with open(name, 'w'):
@@ -1417,8 +1417,6 @@ class TestIO(unittest.TestCase):
         actual = df.loc[(df['host'] == 'mcfly11')].to_dict('records')[0]
         self.assertEqual(unmarked_mcfly11, actual)
 
-
-class TestConvert(unittest.TestCase):
     def test_convert(self):
         new_report = geopmpy.update_report.update_report_str(test_report_data_old)
         line_number = 1
@@ -1427,6 +1425,7 @@ class TestConvert(unittest.TestCase):
                              msg="'{}' != '{}', line: {}".format(
                              expected_line, actual_line, line_number))
             line_number += 1
+
 
 if __name__ == '__main__':
     unittest.main()
