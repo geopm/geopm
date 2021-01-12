@@ -78,7 +78,7 @@ def update_report_line(old_line):
         name = name_hash[:sep]
         hash = name_hash[sep + 2:]
         result.append('    -')
-        result.append('      region: {}'.format(name))
+        result.append('      region: "{}"'.format(name))
         result.append('      hash: {}'.format(hash))
     elif old_line.startswith('    epoch-runtime-ignore (sec):'):
         result.append('  {}'.format(old_line.replace('epoch-runtime-ignore', 'time-hint-ignore')))
@@ -109,13 +109,20 @@ def update_report_line(old_line):
     elif old_line.startswith('Figure of Merit:'):
         result.append(old_line)
     elif old_line.startswith('    '):
+        # any other data inside regions, epoch totals or app totals
         result.append('  {}'.format(old_line))
-    elif not old_line.startswith(' '):
-        if is_new_host:
-            result.append('    {}'.format(old_line))
-        else:
-            result.append('  {}'.format(old_line))
-    result = [ll.rstrip().replace('0x00000000', '0x').replace('(sec)', '(s)').replace('(joules)', '(J)').replace('(watts)', '(W)') for ll in result]
+    elif not old_line.startswith(' ') and is_new_host:
+        # deal with agent host extensions
+        result.append('    {}'.format(old_line))
+    elif old_line == '':
+        result.append(old_line)
+    else:
+        raise RuntimeError("Line not handled: " + old_line)
+    result = [ll.rstrip()
+              .replace('0x00000000', '0x')
+              .replace('(sec)', '(s)')
+              .replace('(joules)', '(J)')
+              .replace('(watts)', '(W)') for ll in result]
     return result
 
 
