@@ -240,7 +240,7 @@ Region unmarked-region (0x00000000725e8066):
     power (watts): 170.209
     frequency (%): 97.2362
     frequency (Hz): 2.04196e+09
-    network-time (sec): 0
+    network-time (sec): 12
     count: 0
     requested-online-frequency: 2100000000.000000
 Epoch Totals:
@@ -251,7 +251,7 @@ Epoch Totals:
     power (watts): 0
     frequency (%): 0
     frequency (Hz): 0
-    network-time (sec): 0
+    network-time (sec): 14
     count: 0
     epoch-runtime-ignore (sec): 0
 Application Totals:
@@ -259,7 +259,7 @@ Application Totals:
     package-energy (joules): 83998.9
     dram-energy (joules): 8218.69
     power (watts): 155.121
-    network-time (sec): 0
+    network-time (sec): 15
     ignore-time (sec): 0
     geopmctl memory HWM: 144472 kB
     geopmctl network BW (B/sec): 0.0443208
@@ -431,7 +431,7 @@ Region unmarked-region (0x00000000725e8066):
     power (watts): 203.102
     frequency (%): 95.0914
     frequency (Hz): 1.99692e+09
-    network-time (sec): 0
+    network-time (sec): 12
     count: 0
     requested-online-frequency: 2200000000.000000
 Epoch Totals:
@@ -442,7 +442,7 @@ Epoch Totals:
     power (watts): 0
     frequency (%): 0
     frequency (Hz): 0
-    network-time (sec): 0
+    network-time (sec): 14
     count: 0
     epoch-runtime-ignore (sec): 0
 Application Totals:
@@ -450,7 +450,7 @@ Application Totals:
     package-energy (joules): 85946.8
     dram-energy (joules): 10142.6
     power (watts): 158.718
-    network-time (sec): 0
+    network-time (sec): 15
     ignore-time (sec): 0
     geopmctl memory HWM: 142300 kB
     geopmctl network BW (B/sec): 0
@@ -482,7 +482,7 @@ Hosts:
 
     Regions:
     -
-      name: "sleep"
+      region: "sleep"
       hash: 0x536c798f
       runtime (s): 275.998
       sync-runtime (s): 276.581
@@ -503,7 +503,7 @@ Hosts:
       count: 5500
       requested-online-frequency: 1000000000.000000
     -
-      name: "stream-0.35-dgemm-1.80"
+      region: "stream-0.35-dgemm-1.80"
       hash: 0x76244144
       runtime (s): 28.5021
       sync-runtime (s): 28.4395
@@ -524,7 +524,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1100000000.000000
     -
-      name: "stream-0.40-dgemm-1.20"
+      region: "stream-0.40-dgemm-1.20"
       hash: 0x0db5f27a
       runtime (s): 28.2568
       sync-runtime (s): 28.2187
@@ -545,7 +545,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1000000000.000000
     -
-      name: "stream-0.45-dgemm-0.60"
+      region: "stream-0.45-dgemm-0.60"
       hash: 0x9851de3f
       runtime (s): 27.1528
       sync-runtime (s): 27.1159
@@ -566,7 +566,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1000000000.000000
     -
-      name: "stream-0.30-dgemm-2.40"
+      region: "stream-0.30-dgemm-2.40"
       hash: 0xce08ae24
       runtime (s): 25.6523
       sync-runtime (s): 25.5885
@@ -587,7 +587,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1300000000.000000
     -
-      name: "stream-0.50-dgemm-0.00"
+      region: "stream-0.50-dgemm-0.00"
       hash: 0x3a6c47e3
       runtime (s): 25.3236
       sync-runtime (s): 25.2728
@@ -608,7 +608,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1000000000.000000
     -
-      name: "stream-0.25-dgemm-3.00"
+      region: "stream-0.25-dgemm-3.00"
       hash: 0x3c627f60
       runtime (s): 24.4374
       sync-runtime (s): 24.3823
@@ -629,7 +629,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1400000000.000000
     -
-      name: "stream-0.20-dgemm-3.60"
+      region: "stream-0.20-dgemm-3.60"
       hash: 0xf9d11bbd
       runtime (s): 23.2674
       sync-runtime (s): 23.2105
@@ -650,7 +650,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1500000000.000000
     -
-      name: "stream-0.15-dgemm-4.20"
+      region: "stream-0.15-dgemm-4.20"
       hash: 0xaddfa74f
       runtime (s): 20.85
       sync-runtime (s): 20.7729
@@ -671,7 +671,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1600000000.000000
     -
-      name: "stream-0.10-dgemm-4.80"
+      region: "stream-0.10-dgemm-4.80"
       hash: 0xe50a9187
       runtime (s): 19.8318
       sync-runtime (s): 19.7529
@@ -692,7 +692,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1600000000.000000
     -
-      name: "stream-0.05-dgemm-5.40"
+      region: "stream-0.05-dgemm-5.40"
       hash: 0xe1242325
       runtime (s): 18.2642
       sync-runtime (s): 18.1456
@@ -713,7 +713,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1700000000.000000
     -
-      name: "stream-0.00-dgemm-6.00"
+      region: "stream-0.00-dgemm-6.00"
       hash: 0xaf4cafa3
       runtime (s): 17.8807
       sync-runtime (s): 17.8327
@@ -734,7 +734,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1700000000.000000
     -
-      name: "with some spaces"
+      region: "with some spaces"
       hash: 0xaf000fa3
       runtime (s): 17.8807
       sync-runtime (s): 17.8327
@@ -762,7 +762,7 @@ Hosts:
       power (W): 170.209
       frequency (%): 97.2362
       frequency (Hz): 2.04196e+09
-      time-hint-network (s): 0
+      time-hint-network (s): 12
       time-hint-ignore (s): 0
       time-hint-compute (s): 0
       time-hint-memory (s): 0
@@ -781,7 +781,7 @@ Hosts:
       power (W): 0
       frequency (%): 0
       frequency (Hz): 0
-      time-hint-network (s): 0
+      time-hint-network (s): 14
       time-hint-compute (s): 0
       time-hint-memory (s): 0
       time-hint-io (s): 0
@@ -799,7 +799,7 @@ Hosts:
       power (W): 155.121
       frequency (%): 0
       frequency (Hz): 0
-      time-hint-network (s): 0
+      time-hint-network (s): 15
       time-hint-compute (s): 0
       time-hint-memory (s): 0
       time-hint-io (s): 0
@@ -829,7 +829,7 @@ Hosts:
 
     Regions:
     -
-      name: "sleep"
+      region: "sleep"
       hash: 0x536c798f
       runtime (s): 275.837
       sync-runtime (s): 276.56
@@ -850,7 +850,7 @@ Hosts:
       count: 5500
       requested-online-frequency: 1000000000.000000
     -
-      name: "stream-0.35-dgemm-1.80"
+      region: "stream-0.35-dgemm-1.80"
       hash: 0x76244144
       runtime (s): 29.1273
       sync-runtime (s): 29.0865
@@ -871,7 +871,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1100000000.000000
     -
-      name: "stream-0.40-dgemm-1.20"
+      region: "stream-0.40-dgemm-1.20"
       hash: 0x0db5f27a
       runtime (s): 28.4557
       sync-runtime (s): 28.3904
@@ -892,7 +892,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1000000000.000000
     -
-      name: "stream-0.45-dgemm-0.60"
+      region: "stream-0.45-dgemm-0.60"
       hash: 0x9851de3f
       runtime (s): 27.2367
       sync-runtime (s): 27.1905
@@ -913,7 +913,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1000000000.000000
     -
-      name: "stream-0.30-dgemm-2.40"
+      region: "stream-0.30-dgemm-2.40"
       hash: 0xce08ae24
       runtime (s): 25.8974
       sync-runtime (s): 25.8082
@@ -934,7 +934,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1300000000.000000
     -
-      name: "stream-0.50-dgemm-0.00"
+      region: "stream-0.50-dgemm-0.00"
       hash: 0x3a6c47e3
       runtime (s): 25.2686
       sync-runtime (s): 25.2523
@@ -955,7 +955,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1000000000.000000
     -
-      name: "stream-0.25-dgemm-3.00"
+      region: "stream-0.25-dgemm-3.00"
       hash: 0x3c627f60
       runtime (s): 24.5979
       sync-runtime (s): 24.5117
@@ -976,7 +976,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1400000000.000000
     -
-      name: "stream-0.20-dgemm-3.60"
+      region: "stream-0.20-dgemm-3.60"
       hash: 0xf9d11bbd
       runtime (s): 23.2737
       sync-runtime (s): 23.2129
@@ -997,7 +997,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1500000000.000000
     -
-      name: "stream-0.15-dgemm-4.20"
+      region: "stream-0.15-dgemm-4.20"
       hash: 0xaddfa74f
       runtime (s): 22.3063
       sync-runtime (s): 22.1766
@@ -1018,7 +1018,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1500000000.000000
     -
-      name: "stream-0.10-dgemm-4.80"
+      region: "stream-0.10-dgemm-4.80"
       hash: 0xe50a9187
       runtime (s): 20.3869
       sync-runtime (s): 20.3101
@@ -1039,7 +1039,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1600000000.000000
     -
-      name: "stream-0.05-dgemm-5.40"
+      region: "stream-0.05-dgemm-5.40"
       hash: 0xe1242325
       runtime (s): 19.2864
       sync-runtime (s): 19.1575
@@ -1060,7 +1060,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1700000000.000000
     -
-      name: "stream-0.00-dgemm-6.00"
+      region: "stream-0.00-dgemm-6.00"
       hash: 0xaf4cafa3
       runtime (s): 18.6718
       sync-runtime (s): 18.6886
@@ -1081,7 +1081,7 @@ Hosts:
       count: 500
       requested-online-frequency: 1700000000.000000
     -
-      name: "with some spaces"
+      region: "with some spaces"
       hash: 0xaf000fa3
       runtime (s): 17.8807
       sync-runtime (s): 17.8327
@@ -1109,7 +1109,7 @@ Hosts:
       power (W): 203.102
       frequency (%): 95.0914
       frequency (Hz): 1.99692e+09
-      time-hint-network (s): 0
+      time-hint-network (s): 12
       time-hint-ignore (s): 0
       time-hint-compute (s): 0
       time-hint-memory (s): 0
@@ -1128,7 +1128,7 @@ Hosts:
       power (W): 0
       frequency (%): 0
       frequency (Hz): 0
-      time-hint-network (s): 0
+      time-hint-network (s): 14
       time-hint-compute (s): 0
       time-hint-memory (s): 0
       time-hint-io (s): 0
@@ -1146,7 +1146,7 @@ Hosts:
       power (W): 158.718
       frequency (%): 0
       frequency (Hz): 0
-      time-hint-network (s): 0
+      time-hint-network (s): 15
       time-hint-compute (s): 0
       time-hint-memory (s): 0
       time-hint-io (s): 0
@@ -1209,13 +1209,10 @@ class TestIO(unittest.TestCase):
         dgemm_region = report.raw_region(host_names[0], dgemm_region_name)
         self.assertLess(stream_region['requested-online-frequency'], dgemm_region['requested-online-frequency'])
 
-        raw = report.raw_report()
-        meta = report.meta_data()
         hosts = report.host_names()
         region_names = report.region_names(hosts[0])
         region = report.raw_region(hosts[1], region_names[1])
         region_runtime = region['runtime (s)']
-        count = region['count']
         epoch = report.raw_epoch(hosts[0])
         runtime = epoch['runtime (s)']
         self.assertEqual(0, runtime)
@@ -1292,7 +1289,7 @@ class TestIO(unittest.TestCase):
 
         outdir = cwd
         rel_h5 = geopmpy.io.RawReportCollection.make_h5_name(rel_set, outdir)
-        abs_h5 = geopmpy.io.RawReportCollection.make_h5_name(rel_set, outdir)
+        abs_h5 = geopmpy.io.RawReportCollection.make_h5_name(abs_set, outdir)
         self.assertEqual(rel_h5, abs_h5)
 
         for ff in basenames:
@@ -1346,7 +1343,7 @@ class TestIO(unittest.TestCase):
                               'power (W)': 158.718,
                               'frequency (%)': 0,
                               'frequency (Hz)': 0,
-                              'time-hint-network (s)': 0,
+                              'time-hint-network (s)': 15,
                               'time-hint-compute (s)': 0,
                               'time-hint-memory (s)': 0,
                               'time-hint-io (s)': 0,
@@ -1376,7 +1373,7 @@ class TestIO(unittest.TestCase):
                                 'power (W)': 0,
                                 'frequency (%)': 0,
                                 'frequency (Hz)': 0,
-                                'time-hint-network (s)': 0,
+                                'time-hint-network (s)': 14,
                                 'time-hint-compute (s)': 0,
                                 'time-hint-memory (s)': 0,
                                 'time-hint-io (s)': 0,
@@ -1405,7 +1402,7 @@ class TestIO(unittest.TestCase):
                             'power (W)': 170.209,
                             'frequency (%)': 97.2362,
                             'frequency (Hz)': 2.04196e+09,
-                            'time-hint-network (s)': 0,
+                            'time-hint-network (s)': 12,
                             'time-hint-ignore (s)': 0,
                             'time-hint-compute (s)': 0,
                             'time-hint-memory (s)': 0,
@@ -1422,10 +1419,6 @@ class TestIO(unittest.TestCase):
 
 
 class TestConvert(unittest.TestCase):
-    def setUp(self):
-        pass
-    def tearDown(self):
-        pass
     def test_convert(self):
         new_report = geopmpy.update_report.update_report_str(test_report_data_old)
         line_number = 1

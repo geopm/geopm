@@ -270,7 +270,7 @@ class IndexTracker(object):
         If so, the count is incremented.  Otherwise it is stored as 1.
 
         Args:
-            run_output: The Report or Trace object to be tracked.
+            run_output: The Trace object to be tracked.
         """
         index = (run_output.get_version(), run_output.get_start_time(),
                  os.path.basename(run_output.get_profile_name()),
@@ -294,7 +294,7 @@ class IndexTracker(object):
         'static_policy', 'power_balancing', 'mr-fusion2', 1)
 
         Args:
-            run_output: The Report or Trace object to produce an index tuple for.
+            run_output: The Trace object to produce an index tuple for.
 
         Returns:
             Tuple: This will contain all of the index fields needed to uniquely identify this data (including the
@@ -314,12 +314,11 @@ class IndexTracker(object):
         data, and return a unique muiltiindex tuple to identify this
         data in a DataFrame.
 
-        For Report objects, the region name is appended to the end of
-        the tuple.  For Trace objects, the integer index of the
-        DataFrame is appended to the tuple.
+        For Trace objects, the integer index of the DataFrame is
+        appended to the tuple.
 
         Args:
-            run_output: The Report or Trace object to produce an index
+            run_output: The Trace object to produce an index
                         tuple for.
 
         Returns:
@@ -331,14 +330,10 @@ class IndexTracker(object):
         itl = []
         index_names = ['version', 'start_time', 'name', 'agent', 'node_name', 'iteration']
 
-        if type(run_output) is Report:
-            index_names.append('region')
-            for region in run_output:
-                itl.append(self._get_base_index(run_output) + (region, ))  # Append region to the existing tuple
-        else:  # Trace file index
-            index_names.append('index')
-            for ii in range(len(run_output.get_df())):  # Append the integer index to the DataFrame index
-                itl.append(self._get_base_index(run_output) + (ii, ))
+        # Trace file index
+        index_names.append('index')
+        for ii in range(len(run_output.get_df())):  # Append the integer index to the DataFrame index
+            itl.append(self._get_base_index(run_output) + (ii, ))
 
         mi = pandas.MultiIndex.from_tuples(itl, names=index_names)
         return mi
@@ -836,7 +831,7 @@ class RawReport(object):
         return result
 
     def host_names(self):
-        return self._raw_dict['Hosts'].keys()
+        return list(self._raw_dict['Hosts'].keys())
 
     def region_names(self, host_name):
         return [rr['region'] for rr in self._raw_dict['Hosts'][host_name]['Regions']]
