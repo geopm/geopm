@@ -38,6 +38,8 @@ geopm(7) -- global extensible open power manager
 
 **geopmlaunch(1)**: Application launch wrapper
 
+**geopmreport(7)**: Reports produced by launch
+
 ## APPLICATION PROFILING
 
 **geopm_prof_c(3)**: Application profiling interfaces
@@ -200,29 +202,11 @@ details on the behavior of the agents and their policies.  See
 `--geopm-trace-endpoint-policy` options.
 
 ## INTERPRETING THE REPORT
+
 If the `GEOPM_REPORT` environment variable is set then a report will
-be generated.  There is one report file generated for each run.  This
-file has a header that describes the GEOPM version, job start time,
-profile name (job description), and agent that were used during the run.
-This is followed by a breakdown first by compute node host name and
-then by each compute region.  The report file gives information about
-runtime and energy use for each identified code region. Additionally,
-time spent in calls to MPI is reported.  There may be Agent specific
-report modifications see **geopm::Agent(3)** man page for more information.
-
-It is important to note that per-region accounting in the report
-includes only time spent in the region by all MPI ranks concurrently
-on each compute node.  During the time when two ranks on a compute
-node are not in the same marked region, the data collected is
-attributed to the "unmarked" code region.  See the
-`GEOPM_REGION_BARRIER` environment variable for more information about
-debugging issues related region synchronicity.  In the future the
-scope of this requirement may change from all ranks on a node to all
-ranks running within the same domain of control.
-
-The hint that is used when a user marked region is created may influence
-the accounting of time spent in MPI.  For more information, please see
-see **geopm_prof_c(3)**.
+be generated.  There is one report file generated for each run.  The
+format of the report, the data contained in it, and the controller's
+sampling are described in **geopm_report(7)**.
 
 ## INTERPRETING THE TRACE
 If the `GEOPM_TRACE` environment variable is set (see below) then a
@@ -377,6 +361,7 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation. All rights 
 **geopm_agent_monitor(7)**,
 **geopm_agent_power_balancer(7)**,
 **geopm_agent_power_governor(7)**,
+**geopm_report(7)**,
 **geopm_agent_c(3)**,
 **geopm_ctl_c(3)**,
 **geopm_error(3)**,
