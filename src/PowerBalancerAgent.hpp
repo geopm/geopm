@@ -45,6 +45,7 @@ namespace geopm
     class PlatformTopo;
     class PowerBalancer;
     class PowerGovernor;
+    class SampleAggregator;
 
     class PowerBalancerAgent : public Agent
     {
@@ -113,14 +114,6 @@ namespace geopm
                 M_NUM_SAMPLE,
             };
 
-            enum m_plat_signal_e {
-                M_PLAT_SIGNAL_EPOCH_RUNTIME,
-                M_PLAT_SIGNAL_EPOCH_COUNT,
-                M_PLAT_SIGNAL_EPOCH_RUNTIME_NETWORK,
-                M_PLAT_SIGNAL_EPOCH_RUNTIME_IGNORE,
-                M_PLAT_NUM_SIGNAL,
-            };
-
             enum m_trace_sample_e {
                 M_TRACE_SAMPLE_POLICY_POWER_PACKAGE_LIMIT_TOTAL,
                 M_TRACE_SAMPLE_POLICY_STEP_COUNT,
@@ -155,6 +148,7 @@ namespace geopm
 
             PowerBalancerAgent(PlatformIO &platform_io,
                                const PlatformTopo &platform_topo,
+                               std::shared_ptr<SampleAggregator> sample_agg,
                                std::vector<std::shared_ptr<PowerBalancer> > power_balancer,
                                double min_power,
                                double max_power);
@@ -223,6 +217,7 @@ namespace geopm
 
             PlatformIO &m_platform_io;
             const PlatformTopo &m_platform_topo;
+            std::shared_ptr<SampleAggregator> m_sample_agg;
             std::shared_ptr<Role> m_role;
             std::vector<std::shared_ptr<PowerBalancer> > m_power_balancer;
             struct geopm_time_s m_last_wait;
@@ -316,6 +311,7 @@ namespace geopm
                 public:
                     LeafRole(PlatformIO &platform_io,
                              const PlatformTopo &platform_topo,
+                             std::shared_ptr<SampleAggregator> sample_agg,
                              std::vector<std::shared_ptr<PowerBalancer> > power_balancer,
                              double min_power,
                              double max_power,
@@ -332,9 +328,13 @@ namespace geopm
                     bool are_steps_complete(void);
                     PlatformIO &m_platform_io;
                     const PlatformTopo &m_platform_topo;
+                    std::shared_ptr<SampleAggregator> m_sample_agg;
                     /// Number of power control domains
                     int m_num_domain;
-                    std::vector<std::vector<int> > m_pio_idx;
+                    std::vector<int> m_count_pio_idx;
+                    std::vector<int> m_time_agg_idx;
+                    std::vector<int> m_network_agg_idx;
+                    std::vector<int> m_ignore_agg_idx;
                     std::vector<std::shared_ptr<PowerBalancer> > m_power_balancer;
                     const double M_STABILITY_FACTOR;
                     struct m_package_s {
