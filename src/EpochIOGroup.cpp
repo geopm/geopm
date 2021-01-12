@@ -34,6 +34,8 @@
 
 #include "EpochIOGroup.hpp"
 
+#include <cmath>
+
 #include "PlatformTopo.hpp"
 #include "ApplicationSampler.hpp"
 #include "Helper.hpp"
@@ -56,7 +58,7 @@ namespace geopm
         : m_topo(topo)
         , m_app(app)
         , m_num_cpu(m_topo.num_domain(GEOPM_DOMAIN_CPU))
-        , m_per_cpu_count(m_num_cpu, 0)
+        , m_per_cpu_count(m_num_cpu, NAN)
         , m_is_batch_read(false)
         , m_is_initialized(false)
     {
@@ -72,7 +74,10 @@ namespace geopm
     {
         int cpu_idx = 0;
         for (const auto &proc : m_app.per_cpu_process()) {
-            m_process_cpu_map[proc].insert(cpu_idx);
+            if (proc != -1) {
+                m_process_cpu_map[proc].insert(cpu_idx);
+                m_per_cpu_count[cpu_idx] = 0;
+            }
             ++cpu_idx;
         }
         m_is_initialized = true;
@@ -158,7 +163,7 @@ namespace geopm
             if (record.event == EVENT_EPOCH_COUNT) {
                 const auto &cpu_set = m_process_cpu_map.at(record.process);
                 for (const auto &cpu_idx : cpu_set) {
-                    m_per_cpu_count[cpu_idx] = (int)record.signal;
+                    m_per_cpu_count[cpu_idx] = (double)record.signal;
                 }
             }
         }
