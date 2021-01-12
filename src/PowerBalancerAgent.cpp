@@ -42,6 +42,7 @@
 #include "Exception.hpp"
 #include "Agg.hpp"
 #include "Helper.hpp"
+#include "SampleAggregator.hpp"
 #include "config.h"
 
 namespace geopm
@@ -136,6 +137,7 @@ namespace geopm
 
     PowerBalancerAgent::LeafRole::LeafRole(PlatformIO &platform_io,
                                            const PlatformTopo &platform_topo,
+                                           std::shared_ptr<SampleAggregator> sample_agg,
                                            std::vector<std::shared_ptr<PowerBalancer> > power_balancer,
                                            double min_power,
                                            double max_power,
@@ -145,8 +147,12 @@ namespace geopm
         : Role(num_node)
         , m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
+        , m_sample_agg(sample_agg)
         , m_num_domain(m_platform_topo.num_domain(GEOPM_DOMAIN_PACKAGE))
-        , m_pio_idx(m_num_domain, std::vector<int>(M_PLAT_NUM_SIGNAL, -1))
+        , m_count_pio_idx(m_num_domain, -1)
+        , m_time_agg_idx(m_num_domain, -1)
+        , m_network_agg_idx(m_num_domain, -1)
+        , m_ignore_agg_idx(m_num_domain, -1)
         , m_power_balancer(power_balancer)
         , M_STABILITY_FACTOR(3.0)
         , m_package(m_num_domain, m_package_s {0, 0.0, NAN, 0.0, 0.0, false, true, -1})
@@ -169,20 +175,20 @@ namespace geopm
 
     void PowerBalancerAgent::LeafRole::init_platform_io(void)
     {
-        // Setup signals
+        // Setup signals and controls
         for (int pkg_idx = 0; pkg_idx != m_num_domain; ++pkg_idx) {
-            m_pio_idx[pkg_idx][M_PLAT_SIGNAL_EPOCH_RUNTIME] =
-                m_platform_io.push_signal("EPOCH_RUNTIME",
-                                          GEOPM_DOMAIN_PACKAGE, pkg_idx);
-            m_pio_idx[pkg_idx][M_PLAT_SIGNAL_EPOCH_COUNT] =
+            m_count_pio_idx[pkg_idx] =
                 m_platform_io.push_signal("EPOCH_COUNT",
                                           GEOPM_DOMAIN_PACKAGE, pkg_idx);
-            m_pio_idx[pkg_idx][M_PLAT_SIGNAL_EPOCH_RUNTIME_NETWORK] =
-                m_platform_io.push_signal("EPOCH_RUNTIME_NETWORK",
-                                          GEOPM_DOMAIN_PACKAGE, pkg_idx);
-            m_pio_idx[pkg_idx][M_PLAT_SIGNAL_EPOCH_RUNTIME_IGNORE] =
-                m_platform_io.push_signal("EPOCH_RUNTIME_IGNORE",
-                                          GEOPM_DOMAIN_PACKAGE, pkg_idx);
+            m_time_agg_idx[pkg_idx] =
+                m_sample_agg->push_signal_total("TIME",
+                                                GEOPM_DOMAIN_PACKAGE, pkg_idx);
+            m_network_agg_idx[pkg_idx] =
+                m_sample_agg->push_signal_total("TIME_HINT_NETWORK",
+                                                GEOPM_DOMAIN_PACKAGE, pkg_idx);
+            m_ignore_agg_idx[pkg_idx] =
+                m_sample_agg->push_signal_total("TIME_HINT_IGNORE",
+                                                GEOPM_DOMAIN_PACKAGE, pkg_idx);
             m_package[pkg_idx].pio_power_idx =
                 m_platform_io.push_control("POWER_PACKAGE_LIMIT",
                                            GEOPM_DOMAIN_PACKAGE, pkg_idx);
@@ -531,23 +537,18 @@ namespace geopm
 
     void PowerBalancerAgent::MeasureRuntimeStep::sample_platform(PowerBalancerAgent::LeafRole &role) const
     {
-        const int COUNT = PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_COUNT;
-        const int TOTAL = PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_RUNTIME;
-        const int NETWORK = PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_RUNTIME_NETWORK;
-        const int IGNORE = PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_RUNTIME_IGNORE;
-
         for (int pkg_idx = 0; pkg_idx < role.m_num_domain; ++pkg_idx) {
             auto &package = role.m_package[pkg_idx];
-            int epoch_count = role.m_platform_io.sample(role.m_pio_idx[pkg_idx][COUNT]);
+            int epoch_count = role.m_platform_io.sample(role.m_count_pio_idx[pkg_idx]);
             if (epoch_count > 1 &&
                 epoch_count != package.last_epoch_count &&
                 !package.is_step_complete) {
                 /// We wish to measure runtime that is a function of node
                 /// local optimizations only, and therefore uncorrelated
                 /// between compute nodes.
-                double total = role.m_platform_io.sample(role.m_pio_idx[pkg_idx][TOTAL]);
-                double network = role.m_platform_io.sample(role.m_pio_idx[pkg_idx][NETWORK]);
-                double ignore = role.m_platform_io.sample(role.m_pio_idx[pkg_idx][IGNORE]);
+                double total = role.m_sample_agg->sample_epoch_last(role.m_time_agg_idx[pkg_idx]);
+                double network = role.m_sample_agg->sample_epoch_last(role.m_network_agg_idx[pkg_idx]);
+                double ignore = role.m_sample_agg->sample_epoch_last(role.m_ignore_agg_idx[pkg_idx]);
                 double balanced_epoch_runtime =  total - network - ignore;
                 auto &balancer = role.m_power_balancer[pkg_idx];
                 package.is_step_complete = balancer->is_runtime_stable(balanced_epoch_runtime);
@@ -576,13 +577,8 @@ namespace geopm
 
     void PowerBalancerAgent::ReduceLimitStep::sample_platform(PowerBalancerAgent::LeafRole &role) const
     {
-        const int COUNT = PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_COUNT;
-        const int TOTAL = PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_RUNTIME;
-        const int NETWORK = PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_RUNTIME_NETWORK;
-        const int IGNORE = PowerBalancerAgent::M_PLAT_SIGNAL_EPOCH_RUNTIME_IGNORE;
-
         for (int pkg_idx = 0; pkg_idx != role.m_num_domain; ++pkg_idx) {
-            int epoch_count = role.m_platform_io.sample(role.m_pio_idx[pkg_idx][COUNT]);
+            int epoch_count = role.m_platform_io.sample(role.m_count_pio_idx[pkg_idx]);
             // If all of the ranks have observed a new epoch then update
             // the power_balancer.
             auto &package = role.m_package[pkg_idx];
@@ -593,9 +589,9 @@ namespace geopm
                 /// We wish to measure runtime that is a function of
                 /// node local optimizations only, and therefore
                 /// uncorrelated between compute nodes.
-                double total = role.m_platform_io.sample(role.m_pio_idx[pkg_idx][TOTAL]);
-                double network = role.m_platform_io.sample(role.m_pio_idx[pkg_idx][NETWORK]);
-                double ignore = role.m_platform_io.sample(role.m_pio_idx[pkg_idx][IGNORE]);
+                double total = role.m_sample_agg->sample_epoch_last(role.m_time_agg_idx[pkg_idx]);
+                double network = role.m_sample_agg->sample_epoch_last(role.m_network_agg_idx[pkg_idx]);
+                double ignore = role.m_sample_agg->sample_epoch_last(role.m_ignore_agg_idx[pkg_idx]);
                 double balanced_epoch_runtime =  total - network - ignore;
                 package.is_step_complete = package.is_out_of_bounds ||
                                            balancer->is_target_met(balanced_epoch_runtime);
@@ -610,6 +606,7 @@ namespace geopm
     PowerBalancerAgent::PowerBalancerAgent()
         : PowerBalancerAgent(platform_io(),
                              platform_topo(),
+                             SampleAggregator::make_unique(),
                              {},
                              platform_io().read_signal("POWER_PACKAGE_MIN", GEOPM_DOMAIN_PACKAGE, 0),
                              platform_io().read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, 0))
@@ -619,11 +616,13 @@ namespace geopm
 
     PowerBalancerAgent::PowerBalancerAgent(PlatformIO &platform_io,
                                            const PlatformTopo &platform_topo,
+                                           std::shared_ptr<SampleAggregator> sample_agg,
                                            std::vector<std::shared_ptr<PowerBalancer> > power_balancer,
                                            double min_power,
                                            double max_power)
         : m_platform_io(platform_io)
         , m_platform_topo(platform_topo)
+        , m_sample_agg(sample_agg)
         , m_role(nullptr)
         , m_power_balancer(power_balancer)
         , m_last_wait(time_zero())
@@ -648,6 +647,7 @@ namespace geopm
         if (level == 0) {
             m_role = std::make_shared<LeafRole>(m_platform_io,
                                                 m_platform_topo,
+                                                m_sample_agg,
                                                 m_power_balancer,
                                                 M_MIN_PKG_POWER_SETTING,
                                                 M_MAX_PKG_POWER_SETTING,
