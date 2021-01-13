@@ -33,10 +33,15 @@
 #ifndef HELPER_HPP_INCLUDE
 #define HELPER_HPP_INCLUDE
 
+#include <config.h>
+
 #include <string>
 #include <memory>
 #include <utility>
 #include <vector>
+#include <typeinfo>
+#include <cxxabi.h>
+#include <iostream>
 
 namespace geopm
 {
@@ -139,6 +144,23 @@ namespace geopm
     ///        false sharing between threads.
     /// @todo  Replace with C++17 standard library equivalent.
     static constexpr int hardware_destructive_interference_size = 64;
+
+    /// @brief Returns a readable type name for the given object.  This
+    ///        method can be used with (*this) to simplify error messages
+    ///        inside classes.
+    template <class T>
+    std::string class_name(const T &t)
+    {
+        int status = 0;
+        char *name = abi::__cxa_demangle(typeid(t).name(), nullptr, 0, &status);
+        if (nullptr == name || status != 0) {
+#ifdef GEOPM_DEBUG
+            std::cerr << "<geopm> Warning: Failed to demangle name." << std::endl;
+#endif
+            name = "UnknownType";
+        }
+        return std::string(name);
+    }
 }
 
 #endif
