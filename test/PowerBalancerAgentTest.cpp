@@ -38,6 +38,7 @@
 #include "MockPowerBalancer.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
+#include "MockSampleAggregator.hpp"
 #include "PowerBalancerAgent.hpp"
 #include "Helper.hpp"
 #include "geopm_test.hpp"
@@ -71,6 +72,7 @@ class PowerBalancerAgentTest : public ::testing::Test
 
         MockPlatformIO m_platform_io;
         MockPlatformTopo m_platform_topo;
+        std::shared_ptr<MockSampleAggregator> m_sample_agg;
         std::vector<std::shared_ptr<MockPowerBalancer> > m_power_bal;
         std::unique_ptr<PowerBalancerAgent> m_agent;
 
@@ -84,6 +86,7 @@ class PowerBalancerAgentTest : public ::testing::Test
 
 void PowerBalancerAgentTest::SetUp()
 {
+    m_sample_agg = std::make_shared<MockSampleAggregator>();
     for (int i = 0; i < M_NUM_PKGS; ++i) {
         m_power_bal.push_back(std::make_shared<MockPowerBalancer>());
     }
@@ -103,41 +106,10 @@ void PowerBalancerAgentTest::SetUp()
     std::vector<std::shared_ptr<PowerBalancer> >power_bal_base(m_power_bal.size());
     std::copy(m_power_bal.begin(), m_power_bal.end(), power_bal_base.begin());
     m_agent = geopm::make_unique<PowerBalancerAgent>(m_platform_io, m_platform_topo,
+                                                     m_sample_agg,
                                                      power_bal_base,
                                                      M_POWER_PACKAGE_MIN,
                                                      M_POWER_PACKAGE_MAX);
-}
-
-TEST_F(PowerBalancerAgentTest, power_balancer_agent)
-{
-    const std::vector<std::string> exp_pol_names = {"POWER_PACKAGE_LIMIT_TOTAL",
-                                                    "STEP_COUNT",
-                                                    "MAX_EPOCH_RUNTIME",
-                                                    "POWER_SLACK"};
-    const std::vector<std::string> exp_smp_names = {"STEP_COUNT",
-                                                    "MAX_EPOCH_RUNTIME",
-                                                    "SUM_POWER_SLACK",
-                                                    "MIN_POWER_HEADROOM"};
-
-    EXPECT_EQ("power_balancer", m_agent->plugin_name());
-    EXPECT_EQ(exp_pol_names, m_agent->policy_names());
-    EXPECT_EQ(exp_smp_names, m_agent->sample_names());
-    m_agent->report_header();
-    m_agent->report_host();
-    m_agent->report_region();
-    m_agent->wait();
-
-    // check that single-node balancer can be initialized
-    EXPECT_CALL(m_platform_topo, num_domain(_)).Times(AtLeast(1));
-    for (int pkg_idx = 0; pkg_idx != M_NUM_PKGS; ++pkg_idx) {
-        EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME", GEOPM_DOMAIN_PACKAGE, pkg_idx));
-        EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", GEOPM_DOMAIN_PACKAGE, pkg_idx));
-        EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_NETWORK", GEOPM_DOMAIN_PACKAGE, pkg_idx));
-        EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_IGNORE", GEOPM_DOMAIN_PACKAGE, pkg_idx));
-        EXPECT_CALL(m_platform_io, push_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_PACKAGE, pkg_idx));
-    }
-    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_TIME_WINDOW", GEOPM_DOMAIN_BOARD, 0, M_TIME_WINDOW));
-    m_agent->init(0, {}, true);
 }
 
 TEST_F(PowerBalancerAgentTest, tree_root_agent)
@@ -391,234 +363,6 @@ TEST_F(PowerBalancerAgentTest, tree_agent)
     desc_ret = m_agent->do_send_policy();
     EXPECT_EQ(exp_descend_ret, desc_ret);
     EXPECT_THAT(out_policy, ContainerEq(exp_out_policy));
-    }
-}
-
-TEST_F(PowerBalancerAgentTest, leaf_agent)
-{
-    const bool IS_ROOT = false;
-    int level = 0;
-    int num_children = 1;
-    int counter = 0;
-    std::vector<double> trace_vals(7, NAN);
-    std::vector<double> exp_trace_vals(7, NAN);
-    const std::vector<std::string> trace_cols {
-        "POLICY_POWER_PACKAGE_LIMIT_TOTAL",
-        "POLICY_STEP_COUNT",
-        "POLICY_MAX_EPOCH_RUNTIME",
-        "POLICY_POWER_SLACK",
-        "EPOCH_RUNTIME",
-        "POWER_LIMIT",
-        "ENFORCED_POWER_LIMIT"};
-    const std::vector<std::function<std::string(double)> > trace_formats {
-        geopm::string_format_double,
-        PowerBalancerAgent::format_step_count,
-        geopm::string_format_double,
-        geopm::string_format_double,
-        geopm::string_format_double,
-        geopm::string_format_double,
-        geopm::string_format_double};
-
-    std::vector<double> epoch_rt_mpi = {0.50, 0.75};
-    std::vector<double> epoch_rt_ignore = {0.25, 0.27};
-    std::vector<double> epoch_rt = {1.0, 1.01};
-
-    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
-        .WillOnce(Return(M_NUM_PKGS));
-    EXPECT_CALL(m_platform_io, read_signal("POWER_PACKAGE_MAX", GEOPM_DOMAIN_PACKAGE, _))
-        .WillOnce(Return(M_POWER_PACKAGE_MAX));
-    EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Return(M_SIGNAL_EPOCH_COUNT));
-    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Return(M_SIGNAL_EPOCH_RUNTIME));
-    EXPECT_CALL(m_platform_io, sample(M_SIGNAL_EPOCH_COUNT))
-        .WillRepeatedly(InvokeWithoutArgs([&counter]()
-                {
-                    return (double) ++counter;
-                }));
-    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_NETWORK", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Return(M_SIGNAL_EPOCH_RUNTIME_NETWORK));
-    EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_IGNORE", GEOPM_DOMAIN_BOARD, 0))
-        .WillOnce(Return(M_SIGNAL_EPOCH_RUNTIME_IGNORE));
-
-    Sequence e_rt_pio_seq;
-    for (size_t x = 0; x < epoch_rt.size(); ++x) {
-        EXPECT_CALL(m_platform_io, sample(M_SIGNAL_EPOCH_RUNTIME))
-            .InSequence(e_rt_pio_seq)
-            .WillOnce(Return(epoch_rt[x]));
-    }
-    Sequence mpi_rt_pio_seq;
-    for (size_t x = 0; x < epoch_rt_mpi.size(); ++x) {
-        EXPECT_CALL(m_platform_io, sample(M_SIGNAL_EPOCH_RUNTIME_NETWORK))
-            .InSequence(mpi_rt_pio_seq)
-            .WillOnce(Return(epoch_rt_mpi[x]));
-    }
-    Sequence i_rt_pio_seq;
-    for (size_t x = 0; x < epoch_rt_ignore.size(); ++x) {
-        EXPECT_CALL(m_platform_io, sample(M_SIGNAL_EPOCH_RUNTIME_IGNORE))
-            .InSequence(i_rt_pio_seq)
-            .WillOnce(Return(epoch_rt_ignore[x]));
-    }
-
-   double actual_limit = 299.0 / M_NUM_PKGS;
-#if 0
-    EXPECT_CALL(*m_power_gov, init_platform_io());
-    EXPECT_CALL(*m_power_gov, sample_platform())
-        .Times(4);
-     EXPECT_CALL(*m_power_gov, adjust_platform(300.0, _))
-        .Times(4)
-        .WillRepeatedly(SetArgReferee<1>(actual_limit));
-    EXPECT_CALL(*m_power_gov, do_write_batch())
-        .Times(4)
-        .WillRepeatedly(Return(true));
-#endif
-    for (auto &power_bal : m_power_bal) {
-        EXPECT_CALL(*power_bal, power_limit_adjusted(actual_limit))
-            .Times(4);
-
-        EXPECT_CALL(*power_bal, target_runtime(epoch_rt[0]));
-        EXPECT_CALL(*power_bal, calculate_runtime_sample()).Times(2);
-        EXPECT_CALL(*power_bal, runtime_sample())
-            .WillRepeatedly(Return(epoch_rt[0]));
-        double exp_in = epoch_rt[0] - epoch_rt_mpi[0] - epoch_rt_ignore[0];
-        EXPECT_CALL(*power_bal, is_runtime_stable(exp_in))
-            .WillOnce(Return(true));
-        exp_in = epoch_rt[1] - epoch_rt_mpi[1] - epoch_rt_ignore[1];
-        EXPECT_CALL(*power_bal, is_target_met(exp_in))
-            .WillRepeatedly(Return(true));
-        EXPECT_CALL(*power_bal, power_slack())
-            .WillRepeatedly(Return(0.0));
-        EXPECT_CALL(*power_bal, power_cap(300.0))
-            .Times(2);
-        EXPECT_CALL(*power_bal, power_cap())
-            .WillRepeatedly(Return(300.0));
-        EXPECT_CALL(*power_bal, power_limit())
-            .WillRepeatedly(Return(300.0));
-        EXPECT_CALL(*power_bal, power_slack());
-    }
-
-    EXPECT_CALL(m_platform_topo, num_domain(_)).Times(AtLeast(1));
-    for (int pkg_idx = 0; pkg_idx != M_NUM_PKGS; ++pkg_idx) {
-        EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME", GEOPM_DOMAIN_PACKAGE, pkg_idx));
-        EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", GEOPM_DOMAIN_PACKAGE, pkg_idx));
-        EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_NETWORK", GEOPM_DOMAIN_PACKAGE, pkg_idx));
-        EXPECT_CALL(m_platform_io, push_signal("EPOCH_RUNTIME_IGNORE", GEOPM_DOMAIN_PACKAGE, pkg_idx));
-        EXPECT_CALL(m_platform_io, push_control("POWER_PACKAGE_LIMIT", GEOPM_DOMAIN_PACKAGE, pkg_idx));
-    }
-    EXPECT_CALL(m_platform_io, write_control("POWER_PACKAGE_TIME_WINDOW", GEOPM_DOMAIN_BOARD, 0, M_TIME_WINDOW));
-    m_agent->init(level, M_FAN_IN, IS_ROOT);
-
-    EXPECT_EQ(trace_cols, m_agent->trace_names());
-
-    auto expect_it = trace_formats.begin();
-    for (const auto &actual_it : m_agent->trace_formats()) {
-        EXPECT_EQ(is_format_double(*expect_it), is_format_double(actual_it));
-        EXPECT_EQ(is_format_float(*expect_it), is_format_float(actual_it));
-        EXPECT_EQ(is_format_integer(*expect_it), is_format_integer(actual_it));
-        EXPECT_EQ(is_format_hex(*expect_it), is_format_hex(actual_it));
-        EXPECT_EQ(is_format_raw64(*expect_it), is_format_raw64(actual_it));
-        ++expect_it;
-    }
-    auto fun = m_agent->trace_formats().at(1);
-
-    EXPECT_EQ("0-STEP_SEND_DOWN_LIMIT", fun(0));
-    EXPECT_EQ("0-STEP_MEASURE_RUNTIME", fun(1));
-    EXPECT_EQ("0-STEP_REDUCE_LIMIT", fun(2));
-    EXPECT_EQ("1-STEP_SEND_DOWN_LIMIT", fun(3));
-    EXPECT_EQ("1-STEP_MEASURE_RUNTIME", fun(4));
-    EXPECT_EQ("1-STEP_REDUCE_LIMIT", fun(5));
-
-    std::vector<double> in_policy {NAN, NAN, NAN, NAN};
-
-    std::vector<double> exp_out_sample;
-
-    std::vector<std::vector<double> > out_policy = std::vector<std::vector<double> >(num_children, {NAN, NAN, NAN, NAN});
-    std::vector<double> out_sample = {NAN, NAN, NAN, NAN};
-
-#ifdef GEOPM_DEBUG
-    std::vector<double> err_trace_vals, err_out_sample;
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->trace_values(err_trace_vals), GEOPM_ERROR_LOGIC, "values vector not correctly sized.");
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->adjust_platform({}), GEOPM_ERROR_LOGIC, "policy vectors are not correctly sized.");
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->sample_platform(err_out_sample), GEOPM_ERROR_LOGIC, "out_sample vector not correctly sized.");
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->split_policy(in_policy, out_policy), GEOPM_ERROR_LOGIC, "was called on non-tree agent");
-    GEOPM_EXPECT_THROW_MESSAGE(m_agent->aggregate_sample({}, out_sample), GEOPM_ERROR_LOGIC, "was called on non-tree agent");
-#endif
-
-    int ctl_step = 0;
-    double curr_cap = 300;
-    double curr_cnt = (double) ctl_step;
-    double curr_epc = 0.0;
-    double curr_slk = 0.0;
-    bool exp_adj_plat_ret = true;
-    bool exp_smp_plat_ret  = true;
-    bool adj_ret;
-    bool smp_ret;
-    /// M_STEP_SEND_DOWN_LIMIT
-    {
-    in_policy = {curr_cap, curr_cnt, curr_epc, curr_slk};
-    exp_out_sample = {(double)ctl_step, curr_epc, 0.0, 0.0};
-
-    m_agent->adjust_platform(in_policy);
-    adj_ret = m_agent->do_write_batch();
-    EXPECT_EQ(exp_adj_plat_ret, adj_ret);
-
-    m_agent->sample_platform(out_sample);
-    smp_ret = m_agent->do_send_sample();
-    EXPECT_EQ(exp_smp_plat_ret, smp_ret);
-    EXPECT_EQ(out_sample, exp_out_sample);
-    m_agent->trace_values(trace_vals);
-    }
-
-    ctl_step = 1;
-    curr_cnt = (double) ctl_step;
-    /// M_STEP_MEASURE_RUNTIME
-    {
-    in_policy = {0.0, curr_cnt, curr_epc, curr_slk};
-    curr_epc = epoch_rt[ctl_step - 1];
-    exp_out_sample = {(double)ctl_step, curr_epc, 0.0, 0.0};
-
-    m_agent->adjust_platform(in_policy);
-    adj_ret = m_agent->do_write_batch();
-    EXPECT_EQ(exp_adj_plat_ret, adj_ret);
-
-    m_agent->sample_platform(out_sample);
-    smp_ret = m_agent->do_send_sample();
-    EXPECT_EQ(exp_smp_plat_ret, smp_ret);
-    EXPECT_EQ(out_sample, exp_out_sample);
-    }
-
-    ctl_step = 2;
-    curr_cnt = (double) ctl_step;
-    /// M_STEP_REDUCE_LIMIT
-    {
-    in_policy = {0.0, curr_cnt, curr_epc, curr_slk};
-    exp_out_sample = {(double)ctl_step, curr_epc, 0.0, 350.0};
-
-    m_agent->adjust_platform(in_policy);
-    adj_ret = m_agent->do_write_batch();
-    EXPECT_EQ(exp_adj_plat_ret, adj_ret);
-
-    m_agent->sample_platform(out_sample);
-    smp_ret = m_agent->do_send_sample();
-    EXPECT_EQ(exp_smp_plat_ret, smp_ret);
-    EXPECT_EQ(out_sample, exp_out_sample);
-    }
-
-    ctl_step = 3;
-    curr_cnt = (double) ctl_step;
-    /// M_STEP_SEND_DOWN_LIMIT
-    {
-    in_policy = {0.0, curr_cnt, curr_epc, curr_slk};
-    exp_out_sample = {(double)ctl_step, curr_epc, 0.0, 350.0};
-
-    m_agent->adjust_platform(in_policy);
-    adj_ret = m_agent->do_write_batch();
-    EXPECT_EQ(exp_adj_plat_ret, adj_ret);
-
-    m_agent->sample_platform(out_sample);
-    smp_ret = m_agent->do_send_sample();
-    EXPECT_EQ(exp_smp_plat_ret, smp_ret);
-    EXPECT_EQ(out_sample, exp_out_sample);
     }
 }
 
