@@ -383,6 +383,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/PlatformTopoTest.ppc_num_domain \
               test/gtest_links/PlatformTopoTest.singleton_construction \
               test/gtest_links/PlatformTopoTest.call_c_wrappers \
+              test/gtest_links/PolicyTest.everything \
               test/gtest_links/PowerBalancerAgentTest.leaf_agent \
               test/gtest_links/PowerBalancerAgentTest.power_balancer_agent \
               test/gtest_links/PowerBalancerAgentTest.tree_agent \
@@ -650,6 +651,7 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/PlatformIOTest.cpp \
                           test/PlatformTopoTest.cpp \
                           test/ProcessEpochImpTest.cpp \
+                          test/PolicyTest.cpp \
                           test/PowerBalancerAgentTest.cpp \
                           test/PowerBalancerTest.cpp \
                           test/PowerGovernorAgentTest.cpp \
