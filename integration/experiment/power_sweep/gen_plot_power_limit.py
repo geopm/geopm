@@ -42,9 +42,12 @@ import matplotlib.cm as cm
 import numpy as np
 import sys
 import os
+import argparse
 
+from experiment import common_args
+from experiment import plotting
 
-def plot_lines(traces):
+def plot_lines(traces, label, analysis_dir):
     fig, axs = plt.subplots(2)
     fig.set_size_inches((20, 10))
 
@@ -61,10 +64,12 @@ def plot_lines(traces):
         pl1 = df['MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT-package-1']
         rt0 = df['EPOCH_RUNTIME-package-0'] - df['EPOCH_RUNTIME_NETWORK-package-0']
         rt1 = df['EPOCH_RUNTIME-package-1'] - df['EPOCH_RUNTIME_NETWORK-package-1']
+        plot_tgt = False
         try:
             tgt = df['POLICY_MAX_EPOCH_RUNTIME']
+            plot_tgt = True
         except:
-            raise RuntimeError('POLICY_MAX_EPOCH_RUNTIME missing from trace {}; use on balancer traces only.\n'.format(path))
+            sys.stdout.write('POLICY_MAX_EPOCH_RUNTIME missing from trace {}; data will be omitted from plot.\n'.format(path))
 
         color0 = colors[idx]
         color1 = colors[idx + 1]
@@ -80,14 +85,50 @@ def plot_lines(traces):
     axs[1].set_title('Per socket runtimes and target')
     axs[1].set_xlabel('Time (s)')
     axs[1].set_ylabel('Epoch duration (s)')
-    # draw target once on top of other lines
-    axs[1].plot(time, tgt, label='target')
+    if plot_tgt:
+        # draw target once on top of other lines
+        axs[1].plot(time, tgt, label='target')
     fig.legend(loc='lower right')
-    fig.savefig(os.path.join(os.path.dirname(traces[0]), 'balancer_power_limits.png'))
+    agent = ' '.join(traces[0].split('_')[1:3]).title()
+
+    fig.suptitle('{} - {}'.format(label, agent), fontsize=20)
+
+    dirname = os.path.dirname(traces[0])
+    if len(traces) == 1:
+        plot_name = traces[0].split('.')[0] # gadget_power_governor_330_0.trace-epb001
+        plot_name += '_' + traces[0].split('-')[1]
+    else:
+        plot_name = '_'.join(traces[0].split('_')[0:3]) # gadget_power_governor
+
+    outfile = os.path.join(analysis_dir, plot_name + '_power_and_runtime.png')
+    sys.stdout.write('Writing {}...\n'.format(outfile))
+
+    fig.savefig(outfile)
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        sys.stderr.write('Provide paths to trace file(s)')
-        sys.exit(1)
-    plot_lines(sys.argv[1:])
+    parser = argparse.ArgumentParser()
+    common_args.add_output_dir(parser)
+    common_args.add_label(parser)
+
+    parser.add_argument('--analysis-dir', dest='analysis_dir',
+                        action='store', default='analysis',
+                        help='directory for output analysis files')
+
+    # Positional arg for gathering all traces into a list
+    # Works for files listed explicitly, or with a glob pattern e.g. *trace*
+    parser.add_argument('tracepath', metavar='TRACE_PATH', nargs='+',
+                        action='store',
+                        help='path or glob pattern for trace files to analyze')
+
+    args, _ = parser.parse_known_args()
+
+    # see if paths are valid
+    for path in args.tracepath:
+        lp = os.path.join(args.output_dir, path)
+        if not (os.path.isfile(lp) and os.path.getsize(lp) > 0):
+            sys.stderr.write('<geopm> Error: No trace data found in {}\n'.format(lp))
+            sys.exit(1)
+
+    plot_lines(args.tracepath, args.label, args.analysis_dir)
+
