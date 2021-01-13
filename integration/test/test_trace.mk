@@ -29,33 +29,4 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-EXTRA_DIST += integration/test/check_trace.py \
-              integration/test/configure_test_template.sh \
-              integration/test/geopm_context.py \
-              integration/test/geopm_test_integration.py \
-              integration/test/geopm_test_launcher.py \
-              integration/test/geopm_test_loop.sh \
-              integration/test/__init__.py \
-              integration/test/__main__.py \
-              integration/test/README.md \
-              integration/test/short_region/plot_margin_sweep.py \
-              integration/test/test_plugin_static_policy.py \
-              integration/test/test_template.cpp.in \
-              integration/test/test_template.mk.in \
-              integration/test/test_template.py.in \
-              integration/test/util.py \
-              # end
-
-include integration/test/test_ee_short_region_slop.mk
-include integration/test/test_ee_timed_scaling_mix.mk
-include integration/test/test_enforce_policy.mk
-include integration/test/test_omp_outer_loop.mk
-include integration/test/test_profile_policy.mk
-include integration/test/test_scaling_region.mk
-include integration/test/test_timed_scaling_region.mk
-include integration/test/test_tutorial_base.mk
-include integration/test/test_frequency_hint_usage.mk
-include integration/test/test_epoch_inference.mk
-include integration/test/test_power_balancer.mk
-include integration/test/test_profile_overflow.mk
-include integration/test/test_trace.mk
+EXTRA_DIST += integration/test/test_trace.py
