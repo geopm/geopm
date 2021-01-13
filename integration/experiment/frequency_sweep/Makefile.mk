@@ -43,4 +43,5 @@ EXTRA_DIST += integration/experiment/frequency_sweep/__init__.py \
               integration/experiment/frequency_sweep/run_frequency_sweep_nasft.py \
               integration/experiment/frequency_sweep/run_frequency_sweep_nekbone.py \
               integration/experiment/frequency_sweep/run_frequency_sweep_pennant.py \
+              integration/experiment/frequency_sweep/run_frequency_sweep_wrf.py \
               # end
