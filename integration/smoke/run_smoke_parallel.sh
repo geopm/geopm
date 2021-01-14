@@ -137,12 +137,12 @@ function gen_sbatch {
     local EXP_ARGS=""
     if [ "${2}" == "power_sweep" ] ||
        [ "${2}" == "power_balancer_energy" ]; then
-        EXP_ARGS="--min-power=190 --max-power=230"
+        EXP_ARGS="--min-power=170 --max-power=250"
     elif [ "${2}" == "frequency_sweep" ] ||
          [ "${2}" == "barrier_frequency_sweep" ]; then
-        EXP_ARGS="--min-frequency=1.9e9 --max-frequency=2.0e9"
+        EXP_ARGS="--min-frequency=1.5e9 --max-frequency=2.1e9"
     elif [ "${2}" == "uncore_frequency_sweep" ]; then
-        EXP_ARGS="--min-frequency=1.9e9 --max-frequency=2.0e9 --min-uncore-frequency=2.1e9 --max-uncore-frequency=2.2e9"
+        EXP_ARGS="--min-frequency=1.9e9 --max-frequency=2.1e9 --min-uncore-frequency=2.1e9 --max-uncore-frequency=2.2e9"
     fi
 
     local SBATCH_NAME=${1}_${2}_${3}.sbatch
@@ -151,7 +151,7 @@ function gen_sbatch {
 #SBATCH -N ${NUM_NODES}
 #SBATCH -o %j.out
 #SBATCH -J ${1}_${2}
-#SBATCH -t 08:30:00
+#SBATCH -t 12:30:00
 ${SBATCH_QUEUE_LINE}
 ${SBATCH_ACCOUNT_LINE}
 ${GEOPM_SBATCH_EXTRA_LINES}
