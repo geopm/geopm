@@ -51,6 +51,7 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "monotone",
                     "writeable": false,
                     "description": "An always running, monotonically increasing counter that is incremented at a constant rate.  For use as a wall clock timer."
                 }
@@ -66,6 +67,7 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "monotone",
                     "writeable": false
                 }
             }
@@ -80,6 +82,7 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "monotone",
                     "writeable": false
                 }
             }
@@ -94,6 +97,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": false
                 },
                 "THERMAL_STATUS_LOG": {
@@ -102,6 +106,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "PROCHOT_EVENT": {
@@ -110,6 +115,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": false
                 },
                 "PROCHOT_LOG": {
@@ -118,6 +124,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "CRITICAL_TEMP_STATUS": {
@@ -126,6 +133,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": false
                 },
                 "CRITICAL_TEMP_LOG": {
@@ -134,6 +142,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "THERMAL_THRESH_1_STATUS": {
@@ -142,6 +151,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": false
                 },
                 "THERMAL_THRESH_1_LOG": {
@@ -150,6 +160,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "THERMAL_THRESH_2_STATUS": {
@@ -158,6 +169,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": false
                 },
                 "THERMAL_THRESH_2_LOG": {
@@ -166,6 +178,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "POWER_LIMIT_STATUS": {
@@ -174,6 +187,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": false
                 },
                 "POWER_NOTIFICATION_LOG": {
@@ -182,6 +196,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "DIGITAL_READOUT": {
@@ -191,6 +206,7 @@ namespace geopm
                     "units":     "celsius",
                     "scalar":    1.0,
                     "writeable": false,
+                    "behavior":  "variable",
                     "aggregation": "average"
                 },
                 "RESOLUTION": {
@@ -199,6 +215,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "celsius",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": false
                 },
                 "READING_VALID": {
@@ -207,6 +224,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": false
                 }
             }
@@ -221,6 +239,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": false
                 },
                 "TURBO_MODE_DISABLE": {
@@ -229,6 +248,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": false
                 }
             }
@@ -243,6 +263,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": false
                 },
                 "THERMAL_STATUS_LOG": {
@@ -251,6 +272,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "PROCHOT_EVENT": {
@@ -259,6 +281,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": false
                 },
                 "PROCHOT_LOG": {
@@ -267,6 +290,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "CRITICAL_TEMP_STATUS": {
@@ -275,6 +299,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": false
                 },
                 "CRITICAL_TEMP_LOG": {
@@ -283,6 +308,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "THERMAL_THRESH_1_STATUS": {
@@ -291,6 +317,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": false
                 },
                 "THERMAL_THRESH_1_LOG": {
@@ -299,6 +326,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "THERMAL_THRESH_2_STATUS": {
@@ -307,6 +335,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": false
                 },
                 "THERMAL_THRESH_2_LOG": {
@@ -315,6 +344,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "POWER_LIMIT_STATUS": {
@@ -323,6 +353,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": false
                 },
                 "POWER_NOTIFICATION_LOG": {
@@ -331,6 +362,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "DIGITAL_READOUT": {
@@ -339,6 +371,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "celsius",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": false,
                     "aggregation": "average"
                 }
@@ -354,6 +387,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "UMASK": {
@@ -362,6 +396,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "USR": {
@@ -370,6 +405,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "OS": {
@@ -378,6 +414,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EDGE": {
@@ -386,6 +423,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "PC": {
@@ -394,6 +432,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "INT": {
@@ -402,6 +441,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "ANYTHREAD": {
@@ -410,6 +450,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EN": {
@@ -418,6 +459,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "INV": {
@@ -426,6 +468,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "CMASK": {
@@ -434,6 +477,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 }
             }
@@ -448,6 +492,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "UMASK": {
@@ -456,6 +501,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "USR": {
@@ -464,6 +510,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "OS": {
@@ -472,6 +519,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EDGE": {
@@ -480,6 +528,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "PC": {
@@ -488,6 +537,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "INT": {
@@ -496,6 +546,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "ANYTHREAD": {
@@ -504,6 +555,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EN": {
@@ -512,6 +564,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "INV": {
@@ -520,6 +573,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "CMASK": {
@@ -528,6 +582,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 }
             }
@@ -542,6 +597,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "UMASK": {
@@ -550,6 +606,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "USR": {
@@ -558,6 +615,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "OS": {
@@ -566,6 +624,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EDGE": {
@@ -574,6 +633,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "PC": {
@@ -582,6 +642,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "INT": {
@@ -590,6 +651,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "ANYTHREAD": {
@@ -598,6 +660,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EN": {
@@ -606,6 +669,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "INV": {
@@ -614,6 +678,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "CMASK": {
@@ -622,6 +687,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 }
             }
@@ -636,6 +702,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "UMASK": {
@@ -644,6 +711,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "USR": {
@@ -652,6 +720,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "OS": {
@@ -660,6 +729,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EDGE": {
@@ -668,6 +738,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "PC": {
@@ -676,6 +747,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "INT": {
@@ -684,6 +756,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "ANYTHREAD": {
@@ -692,6 +765,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EN": {
@@ -700,6 +774,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "INV": {
@@ -708,6 +783,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "CMASK": {
@@ -716,6 +792,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 }
             }
@@ -730,6 +807,7 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "monotone",
                     "writeable": false,
                     "aggregation": "sum"
                 }
@@ -745,6 +823,7 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "monotone",
                     "writeable": false,
                     "aggregation": "sum"
                 }
@@ -760,6 +839,7 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "monotone",
                     "writeable": false,
                     "aggregation": "sum"
                 }
@@ -775,6 +855,7 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "monotone",
                     "writeable": false,
                     "aggregation": "sum"
                 }
@@ -790,6 +871,7 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "monotone",
                     "writeable": false,
                     "aggregation": "sum",
                     "description": "The count of the number of instructions executed."
@@ -806,6 +888,7 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "monotone",
                     "writeable": false,
                     "aggregation": "sum",
                     "description": "The count of the number of cycles while the logical processor is not in a halt state.  The count rate may change based on core frequency."
@@ -822,6 +905,7 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "monotone",
                     "writeable": false,
                     "aggregation": "sum",
                     "description": "The count of the number of cycles while the logical processor is not in a halt state and not in a stop-clock state.  The count rate is fixed at the TIMESTAMP_COUNT rate."
@@ -838,6 +922,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EN0_USR": {
@@ -846,6 +931,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EN0_PMI": {
@@ -854,6 +940,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EN1_OS": {
@@ -862,6 +949,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EN1_USR": {
@@ -870,6 +958,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EN1_PMI": {
@@ -878,6 +967,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EN2_OS": {
@@ -886,6 +976,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EN2_USR": {
@@ -894,6 +985,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EN2_PMI": {
@@ -902,6 +994,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 }
             }
@@ -916,6 +1009,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EN_PMC1": {
@@ -924,6 +1018,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EN_PMC2": {
@@ -932,6 +1027,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EN_PMC3": {
@@ -940,6 +1036,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EN_FIXED_CTR0": {
@@ -948,6 +1045,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EN_FIXED_CTR1": {
@@ -956,6 +1054,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "EN_FIXED_CTR2": {
@@ -964,6 +1063,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 }
             }
@@ -978,6 +1078,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "CLEAR_OVF_PMC1": {
@@ -986,6 +1087,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "CLEAR_OVF_PMC2": {
@@ -994,6 +1096,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "CLEAR_OVF_PMC3": {
@@ -1002,6 +1105,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "CLEAR_OVF_FIXED_CTR0": {
@@ -1010,6 +1114,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "CLEAR_OVF_FIXED_CTR1": {
@@ -1018,6 +1123,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 },
                 "CLEAR_OVF_FIXED_CTR2": {
@@ -1026,6 +1132,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "label",
                     "writeable": true
                 }
             }
