@@ -39,9 +39,11 @@
 #include "Exception.hpp"
 #include "MockPlatformTopo.hpp"
 #include "geopm_hash.h"
+#include "geopm_test.hpp"
 
 using geopm::DebugIOGroup;
 using geopm::Exception;
+using geopm::IOGroup;
 using testing::Return;
 using testing::NiceMock;
 
@@ -83,9 +85,12 @@ void DebugIOGroupTest::SetUp()
     ON_CALL(m_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .WillByDefault(Return(1));
 
-    m_group.register_signal("VAL_0", GEOPM_DOMAIN_CORE);
-    m_group.register_signal("VAL_1", GEOPM_DOMAIN_BOARD);
-    m_group.register_signal("VAL#", GEOPM_DOMAIN_CPU);
+    m_group.register_signal("VAL_0", GEOPM_DOMAIN_CORE,
+                            IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE);
+    m_group.register_signal("VAL_1", GEOPM_DOMAIN_BOARD,
+                            IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE);
+    m_group.register_signal("VAL#", GEOPM_DOMAIN_CPU,
+                            IOGroup::M_SIGNAL_BEHAVIOR_LABEL);
 }
 
 void DebugIOGroupTest::update_values(void)
@@ -100,17 +105,20 @@ TEST_F(DebugIOGroupTest, is_valid)
     EXPECT_FALSE(group.is_valid_signal("VAL_1"));
     EXPECT_FALSE(group.is_valid_signal("VAL#"));
     EXPECT_FALSE(group.is_valid_signal("BAD"));
-    group.register_signal("VAL_0", GEOPM_DOMAIN_CORE);
+    group.register_signal("VAL_0", GEOPM_DOMAIN_CORE,
+                          IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE);
     EXPECT_TRUE(group.is_valid_signal("VAL_0"));
     EXPECT_FALSE(group.is_valid_signal("VAL_1"));
     EXPECT_FALSE(group.is_valid_signal("VAL#"));
     EXPECT_FALSE(group.is_valid_signal("BAD"));
-    group.register_signal("VAL_1", GEOPM_DOMAIN_BOARD);
+    group.register_signal("VAL_1", GEOPM_DOMAIN_BOARD,
+                          IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE);
     EXPECT_TRUE(group.is_valid_signal("VAL_0"));
     EXPECT_TRUE(group.is_valid_signal("VAL_1"));
     EXPECT_FALSE(group.is_valid_signal("VAL#"));
     EXPECT_FALSE(group.is_valid_signal("BAD"));
-    group.register_signal("VAL#", GEOPM_DOMAIN_CPU);
+    group.register_signal("VAL#", GEOPM_DOMAIN_CPU,
+                          IOGroup::M_SIGNAL_BEHAVIOR_LABEL);
     EXPECT_TRUE(group.is_valid_signal("VAL_0"));
     EXPECT_TRUE(group.is_valid_signal("VAL_1"));
     EXPECT_TRUE(group.is_valid_signal("VAL#"));
@@ -124,8 +132,11 @@ TEST_F(DebugIOGroupTest, is_valid)
     EXPECT_NE(0u, group.signal_names().size());
     for (const auto &sig : group.signal_names()) {
         EXPECT_TRUE(group.is_valid_signal(sig));
-        EXPECT_LT(-1, group.signal_behavior(sig));
     }
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE, group.signal_behavior("VAL_0"));
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE, group.signal_behavior("VAL_1"));
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_LABEL, group.signal_behavior("VAL#"));
+
     EXPECT_EQ(0u, group.control_names().size());
 }
 
@@ -133,13 +144,20 @@ TEST_F(DebugIOGroupTest, register_signal_error)
 {
     DebugIOGroup group(m_topo, m_values);
     // cannot register the same signal twice
-    group.register_signal("VAL_1", GEOPM_DOMAIN_BOARD);
-    EXPECT_THROW(group.register_signal("VAL_1", GEOPM_DOMAIN_BOARD), Exception);
+    group.register_signal("VAL_1", GEOPM_DOMAIN_BOARD,
+                          IOGroup::M_SIGNAL_BEHAVIOR_LABEL);
+    EXPECT_THROW(group.register_signal("VAL_1", GEOPM_DOMAIN_BOARD,
+                                       IOGroup::M_SIGNAL_BEHAVIOR_LABEL),
+                 Exception);
     // cannot register the same signal name with a different domain
-    EXPECT_THROW(group.register_signal("VAL_1", GEOPM_DOMAIN_CPU), Exception);
+    EXPECT_THROW(group.register_signal("VAL_1", GEOPM_DOMAIN_CPU,
+                                       IOGroup::M_SIGNAL_BEHAVIOR_LABEL),
+                 Exception);
     // cannot register beyond size allocated in shared vector
-    group.register_signal("VAL#", GEOPM_DOMAIN_CORE);
-    EXPECT_THROW(group.register_signal("VAL_0", GEOPM_DOMAIN_CORE), Exception);
+    group.register_signal("VAL#", GEOPM_DOMAIN_CORE, IOGroup::M_SIGNAL_BEHAVIOR_LABEL);
+    GEOPM_EXPECT_THROW_MESSAGE(group.register_signal("VAL_0", GEOPM_DOMAIN_CORE, IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE),
+                               GEOPM_ERROR_RUNTIME,
+                               "number of registered signals was greater than size of shared vector provided");
 }
 
 TEST_F(DebugIOGroupTest, push)
