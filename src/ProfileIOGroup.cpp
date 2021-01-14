@@ -419,7 +419,25 @@ namespace geopm
 
     int ProfileIOGroup::signal_behavior(const std::string &signal_name) const
     {
-        return -1;
+        if (!is_valid_signal(signal_name)) {
+            throw Exception("ProfileIOGroup::signal_behavior(): " + signal_name +
+                            "not valid for TimeIOGroup",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        static const std::set<std::string> label_signals {
+            "REGION_HASH", "PROFILE::REGION_HASH",
+            "REGION_HINT", "PROFILE::REGION_HINT"
+        };
+        int result = IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE;
+        auto sig = label_signals.find(signal_name);
+        if (sig != label_signals.end()) {
+            result = IOGroup::M_SIGNAL_BEHAVIOR_LABEL;
+        }
+        else if (signal_name == "REGION_PROGRESS" ||
+                 signal_name == "PROFILE::REGION_PROGRESS") {
+            result = IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE;
+        }
+        return result;
     }
 
     int ProfileIOGroup::check_signal(const std::string &signal_name, int domain_type, int domain_idx) const
