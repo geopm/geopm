@@ -71,7 +71,8 @@ namespace geopm
                                    get_formatted_file_reader(cpu_info_path + "/power", "W"),
                                    false,
                                    NAN,
-                                   M_UNITS_WATTS}},
+                                   M_UNITS_WATTS,
+                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
                               {"CNL::ENERGY_BOARD", {
                                    "Accumulated energy",
                                    Agg::sum,
@@ -79,7 +80,8 @@ namespace geopm
                                    get_formatted_file_reader(cpu_info_path + "/energy", "J"),
                                    false,
                                    NAN,
-                                   M_UNITS_JOULES}},
+                                   M_UNITS_JOULES,
+                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE}},
                               {"CNL::POWER_BOARD_MEMORY", {
                                    "Point in time memory power",
                                    Agg::average,
@@ -87,7 +89,8 @@ namespace geopm
                                    get_formatted_file_reader(cpu_info_path + "/memory_power", "W"),
                                    false,
                                    NAN,
-                                   M_UNITS_WATTS}},
+                                   M_UNITS_WATTS,
+                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
                               {"CNL::ENERGY_BOARD_MEMORY", {
                                    "Accumulated memory energy",
                                    Agg::sum,
@@ -95,7 +98,8 @@ namespace geopm
                                    get_formatted_file_reader(cpu_info_path + "/memory_energy", "J"),
                                    false,
                                    NAN,
-                                   M_UNITS_JOULES}},
+                                   M_UNITS_JOULES,
+                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE}},
                               {"CNL::POWER_BOARD_CPU", {
                                    "Point in time cpu power",
                                    Agg::average,
@@ -103,7 +107,8 @@ namespace geopm
                                    get_formatted_file_reader(cpu_info_path + "/cpu_power", "W"),
                                    false,
                                    NAN,
-                                   M_UNITS_WATTS}},
+                                   M_UNITS_WATTS,
+                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE}},
                               {"CNL::ENERGY_BOARD_CPU", {
                                    "Accumulated cpu energy",
                                    Agg::sum,
@@ -111,7 +116,8 @@ namespace geopm
                                    get_formatted_file_reader(cpu_info_path + "/cpu_energy", "J"),
                                    false,
                                    NAN,
-                                   M_UNITS_JOULES}},
+                                   M_UNITS_JOULES,
+                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE}},
                               {"CNL::SAMPLE_RATE", {
                                    "Sample frequency",
                                    Agg::expect_same,
@@ -119,7 +125,8 @@ namespace geopm
                                    std::bind(&CNLIOGroup::m_sample_rate, this),
                                    false,
                                    NAN,
-                                   M_UNITS_HERTZ}},
+                                   M_UNITS_HERTZ,
+                                   IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT}},
                               {"CNL::SAMPLE_ELAPSED_TIME", {
                                    "Time that the sample was reported, in seconds since this agent initialized",
                                    Agg::max,
@@ -127,7 +134,8 @@ namespace geopm
                                    std::bind(&CNLIOGroup::read_time, this, cpu_info_path + "/" + FRESHNESS_FILE_NAME),
                                    false,
                                    NAN,
-                                   M_UNITS_SECONDS}},
+                                   M_UNITS_SECONDS,
+                                   IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE}},
                              })
         , m_time_zero(geopm::time_zero())
     {
@@ -289,7 +297,7 @@ namespace geopm
         auto it = m_signal_available.find(signal_name);
         if (it == m_signal_available.end()) {
             throw Exception("CNLIOGroup::agg_function(): unknown how to aggregate \"" +
-                                signal_name + "\"",
+                            signal_name + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return it->second.m_agg_function;
@@ -301,7 +309,7 @@ namespace geopm
         auto it = m_signal_available.find(signal_name);
         if (it == m_signal_available.end()) {
             throw Exception("CNLIOGroup::format_function(): unknown how to format \"" +
-                                signal_name + "\"",
+                            signal_name + "\"",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return it->second.m_format_function;
@@ -311,7 +319,7 @@ namespace geopm
     {
         if (!is_valid_signal(signal_name)) {
             throw Exception("CNLIOGroup::signal_description(): " + signal_name +
-                                "not valid for CNLIOGroup",
+                            "not valid for CNLIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
 
@@ -343,7 +351,23 @@ namespace geopm
 
     int CNLIOGroup::signal_behavior(const std::string &signal_name) const
     {
-        return -1;
+        if (!is_valid_signal(signal_name)) {
+            throw Exception("CNLIOGroup::signal_behavior(): " + signal_name +
+                            "not valid for CNLIOGroup",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        int result = -1;
+        auto it = m_signal_available.find(signal_name);
+        if (it != m_signal_available.end()) {
+            result = it->second.m_behavior;
+        }
+#ifdef GEOPM_DEBUG
+        else {
+            throw Exception("CNLIOGroup::signal_description(): signal valid but not found in map",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        return result;
     }
 
     std::string CNLIOGroup::plugin_name(void)
