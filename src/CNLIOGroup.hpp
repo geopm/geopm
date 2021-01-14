@@ -88,6 +88,7 @@ namespace geopm
                 bool m_do_read;
                 double m_value;
                 int m_units;
+                int m_behavior;
             };
             std::map<std::string, m_signal_info_s> m_signal_available;
 
