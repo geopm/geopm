@@ -51,6 +51,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "PROGRAMMABLE_RATIO_LIMITS_TURBO_MODE": {
@@ -59,6 +60,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "PROGRAMMABLE_TDP_LIMITS_TURBO_MODE": {
@@ -67,6 +69,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "PROGRAMMABLE_TCC_ACTIVATION_OFFSET": {
@@ -75,6 +78,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "MAX_EFFICIENCY_RATIO": {
@@ -83,6 +87,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
+                    "behavior":  "constant",
                     "writeable": false
                 }
             }
@@ -97,6 +102,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
+                    "behavior":  "variable",
                     "writeable": false,
                     "aggregation": "average",
                     "description": "The current operating frequency of the CPU."
@@ -113,6 +119,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
+                    "behavior":  "variable",
                     "writeable": true,
                     "description": "Target operating frequency of the CPU based on the control register."
                 }
@@ -128,6 +135,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "celsius",
                     "scalar":    1.0,
+                    "behavior":  "constant",
                     "writeable": false,
                     "aggregation": "expect_same"
                 },
@@ -137,6 +145,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "celsius",
                     "scalar":    1.0,
+                    "behavior":  "constant",
                     "writeable": false
                 }
             }
@@ -151,6 +160,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "MAX_RATIO_LIMIT_1": {
@@ -159,6 +169,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "MAX_RATIO_LIMIT_2": {
@@ -167,6 +178,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "MAX_RATIO_LIMIT_3": {
@@ -175,6 +187,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "MAX_RATIO_LIMIT_4": {
@@ -183,6 +196,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "MAX_RATIO_LIMIT_5": {
@@ -191,6 +205,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "MAX_RATIO_LIMIT_6": {
@@ -199,6 +214,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "MAX_RATIO_LIMIT_7": {
@@ -207,6 +223,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
+                    "behavior":  "constant",
                     "writeable": false
                 }
             }
@@ -221,6 +238,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "NUMCORE_1": {
@@ -229,6 +247,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "NUMCORE_2": {
@@ -237,6 +256,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1e8,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "NUMCORE_3": {
@@ -245,6 +265,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "NUMCORE_4": {
@@ -253,6 +274,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "NUMCORE_5": {
@@ -261,6 +283,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "NUMCORE_6": {
@@ -269,6 +292,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "NUMCORE_7": {
@@ -277,6 +301,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1,
+                    "behavior":  "constant",
                     "writeable": false
                 }
             }
@@ -291,6 +316,7 @@ namespace geopm
                     "function":  "log_half",
                     "units":     "watts",
                     "scalar":    1.0,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "ENERGY": {
@@ -299,6 +325,7 @@ namespace geopm
                     "function":  "log_half",
                     "units":     "joules",
                     "scalar":    1.0,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "TIME": {
@@ -307,6 +334,7 @@ namespace geopm
                     "function":  "log_half",
                     "units":     "seconds",
                     "scalar":    1.0,
+                    "behavior":  "constant",
                     "writeable": false
                 }
             }
@@ -321,6 +349,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "watts",
                     "scalar":    1.25e-1,
+                    "behavior":  "variable",
                     "writeable": true,
                     "description": "The average power usage limit over the time window specified in PL1_TIME_WINDOW."
                 },
@@ -330,6 +359,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "PL1_CLAMP_ENABLE": {
@@ -338,6 +368,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "PL1_TIME_WINDOW": {
@@ -346,6 +377,7 @@ namespace geopm
                     "function":  "7_bit_float",
                     "units":     "seconds",
                     "scalar":    9.765625e-04,
+                    "behavior":  "variable",
                     "writeable": true,
                     "description": "The time window associated with power limit 1."
                 },
@@ -355,6 +387,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "watts",
                     "scalar":    1.25e-1,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "PL2_LIMIT_ENABLE": {
@@ -363,6 +396,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "PL2_CLAMP_ENABLE": {
@@ -371,6 +405,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "PL2_TIME_WINDOW": {
@@ -379,6 +414,7 @@ namespace geopm
                     "function":  "7_bit_float",
                     "units":     "seconds",
                     "scalar":    9.765625e-04,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "LOCK": {
@@ -387,6 +423,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "constant",
                     "writeable": false
                 }
             }
@@ -401,6 +438,7 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "joules",
                     "scalar":    6.103515625e-05,
+                    "behavior":  "monotone",
                     "writeable": false,
                     "aggregation": "sum",
                     "description": "An increasing meter of energy consumed by the package over time.  It will reset periodically due to roll-over."
@@ -417,6 +455,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "watts",
                     "scalar":    1.25e-1,
+                    "behavior":  "constant",
                     "writeable": false,
                     "aggregation": "sum",
                     "description": "Maximum power to stay within the thermal limits based on the design (TDP)."
@@ -427,6 +466,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "watts",
                     "scalar":    1.25e-1,
+                    "behavior":  "constant",
                     "writeable": false,
                     "aggregation": "sum",
                     "description": "The minimum power limit based on the electrical specification."
@@ -437,6 +477,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "watts",
                     "scalar":    1.25e-1,
+                    "behavior":  "constant",
                     "writeable": false,
                     "aggregation": "sum",
                     "description": "The maximum power limit based on the electrical specification."
@@ -447,6 +488,7 @@ namespace geopm
                     "function":  "7_bit_float",
                     "units":     "seconds",
                     "scalar":    9.765625e-04,
+                    "behavior":  "constant",
                     "writeable": false
                 }
             }
@@ -461,6 +503,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "watts",
                     "scalar":    1.25e-1,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "ENABLE": {
@@ -469,6 +512,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1.0,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "TIME_WINDOW": {
@@ -477,6 +521,7 @@ namespace geopm
                     "function":  "7_bit_float",
                     "units":     "seconds",
                     "scalar":    9.765625e-04,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "LOCK": {
@@ -485,6 +530,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "none",
                     "scalar":    1,
+                    "behavior":  "constant",
                     "writeable": false
                 }
             }
@@ -499,6 +545,7 @@ namespace geopm
                     "function":  "overflow",
                     "units":     "joules",
                     "scalar":    1.5258789063e-05,
+                    "behavior":  "monotone",
                     "writeable": false,
                     "aggregation": "sum",
                     "description": "An increasing meter of energy consumed by the DRAM over time.  It will reset periodically due to roll-over."
@@ -515,6 +562,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "seconds",
                     "scalar":    9.765625e-04,
+                    "behavior":  "monotone",
                     "writeable": false
                 }
             }
@@ -529,6 +577,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "watts",
                     "scalar":    1.25e-1,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "MIN_POWER": {
@@ -537,6 +586,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "watts",
                     "scalar":    1.25e-1,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "MAX_POWER": {
@@ -545,6 +595,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "watts",
                     "scalar":    1.25e-1,
+                    "behavior":  "constant",
                     "writeable": false
                 },
                 "MAX_TIME_WINDOW": {
@@ -553,6 +604,7 @@ namespace geopm
                     "function":  "7_bit_float",
                     "units":     "seconds",
                     "scalar":    9.765625e-04,
+                    "behavior":  "constant",
                     "writeable": false
                 }
             }
@@ -567,6 +619,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
+                    "behavior":  "variable",
                     "writeable": true
                 },
                 "MAX_RATIO": {
@@ -575,6 +628,7 @@ namespace geopm
                     "function":  "scale",
                     "units":     "hertz",
                     "scalar":    1e8,
+                    "behavior":  "variable",
                     "writeable": true
                 }
             }
@@ -589,6 +643,7 @@ namespace geopm
                     "function": "scale",
                     "units": "hertz",
                     "scalar": 1e8,
+                    "behavior":  "variable",
                     "writeable": false
                 }
             }
