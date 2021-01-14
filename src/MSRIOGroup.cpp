@@ -734,7 +734,23 @@ namespace geopm
 
     int MSRIOGroup::signal_behavior(const std::string &signal_name) const
     {
-        return -1;
+        if (!is_valid_signal(signal_name)) {
+            throw Exception("MSRIOGroup::signal_behavior(): signal_name " + signal_name +
+                            " not valid for MSRIOGroup",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        int result = -1;
+        auto it = m_signal_available.find(signal_name);
+        if (it != m_signal_available.end()) {
+            result = it->second.behavior;
+        }
+#ifdef GEOPM_DEBUG
+        else {
+            throw Exception("MSRIOGroup::signal_behavior(): signal valid but not found in map",
+                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+        }
+#endif
+        return result;
     }
 
     std::string MSRIOGroup::platform_data(int cpu_id)
@@ -995,7 +1011,8 @@ namespace geopm
             {"function", {Json::STRING, json_check_null_func, "must be a valid function string"}},
             {"units", {Json::STRING, json_check_null_func, "must be a string"}},
             {"scalar", {Json::NUMBER, json_check_null_func, "must be a number"}},
-            {"writeable", {Json::BOOL, json_check_null_func, "must be a bool"}}
+            {"writeable", {Json::BOOL, json_check_null_func, "must be a bool"}},
+            {"behavior", {Json::STRING, json_check_null_func, "must be a valid behavior string"}}
         };
         std::map<std::string, json_checker> optional_field_checker {
             {"aggregation", {Json::STRING, json_check_is_valid_aggregation, "must be a valid aggregation function name"}},
@@ -1031,7 +1048,8 @@ namespace geopm
             .domain = domain_type,
             .units = IOGroup::M_UNITS_NONE,
             .agg_function = Agg::select_first,
-            .description = M_DEFAULT_DESCRIPTION
+            .description = M_DEFAULT_DESCRIPTION,
+            .behavior = IOGroup::M_SIGNAL_BEHAVIOR_LABEL,
         };
     }
 
@@ -1041,7 +1059,8 @@ namespace geopm
                                           int begin_bit, int end_bit,
                                           int function, double scalar, int units,
                                           const std::string &agg_function,
-                                          const std::string &description)
+                                          const std::string &description,
+                                          int behavior)
     {
         std::string raw_msr_signal_name = M_NAME_PREFIX + msr_name + "#";
         int num_domain = m_platform_topo.num_domain(domain_type);
@@ -1059,6 +1078,7 @@ namespace geopm
             .units = units,
             .agg_function = Agg::name_to_function(agg_function),
             .description = description,
+            .behavior = behavior,
         };
     }
 
@@ -1133,6 +1153,7 @@ namespace geopm
                 double scalar = field_data["scalar"].number_value();
                 int units = IOGroup::string_to_units(field_data["units"].string_value());
                 bool is_control = field_data["writeable"].bool_value();
+                int behavior = IOGroup::string_to_behavior(field_data["behavior"].string_value());
                 // optional fields
                 std::string agg_function = "select_first";
                 std::string description = M_DEFAULT_DESCRIPTION;
@@ -1145,7 +1166,7 @@ namespace geopm
 
                 add_msr_field_signal(msr_name, sig_ctl_name, domain_type,
                                      begin_bit, end_bit, function, scalar, units,
-                                     agg_function, description);
+                                     agg_function, description, behavior);
                 if (is_control) {
                     add_msr_field_control(sig_ctl_name, domain_type, msr_offset,
                                           begin_bit, end_bit, function, scalar, units,
