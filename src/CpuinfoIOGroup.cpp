@@ -363,7 +363,12 @@ namespace geopm
 
     int CpuinfoIOGroup::signal_behavior(const std::string &signal_name) const
     {
-        return -1;
+        if (!is_valid_signal(signal_name)) {
+            throw Exception("CpuinfoIOGroup::signal_behavior(): signal_name " + signal_name +
+                            " not valid for CpuinfoIOGroup",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT;
     }
 
     std::string CpuinfoIOGroup::plugin_name(void)
