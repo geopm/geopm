@@ -269,6 +269,11 @@ namespace geopm
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
+    int EpochIOGroup::signal_behavior(const std::string &signal_name) const
+    {
+        return -1;
+    }
+
     void EpochIOGroup::check_domain(int domain_type, int domain_idx) const
     {
         if (domain_type != GEOPM_DOMAIN_CPU) {
