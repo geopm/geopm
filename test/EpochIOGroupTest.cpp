@@ -45,6 +45,7 @@
 using geopm::Exception;
 using geopm::ApplicationSampler;
 using geopm::EpochIOGroup;
+using geopm::IOGroup;
 using testing::Return;
 using testing::_;
 
@@ -100,7 +101,7 @@ TEST_F(EpochIOGroupTest, valid_signals)
         EXPECT_FALSE(m_group->signal_description(name).empty());
         // all signals are CPU domain
         EXPECT_EQ(GEOPM_DOMAIN_CPU, m_group->signal_domain_type(name));
-        EXPECT_LT(-1, m_group->signal_behavior(name));
+        EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE, m_group->signal_behavior(name));
         // read_signal is not supported
         EXPECT_THROW(m_group->read_signal(name, GEOPM_DOMAIN_CPU, 0), Exception);
     }
