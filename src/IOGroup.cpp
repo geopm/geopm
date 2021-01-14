@@ -67,6 +67,13 @@ namespace geopm
         "celsius"
     };
 
+    const std::string IOGroup::M_BEHAVIORS[IOGroup::M_NUM_SIGNAL_BEHAVIOR] = {
+        "constant",
+        "monotone",
+        "variable",
+        "label"
+    };
+
     const std::map<std::string, IOGroup::m_units_e> IOGroup::M_UNITS_STRING = {
         {IOGroup::M_UNITS[M_UNITS_NONE], M_UNITS_NONE},
         {IOGroup::M_UNITS[M_UNITS_SECONDS], M_UNITS_SECONDS},
@@ -74,6 +81,13 @@ namespace geopm
         {IOGroup::M_UNITS[M_UNITS_WATTS], M_UNITS_WATTS},
         {IOGroup::M_UNITS[M_UNITS_JOULES], M_UNITS_JOULES},
         {IOGroup::M_UNITS[M_UNITS_CELSIUS], M_UNITS_CELSIUS}
+    };
+
+    const std::map<std::string, IOGroup::m_signal_behavior_e> IOGroup::M_BEHAVIOR_STRING = {
+        {IOGroup::M_BEHAVIORS[M_SIGNAL_BEHAVIOR_CONSTANT], M_SIGNAL_BEHAVIOR_CONSTANT},
+        {IOGroup::M_BEHAVIORS[M_SIGNAL_BEHAVIOR_MONOTONE], M_SIGNAL_BEHAVIOR_MONOTONE},
+        {IOGroup::M_BEHAVIORS[M_SIGNAL_BEHAVIOR_VARIABLE], M_SIGNAL_BEHAVIOR_VARIABLE},
+        {IOGroup::M_BEHAVIORS[M_SIGNAL_BEHAVIOR_LABEL], M_SIGNAL_BEHAVIOR_LABEL},
     };
 
 
@@ -158,5 +172,15 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return IOGroup::M_UNITS[uni];
+    }
+
+    IOGroup::m_signal_behavior_e IOGroup::string_to_behavior(const std::string &str)
+    {
+        auto it = M_BEHAVIOR_STRING.find(str);
+        if (it == M_BEHAVIOR_STRING.end()) {
+            throw Exception("IOGroup::string_to_behavior(): invalid behavior string",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return it->second;
     }
 }
