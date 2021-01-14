@@ -271,7 +271,12 @@ namespace geopm
 
     int EpochIOGroup::signal_behavior(const std::string &signal_name) const
     {
-        return -1;
+        if (!is_valid_signal(signal_name)) {
+            throw Exception("EpochIOGroup::signal_behavior(): " + signal_name +
+                            " not valid for EpochIOGroup",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE;
     }
 
     void EpochIOGroup::check_domain(int domain_type, int domain_idx) const
