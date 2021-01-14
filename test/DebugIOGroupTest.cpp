@@ -124,6 +124,7 @@ TEST_F(DebugIOGroupTest, is_valid)
     EXPECT_NE(0u, group.signal_names().size());
     for (const auto &sig : group.signal_names()) {
         EXPECT_TRUE(group.is_valid_signal(sig));
+        EXPECT_LT(-1, group.signal_behavior(sig));
     }
     EXPECT_EQ(0u, group.control_names().size());
 }

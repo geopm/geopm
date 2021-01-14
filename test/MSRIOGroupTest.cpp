@@ -178,6 +178,8 @@ TEST_F(MSRIOGroupTest, valid_signal_names)
         EXPECT_TRUE(signal_names.find(name) != signal_names.end());
         // check that there is some non-empty description
         EXPECT_FALSE(m_msrio_group->signal_description(name).empty());
+        // check that signals have a valid behavior enum
+        EXPECT_LT(-1, m_msrio_group->signal_behavior(name));
     }
 }
 

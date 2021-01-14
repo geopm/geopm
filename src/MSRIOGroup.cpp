@@ -732,6 +732,11 @@ namespace geopm
         return result;
     }
 
+    int MSRIOGroup::signal_behavior(const std::string &signal_name) const
+    {
+        return -1;
+    }
+
     std::string MSRIOGroup::platform_data(int cpu_id)
     {
         std::string platform_msrs;

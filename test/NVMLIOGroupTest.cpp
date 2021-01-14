@@ -115,6 +115,15 @@ void NVMLIOGroupTest::TearDown()
 {
 }
 
+TEST_F(NVMLIOGroupTest, valid_signals)
+{
+    for (const auto &sig : m_group->signal_names()) {
+        EXPECT_TRUE(m_group->is_valid_signal(sig));
+        EXPECT_NE(GEOPM_DOMAIN_INVALID, m_->signal_domain_type(name));
+        EXPECT_LT(-1, m_group->signal_behavior(sig));
+    }
+}
+
 TEST_F(NVMLIOGroupTest, push_control_adjust_write_batch)
 {
     const int num_accelerator = m_platform_topo->num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR);

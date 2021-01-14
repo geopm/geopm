@@ -546,6 +546,7 @@ if ENABLE_NVML
                    test/gtest_links/NVMLIOGroupTest.write_control \
                    test/gtest_links/NVMLIOGroupTest.push_control_adjust_write_batch \
                    test/gtest_links/NVMLIOGroupTest.error_path \
+                   test/gtest_links/NVMLIOGroupTest.valid_signals \
                    # end
 endif
 
