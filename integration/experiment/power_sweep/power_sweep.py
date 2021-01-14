@@ -83,9 +83,6 @@ def report_signals():
 
 def trace_signals():
     return ["MSR::PKG_POWER_LIMIT:PL1_POWER_LIMIT@package",
-            "EPOCH_RUNTIME@package",
-            "EPOCH_RUNTIME_NETWORK@package",
-            "EPOCH_RUNTIME_IGNORE@package",
             "TEMPERATURE_PACKAGE@package"]
 
 
