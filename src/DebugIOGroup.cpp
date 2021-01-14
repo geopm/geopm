@@ -51,13 +51,14 @@ namespace geopm
         }
     }
 
-    void DebugIOGroup::register_signal(const std::string &name, int domain_type)
+    void DebugIOGroup::register_signal(const std::string &name, int domain_type,
+                                       int signal_behavior)
     {
         if (m_signal_name.find(name) != m_signal_name.end()) {
             throw Exception("DebugIOGroup::register_signal(): signal " + name + " already registered.",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
-        m_signal_domain[name] = domain_type;
+        m_signal_info[name] = {domain_type, signal_behavior};
         int num_domain = m_topo.num_domain(domain_type);
         for (int idx = 0; idx < num_domain; ++idx) {
             if (m_num_reg_signals >= m_value_cache->size()) {
@@ -94,7 +95,7 @@ namespace geopm
     {
         int result = GEOPM_DOMAIN_INVALID;
         if (is_valid_signal(signal_name)) {
-            result = m_signal_domain.at(signal_name);
+            result = m_signal_info.at(signal_name).domain_type;
         }
         return result;
     }
@@ -111,7 +112,7 @@ namespace geopm
                             " not valid for DebugIOGroup",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        if (domain_type != m_signal_domain.at(signal_name)) {
+        if (domain_type != signal_domain_type(signal_name)) {
             throw Exception("DebugIOGroup::push_signal(): signal_name " + signal_name +
                             " not defined for domain " + std::to_string(domain_type),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -232,6 +233,11 @@ namespace geopm
 
     int DebugIOGroup::signal_behavior(const std::string &signal_name) const
     {
-        return -1;
+        if (!is_valid_signal(signal_name)) {
+            throw Exception("DebugIOGroup::signal_behavior(): " + signal_name +
+                            "not valid for DebugIOGroup",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return m_signal_info.at(signal_name).behavior;
     }
 }
