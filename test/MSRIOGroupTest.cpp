@@ -172,14 +172,16 @@ TEST_F(MSRIOGroupTest, valid_signal_names)
 
     auto signal_names = m_msrio_group->signal_names();
     for (const auto &name : signal_aliases) {
-        // check signal aliases are valid
-        EXPECT_TRUE(m_msrio_group->is_valid_signal(name));
         // check names appear in signal_names
-        EXPECT_TRUE(signal_names.find(name) != signal_names.end());
+        EXPECT_TRUE(signal_names.find(name) != signal_names.end()) << name;
+    }
+    for (const auto &name : signal_names) {
+        // check signal names are valid
+        EXPECT_TRUE(m_msrio_group->is_valid_signal(name)) << name;
         // check that there is some non-empty description
-        EXPECT_FALSE(m_msrio_group->signal_description(name).empty());
+        EXPECT_FALSE(m_msrio_group->signal_description(name).empty()) << name;
         // check that signals have a valid behavior enum
-        EXPECT_LT(-1, m_msrio_group->signal_behavior(name));
+        EXPECT_LT(-1, m_msrio_group->signal_behavior(name)) << name;
     }
 }
 
@@ -1134,7 +1136,8 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_fields)
         {"function", "scale"},
         {"units", "hertz"},
         {"scalar", 2},
-        {"writeable", false}
+        {"writeable", false},
+        {"behavior", "variable"}
     };
     std::map<std::string, Json> fields, msr, input;
     // used to rebuild the Json object with the "fields" section updated
@@ -1153,7 +1156,8 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_fields)
 
     // required keys
     std::vector<std::string> field_keys {"begin_bit", "end_bit", "function",
-                                         "units", "scalar", "writeable"};
+                                         "units", "scalar", "writeable", "behavior"
+    };
     for (auto key : field_keys) {
         fields = complete;
         fields.erase(key);
@@ -1224,6 +1228,13 @@ TEST_F(MSRIOGroupTest, parse_json_msrs_error_fields)
     GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs(Json(input).dump()),
                                GEOPM_ERROR_INVALID,
                                "\"description\" must be a string in \"MSR_ONE:FIELD_RO\"");
+
+    fields = complete;
+    fields["behavior"] = 1.0;
+    reset_input();
+    GEOPM_EXPECT_THROW_MESSAGE(m_msrio_group->parse_json_msrs(Json(input).dump()),
+                               GEOPM_ERROR_INVALID,
+                               "\"behavior\" must be a valid behavior string in \"MSR_ONE:FIELD_RO\"");
 }
 
 TEST_F(MSRIOGroupTest, parse_json_msrs)
@@ -1237,6 +1248,7 @@ TEST_F(MSRIOGroupTest, parse_json_msrs)
                        "function": "scale",
                        "units": "hertz",
                        "scalar": 2,
+                       "behavior": "variable",
                        "writeable": false,
                        "aggregation": "average",
                        "description": "a beautiful and clear description of a field"
@@ -1251,6 +1263,7 @@ TEST_F(MSRIOGroupTest, parse_json_msrs)
                        "function": "scale",
                        "units": "hertz",
                        "scalar": 2,
+                       "behavior": "label",
                        "writeable": true
                    }
                }
