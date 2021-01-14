@@ -186,33 +186,33 @@ ReporterTest::ReporterTest()
     ON_CALL(m_application_io, region_name_set())
         .WillByDefault(Return(m_region_set));
 
-    EXPECT_CALL(*m_sample_agg, push_signal_total("TIME", _, _))
+    EXPECT_CALL(*m_sample_agg, push_signal("TIME", _, _))
         .WillRepeatedly(Return(M_TIME_IDX));
-    EXPECT_CALL(*m_sample_agg, push_signal_total("TIME_HINT_NETWORK", _, _))
+    EXPECT_CALL(*m_sample_agg, push_signal("TIME_HINT_NETWORK", _, _))
         .WillRepeatedly(Return(M_TIME_NETWORK_IDX));
-    EXPECT_CALL(*m_sample_agg, push_signal_total("TIME_HINT_IGNORE", _, _))
+    EXPECT_CALL(*m_sample_agg, push_signal("TIME_HINT_IGNORE", _, _))
         .WillRepeatedly(Return(M_TIME_IGNORE_IDX));
-    EXPECT_CALL(*m_sample_agg, push_signal_total("TIME_HINT_COMPUTE", _, _))
+    EXPECT_CALL(*m_sample_agg, push_signal("TIME_HINT_COMPUTE", _, _))
         .WillRepeatedly(Return(M_TIME_COMPUTE_IDX));
-    EXPECT_CALL(*m_sample_agg, push_signal_total("TIME_HINT_MEMORY", _, _))
+    EXPECT_CALL(*m_sample_agg, push_signal("TIME_HINT_MEMORY", _, _))
         .WillRepeatedly(Return(M_TIME_MEMORY_IDX));
-    EXPECT_CALL(*m_sample_agg, push_signal_total("TIME_HINT_IO", _, _))
+    EXPECT_CALL(*m_sample_agg, push_signal("TIME_HINT_IO", _, _))
         .WillRepeatedly(Return(M_TIME_IO_IDX));
-    EXPECT_CALL(*m_sample_agg, push_signal_total("TIME_HINT_SERIAL", _, _))
+    EXPECT_CALL(*m_sample_agg, push_signal("TIME_HINT_SERIAL", _, _))
         .WillRepeatedly(Return(M_TIME_SERIAL_IDX));
-    EXPECT_CALL(*m_sample_agg, push_signal_total("TIME_HINT_PARALLEL", _, _))
+    EXPECT_CALL(*m_sample_agg, push_signal("TIME_HINT_PARALLEL", _, _))
         .WillRepeatedly(Return(M_TIME_PARALLEL_IDX));
-    EXPECT_CALL(*m_sample_agg, push_signal_total("TIME_HINT_UNKNOWN", _, _))
+    EXPECT_CALL(*m_sample_agg, push_signal("TIME_HINT_UNKNOWN", _, _))
         .WillRepeatedly(Return(M_TIME_UNKNOWN_IDX));
-    EXPECT_CALL(*m_sample_agg, push_signal_total("TIME_HINT_UNSET", _, _))
+    EXPECT_CALL(*m_sample_agg, push_signal("TIME_HINT_UNSET", _, _))
         .WillRepeatedly(Return(M_TIME_UNSET_IDX));
-    EXPECT_CALL(*m_sample_agg, push_signal_total("ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0))
+    EXPECT_CALL(*m_sample_agg, push_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_BOARD, 0))
         .WillRepeatedly(Return(M_ENERGY_PKG_IDX));
-    EXPECT_CALL(*m_sample_agg, push_signal_total("ENERGY_DRAM", _, _))
+    EXPECT_CALL(*m_sample_agg, push_signal("ENERGY_DRAM", _, _))
         .WillRepeatedly(Return(M_ENERGY_DRAM_IDX));
-    EXPECT_CALL(*m_sample_agg, push_signal_total("CYCLES_REFERENCE", _, _))
+    EXPECT_CALL(*m_sample_agg, push_signal("CYCLES_REFERENCE", _, _))
         .WillRepeatedly(Return(M_CLK_REF_IDX));
-    EXPECT_CALL(*m_sample_agg, push_signal_total("CYCLES_THREAD", _, _))
+    EXPECT_CALL(*m_sample_agg, push_signal("CYCLES_THREAD", _, _))
         .WillRepeatedly(Return(M_CLK_CORE_IDX));
     EXPECT_CALL(m_platform_io, push_signal("EPOCH_COUNT", GEOPM_DOMAIN_BOARD, 0))
         .WillRepeatedly(Return(M_EPOCH_COUNT_IDX));
@@ -220,9 +220,9 @@ ReporterTest::ReporterTest()
     // environment signals
     EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_PACKAGE))
         .WillRepeatedly(Return(2));
-    EXPECT_CALL(*m_sample_agg, push_signal_total("ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0))
+    EXPECT_CALL(*m_sample_agg, push_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE, 0))
         .WillOnce(Return(M_ENERGY_PKG_ENV_IDX_0));
-    EXPECT_CALL(*m_sample_agg, push_signal_total("ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE, 1))
+    EXPECT_CALL(*m_sample_agg, push_signal("ENERGY_PACKAGE", GEOPM_DOMAIN_PACKAGE, 1))
         .WillOnce(Return(M_ENERGY_PKG_ENV_IDX_1));
 
     EXPECT_CALL(m_platform_io, read_signal("CPUINFO::FREQ_STICKER", GEOPM_DOMAIN_BOARD, 0))
