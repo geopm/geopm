@@ -368,6 +368,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/PlatformIOTest.read_signal_override \
               test/gtest_links/PlatformIOTest.sample \
               test/gtest_links/PlatformIOTest.sample_agg \
+              test/gtest_links/PlatformIOTest.signal_behavior \
               test/gtest_links/PlatformIOTest.signal_control_description \
               test/gtest_links/PlatformIOTest.signal_control_names \
               test/gtest_links/PlatformIOTest.write_control \
