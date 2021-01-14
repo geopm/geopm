@@ -361,6 +361,11 @@ namespace geopm
         return "";
     }
 
+    int CpuinfoIOGroup::signal_behavior(const std::string &signal_name) const
+    {
+        return -1;
+    }
+
     std::string CpuinfoIOGroup::plugin_name(void)
     {
         return GEOPM_CPUINFO_IO_GROUP_PLUGIN_NAME;

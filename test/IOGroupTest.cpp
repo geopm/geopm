@@ -101,6 +101,7 @@ TEST_F(IOGroupTest, signal_names_are_valid)
         for (auto name : signal_names) {
             EXPECT_TRUE(group->is_valid_signal(name)) << name;
             EXPECT_NE(GEOPM_DOMAIN_INVALID, group->signal_domain_type(name)) << name;
+            EXPECT_LT(-1, group->signal_behavior(name));
         }
     }
 }

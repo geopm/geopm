@@ -80,6 +80,7 @@ TEST_F(ProfileIOGroupTest, is_valid)
     for (const auto &sig : m_group->signal_names()) {
         EXPECT_TRUE(m_group->is_valid_signal(sig));
         EXPECT_EQ(GEOPM_DOMAIN_CPU, m_group->signal_domain_type(sig));
+        EXPECT_LT(-1, m_group->signal_behavior(sig));
     }
 
     // no controls
