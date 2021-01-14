@@ -541,3 +541,13 @@ TEST_F(PlatformIOTest, agg_function)
     GEOPM_EXPECT_THROW_MESSAGE(m_platio->agg_function("INVALID"),
                                GEOPM_ERROR_INVALID, "unknown how to aggregate");
 }
+
+TEST_F(PlatformIOTest, signal_behavior)
+{
+    int expected_behavior = IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE;
+    EXPECT_CALL(*m_time_iogroup, signal_behavior("TIME"))
+        .WillOnce(Return(expected_behavior));
+    EXPECT_EQ(expected_behavior, m_platio->signal_behavior("TIME"));
+    GEOPM_EXPECT_THROW_MESSAGE(m_platio->signal_behavior("INVALID"),
+                               GEOPM_ERROR_INVALID, "unknown signal \"INVALID\"");
+}
