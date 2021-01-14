@@ -84,14 +84,20 @@ namespace geopm
             /// @brief Set up a signal name and base domain to map to one or
             ///        more underlying values.  One signal will be added for
             ///        each index in the domain.
-            void register_signal(const std::string &name, int domain_type);
+            void register_signal(const std::string &name, int domain_type,
+                                 int signal_behavior);
         private:
+            struct m_signal_info_s {
+                int domain_type;
+                int behavior;
+            };
+
             const PlatformTopo &m_topo;
             const std::shared_ptr<std::vector<double> > m_value_cache;
             size_t m_num_reg_signals;
             /// map key is signal_name,domain_idx
             std::map<std::pair<std::string, int>, int> m_signal_idx;
-            std::map<std::string, int> m_signal_domain;
+            std::map<std::string, m_signal_info_s> m_signal_info;
             std::set<std::string> m_signal_name;
     };
 }
