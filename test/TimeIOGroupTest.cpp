@@ -39,6 +39,7 @@
 
 using geopm::TimeIOGroup;
 using geopm::PlatformTopo;
+using geopm::IOGroup;
 using geopm::Exception;
 
 class TimeIOGroupTest : public :: testing :: Test
@@ -76,7 +77,7 @@ TEST_F(TimeIOGroupTest, is_valid)
     EXPECT_NE(0u, m_group.signal_names().size());
     for (const auto &sig : m_group.signal_names()) {
         EXPECT_TRUE(m_group.is_valid_signal(sig));
-        EXPECT_LT(-1, m_group.signal_behavior(sig));
+        EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE, m_group.signal_behavior(sig));
     }
     EXPECT_EQ(0u, m_group.control_names().size());
 }
