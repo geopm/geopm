@@ -49,6 +49,26 @@ namespace geopm
             static std::unique_ptr<SampleAggregator> make_unique(void);
             /// @brief Default destructor of pure virtual base.
             virtual ~SampleAggregator() = default;
+            /// @brief Push a signal to be accumulated per-region.
+            ///
+            /// Check the signal behavior and call push_signal_total()
+            /// or push_signal_average() accordingly.
+            ///
+            /// @param [in] signal_name Name of the signal to sample
+            ///         and aggregate.
+            ///
+            /// @param [in] domain_type Domain type over which the
+            ///        region hash and signal should be sampled.
+            ///
+            /// @param [in] domain_idx Domain over which the region hash
+            ///        and signal should be sampled.
+            ///
+            /// @return Index of signal to be used with sample().
+            ///         This index matches the return value of
+            ///         PlatformIO::push_signal() for the same signal.
+            virtual int push_signal(const std::string &signal_name,
+                                    int domain_type,
+                                    int domain_idx) = 0;
             /// @brief Push a signal to be accumulated per-region as a
             ///        total.
             ///

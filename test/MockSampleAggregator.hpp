@@ -43,6 +43,8 @@ class MockSampleAggregator : public geopm::SampleAggregator {
                      int(const std::string &signal_name, int domain_type, int domain_idx));
         MOCK_METHOD3(push_signal_average,
                      int(const std::string &signal_name, int domain_type, int domain_idx));
+        MOCK_METHOD3(push_signal,
+                     int(const std::string &signal_name, int domain_type, int domain_idx));
         MOCK_METHOD0(update,
                      void(void));
         MOCK_METHOD1(sample_application,
