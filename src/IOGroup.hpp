@@ -63,6 +63,8 @@ namespace geopm
                 M_SIGNAL_BEHAVIOR_MONOTONE,
                 /// signals that vary up and down over time
                 M_SIGNAL_BEHAVIOR_VARIABLE,
+                /// signals that should not be summarized over time
+                M_SIGNAL_BEHAVIOR_LABEL,
                 M_NUM_SIGNAL_BEHAVIOR
             };
 
