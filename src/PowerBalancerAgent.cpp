@@ -181,14 +181,14 @@ namespace geopm
                 m_platform_io.push_signal("EPOCH_COUNT",
                                           GEOPM_DOMAIN_PACKAGE, pkg_idx);
             m_time_agg_idx[pkg_idx] =
-                m_sample_agg->push_signal_total("TIME",
-                                                GEOPM_DOMAIN_PACKAGE, pkg_idx);
+                m_sample_agg->push_signal("TIME",
+                                          GEOPM_DOMAIN_PACKAGE, pkg_idx);
             m_network_agg_idx[pkg_idx] =
-                m_sample_agg->push_signal_total("TIME_HINT_NETWORK",
-                                                GEOPM_DOMAIN_PACKAGE, pkg_idx);
+                m_sample_agg->push_signal("TIME_HINT_NETWORK",
+                                          GEOPM_DOMAIN_PACKAGE, pkg_idx);
             m_ignore_agg_idx[pkg_idx] =
-                m_sample_agg->push_signal_total("TIME_HINT_IGNORE",
-                                                GEOPM_DOMAIN_PACKAGE, pkg_idx);
+                m_sample_agg->push_signal("TIME_HINT_IGNORE",
+                                          GEOPM_DOMAIN_PACKAGE, pkg_idx);
             m_package[pkg_idx].pio_power_idx =
                 m_platform_io.push_control("POWER_PACKAGE_LIMIT",
                                            GEOPM_DOMAIN_PACKAGE, pkg_idx);

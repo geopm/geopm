@@ -585,6 +585,16 @@ namespace geopm
         }
         return iogroup->control_description(control_name);
     }
+
+    int PlatformIOImp::signal_behavior(const std::string &signal_name) const
+    {
+        auto iogroup = find_signal_iogroup(signal_name);
+        if (iogroup == nullptr) {
+            throw Exception("PlatformIOImp::signal_behavior(): unknown signal \"" + signal_name + "\"",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
+        return iogroup->signal_behavior(signal_name);
+    }
 }
 
 extern "C" {

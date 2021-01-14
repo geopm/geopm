@@ -50,6 +50,9 @@ namespace geopm
         public:
             SampleAggregatorImp();
             SampleAggregatorImp(PlatformIO &platio);
+            int push_signal(const std::string &signal_name,
+                            int domain_type,
+                            int domain_idx) override;
             int push_signal_total(const std::string &signal_idx,
                                   int domain_type,
                                   int domain_idx) override;
