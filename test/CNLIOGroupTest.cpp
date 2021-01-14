@@ -105,6 +105,7 @@ TEST_F(CNLIOGroupTest, valid_signals)
     EXPECT_NE(0u, cnl.signal_names().size());
     for (const auto &sig : cnl.signal_names()) {
         EXPECT_TRUE(cnl.is_valid_signal(sig));
+        EXPECT_LT(-1, cnl.signal_behavior(sig));
     }
     EXPECT_EQ(0u, cnl.control_names().size());
 }

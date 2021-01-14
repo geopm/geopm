@@ -341,6 +341,11 @@ namespace geopm
             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
 
+    int CNLIOGroup::signal_behavior(const std::string &signal_name) const
+    {
+        return -1;
+    }
+
     std::string CNLIOGroup::plugin_name(void)
     {
         return "CNL";
