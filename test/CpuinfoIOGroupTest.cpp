@@ -50,6 +50,7 @@
 using geopm::PlatformTopo;
 using geopm::CpuinfoIOGroup;
 using geopm::Exception;
+using geopm::IOGroup;
 
 class CpuinfoIOGroupTest: public :: testing :: Test
 {
@@ -97,6 +98,7 @@ TEST_F(CpuinfoIOGroupTest, valid_signals)
     EXPECT_NE(0u, freq_limits.signal_names().size());
     for (const auto &sig : freq_limits.signal_names()) {
         EXPECT_TRUE(freq_limits.is_valid_signal(sig));
+        EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT, freq_limits.signal_behavior(sig));
     }
     EXPECT_EQ(0u, freq_limits.control_names().size());
 }
