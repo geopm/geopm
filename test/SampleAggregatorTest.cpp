@@ -40,6 +40,7 @@
 #include "PlatformTopo.hpp"
 #include "Agg.hpp"
 #include "MockPlatformIO.hpp"
+#include "IOGroup.hpp"
 #include "geopm.h"
 #include "geopm_hash.h"
 #include "geopm_internal.h"
@@ -49,6 +50,7 @@
 using geopm::SampleAggregator;
 using geopm::SampleAggregatorImp;
 using geopm::PlatformTopo;
+using geopm::IOGroup;
 using testing::_;
 using testing::Return;
 
@@ -206,6 +208,12 @@ TEST_F(SampleAggregatorTest, sample_application)
     EXPECT_CALL(m_platio, push_signal("REGION_HASH", GEOPM_DOMAIN_CPU, 1));
     EXPECT_CALL(m_platio, push_signal("REGION_HASH", GEOPM_DOMAIN_CPU, 2));
     EXPECT_CALL(m_platio, push_signal("REGION_HASH", GEOPM_DOMAIN_CPU, 3));
+    EXPECT_CALL(m_platio, signal_behavior("TIME"))
+        .WillOnce(Return(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE));
+    EXPECT_CALL(m_platio, signal_behavior("ENERGY"))
+        .WillRepeatedly(Return(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE));
+    EXPECT_CALL(m_platio, signal_behavior("CYCLES"))
+        .WillRepeatedly(Return(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE));
     EXPECT_EQ(M_SIGNAL_TIME, m_agg->push_signal("TIME", GEOPM_DOMAIN_BOARD, 0));
     EXPECT_EQ(M_SIGNAL_ENERGY_0, m_agg->push_signal("ENERGY", GEOPM_DOMAIN_PACKAGE, 0));
     EXPECT_EQ(M_SIGNAL_ENERGY_1, m_agg->push_signal("ENERGY", GEOPM_DOMAIN_PACKAGE, 1));
@@ -287,6 +295,8 @@ TEST_F(SampleAggregatorTest, epoch_application_total)
 
     EXPECT_CALL(m_platio, push_signal("TIME", GEOPM_DOMAIN_BOARD, 0));
     EXPECT_CALL(m_platio, push_signal("REGION_HASH", GEOPM_DOMAIN_BOARD, 0));
+    EXPECT_CALL(m_platio, signal_behavior("TIME"))
+        .WillOnce(Return(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE));
     m_agg->push_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
     // regions before first epoch
     std::vector<uint64_t> pre_epoch_regions {reg_normal, GEOPM_REGION_HASH_UNMARKED};
