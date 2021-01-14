@@ -206,13 +206,13 @@ TEST_F(SampleAggregatorTest, sample_application)
     EXPECT_CALL(m_platio, push_signal("REGION_HASH", GEOPM_DOMAIN_CPU, 1));
     EXPECT_CALL(m_platio, push_signal("REGION_HASH", GEOPM_DOMAIN_CPU, 2));
     EXPECT_CALL(m_platio, push_signal("REGION_HASH", GEOPM_DOMAIN_CPU, 3));
-    EXPECT_EQ(M_SIGNAL_TIME, m_agg->push_signal_total("TIME", GEOPM_DOMAIN_BOARD, 0));
-    EXPECT_EQ(M_SIGNAL_ENERGY_0, m_agg->push_signal_total("ENERGY", GEOPM_DOMAIN_PACKAGE, 0));
-    EXPECT_EQ(M_SIGNAL_ENERGY_1, m_agg->push_signal_total("ENERGY", GEOPM_DOMAIN_PACKAGE, 1));
-    EXPECT_EQ(M_SIGNAL_CYCLES_0, m_agg->push_signal_total("CYCLES", GEOPM_DOMAIN_CPU, 0));
-    EXPECT_EQ(M_SIGNAL_CYCLES_1, m_agg->push_signal_total("CYCLES", GEOPM_DOMAIN_CPU, 1));
-    EXPECT_EQ(M_SIGNAL_CYCLES_2, m_agg->push_signal_total("CYCLES", GEOPM_DOMAIN_CPU, 2));
-    EXPECT_EQ(M_SIGNAL_CYCLES_3, m_agg->push_signal_total("CYCLES", GEOPM_DOMAIN_CPU, 3));
+    EXPECT_EQ(M_SIGNAL_TIME, m_agg->push_signal("TIME", GEOPM_DOMAIN_BOARD, 0));
+    EXPECT_EQ(M_SIGNAL_ENERGY_0, m_agg->push_signal("ENERGY", GEOPM_DOMAIN_PACKAGE, 0));
+    EXPECT_EQ(M_SIGNAL_ENERGY_1, m_agg->push_signal("ENERGY", GEOPM_DOMAIN_PACKAGE, 1));
+    EXPECT_EQ(M_SIGNAL_CYCLES_0, m_agg->push_signal("CYCLES", GEOPM_DOMAIN_CPU, 0));
+    EXPECT_EQ(M_SIGNAL_CYCLES_1, m_agg->push_signal("CYCLES", GEOPM_DOMAIN_CPU, 1));
+    EXPECT_EQ(M_SIGNAL_CYCLES_2, m_agg->push_signal("CYCLES", GEOPM_DOMAIN_CPU, 2));
+    EXPECT_EQ(M_SIGNAL_CYCLES_3, m_agg->push_signal("CYCLES", GEOPM_DOMAIN_CPU, 3));
 
     for (int idx = 0; idx < num_sample; ++idx) {
         // expected sample values
@@ -276,7 +276,7 @@ TEST_F(SampleAggregatorTest, sample_application)
                                "Invalid signal index");
     // Unpushed signal index
     GEOPM_EXPECT_THROW_MESSAGE(m_agg->sample_region(9999, regionA), GEOPM_ERROR_INVALID,
-                               "signal index not pushed with push_signal_total");
+                               "signal index not pushed with push_signal");
     // Unseen region
     EXPECT_DOUBLE_EQ(0.0, m_agg->sample_region(M_SIGNAL_TIME, 0x9999));
 }
@@ -287,7 +287,7 @@ TEST_F(SampleAggregatorTest, epoch_application_total)
 
     EXPECT_CALL(m_platio, push_signal("TIME", GEOPM_DOMAIN_BOARD, 0));
     EXPECT_CALL(m_platio, push_signal("REGION_HASH", GEOPM_DOMAIN_BOARD, 0));
-    m_agg->push_signal_total("TIME", GEOPM_DOMAIN_BOARD, 0);
+    m_agg->push_signal("TIME", GEOPM_DOMAIN_BOARD, 0);
     // regions before first epoch
     std::vector<uint64_t> pre_epoch_regions {reg_normal, GEOPM_REGION_HASH_UNMARKED};
     int step = 0;

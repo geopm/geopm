@@ -90,6 +90,8 @@ class MockPlatformIO : public geopm::PlatformIO
                            std::string(const std::string &signal_name));
         MOCK_CONST_METHOD1(control_description,
                            std::string(const std::string &control_name));
+        MOCK_CONST_METHOD1(signal_behavior,
+                           int(const std::string &signal_name));
 };
 
 #endif

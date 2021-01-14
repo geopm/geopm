@@ -365,7 +365,7 @@ namespace geopm
 
         for (const auto &field : m_sync_fields) {
             for (const auto &signal : field.supporting_signals) {
-                m_sync_signal_idx[signal] = m_sample_agg->push_signal_total(signal, GEOPM_DOMAIN_BOARD, 0);
+                m_sync_signal_idx[signal] = m_sample_agg->push_signal(signal, GEOPM_DOMAIN_BOARD, 0);
             }
         }
     }
@@ -379,13 +379,13 @@ namespace geopm
                 for (int domain_idx = 0; domain_idx < m_platform_topo.num_domain(domain_type); ++domain_idx) {
                     m_env_signal_name_idx.emplace_back(
                         signal_name + '-' + std::to_string(domain_idx),
-                        m_sample_agg->push_signal_total(signal_name_domain[0], domain_type, domain_idx));
+                        m_sample_agg->push_signal(signal_name_domain[0], domain_type, domain_idx));
                 }
             }
             else if (signal_name_domain.size() == 1) {
                 m_env_signal_name_idx.emplace_back(
                     signal_name,
-                    m_sample_agg->push_signal_total(signal_name, GEOPM_DOMAIN_BOARD, 0));
+                    m_sample_agg->push_signal(signal_name, GEOPM_DOMAIN_BOARD, 0));
             }
             else {
                 throw Exception("ReporterImp::init(): Environment report extension contains signals with multiple \"@\" characters.",
