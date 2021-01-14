@@ -42,6 +42,7 @@
 
 using geopm::ProfileIOGroup;
 using geopm::Exception;
+using geopm::IOGroup;
 using testing::Return;
 using testing::AtLeast;
 using testing::_;
@@ -82,6 +83,31 @@ TEST_F(ProfileIOGroupTest, is_valid)
         EXPECT_EQ(GEOPM_DOMAIN_CPU, m_group->signal_domain_type(sig));
         EXPECT_LT(-1, m_group->signal_behavior(sig));
     }
+
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_LABEL,
+              m_group->signal_behavior("REGION_HASH"));
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_LABEL,
+              m_group->signal_behavior("REGION_HINT"));
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+              m_group->signal_behavior("REGION_PROGRESS"));
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+              m_group->signal_behavior("TIME_HINT_UNKNOWN"));
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+              m_group->signal_behavior("TIME_HINT_UNSET"));
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+              m_group->signal_behavior("TIME_HINT_COMPUTE"));
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+              m_group->signal_behavior("TIME_HINT_MEMORY"));
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+              m_group->signal_behavior("TIME_HINT_NETWORK"));
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+              m_group->signal_behavior("TIME_HINT_IO"));
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+              m_group->signal_behavior("TIME_HINT_SERIAL"));
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+              m_group->signal_behavior("TIME_HINT_PARALLEL"));
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+              m_group->signal_behavior("TIME_HINT_IGNORE"));
 
     // no controls
     EXPECT_EQ(0u, m_group->control_names().size());
