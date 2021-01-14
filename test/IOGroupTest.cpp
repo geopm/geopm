@@ -51,6 +51,7 @@
 #include "Helper.hpp"
 #include "MockEpochRuntimeRegulator.hpp"
 #include "MockProfileIOSample.hpp"
+#include "geopm_test.hpp"
 
 using geopm::PluginFactory;
 using geopm::IOGroup;
@@ -159,4 +160,19 @@ TEST_F(IOGroupTest, controls_have_descriptions)
             EXPECT_NO_THROW(group->control_description(name)) << name;
         }
     }
+}
+
+TEST_F(IOGroupTest, string_to_behavior)
+{
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT,
+              IOGroup::string_to_behavior("constant"));
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE,
+              IOGroup::string_to_behavior("monotone"));
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE,
+              IOGroup::string_to_behavior("variable"));
+    EXPECT_EQ(IOGroup::M_SIGNAL_BEHAVIOR_LABEL,
+              IOGroup::string_to_behavior("label"));
+
+    GEOPM_EXPECT_THROW_MESSAGE(IOGroup::string_to_behavior("invalid"),
+                               GEOPM_ERROR_INVALID, "invalid behavior string");
 }
