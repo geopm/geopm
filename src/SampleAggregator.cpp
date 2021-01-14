@@ -37,11 +37,13 @@
 #include "geopm.h"
 #include "geopm_internal.h"
 #include "geopm_hash.h"
+#include "geopm_debug.hpp"
 #include "PlatformIO.hpp"
 #include "PlatformTopo.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
 #include "Accumulator.hpp"
+#include "IOGroup.hpp"
 
 namespace geopm
 {
@@ -62,6 +64,37 @@ namespace geopm
         , m_is_updated(false)
     {
 
+    }
+
+    int SampleAggregatorImp::push_signal(const std::string &signal_name,
+                                         int domain_type,
+                                         int domain_idx)
+    {
+        int result = -1;
+        switch (m_platform_io.signal_behavior(signal_name)) {
+            case IOGroup::M_SIGNAL_BEHAVIOR_CONSTANT:
+                throw Exception("SampleAggregregator::push_signal(): signal_name \"" +
+                                signal_name +
+                                "\" is constant and cannot be summarized over time.",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+                break;
+            case IOGroup::M_SIGNAL_BEHAVIOR_LABEL:
+                throw Exception("SampleAggregregator::push_signal(): signal_name \"" +
+                                signal_name +
+                                "\" is label and cannot be summarized over time.",
+                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+
+            case IOGroup::M_SIGNAL_BEHAVIOR_MONOTONE:
+                result = push_signal_total(signal_name, domain_type, domain_idx);
+                break;
+            case IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE:
+                result = push_signal_average(signal_name, domain_type, domain_idx);
+                break;
+            default:
+                GEOPM_DEBUG_ASSERT(false, "PlatformIO::signal_behavior() returned enum that is out of bounds");
+                break;
+        }
+        return result;
     }
 
     int SampleAggregatorImp::push_signal_total(const std::string &signal_name,

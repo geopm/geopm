@@ -196,6 +196,7 @@ namespace geopm
             ///        string can be used by tools to generate help
             ///        text for users of PlatformIO.
             virtual std::string control_description(const std::string &control_name) const = 0;
+            virtual int signal_behavior(const std::string &signal_name) const = 0;
     };
 
     PlatformIO &platform_io(void);
