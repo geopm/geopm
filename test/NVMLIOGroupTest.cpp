@@ -117,10 +117,12 @@ void NVMLIOGroupTest::TearDown()
 
 TEST_F(NVMLIOGroupTest, valid_signals)
 {
-    for (const auto &sig : m_group->signal_names()) {
-        EXPECT_TRUE(m_group->is_valid_signal(sig));
-        EXPECT_NE(GEOPM_DOMAIN_INVALID, m_->signal_domain_type(name));
-        EXPECT_LT(-1, m_group->signal_behavior(sig));
+    const int num_accelerator = m_platform_topo->num_domain(GEOPM_DOMAIN_BOARD_ACCELERATOR);
+    NVMLIOGroup nvml_io(*m_platform_topo, *m_device_pool);
+    for (const auto &sig : nvml_io.signal_names()) {
+        EXPECT_TRUE(nvml_io.is_valid_signal(sig));
+        EXPECT_NE(GEOPM_DOMAIN_INVALID, nvml_io.signal_domain_type(sig));
+        EXPECT_LT(-1, nvml_io.signal_behavior(sig));
     }
 }
 
