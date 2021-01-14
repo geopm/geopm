@@ -195,12 +195,16 @@ namespace geopm
             static m_units_e string_to_units(const std::string &str);
             /// @brief Convert the m_units_e value to the corresponding string.
             static std::string units_to_string(int);
+            /// @brief Convert a string to the corresponding m_signal_behavior_e value
+            static m_signal_behavior_e string_to_behavior(const std::string &str);
 
             static const std::string M_PLUGIN_PREFIX;
 
         private:
             static const std::string M_UNITS[];
+            static const std::string M_BEHAVIORS[];
             static const std::map<std::string, m_units_e> M_UNITS_STRING;
+            static const std::map<std::string, m_signal_behavior_e> M_BEHAVIOR_STRING;
     };
 
     class IOGroupFactory : public PluginFactory<IOGroup>
