@@ -100,6 +100,8 @@ namespace geopm
             std::function<std::string(double)> format_function(const std::string &signal_name) const override;
             std::string signal_description(const std::string &signal_name) const override;
             std::string control_description(const std::string &control_name) const override;
+            int signal_behavior(const std::string &signal_name) const override;
+
             /// @brief Parse a JSON string and add any raw MSRs and
             ///        fields as available signals and controls.
             void parse_json_msrs(const std::string &str);

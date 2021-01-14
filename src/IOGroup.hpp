@@ -55,6 +55,17 @@ namespace geopm
                 M_NUM_UNITS
             };
 
+            /// @brief Description of the runtime behavior of a signal
+            enum m_signal_behavior_e {
+                /// signals that have a contant value
+                M_SIGNAL_BEHAVIOR_CONSTANT,
+                /// signals that increase monotonically
+                M_SIGNAL_BEHAVIOR_MONOTONE,
+                /// signals that vary up and down over time
+                M_SIGNAL_BEHAVIOR_VARIABLE,
+                M_NUM_SIGNAL_BEHAVIOR
+            };
+
             IOGroup() = default;
             virtual ~IOGroup() = default;
             static std::vector<std::string> iogroup_names(void);
@@ -190,6 +201,15 @@ namespace geopm
             ///        string can be used by tools to generate help
             ///        text for users of the IOGroup.
             virtual std::string control_description(const std::string &control_name) const = 0;
+            /// @brief Returns a hint about how a signal will change
+            ///        as a function of time.
+            ///
+            /// This can be used when generating reports to decide how
+            /// to summarize a signal's value for the entire
+            /// application run.
+            ///
+            /// @param [in] signal_name Name of the signal.
+            virtual int signal_behavior(const std::string &signal_name) const = 0;
 
             /// @brief Convert a string to the corresponding m_units_e value
             static m_units_e string_to_units(const std::string &str);

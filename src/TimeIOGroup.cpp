@@ -233,4 +233,9 @@ namespace geopm
         throw Exception("TimeIOGroup::control_description(): there are no controls supported by the TimeIOGroup",
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
     }
+
+    int TimeIOGroup::signal_behavior(const std::string &signal_name) const
+    {
+        return -1;
+    }
 }

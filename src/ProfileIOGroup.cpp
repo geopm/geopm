@@ -417,6 +417,11 @@ namespace geopm
         return "";
     }
 
+    int ProfileIOGroup::signal_behavior(const std::string &signal_name) const
+    {
+        return -1;
+    }
+
     int ProfileIOGroup::check_signal(const std::string &signal_name, int domain_type, int domain_idx) const
     {
         if (!is_valid_signal(signal_name)) {

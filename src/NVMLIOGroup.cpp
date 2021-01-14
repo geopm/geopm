@@ -628,6 +628,11 @@ namespace geopm
         return m_control_available.at(control_name).m_description;
     }
 
+    int NVMLIOGroup::signal_behavior(const std::string &signal_name) const
+    {
+        return -1;
+    }
+
     // Name used for registration with the IOGroup factory
     std::string NVMLIOGroup::plugin_name(void)
     {

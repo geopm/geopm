@@ -229,4 +229,9 @@ namespace geopm
                         GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         return "";
     }
+
+    int DebugIOGroup::signal_behavior(const std::string &signal_name) const
+    {
+        return -1;
+    }
 }
