@@ -288,6 +288,7 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/IOGroupTest.signals_have_agg_functions \
               test/gtest_links/IOGroupTest.signals_have_descriptions \
               test/gtest_links/IOGroupTest.signals_have_format_functions \
+              test/gtest_links/IOGroupTest.string_to_behavior \
               test/gtest_links/MSRIOGroupTest.adjust \
               test/gtest_links/MSRIOGroupTest.control_error \
               test/gtest_links/MSRIOGroupTest.cpuid \
