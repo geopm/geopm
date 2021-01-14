@@ -73,6 +73,7 @@ namespace geopm
                 format_function(const std::string &signal_name) const override;
             std::string signal_description(const std::string &signal_name) const override;
             std::string control_description(const std::string &control_name) const override;
+            int signal_behavior(const std::string &signal_name) const override;
             static std::string plugin_name(void);
             static std::unique_ptr<IOGroup> make_plugin(void);
 
