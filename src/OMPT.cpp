@@ -74,7 +74,6 @@ namespace geopm
             /// Map from function address to geopm region ID
             std::map<size_t, uint64_t> m_function_region_id_map;
             bool m_do_ompt;
-            Profile &m_prof;
     };
 
     OMPT &OMPT::ompt(void)
@@ -84,14 +83,13 @@ namespace geopm
     }
 
     OMPTImp::OMPTImp()
-        : OMPTImp(environment().do_ompt(), Profile::default_profile())
+        : OMPTImp(environment().do_ompt())
     {
 
     }
 
-    OMPTImp::OMPTImp(bool do_ompt, Profile &prof)
+    OMPTImp::OMPTImp(bool do_ompt)
         : m_do_ompt(do_ompt)
-        , m_prof(prof)
     {
 
     }
