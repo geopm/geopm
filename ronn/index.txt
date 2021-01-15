@@ -80,7 +80,6 @@ geopm::PowerBalancerAgent(3)     GEOPM_CXX_MAN_PowerBalancerAgent.3
 geopm::PowerGovernor(3)          GEOPM_CXX_MAN_PowerGovernor.3
 geopm::PowerGovernorAgent(3)     GEOPM_CXX_MAN_PowerGovernorAgent.3
 geopm::ProfileIOGroup(3)         GEOPM_CXX_MAN_ProfileIOGroup.3
-geopm::ProfileIOSample(3)        GEOPM_CXX_MAN_ProfileIOSample.3
 geopm::RegionAggregator(3)       GEOPM_CXX_MAN_RegionAggregator.3
 geopm::SharedMemory(3)           GEOPM_CXX_MAN_SharedMemory.3
 geopm::TimeIOGroup(3)            GEOPM_CXX_MAN_TimeIOGroup.3
