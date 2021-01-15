@@ -72,7 +72,6 @@ ronn/GEOPM_CXX_MAN_PowerBalancerAgent.3.ronn
 ronn/GEOPM_CXX_MAN_PowerGovernor.3.ronn
 ronn/GEOPM_CXX_MAN_PowerGovernorAgent.3.ronn
 ronn/GEOPM_CXX_MAN_ProfileIOGroup.3.ronn
-ronn/GEOPM_CXX_MAN_ProfileIOSample.3.ronn
 ronn/GEOPM_CXX_MAN_SampleAggregator.3.ronn
 ronn/GEOPM_CXX_MAN_SharedMemory.3.ronn
 ronn/GEOPM_CXX_MAN_TimeIOGroup.3.ronn
