@@ -39,7 +39,6 @@
 #include "ApplicationRecordLog.hpp"
 #include "ApplicationStatus.hpp"
 #include "ProfileSampler.hpp"
-#include "EpochRuntimeRegulator.hpp"
 #include "Exception.hpp"
 #include "RecordFilter.hpp"
 #include "Environment.hpp"
@@ -361,15 +360,4 @@ namespace geopm
     {
         return m_sampler;
     }
-
-    void ApplicationSamplerImp::set_regulator(std::shared_ptr<EpochRuntimeRegulator> regulator)
-    {
-        m_regulator = regulator;
-    }
-
-    std::shared_ptr<EpochRuntimeRegulator> ApplicationSamplerImp::get_regulator(void)
-    {
-        return m_regulator;
-    }
-
 }
