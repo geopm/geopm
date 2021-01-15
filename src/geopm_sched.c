@@ -102,7 +102,6 @@ static size_t g_proc_cpuset_size = 0;
 
 /* If /proc/self/status is usable and correct then parse this file to
    determine the process affinity. */
-#ifdef GEOPM_PROCFS
 
 int geopm_sched_proc_cpuset_helper(int num_cpu, uint32_t *proc_cpuset, FILE *fid)
 {
@@ -219,64 +218,6 @@ static void geopm_proc_cpuset_once(void)
         free(proc_cpuset);
     }
 }
-
-/* If /proc/self/status is not available spawn a pthread requesting an
-   open affinity mask and then have the thread query the affinity mask
-   enforced by the OS using sched_getaffinity(). */
-#else /* GEOPM_PROCFS */
-
-static void *geopm_proc_cpuset_pthread(void *arg)
-{
-    void *result = NULL;
-    int err = sched_getaffinity(0, g_proc_cpuset_size, g_proc_cpuset);
-    if (err) {
-        result = (void *)(size_t)(errno ? errno : GEOPM_ERROR_RUNTIME);
-    }
-    return result;
-}
-
-static void geopm_proc_cpuset_once(void)
-{
-    int err = 0;
-    int num_cpu = geopm_sched_num_cpu();
-    pthread_t tid;
-    pthread_attr_t attr;
-
-    g_proc_cpuset = CPU_ALLOC(num_cpu);
-    if (g_proc_cpuset == NULL) {
-        err = ENOMEM;
-    }
-    if (!err) {
-        g_proc_cpuset_size = CPU_ALLOC_SIZE(num_cpu);
-        for (int i = 0; i < num_cpu; ++i) {
-            CPU_SET_S(i, g_proc_cpuset_size, g_proc_cpuset);
-        }
-        err = pthread_attr_init(&attr);
-    }
-    if (!err) {
-        err = pthread_attr_setaffinity_np(&attr, g_proc_cpuset_size, g_proc_cpuset);
-    }
-    if (!err) {
-        err = pthread_create(&tid, &attr, geopm_proc_cpuset_pthread, NULL);
-    }
-    if (!err) {
-        void *result = NULL;
-        err = pthread_join(tid, &result);
-        if (!err && result) {
-            err = (int)(size_t)result;
-        }
-    }
-    if (err && err != ENOMEM) {
-        for (int i = 0; i < num_cpu; ++i) {
-            CPU_SET_S(i, g_proc_cpuset_size, g_proc_cpuset);
-        }
-    }
-    if (!err) {
-        err = pthread_attr_destroy(&attr);
-    }
-}
-
-#endif /* GEOPM_PROCFS */
 
 int geopm_sched_proc_cpuset(int num_cpu, cpu_set_t *proc_cpuset)
 {
