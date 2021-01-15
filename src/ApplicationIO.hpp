@@ -66,52 +66,6 @@ namespace geopm
             /// @brief Returns the set of region names recorded by the
             ///        application.
             virtual std::set<std::string> region_name_set(void) const = 0;
-            /// @brief Returns the total runtime for a region.
-            /// @param [in] region_id The region ID.
-            virtual double total_region_runtime(uint64_t region_id) const = 0;
-            /// @brief Returns the total time spent in MPI for a
-            ///        region.
-            /// @param [in] region_id The region ID.
-            virtual double total_region_runtime_mpi(uint64_t region_id) const = 0;
-            /// @brief Returns the total time spent in MPI for the
-            ///        application.
-            virtual double total_app_runtime_mpi(void) const = 0;
-            /// @brief Returns the total ignore time spent in the
-            ///        application.
-            virtual double total_app_runtime_ignore(void) const = 0;
-            /// @brief Returns the number of times the epoch was executed.
-            virtual int total_epoch_count(void) const = 0;
-            /// @brief Returns the total time spent in ignored regions
-            ///        for the application after the first call to epoch.
-            virtual double total_epoch_runtime_ignore(void) const = 0;
-            /// @brief Returns the total runtime after the first epoch
-            ///        call.
-            virtual double total_epoch_runtime(void) const = 0;
-            /// @brief Returns the total time spent in MPI after the
-            ///        first epoch call.
-            virtual double total_epoch_runtime_network(void) const = 0;
-            /// @brief Returns the total package energy since the
-            ///        first epoch call.
-            virtual double total_epoch_energy_pkg(void) const = 0;
-            /// @brief Returns the total dram energy since the
-            ///        first epoch call.
-            virtual double total_epoch_energy_dram(void) const = 0;
-            /// @brief Returns the total number of times a region was
-            ///        entered and exited.
-            /// @param [in] region_id The region ID.
-            virtual int total_count(uint64_t region_id) const = 0;
-            /// @brief Check for updates from the application and
-            ///        adjust totals accordingly.
-            /// @param [in] comm Shared pointer to the comm used by
-            ///        the Controller.
-            virtual void update(std::shared_ptr<Comm> comm) = 0;
-            /// @brief Returns the list of all regions entered or
-            ///        exited since the last call to
-            ///        clear_region_info().
-            virtual std::list<geopm_region_info_s> region_info(void) const = 0;
-            /// @brief Resets the internal list of region entries and
-            ///        exits.
-            virtual void clear_region_info(void) = 0;
             /// @brief Signal to the application that the Controller
             ///        is ready to begin receiving samples.
             virtual void controller_ready(void) = 0;
@@ -121,50 +75,23 @@ namespace geopm
     };
 
     class ApplicationSampler;
-    class ProfileIOSample;
-    class PlatformIO;
-    class PlatformTopo;
 
     class ApplicationIOImp : public ApplicationIO
     {
         public:
             ApplicationIOImp();
-            ApplicationIOImp(ApplicationSampler &application_sampler,
-                             PlatformIO &platform_io,
-                             const PlatformTopo &platform_topo);
+            ApplicationIOImp(ApplicationSampler &application_sampler);
             virtual ~ApplicationIOImp();
             void connect(void) override;
             bool do_shutdown(void) const override;
             std::string report_name(void) const override;
             std::string profile_name(void) const override;
             std::set<std::string> region_name_set(void) const override;
-            double total_region_runtime(uint64_t region_id) const override;
-            double total_region_runtime_mpi(uint64_t region_id) const override;
-            double total_app_runtime_mpi(void) const override;
-            double total_app_runtime_ignore(void) const override;
-            int total_epoch_count(void) const override;
-            double total_epoch_runtime_ignore(void) const override;
-            double total_epoch_runtime(void) const override;
-            double total_epoch_runtime_network(void) const override;
-            double total_epoch_energy_pkg(void) const override;
-            double total_epoch_energy_dram(void) const override;
-            int total_count(uint64_t region_id) const override;
-            void update(std::shared_ptr<Comm> comm) override;
-            std::list<geopm_region_info_s> region_info(void) const override;
-            void clear_region_info(void) override;
             void controller_ready(void) override;
             void abort(void) override;
         private:
             static constexpr size_t M_SHMEM_REGION_SIZE = 2*1024*1024;
 
-            std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > m_prof_sample;
-            PlatformIO &m_platform_io;
-            const PlatformTopo &m_platform_topo;
-            std::vector<double> m_thread_progress;
-            std::vector<uint64_t> m_region_id;
-            // Per rank vector counting number of entries into MPI.
-            std::vector<uint64_t> m_num_mpi_enter;
-            std::vector<bool> m_is_epoch_changed;
             bool m_is_connected;
             ApplicationSampler &m_application_sampler;
     };
