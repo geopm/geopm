@@ -41,7 +41,6 @@
 #include "ApplicationIO.hpp"
 #include "ApplicationSampler.hpp"
 #include "Helper.hpp"
-#include "MockEpochRuntimeRegulator.hpp"
 #include "MockProfileSampler.hpp"
 #include "MockProfileIOSample.hpp"
 #include "MockPlatformIO.hpp"
@@ -57,11 +56,7 @@ class ApplicationIOTest : public ::testing::Test
 {
     protected:
         void SetUp();
-        size_t m_num_cpu_domain;
-        size_t m_num_package_domain;
-        size_t m_num_memory_domain;
         std::string m_shm_key = "test_shm";
-        MockEpochRuntimeRegulator *m_epoch_regulator;
         MockProfileSampler *m_sampler;
         MockProfileIOSample *m_pio_sample;
         MockPlatformIO m_platform_io;
@@ -81,23 +76,8 @@ void ApplicationIOTest::SetUp()
     auto tmp_pio = std::shared_ptr<MockProfileIOSample>(m_pio_sample);
     tmp_app_sampler.set_io_sample(tmp_pio);
 
-    m_epoch_regulator = new MockEpochRuntimeRegulator;
-    auto tmp_reg = std::shared_ptr<MockEpochRuntimeRegulator>(m_epoch_regulator);
-    tmp_app_sampler.set_regulator(tmp_reg);
-
     EXPECT_CALL(*m_sampler, initialize());
-    EXPECT_CALL(*m_sampler, rank_per_node());
-    EXPECT_CALL(*m_sampler, capacity());
-    m_num_cpu_domain = 4;
-    m_num_package_domain = 1;
-    m_num_memory_domain = 1;
-    EXPECT_CALL(m_platform_topo, num_domain(GEOPM_DOMAIN_CPU))
-        .WillOnce(Return(m_num_cpu_domain));
-    std::vector<int> ranks {1, 2, 3, 4};
-    EXPECT_CALL(*m_sampler, cpu_rank()).WillOnce(Return(ranks));
-    m_app_io = geopm::make_unique<ApplicationIOImp>(tmp_app_sampler,
-                                                    m_platform_io,
-                                                    m_platform_topo);
+    m_app_io = geopm::make_unique<ApplicationIOImp>(tmp_app_sampler);
     m_app_io->connect();
 }
 
@@ -115,47 +95,4 @@ TEST_F(ApplicationIOTest, passthrough)
     std::set<std::string> regions = {"region A", "region B"};
     EXPECT_CALL(*m_sampler, name_set()).WillOnce(Return(regions));
     EXPECT_EQ(regions, m_app_io->region_name_set());
-
-    uint64_t rid = 0x8888;
-    EXPECT_CALL(*m_epoch_regulator, total_region_runtime(rid))
-        .WillOnce(Return(8080));
-    EXPECT_EQ(8080, m_app_io->total_region_runtime(rid));
-
-    EXPECT_CALL(*m_epoch_regulator, total_region_runtime_mpi(rid))
-        .WillOnce(Return(909));
-    EXPECT_EQ(909, m_app_io->total_region_runtime_mpi(rid));
-
-    EXPECT_CALL(*m_epoch_regulator, total_epoch_runtime())
-        .WillOnce(Return(123));
-    EXPECT_EQ(123, m_app_io->total_epoch_runtime());
-
-    EXPECT_CALL(*m_epoch_regulator, total_app_runtime_mpi())
-        .WillOnce(Return(456));
-    EXPECT_EQ(456, m_app_io->total_app_runtime_mpi());
-
-    EXPECT_CALL(*m_epoch_regulator, total_count(rid))
-        .WillOnce(Return(77));
-    EXPECT_EQ(77, m_app_io->total_count(rid));
-
-    std::list<geopm_region_info_s> expected, result;
-    expected = { {0x123, GEOPM_REGION_HINT_UNKNOWN, 0.0, 3.2},
-                 {0x123, GEOPM_REGION_HINT_UNKNOWN, 1.0, 3.2},
-                 {0x345, GEOPM_REGION_HINT_UNKNOWN, 0.0, 3.2} };
-
-    EXPECT_CALL(*m_epoch_regulator, region_info())
-        .WillOnce(Return(expected));
-    result = m_app_io->region_info();
-    EXPECT_EQ(expected.size(), result.size());
-    auto exp_it = expected.cbegin();
-    for (auto res_it = result.cbegin(); (res_it != result.end()) &&(exp_it != expected.end());) {
-        EXPECT_EQ(exp_it->hash, res_it->hash);
-        EXPECT_EQ(exp_it->hint, res_it->hint);
-        EXPECT_EQ(exp_it->progress, res_it->progress);
-        EXPECT_EQ(exp_it->runtime, res_it->runtime);
-        ++res_it;
-        ++exp_it;
-    }
-
-    EXPECT_CALL(*m_epoch_regulator, clear_region_info());
-    m_app_io->clear_region_info();
 }
