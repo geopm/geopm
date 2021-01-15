@@ -62,10 +62,6 @@ class MockApplicationSampler : public geopm::ApplicationSampler
                      void(std::shared_ptr<geopm::ProfileSampler> sampler));
         MOCK_METHOD0(get_sampler,
                      std::shared_ptr<geopm::ProfileSampler>(void));
-        MOCK_METHOD1(set_regulator,
-                     void(std::shared_ptr<geopm::EpochRuntimeRegulator> regulator));
-        MOCK_METHOD0(get_regulator,
-                     std::shared_ptr<geopm::EpochRuntimeRegulator>(void));
         MOCK_CONST_METHOD1(get_name_map,
                            std::map<uint64_t, std::string>(uint64_t name_key));
         MOCK_CONST_METHOD1(get_short_region,
