@@ -197,7 +197,6 @@ ronn_man_noinst = man/GEOPM_CXX_MAN_Comm.3 \
                   man/GEOPM_CXX_MAN_PowerBalancerAgent.3 \
                   man/GEOPM_CXX_MAN_PowerGovernorAgent.3 \
                   man/GEOPM_CXX_MAN_ProfileIOGroup.3 \
-                  man/GEOPM_CXX_MAN_ProfileIOSample.3 \
                   # end
 
 ronn_man_beta = man/geopmendpoint.1 \
@@ -291,7 +290,6 @@ EXTRA_DIST = $(TUTORIAL_DIST) \
              ronn/GEOPM_CXX_MAN_PowerGovernor.3.ronn \
              ronn/GEOPM_CXX_MAN_PowerGovernorAgent.3.ronn \
              ronn/GEOPM_CXX_MAN_ProfileIOGroup.3.ronn \
-             ronn/GEOPM_CXX_MAN_ProfileIOSample.3.ronn \
              ronn/GEOPM_CXX_MAN_SampleAggregator.3.ronn \
              ronn/GEOPM_CXX_MAN_SharedMemory.3.ronn \
              ronn/GEOPM_CXX_MAN_TimeIOGroup.3.ronn \
@@ -563,8 +561,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/PowerGovernorAgent.hpp \
                             src/ProfileIOGroup.cpp \
                             src/ProfileIOGroup.hpp \
-                            src/ProfileIOSample.cpp \
-                            src/ProfileIOSample.hpp \
                             src/ProfileSampler.cpp \
                             src/ProfileSampler.hpp \
                             src/ProfileTable.cpp \

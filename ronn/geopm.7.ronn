@@ -404,7 +404,6 @@ Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation. All rights 
 **geopm::PowerBalancer(3)**,
 **geopm::PowerGovernor(3)**,
 **geopm::ProfileIOGroup(3)**,
-**geopm::ProfileIOSample(3)**,
 **geopm::RegionAggregator(3)**,
 **geopm::SharedMemory(3)**,
 **geopm::TimeIOGroup(3)**,
