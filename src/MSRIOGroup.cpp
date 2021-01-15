@@ -522,10 +522,19 @@ namespace geopm
 
     void MSRIOGroup::save_control(void)
     {
+        std::vector<std::string> unallowed_controls;
         for (auto &ctl : m_control_available) {
-            for (auto &dom_ctl : ctl.second.controls) {
-                dom_ctl->save();
+            try {
+                for (auto &dom_ctl : ctl.second.controls) {
+                    dom_ctl->save();
+                }
             }
+            catch (const Exception &) {
+                unallowed_controls.push_back(ctl.first);
+            }
+        }
+        for (auto &ctl : unallowed_controls) {
+            m_control_available.erase(ctl);
         }
     }
 
