@@ -36,12 +36,7 @@
 
 #include "Exception.hpp"
 #include "ApplicationSampler.hpp"
-#include "EpochRuntimeRegulator.hpp"
-#include "PlatformIO.hpp"
-#include "PlatformTopo.hpp"
 #include "ProfileSampler.hpp"
-#include "ProfileIOSample.hpp"
-#include "ProfileIOGroup.hpp"
 #include "Helper.hpp"
 #include "config.h"
 
@@ -54,22 +49,16 @@ namespace geopm
     constexpr size_t ApplicationIOImp::M_SHMEM_REGION_SIZE;
 
     ApplicationIOImp::ApplicationIOImp()
-        : ApplicationIOImp(ApplicationSampler::application_sampler(),
-                           platform_io(), platform_topo())
+        : ApplicationIOImp(ApplicationSampler::application_sampler())
     {
 
     }
 
-    ApplicationIOImp::ApplicationIOImp(ApplicationSampler &application_sampler,
-                                       PlatformIO &platform_io,
-                                       const PlatformTopo &platform_topo)
-        : m_platform_io(platform_io)
-        , m_platform_topo(platform_topo)
-        , m_thread_progress(m_platform_topo.num_domain(GEOPM_DOMAIN_CPU))
-        , m_is_connected(false)
+    ApplicationIOImp::ApplicationIOImp(ApplicationSampler &application_sampler)
+        : m_is_connected(false)
         , m_application_sampler(application_sampler)
     {
-        if (m_application_sampler.get_io_sample() == nullptr) {
+        if (m_application_sampler.get_sampler() == nullptr) {
             auto sampler = std::make_shared<ProfileSamplerImp>(M_SHMEM_REGION_SIZE);
             m_application_sampler.set_sampler(sampler);
         }
@@ -84,24 +73,12 @@ namespace geopm
     {
         if (!m_is_connected) {
             m_application_sampler.get_sampler()->initialize();
-            m_prof_sample.resize(m_application_sampler.get_sampler()->capacity());
-
-            if (m_application_sampler.get_io_sample() == nullptr) {
-                auto rank_per_node = m_application_sampler.get_sampler()->rank_per_node();
-                auto epoch_regulator = std::make_shared<EpochRuntimeRegulatorImp>(rank_per_node, m_platform_io, m_platform_topo);
-                m_application_sampler.set_regulator(epoch_regulator);
-
-                auto profile_io_sample = std::make_shared<ProfileIOSampleImp>();
-                m_application_sampler.set_io_sample(profile_io_sample);
-
-            }
             m_is_connected = true;
         }
     }
 
     void ApplicationIOImp::controller_ready(void)
     {
-        m_application_sampler.get_regulator()->init_unmarked_region();
         m_application_sampler.get_sampler()->controller_ready();
     }
 
@@ -114,11 +91,7 @@ namespace geopm
                             GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
         }
 #endif
-        bool result = m_application_sampler.get_sampler()->do_shutdown();
-        if (result) {
-            m_application_sampler.get_io_sample()->finalize_unmarked_region();
-        }
-        return result;
+        return m_application_sampler.get_sampler()->do_shutdown();
     }
 
     std::string ApplicationIOImp::report_name(void) const
@@ -155,189 +128,6 @@ namespace geopm
         }
 #endif
         return m_application_sampler.get_sampler()->name_set();
-    }
-
-    double ApplicationIOImp::total_region_runtime(uint64_t region_id) const
-    {
-#ifdef GEOPM_DEBUG
-        if (!m_is_connected) {
-            throw Exception("ApplicationIOImp::" + std::string(__func__) +
-                            " called before connect().",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        double result = 0.0;
-        try {
-            result = m_application_sampler.get_regulator()->total_region_runtime(region_id);
-        }
-        catch (const Exception &ex) {
-        }
-        return result;
-    }
-
-    double ApplicationIOImp::total_region_runtime_mpi(uint64_t region_id) const
-    {
-#ifdef GEOPM_DEBUG
-        if (!m_is_connected) {
-            throw Exception("ApplicationIOImp::" + std::string(__func__) +
-                            " called before connect().",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        double result = 0.0;
-        try {
-            result = m_application_sampler.get_regulator()->total_region_runtime_mpi(region_id);
-        }
-        catch (const Exception &ex) {
-        }
-        return result;
-    }
-
-    double ApplicationIOImp::total_epoch_runtime(void) const
-    {
-#ifdef GEOPM_DEBUG
-        if (!m_is_connected) {
-            throw Exception("ApplicationIOImp::" + std::string(__func__) +
-                            " called before connect().",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        return m_application_sampler.get_regulator()->total_epoch_runtime();
-    }
-
-    double ApplicationIOImp::total_epoch_runtime_network(void) const
-    {
-#ifdef GEOPM_DEBUG
-        if (!m_is_connected) {
-            throw Exception("ApplicationIOImp::" + std::string(__func__) +
-                            " called before connect().",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        return m_application_sampler.get_regulator()->total_epoch_runtime_network();
-    }
-
-    double ApplicationIOImp::total_epoch_energy_pkg(void) const
-    {
-#ifdef GEOPM_DEBUG
-        if (!m_is_connected) {
-            throw Exception("ApplicationIOImp::" + std::string(__func__) +
-                            " called before connect().",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        return m_application_sampler.get_regulator()->total_epoch_energy_pkg();
-    }
-
-    double ApplicationIOImp::total_epoch_energy_dram(void) const
-    {
-#ifdef GEOPM_DEBUG
-        if (!m_is_connected) {
-            throw Exception("ApplicationIOImp::" + std::string(__func__) +
-                            " called before connect().",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        return m_application_sampler.get_regulator()->total_epoch_energy_dram();
-    }
-
-    double ApplicationIOImp::total_app_runtime_mpi(void) const
-    {
-#ifdef GEOPM_DEBUG
-        if (!m_is_connected) {
-            throw Exception("ApplicationIOImp::" + std::string(__func__) +
-                            " called before connect().",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        return m_application_sampler.get_regulator()->total_app_runtime_mpi();
-    }
-
-    double ApplicationIOImp::total_app_runtime_ignore(void) const
-    {
-#ifdef GEOPM_DEBUG
-        if (!m_is_connected) {
-            throw Exception("ApplicationIOImp::" + std::string(__func__) +
-                            " called before connect().",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        return m_application_sampler.get_regulator()->total_app_runtime_ignore();
-    }
-
-    int ApplicationIOImp::total_epoch_count(void) const
-    {
-#ifdef GEOPM_DEBUG
-        if (!m_is_connected) {
-            throw Exception("ApplicationIOImp::" + std::string(__func__) +
-                            " called before connect().",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        return m_application_sampler.get_regulator()->total_epoch_count();
-    }
-
-    double ApplicationIOImp::total_epoch_runtime_ignore(void) const
-    {
-#ifdef GEOPM_DEBUG
-        if (!m_is_connected) {
-            throw Exception("ApplicationIOImp::" + std::string(__func__) +
-                            " called before connect().",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        return m_application_sampler.get_regulator()->total_epoch_runtime_ignore();
-    }
-
-    int ApplicationIOImp::total_count(uint64_t region_id) const
-    {
-#ifdef GEOPM_DEBUG
-        if (!m_is_connected) {
-            throw Exception("ApplicationIOImp::" + std::string(__func__) +
-                            " called before connect().",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        double result = 0.0;
-        try {
-            result = m_application_sampler.get_regulator()->total_count(region_id);
-        }
-        catch (const Exception &ex) {
-        }
-        return result;
-    }
-
-    void ApplicationIOImp::update(std::shared_ptr<Comm> comm)
-    {
-#ifdef GEOPM_DEBUG
-        if (!m_is_connected) {
-            throw Exception("ApplicationIOImp::" + std::string(__func__) +
-                            " called before connect().",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        size_t length = 0;
-        m_application_sampler.get_sampler()->sample(m_prof_sample, length, comm);
-        m_application_sampler.get_io_sample()->update(m_prof_sample.cbegin(),
-                                                      m_prof_sample.cbegin() + length);
-        m_application_sampler.get_io_sample()->update_thread(m_thread_progress);
-    }
-
-    std::list<geopm_region_info_s> ApplicationIOImp::region_info(void) const
-    {
-#ifdef GEOPM_DEBUG
-        if (!m_is_connected) {
-            throw Exception("ApplicationIOImp::" + std::string(__func__) +
-                            " called before connect().",
-                            GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
-        }
-#endif
-        return m_application_sampler.get_regulator()->region_info();
-    }
-
-    void ApplicationIOImp::clear_region_info(void)
-    {
-        m_application_sampler.get_regulator()->clear_region_info();
     }
 
     void ApplicationIOImp::abort(void)
