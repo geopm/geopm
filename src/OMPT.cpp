@@ -63,7 +63,7 @@ namespace geopm
     {
         public:
             OMPTImp();
-            OMPTImp(bool do_ompt, Profile &prof);
+            OMPTImp(bool do_ompt);
             virtual ~OMPTImp() = default;
             bool is_enabled(void) override;
             void region_enter(const void *function_ptr) override;
