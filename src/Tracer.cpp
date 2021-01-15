@@ -169,8 +169,7 @@ namespace geopm
         }
     }
 
-    void TracerImp::update(const std::vector<double> &agent_values,
-                           std::list<geopm_region_info_s> region_entry_exit)
+    void TracerImp::update(const std::vector<double> &agent_values)
     {
         if (m_is_trace_enabled) {
 #ifdef GEOPM_DEBUG
