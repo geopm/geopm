@@ -159,6 +159,8 @@ namespace geopm
             /// @brief Signal application of failure.
             virtual void abort(void) = 0;
             virtual std::vector<struct geopm_prof_message_s> sample_cache(void) = 0;
+
+            virtual void check_sample_end(void) = 0;
     };
 
 
@@ -279,6 +281,7 @@ namespace geopm
             void controller_ready(void) override;
             void abort(void) override;
             std::vector<struct geopm_prof_message_s> sample_cache(void) override;
+            void check_sample_end(void);
         private:
             /// Holds the shared memory region used for application coordination
             /// and control.
