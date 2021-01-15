@@ -196,6 +196,14 @@ namespace geopm
             ///        string can be used by tools to generate help
             ///        text for users of PlatformIO.
             virtual std::string control_description(const std::string &control_name) const = 0;
+            /// @brief Returns a hint about how a signal will change
+            ///        as a function of time.
+            ///
+            /// This can be used when generating reports to decide how
+            /// to summarize a signal's value for the entire
+            /// application run.
+            ///
+            /// @param [in] signal_name Name of the signal.
             virtual int signal_behavior(const std::string &signal_name) const = 0;
     };
 
