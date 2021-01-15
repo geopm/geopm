@@ -104,6 +104,9 @@ geopm::CNLIOGroup(3) -- IOGroup for interaction with Compute Node Linux
   * `virtual string control_description(`:
     `const string &`_control_name_`) const = 0;`
 
+  * `virtual string signal_behavior(`:
+    `const string &`_signal_name_`) const = 0;`
+
   * `static std::string plugin_name(`:
     `void);`
 
@@ -185,6 +188,12 @@ as signals.  These values are obtained through the **proc(5)** filesystem.
 
   * `control_description`():
     Does nothing; this IOGroup does not provide any controls.
+
+  * `signal_behavior`():
+    Returns one of the IOGroup::signal_behavior_e values which
+    describes about how a signal will change as a function of time.
+    This can be used when generating reports to decide how to
+    summarize a signal's value for the entire application run.
 
   * `plugin_name`():
     Returns the name of the plugin to use when this plugin is

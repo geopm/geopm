@@ -182,6 +182,12 @@ time since GEOPM startup.
   * `control_description`():
     Does nothing; this IOGroup does not provide any controls.
 
+  * `signal_behavior`():
+    Returns one of the IOGroup::signal_behavior_e values which
+    describes about how a signal will change as a function of time.
+    This can be used when generating reports to decide how to
+    summarize a signal's value for the entire application run.
+
   * `plugin_name`():
     Returns the name of the plugin to use when this plugin is
     registered with the IOGroup factory; see
