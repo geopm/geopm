@@ -49,7 +49,6 @@
 #include "PlatformTopo.hpp"
 #include "ProfileIOGroup.hpp"
 #include "Helper.hpp"
-#include "MockEpochRuntimeRegulator.hpp"
 #include "geopm_test.hpp"
 
 using geopm::PluginFactory;
@@ -66,9 +65,6 @@ class IOGroupTest : public ::testing::Test
         PluginFactory<IOGroup> &m_factory;
         std::vector<std::string> m_plugin_names;
         std::vector<std::unique_ptr<IOGroup> > m_plugins;
-
-        // Used by ProfileIOGroup
-        MockEpochRuntimeRegulator m_epoch_reg;
 };
 
 IOGroupTest::IOGroupTest()
