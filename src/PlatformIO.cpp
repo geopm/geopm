@@ -299,6 +299,10 @@ namespace geopm
             throw Exception("PlatformIOImp::push_control(): pushing controls after read_batch() or adjust().",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
+        if (!m_do_restore) {
+            throw Exception("PlatformIOImp::push_control(): pushing controls before calling save_control().",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+        }
         if (domain_type < 0 || domain_type >= GEOPM_NUM_DOMAIN) {
             throw Exception("PlatformIOImp::push_control(): domain_type is out of range",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
