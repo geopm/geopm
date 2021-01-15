@@ -42,7 +42,6 @@
 #include "ApplicationSampler.hpp"
 #include "Helper.hpp"
 #include "MockProfileSampler.hpp"
-#include "MockProfileIOSample.hpp"
 #include "MockPlatformIO.hpp"
 #include "MockPlatformTopo.hpp"
 
@@ -58,7 +57,6 @@ class ApplicationIOTest : public ::testing::Test
         void SetUp();
         std::string m_shm_key = "test_shm";
         MockProfileSampler *m_sampler;
-        MockProfileIOSample *m_pio_sample;
         MockPlatformIO m_platform_io;
         MockPlatformTopo m_platform_topo;
         std::unique_ptr<ApplicationIO> m_app_io;
@@ -71,10 +69,6 @@ void ApplicationIOTest::SetUp()
     m_sampler = new MockProfileSampler;
     auto tmp_s = std::shared_ptr<MockProfileSampler>(m_sampler);
     tmp_app_sampler.set_sampler(tmp_s);
-
-    m_pio_sample = new MockProfileIOSample;
-    auto tmp_pio = std::shared_ptr<MockProfileIOSample>(m_pio_sample);
-    tmp_app_sampler.set_io_sample(tmp_pio);
 
     EXPECT_CALL(*m_sampler, initialize());
     m_app_io = geopm::make_unique<ApplicationIOImp>(tmp_app_sampler);

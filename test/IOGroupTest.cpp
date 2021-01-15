@@ -50,7 +50,6 @@
 #include "ProfileIOGroup.hpp"
 #include "Helper.hpp"
 #include "MockEpochRuntimeRegulator.hpp"
-#include "MockProfileIOSample.hpp"
 #include "geopm_test.hpp"
 
 using geopm::PluginFactory;
@@ -70,7 +69,6 @@ class IOGroupTest : public ::testing::Test
 
         // Used by ProfileIOGroup
         MockEpochRuntimeRegulator m_epoch_reg;
-        std::shared_ptr<MockProfileIOSample> m_profile_sample;
 };
 
 IOGroupTest::IOGroupTest()
