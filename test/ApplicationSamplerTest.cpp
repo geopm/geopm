@@ -37,7 +37,6 @@
 
 #include "ApplicationSamplerImp.hpp"
 #include "MockProfileSampler.hpp"
-#include "MockEpochRuntimeRegulator.hpp"
 #include "MockApplicationRecordLog.hpp"
 #include "MockRecordFilter.hpp"
 #include "MockApplicationStatus.hpp"
@@ -53,7 +52,6 @@ using testing::DoAll;
 using geopm::ApplicationSampler;
 using geopm::ApplicationSamplerImp;
 using geopm::ProfileSampler;
-using geopm::EpochRuntimeRegulator;
 using geopm::record_s;
 using geopm::short_region_s;
 using geopm::RecordFilter;
@@ -65,7 +63,6 @@ class ApplicationSamplerTest : public ::testing::Test
     protected:
         void SetUp();
         std::shared_ptr<MockProfileSampler> m_mock_profile_sampler;
-        std::shared_ptr<MockEpochRuntimeRegulator> m_mock_regulator;
         std::shared_ptr<ApplicationSampler> m_app_sampler;
         std::map<int, ApplicationSamplerImp::m_process_s> m_process_map;
         std::shared_ptr<MockRecordFilter> m_filter_0;
@@ -79,7 +76,6 @@ class ApplicationSamplerTest : public ::testing::Test
 void ApplicationSamplerTest::SetUp()
 {
     m_mock_profile_sampler = std::make_shared<MockProfileSampler>();
-    m_mock_regulator = std::make_shared<MockEpochRuntimeRegulator>();
     m_filter_0 = std::make_shared<MockRecordFilter>();
     m_filter_1 = std::make_shared<MockRecordFilter>();
     m_record_log_0 = std::make_shared<MockApplicationRecordLog>();
@@ -94,7 +90,6 @@ void ApplicationSamplerTest::SetUp()
 
     m_app_sampler = std::make_shared<ApplicationSamplerImp>(m_mock_status, m_num_cpu, m_process_map, false, "");
     m_app_sampler->set_sampler(m_mock_profile_sampler);
-    m_app_sampler->set_regulator(m_mock_regulator);
     m_app_sampler->time_zero(geopm_time_s {{0,0}});
 }
 

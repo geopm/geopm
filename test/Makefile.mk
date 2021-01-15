@@ -253,11 +253,6 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/EpochIOGroupTest.read_batch \
               test/gtest_links/EpochIOGroupTest.sample_count \
               test/gtest_links/EpochIOGroupTest.valid_signals \
-              test/gtest_links/EpochRuntimeRegulatorTest.all_ranks_enter_exit \
-              test/gtest_links/EpochRuntimeRegulatorTest.epoch_runtime \
-              test/gtest_links/EpochRuntimeRegulatorTest.invalid_ranks \
-              test/gtest_links/EpochRuntimeRegulatorTest.rank_enter_exit_trace \
-              test/gtest_links/EpochRuntimeRegulatorTest.unknown_region \
               test/gtest_links/ExceptionTest.check_ronn \
               test/gtest_links/ExceptionTest.hello \
               test/gtest_links/ExceptionTest.last_message \
@@ -452,12 +447,6 @@ GTEST_TESTS = test/gtest_links/AcceleratorTopoTest.default_config \
               test/gtest_links/RecordFilterTest.make_proxy_epoch \
               test/gtest_links/RecordFilterTest.make_edit_distance \
               test/gtest_links/ReporterTest.generate \
-              test/gtest_links/RuntimeRegulatorTest.all_in_and_out \
-              test/gtest_links/RuntimeRegulatorTest.all_reenter \
-              test/gtest_links/RuntimeRegulatorTest.check_start_count \
-              test/gtest_links/RuntimeRegulatorTest.config_rank_then_workers \
-              test/gtest_links/RuntimeRegulatorTest.exceptions \
-              test/gtest_links/RuntimeRegulatorTest.one_rank_reenter_and_exit \
               test/gtest_links/SampleAggregatorTest.epoch_application_total \
               test/gtest_links/SampleAggregatorTest.sample_application \
               test/gtest_links/SchedTest.test_proc_cpuset_0 \
@@ -608,7 +597,6 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/EnvironmentTest.cpp \
                           test/EpochIOGroupTest.cpp \
                           test/EpochIOGroupIntegrationTest.cpp \
-                          test/EpochRuntimeRegulatorTest.cpp \
                           test/ExceptionTest.cpp \
                           test/FilePolicyTest.cpp \
                           test/FrequencyGovernorTest.cpp \
@@ -633,7 +621,6 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/MockEndpointPolicyTracer.hpp \
                           test/MockEndpointUser.hpp \
                           test/MockEnergyEfficientRegion.hpp \
-                          test/MockEpochRuntimeRegulator.hpp \
                           test/MockFrequencyGovernor.hpp \
                           test/MockIOGroup.hpp \
                           test/MockMSRIO.hpp \
@@ -647,7 +634,6 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/MockProfileTracer.hpp \
                           test/MockRecordFilter.hpp \
                           test/MockReporter.hpp \
-                          test/MockRuntimeRegulator.hpp \
                           test/MockSampleAggregator.hpp \
                           test/MockSharedMemory.hpp \
                           test/MockSignal.hpp \
@@ -673,7 +659,6 @@ test_geopm_test_SOURCES = test/AcceleratorTopoTest.cpp \
                           test/ProcessRegionAggregatorTest.cpp \
                           test/RecordFilterTest.cpp \
                           test/ReporterTest.cpp \
-                          test/RuntimeRegulatorTest.cpp \
                           test/SampleAggregatorTest.cpp \
                           test/SchedTest.cpp \
                           test/SharedMemoryTest.cpp \
