@@ -170,17 +170,6 @@ namespace geopm
                 content_it += rank_length;
                 length += rank_length;
             }
-            if (m_ctl_msg->is_sample_end()) {  // M_STATUS_SAMPLE_END
-                comm->barrier();
-                m_ctl_msg->step();
-                while (!m_ctl_msg->is_name_begin() &&
-                       !m_ctl_msg->is_shutdown()) {
-
-                }
-                if (m_ctl_msg->is_name_begin()) {  // M_STATUS_NAME_BEGIN
-                    region_names();
-                }
-            }
         }
         else if (!m_ctl_msg->is_shutdown()) {
             throw Exception("ProfileSamplerImp: invalid application status, expected shutdown status", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -192,6 +181,21 @@ namespace geopm
              content_it != content_end;
              ++content_it, ++cache_it) {
              *cache_it = content_it->second;
+        }
+    }
+
+    void ProfileSamplerImp::check_sample_end(void)
+    {
+        if (m_ctl_msg->is_sample_end()) {  // M_STATUS_SAMPLE_END
+            //comm->barrier();  // TODO: is this needed?
+            m_ctl_msg->step();
+            while (!m_ctl_msg->is_name_begin() &&
+                   !m_ctl_msg->is_shutdown()) {
+
+            }
+            if (m_ctl_msg->is_name_begin()) {  // M_STATUS_NAME_BEGIN
+                region_names();
+            }
         }
     }
 
