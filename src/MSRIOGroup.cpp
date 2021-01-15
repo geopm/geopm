@@ -220,7 +220,8 @@ namespace geopm
                                                    agg_function(msr_name),
                                                    ts.description +
                                                    "\n    alias_for: Temperature derived from PROCHOT and "
-                                                   + ts.msr_name};
+                                                   + ts.msr_name,
+                                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE};
             }
         }
     }
@@ -278,7 +279,8 @@ namespace geopm
                                                    energy_domain,
                                                    IOGroup::M_UNITS_WATTS,
                                                    agg_function(msr_name),
-                                                   ps.description + "\n    alias_for: " + ps.msr_name + " rate of change"};
+                                                   ps.description + "\n    alias_for: " + ps.msr_name + " rate of change",
+                                                   IOGroup::M_SIGNAL_BEHAVIOR_VARIABLE};
             }
         }
     }
