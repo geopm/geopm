@@ -162,11 +162,6 @@ if test "x$enable_overhead" = "x1" ; then
 fi
 AC_SUBST([enable_overhead])
 
-if test "x$enable_procfs" = "x1" ; then
-  AC_DEFINE([GEOPM_PROCFS], [ ], [Enables use of procfs for process CPU affinity])
-fi
-AC_SUBST([enable_procfs])
-
 if test "x$enable_msrsafe_ioctl_write" = "x1" ; then
   AC_DEFINE([GEOPM_MSRSAFE_IOCTL_WRITE], [ ], [Enables use of msr-safe ioctl feature for writing (broken as of msr-safe version 1.2.0)])
 fi
