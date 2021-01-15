@@ -116,6 +116,9 @@ hidden by the singleton accessor.
   * `virtual function<double(const vector<double> &)> PlatformIO::agg_function(`:
     `const string &`_signal_name_`) const = 0;`
 
+  * `virtual string signal_behavior(`:
+    `const string &`_signal_name_`) const = 0;`
+
   * `virtual void PlatformIO::register_iogroup(`:
     `shared_ptr<IOGroup>` _iogroup_`) = 0;`
 
@@ -293,8 +296,16 @@ encoded in this way.
     Will return `GEOPM_DOMAIN_INVALID` if the control
     name is not supported.
 
-  * `agg_function()`:
+  * `agg_function`():
+    Returns the function that should be used to aggregate
+    _signal_name_.  If one was not previously specified by this class,
+    the default function is select_first from **geopm::Agg(3)**.
 
+  * `signal_behavior`():
+    Returns one of the IOGroup::signal_behavior_e values which
+    describes about how a signal will change as a function of time.
+    This can be used when generating reports to decide how to
+    summarize a signal's value for the entire application run.
 
 ## SERIAL CLASS METHODS
 

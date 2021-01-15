@@ -232,6 +232,12 @@ It relies on **geopm::MSR(3)** and **geopm::MSRIO(3)**.
     Software Developer's Manual at
     <https://software.intel.com/en-us/articles/intel-sdm>.
 
+  * `signal_behavior`():
+    Returns one of the IOGroup::signal_behavior_e values which
+    describes about how a signal will change as a function of time.
+    This can be used when generating reports to decide how to
+    summarize a signal's value for the entire application run.
+
   * `msr_whitelist`():
     Fill string with the msr-safe whitelist file contents reflecting
     all known MSRs for the current platform, or if _cpuid_ is

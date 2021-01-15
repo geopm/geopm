@@ -119,6 +119,9 @@ to enable better rendering of this manual.
   * `virtual string control_description(`:
     `const string &`_control_name_`) const = 0;`
 
+  * `virtual string signal_behavior(`:
+    `const string &`_signal_name_`) const = 0;`
+
 ## DESCRIPTION
 The `IOGroup` class is an abstract pure virtual class that defines the high
 level interface employed by plugins for sample input and control output.  An
@@ -278,6 +281,12 @@ documentation about how to extend IOGroups.
   * `control_description`():
     Returns a description of the control. This string can be used by
     tools to generate help text for users of the IOGroup.
+
+  * `signal_behavior`():
+    Returns one of the IOGroup::signal_behavior_e values which
+    describes about how a signal will change as a function of time.
+    This can be used when generating reports to decide how to
+    summarize a signal's value for the entire application run.
 
 ## EXAMPLE
 Please see the [GEOPM IOGroup
