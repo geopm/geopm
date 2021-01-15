@@ -147,12 +147,7 @@ namespace geopm
     {
         uint64_t rid = region_id(parallel_function);
         if (rid != GEOPM_REGION_HASH_UNMARKED) {
-            try {
-                m_prof.enter(rid);
-            }
-            catch (const Exception &) {
-
-            }
+            geopm_prof_enter(rid);
         }
     }
 
@@ -160,12 +155,7 @@ namespace geopm
     {
         uint64_t rid = region_id(parallel_function);
         if (rid != GEOPM_REGION_HASH_UNMARKED) {
-            try {
-                m_prof.exit(rid);
-            }
-            catch (const Exception &) {
-
-            }
+            geopm_prof_exit(rid);
         }
     }
 }
