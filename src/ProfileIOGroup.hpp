@@ -42,7 +42,6 @@
 namespace geopm
 {
     class ApplicationSampler;
-    class ProfileIOSample;
     class PlatformTopo;
 
     /// @brief IOGroup that provides signals from the application.
