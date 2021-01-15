@@ -172,6 +172,10 @@ namespace geopm
             throw Exception("ApplicationSamplerImp::" + std::string(__func__) + "(): cannot read process info before connect().",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
         }
+
+        // TODO: temporary until handshake fixed
+        m_sampler->check_sample_end();
+
         m_status->update_cache();
 
         if (!m_is_first_update) {
