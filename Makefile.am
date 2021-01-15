@@ -507,8 +507,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/Environment.hpp \
                             src/EpochIOGroup.cpp \
                             src/EpochIOGroup.hpp \
-                            src/EpochRuntimeRegulator.cpp \
-                            src/EpochRuntimeRegulator.hpp \
                             src/Exception.cpp \
                             src/Exception.hpp \
                             src/FilePolicy.cpp \
@@ -578,8 +576,6 @@ libgeopmpolicy_la_SOURCES = contrib/json11/json11.cpp \
                             src/RecordFilter.hpp \
                             src/Reporter.cpp \
                             src/Reporter.hpp \
-                            src/RuntimeRegulator.cpp \
-                            src/RuntimeRegulator.hpp \
                             src/SampleAggregator.cpp \
                             src/SampleAggregator.hpp \
                             src/SampleAggregatorImp.hpp \

@@ -47,7 +47,6 @@ namespace geopm
 {
     class ApplicationRecordLog;
     class ProfileSampler;
-    class EpochRuntimeRegulator;
     struct record_s;
     struct short_region_s;
 
@@ -172,8 +171,6 @@ namespace geopm
             // Deprecated API's below for access to legacy objects
             virtual void set_sampler(std::shared_ptr<ProfileSampler> sampler) = 0;
             virtual std::shared_ptr<ProfileSampler> get_sampler(void) = 0;
-            virtual void set_regulator(std::shared_ptr<EpochRuntimeRegulator> regulator) = 0;
-            virtual std::shared_ptr<EpochRuntimeRegulator> get_regulator(void) = 0;
         protected:
             virtual ~ApplicationSampler() = default;
             ApplicationSampler() = default;
