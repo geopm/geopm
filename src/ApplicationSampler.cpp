@@ -39,7 +39,6 @@
 #include "ApplicationRecordLog.hpp"
 #include "ApplicationStatus.hpp"
 #include "ProfileSampler.hpp"
-#include "ProfileIOSample.hpp"
 #include "EpochRuntimeRegulator.hpp"
 #include "Exception.hpp"
 #include "RecordFilter.hpp"
@@ -373,13 +372,4 @@ namespace geopm
         return m_regulator;
     }
 
-    void ApplicationSamplerImp::set_io_sample(std::shared_ptr<ProfileIOSample> io_sample)
-    {
-        m_io_sample = io_sample;
-    }
-
-    std::shared_ptr<ProfileIOSample> ApplicationSamplerImp::get_io_sample(void)
-    {
-        return m_io_sample;
-    }
 }

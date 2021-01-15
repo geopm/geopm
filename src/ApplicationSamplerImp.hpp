@@ -77,12 +77,9 @@ namespace geopm
             std::shared_ptr<ProfileSampler> get_sampler(void) override;
             void set_regulator(std::shared_ptr<EpochRuntimeRegulator> regulator) override;
             std::shared_ptr<EpochRuntimeRegulator> get_regulator(void) override;
-            void set_io_sample(std::shared_ptr<ProfileIOSample> io_sample) override;
-            std::shared_ptr<ProfileIOSample> get_io_sample(void) override;
         private:
             std::shared_ptr<ProfileSampler> m_sampler;
             std::shared_ptr<EpochRuntimeRegulator> m_regulator;
-            std::shared_ptr<ProfileIOSample> m_io_sample;
             struct geopm_time_s m_time_zero;
             std::vector<record_s> m_record_buffer;
             std::vector<short_region_s> m_short_region_buffer;

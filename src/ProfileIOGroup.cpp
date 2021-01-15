@@ -37,7 +37,6 @@
 #include "PlatformTopo.hpp"
 #include "ApplicationSampler.hpp"
 #include "Helper.hpp"
-#include "ProfileIOSample.hpp"
 #include "Exception.hpp"
 #include "Agg.hpp"
 #include "geopm_hash.h"
