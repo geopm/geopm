@@ -41,12 +41,6 @@
 class MockProfileSampler : public geopm::ProfileSampler
 {
     public:
-        MOCK_CONST_METHOD0(capacity,
-                           size_t (void));
-        MOCK_METHOD3(sample,
-                     void (std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content,
-                           size_t &length,
-                           std::shared_ptr<geopm::Comm> comm));
         MOCK_CONST_METHOD0(do_shutdown,
                      bool (void));
         MOCK_CONST_METHOD0(do_report,

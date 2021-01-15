@@ -147,43 +147,6 @@ namespace geopm
         return result;
     }
 
-    size_t ProfileSamplerImp::capacity(void) const
-    {
-        size_t result = 0;
-        for (auto it = m_rank_sampler.begin(); it != m_rank_sampler.end(); ++it) {
-            result += (*it)->capacity();
-        }
-        return result;
-    }
-
-    void ProfileSamplerImp::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> > &content, size_t &length, std::shared_ptr<Comm> comm)
-    {
-        length = 0;
-        if (m_ctl_msg->is_sample_begin() ||
-            m_ctl_msg->is_sample_end()) {
-            auto content_it = content.begin();
-            for (auto rank_sampler_it = m_rank_sampler.begin();
-                 rank_sampler_it != m_rank_sampler.end();
-                 ++rank_sampler_it) {
-                size_t rank_length = 0;
-                (*rank_sampler_it)->sample(content_it, rank_length);
-                content_it += rank_length;
-                length += rank_length;
-            }
-        }
-        else if (!m_ctl_msg->is_shutdown()) {
-            throw Exception("ProfileSamplerImp: invalid application status, expected shutdown status", GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
-        }
-        auto content_end = content.begin() + length;
-        m_cache.resize(length);
-        auto cache_it = m_cache.begin();
-        for (auto content_it = content.begin();
-             content_it != content_end;
-             ++content_it, ++cache_it) {
-             *cache_it = content_it->second;
-        }
-    }
-
     void ProfileSamplerImp::check_sample_end(void)
     {
         if (m_ctl_msg->is_sample_end()) {  // M_STATUS_SAMPLE_END
@@ -280,16 +243,6 @@ namespace geopm
         if (m_table_shmem) {
             m_table_shmem->unlink();
         }
-    }
-
-    size_t ProfileRankSamplerImp::capacity(void) const
-    {
-        return m_table->capacity();
-    }
-
-    void ProfileRankSamplerImp::sample(std::vector<std::pair<uint64_t, struct geopm_prof_message_s> >::iterator content_begin, size_t &length)
-    {
-        m_table->dump(content_begin, length);
     }
 
     bool ProfileRankSamplerImp::name_fill(std::set<std::string> &name_set)
