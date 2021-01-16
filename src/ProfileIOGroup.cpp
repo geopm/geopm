@@ -181,7 +181,7 @@ namespace geopm
         }
         if (m_do_read[M_SIGNAL_REGION_HINT]) {
             for (int idx = 0; idx < m_num_cpu; ++idx) {
-                m_per_cpu_sample[M_SIGNAL_REGION_HINT][idx] = m_application_sampler.cpu_hint(idx);
+                m_per_cpu_sample[M_SIGNAL_REGION_HINT][idx] = hint_to_signal(m_application_sampler.cpu_hint(idx));
             }
         }
         if (m_do_read[M_SIGNAL_THREAD_PROGRESS]) {
@@ -212,6 +212,14 @@ namespace geopm
             return NAN;
         }
         return hash;
+    }
+
+    double ProfileIOGroup::hint_to_signal(uint64_t hint)
+    {
+        if (hint == GEOPM_REGION_HINT_INACTIVE) {
+            return NAN;
+        }
+        return hint;
     }
 
     uint64_t ProfileIOGroup::signal_type_to_hint(int signal_type)

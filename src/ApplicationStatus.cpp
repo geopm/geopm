@@ -74,18 +74,11 @@ namespace geopm
         m_cache.resize(m_shmem->size());
 
         // initialize shmem if all zero is not appropriate
-        for (int ii = 0; ii < m_num_cpu; ++ii) {
-            m_buffer[ii].process = -1;
-            m_cache[ii].process = -1;
-            m_buffer[ii].hash = GEOPM_REGION_HASH_INVALID;
-            m_cache[ii].hash = GEOPM_REGION_HASH_INVALID;
-            m_buffer[ii].hint = GEOPM_REGION_HINT_UNSET;
-            m_cache[ii].hint = GEOPM_REGION_HINT_UNSET;
-            m_buffer[ii].total_work = 0;
-            m_cache[ii].total_work = 0;
-            m_buffer[ii].completed_work = 0;
-            m_cache[ii].completed_work = 0;
+        for (int cpu = 0; cpu < m_num_cpu; ++cpu) {
+            set_process({cpu}, -1);
+            set_total_work_units(cpu, 0);
         }
+        update_cache();
     }
 
     void ApplicationStatusImp::set_hint(int cpu_idx, uint64_t hint)
@@ -204,9 +197,14 @@ namespace geopm
                                 GEOPM_ERROR_INVALID, __FILE__, __LINE__);
             }
             m_buffer[cpu].process = process;
-            m_buffer[cpu].hash = GEOPM_REGION_HASH_UNMARKED;
-            m_buffer[cpu].hint = GEOPM_REGION_HINT_UNSET;
-
+            if (process == -1) {
+                set_hash(cpu, GEOPM_REGION_HASH_INVALID);
+                set_hint(cpu, GEOPM_REGION_HINT_INACTIVE);
+            }
+            else {
+                set_hash(cpu, GEOPM_REGION_HASH_UNMARKED);
+                set_hint(cpu, GEOPM_REGION_HINT_UNSET);
+            }
         }
     }
 
