@@ -55,10 +55,7 @@ void ApplicationStatusTest::SetUp()
 {
     size_t buffer_size = ApplicationStatus::buffer_size(M_NUM_CPU);
     m_mock_shared_memory = std::make_shared<MockSharedMemory>(buffer_size);
-
     m_status = ApplicationStatus::make_unique(M_NUM_CPU, m_mock_shared_memory);
-
-
 }
 
 TEST_F(ApplicationStatusTest, wrong_buffer_size)
@@ -79,7 +76,15 @@ TEST_F(ApplicationStatusTest, hints)
     uint64_t NOHINTS = GEOPM_REGION_HINT_UNSET;
     uint64_t NETWORK = GEOPM_REGION_HINT_NETWORK;
     uint64_t COMPUTE = GEOPM_REGION_HINT_COMPUTE;
+    uint64_t INACTIVE = GEOPM_REGION_HINT_INACTIVE;
 
+    EXPECT_EQ(INACTIVE, m_status->get_hint(0));
+    EXPECT_EQ(INACTIVE, m_status->get_hint(1));
+    EXPECT_EQ(INACTIVE, m_status->get_hint(2));
+    EXPECT_EQ(INACTIVE, m_status->get_hint(3));
+
+    m_status->set_process({0, 1, 2, 3}, 123);
+    m_status->update_cache();
     EXPECT_EQ(NOHINTS, m_status->get_hint(0));
     EXPECT_EQ(NOHINTS, m_status->get_hint(1));
     EXPECT_EQ(NOHINTS, m_status->get_hint(2));
@@ -267,7 +272,7 @@ TEST_F(ApplicationStatusTest, update_cache)
     uint64_t hint = GEOPM_REGION_HINT_NETWORK;
     uint64_t hash = 0xABC;
     int process = 42;
-    EXPECT_EQ(GEOPM_REGION_HINT_UNSET, m_status->get_hint(0));
+    EXPECT_EQ(GEOPM_REGION_HINT_INACTIVE, m_status->get_hint(0));
     EXPECT_EQ(GEOPM_REGION_HASH_INVALID, m_status->get_hash(0));
     m_status->set_process({0, 1}, process);
 

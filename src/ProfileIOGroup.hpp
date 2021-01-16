@@ -106,6 +106,10 @@ namespace geopm
             ///        signal.  GEOPM_REGION_HASH_INVALID is converted
             ///        to NAN.
             static double hash_to_signal(uint64_t hash);
+            /// @brief Converts a region hint to double for use as a
+            ///        signal.  GEOPM_REGION_HINT_INACTIVE is converted
+            ///        to NAN.
+            static double hint_to_signal(uint64_t hint);
             /// @brief Converts a m_signal_type for the IOGroup to the
             ///        corresponding geopm_region_hint_e defined in
             ///        geopm.h.  The signal_type must be one of the
