@@ -942,7 +942,11 @@ class RawReportCollection(object):
                 # load dataframes from cache
                 self._reports_df = pandas.read_hdf(self._report_h5_name, 'report')
                 self._app_reports_df = pandas.read_hdf(self._report_h5_name, 'app_report')
-                self._unmarked_reports_df = pandas.read_hdf(self._report_h5_name, 'unmarked_report')
+                # temporary workaround since old format cache is missing unmarked_data
+                try:
+                    self._unmarked_reports_df = pandas.read_hdf(self._report_h5_name, 'unmarked_report')
+                except:
+                    self._unmarked_reports_df = self._reports_df.loc[self._reports_df['region'] == 'unmarked-region']
                 self._epoch_reports_df = pandas.read_hdf(self._report_h5_name, 'epoch_report')
                 if verbose:
                     sys.stdout.write('Loaded report data from {}.\n'.format(self._report_h5_name))
