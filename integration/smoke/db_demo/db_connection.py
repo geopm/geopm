@@ -19,9 +19,13 @@ class SQLiteDBConn:
     def conn(self):
         return self._conn
 
+    def bind_str(self):
+        return self._bind_str
+
 
 class MariaDBConn:
     def __init__(self):
+        import mysql
         import mysql.connector
         import getpass
         config = {
@@ -36,3 +40,6 @@ class MariaDBConn:
 
     def conn(self):
         return self._conn
+
+    def bind_str(self):
+        return self._bind_str
