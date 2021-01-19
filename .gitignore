@@ -27,7 +27,8 @@
 /dox-public/Doxyfile
 /dox-public/html/
 /dox-public/latex/
-.DS_Store
+/examples/endpoint/geopm_dynamic_power_demo
+/examples/endpoint/geopm_policystore_demo
 /examples/geopm_ctl_single
 /examples/geopmhash
 /examples/geopm_platform_supported

@@ -19,6 +19,7 @@ copying_headers/header.BSD3-intel
 copying_headers/header.BSD3-llnl
 copying_headers/header.MIT-dropbox
 copying_headers/header.NAS
+demo/environment-override.json.example
 dox-public/Doxyfile.in
 dox/Doxyfile
 examples/README.md

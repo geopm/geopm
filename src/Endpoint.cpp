@@ -45,6 +45,7 @@
 
 #include "Environment.hpp"
 #include "SharedMemory.hpp"
+#include "SharedMemoryScopedLock.hpp"
 #include "Exception.hpp"
 #include "Helper.hpp"
 #include "Agent.hpp"
