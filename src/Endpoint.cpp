@@ -104,6 +104,7 @@ namespace geopm
             size_t shmem_size = sizeof(struct geopm_endpoint_sample_shmem_s);
             m_sample_shmem = SharedMemory::make_unique_owner(m_path + shm_sample_postfix(), shmem_size);
         }
+        //m_policy_lock = m_policy_shmem->get_scoped_lock();
         auto lock_p = m_policy_shmem->get_scoped_lock();
         struct geopm_endpoint_policy_shmem_s *data_p = (struct geopm_endpoint_policy_shmem_s*)m_policy_shmem->pointer();
         *data_p = {};
@@ -137,15 +138,24 @@ namespace geopm
             throw Exception("EndpointImp::" + std::string(__func__) + "(): size of policy does not match expected.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
-        auto policy_lock = m_policy_shmem->get_scoped_lock();
+        // keep m_policy_lock locked from open() until first policy is written
+        // TODO: controller might hang if endpoint is created but no policy is ever written?
+        // need to check.
+        // need a try lock in read_policy for EndpointUser
+        // if (!m_policy_lock) {
+        //     m_policy_lock = m_policy_shmem->get_scoped_lock();
+        // }
+        auto lock = m_policy_shmem->get_scoped_lock();
         auto data = (struct geopm_endpoint_policy_shmem_s *)m_policy_shmem->pointer();
         data->count = policy.size();
         std::copy(policy.begin(), policy.end(), data->values);
         geopm_time(&data->timestamp);
+        //m_policy_lock.reset();
     }
 
     double EndpointImp::read_sample(std::vector<double> &sample)
     {
+
         if (!m_is_open) {
             throw Exception("EndpointImp::" + std::string(__func__) + "(): cannot use shmem before calling open()",
                             GEOPM_ERROR_RUNTIME, __FILE__, __LINE__);
@@ -158,8 +168,15 @@ namespace geopm
         struct geopm_endpoint_sample_shmem_s *data = (struct geopm_endpoint_sample_shmem_s *) m_sample_shmem->pointer(); // Managed by shmem subsystem.
 
         int num_sample = data->count;
+
+        // TODO: might have attached agent with no samples yet
+        if (m_num_sample > 0 && num_sample == -1) {
+            return -1;
+        }
+
         std::copy(data->values, data->values + data->count, sample.begin());
         geopm_time_s ts = data->timestamp;
+
         if (sample.size() != (size_t)num_sample) {
             throw Exception("EndpointImpUser::" + std::string(__func__) + "(): Data read from shmem does not match number of samples.",
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
@@ -179,6 +196,7 @@ namespace geopm
         char agent_name[GEOPM_ENDPOINT_AGENT_NAME_MAX];
         std::copy(data->agent, data->agent + GEOPM_ENDPOINT_AGENT_NAME_MAX, agent_name);
         std::string agent {agent_name};
+        // TODO: this is not a great place for this
         if (agent != "") {
             m_num_policy = Agent::num_policy(agent_name);
             m_num_sample = Agent::num_sample(agent_name);
@@ -458,6 +476,7 @@ int geopm_endpoint_read_sample(struct geopm_endpoint_c *endpoint,
     try {
         std::vector<double> sample(agent_num_sample);
         *sample_age_sec = end->read_sample(sample);
+        std::copy(sample.begin(), sample.end(), sample_array);
     }
     catch (...) {
         err = geopm::exception_handler(std::current_exception(), true);

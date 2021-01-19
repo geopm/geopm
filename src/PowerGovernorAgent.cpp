@@ -229,7 +229,6 @@ namespace geopm
                m_ascend_count = 0;
             }
         }
-
     }
 
     bool PowerGovernorAgent::do_send_sample(void) const
