@@ -36,6 +36,8 @@ import os
 import time
 import sys
 import subprocess
+import timeit
+import datetime
 
 import geopmpy.launcher
 from . import util
@@ -101,13 +103,17 @@ def launch_run(agent_conf, app_conf, run_id, output_dir, extra_cli_args,
                                                      num_node=num_nodes,
                                                      num_rank=num_ranks,
                                                      cpu_per_rank=cpu_per_rank)
+        start_time = timeit.default_timer()
         launcher.run()
+        end_time = timeit.default_timer()
 
         # Get app-reported figure of merit
         fom = app_conf.parse_fom(log_path)
+        total_runtime = datetime.timedelta(seconds=end_time-start_time).total_seconds()
         # Append to report
         with open(report_path, 'a') as report:
             report.write('\nFigure of Merit: {}\n'.format(fom))
+            report.write('Total Runtime: {}\n'.format(total_runtime))
 
     # return to previous directory
     os.chdir(start_dir)
