@@ -237,9 +237,9 @@ namespace geopm
         };
         auto result = type_hints.find(signal_type);
         if (result == type_hints.end()) {
-                throw Exception("ProfileIOGroup::signal_type_to_hint(): signal_type "
-                                "must be a M_SIGNAL_TIME_HINT type",
-                                GEOPM_ERROR_INVALID, __FILE__, __LINE__);
+            throw Exception("ProfileIOGroup::signal_type_to_hint(): signal_type "
+                            "must be a M_SIGNAL_TIME_HINT type",
+                            GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         return result->second;
     }
