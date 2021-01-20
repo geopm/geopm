@@ -830,6 +830,14 @@ class RawReport(object):
             pass
         return result
 
+    def total_runtime(self):
+        result = None
+        try:
+            result = copy.deepcopy(self._raw_dict['Total Runtime'])
+        except:
+            pass
+        return result
+
     def host_names(self):
         return list(self._raw_dict['Hosts'].keys())
 
@@ -1047,6 +1055,9 @@ class RawReportCollection(object):
             figure_of_merit = rr.figure_of_merit()
             if figure_of_merit is not None:
                 _add_column('app', 'FOM')
+            total_runtime = rr.total_runtime()
+            if total_runtime is not None:
+                _add_column('app', 'total_runtime')
             host_names = rr.host_names()
             for host in host_names:
                 # data about host to be repeated over all rows
@@ -1094,6 +1105,8 @@ class RawReportCollection(object):
                 app_row = copy.deepcopy(header)
                 if figure_of_merit is not None:
                     app_row['FOM'] = figure_of_merit
+                if total_runtime is not None:
+                    app_row['total_runtime'] = total_runtime
                 app_row.update(per_host_data)
                 app_data = rr.raw_totals(host)
                 for key, val in app_data.items():
