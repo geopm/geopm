@@ -60,6 +60,8 @@ TODO list, known issues, other thoughts..
 
 - mildly annoying that db connect happens before trying to parse commandline
 
+- use full paths for Experiments.output_dir for traceability
+
 '''
 
 
@@ -92,8 +94,28 @@ def show_experiments_command(db, subargs):
     # TODO: optional filter by app, type
     # TODO: print most recent first
     parser = argparse.ArgumentParser()
+    parser.add_argument('--exp-type', type=str, dest='exp_type', default=None,
+                        help='experiment type for filter')
+    args = parser.parse_args(subargs)
+    db.show_all_experiments(exp_type=args.exp_type)
 
-    db.show_all_experiments()
+
+def show_average_power_command(db, subargs):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--num-report', dest='num_report',
+                        action='store', default=10,
+                        help='maximum number of reports to display')
+    args = parser.parse_args(subargs)
+    db.show_report_by_power(args.num_report)
+
+
+def show_policy_command(db, subargs):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--policy-id', dest='policy_id',
+                        action='store', required=True, type=int,
+                        help='id of policy')
+    args = parser.parse_args(subargs)
+    db.show_policy(args.policy_id)
 
 
 def save_smoke_run_test_command(db, args):
@@ -128,8 +150,10 @@ if __name__ == '__main__':
     subcommands = {
         "save": save_experiment_command,
         "show": show_experiments_command,
-        "save_smoke_run_test": save_smoke_run_test_command,
-        "save_smoke_gen_test": save_smoke_gen_test_command,
+        "show_power": show_average_power_command,
+        "show_policy": show_policy_command,
+        #"save_smoke_run_test": save_smoke_run_test_command,
+        #"save_smoke_gen_test": save_smoke_gen_test_command,
     }
     usage = "Usage: {} {} [--db-type DB] [--help]".format(sys.argv[0],
                                            ' | '.join(subcommands.keys()))

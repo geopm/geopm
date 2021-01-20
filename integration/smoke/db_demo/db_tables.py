@@ -8,6 +8,12 @@ import math
 import geopmpy.io
 
 
+def debug_print(*args):
+    do_debug = False
+    if do_debug:
+        print(args)
+
+
 class SmokeTestDB:
     def __init__(self, db_conn):
         self.conn = db_conn.conn()
@@ -61,15 +67,15 @@ class ExperimentsDB:
                 sql = "INSERT INTO PolicyParams (name, value) VALUES ({b}, {b})".format(b=self.bind_str)
                 self.cursor.execute(sql, (kk, vv))
                 param_id = self.cursor.lastrowid
-                print('{} rows updated'.format(self.cursor.rowcount))
+                debug_print('{} rows updated'.format(self.cursor.rowcount))
             elif len(existing) == 1:
-                print('Already in db: {}'.format(existing))
+                debug_print('Already in db: {}'.format(existing))
                 param_id = existing[0][0]
             else:
                 sys.stderr.write("Warning: duplicate entries in PolicyParams!\n")
                 param_id = existing[0][0]
 
-            print("rowcount: {}, param id: {}".format(self.cursor.rowcount, param_id))
+            debug_print("rowcount: {}, param id: {}".format(self.cursor.rowcount, param_id))
 
             # Add to link table
             sql = '''INSERT INTO PolicyParamLink (policy_id, param_id)
@@ -83,10 +89,14 @@ class ExperimentsDB:
                  INNER JOIN Policies ON Policies.id = PolicyParamLink.policy_id
                  INNER JOIN PolicyParams ON PolicyParams.id = PolicyParamLink.param_id
                  WHERE Policies.id = {b}'''.format(b=self.bind_str)
-        self.cursor.execute(sql, (policy_id, ))
-        result = self.cursor.fetchall()
-        result = {kk: vv for kk, vv in result}
-        return result
+
+        df = pandas.read_sql_query(sql, self.conn, params=(policy_id, ))
+        sys.stdout.write('{}\n'.format(df))
+
+        # self.cursor.execute(sql, (policy_id, ))
+        # result = self.cursor.fetchall()
+        # result = {kk: vv for kk, vv in result}
+        # return result
 
     def _insert_policy_id(self, row):
         # insert policy and set policy_id column
@@ -112,7 +122,7 @@ class ExperimentsDB:
             h5_name = output.hdf5_name
             with open(h5_name, 'rb') as ifile:
                 blob = ifile.read()
-                print(h5_name, output.get_df())
+                debug_print(h5_name, output.get_df())
         # add experiment containing all reports
         sql = '''INSERT INTO Experiments (output_dir, jobid, type, date, notes, raw_data)
                  VALUES ({b}, {b}, {b}, {b}, {b}, {b})'''.format(b=self.bind_str)
@@ -176,7 +186,7 @@ class ExperimentsDB:
 
         self.conn.commit()
 
-    def show_all_experiments(self):
+    def show_all_experiments(self, exp_type):
         '''Display a summary table of all the experiments stored.
 
             TODO: There are some tradeoffs with handling some stats
@@ -190,15 +200,44 @@ class ExperimentsDB:
             that are not reflected in the schema); then no choice but
             to copy whole thing into memory and do filtering in pandas
             as in current analysis scripts.
-
         '''
+
+        where_filter = ""
+        params = None
+        if exp_type is not None:
+            where_filter += "AND Experiments.type = {b}".format(b=self.bind_str)
+            params = (exp_type, )
 
         # Note: exclude data blob from columns shown
         columns = ['Experiments.'+x for x in ['id', 'output_dir', 'jobid', 'type', 'date', 'notes']]
         sql = '''SELECT {cols}, count(Reports.id) AS num_report FROM Experiments
                  INNER JOIN Reports ON Experiments.id
-                 WHERE Reports.experiment_id = Experiments.id GROUP BY Experiments.id
-              '''.format(cols=', '.join(columns))
+                 WHERE Reports.experiment_id = Experiments.id
+                 {where_filter}
+                 GROUP BY Experiments.id
+              '''.format(cols=', '.join(columns), where_filter=where_filter)
+        df = pandas.read_sql_query(sql, self.conn, params=params)
+        sys.stdout.write('{}\n'.format(df))
+
+    def show_report_by_power(self, num_report):
+        '''Display a list of the reports with highest average power,
+        descending.  This is an example of a complex query for finding
+        experiments from report data.
+
+        TODO: LIMIT is not supported by every DBMS
+
+        '''
+
+        columns = ['Reports.id', 'Experiments.jobid', 'policy_id', 'agent',
+                   'average_power', 'total_runtime', 'figure_of_merit',
+                   'profile_name',
+                   'geopm_version']
+        sql = ''' SELECT {cols} from Reports
+                  INNER JOIN Experiments on Reports.experiment_id
+                  WHERE Reports.experiment_id = Experiments.id
+                  ORDER BY average_power DESC
+                  LIMIT {num_report}'''.format(cols=', '.join(columns),
+                                               num_report=num_report)
         df = pandas.read_sql_query(sql, self.conn)
         sys.stdout.write('{}\n'.format(df))
 
