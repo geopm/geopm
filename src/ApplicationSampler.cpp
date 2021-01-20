@@ -128,6 +128,7 @@ namespace geopm
         {GEOPM_REGION_HINT_SERIAL, 0.0},
         {GEOPM_REGION_HINT_PARALLEL, 0.0},
         {GEOPM_REGION_HINT_IGNORE, 0.0},
+        {GEOPM_REGION_HINT_INACTIVE, 0.0},
     };
 
 
