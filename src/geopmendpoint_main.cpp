@@ -49,12 +49,13 @@
 #include "geopm_error.h"
 
 #include "Endpoint.hpp"
+#include "EndpointUser.hpp"
 #include "Helper.hpp"
 
 #include "config.h"
 
-using geopm::ShmemEndpoint;
-using geopm::ShmemEndpointUser;
+using geopm::Endpoint;
+using geopm::EndpointUser;
 
 enum geopmendpoint_const {
     GEOPMENDPOINT_STRING_LENGTH = 128,
@@ -248,7 +249,7 @@ int main(int argc, char **argv)
     //  job-321
     //
     else if (!err && create == true) {
-        ShmemEndpoint endpoint(endpoint_str);
+        Endpoint::make_unique(endpoint_str);
     }
 
 
@@ -274,9 +275,8 @@ int main(int argc, char **argv)
     //  Nodes: compute-node-4,compute-node-5,compute-node-7,compute-node-8
     //
     else if (!err && attached == true) {
-        // TODO: problem here
-        ShmemEndpointUser endpoint(endpoint_str, "monitor");
-        std::string agent = endpoint.get_agent();
+        auto endpoint = Endpoint::make_unique(endpoint_str);
+        std::string agent = endpoint->get_agent();
         if (agent == "") {
             std::cout << "Error: <geopm> No agent has attached to endpoint." << std::endl;
         }
@@ -299,7 +299,7 @@ int main(int argc, char **argv)
     //  $ geopmendpoint -p 250 job-321
     //
     else if (!err && policy_vals_ptr != NULL) {
-        ShmemEndpoint endpoint(endpoint_str);
+        Endpoint::make_unique(endpoint_str);
 
 
         // printf("New policy for %s : %s\n", endpoint_str, policy_vals_ptr);

@@ -67,39 +67,39 @@ std::ostream& operator<<(std::ostream& os, geopm_time_s time)
 /// PowerGovernor is the Agent.
 int main(int argc, char *argv[])
 {
-    /// @todo: Endpoint factory method
     std::string shmem_prefix = "/geopmd_endpoint_test";
-    geopm::ShmemEndpoint endpoint {shmem_prefix};
+    auto endpoint = geopm::Endpoint::make_unique(shmem_prefix);
     while (true) {
 
         // check for agent
         std::string agent = "";
         while (agent == "") {
-            agent = endpoint.get_agent();
+            agent = endpoint->get_agent();
         }
         std::cout << "Controller with agent " << agent << " attached." << std::endl;
         std::ofstream log_file("endpoint_test.log");
         std::vector<double> sample;
 
         int offset = 0;
-        geopm_time_s start_time;
-        geopm_time(&start_time);
-        geopm_time_s last_sample_time = start_time;
+        geopm_time_s time_zero;
+        geopm_time(&time_zero);
+        double last_sample_time = geopm_time_since(&time_zero);
+        const double TIMEOUT = 10.0;
         while (agent != "") {
-            endpoint.write_policy({11.0 + offset});
-            offset = (int)geopm_time_since(&start_time) % 60;
+            endpoint->write_policy({11.0 + offset});
+            offset = (int)geopm_time_since(&time_zero) % 60;
 
             // get sample or timeout
-            geopm_time_s sample_time;
-            geopm_time_s current_time;
+            double sample_time;
+            double current_time;
             do {
-                geopm_time(&current_time);
-                sample_time = endpoint.read_sample(sample);
+                current_time = geopm_time_since(&time_zero);
+                sample_time = endpoint->read_sample(sample);
             }
-            while (geopm_time_diff(&sample_time, &last_sample_time) == 0.0 &&
-                   geopm_time_diff(&current_time, &last_sample_time) < 10.0 /*timeout*/);
+            while (sample_time == last_sample_time &&
+                   (current_time - last_sample_time) < TIMEOUT);
 
-            if (geopm_time_diff(&current_time, &last_sample_time) >= 10.0) {
+            if ((current_time - last_sample_time) >= TIMEOUT) {
                 std::cerr << "Timeout waiting for Controller sample." << std::endl;
 
                 /// @todo: cleanup the shared memory
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
             else {
                 last_sample_time = sample_time;
                 log_file << sample_time << " " << sample << std::endl;
-                agent = endpoint.get_agent();
+                agent = endpoint->get_agent();
                 //usleep(0.01);
             }
         }
