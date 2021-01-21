@@ -56,7 +56,7 @@ namespace geopm
     {
         if (hash == GEOPM_REGION_HASH_INVALID ||
             hash > UINT32_MAX) {
-            throw Exception("ValidateRecord::filter(): Region hash out of bounds",
+            throw Exception("ValidateRecord::filter(): Region hash out of bounds: " + std::to_string(hash),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
     }
@@ -75,7 +75,7 @@ namespace geopm
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         if (record.time < m_time) {
-            throw Exception("ValidateRecord::filter(): Time value decreased",
+            throw Exception("ValidateRecord::filter(): Time value decreased. Time=" + std::to_string(m_time),
                             GEOPM_ERROR_INVALID, __FILE__, __LINE__);
         }
         m_time = record.time;
@@ -91,7 +91,7 @@ namespace geopm
             case EVENT_REGION_ENTRY:
                 validate_hash(record.signal);
                 if (m_region_hash != GEOPM_REGION_HASH_INVALID) {
-                    throw Exception("ValidateRecord::filter(): Nested region entry detected",
+                    throw Exception("ValidateRecord::filter(): Nested region entry detected. Region=" + std::to_string(m_region_hash),
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
                 m_region_hash = record.signal;
@@ -99,18 +99,18 @@ namespace geopm
             case EVENT_REGION_EXIT:
                 validate_hash(record.signal);
                 if (m_region_hash == GEOPM_REGION_HASH_INVALID) {
-                    throw Exception("ValidateRecord::filter(): Region exit without entry",
+                    throw Exception("ValidateRecord::filter(): Region exit without entry Region=" + std::to_string(m_region_hash),
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
                 if (record.signal != m_region_hash) {
-                    throw Exception("ValidateRecord::filter(): Region exited differs from last region entered",
+                    throw Exception("ValidateRecord::filter(): Region exited differs from last region entered Current region=" + std::to_string(m_region_hash) + " Received exit for=" + std::to_string(record.signal),
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
                 m_region_hash = GEOPM_REGION_HASH_INVALID;
                 break;
             case EVENT_EPOCH_COUNT:
                 if (record.signal != m_epoch_count + 1) {
-                    throw Exception("ValidateRecord::filter(): Epoch count not monotone and contiguous",
+                    throw Exception("ValidateRecord::filter(): Epoch count not monotone and contiguous. Current epoch=" + std::to_string(m_epoch_count),
                                     GEOPM_ERROR_INVALID, __FILE__, __LINE__);
                 }
                 m_epoch_count = record.signal;
