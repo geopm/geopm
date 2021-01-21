@@ -1,7 +1,7 @@
-From e09a1a5a6e14c075de2b91847cd51b9b251673cf Mon Sep 17 00:00:00 2001
+From 759da4712a370bcb097efcca6888afda22dbc70a Mon Sep 17 00:00:00 2001
 From: Fuat Keceli <fuat.keceli@intel.com>
 Date: Wed, 4 Nov 2020 06:55:51 -0800
-Subject: [PATCH 2/3] Added geopm epoch markup.
+Subject: [PATCH 2/4] Added geopm epoch markup.
 
 #  Copyright (c) 2015, 2016, 2017, 2018, 2019, 2020, Intel Corporation
 #
