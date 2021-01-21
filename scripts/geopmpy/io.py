@@ -941,6 +941,9 @@ class RawReportCollection(object):
             try:
                 # load dataframes from cache
                 self._reports_df = pandas.read_hdf(self._report_h5_name, 'report')
+                # handle report with no regions
+                if self._reports_df.columns == ["no_data"]:
+                    self._reports_df = pandas.DataFrame()
                 self._app_reports_df = pandas.read_hdf(self._report_h5_name, 'app_report')
                 self._unmarked_reports_df = pandas.read_hdf(self._report_h5_name, 'unmarked_report')
                 self._epoch_reports_df = pandas.read_hdf(self._report_h5_name, 'epoch_report')
@@ -957,7 +960,12 @@ class RawReportCollection(object):
                     try:
                         if verbose:
                             sys.stdout.write('Generating HDF5 files... ')
-                        self._reports_df.to_hdf(self._report_h5_name, 'report', format='table')
+                        if len(self._reports_df) == 0:
+                            self._reports_df = pandas.DataFrame()  # remove columns
+                            tmp = pandas.DataFrame({"no_data": [None]})  # dummy data for reports with no regions
+                            tmp.to_hdf(self._report_h5_name, 'report', format='table')
+                        else:
+                            self._reports_df.to_hdf(self._report_h5_name, 'report', format='table')
                         self._app_reports_df.to_hdf(self._report_h5_name, 'app_report', format='table', append=True)
                         self._unmarked_reports_df.to_hdf(self._report_h5_name, 'unmarked_report', format='table', append=True)
                         self._epoch_reports_df.to_hdf(self._report_h5_name, 'epoch_report', format='table', append=True)
@@ -1103,7 +1111,11 @@ class RawReportCollection(object):
                 app_row.update(app_data)
                 app_df_list.append(pandas.DataFrame(app_row, index=[0]))
         # reorder the columns to order of first appearance
-        df = pandas.concat(region_df_list, ignore_index=True)
+        try:
+            df = pandas.concat(region_df_list, ignore_index=True)
+        except ValueError:
+            # no regions found
+            df = pandas.DataFrame()
         df = df.reindex(columns=self._columns_order['region'])
         self._reports_df = df
         unmarked_df = pandas.concat(unmarked_df_list, ignore_index=True)
