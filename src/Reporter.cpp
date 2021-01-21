@@ -195,54 +195,60 @@ namespace geopm
         std::ostringstream report;
         yaml_write(report, M_INDENT_HOST_NAME, hostname() + ":");
         yaml_write(report, M_INDENT_HOST_AGENT, agent_host_report);
-        yaml_write(report, M_INDENT_REGION, "Regions:");
 
-        // vector of region data, in descending order by runtime
-        struct region_info {
-            std::string name;
-            uint64_t hash;
-            double per_rank_avg_runtime;
-            int count;
-        };
-
-        std::vector<region_info> region_ordered;
         auto region_name_set = application_io.region_name_set();
-        for (const auto &region : region_name_set) {
-            uint64_t region_hash = geopm_crc32_str(region.c_str());
-            int count = m_proc_region_agg->get_count_average(region_hash);
-            if (count > 0) {
-                region_ordered.push_back({region,
-                                          region_hash,
-                                          m_proc_region_agg->get_runtime_average(region_hash),
-                                          count});
-            }
+        if (region_name_set.empty()) {
+            yaml_write(report, M_INDENT_REGION, "Regions: []");
         }
-        // sort based on averge runtime, descending
-        std::sort(region_ordered.begin(), region_ordered.end(),
-                  [] (const region_info &a,
-                      const region_info &b) -> bool {
-                      return a.per_rank_avg_runtime > b.per_rank_avg_runtime;
-                  });
+        else {
+            yaml_write(report, M_INDENT_REGION, "Regions:");
 
-        for (const auto &region : region_ordered) {
-#ifdef GEOPM_DEBUG
-            if (GEOPM_REGION_HASH_INVALID == region.hash) {
-                throw Exception("ReporterImp::generate(): Invalid hash value detected.",
-                                GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+            // vector of region data, in descending order by runtime
+            struct region_info {
+                    std::string name;
+                    uint64_t hash;
+                    double per_rank_avg_runtime;
+                    int count;
+            };
+
+            std::vector<region_info> region_ordered;
+            for (const auto &region : region_name_set) {
+                uint64_t region_hash = geopm_crc32_str(region.c_str());
+                int count = m_proc_region_agg->get_count_average(region_hash);
+                if (count > 0) {
+                    region_ordered.push_back({region,
+                            region_hash,
+                            m_proc_region_agg->get_runtime_average(region_hash),
+                            count});
+                }
             }
+            // sort based on averge runtime, descending
+            std::sort(region_ordered.begin(), region_ordered.end(),
+                      [] (const region_info &a,
+                          const region_info &b) -> bool {
+                          return a.per_rank_avg_runtime > b.per_rank_avg_runtime;
+                      });
+
+            for (const auto &region : region_ordered) {
+#ifdef GEOPM_DEBUG
+                if (GEOPM_REGION_HASH_INVALID == region.hash) {
+                    throw Exception("ReporterImp::generate(): Invalid hash value detected.",
+                                    GEOPM_ERROR_LOGIC, __FILE__, __LINE__);
+                }
 #endif
-            yaml_write(report, M_INDENT_REGION, "-");
-            yaml_write(report, M_INDENT_REGION_FIELD,
-                       {{"region", '"' + region.name + '"'},
-                        {"hash", geopm::string_format_hex(region.hash)}});
-            yaml_write(report, M_INDENT_REGION_FIELD,
-                       {{"runtime (s)", region.per_rank_avg_runtime},
-                        {"count", region.count}});
-            auto region_data = get_region_data(region.hash);
-            yaml_write(report, M_INDENT_REGION_FIELD, region_data);
-            const auto &it = agent_region_report.find(region.hash);
-            if (it != agent_region_report.end()) {
-                yaml_write(report, M_INDENT_REGION_FIELD, agent_region_report.at(region.hash));
+                yaml_write(report, M_INDENT_REGION, "-");
+                yaml_write(report, M_INDENT_REGION_FIELD,
+                           {{"region", '"' + region.name + '"'},
+                            {"hash", geopm::string_format_hex(region.hash)}});
+                yaml_write(report, M_INDENT_REGION_FIELD,
+                           {{"runtime (s)", region.per_rank_avg_runtime},
+                            {"count", region.count}});
+                auto region_data = get_region_data(region.hash);
+                yaml_write(report, M_INDENT_REGION_FIELD, region_data);
+                const auto &it = agent_region_report.find(region.hash);
+                if (it != agent_region_report.end()) {
+                    yaml_write(report, M_INDENT_REGION_FIELD, agent_region_report.at(region.hash));
+                }
             }
         }
 
