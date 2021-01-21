@@ -73,6 +73,7 @@ Profile: test_ee_stream_dgemm_mix
 Agent: energy_efficient
 Policy: {}
 
+
 Host: mcfly11
 Final online freq map:
     0x000000000db5f27a: 1000000000.000000
