@@ -37,4 +37,5 @@ EXTRA_DIST += integration/apps/pennant/pennant.py \
               integration/apps/pennant/0001-Fixed-Makefile-to-GEOPM-and-Intel-conventions.patch \
               integration/apps/pennant/0002-Added-geopm-epoch-markup.patch \
               integration/apps/pennant/0003-Added-GEOPM-region-markup.patch \
+              integration/apps/pennant/0004-Added-high-level-GEOPM-markup-regions-to-Pennant.-Ad.patch \
               # end
