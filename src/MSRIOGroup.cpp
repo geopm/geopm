@@ -529,6 +529,7 @@ namespace geopm
             try {
                 for (auto &dom_ctl : ctl.second.controls) {
                     dom_ctl->save();
+                    dom_ctl->restore();
                 }
             }
             catch (const Exception &) {
