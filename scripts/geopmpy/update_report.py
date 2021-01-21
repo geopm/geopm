@@ -148,8 +148,10 @@ def update_report_str(old_report):
         blank_idx = 4
     if old_report_lines[blank_idx] != '':
         raise ValueError('Expected empty line after header')
+    while old_report_lines[blank_idx + 1] == '':
+        blank_idx += 1
     if not old_report_lines[blank_idx  + 1].startswith('Host: '):
-        raise ValueError('Expected report to begin with a Host: line')
+        raise ValueError('Expected report to begin with a Host: ' + old_report_lines[blank_idx  + 1])
     new_report_lines.append('')
     new_report_lines.append('Hosts:')
     for line in old_report_lines[blank_idx + 1:]:
