@@ -947,6 +947,8 @@ class RawReportCollection(object):
                     os.remove(self._report_h5_name)
 
             try:
+                if verbose:
+                    sys.stdout.write('Attempting to read {}...\n'.format(self._report_h5_name))
                 # load dataframes from cache
                 self._reports_df = pandas.read_hdf(self._report_h5_name, 'report')
                 self._app_reports_df = pandas.read_hdf(self._report_h5_name, 'app_report')
@@ -989,6 +991,9 @@ class RawReportCollection(object):
                 if verbose:
                     sys.stdout.write('Done.\n')
                     sys.stdout.flush()
+            except:
+                raise RuntimeError('<geopm> geopmpy.io: {} could not be read. Try removing and regenerating the cache file.'.format(self._report_h5_name))
+
         else:
             self.parse_reports(report_paths, verbose)
 
