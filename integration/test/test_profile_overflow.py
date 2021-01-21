@@ -40,12 +40,15 @@ import sys
 import unittest
 import os
 import subprocess
+import glob
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from integration.test import geopm_context
 import geopmpy.io
 import geopmpy.error
+import geopmpy.topo
 import geopm_test_launcher
+import check_trace
 
 
 class AppConf(object):
@@ -90,15 +93,14 @@ class TestIntegration_profile_overflow(unittest.TestCase):
         cls._trace_path = '{}.trace'.format(test_name)
         cls._log_path = '{}.log'.format(test_name)
         cls._agent_conf_path = test_name + '-agent-config.json'
-        # Set the job size parameters
-        num_node = 1
-        num_rank = 16
-        time_limit = 60
+        # Set the job size parameters such that we have a 3 level tree
+        os.environ["GEOPM_MAX_FAN_OUT"] = "2"
+        num_node = 4
+        num_rank = geopmpy.topo.num_domain(geopmpy.topo.DOMAIN_CORE) - 2
+        time_limit = 600
         # Configure the test application
         app_conf = AppConf()
-        agent_conf = geopmpy.io.AgentConf(cls._agent_conf_path,
-                                          'monitor',
-                                          {})
+        agent_conf = geopmpy.io.AgentConf(cls._agent_conf_path)
 
         # Configure the agent
         # Query for the min and sticker frequency and run the
@@ -118,6 +120,10 @@ class TestIntegration_profile_overflow(unittest.TestCase):
             sys.stderr.write('{} failed; check log for details.\n'.format(test_name))
             raise
 
+    @classmethod
+    def tearDownClass(cls):
+        os.environ.pop("GEOPM_MAX_FAN_OUT")
+
     def test_load_report(self):
         '''
         Test that the report can be loaded.
@@ -125,27 +131,29 @@ class TestIntegration_profile_overflow(unittest.TestCase):
         report = geopmpy.io.RawReport(self._report_path)
         hosts = report.host_names()
         for hh in hosts:
-            runtime = report.raw_totals(hh)['runtime (sec)']
+            runtime = report.raw_totals(hh)['runtime (s)']
             self.assertNotEqual(0, runtime)
 
-    def test_mpi_overflow_mitigation(self):
+    def test_short_region_count(self):
         '''
-        Test that the count for MPI_Barrier is less than actually executed
-        by the app.
+        Test that the count for MPI_Barrier is as expected.
         '''
         report = geopmpy.io.RawReport(self._report_path)
         hosts = report.host_names()
         for hh in hosts:
             region_data = report.raw_region(hh, 'MPI_Barrier')
             count = region_data['count']
-            self.assertLess(count, 10000000)
-            self.assertLess(0, count)
-        with open(self._log_path) as log:
-            found = False
-            for line in log:
-                if 'MPI calls was suppressed' in line:
-                    found = True
-        self.assertTrue(found, 'Warning about rate limiting not found.')
+            self.assertEqual(count, 10000000)
+
+    def test_sample_rate(self):
+        '''
+        Test that the sample rate is regular.
+        '''
+        traces = glob.glob(self._trace_path + "*")
+        if len(traces) == 0:
+            raise RuntimeError("No traces found with prefix: {}".format(self._trace_path_prefix))
+        for tt in traces:
+            check_trace.check_sample_rate(tt, 0.005)
 
 
 if __name__ == '__main__':
