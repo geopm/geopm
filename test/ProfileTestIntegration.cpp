@@ -174,8 +174,8 @@ TEST_F(ProfileTestIntegration, enter_exit)
     EXPECT_EQ(hint, m_ctl_status->get_hint(2));
     EXPECT_EQ(hint, m_ctl_status->get_hint(3));
     // do not change other CPUs
-    EXPECT_EQ(0ULL, m_ctl_status->get_hint(0));
-    EXPECT_EQ(0ULL, m_ctl_status->get_hint(1));
+    EXPECT_EQ(GEOPM_REGION_HINT_INACTIVE, m_ctl_status->get_hint(0));
+    EXPECT_EQ(GEOPM_REGION_HINT_INACTIVE, m_ctl_status->get_hint(1));
 
     m_profile->exit(region_id);
     m_ctl_record_log->dump(records, short_regions);
@@ -184,8 +184,8 @@ TEST_F(ProfileTestIntegration, enter_exit)
     EXPECT_EQ(m_process, records[0].process);
     EXPECT_EQ(geopm::EVENT_REGION_EXIT, records[0].event);
     EXPECT_EQ(hash, records[0].signal);
-    EXPECT_EQ(0ULL, m_ctl_status->get_hint(2));
-    EXPECT_EQ(0ULL, m_ctl_status->get_hint(3));
+    EXPECT_EQ(GEOPM_REGION_HINT_UNSET, m_ctl_status->get_hint(2));
+    EXPECT_EQ(GEOPM_REGION_HINT_UNSET, m_ctl_status->get_hint(3));
 }
 
 TEST_F(ProfileTestIntegration, enter_exit_short)
@@ -208,8 +208,8 @@ TEST_F(ProfileTestIntegration, enter_exit_short)
     EXPECT_EQ(hash, short_regions[0].hash);
     EXPECT_EQ(1, short_regions[0].num_complete);
     // exited region
-    EXPECT_EQ(0ULL, m_ctl_status->get_hint(2));
-    EXPECT_EQ(0ULL, m_ctl_status->get_hint(3));
+    EXPECT_EQ(GEOPM_REGION_HINT_UNSET, m_ctl_status->get_hint(2));
+    EXPECT_EQ(GEOPM_REGION_HINT_UNSET, m_ctl_status->get_hint(3));
 
     m_profile->enter(region_id);
     m_profile->exit(region_id);
@@ -240,8 +240,8 @@ TEST_F(ProfileTestIntegration, enter_exit_short)
     EXPECT_EQ(hash, short_regions[0].hash);
     EXPECT_EQ(1, short_regions[0].num_complete);
     // exited region
-    EXPECT_EQ(0ULL, m_ctl_status->get_hint(2));
-    EXPECT_EQ(0ULL, m_ctl_status->get_hint(3));
+    EXPECT_EQ(GEOPM_REGION_HINT_UNSET, m_ctl_status->get_hint(2));
+    EXPECT_EQ(GEOPM_REGION_HINT_UNSET, m_ctl_status->get_hint(3));
 }
 
 TEST_F(ProfileTestIntegration, enter_exit_nested)
@@ -286,8 +286,8 @@ TEST_F(ProfileTestIntegration, enter_exit_nested)
     ASSERT_EQ(1ULL, records.size());
     EXPECT_EQ(geopm::EVENT_REGION_EXIT, records[0].event);
     EXPECT_EQ(usr_hash, records[0].signal);
-    EXPECT_EQ(0ULL, m_ctl_status->get_hint(2));
-    EXPECT_EQ(0ULL, m_ctl_status->get_hint(3));
+    EXPECT_EQ(GEOPM_REGION_HINT_UNSET, m_ctl_status->get_hint(2));
+    EXPECT_EQ(GEOPM_REGION_HINT_UNSET, m_ctl_status->get_hint(3));
 }
 
 TEST_F(ProfileTestIntegration, epoch)
