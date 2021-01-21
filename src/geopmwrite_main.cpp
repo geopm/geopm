@@ -206,9 +206,7 @@ int main(int argc, char **argv)
             if (!err) {
                 try {
                     int domain_type = PlatformTopo::domain_name_to_type(pos_args[1]);
-                    int idx = platform_io.push_control(control_name, domain_type, domain_idx);
-                    platform_io.adjust(idx, write_value);
-                    platform_io.write_batch();
+                    platform_io.write_control(control_name, domain_type, domain_idx, write_value);
                 }
                 catch (const geopm::Exception &ex) {
                     std::cerr << "Error: cannot write control: " << ex.what() << std::endl;
